@@ -21,10 +21,6 @@ from polisyos.scientist.orchestration.memory import (
     MemoryContaminationPolicy,
     assert_reusable_memory_clean,
 )
-from polisyos.scientist.publishing.publisher import (
-    DecisionGradeExport,
-    OutputAudience,
-)
 from tools.ci import check_scientist_best_in_class_wave2 as gate
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -38,14 +34,6 @@ def _ref(seed: str, *, kind: str = "scientist.fixture") -> ArtifactRef:
         kind=kind,
         media_type="application/json",
     )
-
-
-def _ref_payload(ref: ArtifactRef) -> dict[str, str]:
-    return {
-        "artifact_id": str(ref.artifact_id),
-        "kind": ref.kind,
-        "media_type": ref.media_type,
-    }
 
 
 def test_scientist_wave2_gate_passes_repo(tmp_path: Path) -> None:
@@ -121,24 +109,10 @@ def test_scientist_wave2_gate_detects_unexplained_claim_change() -> None:
 
 
 def test_public_compiler_export_with_hidden_benchmark_ref_fails() -> None:
-    claims_ref = _ref("claims", kind="scientist.claim_ledger_v2")
-    dag_ref = _ref("dag", kind="scientist.research_dag")
+    ok, notes = gate._import_and_validate(REPO_ROOT)
 
-    with pytest.raises(ValidationError, match="forbidden key"):
-        DecisionGradeExport(
-            run_id="run_wave2_negative",
-            audience=OutputAudience.PUBLIC,
-            claims_ref=claims_ref,
-            research_dag_ref=dag_ref,
-            payload={
-                "trust_provenance": {
-                    "claims_ref": _ref_payload(claims_ref),
-                    "research_dag_ref": _ref_payload(dag_ref),
-                },
-                "blocked_claim_summary": {"blocked_count": 0},
-                "hidden_benchmark_ref": "hidden_holdout:answer",
-            },
-        )
+    assert ok, notes
+    assert "public_compiler_hidden_benchmark_ref_not_blocked" not in notes
 
 
 def test_voi_report_that_skips_mandatory_human_review_fails() -> None:

@@ -41,11 +41,20 @@ from polisyos.ir.registry.refs import (
     OptimizationAmbiguityCertificateRef,
     WelfareBundleRef,
 )
-from polisyos.scientist.evidence.claims.export import blocked_claim_summary, claim_ledger_summary
-from polisyos.scientist.evidence.claims.ledger import load_claim_ledger, persist_claim_ledger
+from polisyos.scientist.evidence.claims.head_index import ClaimLedgerOwnerPort
+from polisyos.scientist.evidence.claims.models import ClaimLedger
 from polisyos.scientist.evidence.claims.projections import project_policy_artifact_bundle_claims
-from polisyos.scientist.methods.doe.stress_report import StressTestReport
 from polisyos.scientist.governance.calibration_validation import CalibrationValidationBundle
+from polisyos.scientist.methods.doe.stress_report import StressTestReport
+from polisyos.scientist.methods.search.artifact_minimality import (
+    ArtifactFunction,
+    ArtifactMinimalityMixin,
+    artifact_functions_field,
+)
+from polisyos.scientist.methods.search.judge_stack import JudgeVerdict, PolicyPromotionResult
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistrySnapshot
+from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
+from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.phase3 import (
     Phase3CertificateStatus,
@@ -56,15 +65,6 @@ from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     RolloutStep,
 )
-from polisyos.scientist.methods.search.artifact_minimality import (
-    ArtifactFunction,
-    ArtifactMinimalityMixin,
-    artifact_functions_field,
-)
-from polisyos.scientist.methods.search.judge_stack import JudgeVerdict, PolicyPromotionResult
-from polisyos.scientist.methods.search.pareto_registry import ParetoRegistrySnapshot
-from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
-from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 
 
 class TradeoffRow(BaseModel):
@@ -449,7 +449,6 @@ class PolicyArtifactBuildInput(BaseModel):
     judge_verdict: JudgeVerdict | None = None
     readiness_contract: DecisionReadinessContract | None = None
     readiness_ref: ArtifactRef | None = None
-    claims_ref: ArtifactRef | None = None
     distributional_report: DistributionalReport | None = None
     cross_graph_profile: CrossGraphEvidenceProfile | None = None
     uncertainty_envelope: UncertaintyEnvelope | None = None
@@ -479,6 +478,8 @@ class PolicyArtifactBuilder:
         self,
         store: FileSystemCAS,
         source: PolicyArtifactBuildInput,
+        *,
+        claim_owner: ClaimLedgerOwnerPort,
     ) -> PolicyArtifactBundleRef:
         self._validate_contract_bound_source(store, source)
         upstream_audit_refs = _dedupe_artifact_refs(source.audit_refs)
@@ -582,13 +583,21 @@ class PolicyArtifactBuilder:
             "implementation_plan_ref": implementation_ref,
             "rejected_alternatives_summary_ref": rejected_ref,
         }
-        claims_ref = source.claims_ref or self._persist_claim_ledger(
-            store=store,
+        candidate_ledger = self._build_claim_ledger(
             source=source,
             refs=base_refs,
             phase3_gate=phase3_gate,
         )
-        claim_summary_metadata = _claim_summary_metadata(store, claims_ref)
+        claims_ref = claim_owner.persist_candidate_ledger(
+            ledger=candidate_ledger,
+            inputs=tuple(_bundle_inputs(source)),
+        )
+        projection = claim_owner.project_candidate_ledger(ledger=candidate_ledger)
+        claim_summary_metadata = {
+            "claim_ledger_summary": projection.ledger_summary,
+            "blocked_claim_summary": projection.blocked_summary,
+            "claim_ledger_currentness": "not_established",
+        }
 
         audit_bundle = self._build_replayable_audit_bundle(
             source=source,
@@ -674,14 +683,13 @@ class PolicyArtifactBuilder:
             inputs=_bundle_inputs(source),
         )
 
-    def _persist_claim_ledger(
+    def _build_claim_ledger(
         self,
         *,
-        store: FileSystemCAS,
         source: PolicyArtifactBuildInput,
         refs: dict[str, ArtifactRef],
         phase3_gate: Phase3CertificateStatus,
-    ) -> ArtifactRef:
+    ) -> ClaimLedger:
         readiness_level = (
             source.readiness_contract.readiness_level
             if source.readiness_contract is not None
@@ -690,7 +698,9 @@ class PolicyArtifactBuilder:
         projection_payload = {
             "candidate_id": source.candidate.candidate_id,
             "decision_readiness_contract_ref": (
-                None if source.readiness_ref is None else source.readiness_ref.model_dump(mode="json")
+                None
+                if source.readiness_ref is None
+                else source.readiness_ref.model_dump(mode="json")
             ),
             "phase3_gate": phase3_gate.model_dump(mode="json"),
             **{key: ref.model_dump(mode="json") for key, ref in refs.items()},
@@ -702,13 +712,12 @@ class PolicyArtifactBuilder:
                 *source.actionable_side_information_refs,
             ]
         )
-        ledger = project_policy_artifact_bundle_claims(
+        return project_policy_artifact_bundle_claims(
             projection_payload,
             run_id=source.run_id,
             source_artifact_refs=source_refs,
             readiness_level=readiness_level,
         )
-        return persist_claim_ledger(store, ledger, inputs=_bundle_inputs(source))
 
     def _validate_contract_bound_source(
         self,
@@ -1670,28 +1679,6 @@ def _dedupe_artifact_refs(items: list[ArtifactRef]) -> list[ArtifactRef]:
         seen.add(artifact_id)
         output.append(item)
     return output
-
-
-def _claim_summary_metadata(store: FileSystemCAS, claims_ref: ArtifactRef) -> dict[str, Any]:
-    try:
-        ledger = load_claim_ledger(store, claims_ref)
-    except (OSError, RuntimeError, TypeError, ValueError):
-        return {
-            "claim_ledger_summary": {
-                "lifecycle_status": "legacy_missing",
-                "load_status": "unavailable",
-            },
-            "blocked_claim_summary": {
-                "lifecycle_status": "legacy_missing",
-                "blocked_count": 0,
-                "blocked_claims": [],
-                "superseded_claim_ids": [],
-            },
-        }
-    return {
-        "claim_ledger_summary": claim_ledger_summary(ledger),
-        "blocked_claim_summary": blocked_claim_summary(ledger),
-    }
 
 
 def _maybe_validate_ref(ref: ArtifactRef | None, ref_cls: type[ArtifactRef]) -> ArtifactRef | None:

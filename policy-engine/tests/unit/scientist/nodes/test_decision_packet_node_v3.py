@@ -121,6 +121,15 @@ from polisyos.ir.analytics.uncertainty import (
 )
 from polisyos.ir.linker import LinkReport
 from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
+from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
+from polisyos.scientist.governance.calibration_leaderboard import (
+    CalibrationLeaderboardEntry,
+    CalibrationLeaderboardMetrics,
+)
+from polisyos.scientist.governance.calibration_validation import (
+    CalibrationValidationBundle,
+    persist_calibration_validation_bundle,
+)
 from polisyos.scientist.governance.continuous.incident import (
     build_withdrawal_record,
     persist_withdrawal_record,
@@ -139,23 +148,26 @@ from polisyos.scientist.governance.continuous.reports import (
     build_validity_report,
     persist_validity_report,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
-from polisyos.scientist.governance.calibration_leaderboard import (
-    CalibrationLeaderboardEntry,
-    CalibrationLeaderboardMetrics,
-)
-from polisyos.scientist.governance.calibration_validation import (
-    CalibrationValidationBundle,
-    persist_calibration_validation_bundle,
-)
-from polisyos.scientist.governance.report import GovernanceReport, GovernanceReportLinks
-from polisyos.scientist.governance.stress_scenarios import StressScenarioKind, StressScenarioResult
 from polisyos.scientist.governance.human_review.audit import signature_for_decision
 from polisyos.scientist.governance.human_review.decisions import persist_review_decision
 from polisyos.scientist.governance.human_review.models import HumanReviewDecision, ReviewAction
-from polisyos.scientist.governance.human_review.packets import build_review_packet, persist_review_packet
+from polisyos.scientist.governance.human_review.packets import (
+    build_review_packet,
+    persist_review_packet,
+)
+from polisyos.scientist.governance.report import GovernanceReport, GovernanceReportLinks
+from polisyos.scientist.governance.stress_scenarios import StressScenarioKind, StressScenarioResult
+from polisyos.scientist.methods.search.readiness import (
+    DecisionReadiness,
+    DecisionReadinessContract,
+    persist_decision_readiness_contract,
+)
+from polisyos.scientist.methods.search.voi_models import (
+    VOIDecisionRecord,
+    VOIDecisionType,
+    VOIRunReport,
+)
+from polisyos.scientist.methods.search.voi_scheduler import persist_voi_run_report
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
@@ -199,21 +211,12 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_LEGAL_REPORT_REF,
     REPORT_LINK_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.validation.policy_verified.models import (
     VerifiedPolicyReport,
     persist_verified_policy_report,
 )
-from polisyos.scientist.methods.search.readiness import (
-    DecisionReadiness,
-    DecisionReadinessContract,
-    persist_decision_readiness_contract,
-)
-from polisyos.scientist.methods.search.voi_models import (
-    VOIDecisionRecord,
-    VOIDecisionType,
-    VOIRunReport,
-)
-from polisyos.scientist.methods.search.voi_scheduler import persist_voi_run_report
 
 
 def _artifact_id(ch: str) -> str:
@@ -395,11 +398,13 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     assert payload["diagnostics_summary"]["transport_status"] == "not_run"
     assert payload["analysis_limits"]["partial_replay_readiness"] is True
     assert payload["analysis_limits"]["missing_uncertainty_artifact"] is True
-    assert payload["claims_ref"] == payload["artifacts"][ARTIFACT_CLAIMS_REF]
-    assert payload["claim_ledger_status"] == "available"
-    assert payload["claim_ledger_v2_ref"] == payload["artifacts"][ARTIFACT_CLAIM_LEDGER_V2_REF]
-    assert payload["claim_ledger_summary"]["lifecycle_status"] == "available"
-    assert payload["blocked_claim_summary"]["blocked_count"] == 0
+    assert "claims_ref" not in payload
+    assert payload["artifacts"][ARTIFACT_CLAIMS_REF] is None
+    assert payload["claim_ledger_status"] == "not_established"
+    assert payload["claim_ledger_limitation_code"] == ("claim_ledger_owner_not_established")
+    assert "claim_ledger_v2_ref" not in payload
+    assert ARTIFACT_CLAIM_LEDGER_V2_REF not in payload["artifacts"]
+    assert "blocked_claim_summary" not in payload
     assert payload["research_dag_ref"] == payload["artifacts"][ARTIFACT_RESEARCH_DAG_REF]
     assert payload["research_dag_status"] == "available"
     assert payload["voi_report_ref"] == payload["artifacts"][ARTIFACT_VOI_RUN_REPORT_REF]
@@ -420,7 +425,7 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     assert payload["continuous_governance"]["recommended_actions"] == ["human_review"]
     assert payload["continuous_governance"]["has_reissue_packet"] is True
     assert payload["continuous_governance"]["has_withdrawal_record"] is True
-    assert ARTIFACT_CLAIMS_REF in outcome.state.artifacts_index
+    assert ARTIFACT_CLAIMS_REF not in outcome.state.artifacts_index
     assert payload["feedback_loop"]["anchor_at"] is not None
     assert payload["feedback_loop"]["monitoring_contract_ref"] is not None
     assert payload["feedback_loop"]["latest_monitoring_report_ref"] is None
@@ -436,7 +441,7 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     assert "input.data_snapshot_ref" in roles
     assert "artifact.metrics_ref" in roles
     assert "artifact.governance_report_ref" in roles
-    assert "claims" in roles
+    assert "claims" not in roles
     assert "voi.voi_run_report_ref" in roles
     assert "continuous_governance.continuous_governance_report_ref" in roles
 

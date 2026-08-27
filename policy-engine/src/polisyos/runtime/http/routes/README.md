@@ -19,6 +19,9 @@ translate requests to service calls, set authz context, and return contract-back
 - **Human-decision routes** - run-bound pre-action gates, step-up-protected decision
   writes, exact evidence delivery, and review-effectiveness projection. The routes
   consume deployment-verified service results; request DTOs never carry authority.
+- **Epoch-validity batch intake** - accepts only a transition artifact ref and requested query
+  context. Status, targets, dependency keys, dedupe values, and verifier identity are resolved by
+  the container-owned Decision Validity service rather than accepted from HTTP callers.
 
 ## Public API
 

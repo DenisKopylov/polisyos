@@ -259,10 +259,31 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
 
     notes: list[str] = []
     try:
+        from pydantic import ValidationError
+
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.core.contracts.c4_persisted_profiles import c4_semantic_digest
+        from polisyos.scientist.evals.challenge_factory import (
+            ChallengeStatus,
+            generate_challenge_from_failure_card,
+            promote_generated_challenge,
+            register_challenge_pack_with_benchmark_registry,
+        )
         from polisyos.scientist.evidence.claims.diff import diff_claim_ledgers
-        from polisyos.scientist.evidence.claims.export import ClaimExportAudience, export_claim_ledger
+        from polisyos.scientist.evidence.claims.export import (
+            ClaimExportAudience,
+            _format_resolved_claim_ledger,
+        )
+        from polisyos.scientist.evidence.claims.head_index import (
+            CLAIM_LEDGER_AUTHORITY_PURPOSE,
+            ClaimBridgePendingProjection,
+            ClaimLedgerHeadStatement,
+            ClaimLedgerOwnerKey,
+            ClaimLedgerOwnerKeyDerivationInput,
+            PersistedClaimLedgerHead,
+            derive_claim_ledger_owner_scope_ref,
+        )
         from polisyos.scientist.evidence.claims.lifecycle import (
             build_initial_append_only_ledger,
             lifecycle_status_for_ledger,
@@ -280,17 +301,35 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             ReissuePacket,
             build_reissue_packet,
         )
-        from polisyos.scientist.evals.challenge_factory import (
-            ChallengeStatus,
-            generate_challenge_from_failure_card,
-            promote_generated_challenge,
-            register_challenge_pack_with_benchmark_registry,
-        )
         from polisyos.scientist.governance.human_review.models import ReviewRiskTier
-        from polisyos.scientist.governance.human_review.oversight_policy import HumanReviewRequirement
+        from polisyos.scientist.governance.human_review.oversight_policy import (
+            HumanReviewRequirement,
+        )
         from polisyos.scientist.governance.human_review.voi_escalation import (
             build_human_escalation_voi_decision,
             validate_human_escalation_voi_decision,
+        )
+        from polisyos.scientist.methods.research_dag.builder import ResearchDAGBuilder
+        from polisyos.scientist.methods.research_dag.comparison import compare_research_trajectories
+        from polisyos.scientist.methods.research_dag.models import (
+            ResearchEdgeType,
+            ResearchNodeType,
+        )
+        from polisyos.scientist.methods.research_dag.projections import (
+            project_reflexive_memory_events_to_research_dag,
+            validate_memory_influence_dag_attribution,
+        )
+        from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
+        from polisyos.scientist.methods.search.failure_cards import (
+            FailureSeverity,
+            TypedFailureCard,
+        )
+        from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind
+        from polisyos.scientist.methods.search.readiness import DecisionReadiness
+        from polisyos.scientist.methods.search.voi_models import (
+            VOIDecisionRecord,
+            VOIDecisionType,
+            VOIRunReport,
         )
         from polisyos.scientist.orchestration.memory import (
             MemoryApplicabilityContext,
@@ -306,23 +345,6 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             assert_decision_grade_exports_consistent,
             compile_decision_grade_exports,
         )
-        from polisyos.scientist.methods.research_dag.builder import ResearchDAGBuilder
-        from polisyos.scientist.methods.research_dag.comparison import compare_research_trajectories
-        from polisyos.scientist.methods.research_dag.models import ResearchEdgeType, ResearchNodeType
-        from polisyos.scientist.methods.research_dag.projections import (
-            project_reflexive_memory_events_to_research_dag,
-            validate_memory_influence_dag_attribution,
-        )
-        from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
-        from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
-        from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind
-        from polisyos.scientist.methods.search.readiness import DecisionReadiness
-        from polisyos.scientist.methods.search.voi_models import (
-            VOIDecisionRecord,
-            VOIDecisionType,
-            VOIRunReport,
-        )
-        from pydantic import ValidationError
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
         return False, [f"wave2_import_failed:{exc.__class__.__name__}:{exc}"]
 
@@ -368,7 +390,13 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         actor_id="wave2.closeout",
         reason="Wave 2 closeout fixture lifecycle initialization.",
     )
-    machine_export = export_claim_ledger(ledger, audience=ClaimExportAudience.MACHINE)
+    machine_export = _format_resolved_claim_ledger(
+        ledger,
+        audience=ClaimExportAudience.MACHINE,
+        pending_projection=ClaimBridgePendingProjection(
+            completed_batch_denominator_established=True,
+        ),
+    )
     event_claim_ids = {event.claim_id for event in ledger.events}
     export_claim_ids = {claim.claim_id for claim in machine_export.claims}
     for claim in ledger.current_claims:
@@ -665,11 +693,67 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         verdict="human_gate",
         claim_ledger_ref=claims_ref,
     )
+
+    derivation = ClaimLedgerOwnerKeyDerivationInput(
+        base_claims_ref=claims_ref,
+        base_claims_content_hash=str(claims_ref.artifact_id),
+        requested_authority_purpose=CLAIM_LEDGER_AUTHORITY_PURPOSE,
+    )
+    claim_owner_key = ClaimLedgerOwnerKey(
+        scope_ref=derive_claim_ledger_owner_scope_ref(derivation),
+        claim_owner_ref="wave2-fixture-owner",
+        authority_purpose=CLAIM_LEDGER_AUTHORITY_PURPOSE,
+        derivation_input=derivation,
+    )
+    head_statement = ClaimLedgerHeadStatement(
+        root_identity=str(ref("root-identity").artifact_id),
+        root_receipt_ref=ref("root", kind="scientist.claims.ledger_root"),
+        root_receipt_content_hash=str(ref("root-content").artifact_id),
+        owner_key=claim_owner_key,
+        ledger_artifact_ref=claims_ref,
+        ledger_raw_cas_hash=str(claims_ref.artifact_id),
+        generation=0,
+        predecessor_head_ref=None,
+        bridge_result_refs=(),
+        issuance_verifier_receipt_ref=ref(
+            "issuance-verifier",
+            kind="scientist.claims.ledger_root_verification",
+        ),
+        issuance_verifier_receipt_content_hash=str(ref("issuance-verifier-content").artifact_id),
+    )
+
+    class _FixtureClaimOwner:
+        head = PersistedClaimLedgerHead(
+            head_ref=ref("head", kind="scientist.claims.ledger_head"),
+            head_content_hash=c4_semantic_digest("claim_ledger_head", head_statement),
+            statement=head_statement,
+        )
+
+        def resolve_current(self, *, owner_key: object) -> object:
+            del owner_key
+            return self.head
+
+        def export_current(
+            self,
+            *,
+            owner_key: object,
+            audience: ClaimExportAudience,
+        ) -> object:
+            del owner_key
+            return _format_resolved_claim_ledger(
+                ledger,
+                audience=audience,
+                pending_projection=ClaimBridgePendingProjection(
+                    completed_batch_denominator_established=True,
+                ),
+            )
+
+    claim_owner = _FixtureClaimOwner()
     exports = compile_decision_grade_exports(
         run_id=run_id,
-        claims_ref=claims_ref,
         research_dag_ref=dag_ref,
-        claim_ledger=ledger,
+        claim_owner=claim_owner,
+        claim_owner_key=claim_owner_key,
         research_dag=compiler_dag,
         decision_payload={"policy_summary": "Approved policy claim."},
         reissue_packet_ref=ref("reissue", kind="scientist.reissue_packet"),
@@ -682,21 +766,10 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         notes.append("decision_grade_exports_missing_audience")
     if "frontend_trust_view" not in exports[OutputAudience.MACHINE].payload:
         notes.append("machine_export_missing_frontend_trust_view")
+    hidden_benchmark = exports[OutputAudience.PUBLIC].model_dump(mode="json")
+    hidden_benchmark["payload"]["hidden_benchmark_ref"] = "hidden_holdout:answer"
     try:
-        DecisionGradeExport(
-            run_id=run_id,
-            audience=OutputAudience.PUBLIC,
-            claims_ref=claims_ref,
-            research_dag_ref=dag_ref,
-            payload={
-                "trust_provenance": {
-                    "claims_ref": _ref_payload(claims_ref),
-                    "research_dag_ref": _ref_payload(dag_ref),
-                },
-                "blocked_claim_summary": {"blocked_count": 0},
-                "hidden_benchmark_ref": "hidden_holdout:answer",
-            },
-        )
+        DecisionGradeExport.model_validate(hidden_benchmark)
     except ValidationError:
         pass
     else:

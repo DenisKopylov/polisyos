@@ -30,6 +30,7 @@ _HIGH_STAKES_OPERATIONS = {
         "/api/v1/control/data/promotion/{promotion_id}/reject",
     ): "promotion",
     ("POST", "/api/v1/control/decision-validity/events"): "publication",
+    ("POST", "/api/v1/control/decision-validity/epoch-batches"): "publication",
     ("POST", "/api/v1/control/runs/{run_id}/reissue"): "revocation",
     (
         "POST",

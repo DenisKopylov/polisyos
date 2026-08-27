@@ -121,6 +121,8 @@ from polisyos.runtime.quality.intervention_substrate import (
     resolve_intervention_lever,
 )
 from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
@@ -143,6 +145,7 @@ from tools.quality.validation.check_layer3_gy_design_generation_contract import 
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_second_domain_pack.v1"
 RULE_VERSION = "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1"
 PRODUCER = "tools.quality.validation.check_layer3_gy_second_domain_pack"
+VALIDATOR_ID = "policyos.layer3.gy.n10a.second-domain-pack"
 CENSUS_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_census.json"
 PACK_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_pack.json"
 SMOKE_PROBLEM_OUTPUT = (
@@ -181,6 +184,9 @@ _CONTROLLED_N7_PROJECTION_ENV = {
 }
 N10A_BASE_COMMIT = "26cc7cc03efc9da44362dc2914a5bde8ac8f7e73"
 N10A_PROOF_HEAD_COMMIT = "d8a8cf076da6233c66b0a90010647c0d437e81c4"
+_LEGACY_UNBOUND_N7_PACK_MANIFEST_HASHES = frozenset(
+    {"sha256:11fd6c07ed2a68d09fc71f29734bc5d96a972fb43524e4d328446abb6939f04f"}
+)
 _SUBSTRATE_REGISTRY_OWNER = "runtime.quality.substrate_registry"
 _SUBSTRATE_REGISTRY_PRODUCER = (
     "polisyos.runtime.quality.substrate_registry.build_substrate_registry_from_existing_catalogs"
@@ -624,6 +630,16 @@ def rederive_audit(
         root,
         expected_source_freeze=expected_source_freeze,
     )
+    try:
+        _reconcile_frozen_cycle_trace(
+            live["cycle_trace"],
+            root,
+            _cycle_trace_plan_from_manifest(live["cycle_trace"]),
+        )
+    except ValueError as exc:
+        if str(exc) != "gy_cycle_trace_comparison_admission_manifest_drift":
+            raise
+        issues.append({"code": str(exc)})
     _preserve_frozen_operational_metrics(live, root)
     for name in ("census", "pack", "smoke_problem", "cycle_trace", "gaps"):
         if _content_bound_canonical_json(live[name]) != _content_bound_canonical_json(frozen[name]):
@@ -1090,11 +1106,34 @@ def write(
     n4_capture_journal: Path | None = None,
     expected_transition_manifest: Mapping[str, Any] | None = None,
     persist: bool = True,
+    candidate_dir: Path | None = None,
 ) -> dict[str, Any]:
     """Write byte-stable generated artifacts after owner rederivation."""
 
     started = time.monotonic()
     root = repo_root.resolve()
+    git_root = Path(
+        subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], cwd=root, text=True
+        ).strip()
+    ).resolve()
+    if candidate_dir is not None and persist:
+        raise ValueError("candidate_dir_conflicts_with_persist")
+    candidate_root: Path | None = None
+    if candidate_dir is not None:
+        if candidate_dir.is_symlink():
+            raise ValueError("candidate_dir_symlink")
+        candidate_root = candidate_dir.expanduser().resolve()
+        if candidate_root.is_relative_to(git_root):
+            raise ValueError("candidate_dir_inside_repository")
+        if candidate_root.exists():
+            raise ValueError("candidate_dir_already_exists")
+    governed_preimages = {
+        relative_path: (root / relative_path).read_bytes()
+        if (root / relative_path).is_file()
+        else None
+        for relative_path in ARTIFACT_OUTPUTS
+    }
     _require_n10a_source_scope_clean(root)
     bundle = build_live_bundle(
         root,
@@ -1102,6 +1141,22 @@ def write(
         allow_live_n4_capture=allow_live_n4_capture,
         n4_capture_journal=n4_capture_journal,
     )
+    try:
+        cycle_trace_plan = _cycle_trace_plan_from_manifest(bundle["cycle_trace"])
+        bundle["cycle_trace"] = _reconcile_frozen_cycle_trace(
+            bundle["cycle_trace"],
+            root,
+            cycle_trace_plan,
+        )
+    except ValueError as exc:
+        if str(exc) != "gy_cycle_trace_comparison_admission_manifest_drift":
+            raise
+        return {
+            "status": "fail",
+            "issues": [{"code": str(exc)}],
+            "outputs": declared_outputs(),
+            "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
+        }
     _preserve_frozen_operational_metrics(bundle, root)
     issues = validate_bundle_payloads(
         bundle,
@@ -1138,6 +1193,29 @@ def write(
             path = root / relative_path
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(_canonical_json(payload) + "\n", encoding="utf-8")
+    elif candidate_root is not None:
+        candidate_root.mkdir(parents=True, exist_ok=False)
+        for relative_path, payload in by_path.items():
+            candidate_path = candidate_root / relative_path
+            candidate_path.parent.mkdir(parents=True, exist_ok=True)
+            data = (_canonical_json(payload) + "\n").encode("utf-8")
+            descriptor = os.open(
+                candidate_path,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                0o600,
+            )
+            try:
+                with os.fdopen(descriptor, "wb", closefd=False) as handle:
+                    handle.write(data)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+            finally:
+                os.close(descriptor)
+        for relative_path, preimage in governed_preimages.items():
+            governed = root / relative_path
+            observed = governed.read_bytes() if governed.is_file() else None
+            if observed != preimage:
+                raise RuntimeError("candidate_write_changed_governed_target")
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
@@ -1145,6 +1223,8 @@ def write(
         "artifact_transitions": artifact_transitions,
         "transition_manifest": transition_manifest,
         "write_performed": persist,
+        "candidate_write_performed": candidate_root is not None,
+        "candidate_dir": str(candidate_root) if candidate_root is not None else None,
         "query_timings_seconds": _mapping(bundle["runtime_metrics"].get("query_timings_seconds")),
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
     }
@@ -2197,6 +2277,9 @@ def _load_historical_n7_attempt(
     ) != selected.get("row_content_hash"):
         return None
     receipt_content = _mapping(attempt.get("receipt_content"))
+    receipt_request = _mapping(receipt_content.get("acquisition_request"))
+    if receipt_request.get("attempt_input_content_hash") != expected_input_hash:
+        return None
     compiled_specs = _list_of_mappings(receipt_content.get("compiled_requirement_specs"))
     expected_world_ref = "s0://substrate-registry/" + str(
         _mapping(facts.get("s0_registry")).get("substrate_version_id")
@@ -2232,6 +2315,7 @@ def _run_n7_live_attempt(root: Path, facts: Mapping[str, Any]) -> dict[str, Any]
     selected = _preferred_lever(_list_of_mappings(facts.get("l2_levers")))
     instrument = str(selected["cause"])
     outcome = _list_of_mappings(facts.get("outcome_rows"))[0]
+    attempt_input_content_hash = _n7_attempt_input_content_hash(facts)
     requirement_id = f"data-requirement:gy-n10a:{_identifier(instrument)}"
     spec = DataRequirementSpec(
         requirement_id=requirement_id,
@@ -2282,6 +2366,7 @@ def _run_n7_live_attempt(root: Path, facts: Mapping[str, Any]) -> dict[str, Any]
             "request_kind": "owner_grounding_evidence",
             "driver": "gy_n10a_free_grow_probe",
             "counterexample_ref": f"l2:{selected['row_content_hash']}",
+            "attempt_input_content_hash": attempt_input_content_hash,
             "cycle_index": 0,
             "consumer_owner": PRODUCER,
             "reentry": "same_generation_cycle_index",
@@ -2318,7 +2403,7 @@ def _run_n7_live_attempt(root: Path, facts: Mapping[str, Any]) -> dict[str, Any]
     )
     return {
         "receipt_count": 1,
-        "attempt_input_content_hash": _n7_attempt_input_content_hash(facts),
+        "attempt_input_content_hash": attempt_input_content_hash,
         "attempt_effective_owner_config": _n7_effective_owner_config(),
         "attempt_status": receipt.status,
         "attempted_variable": instrument,
@@ -2680,6 +2765,7 @@ def _build_cycle_trace(
                 ),
                 repo_root=root,
                 cycle_substrate_context=cycle_substrate_context,
+                authority_scope="contract_testing",
             )
             run_result = await controller.run(
                 problem,
@@ -2822,7 +2908,6 @@ def _build_cycle_trace(
         "trace_content_hash",
         excluded_fields=("runtime_metrics",),
     )
-    trace = _reconcile_frozen_cycle_trace(trace, root, plan)
     if not allow_live_n4_capture and n4_capture_journal is None:
         _CYCLE_TRACE_CACHE[cache_key] = copy.deepcopy(trace)
     return trace
@@ -2889,6 +2974,7 @@ def _build_historical_replay_cycle_substrate_context(
         bundle=bundle,
         design_problem=design_problem,
         intervention_substrate=None,
+        rederive_current_owner=False,
     )
 
 
@@ -2898,6 +2984,7 @@ def _build_cycle_substrate_context_from_bundle(
     bundle: Mapping[str, Any],
     design_problem: DesignProblem,
     intervention_substrate: InterventionSubstrateBundle | None,
+    rederive_current_owner: bool = True,
 ) -> CycleSubstrateContext:
     """Reuse canonical registry/WMR/L6 owners for one verified pack projection."""
 
@@ -2936,12 +3023,13 @@ def _build_cycle_substrate_context_from_bundle(
         substrate_registry=registry,
         selected_registry_entry_hashes=selected_hashes,
     )
-    return project_second_domain_cycle_substrate_context(
+    return _project_second_domain_cycle_substrate_context(
         bundle,
         repo_root=root,
         design_problem=design_problem,
         world_model_record=world_model_record,
         intervention_substrate=intervention_substrate,
+        rederive_current_owner=rederive_current_owner,
     )
 
 
@@ -3134,6 +3222,7 @@ _HISTORICAL_N4_REPLAY_ISSUES = frozenset(
         "n4_owner_historical_replay_problem_ref_mismatch",
         "n4_owner_lever_context_binding_mismatch",
         "n4_owner_lever_substrate_binding_mismatch",
+        "n4_owner_lever_wmr_binding_mismatch",
     }
 )
 _LEGACY_HISTORICAL_N4_REPLAY_ISSUES = _HISTORICAL_N4_REPLAY_ISSUES - {
@@ -3150,6 +3239,9 @@ _HISTORICAL_N4_REPLAY_BINDING_FIELDS = frozenset(
         "design_problem_ref",
         "substrate_input_content_hash",
         "cycle_substrate_context_content_hash",
+        "substrate_registry_content_hash",
+        "world_model_record_id",
+        "world_model_record_content_hash",
     }
 )
 _LEGACY_HISTORICAL_N4_REPLAY_BINDING_FIELDS = frozenset(
@@ -4565,12 +4657,39 @@ def project_second_domain_cycle_substrate_context(
     filename or treat registry-shaped JSON as runtime authority.
     """
 
+    return _project_second_domain_cycle_substrate_context(
+        bundle,
+        repo_root=repo_root,
+        design_problem=design_problem,
+        world_model_record=world_model_record,
+        intervention_substrate=intervention_substrate,
+        rederive_current_owner=True,
+    )
+
+
+def _project_second_domain_cycle_substrate_context(
+    bundle: Mapping[str, Any],
+    *,
+    repo_root: Path,
+    design_problem: DesignProblem,
+    world_model_record: WorldModelRecord,
+    intervention_substrate: InterventionSubstrateBundle | None,
+    rederive_current_owner: bool,
+) -> CycleSubstrateContext:
+    """Project current or exact historical bytes without conflating their authority."""
+
     root = repo_root.resolve()
     census = _mapping(bundle.get("census"))
     pack = _mapping(bundle.get("pack"))
     issues: list[dict[str, Any]] = []
     _validate_artifact_hash(pack, "manifest_content_hash", issues)
-    _validate_cycle_substrate_registry(root, census, pack, issues)
+    _validate_cycle_substrate_registry(
+        root,
+        census,
+        pack,
+        issues,
+        rederive_current_owner=rederive_current_owner,
+    )
     _validate_owner_derived_entries(census, pack, issues)
     if issues:
         codes = sorted({str(issue.get("code") or "unknown") for issue in issues})
@@ -5174,6 +5293,8 @@ def _validate_cycle_substrate_registry(
     census: Mapping[str, Any],
     pack: Mapping[str, Any],
     issues: list[dict[str, Any]],
+    *,
+    rederive_current_owner: bool = True,
 ) -> None:
     """Resolve and content-bind the registry evidence used by cycle intake."""
 
@@ -5214,9 +5335,12 @@ def _validate_cycle_substrate_registry(
         or registry.producer_ref != _SUBSTRATE_REGISTRY_PRODUCER
     ):
         issues.append({"code": "cycle_substrate_registry_producer_mismatch"})
-    live_registry = _cached_owner_substrate_registry(root.resolve().as_posix())
-    if registry.model_dump(mode="json") != live_registry.model_dump(mode="json"):
-        issues.append({"code": "cycle_substrate_registry_owner_rederive_mismatch"})
+    query_owner_registry = registry
+    if rederive_current_owner:
+        live_registry = _cached_owner_substrate_registry(root.resolve().as_posix())
+        if registry.model_dump(mode="json") != live_registry.model_dump(mode="json"):
+            issues.append({"code": "cycle_substrate_registry_owner_rederive_mismatch"})
+        query_owner_registry = live_registry
 
     expected_version_id = "substrate_version_" + registry.content_hash.removeprefix("sha256:")[:16]
     if registry.substrate_version_id != expected_version_id:
@@ -5295,23 +5419,23 @@ def _validate_cycle_substrate_registry(
     ):
         issues.append({"code": "cycle_substrate_registry_query_census_mismatch"})
 
-    live_query_entries = [
+    owner_query_entries = [
         entry
-        for entry in live_registry.entries
+        for entry in query_owner_registry.entries
         if entry.layer.value == "L2"
         and any(
             ref.split("#", 1)[0] == canonical_source_ref
             for ref in (*entry.provenance_refs, *entry.authority_refs)
         )
     ]
-    if len(live_query_entries) != 1:
+    if len(owner_query_entries) != 1:
         issues.append(
             {
                 "code": "cycle_substrate_registry_query_owner_denominator_invalid",
-                "resolved_entry_count": len(live_query_entries),
+                "resolved_entry_count": len(owner_query_entries),
             }
         )
-    elif selected_hashes[0] != live_query_entries[0].entry_content_hash:
+    elif selected_hashes[0] != owner_query_entries[0].entry_content_hash:
         issues.append({"code": "cycle_substrate_registry_selected_entry_not_query_owner"})
     expected_query_evidence = {
         "owner_query_ref": "owner_query_results.l2_selected_levers",
@@ -5351,28 +5475,47 @@ def _validate_n7_attempt(
     ):
         issues.append({"code": "n7_live_attempt_denominator_invalid"})
         return
+    current_input_hash: str | None = None
     try:
         expected_input_hash = _n7_attempt_input_content_hash_from_pack(pack)
     except ValueError as exc:
         issues.append({"code": str(exc)})
     else:
+        current_input_hash = expected_input_hash
         if attempt.get("attempt_input_content_hash") != expected_input_hash:
             issues.append({"code": "n7_attempt_input_content_hash_mismatch"})
     runtime_metrics = _mapping(pack.get("runtime_metrics"))
     operational = _mapping(runtime_metrics.get("n7_acquisition"))
     receipt_content = _mapping(attempt.get("receipt_content"))
+    receipt_bound_input_hash = _mapping(receipt_content.get("acquisition_request")).get(
+        "attempt_input_content_hash"
+    )
+    legacy_unbound_receipt = receipt_bound_input_hash is None
+    if legacy_unbound_receipt:
+        if pack.get("manifest_content_hash") not in _LEGACY_UNBOUND_N7_PACK_MANIFEST_HASHES:
+            issues.append({"code": "n7_receipt_input_binding_missing"})
+    elif receipt_bound_input_hash != current_input_hash:
+        issues.append({"code": "n7_receipt_input_binding_mismatch"})
     try:
         historical_pack = _historical_n10a_pack_payload(root)
     except RuntimeError as exc:
         issues.append({"code": "n7_historical_receipt_unresolvable", "error": str(exc)})
     else:
         historical_attempt = _mapping(historical_pack.get("n7_acquisition"))
-        if (
-            attempt.get("receipt_content_hash") != historical_attempt.get("receipt_content_hash")
-            or receipt_content != _mapping(historical_attempt.get("receipt_content"))
-            or attempt.get("raw_response_hash_checks")
-            != historical_attempt.get("raw_response_hash_checks")
-        ):
+        historical_receipt_content = _mapping(historical_attempt.get("receipt_content"))
+        historical_bound_input_hash = _mapping(
+            historical_receipt_content.get("acquisition_request")
+        ).get("attempt_input_content_hash")
+        exact_historical_receipt = (
+            attempt.get("receipt_content_hash") == historical_attempt.get("receipt_content_hash")
+            and receipt_content == historical_receipt_content
+            and attempt.get("raw_response_hash_checks")
+            == historical_attempt.get("raw_response_hash_checks")
+        )
+        historical_bytes_required = legacy_unbound_receipt or (
+            current_input_hash is not None and historical_bound_input_hash == current_input_hash
+        )
+        if historical_bytes_required and not exact_historical_receipt:
             issues.append({"code": "n7_historical_receipt_mismatch"})
     _validate_n7_receipt_evidence(attempt, operational, issues)
 
@@ -6765,11 +6908,7 @@ def _n10a_source_scope_content_hash(root: Path) -> str:
     file_count = 0
     for source_root in (root / "src" / "polisyos", root / "tools"):
         for path in sorted(source_root.rglob("*")):
-            if (
-                not path.is_file()
-                or "__pycache__" in path.parts
-                or path.suffix in {".pyc", ".pyo"}
-            ):
+            if not path.is_file() or "__pycache__" in path.parts or path.suffix in {".pyc", ".pyo"}:
                 continue
             relative = path.relative_to(root).as_posix().encode("utf-8")
             content = path.read_bytes()
@@ -6792,9 +6931,7 @@ def _changed_leaf_pointers(previous: object, current: object) -> list[str]:
     def pointer(path: tuple[str | int, ...]) -> str:
         if not path:
             return "/"
-        return "/" + "/".join(
-            str(part).replace("~", "~0").replace("/", "~1") for part in path
-        )
+        return "/" + "/".join(str(part).replace("~", "~0").replace("/", "~1") for part in path)
 
     def leaves(value: object, path: tuple[str | int, ...]) -> None:
         if isinstance(value, Mapping) and value:
@@ -6944,8 +7081,7 @@ def _frozen_cycle_trace_comparison_identity_admissible(
     if (
         frozen.get("comparison_projection_schema_version")
         != GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION
-        or frozen.get("comparison_rule_version")
-        != GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION
+        or frozen.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION
     ):
         return False
     try:
@@ -6996,9 +7132,12 @@ def _cycle_trace_plan_from_manifest(
         payload,
         manifest=payload.get("comparison_admission_manifest"),
         owner_rule_registry={
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE: (
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE
+            ),
             CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
                 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
-            )
+            ),
         },
     )
 
@@ -7154,12 +7293,61 @@ def _source_path_from_repo_relative(repo_root: Path, source_path: str) -> Path:
 
 def _render_report(report: Mapping[str, Any], output_format: str) -> None:
     if output_format == "json":
-        print(_canonical_json(report))
+        print(
+            json.dumps(
+                _json_value(report),
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                allow_nan=False,
+            )
+        )
         return
     print(f"status={report.get('status')}")
     for issue in _list_of_mappings(report.get("issues")):
         print(f"- {issue.get('code')}: {issue}")
     print(f"wall_time_seconds={report.get('wall_time_seconds')}")
+
+
+def _semantic_report(
+    report: Mapping[str, Any],
+    *,
+    mode: str,
+) -> dict[str, Any]:
+    """Normalize one CLI result without changing its documented process exit."""
+
+    observed = dict(report)
+    if mode == "corrupt-field-drift-check":
+        semantic_issues = [
+            issue
+            for issue in _list_of_mappings(observed.get("issues"))
+            if str(issue.get("code", "")).startswith("corrupt_field_drift_")
+        ]
+        semantic_status = str(observed.get("status") or "pass")
+    else:
+        semantic_status = str(observed.get("status") or "fail")
+        semantic_issues = _list_of_mappings(observed.get("issues"))
+    payload: dict[str, Any] = {
+        **observed,
+        "validator": VALIDATOR_ID,
+        "mode": mode,
+        "status": semantic_status,
+        "issues": semantic_issues,
+    }
+    payload.pop("receipt_sha256", None)
+    payload["receipt_sha256"] = (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                _json_value(payload),
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                allow_nan=False,
+            ).encode("utf-8")
+        ).hexdigest()
+    )
+    return payload
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -7170,6 +7358,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--expected-source-freeze", required=True)
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
+    parser.add_argument("--candidate-dir", type=Path)
     parser.add_argument("--measure-write-transition", action="store_true")
     parser.add_argument("--expected-transition-manifest", type=Path)
     parser.add_argument("--capture-stage1-n4", action="store_true")
@@ -7187,7 +7376,13 @@ def main(argv: list[str] | None = None) -> int:
     )
     if args.measure_write_transition:
         incompatible = any(
-            (args.check, args.write, args.rederive_audit, args.corrupt_field_drift_check)
+            (
+                args.check,
+                args.write,
+                args.candidate_dir is not None,
+                args.rederive_audit,
+                args.corrupt_field_drift_check,
+            )
         )
         if incompatible or capture_selected > 1:
             parser.error("select exactly one action")
@@ -7197,6 +7392,7 @@ def main(argv: list[str] | None = None) -> int:
             for value in (
                 args.check,
                 args.write,
+                args.candidate_dir is not None,
                 args.capture_stage1_n4,
                 args.accept_stage1_n4_journal is not None,
                 args.rederive_audit,
@@ -7207,11 +7403,7 @@ def main(argv: list[str] | None = None) -> int:
             parser.error("select exactly one action")
     writer_selected = bool(
         not args.measure_write_transition
-        and (
-            args.write
-            or args.capture_stage1_n4
-            or args.accept_stage1_n4_journal is not None
-        )
+        and (args.write or args.capture_stage1_n4 or args.accept_stage1_n4_journal is not None)
     )
     if writer_selected != (args.expected_transition_manifest is not None):
         parser.error(
@@ -7254,6 +7446,13 @@ def main(argv: list[str] | None = None) -> int:
                 n4_capture_journal=args.accept_stage1_n4_journal,
                 expected_transition_manifest=expected_manifest,
             )
+        elif args.candidate_dir is not None:
+            report = write(
+                root,
+                expected_source_freeze=args.expected_source_freeze,
+                persist=False,
+                candidate_dir=args.candidate_dir,
+            )
         elif args.rederive_audit:
             report = rederive_audit(
                 root,
@@ -7279,15 +7478,34 @@ def main(argv: list[str] | None = None) -> int:
             "status": "fail",
             "issues": [{"code": "source_hash_checkout_path_dependent", "error": str(exc)}],
         }
-    except (OwnerDataUnavailableError, RuntimeError, ValueError) as exc:
+    except (OSError, OwnerDataUnavailableError, RuntimeError, ValueError) as exc:
         report = {
             "status": "fail",
             "issues": [{"code": "second_domain_pack_execution_failed", "error": str(exc)}],
         }
-    _render_report(report, args.output_format)
     if args.corrupt_field_drift_check:
-        return 1 if report.get("status") == "fail" else 2
-    return 0 if report.get("status") == "pass" else 1
+        exit_code = 1 if report.get("status") == "fail" else 2
+    else:
+        exit_code = 0 if report.get("status") == "pass" else 1
+    mode = next(
+        name
+        for name, selected in (
+            ("check", args.check),
+            ("write", args.write),
+            ("candidate-dir", args.candidate_dir is not None),
+            ("measure-write-transition", args.measure_write_transition),
+            ("capture-stage1-n4", args.capture_stage1_n4),
+            ("accept-stage1-n4-journal", args.accept_stage1_n4_journal is not None),
+            ("rederive-audit", args.rederive_audit),
+            ("corrupt-field-drift-check", args.corrupt_field_drift_check),
+        )
+        if selected
+    )
+    _render_report(
+        _semantic_report(report, mode=mode),
+        args.output_format,
+    )
+    return exit_code
 
 
 if __name__ == "__main__":

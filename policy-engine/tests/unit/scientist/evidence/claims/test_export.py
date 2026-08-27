@@ -5,11 +5,12 @@ from datetime import UTC, datetime
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.evidence.claims.export import (
     ClaimExportAudience,
-    blocked_claim_summary,
-    claim_ledger_summary,
-    export_claim_ledger,
-    legacy_claim_ledger_export_status,
+    _blocked_claim_summary,
+    _claim_ledger_summary,
+    _format_resolved_claim_ledger,
+    _legacy_claim_ledger_export_status,
 )
+from polisyos.scientist.evidence.claims.head_index import ClaimBridgePendingProjection
 from polisyos.scientist.evidence.claims.lifecycle import (
     AppendOnlyClaimLedger,
     ClaimLifecycleAction,
@@ -72,9 +73,18 @@ def test_reviewer_and_machine_exports_keep_blocked_and_superseded_claims_visible
         ],
     )
 
-    reviewer = export_claim_ledger(ledger, audience=ClaimExportAudience.REVIEWER)
-    machine = export_claim_ledger(ledger, audience=ClaimExportAudience.MACHINE)
-    public = export_claim_ledger(ledger, audience=ClaimExportAudience.PUBLIC)
+    pending = ClaimBridgePendingProjection(
+        completed_batch_denominator_established=True,
+    )
+    reviewer = _format_resolved_claim_ledger(
+        ledger, audience=ClaimExportAudience.REVIEWER, pending_projection=pending
+    )
+    machine = _format_resolved_claim_ledger(
+        ledger, audience=ClaimExportAudience.MACHINE, pending_projection=pending
+    )
+    public = _format_resolved_claim_ledger(
+        ledger, audience=ClaimExportAudience.PUBLIC, pending_projection=pending
+    )
 
     assert all(claim.visible for claim in reviewer.claims)
     assert all(claim.visible for claim in machine.claims)
@@ -112,7 +122,13 @@ def test_machine_export_includes_bounded_retention_window() -> None:
         retention_policy={"max_events": 1},
     )
 
-    machine = export_claim_ledger(ledger, audience=ClaimExportAudience.MACHINE)
+    machine = _format_resolved_claim_ledger(
+        ledger,
+        audience=ClaimExportAudience.MACHINE,
+        pending_projection=ClaimBridgePendingProjection(
+            completed_batch_denominator_established=True,
+        ),
+    )
 
     assert machine.metadata["retention_window"] == {
         "retention_applied": True,
@@ -130,11 +146,11 @@ def test_packet_summaries_include_blocked_claims_and_lifecycle_status() -> None:
         ],
     )
 
-    summary = claim_ledger_summary(ledger)
-    blocked = blocked_claim_summary(ledger)
+    summary = _claim_ledger_summary(ledger)
+    blocked = _blocked_claim_summary(ledger)
 
     assert summary["lifecycle_status"] == "legacy_no_events"
     assert summary["blocked_claim_ids"] == ["claim_blocked"]
     assert blocked["blocked_count"] == 1
     assert blocked["blocked_claims"][0]["claim_id"] == "claim_blocked"
-    assert legacy_claim_ledger_export_status(ledger) == "legacy_no_events"
+    assert _legacy_claim_ledger_export_status(ledger) == "legacy_no_events"

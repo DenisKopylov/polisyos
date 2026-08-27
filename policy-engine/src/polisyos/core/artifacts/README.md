@@ -15,6 +15,9 @@ environment fingerprints.
 - **FileSystemCAS** - deterministic on-disk CAS layout with manifest and signature sidecars.
 - **Typed manifests** - `ArtifactManifest` captures payload identity, producer context, and schema/canon metadata.
 - **Ed25519 signing** - detached signatures and trust/revocation policy support.
+- **Exact signed evidence** - `signed_evidence.py` binds the raw blob, exact manifest sidecar,
+  and exact detached-signature bytes into a separate CAS evidence record. It deliberately
+  requires the filesystem exact-byte port; a generic `ArtifactStore` cannot issue anchor proof.
 - **Dependency graphs** - artifact lineage can be exported, imported, and verified as a graph.
 - **Environment capture** - reproducibility fingerprints track platform, runtime, and optional git/TEE context.
 - **Registry bundles** - registry payloads are stored as first-class CAS artifacts.
@@ -25,6 +28,9 @@ environment fingerprints.
 - storage: `FileSystemCAS`, `PutOptions`
 - manifests/refs: `ArtifactManifest`, `ArtifactRef`, `InputRef`, `SchemaInfo`
 - signing: `SigningConfig`, `sign_artifact`, `verify_signature`, `sign_all_artifacts`, `verify_all_signatures`
+- exact chronology evidence: direct module API
+  `polisyos.core.artifacts.signed_evidence.FileSystemSignedArtifactEvidenceRepository`; it is not
+  added to the eager artifacts facade because that would create a contracts/artifacts import cycle
 - lineage/graph: `DependencyGraph`, `resolve_dependency_graph`
 - integrity proofs: `CASIntegrityReport`, `build_cas_integrity_report`
 - registry/environment: `RegistryBundle`, `RegistryBundlePayload`, `capture_environment`, `compare_environments`

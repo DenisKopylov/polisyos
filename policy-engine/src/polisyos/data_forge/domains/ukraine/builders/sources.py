@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import gc
+import json
 import shutil
+from datetime import date, timedelta
+from pathlib import Path
 
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.registry import build_default_registry_bundle
@@ -53,14 +56,44 @@ from polisyos.ir.observation.measurement import (
     MeasurementRegistry,
     RegimeCalendar,
     RegimeCalendarEntry,
-    SchemaChangepoint,
     SchemaRegimeRegistry,
-    SchemaRegimeSpec,
     ShockCalendar,
     ShockCalendarEntry,
 )
 
 from .common import *
+
+
+def _load_l5_schema_regime_registry() -> SchemaRegimeRegistry:
+    """Read the one L5-owned static regime registry used by this projection."""
+
+    registry_path = (
+        Path(__file__).resolve().parents[6]
+        / "architecture/policy_design_case/layer3_gy_l5_schema_regime_registry.json"
+    )
+    payload = json.loads(registry_path.read_bytes())
+    return SchemaRegimeRegistry.model_validate(payload)
+
+
+def _regime_calendar_from_l5_schema_registry(
+    registry: SchemaRegimeRegistry,
+) -> RegimeCalendar:
+    """Project the canonical L5 validity rows into the Data Forge calendar."""
+
+    regimes = tuple(sorted(registry.regimes.values(), key=lambda row: row.effective_start))
+    entries = []
+    for index, regime in enumerate(regimes):
+        next_start = regimes[index + 1].effective_start if index + 1 < len(regimes) else None
+        entries.append(
+            RegimeCalendarEntry(
+                regime_id=regime.regime_id or regime.schema_regime_id,
+                start_date=regime.effective_start,
+                end_date=regime.effective_end
+                or (next_start - timedelta(days=1) if next_start is not None else date.max),
+                notes=list(regime.publication_regime_notes),
+            )
+        )
+    return RegimeCalendar(entries=entries)
 
 
 def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
@@ -1535,7 +1568,7 @@ def _build_d2_contract_artifacts(
                     {
                         "family": ObservationFamily.BUDGET_FLOWS.value,
                         "bound_strategy": "censored_interval",
-                        "fallback_reason": "wartime_censoring",
+                        "fallback_reason": "declared_source_censoring",
                     }
                 ],
             },
@@ -1794,46 +1827,9 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
     }
 
     measurement_registry = MeasurementRegistry.default()
-    schema_registry = SchemaRegimeRegistry(
-        regimes={
-            "ukraine_schema_v1": SchemaRegimeSpec(
-                schema_regime_id="ukraine_schema_v1",
-                source_version="1.0",
-                effective_start=date(2015, 9, 1),
-                publication_regime_notes=["Part B initial real-data schema regime."],
-                regime_id="regime_a",
-            ),
-            "ukraine_schema_v2": SchemaRegimeSpec(
-                schema_regime_id="ukraine_schema_v2",
-                source_version="2.0",
-                effective_start=date(2022, 2, 1),
-                publication_regime_notes=["wartime schema regime"],
-                regime_id="regime_b",
-            ),
-        },
-        changepoints=[
-            SchemaChangepoint(
-                changepoint_id=_kernel_safe_id("schema", "2022_02_wartime", prefix="schema"),
-                effective_date=date(2022, 2, 1),
-                from_schema_regime_id="ukraine_schema_v1",
-                to_schema_regime_id="ukraine_schema_v2",
-            )
-        ],
-    )
+    schema_registry = _load_l5_schema_regime_registry()
     router = IdentificationModeRouter(measurement_registry=measurement_registry)
-    regime_calendar = RegimeCalendar(
-        entries=[
-            RegimeCalendarEntry(
-                regime_id="regime_a", start_date=date(2015, 9, 1), end_date=date(2021, 12, 31)
-            ),
-            RegimeCalendarEntry(
-                regime_id="regime_b", start_date=date(2022, 1, 1), end_date=date(2023, 12, 31)
-            ),
-            RegimeCalendarEntry(
-                regime_id="regime_c", start_date=date(2024, 1, 1), end_date=date(2025, 12, 31)
-            ),
-        ]
-    )
+    regime_calendar = _regime_calendar_from_l5_schema_registry(schema_registry)
     shock_calendar = ShockCalendar(
         entries=[
             ShockCalendarEntry(

@@ -2,16 +2,105 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.runtime.quality.approval import build_production_approval_packet
 from polisyos.runtime.quality.scorecard import build_quality_scorecard
 from polisyos.runtime.quality.status_deficits import (
     build_status_envelope,
+    claim_ledger_status_records,
     status_envelope_scorecard_gates,
+)
+from polisyos.scientist.evidence.claims.head_index import (
+    CLAIM_LEDGER_AUTHORITY_PURPOSE,
+    ClaimLedgerCurrentHeadProjection,
+    ClaimLedgerLifecycleLimitation,
+    ClaimLedgerOwnerKey,
+    ClaimLedgerOwnerKeyDerivationInput,
+    derive_claim_ledger_owner_scope_ref,
 )
 
 
 def _sha(char: str) -> str:
     return "sha256:" + char * 64
+
+
+def _ref(char: str, *, kind: str) -> ArtifactRef:
+    return ArtifactRef(
+        artifact_id=_sha(char),
+        kind=kind,
+        media_type="application/octet-stream",
+    )
+
+
+def _claim_current_head(
+    *,
+    currentness: str = "current",
+    lifecycle: tuple[ClaimLedgerLifecycleLimitation, ...] = (),
+) -> ClaimLedgerCurrentHeadProjection:
+    derivation = ClaimLedgerOwnerKeyDerivationInput(
+        base_claims_ref=_ref("1", kind="scientist.claim_ledger"),
+        base_claims_content_hash=_sha("1"),
+        requested_authority_purpose=CLAIM_LEDGER_AUTHORITY_PURPOSE,
+    )
+    owner_key = ClaimLedgerOwnerKey(
+        scope_ref=derive_claim_ledger_owner_scope_ref(derivation),
+        claim_owner_ref="fixture-status-owner",
+        authority_purpose=CLAIM_LEDGER_AUTHORITY_PURPOSE,
+        derivation_input=derivation,
+    )
+    current = currentness == "current"
+    return ClaimLedgerCurrentHeadProjection(
+        run_id="run-status-current-head",
+        owner_key=owner_key,
+        root_identity=_sha("2"),
+        root_receipt_ref=_ref("2", kind="scientist.claims.ledger_root"),
+        root_receipt_content_hash=_sha("2"),
+        head_ref=_ref("3", kind="scientist.claims.ledger_head"),
+        head_content_hash=_sha("3"),
+        head_generation=2,
+        ledger_artifact_ref=_ref("4", kind="scientist.claim_ledger_v2"),
+        ledger_raw_cas_hash=_sha("4"),
+        issuance_verifier_receipt_ref=_ref("5", kind="scientist.claims.ledger_root_verification"),
+        issuance_verifier_receipt_content_hash=_sha("5"),
+        claim_currentness=currentness,
+        claim_bridge_pending=not current,
+        completed_batch_denominator_established=True,
+        pending_receipt_refs=(_sha("6"),) if not current else (),
+        lifecycle_limitations=lifecycle,
+    )
+
+
+def test_claim_current_head_statuses_use_owner_currentness_without_fake_ttl() -> None:
+    not_established = _claim_current_head(currentness="not_established")
+    stale = _claim_current_head(
+        lifecycle=(
+            ClaimLedgerLifecycleLimitation(
+                claim_id="claim-stale",
+                action="marked_stale",
+            ),
+        )
+    )
+
+    blocked_envelope = build_status_envelope(
+        local_statuses=claim_ledger_status_records(not_established),
+        deficits=[],
+        now=datetime(2026, 8, 26, tzinfo=UTC),
+    )
+    stale_envelope = build_status_envelope(
+        local_statuses=claim_ledger_status_records(stale),
+        deficits=[],
+        now=datetime(2026, 8, 26, tzinfo=UTC),
+    )
+
+    assert blocked_envelope.summary.publication_effect == "publication_blocked"
+    assert blocked_envelope.summary.closeout_effect == "closeout_blocked"
+    assert blocked_envelope.entries[0].lifecycle_basis == "owner_current_head"
+    assert not {issue.code for issue in blocked_envelope.lifecycle_issues} & {
+        "status_lifecycle_ttl_missing",
+        "status_lifecycle_ttl_expired",
+    }
+    assert stale_envelope.summary.publication_effect == "reissue_required"
+    assert stale_envelope.entries[-1].claim_ids == ("claim-stale",)
 
 
 def _status_record(
@@ -116,15 +205,11 @@ def test_deficit_crosswalk_keeps_accepted_limitation_review_reissue_and_block_di
     gates_by_code = {gate["code"]: gate for gate in gates}
     assert gates_by_code["status_deficit_accepted"]["status"] == "pass"
     assert gates_by_code["status_deficit_publish_with_limitation"]["status"] == "pass"
-    assert gates_by_code["status_deficit_review_required"]["closeout_effect"] == (
-        "review_required"
-    )
+    assert gates_by_code["status_deficit_review_required"]["closeout_effect"] == ("review_required")
     assert gates_by_code["status_deficit_reissue_required"]["closeout_effect"] == (
         "reissue_required"
     )
-    assert gates_by_code["status_deficit_hard_block"]["closeout_effect"] == (
-        "closeout_blocked"
-    )
+    assert gates_by_code["status_deficit_hard_block"]["closeout_effect"] == ("closeout_blocked")
 
 
 def test_warning_like_status_without_owner_or_ttl_becomes_lifecycle_blocker() -> None:
@@ -188,9 +273,7 @@ def test_scorecard_surfaces_nonblocking_deficits_without_turning_them_into_revie
         },
     )
 
-    assert scorecard["status_envelope"]["summary"]["closeout_effect"] == (
-        "limited_closeout"
-    )
+    assert scorecard["status_envelope"]["summary"]["closeout_effect"] == ("limited_closeout")
     assert [row["disposition"] for row in scorecard["deficit_crosswalk"]] == [
         "accepted_deficit",
         "publish_with_limitation",

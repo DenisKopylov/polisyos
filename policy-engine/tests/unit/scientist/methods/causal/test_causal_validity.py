@@ -1,14 +1,89 @@
 from __future__ import annotations
 
+import logging
 from types import SimpleNamespace
 
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.interference import (
     MAUPInvarianceCertificate,
     MAUPPartitionCheck,
     SpatialHodgeDiagnostics,
     SpatialHodgeScaleProfile,
 )
-from polisyos.scientist.methods.causal.validity import _build_spatial_interference_check
+from polisyos.scientist.methods.causal import validity as validity_module
+from polisyos.scientist.methods.causal.validity import (
+    _build_spatial_interference_check,
+    persist_causal_validity_bundle,
+)
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+
+def test_causal_validity_bundle_records_ownerless_claim_limitation(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_causal_validity_ownerless",
+    )
+    context = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.causal.validity.ownerless"),
+    )
+    state = ExperimentState(run_id="R_causal_validity_ownerless")
+
+    monkeypatch.setattr(validity_module, "_coerce_graph_validity_data", lambda **_: None)
+    monkeypatch.setattr(validity_module, "_build_confidence_surface", lambda **_: {})
+    for helper in (
+        "_build_sensitivity_check",
+        "_build_spatial_interference_check",
+        "_run_icp_check",
+        "_run_proximal_check",
+        "_run_recoverability_check",
+        "_run_pag_refinement_check",
+    ):
+        monkeypatch.setattr(
+            validity_module,
+            helper,
+            lambda **_: {"status": "not_applicable"},
+        )
+    monkeypatch.setattr(validity_module, "_collect_bundle_warnings", lambda _: [])
+    monkeypatch.setattr(validity_module, "_build_capability_matrix", lambda **_: {})
+    monkeypatch.setattr(
+        validity_module,
+        "project_causal_validity_bundle_claims",
+        lambda *_, **__: object(),
+    )
+
+    ref = persist_causal_validity_bundle(
+        ctx=context,
+        state=state,
+        report=SimpleNamespace(
+            method=SimpleNamespace(value="synthetic_control"),
+            status=SimpleNamespace(value="success"),
+        ),
+        method_fqn="causal.inference.synthetic_control@1.0.0",
+        method_params={},
+        observational_data=SimpleNamespace(metadata={}),
+        seed=7,
+        sensitivity_ref=None,
+        sensitivity_auto={},
+        inputs=(),
+    )
+
+    assert ref is not None
+    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
+    assert payload["claim_ledger_status"] == "not_established"
+    assert payload["claim_ledger_limitation_code"] == "claim_ledger_owner_not_established"
+    assert "claims_ref" not in payload
 
 
 def test_spatial_interference_check_prefers_typed_fields_over_metadata() -> None:

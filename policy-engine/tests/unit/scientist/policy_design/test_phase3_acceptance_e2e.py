@@ -5,6 +5,7 @@ from collections.abc import Mapping, Sequence
 from decimal import Decimal
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.ic_verification import ICVerificationRequest
@@ -44,9 +45,21 @@ from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, P
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.model_layer.model_spec import FidelityLevel, ModelSpec
+from polisyos.ir.model_layer.types import OptimizationDirection
 from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.model_layer.types import OptimizationDirection
+from polisyos.scientist.evidence.claims.head_index import build_default_claim_ledger_owner
+from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
+from polisyos.scientist.methods.search.readiness import (
+    DecisionReadiness,
+    DecisionReadinessContract,
+    DecisionReadinessEvaluator,
+)
+from polisyos.scientist.methods.search.uncertainty import (
+    UncertaintyEnvelope,
+    UncertaintyEstimate,
+    UncertaintyType,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.objectives import (
@@ -64,18 +77,10 @@ from polisyos.scientist.policy_design.output import (
 from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.policy_design.translator import TranslatorComplianceResult
-from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
-from polisyos.scientist.methods.search.readiness import (
-    DecisionReadiness,
-    DecisionReadinessContract,
-    DecisionReadinessEvaluator,
+from polisyos.scientist.validation.verification.ic import (
+    load_ic_certificate,
+    verify_incentive_compatibility,
 )
-from polisyos.scientist.methods.search.uncertainty import (
-    UncertaintyEnvelope,
-    UncertaintyEstimate,
-    UncertaintyType,
-)
-from polisyos.scientist.validation.verification.ic import load_ic_certificate, verify_incentive_compatibility
 
 
 def _ctx(tmp_path, *, run_id: str) -> ExecutionContext:
@@ -436,6 +441,7 @@ def _build_bundle(ctx: ExecutionContext, candidate: PolicyCandidateSchema, gate)
             policy_brief=_minimal_brief(),
             translator_compliance=TranslatorComplianceResult(passed=True, findings=[]),
         ),
+        claim_owner=build_default_claim_ledger_owner(store=ctx.store),
     )
     return load_policy_artifact_bundle(ctx.store, bundle_ref)
 

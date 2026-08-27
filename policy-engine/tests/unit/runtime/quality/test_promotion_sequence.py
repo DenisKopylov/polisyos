@@ -15,7 +15,9 @@ import pytest
 
 import polisyos.runtime.quality.confidence_ledger as confidence_ledger_module
 import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.contracts.c4_persisted_profiles import c4_profile
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
 from polisyos.pdc import (
     ArtifactRef,
@@ -68,6 +70,10 @@ from polisyos.runtime.quality.grounding_bind import (
     recompute_grounding_decision_content_hash,
 )
 from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
+from polisyos.runtime.quality.open_world_risk import (
+    OpenWorldRiskPromotionGate,
+    PromotionRuntime,
+)
 from polisyos.runtime.quality.promotion_sequence import (
     CanonicalN9PromotionPort,
     CanonicalPromotionInput,
@@ -124,13 +130,112 @@ def test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow() -> None:
     assert validate_canonical_promotion_receipt(receipt) == ()
 
 
+@pytest.mark.parametrize(
+    ("status", "code"),
+    [
+        ("limited", "deployment_scope_limited"),
+        ("not_established", "deployment_scope_not_established"),
+    ],
+)
+def test_canonical_promotion_freezes_on_open_world_risk(
+    status: str,
+    code: str,
+) -> None:
+    gate = _open_world_gate(status=status, code=code)
+    receipt = _run(_promotion_input(open_world_gate=gate))
+
+    assert receipt.promoted is False
+    assert f"open_world_risk:{code}" in receipt.refusal_reasons
+    assert receipt.owner_projection.open_world_gate == gate
+
+
+def test_canonical_promotion_freezes_on_scope_not_established() -> None:
+    gate = _open_world_gate(
+        status="not_established",
+        code="deployment_scope_not_established",
+    )
+    receipt = _run(_promotion_input(open_world_gate=gate))
+
+    assert receipt.status == "shadow"
+    assert receipt.gate_outcome_hash == _gate_outcome_hash(
+        receipt.obligations,
+        open_world_gate=gate,
+    )
+
+
+def test_owner_projection_round_trips_exact_open_world_vector_identity() -> None:
+    gate = _open_world_gate(
+        status="not_established",
+        code="deployment_scope_not_established",
+    )
+
+    receipt = _run(_promotion_input(open_world_gate=gate))
+    restored = CanonicalPromotionReceipt.model_validate(receipt.model_dump(mode="json"))
+
+    assert restored.owner_projection.open_world_gate == gate
+    assert restored.gate_outcome_hash == receipt.gate_outcome_hash
+
+
+def test_legacy_v3_history_is_exactly_readable_but_not_current_authority() -> None:
+    frozen = json.loads(
+        (REPO_ROOT / "architecture/policy_design_case/layer3_gy_promotion_contract.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    payload = frozen["contract_lane_anytime_refusal"]
+    owner = payload["owner_projection"]
+
+    parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
+
+    assert isinstance(parsed, promotion_sequence_module._LegacyCanonicalPromotionReceiptV3)
+    assert owner["projection_hash"] == gy_content_hash(
+        {key: value for key, value in owner.items() if key != "projection_hash"}
+    )
+    with pytest.raises(ValueError):
+        CanonicalPromotionReceipt.model_validate(payload)
+    assert validate_canonical_promotion_receipt(payload)[0]["code"] == (
+        "legacy_open_world_gate_authority_not_admitted"
+    )
+    hybrid = deepcopy(payload)
+    hybrid["owner_projection"]["open_world_gate"] = None
+    with pytest.raises(ValueError):
+        promotion_sequence_module.parse_canonical_promotion_history_receipt(hybrid)
+
+
+def test_current_owner_projection_requires_the_physical_open_world_key() -> None:
+    receipt = _run(_promotion_input())
+    payload = receipt.owner_projection.model_dump(mode="json")
+    payload.pop("open_world_gate")
+
+    with pytest.raises(ValueError):
+        promotion_sequence_module.CanonicalPromotionOwnerProjection.model_validate(payload)
+
+    assert receipt.schema_version == (
+        promotion_sequence_module.CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
+    )
+    assert receipt.owner_projection.schema_version == (
+        promotion_sequence_module.CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION
+    )
+    assert "open_world_gate" in receipt.owner_projection.model_dump(mode="json")
+
+
+def test_decision_front_rejects_unbound_open_world_receipt() -> None:
+    gate = _open_world_gate(
+        status="not_established",
+        code="deployment_scope_not_established",
+    )
+    receipt = _run(_promotion_input(open_world_gate=gate))
+
+    issues = validate_canonical_promotion_receipt(receipt)
+
+    assert "open_world_resolver_not_established" in {str(issue["code"]) for issue in issues}
+
+
 def test_n9_emits_additive_decisive_instances_with_deterministic_identity() -> None:
     promotion_input = _promotion_input()
     receipt = _run(promotion_input)
 
-    class_gate_rows = [
-        row for row in receipt.obligations if row.obligation_role == "class_gate"
-    ]
+    class_gate_rows = [row for row in receipt.obligations if row.obligation_role == "class_gate"]
     decisive_rows = [
         row for row in receipt.obligations if row.obligation_role == "decisive_predicate"
     ]
@@ -141,9 +246,7 @@ def test_n9_emits_additive_decisive_instances_with_deterministic_identity() -> N
         and row.gate_id.value == "n8_transport"
     ]
 
-    assert tuple(row.obligation_class for row in class_gate_rows) == tuple(
-        PromotionObligationClass
-    )
+    assert tuple(row.obligation_class for row in class_gate_rows) == tuple(PromotionObligationClass)
     assert [row.source_obligation_ref for row in decisive_rows] == [
         (
             "polisyos.runtime.quality.generation_cycle.ValueGateReceipt#"
@@ -164,17 +267,13 @@ def test_n9_emits_additive_decisive_instances_with_deterministic_identity() -> N
             "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v1",
             "promotion_rule_version": promotion_input.schema_version,
             "design_problem_id": promotion_input.design_problem_binding.design_problem_id,
-            "problem_content_hash": (
-                promotion_input.design_problem_binding.problem_content_hash
-            ),
+            "problem_content_hash": (promotion_input.design_problem_binding.problem_content_hash),
             "candidate_id": promotion_input.candidate_summary.candidate_id,
             "candidate_content_hash": promotion_input.candidate_summary.content_hash,
             "operation_invocation_id": promotion_input.operation_invocation_id,
         }
     )
-    assert {row.instance_scope_content_hash for row in receipt.obligations} == {
-        expected_scope_hash
-    }
+    assert {row.instance_scope_content_hash for row in receipt.obligations} == {expected_scope_hash}
 
 
 def test_decisive_obligation_omission_keeps_class_totality_and_turns_authority_red() -> None:
@@ -183,16 +282,14 @@ def test_decisive_obligation_omission_keeps_class_totality_and_turns_authority_r
         row
         for row in receipt.obligations
         if row.obligation_role == "decisive_predicate"
-        and row.source_obligation_ref.endswith(
-            "#transport_wmr_hash_equals_receipt_wmr_hash"
-        )
+        and row.source_obligation_ref.endswith("#transport_wmr_hash_equals_receipt_wmr_hash")
     )
     obligations = tuple(
-        row for row in receipt.obligations if row.obligation_instance_id != target.obligation_instance_id
+        row
+        for row in receipt.obligations
+        if row.obligation_instance_id != target.obligation_instance_id
     )
-    class_gate_rows = tuple(
-        row for row in obligations if row.obligation_role == "class_gate"
-    )
+    class_gate_rows = tuple(row for row in obligations if row.obligation_role == "class_gate")
     edited = receipt.model_copy(
         update={
             "obligations": obligations,
@@ -200,9 +297,7 @@ def test_decisive_obligation_omission_keeps_class_totality_and_turns_authority_r
         }
     )
 
-    assert tuple(row.obligation_class for row in class_gate_rows) == tuple(
-        PromotionObligationClass
-    )
+    assert tuple(row.obligation_class for row in class_gate_rows) == tuple(PromotionObligationClass)
     assert validate_canonical_promotion_receipt(edited) == (
         {
             "code": "decisive_obligation_omitted",
@@ -218,13 +313,9 @@ def test_n9_obligation_identity_replay_rejects_tamper_duplicate_and_substitution
     assert [row.obligation_instance_id for row in replay.obligations] == [
         row.obligation_instance_id for row in receipt.obligations
     ]
-    target = next(
-        row for row in receipt.obligations if row.obligation_role == "decisive_predicate"
-    )
+    target = next(row for row in receipt.obligations if row.obligation_role == "decisive_predicate")
 
-    tampered = target.model_copy(
-        update={"source_obligation_content_hash": _hash("f")}
-    )
+    tampered = target.model_copy(update={"source_obligation_content_hash": _hash("f")})
     tampered_rows = tuple(
         tampered if row.obligation_instance_id == target.obligation_instance_id else row
         for row in receipt.obligations
@@ -258,8 +349,7 @@ def test_n9_obligation_identity_replay_rejects_tamper_duplicate_and_substitution
     forged_id = gy_content_hash(
         {
             "rule_version": (
-                "polisyos.policy_design_case.layer3_gy."
-                "n9_obligation_instance_identity.v1"
+                "polisyos.policy_design_case.layer3_gy.n9_obligation_instance_identity.v1"
             ),
             "obligation_role": target.obligation_role,
             "obligation_class": target.obligation_class.value,
@@ -348,9 +438,7 @@ def test_caller_offer_is_only_an_equality_assertion_over_owner_recomputation() -
         promotion_input,
         registry=registry,
     )
-    asserted = promotion_input.model_copy(
-        update={"certificate_offers": (expected[-1],)}
-    )
+    asserted = promotion_input.model_copy(update={"certificate_offers": (expected[-1],)})
 
     recomputed = promotion_sequence_module._promotion_certificate_offers(
         asserted,
@@ -369,9 +457,7 @@ def test_caller_offer_cannot_substitute_for_owner_recomputation() -> None:
         promotion_input,
         registry=registry,
     )
-    forged = expected[-1].model_copy(
-        update={"owner_projection_hash": "sha256:" + "9" * 64}
-    )
+    forged = expected[-1].model_copy(update={"owner_projection_hash": "sha256:" + "9" * 64})
     asserted = promotion_input.model_copy(update={"certificate_offers": (forged,)})
 
     with pytest.raises(ConfidenceLedgerError) as exc_info:
@@ -410,9 +496,7 @@ def test_two_registered_instruments_over_one_owner_get_distinct_ledger_rows() ->
         promotion_input,
         registry=session.registry,
     )
-    data_offers = [
-        item for item in offers if item.claim.data_window_ref == "data-trust://unit"
-    ]
+    data_offers = [item for item in offers if item.claim.data_window_ref == "data-trust://unit"]
     assert len(data_offers) == 2
     assert len({item.certificate_ref for item in data_offers}) == 1
     assert len({item.owner_projection_hash for item in data_offers}) == 1
@@ -534,9 +618,7 @@ def test_relabelled_code_owned_owner_and_verifier_fail_before_spend(
     forged_owner_ref = str(data_route["owner_ref"])
     forged_verifier_ref = str(data_route["verifier_ref"])
     calls = {"resolver": 0, "verifier": 0}
-    owner_projection = promotion_sequence_module._data_trust_owner_projection(
-        promotion_input
-    )
+    owner_projection = promotion_sequence_module._data_trust_owner_projection(promotion_input)
 
     def resolve(check: ConfidenceLedgerCheck) -> OwnerCertificateEvidence:
         calls["resolver"] += 1
@@ -629,7 +711,9 @@ def test_multiple_eligible_offers_execute_before_next_offer_is_prepared() -> Non
     )
     payload = registry.source_payload()
     instrument = next(
-        item for item in payload["instruments"] if item["instrument_id"] == "constant_unit_e_process"
+        item
+        for item in payload["instruments"]
+        if item["instrument_id"] == "constant_unit_e_process"
     )
     instrument["certificate_roles"] = ["promotion_conformance", "promotion"]
     payload["certificate_class_routes"].extend(
@@ -702,9 +786,7 @@ def test_supported_owner_bound_offer_round_trips_through_generic_validator() -> 
         if item["certificate_class"] == "n8_data_trust_promotion_candidate"
     )
     data_route["instrument_id"] = "deterministic_owner_proof"
-    data_owner_projection = promotion_sequence_module._data_trust_owner_projection(
-        promotion_input
-    )
+    data_owner_projection = promotion_sequence_module._data_trust_owner_projection(promotion_input)
     assert isinstance(data_owner_projection, dict)
 
     def resolve(check: ConfidenceLedgerCheck) -> OwnerCertificateEvidence:
@@ -758,6 +840,7 @@ def test_supported_owner_bound_offer_round_trips_through_generic_validator() -> 
     )
     assert data.risk_spend is not None
     assert data.risk_spend.deterministic_proof is True
+    assert receipt.owner_projection.epoch_validity_projection is None
     assert (
         promotion_sequence_module._validate_promotion_receipt_with_bound_session(
             receipt,
@@ -765,6 +848,8 @@ def test_supported_owner_bound_offer_round_trips_through_generic_validator() -> 
             candidate_summary=None,
             design_problem=None,
             value_receipt=None,
+            open_world_resolver=None,
+            epoch_validity_resolver=None,
             confidence_ledger_session=session,
             expected_authority_provenance="verification",
         )
@@ -782,9 +867,7 @@ def test_owner_content_change_rebinds_offer_even_when_owner_ref_is_stable() -> N
     changed_outer = original.value_receipt.value_outer_set.model_copy(
         update={"data_trust": changed_trust}
     )
-    changed_receipt = original.value_receipt.model_copy(
-        update={"value_outer_set": changed_outer}
-    )
+    changed_receipt = original.value_receipt.model_copy(update={"value_outer_set": changed_outer})
     changed = original.model_copy(update={"value_receipt": changed_receipt})
     registry = promotion_sequence_module.load_confidence_ledger_registry(
         REPO_ROOT / promotion_sequence_module.DEFAULT_REGISTRY_RELATIVE_PATH
@@ -827,9 +910,7 @@ def test_owner_content_change_rebinds_offer_even_when_owner_ref_is_stable() -> N
 
 def test_candidate_content_change_rebinds_offer_even_when_candidate_id_is_stable() -> None:
     original = _promotion_input()
-    changed_summary = original.candidate_summary.model_copy(
-        update={"content_hash": _hash("7")}
-    )
+    changed_summary = original.candidate_summary.model_copy(update={"content_hash": _hash("7")})
     changed = original.model_copy(update={"candidate_summary": changed_summary})
     registry = promotion_sequence_module.load_confidence_ledger_registry(
         REPO_ROOT / promotion_sequence_module.DEFAULT_REGISTRY_RELATIVE_PATH
@@ -1391,23 +1472,21 @@ def test_schedule_slot_is_reserved_before_obligation_outcomes(
 
 def test_n9_port_rebinds_every_adaptive_receipt_to_one_final_ledger_head(
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
     monkeypatch.setattr(
         promotion_sequence_module,
         "_legacy_policy_promotion_callers",
         lambda repo_root: (),
     )
-    port = CanonicalN9PromotionPort(repo_root=REPO_ROOT)
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
     problem_id = f"adaptive_ledger_{uuid4().hex}"
-    problem = SimpleNamespace(
-        design_problem_id=problem_id,
-        model_spec_ref=None,
-        schema_version="policyos.runtime.design_problem.test.v1",
-        model_dump=lambda **kwargs: {
-            "design_problem_id": problem_id,
-            "schema_version": "policyos.runtime.design_problem.test.v1",
-        },
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
     )
+
+    problem = _problem(problem_id)
     first = _summary()
     second = first.model_copy(
         update={
@@ -1416,7 +1495,18 @@ def test_n9_port_rebinds_every_adaptive_receipt_to_one_final_ledger_head(
         }
     )
 
-    observation = port(summaries=(first, second), problem=problem)  # type: ignore[arg-type]
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(first, second),
+    )
+    port = CanonicalN9PromotionPort(
+        repo_root=REPO_ROOT,
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+    )
+    assert port.epoch_validity_resolver is runtime.epoch_n9_evidence_resolver
+    observation = port(admitted_batch=admitted_batch, problem=problem)
     receipts = tuple(
         CanonicalPromotionReceipt.model_validate(item) for item in observation.receipts
     )
@@ -1430,7 +1520,79 @@ def test_n9_port_rebinds_every_adaptive_receipt_to_one_final_ledger_head(
     }
     assert len(check_refs) == 2
     assert check_refs <= projected_check_refs
-    assert all(validate_canonical_promotion_receipt(item) == () for item in receipts)
+    assert all(
+        validate_canonical_promotion_receipt(
+            item,
+            open_world_resolver=port.open_world_resolver,
+            epoch_validity_resolver=port.epoch_validity_resolver,
+        )
+        == ()
+        for item in receipts
+    )
+
+
+def test_promotion_context_cannot_supply_open_world_gate(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
+
+    problem = _problem(f"open_world_context_{uuid4().hex}")
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(_summary(),),
+    )
+    port = CanonicalN9PromotionPort(
+        context_provider=lambda summary, owner_problem: {
+            "open_world_gate": (summary, owner_problem)
+        },
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+        repo_root=REPO_ROOT,
+    )
+    assert port.epoch_validity_resolver is runtime.epoch_n9_evidence_resolver
+
+    with pytest.raises(ValueError, match="promotion_context_cannot_supply_open_world_gate"):
+        port(admitted_batch=admitted_batch, problem=problem)
+
+
+def test_absent_open_world_runtime_freezes_production_promotion(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    problem_id = f"missing_open_world_runtime_{uuid4().hex}"
+    problem = SimpleNamespace(
+        design_problem_id=problem_id,
+        model_spec_ref=None,
+        schema_version="policyos.runtime.design_problem.test.v1",
+        model_dump=lambda **kwargs: {
+            "design_problem_id": problem_id,
+            "schema_version": "policyos.runtime.design_problem.test.v1",
+        },
+    )
+
+    result = CanonicalN9PromotionPort(repo_root=REPO_ROOT)(
+        admitted_batch=None,  # type: ignore[arg-type]
+        problem=problem,  # type: ignore[arg-type]
+    )
+
+    assert result.status == "not_promoted"
+    assert result.receipts == ()
+    assert result.reason == "epoch_validity_refused:promotion_runtime_not_established"
 
 
 def test_verification_port_never_certifies_candidates() -> None:
@@ -1493,6 +1655,18 @@ def test_n9_port_exposes_no_custom_ledger_namespace_injection(
 ) -> None:
     with pytest.raises(TypeError, match="unexpected keyword argument"):
         CanonicalN9PromotionPort(**{kwarg: value})  # type: ignore[arg-type]
+
+
+def test_n9_port_rejects_epoch_resolver_from_another_runtime(tmp_path: Path) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "owner-cas"))
+    foreign = PromotionRuntime(store=FileSystemCAS(tmp_path / "foreign-cas"))
+
+    with pytest.raises(ValueError, match="epoch_n9_evidence_resolver_owner_mismatch"):
+        CanonicalN9PromotionPort(
+            promotion_runtime=runtime,
+            epoch_n9_evidence_resolver=foreign.epoch_n9_evidence_resolver,
+            repo_root=REPO_ROOT,
+        )
 
 
 def test_probabilistic_certificate_bypassing_ledger_is_rejected() -> None:
@@ -1608,7 +1782,7 @@ def test_rehashed_contract_lane_as_production_is_rejected_by_owner_recomputation
 
     issues = validate_canonical_promotion_receipt(edited)
 
-    assert "promotion_owner_recomputation_drift" in {issue["code"] for issue in issues}
+    assert "promotion_refusal_reasons_drift" in {issue["code"] for issue in issues}
 
 
 def test_receipt_candidate_id_must_match_replayed_owner_input() -> None:
@@ -1774,10 +1948,7 @@ def test_ledger_claim_scope_is_recomputed_from_candidate_owner() -> None:
         confidence_ledger_session=session,
     )
 
-    assert {
-        (issue["code"], issue.get("reason"))
-        for issue in issues
-    } >= {
+    assert {(issue["code"], issue.get("reason")) for issue in issues} >= {
         (
             "promotion_expected_ledger_check_invalid",
             "promotion_expected_ledger_check_mismatch",
@@ -1865,7 +2036,7 @@ def test_failed_obligation_cannot_be_relabelled_into_decision_front() -> None:
     assert summaries[0].certified_by_n9 is False
 
 
-def test_promotion_writer_migrates_semantics_and_retains_every_frozen_raw_leaf() -> None:
+def test_promotion_history_rule_stays_v3_and_current_v4_requires_full_reissue() -> None:
     from tools.quality.validation import check_layer3_gy_promotion_contract as validator
 
     frozen = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
@@ -1876,33 +2047,32 @@ def test_promotion_writer_migrates_semantics_and_retains_every_frozen_raw_leaf()
         "non_promotable_contract_stamp",
     )
     for key in receipt_keys:
-        frozen_receipt = CanonicalPromotionReceipt.model_validate(frozen[key])
+        frozen_receipt = promotion_sequence_module.parse_canonical_promotion_history_receipt(
+            frozen[key]
+        )
         live_receipt = CanonicalPromotionReceipt.model_validate(live[key])
+        assert frozen_receipt.schema_version == (
+            promotion_sequence_module.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION
+        )
+        with pytest.raises(ValueError, match="schema_version"):
+            CanonicalPromotionReceipt.model_validate(frozen[key])
+        with pytest.raises(
+            ValueError,
+            match="legacy_open_world_gate_authority_not_admitted",
+        ):
+            promotion_sequence_module.canonical_promotion_receipt_semantic_projection(frozen[key])
         assert gy_recorded_content_hash(
             frozen_receipt.model_dump(mode="json")
         ) != gy_recorded_content_hash(live_receipt.model_dump(mode="json"))
-        with pytest.raises(
-            ValueError,
-            match="promotion_comparison_semantic_ledger_missing",
-        ):
-            promotion_sequence_module.canonical_promotion_receipt_semantic_projection(
-                frozen_receipt.model_dump(mode="json")
-            )
-        frozen_legacy_projection = (
-            promotion_sequence_module._canonical_promotion_receipt_legacy_semantic_projection(
-                frozen_receipt.model_dump(mode="json")
+        historical_projection = (
+            promotion_sequence_module._canonical_promotion_receipt_v3_semantic_projection(
+                frozen[key]
             )
         )
-        live_legacy_projection = (
-            promotion_sequence_module._canonical_promotion_receipt_legacy_semantic_projection(
-                live_receipt.model_dump(mode="json")
-            )
-        )
-        assert frozen_legacy_projection == live_legacy_projection
-        live_projection = (
-            promotion_sequence_module.canonical_promotion_receipt_semantic_projection(
-                live_receipt.model_dump(mode="json")
-            )
+        assert historical_projection["schema_version"].endswith(".v3")
+        assert "open_world_gate" not in historical_projection["owner_projection"]
+        live_projection = promotion_sequence_module.canonical_promotion_receipt_semantic_projection(
+            live_receipt.model_dump(mode="json")
         )
         assert set(live_projection) == (
             set(CanonicalPromotionReceipt.model_fields)
@@ -1913,32 +2083,16 @@ def test_promotion_writer_migrates_semantics_and_retains_every_frozen_raw_leaf()
             - promotion_sequence_module._PROMOTION_OWNER_PROJECTION_LINEAGE_FIELDS
         )
         assert set(live_projection["confidence_ledger_projection"]) == (
-            set(
-                promotion_sequence_module.N9PromotionCertificateProjection.model_fields
-            )
+            set(promotion_sequence_module.N9PromotionCertificateProjection.model_fields)
             - promotion_sequence_module._PROMOTION_CERTIFICATE_LINEAGE_FIELDS
         )
 
+    assert validator._comparison_identity_issues(frozen) == []
     live.pop("capture_wall_time_seconds", None)
     validator._set_comparison_identity(live, plan)
     live["contract_content_hash"] = validator._contract_content_hash(live)
-    reconciled = validator._reconcile_frozen_contract(REPO_ROOT, live, plan)
-    for key in receipt_keys:
-        frozen_raw = deepcopy(frozen[key])
-        migrated = deepcopy(reconciled[key])
-        semantic = migrated.pop("confidence_ledger_semantic_projection")
-        assert migrated == frozen_raw
-        assert semantic == live[key]["confidence_ledger_semantic_projection"]
-        assert (
-            promotion_sequence_module.canonical_promotion_receipt_semantic_projection(
-                reconciled[key]
-            )
-            == promotion_sequence_module.canonical_promotion_receipt_semantic_projection(
-                live[key]
-            )
-        )
-        assert reconciled[key]["confidence_ledger_projection"]
-    assert reconciled["comparison_admission_manifest"] == plan.manifest
+    with pytest.raises(ValueError, match="promotion_comparison_admission_manifest_drift"):
+        validator._reconcile_frozen_contract(REPO_ROOT, live, plan)
 
 
 def test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission() -> None:
@@ -1963,10 +2117,8 @@ def test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission()
             repo_root=REPO_ROOT,
             confidence_ledger_session=session,
         )
-        admission = (
-            promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
-                proof
-            )
+        admission = promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
+            proof
         )
         assert admission.source_content_hash == gy_recorded_content_hash(
             receipt.model_dump(mode="json")
@@ -1981,9 +2133,7 @@ def test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission()
         with pytest.raises(AttributeError):
             proof._admission = forged_public_token
         assert (
-            promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
-                proof
-            )
+            promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(proof)
             is admission
         )
         with pytest.raises(
@@ -2023,9 +2173,7 @@ def test_n9_semantic_ledger_changes_with_governing_owner_input() -> None:
     receipts: list[CanonicalPromotionReceipt] = []
     sessions: list[ConfidenceLedgerSession] = []
     for promotion_input in (baseline_input, changed_input):
-        session = _verification_ledger_session(
-            binding=promotion_input.design_problem_binding
-        )
+        session = _verification_ledger_session(binding=promotion_input.design_problem_binding)
         sessions.append(session)
         receipts.append(
             promotion_sequence_module._run_canonical_promotion_sequence_for_verification(
@@ -2057,31 +2205,27 @@ def test_n9_semantic_ledger_changes_with_governing_owner_input() -> None:
         confidence_ledger_session=sessions[1],
     )
     changed_admission = (
-        promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
-            changed_proof
-        )
+        promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(changed_proof)
     )
     changed_payload = receipts[1].model_dump(mode="json")
     changed_plan = build_gy_comparison_projection_plan(
         changed_payload,
         admissions=(changed_admission,),
     )
-    with pytest.raises(ValueError, match="gy_comparison_admitted_block_semantic_mismatch"):
+    with pytest.raises(ValueError, match="promotion_legacy_comparison_semantic_mismatch"):
         changed_plan.preserve_admitted_blocks(
             receipts[0].model_dump(mode="json"),
             changed_payload,
         )
 
 
-def test_n9_semantic_claim_binding_ignores_physical_deployment_lineage(
+def test_runtime_admission_proxy_cannot_fabricate_second_deployment_lineage(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Two fully verified deployments retain one governing claim identity."""
+    """A monkeypatched runtime identity is not a second verified deployment."""
 
     promotion_input = _promotion_input()
-    baseline_session = _verification_ledger_session(
-        binding=promotion_input.design_problem_binding
-    )
+    baseline_session = _verification_ledger_session(binding=promotion_input.design_problem_binding)
     baseline = promotion_sequence_module._run_canonical_promotion_sequence_for_verification(
         promotion_input,
         confidence_ledger_session=baseline_session,
@@ -2102,63 +2246,17 @@ def test_n9_semantic_claim_binding_ignores_physical_deployment_lineage(
         "_admit_loaded_runtime",
         _admit_alternate_deployment,
     )
-    alternate_session = _verification_ledger_session(
-        binding=promotion_input.design_problem_binding
-    )
-    alternate = promotion_sequence_module._run_canonical_promotion_sequence_for_verification(
-        promotion_input,
-        confidence_ledger_session=alternate_session,
-    )
+    with pytest.raises(ConfidenceLedgerError, match="canonical_loaded_runtime_mismatch"):
+        _verification_ledger_session(binding=promotion_input.design_problem_binding)
 
-    baseline_rows = baseline.confidence_ledger_projection.promotion_rows
-    alternate_rows = alternate.confidence_ledger_projection.promotion_rows
-    assert baseline.confidence_ledger_projection.deployment_identity != (
-        alternate.confidence_ledger_projection.deployment_identity
-    )
-    assert [row.claim_execution_binding_hash for row in baseline_rows] != [
-        row.claim_execution_binding_hash for row in alternate_rows
-    ]
     assert baseline.confidence_ledger_semantic_projection is not None
-    assert alternate.confidence_ledger_semantic_projection is not None
-    assert baseline.confidence_ledger_semantic_projection == (
-        alternate.confidence_ledger_semantic_projection
-    )
-    baseline_proof = promotion_sequence_module.prove_canonical_promotion_receipt_for_comparison(
-        baseline,
-        repo_root=REPO_ROOT,
-        confidence_ledger_session=baseline_session,
-    )
-    alternate_proof = promotion_sequence_module.prove_canonical_promotion_receipt_for_comparison(
-        alternate,
-        repo_root=REPO_ROOT,
-        confidence_ledger_session=alternate_session,
-    )
-    baseline_admission = (
-        promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
-            baseline_proof
-        )
-    )
-    alternate_admission = (
-        promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
-            alternate_proof
-        )
-    )
-    baseline_projection = (
-        baseline_admission.projector(baseline.model_dump(mode="json"))
-    )
-    alternate_projection = (
-        alternate_admission.projector(alternate.model_dump(mode="json"))
-    )
-    assert baseline_projection == alternate_projection
 
 
-def test_promotion_comparison_migrates_legacy_only_through_live_owner_proof() -> None:
-    """Legacy custody gains semantic lineage only from the canonical live owner."""
+def test_promotion_comparison_repairs_current_v4_lineage_only_through_live_owner_proof() -> None:
+    """Current v4 custody gains semantic lineage only from the live owner."""
 
     promotion_input = _promotion_input()
-    session = _verification_ledger_session(
-        binding=promotion_input.design_problem_binding
-    )
+    session = _verification_ledger_session(binding=promotion_input.design_problem_binding)
     receipt = promotion_sequence_module._run_canonical_promotion_sequence_for_verification(
         promotion_input,
         confidence_ledger_session=session,
@@ -2168,9 +2266,7 @@ def test_promotion_comparison_migrates_legacy_only_through_live_owner_proof() ->
         repo_root=REPO_ROOT,
         confidence_ledger_session=session,
     )
-    admission = promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
-        proof
-    )
+    admission = promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(proof)
     current = {"receipt": receipt.model_dump(mode="json")}
     legacy = deepcopy(current)
     legacy_receipt = legacy["receipt"]
@@ -2187,18 +2283,14 @@ def test_promotion_comparison_migrates_legacy_only_through_live_owner_proof() ->
     assert plan.project(migrated) == plan.project(current)
 
     forged_legacy = deepcopy(legacy)
-    forged_legacy["receipt"]["owner_projection"]["candidate_summary"][
-        "content_hash"
-    ] = _hash("f")
+    forged_legacy["receipt"]["owner_projection"]["candidate_summary"]["content_hash"] = _hash("f")
     with pytest.raises(ValueError, match="promotion_legacy_comparison_semantic_mismatch"):
         plan.preserve_admitted_blocks(forged_legacy, current)
 
 
-def test_promotion_comparison_migrates_v2_class_rows_without_admitting_them() -> None:
+def test_promotion_comparison_refuses_v2_without_open_world_owner_fact() -> None:
     promotion_input = _promotion_input()
-    session = _verification_ledger_session(
-        binding=promotion_input.design_problem_binding
-    )
+    session = _verification_ledger_session(binding=promotion_input.design_problem_binding)
     receipt = promotion_sequence_module._run_canonical_promotion_sequence_for_verification(
         promotion_input,
         confidence_ledger_session=session,
@@ -2208,14 +2300,17 @@ def test_promotion_comparison_migrates_v2_class_rows_without_admitting_them() ->
         repo_root=REPO_ROOT,
         confidence_ledger_session=session,
     )
-    admission = promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
-        proof
-    )
+    admission = promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(proof)
     current = {"receipt": receipt.model_dump(mode="json")}
     legacy = deepcopy(current)
     legacy_receipt = legacy["receipt"]
-    legacy_receipt["schema_version"] = (
-        "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+    legacy_receipt["schema_version"] = "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+    legacy_owner = legacy_receipt["owner_projection"]
+    legacy_owner["schema_version"] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1"
+    legacy_owner.pop("open_world_gate")
+    legacy_owner.pop("epoch_validity_projection")
+    legacy_owner["projection_hash"] = gy_content_hash(
+        {key: value for key, value in legacy_owner.items() if key != "projection_hash"}
     )
     identity_fields = {
         "obligation_role",
@@ -2236,43 +2331,14 @@ def test_promotion_comparison_migrates_v2_class_rows_without_admitting_them() ->
         "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
     )
     legacy_certificate["projection_hash"] = confidence_ledger_module._content_hash(
-        {
-            key: value
-            for key, value in legacy_certificate.items()
-            if key != "projection_hash"
-        }
+        {key: value for key, value in legacy_certificate.items() if key != "projection_hash"}
     )
     plan = build_gy_comparison_projection_plan(current, admissions=(admission,))
 
-    migrated = plan.preserve_admitted_blocks(legacy, current)
-
-    assert migrated["receipt"] == current["receipt"]
-    forged_legacy = deepcopy(legacy)
-    forged_legacy["receipt"]["obligations"][0]["detail"] = "forged legacy result"
+    parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(legacy_receipt)
+    assert parsed.schema_version.endswith(".v2")
     with pytest.raises(ValueError, match="promotion_legacy_comparison_semantic_mismatch"):
-        plan.preserve_admitted_blocks(forged_legacy, current)
-
-    hybrid_scope = deepcopy(legacy)
-    hybrid_certificate = hybrid_scope["receipt"]["confidence_ledger_projection"]
-    hybrid_certificate["risk_scope"]["rule_ref"] = (
-        "policyos.policy_design_case.layer3_gy.n9_promotion.v3"
-    )
-    hybrid_certificate["projection_hash"] = confidence_ledger_module._content_hash(
-        {
-            key: value
-            for key, value in hybrid_certificate.items()
-            if key != "projection_hash"
-        }
-    )
-    with pytest.raises(ValueError, match="promotion_legacy_comparison_semantic_mismatch"):
-        plan.preserve_admitted_blocks(hybrid_scope, current)
-
-    unknown_alias = deepcopy(legacy)
-    unknown_alias["receipt"]["computed_authority_boundary"]["rule_version_refs"] = [
-        "policyos.policy_design_case.layer3_gy.n9_promotion.v4"
-    ]
-    with pytest.raises(ValueError, match="promotion_legacy_comparison_semantic_mismatch"):
-        plan.preserve_admitted_blocks(unknown_alias, current)
+        plan.preserve_admitted_blocks(legacy, current)
 
 
 def _ledger_session(
@@ -2288,7 +2354,7 @@ def _ledger_session(
         owner_projection_hash=owner_binding.problem_content_hash,
         epoch_ref=None,
         model_ref=owner_binding.model_spec_ref,
-        rule_ref=promotion_sequence_module.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+        rule_ref=promotion_sequence_module.CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION,
         schema_ref=owner_binding.problem_schema_version,
     )
     return ConfidenceLedgerSession.from_repo(
@@ -2313,7 +2379,7 @@ def _verification_ledger_session(
         owner_projection_hash=owner_binding.problem_content_hash,
         epoch_ref=None,
         model_ref=owner_binding.model_spec_ref,
-        rule_ref=promotion_sequence_module.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+        rule_ref=promotion_sequence_module.CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION,
         schema_ref=owner_binding.problem_schema_version,
     )
     return ConfidenceLedgerSession._for_verification(
@@ -2420,6 +2486,41 @@ def _summary(
         front="research",
         high_proxy=False,
         low_grounding=False,
+    )
+
+
+def _open_world_gate(*, status: str, code: str) -> OpenWorldRiskPromotionGate:
+    def ref(label: str, profile_record: str) -> core_artifacts.ArtifactRef:
+        profile = c4_profile(profile_record)
+        return core_artifacts.ArtifactRef(
+            artifact_id=core_artifacts.ArtifactID(gy_content_hash({"label": label})),
+            kind=profile.kind,
+            media_type=profile.media_type,
+        )
+
+    return OpenWorldRiskPromotionGate(
+        status=status,  # type: ignore[arg-type]
+        limitation_code=code,
+        vector_artifact_ref=ref("open-world-vector", "open_world_risk_vector"),
+        raw_cas_hash=gy_content_hash({"label": "open-world-vector"}),
+        semantic_hash=gy_content_hash({"label": "open-world-semantic"}),
+        requested_query_context_ref=gy_content_hash({"label": "open-world-query"}),
+        aggregate_context_ref=ref("open-world-aggregate", "aggregate_context"),
+        aggregate_context_content_hash=gy_content_hash({"label": "open-world-aggregate-semantic"}),
+        bound_member_ref=ref("open-world-member", "bound_member"),
+        bound_member_content_hash=gy_content_hash({"label": "open-world-member-semantic"}),
+        candidate_occurrence_ref=ref("open-world-occurrence", "candidate_occurrence"),
+        candidate_occurrence_content_hash=gy_content_hash(
+            {"label": "open-world-occurrence-semantic"}
+        ),
+        verifier_provenance_ref=core_artifacts.ArtifactRef(
+            artifact_id=core_artifacts.ArtifactID(
+                gy_content_hash({"label": "open-world-verifier"})
+            ),
+            kind="chronology.open_world_risk_verifier",
+            media_type="text/plain",
+        ),
+        predicate_class="independently_reconciled",
     )
 
 
@@ -2551,7 +2652,7 @@ def _boundary(*, grade: str = "decision_admissible") -> AuthorityBoundary:
         may_not_use_for=["production_deployment"],
         source_authority="deterministic_producer",
         posture="governed",
-        rule_version_refs=[promotion_sequence_module.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION],
+        rule_version_refs=[promotion_sequence_module.CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION],
         evidence_kind="measurement",
         decision_grade=grade,  # type: ignore[arg-type]
     )
@@ -2626,8 +2727,7 @@ def _obligation(receipt: object, obligation_class: PromotionObligationClass):
     return next(
         item
         for item in receipt.obligations
-        if item.obligation_role == "class_gate"
-        and item.obligation_class == obligation_class
+        if item.obligation_role == "class_gate" and item.obligation_class == obligation_class
     )
 
 

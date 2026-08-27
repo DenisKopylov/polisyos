@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+import ast
+import hashlib
+from dataclasses import replace
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts import epoch as epoch_contract
+from polisyos.runtime.quality import data_state_substrate
+from polisyos.runtime.quality import substrate_registry as substrate_module
 from polisyos.runtime.quality.substrate_registry import (
     L5CatalogAuthority,
     SubstrateCoverage,
@@ -19,6 +27,7 @@ from polisyos.runtime.quality.substrate_registry import (
     load_substrate_registry,
     persist_substrate_registry,
     register_substrate_entry,
+    resolve_l5_schema_regime_projection,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -29,6 +38,56 @@ L5_TRUST_TIER_IDS = (
     "derived_proxy",
     "weak_anchor",
 )
+
+
+def _projection_with(
+    projection: epoch_contract.ScopedSchemaRegimeProjection,
+    **updates: object,
+) -> epoch_contract.ScopedSchemaRegimeProjection:
+    mapping = projection.model_dump(mode="python", exclude={"projection_content_hash"})
+    mapping.update(updates)
+    mapping["projection_content_hash"] = (
+        "sha256:" + hashlib.sha256(epoch_contract.canonical_epoch_bytes(mapping)).hexdigest()
+    )
+    return epoch_contract.ScopedSchemaRegimeProjection.model_validate(mapping)
+
+
+def _constructor_sites(root: Path, *, extra_source: str | None = None) -> set[tuple[str, str]]:
+    sites: set[tuple[str, str]] = set()
+    candidates = [(path, path.read_text(encoding="utf-8")) for path in root.rglob("*.py")]
+    if extra_source is not None:
+        candidates.append((Path("<candidate>"), extra_source))
+    for candidate_path, source in candidates:
+        tree = ast.parse(source, filename=candidate_path.as_posix())
+
+        class Visitor(ast.NodeVisitor):
+            def __init__(self, *, source_name: str) -> None:
+                self._source_name = source_name
+                self._parents: list[str] = []
+
+            def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802
+                self._parents.append(node.name)
+                self.generic_visit(node)
+                self._parents.pop()
+
+            def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:  # noqa: N802
+                self.visit_FunctionDef(node)
+
+            def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
+                name = (
+                    node.func.id
+                    if isinstance(node.func, ast.Name)
+                    else node.func.attr
+                    if isinstance(node.func, ast.Attribute)
+                    else ""
+                )
+                if name == "SubstrateSchemaRegime":
+                    parent = self._parents[-1] if self._parents else "<module>"
+                    sites.add((self._source_name, parent))
+                self.generic_visit(node)
+
+        Visitor(source_name=candidate_path.as_posix()).visit(tree)
+    return sites
 
 
 def _future_registration(
@@ -133,6 +192,11 @@ def test_substrate_registry_registers_l6_intervention_control_artifacts() -> Non
 
 
 def test_l5_trust_tier_selection_uses_numeric_content_not_tier_names() -> None:
+    empty_registry_ref = ArtifactRef(
+        artifact_id=ArtifactID("sha256:" + "0" * 64),
+        kind="l5.schema_regime_registry",
+        media_type="application/json",
+    )
     l5 = L5CatalogAuthority(
         measurement_registry_ref="repo://synthetic/measurement_registry.json#measurement_registry",
         identification_mode_registry_ref="repo://synthetic/identification_mode_registry.json#identification_mode_registry",
@@ -175,6 +239,15 @@ def test_l5_trust_tier_selection_uses_numeric_content_not_tier_names() -> None:
             "high_family": "proxy_identified",
         },
         schema_regimes={},
+        schema_regime_rows={},
+        schema_regime_scope_relations=(),
+        schema_regime_changepoints=(),
+        epoch_schema_regime_registry_ref=empty_registry_ref,
+        epoch_schema_regime_registry_content_hash="sha256:" + "0" * 64,
+        epoch_schema_regime_scope_registry_ref=empty_registry_ref.model_copy(
+            update={"kind": "l5.schema_regime_scope_registry"}
+        ),
+        epoch_schema_regime_scope_registry_content_hash="sha256:" + "0" * 64,
     )
 
     low = l5.expected_trust_tier("low_family")
@@ -355,3 +428,158 @@ def test_substrate_registry_persists_and_has_no_plan_named_owner_file(tmp_path: 
     assert loaded.content_hash == registry.content_hash
     assert loaded.substrate_version_id == registry.substrate_version_id
     assert not list((REPO_ROOT / "src/polisyos/runtime/quality").rglob("gy_s0_*.py"))
+
+
+def test_l5_scope_relation_not_projection_mapping_decides_applicability() -> None:
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    scope_ref = l5.schema_regime_scope_relations[0].scope_identity_refs[0]
+    receipt, projection = resolve_l5_schema_regime_projection(
+        l5,
+        scope_identity_ref=scope_ref,
+        valid_effect_value=date(2025, 1, 1),
+        authority_purpose="publication",
+    )
+    earlier_id = min(
+        l5.schema_regimes, key=lambda key: l5.schema_regimes[key].effective_start or ""
+    )
+    earlier_hash = (
+        "sha256:"
+        + hashlib.sha256(
+            epoch_contract.canonical_epoch_bytes(dict(l5.schema_regime_rows[earlier_id]))
+        ).hexdigest()
+    )
+    forged = _projection_with(
+        projection,
+        applicable_regime_ids=(earlier_id,),
+        applicable_regime_content_hashes=(earlier_hash,),
+    )
+
+    with pytest.raises(SubstrateRegistryError, match="evidence_mismatch"):
+        build_substrate_registry_from_existing_catalogs(
+            REPO_ROOT,
+            l5_receipt_projections=((receipt, forged),),
+        )
+
+
+def test_l5_regime_without_owner_scope_relation_is_epoch_scope_unresolved() -> None:
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    scope_ref = l5.schema_regime_scope_relations[0].scope_identity_refs[0]
+    latest_id = max(l5.schema_regimes, key=lambda key: l5.schema_regimes[key].effective_start or "")
+    missing = replace(
+        l5,
+        schema_regime_scope_relations=tuple(
+            row for row in l5.schema_regime_scope_relations if row.schema_regime_id != latest_id
+        ),
+    )
+
+    receipt, projection = resolve_l5_schema_regime_projection(
+        missing,
+        scope_identity_ref=scope_ref,
+        valid_effect_value=date(2025, 1, 1),
+        authority_purpose="publication",
+    )
+
+    assert receipt.status == "unresolved"
+    assert receipt.failure_codes == ("schema_regime_scope_missing",)
+    assert projection.status == "unresolved"
+
+
+def test_third_regime_and_novel_domain_agree_across_epoch_generation_and_l4() -> None:
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    current_scope = l5.schema_regime_scope_relations[0].scope_identity_refs[0]
+    other_scope = "sha256:" + hashlib.sha256(b"novel-domain").hexdigest()
+    novel_id = "novel_domain_schema_v1"
+    novel_row = {
+        "schema_regime_id": novel_id,
+        "source_version": "1.0",
+        "effective_start": "2020-01-01",
+        "effective_end": None,
+        "boundary_buffer_periods": 0,
+    }
+    novel_regime = SubstrateSchemaRegime(
+        schema_regime_id=novel_id,
+        authority_ref="repo://novel-domain/schema-regime",
+        effective_start="2020-01-01",
+        effective_end=None,
+        boundary_buffer_periods=0,
+        source_version="1.0",
+    )
+    base_relation = l5.schema_regime_scope_relations[0]
+    novel_relation = epoch_contract.L5SchemaRegimeScopeRelation(
+        schema_regime_id=novel_id,
+        scope_identity_refs=(other_scope,),
+        relation_provenance_ref=base_relation.relation_provenance_ref,
+        visibility_knowledge_from=datetime(2020, 1, 1, tzinfo=UTC),
+        purpose_admission_from=datetime(2020, 1, 1, tzinfo=UTC),
+    )
+    extended = replace(
+        l5,
+        schema_regimes={**l5.schema_regimes, novel_id: novel_regime},
+        schema_regime_rows={**l5.schema_regime_rows, novel_id: novel_row},
+        schema_regime_scope_relations=(*l5.schema_regime_scope_relations, novel_relation),
+    )
+    receipt, projection = resolve_l5_schema_regime_projection(
+        extended,
+        scope_identity_ref=current_scope,
+        valid_effect_value=date(2021, 1, 1),
+        authority_purpose="publication",
+    )
+    applicable = tuple(
+        row.schema_regime_id for row in receipt.assessments if row.disposition == "applicable"
+    )
+    generation_entries = substrate_module._entries_from_l5(
+        extended,
+        receipt=receipt,
+        projection=projection,
+    )
+    l4 = data_state_substrate._schema_regime_decision(
+        extended,
+        receipt=receipt,
+        projection=projection,
+        period_start="2021-01",
+        period_end="2021-01",
+    )
+
+    assert applicable == projection.applicable_regime_ids == l4["regime_ids"]
+    assert {entry.schema_regime.schema_regime_id for entry in generation_entries} == set(applicable)
+    assert novel_id not in applicable
+
+
+def test_complete_regime_producer_reader_census_rejects_sibling_declaration() -> None:
+    sites = _constructor_sites(REPO_ROOT / "src")
+    expected = {
+        ("src/polisyos/runtime/quality/substrate_registry.py", "load_l5_catalog_authority"),
+        ("src/polisyos/runtime/quality/substrate_registry.py", "_entries_from_l1_dcat"),
+        (
+            "src/polisyos/runtime/quality/substrate_registry.py",
+            "_entries_from_l2_l3_knowledge_substrates",
+        ),
+        (
+            "src/polisyos/runtime/quality/substrate_registry.py",
+            "_entries_from_l6_agent_sim_control_artifacts",
+        ),
+        ("src/polisyos/runtime/quality/substrate_registry.py", "_entries_from_root_manifest"),
+    }
+    normalized = {(Path(path).relative_to(REPO_ROOT).as_posix(), owner) for path, owner in sites}
+    assert normalized == expected
+
+    mutated = _constructor_sites(
+        REPO_ROOT / "src",
+        extra_source="def sibling():\n    return SubstrateSchemaRegime(schema_regime_id='x')\n",
+    )
+    assert ("<candidate>", "sibling") in mutated - sites
+
+
+def test_generation_and_data_state_cannot_call_global_latest_schema_regime() -> None:
+    forbidden = {"latest_schema_regime", "complete_schema_regime_projection"}
+    calls: set[tuple[str, str]] = set()
+    for relative in (
+        "src/polisyos/runtime/quality/generation_cycle.py",
+        "src/polisyos/runtime/quality/data_state_substrate.py",
+    ):
+        tree = ast.parse((REPO_ROOT / relative).read_text(encoding="utf-8"), filename=relative)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+                if node.func.attr in forbidden:
+                    calls.add((relative, node.func.attr))
+    assert calls == set()

@@ -31,6 +31,7 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 # producer through pytest's already-imported parent process.
 assert_universality_preflight(REPO_ROOT)
 
+from polisyos.core.artifacts.store import FileSystemCAS  # noqa: E402
 from polisyos.pdc import (
     ArtifactRef,
     GyComparisonAdmission,
@@ -66,6 +67,7 @@ from polisyos.runtime.quality.intervention_atom_binding import (
     InterventionAtomBinding,
     intervention_atom_content_hash,
 )  # noqa: E402
+from polisyos.runtime.quality.open_world_risk import PromotionRuntime  # noqa: E402
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
     RecursiveGenerationCycleController,
@@ -92,9 +94,7 @@ def _recursive_problem(node_ref: str) -> DesignProblem:
         update={
             "design_problem_id": "recursive_" + node_ref.rsplit("/", 1)[-1],
             "objectives": [
-                problem.objectives[0].model_copy(
-                    update={"metric_id": "final_queue_length"}
-                )
+                problem.objectives[0].model_copy(update={"metric_id": "final_queue_length"})
             ],
             "outcome_of_interest": problem.outcome_of_interest.model_copy(
                 update={
@@ -183,6 +183,7 @@ def _lane0_cycle_controller_factory(
         simulation_port=_Lane0SimulationPort(),
         value_port=PendingN8ValuePort(),
         promotion_port=_Lane0PromotionPort(),
+        authority_scope="contract_testing",
         repo_root=REPO_ROOT,
     )
 
@@ -196,9 +197,7 @@ def _lane0_leaf_terminal() -> SearchTerminalState:
 
 
 def _recursive_budget_state() -> BudgetState:
-    return BudgetState(
-        limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
-    )
+    return BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))})
 
 
 def _lane0_coupled_request(
@@ -244,7 +243,7 @@ def _lane0_coupled_request(
                     "interaction_edges": edges,
                     "evidence_state": "observed",
                 }
-            )
+            ),
         }
     )
 
@@ -254,9 +253,7 @@ def _lane0_subdesigns(
     parent_ref: str,
     child_refs: tuple[str, str],
 ) -> tuple[SubDesignContract, ...]:
-    module = import_module(
-        "tools.quality.validation.check_layer3_gy_composition_artifacts"
-    )
+    module = import_module("tools.quality.validation.check_layer3_gy_composition_artifacts")
     factory = cast("Any", module)._synthetic_composition_subdesigns
     originals = factory(artifact_ref_factory=ArtifactRef.from_payload)
     return tuple(
@@ -313,10 +310,7 @@ async def test_coupled_parent_runs_real_n5_and_records_interactions() -> None:
         parent_child_edges=((root, child_refs[0]), (root, child_refs[1])),
         rule_version_ref="repo://rules/gy-n10-coupled",
     )
-    problems = {
-        node_ref: _recursive_problem(node_ref)
-        for node_ref in (root, *child_refs)
-    }
+    problems = {node_ref: _recursive_problem(node_ref) for node_ref in (root, *child_refs)}
     request = _lane0_coupled_request(
         parent_ref=root,
         child_refs=child_refs,
@@ -362,13 +356,9 @@ async def test_coupled_parent_runs_real_n5_and_records_interactions() -> None:
     assert result.authority_scope == "contract_testing"
 
     missing_n5 = result.model_dump(mode="json")
-    missing_n5_root = next(
-        node for node in missing_n5["nodes"] if node["node_ref"] == root
-    )
+    missing_n5_root = next(node for node in missing_n5["nodes"] if node["node_ref"] == root)
     missing_n5_root["joint_simulation"] = None
-    missing_n5_content = {
-        key: value for key, value in missing_n5.items() if key != "content_hash"
-    }
+    missing_n5_content = {key: value for key, value in missing_n5.items() if key != "content_hash"}
     missing_n5["content_hash"] = gy_content_hash(missing_n5_content)
     with pytest.raises(
         ValueError,
@@ -382,13 +372,9 @@ async def test_coupled_parent_runs_real_n5_and_records_interactions() -> None:
     )
     missing_certificate_root["composition_certificate"] = None
     missing_certificate_content = {
-        key: value
-        for key, value in missing_certificate.items()
-        if key != "content_hash"
+        key: value for key, value in missing_certificate.items() if key != "content_hash"
     }
-    missing_certificate["content_hash"] = gy_content_hash(
-        missing_certificate_content
-    )
+    missing_certificate["content_hash"] = gy_content_hash(missing_certificate_content)
     with pytest.raises(
         ValueError,
         match="recursive_supported_n5_requires_composition",
@@ -396,12 +382,8 @@ async def test_coupled_parent_runs_real_n5_and_records_interactions() -> None:
         RecursiveGenerationCycleRun.model_validate(missing_certificate)
 
     cross_parent = result.model_dump(mode="json")
-    cross_parent_root = next(
-        node for node in cross_parent["nodes"] if node["node_ref"] == root
-    )
-    cross_parent_root["composition_certificate"]["parent_workspace_id"] = (
-        "design://another-parent"
-    )
+    cross_parent_root = next(node for node in cross_parent["nodes"] if node["node_ref"] == root)
+    cross_parent_root["composition_certificate"]["parent_workspace_id"] = "design://another-parent"
     cross_parent_content = {
         key: value for key, value in cross_parent.items() if key != "content_hash"
     }
@@ -423,9 +405,7 @@ async def test_cross_branch_n5_evidence_is_refused_before_owner_run() -> None:
         parent_child_edges=((root, child_refs[0]), (root, child_refs[1])),
         rule_version_ref="repo://rules/gy-n10-binding",
     )
-    problems = {
-        node_ref: _recursive_problem(node_ref) for node_ref in (root, *child_refs)
-    }
+    problems = {node_ref: _recursive_problem(node_ref) for node_ref in (root, *child_refs)}
     transplanted = _lane0_coupled_request(
         parent_ref="design://another-world/root",
         child_refs=child_refs,
@@ -455,9 +435,7 @@ async def test_cross_branch_n5_evidence_is_refused_before_owner_run() -> None:
     root_node = next(node for node in result.nodes if node.node_ref == root)
     assert root_node.joint_simulation is None
     assert root_node.terminal.kind is SearchTerminalKind.RECURSIVE_BLOCKED
-    assert root_node.terminal.blocking_obligations == [
-        "recursive_coupling_design_ref_mismatch"
-    ]
+    assert root_node.terminal.blocking_obligations == ["recursive_coupling_design_ref_mismatch"]
 
 
 @pytest.mark.asyncio
@@ -473,9 +451,7 @@ async def test_missing_subdesign_denominator_refuses_before_n5() -> None:
         parent_child_edges=((root, child_refs[0]), (root, child_refs[1])),
         rule_version_ref="repo://rules/gy-n10-missing-subdesign",
     )
-    problems = {
-        node_ref: _recursive_problem(node_ref) for node_ref in (root, *child_refs)
-    }
+    problems = {node_ref: _recursive_problem(node_ref) for node_ref in (root, *child_refs)}
     request = _lane0_coupled_request(
         parent_ref=root,
         child_refs=child_refs,
@@ -503,9 +479,7 @@ async def test_missing_subdesign_denominator_refuses_before_n5() -> None:
     root_node = next(node for node in result.nodes if node.node_ref == root)
     assert root_node.joint_simulation is None
     assert root_node.terminal.kind is SearchTerminalKind.RECURSIVE_BLOCKED
-    assert root_node.terminal.blocking_obligations == [
-        "subdesign_contract_denominator_missing"
-    ]
+    assert root_node.terminal.blocking_obligations == ["subdesign_contract_denominator_missing"]
 
 
 @pytest.mark.asyncio
@@ -560,9 +534,7 @@ async def test_unsupported_n5_coupling_folds_to_typed_recursive_block() -> None:
         parent_child_edges=((root, child_refs[0]), (root, child_refs[1])),
         rule_version_ref="repo://rules/gy-n10-unsupported",
     )
-    problems = {
-        node_ref: _recursive_problem(node_ref) for node_ref in (root, *child_refs)
-    }
+    problems = {node_ref: _recursive_problem(node_ref) for node_ref in (root, *child_refs)}
     request = _lane0_coupled_request(
         parent_ref=root,
         child_refs=child_refs,
@@ -597,14 +569,10 @@ async def test_unsupported_n5_coupling_folds_to_typed_recursive_block() -> None:
 
     root_node = next(node for node in result.nodes if node.node_ref == root)
     assert root_node.joint_simulation is not None
-    assert root_node.joint_simulation.receipt.calibration_status == (
-        "unsupported_coupling_gated"
-    )
+    assert root_node.joint_simulation.receipt.calibration_status == ("unsupported_coupling_gated")
     assert not root_node.joint_simulation.trajectories
     assert root_node.terminal.kind is SearchTerminalKind.RECURSIVE_BLOCKED
-    assert root_node.terminal.blocking_obligations == [
-        "unsupported_coupling_gated"
-    ]
+    assert root_node.terminal.blocking_obligations == ["unsupported_coupling_gated"]
 
 
 def test_gy_g_strangle_receipt_has_no_production_fixture_callers() -> None:
@@ -616,10 +584,12 @@ def test_gy_g_strangle_receipt_has_no_production_fixture_callers() -> None:
     assert receipt.default_controller.endswith("RecursiveGenerationCycleController")
 
 
-def test_default_recursive_router_carries_selected_model_to_leaf_owner() -> None:
+def test_default_recursive_router_carries_selected_model_to_leaf_owner(tmp_path: Path) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
     controller = build_default_recursive_generation_cycle_controller(
         repo_root=REPO_ROOT,
         model_id="registry-selected-model",
+        promotion_runtime=runtime,
     )
 
     assert controller._leaf_model_id == "registry-selected-model"
@@ -634,9 +604,7 @@ def test_governed_depth_n_controller_uses_isolated_verification_promotion(
     depth_n = import_module(
         "tools.quality.validation.check_layer3_gy_depth_n_universality_contract"
     )
-    confidence_ledger = import_module(
-        "polisyos.runtime.quality.confidence_ledger"
-    )
+    confidence_ledger = import_module("polisyos.runtime.quality.confidence_ledger")
 
     def reject_authority_state(*args: object, **kwargs: object) -> object:
         del args, kwargs
@@ -772,9 +740,7 @@ def test_governed_depth_n_controller_uses_isolated_verification_promotion(
                 "nodes": [
                     {
                         "node_ref": "design://verification/root",
-                        "cycle_run": {
-                            "promotion_port": observation.model_dump(mode="json")
-                        },
+                        "cycle_run": {"promotion_port": observation.model_dump(mode="json")},
                     }
                 ],
             }
@@ -787,9 +753,7 @@ def test_governed_depth_n_controller_uses_isolated_verification_promotion(
     assert session.authority_provenance == "verification"
     assert session.is_authority_session is False
     assert observation.reason == "verification_n9_sequence_non_consumer"
-    assert receipt["confidence_ledger_projection"]["authority_provenance"] == (
-        "verification"
-    )
+    assert receipt["confidence_ledger_projection"]["authority_provenance"] == ("verification")
     assert receipt["consumer_promotable"] is False
     assert {
         key: stage_authority[key]
@@ -856,9 +820,7 @@ async def test_recursive_router_executes_observed_depth_above_two() -> None:
         for node in result.leaf_nodes
         if node.cycle_run is not None
     )
-    assert result.root_design_problem_ref == gy_content_hash(
-        problems[root].model_dump(mode="json")
-    )
+    assert result.root_design_problem_ref == gy_content_hash(problems[root].model_dump(mode="json"))
     payload = result.model_dump(mode="json")
     payload["terminal"] = SearchTerminalState(
         kind=SearchTerminalKind.GROUNDED_ADMISSIBLE,
@@ -886,13 +848,9 @@ async def test_recursive_router_executes_observed_depth_above_two() -> None:
         reason="Fabricated leaf terminal.",
     ).model_dump(mode="json")
     leaf_terminal_content = {
-        key: value
-        for key, value in leaf_terminal_tamper.items()
-        if key != "content_hash"
+        key: value for key, value in leaf_terminal_tamper.items() if key != "content_hash"
     }
-    leaf_terminal_tamper["content_hash"] = gy_content_hash(
-        leaf_terminal_content
-    )
+    leaf_terminal_tamper["content_hash"] = gy_content_hash(leaf_terminal_content)
     with pytest.raises(
         ValueError,
         match="recursive_run_leaf_terminal_not_owner_derived",
@@ -1014,10 +972,7 @@ def test_repository_interpreter_accepts_current_repository_venv() -> None:
 
     expected_prefix = (REPO_ROOT / ".venv").resolve()
 
-    assert (
-        universality_preflight_module.assert_repository_interpreter(REPO_ROOT)
-        == expected_prefix
-    )
+    assert universality_preflight_module.assert_repository_interpreter(REPO_ROOT) == expected_prefix
 
 
 def test_fresh_checkout_harness_resolves_current_checkout(tmp_path: Path) -> None:
@@ -1031,10 +986,7 @@ def test_fresh_checkout_harness_resolves_current_checkout(tmp_path: Path) -> Non
     expected_package_path = (REPO_ROOT / "src/polisyos/__init__.py").resolve()
 
     assert result.returncode == 0
-    assert result.stdout == (
-        f"checkout_resolved:{expected_package_path}\n"
-        "cg_backend:available\n"
-    )
+    assert result.stdout == (f"checkout_resolved:{expected_package_path}\ncg_backend:available\n")
     assert producer_sentinel.read_text(encoding="utf-8") == "producer_reached"
 
 
@@ -1051,10 +1003,7 @@ def test_cg_substrate_unavailable_is_rejected_before_proof_execution(
     )
 
     assert result.returncode == 1
-    assert (
-        "cg_substrate_unavailable:ortools_cp_sat:ModuleNotFoundError"
-        in result.stderr
-    )
+    assert "cg_substrate_unavailable:ortools_cp_sat:ModuleNotFoundError" in result.stderr
     assert not producer_sentinel.exists()
 
 
@@ -1188,9 +1137,7 @@ def test_wrong_checkout_precedes_wrong_interpreter_prefix(tmp_path: Path) -> Non
 def _universality_contract_validator() -> Any:
     """Import the Task-12 validator only after the universality preflight."""
 
-    return import_module(
-        "tools.quality.validation.check_layer3_gy_depth_n_universality_contract"
-    )
+    return import_module("tools.quality.validation.check_layer3_gy_depth_n_universality_contract")
 
 
 def test_cycle_context_intake_is_world_and_owner_evidence_driven() -> None:
@@ -1200,9 +1147,7 @@ def test_cycle_context_intake_is_world_and_owner_evidence_driven() -> None:
     n4_contract = import_module(
         "tools.quality.validation.check_layer3_gy_design_generation_contract"
     )
-    n10a = import_module(
-        "tools.quality.validation.check_layer3_gy_second_domain_pack"
-    )
+    n10a = import_module("tools.quality.validation.check_layer3_gy_second_domain_pack")
     fiscal = n4_contract._design_problem(
         {
             "design_problem_id": "world_context_fiscal",
@@ -1215,9 +1160,9 @@ def test_cycle_context_intake_is_world_and_owner_evidence_driven() -> None:
     )
 
     frozen = n10a._load_frozen_bundle(REPO_ROOT)
-    education = DesignProblem.model_validate(
-        frozen["smoke_problem"]["design_problem"]
-    ).model_copy(update={"domain": "learning systems synonym"})
+    education = DesignProblem.model_validate(frozen["smoke_problem"]["design_problem"]).model_copy(
+        update={"domain": "learning systems synonym"}
+    )
     education_context = validator._cycle_context_for_problem(
         REPO_ROOT,
         problem=education,
@@ -1258,8 +1203,7 @@ def _run_universality_validator_with_pythonpath(
     """Run the real validator CLI with a caller-controlled PolicyOS package root."""
 
     validator_path = (
-        REPO_ROOT
-        / "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py"
+        REPO_ROOT / "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py"
     )
     env = os.environ.copy()
     env["PYTHONPATH"] = os.pathsep.join((pythonpath.as_posix(), REPO_ROOT.as_posix()))
@@ -1281,37 +1225,30 @@ def test_stage4_provenance_stability_binds_current_owner_graph() -> None:
 
     assert report["status"] == "stable"
     assert report["issues"] == []
-    assert report["census_ref"]["n4_artifact_sha256"] == report["source_refs"][
-        "n4_artifact_sha256"
-    ]
-    assert report["census_ref"]["content_hash"] == report["n8_fork_b_ref"][
-        "content_hash"
-    ]
-    assert report["census_ref"]["raw_full_table_content_hash"] == report[
-        "n8_fork_b_ref"
-    ]["raw_full_table_content_hash"]
-    assert report["first_vertical_refs"]["n8_design_problem_ref"] in report[
-        "first_vertical_refs"
-    ]["n4_generation_design_problem_refs"]
-    assert report["first_vertical_refs"]["semantic_projection_hash"] == report[
-        "first_vertical_refs"
-    ]["n10a_comparator_hash"]
+    assert report["census_ref"]["n4_artifact_sha256"] == report["source_refs"]["n4_artifact_sha256"]
+    assert report["census_ref"]["content_hash"] == report["n8_fork_b_ref"]["content_hash"]
+    assert (
+        report["census_ref"]["raw_full_table_content_hash"]
+        == report["n8_fork_b_ref"]["raw_full_table_content_hash"]
+    )
+    assert (
+        report["first_vertical_refs"]["n8_design_problem_ref"]
+        in report["first_vertical_refs"]["n4_generation_design_problem_refs"]
+    )
+    assert (
+        report["first_vertical_refs"]["semantic_projection_hash"]
+        == report["first_vertical_refs"]["n10a_comparator_hash"]
+    )
     assert len(set(report["design_problem_refs"].values())) == 1
-    assert report["prompt_hashes"]["owner_projection"] == report["prompt_hashes"][
-        "responses"
-    ]
+    assert report["prompt_hashes"]["owner_projection"] == report["prompt_hashes"]["responses"]
     assert report["prompt_hashes"]["binding_mode"] in {
         "exact_live_capture",
         "verified_historical_replay",
     }
     if report["prompt_hashes"]["binding_mode"] == "exact_live_capture":
-        assert report["prompt_hashes"]["owner_projection"] == report[
-            "prompt_hashes"
-        ]["journal"]
+        assert report["prompt_hashes"]["owner_projection"] == report["prompt_hashes"]["journal"]
     else:
-        assert report["prompt_hashes"]["owner_projection"] != report[
-            "prompt_hashes"
-        ]["journal"]
+        assert report["prompt_hashes"]["owner_projection"] != report["prompt_hashes"]["journal"]
     assert report["composition_ref"]["status"] == "bound"
 
 
@@ -1319,9 +1256,7 @@ def _complete_universality_payload() -> tuple[Any, dict[str, Any]]:
     """Load the frozen capstone; the validator owns the single behavioral rederive."""
 
     validator = _universality_contract_validator()
-    payload = json.loads(
-        (REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8")
-    )
+    payload = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
     return validator, payload
 
 
@@ -1344,10 +1279,11 @@ def _fixture_receipt_semantic_projection(receipt: dict[str, Any]) -> dict[str, A
     """
 
     promotion = import_module("polisyos.runtime.quality.promotion_sequence")
-    if receipt.get("confidence_ledger_semantic_projection") is None:
-        return promotion._canonical_promotion_receipt_legacy_semantic_projection(
-            receipt
-        )
+    schema_version = receipt.get("schema_version")
+    if schema_version == "policyos.policy_design_case.layer3_gy.n9_promotion.v2":
+        return promotion._canonical_promotion_receipt_legacy_semantic_projection(receipt)
+    if schema_version == promotion.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
+        return promotion._canonical_promotion_receipt_v3_semantic_projection(receipt)
     return promotion.canonical_promotion_receipt_semantic_projection(receipt)
 
 
@@ -1357,17 +1293,24 @@ def _manual_receipt_comparison_admissions(
     """Mint test tokens with the exact canonical owner vocabulary."""
 
     promotion = import_module("polisyos.runtime.quality.promotion_sequence")
-    owner = promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
-    return tuple(
-        GyComparisonAdmission(
-            owner_rule=promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
-            source_content_hash=gy_recorded_content_hash(receipt),
-            projector=_fixture_receipt_semantic_projection,
-            action=owner.action,
-            predicate_provenance=owner.predicate_provenance,
+    admissions: list[GyComparisonAdmission] = []
+    for receipt in _recording_receipts(recording):
+        if receipt.get("schema_version") == promotion.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
+            owner = promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE
+            owner_rule = promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE
+        else:
+            owner = promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
+            owner_rule = promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE
+        admissions.append(
+            GyComparisonAdmission(
+                owner_rule=owner_rule,
+                source_content_hash=gy_recorded_content_hash(receipt),
+                projector=_fixture_receipt_semantic_projection,
+                action=owner.action,
+                predicate_provenance=owner.predicate_provenance,
+            )
         )
-        for receipt in _recording_receipts(recording)
-    )
+    return tuple(admissions)
 
 
 def _allow_manual_receipt_proofs_for_projection_test(
@@ -1398,27 +1341,15 @@ def _refresh_recording_hashes(recording: dict[str, Any]) -> None:
 
     recursive_run = recording["compiled_run"]["recursive_run"]
     recursive_run["content_hash"] = gy_content_hash(
-        {
-            key: value
-            for key, value in recursive_run.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in recursive_run.items() if key != "content_hash"}
     )
     compiled_run = recording["compiled_run"]
     compiled_run["content_hash"] = gy_content_hash(
-        {
-            key: value
-            for key, value in compiled_run.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in compiled_run.items() if key != "content_hash"}
     )
     recording["compiled_run_content_hash"] = compiled_run["content_hash"]
     recording["recording_content_hash"] = gy_content_hash(
-        {
-            key: value
-            for key, value in recording.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in recording.items() if key != "recording_content_hash"}
     )
 
 
@@ -1446,168 +1377,89 @@ def _verification_lineage_variant(recording: dict[str, Any]) -> dict[str, Any]:
     for index, receipt in enumerate(_recording_receipts(changed), start=1):
         expected_projection = _fixture_receipt_semantic_projection(receipt)
         certificate = receipt["confidence_ledger_projection"]
-        certificate["deployment_identity"] = (
-            "policy-engine-deployment:sha256:" + str(index) * 64
-        )
+        certificate["deployment_identity"] = "policy-engine-deployment:sha256:" + str(index) * 64
         certificate["projection_hash"] = gy_content_hash(
-            {
-                key: value
-                for key, value in certificate.items()
-                if key != "projection_hash"
-            }
+            {key: value for key, value in certificate.items() if key != "projection_hash"}
         )
         receipt["gate_outcome_hash"] = "sha256:" + str(index + 1) * 64
         if receipt["trace_content_hash"] is not None:
             receipt["trace_content_hash"] = "sha256:" + str(index + 2) * 64
-        assert (
-            _fixture_receipt_semantic_projection(receipt)
-            == expected_projection
-        )
+        assert _fixture_receipt_semantic_projection(receipt) == expected_projection
     _change_all_operational_clocks(changed)
     _refresh_recording_hashes(changed)
     return changed
 
 
-def test_controlled_recording_comparison_preserves_full_frozen_bytes(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """Session lineage and clocks compare equal while complete custody bytes survive."""
+def _historical_recording_admission(
+    validator: Any,
+    recording: dict[str, Any],
+) -> GyComparisonAdmission:
+    """Build a read-only root-v1 admission; it has no v1-to-v2 migrator."""
+
+    owner = validator._DEPTH_CONTROLLED_RECORDING_COMPARISON_HISTORY_OWNER_RULE
+    return GyComparisonAdmission(
+        owner_rule=validator._DEPTH_CONTROLLED_RECORDING_COMPARISON_HISTORY_RULE,
+        source_content_hash=gy_recorded_content_hash(recording),
+        projector=validator._controlled_recording_history_semantic_projection,
+        action=owner.action,
+        predicate_provenance=owner.predicate_provenance,
+    )
+
+
+def test_controlled_recording_comparison_preserves_full_frozen_bytes() -> None:
+    """Historical root-v1 bytes remain readable but cannot become root-v2 authority."""
 
     validator, payload = _complete_universality_payload()
-    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
-    frozen_full = copy.deepcopy(payload["proof_recordings"]["first_vertical"])
-    frozen = validator._without_authority_source_migration_receipt(frozen_full)
-    live = _verification_lineage_variant(frozen)
-    live_receipt_proofs = _manual_receipt_comparison_admissions(live)
+    frozen = payload["proof_recordings"]["first_vertical"]
+    plan = validator._depth_plan_from_manifest(payload)
 
-    live_admission = validator._admit_controlled_recording_for_comparison(
-        live,
-        role="first_vertical",
-        receipt_proofs=live_receipt_proofs,
-    )
-    live_plan = build_gy_comparison_projection_plan(
-        live,
-        admissions=(live_admission,),
-    )
-    reconciled = validator._reconcile_controlled_recording(
-        frozen,
-        live,
-        comparison_plan=live_plan,
-        role="first_vertical",
-        admission_arm="migrated",
-    )
-    frozen_admission = validator._admit_controlled_recording_for_comparison(
-        live,
-        role="first_vertical",
-        receipt_proofs=live_receipt_proofs,
-        aligned_recording=frozen,
-    )
-    frozen_plan = build_gy_comparison_projection_plan(
-        frozen,
-        admissions=(frozen_admission,),
-    )
-    full_admission = validator._admit_controlled_recording_for_comparison(
-        live,
-        role="first_vertical",
-        receipt_proofs=live_receipt_proofs,
-        aligned_recording=frozen_full,
-    )
-    full_plan = build_gy_comparison_projection_plan(
-        frozen_full,
-        admissions=(full_admission,),
-    )
-
-    assert live_plan.project(live) == frozen_plan.project(frozen)
-    assert reconciled == frozen
-    assert json.dumps(reconciled, sort_keys=True) == json.dumps(
-        frozen,
-        sort_keys=True,
-    )
-    assert full_plan.preserve_admitted_blocks(frozen_full, frozen_full) == frozen_full
-    assert full_plan.project(frozen_full)["authority_source_admission"]
-    assert _recording_receipts(reconciled)
-    assert all(
-        receipt["confidence_ledger_projection"]["authority_provenance"]
-        == "verification"
-        for receipt in _recording_receipts(reconciled)
-    )
+    assert validator._comparison_identity_issues(payload) == []
+    assert plan.preserve_admitted_blocks(payload, payload) == payload
+    assert validator._controlled_recording_history_semantic_projection(frozen)
+    with pytest.raises(
+        ValueError,
+        match="legacy_open_world_gate_authority_not_admitted",
+    ):
+        validator._controlled_recording_verification_semantic_projection(frozen)
+    manifest = payload["comparison_admission_manifest"]
+    root_entries = [
+        row
+        for row in manifest
+        if row["owner_rule"] == validator._DEPTH_CONTROLLED_RECORDING_COMPARISON_HISTORY_RULE
+    ]
+    assert len(root_entries) == len(validator.PLAIN_LANGUAGE_PROOF_REQUESTS)
 
 
 def test_aligned_recording_migration_uses_proof_bound_receipt_source(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Artifact reconciliation reuses the live receipts proven before alignment."""
+    """Current root admission refuses historical v3 nested receipt proofs."""
 
     validator, payload = _complete_universality_payload()
     _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
     frozen = validator._without_authority_source_migration_receipt(
         payload["proof_recordings"]["first_vertical"]
     )
-    live = _verification_lineage_variant(frozen)
-    promotion = import_module("polisyos.runtime.quality.promotion_sequence")
-    owner = promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
-    strict_proofs: list[GyComparisonAdmission] = []
-    for receipt in _recording_receipts(live):
-        proof_bound = copy.deepcopy(receipt)
 
-        def _migrate(
-            previous: dict[str, object],
-            current: dict[str, object],
-            *,
-            expected: dict[str, object] = proof_bound,
-        ) -> dict[str, object]:
-            if current != expected:
-                raise ValueError("live_receipt_drift")
-            return copy.deepcopy(previous)
-
-        strict_proofs.append(
-            GyComparisonAdmission(
-                owner_rule=promotion.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
-                source_content_hash=gy_recorded_content_hash(receipt),
-                projector=_fixture_receipt_semantic_projection,
-                action=owner.action,
-                predicate_provenance=owner.predicate_provenance,
-                legacy_migrator=_migrate,
-            )
-        )
-
-    recording_admission = validator._admit_controlled_recording_for_comparison(
-        live,
-        role="first_vertical",
-        receipt_proofs=tuple(strict_proofs),
-        aligned_recording=frozen,
-    )
-    plan = build_gy_comparison_projection_plan(
-        frozen,
-        admissions=(recording_admission,),
-    )
-
-    assert plan.preserve_admitted_blocks(frozen, frozen) == frozen
-    forged_current = copy.deepcopy(frozen)
-    _change_all_operational_clocks(forged_current)
-    _refresh_recording_hashes(forged_current)
     with pytest.raises(
         ValueError,
-        match="controlled_recording_legacy_comparison_semantic_mismatch",
-    ) as exc_info:
-        plan.preserve_admitted_blocks(frozen, forged_current)
-    assert exc_info.value.__cause__ is not None
-    assert str(exc_info.value.__cause__) == "controlled_recording_aligned_current_drift"
+        match="controlled_recording_receipt_admission_denominator_invalid",
+    ):
+        validator._admit_controlled_recording_for_comparison(
+            frozen,
+            role="first_vertical",
+            receipt_proofs=_manual_receipt_comparison_admissions(frozen),
+            aligned_recording=frozen,
+        )
 
 
-def test_artifact_reconciliation_reissues_recording_authority_envelopes(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """A root migration must rebind its authority envelope and sibling route."""
+def test_artifact_reconciliation_reissues_recording_authority_envelopes() -> None:
+    """Root-v1 to root-v2 reconciliation refuses before a migrator can run."""
 
     validator, frozen = _complete_universality_payload()
-    _allow_manual_receipt_proofs_for_projection_test(monkeypatch, validator)
-    role = "first_vertical"
     live = copy.deepcopy(frozen)
-    live_recording = _verification_lineage_variant(
-        live["proof_recordings"][role]
-    )
-    live["proof_recordings"][role] = live_recording
+    migrated: list[str] = []
+    live_recording = live["proof_recordings"]["first_vertical"]
     owner = validator._DEPTH_CONTROLLED_RECORDING_COMPARISON_OWNER_RULE
     recording_admission = GyComparisonAdmission(
         owner_rule=validator._DEPTH_CONTROLLED_RECORDING_COMPARISON_RULE,
@@ -1615,34 +1467,19 @@ def test_artifact_reconciliation_reissues_recording_authority_envelopes(
         projector=validator._controlled_recording_verification_semantic_projection,
         action=owner.action,
         predicate_provenance=owner.predicate_provenance,
-        legacy_migrator=lambda _previous, current: copy.deepcopy(dict(current)),
+        legacy_migrator=lambda _previous, current: (
+            migrated.append("called") or copy.deepcopy(dict(current))
+        ),
     )
-    plan = build_gy_comparison_projection_plan(
-        live,
-        admissions=(recording_admission,),
-    )
-
-    stale_issues = validator._authority_source_admission_issues(
-        live_recording,
-        replayed_domain_run=live["domain_runs"][role],
-        expected_role=role,
-    )
-    assert "authority_source_recording_base_binding_mismatch" in stale_issues
-    assert "authority_source_admission_compiled_binding_mismatch" in stale_issues
-
-    reconciled = validator._reconcile_artifact_records(frozen, live, plan)
-    reconciled_recording = reconciled["proof_recordings"][role]
-    reconciled_route = reconciled["domain_runs"][role]
-
-    assert reconciled_recording["recording_content_hash"] == (
-        reconciled_route["recording_content_hash"]
-    )
-    assert not validator._authority_source_admission_issues(
-        reconciled_recording,
-        replayed_domain_run=reconciled_route,
-        expected_role=role,
-    )
-    assert not validator.validate_payload(reconciled)["issues"]
+    with pytest.raises(
+        ValueError,
+        match="legacy_open_world_gate_authority_not_admitted",
+    ):
+        build_gy_comparison_projection_plan(
+            live,
+            admissions=(recording_admission,),
+        )
+    assert migrated == []
 
 
 def test_controlled_recording_comparison_keeps_governing_input_red(
@@ -1658,11 +1495,7 @@ def test_controlled_recording_comparison_keeps_governing_input_red(
     live = copy.deepcopy(frozen)
     live["compiler_recording"]["raw_request"] += " governing change"
     _refresh_recording_hashes(live)
-    admission = validator._admit_controlled_recording_for_comparison(
-        live,
-        role="first_vertical",
-        receipt_proofs=_manual_receipt_comparison_admissions(live),
-    )
+    admission = _historical_recording_admission(validator, live)
     plan = build_gy_comparison_projection_plan(live, admissions=(admission,))
 
     with pytest.raises(
@@ -1703,11 +1536,7 @@ def test_controlled_recording_comparison_declaration_fails_closed(
     else:
         certificate["authority_provenance"] = declaration
     certificate["projection_hash"] = gy_content_hash(
-        {
-            key: value
-            for key, value in certificate.items()
-            if key != "projection_hash"
-        }
+        {key: value for key, value in certificate.items() if key != "projection_hash"}
     )
     _refresh_recording_hashes(recording)
 
@@ -1732,7 +1561,10 @@ def test_controlled_recording_rejects_self_rehashed_detached_receipt(
     frozen_admissions = _manual_receipt_comparison_admissions(frozen)
     forged = _verification_lineage_variant(frozen)
 
-    with pytest.raises(ValueError, match="gy_comparison_live_admission_unbound"):
+    with pytest.raises(
+        ValueError,
+        match="controlled_recording_receipt_admission_denominator_invalid",
+    ):
         validator._admit_controlled_recording_for_comparison(
             forged,
             role="first_vertical",
@@ -1765,9 +1597,7 @@ def test_depth_receipt_proofs_delegate_to_live_canonical_owner(
     """The Depth bridge cannot replace the canonical receipt proof factory."""
 
     validator, payload = _complete_universality_payload()
-    control = import_module(
-        "polisyos.runtime.http.services.control.generation_cycle"
-    )
+    control = import_module("polisyos.runtime.http.services.control.generation_cycle")
     compiled = control.CompiledRecursiveGenerationCycleRun.model_validate(
         payload["proof_recordings"]["first_vertical"]["compiled_run"]
     )
@@ -1855,20 +1685,12 @@ async def test_compiler_recording_replays_through_canonical_owner_lane0() -> Non
     replayed = await validator._replay_compiler_recording(recording)
 
     assert replayed == problem
-    assert recording["recording_source"] == (
-        "live_gateway_canonical_design_problem_compiler"
-    )
+    assert recording["recording_source"] == ("live_gateway_canonical_design_problem_compiler")
     assert recording["calls"]
-    assert recording["calls"][0]["response"]["tool_calls"][0]["name"] == (
-        "emit_design_problem"
-    )
+    assert recording["calls"][0]["response"]["tool_calls"][0]["name"] == ("emit_design_problem")
     tampered = json.loads(json.dumps(recording))
     tampered["calls"][0]["request_content_hash"] = "sha256:" + "0" * 64
-    stable = {
-        key: value
-        for key, value in tampered.items()
-        if key != "recording_content_hash"
-    }
+    stable = {key: value for key, value in tampered.items() if key != "recording_content_hash"}
     tampered["recording_content_hash"] = validator._semantic_hash(stable)
     with pytest.raises(
         validator.UniversalityContractError,
@@ -1904,9 +1726,7 @@ async def test_characterization_gateway_varies_only_request_parameters() -> None
             "reasoning_split": True,
             "seed": 42,
         },
-        system_suffix=(
-            "Do not strengthen cited source meaning with unstated consequences."
-        ),
+        system_suffix=("Do not strengthen cited source meaning with unstated consequences."),
     )
 
     assert await gateway.list_model_ids(timeout=1.0) == ["MiniMaxAI/MiniMax-M2.7"]
@@ -1951,11 +1771,7 @@ def test_structured_capability_matrix_is_finite_and_carrier_complete() -> None:
         "structured_outputs_json_with_tool",
     }
     assert len({row["probe_id"] for row in rows}) == len(rows)
-    assert not any(
-        key in {"role", "domain", "jurisdiction"}
-        for row in rows
-        for key in row
-    )
+    assert not any(key in {"role", "domain", "jurisdiction"} for row in rows for key in row)
 
 
 def test_structured_capability_request_uses_provider_native_controls_only() -> None:
@@ -1964,20 +1780,14 @@ def test_structured_capability_request_uses_provider_native_controls_only() -> N
     validator = _universality_contract_validator()
 
     strict_tool = validator._structured_capability_request("strict_tool")
-    combined = validator._structured_capability_request(
-        "response_format_json_schema_with_tool"
-    )
-    native = validator._structured_capability_request(
-        "structured_outputs_json_with_tool"
-    )
+    combined = validator._structured_capability_request("response_format_json_schema_with_tool")
+    native = validator._structured_capability_request("structured_outputs_json_with_tool")
 
     assert strict_tool["tools"][0]["function"]["strict"] is True
     assert "response_format" not in strict_tool
     assert combined["response_format"]["type"] == "json_schema"
     assert combined["tools"][0]["function"]["name"] == "emit_conformance_probe"
-    assert native["structured_outputs"] == {
-        "json": validator.STRUCTURED_CAPABILITY_SCHEMA
-    }
+    assert native["structured_outputs"] == {"json": validator.STRUCTURED_CAPABILITY_SCHEMA}
     assert native["tool_choice"] == {
         "type": "function",
         "function": {"name": "emit_conformance_probe"},
@@ -2166,19 +1976,13 @@ def test_characterization_matrix_is_finite_and_domain_agnostic() -> None:
         16384,
         32768,
     }
-    assert sum(
-        row["request_parameters"].get("reasoning_split") is True for row in rows
-    ) == 6
+    assert sum(row["request_parameters"].get("reasoning_split") is True for row in rows) == 6
     assert {row["prompt_variant"] for row in rows} == {
         "generic_collection_invariant_v1",
         "source_semantics_non_strengthening_v1",
         "optional_structure_completeness_v1",
     }
-    seeded = [
-        row
-        for row in rows
-        if row["prompt_variant"] == "optional_structure_completeness_v1"
-    ]
+    seeded = [row for row in rows if row["prompt_variant"] == "optional_structure_completeness_v1"]
     assert {row["request_parameters"]["seed"] for row in seeded} == {0, 1, 42}
     assert {row["confirmation_repetitions"] for row in seeded} == {2}
     assert not any(
@@ -2192,9 +1996,7 @@ def test_compiler_recording_preserves_provider_finish_reason() -> None:
     """Replay must retain the provider evidence used by the truncation fence."""
 
     validator = _universality_contract_validator()
-    gateway_module = import_module(
-        "polisyos.scientist.orchestration.llm.gateway_client"
-    )
+    gateway_module = import_module("polisyos.scientist.orchestration.llm.gateway_client")
     response = gateway_module.GatewayLLMResponse(
         content="",
         model="moonshotai/Kimi-K2.6",
@@ -2228,26 +2030,41 @@ def test_compiler_characterization_classifies_without_cleaning_output() -> None:
         ],
     }
 
-    assert validator._classify_compiler_characterization_outcome(
-        error_code=None,
-        response_payload={"finish_reason": "tool_calls", "tool_calls": []},
-    ) == "clean_complete_schema_valid_entailment_pass"
-    assert validator._classify_compiler_characterization_outcome(
-        error_code="design_problem_output_truncated",
-        response_payload={"finish_reason": "length", "tool_calls": []},
-    ) == "truncated"
-    assert validator._classify_compiler_characterization_outcome(
-        error_code="design_problem_validation_failed",
-        response_payload=reasoning_wrapped,
-    ) == "reasoning_wrapped"
-    assert validator._classify_compiler_characterization_outcome(
-        error_code="design_problem_validation_failed",
-        response_payload={"finish_reason": "tool_calls", "tool_calls": []},
-    ) == "schema_invalid"
-    assert validator._classify_compiler_characterization_outcome(
-        error_code="gateway_http_error",
-        response_payload={},
-    ) == "provider_refused"
+    assert (
+        validator._classify_compiler_characterization_outcome(
+            error_code=None,
+            response_payload={"finish_reason": "tool_calls", "tool_calls": []},
+        )
+        == "clean_complete_schema_valid_entailment_pass"
+    )
+    assert (
+        validator._classify_compiler_characterization_outcome(
+            error_code="design_problem_output_truncated",
+            response_payload={"finish_reason": "length", "tool_calls": []},
+        )
+        == "truncated"
+    )
+    assert (
+        validator._classify_compiler_characterization_outcome(
+            error_code="design_problem_validation_failed",
+            response_payload=reasoning_wrapped,
+        )
+        == "reasoning_wrapped"
+    )
+    assert (
+        validator._classify_compiler_characterization_outcome(
+            error_code="design_problem_validation_failed",
+            response_payload={"finish_reason": "tool_calls", "tool_calls": []},
+        )
+        == "schema_invalid"
+    )
+    assert (
+        validator._classify_compiler_characterization_outcome(
+            error_code="gateway_http_error",
+            response_payload={},
+        )
+        == "provider_refused"
+    )
 
 
 @pytest.mark.asyncio
@@ -2437,15 +2254,14 @@ async def test_structured_conformance_prunes_degraded_mode_then_proves_all_roles
     )
     assert report["winning_config"]["selection_scope"] == "universal"
     assert report["winning_config"]["mode"] == "provider_tool_schema"
-    assert sum(
-        call["provider_schema_mode"]
-        == "response_format_json_schema_with_tool"
-        for call in calls
-    ) == 1
-    assert sum(
-        call["provider_schema_mode"] == "provider_tool_schema"
-        for call in calls
-    ) == 18
+    assert (
+        sum(
+            call["provider_schema_mode"] == "response_format_json_schema_with_tool"
+            for call in calls
+        )
+        == 1
+    )
+    assert sum(call["provider_schema_mode"] == "provider_tool_schema" for call in calls) == 18
 
 
 def test_span_capture_uses_fresh_client_inside_each_event_loop(
@@ -2454,12 +2270,8 @@ def test_span_capture_uses_fresh_client_inside_each_event_loop(
     """Prevent an aiohttp session created by the compiler loop entering verifier loops."""
 
     validator = _universality_contract_validator()
-    gateway_module = import_module(
-        "polisyos.scientist.orchestration.llm.gateway_client"
-    )
-    factory_module = import_module(
-        "polisyos.scientist.orchestration.llm.factory"
-    )
+    gateway_module = import_module("polisyos.scientist.orchestration.llm.gateway_client")
+    factory_module = import_module("polisyos.scientist.orchestration.llm.factory")
     clients: list[Any] = []
 
     class _LoopBoundClient:
@@ -2556,9 +2368,7 @@ async def test_proof_capture_reuses_successful_local_owner_recordings(
         assert recording["role"] == role
         return {"role": role}
 
-    factory_module = import_module(
-        "polisyos.scientist.orchestration.llm.factory"
-    )
+    factory_module = import_module("polisyos.scientist.orchestration.llm.factory")
 
     def _provider_must_not_run(**kwargs: Any) -> None:
         raise AssertionError(f"successful local cache was ignored: {kwargs}")
@@ -2608,9 +2418,7 @@ async def test_proof_capture_advances_model_once_after_typed_compiler_refusal(
         async def aclose(self) -> None:
             closed_models.append(self.model_id)
 
-    factory_module = import_module(
-        "polisyos.scientist.orchestration.llm.factory"
-    )
+    factory_module = import_module("polisyos.scientist.orchestration.llm.factory")
 
     def _factory(*, model_name: str, **kwargs: Any) -> _Client:
         del kwargs
@@ -2679,9 +2487,7 @@ async def test_proof_capture_advances_model_once_after_typed_compiler_refusal(
         ("first_vertical", validator.PROOF_COMPILER_MODEL_PLAN[0]),
         ("first_vertical", validator.PROOF_COMPILER_MODEL_PLAN[1]),
     ]
-    assert attempts.count(
-        ("first_vertical", validator.PROOF_COMPILER_MODEL_PLAN[0])
-    ) == 1
+    assert attempts.count(("first_vertical", validator.PROOF_COMPILER_MODEL_PLAN[0])) == 1
     assert attempts[2:4] == [
         ("education", validator.PROOF_COMPILER_MODEL_PLAN[0]),
         ("education", validator.PROOF_COMPILER_MODEL_PLAN[1]),
@@ -2690,9 +2496,9 @@ async def test_proof_capture_advances_model_once_after_typed_compiler_refusal(
     assert created_models == closed_models
     journal_rows = [
         json.loads(line)
-        for line in (
-            tmp_path / "capture-cache" / "capture.jsonl"
-        ).read_text(encoding="utf-8").splitlines()
+        for line in (tmp_path / "capture-cache" / "capture.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
     ]
     assert any(
         row.get("event") == "compiler_capture_attempt_refused"
@@ -2778,9 +2584,7 @@ async def test_proof_capture_resumes_without_second_cold_closeout_start(
         assert recording["role"] == role
         return {"role": role}
 
-    factory_module = import_module(
-        "polisyos.scientist.orchestration.llm.factory"
-    )
+    factory_module = import_module("polisyos.scientist.orchestration.llm.factory")
     monkeypatch.setattr(
         factory_module,
         "create_traced_gateway_client",
@@ -2794,16 +2598,12 @@ async def test_proof_capture_resumes_without_second_cold_closeout_start(
 
     rows = [
         json.loads(line)
-        for line in (
-            tmp_path / "capture-cache" / "capture.jsonl"
-        ).read_text(encoding="utf-8").splitlines()
+        for line in (tmp_path / "capture-cache" / "capture.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
     ]
-    assert sum(
-        row.get("event") == "cold_domain_closeout_started" for row in rows
-    ) == 1
-    assert sum(
-        row.get("event") == "cold_domain_closeout_resumed" for row in rows
-    ) == 1
+    assert sum(row.get("event") == "cold_domain_closeout_started" for row in rows) == 1
+    assert sum(row.get("event") == "cold_domain_closeout_resumed" for row in rows) == 1
 
 
 @pytest.mark.asyncio
@@ -2856,9 +2656,7 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
                             "cycle_run": {
                                 "promotion_port": {
                                     "status": "not_promoted",
-                                    "reason": (
-                                        "verification_n9_sequence_non_consumer"
-                                    ),
+                                    "reason": ("verification_n9_sequence_non_consumer"),
                                     "certified_candidate_ids": [],
                                     "receipts": [
                                         {
@@ -2875,7 +2673,8 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
                 },
             }
 
-    async def _compile(**kwargs: Any) -> _Compiled:
+    async def _compile(*args: Any, **kwargs: Any) -> _Compiled:
+        assert args == (tmp_path,)
         captured.update(kwargs)
         return _Compiled()
 
@@ -2883,12 +2682,9 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
         del args, kwargs
         raise AssertionError("no-context capture invoked the Scientist N4 replay")
 
-    generation_cycle_module = import_module(
-        "polisyos.runtime.http.services.control.generation_cycle"
-    )
     monkeypatch.setattr(
-        generation_cycle_module,
-        "compile_and_run_recursive_generation_cycle",
+        validator,
+        "_compile_and_run_verification_recursive_generation_cycle",
         _compile,
     )
     monkeypatch.setattr(validator, "_ReplayGateway", _Replay)
@@ -2924,15 +2720,9 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
     assert captured["controller"]._authority_scope == "contract_testing"
     assert captured["leaf_model_id"] == validator.PROOF_MODEL_ID
     assert recording["cycle_substrate_context_content_hash"] is None
-    assert recording["schema_version"] == (
-        "policyos.layer3.gy.n10.domain_run_recording.v2"
-    )
-    assert recording["authority_source_admission"]["admission_kind"] == (
-        "controlled_at_capture"
-    )
-    assert recording["n4_recording"]["status"] == (
-        "cycle_substrate_context_unavailable"
-    )
+    assert recording["schema_version"] == ("policyos.layer3.gy.n10.domain_run_recording.v2")
+    assert recording["authority_source_admission"]["admission_kind"] == ("controlled_at_capture")
+    assert recording["n4_recording"]["status"] == ("cycle_substrate_context_unavailable")
     assert "responses" not in recording["n4_recording"]
     assert "owner_result_projection" not in recording["n4_recording"]
 
@@ -2975,9 +2765,7 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
                 "cycle_run": {
                     "cycles": [
                         {
-                            "acquisition_routing_report": {
-                                "generated_at": "2026-08-09T10:33:22Z"
-                            },
+                            "acquisition_routing_report": {"generated_at": "2026-08-09T10:33:22Z"},
                             "value_port": {"wall_time_ms": 1.0},
                         }
                     ],
@@ -2994,23 +2782,17 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
                                 },
                             }
                         ],
-                    }
+                    },
                 },
                 "terminal": {
                     "costed_plan": {
-                        "canonical_planner_report": {
-                            "generated_at": "2026-08-09T10:33:22Z"
-                        }
+                        "canonical_planner_report": {"generated_at": "2026-08-09T10:33:22Z"}
                     }
                 },
             }
         ],
         "terminal": {
-            "costed_plan": {
-                "canonical_planner_report": {
-                    "generated_at": "2026-08-09T10:33:22Z"
-                }
-            }
+            "costed_plan": {"canonical_planner_report": {"generated_at": "2026-08-09T10:33:22Z"}}
         },
     }
     live_payload = {
@@ -3033,7 +2815,8 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         del args, kwargs
         return object()
 
-    async def _compile_and_run(**kwargs: Any) -> object:
+    async def _compile_and_run(*args: Any, **kwargs: Any) -> object:
+        assert args == (tmp_path,)
         calls.update(kwargs)
         return live_compiled
 
@@ -3062,9 +2845,7 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         payload["content_hash"] = validator._semantic_hash(payload)
         return payload
 
-    control = import_module(
-        "polisyos.runtime.http.services.control.generation_cycle"
-    )
+    control = import_module("polisyos.runtime.http.services.control.generation_cycle")
     compiled_type = control.CompiledRecursiveGenerationCycleRun
 
     recursive_payload: dict[str, Any] = {
@@ -3115,8 +2896,8 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         staticmethod(_validate_compiled),
     )
     monkeypatch.setattr(
-        control,
-        "compile_and_run_recursive_generation_cycle",
+        validator,
+        "_compile_and_run_verification_recursive_generation_cycle",
         _compile_and_run,
     )
     monkeypatch.setattr(validator, "_replay_compiler_recording", _replay_compiler)
@@ -3235,25 +3016,25 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
     )
 
     live_cycle = live_payload["recursive_run"]["nodes"][0]["cycle_run"]
-    live_cycle["cycles"][0]["acquisition_routing_report"]["generated_at"] = (
-        "2026-08-09T10:49:01Z"
-    )
+    live_cycle["cycles"][0]["acquisition_routing_report"]["generated_at"] = "2026-08-09T10:49:01Z"
     live_cycle["cycles"][0]["value_port"]["wall_time_ms"] = 99.0
     live_cycle["value_port"]["wall_time_ms"] = 99.0
     live_payload["recursive_run"]["nodes"][0]["terminal"]["costed_plan"][
         "canonical_planner_report"
     ]["generated_at"] = "2026-08-09T10:49:01Z"
-    live_payload["recursive_run"]["terminal"]["costed_plan"][
-        "canonical_planner_report"
-    ]["generated_at"] = "2026-08-09T10:49:01Z"
+    live_payload["recursive_run"]["terminal"]["costed_plan"]["canonical_planner_report"][
+        "generated_at"
+    ] = "2026-08-09T10:49:01Z"
 
-    replayed_domain_run, replayed_recording, _ = (
-        await validator._domain_run_and_normalized_recording(
-            tmp_path,
-            role="education",
-            recording=normalized,
-            historical_domain_run=domain_run,
-        )
+    (
+        replayed_domain_run,
+        replayed_recording,
+        _,
+    ) = await validator._domain_run_and_normalized_recording(
+        tmp_path,
+        role="education",
+        recording=normalized,
+        historical_domain_run=domain_run,
     )
 
     assert replayed_recording == normalized
@@ -3286,8 +3067,7 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         report["live_replayed"]["content_identity"],
     )
     assert (
-        report["expected_frozen"]["content_identity"]
-        != report["live_replayed"]["content_identity"]
+        report["expected_frozen"]["content_identity"] != report["live_replayed"]["content_identity"]
     )
     leaves = {leaf["path"]: leaf for leaf in report["changed_leaves"]}
     changed = leaves["/compiled_run/recursive_run/nodes/0/node_ref"]
@@ -3387,14 +3167,10 @@ def _historical_projection_rebind_fixture() -> tuple[
         ],
     }
     replayed_projection = copy.deepcopy(historical_projection)
-    bridge = replayed_projection["grounding_dispositions"][0][
-        "bridge_missing_records"
-    ][0]
+    bridge = replayed_projection["grounding_dispositions"][0]["bridge_missing_records"][0]
     bridge["record_id"] = "cg5_ticket_" + "4" * 16
     bridge["content_hash"] = "sha256:" + "4" * 64
-    chain = replayed_projection["grounding_dispositions"][0][
-        "certificate_chain"
-    ]
+    chain = replayed_projection["grounding_dispositions"][0]["certificate_chain"]
     chain["cg1_certificate_id"] = "cg1_cert_" + "5" * 16
     chain["cg1_content_hash"] = "sha256:" + "5" * 64
     recording: dict[str, Any] = {
@@ -3421,34 +3197,23 @@ def _historical_projection_rebind_fixture() -> tuple[
 def test_historical_n4_projection_rebind_is_exact_and_content_bound() -> None:
     """Certificate-only provenance may rebind once through a verified receipt."""
 
-    validator, recording, replayed_projection = (
-        _historical_projection_rebind_fixture()
-    )
+    validator, recording, replayed_projection = _historical_projection_rebind_fixture()
     normalized = validator._normalize_replayed_n4_recording(
         recording,
         replayed_projection=replayed_projection,
     )
 
     receipt = normalized["historical_projection_rebind_receipt"]
-    assert receipt["eligible_issue_set"] == [
-        "proof_n4_owner_projection_replay_drift"
-    ]
-    assert receipt["historical_owner_result_projection"] == recording[
-        "owner_result_projection"
-    ]
+    assert receipt["eligible_issue_set"] == ["proof_n4_owner_projection_replay_drift"]
+    assert receipt["historical_owner_result_projection"] == recording["owner_result_projection"]
     assert normalized["owner_result_projection"] == replayed_projection
-    assert (
-        validator._historical_n4_projection_rebind_receipt_issues(normalized)
-        == ()
-    )
+    assert validator._historical_n4_projection_rebind_receipt_issues(normalized) == ()
 
 
 def test_historical_n4_projection_rebind_rejects_tamper_and_nonidentity() -> None:
     """Raw-byte or semantic drift cannot use the historical exception."""
 
-    validator, recording, replayed_projection = (
-        _historical_projection_rebind_fixture()
-    )
+    validator, recording, replayed_projection = _historical_projection_rebind_fixture()
     semantic_drift = copy.deepcopy(replayed_projection)
     semantic_drift["grounding_dispositions"][0]["disposition"] = "shadow_bound"
     with pytest.raises(
@@ -3465,9 +3230,7 @@ def test_historical_n4_projection_rebind_rejects_tamper_and_nonidentity() -> Non
         replayed_projection=replayed_projection,
     )
     normalized["responses"][0]["raw_response"] += " tampered"
-    normalized["responses"][0]["raw_llm_response"] = normalized["responses"][
-        0
-    ]["raw_response"]
+    normalized["responses"][0]["raw_llm_response"] = normalized["responses"][0]["raw_response"]
     assert "proof_n4_recording_raw_response_hash_mismatch" in (
         validator._historical_n4_projection_rebind_receipt_issues(normalized)
     )
@@ -3522,14 +3285,11 @@ def test_historical_n4_atom_readdress_is_owner_recomputed_not_whitelisted() -> N
         update={
             "wm_version": old_wmr,
             "evidence": tuple(
-                item.replace(new_wmr_id, old_wmr_id)
-                for item in current_signature.evidence
+                item.replace(new_wmr_id, old_wmr_id) for item in current_signature.evidence
             ),
         }
     )
-    historical_scope = tuple(
-        item.replace(new_wmr_id, old_wmr_id) for item in current_scope
-    )
+    historical_scope = tuple(item.replace(new_wmr_id, old_wmr_id) for item in current_scope)
     historical_hash = gy_content_hash(
         {
             "edge_scope": sorted(historical_scope),
@@ -3554,9 +3314,7 @@ def test_historical_n4_atom_readdress_is_owner_recomputed_not_whitelisted() -> N
         ]
     }
     replayed_projection = copy.deepcopy(historical_projection)
-    replayed_projection["grounding_dispositions"][0]["identified_atom_id"] = (
-        current_atom.atom_id
-    )
+    replayed_projection["grounding_dispositions"][0]["identified_atom_id"] = current_atom.atom_id
     registry = {
         "schema_version": "policyos.layer3.gy.n10.wmr_reissue_registry.v1",
         "reissues": [
@@ -3578,22 +3336,21 @@ def test_historical_n4_atom_readdress_is_owner_recomputed_not_whitelisted() -> N
 
     assert witnesses[0]["historical_atom_binding"]["atom_id"] == historical_id
     assert witnesses[0]["reissued_atom_binding"]["atom_id"] == current_atom.atom_id
-    assert validator._n4_atom_readdress_witness_issues(
-        historical_projection,
-        replayed_projection,
-        witnesses=witnesses,
-        current_atoms={current_atom.atom_id: current_atom},
-        reissue_registry=registry,
-    ) == ()
+    assert (
+        validator._n4_atom_readdress_witness_issues(
+            historical_projection,
+            replayed_projection,
+            witnesses=witnesses,
+            current_atoms={current_atom.atom_id: current_atom},
+            reissue_registry=registry,
+        )
+        == ()
+    )
 
     forged = copy.deepcopy(witnesses)
     forged[0]["historical_atom_binding"]["signature"]["unit"] = "index"
     forged[0]["witness_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in forged[0].items()
-            if key != "witness_content_hash"
-        }
+        {key: value for key, value in forged[0].items() if key != "witness_content_hash"}
     )
     assert "proof_n4_atom_readdress_historical_preimage_mismatch" in (
         validator._n4_atom_readdress_witness_issues(
@@ -3606,9 +3363,7 @@ def test_historical_n4_atom_readdress_is_owner_recomputed_not_whitelisted() -> N
     )
 
     no_veto = copy.deepcopy(replayed_projection)
-    no_veto["grounding_dispositions"][0]["rejected_cause"][
-        "cg1_critical_contradictions"
-    ] = []
+    no_veto["grounding_dispositions"][0]["rejected_cause"]["cg1_critical_contradictions"] = []
     with pytest.raises(
         validator.UniversalityContractError,
         match="proof_n4_atom_readdress_authority_growth",
@@ -3621,9 +3376,7 @@ def test_historical_n4_atom_readdress_is_owner_recomputed_not_whitelisted() -> N
         )
 
     no_open_obligations = copy.deepcopy(replayed_projection)
-    no_open_obligations["grounding_dispositions"][0]["rejected_cause"][
-        "cg2_open_obligations"
-    ] = []
+    no_open_obligations["grounding_dispositions"][0]["rejected_cause"]["cg2_open_obligations"] = []
     with pytest.raises(
         validator.UniversalityContractError,
         match="proof_n4_atom_readdress_authority_growth",
@@ -3639,26 +3392,18 @@ def test_historical_n4_atom_readdress_is_owner_recomputed_not_whitelisted() -> N
 def test_historical_n4_projection_rebind_chains_only_for_context_identity() -> None:
     """A later path-only context rebase preserves the prior N4 proof chain."""
 
-    validator, recording, first_projection = (
-        _historical_projection_rebind_fixture()
-    )
+    validator, recording, first_projection = _historical_projection_rebind_fixture()
     first = validator._normalize_replayed_n4_recording(
         recording,
         replayed_projection=first_projection,
     )
     context_projection = copy.deepcopy(first_projection)
     context_projection["exact_call_prompt_hashes"][0] = "sha256:" + "6" * 64
-    context_projection["lever_space_prompt_slice_content_hash"] = (
-        "sha256:" + "7" * 64
-    )
-    bridge = context_projection["grounding_dispositions"][0][
-        "bridge_missing_records"
-    ][0]
+    context_projection["lever_space_prompt_slice_content_hash"] = "sha256:" + "7" * 64
+    bridge = context_projection["grounding_dispositions"][0]["bridge_missing_records"][0]
     bridge["record_id"] = "cg5_ticket_" + "8" * 16
     bridge["content_hash"] = "sha256:" + "8" * 64
-    lever_resolution = context_projection["grounding_dispositions"][0][
-        "lever_resolution"
-    ]
+    lever_resolution = context_projection["grounding_dispositions"][0]["lever_resolution"]
     lever_resolution["content_hash"] = "sha256:" + "8" * 64
     lever_resolution["context_binding_hash"] = "sha256:" + "8" * 64
     lever_resolution["substrate_input_content_hash"] = "sha256:" + "8" * 64
@@ -3674,31 +3419,27 @@ def test_historical_n4_projection_rebind_chains_only_for_context_identity() -> N
         "domain_run_context_binding_drift",
         "proof_n4_owner_projection_replay_drift",
     ]
-    assert receipt["prior_receipt"]["receipt_content_hash"] == first[
-        "historical_projection_rebind_receipt"
-    ]["receipt_content_hash"]
+    assert (
+        receipt["prior_receipt"]["receipt_content_hash"]
+        == first["historical_projection_rebind_receipt"]["receipt_content_hash"]
+    )
     assert receipt["historical_context_content_hash"] == "sha256:" + "9" * 64
     assert receipt["replayed_context_content_hash"] == "sha256:" + "a" * 64
     assert validator._historical_n4_projection_rebind_receipt_issues(chained) == ()
-    assert validator._recompute_historical_n4_recording_content_hash(chained) == (
-        first["recording_content_hash"]
+    assert (
+        validator._recompute_historical_n4_recording_content_hash(chained)
+        == (first["recording_content_hash"])
     )
 
     second_context_projection = copy.deepcopy(context_projection)
-    second_context_projection["exact_call_prompt_hashes"][0] = (
-        "sha256:" + "b" * 64
-    )
-    second_context_projection["lever_space_prompt_slice_content_hash"] = (
-        "sha256:" + "c" * 64
-    )
+    second_context_projection["exact_call_prompt_hashes"][0] = "sha256:" + "b" * 64
+    second_context_projection["lever_space_prompt_slice_content_hash"] = "sha256:" + "c" * 64
     second_bridge = second_context_projection["grounding_dispositions"][0][
         "bridge_missing_records"
     ][0]
     second_bridge["record_id"] = "cg5_ticket_" + "d" * 16
     second_bridge["content_hash"] = "sha256:" + "d" * 64
-    second_lever = second_context_projection["grounding_dispositions"][0][
-        "lever_resolution"
-    ]
+    second_lever = second_context_projection["grounding_dispositions"][0]["lever_resolution"]
     second_lever["content_hash"] = "sha256:" + "d" * 64
     second_lever["context_binding_hash"] = "sha256:" + "d" * 64
     second_lever["substrate_input_content_hash"] = "sha256:" + "d" * 64
@@ -3708,15 +3449,12 @@ def test_historical_n4_projection_rebind_chains_only_for_context_identity() -> N
         context_rebind=("sha256:" + "a" * 64, "sha256:" + "e" * 64),
     )
     assert (
-        twice_chained["historical_projection_rebind_receipt"]["prior_receipt"]
-        ["receipt_content_hash"]
-        == chained["historical_projection_rebind_receipt"]
-        ["receipt_content_hash"]
+        twice_chained["historical_projection_rebind_receipt"]["prior_receipt"][
+            "receipt_content_hash"
+        ]
+        == chained["historical_projection_rebind_receipt"]["receipt_content_hash"]
     )
-    assert (
-        validator._historical_n4_projection_rebind_receipt_issues(twice_chained)
-        == ()
-    )
+    assert validator._historical_n4_projection_rebind_receipt_issues(twice_chained) == ()
 
     semantic_drift = copy.deepcopy(context_projection)
     semantic_drift["grounding_dispositions"][0]["disposition"] = "shadow_bound"
@@ -3734,9 +3472,7 @@ def test_historical_n4_projection_rebind_chains_only_for_context_identity() -> N
         )
 
     lever_drift = copy.deepcopy(context_projection)
-    lever_drift["grounding_dispositions"][0]["lever_resolution"][
-        "lever_id"
-    ] = "education_grant"
+    lever_drift["grounding_dispositions"][0]["lever_resolution"]["lever_id"] = "education_grant"
     with pytest.raises(
         validator.UniversalityContractError,
         match="proof_n4_owner_projection_replay_drift",
@@ -3787,20 +3523,17 @@ def test_historical_context_rebind_allows_only_content_identity_drift() -> None:
             "generation_cycle_run_id": "generation_cycle_" + "9" * 16,
         }
     )
-    replayed["stage_trace"]["generation"]["prompt_slice_content_hash"] = (
-        "sha256:" + "a" * 64
-    )
-    replayed["stage_trace"]["grounding"]["requirement_gap_id"] = (
-        "gap_" + "b" * 16
-    )
-    replayed["stage_trace"]["grounding"]["evidence_refs"][0] = (
-        "sha256:" + "c" * 64
-    )
+    replayed["stage_trace"]["generation"]["prompt_slice_content_hash"] = "sha256:" + "a" * 64
+    replayed["stage_trace"]["grounding"]["requirement_gap_id"] = "gap_" + "b" * 16
+    replayed["stage_trace"]["grounding"]["evidence_refs"][0] = "sha256:" + "c" * 64
 
-    assert validator._context_rebind_semantic_diff_paths(
-        historical,
-        replayed,
-    ) == ()
+    assert (
+        validator._context_rebind_semantic_diff_paths(
+            historical,
+            replayed,
+        )
+        == ()
+    )
 
     replayed["terminal_distribution"]["terminal_kind"] = "grounded_admissible"
     assert validator._context_rebind_semantic_diff_paths(
@@ -3860,12 +3593,8 @@ def test_historical_context_rebind_receipt_binds_route_and_raw_evidence() -> Non
     assert receipt["historical_context_content_hash"] == old_context
     assert receipt["replayed_context_content_hash"] == new_context
     assert receipt["compiler_recording_content_hash"] == "sha256:" + "4" * 64
-    assert receipt["historical_n4_recording_content_hash"] == (
-        "sha256:" + "5" * 64
-    )
-    assert receipt["replayed_n4_recording_content_hash"] == (
-        "sha256:" + "9" * 64
-    )
+    assert receipt["historical_n4_recording_content_hash"] == ("sha256:" + "5" * 64)
+    assert receipt["replayed_n4_recording_content_hash"] == ("sha256:" + "9" * 64)
     assert receipt["changed_identity_paths"] == [
         "content_hash",
         "cycle_substrate_context_ref",
@@ -3873,14 +3602,15 @@ def test_historical_context_rebind_receipt_binds_route_and_raw_evidence() -> Non
     normalized_recording = copy.deepcopy(recording)
     normalized_recording["cycle_substrate_context_content_hash"] = new_context
     normalized_recording["compiled_run_content_hash"] = "sha256:" + "8" * 64
-    normalized_recording["n4_recording"]["recording_content_hash"] = (
-        "sha256:" + "9" * 64
-    )
+    normalized_recording["n4_recording"]["recording_content_hash"] = "sha256:" + "9" * 64
     normalized_recording["historical_context_rebind_receipt"] = receipt
-    assert validator._historical_context_rebind_receipt_issues(
-        normalized_recording,
-        replayed_domain_run=replayed,
-    ) == ()
+    assert (
+        validator._historical_context_rebind_receipt_issues(
+            normalized_recording,
+            replayed_domain_run=replayed,
+        )
+        == ()
+    )
 
     next_context = "sha256:" + "a" * 64
     next_replayed = copy.deepcopy(replayed)
@@ -3894,40 +3624,31 @@ def test_historical_context_rebind_receipt_binds_route_and_raw_evidence() -> Non
         replayed_compiled_run_content_hash="sha256:" + "c" * 64,
         replayed_n4_recording_content_hash="sha256:" + "d" * 64,
     )
-    assert chained_receipt["prior_receipt"]["receipt_content_hash"] == receipt[
-        "receipt_content_hash"
-    ]
+    assert (
+        chained_receipt["prior_receipt"]["receipt_content_hash"] == receipt["receipt_content_hash"]
+    )
     chained_recording = copy.deepcopy(normalized_recording)
     chained_recording["cycle_substrate_context_content_hash"] = next_context
     chained_recording["compiled_run_content_hash"] = "sha256:" + "c" * 64
-    chained_recording["n4_recording"]["recording_content_hash"] = (
-        "sha256:" + "d" * 64
-    )
+    chained_recording["n4_recording"]["recording_content_hash"] = "sha256:" + "d" * 64
     chained_recording["historical_context_rebind_receipt"] = chained_receipt
-    assert validator._historical_context_rebind_receipt_issues(
-        chained_recording,
-        replayed_domain_run=next_replayed,
-    ) == ()
+    assert (
+        validator._historical_context_rebind_receipt_issues(
+            chained_recording,
+            replayed_domain_run=next_replayed,
+        )
+        == ()
+    )
 
     forged_chain = copy.deepcopy(chained_recording)
-    forged_prior = forged_chain["historical_context_rebind_receipt"][
-        "prior_receipt"
-    ]
+    forged_prior = forged_chain["historical_context_rebind_receipt"]["prior_receipt"]
     forged_prior["eligible_issue_set"] = []
     forged_prior["receipt_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in forged_prior.items()
-            if key != "receipt_content_hash"
-        }
+        {key: value for key, value in forged_prior.items() if key != "receipt_content_hash"}
     )
     forged_top = forged_chain["historical_context_rebind_receipt"]
     forged_top["receipt_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in forged_top.items()
-            if key != "receipt_content_hash"
-        }
+        {key: value for key, value in forged_top.items() if key != "receipt_content_hash"}
     )
     assert "domain_run_context_rebind_issue_set_mismatch" in (
         validator._historical_context_rebind_receipt_issues(
@@ -3951,23 +3672,16 @@ def test_historical_context_rebind_receipt_binds_route_and_raw_evidence() -> Non
             replayed_n4_recording_content_hash="sha256:" + "9" * 64,
         )
 
-
     tampered = copy.deepcopy(normalized_recording)
     tampered_receipt = tampered["historical_context_rebind_receipt"]
-    tampered_receipt["historical_route_projection"]["terminal_distribution"][
-        "decision_grade"
-    ] = "admissible"
-    tampered_receipt["historical_route_projection_content_hash"] = (
-        validator._semantic_hash(
-            tampered_receipt["historical_route_projection"]
-        )
+    tampered_receipt["historical_route_projection"]["terminal_distribution"]["decision_grade"] = (
+        "admissible"
+    )
+    tampered_receipt["historical_route_projection_content_hash"] = validator._semantic_hash(
+        tampered_receipt["historical_route_projection"]
     )
     tampered_receipt["receipt_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in tampered_receipt.items()
-            if key != "receipt_content_hash"
-        }
+        {key: value for key, value in tampered_receipt.items() if key != "receipt_content_hash"}
     )
     assert "domain_run_context_rebind_semantic_drift" in (
         validator._historical_context_rebind_receipt_issues(
@@ -4000,9 +3714,7 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes(
                             "status": "not_promoted",
                             "reason": "canonical_n9_sequence_returned_shadow",
                             "certified_candidate_ids": [],
-                            "receipts": [
-                                {"consumer_promotable": False}
-                            ],
+                            "receipts": [{"consumer_promotable": False}],
                         }
                     },
                 }
@@ -4068,11 +3780,7 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes(
     historical_domain_run["recording_content_hash"] = "sha256:" + "9" * 64
     historical_domain_run["recursive_run_content_hash"] = "sha256:" + "a" * 64
     historical_domain_run["content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in historical_domain_run.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in historical_domain_run.items() if key != "content_hash"}
     )
     prior_recording = {
         "compiler_recording": compiler_recording,
@@ -4099,23 +3807,15 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes(
         "design_problem_ref": gy_content_hash(problem_payload),
         "historical_context_rebind_receipt": prior_context_receipt,
     }
-    historical_recording["recording_content_hash"] = validator._semantic_hash(
-        historical_recording
-    )
+    historical_recording["recording_content_hash"] = validator._semantic_hash(historical_recording)
     monkeypatch.setitem(
         validator._AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES,
         "education",
         historical_recording["recording_content_hash"],
     )
-    historical_domain_run["recording_content_hash"] = historical_recording[
-        "recording_content_hash"
-    ]
+    historical_domain_run["recording_content_hash"] = historical_recording["recording_content_hash"]
     historical_domain_run["content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in historical_domain_run.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in historical_domain_run.items() if key != "content_hash"}
     )
     assert not validator._historical_context_rebind_receipt_issues(
         historical_recording,
@@ -4129,9 +3829,7 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes(
         compiled=compiled,
     )
     replayed_domain_run = copy.deepcopy(historical_domain_run)
-    replayed_domain_run["recording_content_hash"] = refreshed[
-        "recording_content_hash"
-    ]
+    replayed_domain_run["recording_content_hash"] = refreshed["recording_content_hash"]
     replayed_domain_run["recursive_run_content_hash"] = "sha256:" + "b" * 64
     replayed_domain_run["stage_trace"]["promotion"].update(
         {
@@ -4143,11 +3841,7 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes(
         }
     )
     replayed_domain_run["content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in replayed_domain_run.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in replayed_domain_run.items() if key != "content_hash"}
     )
 
     normalized = validator._attach_authority_source_migration_receipt(
@@ -4157,35 +3851,25 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes(
         replayed_domain_run=replayed_domain_run,
         expected_role="education",
     )
-    replayed_domain_run["recording_content_hash"] = normalized[
-        "recording_content_hash"
-    ]
+    replayed_domain_run["recording_content_hash"] = normalized["recording_content_hash"]
     replayed_domain_run["content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in replayed_domain_run.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in replayed_domain_run.items() if key != "content_hash"}
     )
     receipt = normalized["authority_source_migration_receipt"]
 
-    assert normalized["schema_version"] == (
-        "policyos.layer3.gy.n10.domain_run_recording.v2"
-    )
-    assert normalized["authority_source_admission"]["admission_kind"] == (
-        "migrated"
-    )
+    assert normalized["schema_version"] == ("policyos.layer3.gy.n10.domain_run_recording.v2")
+    assert normalized["authority_source_admission"]["admission_kind"] == ("migrated")
     assert normalized["compiled_run"] == controlled_compiled_payload
-    assert normalized["compiled_run_content_hash"] == controlled_compiled_payload[
-        "content_hash"
-    ]
+    assert normalized["compiled_run_content_hash"] == controlled_compiled_payload["content_hash"]
     assert normalized["design_problem_ref"] == gy_content_hash(problem_payload)
     assert historical_recording["compiled_run"] == historical_compiled_payload
-    assert receipt["historical_recording"]["recording_content_hash"] == (
-        historical_recording["recording_content_hash"]
+    assert (
+        receipt["historical_recording"]["recording_content_hash"]
+        == (historical_recording["recording_content_hash"])
     )
-    assert receipt["prior_context_rebind_receipt_content_hash"] == (
-        prior_context_receipt["receipt_content_hash"]
+    assert (
+        receipt["prior_context_rebind_receipt_content_hash"]
+        == (prior_context_receipt["receipt_content_hash"])
     )
     assert not validator._authority_source_migration_receipt_issues(
         normalized,
@@ -4200,22 +3884,12 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes(
     missing_receipt = copy.deepcopy(normalized)
     missing_receipt.pop("authority_source_migration_receipt")
     missing_receipt["recording_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in missing_receipt.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in missing_receipt.items() if key != "recording_content_hash"}
     )
     missing_receipt_run = copy.deepcopy(replayed_domain_run)
-    missing_receipt_run["recording_content_hash"] = missing_receipt[
-        "recording_content_hash"
-    ]
+    missing_receipt_run["recording_content_hash"] = missing_receipt["recording_content_hash"]
     missing_receipt_run["content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in missing_receipt_run.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in missing_receipt_run.items() if key != "content_hash"}
     )
     assert "authority_source_migration_receipt_missing" in (
         validator._authority_source_admission_issues(
@@ -4229,22 +3903,12 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes(
     missing_admission.pop("authority_source_migration_receipt")
     missing_admission.pop("authority_source_admission")
     missing_admission["recording_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in missing_admission.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in missing_admission.items() if key != "recording_content_hash"}
     )
     missing_admission_run = copy.deepcopy(replayed_domain_run)
-    missing_admission_run["recording_content_hash"] = missing_admission[
-        "recording_content_hash"
-    ]
+    missing_admission_run["recording_content_hash"] = missing_admission["recording_content_hash"]
     missing_admission_run["content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in missing_admission_run.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in missing_admission_run.items() if key != "content_hash"}
     )
     assert validator._authority_source_admission_issues(
         missing_admission,
@@ -4271,22 +3935,12 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes(
         }
     )
     relabeled_capture["recording_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in relabeled_capture.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in relabeled_capture.items() if key != "recording_content_hash"}
     )
     relabeled_run = copy.deepcopy(replayed_domain_run)
-    relabeled_run["recording_content_hash"] = relabeled_capture[
-        "recording_content_hash"
-    ]
+    relabeled_run["recording_content_hash"] = relabeled_capture["recording_content_hash"]
     relabeled_run["content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in relabeled_run.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in relabeled_run.items() if key != "content_hash"}
     )
     assert "authority_source_required_migration_missing" in (
         validator._authority_source_admission_issues(
@@ -4310,10 +3964,8 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes(
             predecessor_required=False,
         )
     )
-    self_selected_admission["controlled_recording_base_content_hash"] = (
-        validator._semantic_hash(
-            validator._authority_source_recording_base(self_selected_role)
-        )
+    self_selected_admission["controlled_recording_base_content_hash"] = validator._semantic_hash(
+        validator._authority_source_recording_base(self_selected_role)
     )
     self_selected_admission["admission_content_hash"] = validator._semantic_hash(
         {
@@ -4323,23 +3975,13 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes(
         }
     )
     self_selected_role["recording_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in self_selected_role.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in self_selected_role.items() if key != "recording_content_hash"}
     )
     self_selected_run = copy.deepcopy(replayed_domain_run)
     self_selected_run["domain_role"] = "future_role"
-    self_selected_run["recording_content_hash"] = self_selected_role[
-        "recording_content_hash"
-    ]
+    self_selected_run["recording_content_hash"] = self_selected_role["recording_content_hash"]
     self_selected_run["content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in self_selected_run.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in self_selected_run.items() if key != "content_hash"}
     )
     self_selected_issues = validator._authority_source_admission_issues(
         self_selected_role,
@@ -4365,45 +4007,23 @@ def test_normalized_recording_replaces_ambient_compiled_run_bytes(
         "recording_content_hash"
     ]
     tampered_route = tampered_receipt["historical_route_projection"]
-    tampered_route["recording_content_hash"] = tampered_historical[
-        "recording_content_hash"
-    ]
+    tampered_route["recording_content_hash"] = tampered_historical["recording_content_hash"]
     tampered_route["content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in tampered_route.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in tampered_route.items() if key != "content_hash"}
     )
-    tampered_receipt["historical_route_projection_content_hash"] = (
-        validator._semantic_hash(
-            validator._authority_source_stable_projection(tampered_route)
-        )
+    tampered_receipt["historical_route_projection_content_hash"] = validator._semantic_hash(
+        validator._authority_source_stable_projection(tampered_route)
     )
     tampered_receipt["receipt_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in tampered_receipt.items()
-            if key != "receipt_content_hash"
-        }
+        {key: value for key, value in tampered_receipt.items() if key != "receipt_content_hash"}
     )
     tampered["recording_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in tampered.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in tampered.items() if key != "recording_content_hash"}
     )
     tampered_replayed = copy.deepcopy(replayed_domain_run)
-    tampered_replayed["recording_content_hash"] = tampered[
-        "recording_content_hash"
-    ]
+    tampered_replayed["recording_content_hash"] = tampered["recording_content_hash"]
     tampered_replayed["content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in tampered_replayed.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in tampered_replayed.items() if key != "content_hash"}
     )
     assert "authority_source_compiler_evidence_drift" in (
         validator._authority_source_migration_receipt_issues(
@@ -4427,9 +4047,7 @@ def test_static_recording_check_requires_authority_source_admission(
 
     issues = validator._static_proof_recording_issues(payload)
 
-    assert {issue["code"] for issue in issues} >= {
-        "authority_source_static_sentinel"
-    }
+    assert {issue["code"] for issue in issues} >= {"authority_source_static_sentinel"}
 
 
 @pytest.mark.asyncio
@@ -4442,27 +4060,15 @@ async def test_live_recording_replay_requires_authority_source_admission(
     role = "education"
     recording = copy.deepcopy(payload["proof_recordings"][role])
     historical_run = copy.deepcopy(payload["domain_runs"][role])
-    recording["schema_version"] = (
-        "policyos.layer3.gy.n10.domain_run_recording.v2"
-    )
+    recording["schema_version"] = "policyos.layer3.gy.n10.domain_run_recording.v2"
     recording.pop("authority_source_admission", None)
     recording.pop("authority_source_migration_receipt", None)
     recording["recording_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in recording.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in recording.items() if key != "recording_content_hash"}
     )
-    historical_run["recording_content_hash"] = recording[
-        "recording_content_hash"
-    ]
+    historical_run["recording_content_hash"] = recording["recording_content_hash"]
     historical_run["content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in historical_run.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in historical_run.items() if key != "content_hash"}
     )
 
     async def _unexpected_owner(*args: Any, **kwargs: Any) -> object:
@@ -4499,33 +4105,19 @@ async def test_authority_migration_rejects_forged_prior_chain_before_replay(
     prior = recording["historical_context_rebind_receipt"]
     prior["eligible_issue_set"] = []
     prior["receipt_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in prior.items()
-            if key != "receipt_content_hash"
-        }
+        {key: value for key, value in prior.items() if key != "receipt_content_hash"}
     )
     recording["recording_content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in recording.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in recording.items() if key != "recording_content_hash"}
     )
     monkeypatch.setitem(
         validator._AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES,
         "education",
         recording["recording_content_hash"],
     )
-    historical_run["recording_content_hash"] = recording[
-        "recording_content_hash"
-    ]
+    historical_run["recording_content_hash"] = recording["recording_content_hash"]
     historical_run["content_hash"] = validator._semantic_hash(
-        {
-            key: value
-            for key, value in historical_run.items()
-            if key != "content_hash"
-        }
+        {key: value for key, value in historical_run.items() if key != "content_hash"}
     )
 
     async def _unexpected_replay(*args: Any, **kwargs: Any) -> object:
@@ -4554,9 +4146,7 @@ def test_no_context_recording_supersedes_model_output_and_verifies_legacy_bytes(
     """No-context proof evidence is a typed refusal; stale raw bytes remain checksummed."""
 
     validator, payload = _complete_universality_payload()
-    problem = DesignProblem.model_validate(
-        payload["domain_runs"]["unseen"]["design_problem"]
-    )
+    problem = DesignProblem.model_validate(payload["domain_runs"]["unseen"]["design_problem"])
     canonical = validator._no_context_generation_recording(problem)
 
     assert canonical["schema_version"] == (
@@ -4596,11 +4186,7 @@ def test_no_context_recording_supersedes_model_output_and_verifies_legacy_bytes(
 
     tampered = copy.deepcopy(legacy)
     tampered["responses"][0]["raw_response"] += " "
-    stable = {
-        key: value
-        for key, value in tampered.items()
-        if key != "recording_content_hash"
-    }
+    stable = {key: value for key, value in tampered.items() if key != "recording_content_hash"}
     tampered["recording_content_hash"] = validator._semantic_hash(stable)
     with pytest.raises(
         validator.UniversalityContractError,
@@ -4624,10 +4210,7 @@ async def test_complete_payload_persists_normalized_recordings(
         role: {"role": role, "recording_content_hash": f"legacy-{role}"}
         for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
     }
-    historical = {
-        role: {"domain_role": role}
-        for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
-    }
+    historical = {role: {"domain_role": role} for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS}
 
     async def _rederive(
         repo_root: Path,
@@ -4692,10 +4275,7 @@ async def test_complete_payload_persists_normalized_recordings(
     assert {
         role: recording["recording_content_hash"]
         for role, recording in payload["proof_recordings"].items()
-    } == {
-        role: f"normalized-{role}"
-        for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
-    }
+    } == {role: f"normalized-{role}" for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS}
 
 
 def test_universality_task13_payload_is_complete_and_fork_b_honest() -> None:
@@ -4740,12 +4320,8 @@ def test_three_runs_are_compiled_from_exact_plain_language_by_canonical_owner() 
         )
         assert receipt["tool_name"] == "emit_design_problem"
         assert receipt["used_committed_fixture"] is False
-        assert receipt["design_problem_ref"] == gy_content_hash(
-            problem.model_dump(mode="json")
-        )
-        assert receipt["raw_request_content_hash"] == gy_content_hash(
-            {"raw_request": raw_request}
-        )
+        assert receipt["design_problem_ref"] == gy_content_hash(problem.model_dump(mode="json"))
+        assert receipt["raw_request_content_hash"] == gy_content_hash({"raw_request": raw_request})
         assert receipt["recording_content_hash"].startswith("sha256:")
 
 
@@ -4763,9 +4339,7 @@ def test_first_vertical_run_reaches_measured_grounding_gap_and_n7_route() -> Non
     assert stages["value"]["status"] == "value_blocked"
     assert stages["acquisition"]["attempted"] is True
     assert stages["acquisition"]["route_kind"] == "n7_requirement_gap"
-    assert stages["acquisition"]["planner_report_content_hash"].startswith(
-        "sha256:"
-    )
+    assert stages["acquisition"]["planner_report_content_hash"].startswith("sha256:")
     assert run["promotion_reached"] is False
     assert run["terminal_distribution"]["terminal_kind"] == "acquisition_required"
     assert run["terminal_distribution"]["evidence_kind"] == "owner_acquisition_route"
@@ -4778,10 +4352,13 @@ def test_universality_terminal_gate_measures_routes_and_rejects_relabeling() -> 
     validator, payload = _complete_universality_payload()
     domain_runs = copy.deepcopy(payload["domain_runs"])
 
-    assert validator._domain_terminal_honesty_issues(
-        domain_runs,
-        expectation=validator.UNIVERSALITY_TERMINAL_EXPECTATION,
-    ) == []
+    assert (
+        validator._domain_terminal_honesty_issues(
+            domain_runs,
+            expectation=validator.UNIVERSALITY_TERMINAL_EXPECTATION,
+        )
+        == []
+    )
 
     fabricated_route = copy.deepcopy(domain_runs)
     fabricated_route["first_vertical"]["stage_trace"]["acquisition"][
@@ -4796,9 +4373,7 @@ def test_universality_terminal_gate_measures_routes_and_rejects_relabeling() -> 
     }
 
     relabeled = copy.deepcopy(domain_runs)
-    relabeled["first_vertical"]["terminal_distribution"][
-        "evidence_kind"
-    ] = "owner_data_gap"
+    relabeled["first_vertical"]["terminal_distribution"]["evidence_kind"] = "owner_data_gap"
     assert "domain_degradation_class_mismatch" in {
         issue["code"]
         for issue in validator._domain_terminal_honesty_issues(
@@ -4808,12 +4383,10 @@ def test_universality_terminal_gate_measures_routes_and_rejects_relabeling() -> 
     }
 
     fabricated_terminal = copy.deepcopy(domain_runs)
-    fabricated_terminal["first_vertical"]["terminal"]["kind"] = (
+    fabricated_terminal["first_vertical"]["terminal"]["kind"] = "grounded_admissible"
+    fabricated_terminal["first_vertical"]["terminal_distribution"]["terminal_kind"] = (
         "grounded_admissible"
     )
-    fabricated_terminal["first_vertical"]["terminal_distribution"][
-        "terminal_kind"
-    ] = "grounded_admissible"
     assert "domain_terminal_not_honest_degradation" in {
         issue["code"]
         for issue in validator._domain_terminal_honesty_issues(
@@ -4822,10 +4395,7 @@ def test_universality_terminal_gate_measures_routes_and_rejects_relabeling() -> 
         )
     }
 
-    monoculture = {
-        role: copy.deepcopy(domain_runs["first_vertical"])
-        for role in domain_runs
-    }
+    monoculture = {role: copy.deepcopy(domain_runs["first_vertical"]) for role in domain_runs}
     assert "domain_degradation_class_denominator_missing" in {
         issue["code"]
         for issue in validator._domain_terminal_honesty_issues(
@@ -4928,25 +4498,19 @@ def test_education_run_uses_pack_levers_and_refuses_unwritable_estimand() -> Non
     run = payload["domain_runs"]["education"]
     stages = run["stage_trace"]
     pack = json.loads(
-        (REPO_ROOT / "architecture/policy_design_case/layer3_gy_second_domain_pack.json")
-        .read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture/policy_design_case/layer3_gy_second_domain_pack.json").read_text(
+            encoding="utf-8"
+        )
     )
-    expected_levers = {
-        row["lever_id"]
-        for row in pack["components"]["lever_vocabulary"]["entries"]
-    }
+    expected_levers = {row["lever_id"] for row in pack["components"]["lever_vocabulary"]["entries"]}
 
     assert set(stages["generation"]["proposed_lever_ids"]) == expected_levers
     assert stages["grounding"]["attempted"] is True
     assert stages["grounding"]["dispositions"]
     assert stages["value"]["attempted"] is True
     assert stages["value"]["status"] == "value_blocked"
-    assert stages["value"]["authority_blockers"] == [
-        "method_estimand_binding_mismatch"
-    ]
-    assert stages["value"]["advisor_selection_receipt_content_hash"].startswith(
-        "sha256:"
-    )
+    assert stages["value"]["authority_blockers"] == ["method_estimand_binding_mismatch"]
+    assert stages["value"]["advisor_selection_receipt_content_hash"].startswith("sha256:")
     assert stages["acquisition"]["attempted"] is True
     assert run["promotion_reached"] is False
     assert run["terminal_distribution"] == {
@@ -4964,17 +4528,24 @@ def test_education_terminal_precedence_uses_deep_advisor_refusal() -> None:
     education = payload["domain_runs"]["education"]
 
     assert education["stage_trace"]["acquisition"]["attempted"] is True
-    assert education["stage_trace"]["grounding"]["owner_observation"][
-        "acquisition_requirement"
-    ] is not None
-    assert education["stage_trace"]["value"]["owner_observation"][
-        "method_selection_receipt"
-    ]["selection_authority"] == "foundry_registry_advisor"
+    assert (
+        education["stage_trace"]["grounding"]["owner_observation"]["acquisition_requirement"]
+        is not None
+    )
+    assert (
+        education["stage_trace"]["value"]["owner_observation"]["method_selection_receipt"][
+            "selection_authority"
+        ]
+        == "foundry_registry_advisor"
+    )
     assert education["evidence_witness"]["kind"] == "estimand_binding_refusal"
-    assert validator._domain_terminal_honesty_issues(
-        payload["domain_runs"],
-        expectation=validator.UNIVERSALITY_TERMINAL_EXPECTATION,
-    ) == []
+    assert (
+        validator._domain_terminal_honesty_issues(
+            payload["domain_runs"],
+            expectation=validator.UNIVERSALITY_TERMINAL_EXPECTATION,
+        )
+        == []
+    )
 
 
 def test_education_advisor_denominator_is_recomputed_from_live_catalog() -> None:
@@ -4992,9 +4563,7 @@ def test_education_advisor_denominator_is_recomputed_from_live_catalog() -> None
         {key: value for key, value in receipt.items() if key != "content_hash"}
     )
     value_stage["advisor_selection_receipt_content_hash"] = receipt["content_hash"]
-    value_stage["owner_observation_content_hash"] = validator._semantic_hash(
-        observation
-    )
+    value_stage["owner_observation_content_hash"] = validator._semantic_hash(observation)
     education["content_hash"] = validator._semantic_hash(
         {key: value for key, value in education.items() if key != "content_hash"}
     )
@@ -5002,9 +4571,7 @@ def test_education_advisor_denominator_is_recomputed_from_live_catalog() -> None
 
     report = validator.validate_payload(payload)
 
-    assert "domain_owner_observation_invalid" in {
-        issue["code"] for issue in report["issues"]
-    }
+    assert "domain_owner_observation_invalid" in {issue["code"] for issue in report["issues"]}
 
 
 def test_value_owner_observation_cannot_be_transplanted_across_candidates() -> None:
@@ -5015,9 +4582,7 @@ def test_value_owner_observation_cannot_be_transplanted_across_candidates() -> N
     value_stage = education["stage_trace"]["value"]
     observation = value_stage["owner_observation"]
     observation["candidate_id"] = "candidate_transplanted_from_another_run"
-    value_stage["owner_observation_content_hash"] = validator._semantic_hash(
-        observation
-    )
+    value_stage["owner_observation_content_hash"] = validator._semantic_hash(observation)
     education["content_hash"] = validator._semantic_hash(
         {key: value for key, value in education.items() if key != "content_hash"}
     )
@@ -5025,9 +4590,7 @@ def test_value_owner_observation_cannot_be_transplanted_across_candidates() -> N
 
     report = validator.validate_payload(payload)
 
-    assert "domain_owner_observation_invalid" in {
-        issue["code"] for issue in report["issues"]
-    }
+    assert "domain_owner_observation_invalid" in {issue["code"] for issue in report["issues"]}
 
 
 def test_education_refusal_rejects_transplanted_early_acquisition_report() -> None:
@@ -5040,9 +4603,7 @@ def test_education_refusal_rejects_transplanted_early_acquisition_report() -> No
         "requirement-gap:data_requirement:transplanted"
     )
     report_hash = validator._semantic_hash(report)
-    education["stage_trace"]["acquisition"][
-        "planner_report_content_hash"
-    ] = report_hash
+    education["stage_trace"]["acquisition"]["planner_report_content_hash"] = report_hash
     witness = education["evidence_witness"]
     witness["grounding_route"]["planner_report_content_hash"] = report_hash
     witness["content_hash"] = validator._semantic_hash(
@@ -5055,9 +4616,7 @@ def test_education_refusal_rejects_transplanted_early_acquisition_report() -> No
 
     validation = validator.validate_payload(payload)
 
-    assert "domain_owner_observation_invalid" in {
-        issue["code"] for issue in validation["issues"]
-    }
+    assert "domain_owner_observation_invalid" in {issue["code"] for issue in validation["issues"]}
 
 
 def test_terminal_evidence_requires_typed_owner_observations() -> None:
@@ -5066,13 +4625,9 @@ def test_terminal_evidence_requires_typed_owner_observations() -> None:
     validator, payload = _complete_universality_payload()
     education = payload["domain_runs"]["education"]
     education["stage_trace"]["grounding"].pop("owner_observation", None)
-    education["stage_trace"]["grounding"].pop(
-        "owner_observation_content_hash", None
-    )
+    education["stage_trace"]["grounding"].pop("owner_observation_content_hash", None)
     education["stage_trace"]["value"].pop("owner_observation", None)
-    education["stage_trace"]["value"].pop(
-        "owner_observation_content_hash", None
-    )
+    education["stage_trace"]["value"].pop("owner_observation_content_hash", None)
     education["content_hash"] = validator._semantic_hash(
         {key: value for key, value in education.items() if key != "content_hash"}
     )
@@ -5080,9 +4635,7 @@ def test_terminal_evidence_requires_typed_owner_observations() -> None:
 
     report = validator.validate_payload(payload)
 
-    assert "domain_owner_observation_invalid" in {
-        issue["code"] for issue in report["issues"]
-    }
+    assert "domain_owner_observation_invalid" in {issue["code"] for issue in report["issues"]}
 
 
 def test_unseen_domain_reaches_typed_terminal_without_vertical_contamination() -> None:
@@ -5110,9 +4663,7 @@ def test_unseen_domain_reaches_typed_terminal_without_vertical_contamination() -
         "limited",
         "abstained",
     }
-    assert recording["n4_recording"]["status"] == (
-        "cycle_substrate_context_unavailable"
-    )
+    assert recording["n4_recording"]["status"] == ("cycle_substrate_context_unavailable")
     assert "responses" not in recording["n4_recording"]
     assert "owner_result_projection" not in recording["n4_recording"]
     owner_vocab: set[str] = set()
@@ -5126,9 +4677,7 @@ def test_unseen_domain_reaches_typed_terminal_without_vertical_contamination() -
                 if proposed.get(field)
             )
         known_problem = payload["domain_runs"][known_role]["design_problem"]
-        owner_vocab.add(
-            str(known_problem["outcome_of_interest"]["target_variable"]).casefold()
-        )
+        owner_vocab.add(str(known_problem["outcome_of_interest"]["target_variable"]).casefold())
     for forbidden in sorted(owner_vocab):
         assert forbidden not in serialized
 
@@ -5137,13 +4686,10 @@ def test_pinned_fixture_replacement_is_rejected_after_hash_recompute() -> None:
     """Make committed-fixture substitution behaviorally RED, not merely hash-invalid."""
 
     validator = _universality_contract_validator()
-    payload = json.loads(
-        (REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8")
-    )
+    payload = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
     smoke = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/"
+            REPO_ROOT / "architecture/policy_design_case/"
             "layer3_gy_second_domain_smoke_design_problem.json"
         ).read_text(encoding="utf-8")
     )["design_problem"]
@@ -5152,19 +4698,14 @@ def test_pinned_fixture_replacement_is_rejected_after_hash_recompute() -> None:
 
     report = validator.validate_payload(payload)
 
-    assert any(
-        issue["code"] == "cycle_driven_by_pinned_fixture"
-        for issue in report["issues"]
-    )
+    assert any(issue["code"] == "cycle_driven_by_pinned_fixture" for issue in report["issues"])
 
 
 def test_unseen_vertical_contamination_is_rejected_after_hash_recompute() -> None:
     """A recomputed capstone cannot borrow pack, WMR, or lever vocabulary."""
 
     validator = _universality_contract_validator()
-    baseline = json.loads(
-        (REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8")
-    )
+    baseline = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
     owner_vocabulary = validator._known_vertical_vocabulary(baseline)
     assert "tax_relief_rate" in owner_vocabulary
     assert "school_quality" in owner_vocabulary
@@ -5178,9 +4719,7 @@ def test_unseen_vertical_contamination_is_rejected_after_hash_recompute() -> Non
         payload = copy.deepcopy(baseline)
         unseen = payload["domain_runs"]["unseen"]
         unseen["fabricated_diagnostic"] = borrowed_token
-        stable_run = {
-            key: value for key, value in unseen.items() if key != "content_hash"
-        }
+        stable_run = {key: value for key, value in unseen.items() if key != "content_hash"}
         unseen["content_hash"] = validator._semantic_hash(stable_run)
         payload["contract_content_hash"] = validator._contract_content_hash(payload)
 
@@ -5276,16 +4815,14 @@ def test_n10_ledger_lands_only_after_s2_and_gyg_strangles() -> None:
 
     ledger = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/"
+            REPO_ROOT / "architecture/policy_design_case/"
             "layer3_gy_generation_cycle_disposition_ledger.json"
         ).read_text(encoding="utf-8")
     )
     owners = {row["owner_id"]: row for row in ledger["owners"]}
     capstone = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/"
+            REPO_ROOT / "architecture/policy_design_case/"
             "layer3_gy_depth_n_universality_contract.json"
         ).read_text(encoding="utf-8")
     )
@@ -5293,8 +4830,7 @@ def test_n10_ledger_lands_only_after_s2_and_gyg_strangles() -> None:
         row["gap_id"]: row
         for row in json.loads(
             (
-                REPO_ROOT
-                / "architecture/policy_design_case/"
+                REPO_ROOT / "architecture/policy_design_case/"
                 "layer3_gy_second_domain_free_grow_gaps.json"
             ).read_text(encoding="utf-8")
         )["gaps"]
@@ -5319,9 +4855,9 @@ def test_n10_ledger_lands_only_after_s2_and_gyg_strangles() -> None:
     education = capstone["domain_runs"]["education"]
     assert education["promotion_reached"] is False
     assert education["stage_trace"]["promotion"]["certified_candidate_ids"] == []
-    assert gaps["s0_to_l6_world_slot_bridge_missing"]["owner_evidence"][
-        "positive_writable_count"
-    ] == 0
+    assert (
+        gaps["s0_to_l6_world_slot_bridge_missing"]["owner_evidence"]["positive_writable_count"] == 0
+    )
 
 
 def test_universality_contract_content_hash_rejects_corruption() -> None:
@@ -5333,10 +4869,7 @@ def test_universality_contract_content_hash_rejects_corruption() -> None:
 
     report = validator.validate_payload(payload)
 
-    assert any(
-        issue["code"] == "contract_content_hash_mismatch"
-        for issue in report["issues"]
-    )
+    assert any(issue["code"] == "contract_content_hash_mismatch" for issue in report["issues"])
 
 
 def test_content_hash_exclusion_declaration_is_canonical() -> None:
@@ -5361,9 +4894,7 @@ def test_corrupt_drift_uses_frozen_payload_without_live_rederive(
 
     validator = _universality_contract_validator()
     output = tmp_path / validator.OUTPUT_PATH
-    payload = json.loads(
-        (REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8")
-    )
+    payload = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
     output.parent.mkdir(parents=True)
     output.write_text(json.dumps(payload), encoding="utf-8")
     monkeypatch.setattr(
@@ -5397,14 +4928,10 @@ def test_corrupt_drift_uses_frozen_payload_without_live_rederive(
     ]
     assert {case["status"] for case in report["cases"]} == {"red"}
     promotion_scope = next(
-        case
-        for case in report["cases"]
-        if case["mutation_id"] == "promotion_authority_scope"
+        case for case in report["cases"] if case["mutation_id"] == "promotion_authority_scope"
     )
     assert promotion_scope["detection_phase"] == "identity_recomputation"
-    assert promotion_scope["observed_issue_codes"] == [
-        "depth_verification_summary_shape_invalid"
-    ]
+    assert promotion_scope["observed_issue_codes"] == ["depth_verification_summary_shape_invalid"]
 
 
 def test_corrupt_drift_refuses_missing_or_invalid_baseline(tmp_path: Path) -> None:
@@ -5413,15 +4940,11 @@ def test_corrupt_drift_refuses_missing_or_invalid_baseline(tmp_path: Path) -> No
     validator = _universality_contract_validator()
     missing = validator.corrupt_field_drift_check(tmp_path)
     assert missing["status"] == "fail"
-    assert missing["issues"] == [
-        {"code": "universality_contract_artifact_missing"}
-    ]
+    assert missing["issues"] == [{"code": "universality_contract_artifact_missing"}]
 
     output = tmp_path / validator.OUTPUT_PATH
     output.parent.mkdir(parents=True)
-    payload = json.loads(
-        (REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8")
-    )
+    payload = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
     payload["proof_status"] = "proof_runs_pending"
     output.write_text(json.dumps(payload), encoding="utf-8")
 
@@ -5670,8 +5193,7 @@ def test_depth_n_summary_admission_requires_parent_projection_and_receipt_denomi
     assert len(admissions) == len(validator.PLAIN_LANGUAGE_PROOF_REQUESTS)
     assert all(admission.action == "exclude" for admission in admissions)
     assert all(
-        admission.predicate_provenance == "independently_reconciled"
-        for admission in admissions
+        admission.predicate_provenance == "independently_reconciled" for admission in admissions
     )
 
     first_role = next(iter(validator.PLAIN_LANGUAGE_PROOF_REQUESTS))
@@ -5711,13 +5233,7 @@ def test_depth_outer_plan_composes_recording_roots_with_stage_summaries_only(
     for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS:
         recording = payload["proof_recordings"][role]
         receipt_counts[role] = len(_recording_receipts(recording))
-        recording_admissions.append(
-            validator._admit_controlled_recording_for_comparison(
-                recording,
-                role=role,
-                receipt_proofs=_manual_receipt_comparison_admissions(recording),
-            )
-        )
+        recording_admissions.append(_historical_recording_admission(validator, recording))
     summary_admissions = validator._depth_summary_comparison_admissions(
         payload,
         receipt_counts_by_role=receipt_counts,
@@ -5739,9 +5255,9 @@ def test_depth_outer_plan_composes_recording_roots_with_stage_summaries_only(
     )
     assert all(
         "promotions"
-        not in projected["proof_recordings"][role][
-            "authority_source_migration_receipt"
-        ]["replayed_authority_projection"]
+        not in projected["proof_recordings"][role]["authority_source_migration_receipt"][
+            "replayed_authority_projection"
+        ]
         for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
     )
     assert all(
@@ -5751,29 +5267,24 @@ def test_depth_outer_plan_composes_recording_roots_with_stage_summaries_only(
     )
     assert all(
         not validator._CONTROLLED_RECORDING_MIGRATION_COMPARISON_IDENTITIES
-        & set(
-            projected["proof_recordings"][role][
-                "authority_source_migration_receipt"
-            ]
-        )
+        & set(projected["proof_recordings"][role]["authority_source_migration_receipt"])
         for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
     )
     assert plan.preserve_admitted_blocks(payload, payload) == payload
 
     first_role = next(iter(validator.PLAIN_LANGUAGE_PROOF_REQUESTS))
     tampered = copy.deepcopy(payload["proof_recordings"][first_role])
-    tampered["authority_source_admission"]["authority_projection"]["promotions"][
-        0
-    ]["receipt_count"] += 1
+    tampered["authority_source_admission"]["authority_projection"]["promotions"][0][
+        "receipt_count"
+    ] += 1
     _refresh_recording_hashes(tampered)
     with pytest.raises(
         ValueError,
         match="controlled_recording_summary_admission_binding_invalid",
     ):
-        validator._admit_controlled_recording_for_comparison(
+        validator._validated_controlled_recording_summary_projections(
             tampered,
-            role=first_role,
-            receipt_proofs=_manual_receipt_comparison_admissions(tampered),
+            receipt_count=len(_recording_receipts(tampered)),
         )
 
 
@@ -5782,8 +5293,7 @@ def test_universality_validator_refuses_wrong_checkout(tmp_path: Path) -> None:
 
     wrong_src = _create_wrong_checkout_package(tmp_path)
     canonical_output = (
-        REPO_ROOT
-        / "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
+        REPO_ROOT / "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
     )
     before = canonical_output.read_bytes()
 
@@ -5811,10 +5321,7 @@ def test_universality_json_cli_is_one_machine_readable_document() -> None:
     assert wall_time_seconds > 0.0
     assert payload == {
         "issues": [],
-        "outputs": [
-            "architecture/policy_design_case/"
-            "layer3_gy_depth_n_universality_contract.json"
-        ],
+        "outputs": ["architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"],
         "status": "pass",
     }
     assert result.stderr == ""

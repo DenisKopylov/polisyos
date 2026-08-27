@@ -273,15 +273,13 @@ def _source_derived_unittest_denominator(path: Path) -> int:
                 for base in node.bases
             }
             if node.name not in test_case_names and (
-                {"unittest.TestCase", "TestCase"} & base_names
-                or test_case_names & base_names
+                {"unittest.TestCase", "TestCase"} & base_names or test_case_names & base_names
             ):
                 test_case_names.add(node.name)
                 changed = True
     test_node_types = (ast.FunctionDef, ast.AsyncFunctionDef)
     module_tests = sum(
-        isinstance(node, test_node_types) and node.name.startswith("test_")
-        for node in tree.body
+        isinstance(node, test_node_types) and node.name.startswith("test_") for node in tree.body
     )
     class_tests = sum(
         isinstance(member, test_node_types) and member.name.startswith("test_")
@@ -365,7 +363,13 @@ def _catalog_evidence_violations(payload: dict[str, object]) -> list[str]:
 def _direct_cli_options() -> dict[str, tuple[set[str], set[str]]]:
     """Return independently derived action/context option names for every GY validator."""
 
-    value_actions = {"accept-stage1-n4-journal", "capture-live-journal"}
+    value_actions = {
+        "accept-stage1-n4-journal",
+        "candidate-dir",
+        "candidate-output",
+        "candidate-reissue-catalog-provenance",
+        "capture-live-journal",
+    }
     surfaces: dict[str, tuple[set[str], set[str]]] = {}
     for path in sorted(VALIDATION_ROOT.glob("check_layer3_gy_*.py")):
         actions: set[str] = set()
@@ -394,7 +398,9 @@ def _direct_cli_options() -> dict[str, tuple[set[str], set[str]]]:
     return surfaces
 
 
-def test_direct_gy_guard_persists_default_mode_without_changing_success_output(tmp_path: Path) -> None:
+def test_direct_gy_guard_persists_default_mode_without_changing_success_output(
+    tmp_path: Path,
+) -> None:
     """Catch a direct-entry timing-wrapper bypass for a successful no-flag guard."""
 
     timing_log = tmp_path / "timing.jsonl"
@@ -605,9 +611,15 @@ def test_mode_classifier_covers_every_current_gy_argparse_surface() -> None:
     """Catch any current GY action or context option escaping shared classification."""
 
     surfaces = _direct_cli_options()
-    value_actions = {"accept-stage1-n4-journal", "capture-live-journal"}
+    value_actions = {
+        "accept-stage1-n4-journal",
+        "candidate-dir",
+        "candidate-output",
+        "candidate-reissue-catalog-provenance",
+        "capture-live-journal",
+    }
     observed_value_actions: set[str] = set()
-    assert len(surfaces) == 41
+    assert len(surfaces) == 42
 
     for script, (actions, contexts) in surfaces.items():
         context_argv: list[str] = []
@@ -1070,8 +1082,7 @@ def test_timing_budget_evidence_rejects_receipts_swapped_with_samples() -> None:
     violations = _catalog_evidence_violations(swapped)
     assert any(item.endswith(":uncited_workload:--check") for item in violations)
     assert any(
-        item.endswith(":uncited_workload:--corrupt-field-drift-check")
-        for item in violations
+        item.endswith(":uncited_workload:--corrupt-field-drift-check") for item in violations
     )
 
 
@@ -1093,8 +1104,7 @@ def test_timing_budget_evidence_rejects_same_mode_cross_tool_swaps() -> None:
         lane
         for lane in lanes
         if isinstance(lane, dict)
-        and lane.get("timing_key")
-        == "quality.validation.check_layer3_gy_confidence_ledger:check"
+        and lane.get("timing_key") == "quality.validation.check_layer3_gy_confidence_ledger:check"
     )
     measurement_fields = (
         "samples_ms",
@@ -1134,8 +1144,10 @@ def test_atlas_python_governance_lane_names_one_exact_runnable_workload() -> Non
         "docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:48"
     ]
     source_line = (
-        REPO_ROOT / atlas["source_refs"][0].rsplit(":", 1)[0]
-    ).read_text(encoding="utf-8").splitlines()[47]
+        (REPO_ROOT / atlas["source_refs"][0].rsplit(":", 1)[0])
+        .read_text(encoding="utf-8")
+        .splitlines()[47]
+    )
     command_test_paths = [
         REPO_ROOT / token
         for token in shlex.split(atlas["command"])
@@ -1389,10 +1401,7 @@ def test_external_suite_runner_preserves_signal_termination(
             "--",
             sys.executable,
             "-c",
-            (
-                "import os, signal; "
-                f"os.kill(os.getpid(), signal.Signals({int(termination_signal)}))"
-            ),
+            (f"import os, signal; os.kill(os.getpid(), signal.Signals({int(termination_signal)}))"),
         ],
         cwd=REPO_ROOT,
         env=environment,
@@ -1409,7 +1418,11 @@ def test_external_suite_runner_preserves_signal_termination(
 
 
 SALVAGED_TIMING_RECORDS = (
-    REPO_ROOT / "docs" / "superpowers" / "timing-evidence" / "2026-08-17-salvaged-timing-records.jsonl"
+    REPO_ROOT
+    / "docs"
+    / "superpowers"
+    / "timing-evidence"
+    / "2026-08-17-salvaged-timing-records.jsonl"
 )
 
 # Measured 2026-08-17 by reading every module that defines ``corrupt_field_drift_check`` and
@@ -1425,6 +1438,7 @@ INVERTED_CORRUPT_LANES = {
     "check_layer3_gy_joint_simulation_horizon_contract",
     "check_layer3_gy_promotion_contract",
     "check_layer3_gy_second_domain_pack",
+    "check_layer3_gy_value_gate_contract",
 }
 NORMAL_CORRUPT_LANES = {
     "check_grounding_active_controller_contract",
@@ -1434,16 +1448,13 @@ NORMAL_CORRUPT_LANES = {
     "check_grounding_credal_reference_contract",
     "check_grounding_relation_contract",
     "check_layer3_gy_confidence_ledger",
-    "check_layer3_gy_value_gate_contract",
 }
 CORRUPT_DRIFT_MODE = "corrupt-field-drift-check"
 
 
 def _salvaged_records() -> list[ToolRunRecord]:
     lines = SALVAGED_TIMING_RECORDS.read_text(encoding="utf-8").splitlines()
-    return [
-        ToolRunRecord(**json.loads(json.loads(line)["raw"])) for line in lines if line.strip()
-    ]
+    return [ToolRunRecord(**json.loads(json.loads(line)["raw"])) for line in lines if line.strip()]
 
 
 def test_salvaged_corrupt_lane_run_at_exit_one_is_admitted_as_a_sample() -> None:
@@ -1495,11 +1506,19 @@ def test_killed_run_stays_inadmissible_even_when_its_exit_code_is_declared_healt
     [
         ({"status": "failed", "exit_code": -9, "duration_ms": 900.0}, "signal_death"),
         (
-            {"status": "skipped", "exit_code": 78, "duration_ms": 0.0, "preflight_status": "quarantined"},
+            {
+                "status": "skipped",
+                "exit_code": 78,
+                "duration_ms": 0.0,
+                "preflight_status": "quarantined",
+            },
             "skipped",
         ),
         ({"status": "ok", "exit_code": 0, "duration_ms": 0.0}, "zero_duration"),
-        ({"status": "running", "exit_code": 0, "duration_ms": 10.0}, "no_terminal_decision:running"),
+        (
+            {"status": "running", "exit_code": 0, "duration_ms": 10.0},
+            "no_terminal_decision:running",
+        ),
         ({"status": "ok", "exit_code": 0, "duration_ms": 10.0, "tool": ""}, "malformed_record"),
     ],
 )
@@ -1520,9 +1539,7 @@ def test_non_terminal_records_stay_inadmissible_under_a_maximally_wide_declarati
         "mode": CORRUPT_DRIFT_MODE,
     }
     record = ToolRunRecord(**{**base, **record_kwargs})
-    admission = admit_duration_sample(
-        record, healthy_terminal_exit_codes=(-9, 0, 1, 2, 78)
-    )
+    admission = admit_duration_sample(record, healthy_terminal_exit_codes=(-9, 0, 1, 2, 78))
     assert not admission.admitted
     assert admission.reason == expected_reason
 
@@ -1685,9 +1702,7 @@ def test_default_retention_holds_a_sample_for_every_currently_known_lane() -> No
     """The retention number is a measurement of the lane count, not a constant."""
 
     catalogued = {lane.timing_key for lane in load_timing_budget_catalog()}
-    observed = {
-        timing_key_for(record.tool, record.mode) for record in _salvaged_records()
-    }
+    observed = {timing_key_for(record.tool, record.mode) for record in _salvaged_records()}
     known_lanes = catalogued | observed
 
     assert len(known_lanes) <= DEFAULT_TIMING_RETENTION, (
@@ -1763,9 +1778,7 @@ def test_uncatalogued_lanes_name_the_write_lane_whose_absence_stopped_a_wave() -
     assert "quality.validation.check_layer3_gy_second_domain_pack:write" in missing_keys
     assert missing_keys.isdisjoint({lane.timing_key for lane in catalog})
 
-    observed = {
-        timing_key_for(record.tool, record.mode) for record in _salvaged_records()
-    }
+    observed = {timing_key_for(record.tool, record.mode) for record in _salvaged_records()}
     catalogued = {lane.timing_key for lane in catalog}
     assert missing_keys == observed - catalogued, "every observed-but-absent lane must be named"
 

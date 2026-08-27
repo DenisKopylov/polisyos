@@ -22,6 +22,7 @@ from polisyos.core.contracts.scientist import (
 from polisyos.ir.analytics.metric_validation_report import (
     load_metric_validation_report,
 )
+from polisyos.scientist.evidence.claims.head_index import ClaimLedgerHeadAdvanced
 from polisyos.scientist.evidence.claims.validators import (
     is_fail_on_naked_claims_enabled,
     validate_naked_decision_claims,
@@ -32,59 +33,9 @@ from polisyos.scientist.methods.research_dag.projections import (
 )
 from polisyos.scientist.methods.research_dag.replay import legacy_research_dag_status
 from polisyos.scientist.nodes.builtins.decide._decision_packet_contracts import (
-    _ClaimLedgerAttachment,  # noqa: F401 - re-exported through legacy decision packet API
+    _ClaimLedgerAttachment,
     _DecisionPacketBuildRequest,
 )
-from polisyos.scientist.nodes.builtins.decide.decision_packet_support import (
-    _build_replay_section,
-    _compute_replay_readiness,
-    _determine_strategy_hint,
-)
-from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
-    ARTIFACT_CLAIM_LEDGER_V2_REF,
-    ARTIFACT_CLAIMS_REF,
-    ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF,
-    ARTIFACT_DECISION_PACKET_REF,
-    ARTIFACT_JUDGE_VERDICT_REF,
-    ARTIFACT_METRIC_VALIDATION_REPORT_REF,
-    ARTIFACT_METRICS_REF,
-    ARTIFACT_NORM_IMPACT_REPORT_REF,
-    ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
-    ARTIFACT_REISSUE_PACKET_REF,
-    ARTIFACT_RESEARCH_DAG_REF,
-    ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF,
-    ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
-    ARTIFACT_STRESS_TEST_REPORT_REF,
-    ARTIFACT_VALIDATION_REPORT_REF,
-    ARTIFACT_VERIFIED_POLICY_REPORT_REF,
-    ARTIFACT_VOI_RUN_REPORT_REF,
-    ARTIFACT_WITHDRAWAL_RECORD_REF,
-    REPORT_GOVERNANCE_REPORT_REF,
-)
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import (
-    NodeError,
-    NodeEvent,
-    NodeOutcome,
-    NodeSpec,
-)
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
-from polisyos.scientist.validation.decision_validity import DecisionValidityService
-from polisyos.scientist.validation.phase5_preflight import (
-    Phase5ArtifactPreflightInput,
-    Phase5ValidationBlocked,
-    enforce_phase5_publication,
-    run_phase5_artifact_preflight,
-)
-from polisyos.scientist.validation.policy_verified import (
-    load_source_verification_report,
-    load_verified_policy_report,
-)
-
-logger = get_logger(__name__)
-
 from polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment import (
     _attach_claim_ledger_to_packet,
     _attach_human_review_projection,
@@ -140,6 +91,58 @@ from polisyos.scientist.nodes.builtins.decide.decision_packet.validation import 
     _record_decision_packet_degraded,
     _should_run_phase5_publication_preflight,
 )
+from polisyos.scientist.nodes.builtins.decide.decision_packet_support import (
+    _build_replay_section,
+    _compute_replay_readiness,
+    _determine_strategy_hint,
+)
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
+    ARTIFACT_CLAIM_LEDGER_V2_REF,
+    ARTIFACT_CLAIMS_REF,
+    ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF,
+    ARTIFACT_DECISION_PACKET_REF,
+    ARTIFACT_JUDGE_VERDICT_REF,
+    ARTIFACT_METRIC_VALIDATION_REPORT_REF,
+    ARTIFACT_METRICS_REF,
+    ARTIFACT_NORM_IMPACT_REPORT_REF,
+    ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
+    ARTIFACT_REISSUE_PACKET_REF,
+    ARTIFACT_RESEARCH_DAG_REF,
+    ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF,
+    ARTIFACT_SOURCE_VERIFICATION_REPORT_REF,
+    ARTIFACT_STRESS_TEST_REPORT_REF,
+    ARTIFACT_VALIDATION_REPORT_REF,
+    ARTIFACT_VERIFIED_POLICY_REPORT_REF,
+    ARTIFACT_VOI_RUN_REPORT_REF,
+    ARTIFACT_WITHDRAWAL_RECORD_REF,
+    REPORT_GOVERNANCE_REPORT_REF,
+)
+from polisyos.scientist.orchestration.engine.context import (
+    ClaimCapableExecutionContext,
+    ExecutionContext,
+)
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.scientist.validation.decision_validity import DecisionValidityService
+from polisyos.scientist.validation.phase5_preflight import (
+    Phase5ArtifactPreflightInput,
+    Phase5ValidationBlocked,
+    enforce_phase5_publication,
+    run_phase5_artifact_preflight,
+)
+from polisyos.scientist.validation.policy_verified import (
+    load_source_verification_report,
+    load_verified_policy_report,
+)
+
+logger = get_logger(__name__)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_build_decision_packet@1.5.0"),
@@ -814,6 +817,44 @@ class BuildDecisionPacketNode:
             canon_spec=CanonSpec(forbid_floats=False),
         )
         packet_ref = DecisionPacketRef(artifact_id=packet_ref_payload.artifact_id)
+        if claim_attachment.authority_status == "prepared":
+            if (
+                not isinstance(ctx, ClaimCapableExecutionContext)
+                or claim_attachment.preparation is None
+            ):
+                raise ValueError("claim_root_preparation_owner_missing")
+            root_result = ctx.claim_ledger_owner.finalize_initial_root(
+                preparation_ref=claim_attachment.preparation.preparation_ref,
+                decision_packet_ref=packet_ref_payload,
+            )
+            if not isinstance(root_result, ClaimLedgerHeadAdvanced):
+                failure_code = getattr(
+                    root_result,
+                    "code",
+                    "claim_root_issuance_not_established",
+                )
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    artifacts=claim_attachment.artifacts,
+                    events=[
+                        NodeEvent(
+                            level="error",
+                            message=(
+                                "Claim Ledger root issuance did not establish a current head."
+                            ),
+                        )
+                    ],
+                    error=NodeError(
+                        code=str(failure_code),
+                        message="Claim Ledger root issuance is not established",
+                        details={
+                            "claim_ledger_status": "not_established",
+                            "packet_candidate_ref": str(packet_ref_payload.artifact_id),
+                        },
+                    ),
+                )
+            claim_attachment = claim_attachment.mark_current()
         sensitivity_bundle_ref = _sensitivity_analysis_bundle_ref_from_packet(packet_payload)
         DecisionValidityService(ctx.store).register_decision_packet(
             packet_ref=str(packet_ref.artifact_id),

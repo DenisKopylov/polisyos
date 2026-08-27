@@ -6,8 +6,10 @@ import hashlib
 import re
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 from polisyos.core import PromptSanitizer, scan_secret_and_pii
+from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.authority import (
     AuthorityEnvelopeInput,
     AuthoritySurfaceDecision,
@@ -27,6 +29,17 @@ from polisyos.runtime.quality.contestability import (
     PolicyDesignContestabilityError,
     verified_recourse_pointer_for_publication,
 )
+from polisyos.runtime.quality.generation_cycle import (
+    GenerationCycleRun,
+    validate_generation_cycle_run,
+)
+from polisyos.runtime.quality.open_world_risk import (
+    OpenWorldRiskArtifactResolver,
+    OpenWorldRiskGenerationProjectionResolver,
+    OpenWorldRiskPromotionGate,
+    OpenWorldRiskPublicLimitation,
+    OpenWorldRiskResolutionNonReceipt,
+)
 from polisyos.runtime.quality.projection_semantics import (
     build_policy_design_case_projection_from_runtime_graph,
     build_policy_design_case_projection_semantics,
@@ -38,9 +51,18 @@ from polisyos.runtime.quality.projection_semantics import (
     verify_s13_post_deploy_accountability_projection_consumer_contract,
     verify_s14_universality_projection_consumer_contract,
 )
+from polisyos.runtime.quality.promotion_sequence import (
+    CanonicalPromotionReceipt,
+    validate_canonical_promotion_receipt,
+)
 from polisyos.runtime.quality.rule_evolution import (
     RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.runtime.quality.design_problem import DesignProblem
 
 PUBLIC_EXPORT_SCHEMA_VERSION = "policyos.runtime.public_export_bundle.v1"
 PUBLIC_EXPORT_REDACTION_POLICY_REF = "redaction-policy/public-export-v1"
@@ -105,6 +127,8 @@ _OFFICIAL_USE_LIMITS = {
         "authority graph for scorecard, readiness, approval, or closeout."
     ),
 }
+
+
 class PublicExportRedactionError(ValueError):
     """Typed public-export redaction or authority-boundary violation."""
 
@@ -118,6 +142,133 @@ class PublicExportRedactionError(ValueError):
         self.code = code
         self.authority_surface_decisions = [dict(item) for item in authority_surface_decisions]
         super().__init__(f"{code}: {message or code}")
+
+
+def project_promotion_open_world_limitation(
+    *,
+    run: GenerationCycleRun,
+    design_problem: DesignProblem,
+    receipt: CanonicalPromotionReceipt | Mapping[str, object],
+    resolver: OpenWorldRiskArtifactResolver,
+    repo_root: Path | None = None,
+) -> OpenWorldRiskPublicLimitation | None:
+    """Project OWR only from one current receipt bound to its exact N6 run."""
+
+    run_issues = validate_generation_cycle_run(run)
+    if run_issues:
+        raise PublicExportRedactionError(
+            str(run_issues[0].get("code") or "generation_cycle_run_invalid")
+        )
+    if run.design_problem_ref != gy_content_hash(design_problem.model_dump(mode="json")):
+        raise PublicExportRedactionError("promotion_receipt_run_binding_mismatch")
+    try:
+        parsed = (
+            receipt
+            if type(receipt) is CanonicalPromotionReceipt
+            else CanonicalPromotionReceipt.model_validate(receipt)
+        )
+    except ValueError as exc:
+        raise PublicExportRedactionError("promotion_receipt_invalid", str(exc)) from exc
+    if type(parsed) is not CanonicalPromotionReceipt:
+        raise PublicExportRedactionError("legacy_open_world_gate_authority_not_admitted")
+    payload = parsed.model_dump(mode="json")
+    if sum(item == payload for item in run.promotion_port.receipts) != 1:
+        raise PublicExportRedactionError("promotion_receipt_run_binding_mismatch")
+    summaries = tuple(
+        summary
+        for summary in run.candidate_summaries
+        if summary.candidate_id == parsed.candidate_id
+    )
+    if len(summaries) != 1:
+        raise PublicExportRedactionError("promotion_candidate_owner_binding_invalid")
+    summary = summaries[0]
+    if (
+        parsed.owner_projection.design_problem_binding.problem_content_hash
+        != run.design_problem_ref
+        or parsed.owner_projection.candidate_summary != summary
+    ):
+        raise PublicExportRedactionError("promotion_receipt_run_binding_mismatch")
+    issues = validate_canonical_promotion_receipt(
+        parsed,
+        repo_root=repo_root,
+        candidate_summary=summary,
+        design_problem=design_problem,
+        value_receipt=summary.value_receipt,
+        open_world_resolver=resolver,
+    )
+    if issues:
+        code = str(issues[0].get("code") or "promotion_receipt_invalid")
+        raise PublicExportRedactionError(code)
+    gate = parsed.owner_projection.open_world_gate
+    if gate is None:
+        raise PublicExportRedactionError("open_world_projection_not_established")
+    if gate.status == "established":
+        return None
+    return OpenWorldRiskPublicLimitation(
+        status=gate.status,
+        code=gate.limitation_code,
+        vector_artifact_ref=gate.vector_artifact_ref,
+    )
+
+
+def project_pre_n9_open_world_limitations(
+    *,
+    run: GenerationCycleRun,
+    design_problem: DesignProblem,
+    resolver: OpenWorldRiskGenerationProjectionResolver,
+) -> tuple[OpenWorldRiskPublicLimitation, ...]:
+    """Replay negative pre-N9 OWR evidence without fabricating a promotion receipt."""
+
+    run_issues = validate_generation_cycle_run(run)
+    if run_issues:
+        raise PublicExportRedactionError(
+            str(run_issues[0].get("code") or "generation_cycle_run_invalid")
+        )
+    if run.design_problem_ref != gy_content_hash(design_problem.model_dump(mode="json")):
+        raise PublicExportRedactionError("open_world_vector_query_mismatch")
+    port = run.promotion_port
+    if (
+        port.status != "not_promoted"
+        or port.reason != "epoch_validity_refused:policy_admission_missing"
+        or port.receipts
+        or port.certified_candidate_ids
+    ):
+        raise PublicExportRedactionError("open_world_projection_not_established")
+    observations = port.pre_n9_open_world_gates
+    if not observations:
+        raise PublicExportRedactionError("open_world_projection_not_established")
+    if len(observations) != len(run.candidate_summaries) or tuple(
+        row.ordinal for row in observations
+    ) != tuple(range(len(run.candidate_summaries))):
+        raise PublicExportRedactionError("open_world_vector_query_mismatch")
+    limitations: list[OpenWorldRiskPublicLimitation] = []
+    for observation in observations:
+        try:
+            gate = OpenWorldRiskPromotionGate.model_validate(observation.gate_payload)
+        except ValueError as exc:
+            raise PublicExportRedactionError(
+                "open_world_projection_not_established",
+                str(exc),
+            ) from exc
+        verified = resolver.resolve_verified_for_generation(
+            gate=gate,
+            expected_problem=design_problem,
+            expected_summaries=run.candidate_summaries,
+            expected_ordinal=observation.ordinal,
+        )
+        if isinstance(verified, OpenWorldRiskResolutionNonReceipt):
+            raise PublicExportRedactionError(verified.code)
+        vector = verified.vector
+        if vector.status == "established":
+            continue
+        limitations.append(
+            OpenWorldRiskPublicLimitation(
+                status=vector.status,
+                code=vector.limitation_code,
+                vector_artifact_ref=verified.vector_artifact_ref,
+            )
+        )
+    return tuple(limitations)
 
 
 def build_public_export_bundle(
@@ -168,17 +319,12 @@ def build_public_export_bundle(
         artifact_key, decision = blocking_decisions[0]
         raise PublicExportRedactionError(
             "authority_surface_blocked",
-            (
-                f"{artifact_key} cannot be exported for "
-                f"{decision.purpose}: {decision.reason}"
-            ),
+            (f"{artifact_key} cannot be exported for {decision.purpose}: {decision.reason}"),
             authority_surface_decisions=public_authority_surface_decisions,
         )
     rule_evolution_annotations = _iter_rule_evolution_annotations(sanitized_artifacts)
     public_revision_states = _iter_public_revision_states(sanitized_artifacts)
-    orchestration_continuity = _public_orchestration_continuity_projection(
-        sanitized_artifacts
-    )
+    orchestration_continuity = _public_orchestration_continuity_projection(sanitized_artifacts)
     authority_projections = [_authority_projection(envelope) for envelope in authority_envelopes]
     projection_semantics = None
     projection_contract_verification = None
@@ -270,11 +416,9 @@ def build_public_export_bundle(
                 )
                 else "pass",
             }
-        projection_semantics, s10_verification, s10_projection = (
-            _apply_s10_forecast_projection(
-                projection_semantics=projection_semantics,
-                projection_payload=projection_payload,
-            )
+        projection_semantics, s10_verification, s10_projection = _apply_s10_forecast_projection(
+            projection_semantics=projection_semantics,
+            projection_payload=projection_payload,
         )
         if s10_verification is not None:
             if projection_contract_verification is None:
@@ -300,11 +444,9 @@ def build_public_export_bundle(
                     )
                     else "pass",
                 }
-        projection_semantics, s11_verification, s11_projection = (
-            _apply_s11_predictive_projection(
-                projection_semantics=projection_semantics,
-                projection_payload=projection_payload,
-            )
+        projection_semantics, s11_verification, s11_projection = _apply_s11_predictive_projection(
+            projection_semantics=projection_semantics,
+            projection_payload=projection_payload,
         )
         if s11_verification is not None:
             if projection_contract_verification is None:
@@ -330,11 +472,9 @@ def build_public_export_bundle(
                     )
                     else "pass",
                 }
-        projection_semantics, s12_verification, s12_projection = (
-            _apply_s12_resource_projection(
-                projection_semantics=projection_semantics,
-                projection_payload=projection_payload,
-            )
+        projection_semantics, s12_verification, s12_projection = _apply_s12_resource_projection(
+            projection_semantics=projection_semantics,
+            projection_payload=projection_payload,
         )
         if s12_verification is not None:
             if projection_contract_verification is None:
@@ -390,11 +530,9 @@ def build_public_export_bundle(
                     )
                     else "pass",
                 }
-        projection_semantics, s14_verification, s14_projection = (
-            _apply_s14_universality_projection(
-                projection_semantics=projection_semantics,
-                projection_payload=projection_payload,
-            )
+        projection_semantics, s14_verification, s14_projection = _apply_s14_universality_projection(
+            projection_semantics=projection_semantics,
+            projection_payload=projection_payload,
         )
         if s14_verification is not None:
             if projection_contract_verification is None:
@@ -485,9 +623,7 @@ def build_public_export_bundle(
             "s14_universality_projection": s14_projection,
             "s14_universality_projection_contract_verification": s14_verification,
             "layer3_g3_analytics_search_projection": g3_projection,
-            "layer3_g3_analytics_search_projection_contract_verification": (
-                g3_verification
-            ),
+            "layer3_g3_analytics_search_projection_contract_verification": (g3_verification),
             "authority_surface_decisions": public_authority_surface_decisions,
             "omission_manifest": list(
                 projection_semantics.get("omission_manifest", [])
@@ -719,8 +855,7 @@ def _canonical_redaction_reason(placeholder: str) -> str:
 def _public_export_sanitizer_strangle_receipt() -> dict[str, object]:
     return {
         "predecessor_ref": (
-            "runtime.quality.public_export._FORBIDDEN_*_TOKENS."
-            "_sanitize_public_payload"
+            "runtime.quality.public_export._FORBIDDEN_*_TOKENS._sanitize_public_payload"
         ),
         "replacement_ref": "polisyos.core.llm.sanitization.scan_secret_and_pii",
         "disposition": "deleted_live_path_default_flipped_to_composed_gate",
@@ -744,7 +879,7 @@ def _authority_surface_decisions_for_public_export(
             artifact,
             surface="export",
             artifact_ref_or_route=f"public-export://{key}",
-            secret_pii_scope="dashboard/public/export packets",
+            secret_pii_scope="dashboard/public/export packets",  # noqa: S106
             block_on_secret_findings=False,
             missing_authority_disposition="downgrade",
             missing_boundary_disposition="downgrade",
@@ -753,7 +888,7 @@ def _authority_surface_decisions_for_public_export(
             artifact,
             surface="public_packet",
             artifact_ref_or_route=f"public-packet://{key}",
-            secret_pii_scope="dashboard/public/export packets",
+            secret_pii_scope="dashboard/public/export packets",  # noqa: S106
             block_on_secret_findings=False,
             missing_authority_disposition="downgrade",
             missing_boundary_disposition="downgrade",
@@ -825,13 +960,9 @@ def _apply_s14_universality_projection(
     source_state = dict(enriched.get("source_state") or {})
     source_state.update(
         {
-            "s14_universality_assurance_ref": s14_projection.get(
-                "s14_universality_assurance_ref"
-            ),
+            "s14_universality_assurance_ref": s14_projection.get("s14_universality_assurance_ref"),
             "s14_projection_policy": "reads_s14_universality_assurance_as_projection",
-            "universality_claim_gate_ref": s14_projection.get(
-                "universality_claim_gate_ref"
-            ),
+            "universality_claim_gate_ref": s14_projection.get("universality_claim_gate_ref"),
         }
     )
     enriched.update(
@@ -846,21 +977,13 @@ def _apply_s14_universality_projection(
             "s14_universality_assurance_ref": public_projection.get(
                 "s14_universality_assurance_ref"
             ),
-            "universality_claim_gate_ref": public_projection.get(
-                "universality_claim_gate_ref"
-            ),
-            "d4_corpus_track_coverage_ref": public_projection.get(
-                "d4_corpus_track_coverage_ref"
-            ),
+            "universality_claim_gate_ref": public_projection.get("universality_claim_gate_ref"),
+            "d4_corpus_track_coverage_ref": public_projection.get("d4_corpus_track_coverage_ref"),
             "d4_corpus_track_coverage_status": public_projection.get(
                 "d4_corpus_track_coverage_status"
             ),
-            "d4_breadth_limitation_summary": public_projection.get(
-                "d4_breadth_limitation_summary"
-            ),
-            "expert_oracle_bootstrap_ref": public_projection.get(
-                "expert_oracle_bootstrap_ref"
-            ),
+            "d4_breadth_limitation_summary": public_projection.get("d4_breadth_limitation_summary"),
+            "expert_oracle_bootstrap_ref": public_projection.get("expert_oracle_bootstrap_ref"),
             "expert_oracle_seed_only_layer_refs": public_projection.get(
                 "expert_oracle_seed_only_layer_refs"
             ),
@@ -870,35 +993,23 @@ def _apply_s14_universality_projection(
             "universality_baseline_comparison_ref": public_projection.get(
                 "universality_baseline_comparison_ref"
             ),
-            "baseline_comparison_status": public_projection.get(
-                "baseline_comparison_status"
-            ),
+            "baseline_comparison_status": public_projection.get("baseline_comparison_status"),
             "grounded_authority_coverage_ref": public_projection.get(
                 "grounded_authority_coverage_ref"
             ),
-            "grounded_authority_status": public_projection.get(
-                "grounded_authority_status"
-            ),
+            "grounded_authority_status": public_projection.get("grounded_authority_status"),
             "evaluation_status_composition_ref": public_projection.get(
                 "evaluation_status_composition_ref"
             ),
-            "status_composition_limit_refs": public_projection.get(
-                "status_composition_limit_refs"
-            ),
+            "status_composition_limit_refs": public_projection.get("status_composition_limit_refs"),
             "axis_scorecard_ref": public_projection.get("axis_scorecard_ref"),
-            "out_of_envelope_axis_refs": public_projection.get(
-                "out_of_envelope_axis_refs"
-            ),
+            "out_of_envelope_axis_refs": public_projection.get("out_of_envelope_axis_refs"),
             "not_tested_axis_refs": public_projection.get("not_tested_axis_refs"),
-            "mechanism_generality_status": public_projection.get(
-                "mechanism_generality_status"
-            ),
+            "mechanism_generality_status": public_projection.get("mechanism_generality_status"),
             "sublinear_marginal_bespoke_cost_status": public_projection.get(
                 "sublinear_marginal_bespoke_cost_status"
             ),
-            "skeptic_defeater_statuses": public_projection.get(
-                "skeptic_defeater_statuses"
-            ),
+            "skeptic_defeater_statuses": public_projection.get("skeptic_defeater_statuses"),
             "s9_projection_faithfulness_refs": public_projection.get(
                 "s9_projection_faithfulness_refs"
             ),
@@ -976,27 +1087,17 @@ def _apply_s13_post_deploy_accountability_projection(
     source_state = dict(enriched.get("source_state") or {})
     source_state.update(
         {
-            "s13_accountability_posture_ref": s13_projection.get(
-                "accountability_posture_ref"
-            ),
-            "s13_projection_policy": (
-                "reads_post_deploy_accountability_posture_as_revision_note"
-            ),
-            "s13_public_revision_state_ref": s13_projection.get(
-                "public_revision_state_ref"
-            ),
+            "s13_accountability_posture_ref": s13_projection.get("accountability_posture_ref"),
+            "s13_projection_policy": ("reads_post_deploy_accountability_posture_as_revision_note"),
+            "s13_public_revision_state_ref": s13_projection.get("public_revision_state_ref"),
         }
     )
     enriched.update(
         {
             "public_accountability_note": accountability_note,
-            "public_accountability_note_ref": s13_projection.get(
-                "public_accountability_note_ref"
-            ),
+            "public_accountability_note_ref": s13_projection.get("public_accountability_note_ref"),
             "public_revision_state_ref": s13_projection.get("public_revision_state_ref"),
-            "envelope_revision_direction": s13_projection.get(
-                "envelope_revision_direction"
-            ),
+            "envelope_revision_direction": s13_projection.get("envelope_revision_direction"),
             "closed_case_historical_meaning": (
                 s13_projection.get("closed_case_historical_meaning") or "preserved"
             ),
@@ -1070,13 +1171,9 @@ def _apply_s12_resource_projection(
     source_state = dict(enriched.get("source_state") or {})
     source_state.update(
         {
-            "s12_resource_posture_ref": s12_projection.get(
-                "resource_allocation_policy_ref"
-            ),
+            "s12_resource_posture_ref": s12_projection.get("resource_allocation_policy_ref"),
             "s12_projection_policy": "reads_resource_economics_posture_as_constraint",
-            "s12_explore_exploit_posture": s12_projection.get(
-                "explore_exploit_posture"
-            ),
+            "s12_explore_exploit_posture": s12_projection.get("explore_exploit_posture"),
         }
     )
     enriched.update(
@@ -1090,9 +1187,7 @@ def _apply_s12_resource_projection(
             "limitations": limitations,
             "audit_refs": audit_refs,
             "source_state": source_state,
-            "s12_resource_projection_contract_verification_status": verification.get(
-                "status"
-            ),
+            "s12_resource_projection_contract_verification_status": verification.get("status"),
             "s12_resource_projection_contract_verification_ref": verification.get(
                 "consumer_contract_ref"
             ),
@@ -1155,29 +1250,21 @@ def _apply_s11_predictive_projection(
     source_state = dict(enriched.get("source_state") or {})
     source_state.update(
         {
-            "s11_predictive_posture_ref": s11_projection.get(
-                "s11_predictive_posture_ref"
-            ),
+            "s11_predictive_posture_ref": s11_projection.get("s11_predictive_posture_ref"),
             "s11_projection_policy": "reads_predictive_posture_as_constraint",
-            "s11_effective_predictive_posture": s11_projection.get(
-                "effective_predictive_posture"
-            ),
+            "s11_effective_predictive_posture": s11_projection.get("effective_predictive_posture"),
         }
     )
     enriched.update(
         {
-            "effective_predictive_posture": s11_projection.get(
-                "effective_predictive_posture"
-            ),
+            "effective_predictive_posture": s11_projection.get("effective_predictive_posture"),
             "s11_public_limitation": s11_limitation,
             "authority_role": "projection_only",
             "may_not_be_used_for": may_not,
             "limitations": limitations,
             "audit_refs": audit_refs,
             "source_state": source_state,
-            "s11_predictive_projection_contract_verification_status": (
-                verification.get("status")
-            ),
+            "s11_predictive_projection_contract_verification_status": (verification.get("status")),
             "s11_predictive_projection_contract_verification_ref": verification.get(
                 "consumer_contract_ref"
             ),
@@ -1196,8 +1283,7 @@ def _apply_layer3_g3_analytics_search_projection(
         return dict(projection_semantics), None, None
     verification = {
         "consumer_contract_ref": (
-            "policyos.runtime.policy_design_case."
-            "layer3_g3_public_projection_verification.v1"
+            "policyos.runtime.policy_design_case.layer3_g3_public_projection_verification.v1"
         ),
         "status": "pass",
         "public_projection": g3_projection,
@@ -1233,9 +1319,7 @@ def _apply_layer3_g3_analytics_search_projection(
             "layer3_g3_certificate_resolution_report_ref": g3_projection.get(
                 "certificate_resolution_report_ref"
             ),
-            "layer3_g3_public_export_projection_ref": g3_projection.get(
-                "projection_ref"
-            ),
+            "layer3_g3_public_export_projection_ref": g3_projection.get("projection_ref"),
         }
     )
     enriched.update(
@@ -1244,12 +1328,8 @@ def _apply_layer3_g3_analytics_search_projection(
             "layer3_g3_certificate_resolution_report_ref": g3_projection.get(
                 "certificate_resolution_report_ref"
             ),
-            "layer3_g3_resolved_certificate_count": g3_projection.get(
-                "resolved_certificate_count"
-            ),
-            "layer3_g3_blocked_certificate_count": g3_projection.get(
-                "blocked_certificate_count"
-            ),
+            "layer3_g3_resolved_certificate_count": g3_projection.get("resolved_certificate_count"),
+            "layer3_g3_blocked_certificate_count": g3_projection.get("blocked_certificate_count"),
             "authority_role": "projection_only",
             "may_not_be_used_for": may_not,
             "audit_refs": audit_refs,
@@ -1330,9 +1410,7 @@ def _apply_s10_forecast_projection(
             "limitations": limitations,
             "audit_refs": audit_refs,
             "source_state": source_state,
-            "s10_forecast_projection_contract_verification_status": verification.get(
-                "status"
-            ),
+            "s10_forecast_projection_contract_verification_status": verification.get("status"),
             "s10_forecast_projection_contract_verification_ref": verification.get(
                 "consumer_contract_ref"
             ),
@@ -1442,18 +1520,10 @@ def _s11_predictive_projection_record(
         "proof_carrying_analytics_ref": _text(
             projection_payload.get("proof_carrying_analytics_ref")
         ),
-        "ir_analytics_bridge_ref": _text(
-            projection_payload.get("ir_analytics_bridge_ref")
-        ),
-        "residual_limitation_refs": _text_list(
-            projection_payload.get("residual_limitation_refs")
-        ),
-        "weakest_boundary_reason": _text(
-            projection_payload.get("weakest_boundary_reason")
-        ),
-        "s11_public_limitation": _text(
-            projection_payload.get("s11_public_limitation")
-        ),
+        "ir_analytics_bridge_ref": _text(projection_payload.get("ir_analytics_bridge_ref")),
+        "residual_limitation_refs": _text_list(projection_payload.get("residual_limitation_refs")),
+        "weakest_boundary_reason": _text(projection_payload.get("weakest_boundary_reason")),
+        "s11_public_limitation": _text(projection_payload.get("s11_public_limitation")),
         "authority_boundary": authority_boundary,
         "may_not_be_used_for": _unique_texts(
             [
@@ -1487,21 +1557,13 @@ def _layer3_g3_analytics_search_projection_record(
         "projection_policy": "reads_layer3_g3_resolution_status_as_audit_refs",
         "projection_ref": _text(raw.get("projection_ref")),
         "status": _text(raw.get("status")) or "unknown",
-        "certificate_resolution_report_ref": _text(
-            raw.get("certificate_resolution_report_ref")
-        ),
+        "certificate_resolution_report_ref": _text(raw.get("certificate_resolution_report_ref")),
         "search_ledger_refs": _text_list(raw.get("search_ledger_refs")),
-        "redacted_search_frontier_refs": _text_list(
-            raw.get("redacted_search_frontier_refs")
-        ),
-        "proof_carrying_analytics_refs": _text_list(
-            raw.get("proof_carrying_analytics_refs")
-        ),
+        "redacted_search_frontier_refs": _text_list(raw.get("redacted_search_frontier_refs")),
+        "proof_carrying_analytics_refs": _text_list(raw.get("proof_carrying_analytics_refs")),
         "ir_analytics_bridge_refs": _text_list(raw.get("ir_analytics_bridge_refs")),
         "method_requirement_refs": _text_list(raw.get("method_requirement_refs")),
-        "s11_predictive_posture_refs": _text_list(
-            raw.get("s11_predictive_posture_refs")
-        ),
+        "s11_predictive_posture_refs": _text_list(raw.get("s11_predictive_posture_refs")),
         "resolved_certificate_count": _int(raw.get("resolved_certificate_count")),
         "blocked_certificate_count": _int(raw.get("blocked_certificate_count")),
         "authority_boundary": authority_boundary,
@@ -1530,38 +1592,26 @@ def _s12_resource_projection_record(
         "audience": "PUBLIC",
         "authority_role": "projection_only",
         "projection_policy": "reads_resource_economics_posture_as_constraint",
-        "s12_resource_posture_ref": _text(
-            projection_payload.get("s12_resource_posture_ref")
-        ),
+        "s12_resource_posture_ref": _text(projection_payload.get("s12_resource_posture_ref")),
         "resource_allocation_policy_ref": _text(
             projection_payload.get("resource_allocation_policy_ref")
             or projection_payload.get("s12_resource_posture_ref")
         ),
-        "explore_exploit_posture": _text(
-            projection_payload.get("explore_exploit_posture")
-        ),
-        "explore_exploit_dial_ref": _text(
-            projection_payload.get("explore_exploit_dial_ref")
-        ),
+        "explore_exploit_posture": _text(projection_payload.get("explore_exploit_posture")),
+        "explore_exploit_dial_ref": _text(projection_payload.get("explore_exploit_dial_ref")),
         "voi_allocation_refs": _text_list(projection_payload.get("voi_allocation_refs")),
         "voi_site_count": _int(projection_payload.get("voi_site_count")),
         "typed_budget_refs": _text_list(projection_payload.get("typed_budget_refs")),
         "pareto_archive_ref": _text(projection_payload.get("pareto_archive_ref")),
-        "envelope_growth_ledger_ref": _text(
-            projection_payload.get("envelope_growth_ledger_ref")
-        ),
-        "growth_thermometer_ref": _text(
-            projection_payload.get("growth_thermometer_ref")
-        ),
+        "envelope_growth_ledger_ref": _text(projection_payload.get("envelope_growth_ledger_ref")),
+        "growth_thermometer_ref": _text(projection_payload.get("growth_thermometer_ref")),
         "override_rate_trend": _text(projection_payload.get("override_rate_trend")),
         "reuse_rate_trend": _text(projection_payload.get("reuse_rate_trend")),
         "held_out_status": _text(projection_payload.get("held_out_status")),
         "resource_allocation_disposition": _text(
             projection_payload.get("resource_allocation_disposition")
         ),
-        "residual_limitation_refs": _text_list(
-            projection_payload.get("residual_limitation_refs")
-        ),
+        "residual_limitation_refs": _text_list(projection_payload.get("residual_limitation_refs")),
         "s12_public_growth_limitation": _text(
             projection_payload.get("s12_public_growth_limitation")
         ),
@@ -1593,27 +1643,17 @@ def _s13_accountability_projection_record(
         "audience": "PUBLIC",
         "authority_role": "projection_only",
         "projection_policy": "reads_s13_post_deploy_accountability_posture",
-        "accountability_posture_ref": _text(
-            projection_payload.get("accountability_posture_ref")
-        ),
-        "deployment_dossier_ref": _text(
-            projection_payload.get("deployment_dossier_ref")
-        ),
-        "divergence_record_refs": _text_list(
-            projection_payload.get("divergence_record_refs")
-        ),
+        "accountability_posture_ref": _text(projection_payload.get("accountability_posture_ref")),
+        "deployment_dossier_ref": _text(projection_payload.get("deployment_dossier_ref")),
+        "divergence_record_refs": _text_list(projection_payload.get("divergence_record_refs")),
         "learning_update_proposal_refs": _text_list(
             projection_payload.get("learning_update_proposal_refs")
         ),
-        "envelope_revision_ref": _text(
-            projection_payload.get("envelope_revision_ref")
-        ),
+        "envelope_revision_ref": _text(projection_payload.get("envelope_revision_ref")),
         "certified_envelope_delta_ref": _text(
             projection_payload.get("certified_envelope_delta_ref")
         ),
-        "assurance_case_delta_ref": _text(
-            projection_payload.get("assurance_case_delta_ref")
-        ),
+        "assurance_case_delta_ref": _text(projection_payload.get("assurance_case_delta_ref")),
         "attribution_status": _text(projection_payload.get("attribution_status")),
         "attribution_classes": _text_list(projection_payload.get("attribution_classes")),
         "learning_change_control_classes": _text_list(
@@ -1622,20 +1662,14 @@ def _s13_accountability_projection_record(
         "lifecycle_reissue_disposition": _text(
             projection_payload.get("lifecycle_reissue_disposition")
         ),
-        "envelope_revision_direction": _text(
-            projection_payload.get("envelope_revision_direction")
-        ),
+        "envelope_revision_direction": _text(projection_payload.get("envelope_revision_direction")),
         "assurance_case_change": _text(projection_payload.get("assurance_case_change")),
         "mape_k_trace_ref": _text(projection_payload.get("mape_k_trace_ref")),
-        "public_revision_state_ref": _text(
-            projection_payload.get("public_revision_state_ref")
-        ),
+        "public_revision_state_ref": _text(projection_payload.get("public_revision_state_ref")),
         "public_accountability_note_ref": _text(
             projection_payload.get("public_accountability_note_ref")
         ),
-        "public_accountability_note": _text(
-            projection_payload.get("public_accountability_note")
-        ),
+        "public_accountability_note": _text(projection_payload.get("public_accountability_note")),
         "closed_case_historical_meaning": _text(
             projection_payload.get("closed_case_historical_meaning")
         ),
@@ -1788,8 +1822,7 @@ def _apply_s9_projection_faithfulness(
         **dict(projection_semantics),
         "projection_policy": "reads_canonical_design_record",
         "source_revision_ref": _text(
-            projection_payload.get("source_revision_ref")
-            or faithfulness.get("source_revision_ref")
+            projection_payload.get("source_revision_ref") or faithfulness.get("source_revision_ref")
         ),
         "s9_projection_faithfulness": faithfulness,
     }
@@ -1836,9 +1869,7 @@ def _apply_s9_projection_faithfulness(
         {
             "s9_projection_faithfulness": faithfulness,
             "s9_projection_contract_verification_status": verification.get("status"),
-            "s9_projection_contract_verification_ref": verification.get(
-                "consumer_contract_ref"
-            ),
+            "s9_projection_contract_verification_ref": verification.get("consumer_contract_ref"),
             "audit_refs": audit_refs,
             "source_state": source_state,
         }
@@ -2082,25 +2113,19 @@ def _summary_count(value: Mapping[str, object], key: str) -> int:
 
 
 def _looks_like_rule_evolution_annotation(value: Mapping[str, object]) -> bool:
-    return (
-        value.get("schema_version") == RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION
-        or (
-            "public_annotation_state" in value
-            and "revalidation_state" in value
-            and "silent_upgrade_allowed" in value
-        )
+    return value.get("schema_version") == RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION or (
+        "public_annotation_state" in value
+        and "revalidation_state" in value
+        and "silent_upgrade_allowed" in value
     )
 
 
 def _looks_like_public_revision_state(value: Mapping[str, object]) -> bool:
-    return (
-        value.get("schema_version") == PUBLIC_REVISION_STATE_SCHEMA_VERSION
-        or (
-            "affected_claim_ids" in value
-            and "unaffected_claim_ids" in value
-            and "silent_upgrade_allowed" in value
-            and value.get("authority_role") == "projection_only"
-        )
+    return value.get("schema_version") == PUBLIC_REVISION_STATE_SCHEMA_VERSION or (
+        "affected_claim_ids" in value
+        and "unaffected_claim_ids" in value
+        and "silent_upgrade_allowed" in value
+        and value.get("authority_role") == "projection_only"
     )
 
 
@@ -2248,4 +2273,6 @@ __all__ = [
     "PublicExportRedactionError",
     "assert_public_export_official_use_limits",
     "build_public_export_bundle",
+    "project_pre_n9_open_world_limitations",
+    "project_promotion_open_world_limitation",
 ]

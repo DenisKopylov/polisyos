@@ -220,6 +220,7 @@ _EXPECTED_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/control/data/promotion/{promotion_id}/approve"),
     ("POST", "/api/v1/control/data/promotion/{promotion_id}/reject"),
     ("POST", "/api/v1/control/data/resolve"),
+    ("POST", "/api/v1/control/decision-validity/epoch-batches"),
     ("POST", "/api/v1/control/decision-validity/events"),
     ("POST", "/api/v1/control/lex/search"),
     ("POST", "/api/v1/control/lex/trigger"),
@@ -269,6 +270,10 @@ _EXPECTED_MUTATING_PERMISSIONS = {
         "POST",
         "/api/v1/control/decision-validity/events",
     ): RuntimePermission.DECISIONS_VALIDITY_PUBLISH,
+    (
+        "POST",
+        "/api/v1/control/decision-validity/epoch-batches",
+    ): RuntimePermission.DECISIONS_VALIDITY_PUBLISH,
     ("POST", "/api/v1/control/lex/search"): RuntimePermission.KNOWLEDGE_SEARCH,
     ("POST", "/api/v1/control/lex/trigger"): RuntimePermission.KNOWLEDGE_TRIGGER,
     ("POST", "/api/v1/control/runs"): RuntimePermission.RUNS_LAUNCH,
@@ -311,6 +316,7 @@ _MUTATING_OPERATION_CASE_IDS = {
     ("POST", "/api/v1/control/data/promotion/{promotion_id}/reject"): ("reject-data-promotion"),
     ("POST", "/api/v1/control/data/resolve"): "resolve-data-needs",
     ("POST", "/api/v1/control/decision-validity/events"): ("publish-decision-validity-event"),
+    ("POST", "/api/v1/control/decision-validity/epoch-batches"): ("admit-epoch-validity-batch"),
     ("POST", "/api/v1/control/lex/search"): "search-lex-graph",
     ("POST", "/api/v1/control/lex/trigger"): "trigger-lex-pipeline",
     ("POST", "/api/v1/control/runs"): "launch-run",
@@ -333,6 +339,7 @@ _HIGH_STAKES_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/control/data/promotion/{promotion_id}/approve"),
     ("POST", "/api/v1/control/data/promotion/{promotion_id}/reject"),
     ("POST", "/api/v1/control/decision-validity/events"),
+    ("POST", "/api/v1/control/decision-validity/epoch-batches"),
     ("POST", "/api/v1/control/runs/{run_id}/reissue"),
     ("POST", "/api/v1/runs/{run_id}/human-decisions"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
@@ -495,6 +502,7 @@ def _create_authorized_matrix_run(
     *,
     cell_id: str,
     run_id: str,
+    execution_profile: str | None = None,
 ) -> str:
     store = FileSystemCAS(runtime_api_env["cas_root"])
     registry_ref = store.put_json(
@@ -512,6 +520,7 @@ def _create_authorized_matrix_run(
         tenant_id=runtime_api_env["tenant_a"],
         cell_id=cell_id,
     )
+    run.run_manifest.execution_profile = execution_profile
     run.finalize()
     return run_id
 
@@ -703,6 +712,15 @@ def _authorized_mutation_request(
                 "new_evidence_refs": ["sha256:" + "c" * 64],
                 "change_reason": "DS20 authorized publication proof",
             },
+        }
+    if case_id == "admit-epoch-validity-batch":
+        return default_path, {
+            "transition_artifact_ref": {
+                "artifact_id": runtime_api_env["root_artifact_id"],
+                "kind": "chronology.epoch_transition",
+                "media_type": "application/vnd.polisyos.chronology+json",
+            },
+            "requested_query_context_ref": "sha256:" + "d" * 64,
         }
     if case_id == "search-lex-graph":
         return default_path, {
@@ -1064,6 +1082,11 @@ def test_mutating_operation_authorized_request_reaches_handler(
 
     expected_status = 409 if case_id == "create-run-human-decision" else 200
     assert response.status_code == expected_status, response.text
+    if case_id == "admit-epoch-validity-batch":
+        assert response.status_code == 422, response.text
+        assert response.json()["code"] == "verifier_not_configured"
+    else:
+        assert response.status_code == 200, response.text
     assert isinstance(response.json(), dict)
     assert len(opa.inputs) == 1
     assert opa.inputs[0].request_method == method
@@ -1368,6 +1391,7 @@ def test_new_sibling_mutating_route_is_automatically_in_denominator(
         if route.path == "/api/v1/ds20/synthetic-route-31"
     )
     assert len(operations) == 32
+    assert len(operations) == 31
     assert ("POST", "/api/v1/ds20/synthetic-route-31") in operations
 
     dependencies = _action_permission_dependencies(synthetic_route)

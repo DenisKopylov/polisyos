@@ -1,0 +1,254 @@
+schema_version = "polisyos.chronology.capability-allocation-history.v2"
+history_id = "gy-n12-clusters-2-4"
+
+# Bounded residual: Cluster 2 ships this strict history and its decoder, but no
+# allocation writer. Cluster 4 may append complete EOF tables; no row below
+# claims that a production writer is allocated or orchestrated.
+#
+# Bounded residual: no PolicyOS justification-custody institution is appointed
+# as the epoch-family predicate-policy admission signer. Cluster 4 invokes the
+# real epoch producer against the canonical empty admission index and receives
+# `policy_admission_missing`. The three Cluster-4 `implemented` transitions
+# below record production invocation only; they do not claim positive policy
+# admission, owner provenance, qualification or whole-history authenticity.
+# Closure requires an appointed signer other than the epoch producer to issue
+# content-bound policy, admission, owner-provenance and owner-relation bytes for
+# the complete selection key, followed by independent verification.
+#
+# Bounded residual: no Decision-Validity epoch-transition signing authority or
+# owner-held transition-producer identity carrier is appointed.  The strict
+# owner intake is implemented, but production transition issuance returns
+# `epoch_transition_signer_not_established`; even exact signed bytes cannot
+# self-appoint their producer identity.  The plan-frozen positive generation-
+# control node is therefore retained as an unsatisfied residual rather than
+# being laundered through a test verifier.  Closure requires the justification
+# custodian to appoint both roles, a production composition to construct
+# `EpochValidityTransitionProducer`, and the controller to pass only its exact
+# signed artifact ref into the Decision-Validity intake.
+#
+# Bounded residual: no Decision-Validity-owned current-packet lineage reader is
+# appointed to the pre-N9 subject authority. Production can therefore derive
+# only the first-decision subject (`current_decision_packet_ref = null`,
+# `packet_epoch_refs = []`). The N9 resolver rejects any shaped current receipt
+# as `epoch_validity_prior_binding_unresolved`; currentness is never inferred.
+# Closure requires Scientist Decision Validity to expose a content-bound,
+# read-only lookup keyed by `decision_packet_lineage_key_ref` that returns the
+# exact lineage-head packet, its packet-bound epoch refs and the independently
+# verified prior completed binding and denominators. Direct, recursive, HTTP
+# and offline-replay roots must resolve that same owner carrier, while
+# authentic-old/head-advance, missing, substituted and denominator-drift
+# falsifiers fail closed.
+
+[[entries]]
+ordinal = 0
+predecessor_kind = "genesis"
+entry_hash = "sha256:98c3139f01d2c5f01581cda0e518f88a3c2f857e425301dab6ab5c3c72ae7b43"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "common_protocol_primitive"
+effective_after_cluster = "cluster_2"
+status = "implemented_but_not_orchestrated"
+canonical_owner_ref = "core.chronology"
+routing_ref = "GY-N12-C2"
+activation_signal = "cluster_2_common_protocol"
+
+[[entries]]
+ordinal = 1
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:98c3139f01d2c5f01581cda0e518f88a3c2f857e425301dab6ab5c3c72ae7b43"
+entry_hash = "sha256:0a57911f80ef2bc7007c2b94f6544e6102927be85ff3732936e1ba19f19bb6b9"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "generic_qualification_consumer"
+effective_after_cluster = "cluster_2"
+status = "implemented_but_not_orchestrated"
+canonical_owner_ref = "runtime.quality.chronology_qualification"
+routing_ref = "GY-N12-C2"
+activation_signal = "cluster_2_generic_consumer"
+
+[[entries]]
+ordinal = 2
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:0a57911f80ef2bc7007c2b94f6544e6102927be85ff3732936e1ba19f19bb6b9"
+entry_hash = "sha256:782cf8d5ea5cf2b4a5dc67405830876b4f8ddbec08704467c351d30fd965676a"
+
+# This is the exact closure signal for the retained producer_missing state;
+# it does not claim that Cluster 4 has run at this Cluster-2 history prefix.
+[entries.payload]
+row_kind = "capability"
+subject_key = "epoch_family_producer"
+effective_after_cluster = "cluster_2"
+status = "producer_missing"
+canonical_owner_ref = "runtime.quality.semantic_epoch"
+routing_ref = "GY-N12-C4"
+activation_signal = "cluster_4_epoch_producer"
+
+[[entries]]
+ordinal = 3
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:782cf8d5ea5cf2b4a5dc67405830876b4f8ddbec08704467c351d30fd965676a"
+entry_hash = "sha256:cb6c384e522adb27d972e11b04fec7ba3da87af4f1b8e4a9bf09814e8dd76c3e"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "release_family_producer"
+effective_after_cluster = "cluster_2"
+status = "absent/unallocated"
+canonical_owner_ref = "release_family"
+routing_ref = "GY-GAP3"
+activation_signal = "deferred_gy_gap3"
+
+[[entries]]
+ordinal = 4
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:cb6c384e522adb27d972e11b04fec7ba3da87af4f1b8e4a9bf09814e8dd76c3e"
+entry_hash = "sha256:586705f2354cd47291041c15a2b433dc31388cc5c13a9ea1fc11a274a3ce613c"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "run_family_producer"
+effective_after_cluster = "cluster_2"
+status = "absent/unallocated"
+canonical_owner_ref = "recursive_run"
+routing_ref = "GY-GAP5"
+activation_signal = "deferred_gy_gap5"
+
+[[entries]]
+ordinal = 5
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:586705f2354cd47291041c15a2b433dc31388cc5c13a9ea1fc11a274a3ce613c"
+entry_hash = "sha256:251ac17dbe4f0bce18b91af193cad96a6bdbcffdc61f305b5123db00369bb5b0"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "movement_family_producer"
+effective_after_cluster = "cluster_2"
+status = "absent/unallocated"
+canonical_owner_ref = "movement"
+routing_ref = "GY-GAP6"
+activation_signal = "deferred_gy_gap6"
+
+[[entries]]
+ordinal = 6
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:251ac17dbe4f0bce18b91af193cad96a6bdbcffdc61f305b5123db00369bb5b0"
+entry_hash = "sha256:65f10304a1914adf3d21797b1aaf762bc228294a4f499db0ade71dc16c044acd"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "confidence_family_producer"
+effective_after_cluster = "cluster_2"
+status = "absent/unallocated"
+canonical_owner_ref = "confidence_composition"
+routing_ref = "GY-GAP2"
+activation_signal = "blocked_gy_gap2"
+
+[[entries]]
+ordinal = 7
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:65f10304a1914adf3d21797b1aaf762bc228294a4f499db0ade71dc16c044acd"
+entry_hash = "sha256:f7793368a7d090886f1548ac95419ee7881155b36448f15da214a276b7ed8387"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "accepted_anchor_consumer"
+effective_after_cluster = "cluster_2"
+status = "absent/unallocated"
+canonical_owner_ref = "epoch_anchor_acceptance"
+routing_ref = "GY-N12-C3"
+activation_signal = "epoch_anchor_unappointed"
+
+[[entries]]
+ordinal = 8
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:f7793368a7d090886f1548ac95419ee7881155b36448f15da214a276b7ed8387"
+entry_hash = "sha256:74a563ad786a10e526d9e42932c388a2d22cdb74fe904df9da8f1fd9960817f4"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "writer_independent_holder"
+effective_after_cluster = "cluster_2"
+status = "absent/unallocated"
+canonical_owner_ref = "epoch_anchor_holder"
+routing_ref = "GY-N12-C3"
+activation_signal = "epoch_holder_unappointed"
+
+# Bounded residual: no family projection receipt is emitted in Cluster 2, so
+# the real consumer terminates at NativeProjectionCustodyGap and this surface
+# remains missing rather than being promoted by a green conformance test.
+[[entries]]
+ordinal = 9
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:74a563ad786a10e526d9e42932c388a2d22cdb74fe904df9da8f1fd9960817f4"
+entry_hash = "sha256:4944f378e657fb167e2cb269a4f60ec7c8f0e3ac35270538b8c90445520d74f7"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "family_audit_api_dashboard"
+effective_after_cluster = "cluster_2"
+status = "surface_missing"
+canonical_owner_ref = "family_projection"
+routing_ref = "GY-N12-C4"
+activation_signal = "family_surface_deferred"
+
+[[entries]]
+ordinal = 10
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:4944f378e657fb167e2cb269a4f60ec7c8f0e3ac35270538b8c90445520d74f7"
+entry_hash = "sha256:058ec4a577e2fa6a15c449347e5dd0fb1d63221ba14277e43a916ce7edd35616"
+
+[entries.payload]
+row_kind = "property"
+subject_key = "whole_history_authenticity"
+effective_after_cluster = "cluster_2"
+status = "not_established"
+canonical_owner_ref = "epoch_history"
+routing_ref = "GY-N12-C3"
+activation_signal = "whole_history_holder_not_established"
+
+[[entries]]
+ordinal = 11
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:058ec4a577e2fa6a15c449347e5dd0fb1d63221ba14277e43a916ce7edd35616"
+entry_hash = "sha256:beef50dcfb95420814f05c52a6aa2a7b3dbdda6662529154923ad4b8e7126857"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "common_protocol_primitive"
+effective_after_cluster = "cluster_4"
+status = "implemented"
+canonical_owner_ref = "core.chronology"
+routing_ref = "GY-N12-C2"
+activation_signal = "cluster_4_epoch_composition"
+
+[[entries]]
+ordinal = 12
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:beef50dcfb95420814f05c52a6aa2a7b3dbdda6662529154923ad4b8e7126857"
+entry_hash = "sha256:84f6e1a9855a14d00b97bb3ebf545cf18c4cb9926ce22dbdbf1ae2207d711870"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "generic_qualification_consumer"
+effective_after_cluster = "cluster_4"
+status = "implemented"
+canonical_owner_ref = "runtime.quality.chronology_qualification"
+routing_ref = "GY-N12-C2"
+activation_signal = "cluster_4_epoch_composition"
+
+[[entries]]
+ordinal = 13
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:84f6e1a9855a14d00b97bb3ebf545cf18c4cb9926ce22dbdbf1ae2207d711870"
+entry_hash = "sha256:ad10ee0430b8e839986c5e2dd734ccfc48564ff915729dcd49856c0fa1e21564"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "epoch_family_producer"
+effective_after_cluster = "cluster_4"
+status = "implemented"
+canonical_owner_ref = "runtime.quality.semantic_epoch"
+routing_ref = "GY-N12-C4"
+activation_signal = "cluster_4_epoch_producer"

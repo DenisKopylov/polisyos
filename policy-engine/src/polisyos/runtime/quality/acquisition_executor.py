@@ -9,6 +9,7 @@ mutate, or simulate a policy world.
 from __future__ import annotations
 
 import hashlib
+import importlib
 import json
 import re
 import time
@@ -27,8 +28,17 @@ from polisyos.fabric import connectors as fabric_connectors
 from polisyos.fabric import data_plane as fabric_data_plane
 from polisyos.fabric import ingestion as fabric_ingestion
 
+epoch_contract = contracts.epoch
+
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from polisyos.runtime.quality.semantic_epoch import (
+        EpochResolutionQuery,
+        EpochScopeIdentity,
+        PersistedSemanticEpochProductionReceipt,
+        SemanticEpochService,
+    )
 
 ArtifactID = artifacts.ArtifactID
 ArtifactRef = artifacts.ArtifactRef
@@ -60,7 +70,8 @@ from_canonical_bytes = canon.from_canonical_bytes
 resolve_connection_config = fabric_connectors.resolve_connection_config
 normalize_worldbank_records = fabric_connectors.normalize_worldbank_records
 
-PASSPORT_SCHEMA_VERSION = "polisyos.runtime.acquisition_admission_passport.v1"
+PASSPORT_SCHEMA_VERSION = "polisyos.runtime.acquisition_admission_passport.v2"
+_LEGACY_PASSPORT_SCHEMA_VERSION = "polisyos.runtime.acquisition_admission_passport.v1"
 ALIGNMENT_ADMISSION_FLOOR = 0.55
 ALIGNMENT_DECISIVE_FLOOR = 0.8
 _SHA256_PATTERN = r"^sha256:[0-9a-f]{64}$"
@@ -278,6 +289,12 @@ class AdmissionPassport(_StrictModel):
     schema_validation: SchemaValidationEvidence
     live_source_execution: LiveSourceExecutionEvidence | None = None
     source_authority_verified: bool
+    semantic_boundary_candidate_ref: ArtifactRef
+    semantic_boundary_candidate_content_hash: str = Field(pattern=_SHA256_PATTERN)
+    semantic_epoch_ref: str = Field(pattern=_SHA256_PATTERN)
+    semantic_epoch_stamp_sha256: str = Field(pattern=_SHA256_PATTERN)
+    semantic_epoch_stamp: epoch_contract.SemanticEpochStamp
+    prepared_semantic_epoch_ref: ArtifactRef
     status: AdmissionStatus
     rejection_codes: tuple[str, ...]
 
@@ -297,6 +314,22 @@ class AdmissionPassport(_StrictModel):
                 raise ValueError("live source execution evidence must bind the passport")
         elif self.live_source_execution is not None:
             raise ValueError("local-lift passport cannot carry live execution evidence")
+        if self.semantic_epoch_ref != self.semantic_epoch_stamp.epoch_ref:
+            raise ValueError("passport semantic epoch ref differs from its stamp")
+        expected_stamp_hash = epoch_contract.semantic_epoch_stamp_content_hash(
+            self.semantic_epoch_stamp
+        )
+        if self.semantic_epoch_stamp_sha256 != expected_stamp_hash:
+            raise ValueError("passport semantic epoch stamp hash is not recomputed")
+        if (
+            self.semantic_boundary_candidate_ref.kind
+            != "epoch.acquisition_semantic_boundary_candidate"
+            or self.semantic_boundary_candidate_ref.media_type
+            != "application/vnd.polisyos.epoch+json"
+            or self.prepared_semantic_epoch_ref.kind != "epoch.prepared"
+            or self.prepared_semantic_epoch_ref.media_type != "application/vnd.polisyos.epoch+json"
+        ):
+            raise ValueError("passport semantic handshake artifact profile differs")
         expected_rejections = self.recomputed_rejection_codes()
         if self.rejection_codes != expected_rejections:
             raise ValueError("rejection codes must be recomputed from decisive evidence")
@@ -348,10 +381,102 @@ class AdmissionPassport(_StrictModel):
         )
 
 
+class ActivatedSemanticEpochAdmissionReceipt(_StrictModel):
+    """Exact positive bridge after owner visibility activation."""
+
+    passport_ref: ArtifactRef
+    prepared_epoch_ref: ArtifactRef
+    pending_overlay_receipt_ref: ArtifactRef
+    semantic_epoch_production_receipt_ref: ArtifactRef
+    overlay_admission_receipt_ref: ArtifactRef
+    native_membership_receipt_ref: ArtifactRef
+    semantic_denominator_receipt_ref: ArtifactRef
+    semantic_projection_verification_receipt_ref: ArtifactRef
+    semantic_epoch_stamp: epoch_contract.SemanticEpochStamp
+    activation_state: Literal["active"]
+
+
+SemanticEpochAdmissionFailureCode = Literal[
+    "resolver_unavailable",
+    "scope_unresolved",
+    "basis_mismatch",
+    "query_context_mismatch",
+    "epoch_ref_mismatch",
+    "predicate_not_authority_grade",
+]
+
+
+class SemanticEpochAdmissionResolutionError(RuntimeError):
+    """Typed fail-closed disposition before an epoch can become visible."""
+
+    def __init__(self, code: SemanticEpochAdmissionFailureCode, detail: str) -> None:
+        self.code = code
+        self.detail = detail
+        super().__init__(f"{code}: {detail}")
+
+
 class _ArtifactStore(Protocol):
     def has(self, artifact_id: ArtifactID) -> bool: ...
 
     def get_bytes(self, artifact_id: ArtifactID) -> bytes: ...
+
+    def get_manifest(self, artifact_id: ArtifactID) -> object: ...
+
+    def verify(self, artifact_id: ArtifactID) -> object: ...
+
+    def put_bytes(self, data: bytes, opts: object) -> ArtifactRef: ...
+
+
+class _PreparedSemanticEpoch(Protocol):
+    prepared_epoch_ref: ArtifactRef
+    prepared_content_hash: str
+    query: EpochResolutionQuery
+    stamp: epoch_contract.SemanticEpochStamp
+    boundary_candidate_refs: tuple[ArtifactRef, ...]
+    status: object
+
+    def model_dump(self, *, mode: str) -> dict[str, Any]: ...
+
+
+class _CatalogAcquisitionOverlay(Protocol):
+    """Structural Data Forge owner seam used by the runtime orchestrator."""
+
+    def admit_epoch(
+        self,
+        *,
+        passport: AdmissionPassport,
+        prepared_epoch: _PreparedSemanticEpoch,
+        boundary_candidate: epoch_contract.AcquisitionSemanticBoundaryCandidate,
+        artifact_store: _ArtifactStore,
+        authority: _CanonicalAuthority,
+    ) -> _PendingOverlayAdmissionReceipt: ...
+
+    def emit_admitted_boundary_evidence(
+        self,
+        *,
+        query: epoch_contract.AcquisitionBoundaryResolutionQuery,
+        passport: AdmissionPassport,
+        prepared_epoch: _PreparedSemanticEpoch,
+        boundary_candidate: epoch_contract.AcquisitionSemanticBoundaryCandidate,
+        pending_receipt: _PendingOverlayAdmissionReceipt,
+        artifact_store: _ArtifactStore,
+    ) -> ArtifactRef: ...
+
+    def activate_semantic_epoch(
+        self,
+        *,
+        pending_receipt: _PendingOverlayAdmissionReceipt,
+        production_receipt: PersistedSemanticEpochProductionReceipt,
+        artifact_store: _ArtifactStore,
+    ) -> _ActivatedOverlayAdmissionReceipt: ...
+
+
+class _PendingOverlayAdmissionReceipt(Protocol):
+    receipt_ref: ArtifactRef
+
+
+class _ActivatedOverlayAdmissionReceipt(Protocol):
+    receipt_ref: ArtifactRef
 
 
 class _CanonicalAuthority(Protocol):
@@ -1246,6 +1371,112 @@ def build_metadata_schema_profile(
     )
 
 
+def _require_semantic_handshake(
+    *,
+    artifact_store: _ArtifactStore,
+    boundary_candidate: epoch_contract.AcquisitionSemanticBoundaryCandidate,
+    prepared_epoch: _PreparedSemanticEpoch,
+) -> None:
+    """Reload and bind the pre-passport candidate and prepared epoch bytes."""
+
+    if str(getattr(prepared_epoch.status, "value", prepared_epoch.status)) != "prepared":
+        raise ValueError("semantic_epoch_preparation_not_established")
+    if boundary_candidate.candidate_ref not in prepared_epoch.boundary_candidate_refs:
+        raise ValueError("semantic_candidate_not_bound_by_prepared_epoch")
+    try:
+        candidate_mapping = epoch_contract.load_verified_epoch_statement(
+            store=artifact_store,
+            ref=boundary_candidate.candidate_ref,
+            expected_kind="epoch.acquisition_semantic_boundary_candidate",
+        )
+    except ValueError as exc:
+        raise ValueError("semantic_boundary_candidate_cas_binding_mismatch") from exc
+    candidate_statement = (
+        epoch_contract.AcquisitionSemanticBoundaryCandidateStatement.model_validate(
+            candidate_mapping
+        )
+    )
+    if (
+        candidate_statement != boundary_candidate.statement
+        or epoch_contract.acquisition_semantic_candidate_content_hash(candidate_statement)
+        != boundary_candidate.candidate_content_hash
+    ):
+        raise ValueError("semantic_boundary_candidate_cas_binding_mismatch")
+    if (
+        candidate_statement.scope_identity_ref
+        != prepared_epoch.query.scope_identity.scope_identity_ref
+        or candidate_statement.authority_purpose != prepared_epoch.query.authority_purpose
+        or candidate_statement.requested_query_context_ref
+        != prepared_epoch.query.requested_query_context_ref
+    ):
+        raise SemanticEpochAdmissionResolutionError(
+            "query_context_mismatch",
+            "semantic candidate belongs to another prepared query",
+        )
+    try:
+        prepared_mapping = epoch_contract.load_verified_epoch_statement(
+            store=artifact_store,
+            ref=prepared_epoch.prepared_epoch_ref,
+            expected_kind="epoch.prepared",
+        )
+    except ValueError as exc:
+        raise ValueError("prepared_semantic_epoch_cas_binding_mismatch") from exc
+    raw_stamp = prepared_mapping.get("stamp")
+    if not isinstance(raw_stamp, Mapping):
+        raise SemanticEpochAdmissionResolutionError(
+            "basis_mismatch",
+            "prepared epoch stamp is absent or malformed",
+        )
+    predicate_class = raw_stamp.get("predicate_provenance_class")
+    if predicate_class in {
+        "consumer_asserted",
+        "institutionally_supplied",
+        "not_established",
+    }:
+        raise SemanticEpochAdmissionResolutionError(
+            "predicate_not_authority_grade",
+            f"prepared epoch predicate class is {predicate_class}",
+        )
+    try:
+        stamp = epoch_contract.SemanticEpochStamp.model_validate(raw_stamp)
+        manifest_mapping = epoch_contract.load_verified_epoch_statement(
+            store=artifact_store,
+            ref=stamp.semantic_manifest_ref,
+            expected_kind="epoch.semantic_manifest",
+        )
+        epoch_runtime = importlib.import_module("polisyos.runtime.quality.semantic_epoch")
+        manifest = epoch_runtime.SemanticEpochManifest.model_validate(manifest_mapping)
+    except (AttributeError, ImportError, TypeError, ValueError) as exc:
+        raise SemanticEpochAdmissionResolutionError(
+            "basis_mismatch",
+            "prepared epoch manifest basis is not verified",
+        ) from exc
+    if stamp.epoch_ref != manifest.epoch_ref:
+        raise SemanticEpochAdmissionResolutionError(
+            "epoch_ref_mismatch",
+            "prepared epoch stamp does not identify its semantic manifest",
+        )
+    if stamp.semantic_manifest_hash != manifest.manifest_content_hash:
+        raise SemanticEpochAdmissionResolutionError(
+            "basis_mismatch",
+            "prepared epoch stamp carries another manifest content hash",
+        )
+    expected_mapping = {
+        name: value
+        for name, value in prepared_epoch.model_dump(mode="python").items()
+        if name not in {"prepared_epoch_ref", "prepared_content_hash"}
+    }
+    if epoch_contract.canonical_epoch_bytes(
+        prepared_mapping
+    ) != epoch_contract.canonical_epoch_bytes(
+        expected_mapping
+    ) or prepared_epoch.prepared_content_hash != epoch_contract.epoch_semantic_content_hash(
+        domain="polisyos.epoch.prepared.v1",
+        value=expected_mapping,
+    ):
+        raise ValueError("prepared_semantic_epoch_cas_binding_mismatch")
+
+
 def build_admission_passport(
     *,
     epoch_id: int,
@@ -1253,9 +1484,17 @@ def build_admission_passport(
     artifact_store: _ArtifactStore,
     raw_artifact_id: str,
     authority: _CanonicalAuthority,
+    boundary_candidate: epoch_contract.AcquisitionSemanticBoundaryCandidate,
+    prepared_epoch: _PreparedSemanticEpoch,
     live_source_execution: LiveSourceExecutionEvidence | None = None,
 ) -> AdmissionPassport:
     """Resolve canonical owners and derive a measured admission passport."""
+
+    _require_semantic_handshake(
+        artifact_store=artifact_store,
+        boundary_candidate=boundary_candidate,
+        prepared_epoch=prepared_epoch,
+    )
 
     try:
         body = resolve_raw_response_body(raw_evidence_ref)
@@ -1391,6 +1630,14 @@ def build_admission_passport(
         "schema_validation": schema_validation,
         "live_source_execution": live_source_execution,
         "source_authority_verified": source_authority_verified,
+        "semantic_boundary_candidate_ref": boundary_candidate.candidate_ref,
+        "semantic_boundary_candidate_content_hash": (boundary_candidate.candidate_content_hash),
+        "semantic_epoch_ref": prepared_epoch.stamp.epoch_ref,
+        "semantic_epoch_stamp_sha256": epoch_contract.semantic_epoch_stamp_content_hash(
+            prepared_epoch.stamp
+        ),
+        "semantic_epoch_stamp": prepared_epoch.stamp,
+        "prepared_semantic_epoch_ref": prepared_epoch.prepared_epoch_ref,
     }
     rejection_codes = _derive_rejection_codes(
         variable_id=entry.target_variable,
@@ -1422,6 +1669,302 @@ def build_admission_passport(
         status=status,
         rejection_codes=rejection_codes,
     )
+
+
+def admit_acquisition_with_semantic_epoch(
+    *,
+    epoch_id: int,
+    raw_evidence_ref: JournalEventRef,
+    artifact_store: _ArtifactStore,
+    authority: _CanonicalAuthority,
+    overlay: _CatalogAcquisitionOverlay,
+    epoch_service: SemanticEpochService,
+    epoch_query: EpochResolutionQuery,
+    live_source_execution: LiveSourceExecutionEvidence | None = None,
+) -> ActivatedSemanticEpochAdmissionReceipt | PersistedSemanticEpochProductionReceipt:
+    """Run the real two-phase acquisition bridge and preserve typed negatives."""
+
+    raw_body = resolve_raw_response_body(raw_evidence_ref)
+    raw_artifact_id = ArtifactID(f"sha256:{hashlib.sha256(raw_body).hexdigest()}")
+    if not artifact_store.has(raw_artifact_id):
+        raise ValueError("raw_cas_evidence_unresolved")
+    source_artifact_id = (
+        raw_artifact_id
+        if live_source_execution is None
+        else ArtifactID(str(live_source_execution.normalized_data_artifact_id))
+    )
+    source_manifest = artifact_store.get_manifest(source_artifact_id)
+    source_payload = artifact_store.get_bytes(source_artifact_id)
+    source_report = artifact_store.verify(source_artifact_id)
+    source_ref = ArtifactRef(
+        artifact_id=source_artifact_id,
+        kind=str(getattr(source_manifest, "kind", "")),
+        media_type=str(getattr(source_manifest, "media_type", "")),
+    )
+    if (
+        not bool(getattr(source_report, "ok", False))
+        or f"sha256:{hashlib.sha256(source_payload).hexdigest()}" != str(source_artifact_id)
+        or getattr(source_manifest, "artifact_id", None) != source_artifact_id
+    ):
+        raise ValueError("semantic_candidate_source_record_unverified")
+    native_query = epoch_service.acquisition_owner_query(query=epoch_query)
+    if (
+        native_query.scope_identity_ref != epoch_query.scope_identity.scope_identity_ref
+        or native_query.authority_purpose != epoch_query.authority_purpose
+        or native_query.requested_query_context_ref != epoch_query.requested_query_context_ref
+    ):
+        raise SemanticEpochAdmissionResolutionError(
+            "query_context_mismatch",
+            "acquisition owner query belongs to another epoch request",
+        )
+    statement = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement(
+        source_record_ref=source_ref,
+        source_record_content_hash=str(source_artifact_id),
+        scope_identity_ref=native_query.scope_identity_ref,
+        authority_purpose=native_query.authority_purpose,
+        valid_effect_coordinate_ref=native_query.valid_effect_coordinate_ref,
+        visibility_knowledge_cutoff_ref=(native_query.visibility_knowledge_cutoff_ref),
+        purpose_admission_cutoff_ref=native_query.purpose_admission_cutoff_ref,
+        requested_query_context_ref=native_query.requested_query_context_ref,
+    )
+    candidate_bytes = epoch_contract.acquisition_semantic_candidate_bytes(statement)
+    candidate_ref = artifact_store.put_bytes(
+        candidate_bytes,
+        ArtifactWriteOptions(
+            kind="epoch.acquisition_semantic_boundary_candidate",
+            media_type="application/vnd.polisyos.epoch+json",
+        ),
+    )
+    candidate = epoch_contract.AcquisitionSemanticBoundaryCandidate(
+        candidate_ref=candidate_ref,
+        candidate_content_hash=(
+            epoch_contract.acquisition_semantic_candidate_content_hash(statement)
+        ),
+        statement=statement,
+    )
+    prepared = epoch_service.prepare_acquisition_candidate(
+        query=epoch_query,
+        candidate_ref=candidate_ref,
+    )
+    passport = build_admission_passport(
+        epoch_id=epoch_id,
+        raw_evidence_ref=raw_evidence_ref,
+        artifact_store=artifact_store,
+        raw_artifact_id=str(raw_artifact_id),
+        authority=authority,
+        boundary_candidate=candidate,
+        prepared_epoch=prepared,
+        live_source_execution=live_source_execution,
+    )
+    pending = overlay.admit_epoch(
+        passport=passport,
+        prepared_epoch=prepared,
+        boundary_candidate=candidate,
+        artifact_store=artifact_store,
+        authority=authority,
+    )
+    admitted_ref = overlay.emit_admitted_boundary_evidence(
+        query=native_query,
+        passport=passport,
+        prepared_epoch=prepared,
+        boundary_candidate=candidate,
+        pending_receipt=pending,
+        artifact_store=artifact_store,
+    )
+    production = epoch_service.finalize_admitted_epoch(
+        prepared_epoch_ref=prepared.prepared_epoch_ref,
+        admitted_boundary_evidence_ref=admitted_ref,
+    )
+    if production.requested_query_context_ref != prepared.stamp.requested_query_context_ref:
+        raise SemanticEpochAdmissionResolutionError(
+            "query_context_mismatch",
+            "epoch production receipt belongs to another prepared query",
+        )
+    if (
+        production.status in {"appended", "no_change"}
+        and production.epoch_ref != prepared.stamp.epoch_ref
+    ):
+        raise SemanticEpochAdmissionResolutionError(
+            "epoch_ref_mismatch",
+            "positive epoch production receipt identifies another epoch",
+        )
+    if production.status not in {"appended", "no_change"}:
+        return production
+    activated = overlay.activate_semantic_epoch(
+        pending_receipt=pending,
+        production_receipt=production,
+        artifact_store=artifact_store,
+    )
+    admitted_mapping = epoch_contract.load_verified_epoch_statement(
+        store=artifact_store,
+        ref=admitted_ref,
+        expected_kind="epoch.admitted_acquisition_boundary_evidence",
+    )
+    admitted = epoch_contract.AdmittedAcquisitionBoundaryEvidence.model_validate(admitted_mapping)
+    return ActivatedSemanticEpochAdmissionReceipt(
+        passport_ref=admitted.passport_ref,
+        prepared_epoch_ref=prepared.prepared_epoch_ref,
+        pending_overlay_receipt_ref=pending.receipt_ref,
+        semantic_epoch_production_receipt_ref=production.receipt_ref,
+        overlay_admission_receipt_ref=activated.receipt_ref,
+        native_membership_receipt_ref=admitted.native_membership_receipt_ref,
+        semantic_denominator_receipt_ref=admitted.semantic_denominator_receipt_ref,
+        semantic_projection_verification_receipt_ref=(
+            admitted.semantic_projection_verification_receipt_ref
+        ),
+        semantic_epoch_stamp=prepared.stamp,
+        activation_state="active",
+    )
+
+
+def admit_acquisition_with_production_semantic_epoch(
+    *,
+    repo_root: Path,
+    epoch_id: int,
+    raw_evidence_ref: JournalEventRef,
+    artifact_store: FileSystemCAS,
+    authority: _CanonicalAuthority,
+    overlay_path: Path,
+    epoch_history_root: Path,
+    epoch_scope_identity: EpochScopeIdentity,
+    authority_purpose: str,
+    valid_effect_coordinate_evidence_ref: ArtifactRef,
+    visibility_knowledge_cutoff_evidence_ref: ArtifactRef,
+    purpose_admission_cutoff_evidence_ref: ArtifactRef,
+    facet_source_refs: Mapping[str, ArtifactRef],
+    live_source_execution: LiveSourceExecutionEvidence | None = None,
+) -> ActivatedSemanticEpochAdmissionReceipt | PersistedSemanticEpochProductionReceipt:
+    """Compose and invoke the production epoch adapter without policy self-admission.
+
+    Operational paths and evidence selectors are explicit inputs.  All semantic
+    coordinate digests are independently recomputed, and the canonical empty
+    predicate-policy admission index therefore yields ``policy_admission_missing``
+    until an institutional owner is appointed.
+    """
+
+    from polisyos.runtime.quality import chronology_qualification
+    from polisyos.runtime.quality import semantic_epoch as epoch_runtime
+    from polisyos.runtime.quality.semantic_epoch_store import (
+        FileSemanticEpochHistoryRepository,
+    )
+    from polisyos.runtime.quality.substrate_registry import (
+        DEFAULT_L3_LEX_KG_PATH,
+        default_substrate_catalog_paths,
+        load_l5_catalog_authority,
+    )
+
+    root = repo_root.resolve()
+    boundary_path = (
+        root / "architecture/policy_design_case/layer3_gy_epoch_boundary_source_registry.json"
+    )
+    facet_path = root / "architecture/policy_design_case/layer3_gy_semantic_facet_registry.json"
+    lex_store: Any | None = None
+    try:
+        boundary_registry = epoch_runtime.load_boundary_registry(boundary_path)
+        facet_registry = epoch_runtime.load_facet_registry(facet_path)
+        if set(facet_source_refs) != {
+            row.source_binding_ref for row in facet_registry.registrations
+        }:
+            raise SemanticEpochAdmissionResolutionError(
+                "resolver_unavailable",
+                "semantic facet source-binding denominator differs",
+            )
+        l5_owner = load_l5_catalog_authority(default_substrate_catalog_paths(root))
+        lex_module = importlib.import_module("polisyos.lex.knowledge.store")
+        lex_path = root / DEFAULT_L3_LEX_KG_PATH
+        lex_store = lex_module.LegalKnowledgeStore(
+            lex_path,
+            lex_path.parent,
+            canonical_db_ref_path=DEFAULT_L3_LEX_KG_PATH,
+        )
+        overlay = data_forge_read_api.catalog.CatalogAcquisitionOverlay(
+            authority.baseline_path,
+            overlay_path,
+        )
+        overlay.initialize()
+        history = FileSemanticEpochHistoryRepository(
+            root=epoch_history_root,
+            artifacts=artifact_store,
+        )
+    except SemanticEpochAdmissionResolutionError:
+        raise
+    except (ImportError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise SemanticEpochAdmissionResolutionError(
+            "resolver_unavailable",
+            type(exc).__name__,
+        ) from exc
+    try:
+        try:
+            query = epoch_runtime.build_epoch_resolution_query_from_evidence(
+                artifact_store=artifact_store,
+                scope_identity=epoch_scope_identity,
+                authority_purpose=authority_purpose,
+                valid_effect_coordinate_evidence_ref=(valid_effect_coordinate_evidence_ref),
+                visibility_knowledge_cutoff_evidence_ref=(visibility_knowledge_cutoff_evidence_ref),
+                purpose_admission_cutoff_evidence_ref=(purpose_admission_cutoff_evidence_ref),
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise SemanticEpochAdmissionResolutionError(
+                "basis_mismatch",
+                type(exc).__name__,
+            ) from exc
+        chronology_adapter = (
+            epoch_runtime.SemanticEpochQualificationAdapter.from_unallocated_policy_authority(
+                history=history,
+                artifacts=artifact_store,
+            )
+        )
+        service = epoch_runtime.SemanticEpochService(
+            boundary_registry=boundary_registry,
+            boundary_adapters={
+                "l5_schema_regime": epoch_runtime.L5EpochBoundaryOwnerAdapter(
+                    owner=l5_owner,
+                    artifacts=artifact_store,
+                ),
+                "lex_amendment_window": epoch_runtime.LexEpochBoundaryOwnerAdapter(
+                    owner=lex_store,
+                    artifacts=artifact_store,
+                ),
+                "catalog_acquisition": (
+                    epoch_runtime.CatalogAcquisitionEpochBoundaryOwnerAdapter(
+                        owner=overlay,
+                        artifacts=artifact_store,
+                    )
+                ),
+            },
+            facet_registry=facet_registry,
+            facet_provider=epoch_runtime.ArtifactSemanticFacetProvider(
+                artifacts=artifact_store,
+                source_refs=facet_source_refs,
+            ),
+            history=history,
+            artifact_store=artifact_store,
+            qualification_consumer=(
+                chronology_qualification.QualificationConsumer.from_unallocated_policy_authority()
+            ),
+            chronology_adapter=chronology_adapter,
+        )
+        try:
+            return admit_acquisition_with_semantic_epoch(
+                epoch_id=epoch_id,
+                raw_evidence_ref=raw_evidence_ref,
+                artifact_store=artifact_store,
+                authority=authority,
+                overlay=overlay,
+                epoch_service=service,
+                epoch_query=query,
+                live_source_execution=live_source_execution,
+            )
+        except SemanticEpochAdmissionResolutionError:
+            raise
+        except ValueError as exc:
+            raise SemanticEpochAdmissionResolutionError(
+                "scope_unresolved",
+                type(exc).__name__,
+            ) from exc
+    finally:
+        if lex_store is not None:
+            lex_store.close()
 
 
 def revalidate_admission_passport(
@@ -1799,6 +2342,7 @@ __all__ = [
     "ALIGNMENT_ADMISSION_FLOOR",
     "ALIGNMENT_DECISIVE_FLOOR",
     "PASSPORT_SCHEMA_VERSION",
+    "ActivatedSemanticEpochAdmissionReceipt",
     "AdmissionPassport",
     "AdmissionStatus",
     "L5TrustEvidence",
@@ -1807,6 +2351,9 @@ __all__ = [
     "MeasuredSchemaProfile",
     "ObservationProvenanceClass",
     "PIIScanEvidence",
+    "SemanticEpochAdmissionResolutionError",
+    "admit_acquisition_with_production_semantic_epoch",
+    "admit_acquisition_with_semantic_epoch",
     "build_admission_passport",
     "build_metadata_schema_profile",
     "derive_observation_provenance_rejections",

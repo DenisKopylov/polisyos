@@ -33,8 +33,7 @@ from polisyos.ir.analytics.cross_graph import (
     persist_interface_mapping,
     persist_scm_fragment,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.evidence.claims import build_default_claim_ledger_owner
 from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import ReconcileCausalGraphNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ALIGNMENT_REPORT_REF,
@@ -43,6 +42,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_INTERFACE_MAPPING_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ClaimCapableExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal_queries import CausalQuery
@@ -130,10 +131,11 @@ def replay_fragment_composition_case(
         registry_bundle=registry_bundle,
         run_id="R_composition_benchmark_replay",
     )
-    ctx = ExecutionContext(
+    ctx = ClaimCapableExecutionContext(
         store=resolved_store,
         run=run,
         logger=logging.getLogger("scientist.backtesting.composition_bridge"),
+        claim_ledger_owner=build_default_claim_ledger_owner(store=resolved_store),
     )
 
     fragment_refs: list[str] = []

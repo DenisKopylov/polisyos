@@ -4,12 +4,67 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+import numpy as np
 import pytest
 
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.foundry.methods.causal import PanelObservationalData
+from polisyos.scientist.evidence.claims.validators import CLAIM_SPINE_FLAG
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
     RunCausalEvaluationNode,
 )
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
+    ARTIFACT_CLAIMS_REF,
+)
+
+
+def test_base_context_records_claim_owner_limitation_on_success(
+    execution_context,
+    minimal_state,
+) -> None:
+    t0 = 6
+    donor_1 = np.arange(10.0, 20.0)
+    donor_2 = np.arange(8.0, 18.0)
+    treated = donor_1.copy()
+    treated[t0:] += 4.0
+    data = PanelObservationalData(
+        outcome=np.vstack([treated, donor_1, donor_2]),
+        treatment=np.array([1, 0, 0]),
+        time_treatment=t0,
+    )
+    data_ref = execution_context.store.put_json(
+        data.model_dump(mode="json"),
+        PutOptions(
+            kind="ir.observational_data",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.ObservationalData", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    state = minimal_state.model_copy(
+        update={
+            "observational_data_ref": data_ref,
+            "causal_method_fqn": "causal.inference.synthetic_control@1.0.0",
+            "params": {"random_seed": 42, CLAIM_SPINE_FLAG: True},
+        }
+    )
+
+    outcome = RunCausalEvaluationNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    assert outcome.state.params["claim_ledger_status"] == "not_established"
+    assert (
+        outcome.state.params["claim_ledger_limitation_code"] == "claim_ledger_owner_not_established"
+    )
+    assert ARTIFACT_CLAIMS_REF not in outcome.state.artifacts_index
+    validity_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF]
+    validity = from_canonical_bytes(execution_context.store.get_bytes(validity_ref.artifact_id))
+    assert validity["claim_ledger_status"] == "not_established"
+    assert validity["claim_ledger_limitation_code"] == "claim_ledger_owner_not_established"
 
 
 def test_skip_when_no_observational_data_ref(execution_context, minimal_state):

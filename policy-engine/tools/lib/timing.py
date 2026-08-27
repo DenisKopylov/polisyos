@@ -57,6 +57,7 @@ DEFAULT_TIMING_BUDGET_CATALOG_PATH = (
 )
 _DIRECT_ACTION_OPTION_PREFIXES = (
     "accept",
+    "candidate",
     "capture",
     "characterize",
     "check",
@@ -539,9 +540,7 @@ def append_timing_record(path: Path, record: ToolRunRecord) -> None:
             limit = _retention_limit()
             prior_limit = limit - 1
             retained = [*(records[-prior_limit:] if prior_limit else []), record]
-            payload = "".join(
-                json.dumps(asdict(item), sort_keys=True) + "\n" for item in retained
-            )
+            payload = "".join(json.dumps(asdict(item), sort_keys=True) + "\n" for item in retained)
             atomic_write_text(path, payload)
         finally:
             fcntl.flock(lock_handle.fileno(), fcntl.LOCK_UN)
@@ -599,12 +598,15 @@ def _timing_budget_lane_from_data(payload: object) -> TimingBudgetLane:
         )
     expected_timeout_ms = measured_p95_ms * 2 if measured_p95_ms is not None else None
     if recommended_timeout_ms != expected_timeout_ms:
-        raise ValueError(
-            "timing budget lane recommended_timeout_ms must equal 2 * measured_p95_ms"
-        )
+        raise ValueError("timing budget lane recommended_timeout_ms must equal 2 * measured_p95_ms")
     source_refs_data = payload.get("source_refs")
-    if not isinstance(source_refs_data, list) or not source_refs_data or any(
-        not isinstance(source_ref, str) or not source_ref.strip() for source_ref in source_refs_data
+    if (
+        not isinstance(source_refs_data, list)
+        or not source_refs_data
+        or any(
+            not isinstance(source_ref, str) or not source_ref.strip()
+            for source_ref in source_refs_data
+        )
     ):
         raise ValueError("timing budget lane source_refs must be non-empty strings")
     predicate = _required_string(payload, "sample_admission_predicate")
@@ -755,9 +757,7 @@ def summarize_timing_budget_lanes(
         completed_records = [
             record
             for record in local_records
-            if admit_duration_sample(
-                record, healthy_terminal_exit_codes=healthy_terminals
-            ).admitted
+            if admit_duration_sample(record, healthy_terminal_exit_codes=healthy_terminals).admitted
         ]
         over_budget_runs = sum(
             1

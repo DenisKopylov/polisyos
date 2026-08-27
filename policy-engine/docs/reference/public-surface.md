@@ -87,7 +87,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
-| `polisyos.core` | `public_stable` | `lazy_facade` | 21 | `team-polisyos` | `src/polisyos/core/README.md` |
+| `polisyos.core` | `public_stable` | `lazy_facade` | 133 | `team-polisyos` | `src/polisyos/core/README.md` |
 | `polisyos.ir` | `public_stable` | `lazy_facade` | 273 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
@@ -95,7 +95,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 39 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 8 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 18 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.scientist` | `public_stable` | `lazy_facade` | 24 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 957 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
@@ -195,9 +195,9 @@ timestamps
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 21 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 426 |
-| `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 90 |
+| `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 133 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 448 |
+| `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 102 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 5 |
 
 #### `polisyos.core`
@@ -206,16 +206,127 @@ timestamps
 - Facade: `lazy_facade`
 - Summary: Expose the stable Core platform surface with lazy package imports.
 
-<details><summary>Entrypoint exports (21)</summary>
+<details><summary>Entrypoint exports (133)</summary>
 
 ```text
+FULL_PREFIX_EVALUATION_TABLE
+FULL_PREFIX_FAILURE_DESCRIPTORS
+FULL_PREFIX_TERMINAL_BY_RESULT_KIND
 SECRET_AND_PII_SCAN_SCOPES
 SECRET_PII_DETECTOR_VERSION
+AcceptanceRejectedNonReceipt
+AcceptanceUnavailableNonReceipt
+AnchorAcceptanceRequest
+AnchorCustodyVerification
+AnchorRetentionPackage
+ApplicablePredicateDenominatorArtifactFailure
+ApplicablePredicateDenominatorStatement
+ChronologyApplicablePredicateDenominatorArtifacts
+ChronologyBundleHeader
+ChronologyBundleRequest
+ChronologyMemberInput
+ChronologyPersistenceFailure
+ChronologyPersistenceManifestMismatch
+ChronologyPersistenceNotEstablished
+ChronologyPersistenceStoreIntegrityMismatch
+ChronologyPersistenceVerificationMismatch
+ChronologyPredicatePolicyArtifacts
+ChronologyProofDomain
+ChronologyProofPersistenceFailed
+ChronologyProofPersistenceResult
+Digest
+EncodedChronologyBundle
+ExpectedCommitmentPrefix
+FullPrefixBuildFailureCode
+FullPrefixBuildRejected
+FullPrefixBuildResult
+FullPrefixCheckState
+FullPrefixEnvelopeFailureCode
+FullPrefixEnvelopeRejected
+FullPrefixEvaluationKey
+FullPrefixEvaluationState
+FullPrefixExpectedPrefixFailureCode
+FullPrefixExpectedPrefixRejected
+FullPrefixFailureDescriptor
+FullPrefixInputMode
+FullPrefixInternalConsistencyFailureCode
+FullPrefixInternalConsistencyRejected
+FullPrefixInvocationFailureCode
+FullPrefixInvocationRejected
+FullPrefixMemberFailureCode
+FullPrefixMemberRejected
+FullPrefixRejected
+FullPrefixTerminalCheck
+FullPrefixVerificationResult
+FullPrefixVerificationStatement
+FullPrefixVerified
+FullPrefixVerifier
+MemberPredicateDisposition
+NativeApplicablePredicateDenominatorPersistenceFailed
+NativeAuthorityHeadNotEstablished
+NativeChronologyCandidate
+NativeChronologyCandidateRejected
+NativeChronologyOwnerContext
+NativeChronologyPersistenceFailed
+NativeChronologyPolicyResolutionFailed
+NativeChronologyQualificationResult
+NativeChronologyQualified
+NativeChronologyQuery
+NativeChronologyReconciliation
+NativeExteriorAndAuthorityHeadNotEstablished
+NativeExteriorNotEstablished
+NativeFullPrefixBuildRejected
+NativeFullPrefixProofRejected
+NativePredicateRejected
+NativeProjectionCustodyGap
+NativeSchemaProfileRejected
+OwnerQualifiedNativeCandidate
+PersistedApplicablePredicateDenominator
+PersistedChronologyProof
+PersistedPredicateAdmissionPolicy
+PersistedPredicatePolicyAdmission
+PolicyAdmissionAmbiguousFailure
+PolicyAdmissionMissingFailure
+PolicyBindingMismatchFailure
+PolicyBytesMissingFailure
+PolicyOwnerDenominatorMismatchFailure
+PolicyOwnerRelationNotEstablished
+PolicyOwnerRelationRejected
+PolicyQueryBindingMismatchFailure
+PredicateAdmissionPolicyStatement
+PredicateAdmissionRule
+PredicateClass
+PredicateDisposition
+PredicatePolicyAdmissionIndex
+PredicatePolicyAdmissionStatement
+PredicatePolicyOwnerProvenanceVerifier
+PredicatePolicyOwnerRelationFailure
+PredicatePolicyResolutionContext
+PredicatePolicyResolutionFailure
+PredicatePolicySelectionKey
 PromptSanitizer
+QueryPredicateDisposition
+RejectedAcceptanceOutcome
+RejectedRetentionOutcome
+ResolvedPredicatePolicyAdmission
+RetentionRejectedNonReceipt
+RetentionUnavailableNonReceipt
 SecretAndPIIScanReport
 SecretPIIScanResult
+UnavailableAcceptanceOutcome
+UnavailableRetentionOutcome
+VerifiedAcceptanceOutcome
+VerifiedAnchorAcceptance
+VerifiedAnchorRetention
+VerifiedNativeMemberIdentity
+VerifiedNativeSubjectIdentity
+VerifiedOwnerPredicateEvidence
+VerifiedPolicyOwnerProvenance
+VerifiedPredicatePolicyOwnerRelation
+VerifiedRetentionOutcome
 artifacts
 backends
+build_full_prefix_bundle
 cache
 canon
 components
@@ -230,6 +341,7 @@ registry
 resilience
 run
 scan_secret_and_pii
+security
 ```
 
 </details>
@@ -240,21 +352,10 @@ scan_secret_and_pii
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (426)</summary>
+<details><summary>Entrypoint exports (448)</summary>
 
 ```text
-BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION
-CAPABILITY_DISCOVERY_SCHEMA_VERSION
-OPTIONAL_ANALYTIC_NODE_KINDS
-POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION
-PRODUCER_SPINE_CONSUMER_COMPONENTS
-PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION
-RECOURSE_POINTER_SCHEMA_VERSION
-REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION
-SEARCH_CONTRACT_SCHEMA_VERSION
-SERIOUS_SKIP_BLOCKER_PROFILES
-SKIP_BLOCKER_REQUIRED_FIELDS
-SKIP_BLOCKER_SURFACES
+*_CHRONOLOGY_EXPORTS
 ActiveDisambiguationPlanRef
 ActivityType
 AgentType
@@ -286,6 +387,7 @@ AttractorSummary
 AttractorUncertainty
 AttractorUncertaintySummary
 AuthorityPosture
+BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION
 BacktestReportRef
 BasinEstimate
 BasinMap
@@ -298,6 +400,9 @@ BoundedLivenessConfig
 BoundedLivenessResolution
 BudgetSpec
 BudgetsV1
+C4PersistedProfileSpec
+C4_PERSISTED_PROFILE_SPECS
+CAPABILITY_DISCOVERY_SCHEMA_VERSION
 CacheEntryInfo
 CacheStatusResponse
 CalibrationReportRef
@@ -344,12 +449,8 @@ ContinuationBranch
 ContinuationBranchPoint
 ContinuationBranchRef
 ControlOutboxEventInfo
-ControlOutboxEventInfo
-ControlOutboxEventsResponse
 ControlOutboxEventsResponse
 ControlWorkerLeaseInfo
-ControlWorkerLeaseInfo
-ControlWorkersResponse
 ControlWorkersResponse
 CritiqueRef
 CursorPage
@@ -394,6 +495,22 @@ DriftReadinessRef
 EdgeConfidenceMatrixRef
 EntityType
 EnvironmentManifestRef
+EpochTransitionVerificationReceipt
+EpochTransitionVerifier
+EpochValidityAuthorityGate
+EpochValidityBatchCompletionStatement
+EpochValidityBatchReceipt
+EpochValidityBatchRequest
+EpochValidityBatchResponse
+EpochValidityBatchTarget
+EpochValidityCompletedBatchEvidenceDenominator
+EpochValidityCompletedBatchEvidenceResolver
+EpochValidityGateNonReceipt
+EpochValidityGateReceipt
+EpochValidityN9EvidenceResolver
+EpochValidityN9Projection
+EpochValidityPendingBatch
+EpochValidityPreN9SubjectAuthority
 EquilibriumBasinInterval
 EquilibriumBranch
 EquilibriumBranchPoint
@@ -507,9 +624,17 @@ NormImpactReportRef
 NormPack
 NormRef
 NormRule
+OPTIONAL_ANALYTIC_NODE_KINDS
 OrdinalPovertyReportRef
+POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION
+PRODUCER_SPINE_CONSUMER_COMPONENTS
+PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION
 PeriodicOrbitDiagnostics
 PeriodicOrbitDiagnosticsRef
+PersistedEpochValidityBatchEvidence
+PersistedEpochValidityGateEvidence
+PersistedPreN9AdmittedCandidateBatch
+PersistedPreN9EpochValiditySubject
 PlanDataNeed
 PlatformMetaEvaluationReportRef
 PolicyDesignCaseAudience
@@ -528,6 +653,8 @@ PolicyDesignCaseRecoursePointer
 PolicyPortfolioRef
 PolicyRecommendationRef
 PolicySpecRef
+PreN9AdmittedCandidate
+PreN9EpochValiditySubjectStatement
 PreflightDiagnostic
 PreflightReport
 PreflightReportRef
@@ -547,6 +674,8 @@ ProvenanceEdge
 ProvenanceEntity
 QueryPlan
 QueryPlanRef
+RECOURSE_POINTER_SCHEMA_VERSION
+REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION
 RefutationReportRef
 RegimeShiftForecastBundleRef
 RelationType
@@ -576,15 +705,13 @@ RunTimelineView
 RunsListResponse
 RuntimeApiError
 RuntimeApiProblem
+SERIOUS_SKIP_BLOCKER_PROFILES
+SKIP_BLOCKER_REQUIRED_FIELDS
+SKIP_BLOCKER_SURFACES
 ScenarioFamilyConstructRow
 ScenarioFamilyConstructRows
-SearchCandidate
 SearchCompletenessStatus
-SearchCorpusKind
 SearchFrontier
-SearchLedger
-SearchMatchMode
-SearchRequest
 SensitivityAnalysisBundleRef
 SensitivityResultRef
 ShiftDiagnosticReportRef
@@ -663,9 +790,16 @@ WorkflowRunRequest
 bounded_liveness_config_from_mapping
 build_producer_spine_binding_fields
 build_skip_blocker_record
+c4_canonical_bytes
+c4_canonical_mapping
+c4_profile
+c4_profile_manifest_is_exact
+c4_semantic_digest
+chronology
 classify_optional_analytic_node
 construct_for_legacy_family
 deserialize_skip_blocker_record
+epoch
 evaluate_skip_blocker_policy
 legacy_family_for_construct
 serialize_skip_blocker_record
@@ -679,11 +813,12 @@ serialize_skip_blocker_record
 - Facade: `lazy_facade`
 - Summary: Lazy facade for tenant routing, audit, identity, authz, TEE, and SBOM security APIs.
 
-<details><summary>Entrypoint exports (90)</summary>
+<details><summary>Entrypoint exports (102)</summary>
 
 ```text
 SECURITY_ASSURANCE_REPORT_REF_KEY
 SECURITY_REPORT_FILE
+C3_CANONICAL_CODECS
 TENANT_HEADER
 AccessScope
 AttestationDeniedError
@@ -719,11 +854,16 @@ DelegationError
 DelegationTokenManager
 DelegationVerificationError
 DuckDBLegacyBackend
+ExactAnchorAcceptanceReceiptVerifier
+ExactAnchorHolderReceiptVerifier
+FileAnchorAcceptanceLineageRepository
+FullPrefixVerifier
 HotTierBackend
 IdentityError
 IdentityNotAvailableError
 IdentityVerificationError
 InTotoStatement
+InMemoryAnchorReadbackChallengeRepository
 IsolationLevel
 LocalJsonlBackend
 MFARequiredError
@@ -760,15 +900,21 @@ VulnerabilityRecord
 VulnerabilitySeverity
 build_default_audit_backends_from_env
 build_security_assurance_report
+build_full_prefix_bundle
+build_retention_package
+canonical_statement_bytes
 get_current_access_scope_or_none
 get_current_cell_id
 get_current_tenant_id
 get_current_tenant_id_or_none
 get_security_settings
+parse_canonical_statement
+raw_content_hash
 require_tenant_context
 reset_current_access_scope
 resolve_routing
 security_gates_from_report
+semantic_content_hash
 set_current_access_scope
 tenant_scope
 validate_tenant_id
@@ -794,16 +940,127 @@ TraceSink
 
 </details>
 
-<details><summary>Supported exports (21)</summary>
+<details><summary>Supported exports (133)</summary>
 
 ```text
+FULL_PREFIX_EVALUATION_TABLE
+FULL_PREFIX_FAILURE_DESCRIPTORS
+FULL_PREFIX_TERMINAL_BY_RESULT_KIND
 SECRET_AND_PII_SCAN_SCOPES
 SECRET_PII_DETECTOR_VERSION
+AcceptanceRejectedNonReceipt
+AcceptanceUnavailableNonReceipt
+AnchorAcceptanceRequest
+AnchorCustodyVerification
+AnchorRetentionPackage
+ApplicablePredicateDenominatorArtifactFailure
+ApplicablePredicateDenominatorStatement
+ChronologyApplicablePredicateDenominatorArtifacts
+ChronologyBundleHeader
+ChronologyBundleRequest
+ChronologyMemberInput
+ChronologyPersistenceFailure
+ChronologyPersistenceManifestMismatch
+ChronologyPersistenceNotEstablished
+ChronologyPersistenceStoreIntegrityMismatch
+ChronologyPersistenceVerificationMismatch
+ChronologyPredicatePolicyArtifacts
+ChronologyProofDomain
+ChronologyProofPersistenceFailed
+ChronologyProofPersistenceResult
+Digest
+EncodedChronologyBundle
+ExpectedCommitmentPrefix
+FullPrefixBuildFailureCode
+FullPrefixBuildRejected
+FullPrefixBuildResult
+FullPrefixCheckState
+FullPrefixEnvelopeFailureCode
+FullPrefixEnvelopeRejected
+FullPrefixEvaluationKey
+FullPrefixEvaluationState
+FullPrefixExpectedPrefixFailureCode
+FullPrefixExpectedPrefixRejected
+FullPrefixFailureDescriptor
+FullPrefixInputMode
+FullPrefixInternalConsistencyFailureCode
+FullPrefixInternalConsistencyRejected
+FullPrefixInvocationFailureCode
+FullPrefixInvocationRejected
+FullPrefixMemberFailureCode
+FullPrefixMemberRejected
+FullPrefixRejected
+FullPrefixTerminalCheck
+FullPrefixVerificationResult
+FullPrefixVerificationStatement
+FullPrefixVerified
+FullPrefixVerifier
+MemberPredicateDisposition
+NativeApplicablePredicateDenominatorPersistenceFailed
+NativeAuthorityHeadNotEstablished
+NativeChronologyCandidate
+NativeChronologyCandidateRejected
+NativeChronologyOwnerContext
+NativeChronologyPersistenceFailed
+NativeChronologyPolicyResolutionFailed
+NativeChronologyQualificationResult
+NativeChronologyQualified
+NativeChronologyQuery
+NativeChronologyReconciliation
+NativeExteriorAndAuthorityHeadNotEstablished
+NativeExteriorNotEstablished
+NativeFullPrefixBuildRejected
+NativeFullPrefixProofRejected
+NativePredicateRejected
+NativeProjectionCustodyGap
+NativeSchemaProfileRejected
+OwnerQualifiedNativeCandidate
+PersistedApplicablePredicateDenominator
+PersistedChronologyProof
+PersistedPredicateAdmissionPolicy
+PersistedPredicatePolicyAdmission
+PolicyAdmissionAmbiguousFailure
+PolicyAdmissionMissingFailure
+PolicyBindingMismatchFailure
+PolicyBytesMissingFailure
+PolicyOwnerDenominatorMismatchFailure
+PolicyOwnerRelationNotEstablished
+PolicyOwnerRelationRejected
+PolicyQueryBindingMismatchFailure
+PredicateAdmissionPolicyStatement
+PredicateAdmissionRule
+PredicateClass
+PredicateDisposition
+PredicatePolicyAdmissionIndex
+PredicatePolicyAdmissionStatement
+PredicatePolicyOwnerProvenanceVerifier
+PredicatePolicyOwnerRelationFailure
+PredicatePolicyResolutionContext
+PredicatePolicyResolutionFailure
+PredicatePolicySelectionKey
 PromptSanitizer
+QueryPredicateDisposition
+RejectedAcceptanceOutcome
+RejectedRetentionOutcome
+ResolvedPredicatePolicyAdmission
+RetentionRejectedNonReceipt
+RetentionUnavailableNonReceipt
 SecretAndPIIScanReport
 SecretPIIScanResult
+UnavailableAcceptanceOutcome
+UnavailableRetentionOutcome
+VerifiedAcceptanceOutcome
+VerifiedAnchorAcceptance
+VerifiedAnchorRetention
+VerifiedNativeMemberIdentity
+VerifiedNativeSubjectIdentity
+VerifiedOwnerPredicateEvidence
+VerifiedPolicyOwnerProvenance
+VerifiedPredicatePolicyOwnerRelation
+VerifiedRetentionOutcome
 artifacts
 backends
+build_full_prefix_bundle
 cache
 canon
 components
@@ -818,6 +1075,7 @@ registry
 resilience
 run
 scan_secret_and_pii
+security
 ```
 
 </details>
@@ -1975,7 +2233,7 @@ select_method_candidates_for_requirements
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 18 |
+| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 24 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
 
 #### `polisyos.scientist`
@@ -1984,10 +2242,14 @@ select_method_candidates_for_requirements
 - Facade: `lazy_facade`
 - Summary: Stable Scientist package facade for workflow execution and run observability.
 
-<details><summary>Entrypoint exports (18)</summary>
+<details><summary>Entrypoint exports (24)</summary>
 
 ```text
 BudgetState
+ClaimLedgerCurrentHeadProjection
+ClaimLedgerOwnerPort
+ClaimLifecycleBridgeAdvanced
+EpochClaimLifecycleBridgeService
 ExperimentState
 KnowledgeToolkit
 ToolContractSummary
@@ -1995,6 +2257,8 @@ ToolDefinition
 ToolLoopResult
 ToolRegistry
 build_governance_pipeline
+build_default_claim_ledger_owner
+build_epoch_claim_lifecycle_bridge
 build_knowledge_tool_registry
 create_traced_gateway_client
 discover_scientist_nodes
@@ -2066,10 +2330,14 @@ validate_source_invalidation_event
 
 </details>
 
-<details><summary>Supported exports (18)</summary>
+<details><summary>Supported exports (24)</summary>
 
 ```text
 BudgetState
+ClaimLedgerCurrentHeadProjection
+ClaimLedgerOwnerPort
+ClaimLifecycleBridgeAdvanced
+EpochClaimLifecycleBridgeService
 ExperimentState
 KnowledgeToolkit
 ToolContractSummary
@@ -2077,6 +2345,8 @@ ToolDefinition
 ToolLoopResult
 ToolRegistry
 build_governance_pipeline
+build_default_claim_ledger_owner
+build_epoch_claim_lifecycle_bridge
 build_knowledge_tool_registry
 create_traced_gateway_client
 discover_scientist_nodes

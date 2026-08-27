@@ -25,6 +25,13 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 - **Execution planning** - `execution_plan.py` carries preflight, evaluator, and reproducibility artifacts.
 - **Bounded liveness** - `bounded_liveness.py` carries governed deadline and retry ceilings for finite producer waits.
 - **Scientist artifacts** - scientist-specific refs include decision, checkpoint, sensitivity, stress, and calibration validation bundles.
+- **Chronology proof contracts** - `chronology.py` defines the policy-free full-prefix wire
+  algebra, owner-qualified native reconciliation, and typed retained limitations. It deliberately
+  does not own native denominator completeness, acceptance, authority heads, or custody.
+- **Epoch-validity intake contracts** - `decision_validity.py` carries sealed pre-N9 subjects,
+  persisted gate evidence, complete pending/completed batch receipts, and the exact persisted
+  completion evidence used by downstream owners. Request DTOs never carry status, targets,
+  verifier identity, or owner denominators.
 
 ## Public API
 
@@ -35,6 +42,8 @@ Main ref families:
 - `runtime.py`, `control.py`, `cursor.py`
 - `provenance.py`
 - `bounded_liveness.py`
+- `chronology.py` (re-exported from the admitted `polisyos.core` root facade)
+- `decision_validity.py` (including the typed epoch-batch intake and pre-N9 gate evidence)
 - `policy_design_case_projection.py`
 - `runtime.py` also exposes `UniversalPolicyDesignCase` and `UniversalAuthorityProfile`
   for the universal grammar compiler.
@@ -45,7 +54,12 @@ Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDe
 
 ## Current State
 
-- Last updated: 2026-05-23
+- Last updated: 2026-08-24
+- The fixed `full_prefix_canon_json_0_2_0_sha256_256_v1` contract carries only commitment
+  integrity. Family policy and authority remain outside the common header and verifier.
+- `FullPrefixVerificationStatement` is compact audit data, not a self-validating receipt;
+  consumers must replay `FullPrefixVerifier` over the referenced bundle bytes. Parsing the
+  statement can never promote a verification result.
 - The Universal Policy Design Case contract is now available for W6.A universal grammar compiler
   artifacts and audit surfaces.
 - The bounded-liveness contract family now carries governed deadline and retry ceilings for runtime producer waits.

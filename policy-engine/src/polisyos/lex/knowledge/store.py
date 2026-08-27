@@ -14,6 +14,7 @@ import duckdb
 import numpy as np
 
 from polisyos.common.logger import get_logger
+from polisyos.core import artifacts, contracts
 from polisyos.lex.knowledge.types import (
     LegalDocVersionResult,
     LegalFactResult,
@@ -28,6 +29,9 @@ from polisyos.lex.knowledge.types import (
 )
 
 logger = get_logger(__name__)
+ArtifactID = artifacts.ArtifactID
+ArtifactRef = artifacts.ArtifactRef
+epoch_contract = contracts.epoch
 
 _FACT_SELECT_FIELDS: tuple[tuple[str, str], ...] = (
     ("fact_id", "''"),
@@ -135,6 +139,296 @@ class LegalKnowledgeStore:
         self._table_exists_cache: dict[str, bool] = {}
         self._table_columns_cache: dict[str, set[str]] = {}
         self._unit_registry_cache: dict[str, tuple[str, float, str]] | None = None
+
+    def _amendment_window_rows(self) -> list[tuple[object, ...]]:
+        if not self._table_exists("lex_amendments") or not self._table_exists("lex_facts"):
+            return []
+        return self._con.execute(
+            """
+            WITH amendment_windows AS (
+                SELECT
+                    amendment_id,
+                    amended_doc_id,
+                    target_anchor,
+                    effective_from,
+                    created_at,
+                    LEAD(effective_from) OVER (
+                        PARTITION BY amended_doc_id, target_anchor
+                        ORDER BY effective_from, amendment_id
+                    ) AS effective_to
+                FROM lex_amendments
+            ), scopes AS (
+                SELECT
+                    doc_id,
+                    LIST(DISTINCT STRUCT_PACK(
+                        jurisdiction := UPPER(TRIM(COALESCE(jurisdiction, ''))),
+                        domain := TRIM(COALESCE(top_domain, ''))
+                    )) AS scope_rows
+                FROM lex_facts
+                WHERE TRIM(COALESCE(jurisdiction, '')) <> ''
+                  AND TRIM(COALESCE(top_domain, '')) <> ''
+                GROUP BY doc_id
+            )
+            SELECT
+                a.amendment_id,
+                a.amended_doc_id,
+                a.target_anchor,
+                a.effective_from,
+                a.effective_to,
+                a.created_at,
+                s.scope_rows
+            FROM amendment_windows AS a
+            LEFT JOIN scopes AS s ON s.doc_id = a.amended_doc_id
+            ORDER BY a.amendment_id
+            """
+        ).fetchall()
+
+    @staticmethod
+    def _parse_amendment_date(value: object) -> date | None:
+        if value in {None, ""}:
+            return None
+        try:
+            return date.fromisoformat(str(value)[:10])
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _parse_amendment_datetime(value: object) -> datetime | None:
+        if value in {None, ""}:
+            return None
+        if isinstance(value, datetime):
+            return value
+        try:
+            return datetime.fromisoformat(str(value))
+        except ValueError:
+            return None
+
+    @classmethod
+    def _amendment_source_mapping(cls, row: tuple[object, ...]) -> dict[str, object]:
+        effective_from = cls._parse_amendment_date(row[3])
+        effective_to = cls._parse_amendment_date(row[4])
+        created_datetime = cls._parse_amendment_datetime(row[5])
+        scope_values = tuple(
+            sorted(
+                {
+                    (str(value.get("jurisdiction") or ""), str(value.get("domain") or ""))
+                    for value in (row[6] or ())
+                }
+            )
+        )
+        return {
+            "amendment_id": str(row[0]),
+            "amended_doc_id": str(row[1] or ""),
+            "target_anchor": str(row[2] or ""),
+            "effective_from": (
+                effective_from.isoformat() if effective_from is not None else str(row[3] or "")
+            ),
+            "effective_to": (
+                effective_to.isoformat()
+                if effective_to is not None
+                else (None if row[4] is None else str(row[4]))
+            ),
+            "created_at": (
+                created_datetime.isoformat()
+                if created_datetime is not None
+                else (None if row[5] is None else str(row[5]))
+            ),
+            "scope_values": [list(value) for value in scope_values],
+        }
+
+    def load_amendment_owner_snapshot(self, *, ref: ArtifactRef) -> bytes:
+        """Reload the complete ordered owner rows named by a receipt."""
+
+        owner_failure_code = (
+            None
+            if self._table_exists("lex_amendments") and self._table_exists("lex_facts")
+            else "amendment_owner_table_not_established"
+        )
+        payload = epoch_contract.canonical_epoch_bytes(
+            {
+                "owner_failure_code": owner_failure_code,
+                "rows": [
+                    self._amendment_source_mapping(row) for row in self._amendment_window_rows()
+                ],
+            }
+        )
+        expected = ArtifactRef(
+            artifact_id=ArtifactID.model_validate(f"sha256:{hashlib.sha256(payload).hexdigest()}"),
+            kind="lex.amendment_owner_snapshot",
+            media_type="application/json",
+        )
+        if ref != expected:
+            raise ValueError("lex_amendment_owner_snapshot_ref_stale")
+        return payload
+
+    def resolve_amendment_window_denominator(
+        self, *, query: epoch_contract.LegalAmendmentWindowResolutionQuery
+    ) -> epoch_contract.LegalAmendmentWindowDenominatorReceipt:
+        """Assess the complete amendment table before applying query filters."""
+
+        owner_failure_code = (
+            None
+            if self._table_exists("lex_amendments") and self._table_exists("lex_facts")
+            else "amendment_owner_table_not_established"
+        )
+        rows = self._amendment_window_rows()
+        try:
+            cutoff_text = query.visibility_knowledge_cutoff_bytes.decode().strip()
+            cutoff = datetime.fromisoformat(cutoff_text.replace("Z", "+00:00"))
+        except (UnicodeDecodeError, ValueError):
+            cutoff = None
+        try:
+            admission_text = query.purpose_admission_cutoff_bytes.decode().strip()
+            admission_cutoff = datetime.fromisoformat(admission_text.replace("Z", "+00:00"))
+        except (UnicodeDecodeError, ValueError):
+            admission_cutoff = None
+        assessments: list[epoch_contract.LegalAmendmentWindowAssessment] = []
+        snapshot_rows: list[dict[str, object]] = []
+        for row in rows:
+            amended_doc_id = str(row[1] or "")
+            effective_from = self._parse_amendment_date(row[3])
+            effective_to = self._parse_amendment_date(row[4])
+            created_at = row[5]
+            scope_values = tuple(
+                sorted(
+                    {
+                        (str(value.get("jurisdiction") or ""), str(value.get("domain") or ""))
+                        for value in (row[6] or ())
+                    }
+                )
+            )
+            failure_code: str | None = None
+            resolved_scope_ref: str | None = None
+            if not scope_values:
+                failure_code = "amendment_scope_unresolved"
+            elif len(scope_values) != 1:
+                failure_code = "amendment_scope_ambiguous"
+            else:
+                scope_raw = epoch_contract.canonical_epoch_bytes(
+                    {
+                        "jurisdiction": scope_values[0][0],
+                        "domain": scope_values[0][1],
+                    }
+                )
+                resolved_scope_ref = f"sha256:{hashlib.sha256(scope_raw).hexdigest()}"
+            valid_effect_window_unresolved = effective_from is None or (
+                row[4] not in {None, ""} and effective_to is None
+            )
+            if valid_effect_window_unresolved:
+                failure_code = "amendment_valid_effect_window_unresolved"
+            elif cutoff is None or admission_cutoff is None or created_at in {None, ""}:
+                failure_code = "amendment_knowledge_cutoff_unresolved"
+            created_datetime = self._parse_amendment_datetime(created_at)
+            if created_at not in {None, ""} and created_datetime is None:
+                failure_code = "amendment_knowledge_cutoff_unresolved"
+            cutoff_comparable = cutoff
+            admission_comparable = admission_cutoff
+            if (
+                cutoff_comparable is not None
+                and created_datetime is not None
+                and created_datetime.tzinfo is None
+            ):
+                cutoff_comparable = cutoff_comparable.replace(tzinfo=None)
+            elif (
+                cutoff_comparable is not None
+                and created_datetime is not None
+                and cutoff_comparable.tzinfo is None
+            ):
+                cutoff_comparable = cutoff_comparable.replace(tzinfo=created_datetime.tzinfo)
+            if (
+                admission_comparable is not None
+                and created_datetime is not None
+                and created_datetime.tzinfo is None
+            ):
+                admission_comparable = admission_comparable.replace(tzinfo=None)
+            elif (
+                admission_comparable is not None
+                and created_datetime is not None
+                and admission_comparable.tzinfo is None
+            ):
+                admission_comparable = admission_comparable.replace(tzinfo=created_datetime.tzinfo)
+            scope_matches = scope_values == ((query.jurisdiction.upper(), query.domain),)
+            in_valid_window = effective_from is not None and (
+                effective_from <= query.valid_effect_value
+                and (effective_to is None or query.valid_effect_value < effective_to)
+            )
+            visible = (
+                cutoff_comparable is not None
+                and admission_comparable is not None
+                and created_datetime is not None
+                and created_datetime <= cutoff_comparable
+                and created_datetime <= admission_comparable
+            )
+            if failure_code is not None:
+                disposition = "unresolved"
+            elif scope_matches and in_valid_window and visible:
+                disposition = "applicable"
+            else:
+                disposition = "not_applicable"
+            source_mapping = self._amendment_source_mapping(row)
+            source_raw = epoch_contract.canonical_epoch_bytes(source_mapping)
+            source_hash = f"sha256:{hashlib.sha256(source_raw).hexdigest()}"
+            doc_raw = amended_doc_id.encode()
+            doc_hash = f"sha256:{hashlib.sha256(doc_raw).hexdigest()}"
+            assessments.append(
+                epoch_contract.LegalAmendmentWindowAssessment(
+                    amendment_ref=ArtifactRef(
+                        artifact_id=ArtifactID.model_validate(source_hash),
+                        kind="lex.amendment",
+                        media_type="application/json",
+                    ),
+                    amendment_content_hash=source_hash,
+                    amended_doc_ref=ArtifactRef(
+                        artifact_id=ArtifactID.model_validate(doc_hash),
+                        kind="lex.document",
+                        media_type="text/plain",
+                    ),
+                    resolved_scope_ref=resolved_scope_ref,
+                    effective_from=effective_from,
+                    effective_to=effective_to,
+                    disposition=disposition,
+                    failure_code=failure_code,
+                )
+            )
+            snapshot_rows.append(source_mapping)
+        snapshot_raw = epoch_contract.canonical_epoch_bytes(
+            {
+                "owner_failure_code": owner_failure_code,
+                "rows": snapshot_rows,
+            }
+        )
+        snapshot_hash = f"sha256:{hashlib.sha256(snapshot_raw).hexdigest()}"
+        failures = tuple(
+            sorted(
+                {
+                    *(row.failure_code for row in assessments if row.failure_code),
+                    *((owner_failure_code,) if owner_failure_code else ()),
+                }
+            )
+        )
+        denominator_raw = epoch_contract.canonical_epoch_bytes(
+            {
+                "query": query.model_dump(mode="json"),
+                "snapshot_hash": snapshot_hash,
+                "assessments": [row.model_dump(mode="json") for row in assessments],
+            }
+        )
+        return epoch_contract.LegalAmendmentWindowDenominatorReceipt(
+            query=query,
+            owner_source_snapshot_ref=ArtifactRef(
+                artifact_id=ArtifactID.model_validate(snapshot_hash),
+                kind="lex.amendment_owner_snapshot",
+                media_type="application/json",
+            ),
+            owner_source_snapshot_content_hash=snapshot_hash,
+            declared_amendment_count=len(assessments),
+            assessments=tuple(assessments),
+            denominator_hash=f"sha256:{hashlib.sha256(denominator_raw).hexdigest()}",
+            status="unresolved" if failures else "resolved",
+            failure_codes=failures,
+            owner_failure_code=owner_failure_code,
+            predicate_class="independently_reconciled",
+        )
 
     def _table_exists(self, table_name: str) -> bool:
         cached = self._table_exists_cache.get(table_name)
@@ -281,9 +575,7 @@ class LegalKnowledgeStore:
         doc_id = str(row[8] or "")
         provision_anchor = str(row[11] or "")
         if doc_id and provision_anchor:
-            provision_ref = self._duckdb_ref(
-                f"lex_provisions/{doc_id}:{provision_anchor}"
-            )
+            provision_ref = self._duckdb_ref(f"lex_provisions/{doc_id}:{provision_anchor}")
         return LegalRuleThresholdRow(
             threshold_id=str(row[0] or ""),
             fact_id=str(row[1] or ""),
@@ -320,9 +612,7 @@ class LegalKnowledgeStore:
         canonical_unit: str = "",
         temporal_status: str = "in_force",
     ) -> LegalThresholdEvaluation:
-        threshold_ref = self._duckdb_ref(
-            f"lex_rule_thresholds/{threshold.threshold_id}"
-        )
+        threshold_ref = self._duckdb_ref(f"lex_rule_thresholds/{threshold.threshold_id}")
         return LegalThresholdEvaluation(
             status=status,
             reason=reason,
@@ -336,9 +626,7 @@ class LegalKnowledgeStore:
             normalized_threshold_value=normalized_threshold_value,
             canonical_unit=canonical_unit,
             temporal_status=temporal_status,
-            obligation_ref=self._duckdb_ref(
-                f"lex_normative_facts/{threshold.fact_id}"
-            ),
+            obligation_ref=self._duckdb_ref(f"lex_normative_facts/{threshold.fact_id}"),
             provision_ref=threshold.provision_ref,
         )
 
@@ -480,11 +768,21 @@ class LegalKnowledgeStore:
             ">": lambda candidate, values: candidate > values[0],
             "eq": lambda candidate, values: abs(candidate - values[0]) <= tolerance,
             "=": lambda candidate, values: abs(candidate - values[0]) <= tolerance,
-            "range": lambda candidate, values: values[0] - tolerance <= candidate <= values[1] + tolerance,
-            "between": lambda candidate, values: values[0] - tolerance <= candidate <= values[1] + tolerance,
-            "interval": lambda candidate, values: values[0] - tolerance <= candidate <= values[1] + tolerance,
-            "in": lambda candidate, values: any(abs(candidate - value) <= tolerance for value in values),
-            "∈": lambda candidate, values: any(abs(candidate - value) <= tolerance for value in values),
+            "range": lambda candidate, values: values[0] - tolerance
+            <= candidate
+            <= values[1] + tolerance,
+            "between": lambda candidate, values: values[0] - tolerance
+            <= candidate
+            <= values[1] + tolerance,
+            "interval": lambda candidate, values: values[0] - tolerance
+            <= candidate
+            <= values[1] + tolerance,
+            "in": lambda candidate, values: any(
+                abs(candidate - value) <= tolerance for value in values
+            ),
+            "∈": lambda candidate, values: any(
+                abs(candidate - value) <= tolerance for value in values
+            ),
         }
 
     @staticmethod
@@ -1109,10 +1407,11 @@ class LegalKnowledgeStore:
             )
         candidate_normalized = self._normalize_unit_value(candidate_value, candidate_unit)
         threshold_normalized_values = [
-            self._normalize_unit_value(value, threshold.unit)
-            for value in threshold_values
+            self._normalize_unit_value(value, threshold.unit) for value in threshold_values
         ]
-        if candidate_normalized is None or any(value is None for value in threshold_normalized_values):
+        if candidate_normalized is None or any(
+            value is None for value in threshold_normalized_values
+        ):
             return self._threshold_evaluation(
                 threshold,
                 status="blocked",
@@ -1280,9 +1579,7 @@ class LegalKnowledgeStore:
         threshold: LegalRuleThresholdRow,
         as_of: str,
     ) -> LegalTemporalCompetence:
-        subject_ref = self._duckdb_ref(
-            f"lex_rule_thresholds/{threshold.threshold_id}"
-        )
+        subject_ref = self._duckdb_ref(f"lex_rule_thresholds/{threshold.threshold_id}")
         as_of_date = self._parse_lex_date(as_of)
         if as_of_date is None:
             return LegalTemporalCompetence(

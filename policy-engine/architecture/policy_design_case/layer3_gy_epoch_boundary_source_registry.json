@@ -1,0 +1,23 @@
+{
+  "schema_version": "polisyos.epoch.boundary-source-registry.v1",
+  "registrations": [
+    {
+      "registration_id": "all-l5-schema-regimes",
+      "owner_kind": "l5_schema_regime",
+      "owner_source_ref": "sha256:7f01d0fa1eb89d76184cfcfca37b4528ad4da93a735c6960196d8ffe2dce1809",
+      "opaque_scope_binding_ref": "sha256:4c817e3c97ac4d7858d1c7168b93b5b1346879ac0dc72ee72f9a2df0a69fbeac"
+    },
+    {
+      "registration_id": "all-l3-amendment-windows",
+      "owner_kind": "lex_amendment_window",
+      "owner_source_ref": "sha256:5fef8a5578eaed62967eca03f00b40f785bec85e49adb391de7c95db2c2faa4a",
+      "opaque_scope_binding_ref": "sha256:a4d76643efc522b32fa2a3e3f31c37b3b0a85965daf735e343aa4fa60fd08ab4"
+    },
+    {
+      "registration_id": "n13b-acquisition-native-history",
+      "owner_kind": "catalog_acquisition",
+      "owner_source_ref": "sha256:ccb27084e890d947bad6dbf33946a60e875105900f2d58913da8e9e6c9d065d3",
+      "opaque_scope_binding_ref": "sha256:7208d806e37b49d3735c3265cfc56ebd3ae234ef3a77192f35391265836f2633"
+    }
+  ]
+}

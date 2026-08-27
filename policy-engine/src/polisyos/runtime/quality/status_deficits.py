@@ -11,9 +11,12 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+if TYPE_CHECKING:
+    from polisyos.scientist import ClaimLedgerCurrentHeadProjection
 
 STATUS_ENVELOPE_SCHEMA_VERSION = "policyos.runtime.status_envelope.v1"
 DEFICIT_CROSSWALK_SCHEMA_VERSION = "policyos.runtime.deficit_crosswalk.v1"
@@ -324,6 +327,7 @@ class StatusEnvelopeEntry(BaseModel):
     review_action: ReviewAction
     closeout_effect: CloseoutEffect
     owner: str | None = None
+    lifecycle_basis: Literal["ttl", "owner_current_head"] = "ttl"
     ttl_expires_at: datetime | None = None
     ttl_state: Literal["active", "expired", "missing"] = "missing"
     message: str | None = None
@@ -355,6 +359,14 @@ class StatusEnvelopeEntry(BaseModel):
     @classmethod
     def _strip_claim_ids(cls, values: tuple[str, ...]) -> tuple[str, ...]:
         return _text_tuple(values)
+
+    @model_validator(mode="after")
+    def _owner_current_head_carries_owner_evidence(self) -> StatusEnvelopeEntry:
+        if self.lifecycle_basis == "owner_current_head" and (
+            self.owner is None or self.evidence_ref is None
+        ):
+            raise ValueError("claim_current_head_status_owner_evidence_missing")
+        return self
 
 
 class StatusLifecycleIssue(BaseModel):
@@ -538,6 +550,90 @@ def status_envelope_payload(envelope: StatusEnvelope) -> dict[str, Any]:
     return envelope.model_dump(mode="json", exclude_none=True)
 
 
+def claim_ledger_status_records(
+    projection: ClaimLedgerCurrentHeadProjection,
+) -> tuple[dict[str, Any], ...]:
+    """Translate one typed owner-current projection into status reader rows."""
+
+    evidence_ref = str(projection.head_ref.artifact_id)
+    common = {
+        "producer": "scientist.claim_ledger_owner",
+        "status_family": "claim_ledger_current_head",
+        "owner": projection.owner_key.claim_owner_ref,
+        "lifecycle_basis": "owner_current_head",
+        "evidence_ref": evidence_ref,
+    }
+    rows: list[dict[str, Any]] = []
+    if projection.claim_currentness == "current":
+        rows.append(
+            {
+                **common,
+                "entry_id": "claim_ledger_current_head:currentness",
+                "local_status": "current",
+                "severity": SharedSeverity.INFO.value,
+                "blockingness": Blockingness.NON_BLOCKING.value,
+                "publication_effect": PublicationEffect.UNAFFECTED.value,
+                "review_action": ReviewAction.NONE.value,
+                "closeout_effect": CloseoutEffect.CLOSEOUT_ALLOWED.value,
+                "message": "Claim Ledger owner currentness is independently reconciled.",
+            }
+        )
+    else:
+        rows.append(
+            {
+                **common,
+                "entry_id": "claim_ledger_current_head:not_established",
+                "local_status": "not_established",
+                "severity": SharedSeverity.CRITICAL.value,
+                "blockingness": Blockingness.HARD_BLOCKING.value,
+                "publication_effect": PublicationEffect.PUBLICATION_BLOCKED.value,
+                "review_action": ReviewAction.HARD_BLOCK.value,
+                "closeout_effect": CloseoutEffect.CLOSEOUT_BLOCKED.value,
+                "message": "Claim Ledger owner currentness is not established.",
+                "next_action": (
+                    "Complete the exact pending bridge denominator and advance the "
+                    "owner head before publication."
+                ),
+            }
+        )
+
+    action_axes: Mapping[str, _AxisSpec] = {
+        "blocked": _HARD_BLOCK,
+        "invalidated": _HARD_BLOCK,
+        "marked_stale": _REISSUE,
+        "merged": _REISSUE,
+        "review_required": _REVIEW,
+        "split": _REISSUE,
+        "superseded": _REISSUE,
+        "withdrawn": _HARD_BLOCK,
+    }
+    for limitation in projection.lifecycle_limitations:
+        axes = action_axes[limitation.action]
+        rows.append(
+            {
+                **common,
+                "entry_id": (
+                    f"claim_ledger_current_head:{limitation.claim_id}:{limitation.action}"
+                ),
+                "local_status": limitation.action,
+                "severity": axes.severity.value,
+                "blockingness": axes.blockingness.value,
+                "publication_effect": axes.publication_effect.value,
+                "review_action": axes.review_action.value,
+                "closeout_effect": axes.closeout_effect.value,
+                "claim_ids": [limitation.claim_id],
+                "message": (
+                    f"Claim owner current head records {limitation.action} for "
+                    f"{limitation.claim_id}."
+                ),
+                "next_action": (
+                    "Follow the Claim owner lifecycle before publishing or closing out."
+                ),
+            }
+        )
+    return tuple(rows)
+
+
 def _entry_from_local_status(
     status: Mapping[str, Any],
     *,
@@ -566,6 +662,7 @@ def _entry_from_local_status(
         review_action=spec.review_action,
         closeout_effect=spec.closeout_effect,
         owner=_optional_text(status.get("owner")),
+        lifecycle_basis=status.get("lifecycle_basis") or "ttl",
         ttl_expires_at=ttl_expires_at,
         ttl_state=_ttl_state(ttl_expires_at, now),
         message=_optional_text(status.get("message")),
@@ -673,6 +770,8 @@ def _lifecycle_issues(
                 evidence_ref=entry.evidence_ref,
             )
         )
+    if entry.lifecycle_basis == "owner_current_head":
+        return issues
     if entry.ttl_expires_at is None:
         issues.append(
             StatusLifecycleIssue(

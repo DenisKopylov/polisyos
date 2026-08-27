@@ -40,6 +40,19 @@ def _ref(seed: str, kind: str = "scientist.test") -> ArtifactRef:
     )
 
 
+def _stub_execution_context() -> SimpleNamespace:
+    """Return the minimum complete workflow context used by runner fixtures."""
+
+    return SimpleNamespace(
+        run=SimpleNamespace(
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+            run_manifest=SimpleNamespace(),
+        ),
+        claim_ledger_owner=object(),
+    )
+
+
 def test_policy_workflow_rejects_mismatched_graph_prior_refs_before_execution(tmp_path) -> None:
     state = ExperimentState(
         run_id="R_policy_pin_mismatch",
@@ -117,9 +130,7 @@ def test_default_workflow_accepts_injected_store_factory_and_quota_registry(
     monkeypatch.setattr(
         builder,
         "build_execution_context",
-        lambda *args, **kwargs: SimpleNamespace(
-            run=SimpleNamespace(run_manifest=SimpleNamespace())
-        ),
+        lambda *args, **kwargs: _stub_execution_context(),
     )
     monkeypatch.setattr(builder, "build_registry_with_builtin_nodes", lambda: object())
     monkeypatch.setattr(builder, "CASCheckpointHook", lambda *args, **kwargs: object())
@@ -249,9 +260,7 @@ def test_workflow_runners_use_branch_local_snapshot_state(
     monkeypatch.setattr(
         builder,
         "build_execution_context",
-        lambda *args, **kwargs: SimpleNamespace(
-            run=SimpleNamespace(run_manifest=SimpleNamespace())
-        ),
+        lambda *args, **kwargs: _stub_execution_context(),
     )
     monkeypatch.setattr(builder, "build_registry_with_builtin_nodes", lambda: object())
     monkeypatch.setattr(builder, "CASCheckpointHook", lambda *args, **kwargs: object())
@@ -303,14 +312,10 @@ def test_policy_workflow_requests_method_obligations_before_claim_drafting(
         def execute(self, workflow, branch_state):
             del workflow
             captured_state["value"] = branch_state
-            obligation_ref = branch_state.params[
-                "foundry_method_obligation_report_ref"
-            ]
+            obligation_ref = branch_state.params["foundry_method_obligation_report_ref"]
             assert isinstance(obligation_ref, str)
             assert obligation_ref.startswith("sha256:")
-            assert branch_state.params[
-                "foundry_method_obligations_requested_before_claims"
-            ] is True
+            assert branch_state.params["foundry_method_obligations_requested_before_claims"] is True
             assert branch_state.params["foundry_method_obligation_report_status"] == "fail"
             assert branch_state.params[
                 "foundry_method_obligation_expected_method_expectations"
@@ -318,18 +323,9 @@ def test_policy_workflow_requests_method_obligations_before_claim_drafting(
                 "distributional_evidence",
                 "implementation_feasibility",
             ]
+            assert branch_state.params["foundry_method_obligation_report_blocking_issue_count"] > 0
             assert (
-                branch_state.params[
-                    "foundry_method_obligation_report_blocking_issue_count"
-                ]
-                > 0
-            )
-            assert (
-                str(
-                    branch_state.reports_index[
-                        "foundry_method_obligation_report"
-                    ].artifact_id
-                )
+                str(branch_state.reports_index["foundry_method_obligation_report"].artifact_id)
                 == obligation_ref
             )
             return SimpleNamespace(report=MagicMock(status="ok"), state=branch_state)
@@ -339,9 +335,7 @@ def test_policy_workflow_requests_method_obligations_before_claim_drafting(
     monkeypatch.setattr(
         builder,
         "build_execution_context",
-        lambda *args, **kwargs: SimpleNamespace(
-            run=SimpleNamespace(run_manifest=SimpleNamespace())
-        ),
+        lambda *args, **kwargs: _stub_execution_context(),
     )
     monkeypatch.setattr(builder, "build_registry_with_builtin_nodes", lambda: object())
     monkeypatch.setattr(builder, "CASCheckpointHook", lambda *args, **kwargs: object())

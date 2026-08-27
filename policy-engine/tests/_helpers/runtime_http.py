@@ -35,6 +35,16 @@ _put_json_raw = put_json_artifact
 _RUNTIME_API_ENVS: list[dict[str, object]] = []
 
 
+@pytest.fixture(autouse=True)
+def runtime_http_cache_isolation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep runtime HTTP catalog graphs inside the test-owned directory."""
+
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-http-cache").as_posix())
+
+
 def _runtime_fixture_authority_boundary(
     *,
     boundary_id: str = "boundary-runtime-api-fixture",
@@ -113,9 +123,9 @@ def _pin_run_fixture_times(
         if line.strip()
     ]
     pinned_lines = [
-        record.model_copy(
-            update={"ts": started_at + timedelta(seconds=index)}
-        ).model_dump_json(exclude_none=True)
+        record.model_copy(update={"ts": started_at + timedelta(seconds=index)}).model_dump_json(
+            exclude_none=True
+        )
         for index, record in enumerate(records)
     ]
     trace_path.write_text("\n".join(pinned_lines) + "\n", encoding="utf-8")
@@ -627,6 +637,9 @@ def build_runtime_api_env(
         },
         kind="ir.normative_arbitration_result",
     )
+    # This contract is a strict owner DTO and deliberately has no generic
+    # authority-surface fields.  Persist its exact schema bytes; stamping the
+    # fixture's unrelated surface envelope makes the real reader reject it.
     monitoring_contract_ref = _put_json_raw(
         store,
         {
@@ -662,102 +675,104 @@ def build_runtime_api_env(
         store,
         _with_fixture_authority_surface_packet(
             {
-            "schema_version": "3.4",
-            "run_id": core_run_id,
-            "inputs": {
-                "data_snapshot_ref": str(data_snapshot_ref.artifact_id),
-                "input_bindings_ref": str(input_bindings_ref.artifact_id),
-                "evidence_bundle_ref": str(evidence_bundle_ref.artifact_id),
-                "norm_pack_ref": str(norm_pack_primary_ref.artifact_id),
-                "calibration_report_ref": str(calibration_report_ref.artifact_id),
-            },
-            "artifacts": {
-                "decision_card_ref": str(decision_card_ref.artifact_id),
-                "execution_plan_ref": str(execution_plan_ref.artifact_id),
-                "normative_arbitration_result_ref": str(normative_ref.artifact_id),
-            },
-            "simulation_results": {
-                "policy_cost": 100.0,
-                "applied_nodes": 1,
-            },
-            "backtest": {
-                "prediction_mode_requested": "scientist",
-                "prediction_mode_effective": "scientist",
-                "degraded": False,
-                "degraded_reasons": [],
-                "trust_eligible": True,
-                "trust_score": 0.82,
-                "trust_grade": "B",
-            },
-            "feedback_loop": {
-                "anchor_at": "2026-02-11T12:00:00Z",
-                "monitoring_contract_ref": monitoring_contract_ref.model_dump(mode="json"),
-                "latest_monitoring_report_ref": None,
-                "latest_compare_report_ref": None,
-                "latest_reissue_plan_ref": None,
-                "backtest_mode_effective": "scientist",
-                "backtest_trust_eligible": True,
-            },
-            "governance": {
-                "verdict": "reject",
-                "issues": [{"code": "GOV001", "message": "Policy blocker", "severity": "blocker"}],
-                "notes": ["fallback-governance"],
-            },
-            "causal": {
-                "transportability_summary": {
-                    "status": "blocked",
-                    "assumptions": ["parallel trends not established"],
-                    "portability_blockers": ["missing external validation set"],
-                    "trace": {"source": "fixture"},
-                }
-            },
-            "diagnostics_summary": {
-                "legal_executed": True,
-                "contract_warnings": ["norm_pack_ref_missing"],
-                "normative_selected_policy": "weighted_welfare",
-                "normative_selected_option": "baseline",
-                "normative_model_completeness": "partial",
-                "normative_residual_dissent_count": 1,
-                "normative_rights_violation_count": 0,
-            },
-            "tradeoff_certificate": {
-                "selected_policy": "weighted_welfare",
-                "selected_option": "baseline",
-                "winners": ["owners"],
-                "losers": ["workers"],
-            },
-            "audit_trail": [
-                {
-                    "timestamp": "2026-02-11T12:00:00Z",
-                    "node": "pi_decompose",
-                    "action": "problem_frame_created",
-                    "details": {"summary": "Problem framed", "attempt": 1},
+                "schema_version": "3.4",
+                "run_id": core_run_id,
+                "inputs": {
+                    "data_snapshot_ref": str(data_snapshot_ref.artifact_id),
+                    "input_bindings_ref": str(input_bindings_ref.artifact_id),
+                    "evidence_bundle_ref": str(evidence_bundle_ref.artifact_id),
+                    "norm_pack_ref": str(norm_pack_primary_ref.artifact_id),
+                    "calibration_report_ref": str(calibration_report_ref.artifact_id),
                 },
-                {
-                    "timestamp": "2026-02-11T12:00:01Z",
-                    "node": "drafter",
-                    "action": "draft_created",
-                    "details": {"summary": "Draft policy prepared", "attempt": 1},
+                "artifacts": {
+                    "decision_card_ref": str(decision_card_ref.artifact_id),
+                    "execution_plan_ref": str(execution_plan_ref.artifact_id),
+                    "normative_arbitration_result_ref": str(normative_ref.artifact_id),
                 },
-                {
-                    "timestamp": "2026-02-11T12:00:02Z",
-                    "node": "formalize",
-                    "action": "ir_generated",
-                    "details": {"summary": "Trinity bundle assembled", "attempt": 1},
+                "simulation_results": {
+                    "policy_cost": 100.0,
+                    "applied_nodes": 1,
                 },
-                {
-                    "timestamp": "2026-02-11T12:00:03Z",
-                    "node": "critic_review",
-                    "action": "critique_complete",
-                    "details": {"verdict": "NEEDS_REVISION", "attempt": 1},
+                "backtest": {
+                    "prediction_mode_requested": "scientist",
+                    "prediction_mode_effective": "scientist",
+                    "degraded": False,
+                    "degraded_reasons": [],
+                    "trust_eligible": True,
+                    "trust_score": 0.82,
+                    "trust_grade": "B",
                 },
-                {
-                    "timestamp": "2026-02-11T12:00:04Z",
-                    "node": "reflexion",
-                    "action": "abort_with_report",
-                    "details": {"attempt": 1, "can_retry": False},
+                "feedback_loop": {
+                    "anchor_at": "2026-02-11T12:00:00Z",
+                    "monitoring_contract_ref": monitoring_contract_ref.model_dump(mode="json"),
+                    "latest_monitoring_report_ref": None,
+                    "latest_compare_report_ref": None,
+                    "latest_reissue_plan_ref": None,
+                    "backtest_mode_effective": "scientist",
+                    "backtest_trust_eligible": True,
                 },
-            ],
+                "governance": {
+                    "verdict": "reject",
+                    "issues": [
+                        {"code": "GOV001", "message": "Policy blocker", "severity": "blocker"}
+                    ],
+                    "notes": ["fallback-governance"],
+                },
+                "causal": {
+                    "transportability_summary": {
+                        "status": "blocked",
+                        "assumptions": ["parallel trends not established"],
+                        "portability_blockers": ["missing external validation set"],
+                        "trace": {"source": "fixture"},
+                    }
+                },
+                "diagnostics_summary": {
+                    "legal_executed": True,
+                    "contract_warnings": ["norm_pack_ref_missing"],
+                    "normative_selected_policy": "weighted_welfare",
+                    "normative_selected_option": "baseline",
+                    "normative_model_completeness": "partial",
+                    "normative_residual_dissent_count": 1,
+                    "normative_rights_violation_count": 0,
+                },
+                "tradeoff_certificate": {
+                    "selected_policy": "weighted_welfare",
+                    "selected_option": "baseline",
+                    "winners": ["owners"],
+                    "losers": ["workers"],
+                },
+                "audit_trail": [
+                    {
+                        "timestamp": "2026-02-11T12:00:00Z",
+                        "node": "pi_decompose",
+                        "action": "problem_frame_created",
+                        "details": {"summary": "Problem framed", "attempt": 1},
+                    },
+                    {
+                        "timestamp": "2026-02-11T12:00:01Z",
+                        "node": "drafter",
+                        "action": "draft_created",
+                        "details": {"summary": "Draft policy prepared", "attempt": 1},
+                    },
+                    {
+                        "timestamp": "2026-02-11T12:00:02Z",
+                        "node": "formalize",
+                        "action": "ir_generated",
+                        "details": {"summary": "Trinity bundle assembled", "attempt": 1},
+                    },
+                    {
+                        "timestamp": "2026-02-11T12:00:03Z",
+                        "node": "critic_review",
+                        "action": "critique_complete",
+                        "details": {"verdict": "NEEDS_REVISION", "attempt": 1},
+                    },
+                    {
+                        "timestamp": "2026-02-11T12:00:04Z",
+                        "node": "reflexion",
+                        "action": "abort_with_report",
+                        "details": {"attempt": 1, "can_retry": False},
+                    },
+                ],
             },
             run_id=core_run_id,
         ),
@@ -767,41 +782,43 @@ def build_runtime_api_env(
         store,
         _with_fixture_authority_surface_packet(
             {
-            "schema_version": "3.4",
-            "run_id": "R_core_api_002",
-            "inputs": {
-                "data_snapshot_ref": str(data_snapshot_ref.artifact_id),
-                "input_bindings_ref": str(input_bindings_ref.artifact_id),
-                "evidence_bundle_ref": str(evidence_bundle_ref.artifact_id),
-                "norm_pack_ref": str(norm_pack_secondary_ref.artifact_id),
-            },
-            "artifacts": {
-                "decision_card_ref": str(decision_card_ref.artifact_id),
-                "execution_plan_ref": str(execution_plan_ref.artifact_id),
-                "normative_arbitration_result_ref": str(normative_ref.artifact_id),
-            },
-            "simulation_results": {
-                "policy_cost": 100.0,
-                "applied_nodes": 1,
-            },
-            "feedback_loop": {
-                "anchor_at": "2026-02-11T12:05:00Z",
-                "monitoring_contract_ref": monitoring_contract_ref.model_dump(mode="json"),
-                "latest_monitoring_report_ref": None,
-                "latest_compare_report_ref": None,
-                "latest_reissue_plan_ref": None,
-                "backtest_mode_effective": "scientist",
-                "backtest_trust_eligible": True,
-            },
-            "governance": {
-                "verdict": "reject",
-                "issues": [{"code": "GOV001", "message": "Policy blocker", "severity": "blocker"}],
-                "notes": ["fallback-governance"],
-            },
-            "diagnostics_summary": {
-                "legal_executed": True,
-                "contract_warnings": [],
-            },
+                "schema_version": "3.4",
+                "run_id": "R_core_api_002",
+                "inputs": {
+                    "data_snapshot_ref": str(data_snapshot_ref.artifact_id),
+                    "input_bindings_ref": str(input_bindings_ref.artifact_id),
+                    "evidence_bundle_ref": str(evidence_bundle_ref.artifact_id),
+                    "norm_pack_ref": str(norm_pack_secondary_ref.artifact_id),
+                },
+                "artifacts": {
+                    "decision_card_ref": str(decision_card_ref.artifact_id),
+                    "execution_plan_ref": str(execution_plan_ref.artifact_id),
+                    "normative_arbitration_result_ref": str(normative_ref.artifact_id),
+                },
+                "simulation_results": {
+                    "policy_cost": 100.0,
+                    "applied_nodes": 1,
+                },
+                "feedback_loop": {
+                    "anchor_at": "2026-02-11T12:05:00Z",
+                    "monitoring_contract_ref": monitoring_contract_ref.model_dump(mode="json"),
+                    "latest_monitoring_report_ref": None,
+                    "latest_compare_report_ref": None,
+                    "latest_reissue_plan_ref": None,
+                    "backtest_mode_effective": "scientist",
+                    "backtest_trust_eligible": True,
+                },
+                "governance": {
+                    "verdict": "reject",
+                    "issues": [
+                        {"code": "GOV001", "message": "Policy blocker", "severity": "blocker"}
+                    ],
+                    "notes": ["fallback-governance"],
+                },
+                "diagnostics_summary": {
+                    "legal_executed": True,
+                    "contract_warnings": [],
+                },
             },
             run_id="R_core_api_002",
         ),
@@ -968,9 +985,7 @@ def build_runtime_api_env(
                         "registry_bundle_ref": str(registry_ref.artifact_id),
                         "quality_report_ref": str(quality_ref.artifact_id),
                         "evidence_bundle_ref": str(evidence_bundle_ref.artifact_id),
-                        "fabric_retrieval_trace_ref": str(
-                            fabric_retrieval_trace_ref.artifact_id
-                        ),
+                        "fabric_retrieval_trace_ref": str(fabric_retrieval_trace_ref.artifact_id),
                     },
                     "production_data_evidence_context": production_data_evidence_context,
                 },

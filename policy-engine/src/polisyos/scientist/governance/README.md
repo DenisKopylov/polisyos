@@ -27,6 +27,10 @@ before or after decision publication.
 - Accountability/report surfaces in [`accountability.py`](accountability.py) and [`report.py`](report.py)
 - Stress and backtest surfaces in [`backtest_matrix.py`](backtest_matrix.py) and [`stress_scenarios.py`](stress_scenarios.py)
 - Continuous governance public contracts in [`continuous/`](continuous/) for monitor events, drift detectors, lifecycle bridges, decision validity reports, reissue packets, incidents, and withdrawals
+- The epoch lifecycle bridge consumes only content-verified completed Decision
+  Validity batch receipts. Raw monitor events remain advisory; a pending or
+  unresolved dependency denominator freezes affected public claims until the
+  Claim owner advances its current head.
 - Human review public contracts in [`human_review/`](human_review/) for review packets, decisions, queue state, oversight policy, VOI escalation, and advisory review-effectiveness measurement
 
 ## Depends On / Depended On By
@@ -61,4 +65,4 @@ uv run pytest tests/unit/scientist/governance/test_pass_registry.py tests/unit/s
 
 ## Last Updated
 
-- Last updated: 2026-05-24
+- Last updated: 2026-08-26

@@ -27,6 +27,10 @@ projections. Route handlers should stay thin and delegate behavior here.
   the existing CAS/event writer and durable one-live-record reservation. Public
   gate results remain non-authoritative projections; operational consumers
   must re-resolve the concrete deployment-attested packet.
+- **Pre-N9 epoch-validity strangle** - after the candidate denominator is frozen, the control
+  service persists an owner-derived subject, reconciles it through the same Decision Validity
+  owner used by direct generation, and passes only sealed positive gate evidence to N9. Missing
+  predicate-policy admission remains the exact typed negative `policy_admission_missing`.
 
 ## Public API
 

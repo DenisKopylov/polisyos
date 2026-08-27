@@ -21,11 +21,22 @@ from polisyos.runtime.http.services.control_registry_providers import (
     resolve_control_registry_providers,
 )
 from polisyos.runtime.http.services.review_collaboration import ReviewCollaborationHub
+from polisyos.runtime.quality.chronology_custody import (
+    build_production_epoch_anchor_custody_provider,
+)
+from polisyos.runtime.quality.open_world_risk import PromotionRuntime
+from polisyos.scientist import (
+    ClaimLedgerOwnerPort,
+    EpochClaimLifecycleBridgeService,
+    build_default_claim_ledger_owner,
+    build_epoch_claim_lifecycle_bridge,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
 
+    from polisyos.core import contracts as core_contracts
     from polisyos.runtime.http.execution_policy import ResolvedExecutionPolicy
     from polisyos.runtime.http.security import RuntimeSecurityConfig
     from polisyos.runtime.http.services.human_decisions import HumanDecisionService
@@ -49,6 +60,9 @@ class RuntimeContainerOverrides:
     runtime_mutation_audit: Any | None = None
     runtime_review_opa_guard: Any | None = None
     control_registry_providers: ControlRegistryProviders | None = None
+    decision_validity_service: Any | None = None
+    claim_ledger_owner: Any | None = None
+    epoch_claim_lifecycle_bridge: Any | None = None
 
 
 @dataclass(frozen=True)
@@ -105,6 +119,11 @@ class RuntimeServiceContainer:
     runtime_idempotency_store: Any
     runtime_mutation_audit: Any
     runtime_review_opa_guard: Any
+    epoch_anchor_custody_provider: core_contracts.EpochAnchorCustodyProvider
+    promotion_runtime: PromotionRuntime
+    decision_validity_service: core_contracts.EpochValidityCompletedBatchEvidenceResolver
+    claim_ledger_owner: ClaimLedgerOwnerPort
+    epoch_claim_lifecycle_bridge: EpochClaimLifecycleBridgeService
     control_registry_providers: ControlRegistryProviders
     control_service: ControlPlaneService | None = None
     human_decision_service: HumanDecisionService | None = None
@@ -143,6 +162,73 @@ class RuntimeServiceContainer:
         control_registry_providers = (
             overrides.control_registry_providers or _resolve_default_control_registry_providers()
         )
+        if overrides.decision_validity_service is not None and not (
+            ControlPlaneService.is_decision_validity_owner(overrides.decision_validity_service)
+        ):
+            raise ValueError("decision_validity_owner_invalid")
+        decision_validity_service = (
+            overrides.decision_validity_service
+            or ControlPlaneService.build_decision_validity_owner(runtime_api_context.store)
+        )
+        if decision_validity_service._store is not runtime_api_context.store:
+            raise ValueError("decision_validity_owner_store_mismatch")
+        if overrides.control_service is not None and not isinstance(
+            overrides.control_service, ControlPlaneService
+        ):
+            raise ValueError("control_service_owner_invalid")
+        inherited_claim_owner = (
+            overrides.control_service._epoch_claim_lifecycle_bridge.claim_owner
+            if overrides.control_service is not None
+            else None
+        )
+        claim_ledger_owner = (
+            overrides.claim_ledger_owner
+            or inherited_claim_owner
+            or build_default_claim_ledger_owner(store=runtime_api_context.store)
+        )
+        if getattr(claim_ledger_owner, "store", None) is not runtime_api_context.store:
+            raise ValueError("claim_ledger_owner_store_mismatch")
+        inherited_claim_bridge = (
+            overrides.control_service._epoch_claim_lifecycle_bridge
+            if overrides.control_service is not None
+            else None
+        )
+        epoch_claim_lifecycle_bridge = (
+            overrides.epoch_claim_lifecycle_bridge
+            or inherited_claim_bridge
+            or build_epoch_claim_lifecycle_bridge(
+                completed_batches=decision_validity_service,
+                claim_owner=claim_ledger_owner,
+                artifacts=runtime_api_context.store,
+            )
+        )
+        if (
+            not isinstance(epoch_claim_lifecycle_bridge, EpochClaimLifecycleBridgeService)
+            or epoch_claim_lifecycle_bridge.completed_batches is not decision_validity_service
+            or epoch_claim_lifecycle_bridge.claim_owner is not claim_ledger_owner
+            or epoch_claim_lifecycle_bridge.artifacts is not runtime_api_context.store
+        ):
+            raise ValueError("epoch_claim_lifecycle_bridge_owner_store_mismatch")
+        if overrides.control_service is None:
+            promotion_runtime = PromotionRuntime(
+                store=runtime_api_context.store,
+                completed_epoch_batches=decision_validity_service,
+            )
+        else:
+            if not isinstance(overrides.control_service, ControlPlaneService):
+                raise ValueError("control_service_owner_invalid")
+            promotion_runtime = overrides.control_service._promotion_runtime
+            if (
+                not isinstance(promotion_runtime, PromotionRuntime)
+                or overrides.control_service._decision_validity_service
+                is not decision_validity_service
+                or promotion_runtime.store is not runtime_api_context.store
+                or promotion_runtime.epoch_n9_evidence_resolver._completed_batches
+                is not decision_validity_service
+                or overrides.control_service._epoch_claim_lifecycle_bridge
+                is not epoch_claim_lifecycle_bridge
+            ):
+                raise ValueError("control_service_owner_runtime_mismatch")
         return cls(
             config=config,
             deployment_policy=deployment_policy,
@@ -167,6 +253,11 @@ class RuntimeServiceContainer:
             runtime_review_opa_guard=(
                 overrides.runtime_review_opa_guard or build_runtime_opa_async_guard()
             ),
+            epoch_anchor_custody_provider=(build_production_epoch_anchor_custody_provider()),
+            promotion_runtime=promotion_runtime,
+            decision_validity_service=decision_validity_service,
+            claim_ledger_owner=claim_ledger_owner,
+            epoch_claim_lifecycle_bridge=epoch_claim_lifecycle_bridge,
             control_registry_providers=control_registry_providers,
             control_service=overrides.control_service,
         )
@@ -201,6 +292,9 @@ class RuntimeServiceContainer:
                     artifact_store=self.runtime_api_context.store,
                     async_artifact_store=self.runtime_api_context.async_store,
                     registry_providers=self.control_registry_providers,
+                    decision_validity_service=self.decision_validity_service,
+                    promotion_runtime=self.promotion_runtime,
+                    epoch_claim_lifecycle_bridge=self.epoch_claim_lifecycle_bridge,
                 )
                 self.control_service = control_service
             custody = self._resolve_human_decision_custody(app)
@@ -380,6 +474,7 @@ class RuntimeServiceContainer:
         app.state._control_service = self.control_service
         app.state._human_decision_service = self.human_decision_service
         app.state._production_approval_resolver = self.production_approval_resolver
+        app.state.promotion_runtime = self.promotion_runtime
 
     def _resolve_human_decision_custody(self, app: Any) -> Any:
         """Re-attest custody at service construction; aliases never carry authority."""

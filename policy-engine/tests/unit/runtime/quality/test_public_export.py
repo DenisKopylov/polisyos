@@ -2,10 +2,29 @@ from __future__ import annotations
 
 # ruff: noqa: S101
 import json
+from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts import FileSystemCAS
+from polisyos.runtime.quality import public_export as public_export_module
 from polisyos.runtime.quality.case_lifecycle import build_lifecycle_reissue_report
+from polisyos.runtime.quality.design_problem import (
+    AuthorityProfile,
+    CandidateLever,
+    CandidateLeverSpace,
+    DesignConstraint,
+    DesignObjective,
+    DesignProblem,
+    DesignStakeholder,
+    EvidenceAcquisitionNeeds,
+    EvidenceNeed,
+    JurisdictionTimeSemantics,
+    NLProvenance,
+    OutcomeOfInterest,
+)
+from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.public_export import (
     PublicExportRedactionError,
     assert_public_export_official_use_limits,
@@ -15,12 +34,86 @@ from polisyos.runtime.quality.rule_evolution import build_rule_evolution_registr
 from tests._helpers.hds_quality import authority_envelope_for, sha
 from tests._helpers.policy_design_case_projection import policy_design_case
 
+REPO_ROOT = Path(__file__).resolve().parents[4]
+
 S9_RULE_VERSION_REF = "policyos.layer2.s9.projection_lowering.v1"
 S10_RULE_VERSION_REF = "policyos.layer2.s10.outcome_prediction.v1"
 S11_RULE_VERSION_REF = "policyos.layer2.s11.predictive_knowledge.v1"
 S12_RULE_VERSION_REF = "policyos.layer2.s12.resource_economics.v1"
 S13_RULE_VERSION_REF = "policyos.layer2.s13.post_deploy_accountability.v1"
 S14_RULE_VERSION_REF = "policyos.layer2.s14.universality_assurance.v1"
+
+
+def _open_world_problem() -> DesignProblem:
+    return DesignProblem(
+        design_problem_id="public_open_world_problem",
+        problem_statement="Project an explicit unknown deployment scope.",
+        domain="generic_policy",
+        nl_provenance=NLProvenance(
+            raw_request="Project deployment scope.",
+            source_surface="test_public_export",
+        ),
+        authority_profile=AuthorityProfile(
+            requester_authority="research_lab",
+            requested_authority_level="research",
+            mandate="test-only",
+        ),
+        jurisdiction_time=JurisdictionTimeSemantics(
+            region="UA",
+            valid_time="2026",
+            as_of="2026-08-25",
+            policy_time="2026",
+            data_time="2026",
+        ),
+        objectives=[
+            DesignObjective(
+                objective_id="survival",
+                description="Improve survival",
+                metric_id="survival",
+            )
+        ],
+        constraints=[
+            DesignConstraint(
+                constraint_id="shadow_only",
+                description="Remain shadow without owner evidence.",
+                hard=True,
+                admissibility_basis="request_text",
+                source_text="Remain shadow.",
+            )
+        ],
+        stakeholders=[
+            DesignStakeholder(
+                stakeholder_id="firms",
+                name="Firms",
+                role="target_population",
+            )
+        ],
+        outcome_of_interest=OutcomeOfInterest(
+            target_variable="survival",
+            metric_id="survival",
+            estimand="average_treatment_effect",
+        ),
+        candidate_lever_space=CandidateLeverSpace(
+            allowed_operator_kinds=["grant"],
+            candidate_levers=[
+                CandidateLever(
+                    lever_id="grant",
+                    operator_kind="grant",
+                    instrument="Targeted grant",
+                    target_slot="government_balance",
+                )
+            ],
+        ),
+        evidence_acquisition_needs=EvidenceAcquisitionNeeds(
+            needs=[
+                EvidenceNeed(
+                    need_id="scope",
+                    question="Who owns deployment scope?",
+                    required_for="promotion",
+                )
+            ]
+        ),
+    )
 
 
 def _s9_public_faithfulness_payload(**overrides: object) -> dict[str, object]:
@@ -115,9 +208,7 @@ def _s11_public_projection_payload(**overrides: object) -> dict[str, object]:
         "decision_context": {"public_export_status": "publishable"},
         "s11_predictive_posture_ref": "pdc://layer2/s11/ua-msme/predictive-knowledge",
         "effective_predictive_posture": "limited_by_weakest_boundary",
-        "predictive_axis_upgrade_refs": [
-            "pdc://layer2/s11/ua-msme/upgrade/measurability"
-        ],
+        "predictive_axis_upgrade_refs": ["pdc://layer2/s11/ua-msme/upgrade/measurability"],
         "predictive_axis_rows": [
             {
                 "axis": "measurability",
@@ -173,9 +264,7 @@ def _s11_public_projection_payload(**overrides: object) -> dict[str, object]:
             "runtime_closeout_authority",
             "rich_simulation_authority",
         ],
-        "limitations": [
-            "S11 predictive relaxation remains calibration-limited and not authority."
-        ],
+        "limitations": ["S11 predictive relaxation remains calibration-limited and not authority."],
         "rule_version_ref": S11_RULE_VERSION_REF,
     }
     payload.update(overrides)
@@ -191,26 +280,16 @@ def _g3_public_projection_payload(**overrides: object) -> dict[str, object]:
         "projection_ref": "pdc://layer3/g3/ua-msme/public-export-projection",
         "status": "pass",
         "certificate_resolution_report_ref": (
-            "repo://architecture/policy_design_case/"
-            "layer3_g3_certificate_resolution_report.json"
+            "repo://architecture/policy_design_case/layer3_g3_certificate_resolution_report.json"
         ),
         "search_ledger_refs": [
-            "repo://architecture/policy_design_case/"
-            "layer3_g3_ir_analytics_search_ledgers.json"
+            "repo://architecture/policy_design_case/layer3_g3_ir_analytics_search_ledgers.json"
         ],
-        "redacted_search_frontier_refs": [
-            "g3-search-frontier://ua-msme/resolved-proof-candidates"
-        ],
-        "proof_carrying_analytics_refs": [
-            "pdc://layer3/g3/ua-msme/proof/credit-access"
-        ],
-        "ir_analytics_bridge_refs": [
-            "ir-analytics-bridge://layer3/g3/ua-msme"
-        ],
+        "redacted_search_frontier_refs": ["g3-search-frontier://ua-msme/resolved-proof-candidates"],
+        "proof_carrying_analytics_refs": ["pdc://layer3/g3/ua-msme/proof/credit-access"],
+        "ir_analytics_bridge_refs": ["ir-analytics-bridge://layer3/g3/ua-msme"],
         "method_requirement_refs": ["method-requirement://layer3/g3/ua-msme"],
-        "s11_predictive_posture_refs": [
-            "pdc://layer2/s11/ua-msme/predictive-knowledge"
-        ],
+        "s11_predictive_posture_refs": ["pdc://layer2/s11/ua-msme/predictive-knowledge"],
         "resolved_certificate_count": 1,
         "blocked_certificate_count": 0,
         "authority_boundary": {
@@ -229,9 +308,7 @@ def _g3_public_projection_payload(**overrides: object) -> dict[str, object]:
             "publication_authority",
             "search_hit_as_certificate",
         ],
-        "raw_proof_payload": {
-            "theorem_family": "raw material must not reach PUBLIC"
-        },
+        "raw_proof_payload": {"theorem_family": "raw material must not reach PUBLIC"},
         "raw_cas_manifest": {"artifact_ids": ["secret-cas-id"]},
         "raw_query_ledger": {"sql": "select * from hidden_ir_catalog"},
     }
@@ -244,9 +321,7 @@ def _s12_public_projection_payload(**overrides: object) -> dict[str, object]:
         "public_export_classification": "public_redacted_projection",
         "decision_context": {"public_export_status": "publishable"},
         "s12_resource_posture_ref": "pdc://layer2/s12/ua-msme/resource-posture",
-        "resource_allocation_policy_ref": (
-            "pdc://layer2/s12/ua-msme/resource-allocation-policy"
-        ),
+        "resource_allocation_policy_ref": ("pdc://layer2/s12/ua-msme/resource-allocation-policy"),
         "explore_exploit_posture": "balanced_governed",
         "explore_exploit_dial_ref": "pdc://layer2/s7/ua-msme/explore-exploit-dial",
         "voi_allocation_refs": [
@@ -336,12 +411,8 @@ def _s13_public_projection_payload(**overrides: object) -> dict[str, object]:
         "projection_policy": "reads_s13_post_deploy_accountability_posture",
         "accountability_posture_ref": "pdc://layer2/s13/ua-msme/accountability-posture",
         "deployment_dossier_ref": "pdc://layer2/s13/ua-msme/deployment-dossier",
-        "divergence_record_refs": [
-            "pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"
-        ],
-        "learning_update_proposal_refs": [
-            "learning-proposal://ua-msme/envelope-shrink"
-        ],
+        "divergence_record_refs": ["pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"],
+        "learning_update_proposal_refs": ["learning-proposal://ua-msme/envelope-shrink"],
         "envelope_revision_ref": "envelope-revision://ua-msme/shrink/001",
         "certified_envelope_delta_ref": "certified-envelope-delta://ua-msme/s12-growth",
         "assurance_case_delta_ref": "assurance-delta://ua-msme/s13/weakened",
@@ -492,6 +563,90 @@ def test_public_export_redacts_sensitive_payloads_and_preserves_audit_semantics(
     assert public_bundle["redaction_summary"]["redacted_path_count"] >= 5
 
 
+@pytest.mark.asyncio
+async def test_public_export_carries_scope_limitation_without_numeric_risk(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _budget,
+        _CgfGenerationPort,
+    )
+
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _open_world_problem()
+    run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        promotion_runtime=runtime,
+        repo_root=REPO_ROOT,
+    ).run(
+        problem,
+        budget_state=_budget(),
+        max_cycles=1,
+    )
+    assert run.promotion_port.receipts == ()
+    assert run.promotion_port.reason == "epoch_validity_refused:policy_admission_missing"
+    projector = getattr(public_export_module, "project_pre_n9_open_world_limitations", None)
+    assert callable(projector)
+    limitations = projector(
+        run=run,
+        design_problem=problem,
+        resolver=runtime.resolver,
+    )
+    assert len(limitations) == 1
+    limitation = limitations[0]
+    payload = limitation.model_dump(mode="json")
+    assert set(payload) == {"status", "code", "vector_artifact_ref"}
+    assert payload["status"] == "not_established"
+    assert payload["code"] == "deployment_scope_not_established"
+    assert (
+        payload["vector_artifact_ref"]
+        == (run.promotion_port.pre_n9_open_world_gates[0].gate_payload["vector_artifact_ref"])
+    )
+    rendered = json.dumps(payload, sort_keys=True)
+    for forbidden in (
+        "components",
+        "denominator",
+        "evidence",
+        "provenance",
+        "raw_cas_hash",
+        "semantic_hash",
+        "risk_score",
+        "severity",
+        "delta",
+    ):
+        assert forbidden not in rendered
+
+    foreign_problem = problem.model_copy(
+        update={"design_problem_id": "public_open_world_problem_foreign"}
+    )
+    foreign_run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        promotion_runtime=runtime,
+        repo_root=REPO_ROOT,
+    ).run(
+        foreign_problem,
+        budget_state=_budget(),
+        max_cycles=1,
+    )
+    transplanted = foreign_run.model_copy(update={"promotion_port": run.promotion_port})
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="open_world_vector_query_mismatch",
+    ):
+        projector(
+            run=transplanted,
+            design_problem=foreign_problem,
+            resolver=runtime.resolver,
+        )
+
+
 def test_public_export_uses_canonical_secret_pii_scan_for_email_redaction() -> None:
     email = "audit.fixture@example.org"
     public_bundle = build_public_export_bundle(
@@ -502,9 +657,7 @@ def test_public_export_uses_canonical_secret_pii_scan_for_email_redaction() -> N
     rendered = json.dumps(public_bundle, sort_keys=True)
     reports = public_bundle["semantic_audit"]["secret_pii_scan_reports"]
     assert email not in rendered
-    assert public_bundle["artifacts"]["packet"]["contact"].startswith(
-        "[POLISYOS_SECRET_EMAIL_"
-    )
+    assert public_bundle["artifacts"]["packet"]["contact"].startswith("[POLISYOS_SECRET_EMAIL_")
     assert any(report["finding_kind"] == "email" for report in reports)
     assert public_bundle["redaction_summary"]["strangle_receipt"]["replacement_ref"] == (
         "polisyos.core.llm.sanitization.scan_secret_and_pii"
@@ -1110,9 +1263,7 @@ def test_public_export_blocks_s9_projection_that_hides_redacted_blocker() -> Non
                 "s9_projection_faithfulness": _s9_public_faithfulness_payload(
                     faithfulness_status="fail",
                     issue_codes=["s9_redaction_hides_blocker"],
-                    hidden_blocker_refs=[
-                        "pdc://layer2/s6/ua-msme/strategic-response-blocker"
-                    ],
+                    hidden_blocker_refs=["pdc://layer2/s6/ua-msme/strategic-response-blocker"],
                 ),
                 "omission_manifest": [],
             },
@@ -1187,9 +1338,7 @@ def test_s10_machine_export_preserves_design_graph_context_and_method_validity_r
     )
 
     s10_projection = public_bundle["semantic_audit"]["s10_forecast_projection"]
-    assert s10_projection["design_graph_ref"] == (
-        "pdc://layer2/s5/ua-msme/recursive-design-graph"
-    )
+    assert s10_projection["design_graph_ref"] == ("pdc://layer2/s5/ua-msme/recursive-design-graph")
     assert s10_projection["prediction_context_ref"] == (
         "pdc://layer2/s10/ua-msme/prediction-context"
     )

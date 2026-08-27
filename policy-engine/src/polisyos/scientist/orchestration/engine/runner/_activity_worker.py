@@ -78,7 +78,10 @@ async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
         node = bind_node_params(node, params)
 
         # Execute with retry/timeout under a child span
-        from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_async
+        from polisyos.scientist.orchestration.engine.retry import (
+            RetryPolicy,
+            execute_with_retry_async,
+        )
 
         retry_policy = RetryPolicy(max_retries=payload.get("max_retries", 0))
 
@@ -144,6 +147,7 @@ async def run_merge_checkpoint_tier_in_worker(payload: dict[str, Any]) -> dict[s
         from polisyos.scientist.orchestration.engine.checkpoint import (
             restore_checkpoint_hook_from_runtime_metadata,
         )
+
         checkpoint_meta = payload.get("checkpoint_hook_meta")
         checkpoint_hook = restore_checkpoint_hook_from_runtime_metadata(checkpoint_meta)
         ctx = _build_worker_context(context_meta)
@@ -251,7 +255,8 @@ def _build_worker_context(meta: dict[str, Any]) -> Any:
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
     from polisyos.core.run.context import RunContext
-    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.evidence.claims import build_default_claim_ledger_owner
+    from polisyos.scientist.orchestration.engine.context import ClaimCapableExecutionContext
 
     run_id = str(meta.get("run_id", "worker-run"))
     store_config_raw = meta.get("store_config")
@@ -330,12 +335,13 @@ def _build_worker_context(meta: dict[str, Any]) -> Any:
         cell_id=meta.get("cell_id"),
     )
 
-    ctx = ExecutionContext(
+    ctx = ClaimCapableExecutionContext(
         store=store,
         run=run_ctx,
         logger=_logging.getLogger(f"polisyos.worker.{run_id}"),
         metrics=metrics,
         depth=meta.get("depth", 0),
+        claim_ledger_owner=build_default_claim_ledger_owner(store=store),
     )
     if metrics is not None:
         try:
@@ -419,7 +425,9 @@ def _build_worker_tracer(
     try:
         from opentelemetry import trace as otel_trace
 
-        from polisyos.scientist.orchestration.engine.trace_attributes import build_node_span_attributes
+        from polisyos.scientist.orchestration.engine.trace_attributes import (
+            build_node_span_attributes,
+        )
 
         tracer = otel_trace.get_tracer("polisyos.scientist.worker")
         span_attrs = build_node_span_attributes(

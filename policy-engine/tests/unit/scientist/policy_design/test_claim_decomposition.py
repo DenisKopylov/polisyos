@@ -6,8 +6,12 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.scientist.evidence.claims.export import ClaimExportAudience, export_claim_ledger
-from polisyos.scientist.evidence.claims.ledger import load_claim_ledger, persist_claim_ledger
+from polisyos.scientist.evidence.claims.export import (
+    ClaimExportAudience,
+    _format_resolved_claim_ledger,
+)
+from polisyos.scientist.evidence.claims.head_index import ClaimBridgePendingProjection
+from polisyos.scientist.evidence.claims.ledger import _load_claim_ledger, _persist_claim_ledger
 from polisyos.scientist.evidence.claims.models import (
     AlternativeRejectionReason,
     AlternativeStatus,
@@ -158,9 +162,15 @@ def test_compiler_emits_claim_families_baseline_alternative_seeds_and_method_pre
     assert all(claim.authority_profile_refs for claim in ledger.claims)
 
     store = FileSystemCAS(tmp_path)
-    ref = persist_claim_ledger(store, ledger)
-    loaded = load_claim_ledger(store, ref)
-    exported = export_claim_ledger(loaded, audience=ClaimExportAudience.MACHINE)
+    ref = _persist_claim_ledger(store, ledger)
+    loaded = _load_claim_ledger(store, ref)
+    exported = _format_resolved_claim_ledger(
+        loaded,
+        audience=ClaimExportAudience.MACHINE,
+        pending_projection=ClaimBridgePendingProjection(
+            completed_batch_denominator_established=True,
+        ),
+    )
 
     assert loaded.baseline_records == ledger.baseline_records
     assert loaded.alternative_records == ledger.alternative_records
@@ -227,8 +237,7 @@ def test_llm_candidate_obligation_is_downgraded_to_context_only_not_authority() 
         for claim in laundering_claims
     )
     assert all(
-        "candidate_source_not_authority" in claim.blocked_reasons
-        for claim in laundering_claims
+        "candidate_source_not_authority" in claim.blocked_reasons for claim in laundering_claims
     )
     assert not any(
         claim.claim_use is ClaimUse.PARTICIPATION_LEGITIMACY

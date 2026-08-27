@@ -12,6 +12,16 @@ from pydantic import ValidationError
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, EnvInfo, InputRef, ProducerInfo
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.contracts.decision_validity import (
+    DecisionBasisSection,
+    DecisionDependencyKind,
+    DecisionDependencyRef,
+    DecisionValidityEnvelope,
+    DecisionValidityEvaluation,
+    DecisionValidityStatus,
+    EpochValidityBatchTarget,
+    EpochValidityPendingBatch,
+)
 from polisyos.core.run import context as run_context_module
 from polisyos.core.run.context import RunContext
 from polisyos.core.run.manifest import RunManifest
@@ -19,12 +29,16 @@ from polisyos.core.security.identity import PolicyOSRole
 from polisyos.core.trace import RunTerminality
 from polisyos.core.trace.record import TraceRecord, TraceRefs
 from polisyos.core.trace.sink import JsonlTraceSink
-from polisyos.runtime.http import dev_identity_middleware
 from polisyos.runtime.http.routes import runs as runs_routes
 from polisyos.runtime.http.services.channel_contracts import RunDetailSnapshot
-from polisyos.scientist.validation import DecisionValidityStateStore
+from polisyos.runtime.http.services.run_index import RunIndexService
+from polisyos.scientist.validation.decision_validity import DecisionValidityService
 from tests.unit.runtime.http.test_runtime_api_authz import (
+    _AllowOPA,
+    _build_secure_client,
     _claims,
+    _create_authorized_matrix_run,
+    _fixture_bearer,
     _install_bound_test_step_up,
 )
 
@@ -42,6 +56,147 @@ def _read_first_sse_snapshot(client: Any, path: str) -> dict[str, Any]:
         assert isinstance(payload, dict)
         return payload
     raise AssertionError(f"No snapshot event emitted by {path}")
+
+
+def test_run_index_generation_invalidates_cached_active_status(runtime_api_env) -> None:
+    """A pending DV owner phase invalidates ACTIVE without touching the run dir."""
+
+    context = runtime_api_env["client"].app.state.runtime_api_ctx
+    run_index = context.run_index
+    run_id = runtime_api_env["core_run_id"]
+    indexed = run_index.get_run(run_id)
+    assert indexed.decision_packet_ref is not None
+    packet_ref = str(indexed.decision_packet_ref.artifact_id)
+    service = DecisionValidityService(context.store)
+    envelope = DecisionValidityEnvelope(
+        decision_lineage_key="run-index-epoch-lineage",
+        policy_fingerprint="run-index-epoch-policy",
+        knowledge_basis=DecisionBasisSection(
+            dependencies=[
+                DecisionDependencyRef(
+                    kind=DecisionDependencyKind.SEMANTIC_EPOCH,
+                    key="epoch::run-index-owner",
+                    artifact_id="epoch-run-index-owner",
+                )
+            ]
+        ),
+    )
+    service.register_decision_packet(
+        packet_ref=packet_ref,
+        envelope=envelope,
+        baseline=DecisionValidityEvaluation(
+            decision_lineage_key=envelope.decision_lineage_key,
+            status=DecisionValidityStatus.ACTIVE,
+            dependency_keys=envelope.dependency_keys(),
+        ),
+    )
+    assert run_index.get_run(run_id).summary.decision_validity_status == "active"
+    transition_ref = ArtifactRef(
+        artifact_id=indexed.decision_packet_ref.artifact_id,
+        kind="chronology.epoch_transition",
+        media_type="application/vnd.polisyos.chronology+json",
+    )
+    service._state.save_epoch_pending(
+        EpochValidityPendingBatch(
+            batch_id="epoch_batch_run_index_cache",
+            transition_artifact_ref=transition_ref,
+            transition_content_hash="sha256:" + "1" * 64,
+            requested_query_context_ref="sha256:" + "2" * 64,
+            verifier_provenance_ref=transition_ref.model_copy(
+                update={"kind": "chronology.epoch_transition_verifier"}
+            ),
+            dependency_denominator_ref="sha256:" + "3" * 64,
+            adjudication_denominator_ref="sha256:" + "4" * 64,
+            targets=(
+                EpochValidityBatchTarget(
+                    packet_ref=packet_ref,
+                    decision_lineage_key=envelope.decision_lineage_key,
+                    dependency_key="epoch::run-index-owner",
+                    status=DecisionValidityStatus.STALE,
+                    reason="epoch_batch_pending",
+                ),
+            ),
+        )
+    )
+
+    refreshed = run_index.get_run(run_id)
+    assert refreshed.summary.decision_validity_status == "stale"
+    assert refreshed.details.decision_validity_status == "stale"
+
+
+def test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current(
+    runtime_api_env,
+) -> None:
+    """A new process re-enumerates the persisted phase-one freeze."""
+
+    context = runtime_api_env["client"].app.state.runtime_api_ctx
+    run_index = context.run_index
+    run_id = runtime_api_env["core_run_id"]
+    indexed = run_index.get_run(run_id)
+    assert indexed.decision_packet_ref is not None
+    packet_ref = str(indexed.decision_packet_ref.artifact_id)
+    service = DecisionValidityService(context.store)
+    envelope = DecisionValidityEnvelope(
+        decision_lineage_key="run-index-restart-epoch-lineage",
+        policy_fingerprint="run-index-restart-epoch-policy",
+        knowledge_basis=DecisionBasisSection(
+            dependencies=[
+                DecisionDependencyRef(
+                    kind=DecisionDependencyKind.SEMANTIC_EPOCH,
+                    key="epoch::run-index-restart-owner",
+                    artifact_id="epoch-run-index-restart-owner",
+                )
+            ]
+        ),
+    )
+    service.register_decision_packet(
+        packet_ref=packet_ref,
+        envelope=envelope,
+        baseline=DecisionValidityEvaluation(
+            decision_lineage_key=envelope.decision_lineage_key,
+            status=DecisionValidityStatus.ACTIVE,
+            dependency_keys=envelope.dependency_keys(),
+        ),
+    )
+    transition_ref = ArtifactRef(
+        artifact_id=indexed.decision_packet_ref.artifact_id,
+        kind="chronology.epoch_transition",
+        media_type="application/vnd.polisyos.chronology+json",
+    )
+    service._state.save_epoch_pending(
+        EpochValidityPendingBatch(
+            batch_id="epoch_batch_run_index_restart",
+            transition_artifact_ref=transition_ref,
+            transition_content_hash="sha256:" + "1" * 64,
+            requested_query_context_ref="sha256:" + "2" * 64,
+            verifier_provenance_ref=transition_ref.model_copy(
+                update={"kind": "chronology.epoch_transition_verifier"}
+            ),
+            dependency_denominator_ref="sha256:" + "3" * 64,
+            adjudication_denominator_ref="sha256:" + "4" * 64,
+            targets=(
+                EpochValidityBatchTarget(
+                    packet_ref=packet_ref,
+                    decision_lineage_key=envelope.decision_lineage_key,
+                    dependency_key="epoch::run-index-restart-owner",
+                    status=DecisionValidityStatus.STALE,
+                    reason="epoch_batch_pending_after_crash",
+                ),
+            ),
+        )
+    )
+
+    restarted = RunIndexService(
+        store=context.store,
+        core_runs_root=run_index._core_runs_root,
+        refresh_ttl_seconds=run_index._refresh_ttl_seconds,
+    )
+    detail = restarted.get_run(run_id)
+    summaries, _ = restarted.list_runs(limit=200)
+    summary = next(row for row in summaries if row.run_id == run_id)
+    assert detail.details.decision_validity_status == "stale"
+    assert detail.summary.decision_validity_status == "stale"
+    assert summary.decision_validity_status == "stale"
 
 
 def test_hidden_runs_sse_channels_emit_versioned_contracts(runtime_api_env, monkeypatch) -> None:
@@ -126,9 +281,7 @@ def test_runs_sse_timeout_emits_a_versioned_strict_contract() -> None:
         event_block = await anext(stream)
         await stream.aclose()
         assert "event: stream.timeout" in event_block
-        data_line = next(
-            line for line in event_block.splitlines() if line.startswith("data: ")
-        )
+        data_line = next(line for line in event_block.splitlines() if line.startswith("data: "))
         payload = json.loads(data_line.removeprefix("data: "))
         assert isinstance(payload, dict)
         return payload
@@ -1045,9 +1198,9 @@ def test_finalize_recovery_requires_exact_manifest_ref_metadata(runtime_api_env)
     ]
     assert len(finalized) == 2
     assert finalized[-1].refs.outputs == [manifest_ref]
-    assert ctx.store.for_tenant(
-        runtime_api_env["tenant_a"], runtime_api_env["cell_a"]
-    ).has(manifest_ref.artifact_id)
+    assert ctx.store.for_tenant(runtime_api_env["tenant_a"], runtime_api_env["cell_a"]).has(
+        manifest_ref.artifact_id
+    )
 
 
 def test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs(runtime_api_env) -> None:
@@ -1360,63 +1513,79 @@ def test_reissue_endpoint_fails_closed_without_durable_control_plane(
     runtime_api_env,
     monkeypatch,
 ) -> None:
-    client = runtime_api_env["client"]
-    monkeypatch.setattr(
-        dev_identity_middleware,
-        "build_fixture_identity_claims",
-        lambda: _claims(
+    bearer = _fixture_bearer("reissue-inherited-control-plane")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
             tenant_id=runtime_api_env["tenant_a"],
-            cell_id=runtime_api_env["cell_a"],
-            jti="fixture-admin-reissue-inherited-control-plane",
+            cell_id=cell.cell_id,
+            jti="jwt-reissue-inherited-control-plane",
             roles=frozenset({PolicyOSRole.ADMIN}),
         ),
     )
-    step_up = _install_bound_test_step_up(client)
+    run_id = _create_authorized_matrix_run(
+        runtime_api_env,
+        cell_id=cell.cell_id,
+        run_id="R_reissue_requires_durable_control_plane",
+        execution_profile="governed",
+    )
+    feedback_calls: list[str] = []
+
+    def _unexpected_feedback_prepare(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        feedback_calls.append("prepare_reissue")
+        raise AssertionError("feedback_prepared_before_execution_policy_admission")
+
+    monkeypatch.setattr(
+        "polisyos.runtime.http.services.feedback.FeedbackService.prepare_reissue",
+        _unexpected_feedback_prepare,
+    )
 
     store = runtime_api_env["app"].state.runtime_api_ctx.store
     packet_ref = runtime_api_env["decision_packet_artifact_id"]
-    validity_state = DecisionValidityStateStore(store)
+    validity_state = DecisionValidityService(store)._state
     # A fresh run index materializes read-derived validity evaluations. Exclude
     # only that known read-through artifact; every other CAS kind must be stable.
-    artifacts_before = {
-        str(artifact_id): store.get_manifest(artifact_id).kind
-        for artifact_id in store.iter_artifact_ids()
-        if store.get_manifest(artifact_id).kind != "scientist.decision_validity_evaluation"
-    }
-    packet_state_before = validity_state.load_packet(packet_ref)
-    feedback_state_before = {
-        field: getattr(packet_state_before, field, None)
-        for field in (
-            "monitoring_contract_ref",
-            "latest_monitoring_report_ref",
-            "latest_compare_report_ref",
-            "latest_reissue_plan_ref",
-        )
-    }
-
-    response = client.post(
-        f"/api/v1/control/runs/{runtime_api_env['core_run_id']}/reissue",
-        headers={"X-PolicyOS-Step-Up": step_up},
+    _feedback_fields = (
+        "monitoring_contract_ref",
+        "latest_monitoring_report_ref",
+        "latest_compare_report_ref",
+        "latest_reissue_plan_ref",
     )
-    artifacts_after = {
-        str(artifact_id): store.get_manifest(artifact_id).kind
-        for artifact_id in store.iter_artifact_ids()
-        if store.get_manifest(artifact_id).kind != "scientist.decision_validity_evaluation"
-    }
-    packet_state_after = validity_state.load_packet(packet_ref)
-    feedback_state_after = {
-        field: getattr(packet_state_after, field, None)
-        for field in (
-            "monitoring_contract_ref",
-            "latest_monitoring_report_ref",
-            "latest_compare_report_ref",
-            "latest_reissue_plan_ref",
-        )
-    }
 
-    assert artifacts_after == artifacts_before
-    assert feedback_state_after == feedback_state_before
-    assert response.status_code == 422
+    def _artifact_kinds() -> dict[str, str]:
+        return {
+            str(artifact_id): store.get_manifest(artifact_id).kind
+            for artifact_id in store.iter_artifact_ids()
+            if store.get_manifest(artifact_id).kind != "scientist.decision_validity_evaluation"
+        }
+
+    def _feedback_state() -> dict[str, object]:
+        packet_state = validity_state.load_packet(packet_ref)
+        return {f: getattr(packet_state, f, None) for f in _feedback_fields}
+
+    artifacts_before = _artifact_kinds()
+    feedback_state_before = _feedback_state()
+
+    with client:
+        response = client.post(
+            f"/api/v1/control/runs/{run_id}/reissue",
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+                "X-PolicyOS-Step-Up": _install_bound_test_step_up(client),
+            },
+        )
+    assert _artifact_kinds() == artifacts_before
+    assert _feedback_state() == feedback_state_before
+    assert response.status_code == 422, response.text
 
     payload = response.json()
     assert payload["code"] == "durable_worker_required"
+    assert feedback_calls == []

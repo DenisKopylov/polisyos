@@ -424,3 +424,75 @@ def test_quality_report_fails_when_public_artifact_drops_citations() -> None:
     issue = next(issue for issue in report["issues"] if issue["code"] == "citation_refs_dropped")
     assert report["status"] == "fail"
     assert issue["claim_id"] == "rec_credit_guarantee"
+
+
+def test_quality_report_accepts_runtime_claim_registry_projection() -> None:
+    recommendation = _complete_major_recommendation(
+        scenario_requirement_refs=["scenario.req.credit_support"],
+        selected_norm_refs=["norm.ua.credit_guarantee"],
+        rejected_norm_refs=["norm.ua.unrelated"],
+        method_output_refs=["foundry.did.msme_survival"],
+        assumption_gate_refs=["assumption-gate.rec_credit_guarantee"],
+        counter_evidence_refs=["counter.rec_credit_guarantee"],
+        scholar_deficit_refs=["scholar-deficit.msme_credit"],
+        objective_tradeoff_refs=["objective_tradeoff.rec_credit_guarantee"],
+        uncertainty_refs=["uncertainty.rec_credit_guarantee"],
+        numerical_semantics_refs=["num_semantics.rec_credit_guarantee"],
+        monitoring_refs=["monitoring.rec_credit_guarantee"],
+        specification_curve_refs=["spec_curve.rec_credit_guarantee"],
+        claim_ref=_sha("a"),
+        runtime_event_ref="event://runtime_claim_registry/rec_credit_guarantee",
+    )
+    registry = build_runtime_claim_registry(
+        claims=[recommendation],
+        run_id="run-quality-001",
+    )
+    artifact, final_claims = _complete_artifact(recommendation)
+
+    report = build_decision_artifact_quality_report(
+        compiled_artifact=artifact,
+        final_claims=final_claims,
+        claim_registry=registry,
+        profile="production",
+    )
+
+    issue_codes = {issue["code"] for issue in report["issues"]}
+    assert report["status"] == "fail"
+    assert report["runtime_claim_registry"]["status"] == "pass"
+    assert report["summary"]["runtime_claim_registry_entry_count"] == 1
+    assert "claim_ledger_owner_not_established" in issue_codes
+    assert "publishable_artifact_source_truth_conflict" not in issue_codes
+
+
+def test_quality_report_rejects_ownerless_serious_decision_artifact() -> None:
+    artifact, final_claims = _complete_artifact()
+
+    report = build_decision_artifact_quality_report(
+        compiled_artifact=artifact,
+        final_claims=final_claims,
+        policy_grounding_matrix_ref="sha256:" + "1" * 64,
+        quality_scorecard_ref="sha256:" + "2" * 64,
+        profile="production",
+    )
+    repeated = build_decision_artifact_quality_report(
+        compiled_artifact=artifact,
+        final_claims=final_claims,
+        policy_grounding_matrix_ref="sha256:" + "1" * 64,
+        quality_scorecard_ref="sha256:" + "2" * 64,
+        profile="production",
+    )
+
+    assert report["status"] == "fail"
+    assert report["blocking_issue_count"] > 0
+    assert report["decision_artifact_quality_report_ref"].startswith("sha256:")
+    assert (
+        report["decision_artifact_quality_report_ref"]
+        == (repeated["decision_artifact_quality_report_ref"])
+    )
+    assert report["parallel_evaluation"]["uses_compiled_output"] is True
+    assert "policy_grounding_matrix_ref" in report["input_refs"]
+    assert "quality_scorecard_ref" in report["input_refs"]
+    assert report["claim_evidence_contract"]["status"] == "blocked"
+    assert "claim_ledger_owner_not_established" in {issue["code"] for issue in report["issues"]}
+
+

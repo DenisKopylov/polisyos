@@ -38,7 +38,6 @@ from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensiti
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
-from polisyos.scientist.evidence.claims.ledger import persist_claim_ledger
 from polisyos.scientist.evidence.claims.projections import project_causal_effect_claims
 from polisyos.scientist.evidence.claims.validators import is_claim_spine_enabled
 from polisyos.scientist.methods.causal.validity import persist_causal_validity_bundle
@@ -54,6 +53,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ClaimCapableExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
     NodeEvent,
@@ -94,6 +94,8 @@ _SPEC = NodeSpec(
     ],
     state_writes=[
         "params.query_treatment",
+        "params.claim_ledger_status",
+        "params.claim_ledger_limitation_code",
         f"artifacts_index.{ARTIFACT_CAUSAL_REPORT_REF}",
         f"artifacts_index.{ARTIFACT_CAUSAL_ENVELOPE_REF}",
         f"artifacts_index.{ARTIFACT_CAUSAL_METHOD_RESULT_REF}",
@@ -773,12 +775,15 @@ class RunCausalEvaluationNode:
                 run_id=state.run_id,
                 source_artifact_refs=claim_source_refs,
             )
-            claims_ref = persist_claim_ledger(ctx.store, claim_ledger)
+            if isinstance(ctx, ClaimCapableExecutionContext):
+                claims_ref = ctx.claim_ledger_owner.persist_candidate_ledger(ledger=claim_ledger)
 
         new_state = branch_state(
             state,
             write_paths=(
                 "params.query_treatment",
+                "params.claim_ledger_status",
+                "params.claim_ledger_limitation_code",
                 f"artifacts_index.{ARTIFACT_CAUSAL_REPORT_REF}",
                 f"artifacts_index.{ARTIFACT_CAUSAL_ENVELOPE_REF}",
                 f"artifacts_index.{ARTIFACT_CAUSAL_METHOD_RESULT_REF}",
@@ -794,6 +799,11 @@ class RunCausalEvaluationNode:
             new_state.params["query_treatment"] = query_treatment
         else:
             new_state.params.pop("query_treatment", None)
+        if is_claim_spine_enabled(state.params) and not isinstance(
+            ctx, ClaimCapableExecutionContext
+        ):
+            new_state.params["claim_ledger_status"] = "not_established"
+            new_state.params["claim_ledger_limitation_code"] = "claim_ledger_owner_not_established"
         new_state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF] = report_ref
         if envelope_ref is not None:
             new_state.artifacts_index[ARTIFACT_CAUSAL_ENVELOPE_REF] = envelope_ref

@@ -1,0 +1,16 @@
+{
+  "schema_version": "polisyos.epoch.semantic-facet-registry.v1",
+  "registrations": [
+    {"facet_id": "model_class", "source_binding_ref": "sha256:a0f23c79e6f94bd52572aa87a89fb09bb7c97cb98f6d3e69d2bae103f196ff76"},
+    {"facet_id": "obligation_language", "source_binding_ref": "sha256:f4aad68046d8d1ca3f5b4d2051caca48d7c9226cf3c633bb06fca7e550e62022"},
+    {"facet_id": "declared_obligation_set", "source_binding_ref": "sha256:2b84a86d2b665170873bda6906c29b8d6deaceedfb2f76003b6b6f24a34c38e6"},
+    {"facet_id": "calibration_scope", "source_binding_ref": "sha256:e74924e07266d5f37da44c5bb745fd399418536e3e607b6cc824058522d7f18f"},
+    {"facet_id": "measurement_semantics", "source_binding_ref": "sha256:18da828eb809ff4aad4ee1e5512ca75ae6591b56272b2e5a8c8fd67cd52c744e"},
+    {"facet_id": "implementation_semantics", "source_binding_ref": "sha256:4752e94f151e3846c0f801893efa52976535e065a02972c1266e4faebdf0cbf0"},
+    {"facet_id": "equilibrium_semantics", "source_binding_ref": "sha256:dda1a37ab013e6c3faf4a87acb4c32d328dee3979a905fd7c2352759fd01b632"},
+    {"facet_id": "validator_version", "source_binding_ref": "sha256:744a0e3a18e189646a207a4a4a8c4d10617c9124360afe3587103b4b5a96caa6"},
+    {"facet_id": "rule_logic", "source_binding_ref": "sha256:aab85ef9be7fca4a8d3025764b51f9361b30c62d5b97618ca76d029d178e69da"},
+    {"facet_id": "schema_data_regime", "source_binding_ref": "sha256:8ba4450c7d977c9665eb2a3e079936449c1c7f20e8aa5bf32a8a48df63b167b0"},
+    {"facet_id": "declared_interpretation", "source_binding_ref": "sha256:d019fd30543af222bc1eda30787ef13e1237fb1b0a1227237f27c7956a481822"}
+  ]
+}

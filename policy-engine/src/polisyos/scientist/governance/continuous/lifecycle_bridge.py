@@ -2,14 +2,26 @@
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Iterable, Mapping
+from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon
+from polisyos.core import contracts as core_contracts
+from polisyos.scientist.evidence.claims.head_index import (
+    ClaimDependencyDenominatorResolver,
+    ClaimLedgerOwnerPort,
+    ClaimLifecycleBridgeAuthorityResult,
+    ClaimLifecycleBridgeNonReceipt,
+    _resolve_decision_packet_claim_ledger,
+    _VerifiedCompletedEpochValidityBatch,
+)
 from polisyos.scientist.evidence.claims.lifecycle import (
     AppendOnlyClaimLedger,
     ClaimLifecycleAction,
@@ -53,9 +65,16 @@ _BRIDGE_COMPONENT = "polisyos.scientist.governance.continuous.lifecycle_bridge"
 _BRIDGE_VERSION = "2026.05.24+w9e"
 ArtifactID = core_artifacts.ArtifactID
 ArtifactRef = core_artifacts.ArtifactRef
+ArtifactStore = core_artifacts.ArtifactStore
 InputRef = core_artifacts.InputRef
 PutOptions = core_artifacts.PutOptions
 SchemaInfo = core_artifacts.SchemaInfo
+EpochValidityBatchReceipt = core_contracts.EpochValidityBatchReceipt
+EpochValidityBatchTarget = core_contracts.EpochValidityBatchTarget
+EpochValidityCompletedBatchEvidenceResolver = (
+    core_contracts.EpochValidityCompletedBatchEvidenceResolver
+)
+PersistedEpochValidityBatchEvidence = core_contracts.PersistedEpochValidityBatchEvidence
 _VALID_TRANSITIONS: set[str] = {
     "stale",
     "blocked",
@@ -85,6 +104,303 @@ _REVALIDATION_STATUS_BY_TRANSITION: dict[ClaimLifecycleTransition, str] = {
 }
 
 
+@dataclass(frozen=True, slots=True)
+class EpochClaimLifecycleBridgeService:
+    """Resolve a completed DV batch and invoke the one Claim owner port.
+
+    The service accepts only persisted refs and a query coordinate. Raw detector
+    events and caller-shaped completed receipts never cross this boundary.
+    """
+
+    completed_batches: EpochValidityCompletedBatchEvidenceResolver
+    claim_owner: ClaimLedgerOwnerPort
+    artifacts: ArtifactStore
+    dependency_registry_path: Path
+
+    def bridge_completed_batch(
+        self,
+        *,
+        batch_receipt_ref: ArtifactRef,
+        decision_packet_ref: ArtifactRef,
+        requested_query_context_ref: str,
+    ) -> ClaimLifecycleBridgeAuthorityResult:
+        """Persist the bridge freeze, then ask the Claim owner to advance."""
+
+        try:
+            evidence = self.completed_batches.resolve_completed_epoch_batch_evidence(
+                batch_receipt_ref=batch_receipt_ref
+            )
+            receipt = evidence.receipt
+            parsed_receipt = EpochValidityBatchReceipt.model_validate(
+                canon.from_canonical_bytes(evidence.receipt_bytes)
+            )
+            observed_batch_hash = "sha256:" + hashlib.sha256(evidence.receipt_bytes).hexdigest()
+            if (
+                parsed_receipt != receipt
+                or evidence.batch_receipt_ref != batch_receipt_ref
+                or evidence.batch_receipt_content_hash != observed_batch_hash
+                or str(batch_receipt_ref.artifact_id) != observed_batch_hash
+                or receipt.requested_query_context_ref != requested_query_context_ref
+            ):
+                raise ValueError("claim_batch_evidence_binding_mismatch")
+            packet_id = str(decision_packet_ref.artifact_id)
+            targets = tuple(row for row in receipt.targets if row.packet_ref == packet_id)
+            if not targets or packet_id not in receipt.affected_packet_refs:
+                raise ValueError("claim_batch_packet_not_in_denominator")
+            packet_row = _resolve_decision_packet_claim_ledger(
+                store=self.artifacts,
+                packet_ref=decision_packet_ref,
+            )
+            dependency_keys = tuple(dict.fromkeys(row.dependency_key for row in targets))
+            denominator_resolver = ClaimDependencyDenominatorResolver(
+                store=self.artifacts,
+                registry_path=self.dependency_registry_path,
+            )
+            registry_ref, registry_content_hash = denominator_resolver.persist_registry()
+            mapping = denominator_resolver.resolve(
+                ledger_artifact_ref=packet_row.ledger_artifact_ref,
+                batch_dependency_denominator_ref=receipt.dependency_denominator_ref,
+                requested_dependency_keys=dependency_keys,
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+            return ClaimLifecycleBridgeNonReceipt(
+                code="claim_batch_evidence_rejected",
+                decisive_evidence_refs=(batch_receipt_ref,),
+            )
+
+        if isinstance(mapping, ClaimLifecycleBridgeNonReceipt):
+            denominator = None
+            mapping_ref = registry_ref
+            mapping_content_hash = registry_content_hash
+            mapping_status: Literal["resolved", "unresolved"] = "unresolved"
+        else:
+            denominator, mapping_ref, mapping_content_hash = mapping
+            mapping_status = (
+                "unresolved" if denominator.unresolved_requested_dependency_keys() else "resolved"
+            )
+        verified = _VerifiedCompletedEpochValidityBatch(
+            evidence=evidence,
+            targets=targets,
+            dependency_denominator=denominator,
+            target_mapping_ref=mapping_ref,
+            target_mapping_content_hash=mapping_content_hash,
+            mapping_status=mapping_status,
+        )
+        return self.claim_owner.advance_verified_batch(
+            verified_batch=verified,
+            decision_packet_ref=decision_packet_ref,
+        )
+
+
+def build_epoch_claim_lifecycle_bridge(
+    *,
+    completed_batches: EpochValidityCompletedBatchEvidenceResolver,
+    claim_owner: ClaimLedgerOwnerPort,
+    artifacts: ArtifactStore,
+) -> EpochClaimLifecycleBridgeService:
+    """Build the single same-store DV-to-Claim production composition."""
+
+    if getattr(claim_owner, "store", None) is not artifacts:
+        raise ValueError("claim_ledger_owner_store_mismatch")
+    registry_path = (
+        Path(__file__).resolve().parents[5]
+        / "architecture/policy_design_case/layer3_gy_claim_dependency_field_registry.json"
+    )
+    if not registry_path.is_file():
+        raise ValueError("claim_dependency_registry_missing")
+    return EpochClaimLifecycleBridgeService(
+        completed_batches=completed_batches,
+        claim_owner=claim_owner,
+        artifacts=artifacts,
+        dependency_registry_path=registry_path,
+    )
+
+
+def _apply_verified_epoch_batch_to_claim_lifecycle(
+    *,
+    ledger: AppendOnlyClaimLedger,
+    verified_batch: _VerifiedCompletedEpochValidityBatch,
+    decision_packet_ref: ArtifactRef,
+    original_claim_ledger_ref: ArtifactRef,
+    actor_id: Literal["decision_validity_epoch_bridge"],
+) -> LifecycleBridgeResult:
+    """Reduce owner-verified epoch targets without admitting raw detector events."""
+
+    denominator = verified_batch.dependency_denominator
+    if denominator is None or verified_batch.mapping_status != "resolved":
+        raise ValueError("claim_target_denominator_unresolved")
+    known_claim_ids = {claim.claim_id for claim in ledger.current_claims}
+    sources_by_claim: dict[str, list[EpochValidityBatchTarget]] = {}
+    for target in verified_batch.targets:
+        target_claim_ids = {
+            claim_id
+            for row in denominator.ordered_dependency_rows
+            for association in row.ordered_dependency_claim_associations
+            if association.dependency_ref == target.dependency_key
+            for claim_id in association.ordered_claim_ids
+        }
+        if not target_claim_ids or not target_claim_ids.issubset(known_claim_ids):
+            raise ValueError("claim_target_denominator_unresolved")
+        for claim_id in target_claim_ids:
+            sources_by_claim.setdefault(claim_id, []).append(target)
+
+    action_by_status: dict[str, tuple[int, ClaimLifecycleTransition, ClaimLifecycleAction]] = {
+        "warning": (1, "review_required", ClaimLifecycleAction.REVIEW_REQUIRED),
+        "review_required": (1, "review_required", ClaimLifecycleAction.REVIEW_REQUIRED),
+        "requires_human_review": (
+            1,
+            "review_required",
+            ClaimLifecycleAction.REVIEW_REQUIRED,
+        ),
+        "stale": (2, "stale", ClaimLifecycleAction.MARKED_STALE),
+        "reissued": (3, "reissued", ClaimLifecycleAction.REISSUED),
+        "revoked": (4, "invalidated", ClaimLifecycleAction.INVALIDATED),
+        "withdrawn": (5, "withdrawn", ClaimLifecycleAction.WITHDRAWN),
+    }
+    generated_at = datetime.now(UTC)
+    updated = ledger
+    transitions: list[ClaimLifecycleTransitionRecord] = []
+    sequence = len(ledger.events)
+    for claim_id in sorted(sources_by_claim):
+        sources = sources_by_claim[claim_id]
+        status_values = {target.status.value for target in sources}
+        if "superseded" in status_values:
+            raise ValueError("claim_superseded_successor_not_established")
+        actionable = [
+            action_by_status[target.status.value]
+            for target in sources
+            if target.status.value in action_by_status
+        ]
+        if not actionable:
+            continue
+        _, transition, action = max(actionable, key=lambda row: row[0])
+        reasons = sorted({target.reason for target in sources})
+        reason = "; ".join(reasons)
+        source_rows = [
+            {
+                "dependency_key": target.dependency_key,
+                "decision_lineage_key": target.decision_lineage_key,
+                "status": target.status.value,
+                "reason": target.reason,
+            }
+            for target in sorted(
+                sources,
+                key=lambda row: (
+                    row.dependency_key,
+                    row.decision_lineage_key,
+                    row.status.value,
+                    row.reason,
+                ),
+            )
+        ]
+        lifecycle_id = lifecycle_event_id(
+            run_id=updated.run_id,
+            claim_id=claim_id,
+            action=action,
+            actor_id=actor_id,
+            reason=reason,
+            sequence=sequence,
+        )
+        event = ClaimLifecycleEvent(
+            event_id=lifecycle_id,
+            claim_id=claim_id,
+            run_id=updated.run_id,
+            action=action,
+            occurred_at=generated_at,
+            actor_id=actor_id,
+            reason=reason,
+            evidence_refs=[
+                verified_batch.evidence.batch_receipt_ref,
+                verified_batch.target_mapping_ref,
+            ],
+            metadata={
+                "authority_input": "completed_epoch_validity_batch",
+                "source_targets": source_rows,
+            },
+        )
+        updated = append_lifecycle_event(updated, event)
+        transitions.append(
+            ClaimLifecycleTransitionRecord(
+                event_id=lifecycle_id,
+                monitor_event_ref=None,
+                claim_id=claim_id,
+                transition=transition,
+                claim_lifecycle_action=action,
+                lifecycle_event_id=lifecycle_id,
+                event_type="verified_epoch_validity_batch",
+                severity=(
+                    "block"
+                    if action
+                    in {
+                        ClaimLifecycleAction.INVALIDATED,
+                        ClaimLifecycleAction.WITHDRAWN,
+                    }
+                    else "warning"
+                ),
+                reason=reason,
+                public_revision_status=_public_status_for_transition(transition),
+                occurred_at=generated_at,
+                metadata={"source_targets": source_rows},
+            )
+        )
+        sequence += 1
+
+    public_revision_state = _build_public_revision_state(
+        case_id=None,
+        claim_ids=sorted(known_claim_ids),
+        transitions=transitions,
+        blockers=[],
+        generated_at=generated_at,
+    )
+    status = DecisionValidityStatus.MONITORING
+    transition_names = {row.transition for row in transitions}
+    if "withdrawn" in transition_names:
+        status = DecisionValidityStatus.WITHDRAWN
+    elif "reissued" in transition_names:
+        status = DecisionValidityStatus.REISSUED
+    elif "review_required" in transition_names:
+        status = DecisionValidityStatus.REVIEW_REQUIRED
+    elif transition_names:
+        status = DecisionValidityStatus.STALE
+    validity_report = DecisionValidityReport(
+        decision_packet_ref=decision_packet_ref,
+        status=status,
+        metadata={
+            "authority_input": "completed_epoch_validity_batch",
+            "batch_receipt_ref": str(verified_batch.evidence.batch_receipt_ref.artifact_id),
+            "transition_count": len(transitions),
+        },
+    )
+    bridge_id = (
+        "epoch_claim_bridge_"
+        + hashlib.sha256(
+            (
+                str(verified_batch.evidence.batch_receipt_ref.artifact_id)
+                + ":"
+                + str(decision_packet_ref.artifact_id)
+            ).encode("utf-8")
+        ).hexdigest()[:24]
+    )
+    return LifecycleBridgeResult(
+        bridge_id=bridge_id,
+        status="pass",
+        decision_packet_ref=decision_packet_ref,
+        original_claim_ledger_ref=original_claim_ledger_ref,
+        updated_ledger=updated,
+        transition_records=transitions,
+        public_revision_state=public_revision_state,
+        validity_report=validity_report,
+        public_validity_report=export_public_validity_report(validity_report),
+        generated_at=generated_at,
+        authority_boundary=lifecycle_bridge_authority_boundary(),
+        capability_reality=lifecycle_bridge_capability_reality(),
+        metadata={
+            "authority_input": "completed_epoch_validity_batch",
+            "raw_detector_event_authoritative": False,
+        },
+    )
+
+
 class _JsonArtifactStore(Protocol):
     def put_json(
         self,
@@ -92,11 +408,9 @@ class _JsonArtifactStore(Protocol):
         options: PutOptions,
         *,
         canon_spec: canon.CanonSpec,
-    ) -> ArtifactRef:
-        ...
+    ) -> ArtifactRef: ...
 
-    def get_bytes(self, artifact_id: ArtifactID | object) -> bytes:
-        ...
+    def get_bytes(self, artifact_id: ArtifactID | object) -> bytes: ...
 
 
 class LifecycleBridgeBlocker(BaseModel):
@@ -391,9 +705,7 @@ def lifecycle_bridge_capability_reality() -> dict[str, str]:
             "GovernanceMonitorEvent -> ClaimLifecycleEvent -> public revision state"
         ),
         "consumer": "continuous governance validity report and scoped reissue packet",
-        "verification": (
-            "tests/unit/scientist/governance/continuous/test_lifecycle_bridge.py"
-        ),
+        "verification": ("tests/unit/scientist/governance/continuous/test_lifecycle_bridge.py"),
         "surface": "public_validity_report + projection_only public_revision_state",
         "semantic_test": "unscoped detector event emits event_missing_lifecycle_bridge",
     }
@@ -473,9 +785,7 @@ def _transition_for_event(event: GovernanceMonitorEvent) -> ClaimLifecycleTransi
     if event.severity == "info":
         return None
     if event.event_type == "source_invalidation":
-        invalidation_type = (
-            _metadata_text(event.metadata, "invalidation_type") or ""
-        ).casefold()
+        invalidation_type = (_metadata_text(event.metadata, "invalidation_type") or "").casefold()
         if event.severity == "warning":
             return "stale"
         if invalidation_type in {"superseded", "successor_available"}:
@@ -552,9 +862,7 @@ def _missing_bridge_blocker(
         severity=event.severity,
         affected_claim_ids=raw_claim_ids,
         reason=reason
-        or (
-            "Detector event did not map to any closed-case claim lifecycle transition."
-        ),
+        or ("Detector event did not map to any closed-case claim lifecycle transition."),
         metadata={
             "monitor_event_reason": event.reason,
             "known_claim_ids": known_claim_ids,
@@ -830,10 +1138,12 @@ __all__ = [
     "LIFECYCLE_BRIDGE_RESULT_SCHEMA_VERSION",
     "ClaimLifecycleTransition",
     "ClaimLifecycleTransitionRecord",
+    "EpochClaimLifecycleBridgeService",
     "LifecycleBridgeBlocker",
     "LifecycleBridgeResult",
     "LifecycleBridgeStatus",
     "bridge_governance_events_to_claim_lifecycle",
+    "build_epoch_claim_lifecycle_bridge",
     "lifecycle_bridge_authority_boundary",
     "lifecycle_bridge_capability_reality",
     "lifecycle_bridge_result_inputs",

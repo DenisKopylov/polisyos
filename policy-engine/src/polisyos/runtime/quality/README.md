@@ -46,6 +46,79 @@ Boundary notes:
 - `runtime.quality` does not eagerly export G0, G5, G6, G7, or G8 modules. Import these
   internal audit producers by canonical module path when a validator or
   reference workflow needs them.
+- `chronology_proof.py` is the sealed persistence adapter for the common
+  policy-free full-prefix bytes. It derives fixed `ArtifactStore` manifests
+  from an owner-qualified native reconciliation, reloads and reruns the real
+  verifier, and keeps its one-shot process continuation private. The public
+  reader establishes only CAS integrity plus the declared commitment prefix;
+  family completeness, acceptance, native authority heads and custody remain
+  family-owned and are not inferred from a green proof or audit sidecar.
+- `chronology_qualification.py` is the production-internal, owner-qualified
+  composition consumer. It resolves the one appointed admission/provenance
+  container, independently reconciles native owner truth, and invokes the real
+  full-prefix builder and verifier. Cluster 2 has no production family adapter,
+  projection receipt, allocation writer, or call site: the consumer is
+  `implemented_but_not_orchestrated` and its positive proof path terminates at
+  `NativeProjectionCustodyGap`. The strict allocation history records those
+  retained labels without promoting whole-history authenticity.
+- `chronology_custody.py` is the single epoch acceptance/custody composition root. Its production
+  provider resolves acceptance and holder appointments independently and currently returns two
+  query-bound `not_established` outcomes: the acceptance owner and epoch-only independent holder
+  are both `absent/unallocated`. The generic audit cold tier supplies no chronology appointment,
+  object-version receipt, or readback challenge and therefore cannot promote whole-history
+  authenticity. The two trust-snapshot domains bind exact appointed bytes; the plan supplies no
+  authority DTO for those bytes, so their institutional meaning remains a bounded owner-carrier
+  residual rather than a locally invented contract.
+- `semantic_epoch.py` is the epoch-family producer and adapter over the common
+  full-prefix protocol. It derives sparse owner-native L5, Lex and acquisition
+  queries, preserves their complete denominators, and invokes the generic
+  qualification consumer from the production acquisition composition. No
+  predicate-policy signer is appointed, so that real call terminates at the
+  typed `policy_admission_missing` result; the invocation implements the
+  producer/consumer capability without establishing a positive epoch policy,
+  custody, projection or whole-history authenticity claim.
+- `semantic_epoch_store.py` is the epoch family's append-only native history
+  repository. Its compare-and-append head index and full-prefix reconstruction
+  never become a shared physical chronology log or an authority head.
+- `epoch_validity_cascade.py` and `open_world_risk.py` bind the complete
+  post-generation candidate denominator to independently reloaded epoch and
+  deployment query artifacts before N9. The production epoch query consumes
+  the real unallocated-policy qualification path and records
+  `policy_admission_missing`; the deployment default persists one
+  `not_established` row per model, obligation, and calibration component.
+  Neither negative mints policy or deployment authority. Positive lifecycle
+  evidence remains `producer_missing`, its institutional owner remains
+  `absent/unallocated`, automatic global recipe execution remains
+  `absent/unallocated`, and public export exposes only the limitation status,
+  code, and vector ref—never numeric risk or raw evidence.
+  The negative path carries these bounded residuals without promoting them:
+
+  - canonical target dispositions remain `producer_missing` for the Decision
+    Validity, incident, appeal, correction, and retraction owners. Closure
+    requires an appointed complete `EpochPerturbationAdjudicationProvider`
+    whose owner evidence is independently reloaded;
+  - epoch transition signing profile, signer, exact signed-evidence repository,
+    and producer identity remain `absent/unallocated`; the default returns
+    `epoch_transition_signer_not_established` and cannot issue a positive
+    transition;
+  - positive deployment-lifecycle evidence and its institutional query owner
+    remain `producer_missing` and `absent/unallocated`, respectively;
+  - the verifier-provenance artifact is content-bound and independently
+    replayed, but no owner-lineage appointment exists, so positive verifier
+    provenance remains `not_established`;
+  - the declared-scope manifest is independently reconstructed from persisted
+    owner inputs but is not itself persisted as historical owner bytes; exact
+    manifest-history replay therefore remains `not_established`;
+  - completed-generation denominator admission is process-local. A coherent
+    but unadmitted CAS denominator is rejected, but cross-process provenance
+    cannot distinguish an owner-issued denominator from forged coherent bytes
+    without a persistent generation-owner admission receipt/index, which is
+    `absent/unallocated`; the bounded consequence is fail-closed denial of
+    service, never false promotion; and
+  - recipes are bound as inert bytes and a complete source census rejects any
+    recipe execution seam. Per-recipe canonical producers remain
+    `producer_missing`, and a global automatic recompute owner remains
+    `absent/unallocated`.
 - Public experimental exports must be reflected in the public-surface
   inventory and release fragments before release promotion.
 

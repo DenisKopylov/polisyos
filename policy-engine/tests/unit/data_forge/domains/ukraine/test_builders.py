@@ -5,6 +5,7 @@ import json
 import numpy as np
 import pandas as pd
 import pytest
+
 from polisyos.data_forge.domains.ukraine.builders import (
     MemoryAwareScheduler,
     ScheduledTask,
@@ -35,13 +36,14 @@ from polisyos.data_forge.domains.ukraine.builders import (
     build_d4_stage,
     build_d5_stage,
 )
+from polisyos.data_forge.domains.ukraine.builders import sources as source_builders
 from polisyos.data_forge.domains.ukraine.models import (
     SourceConfig,
     StageId,
     build_default_pipeline_config,
 )
-from polisyos.ir.observation.contracts import EntityScope, ObservationFamily
 from polisyos.ir.model_layer.types import TimeFrequency
+from polisyos.ir.observation.contracts import EntityScope, ObservationFamily
 from polisyos.scientist.governance import (
     CalibrationRunManifest,
     HoldoutScoresManifest,
@@ -51,6 +53,27 @@ from polisyos.scientist.governance import (
     TransportabilitySummaryManifest,
     build_family_eligibility_registry,
 )
+
+
+def test_ukraine_builder_reads_canonical_l5_registry_without_regime_literals() -> None:
+    registry = source_builders._load_l5_schema_regime_registry()
+    calendar = source_builders._regime_calendar_from_l5_schema_registry(registry)
+    source = source_builders.Path(source_builders.__file__).read_text(encoding="utf-8")
+
+    assert tuple(row.regime_id for row in calendar.entries) == tuple(
+        row.regime_id or row.schema_regime_id
+        for row in sorted(registry.regimes.values(), key=lambda item: item.effective_start)
+    )
+    assert all(
+        token not in source
+        for token in (
+            "regime_a",
+            "regime_b",
+            "ukraine_schema_v1",
+            "ukraine_schema_v2",
+        )
+    )
+    assert "2022-02-24" not in source
 
 
 def test_memory_aware_scheduler_runs_tasks_in_order() -> None:

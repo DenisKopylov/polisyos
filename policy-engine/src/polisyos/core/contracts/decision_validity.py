@@ -9,9 +9,13 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from polisyos.core.artifacts.manifest import ArtifactRef
+
+Digest = str
 
 
 def _utc_now() -> datetime:
@@ -51,6 +55,7 @@ class DecisionDependencyKind(str, Enum):
     CONTEXT_PROFILE = "context_profile"
     TRANSPORTABILITY = "transportability"
     NORMATIVE_ARBITRATION = "normative_arbitration"
+    SEMANTIC_EPOCH = "semantic_epoch"
 
 
 class DecisionTriggerType(str, Enum):
@@ -211,6 +216,397 @@ class DecisionValidityTransition(BaseModel):
     review_required: bool = False
 
 
+EpochValidityPredicateClass = Literal[
+    "recomputed",
+    "independently_reconciled",
+    "consumer_asserted",
+    "institutionally_supplied",
+    "not_established",
+]
+
+
+class EpochValidityBatchTarget(BaseModel):
+    """One owner-indexed packet selected by a verified epoch transition."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    packet_ref: str = Field(min_length=1)
+    decision_lineage_key: str = Field(min_length=1)
+    dependency_key: str = Field(min_length=1)
+    status: DecisionValidityStatus
+    reason: str = Field(min_length=1)
+
+
+class EpochTransitionVerificationReceipt(BaseModel):
+    """Independently verified transition facts admitted by Decision Validity.
+
+    The HTTP caller never supplies this object.  A container-appointed verifier
+    resolves the transition artifact and freezes the complete owner denominator.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    transition_artifact_ref: ArtifactRef
+    transition_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    requested_query_context_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    authority_purpose: str = Field(min_length=1)
+    verifier_provenance_ref: ArtifactRef
+    dependency_keys: tuple[str, ...] = Field(min_length=1)
+    dependency_denominator_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    adjudication_denominator_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    targets: tuple[EpochValidityBatchTarget, ...] = Field(min_length=1)
+    predicate_class: EpochValidityPredicateClass
+
+    @model_validator(mode="after")
+    def _targets_are_a_bijection(self) -> EpochTransitionVerificationReceipt:
+        dependency_keys = tuple(dict.fromkeys(self.dependency_keys))
+        target_keys = tuple((row.packet_ref, row.dependency_key) for row in self.targets)
+        if dependency_keys != self.dependency_keys:
+            raise ValueError("epoch_transition_dependency_denominator_duplicate")
+        if len(target_keys) != len(set(target_keys)):
+            raise ValueError("epoch_transition_target_denominator_duplicate")
+        if any(row.dependency_key not in dependency_keys for row in self.targets):
+            raise ValueError("epoch_transition_target_dependency_unbound")
+        return self
+
+
+class EpochValidityPendingBatch(BaseModel):
+    """Complete target denominator persisted before the first packet write."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.decision-validity.epoch-pending-batch.v1"] = (
+        "polisyos.decision-validity.epoch-pending-batch.v1"
+    )
+    batch_id: str = Field(min_length=1)
+    state: Literal["pending"] = "pending"
+    transition_artifact_ref: ArtifactRef
+    transition_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    requested_query_context_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    verifier_provenance_ref: ArtifactRef
+    dependency_denominator_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    adjudication_denominator_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    targets: tuple[EpochValidityBatchTarget, ...] = Field(min_length=1)
+    applied_packet_refs: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _applied_refs_are_an_exact_prefix(self) -> EpochValidityPendingBatch:
+        target_refs = tuple(dict.fromkeys(row.packet_ref for row in self.targets))
+        if self.applied_packet_refs != target_refs[: len(self.applied_packet_refs)]:
+            raise ValueError("epoch_pending_applied_refs_not_target_prefix")
+        return self
+
+
+class EpochValidityBatchCompletionStatement(BaseModel):
+    """Non-self-referential durable completion fact for one frozen batch."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.decision-validity.epoch-batch-completion.v1"] = (
+        "polisyos.decision-validity.epoch-batch-completion.v1"
+    )
+    batch_id: str = Field(min_length=1)
+    state: Literal["completed"] = "completed"
+    transition_artifact_ref: ArtifactRef
+    transition_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    requested_query_context_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    dependency_denominator_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    adjudication_denominator_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    verifier_provenance_ref: ArtifactRef
+    affected_packet_refs: tuple[str, ...] = Field(min_length=1)
+    targets: tuple[EpochValidityBatchTarget, ...] = Field(min_length=1)
+    predicate_class: Literal["independently_reconciled"]
+
+    @model_validator(mode="after")
+    def _affected_packets_are_unique(self) -> EpochValidityBatchCompletionStatement:
+        if len(self.affected_packet_refs) != len(set(self.affected_packet_refs)):
+            raise ValueError("epoch_batch_completion_packet_duplicate")
+        if self.affected_packet_refs != tuple(
+            dict.fromkeys(target.packet_ref for target in self.targets)
+        ):
+            raise ValueError("epoch_batch_completion_target_denominator_mismatch")
+        return self
+
+
+class EpochValidityBatchReceipt(BaseModel):
+    """Completed, replayable result of one owner-admitted epoch batch."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.decision-validity.epoch-batch-receipt.v1"] = (
+        "polisyos.decision-validity.epoch-batch-receipt.v1"
+    )
+    batch_id: str = Field(min_length=1)
+    state: Literal["completed"] = "completed"
+    transition_artifact_ref: ArtifactRef
+    transition_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    requested_query_context_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    dependency_denominator_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    adjudication_denominator_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    verifier_provenance_ref: ArtifactRef
+    completion_receipt_ref: ArtifactRef
+    affected_packet_refs: tuple[str, ...] = Field(min_length=1)
+    targets: tuple[EpochValidityBatchTarget, ...] = Field(min_length=1)
+    claim_bridge_result_refs: tuple[ArtifactRef, ...] = ()
+
+    @model_validator(mode="after")
+    def _completed_denominators_are_unique(self) -> EpochValidityBatchReceipt:
+        if len(self.affected_packet_refs) != len(set(self.affected_packet_refs)):
+            raise ValueError("epoch_batch_receipt_packet_duplicate")
+        if self.affected_packet_refs != tuple(
+            dict.fromkeys(target.packet_ref for target in self.targets)
+        ):
+            raise ValueError("epoch_batch_receipt_target_denominator_mismatch")
+        bridge_ids = tuple(str(row.artifact_id) for row in self.claim_bridge_result_refs)
+        if len(bridge_ids) != len(set(bridge_ids)):
+            raise ValueError("epoch_batch_receipt_claim_bridge_duplicate")
+        return self
+
+
+class PersistedEpochValidityBatchEvidence(BaseModel):
+    """Read-only exact CAS evidence for one completed owner batch."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    batch_receipt_ref: ArtifactRef
+    batch_receipt_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    receipt_bytes: bytes
+    receipt: EpochValidityBatchReceipt
+
+
+class EpochValidityCompletedBatchEvidenceResolver(Protocol):
+    """Owner reader for exact completed Decision Validity batch evidence."""
+
+    def resolve_completed_epoch_batch_evidence(
+        self,
+        *,
+        batch_receipt_ref: ArtifactRef,
+    ) -> PersistedEpochValidityBatchEvidence:
+        """Reload one admitted receipt and its independently checked completion."""
+        ...
+
+
+class EpochValidityCompletedBatchEvidenceDenominator(Protocol):
+    """Canonical owner walk over every completed epoch-batch receipt."""
+
+    def enumerate_completed_epoch_batch_evidence(
+        self,
+    ) -> tuple[PersistedEpochValidityBatchEvidence, ...]:
+        """Return a complete, content-verified receipt denominator."""
+        ...
+
+
+class EpochTransitionVerifier(Protocol):
+    """Resolve exact transition bytes under one appointed verifier identity."""
+
+    def verify(
+        self,
+        *,
+        transition_artifact_ref: ArtifactRef,
+        requested_query_context_ref: Digest,
+        expected_authority_purpose: str,
+    ) -> EpochTransitionVerificationReceipt:
+        """Return independently reconciled facts or fail closed."""
+        ...
+
+
+class PreN9EpochValiditySubjectStatement(BaseModel):
+    """Owner-derived decision-validity selector persisted before N9."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    owner_query_context_ref: ArtifactRef
+    owner_query_context_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    bound_member_ref: ArtifactRef
+    bound_member_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    candidate_occurrence_ref: ArtifactRef
+    candidate_occurrence_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    decision_packet_lineage_key_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    current_decision_packet_ref: ArtifactRef | None = None
+    packet_epoch_refs: tuple[Digest, ...] = ()
+
+
+class PersistedPreN9EpochValiditySubject(BaseModel):
+    """Content-bound handle; parsed subject bytes never travel beside it."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    subject_ref: ArtifactRef
+    subject_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class EpochValidityGateReceipt(BaseModel):
+    """Owner-reconciled epoch status for one persisted pre-N9 subject."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["current", "batch_completed", "pending", "not_established"]
+    subject_ref: ArtifactRef
+    subject_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    current_decision_packet_ref: ArtifactRef | None = None
+    packet_epoch_refs: tuple[Digest, ...] = ()
+    current_epoch_head_refs: tuple[Digest, ...] = ()
+    dependency_denominator_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    adjudication_denominator_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    prior_completed_binding_ref: ArtifactRef | None = None
+    completed_batch_receipt_ref: ArtifactRef | None = None
+    requested_query_context_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    failure_codes: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _positive_status_has_owner_history(self) -> EpochValidityGateReceipt:
+        if self.status in {"current", "batch_completed"} and self.failure_codes:
+            raise ValueError("epoch_validity_positive_status_has_failure_codes")
+        if self.status == "current":
+            if self.prior_completed_binding_ref is None:
+                raise ValueError("epoch_validity_current_requires_prior_completed_binding")
+            if self.completed_batch_receipt_ref is not None:
+                raise ValueError("epoch_validity_current_cannot_carry_completed_batch")
+        if self.status == "batch_completed" and self.completed_batch_receipt_ref is None:
+            raise ValueError("epoch_validity_batch_completed_requires_receipt")
+        return self
+
+
+class EpochValidityGateNonReceipt(BaseModel):
+    """Typed fail-closed result when owner reconciliation cannot establish a gate."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["pending", "not_established", "rejected"]
+    code: str = Field(min_length=1)
+    subject_ref: ArtifactRef
+    requested_query_context_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class PersistedEpochValidityGateEvidence(BaseModel):
+    """Persisted positive gate handle paired to its exact subject."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    gate_evidence_ref: ArtifactRef
+    gate_evidence_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    subject_ref: ArtifactRef
+    subject_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class PreN9AdmittedCandidate(BaseModel):
+    """Only handles crossing from owner reconciliation into the N9 batch."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    aggregate_context_ref: ArtifactRef
+    aggregate_context_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    bound_member_ref: ArtifactRef
+    bound_member_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    candidate_occurrence_ref: ArtifactRef
+    candidate_occurrence_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    subject_ref: ArtifactRef
+    subject_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    gate_evidence_ref: ArtifactRef
+    gate_evidence_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class PersistedPreN9AdmittedCandidateBatch(BaseModel):
+    """Sealed complete-candidate denominator accepted by the N9 port."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    aggregate_context_ref: ArtifactRef
+    aggregate_context_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    candidate_denominator_ref: ArtifactRef
+    candidate_denominator_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    ordered_admissions: tuple[PreN9AdmittedCandidate, ...] = Field(min_length=1)
+    batch_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _admissions_are_a_complete_unique_order(self) -> PersistedPreN9AdmittedCandidateBatch:
+        occurrence_refs = tuple(
+            str(row.candidate_occurrence_ref.artifact_id) for row in self.ordered_admissions
+        )
+        subject_refs = tuple(str(row.subject_ref.artifact_id) for row in self.ordered_admissions)
+        gate_refs = tuple(str(row.gate_evidence_ref.artifact_id) for row in self.ordered_admissions)
+        if (
+            len(occurrence_refs) != len(set(occurrence_refs))
+            or len(subject_refs) != len(set(subject_refs))
+            or len(gate_refs) != len(set(gate_refs))
+        ):
+            raise ValueError("epoch_validity_admission_bijection_mismatch")
+        if any(
+            row.aggregate_context_ref != self.aggregate_context_ref
+            or row.aggregate_context_content_hash != self.aggregate_context_content_hash
+            for row in self.ordered_admissions
+        ):
+            raise ValueError("epoch_validity_admission_aggregate_mismatch")
+        return self
+
+
+class EpochValidityN9Projection(BaseModel):
+    """Independently reloaded DV evidence bound into canonical N9."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    owner_query_context_ref: ArtifactRef
+    owner_query_context_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    bound_member_ref: ArtifactRef
+    bound_member_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    candidate_occurrence_ref: ArtifactRef
+    candidate_occurrence_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    subject_ref: ArtifactRef
+    subject_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    gate_receipt_ref: ArtifactRef
+    gate_receipt_content_hash: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    requested_query_context_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    current_decision_packet_ref: ArtifactRef | None = None
+    completed_batch_receipt_ref: ArtifactRef | None = None
+    verifier_provenance_ref: ArtifactRef
+    status: Literal["current", "batch_completed"]
+    predicate_class: Literal["independently_reconciled"]
+
+    @model_validator(mode="after")
+    def _positive_status_binds_its_completion(self) -> EpochValidityN9Projection:
+        if self.status == "batch_completed" and self.completed_batch_receipt_ref is None:
+            raise ValueError("epoch_validity_projection_batch_receipt_missing")
+        if self.status == "current" and self.completed_batch_receipt_ref is not None:
+            raise ValueError("epoch_validity_projection_current_has_batch_receipt")
+        return self
+
+
+class EpochValidityPreN9SubjectAuthority(Protocol):
+    def persist_for_n9(
+        self, *, bound_member_ref: ArtifactRef
+    ) -> PersistedPreN9EpochValiditySubject:
+        """Derive and persist a subject from one owner-bound member handle."""
+        ...
+
+
+class EpochValidityAuthorityGate(Protocol):
+    def reconcile_before_n9(
+        self, *, subject_ref: ArtifactRef
+    ) -> PersistedEpochValidityGateEvidence | EpochValidityGateNonReceipt:
+        """Reload one subject and reconcile all owner facts."""
+        ...
+
+
+class EpochValidityN9EvidenceResolver(Protocol):
+    def resolve_verified(
+        self,
+        *,
+        admission: PreN9AdmittedCandidate,
+        expected_design_problem_ref: ArtifactRef,
+    ) -> EpochValidityN9Projection | EpochValidityGateNonReceipt:
+        """Resolve persisted handles; never trust a DTO projection."""
+        ...
+
+    def resolve_projection_verified(
+        self,
+        *,
+        projection: EpochValidityN9Projection,
+        expected_problem_content_hash: Digest,
+    ) -> EpochValidityN9Projection | EpochValidityGateNonReceipt:
+        """Reload an offline projection against the bound design problem."""
+        ...
+
+
 class DecisionLifecycleJob(BaseModel):
     """Describe a scheduled or completed control-plane follow-up job."""
 
@@ -245,4 +641,23 @@ __all__ = [
     "DecisionValidityEvaluation",
     "DecisionValidityStatus",
     "DecisionValidityTransition",
+    "EpochTransitionVerificationReceipt",
+    "EpochTransitionVerifier",
+    "EpochValidityAuthorityGate",
+    "EpochValidityBatchCompletionStatement",
+    "EpochValidityBatchReceipt",
+    "EpochValidityBatchTarget",
+    "EpochValidityCompletedBatchEvidenceResolver",
+    "EpochValidityGateNonReceipt",
+    "EpochValidityGateReceipt",
+    "EpochValidityN9EvidenceResolver",
+    "EpochValidityN9Projection",
+    "EpochValidityPendingBatch",
+    "EpochValidityPreN9SubjectAuthority",
+    "PersistedEpochValidityBatchEvidence",
+    "PersistedEpochValidityGateEvidence",
+    "PersistedPreN9AdmittedCandidateBatch",
+    "PersistedPreN9EpochValiditySubject",
+    "PreN9AdmittedCandidate",
+    "PreN9EpochValiditySubjectStatement",
 ]

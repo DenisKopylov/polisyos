@@ -13,7 +13,6 @@ build_policy_design_case_projection_from_runtime_graph = (
 build_policy_design_case_projection_semantics = (
     core_contracts.build_policy_design_case_projection_semantics
 )
-detect_source_truth_conflict = core_contracts.detect_source_truth_conflict
 
 DECISION_ARTIFACT_SCHEMA_VERSION = "policyos.scientist.decision_artifact.v1"
 DRAFT_DECISION_PACKET_ARTIFACT_KIND = "draft_decision_packet"
@@ -370,15 +369,8 @@ def compile_public_decision_artifact(
         "conflict_status": _report_status(conflict_check),
         "approval_state": _approval_state(approval_state, quality_scorecard),
         "performance_status": _scorecard_performance_status(quality_scorecard),
-        "public_export_status": "blocked" if source_truth_conflicts else "publishable",
+        "public_export_status": "blocked",
     }
-    public_export_conflict = _public_export_source_truth_conflict(
-        quality_scorecard=quality_scorecard,
-        decision_context=decision_context,
-        refs=refs,
-    )
-    if public_export_conflict is not None:
-        source_truth_conflicts.append(public_export_conflict)
     if source_truth_conflicts:
         decision_context["public_export_status"] = "blocked"
     artifact = {
@@ -544,9 +536,28 @@ def compile_publishable_decision_artifact(
         ),
     )
     issues = [*claim_contract["issues"], *contract["issues"], *gate_issues]
+    issues.append(
+        _compiler_issue(
+            code="claim_ledger_owner_not_established",
+            statement_scope="claim_ledger_current_head",
+            message=(
+                "The legacy compiler has no Claim Ledger owner port or content-bound "
+                "owner key and therefore cannot establish a current Claim head."
+            ),
+            next_action=(
+                "Compile public output through the canonical decision-grade publisher "
+                "with its container-owned Claim Ledger owner."
+            ),
+        )
+    )
     if issues:
         blocked_artifact = dict(artifact)
+        blocked_artifact["artifact_kind"] = DRAFT_DECISION_PACKET_ARTIFACT_KIND
+        blocked_artifact["authority_role"] = "projection"
         blocked_artifact["publishability"] = "blocked"
+        blocked_context = blocked_artifact.setdefault("decision_context", {})
+        if isinstance(blocked_context, dict):
+            blocked_context["public_export_status"] = "blocked"
         if runtime_pdc_graph is not None:
             blocked_artifact["projection_semantics"] = (
                 build_policy_design_case_projection_from_runtime_graph(
@@ -572,6 +583,7 @@ def compile_publishable_decision_artifact(
             "status": "blocked",
             "issues": issues,
         }
+        blocked_artifact["compiler_issues"] = issues
         raise DecisionArtifactCompilationError(
             "Publishable decision artifact compilation blocked.",
             issues=issues,
@@ -1319,60 +1331,6 @@ def _source_truth_conflicts(quality_scorecard: Mapping[str, Any] | None) -> list
     ):
         return []
     return [dict(item) for item in raw_conflicts if isinstance(item, Mapping)]
-
-
-def _public_export_source_truth_conflict(
-    *,
-    quality_scorecard: Mapping[str, Any] | None,
-    decision_context: Mapping[str, Any],
-    refs: Mapping[str, str],
-) -> dict[str, Any] | None:
-    if not isinstance(quality_scorecard, Mapping):
-        return None
-    scorecard_ref = (
-        _safe_ref(quality_scorecard.get("quality_scorecard_ref"))
-        or _safe_ref(quality_scorecard.get("authoritative_scorecard_ref"))
-        or refs.get("quality_scorecard_ref")
-    )
-    expected_public_export_status = (
-        "publishable"
-        if _scorecard_quality_status(quality_scorecard) == "pass"
-        and _text(quality_scorecard.get("approval_state")) == "approval_ready"
-        else "blocked"
-    )
-    return detect_source_truth_conflict(
-        field_family="approval_readiness_public_status",
-        authoritative_source="runtime.scorecard",
-        authoritative_surface="runtime.scorecard",
-        authoritative_values={
-            "quality_status": _scorecard_quality_status(quality_scorecard),
-            "approval_state": _text(quality_scorecard.get("approval_state")) or "missing",
-            "public_export_status": expected_public_export_status,
-            "scorecard_identity": scorecard_ref,
-        },
-        conflicting_source="runtime.public_export",
-        conflicting_surface="runtime.public_export",
-        conflicting_values={
-            "quality_status": decision_context.get("quality_status"),
-            "approval_state": decision_context.get("approval_state"),
-            "public_export_status": decision_context.get("public_export_status"),
-            "scorecard_identity": refs.get("quality_scorecard_ref"),
-        },
-        fields=(
-            "quality_status",
-            "approval_state",
-            "public_export_status",
-            "scorecard_identity",
-        ),
-        downstream_impact="Public export publication is blocked until runtime authority agrees.",
-        cas_refs=[ref for ref in refs.values() if ref],
-        authoritative_ref=scorecard_ref,
-        conflicting_ref=refs.get("decision_artifact_ref"),
-        details={
-            "reader": "scientist.public_decision_artifact",
-            "projection_source": "runtime.public_export",
-        },
-    )
 
 
 def _warning_payload(value: Mapping[str, Any] | str | object) -> dict[str, Any]:

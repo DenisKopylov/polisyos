@@ -4,8 +4,8 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.evidence.claims.ledger import (
     CLAIM_LEDGER_KIND,
-    load_claim_ledger,
-    persist_claim_ledger,
+    _load_claim_ledger,
+    _persist_claim_ledger,
 )
 from polisyos.scientist.evidence.claims.models import (
     ClaimLedger,
@@ -48,8 +48,8 @@ def test_claim_ledger_persists_and_loads_from_cas(tmp_path) -> None:
         created_by_node_id="test",
     )
 
-    ref = persist_claim_ledger(store, ledger)
-    loaded = load_claim_ledger(store, ref)
+    ref = _persist_claim_ledger(store, ledger)
+    loaded = _load_claim_ledger(store, ref)
     manifest = store.get_manifest(ref.artifact_id)
 
     assert ref.kind == CLAIM_LEDGER_KIND

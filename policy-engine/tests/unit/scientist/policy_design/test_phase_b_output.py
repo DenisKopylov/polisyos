@@ -3,6 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
@@ -54,9 +55,25 @@ from polisyos.ir.governance.problem_frame import (
 )
 from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.model_layer.model_spec import AssumptionSpec, AssumptionType, ModelSpec
+from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
 from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
+from polisyos.scientist.evidence.claims.head_index import build_default_claim_ledger_owner
+from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
+from polisyos.scientist.methods.search.pareto_registry import (
+    ParetoRegistryEntry,
+    ParetoRegistrySnapshot,
+)
+from polisyos.scientist.methods.search.readiness import (
+    DecisionReadiness,
+    DecisionReadinessContract,
+    persist_decision_readiness_contract,
+)
+from polisyos.scientist.methods.search.uncertainty import (
+    UncertaintyEnvelope,
+    UncertaintyEstimate,
+    UncertaintyType,
+)
 from polisyos.scientist.policy_design.objectives import (
     ConstraintStatus,
     ObjectiveChannelValue,
@@ -84,18 +101,6 @@ from polisyos.scientist.policy_design.schema import (
     persist_policy_candidate_schema,
 )
 from polisyos.scientist.policy_design.translator import TranslatorComplianceResult
-from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
-from polisyos.scientist.methods.search.pareto_registry import ParetoRegistryEntry, ParetoRegistrySnapshot
-from polisyos.scientist.methods.search.readiness import (
-    DecisionReadiness,
-    DecisionReadinessContract,
-    persist_decision_readiness_contract,
-)
-from polisyos.scientist.methods.search.uncertainty import (
-    UncertaintyEnvelope,
-    UncertaintyEstimate,
-    UncertaintyType,
-)
 
 
 def _bundle() -> TrinityBundle:
@@ -530,6 +535,7 @@ def test_policy_artifact_builder_round_trip(tmp_path) -> None:
             constraint_findings=["budget_driver"],
             mutation_hints=["Reduce allocation size or add cheaper fallback variant."],
         ),
+        claim_owner=build_default_claim_ledger_owner(store=store),
     )
 
     bundle = load_policy_artifact_bundle(store, bundle_ref)
@@ -560,6 +566,7 @@ def test_policy_artifact_builder_refuses_forged_phase3_gate(tmp_path) -> None:
                 candidate_hash=candidate.candidate_hash(),
                 phase3_gate=Phase3CertificateStatus(gate_passed=True),
             ),
+            claim_owner=build_default_claim_ledger_owner(store=store),
         )
 
 
@@ -606,6 +613,7 @@ def test_policy_artifact_builder_surfaces_degraded_evidence_channels(tmp_path) -
             constraint_findings=["budget_driver"],
             mutation_hints=["Reduce allocation size or add cheaper fallback variant."],
         ),
+        claim_owner=build_default_claim_ledger_owner(store=store),
     )
 
     bundle = load_policy_artifact_bundle(store, bundle_ref)

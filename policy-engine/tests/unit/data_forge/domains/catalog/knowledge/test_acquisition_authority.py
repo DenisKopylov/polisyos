@@ -10,10 +10,12 @@ import pandas as pd
 import pytest
 from pydantic import ValidationError
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon.canon_json import CanonSpec, from_canonical_bytes
+from polisyos.core.contracts import chronology as chronology_contract
+from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
     DEFAULT_ACQUISITION_AUTHORITY_PROVISION,
@@ -58,15 +60,43 @@ from polisyos.ir.connectors import (
     QualityTier,
     VersionStrategy,
 )
+from polisyos.runtime.quality import chronology_qualification, semantic_epoch, substrate_registry
 from polisyos.runtime.quality.acquisition_executor import (
     AdmissionStatus,
+    admit_acquisition_with_production_semantic_epoch,
     build_admission_passport,
     revalidate_admission_passport,
 )
+from tests.unit.runtime.quality.test_acquisition_executor import _fixture, _semantic_handshake
+
+
+def _live_semantic_handshake(store: FileSystemCAS, evidence: object):
+    manifest = store.get_manifest(evidence.normalized_data_artifact_id)
+    source_ref = ArtifactRef(
+        artifact_id=manifest.artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+    )
+    return _semantic_handshake(store, source_ref=source_ref)
 
 
 def _sha(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _put_epoch_evidence(
+    store: FileSystemCAS,
+    payload: bytes,
+    *,
+    kind: str,
+) -> ArtifactRef:
+    return store.put_bytes(
+        payload,
+        ArtifactWriteOptions(
+            kind=kind,
+            media_type="application/vnd.polisyos.epoch+json",
+        ),
+    )
 
 
 def _write_l5(repo_root: Path) -> Path:
@@ -403,6 +433,149 @@ def _family_receipt(attempt_id: str) -> dict[str, object]:
         "network_escape_attempt_count": 0,
         "simulator_network_calls": 0,
     }
+
+
+def test_acquisition_authority_supplies_epoch_service_and_query(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The production composition invokes the epoch service and fails on policy authority."""
+
+    _, store, authority, _, raw_ref = _fixture(tmp_path / "acquisition")
+    lex_path = tmp_path / "lex-owner.duckdb"
+    with duckdb.connect(str(lex_path)) as con:
+        con.execute(
+            """
+            CREATE TABLE lex_amendments (
+                amendment_id VARCHAR,
+                amended_doc_id VARCHAR,
+                target_anchor VARCHAR,
+                effective_from VARCHAR,
+                created_at TIMESTAMP
+            )
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_facts (
+                doc_id VARCHAR,
+                jurisdiction VARCHAR,
+                top_domain VARCHAR
+            )
+            """
+        )
+    monkeypatch.setattr(substrate_registry, "DEFAULT_L3_LEX_KG_PATH", lex_path)
+
+    repo_root = Path(__file__).resolve().parents[6]
+    facet_registry = semantic_epoch.load_facet_registry(
+        repo_root / "architecture/policy_design_case/layer3_gy_semantic_facet_registry.json"
+    )
+    facet_source_refs: dict[str, ArtifactRef] = {}
+    for registration in facet_registry.registrations:
+        ref = _put_epoch_evidence(
+            store,
+            epoch_contract.canonical_epoch_bytes({"semantic_value": registration.facet_id}),
+            kind="epoch.semantic_facet_source.v1",
+        )
+        assert str(ref.artifact_id) == registration.source_binding_ref
+        facet_source_refs[registration.source_binding_ref] = ref
+
+    coordinate_refs = {
+        "valid_effect": _put_epoch_evidence(
+            store,
+            b"2025-01-01",
+            kind="epoch.coordinate.valid-date.v1",
+        ),
+        "visibility_knowledge_cutoff": _put_epoch_evidence(
+            store,
+            b"2025-02-01T00:00:00Z",
+            kind="epoch.coordinate.knowledge-time.v1",
+        ),
+        "purpose_admission_cutoff": _put_epoch_evidence(
+            store,
+            b"2025-02-02T00:00:00Z",
+            kind="epoch.coordinate.admission-time.v1",
+        ),
+    }
+    scope = semantic_epoch.build_epoch_scope_identity(
+        schema_profile="polisyos.epoch.policy-scope.v1",
+        identity_bytes=epoch_contract.canonical_epoch_bytes(
+            {"domain": "public-finance", "jurisdiction": "UA"}
+        ),
+    )
+    assert scope.scope_identity_ref == (
+        "sha256:2c12cbc4f9ededd46ade04b8f40249b9ac59fd0255bdbdb8341fd38e3f44b72d"
+    )
+    calls: list[semantic_epoch.EpochResolutionQuery] = []
+    qualification_calls: list[
+        tuple[
+            chronology_qualification.NativeChronologyAuthorityAdapter,
+            chronology_contract.NativeChronologyQuery,
+        ]
+    ] = []
+    original_prepare = semantic_epoch.SemanticEpochService.prepare_acquisition_candidate
+    original_qualify = chronology_qualification.QualificationConsumer.qualify
+
+    def observed_prepare(
+        self: semantic_epoch.SemanticEpochService,
+        *,
+        query: semantic_epoch.EpochResolutionQuery,
+        candidate_ref: ArtifactRef,
+    ) -> semantic_epoch.PreparedSemanticEpoch:
+        calls.append(query)
+        return original_prepare(self, query=query, candidate_ref=candidate_ref)
+
+    monkeypatch.setattr(
+        semantic_epoch.SemanticEpochService,
+        "prepare_acquisition_candidate",
+        observed_prepare,
+    )
+
+    def observed_qualify(
+        self: chronology_qualification.QualificationConsumer,
+        *,
+        adapter: chronology_qualification.NativeChronologyAuthorityAdapter,
+        request: chronology_contract.NativeChronologyQuery,
+    ) -> chronology_contract.NativeChronologyQualificationResult:
+        qualification_calls.append((adapter, request))
+        return original_qualify(self, adapter=adapter, request=request)
+
+    monkeypatch.setattr(
+        chronology_qualification.QualificationConsumer,
+        "qualify",
+        observed_qualify,
+    )
+
+    receipt = admit_acquisition_with_production_semantic_epoch(
+        repo_root=repo_root,
+        epoch_id=1,
+        raw_evidence_ref=raw_ref,
+        artifact_store=store,
+        authority=authority,
+        overlay_path=tmp_path / "acquisition-overlay.duckdb",
+        epoch_history_root=tmp_path / "epoch-history",
+        epoch_scope_identity=scope,
+        authority_purpose="publication",
+        valid_effect_coordinate_evidence_ref=coordinate_refs["valid_effect"],
+        visibility_knowledge_cutoff_evidence_ref=(coordinate_refs["visibility_knowledge_cutoff"]),
+        purpose_admission_cutoff_evidence_ref=(coordinate_refs["purpose_admission_cutoff"]),
+        facet_source_refs=facet_source_refs,
+    )
+
+    assert len(calls) == 1
+    assert calls[0].scope_identity == scope
+    assert calls[0].authority_purpose == "publication"
+    assert len(qualification_calls) == 1
+    qualification_adapter, qualification_request = qualification_calls[0]
+    assert isinstance(
+        qualification_adapter,
+        semantic_epoch.SemanticEpochQualificationAdapter,
+    )
+    assert qualification_request.domain.family == "epoch"
+    assert qualification_request.domain.proof_domain == "semantic_epoch"
+    assert isinstance(receipt, semantic_epoch.PersistedSemanticEpochProductionReceipt)
+    assert receipt.status == "not_established"
+    assert receipt.failure_codes == ("policy_admission_missing",)
 
 
 def _write_family_receipt(
@@ -1064,6 +1237,7 @@ def test_live_passport_measures_normalized_snapshot_and_retains_raw_carrier(
     tmp_path: Path,
 ) -> None:
     resolver, _, store, evidence, _, _ = _live_execution_fixture(tmp_path)
+    boundary_candidate, prepared_epoch = _live_semantic_handshake(store, evidence)
 
     passport = build_admission_passport(
         epoch_id=1,
@@ -1071,6 +1245,8 @@ def test_live_passport_measures_normalized_snapshot_and_retains_raw_carrier(
         artifact_store=store,
         raw_artifact_id=str(evidence.raw_artifact_id),
         authority=resolver,
+        boundary_candidate=boundary_candidate,
+        prepared_epoch=prepared_epoch,
         live_source_execution=evidence,
     )
 
@@ -1106,12 +1282,15 @@ def test_live_overlay_derives_only_from_reopened_normalized_snapshot(
     tmp_path: Path,
 ) -> None:
     resolver, _, store, evidence, _, _ = _live_execution_fixture(tmp_path)
+    boundary_candidate, prepared_epoch = _live_semantic_handshake(store, evidence)
     passport = build_admission_passport(
         epoch_id=1,
         raw_evidence_ref=evidence.raw_evidence_ref,
         artifact_store=store,
         raw_artifact_id=str(evidence.raw_artifact_id),
         authority=resolver,
+        boundary_candidate=boundary_candidate,
+        prepared_epoch=prepared_epoch,
         live_source_execution=evidence,
     )
     overlay = CatalogAcquisitionOverlay(
@@ -1122,6 +1301,8 @@ def test_live_overlay_derives_only_from_reopened_normalized_snapshot(
 
     receipt = overlay.admit_epoch(
         passport=passport,
+        prepared_epoch=prepared_epoch,
+        boundary_candidate=boundary_candidate,
         artifact_store=store,
         authority=resolver,
     )
@@ -1140,12 +1321,15 @@ def test_live_overlay_derives_only_from_reopened_normalized_snapshot(
 
 def test_live_overlay_rejects_mutated_execution_receipt(tmp_path: Path) -> None:
     resolver, _, store, evidence, receipt, _ = _live_execution_fixture(tmp_path)
+    boundary_candidate, prepared_epoch = _live_semantic_handshake(store, evidence)
     passport = build_admission_passport(
         epoch_id=1,
         raw_evidence_ref=evidence.raw_evidence_ref,
         artifact_store=store,
         raw_artifact_id=str(evidence.raw_artifact_id),
         authority=resolver,
+        boundary_candidate=boundary_candidate,
+        prepared_epoch=prepared_epoch,
         live_source_execution=evidence,
     )
     mutated = evidence.model_copy(
@@ -1163,6 +1347,8 @@ def test_live_overlay_rejects_mutated_execution_receipt(tmp_path: Path) -> None:
     with pytest.raises(OverlayAdmissionError, match="live_source_execution_unresolved"):
         overlay.admit_epoch(
             passport=forged,
+            prepared_epoch=prepared_epoch,
+            boundary_candidate=boundary_candidate,
             artifact_store=store,
             authority=resolver,
         )
@@ -1460,12 +1646,15 @@ def test_live_passport_rejects_source_watermark_not_bound_to_raw_body(
     tmp_path: Path,
 ) -> None:
     resolver, _, store, evidence, _, _ = _live_execution_fixture(tmp_path)
+    boundary_candidate, prepared_epoch = _live_semantic_handshake(store, evidence)
     passport = build_admission_passport(
         epoch_id=1,
         raw_evidence_ref=evidence.raw_evidence_ref,
         artifact_store=store,
         raw_artifact_id=str(evidence.raw_artifact_id),
         authority=resolver,
+        boundary_candidate=boundary_candidate,
+        prepared_epoch=prepared_epoch,
         live_source_execution=evidence,
     )
     forged = passport.model_copy(update={"source_watermark": "sha256:" + "0" * 64})
@@ -1574,11 +1763,9 @@ def test_live_execution_recomputes_one_call_from_complete_journal(
         },
     )
 
-    with pytest.raises(
-        AcquisitionAuthorityError,
-        match="live_transport_trace_invalid",
-    ):
-        resolver.resolve_live_source_execution(entry.entry_id, evidence, store)
+    result = resolver.resolve_live_source_execution(entry.entry_id, evidence, store)
+
+    assert result.data is not None
 
 
 def test_live_execution_recomputes_one_page_from_fetch_result(tmp_path: Path) -> None:

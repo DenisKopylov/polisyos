@@ -6,6 +6,54 @@ from importlib import import_module
 from typing import TYPE_CHECKING, Any
 
 _EXPORTS: dict[str, tuple[str, str]] = {
+    "C3_CANONICAL_CODECS": (
+        "polisyos.core.security.chronology_anchor",
+        "C3_CANONICAL_CODECS",
+    ),
+    "ExactAnchorAcceptanceReceiptVerifier": (
+        "polisyos.core.security.chronology_anchor",
+        "ExactAnchorAcceptanceReceiptVerifier",
+    ),
+    "ExactAnchorHolderReceiptVerifier": (
+        "polisyos.core.security.chronology_anchor",
+        "ExactAnchorHolderReceiptVerifier",
+    ),
+    "InMemoryAnchorReadbackChallengeRepository": (
+        "polisyos.core.security.chronology_anchor",
+        "InMemoryAnchorReadbackChallengeRepository",
+    ),
+    "build_retention_package": (
+        "polisyos.core.security.chronology_anchor",
+        "build_retention_package",
+    ),
+    "canonical_statement_bytes": (
+        "polisyos.core.security.chronology_anchor",
+        "canonical_statement_bytes",
+    ),
+    "parse_canonical_statement": (
+        "polisyos.core.security.chronology_anchor",
+        "parse_canonical_statement",
+    ),
+    "raw_content_hash": (
+        "polisyos.core.security.chronology_anchor",
+        "raw_content_hash",
+    ),
+    "semantic_content_hash": (
+        "polisyos.core.security.chronology_anchor",
+        "semantic_content_hash",
+    ),
+    "FileAnchorAcceptanceLineageRepository": (
+        "polisyos.core.security.anchor_lineage",
+        "FileAnchorAcceptanceLineageRepository",
+    ),
+    "FullPrefixVerifier": (
+        "polisyos.core.security.full_prefix",
+        "FullPrefixVerifier",
+    ),
+    "build_full_prefix_bundle": (
+        "polisyos.core.security.full_prefix",
+        "build_full_prefix_bundle",
+    ),
     "CellAssignment": ("polisyos.core.security.cell", "CellAssignment"),
     "CellResolution": ("polisyos.core.security.registry", "CellResolution"),
     "CellSpec": ("polisyos.core.security.cell", "CellSpec"),
@@ -196,6 +244,9 @@ _EXPORTS: dict[str, tuple[str, str]] = {
 
 if TYPE_CHECKING:
     from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security.anchor_lineage import (
+        FileAnchorAcceptanceLineageRepository,
+    )
     from polisyos.core.security.audit_models import (
         AuditActor,
         AuditCorrelation,
@@ -228,6 +279,17 @@ if TYPE_CHECKING:
         IsolationLevel,
         TenantSpec,
     )
+    from polisyos.core.security.chronology_anchor import (
+        C3_CANONICAL_CODECS,
+        ExactAnchorAcceptanceReceiptVerifier,
+        ExactAnchorHolderReceiptVerifier,
+        InMemoryAnchorReadbackChallengeRepository,
+        build_retention_package,
+        canonical_statement_bytes,
+        parse_canonical_statement,
+        raw_content_hash,
+        semantic_content_hash,
+    )
     from polisyos.core.security.db_backend import (
         DatabaseBackend,
         DuckDBLegacyBackend,
@@ -253,6 +315,10 @@ if TYPE_CHECKING:
         TenantIsolationError,
         TenantNotFoundError,
         TokenValidationError,
+    )
+    from polisyos.core.security.full_prefix import (
+        FullPrefixVerifier,
+        build_full_prefix_bundle,
     )
     from polisyos.core.security.identity import (
         PIIAccessLevel,
@@ -323,6 +389,7 @@ if TYPE_CHECKING:
 __all__ = [
     "SECURITY_ASSURANCE_REPORT_REF_KEY",
     "SECURITY_REPORT_FILE",
+    "C3_CANONICAL_CODECS",
     "TENANT_HEADER",
     "AccessScope",
     "AttestationDeniedError",
@@ -358,11 +425,16 @@ __all__ = [
     "DelegationTokenManager",
     "DelegationVerificationError",
     "DuckDBLegacyBackend",
+    "ExactAnchorAcceptanceReceiptVerifier",
+    "ExactAnchorHolderReceiptVerifier",
+    "FileAnchorAcceptanceLineageRepository",
+    "FullPrefixVerifier",
     "HotTierBackend",
     "IdentityError",
     "IdentityNotAvailableError",
     "IdentityVerificationError",
     "InTotoStatement",
+    "InMemoryAnchorReadbackChallengeRepository",
     "IsolationLevel",
     "LocalJsonlBackend",
     "MFARequiredError",
@@ -399,15 +471,21 @@ __all__ = [
     "VulnerabilitySeverity",
     "build_default_audit_backends_from_env",
     "build_security_assurance_report",
+    "build_full_prefix_bundle",
+    "build_retention_package",
+    "canonical_statement_bytes",
     "get_current_access_scope_or_none",
     "get_current_cell_id",
     "get_current_tenant_id",
     "get_current_tenant_id_or_none",
     "get_security_settings",
+    "parse_canonical_statement",
+    "raw_content_hash",
     "require_tenant_context",
     "reset_current_access_scope",
     "resolve_routing",
     "security_gates_from_report",
+    "semantic_content_hash",
     "set_current_access_scope",
     "tenant_scope",
     "validate_tenant_id",

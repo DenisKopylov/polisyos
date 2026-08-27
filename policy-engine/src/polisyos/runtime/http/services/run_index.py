@@ -80,6 +80,9 @@ class RunIndexService:
         self._artifact_tenants: dict[str, str] = {}
         self._dir_fingerprints: dict[Path, _RunDirFingerprint] = {}
         self._cache_built_at: float = 0.0
+        self._cache_decision_validity_generation_ref = (
+            self._decision_validity_service.current_projection_generation_ref()
+        )
 
     @property
     def store(self) -> ArtifactStore:
@@ -89,14 +92,22 @@ class RunIndexService:
     def refresh(self, *, force: bool = False) -> None:
         """Rebuild the cached index when TTL expired or `force=True`."""
         now = time.monotonic()
+        validity_generation = self._decision_validity_service.current_projection_generation_ref()
         if self._cache_built_at > 0.0:
             self._record_cache_staleness(now - self._cache_built_at)
-        if not force and (now - self._cache_built_at) < self._refresh_ttl_seconds:
+        if (
+            not force
+            and validity_generation == self._cache_decision_validity_generation_ref
+            and (now - self._cache_built_at) < self._refresh_ttl_seconds
+        ):
             self._record_cache_event(operation="refresh", outcome="cache_hit")
             return
         started = time.perf_counter()
         self._cache, self._artifact_tenants = self._refresh_index_incremental()
         self._cache_built_at = now
+        self._cache_decision_validity_generation_ref = (
+            self._decision_validity_service.current_projection_generation_ref()
+        )
         self._record_cache_event(operation="refresh", outcome="incremental_rebuild")
         self._record_cache_rebuild(
             duration_seconds=time.perf_counter() - started,
@@ -142,7 +153,8 @@ class RunIndexService:
         status_normalized = status.lower() if isinstance(status, str) else None
 
         runs: list[IndexedRunRecord] = []
-        for run in self._cache.values():
+        for cached_run in self._cache.values():
+            run = self._with_current_validity(cached_run)
             run_started = _as_utc(run.summary.started_at)
             if status_normalized and run.summary.status.lower() != status_normalized:
                 continue
@@ -198,7 +210,44 @@ class RunIndexService:
             self._record_cache_event(operation="lookup_run", outcome="miss")
             raise KeyError(run_id)
         self._record_cache_event(operation="lookup_run", outcome="hit")
-        return record
+        return self._with_current_validity(record)
+
+    def _with_current_validity(self, record: IndexedRunRecord) -> IndexedRunRecord:
+        """Overlay owner validity on every read, independently of run-directory cache state."""
+
+        if record.decision_packet_ref is None:
+            return record
+        evaluation = self._decision_validity_service.read_current_projection(
+            str(record.decision_packet_ref.artifact_id)
+        )
+        superseded_by_ref = (
+            ArtifactRef(
+                artifact_id=ArtifactID.model_validate(evaluation.superseded_by_ref),
+                kind=record.decision_packet_ref.kind,
+                media_type=record.decision_packet_ref.media_type,
+            )
+            if evaluation.superseded_by_ref
+            else None
+        )
+        validity = {
+            "decision_validity_status": evaluation.status,
+            "decision_validity_checked_at": evaluation.evaluated_at,
+            "decision_review_required": bool(evaluation.review_required),
+            "decision_superseded_by_ref": superseded_by_ref,
+        }
+        return IndexedRunRecord(
+            run_id=record.run_id,
+            source_kind=record.source_kind,
+            details=record.details.model_copy(update=validity),
+            summary=record.summary.model_copy(update=validity),
+            run_dir=record.run_dir,
+            trace_path=record.trace_path,
+            workflow_report_ref=record.workflow_report_ref,
+            experiment_state_ref=record.experiment_state_ref,
+            decision_packet_ref=record.decision_packet_ref,
+            manifest_errors=record.manifest_errors,
+            sort_mtime_ns=record.sort_mtime_ns,
+        )
 
     def get_artifact_tenant(self, artifact_id: str) -> str | None:
         """Return the tenant owning an artifact id when the run index can infer it."""
@@ -440,9 +489,7 @@ def _as_utc(value: datetime | None) -> datetime | None:
 
 def _run_sort_key(record: IndexedRunRecord) -> tuple[float, str]:
     started = _as_utc(record.summary.started_at)
-    started_ns = (
-        int(started.timestamp() * 1_000_000_000) if started is not None else 0
-    )
+    started_ns = int(started.timestamp() * 1_000_000_000) if started is not None else 0
     freshness_ns = max(int(record.sort_mtime_ns), started_ns)
     if freshness_ns <= 0:
         return (float("inf"), record.run_id)

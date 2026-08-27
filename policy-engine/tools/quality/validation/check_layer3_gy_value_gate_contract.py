@@ -7,17 +7,25 @@ from time import perf_counter as _timing_perf_counter
 
 _TIMING_STARTED_AT = _timing_perf_counter()
 
+# A detected corruption is this mode's completed healthy terminal.  The semantic
+# envelope says ``pass`` while the process retains exit 1 so older callers cannot
+# confuse the mutation lane with an ordinary positive check.
+TIMING_HEALTHY_TERMINAL_EXIT_CODES: dict[str, list[int]] = {
+    "corrupt-field-drift-check": [1],
+}
+
 import argparse
 import asyncio
 import contextlib
 import hashlib
 import io
 import json
+import os
 import re
 import subprocess
 import sys
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
@@ -52,6 +60,7 @@ from polisyos.runtime.quality.generation_cycle import (
 from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+VALIDATOR_ID = "policyos.layer3.gy.n8.value-gate-contract"
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.value_gate_contract.v2"
 VALUE_GATE_RULE_VERSION = "policyos.layer3.gy.n8.value_gate.v2"
 CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"contract_content_hash"}
@@ -67,9 +76,7 @@ NATIVE_CONTRACT_FAMILIES = (
 FORK_B_CENSUS_CONTENT_HASH = (
     "sha256:2727227cc62c1e68fe5fbdaef486b0ebf96e9ee52c02dd5e735430ca500c0994"
 )
-FORK_B_CENSUS_RAW_HASH = (
-    "sha256:4b97e247d2e6e122a4f80287e39f230cf1f4e50990f8bec7ee9d4bf55c4d9740"
-)
+FORK_B_CENSUS_RAW_HASH = "sha256:4b97e247d2e6e122a4f80287e39f230cf1f4e50990f8bec7ee9d4bf55c4d9740"
 EXPECTED_MUTATION_IDS: tuple[str, ...] = (
     "value_input_read_from_runtime_hint",
     "empty_hints_production_owner_access",
@@ -169,9 +176,7 @@ FROZEN_MUTATION_PROOFS: dict[str, str] = {
         "Placeholder WMR hash rejected; audit WMR is "
         "sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7."
     ),
-    "value_world_version_laundered": (
-        "Receipt refuses V1 value as authority for V2 world hash."
-    ),
+    "value_world_version_laundered": ("Receipt refuses V1 value as authority for V2 world hash."),
     "dominance_timeout_forced_not_unknown": (
         "Timeout/approximation path returns unknown, not dominance."
     ),
@@ -350,9 +355,7 @@ def _canonical_first_vertical_lane() -> dict[str, Any]:
             matched = [
                 (recording, n4._design_problem(recording))
                 for recording in recordings
-                if gy_content_hash(
-                    n4._design_problem(recording).model_dump(mode="json")
-                )
+                if gy_content_hash(n4._design_problem(recording).model_dump(mode="json"))
                 == candidate.atom.problem_frame_ref
             ]
             if len(matched) == 1 and result.design_problem_ref == (
@@ -373,8 +376,7 @@ def _canonical_first_vertical_lane() -> dict[str, Any]:
     if registry.content_hash != world.substrate_registry_ref.content_hash:
         raise RuntimeError("first_vertical_registry_wmr_mismatch")
     selected_hashes = tuple(
-        entry.entry_content_hash
-        for entry in world.substrate_registry_ref.resolved_entries
+        entry.entry_content_hash for entry in world.substrate_registry_ref.resolved_entries
     )
     substrate_input_hash = gy_content_hash(
         {
@@ -463,15 +465,14 @@ def _run_real_first_vertical_cycle() -> Any:
         promotion_port=PendingN9PromotionPort(),
         repo_root=_repo_root(),
         cycle_substrate_context=lane["cycle_substrate_context"],
+        authority_scope="contract_testing",
     )
     return _quiet_call(
         lambda: asyncio.run(
             controller.run(
                 lane["problem"],
                 budget_state=BudgetState(
-                    limits={
-                        "run": BudgetLimit(key="run", max_usd=Decimal("5.0"))
-                    }
+                    limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
                 ),
                 min_cycles=1,
                 max_cycles=1,
@@ -614,9 +615,7 @@ def _build_historical_candidate_payload(repo_root: Path) -> dict[str, Any]:
 
 
 @cache
-def _candidate_catalog_denominator_evidence_cached() -> tuple[
-    dict[str, Any], dict[str, object]
-]:
+def _candidate_catalog_denominator_evidence_cached() -> tuple[dict[str, Any], dict[str, object]]:
     from polisyos.foundry.extensions.discovery import (
         discover_foundry_method_components,
     )
@@ -783,9 +782,7 @@ def _catalog_denominator_evidence_cached(
     request = MethodCatalogDependencyAuthorityRequest(
         authority_purpose="n8_method_catalog_reconstruction",
         expected_source_freeze_commit=expected_source_freeze,
-        production_data_root=AbsoluteRequestPath(
-            value=resolved_root / "production_data"
-        ),
+        production_data_root=AbsoluteRequestPath(value=resolved_root / "production_data"),
         environment_root=AbsoluteRequestPath(value=resolved_root / ".venv"),
     )
     sentinel = object()
@@ -831,9 +828,7 @@ def _reachable_value_methods() -> tuple[str, ...]:
 def _fork_b_census_receipt(repo_root: Path) -> dict[str, Any]:
     from tools.quality.validation import check_layer3_gy_n10_cg1_l2_relation_census
 
-    path = repo_root / (
-        "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json"
-    )
+    path = repo_root / ("architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json")
     census = _load_json(path)
     summary = check_layer3_gy_n10_cg1_l2_relation_census._validate(census)
     receipt = {
@@ -977,9 +972,7 @@ def _education_lane() -> tuple[DesignProblem, Any, Any]:
         content_hash=str(grounding["raw_candidate_hash"]),
         status="candidate_unbound",
         grounding_disposition=str(grounding["disposition"]),
-        candidate_entry_content_hash=str(
-            grounding.get("candidate_entry_content_hash") or ""
-        ),
+        candidate_entry_content_hash=str(grounding.get("candidate_entry_content_hash") or ""),
     )
     return problem, candidate, context
 
@@ -1284,9 +1277,7 @@ def _native_projector_contract_proofs() -> list[dict[str, Any]]:
             "family": family,
             "proof_scope": "contract_owner_probe_not_advisor_selection",
             **evidence.model_dump(mode="json"),
-            "native_interval_width": (
-                interval[1] - interval[0] if len(interval) == 2 else None
-            ),
+            "native_interval_width": (interval[1] - interval[0] if len(interval) == 2 else None),
         }
         proofs.append({**payload, "proof_content_hash": gy_content_hash(payload)})
     return proofs
@@ -1344,9 +1335,7 @@ def _projector_refusal_proofs() -> list[dict[str, Any]]:
         namespace="contract_probe.refusal",
         version="1.0.0",
         input_slots=frozenset(),
-        output_slots=frozenset(
-            {SlotSpec("result", SlotType.SCALAR, Unit("value", "json"))}
-        ),
+        output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, Unit("value", "json"))}),
         parameters=(),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_1,
@@ -1412,9 +1401,7 @@ def _unseen_transport_lane() -> tuple[DesignProblem, object, Any]:
         ),
         domain="water_quality",
         nl_provenance=NLProvenance(
-            raw_request=(
-                "Estimate how a riparian buffer changes nitrate load across watersheds."
-            ),
+            raw_request=("Estimate how a riparian buffer changes nitrate load across watersheds."),
             source_surface="gy_n8_unseen_pack_transport_probe",
         ),
         authority_profile=AuthorityProfile(
@@ -1589,9 +1576,7 @@ def _transport_component_proof(
             "treatment_variable": getattr(candidate, "treatment_variable", None),
             "atom": {
                 "intervention_id": getattr(atom, "intervention_id", None),
-                "target_world_slots": list(
-                    getattr(atom, "target_world_slots", ()) or ()
-                ),
+                "target_world_slots": list(getattr(atom, "target_world_slots", ()) or ()),
             },
         }
     gateway = RealValueOwnerGateway(
@@ -1602,10 +1587,7 @@ def _transport_component_proof(
     covariates = (
         []
         if transport is None
-        else [
-            observation.model_dump(mode="json")
-            for observation in transport.covariates
-        ]
+        else [observation.model_dump(mode="json") for observation in transport.covariates]
     )
     common = {
         "schema_version": "policyos.layer3.gy.n8.transport_component_proof.v1",
@@ -1658,23 +1640,21 @@ def _transport_component_proof(
         world_record=context.world_model_record,
     )
     selection_nodes = [
-            {
-                "target_variable": node.target_variable,
-                "source_ref": node.source_ref,
-                "target_ref": node.target_ref,
-                "source_value": node.source_value,
-                "target_value": node.target_value,
-            }
-            for node in diagram.s_nodes
+        {
+            "target_variable": node.target_variable,
+            "source_ref": node.source_ref,
+            "target_ref": node.target_ref,
+            "source_value": node.source_value,
+            "target_value": node.target_value,
+        }
+        for node in diagram.s_nodes
     ]
     if result is None:
         payload = {
             **common,
             "outcome_kind": "typed_refusal",
             "required_target_data": [],
-            "selection_diagram_content_hash": gy_content_hash(
-                diagram.model_dump(mode="json")
-            ),
+            "selection_diagram_content_hash": gy_content_hash(diagram.model_dump(mode="json")),
             "selection_nodes": selection_nodes,
             "transport_receipt": None,
             "transport_result_content_hash": None,
@@ -1691,9 +1671,7 @@ def _transport_component_proof(
         **common,
         "outcome_kind": "transport_receipt",
         "required_target_data": list(result.required_target_data),
-        "selection_diagram_content_hash": gy_content_hash(
-            diagram.model_dump(mode="json")
-        ),
+        "selection_diagram_content_hash": gy_content_hash(diagram.model_dump(mode="json")),
         "selection_nodes": selection_nodes,
         "transport_receipt": receipt_payload,
         "transport_result_content_hash": gy_content_hash(receipt_payload),
@@ -1705,9 +1683,7 @@ def _transport_component_proof(
 def _transport_component_proofs() -> dict[str, Any]:
     first_lane = _canonical_first_vertical_lane()
     education_problem, education_candidate, education_context = _education_lane()
-    education_entry_hash = str(
-        getattr(education_candidate, "candidate_entry_content_hash", "")
-    )
+    education_entry_hash = str(getattr(education_candidate, "candidate_entry_content_hash", ""))
     education_lever = next(
         (
             lever
@@ -1918,9 +1894,7 @@ def _mutation_expectations() -> list[dict[str, Any]]:
 
 def _live_mutation_results(repo_root: Path) -> list[dict[str, Any]]:
     probes = {
-        "value_input_read_from_runtime_hint": lambda: _probe_no_value_runtime_hint_reads(
-            repo_root
-        ),
+        "value_input_read_from_runtime_hint": lambda: _probe_no_value_runtime_hint_reads(repo_root),
         "empty_hints_production_owner_access": _probe_empty_hints_owner_access,
         "audit_value_solve_fed_by_test_hints": _probe_audit_not_fed_by_hints,
         "wmr_unavailable_not_acquire_gap": _probe_missing_wmr_is_wiring_error,
@@ -2003,9 +1977,7 @@ def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
             key=lambda path: path.as_posix(),
         )
     )
-    suite_hashes = {
-        path: hashlib.sha256(path.read_bytes()).hexdigest() for path in touched_paths
-    }
+    suite_hashes = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in touched_paths}
     baseline_by_command: dict[tuple[str, ...], dict[str, Any]] = {}
     for case in cases:
         if case.probe_command in baseline_by_command:
@@ -2038,8 +2010,7 @@ def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
     for case in cases:
         result = _run_source_flip_case(repo_root, case)
         restored_suite_hashes = {
-            path: hashlib.sha256(path.read_bytes()).hexdigest()
-            for path in touched_paths
+            path: hashlib.sha256(path.read_bytes()).hexdigest() for path in touched_paths
         }
         mismatches = [
             path.relative_to(repo_root).as_posix()
@@ -2239,12 +2210,12 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     (
                         "        inputs = self._selection_inputs()\n"
                         "        mode = self._evaluation_mode\n"
-                        "        if _mapping(_object_get(problem, \"runtime_hints\")).get(\n"
-                        "            \"value_gate_inputs\"\n"
+                        '        if _mapping(_object_get(problem, "runtime_hints")).get(\n'
+                        '            "value_gate_inputs"\n'
                         "        ) is not None:\n"
                         "            return _blocked_value_observation(\n"
-                        "                code=\"source_flip_runtime_value_hint_trusted\",\n"
-                        "                reason=\"source flip trusted caller value hints\",\n"
+                        '                code="source_flip_runtime_value_hint_trusted",\n'
+                        '                reason="source flip trusted caller value hints",\n'
                         "                mode=mode,\n"
                         "                started=started,\n"
                         "                candidate_id=candidate_id,\n"
@@ -2253,8 +2224,7 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                 ),
             ),
             node_id=(
-                f"{test_value_gate}::"
-                "test_runtime_value_hints_cannot_change_owner_data_terminal"
+                f"{test_value_gate}::test_runtime_value_hints_cannot_change_owner_data_terminal"
             ),
         ),
         pytest_case(
@@ -2270,8 +2240,8 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     (
                         "        try:\n"
                         "            raise ValueOwnerAccessError(\n"
-                        "                \"value_method_state_missing\",\n"
-                        "                \"source flip bypassed real owner access\",\n"
+                        '                "value_method_state_missing",\n'
+                        '                "source flip bypassed real owner access",\n'
                         "            )\n"
                         "            method_state = self._owner_gateway.load_value_data_profile(\n"
                     ),
@@ -2290,18 +2260,18 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     validator,
                     (
                         "def _run_real_first_vertical_cycle() -> Any:\n"
-                        "    \"\"\"Replay the real N4 result through N6/N5/N8 and the canonical N7 router.\"\"\"\n"
+                        '    """Replay the real N4 result through N6/N5/N8 and the canonical N7 router."""\n'
                     ),
                     (
                         "def _run_real_first_vertical_cycle() -> Any:\n"
-                        "    \"\"\"Replay the real N4 result through N6/N5/N8 and the canonical N7 router.\"\"\"\n"
+                        '    """Replay the real N4 result through N6/N5/N8 and the canonical N7 router."""\n'
                         "    _source_flip_problem = _audit_problem()\n"
                     ),
                 ),
                 _SourceFlipReplacement(
                     validator,
-                    "    lane = _canonical_first_vertical_lane()\n    expected_problem_ref = gy_content_hash(lane[\"problem\"].model_dump(mode=\"json\"))\n",
-                    "    lane = {**_canonical_first_vertical_lane(), \"problem\": _source_flip_problem}\n    expected_problem_ref = gy_content_hash(lane[\"problem\"].model_dump(mode=\"json\"))\n",
+                    '    lane = _canonical_first_vertical_lane()\n    expected_problem_ref = gy_content_hash(lane["problem"].model_dump(mode="json"))\n',
+                    '    lane = {**_canonical_first_vertical_lane(), "problem": _source_flip_problem}\n    expected_problem_ref = gy_content_hash(lane["problem"].model_dump(mode="json"))\n',
                 ),
             ),
             node_id=(
@@ -2329,7 +2299,7 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     generation_cycle,
                     "    support = build_forecast_support(\n",
                     (
-                        "    raise RuntimeError(\"source_flip_s10_owner_not_invoked\")\n"
+                        '    raise RuntimeError("source_flip_s10_owner_not_invoked")\n'
                         "    support = build_forecast_support(\n"
                     ),
                 ),
@@ -2368,7 +2338,7 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     generation_cycle,
                     "        result = solve_transportability(\n",
                     (
-                        "        raise RuntimeError(\"source_flip_transport_disabled\")\n"
+                        '        raise RuntimeError("source_flip_transport_disabled")\n'
                         "        result = solve_transportability(\n"
                     ),
                 ),
@@ -2387,10 +2357,7 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                         "transport.covariates\n"
                         "    )\n"
                     ),
-                    (
-                        '    transport_covariates = ("state_capacity", '
-                        '"institutional_quality")\n'
-                    ),
+                    ('    transport_covariates = ("state_capacity", "institutional_quality")\n'),
                 ),
             ),
             node_id=f"{test_value_gate}::test_education_selection_diagram_uses_only_pack_covariates",
@@ -2415,11 +2382,11 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     generation_cycle,
                     "        return profile\n",
                     (
-                        "        if _object_get(candidate, \"treated_unit_ids\") or _object_get(\n"
-                        "            _object_get(candidate, \"atom\"), \"treated_unit_ids\"\n"
+                        '        if _object_get(candidate, "treated_unit_ids") or _object_get(\n'
+                        '            _object_get(candidate, "atom"), "treated_unit_ids"\n'
                         "        ):\n"
                         "            return profile.model_copy(\n"
-                        "                update={\"owner_access_ref\": \"candidate://source-flip\"}\n"
+                        '                update={"owner_access_ref": "candidate://source-flip"}\n'
                         "            )\n"
                         "        return profile\n"
                     ),
@@ -2464,8 +2431,8 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             replacements=(
                 _SourceFlipReplacement(
                     value_outer_set,
-                    "        if self.identification_status == \"proxy\" and not any(\n",
-                    "        if False and self.identification_status == \"proxy\" and not any(\n",
+                    '        if self.identification_status == "proxy" and not any(\n',
+                    '        if False and self.identification_status == "proxy" and not any(\n',
                 ),
             ),
             node_id=(
@@ -2492,9 +2459,7 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                 "    raise SystemExit(1)\n"
                 "raise SystemExit(0)\n"
             ),
-            expected_red_patterns=(
-                "MUTATION_RED:source_flip_fixture_world_model_hash_rejected",
-            ),
+            expected_red_patterns=("MUTATION_RED:source_flip_fixture_world_model_hash_rejected",),
         ),
         pytest_case(
             mutation_id="source_flip_value_world_version_laundered",
@@ -2525,8 +2490,8 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             replacements=(
                 _SourceFlipReplacement(
                     value_outer_set,
-                    "        if force_timeout or timeout_ms == 0:\n            return \"unknown\"\n",
-                    "        if force_timeout or timeout_ms == 0:\n            return \"dominates\"\n",
+                    '        if force_timeout or timeout_ms == 0:\n            return "unknown"\n',
+                    '        if force_timeout or timeout_ms == 0:\n            return "dominates"\n',
                 ),
             ),
             node_id=f"{test_value_gate}::test_dominance_timeout_returns_unknown",
@@ -2537,8 +2502,8 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             replacements=(
                 _SourceFlipReplacement(
                     generation_cycle,
-                    "        if self.evaluation_mode == \"simulate_only\" and (\n",
-                    "        if False and self.evaluation_mode == \"simulate_only\" and (\n",
+                    '        if self.evaluation_mode == "simulate_only" and (\n',
+                    '        if False and self.evaluation_mode == "simulate_only" and (\n',
                 ),
             ),
             node_id=f"{test_value_gate}::test_simulate_only_receipt_cannot_shrink_k_world",
@@ -2554,18 +2519,18 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                 ),
                 _SourceFlipReplacement(
                     generation_cycle,
-                    "    if support.forecast_tier == \"observable_calibrated\":\n",
-                    "    if False and support.forecast_tier == \"observable_calibrated\":\n",
+                    '    if support.forecast_tier == "observable_calibrated":\n',
+                    '    if False and support.forecast_tier == "observable_calibrated":\n',
                 ),
                 _SourceFlipReplacement(
                     generation_cycle,
-                    "    elif support.forecast_tier != \"transported_limited\":\n",
-                    "    elif False and support.forecast_tier != \"transported_limited\":\n",
+                    '    elif support.forecast_tier != "transported_limited":\n',
+                    '    elif False and support.forecast_tier != "transported_limited":\n',
                 ),
                 _SourceFlipReplacement(
                     generation_cycle,
-                    "    if envelope.envelope_status != \"pass\":\n",
-                    "    if False and envelope.envelope_status != \"pass\":\n",
+                    '    if envelope.envelope_status != "pass":\n',
+                    '    if False and envelope.envelope_status != "pass":\n',
                 ),
             ),
             node_id=f"{test_value_gate}::test_s10_refusal_is_report_driven_by_bad_did_report",
@@ -2576,8 +2541,8 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             replacements=(
                 _SourceFlipReplacement(
                     generation_cycle,
-                    "        if mode in {\"sandbox_pilot\", \"field_pilot\", \"deployment\"}:\n",
-                    "        if False and mode in {\"sandbox_pilot\", \"field_pilot\", \"deployment\"}:\n",
+                    '        if mode in {"sandbox_pilot", "field_pilot", "deployment"}:\n',
+                    '        if False and mode in {"sandbox_pilot", "field_pilot", "deployment"}:\n',
                 ),
             ),
             node_id=f"{test_value_gate}::test_pilot_and_deployment_modes_block_pending_eval_safety",
@@ -2588,15 +2553,12 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             replacements=(
                 _SourceFlipReplacement(
                     advisor,
-                    (
-                        "    selected = runnable_recommended[0]\n"
-                        "    ranked_alternatives = tuple(\n"
-                    ),
+                    ("    selected = runnable_recommended[0]\n    ranked_alternatives = tuple(\n"),
                     (
                         "    selected = next(\n"
                         "        entry\n"
                         "        for entry in catalog.entries\n"
-                        "        if entry.fqn == \"bayesian.regression.linear_regression@1.0.0\"\n"
+                        '        if entry.fqn == "bayesian.regression.linear_regression@1.0.0"\n'
                         "    )\n"
                         "    ranked_alternatives = tuple(\n"
                     ),
@@ -2632,7 +2594,7 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     generation_cycle,
                     (
                         "            acquisition_requirement=value_input_world_knowledge_requirement_gap(\n"
-                        "                claim_ref=f\"value-claim:{candidate_id}\"\n"
+                        '                claim_ref=f"value-claim:{candidate_id}"\n'
                         "            ),\n"
                     ),
                     "            acquisition_requirement=None,\n",
@@ -2648,9 +2610,9 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                     generation_cycle,
                     "        return profile\n",
                     (
-                        "        if _object_get(candidate, \"skg_relation_certificate\"):\n"
+                        '        if _object_get(candidate, "skg_relation_certificate"):\n'
                         "            return profile.model_copy(\n"
-                        "                update={\"owner_access_ref\": \"skg://forged-source-flip\"}\n"
+                        '                update={"owner_access_ref": "skg://forged-source-flip"}\n'
                         "            )\n"
                         "        return profile\n"
                     ),
@@ -2758,8 +2720,8 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                 ),
                 _SourceFlipReplacement(
                     generation_cycle,
-                    "    if value_issue and value_issue.startswith(\"acquire_data:\"):\n",
-                    "    if False and value_issue and value_issue.startswith(\"acquire_data:\"):\n",
+                    '    if value_issue and value_issue.startswith("acquire_data:"):\n',
+                    '    if False and value_issue and value_issue.startswith("acquire_data:"):\n',
                 ),
             ),
             node_id=(
@@ -2908,7 +2870,10 @@ def _probe_empty_hints_owner_access() -> str:
     if blockers != ("acquire_data:value_panel_data_missing",):
         raise AssertionError(f"expected real panel-data acquisition gap, got {blockers}")
     reason = str(observation.reason)
-    if "substrate owner" not in reason or "dataset_catalog.duckdb#variable/firm_survival" not in reason:
+    if (
+        "substrate owner" not in reason
+        or "dataset_catalog.duckdb#variable/firm_survival" not in reason
+    ):
         raise AssertionError(f"block did not show real substrate owner access: {reason}")
     return "Empty runtime_hints reached real substrate owner and blocked on L1 DCAT gap."
 
@@ -2920,9 +2885,7 @@ def _probe_audit_not_fed_by_hints() -> str:
     observation = _run_real_owner_value_refusal()
     if observation.status != "value_blocked" or observation.value_receipt is not None:
         raise AssertionError(f"expected honest value refusal, got {observation.status}")
-    if observation.authority_blockers != (
-        "treatment_assignment_not_owner_derived",
-    ):
+    if observation.authority_blockers != ("treatment_assignment_not_owner_derived",):
         raise AssertionError(
             f"unexpected owner-assignment blockers: {observation.authority_blockers}"
         )
@@ -3224,9 +3187,7 @@ def _receipt_object(identification_status: str) -> ValueGateReceipt:
         transport_status="identified",
     )
     payload.pop("value_outer_set_width_derived", None)
-    payload["value_outer_set"] = ValueOuterSet.from_persisted_payload(
-        payload["value_outer_set"]
-    )
+    payload["value_outer_set"] = ValueOuterSet.from_persisted_payload(payload["value_outer_set"])
     return ValueGateReceipt.model_validate(payload)
 
 
@@ -3462,9 +3423,7 @@ def _governed_value_gate_projection(payload: Mapping[str, Any]) -> dict[str, Any
     projection = deepcopy(dict(payload))
     projection.pop("contract_content_hash", None)
     if "denominators" in projection:
-        projection["denominators"] = _governed_denominators_projection(
-            projection["denominators"]
-        )
+        projection["denominators"] = _governed_denominators_projection(projection["denominators"])
     return projection
 
 
@@ -3522,9 +3481,7 @@ def run_rederive_audit_result(
                 "wall_time_ms": round((time.monotonic() - started) * 1000.0, 3),
                 "catalog_dependency_result_kind": authority["result_kind"],
                 "catalog_dependency_failure_code": authority_failure["failure_code"],
-                "ambient_findings": list(
-                    _deduplicate_findings(ambient_findings)
-                ),
+                "ambient_findings": list(_deduplicate_findings(ambient_findings)),
             },
             sort_keys=True,
         )
@@ -3550,9 +3507,7 @@ def run_rederive_audit(
 
 def _content_hash(payload: Mapping[str, Any]) -> str:
     filtered = {
-        key: value
-        for key, value in payload.items()
-        if key not in CONTENT_HASH_EXCLUDED_TOP_LEVEL
+        key: value for key, value in payload.items() if key not in CONTENT_HASH_EXCLUDED_TOP_LEVEL
     }
     encoded = json.dumps(filtered, sort_keys=True, separators=(",", ":")).encode("utf-8")
     import hashlib
@@ -3585,8 +3540,7 @@ def _deduplicate_findings(
 def _is_valid_catalog_ambient_admission(value: object) -> bool:
     return bool(
         isinstance(value, Mapping)
-        and set(value)
-        == {"status", "included_in_governed_denominator", "fail_closed_action"}
+        and set(value) == {"status", "included_in_governed_denominator", "fail_closed_action"}
         and value.get("included_in_governed_denominator") is False
         and value.get("fail_closed_action") == "quarantine"
         and value.get("status") in {"quarantined_unbound", "declared_not_admitted"}
@@ -3702,9 +3656,7 @@ def _catalog_provenance_validation_result(
         ):
             ambient_destination.append({"code": "catalog_ambient_component_manifest_mismatch"})
         if recorded_ambient.get("unbound_inputs") != expected_ambient.get("unbound_inputs"):
-            ambient_destination.append(
-                {"code": "catalog_ambient_unbound_input_manifest_mismatch"}
-            )
+            ambient_destination.append({"code": "catalog_ambient_unbound_input_manifest_mismatch"})
         if recorded_admission != expected_admission:
             ambient_destination.append({"code": "catalog_ambient_admission_mismatch"})
         if not _is_valid_catalog_ambient_admission(recorded_admission):
@@ -3752,11 +3704,15 @@ def _catalog_provenance_validation_result(
                     continue
                 destination[predicate] = row
                 classification = str(row.get("classification") or "")
-                if classification in {
-                    "consumer_asserted",
-                    "institutionally_supplied",
-                    "not_established",
-                } and row.get("decisive") is True:
+                if (
+                    classification
+                    in {
+                        "consumer_asserted",
+                        "institutionally_supplied",
+                        "not_established",
+                    }
+                    and row.get("decisive") is True
+                ):
                     governing.append(
                         {
                             "code": "catalog_predicate_provenance_not_admissible",
@@ -3785,9 +3741,7 @@ def _catalog_provenance_validation_result(
             str(row.get("predicate")) for row in predicate_rows if isinstance(row, Mapping)
         ]
         expected_order = [
-            str(row.get("predicate"))
-            for row in expected_predicate_rows
-            if isinstance(row, Mapping)
+            str(row.get("predicate")) for row in expected_predicate_rows if isinstance(row, Mapping)
         ]
         if set(recorded_order) == set(expected_order) and recorded_order != expected_order:
             governing.append({"code": "catalog_predicate_provenance_order_mismatch"})
@@ -3878,9 +3832,7 @@ def validate_payload_result(
         )
 
         try:
-            authority_result = TypeAdapter(
-                MethodCatalogDependencyAuthorityResult
-            ).validate_json(
+            authority_result = TypeAdapter(MethodCatalogDependencyAuthorityResult).validate_json(
                 json.dumps(
                     authority_payload,
                     sort_keys=True,
@@ -3904,9 +3856,7 @@ def validate_payload_result(
                     != "owner_resolved_resolution_receipt_store"
                 ):
                     issues.append({"code": "catalog_dependency_authority_refusal_drift"})
-                recorded_freeze = (
-                    refusal.request.pre_source_request.expected_source_freeze_commit
-                )
+                recorded_freeze = refusal.request.pre_source_request.expected_source_freeze_commit
             elif isinstance(
                 authority_result,
                 (
@@ -3928,9 +3878,7 @@ def validate_payload_result(
                         authority_result.request.pre_source_request.expected_source_freeze_commit
                     )
                 else:
-                    recorded_freeze = (
-                        authority_result.request.expected_source_freeze_commit
-                    )
+                    recorded_freeze = authority_result.request.expected_source_freeze_commit
             else:  # pragma: no cover - closed union guarded by the TypeAdapter
                 issues.append({"code": "catalog_dependency_authority_variant_unknown"})
                 recorded_freeze = None
@@ -4198,10 +4146,8 @@ def _validate_first_vertical_data_gap_receipt(
         receipt_payload.get("receipt_kind") != "first_vertical_owner_data_gap"
         or receipt_payload.get("status") != "value_blocked"
         or receipt_payload.get("decision_grade") != "blocked"
-        or receipt_payload.get("authority_blockers")
-        != ["acquire_data:value_panel_data_missing"]
-        or receipt_payload.get("selection_stage")
-        != "not_reached_owner_data_unavailable"
+        or receipt_payload.get("authority_blockers") != ["acquire_data:value_panel_data_missing"]
+        or receipt_payload.get("selection_stage") != "not_reached_owner_data_unavailable"
         or receipt_payload.get("selected_method_fqn") is not None
         or receipt_payload.get("method_selection_receipt") is not None
         or receipt_payload.get("value_data_profile_content_hash") is not None
@@ -4226,9 +4172,7 @@ def _validate_first_vertical_data_gap_receipt(
         != receipt_payload.get("world_model_record_content_hash")
         or receipt_payload.get("k_world_ref_after")
         != receipt_payload.get("world_model_record_content_hash")
-        or _is_fixture_world_hash(
-            receipt_payload.get("world_model_record_content_hash")
-        )
+        or _is_fixture_world_hash(receipt_payload.get("world_model_record_content_hash"))
     ):
         issues.append({"code": "first_vertical_world_binding_incoherent"})
     world_binding = receipt_payload.get("world_binding")
@@ -4261,9 +4205,7 @@ def _validate_acquisition_routing(receipt: Mapping[str, Any]) -> list[dict[str, 
     try:
         gap = AcquisitionRequirementGap.model_validate(gap_payload)
     except (ValidationError, ValueError) as exc:
-        issues.append(
-            {"code": "value_input_acquisition_gap_invalid", "error": str(exc)}
-        )
+        issues.append({"code": "value_input_acquisition_gap_invalid", "error": str(exc)})
         return issues
     binding = gap.metadata.get("candidate_binding")
     availability = gap.metadata.get("availability")
@@ -4273,8 +4215,7 @@ def _validate_acquisition_routing(receipt: Mapping[str, Any]) -> list[dict[str, 
         or not isinstance(binding, Mapping)
         or not isinstance(availability, Mapping)
         or binding.get("candidate_id") != receipt.get("selected_candidate_ref")
-        or binding.get("candidate_content_hash")
-        != receipt.get("selected_candidate_content_hash")
+        or binding.get("candidate_content_hash") != receipt.get("selected_candidate_content_hash")
         or availability.get("variable_id") != "employment_retention"
     ):
         issues.append({"code": "value_input_acquisition_gap_unbound"})
@@ -4330,9 +4271,7 @@ def _validate_native_projection_proofs(
         owner_families.append(capability.projection_kind.value)
     if tuple(owner_families) != NATIVE_CONTRACT_FAMILIES:
         issues.append({"code": "native_projector_owner_denominator_drift"})
-    presented_families = tuple(
-        str(row.get("family")) for row in proofs if isinstance(row, Mapping)
-    )
+    presented_families = tuple(str(row.get("family")) for row in proofs if isinstance(row, Mapping))
     if presented_families != tuple(owner_families):
         issues.append({"code": "native_projector_family_denominator_drift"})
     forbidden = {
@@ -4399,9 +4338,7 @@ def _validate_native_projection_proofs(
             or family != capability.projection_kind.value
             or evidence.method_fqn != signature.fqn
         ):
-            issues.append(
-                {"code": "native_projector_owner_witness_mismatch", "family": family}
-            )
+            issues.append({"code": "native_projector_owner_witness_mismatch", "family": family})
             continue
         expected = project_method_value_evidence(
             method_signature=signature,
@@ -4411,9 +4348,7 @@ def _validate_native_projection_proofs(
             projection_binding=_projection_binding(report, signature, estimand),
         )
         if not isinstance(expected, MethodValueEvidence) or expected != evidence:
-            issues.append(
-                {"code": "native_projector_owner_rederive_drift", "family": family}
-            )
+            issues.append({"code": "native_projector_owner_rederive_drift", "family": family})
         interval = tuple(evidence.envelope.confidence_interval or ())
         expected_width = interval[1] - interval[0] if len(interval) == 2 else None
         if proof.get("native_interval_width") != expected_width:
@@ -4430,9 +4365,7 @@ def _validate_projector_refusal_proofs(proofs: list[Any]) -> list[dict[str, Any]
         "wrong_treatment_identity",
         "undeclared_capability",
     )
-    cases = tuple(
-        str(row.get("case_id")) for row in proofs if isinstance(row, Mapping)
-    )
+    cases = tuple(str(row.get("case_id")) for row in proofs if isinstance(row, Mapping))
     if cases != expected_cases:
         issues.append({"code": "projector_refusal_denominator_drift"})
     for proof in proofs:
@@ -4499,9 +4432,7 @@ def _validate_transport_component_proofs(
             issues.append({"code": "transport_component_covariates_invalid", "role": role})
             covariates = []
         covariate_names = tuple(
-            str(row.get("canonical_var") or "")
-            for row in covariates
-            if isinstance(row, Mapping)
+            str(row.get("canonical_var") or "") for row in covariates if isinstance(row, Mapping)
         )
         if len(covariate_names) != len(covariates) or (
             covariate_names and len(set(covariate_names)) != len(covariate_names)
@@ -4547,10 +4478,10 @@ def _validate_transport_component_proofs(
             issues.append({"code": "transport_component_receipt_has_refusal", "role": role})
         if not covariates or not proof.get("selection_diagram_content_hash"):
             issues.append({"code": "transport_component_covariates_invalid", "role": role})
-        if (
-            receipt.world_model_record_id != proof.get("world_model_record_id")
-            or receipt.world_model_record_content_hash
-            != proof.get("world_model_record_content_hash")
+        if receipt.world_model_record_id != proof.get(
+            "world_model_record_id"
+        ) or receipt.world_model_record_content_hash != proof.get(
+            "world_model_record_content_hash"
         ):
             issues.append({"code": "transport_component_world_binding_mismatch", "role": role})
         if tuple(proof.get("required_target_data") or ()) != receipt.required_target_data:
@@ -4563,15 +4494,11 @@ def _validate_transport_component_proofs(
             issues.append({"code": "transport_component_selection_nodes_invalid", "role": role})
             continue
         covariates_by_name = {
-            str(row.get("canonical_var")): row
-            for row in covariates
-            if isinstance(row, Mapping)
+            str(row.get("canonical_var")): row for row in covariates if isinstance(row, Mapping)
         }
         for node in nodes:
             if not isinstance(node, Mapping):
-                issues.append(
-                    {"code": "transport_component_selection_nodes_invalid", "role": role}
-                )
+                issues.append({"code": "transport_component_selection_nodes_invalid", "role": role})
                 continue
             row = covariates_by_name.get(str(node.get("target_variable")))
             if row is None or (
@@ -4580,9 +4507,7 @@ def _validate_transport_component_proofs(
                 or node.get("source_value") != row.get("source_value")
                 or node.get("target_value") != row.get("target_value")
             ):
-                issues.append(
-                    {"code": "transport_component_selection_nodes_invalid", "role": role}
-                )
+                issues.append({"code": "transport_component_selection_nodes_invalid", "role": role})
     return issues
 
 
@@ -4617,6 +4542,111 @@ def _write_json(path: Path, payload: Mapping[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _semantic_envelope(
+    *,
+    mode: str,
+    status: str,
+    issues: Sequence[Mapping[str, Any]],
+    **evidence: Any,
+) -> dict[str, Any]:
+    """Bind semantic status independently from a mode's process exit."""
+
+    report: dict[str, Any] = {
+        "validator": VALIDATOR_ID,
+        "mode": mode,
+        "status": status,
+        "issues": [dict(issue) for issue in issues],
+        **evidence,
+    }
+    encoded = json.dumps(
+        report,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    report["receipt_sha256"] = "sha256:" + hashlib.sha256(encoded).hexdigest()
+    return report
+
+
+def write_candidate_catalog_provenance(
+    repo_root: Path,
+    *,
+    candidate_path: Path,
+    expected_source_freeze: str,
+) -> dict[str, Any]:
+    """Write one N8 reissue candidate outside the repository, never its target."""
+
+    root = repo_root.resolve()
+    git_root = Path(
+        subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], cwd=root, text=True
+        ).strip()
+    ).resolve()
+    candidate = candidate_path.expanduser()
+    head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    if head != expected_source_freeze:
+        raise ValueError("candidate_source_freeze_mismatch")
+    candidate_parent = candidate.parent.resolve()
+    resolved_candidate = candidate_parent / candidate.name
+    if resolved_candidate.is_relative_to(git_root):
+        raise ValueError("candidate_path_inside_repository")
+    if candidate.exists() or candidate.is_symlink():
+        raise ValueError("candidate_path_already_exists")
+    recorded_path = root / OUTPUT_PATH
+    recorded_bytes = recorded_path.read_bytes()
+    recorded = _load_json(recorded_path)
+    live_denominators, live_ambient_manifest = _candidate_catalog_denominator_evidence_cached()
+    payload = _catalog_provenance_reissue_payload(
+        recorded,
+        live_denominators,
+        live_ambient_manifest,
+    )
+    validation = validate_payload_result(
+        payload,
+        expected_source_freeze=expected_source_freeze,
+    )
+    if validation.governing_issues:
+        raise ValueError(
+            "candidate_payload_invalid:"
+            + "|".join(str(issue.get("code")) for issue in validation.governing_issues)
+        )
+    candidate_parent.mkdir(parents=True, exist_ok=True)
+    candidate_bytes = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    descriptor = os.open(
+        resolved_candidate,
+        os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+        0o600,
+    )
+    try:
+        with os.fdopen(descriptor, "wb", closefd=False) as handle:
+            handle.write(candidate_bytes)
+            handle.flush()
+            os.fsync(handle.fileno())
+    finally:
+        os.close(descriptor)
+    directory = os.open(candidate_parent, os.O_RDONLY)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
+    if recorded_path.read_bytes() != recorded_bytes:
+        raise RuntimeError("candidate_write_changed_governed_target")
+    candidate_bytes = resolved_candidate.read_bytes()
+    return _semantic_envelope(
+        mode="candidate-reissue-catalog-provenance",
+        status="pass",
+        issues=(),
+        expected_source_freeze=expected_source_freeze,
+        candidate_path=str(resolved_candidate),
+        candidate_sha256="sha256:" + hashlib.sha256(candidate_bytes).hexdigest(),
+        candidate_bytes=len(candidate_bytes),
+        governed_target=OUTPUT_PATH,
+        governed_preimage_sha256="sha256:" + hashlib.sha256(recorded_bytes).hexdigest(),
+        governed_write_performed=False,
+    )
+
+
 def _catalog_provenance_reissue_payload(
     recorded: Mapping[str, Any],
     live_denominators: Mapping[str, Any],
@@ -4636,23 +4666,16 @@ def _catalog_provenance_reissue_payload(
     if not isinstance(recorded_provenance, dict):
         raise ValueError("catalog_provenance_reissue_recorded_member_missing")
     recorded_siblings = {
-        key: value
-        for key, value in recorded_denominators.items()
-        if key != "catalog_provenance"
+        key: value for key, value in recorded_denominators.items() if key != "catalog_provenance"
     }
-    live_siblings = {
-        key: value for key, value in live_copy.items() if key != "catalog_provenance"
-    }
+    live_siblings = {key: value for key, value in live_copy.items() if key != "catalog_provenance"}
     if recorded_siblings != live_siblings:
         changed_fields = sorted(
             key
             for key in set(recorded_siblings) | set(live_siblings)
             if recorded_siblings.get(key) != live_siblings.get(key)
         )
-        raise ValueError(
-            "catalog_provenance_reissue_denominator_drift:"
-            + "|".join(changed_fields)
-        )
+        raise ValueError("catalog_provenance_reissue_denominator_drift:" + "|".join(changed_fields))
     source_flip_harness = payload.get("source_flip_mutation_harness")
     if not isinstance(source_flip_harness, dict):
         raise ValueError("catalog_provenance_reissue_source_flip_harness_missing")
@@ -4711,9 +4734,7 @@ def _catalog_provenance_reissue_payload(
         if not isinstance(historical_entry, dict) or not isinstance(frozen_entry, dict):
             raise ValueError("catalog_provenance_reissue_entry_point_invalid")
         if frozen_entry.get("editable_install") is True:
-            historical_entry["direct_url_sha256"] = frozen_entry.get(
-                "direct_url_sha256"
-            )
+            historical_entry["direct_url_sha256"] = frozen_entry.get("direct_url_sha256")
     if _component_discovery_manifest_id(historical_manifest_content) != recorded_ambient.get(
         "manifest_id"
     ):
@@ -4723,9 +4744,7 @@ def _catalog_provenance_reissue_payload(
         method_catalog_provenance_id,
     )
 
-    expected_provenance["provenance_id"] = method_catalog_provenance_id(
-        expected_provenance
-    )
+    expected_provenance["provenance_id"] = method_catalog_provenance_id(expected_provenance)
     if expected_provenance != live_provenance:
         raise ValueError("catalog_provenance_reissue_unrelated_ambient_drift")
 
@@ -4809,9 +4828,9 @@ def check_result(
     )
     issues = list(result.governing_issues)
     try:
-        artifact_drift = _governed_value_gate_projection(
-            actual
-        ) != _governed_value_gate_projection(expected)
+        artifact_drift = _governed_value_gate_projection(actual) != _governed_value_gate_projection(
+            expected
+        )
     except (RuntimeError, TypeError, ValueError):
         artifact_drift = True
     if artifact_drift:
@@ -4822,11 +4841,13 @@ def check_result(
     )
 
 
-def corrupt_field_drift_check(
+def corrupt_field_drift_results(
     repo_root: Path,
     *,
     expected_source_freeze: str,
-) -> int:
+) -> tuple[dict[str, Any], ...]:
+    """Return every corruption result without assigning a process status."""
+
     base = build_payload(
         repo_root,
         expected_source_freeze=expected_source_freeze,
@@ -4863,9 +4884,7 @@ def corrupt_field_drift_check(
     wrong_freeze = json.loads(json.dumps(base))
     wrong_authority = wrong_freeze["catalog_dependency_authority"]
     if wrong_authority["result_kind"] == "runtime_cutoff_not_established":
-        wrong_request = wrong_authority["preflight_refusal"]["request"][
-            "pre_source_request"
-        ]
+        wrong_request = wrong_authority["preflight_refusal"]["request"]["pre_source_request"]
     elif wrong_authority["result_kind"] == "source_rejected":
         wrong_request = wrong_authority["request"]["pre_source_request"]
     else:
@@ -4895,6 +4914,20 @@ def corrupt_field_drift_check(
                 "rejected": expected_code in codes,
             }
         )
+    return tuple(results)
+
+
+def corrupt_field_drift_check(
+    repo_root: Path,
+    *,
+    expected_source_freeze: str,
+) -> int:
+    """Keep the legacy inverted process terminal for direct callers."""
+
+    results = corrupt_field_drift_results(
+        repo_root,
+        expected_source_freeze=expected_source_freeze,
+    )
     if all(result["rejected"] for result in results):
         print(
             "corrupt-field drift check: PASS corruptions rejected "
@@ -4914,6 +4947,7 @@ def main(argv: list[str] | None = None) -> int:
     modes.add_argument("--check-catalog-provenance", action="store_true")
     modes.add_argument("--write", action="store_true")
     modes.add_argument("--reissue-catalog-provenance", action="store_true")
+    modes.add_argument("--candidate-reissue-catalog-provenance", type=Path)
     modes.add_argument("--corrupt-field-drift-check", action="store_true")
     modes.add_argument("--rederive-audit", action="store_true")
     modes.add_argument("--source-flip-mutations", action="store_true")
@@ -4922,111 +4956,121 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     repo_root = _repo_root()
     _ensure_src_path(repo_root)
-    if args.corrupt_field_drift_check:
-        return corrupt_field_drift_check(
-            repo_root,
-            expected_source_freeze=args.expected_source_freeze,
+    mode = next(
+        name
+        for name, selected in (
+            ("check", args.check),
+            ("check-catalog-provenance", args.check_catalog_provenance),
+            ("write", args.write),
+            ("reissue-catalog-provenance", args.reissue_catalog_provenance),
+            (
+                "candidate-reissue-catalog-provenance",
+                args.candidate_reissue_catalog_provenance is not None,
+            ),
+            ("corrupt-field-drift-check", args.corrupt_field_drift_check),
+            ("rederive-audit", args.rederive_audit),
+            ("source-flip-mutations", args.source_flip_mutations),
         )
-    if args.rederive_audit:
-        result = run_rederive_audit_result(
-            repo_root,
-            expected_source_freeze=args.expected_source_freeze,
-        )
-        if result.governing_issues:
-            print(
-                json.dumps(
-                    {
-                        "issues": list(result.governing_issues),
-                        "ambient_findings": list(result.ambient_findings),
-                    },
-                    sort_keys=True,
-                )
-            )
-            return 1
-        return 0
-    if args.source_flip_mutations:
-        results = run_source_flip_mutations(repo_root)
-        failures = tuple(row for row in results if row.get("result") != "RED")
-        print(json.dumps({"results": list(results)}, sort_keys=True))
-        return 1 if failures else 0
-    if args.check_catalog_provenance:
-        result = check_catalog_provenance_result(
-            repo_root,
-            expected_source_freeze=args.expected_source_freeze,
-        )
-        if result.governing_issues:
-            print(
-                json.dumps(
-                    {
-                        "status": "fail",
-                        "issues": list(result.governing_issues),
-                        "ambient_findings": list(result.ambient_findings),
-                    },
-                    sort_keys=True,
-                )
-            )
-            return 1
-        print(
-            json.dumps(
-                {
-                    "status": "pass",
-                    "path": OUTPUT_PATH,
-                    "scope": "catalog_provenance",
-                    "ambient_findings": list(result.ambient_findings),
-                },
-                sort_keys=True,
-            )
-        )
-        return 0
-    if args.reissue_catalog_provenance:
-        print(
-            json.dumps(
-                {
-                    "status": "not_established",
-                    "code": "catalog_dependency_authority_not_established",
-                },
-                sort_keys=True,
-            )
-        )
-        return 1
-    if args.write:
-        print(
-            json.dumps(
-                {
-                    "status": "not_established",
-                    "code": "catalog_dependency_authority_not_established",
-                },
-                sort_keys=True,
-            )
-        )
-        return 1
-    result = check_result(
-        repo_root,
-        expected_source_freeze=args.expected_source_freeze,
+        if selected
     )
-    if result.governing_issues:
-        print(
-            json.dumps(
-                {
-                    "status": "fail",
-                    "issues": list(result.governing_issues),
-                    "ambient_findings": list(result.ambient_findings),
-                },
-                sort_keys=True,
+    try:
+        if args.candidate_reissue_catalog_provenance is not None:
+            report = write_candidate_catalog_provenance(
+                repo_root,
+                candidate_path=args.candidate_reissue_catalog_provenance,
+                expected_source_freeze=args.expected_source_freeze,
             )
+            exit_code = 0
+        elif args.corrupt_field_drift_check:
+            results = corrupt_field_drift_results(
+                repo_root,
+                expected_source_freeze=args.expected_source_freeze,
+            )
+            survived = tuple(row for row in results if not row["rejected"])
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass" if not survived else "fail",
+                issues=tuple(
+                    {
+                        "code": "corrupt_field_drift_not_detected",
+                        "case_id": row["case_id"],
+                    }
+                    for row in survived
+                ),
+                results=list(results),
+            )
+            exit_code = 1 if not survived else 0
+        elif args.rederive_audit:
+            captured = io.StringIO()
+            with contextlib.redirect_stdout(captured):
+                result = run_rederive_audit_result(
+                    repo_root,
+                    expected_source_freeze=args.expected_source_freeze,
+                )
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass" if not result.governing_issues else "fail",
+                issues=result.governing_issues,
+                ambient_findings=list(result.ambient_findings),
+                legacy_output=captured.getvalue().strip(),
+            )
+            exit_code = 1 if result.governing_issues else 0
+        elif args.source_flip_mutations:
+            results = run_source_flip_mutations(repo_root)
+            failures = tuple(row for row in results if row.get("result") != "RED")
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass" if not failures else "fail",
+                issues=tuple(
+                    {"code": "source_flip_survived", "mutation_id": row.get("mutation_id")}
+                    for row in failures
+                ),
+                results=list(results),
+            )
+            exit_code = 1 if failures else 0
+        elif args.check_catalog_provenance:
+            result = check_catalog_provenance_result(
+                repo_root,
+                expected_source_freeze=args.expected_source_freeze,
+            )
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass" if not result.governing_issues else "fail",
+                issues=result.governing_issues,
+                ambient_findings=list(result.ambient_findings),
+                path=OUTPUT_PATH,
+                scope="catalog_provenance",
+            )
+            exit_code = 1 if result.governing_issues else 0
+        elif args.reissue_catalog_provenance or args.write:
+            report = _semantic_envelope(
+                mode=mode,
+                status="not_established",
+                issues=({"code": "catalog_dependency_authority_not_established"},),
+            )
+            exit_code = 1
+        else:
+            result = check_result(
+                repo_root,
+                expected_source_freeze=args.expected_source_freeze,
+            )
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass" if not result.governing_issues else "fail",
+                issues=result.governing_issues,
+                ambient_findings=list(result.ambient_findings),
+                path=OUTPUT_PATH,
+            )
+            exit_code = 1 if result.governing_issues else 0
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        report = _semantic_envelope(
+            mode=mode,
+            status="fail",
+            issues=({"code": "value_gate_execution_failed", "error": str(exc)},),
         )
-        return 1
-    print(
-        json.dumps(
-            {
-                "status": "pass",
-                "path": OUTPUT_PATH,
-                "ambient_findings": list(result.ambient_findings),
-            },
-            sort_keys=True,
-        )
-    )
-    return 0
+        exit_code = 1
+    print(json.dumps(report, sort_keys=True))
+    return exit_code
 
 
 if __name__ == "__main__":

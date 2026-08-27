@@ -77,9 +77,9 @@ INTEGRATION_TOKENS: dict[Path, tuple[str, ...]] = {
         "blocked_claim_summary",
     ),
     Path("tests/unit/scientist/nodes/test_decision_packet_node_v3.py"): (
-        'payload["claim_ledger_summary"]',
-        'payload["blocked_claim_summary"]',
-        'payload["claim_ledger_v2_ref"]',
+        'payload["artifacts"][ARTIFACT_CLAIMS_REF] is None',
+        'payload["claim_ledger_status"] == "not_established"',
+        'payload["claim_ledger_limitation_code"]',
     ),
 }
 
@@ -140,9 +140,12 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         from polisyos.scientist.evidence.claims.diff import diff_claim_ledgers
         from polisyos.scientist.evidence.claims.export import (
             ClaimExportAudience,
-            blocked_claim_summary,
-            claim_ledger_summary,
-            export_claim_ledger,
+            _blocked_claim_summary,
+            _claim_ledger_summary,
+            _format_resolved_claim_ledger,
+        )
+        from polisyos.scientist.evidence.claims.head_index import (
+            ClaimBridgePendingProjection,
         )
         from polisyos.scientist.evidence.claims.lifecycle import (
             AppendOnlyClaimLedger,
@@ -221,15 +224,18 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         notes.append("diff_missing_changed_readiness")
     if diff.blocked_claim_ids != ["claim_1"]:
         notes.append("diff_missing_blocked_claim")
-    reviewer_export = export_claim_ledger(
+    reviewer_export = _format_resolved_claim_ledger(
         append_only,
         audience=ClaimExportAudience.REVIEWER,
+        pending_projection=ClaimBridgePendingProjection(
+            completed_batch_denominator_established=True,
+        ),
     )
     if not all(claim.visible for claim in reviewer_export.claims):
         notes.append("reviewer_export_hid_blocked_claim")
-    if claim_ledger_summary(append_only).get("lifecycle_status") != "available":
+    if _claim_ledger_summary(append_only).get("lifecycle_status") != "available":
         notes.append("ledger_summary_missing_lifecycle_status")
-    if blocked_claim_summary(append_only).get("blocked_count") != 1:
+    if _blocked_claim_summary(append_only).get("blocked_count") != 1:
         notes.append("blocked_summary_missing_blocked_claim")
     try:
         validate_claim_transition(

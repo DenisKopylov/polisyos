@@ -8,8 +8,9 @@ from polisyos.scientist.nodes.builtins.decide._decision_packet_contracts import 
     ClaimLedgerAttachment,
     _ClaimLedgerAttachment,
 )
-from polisyos.scientist.nodes.builtins.decide.decision_packet import api, builder
 from polisyos.scientist.nodes.builtins.decide.decision_packet import (
+    api,
+    builder,
     enrichment,
     serialization,
     validation,
@@ -38,7 +39,10 @@ def test_decision_packet_split_modules_own_moved_helpers() -> None:
 
 def test_claim_ledger_attachment_write_paths_and_state_update_are_characterized() -> None:
     claims_ref = cast("Any", object())
-    attachment = ClaimLedgerAttachment(claims_ref=claims_ref)
+    attachment = ClaimLedgerAttachment(
+        claims_ref=claims_ref,
+        authority_status="current",
+    )
     state = SimpleNamespace(artifacts_index={})
 
     assert attachment.artifacts == [claims_ref]

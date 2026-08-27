@@ -23,11 +23,12 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.intervention_artifacts import LexPolicyBundleInput
-from polisyos.lex.interventions import HierarchicalPolicySearchAdapter
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.lex.interventions import HierarchicalPolicySearchPlan
+from polisyos.scientist.methods.search.controller import (
+    SearchIteration,
+    SearchResult,
+    SearchStatus,
+)
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     resolve_baseline_policy_value,
@@ -74,6 +75,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_TREASURY_PLAN_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.policy_design.objectives import (
     ObjectiveStack,
     PolicyEvaluationBundle,
@@ -85,6 +95,12 @@ from polisyos.scientist.policy_design.output import (
     persist_policy_frontier_report,
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+from polisyos.scientist.policy_design.search import (
+    HierarchicalSearchConfig,
+    HierarchicalSearchCoordinator,
+    HierarchicalSearchResult,
+    PolicySearchLevel,
+)
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_run_hierarchical_policy_search@1.0.0"),
@@ -141,6 +157,404 @@ _INNER_CANDIDATE_ARTIFACT_KEYS = (
 
 _POLICY_SEARCH_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
 _POLICY_SEARCH_EXECUTION_ERRORS = (RuntimeError, TypeError, ValueError, ValidationError)
+
+
+class HierarchicalPolicySearchAdapter:
+    """Bridge Lex policy bundles into Scientist-owned hierarchical search."""
+
+    coordinator_fqn = "polisyos.scientist.policy_design.search.HierarchicalSearchCoordinator"
+
+    def build_request(
+        self,
+        candidate: (
+            PolicyCandidateSchema | LexPolicyBundleInput | TrinityBundle | Mapping[str, Any]
+        ),
+        *,
+        search_config: HierarchicalSearchConfig | Mapping[str, Any] | None = None,
+        policy_family: str | None = None,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> HierarchicalPolicySearchPlan:
+        """Create a Scientist search-plan payload from a Trinity or Lex policy bundle."""
+        resolved_candidate = self._resolve_candidate_payload(
+            candidate,
+            policy_family=policy_family,
+            metadata=metadata,
+        )
+        resolved_config = self.instantiate_search_config(search_config)
+        resolved_policy_family = str(
+            policy_family
+            or resolved_candidate.metadata.get("policy_family")
+            or resolved_candidate.candidate_id
+        )
+        request_metadata = {
+            **dict(resolved_candidate.metadata),
+            **dict(metadata or {}),
+        }
+        request_metadata.setdefault("policy_family", resolved_policy_family)
+        return HierarchicalPolicySearchPlan(
+            coordinator_fqn=self.coordinator_fqn,
+            candidate_id=resolved_candidate.candidate_id,
+            candidate_hash=resolved_candidate.candidate_hash(),
+            policy_family=resolved_policy_family,
+            search_config=resolved_config.model_dump(mode="json"),
+            metadata=request_metadata,
+        )
+
+    def build_candidate(
+        self,
+        bundle_input: LexPolicyBundleInput | TrinityBundle | Mapping[str, Any],
+        *,
+        candidate_id: str | None = None,
+        policy_family: str | None = None,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> PolicyCandidateSchema:
+        """Convert a Lex policy bundle into a policy-search candidate."""
+        resolved_input = _coerce_lex_policy_bundle_input(bundle_input)
+        domain = _bundle_domain(resolved_input.trinity_bundle)
+        resolved_policy_family = str(
+            policy_family
+            or resolved_input.metadata.get("policy_family")
+            or candidate_id
+            or resolved_input.trinity_bundle.policy_spec.policy_id
+        )
+        compiled_interventions = list(resolved_input.compiled_interventions)
+        temporal_sequences = list(resolved_input.temporal_sequences)
+        strategic_response_bundle = resolved_input.strategic_response_bundle
+
+        dynamic_intervention_ids = [
+            sequence.dynamic_intervention_id for sequence in temporal_sequences
+        ]
+        strategic_intervention_kinds = {
+            compiled.intervention.kind
+            for compiled in compiled_interventions
+            if compiled.intervention.strategic_response_expected
+        }
+        if strategic_response_bundle is not None:
+            strategic_intervention_kinds.update(
+                spec.intervention_kind
+                for spec in strategic_response_bundle.expectations
+                if spec.strategic_response_expected
+            )
+
+        candidate_metadata = {
+            **dict(resolved_input.metadata),
+            **dict(metadata or {}),
+            "policy_family": resolved_policy_family,
+            "jurisdiction": "UA",
+            "country": "ua",
+            "domain": domain,
+            "dynamic_intervention_ids": dynamic_intervention_ids,
+            "strategic_intervention_kinds": sorted(strategic_intervention_kinds),
+            "compiled_intervention_ids": [
+                compiled.intervention.intervention_id for compiled in compiled_interventions
+            ],
+            "sequence_ids": [sequence.sequence_id for sequence in temporal_sequences],
+        }
+        return PolicyCandidateSchema.from_trinity_bundle(
+            resolved_input.trinity_bundle,
+            candidate_id=candidate_id,
+            metadata=candidate_metadata,
+        )
+
+    def build_request_from_trinity(
+        self,
+        bundle: TrinityBundle | Mapping[str, Any],
+        *,
+        candidate_id: str | None = None,
+        policy_family: str | None = None,
+        search_config: HierarchicalSearchConfig | Mapping[str, Any] | None = None,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> HierarchicalPolicySearchPlan:
+        """Build a hierarchical search plan directly from a Trinity payload."""
+        candidate = self.build_candidate(
+            bundle,
+            candidate_id=candidate_id,
+            policy_family=policy_family,
+            metadata=metadata,
+        )
+        return self.build_request(
+            candidate,
+            search_config=search_config,
+            policy_family=policy_family,
+            metadata=metadata,
+        )
+
+    def instantiate_search_config(
+        self,
+        search_config: HierarchicalSearchConfig | Mapping[str, Any] | None,
+    ) -> HierarchicalSearchConfig:
+        if search_config is None:
+            return HierarchicalSearchConfig()
+        if isinstance(search_config, HierarchicalSearchConfig):
+            return search_config
+        return HierarchicalSearchConfig.model_validate(search_config)
+
+    def instantiate_coordinator(
+        self,
+        plan: HierarchicalPolicySearchPlan | Mapping[str, Any],
+    ) -> HierarchicalSearchCoordinator:
+        resolved_plan = (
+            plan
+            if isinstance(plan, HierarchicalPolicySearchPlan)
+            else HierarchicalPolicySearchPlan.model_validate(plan)
+        )
+        return HierarchicalSearchCoordinator(
+            config=self.instantiate_search_config(resolved_plan.search_config)
+        )
+
+    def validate_policy_design_api(
+        self,
+        candidate: (
+            PolicyCandidateSchema | LexPolicyBundleInput | TrinityBundle | Mapping[str, Any]
+        ),
+        *,
+        search_config: HierarchicalSearchConfig | Mapping[str, Any] | None = None,
+        policy_family: str | None = None,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> HierarchicalSearchCoordinator:
+        """Check that Scientist policy-design APIs accept the generated candidate."""
+        resolved_candidate = self._resolve_candidate_payload(
+            candidate,
+            policy_family=policy_family,
+            metadata=metadata,
+        )
+        coordinator = HierarchicalSearchCoordinator(
+            config=self.instantiate_search_config(search_config)
+        )
+        try:
+            coordinator.build_parameter_search_spec(resolved_candidate)
+        except ValueError as exc:
+            if "No tunable policy parameters" not in str(exc):
+                raise
+        coordinator.build_optimizer_objective_spec(resolved_candidate)
+        return coordinator
+
+    def build_runtime_context(
+        self,
+        candidate: (
+            PolicyCandidateSchema | LexPolicyBundleInput | TrinityBundle | Mapping[str, Any]
+        ),
+        *,
+        loop_id: str,
+        policy_family: str | None = None,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Return the runtime context expected by orchestration and search loops."""
+        resolved_candidate = self._resolve_candidate_payload(
+            candidate,
+            policy_family=policy_family,
+            metadata=metadata,
+        )
+        request = self.build_request(
+            resolved_candidate,
+            policy_family=policy_family,
+            metadata=metadata,
+        )
+        return {
+            "loop_id": loop_id,
+            "candidate_id": resolved_candidate.candidate_id,
+            "candidate_hash": resolved_candidate.candidate_hash(),
+            "policy_family": request.policy_family,
+            "policy_search_plan": request.model_dump(mode="json"),
+            "policy_search_context": {
+                "structure_id": resolved_candidate.candidate_id,
+                "policy_family": request.policy_family,
+                "candidate_hash": resolved_candidate.candidate_hash(),
+                "task_family": request.policy_family,
+                "domain": str(request.metadata.get("domain") or resolved_candidate.candidate_id),
+            },
+            "ukraine_metadata": {
+                "jurisdiction": request.metadata.get("jurisdiction"),
+                "country": request.metadata.get("country"),
+                "domain": request.metadata.get("domain"),
+            },
+            "dynamic_intervention_ids": list(
+                request.metadata.get("dynamic_intervention_ids") or []
+            ),
+            "strategic_intervention_kinds": list(
+                request.metadata.get("strategic_intervention_kinds") or []
+            ),
+            "compiled_intervention_ids": list(
+                request.metadata.get("compiled_intervention_ids") or []
+            ),
+            "sequence_ids": list(request.metadata.get("sequence_ids") or []),
+        }
+
+    def run_search(
+        self,
+        candidate: (
+            PolicyCandidateSchema | LexPolicyBundleInput | TrinityBundle | Mapping[str, Any]
+        ),
+        *,
+        loop_id: str,
+        stage_b_evaluator: Any | None = None,
+        stage_a_evaluator: Any | None = None,
+        structure_validator: Any | None = None,
+        narrative_input_builder: Any | None = None,
+        search_config: HierarchicalSearchConfig | Mapping[str, Any] | None = None,
+        policy_family: str | None = None,
+        metadata: Mapping[str, Any] | None = None,
+        initial_context: Mapping[str, Any] | None = None,
+    ) -> Any:
+        resolved_candidate = self._resolve_candidate_payload(
+            candidate,
+            policy_family=policy_family,
+            metadata=metadata,
+        )
+        coordinator = HierarchicalSearchCoordinator(
+            config=self.instantiate_search_config(search_config)
+        )
+        runtime_context = self.build_runtime_context(
+            resolved_candidate,
+            loop_id=loop_id,
+            policy_family=policy_family,
+            metadata=metadata,
+        )
+        merged_context = {**runtime_context, **dict(initial_context or {})}
+        try:
+            coordinator.build_parameter_search_spec(resolved_candidate)
+        except ValueError as exc:
+            if "No tunable policy parameters" not in str(exc):
+                raise
+            return self._run_parameterless_search(
+                coordinator,
+                resolved_candidate,
+                loop_id=loop_id,
+                stage_b_evaluator=stage_b_evaluator,
+                structure_validator=structure_validator,
+                narrative_input_builder=narrative_input_builder,
+                initial_context=merged_context,
+            )
+        return coordinator.run(
+            resolved_candidate,
+            loop_id=loop_id,
+            stage_b_evaluator=stage_b_evaluator,
+            stage_a_evaluator=stage_a_evaluator,
+            structure_validator=structure_validator,
+            narrative_input_builder=narrative_input_builder,
+            initial_context=merged_context,
+        )
+
+    def _resolve_candidate_payload(
+        self,
+        candidate: (
+            PolicyCandidateSchema | LexPolicyBundleInput | TrinityBundle | Mapping[str, Any]
+        ),
+        *,
+        policy_family: str | None,
+        metadata: Mapping[str, Any] | None,
+    ) -> PolicyCandidateSchema:
+        if isinstance(candidate, PolicyCandidateSchema):
+            if policy_family is None and not metadata:
+                return candidate
+            updated_metadata = {
+                **dict(candidate.metadata),
+                **dict(metadata or {}),
+            }
+            if policy_family is not None:
+                updated_metadata["policy_family"] = policy_family
+            return candidate.model_copy(update={"metadata": updated_metadata})
+        return self.build_candidate(
+            candidate,
+            policy_family=policy_family,
+            metadata=metadata,
+        )
+
+    def _run_parameterless_search(
+        self,
+        coordinator: HierarchicalSearchCoordinator,
+        candidate: PolicyCandidateSchema,
+        *,
+        loop_id: str,
+        stage_b_evaluator: Any | None,
+        structure_validator: Any | None,
+        narrative_input_builder: Any | None,
+        initial_context: Mapping[str, Any] | None,
+    ) -> HierarchicalSearchResult:
+        state = coordinator.run(
+            candidate,
+            loop_id=loop_id,
+            stage_b_evaluator=None,
+            structure_validator=structure_validator,
+            narrative_input_builder=None,
+            initial_context=dict(initial_context or {}),
+        ).state
+        accepted_structures = [item for item in state.structure_candidates if item.accepted]
+        if stage_b_evaluator is not None:
+            state.current_level = PolicySearchLevel.PARAMETER
+            base_context = dict(initial_context or {})
+            for structure in accepted_structures:
+                candidate_payload = structure.candidate.as_search_payload()
+                context = {
+                    **base_context,
+                    "loop_id": loop_id,
+                    "candidate_hash": structure.candidate_hash,
+                    "policy_search_context": {
+                        "structure_id": structure.structure_id,
+                        "policy_family": structure.policy_family,
+                        "candidate_hash": structure.candidate_hash,
+                        "task_family": structure.policy_family,
+                        "domain": str(
+                            structure.candidate.metadata.get("domain")
+                            or structure.candidate.candidate_id
+                        ),
+                    },
+                }
+                stage_b_result = stage_b_evaluator(candidate_payload, context)
+                state.parameter_search_results[structure.structure_id] = SearchResult(
+                    search_id=f"{loop_id}:{structure.structure_id}",
+                    status=SearchStatus.CONVERGED,
+                    best_candidate=candidate_payload,
+                    best_objective=float(stage_b_result.get("objective_value", 0.0)),
+                    iterations_completed=1,
+                    history=[
+                        SearchIteration(
+                            iteration=0,
+                            candidate=candidate_payload,
+                            objective_value=float(stage_b_result.get("objective_value", 0.0)),
+                            objective_details=[],
+                            is_promising=bool(stage_b_result.get("feasible", True)),
+                            stage_a_passed=True,
+                            stage_b_result=stage_b_result,
+                            duration_seconds=0.0,
+                            policy_evaluation=stage_b_result.get("policy_evaluation"),
+                        )
+                    ],
+                    stopping_reason="parameter_search_not_required",
+                    total_duration_seconds=0.0,
+                    stage_a_evaluations=0,
+                    stage_b_evaluations=1,
+                    telemetry={"parameterless_candidate": True},
+                )
+        if narrative_input_builder is not None:
+            state.current_level = PolicySearchLevel.NARRATIVE
+            bundles: list[tuple[str, Any]] = []
+            for structure in accepted_structures:
+                result = state.parameter_search_results.get(structure.structure_id)
+                bundle = narrative_input_builder(structure, result)
+                if bundle is None:
+                    continue
+                bundles.append((structure.candidate_hash, bundle))
+            state.narrative_variants = coordinator.run_narrative_search(bundles)
+        state_payload = state.model_dump(mode="python") if hasattr(state, "model_dump") else state
+        return HierarchicalSearchResult(state=state_payload, shared_frontier=[])
+
+
+def _coerce_lex_policy_bundle_input(
+    bundle_input: LexPolicyBundleInput | TrinityBundle | Mapping[str, Any],
+) -> LexPolicyBundleInput:
+    if isinstance(bundle_input, LexPolicyBundleInput):
+        return bundle_input
+    if isinstance(bundle_input, TrinityBundle):
+        return LexPolicyBundleInput(trinity_bundle=bundle_input)
+    if isinstance(bundle_input, Mapping) and "trinity_bundle" in bundle_input:
+        return LexPolicyBundleInput.model_validate(bundle_input)
+    return LexPolicyBundleInput(trinity_bundle=TrinityBundle.model_validate(bundle_input))
+
+
+def _bundle_domain(bundle: TrinityBundle) -> str:
+    domain = bundle.problem_frame.domain
+    return str(domain.value if hasattr(domain, "value") else domain)
 
 
 @dataclass(frozen=True)

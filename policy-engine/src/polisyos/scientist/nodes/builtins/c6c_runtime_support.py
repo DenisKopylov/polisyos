@@ -41,12 +41,9 @@ from polisyos.ir.analytics.strategic import (
     persist_strategic_solve_artifacts,
 )
 from polisyos.ir.artifacts import InputRef as IRInputRef
+from polisyos.ir.governance.policy_spec import CompiledLexIntervention
 from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.lex.intervention_artifacts import LexPolicyBundleInput
-from polisyos.lex.interventions import CompiledLexIntervention
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
@@ -57,6 +54,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_PARAMETER_OVERRIDE_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 _module_logger = get_logger(__name__)
@@ -159,7 +159,9 @@ def maybe_materialize_policy_override_bundle(
 
     resolved_candidate = candidate
     if resolved_candidate is None and lex_bundle is not None:
-        from polisyos.lex.interventions import HierarchicalPolicySearchAdapter
+        from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
+            HierarchicalPolicySearchAdapter,
+        )
 
         resolved_candidate = HierarchicalPolicySearchAdapter().build_candidate(lex_bundle)
     if resolved_candidate is None:

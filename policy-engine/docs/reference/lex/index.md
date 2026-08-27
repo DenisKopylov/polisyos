@@ -21,18 +21,18 @@ publish flows are owned by Data Forge legal modules.
 
 ## Root Export Surface
 
-The current root facade exports 50 public symbols from `polisyos.lex`.
+The current root facade exports 51 public symbols from `polisyos.lex`.
 
 | Group                                    | Count | Representative exports                                                                                                                             |
 | ---------------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Errors                                   | 7     | `LexError`, `LexValidationError`, `LexVersioningError`                                                                                             |
 | Versioning and active resolution         | 3     | `ActiveVersionStrategy`, `ActiveVersionResult`, `resolve_active_version`                                                                           |
 | NormPack assembly                        | 4     | `NormPackBuildRequest`, `NormPackBudgets`, `assemble_norm_pack`                                                                                    |
-| Mutation and impact analysis             | 10    | `MutationIntent`, `NormDiff`, `NormImpactAnalyzer`, `AffectedKPI`                                                                                  |
-| Legal evaluation                         | 6     | `LegalEvaluationRequest`, `LegalReportRef`, `evaluate_legality`, `propose_changes`                                                                 |
+| Mutation and impact analysis             | 11    | `MutationIntent`, `NormDiff`, `NormImpactAnalyzer`, `AffectedKPI`                                                                                  |
+| Legal evaluation                         | 9     | `LegalEvaluationRequest`, `LegalReportRef`, `evaluate_legality`, `propose_changes`, `run_legal_benchmark`                                          |
 | Knowledge                                | 1     | `LegalKnowledgeGraph`                                                                                                                              |
-| Interventions and temporal policy search | 15    | `LexInterventionCompiler`, `LexProvisionDirective`, `TemporalInterventionSequencer`, `HierarchicalPolicySearchPlan`, `LexProvisionMappingRegistry` |
-| Support and provenance                   | 4     | `ChangeProposalRef`, `WorldEventRefLike`, `LexFabricEvidencePath`, `lex_evidence_from_fabric_decision_data`                                        |
+| Interventions and temporal policy search | 13    | `LexInterventionCompiler`, `LexProvisionDirective`, `TemporalInterventionSequencer`, `HierarchicalPolicySearchPlan`, `LexProvisionMappingRegistry` |
+| Support and provenance                   | 3     | `ChangeProposalRef`, `LexFabricEvidencePath`, `lex_evidence_from_fabric_decision_data`                                                             |
 
 ## Notes
 
@@ -41,3 +41,6 @@ The current root facade exports 50 public symbols from `polisyos.lex`.
 
 - The intervention modules are now first-class public API and are documented on
   their own page instead of being hidden under general NormPack notes.
+
+- Policy-search adaptation and temporal DTR execution are Scientist-owned node
+  implementations; `CompiledLexIntervention` is a shared IR contract.

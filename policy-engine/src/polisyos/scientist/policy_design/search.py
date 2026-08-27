@@ -8,11 +8,11 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
-from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.ir.governance.policy_spec import PolicySearchLevel
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.scientist.methods.search.controller import SearchIteration, SearchResult, SearchStatus
 from polisyos.scientist.methods.search.lessons import (
@@ -50,14 +50,6 @@ from polisyos.scientist.policy_design.translator import (
     TranslatorCompliancePass,
     TranslatorInputBundle,
 )
-
-
-class PolicySearchLevel(str, Enum):
-    """Policy search level public type."""
-
-    STRUCTURE = "structure"
-    PARAMETER = "parameter"
-    NARRATIVE = "narrative"
 
 
 class HierarchicalSearchConfig(BaseModel):

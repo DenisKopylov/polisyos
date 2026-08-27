@@ -15,7 +15,12 @@ from typing import TYPE_CHECKING, Any
 import pandas as pd
 from pydantic import Field, field_validator, model_validator
 
-from polisyos.ir.governance.policy_spec import TemporalInterventionSequence
+from polisyos.ir.governance.policy_spec import (
+    CompiledLexIntervention as _CompiledLexIntervention,
+)
+from polisyos.ir.governance.policy_spec import (
+    TemporalInterventionSequence,
+)
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorExpr
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
@@ -97,26 +102,16 @@ class LexPolicyBundleInput(KernelModel):
     """
 
     trinity_bundle: TrinityBundle
-    compiled_interventions: list[Any] = Field(default_factory=list)
+    compiled_interventions: list[_CompiledLexIntervention] = Field(default_factory=list)
     temporal_sequences: list[TemporalInterventionSequence] = Field(default_factory=list)
     strategic_response_bundle: StrategicResponseSpecsBundle | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("compiled_interventions", mode="before")
     @classmethod
-    def _coerce_compiled_interventions(cls, value: Any) -> list[Any]:
-        if value is None:
-            return []
-        from polisyos.lex.interventions import CompiledLexIntervention
-
-        items: list[Any] = []
-        for item in value:
-            if isinstance(item, CompiledLexIntervention):
-                items.append(item)
-            else:
-                items.append(CompiledLexIntervention.model_validate(item))
-        return items
-
+    def _coerce_missing_compiled_interventions(cls, value: Any) -> Any:
+        """Preserve the public ``None``-as-empty compatibility contract."""
+        return [] if value is None else value
 
 def load_lex_intervention_map_entries(
     path: str | Path,

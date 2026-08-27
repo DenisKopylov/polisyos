@@ -67,6 +67,7 @@ __all__ = [
     "CausalReadinessBundle",
     "CohortDimension",
     "CohortImpact",
+    "CompiledLexIntervention",
     "ConnectorCapability",
     "ConnectorMetadataSpec",
     "ConstraintType",
@@ -421,6 +422,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "IntervalSemantics": ("polisyos.ir.analytics.uncertainty", "IntervalSemantics"),
     "PropagationMethod": ("polisyos.ir.analytics.uncertainty", "PropagationMethod"),
     "MechanismBinding": ("polisyos.ir.governance.policy_spec", "MechanismBinding"),
+    "CompiledLexIntervention": (
+        "polisyos.ir.governance.policy_spec",
+        "CompiledLexIntervention",
+    ),
     "ParameterSpec": ("polisyos.ir.governance.policy_spec", "ParameterSpec"),
     "PolicyInterventionSpec": ("polisyos.ir.governance.policy_spec", "InterventionSpec"),
     "PolicySpec": ("polisyos.ir.governance.policy_spec", "PolicySpec"),

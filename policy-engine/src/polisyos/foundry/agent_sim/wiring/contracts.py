@@ -18,8 +18,8 @@ import jax.numpy as jnp
 import numpy as np
 from jaxtyping import Array, Float, Int
 
+from polisyos.ir.governance.policy_spec import CompiledLexIntervention
 from polisyos.ir.observation.contracts import MultiplexGraphLayerId
-from polisyos.lex.interventions import CompiledLexIntervention
 
 
 class FirmLifecycleEventType(IntEnum):

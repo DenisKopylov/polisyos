@@ -13,6 +13,7 @@ from typing import Any
 
 __all__ = [
     "BayesianTypeSpec",
+    "CompiledLexIntervention",
     "ConstraintSpec",
     "ConstraintType",
     "ExactJointPriorEntry",
@@ -50,9 +51,9 @@ __all__ = [
     "NormativeOutcomeChannel",
     "ObjectiveSpec",
     "ParameterSpec",
+    "Phase1GateSummary",
     "Phase5GateComponent",
     "Phase5GateWaiver",
-    "Phase1GateSummary",
     "PolicyCompatibilityConstraint",
     "PolicyCompatibilityMode",
     "PolicyCompositionPlan",
@@ -334,6 +335,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     ),
     "MechanismDesignSpec": ("polisyos.ir.governance.game_design", "MechanismDesignSpec"),
     "MechanismBinding": ("polisyos.ir.governance.policy_spec", "MechanismBinding"),
+    "CompiledLexIntervention": (
+        "polisyos.ir.governance.policy_spec",
+        "CompiledLexIntervention",
+    ),
     "InterventionSpec": ("polisyos.ir.governance.policy_spec", "InterventionSpec"),
     "TemporalInterventionStep": (
         "polisyos.ir.governance.policy_spec",

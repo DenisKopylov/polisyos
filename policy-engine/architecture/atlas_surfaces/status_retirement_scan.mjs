@@ -4477,6 +4477,7 @@ function collectAuthorityIssuerFacts(
   brandSymbols,
   generatedDefinitionPaths,
   compilerOptions,
+  authorityIssuerCallerPaths,
 ) {
   const facts = emptyAuthorityIssuerFacts();
   const governedPaths = new Set(generatedDefinitionPaths ?? []);
@@ -4677,6 +4678,7 @@ function collectAuthorityIssuerFacts(
   const privateIssuerName = "issueTrustPresentation";
   const privateIssuerSymbol = factorySymbols.get(privateIssuerName);
   if (privateIssuerSymbol) {
+    const allowedIssuerCallerPaths = new Set(authorityIssuerCallerPaths ?? []);
     const privateIssuerModulePaths = new Set(
       (privateIssuerSymbol.declarations ?? []).map((declaration) =>
         declarationPath(declaration),
@@ -4710,16 +4712,34 @@ function collectAuthorityIssuerFacts(
           ts.isImportDeclaration(statement) &&
           moduleTargetsIssuer(sourceFile, statement.moduleSpecifier)
         ) {
-          const bindings = statement.importClause?.namedBindings;
+          const clause = statement.importClause;
+          if (!clause) {
+            record(sourceFile, statement, "side_effect_import");
+            continue;
+          }
+          if (clause.isTypeOnly) continue;
+          if (clause.name) record(sourceFile, clause.name, "default_import");
+          const bindings = clause.namedBindings;
           if (bindings && ts.isNamespaceImport(bindings)) {
             record(sourceFile, bindings, "namespace_import");
           } else if (bindings && ts.isNamedImports(bindings)) {
             for (const element of bindings.elements) {
+              if (element.isTypeOnly) continue;
+              const importedName =
+                element.propertyName?.text ?? element.name.text;
               if (
-                symbolIdentity(checker, element.name) === privateIssuerSymbol &&
-                element.name.text !== privateIssuerName
+                importedName === privateIssuerName &&
+                symbolIdentity(checker, element.name) === privateIssuerSymbol
               ) {
-                record(sourceFile, element, "alias");
+                if (element.name.text !== privateIssuerName) {
+                  record(sourceFile, element, "alias");
+                } else if (
+                  !allowedIssuerCallerPaths.has(
+                    relativePath(sourceFile.fileName),
+                  )
+                ) {
+                  record(sourceFile, element, "named_import");
+                }
               }
             }
           }
@@ -4727,15 +4747,42 @@ function collectAuthorityIssuerFacts(
         if (
           ts.isExportDeclaration(statement) &&
           moduleTargetsIssuer(sourceFile, statement.moduleSpecifier) &&
+          !statement.isTypeOnly &&
           (!statement.exportClause ||
+            ts.isNamespaceExport(statement.exportClause) ||
             (ts.isNamedExports(statement.exportClause) &&
               statement.exportClause.elements.some(
                 (element) =>
-                  (element.propertyName?.text ?? element.name.text) ===
-                  privateIssuerName,
+                  !element.isTypeOnly &&
+                  ["default", privateIssuerName].includes(
+                    element.propertyName?.text ?? element.name.text,
+                  ),
               )))
         ) {
           record(sourceFile, statement, "reexport");
+        }
+        if (
+          ts.isExportDeclaration(statement) &&
+          !statement.moduleSpecifier &&
+          !statement.isTypeOnly &&
+          statement.exportClause &&
+          ts.isNamedExports(statement.exportClause) &&
+          statement.exportClause.elements.some(
+            (element) =>
+              !element.isTypeOnly &&
+              symbolIdentity(checker, element.propertyName ?? element.name) ===
+                privateIssuerSymbol,
+          )
+        ) {
+          record(sourceFile, statement, "reexport");
+        }
+        if (
+          ts.isImportEqualsDeclaration(statement) &&
+          !statement.isTypeOnly &&
+          ts.isExternalModuleReference(statement.moduleReference) &&
+          moduleTargetsIssuer(sourceFile, statement.moduleReference.expression)
+        ) {
+          record(sourceFile, statement, "import_equals");
         }
       }
 
@@ -5684,6 +5731,7 @@ function collectAuthorityEscapeFacts(
   descriptors,
   generatedDefinitionPaths,
   governanceObjectNames,
+  authorityIssuerCallerPaths,
 ) {
   if (!Array.isArray(descriptors) || descriptors.length === 0) {
     return {
@@ -5738,6 +5786,7 @@ function collectAuthorityEscapeFacts(
     brandSymbols,
     generatedDefinitionPaths,
     program.getCompilerOptions(),
+    authorityIssuerCallerPaths,
   );
 
   const familySymbols = new Set();
@@ -5869,6 +5918,7 @@ function collectProgramFacts(
   authorityPropDescriptors = [],
   authorityPathDescriptors = [],
   authorityGovernanceObjects = [],
+  authorityIssuerCallerPaths = [],
 ) {
   const checker = program.getTypeChecker();
   const definitions = [];
@@ -6098,6 +6148,7 @@ function collectProgramFacts(
     authorityPathDescriptors,
     generatedDefinitionPaths,
     authorityGovernanceObjects,
+    authorityIssuerCallerPaths,
   );
   const capabilityDiscoveryFacts = {
     productionFiles: statusInventorySources.length,
@@ -6305,6 +6356,7 @@ function collectOverrideFacts(
   authorityPathDescriptors = [],
   authorityGovernanceObjects = [],
   includeDashboardProgramRoots = false,
+  authorityIssuerCallerPaths = [],
 ) {
   const facts = {
     authorityCandidates: [],
@@ -6481,6 +6533,7 @@ function collectOverrideFacts(
     authorityPathDescriptors,
     generatedDefinitionPaths,
     authorityGovernanceObjects,
+    authorityIssuerCallerPaths,
   );
   facts.authorityPathFiles.push(...authorityEscapeFacts.authorityPathFiles);
   facts.authorityEscapeSites.push(...authorityEscapeFacts.authorityEscapeSites);
@@ -6554,6 +6607,7 @@ if (request.sourceOverrides) {
         request.authorityPathDescriptors,
         request.authorityGovernanceObjects,
         request.includeDashboardProgramRoots === true,
+        request.authorityIssuerCallerPaths,
       ),
     ),
   );
@@ -6579,6 +6633,7 @@ if (request.sourceOverrides) {
         request.authorityPropDescriptors,
         request.authorityPathDescriptors,
         request.authorityGovernanceObjects,
+        request.authorityIssuerCallerPaths,
       ),
     ),
   );

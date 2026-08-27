@@ -4808,6 +4808,7 @@ def _authority_presentation_scan() -> dict[str, Any]:
     request = {
         "authorityPathDescriptors": _ds11_trust_presentation_path_descriptors(),
         "authorityPropDescriptors": _authority_prop_descriptors(),
+        "authorityIssuerCallerPaths": DS11_C04_ISSUER_CALLERS,
     }
     return status_checker._scan_json(
         json.dumps(request, sort_keys=True, separators=(",", ":"))
@@ -6956,6 +6957,7 @@ def _ds11_trust_presentation_semantic_errors(
     elif any(
         isinstance(access, Mapping)
         and access.get("factory") == "issueTrustPresentation"
+        and _ds11_is_production_dashboard_source(str(access.get("path", "")))
         for access in module_accesses
     ):
         errors.append("ds11_trust_presentation_unsafe_module_access")

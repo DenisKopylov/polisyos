@@ -28,6 +28,13 @@ const C04_MECHANISM_PATHS = [
   "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
 ] as const;
 
+const C04_ISSUER_CALLERS = [
+  "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx",
+  "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+  "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+  "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBadge.tsx",
+] as const;
+
 const PRESENTATION_COMPONENTS = {
   DisputeBadge: {
     declaration:
@@ -261,10 +268,14 @@ function presentationPropTypeText(
 
 type IssuerAccessKind =
   | "alias"
+  | "default_import"
   | "dynamic_import"
+  | "import_equals"
+  | "named_import"
   | "namespace_import"
   | "reexport"
   | "require"
+  | "side_effect_import"
   | "value_reference";
 
 function unwrapIssuerExpression(expression: ts.Expression): ts.Expression {
@@ -289,6 +300,9 @@ function issuerCalls(
   const directIssuerNames = new Set<string>();
   const namespaceNames = new Set<string>();
   const unsafeAccesses: IssuerAccessKind[] = [];
+  const allowedCaller = (C04_ISSUER_CALLERS as readonly string[]).includes(
+    sourcePath(file),
+  );
 
   const targetsIssuer = (specifier: ts.Expression | undefined) => {
     if (!specifier || !ts.isStringLiteralLike(specifier)) return false;
@@ -301,17 +315,27 @@ function issuerCalls(
       ts.isImportDeclaration(statement) &&
       targetsIssuer(statement.moduleSpecifier)
     ) {
-      const bindings = statement.importClause?.namedBindings;
+      const clause = statement.importClause;
+      if (!clause) {
+        unsafeAccesses.push("side_effect_import");
+        continue;
+      }
+      if (clause.isTypeOnly) continue;
+      if (clause.name) unsafeAccesses.push("default_import");
+      const bindings = clause.namedBindings;
       if (bindings && ts.isNamespaceImport(bindings)) {
         namespaceNames.add(bindings.name.text);
         unsafeAccesses.push("namespace_import");
       } else if (bindings && ts.isNamedImports(bindings)) {
         for (const element of bindings.elements) {
+          if (element.isTypeOnly) continue;
           const imported = element.propertyName?.text ?? element.name.text;
           if (imported !== "issueTrustPresentation") continue;
           directIssuerNames.add(element.name.text);
           if (element.name.text !== "issueTrustPresentation") {
             unsafeAccesses.push("alias");
+          } else if (!allowedCaller) {
+            unsafeAccesses.push("named_import");
           }
         }
       }
@@ -319,15 +343,27 @@ function issuerCalls(
     if (
       ts.isExportDeclaration(statement) &&
       targetsIssuer(statement.moduleSpecifier) &&
+      !statement.isTypeOnly &&
       (!statement.exportClause ||
+        ts.isNamespaceExport(statement.exportClause) ||
         (ts.isNamedExports(statement.exportClause) &&
           statement.exportClause.elements.some(
             (element) =>
-              (element.propertyName?.text ?? element.name.text) ===
-              "issueTrustPresentation",
+              !element.isTypeOnly &&
+              ["default", "issueTrustPresentation"].includes(
+                element.propertyName?.text ?? element.name.text,
+              ),
           )))
     ) {
       unsafeAccesses.push("reexport");
+    }
+    if (
+      ts.isImportEqualsDeclaration(statement) &&
+      !statement.isTypeOnly &&
+      ts.isExternalModuleReference(statement.moduleReference) &&
+      targetsIssuer(statement.moduleReference.expression)
+    ) {
+      unsafeAccesses.push("import_equals");
     }
   }
 
@@ -534,7 +570,7 @@ describe("shared Trust View architecture", () => {
   ])(
     "rejects %s access to the private issuer",
     (_label, source, kind, calls) => {
-      const file = path.join(trustViewRoot, "authority-access-probe.ts");
+      const file = path.join(repoRoot, C04_ISSUER_CALLERS[1]);
       const ast = ts.createSourceFile(
         file,
         source,
@@ -551,8 +587,130 @@ describe("shared Trust View architecture", () => {
     },
   );
 
+  it.each([
+    [
+      "namespace re-export",
+      'export * as trustIssuer from "./trust-glyphs";',
+      ["reexport"],
+    ],
+    ["bare star re-export", 'export * from "./trust-glyphs";', ["reexport"]],
+    [
+      "named alias re-export",
+      'export { issueTrustPresentation as trustIssuer } from "./trust-glyphs";',
+      ["reexport"],
+    ],
+    [
+      "default re-export",
+      'export { default as trustIssuer } from "./trust-glyphs";',
+      ["reexport"],
+    ],
+    [
+      "namespace import",
+      'import * as trustIssuer from "./trust-glyphs";',
+      ["namespace_import"],
+    ],
+    [
+      "default import",
+      'import trustIssuer from "./trust-glyphs";',
+      ["default_import"],
+    ],
+    [
+      "unauthorized exact named import",
+      'import { issueTrustPresentation } from "./trust-glyphs";',
+      ["named_import"],
+    ],
+    [
+      "named issuer alias import",
+      'import { issueTrustPresentation as trustIssuer } from "./trust-glyphs";',
+      ["alias"],
+    ],
+    ["side-effect import", 'import "./trust-glyphs";', ["side_effect_import"]],
+    [
+      "import-equals require",
+      'import trustIssuer = require("./trust-glyphs");',
+      ["import_equals"],
+    ],
+    ["dynamic import", 'void import("./trust-glyphs");', ["dynamic_import"]],
+    ["require", 'void require("./trust-glyphs");', ["require"]],
+  ])("rejects runtime-value %s", (_label, source, unsafeAccesses) => {
+    const file = path.join(trustViewRoot, "index.ts");
+    const ast = ts.createSourceFile(
+      file,
+      source,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    );
+
+    expect(issuerCalls(file, ast)).toEqual({
+      directCalls: 0,
+      unsafeAccesses,
+    });
+  });
+
+  it.each([
+    ['import type TrustDefault from "./trust-glyphs";'],
+    ['import type { TrustPresentation } from "./trust-glyphs";'],
+    ['import type * as TrustTypes from "./trust-glyphs";'],
+    ['import { type TrustPresentation } from "./trust-glyphs";'],
+    ['export type * from "./trust-glyphs";'],
+    ['export type * as TrustTypes from "./trust-glyphs";'],
+    ['export type { TrustPresentation } from "./trust-glyphs";'],
+    ['export { type TrustPresentation } from "./trust-glyphs";'],
+    ['import type TrustTypes = require("./trust-glyphs");'],
+  ])("admits an erased type-only module form", (source) => {
+    const file = path.join(trustViewRoot, "index.ts");
+    const ast = ts.createSourceFile(
+      file,
+      source,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    );
+
+    expect(issuerCalls(file, ast)).toEqual({
+      directCalls: 0,
+      unsafeAccesses: [],
+    });
+  });
+
+  it.each([
+    ['import { presentTrustPresentation } from "./trust-glyphs";'],
+    ['export { truncateHash as hashLabel } from "./trust-glyphs";'],
+  ])("admits a named non-issuer module value", (source) => {
+    const file = path.join(trustViewRoot, "index.ts");
+    const ast = ts.createSourceFile(
+      file,
+      source,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    );
+
+    expect(issuerCalls(file, ast)).toEqual({
+      directCalls: 0,
+      unsafeAccesses: [],
+    });
+  });
+
+  it("rejects a local named re-export of an admitted issuer binding", () => {
+    const file = path.join(repoRoot, C04_ISSUER_CALLERS[1]);
+    const ast = ts.createSourceFile(
+      file,
+      'import { issueTrustPresentation } from "./trust-glyphs"; export { issueTrustPresentation as trustIssuer };',
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    );
+
+    expect(issuerCalls(file, ast)).toEqual({
+      directCalls: 0,
+      unsafeAccesses: ["value_reference"],
+    });
+  });
+
   it("counts a transparently wrapped issuer callee as a direct call", () => {
-    const file = path.join(trustViewRoot, "authority-call-probe.ts");
+    const file = path.join(repoRoot, C04_ISSUER_CALLERS[1]);
     const ast = ts.createSourceFile(
       file,
       'import { issueTrustPresentation } from "./trust-glyphs"; (issueTrustPresentation)(null);',
@@ -574,7 +732,7 @@ describe("shared Trust View architecture", () => {
     ["callback", "Promise.resolve(null).then(issueTrustPresentation);"],
     ["storage", "const stored = [issueTrustPresentation]; void stored;"],
   ])("rejects an issuer %s value reference", (_label, expression) => {
-    const file = path.join(trustViewRoot, "authority-reference-probe.ts");
+    const file = path.join(repoRoot, C04_ISSUER_CALLERS[1]);
     const ast = ts.createSourceFile(
       file,
       `import { issueTrustPresentation } from "./trust-glyphs"; ${expression}`,
@@ -640,12 +798,7 @@ describe("shared Trust View architecture", () => {
         [...expected.expectedConsumers].sort(),
       );
     }
-    expect(issuerOwners.sort()).toEqual([
-      "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx",
-      "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
-      "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
-      "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBadge.tsx",
-    ]);
+    expect(issuerOwners.sort()).toEqual([...C04_ISSUER_CALLERS].sort());
 
     const observedMechanisms = new Set<string>([
       TRUST_GLYPHS_PATH,

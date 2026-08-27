@@ -715,3 +715,28 @@ provenance remained valid while its self-supplied subject was relabeled to
   register is unchanged and its two issuer refs still equal the live
   `trust-glyphs.ts` digest. Accounting remains `26/34` mechanisms and `7/9`
   widening rounds.
+
+### C04 review repair — issuer module-acquisition grammar
+
+- Same-class finite grammar closure: `NamespaceExport` (`export * as`) escaped
+  both existing censuses. RED reproduced the empty frontend and governed
+  unsafe-acquisition sets. A second RED proved that a locally rebound named
+  re-export also escaped the resolved-symbol scanner.
+- The frontend and governed scanner now classify the complete runtime module
+  grammar: namespace/bare-star/named-issuer/default re-exports; local named
+  re-exports; namespace/default/unauthorized exact/aliased issuer imports;
+  side-effect imports; ImportEquals/ExternalModuleReference; dynamic import;
+  and require. Only the exact named issuer import at the four authorized caller
+  paths is admitted. Explicitly erased type-only forms are neutral, as are
+  named imports/exports of non-issuer values. The subsequent resolved issuer
+  reference census remains binding. Governed unsafe access uses the same
+  production denominator as the 625-file frontend census.
+- Frozen verification: frontend architecture 39/39 (exit 0; `real 2.54`,
+  `user 3.53`, `sys 0.28`; uptime `04:37` before/after); dashboard typecheck
+  exit 0 (`real 13.22`, `user 25.66`, `sys 0.82`; uptime `04:37` before/after);
+  seven governed trust-presentation tests pass (exit 0; `real 91.94`, `user
+  139.46`, `sys 12.29`; uptime `04:37 -> 04:39`). The locked checker returns
+  exactly the inherited C13 receipt and no DS11 error (exit 1; `real 68.88`,
+  `user 94.32`, `sys 9.53`; uptime `04:39 -> 04:40`). Register bytes are
+  unchanged and both issuer refs still match the live glyph-source digest.
+  Accounting remains `26/34` mechanisms and `7/9` widening rounds.

@@ -4249,6 +4249,7 @@ import * as ds11NamespaceProbe from "./trust-view/trust-glyphs";
 export {
   issueTrustPresentation as ds11ReexportProbe,
 } from "./trust-view/trust-glyphs";
+export { issueTrustPresentation as ds11LocalReexportProbe };
 void import("./trust-view/trust-glyphs").then((module) =>
   module.issueTrustPresentation(null),
 );
@@ -4271,13 +4272,18 @@ void ds11StoredIssuerProbe;
                 checker._ds11_trust_presentation_path_descriptors()
             ),
             "authorityPropDescriptors": checker._authority_prop_descriptors(),
+            "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
             "includeDashboardProgramRoots": True,
             "sourceOverrides": {source_path: source},
         }
         scan = checker.status_checker._scan_json(
             json.dumps(request, sort_keys=True, separators=(",", ":"))
         )
-        accesses = scan["authorityIssuerFacts"]["moduleAccesses"]
+        accesses = [
+            row
+            for row in scan["authorityIssuerFacts"]["moduleAccesses"]
+            if row["path"] == source_path
+        ]
 
         self.assertEqual(
             {
@@ -4289,6 +4295,10 @@ void ds11StoredIssuerProbe;
                 "value_reference",
             },
             {row["kind"] for row in accesses},
+        )
+        self.assertEqual(
+            2,
+            sum(row["kind"] == "reexport" for row in accesses),
         )
         self.assertIn(
             "ds11_trust_presentation_unsafe_module_access",
@@ -4312,6 +4322,7 @@ void (issueTrustPresentation)(null);
                 checker._ds11_trust_presentation_path_descriptors()
             ),
             "authorityPropDescriptors": checker._authority_prop_descriptors(),
+            "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
             "includeDashboardProgramRoots": True,
             "sourceOverrides": {source_path: source},
         }
@@ -4329,6 +4340,99 @@ void (issueTrustPresentation)(null);
         self.assertIn(
             "ds11_trust_presentation_issuer_caller_drift",
             checker._ds11_trust_presentation_semantic_errors(scan),
+        )
+
+    def test_ds11_trust_presentation_rejects_every_runtime_module_acquisition(
+        self,
+    ) -> None:
+        """Every runtime acquisition form must enter the unsafe census."""
+        source_path = "apps/runtime-dashboard/src/shared/ui/trust-view/index.ts"
+        source = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
+        source += """
+export * as ds11IssuerNamespaceExport from "./trust-glyphs";
+export * from "./trust-glyphs";
+export { issueTrustPresentation as ds11IssuerReexport } from "./trust-glyphs";
+export { default as ds11IssuerDefaultReexport } from "./trust-glyphs";
+import * as ds11IssuerNamespaceImport from "./trust-glyphs";
+import ds11IssuerDefaultImport from "./trust-glyphs";
+import { issueTrustPresentation } from "./trust-glyphs";
+import { issueTrustPresentation as ds11IssuerNamedAlias } from "./trust-glyphs";
+import "./trust-glyphs";
+import ds11IssuerEquals = require("./trust-glyphs");
+void import("./trust-glyphs");
+void require("./trust-glyphs");
+"""
+        request = {
+            "authorityPathDescriptors": (
+                checker._ds11_trust_presentation_path_descriptors()
+            ),
+            "authorityPropDescriptors": checker._authority_prop_descriptors(),
+            "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
+            "includeDashboardProgramRoots": True,
+            "sourceOverrides": {source_path: source},
+        }
+        scan = checker.status_checker._scan_json(
+            json.dumps(request, sort_keys=True, separators=(",", ":"))
+        )
+
+        self.assertEqual(
+            Counter(
+                {
+                    "alias": 1,
+                    "default_import": 1,
+                    "dynamic_import": 1,
+                    "import_equals": 1,
+                    "named_import": 1,
+                    "namespace_import": 1,
+                    "reexport": 4,
+                    "require": 1,
+                    "side_effect_import": 1,
+                }
+            ),
+            Counter(
+                row["kind"]
+                for row in scan["authorityIssuerFacts"]["moduleAccesses"]
+                if row["path"] == source_path
+            ),
+        )
+
+    def test_ds11_trust_presentation_admits_erased_type_only_module_forms(
+        self,
+    ) -> None:
+        """Explicitly erased imports and exports are not runtime acquisitions."""
+        source_path = "apps/runtime-dashboard/src/shared/ui/trust-view/index.ts"
+        source = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
+        source += """
+import type DS11TrustDefault from "./trust-glyphs";
+import type { TrustPresentation } from "./trust-glyphs";
+import type * as DS11TrustTypes from "./trust-glyphs";
+import { type TrustPresentationData } from "./trust-glyphs";
+export type * from "./trust-glyphs";
+export type * as DS11TrustTypeNamespace from "./trust-glyphs";
+export type { TrustPresentation } from "./trust-glyphs";
+export { type TrustPresentationData } from "./trust-glyphs";
+import type DS11TrustEquals = require("./trust-glyphs");
+"""
+        request = {
+            "authorityPathDescriptors": (
+                checker._ds11_trust_presentation_path_descriptors()
+            ),
+            "authorityPropDescriptors": checker._authority_prop_descriptors(),
+            "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
+            "includeDashboardProgramRoots": True,
+            "sourceOverrides": {source_path: source},
+        }
+        scan = checker.status_checker._scan_json(
+            json.dumps(request, sort_keys=True, separators=(",", ":"))
+        )
+
+        self.assertEqual(
+            [],
+            [
+                row
+                for row in scan["authorityIssuerFacts"]["moduleAccesses"]
+                if row["path"] == source_path
+            ],
         )
 
     def test_ds11_trust_presentation_issuer_receipt_is_content_bound(
@@ -4372,6 +4476,7 @@ void (issueTrustPresentation)(null);
                 checker._ds11_trust_presentation_path_descriptors()
             ),
             "authorityPropDescriptors": checker._authority_prop_descriptors(),
+            "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
             "includeDashboardProgramRoots": True,
             "sourceOverrides": {
                 checker.DS11_TRUST_GLYPHS_PATH: (

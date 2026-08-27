@@ -1,14 +1,26 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
+import pytest
+
+from polisyos.foundry.calibration import calibrator as calibrator_module
 from polisyos.foundry.calibration.calibrator import (
     CalibrationMetricsCollector,
+    Calibrator,
     CalibratorInputs,
     TrainableGroup,
     _match_trainable,
     _selector_key,
 )
+from polisyos.ir.analytics.calibration import CalibrationConfig
+
+
+def test_calibration_config_default_schema_version_round_trips() -> None:
+    config = CalibrationConfig()
+
+    assert CalibrationConfig.model_validate_json(config.model_dump_json()) == config
 
 
 class TestCalibratorInputs:
@@ -30,6 +42,41 @@ class TestCalibratorInputs:
         assert inputs.measurement_bundle is None
         assert inputs.measurement_loss_config is None
         assert inputs.measurement_loss_adapter is None
+
+    def test_calibrator_run_starts_from_exact_supplied_config(self, monkeypatch) -> None:
+        supplied = CalibrationConfig(learning_rate=0.0125)
+        inputs = CalibratorInputs(
+            config=supplied,
+            program_graph=MagicMock(),
+            exec_plan=MagicMock(),
+            base_state=MagicMock(),
+            mechanism_registry=MagicMock(),
+            slot_registry=MagicMock(),
+            merge_registry=MagicMock(),
+            selector_field_registry=None,
+            parameter_loader=lambda x: {},
+        )
+        calibrator = Calibrator(inputs)
+        bundle = SimpleNamespace(trainables=[])
+        compile_program = MagicMock(return_value=bundle)
+        monkeypatch.setattr(calibrator_module, "compile_program", compile_program)
+
+        assert calibrator._build_bundle() is bundle
+        assert compile_program.call_args.kwargs["force_fidelity"] == supplied.fidelity.mode
+        assert calibrator._target_meta() == ([], [], {})
+        assert calibrator._resolve_constraints() == []
+        assert calibrator._resolve_trainable_groups(bundle, []) == ([], [])
+
+        calibrator = Calibrator(inputs)
+
+        def stop_after_config_admission():
+            assert calibrator.inputs.config is supplied
+            raise RuntimeError("config_admitted")
+
+        monkeypatch.setattr(calibrator, "_build_bundle", stop_after_config_admission)
+
+        with pytest.raises(RuntimeError, match="config_admitted"):
+            calibrator.run()
 
 
 class TestCalibrationMetricsCollector:

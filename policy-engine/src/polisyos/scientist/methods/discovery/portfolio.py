@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import math
 import warnings
+from collections.abc import Mapping
+from pathlib import Path
 from time import perf_counter
 from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.foundry.calibration.dp_ci import CITestThresholdPolicySet, DPContext
 from polisyos.foundry.methods.catalog.causal.protocols import (
     TabularCausalDiscoveryData,
     TimeSeriesCausalData,
@@ -27,6 +30,7 @@ from polisyos.scientist.methods.discovery.schema import (
     GraphHypothesis,
     graph_hypothesis_from_report,
 )
+from polisyos.scientist.methods.search.judge_thresholds import JudgeThresholdRegistry
 
 
 class PortfolioRunnerConfig(BaseModel):
@@ -129,6 +133,7 @@ def run_discovery_method(
     """Execute one supported discovery method through the foundry adapters."""
 
     normalized = DiscoveryMethod(method)
+    params = _inject_resolved_ci_threshold_policies(params)
     if normalized is DiscoveryMethod.PC:
         from polisyos.foundry.methods.catalog.causal.constraint_discovery import PCDiscovery
 
@@ -152,6 +157,99 @@ def run_discovery_method(
     from polisyos.foundry.methods.catalog.causal.pcmci_discovery import PCMCIDiscovery
 
     return CausalDiscoveryReport.model_validate(PCMCIDiscovery.pure_step(state, params)["report"])
+
+
+def _inject_resolved_ci_threshold_policies(params: dict[str, Any]) -> dict[str, Any]:
+    """Resolve a Scientist registry path before invoking Foundry methods."""
+
+    prepared = dict(params)
+    registry_root = prepared.pop("judge_threshold_registry_root", None)
+    if registry_root is None:
+        policy_payload = prepared.get("ci_threshold_policies")
+        if policy_payload is None:
+            return prepared
+        policy_set = CITestThresholdPolicySet.model_validate(policy_payload)
+        _validate_ci_threshold_policy_set(
+            policy_set,
+            dp_context=prepared.get("dp_context"),
+            readiness_target=str(prepared.get("readiness_target", "diagnostic")),
+        )
+        prepared["ci_threshold_policies"] = policy_set.model_dump(mode="python")
+        return prepared
+
+    registry = JudgeThresholdRegistry(Path(str(registry_root)))
+    dp_context = prepared.get("dp_context")
+    readiness_target = str(prepared.get("readiness_target", "diagnostic"))
+    alpha = float(prepared.get("significance_level", prepared.get("alpha", 0.05)))
+    policies = (
+        registry.resolve_ci_test_policy(
+            family="kernel_ci",
+            query_type="hsic",
+            estimator="permutation",
+            dp_context=dp_context,
+            alpha=alpha,
+            n_bootstrap=99,
+            readiness_target=readiness_target,
+        ),
+        registry.resolve_ci_test_policy(
+            family="kernel_ci",
+            query_type="kci",
+            estimator="residualized_hsic",
+            dp_context=dp_context,
+            alpha=alpha,
+            n_bootstrap=99,
+            readiness_target=readiness_target,
+        ),
+        registry.resolve_ci_test_policy(
+            family="categorical_ci",
+            query_type="g2",
+            estimator="stratified_counts",
+            dp_context=dp_context,
+            alpha=alpha,
+            n_bootstrap=2000,
+            readiness_target=readiness_target,
+        ),
+        registry.resolve_ci_test_policy(
+            family="categorical_ci",
+            query_type="chi2",
+            estimator="stratified_counts",
+            dp_context=dp_context,
+            alpha=alpha,
+            n_bootstrap=2000,
+            readiness_target=readiness_target,
+        ),
+    )
+    policy_set = CITestThresholdPolicySet(policies=policies)
+    _validate_ci_threshold_policy_set(
+        policy_set,
+        dp_context=dp_context,
+        readiness_target=readiness_target,
+    )
+    prepared["ci_threshold_policies"] = policy_set.model_dump(mode="python")
+    return prepared
+
+
+def _validate_ci_threshold_policy_set(
+    policy_set: CITestThresholdPolicySet,
+    *,
+    dp_context: DPContext | Mapping[str, Any] | None,
+    readiness_target: str,
+) -> None:
+    """Fail before dispatch unless every portfolio CI route has an exact policy."""
+
+    for family, query_type, estimator in (
+        ("kernel_ci", "hsic", "permutation"),
+        ("kernel_ci", "kci", "residualized_hsic"),
+        ("categorical_ci", "g2", "stratified_counts"),
+        ("categorical_ci", "chi2", "stratified_counts"),
+    ):
+        policy_set.policy_for(
+            family=family,
+            query_type=query_type,
+            estimator=estimator,
+            dp_context=dp_context,
+            readiness_target=readiness_target,
+        )
 
 
 class GraphDiscoveryPortfolioRunner:

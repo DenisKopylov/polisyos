@@ -1,0 +1,50 @@
+id = "2026-08-27-foundry-scientist-calibration-boundary"
+title = "Resolve calibration authority before Foundry execution"
+type = "changed"
+component = "foundry-calibration"
+owner = "team-policyos-runtime"
+summary = "Scientist now resolves calibration meta-overrides and CI threshold policies before supplying typed inputs to Foundry execution."
+evidence = [
+  "tests/integration/scientist/test_workflow_reliability_scenarios.py",
+  "tests/unit/foundry/calibration/test_calibrator.py",
+  "tests/unit/foundry/calibration/test_dp_ci.py",
+  "tests/unit/scientist/discovery/test_portfolio.py",
+]
+compatibility = "Direct Calibrator callers no longer receive a late Scientist meta-override inside Foundry. Direct Python CI helpers and compiled Foundry CI methods no longer accept registry paths, while Scientist run_discovery_method intentionally continues to accept judge_threshold_registry_root and resolves it before lowering."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry; public_stable: polisyos.scientist"
+migration = "Apply polisyos.scientist.methods.autotune.calibration.apply_calibration_meta_overrides before constructing CalibratorInputs. For direct Python calls, pass resolved_policies to resolve_ci_threshold_policy and ci_threshold_policies to assess_administrative_missingness or test_mgraph_implications; the removed registry_root and judge_threshold_registry_root keywords raise TypeError. For compiled Foundry methods, replace judge_threshold_registry_root with ci_threshold_policies; the compiler rejects the removed parameter with ParameterValidationError. Scientist callers of run_discovery_method may continue to pass judge_threshold_registry_root because Scientist resolves that registry and lowers only ci_threshold_policies into Foundry. No Foundry compatibility shim is provided because it would recreate the forbidden Foundry-to-Scientist dependency."
+api = "Exports CITestThresholdPolicySet from polisyos.foundry.calibration; direct Python helpers consume resolved_policies or ci_threshold_policies, compiled Foundry methods expose ci_threshold_policies, and Scientist run_discovery_method retains judge_threshold_registry_root as an orchestration input."
+limitations = "Scientist owns registry lookup and meta-search authority; Foundry accepts only already-resolved values or its declared local CI defaults."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "calibration-meta-override-owner"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.foundry"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "Architecture-boundary correction; a Foundry compatibility callback into Scientist is not retained."
+release_note = "Direct Calibrator callers must apply Scientist calibration meta-overrides before supplying the exact CalibrationConfig to Foundry."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "resolved-ci-threshold-policy-inputs"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.foundry"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "Architecture-boundary correction; Foundry registry-path compatibility inputs are not retained, while the Scientist orchestration input remains supported."
+release_note = "Direct Python CI helpers now raise TypeError for removed registry-path keywords, compiled Foundry methods raise ParameterValidationError for judge_threshold_registry_root, and Scientist run_discovery_method still accepts that registry path and resolves it before lowering ci_threshold_policies."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

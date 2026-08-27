@@ -3,13 +3,6 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
-from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.feedback import MonitoringVerdict
-from polisyos.scientist.orchestration.engine.checkpoint import CASCheckpointHook, resume_from_checkpoint
-from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
-from polisyos.scientist.orchestration.engine.operational_monitoring import ScientistOperationalMonitor
-from polisyos.scientist.feedback.core import DecisionFeedbackService
-from polisyos.scientist.validation.decision_validity import DecisionValidityService
 from _helpers.scientist_runtime import (
     build_execution_context,
     build_initial_state,
@@ -19,6 +12,22 @@ from _helpers.scientist_runtime import (
     load_json_artifact,
     regression_actual_rows,
 )
+
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts.feedback import DecisionReissuePlan, MonitoringVerdict
+from polisyos.ir.analytics.calibration import CalibrationConfig
+from polisyos.scientist.feedback.core import DecisionFeedbackService
+from polisyos.scientist.methods.autotune import calibration as calibration_autotune
+from polisyos.scientist.methods.autotune.calibration import CalibrationMetaSearchConfig
+from polisyos.scientist.orchestration.engine.checkpoint import (
+    CASCheckpointHook,
+    resume_from_checkpoint,
+)
+from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+from polisyos.scientist.orchestration.engine.operational_monitoring import (
+    ScientistOperationalMonitor,
+)
+from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 pytestmark = pytest.mark.integration
 
@@ -165,7 +174,18 @@ def test_linear_scientist_workflow_post_deploy_regression_triggers_alerts_and_re
     packet_ref = str(result.state.artifacts_index["decision_packet_ref"].artifact_id)
     packet_payload = load_json_artifact(store, packet_ref)
     monitor = ScientistOperationalMonitor(max_recent_alerts=8)
+    loaded_context: dict[str, object] = {}
+
+    class _ChampionLoader:
+        def load(self, context=None):
+            loaded_context.update(dict(context or {}))
+            return CalibrationMetaSearchConfig(
+                learning_rate=0.0042,
+                early_stop_patience=17,
+            )
+
     monkeypatch.setattr("polisyos.scientist.feedback.core.get_operational_monitor", lambda: monitor)
+    monkeypatch.setattr(calibration_autotune, "CalibrationMetaRuntimeLoader", _ChampionLoader)
 
     report, refs = DecisionFeedbackService(store).evaluate_packet(
         run_id=run_id,
@@ -181,6 +201,27 @@ def test_linear_scientist_workflow_post_deploy_regression_triggers_alerts_and_re
     }
     assert refs.compare_report_ref is not None
     assert refs.reissue_plan_ref is not None
+    plan = DecisionReissuePlan.model_validate(load_json_artifact(store, refs.reissue_plan_ref))
+    assert plan.calibration_config_ref is not None
+    config = CalibrationConfig.model_validate(
+        load_json_artifact(store, plan.calibration_config_ref)
+    )
+    assert config.learning_rate == 0.0042
+    assert config.early_stop_patience == 17
+    assert {
+        (target.target_id, target.model_metric_path, target.fabric_metric)
+        for target in config.targets
+    } == {
+        (metric.metric_id, metric.metric_id, metric.source_metric_id)
+        for metric in report.metrics
+        if metric.verdict == MonitoringVerdict.REFUTED
+    }
+    assert loaded_context["source_run_id"] == run_id
+    assert loaded_context["source_packet_ref"] == packet_ref
+    assert loaded_context["source_packet_payload"] == packet_payload
+    assert loaded_context["monitoring_report"] is report
+    assert loaded_context["monitoring_report_ref"] == refs.monitoring_report_ref
+    assert loaded_context["compare_report_ref"] == refs.compare_report_ref
     alert_types = {item.alert_type for item in monitor.recent_alerts()}
     assert "fairness_regression" in alert_types
     assert "calibration_degradation" in alert_types

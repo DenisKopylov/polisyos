@@ -70,9 +70,9 @@ At every seam boundary:
 
 ### Seam 5: Calibration policy pair — 2 statements
 
-- [ ] Move calibration meta-override application and judge-threshold registry
+- [x] Move calibration meta-override application and judge-threshold registry
   use into existing Scientist owners; Foundry passes neutral inputs/results.
-- [ ] Preserve numerical calibration behavior and refusal-to-loosen semantics.
+- [x] Preserve numerical calibration behavior and refusal-to-loosen semantics.
 
 ### Seam 6: Composition failure-card contract — 1 statement
 

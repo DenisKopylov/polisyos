@@ -80,6 +80,7 @@ Every row below was classified before the first source edit. Result:
 | seam 2 — Core metric-validation CLI | 1/10 | One new packaged tools composition module owns the installed CLI and metric-validation handler. Cleared CO-01, the first 1/4 `core -> scientist` statements; the row remains open on CO-02..04. | stands; round 1 bought `tools/ops_runners/runtime_cli.py` |
 | seam 3 — Core Scientist CLI | 1/10 | The already-paid tools composition module now owns all nine Scientist commands; Core's remaining three upper-runtime imports and its obsolete internal handler are gone. Cleared CO-02..04 and closed `core -> scientist` 4/4. | stands; no new module, package, public authority export, constraint loosening, or surface |
 | seam 4 — D5 release acceptance | 2/10 | A strict D5 handoff/admission/technical-receipt/Scientist-decision chain replaces Foundry's direct governance call. Cleared FS-01, the release-acceptance member of `foundry -> scientist`; the composite working tree also closes the row after the separately declared pending seams remove FS-02..05. | stands; round 2 bought the new typed D5 admission and release-decision surface, with purpose-limited authority and fail-closed predicate provenance |
+| seam 5 — calibration policy pair | 3/10 | Scientist now applies calibration meta-overrides before persisting Foundry inputs and resolves the complete CI-threshold scope before dispatch; Foundry consumes only a typed resolved policy set or declared local defaults. Cleared FS-02 and FS-03. | stands; round 3 bought the public-stable `CITestThresholdPolicySet` handoff and its explicit breaking migration surface |
 
 No round has been withdrawn.
 
@@ -272,3 +273,51 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   regressions, and missing negative cases. After one batched P40 repair, the
   delta review returned Ready with no remaining Critical/Important/Minor
   finding; its 15 falsifier/integration tests passed.
+
+### Seam 5 — calibration policy pair
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 4 commit
+  `cd14d2da1` read back before staging.
+- Observed seam path set (21 observed = 21 declared): 10 source mechanism
+  paths (three Foundry calibration paths, three real causal-method consumers,
+  one IR schema correction, and three Scientist policy/orchestration paths)
+  plus 11 P39 companions (10 focused-test paths and one additive release
+  fragment). This journal and the implementation plan are two additional
+  record companions.
+- FS-02 now applies Scientist's existing meta-policy before the exact
+  `CalibrationConfig` is persisted and passed to `Calibrator`; Foundry no
+  longer reaches upward during execution. FS-03 uses the existing Scientist
+  threshold registry to produce a frozen `CITestThresholdPolicySet`; real
+  Foundry PC/FCI/PCMCI, kernel-CI, and missingness routes receive only the
+  resolved payload or their declared local defaults.
+- All seven scope discriminators — family, query type, estimator, readiness
+  target, DP mechanism, epsilon bucket, and delta bucket — are recomputed from
+  the runtime call and exact-matched before dispatch. A family, privacy-bucket,
+  duplicate, missing, or otherwise mismatched policy fails before Foundry
+  execution; no path/self-attestation controls the technical decision.
+- One initial root test selection was rejected as a harness non-receipt: two
+  correct test names were assigned to the wrong files, so collection completed
+  exit 4 (`real=257.20s` under unrelated CPU contention). Resolving the names
+  over the complete `tests/` tree and running the six selected real-path,
+  persistence, registry, dispatch, and mismatch tests completed direct exit 0
+  with 6 passed; `real=52.01s`, `user=46.10s`, `sys=2.95s`, uptime
+  23:39/up 3d13:52 to 23:40/up 3d13:53.
+- Changed-path Ruff, restricted `git diff --check`, release-fragment TOML
+  parsing, and the two exact calibration-module AST checks each completed
+  direct exit 0. The schema round-trip test exposed and closes the pre-existing
+  escaped-regex defect that rejected the persisted default version `0.1`.
+- A complete AST traversal over all 600 Foundry Python files found zero
+  Scientist imports. The row-owned literal command independently completed
+  direct exit 0 on the composite tree. This seam claims FS-02/03; FS-01 was
+  committed separately and FS-04/05 remain separately declared dirty seams.
+- Capability result: the existing registry/meta-policy producers, typed policy
+  artifact, persistence/dispatch bridges, real Foundry consumers, compatibility
+  surface, and negative semantic tests are wired. The prior upper-authority
+  leak is closed; direct callers receive the documented TypeError or compiled
+  parameter-validation failure rather than a compatibility callback into
+  Scientist.
+- Independent review found three rollout/compatibility issues in its first
+  pass; the batched repair added the stable facade identity, exact direct versus
+  compiled exception contract, and real persisted/dispatch coverage. Final
+  delta review returned Ready with no remaining finding.

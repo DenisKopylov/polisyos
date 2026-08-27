@@ -97,9 +97,9 @@ At every seam boundary:
 
 ### Seam 9: IR strategic/transportability adapters — 3 statements
 
-- [ ] Move Foundry solve-result interpretation and strategic response assembly
+- [x] Move Foundry solve-result interpretation and strategic response assembly
   to the existing Foundry strategic owner.
-- [ ] Move `SourceDomainSpec -> SourceDomain` conversion beside the Foundry ID
+- [x] Move `SourceDomainSpec -> SourceDomain` conversion beside the Foundry ID
   engine; keep the neutral spec in IR.
 
 ### Seam 10: IR kernel lowering — 2 statements

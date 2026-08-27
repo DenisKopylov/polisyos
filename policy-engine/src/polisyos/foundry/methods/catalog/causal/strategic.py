@@ -21,12 +21,15 @@ from polisyos.ir.analytics.abstraction import (
     abstraction_recommendation_margin_required,
 )
 from polisyos.ir.analytics.strategic import (
+    EquilibriumSelectionSummary,
+    EquilibriumSetSummary,
     FiniteStrategicPayoffTable,
     MeanFieldEquilibriumCertificate,
     MeanFieldEquilibriumSolutionSummary,
     MeanFieldMacroSimulationConfig,
     MeanFieldMassConservationReport,
     MeanFieldPositivityStatus,
+    MeanFieldProvenanceSummary,
     MeanFieldSelectionRule,
     MeanFieldSolveInput,
     MeanFieldSolverResidualReport,
@@ -38,17 +41,43 @@ from polisyos.ir.analytics.strategic import (
     PerformativeLoopRecommendedAction,
     PerformativeLoopStabilityStatus,
     PerformativeLoopWitnessStrength,
+    PerformativeShiftSummary,
+    PostAdaptationPolicyValueSummary,
+    StrategicClosureSummary,
+    StrategicComponentBoundsSummary,
+    StrategicDecompositionCertificate,
+    StrategicDecompositionComponent,
+    StrategicDecompositionFailureCard,
     StrategicDecompositionSemantics,
     StrategicDecompositionStatus,
     StrategicEquilibriumConcept,
+    StrategicEquilibriumDescriptor,
     StrategicFallbackMode,
     StrategicGameClass,
     StrategicResponseBundle,
     StrategicSCM,
     StrategicSolutionConcept,
     compile_intervention_spec_to_mean_field_perturbation,
+    persist_equilibrium_selection_summary,
+    persist_equilibrium_set_summary,
+    persist_mean_field_equilibrium_certificate,
+    persist_mean_field_macro_simulation_config,
+    persist_mean_field_mass_conservation_report,
+    persist_mean_field_solver_residual_report,
+    persist_performative_shift_summary,
+    persist_post_adaptation_policy_value_summary,
+    persist_strategic_closure_summary,
+    persist_strategic_component_bounds_summary,
+    persist_strategic_decomposition_certificate,
+    persist_strategic_decomposition_failure_card,
+    persist_strategic_response_bundle,
 )
-from polisyos.ir.registry.refs import ArtifactRefModel, MeanFieldEquilibriumCertificateRef
+from polisyos.ir.artifacts import ArtifactStore, InputRef
+from polisyos.ir.registry.refs import (
+    ArtifactRefModel,
+    MeanFieldEquilibriumCertificateRef,
+    StrategicResponseBundleRef,
+)
 
 MAX_STRATEGIC_ACTIONS_PER_AGENT = 8
 MAX_STRATEGIC_PROFILE_ENUMERATIONS = 256
@@ -1638,6 +1667,320 @@ def build_strategic_response_bundle(
         blocked_reason=result.blocked_reason,
         metadata={"closure_summary": dict(result.closure_summary)},
     )
+
+
+def _default_strategic_decomposition_failure_card(
+    result: StrategicSolveResult,
+    *,
+    metadata: dict[str, Any],
+) -> StrategicDecompositionFailureCard:
+    summary = strategic_decomposition_summary(result)
+    return StrategicDecompositionFailureCard(
+        failure_code=str(summary["decomposition_failure_code"]),
+        message=str(summary["decomposition_message"]),
+        fallback_mode=result.fallback_mode,
+        equilibrium_selection_dependence=result.equilibrium_selection_dependence,
+        multiplicity_note=result.multiplicity_note,
+        blocked_reason=result.blocked_reason,
+        metadata={
+            **metadata,
+            "decomposition_status": str(summary["decomposition_status"]),
+        },
+    )
+
+
+def persist_strategic_solve_artifacts(
+    store: ArtifactStore,
+    *,
+    causal_component_ref: ArtifactRefModel,
+    result: StrategicSolveResult,
+    equilibrium_concept: StrategicEquilibriumConcept | None,
+    equilibrium_descriptor: StrategicEquilibriumDescriptor | None = None,
+    baseline_policy_value: float | None = None,
+    inputs: list[InputRef] | None = None,
+    metadata: dict[str, Any] | None = None,
+    decomposition_status: StrategicDecompositionStatus | None = None,
+    decomposition_certificate: StrategicDecompositionCertificate | None = None,
+    decomposition_failure_card: StrategicDecompositionFailureCard | None = None,
+    anchor_equilibrium: EquilibriumSelectionSummary | None = None,
+    equilibrium_selector_ref: ArtifactRefModel | None = None,
+    causal_component_bounds: StrategicComponentBoundsSummary | None = None,
+    strategic_component_bounds: StrategicComponentBoundsSummary | None = None,
+    mfg_equilibrium_certificate: MeanFieldEquilibriumCertificate | None = None,
+    mfg_macro_simulation_config: MeanFieldMacroSimulationConfig | None = None,
+    mfg_solver_residual_report: MeanFieldSolverResidualReport | None = None,
+    mfg_mass_conservation_report: MeanFieldMassConservationReport | None = None,
+) -> tuple[StrategicResponseBundle, StrategicResponseBundleRef]:
+    """Persist the strategic closure, equilibrium set, and policy-value summaries."""
+    bundle_metadata = {
+        **dict(getattr(result, "closure_summary", {}) or {}),
+        **dict(metadata or {}),
+    }
+    closure_summary = StrategicClosureSummary(
+        fallback_mode=result.fallback_mode,
+        equilibrium_concept=equilibrium_concept,
+        equilibrium_descriptor=equilibrium_descriptor,
+        equilibrium_selection_dependence=result.equilibrium_selection_dependence,
+        profile_count=int(result.closure_summary.get("profile_count") or 0),
+        equilibrium_count=int(
+            result.closure_summary.get("equilibrium_count") or len(result.equilibrium_profiles)
+        ),
+        blocked_reason=result.blocked_reason,
+        warnings=tuple(str(item) for item in result.warnings),
+        metadata=bundle_metadata,
+    )
+    strategic_closure_ref = persist_strategic_closure_summary(store, closure_summary, inputs=inputs)
+    equilibrium_set_ref = persist_equilibrium_set_summary(
+        store,
+        EquilibriumSetSummary(
+            equilibrium_profiles=tuple(dict(profile) for profile in result.equilibrium_profiles),
+            equilibrium_count=len(result.equilibrium_profiles),
+            multiplicity_note=result.multiplicity_note,
+            metadata=bundle_metadata,
+        ),
+        inputs=inputs,
+    )
+    selected_equilibrium_ref = None
+    if result.selected_equilibrium is not None and mfg_equilibrium_certificate is None:
+        selected_equilibrium_ref = persist_equilibrium_selection_summary(
+            store,
+            EquilibriumSelectionSummary(
+                selected_equilibrium=dict(result.selected_equilibrium),
+                equilibrium_selection_dependence=result.equilibrium_selection_dependence,
+                metadata=bundle_metadata,
+            ),
+            inputs=inputs,
+        )
+    performative_shift_ref = None
+    if (
+        result.performative_shift is not None
+        or getattr(result, "performative_loop_certificate", None) is not None
+    ):
+        certificate_payload = {}
+        certificate_metadata: dict[str, Any] = {}
+        if getattr(result, "performative_loop_certificate", None) is not None:
+            certificate_payload = result.performative_loop_certificate.model_dump(mode="json")
+            certificate_metadata = dict(certificate_payload.pop("metadata", {}) or {})
+        performative_shift_ref = persist_performative_shift_summary(
+            store,
+            PerformativeShiftSummary(
+                **certificate_payload,
+                performative_shift=(
+                    None if result.performative_shift is None else float(result.performative_shift)
+                ),
+                baseline_policy_value=baseline_policy_value,
+                post_adaptation_policy_value=result.post_adaptation_policy_value,
+                metadata={**bundle_metadata, **certificate_metadata},
+            ),
+            inputs=inputs,
+        )
+    post_adaptation_policy_value_ref = persist_post_adaptation_policy_value_summary(
+        store,
+        PostAdaptationPolicyValueSummary(
+            fallback_mode=result.fallback_mode,
+            baseline_policy_value=baseline_policy_value,
+            point_value=result.post_adaptation_policy_value if result.bounds is None else None,
+            lower_bound=None if result.bounds is None else float(result.bounds[0]),
+            upper_bound=None if result.bounds is None else float(result.bounds[1]),
+            blocked_reason=result.blocked_reason,
+            metadata=bundle_metadata,
+        ),
+        inputs=inputs,
+    )
+    decomposition_summary = strategic_decomposition_summary(result)
+    resolved_decomposition_status = (
+        decomposition_status
+        if decomposition_status is not None
+        else StrategicDecompositionStatus(str(decomposition_summary["decomposition_status"]))
+    )
+    if decomposition_certificate is None and resolved_decomposition_status in {
+        StrategicDecompositionStatus.EXACT,
+        StrategicDecompositionStatus.SELECTOR_INVARIANT,
+    }:
+        decomposition_certificate = StrategicDecompositionCertificate(
+            decomposition_status=resolved_decomposition_status,
+            cross_world_anchor_defined=bool(
+                decomposition_summary.get("cross_world_anchor_defined", False)
+            ),
+            selector_invariant=bool(decomposition_summary.get("selector_invariant", False)),
+            equilibrium_selector_justified=(
+                str(getattr(result, "equilibrium_selection_dependence", "")).strip().lower()
+                in {"deterministic", "deterministic_selection"}
+            ),
+            assumptions_checked=("frozen_baseline_strategy_anchor",),
+            metadata={
+                **bundle_metadata,
+                "causal_component_value": decomposition_summary.get("causal_component_value"),
+                "strategic_component_value": decomposition_summary.get("strategic_component_value"),
+            },
+        )
+    if (
+        anchor_equilibrium is None
+        and resolved_decomposition_status
+        in {
+            StrategicDecompositionStatus.EXACT,
+            StrategicDecompositionStatus.SELECTOR_INVARIANT,
+        }
+        and getattr(result, "selected_equilibrium", None) is not None
+    ):
+        anchor_equilibrium = EquilibriumSelectionSummary(
+            selected_equilibrium=dict(result.selected_equilibrium),
+            equilibrium_selection_dependence=str(
+                getattr(result, "equilibrium_selection_dependence", "deterministic")
+            ),
+            metadata={
+                **bundle_metadata,
+                "decomposition_semantics": StrategicDecompositionSemantics.FROZEN_BASELINE_STRATEGY.value,
+            },
+        )
+    if resolved_decomposition_status is StrategicDecompositionStatus.BOUNDED:
+        causal_bounds_payload = decomposition_summary.get("causal_component_bounds")
+        strategic_bounds_payload = decomposition_summary.get("strategic_component_bounds")
+        if (
+            causal_component_bounds is None
+            and isinstance(causal_bounds_payload, list)
+            and len(causal_bounds_payload) == 2
+        ):
+            causal_component_bounds = StrategicComponentBoundsSummary(
+                component=StrategicDecompositionComponent.CAUSAL,
+                lower_bound=float(causal_bounds_payload[0]),
+                upper_bound=float(causal_bounds_payload[1]),
+                metadata=bundle_metadata,
+            )
+        if (
+            strategic_component_bounds is None
+            and isinstance(strategic_bounds_payload, list)
+            and len(strategic_bounds_payload) == 2
+        ):
+            strategic_component_bounds = StrategicComponentBoundsSummary(
+                component=StrategicDecompositionComponent.STRATEGIC,
+                lower_bound=float(strategic_bounds_payload[0]),
+                upper_bound=float(strategic_bounds_payload[1]),
+                metadata=bundle_metadata,
+            )
+    decomposition_certificate_ref = None
+    if decomposition_certificate is not None:
+        decomposition_certificate_ref = persist_strategic_decomposition_certificate(
+            store,
+            decomposition_certificate,
+            inputs=inputs,
+        )
+    decomposition_failure_card_ref = None
+    if (
+        decomposition_failure_card is None
+        and resolved_decomposition_status is StrategicDecompositionStatus.BLOCKED
+    ):
+        decomposition_failure_card = _default_strategic_decomposition_failure_card(
+            result,
+            metadata=bundle_metadata,
+        )
+    if decomposition_failure_card is not None:
+        decomposition_failure_card_ref = persist_strategic_decomposition_failure_card(
+            store,
+            decomposition_failure_card,
+            inputs=inputs,
+        )
+    anchor_equilibrium_ref = None
+    if anchor_equilibrium is not None:
+        anchor_equilibrium_ref = persist_equilibrium_selection_summary(
+            store,
+            anchor_equilibrium,
+            inputs=inputs,
+        )
+    causal_component_bounds_ref = None
+    if causal_component_bounds is not None:
+        causal_component_bounds_ref = persist_strategic_component_bounds_summary(
+            store,
+            causal_component_bounds,
+            inputs=inputs,
+        )
+    strategic_component_bounds_ref = None
+    if strategic_component_bounds is not None:
+        strategic_component_bounds_ref = persist_strategic_component_bounds_summary(
+            store,
+            strategic_component_bounds,
+            inputs=inputs,
+        )
+    mfg_equilibrium_ref = None
+    if mfg_equilibrium_certificate is not None:
+        if (
+            mfg_macro_simulation_config is not None
+            and mfg_equilibrium_certificate.provenance is not None
+            and mfg_equilibrium_certificate.provenance.numerics_config_ref is not None
+        ):
+            raise ValueError(
+                "mfg_macro_simulation_config must be omitted when certificate provenance already carries numerics_config_ref"
+            )
+        resolved_mfg_certificate = mfg_equilibrium_certificate
+        mfg_equilibrium_solution = (
+            resolved_mfg_certificate.equilibrium_solution or MeanFieldEquilibriumSolutionSummary()
+        )
+        if mfg_solver_residual_report is not None:
+            solver_residual_ref = persist_mean_field_solver_residual_report(
+                store,
+                mfg_solver_residual_report,
+                inputs=inputs,
+            )
+            mfg_equilibrium_solution = mfg_equilibrium_solution.model_copy(
+                update={"solver_residual_ref": solver_residual_ref}
+            )
+        if mfg_mass_conservation_report is not None:
+            mass_conservation_ref = persist_mean_field_mass_conservation_report(
+                store,
+                mfg_mass_conservation_report,
+                inputs=inputs,
+            )
+            mfg_equilibrium_solution = mfg_equilibrium_solution.model_copy(
+                update={"mass_conservation_ref": mass_conservation_ref}
+            )
+        resolved_mfg_certificate = resolved_mfg_certificate.model_copy(
+            update={"equilibrium_solution": mfg_equilibrium_solution}
+        )
+        if mfg_macro_simulation_config is not None:
+            numerics_config_ref = persist_mean_field_macro_simulation_config(
+                store,
+                mfg_macro_simulation_config,
+                inputs=inputs,
+            )
+            provenance = resolved_mfg_certificate.provenance
+            if provenance is None:
+                provenance = MeanFieldProvenanceSummary(
+                    numerics_config_ref=numerics_config_ref,
+                )
+            else:
+                provenance = provenance.model_copy(
+                    update={"numerics_config_ref": numerics_config_ref}
+                )
+            resolved_mfg_certificate = resolved_mfg_certificate.model_copy(
+                update={"provenance": provenance}
+            )
+        resolved_mfg_certificate = MeanFieldEquilibriumCertificate.model_validate(
+            resolved_mfg_certificate.model_dump(mode="json")
+        )
+        mfg_equilibrium_ref = persist_mean_field_equilibrium_certificate(
+            store,
+            resolved_mfg_certificate,
+            inputs=inputs,
+        )
+    bundle = build_strategic_response_bundle(
+        causal_component_ref=causal_component_ref,
+        strategic_closure_ref=strategic_closure_ref,
+        equilibrium_set_ref=equilibrium_set_ref,
+        post_adaptation_policy_value_ref=post_adaptation_policy_value_ref,
+        selected_equilibrium_ref=selected_equilibrium_ref,
+        performative_shift_ref=performative_shift_ref,
+        mfg_equilibrium_ref=mfg_equilibrium_ref,
+        decomposition_status=resolved_decomposition_status,
+        decomposition_certificate_ref=decomposition_certificate_ref,
+        decomposition_failure_card_ref=decomposition_failure_card_ref,
+        equilibrium_selector_ref=equilibrium_selector_ref,
+        anchor_equilibrium_ref=anchor_equilibrium_ref,
+        causal_component_bounds_ref=causal_component_bounds_ref,
+        strategic_component_bounds_ref=strategic_component_bounds_ref,
+        result=result,
+    ).model_copy(update={"metadata": bundle_metadata})
+    bundle_ref = persist_strategic_response_bundle(store, bundle, inputs=inputs)
+    return bundle, bundle_ref
 
 
 def evaluate_strategic_hook(

@@ -84,6 +84,7 @@ Every row below was classified before the first source edit. Result:
 | seam 6 — composition failure-card contract | 4/10 | The dependency-neutral failure-card DTOs/enums have one IR identity consumed by the existing Foundry producer and Scientist persistence/orchestration paths. Cleared FS-04. | stands; round 4 bought the three-name stable IR contract surface and its schema/identity obligations; shared generated inventory projection is deferred intact to the final generator boundary |
 | seam 7 — policy-frontier embedders | 5/10 | Generic TF-IDF and optional sentence-transformer implementations now have one Foundry-owned identity; existing Foundry and Scientist consumers use the narrow stable root. Cleared FS-05 and closes `foundry -> scientist` 5/5. | stands; round 5 bought exactly three stable root names; the rejected 26-name backend publication was withdrawn and consumed no additional round |
 | seam 8 — IR method-protocol binding | 6/10 | IR now emits neutral JSON payloads for nine method-contract families; one fail-closed Foundry materializer admits them by exact contract ID and FQN, and both real upper consumers use that chokepoint. Cleared IF-01..07. | stands; round 6 bought the single new `foundry.data_plane.materialize_method_contract` export; the P31 consumer repair widened the same mechanism and consumed no additional round |
+| seam 9 — IR strategic/transportability adapters | 6/10 | Existing Foundry owners now interpret solve results, assemble strategic responses, and materialize `SourceDomain`; IR retains neutral declarations and persistence only. Cleared IF-08..10. | stands; consumer-up relocation into existing modules and already-allowed directions introduced no package, module, surface, authority publication, or constraint loosening |
 
 No round has been withdrawn.
 
@@ -471,3 +472,36 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   are wired. Materialization grants no policy authority. Round 6 is charged
   solely for the new `foundry.data_plane` export; the same-class P31 repair
   widened that one mechanism and consumed no second round.
+
+### Seam 9 — IR strategic/transportability adapters
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 8 commit
+  `752b27e07553` read back after writing and before this boundary.
+- Observed seam path set is exactly 11 paths: four Foundry/IR mechanism paths,
+  three existing Scientist consumers, and four focused test paths. This plan
+  and journal are the two P39 record companions. No shared generated path is
+  attributed to the seam.
+- The existing Foundry strategic owner now interprets Foundry solver results
+  and builds the response bundle. IR retains dependency-neutral strategic
+  declarations and persistence. The existing Foundry ID-engine transport owner
+  converts strict `SourceDomainSpec` values to `SourceDomain`; mapping-shaped
+  stand-ins are rejected rather than silently admitted.
+- The focused implementation wave passed 3 tests. Independent review then ran
+  the 34-test strategic/transport blast radius plus two transportability
+  falsifiers; both receipts passed. Changed-path Ruff and `git diff --check`
+  completed direct exit 0. Full-file Ruff still reports pre-existing F821/I001
+  findings in touched large files, so the scoped unchanged-code comparison used
+  the recorded `--ignore F821,I001` baseline and was green; because the touched
+  files intersect the gate denominator, provenance of those full-file reds is
+  `not_established` under P41 rather than claimed inherited.
+- Complete AST enumeration removes IF-08..10. The composite source linter and
+  the row's literal command report zero `ir -> foundry`; this seam claims the
+  three strategic/transport removals only, separately from the protocol,
+  lowering, and compiler/JAX seams.
+- Capability result: Foundry remains the technical producer and conversion
+  owner, IR carries neutral typed inputs/persisted artifacts, and the existing
+  Scientist nodes are the real orchestration consumers. Strict type rejection
+  and end-to-end strategic-response coverage supply the semantic negatives.
+  This downward/consumer-up move uses existing modules and surfaces and consumes
+  no widening round; the ledger remains 6/10.

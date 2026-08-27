@@ -13,6 +13,7 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.foundry.methods.catalog.causal.strategic import (
+    persist_strategic_solve_artifacts,
     solve_strategic_response,
     strategic_result_summary,
 )
@@ -28,7 +29,6 @@ from polisyos.ir.analytics.strategic import (
     load_strategic_payoff_table,
     persist_strategic_payoff_table,
     persist_strategic_scm,
-    persist_strategic_solve_artifacts,
 )
 from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.registry.refs import ArtifactRefModel

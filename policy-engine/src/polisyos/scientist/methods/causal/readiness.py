@@ -21,6 +21,7 @@ from polisyos.foundry.methods.catalog.causal.id_engine import (
 )
 from polisyos.foundry.methods.catalog.causal.measurement_error import identify_with_proxy
 from polisyos.foundry.methods.catalog.causal.strategic import (
+    persist_strategic_solve_artifacts,
     solve_strategic_response,
     strategic_result_summary,
 )
@@ -39,7 +40,6 @@ from polisyos.ir.analytics.strategic import (
     StrategicSCM,
     persist_strategic_payoff_table,
     persist_strategic_scm,
-    persist_strategic_solve_artifacts,
 )
 from polisyos.ir.analytics.transportability import (
     SelectionDiagram,

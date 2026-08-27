@@ -82,14 +82,38 @@ from polisyos.ir.analytics.estimand import (
     make_frontdoor_estimand,
     make_z_transport_estimand,
 )
+from polisyos.ir.analytics.transportability import SourceDomainSpec
 
 # ---------------------------------------------------------------------------
 # PAG-specific identification (Malinsky & Spirtes 2017)
 # ---------------------------------------------------------------------------
-
 from . import core as _core
 
 globals().update({name: getattr(_core, name) for name in dir(_core) if not name.startswith("__")})
+
+
+def _normalize_source_domains(
+    source_domains: list[SourceDomain | SourceDomainSpec],
+) -> list[SourceDomain]:
+    """Resolve typed IR source specs into Foundry's algorithm descriptor."""
+
+    normalized: list[SourceDomain] = []
+    for domain in source_domains:
+        if isinstance(domain, SourceDomain):
+            normalized.append(domain)
+            continue
+        if isinstance(domain, SourceDomainSpec):
+            normalized.append(
+                SourceDomain(
+                    domain_id=domain.domain_id,
+                    s_nodes=frozenset(node.target_variable for node in domain.s_nodes),
+                    z_interventions=frozenset(domain.z_interventions),
+                    dataset_ref=domain.dataset_ref,
+                )
+            )
+            continue
+        raise TypeError("source_domains entries must be SourceDomain or SourceDomainSpec")
+    return normalized
 
 
 def z_id_algorithm(
@@ -454,7 +478,7 @@ def mz_id_algorithm(
     *,
     treatment: frozenset[str],
     outcome: frozenset[str],
-    source_domains: list[SourceDomain],
+    source_domains: list[SourceDomain | SourceDomainSpec],
     graph: CausalGraphModel,
     dataset_ref: str | None = None,
 ) -> IdentificationResult:
@@ -479,6 +503,7 @@ def mz_id_algorithm(
     graph:          target-domain causal graph G
     dataset_ref:    tag for DistributionRef leaves
     """
+    source_domains = _normalize_source_domains(source_domains)
     _trace: list[str] = [
         f"mz_id_algorithm(X={sorted(treatment)}, Y={sorted(outcome)}, "
         f"domains={[d.domain_id for d in source_domains]})"

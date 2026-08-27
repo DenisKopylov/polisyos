@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.strategic import (
     PerformativeLoopSpec,
+    persist_strategic_solve_artifacts,
     solve_strategic_response,
 )
 from polisyos.ir.analytics.abstraction import (
@@ -84,7 +87,6 @@ from polisyos.ir.analytics.strategic import (
     persist_strategic_payoff_table,
     persist_strategic_response_bundle,
     persist_strategic_scm,
-    persist_strategic_solve_artifacts,
     strategic_admissibility_record_for,
     strategic_admissibility_records,
 )
@@ -96,7 +98,6 @@ from polisyos.ir.analytics.structural_causal_model import (
 )
 from polisyos.ir.registry.refs import ArtifactRefModel, EstimandASTRef, ProofBundleRef
 from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
-from pydantic import ValidationError
 
 
 def _artifact_id(ch: str) -> str:

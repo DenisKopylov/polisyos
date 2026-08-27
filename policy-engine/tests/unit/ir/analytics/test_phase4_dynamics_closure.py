@@ -4,7 +4,9 @@ from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pytest
+from pydantic import ValidationError
 
+import polisyos.foundry.methods.catalog.simulation.dynamics as simulation_dynamics
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import (
     AttractorAnalysisResult,
@@ -18,6 +20,9 @@ from polisyos.core.contracts.foundry import (
 )
 from polisyos.foundry.analysis.attractors import attach_abm_bifurcation_report_ref
 from polisyos.foundry.calibration import attach_abm_identifiability_certificate_ref
+from polisyos.foundry.methods.catalog.simulation.dynamics import (
+    build_content_bound_abm_result,
+)
 from polisyos.ir.analytics.forecasting_uncertainty import (
     FanChartSpec,
     ForecastCalibrationMethod,
@@ -41,8 +46,6 @@ from polisyos.ir.analytics.phase4_dynamics import (
     SpaceTimeCausalCertificate,
     StrangleReceiptError,
     TemporalGraphCausalCertificate,
-    build_abm_result_from_content_bound_simulation,
-    build_abm_result_from_simulation,
     build_dynamic_microsim_validation_report,
     build_space_time_causal_certificate,
     build_strangle_receipt,
@@ -52,6 +55,7 @@ from polisyos.ir.analytics.phase4_dynamics import (
     load_dynamic_microsim_validation_report,
     load_space_time_causal_certificate,
     load_temporal_graph_causal_certificate,
+    persist_abm_result,
     persist_dynamic_microsim_validation_report,
     persist_space_time_causal_certificate,
     persist_temporal_graph_causal_certificate,
@@ -127,14 +131,15 @@ def test_phase4_gate_blocks_long_uncalibrated_or_red_horizons() -> None:
 
 
 def test_phase4_abm_result_exact_fields_wrap_existing_refs() -> None:
+    diagnostic_ref = IdentifiabilityDiagnosticRef(artifact_id=_artifact_id("c"))
     simulation = SimulationResult(
         exec_plan_ref=ExecPlanRef(artifact_id=_artifact_id("a")),
         metrics_ref=MetricsRef(artifact_id=_artifact_id("b")),
+        identifiability_diagnostic_ref=diagnostic_ref,
     )
-    diagnostic_ref = IdentifiabilityDiagnosticRef(artifact_id=_artifact_id("c"))
     attractor_ref = AttractorAnalysisResultRef(artifact_id=_artifact_id("d"))
 
-    result = build_abm_result_from_simulation(
+    result = simulation_dynamics.build_abm_result_from_simulation(
         simulation,
         identifiability_diagnostic_ref=diagnostic_ref,
         attractor_analysis_ref=attractor_ref,
@@ -147,6 +152,95 @@ def test_phase4_abm_result_exact_fields_wrap_existing_refs() -> None:
     assert result.identifiability_certificate.diagnostic_ref is not None
     assert result.bifurcation_report is not None
     assert result.bifurcation_report.bifurcation_count == 2
+    assert set(ABMResult.model_fields) == {
+        *SimulationResult.model_fields,
+        "identifiability_certificate",
+        "bifurcation_report",
+    }
+    assert result.model_dump(
+        mode="json",
+        exclude={"identifiability_certificate", "bifurcation_report"},
+    ) == simulation.model_dump(mode="json")
+
+
+def test_phase4_abm_result_is_an_independent_strict_ir_round_trip(tmp_path) -> None:
+    payload = {
+        "exec_plan_ref": {"artifact_id": _artifact_id("a")},
+        "metrics_ref": {"artifact_id": _artifact_id("b")},
+        "metric_observation_bundle_ref": {"artifact_id": _artifact_id("c")},
+        "state_snapshot_ref": {"artifact_id": _artifact_id("d")},
+        "environment_ref": {"artifact_id": _artifact_id("e")},
+        "trace_slice_ref": {"artifact_id": _artifact_id("f")},
+        "uncertainty_envelopes": {
+            "outcome": {"artifact_id": _artifact_id("1")},
+        },
+        "distributional_report_ref": {"artifact_id": _artifact_id("2")},
+        "welfare_bundle_ref": {"artifact_id": _artifact_id("3")},
+        "welfare_bound_refs": {
+            "aggregate": {"artifact_id": _artifact_id("4")},
+        },
+        "metric_validation_report_ref": {"artifact_id": _artifact_id("5")},
+        "fairness_audit_report_ref": {"artifact_id": _artifact_id("6")},
+        "feedback_result_ref": {"artifact_id": _artifact_id("7")},
+        "identifiability_diagnostic_ref": {"artifact_id": _artifact_id("8")},
+        "notes": ["independent_ir_result"],
+        "identifiability_certificate": {
+            "status": "diagnostic_attached",
+            "diagnostic_ref": {"artifact_id": _artifact_id("8")},
+        },
+        "bifurcation_report": {
+            "status": "available",
+            "attractor_analysis_ref": {"artifact_id": _artifact_id("9")},
+        },
+    }
+    expected_kinds = {
+        "exec_plan_ref": "foundry.exec_plan",
+        "metrics_ref": "foundry.metrics",
+        "metric_observation_bundle_ref": "foundry.metric_observation_bundle",
+        "state_snapshot_ref": "foundry.state_snapshot",
+        "environment_ref": "foundry.environment_manifest",
+        "trace_slice_ref": "foundry.trace_slice",
+        "distributional_report_ref": "ir.distributional_report",
+        "welfare_bundle_ref": "ir.welfare_bundle",
+        "metric_validation_report_ref": "scientist.metric_validation_report",
+        "fairness_audit_report_ref": "scientist.fairness_audit_report",
+        "feedback_result_ref": "foundry.feedback_result",
+        "identifiability_diagnostic_ref": "foundry.identifiability_diagnostic",
+    }
+
+    result = ABMResult.model_validate(payload)
+    wire_payload = result.model_dump(mode="json")
+    store = FileSystemCAS(tmp_path)
+    ref = persist_abm_result(store, result)
+    loaded = load_abm_result(store, ref)
+
+    assert SimulationResult not in ABMResult.__mro__
+    assert loaded == result
+    assert loaded.model_dump(mode="json") == wire_payload
+    for field_name, kind in expected_kinds.items():
+        assert getattr(loaded, field_name).kind == kind
+    assert loaded.uncertainty_envelopes is not None
+    assert loaded.uncertainty_envelopes["outcome"].kind == "ir.uncertainty_envelope"
+    assert loaded.welfare_bound_refs is not None
+    assert loaded.welfare_bound_refs["aggregate"].kind == "foundry.welfare_bound_report"
+    assert loaded.identifiability_certificate is not None
+    assert loaded.identifiability_certificate.diagnostic_ref is not None
+    assert (
+        loaded.identifiability_certificate.diagnostic_ref.kind
+        == "foundry.identifiability_diagnostic"
+    )
+    assert loaded.bifurcation_report is not None
+    assert loaded.bifurcation_report.attractor_analysis_ref is not None
+    assert (
+        loaded.bifurcation_report.attractor_analysis_ref.kind
+        == "foundry.attractor_analysis_result"
+    )
+    assert loaded.trace_slice_ref is not None
+    assert loaded.trace_slice_ref.media_type == "application/jsonl"
+    with pytest.raises(ValidationError, match="frozen_instance"):
+        loaded.notes = []
+    with pytest.raises(ValueError):
+        ABMResult.model_validate({**payload, "unexpected_authority": True})
 
 
 def test_phase4_abm_strangle_receipt_recomputes_payload_and_diagnostics() -> None:
@@ -193,7 +287,7 @@ def test_phase4_abm_strangle_receipt_recomputes_payload_and_diagnostics() -> Non
             diagnostics={},
         )
 
-    result = build_abm_result_from_content_bound_simulation(
+    result = build_content_bound_abm_result(
         method_id="simulation.test.abm",
         horizon=3,
         payload=payload,
@@ -237,7 +331,13 @@ def test_phase4_abm_attachment_helpers_persist_exact_fields(tmp_path) -> None:
         diagnostic_ref=diagnostic_ref,
     )
     ident_abm = load_abm_result(store, ident_abm_ref)
-    assert ident_abm.identifiability_diagnostic_ref == diagnostic_ref
+    assert not isinstance(
+        ident_abm.identifiability_diagnostic_ref,
+        IdentifiabilityDiagnosticRef,
+    )
+    assert ident_abm.identifiability_diagnostic_ref.model_dump(
+        mode="json"
+    ) == diagnostic_ref.model_dump(mode="json")
     assert ident_abm.identifiability_certificate is not None
     assert str(ident_abm.identifiability_certificate.diagnostic_ref.artifact_id) == str(
         diagnostic_ref.artifact_id

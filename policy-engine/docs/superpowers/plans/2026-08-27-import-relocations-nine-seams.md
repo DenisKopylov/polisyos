@@ -136,8 +136,8 @@ At every seam boundary:
 
 ### Seam 15: IR phase-4 dynamics — 1 statement
 
-- [ ] Make `ABMResult` an independent IR analytical DTO.
-- [ ] Move Core execution-ref/result conversion to the existing Foundry
+- [x] Make `ABMResult` an independent IR analytical DTO.
+- [x] Move Core execution-ref/result conversion to the existing Foundry
   simulation owner and reject malformed conversions.
 
 ### Seam 16: IR truthfulness identity — 1 statement

@@ -90,6 +90,7 @@ Every row below was classified before the first source edit. Result:
 | seam 12 — IR backtesting | 7/10 | IR now emits sparse neutral validation-plan payloads; the existing Scientist matrix runner strictly materializes the complete bundle set before any execution. Cleared IS-01..03. | stands; existing modules, bundle surface, and Scientist plan authority were reused; no new surface, module, package, constraint, or authority publication |
 | seam 13 — IR alignment governance | 7/10 | One private Scientist chokepoint recomputes and content-binds ontology and latent-governance predicates for both real callers; IR consumes frozen governed snapshots and fails closed on absent/tampered inputs. Cleared IS-04/05. | stands; private consolidation in existing modules narrows the existing IR verifier surface and introduces no module/export/constraint/new surface |
 | seam 14 — IR strategic budget identity | 8/10 | `ComputeBudget` has one lightweight IR-kernel identity; Strategic IR and the already-published Scientist budgets path import that identity, while real Foundry budget enforcement and persistence remain intact. Cleared IS-06 and closes `ir -> scientist` 6/6. | stands; round 8 bought the new direct module-level `polisyos.ir.kernel.base.ComputeBudget` path after the first zero-round location was withdrawn for eager Strategic/NumPy import weight |
+| seam 15 — IR phase-4 dynamics | 9/10 | IR now owns an independent `ABMResult`; the existing Foundry simulation owner converts Core execution results and refs before IR persistence, and both existing Foundry consumers use that chokepoint. Cleared IC-01. | stands; round 9 bought only the module-local `foundry.methods.catalog.simulation.dynamics.build_abm_result_from_simulation` export; the private typed-reference compatibility repair widened the same mechanism and consumed no second round |
 
 No round has been withdrawn.
 
@@ -720,3 +721,48 @@ will be recorded at their seam boundaries rather than inferred from contracts.
 - Capability result: one typed identity, `StrategicSCM` carrier/persistence,
   stable compatibility surface, real Foundry consumer, and positive/negative
   semantic tests are intact. Round 8 stands; no incomplete label remains.
+
+### Seam 15 — IR phase-4 dynamics
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 14 commit
+  `afab3030a00d` read back after writing and before this boundary.
+- Observed mechanism/test path set is exactly six: existing IR phase-4 DTO,
+  existing Foundry simulation conversion owner, its two existing Foundry
+  consumers, and two focused semantic-test paths. This plan/journal pair are
+  P39 record companions. No generated or baseline path is attributed to the
+  seam commit.
+- IC-01 is `consumer-up`, ambiguous=0. `ABMResult` is now an independent IR
+  analytical DTO. Core execution-ref/result interpretation occurs only in the
+  canonical Foundry converter before IR CAS persistence; calibration and
+  attractor consumers use that converter rather than reconstructing it.
+- Independent review first found a same-class typed-reference compatibility
+  escape: the generic replacement broke compact `{artifact_id}` defaults and
+  could accept semantically swapped refs. Under P40 the same mechanism was
+  widened structurally, without another round: all 14 formerly typed top-level
+  slots and both nested refs now carry exact private Literal-kind constraints,
+  while propagation config/report remain intentionally generic.
+- The complete falsifier derives the 14-slot set from
+  `SimulationResult.model_fields`, rejects a cyclic wrong-kind assignment for
+  every member plus both nested swaps, preserves compact strict persistence,
+  and proves fully populated Core -> Foundry -> IR load is wire-equivalent.
+  It passed 18/18 (`real=61.65s`, `user=50.60s`, `sys=3.47s`); the implementer
+  wave passed 30/30 (`real=38.39s`). Ruff and `git diff --check` completed exit
+  0. The new IR schema has 19 definitions versus the former 20 solely because
+  two semantically identical ArtifactID string definitions consolidate to one.
+- Ten private ref classes are underscore-prefixed, absent from
+  `phase4_dynamics.__all__`, and absent from the generated public inventory.
+  Round 9 therefore buys exactly the one module-local Foundry converter export.
+- Manual final-baseline delta removes
+  `polisyos.ir.analytics.phase4_dynamics -> polisyos.core.contracts.foundry`,
+  `polisyos.foundry.calibration.identifiability -> polisyos.ir.analytics.phase4_dynamics`,
+  and
+  `polisyos.foundry.analysis.attractors -> polisyos.ir.analytics.phase4_dynamics`;
+  it adds
+  `polisyos.foundry.methods.catalog.simulation.dynamics -> polisyos.ir.registry.refs`.
+  The ABM snapshot, IR manifest, schema catalog, schemas reference, and deep
+  baseline remain deferred intact to the final serialized owner boundary.
+- Capability result: typed artifact, canonical producer/converter, CAS
+  persistence, both real consumers, negative semantic verification, and the
+  module-local integration surface are wired. Round 9 stands; no incomplete
+  label remains.

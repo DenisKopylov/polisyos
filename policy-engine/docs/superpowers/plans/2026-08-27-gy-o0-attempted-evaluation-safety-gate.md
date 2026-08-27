@@ -40,6 +40,14 @@ on `refs/heads/codex/gy-o0-attempted-evaluation-safety-plan`, based on local
 file; it does not change source, a register, a generated artifact, the
 deep-import baseline, or a timing budget.
 
+Execution starts from local `main` at
+`f3e3d996bd6710e26f24fd913d4fe0547f1d1a0d` on the attached branch
+`codex/gy-o0-attempted-evaluation-safety-execution`. The plan commit
+`39d8f0293d24d55f9be66b506d227d9270e7eddf` was brought forward by the
+append-only merge `2eca093151adedffb7dd937d61095bfcb2eec0bb`; no rebase was
+used. Execution re-derives C00 on that new base rather than treating planning
+receipts as current repository evidence.
+
 Two independent parsers over the complete task table in
 `docs/plans/active/layer3-slices/GY-engine-subordination.md` agree on the live
 ladder denominator: **37 tasks = 25 `executed` + 1 `not_executable` + 11
@@ -1169,30 +1177,54 @@ commit.
 
 ## 11. Parallel-lane safety and serialization
 
-### 11.1 Proven disjoint lanes
+### 11.1 Disjoint lanes and two newly reserved collision paths
 
 - DS11 owns `apps/runtime-dashboard/` and `architecture/atlas_surfaces/`. O0
   touches neither path family.
-- The unbound-writes lane owns `fabric/world/`,
+- DS15's current 37-path reservation is institutionally supplied as disjoint
+  from the 36-path O0 source/test/plan denominator; no coordination is needed.
+- The unbound-writes lane still owns `fabric/world/`,
   `runtime/quality/data_state_substrate.py`, `pdc/`, and
-  `tools/quality/timing_budgets.json`. O0 touches none of them.
+  `tools/quality/timing_budgets.json`, but its corrected WorkspaceLoop and
+  trace-to-CAS run-paper design adds two O0 collisions:
+  `src/polisyos/runtime/http/services/control/run_lifecycle.py` and
+  `tests/unit/runtime/http/test_run_paper_api.py`.
 - Existing PDC slots `EVAL_SAFETY` and `GY_O0_EVAL_SAFETY` are reused without a
   PDC edit.
 
+The reservation's complete 36-path intersection and a separate exact-member
+walk both return those same two paths. The currently published
+`codex/unbound-writes` commit has not yet materialized those implementation
+edits, so a Git-diff-only walk currently returns zero; that disagreement is
+recorded rather than used to erase the live reservation. C03 edits
+`run_lifecycle.py` last, and its run-paper companion is run/edited last in the
+surface-test slice. Immediately before either path is touched, execution
+repeats both intersection derivations against the lane's then-current branch
+and worktree. If changes have landed, merge local `main` forward, rerun the
+cluster's red falsifier, and only then edit. Two writers never race.
+
+`tools/quality/timing_budgets.json` remains forbidden. The unbound-writes
+lane's chronology-catalog edit is not a reason for O0 to touch or regenerate
+that governed file.
+
 ### 11.2 Relocation lane: explicit sequencing barrier
 
-The user-supplied relocation reservation is an
-`institutionally_supplied` coordination lock. Its stated 22-path membership is
-not derivable twice from this worktree, so the plan does not treat that count as
-a repository fact. The reservation spans Scientist among other families; all
-seven C04 mechanism paths are Scientist paths, so intersection is
-`not_established`.
+The relocation branch `codex/import-relocations-nine-seams` remains unmerged.
+Two independent final-tree delta walks from its merge base to
+`d5bb487246e986a8b86198fc67e0b0a3932dacc5` return 42 paths and the same exact
+two-path intersection with O0's 36-path denominator:
 
-**C04 may not start until the relocation lane publishes/releases its exact
-path set and a readback proves these seven paths are free.** If any intersect,
-sequence C04 after the relocation commit/handback, update the C04 base, replay
-C00 reds, and apply P41 before editing. Do not parallel-edit or guess around the
-reservation.
+- `src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py`
+- `tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py`
+
+The four other Scientist chokepoints are clear and proceed on schedule:
+Scientist API/context/builder transport, causal evaluation, production policy
+backend, and blueprint runtime. Only the hierarchical-policy-search caller and
+its owner test wait. Immediately before that deferred pair, read back the
+relocation branch/worktree and local `main`. If the relocation work has landed,
+merge local `main` forward and replay the C04 owner falsifier before editing;
+otherwise continue waiting for its explicit release. Do not parallel-edit or
+guess around the reservation.
 
 All CAS/event tests use isolated temporary stores. No shared DuckDB, fixed port,
 browser, dashboard, or production data writer is acquired.
@@ -1212,8 +1244,10 @@ browser, dashboard, or production data writer is acquired.
    suites belong only to the replay/cloud lane after the plan lands.
 7. Run Ruff on changed Python paths and importer tests for changed modules.
 8. Re-run declared-set equality and branch attachment.
-9. Commit at the clean semantic boundary. Never stash as storage, rebase,
-   reset, force-push, merge, or push.
+9. Commit at the clean semantic boundary. The plan-forward merge already
+   recorded in §1 and a collision-triggered append-only merge of local `main`
+   under §11 are the only authorized merges. Never stash as storage, rebase,
+   reset, force-push, push, or merge this execution branch into another branch.
 10. Re-read the committed paths from the attached branch before handoff.
 
 Every shell command uses this shape; `task_status` is deliberately not a zsh
@@ -1484,6 +1518,12 @@ tests/unit/runtime/quality/test_evaluation_safety.py
 - `src/polisyos/runtime/http/services/control/generation_cycle.py`
 - `src/polisyos/runtime/quality/recursive_generation_cycle.py`
 
+**Collision order:** complete the two uncontended owners and their falsifiers
+first. Re-derive the unbound-writes intersection immediately before touching
+`run_lifecycle.py`; edit that mechanism path and
+`tests/unit/runtime/http/test_run_paper_api.py` last within their respective
+C03 source/test slices, following §11.1 if the other lane has landed.
+
 Tasks:
 
 1. Construct exactly one EvalSafety service/concrete verifier port over the
@@ -1539,8 +1579,12 @@ tests/integration/runtime_quality/test_evaluation_safety_admission.py
 
 ### C04 — Inject the verifier port and strangle open-room Scientist executors
 
-**Sequencing barrier:** acquire the relocation-lane release/readback from
-§11.2 before any edit.
+**Split sequencing barrier:** execute and commit the four clear chokepoint
+groups first: facade/context/builder transport, causal evaluator, production
+policy backend, and blueprint runtime. Only
+`run_hierarchical_policy_search.py` and its owner test wait for the explicit
+relocation-lane release/readback in §11.2. The deferred pair is a continuation
+of C04, not a reason to hold the clear chokepoints.
 
 **Modify:**
 
@@ -1733,7 +1777,9 @@ Each cluster handoff reports:
 - decision/certificate/projection refs from the e2e test;
 - exact recomputed counter denominator and duplicate handling;
 - collision release evidence for C04;
-- no-push/no-merge confirmation.
+- the immediate pre-touch two-path unbound-writes collision readback for C03;
+- no-push/no-integration confirmation, plus the exact authorized append-only
+  merge readback if §11 required one.
 
 Final handoff must repeat verbatim:
 

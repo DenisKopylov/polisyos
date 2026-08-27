@@ -61,7 +61,7 @@ epoch, or substitute a demo credential.
   `docs/system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md:176-193`.
 - GY-N12 owner plan: `docs/plans/active/layer3-slices/GY-engine-subordination.md:2284-2332`.
 - GY-N12 closure basis: `docs/superpowers/specs/2026-08-20-gy-n12-epoch-chronology-closure-basis.md:131-187`.
-- DS4 temporal primitive: `apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx:8-89`.
+- DS4 temporal primitive: `apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx:8-85`.
 - Capability allocation history:
   `architecture/production_quality/chronology_capability_allocation.toml`.
 - Failure/repair register:
@@ -107,7 +107,7 @@ N12 census.
 | Set-level fact | Derivation A | Derivation B | Result / disagreement |
 | --- | --- | --- | --- |
 | Python source denominator | `rg --files src/polisyos -g '*.py'` | union of root and recursive `git ls-files` Python pathspecs | `2,600 = 2,600`; the first recursive-only git pathspec returned `2,599` because it omitted root `src/polisyos/__init__.py`; that rejected denominator is recorded, not hidden |
-| HTTP route files / decorated operations | Python AST over `runtime/http/routes/*.py` | anchored decorator census over the same complete glob | `17 / 105 = 17 / 105` |
+| HTTP route-directory Python files / decorated operations | Python AST over every `src/polisyos/runtime/http/routes/*.py`, including `__init__.py` | anchored decorator census over the same complete glob and inclusion rule | `17 / 105 = 17 / 105`; excluding only zero-operation `__init__.py` gives `16 / 105` by both derivations |
 | visible source operations | AST excludes the two `include_in_schema=False` SSE routes | `105 - 2` using the two exact decorators at `routes/runs.py:799,1143` | `103 = 103` |
 | frozen OpenAPI paths / operations | `jq` structured traversal | independent Python JSON traversal | `100 / 102 = 100 / 102` |
 | registered generated client outputs | TOML parse of the runtime-client and dashboard-type families | exact tracked-file census of the registered paths | `6 = 6`; with the OpenAPI snapshot, the generated bridge transaction has `7` outputs |
@@ -123,6 +123,13 @@ An independent exact-literal scan over the snapshot plus all six registered gene
 outputs finds neither that path nor `EpochValidityBatchResponse`, while the source
 route/DTO scan finds both. Thus the singleton set difference is not inferred from the
 operation-count arithmetic alone.
+
+The route-file denominator is therefore reproducible, not conventional: **route
+files means every Python module matched directly under
+`src/polisyos/runtime/http/routes/*.py`, including `__init__.py`**. That is 17 files;
+the initializer contributes zero decorated operations. A report that excludes only
+the initializer must say 16 files and still derive the same 105 operations. Neither
+choice changes the `103 visible - 102 frozen = 1` drift arithmetic.
 
 ### 3.3 DS4 and current decision-bearing lower bound
 
@@ -179,6 +186,57 @@ receipts below record the requested CPU basis explicitly.
 | source-route versus OpenAPI structured set comparison | `0.14 s` | `0.12 s` | `0.01 s` | `0.13 s` |
 | DS11 two-union collision census | `0.16 s` | `0.07 s` | `0.16 s` | `0.23 s` |
 | mechanism-table parser/readback | `0.11 s` | `0.06 s` | `0.02 s` | `0.08 s` |
+| amendment route AST denominator recheck | `0.22 s` | `0.15 s` | `0.02 s` | `0.17 s` |
+| amendment anchored-decorator denominator recheck | `0.18 s` | `0.07 s` | `0.06 s` | `0.13 s` |
+| amendment invariant/census verifier | `12.55 s` | `12.07 s` | `0.36 s` | `12.43 s` |
+| amendment explicit symbol-inventory dual sweep | `15.58 s` | `13.49 s` | `14.22 s` | `27.71 s` |
+| amendment focused docs gate | `3.19 s` | `2.48 s` | `0.36 s` | `2.84 s` |
+
+### 3.6 Symbol-name verification sweep
+
+The citation inventory is bounded explicitly rather than by “anything that looks like
+code.” It includes every inline-code token presented as an existing repository-defined
+class, protocol, type, component, function/method, or field/member; slash shorthands
+expand to both names. It excludes paths/commands, status and refusal literals, HTTP
+routes, platform-owned names (`Uint8Array`, `JSON.stringify`,
+`response.clone().arrayBuffer()`, `React.createElement`), and names explicitly marked
+as proposed or rejected. The path/file-type denominator is
+`src/polisyos/**/*.py` plus
+`apps/runtime-dashboard/src/**/*.{ts,tsx}`; generated TypeScript inside that dashboard
+root is included. No aggregate symbol count is claimed: the following normalized lists
+are the exact denominator.
+
+| Inventory class | Exact normalized members |
+| --- | --- |
+| Existing contracts/types/components | `TemporalRef`; `TemporalScope`; `TemporalCapabilitiesView`; `TemporalCapabilitiesResponse`; `DecisionValidityEventRequest`; `DecisionValidityEventResponse`; `DecisionValiditySummaryResponse`; `EpochValidityBatchRequest`; `EpochValidityBatchResponse`; `GovernanceMonitorEvent`; `MonitorEventType`; `SemanticEpochProductionReceiptStatement`; `EpochResolutionResult`; `EpochHistoryAppendReceipt`; `PreparedSemanticEpoch`; `PersistedSemanticEpochProductionReceipt`; `DecisionDependencyEvent`; `EpochValidityGateNonReceipt`; `EpochCertificateBinding`; `EpochDependencyGraph`; `AdvisoryPerturbationEvent`; `TargetDispositionVector`; `EpochValidityTransitionArtifact`; `EpochTransitionSigningNonReceipt`; `NoEpochTransitionSigningAuthority`; `CertificateStalenessDecision`; `OpenWorldRiskVector`; `DerivationRecipe`; `DerivedSeries`; `DerivationCertificate`; `DerivationMaterialization`; `EpochTransitionVerifier`; `NoEpochTransitionVerifier`; `DecisionValidityService`; `TemporalService`; `ProjectionFreshness`; `ResourceBindingSpec`; `RuntimePermission`; `TimeSemanticsLabel`; `PublicShareSummary`; `OGCard`; `EmailSummary`; `BureaucraticDocumentAST`; `PublicationPacketPanel`; `RunDetailLayout` |
+| Existing functions/methods | `incident_monitor_event`; `bridge_governance_events_to_claim_lifecycle`; `EpochValidityCompletedBatchEvidenceDenominator.enumerate_completed_epoch_batch_evidence`; `EpochValidityTransitionProducer.produce_and_persist`; `materialize_derivation`; `bind_export_replay`; `require_action_permission` |
+| Existing fields/members | `DecisionValiditySummaryResponse.status`; `DecisionValiditySummaryResponse.lifecycle_status`; `DecisionValiditySummaryResponse.checked_at`; `SemanticEpochProductionReceiptStatement.failure_codes`; `DecisionDependencyEvent.source_ref`; `AdvisoryPerturbationEvent.event_kind`; `RuntimePermission.RUNS_REVIEW`; `IncidentReport.monitor_event_ref`; `ClaimLifecycleTransitionRecord.monitor_event_ref`; `TimeSemanticsLabelProps.validAt`; `TimeSemanticsLabelProps.txAt`; `TimeSemanticsLabelProps.payloadAsOf`; `BureaucraticDocumentAST.temporal_scope` |
+| Proposed/rejected names checked separately | proposed `EvidenceValidityEvent`; proposed `EpochStalenessProjectionResponse`; proposed `DecisionValidityEventRequest.monitor_event_ref`; proposed dashboard owners `useEpochStaleness` and `epochStalenessTwin`; rejected `DerivedObservationSeries` |
+
+Every existing member in that denominator was checked in two independent ways: a
+declaration-aware walk (Python AST plus anchored TypeScript/TSX declaration/member
+forms) and an exact tracked-file word scan over the same roots/extensions. The only
+incorrect existing-symbol **name** was `DerivedObservationSeries`: it has zero source
+occurrences. The real class is `DerivedSeries` at
+`src/polisyos/runtime/quality/derived_observations.py:666`; its adjacent canonical
+owner types are `DerivationRecipe`, `DerivationCertificate`, and
+`DerivationMaterialization` in the same module, and `materialize_derivation` is at
+`:1574`.
+
+The sweep also confirmed two zero-occurrence names that are **planned additions**, not
+existing machinery: `EvidenceValidityEvent` and
+`EpochStalenessProjectionResponse`. The proposed `monitor_event_ref` **control-request
+arm** is also absent from `DecisionValidityEventRequest`
+(`src/polisyos/core/contracts/control.py:174-187`), but the identifier is not globally
+absent: existing incident and lifecycle records already carry fields with that name
+(`src/polisyos/scientist/governance/continuous/incident.py:38-50` and
+`src/polisyos/scientist/governance/continuous/lifecycle_bridge.py:434-445`). C01 extends
+the control request; it does not claim to coin the identifier. All other source symbols
+cited as existing resolved under both sweeps. A containing-range audit caught two
+separate defects: the prior aggregate dependency range ended at line 357 before
+`TargetDispositionVector` at line 386, and the DS4 primitive citation ended at line 89
+although its file ends at 85. The dependency row below now uses exact, full-prefix
+anchors for all three symbols, and DS4 uses `TimeSemanticsLabel.tsx:8-85`.
 
 ## 4. What exists: typed-result census and reachability partition
 
@@ -191,16 +249,16 @@ row count is used.
 | HTTP + frozen OpenAPI | `DecisionValiditySummaryResponse`: packet/run ref, `status`, `lifecycle_status`, `checked_at`, reasons, triggers, review flag, supersession refs, lineage key, recommended action, events/transitions/reviews/jobs/reissue candidates (`core/contracts/control.py:236-270`) | `GET /api/v1/control/runs/{run_id}/decision-validity` and packet-ref twin; replay hash bound in `routes/control.py:550-625` | implemented generic lifecycle; epoch chrome fields `surface_missing` |
 | HTTP + frozen OpenAPI | `DecisionValidityEventRequest/Response`: append-only event request, affected packets and status counts (`core/contracts/control.py:174-200`) | `POST /api/v1/control/decision-validity/events` | implemented generic lifecycle; the six perturbation source classes are not represented |
 | In-process/artifact canonical perturbation owner | `GovernanceMonitorEvent`: event id/type, decision ref, severity, exact claim/DAG scope, reason, occurrence time and metadata; current `MonitorEventType` has five detector kinds, including `incident`, but not the complete six-class M36 taxonomy (`scientist/governance/continuous/monitors.py:33-108`) | `incident_monitor_event(...)`, validity-report persistence and `bridge_governance_events_to_claim_lifecycle(...)` exist, but a 2,600-file AST census finds one definition and zero production calls for each named function; an independent literal call-site scan finds only unit/smoke-test calls (`incident.py:91`, `reports.py:25-109`, `lifecycle_bridge.py:505`) | `implemented_but_not_orchestrated`; complete class taxonomy, standalone exact event persistence, production intake, evidence-validity chain and surface are incomplete |
-| Source route, absent frozen bridge | `EpochValidityBatchRequest`: transition ref + query-context ref; `EpochValidityBatchResponse`: batch id, completed state, transition, completion receipt, affected packets, claim-bridge refs (`core/contracts/control.py:202-225`) | source route at `routes/control.py:521`; owner intake then claim bridge at `run_lifecycle.py:2122`; absent from schema and all generated clients | `bridge_missing`; standard container also uses `NoEpochTransitionVerifier`, so the positive path remains `producer_missing` / unallocated |
+| Source route, absent frozen bridge | `EpochValidityBatchRequest`: transition ref + query-context ref; `EpochValidityBatchResponse`: batch id, completed state, transition, completion receipt, affected packets, claim-bridge refs (`core/contracts/control.py:202-225`) | source route at `routes/control.py:521`; owner intake then claim bridge at `run_lifecycle.py:2122`; absent from schema and all generated clients | generated family is `bridge_missing`; `EpochTransitionVerifier` is the candidate contract owner (`src/polisyos/core/contracts/decision_validity.py:399`) and `DecisionValidityService` installs `NoEpochTransitionVerifier` by default (`src/polisyos/scientist/validation/decision_validity.py:367-409`), so positive verification is engineering `producer_missing`, never `absent/unallocated` |
 | Public contract, no dedicated route | `SemanticEpochProductionReceiptStatement`: production mode, `appended|no_change|not_established|contested`, prepared/admitted/epoch/manifest/history/chronology refs, query context, `failure_codes` (`core/contracts/epoch.py:884-925`) | acquisition finalization persists `epoch.production_receipt`; no typed read projection | producer/artifact implemented; API/consumer/surface missing |
 | In-process service results | `EpochResolutionResult`, `EpochHistoryAppendReceipt`, `PreparedSemanticEpoch`, `PersistedSemanticEpochProductionReceipt`: resolution/reconciliation, manifest/head/history refs and hashes, query/stamp, receipt bytes (`runtime/quality/semantic_epoch.py:646,849,1196,1246`) | acquisition bridge calls finalization at `acquisition_executor.py:1745,1774` | implemented but only indirectly reachable |
 | Public contract, no dedicated route | pending/completion/receipt/persisted batch evidence; gate receipt/nonreceipt; pre-N9 subject/admitted candidate/N9 projection (`core/contracts/decision_validity.py:228-602`) | Decision Validity persists an admitted batch and claim bridge consumes completion; other gate DTOs remain internal | contract + partial producer/consumer; surface missing |
-| In-process only | `EpochValidityTransitionArtifact`: previous/current epoch, certificate bindings, dependency graph, complete target vector, denominator refs, query context, purpose, content hash (`epoch_validity_cascade.py:535-563`) | an exact literal census finds the sole `produce_and_persist(` occurrence at its definition; an independent AST census finds one definition and zero calls in the complete 2,600-file source denominator | `implemented_but_not_orchestrated`; positive signer/producer identity absent |
+| In-process only | `EpochValidityTransitionArtifact`: previous/current epoch, certificate bindings, dependency graph, complete target vector, denominator refs, query context, purpose, content hash (`epoch_validity_cascade.py:535-563`) | `EpochValidityTransitionProducer.produce_and_persist` is the canonical candidate owner (`src/polisyos/runtime/quality/epoch_validity_cascade.py:763-830`); an exact literal census finds its sole occurrence at the definition, and an independent AST census finds one definition and zero calls in the complete 2,600-file source denominator | transition production is `implemented_but_not_orchestrated`; the institutional transition signer is separately `absent/unallocated` and yields the typed refusal in the next row |
 | In-process typed refusal | `EpochTransitionSigningNonReceipt`: `not_established|rejected`, exact code, predicate class (`epoch_validity_cascade.py:711-750`) | `NoEpochTransitionSigningAuthority` returns `epoch_transition_signer_not_established`; not externally routed | contract exists; bridge/consumer/surface missing |
 | In-process typed refusal | `EpochValidityGateNonReceipt`: status/code/subject/query refs (`core/contracts/decision_validity.py:470-501`) | gate returns `policy_admission_missing` at `epoch_validity_cascade.py:2096-2108` | contract exists; bridge/consumer/surface missing |
 | In-process staleness | `CertificateStalenessDecision`: `current|stale|revalidation_required`, reasons, stale edge keys (`credal_reference.py:389-397`) | its sole producer at `credal_reference.py:498-526` currently returns only `current` or `stale` | `revalidation_required` producer path missing; surface missing |
-| In-process dependency inheritance | `EpochCertificateBinding`, `EpochDependencyGraph`, `TargetDispositionVector`: immutable recipe binding, input refs, source→target edges, full target denominator and dispositions (`epoch_validity_cascade.py:222-357`) | advisory events traverse descendants before the independently reconciled target vector is built (`epoch_validity_cascade.py:404-530`) | inheritance semantics implemented; no read projection and no recompute lifecycle result |
-| No admitted epoch/recompute model | `DerivedObservationSeries` and derivation certificates carry content-addressed recipe facts but no epoch inheritance/recompute-status projection (`derived_observations.py:618-784`) | no semantic-epoch read bridge into the derived-observation owner was found | `absent/unallocated` for recompute execution/status producer; DS18 may render this honestly, not invent completion |
+| In-process dependency inheritance | `EpochCertificateBinding`, `EpochDependencyGraph`, `TargetDispositionVector`: immutable recipe binding, input refs, source→target edges, full target denominator and dispositions (`src/polisyos/runtime/quality/epoch_validity_cascade.py:248,313,386-404`) | advisory events traverse descendants before the independently reconciled target vector is built (`epoch_validity_cascade.py:404-530`) | inheritance semantics implemented; no read projection and no recompute lifecycle result |
+| Existing derived-data owner; missing epoch projection/bridge | `DerivedSeries` and the recipe/certificate/materialization validators carry content-addressed derivation facts (`src/polisyos/runtime/quality/derived_observations.py:618-784`), but no owner-emitted epoch-inheritance/recompute-status projection | generic `materialize_derivation` exists in that owner at `:1574`, but no semantic-epoch → derived-owner status producer or temporal read bridge was found | epoch-inheritance/recompute-status projection is engineering `producer_missing + bridge_missing`, with `src/polisyos/runtime/quality/derived_observations.py` as the named candidate owner; DS18 renders that assignable gap honestly and never calls it institutional `absent/unallocated` |
 | In-process/artifact only | `OpenWorldRiskVector`, persisted/verified vector, production and resolution nonreceipts, public limitation: complete component denominators, `established|limited|not_established`, limitation code/hash (`open_world_risk.py:272-500`) | promotion and public export consume it; generic artifact download can expose bytes only when a ref is already known | producer/artifact implemented; typed API/dashboard bridge missing |
 
 Adjacent scenario staleness and human-decision verifier epochs remain distinct systems.
@@ -249,7 +307,9 @@ leaving the producer/bridge callable only from tests would be P01/P02/P05/P15/P3
 
 DS18 is therefore not “add badges.” It contains:
 
-1. producer/contract work for the six-class and dependency/recompute projection;
+1. producer/contract work for the six-class and dependency projection, plus a truthful
+   projection of the engineering recompute nonreceipt until its named owner emits a
+   status;
 2. a typed read bridge for existing persisted epoch, Decision Validity, lineage, and
    OpenWorldRisk artifacts plus the real typed absences;
 3. OpenAPI/client repair, including the already-live epoch-batch source route;
@@ -305,8 +365,10 @@ The response is a strict nested `EpochStalenessProjectionResponse` with at least
 - OpenWorldRisk vector/public limitation and whether promotion is frozen;
 - authority-availability rows with role, exact refusal code, predicate provenance,
   consequence, source refs, and closure condition;
-- typed limitations for unresolved scope, missing artifacts, absent recompute producer,
-  and unavailable whole-history holder.
+- engineering-capability rows with exact missing-state label, candidate owner module,
+  missing emission/bridge, consequence, and assignable closure condition; and
+- typed limitations for unresolved scope, missing artifacts, a missing recompute-status
+  producer/read bridge, and unavailable whole-history holder.
 
 Every gate-driving predicate is labelled `recomputed`,
 `independently_reconciled`, `consumer_asserted`, `institutionally_supplied`, or
@@ -325,7 +387,10 @@ class name, config flag, field presence, or allocation prose and call that evide
 - A verified input revision propagates through the complete dependency graph. A
   dependent derivation renders `revalidation_required` only when the deterministic
   recipe/recompute obligation is established. Otherwise it renders `stale` plus
-  `recompute_status=not_established` / `producer_missing`.
+  `recompute_status=not_established` and the engineering state
+  `producer_missing + bridge_missing`, naming
+  `src/polisyos/runtime/quality/derived_observations.py` as the candidate owner. It
+  never inherits institutional appointment language.
 - `limited` and `not_established` OpenWorldRisk freeze promotion. No numeric “risk is
   low” projection is introduced.
 - An advisory event is downgrade-only. Only a content-bound canonical-owner
@@ -404,7 +469,8 @@ secondary.
 | `revalidation_required` | review/revalidation glyph and action requirement distinct from generic stale; never a disabled blank control |
 | `contested` / `review_required` | canonical weakest-boundary token with dissent/adjudication reason |
 | `superseded` / `reissued` | readable historical record plus explicit successor link and epoch boundary; no destructive overwrite styling |
-| `not_established` / authority absent | neutral limitation panel with structural pattern and exact code; visually distinct from transport/error red |
+| institutional `absent/unallocated` observed as `not_established` | neutral **Authority not appointed** panel with structural pattern, role, exact refusal code and claim consequence; visually distinct from transport/error red |
+| engineering `producer_missing` / `bridge_missing` | neutral **Engineering capability not wired** panel with a different shape/title, named candidate owner module, missing emission/bridge and assignable closure; never appointment copy |
 
 The run detail layout supplies a typed epoch context; run list, comparison, public
 decision, and the central decision-bearing chart evidence path consume the same
@@ -447,7 +513,9 @@ Each row shows:
 - what revalidation requires;
 - recompute state (`not_established`, `pending`, `running`, `completed`, `failed`) only
   when emitted by an owner; absence of a recompute owner is shown as
-  `producer_missing`, never as pending;
+  `producer_missing + bridge_missing`, naming
+  `src/polisyos/runtime/quality/derived_observations.py`, never as pending and never as
+  an institutional non-appointment;
 - successor/reissue/supersession link when one exists.
 
 Sorting is presentation only. It cannot decide severity, currentness, or authority.
@@ -490,7 +558,7 @@ After adjudication the exact owner result is shown separately as
 `annotation_only|invalidate|reissue|supersede|withdraw|contested|review_required`.
 The event-class glyph remains visible so the cause is not lost in the consequence.
 
-## 9. Declared-absence state — the default production demo
+## 9. Declared-absence states — institutional and engineering are not one class
 
 The surface remains fully inspectable when no institutional signer is appointed.
 It renders a first-class **Authority not appointed** panel, not an error boundary,
@@ -499,7 +567,7 @@ empty state, spinner, disabled page, or retry loop.
 Each role row contains:
 
 - role name and authority purpose;
-- state `absent/unallocated` / `not_established`;
+- capability state `absent/unallocated` and observed result `not_established`;
 - exact refusal code;
 - affected scope and query-context ref;
 - evidence/receipt refs when available;
@@ -519,10 +587,26 @@ The current two rows are:
 `epoch_scope_unresolved` is a separate data/scope state, not a synonym for either
 institutional absence. OpenWorldRisk `not_established` is also separate.
 
+The engineering gap is a different panel class and routing queue:
+
+| Missing engineering capability | Exact state shown | Candidate owner and missing work | Closure language |
+| --- | --- | --- | --- |
+| Epoch-inheritance/recompute-status projection and temporal read bridge | `producer_missing + bridge_missing`; `recompute_status=not_established` | `src/polisyos/runtime/quality/derived_observations.py` owns `DerivedSeries`, derivation certificates/materializations and `materialize_derivation`; what is missing is an owner-emitted epoch-inheritance/status projection plus the read bridge into that owner | assign and implement the producer/read bridge, then prove an owner receipt changes the rendered status; no institutional appointment is involved |
+
+That row renders as **Engineering capability not wired**, names the module and emitted
+result needed, and remains actionable engineering work. It cannot use **Authority not
+appointed**, inherit an institutional closure condition, or imply that a public body
+must act. The same routing rule applies to every later `producer_missing` or
+`bridge_missing` row with an identifiable candidate owner.
+
 Inspection, replay, and MACHINE download controls remain available. There is no
 production button to appoint, bypass, self-sign, or force currentness. Positive visual
 fixtures are allowed only in tests/Storybook, carry an explicit `fixture_only` marker,
 and are barred from authority slots.
+
+**Appointment is not a DS18 closure precondition.** DS18-CC10 closes when the two real
+institutional nonreceipts constrain the claim and render as the useful first-class
+state above. The signers remain unappointed by standing decision.
 
 ## 10. Closure contract
 
@@ -531,13 +615,13 @@ and are barred from authority slots.
 | DS18-CC01 | Exact typed projection | strict response carries epoch, as-of roles, validity, certificate/dependency rows, event class, lineage, OWR, authority absence, provenance, rule/schema version |
 | DS18-CC02 | Real producer readback | projector resolves exact persisted bytes/receipts and real typed nonreceipts; forged/present-only evidence fails closed |
 | DS18-CC03 | Six-class preservation | persisted monitor-event ref enters through the live Decision Validity POST, exact bytes drive the persisted lifecycle/transition, and class survives read API → client → DOM → MACHINE; free-standing class/status input fails |
-| DS18-CC04 | Dependency inheritance | revised input flags every complete-denominator descendant; missing edge/denominator fails closed; recompute status is owner-emitted or explicitly not established |
+| DS18-CC04 | Dependency inheritance | revised input flags every complete-denominator descendant; missing edge/denominator fails closed; recompute status is owner-emitted or explicitly `producer_missing + bridge_missing`, with the derived-observation candidate owner visible and no institutional closure copy |
 | DS18-CC05 | Route and generated bridge | epoch-staleness GET plus the already-live epoch-batch POST appear in frozen OpenAPI and every registered generated output |
 | DS18-CC06 | DS4 extension | one `TimeSemanticsLabel` grammar renders independent clocks plus epoch/validity; no local status vocabulary or time substitution |
-| DS18-CC07 | Universal coverage | complete production `.ts`/`.tsx` source-file denominator is recomputed; every file's render/export roots and every root's decision-bearing status are independently reconciled with fresh evidence, every decision-bearing member behaviorally renders `as_of`, epoch and validity, and unknown/stale classification fails closed |
+| DS18-CC07 | Universal coverage and denominator handoff | complete production `.ts`/`.tsx` source-file denominator is recomputed at `ds18_frontend_freeze_commit`; every file's render/export roots and every root's decision-bearing status are independently reconciled with fresh evidence, every decision-bearing member behaviorally renders `as_of`, epoch and validity, unknown/stale classification fails closed, and a later landing slice owns receipts for every root it adds or changes |
 | DS18-CC08 | Stale truthfulness | stale/revalidation-required certificates cannot render current; current cannot inherit stale styling accidentally |
 | DS18-CC09 | Replay boundary | cross-epoch replay visibly segments the record and preserves immutable predecessor/successor lineage |
-| DS18-CC10 | Declared absence | both exact signer absences render as useful first-class states and constrain the claim; no blank/error/disabled substitute |
+| DS18-CC10 | Declared institutional absence | both exact signer absences render as useful first-class states and constrain the claim; no blank/error/disabled substitute, and appointment is not a closure precondition |
 | DS18-CC11 | OpenWorldRisk freeze | `limited` and `not_established` freeze promotion and show basis/limitations; no local numeric authority |
 | DS18-CC12 | Exact MACHINE | downloaded bytes equal captured response bytes; strict recursive and semantic admission precede render |
 | DS18-CC13 | Audience and replay | temporal subroute has a direct `RUNS_REVIEW` action dependency, tenant/run binding and semantic replay hash; VIEWER is denied and REVIEWER/EXPERT are allowed; owner-validity time, server observation time and exact bytes are not conflated |
@@ -559,6 +643,7 @@ component name, or route string constant is not enough to keep a test green.
 | lineage break | source/claim/publication refs remain present | delete or substitute one propagation edge | compiler/validator fails; a list of refs is not a lineage proof |
 | dependency omission | same target count/labels | remove one real graph edge or revise one input hash | denominator validation or descendant coverage fails |
 | fake recompute | `recompute_status="completed"` marker | remove executor receipt/content binding | strict semantic admission fails; completed cannot survive |
+| absence-class routing | panel shell, layout and limitation markers | replace an institutional signer nonreceipt with the missing epoch-inheritance/recompute-status producer/read bridge, then reverse it | engineering state must show `producer_missing + bridge_missing`, candidate module and assignable work; **Authority not appointed** or institutional closure copy is a failure, and a signer refusal rendered as an engineering ticket is also a failure |
 | OWR proxy | status label and component count | flip one component `established` → `outside_scope`/`not_established` | vector/freeze posture recomputes to limited/not-established |
 | epoch blend | same chart values/timestamps | move one point across the epoch ref | visible boundary is required; one continuous series fails |
 | time-role substitution | same ISO timestamp text | move value from owner `as_of` to observation/cache field | label must show owner `as_of` unknown, not reuse the other clock |
@@ -572,6 +657,7 @@ component name, or route string constant is not enough to keep a test green.
 | export-input laundering | renderer names and temporal-looking strings remain | remove the admitted epoch arm from `PublicShareSummary`, the signed packet, or `BureaucraticDocumentAST`, leaving only trust status, `validAt`, or render time | admission yields the exact typed nonreceipt and no renderer may claim a current epoch |
 | packet-producer omission | signed-packet types, panel and hash markers remain | withhold the admitted run projection from the single layout producer while a positive projection exists | positive wiring test fails; a fallback nonreceipt cannot substitute for the omitted bridge |
 | non-JSX export omission | export function/file identity remains | remove epoch/validity from OG Satori output, plain-text email, or bureaucratic HTML while React-page chrome stays present | export behavioral harness fails; `.ts` output cannot inherit a `.tsx` pass |
+| post-freeze root ownership | `ds18_frontend_freeze_commit` and all DS18 receipts remain fixed | a later slice adds or changes a decision-bearing React/HTML/SVG/Satori/export root without its own fresh receipt and behavioral temporal proof | the landing slice's register check/health metric fails and identifies the unresolved root; DS18's historical freeze receipt remains true; fresh landing-slice reconciliation is required before that root may land |
 
 ## 12. Execution clusters, path fences, and WAIT
 
@@ -613,6 +699,12 @@ property, and P40 requires widening to the real producer set after the repeated
 same-class finding. Do not delete or hide unrelated mechanisms merely to recreate
 `36`; any later contraction must prove a canonical owner makes the removed path
 behaviorally unnecessary.
+
+**Amendment budget receipt.** The 2026-08-27 absence-vocabulary correction changes
+labels and one C05 falsifier; the denominator-transition correction states ownership
+and adds one C06 falsifier. Both use already-declared paths and mechanisms. The
+declared union remains **39** and the hard ceiling remains **44**. This amendment does
+not reopen or revisit the rejected `36` estimate.
 
 ### Declared mechanism paths
 
@@ -858,7 +950,9 @@ source class, altered denominator/hash, and reserialized twin.
 stale-as-current; epoch blend; missing signer as error/empty/disabled; one class rendered
 with another's scope treatment; strip the admitted export/packet arm while leaving a
 temporal-looking timestamp; keep a positive projection in the hook but omit it from the
-single packet producer; OWR freeze removed while label remains.
+single packet producer; OWR freeze removed while label remains; switch between a signer
+nonreceipt and the derived recompute producer/read-bridge gap while holding the panel
+shell constant and require the institutional versus engineering treatment to switch.
 
 **May not:** create a second status enum, derive authority in React, use one generic
 “changed” badge, hide absence, expose internal refs publicly, use color alone, or reuse
@@ -891,6 +985,20 @@ DS6/DS11 visual specs; edit or add keys to the frozen `ru` catalog.
 5. Change the health metric from `not_established` only when structural enumeration,
    independent semantic reconciliation, consumer behavior and fresh source receipts
    all reconcile.
+6. Apply the denominator-transition rule: DS18 owns every render/export root present at
+   its C07 source-freeze coordinate, including all DS11 roots and any DS15/DS17 roots
+   that are ancestors of that coordinate. After DS18 establishes the generic
+   schema/checker, **the slice landing a later root owns that root's reconciliation** in
+   the same change. DS15 and DS17 pick this up in their master-plan **Producer & bridge
+   work (in-slice)** obligation before their first dashboard/export/MACHINE path can
+   close (`docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:1848-1852,1968-1971`);
+   every such landing runs
+   `architecture/atlas_surfaces/check_frontend_disposition_register.py --check` and the
+   Atlas health metric. DS11 cannot be post-freeze under this plan because WAIT-DS11 is
+   a prerequisite; its landed roots are in DS18's initial complete denominator. If any
+   sibling work enters the DS18 branch before freeze, DS18 reconciles it. If it lands
+   after DS18's recorded freeze, it is the landing slice's new obligation, not a
+   retroactive DS18 red.
 
 **Red first:** add an unclassified sibling/plain-props JSX helper; add a `.ts` HTML/SVG
 template or Satori root with no JSX; keep imports/markers fixed while changing
@@ -898,14 +1006,22 @@ non-authority copy into a recommendation and then reverse it; remove epoch/valid
 OG, email, or bureaucratic HTML only; mark a DOM-cloning export as inherited while
 deleting the source temporal node; keep a `TimeSemanticsLabel` import but delete its
 render; render it with fixed values that ignore changed context; delete one registry
-member while source remains.
+member while source remains; hold DS18's freeze and receipts fixed while adding or
+changing a later decision-bearing root without a fresh receipt/behavioral harness, and
+require the landing slice's check to fail until it reconciles the new root.
 
 **May not:** edit the DS5 baseline debt manifest, borrow another slice's evidence, use
-an enumerated filename allowlist as completeness, or make a marker-based semantic gate.
+an enumerated filename allowlist as completeness, make a marker-based semantic gate,
+or leave the moving denominator without a landing owner.
 
 ### C07 — freeze, visual/a11y, and closeout
 
-1. Freeze source before review.
+1. After C06 is green and before review, freeze source and record the attached branch
+   head as `ds18_frontend_freeze_commit` in the mandatory execution journal. Recompute
+   the complete C06 denominator and receipt freshness at that exact commit. Any later
+   DS18 source change invalidates the coordinate and requires C06 plus review to run
+   again; a root landed by another slice after that coordinate carries the landing-
+   slice obligation declared above and does not falsify DS18's historical receipt.
 2. Run backend, contract, frontend, checker, visual, and accessibility waves with
    measured budgets.
 3. Capture DS18-only snapshots for real declared absence, content-bound positive test
@@ -963,31 +1079,38 @@ Any out-of-list mechanism path requires all of:
 | P14 | one source/event can be visually inflated into independent support | show exact source/lineage and denominator; no count-based confidence |
 | P27/P31 | a control-local time grammar, caller-authored class, or three sibling packet builders would bypass canonical owners; per-page badges repeat the defect | canonical `TemporalService` + persisted monitor-event intake + one DS4 primitive + one generated boundary + one run-scoped signed-packet producer |
 | P32/P33/P38 | presence, class name, route marker, import, or status string could proxy authority | remove-property-keep-marker and adversarial sibling/alias/malformed variants |
-| P35/P36 | sampled paths or adjacent prose could become a universal claim | complete source/register denominator and finding-ID/source anchors; unresolved denominator stays not established |
+| P35/P36 | sampled paths or adjacent prose could become a universal claim | complete source/register denominator and finding-ID/source anchors; unresolved denominator stays not established; DS18 binds its claim to an exact freeze coordinate and the later landing slice owns denominator growth |
 | P37 | caller/config could declare the predicate that turns the gate | provenance class frozen at admission; consumer assertion never establishes authority |
 | P39 | tests/generated records could make the mechanism cap arithmetically false | mandatory companions named and excluded; one mechanism never split to fit cap |
 | P40 | repeated chart/page patches could climb the same ladder | second same-class finding widens the mechanism or declares a bounded residual |
 | P41 | DS11/main reds could be misattributed | replay exact command from the correct slice/cluster base and prove zero input-denominator intersection |
 
-Opening capability labels:
+Opening capability labels were re-derived by two passes: an exact inventory of every
+missing-state label in this plan, and an independent source owner/symbol walk. Within
+this opening list, `absent/unallocated` is reserved for the two standing signer roles:
 
-- semantic epoch production: `implemented` with positive authority still
-  `absent/unallocated`;
-- epoch-transition production: `implemented_but_not_orchestrated` and signer/producer
-  identity `absent/unallocated`;
-- epoch-batch HTTP: source route implemented, generated bridge missing, standard
-  verifier producer missing;
-- monitor-event source-class/propagation: contracts/producers/bridge are
-  `implemented_but_not_orchestrated`; C01-C02 must establish exact event persistence and
-  a live POST → persisted bridge → read projection chain;
-- derived recompute execution/status: `absent/unallocated`;
-- family audit/API/dashboard: `surface_missing`;
-- DS4 consumption and universal coverage: `consumer_missing` and
-  `semantic_test_missing`;
-- MACHINE twin: `surface_missing`.
+| Institutional capability | Opening/closing state | Why it is not engineering work |
+| --- | --- | --- |
+| Epoch predicate-policy signer | `absent/unallocated`; production yields `policy_admission_missing`; remains absent after DS18 | no owner or candidate is appointed by standing deployment decision; DS18 closes truthful rendering only |
+| Epoch transition signer | `absent/unallocated`; `NoEpochTransitionSigningAuthority` yields `epoch_transition_signer_not_established`; remains absent after DS18 | no owner or candidate is appointed by standing deployment decision; DS18 closes truthful rendering only |
+
+Every identifiable engineering owner uses a finer label:
+
+| Engineering capability | Opening state | Candidate owner | What DS18 may close |
+| --- | --- | --- | --- |
+| Semantic-epoch production/read projection | production/artifact implemented; read consumer/API/surface missing | `src/polisyos/runtime/quality/semantic_epoch.py`, planned projection compiler, and `TemporalService` | exact read projection and surface; never the signer appointment |
+| Positive epoch-transition production | `implemented_but_not_orchestrated` | `src/polisyos/runtime/quality/epoch_validity_cascade.py::EpochValidityTransitionProducer.produce_and_persist` | only a real production call could close orchestration; projection alone cannot |
+| Epoch-batch frozen schema/client family | `bridge_missing` | `src/polisyos/runtime/http/routes/control.py::admit_epoch_validity_batch` plus the canonical OpenAPI/generated-family bridge | C03-C04 generated semantic parity |
+| Positive epoch-transition verification | `producer_missing` | `src/polisyos/core/contracts/decision_validity.py::EpochTransitionVerifier` and `src/polisyos/scientist/validation/decision_validity.py::DecisionValidityService` | only a configured, provenance-bearing producer could close it; the default `NoEpochTransitionVerifier` proves the gap |
+| Six-class monitor production/propagation | generic pieces `implemented_but_not_orchestrated`; missing class-specific producer/persistence arms are `producer_missing` / `bridge_missing` | `src/polisyos/scientist/governance/continuous/monitors.py::GovernanceMonitorEvent`, `incident.py::incident_monitor_event`, invalidation owner, and lifecycle bridge | C01-C02 exact event persistence plus live POST → persisted bridge → read projection, without inventing adjudication authority |
+| Epoch-inheritance/recompute-status projection | `producer_missing + bridge_missing` | `src/polisyos/runtime/quality/derived_observations.py` (`DerivedSeries`, derivation certificates/materializations, `materialize_derivation`) | truthful engineering nonreceipt/read projection; the declared path set does not implement a global executor |
+| Family audit/API/dashboard | `surface_missing` | planned projection compiler, canonical temporal route/service, and DS4 consumers | C01-C06 chain if behaviorally demonstrated |
+| DS4 consumption/universal coverage | `consumer_missing + semantic_test_missing` | `TimeSemanticsLabel` plus the frontend disposition checker/scanner | coordinate-bounded universal coverage and its landing-slice handoff |
+| MACHINE twin | `surface_missing` | planned `useEpochStaleness` raw-byte loader and `epochStalenessTwin` exporter | C04 captured-byte parity plus strict recursive admission |
 
 The slice closes only the labels actually demonstrated. It does not round upstream
-institutional absence or a missing recompute executor up to implemented.
+institutional absence, transition orchestration, positive verification, or the missing
+epoch-recompute producer/read bridge up to implemented.
 
 ## 15. Verification and measurement protocol
 
@@ -1062,11 +1185,14 @@ If replay cannot be done, provenance is `not_established`.
 
 DS18 does not:
 
-- appoint the epoch predicate-policy signer, transition signer, independent holder, or
-  Decision Validity verifier;
+- appoint the epoch predicate-policy signer, transition signer, or independent holder;
+- implement or configure a positive Decision Validity transition verifier; that
+  engineering producer remains separately labelled `producer_missing` unless a later
+  slice demonstrates it;
 - make an institutional appointment a UI action or defect ticket;
 - build a global derived-data recomputation executor; it reports the actual executor
-  status and typed absence;
+  status and the engineering `producer_missing + bridge_missing` state with
+  `src/polisyos/runtime/quality/derived_observations.py` named as candidate owner;
 - establish whole-history authenticity when the independent holder remains absent;
 - create a new claim/case/publication lifecycle owner;
 - publish or resign public records; DS12 remains the public-signature owner;
@@ -1085,8 +1211,11 @@ DS18 does not:
 ### Census, independently derived
 
 - N12: `24` commits and `174` paths, each derived twice.
-- Runtime routes: `17` files / `105` decorated operations, twice derived; two SSE
-  operations are deliberately hidden from OpenAPI.
+- Runtime routes: the declared denominator includes every direct
+  `src/polisyos/runtime/http/routes/*.py` module, including zero-operation
+  `__init__.py`: `17` files / `105` decorated operations by both derivations. Excluding
+  only the initializer gives `16 / 105`; two SSE operations are deliberately hidden
+  from OpenAPI.
 - Frozen OpenAPI: `100` paths / `102` operations, twice structured-derived.
 - Exact drift: the visible source set has one extra operation — epoch-batch admission.
 - Source denominator: `2,600` Python files, twice derived; the rejected 2,599 pathspec
@@ -1109,8 +1238,43 @@ DS18 does not:
   signer nonreceipt, dependency/target vector, OWR vector/replay/limitations; canonical
   monitor-event producers and lifecycle bridge exist but each has zero production calls
   by AST and literal derivations.
-- Absent/unallocated: epoch-aware derived recompute execution/status producer and the
-  two institutional signers.
+
+### Capability-list re-derivation: two kinds of absence
+
+- Institutional `absent/unallocated` in this re-derived list: the epoch predicate-policy
+  signer and epoch transition signer. Both stay unappointed; DS18 closes their truthful
+  surface, not the appointment.
+- Engineering `producer_missing + bridge_missing`: the epoch-inheritance/recompute-
+  status projection and read bridge. Candidate owner:
+  `src/polisyos/runtime/quality/derived_observations.py`; the missing product is an
+  owner-emitted epoch/status projection plus a temporal read bridge.
+- Engineering `implemented_but_not_orchestrated`: positive transition production.
+  Candidate owner:
+  `src/polisyos/runtime/quality/epoch_validity_cascade.py::EpochValidityTransitionProducer.produce_and_persist`.
+- Engineering `bridge_missing`: the live epoch-batch route's frozen schema/client
+  family. Candidate owner: the canonical route plus OpenAPI/generated-family bridge.
+- Engineering `producer_missing`: positive epoch-transition verification. Candidate
+  contract/integration owners: `EpochTransitionVerifier` and `DecisionValidityService`;
+  `NoEpochTransitionVerifier` is the current default.
+- Engineering monitor, family surface, DS4-consumer/semantic-test, and MACHINE labels
+  remain the finer states enumerated in the Section 14 table. No identifiable
+  engineering owner is filed as `absent/unallocated`.
+
+### Symbol-name verification
+
+Two independent sweeps reject `DerivedObservationSeries` at zero occurrences and
+confirm `DerivedSeries` at
+`src/polisyos/runtime/quality/derived_observations.py:666`. A separate range audit found
+that the prior aggregate dependency range ended at line 357 and excluded
+`TargetDispositionVector` at line 386; the plan now cites
+`EpochCertificateBinding`, `EpochDependencyGraph`, and `TargetDispositionVector` at
+their exact full-prefix anchors. It also corrected the DS4 primitive range from
+an erroneous `:89` endpoint to the file's real `TimeSemanticsLabel.tsx:8-85`. The sweeps additionally caught
+that `EvidenceValidityEvent` and
+`EpochStalenessProjectionResponse` are currently absent, and that the
+`monitor_event_ref` control-request arm is absent even though incident/lifecycle records
+already use that field name. The plan now marks the two new symbols and the new request
+arm as proposed work without falsely calling the identifier globally absent.
 
 ### Six-class rendering
 
@@ -1124,6 +1288,26 @@ disposition; one upheld appeal stays instance-scoped; supersession lineage is vi
 The default screen is a useful `Authority not appointed` state with exact role, refusal
 code, scope, refs, consequence, remaining inspectable data, and closure condition. It
 is not error/empty/loading/disabled, and it offers no appointment/bypass action.
+Inspection, replay and MACHINE remain available, and appointment is explicitly **not**
+a DS18 closure precondition. The recompute gap uses a separate **Engineering capability
+not wired** treatment with its candidate module and assignable closure; the two panel
+classes cannot inherit one another's language.
+
+### Denominator-transition ownership
+
+DS18 reconciles every render/export root present at `ds18_frontend_freeze_commit`.
+After that coordinate, the slice landing a new or changed root owns its fresh
+source-digest receipt, independent classification and behavioral temporal proof in its
+same change. DS15/DS17 pick the obligation up in their master-plan **Producer & bridge
+work (in-slice)** gate; DS11 is necessarily inside DS18's denominator because C04-C07
+wait for DS11. Falsifier: keep the DS18 freeze and receipts fixed, add/change a later
+decision-bearing root without a fresh receipt, and require the landing slice's checker
+and health metric to fail until it reconciles that root.
+
+### Mechanism budget
+
+The declared union remains **39** and the hard ceiling remains **44**. The amendment
+changes labels/rules/falsifiers inside existing mechanisms and does not revisit `36`.
 
 ### Frontend wait point
 

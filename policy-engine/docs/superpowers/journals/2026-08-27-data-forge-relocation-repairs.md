@@ -352,3 +352,65 @@ Python files) and found exactly:
   `not_established`, not silently assigned to this move. The completed gate
   failure used `user=51.79s`, `sys=3.30s`; uptime advanced from 15:16/up 3 days
   5:29 to 15:17/up 3 days 5:30. No composite pass is claimed.
+
+## Task 8 — Lex-owned legal search command
+
+### Ledger and pattern pass
+
+- Ledger: 8/8. Round 8 buys the supported
+  `polisyos.lex.knowledge.search_legal_knowledge` surface and its module CLI;
+  it clears frozen row 8. The round stands. No repair was skipped or thinned,
+  and the widening ceiling is now binding.
+- Relevant patterns: P01/P02 (a real callable and command consumer rather than
+  an import-only move), P05 (the route is read-only and restricts retrieval to
+  `grounded_fact`), P27/P31 (Lex is the single store/search owner and closes the
+  store on success or failure), and P29 (behavioral query, serialization, and
+  failure-path tests rather than marker checks).
+- Data Forge retains its build CLI but refuses the old interactive-search
+  command with the Lex-owned replacement named explicitly. It does not import
+  or proxy `LegalKnowledgeStore`.
+
+### Task 8 receipts
+
+- RED: the two prescribed files failed collection at exit 2 because
+  `polisyos.lex.knowledge.search_legal_knowledge` did not exist
+  (`user=1.99s`, `sys=0.32s`).
+- GREEN: exit 0, 12 focused tests passed. The Lex route fixes
+  `trust_tier="grounded_fact"`, preserves `top_k`, emits one sorted JSON object
+  per typed result, and closes the store when the query raises. The Data Forge
+  refusal falsifier also passed. A fresh boundary rerun used `user=3.34s`,
+  `sys=0.52s`; uptime advanced from 15:49/up 3 days 6:02 to 15:49/up 3 days
+  6:03.
+- Changed-file Ruff: exit 0 with no diagnostics (`user=0.07s`, `sys=0.03s`).
+  The public-surface renderer found eight generated-artifact families and
+  matched both governed files byte-for-byte; Lex remains at 54 root exports
+  and `polisyos.lex.knowledge` has 11 exports including the new callable.
+- Source import predicate: exit 1 with 42 findings, split ARCH001=39,
+  ARCH002=1, ARCH004=2, ARCH006=0. The canonical report and an independent AST
+  walk agree exactly over 2,585 `src/**/*.py` files with empty set differences;
+  the independent ordered-pair sum is 39. The exact 43 -> 42 delta clears
+  frozen row 8, `data_forge.domains.legal.batch.cli ->
+  lex.knowledge.store`; no other rule moved. The completed direct failure used
+  `user=1.02s`, `sys=0.30s`; uptime stayed within 15:50/up 3 days 6:04. A
+  preceding wrapper used zsh's reserved `status` variable after the linter
+  completed and is rejected as a harness non-receipt.
+- Release guardrail predicate: exit 1 pending the authorized final explicit
+  baseline transaction. Canonical and independent AST sets agree on
+  current=3,603, baseline=3,631, additions=29, removals=57, and zero
+  source-file mismatches over the same 2,585 files. Relative to Task 7, the
+  sole extra removal is the old Data Forge CLI -> Lex store address; additions
+  remain unchanged. The trustworthy direct run used `user=41.32s`,
+  `sys=9.27s`; uptime advanced from 15:40/up 3 days 5:53 to 15:41/up 3 days
+  5:54. An earlier wrapper lost its session identifier and is a harness
+  non-receipt.
+- Package-import predicate: exit 1 with 145 findings and 34 unregistered
+  forbidden statements. The report field, list length, and strict finding-key
+  uniqueness agree on 145; the canonical package scan and an independent
+  longest-exact-package AST walk agree on all 34 forbidden statements with
+  empty set differences over 2,585 files. The Data Forge -> Lex package row is
+  absent. The direct failure used `user=90.40s`, `sys=5.01s`; uptime advanced
+  from 15:41/up 3 days 5:54 to 15:43/up 3 days 5:56. The substantive forbidden
+  denominator moves 35 -> 34 by frozen row 8; the report total also loses the
+  corresponding deep-import identity and the corrected stale exact dynamic
+  coordinate, explaining the direct 148 -> 145 movement without presenting
+  the full gate as passing.

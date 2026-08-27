@@ -26,12 +26,13 @@ policy и search flows.
 | `LegalKnowledgeGraph`                                          | High-level read-only API over the legal knowledge graph |
 | `LegalEntity`, `LegalFact`, `LegalProvision`                   | Canonical graph record types                            |
 | `LegalSearchResult`, `LegalFactResult`, `LegalProvisionResult` | Typed result envelopes for retrieval                    |
+| `search_legal_knowledge`                                       | Lex-owned grounded-fact CLI/search route                |
 
 Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 
 ## Current State
 
 - Last updated: 2026-05-02
-- Files: 4 Python files
-- Exports: 7 lazy exports in `__init__.py`
+- Files: 5 Python files
+- Exports: 11 lazy exports in `__init__.py`
 - Notable delta: extraction payloads moved to `polisyos.data_forge.domains.legal.contracts`; Lex keeps runtime graph/search result models.

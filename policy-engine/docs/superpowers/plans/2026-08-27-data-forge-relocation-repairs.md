@@ -297,11 +297,11 @@ Commit message: `feat(scientist): own legal retrieval benchmark`.
 - Lex owns direct `LegalKnowledgeStore` search.
 - DataForge CLI no longer imports or substitutes the Lex runtime store.
 
-- [ ] **Step 1: Write failing CLI ownership/behavior tests**
-- [ ] **Step 2: Run `.venv/bin/python -m pytest tests/unit/lex/knowledge/test_cli.py tests/unit/data_forge/legal_batch/test_cli_smoke.py -q` RED against the DataForge command**
-- [ ] **Step 3: Move the command to Lex without a DataForge read-api substitute**
-- [ ] **Step 4: Run the same focused files GREEN**
-- [ ] **Step 5: Commit and print ledger 8/8**
+- [x] **Step 1: Write failing CLI ownership/behavior tests**
+- [x] **Step 2: Run `.venv/bin/python -m pytest tests/unit/lex/knowledge/test_cli.py tests/unit/data_forge/legal_batch/test_cli_smoke.py -q` RED against the DataForge command**
+- [x] **Step 3: Move the command to Lex without a DataForge read-api substitute**
+- [x] **Step 4: Run the same focused files GREEN**
+- [x] **Step 5: Commit and print ledger 8/8**
 
 Commit message: `feat(lex): own legal search command`.
 

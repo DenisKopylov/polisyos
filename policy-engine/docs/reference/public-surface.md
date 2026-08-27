@@ -4049,7 +4049,7 @@ write_authority_envelope_json_schema
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.lex` | `src/polisyos/lex/__init__.py` | `lazy_facade` | 54 |
-| `polisyos.lex.knowledge` | `src/polisyos/lex/knowledge/__init__.py` | `lazy_facade` | 10 |
+| `polisyos.lex.knowledge` | `src/polisyos/lex/knowledge/__init__.py` | `lazy_facade` | 11 |
 
 #### `polisyos.lex`
 
@@ -4124,7 +4124,7 @@ run_legal_benchmark
 - Facade: `lazy_facade`
 - Summary: Legal knowledge graph: SPO entities, facts, and semantic search.
 
-<details><summary>Entrypoint exports (10)</summary>
+<details><summary>Entrypoint exports (11)</summary>
 
 ```text
 LegalEntity
@@ -4137,6 +4137,7 @@ LegalRuleThresholdRow
 LegalSearchResult
 LegalTemporalCompetence
 LegalThresholdEvaluation
+search_legal_knowledge
 ```
 
 </details>

@@ -4142,7 +4142,7 @@
         {
           "module": "polisyos.lex.knowledge",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 10,
+          "export_count": 11,
           "exports": [
             "LegalEntity",
             "LegalFact",
@@ -4153,7 +4153,8 @@
             "LegalRuleThresholdRow",
             "LegalSearchResult",
             "LegalTemporalCompetence",
-            "LegalThresholdEvaluation"
+            "LegalThresholdEvaluation",
+            "search_legal_knowledge"
           ],
           "has___getattr__": true,
           "has___dir__": true,

@@ -740,3 +740,17 @@ provenance remained valid while its self-supplied subject was relabeled to
   `user 94.32`, `sys 9.53`; uptime `04:39 -> 04:40`). Register bytes are
   unchanged and both issuer refs still match the live glyph-source digest.
   Accounting remains `26/34` mechanisms and `7/9` widening rounds.
+
+### C04 review repair — erased local issuer exports
+
+- Independent frontend-helper narrowing only: paired REDs showed both
+  declaration-level `export type` and specifier-level `export { type ... }`
+  were falsely classified as issuer value references. The paired runtime local
+  export remained correctly unsafe.
+- `isIssuerReference` now ignores an `ExportSpecifier` only when that specifier
+  or its enclosing `ExportDeclaration` is explicitly type-only; the runtime
+  local re-export still emits `value_reference`.
+- Frontend architecture passes 41/41 and dashboard typecheck passes. The
+  unchanged governed lock returns exactly inherited C13 and no DS11 error
+  (exit 1; `real 69.37`, `user 94.51`, `sys 9.67`; uptime `04:47 -> 04:48`).
+  Accounting remains `26/34` mechanisms and `7/9` widening rounds.

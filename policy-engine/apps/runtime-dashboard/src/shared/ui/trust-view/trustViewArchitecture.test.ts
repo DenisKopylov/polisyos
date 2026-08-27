@@ -416,6 +416,15 @@ function issuerCalls(
         return false;
       }
       if (
+        ts.isExportSpecifier(node.parent) &&
+        (node.parent.isTypeOnly ||
+          (ts.isNamedExports(node.parent.parent) &&
+            ts.isExportDeclaration(node.parent.parent.parent) &&
+            node.parent.parent.parent.isTypeOnly))
+      ) {
+        return false;
+      }
+      if (
         (ts.isPropertyAccessExpression(node.parent) &&
           node.parent.name === node) ||
         (ts.isElementAccessExpression(node.parent) &&
@@ -693,21 +702,40 @@ describe("shared Trust View architecture", () => {
     });
   });
 
-  it("rejects a local named re-export of an admitted issuer binding", () => {
-    const file = path.join(repoRoot, C04_ISSUER_CALLERS[1]);
-    const ast = ts.createSourceFile(
-      file,
-      'import { issueTrustPresentation } from "./trust-glyphs"; export { issueTrustPresentation as trustIssuer };',
-      ts.ScriptTarget.Latest,
-      true,
-      ts.ScriptKind.TS,
-    );
+  it.each([
+    [
+      "runtime local export",
+      "export { issueTrustPresentation as trustIssuer };",
+      ["value_reference"],
+    ],
+    [
+      "declaration-level type-only local export",
+      "export type { issueTrustPresentation };",
+      [],
+    ],
+    [
+      "specifier-level type-only local export",
+      "export { type issueTrustPresentation };",
+      [],
+    ],
+  ])(
+    "classifies %s by emitted value semantics",
+    (_label, exportSource, unsafeAccesses) => {
+      const file = path.join(repoRoot, C04_ISSUER_CALLERS[1]);
+      const ast = ts.createSourceFile(
+        file,
+        `import { issueTrustPresentation } from "./trust-glyphs"; ${exportSource}`,
+        ts.ScriptTarget.Latest,
+        true,
+        ts.ScriptKind.TS,
+      );
 
-    expect(issuerCalls(file, ast)).toEqual({
-      directCalls: 0,
-      unsafeAccesses: ["value_reference"],
-    });
-  });
+      expect(issuerCalls(file, ast)).toEqual({
+        directCalls: 0,
+        unsafeAccesses,
+      });
+    },
+  );
 
   it("counts a transparently wrapped issuer callee as a direct call", () => {
     const file = path.join(repoRoot, C04_ISSUER_CALLERS[1]);

@@ -1195,7 +1195,7 @@ def test_real_census_replays_published_invariants() -> None:
     assert metrics["ds5_nonclosure_rows"] == 27
     assert metrics["ds5_planless_routes"] == 6
     assert metrics["irregular_section_e_branch_rows"] == 1
-    assert metrics["closure_signal_pytest_selections"] == 22
+    assert metrics["closure_signal_pytest_selections"] == 23
     assert metrics["closure_signal_unsupported_runners"] == 1
     assert metrics["closure_signal_identities_without_commands"] == 1
     assert metrics["closure_signal_input_unresolvable"] == 0
@@ -1358,7 +1358,7 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     gap3 = next(line for line in rendered.splitlines() if "[`GY-GAP3`]" in line)
     gap8 = next(line for line in rendered.splitlines() if "[`GY-GAP8`]" in line)
     assert "contract_only" not in gap3
-    assert "`open_unmerged`" in gap8
+    assert "`open`" in gap8
     assert "implemented_but_not_orchestrated" not in gap8
     assert "bridge_missing" not in gap8
     assert (
@@ -1433,10 +1433,12 @@ def test_open_work_records_property_posture_and_branch_relevance() -> None:
     # slice lingering there is loss mode 5, the class the ledger exists to catch.
     assert not [line for line in rendered.splitlines() if "| `DS9` |" in line]
 
-    ds10 = next(line for line in rendered.splitlines() if "| `DS10` |" in line)
-    assert "| `in-flight` |" in ds10
-    assert "attached branch declared by slice plan" in ds10
-    assert "codex/ds10-capability-discovery-plan" in ds10
+    # DS10 merged 2026-08-26 (`f935e0c2e`) and its master-plan row now carries
+    # `CLOSED & MERGED`, so it leaves Table A for exactly the reason DS9 did.
+    assert not [line for line in rendered.splitlines() if "| `DS10` |" in line]
+
+    # GY-N12 merged 2026-08-27 (`c6fbfa388`), closing Phase 5; it leaves too.
+    assert not [line for line in rendered.splitlines() if "| `GY-N12` |" in line]
 
     for slice_id in ("DS12", "DS14", "DS15", "DS17"):
         row = next(line for line in rendered.splitlines() if f"| `{slice_id}` |" in line)

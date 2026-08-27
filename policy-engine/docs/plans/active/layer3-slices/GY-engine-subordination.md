@@ -1561,7 +1561,7 @@ note is itself the evidence. Anything else is `ambiguous` with its line number �
 | `GY-N10a` | 5 | `executed` | `88bcb5b26` | second-domain pack (before N10) |
 | `GY-N10` | 5 | `executed` | `7e035a426` | depth-N universality — Phase-A activation |
 | `GY-N11` | 5 | `executed` | `f41d49071` | confidence ledger — gates DS17 |
-| `GY-N12` | 5 | **in_flight** | **Cluster 1 merged 2026-08-23 `911657027`** (feature commit `f2c202997`, tree `a9beb17f`, 22 paths); Clusters 2–4 remain | **the last Phase-5 task** — gates DS18 and the whole of Phase 6 |
+| `GY-N12` | 5 | `executed` | **All four clusters merged 2026-08-27 `c6fbfa388`** (Cluster 1 at `911657027`; Clusters 2–4 on `codex/gy-n12-c4-epoch-validity` tip `b99152069`, 24 commits, 174 paths). Boundaries 6–7 omitted by contract — Appendix A `CB-I06` pre-declares `artifact_missing` while the admitted environment is `not_established`, so the governed artifact is a planned absence, not a shortfall. Widening ledger closed 5/7. | **the last Phase-5 task, now closed** — unblocks DS18 and opens Phase 6 |
 | `GY-N13a` | 5 | `executed` | `719d7a35a` | acquisition census — gates DS15 read parts |
 | `GY-N13b` | 5 | `executed` | `b3f11e587` | acquisition executor — gates DS15 live loop |
 | `GY-PA1` | 5 | **not_executable** | Rev 53: *“GY-PA1 IS NOT EXECUTABLE and that is a COMPLETE result, not a deferral”* | a completed negative, not pending work |
@@ -1583,12 +1583,17 @@ note is itself the evidence. Anything else is `ambiguous` with its line number �
 | `GY-V6` | 7 | `not_started` | no commit and no note; absence is the evidence | Deep Workability Verification — runs only after Phases 5–6 land |
 | `GY-V7` | 7 | `not_started` | no commit and no note; absence is the evidence | Deep Workability Verification — runs only after Phases 5–6 land |
 
-**Denominator: 37 tasks — 24 `executed`, 1 `in_flight`, 1 `not_executable`, 11 `not_started`, 0 `ambiguous`.**
+**Denominator: 37 tasks — 25 `executed`, 0 `in_flight`, 1 `not_executable`, 11 `not_started`, 0 `ambiguous`.**
 
-**Sequencing consequence.** Phase 5 is complete except `GY-N12`, and `GY-PA1` is a completed
-negative rather than pending work. So `GY-N12` alone stands between here and the close of
-Phase 5 — after which Phase 6 (`GY-O0`–`O3`) opens, and Phase 7 (`GY-V1`–`V7`, the
-audit-grade workability proof) runs only after that. It also gates `DS18`.
+**Sequencing consequence — updated 2026-08-27.** **Phase 5 is complete.** `GY-N12` merged at
+`c6fbfa388` and `GY-PA1` is a completed negative rather than pending work, so no Phase-5 row
+remains open. Phase 6 (`GY-O0`–`O3`) is now the live horizon; Phase 7 (`GY-V1`–`V7`, the
+audit-grade workability proof) runs only after that. `DS18` is unblocked.
+
+What closing Phase 5 does **not** establish: the governed epoch artifact remains `artifact_missing`,
+and the owner-enforced runtime cutoff, the two epoch signers and the writer-independent holder all
+remain `absent/unallocated`. Those are institutional appointments, not Phase-6 work, and Phase 6
+does not wait on them.
 
 ## 9. The build tasks
 

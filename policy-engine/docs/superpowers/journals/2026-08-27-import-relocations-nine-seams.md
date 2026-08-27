@@ -78,6 +78,7 @@ Every row below was classified before the first source edit. Result:
 | pinned base / pre-edit census | 0/10 | No mechanism change; all 39 statements classified, 0 ambiguous. | stands; no round consumed |
 | seam 1 — Lex/Foundry intervention coupling | 0/10 | Existing IR now owns `CompiledLexIntervention`; existing Scientist nodes own hierarchical-search and temporal-DTR execution. Cleared `lex -> foundry` 3/3, `lex -> scientist` 4/4, and `foundry -> lex` 1/1. | stands; downward shared-contract completion and consumer-up relocation are round-free |
 | seam 2 — Core metric-validation CLI | 1/10 | One new packaged tools composition module owns the installed CLI and metric-validation handler. Cleared CO-01, the first 1/4 `core -> scientist` statements; the row remains open on CO-02..04. | stands; round 1 bought `tools/ops_runners/runtime_cli.py` |
+| seam 3 — Core Scientist CLI | 1/10 | The already-paid tools composition module now owns all nine Scientist commands; Core's remaining three upper-runtime imports and its obsolete internal handler are gone. Cleared CO-02..04 and closed `core -> scientist` 4/4. | stands; no new module, package, public authority export, constraint loosening, or surface |
 
 No round has been withdrawn.
 
@@ -182,3 +183,41 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   composition root is its real bridge/consumer and directly invokes the
   existing typed metric producer/persistence path. The new module mints no
   policy authority, but is a new surface and therefore consumes round 1.
+
+### Seam 3 — Core Scientist CLI
+
+- Attachment/prefix before closeout: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 2 commit
+  `47b5f1bfd` read back before staging.
+- Observed seam path set (8 observed = 8 declared): 2 mechanism paths (the
+  existing tools composition module and deleted Core handler) plus 6 P39
+  companions (dynamic registry, TOML/Markdown exception projections, Core
+  component README, and two focused test paths). This journal and the
+  implementation plan are two additional mandatory record companions outside
+  the mechanism count.
+- The move is structurally exact: AST-normalized comparison found all 14
+  definitions from the deleted handler present and unchanged in the tools
+  composition module. Dispatch now calls those local handlers directly; the
+  installed `polisyos scientist --help` smoke completed direct exit 0 and
+  enumerated all nine commands.
+- Final seven-file CLI/importer wave: direct exit 0, 51 passed;
+  `real=29.11s`, `user=26.83s`, `sys=1.25s`, uptime 21:53/up 3d12:07 to
+  21:54/up 3d12:07. Changed-file Ruff and unrestricted `git diff --check`
+  each completed direct exit 0.
+- A complete AST traversal and an independent `rg --files` derivation each
+  enumerated 204 Core Python files. The AST import walk and an independent
+  complete-tree text scan each found zero Core-to-Scientist imports. The row's
+  literal closure command completed direct exit 0.
+- The runtime collector and registry each enumerate exactly 20 tools CLI
+  dynamic calls: missing=0, stale=0, and obsolete `_cli_scientist.py` rows=0.
+  The exception TOML and its Markdown projection independently enumerate the
+  same 21 IDs after removal of the closed Core exception.
+- Capability result: the supported console script remains unchanged; its
+  already-existing upper composition owner is the bridge and real consumer of
+  Scientist provider, agent-evaluation, reflexion, search, and backtesting
+  behavior. Core now supplies only lower CLI parser/store infrastructure. No
+  facade, compatibility shim, new authority, or widening round was introduced.
+- Independent delta review found no behavioral or architectural defect. Its
+  sole minor finding was a stale prose denominator (`22`) in the exception
+  projection; that P35 mismatch was corrected to the independently verified
+  TOML/Markdown count of 21 before commit.

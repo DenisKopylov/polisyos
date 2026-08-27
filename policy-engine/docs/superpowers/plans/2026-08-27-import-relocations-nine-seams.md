@@ -54,11 +54,11 @@ At every seam boundary:
 
 ### Seam 3: Core Scientist CLI — 3 statements
 
-- [ ] Move Gonka smoke, starter eval, and reflexion replay handlers to the same
+- [x] Move Gonka smoke, starter eval, and reflexion replay handlers to the same
   legal composition owner.
-- [ ] Preserve command names and public entry-point behavior without dynamic
+- [x] Preserve command names and public entry-point behavior without dynamic
   import indirection.
-- [ ] Close `core -> scientist`.
+- [x] Close `core -> scientist`.
 
 ### Seam 4: D5 release acceptance — 1 statement
 

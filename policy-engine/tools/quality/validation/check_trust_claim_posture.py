@@ -12,8 +12,9 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import tokenize
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
@@ -41,6 +42,7 @@ from polisyos.scientist.evidence.claims.posture import (
     OwnerBinding,
     PageA11yFailureBinding,
     PageA11yReceiptBinding,
+    ProducerPostureMetadata,
     ReconciledSourceDerivation,
     ResolvedDocumentBinding,
     SourceClaimState,
@@ -63,6 +65,7 @@ from tools.quality.validation.trust_claim_posture_sources import (
 
 _AUTHORITY_FIELD = "authoritative_for"
 _DENIED_FIELD = "may_not_use_for"
+_PRODUCER_METADATA_FIELD = "trust_claim_posture"
 _IDENTITY_PATH = Path("docs/system-design-decisions/policyos-identity-and-custody-boundary.md")
 _A11Y_PATH = Path("docs/compliance/A11Y_AUDIT_2026Q2.md")
 _PAGE_RECEIPT_PATH = Path("docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base")
@@ -73,6 +76,23 @@ _DEFAULT_REGISTER_AS_OF = date(2026, 8, 26)
 _RATIFIED_IDENTITY_DIGEST = (
     "sha256:774f6dfb9aa655a079d6c6a2f00ef6442bad9f0ea9b84f370a4e808c5616a332"
 )
+_CORRUPTION_REASON_CODES: Mapping[str, tuple[str, ...]] = {
+    "anti_role_removal": ("DS11-IDENTITY-ANTI-ROLE-DRIFT",),
+    "body_fact_removal": ("DS11-A11Y-CERTIFICATION-NOT-EARNED",),
+    "candidate_to_supported": ("DS11-STATUS-UPGRADE",),
+    "crm_omission": ("DS11-IDENTITY-ANTI-ROLE-DRIFT",),
+    "dynamic_source_silently_dropped": ("DS11-SOURCE-DERIVATION-DISAGREEMENT",),
+    "forbidden_purpose_removal": ("DS11-AUTHORITY-PURPOSE-DENIED",),
+    "limitation_omission": ("DS11-DOM-PARITY-DRIFT",),
+    "machine_reserialization": ("DS11-MACHINE-BYTE-DRIFT",),
+    "manages_your_cases": ("DS11-IDENTITY-COPY-UNBOUND",),
+    "performance_relabel": ("DS11-PERFORMANCE-NOT-EARNED",),
+    "planned_to_supported": ("DS11-STATUS-UPGRADE",),
+    "review_refresh_without_evidence": ("DS11-REVIEW-MISSING-OR-STALE",),
+    "row_reorder": ("DS11-DOM-PARITY-DRIFT",),
+    "scope_assumption_change": ("DS11-GATE-PREDICATE-NOT-ESTABLISHED",),
+    "source_digest_rebinding": ("DS11-SOURCE-CONTENT-NOT-BOUND",),
+}
 
 
 @dataclass(frozen=True)
@@ -185,6 +205,7 @@ def reconcile_source_derivations(
                 ),
                 authoritative_sites=available.authoritative_sites,
                 forbidden_sites=available.forbidden_sites,
+                producer_metadata=(),
                 runtime_bound=True,
                 issue_codes=("DS11-SOURCE-DERIVATION-DISAGREEMENT",),
             )
@@ -817,14 +838,13 @@ def _compile_semantic_bindings(
             "test_first_governed_public_signature_is_custody_bound -q",
         ),
     )
-    custody_facts = complete_facts - {"no_blocker"}
+    custody_facts = {
+        "content_bound_source",
+        "purpose_permission",
+        "accountable_owner",
+        "identity_boundary",
+    }
     for owner_name, prerequisite, closure_signal in custody_prerequisites:
-        evidence = _semantic_evidence(
-            subject="universal_custody_commitment",
-            verifier=identity_verifier,
-            source_as_of=identity.last_reviewed,
-            establishment_class=EstablishmentClass.INDEPENDENTLY_RECONCILED,
-        )
         bindings.append(
             _semantic_binding(
                 coordinate=identity_coordinate,
@@ -849,7 +869,7 @@ def _compile_semantic_bindings(
                 review_on=identity.last_reviewed,
                 review_due=review_due,
                 source_as_of=identity.last_reviewed,
-                evidence=evidence,
+                evidence=None,
                 limitation_refs=(f"Planned prerequisite: {prerequisite}",),
                 prerequisite_refs=(prerequisite,),
                 closure_signal=closure_signal,
@@ -936,12 +956,7 @@ def _compile_semantic_bindings(
     )
 
     if page_receipt is not None:
-        receipt_verifier = verifier_by_kind["page_a11y_receipt_derivation"]
-        current_evidence = _semantic_evidence(
-            subject="current_accessibility_conformance",
-            verifier=receipt_verifier,
-            source_as_of=page_receipt.source_as_of,
-        )
+        current_evidence = None
         receipt_path = f"{page_receipt.path}/receipt.json"
         current_coordinate = a11y_coordinate.model_copy(
             update={"path": receipt_path, "symbol": "page_a11y_receipt"}
@@ -983,13 +998,6 @@ def _compile_semantic_bindings(
             predicate_facts={"identity_boundary"},
         )
     )
-    external_evidence = None
-    if accessibility_document is not None:
-        external_evidence = _semantic_evidence(
-            subject="external_accessibility_certification",
-            verifier=verifier_by_kind["accessibility_document_derivation"],
-            source_as_of=accessibility_document.source_as_of,
-        )
     bindings.append(
         _semantic_binding(
             coordinate=a11y_coordinate,
@@ -1005,7 +1013,7 @@ def _compile_semantic_bindings(
             review_on=a11y_source_as_of,
             review_due=a11y_review_due,
             source_as_of=a11y_source_as_of,
-            evidence=external_evidence,
+            evidence=None,
             limitation_refs=("External accessibility countersign is absent.",),
             prerequisite_refs=("DS11-EXTERNAL-A11Y-COUNTERSIGN",),
             predicate_facts={"identity_boundary"},
@@ -1315,6 +1323,415 @@ def run_corruption_probe(
     return False
 
 
+def run_corruption_probes(
+    *,
+    repo_root: Path,
+    register_as_of: date,
+) -> dict[str, object]:
+    """Run the closed C05 semantic mutation wave entirely in scratch roots."""
+    root = repo_root.resolve()
+    before = _bounded_filesystem_snapshot(root)
+    register, canonical = compile_claim_posture_register(root, register_as_of=register_as_of)
+    outcomes: dict[str, bool] = {}
+    with tempfile.TemporaryDirectory(prefix="ds11-corruption-") as temporary:
+        scratch = Path(temporary).resolve()
+        outcomes["planned_to_supported"] = _status_projection_is_rejected(
+            register, source_state="planned"
+        )
+        outcomes["candidate_to_supported"] = _candidate_projection_is_rejected(
+            root,
+            scratch / "candidate",
+            register_as_of=register_as_of,
+        )
+        outcomes["forbidden_purpose_removal"] = _live_payload_mutation_is_rejected(
+            register,
+            root,
+            _remove_forbidden_purpose,
+            register_as_of=register_as_of,
+        )
+        outcomes["review_refresh_without_evidence"] = _live_payload_mutation_is_rejected(
+            register,
+            root,
+            _refresh_review_without_evidence,
+            register_as_of=register_as_of,
+        )
+        outcomes["source_digest_rebinding"] = _source_digest_rebinding_is_rejected(
+            root,
+            scratch / "source-rebinding",
+            register_as_of=register_as_of,
+        )
+        outcomes["body_fact_removal"] = _body_fact_removal_is_rejected(root, scratch / "body-fact")
+        outcomes["scope_assumption_change"] = _payload_mutation_is_rejected(
+            register, _change_scope_assumption
+        )
+        outcomes["anti_role_removal"] = _anti_role_mutation_is_rejected(
+            root, scratch / "anti-role", ", not an executor"
+        )
+        outcomes["crm_omission"] = _anti_role_mutation_is_rejected(
+            root, scratch / "crm", "\nnot a CRM"
+        )
+        outcomes["manages_your_cases"] = validate_claim_copy(
+            "manages your cases", source_row=None
+        ) == ("DS11-IDENTITY-COPY-UNBOUND",)
+        outcomes["performance_relabel"] = _payload_mutation_is_rejected(
+            register, _relabel_as_performance
+        )
+        outcomes["limitation_omission"] = _payload_mutation_is_rejected(register, _omit_limitation)
+        outcomes["row_reorder"] = _payload_mutation_is_rejected(register, _reorder_rows)
+        outcomes["machine_reserialization"] = _machine_reserialization_is_rejected(
+            register, canonical
+        )
+        outcomes["dynamic_source_silently_dropped"] = _dynamic_source_drop_is_rejected(
+            root,
+            scratch / "dynamic",
+            register_as_of=register_as_of,
+        )
+    after = _bounded_filesystem_snapshot(root)
+    escaped = sorted(
+        path for path in before.keys() | after.keys() if before.get(path) != after.get(path)
+    )
+    results = []
+    for probe_id in sorted(_CORRUPTION_REASON_CODES):
+        rejected = outcomes.get(probe_id, False)
+        results.append(
+            {
+                "probe_id": probe_id,
+                "outcome": "rejected" if rejected else "escaped",
+                "reason_codes": list(_CORRUPTION_REASON_CODES[probe_id]) if rejected else [],
+                "declared_outputs": [],
+                "write_set": [],
+            }
+        )
+    return {
+        "probe_count": len(results),
+        "rejected_count": sum(item["outcome"] == "rejected" for item in results),
+        "scratch_escape_count": len(escaped),
+        "scratch_escape_paths": escaped,
+        "results": results,
+    }
+
+
+def _bounded_filesystem_snapshot(root: Path) -> dict[str, str]:
+    excluded = {
+        ".git",
+        ".mypy_cache",
+        ".pytest_cache",
+        ".ruff_cache",
+        ".venv",
+        "__pycache__",
+        "_build",
+        "_cache",
+        "node_modules",
+        "production_data",
+    }
+    snapshot: dict[str, str] = {}
+    for path in root.rglob("*"):
+        relative = path.relative_to(root)
+        if any(part in excluded for part in relative.parts):
+            continue
+        if path.is_symlink():
+            snapshot[relative.as_posix()] = "link:" + os.readlink(path)
+        elif path.is_file():
+            snapshot[relative.as_posix()] = (
+                "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+            )
+    return snapshot
+
+
+def _minimal_probe_repo(
+    root: Path,
+    source: str,
+    *,
+    basis_root: Path,
+    source_name: str = "probe.py",
+) -> Path:
+    source_path = root / "src/polisyos" / source_name
+    source_path.parent.mkdir(parents=True, exist_ok=True)
+    source_path.write_text(source, encoding="utf-8")
+    identity = root / _IDENTITY_PATH
+    identity.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(basis_root.resolve() / _IDENTITY_PATH, identity)
+    return root
+
+
+def _payload_with_digest(payload: Mapping[str, object]) -> dict[str, object]:
+    rebound = json.loads(json.dumps(payload, ensure_ascii=False))
+    unsigned = {key: value for key, value in rebound.items() if key != "payload_digest"}
+    encoded = json.dumps(
+        unsigned,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    rebound["payload_digest"] = "sha256:" + hashlib.sha256(encoded).hexdigest()
+    return rebound
+
+
+def _payload_mutation_is_rejected(
+    register: ClaimPostureRegisterV1,
+    mutate: Callable[[dict[str, object]], None],
+) -> bool:
+    payload = register.model_dump(mode="json")
+    mutate(payload)
+    try:
+        validate_posture_register(_payload_with_digest(payload))
+    except ValueError:
+        return True
+    return False
+
+
+def _live_payload_mutation_is_rejected(
+    register: ClaimPostureRegisterV1,
+    repo_root: Path,
+    mutate: Callable[[dict[str, object]], None],
+    *,
+    register_as_of: date,
+) -> bool:
+    payload = register.model_dump(mode="json")
+    mutate(payload)
+    rebound = _payload_with_digest(payload)
+    encoded = (
+        json.dumps(rebound, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
+    ).encode("utf-8")
+    try:
+        validate_register_against_live_sources(
+            encoded,
+            repo_root=repo_root,
+            register_as_of=register_as_of,
+        )
+    except ValueError:
+        return True
+    return False
+
+
+def _claim(payload: Mapping[str, object], subject: str) -> dict[str, object]:
+    claims = payload.get("claims")
+    if not isinstance(claims, list):
+        raise ValueError("corruption payload has no claims")
+    matches = [item for item in claims if isinstance(item, dict) and item.get("subject") == subject]
+    if len(matches) != 1:
+        raise ValueError(f"corruption payload requires one {subject} claim")
+    return matches[0]
+
+
+def _status_projection_is_rejected(
+    register: ClaimPostureRegisterV1,
+    *,
+    source_state: str,
+) -> bool:
+    payload = register.model_dump(mode="json")
+    claims = payload["claims"]
+    if not isinstance(claims, list):
+        return False
+    row = next(
+        (
+            item
+            for item in claims
+            if isinstance(item, dict)
+            and any(
+                isinstance(binding, dict) and binding.get("source_state") == source_state
+                for binding in item.get("source_bindings", [])
+            )
+        ),
+        None,
+    )
+    if row is None:
+        return False
+    row["effective_state"] = "supported"
+    try:
+        validate_posture_register(_payload_with_digest(payload))
+    except ValueError:
+        return True
+    return False
+
+
+def _candidate_projection_is_rejected(
+    basis_root: Path,
+    root: Path,
+    *,
+    register_as_of: date,
+) -> bool:
+    repo = _minimal_probe_repo(
+        root,
+        '"""Candidate posture corruption probe."""\n\n'
+        "class CandidateProbe:\n"
+        '    authoritative_for = ("candidate_probe",)\n'
+        '    may_not_use_for = ("publication_authority",)\n'
+        '    trust_claim_posture = {"schema_version": '
+        '"policyos.trust.producer_posture.v1", "subject": "candidate_probe", '
+        '"source_state": "candidate", "owner": "team-scientist", '
+        '"closure_signal": "pytest://candidate_probe"}\n',
+        basis_root=basis_root,
+    )
+    register, _ = compile_claim_posture_register(repo, register_as_of=register_as_of)
+    return _status_projection_is_rejected(register, source_state="candidate")
+
+
+def _remove_forbidden_purpose(payload: dict[str, object]) -> None:
+    binding = _claim(payload, "system_identity")["source_bindings"][0]
+    binding["may_not_use_for"] = [
+        value for value in binding["may_not_use_for"] if value != "capability_claim"
+    ]
+
+
+def _refresh_review_without_evidence(payload: dict[str, object]) -> None:
+    row = _claim(payload, "current_accessibility_conformance")
+    row["review_on"] = "2026-08-26"
+    row["review_due"] = "2027-08-26"
+    binding = row["source_bindings"][0]
+    binding["review_on"] = "2026-08-26"
+    binding["review_due"] = "2027-08-26"
+
+
+def _change_scope_assumption(payload: dict[str, object]) -> None:
+    binding = _claim(payload, "system_identity")["source_bindings"][0]
+    binding["declared_scope_assumption"] = "global"
+
+
+def _relabel_as_performance(payload: dict[str, object]) -> None:
+    _claim(payload, "system_identity")["family"] = "grounded_performance"
+
+
+def _omit_limitation(payload: dict[str, object]) -> None:
+    claims = payload["claims"]
+    row = next(item for item in claims if item["limitations"])
+    row["limitations"] = row["limitations"][1:]
+
+
+def _reorder_rows(payload: dict[str, object]) -> None:
+    payload["claims"] = list(reversed(payload["claims"]))
+
+
+def _source_digest_rebinding_is_rejected(
+    repo_root: Path,
+    scratch: Path,
+    *,
+    register_as_of: date,
+) -> bool:
+    repo = _minimal_probe_repo(
+        scratch,
+        'class Probe:\n    authoritative_for = ("probe",)\n',
+        basis_root=repo_root,
+    )
+    identity = repo / _IDENTITY_PATH
+    text = identity.read_text(encoding="utf-8")
+    changed = text.replace("across the whole life of a", "throughout the whole life of a", 1)
+    if changed == text:
+        return False
+    identity.write_text(changed, encoding="utf-8")
+    register, _ = compile_claim_posture_register(repo, register_as_of=register_as_of)
+    row = next(item for item in register.claims if item.subject == "system_identity")
+    return row.effective_state == ClaimPostureState.BLOCKED
+
+
+def _body_fact_removal_is_rejected(repo_root: Path, scratch: Path) -> bool:
+    repo = _minimal_probe_repo(
+        scratch,
+        'class Probe:\n    authoritative_for = ("probe",)\n',
+        basis_root=repo_root,
+    )
+    source = repo_root.resolve() / _A11Y_PATH
+    target = repo / _A11Y_PATH
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(source, target)
+    text = target.read_text(encoding="utf-8")
+    boundary = text.find("\n---\n", 4)
+    if boundary < 0:
+        return False
+    frontmatter, body = text[: boundary + 5], text[boundary + 5 :]
+    mutated = body.replace("- Audit status: Internal pre-audit complete", "", 1)
+    if mutated == body:
+        return False
+    target.write_text(frontmatter + mutated, encoding="utf-8")
+    try:
+        derive_accessibility_document(repo)
+    except ValueError:
+        return True
+    return False
+
+
+def _anti_role_mutation_is_rejected(
+    repo_root: Path,
+    scratch: Path,
+    fragment: str,
+) -> bool:
+    baseline = derive_identity_boundary(repo_root)
+    repo = _minimal_probe_repo(
+        scratch,
+        'class Probe:\n    authoritative_for = ("probe",)\n',
+        basis_root=repo_root,
+    )
+    identity = repo / _IDENTITY_PATH
+    text = identity.read_text(encoding="utf-8")
+    changed = text.replace(fragment, "", 1)
+    if changed == text:
+        return False
+    identity.write_text(changed, encoding="utf-8")
+    try:
+        mutated = derive_identity_boundary(repo)
+    except ValueError:
+        return True
+    return tuple(item.role for item in mutated.anti_roles) != tuple(
+        item.role for item in baseline.anti_roles
+    )
+
+
+def _machine_reserialization_is_rejected(
+    register: ClaimPostureRegisterV1,
+    canonical: bytes,
+) -> bool:
+    reserialized = (json.dumps(register.model_dump(mode="json"), indent=2) + "\n").encode("utf-8")
+    return reserialized != canonical and validate_posture_register(reserialized) == register
+
+
+def _dynamic_source_drop_is_rejected(
+    basis_root: Path,
+    root: Path,
+    *,
+    register_as_of: date,
+) -> bool:
+    repo = _minimal_probe_repo(
+        root,
+        'subjects = ("dynamic_probe",)\n\n'
+        "class DynamicProbe:\n"
+        "    authoritative_for = tuple(subjects)\n",
+        basis_root=basis_root,
+        source_name="dynamic_probe.py",
+    )
+    register, _ = compile_claim_posture_register(repo, register_as_of=register_as_of)
+    path = "src/polisyos/dynamic_probe.py"
+    inventory = next((row for row in register.source_inventory if row.path == path), None)
+    if inventory is None or inventory.resolution != SourceResolution.RUNTIME_BOUND:
+        return False
+    payload = register.model_dump(mode="json")
+    removed_ids = {
+        row["claim_id"]
+        for row in payload["claims"]
+        if any(binding["coordinate"]["path"] == path for binding in row["source_bindings"])
+    }
+    payload["source_inventory"] = [
+        row for row in payload["source_inventory"] if row["path"] != path
+    ]
+    payload["claims"] = [row for row in payload["claims"] if row["claim_id"] not in removed_ids]
+    for group in payload["projection_groups"]:
+        group["claim_ids"] = [
+            claim_id for claim_id in group["claim_ids"] if claim_id not in removed_ids
+        ]
+    rebound = _payload_with_digest(payload)
+    encoded = (
+        json.dumps(rebound, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
+    ).encode("utf-8")
+    try:
+        validate_register_against_live_sources(
+            encoded,
+            repo_root=repo,
+            register_as_of=register_as_of,
+        )
+    except ValueError:
+        return True
+    return False
+
+
 def _derive_token_row(member: AdmittedSourceMember, raw: bytes) -> SourceInventoryRow:
     try:
         tokens = list(tokenize.tokenize(io.BytesIO(raw).readline))
@@ -1343,6 +1760,7 @@ def _derive_token_row(member: AdmittedSourceMember, raw: bytes) -> SourceInvento
         )
     statements = _logical_statements(tokens)
     symbols = _token_symbols(tokens)
+    producer_metadata = _derive_token_producer_metadata(statements, symbols)
     semantic_fields = _token_semantic_field_positions(statements, symbols)
     declarations: list[SourceCoordinate] = []
     carriers: list[SourceCoordinate] = []
@@ -1407,6 +1825,7 @@ def _derive_token_row(member: AdmittedSourceMember, raw: bytes) -> SourceInvento
     consumers = _unique_coordinates(consumers)
     authoritative_sites = _unique_sites(authoritative_sites)
     forbidden_sites = _unique_sites(forbidden_sites)
+    _validate_token_producer_metadata_bindings(producer_metadata, authoritative_sites)
     if not exact_authority:
         text = raw.decode("utf-8")
         line = next(
@@ -1476,9 +1895,132 @@ def _derive_token_row(member: AdmittedSourceMember, raw: bytes) -> SourceInvento
         consumer_coordinates=tuple(consumers),
         authoritative_sites=tuple(authoritative_sites),
         forbidden_sites=tuple(forbidden_sites),
+        producer_metadata=producer_metadata,
         runtime_bound=runtime_bound,
         issue_codes=("DS11-SOURCE-RUNTIME-BOUND",) if runtime_bound else (),
     )
+
+
+def _derive_token_producer_metadata(
+    statements: Sequence[Sequence[tokenize.TokenInfo]],
+    symbols: Mapping[int, str | None],
+) -> tuple[ProducerPostureMetadata, ...]:
+    """Independently derive strict metadata from token structure only."""
+    declarations: list[ProducerPostureMetadata] = []
+    seen: set[tuple[int, int]] = set()
+    admitted: set[tuple[int, int]] = set()
+    for statement in statements:
+        for index, token in enumerate(statement):
+            if token.type != tokenize.NAME or token.string != _PRODUCER_METADATA_FIELD:
+                continue
+            seen.add(token.start)
+            is_declaration, value_tokens = _token_declaration(statement, index)
+            if not is_declaration or value_tokens is None:
+                continue
+            admitted.add(token.start)
+            try:
+                decoded = _token_literal_mapping(value_tokens)
+                declarations.append(
+                    ProducerPostureMetadata.model_validate(
+                        {
+                            **decoded,
+                            "source_symbol": symbols.get(token.start[0]),
+                            "line": token.start[0],
+                            "column": token.start[1],
+                        }
+                    )
+                )
+            except ValueError as exc:
+                raise ValueError(f"DS11-PRODUCER-METADATA: {exc}") from exc
+    if seen != admitted:
+        raise ValueError("DS11-PRODUCER-METADATA: metadata must be one direct literal assignment")
+    keys = [(item.source_symbol, item.subject) for item in declarations]
+    if len(keys) != len(set(keys)):
+        raise ValueError("DS11-PRODUCER-METADATA: duplicate producer subject metadata")
+    return tuple(
+        sorted(
+            declarations,
+            key=lambda item: (item.source_symbol or "", item.subject, item.line, item.column),
+        )
+    )
+
+
+def _token_literal_mapping(tokens: Sequence[tokenize.TokenInfo]) -> dict[str, object]:
+    meaningful = [
+        item
+        for item in tokens
+        if item.type not in {tokenize.NEWLINE, tokenize.NL, tokenize.COMMENT}
+    ]
+    if len(meaningful) < 2 or meaningful[0].string != "{" or meaningful[-1].string != "}":
+        raise ValueError("metadata must be a literal mapping")
+    values: dict[str, object] = {}
+    index = 1
+    while index < len(meaningful) - 1:
+        key_token = meaningful[index]
+        key = _decode_string_token(key_token.string) if key_token.type == tokenize.STRING else None
+        if key is None or key in values:
+            raise ValueError("metadata keys must be unique literal strings")
+        index += 1
+        if index >= len(meaningful) - 1 or meaningful[index].string != ":":
+            raise ValueError("metadata literal key is missing ':'")
+        index += 1
+        if index >= len(meaningful) - 1:
+            raise ValueError("metadata literal key is missing a value")
+        token = meaningful[index]
+        if token.type == tokenize.STRING:
+            decoded = _decode_string_token(token.string)
+            if decoded is None:
+                raise ValueError("metadata values must be plain literal strings")
+            values[key] = decoded
+            index += 1
+        elif token.string in {"(", "["}:
+            closing = ")" if token.string == "(" else "]"
+            index += 1
+            items: list[str] = []
+            while index < len(meaningful) - 1 and meaningful[index].string != closing:
+                item = meaningful[index]
+                if item.string == ",":
+                    index += 1
+                    continue
+                decoded = (
+                    _decode_string_token(item.string) if item.type == tokenize.STRING else None
+                )
+                if decoded is None:
+                    raise ValueError("metadata sequence values must be literal strings")
+                items.append(decoded)
+                index += 1
+            if index >= len(meaningful) - 1 or meaningful[index].string != closing:
+                raise ValueError("metadata sequence is unterminated")
+            values[key] = tuple(items)
+            index += 1
+        else:
+            raise ValueError("metadata values must be literal strings or string sequences")
+        if index < len(meaningful) - 1:
+            if meaningful[index].string != ",":
+                raise ValueError("metadata entries must be comma separated")
+            index += 1
+    return values
+
+
+def _validate_token_producer_metadata_bindings(
+    metadata: Sequence[ProducerPostureMetadata],
+    authority_sites: Sequence[LiteralSite],
+) -> None:
+    declared = {
+        (site.coordinate.symbol, subject)
+        for site in authority_sites
+        if site.resolution == SourceResolution.RESOLVED
+        for subject in site.values
+    }
+    unmatched = [item for item in metadata if (item.source_symbol, item.subject) not in declared]
+    if unmatched:
+        rendered = ", ".join(
+            f"{item.source_symbol or '<module>'}:{item.subject}" for item in unmatched
+        )
+        raise ValueError(
+            "DS11-PRODUCER-METADATA: subject must match authoritative_for in the same symbol: "
+            + rendered
+        )
 
 
 def _logical_statements(tokens: Sequence[tokenize.TokenInfo]) -> list[list[tokenize.TokenInfo]]:
@@ -1963,6 +2505,7 @@ def _rows_agree(left: SourceInventoryRow, right: SourceInventoryRow) -> bool:
         and left.resolution == right.resolution
         and sites(left, _AUTHORITY_FIELD) == sites(right, _AUTHORITY_FIELD)
         and sites(left, _DENIED_FIELD) == sites(right, _DENIED_FIELD)
+        and left.producer_metadata == right.producer_metadata
     )
 
 
@@ -2049,6 +2592,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--register-as-of", type=_parse_date, default=_DEFAULT_REGISTER_AS_OF)
     parser.add_argument("--output-root", type=Path)
     parser.add_argument("--write-generated-reference", action="store_true")
+    parser.add_argument("--corruption-probes", action="store_true")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
     register, payload = compile_claim_posture_register(
@@ -2074,6 +2618,20 @@ def main(argv: Sequence[str] | None = None) -> int:
         raise ValueError("corruption probe did not reject the artifact")
     elif args.check_a11y_receipt:
         derive_page_a11y_receipt(args.repo_root)
+    if args.corruption_probes:
+        if not args.check:
+            parser.error("--corruption-probes requires --check")
+        corruption = run_corruption_probes(
+            repo_root=args.repo_root,
+            register_as_of=args.register_as_of,
+        )
+        report["corruption_probes"] = corruption
+        if (
+            corruption["probe_count"] != len(_CORRUPTION_REASON_CODES)
+            or corruption["rejected_count"] != len(_CORRUPTION_REASON_CODES)
+            or corruption["scratch_escape_count"] != 0
+        ):
+            raise ValueError("DS11 corruption probe wave escaped its semantic boundary")
     if args.write_generated_reference and not args.write:
         parser.error("--write-generated-reference requires --write")
     if args.json:

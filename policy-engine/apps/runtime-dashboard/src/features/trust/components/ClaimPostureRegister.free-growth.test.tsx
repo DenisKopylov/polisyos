@@ -48,20 +48,21 @@ describe("ClaimPostureRegister free growth", () => {
     ]);
     const register = claimPostureRegisterSchema.parse(artifactValue);
     const source = register.claims.find(
-      (claim) => claim.effective_state === "supported",
+      (claim) => claim.effective_state === "planned",
     );
     expect(source).toBeDefined();
     const generated = {
       ...source!,
       claim_id: "claim-posture:free-growth-test",
       subject: "free_growth_subject",
+      family: "methodology",
+      authoritative_for: ["free_growth_subject"],
       source_bindings: source!.source_bindings.map((binding) => ({
         ...binding,
         subject: "free_growth_subject",
-        evidence_bindings: binding.evidence_bindings.map((evidence) => ({
-          ...evidence,
-          subject_binding: "free_growth_subject",
-        })),
+        family: "methodology",
+        authoritative_for: ["free_growth_subject"],
+        authority_purpose: "free_growth_subject",
       })),
     };
     const grown = structuredClone({
@@ -113,7 +114,7 @@ describe("ClaimPostureRegister free growth", () => {
       .find((element) => element.hasAttribute("data-trust-subject"))
       ?.closest("[data-trust-claim-row]");
     expect(row).toHaveAttribute("data-claim-id", generated.claim_id);
-    expect(row).toHaveTextContent("supported");
+    expect(row).toHaveTextContent("planned");
     expect(row).toHaveTextContent("methodology");
   });
 });

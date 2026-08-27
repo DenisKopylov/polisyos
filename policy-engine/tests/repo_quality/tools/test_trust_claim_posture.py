@@ -372,14 +372,47 @@ def test_all_declaration_forms_survive_and_ambiguity_never_invents_subject(
 
 def test_new_authority_producer_grows_register_without_register_edit(
     tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
-    """Catch subject-map coupling or a walk that ignores a new real Python producer."""
+    """Grow through the canonical writer while every governed source stays unchanged."""
     scratch = tmp_path / "repo"
     _copy_compiler_inputs(scratch, full_source=True)
     sources = _sources()
     checker = _checker()
+    baseline_register, baseline_bytes = checker.compile_claim_posture_register(
+        scratch, register_as_of=FROZEN_AS_OF
+    )
     before_ast = sources.derive_ast_sources(scratch)
     before_token = checker.derive_token_sources(scratch)
+    dashboard_sources = tuple(
+        sorted(
+            path
+            for path in (REPO_ROOT / "apps/runtime-dashboard/src").rglob("*")
+            if path.is_file()
+            and path.suffix in {".ts", ".tsx"}
+            and not path.name.endswith(".d.ts")
+            and ".stories." not in path.name
+            and not any(marker in path.name for marker in (".test.", ".spec.", ".a11y.test."))
+            and not ("src/test" in path.as_posix() and path.suffix == ".tsx")
+        )
+    )
+    assert len(dashboard_sources) == 625
+    governed_before = {
+        path.relative_to(REPO_ROOT).as_posix(): sha256(path.read_bytes()).hexdigest()
+        for path in dashboard_sources
+    }
+    governed_before.update(
+        {
+            path: sha256((REPO_ROOT / path).read_bytes()).hexdigest()
+            for path in (
+                "architecture/imports/policy.toml",
+                "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+                "apps/runtime-dashboard/src/app/routes/routes.tsx",
+                "apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+                "apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+            )
+        }
+    )
     probe = scratch / "src/polisyos/scientist/evidence/claims/ds11_growth_probe.py"
     probe.write_text(
         '"""Scratch-only free-growth producer."""\n\n'
@@ -412,6 +445,225 @@ def test_new_authority_producer_grows_register_without_register_edit(
     assert growth[0].content_digest == "sha256:" + sha256(probe.read_bytes()).hexdigest()
     assert growth[0].source_state == "not_established"
 
+    blocked_register, _ = checker.compile_claim_posture_register(
+        scratch, register_as_of=FROZEN_AS_OF
+    )
+    blocked_row = next(
+        row for row in blocked_register.claims if row.subject == "ds11_free_growth_probe"
+    )
+    assert blocked_row.effective_state == "blocked"
+
+    probe.write_text(
+        probe.read_text(encoding="utf-8")
+        + "    trust_claim_posture = {\n"
+        + '        "schema_version": "policyos.trust.producer_posture.v1",\n'
+        + '        "subject": "ds11_free_growth_probe",\n'
+        + '        "source_state": "planned",\n'
+        + '        "owner": "team-scientist",\n'
+        + '        "closure_signal": "uv run pytest tests/example/test_growth.py -q",\n'
+        + "    }\n",
+        encoding="utf-8",
+    )
+    planned_register, planned_bytes = checker.compile_claim_posture_register(
+        scratch, register_as_of=FROZEN_AS_OF
+    )
+    planned_row = next(
+        row for row in planned_register.claims if row.subject == "ds11_free_growth_probe"
+    )
+    assert planned_row.effective_state == "planned"
+    assert len(planned_register.admitted_sources) == len(baseline_register.admitted_sources) + 1
+    assert len(planned_register.claims) == len(baseline_register.claims) + 1
+    assert planned_row.source_bindings[0].owner.owner == "team-scientist"
+
+    output_root = tmp_path / "output"
+    assert (
+        checker.main(
+            [
+                "--repo-root",
+                str(scratch),
+                "--output-root",
+                str(output_root),
+                "--write",
+                "--json",
+            ]
+        )
+        == 0
+    )
+    cli_report = json.loads(capsys.readouterr().out)
+    assert cli_report["declared_outputs"] == [
+        "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+    ]
+    assert cli_report["write_set"] == [
+        "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+    ]
+    written = output_root / "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+    assert written.read_bytes() == planned_bytes
+    assert {
+        path.relative_to(output_root).as_posix()
+        for path in output_root.rglob("*")
+        if path.is_file()
+    } == {"apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"}
+    assert (
+        REPO_ROOT / "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+    ).read_bytes() != planned_bytes
+    assert baseline_bytes != planned_bytes
+    governed_after = {
+        path.relative_to(REPO_ROOT).as_posix(): sha256(path.read_bytes()).hexdigest()
+        for path in dashboard_sources
+    }
+    governed_after.update(
+        {
+            path: sha256((REPO_ROOT / path).read_bytes()).hexdigest()
+            for path in (
+                "architecture/imports/policy.toml",
+                "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+                "apps/runtime-dashboard/src/app/routes/routes.tsx",
+                "apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+                "apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+            )
+        }
+    )
+    assert governed_after == governed_before
+
+
+def test_producer_posture_metadata_is_strict_and_cannot_fabricate_support(
+    tmp_path: Path,
+) -> None:
+    """Accept only the closed candidate/planned grammar from both derivations."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    probe = repo / "src/polisyos/example.py"
+    original = probe.read_text(encoding="utf-8")
+    metadata = (
+        '\n    trust_claim_posture = {"schema_version": '
+        '"policyos.trust.producer_posture.v1", "subject": "example_claim", '
+        '"source_state": "planned", "owner": "team-example", '
+        '"closure_signal": "uv run pytest tests/example.py -q"}\n'
+    )
+    probe.write_text(original + metadata, encoding="utf-8")
+    checker = _checker()
+    register, _ = checker.compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
+    assert (
+        next(row for row in register.claims if row.subject == "example_claim").effective_state
+        == "planned"
+    )
+
+    for forbidden in (
+        '"effective_state": "supported"',
+        '"establishment_class": "recomputed"',
+        '"jurisdiction": "global"',
+        '"review_on": "2026-08-26"',
+        '"evidence_refs": []',
+    ):
+        probe.write_text(
+            original + metadata.replace('"closure_signal":', f'{forbidden}, "closure_signal":'),
+            encoding="utf-8",
+        )
+        with pytest.raises(ValueError, match="DS11-PRODUCER-METADATA"):
+            checker.compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
+
+
+def test_producer_posture_metadata_ast_tokenizer_disagreement_is_blocked(
+    tmp_path: Path,
+) -> None:
+    """A metadata mismatch cannot be silently selected from either derivation."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    probe = repo / "src/polisyos/example.py"
+    probe.write_text(
+        probe.read_text(encoding="utf-8")
+        + '\n    trust_claim_posture = {"schema_version": '
+        + '"policyos.trust.producer_posture.v1", "subject": "example_claim", '
+        + '"source_state": "planned", "owner": "team-example", '
+        + '"closure_signal": "uv run pytest tests/example.py -q"}\n',
+        encoding="utf-8",
+    )
+    sources = _sources()
+    checker = _checker()
+    ast_result = sources.derive_ast_sources(repo)
+    token_result = checker.derive_token_sources(repo)
+    token_row = token_result.rows[0]
+    assert len(token_row.producer_metadata) == 1
+    changed = token_row.model_copy(
+        update={
+            "producer_metadata": (
+                token_row.producer_metadata[0].model_copy(update={"owner": "team-forged"}),
+            )
+        }
+    )
+    changed_token = token_result.model_copy(update={"rows": (changed,)})
+    reconciled = checker.reconcile_source_derivations(ast_result, changed_token)
+    assert reconciled.disagreements
+    assert reconciled.rows[0].resolution == "ambiguous"
+    assert reconciled.rows[0].producer_metadata == ()
+
+
+def test_c05_corruption_matrix_is_complete_semantic_and_scratch_bounded(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Expose every named C05 mutation with a deterministic rejection receipt."""
+    checker = _checker()
+    assert (
+        checker.main(["--repo-root", str(REPO_ROOT), "--check", "--corruption-probes", "--json"])
+        == 0
+    )
+    report = json.loads(capsys.readouterr().out)
+    matrix = report["corruption_probes"]
+    assert matrix["probe_count"] == 15
+    assert matrix["rejected_count"] == 15
+    assert matrix["scratch_escape_count"] == 0
+    assert matrix["scratch_escape_paths"] == []
+    assert [probe["probe_id"] for probe in matrix["results"]] == sorted(
+        probe["probe_id"] for probe in matrix["results"]
+    )
+    assert {probe["probe_id"] for probe in matrix["results"]} == {
+        "anti_role_removal",
+        "body_fact_removal",
+        "candidate_to_supported",
+        "crm_omission",
+        "dynamic_source_silently_dropped",
+        "forbidden_purpose_removal",
+        "limitation_omission",
+        "machine_reserialization",
+        "manages_your_cases",
+        "performance_relabel",
+        "planned_to_supported",
+        "review_refresh_without_evidence",
+        "row_reorder",
+        "scope_assumption_change",
+        "source_digest_rebinding",
+    }
+    expected_reasons = {
+        "anti_role_removal": ["DS11-IDENTITY-ANTI-ROLE-DRIFT"],
+        "body_fact_removal": ["DS11-A11Y-CERTIFICATION-NOT-EARNED"],
+        "candidate_to_supported": ["DS11-STATUS-UPGRADE"],
+        "crm_omission": ["DS11-IDENTITY-ANTI-ROLE-DRIFT"],
+        "dynamic_source_silently_dropped": ["DS11-SOURCE-DERIVATION-DISAGREEMENT"],
+        "forbidden_purpose_removal": ["DS11-AUTHORITY-PURPOSE-DENIED"],
+        "limitation_omission": ["DS11-DOM-PARITY-DRIFT"],
+        "machine_reserialization": ["DS11-MACHINE-BYTE-DRIFT"],
+        "manages_your_cases": ["DS11-IDENTITY-COPY-UNBOUND"],
+        "performance_relabel": ["DS11-PERFORMANCE-NOT-EARNED"],
+        "planned_to_supported": ["DS11-STATUS-UPGRADE"],
+        "review_refresh_without_evidence": ["DS11-REVIEW-MISSING-OR-STALE"],
+        "row_reorder": ["DS11-DOM-PARITY-DRIFT"],
+        "scope_assumption_change": ["DS11-GATE-PREDICATE-NOT-ESTABLISHED"],
+        "source_digest_rebinding": ["DS11-SOURCE-CONTENT-NOT-BOUND"],
+    }
+    assert {
+        probe["probe_id"]: probe["reason_codes"] for probe in matrix["results"]
+    } == expected_reasons
+    assert all(probe["outcome"] == "rejected" for probe in matrix["results"])
+    assert all(
+        probe["reason_codes"] == sorted(probe["reason_codes"]) for probe in matrix["results"]
+    )
+    assert all(probe["reason_codes"] for probe in matrix["results"])
+    assert all(
+        probe["declared_outputs"] == [] and probe["write_set"] == [] for probe in matrix["results"]
+    )
+    assert report["declared_outputs"] == []
+    assert report["write_set"] == []
+
 
 def test_identity_parser_derives_seven_anti_roles_including_crm() -> None:
     """Catch a parser mutation that samples or hand-enumerates the anti-role paragraph."""
@@ -435,7 +687,7 @@ def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
     repo = tmp_path / "repo"
     _copy_compiler_inputs(repo)
     register, _ = _checker().compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
-    assert register.rule_version == "policyos.trust.claim_posture_rules.v3"
+    assert register.rule_version == "policyos.trust.claim_posture_rules.v4"
     rows = {row.subject: row for row in register.claims}
 
     required = {

@@ -15,6 +15,7 @@ from polisyos.scientist.evidence.claims.posture import (
     EstablishmentClass,
     LiteralSite,
     OwnerBinding,
+    ProducerPostureMetadata,
     ReconciledSourceDerivation,
     SourceClaimState,
     SourceCoordinate,
@@ -28,6 +29,7 @@ from polisyos.scientist.evidence.claims.posture import (
 
 _AUTHORITY_FIELD = "authoritative_for"
 _DENIED_FIELD = "may_not_use_for"
+_PRODUCER_METADATA_FIELD = "trust_claim_posture"
 _FIELD_NAMES = frozenset({_AUTHORITY_FIELD, _DENIED_FIELD})
 _SEMANTIC_METHODS = frozenset(
     {
@@ -112,24 +114,54 @@ def compile_source_claim_bindings(
                 bindings.append(_unresolved_binding(row, coordinates[0], owner))
             continue
         denied = tuple(sorted({value for site in row.forbidden_sites for value in site.values}))
+        metadata_by_key = {
+            (item.source_symbol, item.subject): item for item in row.producer_metadata
+        }
         emitted = False
         for site in row.authoritative_sites:
             if site.resolution == SourceResolution.RESOLVED:
                 for subject in site.values:
                     emitted = True
-                    predicates = _unestablished_predicates(owner)
+                    metadata = metadata_by_key.get((site.coordinate.symbol, subject))
+                    if metadata is None:
+                        predicates = _unestablished_predicates(owner)
+                        source_state = SourceClaimState.NOT_ESTABLISHED
+                        binding_owner = owner
+                        limitations = ("Missing independent claim metadata",)
+                        prerequisites: tuple[str, ...] = ()
+                        closure_signal = None
+                    else:
+                        binding_owner = OwnerBinding(
+                            owner=metadata.owner,
+                            basis="closure_commitment",
+                            source_ref=row.path,
+                            establishment_class=EstablishmentClass.RECOMPUTED,
+                        )
+                        predicates = _planned_predicates(binding_owner)
+                        source_state = SourceClaimState(metadata.source_state)
+                        limitations = tuple(
+                            dict.fromkeys(
+                                (
+                                    "Producer metadata authorizes planning only; "
+                                    "support evidence is absent.",
+                                    *metadata.limitation_refs,
+                                )
+                            )
+                        )
+                        prerequisites = metadata.prerequisite_refs
+                        closure_signal = metadata.closure_signal
                     bindings.append(
                         ClaimSourceBinding(
                             coordinate=site.coordinate,
                             content_digest=row.content_digest,
                             resolution=SourceResolution.RESOLVED,
-                            source_state=SourceClaimState.NOT_ESTABLISHED,
+                            source_state=source_state,
                             subject=subject,
                             family="methodology",
                             authoritative_for=(subject,),
                             may_not_use_for=denied,
                             authority_purpose=subject,
-                            owner=owner,
+                            owner=binding_owner,
                             jurisdiction=None,
                             jurisdiction_establishment=EstablishmentClass.NOT_ESTABLISHED,
                             review_on=None,
@@ -137,14 +169,14 @@ def compile_source_claim_bindings(
                             source_as_of=None,
                             evidence_refs=(),
                             evidence_bindings=(),
-                            limitation_refs=("Missing independent claim metadata",),
-                            prerequisite_refs=(),
+                            limitation_refs=limitations,
+                            prerequisite_refs=prerequisites,
                             identity_boundary_ref=identity_ref,
                             declared_scope_assumption=None,
                             supersedes_ref=None,
                             superseded_by_ref=None,
                             predicates=predicates,
-                            closure_signal=None,
+                            closure_signal=closure_signal,
                         )
                     )
             else:
@@ -218,6 +250,7 @@ def _derive_ast_row(member: AdmittedSourceMember, raw: bytes) -> SourceInventory
             bind(child, current)
 
     bind(tree, None)
+    producer_metadata = _derive_ast_producer_metadata(tree, symbol)
     semantic_field_nodes = _semantic_authority_field_nodes(tree, parent)
     declarations: list[SourceCoordinate] = []
     carriers: list[SourceCoordinate] = []
@@ -267,6 +300,7 @@ def _derive_ast_row(member: AdmittedSourceMember, raw: bytes) -> SourceInventory
     consumers = _dedupe_coordinates(consumers)
     authority_sites = _dedupe_sites(authority_sites)
     forbidden_sites = _dedupe_sites(forbidden_sites)
+    _validate_producer_metadata_bindings(producer_metadata, authority_sites)
     if not exact_seen:
         line = next(
             (
@@ -333,12 +367,96 @@ def _derive_ast_row(member: AdmittedSourceMember, raw: bytes) -> SourceInventory
         consumer_coordinates=tuple(consumers),
         authoritative_sites=tuple(authority_sites),
         forbidden_sites=tuple(forbidden_sites),
+        producer_metadata=producer_metadata,
         runtime_bound=runtime_bound,
         issue_codes=("DS11-SOURCE-RUNTIME-BOUND",) if runtime_bound else (),
     )
 
 
 _NO_DECLARATION = object()
+
+
+def _derive_ast_producer_metadata(
+    tree: ast.AST,
+    symbols: Mapping[ast.AST, str | None],
+) -> tuple[ProducerPostureMetadata, ...]:
+    """Derive strict literal producer metadata without accepting runtime objects."""
+    declarations: list[ProducerPostureMetadata] = []
+    seen_names = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Name) and node.id == _PRODUCER_METADATA_FIELD
+    ]
+    admitted_targets: set[ast.Name] = set()
+    for node in ast.walk(tree):
+        target: ast.Name | None = None
+        value: ast.AST | None = None
+        if isinstance(node, ast.Assign) and len(node.targets) == 1:
+            candidate = node.targets[0]
+            if isinstance(candidate, ast.Name) and candidate.id == _PRODUCER_METADATA_FIELD:
+                target, value = candidate, node.value
+        elif isinstance(node, ast.AnnAssign):
+            candidate = node.target
+            if (
+                isinstance(candidate, ast.Name)
+                and candidate.id == _PRODUCER_METADATA_FIELD
+                and node.value is not None
+            ):
+                target, value = candidate, node.value
+        if target is None or value is None:
+            continue
+        admitted_targets.add(target)
+        try:
+            decoded = ast.literal_eval(value)
+        except (ValueError, TypeError, SyntaxError, MemoryError, RecursionError) as exc:
+            raise ValueError("DS11-PRODUCER-METADATA: metadata must be a literal mapping") from exc
+        if not isinstance(decoded, dict):
+            raise ValueError("DS11-PRODUCER-METADATA: metadata must be a literal mapping")
+        try:
+            declarations.append(
+                ProducerPostureMetadata.model_validate(
+                    {
+                        **decoded,
+                        "source_symbol": symbols.get(target),
+                        "line": target.lineno,
+                        "column": target.col_offset,
+                    }
+                )
+            )
+        except ValueError as exc:
+            raise ValueError(f"DS11-PRODUCER-METADATA: {exc}") from exc
+    if any(node not in admitted_targets for node in seen_names):
+        raise ValueError("DS11-PRODUCER-METADATA: metadata must be one direct literal assignment")
+    keys = [(item.source_symbol, item.subject) for item in declarations]
+    if len(keys) != len(set(keys)):
+        raise ValueError("DS11-PRODUCER-METADATA: duplicate producer subject metadata")
+    return tuple(
+        sorted(
+            declarations,
+            key=lambda item: (item.source_symbol or "", item.subject, item.line, item.column),
+        )
+    )
+
+
+def _validate_producer_metadata_bindings(
+    metadata: Sequence[ProducerPostureMetadata],
+    authority_sites: Sequence[LiteralSite],
+) -> None:
+    declared = {
+        (site.coordinate.symbol, subject)
+        for site in authority_sites
+        if site.resolution == SourceResolution.RESOLVED
+        for subject in site.values
+    }
+    unmatched = [item for item in metadata if (item.source_symbol, item.subject) not in declared]
+    if unmatched:
+        rendered = ", ".join(
+            f"{item.source_symbol or '<module>'}:{item.subject}" for item in unmatched
+        )
+        raise ValueError(
+            "DS11-PRODUCER-METADATA: subject must match authoritative_for in the same symbol: "
+            + rendered
+        )
 
 
 def _exact_field_name(node: ast.AST) -> Literal["authoritative_for", "may_not_use_for"] | None:
@@ -797,6 +915,41 @@ def _unestablished_predicates(owner: OwnerBinding) -> tuple[SupportPredicate, ..
         )
     )
     return tuple(sorted(values, key=lambda item: item.kind))
+
+
+def _planned_predicates(owner: OwnerBinding) -> tuple[SupportPredicate, ...]:
+    planned = {
+        "content_bound_source",
+        "purpose_permission",
+        "accountable_owner",
+        "identity_boundary",
+    }
+    issues = {
+        "content_bound_source": "DS11-SOURCE-CONTENT-NOT-BOUND",
+        "purpose_permission": "DS11-AUTHORITY-PURPOSE-DENIED",
+        "accountable_owner": "DS11-OWNER-NOT-ESTABLISHED",
+        "applicable_jurisdiction": "DS11-JURISDICTION-NOT-ESTABLISHED",
+        "current_review": "DS11-REVIEW-MISSING",
+        "content_bound_evidence": "DS11-EVIDENCE-NOT-INDEPENDENTLY-BOUND",
+        "identity_boundary": "DS11-IDENTITY-BOUNDARY-NOT-ESTABLISHED",
+        "no_blocker": "DS11-SOURCE-BLOCKER-PRESENT",
+    }
+    return tuple(
+        SupportPredicate(
+            kind=kind,
+            satisfied=kind in planned,
+            establishment_class=(
+                EstablishmentClass.RECOMPUTED
+                if kind in planned
+                else EstablishmentClass.NOT_ESTABLISHED
+            ),
+            evidence_refs=(owner.source_ref,)
+            if kind == "accountable_owner" and owner.source_ref
+            else (),
+            issue_code=None if kind in planned else issue,
+        )
+        for kind, issue in sorted(issues.items())
+    )
 
 
 def _unresolved_binding(

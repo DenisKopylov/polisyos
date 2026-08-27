@@ -754,3 +754,72 @@ provenance remained valid while its self-supplied subject was relabeled to
   unchanged governed lock returns exactly inherited C13 and no DS11 error
   (exit 1; `real 69.37`, `user 94.51`, `sys 9.67`; uptime `04:47 -> 04:48`).
   Accounting remains `26/34` mechanisms and `7/9` widening rounds.
+
+## C05 — deterministic regeneration and semantic corruption wave
+
+- RED-first admitted eight absent properties: the exact four-predicate planned
+  basis; content-bound verifier subject scope; canonical free growth through a
+  new producer; strict literal producer metadata in both AST and tokenizer
+  derivations; the complete 15-probe corruption set; MACHINE limitation parity;
+  and the 102-row debt denominator. All eight failed for their intended absent
+  property. The completed pytest receipt was exit 1, `user 149.86 + sys 8.30 =
+  158.16s`, with uptime beginning `08:46`; a following zsh `status` assignment
+  was a tooling-only tail non-receipt.
+- Rule v4 admits producer-local `trust_claim_posture` only as a strict literal
+  `policyos.trust.producer_posture.v1` mapping beside the same-symbol literal
+  `authoritative_for` subject. Its state is closed to `candidate|planned`; owner
+  and executable closure signal are mandatory; jurisdiction, review, and
+  independent evidence remain absent. AST and tokenizer parse independently,
+  disagree to `ambiguous`, and never let metadata or a projection mint support.
+  This generic producer grammar is widening round 8/9.
+- The canonical free-growth e2e copies the complete source basis to scratch,
+  adds one producer, and observes exactly +1 scanned source, raw/exact/declaring
+  file, direct literal site, and direct subject in both derivations. With no
+  metadata the row is blocked; adding same-symbol planned metadata produces one
+  planned row with its owner and closure signal. The canonical CLI writes only
+  the scratch JSON; all 625 dashboard production sources plus the public route,
+  locales, import policy, and committed register remain byte-identical.
+- Verifier identity is now a typed content-bound object whose
+  `subject_scope`/`prohibited_subjects` are recomputed from the admitted
+  identity, accessibility document, or page receipt basis. Keeping every
+  marker string stable while mutating the admitted bytes fails live equality.
+  A post-freeze review found that the initial names
+  `authoritative_for`/`may_not_use_for` made the compiler's own verifier scope
+  look like a new producer. That was the existing P05/P31 self-declaration
+  class: the first freeze was explicitly invalidated, the fields were narrowed
+  to verifier-specific names, and both derivations returned to the original
+  denominator with one supported identity row rather than blocking it.
+- Corrected deterministic refreeze: two fresh scratch writers were byte-equal
+  for the JSON and generated reference (`A user 48.96 + sys 1.83 = 50.79s`,
+  `B user 49.16 + sys 1.47 = 50.63s`; uptime `10:19 -> 10:20`). The sole governed
+  writer then matched both (`user 57.69 + sys 2.19 = 59.88s`; uptime `10:21 ->
+  10:22`). Payload digest is
+  `sha256:7ab7ff2751033aede30a036c2de02ae8d0da69c32a3fbdf7fa07c87f65ef2165`.
+- Both final derivations report 2,580 Python files, 105 raw candidates, 104 exact
+  field files (103 after excluding the single substring collision), role counts
+  `66 declares_only / 5 carries_only / 5 consumes_only / 28
+  declares_and_consumes / 1 substring_collision / 0 ambiguous`, 94 declaring
+  and 33 consuming files, direct `35/13/21/5`, wrapper `59/24/28`, and denied
+  `117/34/22/44`; disagreements are zero. The register is 340 blocked / 1
+  planned / 1 supported.
+- The exact corruption CLI rejects 15/15 with each declared semantic reason and
+  zero scratch escapes (`user 172.09 + sys 11.05 = 183.14s`; uptime `10:22 ->
+  10:25`). A concurrent full-package run correctly saw the later TypeScript
+  test edit in its repository snapshot and went red; the isolated P34 replay,
+  with no writer or edit, passed (`user 146.20 + sys 9.74 = 155.94s`; uptime
+  `10:32 -> 10:34`).
+- Frontend posture/free-growth verification is 17/17 and uses a planned unknown
+  subject rather than forging a novel supported verifier scope (`user 17.52 +
+  sys 1.36 = 18.88s`). Complete dashboard typecheck is green (`user 47.76 +
+  sys 1.81 = 49.57s`). Ruff check and format-check pass on the exact five Python
+  paths. Debt tests pass 35/35; the sole debt writer reports 102 IDs and only ten
+  informational inherited GY standing findings (`user 1.22 + sys 0.94 =
+  2.16s`). Delegated delta review was attempted but unavailable because the
+  workspace agent pool had no credits; local cross-language delta review found
+  and closed the self-declaration issue above.
+- `check_debt_ledger.py` is the one newly observed C05 mechanism path, required
+  by CC24 because its 92-row constant otherwise rejected the measured 102-row
+  owner. Leaving the stale denominator to C06 was the rejected seam. Tests,
+  JSON, ledger, and this journal are P39 companions. Slice accounting is now
+  `27/34` unique mechanisms and `8/9` widening rounds; round 8 stands and buys
+  the generic typed producer-planning grammar.

@@ -12,7 +12,7 @@ from typing import Literal, Self
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 CLAIM_POSTURE_SCHEMA = "policyos.trust.claim_posture_register.v1"
-CLAIM_POSTURE_RULE_VERSION = "policyos.trust.claim_posture_rules.v3"
+CLAIM_POSTURE_RULE_VERSION = "policyos.trust.claim_posture_rules.v4"
 CLAIM_POSTURE_SLICE_BASE_REF = "f935e0c2e9359bc1202ce5d36ea706de58f7aaab"
 
 REQUIRED_SUPPORT_PREDICATES: tuple[str, ...] = (
@@ -24,6 +24,13 @@ REQUIRED_SUPPORT_PREDICATES: tuple[str, ...] = (
     "content_bound_evidence",
     "identity_boundary",
     "no_blocker",
+)
+
+REQUIRED_PLANNED_PREDICATES: tuple[str, ...] = (
+    "content_bound_source",
+    "purpose_permission",
+    "accountable_owner",
+    "identity_boundary",
 )
 
 
@@ -169,6 +176,44 @@ class SourceDerivationReceipt(_StrictModel):
         return self
 
 
+class ProducerPostureMetadata(_StrictModel):
+    """Strict candidate/planned posture declared beside one producer subject."""
+
+    schema_version: Literal["policyos.trust.producer_posture.v1"]
+    subject: str = Field(min_length=1)
+    source_state: Literal[SourceClaimState.CANDIDATE, SourceClaimState.PLANNED]
+    owner: str = Field(min_length=1)
+    closure_signal: str = Field(min_length=1)
+    prerequisite_refs: tuple[str, ...] = ()
+    limitation_refs: tuple[str, ...] = ()
+    source_symbol: str | None
+    line: int = Field(ge=1)
+    column: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def validate_declaration(self) -> Self:
+        """Reject prose-shaped closure signals and non-canonical string sets."""
+        if any(
+            value != value.strip() or "\n" in value
+            for value in (self.subject, self.owner, self.closure_signal)
+        ):
+            raise ValueError("producer posture strings must be stripped single lines")
+        command_prefixes = (
+            "uv run pytest ",
+            "pytest ",
+            "corepack pnpm ",
+            ".venv/bin/python ",
+            "python ",
+            "pytest://",
+        )
+        if not self.closure_signal.startswith(command_prefixes):
+            raise ValueError("closure_signal must be an executable command or test identity")
+        for values in (self.prerequisite_refs, self.limitation_refs):
+            if len(values) != len(set(values)) or any(not item.strip() for item in values):
+                raise ValueError("producer posture refs must be nonempty and unique")
+        return self
+
+
 class SourceInventoryRow(_StrictModel):
     """One reconciled raw candidate and all of its derivation facts."""
 
@@ -181,6 +226,7 @@ class SourceInventoryRow(_StrictModel):
     consumer_coordinates: tuple[SourceCoordinate, ...]
     authoritative_sites: tuple[LiteralSite, ...]
     forbidden_sites: tuple[LiteralSite, ...]
+    producer_metadata: tuple[ProducerPostureMetadata, ...] = ()
     runtime_bound: bool
     issue_codes: tuple[str, ...]
 
@@ -238,6 +284,8 @@ class AdmittedVerifier(_StrictModel):
     content_digest: str
     provenance_ref: str
     provenance_digest: str
+    subject_scope: tuple[str, ...]
+    prohibited_subjects: tuple[str, ...]
     establishment_class: Literal[
         EstablishmentClass.RECOMPUTED,
         EstablishmentClass.INDEPENDENTLY_RECONCILED,
@@ -464,7 +512,7 @@ class ClaimPostureRegisterV1(_StrictModel):
     """Strict deterministic trust-claim posture register."""
 
     schema_version: Literal["policyos.trust.claim_posture_register.v1"]
-    rule_version: Literal["policyos.trust.claim_posture_rules.v3"]
+    rule_version: Literal["policyos.trust.claim_posture_rules.v4"]
     slice_base_ref: Literal["f935e0c2e9359bc1202ce5d36ea706de58f7aaab"]
     register_as_of: date
     admitted_sources: tuple[AdmittedSourceMember, ...]
@@ -639,7 +687,7 @@ def evaluate_claim_posture(
         if set(predicates_by_kind) != set(REQUIRED_SUPPORT_PREDICATES):
             blockers.add("DS11-GATE-PREDICATE-SET-INCOMPLETE")
         required_facts = (
-            tuple(kind for kind in REQUIRED_SUPPORT_PREDICATES if kind != "no_blocker")
+            REQUIRED_PLANNED_PREDICATES
             if binding.source_state == SourceClaimState.PLANNED
             else REQUIRED_SUPPORT_PREDICATES
         )
@@ -915,6 +963,14 @@ def derive_admitted_verifiers(
                 identity_boundary.paragraph_digest,
                 *identity_boundary.derivation_receipt_digests,
             ),
+            subject_scope=("system_identity",),
+            prohibited_subjects=(
+                "current_accessibility_conformance",
+                "external_accessibility_certification",
+                "grounded_performance",
+                "historical_internal_accessibility_pre_audit",
+                "universal_custody_commitment",
+            ),
             establishment_class=EstablishmentClass.INDEPENDENTLY_RECONCILED,
         )
     ]
@@ -930,6 +986,14 @@ def derive_admitted_verifiers(
                     accessibility_document.body_digest,
                     *(item.exact_text_digest for item in accessibility_document.bindings),
                 ),
+                subject_scope=("historical_internal_accessibility_pre_audit",),
+                prohibited_subjects=(
+                    "current_accessibility_conformance",
+                    "external_accessibility_certification",
+                    "grounded_performance",
+                    "system_identity",
+                    "universal_custody_commitment",
+                ),
                 establishment_class=EstablishmentClass.RECOMPUTED,
             )
         )
@@ -943,6 +1007,14 @@ def derive_admitted_verifiers(
                 content_digest=page_a11y_receipt.content_digest,
                 provenance_parts=tuple(
                     item.content_digest for item in page_a11y_receipt.admitted_sources
+                ),
+                subject_scope=("historical_page_accessibility_result",),
+                prohibited_subjects=(
+                    "current_accessibility_conformance",
+                    "external_accessibility_certification",
+                    "grounded_performance",
+                    "system_identity",
+                    "universal_custody_commitment",
                 ),
                 establishment_class=EstablishmentClass.RECOMPUTED,
             )
@@ -961,6 +1033,8 @@ def _admitted_verifier(
     content_ref: str,
     content_digest: str,
     provenance_parts: Sequence[str],
+    subject_scope: tuple[str, ...],
+    prohibited_subjects: tuple[str, ...],
     establishment_class: Literal[
         EstablishmentClass.RECOMPUTED,
         EstablishmentClass.INDEPENDENTLY_RECONCILED,
@@ -975,6 +1049,8 @@ def _admitted_verifier(
         content_digest=content_digest,
         provenance_ref=f"provenance:{verifier_kind}:{provenance_digest}",
         provenance_digest=provenance_digest,
+        subject_scope=subject_scope,
+        prohibited_subjects=prohibited_subjects,
         establishment_class=establishment_class,
     )
 
@@ -998,6 +1074,8 @@ def _evidence_is_admitted(
         and verifier.content_ref == evidence.ref
         and verifier.content_digest == evidence.content_digest
         and verifier.provenance_ref == evidence.verifier_provenance_ref
+        and subject in verifier.subject_scope
+        and subject not in verifier.prohibited_subjects
         and verifier.establishment_class
         in {EstablishmentClass.RECOMPUTED, EstablishmentClass.INDEPENDENTLY_RECONCILED}
         and evidence.establishment_class

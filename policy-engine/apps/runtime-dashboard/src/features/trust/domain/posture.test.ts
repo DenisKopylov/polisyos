@@ -14,17 +14,28 @@ const artifactValue = JSON.parse(artifactBytes.toString("utf8")) as Record<
 
 type MutableArtifact = Record<string, unknown> & {
   admitted_sources: Array<{ path: string; content_digest: string }>;
+  admitted_verifiers: Array<{
+    ref: string;
+    subject_scope: string[];
+    prohibited_subjects: string[];
+  }>;
   source_set_digest: string;
   identity_boundary: { last_reviewed: string };
   claims: Array<{
     claim_id: string;
     subject: string | null;
     family: string;
+    authoritative_for: string[];
     effective_state: "supported" | "planned" | "blocked";
+    limitations: string[];
     source_bindings: Array<{
+      subject: string | null;
+      authoritative_for: string[];
+      authority_purpose: string | null;
       content_digest: string;
       coordinate: { path: string };
       evidence_bindings: Array<{
+        subject_binding: string;
         verifier_ref: string;
         verifier_provenance_ref: string;
       }>;
@@ -127,7 +138,7 @@ describe("trust posture artifact admission", () => {
     expect(
       claimPostureRegisterSchema.safeParse({
         ...artifactValue,
-        rule_version: "policyos.trust.claim_posture_rules.v4",
+        rule_version: "policyos.trust.claim_posture_rules.v5",
       }).success,
     ).toBe(false);
 
@@ -265,6 +276,38 @@ describe("trust posture artifact admission", () => {
     expect(
       (await loadCandidate(recomputeDigests(evidenceVerifier))).status,
     ).toBe("unavailable");
+
+    const unrelatedScope = structuredClone(artifactValue) as MutableArtifact;
+    const identityVerifier = unrelatedScope.admitted_verifiers.find(
+      (verifier) => verifier.ref.includes("identity-boundary"),
+    )!;
+    expect(identityVerifier.subject_scope).toEqual(["system_identity"]);
+    expect(identityVerifier.prohibited_subjects).toContain(
+      "universal_custody_commitment",
+    );
+    const identityClaim = unrelatedScope.claims.find(
+      (claim) => claim.subject === "system_identity",
+    )!;
+    identityClaim.subject = "novel_unrelated_subject";
+    identityClaim.authoritative_for = ["novel_unrelated_subject"];
+    const identityBinding = identityClaim.source_bindings[0]!;
+    identityBinding.subject = "novel_unrelated_subject";
+    identityBinding.authoritative_for = ["novel_unrelated_subject"];
+    identityBinding.authority_purpose = "novel_unrelated_subject";
+    const reboundEvidence = identityBinding.evidence_bindings[0]!;
+    reboundEvidence.subject_binding = "novel_unrelated_subject";
+    expect((await loadCandidate(recomputeDigests(unrelatedScope))).status).toBe(
+      "unavailable",
+    );
+  });
+
+  it("rejects a MACHINE limitation omission after digest rebinding", async () => {
+    const candidate = structuredClone(artifactValue) as MutableArtifact;
+    const limited = candidate.claims.find((claim) => claim.limitations.length > 0)!;
+    limited.limitations.shift();
+    expect((await loadCandidate(recomputeDigests(candidate))).status).toBe(
+      "unavailable",
+    );
   });
 
   it("recomputes both canonical root digests and fails unavailable without browser crypto", async () => {

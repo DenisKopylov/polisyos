@@ -144,6 +144,21 @@ const sourceDerivationReceiptSchema = z
     }
   });
 
+const producerPostureMetadataSchema = z
+  .object({
+    schema_version: z.literal("policyos.trust.producer_posture.v1"),
+    subject: z.string().min(1),
+    source_state: z.enum(["candidate", "planned"]),
+    owner: z.string().min(1),
+    closure_signal: z.string().min(1),
+    prerequisite_refs: z.array(z.string()),
+    limitation_refs: z.array(z.string()),
+    source_symbol: z.string().nullable(),
+    line: z.number().int().positive(),
+    column: nonnegativeIntegerSchema,
+  })
+  .strict();
+
 const sourceInventoryRowSchema = z
   .object({
     path: z.string(),
@@ -155,6 +170,7 @@ const sourceInventoryRowSchema = z
     consumer_coordinates: z.array(sourceCoordinateSchema),
     authoritative_sites: z.array(literalSiteSchema),
     forbidden_sites: z.array(literalSiteSchema),
+    producer_metadata: z.array(producerPostureMetadataSchema),
     runtime_bound: z.boolean(),
     issue_codes: z.array(z.string()),
   })
@@ -199,6 +215,8 @@ const admittedVerifierSchema = z
     content_digest: z.string(),
     provenance_ref: z.string(),
     provenance_digest: z.string(),
+    subject_scope: z.array(z.string()),
+    prohibited_subjects: z.array(z.string()),
     establishment_class: z.enum(["recomputed", "independently_reconciled"]),
   })
   .strict();
@@ -376,7 +394,7 @@ const projectionGroupSchema = z
 export const claimPostureRegisterSchema = z
   .object({
     schema_version: z.literal("policyos.trust.claim_posture_register.v1"),
-    rule_version: z.literal("policyos.trust.claim_posture_rules.v3"),
+    rule_version: z.literal("policyos.trust.claim_posture_rules.v4"),
     slice_base_ref: z.literal("f935e0c2e9359bc1202ce5d36ea706de58f7aaab"),
     register_as_of: isoDateSchema,
     admitted_sources: z.array(admittedSourceMemberSchema),
@@ -410,6 +428,13 @@ const REQUIRED_SUPPORT_PREDICATES = [
   "no_blocker",
 ] as const;
 
+const REQUIRED_PLANNED_PREDICATES = [
+  "content_bound_source",
+  "purpose_permission",
+  "accountable_owner",
+  "identity_boundary",
+] as const;
+
 const POSITIVE_ESTABLISHMENT_CLASSES = new Set([
   "recomputed",
   "independently_reconciled",
@@ -426,6 +451,7 @@ const CLOSED_PROJECTION_GROUPS = [
 type AdmittedVerifier = ClaimPostureRegister["admitted_verifiers"][number];
 type EstablishmentClass = ClaimSourceBinding["jurisdiction_establishment"];
 type ProjectionGroup = ClaimPostureRegister["projection_groups"][number];
+type SourceInventoryRow = ClaimPostureRegister["source_inventory"][number];
 
 function pythonString(value: string, ensureAscii: boolean): string {
   const encoded = JSON.stringify(value);
@@ -590,6 +616,44 @@ function validateSourceBinding(binding: ClaimSourceBinding): boolean {
   );
 }
 
+function validateProducerMetadata(row: SourceInventoryRow): boolean {
+  const commandPrefixes = [
+    "uv run pytest ",
+    "pytest ",
+    "corepack pnpm ",
+    ".venv/bin/python ",
+    "python ",
+    "pytest://",
+  ];
+  const keys = new Set<string>();
+  for (const metadata of row.producer_metadata) {
+    const key = `${metadata.source_symbol ?? "<module>"}\u0000${metadata.subject}`;
+    if (keys.has(key)) return false;
+    keys.add(key);
+    if (
+      [metadata.subject, metadata.owner, metadata.closure_signal].some(
+        (value) => value !== value.trim() || value.includes("\n"),
+      ) ||
+      !commandPrefixes.some((prefix) => metadata.closure_signal.startsWith(prefix)) ||
+      metadata.prerequisite_refs.length !==
+        new Set(metadata.prerequisite_refs).size ||
+      metadata.limitation_refs.length !== new Set(metadata.limitation_refs).size ||
+      [...metadata.prerequisite_refs, ...metadata.limitation_refs].some(
+        (value) => value.trim().length === 0,
+      ) ||
+      !row.authoritative_sites.some(
+        (site) =>
+          site.resolution === "resolved" &&
+          site.coordinate.symbol === metadata.source_symbol &&
+          site.values.includes(metadata.subject),
+      )
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 async function admittedVerifier(
   values: Readonly<{
     ref: string;
@@ -597,6 +661,8 @@ async function admittedVerifier(
     contentRef: string;
     contentDigest: string;
     provenanceParts: readonly string[];
+    subjectScope: readonly string[];
+    prohibitedSubjects: readonly string[];
     establishmentClass: AdmittedVerifier["establishment_class"];
   }>,
 ): Promise<AdmittedVerifier> {
@@ -613,6 +679,8 @@ async function admittedVerifier(
     content_digest: values.contentDigest,
     provenance_ref: `provenance:${values.verifierKind}:${provenanceDigest}`,
     provenance_digest: provenanceDigest,
+    subject_scope: [...values.subjectScope],
+    prohibited_subjects: [...values.prohibitedSubjects],
     establishment_class: values.establishmentClass,
   };
 }
@@ -633,6 +701,14 @@ async function deriveAdmittedVerifiers(
         identity.paragraph_digest,
         ...identity.derivation_receipt_digests,
       ],
+      subjectScope: ["system_identity"],
+      prohibitedSubjects: [
+        "current_accessibility_conformance",
+        "external_accessibility_certification",
+        "grounded_performance",
+        "historical_internal_accessibility_pre_audit",
+        "universal_custody_commitment",
+      ],
       establishmentClass: "independently_reconciled",
     }),
   ];
@@ -649,6 +725,14 @@ async function deriveAdmittedVerifiers(
           accessibility.body_digest,
           ...accessibility.bindings.map((binding) => binding.exact_text_digest),
         ],
+        subjectScope: ["historical_internal_accessibility_pre_audit"],
+        prohibitedSubjects: [
+          "current_accessibility_conformance",
+          "external_accessibility_certification",
+          "grounded_performance",
+          "system_identity",
+          "universal_custody_commitment",
+        ],
         establishmentClass: "recomputed",
       }),
     );
@@ -664,6 +748,14 @@ async function deriveAdmittedVerifiers(
         provenanceParts: pageReceipt.admitted_sources.map(
           (member) => member.content_digest,
         ),
+        subjectScope: ["historical_page_accessibility_result"],
+        prohibitedSubjects: [
+          "current_accessibility_conformance",
+          "external_accessibility_certification",
+          "grounded_performance",
+          "system_identity",
+          "universal_custody_commitment",
+        ],
         establishmentClass: "recomputed",
       }),
     );
@@ -684,6 +776,8 @@ function sameVerifier(
     left.content_digest === right.content_digest &&
     left.provenance_ref === right.provenance_ref &&
     left.provenance_digest === right.provenance_digest &&
+    sameStrings(left.subject_scope, right.subject_scope) &&
+    sameStrings(left.prohibited_subjects, right.prohibited_subjects) &&
     left.establishment_class === right.establishment_class
   );
 }
@@ -719,6 +813,8 @@ function bindingFacts(
         verifier.content_ref === evidence.ref &&
         verifier.content_digest === evidence.content_digest &&
         verifier.provenance_ref === evidence.verifier_provenance_ref &&
+        verifier.subject_scope.includes(binding.subject) &&
+        !verifier.prohibited_subjects.includes(binding.subject) &&
         positiveEstablishment(verifier.establishment_class) &&
         positiveEstablishment(evidence.establishment_class) &&
         evidence.source_as_of <= register.register_as_of &&
@@ -856,7 +952,7 @@ function evaluateClaim(
     const facts = bindingFacts(binding, register);
     const requiredFacts =
       binding.source_state === "planned"
-        ? REQUIRED_SUPPORT_PREDICATES.filter((kind) => kind !== "no_blocker")
+        ? REQUIRED_PLANNED_PREDICATES
         : REQUIRED_SUPPORT_PREDICATES;
     for (const kind of requiredFacts) {
       const predicate = predicates.get(kind);
@@ -925,7 +1021,7 @@ function sameProjectionGroups(
   );
 }
 
-/** Replay every canonical v3 root invariant after structural parsing. */
+/** Replay every canonical v4 root invariant after structural parsing. */
 export async function validateClaimPostureRegisterSemantics(
   register: ClaimPostureRegister,
 ): Promise<boolean> {
@@ -944,6 +1040,9 @@ export async function validateClaimPostureRegisterSemantics(
         CLOSED_PROJECTION_GROUPS,
       )
     ) {
+      return false;
+    }
+    if (register.source_inventory.some((row) => !validateProducerMetadata(row))) {
       return false;
     }
     if ((await sourceSetDigest(register)) !== register.source_set_digest) {

@@ -227,6 +227,97 @@ def test_candidate_or_planned_never_composes_to_supported() -> None:
     assert posture.compose_effective_state(("planned", "supported")) == "blocked"
 
 
+def test_planned_requires_only_the_content_bound_executable_commitment_basis() -> None:
+    """Keep support-only jurisdiction, review, and evidence gates out of planning."""
+    posture = _posture()
+    register = _strict_register(posture)
+    base = register.claims[0].source_bindings[0]
+    owner = posture.OwnerBinding(
+        owner="team-example",
+        basis="closure_commitment",
+        source_ref=base.coordinate.path,
+        establishment_class="recomputed",
+    )
+    planned_kinds = {
+        "content_bound_source",
+        "purpose_permission",
+        "accountable_owner",
+        "identity_boundary",
+    }
+    predicates = tuple(
+        posture.SupportPredicate(
+            kind=kind,
+            satisfied=kind in planned_kinds,
+            establishment_class=("recomputed" if kind in planned_kinds else "not_established"),
+            evidence_refs=(),
+            issue_code=None if kind in planned_kinds else f"DS11-{kind.upper()}-NOT-REQUIRED",
+        )
+        for kind in posture.REQUIRED_SUPPORT_PREDICATES
+    )
+    planned = base.model_copy(
+        update={
+            "source_state": "planned",
+            "owner": owner,
+            "jurisdiction": None,
+            "jurisdiction_establishment": "not_established",
+            "review_on": None,
+            "review_due": None,
+            "evidence_refs": (),
+            "evidence_bindings": (),
+            "predicates": predicates,
+            "closure_signal": "uv run pytest tests/example/test_growth.py -q",
+        }
+    )
+    state, blockers, _ = posture.evaluate_claim_posture(
+        (planned,),
+        subject="example_claim",
+        family="methodology",
+        register_as_of=date(2026, 8, 26),
+        identity_boundary=register.identity_boundary,
+        admitted_sources=register.admitted_sources,
+        admitted_verifiers=register.admitted_verifiers,
+    )
+    assert state == "planned"
+    assert blockers == ()
+
+
+def test_admitted_verifier_scope_cannot_be_rebound_to_a_novel_subject() -> None:
+    """Bind evidence authority to typed subject/purpose scope, not verifier names."""
+    posture = _posture()
+    register = _strict_register(posture)
+    verifier = register.admitted_verifiers[0]
+    assert verifier.subject_scope == ("system_identity",)
+    assert "universal_custody_commitment" in verifier.prohibited_subjects
+
+    base = register.claims[0].source_bindings[0]
+    evidence = base.evidence_bindings[0].model_copy(
+        update={
+            "ref": verifier.content_ref,
+            "content_digest": verifier.content_digest,
+            "subject_binding": "novel_unrelated_subject",
+            "verifier_ref": verifier.ref,
+            "verifier_provenance_ref": verifier.provenance_ref,
+        }
+    )
+    forged = base.model_copy(
+        update={
+            "subject": "novel_unrelated_subject",
+            "authoritative_for": ("novel_unrelated_subject",),
+            "authority_purpose": "novel_unrelated_subject",
+            "evidence_refs": (evidence.ref,),
+            "evidence_bindings": (evidence,),
+        }
+    )
+    facts = posture._recomputed_binding_facts(
+        forged,
+        register_as_of=date(2026, 8, 26),
+        identity_boundary=register.identity_boundary,
+        admitted_sources=register.admitted_sources,
+        admitted_verifiers=register.admitted_verifiers,
+    )
+    assert facts["content_bound_evidence"][0] is False
+
+
 def test_support_requires_every_independently_established_predicate() -> None:
     """Catch a P37 mutation that lets supplied or missing predicates support."""
     posture = _posture()
@@ -266,6 +357,7 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
         update={
             "ref": verifier.content_ref,
             "content_digest": verifier.content_digest,
+            "subject_binding": "system_identity",
             "verifier_ref": verifier.ref,
             "verifier_provenance_ref": verifier.provenance_ref,
         }
@@ -273,6 +365,9 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
     supported = base.model_copy(
         update={
             "source_state": "supported",
+            "subject": "system_identity",
+            "authoritative_for": ("system_identity",),
+            "authority_purpose": "system_identity",
             "owner": owner,
             "jurisdiction": "non_jurisdiction_specific",
             "jurisdiction_establishment": "recomputed",
@@ -287,7 +382,7 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
     assert (
         posture.evaluate_claim_posture(
             (supported,),
-            subject="example_claim",
+            subject="system_identity",
             family="methodology",
             register_as_of=date(2026, 8, 26),
             identity_boundary=register.identity_boundary,
@@ -307,7 +402,7 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
     for update in removals:
         state, blockers, _ = posture.evaluate_claim_posture(
             (supported.model_copy(update=update),),
-            subject="example_claim",
+            subject="system_identity",
             family="methodology",
             register_as_of=date(2026, 8, 26),
             identity_boundary=register.identity_boundary,

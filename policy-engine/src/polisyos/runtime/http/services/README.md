@@ -31,6 +31,12 @@ projections. Route handlers should stay thin and delegate behavior here.
   service persists an owner-derived subject, reconciles it through the same Decision Validity
   owner used by direct generation, and passes only sealed positive gate evidence to N9. Missing
   predicate-policy admission remains the exact typed negative `policy_admission_missing`.
+- **Acquisition-growth custody** - `acquisition-growth` is one non-public,
+  read-only governed projection over the complete N13a/N13b owner family. It
+  separates structural routes from independently reconciled data gaps, keeps
+  ranking distinct from VOI, and exposes historical non-growth and pending
+  qualification without executing acquisition or publishing raw quarantine
+  bodies.
 
 ## Public API
 
@@ -60,6 +66,12 @@ projections. Route handlers should stay thin and delegate behavior here.
   owns signed-input reconciliation, append-only record custody, reservation
   recovery, and operational revalidation. They reuse the access-audit trail and
   control-plane artifact/event path; they do not establish a second log.
+- [`acquisition_surface_contracts.py`](acquisition_surface_contracts.py) owns
+  the strict DS15 DTOs and sole `GapClass` enum;
+  [`acquisition_surface_projection.py`](acquisition_surface_projection.py)
+  recomputes the composite read projection and raw-sibling strangle. The
+  governed projection service and its isolated validation worker content-bind
+  all 3 N13a and 43 N13b files before serving it.
 - [`adapters/`](adapters/) contains service adapters for core runtime state and
   should stay thin.
 - Scenario, temporal, mobility, attractor, feedback, and rendering services own
@@ -108,6 +120,6 @@ changes.
 
 ## Current State
 
-- Last updated: 2026-08-24
+- Last updated: 2026-08-28
 - The tree still centers on `artifact_inspector.py`, `debug.py`, `lineage.py`, `run_index.py`, and `timeline.py`.
 - The control service continues to support feedback evaluation, reissue, and data/Lex orchestration surfaces.

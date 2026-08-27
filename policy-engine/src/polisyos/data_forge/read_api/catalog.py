@@ -88,6 +88,12 @@ _EXPORTS = {
     "BaselineMutationError": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "CanonicalAcquisitionObservation": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "CatalogAcquisitionOverlay": "polisyos.data_forge.domains.catalog.knowledge.overlay",
+    "CatalogAcquisitionEpochProjection": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
+    "CatalogAcquisitionEventProjection": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
+    "CatalogAcquisitionPassportProjection": (
+        "polisyos.data_forge.domains.catalog.knowledge.overlay"
+    ),
+    "CatalogAcquisitionStateProjection": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "AcquisitionAuthorityEntry": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
@@ -196,6 +202,7 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "open_catalog_read_session": "polisyos.data_forge.domains.catalog.knowledge.overlay",
+    "project_catalog_acquisition_state": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "plan_catalog_source_stage_contracts": _CATALOG_DOMAIN,
     "plan_catalog_source_modules": _CATALOG_DOMAIN,
     "resolve_proxy": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",

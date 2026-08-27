@@ -8,6 +8,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_requirement import (
@@ -34,6 +35,7 @@ from polisyos.runtime.quality import acquisition_planner as acquisition_owner
 from polisyos.runtime.quality.acquisition_planner import (
     ACQUISITION_FAMILY_DENOMINATOR,
     AcquisitionCaptureProvenance,
+    AcquisitionCostBasisRecord,
     AcquisitionDisposition,
     AcquisitionFamily,
     AcquisitionGap,
@@ -46,6 +48,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionWorldSnapshot,
     AuthorityLevel,
     MandatoryGateState,
+    PlannerAcquisitionCostSchedule,
     RealAcquisitionOwnerGateway,
     RecordedAcquisitionOwnerGateway,
     RequiredDataGap,
@@ -57,9 +60,11 @@ from polisyos.runtime.quality.acquisition_planner import (
     acquisition_strangle_receipt,
     l1_variable_availability_requirement_gap,
     load_acquisition_planner_report,
+    load_planner_acquisition_cost_schedule,
     persist_acquisition_planner_report,
     plan_evidence_acquisition,
     plan_requirement_gap_acquisition,
+    produce_acquisition_cost_basis_record,
     rank_acquisition_candidates_by_family,
     requirement_gaps_from_compiled_specs,
     run_acquisition_closed_loop,
@@ -94,6 +99,83 @@ from polisyos.scientist.methods.search.voi_models import (
 from tools.quality.validation import check_layer3_gy_acquisition_contract as contract
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def test_strict_cost_owner_rejects_unknown_default_zero_without_changing_legacy() -> None:
+    """DS15-COST-BASIS: legacy fallback is candidate-only, never cost authority."""
+
+    legacy = acquisition_owner._cost_basis_for_gap(
+        missing_distribution="unregistered_distribution",
+        suggested_experiment=None,
+        alternative_identification=None,
+    )
+
+    assert legacy["basis_ref"] == "gap-cost-basis:unregistered-distribution:default"
+    assert legacy["money_usd"] == 1250.0
+    assert (
+        produce_acquisition_cost_basis_record(
+            missing_distribution="unregistered_distribution",
+            strategy=AcquisitionStrategy.PUBLIC_REGISTRY,
+        )
+        is None
+    )
+
+
+def test_strict_cost_owner_recomputes_schedule_rate_hash_and_total() -> None:
+    """DS15-COST-BASIS: declarations stay fixed while decisive values drift."""
+
+    schedule = load_planner_acquisition_cost_schedule()
+    record = produce_acquisition_cost_basis_record(
+        missing_distribution="administrative_tax_receipts",
+        strategy=AcquisitionStrategy.PUBLIC_REGISTRY,
+        schedule=schedule,
+    )
+
+    assert isinstance(schedule, PlannerAcquisitionCostSchedule)
+    assert isinstance(record, AcquisitionCostBasisRecord)
+    assert record.total_amount == sum(item.amount for item in record.line_items)
+    assert record.total_amount > 0
+
+    schedule_payload = schedule.model_dump(mode="json")
+    schedule_payload["rate_basis"]["expert_hour_usd"] += 1.0
+    with pytest.raises(ValidationError, match="schedule_content_hash_mismatch"):
+        PlannerAcquisitionCostSchedule.model_validate(schedule_payload)
+
+    schedule_payload = schedule.model_dump(mode="json")
+    schedule_payload["rate_basis"]["expert_hour_usd"] += 1.0
+    schedule_payload["schedule_content_hash"] = _stable_json_hash(
+        {key: value for key, value in schedule_payload.items() if key != "schedule_content_hash"}
+    )
+    drifted_schedule = PlannerAcquisitionCostSchedule.model_validate(schedule_payload)
+    with pytest.raises(ValueError, match="cost_schedule_owner_drift"):
+        produce_acquisition_cost_basis_record(
+            missing_distribution="administrative_tax_receipts",
+            strategy=AcquisitionStrategy.PUBLIC_REGISTRY,
+            schedule=drifted_schedule,
+        )
+
+    schedule_payload = schedule.model_dump(mode="json")
+    schedule_payload["rate_basis"] = dict.fromkeys(schedule_payload["rate_basis"], 0.0)
+    schedule_payload["schedule_content_hash"] = _stable_json_hash(
+        {key: value for key, value in schedule_payload.items() if key != "schedule_content_hash"}
+    )
+    with pytest.raises(ValidationError, match="schedule_rate_basis_invalid"):
+        PlannerAcquisitionCostSchedule.model_validate(schedule_payload)
+
+    schedule_payload = schedule.model_dump(mode="json")
+    schedule_payload["schedule_content_hash"] = "sha256:" + "0" * 64
+    with pytest.raises(ValidationError, match="schedule_content_hash_mismatch"):
+        PlannerAcquisitionCostSchedule.model_validate(schedule_payload)
+
+    record_payload = record.model_dump(mode="json")
+    record_payload["total_amount"] += 1.0
+    with pytest.raises(ValidationError, match="cost_basis_total_mismatch"):
+        AcquisitionCostBasisRecord.model_validate(record_payload)
+
+    record_payload = record.model_dump(mode="json")
+    record_payload["record_content_hash"] = "sha256:" + "0" * 64
+    with pytest.raises(ValidationError, match="cost_basis_content_hash_mismatch"):
+        AcquisitionCostBasisRecord.model_validate(record_payload)
 
 
 def _acquisition_design_problem() -> DesignProblem:

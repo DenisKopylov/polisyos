@@ -79,6 +79,10 @@ _VALIDATOR_METADATA: dict[str, tuple[str, str]] = {
         "tools.quality.validation.check_layer3_gy_n13a_acquisition_census:main",
         "policyos.layer3.gy.n13a.acquisition_census.v1",
     ),
+    "acquisition-growth": (
+        "polisyos.runtime.http.services.acquisition_surface_projection:validate",
+        "policyos.runtime.acquisition_growth_projection.v1",
+    ),
     "capability-reality": (
         "tools.quality.validation.check_policy_design_case_capability_ratchet:validate_capability_reality_report",
         "policyos.runtime.policy_design_case.capability_ratchet.v1",
@@ -347,6 +351,131 @@ def _validate_n13a_journal(root: Path) -> list[str]:
     return _validate_n13a_canonical_recompute(root)
 
 
+def _validate_acquisition_growth(root: Path) -> list[str]:
+    schemas = {
+        "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json": (
+            "policyos.policy_design_case.gy_n13a.acquisition_census.v1"
+        ),
+        "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json": (
+            "policyos.layer3.gy.n13a.live_probe_journal.v1"
+        ),
+        "architecture/policy_design_case/"
+        "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json": (
+            "policyos.layer3.gy.n13a.recurring_carrier_liveness.v1"
+        ),
+        "architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json": (
+            "policyos.layer3.gy.n13b.acquisition_executor_contract.v4"
+        ),
+        "architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json": (
+            "policyos.layer3.gy.n13b.lifecycle_manifest.v2"
+        ),
+        "architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json": (
+            "policyos.layer3.gy.n13b.reentry_trace.v1"
+        ),
+    }
+    if any(
+        _load_json(root, path).get("schema_version") != schema for path, schema in schemas.items()
+    ):
+        return ["acquisition_growth_source_schema_mismatch"]
+    lifecycle = _load_json(
+        root,
+        "architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json",
+    )
+    registrations = lifecycle.get("registrations")
+    if not isinstance(registrations, list) or len(registrations) != 43:
+        return ["acquisition_growth_lifecycle_denominator_mismatch"]
+    statuses = [
+        row.get("registration_status") if isinstance(row, Mapping) else None
+        for row in registrations
+    ]
+    if statuses.count("content_bound") != 41 or statuses.count("writer_managed") != 2:
+        return ["acquisition_growth_lifecycle_partition_mismatch"]
+    for row in registrations:
+        if not isinstance(row, Mapping):
+            return ["acquisition_growth_lifecycle_content_binding_mismatch"]
+        status = row.get("registration_status")
+        if status == "writer_managed":
+            if row.get("byte_sha256") is not None or row.get("byte_size") is not None:
+                return ["acquisition_growth_lifecycle_content_binding_mismatch"]
+            continue
+        relative_path = row.get("path")
+        expected_hash = row.get("byte_sha256")
+        expected_size = row.get("byte_size")
+        if (
+            not isinstance(relative_path, str)
+            or not isinstance(expected_hash, str)
+            or _SHA256_PATTERN.fullmatch(expected_hash) is None
+            or not isinstance(expected_size, int)
+            or isinstance(expected_size, bool)
+            or expected_size < 0
+        ):
+            return ["acquisition_growth_lifecycle_content_binding_mismatch"]
+        try:
+            raw = (root / _safe_relative_path(relative_path)).read_bytes()
+        except (OSError, ValueError):
+            return ["acquisition_growth_lifecycle_content_binding_mismatch"]
+        if _sha256(raw) != expected_hash or len(raw) != expected_size:
+            return ["acquisition_growth_lifecycle_content_binding_mismatch"]
+    return []
+
+
+def _acquisition_growth_inputs(
+    root: Path,
+) -> tuple[set[str], dict[str, dict[str, Any]]]:
+    n13a_paths = (
+        "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json",
+        "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json",
+        "architecture/policy_design_case/"
+        "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json",
+    )
+    lifecycle_path = "architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json"
+    lifecycle = _load_json(root, lifecycle_path)
+    registrations = lifecycle.get("registrations")
+    if not isinstance(registrations, list):
+        raise ValueError("acquisition_growth_lifecycle_registrations_missing")
+    registered_paths = {
+        str(row["path"])
+        for row in registrations
+        if isinstance(row, Mapping) and isinstance(row.get("path"), str)
+    }
+    paths = {*n13a_paths, *registered_paths}
+    inputs = {
+        "census": _load_json(root, n13a_paths[0]),
+        "journal": _load_json(root, n13a_paths[1]),
+        "carrier_liveness": _load_json(root, n13a_paths[2]),
+        "executor_contract": _load_json(
+            root,
+            "architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json",
+        ),
+        "lifecycle_manifest": lifecycle,
+        "reentry_trace": _load_json(
+            root,
+            "architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json",
+        ),
+    }
+    return paths, inputs
+
+
+def _validate_acquisition_growth_projection(
+    root: Path,
+    *,
+    bindings: Mapping[str, str],
+    projection_payload: Mapping[str, Any],
+) -> list[str]:
+    expected_paths, inputs = _acquisition_growth_inputs(root)
+    issues: list[str] = []
+    if set(bindings) != expected_paths:
+        issues.append("acquisition_growth_component_denominator_mismatch")
+    from polisyos.runtime.http.services.acquisition_surface_projection import (
+        build_acquisition_growth_projection,
+    )
+
+    expected = build_acquisition_growth_projection(**inputs).model_dump(mode="json")
+    if expected != dict(projection_payload):
+        issues.append("acquisition_growth_projection_recompute_mismatch")
+    return issues
+
+
 def _validate_capability(root: Path) -> list[str]:
     payload = _load_json(root, _CAPABILITY_PATH)
     from tools.quality.validation.check_policy_design_case_capability_ratchet import (
@@ -416,6 +545,7 @@ _VALIDATORS: dict[str, Callable[[Path], list[str]]] = {
     "acquisition-routing-contract": _validate_acquisition,
     "n13a-acquisition-census": _validate_n13a_census,
     "n13a-live-probe-journal": _validate_n13a_journal,
+    "acquisition-growth": _validate_acquisition_growth,
     "capability-reality": _validate_capability,
     "cluster-ownership": _validate_cluster,
     "layer3-health-metrics": _validate_health,
@@ -505,6 +635,14 @@ def _validate_request(request: Mapping[str, Any]) -> dict[str, Any]:
                     io.StringIO()
                 ):
                     issues.extend(validator(root))
+                    if projection_id == "acquisition-growth" and not issues:
+                        issues.extend(
+                            _validate_acquisition_growth_projection(
+                                root,
+                                bindings=bindings,
+                                projection_payload=projection_payload,
+                            )
+                        )
             except SystemExit as exc:
                 issues.append(f"owner_validator_system_exit_{exc.code}")
             except Exception as exc:  # isolate owner validator failures as data

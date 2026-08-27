@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import os
@@ -10,6 +11,13 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+
+from polisyos.runtime.http.services import (
+    governed_projection_validation_worker as worker_module,
+)
+from polisyos.runtime.http.services.acquisition_surface_projection import (
+    build_acquisition_growth_projection,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 WORKER_PATH = (
@@ -82,6 +90,47 @@ def _canonical_proving_ground_bindings() -> dict[str, str]:
     return bindings
 
 
+def _acquisition_growth_request(
+    root: Path = REPO_ROOT,
+) -> tuple[dict[str, str], dict[str, Any]]:
+    n13a_paths = (
+        "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json",
+        "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json",
+        "architecture/policy_design_case/"
+        "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json",
+    )
+    lifecycle_path = "architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json"
+    lifecycle = json.loads((root / lifecycle_path).read_text(encoding="utf-8"))
+    registered_paths = tuple(row["path"] for row in lifecycle["registrations"])
+    paths = tuple(dict.fromkeys((*n13a_paths, *registered_paths)))
+    bindings = {path: _sha256(root / path) for path in paths}
+
+    def load(path: str) -> dict[str, Any]:
+        value = json.loads((root / path).read_text(encoding="utf-8"))
+        assert isinstance(value, dict)
+        return value
+
+    payload = build_acquisition_growth_projection(
+        census=load(n13a_paths[0]),
+        journal=load(n13a_paths[1]),
+        carrier_liveness=load(n13a_paths[2]),
+        executor_contract=load(
+            "architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json"
+        ),
+        lifecycle_manifest=lifecycle,
+        reentry_trace=load("architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json"),
+    ).model_dump(mode="json")
+    return bindings, payload
+
+
+def _copy_acquisition_growth_inputs(destination: Path) -> None:
+    bindings, _ = _acquisition_growth_request()
+    for relative_path in bindings:
+        target = destination / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(REPO_ROOT / relative_path, target)
+
+
 def test_all_null_capability_report_fails_owner_validation(tmp_path: Path) -> None:
     relative_path = "architecture/policy_design_case/capability_reality_report.json"
     source = _write_bytes(
@@ -145,6 +194,93 @@ def test_canonical_owner_sources_validate(
     assert result["semantic_projection_hash_rule_version"]
     assert result["dependency_aggregate_identity"].startswith("sha256:")
     assert result["dependency_bindings"]
+
+
+def test_acquisition_growth_has_genuine_recomputing_owner_validator() -> None:
+    bindings, payload = _acquisition_growth_request()
+
+    result = _run_worker(
+        projection_id="acquisition-growth",
+        repository_root=REPO_ROOT,
+        component_bindings=bindings,
+        projection_payload=payload,
+    )
+
+    assert result["status"] == "passed"
+    assert result["issue_codes"] == []
+
+
+def test_acquisition_growth_rejects_payload_drift_with_markers_intact() -> None:
+    bindings, payload = _acquisition_growth_request()
+    mutated = copy.deepcopy(payload)
+    mutated["summary"]["backlog_count"] += 1
+
+    result = _run_worker(
+        projection_id="acquisition-growth",
+        repository_root=REPO_ROOT,
+        component_bindings=bindings,
+        projection_payload=mutated,
+    )
+
+    assert result["status"] == "failed"
+    assert result["issue_codes"] == ["acquisition_growth_projection_recompute_mismatch"]
+
+
+@pytest.mark.parametrize("mutation", ["lifecycle_hash", "source_schema"])
+def test_acquisition_growth_rejects_owner_contract_drift(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    canonical_bindings, payload = _acquisition_growth_request()
+    _copy_acquisition_growth_inputs(tmp_path)
+    if mutation == "lifecycle_hash":
+        target = tmp_path / "architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json"
+        source = json.loads(target.read_text(encoding="utf-8"))
+        row = next(
+            item
+            for item in source["registrations"]
+            if item["registration_status"] == "content_bound"
+        )
+        row["byte_sha256"] = "sha256:" + "0" * 64
+        expected_issue = "acquisition_growth_lifecycle_content_binding_mismatch"
+    else:
+        target = tmp_path / "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json"
+        source = json.loads(target.read_text(encoding="utf-8"))
+        source["schema_version"] = "policyos.invalid-but-present.v1"
+        expected_issue = "acquisition_growth_source_schema_mismatch"
+    target.write_text(json.dumps(source, sort_keys=True), encoding="utf-8")
+    bindings = {path: _sha256(tmp_path / path) for path in canonical_bindings}
+
+    result = _run_worker(
+        projection_id="acquisition-growth",
+        repository_root=tmp_path,
+        component_bindings=bindings,
+        projection_payload=payload,
+    )
+
+    assert result["status"] == "failed"
+    assert result["issue_codes"] == [expected_issue]
+
+
+def test_acquisition_growth_fails_when_validator_property_is_removed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Markers remain registered while the actual worker validator is removed."""
+
+    bindings, payload = _acquisition_growth_request()
+    monkeypatch.delitem(worker_module._VALIDATORS, "acquisition-growth")
+
+    result = worker_module._validate_request(
+        {
+            "projection_id": "acquisition-growth",
+            "repository_root": str(REPO_ROOT),
+            "component_bindings": bindings,
+            "projection_payload": payload,
+        }
+    )
+
+    assert result["status"] == "failed"
+    assert result["issue_codes"] == ["owner_validator_unregistered"]
 
 
 def test_owner_receipt_binds_canonical_semantic_hasher_source() -> None:

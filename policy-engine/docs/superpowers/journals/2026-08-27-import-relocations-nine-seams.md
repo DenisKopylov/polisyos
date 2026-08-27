@@ -82,6 +82,7 @@ Every row below was classified before the first source edit. Result:
 | seam 4 — D5 release acceptance | 2/10 | A strict D5 handoff/admission/technical-receipt/Scientist-decision chain replaces Foundry's direct governance call. Cleared FS-01, the release-acceptance member of `foundry -> scientist`; the composite working tree also closes the row after the separately declared pending seams remove FS-02..05. | stands; round 2 bought the new typed D5 admission and release-decision surface, with purpose-limited authority and fail-closed predicate provenance |
 | seam 5 — calibration policy pair | 3/10 | Scientist now applies calibration meta-overrides before persisting Foundry inputs and resolves the complete CI-threshold scope before dispatch; Foundry consumes only a typed resolved policy set or declared local defaults. Cleared FS-02 and FS-03. | stands; round 3 bought the public-stable `CITestThresholdPolicySet` handoff and its explicit breaking migration surface |
 | seam 6 — composition failure-card contract | 4/10 | The dependency-neutral failure-card DTOs/enums have one IR identity consumed by the existing Foundry producer and Scientist persistence/orchestration paths. Cleared FS-04. | stands; round 4 bought the three-name stable IR contract surface and its schema/identity obligations; shared generated inventory projection is deferred intact to the final generator boundary |
+| seam 7 — policy-frontier embedders | 5/10 | Generic TF-IDF and optional sentence-transformer implementations now have one Foundry-owned identity; existing Foundry and Scientist consumers use the narrow stable root. Cleared FS-05 and closes `foundry -> scientist` 5/5. | stands; round 5 bought exactly three stable root names; the rejected 26-name backend publication was withdrawn and consumed no additional round |
 
 No round has been withdrawn.
 
@@ -363,3 +364,64 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   semantic tests are wired. Independent review twice returned Ready after the
   facade identity and generic consumer coverage were added. No ambiguous
   statement remains.
+
+### Seam 7 — policy-frontier embedders
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 6 commit
+  `558789ad5` read back before staging.
+- Observed commit path set is 19 declared paths: the exact 17-path FS-05
+  mechanism/contract/documentation/test set plus this plan/journal pair. The
+  lazy backend facade is part of the mechanism; the shared generated inventory
+  and reference projection remain unstaged for the final serialized generator
+  boundary; they currently combine Seams 1, 6, and 7.
+- The canonical implementation moved from the deleted Scientist owner to the
+  existing Foundry backend protocol module. The already-stable lazy
+  `polisyos.foundry` root publishes exactly `EmbedderProtocol`,
+  `TFIDFEmbedder`, and `SentenceTransformerEmbedder`; all consumers use those
+  identities. The optional sentence-transformers dependency remains lazy and
+  fails with the preserved install guidance, and TF-IDF output matches the
+  legacy oracle.
+- The first implementation attempt declared the whole
+  `polisyos.foundry.methods.backends` facade stable, unintentionally graduating
+  23 unrelated internals alongside the three names. Independent review returned
+  Not Ready and demonstrated why that obligation was material with an existing
+  async-executor defect. The attempt was withdrawn. The first narrow-root
+  repair still initialized the eager backend package and cached a partial
+  `AsyncChainExecutor=None`; P40 classified this as the same import-state class,
+  so the mechanism was widened once to make the existing 23-name backend facade
+  genuinely lazy. Its names and identities are unchanged, its overlap with the
+  embedder set is zero, and the stable root remains the only new surface. No
+  second widening round is charged.
+- Root's four-file surface/behavior wave completed direct exit 0 with 48 passed
+  and one expected BoTorch-not-installed skip; `real=38.28s`, `user=32.13s`,
+  `sys=2.37s`, uptime 00:01/up 3d14:14 to 00:02/up 3d14:15. The implementer
+  independently completed the final repaired 52-test wave and strict mypy over
+  all five touched source modules. Root then ran the three decisive
+  surface/lazy-executor falsifiers against the final repair: direct exit 0,
+  3 passed, `real=33.92s`, `user=32.45s`, `sys=1.34s`, uptime 00:27 at both
+  endpoints.
+- A first static wrapper passed TOML/INI/Markdown paths to Ruff and was rejected
+  as a harness non-receipt after emitting syntax noise. The corrected Python-only
+  Ruff command, restricted `git diff --check`, both TOML parses, and the live
+  identity/surface falsifier completed direct exit 0: Foundry root total=11,
+  embedder additions=3, backend internal total=23, overlap=0, and an unrelated
+  backend function is absent from the root. The behavioral subprocess proves
+  that resolving the real frontier/root embedder leaves chain modules unloaded,
+  then lazily resolves `AsyncChainExecutor` and awaits a compatible empty chain.
+- Complete AST traversal over the 2,594 `src/**/*.py` files found zero imports
+  of the retired Scientist owner; the implementer's independent broader
+  5,474-file denominator also found zero. The row-owned literal command
+  completed direct exit 0 and `foundry -> scientist` is closed 5/5.
+- Capability result: canonical owner, typed protocol/implementations, real
+  Foundry producer/consumer and Scientist consumer, public compatibility
+  surface, optional-dependency negative test, identity tests, and migration
+  fragment are present. The surface carries no policy authority; its one round
+  is charged solely because the three-name stable API is new.
+- The subsequent `FrozenCompositionDAG.compute_parallel_levels` mismatch was
+  bucketed as a bounded, pre-existing async-DAG contract gap: an isolated clean
+  HEAD replay reproduces it without any embedder import, while
+  `chain_executor.py` is byte-identical to HEAD in this patch. The smallest
+  future closure is a persisted immutable effective dependency/parallel-level
+  plan across compilation and executors; that capability is outside this seam.
+  Final independent delta review returned Ready after the lazy-facade repair.

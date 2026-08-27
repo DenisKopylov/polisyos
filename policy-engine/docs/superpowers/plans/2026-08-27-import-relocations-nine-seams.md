@@ -82,9 +82,9 @@ At every seam boundary:
 
 ### Seam 7: Policy-frontier embedders — 1 statement
 
-- [ ] Relocate the generic TF-IDF and optional sentence-transformer
+- [x] Relocate the generic TF-IDF and optional sentence-transformer
   implementation to Foundry's existing method/backend ownership.
-- [ ] Preserve optional-dependency failure and Scientist compatibility through
+- [x] Preserve optional-dependency failure and Scientist compatibility through
   identity re-export only if the public contract is already published.
 
 ### Seam 8: IR method-protocol binding — 7 statements

@@ -4,10 +4,18 @@ Tests for FoundryMethod protocol compliance and @foundry_method decorator.
 
 from __future__ import annotations
 
+import builtins
+import math
+import os
+import subprocess
+import sys
+import types
 from typing import NamedTuple
 
 import jax.numpy as jnp
 import pytest
+
+import polisyos.foundry as foundry_facade
 from polisyos.foundry.methods import (
     ComplexityClass,
     FidelityLevel,
@@ -21,6 +29,7 @@ from polisyos.foundry.methods import (
     check_protocol_compliance,
     foundry_method,
 )
+from polisyos.foundry.methods.backends import protocol as backend_protocol
 from polisyos.foundry.methods.types.units import Units
 
 
@@ -30,6 +39,113 @@ class JaxState(NamedTuple):
 
 class StrictState(NamedTuple):
     x: jnp.ndarray
+
+
+class TestEmbeddingBackends:
+    def test_root_facade_exports_canonical_embedding_symbols(self) -> None:
+        assert foundry_facade.EmbedderProtocol is backend_protocol.EmbedderProtocol
+        assert foundry_facade.TFIDFEmbedder is backend_protocol.TFIDFEmbedder
+        assert (
+            foundry_facade.SentenceTransformerEmbedder
+            is backend_protocol.SentenceTransformerEmbedder
+        )
+
+    def test_root_facade_keeps_embedding_owner_and_optional_dependency_lazy(self) -> None:
+        script = """
+import sys
+
+import polisyos.foundry as foundry
+
+assert "polisyos.foundry.methods.backends.protocol" not in sys.modules
+assert "sentence_transformers" not in sys.modules
+assert foundry.TFIDFEmbedder.__module__ == "polisyos.foundry.methods.backends.protocol"
+assert "polisyos.foundry.methods.backends.protocol" in sys.modules
+assert "sentence_transformers" not in sys.modules
+"""
+        env = os.environ.copy()
+        completed = subprocess.run(
+            [sys.executable, "-c", script],
+            check=False,
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+
+        assert completed.returncode == 0, completed.stderr
+
+    def test_tfidf_owner_produces_normalized_vectors(self) -> None:
+        assert hasattr(backend_protocol, "TFIDFEmbedder")
+
+        embedder = backend_protocol.TFIDFEmbedder(max_features=64)
+        embedder.fit(
+            [
+                "fiscal policy tax reform",
+                "monetary policy interest rates",
+                "public health spending budget",
+            ]
+        )
+
+        vectors = embedder.embed(["tax reform policy"])
+        assert len(vectors) == 1
+        assert len(vectors[0]) == embedder.dim
+        assert math.sqrt(sum(value * value for value in vectors[0])) == pytest.approx(1.0)
+
+    def test_tfidf_requires_fit(self) -> None:
+        embedder = backend_protocol.TFIDFEmbedder()
+
+        with pytest.raises(RuntimeError, match="fit.*must be called"):
+            embedder.embed(["some text"])
+
+    def test_tfidf_empty_corpus_preserves_zero_vector_output(self) -> None:
+        embedder = backend_protocol.TFIDFEmbedder()
+        embedder.fit([])
+
+        assert embedder.embed(["some text"]) == [[0.0]]
+
+    def test_tfidf_satisfies_runtime_protocol(self) -> None:
+        embedder = backend_protocol.TFIDFEmbedder()
+
+        assert isinstance(embedder, backend_protocol.EmbedderProtocol)
+
+    def test_sentence_transformer_dependency_remains_optional(self, monkeypatch) -> None:
+        original_import = builtins.__import__
+
+        def guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
+            if name == "sentence_transformers":
+                raise ImportError
+            return original_import(name, globals, locals, fromlist, level)
+
+        monkeypatch.setattr(builtins, "__import__", guarded_import)
+
+        with pytest.raises(ImportError) as exc_info:
+            backend_protocol.SentenceTransformerEmbedder()
+
+        assert str(exc_info.value) == (
+            "sentence-transformers is required for SentenceTransformerEmbedder.  "
+            "Install it with: pip install sentence-transformers"
+        )
+
+    def test_sentence_transformer_preserves_model_outputs(self, monkeypatch) -> None:
+        class FakeSentenceTransformer:
+            def __init__(self, model_name: str) -> None:
+                assert model_name == "fixture-model"
+
+            def get_sentence_embedding_dimension(self) -> int:
+                return 2
+
+            def encode(self, texts: list[str], *, convert_to_numpy: bool):
+                assert texts == ["first", "second"]
+                assert convert_to_numpy is True
+                return jnp.asarray([[1.0, 2.0], [3.0, 4.0]])
+
+        fake_module = types.ModuleType("sentence_transformers")
+        fake_module.SentenceTransformer = FakeSentenceTransformer
+        monkeypatch.setitem(sys.modules, "sentence_transformers", fake_module)
+
+        embedder = backend_protocol.SentenceTransformerEmbedder("fixture-model")
+
+        assert embedder.dim == 2
+        assert embedder.embed(["first", "second"]) == [[1.0, 2.0], [3.0, 4.0]]
 
 
 @pytest.fixture

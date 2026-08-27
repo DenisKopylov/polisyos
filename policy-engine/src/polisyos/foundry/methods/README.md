@@ -4,7 +4,7 @@
 computations: ABI contracts, registry/discovery, DAG composition, backend
 dispatch, capability metadata, and the domain catalog under `catalog/`.
 
-- Last updated: 2026-05-05
+- Last updated: 2026-08-27
 
 ## Purpose
 
@@ -17,6 +17,9 @@ typed discovery, versioning, dispatch, and evidence.
 
 - [api.py](api.py) and [__init__.py](__init__.py) for the exported facade and
   stable imports.
+- [backends/protocol.py](backends/protocol.py) for the Foundry-owned generic
+  embedder implementation. Cross-package callers import its three public names
+  from `polisyos.foundry`; backend package paths remain internal.
 - [../extensions/](../extensions/) for the canonical external method plugin
   contract, entry-point discovery, and builtin-loader bridge.
 - [selection/registry.py](selection/registry.py) for `MethodRegistry`,
@@ -51,6 +54,9 @@ typed discovery, versioning, dispatch, and evidence.
 | `MethodComposer`                   | Builds method DAGs and ordered execution chains.                          |
 | `SlotLinker`                       | Checks slot compatibility before composing methods.                       |
 | `MethodDispatcher`                 | Dispatches methods to supported runtimes/backends.                        |
+| `polisyos.foundry.EmbedderProtocol` | Structural contract for fixed-dimensional text embedders.                |
+| `polisyos.foundry.TFIDFEmbedder`    | Dependency-free fitted TF-IDF text embedder.                              |
+| `polisyos.foundry.SentenceTransformerEmbedder` | Optional adapter with lazy dependency loading.                 |
 | `ensure_all_methods_registered()`  | Loads installed Foundry method extensions into a registry.                |
 | `build_method_catalog_snapshot()`  | Captures immutable registry inventory for docs, CI, and release evidence. |
 | `build_method_capability_matrix()` | Produces machine-readable applicability/replay rows.                      |
@@ -64,7 +70,8 @@ typed discovery, versioning, dispatch, and evidence.
 - `base.py`, `exceptions.py`, `types/`, and `artifacts/` hold ABI contracts,
   validation errors, shape/type helpers, and persisted evidence models.
 - `selection/`, `components/`, `compiler/`, and `backends/` own registry,
-  composition, compilation, and runtime dispatch.
+  composition, compilation, and runtime dispatch. Backend modules are internal;
+  the root `polisyos.foundry` facade owns the three public embedding aliases.
 - `catalog/` holds builtin domain families. High-complexity families such as
   `catalog/causal` carry local README/AUTHORING docs and module-size budgets.
 - `lifecycle/` owns compatibility, deprecation, observability, and method

@@ -1,0 +1,42 @@
+id = "2026-08-27-foundry-embedding-backends"
+title = "Expose canonical Foundry embedding backends"
+type = "added"
+component = "foundry-methods"
+owner = "team-polisyos"
+summary = "Move the generic text-embedding protocol and implementations from Scientist into Foundry and expose exactly their three names through the existing lazy Foundry root facade."
+evidence = [
+  "tests/unit/foundry/methods/test_protocol.py",
+  "tests/unit/foundry/methods/catalog/policy/test_frontier.py",
+  "tests/unit/scientist/search/strategies/test_neural.py",
+  "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+]
+compatibility = "Adds three public-stable names to the existing polisyos.foundry facade without publishing the internal methods.backends package. The former polisyos.scientist.agent.embedder path was internal and is removed without a compatibility shim."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry"
+migration = "Import EmbedderProtocol, TFIDFEmbedder, and SentenceTransformerEmbedder from polisyos.foundry."
+api = "The existing lazy Foundry root facade now exports exactly EmbedderProtocol, TFIDFEmbedder, and SentenceTransformerEmbedder from the embedding owner; unrelated backend internals remain unpublished."
+limitations = "SentenceTransformerEmbedder still requires the optional sentence-transformers package; embedding outputs are computational features and carry no evidence or policy authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/foundry/README.md",
+  "src/polisyos/foundry/methods/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "foundry-root-embedding-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.foundry"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Foundry now exposes its canonical text-embedding protocol, TF-IDF implementation, and optional sentence-transformer adapter through polisyos.foundry."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/foundry/README.md",
+  "src/polisyos/foundry/methods/README.md",
+]
+runbook_docs = []

@@ -233,11 +233,11 @@ Commit message: `fix(architecture): close legal compatibility edges`.
 - DataForge produces raw claim rows and immutable artifact references.
 - Scientist consumes admitted config/champion provenance and produces the adjudication result; an unadmitted config cannot set `publishable_edge`.
 
-- [ ] **Step 1: Write a failing end-to-end ownership test**
-- [ ] **Step 2: Run `.venv/bin/python -m pytest tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py tests/unit/data_forge/domains/academic/batch/test_claim_adjudicator.py tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py -q` RED because DataForge still executes Scientist policy**
-- [ ] **Step 3: Move the consumer stage above DataForge without copying policy down**
-- [ ] **Step 4: Run the same focused claim-adjudication files GREEN**
-- [ ] **Step 5: Commit and print ledger 5/8**
+- [x] **Step 1: Write a failing end-to-end ownership test**
+- [x] **Step 2: Run `.venv/bin/python -m pytest tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py tests/unit/data_forge/domains/academic/batch/test_claim_adjudicator.py tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py -q` RED because DataForge still executes Scientist policy**
+- [x] **Step 3: Move the consumer stage above DataForge without copying policy down**
+- [x] **Step 4: Run the same focused claim-adjudication files GREEN**
+- [x] **Step 5: Commit and print ledger 5/8**
 
 Commit message: `feat(scientist): own claim adjudication runtime`.
 

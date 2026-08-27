@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import gc
 import time
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
@@ -12,6 +13,11 @@ from polisyos.data_forge.kernel.runtime import cooldown
 
 if TYPE_CHECKING:
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
+
+
+ClaimAdjudicationRunner = Callable[
+    ["AcademicBatchConfig"], Awaitable[dict[str, int | float]]
+]
 
 
 @dataclass
@@ -34,14 +40,13 @@ def _ensure_graph_inputs(
 
 
 async def run_academic_pipeline(
-    config: AcademicBatchConfig, *, thermal: bool = False
+    config: AcademicBatchConfig,
+    *,
+    thermal: bool = False,
+    claim_adjudication_runner: ClaimAdjudicationRunner | None = None,
 ) -> PipelineStats:
     """Run selected academic stages sequentially."""
     from polisyos.data_forge.domains.academic.batch.benchmark import run_benchmark
-    from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
-        run_claim_adjudicate,
-        run_consensus_aggregate,
-    )
     from polisyos.data_forge.domains.academic.batch.conflict_resolve import run_conflict_resolve
     from polisyos.data_forge.domains.academic.batch.dedup import merge_and_dedup
     from polisyos.data_forge.domains.academic.batch.demand_harvest import run_demand_harvest
@@ -157,11 +162,12 @@ async def run_academic_pipeline(
         stats.metrics.update({f"merge_{k}": v for k, v in merged.items()})
 
     if "claim_adjudicate" in config.stages:
+        if claim_adjudication_runner is None:
+            raise RuntimeError(
+                "claim_adjudicate requires a Scientist-owned claim adjudication runner"
+            )
         st = time.monotonic()
-        adjudicated = await run_claim_adjudicate(config)
-        adjudicated.update(
-            {f"consensus_{k}": v for k, v in run_consensus_aggregate(config).items()}
-        )
+        adjudicated = await claim_adjudication_runner(config)
         stats.stage_times["claim_adjudicate"] = time.monotonic() - st
         stats.metrics.update({f"claim_adjudicate_{k}": v for k, v in adjudicated.items()})
 
@@ -237,7 +243,16 @@ async def run_academic_pipeline(
 
 
 def run_academic_pipeline_sync(
-    config: AcademicBatchConfig, *, thermal: bool = False
+    config: AcademicBatchConfig,
+    *,
+    thermal: bool = False,
+    claim_adjudication_runner: ClaimAdjudicationRunner | None = None,
 ) -> PipelineStats:
     """Sync wrapper for non-async callers."""
-    return asyncio.run(run_academic_pipeline(config, thermal=thermal))
+    return asyncio.run(
+        run_academic_pipeline(
+            config,
+            thermal=thermal,
+            claim_adjudication_runner=claim_adjudication_runner,
+        )
+    )

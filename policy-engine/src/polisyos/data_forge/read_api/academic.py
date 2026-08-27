@@ -5,6 +5,9 @@ from __future__ import annotations
 from ._lazy import lazy_dir, load_lazy_export
 
 _ACADEMIC_DOMAIN = "polisyos.data_forge.domains.academic"
+_ACADEMIC_KNOWLEDGE = f"{_ACADEMIC_DOMAIN}.knowledge"
+_CLAIM_ADJUDICATOR = f"{_ACADEMIC_DOMAIN}.batch.claim_adjudicator"
+_RUNTIME_CANONICAL_REGISTRY = f"{_ACADEMIC_KNOWLEDGE}.runtime_canonical_registry"
 _EXPORTS = {
     "ACADEMIC_ASSET_GROUP": _ACADEMIC_DOMAIN,
     "ACADEMIC_ASSET_SCHEMA_CONTRACTS": _ACADEMIC_DOMAIN,
@@ -36,20 +39,20 @@ _EXPORTS = {
     "AcademicShadowDiff": _ACADEMIC_DOMAIN,
     "AcademicStageManifest": _ACADEMIC_DOMAIN,
     "AcademicBatchConfig": "polisyos.data_forge.domains.academic.batch.config",
-    "CANONICAL_VARIABLES": "polisyos.data_forge.domains.academic.knowledge.canonical_seed",
-    "CLAIM_ADJUDICATION_PROMPT_VARIANTS": "polisyos.data_forge.domains.academic.batch.prompts",
-    "CanonicalVariableResolver": "polisyos.data_forge.domains.academic.knowledge.canonical_resolver",
-    "CausalClaimResult": "polisyos.data_forge.domains.academic.knowledge.types",
-    "EstimateCandidate": "polisyos.data_forge.domains.academic.knowledge.types",
-    "ParameterCandidate": "polisyos.data_forge.domains.academic.knowledge.skg_query",
-    "ParameterPrior": "polisyos.data_forge.domains.academic.knowledge.types",
-    "ParameterSelector": "polisyos.data_forge.domains.academic.knowledge.parameter_selector",
-    "RUNTIME_CANONICAL_REGISTRY": "polisyos.data_forge.domains.academic.knowledge.runtime_canonical_registry",
-    "RUNTIME_CANONICAL_REGISTRY_VERSION": "polisyos.data_forge.domains.academic.knowledge.runtime_canonical_registry",
-    "SKGQuery": "polisyos.data_forge.domains.academic.knowledge.skg_query",
-    "ScholarKnowledgeGraph": "polisyos.data_forge.domains.academic.knowledge.search",
-    "WorkRecord": "polisyos.data_forge.domains.academic.knowledge.types",
-    "WorkSearchResult": "polisyos.data_forge.domains.academic.knowledge.types",
+    "CANONICAL_VARIABLES": f"{_ACADEMIC_KNOWLEDGE}.canonical_seed",
+    "CanonicalVariableResolver": f"{_ACADEMIC_KNOWLEDGE}.canonical_resolver",
+    "CausalClaimResult": f"{_ACADEMIC_KNOWLEDGE}.types",
+    "EstimateCandidate": f"{_ACADEMIC_KNOWLEDGE}.types",
+    "ParameterCandidate": f"{_ACADEMIC_KNOWLEDGE}.skg_query",
+    "ParameterPrior": f"{_ACADEMIC_KNOWLEDGE}.types",
+    "ParameterSelector": f"{_ACADEMIC_KNOWLEDGE}.parameter_selector",
+    "RUNTIME_CANONICAL_REGISTRY": _RUNTIME_CANONICAL_REGISTRY,
+    "RUNTIME_CANONICAL_REGISTRY_VERSION": _RUNTIME_CANONICAL_REGISTRY,
+    "SKGQuery": f"{_ACADEMIC_KNOWLEDGE}.skg_query",
+    "ScholarKnowledgeGraph": f"{_ACADEMIC_KNOWLEDGE}.search",
+    "WorkRecord": f"{_ACADEMIC_KNOWLEDGE}.types",
+    "WorkSearchResult": f"{_ACADEMIC_KNOWLEDGE}.types",
+    "GonkaMultiKeyPool": "polisyos.data_forge.domains.academic.batch._resolve_extract_providers",
     "build_academic_batch_asset_group": _ACADEMIC_DOMAIN,
     "build_academic_schema_registry": _ACADEMIC_DOMAIN,
     "compare_academic_shadow_bundles": _ACADEMIC_DOMAIN,
@@ -59,10 +62,12 @@ _EXPORTS = {
     "load_academic_skg_summary": _ACADEMIC_DOMAIN,
     "load_academic_shadow_bundle": _ACADEMIC_DOMAIN,
     "plan_academic_batch_stages": _ACADEMIC_DOMAIN,
+    "materialize_claim_adjudication_result": _CLAIM_ADJUDICATOR,
+    "produce_claim_adjudication_input": _CLAIM_ADJUDICATOR,
     "run_edge_synthesize": "polisyos.data_forge.domains.academic.batch.edge_synthesize",
-    "runtime_approved_synonyms": "polisyos.data_forge.domains.academic.knowledge.runtime_canonical_registry",
-    "runtime_canonical_entries": "polisyos.data_forge.domains.academic.knowledge.runtime_canonical_registry",
-    "runtime_canonical_names": "polisyos.data_forge.domains.academic.knowledge.runtime_canonical_registry",
+    "runtime_approved_synonyms": _RUNTIME_CANONICAL_REGISTRY,
+    "runtime_canonical_entries": _RUNTIME_CANONICAL_REGISTRY,
+    "runtime_canonical_names": _RUNTIME_CANONICAL_REGISTRY,
     "select_academic_batch_stages": _ACADEMIC_DOMAIN,
 }
 

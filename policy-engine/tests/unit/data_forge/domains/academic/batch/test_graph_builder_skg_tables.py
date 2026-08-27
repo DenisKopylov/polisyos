@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 
 import duckdb
-import pytest
+
 from polisyos.data_forge.domains.academic.batch.graph_builder import build_graph, load_graph
 from polisyos.data_forge.domains.academic.knowledge.types import (
     EstimateCandidate,
@@ -66,7 +66,7 @@ def test_build_graph_creates_skg_tables() -> None:
         assert transport_tables == 1
 
 
-def test_build_graph_uses_claim_publish_flags_for_published_layer() -> None:
+def test_build_graph_rejects_producer_publish_flag_without_admitted_receipt() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         db_path = Path(tmpdir) / "test_claims.duckdb"
 
@@ -125,8 +125,8 @@ def test_build_graph_uses_claim_publish_flags_for_published_layer() -> None:
 
         stats = build_graph(records=iter([rec]), db_path=db_path)
         assert stats.raw_claims == 2
-        assert stats.claim_adjudications == 2
-        assert stats.claims == 1
+        assert stats.claim_adjudications == 0
+        assert stats.claims == 0
 
         con = duckdb.connect(str(db_path), read_only=True)
         try:
@@ -139,11 +139,6 @@ def test_build_graph_uses_claim_publish_flags_for_published_layer() -> None:
                 "SELECT design_quality_tier, strong_design_evidence, publish_to_graph, publish_blockers "
                 "FROM ac_causal_claims_raw WHERE id = 'c-1'"
             ).fetchone()
-            published_claim = con.execute(
-                "SELECT design_family_hint, claim_extraction_confidence, strong_design_evidence, design_quality_tier, "
-                "publish_blockers, candidate_layer "
-                "FROM ac_causal_claims WHERE id = 'c-1'"
-            ).fetchone()
             edge_row = con.execute(
                 "SELECT candidate_layer, quality_signals_json FROM ac_skg_edges WHERE src = 'tax_rate' AND dst = 'employment'"
             ).fetchone()
@@ -151,18 +146,10 @@ def test_build_graph_uses_claim_publish_flags_for_published_layer() -> None:
             con.close()
 
         assert raw_count == 2
-        assert adjudicated_count == 2
-        assert published_count == 1
+        assert adjudicated_count == 0
+        assert published_count == 0
         assert raw_claim == (None, True, True, "")
-        assert published_claim[0] == "did"
-        assert published_claim[1] == pytest.approx(0.82)
-        assert published_claim[2:] == (True, None, "", "candidate")
-        assert edge_row is not None
-        assert edge_row[0] == "candidate"
-        edge_quality = json.loads(edge_row[1])
-        assert edge_quality["graph_layer"] == "candidate"
-        assert edge_quality["design_family_hints"] == ["did"]
-        assert edge_quality["claim_extraction_confidence"]["max"] == 0.82
+        assert edge_row is None
 
 
 def test_build_graph_aggregates_moderation_edges_and_preserves_canonical_name() -> None:
@@ -307,7 +294,23 @@ def test_build_graph_materializes_normalized_and_approved_variable_resolution() 
             ],
         )
 
-        build_graph(records=iter([rec]), db_path=db_path)
+        build_graph(
+            records=iter([rec]),
+            db_path=db_path,
+            admitted_claim_adjudications={
+                "c-approved": {
+                    "claim_id": "c-approved",
+                    "publishable_edge": True,
+                    "design_family": "did",
+                    "causal_credibility": "strong",
+                    "risk_of_bias": "low",
+                    "support_status": "supported",
+                    "source_basis": "fulltext",
+                    "claim_validity_score": 0.9,
+                    "adjudication_confidence": 0.9,
+                }
+            },
+        )
 
         con = duckdb.connect(str(db_path), read_only=True)
         try:

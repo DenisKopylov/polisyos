@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import asyncio
+
+import pytest
+
 from polisyos.data_forge.domains.academic.batch import cli
 
 
@@ -37,3 +41,13 @@ def test_cli_resolve_extract_dispatch(monkeypatch, tmp_path) -> None:
     cli.main()
     assert called["stage"] == "resolve-extract"
     assert called["snapshot_root"] == str(tmp_path / "snap")
+
+
+def test_data_forge_cli_cannot_execute_scientist_claim_authority(tmp_path) -> None:
+    parser = cli._build_parser()
+    args = parser.parse_args(
+        ["claim-adjudicate", "--snapshot-root", str(tmp_path / "snap")]
+    )
+
+    with pytest.raises(RuntimeError, match="Scientist-owned claim adjudication route"):
+        asyncio.run(cli._run_stage(args, "claim-adjudicate"))

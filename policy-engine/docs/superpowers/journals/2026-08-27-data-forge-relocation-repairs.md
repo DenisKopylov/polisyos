@@ -1,4 +1,4 @@
-# Data Forge relocation repairs — Task 4 journal
+# Data Forge relocation repairs — execution journal
 
 ## Ledger and pattern pass
 
@@ -150,3 +150,79 @@ Python files) and found exactly:
   `lex.types -> data_forge.domains.legal.contracts`; the Lex errors edge was a
   deep/import-boundary finding but not a separately counted package-forbidden
   statement.
+
+## Task 5 — Scientist-owned claim adjudication
+
+### Ledger and pattern pass
+
+- Ledger: 5/8. Round 5 buys the complete academic-claim publishability seam:
+  Data Forge freezes authority-neutral source bytes and claim inputs; Scientist
+  admits a promoted benchmarked champion, executes candidate analysis, and
+  signs the narrow publishability result. The round stands.
+- Relevant patterns: P01/P02 (a real injected bridge and CLI consumer, not a
+  contract-only move), P05/P15 (no producer-authored publish predicate in the
+  raw batch), P10/P29 (negative end-to-end consumers), P31/P32 (one receipt
+  chokepoint with content/producer/lineage verification), P35/P37 (exact input
+  denominator and independently replayed champion predicates), and P38 (an
+  execution result is not method-validity or governance evidence).
+- Capability closure: the seam has a strict IR input/result contract, immutable
+  CAS producer, explicit orchestration runner, Scientist consumer, content-bound
+  result receipt, graph/conflict consumers, a supported Scientist CLI route,
+  and behavioral falsifiers. The compatibility JSONL projection is explicitly
+  non-authoritative.
+
+### Authority and integrity falsifiers
+
+- Missing or seeded-only champion blocks without a result artifact.
+- Candidate/evaluation mismatch, false required guardrail, or wrong evaluation
+  producer blocks admission.
+- Mutating the source path after snapshot does not alter the admitted input;
+  corrupting the CAS blob blocks before the model client runs.
+- The serialized input contains neither `publish_to_graph` nor
+  `publishable_edge`; a model-positive abstract-only claim remains blocked.
+- A result receipt offered as `method_validity` is rejected.
+- Graph and conflict consumers share one receipt validator. Holding the receipt
+  constant while flipping the JSONL projection from false to true makes both
+  consumers reject it; without a receipt, a producer-authored true flag
+  publishes nothing.
+- A forged result manifest with a duplicate lineage role is rejected before it
+  can replace or erase the existing admitted pointer.
+- The Data Forge pipeline requires an injected Scientist runner, the Data Forge
+  CLI refuses direct claim authority, and the Scientist CLI exercises the real
+  transport and materialization path.
+
+### Task 5 verification boundary
+
+- Focused behavior: exit 0, 36 tests passed; `polisyos` resolved from this
+  worktree. The completed run used `user=22.54s`, `sys=1.24s`; its uptime pair
+  stayed within the 14:31/up 3 days 4:44 minute.
+- Changed-file Ruff: exit 0, no diagnostics (`user=0.04s`, `sys=0.01s`).
+- Source import predicate: exit 1 with 47 findings, split ARCH001=44,
+  ARCH002=1, ARCH004=2, ARCH006=0. The canonical report and independent AST
+  census agree over 2,581 `*.py` files; the independent ordered-pair sum is 44
+  and both set differences are empty. The 48 -> 47 delta clears exactly
+  `data_forge.domains.academic.batch.claim_adjudicator ->
+  scientist.methods.autotune.claim_adjudication`; no other rule moved. The
+  completed failure used `user=0.70s`, `sys=0.19s`.
+- Release guardrail predicate: exit 1 pending the authorized final explicit
+  baseline transaction. Canonical diff and the independent AST derivation
+  agree on current=3,610 unique edges, baseline=3,631, additions=29,
+  removals=50, and zero source-file mismatches over 2,581 files. Relative to
+  Task 4, eight additions entered: the two Data Forge core-facade edges, the
+  Scientist CLI core/DataForge edges, and the Scientist runtime
+  core-artifacts/core-canon/DataForge/IR edges. Two old-address edges left:
+  Data Forge claim adjudicator -> Scientist claim adjudication, and Scientist
+  claim-adjudication config -> Data Forge academic read API. The completed
+  failure used `user=25.63s`, `sys=6.06s`; uptime advanced from 14:35/up 3 days
+  4:49 to 14:36 in the same uptime hour.
+- Package-import predicate: exit 1 with 151 findings and 39 unregistered
+  forbidden statements. The report field, list length, and unique-key count
+  each equal those totals; an independent longest-exact-package AST census
+  also derives 39 with empty set differences over 2,581 files. The substantive
+  40 -> 39 move is the same removed Data Forge -> Scientist statement. The
+  150 -> 151 total is nine exact finding additions and eight removals: summary
+  rows were replaced as their counts changed, and one new
+  Scientist -> DataForge import-boundary summary was introduced by the real
+  consumer-up bridge. No composite pass is claimed. The completed failure used
+  `user=52.03s`, `sys=2.96s`; uptime advanced from 14:35/up 3 days 4:49 to
+  14:36/up 3 days 4:50.

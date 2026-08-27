@@ -661,6 +661,64 @@ class ArticleExtractionResult(BaseModel):
         return self
 
 
+class ClaimAdjudicationInputItem(BaseModel):
+    """Authority-neutral claim evidence supplied to Scientist for adjudication."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    claim_id: str = Field(min_length=1)
+    openalex_id: str = Field(min_length=1)
+    title: str = ""
+    methodology: str = ""
+    methodology_enum: EvidenceStrength = EvidenceStrength.UNKNOWN
+    source_basis: SourceBasis = SourceBasis.FULLTEXT
+    text_quality: TextQuality = TextQuality.EXTRACTED_FULLTEXT
+    claim_text: str = ""
+    cause_variable: str = Field(min_length=1)
+    effect_variable: str = Field(min_length=1)
+    direction: CausalDirection = CausalDirection.MIXED
+    claim_type_hint: ClaimType = ClaimType.UNCLEAR
+    claim_explicitness: ClaimExplicitness = ClaimExplicitness.UNCLEAR
+    design_family_hint: DesignFamily = DesignFamily.UNCLEAR
+    effect_size: float | None = None
+    scope_conditions: list[str] = Field(default_factory=list)
+    supporting_spans: list[EvidenceSpan] = Field(default_factory=list)
+    method_spans: list[EvidenceSpan] = Field(default_factory=list)
+    extraction_model: str = ""
+    extraction_timestamp: str = ""
+    extraction_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+    intra_paper_contradiction: bool = False
+
+    @model_validator(mode="after")
+    def _validate_effect_size(self) -> ClaimAdjudicationInputItem:
+        if self.effect_size is not None:
+            ensure_finite_numeric(self.effect_size, field_name="effect_size")
+        return self
+
+
+class ClaimAdjudicationInputBatch(BaseModel):
+    """Immutable raw-input denominator for one claim-adjudication run."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    source_artifact_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    retraction_artifact_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    items: list[ClaimAdjudicationInputItem] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_unique_claims(self) -> ClaimAdjudicationInputBatch:
+        ensure_unique_ids(
+            self.items,
+            key_fn=lambda item: item.claim_id,
+            label="claim_id",
+        )
+        return self
+
+
 class ClaimAdjudicationResult(BaseModel):
     """Claim-level causal adjudication contract."""
 
@@ -687,6 +745,51 @@ class ClaimAdjudicationResult(BaseModel):
     design_family_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     direction_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     intra_paper_contradiction: bool = False
+
+
+class AdmittedClaimAdjudicationBatch(BaseModel):
+    """Scientist-signed claim publishability results and their admitted basis."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    rule_version: Literal["claim-adjudication-admission.v1"] = (
+        "claim-adjudication-admission.v1"
+    )
+    raw_input_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    candidate_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    evaluation_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    champion_pointer_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    admission_predicate: Literal["independently_reconciled"] = "independently_reconciled"
+    authoritative_for: tuple[Literal["academic_claim_edge_publishability"]] = (
+        "academic_claim_edge_publishability",
+    )
+    may_not_use_for: tuple[
+        Literal["method_validity"],
+        Literal["governance_admissibility"],
+    ] = (
+        "method_validity",
+        "governance_admissibility",
+    )
+    input_claim_ids: list[str] = Field(default_factory=list)
+    results: list[ClaimAdjudicationResult] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_exact_claim_denominator(self) -> AdmittedClaimAdjudicationBatch:
+        ensure_unique_ids(
+            self.input_claim_ids,
+            key_fn=lambda item: item,
+            label="input_claim_id",
+        )
+        ensure_unique_ids(
+            self.results,
+            key_fn=lambda item: item.claim_id,
+            label="result_claim_id",
+        )
+        result_ids = [item.claim_id for item in self.results]
+        if result_ids != self.input_claim_ids:
+            raise ValueError("results must preserve the exact ordered input claim denominator")
+        return self
 
 
 class LiteratureEdgePrior(BaseModel):
@@ -1617,11 +1720,14 @@ def load_literature_causal_prior(
 
 
 __all__ = [
+    "AdmittedClaimAdjudicationBatch",
     "ArticleExtractionResult",
     "BoundaryCondition",
     "CausalClaim",
     "CausalCredibility",
     "CausalDirection",
+    "ClaimAdjudicationInputBatch",
+    "ClaimAdjudicationInputItem",
     "ClaimAdjudicationResult",
     "ClaimExplicitness",
     "ClaimSpanGoldRecord",

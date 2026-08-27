@@ -169,7 +169,8 @@ def run_publish(config: AcademicBatchConfig) -> Path:
         config.moderation_edges_clean_path,
         config.simulation_ready_numeric_path,
         config.article_extraction_results_path,
-        config.claim_adjudication_passes_path,
+        config.claim_adjudication_input_ref_path,
+        config.claim_adjudication_result_ref_path,
         config.claim_adjudications_path,
         config.claim_consensus_report_path,
         config.canonical_review_queue_path,
@@ -197,6 +198,15 @@ def run_publish(config: AcademicBatchConfig) -> Path:
             else "",
             "readiness_report": str(readiness_report_path),
             "readiness": readiness,
+            "claim_adjudication": {
+                "authority_source": str(config.claim_adjudication_result_ref_path)
+                if config.claim_adjudication_result_ref_path.exists()
+                else "",
+                "compatibility_projection": str(config.claim_adjudications_path)
+                if config.claim_adjudications_path.exists()
+                else "",
+                "compatibility_projection_authority": "non_authoritative",
+            },
         },
     )
 

@@ -2,7 +2,7 @@
 plan_id: atlas-ds15-acquisition-routes
 title: "DS15 - Acquisition Routes & Data-Pool Growth Surfaces"
 type: slice-plan
-status: execution_authorized_c00_admitted
+status: execution_authorized_c00_review_repaired
 created: 2026-08-27
 last_verified: 2026-08-27
 stability: measured_plan
@@ -13,7 +13,7 @@ branch: codex/ds15-acquisition-routes-execution
 execution_base_commit: f3e3d996bd6710e26f24fd913d4fe0547f1d1a0d
 execution_entry_commit: 4709562c4ca67e691b355ec2941cf7d48262291e
 execution_entry_plan_blob: 16de6702ab7e79fb0277d9071fdb3b9ded1f7aac
-c00_status: admitted_docs_only_zero_mechanisms
+c00_status: review_repair_timing_and_authz_admitted_zero_mechanisms
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 gy_plan: ../layer3-slices/GY-engine-subordination.md
 identity_boundary: ../../../system-design-decisions/policyos-identity-and-custody-boundary.md
@@ -105,10 +105,25 @@ measured corrections:
   `governed_projection_validation_worker.py` and its mirrored test. This
   measured pre-C01 correction moves C01 from 6 to 7 mechanisms and the hard
   union from 37 to **38**; it spends no widening round and the budget remains
-  **11**. Path 39 is the new stop.
+  **11**.
+- C00 review then proved that both acquisition GETs need an exact
+  `runs.review` / `runtime.acquisition_route.tenant_collection` contract in
+  `ops/policy/policies/action_permission.rego`. The closed Rego map has no
+  acquisition-route class and `resource_kind_matches` requires exact equality,
+  so reusing `runtime.case_inspection` or `runtime.run_paper` would be a proxy
+  authorization. C02 therefore moves from 14 to 15 mechanisms and the hard
+  union from 38 to **39**. This is another measured pre-C01 plan correction,
+  spends no widening round, and makes path 40 the stop.
 - P39 now names the three contributor-required README companions and one
   structured release-fragment companion exactly in C01-C03. They are mandatory
-  records outside the mechanism ceiling and do not widen the 38-path union.
+  records outside the mechanism ceiling and do not widen the 39-path union.
+- C00 review finding `timing_receipt_completeness` is a NEW class, first
+  occurrence, repaired as P39 evidence with no widening round. The fresh N13a
+  full rerun is green with complete wall/CPU/uptime fields. The fresh N13b full
+  rerun exits `1` with `n13b_acquisition_contract_drift`; exact slice-base
+  branch/input disjointness makes it a P41-inherited owner red, but it remains
+  an explicit non-receipt and may not support closure or authorize a generated
+  artifact/write-path edit.
 
 The source-level qualification ruling and `fresh_positive_production_route`
 non-closure below are unchanged: C00 admits the real pending/unqualified and
@@ -172,7 +187,7 @@ unallocated `QualificationConsumer`. Its `not_established` /
 empty history and zero admitted observations. Therefore an **active but
 institutionally unqualified epoch is not reachable in the consumed code**. It
 would require changing the N13b/semantic-epoch write path, which this slice is
-forbidden to do and which is absent from the 38-path declaration. DS15 instead
+forbidden to do and which is absent from the 39-path declaration. DS15 instead
 renders the real pending/unqualified state as a first-class typed disclosure,
 names the unappointed policy-admission authority and says exactly what its
 appointment would establish. It may never copy-upgrade that state to active or
@@ -273,6 +288,10 @@ There is no second closure contract.
       `RuntimePermission.EVIDENCE_ACQUIRE`,
       `StepUpClass.ACQUISITION_APPROVAL`, DS9 human-decision step-up, exact
       resource binding, live re-resolution, and an idempotent sealed effect.
+      The two acquisition GETs use existing `RuntimePermission.RUNS_REVIEW`
+      with exact resource class `runtime.acquisition_route` and binding
+      authority `tenant_collection`; neither a case-inspection nor run-paper
+      resource kind can substitute.
 - [ ] **CC13** The effect consumes N13b's existing executor -> recomputed
       `AdmissionPassport` -> `CatalogAcquisitionOverlay`/Fabric quarantine chain
       only through the strict `AcquisitionExecutionPort` contract. A
@@ -842,6 +861,7 @@ agreement.
 | `DS15-PA2-AUTHORITY-BANDS` | keep approval/signature markers while independently removing gateway composition, the signed v2 contract/current mandate-owner authority, or the deterministic admission-bundle producer | engineering composition absence blocks the DS15 bridge; either external input absence keeps real execution `producer_missing`; signature equality cannot stand in for appointment |
 | `DS15-QUALIFICATION-DISCLOSURE` | keep the pending passport/epoch row and `policy_admission_missing`, but drop the authority owner/appointment effect, label it active/qualified, or replace the typed status with reassuring copy | contract/UI/parity test fails; the row remains pending with `not_established`, names the unappointed policy-admission authority, and states that appointment would establish native semantic production/history eligibility |
 | `DS15-DEFERRED-PA2` | persist an allowed-looking marker but remove/tamper the durable decision, cross-bind its tenant/run/source-job/route/effect, or invoke the port without gateway load + `execute_bound_effect` | no external effect; job fails closed before the port and the action head records no executing receipt |
+| `DS15-GET-RESOURCE-EXACTNESS` | keep the same role and `runs.review` permission but substitute `runtime.case_inspection.tenant_collection`, `runtime.run_paper.tenant_collection`, or another proxy kind for either acquisition GET | Rego denies before projection; only exact `runtime.acquisition_route.tenant_collection` is admitted |
 | `DS15-EXECUTION-PORT` | offer raw journal/CAS paths, a wrong connector, unguarded store, tenantless port or arbitrary data-shaped row | producer handshake refuses before network/world write |
 | `DS15-PASSPORT-BOUNDARY` | keep raw bytes and passport marker fields but remove one decisive schema/units/alignment/license/PII/trust check | recomputed passport refuses; quarantine renders; world delta stays zero |
 | `DS15-EPOCH-ACTIVATION` | create an admitted-looking passport without matching qualification, native-history, production and active overlay receipts | no world-growth event; action fails closed |
@@ -862,9 +882,9 @@ complete owned-root rule. No additional moved-constant test is preauthorized:
 if execution discovers one, stop for a plan amendment before editing it. One
 mechanism is never split across commits to fit a cap.
 
-The complete declaration contains **38 unique mechanism paths**. The hard slice
-ceiling is exactly **38**, derived from that declared union; there is no padded
-contingency. Path 39 is a stop and plan-amendment request. A path may narrow
+The complete declaration contains **39 unique mechanism paths**. The hard slice
+ceiling is exactly **39**, derived from that declared union; there is no padded
+contingency. Path 40 is a stop and plan-amendment request. A path may narrow
 away, but an undeclared replacement or companion promoted into mechanism work
 requires the same amendment and a fresh union derivation.
 
@@ -874,12 +894,15 @@ C01/C04's declared paths, and `gap_class` ownership is a clarification of C01's
 existing contracts/projection. C00 additionally proved that the new governed
 projection ID must register an owner validator in the existing validation
 worker. That measured prerequisite adds one C01 mechanism, taking the parser
-union from 37 to **38**, while adding no capability, permission, writer, or
-widening round.
+union from 37 to 38. C00 review then proved that the closed Rego action contract
+needs one exact acquisition-route resource class for the existing `runs.review`
+permission. Adding that existing policy owner as one C02 mechanism takes the
+union to **39** while adding no permission enum, capability, writer, or widening
+round.
 
 Two independent cap derivations must agree before C01 and closeout:
 
-1. cluster arithmetic `7 + 14 + 12 + 4 + 1 = 38`; and
+1. cluster arithmetic `7 + 15 + 12 + 4 + 1 = 39`; and
 2. a parser union of every bold `Add/Modify (mechanism)` path below, excluding
    P39 companions, with known members
    `src/polisyos/runtime/quality/acquisition_route_loop.py` and
@@ -887,7 +910,7 @@ Two independent cap derivations must agree before C01 and closeout:
 
 The widening budget is **11 repair rounds**, one for each concrete predicate
 class below. A round may repair or redistribute work only within the declared
-38-path set; it does not buy another path. Narrowing that only removes a way to
+39-path set; it does not buy another path. Narrowing that only removes a way to
 be fooled is free. A second finding in one class invokes P40: widen the property
 to the quantity it needs inside the ceiling, or declare the bounded residual
 and run its falsifier. A new capability, permission, producer arm, writer or
@@ -897,7 +920,7 @@ undeclared path is a plan amendment, not a round.
 | --- | --- | ---: | ---: | ---: |
 | C00 | admit plan, remeasure sets/fences and pin reds | 0 | 0 | 0 |
 | C01 | strict owner cost/read contracts over N13a/N13b, overlay and quarantine | 7 | 7 | 2 |
-| C02 | run-bound HTTP, PA2 decision request, durable worker and exact re-entry receipt | 14 | 14 | 4 |
+| C02 | run-bound HTTP, PA2 decision request, durable worker and exact re-entry receipt | 15 | 15 | 4 |
 | C03 | atomically regenerate/reproduce OpenAPI and both clients | 0 | 0 | 0 |
 | C04 | render global scorecard/backlog/structural routes and strict detail | 12 | 12 | 2 |
 | C05 | accountable approval, continuous timeline and exact-byte MACHINE export | 4 | 4 | 2 |
@@ -1016,7 +1039,7 @@ changes overlay/quarantine bytes.
 
 ### C02 - run-bound action and one world-growth bridge
 
-**Add/Modify (mechanism, 14 paths):**
+**Add/Modify (mechanism, 15 paths):**
 
 - add `src/polisyos/runtime/quality/acquisition_route_loop.py`;
 - modify `src/polisyos/runtime/quality/generation_cycle.py`;
@@ -1035,8 +1058,10 @@ changes overlay/quarantine bytes.
 - modify `src/polisyos/runtime/http/app.py`;
 - modify `src/polisyos/runtime/http/routes/__init__.py`;
 - modify `src/polisyos/runtime/http/container.py`;
-- modify `src/polisyos/runtime/http/dependencies.py`; and
-- modify `src/polisyos/runtime/http/openapi_contract.py`.
+- modify `src/polisyos/runtime/http/dependencies.py`;
+- modify `src/polisyos/runtime/http/openapi_contract.py`; and
+- modify `ops/policy/policies/action_permission.rego` only to add the exact
+  acquisition-route GET resource contract under existing `runs.review`.
 
 `acquisition_route_loop.py` is an orchestrator/receipt owner, not a data writer.
 It resolves the verified completed control-job/compiled-run closure, planner
@@ -1107,9 +1132,14 @@ and activation receipt, injects that same overlay path into
 mutates the prior run. Do not widen the runtime-quality public `__init__`
 surface merely to expose this internal bridge.
 
-No new permission is added. GETs reuse run review. Decision request and execute
-reuse `EVIDENCE_ACQUIRE`, request-bound `runtime.evidence.acquisition`, and
-acquisition step-up; the human record remains on DS9's route/permission/step-up.
+No new permission enum is added. Both GETs use the exact pair
+`RUNS_REVIEW` / `runtime.acquisition_route.tenant_collection`. Decision request
+and execute keep the exact pair `EVIDENCE_ACQUIRE` /
+`runtime.evidence.acquisition.request_bound` plus acquisition step-up; the human
+record remains on DS9's route/permission/step-up. The Rego action-contract map
+and runtime route requirements must agree byte-for-semantics: preserving a role
+and permission while substituting case-inspection, run-paper, or another proxy
+resource kind remains denied before projection.
 VIEWER/SERVICE/SYSTEM cannot perform the human act. The operation is
 idempotent on tenant/run/source-job/route/planner/decision hashes and fails closed on
 partial audit, CAS, passport, production or re-entry persistence. Missing
@@ -1144,6 +1174,10 @@ modify
 `tests/unit/runtime/http/services/test__control_contracts.py`; modify
 `tests/unit/runtime/mirror_contracts/test_control.py` to pin the canonical job
 literal and both runtime consumers.
+The already-declared API-contract-hardening parity and authorization-access
+audit paths own the GET resource-binding red; no additional authorization test
+path is introduced. Existing Rego/router parity tests remain baseline receipts
+and prove that the closed policy map must equal the live guarded router.
 Modify the mandatory nearest-parent P39 companions
 `src/polisyos/runtime/http/services/README.md`,
 `src/polisyos/runtime/quality/README.md`, and
@@ -1155,6 +1189,7 @@ owner tests are baseline receipts, not DS15 edit targets.
 
 **Named reds:** `DS15-NO-STALE-REVIVAL`, `DS15-COST-BASIS`,
 `DS15-PA2-AUTHORITY-BANDS`, `DS15-DEFERRED-PA2`,
+`DS15-GET-RESOURCE-EXACTNESS`,
 `DS15-PASSPORT-BOUNDARY`, `DS15-EPOCH-ACTIVATION`,
 `DS15-REENTRY-BINDING`, sibling-consumer strangle, a
 forged client status/body, cross-tenant/cross-run/cross-route record reuse, and
@@ -1352,7 +1387,7 @@ historical-only rows have no active flow.
 - modify `architecture/atlas_surfaces/check_frontend_disposition_register.py`
   only if the existing generic checker cannot adjudicate DS15's real new
   operations/surfaces.
-If no checker code is needed, the actual mechanism count narrows to 36.
+If no checker code is needed, the actual mechanism count narrows to 38.
 
 Freeze source, run architecture/backend/frontend review in parallel, batch only
 blocking findings, then run the expensive wave once. Before acquiring the Atlas
@@ -1373,7 +1408,7 @@ slices' evidence or the deep-import baseline. If the existing generic checker
 already adjudicates the transition, its source path narrows away but its test
 remains in this exact companion set.
 
-Re-derive 38 declared/38 ceiling and actual mechanism paths twice; re-derive all
+Re-derive 39 declared/39 ceiling and actual mechanism paths twice; re-derive all
 set counts, including both post-C01 `gap_class` source-tree scans and the single
 definition/producer-routing invariant; classify every red under P41 against the
 slice base; read the final file set, branch and commits from the committed
@@ -1394,11 +1429,11 @@ claim; that external non-closure does not prevent the bounded C06 transition.
 | owner family | paths | count |
 | --- | --- | ---: |
 | owner cost/read contracts/projections | `acquisition_planner.py`, `acquisition_surface_contracts.py`, `acquisition_surface_projection.py`, `governed_projections.py`, `governed_projection_validation_worker.py`, catalog `overlay.py`, catalog read API | 7 |
-| action/HTTP bridge | `acquisition_route_loop.py`, `generation_cycle.py`, `agent_action_authority.py`, `acquisition_action_service.py`, control lifecycle/store/contracts, canonical `ControlJobKind`, acquisition routes, app/router/container/dependencies/OpenAPI contract | 14 |
+| action/HTTP bridge | `acquisition_route_loop.py`, `generation_cycle.py`, `agent_action_authority.py`, `acquisition_action_service.py`, control lifecycle/store/contracts, canonical `ControlJobKind`, acquisition routes, app/router/container/dependencies/OpenAPI contract, exact Rego action contract | 15 |
 | dashboard reads | hook, presentation, five read components, Cycle Board, query keys, validators, two locales | 12 |
 | dashboard action/MACHINE | timeline, approval flow, export, Case Workspace | 4 |
 | Atlas checker | disposition checker, conditionally narrowed away | 1 |
-| **total** | parser union must match | **38** |
+| **total** | parser union must match | **39** |
 
 Mandatory P39 generated client family is seven files: one OpenAPI schema, five
 runtime-client files, and one dashboard types file. The three exact README
@@ -1526,7 +1561,7 @@ Read the failure/repair register again before C01 design and C06 closeout.
 | P32/P37/P38 | `route_id`, status string, record-ref/cost-field presence or rank used as proof | resolve + content-bind + verifier provenance; recompute cost from owner basis; predicate class frozen at admission |
 | P33/P34 | teach fixture IDs or marker fields to tests | remove-property/keep-markers, synonyms, malformed, sibling and historical-ID mutations |
 | P35/P36 | mix 15 residuals with 3 routes or 18 probes with 144 records | two complete-set derivations, denominator and artifact identity on every count |
-| P39 | count plans/tests/generated/register/snapshots as mechanisms | 38 declared mechanisms, exact 38 hard ceiling, companions explicit |
+| P39 | count plans/tests/generated/register/snapshots as mechanisms | 39 declared mechanisms, exact 39 hard ceiling, companions explicit |
 | P40/P41 | patch the second escape or inherit a red from a nearer base | bucket second finding; exact slice-base replay and complete-input disjointness |
 
 Target bounded closure is `typed contract/artifact + owned producer + persisted
@@ -1627,7 +1662,7 @@ The executor/architect receives:
   CAS/event/action-head receipt owner and crash-recovery phase;
 - API packets, generated ABI twins, raw-response/DOM/MACHINE hashes;
 - DS11 landing/path-fence release receipt and exact frontend wait point;
-- 38-declared/38-ceiling mechanism derivations, 11-round accounting, visual/
+- 39-declared/39-ceiling mechanism derivations, 11-round accounting, visual/
   a11y timing with `user + sys` and uptime pairs; and
 - every remaining out-of-scope non-closure, including the separately owned
   `fresh_positive_production_route`; if that receipt is missing, a bounded-close
@@ -1635,5 +1670,5 @@ The executor/architect receives:
 
 Anything that introduces a new permission, decision source kind, acquisition
 writer/store/passport/epoch allocator, public audience, current authority from a
-repository artifact, client VOI computation, or path 39 requires an approved
+repository artifact, client VOI computation, or path 40 requires an approved
 plan amendment before code.

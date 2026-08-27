@@ -57,8 +57,8 @@ plan and re-derived the focused artifact/path counts below.
 | `corepack pnpm install --frozen-lockfile` | `0`; `real 31.30`, `user 7.53`, `sys 16.96`, `user+sys=24.49`; uptime `23:13 up 3 days, 13:26` -> `23:14 up 3 days, 13:27` | dependency receipt |
 | six focused N13 owner-test files | `0`; 6 explicit production-catalog witness skips; `real 191.11`, `user 116.73`, `sys 9.56`, `user+sys=126.29`; uptime `23:17 up 3 days, 13:30` -> `23:20 up 3 days, 13:33` | inherited owner family green and byte-identical |
 | `test_production_acquisition_invokes_epoch_adapter_and_returns_policy_admission_missing` | `0`; launched untimed | functional qualification receipt only, not a timing baseline |
-| N13a recomputing checker `--check` | `0`; `real 28.31` | current owner check green |
-| full N13b checker | manually interrupted `130` at `348.69s` during universality, with no reported failure before interruption | non-receipt, never green and never used as closure evidence |
+| N13a recomputing checker `--check`, fresh full rerun | `0`; `real 12.12`, `user 15.91`, `sys 1.12`, `user+sys=17.03`; uptime `23:52 up 3 days, 14:05` -> `23:53 up 3 days, 14:06` | complete current owner timing receipt |
+| full N13b checker, fresh full rerun | `1`; `real 317.26`, `user 286.65`, `sys 10.58`, `user+sys=297.23`; uptime `23:53 up 3 days, 14:06` -> `23:58 up 3 days, 14:11`; failure `n13b_acquisition_contract_drift` for the committed N13b acquisition executor contract | inherited owner red / explicit baseline non-receipt; supersedes the interrupted attempt, is never green, and cannot support DS15 closure |
 
 The entry worktree itself required no writer, dependency change, or expensive
 validator rerun for C00.
@@ -216,10 +216,10 @@ and `git grep -l gap_class` each exited `1` with zero matches; their wrapper
 audits exited `0`. This replaces the historical plan-entry 2,810/2,600 count
 without changing the ruling that C01 owns the first `gap_class` definition.
 
-The amended Add/Modify parser now returns **38 declared / 38 unique** mechanism
-paths with file types Python=22, TSX=9, TS=5, JSON=2. Existence classification
-is 23 existing + 15 intended new. Independent cluster arithmetic is
-`7+14+12+4+1=38`.
+The amended Add/Modify parser now returns **39 declared / 39 unique** mechanism
+paths with file types Python=22, TSX=9, TS=5, JSON=2, Rego=1. Existence
+classification is 24 existing + 15 intended new. Independent cluster arithmetic
+is `7+15+12+4+1=39`.
 
 The one-path correction is source-required:
 `governed_projection_validation_worker._validate_request()` resolves the
@@ -228,7 +228,30 @@ definition/marker bytes but no worker registration returns
 `owner_validator_unregistered`. C01 therefore adds the existing worker as its
 seventh mechanism and the mirrored worker test as P39. This is a pre-C01 plan
 correction, consumes zero of 11 rounds, adds no new projection family beyond
-the single planned `acquisition-growth` ID, and moves the stop to path 39.
+the single planned `acquisition-growth` ID, and moved the interim ceiling to 38.
+
+C00 review established a second mechanism necessity before C01. Derivation A
+reads the complete closed `action_contracts["runs.review"]` map in
+`ops/policy/policies/action_permission.rego`: it contains exact case-inspection,
+governed-projection, human-decision, and run-paper resource classes, but no
+acquisition-route class. The same source's `resource_kind_matches` predicate
+requires the OPA input kind to equal `resource_class.binding_authority` exactly.
+Derivation B reads the existing route-authorization specifications:
+`test_rego_action_resource_contracts_match_live_guarded_router` requires the
+closed Rego map to equal all live guarded route contracts, while
+`test_run_paper_is_review_guarded_before_projection` pins an exact
+`runtime.run_paper` resource class and proves denial before projection. The
+already-declared C02 API-contract-hardening parity and authorization-access
+audit companions can materialize the DS15 mutation without adding a test path.
+
+The target GET contract is therefore exactly `RUNS_REVIEW` /
+`runtime.acquisition_route.tenant_collection`; preserving role and permission
+while substituting `runtime.case_inspection.tenant_collection`,
+`runtime.run_paper.tenant_collection`, or another proxy remains denied. Both
+POSTs keep `EVIDENCE_ACQUIRE` /
+`runtime.evidence.acquisition.request_bound` plus acquisition step-up. Adding
+the existing Rego owner as C02 mechanism 15 moves the union to 39 and the stop
+to path 40. It adds no permission enum and spends no widening round.
 
 CONTRIBUTING's nearest-parent README rule and release-fragment governance are
 now named as exact P39 companions:
@@ -238,7 +261,31 @@ now named as exact P39 companions:
 - C02: `src/polisyos/runtime/http/routes/README.md`; and
 - C03: `release-fragments/unreleased/2026-08-27-ds15-acquisition-routes.toml`.
 
-These mandatory records remain outside the 38-mechanism ceiling under P39.
+These mandatory records remain outside the 39-mechanism ceiling under P39.
+
+The C00 review finding is bucketed as NEW class
+`timing_receipt_completeness`, first occurrence. The incomplete N13a timing row
+is replaced by the fresh full receipt above; the interrupted N13b attempt is
+superseded by the complete failing receipt. This is P39 evidence repair only:
+zero mechanism change in C00 and zero widening round.
+
+The N13b failure is classified under P41 only after two disjointness
+derivations. First, `git diff --name-status f3e3d996b..HEAD` exited `0` and
+listed only the added DS15 plan and journal; the C00 review worktree likewise
+contains only those same two docs. Second,
+`git diff --quiet f3e3d996b..HEAD -- policy-engine/src policy-engine/tools
+policy-engine/tests policy-engine/architecture policy-engine/ops
+policy-engine/schemas` exited `0`: the checker, current owner sources,
+registered artifacts, policy and schema roots are byte-identical to the slice
+base, and neither changed docs path belongs to that complete input denominator.
+The controller's independent external-input hash pass exited `0` with catalog
+hash `4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7`
+and L5 hash
+`90f341b2e71edb28b6208f580d8a920191d67240c240db9417ba18a225187aff`.
+The full rerun therefore establishes a base-owned current disagreement, not a
+DS15 mechanism regression. DS15 cannot rewrite the N13b generated artifact or
+write path; the red remains an explicit baseline non-receipt and is not used
+for closure.
 
 ## Executable red specifications
 
@@ -258,6 +305,7 @@ the mutation or changing fixture authority.
 | `DS15-PA2-AUTHORITY-BANDS` | Independently remove guarded gateway composition, signed v2 delegation/current mandate evidence, or deterministic admission-bundle producer while retaining signatures/approval markers. | Any combined allowed result is red; engineering composition and both external evidence bands fail closed independently, and signer equality cannot establish appointment. |
 | `DS15-QUALIFICATION-DISCLOSURE` | Keep pending epoch plus `policy_admission_missing` but remove authority/appointment effect, label active/qualified, or replace typed status with reassuring copy. | Contract/UI/parity acceptance is red; row stays pending `not_established`, names the unappointed policy-admission authority, and states what appointment plus composition would establish. |
 | `DS15-DEFERRED-PA2` | Persist an allowed-looking marker but delete/tamper the durable decision, cross-bind tenant/run/job/route/effect, or call the port without gateway load and `execute_bound_effect`. | Any external call or executing head is red; job fails closed before the port with no executing receipt. |
+| `DS15-GET-RESOURCE-EXACTNESS` | Preserve the same role and `runs.review` permission but substitute case-inspection, run-paper, or another proxy bound resource kind on either acquisition GET. | OPA denial must occur before projection; only `runtime.acquisition_route.tenant_collection` is admitted. |
 | `DS15-EXECUTION-PORT` | Offer raw journal/CAS paths, wrong connector, unguarded store, tenantless port, or arbitrary data-shaped row. | Any network/world write is red; strict production handshake refuses first. |
 | `DS15-PASSPORT-BOUNDARY` | Preserve bytes and passport marker fields while removing one decisive schema, units, alignment, license, PII, or trust verification. | Admission/growth is red; recomputed passport refuses, Fabric quarantine renders, delta remains zero. |
 | `DS15-EPOCH-ACTIVATION` | Present an admitted-looking passport without matching qualification, native-history, production, and active-overlay receipts. | `grew` or activation is red; no growth event exists and action fails closed. |
@@ -289,8 +337,8 @@ not claimed as executed until their named clusters materialize them.
 | P29/P31/P32/P33 | A new projection enum/marker without worker registration would be contract-only and trust-by-form. | Add the existing validation-worker chokepoint as C01 mechanism and keep the remove-registration/keep-markers falsifier. |
 | P35/P36 | Historical 2,810 and expected-zero DS11 overlap were stale/supplied prose, not complete denominators. | Recompute complete path/type sets, record the 65/37/3 disagreement, cite owner artifacts/fields, and amend to the measured 2,811 baseline. |
 | P37/P38 | Supplied `63`, an expected zero, or enum presence is a proxy gate. | Fence turns on landing ancestry + dual complete set; availability turns on worker owner validation. Divergent cases are 65 paths despite `63`, three real overlaps despite expected zero, and a defined ID rejected without `_VALIDATORS`. |
-| P39 | Contributor/release records and the worker mechanism were absent from the declared budget. | Name three README companions plus one release fragment outside the cap; add the worker inside it; 38/38 and 11 rounds. |
-| P40/P41 | No repair ladder or inherited-red attribution is allowed in C00. | Zero rounds spent; interrupted N13b check is a non-receipt, and every later red requires exact slice-base replay before inheritance. |
+| P39 | Contributor/release records, complete timings, the worker, and exact Rego action contract were absent from the declared budget/evidence. | Name README/release companions outside the cap; replace incomplete timing receipts; add worker and Rego owners inside it; 39/39 and 11 rounds. |
+| P40/P41 | No repair ladder or unmeasured inherited-red attribution is allowed in C00. | Zero rounds spent; the full N13b drift is inherited only after exact slice-base path/input disjointness, remains a non-receipt, and cannot support closure. |
 
 The source-level qualification capability remains
 `absent/unallocated + bridge_missing` at the institutional owner/composition
@@ -310,7 +358,9 @@ but no production-growth claim may.
 - DS11 fence: released with a recorded 65/37/3 disagreement and byte-equal
   historical overlap.
 - Source baseline: 2,811 tracked files and zero `gap_class` in two equal sets.
-- Budget: amended to 38 mechanisms, 11 rounds, path 39 stop; required P39
+- Budget: amended to 39 mechanisms, 11 rounds, path 40 stop; required P39
   README/release companions exact.
 - C00 mechanism paths: 0. Widening rounds: 0. Serialized writer locks: none.
 - Qualification and fresh-positive-production non-closures: unchanged.
+- Timing review: N13a full receipt green; N13b full receipt red and preserved as
+  a P41-inherited baseline non-receipt with two disjointness derivations.

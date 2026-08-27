@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import importlib
 from datetime import date
+from functools import cache
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -36,173 +38,18 @@ def _predicate(posture: Any, kind: str, *, satisfied: bool = True) -> Any:
     )
 
 
+@cache
 def _strict_register(posture: Any) -> Any:
-    coordinate = posture.SourceCoordinate(
-        path="src/polisyos/example.py",
-        symbol="ExampleClaim",
-        line=4,
-        column=4,
-        field_name="authoritative_for",
-        use_kind="declaration",
-    )
-    member = posture.AdmittedSourceMember(
-        path=coordinate.path,
-        content_digest="sha256:" + "1" * 64,
-    )
-    receipt_kwargs = {
-        "scanned_python_count": 1,
-        "raw_candidate_count": 1,
-        "exact_field_file_count": 1,
-        "declaring_file_count": 1,
-        "consuming_file_count": 0,
-        "role_counts": {
-            "declares_only": 1,
-            "carries_only": 0,
-            "consumes_only": 0,
-            "declares_and_consumes": 0,
-            "substring_collision": 0,
-            "ambiguous": 0,
-        },
-        "direct_literal_site_count": 1,
-        "direct_literal_file_count": 1,
-        "direct_literal_subject_count": 1,
-        "direct_empty_site_count": 0,
-        "wrapper_literal_site_count": 1,
-        "wrapper_literal_file_count": 1,
-        "wrapper_literal_subject_count": 1,
-        "may_not_use_for_raw_file_count": 1,
-        "may_not_use_for_literal_site_count": 1,
-        "may_not_use_for_literal_file_count": 1,
-        "may_not_use_for_literal_subject_count": 1,
-        "row_digest": "sha256:" + "2" * 64,
-    }
-    ast_receipt = posture.SourceDerivationReceipt(method="ast", **receipt_kwargs)
-    token_receipt = posture.SourceDerivationReceipt(method="tokenize", **receipt_kwargs)
-    literal = posture.LiteralSite(
-        coordinate=coordinate,
-        declaration_form="assignment",
-        wrapper_kind="direct",
-        values=("example_claim",),
-        resolution="resolved",
-    )
-    denied_coordinate = coordinate.model_copy(update={"field_name": "may_not_use_for", "line": 5})
-    denied = posture.LiteralSite(
-        coordinate=denied_coordinate,
-        declaration_form="assignment",
-        wrapper_kind="direct",
-        values=("publication_authority",),
-        resolution="resolved",
-    )
-    inventory = posture.SourceInventoryRow(
-        path=coordinate.path,
-        content_digest=member.content_digest,
-        role="declares_only",
-        resolution="resolved",
-        declaration_coordinates=(coordinate,),
-        carrier_coordinates=(),
-        consumer_coordinates=(),
-        authoritative_sites=(literal,),
-        forbidden_sites=(denied,),
-        runtime_bound=False,
-        issue_codes=(),
-    )
-    owner = posture.OwnerBinding(
-        owner="team-example",
-        basis="package_contract",
-        source_ref="architecture/packages/example.toml",
-        establishment_class="institutionally_supplied",
-    )
-    evidence = posture.EvidenceBinding(
-        ref="cas:example-claim-evidence",
-        content_digest="sha256:" + "8" * 64,
-        subject_binding="example_claim",
-        verifier_ref="verifier:independent",
-        verifier_provenance_ref="provenance:independent",
-        establishment_class="independently_reconciled",
-        source_as_of=date(2026, 8, 20),
-        supersession_ref=None,
-    )
-    predicates = (
-        _predicate(posture, "content_bound_source"),
-        _predicate(posture, "purpose_permission"),
-        posture.SupportPredicate(
-            kind="accountable_owner",
-            satisfied=True,
-            establishment_class="institutionally_supplied",
-            evidence_refs=(owner.source_ref,),
-            issue_code="DS11-GATE-PREDICATE-NOT-ESTABLISHED",
-        ),
-        _predicate(posture, "applicable_jurisdiction", satisfied=False),
-        _predicate(posture, "current_review", satisfied=False),
-        _predicate(posture, "content_bound_evidence", satisfied=False),
-        _predicate(posture, "identity_boundary"),
-        _predicate(posture, "no_blocker"),
-    )
-    source_binding = posture.ClaimSourceBinding(
-        coordinate=coordinate,
-        content_digest=member.content_digest,
-        resolution="resolved",
-        source_state="supported",
-        subject="example_claim",
-        family="methodology",
-        authoritative_for=("example_claim",),
-        may_not_use_for=("publication_authority",),
-        authority_purpose="example_claim",
-        owner=owner,
-        jurisdiction=None,
-        jurisdiction_establishment="not_established",
-        review_on=None,
-        review_due=None,
-        source_as_of=date(2026, 8, 26),
-        evidence_refs=(evidence.ref,),
-        evidence_bindings=(evidence,),
-        limitation_refs=("limitation:missing-independent-metadata",),
-        prerequisite_refs=(),
-        identity_boundary_ref="docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
-        declared_scope_assumption=None,
-        supersedes_ref=None,
-        superseded_by_ref=None,
-        predicates=predicates,
-        closure_signal=None,
-    )
-    anti_role = posture.AntiRoleBinding(
-        role="administrator",
-        display_label="administrator",
-        source_path="docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
-        source_digest="sha256:" + "3" * 64,
-        line=88,
-        column=1,
-    )
-    identity = posture.IdentityBoundaryBinding(
-        path=anti_role.source_path,
-        content_digest=anti_role.source_digest,
-        frontmatter_digest="sha256:" + "4" * 64,
-        paragraph_digest="sha256:" + "5" * 64,
-        paragraph_start_line=88,
-        paragraph_end_line=90,
-        anti_roles=(anti_role,),
-        derivation_receipt_digests=("sha256:" + "6" * 64, "sha256:" + "7" * 64),
-        owner="team-architecture",
-        last_reviewed=date(2026, 7, 20),
-        decision_status="accepted",
-        authoritative_for=("system_identity",),
-        may_not_use_for=("jurisdiction_specific_legal_conclusion",),
-        identity_statement_digest="sha256:" + "9" * 64,
-        identity_statement_start_line=28,
-        identity_statement_end_line=31,
-    )
-    identity_member = posture.AdmittedSourceMember(
-        path=identity.path,
-        content_digest=identity.content_digest,
-    )
-    return posture.build_posture_register(
-        register_as_of=date(2026, 8, 26),
-        admitted_sources=(member, identity_member),
-        ast_derivation=ast_receipt,
-        token_derivation=token_receipt,
-        identity_boundary=identity,
-        source_inventory=(inventory,),
-        source_bindings=(source_binding,),
+    repo_root = Path(__file__).resolve().parents[5]
+    artifact = repo_root / "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+    return posture.validate_posture_register(artifact.read_bytes())
+
+
+def _derived_source_binding(register: Any, posture: Any) -> Any:
+    return next(
+        row.source_bindings[0]
+        for row in register.claims
+        if row.subject is not None and row.subject not in posture.FIXED_SEMANTIC_BINDING_COUNTS
     )
 
 
@@ -231,7 +78,7 @@ def test_planned_requires_only_the_content_bound_executable_commitment_basis() -
     """Keep support-only jurisdiction, review, and evidence gates out of planning."""
     posture = _posture()
     register = _strict_register(posture)
-    base = register.claims[0].source_bindings[0]
+    base = _derived_source_binding(register, posture)
     owner = posture.OwnerBinding(
         owner="team-example",
         basis="closure_commitment",
@@ -270,8 +117,8 @@ def test_planned_requires_only_the_content_bound_executable_commitment_basis() -
     )
     state, blockers, _ = posture.evaluate_claim_posture(
         (planned,),
-        subject="example_claim",
-        family="methodology",
+        subject=base.subject,
+        family=base.family,
         register_as_of=date(2026, 8, 26),
         identity_boundary=register.identity_boundary,
         admitted_sources=register.admitted_sources,
@@ -280,16 +127,40 @@ def test_planned_requires_only_the_content_bound_executable_commitment_basis() -
     assert state == "planned"
     assert blockers == ()
 
+    second_arm = planned.model_copy(
+        update={"owner": owner.model_copy(update={"owner": "team-second"})}
+    )
+    incomplete_arm = second_arm.model_copy(update={"closure_signal": None})
+    state, blockers, _ = posture.evaluate_claim_posture(
+        (planned, incomplete_arm),
+        subject=base.subject,
+        family=base.family,
+        register_as_of=date(2026, 8, 26),
+        identity_boundary=register.identity_boundary,
+        admitted_sources=register.admitted_sources,
+        admitted_verifiers=register.admitted_verifiers,
+    )
+    assert state == "blocked"
+    assert "DS11-PLANNED-CLOSURE-SIGNAL-MISSING" in blockers
+    with pytest.raises(ValueError, match=r"planned|closure"):
+        posture.ClaimSourceBinding.model_validate(incomplete_arm.model_dump(mode="json"))
+
 
 def test_admitted_verifier_scope_cannot_be_rebound_to_a_novel_subject() -> None:
     """Bind evidence authority to typed subject/purpose scope, not verifier names."""
     posture = _posture()
     register = _strict_register(posture)
-    verifier = register.admitted_verifiers[0]
+    verifier = next(
+        item
+        for item in register.admitted_verifiers
+        if item.verifier_kind == "identity_boundary_derivation"
+    )
     assert verifier.subject_scope == ("system_identity",)
     assert "universal_custody_commitment" in verifier.prohibited_subjects
 
-    base = register.claims[0].source_bindings[0]
+    base = next(row for row in register.claims if row.subject == "system_identity").source_bindings[
+        0
+    ]
     evidence = base.evidence_bindings[0].model_copy(
         update={
             "ref": verifier.content_ref,
@@ -344,7 +215,9 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
     posture = _posture()
     assert posture.compose_effective_state(("supported",), support_predicates=()) == "blocked"
     register = _strict_register(posture)
-    base = register.claims[0].source_bindings[0]
+    base = next(row for row in register.claims if row.subject == "system_identity").source_bindings[
+        0
+    ]
     predicates = tuple(_predicate(posture, kind) for kind in posture.REQUIRED_SUPPORT_PREDICATES)
     owner = posture.OwnerBinding(
         owner="team-example",
@@ -352,7 +225,11 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
         source_ref="architecture/packages/example.toml",
         establishment_class="recomputed",
     )
-    verifier = register.admitted_verifiers[0]
+    verifier = next(
+        item
+        for item in register.admitted_verifiers
+        if item.verifier_kind == "identity_boundary_derivation"
+    )
     evidence = base.evidence_bindings[0].model_copy(
         update={
             "ref": verifier.content_ref,
@@ -454,15 +331,48 @@ def test_strict_register_recomputes_state_digest_and_rejects_extra_fields() -> N
     posture = _posture()
     register = _strict_register(posture)
     assert register.schema_version == "policyos.trust.claim_posture_register.v1"
-    assert register.claims[0].effective_state == "blocked"
+    source_index = next(
+        index
+        for index, row in enumerate(register.claims)
+        if row.subject not in posture.FIXED_SEMANTIC_BINDING_COUNTS
+    )
+    assert register.claims[source_index].effective_state == "blocked"
     assert register.payload_digest.startswith("sha256:")
     strict_payload = register.model_dump(mode="json")
     posture.validate_posture_register(strict_payload)
     with pytest.raises(ValidationError, match="extra_forbidden"):
         posture.validate_posture_register({**strict_payload, "unexpected": True})
-    strict_payload["claims"][0]["effective_state"] = "supported"
-    with pytest.raises((ValidationError, ValueError), match=r"effective|digest|supported"):
+    strict_payload["claims"][source_index]["effective_state"] = "supported"
+    with pytest.raises(
+        (ValidationError, ValueError),
+        match=r"effective|digest|supported|authored claim rows|recomputation",
+    ):
         posture.validate_posture_register(strict_payload)
+
+
+def test_source_inventory_is_admitted_and_coordinate_bound() -> None:
+    """Reject inventory rows or coordinates detached from admitted source bytes."""
+    posture = _posture()
+    register = _strict_register(posture)
+    admitted = {member.path: member.content_digest for member in register.admitted_sources}
+    row = next(item for item in register.source_inventory if item.declaration_coordinates)
+
+    with pytest.raises(ValueError, match="admitted source membership"):
+        posture._validate_source_inventory_basis(
+            (row.model_copy(update={"path": "src/polisyos/fabricated.py"}),), admitted
+        )
+
+    first = row.declaration_coordinates[0]
+    detached = row.model_copy(
+        update={
+            "declaration_coordinates": (
+                first.model_copy(update={"path": "src/polisyos/fabricated.py"}),
+                *row.declaration_coordinates[1:],
+            )
+        }
+    )
+    with pytest.raises(ValueError, match="coordinate escapes"):
+        posture._validate_source_inventory_basis((detached,), admitted)
 
 
 def test_posture_artifact_cannot_enter_runtime_claim_registry() -> None:

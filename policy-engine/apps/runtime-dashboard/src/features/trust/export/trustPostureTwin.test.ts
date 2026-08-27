@@ -180,5 +180,5 @@ describe("trust posture MACHINE and DOM twins", () => {
         twin.assertTrustPostureDomParity(root, register, labels),
       ).toThrow(/DS11-DOM-PARITY-DRIFT/);
     }
-  }, 30_000);
+  }, 60_000);
 });

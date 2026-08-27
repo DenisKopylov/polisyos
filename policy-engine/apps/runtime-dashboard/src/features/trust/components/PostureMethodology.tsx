@@ -26,6 +26,33 @@ export function PostureMethodology({
       <p className="mt-2 text-sm text-[var(--slate)]">
         {t("trust.methodologyFrame")}
       </p>
+      <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--line)] bg-[var(--canvas)] p-4">
+        <h3 className="text-base font-semibold">{t("trust.identityTitle")}</h3>
+        <p
+          className="mt-2 whitespace-pre-line text-sm text-[var(--ink)]"
+          data-testid="trust-identity-statement"
+        >
+          {register.identity_boundary.identity_statement}
+        </p>
+        <h4 className="mt-4 text-sm font-semibold">
+          {t("trust.antiRolesTitle")}
+        </h4>
+        <ul className="mt-2 flex flex-wrap gap-2">
+          {register.identity_boundary.anti_roles.map((antiRole) => (
+            <li
+              key={antiRole.role}
+              className="rounded-[var(--radius-pill)] border border-[var(--line)] bg-[var(--paper)] px-3 py-1 text-xs"
+              data-trust-anti-role
+            >
+              {antiRole.display_label}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 font-mono text-xs break-all text-[var(--slate)]">
+          {t("trust.identitySourceLabel")}: {register.identity_boundary.path}:
+          {register.identity_boundary.identity_statement_start_line}
+        </p>
+      </div>
       <dl className="mt-4 grid gap-3 text-sm md:grid-cols-3">
         <div>
           <dt className="font-semibold">{t("trust.schemaLabel")}</dt>

@@ -795,8 +795,9 @@ provenance remained valid while its self-supplied subject was relabeled to
   writer then matched both (`user 57.69 + sys 2.19 = 59.88s`; uptime `10:21 ->
   10:22`). Payload digest is
   `sha256:7ab7ff2751033aede30a036c2de02ae8d0da69c32a3fbdf7fa07c87f65ef2165`.
-- Both final derivations report 2,580 Python files, 105 raw candidates, 104 exact
-  field files (103 after excluding the single substring collision), role counts
+- Both final derivations report 2,580 Python files, 105 raw candidates, and 104
+  exact-field files after excluding the one substring collision (entry was
+  2,579 / 104 raw / 103 exact), role counts
   `66 declares_only / 5 carries_only / 5 consumes_only / 28
   declares_and_consumes / 1 substring_collision / 0 ambiguous`, 94 declaring
   and 33 consuming files, direct `35/13/21/5`, wrapper `59/24/28`, and denied
@@ -823,3 +824,217 @@ provenance remained valid while its self-supplied subject was relabeled to
   JSON, ledger, and this journal are P39 companions. Slice accounting is now
   `27/34` unique mechanisms and `8/9` widening rounds; round 8 stands and buys
   the generic typed producer-planning grammar.
+
+## C06 — refreeze, verification, debt reconciliation, and closure
+
+### Source refreeze and admission review
+
+- C06 resumed only in
+  `/Users/deniskopylov/polisyos/.worktrees/ds11-trust-docs`, attached to
+  `codex/ds11-trust-docs-posture-plan`. Every edit and commit coordinate uses
+  product-root prefix `policy-engine/`; the shared primary checkout was not
+  used. C00 was not repeated.
+- The C05 terminal figures above are provisional and explicitly superseded by
+  this refreeze. Same-class P29/P32 repairs completed the existing seams rather
+  than adding capability: fixed claim-family predicates are reconstructed
+  field by field; accessibility and all five page-receipt files are bound to
+  admitted bytes; the complete 34-site denied-purpose basis is the generic
+  30-site inventory plus four derived denied-only sites; custody appointment
+  rows are rebuilt from three exact DEBT-register row bytes; and MACHINE carries
+  an exact typed live-freshness limitation. Marker-preserving byte mutations,
+  coordinated receipt rewrites, omitted/duplicated limitations, and denied-site
+  field mutations all reject.
+- Independent final admission review was clean and changed no file. Its Python
+  and TypeScript 16-mutation matrix rejected every mutation; the TypeScript
+  posture set was green. The final source freeze therefore starts after those
+  repairs, not at the earlier payload or counts.
+- The C01 free-growth RED was the 16-test absent-owner wave (`user 34.29 + sys
+  3.33 = 37.62s`, uptime `19:41 -> 19:42`). GREEN is the canonical
+  `test_new_authority_producer_grows_register_without_register_edit`: a copied
+  complete source basis gains one scratch producer and exactly +1 scanned/raw/
+  exact/declaring file, literal site, and subject in both derivations; no
+  register, policy, dashboard-production, locale, or committed artifact edit is
+  permitted. Without posture metadata the row is blocked; same-symbol typed
+  metadata makes it planned with its owner and command. The final live-byte /
+  free-growth / census trio passed 3/3 (`user 47.65 + sys 2.02 = 49.67s`).
+- The two-direction registry boundary is executable, not prose:
+  `test_posture_artifact_cannot_enter_runtime_claim_registry` proves posture
+  cannot satisfy the per-run registry, and
+  `test_runtime_producer_evidence_binding_cannot_enter_posture_compiler` proves
+  a per-run evidence binding cannot enter posture. Both pass in the final
+  two-file Python wave.
+
+### Final artifact and complete censuses
+
+- The committed MACHINE artifact is **2,549,639 bytes**, payload
+  `sha256:41f3d4c12bbfe4cdf189fb7025fafaa9befbf49c0ceb93ad22921ab20a697f8e`,
+  source-set
+  `sha256:b8a383b13996e4d0718d7a68e62ff0ca0b1ffefcefb0bbf538b2b4793b9a0711`.
+  It has **343 claims = 341 blocked + 1 planned + 1 supported**. This mostly
+  negative distribution is the evidence-derived result; no performance claim
+  was minted or promoted.
+- AST and tokenizer independently report **2,580** Python files, **105** raw
+  candidates, **104** exact-field files, and zero disagreements. The mutually
+  exclusive roles are `66 declares_only / 5 carries_only / 5 consumes_only /
+  28 declares_and_consumes / 1 substring_collision / 0 ambiguous`, yielding 94
+  declaring and 33 consuming files. The collision remains
+  `best_snapshot.py:291`'s distinct `authoritative_for_runtime` field.
+- Both methods reproduce direct literals **35 sites / 13 files / 21 non-empty
+  subjects + 5 empty sites**, wrapper-inclusive **59 / 24 / 28**, and
+  `may_not_use_for` **117 raw files / 34 literal sites / 22 literal files / 44
+  literal subjects**. The complete positive subject census is the direct set
+  `candidate_hypothesis`, `closeout_input_promotion_state_refs`,
+  `compilation_facets`, `future_policy_calibration`,
+  `g5_first_proving_ground_promotion_state_input_refs`,
+  `g5_input_promotion_state_refs`, `layer3_g6_agent_orchestration_audit`,
+  `layer3_g6_candidate_handoff_audit`,
+  `layer3_g6_demand_pull_vs_abstention_reading`,
+  `layer3_g6_prompt_tool_lineage`, `layer3_g7_region_widening_audit`,
+  `layer3_g8_metric_governance_audit`, `pareto_frontier_fact`,
+  `participation_requirement`, `pdc_graph_assembly_promotion_state_input_refs`,
+  `review_effectiveness_measurement`, `reviewer_load_observability`,
+  `simulation_numerical_uncertainty`, `social_weight_provenance`,
+  `value_choice_record`, and `welfare_tradeoff_audit`, plus wrapper-only
+  `conflict_materialization`, `public_revision_state`,
+  `partial_publication_state`, `g2_forecast_support_binding_audit`,
+  `grounded_forecast_handoff`, `w12d_forecast_support_gate`, and
+  `w12d_g3_analytics_search_gate`.
+- The denied-purpose reconciliation carries all 34 complete literal sites,
+  including four denied-only sites, and all denied counts are recomputed from
+  that set. Custody carries three exact source rows. No ambiguous case was
+  guessed or silently zeroed.
+- The 13,273-byte ratified identity remains content-bound at
+  `sha256:774f6dfb9aa655a079d6c6a2f00ef6442bad9f0ea9b84f370a4e808c5616a332`.
+  Both parsers derive exactly seven anti-roles in order: administrator,
+  executor, case-management system, court, notification channel, payment
+  system, and CRM. The master plan's six is recorded as an omission, not an
+  alternative census.
+- The four-way `own / integrate / observe / out_of_scope` adjudication remains
+  owned by the ratified identity document. Per-claim duplication was rejected;
+  claims carry the content-bound boundary source and any assumption remains
+  `not_established`. The absent typed `ScopeAdjudicationRecord` stays an owned
+  non-closure. The universal custody promise likewise remains planned: runtime
+  definitions do not establish a scheduled watcher, production lifecycle
+  caller, or DS12 public-signature population.
+- MACHINE's one exact limitation says it reconstructs the committed derivation
+  projection and does not independently establish live repository freshness.
+  Its purpose is `committed_derivation_projection_reconstruction`, freshness is
+  `not_established`, owner is `team-architecture`, and closure is
+  `.venv/bin/python tools/quality/validation/check_trust_claim_posture.py
+  --repo-root . --check`. The browser captures `arrayBuffer()` bytes before
+  strict recursive validation and never reconstructs MACHINE by serialization.
+
+### Final targeted and serialized receipts
+
+| receipt | exit/result | completed `user + sys` | uptime / ceiling |
+| --- | --- | ---: | --- |
+| two-file posture Python wave | 0; both files 100% green; one known Pydantic serializer warning | `296.76 + 31.73 = 328.49s` | `21:45 -> 21:51`; completed receipt |
+| 11-file posture/route/twin/Trust View Vitest | 0; **11/11 files, 92/92 tests** | `57.31 + 5.89 = 63.20s` | `21:51` before/after; below 191.16s |
+| dashboard app TypeScript | 0 | `22.58 + 0.97 = 23.55s` | `21:57` before/after |
+| posture `--check` | 0; zero write set | `30.52 + 1.18 = 31.70s` | `21:57 -> 21:58` |
+| posture `--check-a11y-receipt` | 0; zero write set | `31.74 + 1.10 = 32.84s` | `21:58 -> 21:59` |
+| 15 semantic corruption probes | 0; **15/15 rejected**, zero scratch escape | `52.06 + 4.55 = 56.61s` | `21:59 -> 22:00` |
+| debt writer then checker | 0 / 0; 102 IDs, only ten inherited GY informational rows | `0.65 + 0.50 = 1.15s`; `0.41 + 0.33 = 0.74s` | `22:00`; both below 30s |
+| debt checker tests | 0; **35/35** | `6.06 + 5.25 = 11.31s` | `22:06` before/after |
+| frontend disposition checker | 1; exactly `c13_print_receipt_invalid:...RunDetailLayout.tsx`, no DS11 error | `108.63 + 12.01 = 120.64s` | `22:00 -> 22:01`; below 445.34s |
+| source-frozen release guardrail | 0; all generated families fresh, zero creep | `73.96 + 16.94 = 90.90s` | `22:02 -> 22:03`; below 180s; no sync |
+| visual writer | 0; 1/1 | `7.58 + 1.02 = 8.60s` | ended `21:54`; declared 60s floor |
+| visual no-writer A | 0; 1/1 | `7.43 + 1.17 = 8.60s` | `21:55 -> 21:56`; below 60s |
+| visual no-writer B | 0; 1/1 | `7.82 + 1.04 = 8.86s` | `21:56 -> 21:57`; below 60s |
+
+The visual writer preceded the first measured no-writer despite the plan prose;
+the predeclared 60s floor was still the operative numeric ceiling and all three
+receipts were below 9s CPU. This ordering mismatch is recorded and does not
+support a semantic claim. DS11 uses only
+`ds11-runtime-dashboard.visual.spec.ts` and its own snapshot root; no DS6 visual
+evidence or Playwright config was edited.
+
+The first frozen page-a11y replay completed **22/25** with only the three base
+members color-blind distinguishability, run-report axe `dlitem`, and missing
+`Export JSON` (`136.72 + 17.07 = 153.79s`, uptime `21:52 -> 21:53`). A later
+unchanged replay exposed a novel `/trust` **60,000ms timeout**, producing 21/25;
+this explicitly invalidated that freeze. The error context established a
+completion timeout, not an axe violation. An isolated run with a temporary 180s
+allowance passed the same axe assertion (`62.49 + 3.97 = 66.46s`), proving the
+hypothesis. CC23 therefore required
+`apps/runtime-dashboard/e2e/a11y/routes.a11y.spec.ts`, a P39 test companion: only
+the trust surface receives a 120s completion allowance; the assertion and
+655.28s suite CPU ceiling are unchanged. A path outside C06's mechanism list was
+required by CC23 because the rejected global-config seam would widen every
+browser test.
+
+Two exact no-writer executions of the repaired current tree then agree:
+
+- replay A: **25 collected / 22 pass / 3 inherited failures**, `/trust` green in
+  50.3s; `user 200.88 + sys 24.07 = 224.95s`; uptime `22:17 -> 22:20`;
+- replay B: **25 / 22 / 3**, same identities, `/trust` green in 43.3s; `user
+  214.48 + sys 25.62 = 240.10s`; uptime `22:20 -> 22:23`.
+
+Both are below 655.28s. Replay B logged a fixture-server temporary-file warning
+but completed the same test and failure sets. Source-map line coordinates for
+two imported wrapper tests disagreed with the filesystem in that replay; the
+complete title identities and outcomes agree, so no coordinate is substituted
+or used as a semantic gate. The historical content-bound base remains 20/24
+with four failures; current conformance is not reissued.
+
+### Repository predicates and tooling receipts
+
+- The plain-import predicate is separate: exit **1**, gate-owned JSON
+  `lapsed_cover_count=84`, `unadjudicated_count=4`, `violation_count=88`;
+  `user 0.93 + sys 0.28 = 1.21s`, uptime `22:04` before/after. This equals the
+  exact-base 88 and is not a release-guardrail result.
+- The package-import predicate is separate: exit **1**, top-level gate JSON
+  `finding_count=143`; `user 81.80 + sys 4.81 = 86.61s`, uptime `22:04 ->
+  22:05`. Known member remains `polisyos.runtime -> polisyos.runtime.quality`.
+  Base and current are both 143. The earlier 142 reading is invalidated as the
+  shared-venv source-root trap.
+- The resolution proof loaded `polisyos`, the plain linter, and the package-gate
+  module from this dedicated worktree; `.venv/bin/polisyos-tools` and its
+  shebang also resolve here. A chained `command -v polisyos-tools` subcheck was
+  a non-receipt because the shell PATH omits `.venv/bin`; the explicit `uv run`
+  predicate is unaffected.
+- Final C06 Ruff check and format-check are tooling non-receipts: this isolated
+  `.venv` has no `ruff` module. Earlier `uv sync --offline --extra lint` and
+  `uv pip install --offline ruff` attempts also could not provision the uncached
+  wheel; neither wrote product code. The completed C05 five-path Ruff receipt
+  remains valid for its then-frozen inputs, while final syntax/type/behavior is
+  covered by Python, Playwright, Vitest, and TypeScript receipts above.
+
+### Non-closure reconciliation
+
+The sole debt writer and checker agree on exactly ten DS11 rows: nine `open`,
+one `blocked`. Each has an owner and executable closure signal:
+
+| ID | status / capability state | owner | executable closure signal |
+| --- | --- | --- | --- |
+| `DS11-PUBLISHED-SIGNATURE-WATCHER` | open / `producer_missing` | `team-runtime` | `uv run pytest tests/integration/runtime_quality/test_published_signature_custody.py::test_every_public_signature_is_watched_for_staleness -q` |
+| `DS11-CLAIM-LIFECYCLE-ORCHESTRATION` | open / `implemented_but_not_orchestrated + bridge_missing` | `team-scientist` | `uv run pytest tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py::test_monitor_event_persists_claim_supersession_without_in_place_edit -q` |
+| `DS11-PUBLIC-SIGNATURE-POPULATION` | open / `surface_missing` | `team-design` successor lane | `uv run pytest tests/unit/runtime/http/test_public_export.py::test_first_governed_public_signature_is_custody_bound -q` after DS12's independent promotion gate |
+| `DS11-SCOPE-ADJUDICATION-RECORD` | open / `absent/unallocated` | `team-architecture` | `uv run pytest tests/unit/core/contracts/test_scope_adjudication.py::test_four_way_ruling_is_produced_consumed_and_plane_specific -q` |
+| `DS11-EXTERNAL-A11Y-COUNTERSIGN` | open / `artifact_missing + verification_missing` | `team-design` | `uv run pytest tests/repo_quality/docs/test_accessibility_evidence.py::test_external_countersign_is_content_bound_current_and_scope_exact -q` |
+| `DS11-CURRENT-PAGE-A11Y` | open / `verification_missing` | `team-design` | two exact `corepack pnpm --filter @polisyos/runtime-dashboard run test:a11y:pages` no-writer exits zero with identical identities, followed by content-bound reissue |
+| `DS11-GENERAL-COPY-SEMANTICS` | open / bounded residual | `team-design` | `uv run pytest tests/repo_quality/frontend/test_public_claim_copy_inventory.py::test_every_public_capability_assertion_resolves_to_claim_posture -q` |
+| `DS11-GROUNDED-PERFORMANCE` | **blocked** / intentionally out of DS11 | runtime/GY evidence owner; separate promotion consumer | `uv run pytest tests/integration/runtime_quality/test_first_governed_promotion.py::test_promoted_design_supplies_content_bound_public_performance_evidence -q`; DS12 still decides publication |
+| `DS11-INHERITED-C13-PRINT-RECEIPT` | open / base-proven `verification_missing` | DS6 independent print-evidence lane | `uv run pytest architecture/atlas_surfaces/test_frontend_disposition_register.py::DS6C13PrintTransitionTests::test_independent_receipt_binds_the_full_conjunction_and_current_bytes -q`, then global frontend `--check` |
+| `DS11-FULL-TRUST-CENTER-AND-DOCS-IA` | open / `surface_out_of_scope` | `team-design` successor allocation | `uv run pytest tests/repo_quality/frontend/test_public_surface_claim_ownership.py::test_every_retained_trust_docs_route_has_an_approved_owner_and_evidence_contract -q` |
+
+### Final accounting and commit boundary
+
+- Plan-list arithmetic is **30 mechanisms**: `3 + 2 + 13 + 11 + 1 + 0`.
+  Independent Git taxonomy against `f935e0c2e` is **65 unique changed paths =
+  30 mechanisms + 35 P39 companions** after the CC23 timeout companion. The
+  hard ceiling remains **30/34**, leaving four paths; the companion does not
+  consume a mechanism slot.
+- All nine widening rounds stand and none was withdrawn: (1) complete scratch
+  growth/reconciliation; (2) bounded alias semantics; (3) accessibility source
+  binding; (4) generated committed lifecycle; (5) strict byte-first admission;
+  (6) public route/human projections/locales; (7) exact MACHINE/DOM parity and
+  denominator; (8) generic producer-local planned/candidate grammar; and (9)
+  content-bound DEBT-register custody appointment sources. All later repairs,
+  including the a11y timeout companion, are narrowing or test-harness closure.
+- C06 declares zero mechanisms and observes zero. Exact declared-path equality
+  therefore holds; the only newly observed path is the named CC23 P39 companion
+  above. `git diff --check` is green. The commit boundary is
+  `docs(atlas): close DS11 trust posture`; attachment, cleanliness, staged path
+  set, and committed-branch readback are checked immediately around that
+  commit and supplied in the handback.

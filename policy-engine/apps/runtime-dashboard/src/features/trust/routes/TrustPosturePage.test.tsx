@@ -9,6 +9,34 @@ import { renderWithProviders } from "@/test/render";
 const artifactBytes = readFileSync(
   resolve(process.cwd(), "public/atlas/trust-claim-posture.v1.json"),
 );
+const identityDocument = readFileSync(
+  resolve(
+    process.cwd(),
+    "../../docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+  ),
+  "utf8",
+);
+
+function deriveRatifiedIdentity() {
+  const statementSection = identityDocument.match(
+    /## 1\. The decision in one sentence\s+(.+?)\s+## 2\./su,
+  )?.[1];
+  const statement = statementSection?.match(/\*\*(.+?)\*\*/su)?.[1];
+  const paragraph = identityDocument.match(
+    /\*\*Anti-roles \(binding\):\*\*\s*(.+?)(?:\n\n|$)/su,
+  )?.[1];
+  if (!statement || !paragraph) {
+    throw new TypeError("ratified identity source is malformed");
+  }
+  const normalizedParagraph = paragraph.split(/\s+/u).join(" ");
+  const roleSentence = `${normalizedParagraph.split(".", 1)[0]}.`;
+  const antiRoles = [...roleSentence.matchAll(/\bnot (?:an? )?(.+?)(?=, not |,? or not |\.)/gu)].map(
+    (match) => match[1]!.trim().replace(/\.$/u, ""),
+  );
+  return { antiRoles, statement };
+}
+
+const ratifiedIdentity = deriveRatifiedIdentity();
 
 describe("TrustPosturePage", () => {
   afterEach(() => vi.restoreAllMocks());
@@ -48,6 +76,15 @@ describe("TrustPosturePage", () => {
     expect(
       view.container.querySelector("[data-trust-evidence-values]"),
     ).toBeVisible();
+    expect(screen.getByTestId("trust-identity-statement").textContent).toBe(
+      ratifiedIdentity.statement,
+    );
+    expect(
+      [...view.container.querySelectorAll("[data-trust-anti-role]")].map(
+        (node) => node.textContent,
+      ),
+    ).toEqual(ratifiedIdentity.antiRoles);
+    expect(ratifiedIdentity.antiRoles).toHaveLength(7);
   });
 
   it("fails visibly unavailable instead of retaining a previous posture", async () => {

@@ -17,6 +17,21 @@ from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
 REPO_ROOT = Path(__file__).resolve().parents[3]
 FROZEN_AS_OF = date(2026, 8, 26)
 IDENTITY_PATH = "docs/system-design-decisions/policyos-identity-and-custody-boundary.md"
+DEBT_REGISTER_PATH = "docs/plans/active/DEBT-REGISTER.md"
+CUSTODY_SOURCE_REFS = {
+    "DS11-CLAIM-LIFECYCLE-ORCHESTRATION": (
+        f"{DEBT_REGISTER_PATH}#DS11-CLAIM-LIFECYCLE-ORCHESTRATION@sha256:"
+        "342a3c4d5d6e4a582beab11582b595a978675fe427419b3eff32ac07e95767d5"
+    ),
+    "DS11-PUBLIC-SIGNATURE-POPULATION": (
+        f"{DEBT_REGISTER_PATH}#DS11-PUBLIC-SIGNATURE-POPULATION@sha256:"
+        "0101f340511a186659b4fbedfb8c0a817b948537c217c7d4654936d78c90dafc"
+    ),
+    "DS11-PUBLISHED-SIGNATURE-WATCHER": (
+        f"{DEBT_REGISTER_PATH}#DS11-PUBLISHED-SIGNATURE-WATCHER@sha256:"
+        "a2cb1f04f4799fe874e859ff956e8853809c6ad684668e2897f27599beeb3a86"
+    ),
+}
 A11Y_PATH = "docs/compliance/A11Y_AUDIT_2026Q2.md"
 PAGE_RECEIPT_PATH = "docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base"
 GENERATED_MANIFEST_PATH = "architecture/generated_artifacts.toml"
@@ -42,6 +57,38 @@ def _checker() -> Any:
     return _owner("tools.quality.validation.check_trust_claim_posture")
 
 
+def _rebind_payload_digest(payload: dict[str, object]) -> dict[str, object]:
+    digest_payload = {key: value for key, value in payload.items() if key != "payload_digest"}
+    payload["payload_digest"] = (
+        "sha256:"
+        + sha256(
+            json.dumps(
+                digest_payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+    )
+    return payload
+
+
+def _rebind_root_digests(payload: dict[str, object]) -> dict[str, object]:
+    members = payload["admitted_sources"]
+    assert isinstance(members, list)
+    payload["source_set_digest"] = (
+        "sha256:"
+        + sha256(
+            json.dumps(
+                [(item["path"], item["content_digest"]) for item in members],
+                ensure_ascii=False,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+    )
+    return _rebind_payload_digest(payload)
+
+
 def _copy_compiler_inputs(destination: Path, *, full_source: bool = False) -> None:
     source_root = REPO_ROOT / "src"
     target_source = destination / "src"
@@ -60,6 +107,9 @@ def _copy_compiler_inputs(destination: Path, *, full_source: bool = False) -> No
     identity = destination / IDENTITY_PATH
     identity.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(REPO_ROOT / IDENTITY_PATH, identity)
+    debt_register = destination / DEBT_REGISTER_PATH
+    debt_register.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(REPO_ROOT / DEBT_REGISTER_PATH, debt_register)
 
 
 def _valid_runtime_registry(binding_ref: str) -> dict[str, object]:
@@ -281,8 +331,10 @@ def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
 
 def test_literal_censuses_reconcile_for_both_complete_walks() -> None:
     """Catch a compiler mutation that drops wrappers, empty sites, or denied purposes."""
-    ast_receipt = _sources().derive_ast_sources(REPO_ROOT).receipt
-    token_receipt = _checker().derive_token_sources(REPO_ROOT).receipt
+    ast_result = _sources().derive_ast_sources(REPO_ROOT)
+    token_result = _checker().derive_token_sources(REPO_ROOT)
+    ast_receipt = ast_result.receipt
+    token_receipt = token_result.receipt
 
     for receipt in (ast_receipt, token_receipt):
         assert (
@@ -303,6 +355,20 @@ def test_literal_censuses_reconcile_for_both_complete_walks() -> None:
             receipt.may_not_use_for_literal_subject_count,
         ) == (117, 34, 22, 44)
         assert receipt.may_not_use_for_raw_file_count - 1 == 116
+    reconciled = _checker().reconcile_source_derivations(ast_result, token_result)
+    inventory_denied = tuple(
+        site
+        for row in reconciled.rows
+        for site in row.forbidden_sites
+        if site.declaration_form == "assignment"
+        and site.wrapper_kind != "dynamic"
+        and site.resolution == "resolved"
+    )
+    assert (len(inventory_denied), len(reconciled.may_not_use_for_denied_only_sites)) == (30, 4)
+    assert (
+        *inventory_denied,
+        *reconciled.may_not_use_for_denied_only_sites,
+    ) == ast_receipt.may_not_use_for_sites == token_receipt.may_not_use_for_sites
 
 
 def test_all_declaration_forms_survive_and_ambiguity_never_invents_subject(
@@ -678,6 +744,55 @@ def test_identity_parser_derives_seven_anti_roles_including_crm() -> None:
         "CRM",
     )
     assert boundary.paragraph_start_line <= 88 <= boundary.paragraph_end_line
+    assert boundary.identity_statement == (
+        "PolicyOS is the epistemic custodian of policy justification across the whole life of a\n"
+        "policy: it owns everything it signs, for exactly as long as the signature publicly "
+        "stands;\n"
+        "it consumes everything others sign as typed evidence; and it makes no claims it cannot\n"
+        "custody."
+    )
+
+
+def test_strict_artifact_rejects_rebound_identity_anti_role_removal(tmp_path: Path) -> None:
+    """Bind emitted anti-roles to the ratified basis, not self-consistent receipts."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    checker = _checker()
+    posture = _owner("polisyos.scientist.evidence.claims.posture")
+    register, _ = checker.compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
+    authored = register.model_dump(mode="json")
+    anti_roles = authored["identity_boundary"]["anti_roles"]
+    authored["identity_boundary"]["anti_roles"] = [
+        item for item in anti_roles if item["display_label"] != "CRM"
+    ]
+    labels = tuple(item["display_label"] for item in authored["identity_boundary"]["anti_roles"])
+    rebound_receipt = (
+        "sha256:" + sha256(json.dumps(labels, separators=(",", ":")).encode("utf-8")).hexdigest()
+    )
+    authored["identity_boundary"]["derivation_receipt_digests"] = [
+        rebound_receipt,
+        rebound_receipt,
+    ]
+    rebound_identity = posture.IdentityBoundaryBinding.model_validate(authored["identity_boundary"])
+    rebound_verifiers = posture.derive_admitted_verifiers(
+        identity_boundary=rebound_identity,
+        accessibility_document=register.accessibility_document,
+        page_a11y_receipt=register.page_a11y_receipt,
+    )
+    authored["admitted_verifiers"] = [item.model_dump(mode="json") for item in rebound_verifiers]
+    identity_verifier = next(
+        item
+        for item in authored["admitted_verifiers"]
+        if item["verifier_kind"] == "identity_boundary_derivation"
+    )
+    for claim in authored["claims"]:
+        for binding in claim["source_bindings"]:
+            for evidence in binding["evidence_bindings"]:
+                if evidence["verifier_ref"] == identity_verifier["ref"]:
+                    evidence["verifier_provenance_ref"] = identity_verifier["provenance_ref"]
+
+    with pytest.raises(ValueError, match=r"ratified identity|anti-role"):
+        posture.validate_posture_register(_rebind_payload_digest(authored))
 
 
 def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
@@ -702,11 +817,17 @@ def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
     assert rows["system_identity"].effective_state == "supported"
     assert rows["universal_custody_commitment"].effective_state == "planned"
     assert {
-        (binding.owner.owner, binding.prerequisite_refs, binding.closure_signal)
+        (
+            binding.owner.owner,
+            binding.owner.source_ref,
+            binding.prerequisite_refs,
+            binding.closure_signal,
+        )
         for binding in rows["universal_custody_commitment"].source_bindings
     } == {
         (
             "team-runtime",
+            CUSTODY_SOURCE_REFS["DS11-PUBLISHED-SIGNATURE-WATCHER"],
             ("DS11-PUBLISHED-SIGNATURE-WATCHER",),
             "uv run pytest tests/integration/runtime_quality/"
             "test_published_signature_custody.py::"
@@ -714,6 +835,7 @@ def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
         ),
         (
             "team-scientist",
+            CUSTODY_SOURCE_REFS["DS11-CLAIM-LIFECYCLE-ORCHESTRATION"],
             ("DS11-CLAIM-LIFECYCLE-ORCHESTRATION",),
             "uv run pytest tests/integration/scientist/governance/"
             "test_claim_lifecycle_orchestration.py::"
@@ -721,6 +843,7 @@ def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
         ),
         (
             "team-design",
+            CUSTODY_SOURCE_REFS["DS11-PUBLIC-SIGNATURE-POPULATION"],
             ("DS11-PUBLIC-SIGNATURE-POPULATION",),
             "uv run pytest tests/unit/runtime/http/test_public_export.py::"
             "test_first_governed_public_signature_is_custody_bound -q",
@@ -744,6 +867,7 @@ def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
     identity = rows["system_identity"].source_bindings[0]
     evidence = identity.evidence_bindings[0]
     admitted = {member.path: member.content_digest for member in register.admitted_sources}
+    assert DEBT_REGISTER_PATH not in admitted
     verifiers = {verifier.ref: verifier for verifier in register.admitted_verifiers}
     verifier = verifiers[evidence.verifier_ref]
     assert admitted[evidence.ref] == evidence.content_digest == identity.content_digest
@@ -759,6 +883,128 @@ def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
         ]
     with pytest.raises(ValueError, match="projection_groups"):
         _owner("polisyos.scientist.evidence.claims.posture").validate_posture_register(orphaned)
+
+    incomplete_custody = register.model_dump(mode="json")
+    custody = next(
+        item
+        for item in incomplete_custody["claims"]
+        if item["subject"] == "universal_custody_commitment"
+    )
+    scientist_arm = next(
+        item for item in custody["source_bindings"] if item["owner"]["owner"] == "team-scientist"
+    )
+    scientist_arm["closure_signal"] = None
+    with pytest.raises(ValueError, match=r"planned|closure"):
+        _owner("polisyos.scientist.evidence.claims.posture").validate_posture_register(
+            _rebind_payload_digest(incomplete_custody)
+        )
+
+    fabricated_custody = register.model_dump(mode="json")
+    custody = next(
+        item
+        for item in fabricated_custody["claims"]
+        if item["subject"] == "universal_custody_commitment"
+    )
+    fabricated_arm = next(
+        item for item in custody["source_bindings"] if item["owner"]["owner"] == "team-runtime"
+    )
+    fabricated_arm["owner"]["owner"] = "team-fabricated"
+    fabricated_arm["closure_signal"] = "python -c fabricated_owner_and_closure"
+    with pytest.raises(ValueError, match=r"appointment|custody"):
+        _owner("polisyos.scientist.evidence.claims.posture").validate_posture_register(
+            _rebind_payload_digest(fabricated_custody)
+        )
+
+    rebound_row_ref = register.model_dump(mode="json")
+    custody = next(
+        item
+        for item in rebound_row_ref["claims"]
+        if item["subject"] == "universal_custody_commitment"
+    )
+    custody["source_bindings"][0]["owner"]["source_ref"] = (
+        f"{DEBT_REGISTER_PATH}#DS11-CLAIM-LIFECYCLE-ORCHESTRATION@sha256:" + "0" * 64
+    )
+    with pytest.raises(ValueError, match=r"appointment|custody"):
+        _owner("polisyos.scientist.evidence.claims.posture").validate_posture_register(
+            _rebind_payload_digest(rebound_row_ref)
+        )
+
+    invented = register.model_dump(mode="json")
+    custody = next(
+        item for item in invented["claims"] if item["subject"] == "universal_custody_commitment"
+    )
+    fabricated = json.loads(json.dumps(custody))
+    fabricated_subject = "fabricated_posture_claim"
+    fabricated_claim_id = "claim-posture:" + sha256(fabricated_subject.encode("utf-8")).hexdigest()
+    fabricated["claim_id"] = fabricated_claim_id
+    fabricated["subject"] = fabricated_subject
+    fabricated["family"] = "methodology"
+    fabricated["authoritative_for"] = [fabricated_subject]
+    for binding in fabricated["source_bindings"]:
+        binding["subject"] = fabricated_subject
+        binding["family"] = "methodology"
+        binding["authoritative_for"] = [fabricated_subject]
+        binding["authority_purpose"] = fabricated_subject
+    invented["claims"].append(fabricated)
+    invented["claims"].sort(key=lambda item: item["claim_id"])
+    for group in invented["projection_groups"]:
+        if group["group_id"] in {"methodology", "limitations"}:
+            group["claim_ids"].append(fabricated_claim_id)
+            group["claim_ids"].sort()
+    with pytest.raises(ValueError, match=r"source binding|producer|inventory"):
+        _owner("polisyos.scientist.evidence.claims.posture").validate_posture_register(
+            _rebind_payload_digest(invented)
+        )
+
+    fabricated_fixed = register.model_dump(mode="json")
+    identity_row = next(
+        item for item in fabricated_fixed["claims"] if item["subject"] == "system_identity"
+    )
+    identity_row["family"] = "fabricated_fixed_semantics"
+    identity_row["source_bindings"][0]["family"] = "fabricated_fixed_semantics"
+    with pytest.raises(ValueError, match=r"fixed semantic|typed artifact basis"):
+        _owner("polisyos.scientist.evidence.claims.posture").validate_posture_register(
+            _rebind_payload_digest(fabricated_fixed)
+        )
+
+    debt_path = repo / DEBT_REGISTER_PATH
+    debt_text = debt_path.read_text(encoding="utf-8")
+    fabricated_source = debt_text.replace(
+        "`team-runtime`; producer lane `runtime/quality`",
+        "`team-fabricated`; producer lane `runtime/quality`",
+        1,
+    )
+    assert fabricated_source != debt_text
+    debt_path.write_text(fabricated_source, encoding="utf-8")
+    with pytest.raises(ValueError, match=r"appointment source|accepted receipt"):
+        _checker().compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
+
+
+def test_custody_row_bytes_are_recomputed_while_markers_stay_fixed(tmp_path: Path) -> None:
+    """Reject a byte mutation beneath unchanged custody owner/source markers."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    posture = _owner("polisyos.scientist.evidence.claims.posture")
+    register, _ = _checker().compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
+    authored = register.model_dump(mode="json")
+    custody = next(
+        item
+        for item in authored["claims"]
+        if item["subject"] == "universal_custody_commitment"
+    )
+    marker_snapshot = tuple(
+        (binding["owner"]["owner"], binding["owner"]["source_ref"], binding["closure_signal"])
+        for binding in custody["source_bindings"]
+    )
+    source = authored["custody_appointment_sources"][0]
+    source["source_content"] += " "
+    assert marker_snapshot == tuple(
+        (binding["owner"]["owner"], binding["owner"]["source_ref"], binding["closure_signal"])
+        for binding in custody["source_bindings"]
+    )
+
+    with pytest.raises(ValueError, match=r"custody|appointment|source bytes"):
+        posture.validate_posture_register(_rebind_payload_digest(authored))
 
 
 def test_marker_preserving_byte_mutation_and_unknown_verifier_fail_closed(
@@ -821,12 +1067,15 @@ def test_marker_preserving_byte_mutation_and_unknown_verifier_fail_closed(
     authored_row["source_bindings"][0]["evidence_bindings"][0]["verifier_ref"] = (
         "verifier:unknown-but-nonempty"
     )
-    with pytest.raises(ValueError, match="authored effective posture"):
+    with pytest.raises(
+        ValueError,
+        match=r"fixed semantic|typed artifact basis|authored effective posture",
+    ):
         posture.validate_posture_register(authored)
 
     identity_path = repo / IDENTITY_PATH
     identity_path.write_bytes(identity_path.read_bytes() + b"\n")
-    with pytest.raises(ValueError, match="DS11-GENERATED-DRIFT"):
+    with pytest.raises(ValueError, match=r"DS11-GENERATED-DRIFT|ratified identity basis"):
         checker.validate_register_against_live_sources(
             payload,
             repo_root=repo,
@@ -835,9 +1084,165 @@ def test_marker_preserving_byte_mutation_and_unknown_verifier_fail_closed(
     identity_path.write_bytes(
         identity_path.read_bytes().replace(b"epistemic custodian", b"chat assistant")
     )
-    mutated, _ = checker.compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
-    mutated_identity = next(item for item in mutated.claims if item.subject == "system_identity")
-    assert mutated_identity.effective_state == "blocked"
+    with pytest.raises(ValueError, match="ratified identity basis"):
+        checker.compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
+
+
+@pytest.mark.parametrize(
+    "case",
+    (
+        "page_receipt",
+        "accessibility_selector",
+        "denied_receipt_counts",
+        "coordinated_source_omission",
+    ),
+)
+def test_admission_replays_evidence_content_and_complete_source_receipts(case: str) -> None:
+    """Reject internally re-authored evidence and a stale complete-set receipt."""
+    artifact = (
+        REPO_ROOT / "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+    )
+    payload = json.loads(artifact.read_text(encoding="utf-8"))
+    if case == "page_receipt":
+        receipt = payload["page_a11y_receipt"]
+        receipt["passed"] = 24
+        receipt["failed"] = 0
+        receipt["failures"] = []
+    elif case == "accessibility_selector":
+        accessibility = payload["accessibility_document"]
+        selector = next(
+            item for item in accessibility["bindings"] if item["key"] == "audit_type"
+        )
+        selector["value"] = "external audit"
+    elif case == "denied_receipt_counts":
+        payload["ast_derivation"]["may_not_use_for_raw_file_count"] += 1
+        payload["token_derivation"]["may_not_use_for_raw_file_count"] += 1
+    else:
+        omitted_path = "src/polisyos/core/contracts/rule_evolution.py"
+        omitted_ids = {
+            row["claim_id"]
+            for row in payload["claims"]
+            if any(
+                binding["coordinate"]["path"] == omitted_path
+                for binding in row["source_bindings"]
+            )
+        }
+        assert omitted_ids
+        payload["source_inventory"] = [
+            row for row in payload["source_inventory"] if row["path"] != omitted_path
+        ]
+        payload["admitted_sources"] = [
+            member
+            for member in payload["admitted_sources"]
+            if member["path"] != omitted_path
+        ]
+        payload["claims"] = [
+            row for row in payload["claims"] if row["claim_id"] not in omitted_ids
+        ]
+        for group in payload["projection_groups"]:
+            group["claim_ids"] = [
+                claim_id for claim_id in group["claim_ids"] if claim_id not in omitted_ids
+            ]
+
+    posture = _owner("polisyos.scientist.evidence.claims.posture")
+    with pytest.raises(ValueError, match=r"evidence|receipt|derivation|source inventory"):
+        posture.validate_posture_register(_rebind_root_digests(payload))
+
+
+@pytest.mark.parametrize(
+    "case",
+    ("symbol", "column", "use_kind", "field_name", "values", "order", "denied_only"),
+)
+def test_denied_site_receipts_bind_full_coordinates_and_values(case: str) -> None:
+    """Reject coordinated denied-site forgery that preserves aggregate counts."""
+    artifact = REPO_ROOT / "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+    payload = json.loads(artifact.read_text(encoding="utf-8"))
+    for receipt_name in ("ast_derivation", "token_derivation"):
+        sites = payload[receipt_name]["may_not_use_for_sites"]
+        if case == "symbol":
+            sites[0]["coordinate"]["symbol"] = "fabricated_symbol"
+        elif case == "column":
+            sites[0]["coordinate"]["column"] += 17
+        elif case == "use_kind":
+            sites[0]["coordinate"]["use_kind"] = "consumer"
+        elif case == "field_name":
+            sites[0]["coordinate"]["field_name"] = "authoritative_for"
+        elif case == "values":
+            sites[0]["values"] = ["claim_authority"]
+        elif case == "order":
+            sites[0], sites[1] = sites[1], sites[0]
+        else:
+            denied_only = next(
+                site
+                for site in sites
+                if site["coordinate"]["path"] == "src/polisyos/core/contracts/search.py"
+            )
+            denied_only["coordinate"]["symbol"] = "fabricated_denied_only_symbol"
+
+    posture = _owner("polisyos.scientist.evidence.claims.posture")
+    with pytest.raises(ValueError, match=r"may_not_use_for|derivation|source"):
+        posture.validate_posture_register(_rebind_payload_digest(payload))
+
+
+@pytest.mark.parametrize("case", ("omitted", "duplicated"))
+def test_machine_freshness_limitation_has_exact_cardinality(case: str) -> None:
+    """Reject omission or padding of MACHINE's live-freshness limitation."""
+    artifact = REPO_ROOT / "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+    payload = json.loads(artifact.read_text(encoding="utf-8"))
+    limitation = payload["machine_admission_boundary"]["limitation_refs"][0]
+    payload["machine_admission_boundary"]["limitation_refs"] = (
+        [] if case == "omitted" else [limitation, limitation]
+    )
+    posture = _owner("polisyos.scientist.evidence.claims.posture")
+    with pytest.raises(ValueError, match=r"machine_admission_boundary|limitation_refs|tuple"):
+        posture.validate_posture_register(_rebind_payload_digest(payload))
+
+
+@pytest.mark.parametrize("case", ("literal_value", "new_occurrence"))
+def test_live_check_recomputes_denied_source_bytes_and_free_growth(
+    tmp_path: Path,
+    case: str,
+) -> None:
+    """Keep MACHINE markers inert when the CI-owned filesystem bytes change."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    new_path = repo / "src/polisyos/new_denied_source.py"
+    new_path.write_text('"""Initially outside the denied raw set."""\n', encoding="utf-8")
+    checker = _checker()
+    register, payload = checker.compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
+    target = repo / "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(payload)
+    assert checker.main(
+        ["--repo-root", str(repo), "--register-as-of", FROZEN_AS_OF.isoformat(), "--check"]
+    ) == 0
+
+    if case == "literal_value":
+        source = repo / "src/polisyos/example.py"
+        original = source.read_text(encoding="utf-8")
+        changed = original.replace("publication_authority", "fabricated_authority")
+        assert changed != original
+        source.write_text(changed, encoding="utf-8")
+    else:
+        new_path.write_text(
+            '"""A newly declared denied-purpose producer."""\n\n'
+            "class NewDeniedProducer:\n"
+            '    may_not_use_for = ("new_denied_purpose",)\n',
+            encoding="utf-8",
+        )
+
+    with pytest.raises(ValueError, match="DS11-GENERATED-DRIFT"):
+        checker.main(
+            ["--repo-root", str(repo), "--register-as-of", FROZEN_AS_OF.isoformat(), "--check"]
+        )
+    live, _ = checker.compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
+    assert live.payload_digest != register.payload_digest
+    if case == "new_occurrence":
+        assert any(
+            site.coordinate.path == "src/polisyos/new_denied_source.py"
+            and site.values == ("new_denied_purpose",)
+            for site in live.ast_derivation.may_not_use_for_sites
+        )
 
 
 def test_nonperformance_verifiers_cannot_mint_grounded_performance(
@@ -910,35 +1315,20 @@ def test_nonperformance_verifiers_cannot_mint_grounded_performance(
             "limitation_refs": (),
         }
     )
-    forged = posture.build_posture_register(
-        register_as_of=FROZEN_AS_OF,
-        admitted_sources=register.admitted_sources,
-        ast_derivation=register.ast_derivation,
-        token_derivation=register.token_derivation,
-        identity_boundary=register.identity_boundary,
-        accessibility_document=register.accessibility_document,
-        page_a11y_receipt=register.page_a11y_receipt,
-        source_inventory=register.source_inventory,
-        source_bindings=(forged_binding,),
-    )
-    assert forged.claims[0].effective_state == "blocked"
-
-    authored = forged.model_dump(mode="json")
-    authored["claims"][0]["effective_state"] = "supported"
-    digest_payload = {key: value for key, value in authored.items() if key != "payload_digest"}
-    authored["payload_digest"] = (
-        "sha256:"
-        + sha256(
-            json.dumps(
-                digest_payload,
-                ensure_ascii=False,
-                sort_keys=True,
-                separators=(",", ":"),
-            ).encode("utf-8")
-        ).hexdigest()
-    )
-    with pytest.raises(ValueError, match="authored effective posture"):
-        posture.validate_posture_register(authored)
+    with pytest.raises(ValueError, match="fixed semantic subject set"):
+        posture.build_posture_register(
+            register_as_of=FROZEN_AS_OF,
+            admitted_sources=register.admitted_sources,
+            ast_derivation=register.ast_derivation,
+            token_derivation=register.token_derivation,
+            may_not_use_for_denied_only_sites=register.may_not_use_for_denied_only_sites,
+            identity_boundary=register.identity_boundary,
+            custody_appointment_sources=register.custody_appointment_sources,
+            accessibility_document=register.accessibility_document,
+            page_a11y_receipt=register.page_a11y_receipt,
+            source_inventory=register.source_inventory,
+            source_bindings=(forged_binding,),
+        )
 
 
 def test_live_accessibility_projection_index_binds_the_unchanged_audit_body() -> None:
@@ -1055,6 +1445,30 @@ def test_page_receipt_recomputes_all_five_files_and_rejects_authored_drift(
     normalized_path.write_text(json.dumps(normalized), encoding="utf-8")
     with pytest.raises(ValueError, match=r"receipt|passed|recompute"):
         checker.derive_page_a11y_receipt(repo)
+
+
+@pytest.mark.parametrize(
+    ("field", "mutated"),
+    [
+        ("policy_source_base_commit", "0" * 40),
+        ("command", "corepack pnpm test --reporter=json"),
+    ],
+)
+def test_page_receipt_rejects_authority_metadata_drift(
+    tmp_path: Path,
+    field: str,
+    mutated: str,
+) -> None:
+    """Bind the historical receipt to its exact base and replay command."""
+    repo = tmp_path / "repo"
+    receipt_root = _copy_page_receipt(repo)
+    normalized_path = receipt_root / "receipt.json"
+    normalized = json.loads(normalized_path.read_text())
+    normalized[field] = mutated
+    normalized_path.write_text(json.dumps(normalized), encoding="utf-8")
+
+    with pytest.raises(ValueError, match=r"authority|command|base|metadata"):
+        _checker().derive_page_a11y_receipt(repo)
 
 
 def test_generated_family_probe_and_narrow_reference_writer_are_scratch_bounded(

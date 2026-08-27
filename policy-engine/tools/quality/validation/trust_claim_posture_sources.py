@@ -73,13 +73,13 @@ def derive_ast_sources(repo_root: Path) -> SourceDerivation:
     root = repo_root.resolve()
     members = walk_source_files(root)
     rows: list[SourceInventoryRow] = []
-    denied_raw_files = 0
+    denied_raw_members: list[AdmittedSourceMember] = []
     denied_only_sites: list[LiteralSite] = []
     for member in members:
         path = root / member.path
         raw = path.read_bytes()
         if _DENIED_FIELD.encode() in raw:
-            denied_raw_files += 1
+            denied_raw_members.append(member)
         if _AUTHORITY_FIELD.encode() not in raw:
             if _DENIED_FIELD.encode() in raw:
                 denied_only_sites.extend(_derive_ast_denied_sites(member, raw))
@@ -90,7 +90,7 @@ def derive_ast_sources(repo_root: Path) -> SourceDerivation:
         method="ast",
         scanned_python_count=len(members),
         rows=ordered,
-        denied_raw_files=denied_raw_files,
+        denied_raw_members=denied_raw_members,
         denied_only_sites=denied_only_sites,
     )
     return SourceDerivation(admitted_sources=members, rows=ordered, receipt=receipt)
@@ -733,7 +733,7 @@ def _build_receipt(
     method: Literal["ast", "tokenize"],
     scanned_python_count: int,
     rows: Sequence[SourceInventoryRow],
-    denied_raw_files: int,
+    denied_raw_members: Sequence[AdmittedSourceMember],
     denied_only_sites: Sequence[LiteralSite] = (),
 ) -> SourceDerivationReceipt:
     role_counts = {role: sum(row.role == role for row in rows) for role in SourceInventoryRole}
@@ -810,12 +810,14 @@ def _build_receipt(
         wrapper_literal_subject_count=len(
             {value for site in wrapper_sites for value in site.values}
         ),
-        may_not_use_for_raw_file_count=denied_raw_files,
+        may_not_use_for_raw_file_count=len(denied_raw_members),
         may_not_use_for_literal_site_count=len(denied_sites),
         may_not_use_for_literal_file_count=len({site.coordinate.path for site in denied_sites}),
         may_not_use_for_literal_subject_count=len(
             {value for site in denied_sites for value in site.values}
         ),
+        may_not_use_for_raw_members=tuple(denied_raw_members),
+        may_not_use_for_sites=tuple(denied_sites),
         row_digest=row_digest,
     )
 

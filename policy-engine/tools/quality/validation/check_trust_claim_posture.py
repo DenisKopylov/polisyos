@@ -23,6 +23,10 @@ from typing import Literal
 import yaml
 
 from polisyos.scientist.evidence.claims.posture import (
+    CUSTODY_APPOINTMENT_CONTRACT,
+    CUSTODY_APPOINTMENT_DEBT_IDS,
+    CUSTODY_APPOINTMENT_SOURCE_PATH,
+    RATIFIED_IDENTITY_CONTENT_DIGEST,
     AccessibilityDocumentBinding,
     AccessibilityEvidenceKind,
     AccessibilityPurpose,
@@ -33,6 +37,7 @@ from polisyos.scientist.evidence.claims.posture import (
     ClaimPostureRow,
     ClaimPostureState,
     ClaimSourceBinding,
+    CustodyAppointmentSource,
     DocumentProjectionIndex,
     EstablishmentClass,
     EvidenceBinding,
@@ -72,10 +77,8 @@ _PAGE_RECEIPT_PATH = Path("docs/plans/active/atlas-slices/receipts/ds11-page-a11
 _GENERATED_MANIFEST_PATH = Path("architecture/generated_artifacts.toml")
 _GENERATED_REFERENCE_PATH = Path("docs/reference/generated-artifacts.md")
 _OUTPUT_PATH = Path("apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json")
+_DEBT_REGISTER_PATH = Path(CUSTODY_APPOINTMENT_SOURCE_PATH)
 _DEFAULT_REGISTER_AS_OF = date(2026, 8, 26)
-_RATIFIED_IDENTITY_DIGEST = (
-    "sha256:774f6dfb9aa655a079d6c6a2f00ef6442bad9f0ea9b84f370a4e808c5616a332"
-)
 _CORRUPTION_REASON_CODES: Mapping[str, tuple[str, ...]] = {
     "anti_role_removal": ("DS11-IDENTITY-ANTI-ROLE-DRIFT",),
     "body_fact_removal": ("DS11-A11Y-CERTIFICATION-NOT-EARNED",),
@@ -112,6 +115,18 @@ class ScopeEvaluation:
     limitations: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class CustodyAppointment:
+    """One accepted owner/closure appointment derived from the debt register."""
+
+    debt_id: str
+    owner: str
+    closure_signal: str
+    source_ref: str
+    line: int
+    source_content: str
+
+
 def derive_token_sources(repo_root: Path) -> SourceDerivation:
     """Independently walk and derive source facts with :mod:`tokenize` only."""
     root = repo_root.resolve()
@@ -120,7 +135,7 @@ def derive_token_sources(repo_root: Path) -> SourceDerivation:
         raise ValueError("repo_root/src must be a contained directory")
     members: list[AdmittedSourceMember] = []
     rows: list[SourceInventoryRow] = []
-    denied_raw_files = 0
+    denied_raw_members: list[AdmittedSourceMember] = []
     denied_only_sites: list[LiteralSite] = []
     for candidate in sorted(source_root.rglob("*.py"), key=lambda item: item.as_posix()):
         path = candidate.resolve()
@@ -136,7 +151,7 @@ def derive_token_sources(repo_root: Path) -> SourceDerivation:
         )
         members.append(member)
         if _DENIED_FIELD.encode() in raw:
-            denied_raw_files += 1
+            denied_raw_members.append(member)
         if _AUTHORITY_FIELD.encode() in raw:
             rows.append(_derive_token_row(member, raw))
         elif _DENIED_FIELD.encode() in raw:
@@ -148,7 +163,7 @@ def derive_token_sources(repo_root: Path) -> SourceDerivation:
         receipt=_token_receipt(
             scanned_python_count=len(members),
             rows=ordered_rows,
-            denied_raw_files=denied_raw_files,
+            denied_raw_members=denied_raw_members,
             denied_only_sites=denied_only_sites,
         ),
     )
@@ -215,11 +230,30 @@ def reconcile_source_derivations(
         if ast_members.get(path) != token_members.get(path):
             disagreements.append(path)
     admitted = tuple(ast_members.get(path) or token_members[path] for path in sorted(member_paths))
+    if ast_result.receipt.may_not_use_for_sites != token_result.receipt.may_not_use_for_sites:
+        ast_sites = set(ast_result.receipt.may_not_use_for_sites)
+        token_sites = set(token_result.receipt.may_not_use_for_sites)
+        coordinates = sorted(
+            {
+                f"{site.coordinate.path}:{site.coordinate.line}:{site.coordinate.column}"
+                for site in ast_sites ^ token_sites
+            }
+        )
+        raise ValueError(
+            "may_not_use_for derivations disagree at " + ", ".join(coordinates)
+        )
+    inventory_paths = {row.path for row in rows}
+    denied_only_sites = tuple(
+        site
+        for site in ast_result.receipt.may_not_use_for_sites
+        if site.coordinate.path not in inventory_paths
+    )
     return ReconciledSourceDerivation(
         admitted_sources=admitted,
         rows=tuple(rows),
         ast_receipt=ast_result.receipt,
         token_receipt=token_result.receipt,
+        may_not_use_for_denied_only_sites=denied_only_sites,
         disagreements=tuple(sorted(set(disagreements))),
     )
 
@@ -322,11 +356,68 @@ def derive_identity_boundary(repo_root: Path) -> IdentityBoundaryBinding:
         decision_status=decision_status,
         authoritative_for=tuple(authoritative_for),
         may_not_use_for=tuple(may_not_use_for),
+        identity_statement=identity_statement,
         identity_statement_digest="sha256:"
         + hashlib.sha256(identity_statement.encode("utf-8")).hexdigest(),
         identity_statement_start_line=identity_start,
         identity_statement_end_line=identity_end,
     )
+
+
+def derive_custody_appointments(
+    repo_root: Path,
+) -> tuple[CustodyAppointment, ...]:
+    """Derive the three accepted custody appointments from admitted debt rows."""
+    root = repo_root.resolve()
+    path = (root / _DEBT_REGISTER_PATH).resolve()
+    if not path.is_file() or not path.is_relative_to(root):
+        raise ValueError("custody appointment debt source is missing or outside repo_root")
+    raw = path.read_bytes()
+    required_ids = set(CUSTODY_APPOINTMENT_DEBT_IDS)
+    found: dict[str, CustodyAppointment] = {}
+    for line_number, raw_line in enumerate(raw.splitlines(), 1):
+        line = raw_line.decode("utf-8")
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if len(cells) != 5:
+            continue
+        ids = re.findall(r"`([^`]+)`", cells[0])
+        if len(ids) != 1 or ids[0] not in required_ids:
+            continue
+        debt_id = ids[0]
+        if debt_id in found:
+            raise ValueError(f"custody appointment {debt_id} is duplicated")
+        owners = tuple(
+            token
+            for token in re.findall(r"`([^`]+)`", cells[2])
+            if re.fullmatch(r"team-[a-z0-9-]+", token)
+        )
+        statuses = re.findall(r"`([^`]+)`", cells[3])
+        commands = tuple(
+            token
+            for token in re.findall(r"`([^`]+)`", cells[4])
+            if token.startswith(("uv run pytest ", "pytest ", "python ", ".venv/bin/python "))
+        )
+        if len(owners) != 1 or statuses != ["open"] or len(commands) != 1:
+            raise ValueError(f"custody appointment {debt_id} is not exactly appointed and open")
+        if (owners[0], commands[0]) != CUSTODY_APPOINTMENT_CONTRACT[debt_id]:
+            raise ValueError("custody appointment source differs from the accepted contract")
+        found[debt_id] = CustodyAppointment(
+            debt_id=debt_id,
+            owner=owners[0],
+            closure_signal=commands[0],
+            source_ref=(
+                f"{_DEBT_REGISTER_PATH.as_posix()}#{debt_id}@sha256:"
+                f"{hashlib.sha256(raw_line).hexdigest()}"
+            ),
+            line=line_number,
+            source_content=line,
+        )
+    if set(found) != required_ids:
+        raise ValueError("custody appointment debt source is incomplete")
+    appointments = tuple(sorted(found.values(), key=lambda item: item.debt_id))
+    return appointments
 
 
 def derive_accessibility_document(repo_root: Path) -> AccessibilityDocumentBinding:
@@ -365,6 +456,7 @@ def derive_accessibility_document(repo_root: Path) -> AccessibilityDocumentBindi
             ResolvedDocumentBinding(
                 key=key,
                 value=selector.value,
+                exact_text=selector.exact_text,
                 exact_text_digest="sha256:" + hashlib.sha256(exact).hexdigest(),
                 byte_start=start,
                 byte_end=start + len(exact),
@@ -382,6 +474,7 @@ def derive_accessibility_document(repo_root: Path) -> AccessibilityDocumentBindi
         raise ValueError("accessibility limitation is absent or duplicated")
     return AccessibilityDocumentBinding(
         path=_A11Y_PATH.as_posix(),
+        source_content=text,
         content_digest="sha256:" + hashlib.sha256(raw).hexdigest(),
         frontmatter_digest="sha256:" + hashlib.sha256(frontmatter.encode()).hexdigest(),
         body_digest="sha256:" + body_sha,
@@ -418,6 +511,22 @@ def derive_page_a11y_receipt(repo_root: Path) -> PageA11yReceiptBinding:
         for name in expected
     )
     normalized = json.loads(raw_by_name["receipt.json"])
+    expected_authority_metadata = {
+        "schema_version": "policyos.ds11.page_a11y_base_receipt.v1",
+        "authority_purpose": "historical_currentness_limitation",
+        "status": "blocked",
+        "execution_entry_commit": "8e5832bbdb0f206b6221112f4a1502b45981bd40",
+        "policy_source_base_commit": "f935e0c2e9359bc1202ce5d36ea706de58f7aaab",
+        "command": "PLAYWRIGHT_JSON_OUTPUT_FILE=<receipt-relative-output> corepack pnpm "
+        "--filter @polisyos/runtime-dashboard exec playwright test e2e/a11y "
+        "--project=chromium --reporter=json",
+    }
+    if {
+        key: normalized.get(key) for key in expected_authority_metadata
+    } != expected_authority_metadata:
+        raise ValueError(
+            "page-a11y authority/base/command metadata differs from the admitted basis"
+        )
     results = json.loads(raw_by_name["run-1/results.json"])
     last_run = json.loads(raw_by_name["run-1/.last-run.json"])
     for name in ("environment-before.json", "environment-after.json"):
@@ -469,7 +578,12 @@ def derive_page_a11y_receipt(repo_root: Path) -> PageA11yReceiptBinding:
     if replay.get("admissibility") != "not_established" or replay.get("committed_raw_runs") != 1:
         raise ValueError("page-a11y replay receipt overstates establishment")
     return PageA11yReceiptBinding(
+        **expected_authority_metadata,
         path=_PAGE_RECEIPT_PATH.as_posix(),
+        source_contents={
+            (_PAGE_RECEIPT_PATH / Path(name)).as_posix(): raw.decode("utf-8")
+            for name, raw in raw_by_name.items()
+        },
         content_digest="sha256:" + hashlib.sha256(raw_by_name["receipt.json"]).hexdigest(),
         admitted_sources=admitted,
         source_as_of=date.fromisoformat(str(stats["startTime"])[:10]),
@@ -740,6 +854,7 @@ def _semantic_binding(
 def _compile_semantic_bindings(
     *,
     identity: IdentityBoundaryBinding,
+    custody_appointments: Sequence[CustodyAppointment],
     accessibility_document: AccessibilityDocumentBinding | None,
     page_receipt: PageA11yReceiptBinding | None,
 ) -> tuple[ClaimSourceBinding, ...]:
@@ -765,7 +880,7 @@ def _compile_semantic_bindings(
         source_ref=identity.path,
         establishment_class=EstablishmentClass.RECOMPUTED,
     )
-    identity_is_exact_ratified_source = identity.content_digest == _RATIFIED_IDENTITY_DIGEST
+    identity_is_exact_ratified_source = identity.content_digest == RATIFIED_IDENTITY_CONTENT_DIGEST
     review_due = identity.last_reviewed + timedelta(days=365)
     complete_facts = {
         "content_bound_source",
@@ -816,35 +931,13 @@ def _compile_semantic_bindings(
         )
     ]
 
-    custody_prerequisites = (
-        (
-            "team-runtime",
-            "DS11-PUBLISHED-SIGNATURE-WATCHER",
-            "uv run pytest tests/integration/runtime_quality/"
-            "test_published_signature_custody.py::"
-            "test_every_public_signature_is_watched_for_staleness -q",
-        ),
-        (
-            "team-scientist",
-            "DS11-CLAIM-LIFECYCLE-ORCHESTRATION",
-            "uv run pytest tests/integration/scientist/governance/"
-            "test_claim_lifecycle_orchestration.py::"
-            "test_monitor_event_persists_claim_supersession_without_in_place_edit -q",
-        ),
-        (
-            "team-design",
-            "DS11-PUBLIC-SIGNATURE-POPULATION",
-            "uv run pytest tests/unit/runtime/http/test_public_export.py::"
-            "test_first_governed_public_signature_is_custody_bound -q",
-        ),
-    )
     custody_facts = {
         "content_bound_source",
         "purpose_permission",
         "accountable_owner",
         "identity_boundary",
     }
-    for owner_name, prerequisite, closure_signal in custody_prerequisites:
+    for appointment in custody_appointments:
         bindings.append(
             _semantic_binding(
                 coordinate=identity_coordinate,
@@ -859,9 +952,9 @@ def _compile_semantic_bindings(
                 authoritative_for=("universal_custody_commitment",),
                 may_not_use_for=identity.may_not_use_for,
                 owner=OwnerBinding(
-                    owner=owner_name,
+                    owner=appointment.owner,
                     basis="closure_commitment",
-                    source_ref=identity.path,
+                    source_ref=appointment.source_ref,
                     establishment_class=EstablishmentClass.RECOMPUTED,
                 ),
                 jurisdiction="non_jurisdiction_specific",
@@ -870,9 +963,9 @@ def _compile_semantic_bindings(
                 review_due=review_due,
                 source_as_of=identity.last_reviewed,
                 evidence=None,
-                limitation_refs=(f"Planned prerequisite: {prerequisite}",),
-                prerequisite_refs=(prerequisite,),
-                closure_signal=closure_signal,
+                limitation_refs=(f"Planned prerequisite: {appointment.debt_id}",),
+                prerequisite_refs=(appointment.debt_id,),
+                closure_signal=appointment.closure_signal,
                 predicate_facts=custody_facts,
             )
         )
@@ -1064,6 +1157,7 @@ def compile_claim_posture_register(
     token_result = derive_token_sources(root)
     reconciled = reconcile_source_derivations(ast_result, token_result)
     identity = derive_identity_boundary(root)
+    custody_appointments = derive_custody_appointments(root)
     source_bindings = compile_source_claim_bindings(reconciled, package_owners={})
     identity_member = AdmittedSourceMember(
         path=identity.path,
@@ -1087,6 +1181,7 @@ def compile_claim_posture_register(
         page_members = page_receipt.admitted_sources
     semantic_bindings = _compile_semantic_bindings(
         identity=identity,
+        custody_appointments=custody_appointments,
         accessibility_document=accessibility_document,
         page_receipt=page_receipt,
     )
@@ -1100,7 +1195,18 @@ def compile_claim_posture_register(
         ),
         ast_derivation=ast_result.receipt,
         token_derivation=token_result.receipt,
+        may_not_use_for_denied_only_sites=reconciled.may_not_use_for_denied_only_sites,
         identity_boundary=identity,
+        custody_appointment_sources=tuple(
+            CustodyAppointmentSource(
+                path=CUSTODY_APPOINTMENT_SOURCE_PATH,
+                debt_id=item.debt_id,
+                source_content=item.source_content,
+                content_digest="sha256:"
+                + hashlib.sha256(item.source_content.encode("utf-8")).hexdigest(),
+            )
+            for item in custody_appointments
+        ),
         accessibility_document=accessibility_document,
         page_a11y_receipt=page_receipt,
         source_inventory=reconciled.rows,
@@ -1451,6 +1557,9 @@ def _minimal_probe_repo(
     identity = root / _IDENTITY_PATH
     identity.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(basis_root.resolve() / _IDENTITY_PATH, identity)
+    debt_register = root / _DEBT_REGISTER_PATH
+    debt_register.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(basis_root.resolve() / _DEBT_REGISTER_PATH, debt_register)
     return root
 
 
@@ -1619,7 +1728,10 @@ def _source_digest_rebinding_is_rejected(
     if changed == text:
         return False
     identity.write_text(changed, encoding="utf-8")
-    register, _ = compile_claim_posture_register(repo, register_as_of=register_as_of)
+    try:
+        register, _ = compile_claim_posture_register(repo, register_as_of=register_as_of)
+    except ValueError:
+        return True
     row = next(item for item in register.claims if item.subject == "system_identity")
     return row.effective_state == ClaimPostureState.BLOCKED
 
@@ -2404,7 +2516,7 @@ def _token_receipt(
     *,
     scanned_python_count: int,
     rows: Sequence[SourceInventoryRow],
-    denied_raw_files: int,
+    denied_raw_members: Sequence[AdmittedSourceMember],
     denied_only_sites: Sequence[LiteralSite] = (),
 ) -> SourceDerivationReceipt:
     role_counts = {role: sum(row.role == role for row in rows) for role in SourceInventoryRole}
@@ -2473,12 +2585,14 @@ def _token_receipt(
         wrapper_literal_site_count=len(wrapper),
         wrapper_literal_file_count=len({site.coordinate.path for site in wrapper}),
         wrapper_literal_subject_count=len({value for site in wrapper for value in site.values}),
-        may_not_use_for_raw_file_count=denied_raw_files,
+        may_not_use_for_raw_file_count=len(denied_raw_members),
         may_not_use_for_literal_site_count=len(denied),
         may_not_use_for_literal_file_count=len({site.coordinate.path for site in denied}),
         may_not_use_for_literal_subject_count=len(
             {value for site in denied for value in site.values}
         ),
+        may_not_use_for_raw_members=tuple(denied_raw_members),
+        may_not_use_for_sites=tuple(denied),
         row_digest="sha256:" + hashlib.sha256(encoded).hexdigest(),
     )
 
@@ -2565,12 +2679,20 @@ def _parse_date(value: str) -> date:
 
 
 def _report(register: ClaimPostureRegisterV1) -> dict[str, object]:
+    receipt_exclusions = {
+        "may_not_use_for_raw_members",
+        "may_not_use_for_sites",
+    }
     return {
         "schema_version": register.schema_version,
         "source_set_digest": register.source_set_digest,
         "payload_digest": register.payload_digest,
-        "ast": register.ast_derivation.model_dump(mode="json"),
-        "tokenize": register.token_derivation.model_dump(mode="json"),
+        "ast": register.ast_derivation.model_dump(
+            mode="json", exclude=receipt_exclusions
+        ),
+        "tokenize": register.token_derivation.model_dump(
+            mode="json", exclude=receipt_exclusions
+        ),
         "issue_codes": sorted(
             {code for row in register.source_inventory for code in row.issue_codes}
         ),

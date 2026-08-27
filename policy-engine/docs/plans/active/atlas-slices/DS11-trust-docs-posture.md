@@ -55,9 +55,13 @@ snapshots only while holding the visual lane. No two serialized resources
 co-hold.
 
 **Execution amendment (2026-08-26):** the execution instruction approves a
-hard slice-wide mechanism ceiling of **34** paths. The declared mechanism sum
-is **26**, leaving **8** paths of slack, and the widening ceiling remains 9; this corrects the planning
-ceiling only and authorizes no additional mechanism path.
+hard slice-wide mechanism ceiling of **34** paths. Execution has consumed
+**30** mechanism paths, leaving **4** paths of headroom, and all **9** widening
+rounds. The observed total includes the three C04 scanner/checker/schema paths
+required to close CC21 over its complete denominator and the C05 debt-ledger
+checker path required to close CC24; tests and generated records remain P39
+companions. This accounting correction authorizes no additional mechanism or
+widening.
 
 Ceilings are charged in completed `user + sys`, never wall time. Every command
 records `uptime` immediately before and after, selected-test count, exit code,
@@ -101,118 +105,129 @@ primitives reduce the work but do not create a DS11 contract by themselves.
 DS11 closes only when every checkbox has its named behavioral receipt. No
 cluster may define a second closure contract.
 
-- [ ] **CC01** The approved plan, exact execution base, attached branch, prefix,
+- [x] **CC01** The approved plan, exact execution base, attached branch, prefix,
   DS9/DS6 ancestry, green release guardrail, and the inherited frontend-checker
   red are recorded before any implementation edit.
-- [ ] **CC02** Two independent complete-source derivations agree file-for-file
-  on the raw 104-file denominator: 66 `declares_only`, 5 `carries_only`, 5
-  `consumes_only`, 27 `declares_and_consumes`, 1 `substring_collision`, and 0
-  `ambiguous`; inclusive totals are 93 files that declare and 32 that consume.
-  Any future disagreement is emitted as `ambiguous` with file and line, never
-  guessed.
-- [ ] **CC03** One strict Pydantic contract (`extra="forbid"`) owns claim ID,
+- [x] **CC02** Two independent complete-source derivations agree file-for-file.
+  The immutable entry census is 2,579 Python files / 104 raw candidates / 103
+  exact-field files: 66 `declares_only`, 5 `carries_only`, 5 `consumes_only`, 27
+  `declares_and_consumes`, 1 `substring_collision`, and 0 `ambiguous`, with 93
+  declaring and 32 consuming files. The final live census is 2,580 / 105 / 104:
+  66 / 5 / 5 / 28 / 1 / 0, with 94 declaring and 33 consuming files. Any
+  disagreement is emitted as `ambiguous` with file and line, never guessed.
+- [x] **CC03** One strict Pydantic contract (`extra="forbid"`) owns claim ID,
   subject/family, source symbol and digest, jurisdiction, accountable owner and
   owner basis, review dates, `authoritative_for`, `may_not_use_for`, evidence and
   limitation refs, effective state, blocker codes, rule/schema version,
-  source-as-of time, audience, supersession fields, and a frozen P37
-  establishment class for every support predicate.
-- [ ] **CC04** The canonical producer walks the complete tracked source set,
-  distinguishes the 103 exact-field files from the one
-  `authoritative_for_runtime` collision, resolves every static literal/default it
-  can prove, and retains every dynamic/unresolved site as a blocked
-  `runtime_bound` or `ambiguous` row.
-- [ ] **CC05** Effective-state composition is fail-closed: `blocked` vetoes;
-  `planned` is a named commitment with owner and executable closure signal, not
-  support; `supported` requires content-bound source, purpose permission,
+  source-as-of time, audience, supersession fields, the exact identity
+  statement and anti-role derivation receipts, and a frozen P37 establishment
+  class for every support predicate.
+- [x] **CC04** The canonical producer walks the complete tracked source set,
+  distinguishes entry's 103 and final live's 104 exact-field files from the one
+  `authoritative_for_runtime` collision, resolves every static literal/default
+  it can prove, and retains every dynamic/unresolved site as a blocked
+  `runtime_bound` or `ambiguous` row. Entry/final `may_not_use_for` raw counts
+  remain separately 116/117.
+- [x] **CC05** Effective-state composition is fail-closed: `blocked` vetoes;
+  `planned` is a named commitment whose every producer arm has its own
+  established owner and executable closure signal, not support; `supported`
+  requires content-bound source, purpose permission,
   accountable owner, applicable jurisdiction, current review, verifier-proven
   evidence, and no blocker. Only `recomputed` or `independently_reconciled`
   gate predicates may support; `consumer_asserted`, `institutionally_supplied`,
   and `not_established` block. No status is treated as an ordinal.
-- [ ] **CC06** The free-growth e2e adds one correctly formed producer in a
+- [x] **CC06** The free-growth e2e adds one correctly formed producer in a
   scratch source tree and obtains exactly one new register subject with zero
   register-artifact, source-policy, dashboard-production, or locale edit; the
   same test proves missing metadata keeps the new row non-supported.
-- [ ] **CC07** Direct literals reproduce 35 sites / 13 files / 21 non-empty
+- [x] **CC07** Direct literals reproduce 35 sites / 13 files / 21 non-empty
   subjects by both AST and `tokenize`; wrapper literals reproduce 59 sites / 24
   files / 28 subjects and cannot disappear merely because the narrow census is
   smaller.
-- [ ] **CC08** No central file enumerates open-ended claim subjects. Source-root
+- [x] **CC08** No central file enumerates open-ended claim subjects. Source-root
   policy may enumerate closed source families and rendering templates, but not
   claim IDs, producer symbols, or subject slugs.
-- [ ] **CC09** The existing per-run `RuntimeClaimRegistry` remains the owner of
+- [x] **CC09** The existing per-run `RuntimeClaimRegistry` remains the owner of
   producer-evidence bindings for final runtime claims. DS11 neither renames nor
   overloads it; the posture artifact has a distinct schema, authority purpose,
   producer, persistence lifecycle, and consumer.
-- [ ] **CC10** The deterministic JSON is committed under the dashboard's static
+- [x] **CC10** The deterministic JSON is committed under the dashboard's static
   public tree, registered as a `generated_committed` family, and regenerated in
   scratch by the default architecture guardrail. A corrupt field, missing row,
   stale review, reordered source binding, or generator escape fails CI.
-- [ ] **CC11** `/trust` renders a register-driven methodology section explaining
+- [x] **CC11** `/trust` renders a register-driven methodology section explaining
   the claim/evidence/status calculus and producer-declared method subjects
   without claiming accuracy, effectiveness, speed, or causal performance.
-- [ ] **CC12** `/trust` renders the declared evidence envelope and limitations first:
+- [x] **CC12** `/trust` renders the declared evidence envelope and limitations first:
   unknown jurisdiction, stale/unreviewed source, runtime-bound declaration,
   missing evidence, contested state, and forbidden purposes remain visible in
   PUBLIC, REVIEWER/EXPERT, and MACHINE projections.
-- [ ] **CC13** Accessibility renders two different truths: the dated internal
+- [x] **CC13** Accessibility renders two different truths: the dated internal
   2026-Q2 pre-audit evidence is historical and bounded; external certification
   and countersign remain blocked, and
   [DS11-A11Y-BASE-FAILURE-SET-4](#ds11-a11y-base-failure-set-4) remains visible.
   Neither `WCAG certified` nor a current unbounded-conformance claim can be
   emitted.
-- [ ] **CC14** The custody commitment is a first-class `planned` claim sourced to
+- [x] **CC14** The custody commitment is a first-class `planned` claim sourced to
   the ratified identity; its prerequisite refs bind the autonomous watcher to
   `team-runtime`, the lifecycle bridge to `team-scientist`, and the public
   signature population to DS12 / `team-design`, each with its capability label
   and executable closure signal. No generic implementation-lane owner may
   satisfy that three-owner obligation or imply universal coverage.
-- [ ] **CC15** The four-way `own` / `integrate` / `observe` / `out_of_scope` test
+- [x] **CC15** The four-way `own` / `integrate` / `observe` / `out_of_scope` test
   stays owned by the ratified decision document. Claim rows carry a strict
   identity-boundary source ref, not a duplicated per-claim scope enum. Any
   declared scope assumption is frozen `not_established`, rendered as a
   limitation, and forbidden from supporting a claim; the absent typed
   `ScopeAdjudicationRecord` remains explicit non-closure.
-- [ ] **CC16** The identity parser derives all seven binding anti-roles from the
-  ratified paragraph, including CRM. The posture surface admits no free-form
-  capability assertion: inserting `manages your cases` as unbound copy fails the
-  identity/copy check without a keyword blacklist.
-- [ ] **CC17** A producer whose source state is `planned` or `candidate` cannot be
+- [x] **CC16** The identity parser derives all seven binding anti-roles from the
+  ratified paragraph, including CRM. Both derivation receipts are recomputed
+  from the emitted roles, every role binds the admitted identity bytes, and
+  `/trust` renders the exact content-bound identity statement plus all seven
+  roles. The posture surface admits no free-form capability assertion: inserting
+  `manages your cases` as unbound copy fails the identity/copy check without a
+  keyword blacklist.
+- [x] **CC17** A producer whose source state is `planned` or `candidate` cannot be
   rendered, downloaded, translated, or restyled as `supported`; mutations of
   each bridge independently fail the register check.
-- [ ] **CC18** A grounded-performance-family row cannot be `supported` without a
+- [x] **CC18** A grounded-performance-family row cannot be `supported` without a
   content-bound governed-performance producer and prerequisite ref. At the DS11
   base those inputs do not exist, so the named negative stays red-to-green by
   rejection, not by minting a fixture.
-- [ ] **CC19** The public loader captures the exact static response bytes, parses
+- [x] **CC19** The public loader captures the exact static response bytes, parses
   them through a strict frontend validator, and renders only the validated
   artifact. Parse failure, schema novelty, or missing bytes produces a visible
   unavailable/blocked surface, never cached support.
-- [ ] **CC20** MACHINE downloads those captured bytes without reserialization;
+- [x] **CC20** MACHINE downloads those captured bytes without reserialization;
   a DOM decoder reconstructs every ordered public row, source, status,
   limitation, blocker, and review field. Omission, reorder, state mutation, and
   hidden limitation fail independently.
-- [ ] **CC21** DS11's two inherited Trust View authority roots are rebound through
+- [x] **CC21** DS11's two inherited Trust View authority roots are rebound through
   a private exhaustive presentation issuer over the canonical runtime
   `VerificationMetadata` input; raw dispute/tone strings and structural
   lookalikes cannot issue trusted clothing, while runtime novelty is explicit
   `unrecognized`.
-- [ ] **CC22** `trustRoute` in `features/trust/routes.public.tsx` is the declared
+- [x] **CC22** `trustRoute` in `features/trust/routes.public.tsx` is the declared
   supported dashboard entrypoint: `APP_ROUTES` consumes that exact export, the
   landing surface links it, and the complete browser-a11y inventory derives it.
   Its static MACHINE artifact has the registered generated lifecycle. No Python
   public facade, unauthenticated HTTP exception, OpenAPI path, or client ABI is
   added; those consequences are explicitly `surface_out_of_scope`.
-- [ ] **CC23** Targeted model, compiler, generator, route, twin, Trust View,
+- [x] **CC23** Targeted model, compiler, generator, route, twin, Trust View,
   DS11 route-a11y, and visual tests pass. The complete page-a11y suite produces
-  **25 tests / 21 pass / 4 inherited failures**, exactly
-  [DS11-A11Y-BASE-FAILURE-SET-4](#ds11-a11y-base-failure-set-4): a denominator
-  exactly one larger than the pinned base. Independent `--list`/source
-  enumeration proves the 25-test set; the execution receipt proves the outcome
-  set and the `/trust` pass. That exact base set remains unless its independent
-  owners reissue their evidence first. The global frontend disposition check
-  likewise produces exactly its pinned base C13 error and no new error; release
-  guardrails remain green with zero creep.
-- [ ] **CC24** The committed attached branch is read back after writing and proves
+  **25 tests / 22 pass / 3 current failures** in two completed exact no-writer
+  executions. All three are members of
+  [DS11-A11Y-BASE-FAILURE-SET-4](#ds11-a11y-base-failure-set-4): color-blind
+  distinguishability, run-report axe `dlitem`, and run-report missing `Export
+  JSON`. The base missing-`Open run` identity does not reproduce. Independent
+  `--list` and TypeScript-source enumeration prove the 25-test set, exactly one
+  larger than base; `/trust passes axe` is the added passing member and no novel
+  DS11 failure identity exists. The committed historical 20/24 four-failure
+  receipt remains visible and cannot be reissued by this slice; current
+  conformance stays blocked. The global frontend disposition check likewise
+  produces exactly its pinned base C13 error and no new error; release guardrails
+  remain green with zero creep.
+- [x] **CC24** The committed attached branch is read back after writing and proves
   closure-item receipts, actual path/round totals, generated byte identity,
   serialized-resource uptime pairs, exact non-closures, and no production path
   beyond the approved fence.
@@ -599,7 +614,7 @@ retains it per source binding and never subtracts it from the denominator.
 
 ### Identity and custody findings
 
-The ratified identity's binding anti-role paragraph at pinned lines 88-90
+The ratified identity's binding anti-role paragraph at pinned lines 88-91
 yields, in order:
 
 1. administrator;
@@ -788,22 +803,25 @@ frontend disposition/debt/ledger rows; snapshots; and tests that pin a moved
 constant are mandatory P39 companions outside caps. They are still committed
 with their mechanism. Never split one mechanism across commits to fit a cap.
 
-The declared cluster caps total **26 unique mechanism paths**. The hard
+The observed cluster caps total **30 unique mechanism paths**. The hard
 slice-wide ceiling is **34 unique mechanism paths**; path 35 is a real stop.
-Slack is 8 paths (23.5%), derived from three compiler paths, two source/
+Headroom is 4 paths (11.8%), derived from three compiler paths, two source/
 lifecycle paths (one a11y source document and the load-bearing generated-
-family manifest), thirteen public-route/locale seams, and eight measured Trust
-View issuer/consumer paths—not copied from DS9 or DS10. The manifest is counted
-because it creates the CI bridge; the deterministic JSON and rendered reference
-are P39 records produced by that mechanism, not hidden mechanism paths.
+family manifest), thirteen public-route/locale seams, eleven measured Trust
+View issuer/scanner/checker paths, and the debt-ledger checker required by
+CC24—not copied from DS9 or DS10. The manifest is counted because it creates
+the CI bridge; deterministic JSON, rendered references, registers, reports,
+snapshots, and tests are P39 records produced by those mechanisms, not hidden
+mechanism paths.
 
 The cap has two derivations: table arithmetic and a parser that unions the
 declared Add/Modify mechanism lists while excluding P39 companions. Both must
-return 26 (`3 + 2 + 13 + 8`) and independently sum the declared widening budgets to 7; known
-mechanism member `src/polisyos/scientist/evidence/claims/posture.py` and known
-widening member C03's three rounds.
+return 30 (`3 + 2 + 13 + 11 + 1`) and independently sum the consumed widening
+budgets to 9; known mechanism member
+`src/polisyos/scientist/evidence/claims/posture.py` and known widening member
+C03's three rounds.
 
-The widening ceiling is **9 rounds** against 7 declared widening rounds. A round
+The widening ceiling is **9 rounds**, all consumed. A round
 adds a capability, surface, producer arm, permission, or source family.
 Narrowing is free: a change that only removes a way the system can be fooled is
 pre-authorized and consumes no widening round. Repair review still records its
@@ -822,8 +840,8 @@ run its falsifier; do not patch another instance.
 | C01 | Define the strict posture calculus, dual source derivations, producer, and checker. | 3 | 2 widening |
 | C02 | Bind a11y source metadata, register the generated family, and persist deterministic posture bytes. | 2 | 2 widening |
 | C03 | Render the public methodology/envelope/limitations/a11y/register route and exact-byte MACHINE twin. | 13 | 3 widening |
-| C04 | Rebind the two inherited Trust View authority roots through private exhaustive issuers. | 8 | 2 repair rounds; 0 widening when narrowing-only |
-| C05 | Reproduce generated bytes and run the source/artifact/copy corruption wave. | 0 mechanism | 1 regeneration transaction; 0 widening |
+| C04 | Rebind the two inherited Trust View authority roots through private exhaustive issuers and their complete scanner/checker/schema denominator. | 11 | 2 repair rounds; 0 widening when narrowing-only |
+| C05 | Reproduce generated bytes, add the generic producer-planning grammar and content-bound custody appointment source family, run the corruption wave, and reconcile the debt owner. | 1 | 1 regeneration transaction; 2 widening |
 | C06 | Freeze, review, run targeted a11y/visual/release lanes, register debts, and read back closure. | 0 mechanism | 1 verification transaction; 0 widening |
 
 ### C00 — plan admission, censuses, and behavioral reds
@@ -1023,7 +1041,7 @@ corepack pnpm --filter @polisyos/runtime-dashboard exec tsc -p tsconfig.app.json
 
 ### C04 — Trust View private issuer repair
 
-**Mechanism cap:** 8. **Rounds:** at most 2 repair rounds; narrowing consumes no
+**Mechanism cap:** 11. **Rounds:** at most 2 repair rounds; narrowing consumes no
 widening round.
 
 The exhaustive two-root denominator is
@@ -1042,10 +1060,15 @@ census. No third DS11 Trust View authority root is silently excluded.
 6. `apps/runtime-dashboard/src/shared/ui/trust-view/index.ts`
 7. `apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBadge.tsx`
 8. `apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx`
+9. `architecture/atlas_surfaces/status_retirement_scan.mjs`
+10. `architecture/atlas_surfaces/check_frontend_disposition_register.py`
+11. `architecture/atlas_surfaces/frontend-disposition-register.schema.json`
 
-Two independent derivations agree on this eight-path production mechanism set
+Two independent derivations agree on the eight dashboard production mechanisms
 over the complete **625-file** dashboard production denominator (**304 `.ts`**
-and **321 `.tsx`**). A disagreeing scout set proposed `HashChip.tsx` and
+and **321 `.tsx`**). The three architecture scanner/checker/schema paths close
+CC21's governed validation denominator, producing the declared eleven-path C04
+mechanism set. A disagreeing scout set proposed `HashChip.tsx` and
 `TrustViewBridge.tsx`; both are transports rather than clothing/issuer
 mechanisms and are explicitly excluded rather than silently substituted.
 
@@ -1071,6 +1094,9 @@ and novelty negatives; the final whole-check stderr equals the C00 single-error
 baseline; no DS6 evidence is edited or reissued.
 
 ```bash
+.venv/bin/python -m pytest \
+  tests/unit/scientist/evidence/claims/test_posture.py \
+  tests/repo_quality/tools/test_trust_claim_posture.py -q
 corepack pnpm --filter @polisyos/runtime-dashboard exec vitest run \
   src/shared/ui/trust-view/DisputeBadge.a11y.test.tsx \
   src/shared/ui/trust-view/VerificationStatus.a11y.test.tsx \
@@ -1084,7 +1110,15 @@ corepack pnpm --filter @polisyos/runtime-dashboard exec vitest run \
 
 ### C05 — deterministic regeneration and corruption wave
 
-**Mechanism cap:** 0. **Round:** one regeneration transaction; no widening.
+**Mechanism cap:** 1. **Rounds:** one regeneration transaction plus two
+widening rounds. Round 8 buys the generic producer-local planned/candidate
+grammar; round 9 buys the DEBT-register custody appointment source family.
+
+**Modify:**
+
+1. `tools/quality/validation/check_debt_ledger.py` — CC24's measured debt-row
+   denominator owner; the stale pinned count could not be closed through the
+   posture producer or generated record.
 
 Freeze all source. Under the generated-artifact token, generate into two fresh
 scratch roots and compare every byte with the committed output. Run the AST and
@@ -1123,9 +1157,12 @@ branch—not the index—back after the C06 commit.
 **Acceptance:** CC23-CC24 pass; actual unique mechanisms <=34, widening <=9;
 every non-closure below is still precise; `git diff --check` passes; attached
 branch readback contains the plan, receipts, generated artifact, and no
-unrelated changes. The page suite is exactly 25 collected / 21 pass /
-[DS11-A11Y-BASE-FAILURE-SET-4](#ds11-a11y-base-failure-set-4), has no DS11 route
-failure, and has its denominator increased by the one derived `/trust` surface.
+unrelated changes. The page suite is exactly 25 collected / 22 pass / 3 current
+failures, all within the historical
+[DS11-A11Y-BASE-FAILURE-SET-4](#ds11-a11y-base-failure-set-4); the fourth base
+identity does not reproduce. It has no DS11 route failure and its denominator is
+increased by the one derived, passing `/trust` surface. This measured correction
+does not reissue the historical current-conformance evidence.
 
 ```bash
 corepack pnpm --filter @polisyos/runtime-dashboard exec vitest run \
@@ -1146,17 +1183,22 @@ corepack pnpm --filter @polisyos/runtime-dashboard run test:a11y:pages
   src/polisyos/scientist/evidence/claims/posture.py \
   tools/quality/validation/trust_claim_posture_sources.py \
   tools/quality/validation/check_trust_claim_posture.py \
+  tools/quality/validation/check_debt_ledger.py \
   tests/unit/scientist/evidence/claims/test_posture.py \
-  tests/repo_quality/tools/test_trust_claim_posture.py
+  tests/repo_quality/tools/test_trust_claim_posture.py \
+  tests/repo_quality/tools/test_debt_ledger_checker.py
 .venv/bin/python -m ruff format --check \
   src/polisyos/scientist/evidence/claims/posture.py \
   tools/quality/validation/trust_claim_posture_sources.py \
   tools/quality/validation/check_trust_claim_posture.py \
+  tools/quality/validation/check_debt_ledger.py \
   tests/unit/scientist/evidence/claims/test_posture.py \
-  tests/repo_quality/tools/test_trust_claim_posture.py
+  tests/repo_quality/tools/test_trust_claim_posture.py \
+  tests/repo_quality/tools/test_debt_ledger_checker.py
 uv run python tools/quality/validation/check_trust_claim_posture.py --repo-root . --check
 uv run python tools/quality/validation/check_trust_claim_posture.py --repo-root . --check-a11y-receipt
 .venv/bin/python architecture/atlas_surfaces/check_frontend_disposition_register.py --check
+uv run python tools/quality/validation/check_debt_ledger.py --write
 uv run python tools/quality/validation/check_debt_ledger.py --check
 uv run polisyos-tools architecture guardrails check
 git diff --check
@@ -1173,16 +1215,16 @@ git rev-parse --show-prefix
 | --- | --- |
 | generated-artifact token | C02 and C05 as separate acquisitions; C01 first completes the exact no-writer compiler/checker with an uptime pair, then freezes `max(30s, 2x completed user+sys)` before C02's manifest/artifact/reference writer; no manifest/output writer overlaps register or visuals |
 | register-family lock | C00 debt-ledger admission, C04 disposition transition, and C06 reconciliation are separate acquisitions; completed read-only debt reporting `user+sys=0.70s` -> fixed **30s** for its record writer/check; completed frontend transaction `user 195.14 + sys 27.53 = 222.67s` -> fixed **445.34s** for no-corruption checks; a surgical disposition writer/corruption transaction freezes at `max(445.34s, 2x first completed user+sys)` and never widens mid-run |
-| focused dashboard | ordinary lane; completed 4-file Trust View baseline `user+sys=9.04s` -> fixed **30s** per focused Vitest invocation |
+| focused dashboard | ordinary lane; the 4-file Trust View entry baseline was `user+sys=9.04s`. The first completed 11-file C06 wave measured `87.32 + 8.26 = 95.58s` and failed only because the exhaustive MACHINE-twin case crossed its unmeasured 30s internal wall timeout at 31.16s; its isolated semantic replay passed in 21.68s. The complete-set operational ceiling is therefore fixed at **191.16s user+sys** (`2 × 95.58`), while that one test carries a **60s internal completion timeout**, not a semantic or resource-budget predicate. The unchanged intermediate replay passed 73/73 at `86.77 + 8.25 = 95.02s`; the final source-frozen wave passed **92/92** at `57.31 + 5.89 = 63.20s`. |
 | release guardrail | ordinary read-only closeout lane; completed `user+sys=80.65s` -> fixed **180s**; no `sync` |
-| visual/a11y lane | Semantic/result agreement for replay B remains `consumer_asserted` / `not_established` and cannot support a semantic product gate or posture row. Separately, the completed-process `user+sys` ceiling is a **recomputed operational-resource predicate**: `/usr/bin/time -p` supplied `user` and `sys` for each completed invocation, and the harness recomputes `2 × max(241.97, 327.64) = 655.28s`. It may set only this harness timeout/stop budget; it cannot support product semantics, posture, certification, or any other semantic gate. C03 route a11y is focused; the C06 visual transaction uses one worker and zero retries, with its own completed no-writer measurement freezing `max(60s, 2x user+sys)` before a writer; missing browser/killed run is a tooling non-receipt |
+| visual/a11y lane | Semantic/result agreement for replay B remains `consumer_asserted` / `not_established` and cannot support a semantic product gate or posture row. Separately, the completed-process `user+sys` ceiling is a **recomputed operational-resource predicate**: `/usr/bin/time -p` supplied `user` and `sys` for each completed invocation, and the harness recomputes `2 × max(241.97, 327.64) = 655.28s`. It may set only this harness timeout/stop budget; it cannot support product semantics, posture, certification, or any other semantic gate. C03 route a11y is focused. The C06 visual transaction uses one worker and zero retries; its predeclared **60s** floor remained the numeric ceiling because writer and both no-writer receipts each used less than 9s `user+sys`. The writer preceded the first no-writer measurement, contrary to the prose order, and that ordering mismatch is recorded rather than treated as semantic evidence. A post-freeze `/trust` axe run exposed the unrelated 60s Playwright per-test completion timeout; the test-only companion now allows 120s while preserving the exact axe assertion and the 655.28s suite CPU ceiling. Missing browser/killed run is a tooling non-receipt. |
 
 The visual commands differ only by the first writer flag and use the exact grep:
 
 ```bash
-CI=1 PLAYWRIGHT_RETRIES=0 corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'DS11 trust posture' --workers=1 --update-snapshots
-CI=1 PLAYWRIGHT_RETRIES=0 corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'DS11 trust posture' --workers=1
-CI=1 PLAYWRIGHT_RETRIES=0 corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'DS11 trust posture' --workers=1
+CI=1 PLAYWRIGHT_INCLUDE_RUN_PAPER_FIXTURES=1 PLAYWRIGHT_RETRIES=0 corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'DS11 trust posture' --workers=1 --update-snapshots
+CI=1 PLAYWRIGHT_INCLUDE_RUN_PAPER_FIXTURES=1 PLAYWRIGHT_RETRIES=0 corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'DS11 trust posture' --workers=1
+CI=1 PLAYWRIGHT_INCLUDE_RUN_PAPER_FIXTURES=1 PLAYWRIGHT_RETRIES=0 corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'DS11 trust posture' --workers=1
 ```
 
 ## File map
@@ -1237,7 +1279,7 @@ Read the failure/repair register again before C00 and C06 closeout.
 | P35/P36 | loose 104 grep, 16/29 dashboard counts, or adjacent prose becomes authority | complete denominators, two methods, known member, exact source ID/section |
 | P37/P38 | authored status, pending job, package owner, or keyword blacklist stands in for the guarded property | independently established predicate labels; blocked unknowns; structural no-free-copy boundary with declared residual |
 | P33/P34 | tests teach to two named phrases or exclude a failing source without finishing isolation | synonym/indirect/default/dynamic/sibling mutations; scratch free growth; complete error-set comparison |
-| P39 | budget counts mandatory plan/tests/generated/register companions | 26 mechanisms, companions outside, one mechanism never split |
+| P39 | budget counts mandatory plan/tests/generated/register companions | 30 mechanisms, companions outside, one mechanism never split |
 | P40/P41 | repeat instance repairs or export the base C13 red as DS11 debt | bucket second finding; exact-base replay plus final error-set delta and changed-input accounting |
 
 Target closure state is `typed contract + source-derived producer + persisted
@@ -1268,7 +1310,10 @@ website-copy semantics remain precisely non-closed.
 - `DS11-CURRENT-PAGE-A11Y` — base-proven `verification_missing`: the complete
   page suite is 20/24, with
   [DS11-A11Y-BASE-FAILURE-SET-4](#ds11-a11y-base-failure-set-4) in the run
-  paper; `team-design` run-paper/a11y
+  paper. Two exact current-branch no-writer executions are 22/25 with three
+  members of that base set; missing `Open run` does not reproduce, while the
+  added `/trust passes axe` identity passes. This disagreement is recorded, not
+  promoted into a current-conformance reissue; `team-design` run-paper/a11y
   lane; closure signal: two independent no-writer invocations of
   `corepack pnpm --filter @polisyos/runtime-dashboard run test:a11y:pages` exit
   zero with identical collected identities and reissue the content-bound

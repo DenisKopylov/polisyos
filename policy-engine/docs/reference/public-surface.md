@@ -95,7 +95,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 39 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 8 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 18 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.scientist` | `public_stable` | `lazy_facade` | 20 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 957 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
@@ -1830,7 +1830,7 @@ select_method_candidates_for_requirements
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 18 |
+| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 20 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
 
 #### `polisyos.scientist`
@@ -1839,12 +1839,14 @@ select_method_candidates_for_requirements
 - Facade: `lazy_facade`
 - Summary: Stable Scientist package facade for workflow execution and run observability.
 
-<details><summary>Entrypoint exports (18)</summary>
+<details><summary>Entrypoint exports (20)</summary>
 
 ```text
 BudgetState
 ExperimentState
 KnowledgeToolkit
+ScientistLegalBenchmarkRunner
+ScientistRetrievalBenchmarkOutcome
 ToolContractSummary
 ToolDefinition
 ToolLoopResult
@@ -1921,12 +1923,14 @@ validate_source_invalidation_event
 
 </details>
 
-<details><summary>Supported exports (18)</summary>
+<details><summary>Supported exports (20)</summary>
 
 ```text
 BudgetState
 ExperimentState
 KnowledgeToolkit
+ScientistLegalBenchmarkRunner
+ScientistRetrievalBenchmarkOutcome
 ToolContractSummary
 ToolDefinition
 ToolLoopResult

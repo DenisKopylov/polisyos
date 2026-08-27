@@ -287,3 +287,68 @@ Python files) and found exactly:
   moves 39 -> 36 by exactly the three Data Forge -> Lex statements. The
   completed failure used `user=52.96s`, `sys=3.00s`; uptime advanced from
   14:58/up 3 days 5:11 to 14:59/up 3 days 5:12. No composite pass is claimed.
+
+## Task 7 — Scientist-owned legal retrieval diagnostic
+
+### Ledger and pattern pass
+
+- Ledger: 7/8. Round 7 buys the Scientist legal-retrieval evaluation surface
+  and its real injected orchestration bridge. It clears frozen row 7. The
+  round stands.
+- Relevant patterns: P01/P02 (Data Forge fixtures, Lex receipt, Scientist
+  consumer, and the existing pipeline bridge are all exercised), P05/P15 (the
+  diagnostic has no authority slot), P29/P32 (the bridge reads and
+  content-binds the real Lex receipt rather than trusting an outcome object),
+  P35/P37 (all four declared fixtures are evaluated), and P38 (retrieval score
+  is not the Lex semantic property).
+- The Scientist outcome publishes empty `authoritative_for`, explicitly denies
+  legal admissibility, publication readiness, governance admissibility, and
+  method validity, and rejects every attempted authority use. Data Forge now
+  retains only its authority-neutral fixture compatibility access; no
+  Scientist import remains below the ownership boundary.
+
+### Task 7 receipts
+
+- RED: the prescribed files failed collection because the approved
+  `ScientistLegalBenchmarkRunner` surface did not exist (`user=1.27s`,
+  `sys=0.21s`; uptime 15:05/up 3 days 5:18).
+- GREEN: exit 0, 8 focused tests passed. A deliberately perfect retrieval
+  result remains red when the content-bound Lex receipt fails NormPack; a Lex
+  result object that disagrees with its persisted receipt is rejected; and the
+  Data Forge pipeline consumes the Scientist runner. `polisyos` resolved from
+  this worktree. The completed run used `user=1.82s`, `sys=0.26s`; uptime
+  stayed within 15:14/up 3 days 5:27.
+- Public surface and dynamic registry: the canonical inventory and Markdown
+  renderer match byte-for-byte with all 8 generated families and 20 Scientist
+  exports. The dynamic call registration matches the measured facade call at
+  line 96. Changed-Python Ruff exits 0 with no diagnostics (`user=0.02s`,
+  `sys=0.01s`). A preceding attempt that accidentally included Markdown was a
+  harness non-receipt and is not a product diagnostic.
+- Source import predicate: exit 1 with 43 findings, split ARCH001=40,
+  ARCH002=1, ARCH004=2, ARCH006=0. Canonical JSON and an independent AST walk
+  agree exactly over 2,584 `src/**/*.py` files with empty set differences. The
+  exact 44 -> 43 delta is frozen row 7,
+  `data_forge.domains.legal.batch.benchmark ->
+  scientist.agent.knowledge_tools`; no other rule moved. The completed failure
+  used `user=0.60s`, `sys=0.19s`; uptime stayed within 15:14/up 3 days 5:27.
+- Release guardrail predicate: exit 1 only for the authorized final baseline
+  transaction. Canonical and independent AST sets agree over the same 2,584
+  files on current=3,604, baseline=3,631, additions=29, removals=56, with empty
+  differences. Relative to Task 6, additions are unchanged and the old Data
+  Forge benchmark -> Scientist toolkit address is the sole extra removal. The
+  completed failure used `user=24.45s`, `sys=5.85s`; uptime stayed within
+  15:15/up 3 days 5:28.
+- Package-import predicate: exit 1 with 148 findings and 35 unregistered
+  forbidden statements. The report field, list length, and strict finding-key
+  uniqueness all equal 148; canonical and independent longest-exact-package
+  AST sets both derive 35 forbidden statements with empty differences over
+  2,584 files. The substantive 36 -> 35 move is exactly frozen row 7. The live
+  finding-total receipts disagree with the tracked-state replay: Task 6
+  recorded 151 and Task 7 records 148, while an archive replay without `.git`
+  emitted git non-receipts and derived 149 for Task 6; its usable strict diff
+  is one added count-summary identity and two removals (the prior count-summary
+  identity and the Data Forge -> Scientist package row), net -1. The remaining
+  two-count live delta is therefore reported as environment-sensitive and
+  `not_established`, not silently assigned to this move. The completed gate
+  failure used `user=51.79s`, `sys=3.30s`; uptime advanced from 15:16/up 3 days
+  5:29 to 15:17/up 3 days 5:30. No composite pass is claimed.

@@ -273,15 +273,15 @@ Commit message: `feat(lex): own legal semantic benchmark`.
 - Consumes DataForge fixture refs and the Lex semantic report.
 - Produces a diagnostic retrieval report with `may_not_use_for` legal admissibility or publication.
 
-- [ ] **Step 1: Write a mixed-outcome falsifier**
+- [x] **Step 1: Write a mixed-outcome falsifier**
 
 Prove a high retrieval score cannot turn a failed NormPack/transport result
 green.
 
-- [ ] **Step 2: Run `.venv/bin/python -m pytest tests/unit/scientist/agent/test_knowledge_benchmark.py tests/unit/data_forge/legal_batch/test_benchmark.py -q` RED against the combined DataForge benchmark**
-- [ ] **Step 3: Move the `KnowledgeToolkit` consumer to Scientist**
-- [ ] **Step 4: Run the same focused files GREEN**
-- [ ] **Step 5: Commit and print ledger 7/8**
+- [x] **Step 2: Run `.venv/bin/python -m pytest tests/unit/scientist/agent/test_knowledge_benchmark.py tests/unit/data_forge/legal_batch/test_benchmark.py -q` RED against the combined DataForge benchmark**
+- [x] **Step 3: Move the `KnowledgeToolkit` consumer to Scientist**
+- [x] **Step 4: Run the same focused files GREEN**
+- [x] **Step 5: Commit and print ledger 7/8**
 
 Commit message: `feat(scientist): own legal retrieval benchmark`.
 

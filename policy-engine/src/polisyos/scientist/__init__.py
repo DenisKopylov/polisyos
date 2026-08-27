@@ -17,6 +17,8 @@ __all__ = [
     "BudgetState",
     "ExperimentState",
     "KnowledgeToolkit",
+    "ScientistLegalBenchmarkRunner",
+    "ScientistRetrievalBenchmarkOutcome",
     "ToolContractSummary",
     "ToolDefinition",
     "ToolLoopResult",
@@ -38,6 +40,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "BudgetState": ("polisyos.scientist.orchestration.engine.budget", "BudgetState"),
     "ExperimentState": ("polisyos.scientist.orchestration.engine.state", "ExperimentState"),
     "KnowledgeToolkit": ("polisyos.scientist.agent.knowledge_tools", "KnowledgeToolkit"),
+    "ScientistLegalBenchmarkRunner": (
+        "polisyos.scientist.agent.knowledge_benchmark",
+        "ScientistLegalBenchmarkRunner",
+    ),
+    "ScientistRetrievalBenchmarkOutcome": (
+        "polisyos.scientist.agent.knowledge_benchmark",
+        "ScientistRetrievalBenchmarkOutcome",
+    ),
     "ToolContractSummary": ("polisyos.scientist.agent.tool_contracts", "ToolContractSummary"),
     "ToolDefinition": ("polisyos.scientist.agent.tools.schema", "ToolDefinition"),
     "ToolLoopResult": ("polisyos.scientist.agent.tools.tool_loop", "ToolLoopResult"),

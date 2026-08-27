@@ -1807,11 +1807,13 @@
         "polisyos.scientist.methods.research_dag"
       ],
       "major_subsystem": true,
-      "export_count": 18,
+      "export_count": 20,
       "exports": [
         "BudgetState",
         "ExperimentState",
         "KnowledgeToolkit",
+        "ScientistLegalBenchmarkRunner",
+        "ScientistRetrievalBenchmarkOutcome",
         "ToolContractSummary",
         "ToolDefinition",
         "ToolLoopResult",
@@ -1837,11 +1839,13 @@
         {
           "module": "polisyos.scientist",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 18,
+          "export_count": 20,
           "exports": [
             "BudgetState",
             "ExperimentState",
             "KnowledgeToolkit",
+            "ScientistLegalBenchmarkRunner",
+            "ScientistRetrievalBenchmarkOutcome",
             "ToolContractSummary",
             "ToolDefinition",
             "ToolLoopResult",

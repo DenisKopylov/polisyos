@@ -2,11 +2,10 @@ from __future__ import annotations
 
 from datetime import date
 
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.compiler import (
     CalibrationSplitLabel,
     CalibrationSplitter,
-    CalibrationTargetBundleCompiler,
-    NegativeControlGenerator,
 )
 from polisyos.ir.observation.contracts import (
     EntityScope,
@@ -21,7 +20,6 @@ from polisyos.ir.observation.measurement import (
     SchemaRegimeRegistry,
     SchemaRegimeSpec,
 )
-from polisyos.ir.model_layer.types import TimeFrequency
 
 
 def _record(
@@ -137,36 +135,3 @@ def test_calibration_splitter_is_regime_aware() -> None:
     assert labels["obs_a_2024_01"] == CalibrationSplitLabel.HOLDOUT
     assert labels["obs_b_2024_06"] == CalibrationSplitLabel.VALIDATION
     assert labels["obs_a_2025_01"] == CalibrationSplitLabel.TEST
-
-
-def test_compiler_aligns_targets_and_masks_missing_rows() -> None:
-    compiler = CalibrationTargetBundleCompiler(
-        schema_regime_registry=SchemaRegimeRegistry.default(),
-    )
-    bundle = compiler.compile(_panel())
-
-    target_a = "labor_market.employment_rate.cell.cell_a"
-    target_b = "labor_market.employment_rate.cell.cell_b"
-
-    assert target_a in bundle.observed_value
-    assert target_b in bundle.observed_value
-    assert bundle.observed_value[target_a].shape[0] == 4
-    assert float(bundle.coverage_estimate[target_b][0]) == 0.0
-    assert float(bundle.trust_weight[target_b][0]) == 0.0
-    assert bundle.observation_id[target_b][0].startswith("missing.")
-    assert bundle.identification_mode[target_a][0] in {
-        IdentificationMode.PROXY_IDENTIFIED,
-        IdentificationMode.BOUNDS_ONLY,
-    }
-
-
-def test_negative_control_generator_produces_non_overlapping_placebos() -> None:
-    compiler = CalibrationTargetBundleCompiler()
-    bundle = compiler.compile(_panel())
-    placebo_bundle, specs = NegativeControlGenerator().generate(bundle)
-
-    assert specs
-    for spec in specs:
-        assert set(spec.source_time_axis).isdisjoint(spec.placebo_time_axis)
-        assert spec.placebo_target_id.startswith("placebo.")
-        assert spec.placebo_target_id in placebo_bundle.observed_value

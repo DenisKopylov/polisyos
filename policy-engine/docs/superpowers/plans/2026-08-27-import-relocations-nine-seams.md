@@ -110,10 +110,10 @@ At every seam boundary:
 
 ### Seam 11: IR calibration/JAX — 2 statements, two predicates
 
-- [ ] Move the calibration target compiler, placebo materialization, and
+- [x] Move the calibration target compiler, placebo materialization, and
   JAX/NumPy tensor work to existing Foundry calibration ownership.
-- [ ] Retain neutral split/window/negative-control declarations in IR.
-- [ ] Close `ir -> foundry` and `ir -> jax` separately.
+- [x] Retain neutral split/window/negative-control declarations in IR.
+- [x] Close `ir -> foundry` and `ir -> jax` separately.
 
 ### Seam 12: IR backtesting — 3 statements
 

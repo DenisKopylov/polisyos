@@ -86,6 +86,7 @@ Every row below was classified before the first source edit. Result:
 | seam 8 — IR method-protocol binding | 6/10 | IR now emits neutral JSON payloads for nine method-contract families; one fail-closed Foundry materializer admits them by exact contract ID and FQN, and both real upper consumers use that chokepoint. Cleared IF-01..07. | stands; round 6 bought the single new `foundry.data_plane.materialize_method_contract` export; the P31 consumer repair widened the same mechanism and consumed no additional round |
 | seam 9 — IR strategic/transportability adapters | 6/10 | Existing Foundry owners now interpret solve results, assemble strategic responses, and materialize `SourceDomain`; IR retains neutral declarations and persistence only. Cleared IF-08..10. | stands; consumer-up relocation into existing modules and already-allowed directions introduced no package, module, surface, authority publication, or constraint loosening |
 | seam 10 — IR kernel lowering | 6/10 | The duplicate execution-aware IR pass is removed; the existing Foundry compiler now carries a typed blocked kernel specification through real refusal execution and audit persistence. Cleared IF-11/12. | stands; consolidation and a private repair inside existing Foundry ownership introduced no new surface or constraint |
+| seam 11 — IR calibration/JAX | 7/10 | Existing Foundry measurement ownership now contains calibration-target compilation, placebo materialization, and optional JAX/NumPy tensors; IR retains neutral split/window/control declarations. Cleared IF-13 and IJ-01 separately, closing `ir -> foundry` 13/13 and `ir -> jax` 1/1. | stands; round 7 bought the two-name internal Foundry measurement execution surface; no root/package/module, stable root facade, or constraint was added |
 
 No round has been withdrawn.
 
@@ -541,3 +542,48 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   spec, the executable DAG carries it, the engine consumes it, CAS/audit persist
   it, and the negative semantic test proves the refused path itself works.
   Consolidation uses existing owners and surfaces, so the ledger remains 6/10.
+
+### Seam 11 — IR calibration/JAX
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 10 commit
+  `ede93e2c5d3b` read back after writing and before this boundary.
+- Observed mechanism/test path set is exactly seven: Foundry measurement source
+  and README, IR compiler and observation facade, two focused unit tests, and
+  the real C7 integration witness. This plan/journal pair are P39 record
+  companions. The shared public inventory/projection contain no Seam 11 names
+  and remain attributed to the final serialized boundary.
+- IF-13 and IJ-01 were kept as separate predicates. Against the one-file HEAD
+  source, the compiler had exactly one IR-to-Foundry statement and one JAX
+  import. The current complete IR denominator is 191 Python files with zero
+  parse errors, zero Foundry imports, and independently zero JAX imports.
+- Executable target compilation, JAX/NumPy tensor materialization, and placebo
+  generation now live in existing `foundry.calibration.measurement`; IR retains
+  neutral split/window and negative-control declarations. Both relocated class
+  identities report the Foundry owner. A missing-JAX subprocess proves importing
+  IR attempts JAX zero times, while direct Foundry import takes the NumPy
+  fallback and retains both identities.
+- Independent review's seven-unit-test wave passed (`real=46.10s`,
+  `user=42.35s`, `sys=1.76s`); targeted Ruff and `git diff --check` passed.
+  Negative semantic coverage includes missing-row masking, finite JAX gradient,
+  non-overlapping placebos, holdout exclusion, and non-finite loss fail-closed.
+  Root's post-Seam-8 C7 pipeline is the real end-to-end consumer witness:
+  direct exit 0, one passed, `real=53.64s`, `user=53.66s`, `sys=3.08s`.
+- Complete source/test AST census found exactly three relocated-symbol import
+  bindings, all at the new owner/tests, and no old-owner consumer. The exact
+  `ir -> foundry` literal closure command and the separately executed exact
+  `ir -> jax` literal command each completed direct exit 0.
+- Manual deep-baseline enumeration is frozen for final patching. REMOVE exactly
+  `polisyos.ir.observation.compiler -> polisyos.foundry.calibration.measurement`.
+  ADD exactly three independently enumerated edges:
+  `polisyos.foundry.calibration.measurement -> polisyos.ir.model_layer.types`,
+  `-> polisyos.ir.observation.compiler`, and
+  `-> polisyos.ir.observation.measurement`. The existing edges to
+  `ir.kernel.base`, `ir.observation.bundles`, and
+  `ir.observation.contracts` remain. No baseline generator was run.
+- `docs/reference/ir/schema-catalog.md` still carries both old IR class FQNs and
+  is a mandatory generated companion deferred to the final generator boundary.
+  Capability result: neutral declarations, Foundry producer/materializer,
+  manifest/tensor artifacts, C7 consumer, negative verification, and execution
+  surface are wired. Round 7 is charged for the new two-name internal Foundry
+  measurement surface; no policy authority is published.

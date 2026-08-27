@@ -771,7 +771,8 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         (*_COMMON_NOT_PUBLIC, "current_action_authority", "execute_acquisition"),
         "policyos.policy_design_case.gy_n13a.acquisition_census.v1",
         "policyos.layer3.gy.n13a.acquisition_census.v1",
-        "polisyos.runtime.http.services.acquisition_surface_projection:validate",
+        "polisyos.runtime.http.services."
+        "governed_projection_validation_worker:validate_acquisition_growth",
         "policyos.runtime.acquisition_growth_projection.v1",
     ),
     _ProjectionDefinition(

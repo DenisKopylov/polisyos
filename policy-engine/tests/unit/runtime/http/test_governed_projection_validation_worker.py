@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import importlib
 import json
 import os
 import shutil
@@ -12,8 +13,12 @@ from typing import Any
 
 import pytest
 
+from polisyos.fabric.data_plane import content_sha256
 from polisyos.runtime.http.services import (
     governed_projection_validation_worker as worker_module,
+)
+from polisyos.runtime.http.services import (
+    governed_projections as governed_module,
 )
 from polisyos.runtime.http.services.acquisition_surface_projection import (
     build_acquisition_growth_projection,
@@ -129,6 +134,9 @@ def _copy_acquisition_growth_inputs(destination: Path) -> None:
         target = destination / relative_path
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(REPO_ROOT / relative_path, target)
+    generated = destination / "architecture/generated_artifacts.toml"
+    generated.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(REPO_ROOT / "architecture/generated_artifacts.toml", generated)
 
 
 def test_all_null_capability_report_fails_owner_validation(tmp_path: Path) -> None:
@@ -210,6 +218,32 @@ def test_acquisition_growth_has_genuine_recomputing_owner_validator() -> None:
     assert result["issue_codes"] == []
 
 
+def test_acquisition_growth_publishes_the_registered_executed_validator() -> None:
+    definition = governed_module._DEFINITION_BY_ID[governed_module.ProjectionId.ACQUISITION_GROWTH]
+    module_name, separator, attribute = definition.owner_validator_id.partition(":")
+    assert separator == ":"
+    resolved = getattr(importlib.import_module(module_name), attribute, None)
+    assert callable(resolved)
+
+    assert worker_module._VALIDATOR_METADATA["acquisition-growth"][0] == (
+        definition.owner_validator_id
+    )
+    assert worker_module._VALIDATORS["acquisition-growth"] is resolved
+
+    bindings, payload = _acquisition_growth_request()
+    result = _run_worker(
+        projection_id="acquisition-growth",
+        repository_root=REPO_ROOT,
+        component_bindings=bindings,
+        projection_payload=payload,
+    )
+    assert result["status"] == "passed"
+    assert (
+        "tools/quality/validation/layer3_gy_n13b_acquisition_contract.py"
+        in result["dependency_bindings"]
+    )
+
+
 def test_acquisition_growth_rejects_payload_drift_with_markers_intact() -> None:
     bindings, payload = _acquisition_growth_request()
     mutated = copy.deepcopy(payload)
@@ -260,6 +294,58 @@ def test_acquisition_growth_rejects_owner_contract_drift(
 
     assert result["status"] == "failed"
     assert result["issue_codes"] == [expected_issue]
+
+
+def test_acquisition_growth_rejects_replaced_owner_registration(
+    tmp_path: Path,
+) -> None:
+    """A valid-shaped replacement cannot shrink the owner-derived family."""
+
+    _copy_acquisition_growth_inputs(tmp_path)
+    lifecycle_path = (
+        tmp_path / "architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json"
+    )
+    lifecycle = json.loads(lifecycle_path.read_text(encoding="utf-8"))
+    replacement_path = "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json"
+    replaced = next(
+        row for row in lifecycle["registrations"] if row["registration_status"] == "content_bound"
+    )
+    replacement_bytes = (tmp_path / replacement_path).read_bytes()
+    replaced.update(
+        {
+            "path": replacement_path,
+            "role": "receipt",
+            "byte_sha256": f"sha256:{hashlib.sha256(replacement_bytes).hexdigest()}",
+            "byte_size": len(replacement_bytes),
+        }
+    )
+    lifecycle["registrations"] = sorted(
+        lifecycle["registrations"],
+        key=lambda row: row["path"],
+    )
+    identity = {key: value for key, value in lifecycle.items() if key != "manifest_sha256"}
+    identity["registrations"] = [
+        {
+            "path": row["path"],
+            "role": row["role"],
+            "registration_status": row["registration_status"],
+        }
+        for row in lifecycle["registrations"]
+    ]
+    lifecycle["manifest_sha256"] = content_sha256(identity)
+    lifecycle_path.write_text(json.dumps(lifecycle, sort_keys=True), encoding="utf-8")
+    bindings, payload = _acquisition_growth_request(tmp_path)
+    assert len(bindings) == 45
+
+    result = _run_worker(
+        projection_id="acquisition-growth",
+        repository_root=tmp_path,
+        component_bindings=bindings,
+        projection_payload=payload,
+    )
+
+    assert result["status"] == "failed"
+    assert result["issue_codes"] == ["acquisition_growth_owner_denominator_mismatch"]
 
 
 def test_acquisition_growth_fails_when_validator_property_is_removed(

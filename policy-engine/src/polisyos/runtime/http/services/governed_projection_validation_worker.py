@@ -80,7 +80,8 @@ _VALIDATOR_METADATA: dict[str, tuple[str, str]] = {
         "policyos.layer3.gy.n13a.acquisition_census.v1",
     ),
     "acquisition-growth": (
-        "polisyos.runtime.http.services.acquisition_surface_projection:validate",
+        "polisyos.runtime.http.services."
+        "governed_projection_validation_worker:validate_acquisition_growth",
         "policyos.runtime.acquisition_growth_projection.v1",
     ),
     "capability-reality": (
@@ -351,7 +352,14 @@ def _validate_n13a_journal(root: Path) -> list[str]:
     return _validate_n13a_canonical_recompute(root)
 
 
-def _validate_acquisition_growth(root: Path) -> list[str]:
+def validate_acquisition_growth(root: Path) -> list[str]:
+    """Validate acquisition-growth inputs against the N13b owner denominator."""
+
+    from tools.quality.validation.layer3_gy_n13b_acquisition_contract import (
+        N13bLifecycleManifest,
+        derive_lifecycle_manifest,
+    )
+
     schemas = {
         "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json": (
             "policyos.policy_design_case.gy_n13a.acquisition_census.v1"
@@ -382,14 +390,8 @@ def _validate_acquisition_growth(root: Path) -> list[str]:
         "architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json",
     )
     registrations = lifecycle.get("registrations")
-    if not isinstance(registrations, list) or len(registrations) != 43:
+    if not isinstance(registrations, list):
         return ["acquisition_growth_lifecycle_denominator_mismatch"]
-    statuses = [
-        row.get("registration_status") if isinstance(row, Mapping) else None
-        for row in registrations
-    ]
-    if statuses.count("content_bound") != 41 or statuses.count("writer_managed") != 2:
-        return ["acquisition_growth_lifecycle_partition_mismatch"]
     for row in registrations:
         if not isinstance(row, Mapping):
             return ["acquisition_growth_lifecycle_content_binding_mismatch"]
@@ -416,6 +418,31 @@ def _validate_acquisition_growth(root: Path) -> list[str]:
             return ["acquisition_growth_lifecycle_content_binding_mismatch"]
         if _sha256(raw) != expected_hash or len(raw) != expected_size:
             return ["acquisition_growth_lifecycle_content_binding_mismatch"]
+    try:
+        persisted_manifest = N13bLifecycleManifest.model_validate(lifecycle)
+    except ValueError:
+        return ["acquisition_growth_lifecycle_manifest_invalid"]
+    owner_manifest = derive_lifecycle_manifest(root)
+    persisted_bindings = tuple(
+        (
+            row.path,
+            row.registration_status,
+            row.byte_sha256,
+            row.byte_size,
+        )
+        for row in persisted_manifest.registrations
+    )
+    owner_bindings = tuple(
+        (
+            row.path,
+            row.registration_status,
+            row.byte_sha256,
+            row.byte_size,
+        )
+        for row in owner_manifest.registrations
+    )
+    if persisted_bindings != owner_bindings:
+        return ["acquisition_growth_owner_denominator_mismatch"]
     return []
 
 
@@ -429,15 +456,13 @@ def _acquisition_growth_inputs(
         "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json",
     )
     lifecycle_path = "architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json"
+    from tools.quality.validation.layer3_gy_n13b_acquisition_contract import (
+        derive_lifecycle_manifest,
+    )
+
     lifecycle = _load_json(root, lifecycle_path)
-    registrations = lifecycle.get("registrations")
-    if not isinstance(registrations, list):
-        raise ValueError("acquisition_growth_lifecycle_registrations_missing")
-    registered_paths = {
-        str(row["path"])
-        for row in registrations
-        if isinstance(row, Mapping) and isinstance(row.get("path"), str)
-    }
+    owner_manifest = derive_lifecycle_manifest(root)
+    registered_paths = {row.path for row in owner_manifest.registrations}
     paths = {*n13a_paths, *registered_paths}
     inputs = {
         "census": _load_json(root, n13a_paths[0]),
@@ -545,7 +570,7 @@ _VALIDATORS: dict[str, Callable[[Path], list[str]]] = {
     "acquisition-routing-contract": _validate_acquisition,
     "n13a-acquisition-census": _validate_n13a_census,
     "n13a-live-probe-journal": _validate_n13a_journal,
-    "acquisition-growth": _validate_acquisition_growth,
+    "acquisition-growth": validate_acquisition_growth,
     "capability-reality": _validate_capability,
     "cluster-ownership": _validate_cluster,
     "layer3-health-metrics": _validate_health,

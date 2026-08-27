@@ -105,7 +105,7 @@ from polisyos.scientist.governance.calibration_validation import (
     load_calibration_validation_bundle,
 )
 from polisyos.scientist.governance.postflight import postflight_checks
-from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
+from polisyos.scientist.methods.backtesting.plan import PredictionSource
 from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
@@ -1302,19 +1302,19 @@ def build_required_backtest_bundles(
             required_fields=["observed_value"],
             holdout_windows=[f"{holdout_window['start']}::{holdout_window['end']}"],
             plans=[
-                HistoricalValidationPlan(
-                    plan_id=f"{kind.value}_real_history",
-                    plan_label=f"{kind.value} real history",
-                    historical_data_path=str(historical_path),
-                    intervention_date=str(holdout["period_start_dt"].iloc[0].date()),
-                    intervention_step=max(len(train), 1),
-                    ground_truth_outcomes={
+                {
+                    "plan_id": f"{kind.value}_real_history",
+                    "plan_label": f"{kind.value} real history",
+                    "historical_data_path": str(historical_path),
+                    "intervention_date": str(holdout["period_start_dt"].iloc[0].date()),
+                    "intervention_step": max(len(train), 1),
+                    "ground_truth_outcomes": {
                         "observed_value": holdout["observed_value"].astype(float).tolist()
                     },
-                    target_metrics=["observed_value"],
-                    prediction_source=PredictionSource.PROVIDED,
-                    predicted_outcomes={"observed_value": predicted},
-                )
+                    "target_metrics": ["observed_value"],
+                    "prediction_source": PredictionSource.PROVIDED.value,
+                    "predicted_outcomes": {"observed_value": predicted},
+                }
             ],
             historical_payloads={
                 family.value: {

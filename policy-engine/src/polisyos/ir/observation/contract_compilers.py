@@ -68,7 +68,6 @@ from polisyos.ir.observation.measurement import (
     MeasurementRegistry,
     SchemaRegimeRegistry,
 )
-from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -445,7 +444,7 @@ class HistoricalValidationCompileSpec(KernelModel):
     post_intervention_periods: int = Field(..., ge=1)
     historical_data_ref: str | None = Field(None, max_length=255)
     historical_data_path: str | None = Field(None, max_length=255)
-    prediction_source: PredictionSource = PredictionSource.NAIVE
+    prediction_source: str | None = Field(default=None, min_length=1, max_length=64)
     jurisdiction: str = Field(default="", max_length=64)
 
 
@@ -485,9 +484,9 @@ class CompiledObservationArtifact:
 
 @dataclass(frozen=True)
 class HistoricalValidationCompilation:
-    """Pair a generated backtest plan with the payload snapshot used to run it."""
+    """Pair neutral plan payloads with the observation snapshot used to run them."""
 
-    plans: list[HistoricalValidationPlan]
+    plans: list[dict[str, Any]]
     historical_payloads: dict[str, dict[str, Any]]
     bundle: BacktestPlanBundle
 
@@ -1816,12 +1815,13 @@ class ProxyMeasurementCompiler:
 
 
 class HistoricalValidationPlanCompiler:
-    """Compile panel history into backtest plans for Scientist validation runners.
+    """Compile panel history into neutral payloads for Scientist validation runners.
 
     Downstream historical-validation and governance flows consume the emitted
-    ``HistoricalValidationPlan`` records plus frozen ground-truth series.
-    Callers must provide enough ordered periods to cover the requested
-    pre/post-intervention window for every requested metric.
+    payloads plus frozen ground-truth series. Scientist materializes its strict
+    plan contract at the execution intake. Callers must provide enough ordered
+    periods to cover the requested pre/post-intervention window for every
+    requested metric.
     """
 
     compiler_id = "observation.historical_validation"
@@ -1847,34 +1847,39 @@ class HistoricalValidationPlanCompiler:
             "time_index": [period.isoformat() for period in periods],
             "series": dict(ground_truth),
         }
-        plan = HistoricalValidationPlan(
-            plan_id=spec.spec_id,
-            plan_label=f"{panel.panel_id}_backtest",
-            historical_data_ref=spec.historical_data_ref
-            or f"compiled://{panel.panel_id}/{spec.spec_id}",
-            historical_data_path=spec.historical_data_path,
-            intervention_date=spec.intervention_date,
-            intervention_step=spec.pre_intervention_periods,
-            pre_intervention_periods=spec.pre_intervention_periods,
-            post_intervention_periods=spec.post_intervention_periods,
-            ground_truth_outcomes=ground_truth,
-            target_metrics=list(spec.metric_ids),
-            prediction_source=spec.prediction_source,
-            jurisdiction=spec.jurisdiction,
-            metadata={"panel_id": panel.panel_id},
-        )
+        historical_data_ref = spec.historical_data_ref
+        if historical_data_ref is None and spec.historical_data_path is None:
+            historical_data_ref = f"compiled://{panel.panel_id}/{spec.spec_id}"
+        plan_payload: dict[str, Any] = {
+            "plan_id": spec.spec_id,
+            "plan_label": f"{panel.panel_id}_backtest",
+            "intervention_date": spec.intervention_date,
+            "intervention_step": spec.pre_intervention_periods,
+            "pre_intervention_periods": spec.pre_intervention_periods,
+            "post_intervention_periods": spec.post_intervention_periods,
+            "ground_truth_outcomes": ground_truth,
+            "target_metrics": list(spec.metric_ids),
+            "jurisdiction": spec.jurisdiction,
+            "metadata": {"panel_id": panel.panel_id},
+        }
+        if historical_data_ref is not None:
+            plan_payload["historical_data_ref"] = historical_data_ref
+        if spec.historical_data_path is not None:
+            plan_payload["historical_data_path"] = spec.historical_data_path
+        if spec.prediction_source is not None:
+            plan_payload["prediction_source"] = spec.prediction_source
         bundle = BacktestPlanBundle(
             contract_target=BACKTEST_PLAN_TARGET,
             required_fields=["historical_data_ref", "ground_truth_outcomes", "target_metrics"],
             holdout_windows=[
                 f"{periods[-spec.post_intervention_periods].isoformat()}:{periods[-1].isoformat()}"
             ],
-            plans=[plan],
-            historical_payloads={plan.plan_id: historical_payload},
+            plans=[plan_payload],
+            historical_payloads={spec.spec_id: historical_payload},
         )
         return HistoricalValidationCompilation(
-            plans=[plan],
-            historical_payloads={plan.plan_id: historical_payload},
+            plans=[plan_payload],
+            historical_payloads={spec.spec_id: historical_payload},
             bundle=bundle,
         )
 

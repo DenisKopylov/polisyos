@@ -87,6 +87,7 @@ Every row below was classified before the first source edit. Result:
 | seam 9 — IR strategic/transportability adapters | 6/10 | Existing Foundry owners now interpret solve results, assemble strategic responses, and materialize `SourceDomain`; IR retains neutral declarations and persistence only. Cleared IF-08..10. | stands; consumer-up relocation into existing modules and already-allowed directions introduced no package, module, surface, authority publication, or constraint loosening |
 | seam 10 — IR kernel lowering | 6/10 | The duplicate execution-aware IR pass is removed; the existing Foundry compiler now carries a typed blocked kernel specification through real refusal execution and audit persistence. Cleared IF-11/12. | stands; consolidation and a private repair inside existing Foundry ownership introduced no new surface or constraint |
 | seam 11 — IR calibration/JAX | 7/10 | Existing Foundry measurement ownership now contains calibration-target compilation, placebo materialization, and optional JAX/NumPy tensors; IR retains neutral split/window/control declarations. Cleared IF-13 and IJ-01 separately, closing `ir -> foundry` 13/13 and `ir -> jax` 1/1. | stands; round 7 bought the two-name internal Foundry measurement execution surface; no root/package/module, stable root facade, or constraint was added |
+| seam 12 — IR backtesting | 7/10 | IR now emits sparse neutral validation-plan payloads; the existing Scientist matrix runner strictly materializes the complete bundle set before any execution. Cleared IS-01..03. | stands; existing modules, bundle surface, and Scientist plan authority were reused; no new surface, module, package, constraint, or authority publication |
 
 No round has been withdrawn.
 
@@ -587,3 +588,48 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   manifest/tensor artifacts, C7 consumer, negative verification, and execution
   surface are wired. Round 7 is charged for the new two-name internal Foundry
   measurement surface; no policy authority is published.
+
+### Seam 12 — IR backtesting
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 11 commit
+  `133c32a919ff` read back after writing and before this boundary.
+- Observed seam path set is exactly eight: IR bundles/compiler; existing
+  Scientist matrix/blueprint consumers; three focused unit-test paths; and the
+  opt-in C7 integration witness. This plan/journal pair are P39 record
+  companions. The dirty Seam 13 `composition_bridge.py` path remained hash
+  `c24e6c65...` and was neither edited nor staged for this seam.
+- IS-01/02 are `shared-contract-down`; IS-03 is `consumer-up`. IR persists
+  deterministic sparse `dict[str, Any]` plan payloads. Omitting
+  `prediction_source` preserves Scientist's authoritative `NAIVE` default
+  instead of copying the enum/default downward.
+- Existing `BacktestMatrixRunner.run` is the one strict intake. It materializes
+  and validates every payload in the complete supplied bundle set before any
+  scenario executes, so an unknown later payload prevents partial earlier
+  execution. Both real producers—the IR compiler and Scientist blueprint
+  release—emit neutral payloads, and calibration governance still consumes
+  them through the matrix.
+- Fresh decisive wave passed 3 tests, direct exit 0 (`real=33.78s`,
+  `user=32.47s`, `sys=1.26s`): producer -> neutral bundle -> matrix with NAIVE
+  default, unknown later payload before an unreadable earlier execution, and
+  the compile-all downstream path through the matrix. The governance/calibration
+  wave passed five tests; opt-in C7 passed one (`real=72.01s`,
+  `user=68.48s`, `sys=3.51s`). A first C7 invocation without its opt-in env was
+  skipped and is recorded as a non-receipt. Ruff on all eight paths and
+  `git diff --check` completed exit 0.
+- Complete AST walk parsed 5,044/5,044 source/test Python files and found zero
+  forbidden plan-module imports in the two IR files. The 2,594-file production
+  census found exactly two `BacktestPlanBundle` constructors and one bundle-plan
+  execution reader, the matrix chokepoint. The composite exact
+  `ir -> scientist` literal command completed direct exit 0; this seam claims
+  IS-01..03 while the separately reviewed alignment and budget seams supply the
+  other three removals in the current tree.
+- Manual final-baseline delta: REMOVE
+  `polisyos.ir.observation.bundles -> polisyos.scientist.methods.backtesting.plan`
+  and REMOVE
+  `polisyos.ir.observation.contract_compilers -> polisyos.scientist.methods.backtesting.plan`;
+  ADD none. Generated schema/public companions are deferred intact.
+- Capability result: compiler producer, neutral persisted bundle artifact,
+  strict Scientist bridge, matrix/calibration consumers, and semantic negative
+  plus e2e tests are wired. No incomplete label remains and the ledger stays
+  7/10.

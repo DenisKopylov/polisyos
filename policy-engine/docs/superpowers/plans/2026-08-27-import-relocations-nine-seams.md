@@ -117,9 +117,9 @@ At every seam boundary:
 
 ### Seam 12: IR backtesting — 3 statements
 
-- [ ] Store neutral plan payloads in IR and materialize/validate executable
+- [x] Store neutral plan payloads in IR and materialize/validate executable
   `HistoricalValidationPlan` instances in Scientist.
-- [ ] Add malformed-payload rejection at Scientist intake and preserve matrix
+- [x] Add malformed-payload rejection at Scientist intake and preserve matrix
   governance consumers.
 
 ### Seam 13: IR alignment governance — 2 statements

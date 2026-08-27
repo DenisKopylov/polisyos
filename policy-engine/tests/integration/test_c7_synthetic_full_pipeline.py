@@ -271,7 +271,7 @@ def _build_backtest_bundle(tmp_path: Path, kind: BacktestKind) -> BacktestPlanBu
                 target_metrics=["metric"],
                 prediction_source=PredictionSource.PROVIDED,
                 predicted_outcomes={"metric": [0.99, 1.01]},
-            )
+            ).model_dump(mode="json")
         ],
         historical_payloads={"metric": {"values": [1.0, 1.0, 1.0, 1.0]}},
     )

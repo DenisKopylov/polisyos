@@ -8,6 +8,8 @@ import numpy as np
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.foundry.data_plane import materialize_method_contract
 from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
 from polisyos.foundry.methods.catalog.causal.did import StandardDifferenceInDifferences
@@ -28,6 +30,7 @@ from polisyos.foundry.methods.catalog.optimization.io_model import LeontiefInput
 from polisyos.foundry.methods.catalog.sensitivity.specification import (
     SpecificationCurveEstimator,
 )
+from polisyos.ir.analytics.backtest import load_backtest_report
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.bundles import (
@@ -56,6 +59,7 @@ from polisyos.ir.observation.contract_compilers import (
     GraphBipartiteEdge,
     GraphEdge,
     HistoricalValidationCompileSpec,
+    HistoricalValidationPlanCompiler,
     LeontiefIOCompileSpec,
     NetworkCausalCompileSpec,
     NetworkContractCompileSpec,
@@ -88,7 +92,7 @@ from polisyos.ir.observation.contracts import (
     ObservationRecord,
     SourceConfidenceTier,
 )
-from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
+from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixRunner
 
 _FOUNDRY_METHOD_TARGETS: dict[str, ContractCompatibilityTarget] = {
     "dynamic_treatment_data": DYNAMIC_TREATMENT_TARGET,
@@ -575,6 +579,43 @@ def test_network_causal_compiler_shapes() -> None:
     assert contract.bipartite_edges.shape[1] == 2
 
 
+def test_historical_validation_bundle_runs_through_scientist_matrix(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    historical_ref = store.put_json(
+        {"outcome_score": [5.2, 6.65, 7.35, 8.05]},
+        PutOptions(kind="test.historical_data", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    compilation = HistoricalValidationPlanCompiler().compile(
+        _observation_panel(n_units=2, n_periods=4),
+        HistoricalValidationCompileSpec(
+            spec_id="neutral_backtest_plan",
+            metric_ids=["outcome_score"],
+            intervention_date="2024-02-01",
+            pre_intervention_periods=1,
+            post_intervention_periods=3,
+            historical_data_ref=str(historical_ref.artifact_id),
+        ),
+    )
+
+    plan_payload = compilation.bundle.plans[0]
+    assert isinstance(plan_payload, dict)
+    assert "prediction_source" not in plan_payload
+
+    result = BacktestMatrixRunner(store).run(
+        {BacktestKind.HOUSEHOLD: compilation.bundle}
+    )
+    household = next(item for item in result.kind_results if item.kind is BacktestKind.HOUSEHOLD)
+    assert household.status == "ok"
+    assert household.n_plans == 1
+    assert result.backtest_report_ref is not None
+
+    report = load_backtest_report(store, result.backtest_report_ref)
+    assert report.n_scenarios == 1
+    assert report.scenarios[0].metadata["prediction_source_requested"] == "naive"
+    assert report.scenarios[0].metadata["prediction_source_effective"] == "naive"
+
+
 def test_compile_all_and_downstream_methods_accept_compiled_contracts(tmp_path) -> None:
     suite = ObservationContractCompilerSuite()
     panel = _observation_panel()
@@ -690,10 +731,23 @@ def test_compile_all_and_downstream_methods_accept_compiled_contracts(tmp_path) 
     historical_path = tmp_path / "historical_data.json"
     backtest_series = result.backtest.historical_payloads["historical_validation_spec"]["series"]
     historical_path.write_text(json.dumps(backtest_series), encoding="utf-8")
-    backtest_plan = result.backtest.plans[0].model_copy(
-        update={"historical_data_path": str(historical_path), "historical_data_ref": None}
+    backtest_plan_payload = {
+        **result.backtest.plans[0],
+        "historical_data_path": str(historical_path),
+        "historical_data_ref": None,
+    }
+    backtest_bundle = result.backtest.bundle.model_copy(
+        update={"plans": [backtest_plan_payload]}
     )
-    backtest_report = BacktestOrchestrator(cas_root=str(tmp_path / ".cas")).run([backtest_plan])
+    backtest_store = FileSystemCAS(tmp_path / ".cas")
+    backtest_matrix = BacktestMatrixRunner(backtest_store).run(
+        {BacktestKind.HOUSEHOLD: backtest_bundle}
+    )
+    assert backtest_matrix.backtest_report_ref is not None
+    backtest_report = load_backtest_report(
+        backtest_store,
+        backtest_matrix.backtest_report_ref,
+    )
 
     _assert_primary_payload(microsim_out)
     _assert_primary_payload(network_out)

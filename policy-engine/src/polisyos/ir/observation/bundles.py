@@ -27,18 +27,16 @@ if TYPE_CHECKING:
     from polisyos.ir.analytics.context import ContextProfile
     from polisyos.ir.analytics.privacy_transportability import DPUtilityManifest
     from polisyos.ir.analytics.transportability import SNode
-    from polisyos.ir.observation.governance import GovernancePassAliasRegistry
     from polisyos.ir.model_layer.types import TimeFrequency
-    from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
+    from polisyos.ir.observation.governance import GovernancePassAliasRegistry
 else:
     from datetime import date
 
     from polisyos.ir.analytics.context import ContextProfile
     from polisyos.ir.analytics.privacy_transportability import DPUtilityManifest
     from polisyos.ir.analytics.transportability import SNode
-    from polisyos.ir.observation.governance import GovernancePassAliasRegistry
     from polisyos.ir.model_layer.types import TimeFrequency
-    from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
+    from polisyos.ir.observation.governance import GovernancePassAliasRegistry
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
@@ -355,14 +353,14 @@ class CausalPanelBundleManifest(KernelModel):
 
 
 class BacktestPlanBundle(KernelModel):
-    """Bundle of historical validation plans and their frozen payloads."""
+    """Bundle of neutral historical-validation payloads and frozen observations."""
 
     schema_version: str = Field("1.0", pattern=SCHEMA_VERSION_PATTERN)
     artifact_name: Literal["backtest_plan_bundle.json"] = "backtest_plan_bundle.json"
     contract_target: ContractCompatibilityTarget
     required_fields: list[str] = Field(..., min_length=1)
     holdout_windows: list[str] = Field(default_factory=list)
-    plans: list[HistoricalValidationPlan] = Field(default_factory=list)
+    plans: list[dict[str, Any]] = Field(default_factory=list)
     historical_payloads: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
 

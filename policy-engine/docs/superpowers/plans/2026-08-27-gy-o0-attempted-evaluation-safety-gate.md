@@ -1104,9 +1104,31 @@ paths as one P31/P38 owner-plus-sibling-consumer class:
 - Modify `src/polisyos/runtime/quality/authority.py`
 - Modify `src/polisyos/runtime/http/services/run_paper_projection.py`
 
-The execution manifest is therefore **18 unique mechanism paths**: the explicit
-16-path base union plus this exact two-path set. C03 is now 5/5 and has no
-widening round left; the overall hard ceiling remains 24.
+After this first widening, the execution manifest was **18 unique mechanism
+paths**: the explicit 16-path base union plus this exact two-path set. C03 is
+now 5/5 and has no widening round left; the overall hard ceiling remains 24.
+
+**Execution amendment (2026-08-28): C02 spends its one widening round.** The
+red-first exact-event trace requires reconciliation to verify the
+manifest-linked diagnostic-event artifact's canonical kind as well as its
+schema before that event may carry authority. The sole kind constant is
+currently declared in the HTTP writer, while that writer already imports
+`authority_reconciliation.py`; importing it back would create an ownership
+cycle, and copying the literal would create a second trust-by-form predicate.
+Move the constant to the existing diagnostic-event contract owner and
+re-export it from the writer. Admit exactly these two mechanism paths as one
+P31/P32 persistence-owner class:
+
+- Modify `src/polisyos/runtime/quality/diagnostic_events.py`
+- Modify `src/polisyos/runtime/http/services/control/artifacts.py`
+
+Two independent derivations agree on the two-path set: (A) the complete symbol
+census finds one definition in `control/artifacts.py` and no definition in the
+reconciler, so moving the owner changes the old and new owner; (B) the import
+DAG is `control/artifacts.py -> authority_reconciliation.py ->
+diagnostic_events.py`, making `diagnostic_events.py` the existing acyclic
+contract owner shared by writer and reconciler. C02 is now 4/4 and has no
+widening round left.
 
 ### 10.2 Two independent ceiling derivations
 
@@ -1123,11 +1145,12 @@ live in the already declared test companions; `GY-O0-NC-01`, capability labels,
 and lane ceilings are plan record. Both independent derivations therefore
 remain **16 base mechanism paths and 24 hard-ceiling mechanism paths**.
 
-The 2026-08-28 execution widening changes neither of those original ceiling
-derivations. It spends two of the eight slack paths: cluster arithmetic is
-`C01 4 + C02 2 + C03 5 + C04 7 = 18`, and the explicit set union is the
-16-path base plus two previously absent egress paths = 18. Both derivations
-agree on **18 current / 24 hard ceiling**, leaving six paths of aggregate slack.
+The 2026-08-28 execution widenings change neither of those original ceiling
+derivations. They spend four of the eight slack paths: cluster arithmetic is
+`C01 4 + C02 4 + C03 5 + C04 7 = 20`, and the explicit set union is the
+16-path base plus two previously absent egress paths plus two previously absent
+diagnostic-event ownership paths = 20. Both derivations agree on **20 current /
+24 hard ceiling**, leaving four paths of aggregate slack.
 
 ### 10.3 Per-cluster mechanism caps and widening rounds
 
@@ -1135,7 +1158,7 @@ agree on **18 current / 24 hard ceiling**, leaving six paths of aggregate slack.
 | --- | ---: | ---: | --- |
 | C00 census and structural red witnesses | 0 | 0 | 0 |
 | C01 contracts, strict mode, pure gate, canonical N9 classifier, N8 local seam | 4 | 6 | 1 round, at most 2 paths |
-| C02 persistence, exact reconciliation, counters, projection adapter | 2 | 4 | 1 round, at most 2 paths |
+| C02 persistence, exact reconciliation, counters, projection adapter | 2 + 2 admitted | 4 | **spent**: diagnostic-event contract owner + writer re-export |
 | C03 container/recursive composition and existing surface | 3 + 2 admitted | 5 | **spent**: authority egress owner + run-paper sibling consumer |
 | C04 Scientist verifier DI and executor strangle | 7 | 9 | 1 round, at most 2 paths |
 | C05 freeze/replay/handoff | 0 | 0 | 0 |
@@ -1474,6 +1497,15 @@ cloud replay must still return the same six members over all three owner files.
 **Modify:**
 
 - `src/polisyos/runtime/quality/authority_reconciliation.py`
+
+**Admitted C02 widening (one round, now spent):**
+
+- `src/polisyos/runtime/quality/diagnostic_events.py`
+- `src/polisyos/runtime/http/services/control/artifacts.py`
+
+The widening moves the diagnostic-event artifact-kind predicate to its
+acyclic contract owner and keeps the HTTP writer as a compatibility re-export;
+it adds no event schema, table, route, or alternate reconciliation path.
 
 Tasks:
 

@@ -855,6 +855,38 @@ def build_workspace_operation_registry() -> OperationRegistry:
             discovery_evidence=_operation_discovery_evidence(OperationClass.COMPOSE),
         ),
     }
+    from polisyos.runtime.quality.workspace.s2_design_search_operation import (
+        S2_DESIGN_SEARCH_OPERATION_ID,
+    )
+
+    operations[S2_DESIGN_SEARCH_OPERATION_ID] = OperationRegistration(
+        operation_id=S2_DESIGN_SEARCH_OPERATION_ID,
+        operation_class=OperationClass.REFINE,
+        contract=_operation_contract(
+            operation_id=S2_DESIGN_SEARCH_OPERATION_ID,
+            operation_class=OperationClass.REFINE,
+            authority_transform={
+                "kind": "hint_only",
+                "rule_ref": "policyos.runtime.s2_design_search_operation.v1",
+            },
+        ),
+        executable=True,
+        discovered_from=(
+            "engine_registry:polisyos.runtime.quality.workspace.s2_design_search_operation"
+        ),
+        discovery_evidence={
+            "source_kind": "governed_workspace_adapter",
+            "source_ref": (
+                "polisyos.runtime.quality.workspace.s2_design_search_operation."
+                "execute_s2_design_search_operation"
+            ),
+            "adapter_conformance": {
+                "passed": True,
+                "required_contract": "Layer2S2DesignSearchInput -> terminal Core run binding",
+            },
+            "registration_mode": "executable",
+        },
+    )
     return OperationRegistry(operations=operations)
 
 

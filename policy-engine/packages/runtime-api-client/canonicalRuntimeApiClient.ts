@@ -133,6 +133,9 @@ export type AuthMeResponse = RuntimeApiComponents["schemas"]["AuthMeResponse"];
 
 export type AuthoredText = RuntimeApiComponents["schemas"]["AuthoredText"];
 
+export type AuthorityAbstainingRunPaperCase =
+  RuntimeApiComponents["schemas"]["AuthorityAbstainingRunPaperCase"];
+
 export type AuthorityBoundary =
   RuntimeApiComponents["schemas"]["AuthorityBoundary"];
 
@@ -534,6 +537,18 @@ export type EngineCensusPayload =
   RuntimeApiComponents["schemas"]["EngineCensusPayload"];
 
 export type EnvInfo = RuntimeApiComponents["schemas"]["EnvInfo"];
+
+export type EpochValidityBatchReceipt =
+  RuntimeApiComponents["schemas"]["EpochValidityBatchReceipt"];
+
+export type EpochValidityBatchRequest =
+  RuntimeApiComponents["schemas"]["EpochValidityBatchRequest"];
+
+export type EpochValidityBatchResponse =
+  RuntimeApiComponents["schemas"]["EpochValidityBatchResponse"];
+
+export type EpochValidityBatchTarget =
+  RuntimeApiComponents["schemas"]["EpochValidityBatchTarget"];
 
 export type EquilibriumBasinInterval =
   RuntimeApiComponents["schemas"]["EquilibriumBasinInterval"];
@@ -1013,6 +1028,9 @@ export type RetrievalTelemetryView =
 export type RunAuthorityProjection =
   RuntimeApiComponents["schemas"]["RunAuthorityProjection"];
 
+export type RunBoundDesignRecordBinding =
+  RuntimeApiComponents["schemas"]["RunBoundDesignRecordBinding"];
+
 export type RunCompareResponse =
   RuntimeApiComponents["schemas"]["RunCompareResponse"];
 
@@ -1081,14 +1099,14 @@ export type RunPaperAdmissionState =
 export type RunPaperArtifactLink =
   RuntimeApiComponents["schemas"]["RunPaperArtifactLink"];
 
+export type RunPaperAuthorityNonReceipt =
+  RuntimeApiComponents["schemas"]["RunPaperAuthorityNonReceipt"];
+
 export type RunPaperBlocker =
   RuntimeApiComponents["schemas"]["RunPaperBlocker"];
 
 export type RunPaperCaseSourceVerification =
   RuntimeApiComponents["schemas"]["RunPaperCaseSourceVerification"];
-
-export type RunPaperDesignRecordBinding =
-  RuntimeApiComponents["schemas"]["RunPaperDesignRecordBinding"];
 
 export type RunPaperGroundingState =
   RuntimeApiComponents["schemas"]["RunPaperGroundingState"];

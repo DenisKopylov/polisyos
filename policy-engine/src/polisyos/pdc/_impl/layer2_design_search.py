@@ -35,6 +35,10 @@ if TYPE_CHECKING:
 
 S2_DESIGN_SEARCH_SCHEMA_VERSION = "policyos.policy_design_case.layer2_s2_design_search.v1"
 S2_DESIGN_RECORD_RULE_VERSION = "policyos.layer2.s2.design_search.v1"
+RUN_BOUND_DESIGN_RECORD_BINDING_KIND = "policyos.pdc.run_bound_design_record_binding"
+RUN_BOUND_DESIGN_RECORD_BINDING_SCHEMA_VERSION = (
+    "policyos.pdc.run_bound_design_record_binding.v1"
+)
 
 CounterexampleClass = Literal[
     "real_design_blocker",
@@ -1390,17 +1394,105 @@ def assert_s2_public_projection_has_growth_limitation(
         raise ValueError(f"PUBLIC S12 projection leaked allocation authority: {leaked}")
 
 
+class RunBoundDesignRecordBinding(Layer2ReadinessModel):
+    """Content and owner binding for one S2 record emitted by one Core run."""
+
+    schema_version: Literal["policyos.pdc.run_bound_design_record_binding.v1"] = (
+        RUN_BOUND_DESIGN_RECORD_BINDING_SCHEMA_VERSION
+    )
+    binding_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    tenant_id: str = Field(min_length=1)
+    cell_id: str | None
+    case_id: str = Field(min_length=1)
+    design_record_ref: artifacts.ArtifactRef
+    design_record_record_id: str = Field(min_length=1)
+    design_record_schema_name: Literal["policyos.layer2_s2.design_record_v0"] = (
+        "policyos.layer2_s2.design_record_v0"
+    )
+    design_record_schema_version: str = Field(min_length=1)
+    design_record_content_digest: str = Field(min_length=1)
+    search_ledger_ref: artifacts.ArtifactRef
+    search_ledger_id: str = Field(min_length=1)
+    search_ledger_content_digest: str = Field(min_length=1)
+    producer: artifacts.ProducerInfo
+
+    @model_validator(mode="after")
+    def _bind_observable_artifact_identity(self) -> RunBoundDesignRecordBinding:
+        if self.design_record_ref.kind != self.design_record_schema_name:
+            raise ValueError("design_record_ref kind does not name DesignRecordV0")
+        if self.design_record_ref.media_type != "application/json":
+            raise ValueError("design_record_ref media type must be application/json")
+        if self.search_ledger_ref.kind != "policyos.layer2_s2.search_ledger":
+            raise ValueError("search_ledger_ref kind does not name SearchLedger")
+        if self.search_ledger_ref.media_type != "application/json":
+            raise ValueError("search_ledger_ref media type must be application/json")
+        if self.design_record_content_digest != str(self.design_record_ref.artifact_id):
+            raise ValueError(
+                "design_record_content_digest must equal design_record_ref.artifact_id"
+            )
+        if self.search_ledger_content_digest != str(self.search_ledger_ref.artifact_id):
+            raise ValueError(
+                "search_ledger_content_digest must equal search_ledger_ref.artifact_id"
+            )
+        return self
+
+
+class PersistedS2DesignSearchRun(Layer2ReadinessModel):
+    """Exact CAS refs and binding emitted by the S2 persistence producer."""
+
+    design_record_ref: artifacts.ArtifactRef
+    search_ledger_ref: artifacts.ArtifactRef
+    binding_ref: artifacts.ArtifactRef
+    binding: RunBoundDesignRecordBinding
+
+
+def _s2_design_search_producer() -> artifacts.ProducerInfo:
+    return artifacts.ProducerInfo(
+        component="polisyos.pdc.layer2_design_search",
+        version=S2_DESIGN_RECORD_RULE_VERSION,
+    )
+
+
+def _require_persisted_s2_sidecar(
+    *,
+    store: artifacts.FileSystemCAS,
+    artifact_ref: artifacts.ArtifactRef,
+    schema_name: str,
+    schema_version: str,
+    producer: artifacts.ProducerInfo,
+) -> None:
+    verification = store.verify(artifact_ref.artifact_id)
+    if not verification.ok:
+        raise ValueError(f"persisted {artifact_ref.kind} failed CAS verification")
+    sidecar = store.get_manifest(artifact_ref.artifact_id)
+    if sidecar.kind != artifact_ref.kind or sidecar.media_type != artifact_ref.media_type:
+        raise ValueError(f"persisted {artifact_ref.kind} sidecar identity mismatch")
+    if (
+        sidecar.artifact_schema is None
+        or sidecar.artifact_schema.name != schema_name
+        or sidecar.artifact_schema.version != schema_version
+    ):
+        raise ValueError(f"persisted {artifact_ref.kind} sidecar schema mismatch")
+    if sidecar.producer != producer:
+        raise ValueError(f"persisted {artifact_ref.kind} sidecar producer mismatch")
+
+
 def persist_s2_design_search_run(
     run: Layer2S2DesignSearchRun,
     *,
     store: artifacts.FileSystemCAS,
-) -> dict[str, artifacts.ArtifactRef]:
-    """Persist S2 DesignRecordV0 and SearchLedger as canonical CAS artifacts."""
+    run_id: str,
+    tenant_id: str,
+    cell_id: str | None,
+) -> PersistedS2DesignSearchRun:
+    """Persist one S2 record, ledger, and exact run/tenant/cell binding."""
 
-    producer = artifacts.ProducerInfo(
-        component="polisyos.pdc.layer2_design_search",
-        version=S2_DESIGN_RECORD_RULE_VERSION,
-    )
+    if not run_id.strip():
+        raise ValueError("run_id must be non-empty")
+    if not tenant_id.strip():
+        raise ValueError("tenant_id must be non-empty")
+    producer = _s2_design_search_producer()
     design_record_ref = store.put_json(
         run.design_record.model_dump(mode="json"),
         artifacts.PutOptions(
@@ -1427,10 +1519,72 @@ def persist_s2_design_search_run(
         ),
         canon_spec=canon.CanonSpec(forbid_floats=False),
     )
-    return {
-        "design_record": design_record_ref,
-        "search_ledger": search_ledger_ref,
-    }
+    _require_persisted_s2_sidecar(
+        store=store,
+        artifact_ref=design_record_ref,
+        schema_name="policyos.layer2_s2.design_record_v0",
+        schema_version=run.design_record.schema_version,
+        producer=producer,
+    )
+    _require_persisted_s2_sidecar(
+        store=store,
+        artifact_ref=search_ledger_ref,
+        schema_name="policyos.layer2_s2.search_ledger",
+        schema_version=S2_DESIGN_SEARCH_SCHEMA_VERSION,
+        producer=producer,
+    )
+    binding_seed = canon.to_canonical_bytes(
+        {
+            "run_id": run_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "case_id": run.search_ledger.case_id,
+            "design_record_ref": design_record_ref,
+            "search_ledger_ref": search_ledger_ref,
+        },
+        canon.CanonSpec(forbid_floats=False),
+    )
+    binding = RunBoundDesignRecordBinding(
+        binding_id=f"run-bound-s2-{hashlib.sha256(binding_seed).hexdigest()[:24]}",
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        case_id=run.search_ledger.case_id,
+        design_record_ref=design_record_ref,
+        design_record_record_id=run.design_record.record_id,
+        design_record_schema_version=run.design_record.schema_version,
+        design_record_content_digest=str(design_record_ref.artifact_id),
+        search_ledger_ref=search_ledger_ref,
+        search_ledger_id=run.search_ledger.ledger_id,
+        search_ledger_content_digest=str(search_ledger_ref.artifact_id),
+        producer=producer,
+    )
+    binding_ref = store.put_json(
+        binding.model_dump(mode="json"),
+        artifacts.PutOptions(
+            kind=RUN_BOUND_DESIGN_RECORD_BINDING_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=RUN_BOUND_DESIGN_RECORD_BINDING_KIND,
+                version=RUN_BOUND_DESIGN_RECORD_BINDING_SCHEMA_VERSION,
+            ),
+            producer=producer,
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
+    _require_persisted_s2_sidecar(
+        store=store,
+        artifact_ref=binding_ref,
+        schema_name=RUN_BOUND_DESIGN_RECORD_BINDING_KIND,
+        schema_version=RUN_BOUND_DESIGN_RECORD_BINDING_SCHEMA_VERSION,
+        producer=producer,
+    )
+    return PersistedS2DesignSearchRun(
+        design_record_ref=design_record_ref,
+        search_ledger_ref=search_ledger_ref,
+        binding_ref=binding_ref,
+        binding=binding,
+    )
 
 
 def load_s2_search_ledger(

@@ -193,6 +193,7 @@ git commit -m "fix(fabric): own world snapshot replacement" \
 - Modify: `src/polisyos/pdc/__init__.py`
 - Create: `src/polisyos/runtime/quality/workspace/s2_design_search_operation.py`
 - Modify: `src/polisyos/runtime/quality/workspace/loop.py`
+- Modify: `src/polisyos/core/contracts/__init__.py`
 - Modify: `src/polisyos/runtime/http/services/control/workspace_loop_transition.py`
 - Modify: `src/polisyos/runtime/http/services/adapters/core_run.py`
 - Create: `src/polisyos/runtime/http/services/run_paper_case_record.py`
@@ -207,6 +208,21 @@ git commit -m "fix(fabric): own world snapshot replacement" \
 - Modify (generated): `packages/runtime-api-client/canonicalRuntimeApiClient.ts`
 - Modify (generated): `packages/runtime-api-client/canonicalRuntimeApiClient.js`
 - Modify (generated): `apps/runtime-dashboard/src/api/types.ts`
+- Modify (generated): `architecture/public_surface/inventory.json`
+- Modify (generated): `docs/reference/public-surface.md`
+- Modify: `apps/runtime-dashboard/src/features/runs/api/useRunPaper.ts`
+- Review and modify if semantically required: `apps/runtime-dashboard/src/features/runs/domain/runPaperPresentation.ts`
+- Modify: `apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx`
+- Modify: `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx`
+- Modify: `apps/runtime-dashboard/src/shared/i18n/locales/en.json`
+- Modify: `apps/runtime-dashboard/src/shared/i18n/locales/ru.json`
+- Modify: `apps/runtime-dashboard/src/shared/i18n/locales/uk.json`
+- Modify: `apps/runtime-dashboard/src/test/fixtures/runPaper.ts`
+- Modify: `apps/runtime-dashboard/src/features/runs/api/useRunPaper.test.tsx`
+- Modify: `apps/runtime-dashboard/src/features/runs/api/useCaseInspection.test.tsx`
+- Modify: `apps/runtime-dashboard/src/features/runs/domain/runPaperPresentation.test.ts`
+- Modify: `apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.test.tsx`
+- Modify: `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx`
 - Modify: `tests/unit/pdc/test_layer2_s2_design_search.py`
 - Modify: `tests/unit/runtime/quality/test_workspace_loop.py`
 - Modify: `tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py`
@@ -378,6 +394,13 @@ Before outputs, emit applicability/invocation/ledger/envelope events with candid
 
 Catch `TenantContextNotSetError` in the exact-operation branch before the broad WorkspaceLoop/fixture exception wrapper. Produce the exact non-receipt above plus a `ControlFailureEnvelope` with code `run_bound_design_record_tenant_scope_missing`, layer `pdc.gy`, phase `s2_design_search_persist`, the frozen message/next-action from the spec, `retryable=False`, exact job/run IDs, and empty artifact refs, then raise `_WorkflowExecutionNonAuthorityError(progress=...)` so the worker preserves this packet. Do not persist the normal failed-workspace proof artifacts on this branch because the falsifier requires zero DesignRecord, SearchLedger, or binding persistence and no fabricated scope.
 
+Import that real owner model through `polisyos.core.contracts`. Complete the
+existing lazy facade map, type-checking import, and `__all__` entry, and prove
+the facade object is the exact readback model rather than a hand-shaped local
+payload. Refresh only the derived public-surface inventory and reference doc
+with `guardrails sync --skip-deep-import-baseline`; this is a round-free P39
+contract companion and does not authorize a baseline change.
+
 - [ ] **Step 9: Implement direct resolution and the authority-abstaining paper arm**
 
 The resolver takes only store and trusted root configuration. It resolves `TerminalCoreRunSource`, verifies the manifest, locates exactly one binding output by exact sidecar identity, verifies binding bytes, then verifies and parses its exact DesignRecord and SearchLedger refs. It compares every bound identity, schema, producer, content digest, case, record, ledger, run, tenant, and cell field.
@@ -448,8 +471,37 @@ corepack pnpm --filter @polisyos/runtime-api-client run generate
 corepack pnpm --filter @polisyos/runtime-dashboard run generate:api
 ```
 
-Review the generated diff and touch no dashboard component, snapshot, or visual
-specification.
+The generated discriminator is the first manifestation of the same
+public-surface/consumer class one level deeper. Derive the complete existing
+dashboard run-paper case consumer denominator twice (TypeScript compiler/AST
+references and an independent text/AST census), then update every production
+consumer that semantically branches on `case_record.availability` rather than
+patching only reported compiler lines. Semantically review the complete four-file
+production denominator, including `domain/runPaperPresentation.ts`; its generic
+one-for-one roster needs no source change only if it already preserves the new
+arm without branching or omission. `useRunPaper` must bind the abstaining
+arm's exact artifact, record, binding, and three role-specific non-receipt
+requirements; `CaseWorkspacePage` and `RunReportPage` must exhaustively render
+the verified record/binding plus each exact missing-authority name and denied
+uses. Add only the seven measured `paper.fields` locale companions required by
+scoped lint in `en`/`ru`/`uk`; this is a worked example of the existing consumer
+completion, not a new P40 class or widening round. Update the typed fixture and
+focused non-parity behavioral tests. Do not
+touch parity tests, snapshots, stories, visual specifications, or DS11 evidence.
+This completion is round-free and introduces no new mechanism.
+
+Run the focused dashboard closure:
+
+```bash
+corepack pnpm --filter @polisyos/runtime-dashboard exec vitest run \
+  src/features/runs/api/useRunPaper.test.tsx \
+  src/features/runs/api/useCaseInspection.test.tsx \
+  src/features/runs/domain/runPaperPresentation.test.ts \
+  src/features/runs/routes/CaseWorkspacePage.test.tsx \
+  src/features/runs/routes/RunReportPage.test.tsx
+corepack pnpm --filter @polisyos/runtime-dashboard run test:contracts
+corepack pnpm --filter @polisyos/runtime-dashboard run typecheck
+```
 
 - [ ] **Step 10: Run focused case-record green checks and falsifier matrix**
 

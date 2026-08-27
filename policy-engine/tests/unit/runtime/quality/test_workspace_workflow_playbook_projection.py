@@ -155,7 +155,19 @@ def test_phase2_value_advisor_receives_the_owner_design_problem(
     assert observed == [problem]
 
 
-def test_workspace_loop_phase2_playbook_can_deviate_to_refine_blocker() -> None:
+def test_workspace_loop_phase2_playbook_can_deviate_to_refine_blocker(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    operation_calls: list[object] = []
+
+    def _unexpected_s2_operation(**kwargs: object) -> None:
+        operation_calls.append(kwargs)
+
+    monkeypatch.setattr(
+        "polisyos.runtime.quality.workspace.s2_design_search_operation."
+        "execute_s2_design_search_operation",
+        _unexpected_s2_operation,
+    )
     result = WorkspaceLoop().run_intent(
         _design_problem(
             causal_variables=["credit_access", "firm_survival"],
@@ -167,7 +179,14 @@ def test_workspace_loop_phase2_playbook_can_deviate_to_refine_blocker() -> None:
     assert result.phase2_playbook_trace is not None
     assert result.phase2_playbook_trace.deviated_from_default is True
     assert result.phase2_playbook_trace.deviation_operation == OperationClass.REFINE
-    assert result.search_blockers
+    assert [blocker.blocker_id for blocker in result.search_blockers] == [
+        "blocker-missing-bound"
+    ]
+    assert result.terminal_state.blocking_obligations == [
+        "blocker-missing-bound"
+    ]
+    assert result.phase2_playbook_trace.deviation_reason == "counterexample_missing_bounds"
+    assert operation_calls == []
 
 
 def test_workspace_loop_phase2_executes_real_adapter_event_on_stable_path() -> None:

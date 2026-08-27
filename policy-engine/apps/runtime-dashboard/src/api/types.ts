@@ -565,6 +565,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/control/decision-validity/epoch-batches": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Admit one owner-verified semantic-epoch validity batch */
+    post: operations["admit_epoch_validity_batch"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/control/decision-validity/events": {
     parameters: {
       query?: never;
@@ -2678,6 +2695,30 @@ export interface components {
       text: string;
     };
     /**
+     * AuthorityAbstainingRunPaperCase
+     * @description Verified S2 record rendered without fabricating absent authority owners.
+     */
+    AuthorityAbstainingRunPaperCase: {
+      admission_nonreceipt: components["schemas"]["RunPaperAuthorityNonReceipt"];
+      /**
+       * Authority Projection
+       * @default abstained
+       * @constant
+       */
+      authority_projection: "abstained";
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      availability: "record_available_authority_abstaining";
+      /** Case Id */
+      case_id: string;
+      design_record: components["schemas"]["DesignRecordV0"];
+      design_record_binding: components["schemas"]["RunBoundDesignRecordBinding"];
+      grounding_nonreceipt: components["schemas"]["RunPaperAuthorityNonReceipt"];
+      promotion_nonreceipt: components["schemas"]["RunPaperAuthorityNonReceipt"];
+    };
+    /**
      * AuthorityBoundary
      * @description Purpose-scoped authority boundary carried by Layer 2 records.
      */
@@ -2987,7 +3028,7 @@ export interface components {
       /** Case Id */
       case_id: string;
       design_record: components["schemas"]["DesignRecordV0"];
-      design_record_binding: components["schemas"]["RunPaperDesignRecordBinding"];
+      design_record_binding: components["schemas"]["RunBoundDesignRecordBinding"];
       grounding_state: components["schemas"]["RunPaperGroundingState"];
       /** Limitations */
       limitations: components["schemas"]["RunPaperLimitation"][];
@@ -6436,6 +6477,96 @@ export interface components {
       platform: string;
       /** Python */
       python: string;
+    };
+    /**
+     * EpochValidityBatchReceipt
+     * @description Completed, replayable result of one owner-admitted epoch batch.
+     */
+    EpochValidityBatchReceipt: {
+      /** Adjudication Denominator Ref */
+      adjudication_denominator_ref: string;
+      /** Affected Packet Refs */
+      affected_packet_refs: string[];
+      /** Batch Id */
+      batch_id: string;
+      /**
+       * Claim Bridge Result Refs
+       * @default []
+       */
+      claim_bridge_result_refs: components["schemas"]["ArtifactRef-Output"][];
+      completion_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Dependency Denominator Ref */
+      dependency_denominator_ref: string;
+      /** Requested Query Context Ref */
+      requested_query_context_ref: string;
+      /**
+       * Schema Version
+       * @default polisyos.decision-validity.epoch-batch-receipt.v1
+       * @constant
+       */
+      schema_version: "polisyos.decision-validity.epoch-batch-receipt.v1";
+      /**
+       * State
+       * @default completed
+       * @constant
+       */
+      state: "completed";
+      /** Targets */
+      targets: components["schemas"]["EpochValidityBatchTarget"][];
+      transition_artifact_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Transition Content Hash */
+      transition_content_hash: string;
+      verifier_provenance_ref: components["schemas"]["ArtifactRef-Output"];
+    };
+    /**
+     * EpochValidityBatchRequest
+     * @description Admit an epoch transition by ref and owner query coordinate only.
+     */
+    EpochValidityBatchRequest: {
+      /** Requested Query Context Ref */
+      requested_query_context_ref: string;
+      transition_artifact_ref: components["schemas"]["ArtifactRef-Input"];
+    };
+    /**
+     * EpochValidityBatchResponse
+     * @description Return the owner-derived completion without echoing caller policy fields.
+     */
+    EpochValidityBatchResponse: {
+      /**
+       * Affected Packet Refs
+       * @default []
+       */
+      affected_packet_refs: string[];
+      /** Batch Id */
+      batch_id: string;
+      /**
+       * Claim Bridge Result Refs
+       * @default []
+       */
+      claim_bridge_result_refs: components["schemas"]["ArtifactRef-Output"][];
+      completion_receipt: components["schemas"]["EpochValidityBatchReceipt"];
+      meta: components["schemas"]["ApiMeta"];
+      /**
+       * State
+       * @constant
+       */
+      state: "completed";
+      transition: components["schemas"]["ArtifactRef-Output"];
+    };
+    /**
+     * EpochValidityBatchTarget
+     * @description One owner-indexed packet selected by a verified epoch transition.
+     */
+    EpochValidityBatchTarget: {
+      /** Decision Lineage Key */
+      decision_lineage_key: string;
+      /** Dependency Key */
+      dependency_key: string;
+      /** Packet Ref */
+      packet_ref: string;
+      /** Reason */
+      reason: string;
+      status: components["schemas"]["DecisionValidityStatus"];
     };
     /**
      * EquilibriumBasinInterval
@@ -11538,6 +11669,47 @@ export interface components {
       )[];
     };
     /**
+     * RunBoundDesignRecordBinding
+     * @description Content and owner binding for one S2 record emitted by one Core run.
+     */
+    RunBoundDesignRecordBinding: {
+      /** Binding Id */
+      binding_id: string;
+      /** Case Id */
+      case_id: string;
+      /** Cell Id */
+      cell_id: string | null;
+      /** Design Record Content Digest */
+      design_record_content_digest: string;
+      /** Design Record Record Id */
+      design_record_record_id: string;
+      design_record_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Design Record Schema Name
+       * @default policyos.layer2_s2.design_record_v0
+       * @constant
+       */
+      design_record_schema_name: "policyos.layer2_s2.design_record_v0";
+      /** Design Record Schema Version */
+      design_record_schema_version: string;
+      producer: components["schemas"]["ProducerInfo"];
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default policyos.pdc.run_bound_design_record_binding.v1
+       * @constant
+       */
+      schema_version: "policyos.pdc.run_bound_design_record_binding.v1";
+      /** Search Ledger Content Digest */
+      search_ledger_content_digest: string;
+      /** Search Ledger Id */
+      search_ledger_id: string;
+      search_ledger_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Tenant Id */
+      tenant_id: string;
+    };
+    /**
      * RunCompareResponse
      * @description Response envelope returned by the run comparison endpoint.
      */
@@ -12124,6 +12296,42 @@ export interface components {
        */
       relation: "run_output";
     };
+    /**
+     * RunPaperAuthorityNonReceipt
+     * @description Typed proof that one authority owner did not supply an admitted record.
+     */
+    RunPaperAuthorityNonReceipt: {
+      /**
+       * Authority State
+       * @default absent/unallocated
+       * @constant
+       */
+      authority_state: "absent/unallocated";
+      /** Denied Uses */
+      denied_uses: string[];
+      /**
+       * Kind
+       * @default run_paper_authority_nonreceipt
+       * @constant
+       */
+      kind: "run_paper_authority_nonreceipt";
+      /**
+       * Missing Authority
+       * @enum {string}
+       */
+      missing_authority:
+        | "generation_cycle_grounding_authority"
+        | "hypothesis_ledger_admission_authority"
+        | "layer3_g4_promotion_authority";
+      /** Owner Route */
+      owner_route: string;
+      /**
+       * Status
+       * @default not_established
+       * @constant
+       */
+      status: "not_established";
+    };
     /** RunPaperBlocker */
     RunPaperBlocker: {
       /** Code */
@@ -12163,6 +12371,8 @@ export interface components {
       bound_artifact_content_hash: string;
       /** Bound Case Id */
       bound_case_id: string;
+      /** Bound Cell Id */
+      bound_cell_id: string | null;
       /** Bound Design Record Record Id */
       bound_design_record_record_id: string;
       /** Bound Run Id */
@@ -12179,36 +12389,6 @@ export interface components {
       validator_id: string;
       /** Validator Version */
       validator_version: string;
-    };
-    /**
-     * RunPaperDesignRecordBinding
-     * @description Future content-bound DesignRecord identity; DS8-A never constructs it.
-     */
-    RunPaperDesignRecordBinding: {
-      /** Case Id */
-      case_id: string;
-      /** Content Digest */
-      content_digest: string;
-      /** Design Record Record Id */
-      design_record_record_id: string;
-      design_record_ref: components["schemas"]["ArtifactRef-Output"];
-      producer: components["schemas"]["ProducerInfo"];
-      /** Run Id */
-      run_id: string;
-      /**
-       * Schema Name
-       * @default policyos.layer2_s2.design_record_v0
-       * @constant
-       */
-      schema_name: "policyos.layer2_s2.design_record_v0";
-      /**
-       * Schema Version
-       * @default policyos.policy_design_case.layer2_readiness.v1
-       * @constant
-       */
-      schema_version: "policyos.policy_design_case.layer2_readiness.v1";
-      /** Tenant Id */
-      tenant_id: string;
     };
     /**
      * RunPaperGroundingState
@@ -12303,6 +12483,7 @@ export interface components {
       /** Case Record */
       case_record:
         | components["schemas"]["AvailableRunPaperCase"]
+        | components["schemas"]["AuthorityAbstainingRunPaperCase"]
         | components["schemas"]["UnavailableRunPaperCase"];
       /**
        * Intended Audiences
@@ -16994,6 +17175,94 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["DecisionValiditySummaryResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  admit_epoch_validity_batch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["EpochValidityBatchRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EpochValidityBatchResponse"];
         };
       };
       /** @description Malformed request payload or parameters. */

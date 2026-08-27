@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
@@ -14,7 +15,6 @@ from polisyos.core.trace import RunTerminality, TraceRecord
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from datetime import datetime
-    from pathlib import Path
 
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.artifacts.protocol import ArtifactStore
@@ -54,6 +54,104 @@ class CoreRunAdapterResult:
     errors: tuple[dict[str, Any], ...] = ()
 
 
+@dataclass(frozen=True)
+class TerminalCoreRunSource:
+    """Strict terminal-trace resolution for one direct child of a trusted root."""
+
+    run_id: str
+    tenant_id: str | None
+    cell_id: str | None
+    run_dir: Path
+    trace_path: Path
+    manifest_ref: ArtifactRef
+    manifest: CoreRunManifest
+
+
+def derive_core_run_dir(core_runs_root: Path, run_id: str) -> Path:
+    """Return the exact direct run child, rejecting traversal and normalization aliases."""
+
+    if not isinstance(run_id, str) or not run_id or run_id != run_id.strip():
+        raise ValueError("run_id must be a non-empty normalized direct-child name")
+    if run_id in {".", ".."} or "/" in run_id or "\\" in run_id:
+        raise ValueError("run_id must not contain path separators or dot segments")
+    run_path = Path(run_id)
+    if run_path.is_absolute() or len(run_path.parts) != 1:
+        raise ValueError("run_id must name one direct child of core_runs_root")
+    trusted_root = core_runs_root.resolve()
+    candidate = (trusted_root / run_id).resolve()
+    if candidate.parent != trusted_root or candidate.name != run_id:
+        raise ValueError("run_id normalized outside the trusted Core-run root")
+    return candidate
+
+
+def load_terminal_core_run_source(
+    *,
+    store: ArtifactStore,
+    core_runs_root: Path,
+    run_id: str,
+) -> TerminalCoreRunSource:
+    """Resolve one terminal Core source without recovery, scanning, or index facts."""
+
+    run_dir = derive_core_run_dir(core_runs_root, run_id)
+    trace_path = run_dir / "trace.jsonl"
+    if not trace_path.is_file():
+        raise ValueError("terminal Core run trace is not established")
+    try:
+        records = [_parse_trace_record(line) for line in _iter_trace_lines(trace_path)]
+    except (TypeError, ValueError) as exc:
+        raise ValueError("terminal Core run trace record is invalid") from exc
+    if not records:
+        raise ValueError("terminal Core run trace is empty")
+    started = [
+        record
+        for record in records
+        if record.phase == "core" and record.event == "RUN_STARTED"
+    ]
+    if len(started) != 1 or records[0] is not started[0]:
+        raise ValueError("terminal Core run requires one leading RUN_STARTED owner fact")
+    owner = started[0]
+    if owner.run_terminality is not RunTerminality.NON_TERMINAL:
+        raise ValueError("RUN_STARTED does not carry the non-terminal lifecycle fact")
+    if owner.run_id != run_id:
+        raise ValueError("RUN_STARTED owner does not match the requested run_id")
+    for record in records:
+        if (
+            record.run_id != owner.run_id
+            or record.tenant_id != owner.tenant_id
+            or record.cell_id != owner.cell_id
+        ):
+            raise ValueError("terminal Core trace owner scope is ambiguous")
+    finalized = [
+        record
+        for record in records
+        if record.phase == "core" and record.event == "RUN_FINALIZED"
+    ]
+    if len(finalized) != 1 or records[-1] is not finalized[0]:
+        raise ValueError("terminal Core run requires one final RUN_FINALIZED fact")
+    terminal = finalized[0]
+    if terminal.run_terminality is not RunTerminality.TERMINAL:
+        raise ValueError("RUN_FINALIZED does not carry the terminal lifecycle fact")
+    manifest_ref = _terminal_manifest_ref(terminal)
+    if manifest_ref is None:
+        raise ValueError("terminal Core run manifest reference is invalid")
+    manifest = load_bound_terminal_manifest(
+        store=store,
+        manifest_ref=manifest_ref,
+        run_id=owner.run_id,
+        tenant_id=owner.tenant_id,
+        cell_id=owner.cell_id,
+    )
+    return TerminalCoreRunSource(
+        run_id=owner.run_id,
+        tenant_id=owner.tenant_id,
+        cell_id=owner.cell_id,
+        run_dir=run_dir,
+        trace_path=trace_path,
+        manifest_ref=manifest_ref,
+        manifest=manifest,
+    )
+
+
 def load_core_run(
     *,
     store: ArtifactStore,
@@ -79,7 +177,7 @@ def load_core_run(
 
     for line in _iter_trace_lines(trace_path):
         try:
-            record = TraceRecord.model_validate_json(line)
+            record = _parse_trace_record(line)
         except (TypeError, ValueError) as exc:
             logger.debug("Failed to validate trace record from %s: %s", trace_path, exc)
             if "core_run_trace_record_invalid" not in warnings:
@@ -412,3 +510,9 @@ def _iter_trace_lines(path: Path) -> Iterator[str]:
             stripped = line.strip()
             if stripped:
                 yield stripped
+
+
+def _parse_trace_record(line: str) -> TraceRecord:
+    """Parse one trace record for both tolerant indexing and strict resolution."""
+
+    return TraceRecord.model_validate_json(line)

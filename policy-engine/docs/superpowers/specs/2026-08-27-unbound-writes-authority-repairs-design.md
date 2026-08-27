@@ -12,8 +12,10 @@ Phase-2 REFINE operation below are now accepted; no case-record implementation
 was started before that acceptance.
 
 The lane is local-only: no push, PR, rebase, force-push, reset, or stash. The
-required base-forward merge is complete and no further merge is planned. It must not modify
-`apps/runtime-dashboard/`, `architecture/atlas_surfaces/`,
+required base-forward merge is complete and no further merge is planned. Outside the
+explicit Task 2 generated API type plus complete existing run-paper consumer
+denominator named below, it must not modify `apps/runtime-dashboard/`. It must not
+modify `architecture/atlas_surfaces/`,
 `docs/plans/active/DEBT-REGISTER.md`, or
 `tools/quality/validation/check_debt_ledger.py`. Architecture synchronization,
 if needed, uses `guardrails sync --skip-deep-import-baseline`; the deep-import
@@ -486,7 +488,12 @@ uses these mechanism paths:
   `src/polisyos/runtime/quality/workspace/s2_design_search_operation.py`
   adapter that implements the governed REFINE operation;
 - `src/polisyos/runtime/http/services/control/workspace_loop_transition.py` for
-  strict governed dispatch and typed job projection;
+  strict governed dispatch and typed job projection, plus the existing
+  `src/polisyos/core/contracts/__init__.py` lazy facade to expose its already-
+  public `ControlFailureEnvelope` owner without a deep import. The derived
+  `architecture/public_surface/inventory.json` and
+  `docs/reference/public-surface.md` are mandatory P39 companions; the
+  deep-import baseline remains untouched;
 - `src/polisyos/runtime/http/services/run_paper_contracts.py`,
   `src/polisyos/runtime/http/services/run_paper_projection.py`, and the focused
   `src/polisyos/runtime/http/services/run_paper_case_record.py` resolver;
@@ -501,9 +508,26 @@ uses these mechanism paths:
   `packages/runtime-api-client/` generated outputs, and
   `apps/runtime-dashboard/src/api/types.ts` because the new public
   `record_available_authority_abstaining` discriminator changes the committed
-  HTTP schema. These are generated P39 companions owned by `team-polisyos`,
-  not dashboard mechanism work; no dashboard component, snapshot, or visual
-  specification enters the write set;
+  HTTP schema. The generated drift is the first manifestation of the same
+  public-surface/consumer class one level deeper, so Task 2 also closes the
+  complete existing dashboard run-paper case consumer denominator:
+  `features/runs/api/useRunPaper.ts`,
+  `features/runs/domain/runPaperPresentation.ts`,
+  `features/runs/routes/CaseWorkspacePage.tsx`,
+  `features/runs/routes/RunReportPage.tsx`, the typed `test/fixtures/runPaper.ts`
+  fixture, and focused non-parity behavioral tests, including the second real
+  intake in `features/runs/api/useCaseInspection.test.tsx`. The presentation roster is
+  semantically reviewed under its focused unit test and changed only if the new
+  arm is not already preserved one-for-one. The runtime intake binds
+  the abstaining arm's exact keys, record/binding identity, and three distinct
+  authority non-receipts; both UIs render that verified record/binding and all
+  three missing-authority/denied-use states under exhaustive discrimination.
+  The seven `paper.fields` keys required by scoped lint are added surgically to
+  the existing `en`/`ru`/`uk` locale catalogs as a round-free P39/consumer
+  companion; locale parity tests and unrelated catalog content remain untouched.
+  This is round-free completion of round 2's existing consumer/surface, not a
+  new mechanism. Parity tests, snapshots, stories, visual specifications, and
+  DS11 evidence remain outside the write set;
 - `src/polisyos/fabric/data_plane/benchmarks.py` for the required facade import;
 - `tools/quality/timing_budgets.json` for the one wall-clock lane.
 

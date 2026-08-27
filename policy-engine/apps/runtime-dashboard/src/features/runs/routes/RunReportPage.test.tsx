@@ -3,7 +3,10 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
-import { runPaperPacketFixture } from "@/test/fixtures/runPaper";
+import {
+  authorityAbstainingRunPaperPacketFixture,
+  runPaperPacketFixture,
+} from "@/test/fixtures/runPaper";
 
 const { downloadRunPaperPacketMock, useAuthzDecisionMock, useRunPaperMock } =
   vi.hoisted(() => ({
@@ -158,5 +161,51 @@ describe("RunReportPage", () => {
     );
     expect(useRunPaperMock).toHaveBeenCalledTimes(1);
     expect(screen.queryAllByTestId("run-paper-document")).toHaveLength(1);
+  });
+
+  it("renders the bound record and each authority-abstaining nonreceipt", () => {
+    const packet = authorityAbstainingRunPaperPacketFixture();
+    useRunPaperMock.mockReturnValue({
+      data: {
+        packet,
+        rawPacketBytes: new TextEncoder().encode(JSON.stringify(packet)),
+      },
+      isError: false,
+      isLoading: false,
+    });
+
+    renderReport();
+
+    const abstaining = screen.getByTestId(
+      "run-paper-case-authority-abstaining",
+    );
+    for (const value of [
+      "case.fixture",
+      "binding.fixture",
+      "case.design.fixture",
+      "run-1",
+      "tenant-a",
+      "cell-a",
+      "abstained",
+      `sha256:${"c".repeat(64)}`,
+      `sha256:${"9".repeat(64)}`,
+      "generation_cycle_grounding_authority",
+      "hypothesis_ledger_admission_authority",
+      "layer3_g4_promotion_authority",
+      "polisyos.runtime.quality.generation_cycle.GroundingStatus",
+      "polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState",
+      "polisyos.runtime.quality.proving_ground.governed_promotion_gate.Layer3G4PromotionRecord.promotion_state",
+      "grounding_state",
+      "grounded_case_projection",
+      "admission_state",
+      "admitted_case_projection",
+      "promotion_state",
+      "governed_case_projection",
+      "available_run_paper_case",
+      "not_established",
+      "absent/unallocated",
+    ]) {
+      expect(abstaining).toHaveTextContent(value);
+    }
   });
 });

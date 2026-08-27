@@ -3,7 +3,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 
 import { queryKeys } from "@/api/queryKeys";
-import { runPaperPacketFixture } from "@/test/fixtures/runPaper";
+import {
+  authorityAbstainingRunPaperPacketFixture,
+  runPaperPacketFixture,
+} from "@/test/fixtures/runPaper";
 
 import {
   fetchRunPaper,
@@ -80,6 +83,109 @@ describe("run paper governed adapter", () => {
         ),
       ).toThrow(/contract_error.*unavailable case/iu);
     }
+  });
+
+  it("admits the exact authority-abstaining arm with its bound record artifacts", () => {
+    const packet = authorityAbstainingRunPaperPacketFixture();
+    const rawPacketBytes = new TextEncoder().encode(JSON.stringify(packet));
+
+    const captured = narrowCapturedRunPaper("run-1", packet, rawPacketBytes);
+
+    expect(captured.packet.case_record.availability).toBe(
+      "record_available_authority_abstaining",
+    );
+    expect(captured.packet.artifact_links).toHaveLength(2);
+  });
+
+  it("rejects valid-looking nonreceipt values assigned to the wrong authority role", () => {
+    const mutations = [
+      (packet: ReturnType<typeof authorityAbstainingRunPaperPacketFixture>) => {
+        if (
+          packet.case_record.availability !==
+          "record_available_authority_abstaining"
+        ) {
+          throw new Error(
+            "Fixture must carry the authority-abstaining case arm",
+          );
+        }
+        packet.case_record.grounding_nonreceipt.missing_authority =
+          "hypothesis_ledger_admission_authority";
+      },
+      (packet: ReturnType<typeof authorityAbstainingRunPaperPacketFixture>) => {
+        if (
+          packet.case_record.availability !==
+          "record_available_authority_abstaining"
+        ) {
+          throw new Error(
+            "Fixture must carry the authority-abstaining case arm",
+          );
+        }
+        packet.case_record.grounding_nonreceipt.owner_route =
+          "polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState";
+      },
+      (packet: ReturnType<typeof authorityAbstainingRunPaperPacketFixture>) => {
+        if (
+          packet.case_record.availability !==
+          "record_available_authority_abstaining"
+        ) {
+          throw new Error(
+            "Fixture must carry the authority-abstaining case arm",
+          );
+        }
+        packet.case_record.grounding_nonreceipt.denied_uses = [
+          "admission_state",
+          "admitted_case_projection",
+          "available_run_paper_case",
+        ];
+      },
+    ] as const;
+
+    for (const mutate of mutations) {
+      const packet = authorityAbstainingRunPaperPacketFixture();
+      mutate(packet);
+      expect(() =>
+        narrowCapturedRunPaper("run-1", packet, new Uint8Array([1])),
+      ).toThrow(/contract_error.*authority nonreceipt/iu);
+    }
+  });
+
+  it("rejects a record digest that is not bound to its observed artifact ref", () => {
+    const packet = authorityAbstainingRunPaperPacketFixture();
+    if (
+      packet.case_record.availability !==
+      "record_available_authority_abstaining"
+    ) {
+      throw new Error("Fixture must carry the authority-abstaining case arm");
+    }
+    packet.case_record.design_record_binding.design_record_content_digest = `sha256:${"8".repeat(64)}`;
+
+    expect(() =>
+      narrowCapturedRunPaper("run-1", packet, new Uint8Array([1])),
+    ).toThrow(/contract_error.*case binding/iu);
+  });
+
+  it("rejects a design record identity that differs from its run binding", () => {
+    const packet = authorityAbstainingRunPaperPacketFixture();
+    if (
+      packet.case_record.availability !==
+      "record_available_authority_abstaining"
+    ) {
+      throw new Error("Fixture must carry the authority-abstaining case arm");
+    }
+    packet.case_record.design_record.record_id = "case.design.substituted";
+
+    expect(() =>
+      narrowCapturedRunPaper("run-1", packet, new Uint8Array([1])),
+    ).toThrow(/contract_error.*case binding/iu);
+  });
+
+  it("rejects an abstaining packet without every bound record artifact link", () => {
+    const packet = authorityAbstainingRunPaperPacketFixture();
+    packet.artifact_links = packet.artifact_links.slice(1);
+
+    expect(() =>
+      narrowCapturedRunPaper("run-1", packet, new Uint8Array([1])),
+    ).toThrow(/contract_error.*artifact requirements/iu);
   });
 
   it("uses a replay-complete key and never retains authority", async () => {

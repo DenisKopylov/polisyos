@@ -1,14 +1,20 @@
 from __future__ import annotations
 
+import json
 import time
 from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
+from polisyos.core.contracts import ControlFailureEnvelope
 from polisyos.core.contracts.control import NaturalLanguageRunRequest, WorkflowRunRequest
 from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
+from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+from polisyos.runtime.http.services.control.workspace_loop_transition import (
+    RunBoundDesignRecordTenantNonReceipt,
+)
 from polisyos.runtime.quality.authority import ProductionLoopRunProof
 from polisyos.runtime.quality.workspace.loop import WorkspaceLoopRunProof
 
@@ -26,6 +32,53 @@ def _await_terminal_job(service: ControlPlaneService, job_id: str):
 
 def _build_slice0_catalog(tmp_path: Path):
     return build_slice0_fixture_catalog_graph(tmp_path)
+
+
+def _layer2_s2_design_search_input() -> dict[str, object]:
+    repository_root = Path(__file__).resolve().parents[4]
+    proving_case = json.loads(
+        (
+            repository_root
+            / "architecture/policy_design_case/layer2_first_proving_case.json"
+        ).read_text(encoding="utf-8")
+    )
+    manifest = json.loads(
+        (
+            repository_root
+            / "architecture/policy_design_case/layer2_s2_design_search_manifest.json"
+        ).read_text(encoding="utf-8")
+    )
+    candidate_space = manifest["candidate_space"]
+    return {
+        "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1",
+        "case_id": str(proving_case["case_id"]),
+        "intent_ref": "repo://architecture/policy_design_case/layer2_first_proving_case.json",
+        "grammar_ref": "repo://src/polisyos/policy_grammar",
+        "instrument_families": candidate_space["instrument_families"],
+        "parameter_space": candidate_space["parameter_space"],
+        "actor_ref": "actor://ua/ministry-of-economy",
+        "domain": "ukrainian_msme_credit",
+        "objective_refs": [f"objective://{item}" for item in proving_case["constructs"]],
+        "construct_refs": [f"construct://{item}" for item in proving_case["constructs"]],
+        "authority_profile_ref": "authority_profile.shadow",
+        "requested_posture": "shadow",
+        "generated_at": "2026-05-30T00:00:00Z",
+        "rule_version_ref": "policyos.layer2.s2.design_search.v1",
+    }
+
+
+def _s2_artifact_census(cas_root: Path) -> dict[str, int]:
+    expected = {
+        "policyos.layer2_s2.design_record_v0",
+        "policyos.layer2_s2.search_ledger",
+        "policyos.pdc.run_bound_design_record_binding",
+    }
+    counts = dict.fromkeys(expected, 0)
+    for path in cas_root.glob("artifacts/sha256/*/*/*.manifest.json"):
+        kind = json.loads(path.read_text(encoding="utf-8"))["kind"]
+        if kind in counts:
+            counts[kind] += 1
+    return counts
 
 
 def _assert_surface_packet_consumes_boundary(
@@ -172,6 +225,153 @@ def test_http_control_route_persists_production_and_replay_proofs(runtime_api_en
     assert progress["outcome_replay_proof"]["replay_levels"] == ["A", "B", "C"]
     assert progress["outcome_replay_proof"]["output_hash"].startswith("sha256:")
     assert progress["outcome_replay_proof"]["input_hashes"]
+
+
+def test_s2_design_search_real_http_worker_closes_run_bound_case(
+    runtime_api_env,
+) -> None:
+    client = runtime_api_env["client"]
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    search_input = _layer2_s2_design_search_input()
+    before = _s2_artifact_census(Path(runtime_api_env["cas_root"]))
+
+    launch_response = client.post(
+        "/api/v1/control/runs",
+        json={
+            "data_source": {"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
+            "params": {
+                "control_plane_transition": "workspace_loop",
+                "workspace_operation_id": "phase2.refine.layer2_s2_design_search",
+                "layer2_s2_design_search_input": search_input,
+            },
+        },
+    )
+    assert launch_response.status_code == 200, launch_response.text
+    launch = launch_response.json()
+    assert service._worker is not None
+    deadline = time.monotonic() + 15.0
+    job_response = client.get(f"/api/v1/control/jobs/{launch['job_id']}")
+    while (
+        job_response.json()["state"] in {"pending", "running"}
+        and time.monotonic() < deadline
+    ):
+        service._worker.dispatch_once()
+        time.sleep(0.02)
+        job_response = client.get(f"/api/v1/control/jobs/{launch['job_id']}")
+
+    assert job_response.status_code == 200
+    job = job_response.json()
+    assert job["state"] == "completed", job
+    assert job["progress"]["workspace_operation_id"] == (
+        "phase2.refine.layer2_s2_design_search"
+    )
+    after = _s2_artifact_census(Path(runtime_api_env["cas_root"]))
+    assert {kind: after[kind] - before[kind] for kind in before} == {
+        "policyos.layer2_s2.design_record_v0": 1,
+        "policyos.layer2_s2.search_ledger": 1,
+        "policyos.pdc.run_bound_design_record_binding": 1,
+    }
+
+    paper_response = client.get(f"/api/v1/runs/{launch['run_id']}/paper")
+    assert paper_response.status_code == 200, paper_response.text
+    packet = paper_response.json()
+    binding = packet["case_record"]["design_record_binding"]
+    assert packet["case_record"]["availability"] == (
+        "record_available_authority_abstaining"
+    )
+    assert binding["run_id"] == launch["run_id"]
+    assert binding["tenant_id"] == runtime_api_env["tenant_a"]
+    assert binding["cell_id"] == runtime_api_env["cell_a"]
+    assert binding["case_id"] == search_input["case_id"]
+    assert packet["run"]["tenant_id"] == runtime_api_env["tenant_a"]
+    assert packet["run"]["cell_id"] == runtime_api_env["cell_a"]
+    assert packet["source"]["manifest_ref"] == job["progress"]["manifest_ref"]
+
+
+def test_s2_design_search_real_http_worker_tenantless_refuses_with_zero_pdc_writes(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    client = runtime_api_env["client"]
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    producer_calls: list[object] = []
+
+    monkeypatch.setattr(
+        "polisyos.runtime.http.routes.control._get_principal",
+        lambda _request: RuntimePrincipal(
+            subject="tenantless-falsifier",
+            authenticated=True,
+            tenant_id=None,
+            cell_id=None,
+        ),
+    )
+
+    def _producer_must_not_run(value: object):
+        producer_calls.append(value)
+        raise AssertionError("S2 producer ran without tenant authority")
+
+    monkeypatch.setattr(
+        "polisyos.runtime.quality.workspace.s2_design_search_operation."
+        "run_s2_shadow_design_loop",
+        _producer_must_not_run,
+    )
+    before = _s2_artifact_census(Path(runtime_api_env["cas_root"]))
+    launch_response = client.post(
+        "/api/v1/control/runs",
+        json={
+            "data_source": {"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
+            "params": {
+                "control_plane_transition": "workspace_loop",
+                "workspace_operation_id": "phase2.refine.layer2_s2_design_search",
+                "layer2_s2_design_search_input": _layer2_s2_design_search_input(),
+                "tenant_id": "tenant-unknown",
+                "cell_id": "forged-cell",
+            },
+        },
+    )
+    assert launch_response.status_code == 200, launch_response.text
+    launch = launch_response.json()
+    assert service._worker is not None
+    service._worker.dispatch_once()
+    response = _await_terminal_job(service, launch["job_id"])
+
+    assert response.state == "failed"
+    assert response.runtime_state == "blocked"
+    assert response.progress["authority_result"] == "repair_required"
+    nonreceipt = RunBoundDesignRecordTenantNonReceipt.model_validate(
+        response.progress["run_bound_design_record_nonreceipt"]
+    )
+    assert nonreceipt == RunBoundDesignRecordTenantNonReceipt()
+    assert response.failure is not None
+    expected_failure = ControlFailureEnvelope(
+        code="run_bound_design_record_tenant_scope_missing",
+        layer="pdc.gy",
+        phase="s2_design_search_persist",
+        message=(
+            "Run-bound DesignRecord persistence requires a verified ambient tenant scope."
+        ),
+        retryable=False,
+        next_action=(
+            "Re-launch under an authenticated principal with a verified tenant scope; "
+            "tenant_id is not caller-supplied."
+        ),
+        run_id=launch["run_id"],
+        job_id=launch["job_id"],
+        artifact_refs={},
+    )
+    assert type(response.failure) is ControlFailureEnvelope
+    assert response.failure.model_dump(exclude={"operator_diagnostic"}) == (
+        expected_failure.model_dump(exclude={"operator_diagnostic"})
+    )
+    assert response.failure.code == "run_bound_design_record_tenant_scope_missing"
+    assert response.failure.layer == "pdc.gy"
+    assert response.failure.phase == "s2_design_search_persist"
+    assert response.failure.artifact_refs == {}
+    assert producer_calls == []
+    assert _s2_artifact_census(Path(runtime_api_env["cas_root"])) == before
+    rendered_progress = json.dumps(response.progress, sort_keys=True)
+    assert "tenant-unknown" not in rendered_progress
+    assert "forged-cell" not in rendered_progress
 
 
 def test_workspace_loop_non_authority_terminal_is_not_verifier_stamped(

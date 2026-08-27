@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
 from copy import deepcopy
+from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 from urllib.parse import parse_qs, urlsplit
 
 import pytest
@@ -12,29 +15,49 @@ from polisyos_tests_runtime_http_conftest import (
 )
 from pydantic import TypeAdapter, ValidationError
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
+from polisyos.core.security import tenant_scope
 from polisyos.core.security.identity import PolicyOSRole
+from polisyos.pdc import (
+    Layer2S2DesignSearchInput,
+    persist_s2_design_search_run,
+    run_s2_shadow_design_loop,
+)
 from polisyos.runtime.http.authorization import (
     ResourceBindingSource,
     get_route_action_permission_dependency,
 )
 from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.services.adapters.core_run import derive_core_run_dir
 from polisyos.runtime.http.services.case_inspection_contracts import CaseInspectionResponse
 from polisyos.runtime.http.services.export_replay import (
     build_export_replay_address,
     hash_export_projection,
 )
+from polisyos.runtime.http.services.run_paper_case_record import (
+    RunBoundDesignRecordResolver,
+)
 from polisyos.runtime.http.services.run_paper_contracts import (
+    AuthorityAbstainingRunPaperCase,
     RunPaperBlocker,
     RunPaperCaseRecord,
     RunPaperPacket,
     RunPaperRun,
     RunPaperSourceBinding,
+    RunPaperSourceError,
     RunPaperStageTrace,
     UnavailableRunPaperCase,
     build_run_paper_semantic_projection,
 )
 from polisyos.runtime.http.services.run_paper_projection import RunPaperProjectionService
+from polisyos.runtime.quality.workspace.s2_design_search_operation import (
+    S2_DESIGN_SEARCH_OPERATION_ID,
+    execute_s2_design_search_operation,
+)
 from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
     _build_secure_client,
@@ -66,41 +89,38 @@ def _run_paper_secure_client(runtime_api_env, *, role: PolicyOSRole, suffix: str
     }
 
 
+def _install_http_bound_case_run(runtime_api_env, *, suffix: str) -> str:
+    context = runtime_api_env["client"].app.state.runtime_container.runtime_api_context
+    run_id = f"R_bound_{suffix}"
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        execute_s2_design_search_operation(
+            operation_id=S2_DESIGN_SEARCH_OPERATION_ID,
+            search_input=_s2_run_input(),
+            store=context.store,
+            core_runs_root=context.core_runs_root,
+            run_id=run_id,
+        )
+    context.run_index.refresh(force=True)
+    return run_id
+
+
 def _available_case_payload(packet: dict[str, object]) -> dict[str, object]:
     run = packet["run"]
     assert isinstance(run, dict)
-    design_digest = "sha256:" + "c" * 64
+    abstaining_case = packet["case_record"]
+    assert isinstance(abstaining_case, dict)
+    binding = deepcopy(abstaining_case["design_record_binding"])
+    assert isinstance(binding, dict)
+    design_record = deepcopy(abstaining_case["design_record"])
+    assert isinstance(design_record, dict)
+    design_record["projection_status"] = "governed"
+    case_id = str(binding["case_id"])
+    record_id = str(binding["design_record_record_id"])
     producer = {"component": "polisyos.fixture.run-paper", "version": "1.0.0"}
-    design_record = {
-        "schema_version": "policyos.policy_design_case.layer2_readiness.v1",
-        "record_id": "case.design.fixture",
-        "candidate_ref": "candidate://fixture",
-        "candidate_source": "deterministic_producer",
-        "projection_status": "governed",
-        "authority_boundary": {
-            "authoritative_for": ["governed_case_projection"],
-            "may_not_use_for": ["production_authority"],
-            "source_authority": "deterministic_producer",
-            "posture": "governed",
-            "rule_version_refs": ["policyos.fixture.case.v1"],
-        },
-        "axis_positions": [],
-        "firewall_status": [],
-        "envelope": {
-            "envelope_id": "case.envelope.fixture",
-            "domains": ["fixture"],
-            "posture_scopes": ["governed"],
-            "epistemic_regime_scopes": ["uncertainty"],
-            "actor_scopes": ["actor.fixture"],
-            "method_scopes": ["deterministic_fixture"],
-            "certified_for": ["governed_case_projection"],
-            "not_certified_for": ["production_authority"],
-            "cluster_authority_dimension_refs": [],
-            "rule_version_ref": "policyos.fixture.case.v1",
-        },
-        "ledger_refs": [],
-        "projection_audiences": ["REVIEWER", "MACHINE"],
-    }
 
     def source_binding(
         role: str,
@@ -124,10 +144,11 @@ def _available_case_payload(packet: dict[str, object]) -> dict[str, object]:
                 "validator_id": validator_id,
                 "validator_version": "1.0.0",
                 "bound_artifact_content_hash": source_digest,
-                "bound_case_id": "case.fixture",
+                "bound_case_id": case_id,
                 "bound_run_id": run["run_id"],
                 "bound_tenant_id": run["tenant_id"],
-                "bound_design_record_record_id": "case.design.fixture",
+                "bound_cell_id": run["cell_id"],
+                "bound_design_record_record_id": record_id,
             },
             "as_of": None,
         }
@@ -146,22 +167,8 @@ def _available_case_payload(packet: dict[str, object]) -> dict[str, object]:
 
     return {
         "availability": "available",
-        "case_id": "case.fixture",
-        "design_record_binding": {
-            "case_id": "case.fixture",
-            "run_id": run["run_id"],
-            "tenant_id": run["tenant_id"],
-            "design_record_ref": {
-                "artifact_id": design_digest,
-                "kind": "policyos.layer2_s2.design_record_v0",
-                "media_type": "application/json",
-            },
-            "design_record_record_id": "case.design.fixture",
-            "schema_name": "policyos.layer2_s2.design_record_v0",
-            "schema_version": "policyos.policy_design_case.layer2_readiness.v1",
-            "content_digest": design_digest,
-            "producer": producer,
-        },
+        "case_id": case_id,
+        "design_record_binding": binding,
         "design_record": design_record,
         "grounding_state": {
             "source_binding": source_binding("grounding_state", "b", "fixture.grounding"),
@@ -218,30 +225,217 @@ def _packet_with_recomputed_case(
     return rebound
 
 
+def _s2_run_input() -> Layer2S2DesignSearchInput:
+    repository_root = Path(__file__).resolve().parents[4]
+    proving_case = json.loads(
+        (
+            repository_root
+            / "architecture/policy_design_case/layer2_first_proving_case.json"
+        ).read_text(encoding="utf-8")
+    )
+    manifest = json.loads(
+        (
+            repository_root
+            / "architecture/policy_design_case/layer2_s2_design_search_manifest.json"
+        ).read_text(encoding="utf-8")
+    )
+    candidate_space = manifest["candidate_space"]
+    return Layer2S2DesignSearchInput(
+        case_id=str(proving_case["case_id"]),
+        intent_ref="repo://architecture/policy_design_case/layer2_first_proving_case.json",
+        grammar_ref="repo://src/polisyos/policy_grammar",
+        instrument_families=tuple(candidate_space["instrument_families"]),
+        parameter_space={
+            str(dimension): tuple(values)
+            for dimension, values in candidate_space["parameter_space"].items()
+        },
+        actor_ref="actor://ua/ministry-of-economy",
+        domain="ukrainian_msme_credit",
+        objective_refs=tuple(f"objective://{item}" for item in proving_case["constructs"]),
+        construct_refs=tuple(f"construct://{item}" for item in proving_case["constructs"]),
+        authority_profile_ref="authority_profile.shadow",
+        requested_posture="shadow",
+        generated_at=datetime(2026, 5, 30, tzinfo=UTC),
+    )
+
+
+def _build_bound_case_run(
+    tmp_path: Path,
+    *,
+    run_id: str = "R_bound-case",
+    tenant_id: str = "tenant-bound",
+    cell_id: str | None = "cell-bound",
+    include_binding_output: bool = True,
+):
+    store = FileSystemCAS(tmp_path / "cas")
+    search_run = run_s2_shadow_design_loop(_s2_run_input())
+    persisted = persist_s2_design_search_run(
+        search_run,
+        store=store,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    core_runs_root = tmp_path / "core-runs"
+    context = RunContext.start(
+        store,
+        registry_bundle,
+        producer=ProducerInfo(component="polisyos.runtime.s2_design_search", version="v1"),
+        run_dir=core_runs_root / run_id,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    context.add_output(persisted.design_record_ref)
+    context.add_output(persisted.search_ledger_ref)
+    if include_binding_output:
+        context.add_output(persisted.binding_ref)
+    manifest_ref = context.finalize(status="completed")
+    return store, core_runs_root, persisted, manifest_ref
+
+
+def _put_binding_payload(store: FileSystemCAS, payload: object):
+    return store.put_json(
+        payload,
+        PutOptions(
+            kind="policyos.pdc.run_bound_design_record_binding",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="policyos.pdc.run_bound_design_record_binding",
+                version="policyos.pdc.run_bound_design_record_binding.v1",
+            ),
+            producer=ProducerInfo(
+                component="polisyos.pdc.layer2_design_search",
+                version="policyos.layer2.s2.design_search.v1",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+
+class _FaultingArtifactStore:
+    def __init__(self, store: FileSystemCAS, *, target: str, fault: str) -> None:
+        self._store = store
+        self._target = target
+        self._fault = fault
+
+    def __getattr__(self, name: str):
+        return getattr(self._store, name)
+
+    def verify(self, artifact_id):
+        if str(artifact_id) == self._target and self._fault == "verify":
+            return SimpleNamespace(ok=False)
+        return self._store.verify(artifact_id)
+
+    def get_bytes(self, artifact_id):
+        if str(artifact_id) == self._target and self._fault == "bytes":
+            return b"{}"
+        return self._store.get_bytes(artifact_id)
+
+    def get_manifest(self, artifact_id):
+        sidecar = self._store.get_manifest(artifact_id)
+        if str(artifact_id) != self._target:
+            return sidecar
+        if self._fault == "kind":
+            return sidecar.model_copy(update={"kind": "substituted.kind"})
+        if self._fault == "media":
+            return sidecar.model_copy(update={"media_type": "text/plain"})
+        if self._fault == "schema":
+            return sidecar.model_copy(
+                update={"artifact_schema": SchemaInfo(name="substituted.schema", version="0")}
+            )
+        if self._fault == "producer":
+            return sidecar.model_copy(
+                update={
+                    "producer": ProducerInfo(component="substituted.producer", version="0")
+                }
+            )
+        return sidecar
+
+
+@pytest.mark.parametrize(
+    "run_id",
+    ["", ".", "..", "../escape", "nested/run", "nested\\run", "/absolute"],
+)
+def test_terminal_core_run_source_rejects_non_child_run_ids(
+    tmp_path: Path,
+    run_id: str,
+) -> None:
+    with pytest.raises(ValueError, match="run_id"):
+        derive_core_run_dir(tmp_path / "core-runs", run_id)
+
+
+def test_s2_operation_requires_exact_id_and_emits_candidate_only_trace(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    core_runs_root = tmp_path / "core-runs"
+    run_id = "R_s2-exact-owner"
+
+    with tenant_scope(None, tenant_id="tenant-bound", cell_id="cell-bound"):
+        with pytest.raises(ValueError, match="non-owner operation IDs"):
+            execute_s2_design_search_operation(
+                operation_id="slice0.refine.stub",
+                search_input=_s2_run_input(),
+                store=store,
+                core_runs_root=core_runs_root,
+                run_id=run_id,
+            )
+        result = execute_s2_design_search_operation(
+            operation_id=S2_DESIGN_SEARCH_OPERATION_ID,
+            search_input=_s2_run_input(),
+            store=store,
+            core_runs_root=core_runs_root,
+            run_id=run_id,
+        )
+
+    records = [
+        json.loads(line)
+        for line in (core_runs_root / run_id / "trace.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    governed = [record for record in records if str(record["event"]).startswith("S2_")]
+    assert [record["event"] for record in governed] == [
+        "S2_APPLICABILITY_RECORDED",
+        "S2_OPERATION_INVOCATION_RECORDED",
+        "S2_SEARCH_LEDGER_RECORDED",
+        "S2_ARTIFACT_ENVELOPE_RECORDED",
+    ]
+    assert all(
+        record["metrics"] == {"authority_bearing": 0, "candidate_only": 1}
+        for record in governed
+    )
+    assert records[-1]["event"] == "RUN_FINALIZED"
+    assert records[-1]["refs"]["outputs"] == [result.manifest_ref.model_dump(mode="json")]
+
+
 def test_case_inspection_resolves_bound_case_graph_and_design_record(
     runtime_api_env,
 ) -> None:
     """Structural witness only; production cannot construct the available arm."""
 
-    packet = (
-        runtime_api_env["client"].get(f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper").json()
-    )
+    run_id = _install_http_bound_case_run(runtime_api_env, suffix="available_witness")
+    packet = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/paper").json()
     available = _available_case_payload(packet)
 
     witness = CaseInspectionResponse.model_validate(_packet_with_recomputed_case(packet, available))
 
     case = witness.case_record
     assert case.availability == "available"
-    assert case.design_record_binding.content_digest == str(
+    assert case.design_record_binding.design_record_content_digest == str(
         case.design_record_binding.design_record_ref.artifact_id
     )
     assert case.design_record_binding.design_record_ref.kind == (
         "policyos.layer2_s2.design_record_v0"
     )
     assert case.design_record_binding.design_record_ref.media_type == "application/json"
-    assert case.design_record_binding.schema_name == "policyos.layer2_s2.design_record_v0"
+    assert case.design_record_binding.design_record_schema_name == (
+        "policyos.layer2_s2.design_record_v0"
+    )
     assert (
-        case.design_record_binding.schema_version
+        case.design_record_binding.design_record_schema_version
         == "policyos.policy_design_case.layer2_readiness.v1"
         == case.design_record.schema_version
     )
@@ -287,47 +481,15 @@ def test_case_inspection_resolves_bound_case_graph_and_design_record(
         )
 
 
-def test_run_paper_returns_typed_case_unavailable_without_defaulting_case_facts(
+def test_run_paper_rejects_terminal_run_without_exact_case_binding(
     runtime_api_env,
 ) -> None:
     client = runtime_api_env["client"]
     response = client.get(f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper")
 
-    assert response.status_code == 200
-    packet = response.json()
-    assert packet["packet_schema_version"] == "policyos.runtime.run_paper_packet.v1"
-    assert packet["projection_rule_version"] == "policyos.runtime.run_paper.v1"
-    assert packet["run"]["run_id"] == runtime_api_env["core_run_id"]
-    assert packet["run"]["run_terminality"] == "terminal"
-    assert packet["case_record"] == {
-        "availability": "artifact_missing",
-        "capability_state": "producer_missing",
-        "closure_signal": "case-record-not-run-bound",
-        "may_not_use_for": [
-            "case_identity",
-            "design_record",
-            "grounding_state",
-            "admission_state",
-            "promotion_state",
-            "blockers",
-            "limitations",
-            "objections",
-            "abstentions",
-        ],
-        "owner_route": "team-runtime",
-        "reason_code": "case-record-not-run-bound",
-    }
-    assert not {
-        "case_id",
-        "design_record",
-        "grounding_state",
-        "admission_state",
-        "promotion_state",
-        "blockers",
-        "limitations",
-        "objections",
-        "abstentions",
-    }.intersection(packet["case_record"])
+    assert response.status_code == 409
+    assert response.json()["code"] == "run_paper_source_invalid"
+    assert "exactly one run-bound DesignRecord binding" in response.json()["detail"]
 
 
 @pytest.mark.parametrize(
@@ -345,7 +507,8 @@ def test_run_paper_requires_complete_recomputed_replay_tuple_and_preserves_bytes
     runtime_api_env,
 ) -> None:
     client = runtime_api_env["client"]
-    stable = client.get(f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper")
+    run_id = _install_http_bound_case_run(runtime_api_env, suffix="replay_primary")
+    stable = client.get(f"/api/v1/runs/{run_id}/paper")
 
     assert stable.status_code == 200
     packet = stable.json()
@@ -358,14 +521,14 @@ def test_run_paper_requires_complete_recomputed_replay_tuple_and_preserves_bytes
     }
 
     replay = client.get(
-        f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper",
+        f"/api/v1/runs/{run_id}/paper",
         params=pins,
     )
     assert replay.status_code == 200
     assert replay.content == stable.content
 
     partial = client.get(
-        f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper",
+        f"/api/v1/runs/{run_id}/paper",
         params={"manifest_artifact_id": pins["manifest_artifact_id"]},
     )
     assert partial.status_code == 409
@@ -380,16 +543,17 @@ def test_run_paper_requires_complete_recomputed_replay_tuple_and_preserves_bytes
     for field, value in mutations.items():
         mutated = {**pins, field: value}
         mismatch = client.get(
-            f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper",
+            f"/api/v1/runs/{run_id}/paper",
             params=mutated,
         )
         assert mismatch.status_code == 409
         assert mismatch.json()["code"] == "run_paper_replay_conflict"
 
-    other_generation = client.get(f"/api/v1/runs/{runtime_api_env['core_run_id_secondary']}/paper")
+    other_run_id = _install_http_bound_case_run(runtime_api_env, suffix="replay_secondary")
+    other_generation = client.get(f"/api/v1/runs/{other_run_id}/paper")
     assert other_generation.status_code == 200
     cross_generation = client.get(
-        f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper",
+        f"/api/v1/runs/{run_id}/paper",
         params=other_generation.json()["replay_pins"],
     )
     assert cross_generation.status_code == 409
@@ -400,7 +564,8 @@ def test_run_paper_replay_syntax_rejects_unknown_duplicate_and_malformed_items(
     runtime_api_env,
 ) -> None:
     client = runtime_api_env["client"]
-    endpoint = f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper"
+    run_id = _install_http_bound_case_run(runtime_api_env, suffix="replay_syntax")
+    endpoint = f"/api/v1/runs/{run_id}/paper"
     stable = client.get(endpoint)
     pins = stable.json()["replay_pins"]
     pin_items = list(pins.items())
@@ -426,9 +591,8 @@ def test_run_paper_replay_syntax_rejects_unknown_duplicate_and_malformed_items(
 def test_run_paper_available_case_rejects_cross_bound_or_candidate_authority(
     runtime_api_env,
 ) -> None:
-    packet = (
-        runtime_api_env["client"].get(f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper").json()
-    )
+    run_id = _install_http_bound_case_run(runtime_api_env, suffix="available_negative")
+    packet = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/paper").json()
     available = _available_case_payload(packet)
     with pytest.raises(ValidationError, match="complete paper semantics"):
         RunPaperPacket.model_validate({**packet, "case_record": available})
@@ -442,7 +606,7 @@ def test_run_paper_available_case_rejects_cross_bound_or_candidate_authority(
         ),
         (
             "DesignRecord digest",
-            ("design_record_binding", "content_digest"),
+            ("design_record_binding", "design_record_content_digest"),
             "sha256:" + "d" * 64,
         ),
         ("case identity", ("design_record_binding", "case_id"), "case.other"),
@@ -536,12 +700,13 @@ def test_run_paper_available_case_rejects_cross_bound_or_candidate_authority(
 def test_run_paper_addresses_serialize_every_pin_before_the_stage_trace_fragment(
     runtime_api_env,
 ) -> None:
-    response = runtime_api_env["client"].get(f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper")
+    run_id = _install_http_bound_case_run(runtime_api_env, suffix="addresses")
+    response = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/paper")
 
     assert response.status_code == 200
     packet = response.json()
     report_address = urlsplit(packet["report_href"])
-    assert report_address.path == f"/runs/{runtime_api_env['core_run_id']}/report"
+    assert report_address.path == f"/runs/{run_id}/report"
     assert report_address.fragment == "stage-trace"
     assert parse_qs(report_address.query) == {
         key: [value] for key, value in packet["replay_pins"].items()
@@ -580,7 +745,8 @@ def test_run_paper_is_review_guarded_before_projection(
     assert dependency.requirement.resource_binding.source is ResourceBindingSource.TENANT_COLLECTION
     assert dependency.requirement.resource_binding.resource_kind == "runtime.run_paper"
 
-    admitted = runtime_api_env["client"].get(f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper")
+    run_id = _install_http_bound_case_run(runtime_api_env, suffix="review_guard")
+    admitted = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/paper")
     assert admitted.status_code == 200, admitted.text
 
     projection_calls: list[str] = []
@@ -591,7 +757,7 @@ def test_run_paper_is_review_guarded_before_projection(
 
     monkeypatch.setattr(RunPaperProjectionService, "get", _projection_must_not_run)
     denied = viewer.get(
-        f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper",
+        f"/api/v1/runs/{run_id}/paper",
         headers=viewer_headers,
     )
     assert denied.status_code == 403
@@ -599,7 +765,7 @@ def test_run_paper_is_review_guarded_before_projection(
     assert projection_calls == []
 
 
-def test_opt_in_run_paper_growth_fixtures_are_real_stable_terminal_packets(
+def test_opt_in_legacy_run_paper_fixtures_fail_closed_without_case_binding(
     runtime_api_env,
     tmp_path: Path,
 ) -> None:
@@ -617,40 +783,19 @@ def test_opt_in_run_paper_growth_fixtures_are_real_stable_terminal_packets(
                 )
             )
 
-        for metadata_key, expected_link_count in (
-            ("run_paper_empty_run_id", 0),
-            ("run_paper_growth_run_id", 64),
-        ):
+        for metadata_key in ("run_paper_empty_run_id", "run_paper_growth_run_id"):
             response_bytes = []
             for env in envs:
                 run_id = env[metadata_key]
                 response = env["client"].get(f"/api/v1/runs/{run_id}/paper")
-                assert response.status_code == 200, response.text
-                packet = response.json()
-                assert packet["run"] == {
-                    "cell_id": env["cell_a"],
-                    "duration_ms": 300_000,
-                    "finished_at": "2026-01-01T00:05:00Z",
-                    "run_id": run_id,
-                    "run_terminality": "terminal",
-                    "source_kind": "core_run",
-                    "started_at": "2026-01-01T00:00:00Z",
-                    "status": "completed",
-                    "tenant_id": env["tenant_a"],
-                }
-                assert packet["case_record"]["reason_code"] == ("case-record-not-run-bound")
-                links = packet["artifact_links"]
-                assert len(links) == expected_link_count
-                artifact_ids = [link["artifact_ref"]["artifact_id"] for link in links]
-                assert len(artifact_ids) == len(set(artifact_ids))
-                assert [link["relation"] for link in links] == ["run_output"] * expected_link_count
-                assert [link["href"] for link in links] == [
-                    f"/api/v1/artifacts/{artifact_id}" for artifact_id in artifact_ids
-                ]
-                store = FileSystemCAS(env["cas_root"])
-                assert all(store.verify(artifact_id).ok for artifact_id in artifact_ids)
+                assert response.status_code == 409, response.text
+                assert response.json()["code"] == "run_paper_source_invalid"
+                assert "exactly one run-bound DesignRecord binding" in response.json()["detail"]
                 response_bytes.append(response.content)
-            assert response_bytes[0] == response_bytes[1]
+            assert [json.loads(value)["code"] for value in response_bytes] == [
+                "run_paper_source_invalid",
+                "run_paper_source_invalid",
+            ]
     finally:
         for env in envs:
             close_runtime_api_env(env)
@@ -660,7 +805,7 @@ def test_corrupt_manifest_bytes_fail_paper_and_stage_trace_resolution_closed(
     runtime_api_env,
 ) -> None:
     client = runtime_api_env["client"]
-    run_id = runtime_api_env["core_run_id"]
+    run_id = _install_http_bound_case_run(runtime_api_env, suffix="corrupt_manifest")
     initial = client.get(f"/api/v1/runs/{run_id}/paper")
     assert initial.status_code == 200
     manifest_id = initial.json()["replay_pins"]["manifest_artifact_id"]
@@ -682,10 +827,242 @@ def test_corrupt_manifest_bytes_fail_paper_and_stage_trace_resolution_closed(
     context = client.app.state.runtime_container.runtime_api_context
     resolver = RunPaperProjectionService(
         store=context.store,
-        run_index=context.run_index,
+        core_runs_root=context.core_runs_root,
         tenant_id=runtime_api_env["tenant_a"],
     )
     assert resolver.resolve(run_id) is None
+
+
+def test_run_bound_case_resolver_uses_only_the_unique_terminal_trace_binding(
+    tmp_path: Path,
+) -> None:
+    store, core_runs_root, persisted, manifest_ref = _build_bound_case_run(tmp_path)
+
+    resolved = RunBoundDesignRecordResolver(store, core_runs_root).resolve("R_bound-case")
+
+    assert resolved.terminal_source.manifest_ref == manifest_ref
+    assert resolved.binding_ref == persisted.binding_ref
+    assert resolved.binding == persisted.binding
+    assert resolved.design_record.record_id == persisted.binding.design_record_record_id
+    assert resolved.search_ledger.ledger_id == persisted.binding.search_ledger_id
+    assert resolved.search_ledger.case_id == persisted.binding.case_id
+
+
+@pytest.mark.parametrize(
+    ("field", "substituted"),
+    [
+        ("run_id", "R_other"),
+        ("tenant_id", "tenant-other"),
+        ("cell_id", "cell-other"),
+    ],
+)
+def test_run_bound_case_resolver_rejects_owner_substitution_with_constant_record_hash(
+    tmp_path: Path,
+    field: str,
+    substituted: str,
+) -> None:
+    run_id = "R_binding-owner"
+    tenant_id = "tenant-bound"
+    cell_id = "cell-bound"
+    store = FileSystemCAS(tmp_path / "cas")
+    search_run = run_s2_shadow_design_loop(_s2_run_input())
+    persisted = persist_s2_design_search_run(
+        search_run,
+        store=store,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    substituted_binding = persisted.binding.model_copy(update={field: substituted})
+    substituted_binding_ref = _put_binding_payload(
+        store,
+        substituted_binding.model_dump(mode="json"),
+    )
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    core_runs_root = tmp_path / "core-runs"
+    context = RunContext.start(
+        store,
+        registry_bundle,
+        run_dir=core_runs_root / run_id,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    context.add_output(persisted.design_record_ref)
+    context.add_output(persisted.search_ledger_ref)
+    context.add_output(substituted_binding_ref)
+    context.finalize()
+
+    with pytest.raises(RunPaperSourceError, match="owner identity"):
+        RunBoundDesignRecordResolver(store, core_runs_root).resolve(run_id)
+
+
+@pytest.mark.parametrize(
+    ("field", "substituted"),
+    [("case_id", "case-other"), ("ledger_id", "ledger-other")],
+)
+def test_run_bound_case_resolver_rejects_verified_ledger_identity_substitution(
+    tmp_path: Path,
+    field: str,
+    substituted: str,
+) -> None:
+    run_id = "R_binding-ledger"
+    store = FileSystemCAS(tmp_path / "cas")
+    search_run = run_s2_shadow_design_loop(_s2_run_input())
+    persisted = persist_s2_design_search_run(
+        search_run,
+        store=store,
+        run_id=run_id,
+        tenant_id="tenant-bound",
+        cell_id="cell-bound",
+    )
+    producer = persisted.binding.producer
+    substituted_ledger = search_run.search_ledger.model_copy(update={field: substituted})
+    substituted_ledger_ref = store.put_json(
+        substituted_ledger.model_dump(mode="json"),
+        PutOptions(
+            kind="policyos.layer2_s2.search_ledger",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="policyos.layer2_s2.search_ledger",
+                version="policyos.policy_design_case.layer2_s2_design_search.v1",
+            ),
+            producer=producer,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    substituted_binding = persisted.binding.model_copy(
+        update={
+            "search_ledger_ref": substituted_ledger_ref,
+            "search_ledger_content_digest": str(substituted_ledger_ref.artifact_id),
+        }
+    )
+    substituted_binding_ref = _put_binding_payload(
+        store,
+        substituted_binding.model_dump(mode="json"),
+    )
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    core_runs_root = tmp_path / "core-runs"
+    context = RunContext.start(
+        store,
+        registry_bundle,
+        run_dir=core_runs_root / run_id,
+        run_id=run_id,
+        tenant_id="tenant-bound",
+        cell_id="cell-bound",
+    )
+    context.add_output(persisted.design_record_ref)
+    context.add_output(substituted_ledger_ref)
+    context.add_output(substituted_binding_ref)
+    context.finalize()
+
+    with pytest.raises(RunPaperSourceError, match="SearchLedger"):
+        RunBoundDesignRecordResolver(store, core_runs_root).resolve(run_id)
+
+
+def test_run_bound_case_resolver_rejects_a_cas_decoy_not_named_by_terminal_manifest(
+    tmp_path: Path,
+) -> None:
+    store, core_runs_root, _persisted, _manifest_ref = _build_bound_case_run(
+        tmp_path,
+        include_binding_output=False,
+    )
+
+    with pytest.raises(RunPaperSourceError, match="binding"):
+        RunBoundDesignRecordResolver(store, core_runs_root).resolve("R_bound-case")
+
+
+@pytest.mark.parametrize("role", ["manifest", "binding", "design_record", "search_ledger"])
+@pytest.mark.parametrize("fault", ["verify", "bytes", "kind", "media", "schema", "producer"])
+def test_run_bound_case_resolver_rejects_every_cas_role_falsifier(
+    tmp_path: Path,
+    role: str,
+    fault: str,
+) -> None:
+    store, core_runs_root, persisted, manifest_ref = _build_bound_case_run(tmp_path)
+    targets = {
+        "manifest": str(manifest_ref.artifact_id),
+        "binding": str(persisted.binding_ref.artifact_id),
+        "design_record": str(persisted.design_record_ref.artifact_id),
+        "search_ledger": str(persisted.search_ledger_ref.artifact_id),
+    }
+    faulting_store = _FaultingArtifactStore(store, target=targets[role], fault=fault)
+
+    with pytest.raises(RunPaperSourceError):
+        RunBoundDesignRecordResolver(faulting_store, core_runs_root).resolve("R_bound-case")
+
+
+def test_run_bound_case_resolver_rejects_missing_and_duplicate_terminal_closure(
+    tmp_path: Path,
+) -> None:
+    store, core_runs_root, _persisted, _manifest_ref = _build_bound_case_run(tmp_path)
+    trace_path = core_runs_root / "R_bound-case" / "trace.jsonl"
+    lines = trace_path.read_text(encoding="utf-8").splitlines()
+    terminal = lines[-1]
+    trace_path.write_text("\n".join(lines[:-1]) + "\n", encoding="utf-8")
+    with pytest.raises(RunPaperSourceError, match="terminal"):
+        RunBoundDesignRecordResolver(store, core_runs_root).resolve("R_bound-case")
+
+    trace_path.write_text("\n".join([*lines, terminal]) + "\n", encoding="utf-8")
+    with pytest.raises(RunPaperSourceError, match="terminal"):
+        RunBoundDesignRecordResolver(store, core_runs_root).resolve("R_bound-case")
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["missing_start", "owner_mismatch", "event_before_start", "conflicting_terminal"],
+)
+def test_run_bound_case_resolver_rejects_trace_owner_and_conflict_set(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    store, core_runs_root, _persisted, _manifest_ref = _build_bound_case_run(tmp_path)
+    trace_path = core_runs_root / "R_bound-case" / "trace.jsonl"
+    records = [json.loads(line) for line in trace_path.read_text(encoding="utf-8").splitlines()]
+    if mutation == "missing_start":
+        records = records[1:]
+    elif mutation == "owner_mismatch":
+        records[0]["tenant_id"] = "tenant-other"
+    elif mutation == "event_before_start":
+        records[0], records[1] = records[1], records[0]
+    else:
+        conflicting = deepcopy(records[-1])
+        conflicting["refs"]["outputs"][0]["artifact_id"] = "sha256:" + "0" * 64
+        records.append(conflicting)
+    trace_path.write_text(
+        "".join(json.dumps(record, sort_keys=True) + "\n" for record in records),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(RunPaperSourceError):
+        RunBoundDesignRecordResolver(store, core_runs_root).resolve("R_bound-case")
+
+
+def test_authority_abstaining_case_rejects_nonreceipt_in_the_wrong_role(
+    tmp_path: Path,
+) -> None:
+    store, core_runs_root, _persisted, _manifest_ref = _build_bound_case_run(tmp_path)
+    packet = RunPaperProjectionService(
+        store=store,
+        core_runs_root=core_runs_root,
+        tenant_id="tenant-bound",
+    ).get("R_bound-case")
+    assert isinstance(packet.case_record, AuthorityAbstainingRunPaperCase)
+    assert packet.case_record.authority_projection == "abstained"
+    assert packet.case_record.grounding_nonreceipt.missing_authority == (
+        "generation_cycle_grounding_authority"
+    )
+    assert packet.case_record.admission_nonreceipt.missing_authority == (
+        "hypothesis_ledger_admission_authority"
+    )
+    assert packet.case_record.promotion_nonreceipt.missing_authority == (
+        "layer3_g4_promotion_authority"
+    )
+
+    payload = packet.case_record.model_dump(mode="python")
+    payload["grounding_nonreceipt"] = payload["admission_nonreceipt"]
+    with pytest.raises(ValidationError, match="grounding"):
+        AuthorityAbstainingRunPaperCase.model_validate(payload)
 
 
 def test_openapi_exposes_strict_run_paper_union(runtime_api_env) -> None:
@@ -697,7 +1074,7 @@ def test_openapi_exposes_strict_run_paper_union(runtime_api_env) -> None:
     packet_name = response_schema["$ref"].rsplit("/", 1)[-1]
     case_schema = schema["components"]["schemas"][packet_name]["properties"]["case_record"]
     assert case_schema["discriminator"]["propertyName"] == "availability"
-    assert len(case_schema["oneOf"]) == 2
+    assert len(case_schema["oneOf"]) == 3
     for arm in case_schema["oneOf"]:
         arm_name = arm["$ref"].rsplit("/", 1)[-1]
         assert schema["components"]["schemas"][arm_name]["additionalProperties"] is False

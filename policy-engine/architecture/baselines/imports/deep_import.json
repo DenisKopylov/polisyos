@@ -552,8 +552,8 @@
       "source_module": "polisyos.data_forge.domains.academic.batch.benchmark",
       "source_root": "data_forge",
       "source_file": "src/polisyos/data_forge/domains/academic/batch/benchmark.py",
-      "target_module": "polisyos.scientist.cross_graph.feedback",
-      "target_root": "scientist"
+      "target_module": "polisyos.ir.analytics.cross_graph",
+      "target_root": "ir"
     },
     {
       "source_module": "polisyos.data_forge.domains.academic.batch.best_snapshot",
@@ -566,8 +566,22 @@
       "source_module": "polisyos.data_forge.domains.academic.batch.best_snapshot",
       "source_root": "data_forge",
       "source_file": "src/polisyos/data_forge/domains/academic/batch/best_snapshot.py",
-      "target_module": "polisyos.scientist.cross_graph.feedback",
-      "target_root": "scientist"
+      "target_module": "polisyos.ir.analytics.cross_graph",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.academic.batch.claim_adjudicator",
+      "source_root": "data_forge",
+      "source_file": "src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py",
+      "target_module": "polisyos.core.artifacts",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.academic.batch.claim_adjudicator",
+      "source_root": "data_forge",
+      "source_file": "src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py",
+      "target_module": "polisyos.core.canon",
+      "target_root": "core"
     },
     {
       "source_module": "polisyos.data_forge.domains.academic.batch.claim_adjudicator",
@@ -575,13 +589,6 @@
       "source_file": "src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py",
       "target_module": "polisyos.ir.analytics.literature",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.academic.batch.claim_adjudicator",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py",
-      "target_module": "polisyos.scientist.methods.autotune.claim_adjudication",
-      "target_root": "scientist"
     },
     {
       "source_module": "polisyos.data_forge.domains.academic.batch.context_classifier",
@@ -1354,48 +1361,6 @@
       "target_root": "common"
     },
     {
-      "source_module": "polisyos.data_forge.domains.legal.batch.benchmark",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/batch/benchmark.py",
-      "target_module": "polisyos.core.artifacts.store",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.batch.benchmark",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/batch/benchmark.py",
-      "target_module": "polisyos.fabric.claims.persist",
-      "target_root": "fabric"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.batch.benchmark",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/batch/benchmark.py",
-      "target_module": "polisyos.lex.api",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.batch.benchmark",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/batch/benchmark.py",
-      "target_module": "polisyos.lex.knowledge.search",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.batch.benchmark",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/batch/benchmark.py",
-      "target_module": "polisyos.lex.types",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.batch.benchmark",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/batch/benchmark.py",
-      "target_module": "polisyos.scientist.agent.knowledge_tools",
-      "target_root": "scientist"
-    },
-    {
       "source_module": "polisyos.data_forge.domains.legal.batch.claim_bridge",
       "source_root": "data_forge",
       "source_file": "src/polisyos/data_forge/domains/legal/batch/claim_bridge.py",
@@ -1501,18 +1466,11 @@
       "target_root": "common"
     },
     {
-      "source_module": "polisyos.data_forge.domains.legal.batch.cli",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/batch/cli.py",
-      "target_module": "polisyos.lex.knowledge.store",
-      "target_root": "lex"
-    },
-    {
       "source_module": "polisyos.data_forge.domains.legal.batch.doc_identity",
       "source_root": "data_forge",
       "source_file": "src/polisyos/data_forge/domains/legal/batch/doc_identity.py",
-      "target_module": "polisyos.lex.common",
-      "target_root": "lex"
+      "target_module": "polisyos.common.timestamps",
+      "target_root": "common"
     },
     {
       "source_module": "polisyos.data_forge.domains.legal.batch.embedder",
@@ -1606,18 +1564,11 @@
       "target_root": "common"
     },
     {
-      "source_module": "polisyos.data_forge.domains.legal.batch.structurer",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/batch/structurer.py",
-      "target_module": "polisyos.lex.types",
-      "target_root": "lex"
-    },
-    {
       "source_module": "polisyos.data_forge.domains.legal.batch.temporal_parser",
       "source_root": "data_forge",
       "source_file": "src/polisyos/data_forge/domains/legal/batch/temporal_parser.py",
-      "target_module": "polisyos.lex.common",
-      "target_root": "lex"
+      "target_module": "polisyos.common.timestamps",
+      "target_root": "common"
     },
     {
       "source_module": "polisyos.data_forge.domains.legal.batch.xml_parser",
@@ -1625,6 +1576,20 @@
       "source_file": "src/polisyos/data_forge/domains/legal/batch/xml_parser.py",
       "target_module": "polisyos.common.logger",
       "target_root": "common"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.legal.contracts",
+      "source_root": "data_forge",
+      "source_file": "src/polisyos/data_forge/domains/legal/contracts.py",
+      "target_module": "polisyos.fabric.docs",
+      "target_root": "fabric"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.legal.contracts",
+      "source_root": "data_forge",
+      "source_file": "src/polisyos/data_forge/domains/legal/contracts.py",
+      "target_module": "polisyos.ir.loading.fact_log",
+      "target_root": "ir"
     },
     {
       "source_module": "polisyos.data_forge.domains.legal.corpus.index",
@@ -1646,20 +1611,6 @@
       "source_file": "src/polisyos/data_forge/domains/legal/corpus/index.py",
       "target_module": "polisyos.ir.kernel.base",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.corpus.index",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/corpus/index.py",
-      "target_module": "polisyos.lex.artifacts",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.corpus.index",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/corpus/index.py",
-      "target_module": "polisyos.lex.errors",
-      "target_root": "lex"
     },
     {
       "source_module": "polisyos.data_forge.domains.legal.corpus.ingest",
@@ -1718,27 +1669,6 @@
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.data_forge.domains.legal.corpus.ingest",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/corpus/ingest.py",
-      "target_module": "polisyos.lex.artifacts",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.corpus.ingest",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/corpus/ingest.py",
-      "target_module": "polisyos.lex.errors",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.corpus.ingest",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/corpus/ingest.py",
-      "target_module": "polisyos.lex.types",
-      "target_root": "lex"
-    },
-    {
       "source_module": "polisyos.data_forge.domains.legal.corpus.structure",
       "source_root": "data_forge",
       "source_file": "src/polisyos/data_forge/domains/legal/corpus/structure.py",
@@ -1788,25 +1718,11 @@
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.data_forge.domains.legal.corpus.structure",
+      "source_module": "polisyos.data_forge.domains.legal.corpus.versioning",
       "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/corpus/structure.py",
-      "target_module": "polisyos.lex.artifacts",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.corpus.structure",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/corpus/structure.py",
-      "target_module": "polisyos.lex.errors",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.corpus.structure",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/corpus/structure.py",
-      "target_module": "polisyos.lex.types",
-      "target_root": "lex"
+      "source_file": "src/polisyos/data_forge/domains/legal/corpus/versioning.py",
+      "target_module": "polisyos.common.timestamps",
+      "target_root": "common"
     },
     {
       "source_module": "polisyos.data_forge.domains.legal.corpus.versioning",
@@ -1851,62 +1767,6 @@
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.data_forge.domains.legal.corpus.versioning",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/corpus/versioning.py",
-      "target_module": "polisyos.lex.artifacts",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.corpus.versioning",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/corpus/versioning.py",
-      "target_module": "polisyos.lex.common",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.corpus.versioning",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/corpus/versioning.py",
-      "target_module": "polisyos.lex.errors",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.corpus.versioning",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/corpus/versioning.py",
-      "target_module": "polisyos.lex.factlog",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.legal.corpus.versioning",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/legal/corpus/versioning.py",
-      "target_module": "polisyos.lex.types",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.calibration",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/calibration.py",
-      "target_module": "polisyos.core.artifacts.manifest",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.calibration",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/calibration.py",
-      "target_module": "polisyos.ir.observation.contracts",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.calibration",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/calibration.py",
-      "target_module": "polisyos.scientist.governance",
-      "target_root": "scientist"
-    },
-    {
       "source_module": "polisyos.data_forge.domains.ukraine.builders.common",
       "source_root": "data_forge",
       "source_file": "src/polisyos/data_forge/domains/ukraine/builders/common.py",
@@ -1938,92 +1798,8 @@
       "source_module": "polisyos.data_forge.domains.ukraine.builders.demography",
       "source_root": "data_forge",
       "source_file": "src/polisyos/data_forge/domains/ukraine/builders/demography.py",
-      "target_module": "polisyos.foundry.methods.catalog.microsim.protocols",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.demography",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/demography.py",
       "target_module": "polisyos.ir.observation.contracts",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.release",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/release.py",
-      "target_module": "polisyos.foundry.validation.release_acceptance",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.release",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/release.py",
-      "target_module": "polisyos.ir.governance.policy_spec",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.release",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/release.py",
-      "target_module": "polisyos.ir.governance.problem_frame",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.release",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/release.py",
-      "target_module": "polisyos.ir.governance.schedule",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.release",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/release.py",
-      "target_module": "polisyos.ir.governance.selector_expr",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.release",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/release.py",
-      "target_module": "polisyos.ir.model_layer.model_spec",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.release",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/release.py",
-      "target_module": "polisyos.ir.model_layer.types",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.release",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/release.py",
-      "target_module": "polisyos.ir.observation.contracts",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.release",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/release.py",
-      "target_module": "polisyos.ir.trinity",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.release",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/release.py",
-      "target_module": "polisyos.lex.interventions",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.release",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/release.py",
-      "target_module": "polisyos.scientist.governance",
-      "target_root": "scientist"
     },
     {
       "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
@@ -2036,77 +1812,7 @@
       "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
       "source_root": "data_forge",
       "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
-      "target_module": "polisyos.core.registry",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
-      "target_module": "polisyos.foundry.data_plane.bindings",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
-      "target_module": "polisyos.foundry.methods.catalog.causal.measurement_error",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
-      "target_module": "polisyos.foundry.methods.catalog.causal.protocols",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
-      "target_module": "polisyos.foundry.methods.catalog.econometrics.protocols",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
-      "target_module": "polisyos.foundry.methods.catalog.microsim.protocols",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
-      "target_module": "polisyos.foundry.methods.catalog.ml.protocols",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
-      "target_module": "polisyos.foundry.methods.catalog.network.protocols",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
-      "target_module": "polisyos.foundry.methods.layout",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
-      "target_module": "polisyos.ir.analytics.causal_graph",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.ukraine.builders.sources",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
-      "target_module": "polisyos.ir.kernel",
+      "target_module": "polisyos.ir.kernel.slots",
       "target_root": "ir"
     },
     {
@@ -2149,6 +1855,48 @@
       "source_root": "data_forge",
       "source_file": "src/polisyos/data_forge/domains/ukraine/models.py",
       "target_module": "polisyos.ir.observation.contracts",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.data_forge.errors",
+      "source_root": "data_forge",
+      "source_file": "src/polisyos/data_forge/errors.py",
+      "target_module": "polisyos.core.errors",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.data_forge.kernel.artifacts",
+      "source_root": "data_forge",
+      "source_file": "src/polisyos/data_forge/kernel/artifacts.py",
+      "target_module": "polisyos.core.artifacts.ids",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.data_forge.kernel.artifacts",
+      "source_root": "data_forge",
+      "source_file": "src/polisyos/data_forge/kernel/artifacts.py",
+      "target_module": "polisyos.core.artifacts.store",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.data_forge.kernel.artifacts",
+      "source_root": "data_forge",
+      "source_file": "src/polisyos/data_forge/kernel/artifacts.py",
+      "target_module": "polisyos.core.canon",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.data_forge.kernel.artifacts",
+      "source_root": "data_forge",
+      "source_file": "src/polisyos/data_forge/kernel/artifacts.py",
+      "target_module": "polisyos.fabric.world",
+      "target_root": "fabric"
+    },
+    {
+      "source_module": "polisyos.data_forge.kernel.artifacts",
+      "source_root": "data_forge",
+      "source_file": "src/polisyos/data_forge/kernel/artifacts.py",
+      "target_module": "polisyos.ir.world.doc",
       "target_root": "ir"
     },
     {
@@ -6161,6 +5909,13 @@
       "source_file": "src/polisyos/foundry/contracts/specs.py",
       "target_module": "polisyos.ir.model_layer.units",
       "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.foundry.data_plane.bindings",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/data_plane/bindings.py",
+      "target_module": "polisyos.common.serialization",
+      "target_root": "common"
     },
     {
       "source_module": "polisyos.foundry.data_plane.bindings",
@@ -11535,7 +11290,7 @@
       "source_module": "polisyos.lex.common",
       "source_root": "lex",
       "source_file": "src/polisyos/lex/common.py",
-      "target_module": "polisyos.common.logger",
+      "target_module": "polisyos.common.timestamps",
       "target_root": "common"
     },
     {
@@ -14377,7 +14132,7 @@
       "source_module": "polisyos.runtime.quality.data_state_substrate",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
-      "target_module": "polisyos.fabric.world.materialize",
+      "target_module": "polisyos.fabric.world",
       "target_root": "fabric"
     },
     {
@@ -14596,13 +14351,6 @@
       "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
       "target_module": "polisyos.ir.analytics.transportability",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.generation_cycle",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/generation_cycle.py",
-      "target_module": "polisyos.pdc._impl.layer2_design_search",
-      "target_root": "pdc"
     },
     {
       "source_module": "polisyos.runtime.quality.generation_cycle",
@@ -17513,6 +17261,13 @@
       "source_module": "polisyos.scientist.governance.blueprint_release",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
+      "target_module": "polisyos.core.canon",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.scientist.governance.blueprint_release",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
       "target_module": "polisyos.core.governance.profiles",
       "target_root": "core"
     },
@@ -17528,6 +17283,13 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
       "target_module": "polisyos.ir.analytics.abstraction",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.governance.blueprint_release",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
+      "target_module": "polisyos.ir.analytics.calibration",
       "target_root": "ir"
     },
     {
@@ -17555,14 +17317,14 @@
       "source_module": "polisyos.scientist.governance.blueprint_release",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
-      "target_module": "polisyos.ir.observation.contract_compilers",
+      "target_module": "polisyos.ir.observation.contracts",
       "target_root": "ir"
     },
     {
       "source_module": "polisyos.scientist.governance.blueprint_release",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
-      "target_module": "polisyos.ir.observation.contracts",
+      "target_module": "polisyos.ir.registry.refs",
       "target_root": "ir"
     },
     {
@@ -18990,13 +18752,48 @@
       "source_module": "polisyos.scientist.methods.autotune.claim_adjudication",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/methods/autotune/claim_adjudication.py",
+      "target_module": "polisyos.ir.analytics.literature",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.autotune.claim_adjudication_cli",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/methods/autotune/claim_adjudication_cli.py",
+      "target_module": "polisyos.core.artifacts",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.autotune.claim_adjudication_cli",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/methods/autotune/claim_adjudication_cli.py",
       "target_module": "polisyos.data_forge.read_api.academic",
       "target_root": "data_forge"
     },
     {
-      "source_module": "polisyos.scientist.methods.autotune.claim_adjudication",
+      "source_module": "polisyos.scientist.methods.autotune.claim_adjudication_runtime",
       "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/methods/autotune/claim_adjudication.py",
+      "source_file": "src/polisyos/scientist/methods/autotune/claim_adjudication_runtime.py",
+      "target_module": "polisyos.core.artifacts",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.autotune.claim_adjudication_runtime",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/methods/autotune/claim_adjudication_runtime.py",
+      "target_module": "polisyos.core.canon",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.autotune.claim_adjudication_runtime",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/methods/autotune/claim_adjudication_runtime.py",
+      "target_module": "polisyos.data_forge.read_api.academic",
+      "target_root": "data_forge"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.autotune.claim_adjudication_runtime",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/methods/autotune/claim_adjudication_runtime.py",
       "target_module": "polisyos.ir.analytics.literature",
       "target_root": "ir"
     },
@@ -21679,6 +21476,13 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py",
       "target_module": "polisyos.foundry.data_plane",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.data.bind_foundry_inputs",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py",
+      "target_module": "polisyos.foundry.methods",
       "target_root": "foundry"
     },
     {

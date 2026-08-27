@@ -1,5 +1,21 @@
 # Data Forge relocation repairs — execution journal
 
+## Commit-boundary widening ledger
+
+| Commit boundary | Ledger | What the boundary bought or cleared | Standing |
+| --- | ---: | --- | --- |
+| `c27c6b48b` | 4/8 | Round-free repair: immutable CAS snapshot closes the receipt TOCTOU. | stands; no round consumed |
+| `7e8a19abd` | 4/8 | Round-free repair: Scientist rejects producer-authored D4 predicates and waivers. | stands; no round consumed |
+| `c74299e3d` | 4/8 | Round-free repair: explicit selected-contract Foundry transport and one real workflow consumer. | stands; no round consumed |
+| `b6f7e395b` | 4/8 | Round-free repair: Lex compatibility edges close; frozen row 21 is amended to measured Common ownership without code movement. | stands; no round consumed |
+| `24ef44ae9` | 5/8 | Round 5 buys the Scientist claim-adjudication seam and clears frozen row 3. | stands |
+| `044b5f978` | 6/8 | Round 6 buys the Lex semantic-benchmark surface and clears frozen rows 4–6. | stands |
+| `02b3f7896` | 7/8 | Round 7 buys the Scientist legal-retrieval diagnostic and clears frozen row 7. | stands |
+| `58118c3d9` | 8/8 | Round 8 buys the Lex legal-search command and clears frozen row 8. | stands |
+
+No round was withdrawn. The explicit baseline and registration transaction after
+`58118c3d9` is record work against frozen source and consumes no widening round.
+
 ## Ledger and pattern pass
 
 - Ledger: 4/8. This is a round-free repair inside the already-spent ledger;
@@ -155,7 +171,8 @@ Python files) and found exactly:
 
 ### Ledger and pattern pass
 
-- Ledger: 5/8. Round 5 buys the complete academic-claim publishability seam:
+- Ledger: 5/8. Round 5 buys the complete academic-claim publishability seam
+  and clears frozen row 3:
   Data Forge freezes authority-neutral source bytes and claim inputs; Scientist
   admits a promoted benchmarked champion, executes candidate analysis, and
   signs the narrow publishability result. The round stands.
@@ -414,3 +431,197 @@ Python files) and found exactly:
   corresponding deep-import identity and the corrected stale exact dynamic
   coordinate, explaining the direct 148 -> 145 movement without presenting
   the full gate as passing.
+
+## Final baseline and registration transaction
+
+### Ledger and denominator
+
+- Ledger: **8/8**. This transaction consumes no widening round: source was frozen at
+  `58118c3d9`; only the architect-authorized explicit baseline and required records moved.
+- Before the patch, canonical and independent full-set derivations agreed over 2,585
+  `src/**/*.py` files: current 3,603 unique edges, baseline 3,631 unique edges,
+  **29 additions** and **57 removals**, with zero source-file mismatches. After the
+  explicit patch, both derive current=baseline=3,603, additions=0, removals=0.
+- The patch was applied as explicit edge hunks. `guardrails sync` was never invoked.
+
+### Enumerated additions (29)
+
+| Added edge | Causing statement | Authorization receipt |
+| --- | --- | --- |
+| `polisyos.data_forge.domains.academic.batch.benchmark->polisyos.ir.analytics.cross_graph` | `src/polisyos/data_forge/domains/academic/batch/benchmark.py:19` — `from polisyos.ir.analytics.cross_graph import AcademicBenchmarkScenario, AcademicBenchmarkSuite, BenchmarkCausalEdge, BenchmarkCredibilityPolicy, BenchmarkScholarQuery, load_benchmark_suite, write_need_backlog` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.data_forge.domains.academic.batch.best_snapshot->polisyos.ir.analytics.cross_graph` | `src/polisyos/data_forge/domains/academic/batch/best_snapshot.py:31` — `from polisyos.ir.analytics.cross_graph import AcademicBenchmarkSuite, load_benchmark_suite` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.data_forge.domains.academic.batch.claim_adjudicator->polisyos.core.artifacts` | `src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py:14` — `from polisyos.core.artifacts import ArtifactID, ArtifactRef, ArtifactWriteOptions, FileSystemCAS, InputRef, ProducerInfo, SchemaInfo` | Round 5 claim-adjudication seam, `24ef44ae9` |
+| `polisyos.data_forge.domains.academic.batch.claim_adjudicator->polisyos.core.canon` | `src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py:23` — `from polisyos.core.canon import CanonSpec, from_canonical_bytes` | Round 5 claim-adjudication seam, `24ef44ae9` |
+| `polisyos.data_forge.domains.legal.batch.doc_identity->polisyos.common.timestamps` | `src/polisyos/data_forge/domains/legal/batch/doc_identity.py:11` — `from polisyos.common.timestamps import parse_iso_date` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.data_forge.domains.legal.batch.temporal_parser->polisyos.common.timestamps` | `src/polisyos/data_forge/domains/legal/batch/temporal_parser.py:9` — `from polisyos.common.timestamps import parse_iso_date` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.data_forge.domains.legal.contracts->polisyos.fabric.docs` | `src/polisyos/data_forge/domains/legal/contracts.py:18` — `from polisyos.fabric.docs import DocChunkOptions, DocIngestOptions, DocNormalizeOptions, DocStructureOptions` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.data_forge.domains.legal.contracts->polisyos.ir.loading.fact_log` | `src/polisyos/data_forge/domains/legal/contracts.py:24` — `from polisyos.ir.loading.fact_log import FactSegmentManifest` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.data_forge.domains.legal.corpus.versioning->polisyos.common.timestamps` | `src/polisyos/data_forge/domains/legal/corpus/versioning.py:14` — `from polisyos.common.timestamps import latest_object_by_subject, parse_iso_date` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.data_forge.domains.ukraine.builders.sources->polisyos.ir.kernel.slots` | `src/polisyos/data_forge/domains/ukraine/builders/sources.py:15` — `from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, build_slot_family_manifest` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.data_forge.errors->polisyos.core.errors` | `src/polisyos/data_forge/errors.py:7` — `from polisyos.core.errors import ErrorCategory, PolicyOSError` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.data_forge.kernel.artifacts->polisyos.core.artifacts.ids` | `src/polisyos/data_forge/kernel/artifacts.py:10` — `from polisyos.core.artifacts.ids import ArtifactID` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.data_forge.kernel.artifacts->polisyos.core.artifacts.store` | `src/polisyos/data_forge/kernel/artifacts.py:19` — `from polisyos.core.artifacts.store import FileSystemCAS` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.data_forge.kernel.artifacts->polisyos.core.canon` | `src/polisyos/data_forge/kernel/artifacts.py:11` — `from polisyos.core.canon import from_canonical_bytes` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.data_forge.kernel.artifacts->polisyos.fabric.world` | `src/polisyos/data_forge/kernel/artifacts.py:13` — `from polisyos.fabric.world import validate_doc_meta_ids` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.data_forge.kernel.artifacts->polisyos.ir.world.doc` | `src/polisyos/data_forge/kernel/artifacts.py:14` — `from polisyos.ir.world.doc import DocMeta` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.foundry.data_plane.bindings->polisyos.common.serialization` | `src/polisyos/foundry/data_plane/bindings.py:23` — `from polisyos.common.serialization import to_python_data` | round-free Foundry repair, `c74299e3d` |
+| `polisyos.lex.common->polisyos.common.timestamps` | `src/polisyos/lex/common.py:7` — `from polisyos.common.timestamps import latest_object_by_subject, parse_iso_date` | shared-contract-down relocation, no round, `ad2526a42` |
+| `polisyos.runtime.quality.data_state_substrate->polisyos.fabric.world` | `src/polisyos/runtime/quality/data_state_substrate.py:1248` — `from polisyos.fabric.world import ensure_world_schema` | Phase 0 ratified re-spelling, `1ceb10e0c` |
+| `polisyos.scientist.governance.blueprint_release->polisyos.core.canon` | `src/polisyos/scientist/governance/blueprint_release.py:24` — `from polisyos.core.canon import CanonSpec` | Round 3 Scientist governance bridge, `a1f0d4bdf` |
+| `polisyos.scientist.governance.blueprint_release->polisyos.ir.analytics.calibration` | `src/polisyos/scientist/governance/blueprint_release.py:41` — `from polisyos.ir.analytics.calibration import CalibrationCandidateScore, CalibrationRunManifest, HoldoutScoresManifest, SpecificationCurveScenario, SpecificationCurveSummaryManifest, SplitWindow, StrategicResponseChannelMetric, StrategicResponseMetricsManifest, TransportabilityChannelResult, TransportabilitySummaryManifest` | Round 3 Scientist governance bridge, `a1f0d4bdf` |
+| `polisyos.scientist.governance.blueprint_release->polisyos.ir.registry.refs` | `src/polisyos/scientist/governance/blueprint_release.py:71` — `from polisyos.ir.registry.refs import ArtifactRefModel` | Round 3 Scientist governance bridge, `a1f0d4bdf` |
+| `polisyos.scientist.methods.autotune.claim_adjudication_cli->polisyos.core.artifacts` | `src/polisyos/scientist/methods/autotune/claim_adjudication_cli.py:11` — `from polisyos.core.artifacts import FileSystemCAS` | Round 5 claim-adjudication seam, `24ef44ae9` |
+| `polisyos.scientist.methods.autotune.claim_adjudication_cli->polisyos.data_forge.read_api.academic` | `src/polisyos/scientist/methods/autotune/claim_adjudication_cli.py:20` — `from polisyos.data_forge.read_api.academic import AcademicBatchConfig` | Round 5 claim-adjudication seam, `24ef44ae9` |
+| `polisyos.scientist.methods.autotune.claim_adjudication_runtime->polisyos.core.artifacts` | `src/polisyos/scientist/methods/autotune/claim_adjudication_runtime.py:11` — `from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions, FileSystemCAS, InputRef, ProducerInfo, SchemaInfo` | Round 5 claim-adjudication seam, `24ef44ae9` |
+| `polisyos.scientist.methods.autotune.claim_adjudication_runtime->polisyos.core.canon` | `src/polisyos/scientist/methods/autotune/claim_adjudication_runtime.py:19` — `from polisyos.core.canon import CanonSpec, from_canonical_bytes` | Round 5 claim-adjudication seam, `24ef44ae9` |
+| `polisyos.scientist.methods.autotune.claim_adjudication_runtime->polisyos.data_forge.read_api.academic` | `src/polisyos/scientist/methods/autotune/claim_adjudication_runtime.py:46` — `from polisyos.data_forge.read_api.academic import AcademicBatchConfig` | Round 5 claim-adjudication seam, `24ef44ae9` |
+| `polisyos.scientist.methods.autotune.claim_adjudication_runtime->polisyos.ir.analytics.literature` | `src/polisyos/scientist/methods/autotune/claim_adjudication_runtime.py:20` — `from polisyos.ir.analytics.literature import AdmittedClaimAdjudicationBatch, CausalCredibility, ClaimAdjudicationInputBatch, ClaimAdjudicationInputItem, ClaimAdjudicationResult, ClaimType, DesignFamily, RiskOfBias, SourceBasis, SupportStatus` | Round 5 claim-adjudication seam, `24ef44ae9` |
+| `polisyos.scientist.nodes.builtins.data.bind_foundry_inputs->polisyos.foundry.methods` | `src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py:21` — `from polisyos.foundry.methods import MethodRegistry, ensure_all_methods_registered` | round-free Foundry repair, `c74299e3d` |
+
+The three Round-3 Scientist edges are cited individually above; none is inferred from
+a category label. Each addition is the same dependency at its relocated address, or the
+already-accounted authority seam named in its receipt; no untraced edge was admitted.
+
+### Enumerated removals (57)
+
+- `polisyos.data_forge.domains.academic.batch.benchmark->polisyos.scientist.cross_graph.feedback`
+- `polisyos.data_forge.domains.academic.batch.best_snapshot->polisyos.scientist.cross_graph.feedback`
+- `polisyos.data_forge.domains.academic.batch.claim_adjudicator->polisyos.scientist.methods.autotune.claim_adjudication`
+- `polisyos.data_forge.domains.legal.batch.benchmark->polisyos.core.artifacts.store`
+- `polisyos.data_forge.domains.legal.batch.benchmark->polisyos.fabric.claims.persist`
+- `polisyos.data_forge.domains.legal.batch.benchmark->polisyos.lex.api`
+- `polisyos.data_forge.domains.legal.batch.benchmark->polisyos.lex.knowledge.search`
+- `polisyos.data_forge.domains.legal.batch.benchmark->polisyos.lex.types`
+- `polisyos.data_forge.domains.legal.batch.benchmark->polisyos.scientist.agent.knowledge_tools`
+- `polisyos.data_forge.domains.legal.batch.cli->polisyos.lex.knowledge.store`
+- `polisyos.data_forge.domains.legal.batch.doc_identity->polisyos.lex.common`
+- `polisyos.data_forge.domains.legal.batch.structurer->polisyos.lex.types`
+- `polisyos.data_forge.domains.legal.batch.temporal_parser->polisyos.lex.common`
+- `polisyos.data_forge.domains.legal.corpus.index->polisyos.lex.artifacts`
+- `polisyos.data_forge.domains.legal.corpus.index->polisyos.lex.errors`
+- `polisyos.data_forge.domains.legal.corpus.ingest->polisyos.lex.artifacts`
+- `polisyos.data_forge.domains.legal.corpus.ingest->polisyos.lex.errors`
+- `polisyos.data_forge.domains.legal.corpus.ingest->polisyos.lex.types`
+- `polisyos.data_forge.domains.legal.corpus.structure->polisyos.lex.artifacts`
+- `polisyos.data_forge.domains.legal.corpus.structure->polisyos.lex.errors`
+- `polisyos.data_forge.domains.legal.corpus.structure->polisyos.lex.types`
+- `polisyos.data_forge.domains.legal.corpus.versioning->polisyos.lex.artifacts`
+- `polisyos.data_forge.domains.legal.corpus.versioning->polisyos.lex.common`
+- `polisyos.data_forge.domains.legal.corpus.versioning->polisyos.lex.errors`
+- `polisyos.data_forge.domains.legal.corpus.versioning->polisyos.lex.factlog`
+- `polisyos.data_forge.domains.legal.corpus.versioning->polisyos.lex.types`
+- `polisyos.data_forge.domains.ukraine.builders.calibration->polisyos.core.artifacts.manifest`
+- `polisyos.data_forge.domains.ukraine.builders.calibration->polisyos.ir.observation.contracts`
+- `polisyos.data_forge.domains.ukraine.builders.calibration->polisyos.scientist.governance`
+- `polisyos.data_forge.domains.ukraine.builders.demography->polisyos.foundry.methods.catalog.microsim.protocols`
+- `polisyos.data_forge.domains.ukraine.builders.release->polisyos.foundry.validation.release_acceptance`
+- `polisyos.data_forge.domains.ukraine.builders.release->polisyos.ir.governance.policy_spec`
+- `polisyos.data_forge.domains.ukraine.builders.release->polisyos.ir.governance.problem_frame`
+- `polisyos.data_forge.domains.ukraine.builders.release->polisyos.ir.governance.schedule`
+- `polisyos.data_forge.domains.ukraine.builders.release->polisyos.ir.governance.selector_expr`
+- `polisyos.data_forge.domains.ukraine.builders.release->polisyos.ir.model_layer.model_spec`
+- `polisyos.data_forge.domains.ukraine.builders.release->polisyos.ir.model_layer.types`
+- `polisyos.data_forge.domains.ukraine.builders.release->polisyos.ir.observation.contracts`
+- `polisyos.data_forge.domains.ukraine.builders.release->polisyos.ir.trinity`
+- `polisyos.data_forge.domains.ukraine.builders.release->polisyos.lex.interventions`
+- `polisyos.data_forge.domains.ukraine.builders.release->polisyos.scientist.governance`
+- `polisyos.data_forge.domains.ukraine.builders.sources->polisyos.core.registry`
+- `polisyos.data_forge.domains.ukraine.builders.sources->polisyos.foundry.data_plane.bindings`
+- `polisyos.data_forge.domains.ukraine.builders.sources->polisyos.foundry.methods.catalog.causal.measurement_error`
+- `polisyos.data_forge.domains.ukraine.builders.sources->polisyos.foundry.methods.catalog.causal.protocols`
+- `polisyos.data_forge.domains.ukraine.builders.sources->polisyos.foundry.methods.catalog.econometrics.protocols`
+- `polisyos.data_forge.domains.ukraine.builders.sources->polisyos.foundry.methods.catalog.microsim.protocols`
+- `polisyos.data_forge.domains.ukraine.builders.sources->polisyos.foundry.methods.catalog.ml.protocols`
+- `polisyos.data_forge.domains.ukraine.builders.sources->polisyos.foundry.methods.catalog.network.protocols`
+- `polisyos.data_forge.domains.ukraine.builders.sources->polisyos.foundry.methods.layout`
+- `polisyos.data_forge.domains.ukraine.builders.sources->polisyos.ir.analytics.causal_graph`
+- `polisyos.data_forge.domains.ukraine.builders.sources->polisyos.ir.kernel`
+- `polisyos.lex.common->polisyos.common.logger`
+- `polisyos.runtime.quality.data_state_substrate->polisyos.fabric.world.materialize`
+- `polisyos.runtime.quality.generation_cycle->polisyos.pdc._impl.layer2_design_search`
+- `polisyos.scientist.governance.blueprint_release->polisyos.ir.observation.contract_compilers`
+- `polisyos.scientist.methods.autotune.claim_adjudication->polisyos.data_forge.read_api.academic`
+
+### Executed registration signals
+
+- `fabric-world-facade-enforcement-conflict`: diagnostic exit 1 with the requested
+  witness present. ARCH004 names `polisyos.fabric.world` as the facade; that facade exports
+  `ensure_world_schema`; Runtime imports it there at the architect-requested Phase-0
+  re-spelling; and the canonical deep collector counts the exact same module as depth.
+- `foundry-ukraine-method-contract-consumer-residual`: the real CAS intake and
+  independent AST derivation agree on 13 unique contracts = one exercised
+  (`d2_panel_observational`) + twelve `selectable_unselected / consumer_missing`.
+  The execution-as-method-validity falsifier passed; an execution result is rejected.
+- `data-forge-relocation-ruff-inheritance`: the same Ruff binary against current and an
+  archived `9300a06e9` tree produced three identical diagnostics per tree (six
+  observations), codes ANN001/RUF001/RUF022, symmetric identity difference zero; both
+  files are byte-unchanged from the slice base. A temp-path/config probe that reported
+  17 per tree changed per-file rule matching and is recorded as a harness non-receipt.
+
+### Release predicate receipt
+
+- The post-patch release guardrail completed at exit 0. Canonical bytes exactly match
+  the explicitly patched baseline, all 3,603 keys are unique, and the independent AST
+  derivation reports additions=0, removals=0. The completed guardrail used
+  `user=47.89s`, `sys=11.75s`; uptime advanced from 16:08/up 3 days 6:21 to
+  16:09/up 3 days 6:22.
+- The generated debt-ledger writer observed 99 register ids and wrote the derived ledger,
+  but its direct exit is 1 on ten unresolvable closure-test identities. Their provenance
+  was not established by an exact slice-base replay, so no inheritance claim is made;
+  the identities and the 439.85s receipt are preserved rather than presented as a green
+  records gate. They do not alter any of the three requested import predicates.
+
+## Final verification boundary
+
+- Branch receipt: `git rev-parse --show-prefix` returned `policy-engine/`, and
+  `git symbolic-ref -q HEAD` returned
+  `refs/heads/codex/import-relocate-data-forge` before the final commands.
+- Blast-radius tests: the 28 changed test files since `9300a06e9`, excluding the
+  separately replayed debt-ledger checker, passed at exit 0. The worktree import
+  resolved to this checkout. Two complete collection derivations agree on **144**
+  tests: per-file counts sum to 144, while a separate `len(session.items)` collector
+  reports 144 items / 144 unique node ids. The execution used `user=113.59s`,
+  `sys=10.46s`; uptime advanced from 16:21/up 3 days 6:34 to 16:23/up 3 days 6:37.
+  An initial parser returned zero because this repository's quiet formatter emits
+  `file.py: count` rather than node ids; that parser result is a non-receipt.
+- Debt-ledger invariants: the two exact real-register tests passed at exit 0
+  (`user=367.92s`, `sys=20.54s`; uptime 16:26/up 3 days 6:39 to
+  16:33/up 3 days 6:46). Canonical and independent complete A:G register censuses
+  agree on 99 unique ids and status distribution `ambiguous=12`, `blocked=10`,
+  `closed=37`, `folded=2`, `foreign=6`, `open=32`; the generated ledger indexes 62.
+  A naive Markdown parser counted 110 rows / 101 unique ids because it failed to end
+  section state and included later evidence tables. That disagreement is preserved as
+  a failed derivation, not reconciled into the denominator. After the final prose-only
+  precision edits, the exact generated-ledger snapshot test replayed at exit 0
+  (`user=1.22s`, `sys=0.33s`).
+- Ruff: all 75 changed Python files passed at exit 0 (`user=0.04s`, `sys=0.01s`).
+  A first replay passed repository-root paths from a `policy-engine/` working directory
+  and emitted only E902 missing-file diagnostics; it is a harness non-receipt. The
+  separate equal-tree comparison remains three identical inherited diagnostics per
+  tree, six observations and three normalized identities, codes
+  ANN001/RUF001/RUF022, with symmetric difference zero.
+
+### Final import predicates — reported separately
+
+1. **Source import linter: exit 1.** The complete JSON and independent exact-root AST
+   walk agree over 2,585 `src/**/*.py` files on **42** violations:
+   ARCH001=39, ARCH002=1, ARCH004=2, ARCH006=0. The independent ARCH001 ordered-pair
+   sum is 39: core→scientist 4, foundry→lex 1, foundry→scientist 5, ir→core 2,
+   ir→foundry 13, ir→scientist 6, lex→foundry 3, lex→scientist 4,
+   runtime→corpus 1. Both set differences are empty. The completed failure used
+   `user=1.75s`, `sys=0.47s`; uptime remained within 16:27/up 3 days 6:40.
+2. **Release guardrail: exit 0.** The canonical checker reports fresh generated
+   artifacts and `Architecture guardrail check passed`. A standalone AST derivation
+   over the same 2,585-file denominator agrees on current=3,603 unique keys,
+   baseline=3,603 entries / 3,603 unique keys, additions=0, removals=0, and zero
+   source-file mismatches. The final completed run used `user=40.24s`, `sys=9.66s`;
+   uptime advanced from 16:39/up 3 days 6:52 to 16:40/up 3 days 6:53.
+3. **Package-import gate: exit 1.** Three complete-report derivations agree on
+   **134** findings (`finding_count`, list length, and 134 unique serialized finding
+   dicts). Its `package_boundary` summary remains `mode=fail_closed`, with
+   current=34, registered=0, and **34 unregistered forbidden edges**. Count field,
+   key-list length, unique-key count, and eight package-row subtotals all agree; an
+   independent longest-exact-registered-prefix AST scan over 2,585 files derives the
+   same 34 with both set differences empty. The completed failure used
+   `user=154.38s`, `sys=10.09s`; uptime advanced from 16:27/up 3 days 6:41 to
+   16:31/up 3 days 6:44. No composite pass is claimed.

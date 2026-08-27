@@ -151,6 +151,7 @@ def load_ukraine_foundry_intake(
         receipts = {
             stage_id: read_api.ukraine.load_verified_stage_artifacts(
                 Path(stage_manifests[stage_id]),
+                store=store,
                 allowed_root=allowed_root,
                 expected_stage=stage_id,
                 required_outputs=outputs,
@@ -160,7 +161,11 @@ def load_ukraine_foundry_intake(
     except Exception as exc:
         raise ValueError(f"Ukraine intake receipt verification failed: {exc}") from exc
 
-    runtime_bundle = _load_verified_json_output(receipts["d0_p0"], "runtime_bundle_manifest.json")
+    runtime_bundle = _load_verified_json_output(
+        store,
+        receipts["d0_p0"],
+        "runtime_bundle_manifest.json",
+    )
     data_snapshot_id = runtime_bundle.get("data_snapshot_artifact_id")
     if not isinstance(data_snapshot_id, str) or not data_snapshot_id.strip():
         raise ValueError("runtime_bundle_manifest is missing data_snapshot_artifact_id")
@@ -199,19 +204,22 @@ def load_ukraine_foundry_intake(
     for contract_name, stage_id, output_name, model_type in contract_specs:
         try:
             method_contracts[contract_name] = model_type.model_validate(
-                _load_verified_json_output(receipts[stage_id], output_name)
+                _load_verified_json_output(store, receipts[stage_id], output_name)
             )
         except Exception as exc:
             raise ValueError(f"invalid Ukraine method contract {contract_name}: {exc}") from exc
         output = receipts[stage_id].outputs[output_name]
         validated_contracts[contract_name] = {
             "contract_id": str(model_type.contract_id),
-            "output_path": output.path,
+            "source_path": output.source_path,
+            "content_ref": str(output.content_ref.artifact_id),
             "sha256": output.sha256,
         }
 
     proxy_identification_bundle = _load_verified_json_output(
-        receipts["d1"], "proxy_identification_bundle_v1.json"
+        store,
+        receipts["d1"],
+        "proxy_identification_bundle_v1.json",
     )
     if not proxy_identification_bundle.get("proxy_channels"):
         raise ValueError("Ukraine proxy-identification bundle has no proxy_channels")
@@ -225,7 +233,14 @@ def load_ukraine_foundry_intake(
         },
         "validated_contracts": validated_contracts,
         "proxy_identification_bundle": {
-            "output_path": receipts["d1"].outputs["proxy_identification_bundle_v1.json"].path,
+            "source_path": receipts["d1"]
+            .outputs["proxy_identification_bundle_v1.json"]
+            .source_path,
+            "content_ref": str(
+                receipts["d1"]
+                .outputs["proxy_identification_bundle_v1.json"]
+                .content_ref.artifact_id
+            ),
             "sha256": receipts["d1"].outputs["proxy_identification_bundle_v1.json"].sha256,
         },
     }
@@ -246,15 +261,21 @@ def load_ukraine_foundry_intake(
     )
 
 
-def _load_verified_json_output(receipt: Any, output_name: str) -> dict[str, Any]:
+def _load_verified_json_output(
+    store: FileSystemCAS,
+    receipt: Any,
+    output_name: str,
+) -> dict[str, Any]:
     """Load one receipt-bound JSON producer output as an object."""
 
-    output = receipt.outputs.get(output_name)
-    if output is None:
-        raise ValueError(f"verified receipt lacks required output: {output_name}")
     try:
-        payload = json.loads(Path(output.path).read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        output_bytes = read_api.ukraine.load_verified_stage_output_bytes(
+            store,
+            receipt,
+            output_name,
+        )
+        payload = json.loads(output_bytes)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ValueError(f"invalid JSON output {output_name}: {exc}") from exc
     if not isinstance(payload, dict):
         raise ValueError(f"JSON output {output_name} must be an object")

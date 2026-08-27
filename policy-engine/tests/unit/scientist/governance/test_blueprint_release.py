@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -15,6 +16,7 @@ from polisyos.data_forge.domains.ukraine.manifests import (
 )
 from polisyos.data_forge.domains.ukraine.models import StageId, build_default_pipeline_config
 from polisyos.data_forge.read_api.ukraine import UkraineStageArtifactVerificationError
+from polisyos.scientist.governance import blueprint_release
 from polisyos.scientist.governance.blueprint_release import run_verified_ukraine_d4_governance
 
 
@@ -191,10 +193,24 @@ def test_verified_ukraine_d4_bridge_requires_recomputable_d0_coverage_evidence(t
 
 def test_verified_ukraine_d4_bridge_runs_scientist_validation_and_persists_receipts(
     tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Verified stage artifacts reach the real Scientist calibration-validation runner."""
 
     config, d4_manifest_path, _ = _verified_bridge_fixture(tmp_path)
+    load_verified_stage_artifacts = blueprint_release.load_verified_stage_artifacts
+
+    def _admit_then_mutate_sources(*args, **kwargs):
+        receipt = load_verified_stage_artifacts(*args, **kwargs)
+        for output in receipt.outputs.values():
+            Path(output.source_path).write_bytes(b"mutated after immutable admission")
+        return receipt
+
+    monkeypatch.setattr(
+        blueprint_release,
+        "load_verified_stage_artifacts",
+        _admit_then_mutate_sources,
+    )
 
     result = run_verified_ukraine_d4_governance(
         build_root=config.build_root.root,

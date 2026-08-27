@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 from collections.abc import Sequence
 from enum import Enum
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,7 @@ from polisyos.data_forge.read_api.ukraine import (
     UkraineStageArtifactVerificationError,
     VerifiedUkraineStageArtifacts,
     load_verified_stage_artifacts,
+    load_verified_stage_output_bytes,
 )
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
@@ -1143,16 +1145,16 @@ def _persist_verified_stage_receipt(
             media_type="application/json",
             schema=SchemaInfo(
                 name="polisyos.data_forge.ukraine.VerifiedUkraineStageArtifacts",
-                version="v1",
+                version="v2",
             ),
         ),
     )
 
 
-def _load_d4_governance_request(path: Path) -> _UkraineD4GovernanceRequest:
+def _load_d4_governance_request(payload: bytes) -> _UkraineD4GovernanceRequest:
     """Load the producer request without treating it as a governance verdict."""
 
-    request = _UkraineD4GovernanceRequest.model_validate_json(path.read_text(encoding="utf-8"))
+    request = _UkraineD4GovernanceRequest.model_validate_json(payload)
     if request.schema_version != "policyos.data_forge.ukraine.d4_governance_request.v1":
         raise UkraineStageArtifactVerificationError("unsupported D4 governance request schema")
     if request.authority_purpose != "producer_governance_handoff":
@@ -1173,10 +1175,10 @@ def _load_d4_governance_request(path: Path) -> _UkraineD4GovernanceRequest:
     return request
 
 
-def _recompute_identity_resolution_coverage(path: Path) -> tuple[float, float]:
+def _recompute_identity_resolution_coverage(payload: bytes) -> tuple[float, float]:
     """Recompute spending and procurement coverage from verified D0 row evidence."""
 
-    cohort = _IdentityResolutionCohort.model_validate_json(path.read_text(encoding="utf-8"))
+    cohort = _IdentityResolutionCohort.model_validate_json(payload)
     if cohort.schema_version != _IDENTITY_RESOLUTION_COHORT_SCHEMA:
         raise UkraineStageArtifactVerificationError("unsupported identity resolution cohort schema")
     coverage: dict[str, float] = {}
@@ -1294,51 +1296,87 @@ def run_verified_ukraine_d4_governance(
     """
 
     root = build_root.resolve()
+    store = FileSystemCAS(cas_root)
     d4_receipt = load_verified_stage_artifacts(
         d4_manifest_path,
+        store=store,
         allowed_root=root,
         expected_stage="d4",
         required_outputs=(_UKRAINE_D4_REQUEST_OUTPUT,),
     )
-    request = _load_d4_governance_request(Path(d4_receipt.outputs[_UKRAINE_D4_REQUEST_OUTPUT].path))
+    request = _load_d4_governance_request(
+        load_verified_stage_output_bytes(store, d4_receipt, _UKRAINE_D4_REQUEST_OUTPUT)
+    )
     manifests_dir = root / "manifests"
     d0_receipt = load_verified_stage_artifacts(
         manifests_dir / request.required_stage_manifests["d0_p0"],
+        store=store,
         allowed_root=root,
         expected_stage="d0_p0",
         required_outputs=(_IDENTITY_RESOLUTION_COHORT_OUTPUT,),
     )
     d2_receipt = load_verified_stage_artifacts(
         manifests_dir / request.required_stage_manifests["d2"],
+        store=store,
         allowed_root=root,
         expected_stage="d2",
         required_outputs=("observation_panel_monthly.parquet", "calibration_splits.json"),
     )
     d3_receipt = load_verified_stage_artifacts(
         manifests_dir / request.required_stage_manifests["d3"],
+        store=store,
         allowed_root=root,
         expected_stage="d3",
         required_outputs=("calibrated_household_cells.parquet", "labor_validation_panel.parquet"),
     )
     spending_coverage, procurement_coverage = _recompute_identity_resolution_coverage(
-        Path(d0_receipt.outputs[_IDENTITY_RESOLUTION_COHORT_OUTPUT].path)
+        load_verified_stage_output_bytes(
+            store,
+            d0_receipt,
+            _IDENTITY_RESOLUTION_COHORT_OUTPUT,
+        )
     )
     observation_panel = pd.read_parquet(
-        d2_receipt.outputs["observation_panel_monthly.parquet"].path
+        BytesIO(
+            load_verified_stage_output_bytes(
+                store,
+                d2_receipt,
+                "observation_panel_monthly.parquet",
+            )
+        )
     )
     household_panel = _household_distribution_observation_panel(
-        pd.read_parquet(d3_receipt.outputs["calibrated_household_cells.parquet"].path)
+        pd.read_parquet(
+            BytesIO(
+                load_verified_stage_output_bytes(
+                    store,
+                    d3_receipt,
+                    "calibrated_household_cells.parquet",
+                )
+            )
+        )
     )
     if not household_panel.empty:
         observation_panel = pd.concat([observation_panel, household_panel], ignore_index=True)
     labor_promoted = _recompute_labor_proxy_promotion(
-        pd.read_parquet(d3_receipt.outputs["labor_validation_panel.parquet"].path)
+        pd.read_parquet(
+            BytesIO(
+                load_verified_stage_output_bytes(
+                    store,
+                    d3_receipt,
+                    "labor_validation_panel.parquet",
+                )
+            )
+        )
     )
     splits = json.loads(
-        Path(d2_receipt.outputs["calibration_splits.json"].path).read_text(encoding="utf-8")
+        load_verified_stage_output_bytes(
+            store,
+            d2_receipt,
+            "calibration_splits.json",
+        )
     )
 
-    store = FileSystemCAS(cas_root)
     receipts = {
         "d0_p0": d0_receipt,
         "d2": d2_receipt,

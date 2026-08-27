@@ -17,6 +17,7 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     write_manifest,
 )
 from polisyos.data_forge.domains.ukraine.models import StageId
+from polisyos.data_forge.read_api import ukraine as ukraine_read_api
 from polisyos.foundry.data_plane.bindings import (
     _auto_rules_from_payload,
     _infer_entity_sizes,
@@ -236,7 +237,22 @@ def _ukraine_intake_manifests(root: Path) -> dict[str, Path]:
 
 def test_load_ukraine_foundry_intake_content_binds_and_validates_all_method_contracts(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    load_verified_stage_artifacts = ukraine_read_api.load_verified_stage_artifacts
+
+    def _admit_then_mutate_sources(*args, **kwargs):
+        receipt = load_verified_stage_artifacts(*args, **kwargs)
+        for output in receipt.outputs.values():
+            Path(output.source_path).write_text('{"mutated": true}', encoding="utf-8")
+        return receipt
+
+    monkeypatch.setattr(
+        ukraine_read_api,
+        "load_verified_stage_artifacts",
+        _admit_then_mutate_sources,
+    )
+
     intake = load_ukraine_foundry_intake(
         FileSystemCAS(tmp_path / "cas"),
         stage_manifests=_ukraine_intake_manifests(tmp_path),

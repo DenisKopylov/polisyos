@@ -2162,6 +2162,43 @@ def validate_canonical_promotion_receipt(
     )
 
 
+def promotion_receipt_allows_decision_front(
+    promotion: PromotionPortObservation,
+    summary: CandidateSummary,
+    *,
+    design_problem: DesignProblem | None,
+    open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
+    epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
+) -> bool:
+    """Resolve and validate canonical N9 evidence before decision-front admission."""
+
+    for receipt in promotion.receipts:
+        if str(receipt.get("candidate_id") or "") != summary.candidate_id:
+            continue
+        try:
+            parsed = CanonicalPromotionReceipt.model_validate(receipt)
+        except ValueError:
+            return False
+        if type(parsed) is not CanonicalPromotionReceipt:
+            return False
+        if validate_canonical_promotion_receipt(
+            parsed,
+            candidate_summary=summary,
+            design_problem=design_problem,
+            value_receipt=summary.value_receipt,
+            open_world_resolver=open_world_resolver,
+            epoch_validity_resolver=epoch_validity_resolver,
+        ):
+            return False
+        return bool(
+            parsed.promoted
+            and parsed.consumer_promotable
+            and parsed.promotion_lane == "production"
+            and not parsed.non_promotable_reason
+        )
+    return False
+
+
 def _validate_canonical_promotion_receipt_for_verification(
     receipt: CanonicalPromotionReceipt | Mapping[str, Any],
     *,

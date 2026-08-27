@@ -14,6 +14,7 @@ from uuid import uuid4
 import pytest
 
 import polisyos.runtime.quality.confidence_ledger as confidence_ledger_module
+import polisyos.runtime.quality.generation_cycle as generation_cycle_module
 import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts import FileSystemCAS
@@ -229,6 +230,48 @@ def test_decision_front_rejects_unbound_open_world_receipt() -> None:
     issues = validate_canonical_promotion_receipt(receipt)
 
     assert "open_world_resolver_not_established" in {str(issue["code"]) for issue in issues}
+
+
+def test_decision_front_predicate_is_owned_by_canonical_promotion_sequence() -> None:
+    promotion_input = _promotion_input()
+    receipt = _run(promotion_input)
+    promotion = PromotionPortObservation(
+        status="not_promoted",
+        reason="contract lane remains non-authoritative",
+        receipts=(receipt.model_dump(mode="json"),),
+    )
+
+    canonical = promotion_sequence_module.promotion_receipt_allows_decision_front(
+        promotion,
+        promotion_input.candidate_summary,
+        design_problem=None,
+    )
+    delegated = generation_cycle_module._promotion_receipt_allows_decision_front(
+        promotion,
+        promotion_input.candidate_summary,
+        problem=None,
+    )
+    forged = promotion.model_copy(
+        update={
+            "receipts": (
+                {
+                    **receipt.model_dump(mode="json"),
+                    "consumer_promotable": True,
+                    "promotion_lane": "production",
+                },
+            )
+        }
+    )
+
+    assert canonical is False and delegated is canonical
+    assert (
+        promotion_sequence_module.promotion_receipt_allows_decision_front(
+            forged,
+            promotion_input.candidate_summary,
+            design_problem=None,
+        )
+        is False
+    )
 
 
 def test_n9_emits_additive_decisive_instances_with_deterministic_identity() -> None:

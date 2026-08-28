@@ -533,7 +533,7 @@ git commit -m "fix(runtime): bind S2 case records to terminal runs" \
 - Produces timing key `quality.validation.check_layer3_gy_epoch_chronology_contract:corrupt-field-drift-check` with one wall-clock `samples_ms` value, identical `measured_p95_ms`, doubled `recommended_timeout_ms`, `sample_admission_predicate="declared_healthy_terminal:v1"`, `budget_basis="max_observed"`, and `ceiling_is_declared=False` after loading.
 - Keeps the 600 core-second execution ceiling and historical 180 -> 264.30 core-second correction in the journal; neither CPU number enters `samples_ms`.
 
-- [ ] **Step 1: Write the timing-catalog red before the expensive run**
+- [x] **Step 1: Write the timing-catalog red before the expensive run**
 
 Add a focused loader test that expects exactly one row for the new key, parses `source_refs[0]` as the promoted JSONL evidence line, decodes `entry["raw"]`, and requires:
 
@@ -553,7 +553,7 @@ assert lane.ceiling_is_declared is False
 
 It must also reject a source record containing `user`, `sys`, or `cpu_seconds` as the catalog sample field. Run only this node and record red because the lane/evidence do not yet exist.
 
-- [ ] **Step 2: Commit the pre-launch CPU ceiling and source freeze declaration**
+- [x] **Step 2: Commit the pre-launch CPU ceiling and source freeze declaration**
 
 Create the execution journal with: the exact upcoming source-freeze relationship, the code derivation that issues are rows with `rejected=False`, issue-free means pass, and pass maps to exit 0; the warning that the sibling's exit-1 polarity would make absence of an override inadmissible; the 600 core-second (`user + sys`) ceiling; the historical valid 264.30 core-second observation and invalid 180 core-second declaration; the once-only rule; and an empty receipt table explicitly marked `not launched`.
 
@@ -566,7 +566,7 @@ git commit -m "test(timing): declare epoch measurement admission" \
 
 After the commit, record `SOURCE_FREEZE=$(git rev-parse HEAD)` in the journal scratch receipt; this exact commit is passed to the validator.
 
-- [ ] **Step 3: Launch the expensive validator exactly once**
+- [x] **Step 3: Launch the expensive validator exactly once**
 
 Use a fresh ignored scratch directory and no pipe. The harness fails closed
 before launch unless the branch remains attached, the source freeze remains the
@@ -611,7 +611,7 @@ mkdir "$RUN_DIR" || exit 64
 
 Read `exit-code.txt` before parsing anything else. If it is nonzero, if the JSON report is not pass, if `/usr/bin/time` reports a signal/killed run, or if the timing record is not exactly one well-formed exit-0/ok/serialized record, mark a non-receipt and do not rerun. A healthy completed run supplies wall `real`, CPU `user + sys`, the uptime pair, and the tool's `duration_ms` wall sample.
 
-- [ ] **Step 4: Promote the exact raw record and add the wall-clock lane**
+- [x] **Step 4: Promote the exact raw record and add the wall-clock lane**
 
 Construct one JSONL wrapper from the actual completed run values:
 
@@ -632,11 +632,11 @@ entry = {
 
 Use the actual timestamp and raw line from the completed run; do not reserialize the raw record. Add the lane surgically to `timing_budgets.json` without reformatting unrelated rows. `samples_ms` and `measured_p95_ms` equal the record's `duration_ms`; timeout is exactly twice it; basis derives as max-observed because there is one sample. Update the journal with the exact source-freeze commit, direct exit code, report status, wall `real`, tool wall milliseconds, `user`, `sys`, CPU sum, uptime pair, evidence path, and the explicit unit separation.
 
-- [ ] **Step 5: Run timing loader/recomputation checks without rerunning the epoch validator**
+- [x] **Step 5: Run timing loader/recomputation checks without rerunning the epoch validator**
 
 Run the focused timing test from Step 1 and the catalog loader/recomputation nodes that cover p95, timeout, source evidence, single-sample basis, and duplicate keys. Do not invoke `check_layer3_gy_epoch_chronology_contract.py --corrupt-field-drift-check` again. Run Ruff only on changed Python tests.
 
-- [ ] **Step 6: Execute the corrected closure command**
+- [x] **Step 6: Execute the corrected closure command**
 
 Run one no-pipe Python command that loads the catalog through `tools.lib.timing.load_timing_budget_catalog`, selects the sole exact key, reads its sole evidence line and `raw` record, and asserts every field from Step 1 plus `samples_ms[0] == raw["duration_ms"]`. Separately parse the journal receipt and assert the journal labels `real`/`duration_ms` as wall-clock and `user + sys` as core-seconds, with 264.30 absent from the catalog row. Record the command and exit 0 verbatim in the journal and final hand-back.
 

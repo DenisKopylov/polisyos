@@ -1,24 +1,24 @@
 # Unbound writes authority repairs — execution journal
 
-## Timing Task 3 prelaunch declaration
+## Timing Task 3 completed once-only receipt
 
-Status: **not launched**. This is the prelaunch receipt only; it is not timing
-evidence and does not add a timing-catalog row.
+Status: **completed**. The once-only serialized run completed under source
+freeze `deee40fafb2ad627130f12cfdbef9bf947170803`; its preserved raw receipt and
+one wall-clock catalog lane are recorded below.
 
 ### Source-freeze and once-only rule
 
-The source freeze is the attached `HEAD` produced by the prelaunch commit that
-contains this journal and the red/green evidence-admission test. Immediately
-after that commit, capture exactly:
+The source freeze was the attached `HEAD` produced by the prelaunch commit that
+contained this journal and the evidence-admission test:
 
 ```sh
-SOURCE_FREEZE="$(git rev-parse HEAD)"
+SOURCE_FREEZE="deee40fafb2ad627130f12cfdbef9bf947170803"
 ```
 
-Pass that exact value using `--corrupt-field-drift-check` and
-`--expected-source-freeze "$SOURCE_FREEZE"`. No tracked source changes may occur
-between that capture and the process launch. The serialized expensive command
-runs exactly once. It executes in a fail-closed subshell with `ulimit -t 600`,
+The completed launch passed that exact value using `--corrupt-field-drift-check`
+and `--expected-source-freeze "$SOURCE_FREEZE"`. No tracked source changes
+occurred between capture and process launch. The serialized expensive command
+ran exactly once. It executed in a fail-closed subshell with `ulimit -t 600`,
 checks the attached branch, source freeze, and clean tree immediately before
 the process, and creates a source-freeze-named fresh run directory only when no
 prior directory has that name; it does not use `mkdir -p` for the run directory.
@@ -93,25 +93,53 @@ ToolRunRecord `duration_ms` may populate catalog `samples_ms`. `/usr/bin/time`
 `real` is separately recorded as wall-clock, and `user + sys` stays separately
 recorded as core-seconds.
 
-### Planned receipt fields
+### Completed receipt fields
 
-| Field | Prelaunch value |
+| Field | Completed receipt |
 | --- | --- |
-| Source freeze | pending; capture from the prelaunch commit immediately before launch |
-| Direct process exit | not launched |
-| JSON report status | not launched |
-| `/usr/bin/time -p` real | not launched; wall-clock |
-| `/usr/bin/time -p` user | not launched; CPU component |
-| `/usr/bin/time -p` sys | not launched; CPU component |
-| CPU total | not launched; `user + sys` core-seconds, ceiling 600 |
-| ToolRunRecord `duration_ms` | not launched; wall-clock catalog candidate only |
-| Uptime before / after | not launched; capture an `uptime` pair |
-| Timing log | not launched; fresh `.polisyos-tools/unbound-writes-epoch-timing-$SOURCE_FREEZE/gy-n12-epoch-corrupt-field-drift.jsonl` |
-| Promoted evidence | not launched; no JSONL evidence row exists yet |
-| Timing catalog lane | not launched; no catalog edit exists yet |
+| Source freeze | `deee40fafb2ad627130f12cfdbef9bf947170803`, matched by the validator |
+| Direct process exit | `0`, read before report or timing-record parsing |
+| JSON report | `status="pass"`, `issues=[]`, 12 result rows, all `rejected=true` |
+| `/usr/bin/time -p` real | `142.84` seconds, wall-clock |
+| `/usr/bin/time -p` user | `128.74` seconds, CPU component |
+| `/usr/bin/time -p` sys | `12.91` seconds, CPU component |
+| CPU total | `141.65` core-seconds (`user + sys`), below the declared 600 core-second ceiling |
+| ToolRunRecord `duration_ms` | `141380.475` milliseconds, wall-clock catalog sample |
+| Uptime before / after | `4:41` loads `2.52/2.22/2.30` -> `4:43` loads `2.88/2.56/2.43` |
+| Timing log | exactly one record at `.polisyos-tools/unbound-writes-epoch-timing-deee40fafb2ad627130f12cfdbef9bf947170803/gy-n12-epoch-corrupt-field-drift.jsonl` |
+| Promoted evidence | `docs/superpowers/timing-evidence/2026-08-27-gy-n12-epoch-corrupt-field-drift.jsonl:1`, byte-preserved raw record |
+| Timing catalog lane | one serialized lane, `samples_ms=[141380.475]`, p95 `141380.475`, timeout `282760.95` |
 
-The planned launcher uses `POLISYOS_TOOLS_TIMING_REGIME=serialized`, captures
-the direct process exit before parsing any report, and redirects the
-`/usr/bin/time -p` output to the planned receipt. It records both `uptime`
-values around the single process invocation after the fresh-directory and
-resource-ceiling guards succeed.
+Wall-clock: `/usr/bin/time real=142.84s`; ToolRunRecord
+`duration_ms=141380.475ms`. CPU: `user + sys = 141.65 core-seconds`. The
+historical `180 -> 264.30 core-second` correction remains only in this CPU
+ceiling lane; neither CPU quantity enters `samples_ms`.
+
+### Independent completed-set derivations
+
+| Set | Derivation 1 | Derivation 2 | Result |
+| --- | --- | --- | --- |
+| Corrupt-field cases | completed JSON report: 12 results, 12 rejected | AST literal `CORRUPT_FIELD_CASE_IDS`: 12 members | agree: 12 |
+| Catalog lanes and keys | raw JSON: 23 lanes, 23 unique keys, one target key | `load_timing_budget_catalog()`: 23 lanes, 23 unique keys, one target key | agree: 23 / 23 / 1 |
+
+There is no count disagreement. The historical debt-register closure command is
+defective because it compares aggregate CPU `264.30` core-seconds as `264300`
+wall-clock milliseconds; that protected register was not edited.
+
+### A. Local promotion proof — nonportable
+
+At promotion time only, the ignored scratch raw line (with its trailing newline
+removed) and the committed wrapper's decoded `raw` bytes compared equal. The
+local comparison command exited `0`; both SHA-256 digests were
+`e6e68194fdb758306538ae15ee7116b7eb334ef621b0bd97b4a7ebc987d478f5`.
+This proves the local promotion transfer, but is explicitly nonportable because
+the scratch directory is ignored. It is not part of the durable catalog-row
+closure command.
+
+### B. Durable corrected closure command and receipt
+
+```bash
+PYTHONPATH=src:. .venv/bin/python -S -c 'import dataclasses,json; from datetime import datetime; from pathlib import Path; from tools.lib.timing import ToolRunRecord,_coerce_record,admit_duration_sample,healthy_terminal_exit_codes_for,load_healthy_terminal_declarations,load_timing_budget_catalog; key="quality.validation.check_layer3_gy_epoch_chronology_contract:corrupt-field-drift-check"; freeze="deee40fafb2ad627130f12cfdbef9bf947170803"; expected_source_path=".polisyos-tools/unbound-writes-epoch-timing-deee40fafb2ad627130f12cfdbef9bf947170803/gy-n12-epoch-corrupt-field-drift.jsonl"; catalog=Path("tools/quality/timing_budgets.json"); evidence=Path("docs/superpowers/timing-evidence/2026-08-27-gy-n12-epoch-corrupt-field-drift.jsonl"); journal=Path("docs/superpowers/journals/2026-08-27-unbound-writes-authority-repairs.md"); rows=[lane for lane in load_timing_budget_catalog(catalog) if lane.timing_key == key]; assert len(rows) == 1, len(rows); lane=rows[0]; assert lane.tool == "quality.validation.check_layer3_gy_epoch_chronology_contract" and lane.mode == "corrupt-field-drift-check" and lane.regime == "serialized"; assert lane.command == f".venv/bin/python tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py --corrupt-field-drift-check --expected-source-freeze {freeze} --output-format json"; assert lane.sample_admission_predicate == "declared_healthy_terminal:v1" and lane.source_refs == (f"{evidence}:1",); lines=evidence.read_text(encoding="utf-8").splitlines(); assert len(lines) == 1; entry=json.loads(lines[0]); assert set(entry) == {"salvaged_at","source_path","source_line","raw"}; assert isinstance(entry["salvaged_at"],str) and entry["salvaged_at"].strip(); datetime.fromisoformat(entry["salvaged_at"]); assert entry["source_path"] == expected_source_path and type(entry["source_line"]) is int and entry["source_line"] == 1 and isinstance(entry["raw"],str) and entry["raw"].strip(); raw=json.loads(entry["raw"]); assert isinstance(raw,dict) and set(raw) == {field.name for field in dataclasses.fields(ToolRunRecord)}; record=_coerce_record(raw); assert record.tool == lane.tool and record.category == "quality" and record.category == record.tool.split(".",1)[0] and record.output_format == "json" and record.mode == lane.mode and record.regime == lane.regime; assert record.exit_code == 0 and record.status == "ok" and record.preflight_status == "ok" and record.duration_ms == 141380.475; terminals=healthy_terminal_exit_codes_for(record.tool,record.mode,load_healthy_terminal_declarations()); assert terminals == (0,); assert admit_duration_sample(record,healthy_terminal_exit_codes=terminals).admitted; assert lane.samples_ms == (record.duration_ms,) and lane.measured_p95_ms == record.duration_ms and lane.recommended_timeout_ms == 2 * record.duration_ms and lane.budget_basis == "max_observed" and lane.ceiling_is_declared is False; text=journal.read_text(encoding="utf-8"); assert "Wall-clock: `/usr/bin/time real=142.84s`; ToolRunRecord" in text and "`duration_ms=141380.475ms`" in text and "CPU: `user + sys = 141.65 core-seconds`" in text and "180 -> 264.30 core-second" in text; assert "264300" not in json.dumps({"samples_ms":lane.samples_ms,"measured_p95_ms":lane.measured_p95_ms,"recommended_timeout_ms":lane.recommended_timeout_ms})'
+```
+
+Durable closure command exit: `0`.

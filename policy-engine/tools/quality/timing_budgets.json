@@ -263,6 +263,18 @@
       "source_refs": ["docs/superpowers/journals/2026-07-13-gy-n10-stage-2.md:1156-1157"],
       "sample_admission_predicate": "manual_journal_excerpt:v1",
       "regime": "serialized"
+    },
+    {
+      "timing_key": "quality.validation.check_layer3_gy_epoch_chronology_contract:corrupt-field-drift-check",
+      "tool": "quality.validation.check_layer3_gy_epoch_chronology_contract",
+      "mode": "corrupt-field-drift-check",
+      "command": ".venv/bin/python tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py --corrupt-field-drift-check --expected-source-freeze deee40fafb2ad627130f12cfdbef9bf947170803 --output-format json",
+      "samples_ms": [141380.475],
+      "measured_p95_ms": 141380.475,
+      "recommended_timeout_ms": 282760.95,
+      "source_refs": ["docs/superpowers/timing-evidence/2026-08-27-gy-n12-epoch-corrupt-field-drift.jsonl:1"],
+      "sample_admission_predicate": "declared_healthy_terminal:v1",
+      "regime": "serialized"
     }
   ]
 }

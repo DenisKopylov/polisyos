@@ -23,6 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core import contracts as core_contracts
+from polisyos.core.contracts.runtime import EpochPerturbationClass  # noqa: TC001
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import CandidateSummary  # noqa: TC001
@@ -340,9 +341,17 @@ class AdvisoryPerturbationEvent(_StrictModel):
 
     event_ref: ArtifactRef
     target_ref: ArtifactRef
+    source_class: EpochPerturbationClass
+    scope: Literal["instance", "dependency_descendants"]
     event_kind: Literal["annotation_only", "invalidate", "reissue", "supersede", "withdraw"]
     authority_purpose: str = Field(min_length=1)
     observed_epoch_ref: Digest
+
+    @model_validator(mode="after")
+    def _source_scope_is_exact(self) -> Self:
+        if self.source_class == "appeal" and self.scope != "instance":
+            raise ValueError("appeal_perturbation_requires_instance_scope")
+        return self
 
 
 class OwnerAdjudicatedTargetDisposition(_StrictModel):
@@ -380,6 +389,7 @@ class TargetDispositionRow(_StrictModel):
         "review_required",
     ]
     advisory_event_refs: tuple[ArtifactRef, ...]
+    source_classes: tuple[EpochPerturbationClass, ...]
     owner_evidence_refs: tuple[ArtifactRef, ...]
 
 
@@ -447,14 +457,15 @@ def resolve_owner_target_dispositions(
                 raise ValueError("advisory_event_authority_purpose_mismatch")
             raise ValueError("advisory_event_target_outside_dependency_denominator")
         reached = {start_key}
-        pending = [start_key]
-        adjacency = adjacency_by_purpose.get(event.authority_purpose, {})
-        while pending:
-            source_key = pending.pop()
-            for descendant_key in adjacency.get(source_key, set()):
-                if descendant_key not in reached:
-                    reached.add(descendant_key)
-                    pending.append(descendant_key)
+        if event.scope == "dependency_descendants":
+            pending = [start_key]
+            adjacency = adjacency_by_purpose.get(event.authority_purpose, {})
+            while pending:
+                source_key = pending.pop()
+                for descendant_key in adjacency.get(source_key, set()):
+                    if descendant_key not in reached:
+                        reached.add(descendant_key)
+                        pending.append(descendant_key)
         for key in reached & target_refs.keys():
             previous = events_by_target[key].get(event_key)
             if previous is not None and previous != event:
@@ -519,6 +530,7 @@ def resolve_owner_target_dispositions(
                 target_ref=target_refs[key],
                 disposition=resolved,
                 advisory_event_refs=tuple(event.event_ref for event in events),
+                source_classes=tuple(sorted({event.source_class for event in events})),
                 owner_evidence_refs=tuple(row.owner_evidence_ref for row in owners),
             )
         )
@@ -552,8 +564,6 @@ class EpochValidityTransitionArtifact(_StrictModel):
             raise ValueError("epoch_validity_transition_requires_distinct_epochs")
         if self.target_vector.dependency_denominator_ref != self.dependency_graph.denominator_ref:
             raise ValueError("epoch_validity_transition_denominator_mismatch")
-        if self.dependency_denominator_ref != self.dependency_graph.denominator_ref:
-            raise ValueError("epoch_validity_transition_dependency_denominator_mismatch")
         expected = _semantic_hash(
             "polisyos.epoch.validity-transition.v1",
             self.model_dump(mode="json", exclude={"transition_content_hash"}),

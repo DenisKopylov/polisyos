@@ -29,11 +29,11 @@ laws:
 # DS18 — Epoch & Staleness Chrome
 
 > **Execution state:** execute cluster by cluster with red-first behavioral tests and
-> verification-before-completion. The execution base already contains DS11. C01 is
-> temporarily held because its canonical control contract is one of the four live DS15
-> overlaps; the other six C01 mechanisms cannot close the cluster's mutually exclusive,
-> content-bound intake property without that owner. C02-C04 are likewise serialized as
-> recorded in Section 12. This is a lane hold, not a widening or mechanism change.
+> verification-before-completion. The execution base already contains DS11. The owner
+> withdrew all cross-lane holds before C01 implementation: contended hand-authored paths
+> are ordinary merge conflicts for integration to resolve, and registered generated
+> artifacts are regenerated deterministically from this branch. No sibling commit enters
+> this branch; the only permitted inward flow is an append-only merge from `main`.
 
 ## 1. Outcome
 

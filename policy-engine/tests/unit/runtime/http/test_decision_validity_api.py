@@ -8,7 +8,11 @@ from pydantic import ValidationError
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts.control import EpochValidityBatchRequest
+from polisyos.core.contracts.control import (
+    DecisionValidityEventRequest,
+    DecisionValidityEventResponse,
+    EpochValidityBatchRequest,
+)
 from polisyos.core.contracts.decision_validity import (
     DecisionBasisSection,
     DecisionDependencyKind,
@@ -17,6 +21,7 @@ from polisyos.core.contracts.decision_validity import (
     DecisionValidityEvaluation,
     DecisionValidityStatus,
 )
+from polisyos.core.contracts.runtime import ApiMeta
 from polisyos.core.security.identity import PolicyOSRole
 from polisyos.scientist.evidence.claims import build_default_claim_ledger_owner
 from polisyos.scientist.evidence.claims.head_index import ClaimLifecycleBridgeNonReceipt
@@ -70,6 +75,52 @@ def test_epoch_batch_request_has_no_status_reason_dependency_keys_or_verifier() 
                     forbidden: "caller-controlled",
                 }
             )
+
+
+def test_monitor_event_request_arm_forbids_every_legacy_authority_field() -> None:
+    monitor_ref = {
+        "artifact_id": "sha256:" + "a" * 64,
+        "kind": "scientist.governance_monitor_event",
+        "media_type": "application/json",
+    }
+
+    request = DecisionValidityEventRequest.model_validate({"monitor_event_ref": monitor_ref})
+    assert request.monitor_event_ref is not None
+
+    forbidden_values = {
+        "trigger_type": "law_change",
+        "status": "stale",
+        "reason": "caller-shaped",
+        "dependency_keys": ["norm::caller"],
+        "source_ref": "caller://source",
+        "dedupe_key": "caller-dedupe",
+        "occurred_at": datetime(2026, 8, 27, tzinfo=UTC).isoformat(),
+        "payload": {"source_class": "appeal"},
+    }
+    for field, value in forbidden_values.items():
+        with pytest.raises(ValidationError, match="monitor_event_ref arm"):
+            DecisionValidityEventRequest.model_validate(
+                {"monitor_event_ref": monitor_ref, field: value}
+            )
+
+    with pytest.raises(ValidationError, match="legacy arm"):
+        DecisionValidityEventRequest.model_validate({"reason": "incomplete"})
+
+
+def test_monitor_bridge_response_refs_are_an_all_or_none_receipt() -> None:
+    ref = {
+        "artifact_id": "sha256:" + "b" * 64,
+        "kind": "scientist.governance_monitor_event",
+        "media_type": "application/json",
+    }
+    base = {
+        "meta": ApiMeta(request_id="request-ds18"),
+        "event_id": "event-ds18",
+        "dedupe_key": "dedupe-ds18",
+        "message": "accepted",
+    }
+    with pytest.raises(ValidationError, match="bridge refs"):
+        DecisionValidityEventResponse.model_validate({**base, "monitor_event_ref": ref})
 
 
 def test_generation_control_caller_cannot_supply_epoch_targets_or_status() -> None:

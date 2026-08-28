@@ -43,6 +43,7 @@ from polisyos.scientist.governance.continuous.monitors import (
     DecisionValidityStatus,
     GovernanceMonitorEvent,
     build_drift_monitor_event,
+    persist_governance_monitor_event,
 )
 from polisyos.scientist.methods.search.readiness import DecisionReadiness
 
@@ -72,6 +73,13 @@ def _ledger(*claim_ids: str) -> AppendOnlyClaimLedger:
         run_id="run-w9e",
         current_claims=[_claim(claim_id) for claim_id in claim_ids],
     )
+
+
+def _persist_monitor_event(
+    store: FileSystemCAS,
+    event: GovernanceMonitorEvent,
+) -> ArtifactRef:
+    return persist_governance_monitor_event(store, event).event_ref
 
 
 @dataclass(frozen=True, slots=True)
@@ -307,7 +315,107 @@ def test_raw_detector_event_cannot_establish_epoch_claim_transition(
         )
 
 
-def test_bridge_maps_detector_families_to_claim_lifecycle_and_public_revision() -> None:
+@pytest.mark.parametrize(
+    "metadata",
+    [
+        {"lifecycle_transition": "withdraw"},
+        {"lifecycle_transition": "reissue"},
+        {"claim_lifecycle_transition": "supersede"},
+        {"owner_disposition": "invalidate"},
+    ],
+)
+def test_unbound_metadata_cannot_emit_owner_disposition(
+    tmp_path: Path,
+    metadata: dict[str, str],
+) -> None:
+    """Authority-looking metadata cannot survive exact event admission."""
+
+    decision_ref = _ref("1", kind="scientist.decision_packet")
+    event = GovernanceMonitorEvent(
+        event_id="unbound-authority-hint",
+        decision_packet_ref=decision_ref,
+        event_type="policy_context_drift",
+        severity="block",
+        affected_claim_ids=["claim_alpha"],
+        reason="The same advisory signal awaits owner adjudication.",
+    ).model_copy(update={"metadata": metadata})
+
+    with pytest.raises(ValueError, match="metadata cannot author authority fields"):
+        persist_governance_monitor_event(FileSystemCAS(tmp_path / "cas"), event)
+
+
+def test_unbound_reason_and_change_kind_remain_review_required(tmp_path: Path) -> None:
+    decision_ref = _ref("1", kind="scientist.decision_packet")
+    event = GovernanceMonitorEvent(
+        event_id="unbound-free-text-hint",
+        decision_packet_ref=decision_ref,
+        event_type="policy_context_drift",
+        severity="block",
+        affected_claim_ids=["claim_alpha"],
+        reason="Withdraw and supersede are words, not adjudications.",
+        metadata={"change_kind": "legal authority withdrawn"},
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+
+    result = bridge_governance_events_to_claim_lifecycle(
+        store=store,
+        ledger=_ledger("claim_alpha"),
+        decision_packet_ref=decision_ref,
+        original_claim_ledger_ref=_ref("2", kind="scientist.claim_ledger_v2"),
+        monitor_event_refs=[_persist_monitor_event(store, event)],
+        actor_id="continuous_governance.lifecycle_bridge",
+        case_id="case-ds18-unbound-authority",
+    )
+
+    assert [row.transition for row in result.transition_records] == ["review_required"]
+
+
+def test_swapped_monitor_event_refs_cannot_bind_shaped_events(tmp_path: Path) -> None:
+    """Persisted bytes, not parallel-list position, must own the event identity."""
+
+    store = FileSystemCAS(tmp_path / "cas")
+    decision_ref = _ref("1", kind="scientist.decision_packet")
+    incident = GovernanceMonitorEvent(
+        event_id="event-incident",
+        decision_packet_ref=decision_ref,
+        event_type="incident",
+        severity="warning",
+        affected_claim_ids=["claim_incident"],
+        reason="Incident evidence awaits adjudication.",
+    )
+    appeal = GovernanceMonitorEvent(
+        event_id="event-appeal",
+        decision_packet_ref=decision_ref,
+        event_type="policy_context_drift",
+        severity="warning",
+        affected_claim_ids=["claim_appeal"],
+        reason="Appeal evidence awaits adjudication.",
+    )
+    incident_ref = _persist_monitor_event(store, incident)
+    appeal_ref = _persist_monitor_event(store, appeal)
+
+    result = bridge_governance_events_to_claim_lifecycle(
+        store=store,
+        ledger=_ledger("claim_incident", "claim_appeal"),
+        decision_packet_ref=decision_ref,
+        original_claim_ledger_ref=_ref("2", kind="scientist.claim_ledger_v2"),
+        monitor_event_refs=[appeal_ref, incident_ref],
+        actor_id="continuous_governance.lifecycle_bridge",
+        case_id="case-ds18-swapped-refs",
+    )
+
+    refs_by_event = {
+        row.event_id: row.monitor_event_ref for row in result.transition_records
+    }
+    assert refs_by_event == {
+        incident.event_id: incident_ref,
+        appeal.event_id: appeal_ref,
+    }
+
+
+def test_bridge_maps_detector_families_to_claim_lifecycle_and_public_revision(
+    tmp_path: Path,
+) -> None:
     decision_ref = _ref("1", kind="scientist.decision_packet")
     source_event = GovernanceMonitorEvent(
         event_id="source-stale-claim-data",
@@ -348,7 +456,13 @@ def test_bridge_maps_detector_families_to_claim_lifecycle_and_public_revision() 
         }
     )
 
+    store = FileSystemCAS(tmp_path / "cas")
+    monitor_event_refs = [
+        _persist_monitor_event(store, event)
+        for event in (source_event, calibration_event, fairness_event, context_event)
+    ]
     result = bridge_governance_events_to_claim_lifecycle(
+        store=store,
         ledger=_ledger(
             "claim_data",
             "claim_calibration",
@@ -358,13 +472,7 @@ def test_bridge_maps_detector_families_to_claim_lifecycle_and_public_revision() 
         ),
         decision_packet_ref=decision_ref,
         original_claim_ledger_ref=_ref("2", kind="scientist.claim_ledger_v2"),
-        monitor_events=[source_event, calibration_event, fairness_event, context_event],
-        monitor_event_refs=[
-            _ref("3", kind="scientist.governance_monitor_event"),
-            _ref("4", kind="scientist.governance_monitor_event"),
-            _ref("5", kind="scientist.governance_monitor_event"),
-            _ref("6", kind="scientist.governance_monitor_event"),
-        ],
+        monitor_event_refs=monitor_event_refs,
         actor_id="continuous_governance.lifecycle_bridge",
         case_id="case-w9e",
         occurred_at=datetime(2026, 5, 24, 12, 5, tzinfo=UTC),
@@ -378,14 +486,8 @@ def test_bridge_maps_detector_families_to_claim_lifecycle_and_public_revision() 
 
     assert result.status == "pass"
     assert result.blockers == []
-    assert transitions["claim_data"].transition == "stale"
-    assert transitions["claim_calibration"].transition == "blocked"
-    assert transitions["claim_equity"].transition == "review_required"
-    assert transitions["claim_legal"].transition == "superseded"
-    assert lifecycle_actions["claim_data"] is ClaimLifecycleAction.MARKED_STALE
-    assert lifecycle_actions["claim_calibration"] is ClaimLifecycleAction.BLOCKED
-    assert lifecycle_actions["claim_equity"] is ClaimLifecycleAction.REVIEW_REQUIRED
-    assert lifecycle_actions["claim_legal"] is ClaimLifecycleAction.SUPERSEDED
+    assert {row.transition for row in transitions.values()} == {"review_required"}
+    assert set(lifecycle_actions.values()) == {ClaimLifecycleAction.REVIEW_REQUIRED}
     assert result.public_revision_state.affected_claim_ids == [
         "claim_data",
         "claim_calibration",
@@ -395,17 +497,12 @@ def test_bridge_maps_detector_families_to_claim_lifecycle_and_public_revision() 
     assert result.public_revision_state.unaffected_claim_ids == ["claim_unaffected"]
     assert result.public_revision_state.current_case_validity == "partially_current"
     assert result.public_revision_state.authority_role == "projection_only"
-    assert public_statuses == {
-        "claim_data": "stale",
-        "claim_calibration": "blocked",
-        "claim_equity": "review_required",
-        "claim_legal": "superseded",
-    }
+    assert set(public_statuses.values()) == {"review_required"}
     assert result.validity_report.status is DecisionValidityStatus.REVIEW_REQUIRED
     assert result.public_validity_report["status"] == "review_required"
 
 
-def test_bridge_reissued_transition_uses_partial_reissue_packet_and_persists_result(
+def test_unadjudicated_event_cannot_reissue_and_persists_review_required(
     tmp_path: Path,
 ) -> None:
     decision_ref = _ref("1", kind="scientist.decision_packet")
@@ -415,14 +512,15 @@ def test_bridge_reissued_transition_uses_partial_reissue_packet_and_persists_res
         severity="block",
         reason="Calibration drift requires partial reissue for claim_alpha.",
         affected_claim_ids=["claim_alpha"],
-    ).model_copy(update={"metadata": {"lifecycle_transition": "reissued"}})
+    )
 
+    store = FileSystemCAS(tmp_path)
     result = bridge_governance_events_to_claim_lifecycle(
+        store=store,
         ledger=_ledger("claim_alpha", "claim_beta"),
         decision_packet_ref=decision_ref,
         original_claim_ledger_ref=_ref("2", kind="scientist.claim_ledger_v2"),
-        monitor_events=[reissue_event],
-        monitor_event_refs=[_ref("3", kind="scientist.governance_monitor_event")],
+        monitor_event_refs=[_persist_monitor_event(store, reissue_event)],
         actor_id="continuous_governance.lifecycle_bridge",
         case_id="case-w9e-reissued",
         new_decision_packet_ref=_ref("4", kind="scientist.decision_packet"),
@@ -433,24 +531,22 @@ def test_bridge_reissued_transition_uses_partial_reissue_packet_and_persists_res
         occurred_at=datetime(2026, 5, 24, 12, 10, tzinfo=UTC),
     )
 
-    assert result.transition_records[0].transition == "reissued"
-    assert result.updated_ledger.events[0].action is ClaimLifecycleAction.REISSUED
-    assert result.reissue_packet is not None
-    assert result.reissue_packet.status is DecisionValidityStatus.REISSUED
-    assert result.reissue_packet.scope_to_revise == ["claim_alpha"]
-    assert result.reissue_packet.partial_publication_state == result.public_revision_state
+    assert result.transition_records[0].transition == "review_required"
+    assert result.updated_ledger.events[0].action is ClaimLifecycleAction.REVIEW_REQUIRED
+    assert result.reissue_packet is None
     assert result.public_revision_state.unaffected_claim_ids == ["claim_beta"]
 
-    store = FileSystemCAS(tmp_path)
     bridge_ref = persist_lifecycle_bridge_result(store, result)
     loaded = load_lifecycle_bridge_result(store, bridge_ref)
 
     assert bridge_ref.kind == "scientist.lifecycle_bridge_result"
-    assert loaded.transition_records[0].transition == "reissued"
+    assert loaded.transition_records[0].transition == "review_required"
     assert loaded.reissue_packet == result.reissue_packet
 
 
-def test_unscoped_detector_event_produces_missing_lifecycle_bridge_blocker() -> None:
+def test_unscoped_detector_event_produces_missing_lifecycle_bridge_blocker(
+    tmp_path: Path,
+) -> None:
     decision_ref = _ref("1", kind="scientist.decision_packet")
     unscoped_event = build_drift_monitor_event(
         decision_packet_ref=decision_ref,
@@ -459,12 +555,13 @@ def test_unscoped_detector_event_produces_missing_lifecycle_bridge_blocker() -> 
         reason="Policy context changed but no affected claim was mapped.",
     )
 
+    store = FileSystemCAS(tmp_path / "cas")
     result = bridge_governance_events_to_claim_lifecycle(
+        store=store,
         ledger=_ledger("claim_alpha", "claim_beta"),
         decision_packet_ref=decision_ref,
         original_claim_ledger_ref=_ref("2", kind="scientist.claim_ledger_v2"),
-        monitor_events=[unscoped_event],
-        monitor_event_refs=[_ref("3", kind="scientist.governance_monitor_event")],
+        monitor_event_refs=[_persist_monitor_event(store, unscoped_event)],
         actor_id="continuous_governance.lifecycle_bridge",
         case_id="case-w9e-blocked",
     )

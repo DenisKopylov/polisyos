@@ -284,3 +284,47 @@ cannot expand beyond its instance without owner scope evidence; every
 source→evidence-line→claim→publication edge is required; recomputed incomplete
 denominators fail; owner disposition evidence must resolve; and server `observed_at`
 cannot become owner `as_of` or enter semantic identity.
+
+## Execution hold withdrawal and C01 closure
+
+The architecture owner withdrew every cross-lane hold before implementation. The
+historical serialization receipts above remain an audit of why no source changed in
+the prior session, but they no longer govern execution. DS18 does not inspect or wait
+on sibling state, imports no sibling commit, edits all declared paths, and treats a
+registered generated family as deterministic rebuild output. An append-only merge of
+`main` at `f17c48555` produced branch merge commit `f6b1f18cf`; its sole content delta
+was the already-landed Rego parity repair.
+
+C01 changed all seven declared mechanisms and the nearest-owner README companion. Its
+behavioral red receipts were:
+
+- five failures when unbound metadata aliases could emit owner lifecycle dispositions
+  and swappable event/ref lists could bind a shaped event to another ref;
+- two control-contract failures before the mutually exclusive `monitor_event_ref` arm
+  and all-or-none bridge receipts existed;
+- collection failure before the epoch-staleness compiler existed; and
+- the positive dependency fixture failed when a graph-integrity digest was substituted
+  for the independently reconciled dependency-denominator receipt.
+
+The green implementation now persists and exact-reads one strict six-class monitor
+event, resolves its ref inside the lifecycle bridge, rejects authority-looking
+metadata/free text, and preserves source class separately from advisory posture and
+owner disposition. Correction/retraction use an exact source → evidence-line → claim
+→ publication event. Appeals are instance-scoped while the other five classes may
+traverse the independently reconciled dependency graph. The projection compiler keeps
+server `observed_at` outside its semantic hash, exposes boundary lineage, freezes
+limited/unestablished OpenWorldRisk, and rejects fake completed recompute status.
+
+The two absence types are different strict DTOs. Exact signer nonreceipts produce
+**Authority not appointed**, institutional closure wording, and
+`appointment_is_closure_precondition=false`. The derived recompute gap produces
+**Engineering capability not wired**, `producer_missing + bridge_missing`, and names
+`polisyos.runtime.quality.derived_observations`; it cannot inherit institutional copy.
+
+The first combined verification wave found one fixture topology error and one legacy
+empty-collection compatibility regression. Both are same-cluster test/compatibility
+findings, not new mechanisms. The admitted rerun covered 56 focused tests and exited 0:
+uptime `3.78 3.78 3.70` → `4.02 3.86 3.74`;
+`real/user/sys/user+sys = 98.94/93.64/4.12/97.76 s`, under the declared 180-second
+wall ceiling. Changed-path Ruff exited 0. The full C01 path fence remains seven
+mechanisms; global budget remains **41 / 44**, with **2 / 7** widening rounds spent.

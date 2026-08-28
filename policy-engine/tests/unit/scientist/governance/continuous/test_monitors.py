@@ -13,7 +13,9 @@ from polisyos.scientist.governance.continuous.monitors import (
     GovernanceMonitorEvent,
     aggregate_validity_status,
     build_drift_monitor_event,
+    persist_governance_monitor_event,
     recommend_validity_action,
+    resolve_governance_monitor_event,
 )
 
 
@@ -164,4 +166,82 @@ def test_serious_lifecycle_decision_requires_durable_event_log(tmp_path) -> None
             fallback_degradation_ref="sha256:" + "4" * 64,
             requested_execution_profile="production",
             effective_execution_profile="production",
+        )
+
+
+@pytest.mark.parametrize(
+    ("source_class", "event_type", "perturbation"),
+    [
+        (
+            "incident",
+            "incident",
+            {"source_class": "incident", "incident_report_ref": _ref("a")},
+        ),
+        (
+            "appeal",
+            "policy_context_drift",
+            {
+                "source_class": "appeal",
+                "appeal_evidence_ref": _ref("b"),
+                "affected_instance_ref": _ref("1"),
+                "scope": "instance",
+            },
+        ),
+        (
+            "correction",
+            "source_invalidation",
+            {
+                "source_class": "correction",
+                "evidence_validity_event_ref": _ref("c"),
+                "replacement_refs": (_ref("d"),),
+            },
+        ),
+        (
+            "retraction",
+            "source_invalidation",
+            {"source_class": "retraction", "evidence_validity_event_ref": _ref("e")},
+        ),
+        (
+            "legal_change",
+            "policy_context_drift",
+            {"source_class": "legal_change", "legal_change_evidence_ref": _ref("f")},
+        ),
+        (
+            "discovered_bias",
+            "fairness_drift",
+            {"source_class": "discovered_bias", "bias_evidence_ref": _ref("9")},
+        ),
+    ],
+)
+def test_six_perturbation_classes_round_trip_as_exact_distinct_bytes(
+    tmp_path,
+    source_class: str,
+    event_type: str,
+    perturbation: dict[str, object],
+) -> None:
+    store = FileSystemCAS(tmp_path / source_class)
+    event = GovernanceMonitorEvent.model_validate(
+        {
+            "event_id": f"event-{source_class}",
+            "decision_packet_ref": _ref("1"),
+            "event_type": event_type,
+            "severity": "warning",
+            "affected_claim_ids": ["claim-ds18"],
+            "reason": "The class identity survives the same review-required posture.",
+            "perturbation": perturbation,
+            "advisory_posture": "review_required",
+        }
+    )
+
+    persisted = persist_governance_monitor_event(store, event)
+    loaded = resolve_governance_monitor_event(store, persisted.event_ref)
+
+    assert loaded == persisted
+    assert loaded.event.perturbation is not None
+    assert loaded.event.perturbation.source_class == source_class
+    assert loaded.event.advisory_posture == "review_required"
+    with pytest.raises(ValueError, match="profile mismatch"):
+        resolve_governance_monitor_event(
+            store,
+            persisted.event_ref.model_copy(update={"kind": "test.wrong_profile"}),
         )

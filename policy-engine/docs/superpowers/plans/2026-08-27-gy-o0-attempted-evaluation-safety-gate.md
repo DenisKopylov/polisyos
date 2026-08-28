@@ -1237,6 +1237,7 @@ finding rather than an accepted write.
 - Modify `tests/unit/runtime/quality/test_authority_reconciliation.py`
 - Modify `tests/unit/runtime/quality/test_promotion_sequence.py`
 - Modify `tests/unit/scientist/facade/test_api.py`
+- Modify `tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py`
 - Modify `tests/unit/scientist/orchestration/workflows/test_builder_pinning.py`
 - Modify `tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py`
 - Modify `tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support.py`
@@ -1756,7 +1757,7 @@ Run exact local red/green selectors, including:
 ```text
 tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_promotion_state_injection_cannot_bypass_eval_safety
 tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support.py::test_direct_backend_promotion_state_injection_cannot_bypass_eval_safety
-tests/unit/scientist/orchestration/workflows/test_builder_pinning.py::test_non_simulation_worker_without_eval_safety_port_fails_closed
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_non_simulation_worker_without_eval_safety_port_fails_closed
 ```
 
 Replay/cloud owner-file denominator after the plan lands:
@@ -1765,6 +1766,7 @@ Replay/cloud owner-file denominator after the plan lands:
 tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py
 tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support.py
 tests/unit/scientist/facade/test_api.py
+tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py
 tests/unit/scientist/orchestration/workflows/test_builder_pinning.py
 tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py
 tests/unit/scientist/search/test_phase_b_policy_runtime.py
@@ -2017,6 +2019,44 @@ and C04's widening round remains unspent.
 ### C05 — Freeze, reviews, focused local closure, cloud replay, and handoff
 
 **Mechanism paths:** none.
+
+#### C05 blocking-review batch (2026-08-28)
+
+The authority/status/time/counter review found one actual-object escape in the
+Foundry value owner: its candidate binding was exact, but its actual WMR check
+used the declared content hash without recomputing the record or binding the
+canonical record ID and schema family. The independent
+executor/bypass/universality review classified this as the second occurrence
+of the existing P31/P32 same-bytes/wrong-subject class, not a new class. Per
+P40, the response widened to the complete actual-WMR property across both
+direct owner kinds: Production already checks recomputed bytes + canonical ID
++ schema, and Foundry now does the same before verifier or value-owner work.
+Blueprint and hierarchical search delegate to that Production owner; the
+causal owner binds its different actual-input family by exact `(artifact_id,
+content_hash)` denominator.
+
+The red-first Foundry falsifier injects stale content after transport
+validation, a different canonical WMR ID with identical bytes, and a ModelSpec
+schema family. All three initially reached the verifier and failed the expected
+owner-boundary assertion at CPU **29.60s**. The repaired three-variant test plus
+the existing non-simulation owner test passed at CPU **31.39s**; Production's
+independent WMR and actual-input variants passed at **28.30s**. Removing only
+the exact binding predicate while retaining the blocker and test markers made
+all three variants red again at CPU **29.60s**, satisfying the C05 P29 probe;
+the predicate was restored before re-freeze. This repairs existing declared
+mechanism and test paths, so the mechanism union remains **21/24** and consumes
+no widening round.
+
+After the review repair froze, the registered trust-posture generator exited
+0 at CPU **35.79s**. AST and tokenizer derivations again agreed on **2,601
+Python files**; only the registered trust-claim posture artifact acquired a
+content delta, while the generated-artifacts reference remained byte-stable.
+
+The same review resolved a plan-coordinate defect: the remote-worker omission
+test lives in `orchestration/engine/runner/test_activity_worker.py`, not the
+builder test file. That existing test companion is now declared above and the
+exact selector is corrected; no source or mechanism count follows from the
+record repair.
 
 1. Freeze source and record `git diff --name-status` against the slice base.
 2. Prove exact equality with the 16-path base manifest or an admitted widening

@@ -101,6 +101,7 @@ from polisyos.runtime.quality.workspace.loop import (
 from polisyos.runtime.quality.world_model_record import (
     WorldModelRecord,
     WorldModelRecordError,
+    world_model_record_content_hash,
 )
 from polisyos.scientist.methods.search.voi_scheduler import (
     ParetoSnapshot,
@@ -1871,12 +1872,30 @@ class FoundryValuePort:
                 started=started,
                 candidate_id=candidate_id,
             )
+        recomputed_world_hash = world_model_record_content_hash(world_record)
+        world_model_binds = bool(
+            world_record.content_hash == recomputed_world_hash
+            and context.world_model_record_ref.artifact_id == world_record.world_model_record_id
+            and context.world_model_record_ref.artifact_type == "world_model_record"
+            and context.world_model_record_ref.content_hash == recomputed_world_hash
+            and context.world_model_record_ref.schema_ref
+            == "policyos.runtime.world_model_record.v1"
+        )
+        if not world_model_binds:
+            return _blocked_value_observation(
+                code="eval_safety_world_model_record_binding_mismatch",
+                reason=(
+                    "EvalSafety context does not bind the actual canonical "
+                    "WorldModelRecord identity."
+                ),
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
         if mode != "simulate_only":
             if (
                 context.candidate_ref.artifact_id != candidate_id
                 or context.candidate_ref.content_hash != _candidate_content_hash(candidate)
-                or context.world_model_record_ref.content_hash
-                != str(_object_get(world_record, "content_hash"))
             ):
                 return _blocked_value_observation(
                     code="eval_safety_execution_context_binding_mismatch",

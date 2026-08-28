@@ -165,12 +165,18 @@ def _simulation_execution_context(
     )
 
 
-def _execution_ref(artifact_id: str, content_hash: str) -> ArtifactRef:
+def _execution_ref(
+    artifact_id: str,
+    content_hash: str,
+    *,
+    artifact_type: str = "evaluation_execution_binding",
+    schema_ref: str = "policyos.runtime.eval_safety.execution_binding.v1",
+) -> ArtifactRef:
     return ArtifactRef(
         artifact_id=artifact_id,
-        artifact_type="evaluation_execution_binding",
+        artifact_type=artifact_type,
         content_hash=content_hash,
-        schema_ref="policyos.runtime.eval_safety.execution_binding.v1",
+        schema_ref=schema_ref,
         uri=f"runtime://eval-safety/{artifact_id}",
         version="1.0.0",
     )
@@ -200,11 +206,21 @@ def _non_simulation_execution_context(
         candidate_ref=_execution_ref(
             candidate_id or str(candidate.candidate_id),  # type: ignore[attr-defined]
             str(candidate.atom.content_hash),  # type: ignore[attr-defined]
+            artifact_type="candidate",
+            schema_ref="policyos.runtime.candidate.v1",
         ),
         world_model_record_ref=_execution_ref(
-            world.world_model_record_id, world.content_hash
+            world.world_model_record_id,
+            world.content_hash,
+            artifact_type="world_model_record",
+            schema_ref="policyos.runtime.world_model_record.v1",
         ),
-        target_population_scope_ref=_execution_ref("target-population", _hash("c")),
+        target_population_scope_ref=_execution_ref(
+            "target-population",
+            _hash("c"),
+            artifact_type="target_population_scope",
+            schema_ref="policyos.runtime.target_population_scope.v1",
+        ),
         rule_version="polisyos.eval_safety.test@1.0.0",
         intended_start_at=datetime(2026, 8, 27, tzinfo=UTC),
         evaluation_input_refs=(input_ref,),
@@ -3677,6 +3693,96 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
         "value_owner_data_profile_invalid",
     )
     assert valid_simulation_gateway.calls == 1
+
+
+@pytest.mark.parametrize("mutation", ["content", "identity", "schema_family"])
+def test_foundry_binds_actual_world_model_record_before_verifier_or_owner(
+    mutation: str,
+) -> None:
+    """Foundry binds recomputed WMR bytes, canonical ID, and schema family."""
+
+    candidate = _candidate()
+    world = _world_record()
+    problem = _problem("value_gate_problem")
+    context = _non_simulation_execution_context(
+        mode="field_pilot",
+        candidate=candidate,
+        world=world,
+        problem=problem,
+    )
+    active_simulation = _simulation(world)
+    active_context = context
+    if mutation == "content":
+        active_simulation = active_simulation.model_copy(
+            update={
+                "world_model_record": world.model_copy(update={"policy_domain": "changed-domain"})
+            }
+        )
+    elif mutation == "identity":
+        active_simulation = active_simulation.model_copy(
+            update={
+                "world_model_record": world.model_copy(
+                    update={"world_model_record_id": "world_model_record_deadbeefdeadbeef"}
+                )
+            }
+        )
+    else:
+        active_context = context.model_copy(
+            update={
+                "world_model_record_ref": context.world_model_record_ref.model_copy(
+                    update={"schema_ref": "polisyos.ir.model_spec@1.0"}
+                )
+            }
+        )
+
+    class GatewaySpy:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def load_value_data_profile(self, **_kwargs: object) -> object:
+            self.calls += 1
+            return object()
+
+    class VerifierSpy:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def require_admission(
+            self,
+            checked_context: EvaluationExecutionContext,
+            challenge: EvalSafetyAdmissionChallenge,
+        ) -> EvalSafetyConsumerAdmissionReceipt:
+            self.calls += 1
+            return EvalSafetyConsumerAdmissionReceipt(
+                status="blocked",
+                intake_ref=checked_context.intake_ref,
+                certificate_ref=checked_context.eval_safety_certificate_ref,
+                current_revision_head_ref=None,
+                execution_context_hash=evaluation_execution_context_hash(checked_context),
+                challenge=challenge,
+                blocker_codes=("polisyos.eval_safety.certificate_stale@1.0.0",),
+                verified_at=datetime(2026, 8, 28, tzinfo=UTC),
+            )
+
+    gateway = GatewaySpy()
+    verifier = VerifierSpy()
+    observation = FoundryValuePort(
+        evaluation_context=active_context,
+        eval_safety_verifier=verifier,
+        owner_gateway=gateway,  # type: ignore[arg-type]
+    )(
+        candidate=candidate,
+        simulation=active_simulation,
+        problem=problem,
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == (
+        "eval_safety_world_model_record_binding_mismatch",
+    )
+    assert verifier.calls == 0
+    assert gateway.calls == 0
 
 
 def test_foundry_blocks_same_input_cross_problem_context_before_verifier_or_owner() -> None:

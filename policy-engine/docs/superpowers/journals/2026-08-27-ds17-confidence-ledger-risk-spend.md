@@ -360,3 +360,58 @@ source continues to reject cross-scope.
 
 This is the one P40 widening round for the witness-admission class. Mechanism
 spend remains **2/2**, reserve remains **0**, and no C02 owner path changed.
+
+## C01 P40 widening verification — complete envelope rederivation
+
+The boundary audit verified the already-declared P29/P32 widening property and
+found that witness replay alone still let a coherently authored envelope choose
+an arm. This is verification of the SAME widening, not another instance repair.
+The structural invariant now admits a coverage arm only when the complete
+canonical candidate equals a fresh `build_coverage_envelope` result derived
+from the owner-supplied typed registry and semantic-ledger bases. Candidate
+models, hashes, and witness presence are never capability tokens.
+
+`rederive_and_admit_coverage_envelope` canonical-dumps and strictly reparses the
+candidate, rebuilds it from the real bases and candidate witness references,
+replays every non-empty reference through the owner-supplied CAS and trusted
+Ed25519 verifier, and compares the complete canonical result. The public
+projector, exact domain admission, and direct protected-action evaluator all
+use this same intake. Exact domain admission additionally requires its embedded
+registry and semantic bases to equal the owner-supplied bases before and after
+canonical re-admission. A zero-reference envelope can therefore derive only
+`open_world_unresolved`; changing its assessment with `model_copy` or
+`model_construct`, or coherently rehashing another envelope member, cannot
+acquire authority.
+
+The behavioral falsifiers cover serialized/reparsed signed traversal, absent or
+wrong resolver/verifier, coherent fake known-incomplete substitution at all
+three arm readers, zero-ref `model_copy` and `model_construct` arm forgery,
+rehash-preserving audience and may-not-use changes, and a genuine scope/action-A
+witness relabelled to action B. Existing open-world evaluation continues
+without resolver dependencies, the real GY source remains cross-scope rejected,
+and `bounded_complete` remains structurally absent.
+
+### Complete-rederivation receipts
+
+- Focused TDD RED (signed traversal plus five forged/mutated cases): exit `1`,
+  `6 failed`; `real 26.42`, `user 25.52`, `sys 0.93`, uptime `00:59` ->
+  `01:00`.
+- Final C01-owned lane (two exact C02 tests deselected): exit `0`, `35 passed`,
+  `2 deselected`; `real 28.42`, `user 27.09`, `sys 1.35`, uptime `01:11` ->
+  `01:11`. The complete unfiltered companion lane is `35` green plus the same
+  two C02-owned missing-owner reds.
+- Final four-path Ruff: exit `0`, `All checks passed!`; `real 0.03`, `user
+  0.02`, `sys 0.00`, uptime `01:12` -> `01:12`.
+- Delta-focused existing semantic-ledger importer lane: execution branch exit
+  `0`, `8 passed`, `real 69.70`, `user 67.88`, `sys 1.82`, uptime `01:08` ->
+  `01:09`; clean exact-base main at
+  `dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f` exit `0`, `8 passed`, `real
+  71.61`, `user 68.56`, `sys 2.09`, uptime `01:09` -> `01:10`.
+- A mistakenly widened import-identity selection was not used as a product
+  receipt: it selected the known environment-dependent subprocess test and
+  returned the already documented `ortools_cp_sat:ModuleNotFoundError` plus
+  seven greens (`real 142.50`, `user 136.94`, `sys 5.46`).
+
+Mechanism spend remains **2/2**, reserve remains **0**. C02 still owns worker
+admission, source-blocked over-spend, and HTTP integration; no C02 or other
+mechanism path changed.

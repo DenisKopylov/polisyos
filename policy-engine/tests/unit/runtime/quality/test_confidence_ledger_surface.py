@@ -76,6 +76,17 @@ def _project(registry=None, semantic=None, **kwargs: object):
     )
 
 
+def _admit(candidate: object, registry=None, semantic=None, **kwargs: object):
+    if registry is None or semantic is None:
+        registry, semantic = _inputs()
+    return _surface().admit_confidence_ledger_risk_spend_projection(
+        candidate,
+        registry=registry,
+        semantic_ledger=semantic,
+        **kwargs,
+    )
+
+
 def _mutate_check(semantic, index: int, **updates: object):
     payload = semantic.model_dump(mode="json")
     payload["checks"][index].update(updates)
@@ -445,7 +456,7 @@ def test_unknown_owner_refusal_maps_to_catchall_without_coverage_semantics() -> 
 def test_domain_projection_admission_revalidates_real_semantics_and_hash_identity() -> None:
     surface = _surface()
     projection = _project()
-    exact = surface.admit_confidence_ledger_risk_spend_projection(projection)
+    exact = _admit(projection)
     assert exact.status == "exact"
     assert exact.projection == projection
     assert "reason" not in exact.model_dump(mode="json")
@@ -453,7 +464,7 @@ def test_domain_projection_admission_revalidates_real_semantics_and_hash_identit
 
     missing = projection.model_dump(mode="python")
     missing.pop("scope_total_risk_spend")
-    blocked = surface.admit_confidence_ledger_risk_spend_projection(missing)
+    blocked = _admit(missing)
     assert blocked.status == "blocked"
     assert blocked.reason.value == "missing_input_or_incomplete_history"
 
@@ -463,13 +474,13 @@ def test_domain_projection_admission_revalidates_real_semantics_and_hash_identit
         {"rule_version": "policyos.runtime.confidence_ledger_surface.unknown"},
     ):
         unsupported = {**projection.model_dump(mode="python"), **update}
-        blocked = surface.admit_confidence_ledger_risk_spend_projection(unsupported)
+        blocked = _admit(unsupported)
         assert blocked.status == "blocked"
         assert blocked.reason.value == "unsupported_or_out_of_model"
 
     malformed = projection.model_dump(mode="python")
     malformed["projection_hash"] = "sha256:" + "0" * 64
-    blocked = surface.admit_confidence_ledger_risk_spend_projection(malformed)
+    blocked = _admit(malformed)
     assert blocked.status == "blocked"
     assert blocked.reason.value == "parser_or_schema_failure"
 
@@ -494,7 +505,7 @@ def test_domain_projection_admission_revalidates_real_semantics_and_hash_identit
         prefix=True,
         canon_spec=CanonSpec(exclude_none=False),
     )
-    blocked = surface.admit_confidence_ledger_risk_spend_projection(forged)
+    blocked = _admit(forged)
     assert blocked.status == "blocked"
     assert blocked.reason.value == "parser_or_schema_failure"
     assert projection.status == "not_promoted"
@@ -571,9 +582,7 @@ def test_domain_projection_admission_blocks_coherent_recursive_narrowing(
         _replace_amount(row["allocation"], Fraction())
         _replace_amount(row["remaining"], Fraction())
 
-    blocked = surface.admit_confidence_ledger_risk_spend_projection(
-        _rehash_projection(payload)
-    )
+    blocked = _admit(_rehash_projection(payload))
     assert blocked.status == "blocked"
     assert blocked.reason.value == "parser_or_schema_failure"
 
@@ -590,6 +599,14 @@ def test_forged_known_incomplete_envelope_cannot_cross_projection_or_admission()
             semantic_ledger=semantic,
             coverage_envelope=forged_envelope,
         )
+    with pytest.raises((TypeError, ValueError), match=r"coverage|envelope|witness"):
+        _coverage().evaluate_protected_action(
+            envelope=forged_envelope,
+            registry=registry,
+            semantic_ledger=semantic,
+            action_id=_ACTION,
+            presented_claim_scope="forged known-incomplete arm",
+        )
 
     candidate = _project(registry, semantic).model_dump(mode="python")
     candidate["coverage_envelope"] = forged_envelope.model_dump(mode="python")
@@ -600,6 +617,88 @@ def test_forged_known_incomplete_envelope_cannot_cross_projection_or_admission()
     _rehash_projection(candidate)
     parsed = surface.ConfidenceLedgerRiskSpendProjection.model_validate(candidate)
     assert parsed.coverage_assessment.value == "known_incomplete"
-    blocked = surface.admit_confidence_ledger_risk_spend_projection(candidate)
+    blocked = _admit(
+        candidate,
+        registry=registry,
+        semantic=semantic,
+    )
+    assert blocked.status == "blocked"
+    assert blocked.reason.value == "parser_or_schema_failure"
+
+
+@pytest.mark.parametrize("mutation", ["model_copy", "model_construct", "audience", "may_not_use"])
+def test_every_arm_reader_rederives_the_complete_envelope(mutation: str) -> None:
+    coverage = _coverage()
+    surface = _surface()
+    registry, semantic = _inputs()
+    envelope = _envelope(registry, semantic)
+    if mutation == "model_copy":
+        candidate = envelope.model_copy(
+            update={"assessment": coverage.CoverageAssessment.KNOWN_INCOMPLETE}
+        )
+    elif mutation == "model_construct":
+        candidate = coverage.ObligationCoverageEnvelope.model_construct(
+            **{
+                **{
+                    name: getattr(envelope, name)
+                    for name in type(envelope).model_fields
+                },
+                "assessment": coverage.CoverageAssessment.KNOWN_INCOMPLETE,
+            }
+        )
+    else:
+        payload = envelope.model_dump(mode="python")
+        if mutation == "audience":
+            payload["authorized_audiences"] = ("reviewer",)
+        else:
+            payload["may_not_use_for"] = tuple(
+                value
+                for value in payload["may_not_use_for"]
+                if value != "world_completeness"
+            )
+        body = {
+            key: value
+            for key, value in payload.items()
+            if key not in {"envelope_hash", "envelope_ref"}
+        }
+        envelope_hash = fingerprint(
+            body,
+            prefix=True,
+            canon_spec=CanonSpec(exclude_none=False),
+        )
+        candidate = coverage.ObligationCoverageEnvelope.model_validate(
+            {
+                **body,
+                "envelope_hash": envelope_hash,
+                "envelope_ref": f"coverage-envelope:{envelope_hash}",
+            }
+        )
+
+    with pytest.raises((TypeError, ValueError), match=r"coverage|envelope|witness"):
+        surface.project_confidence_ledger_risk_spend(
+            registry=registry,
+            semantic_ledger=semantic,
+            coverage_envelope=candidate,
+        )
+    with pytest.raises((TypeError, ValueError), match=r"coverage|envelope|witness"):
+        coverage.evaluate_protected_action(
+            envelope=candidate,
+            registry=registry,
+            semantic_ledger=semantic,
+            action_id=_ACTION,
+            presented_claim_scope="candidate mutation",
+        )
+    forged_projection = _project(registry, semantic).model_copy(
+        update={
+            "coverage_envelope": candidate,
+            "coverage_envelope_ref": candidate.envelope_ref,
+            "coverage_assessment": candidate.assessment,
+        }
+    )
+    blocked = _admit(
+        forged_projection,
+        registry=registry,
+        semantic=semantic,
+    )
     assert blocked.status == "blocked"
     assert blocked.reason.value == "parser_or_schema_failure"

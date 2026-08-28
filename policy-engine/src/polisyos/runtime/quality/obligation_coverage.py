@@ -15,7 +15,7 @@ from typing import Literal, Self
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import Ed25519Verifier, FileSystemCAS
-from polisyos.core.canon import CanonSpec, content_hash, fingerprint
+from polisyos.core.canon import CanonSpec, content_hash, fingerprint, to_canonical_bytes
 from polisyos.pdc import PromotionObligationClass
 from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerRegistry,
@@ -424,53 +424,80 @@ def build_coverage_envelope(
 
 
 def evaluate_protected_action(
-    *, envelope: ObligationCoverageEnvelope, action_id: str, presented_claim_scope: str
+    *,
+    envelope: object,
+    registry: ConfidenceLedgerRegistry,
+    semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
+    action_id: str,
+    presented_claim_scope: str,
+    witness_store: FileSystemCAS | None = None,
+    witness_verifier: Ed25519Verifier | None = None,
 ) -> ProtectedActionEvaluation:
     """Block a negative envelope; narrowing never changes the admitted action."""
 
-    if not isinstance(envelope, ObligationCoverageEnvelope):
-        raise TypeError("coverage_envelope_must_be_typed")
-    if action_id != envelope.protected_action_id:
+    admitted = rederive_and_admit_coverage_envelope(
+        candidate=envelope,
+        registry=registry,
+        semantic_ledger=semantic_ledger,
+        witness_store=witness_store,
+        witness_verifier=witness_verifier,
+    )
+    if action_id != admitted.protected_action_id:
         raise ValueError("coverage_action_requires_new_prospective_envelope")
     return ProtectedActionEvaluation(
         action_id=action_id,
         presented_claim_scope=presented_claim_scope,
         status="blocked",
-        assessment=envelope.assessment,
-        coverage_envelope_ref=envelope.envelope_ref,
+        assessment=admitted.assessment,
+        coverage_envelope_ref=admitted.envelope_ref,
     )
 
 
-def reauthenticate_coverage_envelope(
+def rederive_and_admit_coverage_envelope(
     *,
-    envelope: ObligationCoverageEnvelope,
+    candidate: object,
+    registry: ConfidenceLedgerRegistry,
+    semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
     witness_store: FileSystemCAS | None = None,
     witness_verifier: Ed25519Verifier | None = None,
 ) -> ObligationCoverageEnvelope:
-    """Re-resolve every witness before a downstream boundary trusts its arm."""
+    """Rebuild a candidate from owner bases before trusting any coverage arm."""
 
-    if not isinstance(envelope, ObligationCoverageEnvelope):
-        raise TypeError("coverage_envelope_must_be_typed")
-    expected_key = _derive_assessment_key(
-        scope_id=envelope.scope_id,
-        owner_scope_key=envelope.owner_scope_key,
-        protected_action_id=envelope.protected_action_id,
-        sources=envelope.source_identities,
+    if not isinstance(registry, ConfidenceLedgerRegistry):
+        raise TypeError("coverage_registry_must_be_typed")
+    if not isinstance(semantic_ledger, ConfidenceLedgerSemanticReceiptProjection):
+        raise TypeError("coverage_semantic_ledger_must_be_typed")
+    parsed = ObligationCoverageEnvelope.model_validate(candidate)
+    canonical = to_canonical_bytes(parsed, _CANON)
+    reparsed = ObligationCoverageEnvelope.model_validate_json(canonical)
+    semantic_source = next(
+        (
+            source
+            for source in reparsed.source_identities
+            if source.source_role == "semantic_ledger"
+        ),
+        None,
     )
-    if envelope.assessment_key != expected_key:
-        raise ValueError("coverage_envelope_assessment_key_mismatch")
-    admitted = _resolve_witnesses(
-        store=witness_store,
-        verifier=witness_verifier,
-        refs=envelope.witness_refs,
-        assessment_key=expected_key,
-        scope_id=envelope.scope_id,
-        owner_scope_key=envelope.owner_scope_key,
-        protected_action_id=envelope.protected_action_id,
+    if semantic_source is None:
+        raise ValueError("coverage_semantic_source_identity_missing")
+    rebuilt = build_coverage_envelope(
+        registry=registry,
+        semantic_ledger=semantic_ledger,
+        semantic_source_ref=semantic_source.source_ref,
+        semantic_source_verifier_ref=semantic_source.verifier_ref,
+        protected_action_id=reparsed.protected_action_id,
+        witness_store=witness_store,
+        witness_verifier=witness_verifier,
+        witness_refs=reparsed.witness_refs,
     )
-    if admitted != envelope.witness_refs:
-        raise ValueError("coverage_envelope_witness_admission_mismatch")
-    return envelope
+    rebuilt_canonical = to_canonical_bytes(rebuilt, _CANON)
+    if (
+        parsed != reparsed
+        or canonical != to_canonical_bytes(reparsed, _CANON)
+        or canonical != rebuilt_canonical
+    ):
+        raise ValueError("coverage_envelope_rederivation_mismatch")
+    return rebuilt
 
 
 def _derive_assessment_key(

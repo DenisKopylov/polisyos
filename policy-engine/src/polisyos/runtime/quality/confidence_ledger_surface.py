@@ -29,7 +29,7 @@ from polisyos.runtime.quality.obligation_coverage import (
     CoverageAssessment,
     CoverageSourceIdentity,
     ObligationCoverageEnvelope,
-    reauthenticate_coverage_envelope,
+    rederive_and_admit_coverage_envelope,
 )
 
 if TYPE_CHECKING:
@@ -959,8 +959,10 @@ def project_confidence_ledger_risk_spend(
 ) -> ConfidenceLedgerRiskSpendProjection:
     """Project exact local spend and registry-derived blockers from typed inputs."""
 
-    coverage_envelope = reauthenticate_coverage_envelope(
-        envelope=coverage_envelope,
+    coverage_envelope = rederive_and_admit_coverage_envelope(
+        candidate=coverage_envelope,
+        registry=registry,
+        semantic_ledger=semantic_ledger,
         witness_store=witness_store,
         witness_verifier=witness_verifier,
     )
@@ -978,6 +980,8 @@ def project_confidence_ledger_risk_spend(
 def admit_confidence_ledger_risk_spend_projection(
     candidate: object,
     *,
+    registry: ConfidenceLedgerRegistry,
+    semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
     witness_store: FileSystemCAS | None = None,
     witness_verifier: Ed25519Verifier | None = None,
 ) -> DomainProjectionAdmission:
@@ -985,15 +989,29 @@ def admit_confidence_ledger_risk_spend_projection(
 
     try:
         admitted = ConfidenceLedgerRiskSpendProjection.model_validate(candidate)
-        reauthenticate_coverage_envelope(
-            envelope=admitted.coverage_envelope,
+        if (
+            admitted.registry_basis != registry
+            or admitted.semantic_ledger_basis != semantic_ledger
+        ):
+            raise ValueError("projection_owner_basis_mismatch")
+        rederive_and_admit_coverage_envelope(
+            candidate=admitted.coverage_envelope,
+            registry=registry,
+            semantic_ledger=semantic_ledger,
             witness_store=witness_store,
             witness_verifier=witness_verifier,
         )
         canonical = to_canonical_bytes(admitted, _CANON)
         readmitted = ConfidenceLedgerRiskSpendProjection.model_validate_json(canonical)
-        reauthenticate_coverage_envelope(
-            envelope=readmitted.coverage_envelope,
+        if (
+            readmitted.registry_basis != registry
+            or readmitted.semantic_ledger_basis != semantic_ledger
+        ):
+            raise ValueError("projection_owner_basis_mismatch")
+        rederive_and_admit_coverage_envelope(
+            candidate=readmitted.coverage_envelope,
+            registry=registry,
+            semantic_ledger=semantic_ledger,
             witness_store=witness_store,
             witness_verifier=witness_verifier,
         )

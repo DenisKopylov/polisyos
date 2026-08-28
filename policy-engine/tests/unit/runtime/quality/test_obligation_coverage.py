@@ -313,6 +313,23 @@ def test_signed_exact_scope_witness_traverses_projection_and_exact_admission(
         witness_verifier=verifier,
         witness_refs=(witness_ref,),
     )
+    moved = _coverage().ObligationCoverageEnvelope.model_validate_json(
+        moved.model_dump_json()
+    )
+    with pytest.raises((TypeError, ValueError), match=r"witness|signature|resolver"):
+        _surface().project_confidence_ledger_risk_spend(
+            registry=registry,
+            semantic_ledger=semantic,
+            coverage_envelope=moved,
+        )
+    with pytest.raises((TypeError, ValueError), match=r"signature|witness"):
+        _surface().project_confidence_ledger_risk_spend(
+            registry=registry,
+            semantic_ledger=semantic,
+            coverage_envelope=moved,
+            witness_store=cas,
+            witness_verifier=Ed25519Verifier(strict_identity=True),
+        )
     projection = _surface().project_confidence_ledger_risk_spend(
         registry=registry,
         semantic_ledger=semantic,
@@ -322,11 +339,61 @@ def test_signed_exact_scope_witness_traverses_projection_and_exact_admission(
     )
     admitted = _surface().admit_confidence_ledger_risk_spend_projection(
         projection,
+        registry=registry,
+        semantic_ledger=semantic,
         witness_store=cas,
         witness_verifier=verifier,
     )
+    evaluated = _coverage().evaluate_protected_action(
+        envelope=moved,
+        registry=registry,
+        semantic_ledger=semantic,
+        witness_store=cas,
+        witness_verifier=verifier,
+        action_id=_ACTION,
+        presented_claim_scope="authenticated known-incomplete arm",
+    )
     assert projection.coverage_assessment.value == "known_incomplete"
     assert admitted.status == "exact"
+    assert evaluated.assessment.value == "known_incomplete"
+
+    action_b = "protected-action://ds17/different-action"
+    forged = moved.model_dump(mode="python")
+    forged["protected_action_id"] = action_b
+    forged["assessment_key"] = fingerprint(
+        {
+            "rule_version": forged["rule_version"],
+            "scope_id": forged["scope_id"],
+            "owner_scope_key": forged["owner_scope_key"],
+            "protected_action_id": action_b,
+            "sources": [
+                row.model_dump(mode="json") for row in moved.source_identities
+            ],
+        },
+        prefix=True,
+        canon_spec=_CANON,
+    )
+    forged_body = {
+        key: value
+        for key, value in forged.items()
+        if key not in {"envelope_hash", "envelope_ref"}
+    }
+    forged_hash = fingerprint(forged_body, prefix=True, canon_spec=_CANON)
+    cross_action = _coverage().ObligationCoverageEnvelope.model_validate(
+        {
+            **forged_body,
+            "envelope_hash": forged_hash,
+            "envelope_ref": f"coverage-envelope:{forged_hash}",
+        }
+    )
+    with pytest.raises((TypeError, ValueError), match=r"scope|assessment"):
+        _surface().project_confidence_ledger_risk_spend(
+            registry=registry,
+            semantic_ledger=semantic,
+            coverage_envelope=cross_action,
+            witness_store=cas,
+            witness_verifier=verifier,
+        )
 
 
 def test_real_gy_omission_witness_is_rejected_as_cross_scope(tmp_path: Path) -> None:
@@ -627,13 +694,18 @@ def test_registry_partition_mutations_reject_before_coverage(mutation: str) -> N
 def test_negative_coverage_cannot_be_rescued_by_claim_narrowing() -> None:
     envelope = _envelope()
     coverage = _coverage()
+    registry, semantic = _inputs()
     original = coverage.evaluate_protected_action(
         envelope=envelope,
+        registry=registry,
+        semantic_ledger=semantic,
         action_id=_ACTION,
         presented_claim_scope="all declared obligations",
     )
     narrowed = coverage.evaluate_protected_action(
         envelope=envelope,
+        registry=registry,
+        semantic_ledger=semantic,
         action_id=_ACTION,
         presented_claim_scope="one displayed obligation class",
     )
@@ -641,6 +713,8 @@ def test_negative_coverage_cannot_be_rescued_by_claim_narrowing() -> None:
     with pytest.raises((TypeError, ValueError), match=r"action|envelope"):
         coverage.evaluate_protected_action(
             envelope=envelope,
+            registry=registry,
+            semantic_ledger=semantic,
             action_id="protected-action://ds17/retrofitted",
             presented_claim_scope="one displayed obligation class",
         )

@@ -2,7 +2,7 @@
 plan_id: atlas-ds15-acquisition-routes
 title: "DS15 - Acquisition Routes & Data-Pool Growth Surfaces"
 type: slice-plan
-status: execution_c06_verified_commit_readback_pending
+status: execution_closed
 created: 2026-08-27
 last_verified: 2026-08-28
 stability: measured_plan
@@ -19,7 +19,7 @@ c02_status: closed_at_8969c10a9
 c03_status: closed_after_measured_generator_widening
 c04_status: closed_with_surface_and_guardrail_receipts
 c05_status: closed_with_continuous_motion_and_exact_byte_receipts
-c06_status: verification_green_commit_readback_pending
+c06_status: closed_at_4613954a4bfc08f87460e0dee2a68c8a00d0d6e4
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 gy_plan: ../layer3-slices/GY-engine-subordination.md
 identity_boundary: ../../../system-design-decisions/policyos-identity-and-custody-boundary.md
@@ -453,7 +453,7 @@ agrees on 2,603 Python files and 115 candidates and is byte-stable in
 Actual spend is **41/42 mechanisms** and **8/11 rounds**. C05 checks CC17,
 CC18 and CC19; C06 and CC22 through CC25 remain open.
 
-### C06 verification freeze - 2026-08-28
+### C06 closure - 2026-08-28
 
 C06 spends the final declared checker mechanism and closes the evidence-backed
 transition without changing any production-growth claim. The opening generic
@@ -517,8 +517,18 @@ Mechanism arithmetic and the corrected bounded-block parser agree on
 merge-base tree delta. The first parser is retained as a rejected disagreement:
 it returned **1** because it stopped on the Markdown separator immediately
 after five headings. Advancing past that separator returns per-cluster
-`7/7, 16/16, 1/1, 13/13, 4/4, 1/1`. Final spend before committed readback is
-**42/42 mechanisms** and **10/11 widening rounds**; R08 remains unspent.
+`7/7, 16/16, 1/1, 13/13, 4/4, 1/1`. Final spend is **42/42 mechanisms** and
+**10/11 widening rounds**; R08 remains unspent.
+
+Committed-branch readback closes CC25 at
+`4613954a4bfc08f87460e0dee2a68c8a00d0d6e4`. The branch is attached at
+`refs/heads/codex/ds15-acquisition-routes-execution`, the post-commit tree is
+clean, and the commit contains exactly the eight C06 mechanism/companion paths.
+A tree-object comparison from the immutable execution base finds all 42
+declared mechanisms in the committed tree with none missing, independently of
+the plan-block parser. The bounded surface is closed; the separate
+`fresh_positive_production_route` production-growth claim remains
+`absent/unallocated`.
 
 ## Mission and binding reality
 
@@ -742,7 +752,7 @@ There is no second closure contract.
       Any future non-fixture production claim is governed by the separately
       owned `fresh_positive_production_route` non-closure, not by this bounded
       criterion.
-- [ ] **CC25** Freeze -> review -> one expensive verification wave -> register
+- [x] **CC25** Freeze -> review -> one expensive verification wave -> register
       transition -> committed-branch readback proves the bounded capability
       chain, including CC24's source-honest production-negative lane and
       explicitly badged semantic-test lane. DS15 may close that bounded scope

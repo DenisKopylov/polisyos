@@ -67,6 +67,55 @@
       "ru": "Русский"
     }
   },
+  "epochChrome": {
+    "validAt": "Policy valid at",
+    "txAt": "Knowledge tx at",
+    "payloadAsOf": "Payload as of",
+    "sourceAsOf": "Source as of",
+    "observedAt": "Observed at",
+    "sourceState": "Source state",
+    "asOf": "Claim as of",
+    "epoch": "Epoch",
+    "epochStatus": "Epoch status",
+    "validity": "Validity",
+    "revalidation": "Revalidation",
+    "cacheAge": "Cache age",
+    "required": "required",
+    "notRequired": "not required",
+    "notEstablished": "Epoch not established",
+    "status": {
+      "current": "current",
+      "stale": "stale",
+      "revalidation_required": "revalidation required",
+      "contested": "contested",
+      "not_established": "not established"
+    },
+    "absence": {
+      "institutional": "Authority not appointed",
+      "engineering": "Engineering capability not wired"
+    },
+    "perturbation": {
+      "incident": "Incident",
+      "appeal": "Appeal",
+      "correction": "Correction",
+      "retraction": "Retraction",
+      "legal_change": "Legal change",
+      "discovered_bias": "Discovered bias"
+    },
+    "scope": {
+      "instance": "instance",
+      "dependency_descendants": "dependency descendants"
+    },
+    "replayInspection": "Replay inspection",
+    "epochBoundary": "Epoch boundary",
+    "compareBoundary": "Separate epoch semantics for compared runs",
+    "compareRun": "Epoch semantics for {runId}",
+    "admission": "Epoch projection admission",
+    "admissionPending": "Epoch projection is being admitted; no currentness claim is made yet.",
+    "admissionUnavailable": "Epoch projection could not be admitted; no currentness claim is made.",
+    "machine": "Download MACHINE twin",
+    "openWorldFreeze": "Promotion frozen by open-world risk"
+  },
   "shell": {
     "eyebrow": "PolisyOS Runtime",
     "title": "Atlas",

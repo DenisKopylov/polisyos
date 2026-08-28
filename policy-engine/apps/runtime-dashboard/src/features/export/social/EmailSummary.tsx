@@ -1,7 +1,11 @@
 import type { ReactNode } from "react";
 
 import type { PublicShareSummary } from "./email-fixtures";
-import { formatTemporalScope, sanitizePublicShareSummary } from "./OGCard";
+import {
+  formatEpochSemantics,
+  formatTemporalScope,
+  sanitizePublicShareSummary,
+} from "./OGCard";
 
 type EmailSummaryProps = {
   summary: PublicShareSummary;
@@ -49,6 +53,9 @@ export function EmailSummary({ summary }: EmailSummaryProps) {
           <EmailRow label="Temporal scope">
             {formatTemporalScope(safeSummary.temporalScope)}
           </EmailRow>
+          <EmailRow label="Epoch & validity">
+            {formatEpochSemantics(safeSummary.epochSemantics)}
+          </EmailRow>
         </tbody>
       </table>
       <p style={{ marginTop: 24 }}>
@@ -70,6 +77,7 @@ export function renderEmailPlainText(summary: PublicShareSummary) {
     `Trust status: ${safeSummary.trustStatus}`,
     `State: ${safeSummary.state}`,
     `Temporal scope: ${formatTemporalScope(safeSummary.temporalScope)}`,
+    `Epoch & validity: ${formatEpochSemantics(safeSummary.epochSemantics)}`,
     `Open: ${safeSummary.href}`,
     "Public summary only. Raw evidence and private reviewer notes are not included.",
   ]

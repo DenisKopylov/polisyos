@@ -5,6 +5,8 @@ import { useRuns } from "@/api/hooks/useRuns";
 import { PrefetchLink } from "@/app/routes/PrefetchLink";
 import { useTelemetryReadyMark } from "@/app/providers/TelemetryProvider";
 import { buildEvidenceHref } from "@/features/evidence";
+import { useEpochStaleness } from "@/features/runs/api/useEpochStaleness";
+import { epochSemanticsFromProjection } from "@/features/runs/components/EpochStalenessView";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate, formatDuration } from "@/shared/lib/utils";
 import {
@@ -28,13 +30,30 @@ import {
   VirtualTable,
   VIRTUALIZATION_THRESHOLD,
 } from "@polisyos/atlas-ui";
-import {
-  copyRow,
-  copyShareLink,
-  exportCsv,
-  exportJson,
-} from "@/shared/ui";
+import { copyRow, copyShareLink, exportCsv, exportJson } from "@/shared/ui";
 import { renderApiErrorAlert } from "@/shared/ui/ApiErrorAlert";
+import {
+  epochNonreceipt,
+  TimeSemanticsLabel,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
+
+function RunEpochChrome({ runId }: { runId: string }) {
+  const query = useEpochStaleness({ runId });
+  const epochSemantics = query.data
+    ? epochSemanticsFromProjection(query.data.projection)
+    : epochNonreceipt();
+  return (
+    <div data-testid={`run-epoch-${runId}`}>
+      <TimeSemanticsLabel
+        className="min-w-56"
+        epochSemantics={epochSemantics}
+        payloadAsOf={query.data?.projection.owner_as_of}
+        txAt={query.data?.projection.temporal_scope.tx_at}
+        validAt={query.data?.projection.temporal_scope.valid_at}
+      />
+    </div>
+  );
+}
 
 function localDateTimeToIso(value: string | null): string | undefined {
   if (!value) {
@@ -177,6 +196,14 @@ export default function RunsList() {
         exportValue: (run: (typeof displayedRuns)[number]) => run.status,
         render: (run: (typeof displayedRuns)[number]) => (
           <Badge kind="neutral">{run.status}</Badge>
+        ),
+      },
+      {
+        key: "epoch",
+        header: t("epochChrome.epoch"),
+        exportValue: () => "live_projection_not_embedded",
+        render: (run: (typeof displayedRuns)[number]) => (
+          <RunEpochChrome runId={run.run_id} />
         ),
       },
       {

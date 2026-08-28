@@ -1,9 +1,11 @@
 import {
+  bureaucraticEpochSemantics,
   flattenBureaucraticBlocks,
   type BureaucraticBlock,
   type BureaucraticDocumentAST,
   type BureaucraticEpistemicKind,
 } from "../ast/bureaucratic-document-ast";
+import { formatEpochSemanticsSummary } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { computeEpistemicSummary, epistemicLabel } from "../ast/epistemic-map";
 import { numberBureaucraticBlocks } from "../ast/numbering";
 
@@ -29,6 +31,10 @@ export function exportBureaucraticHtml(
     annexes: numberedAnnexes,
     blocks: numberedBlocks,
   });
+  const epochSemantics = formatEpochSemanticsSummary(
+    bureaucraticEpochSemantics(document),
+  );
+  const epochProjection = bureaucraticEpochSemantics(document);
   return `<!doctype html>
 <html lang="${escapeHtml(document.language)}">
 <head>
@@ -41,6 +47,8 @@ export function exportBureaucraticHtml(
   <meta name="polisyos:template-version" content="${escapeHtml(document.template.version)}">
   <meta name="polisyos:legal-review-status" content="${escapeHtml(document.template.legal_review_status)}">
   <meta name="polisyos:render-timestamp" content="${escapeHtml(document.render_timestamp)}">
+  <meta name="polisyos:epoch-semantics" content="${escapeHtml(epochSemantics)}">
+  <meta name="polisyos:epoch-semantic-hash" content="${escapeHtml(epochProjection.projectionSemanticHash ?? "not_established")}">
   <title>${escapeHtml(document.title)}</title>
 </head>
 <body data-document-id="${escapeHtml(document.id)}" data-template-id="${escapeHtml(document.template.id)}" data-block-ids="${escapeHtml(blockIds)}">
@@ -52,6 +60,7 @@ export function exportBureaucraticHtml(
         <dt>Packet</dt><dd>${escapeHtml(document.packet_id)}</dd>
         <dt>Packet hash</dt><dd>${escapeHtml(document.packet_hash)}</dd>
         <dt>Rendered</dt><dd>${escapeHtml(document.render_timestamp)}</dd>
+        <dt>Epoch &amp; validity</dt><dd>${escapeHtml(epochSemantics)}</dd>
         <dt>Status</dt><dd>${escapeHtml(document.status)}</dd>
       </dl>
     </header>

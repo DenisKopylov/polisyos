@@ -1,6 +1,10 @@
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 
-import type { BureaucraticDocumentAST } from "../../ast/bureaucratic-document-ast";
+import {
+  bureaucraticEpochSemantics,
+  type BureaucraticDocumentAST,
+} from "../../ast/bureaucratic-document-ast";
 import { BureaucraticTemplateBadge } from "../../BureaucraticTemplateBadge";
 import { BureaucraticWatermark } from "./BureaucraticWatermark";
 
@@ -50,6 +54,9 @@ export function BureaucraticHeader({ document }: BureaucraticHeaderProps) {
           <dd>{document.status}</dd>
         </div>
       </dl>
+      <TimeSemanticsLabel
+        epochSemantics={bureaucraticEpochSemantics(document)}
+      />
     </header>
   );
 }

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { createElement } from "react";
+import { epochNonreceipt } from "@/shared/ui/temporal/TimeSemanticsLabel";
 
+import { exportBureaucraticHtml } from "../export/export-html";
+import { BureaucraticHeader } from "../renderers/shared/BureaucraticHeader";
 import {
   flattenBureaucraticBlocks,
   validateBureaucraticDocumentAST,
@@ -10,15 +15,56 @@ describe("BureaucraticDocumentAST", () => {
   it("validates watermark and quantity lineage", () => {
     const document = fixtureDocument();
 
-    expect(flattenBureaucraticBlocks(document).map((block) => block.id)).toEqual(
-      ["header", "quantity", "annex"],
-    );
+    expect(
+      flattenBureaucraticBlocks(document).map((block) => block.id),
+    ).toEqual(["header", "quantity", "annex"]);
     expect(validateBureaucraticDocumentAST(document)).toMatchObject({
       valid: true,
       watermarkPresent: true,
       missingBlockIds: [],
       quantityBlocksWithoutLineage: [],
     });
+  });
+
+  it("rejects malformed temporal semantics and renders an exact nonreceipt", () => {
+    const malformed = {
+      ...fixtureDocument(),
+      temporal_semantics: { kind: "admitted", status: "current" },
+    } as unknown as BureaucraticDocumentAST;
+    expect(validateBureaucraticDocumentAST(malformed).valid).toBe(false);
+
+    const document = {
+      ...fixtureDocument(),
+      temporal_semantics: {
+        asOf: null,
+        asOfReason: "epoch_projection_not_established",
+        currentEpochRef: null,
+        epochRefs: [],
+        kind: "nonreceipt",
+        projectionSemanticHash: null,
+        revalidationRequired: false,
+        status: "not_established",
+        validityStatus: null,
+      },
+    } as unknown as BureaucraticDocumentAST;
+    const html = exportBureaucraticHtml(document);
+    render(createElement(BureaucraticHeader, { document }));
+
+    expect(html).toContain("Epoch not established");
+    expect(screen.getByText("Epoch not established")).toBeInTheDocument();
+    expect(html).toContain("epoch_projection_not_established");
+  });
+
+  it("projects a missing temporal arm as the exact epoch nonreceipt", () => {
+    const document = fixtureDocument();
+    delete document.temporal_semantics;
+
+    const html = exportBureaucraticHtml(document);
+    render(createElement(BureaucraticHeader, { document }));
+
+    expect(html).toContain("Epoch not established");
+    expect(html).toContain("epoch_projection_not_established");
+    expect(screen.getByText("Epoch not established")).toBeInTheDocument();
   });
 });
 
@@ -86,6 +132,7 @@ function fixtureDocument(): BureaucraticDocumentAST {
     packet_hash: "hash",
     packet_id: "sha256:abc",
     render_timestamp: "2026-02-11T12:00:00Z",
+    temporal_semantics: epochNonreceipt(),
     status: "draft",
     template: {
       genre: "postanova_kmu",

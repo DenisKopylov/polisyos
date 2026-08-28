@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { epochNonreceipt } from "@/shared/ui/temporal/TimeSemanticsLabel";
 
 import type { BureaucraticDocumentAST } from "../ast/bureaucratic-document-ast";
 import { exportBureaucraticHtml } from "./export-html";
@@ -110,6 +111,7 @@ function fixtureDocument(): BureaucraticDocumentAST {
     packet_hash: "abcdef123456",
     packet_id: "sha256:abc",
     render_timestamp: "2026-02-11T12:00:00Z",
+    temporal_semantics: epochNonreceipt(),
     status: "draft",
     template: {
       genre: "postanova_kmu",

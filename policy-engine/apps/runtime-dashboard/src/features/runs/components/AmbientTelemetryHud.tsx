@@ -11,17 +11,19 @@ import {
   readReviewerThresholdProfile,
   setReviewerThreshold,
 } from "@/features/runs/domain/operatorCraft";
-import { buildSignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
+import type { SignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate, formatNumber, formatPercent } from "@/shared/lib/utils";
 import { Badge, Slider } from "@polisyos/atlas-ui";
 
 export function AmbientTelemetryHud({
   activeTab,
+  packet,
   runId,
   summary,
 }: {
   activeTab: string;
+  packet: SignedPublicDecisionPacket;
   runId: string;
   summary: RunInspectorSummary;
 }) {
@@ -29,9 +31,7 @@ export function AmbientTelemetryHud({
   const authz = useMaybeAuthz();
   const scope = useMemo(
     () =>
-      authz?.status === "ready" &&
-      authz.user?.tenant_id &&
-      authz.user.user_id
+      authz?.status === "ready" && authz.user?.tenant_id && authz.user.user_id
         ? {
             tenantId: authz.user.tenant_id,
             userId: authz.user.user_id,
@@ -51,26 +51,6 @@ export function AmbientTelemetryHud({
     () => readReviewerThresholdProfile(scope),
     [operatorCraftVersion, scope],
   );
-  const packet = useMemo(
-    () =>
-      buildSignedPublicDecisionPacket({
-        decisionScore: summary.decisionScore,
-        decisionView: summary.decisionView,
-        evidenceContext: summary.evidenceContext,
-        governanceIssues: summary.governanceIssues,
-        policyDesignCaseProjection: summary.run?.policy_design_case_projection,
-        runId,
-      }),
-    [
-      runId,
-      summary.decisionScore,
-      summary.decisionView,
-      summary.evidenceContext,
-      summary.governanceIssues,
-      summary.run?.policy_design_case_projection,
-    ],
-  );
-
   useEffect(() => {
     const onChange = () => refreshOperatorCraft();
     globalThis.addEventListener?.(OPERATOR_CRAFT_CHANGED_EVENT, onChange);

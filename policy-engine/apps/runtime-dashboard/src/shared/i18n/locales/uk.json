@@ -67,6 +67,55 @@
       "ru": "Русский"
     }
   },
+  "epochChrome": {
+    "validAt": "Політика чинна на",
+    "txAt": "Знання станом на tx",
+    "payloadAsOf": "Payload станом на",
+    "sourceAsOf": "Джерело станом на",
+    "observedAt": "Спостережено",
+    "sourceState": "Стан джерела",
+    "asOf": "Твердження станом на",
+    "epoch": "Епоха",
+    "epochStatus": "Стан епохи",
+    "validity": "Чинність",
+    "revalidation": "Повторна валідація",
+    "cacheAge": "Вік кешу",
+    "required": "потрібна",
+    "notRequired": "не потрібна",
+    "notEstablished": "Епоху не встановлено",
+    "status": {
+      "current": "поточна",
+      "stale": "застаріла",
+      "revalidation_required": "потрібна повторна валідація",
+      "contested": "оскаржується",
+      "not_established": "не встановлено"
+    },
+    "absence": {
+      "institutional": "Уповноважений орган не призначено",
+      "engineering": "Інженерну можливість не підключено"
+    },
+    "perturbation": {
+      "incident": "Інцидент",
+      "appeal": "Апеляція",
+      "correction": "Виправлення",
+      "retraction": "Відкликання",
+      "legal_change": "Зміна законодавства",
+      "discovered_bias": "Виявлене упередження"
+    },
+    "scope": {
+      "instance": "окремий екземпляр",
+      "dependency_descendants": "залежні нащадки"
+    },
+    "replayInspection": "Перегляд відтворення",
+    "epochBoundary": "Межа епох",
+    "compareBoundary": "Окремі семантики епох для порівнюваних запусків",
+    "compareRun": "Семантика епохи для {runId}",
+    "admission": "Допуск проєкції епохи",
+    "admissionPending": "Проєкція епохи проходить допуск; твердження про актуальність ще не зроблено.",
+    "admissionUnavailable": "Проєкцію епохи не вдалося допустити; твердження про актуальність не зроблено.",
+    "machine": "Завантажити MACHINE twin",
+    "openWorldFreeze": "Просування заморожене через ризик відкритого світу"
+  },
   "shell": {
     "eyebrow": "PolisyOS Runtime",
     "title": "Atlas",

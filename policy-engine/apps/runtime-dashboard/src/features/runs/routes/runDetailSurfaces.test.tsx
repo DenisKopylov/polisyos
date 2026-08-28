@@ -7,6 +7,10 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { policyDiffFixture } from "@/features/runs/compare/fixtures";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { buildFeatureFlags } from "@/test/featureFlags";
+import {
+  epochProjection,
+  epochStalenessPositiveFixture,
+} from "@/test/fixtures/epochStaleness";
 import { runPaperPacketFixture } from "@/test/fixtures/runPaper";
 
 const ownerCapabilityManifest = {
@@ -29,6 +33,7 @@ const {
   useCompareRunsMock,
   useCounterfactualMetricsMock,
   useDepthNCycleBoardProjectionMock,
+  useEpochStalenessMock,
   useGovernanceDebugMock,
   useNodeDebugMock,
   usePermissionMock,
@@ -57,6 +62,7 @@ const {
   useCompareRunsMock: vi.fn(),
   useCounterfactualMetricsMock: vi.fn(),
   useDepthNCycleBoardProjectionMock: vi.fn(),
+  useEpochStalenessMock: vi.fn(),
   useGovernanceDebugMock: vi.fn(),
   useNodeDebugMock: vi.fn(),
   usePermissionMock: vi.fn(),
@@ -78,6 +84,14 @@ const {
 }));
 
 vi.mock("@/shared/i18n/LocaleProvider", () => ({
+  useOptionalI18n: () => ({
+    label: (
+      _namespace: string,
+      value: string | null | undefined,
+      fallback: string,
+    ) => fallback ?? value ?? "",
+    t: (key: string) => key,
+  }),
   useI18n: () => ({
     label: (
       _namespace: string,
@@ -89,6 +103,10 @@ vi.mock("@/shared/i18n/LocaleProvider", () => ({
         ? "Cycle Board global cohort — not this run"
         : key,
   }),
+}));
+
+vi.mock("@/features/runs/api/useEpochStaleness", () => ({
+  useEpochStaleness: (...args: unknown[]) => useEpochStalenessMock(...args),
 }));
 
 vi.mock("@/app/providers/TelemetryProvider", () => ({
@@ -537,21 +555,21 @@ function renderNestedRunDetail(path: string) {
   });
   return render(
     <QueryClientProvider client={queryClient}>
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path="/runs/:runId" element={<RunDetailLayout />}>
-          <Route
-            path="overview"
-            element={<div data-testid="outlet-overview" />}
-          />
-          <Route
-            path="governance"
-            element={<div data-testid="outlet-governance" />}
-          />
-        </Route>
-        <Route path="/runs" element={<RunDetailLayout />} />
-      </Routes>
-    </MemoryRouter>
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route path="/runs/:runId" element={<RunDetailLayout />}>
+            <Route
+              path="overview"
+              element={<div data-testid="outlet-overview" />}
+            />
+            <Route
+              path="governance"
+              element={<div data-testid="outlet-governance" />}
+            />
+          </Route>
+          <Route path="/runs" element={<RunDetailLayout />} />
+        </Routes>
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -623,6 +641,13 @@ describe("run detail surfaces", () => {
       error: null,
       isError: false,
       isLoading: false,
+    });
+    useEpochStalenessMock.mockReset();
+    useEpochStalenessMock.mockReturnValue({
+      data: undefined,
+      error: null,
+      isError: false,
+      isLoading: true,
     });
     const paperPacket = runPaperPacketFixture();
     useRunPaperMock.mockReset();
@@ -1015,6 +1040,16 @@ describe("run detail surfaces", () => {
   });
 
   it("renders the Atlas decision packet summary in RunDetailLayout", async () => {
+    const positive = epochStalenessPositiveFixture();
+    useEpochStalenessMock.mockReturnValue({
+      data: {
+        projection: epochProjection(positive),
+        rawBytes: new TextEncoder().encode(JSON.stringify(positive)),
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
     renderNestedRunDetail("/runs/run-1/overview");
 
     expect(useRunPaperMock).not.toHaveBeenCalled();
@@ -1044,6 +1079,9 @@ describe("run detail surfaces", () => {
       screen.getByTestId("public-sector-readiness-panel"),
     ).toHaveTextContent("common.unavailable");
     expect(screen.getByTestId("publication-packet-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("signed-epoch-semantics")).toHaveTextContent(
+      "current",
+    );
     expect(screen.getByTestId("argument-map-panel")).toBeInTheDocument();
     expect(
       screen.getByTestId("deterministic-explanations-panel"),

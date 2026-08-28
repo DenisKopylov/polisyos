@@ -478,3 +478,78 @@ families were fresh.
 C04 changes its three declared mechanisms plus the registered dashboard generated
 companion and tests. No widening is required: the budget remains **42 / 44**, with
 **3 / 7** rounds spent.
+
+## C05 universal chrome, exports, and truthful absence closure
+
+C05 started with behavioral mutations against the existing shells. Nine assertions
+failed for the intended missing properties: changing epoch status/owner `as_of` did
+not change the run surface; the two absence kinds had no distinct rendering; the six
+perturbation classes and appeal scope were absent; cross-epoch replay had no visible
+boundary; the signed packet neither required nor hashed the epoch arm; central chart
+evidence omitted epoch semantics; social output dropped the arm; and bureaucratic
+admission accepted a malformed temporal record. These were state mutations with stable
+component/route markers, not future-name checks.
+
+`TimeSemanticsLabel` now owns one strict `EpochSemantics` grammar and an optional typed
+provider. It renders independent valid/transaction/payload/source/observation clocks
+without substituting one for owner `as_of`, and visibly distinguishes current, stale,
+revalidation-required, contested and not-established states. The run layout admits the
+strict epoch projection once, builds one signed packet whose hash includes that arm,
+and passes the same packet instance to publication, reviewer-craft and ambient-
+telemetry consumers. Runs list and compare render per-run semantics; comparison keeps
+two epochs separate and labels the boundary instead of blending them.
+
+The detailed view keeps inspection, replay and captured-byte MACHINE download
+available for positive and refusal states. Signer rows render **Authority not
+appointed**, their exact typed refusal, institutional dependency wording and
+`appointment_is_closure_precondition=false`. The derived recompute gap renders
+**Engineering capability not wired**, names
+`polisyos.runtime.quality.derived_observations`, and uses an assignable engineering
+closure. The behavioral falsifier swaps those rows under the same panel shell and
+requires the title, candidate-owner and closure class to switch; it is green. There is
+no appoint/bypass control and appointment is not a C05 or CC10 closure precondition.
+
+Certificates switch visibly between stale and current while the surrounding shell is
+held fixed; stale output exposes its trigger and revalidation requirement. Derived
+dependencies expose inherited staleness and recompute posture. Incident, appeal,
+correction, retraction, legal change and discovered bias keep six labels and wire
+values; appeal alone is instance-scoped. OpenWorldRisk promotion freeze changes with
+the admitted state, and replay lineage exposes a keyboard-focusable epoch boundary.
+
+The strict epoch arm is required before packet signing and flows through the public
+packet, React/HTML/Satori/SVG/PNG social outputs, React/plain-text email, bureaucratic
+AST, standalone HTML, live DOM and browser print. Missing bureaucratic input becomes
+the exact `epoch_projection_not_established` nonreceipt; malformed input fails
+admission. The inherited-DOM falsifier exports a source tree with the temporal node,
+then removes only that node while preserving the render-root shell: the second raster
+input loses the epoch bytes, proving print inherits admitted source DOM rather than
+reconstructing a claim. The frozen Russian catalog is byte-identical at working tree
+and `HEAD`, SHA-1 `07a1b4fadded69fc3435be9eca235eb85c4c24d4`.
+
+The changed-test blast radius covers 104 tests in 13 files and exited 0 at uptime
+`3.29 3.55 3.36` → `4.30 3.76 3.44`, with
+`real/user/sys/user+sys = 8.65/29.79/4.67/34.46 s`. The unchanged DS4 primitive tests
+add five green cases, and the print/bureaucratic companion pair adds five green cases.
+Dashboard typecheck exited 0 at uptime `3.44 3.61 3.39` → `3.46 3.61 3.39`, with
+`real/user/sys/user+sys = 14.72/27.83/0.91/28.74 s`. Scoped ESLint covered all 31
+changed TypeScript files and exited 0 under its 180-second ceiling at uptime
+`3.00 3.52 3.32` → `3.68 3.61 3.36`, with
+`real/user/sys/user+sys = 54.21/65.45/3.63/69.08 s`. Delta ESLint, Prettier over all
+changed TypeScript/JSON files, and `git diff --check` also exited 0.
+
+The first focused aggregate rerun exposed an incomplete `LocaleProvider` test mock;
+after the mock acquired the real optional-i18n surface, all nine affected public-view
+cases passed. The first typecheck then rejected a `Blob | MediaSource` test spy before
+the spy narrowed on `Blob`; the narrowed harness passed. Both are companion-harness
+findings, not product findings. Two earlier full/scoped lint processes were terminated
+as tooling nonreceipts because their output sessions and predeclared ceilings were
+lost. Two formatter invocations were also nonreceipts: one doubled the package prefix,
+and one passed a newline list as a single zsh filename. Neither changed repository
+bytes. A first changed-mechanism receipt likewise compared repo-relative status paths
+to product-relative plan paths and falsely reported all 20 absent; it is rejected as a
+coordinate-frame nonreceipt. The corrected prefix-aware receipt and an independent
+literal owner-set census both derive all **20 / 20** C05 mechanisms changed with empty
+symmetric difference.
+
+C05 spends no new path and no widening round beyond its admitted preflight owner. The
+slice remains **42 / 44** mechanisms with **3 / 7** rounds spent.

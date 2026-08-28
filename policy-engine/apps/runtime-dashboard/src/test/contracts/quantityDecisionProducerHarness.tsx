@@ -18,6 +18,7 @@ import * as runSummaryModule from "@/features/runs/routes/useRunDetailSummary";
 import { ChartQuantityEvidence } from "@/shared/charts/quantityChartSemantics";
 import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 import { Quantity } from "@/shared/ui/quantity";
+import { epochNonreceipt } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import {
   OUTER_SET_GAP_TOKEN,
   OUTER_SET_NO_ADMISSIBLE_RANKING_TOKEN,
@@ -147,6 +148,7 @@ function runExplainabilityConsumer(input: {
 function publicationPacket(confidence: DecisionCardViewModel["confidence"]) {
   return buildSignedPublicDecisionPacket({
     decisionView: { ...baseDecisionView, confidence },
+    epochSemantics: epochNonreceipt(),
     evidenceContext: null,
     governanceIssues: [],
     runId: "run-c06",
@@ -396,7 +398,8 @@ export const unknownValuedQuantity = grammarQuantity("ds16.unknown_reference");
 // C07 moved these into the production component that renders them; the harness re-exports
 // so C01's expectations bind the real tokens rather than a test-local copy of them.
 export const GAP_STATE_TOKEN = OUTER_SET_GAP_TOKEN;
-export const NO_ADMISSIBLE_RANKING_TOKEN = OUTER_SET_NO_ADMISSIBLE_RANKING_TOKEN;
+export const NO_ADMISSIBLE_RANKING_TOKEN =
+  OUTER_SET_NO_ADMISSIBLE_RANKING_TOKEN;
 
 // -- negative 1: a set-valued value rendered as a point estimate -------------
 

@@ -5,11 +5,29 @@ import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+import {
+  epochNonreceipt,
+  type EpochSemantics,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { renderWithProviders } from "@/test/render";
 import type { PolicyDesignCaseProjection } from "@polisyos/runtime-api-client";
 
-import { buildSignedPublicDecisionPacket } from "../domain/publicationPacket";
+import {
+  buildSignedPublicDecisionPacket as buildSignedPublicDecisionPacketRaw,
+  type PublicDecisionPacketInput,
+} from "../domain/publicationPacket";
 import { PublicationPacketPanel } from "./PublicationPacketPanel";
+
+type PacketTestInput = Omit<PublicDecisionPacketInput, "epochSemantics"> & {
+  epochSemantics?: EpochSemantics;
+};
+
+function buildSignedPublicDecisionPacket(input: PacketTestInput) {
+  return buildSignedPublicDecisionPacketRaw({
+    ...input,
+    epochSemantics: input.epochSemantics ?? epochNonreceipt(),
+  });
+}
 
 const baseDecisionView: DecisionCardViewModel = {
   confidence: "HIGH",

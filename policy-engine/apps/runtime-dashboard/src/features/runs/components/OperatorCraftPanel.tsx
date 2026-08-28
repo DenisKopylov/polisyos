@@ -9,8 +9,7 @@ import {
   WalletCards,
 } from "lucide-react";
 
-import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
-import { buildSignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
+import type { SignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
 import {
   buildOperatorCraftSnapshot,
   completeReadingOnboardingRun,
@@ -70,19 +69,17 @@ function StepBadge({ completed }: { completed: boolean }) {
 }
 
 export function OperatorCraftPanel({
+  packet,
   runId,
-  summary,
 }: {
+  packet: SignedPublicDecisionPacket;
   runId: string;
-  summary: RunInspectorSummary;
 }) {
   const { t } = useI18n();
   const authz = useMaybeAuthz();
   const scope = useMemo(
     () =>
-      authz?.status === "ready" &&
-      authz.user?.tenant_id &&
-      authz.user.user_id
+      authz?.status === "ready" && authz.user?.tenant_id && authz.user.user_id
         ? {
             tenantId: authz.user.tenant_id,
             userId: authz.user.user_id,
@@ -93,26 +90,6 @@ export function OperatorCraftPanel({
   const [operatorCraftVersion, refreshOperatorCraft] =
     useOperatorCraftVersion();
   const [annotationBody, setAnnotationBody] = useState("");
-
-  const packet = useMemo(
-    () =>
-      buildSignedPublicDecisionPacket({
-        decisionScore: summary.decisionScore,
-        decisionView: summary.decisionView,
-        evidenceContext: summary.evidenceContext,
-        governanceIssues: summary.governanceIssues,
-        policyDesignCaseProjection: summary.run?.policy_design_case_projection,
-        runId,
-      }),
-    [
-      runId,
-      summary.decisionScore,
-      summary.decisionView,
-      summary.evidenceContext,
-      summary.governanceIssues,
-      summary.run?.policy_design_case_projection,
-    ],
-  );
 
   const snapshot = useMemo(
     () =>

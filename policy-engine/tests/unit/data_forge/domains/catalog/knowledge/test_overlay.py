@@ -113,6 +113,7 @@ def test_overlay_owner_is_available_through_the_canonical_read_api() -> None:
     assert catalog_read_api.CatalogAcquisitionOverlay is CatalogAcquisitionOverlay
     assert callable(catalog_read_api.open_catalog_read_session)
     assert callable(catalog_read_api.project_catalog_acquisition_state)
+    assert callable(catalog_read_api.validate_overlay_admission_receipt)
     assert catalog_read_api.CatalogAcquisitionEventProjection is not None
     assert catalog_read_api.CatalogAcquisitionPassportProjection is not None
     assert catalog_read_api.CatalogAcquisitionStateProjection is not None
@@ -128,6 +129,27 @@ def test_overlay_owner_is_available_through_the_canonical_read_api() -> None:
     assert catalog_read_api.default_acquisition_overlay_path(Path("/repo")) == Path(
         "/repo/architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb"
     )
+
+
+def test_overlay_owner_validates_the_active_receipt_identity(tmp_path: Path) -> None:
+    """The read API, rather than a runtime copy, owns float-aware receipt identity."""
+
+    scenario = _real_epoch_scenario(tmp_path / "active-receipt")
+    _production, activated = _activate_real_epoch_scenario(scenario)
+
+    metadata = catalog_read_api.validate_overlay_admission_receipt(activated)
+
+    assert metadata.receipt_ref == str(activated.receipt_ref.artifact_id)
+    assert metadata.receipt_kind == "epoch.activated_overlay_admission_receipt"
+    assert metadata.receipt_content_hash == activated.receipt_content_hash
+
+    with pytest.raises(
+        OverlayAdmissionError,
+        match=r"overlay_semantic_receipt_(ref|content_hash)_.*mismatch",
+    ):
+        catalog_read_api.validate_overlay_admission_receipt(
+            activated.model_copy(update={"epoch_id": activated.epoch_id + 1})
+        )
 
 
 def test_catalog_acquisition_projection_is_read_only_and_content_bound(

@@ -2376,6 +2376,40 @@ def _validated_semantic_receipt_metadata(
     )
 
 
+def validate_overlay_admission_receipt(
+    receipt: object,
+) -> CatalogAcquisitionEventProjection:
+    """Validate one active owner receipt and return its content-bound metadata."""
+
+    if isinstance(receipt, BaseModel):
+        candidate = receipt.model_dump(mode="python")
+    elif isinstance(receipt, Mapping):
+        candidate = dict(receipt)
+    else:
+        raise OverlayAdmissionError("overlay_admission_receipt_payload_invalid")
+    try:
+        validated = OverlayAdmissionReceipt.model_validate(candidate)
+        statement = epoch_contract.ActivatedOverlayAdmissionStatement.model_validate(
+            validated.model_dump(
+                mode="python",
+                exclude={"receipt_ref", "receipt_content_hash", "replayed"},
+            )
+        )
+    except ValueError as exc:
+        raise OverlayAdmissionError("overlay_admission_receipt_payload_invalid") from exc
+    if (
+        validated.receipt_ref.kind != "epoch.activated_overlay_admission_receipt"
+        or validated.receipt_ref.media_type != "application/vnd.polisyos.epoch+json"
+    ):
+        raise OverlayAdmissionError("overlay_admission_receipt_kind_invalid")
+    return _validated_semantic_receipt_metadata(
+        receipt_ref=validated.receipt_ref.artifact_id,
+        receipt_kind=validated.receipt_ref.kind,
+        receipt_content_hash=validated.receipt_content_hash,
+        receipt_json=json.dumps(statement.model_dump(mode="json")),
+    )
+
+
 def project_catalog_acquisition_state(
     baseline_path: Path,
     *,
@@ -4283,4 +4317,5 @@ __all__ = [
     "derive_canonical_observations",
     "open_catalog_read_session",
     "project_catalog_acquisition_state",
+    "validate_overlay_admission_receipt",
 ]

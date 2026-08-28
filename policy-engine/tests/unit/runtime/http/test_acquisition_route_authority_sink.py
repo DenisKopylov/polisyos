@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.core import canon
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.runtime.http.services.control.run_lifecycle import (
     AcquisitionRouteLoopAuthoritySink,
@@ -56,9 +57,10 @@ def test_active_owner_receipt_persists_reentry_pending_before_callback(
 ) -> None:
     store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
     cas = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", cell_id="cell-a")
+    event_log = RuntimeDiagnosticEventLog(store=store, artifact_store=cas)
     sink = AcquisitionRouteLoopAuthoritySink(
         artifact_store=cas,
-        event_log=RuntimeDiagnosticEventLog(store=store, artifact_store=cas),
+        event_log=event_log,
         control_store=store,
     )
     requested = sink.persist_phase(
@@ -105,11 +107,49 @@ def test_active_owner_receipt_persists_reentry_pending_before_callback(
     assert reentry_calls == 1
     pending_durable = sink.get_head(pending)
     assert pending_durable is not None
+
+    def complete_reentry() -> str:
+        current = sink.get_head(pending)
+        assert current == pending_durable
+        assert current.receipt_phase == "world_committed_reentry_pending"
+        assert current.receipt_ref == pending_durable.receipt_ref
+        assert current.durable_event_id == pending_durable.durable_event_id
+        assert all(
+            row.event.event_type != "polisyos.runtime.acquisition.route_loop.v1"
+            for row in event_log.list_events(run_id=pending.run_id, job_id=pending.job_id)
+        )
+        return "sha256:" + "1" * 64
+
     recovered = resume_world_committed_reentry(
         sink=sink,
         pending_receipt=pending,
-        reentry=lambda: "sha256:" + "1" * 64,
+        reentry=complete_reentry,
     )
     assert recovered.receipt_phase == "terminal"
     assert recovered.recovery_state == "complete"
     assert recovered.predecessor_receipt_ref == pending_durable.receipt_ref
+    assert recovered.receipt_ref != pending_durable.receipt_ref
+    assert recovered.durable_event_id != pending_durable.durable_event_id
+
+    terminal_manifest = cas.get_manifest(recovered.receipt_ref)
+    assert terminal_manifest.kind == "runtime_quality.acquisition_route_loop_receipt"
+    assert terminal_manifest.artifact_schema is not None
+    assert terminal_manifest.artifact_schema.name == "polisyos.runtime.AcquisitionRouteLoopReceipt"
+    terminal_payload = canon.from_canonical_bytes(cas.get_bytes(recovered.receipt_ref))
+    assert terminal_payload["schema_version"] == "AcquisitionRouteLoopReceipt@1.0"
+    assert terminal_payload["receipt_phase"] == "terminal"
+    assert terminal_payload["predecessor_receipt_ref"] == pending_durable.receipt_ref
+    assert terminal_payload["reentry_receipt_ref"] == "sha256:" + "1" * 64
+
+    terminal_events = event_log.list_events(event_id=recovered.durable_event_id)
+    assert len(terminal_events) == 1
+    assert terminal_events[0].event.event_type == "polisyos.runtime.acquisition.route_loop.v1"
+
+    with pytest.raises(ValueError, match="receipt_phase"):
+        _receipt(
+            receipt_phase="terminal",
+            coarse_phase="terminal",
+            recovery_state="complete",
+            predecessor_receipt_ref=pending_durable.receipt_ref,
+            owner_receipt_refs=("sha256:" + "1" * 64,),
+        )

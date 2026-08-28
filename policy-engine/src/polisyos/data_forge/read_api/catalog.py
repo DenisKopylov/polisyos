@@ -203,6 +203,9 @@ _EXPORTS = {
     ),
     "open_catalog_read_session": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "project_catalog_acquisition_state": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
+    "validate_overlay_admission_receipt": (
+        "polisyos.data_forge.domains.catalog.knowledge.overlay"
+    ),
     "plan_catalog_source_stage_contracts": _CATALOG_DOMAIN,
     "plan_catalog_source_modules": _CATALOG_DOMAIN,
     "resolve_proxy": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",

@@ -105,7 +105,10 @@ from polisyos.runtime.http.services.control.workspace_loop_transition import (
     ControlPlaneWorkspaceLoopTransitionMixin,
     _WorkflowExecutionNonAuthorityError,
 )
-from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRoutePhaseReceipt
+from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionRouteLoopReceipt,
+    AcquisitionRoutePhaseReceipt,
+)
 from polisyos.runtime.quality.authority import GovernanceMetadata
 from polisyos.runtime.quality.authority_reconciliation import (
     AuthorityReconciliationReport,
@@ -266,7 +269,7 @@ class AcquisitionRouteLoopAuthoritySink:
 
     def get_head(
         self,
-        receipt: AcquisitionRoutePhaseReceipt,
+        receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
     ) -> AcquisitionActionHeadRecord | None:
         """Read the latest exact durable action head for a phase identity."""
 
@@ -286,6 +289,46 @@ class AcquisitionRouteLoopAuthoritySink:
         """Write, reconcile, read back, and then advance one exact phase head."""
 
         typed = AcquisitionRoutePhaseReceipt.model_validate(receipt)
+        return self._persist_receipt(
+            typed,
+            artifact_kind="runtime_quality.acquisition_route_phase_receipt",
+            schema_name="polisyos.runtime.AcquisitionRoutePhaseReceipt",
+            event_type="polisyos.runtime.acquisition.route_phase.v1",
+            event_suffix=typed.receipt_phase,
+            receipt_type=AcquisitionRoutePhaseReceipt,
+            receipt_label="phase",
+        )
+
+    def persist_terminal(
+        self,
+        receipt: AcquisitionRouteLoopReceipt,
+    ) -> AcquisitionActionHeadRecord:
+        """Write and expose a terminal head only after exact loop-receipt readback."""
+
+        typed = AcquisitionRouteLoopReceipt.model_validate(receipt)
+        return self._persist_receipt(
+            typed,
+            artifact_kind="runtime_quality.acquisition_route_loop_receipt",
+            schema_name="polisyos.runtime.AcquisitionRouteLoopReceipt",
+            event_type="polisyos.runtime.acquisition.route_loop.v1",
+            event_suffix="loop_terminal",
+            receipt_type=AcquisitionRouteLoopReceipt,
+            receipt_label="loop",
+        )
+
+    def _persist_receipt(
+        self,
+        typed: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+        *,
+        artifact_kind: str,
+        schema_name: str,
+        event_type: str,
+        event_suffix: str,
+        receipt_type: type[AcquisitionRoutePhaseReceipt] | type[AcquisitionRouteLoopReceipt],
+        receipt_label: str,
+    ) -> AcquisitionActionHeadRecord:
+        """Persist one strict receipt family before advancing its shared action head."""
+
         current = self.get_head(typed)
         if (current is None and typed.predecessor_receipt_ref is not None) or (
             current is not None and typed.predecessor_receipt_ref != current.receipt_ref
@@ -302,10 +345,10 @@ class AcquisitionRouteLoopAuthoritySink:
             self._event_log,
             payload,
             ArtifactWriteOptions(
-                kind="runtime_quality.acquisition_route_phase_receipt",
+                kind=artifact_kind,
                 media_type="application/json",
                 schema=SchemaInfo(
-                    name="polisyos.runtime.AcquisitionRoutePhaseReceipt",
+                    name=schema_name,
                     version="1.0",
                 ),
                 producer=ProducerInfo(
@@ -363,9 +406,9 @@ class AcquisitionRouteLoopAuthoritySink:
                 override_policy="no_override",
                 approval_policy="pa2_ds9_decision_required",
             ),
-            event_id=f"evt_acquisition_{typed.action_generation}_{typed.receipt_phase}",
+            event_id=f"evt_acquisition_{typed.action_generation}_{event_suffix}",
             event_source="polisyos.runtime.quality.acquisition_route_loop",
-            event_type="polisyos.runtime.acquisition.route_phase.v1",
+            event_type=event_type,
             event_subject=(
                 f"run/{typed.run_id}/job/{typed.job_id}/acquisition/{typed.receipt_phase}"
             ),
@@ -375,7 +418,7 @@ class AcquisitionRouteLoopAuthoritySink:
         )
         receipt_ref = str(result.cas_ref.artifact_id)
         if result.payload_sha256 != receipt_ref.removeprefix("sha256:"):
-            raise RuntimeError("acquisition_phase_payload_hash_mismatch")
+            raise RuntimeError(f"acquisition_{receipt_label}_payload_hash_mismatch")
         report = reconcile_authority_ref(
             artifact_store=self._artifact_store,
             event_log=self._event_log,
@@ -385,7 +428,7 @@ class AcquisitionRouteLoopAuthoritySink:
             expected_run_id=typed.run_id,
             expected_job_id=typed.job_id,
         )
-        loaded = AcquisitionRoutePhaseReceipt.model_validate(
+        loaded = receipt_type.model_validate(
             from_canonical_bytes(self._artifact_store.get_bytes(receipt_ref))
         )
         manifest = self._artifact_store.get_manifest(receipt_ref)
@@ -393,12 +436,12 @@ class AcquisitionRouteLoopAuthoritySink:
         if (
             loaded != typed
             or report.durable_event_id is None
-            or manifest.kind != "runtime_quality.acquisition_route_phase_receipt"
+            or manifest.kind != artifact_kind
             or schema is None
-            or schema.name != "polisyos.runtime.AcquisitionRoutePhaseReceipt"
+            or schema.name != schema_name
             or schema.version != "1.0"
         ):
-            raise RuntimeError("acquisition_phase_readback_failed")
+            raise RuntimeError(f"acquisition_{receipt_label}_readback_failed")
         head = self._control_store.advance_acquisition_action_head(
             tenant_id=typed.tenant_id,
             cell_id=typed.cell_id,

@@ -12,6 +12,7 @@ from polisyos.pdc import OperationClass, OperationContract, OperationInvocationR
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteClosureError,
     AcquisitionRouteLoop,
+    AcquisitionRouteLoopReceipt,
     AcquisitionRoutePhaseReceipt,
     VerifiedAcquisitionRouteClosure,
     persist_world_commit_and_reenter,
@@ -518,15 +519,14 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError("acquisition_owner_result_missing")
         result = result_holder[0]
         if result.disposition == "quarantined_no_growth":
-            terminal = self._phase_receipt(
+            terminal = self._terminal_receipt(
                 closure=closure,
                 job_id=job.job_id,
                 decision_ref=decision_ref,
-                receipt_phase="terminal",
                 predecessor_receipt_ref=executing_head.receipt_ref,
                 owner_receipt_refs=result.owner_receipt_refs,
             )
-            return self._terminal_progress(sink.persist_phase(terminal))
+            return self._terminal_progress(sink.persist_terminal(terminal))
         pending = self._phase_receipt(
             closure=closure,
             job_id=job.job_id,
@@ -691,9 +691,7 @@ class AcquisitionActionService:
         closure: VerifiedAcquisitionRouteClosure,
         job_id: str,
         decision_ref: str,
-        receipt_phase: Literal[
-            "requested", "executing", "world_committed_reentry_pending", "terminal"
-        ],
+        receipt_phase: Literal["requested", "executing", "world_committed_reentry_pending"],
         predecessor_receipt_ref: str | None,
         owner_receipt_refs: tuple[str, ...],
     ) -> AcquisitionRoutePhaseReceipt:
@@ -704,7 +702,6 @@ class AcquisitionActionService:
                 "world_committed",
                 "reentry_recovery_required",
             ),
-            "terminal": ("terminal", "complete"),
         }[receipt_phase]
         return AcquisitionRoutePhaseReceipt(
             receipt_id=f"{job_id}.{receipt_phase}",
@@ -724,6 +721,35 @@ class AcquisitionActionService:
             recovery_state=recovery,
             predecessor_receipt_ref=predecessor_receipt_ref,
             owner_receipt_refs=owner_receipt_refs,
+            generated_at=datetime.now(UTC),
+        )
+
+    @staticmethod
+    def _terminal_receipt(
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        job_id: str,
+        decision_ref: str,
+        predecessor_receipt_ref: str,
+        owner_receipt_refs: tuple[str, ...],
+    ) -> AcquisitionRouteLoopReceipt:
+        return AcquisitionRouteLoopReceipt(
+            receipt_id=f"{job_id}.terminal",
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            source_job_id=closure.source_job_id,
+            route_id=closure.route_id,
+            action_generation=1,
+            job_id=job_id,
+            compiled_ref=closure.compiled_ref,
+            planner_report_hash=agent_action_content_hash(closure.planner_report),
+            cost_basis_hash=closure.cost_basis_hash,
+            decision_ref=decision_ref,
+            terminal_outcome="quarantined_no_growth",
+            predecessor_receipt_ref=predecessor_receipt_ref,
+            owner_receipt_refs=owner_receipt_refs,
+            reentry_receipt_ref=None,
             generated_at=datetime.now(UTC),
         )
 

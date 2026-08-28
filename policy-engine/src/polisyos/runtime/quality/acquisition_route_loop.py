@@ -25,9 +25,26 @@ from polisyos.runtime.quality.generation_cycle import (  # noqa: TC001
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+
+
+class _ArtifactSchema(Protocol):
+    name: str
+    version: str
+
+
+class _ArtifactManifest(Protocol):
+    kind: str
+    artifact_schema: _ArtifactSchema | None
+
+
+class _ArtifactStore(Protocol):
+    def has(self, artifact_id: str) -> bool: ...
+
+    def get_bytes(self, artifact_id: str) -> bytes: ...
+
+    def get_manifest(self, artifact_id: str) -> _ArtifactManifest: ...
 
 
 class AcquisitionRouteClosureError(ValueError):
@@ -60,14 +77,13 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
     planner_report_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     cost_basis_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     decision_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    coarse_phase: Literal["requested", "executing", "world_committed", "terminal"]
+    coarse_phase: Literal["requested", "executing", "world_committed"]
     receipt_phase: Literal[
         "requested",
         "executing",
         "world_committed_reentry_pending",
-        "terminal",
     ]
-    recovery_state: Literal["none", "reentry_recovery_required", "complete"]
+    recovery_state: Literal["none", "reentry_recovery_required"]
     predecessor_receipt_ref: str | None = Field(
         default=None,
         pattern=r"^sha256:[0-9a-f]{64}$",
@@ -84,7 +100,6 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
                 "world_committed",
                 "reentry_recovery_required",
             ),
-            "terminal": ("terminal", "complete"),
         }[self.receipt_phase]
         if (self.coarse_phase, self.recovery_state) != expected:
             raise ValueError("acquisition_route_phase_state_mismatch")
@@ -97,6 +112,46 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
         return self
 
 
+class AcquisitionRouteLoopReceipt(BaseModel):
+    """Immutable terminal fact for one exact acquisition action generation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["AcquisitionRouteLoopReceipt@1.0"] = "AcquisitionRouteLoopReceipt@1.0"
+    receipt_id: str = Field(min_length=1)
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    source_job_id: str = Field(min_length=1)
+    route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    action_generation: int = Field(ge=1)
+    job_id: str = Field(min_length=1)
+    compiled_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    planner_report_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    cost_basis_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    decision_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    coarse_phase: Literal["terminal"] = "terminal"
+    receipt_phase: Literal["terminal"] = "terminal"
+    recovery_state: Literal["complete"] = "complete"
+    terminal_outcome: Literal["quarantined_no_growth", "reentry_completed"]
+    predecessor_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    owner_receipt_refs: tuple[str, ...] = Field(min_length=1)
+    reentry_receipt_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    generated_at: AwareDatetime
+
+    @model_validator(mode="after")
+    def _validate_terminal_truth(self) -> AcquisitionRouteLoopReceipt:
+        if self.terminal_outcome == "reentry_completed":
+            if self.reentry_receipt_ref is None:
+                raise ValueError("terminal_reentry_receipt_missing")
+        elif self.reentry_receipt_ref is not None:
+            raise ValueError("quarantined_terminal_cannot_claim_reentry")
+        return self
+
+
 class AcquisitionRoutePhaseHead(Protocol):
     """Read-back fields required from one durable acquisition phase head."""
 
@@ -106,11 +161,16 @@ class AcquisitionRoutePhaseHead(Protocol):
 
 
 class AcquisitionRoutePhaseSink(Protocol):
-    """Persistence surface required by the crash-safe re-entry helpers."""
+    """Persistence surface required by the crash-safe route helpers."""
 
     def persist_phase(
         self,
         receipt: AcquisitionRoutePhaseReceipt,
+    ) -> AcquisitionRoutePhaseHead: ...
+
+    def persist_terminal(
+        self,
+        receipt: AcquisitionRouteLoopReceipt,
     ) -> AcquisitionRoutePhaseHead: ...
 
     def get_head(
@@ -151,7 +211,7 @@ class AcquisitionRouteLoop:
         self,
         *,
         control_store: ControlPlaneStore,
-        artifact_store: ArtifactStore,
+        artifact_store: _ArtifactStore,
         event_log: RuntimeDiagnosticEventLog,
         tenant_id: str,
         cell_id: str,
@@ -413,23 +473,32 @@ def _persist_terminal_after_reentry(
 ) -> AcquisitionRoutePhaseHead:
     if not isinstance(reentry_ref, str) or not reentry_ref.startswith("sha256:"):
         raise AcquisitionRouteRecoveryRequired("reentry_receipt_invalid")
-    terminal = pending_receipt.model_copy(
-        update={
-            "receipt_id": f"{pending_receipt.receipt_id}.terminal",
-            "coarse_phase": "terminal",
-            "receipt_phase": "terminal",
-            "recovery_state": "complete",
-            "predecessor_receipt_ref": pending_receipt_ref,
-            "owner_receipt_refs": (*pending_receipt.owner_receipt_refs, reentry_ref),
-            "generated_at": datetime.now(pending_receipt.generated_at.tzinfo),
-        }
+    terminal = AcquisitionRouteLoopReceipt(
+        receipt_id=f"{pending_receipt.receipt_id}.terminal",
+        tenant_id=pending_receipt.tenant_id,
+        cell_id=pending_receipt.cell_id,
+        run_id=pending_receipt.run_id,
+        source_job_id=pending_receipt.source_job_id,
+        route_id=pending_receipt.route_id,
+        action_generation=pending_receipt.action_generation,
+        job_id=pending_receipt.job_id,
+        compiled_ref=pending_receipt.compiled_ref,
+        planner_report_hash=pending_receipt.planner_report_hash,
+        cost_basis_hash=pending_receipt.cost_basis_hash,
+        decision_ref=pending_receipt.decision_ref,
+        terminal_outcome="reentry_completed",
+        predecessor_receipt_ref=pending_receipt_ref,
+        owner_receipt_refs=pending_receipt.owner_receipt_refs,
+        reentry_receipt_ref=reentry_ref,
+        generated_at=datetime.now(pending_receipt.generated_at.tzinfo),
     )
-    return sink.persist_phase(AcquisitionRoutePhaseReceipt.model_validate(terminal))
+    return sink.persist_terminal(terminal)
 
 
 __all__ = [
     "AcquisitionRouteClosureError",
     "AcquisitionRouteLoop",
+    "AcquisitionRouteLoopReceipt",
     "AcquisitionRoutePhaseReceipt",
     "AcquisitionRouteRecoveryRequired",
     "VerifiedAcquisitionRouteClosure",

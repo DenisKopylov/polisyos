@@ -354,6 +354,25 @@ def test_control_service_exposes_one_narrow_human_decision_sink(tmp_path) -> Non
         service.close()
 
 
+def test_control_service_exposes_one_narrow_acquisition_route_sink(tmp_path) -> None:
+    service = _build_control_service(tmp_path)
+    try:
+        sink = service.acquisition_route_sink
+
+        assert sink is service.acquisition_route_sink
+        assert sink._artifact_store is service._artifact_store
+        assert sink._event_log is service._diagnostic_event_log
+        assert sink._control_store is service._control_store
+        assert callable(sink.get_head)
+        assert callable(sink.persist_phase)
+        assert callable(sink.persist_terminal)
+        assert not hasattr(sink, "world_store")
+        assert not hasattr(sink, "overlay")
+        assert not hasattr(sink, "passport_store")
+    finally:
+        service.close()
+
+
 def test_runtime_principal_preserves_cell_id_in_policy_actor() -> None:
     principal = RuntimePrincipal.from_user_claims(_fixture_claims())
     resolver = RuntimeExecutionPolicyResolver(

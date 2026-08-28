@@ -279,6 +279,45 @@ that operation. This measured partial propagation is not silently treated as a
 DS15 change; C03 must re-coordinate with DS18 and rerun the seven-output census
 immediately before its registered generator transaction.
 
+### C02 closure and registered-artifact ruling — 2026-08-28
+
+C02 closes after the phase/terminal model is separated at the persisted
+boundary. `AcquisitionRoutePhaseReceipt@1.0` can carry only `requested`,
+`executing`, or `world_committed_reentry_pending`; the terminal sink accepts
+only `AcquisitionRouteLoopReceipt@1.0`, emits the loop event type, and cannot
+replace the durable pending head until re-entry returns. The behavioral
+falsifier observes the pending head, phase artifact and phase event during the
+re-entry callback, then observes the distinct terminal artifact and loop event
+afterward. The complete focused C02 lane passes **44 tests** in `real 206.98`,
+`user 197.70`, `sys 8.08` seconds (uptime `13:31` to `13:35`), and the unchanged
+live-router/Rego set-equality falsifier exits `0` in `real 58.09`, `user 53.75`,
+`sys 2.86` seconds (uptime `13:35` to `13:36`).
+
+Two import-boundary derivations close without changing the frozen deep-import
+baseline. The injected object remains Core's exported guarded `ArtifactStore`,
+while `acquisition_route_loop.py` types only its exact three-method structural
+read protocol; importing the facade directly created a new cross-root edge and
+failed the generic predicate. For the Fabric edge, direct byte comparison proves
+that `core.canon` is not substitutable: its typed float representation changes
+both the canonical bytes and SHA-256 identities for the active admission
+statement. Data Forge therefore exposes its existing float-aware receipt
+validator through `data_forge.read_api.catalog`; runtime consumes that owner
+verdict and the separately validated persisted projection instead of copying or
+importing Fabric canonicalization. A receipt-body mutation with constant
+published ref/hash fails at the owner seam, while a genuine active receipt and
+same-case re-entry remain green.
+
+The registered trust-posture writer is run under its published regeneration
+command after the admitted-source coordinates move. Its AST/token inventories
+agree on 2,603 Python files, 115 candidates and every role/literal count; the
+generated payload digest is
+`sha256:9141ecaebe24b32e975d283e620cf509b267f932904b5137606ff609ab4c6022`.
+Architecture guardrails, including all three generated-family freshness checks,
+exit `0` in `real 172.15`, `user 148.82`, `sys 21.51` seconds (uptime `13:27`
+to `13:29`). These changes use only already-declared C01/C02 mechanism paths and
+registered/P39 companions, so cumulative spend remains **23/40 mechanisms** and
+**5/11 widening rounds**. C02 checks CC10 through CC16; C03-C06 remain open.
+
 ## Mission and binding reality
 
 DS15 is the surface dual of GY-N13. Its distinctive product motion is:
@@ -423,17 +462,17 @@ There is no second closure contract.
 - [ ] **CC09** N13b's historical execution renders 5 attempts, 2 raw responses,
       5 quarantined/terminal outcomes, 0 admissions, 0 epochs, `no_growth`, and
       the deeper terminal without converting it into a success animation.
-- [ ] **CC10** An operational route is derived only from a tenant/cell/run/job-
+- [x] **CC10** An operational route is derived only from a tenant/cell/run/job-
       bound completed `natural_language_run` control-job closure, its exact
       content-verified `runtime.compiled_recursive_generation_cycle` artifact,
       `AcquisitionPlannerReport`, and content-bound costed-plan/basis inputs; a
       Core `RunManifest` or repository N13b artifact cannot substitute for that
       current producer closure.
-- [ ] **CC11** Acquisition approval reuses DS9's existing
+- [x] **CC11** Acquisition approval reuses DS9's existing
       `agent_action_authority` PA2 arm and `HumanDecisionRecord`; DS15 adds no
       acquisition-specific decision source kind and no institutional
       appointment producer.
-- [ ] **CC12** Decision preparation and execution use existing
+- [x] **CC12** Decision preparation and execution use existing
       `RuntimePermission.EVIDENCE_ACQUIRE`,
       `StepUpClass.ACQUISITION_APPROVAL`, DS9 human-decision step-up, exact
       resource binding, live re-resolution, and an idempotent sealed effect.
@@ -441,7 +480,7 @@ There is no second closure contract.
       with exact resource class `runtime.acquisition_route` and binding
       authority `tenant_collection`; neither a case-inspection nor run-paper
       resource kind can substitute.
-- [ ] **CC13** The effect consumes N13b's existing executor -> recomputed
+- [x] **CC13** The effect consumes N13b's existing executor -> recomputed
       `AdmissionPassport` -> `CatalogAcquisitionOverlay`/Fabric quarantine chain
       only through the strict `AcquisitionExecutionPort` contract. A
       contract-conforming test double may satisfy bounded DS15 semantic proof
@@ -451,16 +490,16 @@ There is no second closure contract.
       `journal_path`/`cas_root` invocation is refused in both lanes. No second
       journal, quarantine store, overlay table, passport, epoch allocator, or
       world write path exists.
-- [ ] **CC14** A fetched response without a complete recomputed passport is
+- [x] **CC14** A fetched response without a complete recomputed passport is
       quarantined; an admitted passport without matching active overlay and
       production receipts cannot emit world growth. A pending epoch with
       qualification `not_established` remains pending and visibly discloses
       `policy_admission_missing`; copy cannot call it active or qualified.
-- [ ] **CC15** `world_growth=grew` requires a matching active overlay epoch and
+- [x] **CC15** `world_growth=grew` requires a matching active overlay epoch and
       positive admitted-observation delta. `reentry=advanced` or
       `deeper_terminal` additionally requires the same run, case/design problem,
       requirement gap, execution receipt, and post-epoch re-entry trace.
-- [ ] **CC16** Historical selection, expired rule/epoch, changed planner hash,
+- [x] **CC16** Historical selection, expired rule/epoch, changed planner hash,
       changed availability, changed rights, or changed mandate returns
       `revalidation_required` or another typed negative and cannot be revived by
       resubmitting stale selectors.

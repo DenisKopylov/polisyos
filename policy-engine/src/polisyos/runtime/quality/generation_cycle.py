@@ -16,7 +16,6 @@ controller over those owners, not a second grounding or search engine.
 from __future__ import annotations
 
 import ast
-import hashlib
 import inspect
 import math
 import re
@@ -2366,23 +2365,19 @@ class GenerationCycleController:
         ):
             raise GenerationCycleError("acquisition_reentry_overlay_binding_mismatch")
 
-        statement = core_contracts.ActivatedOverlayAdmissionStatement.model_validate(
-            overlay_receipt.model_dump(
-                mode="python",
-                exclude={"receipt_ref", "receipt_content_hash", "replayed"},
+        try:
+            activation_metadata = (
+                data_forge_read_api.catalog.validate_overlay_admission_receipt(overlay_receipt)
             )
-        )
-        from polisyos.fabric.data_plane import canonical_json_bytes, content_sha256
-
-        statement_bytes = canonical_json_bytes(statement.model_dump(mode="json"))
-        framed_statement = len(statement_bytes).to_bytes(8, "big") + statement_bytes
-        expected_receipt_ref = f"sha256:{hashlib.sha256(framed_statement).hexdigest()}"
+        except data_forge_read_api.catalog.OverlayAdmissionError as exc:
+            raise GenerationCycleError(
+                "acquisition_reentry_activation_receipt_mismatch"
+            ) from exc
         if (
-            overlay_receipt.receipt_ref.kind != "epoch.activated_overlay_admission_receipt"
-            or overlay_receipt.receipt_ref.media_type != "application/vnd.polisyos.epoch+json"
-            or str(overlay_receipt.receipt_ref.artifact_id) != expected_receipt_ref
-            or overlay_receipt.receipt_content_hash
-            != content_sha256(statement.model_dump(mode="json"))
+            activation_metadata.receipt_ref
+            != str(overlay_receipt.receipt_ref.artifact_id)
+            or activation_metadata.receipt_content_hash
+            != overlay_receipt.receipt_content_hash
         ):
             raise GenerationCycleError("acquisition_reentry_activation_receipt_mismatch")
 

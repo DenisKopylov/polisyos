@@ -436,3 +436,45 @@ C03 consumes no new mechanism and no widening round beyond the owner already adm
 at C00. The budget stays **42 / 44**, with **3 / 7** rounds spent. Its schema and five
 package outputs are closed; the seventh dashboard generated type and exact-byte UI
 admission remain the declared C04 boundary.
+
+## C04 strict admission and exact-byte MACHINE closure
+
+The first executable C04 harness attempt used `import.meta.url` under Vitest's browser
+transform and could not open the frozen schema; those seven errors are a tooling non-
+receipt. After correcting only the fixture locator, the permissive red implementation
+produced seven intended failures while the six-class positive control passed: reordered
+wire bytes were normalized, nested unknown data was admitted, a generic `changed` class
+and class-wide appeal passed, denominator/hash drift passed, a false OpenWorldRisk
+freeze passed, and MACHINE downloaded a reserialization. This held the response and UI
+markers constant while changing the semantic payload or byte identity.
+
+The dashboard generator atomically refreshed `apps/runtime-dashboard/src/api/types.ts`.
+Its immediate second sanctioned regeneration preserved SHA-256
+`38b953f3b2fecbc8caed325ba7d79d6873cfadaa06a1aa0cc901855f726cbb00`.
+A generated-artifact register parse and an independent `7bf6363d9..working-tree`
+family census each returned the same seven outputs with empty symmetric difference:
+the OpenAPI snapshot, five package client/type outputs, and dashboard API types.
+
+The new domain owner recursively rejects unknown keys and validates every nested
+artifact ref, time scope, certificate, dependency/recompute state, perturbation,
+boundary, OpenWorldRisk component, denominator and both absence classes. It recomputes
+the server's sorted semantic JSON hash after excluding only `observed_at` and the hash
+itself. All six perturbation values remain distinct, `appeal` alone is forced to
+instance scope, and a generic `changed` value is impossible. The generated-client
+bridge captures `response.clone().arrayBuffer()` before the response reaches generated
+JSON parsing, admits only a defensive copy of those bytes, binds run id and requested
+replay hash, and uses a never-retain authority query policy. The MACHINE exporter copies
+those captured bytes directly into its blob without JSON decode or serialization.
+
+Ten focused tests now pass across the domain, bridge and MACHINE twin. Dashboard
+typecheck, targeted ESLint and Prettier pass. The registered runtime contract checker
+exited 0 at uptime `4.18 3.33 3.37` → `3.60 3.29 3.35` with
+`real/user/sys/user+sys = 34.71/31.31/1.51/32.82 s`. Repository architecture
+guardrails exited 0 under the declared 120-second ceiling at uptime
+`3.42 3.26 3.34` → `4.61 3.64 3.47`, with
+`real/user/sys/user+sys = 95.62/85.07/11.52/96.59 s`; all three observed generated
+families were fresh.
+
+C04 changes its three declared mechanisms plus the registered dashboard generated
+companion and tests. No widening is required: the budget remains **42 / 44**, with
+**3 / 7** rounds spent.

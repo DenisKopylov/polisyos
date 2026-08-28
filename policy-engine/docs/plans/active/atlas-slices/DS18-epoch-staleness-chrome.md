@@ -793,6 +793,19 @@ guardrails are green. C03 adds no path beyond the C00 generator widening: the bu
 remains **42 / 44**, with **3 of 7** rounds spent. The dashboard member remains C04's
 declared atomic regeneration and admission boundary.
 
+**C04 execution budget receipt.** The exact-byte falsifier used a valid projection with
+reordered keys and whitespace; permissive admission normalized those bytes, accepted a
+nested unknown, trusted altered denominator/hash and OpenWorldRisk fields, accepted a
+generic event class and class-wide appeal, and emitted a reserialized MACHINE twin.
+The repaired bridge captures `arrayBuffer()` from a cloned response before returning it
+to the generated client's parser, independently decodes and recursively admits the
+captured copy, recomputes the server semantic hash, binds the requested run/replay hash,
+and downloads only a defensive byte copy. Register and branch-range derivations agree
+on all **seven** generated outputs with empty symmetric difference; the dashboard
+generator is byte-stable, the runtime contract and repository guardrails are green, and
+ten focused admission/bridge/twin tests pass. C04 stays within its three declared
+mechanisms: **42 / 44**, **3 of 7** rounds.
+
 ### Execution serialization ruling
 
 The architecture owner withdrew every sibling-lane hold before C01 implementation.

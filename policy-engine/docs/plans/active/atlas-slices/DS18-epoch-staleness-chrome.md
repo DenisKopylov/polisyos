@@ -698,26 +698,30 @@ component name, or route string constant is not enough to keep a test green.
 | Cluster | Purpose | Declared mechanisms | Hard cluster ceiling | May run before DS11? |
 | --- | --- | ---: | ---: | --- |
 | C00 | rebase-free readback, baseline reds, exact denominators | 0 | 0 | yes |
-| C01 | canonical monitor contracts, six-class/lineage preservation, projection compiler | 7 | 9 | yes |
+| C01 | canonical monitor contracts, six-class/lineage preservation, projection compiler | 7 | 8 | yes |
 | C02 | live monitor intake, temporal read owner, DI, OpenAPI contract | 5 | 5 | yes |
 | C03 | generator selection + frozen schema/package-client regeneration receipt | 1 | 1 | yes, but no dashboard output |
 | WAIT-DS11 | landed-owner and exact-byte receipt | 0 | 0 | satisfied at C00 entry |
 | C04 | dashboard strict admission and exact-byte MACHINE | 3 | 4 | no |
-| C05 | DS4 extension, detailed surface, universal consumers, active locales | 19 | 19 | no |
+| C05 | DS4 extension, detailed surface, universal consumers, active locales | 20 | 20 | no |
 | C06 | complete render/export census and semantic lint | 5 | 6 | no |
 | C07 | visual/a11y/replay/closeout verification | 0 | 0 | no |
-| **Total** | unique production/tooling mechanisms | **40** | **44** | — |
+| **Total** | unique production/tooling mechanisms | **41** | **44** | — |
 
-The total is independently derived in two ways at plan closeout:
+The current total is independently derived in two ways:
 
-- cluster arithmetic: `7 + 5 + 1 + 3 + 19 + 5 = 40`;
+- cluster arithmetic: `7 + 5 + 1 + 3 + 20 + 5 = 41`;
 - parser union of the Add/Modify mechanism table below, excluding mandatory P39
-  companions: `40` unique paths, no duplicates.
+  companions: `41` unique paths, no duplicates.
 
-The hard ceiling is now the 40-path declared union plus **4** paths of reserve: two for
-backend owner/readback seams, one raw-byte admission seam, and one census/lint seam.
+The hard ceiling is now the 41-path declared union plus **3** paths of reserve: one
+backend owner/readback seam, one raw-byte admission seam, and one census/lint seam.
 The former HTTP/ABI reserve is spent on the canonical runtime-client generator after
 the C00 semantic probe proved regeneration preserves the missing executable operation.
+One of the two original backend owner/readback reserves was independently released when
+the C01 owner map proved its full property fits the seven declared paths; that capacity
+is now consumed by the shared bureaucratic header described in the C05 preflight receipt
+below. This is a measured reallocation between named seams, not anonymous slack.
 The three post-DS11 packet-producer seams originally identified as reserve were
 resolved during plan review and moved into the declared set; retaining them as reserve
 as well would double-count them. The ceiling therefore remains **44**, not a round-
@@ -750,13 +754,27 @@ reserve path. The current union is therefore **40**, the ceiling remains **44**,
 **1 of 7** widening rounds is spent. Zero schema drift narrows C03 schema work; it does
 not erase the generator repair, new GET, executable-client gap, or semantic proof.
 
+**C05 preflight budget receipt.** Two independent render-flow traces establish that
+browser PDF is an inherited-DOM decision surface whose temporal owner is not in the
+declared set. The call trace is `exportBureaucraticPdf` → `triggerPrint` over the live
+selected DOM → `BaseBureaucraticRenderer` → `BureaucraticHeader`; an independent
+complete use-site scan finds the same shared header behind all four bureaucratic
+renderers and no other live temporal node in that printed header. Extending the AST and
+standalone HTML exporter cannot make browser print preserve a node the live renderer
+never emitted. This is **NEW: decision-bearing inherited-DOM surface owner**, not a
+second generator finding. C05 therefore adds
+`apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BureaucraticHeader.tsx`,
+spends widening seam 5, and moves **40 → 41** declared mechanisms. Reallocating one
+independently released C01 backend reserve moves the C01/C05 cluster ceilings
+`9/19 → 8/20`; the total hard ceiling remains **44**, and **2 of 7** rounds are spent.
+
 ### Entry serialization receipts
 
 The current coordination sets supersede the planning-time lane estimates:
 
 - DS15: a merge-base-aware tree diff and an independent full tree-object comparison
   agree that the current DS15 lane contribution is 49 paths. A Markdown-table parser
-  and an independent row parser both derive DS18's 40 mechanisms; both intersections
+  and an independent row parser both derive DS18's current 41 mechanisms; both intersections
   contain exactly these four mechanisms:
   `src/polisyos/core/contracts/control.py`,
   `src/polisyos/runtime/http/dependencies.py`,
@@ -820,6 +838,7 @@ The current coordination sets supersede the planning-time lane estimates:
 | C05 | Modify | `apps/runtime-dashboard/src/features/export/social/EmailSummary.tsx` | React and plain-text email preserve admitted epoch/validity or exact nonreceipt |
 | C05 | Modify | `apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/bureaucratic-document-ast.ts` | replace open temporal record with strict admitted epoch/nonreceipt arm and validate before export |
 | C05 | Modify | `apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts` | operator HTML export renders packet as-of, epoch and validity instead of render time alone |
+| C05 | Modify | `apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BureaucraticHeader.tsx` | live DOM/PDF header renders the strict admitted epoch/nonreceipt arm so inherited print can preserve it |
 | C05 | Modify | `apps/runtime-dashboard/src/shared/i18n/locales/en.json` | exact state/event copy |
 | C05 | Modify | `apps/runtime-dashboard/src/shared/i18n/locales/uk.json` | exact state/event copy |
 | C06 | Modify | `architecture/atlas_surfaces/frontend-disposition-register.schema.json` | complete source-file → render/export root → temporal obligation relation |
@@ -1127,7 +1146,9 @@ by the census:
 2. a missing canonical source→claim/publication lineage read seam;
 3. a missing OpenWorldRisk public-limitation read seam;
 4. a DS11 landing owner-path change;
-5. a newly discovered decision-bearing surface family;
+5. a newly discovered decision-bearing surface family — **spent during C05 preflight**
+   on the live bureaucratic DOM/PDF header after two render-flow derivations proved the
+   declared HTML/AST paths could not emit that node;
 6. a changed generated-client owner/command — **spent at C00** on
    `tools/ops_runners/runtime/generate_runtime_client.py` after in-memory sanctioned
    regeneration reproduced the missing epoch-batch method;
@@ -1396,9 +1417,10 @@ and health metric to fail until it reconciles that root.
 ### Mechanism budget
 
 The amendment itself held **39 / 44**. C00 then proved that the canonical generator is
-a required mechanism, so execution truthfully widens to **40 / 44**, spends **1 of 7**
-rounds, and consumes the named HTTP/ABI reserve. It does not revisit `36` or move the
-hard ceiling.
+a required mechanism, so execution truthfully widened to **40 / 44**, spent the first
+round, and consumed the named HTTP/ABI reserve. The later C05 inherited-DOM preflight
+proved a second measured mechanism, moving the current declaration to **41 / 44** and
+**2 of 7** rounds without revisiting `36` or moving the hard ceiling.
 
 ### Frontend and lane boundary
 
@@ -1408,4 +1430,4 @@ DS18 re-coordinates the seven-output generator immediately before C03 and C04. T
 GY-O0 README companion is released at `e5d1c3ab7`; DS18 is ordered after its committed
 owner state. None of these
 lane-serialization facts caused the widening: the measured generator owner did. The
-current budget is **40 / 44**, with **1 of 7** rounds spent.
+current budget is **41 / 44**, with **2 of 7** rounds spent.

@@ -223,3 +223,29 @@ integration landing.
 GY-O0 resumed C04 at clean attached `e5d1c3ab7` and again holds
 `src/polisyos/runtime/quality/README.md`. DS18 will not edit that companion until GY-O0
 returns its exact clean attached C04 release coordinate.
+
+## C05 inherited-DOM preflight widening
+
+A read-only downstream fence review found a live decision-bearing browser-PDF surface
+outside the 40-path declaration. The first derivation follows the executable call graph:
+`exportBureaucraticPdf` selects the live document DOM, `triggerPrint` preserves that
+subtree, `BaseBureaucraticRenderer` supplies the article, and `BureaucraticHeader`
+renders packet id/hash, render time and status without any admitted epoch/nonreceipt
+node. The second derivation enumerates every `BureaucraticHeader` use and every
+`BaseBureaucraticRenderer` wrapper: the single shared header serves all four live
+bureaucratic renderers, and no sibling header node supplies temporal semantics.
+
+Therefore changing only the already-declared AST and standalone HTML exporter cannot
+make the browser-print/PDF path preserve a temporal node. This is bucketed **NEW:
+decision-bearing inherited-DOM surface owner**. The smallest property-level mechanism
+is
+`apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BureaucraticHeader.tsx`;
+the shared print utility remains an unchanged inherited-DOM consumer.
+
+The C01 owner map independently proved that its complete contract/producer/projection
+property fits the seven declared mechanisms with no additional owner path. One of its
+two backend reserve slots is therefore reallocated to the measured C05 owner: C01's
+hard ceiling moves `9 → 8`, C05's declaration/ceiling moves `19/19 → 20/20`, and the
+global declaration moves **40 → 41** while the hard ceiling remains **44**. A cluster
+sum and an independent table-union parser both derive 41 unique mechanisms. Widening
+seam 5 is spent; the current round receipt is **2 / 7**.

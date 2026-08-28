@@ -2,7 +2,7 @@
 plan_id: atlas-ds15-acquisition-routes
 title: "DS15 - Acquisition Routes & Data-Pool Growth Surfaces"
 type: slice-plan
-status: execution_c03_generated_abi_ceiling_41
+status: execution_c04_surface_typing_ceiling_42
 created: 2026-08-27
 last_verified: 2026-08-28
 stability: measured_plan
@@ -17,7 +17,7 @@ c00_status: review_repair_timing_and_authz_admitted_zero_mechanisms
 c01_status: closed_after_delegated_trust_posture_reconciliation
 c02_status: closed_at_8969c10a9
 c03_status: closed_after_measured_generator_widening
-c04_status: not_started
+c04_status: in_progress_after_generic_type_graph_repair
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 gy_plan: ../layer3-slices/GY-engine-subordination.md
 identity_boundary: ../../../system-design-decisions/policyos-identity-and-custody-boundary.md
@@ -360,6 +360,30 @@ error in `2026-08-27-lex-intervention-ownership.toml` and is not used as DS15's
 receipt. Actual spend is **24/41 mechanisms** and **6/11 rounds**. C03 checks
 CC20; C04-C06 remain open.
 
+### C04 measured type-graph amendment — 2026-08-28
+
+C04's real acquisition validators made the Atlas authority-escape scanner
+expand Zod's external generic implementation graph. The behavioral falsifier
+held the explicit target constant while changing `{ payload: string }` to
+`{ payload: unknown }`: the old scanner misclassified both as
+`unsafe_widening`, and the production program overflowed the TypeScript call
+stack. The generic repair inspects explicit `any`/`unknown` arguments and
+repo-owned aliases, but stops expansion at a named external declaration before
+library implementation methods. The safe target is now benign and the explicit
+unknown remains blocked.
+
+The acquisition validator graph moves one-for-one from the global
+`apps/runtime-dashboard/src/api/validators.ts` mechanism to feature-owned
+`apps/runtime-dashboard/src/features/runs/api/acquisitionRouteValidators.ts`;
+that substitution does not change the denominator. Adding
+`architecture/atlas_surfaces/status_retirement_scan.mjs` as the generic gate
+owner moves C04 from 12 to **13 mechanisms** and the hard union from 41 to
+**42**. The two derivations are `41 + 1` unique new mechanism and cluster
+arithmetic `7 + 16 + 1 + 13 + 4 + 1 = 42`; path 43 is the next stop. This is a
+gate prerequisite that narrows a false positive without changing product
+behavior, so the widening spend remains **6/11 rounds**. Actual mechanism spend
+becomes **37/42** once C04 commits.
+
 ## Mission and binding reality
 
 DS15 is the surface dual of GY-N13. Its distinctive product motion is:
@@ -417,7 +441,7 @@ unallocated `QualificationConsumer`. Its `not_established` /
 empty history and zero admitted observations. Therefore an **active but
 institutionally unqualified epoch is not reachable in the consumed code**. It
 would require changing the N13b/semantic-epoch write path, which this slice is
-forbidden to do and which is absent from the 41-path declaration. DS15 instead
+forbidden to do and which is absent from the 42-path declaration. DS15 instead
 renders the real pending/unqualified state as a first-class typed disclosure,
 names the unappointed policy-admission authority and says exactly what its
 appointment would establish. It may never copy-upgrade that state to active or
@@ -1112,9 +1136,9 @@ complete owned-root rule. No additional moved-constant test is preauthorized:
 if execution discovers one, stop for a plan amendment before editing it. One
 mechanism is never split across commits to fit a cap.
 
-The complete declaration contains **41 unique mechanism paths**. The hard slice
-ceiling is exactly **41**, derived from that declared union; there is no padded
-contingency. Path 42 is a stop and plan-amendment request. A path may narrow
+The complete declaration contains **42 unique mechanism paths**. The hard slice
+ceiling is exactly **42**, derived from that declared union; there is no padded
+contingency. Path 43 is a stop and plan-amendment request. A path may narrow
 away, but an undeclared replacement or companion promoted into mechanism work
 requires the same amendment and a fresh union derivation.
 
@@ -1133,11 +1157,13 @@ event-registry owner path and takes the union to **40**; a generic CAS-write
 event cannot substitute for the planned acquisition phase/loop types. C03's
 measured executable-client denominator then adds the registered runtime-client
 generator and takes the union to **41**; generated type-map entries cannot
-substitute for callable client methods.
+substitute for callable client methods. C04 then substitutes its feature-owned
+validator module for the global validator path and adds the generic Atlas type
+scanner owner, taking the union to **42**.
 
 Two independent cap derivations must agree before C01 and closeout:
 
-1. cluster arithmetic `7 + 16 + 1 + 12 + 4 + 1 = 41`; and
+1. cluster arithmetic `7 + 16 + 1 + 13 + 4 + 1 = 42`; and
 2. a parser union of every bold `Add/Modify (mechanism)` path below, excluding
    P39 companions, with known members
    `src/polisyos/runtime/quality/acquisition_route_loop.py` and
@@ -1145,7 +1171,7 @@ Two independent cap derivations must agree before C01 and closeout:
 
 The widening budget is **11 repair rounds**, one for each concrete predicate
 class below. A round may repair or redistribute work only within the declared
-41-path set; it does not buy another path. Narrowing that only removes a way to
+42-path set; it does not buy another path. Narrowing that only removes a way to
 be fooled is free. A second finding in one class invokes P40: widen the property
 to the quantity it needs inside the ceiling, or declare the bounded residual
 and run its falsifier. A new capability, permission, producer arm, writer or
@@ -1157,7 +1183,7 @@ undeclared path is a plan amendment, not a round.
 | C01 | strict owner cost/read contracts over N13a/N13b, overlay and quarantine | 7 | 7 | 2 |
 | C02 | run-bound HTTP, PA2 decision request, durable worker and exact re-entry receipt | 16 | 16 | 4 |
 | C03 | atomically regenerate/reproduce OpenAPI and both clients | 1 | 1 | 1 |
-| C04 | render global scorecard/backlog/structural routes and strict detail | 12 | 12 | 2 |
+| C04 | render global scorecard/backlog/structural routes and strict detail | 13 | 13 | 2 |
 | C05 | accountable approval, continuous timeline and exact-byte MACHINE export | 4 | 4 | 2 |
 | C06 | freeze/review/visual/register/readback closeout | 1 | 1 | 1 |
 
@@ -1509,7 +1535,7 @@ fail; no DS11 byte is overwritten without the landing ancestry receipt.
 
 ### C04 - global read surfaces and route detail (after DS11)
 
-**Add/Modify (mechanism, 12 paths):**
+**Add/Modify (mechanism, 13 paths):**
 
 - add `apps/runtime-dashboard/src/features/runs/api/useAcquisitionRoutes.ts`;
 - add `apps/runtime-dashboard/src/features/runs/domain/acquisitionRoutePresentation.ts`;
@@ -1520,7 +1546,8 @@ fail; no DS11 byte is overwritten without the landing ancestry receipt.
 - add `apps/runtime-dashboard/src/features/runs/components/AcquisitionQuarantineLedger.tsx`;
 - modify `apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx`;
 - modify `apps/runtime-dashboard/src/api/queryKeys.ts`;
-- modify `apps/runtime-dashboard/src/api/validators.ts`;
+- add `apps/runtime-dashboard/src/features/runs/api/acquisitionRouteValidators.ts`;
+- modify `architecture/atlas_surfaces/status_retirement_scan.mjs`;
 - modify `apps/runtime-dashboard/src/shared/i18n/locales/en.json`; and
 - modify `apps/runtime-dashboard/src/shared/i18n/locales/uk.json`.
 
@@ -1555,7 +1582,8 @@ modify
 `apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.parity.test.tsx`,
 `apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts`,
 `apps/runtime-dashboard/src/api/validators.test.ts`, and
-`apps/runtime-dashboard/src/api/governedQueryPolicy.test.ts`. The C01 DS15
+`apps/runtime-dashboard/src/api/governedQueryPolicy.test.ts`; modify
+`architecture/atlas_surfaces/test_atlas_enforcement.py`. The C01 DS15
 strangle test supplies a source-derived generic AST/consumer census over the
 complete frontend component root, so it automatically includes these paths
 after the DS11 handoff without a C04 edit.
@@ -1651,7 +1679,7 @@ slices' evidence or the deep-import baseline. If the existing generic checker
 already adjudicates the transition, its source path narrows away but its test
 remains in this exact companion set.
 
-Re-derive 41 declared/41 ceiling and actual mechanism paths twice; re-derive all
+Re-derive 42 declared/42 ceiling and actual mechanism paths twice; re-derive all
 set counts, including both post-C01 `gap_class` source-tree scans and the single
 definition/producer-routing invariant; classify every red under P41 against the
 slice base; read the final file set, branch and commits from the committed
@@ -1804,7 +1832,7 @@ Read the failure/repair register again before C01 design and C06 closeout.
 | P32/P37/P38 | `route_id`, status string, record-ref/cost-field presence or rank used as proof | resolve + content-bind + verifier provenance; recompute cost from owner basis; predicate class frozen at admission |
 | P33/P34 | teach fixture IDs or marker fields to tests | remove-property/keep-markers, synonyms, malformed, sibling and historical-ID mutations |
 | P35/P36 | mix 15 residuals with 3 routes or 18 probes with 144 records | two complete-set derivations, denominator and artifact identity on every count |
-| P39 | count plans/tests/generated/register/snapshots as mechanisms | 41 declared mechanisms, exact 41 hard ceiling, companions explicit |
+| P39 | count plans/tests/generated/register/snapshots as mechanisms | 42 declared mechanisms, exact 42 hard ceiling, companions explicit |
 | P40/P41 | patch the second escape or inherit a red from a nearer base | bucket second finding; exact slice-base replay and complete-input disjointness |
 
 Target bounded closure is `typed contract/artifact + owned producer + persisted
@@ -1905,7 +1933,7 @@ The executor/architect receives:
   CAS/event/action-head receipt owner and crash-recovery phase;
 - API packets, generated ABI twins, raw-response/DOM/MACHINE hashes;
 - DS11 landing/path-fence release receipt and exact frontend wait point;
-- 41-declared/41-ceiling mechanism derivations, 11-round accounting, visual/
+- 42-declared/42-ceiling mechanism derivations, 11-round accounting, visual/
   a11y timing with `user + sys` and uptime pairs; and
 - every remaining out-of-scope non-closure, including the separately owned
   `fresh_positive_production_route`; if that receipt is missing, a bounded-close
@@ -1913,5 +1941,5 @@ The executor/architect receives:
 
 Anything that introduces a new permission, decision source kind, acquisition
 writer/store/passport/epoch allocator, public audience, current authority from a
-repository artifact, client VOI computation, or path 41 requires an approved
+repository artifact, client VOI computation, or path 43 requires an approved
 plan amendment before code.

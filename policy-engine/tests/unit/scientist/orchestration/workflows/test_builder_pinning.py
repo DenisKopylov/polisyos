@@ -243,6 +243,9 @@ def test_workflow_runners_use_branch_local_snapshot_state(
     execution_result = MagicMock(report=MagicMock(status="ok"))
     lock = SimpleNamespace(release=MagicMock())
     captured_state: dict[str, ExperimentState] = {}
+    captured_safety: dict[str, object] = {}
+    eval_safety_execution_context = object()
+    eval_safety_verifier = object()
 
     import polisyos.scientist.orchestration.workflows.builder as builder
 
@@ -255,12 +258,18 @@ def test_workflow_runners_use_branch_local_snapshot_state(
             branch_state.inputs["branch_only"] = _ref("2", "scientist.test")
             return execution_result
 
+    def _build_execution_context(*args, **kwargs):
+        del args
+        captured_safety["execution_context"] = kwargs["eval_safety_execution_context"]
+        captured_safety["verifier"] = kwargs["eval_safety_verifier"]
+        return _stub_execution_context()
+
     monkeypatch.setattr(builder, "_ensure_snapshot_bind", lambda _state: None)
     monkeypatch.setattr(builder, "acquire_run_lock", lambda *args, **kwargs: lock)
     monkeypatch.setattr(
         builder,
         "build_execution_context",
-        lambda *args, **kwargs: _stub_execution_context(),
+        _build_execution_context,
     )
     monkeypatch.setattr(builder, "build_registry_with_builtin_nodes", lambda: object())
     monkeypatch.setattr(builder, "CASCheckpointHook", lambda *args, **kwargs: object())
@@ -276,7 +285,13 @@ def test_workflow_runners_use_branch_local_snapshot_state(
     monkeypatch.setattr(builder, "policy_verified_workflow_spec", lambda: object())
     monkeypatch.setattr(builder, "causal_full_workflow_spec", lambda: object())
 
-    result = runner(state, store=FileSystemCAS(tmp_path), foundry=object())
+    result = runner(
+        state,
+        store=FileSystemCAS(tmp_path),
+        foundry=object(),
+        eval_safety_execution_context=eval_safety_execution_context,
+        eval_safety_verifier=eval_safety_verifier,
+    )
 
     assert result is execution_result
     assert captured_state["value"] is not state
@@ -284,6 +299,8 @@ def test_workflow_runners_use_branch_local_snapshot_state(
     assert state.inputs == {INPUT_REGISTRY_BUNDLE_REF: _ref("1", "core.registry_bundle")}
     assert captured_state["value"].params["nested"]["value"] == "updated"
     assert "branch_only" in captured_state["value"].inputs
+    assert captured_safety["execution_context"] is eval_safety_execution_context
+    assert captured_safety["verifier"] is eval_safety_verifier
     lock.release.assert_called_once_with()
 
 

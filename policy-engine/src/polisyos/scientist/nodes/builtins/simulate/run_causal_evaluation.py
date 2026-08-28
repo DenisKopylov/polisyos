@@ -36,6 +36,11 @@ from polisyos.ir.analytics.hte import (
 )
 from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensitivity_result
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
+from polisyos.runtime.quality.evaluation_modes import resolve_evaluation_mode
+from polisyos.runtime.quality.evaluation_safety import (
+    EvalSafetyAdmissionChallenge,
+    evaluation_safety_consumer_admission_is_verified,
+)
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
 from polisyos.scientist.evidence.claims.projections import project_causal_effect_claims
@@ -65,6 +70,7 @@ from polisyos.scientist.orchestration.engine.protocol import (
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 if TYPE_CHECKING:
+    from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.state import ExperimentState
 
@@ -149,6 +155,76 @@ _CAUSAL_EVALUATION_LOAD_ERRORS = (
 )
 _CAUSAL_EVALUATION_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
 _UKRAINE_INTAKE_RECEIPT_KEY = "ukraine_foundry_intake_receipt_ref"
+_EVAL_SAFETY_BLOCKER_PREFIX = "polisyos.eval_safety"
+
+
+def _eval_safety_blocker(name: str) -> str:
+    return f"{_EVAL_SAFETY_BLOCKER_PREFIX}.{name}@1.0.0"
+
+
+def _actual_causal_input_hashes(state: ExperimentState) -> tuple[str, ...]:
+    refs = (
+        state.observational_data_ref,
+        state.inputs.get(INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF),
+        state.inputs.get(INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF),
+        state.artifacts_index.get(_UKRAINE_INTAKE_RECEIPT_KEY),
+    )
+    return tuple(str(ref.artifact_id) for ref in refs if ref is not None)
+
+
+def _causal_evaluation_safety_blockers(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    evaluator_owner_id: ComponentId,
+) -> tuple[str, ...]:
+    context: EvaluationExecutionContext | None = ctx.eval_safety_execution_context
+    if context is None:
+        return (_eval_safety_blocker("execution_context_missing"),)
+
+    mode_resolution = resolve_evaluation_mode(context.evaluation_mode)
+    if mode_resolution.status != "accepted":
+        return (mode_resolution.blocker_code or _eval_safety_blocker("evaluation_mode_unknown"),)
+    if context.evaluator_owner_id != evaluator_owner_id:
+        return (_eval_safety_blocker("evaluator_owner_mismatch"),)
+
+    actual_hashes = _actual_causal_input_hashes(state)
+    context_hashes = tuple(ref.content_hash for ref in context.evaluation_input_refs)
+    provenance_hashes = tuple(
+        row.input_ref.content_hash for row in context.evaluation_input_provenance
+    )
+    trusted_provenance = all(
+        row.predicate_provenance in {"recomputed", "independently_reconciled"}
+        for row in context.evaluation_input_provenance
+    )
+    inputs_bind = bool(
+        actual_hashes
+        and len(actual_hashes) == len(set(actual_hashes))
+        and len(context_hashes) == len(set(context_hashes))
+        and len(provenance_hashes) == len(set(provenance_hashes))
+        and set(actual_hashes) == set(context_hashes) == set(provenance_hashes)
+        and trusted_provenance
+    )
+    if not inputs_bind:
+        return (_eval_safety_blocker("execution_context_binding_mismatch"),)
+
+    if context.evaluation_mode == "simulate_only":
+        return (_eval_safety_blocker("simulation_provenance_not_established"),)
+    if context.attempt_class != "non_simulation":
+        return (_eval_safety_blocker("execution_context_binding_mismatch"),)
+
+    verifier = ctx.eval_safety_verifier
+    if verifier is None:
+        return (_eval_safety_blocker("verifier_unresolved"),)
+    challenge = EvalSafetyAdmissionChallenge.fresh(consumer_component_id=evaluator_owner_id)
+    receipt = verifier.require_admission(context, challenge)
+    if not evaluation_safety_consumer_admission_is_verified(
+        receipt,
+        context,
+        challenge,
+    ):
+        return receipt.blocker_codes or (_eval_safety_blocker("consumer_admission_blocked"),)
+    return ()
 
 
 def _is_rdd_method(method_fqn: str) -> bool:
@@ -397,6 +473,22 @@ class RunCausalEvaluationNode:
             method_params.update(_coerce_method_params(state.params.get("causal_method_params")))
         seed = int(state.params.get("random_seed", 0) or 0)
 
+        safety_blockers = _causal_evaluation_safety_blockers(
+            ctx,
+            state,
+            evaluator_owner_id=self.spec.metadata.component_id,
+        )
+        if safety_blockers:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
+                    message="Attempted-evaluation safety admission blocked causal evaluation.",
+                    details={"blocker_codes": list(safety_blockers)},
+                ),
+            )
+
         try:
             ensure_causal_methods_registered()
             observational_data = _load_observational_data(ctx, state, method_fqn)
@@ -411,12 +503,8 @@ class RunCausalEvaluationNode:
             )
 
         method_job_input_refs = {}
-        selected_contract_ref = state.inputs.get(
-            INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF
-        )
-        method_input_bundle_ref = state.inputs.get(
-            INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF
-        )
+        selected_contract_ref = state.inputs.get(INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF)
+        method_input_bundle_ref = state.inputs.get(INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF)
         intake_receipt_ref = state.artifacts_index.get(_UKRAINE_INTAKE_RECEIPT_KEY)
         if selected_contract_ref is not None:
             method_job_input_refs["ukraine_selected_method_contract"] = selected_contract_ref

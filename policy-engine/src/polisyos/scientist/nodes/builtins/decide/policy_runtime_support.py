@@ -6,13 +6,14 @@ import hashlib
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.components import ComponentId
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.core.contracts.scientist import DiscoveryArtifactBundleRef, PriorKnowledgeBundleRef
 from polisyos.foundry.methods.catalog.optimization.protocols import AmbiguityCertificate
@@ -26,6 +27,13 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.distributional import DistributionalReport, load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality.evaluation_modes import resolve_evaluation_mode
+from polisyos.runtime.quality.evaluation_safety import (
+    EvalSafetyAdmissionChallenge,
+    evaluation_safety_consumer_admission_is_verified,
+)
+from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
@@ -41,9 +49,15 @@ from polisyos.scientist.methods.discovery.priors import (
     PriorKnowledgeBundle,
     load_prior_knowledge_bundle,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.judge_stack import (
+    PolicyPromotionCoordinator,
+    PolicyPromotionResult,
+    to_search_uncertainty_envelope,
+)
+from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
+from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope, UncertaintyType
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
@@ -54,6 +68,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_PRIOR_KNOWLEDGE_BUNDLE_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.objectives import (
     ObjectiveStack,
     PolicyEvaluationBundle,
@@ -69,15 +85,12 @@ from polisyos.scientist.replay.verification import (
     load_replay_verification_report,
     verify_and_persist_replay_bundle,
 )
-from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
-from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.methods.search.judge_stack import (
-    PolicyPromotionCoordinator,
-    PolicyPromotionResult,
-    to_search_uncertainty_envelope,
-)
-from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
-from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope, UncertaintyType
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.evaluation_safety import (
+        EvalSafetyVerifierPort,
+        EvaluationExecutionContext,
+    )
 
 _POLICY_RUNTIME_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
 _POLICY_RUNTIME_LOAD_ERRORS = (
@@ -88,6 +101,27 @@ _POLICY_RUNTIME_LOAD_ERRORS = (
     ValidationError,
     ValueError,
 )
+_EVAL_SAFETY_BLOCKER_PREFIX = "polisyos.eval_safety"
+
+
+def _eval_safety_blocker(name: str) -> str:
+    return f"{_EVAL_SAFETY_BLOCKER_PREFIX}.{name}@1.0.0"
+
+
+PRODUCTION_POLICY_EVALUATION_BACKEND_ID = ComponentId.parse(
+    "scientist.production_policy_evaluation_backend@1.0.0"
+)
+
+
+class PolicyRuntimeEvaluationSafetyError(RuntimeError):
+    """Raised when direct production evaluation lacks exact safety admission."""
+
+    def __init__(self, blocker_codes: tuple[str, ...]) -> None:
+        self.blocker_codes = blocker_codes
+        super().__init__(
+            "Attempted-evaluation safety admission blocked policy runtime evaluation: "
+            + ", ".join(blocker_codes)
+        )
 
 
 @dataclass(frozen=True)
@@ -156,10 +190,101 @@ class PolicyEvaluationBackend(Protocol):
     ) -> PolicyRuntimeEvaluationArtifact: ...
 
 
+def _policy_runtime_input_hash(value: object) -> str:
+    model_dump = getattr(value, "model_dump", None)
+    payload = model_dump(mode="json") if callable(model_dump) else value
+    return gy_content_hash(payload)
+
+
+def _production_policy_evaluation_safety_blockers(
+    *,
+    context: EvaluationExecutionContext | None,
+    verifier: EvalSafetyVerifierPort | None,
+    candidate: PolicyCandidateSchema,
+    simulation_metrics: dict[str, float] | None,
+    uncertainty: UncertaintyEnvelope | None,
+    distributional_report: DistributionalReport | None,
+    causal_effect_report: CausalEffectReport | None,
+    cross_graph_profile: CrossGraphEvidenceProfile | None,
+    governance_report: GovernanceReport | None,
+    ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None,
+) -> tuple[str, ...]:
+    if context is None:
+        return (_eval_safety_blocker("execution_context_missing"),)
+
+    mode_resolution = resolve_evaluation_mode(context.evaluation_mode)
+    if mode_resolution.status != "accepted":
+        return (mode_resolution.blocker_code or _eval_safety_blocker("evaluation_mode_unknown"),)
+    if context.evaluator_owner_id != PRODUCTION_POLICY_EVALUATION_BACKEND_ID:
+        return (_eval_safety_blocker("evaluator_owner_mismatch"),)
+
+    actual_values = (
+        candidate,
+        simulation_metrics,
+        uncertainty,
+        distributional_report,
+        causal_effect_report,
+        cross_graph_profile,
+        governance_report,
+        ambiguity_certificate,
+    )
+    actual_hashes = tuple(
+        _policy_runtime_input_hash(value) for value in actual_values if value is not None
+    )
+    context_hashes = tuple(ref.content_hash for ref in context.evaluation_input_refs)
+    provenance_hashes = tuple(
+        row.input_ref.content_hash for row in context.evaluation_input_provenance
+    )
+    trusted_provenance = all(
+        row.predicate_provenance in {"recomputed", "independently_reconciled"}
+        for row in context.evaluation_input_provenance
+    )
+    exact_inputs_bind = bool(
+        actual_hashes
+        and len(actual_hashes) == len(set(actual_hashes))
+        and len(context_hashes) == len(set(context_hashes))
+        and len(provenance_hashes) == len(set(provenance_hashes))
+        and set(actual_hashes) == set(context_hashes) == set(provenance_hashes)
+        and trusted_provenance
+    )
+    exact_owner_inputs_bind = bool(
+        context.candidate_ref.content_hash == _policy_runtime_input_hash(candidate)
+        and context.world_model_record_ref.content_hash
+        == _policy_runtime_input_hash(candidate.trinity_bundle.model_spec)
+        and context.target_population_scope_ref.content_hash
+        == _policy_runtime_input_hash(candidate.target_population)
+        and context.rule_version.strip()
+        and context.intended_start_at.tzinfo is not None
+    )
+    if not exact_inputs_bind or not exact_owner_inputs_bind:
+        return (_eval_safety_blocker("execution_context_binding_mismatch"),)
+
+    if context.evaluation_mode == "simulate_only":
+        return (_eval_safety_blocker("simulation_provenance_not_established"),)
+    if context.attempt_class != "non_simulation":
+        return (_eval_safety_blocker("execution_context_binding_mismatch"),)
+    if verifier is None:
+        return (_eval_safety_blocker("verifier_unresolved"),)
+
+    challenge = EvalSafetyAdmissionChallenge.fresh(
+        consumer_component_id=PRODUCTION_POLICY_EVALUATION_BACKEND_ID
+    )
+    receipt = verifier.require_admission(context, challenge)
+    if not evaluation_safety_consumer_admission_is_verified(
+        receipt,
+        context,
+        challenge,
+    ):
+        return receipt.blocker_codes or (_eval_safety_blocker("consumer_admission_blocked"),)
+    return ()
+
+
 @dataclass(frozen=True)
 class ProductionPolicyEvaluationBackend:
     """Production policy evaluation backend implementation."""
 
+    eval_safety_execution_context: EvaluationExecutionContext | None = None
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None
     backend_kind: str = "production"
 
     def evaluate(
@@ -175,6 +300,21 @@ class ProductionPolicyEvaluationBackend:
         governance_report: GovernanceReport | None,
         ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None,
     ) -> PolicyRuntimeEvaluationArtifact:
+        safety_blockers = _production_policy_evaluation_safety_blockers(
+            context=self.eval_safety_execution_context,
+            verifier=self.eval_safety_verifier,
+            candidate=candidate,
+            simulation_metrics=simulation_metrics,
+            uncertainty=uncertainty,
+            distributional_report=distributional_report,
+            causal_effect_report=causal_effect_report,
+            cross_graph_profile=cross_graph_profile,
+            governance_report=governance_report,
+            ambiguity_certificate=ambiguity_certificate,
+        )
+        if safety_blockers:
+            raise PolicyRuntimeEvaluationSafetyError(safety_blockers)
+
         metrics, source_components, notes = _build_evidence_driven_simulation_metrics(
             candidate,
             fidelity=fidelity,
@@ -1446,8 +1586,10 @@ def _policy_budget_total(candidate: PolicyCandidateSchema) -> float:
 
 __all__ = [
     "LatentDiscoveryBundleResolution",
+    "PRODUCTION_POLICY_EVALUATION_BACKEND_ID",
     "PolicyEvaluationBackend",
     "PolicyRuntimeEvaluationArtifact",
+    "PolicyRuntimeEvaluationSafetyError",
     "PolicyRuntimeProvenance",
     "ProductionPolicyEvaluationBackend",
     "SyntheticPolicyEvaluationBackend",

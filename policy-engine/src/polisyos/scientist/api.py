@@ -47,6 +47,10 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.governance.passes.base import ValidatorPass
+    from polisyos.runtime.quality.evaluation_safety import (
+        EvalSafetyVerifierPort,
+        EvaluationExecutionContext,
+    )
     from polisyos.scientist.governance.pipeline import ValidationPipeline
     from polisyos.scientist.orchestration.engine.metrics_protocol import EngineMetricsCollector
     from polisyos.scientist.orchestration.engine.registry import NodeBootstrapReport, NodeRegistry
@@ -218,6 +222,8 @@ def run_experiment(
     store_factory: Callable[[], ArtifactStore] | None = None,
     quota_registry: QuotaRegistry | None = None,
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
+    eval_safety_execution_context: EvaluationExecutionContext | None = None,
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None,
 ) -> dict[str, Any]:
     """Execute the Scientist workflow selected by the initial state contract.
 
@@ -303,6 +309,8 @@ def run_experiment(
                     metrics=resolved_metrics,
                     quota_registry=quota_registry,
                     engine_metrics_factory=engine_metrics_factory,
+                    eval_safety_execution_context=eval_safety_execution_context,
+                    eval_safety_verifier=eval_safety_verifier,
                 )
             final_state = result.state
             status = "success" if result.report.status == "ok" else "error"

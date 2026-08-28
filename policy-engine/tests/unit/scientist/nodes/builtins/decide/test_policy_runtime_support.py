@@ -1,4 +1,8 @@
+from datetime import UTC, datetime
+from unittest.mock import MagicMock
+
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.components import ComponentId
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
@@ -13,6 +17,18 @@ from polisyos.ir.analytics.causal_discovery import (
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.trinity import TrinityBundle
+from polisyos.pdc import ArtifactRef as EvaluationArtifactRef
+from polisyos.runtime.quality.evaluation_safety import (
+    EvalSafetyAdmissionChallenge,
+    EvalSafetyConsumerAdmissionReceipt,
+    EvaluationExecutionContext,
+    EvaluationInputProvenance,
+    evaluation_execution_context_hash,
+)
 from polisyos.scientist.methods.discovery.aggregator import EvidenceWeightedAggregator
 from polisyos.scientist.methods.discovery.output import (
     DiscoveryArtifactBuilder,
@@ -38,6 +54,8 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF,
 )
+from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 
 def _query() -> CausalQuery:
@@ -56,6 +74,202 @@ def _graph() -> CausalGraphModel:
         edges=[CausalEdge(src="X", dst="Y", combined_confidence=0.9)],
         discovery_method="pc",
     )
+
+
+def test_direct_backend_promotion_state_injection_cannot_bypass_eval_safety(
+    monkeypatch,
+) -> None:
+    """Direct production calls fail before metrics or objective evaluation."""
+
+    import inspect
+
+    import polisyos.scientist.nodes.builtins.decide.policy_runtime_support as runtime_support
+
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        TrinityBundle(
+            problem_frame=ProblemFrame(
+                problem_id="problem_direct_eval_safety",
+                domain=ProblemDomain.FISCAL,
+            ),
+            policy_spec=PolicySpec(policy_id="policy_direct_eval_safety"),
+            model_spec=ModelSpec(
+                model_id="model_direct_eval_safety",
+                data_snapshot_ref="sha256:" + "1" * 64,
+            ),
+        ),
+        candidate_id="candidate_direct_eval_safety",
+    )
+    vector = PolicyEvaluationVector(candidate_id=candidate.candidate_id)
+    metrics_spy = MagicMock(
+        return_value=(
+            {"policy_value": 1.0},
+            ("simulation_metrics",),
+            (),
+        )
+    )
+    objective_spy = MagicMock(return_value=vector)
+    monkeypatch.setattr(
+        runtime_support,
+        "_build_evidence_driven_simulation_metrics",
+        metrics_spy,
+    )
+    monkeypatch.setattr(runtime_support.ObjectiveStack, "evaluate", objective_spy)
+
+    backend = runtime_support.ProductionPolicyEvaluationBackend()
+    signature = inspect.signature(backend.evaluate)
+    assert not any("promotion" in name for name in signature.parameters)
+    assert all(
+        parameter.kind is not inspect.Parameter.VAR_KEYWORD
+        for parameter in signature.parameters.values()
+    )
+
+    promotion_variants = (
+        None,
+        {"status": "certified", "promotable": True},
+        {"status": "passed", "certificate": "forged"},
+    )
+    simulation_metrics = {"policy_value": 1.0}
+    candidate_ref = EvaluationArtifactRef.from_payload(
+        artifact_id="polisyos.test.policy_runtime_candidate",
+        artifact_type="candidate",
+        payload=candidate.model_dump(mode="json"),
+        schema_ref="polisyos.scientist.policy_candidate@1.0",
+        uri="runtime://candidate/policy-runtime",
+        version="1.0.0",
+    )
+    metrics_ref = EvaluationArtifactRef.from_payload(
+        artifact_id="polisyos.test.policy_runtime_metrics",
+        artifact_type="simulation_metrics",
+        payload=simulation_metrics,
+        schema_ref="polisyos.scientist.simulation_metrics@1.0",
+        uri="runtime://scientist/policy-runtime-metrics",
+        version="1.0.0",
+    )
+    certificate_ref = EvaluationArtifactRef.from_payload(
+        artifact_id="polisyos.test.policy_runtime_certificate",
+        artifact_type="eval_safety_certificate",
+        payload={"certificate": "foreign"},
+        schema_ref="policyos.runtime.eval_safety.certificate.v1",
+        uri="runtime://eval-safety/policy-runtime-certificate",
+        version="1.0.0",
+    )
+    revision_ref = EvaluationArtifactRef.from_payload(
+        artifact_id="polisyos.test.policy_runtime_revision",
+        artifact_type="eval_safety_certificate_revision",
+        payload={"revision": "foreign"},
+        schema_ref="policyos.runtime.eval_safety.certificate_revision.v1",
+        uri="runtime://eval-safety/policy-runtime-revision",
+        version="1.0.0",
+    )
+    safety_context = EvaluationExecutionContext(
+        intake_ref=EvaluationArtifactRef.from_payload(
+            artifact_id="polisyos.test.policy_runtime_intake",
+            artifact_type="evaluation_attempt_intake",
+            payload={"attempt": "policy-runtime"},
+            schema_ref="policyos.runtime.eval_safety.intake.v1",
+            uri="runtime://eval-safety/policy-runtime-intake",
+            version="1.0.0",
+        ),
+        evaluator_owner_id=ComponentId.parse(
+            "scientist.production_policy_evaluation_backend@1.0.0"
+        ),
+        design_problem_ref="sha256:" + "5" * 64,
+        evaluation_mode="field_pilot",
+        candidate_ref=candidate_ref,
+        world_model_record_ref=EvaluationArtifactRef.from_payload(
+            artifact_id="polisyos.test.policy_runtime_wmr",
+            artifact_type="world_model_record",
+            payload=candidate.trinity_bundle.model_spec.model_dump(mode="json"),
+            schema_ref="polisyos.ir.model_spec@1.0",
+            uri="runtime://world-model/policy-runtime",
+            version="1.0.0",
+        ),
+        target_population_scope_ref=EvaluationArtifactRef.from_payload(
+            artifact_id="polisyos.test.policy_runtime_population",
+            artifact_type="target_population_scope",
+            payload=candidate.target_population.model_dump(mode="json"),
+            schema_ref="polisyos.scientist.target_population@1.0",
+            uri="runtime://population/policy-runtime",
+            version="1.0.0",
+        ),
+        rule_version="polisyos.runtime.eval_safety@1.0.0",
+        intended_start_at=datetime(2026, 8, 28, tzinfo=UTC),
+        evaluation_input_refs=(candidate_ref, metrics_ref),
+        evaluation_input_provenance=(
+            EvaluationInputProvenance(
+                input_ref=candidate_ref,
+                input_class="real_world",
+                predicate_provenance="recomputed",
+            ),
+            EvaluationInputProvenance(
+                input_ref=metrics_ref,
+                input_class="real_world",
+                predicate_provenance="recomputed",
+            ),
+        ),
+        eval_safety_certificate_ref=certificate_ref,
+        eval_safety_revision_head_ref=revision_ref,
+    )
+
+    class ForeignPositiveVerifier:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def require_admission(
+            self,
+            context: EvaluationExecutionContext,
+            challenge: EvalSafetyAdmissionChallenge,
+        ) -> EvalSafetyConsumerAdmissionReceipt:
+            self.calls += 1
+            return EvalSafetyConsumerAdmissionReceipt(
+                status="verified",
+                intake_ref=context.intake_ref,
+                certificate_ref=context.eval_safety_certificate_ref,
+                current_revision_head_ref=context.eval_safety_revision_head_ref,
+                execution_context_hash=evaluation_execution_context_hash(context),
+                challenge=challenge,
+                blocker_codes=(),
+                verified_at=datetime(2026, 8, 28, tzinfo=UTC),
+            )
+
+    foreign_verifier = ForeignPositiveVerifier()
+    foreign_backend = runtime_support.ProductionPolicyEvaluationBackend(
+        eval_safety_execution_context=safety_context,
+        eval_safety_verifier=foreign_verifier,
+    )
+
+    results = []
+    errors: list[RuntimeError] = []
+    for active_backend in (backend, foreign_backend):
+        for promotion_state in promotion_variants:
+            del promotion_state
+            try:
+                results.append(
+                    active_backend.evaluate(
+                        candidate,
+                        fidelity="selection",
+                        simulation_metrics=simulation_metrics,
+                        uncertainty=None,
+                        distributional_report=None,
+                        causal_effect_report=None,
+                        cross_graph_profile=None,
+                        governance_report=None,
+                        ambiguity_certificate=None,
+                    )
+                )
+            except RuntimeError as exc:
+                errors.append(exc)
+
+    assert metrics_spy.call_count == 0
+    assert objective_spy.call_count == 0
+    assert results == []
+    error_type = getattr(runtime_support, "PolicyRuntimeEvaluationSafetyError", RuntimeError)
+    assert {type(error) for error in errors} == {error_type}
+    assert {error.blocker_codes for error in errors if hasattr(error, "blocker_codes")} == {
+        ("polisyos.eval_safety.execution_context_missing@1.0.0",),
+        ("polisyos.eval_safety.consumer_admission_blocked@1.0.0",),
+    }
+    assert foreign_verifier.calls == 3
 
 
 def test_runtime_loads_latent_bundle_from_discovery_artifact_and_merges_proxy_boundary(

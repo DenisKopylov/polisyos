@@ -2486,7 +2486,7 @@
         "polisyos.runtime.quality"
       ],
       "major_subsystem": false,
-      "export_count": 964,
+      "export_count": 965,
       "exports": [
         "ACQUISITION_PLANNER_GATE_LAYER",
         "ACQUISITION_PLANNER_GATE_PHASE",
@@ -3313,6 +3313,7 @@
         "gate_lowering_request",
         "gate_universality_claim",
         "graded_outcome_closeout_record",
+        "gy_content_hash",
         "historical_prior_claim_evidence_issues",
         "human_review_public_export",
         "inspect_argument_graph",
@@ -3462,7 +3463,7 @@
         {
           "module": "polisyos.runtime.quality",
           "facade_mode_observed": "eager_exports",
-          "export_count": 964,
+          "export_count": 965,
           "exports": [
             "ACQUISITION_PLANNER_GATE_LAYER",
             "ACQUISITION_PLANNER_GATE_PHASE",
@@ -4289,6 +4290,7 @@
             "gate_lowering_request",
             "gate_universality_claim",
             "graded_outcome_closeout_record",
+            "gy_content_hash",
             "historical_prior_claim_evidence_issues",
             "human_review_public_export",
             "inspect_argument_graph",

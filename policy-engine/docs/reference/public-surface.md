@@ -98,7 +98,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 26 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
-| `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 964 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
+| `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 965 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
 | `polisyos.lex` | `public_stable` | `lazy_facade` | 51 | `team-polisyos` | `src/polisyos/lex/README.md` |
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 25 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
@@ -2527,7 +2527,7 @@ verify_replay
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.runtime.quality` | `src/polisyos/runtime/quality/__init__.py` | `eager_exports` | 964 |
+| `polisyos.runtime.quality` | `src/polisyos/runtime/quality/__init__.py` | `eager_exports` | 965 |
 
 #### `polisyos.runtime.quality`
 
@@ -2535,7 +2535,7 @@ verify_replay
 - Facade: `eager_exports`
 - Summary: Runtime quality evaluation helpers.
 
-<details><summary>Entrypoint exports (964)</summary>
+<details><summary>Entrypoint exports (965)</summary>
 
 ```text
 ACQUISITION_PLANNER_GATE_LAYER
@@ -3363,6 +3363,7 @@ export_claim_argument_case_mapping
 gate_lowering_request
 gate_universality_claim
 graded_outcome_closeout_record
+gy_content_hash
 historical_prior_claim_evidence_issues
 human_review_public_export
 inspect_argument_graph
@@ -3506,7 +3507,7 @@ write_authority_envelope_json_schema
 
 </details>
 
-<details><summary>Supported exports (964)</summary>
+<details><summary>Supported exports (965)</summary>
 
 ```text
 ACQUISITION_PLANNER_GATE_LAYER
@@ -4334,6 +4335,7 @@ export_claim_argument_case_mapping
 gate_lowering_request
 gate_universality_claim
 graded_outcome_closeout_record
+gy_content_hash
 historical_prior_claim_evidence_issues
 human_review_public_export
 inspect_argument_graph

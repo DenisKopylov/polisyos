@@ -3,7 +3,7 @@ title = "Expose attempted-evaluation safety verification contracts"
 type = "added"
 component = "runtime-quality"
 owner = "team-policyos-runtime"
-summary = "Expose the canonical verification-only attempted-evaluation safety contracts and require exact fail-closed admission at Scientist causal and production evaluation owners before work begins."
+summary = "Expose the canonical verification-only attempted-evaluation safety contracts, route canonical GY content hashing across the supported Runtime boundary, and require exact fail-closed admission at Scientist causal and production evaluation owners before work begins."
 evidence = [
   "tests/unit/runtime/quality/test_evaluation_safety.py",
   "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py",
@@ -12,11 +12,11 @@ evidence = [
   "tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py",
   "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
 ]
-compatibility = "The additive public-experimental facade exports canonical objects already owned by runtime quality; Scientist callers of non-simulation evaluation must now supply a verified EvaluationExecutionContext and verifier, and production policy evaluation must also supply the actual typed WorldModelRecord."
+compatibility = "The additive public-experimental facade exports canonical objects already owned by runtime quality or re-exported from PDC without changing identity; Scientist callers of non-simulation evaluation must now supply a verified EvaluationExecutionContext and verifier, and production policy evaluation must also supply the actual typed WorldModelRecord."
 change_class = "python-public-api"
 surface_classification = "public_experimental: polisyos.runtime.quality"
-migration = "Import EvalSafetyAdmissionChallenge, EvalSafetyVerifierPort, EvaluationExecutionContext, WorldModelRecord, evaluation_safety_consumer_admission_is_verified, resolve_evaluation_mode, and world_model_record_content_hash from polisyos.runtime.quality. Supply the externally produced context, verifier, and actual world-model record to Scientist orchestration; do not derive admission from promotion state or substitute a ModelSpec hash."
-api = "Adds seven canonical eager facade exports for attempted-evaluation admission, strict mode resolution, exact consumer verification, and typed world-model binding."
+migration = "Import EvalSafetyAdmissionChallenge, EvalSafetyVerifierPort, EvaluationExecutionContext, WorldModelRecord, evaluation_safety_consumer_admission_is_verified, gy_content_hash, resolve_evaluation_mode, and world_model_record_content_hash from polisyos.runtime.quality. Supply the externally produced context, verifier, and actual world-model record to Scientist orchestration; do not derive admission from promotion state or substitute a ModelSpec hash."
+api = "Adds eight canonical eager facade exports for attempted-evaluation admission, strict mode resolution, exact consumer verification, typed world-model binding, and boundary-safe canonical GY content hashing."
 limitations = "Verification-only contracts certify an attempted evaluation but confer no attempt execution, pilot, deployment, promotion, governance, verifier-appointment, or institutional authority. No evaluator or institution is appointed by this change."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
@@ -33,7 +33,7 @@ surface = "public_experimental: polisyos.runtime.quality"
 owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
 deprecation_window = "not_applicable"
-release_note = "Runtime quality now exposes seven canonical verification-only attempted-evaluation safety objects through its supported facade."
+release_note = "Runtime quality now exposes eight canonical objects through its supported facade: seven verification-only attempted-evaluation safety objects and the canonical GY content hash used at the Scientist boundary."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 migration_docs = [

@@ -1,5 +1,7 @@
 """Runtime quality evaluation helpers."""
 
+from polisyos.pdc import gy_content_hash
+
 from .acquisition_planner import (
     ACQUISITION_PLANNER_GATE_LAYER,
     ACQUISITION_PLANNER_GATE_PHASE,
@@ -1935,6 +1937,7 @@ __all__ = [
     "gate_lowering_request",
     "gate_universality_claim",
     "graded_outcome_closeout_record",
+    "gy_content_hash",
     "historical_prior_claim_evidence_issues",
     "human_review_public_export",
     "inspect_argument_graph",

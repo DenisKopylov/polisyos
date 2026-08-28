@@ -124,6 +124,18 @@ def test_runtime_quality_eval_safety_facade_exports_canonical_objects() -> None:
     assert set(expected) <= set(facade.__all__)
 
 
+def test_runtime_quality_facade_reexports_canonical_gy_content_hash() -> None:
+    """The legal Scientist route preserves the PDC hash owner's exact identity."""
+    import polisyos.runtime.quality as facade
+    from polisyos.pdc import gy_content_hash as canonical_gy_content_hash
+
+    assert facade.gy_content_hash is canonical_gy_content_hash
+    assert "gy_content_hash" in facade.__all__
+    assert facade.gy_content_hash({"design": "bound"}) == canonical_gy_content_hash(
+        {"design": "bound"}
+    )
+
+
 def test_public_surface_inventory_corrupt_supported_entrypoint_fails_check(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

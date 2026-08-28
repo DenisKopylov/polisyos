@@ -415,3 +415,63 @@ and `bounded_complete` remains structurally absent.
 Mechanism spend remains **2/2**, reserve remains **0**. C02 still owns worker
 admission, source-blocked over-spend, and HTTP integration; no C02 or other
 mechanism path changed.
+
+## C01 P40 invariant completion — owner-supplied derivation context
+
+The original reviewer verified the SAME P29/P32/P37 widening and found the
+remaining zero-witness escape: the rebuild still sourced its protected action
+and semantic provenance from the candidate. The correction completes the
+declared invariant rather than opening a new repair round.
+
+`CoverageDerivationContext` is a strict, frozen, extra-forbid owner input with
+exactly the three non-derived envelope-builder values that are not present in
+the typed registry or semantic ledger: `protected_action_id`,
+`semantic_source_ref`, and `semantic_source_verifier_ref`. C02 will later
+construct this context at its worker/source-owner boundary. C01 does not mint or
+infer it.
+
+Complete `build_coverage_envelope` input census:
+
+- owner typed bases: `registry`, `semantic_ledger`;
+- owner fixed derivation inputs: `derivation_context` and its three fields;
+- owner verification boundary: `witness_store`, `witness_verifier`;
+- candidate-carried replay request: `witness_refs`, which remains non-authority
+  until every ref resolves through that owner verification boundary.
+
+There are no other non-derived builder inputs. During rederivation the
+candidate is used only for strict canonical parse/reparse and its witness-ref
+tuple. The builder receives action and both semantic source identity values
+only from the independently supplied context. Projector, exact admission, and
+direct protected-action evaluation all require and pass the same context.
+
+The complete behavioral census coherently mutates and rehashes each of the
+three context-owned fields in a zero-witness candidate while holding the owner
+context constant; every arm reader rejects. The inverse falsifier holds the
+candidate constant and mutates each owner-context field; every arm reader also
+rejects. A matching owner-context open-world envelope traverses without
+resolver dependencies. A signed known-incomplete envelope traverses builder ->
+projector -> exact admission -> evaluator only with the matching context; a
+wrong context blocks. The real GY source and signed cross-action relabel remain
+rejected.
+
+### Owner-context receipts
+
+- Focused property RED: exit `1`, `3 failed`; `real 26.14`, `user 25.30`,
+  `sys 0.88`. The wrapper did not capture an uptime pair, so RED uptime is
+  `not_established` and is not used as a timed green receipt.
+- Final C01-owned lane: exit `0`, `39 passed`, `2 deselected`; `real 28.82`,
+  `user 27.93`, `sys 0.91`, uptime `01:33` -> `01:33`.
+- Honest unfiltered companion lane: exit `1`, `39 passed`, `2` exact C02-owned
+  missing-owner failures; `real 28.75`, `user 27.80`, `sys 0.96`, uptime
+  `01:36` -> `01:37`.
+- Final four-path Ruff: exit `0`, `All checks passed!`; `real 0.03`, `user
+  0.02`, `sys 0.00`, uptime `01:33` -> `01:33`.
+- Delta-focused semantic-ledger importer lane: execution branch exit `0`, `8
+  passed`, `real 69.86`, `user 68.05`, `sys 1.83`, uptime `01:34` -> `01:35`;
+  clean exact-base main at `dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f`
+  exit `0`, `8 passed`, `real 73.16`, `user 68.23`, `sys 2.26`, uptime `01:35`
+  -> `01:36`.
+
+Mechanism spend remains **2/2**, reserve remains **0**. No C02 or other source
+path changed. The unchanged C02 concern is governed worker admission,
+source-blocked over-spend, and HTTP integration.

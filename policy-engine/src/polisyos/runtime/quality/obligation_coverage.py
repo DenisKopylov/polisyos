@@ -96,6 +96,14 @@ class CoverageSourceIdentity(_StrictModel):
         return self
 
 
+class CoverageDerivationContext(_StrictModel):
+    """Owner-supplied non-derived inputs for one coverage derivation."""
+
+    protected_action_id: str = Field(min_length=1)
+    semantic_source_ref: str = Field(min_length=1)
+    semantic_source_verifier_ref: str = Field(min_length=1)
+
+
 class CoverageUnknownRemainder(_StrictModel):
     """Honest nonnumeric statement of what has not been searched or calibrated."""
 
@@ -294,9 +302,7 @@ def build_coverage_envelope(
     *,
     registry: ConfidenceLedgerRegistry,
     semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
-    semantic_source_ref: str,
-    semantic_source_verifier_ref: str,
-    protected_action_id: str,
+    derivation_context: CoverageDerivationContext,
     witness_store: FileSystemCAS | None = None,
     witness_verifier: Ed25519Verifier | None = None,
     witness_refs: tuple[str, ...] = (),
@@ -307,15 +313,12 @@ def build_coverage_envelope(
         raise TypeError("coverage_registry_must_be_typed")
     if not isinstance(semantic_ledger, ConfidenceLedgerSemanticReceiptProjection):
         raise TypeError("coverage_semantic_ledger_must_be_typed")
+    if not isinstance(derivation_context, CoverageDerivationContext):
+        raise TypeError("coverage_derivation_context_must_be_typed")
     if semantic_ledger.registry_content_hash != registry.content_hash:
         raise ValueError("coverage_registry_semantic_binding_mismatch")
     if semantic_ledger.scope_id != semantic_ledger.risk_scope.scope_id:
         raise ValueError("coverage_scope_binding_mismatch")
-    if not protected_action_id:
-        raise ValueError("coverage_protected_action_missing")
-    if not semantic_source_ref or not semantic_source_verifier_ref:
-        raise ValueError("coverage_semantic_source_identity_missing")
-
     sources = (
         CoverageSourceIdentity(
             source_role="canonical_registry",
@@ -327,9 +330,9 @@ def build_coverage_envelope(
         ),
         CoverageSourceIdentity(
             source_role="semantic_ledger",
-            source_ref=semantic_source_ref,
+            source_ref=derivation_context.semantic_source_ref,
             content_hash=semantic_ledger.projection_hash,
-            verifier_ref=semantic_source_verifier_ref,
+            verifier_ref=derivation_context.semantic_source_verifier_ref,
             availability_state="available_typed_input",
             admission_state="worker_admission_not_established",
         ),
@@ -337,7 +340,7 @@ def build_coverage_envelope(
     assessment_key = _derive_assessment_key(
         scope_id=semantic_ledger.scope_id,
         owner_scope_key=semantic_ledger.risk_scope.owner_scope_key,
-        protected_action_id=protected_action_id,
+        protected_action_id=derivation_context.protected_action_id,
         sources=sources,
     )
     admitted = _resolve_witnesses(
@@ -347,7 +350,7 @@ def build_coverage_envelope(
         assessment_key=assessment_key,
         scope_id=semantic_ledger.scope_id,
         owner_scope_key=semantic_ledger.risk_scope.owner_scope_key,
-        protected_action_id=protected_action_id,
+        protected_action_id=derivation_context.protected_action_id,
     )
     body = {
         "schema_version": COVERAGE_SCHEMA_VERSION,
@@ -370,7 +373,7 @@ def build_coverage_envelope(
         "declared_scope": semantic_ledger.risk_scope,
         "declared_obligation_classes": tuple(registry.obligation_weights),
         "authorized_audiences": ("reviewer", "expert", "machine"),
-        "protected_action_id": protected_action_id,
+        "protected_action_id": derivation_context.protected_action_id,
         "assessment_key": assessment_key,
         "delta": registry.policy.delta,
         "source_identities": sources,
@@ -428,6 +431,7 @@ def evaluate_protected_action(
     envelope: object,
     registry: ConfidenceLedgerRegistry,
     semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
+    derivation_context: CoverageDerivationContext,
     action_id: str,
     presented_claim_scope: str,
     witness_store: FileSystemCAS | None = None,
@@ -439,6 +443,7 @@ def evaluate_protected_action(
         candidate=envelope,
         registry=registry,
         semantic_ledger=semantic_ledger,
+        derivation_context=derivation_context,
         witness_store=witness_store,
         witness_verifier=witness_verifier,
     )
@@ -458,6 +463,7 @@ def rederive_and_admit_coverage_envelope(
     candidate: object,
     registry: ConfidenceLedgerRegistry,
     semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
+    derivation_context: CoverageDerivationContext,
     witness_store: FileSystemCAS | None = None,
     witness_verifier: Ed25519Verifier | None = None,
 ) -> ObligationCoverageEnvelope:
@@ -467,25 +473,15 @@ def rederive_and_admit_coverage_envelope(
         raise TypeError("coverage_registry_must_be_typed")
     if not isinstance(semantic_ledger, ConfidenceLedgerSemanticReceiptProjection):
         raise TypeError("coverage_semantic_ledger_must_be_typed")
+    if not isinstance(derivation_context, CoverageDerivationContext):
+        raise TypeError("coverage_derivation_context_must_be_typed")
     parsed = ObligationCoverageEnvelope.model_validate(candidate)
     canonical = to_canonical_bytes(parsed, _CANON)
     reparsed = ObligationCoverageEnvelope.model_validate_json(canonical)
-    semantic_source = next(
-        (
-            source
-            for source in reparsed.source_identities
-            if source.source_role == "semantic_ledger"
-        ),
-        None,
-    )
-    if semantic_source is None:
-        raise ValueError("coverage_semantic_source_identity_missing")
     rebuilt = build_coverage_envelope(
         registry=registry,
         semantic_ledger=semantic_ledger,
-        semantic_source_ref=semantic_source.source_ref,
-        semantic_source_verifier_ref=semantic_source.verifier_ref,
-        protected_action_id=reparsed.protected_action_id,
+        derivation_context=derivation_context,
         witness_store=witness_store,
         witness_verifier=witness_verifier,
         witness_refs=reparsed.witness_refs,

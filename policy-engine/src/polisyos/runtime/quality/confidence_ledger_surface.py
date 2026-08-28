@@ -27,6 +27,7 @@ from polisyos.runtime.quality.obligation_coverage import (
     DECLARED_SET_RIDER,
     LOCALITY_RIDER,
     CoverageAssessment,
+    CoverageDerivationContext,
     CoverageSourceIdentity,
     ObligationCoverageEnvelope,
     rederive_and_admit_coverage_envelope,
@@ -952,6 +953,7 @@ def project_confidence_ledger_risk_spend(
     *,
     registry: ConfidenceLedgerRegistry,
     semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
+    derivation_context: CoverageDerivationContext,
     coverage_envelope: ObligationCoverageEnvelope,
     witness_store: FileSystemCAS | None = None,
     witness_verifier: Ed25519Verifier | None = None,
@@ -963,6 +965,7 @@ def project_confidence_ledger_risk_spend(
         candidate=coverage_envelope,
         registry=registry,
         semantic_ledger=semantic_ledger,
+        derivation_context=derivation_context,
         witness_store=witness_store,
         witness_verifier=witness_verifier,
     )
@@ -982,6 +985,7 @@ def admit_confidence_ledger_risk_spend_projection(
     *,
     registry: ConfidenceLedgerRegistry,
     semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
+    derivation_context: CoverageDerivationContext,
     witness_store: FileSystemCAS | None = None,
     witness_verifier: Ed25519Verifier | None = None,
 ) -> DomainProjectionAdmission:
@@ -998,6 +1002,7 @@ def admit_confidence_ledger_risk_spend_projection(
             candidate=admitted.coverage_envelope,
             registry=registry,
             semantic_ledger=semantic_ledger,
+            derivation_context=derivation_context,
             witness_store=witness_store,
             witness_verifier=witness_verifier,
         )
@@ -1012,6 +1017,7 @@ def admit_confidence_ledger_risk_spend_projection(
             candidate=readmitted.coverage_envelope,
             registry=registry,
             semantic_ledger=semantic_ledger,
+            derivation_context=derivation_context,
             witness_store=witness_store,
             witness_verifier=witness_verifier,
         )

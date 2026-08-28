@@ -55,14 +55,60 @@ def _inputs() -> tuple[ConfidenceLedgerRegistry, ConfidenceLedgerSemanticReceipt
     return registry, semantic
 
 
+def _derivation_context():
+    return _coverage().CoverageDerivationContext(
+        protected_action_id=_ACTION,
+        semantic_source_ref="semantic-ledger://ds17/owner-admitted",
+        semantic_source_verifier_ref="test.verified.semantic-ledger-source",
+    )
+
+
 def _envelope(registry, semantic):
     return _coverage().build_coverage_envelope(
         registry=registry,
         semantic_ledger=semantic,
-        semantic_source_ref=semantic.projection_hash,
-        semantic_source_verifier_ref="test.verified.semantic-ledger-source",
-        protected_action_id=_ACTION,
+        derivation_context=_derivation_context(),
     )
+
+
+def test_owner_derivation_context_is_strict_and_matching_open_world_traverses() -> None:
+    coverage = _coverage()
+    surface = _surface()
+    registry, semantic = _inputs()
+    context = _derivation_context()
+    with pytest.raises((TypeError, ValueError), match=r"extra|forbid"):
+        coverage.CoverageDerivationContext.model_validate(
+            {**context.model_dump(mode="python"), "caller_selected": True}
+        )
+
+    envelope = coverage.build_coverage_envelope(
+        registry=registry,
+        semantic_ledger=semantic,
+        derivation_context=context,
+    )
+    projection = surface.project_confidence_ledger_risk_spend(
+        registry=registry,
+        semantic_ledger=semantic,
+        derivation_context=context,
+        coverage_envelope=envelope,
+    )
+    admission = surface.admit_confidence_ledger_risk_spend_projection(
+        projection,
+        registry=registry,
+        semantic_ledger=semantic,
+        derivation_context=context,
+    )
+    evaluation = coverage.evaluate_protected_action(
+        envelope=envelope,
+        registry=registry,
+        semantic_ledger=semantic,
+        derivation_context=context,
+        action_id=_ACTION,
+        presented_claim_scope="matching owner context",
+    )
+    assert projection.coverage_assessment.value == "open_world_unresolved"
+    assert admission.status == "exact"
+    assert evaluation.assessment.value == "open_world_unresolved"
 
 
 def _project(registry=None, semantic=None, **kwargs: object):
@@ -71,6 +117,7 @@ def _project(registry=None, semantic=None, **kwargs: object):
     return _surface().project_confidence_ledger_risk_spend(
         registry=registry,
         semantic_ledger=semantic,
+        derivation_context=_derivation_context(),
         coverage_envelope=_envelope(registry, semantic),
         **kwargs,
     )
@@ -83,6 +130,7 @@ def _admit(candidate: object, registry=None, semantic=None, **kwargs: object):
         candidate,
         registry=registry,
         semantic_ledger=semantic,
+        derivation_context=kwargs.pop("derivation_context", _derivation_context()),
         **kwargs,
     )
 
@@ -150,6 +198,48 @@ def _forge_known_incomplete_envelope(envelope):
         canon_spec=CanonSpec(exclude_none=False),
     )
     return coverage.ObligationCoverageEnvelope.model_validate(
+        {
+            **body,
+            "envelope_hash": envelope_hash,
+            "envelope_ref": f"coverage-envelope:{envelope_hash}",
+        }
+    )
+
+
+def _forge_derivation_input(envelope, mutation: str):
+    payload = envelope.model_dump(mode="json")
+    if mutation == "action":
+        payload["protected_action_id"] = "protected-action://ds17/attacker-selected"
+    elif mutation == "source_ref":
+        payload["source_identities"][1]["source_ref"] = (
+            "semantic-ledger://attacker/self-attested"
+        )
+    else:
+        payload["source_identities"][1]["verifier_ref"] = (
+            "attacker.self_attested.verifier"
+        )
+    payload["assessment_key"] = fingerprint(
+        {
+            "rule_version": payload["rule_version"],
+            "scope_id": payload["scope_id"],
+            "owner_scope_key": payload["owner_scope_key"],
+            "protected_action_id": payload["protected_action_id"],
+            "sources": payload["source_identities"],
+        },
+        prefix=True,
+        canon_spec=CanonSpec(exclude_none=False),
+    )
+    body = {
+        key: value
+        for key, value in payload.items()
+        if key not in {"envelope_hash", "envelope_ref"}
+    }
+    envelope_hash = fingerprint(
+        body,
+        prefix=True,
+        canon_spec=CanonSpec(exclude_none=False),
+    )
+    return _coverage().ObligationCoverageEnvelope.model_validate(
         {
             **body,
             "envelope_hash": envelope_hash,
@@ -508,6 +598,7 @@ def test_domain_projection_admission_revalidates_real_semantics_and_hash_identit
     blocked = _admit(forged)
     assert blocked.status == "blocked"
     assert blocked.reason.value == "parser_or_schema_failure"
+
     assert projection.status == "not_promoted"
     assert projection.budget_posture == "within_budget"
     assert "safe" not in blocked.model_dump(mode="json")
@@ -597,6 +688,7 @@ def test_forged_known_incomplete_envelope_cannot_cross_projection_or_admission()
         surface.project_confidence_ledger_risk_spend(
             registry=registry,
             semantic_ledger=semantic,
+            derivation_context=_derivation_context(),
             coverage_envelope=forged_envelope,
         )
     with pytest.raises((TypeError, ValueError), match=r"coverage|envelope|witness"):
@@ -604,6 +696,7 @@ def test_forged_known_incomplete_envelope_cannot_cross_projection_or_admission()
             envelope=forged_envelope,
             registry=registry,
             semantic_ledger=semantic,
+            derivation_context=_derivation_context(),
             action_id=_ACTION,
             presented_claim_scope="forged known-incomplete arm",
         )
@@ -624,6 +717,86 @@ def test_forged_known_incomplete_envelope_cannot_cross_projection_or_admission()
     )
     assert blocked.status == "blocked"
     assert blocked.reason.value == "parser_or_schema_failure"
+
+
+@pytest.mark.parametrize("mutation", ["action", "source_ref", "source_verifier"])
+def test_zero_witness_candidate_cannot_select_owner_derivation_inputs(
+    mutation: str,
+) -> None:
+    coverage = _coverage()
+    surface = _surface()
+    registry, semantic = _inputs()
+    context = _derivation_context()
+    envelope = _envelope(registry, semantic)
+    forged = _forge_derivation_input(envelope, mutation)
+
+    with pytest.raises((TypeError, ValueError), match=r"coverage|derivation|envelope"):
+        surface.project_confidence_ledger_risk_spend(
+            registry=registry,
+            semantic_ledger=semantic,
+            derivation_context=context,
+            coverage_envelope=forged,
+        )
+    with pytest.raises((TypeError, ValueError), match=r"coverage|derivation|envelope"):
+        coverage.evaluate_protected_action(
+            envelope=forged,
+            registry=registry,
+            semantic_ledger=semantic,
+            derivation_context=context,
+            action_id=forged.protected_action_id,
+            presented_claim_scope="attacker-selected derivation input",
+        )
+
+    payload = _project(registry, semantic).model_dump(mode="python")
+    payload["coverage_envelope"] = forged.model_dump(mode="python")
+    payload["coverage_envelope_ref"] = forged.envelope_ref
+    _rebind_projection_to_envelope(payload, forged)
+    _rehash_projection(payload)
+    blocked = _admit(
+        payload,
+        registry=registry,
+        semantic=semantic,
+        derivation_context=context,
+    )
+    assert blocked.status == "blocked"
+    assert blocked.reason.value == "parser_or_schema_failure"
+
+    context_update = {
+        "action": {
+            "protected_action_id": "protected-action://ds17/wrong-owner-context"
+        },
+        "source_ref": {
+            "semantic_source_ref": "semantic-ledger://wrong-owner-context"
+        },
+        "source_verifier": {
+            "semantic_source_verifier_ref": "wrong.owner.context.verifier"
+        },
+    }[mutation]
+    wrong_context = context.model_copy(update=context_update)
+    with pytest.raises((TypeError, ValueError), match=r"coverage|derivation|envelope"):
+        surface.project_confidence_ledger_risk_spend(
+            registry=registry,
+            semantic_ledger=semantic,
+            derivation_context=wrong_context,
+            coverage_envelope=envelope,
+        )
+    with pytest.raises((TypeError, ValueError), match=r"coverage|derivation|envelope"):
+        coverage.evaluate_protected_action(
+            envelope=envelope,
+            registry=registry,
+            semantic_ledger=semantic,
+            derivation_context=wrong_context,
+            action_id=_ACTION,
+            presented_claim_scope="wrong owner derivation context",
+        )
+    wrong_admission = _admit(
+        _project(registry, semantic),
+        registry=registry,
+        semantic=semantic,
+        derivation_context=wrong_context,
+    )
+    assert wrong_admission.status == "blocked"
+    assert wrong_admission.reason.value == "parser_or_schema_failure"
 
 
 @pytest.mark.parametrize("mutation", ["model_copy", "model_construct", "audience", "may_not_use"])
@@ -678,6 +851,7 @@ def test_every_arm_reader_rederives_the_complete_envelope(mutation: str) -> None
         surface.project_confidence_ledger_risk_spend(
             registry=registry,
             semantic_ledger=semantic,
+            derivation_context=_derivation_context(),
             coverage_envelope=candidate,
         )
     with pytest.raises((TypeError, ValueError), match=r"coverage|envelope|witness"):
@@ -685,6 +859,7 @@ def test_every_arm_reader_rederives_the_complete_envelope(mutation: str) -> None
             envelope=candidate,
             registry=registry,
             semantic_ledger=semantic,
+            derivation_context=_derivation_context(),
             action_id=_ACTION,
             presented_claim_scope="candidate mutation",
         )

@@ -52,16 +52,22 @@ def _inputs() -> tuple[ConfidenceLedgerRegistry, ConfidenceLedgerSemanticReceipt
     return registry, semantic
 
 
+def _derivation_context():
+    return _coverage().CoverageDerivationContext(
+        protected_action_id=_ACTION,
+        semantic_source_ref=content_hash(_N11.read_bytes(), prefix=True),
+        semantic_source_verifier_ref=(
+            "tools.quality.validation.check_layer3_gy_confidence_ledger.validate_payload"
+        ),
+    )
+
+
 def _envelope():
     registry, semantic = _inputs()
     return _coverage().build_coverage_envelope(
         registry=registry,
         semantic_ledger=semantic,
-        semantic_source_ref=content_hash(_N11.read_bytes(), prefix=True),
-        semantic_source_verifier_ref=(
-            "tools.quality.validation.check_layer3_gy_confidence_ledger.validate_payload"
-        ),
-        protected_action_id=_ACTION,
+        derivation_context=_derivation_context(),
     )
 
 
@@ -265,9 +271,7 @@ def test_content_bound_matching_cas_witness_moves_the_same_derivation(tmp_path: 
     moved = _coverage().build_coverage_envelope(
         registry=registry,
         semantic_ledger=semantic,
-        semantic_source_ref=baseline.source_identities[1].source_ref,
-        semantic_source_verifier_ref=baseline.source_identities[1].verifier_ref,
-        protected_action_id=_ACTION,
+        derivation_context=_derivation_context(),
         witness_store=cas,
         witness_verifier=verifier,
         witness_refs=(witness_ref,),
@@ -289,9 +293,7 @@ def test_content_bound_matching_cas_witness_moves_the_same_derivation(tmp_path: 
             _coverage().build_coverage_envelope(
                 registry=registry,
                 semantic_ledger=semantic,
-                semantic_source_ref=baseline.source_identities[1].source_ref,
-                semantic_source_verifier_ref=baseline.source_identities[1].verifier_ref,
-                protected_action_id=_ACTION,
+                derivation_context=_derivation_context(),
                 witness_store=cas,
                 witness_refs=(shaped,),
             )
@@ -306,9 +308,7 @@ def test_signed_exact_scope_witness_traverses_projection_and_exact_admission(
     moved = _coverage().build_coverage_envelope(
         registry=registry,
         semantic_ledger=semantic,
-        semantic_source_ref=baseline.source_identities[1].source_ref,
-        semantic_source_verifier_ref=baseline.source_identities[1].verifier_ref,
-        protected_action_id=_ACTION,
+        derivation_context=_derivation_context(),
         witness_store=cas,
         witness_verifier=verifier,
         witness_refs=(witness_ref,),
@@ -320,12 +320,14 @@ def test_signed_exact_scope_witness_traverses_projection_and_exact_admission(
         _surface().project_confidence_ledger_risk_spend(
             registry=registry,
             semantic_ledger=semantic,
+            derivation_context=_derivation_context(),
             coverage_envelope=moved,
         )
     with pytest.raises((TypeError, ValueError), match=r"signature|witness"):
         _surface().project_confidence_ledger_risk_spend(
             registry=registry,
             semantic_ledger=semantic,
+            derivation_context=_derivation_context(),
             coverage_envelope=moved,
             witness_store=cas,
             witness_verifier=Ed25519Verifier(strict_identity=True),
@@ -333,6 +335,7 @@ def test_signed_exact_scope_witness_traverses_projection_and_exact_admission(
     projection = _surface().project_confidence_ledger_risk_spend(
         registry=registry,
         semantic_ledger=semantic,
+        derivation_context=_derivation_context(),
         coverage_envelope=moved,
         witness_store=cas,
         witness_verifier=verifier,
@@ -341,6 +344,7 @@ def test_signed_exact_scope_witness_traverses_projection_and_exact_admission(
         projection,
         registry=registry,
         semantic_ledger=semantic,
+        derivation_context=_derivation_context(),
         witness_store=cas,
         witness_verifier=verifier,
     )
@@ -348,6 +352,7 @@ def test_signed_exact_scope_witness_traverses_projection_and_exact_admission(
         envelope=moved,
         registry=registry,
         semantic_ledger=semantic,
+        derivation_context=_derivation_context(),
         witness_store=cas,
         witness_verifier=verifier,
         action_id=_ACTION,
@@ -356,6 +361,19 @@ def test_signed_exact_scope_witness_traverses_projection_and_exact_admission(
     assert projection.coverage_assessment.value == "known_incomplete"
     assert admitted.status == "exact"
     assert evaluated.assessment.value == "known_incomplete"
+
+    wrong_context = _derivation_context().model_copy(
+        update={"semantic_source_ref": "semantic-ledger://wrong-owner-context"}
+    )
+    with pytest.raises((TypeError, ValueError), match=r"coverage|derivation|envelope"):
+        _surface().project_confidence_ledger_risk_spend(
+            registry=registry,
+            semantic_ledger=semantic,
+            derivation_context=wrong_context,
+            coverage_envelope=moved,
+            witness_store=cas,
+            witness_verifier=verifier,
+        )
 
     action_b = "protected-action://ds17/different-action"
     forged = moved.model_dump(mode="python")
@@ -386,10 +404,13 @@ def test_signed_exact_scope_witness_traverses_projection_and_exact_admission(
             "envelope_ref": f"coverage-envelope:{forged_hash}",
         }
     )
-    with pytest.raises((TypeError, ValueError), match=r"scope|assessment"):
+    with pytest.raises(
+        (TypeError, ValueError), match=r"scope|assessment|coverage|derivation"
+    ):
         _surface().project_confidence_ledger_risk_spend(
             registry=registry,
             semantic_ledger=semantic,
+            derivation_context=_derivation_context(),
             coverage_envelope=cross_action,
             witness_store=cas,
             witness_verifier=verifier,
@@ -427,9 +448,7 @@ def test_real_gy_omission_witness_is_rejected_as_cross_scope(tmp_path: Path) -> 
         _coverage().build_coverage_envelope(
             registry=registry,
             semantic_ledger=semantic,
-            semantic_source_ref=envelope.source_identities[1].source_ref,
-            semantic_source_verifier_ref=envelope.source_identities[1].verifier_ref,
-            protected_action_id=_ACTION,
+            derivation_context=_derivation_context(),
             witness_store=cas,
             witness_verifier=verifier,
             witness_refs=(witness_ref,),
@@ -441,7 +460,6 @@ def test_witness_resolver_rejects_key_corruption_manifest_and_duplicate_refs(
 ) -> None:
     envelope = _envelope()
     registry, semantic = _inputs()
-    source = envelope.source_identities[1]
 
     wrong_key_cas, wrong_key_verifier, wrong_key_ref, _ = _put_witness(
         tmp_path / "key",
@@ -452,9 +470,7 @@ def test_witness_resolver_rejects_key_corruption_manifest_and_duplicate_refs(
         _coverage().build_coverage_envelope(
             registry=registry,
             semantic_ledger=semantic,
-            semantic_source_ref=source.source_ref,
-            semantic_source_verifier_ref=source.verifier_ref,
-            protected_action_id=_ACTION,
+            derivation_context=_derivation_context(),
             witness_store=wrong_key_cas,
             witness_verifier=wrong_key_verifier,
             witness_refs=(wrong_key_ref,),
@@ -469,9 +485,7 @@ def test_witness_resolver_rejects_key_corruption_manifest_and_duplicate_refs(
         _coverage().build_coverage_envelope(
             registry=registry,
             semantic_ledger=semantic,
-            semantic_source_ref=source.source_ref,
-            semantic_source_verifier_ref=source.verifier_ref,
-            protected_action_id=_ACTION,
+            derivation_context=_derivation_context(),
             witness_store=wrong_manifest_cas,
             witness_verifier=wrong_manifest_verifier,
             witness_refs=(wrong_manifest_ref,),
@@ -482,9 +496,7 @@ def test_witness_resolver_rejects_key_corruption_manifest_and_duplicate_refs(
         _coverage().build_coverage_envelope(
             registry=registry,
             semantic_ledger=semantic,
-            semantic_source_ref=source.source_ref,
-            semantic_source_verifier_ref=source.verifier_ref,
-            protected_action_id=_ACTION,
+            derivation_context=_derivation_context(),
             witness_store=signed_cas,
             witness_verifier=Ed25519Verifier(strict_identity=True),
             witness_refs=(signed_ref,),
@@ -499,9 +511,7 @@ def test_witness_resolver_rejects_key_corruption_manifest_and_duplicate_refs(
         _coverage().build_coverage_envelope(
             registry=registry,
             semantic_ledger=semantic,
-            semantic_source_ref=source.source_ref,
-            semantic_source_verifier_ref=source.verifier_ref,
-            protected_action_id=_ACTION,
+            derivation_context=_derivation_context(),
             witness_store=corrupt_cas,
             witness_verifier=corrupt_verifier,
             witness_refs=(corrupt_ref,),
@@ -514,9 +524,7 @@ def test_witness_resolver_rejects_key_corruption_manifest_and_duplicate_refs(
         _coverage().build_coverage_envelope(
             registry=registry,
             semantic_ledger=semantic,
-            semantic_source_ref=source.source_ref,
-            semantic_source_verifier_ref=source.verifier_ref,
-            protected_action_id=_ACTION,
+            derivation_context=_derivation_context(),
             witness_store=duplicate_cas,
             witness_verifier=duplicate_verifier,
             witness_refs=(duplicate_ref, duplicate_ref),
@@ -576,9 +584,7 @@ def test_witness_requires_resolved_source_replay_and_verifier_provenance(
         _coverage().build_coverage_envelope(
             registry=registry,
             semantic_ledger=semantic,
-            semantic_source_ref=envelope.source_identities[1].source_ref,
-            semantic_source_verifier_ref=envelope.source_identities[1].verifier_ref,
-            protected_action_id=_ACTION,
+            derivation_context=_derivation_context(),
             witness_store=cas,
             witness_verifier=verifier,
             witness_refs=(witness_ref,),
@@ -699,6 +705,7 @@ def test_negative_coverage_cannot_be_rescued_by_claim_narrowing() -> None:
         envelope=envelope,
         registry=registry,
         semantic_ledger=semantic,
+        derivation_context=_derivation_context(),
         action_id=_ACTION,
         presented_claim_scope="all declared obligations",
     )
@@ -706,6 +713,7 @@ def test_negative_coverage_cannot_be_rescued_by_claim_narrowing() -> None:
         envelope=envelope,
         registry=registry,
         semantic_ledger=semantic,
+        derivation_context=_derivation_context(),
         action_id=_ACTION,
         presented_claim_scope="one displayed obligation class",
     )
@@ -715,6 +723,7 @@ def test_negative_coverage_cannot_be_rescued_by_claim_narrowing() -> None:
             envelope=envelope,
             registry=registry,
             semantic_ledger=semantic,
+            derivation_context=_derivation_context(),
             action_id="protected-action://ds17/retrofitted",
             presented_claim_scope="one displayed obligation class",
         )

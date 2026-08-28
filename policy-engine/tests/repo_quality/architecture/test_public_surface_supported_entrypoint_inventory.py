@@ -21,18 +21,14 @@ def _inventory() -> list[guardrails.PackageInventory]:
 
 def test_public_surface_inventory_enumerates_every_supported_entrypoint_facade() -> None:
     manifest = tomllib.loads(
-        (REPO_ROOT / "architecture/public_surface/contract.toml").read_text(
-            encoding="utf-8"
-        )
+        (REPO_ROOT / "architecture/public_surface/contract.toml").read_text(encoding="utf-8")
     )
     expected = {
         entrypoint
         for package in manifest["package"]
         for entrypoint in package["supported_entrypoints"]
     }
-    observed = {
-        entrypoint.module for package in _inventory() for entrypoint in package.entrypoints
-    }
+    observed = {entrypoint.module for package in _inventory() for entrypoint in package.entrypoints}
 
     assert observed == expected
 
@@ -53,9 +49,7 @@ def test_supported_entrypoint_inventory_resolves_module_and_package_facades() ->
         "polisyos.data_forge.read_api",
         "polisyos.scientist.methods.research_dag",
     ):
-        assert entrypoints[module].source_file == (
-            f"src/{module.replace('.', '/')}/__init__.py"
-        )
+        assert entrypoints[module].source_file == (f"src/{module.replace('.', '/')}/__init__.py")
 
 
 def test_foundry_public_surface_exposes_only_embedding_contract_from_backends() -> None:
@@ -109,6 +103,27 @@ def test_runtime_quality_inventory_contains_human_decision_record() -> None:
     assert "HumanDecisionRecord" in entrypoint.exports
 
 
+def test_runtime_quality_eval_safety_facade_exports_canonical_objects() -> None:
+    """The supported facade preserves each EvalSafety owner's exact object identity."""
+    import polisyos.runtime.quality as facade
+    from polisyos.runtime.quality import evaluation_modes, evaluation_safety, world_model_record
+
+    expected = {
+        "EvalSafetyAdmissionChallenge": evaluation_safety.EvalSafetyAdmissionChallenge,
+        "EvalSafetyVerifierPort": evaluation_safety.EvalSafetyVerifierPort,
+        "EvaluationExecutionContext": evaluation_safety.EvaluationExecutionContext,
+        "WorldModelRecord": world_model_record.WorldModelRecord,
+        "evaluation_safety_consumer_admission_is_verified": (
+            evaluation_safety.evaluation_safety_consumer_admission_is_verified
+        ),
+        "resolve_evaluation_mode": evaluation_modes.resolve_evaluation_mode,
+        "world_model_record_content_hash": world_model_record.world_model_record_content_hash,
+    }
+
+    assert {name: getattr(facade, name) for name in expected} == expected
+    assert set(expected) <= set(facade.__all__)
+
+
 def test_public_surface_inventory_corrupt_supported_entrypoint_fails_check(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -151,9 +166,7 @@ def test_public_surface_inventory_corrupt_supported_entrypoint_fails_check(
     generated_manifest = tmp_path / "generated.toml"
     generated_manifest.write_text("", encoding="utf-8")
     generated_md = tmp_path / "generated.md"
-    generated_md.write_text(
-        guardrails.render_generated_artifacts_markdown([]), encoding="utf-8"
-    )
+    generated_md.write_text(guardrails.render_generated_artifacts_markdown([]), encoding="utf-8")
     exceptions = tmp_path / "exceptions.toml"
     exceptions.write_text("", encoding="utf-8")
     exception_registry = tmp_path / "exceptions.md"
@@ -171,9 +184,7 @@ def test_public_surface_inventory_corrupt_supported_entrypoint_fails_check(
     public_md.write_text(guardrails.render_public_surface_markdown(initial), encoding="utf-8")
     deep_baseline = tmp_path / "deep.json"
     deep_baseline.write_text(
-        guardrails.render_deep_import_baseline_json(
-            guardrails.collect_deep_import_edges(policies)
-        ),
+        guardrails.render_deep_import_baseline_json(guardrails.collect_deep_import_edges(policies)),
         encoding="utf-8",
     )
 
@@ -206,6 +217,4 @@ def test_generated_inventory_serializes_each_resolved_facade() -> None:
     )
 
     assert runtime_quality["classification"] == "public_experimental"
-    assert [row["module"] for row in runtime_quality["entrypoints"]] == [
-        "polisyos.runtime.quality"
-    ]
+    assert [row["module"] for row in runtime_quality["entrypoints"]] == ["polisyos.runtime.quality"]

@@ -3,6 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
+
 from polisyos.foundry.methods.catalog.optimization.protocols import (
     AmbiguityCertificate,
     ConstraintCertificate,
@@ -51,10 +52,15 @@ from polisyos.ir.governance.problem_frame import (
 )
 from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.model_layer.model_spec import AssumptionSpec, AssumptionType, ModelSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.methods.search.uncertainty import (
+    UncertaintyEnvelope,
+    UncertaintyEstimate,
+    UncertaintyType,
+)
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
-    ProductionPolicyEvaluationBackend,
+    SyntheticPolicyEvaluationBackend,
 )
 from polisyos.scientist.policy_design.objectives import (
     ConstraintStatus,
@@ -68,11 +74,6 @@ from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     RolloutStep,
     TargetPopulationSpec,
-)
-from polisyos.scientist.methods.search.uncertainty import (
-    UncertaintyEnvelope,
-    UncertaintyEstimate,
-    UncertaintyType,
 )
 
 
@@ -502,7 +503,7 @@ def test_policy_runtime_propagates_ambiguity_certificate_into_outputs() -> None:
         ),
     )
 
-    artifact = ProductionPolicyEvaluationBackend().evaluate(
+    artifact = SyntheticPolicyEvaluationBackend().evaluate(
         candidate,
         fidelity="selection",
         simulation_metrics={"policy_value": 9.0, "employment_rate": 0.84},
@@ -521,3 +522,5 @@ def test_policy_runtime_propagates_ambiguity_certificate_into_outputs() -> None:
         artifact.evaluation_vector.hard_constraints["policy_budget_constraint"].source
         == "ambiguity_certificate"
     )
+    assert artifact.provenance.promotable_source is False
+    assert artifact.provenance.degradation_mode == "research_only"

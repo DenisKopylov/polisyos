@@ -6,13 +6,19 @@ import asyncio
 import hashlib
 from typing import TYPE_CHECKING
 
+import numpy as np
 import pytest
 
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.foundry.methods.causal import PanelObservationalData
+from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
+    RunCausalEvaluationNode,
+)
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     CheckpointScopeMismatchError,
@@ -77,6 +83,77 @@ def test_build_worker_context_bootstraps_registry_bundle_when_missing() -> None:
     assert ctx.metrics is None or len(ctx.metrics.recent_trace_correlations()) == 1
     assert isinstance(ctx, ClaimCapableExecutionContext)
     assert ctx.claim_ledger_owner is not None
+
+
+def test_non_simulation_worker_without_eval_safety_port_fails_closed(
+    monkeypatch,
+) -> None:
+    """Real worker reconstruction cannot fall back to a local positive verifier."""
+    ctx = _build_worker_context({"run_id": "worker-run-eval-safety-omission"})
+    data = PanelObservationalData(
+        outcome=np.array([[1.0, 2.0], [1.5, 2.5]]),
+        treatment=np.array([1, 0]),
+        time_treatment=1,
+    )
+    data_ref = ctx.store.put_json(
+        data.model_dump(mode="json"),
+        PutOptions(
+            kind="ir.observational_data",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.ObservationalData", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    state = ExperimentState(
+        run_id="worker-run-eval-safety-omission",
+        observational_data_ref=data_ref,
+        causal_method_fqn="causal.inference.synthetic_control@1.0.0",
+        params={"random_seed": 42},
+    )
+    register_calls = 0
+    load_calls = 0
+    job_calls = 0
+
+    def _register() -> None:
+        nonlocal register_calls
+        register_calls += 1
+
+    def _load(*args, **kwargs):
+        del args, kwargs
+        nonlocal load_calls
+        load_calls += 1
+        return data
+
+    def _run_job(*args, **kwargs):
+        del args, kwargs
+        nonlocal job_calls
+        job_calls += 1
+        raise AssertionError("causal job reached")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation."
+        "ensure_causal_methods_registered",
+        _register,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation._load_observational_data",
+        _load,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation.run_job",
+        _run_job,
+    )
+
+    outcome = RunCausalEvaluationNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.details["blocker_codes"] == [
+        "polisyos.eval_safety.execution_context_missing@1.0.0"
+    ]
+    assert register_calls == 0
+    assert load_calls == 0
+    assert job_calls == 0
 
 
 def test_node_worker_rejects_transported_scope_before_context_or_execution(

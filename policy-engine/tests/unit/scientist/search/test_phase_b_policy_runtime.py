@@ -4,6 +4,9 @@ import importlib
 import json
 import sys
 from decimal import Decimal
+from unittest.mock import MagicMock
+
+import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -59,13 +62,13 @@ from polisyos.ir.governance.problem_frame import (
 )
 from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.model_layer.model_spec import AssumptionSpec, AssumptionType, ModelSpec
+from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     OptimizationAmbiguityCertificateRef,
     WelfareBundleRef,
 )
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
@@ -76,6 +79,36 @@ from polisyos.scientist.methods.autotune.registry import ChampionRegistry
 from polisyos.scientist.methods.discovery.priors import (
     PriorKnowledgeBundle,
     PriorKnowledgeSupport,
+)
+from polisyos.scientist.methods.search.adversarial import PlatformMetaEvaluationReport
+from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
+from polisyos.scientist.methods.search.judge_stack import (
+    JudgeInputBundle,
+    JudgeName,
+    JudgeStack,
+    JudgeVerdict,
+    PolicyPromotionCoordinator,
+    SingleJudgeVerdict,
+)
+from polisyos.scientist.methods.search.latent_governance import latent_governance_metadata
+from polisyos.scientist.methods.search.objective import CompositeObjective
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry, ParetoView
+from polisyos.scientist.methods.search.readiness import (
+    DecisionReadiness,
+    DecisionReadinessEvaluator,
+)
+from polisyos.scientist.methods.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.uncertainty import (
+    UncertaintyEnvelope,
+    UncertaintyEstimate,
+    UncertaintyType,
+)
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    PolicyRuntimeEvaluationSafetyError,
+    ProductionPolicyEvaluationBackend,
+)
+from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+    _PolicyRuntimeWorkflowEngine,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.policy_design.objectives import ObjectiveStack, PolicyEvaluationBundle
@@ -93,26 +126,6 @@ from polisyos.scientist.policy_design.schema import (
 from polisyos.scientist.replay.verification import (
     ReplayVerificationReport,
     persist_replay_verification_report,
-)
-from polisyos.scientist.methods.search.adversarial import PlatformMetaEvaluationReport
-from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
-from polisyos.scientist.methods.search.judge_stack import (
-    JudgeInputBundle,
-    JudgeName,
-    JudgeStack,
-    JudgeVerdict,
-    PolicyPromotionCoordinator,
-    SingleJudgeVerdict,
-)
-from polisyos.scientist.methods.search.latent_governance import latent_governance_metadata
-from polisyos.scientist.methods.search.objective import CompositeObjective
-from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry, ParetoView
-from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessEvaluator
-from polisyos.scientist.methods.search.stopping import MaxIterations
-from polisyos.scientist.methods.search.uncertainty import (
-    UncertaintyEnvelope,
-    UncertaintyEstimate,
-    UncertaintyType,
 )
 
 
@@ -2119,3 +2132,28 @@ def test_search_controller_accepts_policy_bundle_after_module_reload(tmp_path) -
     assert len(result.history) == 1
     assert result.history[0].policy_evaluation is not None
     assert result.pareto_front
+
+
+def test_direct_policy_runtime_workflow_engine_cannot_bypass_eval_safety_owner(
+    monkeypatch,
+) -> None:
+    """Direct engine use is rejected by the production owner before evaluation work."""
+    import polisyos.scientist.nodes.builtins.decide.policy_runtime_support as owner
+
+    work_spy = MagicMock(side_effect=AssertionError("evaluation work must remain unreachable"))
+    monkeypatch.setattr(owner, "_build_evidence_driven_simulation_metrics", work_spy)
+    engine = _PolicyRuntimeWorkflowEngine(
+        fidelity="selection",
+        backend=ProductionPolicyEvaluationBackend(),
+    )
+
+    with pytest.raises(PolicyRuntimeEvaluationSafetyError) as exc_info:
+        engine.run(
+            {
+                "policy_candidate_schema": _candidate(),
+                "simulation_metrics": {"policy_value": 1.0},
+            }
+        )
+
+    assert exc_info.value.blocker_codes == ("polisyos.eval_safety.execution_context_missing@1.0.0",)
+    work_spy.assert_not_called()

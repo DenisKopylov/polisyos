@@ -98,7 +98,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 26 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
-| `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 957 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
+| `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 964 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
 | `polisyos.lex` | `public_stable` | `lazy_facade` | 51 | `team-polisyos` | `src/polisyos/lex/README.md` |
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 25 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
@@ -2527,7 +2527,7 @@ verify_replay
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.runtime.quality` | `src/polisyos/runtime/quality/__init__.py` | `eager_exports` | 957 |
+| `polisyos.runtime.quality` | `src/polisyos/runtime/quality/__init__.py` | `eager_exports` | 964 |
 
 #### `polisyos.runtime.quality`
 
@@ -2535,7 +2535,7 @@ verify_replay
 - Facade: `eager_exports`
 - Summary: Runtime quality evaluation helpers.
 
-<details><summary>Entrypoint exports (957)</summary>
+<details><summary>Entrypoint exports (964)</summary>
 
 ```text
 ACQUISITION_PLANNER_GATE_LAYER
@@ -2915,6 +2915,9 @@ EnvelopeRevision
 EnvelopeRevisionDirection
 EnvelopeRevisionDynamicsRecord
 EpistemicRegimeClaim
+EvalSafetyAdmissionChallenge
+EvalSafetyVerifierPort
+EvaluationExecutionContext
 EvaluationStatusCompositionRecord
 EvaluationStatusCompositionRow
 EvidenceAcquisitionNeeds
@@ -3141,6 +3144,7 @@ VoiAllocationRow
 VoiSite
 WelfareComparisonRecord
 WelfareComparisonStatus
+WorldModelRecord
 acquisition_planner_reports_from_quality_evidence
 acquisition_planner_scorecard_gates
 acquisition_report_deficit_records
@@ -3349,6 +3353,7 @@ evaluate_semantic_binding_ledger
 evaluate_semantic_evaluation_pack
 evaluate_semantic_gold_card_fixture
 evaluate_strategic_response
+evaluation_safety_consumer_admission_is_verified
 evidence_line_record_id
 evidence_synthesis_refs_by_claim
 explain_mode_mismatch
@@ -3420,6 +3425,7 @@ regime_design_strategy
 replay_under_new_rules
 replay_under_original_rules
 requirement_gaps_from_compiled_specs
+resolve_evaluation_mode
 resolve_expression
 resolve_s12_resource_refs
 review_controls_for_pruning
@@ -3494,12 +3500,13 @@ verify_s11_predictive_knowledge_authority_envelope
 verify_sealed_battery_integrity
 verify_universality_claim_authority
 warning_lifecycle_summaries
+world_model_record_content_hash
 write_authority_envelope_json_schema
 ```
 
 </details>
 
-<details><summary>Supported exports (957)</summary>
+<details><summary>Supported exports (964)</summary>
 
 ```text
 ACQUISITION_PLANNER_GATE_LAYER
@@ -3879,6 +3886,9 @@ EnvelopeRevision
 EnvelopeRevisionDirection
 EnvelopeRevisionDynamicsRecord
 EpistemicRegimeClaim
+EvalSafetyAdmissionChallenge
+EvalSafetyVerifierPort
+EvaluationExecutionContext
 EvaluationStatusCompositionRecord
 EvaluationStatusCompositionRow
 EvidenceAcquisitionNeeds
@@ -4105,6 +4115,7 @@ VoiAllocationRow
 VoiSite
 WelfareComparisonRecord
 WelfareComparisonStatus
+WorldModelRecord
 acquisition_planner_reports_from_quality_evidence
 acquisition_planner_scorecard_gates
 acquisition_report_deficit_records
@@ -4313,6 +4324,7 @@ evaluate_semantic_binding_ledger
 evaluate_semantic_evaluation_pack
 evaluate_semantic_gold_card_fixture
 evaluate_strategic_response
+evaluation_safety_consumer_admission_is_verified
 evidence_line_record_id
 evidence_synthesis_refs_by_claim
 explain_mode_mismatch
@@ -4384,6 +4396,7 @@ regime_design_strategy
 replay_under_new_rules
 replay_under_original_rules
 requirement_gaps_from_compiled_specs
+resolve_evaluation_mode
 resolve_expression
 resolve_s12_resource_refs
 review_controls_for_pruning
@@ -4458,6 +4471,7 @@ verify_s11_predictive_knowledge_authority_envelope
 verify_sealed_battery_integrity
 verify_universality_claim_authority
 warning_lifecycle_summaries
+world_model_record_content_hash
 write_authority_envelope_json_schema
 ```
 

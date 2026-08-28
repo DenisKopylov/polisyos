@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -32,6 +33,7 @@ from polisyos.ir.analytics.strategic import (
 )
 from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.registry.refs import ArtifactRefModel
+from polisyos.runtime.quality import WorldModelRecord
 from polisyos.scientist.evidence.sources import (
     build_path_source_status,
 )
@@ -333,7 +335,11 @@ class RunPolicyBlueprintRuntimeNode:
         simulation_metrics = runtime_request.simulation_metrics
         ambiguity_certificate = runtime_request.ambiguity_certificate
         ambiguity_certificate_ref = runtime_request.ambiguity_certificate_ref
-        runtime_backend = ProductionPolicyEvaluationBackend()
+        runtime_backend = ProductionPolicyEvaluationBackend(
+            eval_safety_execution_context=ctx.eval_safety_execution_context,
+            eval_safety_verifier=ctx.eval_safety_verifier,
+            world_model_record=_world_model_record_from_state(state),
+        )
         input_signature = policy_runtime_input_signature(
             candidate_ref=candidate_ref,
             state=state,
@@ -1595,6 +1601,18 @@ def _recompute_stress_test_report(report: StressTestReport) -> StressTestReport:
             ),
         }
     )
+
+
+def _world_model_record_from_state(state: ExperimentState) -> WorldModelRecord | None:
+    raw_record = state.params.get("world_model_record")
+    if isinstance(raw_record, WorldModelRecord):
+        return raw_record
+    if isinstance(raw_record, Mapping):
+        try:
+            return WorldModelRecord.model_validate(raw_record)
+        except ValidationError:
+            return None
+    return None
 
 
 def _resolve_policy_runtime_source_statuses(

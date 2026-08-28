@@ -24,6 +24,7 @@ from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.intervention_artifacts import LexPolicyBundleInput
 from polisyos.lex.interventions import HierarchicalPolicySearchPlan
+from polisyos.runtime.quality import WorldModelRecord
 from polisyos.scientist.methods.search.controller import (
     SearchIteration,
     SearchResult,
@@ -40,6 +41,7 @@ from polisyos.scientist.nodes.builtins.causal.resolve_parameters import ResolveP
 from polisyos.scientist.nodes.builtins.causal.run_causal_readiness import RunCausalReadinessNode
 from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    PolicyRuntimeEvaluationSafetyError,
     ProductionPolicyEvaluationBackend,
     build_policy_runtime_evaluation,
     load_ambiguity_certificate,
@@ -830,18 +832,29 @@ def _evaluate_candidate_payload(
     candidate_state = simulation_outcome.state
 
     simulation_metrics = load_simulation_metrics(ctx, candidate_state) or None
-    evaluation_artifact = build_policy_runtime_evaluation(
-        candidate,
-        backend=ProductionPolicyEvaluationBackend(),
-        fidelity="selection",
-        simulation_metrics=simulation_metrics,
-        uncertainty=load_search_uncertainty(ctx, candidate_state),
-        distributional_report=load_distributional_report_for_state(ctx, candidate_state),
-        causal_effect_report=load_causal_report(ctx, candidate_state),
-        cross_graph_profile=load_cross_graph_profile(ctx, candidate_state),
-        governance_report=load_governance_report(ctx, candidate_state),
-        ambiguity_certificate=load_ambiguity_certificate(ctx, candidate_state),
-    )
+    try:
+        evaluation_artifact = build_policy_runtime_evaluation(
+            candidate,
+            backend=ProductionPolicyEvaluationBackend(
+                eval_safety_execution_context=ctx.eval_safety_execution_context,
+                eval_safety_verifier=ctx.eval_safety_verifier,
+                world_model_record=_world_model_record_from_state(candidate_state),
+            ),
+            fidelity="selection",
+            simulation_metrics=simulation_metrics,
+            uncertainty=load_search_uncertainty(ctx, candidate_state),
+            distributional_report=load_distributional_report_for_state(ctx, candidate_state),
+            causal_effect_report=load_causal_report(ctx, candidate_state),
+            cross_graph_profile=load_cross_graph_profile(ctx, candidate_state),
+            governance_report=load_governance_report(ctx, candidate_state),
+            ambiguity_certificate=load_ambiguity_certificate(ctx, candidate_state),
+        )
+    except PolicyRuntimeEvaluationSafetyError as exc:
+        return _rejected_stage_b_result(
+            candidate,
+            blocked_reason="eval_safety_blocked",
+            details={"blocker_codes": list(exc.blocker_codes)},
+        )
     evaluation = evaluation_artifact.evaluation_vector.model_copy(
         update={
             "metadata": {
@@ -862,6 +875,18 @@ def _evaluate_candidate_payload(
             evaluation_artifact.simulation_results
         ),
     }
+
+
+def _world_model_record_from_state(state: ExperimentState) -> WorldModelRecord | None:
+    raw = state.params.get("world_model_record")
+    if isinstance(raw, WorldModelRecord):
+        return raw
+    if isinstance(raw, Mapping):
+        try:
+            return WorldModelRecord.model_validate(raw)
+        except ValidationError:
+            return None
+    return None
 
 
 def _rejected_stage_b_result(

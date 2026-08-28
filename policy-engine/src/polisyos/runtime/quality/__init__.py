@@ -786,6 +786,13 @@ from .effective_mode import (
     explain_mode_mismatch,
     mode_policy_failure_code,
 )
+from .evaluation_modes import resolve_evaluation_mode
+from .evaluation_safety import (
+    EvalSafetyAdmissionChallenge,
+    EvalSafetyVerifierPort,
+    EvaluationExecutionContext,
+    evaluation_safety_consumer_admission_is_verified,
+)
 from .event_log import DiagnosticEventPayloadPolicy, RuntimeDiagnosticEventLog
 from .evidence_independence import (
     GRADED_INDEPENDENCE_FEATURE_FLAG,
@@ -1100,6 +1107,7 @@ from .tenant_cas_approval_governance import (
     policy_design_pass1b_hardening_scorecard_gates,
     validate_pass1b_tenant_cas_approval_governance_record,
 )
+from .world_model_record import WorldModelRecord, world_model_record_content_hash
 
 __all__ = [
     "ACQUISITION_PLANNER_GATE_LAYER",
@@ -1479,6 +1487,9 @@ __all__ = [
     "EnvelopeRevisionDirection",
     "EnvelopeRevisionDynamicsRecord",
     "EpistemicRegimeClaim",
+    "EvalSafetyAdmissionChallenge",
+    "EvalSafetyVerifierPort",
+    "EvaluationExecutionContext",
     "EvaluationStatusCompositionRecord",
     "EvaluationStatusCompositionRow",
     "EvidenceAcquisitionNeeds",
@@ -1705,6 +1716,7 @@ __all__ = [
     "VoiSite",
     "WelfareComparisonRecord",
     "WelfareComparisonStatus",
+    "WorldModelRecord",
     "acquisition_planner_reports_from_quality_evidence",
     "acquisition_planner_scorecard_gates",
     "acquisition_report_deficit_records",
@@ -1913,6 +1925,7 @@ __all__ = [
     "evaluate_semantic_evaluation_pack",
     "evaluate_semantic_gold_card_fixture",
     "evaluate_strategic_response",
+    "evaluation_safety_consumer_admission_is_verified",
     "evidence_line_record_id",
     "evidence_synthesis_refs_by_claim",
     "explain_mode_mismatch",
@@ -1984,6 +1997,7 @@ __all__ = [
     "replay_under_new_rules",
     "replay_under_original_rules",
     "requirement_gaps_from_compiled_specs",
+    "resolve_evaluation_mode",
     "resolve_expression",
     "resolve_s12_resource_refs",
     "review_controls_for_pruning",
@@ -2058,5 +2072,6 @@ __all__ = [
     "verify_sealed_battery_integrity",
     "verify_universality_claim_authority",
     "warning_lifecycle_summaries",
+    "world_model_record_content_hash",
     "write_authority_envelope_json_schema",
 ]

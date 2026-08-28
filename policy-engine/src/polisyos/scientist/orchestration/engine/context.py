@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from polisyos.core.security import AuditLog
+    from polisyos.runtime.quality import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.evidence.claims.head_index import ClaimLedgerOwnerPort
     from polisyos.scientist.orchestration.engine.metrics_protocol import EngineMetricsCollector
 
@@ -99,6 +100,15 @@ class ExecutionContext:
     lex: LexPort | None = None
 
     memory: Any | None = None  # PersistentMemoryStore (lazy import to avoid cycles)
+
+    eval_safety_execution_context: EvaluationExecutionContext | None = field(
+        default=None,
+        kw_only=True,
+    )
+    eval_safety_verifier: EvalSafetyVerifierPort | None = field(
+        default=None,
+        kw_only=True,
+    )
 
 
 @dataclass(frozen=True, kw_only=True)

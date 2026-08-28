@@ -145,6 +145,17 @@ Boundary notes:
   identities follow the same external-ref rule. C01 persists or executes
   nothing: CAS/event
   resolution, orchestration, and authority-grade metrics remain C02/C03 work.
+- The public experimental facade exports the canonical C04 verification-only
+  contracts used by Scientist: `EvalSafetyAdmissionChallenge`,
+  `EvalSafetyVerifierPort`, `EvaluationExecutionContext`, `WorldModelRecord`,
+  `evaluation_safety_consumer_admission_is_verified`,
+  `resolve_evaluation_mode`, and `world_model_record_content_hash`. Scientist
+  transports an externally supplied context and verifier unchanged; the causal
+  and production evaluation owners fail closed before work, bind the actual
+  attempted inputs and world-model record, and cannot be satisfied by promotion
+  state. These contracts certify an attempt only. They execute no pilot or
+  deployment, appoint no verifier or institution, and confer no execution,
+  pilot, deployment, promotion, or governance authority.
 - Public experimental exports must be reflected in the public-surface
   inventory and release fragments before release promotion.
 

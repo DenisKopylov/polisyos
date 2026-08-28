@@ -1365,7 +1365,8 @@ Fixed numeric ceilings, derived from completed `user + sys` comparisons:
 | planning/local census and source-set scripts | planning executor census CPU `user 13.70 + sys 0.42 = 14.12s`; `2 × 14.12 = 28.24s`, rounded up | **30s, planning/local census lane** |
 | ordinary local focused blast-radius command: at most two exact pytest node IDs, or one changed-path Ruff/recomputing-validator invocation | Two independent current-base runs of `test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow` plus `test_scope_insufficient_cannot_mint_production_authority`: run A uptime 22:39→22:40, CPU `user 51.38 + sys 2.20 = 53.58s`; run B uptime 22:40→22:41, CPU `user 52.67 + sys 2.03 = 54.70s`. The measured disagreement is `1.12s`; use the slower basis: `2 × 54.70 = 109.40s`, rounded up. | **110s, local focused-selection lane** |
 | one full backend owner-test file | current-base full `test_promotion_sequence.py` replay, uptime 22:01→22:22, CPU `user 1134.01 + sys 45.32 = 1179.33s`; `2 × 1179.33 = 2358.66s`, rounded up | **2360s, replay/cloud lane only** |
-| architecture guardrails | DS11 CPU `user 40.04 + sys 40.61 = 80.65s`; `2 × 80.65 = 161.30s`, rounded up | **180s, local guardrail lane** |
+| one registered generated-artifact writer | C04 trust writer measurements disagree by `57.89s`: initial CPU `41.53s`; frozen-C04 CPU `user 95.41 + sys 4.01 = 99.42s`. Use the slower basis: `2 × 99.42 = 198.84s`, rounded up. | **200s, local single-generator lane** |
+| aggregate architecture guardrails | Earlier warm-tree CPU `67.49s`; integrated C04 CPU `user 169.12 + sys 24.91 = 194.03s`, a `126.54s` disagreement. The inherited 180s ceiling was therefore measured unsafe. Use the slower basis: `2 × 194.03 = 388.06s`, rounded up. | **390s, local aggregate-guardrail lane** |
 | full `workspace ci-parity --skip-browser` | DS9/DS-INFRA completed CPU `user + sys = 754.20s`; `2 × 754.20 = 1508.40s`, rounded up | **1510s, replay/cloud parity lane** |
 
 Every run still records its own `user`, `sys`, ordinary exit, and uptime pair.
@@ -1905,11 +1906,51 @@ all three generated-artifact families clean.
 
 `GY-O0-NC-02` is therefore **withdrawn**: it described a repository freshness
 property whose published generator closes it, not a residual capability gap.
-C00-C02 remain closed; C03 remains 4/5 delivered while DS15's unmerged
-`b633ea7b75af4d07feaf0690926712353022d21f` holds the lifecycle seam; C04 resumes
-now. C05 still may not report closure while that C03 seam is open. Re-run the
-same registered writer after C04 source freeze so the generated receipt remains
-fresh.
+C00-C02 remain closed. The replacement execution ruling removes all
+cross-lane waits and makes the C03 lifecycle path an ordinary local edit; no
+sibling commit may be imported. C05 still may not report closure while that
+C03 seam is open. Re-run the same registered writer after every Python source
+freeze so the generated receipt remains fresh.
+
+#### C04 execution closure receipt (2026-08-28)
+
+C04 closes the five merged Scientist chokepoints through two semantic owners
+and owner-only transport at the hierarchical, blueprint, and direct-engine
+callers. The exact eight historical deep-import edges were derived twice and
+the frozen branch adds zero unsupported edges: seven edges re-spell through
+`polisyos.runtime.quality`; `core.components` re-spells through the existing
+`polisyos.core` facade. Two independent symbol derivations agree on exactly
+seven new runtime-quality exports, with no eighth name.
+
+The focused closure wave selected at most two exact node IDs per command and
+passed **26 collected cases** by both command-output summation and selector/
+parameter arithmetic. It covers canonical facade identity, keyword-only
+context fields, six transport cases, the real worker omission, promotion
+independence, exact causal and production input identities, trusted provenance,
+actual-WMR content/identity/schema family, Synthetic compatibility, and all
+three caller-bypass witnesses. Both owner-level P29 probes went red when the
+admission property was removed while markers stayed present, then green after
+restoration. Changed-path Ruff, format, compilation, and eight clean-process
+imports also exited 0.
+
+The facade sync exited 0 with CPU `user 15.65 + sys 0.50 = 16.15s` and changed
+exactly `architecture/public_surface/inventory.json` and
+`docs/reference/public-surface.md`. JSON and Markdown independently report
+`polisyos.runtime.quality=964`, `polisyos.core=133`, and
+`polisyos.runtime=10`. The frozen-source trust writer exited 0 with CPU
+`99.42s`; AST/tokenizer independently report **2,601** Python files and its
+bounded command changed only the registered trust artifact. Aggregate
+architecture guardrails exited 0 and reported all three generated families
+fresh, while producing the ceiling remeasurement recorded above. Protected
+deep-import, contract, debt/ledger, validator, and timing-catalog hashes are
+unchanged.
+
+The C04 release fragment passes the compatibility validator in isolation. The
+full fragment denominator remains P41-red on the unchanged Lex fragment; the
+exact validator reproduces the same one error on the pre-C04 `d2472f6f2`
+snapshot, so C04 does not edit it. C04 delivers all eight admitted mechanism
+paths, moving delivered execution from 12 to **20/21** while the hard ceiling
+remains **24**. Its widening round remains unspent.
 
 ### C05 — Freeze, reviews, focused local closure, cloud replay, and handoff
 

@@ -6,7 +6,14 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.runtime.quality.diagnostic_events import RECONCILIATION_FAILURE_CODES
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.runtime.quality.diagnostic_events import (
+    DIAGNOSTIC_EVENT_ARTIFACT_KIND,
+    DIAGNOSTIC_EVENT_SCHEMA_NAME,
+    DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+    RECONCILIATION_FAILURE_CODES,
+    DiagnosticEvent,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -57,9 +64,17 @@ def reconcile_authority_ref(
             ref=cas_ref,
         )
 
-    normalized_ref = cast("str", normalized_ref)
+    normalized_ref = cast("ArtifactID", normalized_ref)
     if not artifact_store.has(normalized_ref):
         _fail("authority_cas_missing", f"CAS artifact is missing: {normalized_ref}.")
+
+    verification = artifact_store.verify(normalized_ref)
+    if not verification.ok:
+        _fail(
+            "authority_payload_mismatch",
+            f"CAS artifact {normalized_ref} failed integrity verification.",
+            verification=verification.model_dump(mode="json"),
+        )
 
     manifest = artifact_store.get_manifest(normalized_ref)
     authority = manifest.authority
@@ -90,29 +105,73 @@ def reconcile_authority_ref(
         expected_job_id=expected_job_id,
     )
 
-    records = _matching_event_records(
-        event_log,
-        normalized_ref=normalized_ref,
-        run_id=closure.run_id if closure is not None else None,
-        job_id=closure.job_id if closure is not None else None,
-    )
-    if not records:
+    linked_event_ref = _normalize_cas_ref(authority.diagnostic_event_ref)
+    if linked_event_ref is None or not artifact_store.has(linked_event_ref):
         _fail(
             "authority_orphan_cas",
             f"CAS artifact {normalized_ref} has no durable diagnostic event.",
-            cas_ref=normalized_ref,
+            cas_ref=str(normalized_ref),
             diagnostic_event_ref=authority.diagnostic_event_ref,
         )
-    _assert_no_event_collision(records, normalized_ref=normalized_ref)
-    event = records[0].event
-    event_ref = _normalize_cas_ref(event.payload_ref or "")
-    if event_ref != normalized_ref:
+    linked_verification = artifact_store.verify(linked_event_ref)
+    if not linked_verification.ok:
         _fail(
             "authority_payload_mismatch",
-            f"Durable event {event.event_id} points at {event.payload_ref}, not {normalized_ref}.",
+            f"Linked diagnostic event {linked_event_ref} failed integrity verification.",
+        )
+    linked_manifest = artifact_store.get_manifest(linked_event_ref)
+    linked_schema = linked_manifest.artifact_schema
+    if (
+        linked_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
+        or linked_schema is None
+        or linked_schema.name != DIAGNOSTIC_EVENT_SCHEMA_NAME
+        or linked_schema.version != DIAGNOSTIC_EVENT_SCHEMA_VERSION
+    ):
+        _fail(
+            "authority_payload_mismatch",
+            f"Linked diagnostic event {linked_event_ref} has the wrong kind or schema.",
+        )
+    try:
+        linked_event = DiagnosticEvent.model_validate(
+            from_canonical_bytes(artifact_store.get_bytes(linked_event_ref))
+        )
+    except (TypeError, ValueError) as exc:
+        _fail(
+            "authority_payload_mismatch",
+            f"Linked diagnostic event {linked_event_ref} is malformed.",
+            error=str(exc),
+        )
+    records = event_log.list_events(event_id=linked_event.event_id, limit=2)
+    if len(records) != 1:
+        _fail(
+            "authority_event_collision" if records else "authority_orphan_cas",
+            f"Diagnostic event {linked_event.event_id} did not resolve exactly once.",
+            event_id=linked_event.event_id,
+            record_count=len(records),
+        )
+    record = records[0]
+    event = record.event
+    if event != linked_event:
+        _fail(
+            "authority_payload_mismatch",
+            f"Durable event {event.event_id} differs from its linked CAS event.",
+            event_id=event.event_id,
+        )
+    event_ref = _normalize_cas_ref(event.payload_ref or "")
+    row_ref = _normalize_cas_ref(record.payload_ref or "")
+    if (
+        event_ref != normalized_ref
+        or row_ref != normalized_ref
+        or event.artifact_refs != (str(normalized_ref),)
+    ):
+        _fail(
+            "authority_payload_mismatch",
+            f"Durable event {event.event_id} does not bind exactly to {normalized_ref}.",
             event_id=event.event_id,
             event_payload_ref=event.payload_ref,
-            cas_ref=normalized_ref,
+            row_payload_ref=record.payload_ref,
+            event_artifact_refs=event.artifact_refs,
+            cas_ref=str(normalized_ref),
         )
     if str(event.tenant_id) != str(tenant.tenant_id if tenant is not None else event.tenant_id):
         _fail(
@@ -125,7 +184,7 @@ def reconcile_authority_ref(
 
     return AuthorityReconciliationReport(
         status="pass",
-        cas_ref=normalized_ref,
+        cas_ref=str(normalized_ref),
         durable_event_id=event.event_id,
     )
 
@@ -138,14 +197,14 @@ def reconcile_authority_event(
 ) -> AuthorityReconciliationReport:
     """Verify that one durable diagnostic event references a live CAS artifact."""
 
-    records = event_log.list_events(event_id=event_id, limit=100)
-    if not records:
+    records = event_log.list_events(event_id=event_id, limit=2)
+    if len(records) != 1:
         _fail(
-            "authority_orphan_cas",
-            f"Durable diagnostic event {event_id!r} was not found.",
+            "authority_event_collision" if records else "authority_orphan_cas",
+            f"Durable diagnostic event {event_id!r} did not resolve exactly once.",
             event_id=event_id,
+            record_count=len(records),
         )
-    _assert_no_event_collision(records, normalized_ref=None)
     event = records[0].event
     normalized_ref = _normalize_cas_ref(event.payload_ref or "")
     if normalized_ref is None:
@@ -155,6 +214,7 @@ def reconcile_authority_event(
             event_id=event.event_id,
             payload_ref=event.payload_ref,
         )
+    normalized_ref = cast("ArtifactID", normalized_ref)
     if not artifact_store.has(normalized_ref):
         _fail(
             "authority_cas_missing",
@@ -165,7 +225,7 @@ def reconcile_authority_event(
     return reconcile_authority_ref(
         artifact_store=artifact_store,
         event_log=event_log,
-        cas_ref=normalized_ref,
+        cas_ref=str(normalized_ref),
         expected_tenant_id=event.tenant_id,
         expected_cell_id=event.cell_id,
         expected_run_id=event.run_id,
@@ -173,28 +233,9 @@ def reconcile_authority_event(
     )
 
 
-def _matching_event_records(
-    event_log: Any,
-    *,
-    normalized_ref: str,
-    run_id: str | None,
-    job_id: str | None,
-) -> list[Any]:
-    records = event_log.list_events(run_id=run_id, job_id=job_id, limit=1000)
-    return [
-        record
-        for record in records
-        if _normalize_cas_ref(record.event.payload_ref or "") == normalized_ref
-        or normalized_ref
-        in {
-            ref
-            for raw_ref in record.event.artifact_refs
-            if (ref := _normalize_cas_ref(raw_ref)) is not None
-        }
-    ]
-
-
-def _assert_no_event_collision(records: list[Any], *, normalized_ref: str | None) -> None:
+def _assert_no_event_collision(
+    records: list[Any], *, normalized_ref: ArtifactID | None
+) -> None:
     seen: dict[str, str | None] = {}
     for record in records:
         event = record.event
@@ -242,20 +283,20 @@ def _assert_expected_identity(
         )
 
 
-def _normalize_cas_ref(value: str) -> str | None:
+def _normalize_cas_ref(value: str) -> ArtifactID | None:
     text = str(value or "").strip()
     if not text:
         return None
     if text.startswith("sha256:"):
         try:
-            return str(ArtifactID.model_validate(text))
-        except Exception:
+            return ArtifactID.model_validate(text)
+        except (TypeError, ValueError):
             return None
     if text.startswith("cas://sha256/"):
         digest = text.removeprefix("cas://sha256/")
         try:
-            return str(ArtifactID.model_validate(f"sha256:{digest}"))
-        except Exception:
+            return ArtifactID.model_validate(f"sha256:{digest}")
+        except (TypeError, ValueError):
             return None
     return None
 

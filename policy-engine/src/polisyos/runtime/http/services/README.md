@@ -31,6 +31,19 @@ projections. Route handlers should stay thin and delegate behavior here.
   service persists an owner-derived subject, reconciles it through the same Decision Validity
   owner used by direct generation, and passes only sealed positive gate evidence to N9. Missing
   predicate-policy admission remains the exact typed negative `policy_admission_missing`.
+- **Attempted-evaluation safety custody** - `control/evaluation_safety.py` composes the pure C01
+  owners, persists the eight fixed artifact families through the shared CAS/event writer, replays
+  public DTOs through canonical owner procedures, and emits complete-denominator informational
+  metrics. `EvaluationSafetyAdmissionVerifier` is the dedicated verification-only consumer port:
+  every call re-reads the certificate, decision, request, intake, and complete revision lineage from
+  CAS, replays C01 with current appointed evidence, and returns C01's challenge-bound receipt
+  unchanged. Initial composition and replay share one owner state machine for the complete typed
+  absence lattice. Authority reuse/readback binds the exact manifest inputs and complete declared
+  envelope/event context plus the deterministically derived CAS-writer attestation ref, so
+  identical payload bytes cannot cross request lineage or accept a substituted attestation.
+  Resolver and inaccessible-CAS failures fail closed at typed read boundaries; programmer defects
+  from canonical authority owners remain visible. Challenges and consumer admission receipts
+  remain non-durable and consumer-owned.
 
 ## Public API
 
@@ -55,6 +68,11 @@ projections. Route handlers should stay thin and delegate behavior here.
 - [`control.py`](control.py), [`control_worker.py`](control_worker.py), and
   [`control_plane_store.py`](control_plane_store.py) own control-plane run
   lifecycle behavior and are intentionally kept behind route-layer adapters.
+- [`control/evaluation_safety.py`](control/evaluation_safety.py) owns the typed evaluation-safety
+  persistence/reconciliation adapter, the single-operation admission verifier, and the public
+  metrics-projection read-identity accessor. The verifier exposes only
+  `require_admission(context, challenge)` and has no route, executor, scheduler, callback,
+  transport, cache, or broad control-store dependency.
 - [`human_decision_contracts.py`](human_decision_contracts.py) defines strict
   route/service contracts, while [`human_decisions.py`](human_decisions.py)
   owns signed-input reconciliation, append-only record custody, reservation
@@ -108,6 +126,6 @@ changes.
 
 ## Current State
 
-- Last updated: 2026-08-24
+- Last updated: 2026-08-28
 - The tree still centers on `artifact_inspector.py`, `debug.py`, `lineage.py`, `run_index.py`, and `timeline.py`.
 - The control service continues to support feedback evaluation, reissue, and data/Lex orchestration surfaces.

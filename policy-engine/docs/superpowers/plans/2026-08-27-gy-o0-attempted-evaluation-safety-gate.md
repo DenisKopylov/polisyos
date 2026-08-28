@@ -1168,6 +1168,14 @@ union is `16 base + 2 C02 + 2 C03 + 1 facade = 21`. Both therefore read
 is completion of an existing supported public entrypoint, so it narrows the
 deep-import set and does not spend C04's new-class widening round.
 
+The **21/24** figure is the admitted execution manifest, not a claim that every
+admitted path has landed. At the C05/DS11 stop recorded below, two independent
+delivered-set derivations agree on **12 delivered mechanism paths**: an exact
+`main...HEAD` intersection with the 21-path manifest returns 12, and cluster
+arithmetic returns `C01 4 + C02 4 + C03 4 + C04 0 = 12`. The nine admitted but
+undelivered paths are C03's lifecycle owner plus C04's seven Scientist paths
+and one runtime-quality facade path.
+
 ### 10.3 Per-cluster mechanism caps and widening rounds
 
 | Cluster | Declared base | Hard cap | Widening budget |
@@ -1843,6 +1851,49 @@ lane and relocation lane are merged. C03 must finish its lifecycle/run-paper
 slice after an immediate pre-touch intersection readback. C04 must recover the
 quarantined checkpoint semantically against the relocated tree, close all five
 Scientist chokepoints, and only then permit C05 to run.
+
+#### Execution stop: DS11 trust-posture evidence is stale on the GY-O0 tree
+
+The immediate pre-touch collision census found a new live DS15 lifecycle edit,
+so C03 correctly serialized only `run_lifecycle.py` and closed its released
+run-paper sibling first. That subcluster landed at `a1f4e2360` and its
+independent task review returned specification PASS and quality APPROVED with
+no findings. DS15 later froze and read back the lifecycle seam at
+`b633ea7b75af4d07feaf0690926712353022d21f`; GY-O0 did not overwrite or
+transplant it.
+
+Before the remaining lifecycle/C04 work began, C05's complete-denominator
+audit established a separate serious outside-owner problem:
+
+- two independent live-source walks over this branch return **2,601 Python
+  files**;
+- `main` and both independent receipts in the committed DS11 trust-posture
+  artifact bind **2,598**;
+- the exact three-member delta is
+  `src/polisyos/runtime/http/services/control/evaluation_safety.py`,
+  `src/polisyos/runtime/quality/evaluation_modes.py`, and
+  `src/polisyos/runtime/quality/evaluation_safety.py`;
+- default `architecture guardrails check` necessarily recomputes the complete
+  source set and byte-compares the generated DS11 Atlas artifact, so this is a
+  branch-owned P41 red, not an inherited or tooling red.
+
+The only honest repair is the registered team-architecture/DS11 writer that
+regenerates
+`apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json` after the
+source freezes. That path is an Atlas/dashboard public evidence surface and is
+explicitly forbidden to GY-O0. Public-surface
+`guardrails sync --skip-deep-import-baseline` cannot repair it; narrowing the
+walker, skipping generated checks, consolidating/deleting the three C01
+owners, or hand-editing the artifact would weaken or evade the property.
+
+This meets the task's serious-outside-focus stop condition: repair changes
+another owner's evidence and an explicitly governed write path. The state is
+`surface_out_of_scope` for O0, with a present, correctly fail-closed verifier;
+it is not `verification_missing`. Disposition at stop: C00-C02 are closed;
+C03 has 4/5 mechanism paths delivered and its lifecycle path remains open;
+C04 and C05 remain open; O0 is not closed. No C04 source, facade, generated
+public-surface companion, release fragment, deep-import baseline, Atlas asset,
+dashboard path, or lifecycle path was changed after this finding.
 
 ### C05 — Freeze, reviews, focused local closure, cloud replay, and handoff
 

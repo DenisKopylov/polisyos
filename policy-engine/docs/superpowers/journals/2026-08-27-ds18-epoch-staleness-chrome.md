@@ -935,3 +935,11 @@ reconciled render denominator, and semantic falsifiers that mutate the underlyin
 state while holding markers fixed. The final mechanism budget is **47 / 44**, with
 **6 / 7** widening rounds spent, **19 facade remedies / 0 exceptions**, and no hidden
 path or baseline update.
+
+The first final blob readback derived the continuation path set correctly twice but
+passed its repo-root members to `git ls-tree` from inside `policy-engine/`, so every
+lookup was prefixed twice and the command was rejected as a coordinate-frame
+non-receipt. This is the same class as the rejected frontend lint invocation above.
+The property-level readback resolves `git rev-parse --show-toplevel` once and executes
+both set derivations and every tree lookup from that single top-level coordinate; no
+per-path substitution is admitted.

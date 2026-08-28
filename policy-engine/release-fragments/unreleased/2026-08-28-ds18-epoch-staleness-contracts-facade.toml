@@ -1,0 +1,54 @@
+id = "2026-08-28-ds18-epoch-staleness-chrome"
+title = "Expose epoch staleness projection and governance perturbation contracts"
+type = "added"
+component = "runtime-quality"
+owner = "team-policyos-runtime"
+summary = "Expose the epoch staleness projection view family and the persisted governance monitor perturbation contracts through their supported facades, and admit polisyos.scientist.governance.continuous as a supported entrypoint."
+evidence = [
+  "tests/unit/runtime/quality/test_epoch_staleness_projection.py",
+  "tests/unit/runtime/quality/test_epoch_validity_cascade.py",
+  "tests/unit/scientist/governance/continuous/test_monitors.py",
+  "tests/unit/scientist/governance/continuous/test_invalidation.py",
+  "tests/unit/scientist/governance/continuous/test_lifecycle_bridge.py",
+  "tests/unit/runtime/http/test_temporal_routes.py",
+]
+compatibility = "Additive only. The exported objects are already owned by runtime quality and continuous governance; the facades re-export them without changing identity. No existing import path, signature, or behaviour changes, and no caller is required to migrate."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.core.contracts, polisyos.scientist.governance.continuous"
+migration = "No migration is required. New consumers should import the epoch staleness view family and TemporalScope from polisyos.core.contracts, and the six perturbation classes, PersistedGovernanceMonitorEvent, GOVERNANCE_MONITOR_EVENT_KIND and resolve_governance_monitor_event from polisyos.scientist.governance.continuous, rather than reaching into the implementation modules."
+api = "Adds fifteen exports to polisyos.core.contracts covering the epoch staleness projection views, perturbation and projection status enums, absence views, TemporalScope and epoch_staleness_semantic_hash; adds nine exports to polisyos.scientist.governance.continuous covering the six perturbation classes, the persisted monitor event contract, its kind constant and its resolver; and admits polisyos.scientist.governance.continuous as a supported entrypoint."
+limitations = "The projection contracts describe epoch staleness and governance perturbation state only. They appoint no epoch predicate-policy signer, no epoch transition signer and no independent epoch-history holder; all three remain absent and unallocated. Positive transition production stays implemented but not orchestrated, positive transition verification and the epoch inheritance/recompute projection remain producer-missing, and whole-history authenticity remains not established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/runtime/quality/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "core-contracts-epoch-staleness-projection-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.core.contracts"
+owner = "team-policyos-runtime"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "polisyos.core.contracts now exposes the epoch staleness projection view family, the perturbation and projection status enums, the institutional and engineering absence views, TemporalScope and epoch_staleness_semantic_hash."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "continuous-governance-perturbation-contracts-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.scientist.governance.continuous"
+owner = "team-policyos-runtime"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "polisyos.scientist.governance.continuous becomes a supported entrypoint and exposes the six governance perturbation classes, the persisted monitor event contract, its kind constant and its resolver."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

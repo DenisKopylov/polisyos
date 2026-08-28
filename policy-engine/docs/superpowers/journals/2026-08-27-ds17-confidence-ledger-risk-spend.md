@@ -180,3 +180,85 @@ No production route, enum, or test environment was altered.
 The red-test implementation has no production behavior to turn green in this
 cluster. C01 owns the two derived-negative domain modules; C02 owns the
 protected static HTTP bridge. Reopen the failure/repair register before C06.
+
+## C01 — typed derived-negative coverage and exact risk-spend projection
+
+C01 adds exactly two mechanism paths:
+`runtime/quality/obligation_coverage.py` and
+`runtime/quality/confidence_ledger_surface.py`. The two C00 quality tests and
+nearest runtime-quality README are P39 companions; this journal is the required
+record companion. Reserve spend is **0**.
+
+The coverage owner derives only `open_world_unresolved` or
+`known_incomplete`. The latter requires a unique exact-key witness resolved
+through `FileSystemCAS`, whose bytes, manifest kind/schema, producer/verifier,
+scope, owner scope, protected action, and assessment key all bind. The real GY
+OM-01 fixture rejects cross-scope; byte corruption, manifest substitution,
+wrong key, duplicate refs, and shaped inputs reject. Source provenance remains
+separate from searched sources and records canonical-registry admission versus
+semantic-source worker admission not established. The closed reason tuple is
+derived from the arm plus search/exclusion/independence predicates.
+
+The surface derives 15 class allocation/spent/remaining/overspend rows, one
+scope-local total row, 13 definition rows, the complete six-route register,
+three instances (one refusal and two acquisition), and an explicit zero-entry
+unappointed positive register. Every amount is an exact rational with an exact
+canonical decimal, typed class when applicable, the exact scope/owner/envelope,
+maintained assumptions, declared-class hash, and both disclosures. Projection
+validation recursively binds every nested amount and route to the top-level
+scope, resolved envelope, and registry. Domain admission revalidates, canonical
+dumps, re-admits, and compares the complete typed projection/hash; missing,
+unsupported, and malformed/invariant failures map to the applicable three of
+the closed seven safety reasons. Packet/query-only reasons remain structurally
+unreachable in C01.
+
+### C01 measured gates
+
+- Initial C00 focused RED: exit `1`, `8 failed` = six C01-owned plus the two
+  explicitly C02-owned missing-owner tests; `real 32.26`, `user 28.45`, `sys
+  1.54`, uptime `22:01` -> `22:02`.
+- Final C01-only branch lane (the two exact C02 names deselected): exit `0`,
+  `18 passed`, `real 27.52`, `user 25.64`, `sys 0.97`, uptime `23:11` ->
+  `23:11`.
+- Final four-path Ruff lane: exit `0`, `All checks passed!`, `real 0.09`,
+  `user 0.02`, `sys 0.01`.
+- Final branch importer-inclusive lane: exit `1`, `134 passed / 7 failed`,
+  `real 1684.72`, `user 1571.40`, `sys 88.35`, uptime `23:11` -> `23:39`.
+  Exactly two failures are C02-owned absent
+  `runtime.http.services.confidence_ledger_risk_spend_projection`; all 18 C01
+  cases are green. The other five are importer failures named below.
+- Clean exact-base-main importer lane at `dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f`:
+  exit `1`, `116 passed / 5 failed`, `real 1532.75`, `user 1418.11`, `sys
+  66.84`, uptime `23:40` -> `00:05`. The five failures reproduce exactly and
+  the C01 companion denominator is `0` because both files are absent at main.
+
+The exact five P41-inherited importer failures are:
+
+1. `test_deployment_identity_manifest_is_complete_and_import_order_independent`
+   (`cg_substrate_unavailable:ortools_cp_sat:ModuleNotFoundError`);
+2. `test_cross_process_negative_scope_membership_is_never_cached`;
+3. `test_unlinked_held_lock_cannot_admit_replacement_writer`;
+4. `test_same_process_recovery_cannot_close_a_live_owner_invocation`;
+5. `test_cross_process_recovery_cannot_close_a_live_owner_invocation`.
+
+They reproduce on the exact slice base and the C01 changed-path intersection
+with their input owner (`confidence_ledger.py`) is empty, so they are inherited
+environment/fork-lock reds rather than C01 debt. The only selected future-owner
+reds are the two exact C02 names required by the C01 brief.
+
+Two earlier long importer attempts are tooling non-receipts: the first wrapper
+lost its stdout/timing capture, and the second was interrupted on controller
+request while downstream C04 audited the producer contract. Neither contributes
+counts or timings. A later pre-freeze replay was likewise stopped on controller
+request before receipt and is excluded. The final branch and exact-main runs
+above are the only accepted importer receipts.
+
+Pattern pass: P29/P32 close through actual CAS resolution and canonical domain
+re-admission rather than markers; P31 closes nested amount/route binding at the
+projection chokepoint; P35 derives all class/instrument/route/reason
+denominators from typed source sets; P37/P38 preserve unknown coverage and
+worker admission as fail-closed states; P39 counts two mechanism paths; P40
+widened the same mechanism to the complete consumer-required quantity; P41
+classifies the five importer reds by exact-base replay. Capability state is
+`surface_out_of_scope` for HTTP/dashboard/publication until C02/C04; the C01
+domain producer, verification, and semantic tests are implemented.

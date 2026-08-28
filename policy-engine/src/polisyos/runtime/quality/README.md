@@ -195,3 +195,18 @@ Workspace ownership:
   epoch-reference projections. Its bound is always conditional on obligation
   completeness and validator soundness; fixed-time labels and caller-authored
   spend never confer promotion authority.
+- `obligation_coverage.py` owns the negative-only coverage envelope over the
+  canonical registry and runtime semantic-ledger projection. It has an
+  unresolved open-world arm and a verifier-proven concrete-omission arm; the
+  latter is reachable only through a CAS-resolved, content-bound, exact-scope
+  witness. It emits no positive completeness arm and claim narrowing cannot
+  rescue the protected action.
+- `confidence_ledger_surface.py` owns the exact local risk-spend projection.
+  It derives all 15 obligation allocations, 13 instrument definitions, actual
+  ledger instances, the complete six-route registry, registry/profile blockers,
+  the explicit honest-zero positive register, and exact-or-blocked safety
+  reasons. Class rows and the one scope-total row expose allocation, spent,
+  remaining, and overspend as conditional amounts, so consumers perform no
+  budget arithmetic. Every amount retains its exact rational,
+  envelope/scope/owner binding, and both conditionality disclosures; no parent,
+  family, sequence, or cross-scope total is asserted.

@@ -12,6 +12,7 @@ import json
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Annotated, Literal, Protocol, Self
 from uuid import uuid4
 
@@ -1371,6 +1372,87 @@ class EvalSafetyAuthoritySurfacePacket(_FrozenModel):
     ]
 
 
+@dataclass(frozen=True, slots=True)
+class EvaluationSafetyArtifactIdentity:
+    """Immutable identity for one persisted evaluation-safety artifact family."""
+
+    key: str
+    kind: str
+    schema: str
+    reader_contract: str
+    evidence_class: Literal["authority_bearing", "diagnostic_supporting"]
+    authority_role: Literal[
+        "producer_authority", "projection_only", "not_authoritative"
+    ]
+
+
+def _evaluation_safety_artifact_identity(key: str) -> EvaluationSafetyArtifactIdentity:
+    stem = f"policyos.runtime.eval_safety.{key}"
+    authority_bearing = key in {
+        "pack_admission",
+        "decision",
+        "certificate",
+        "certificate_revision",
+    }
+    return EvaluationSafetyArtifactIdentity(
+        key=key,
+        kind=stem,
+        schema=f"{stem}.v1",
+        reader_contract=f"{stem}.reader",
+        evidence_class=(
+            "authority_bearing" if authority_bearing else "diagnostic_supporting"
+        ),
+        authority_role=(
+            "projection_only"
+            if key == "metrics_projection"
+            else ("producer_authority" if authority_bearing else "not_authoritative")
+        ),
+    )
+
+
+EVALUATION_SAFETY_ARTIFACT_IDENTITIES = MappingProxyType(
+    {
+        key: _evaluation_safety_artifact_identity(key)
+        for key in (
+            "pack_admission",
+            "intake",
+            "request",
+            "classification_offer",
+            "decision",
+            "certificate",
+            "certificate_revision",
+            "metrics_projection",
+        )
+    }
+)
+
+
+@dataclass(frozen=True, slots=True)
+class EvaluationSafetyProjectionReadIdentity:
+    """Typed identity required by generic projection egress."""
+
+    kind: str
+    schema_name: str
+    schema_version: Literal["1.0"]
+    purpose: Literal["runtime_closeout_authority", "dashboard_display"]
+
+
+def evaluation_safety_metrics_projection_identity(
+    surface: Literal["run", "artifact", "lineage", "dashboard"],
+) -> EvaluationSafetyProjectionReadIdentity:
+    """Return the canonical metrics-projection identity for one read surface."""
+
+    row = EVALUATION_SAFETY_ARTIFACT_IDENTITIES["metrics_projection"]
+    return EvaluationSafetyProjectionReadIdentity(
+        kind=row.kind,
+        schema_name=row.schema,
+        schema_version="1.0",
+        purpose=(
+            "dashboard_display" if surface == "dashboard" else "runtime_closeout_authority"
+        ),
+    )
+
+
 class EvalSafetyMetricsProjection(_FrozenModel):
     """Complete-denominator informational metrics projection contract."""
 
@@ -2337,6 +2419,7 @@ def verifier_port_is_verification_only(port_type: type[object]) -> bool:
 
 
 __all__ = [
+    "EVALUATION_SAFETY_ARTIFACT_IDENTITIES",
     "DomainEvalSafetyPack",
     "EvalSafetyAdmissionChallenge",
     "EvalSafetyAllApplicability",
@@ -2366,9 +2449,11 @@ __all__ = [
     "EvaluationAttemptRequest",
     "EvaluationExecutionContext",
     "EvaluationInputProvenance",
+    "EvaluationSafetyArtifactIdentity",
     "EvaluationSafetyAuthorityReplay",
     "EvaluationSafetyDecisionCore",
     "EvaluationSafetyDecisionEvent",
+    "EvaluationSafetyProjectionReadIdentity",
     "EvidenceVerifier",
     "NamespacedEvalSafetyId",
     "VerifiedNearMissClassification",
@@ -2380,6 +2465,7 @@ __all__ = [
     "evaluation_safety_consumer_admission_is_verified",
     "evaluation_safety_core_bytes",
     "evaluation_safety_decision_id",
+    "evaluation_safety_metrics_projection_identity",
     "recompute_attempt_class",
     "reconcile_evaluation_safety_revisions",
     "replay_evaluation_safety_authority",

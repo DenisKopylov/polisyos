@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
-from types import MappingProxyType
 from typing import TYPE_CHECKING, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict
@@ -29,6 +28,7 @@ from polisyos.runtime.quality.authority_reconciliation import (
     reconcile_authority_ref,
 )
 from polisyos.runtime.quality.evaluation_safety import (
+    EVALUATION_SAFETY_ARTIFACT_IDENTITIES,
     DomainEvalSafetyPack,
     EvalSafetyAdmissionChallenge,
     EvalSafetyAuthorityResolver,
@@ -48,14 +48,17 @@ from polisyos.runtime.quality.evaluation_safety import (
     EvaluationAttemptIntake,
     EvaluationAttemptRequest,
     EvaluationExecutionContext,
+    EvaluationSafetyArtifactIdentity,
     EvaluationSafetyDecisionCore,
     EvaluationSafetyDecisionEvent,
+    EvaluationSafetyProjectionReadIdentity,
     VerifiedNearMissClassification,
     admit_domain_evaluation_safety_pack,
     build_evaluation_safety_certificate,
     build_evaluation_safety_decision_event,
     decide_evaluation_safety_core,
     evaluation_execution_context_hash,
+    evaluation_safety_metrics_projection_identity,
     reconcile_evaluation_safety_revisions,
     replay_evaluation_safety_authority,
     verify_evaluation_safety_consumer_admission,
@@ -72,86 +75,6 @@ if TYPE_CHECKING:
 
 _PRODUCER_COMPONENT = "polisyos.runtime.http.control.evaluation_safety"
 _PRODUCER_VERSION = "1.0.0"
-
-
-@dataclass(frozen=True, slots=True)
-class EvaluationSafetyArtifactIdentity:
-    """Immutable identity for one C02 persisted artifact family."""
-
-    key: str
-    kind: str
-    schema: str
-    reader_contract: str
-    evidence_class: Literal["authority_bearing", "diagnostic_supporting"]
-    authority_role: Literal[
-        "producer_authority", "projection_only", "not_authoritative"
-    ]
-
-
-def _identity(key: str) -> EvaluationSafetyArtifactIdentity:
-    stem = f"policyos.runtime.eval_safety.{key}"
-    return EvaluationSafetyArtifactIdentity(
-        key=key,
-        kind=stem,
-        schema=f"{stem}.v1",
-        reader_contract=f"{stem}.reader",
-        evidence_class=(
-            "authority_bearing"
-            if key in {"pack_admission", "decision", "certificate", "certificate_revision"}
-            else "diagnostic_supporting"
-        ),
-        authority_role=(
-            "projection_only"
-            if key == "metrics_projection"
-            else (
-                "producer_authority"
-                if key
-                in {"pack_admission", "decision", "certificate", "certificate_revision"}
-                else "not_authoritative"
-            )
-        ),
-    )
-
-
-EVALUATION_SAFETY_ARTIFACT_IDENTITIES = MappingProxyType(
-    {
-        key: _identity(key)
-        for key in (
-            "pack_admission",
-            "intake",
-            "request",
-            "classification_offer",
-            "decision",
-            "certificate",
-            "certificate_revision",
-            "metrics_projection",
-        )
-    }
-)
-
-
-@dataclass(frozen=True, slots=True)
-class EvaluationSafetyProjectionReadIdentity:
-    """Typed identity required by generic projection egress."""
-
-    kind: str
-    schema_name: str
-    schema_version: Literal["1.0"]
-    purpose: Literal["runtime_closeout_authority", "dashboard_display"]
-
-
-def evaluation_safety_metrics_projection_identity(
-    surface: Literal["run", "artifact", "lineage", "dashboard"],
-) -> EvaluationSafetyProjectionReadIdentity:
-    """Return the canonical metrics-projection identity for one read surface."""
-
-    row = EVALUATION_SAFETY_ARTIFACT_IDENTITIES["metrics_projection"]
-    return EvaluationSafetyProjectionReadIdentity(
-        kind=row.kind,
-        schema_name=row.schema,
-        schema_version="1.0",
-        purpose=("dashboard_display" if surface == "dashboard" else "runtime_closeout_authority"),
-    )
 
 
 class EvaluationSafetyPersistenceContext(BaseModel):

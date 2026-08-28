@@ -943,3 +943,51 @@ non-receipt. This is the same class as the rejected frontend lint invocation abo
 The property-level readback resolves `git rev-parse --show-toplevel` once and executes
 both set derivations and every tree lookup from that single top-level coordinate; no
 per-path substitution is admitted.
+
+## Reopened receipt correction — selected C07 waves were not a complete predicate set
+
+The C07 closeout ran six measured waves and reported every wave green. That statement
+described the commands selected for those waves; it did not establish that the
+selection covered every binding predicate. The wave set was assembled manually from
+the six category names in C07 step 2, the slice's changed-mechanism blast radius, and
+the timings already available for those commands. It was not derived from an
+exhaustive predicate inventory or reconciled against every focused command in plan
+section 15. In particular, the checker wave was composed from the direct architecture
+guardrail delta, the scoped DS18 time-semantics coverage check and landing falsifier,
+and the Atlas health-metrics test. It did **not** run
+`architecture/atlas_surfaces/check_frontend_disposition_register.py --check`, despite
+that command being named separately in section 15, or the three Atlas test files that
+enforce its writer, baseline-transition, and reference-identity properties.
+
+The result is the same disease as the earlier C02-C04 receipt failure, one level up:
+**selected-wave-set-as-complete command-to-predicate binding failure**. A green result
+for every selected command was promoted into a green closeout claim for the slice,
+without a reconciliation proving that the selected command set equalled the required
+predicate set. The omitted register predicate carried 37 DS18-attributable CLI
+findings and 17 DS18-attributable enforced-test failures at merge. Four test failures
+were the already-declared DS5 baseline-manifest non-closure; thirteen were neither run
+nor disclosed. The earlier six-wave green claim is therefore withdrawn as a complete
+C07 receipt; its individual command results remain evidence only for the predicates
+those commands actually exercised.
+
+There was another known predicate outside the selected set: runtime route/Rego
+authorization parity. It was not named in section 15 or the recorded C07 wave command
+set. The architecture owner's post-merge repair at `49e969e16` added the missing
+`runtime.run.epoch_staleness -> ownership_verified` mirror under `runs.review`; that
+repair stands and DS18 neither reverts nor duplicates it. Within this reopened round,
+the required branch-versus-`main` matrix explicitly includes both the full frontend
+register family and the 24-case Rego parity test. No renewed completeness claim will
+be made from category names alone: each closeout predicate must be bound to its exact
+command and read result.
+
+The architecture-owner ruling for the DS5 artifact is deliberately narrow. DS18 may
+re-anchor exactly six `lint_resolution_content_hash` bindings whose bytes DS18 itself
+changed: the C06 bindings for `PublicationPacketPanel.tsx`,
+`publicationPacket.test.ts`, `publicationPacket.ts`, and `RunDetailLayout.tsx`, plus
+the C07 bindings for `quantityChartSemantics.test.tsx` and
+`quantityChartSemantics.tsx`. Every other manifest binding and every non-binding field
+remain closed: no lifecycle or disposition value, no `authority` block, no C13 print
+or protected-signing evidence, and no DS5 plan, journal, or receipt may move. A need
+for a seventh binding or any non-binding manifest change is a stop, not an implicit
+widening. Only after those six own-blast-radius hashes are current may the sanctioned
+descriptor writers refresh their derived register rows.

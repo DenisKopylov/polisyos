@@ -1481,9 +1481,11 @@ route family instead of treating either page as another isolated patch. C06 adds
 delivered head exposed 19 DS18-owned deep-import creep edges. The guardrail owner walk
 and an independent AST/baseline walk agree on the exact partition: **15 Core-boundary
 edges + 4 Scientist-boundary edges**. The 15 Core edges are stable-contract access:
-`polisyos.core.artifacts` already declares itself the stable CAS ABI, while
-`polisyos.core.contracts` is already a supported entrypoint. Completing/using those
-facades is the property-level repair. The four Scientist edges consume the persisted
+the already-supported `polisyos.core` root exposes the stable `artifacts` module, while
+`polisyos.core.contracts` is already a supported entrypoint. Using the root module
+namespace and completing the contracts facade is the property-level repair; registering
+`polisyos.core.artifacts` separately would remove historical members from the frozen
+deep-import baseline and is therefore rejected. The four Scientist edges consume the persisted
 six-class monitor artifact/read contract; the governance README already declares
 `continuous/` as its public-contract location and its `__init__.py` is already a lazy
 facade. Completing and registering that narrow facade is therefore a real public

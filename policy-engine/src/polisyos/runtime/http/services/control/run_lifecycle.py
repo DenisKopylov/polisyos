@@ -132,7 +132,7 @@ from polisyos.scientist import (
     build_default_claim_ledger_owner,
     build_epoch_claim_lifecycle_bridge,
 )
-from polisyos.scientist.governance.continuous.monitors import (
+from polisyos.scientist.governance.continuous import (
     resolve_governance_monitor_event,
 )
 from polisyos.scientist.orchestration.llm.provider_verification import run_provider_preflight

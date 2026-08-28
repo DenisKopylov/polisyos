@@ -6,12 +6,12 @@ from copy import deepcopy
 from datetime import UTC, datetime
 from typing import Any
 
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts import CapabilityDiscoveryResponse
-from polisyos.core.contracts.control import EpochValidityBatchResponse
-from polisyos.core.contracts.decision_validity import (
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core.contracts import (
+    CapabilityDiscoveryResponse,
     DecisionValidityStatus,
     EpochValidityBatchReceipt,
+    EpochValidityBatchResponse,
     EpochValidityBatchTarget,
 )
 from polisyos.core.contracts.runtime import (
@@ -904,7 +904,7 @@ _CAPABILITY_DISCOVERY_SUCCESS_EXAMPLES = {
 
 
 def _epoch_staleness_example(*, fixture_only: bool) -> dict[str, Any]:
-    packet_ref = ArtifactRef(
+    packet_ref = core_artifacts.ArtifactRef(
         artifact_id=_ARTIFACT_ID_SAMPLE,
         kind="scientist.decision_packet",
         media_type="application/json",
@@ -915,9 +915,7 @@ def _epoch_staleness_example(*, fixture_only: bool) -> dict[str, Any]:
             "An owner-emitted epoch-inheritance/recompute-status projection and its "
             "temporal read bridge."
         ),
-        consequence=(
-            "Dependent derivations remain stale with recompute_status=not_established."
-        ),
+        consequence=("Dependent derivations remain stale with recompute_status=not_established."),
         closure_condition=(
             "Implement the producer/read bridge in the named candidate owner module."
         ),
@@ -939,9 +937,7 @@ def _epoch_staleness_example(*, fixture_only: bool) -> dict[str, Any]:
         status = "not_established"
         current_epoch_ref = None
         predicate_provenance = "not_established"
-        denominator = EpochProjectionDenominatorView(
-            predicate_provenance="not_established"
-        )
+        denominator = EpochProjectionDenominatorView(predicate_provenance="not_established")
         institutional = (
             InstitutionalAuthorityAbsenceView(
                 role="epoch_predicate_policy_signer",
@@ -985,9 +981,7 @@ def _epoch_staleness_example(*, fixture_only: bool) -> dict[str, Any]:
         status=status,
         current_epoch_ref=current_epoch_ref,
         scoped_epoch_refs=((current_epoch_ref,) if current_epoch_ref is not None else ()),
-        decision_validity_status=(
-            DecisionValidityStatus.ACTIVE if fixture_only else None
-        ),
+        decision_validity_status=(DecisionValidityStatus.ACTIVE if fixture_only else None),
         revalidation_required=False,
         denominator=denominator,
         certificates=(),
@@ -997,9 +991,7 @@ def _epoch_staleness_example(*, fixture_only: bool) -> dict[str, Any]:
         open_world_risk=EpochOpenWorldRiskView(
             status=("established" if fixture_only else "not_established"),
             limitation_code=(
-                "all_components_within_scope"
-                if fixture_only
-                else "open_world_vector_unresolved"
+                "all_components_within_scope" if fixture_only else "open_world_vector_unresolved"
             ),
             promotion_frozen=not fixture_only,
         ),
@@ -1023,7 +1015,7 @@ def _epoch_staleness_example(*, fixture_only: bool) -> dict[str, Any]:
 
 
 def _epoch_validity_batch_example() -> dict[str, Any]:
-    transition_ref = ArtifactRef(
+    transition_ref = core_artifacts.ArtifactRef(
         artifact_id="sha256:" + "1" * 64,
         kind="chronology.epoch_transition",
         media_type="application/vnd.polisyos.chronology+json",
@@ -1042,12 +1034,12 @@ def _epoch_validity_batch_example() -> dict[str, Any]:
         requested_query_context_ref="sha256:" + "3" * 64,
         dependency_denominator_ref="sha256:" + "4" * 64,
         adjudication_denominator_ref="sha256:" + "5" * 64,
-        verifier_provenance_ref=ArtifactRef(
+        verifier_provenance_ref=core_artifacts.ArtifactRef(
             artifact_id="sha256:" + "6" * 64,
             kind="chronology.epoch_transition_verification_receipt",
             media_type="application/json",
         ),
-        completion_receipt_ref=ArtifactRef(
+        completion_receipt_ref=core_artifacts.ArtifactRef(
             artifact_id="sha256:" + "7" * 64,
             kind="decision_validity.epoch_batch_completion",
             media_type="application/json",
@@ -1063,6 +1055,7 @@ def _epoch_validity_batch_example() -> dict[str, Any]:
         completion_receipt=receipt,
         affected_packet_refs=receipt.affected_packet_refs,
     ).model_dump(mode="json")
+
 
 _SUCCESS_EXAMPLE_SETS_BY_OPERATION = {
     "search_capabilities": _CAPABILITY_DISCOVERY_SUCCESS_EXAMPLES,

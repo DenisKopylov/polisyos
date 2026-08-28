@@ -8,10 +8,9 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core import canon
 from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, InputRef, SchemaInfo
-from polisyos.core.artifacts.protocol import ArtifactStore
-from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.scientist.evidence.claims.lifecycle import (
     AppendOnlyClaimLedger,
     ClaimLifecycleEvent,
@@ -99,14 +98,14 @@ def evidence_validity_event_inputs(event: EvidenceValidityEvent) -> list[InputRe
 
 
 def persist_evidence_validity_event(
-    store: ArtifactStore,
+    store: core_artifacts.ArtifactStore,
     event: EvidenceValidityEvent,
 ) -> PersistedEvidenceValidityEvent:
     """Persist and exact-read one correction/retraction event."""
 
     ref = store.put_json(
         event,
-        PutOptions(
+        core_artifacts.PutOptions(
             kind=EVIDENCE_VALIDITY_EVENT_KIND,
             media_type="application/json",
             schema=SchemaInfo(
@@ -115,7 +114,7 @@ def persist_evidence_validity_event(
             ),
             inputs=evidence_validity_event_inputs(event),
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
     )
     persisted = resolve_evidence_validity_event(store, ref)
     if persisted.event != event:
@@ -124,7 +123,7 @@ def persist_evidence_validity_event(
 
 
 def resolve_evidence_validity_event(
-    store: ArtifactStore,
+    store: core_artifacts.ArtifactStore,
     ref: ArtifactRef,
 ) -> PersistedEvidenceValidityEvent:
     """Resolve exact bytes, manifest profile, and lineage for one event."""
@@ -133,7 +132,7 @@ def resolve_evidence_validity_event(
     report = store.verify(ref.artifact_id)
     manifest = store.get_manifest(ref.artifact_id)
     observed_hash = "sha256:" + hashlib.sha256(raw).hexdigest()
-    event = EvidenceValidityEvent.model_validate(from_canonical_bytes(raw))
+    event = EvidenceValidityEvent.model_validate(canon.from_canonical_bytes(raw))
     expected_inputs = evidence_validity_event_inputs(event)
     if (
         not report.ok
@@ -148,9 +147,9 @@ def resolve_evidence_validity_event(
             name=EVIDENCE_VALIDITY_EVENT_SCHEMA_NAME,
             version=EVIDENCE_VALIDITY_EVENT_SCHEMA_VERSION,
         )
-        or manifest.canon != CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+        or manifest.canon != CanonInfo.from_spec(canon.CanonSpec(forbid_floats=False))
         or manifest.inputs != expected_inputs
-        or to_canonical_bytes(event, CanonSpec(forbid_floats=False)) != raw
+        or canon.to_canonical_bytes(event, canon.CanonSpec(forbid_floats=False)) != raw
     ):
         raise ValueError("evidence validity event artifact binding mismatch")
     return PersistedEvidenceValidityEvent(

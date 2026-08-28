@@ -11,6 +11,7 @@ from typing import Annotated, Any, Literal, TypeAlias
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts.manifest import (
     ArtifactGovernanceInfo,
     ArtifactRef,
@@ -19,10 +20,9 @@ from polisyos.core.artifacts.manifest import (
     ProducerInfo,
     SchemaInfo,
 )
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
-from polisyos.core.contracts.runtime import EpochPerturbationClass
+from polisyos.core.contracts import EpochPerturbationClass
 
 CONTINUOUS_GOVERNANCE_FLAG = "scientist.best_in_class.wave2.phase2_6.continuous_governance"
 ENABLE_REISSUE_WORKFLOW_FLAG = "scientist.best_in_class.wave2.phase2_6.enable_reissue_workflow"
@@ -233,7 +233,7 @@ class PersistedGovernanceMonitorEvent(BaseModel):
 
 
 def persist_governance_monitor_event(
-    store: ArtifactStore,
+    store: core_artifacts.ArtifactStore,
     event: GovernanceMonitorEvent,
 ) -> PersistedGovernanceMonitorEvent:
     """Persist and reload one strict monitor event before returning its handle."""
@@ -257,7 +257,7 @@ def persist_governance_monitor_event(
 
 
 def resolve_governance_monitor_event(
-    store: ArtifactStore,
+    store: core_artifacts.ArtifactStore,
     ref: ArtifactRef,
 ) -> PersistedGovernanceMonitorEvent:
     """Resolve exact bytes, manifest profile, and semantic model for one event ref."""
@@ -293,7 +293,7 @@ def resolve_governance_monitor_event(
 
 
 def persist_incident_monitor_event(
-    store: ArtifactStore,
+    store: core_artifacts.ArtifactStore,
     *,
     incident_report_ref: ArtifactRef,
     sequence: int = 0,

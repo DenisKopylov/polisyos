@@ -10,16 +10,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from polisyos.core.contracts.chronology import (
-    NativeChronologyPolicyResolutionFailed,
-    PolicyAdmissionMissingFailure,
-)
-from polisyos.core.contracts.decision_validity import (
+from polisyos.core.contracts import (
     DecisionValidityStatus,
-    EpochValidityGateNonReceipt,
-    EpochValidityN9Projection,
-)
-from polisyos.core.contracts.runtime import (
     EngineeringCapabilityAbsenceView,
     EpochBoundaryLineageView,
     EpochCertificateStalenessView,
@@ -31,11 +23,15 @@ from polisyos.core.contracts.runtime import (
     EpochProjectionDenominatorView,
     EpochProjectionStatus,
     EpochStalenessProjectionView,
+    EpochValidityGateNonReceipt,
+    EpochValidityN9Projection,
     InstitutionalAuthorityAbsenceView,
+    NativeChronologyPolicyResolutionFailed,
+    PolicyAdmissionMissingFailure,
     TemporalScope,
     epoch_staleness_semantic_hash,
 )
-from polisyos.scientist.governance.continuous.monitors import (
+from polisyos.scientist.governance.continuous import (
     AppealPerturbation,
     CorrectionPerturbation,
     DiscoveredBiasPerturbation,
@@ -49,7 +45,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from datetime import datetime
 
-    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core import artifacts as core_artifacts
 
 from .epoch_validity_cascade import (
     EpochDependencyDenominatorReceipt,
@@ -87,9 +83,7 @@ def _institutional_absences(
     )
     if policy_missing:
         source_refs = (
-            (epoch_gate.subject_ref,)
-            if isinstance(epoch_gate, EpochValidityGateNonReceipt)
-            else ()
+            (epoch_gate.subject_ref,) if isinstance(epoch_gate, EpochValidityGateNonReceipt) else ()
         )
         rows.append(
             InstitutionalAuthorityAbsenceView(
@@ -204,14 +198,13 @@ def _open_world_risk_view(
 def _disposition_by_target(
     transition: EpochValidityTransitionArtifact,
 ) -> dict[str, TargetDispositionRow]:
-    return {
-        str(row.target_ref.artifact_id): row
-        for row in transition.target_vector.rows
-    }
+    return {str(row.target_ref.artifact_id): row for row in transition.target_vector.rows}
 
 
-def _unique_refs(refs: Sequence[ArtifactRef]) -> tuple[ArtifactRef, ...]:
-    by_id: dict[str, ArtifactRef] = {}
+def _unique_refs(
+    refs: Sequence[core_artifacts.ArtifactRef],
+) -> tuple[core_artifacts.ArtifactRef, ...]:
+    by_id: dict[str, core_artifacts.ArtifactRef] = {}
     for ref in refs:
         by_id.setdefault(str(ref.artifact_id), ref)
     return tuple(by_id.values())
@@ -259,9 +252,7 @@ def _certificate_views(
                 native_coordinate_refs=binding.native_coordinate_refs,
                 rule_schema_profile_refs=binding.rule_schema_profile_refs,
                 revalidation_requirements=(
-                    ("owner_revalidation_receipt",)
-                    if status == "revalidation_required"
-                    else ()
+                    ("owner_revalidation_receipt",) if status == "revalidation_required" else ()
                 ),
             )
         )
@@ -300,7 +291,7 @@ def _dependency_views(
 
 def _source_evidence_refs(
     event: PersistedGovernanceMonitorEvent,
-) -> tuple[ArtifactRef, ...]:
+) -> tuple[core_artifacts.ArtifactRef, ...]:
     perturbation = event.event.perturbation
     if isinstance(perturbation, IncidentPerturbation):
         return (perturbation.incident_report_ref,)
@@ -344,9 +335,7 @@ def _perturbation_views(
                 source_class=perturbation.source_class,
                 event_ref=persisted.event_ref,
                 target_ref=(
-                    disposition.target_ref
-                    if disposition is not None
-                    else event.decision_packet_ref
+                    disposition.target_ref if disposition is not None else event.decision_packet_ref
                 ),
                 scope=(
                     "instance"
@@ -403,7 +392,7 @@ def _validate_positive_inputs(
 def compile_epoch_staleness_projection(
     *,
     run_id: str,
-    decision_packet_ref: ArtifactRef | None,
+    decision_packet_ref: core_artifacts.ArtifactRef | None,
     temporal_scope: TemporalScope,
     requested_query_context_ref: str,
     owner_as_of: datetime | None,
@@ -476,8 +465,7 @@ def compile_epoch_staleness_projection(
         status = "stale"
     elif (
         isinstance(epoch_gate, EpochValidityN9Projection)
-        and denominator.predicate_provenance
-        in {"recomputed", "independently_reconciled"}
+        and denominator.predicate_provenance in {"recomputed", "independently_reconciled"}
         and current_epoch_ref is not None
     ):
         status = "current"

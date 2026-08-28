@@ -243,7 +243,11 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/scientist/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.scientist", "polisyos.scientist.methods.research_dag"]
+supported_entrypoints = [
+  "polisyos.scientist",
+  "polisyos.scientist.governance.continuous",
+  "polisyos.scientist.methods.research_dag",
+]
 major_subsystem = true
 notes = "Workflow orchestration facade for experiment execution and shared observability hooks."
 

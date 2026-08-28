@@ -7,7 +7,7 @@ import json
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core.contracts import chronology as chronology_contract
 from polisyos.core.contracts.runtime import (
     EpochStalenessProjectionView,
@@ -39,7 +39,7 @@ from polisyos.runtime.quality.epoch_validity_cascade import (
     EpochTransitionSigningAuthority,
     EpochTransitionSigningNonReceipt,
 )
-from polisyos.scientist.governance.continuous.monitors import (
+from polisyos.scientist.governance.continuous import (
     GOVERNANCE_MONITOR_EVENT_KIND,
     PersistedGovernanceMonitorEvent,
     resolve_governance_monitor_event,
@@ -48,7 +48,6 @@ from polisyos.scientist.governance.continuous.monitors import (
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
-    from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
     from polisyos.runtime.http.services.timeline import TimelineService
     from polisyos.runtime.quality.semantic_epoch import SemanticEpochService
@@ -147,7 +146,7 @@ class TemporalService:
         self,
         *,
         timeline_service: TimelineService | None = None,
-        artifact_store: ArtifactStore | None = None,
+        artifact_store: core_artifacts.ArtifactStore | None = None,
         semantic_epoch_service: SemanticEpochService | None = None,
         transition_signing_authority: EpochTransitionSigningAuthority | None = None,
     ) -> None:
@@ -469,7 +468,7 @@ class TemporalService:
 
     def _monitor_events_for_packet(
         self,
-        packet_ref: ArtifactRef | None,
+        packet_ref: core_artifacts.ArtifactRef | None,
     ) -> tuple[PersistedGovernanceMonitorEvent, ...]:
         if self._artifact_store is None or packet_ref is None:
             return ()
@@ -481,7 +480,7 @@ class TemporalService:
             try:
                 persisted = resolve_governance_monitor_event(
                     self._artifact_store,
-                    ArtifactRef(
+                    core_artifacts.ArtifactRef(
                         artifact_id=manifest.artifact_id,
                         kind=manifest.kind,
                         media_type=manifest.media_type,

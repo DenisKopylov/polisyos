@@ -689,28 +689,28 @@ an independent complete AST/public-entrypoint/baseline comparison both return
 
 | Edge | Classification | Remedy and reason |
 | --- | --- | --- |
-| `runtime.http.openapi_contract -> core.artifacts.manifest` | stable Core artifact ABI | import `ArtifactRef` from the existing `polisyos.core.artifacts` facade; its module contract explicitly owns the stable CAS ABI |
+| `runtime.http.openapi_contract -> core.artifacts.manifest` | stable Core artifact ABI | consume `artifacts.ArtifactRef` through the already-supported `polisyos.core` root module namespace |
 | `runtime.http.openapi_contract -> core.contracts.control` | stable Core request/response contract | import `EpochValidityBatchResponse` through the already-supported `polisyos.core.contracts` facade |
 | `runtime.http.openapi_contract -> core.contracts.decision_validity` | stable Core Decision Validity contract | import all three DTOs through `polisyos.core.contracts` |
 | `runtime.http.services.control.run_lifecycle -> scientist.governance.continuous.monitors` | cross-layer persisted monitor read contract | use the existing lazy `polisyos.scientist.governance.continuous` facade; only the exact resolver is exported |
-| `runtime.http.services.temporal -> core.artifacts.manifest` | stable Core artifact ABI | import `ArtifactRef` from `polisyos.core.artifacts` |
-| `runtime.http.services.temporal -> core.artifacts.protocol` | stable Core artifact-store protocol | import `ArtifactStore` from `polisyos.core.artifacts`; keep it type-only |
+| `runtime.http.services.temporal -> core.artifacts.manifest` | stable Core artifact ABI | consume `artifacts.ArtifactRef` through the already-supported `polisyos.core` root module namespace |
+| `runtime.http.services.temporal -> core.artifacts.protocol` | stable Core artifact-store protocol | consume `artifacts.ArtifactStore` through the supported Core root |
 | `runtime.http.services.temporal -> scientist.governance.continuous.monitors` | cross-layer persisted monitor artifact/read contract | export the kind, persisted DTO, and resolver through the existing continuous-governance facade |
-| `runtime.quality.epoch_staleness_projection -> core.artifacts.manifest` | stable Core artifact ABI | import type-only `ArtifactRef` through `polisyos.core.artifacts` |
+| `runtime.quality.epoch_staleness_projection -> core.artifacts.manifest` | stable Core artifact ABI | consume type-only `artifacts.ArtifactRef` through the supported Core root |
 | `runtime.quality.epoch_staleness_projection -> core.contracts.chronology` | stable Core chronology contract | import the two failures through `polisyos.core.contracts`, where both are already exported |
 | `runtime.quality.epoch_staleness_projection -> core.contracts.decision_validity` | stable Core Decision Validity contract | import the three DTOs through `polisyos.core.contracts`, where they are already exported |
 | `runtime.quality.epoch_staleness_projection -> core.contracts.runtime` | stable epoch/time projection contract | complete the existing `polisyos.core.contracts` lazy facade and import the epoch/time DTO family there |
 | `runtime.quality.epoch_staleness_projection -> scientist.governance.continuous.monitors` | cross-layer six-class monitor artifact contract | export the six strict perturbation arms and persisted event through the existing continuous-governance facade |
 | `runtime.quality.epoch_validity_cascade -> core.contracts.runtime` | stable epoch perturbation contract | consume `EpochPerturbationClass` through the existing `core_contracts` facade already imported by the module |
 | `runtime.quality.epoch_validity_cascade -> scientist.governance.continuous.monitors` | cross-layer persisted monitor artifact contract | import the exact persisted event through the continuous-governance facade |
-| `scientist.governance.continuous.invalidation -> core.artifacts.protocol` | stable Core artifact-store protocol | import `ArtifactStore` from `polisyos.core.artifacts` while preserving baseline-covered manifest imports |
-| `scientist.governance.continuous.invalidation -> core.artifacts.store` | stable Core artifact write option | import `PutOptions` from `polisyos.core.artifacts` while preserving baseline-covered imports |
+| `scientist.governance.continuous.invalidation -> core.artifacts.protocol` | stable Core artifact-store protocol | consume `artifacts.ArtifactStore` through the supported Core root while preserving baseline-covered manifest imports |
+| `scientist.governance.continuous.invalidation -> core.artifacts.store` | stable Core artifact write option | consume `artifacts.PutOptions` through the supported Core root while preserving baseline-covered imports |
 | `scientist.governance.continuous.invalidation -> core.canon` | stable Core package module | use supported `from polisyos.core import canon`; no new Canon facade is invented |
-| `scientist.governance.continuous.monitors -> core.artifacts.protocol` | stable Core artifact-store protocol | import `ArtifactStore` from `polisyos.core.artifacts`; baseline-covered sibling imports remain unchanged |
+| `scientist.governance.continuous.monitors -> core.artifacts.protocol` | stable Core artifact-store protocol | consume `artifacts.ArtifactStore` through the supported Core root; baseline-covered sibling imports remain unchanged |
 | `scientist.governance.continuous.monitors -> core.contracts.runtime` | stable epoch perturbation contract | import `EpochPerturbationClass` through `polisyos.core.contracts` |
 
-The split is **19 facades / 0 exceptions**. Core's artifact facade already exports every
-needed artifact/store symbol. The Core contract facade lacks the new epoch/time family;
+The split is **19 facades / 0 exceptions**. Core's supported root already exposes the
+artifact module and every needed artifact/store symbol. The Core contract facade lacks the new epoch/time family;
 the Scientist continuous facade lacks the exact persisted-event/read/six-class family.
 Two executable import probes failed on those missing exports at uptime
 `4.54 3.74 3.62` → `4.50 3.74 3.62`, each with
@@ -723,3 +723,48 @@ NEW architectural widening rounds—Core stable-facade completion and Scientist
 continuous-governance facade completion—moving **44 → 47 / 44** and **4 → 6 of 7**
 rounds. Generated public inventory/reference outputs are companions. The deep-import
 baseline and both exception registries remain untouched.
+
+## C06 architecture-guardrail repair closure
+
+The first implementation registered `polisyos.core.artifacts` as an additional public
+entrypoint. The facade imports became legal, but the direct guardrail correctly stayed
+red because that registration removed historical `core.artifacts` members from the
+frozen deep-import baseline. That is a behavioral falsifier of the proposed remedy, not
+a license to rewrite the baseline. The repair instead consumes the same stable artifact
+ABI through the already-supported `from polisyos.core import artifacts` namespace. The
+Core contracts facade exports the epoch/time DTO family; the existing Scientist
+continuous-governance lazy facade exports the persisted event resolver and six strict
+perturbation arms; only that Scientist facade is added as a supported entrypoint.
+
+The sanctioned public-surface sync ran twice with
+`--skip-deep-import-baseline`: the exploratory receipt used
+`user + sys = 13.12 + 0.31 = 13.43 CPU-s`, and the corrected receipt used
+`13.05 + 0.25 = 13.30 CPU-s`. The deep-import baseline blob remained
+`04b18bf5accbaa45a5ebdd60379439f9634095ea` before and after both runs. The
+public-surface inventory and reference are the only generated companions.
+
+At the corrected tree, direct branch guardrails report no deep-import failure and only
+the expected local `trust-claim-posture-register` PATH artifact, at uptime
+`3.33 3.31 3.39` → `3.81 3.45 3.43` with
+`user + sys = 44.34 + 13.25 = 57.59 CPU-s`. The same command on `main`
+reports the identical sole PATH artifact, at uptime `3.54 3.40 3.42` →
+`3.78 3.47 3.44` with `43.46 + 12.52 = 55.98 CPU-s`. Thus the direct
+branch/main creep delta is **0 / 0**. Independently, a complete AST walk over
+`src/polisyos/**/*.py`, with supported entrypoints parsed from the contract, derives
+`3,537` current deep edges and the frozen JSON derives `3,537`; their set difference is
+`0 new / 0 missing`.
+
+After Ruff formatted the three touched importer modules, the direct branch check was
+replayed on the exact pre-commit working tree. It again emitted no deep-import finding
+and only the identical PATH artifact, at uptime `2.77 3.19 3.32` →
+`3.26 3.25 3.34` with `user + sys = 41.61 + 11.91 = 53.52 CPU-s`.
+
+Both previously red facade import probes now execute the real imports. The focused
+public-facade, epoch projection/cascade, HTTP temporal/validity, Scientist validation,
+continuous-governance, and chronology conformance blast radius exits 0 at uptime
+`3.27 3.41 3.41` → `3.29 3.39 3.41`, with
+`user + sys = 66.59 + 8.55 = 75.14 CPU-s`. The preceding invocation named a removed
+integration-test path and exited 4 before an admissible suite receipt; it is a tooling
+nonreceipt, not a product finding. Ruff, Ruff format, generated freshness, and
+`git diff --check` are green. The remedy remains **19 facade closures / 0 exceptions**,
+**47 / 44** mechanism paths, and **6 / 7** widening rounds.

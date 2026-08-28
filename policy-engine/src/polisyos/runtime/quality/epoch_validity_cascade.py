@@ -23,7 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core import contracts as core_contracts
-from polisyos.core.contracts.runtime import EpochPerturbationClass  # noqa: TC001
+from polisyos.core.contracts import EpochPerturbationClass  # noqa: TC001
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import CandidateSummary  # noqa: TC001
@@ -375,7 +375,7 @@ def advisory_perturbation_from_monitor_event(
 ) -> AdvisoryPerturbationEvent:
     """Derive an epoch advisory only from an exact persisted monitor handle."""
 
-    from polisyos.scientist.governance.continuous.monitors import (
+    from polisyos.scientist.governance.continuous import (
         AppealPerturbation,
         PersistedGovernanceMonitorEvent,
     )
@@ -394,9 +394,7 @@ def advisory_perturbation_from_monitor_event(
         target_ref=event.decision_packet_ref,
         source_class=source_class,
         scope=(
-            "instance"
-            if isinstance(perturbation, AppealPerturbation)
-            else "dependency_descendants"
+            "instance" if isinstance(perturbation, AppealPerturbation) else "dependency_descendants"
         ),
         event_kind=_ADVISORY_ACTION_BY_SOURCE_CLASS[source_class],
         authority_purpose="decision_validity",

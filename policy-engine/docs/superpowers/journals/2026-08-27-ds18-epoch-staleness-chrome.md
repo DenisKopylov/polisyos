@@ -249,3 +249,38 @@ hard ceiling moves `9 → 8`, C05's declaration/ceiling moves `19/19 → 20/20`,
 global declaration moves **40 → 41** while the hard ceiling remains **44**. A cluster
 sum and an independent table-union parser both derive 41 unique mechanisms. Widening
 seam 5 is spent; the current round receipt is **2 / 7**.
+
+## C01 independent red review while held
+
+The read-only owner review found two pre-existing P05/P32 authority leaks that C01's
+behavioral red must preserve before repair. First,
+`lifecycle_bridge._transition_for_event(...)` currently converts unbound metadata,
+reason text and incident severity into lifecycle dispositions. Second,
+`bridge_governance_events_to_claim_lifecycle(...)` accepts parallel event objects and
+event refs without resolving and binding each pair, so reordered or substituted refs
+can carry a shaped object. C01 must strangle both behaviors: source class, advisory
+posture and owner disposition remain three independent dimensions, and only a
+profile-verified persisted event handle may cross the bridge.
+
+The review also sharpened the P37 boundary. Dependency/adjudication hashes establish
+integrity but do not independently establish denominator completeness; a caller can
+delete an edge and recompute every internal hash. The projection therefore renders a
+typed `not_established` predicate unless an actual owner/verifier independently
+reconciles the denominator and resolves owner-evidence bytes. Fixture-only positive
+composition must not be promoted to production authority.
+
+The unchanged incident producer remains outside the C01 mechanism set. No widening is
+required: `monitors.py` will resolve the content-bound `IncidentReport`, invoke the
+existing `incident_monitor_event(...)`, compare its exact incident/packet binding, and
+then persist the strict incident arm. Directly trusting a caller-shaped incident id or
+ref would instead require the undeclared producer path and is forbidden. Thus the
+seven-path C01 fence and the global **41 / 44**, **2 / 7** budget remain unchanged.
+
+Named red-first additions are: every legacy authority field is forbidden on the
+monitor-ref arm; all six source classes round-trip distinctly under an identical
+advisory posture; wrong-profile/hash/swapped bytes fail; event/ref reorder fails;
+metadata/reason aliases cannot emit invalidate/reissue/supersede/withdraw; an appeal
+cannot expand beyond its instance without owner scope evidence; every
+source→evidence-line→claim→publication edge is required; recomputed incomplete
+denominators fail; owner disposition evidence must resolve; and server `observed_at`
+cannot become owner `as_of` or enter semantic identity.

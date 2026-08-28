@@ -1795,11 +1795,14 @@ governed write path that the execution authority withheld. It is **not** a
 24-path-budget exhaustion and does not authorize a baseline, exception,
 duplicated Scientist contract, or weaker admission predicate.
 
-Disposition: C00-C03 are closed. The nine-file C04 clear-chokepoint candidate
-is quarantined and must not remain in the final source tree; C04 and C05 remain
-open. O0 is not closed. Resume only with explicit authority for the two
-generated public-surface outputs and the release fragment (or with a separately
-landed, read-back stable facade that exports the exact canonical symbols).
+Disposition: C00-C02 are closed. C03's uncontended service, recursive, and
+generic-authority-egress subcluster is closed, while its collision-held
+`run_lifecycle.py`, run-paper projection, and run-paper owner-test slice remains
+open. The nine-file C04 clear-chokepoint candidate is quarantined and must not
+remain in the final source tree; C04 and C05 remain open. O0 is not closed.
+Resume only with explicit authority for the two generated public-surface
+outputs and the release fragment (or with a separately landed, read-back stable
+facade that exports the exact canonical symbols).
 
 ### C05 — Freeze, reviews, focused local closure, cloud replay, and handoff
 

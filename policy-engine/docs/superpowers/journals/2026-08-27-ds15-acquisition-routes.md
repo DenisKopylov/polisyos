@@ -383,3 +383,55 @@ but no production-growth claim may.
 - Timing review: N13a full receipt green; N13b exact-base and execution replays
   both fail identically and, with two disjointness derivations plus equal input
   hashes, preserve a P41-inherited baseline non-receipt.
+
+## Delegated Phase 0 — trust-posture tokenizer repair
+
+- Entry: attached branch at `18bd72c2da376e31dbcc954781d1d625cd5d9dea`,
+  clean tree. Delegated set: checker, semantic test, and writer-owned generated
+  register only.
+- Intended red: PEP 604 annotation reproduced AST `carries_only` versus token
+  `consumes_only`; bare `dict` and real RHS `|` controls already agreed.
+- First boundary: `c52fb00b2c392cd58fac1483fc2b8891529835bf`.
+  The checker removes the depth-0 `:`/`=` annotation span from both direct-use
+  and alias-back-propagation semantic slices. The canonical writer changed only
+  `trust-claim-posture.v1.json`.
+- Receipt refresh: independent AST/token walks agree on 2,603 scanned Python
+  files; 113 raw; 112 exact; roles 72/6/6/28/1/0; direct 39/17/25/6; wrapper
+  63/28/32; denied 126/37/25/48; assignment/denied-only 33/4. These are static
+  current-tree receipt changes, not semantic assertion changes.
+- Review finding: SAME class one level deeper. The unary `not`/`~` shortcut ran
+  before the annotation rejection, so `dict[~authoritative_for]` still diverged.
+  Red pair before repair was `F.`: annotation unary failed while genuine RHS
+  unary remained semantic.
+- Review-fix boundary: `fe53c182e86f6469b11bdab1154bd1387b20a6ce`.
+  Annotation rejection now precedes every semantic shortcut; all five focused
+  annotation/value probes pass. Focused re-review found no new issue.
+- Final implementer receipts: 50 posture tests, canonical writer/check,
+  corrupt-field drift and prescribed architecture guardrails all exit `0`.
+  Suite timing `real 341.28`, `user 277.54`, `sys 30.67`, uptime `08:48` to
+  `08:53`; guardrails `real 70.37`, `user 61.06`, `sys 9.20`. Writer reports
+  the declared artifact but leaves it byte-identical in the review-fix round.
+- Controller focused readback: five probes exit `0`, `real 37.70`, `user 35.19`,
+  `sys 1.51`, uptime `09:00` to `09:01`.
+- Budget: delegated architecture exception, 0/39 DS15 mechanisms and 0/11 DS15
+  rounds.
+
+## C01 formal closure
+
+- Implementation boundaries remain `25abf5a548bb4538799e52d9dabd99f4a58ca304`
+  and R01 `18bd72c2da376e31dbcc954781d1d625cd5d9dea` with exactly 7/7 mechanisms.
+- A first owner-lane selection passed two cost tests but globally filtered the
+  remaining inputs; it is a harness-only partial receipt. The corrected exact
+  owner-semantics lane passed 10 cases (`real 45.46`, `user 42.41`, `sys 2.25`),
+  in addition to the two strict cost-owner cases (`real 48.56`, `user 43.50`,
+  `sys 2.24`).
+- The complete `acquisition-growth` worker selection passed seven cases,
+  exit `0`, `real 281.76`, `user 260.08`, `sys 12.52`, uptime `09:02` to
+  `09:07`. The governed service/API pair passed, exit `0`, `real 92.16`,
+  `user 83.42`, `sys 4.93`, uptime `09:02` to `09:04`.
+- Prescribed architecture guardrails now exit `0`, including clean
+  trust-claim-posture and runtime API generated-family receipts: `real 78.69`,
+  `user 66.81`, `sys 10.21`, uptime `09:07` to `09:08`.
+- C01 checks CC02, CC03, CC04 and CC21. All surface/action/generated/parity
+  conditions remain unchecked. Running slice budget: 7/39 mechanism paths and
+  1/11 widening rounds.

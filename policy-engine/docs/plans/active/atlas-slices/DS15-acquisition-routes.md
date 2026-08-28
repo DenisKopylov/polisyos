@@ -2,9 +2,9 @@
 plan_id: atlas-ds15-acquisition-routes
 title: "DS15 - Acquisition Routes & Data-Pool Growth Surfaces"
 type: slice-plan
-status: execution_authorized_c00_review_repaired
+status: execution_c01_closed
 created: 2026-08-27
-last_verified: 2026-08-27
+last_verified: 2026-08-28
 stability: measured_plan
 slice: DS15
 baseline_commit: 2525da7306d329ae28fa394690e1c39133eb0d55
@@ -14,6 +14,7 @@ execution_base_commit: f3e3d996bd6710e26f24fd913d4fe0547f1d1a0d
 execution_entry_commit: 4709562c4ca67e691b355ec2941cf7d48262291e
 execution_entry_plan_blob: 16de6702ab7e79fb0277d9071fdb3b9ded1f7aac
 c00_status: review_repair_timing_and_authz_admitted_zero_mechanisms
+c01_status: closed_after_delegated_trust_posture_reconciliation
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 gy_plan: ../layer3-slices/GY-engine-subordination.md
 identity_boundary: ../../../system-design-decisions/policyos-identity-and-custody-boundary.md
@@ -140,6 +141,33 @@ non-closure below are unchanged: C00 admits the real pending/unqualified and
 production-negative lanes only; it does not authorize an active-but-unqualified
 projection or a production-growth claim.
 
+### Delegated Phase 0 and C01 execution standing — 2026-08-28
+
+The team-architecture owner delegated one bounded repair before C01 closeout.
+Commits `c52fb00b2` and `fe53c182e` change exactly the checker, its semantic
+test, and the checker-owned generated register. The repair excludes the complete
+depth-0 type-annotation span from tokenizer semantic-operator evidence while
+preserving genuine RHS set-union and unary evidence. The first review finding
+was bucketed SAME class one level deeper: the `not`/`~` shortcut preceded the
+annotation rejection. The shared predicate was widened once and focused
+re-review returned no Critical, Important, or Minor finding. Final owner
+receipts are 50 posture tests passing, canonical writer/check/corrupt-field
+drift passing, and architecture guardrails passing; the generated artifact was
+byte-identical in the review-fix round. This delegated repair consumes neither
+a DS15 mechanism path nor a DS15 widening round.
+
+C01 is now formally closed at implementation commits `25abf5a54` and
+`18bd72c2d`. Fresh targeted acceptance on the repaired branch passes 2 strict
+cost-owner cases, 10 acquisition projection/read-purity cases, 7 complete
+`acquisition-growth` worker-selection cases, and the 2 governed service/API
+cases. The prescribed architecture guardrail exits `0` (`real 78.69`,
+`user 66.81`, `sys 10.21`; uptime `09:07` to `09:08`) and reports the
+trust-claim-posture register plus the runtime API generated families clean.
+C01 therefore checks CC02, CC03, CC04, and the already-satisfied DS11 fence in
+CC21. Render/action/generated/parity conditions CC05-CC20 and CC22-CC25 remain
+unchecked for later clusters. The running slice budget is **7/39 mechanism
+paths** and **1/11 widening rounds**.
+
 ## Mission and binding reality
 
 DS15 is the surface dual of GY-N13. Its distinctive product motion is:
@@ -244,16 +272,16 @@ There is no second closure contract.
 - [ ] **CC01** Attached branch, exact base, three gate ancestries, prefix,
       clean-tree predicate, complete path fences, and red witnesses are read
       before every cluster commit.
-- [ ] **CC02** The N13a three-output and N13b 43-output families, their logical
+- [x] **CC02** The N13a three-output and N13b 43-output families, their logical
       payloads, and their HTTP/contract/in-process partition are derived twice
       and any disagreement is resolved before design changes.
-- [ ] **CC03** The 15 residuals are re-derived as `1 data-shaped / 0
+- [x] **CC03** The 15 residuals are re-derived as `1 data-shaped / 0
       structural / 14 shape not_established`: `binding_gap` alone proves none
       of those classes. The separate capstone denominator remains `3 structural
       / 0 data-shaped`; the two sets cannot be joined by route ID or visual
       proximity. `gap_class` is explicitly a DS15 projection vocabulary, not an
       N13a/N13b source field.
-- [ ] **CC04** One strict acquisition-surface contract carries authority
+- [x] **CC04** One strict acquisition-surface contract carries authority
       purpose, source/content hashes, rule/schema versions, source time,
       observed time, audience, and typed absence for every fact. The same
       packet carries the source-derived backlog score distribution and the
@@ -337,7 +365,7 @@ There is no second closure contract.
 - [ ] **CC20** OpenAPI, the five runtime-client files, and dashboard API types are
       regenerated atomically and reproduced byte-for-byte from two clean scratch
       outputs.
-- [ ] **CC21** No held DS11 path is touched before its landing ancestry and
+- [x] **CC21** No held DS11 path is touched before its landing ancestry and
       complete-prefix path census agree; backend clusters can land first, but the
       generated family waits because it includes one dashboard file.
 - [ ] **CC22** Every cluster's named red-first behavioral falsifier fails for the

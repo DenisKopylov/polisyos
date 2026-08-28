@@ -568,28 +568,45 @@ After the commit, record `SOURCE_FREEZE=$(git rev-parse HEAD)` in the journal sc
 
 - [ ] **Step 3: Launch the expensive validator exactly once**
 
-Use a new ignored scratch directory and no pipe:
+Use a fresh ignored scratch directory and no pipe. The harness fails closed
+before launch unless the branch remains attached, the source freeze remains the
+current `HEAD`, and the prelaunch commit left a clean worktree. It refuses to
+reuse a stale run directory and applies the 600 core-second CPU ceiling in the
+same launch subshell:
 
 ```bash
-SOURCE_FREEZE="$(git rev-parse HEAD)"
-RUN_DIR=".polisyos-tools/unbound-writes-epoch-timing"
-mkdir -p "$RUN_DIR"
-uptime > "$RUN_DIR/uptime-before.txt"
-set +e
-POLISYOS_TOOLS_TIMING_LOG="$RUN_DIR/gy-n12-epoch-corrupt-field-drift.jsonl" \
-POLISYOS_TOOLS_TIMING_REGIME=serialized \
-PYTHONPATH="$PWD/src:$PWD" \
-/usr/bin/time -p .venv/bin/python \
-  tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py \
-  --corrupt-field-drift-check \
-  --expected-source-freeze "$SOURCE_FREEZE" \
-  --output-format json \
-  > "$RUN_DIR/report.json" \
-  2> "$RUN_DIR/time.stderr"
-EXIT_CODE=$?
 set -e
-printf '%s\n' "$EXIT_CODE" > "$RUN_DIR/exit-code.txt"
-uptime > "$RUN_DIR/uptime-after.txt"
+SOURCE_FREEZE="$(git rev-parse HEAD)"
+SOURCE_BRANCH="$(git symbolic-ref --quiet --short HEAD)" || exit 64
+test -z "$(git status --porcelain)" || exit 64
+RUN_PARENT=".polisyos-tools"
+test -d "$RUN_PARENT" || mkdir "$RUN_PARENT"
+RUN_DIR="$RUN_PARENT/unbound-writes-epoch-timing-$SOURCE_FREEZE"
+test ! -e "$RUN_DIR" || exit 64
+mkdir "$RUN_DIR" || exit 64
+(
+  set -eu
+  test "$(git rev-parse HEAD)" = "$SOURCE_FREEZE"
+  test "$(git symbolic-ref --quiet --short HEAD)" = "$SOURCE_BRANCH"
+  test -z "$(git status --porcelain)"
+  ulimit -t 600
+  uptime > "$RUN_DIR/uptime-before.txt"
+  set +e
+  POLISYOS_TOOLS_TIMING_LOG="$RUN_DIR/gy-n12-epoch-corrupt-field-drift.jsonl" \
+  POLISYOS_TOOLS_TIMING_REGIME=serialized \
+  PYTHONPATH="$PWD/src:$PWD" \
+  /usr/bin/time -p .venv/bin/python \
+    tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py \
+    --corrupt-field-drift-check \
+    --expected-source-freeze "$SOURCE_FREEZE" \
+    --output-format json \
+    > "$RUN_DIR/report.json" \
+    2> "$RUN_DIR/time.stderr"
+  EXIT_CODE=$?
+  set -e
+  printf '%s\n' "$EXIT_CODE" > "$RUN_DIR/exit-code.txt"
+  uptime > "$RUN_DIR/uptime-after.txt"
+)
 ```
 
 Read `exit-code.txt` before parsing anything else. If it is nonzero, if the JSON report is not pass, if `/usr/bin/time` reports a signal/killed run, or if the timing record is not exactly one well-formed exit-0/ok/serialized record, mark a non-receipt and do not rerun. A healthy completed run supplies wall `real`, CPU `user + sys`, the uptime pair, and the tool's `duration_ms` wall sample.
@@ -599,7 +616,11 @@ Read `exit-code.txt` before parsing anything else. If it is nonzero, if the JSON
 Construct one JSONL wrapper from the actual completed run values:
 
 ```python
-source_path = ".polisyos-tools/unbound-writes-epoch-timing/gy-n12-epoch-corrupt-field-drift.jsonl"
+source_freeze = "<SOURCE_FREEZE captured by the once-only launch>"
+source_path = (
+    f".polisyos-tools/unbound-writes-epoch-timing-{source_freeze}/"
+    "gy-n12-epoch-corrupt-field-drift.jsonl"
+)
 raw = Path(source_path).read_bytes().removesuffix(b"\n").decode("utf-8")
 entry = {
     "salvaged_at": datetime.now(UTC).isoformat(),

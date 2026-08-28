@@ -564,14 +564,17 @@ sets `status="pass"` exactly when the issue set is empty, and maps pass to exit
 0. Therefore all corruptions detected over the complete denominator yield
 exit 0; exit 1 means a validator failure and is not a timing sample.
 
-Two complete-set derivations agree that 8 of 429 Python modules under `tools/`
+Two complete-set derivations agree that 8 of 431 Python modules under `tools/`
 declare `TIMING_HEALTHY_TERMINAL_EXIT_CODES`; Git-object and filesystem-AST
-path denominators are identical. All eight declare exit 1 healthy for the same
-mode name. The Depth-N sibling demonstrates the opposite polarity in code: no
-surviving corruption produces its local `status="fail"`, which maps to exit 1.
-If the epoch tool followed that convention, its absent override and the shared
-default 0 would admit defects and reject healthy runs. The absence is therefore
-only a compatibility fact, never the admission proof.
+path denominators are identical. The Git-object method reads
+`HEAD:policy-engine/tools/**/*.py` from the worktree's repository root; a
+cwd-prefix lookup which resolves no objects is a non-receipt, not a competing
+zero denominator. All eight declare exit 1 healthy for the same mode name. The
+Depth-N sibling demonstrates the opposite polarity in code: no surviving
+corruption produces its local `status="fail"`, which maps to exit 1. If the
+epoch tool followed that convention, its absent override and the shared default
+0 would admit defects and reject healthy runs. The absence is therefore only a
+compatibility fact, never the admission proof.
 
 After source freeze and local environment provisioning, the exact lane runs
 once, serialized. Before launch the journal declares a 600 core-second CPU

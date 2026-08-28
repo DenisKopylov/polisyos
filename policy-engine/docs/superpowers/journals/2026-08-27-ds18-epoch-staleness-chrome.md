@@ -768,3 +768,26 @@ integration-test path and exited 4 before an admissible suite receipt; it is a t
 nonreceipt, not a product finding. Ruff, Ruff format, generated freshness, and
 `git diff --check` are green. The remedy remains **19 facade closures / 0 exceptions**,
 **47 / 44** mechanism paths, and **6 / 7** widening rounds.
+
+## C07 source freeze
+
+The architecture owner explicitly ruled that the DS5 baseline-manifest stop and DS6
+health-persistence stop remain truthful named non-closures but do **not** block C07.
+This supersedes the earlier journal sentence that C07 could not freeze while those
+owner contracts stayed red; neither owner file is edited or claimed here.
+
+The attached, clean source head
+`c553f4c30c2c3b01f01a09eb71f792440c8c2dee` is
+`ds18_frontend_freeze_commit`. The scoped recomputing checker ran at that exact source
+coordinate and returned `predicate_provenance=independently_reconciled`, 605 production
+files, 719 roots, and 77 obligated / 77 covered. It exited 0 at uptime
+`2.96 3.18 3.30` → `2.96 3.18 3.30`, with
+`user + sys = 3.20 + 0.18 = 3.38 CPU-s`.
+
+An independent direct scanner parse derives 605 files and 719 roots both from its
+declared totals and from `len(files)` / the nested root sum. A separate nested-register
+walk derives 605 files, 719 roots, 77 decision-bearing-or-inherited obligations and 77
+content-bound behavioral receipts, then hashes every registered production file at the
+freeze: **0 receipt hash mismatches**. The post-freeze landing rule remains the
+invariant: later slices own fresh receipts and behavioral proof for every root they add
+or change; this historical freeze remains valid.

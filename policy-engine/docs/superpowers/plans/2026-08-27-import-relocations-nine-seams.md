@@ -18,10 +18,10 @@ command green.
 - [x] Create an attached isolated worktree at the exact pinned base.
 - [x] Reproduce the three baseline predicates and derive the target set twice.
 - [x] Classify all 39 statements before source work; record 0 ambiguous.
-- [ ] Execute the seams below serially, with one commit per seam.
-- [ ] Freeze source, enumerate deep-import additions/removals twice, patch the
+- [x] Execute the seams below serially, with one commit per seam.
+- [x] Freeze source, enumerate deep-import additions/removals twice, patch the
   baseline surgically, and run sync only with `--skip-deep-import-baseline`.
-- [ ] Run focused closeout, every literal row command, and all three final
+- [x] Run focused closeout, every literal row command, and all three final
   predicates against the handed-back tree.
 
 At every seam boundary:
@@ -149,14 +149,14 @@ At every seam boundary:
 
 ## Source freeze and closeout
 
-- [ ] Re-run the source linter and independently derive every target pair.
-- [ ] Enumerate the complete deep-import edge set twice. Write separate
+- [x] Re-run the source linter and independently derive every target pair.
+- [x] Enumerate the complete deep-import edge set twice. Write separate
   addition/removal lists and one citation per added edge.
-- [ ] Patch `architecture/baselines/imports/deep_import.json` with
+- [x] Patch `architecture/baselines/imports/deep_import.json` with
   `apply_patch`, not a formatter or sync.
-- [ ] Run guardrail sync only as
+- [x] Run guardrail sync only as
   `uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline`.
-- [ ] Run changed-file Ruff, focused seam/importer tests, recomputing validators,
+- [x] Run changed-file Ruff, focused seam/importer tests, recomputing validators,
   architecture guardrails, and all nine literal row commands.
-- [ ] Re-run the source, release-guardrail, and package predicates with direct
+- [x] Re-run the source, release-guardrail, and package predicates with direct
   exit status, timing, uptime, and independent counts.

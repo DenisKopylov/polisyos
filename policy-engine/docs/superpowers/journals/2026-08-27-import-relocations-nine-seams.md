@@ -92,6 +92,10 @@ Every row below was classified before the first source edit. Result:
 | seam 14 — IR strategic budget identity | 8/10 | `ComputeBudget` has one lightweight IR-kernel identity; Strategic IR and the already-published Scientist budgets path import that identity, while real Foundry budget enforcement and persistence remain intact. Cleared IS-06 and closes `ir -> scientist` 6/6. | stands; round 8 bought the new direct module-level `polisyos.ir.kernel.base.ComputeBudget` path after the first zero-round location was withdrawn for eager Strategic/NumPy import weight |
 | seam 15 — IR phase-4 dynamics | 9/10 | IR now owns an independent `ABMResult`; the existing Foundry simulation owner converts Core execution results and refs before IR persistence, and both existing Foundry consumers use that chokepoint. Cleared IC-01. | stands; round 9 bought only the module-local `foundry.methods.catalog.simulation.dynamics.build_abm_result_from_simulation` export; the private typed-reference compatibility repair widened the same mechanism and consumed no second round |
 | seam 16 — IR truthfulness identity | 10/10 | The complete 11-name truthfulness identity/helper set now has one IR owner; Core exactly re-exports it, and the IR simulation-proof bridge plus its sole Scientist consumer reject unsupported calibration authority. Cleared IC-02 and closes `ir -> core` 2/2. | stands; round 10 bought one expansion of the existing IR analytics facade by the 11 already-published Core contract names; both P40 authority repairs widened the same mechanism and consumed no additional round |
+| closeout — package-gate facade repair | 10/10 | The first final package receipt exposed one task-owned forbidden deep import: Scientist read `ReleaseManifest` from the Ukraine domain module even though the identical object was already published by `data_forge.read_api.ukraine`. Scientist now uses that supported entrypoint. | stands; wire-existing through an already-published facade adds no module/export/constraint/surface and consumes no round |
+| closeout — strict schedule-bound repair | 10/10 | The complete changed-test wave exposed that strict schedule entries discarded the explicit bounds of their referenced canonical `ParameterSpec`. The existing search bridge now reuses those normalized bounds and still fails closed when they are absent. | stands; this closes a latent producer/consumer handshake inside an existing module and adds no module/export/constraint/surface |
+| closeout — ID-engine static dependency repair | 10/10 | Complete changed-file Ruff exposed seven runtime names supplied only through `globals().update`; the touched transport module now explicitly imports the same seven existing Core identities while retaining compatibility injection. | stands; the runtime object identities and surface are unchanged, so no round is consumed |
+| closeout — policy-runtime import order | 10/10 | Ruff's canonical first-party order was applied mechanically to the touched policy-runtime import block. | stands; import-only formatting clears no row, publishes nothing, and consumes no round |
 
 No round has been withdrawn.
 
@@ -838,3 +842,389 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   remains honestly `producer_missing` and fail-closed. Round 10 stands; the
   widening ceiling is reached, so any further surface/package/module/constraint
   change would stop this task rather than consume an eleventh round.
+
+## Source freeze and enumerated deep-import transaction
+
+- The preliminary source freeze at attached Seam 16 commit `e39143d28af4` was
+  withdrawn when the final package gate found one task-owned forbidden deep
+  import. The repair routes the identical `ReleaseManifest` identity through
+  its already-supported `data_forge.read_api.ukraine` entrypoint; P41 therefore
+  closes our red rather than exporting it as inherited debt. The subsequent
+  complete blast-radius wave closed three zero-round latent defects in already
+  touched mechanisms: strict schedule entries now reuse their referenced
+  canonical parameter bounds, the ID-engine transport module explicitly binds
+  its seven runtime Core dependencies, and the policy-runtime import block uses
+  Ruff's canonical order. Final source froze at attached commit
+  `87f5eaf80e8507e1aa3dad62b8787260635fb6f2`; no source changed after that
+  boundary. `diagnostics gen-schema` updated four ABI snapshots plus their
+  generated references. Guardrail sync was run exactly as
+  `uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline`;
+  the deep-import baseline remained byte-identical until the manual patch.
+- Derivation A, the canonical complete guardrails collector, parsed 2,600/2,600
+  base files and 2,594/2,594 final files: 3,551 -> 3,539 edges, 35 additions and
+  47 removals. Derivation B, an independent complete AST census, parsed the same
+  denominators: 3,621 -> 3,608 edges, 35 additions and 48 removals. Both had
+  zero parse failures and zero unresolved relative imports.
+- The sole disagreement is
+  `foundry.validation.release_acceptance -> data_forge.read_api`: derivation B
+  deliberately counts every non-facade cross-root import, while the canonical
+  collector excludes this documented supported entrypoint. It is reported, not
+  reconciled away, and is not a baseline edge. The manual authoritative patch
+  is therefore exactly 35 additions / 47 removals / 3,539 final unique sorted
+  edges, and its bytes equal a fresh canonical render.
+
+### Added deep-import edges — 35, one current-source citation each
+
+1. `src/polisyos/core/observability/truthfulness.py:3` —
+   `core.observability.truthfulness -> ir.analytics`; Seam 16 Core compatibility
+   re-exports the single canonical IR truthfulness identity.
+2. `src/polisyos/foundry/agent_sim/wiring/contracts.py:21` —
+   `foundry.agent_sim.wiring.contracts -> ir.governance.policy_spec`; Seam 1
+   Foundry wiring consumes neutral `CompiledLexIntervention` rather than Lex.
+3. `src/polisyos/foundry/calibration/measurement.py:25` —
+   `foundry.calibration.measurement -> ir.model_layer.types`; Seam 11 Foundry
+   materializes time-frequency declarations.
+4. `src/polisyos/foundry/calibration/measurement.py:33` —
+   `foundry.calibration.measurement -> ir.observation.compiler`; Seam 11 Foundry
+   consumes neutral split and negative-control specifications.
+5. `src/polisyos/foundry/calibration/measurement.py:46` —
+   `foundry.calibration.measurement -> ir.observation.measurement`; Seam 11
+   Foundry consumes the neutral measurement registry/router contracts.
+6. `src/polisyos/foundry/data_plane/bindings.py:61` —
+   `foundry.data_plane.bindings -> ir.observation.bundles`; Seam 8's sole strict
+   materializer consumes `ContractCompatibilityTarget`.
+7. `src/polisyos/foundry/methods/catalog/causal/strategic.py:75` —
+   `foundry.methods.catalog.causal.strategic -> ir.artifacts`; Seam 9's Foundry
+   owner persists its result through the neutral artifact protocol.
+8. `src/polisyos/foundry/methods/catalog/simulation/dynamics.py:37` —
+   `foundry.methods.catalog.simulation.dynamics -> ir.registry.refs`; Seam 15's
+   canonical converter emits neutral artifact refs.
+9. `src/polisyos/scientist/cross_graph/compiler.py:15` —
+   `scientist.cross_graph.compiler -> ir.analytics.alignment_certification`;
+   Seam 13's Scientist chokepoint consumes pure alignment DTOs/finalizers.
+10. `src/polisyos/scientist/cross_graph/compiler.py:51` —
+    `scientist.cross_graph.compiler -> ir.analytics.latent_bridge_synthesis`;
+    Seam 13 consumes neutral latent-bridge artifacts.
+11. `src/polisyos/scientist/cross_graph/compiler.py:59` —
+    `scientist.cross_graph.compiler -> ir.artifacts`; Seam 13 persists governed
+    results through the neutral artifact protocol.
+12. `src/polisyos/scientist/cross_graph/compiler.py:64` —
+    `scientist.cross_graph.compiler -> ir.registry.refs`; Seam 13 emits
+    content-bound neutral refs.
+13. `src/polisyos/scientist/governance/blueprint_release.py:41` —
+    `scientist.governance.blueprint_release -> foundry.validation.release_acceptance`;
+    Seam 4 consumes Foundry's technical receipt/runner.
+14. `src/polisyos/scientist/governance/blueprint_release.py:75` —
+    `scientist.governance.blueprint_release -> ir.governance.gate`; Seam 4 issues
+    the governed decision over a neutral gate contract.
+15. `src/polisyos/scientist/governance/blueprint_release.py:76` —
+    `scientist.governance.blueprint_release -> ir.governance.policy_spec`; Seam 4
+    consumes neutral intervention/policy specifications.
+16. `src/polisyos/scientist/governance/blueprint_release.py:77` —
+    `scientist.governance.blueprint_release -> ir.governance.problem_frame`;
+    Seam 4 consumes the neutral problem frame.
+17. `src/polisyos/scientist/governance/blueprint_release.py:78` —
+    `scientist.governance.blueprint_release -> ir.governance.schedule`; Seam 4
+    consumes the neutral schedule.
+18. `src/polisyos/scientist/governance/blueprint_release.py:79` —
+    `scientist.governance.blueprint_release -> ir.governance.selector_expr`;
+    Seam 4 consumes neutral selector predicates.
+19. `src/polisyos/scientist/governance/blueprint_release.py:80` —
+    `scientist.governance.blueprint_release -> ir.model_layer.model_spec`; Seam 4
+    consumes neutral model specifications.
+20. `src/polisyos/scientist/governance/blueprint_release.py:81` —
+    `scientist.governance.blueprint_release -> ir.model_layer.types`; Seam 4
+    consumes neutral selector operators.
+21. `src/polisyos/scientist/governance/blueprint_release.py:93` —
+    `scientist.governance.blueprint_release -> ir.trinity`; Seam 4 consumes the
+    neutral Trinity bundle.
+22. `src/polisyos/scientist/methods/advanced.py:20` —
+    `scientist.methods.advanced -> foundry.data_plane`; Seam 8's real consumer
+    routes neutral payloads through the strict Foundry materializer.
+23. `src/polisyos/scientist/methods/discovery/portfolio.py:15` —
+    `scientist.methods.discovery.portfolio -> foundry.calibration.dp_ci`; Seam 5
+    threshold governance consumes typed Foundry DP/CI primitives.
+24. `src/polisyos/scientist/methods/search/judge_thresholds.py:13` —
+    `scientist.methods.search.judge_thresholds -> foundry.calibration.dp_ci`;
+    Seam 5 exact-binds and resolves threshold policy before execution.
+25. `src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py:44` —
+    `scientist.nodes.builtins.c6c_runtime_support -> ir.governance.policy_spec`;
+    Seam 1 consumes the neutral compiled intervention rather than Lex.
+26. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:19` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> foundry.data_plane`;
+    Seam 8's real DTR consumer uses the single strict materializer.
+27. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:20` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> foundry.methods.catalog.causal.causal_engine`;
+    Seam 1's upper execution bridge consumes the Foundry causal engine.
+28. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:21` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> foundry.methods.catalog.causal.dtr`;
+    Seam 1's upper bridge consumes Foundry-owned estimators.
+29. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:27` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> foundry.methods.catalog.causal.protocols`;
+    Seam 1's upper bridge consumes the technical DTR protocol.
+30. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:28` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> ir.analytics.dynamic_regime`;
+    Seam 1's bridge emits the neutral DTR result.
+31. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:30` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> ir.governance.policy_spec`;
+    Seam 1 consumes the neutral temporal-intervention sequence.
+32. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:31` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> ir.kernel.base`;
+    Seam 1 consumes the neutral kernel contract.
+33. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:32` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> ir.observation.bundles`;
+    Seam 1 consumes neutral DTR target/compatibility artifacts.
+34. `src/polisyos/scientist/orchestration/kernel/budgets.py:7` —
+    `scientist.orchestration.kernel.budgets -> ir.kernel.base`; Seam 14 reuses
+    the single lightweight `ComputeBudget` identity.
+35. `src/polisyos/scientist/policy_design/search.py:15` —
+    `scientist.policy_design.search -> ir.governance.policy_spec`; Seam 1 search
+    consumes the single lowered `PolicySearchLevel` identity.
+
+### Removed deep-import edges — 47, one pinned-base citation each
+
+1. `src/polisyos/core/components/_cli_metric_validation.py:13@2525da730` —
+   `core.components._cli_metric_validation -> ir.analytics.metric_validation_report`.
+2. `src/polisyos/core/components/_cli_metric_validation.py:17@2525da730` —
+   `core.components._cli_metric_validation -> ir.artifacts`.
+3. `src/polisyos/core/components/_cli_metric_validation.py:18@2525da730` —
+   `core.components._cli_metric_validation -> scientist.validation.metrics`.
+4. `src/polisyos/core/components/_cli_scientist.py:317@2525da730` —
+   `core.components._cli_scientist -> scientist.agent.eval_harness`.
+5. `src/polisyos/core/components/_cli_scientist.py:345@2525da730` —
+   `core.components._cli_scientist -> scientist.agent.reflexion_evaluator`.
+6. `src/polisyos/core/components/_cli_scientist.py:284@2525da730` —
+   `core.components._cli_scientist -> scientist.orchestration.llm`.
+7. `src/polisyos/foundry/agent_sim/wiring/contracts.py:22@2525da730` —
+   `foundry.agent_sim.wiring.contracts -> lex.interventions`.
+8. `src/polisyos/foundry/analysis/attractors.py:41@2525da730` —
+   `foundry.analysis.attractors -> ir.analytics.phase4_dynamics`.
+9. `src/polisyos/foundry/calibration/calibrator.py:559@2525da730` —
+   `foundry.calibration.calibrator -> scientist.methods.autotune.calibration`.
+10. `src/polisyos/foundry/calibration/dp_ci.py:179@2525da730` —
+    `foundry.calibration.dp_ci -> scientist.methods.search.judge_thresholds`.
+11. `src/polisyos/foundry/calibration/identifiability.py:30@2525da730` —
+    `foundry.calibration.identifiability -> ir.analytics.phase4_dynamics`.
+12. `src/polisyos/foundry/methods/catalog/causal/composition_failure_cards.py:20@2525da730` —
+    `foundry.methods.catalog.causal.composition_failure_cards -> scientist.methods.search.failure_cards`.
+13. `src/polisyos/foundry/methods/catalog/policy/frontier.py:23@2525da730` —
+    `foundry.methods.catalog.policy.frontier -> scientist.agent.embedder`.
+14. `src/polisyos/foundry/methods/cli/__init__.py:269@2525da730` —
+    `foundry.methods.cli -> core.artifacts.store`.
+15. `src/polisyos/foundry/validation/release_acceptance.py:24@2525da730` —
+    `foundry.validation.release_acceptance -> core.governance.profiles`.
+16. `src/polisyos/foundry/validation/release_acceptance.py:33@2525da730` —
+    `foundry.validation.release_acceptance -> scientist.governance.postflight`.
+17. `src/polisyos/ir/analytics/alignment_certification.py:46@2525da730` —
+    `ir.analytics.alignment_certification -> scientist.cross_graph.compiler`.
+18. `src/polisyos/ir/analytics/alignment_certification.py:49@2525da730` —
+    `ir.analytics.alignment_certification -> scientist.methods.search.latent_governance`.
+19. `src/polisyos/ir/analytics/phase4_dynamics.py:13@2525da730` —
+    `ir.analytics.phase4_dynamics -> core.contracts.foundry`.
+20. `src/polisyos/ir/analytics/simulation_proof_bridge.py:12@2525da730` —
+    `ir.analytics.simulation_proof_bridge -> core.observability.truthfulness`.
+21. `src/polisyos/ir/analytics/strategic.py:2232@2525da730` —
+    `ir.analytics.strategic -> foundry.methods.catalog.causal.strategic`.
+22. `src/polisyos/ir/analytics/strategic.py:28@2525da730` —
+    `ir.analytics.strategic -> scientist.orchestration.kernel.budgets`.
+23. `src/polisyos/ir/analytics/transportability.py:343@2525da730` —
+    `ir.analytics.transportability -> foundry.methods.catalog.causal.id_engine`.
+24. `src/polisyos/ir/observation/bundles.py:32@2525da730` —
+    `ir.observation.bundles -> scientist.methods.backtesting.plan`.
+25. `src/polisyos/ir/observation/causal_execution.py:39@2525da730` —
+    `ir.observation.causal_execution -> foundry.methods.catalog.causal.protocols`.
+26. `src/polisyos/ir/observation/compiler.py:20@2525da730` —
+    `ir.observation.compiler -> foundry.calibration.measurement`.
+27. `src/polisyos/ir/observation/contract_compilers.py:20@2525da730` —
+    `ir.observation.contract_compilers -> foundry.methods.catalog.causal.protocols`.
+28. `src/polisyos/ir/observation/contract_compilers.py:26@2525da730` —
+    `ir.observation.contract_compilers -> foundry.methods.catalog.econometrics.protocols`.
+29. `src/polisyos/ir/observation/contract_compilers.py:27@2525da730` —
+    `ir.observation.contract_compilers -> foundry.methods.catalog.microsim.protocols`.
+30. `src/polisyos/ir/observation/contract_compilers.py:28@2525da730` —
+    `ir.observation.contract_compilers -> foundry.methods.catalog.ml.protocols`.
+31. `src/polisyos/ir/observation/contract_compilers.py:29@2525da730` —
+    `ir.observation.contract_compilers -> foundry.methods.catalog.network.protocols`.
+32. `src/polisyos/ir/observation/contract_compilers.py:82@2525da730` —
+    `ir.observation.contract_compilers -> scientist.methods.backtesting.plan`.
+33. `src/polisyos/ir/passes/core.py:395@2525da730` —
+    `ir.passes.core -> foundry.methods.catalog.causal.estimand_compiler`.
+34. `src/polisyos/ir/passes/core.py:396@2525da730` —
+    `ir.passes.core -> foundry.methods.catalog.causal.kernel_lowering`.
+35. `src/polisyos/lex/interventions.py:17@2525da730` —
+    `lex.interventions -> foundry.methods.catalog.causal.causal_engine`.
+36. `src/polisyos/lex/interventions.py:18@2525da730` —
+    `lex.interventions -> foundry.methods.catalog.causal.dtr`.
+37. `src/polisyos/lex/interventions.py:24@2525da730` —
+    `lex.interventions -> foundry.methods.catalog.causal.protocols`.
+38. `src/polisyos/lex/interventions.py:25@2525da730` —
+    `lex.interventions -> ir.analytics.dynamic_regime`.
+39. `src/polisyos/lex/interventions.py:63@2525da730` —
+    `lex.interventions -> ir.artifacts`.
+40. `src/polisyos/lex/interventions.py:43@2525da730` —
+    `lex.interventions -> ir.observation.causal_execution`.
+41. `src/polisyos/lex/interventions.py:48@2525da730` —
+    `lex.interventions -> ir.registry.refs`.
+42. `src/polisyos/lex/interventions.py:49@2525da730` —
+    `lex.interventions -> ir.trinity`.
+43. `src/polisyos/lex/interventions.py:54@2525da730` —
+    `lex.interventions -> scientist.methods.search.controller`.
+44. `src/polisyos/lex/interventions.py:55@2525da730` —
+    `lex.interventions -> scientist.policy_design.schema`.
+45. `src/polisyos/lex/interventions.py:56@2525da730` —
+    `lex.interventions -> scientist.policy_design.search`.
+46. `src/polisyos/scientist/methods/search/failure_cards.py:10@2525da730` —
+    `scientist.methods.search.failure_cards -> core.artifacts.manifest`.
+47. `src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py:46@2525da730` —
+    `scientist.nodes.builtins.c6c_runtime_support -> lex.interventions`.
+
+## Final closure receipts
+
+### Source import predicate and literal row closures
+
+- Direct timed source command:
+  `/usr/bin/time -p uv run python tools/quality/lint/lint_imports.py`.
+  It completed with exit 1, `real=1.49s`, `user=1.09s`, `sys=0.26s`, so the
+  measured CPU ceiling is `user+sys=1.35s`. Uptime before/after was unchanged at
+  3 days 18:12 (`load=3.87,3.57,3.44`). The parser reported 2,591 cache hits and
+  3 misses, for the complete 2,594-file denominator.
+- Two independent finding parsers agree on total 3: ARCH001=1, ARCH002=0,
+  ARCH004=2, ARCH006=0. One section-scoped parser and one fixed-token census
+  agree; an initially over-broad scratch parser was rejected because it counted
+  the non-finding `Top god files` line.
+- The three residuals are exactly the assigned/out-of-scope set:
+  `fabric/data_plane/benchmarks.py:28` ARCH004,
+  `runtime/http/services/governed_projection_validation_worker.py:397`
+  ARCH001 (`runtime -> corpus`), and
+  `runtime/quality/data_state_substrate.py:1260` ARCH004. All nine target-row
+  substring populations are zero.
+- Every literal register command was executed separately, without a pipe, and
+  its direct exit read before interpretation:
+
+| Row / exact searched literal | Direct exit |
+| --- | ---: |
+| `ir -> foundry`: `forbidden internal import: ir -> foundry ` | 0 |
+| `ir -> scientist`: `forbidden internal import: ir -> scientist ` | 0 |
+| `foundry -> scientist`: `forbidden internal import: foundry -> scientist ` | 0 |
+| `lex -> scientist`: `forbidden internal import: lex -> scientist ` | 0 |
+| `core -> scientist`: `forbidden internal import: core -> scientist ` | 0 |
+| `lex -> foundry`: `forbidden internal import: lex -> foundry ` | 0 |
+| `ir -> core`: `forbidden internal import: ir -> core ` | 0 |
+| `foundry -> lex`: `forbidden internal import: foundry -> lex ` | 0 |
+| `ir -> jax`: `forbidden external import in ir: jax ` | 0 |
+
+The dual-row `ir/observation/compiler.py` disposition remains explicit: its
+Foundry calibration edge and JAX external dependency were moved together but
+the `ir -> foundry` and `ir -> jax` literal predicates were closed separately.
+The shared `simulation_proof_bridge` disposition is likewise explicit: the
+bridge remains IR-owned, Core re-exports IR truthfulness identities, and no
+claim is made about the remaining observability family.
+
+### Package predicate and P41 closeout
+
+- The preliminary final-package receipt completed exit 1 with 194 declared /
+  194 list / 194 unique findings and one fail-closed forbidden edge:
+  `scientist.governance.blueprint_release -> data_forge.domains.ukraine.manifests`.
+  Timing was `real=128.77s`, `user=119.95s`, `sys=5.59s`. Exact-base replay at
+  `2525da730` reproduced the original 34 forbidden edges without this edge, and
+  `git -S` assigns its introduction to this task's Seam 4 commit `cd14d2da1`;
+  it was therefore task-owned under P41.
+- `ReleaseManifest` was already a lazy export of the supported
+  `data_forge.read_api.ukraine` entrypoint, with exact object and schema identity.
+  The final one-import rewrite reuses it; no package, export, constraint, or
+  surface changed, so the ledger remains 10/10. The affected 16-test file and
+  Ruff passed before the repair commit was read back from the attached branch.
+- Final direct command:
+  `/usr/bin/time -p uv run python tools/quality/validation/check_package_import_gates.py --fail-closed --json-output _build/.tmp/last-mile/package-import-gates.json`.
+  It completed exit 1 with `real=162.74s`, `user=144.11s`, `sys=7.85s`; uptime
+  moved from 3 days 18:13 (`load=4.87,3.94,3.58`) to 3 days 18:16
+  (`load=5.60,4.73,3.97`).
+- Python and jq independently agree on 192 declared / 192 list / 192 unique
+  findings and on 19 declared / 19 listed package contracts. The fail-closed
+  forbidden set is zero by the declared summary, the empty package-level list,
+  and the empty unique edge-key union; registered and unregistered forbidden
+  counts are both zero. Thus the predicate still reports exit 1 on its broader
+  192-finding report, while its load-bearing forbidden set moves from base 34
+  to final 0. `tmp/`, `production_data/`, and `runs/` were absent before and
+  after, excluding the ignored-directory count confounder. The ignored JSON
+  receipt is 113,537 bytes with SHA-256
+  `841d6110f1e18b6850e047f256cda33ae25db528cc7452f791175af26b66b360`.
+
+### Recomputed generators and architecture guardrail
+
+- `uv run --extra ml polisyos-tools diagnostics gen-schema --check` completed
+  exit 0 in `real=41.52s`, `user=39.09s`, `sys=1.40s`; all 101 models passed a
+  full scan. The final four snapshot changes and their reference projections
+  are therefore generated-owner receipts, not hand-authored schema drift.
+- `/usr/bin/time -p uv run polisyos-tools architecture guardrails check`
+  completed exit 0 in `real=52.16s`, `user=43.41s`, `sys=10.72s`; runtime API
+  client and dashboard API-type freshness were clean and the architecture
+  guardrail reported zero creep.
+- A separate `mktemp` corruption probe copied the final 3,539-edge baseline,
+  changed one target while retaining the JSON shape, and ran
+  `guardrails check --skip-generated-checks --deep-import-baseline <copy>`.
+  It completed exit 1 in 50.74s specifically on baseline drift/new creep. The
+  uncorrupted copy still had 3,539 edges and the temporary directory was
+  removed. This is the remove-the-property/keep-the-markers witness for P29.
+
+### Complete changed-path verification wave
+
+- Two independent Git-diff derivations agree on 152 changed Python paths:
+  144 existing and 8 deleted. They separately agree on 63 changed Python test
+  paths: 61 existing and 2 deleted. There were zero untracked Python files.
+- One Ruff invocation over all 144 existing changed Python paths completed
+  exit 0 (`real=0.20s`, `user=0.29s`, `sys=0.08s`).
+- One pytest invocation over all 61 existing changed Python test files
+  completed exit 0: 784 passed, 6 skipped, 0 failed/errors, 790 total
+  (`real=210.88s`, `user=193.72s`, `sys=12.99s`). The six skips are three
+  opt-in C7 integration cases, two missing-`causallearn` cases, and one
+  missing-BoTorch case. `git diff --check 2525da730 --` also completed exit 0.
+- The preliminary 60-file wave was a completed failure, not a non-receipt:
+  770 passed, 6 skipped, and 2 failed. One failure exposed a generated IR
+  public-surface count whose body enumerated 260 names while the heading still
+  said 249; the companion was corrected to 260. The other exposed that strict
+  schedule entries discarded the explicit bounds of their referenced canonical
+  `ParameterSpec`; the existing bridge now reuses those bounds, skips
+  non-tunable parameters, and still fails closed on absent bounds. Focused RED,
+  positive, negative, and 19-test bridge receipts passed before the zero-round
+  repair commit.
+- Changed-file Ruff then exposed 17 `F821` findings in the touched ID-engine
+  transport module. Exact replay showed the dynamic-injection defect at the
+  base and seam parent, but this task had brought that path into the changed
+  denominator, so P41 made closure task-owned. Explicit imports bind the same
+  seven existing Core objects; 172 focused ID-engine tests passed. The sole
+  remaining `I001` likewise reproduced historically but was closure-owned by
+  the import-order repair slice; Ruff's import-only rewrite passed the exact
+  file check and 36 strategic-runtime/workflow tests.
+- Three broader promotion tests selected during that import-order check were
+  classified separately rather than taught to the repair. Exact-node replay on
+  `2525da730`, the strategic seam parent/current, pre-reorder `8f48ac11d`, and
+  final source all returns the same intentional
+  `canonical_n9_promotion_sequence_required` strangle. Those three nodes import
+  `judge_stack` directly and do not import or execute the one path changed by
+  the import-order repair, so their complete input denominator intersects that
+  repair slice at zero. A fresh-process node that imports the reordered module
+  and executes `_resolve_benchmark_scope` passed in 54.78s. Restoring legacy
+  promotion would have violated the canonical N9 boundary and is out of scope.
+
+### Final pattern and capability pass
+
+- Re-reading the failure/repair register leaves the target chain closed without
+  P01/P02 contract-only or thin-orchestration claims: every relocated shared
+  contract has its producer/consumer identity tests, and every consumer-up move
+  has a real bridge or execution consumer. D5's initial `consumer_missing`
+  state is closed by content-bound Scientist admission, persistence, decision,
+  and negative authority tests.
+- P05/P15/P32/P37 remain fail-closed at the truthfulness seam. The only precise
+  incomplete label is the already-recorded calibrated-acceptance
+  `producer_missing`; it cannot grant authority and does not reopen IC-02. The
+  observability family beyond the shared IC-02 identity remains explicitly
+  `surface_out_of_scope` for this task.
+- P35 is satisfied by complete source, edge, changed-path, and test-path
+  denominators with disagreements preserved. P39 records generated/docs/tests
+  outside mechanism-round arithmetic. P40 stopped same-class truthfulness
+  instance repair at the structural strangle. P41 assigned every closeout red
+  from the appropriate slice base before repair or exclusion.
+- Final target state: all 39 statements are classified, all nine literal rows
+  close at zero, ambiguous=0, the deep baseline is manually enumerated, the
+  guardrail is exit 0, and no eleventh widening round was taken.

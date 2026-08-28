@@ -647,3 +647,29 @@ Both are the explicit stop class: a hand-authored contract owned by another team
 no generator, blocks the property. Neither is a generated-artifact, contended-file, or
 coordination stop. C07 cannot freeze or claim end-to-end green while either admission
 consumer rejects the new truth.
+
+## Receipt correction — architecture guardrail predicate was not established
+
+The C02-C04 journal and commit messages asserted that repository architecture
+guardrails were green. That claim is withdrawn. The admitted invocation was
+`PATH="$PWD/.venv/bin:$PATH" uv run polisyos-tools architecture guardrails check`;
+the C02 journal retained only its aggregate exit code and timing, and C03-C04 repeated
+the aggregate claim. Those receipts did not retain or reconcile the deep-import
+subcheck output, and no direct
+`tools/devx/architecture/guardrails.py check` delta was run and read at the delivered
+slice head. The hand-back then promoted cluster-local wrapper exits into a slice-head
+claim about a predicate they did not evidence.
+
+The mechanism is **command-to-predicate binding failure plus stale cluster receipt**:
+an aggregate wrapper exit was treated as proof of a named subpredicate, without a
+receipt binding that exit to the direct guardrail engine's complete findings at the
+claimed coordinate. A direct check at delivered head `54f9ff4f2` reports 19 new
+deep-import creep edges while the same check on `main` reports zero. Therefore the
+prior green statements are false receipts, not inherited reds or tooling
+nonreceipts. C01-C04's behavioral tests remain evidence for their named product
+properties; none of their prior architecture-guardrail statements is admissible.
+
+No implementation remedy begins until this correction is committed. Closure now
+requires edge-by-edge classification, a facade or registered expiring exception for
+each edge, and a fresh direct branch-versus-`main` guardrail delta proving that the
+branch contributes zero creep.

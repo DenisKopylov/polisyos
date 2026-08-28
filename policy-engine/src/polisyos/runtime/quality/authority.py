@@ -1271,7 +1271,7 @@ def _strict_eval_safety_surface_payload(
     purpose: str | None,
     artifact_store: _ArtifactSurfaceStore | None,
     artifact_id: object | None,
-) -> tuple[bool, object | None, str | None]:
+) -> tuple[bool, Mapping[str, Any] | None, str | None]:
     """Strict-load one exact EvalSafety projection for the generic egress gate."""
 
     if artifact_store is None or artifact_id is None:
@@ -1507,11 +1507,11 @@ def _authority_boundary_surface_decision(
 
 
 def _surface_authority_payload(
-    payload: object,
+    payload: Mapping[str, Any] | AuthorityEnvelopeInput | None,
     *,
     artifact_store: _ArtifactSurfaceStore | None,
     artifact_id: object | None,
-) -> object:
+) -> Mapping[str, Any] | AuthorityEnvelopeInput | None:
     """Resolve the authority carrier for a surface without replacing scan bytes."""
 
     carrier = _authority_payload(payload)

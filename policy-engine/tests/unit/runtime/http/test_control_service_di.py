@@ -25,6 +25,11 @@ from polisyos.runtime.http.execution_policy import (
     RuntimePrincipal,
 )
 from polisyos.runtime.http.services.control import ControlPlaneService
+from polisyos.runtime.http.services.control.evaluation_safety import (
+    EvaluationSafetyAdmissionVerifier,
+    EvaluationSafetyPersistenceService,
+)
+from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.http.services.control_registry_providers import (
     ControlRegistryProviders,
     resolve_control_registry_providers,
@@ -36,6 +41,7 @@ from polisyos.runtime.quality.evaluation_safety import (
     EvalSafetyConsumerAdmissionReceipt,
     EvaluationExecutionContext,
 )
+from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from polisyos.runtime.quality.generation_cycle import (
     N4GenerationPort,
     simulation_value_execution_context,
@@ -183,6 +189,92 @@ def test_control_service_types_malformed_promotion_runtime(tmp_path) -> None:
             registry_providers=_build_registry_providers(),
             promotion_runtime=object(),  # type: ignore[arg-type]
         )
+
+
+def test_control_service_owns_one_eval_safety_service_verifier_and_store(tmp_path) -> None:
+    service = _build_control_service(tmp_path)
+    try:
+        persistence = service._evaluation_safety_persistence_service
+        verifier = service._evaluation_safety_admission_verifier
+
+        assert isinstance(persistence, EvaluationSafetyPersistenceService)
+        assert isinstance(verifier, EvaluationSafetyAdmissionVerifier)
+        assert persistence._artifact_store is service._artifact_store
+        assert persistence._event_log is service._diagnostic_event_log
+        assert verifier._persistence_service is persistence
+        assert verifier._current_state_resolver is service._evaluation_safety_state_resolver
+        assert verifier._authority_resolver is service._evaluation_safety_authority_resolver
+        assert verifier._appointment_resolver is service._evaluation_safety_appointment_resolver
+        assert verifier._verifier_registry is service._evaluation_safety_verifier_registry
+    finally:
+        service.close()
+
+
+def test_control_service_accepts_exact_eval_safety_persistence_owner(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    control_store = ControlPlaneStore(
+        backend="sqlite",
+        sqlite_path=tmp_path / "control.sqlite3",
+    )
+    event_log = RuntimeDiagnosticEventLog(
+        store=control_store,
+        artifact_store=store,
+    )
+    persistence = EvaluationSafetyPersistenceService(
+        artifact_store=store,
+        event_log=event_log,
+    )
+    resolver = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="external",
+        state_store_backend="sqlite",
+        sqlite_path=str(tmp_path / "control.sqlite3"),
+        postgres_dsn=None,
+    )
+    service = ControlPlaneService(
+        cas_root=tmp_path / "cas",
+        core_runs_root=tmp_path / "runs",
+        artifact_store=store,
+        control_store=control_store,
+        retrieval_service=_NoOpRetrievalService(),
+        policy_resolver=resolver,
+        registry_providers=_build_registry_providers(),
+        evaluation_safety_persistence_service=persistence,
+    )
+    try:
+        assert service._diagnostic_event_log is event_log
+        assert service._evaluation_safety_persistence_service is persistence
+        assert service._evaluation_safety_admission_verifier._persistence_service is persistence
+    finally:
+        service.close()
+
+
+def test_control_service_rejects_foreign_eval_safety_persistence_store(tmp_path) -> None:
+    owner = _build_control_service(tmp_path / "owner")
+    foreign = EvaluationSafetyPersistenceService(
+        artifact_store=FileSystemCAS(tmp_path / "foreign" / "cas"),
+        event_log=owner._diagnostic_event_log,
+    )
+    resolver = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="external",
+        state_store_backend="sqlite",
+        sqlite_path=".polisyos/control.sqlite3",
+        postgres_dsn=None,
+    )
+    try:
+        with pytest.raises(ValueError, match="evaluation_safety_persistence_owner_mismatch"):
+            ControlPlaneService(
+                cas_root=tmp_path / "target" / ".polisyos",
+                core_runs_root=tmp_path / "target" / ".polisyos" / "runs",
+                artifact_store=FileSystemCAS(tmp_path / "target" / "cas"),
+                retrieval_service=_NoOpRetrievalService(),
+                policy_resolver=resolver,
+                registry_providers=_build_registry_providers(),
+                evaluation_safety_persistence_service=foreign,
+            )
+    finally:
+        owner.close()
 
 
 def test_control_service_rejects_foreign_promotion_store(tmp_path) -> None:

@@ -44,6 +44,13 @@ projections. Route handlers should stay thin and delegate behavior here.
   Resolver and inaccessible-CAS failures fail closed at typed read boundaries; programmer defects
   from canonical authority owners remain visible. Challenges and consumer admission receipts
   remain non-durable and consumer-owned.
+- **Attempt admission at the control lifecycle** - `control/run_lifecycle.py` recognizes only the
+  strict nested `evaluation_safety_attempt` intake in workflow params or natural-language context.
+  Non-simulation attempts are composed, persisted, reduced, and projected before WorkspaceLoop or
+  recursive compilation; a blocked attempt terminates with the informational projection as the
+  sole business output in the Core run manifest. The container constructs one verifier over its
+  own store and event log, ignores promotion state, and exposes no evaluation callback. Explicit
+  `simulate_only` transport remains certificate-free and is still rechecked by the evaluator owner.
 
 ## Public API
 
@@ -73,6 +80,9 @@ projections. Route handlers should stay thin and delegate behavior here.
   metrics-projection read-identity accessor. The verifier exposes only
   `require_admission(context, challenge)` and has no route, executor, scheduler, callback,
   transport, cache, or broad control-store dependency.
+- [`control/run_lifecycle.py`](control/run_lifecycle.py) owns the fail-closed composition boundary
+  that invokes that adapter before an attempted evaluation can enter a runtime executor and records
+  only its informational projection in control progress and terminal Core output.
 - [`human_decision_contracts.py`](human_decision_contracts.py) defines strict
   route/service contracts, while [`human_decisions.py`](human_decisions.py)
   owns signed-input reconciliation, append-only record custody, reservation

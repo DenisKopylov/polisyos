@@ -1952,6 +1952,68 @@ snapshot, so C04 does not edit it. C04 delivers all eight admitted mechanism
 paths, moving delivered execution from 12 to **20/21** while the hard ceiling
 remains **24**. Its widening round remains unspent.
 
+#### C03 lifecycle closure receipt (2026-08-28)
+
+The final C03 mechanism path is the existing
+`runtime/http/services/control/run_lifecycle.py`; no sibling history or new
+source path enters the branch. `ControlPlaneService` now constructs one
+`EvaluationSafetyPersistenceService` and one concrete
+`EvaluationSafetyAdmissionVerifier` over its exact artifact store and
+diagnostic event log. The container's authority and appointment resolvers are
+typed unresolved owners and its verifier registry is empty: they never appoint
+an institution or manufacture a positive certificate.
+
+The reserved strict `evaluation_safety_attempt` envelope is read only from
+workflow params or natural-language context. Non-simulation attempts compose,
+persist, reduce, and project before WorkspaceLoop or recursive compilation.
+A blocked request fails the control job with typed blockers and honest
+complete-denominator counters; its Core terminal manifest contains exactly the
+informational metrics projection as its sole business output. Explicit
+`simulate_only` remains certificate-free, threads the canonical execution
+context and container verifier into the legacy Scientist seam, and preserves
+the existing workflow path. Promotion-shaped sibling state is never read.
+
+Red-first receipts were exact: both DI selectors failed on the missing owner
+composition; the API and three-injection selectors failed because WorkspaceLoop
+was called; and the terminal-manifest selector found zero decision/output
+artifacts. After implementation, the two DI nodes passed at CPU **46.78s**, the
+API plus three-injection nodes at **47.47s**, and the terminal-manifest node at
+**63.84s**. The injection matrix (absent, maximally favourable, forged-passing)
+returns identical status, blockers, certificate eligibility, core bytes,
+decision ID, safety hash, zero executor calls, blocked count **1**, near-miss
+count **0**, `not_established` classification coverage, and complete
+reconciliation. The unseen-domain blockers include typed `domain_pack_missing`
+and `mode_basis_missing`; the generic unseen-pack owner tests also pass with no
+engine conditional.
+
+Both C03 P29 probes are behavioral. Removing only the admission call while
+leaving progress/manifest marker code intact makes the API selector red;
+removing only `RunContext.add_output` while leaving the progress projection ref
+intact makes the terminal-manifest selector red. Both properties were restored
+before freeze. One named recursive-head regression passed but consumed CPU
+**143.47s** alone, so it is recorded as a focused-lane timing non-receipt and
+the 110s ceiling is not widened or substituted with the 2360s replay lane.
+All other named persistence, counter, surface, run-paper, explicit-simulation,
+and unchanged-workflow selectors passed below 110s.
+
+The final source freeze repeated four focused selections: exact container
+ownership plus foreign-store refusal passed at CPU **49.43s**; the lifecycle
+block plus three-way promotion injection passed at **46.85s**; terminal
+projection plus immutable retry passed at **45.79s**; and explicit
+`simulate_only` transport plus exact-owner injection passed at **67.43s**.
+Ruff format, Ruff check, and `git diff --check` exited 0. The registered
+trust-posture generator exited 0 at CPU **79.37s**; its AST and tokenizer
+derivations both counted **2,601 Python files**, and only the registered
+trust-claim posture artifact acquired a content delta (the generated-artifacts
+reference was in the command's write set but remained byte-stable). The
+aggregate architecture guardrail then exited 0 at CPU **181.05s** under its
+separate 390s lane ceiling, including all registered-artifact freshness checks.
+
+C03 therefore delivers its fifth admitted mechanism path. The delivered union
+is now **21/21 admitted**, the hard mechanism ceiling remains **24**, C03's one
+widening round remains the already-recorded authority-egress/run-paper round,
+and C04's widening round remains unspent.
+
 ### C05 — Freeze, reviews, focused local closure, cloud replay, and handoff
 
 **Mechanism paths:** none.
@@ -2067,10 +2129,9 @@ Each cluster handoff reports:
 - authority/predicate provenance table changes;
 - decision/certificate/projection refs from the e2e test;
 - exact recomputed counter denominator and duplicate handling;
-- collision release evidence for C04;
-- the immediate pre-touch two-path unbound-writes collision readback for C03;
-- no-push/no-integration confirmation, plus the exact authorized append-only
-  merge readback if §11 required one.
+- no-push/no-integration confirmation and the committed attached-branch
+  readback. Parallel-lane coordination state is intentionally absent from the
+  final handoff under the replacement execution rule.
 
 Final handoff must repeat verbatim:
 

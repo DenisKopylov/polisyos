@@ -286,6 +286,7 @@ class EvaluationSafetyPersistenceService:
                 intake_ref=intake_ref,
                 attempt_id=intake.attempt_id,
                 evaluator_owner_id=intake.evaluator_owner_id,
+                design_problem_ref=intake.design_problem_ref,
                 candidate_ref=intake.candidate_ref,
                 world_model_record_ref=intake.world_model_record_ref,
                 evaluation_mode=accepted_mode,

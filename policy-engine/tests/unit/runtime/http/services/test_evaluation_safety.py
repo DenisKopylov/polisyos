@@ -150,10 +150,14 @@ def _core_ref(value: str, kind: str) -> CoreArtifactRef:
 
 
 def _passing_fixture(
-    tmp_path, *, evaluated_at: datetime | None = None
+    tmp_path,
+    *,
+    evaluated_at: datetime | None = None,
+    design_problem_ref: str | None = None,
 ) -> _PassingFixture:
     service, artifact_store = _service(tmp_path)
     evaluated_at = evaluated_at or (datetime.now(UTC) - timedelta(minutes=1))
+    design_problem_ref = design_problem_ref or ("sha256:" + "0" * 64)
     source = artifact_store.put_json(
         {"input": "real-world"},
         opts=PutOptions(kind="test.eval-input", media_type="application/json"),
@@ -507,6 +511,7 @@ def _passing_fixture(
         evaluator_owner_id=core_components.ComponentId(
             "polisyos.runtime.quality.foundry_value_port@1.0.0"
         ),
+        design_problem_ref=design_problem_ref,
         candidate_ref=_ref("sha256:" + "6" * 64, "test.candidate"),
         world_model_record_ref=_ref("sha256:" + "7" * 64, "test.wmr"),
         requested_mode_token="field_pilot",  # noqa: S106
@@ -590,6 +595,7 @@ def _passing_fixture(
     execution_context = es.EvaluationExecutionContext(
         intake_ref=persisted.intake_ref,
         evaluator_owner_id=intake.evaluator_owner_id,
+        design_problem_ref=intake.design_problem_ref,
         evaluation_mode="field_pilot",
         candidate_ref=intake.candidate_ref,
         world_model_record_ref=intake.world_model_record_ref,
@@ -773,6 +779,7 @@ def _blocked_core(artifact_store: FileSystemCAS):
             component="polisyos.runtime.test.evaluator@1.0.0",
             version="1.0.0",
         ).component,
+        design_problem_ref="sha256:" + "0" * 64,
         candidate_ref=candidate_ref,
         world_model_record_ref=world_ref,
         requested_mode_token="field_pilot",  # noqa: S106 - evaluation mode, not a secret.
@@ -996,6 +1003,45 @@ def test_cas_backed_admission_verifier_is_fresh_and_current(tmp_path) -> None:
         parameter.kind
         not in {inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD}
         for parameter in signature.parameters.values()
+    )
+
+
+def test_consumer_admission_blocks_request_design_problem_mismatch(tmp_path) -> None:
+    fixture = _passing_fixture(tmp_path)
+
+    class CurrentStateResolver:
+        def resolve(
+            self,
+            context: es.EvaluationExecutionContext,
+        ) -> EvaluationSafetyReplayMaterial:
+            del context
+            return fixture.replay_material
+
+    verifier = c02.EvaluationSafetyAdmissionVerifier(
+        persistence_service=fixture.service,
+        current_state_resolver=CurrentStateResolver(),
+        authority_resolver=fixture.authority_resolver,
+        appointment_resolver=fixture.appointment_resolver,
+        verifier_registry=fixture.verifier_registry,
+    )
+    mismatched_context = fixture.execution_context.model_copy(
+        update={"design_problem_ref": "sha256:" + "e" * 64}
+    )
+    challenge = es.EvalSafetyAdmissionChallenge.fresh(
+        consumer_component_id=mismatched_context.evaluator_owner_id
+    )
+
+    admission = verifier.require_admission(mismatched_context, challenge)
+
+    assert admission.status == "blocked"
+    assert admission.blocker_codes == (
+        "polisyos.eval_safety.certificate_binding_mismatch@1.0.0",
+        "polisyos.eval_safety.execution_context_binding_mismatch@1.0.0",
+    )
+    assert not es.evaluation_safety_consumer_admission_is_verified(
+        admission,
+        mismatched_context,
+        challenge,
     )
 
 
@@ -1754,6 +1800,7 @@ def test_blocked_non_simulation_persists_ordered_chain_without_certificate(tmp_p
             component="polisyos.runtime.test.evaluator@1.0.0",
             version="1.0.0",
         ).component,
+        design_problem_ref="sha256:" + "0" * 64,
         candidate_ref=_ref("sha256:" + "3" * 64, "test.candidate"),
         world_model_record_ref=_ref("sha256:" + "4" * 64, "test.world-model"),
         requested_mode_token="field_pilot",  # noqa: S106 - evaluation mode, not a secret.
@@ -1844,6 +1891,7 @@ def test_invalid_mode_persists_intake_and_typed_block_without_request(tmp_path) 
             component="polisyos.runtime.test.evaluator@1.0.0",
             version="1.0.0",
         ).component,
+        design_problem_ref="sha256:" + "0" * 64,
         candidate_ref=_ref("sha256:" + "3" * 64, "test.candidate"),
         world_model_record_ref=_ref("sha256:" + "4" * 64, "test.world-model"),
         requested_mode_token=None,
@@ -1933,6 +1981,7 @@ def test_cas_replay_rejects_swapped_intake_request_and_decision_refs(tmp_path) -
             component="polisyos.runtime.test.evaluator@1.0.0",
             version="1.0.0",
         ).component,
+        design_problem_ref="sha256:" + "0" * 64,
         candidate_ref=_ref("sha256:" + "3" * 64, "test.candidate"),
         world_model_record_ref=_ref("sha256:" + "4" * 64, "test.world-model"),
         requested_mode_token="unknown-mode",  # noqa: S106 - evaluation mode, not a secret.

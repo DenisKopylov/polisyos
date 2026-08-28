@@ -83,7 +83,7 @@ from polisyos.ir.analytics.uncertainty import (
     IntervalSemantics,
     NativeValueEstimandBinding,
 )
-from polisyos.pdc import ArtifactRef
+from polisyos.pdc import ArtifactRef, gy_content_hash
 from polisyos.runtime.quality.acquisition_planner import (
     value_input_world_knowledge_requirement_gap,
 )
@@ -156,10 +156,12 @@ def _simulation_execution_context(
     *,
     candidate: object,
     simulation: SimulationPortObservation,
+    problem: DesignProblem,
 ) -> EvaluationExecutionContext:
     return simulation_value_execution_context(
         candidate=candidate,
         simulation=simulation,
+        problem=problem,
     )
 
 
@@ -179,6 +181,7 @@ def _non_simulation_execution_context(
     mode: str,
     candidate: object,
     world: WorldModelRecord,
+    problem: DesignProblem,
     input_class: str = "real_world",
     candidate_id: str | None = None,
 ) -> EvaluationExecutionContext:
@@ -192,6 +195,7 @@ def _non_simulation_execution_context(
     return EvaluationExecutionContext(
         intake_ref=_execution_ref("evaluation-intake", _hash("b")),
         evaluator_owner_id=FOUNDRY_VALUE_PORT_EVALUATOR_ID,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
         evaluation_mode=mode,  # type: ignore[arg-type]
         candidate_ref=_execution_ref(
             candidate_id or str(candidate.candidate_id),  # type: ignore[attr-defined]
@@ -637,7 +641,9 @@ def test_n8_first_vertical_resolves_world_identity_before_value() -> None:
 
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=lane["candidate"], simulation=simulation
+            candidate=lane["candidate"],
+            simulation=simulation,
+            problem=lane["problem"],
         ),
         repo_root=Path.cwd(),
         cycle_substrate_context=lane["cycle_substrate_context"],
@@ -690,7 +696,9 @@ def test_n8_refuses_context_candidate_with_unresolved_world_slot() -> None:
 
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         ),
         repo_root=Path.cwd(),
         cycle_substrate_context=lane["cycle_substrate_context"],
@@ -726,7 +734,9 @@ def test_n8_resolves_bound_world_before_routing_owner_data_gap() -> None:
 
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=lane["problem"],
         ),
         repo_root=Path.cwd(),
         cycle_substrate_context=lane["cycle_substrate_context"],
@@ -2371,7 +2381,9 @@ def test_empty_hints_with_unresolved_candidate_wmr_ref_refuses_typed() -> None:
     )
     with pytest.raises(ValueError, match="eval_safety_simulation_input_unresolved"):
         _simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         )
 
     assert simulation.status == "simulation_blocked"
@@ -2391,7 +2403,9 @@ def test_empty_hints_cycle_reaches_honest_value_acquisition_with_real_boundary_w
 
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         ),
         repo_root=Path.cwd(),
         cycle_substrate_context=context,
@@ -2431,20 +2445,30 @@ def test_runtime_value_hints_cannot_change_owner_data_terminal() -> None:
     )
     candidate = _avg_income_candidate()
     simulation = _simulation(_world_record(), candidate_id=candidate.candidate_id)
-    port = FoundryValuePort(
+    canonical_port = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+        ),
+        repo_root=Path.cwd(),
+    )
+    forged_port = FoundryValuePort(
+        evaluation_context=_simulation_execution_context(
+            candidate=candidate,
+            simulation=simulation,
+            problem=forged_problem,
         ),
         repo_root=Path.cwd(),
     )
 
-    canonical = port(
+    canonical = canonical_port(
         candidate=candidate,
         simulation=simulation,
         problem=problem,
         cycle_index=0,
     )
-    forged = port(
+    forged = forged_port(
         candidate=candidate,
         simulation=simulation,
         problem=forged_problem,
@@ -2484,6 +2508,7 @@ def test_candidate_treatment_assignment_is_not_owner_world_knowledge() -> None:
 
 
 def test_shaped_owner_assignment_attestation_is_not_authority() -> None:
+    problem = _avg_income_problem()
     base = _avg_income_candidate()
     shaped_atom = SimpleNamespace(
         intervention_id=base.atom.intervention_id,
@@ -2507,12 +2532,12 @@ def test_shaped_owner_assignment_attestation_is_not_authority() -> None:
     gateway = RealValueOwnerGateway(repo_root=Path.cwd())
     shaped = gateway.load_value_data_profile(
         candidate=candidate,
-        problem=_avg_income_problem(),
+        problem=problem,
         world_record=_world_record(),
     )
     canonical = gateway.load_value_data_profile(
         candidate=_avg_income_candidate(),
-        problem=_avg_income_problem(),
+        problem=problem,
         world_record=_world_record(),
     )
 
@@ -2522,13 +2547,15 @@ def test_shaped_owner_assignment_attestation_is_not_authority() -> None:
     simulation = _simulation(_world_record(), candidate_id=base.candidate_id)
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         ),
         repo_root=Path.cwd(),
     )(
         candidate=candidate,
         simulation=simulation,
-        problem=_avg_income_problem(),
+        problem=problem,
         cycle_index=0,
     )
 
@@ -2540,11 +2567,14 @@ def test_shaped_owner_assignment_attestation_is_not_authority() -> None:
 
 
 def test_simulation_context_refuses_candidate_simulation_mismatch() -> None:
+    problem = _avg_income_problem()
     candidate = _avg_income_candidate()
     simulation = _simulation(_world_record(), candidate_id="another_candidate")
     with pytest.raises(ValueError, match="eval_safety_simulation_candidate_mismatch"):
         _simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         )
 
 
@@ -2650,17 +2680,20 @@ def test_value_advisor_projection_preserves_typed_design_problem_authority() -> 
 
 def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition() -> None:
     world = _world_record()
+    problem = _avg_income_problem()
     candidate = _avg_income_candidate()
     simulation = _simulation(world, candidate_id="candidate_avg_income_real")
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         ),
         repo_root=Path.cwd(),
     )(
         candidate=candidate,
         simulation=simulation,
-        problem=_avg_income_problem(),
+        problem=problem,
         cycle_index=0,
     )
 
@@ -2716,7 +2749,9 @@ def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(
     )
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         ),
         repo_root=Path.cwd(),
     )(
@@ -2734,6 +2769,7 @@ def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(
 
 
 def test_shaped_relation_certificate_cannot_open_missing_value_input_lane() -> None:
+    problem = _avg_income_problem()
     base = _avg_income_candidate()
     candidate = SimpleNamespace(
         candidate_id=base.candidate_id,
@@ -2748,12 +2784,12 @@ def test_shaped_relation_certificate_cannot_open_missing_value_input_lane() -> N
     gateway = RealValueOwnerGateway(repo_root=Path.cwd())
     forged_profile = gateway.load_value_data_profile(
         candidate=candidate,
-        problem=_avg_income_problem(),
+        problem=problem,
         world_record=_world_record(),
     )
     canonical_profile = gateway.load_value_data_profile(
         candidate=base,
-        problem=_avg_income_problem(),
+        problem=problem,
         world_record=_world_record(),
     )
 
@@ -2762,13 +2798,15 @@ def test_shaped_relation_certificate_cannot_open_missing_value_input_lane() -> N
     simulation = _simulation(_world_record(), candidate_id=base.candidate_id)
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         ),
         repo_root=Path.cwd(),
     )(
         candidate=candidate,
         simulation=simulation,
-        problem=_avg_income_problem(),
+        problem=problem,
         cycle_index=0,
     )
 
@@ -2798,19 +2836,22 @@ def test_value_port_rejects_unowned_method_selection_receipt(
         },
     )
 
+    problem = _avg_income_problem()
     candidate = _avg_income_candidate()
     simulation = _simulation(
         _world_record(), candidate_id="candidate_avg_income_real"
     )
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         ),
         repo_root=Path.cwd(),
     )(
         candidate=candidate,
         simulation=simulation,
-        problem=_avg_income_problem(),
+        problem=problem,
         cycle_index=0,
     )
 
@@ -2869,7 +2910,9 @@ def test_real_education_owner_shape_selects_before_unbound_estimand_refusal() ->
     )
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         ),
         repo_root=Path.cwd(),
         cycle_substrate_context=context,
@@ -2902,19 +2945,22 @@ def test_real_education_owner_shape_selects_before_unbound_estimand_refusal() ->
 def test_value_world_knowledge_gap_must_match_blocker_and_candidate(
     mutation: str,
 ) -> None:
+    problem = _avg_income_problem()
     candidate = _avg_income_candidate()
     simulation = _simulation(
         _world_record(), candidate_id="candidate_avg_income_real"
     )
     canonical = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         ),
         repo_root=Path.cwd(),
     )(
         candidate=candidate,
         simulation=simulation,
-        problem=_avg_income_problem(),
+        problem=problem,
         cycle_index=0,
     )
     payload = canonical.model_dump(mode="python")
@@ -2946,17 +2992,20 @@ def test_missing_candidate_treatment_binding_blocks_without_fallback() -> None:
         diversity_key=("grant", "country", "avg_income", "missing_treatment"),
     )
     world = _world_record()
+    problem = _avg_income_problem()
     simulation = _simulation(world, candidate_id=candidate.candidate_id)
 
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         ),
         repo_root=Path.cwd(),
     )(
         candidate=candidate,
         simulation=simulation,
-        problem=_avg_income_problem(),
+        problem=problem,
         cycle_index=0,
     )
 
@@ -3082,7 +3131,9 @@ def test_production_value_block_is_real_data_gap_not_missing_inputs() -> None:
 
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         ),
         owner_gateway=RealValueOwnerGateway(repo_root=Path.cwd()),
         requested_method_fqn="causal.inference.synthetic_control@1.0.0",
@@ -3117,22 +3168,28 @@ def test_production_value_block_is_real_data_gap_not_missing_inputs() -> None:
 
 def test_missing_cycle_wmr_is_wiring_error_not_acquire_gap() -> None:
     world = _world_record()
+    problem = _problem("value_gate_problem")
     simulation = _simulation(world).model_copy(update={"world_model_record": None})
     candidate = _candidate()
 
     with pytest.raises(ValueError, match="eval_safety_simulation_input_unresolved"):
         _simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         )
 
 
 def test_value_port_reuses_cached_world_model_record() -> None:
     world = _world_record()
+    problem = _problem("value_gate_problem")
     candidate = _candidate()
     simulation = _simulation(world)
     port = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
-            candidate=candidate, simulation=simulation
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
         )
     )
 
@@ -3360,17 +3417,21 @@ def test_bad_forecasts_and_unavailable_methods_fail_closed(
 )
 def test_pilot_and_deployment_modes_block_pending_eval_safety(mode: str) -> None:
     world = _world_record()
+    problem = _problem("value_gate_problem")
     candidate = _candidate()
     observation = FoundryValuePort(
         evaluation_context=_non_simulation_execution_context(
-            mode=mode, candidate=candidate, world=world
+            mode=mode,
+            candidate=candidate,
+            world=world,
+            problem=problem,
         ),
         owner_gateway=RealValueOwnerGateway(repo_root=Path.cwd()),
         requested_method_fqn="causal.inference.synthetic_control@1.0.0",
     )(
         candidate=candidate,
         simulation=_simulation(world),
-        problem=_problem("value_gate_problem"),
+        problem=problem,
         cycle_index=0,
     )
 
@@ -3384,6 +3445,7 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
     candidate = _candidate()
     world = _world_record()
     simulation = _simulation(world)
+    problem = _problem("value_gate_problem")
 
     class GatewaySpy:
         def __init__(self) -> None:
@@ -3436,20 +3498,26 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
     missing_gateway = GatewaySpy()
     missing = FoundryValuePort(
         evaluation_context=_non_simulation_execution_context(
-            mode="field_pilot", candidate=candidate, world=world
+            mode="field_pilot",
+            candidate=candidate,
+            world=world,
+            problem=problem,
         ),
         owner_gateway=missing_gateway,  # type: ignore[arg-type]
     )(
         candidate=candidate,
         simulation=simulation,
-        problem=_problem("value_gate_problem"),
+        problem=problem,
         cycle_index=0,
     )
     blocked_gateway = GatewaySpy()
     blocking_verifier = BlockingVerifier()
     blocked_port = FoundryValuePort(
         evaluation_context=_non_simulation_execution_context(
-            mode="field_pilot", candidate=candidate, world=world
+            mode="field_pilot",
+            candidate=candidate,
+            world=world,
+            problem=problem,
         ),
         eval_safety_verifier=blocking_verifier,
         owner_gateway=blocked_gateway,  # type: ignore[arg-type]
@@ -3457,13 +3525,13 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
     blocked = blocked_port(
         candidate=candidate,
         simulation=simulation,
-        problem=_problem("value_gate_problem"),
+        problem=problem,
         cycle_index=0,
     )
     blocked_again = blocked_port(
         candidate=candidate,
         simulation=simulation,
-        problem=_problem("value_gate_problem"),
+        problem=problem,
         cycle_index=1,
     )
     wrong_gateway = GatewaySpy()
@@ -3471,6 +3539,7 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
         mode="field_pilot",
         candidate=candidate,
         world=world,
+        problem=problem,
         candidate_id="different-candidate",
     )
     wrong = FoundryValuePort(
@@ -3480,20 +3549,23 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
     )(
         candidate=candidate,
         simulation=simulation,
-        problem=_problem("value_gate_problem"),
+        problem=problem,
         cycle_index=0,
     )
     forged_gateway = GatewaySpy()
     forged = FoundryValuePort(
         evaluation_context=_non_simulation_execution_context(
-            mode="field_pilot", candidate=candidate, world=world
+            mode="field_pilot",
+            candidate=candidate,
+            world=world,
+            problem=problem,
         ),
         eval_safety_verifier=ForgedPositiveVerifier(),
         owner_gateway=forged_gateway,  # type: ignore[arg-type]
     )(
         candidate=candidate,
         simulation=simulation,
-        problem=_problem("value_gate_problem"),
+        problem=problem,
         cycle_index=0,
     )
     for input_class in ("real_world", "not_established"):
@@ -3503,13 +3575,14 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
                 mode="simulate_only",
                 candidate=candidate,
                 world=world,
+                problem=problem,
                 input_class=input_class,
             ),
             owner_gateway=laundering_gateway,  # type: ignore[arg-type]
         )(
             candidate=candidate,
             simulation=simulation,
-            problem=_problem("value_gate_problem"),
+            problem=problem,
             cycle_index=0,
         )
         assert laundering.status == "value_blocked"
@@ -3524,6 +3597,7 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
         mode="simulate_only",
         candidate=candidate,
         world=world,
+        problem=problem,
         input_class="simulation",
     ).model_copy(
         update={
@@ -3543,7 +3617,7 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
     )(
         candidate=candidate,
         simulation=simulation,
-        problem=_problem("value_gate_problem"),
+        problem=problem,
         cycle_index=0,
     )
     assert wrong_input.status == "value_blocked"
@@ -3556,6 +3630,7 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
     bound_simulation_context = _simulation_execution_context(
         candidate=candidate,
         simulation=simulation,
+        problem=problem,
     )
     explicit_simulation = FoundryValuePort(
         evaluation_context=bound_simulation_context.model_copy(
@@ -3565,7 +3640,7 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
     )(
         candidate=candidate,
         simulation=simulation,
-        problem=_problem("value_gate_problem"),
+        problem=problem,
         cycle_index=0,
     )
     assert missing.authority_blockers == ("eval_safety_verifier_unresolved",)
@@ -3602,6 +3677,70 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
         "value_owner_data_profile_invalid",
     )
     assert valid_simulation_gateway.calls == 1
+
+
+def test_foundry_blocks_same_input_cross_problem_context_before_verifier_or_owner() -> None:
+    candidate = _candidate()
+    world = _world_record()
+    simulation = _simulation(world)
+    routed_problem = _problem("routed_value_gate_problem")
+    foreign_problem = _problem("foreign_value_gate_problem")
+
+    class GatewaySpy:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def load_value_data_profile(self, **_kwargs: object) -> object:
+            self.calls += 1
+            return object()
+
+    class VerifierSpy:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def require_admission(
+            self,
+            context: EvaluationExecutionContext,
+            challenge: EvalSafetyAdmissionChallenge,
+        ) -> EvalSafetyConsumerAdmissionReceipt:
+            self.calls += 1
+            return EvalSafetyConsumerAdmissionReceipt(
+                status="blocked",
+                intake_ref=context.intake_ref,
+                certificate_ref=context.eval_safety_certificate_ref,
+                current_revision_head_ref=None,
+                execution_context_hash=evaluation_execution_context_hash(context),
+                challenge=challenge,
+                blocker_codes=("polisyos.eval_safety.certificate_stale@1.0.0",),
+                verified_at=datetime(2026, 8, 27, tzinfo=UTC),
+            )
+
+    gateway = GatewaySpy()
+    verifier = VerifierSpy()
+    foreign_context = _non_simulation_execution_context(
+        mode="field_pilot",
+        candidate=candidate,
+        world=world,
+        problem=foreign_problem,
+    )
+
+    observation = FoundryValuePort(
+        evaluation_context=foreign_context,
+        eval_safety_verifier=verifier,
+        owner_gateway=gateway,  # type: ignore[arg-type]
+    )(
+        candidate=candidate,
+        simulation=simulation,
+        problem=routed_problem,
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == (
+        "eval_safety_design_problem_binding_mismatch",
+    )
+    assert verifier.calls == 0
+    assert gateway.calls == 0
 
 
 def test_candidate_problem_selection_uses_registry_denominator() -> None:

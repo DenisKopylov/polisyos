@@ -448,6 +448,7 @@ class EvaluationAttemptIntake(_FrozenModel):
 
     attempt_id: str = Field(min_length=1)
     evaluator_owner_id: core_components.ComponentId
+    design_problem_ref: Digest
     candidate_ref: ArtifactRef
     world_model_record_ref: ArtifactRef
     requested_mode_token: str | None
@@ -470,6 +471,7 @@ class EvaluationAttemptRequest(_FrozenModel):
     intake_ref: ArtifactRef
     attempt_id: str = Field(min_length=1)
     evaluator_owner_id: core_components.ComponentId
+    design_problem_ref: Digest
     candidate_ref: ArtifactRef
     world_model_record_ref: ArtifactRef
     evaluation_mode: EvaluationMode
@@ -490,6 +492,7 @@ class EvaluationExecutionContext(_FrozenModel):
 
     intake_ref: ArtifactRef
     evaluator_owner_id: core_components.ComponentId
+    design_problem_ref: Digest
     evaluation_mode: EvaluationMode
     candidate_ref: ArtifactRef
     world_model_record_ref: ArtifactRef
@@ -1646,6 +1649,7 @@ def _request_matches_intake(
         request.intake_ref == intake_ref
         and request.attempt_id == intake.attempt_id
         and request.evaluator_owner_id == intake.evaluator_owner_id
+        and request.design_problem_ref == intake.design_problem_ref
         and request.candidate_ref == intake.candidate_ref
         and request.world_model_record_ref == intake.world_model_record_ref
         and request.evaluation_mode == intake.mode_resolution.canonical_mode
@@ -2115,6 +2119,7 @@ def verify_evaluation_safety_consumer_admission(
     if (
         context.evaluation_mode != intake.mode_resolution.canonical_mode
         or context.evaluator_owner_id != intake.evaluator_owner_id
+        or context.design_problem_ref != intake.design_problem_ref
         or context.candidate_ref != intake.candidate_ref
         or context.world_model_record_ref != intake.world_model_record_ref
         or context.target_population_scope_ref != intake.target_population_scope_ref
@@ -2148,6 +2153,7 @@ def verify_evaluation_safety_consumer_admission(
             or certificate.request_ref != request_ref
             or request.intake_ref != context.intake_ref
             or request.evaluator_owner_id != context.evaluator_owner_id
+            or request.design_problem_ref != context.design_problem_ref
             or decision_core.evaluator_owner_id != context.evaluator_owner_id
             or certificate.evaluator_owner_id != context.evaluator_owner_id
             or certificate.evaluation_mode != context.evaluation_mode

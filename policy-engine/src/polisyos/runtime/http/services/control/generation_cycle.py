@@ -40,6 +40,10 @@ if TYPE_CHECKING:
         _SpanSupportVerifierClient,
     )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.evaluation_safety import (
+        EvalSafetyVerifierPort,
+        EvaluationExecutionContext,
+    )
     from polisyos.runtime.quality.generation_cycle import N4GenerationPort
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from polisyos.runtime.quality.recursive_generation_cycle import (
@@ -97,6 +101,8 @@ async def compile_and_run_recursive_generation_cycle(
     controller: RecursiveGenerationCycleController | None = None,
     budget_state: BudgetState,
     recursive_budget: RecursiveCycleBudget,
+    root_evaluation_context: EvaluationExecutionContext | None = None,
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     span_support_client: _SpanSupportVerifierClient | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
     root_n4_generation_port: N4GenerationPort | None = None,
@@ -109,6 +115,29 @@ async def compile_and_run_recursive_generation_cycle(
         raise DesignProblemAuthorityError(
             "promotion_runtime_not_established",
             "The production composition requires its container-owned promotion runtime.",
+        )
+    if eval_safety_verifier is None:
+        raise DesignProblemAuthorityError(
+            "eval_safety_verifier_not_established",
+            "The production composition requires its verification-only EvalSafety port.",
+        )
+    if root_evaluation_context is None:
+        raise DesignProblemAuthorityError(
+            "eval_safety_execution_context_not_established",
+            "The production composition requires an explicit EvalSafety execution context.",
+        )
+    from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
+    from polisyos.runtime.quality.generation_cycle import FOUNDRY_VALUE_PORT_EVALUATOR_ID
+
+    if not isinstance(root_evaluation_context, EvaluationExecutionContext):
+        raise DesignProblemAuthorityError(
+            "eval_safety_execution_context_not_canonical",
+            "The root EvalSafety context must be the canonical typed contract.",
+        )
+    if root_evaluation_context.evaluator_owner_id != FOUNDRY_VALUE_PORT_EVALUATOR_ID:
+        raise DesignProblemAuthorityError(
+            "eval_safety_evaluator_owner_mismatch",
+            "The root EvalSafety context must name the canonical Foundry value owner.",
         )
     problem = await build_design_problem_from_nl_request(
         nl_request=raw_request,
@@ -149,6 +178,11 @@ async def compile_and_run_recursive_generation_cycle(
                 "recursive_controller_foreign_promotion_runtime",
                 "The HTTP composition requires its container-owned promotion runtime.",
             )
+        if getattr(controller, "_eval_safety_verifier", None) is not eval_safety_verifier:
+            raise DesignProblemAuthorityError(
+                "recursive_controller_eval_safety_verifier_mismatch",
+                "The injected recursive controller must retain the exact EvalSafety verifier.",
+            )
         if (
             getattr(controller, "_epoch_subject_authority", None)
             is not promotion_runtime.epoch_subject_authority
@@ -167,6 +201,7 @@ async def compile_and_run_recursive_generation_cycle(
             repo_root=repo_root,
             model_id=model_name,
             promotion_runtime=promotion_runtime,
+            eval_safety_verifier=eval_safety_verifier,
         )
 
     root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
@@ -187,6 +222,7 @@ async def compile_and_run_recursive_generation_cycle(
         n4_generation_ports_by_node=(
             {root_ref: root_n4_generation_port} if root_n4_generation_port is not None else None
         ),
+        evaluation_contexts_by_node={root_ref: root_evaluation_context},
     )
     limitations: list[OpenWorldRiskPublicLimitation] = []
     seen_vector_refs: set[str] = set()

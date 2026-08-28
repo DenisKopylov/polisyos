@@ -80,6 +80,7 @@ def _intake(
         evaluator_owner_id=core_components.ComponentId(
             "polisyos.runtime.quality.foundry_value_port@1.0.0"
         ),
+        design_problem_ref=_digest("4"),
         candidate_ref=_ref("6", "candidate"),
         world_model_record_ref=_ref("7", "wmr"),
         requested_mode_token=mode,
@@ -118,6 +119,7 @@ def _request(
         intake_ref=intake_ref,
         attempt_id=intake.attempt_id,
         evaluator_owner_id=intake.evaluator_owner_id,
+        design_problem_ref=intake.design_problem_ref,
         candidate_ref=intake.candidate_ref,
         world_model_record_ref=intake.world_model_record_ref,
         evaluation_mode=intake.mode_resolution.canonical_mode,
@@ -906,6 +908,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         evaluator_owner_id=core_components.ComponentId(
             "polisyos.runtime.quality.foundry_value_port@1.0.0"
         ),
+        design_problem_ref=request.design_problem_ref,
         evaluation_mode=request.evaluation_mode,
         candidate_ref=request.candidate_ref,
         world_model_record_ref=request.world_model_record_ref,

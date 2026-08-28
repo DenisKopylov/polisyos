@@ -22,7 +22,9 @@ from polisyos.runtime.quality.design_axes.coupling_composition import (
     compose_subdesigns,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
 from polisyos.runtime.quality.generation_cycle import (
+    FoundryValuePort,
     GenerationCycleController,
     GenerationCycleRun,
     N4GenerationPort,
@@ -43,6 +45,7 @@ from polisyos.runtime.quality.workspace.loop import (
 if TYPE_CHECKING:
     from polisyos.core import contracts as core_contracts
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.evaluation_safety import EvalSafetyVerifierPort
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from polisyos.scientist import BudgetState
 
@@ -468,6 +471,7 @@ def _branch_binding_issue(
 def build_default_recursive_generation_cycle_controller(
     *,
     promotion_runtime: PromotionRuntime,
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     repo_root: Path | None = None,
     model_id: str | None = None,
 ) -> RecursiveGenerationCycleController:
@@ -477,6 +481,7 @@ def build_default_recursive_generation_cycle_controller(
         repo_root=repo_root,
         model_id=model_id,
         promotion_runtime=promotion_runtime,
+        eval_safety_verifier=eval_safety_verifier,
     )
 
 
@@ -489,6 +494,7 @@ class RecursiveGenerationCycleController:
         repo_root: Path | None = None,
         model_id: str | None = None,
         promotion_runtime: PromotionRuntime | None = None,
+        eval_safety_verifier: EvalSafetyVerifierPort | None = None,
         epoch_subject_authority: core_contracts.EpochValidityPreN9SubjectAuthority | None = None,
         epoch_validity_gate: core_contracts.EpochValidityAuthorityGate | None = None,
         epoch_n9_evidence_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
@@ -505,6 +511,7 @@ class RecursiveGenerationCycleController:
         self._repo_root = (repo_root or Path.cwd()).resolve()
         self._leaf_model_id = model_id
         self._promotion_runtime = promotion_runtime
+        self._eval_safety_verifier = eval_safety_verifier
         self._epoch_subject_authority = epoch_subject_authority or getattr(
             promotion_runtime, "epoch_subject_authority", None
         )
@@ -543,6 +550,7 @@ class RecursiveGenerationCycleController:
         subdesign_contracts_by_node: Mapping[str, tuple[SubDesignContract, ...]] | None = None,
         cycle_substrate_contexts_by_node: Mapping[str, CycleSubstrateContext] | None = None,
         n4_generation_ports_by_node: Mapping[str, N4GenerationPort] | None = None,
+        evaluation_contexts_by_node: Mapping[str, EvaluationExecutionContext] | None = None,
     ) -> RecursiveGenerationCycleRun:
         """Run N6 at leaves and conservatively route terminals toward the root."""
 
@@ -598,6 +606,22 @@ class RecursiveGenerationCycleController:
         if set(depths) != set(node_refs):
             raise RecursiveGenerationCycleError("recursive_graph_unreachable_node")
         leaf_refs = {node_ref for node_ref, child_refs in children.items() if not child_refs}
+        if self._cycle_controller_factory is None:
+            if evaluation_contexts_by_node is None:
+                raise RecursiveGenerationCycleError(
+                    "recursive_eval_safety_context_not_established"
+                )
+            if set(evaluation_contexts_by_node) != leaf_refs:
+                raise RecursiveGenerationCycleError(
+                    "recursive_eval_safety_context_denominator_mismatch"
+                )
+            if any(
+                not isinstance(context, EvaluationExecutionContext)
+                for context in evaluation_contexts_by_node.values()
+            ):
+                raise RecursiveGenerationCycleError(
+                    "recursive_eval_safety_context_not_canonical"
+                )
         if n4_generation_ports_by_node is not None:
             if self._cycle_controller_factory is not None:
                 raise RecursiveGenerationCycleError(
@@ -630,8 +654,24 @@ class RecursiveGenerationCycleController:
                             "recursive_leaf_context_problem_mismatch"
                         )
                 if self._cycle_controller_factory is None:
+                    if evaluation_contexts_by_node is None:  # pragma: no cover - guarded above
+                        raise RecursiveGenerationCycleError(
+                            "recursive_eval_safety_context_not_established"
+                        )
+                    evaluation_context = evaluation_contexts_by_node[node_ref]
+                    if evaluation_context.design_problem_ref != problem_ref:
+                        raise RecursiveGenerationCycleError(
+                            "recursive_eval_safety_design_problem_mismatch"
+                        )
+                    value_port = FoundryValuePort(
+                        evaluation_context=evaluation_context,
+                        eval_safety_verifier=self._eval_safety_verifier,
+                        repo_root=self._repo_root,
+                        cycle_substrate_context=context,
+                    )
                     controller = GenerationCycleController(
                         generation_port=(n4_generation_ports_by_node or {}).get(node_ref),
+                        value_port=value_port,
                         repo_root=self._repo_root,
                         model_id=self._leaf_model_id,
                         cycle_substrate_context=context,

@@ -38,8 +38,15 @@ from polisyos.runtime.http.services.control_registry_providers import ControlReg
 from polisyos.runtime.quality.assurance_case import PolicyDesignCaseAuthorityError
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.design_problem import DesignProblem, DesignProblemAuthorityError
+from polisyos.runtime.quality.evaluation_safety import (
+    EvalSafetyAdmissionChallenge,
+    EvalSafetyConsumerAdmissionReceipt,
+    EvaluationExecutionContext,
+)
 from polisyos.runtime.quality.generation_cycle import (
     N4GenerationPort,
+    SimulationPortObservation,
+    simulation_value_execution_context,
 )
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.recursive_generation_cycle import (
@@ -332,19 +339,8 @@ class _PlainLanguageGenerationPort:
         cycle_index: int,
     ) -> SimpleNamespace:
         del cycle_index
-        candidate_id = f"candidate_{problem.design_problem_id}"
-        candidate = SimpleNamespace(
-            candidate_id=candidate_id,
-            atom=SimpleNamespace(
-                intervention_id=f"intervention_{problem.design_problem_id}",
-                content_hash="sha256:" + "4" * 64,
-                status="candidate_unverified",
-                world_model_record_ref="world_model_record_plain_language_lane0",
-                target_world_slots=(problem.outcome_of_interest.target_variable,),
-            ),
-            diversity_key=("plain", "language", "lane0", "candidate"),
-            status="candidate_unverified",
-        )
+        candidate = _plain_language_candidate(problem)
+        candidate_id = candidate.candidate_id
         return SimpleNamespace(
             status="generated",
             candidates=(candidate,),
@@ -370,6 +366,32 @@ class _PlainLanguageN4GenerationPort(N4GenerationPort):
 
     async def __call__(self, problem: DesignProblem, *, cycle_index: int) -> object:
         return await self._delegate(problem, cycle_index=cycle_index)
+
+
+def _plain_language_candidate(problem: DesignProblem) -> SimpleNamespace:
+    candidate_id = f"candidate_{problem.design_problem_id}"
+    return SimpleNamespace(
+        candidate_id=candidate_id,
+        atom=SimpleNamespace(
+            intervention_id=f"intervention_{problem.design_problem_id}",
+            content_hash="sha256:" + "4" * 64,
+            status="candidate_unverified",
+            world_model_record_ref=None,
+            target_world_slots=(problem.outcome_of_interest.target_variable,),
+        ),
+        diversity_key=("plain", "language", "lane0", "candidate"),
+        status="candidate_unverified",
+    )
+
+
+class _NeverCalledSimulationEvalSafetyVerifier:
+    def require_admission(
+        self,
+        context: EvaluationExecutionContext,
+        challenge: EvalSafetyAdmissionChallenge,
+    ) -> EvalSafetyConsumerAdmissionReceipt:
+        del context, challenge
+        raise AssertionError("simulation-only front door called EvalSafety verifier")
 
 
 def _design_problem_tool_args(*, constraint_source: str = "UAH 10b budget cap") -> dict[str, Any]:
@@ -722,6 +744,7 @@ async def test_design_problem_front_door_keeps_nontruncated_malformed_output_str
 @pytest.mark.asyncio
 async def test_plain_language_front_door_calls_real_design_problem_compiler(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     raw_request = (
         "Design a wartime MSME credit guarantee for Ukraine within the stated UAH 10b budget cap."
@@ -730,13 +753,72 @@ async def test_plain_language_front_door_calls_real_design_problem_compiler(
         models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
         arguments=_design_problem_tool_args(),
     )
+    runtime_context = _intent_context(as_of="2026-05-12")
+    expected_payload = _design_problem_tool_args()
+    expected_payload["nl_provenance"]["source_context"].update(
+        {
+            "tenant_id": runtime_context["tenant_id"],
+            "cell_id": runtime_context["cell_id"],
+            "as_of": runtime_context["as_of"],
+        }
+    )
+    expected_problem = DesignProblem.model_validate(expected_payload)
+    expected_candidate = _plain_language_candidate(expected_problem)
+    from tests.unit.runtime.quality.test_value_gate import _world_record
+
+    world_record = _world_record("7")
+    n5_observation = SimulationPortObservation(
+        candidate_id=expected_candidate.candidate_id,
+        status="joint_simulated",
+        simulation_ref="sha256:" + "6" * 64,
+        k_world_ref_before=world_record.content_hash,
+        k_world_ref_after=world_record.content_hash,
+        world_model_record=world_record,
+    )
+
+    class _DeterministicFixtureN5Port:
+        def __init__(
+            self,
+            controller: object | None = None,
+            *,
+            repo_root: Path | None = None,
+            cycle_substrate_context: object | None = None,
+        ) -> None:
+            del controller, repo_root, cycle_substrate_context
+
+        def __call__(
+            self,
+            *,
+            candidate: object,
+            problem: DesignProblem,
+            cycle_index: int,
+        ) -> SimulationPortObservation:
+            del cycle_index
+            assert candidate.candidate_id == expected_candidate.candidate_id
+            assert problem.design_problem_id == expected_problem.design_problem_id
+            return n5_observation
+
+    from polisyos.runtime.quality import generation_cycle as generation_cycle_owner
+
+    monkeypatch.setattr(
+        generation_cycle_owner,
+        "JointSimulationPort",
+        _DeterministicFixtureN5Port,
+    )
+    evaluation_context = simulation_value_execution_context(
+        candidate=expected_candidate,
+        simulation=n5_observation,
+        problem=expected_problem,
+    )
     result = await compile_and_run_recursive_generation_cycle(
         raw_request=raw_request,
-        context=_intent_context(as_of="2026-05-12"),
+        context=runtime_context,
         model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
         compiler_gateway=gateway,
         span_support_client=_DeterministicSpanSupportClient(),
         root_n4_generation_port=_PlainLanguageN4GenerationPort(),
+        root_evaluation_context=evaluation_context,
+        eval_safety_verifier=_NeverCalledSimulationEvalSafetyVerifier(),
         promotion_runtime=PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas")),
         repo_root=REPO_ROOT,
         budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}),

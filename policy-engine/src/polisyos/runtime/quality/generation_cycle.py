@@ -1661,6 +1661,7 @@ def simulation_value_execution_context(
     *,
     candidate: object,
     simulation: SimulationPortObservation,
+    problem: DesignProblem,
 ) -> EvaluationExecutionContext:
     """Build an explicit certificate-free context from the actual N5 output."""
 
@@ -1675,9 +1676,11 @@ def simulation_value_execution_context(
     world_id = str(_object_get(world, "world_model_record_id") or "")
     if not world_hash or not world_id:
         raise ValueError("eval_safety_simulation_wmr_unresolved")
+    design_problem_ref = _problem_ref(problem)
     intake_hash = gy_content_hash(
         {
             "candidate_id": candidate_id,
+            "design_problem_ref": design_problem_ref,
             "simulation_input_ref": input_ref.model_dump(mode="json"),
             "world_model_record_content_hash": world_hash,
         }
@@ -1693,6 +1696,7 @@ def simulation_value_execution_context(
     return EvaluationExecutionContext(
         intake_ref=intake_ref,
         evaluator_owner_id=FOUNDRY_VALUE_PORT_EVALUATOR_ID,
+        design_problem_ref=design_problem_ref,
         evaluation_mode="simulate_only",
         candidate_ref=ArtifactRef(
             artifact_id=candidate_id,
@@ -1781,6 +1785,14 @@ class FoundryValuePort:
             return _blocked_value_observation(
                 code="eval_safety_evaluator_owner_mismatch",
                 reason="EvalSafety context is bound to another evaluator owner.",
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+        if context.design_problem_ref != _problem_ref(problem):
+            return _blocked_value_observation(
+                code="eval_safety_design_problem_binding_mismatch",
+                reason="EvalSafety context does not bind this DesignProblem.",
                 mode=mode,
                 started=started,
                 candidate_id=candidate_id,
@@ -2125,6 +2137,7 @@ class _DefaultSimulationBoundFoundryValuePort:
             context = simulation_value_execution_context(
                 candidate=candidate,
                 simulation=simulation,
+                problem=problem,
             )
         except ValueError:
             return _blocked_value_observation(

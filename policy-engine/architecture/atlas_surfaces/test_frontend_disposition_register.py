@@ -7810,5 +7810,100 @@ class DS9C07AdjudicationTests(unittest.TestCase):
         )
 
 
+class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
+    """Reject a moving or marker-only DS18 render denominator."""
+
+    def test_complete_current_register_is_admitted(self) -> None:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        errors: list[str] = []
+
+        checker._validate_ds18_time_semantics_coverage(data, errors)
+
+        self.assertEqual([], errors)  # noqa: PT009
+
+    def test_file_and_root_denominators_cannot_self_attest(self) -> None:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        coverage = data["ds18_time_semantics_coverage"]
+
+        missing_file = copy.deepcopy(data)
+        missing_file["ds18_time_semantics_coverage"]["files"].pop()
+        file_errors: list[str] = []
+        checker._validate_ds18_time_semantics_coverage(missing_file, file_errors)
+        self.assertTrue(  # noqa: PT009
+            any("ds18_time_semantics_file_denominator_drift" in error for error in file_errors)
+        )
+
+        row_with_root = next(row for row in coverage["files"] if row["roots"])
+        missing_root = copy.deepcopy(data)
+        target = next(
+            row
+            for row in missing_root["ds18_time_semantics_coverage"]["files"]
+            if row["path"] == row_with_root["path"]
+        )
+        target["roots"].pop()
+        root_errors: list[str] = []
+        checker._validate_ds18_time_semantics_coverage(missing_root, root_errors)
+        self.assertTrue(  # noqa: PT009
+            any("ds18_time_semantics_root_inventory_drift" in error for error in root_errors)
+        )
+
+    def test_decision_root_requires_fresh_behavior_not_a_ds4_marker(self) -> None:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        corrupted = copy.deepcopy(data)
+        decision_root = next(
+            root
+            for row in corrupted["ds18_time_semantics_coverage"]["files"]
+            for root in row["roots"]
+            if root["classification"] == "decision_bearing"
+        )
+        decision_root["behavioral_evidence"][0]["sha256"] = "sha256:" + "0" * 64
+
+        errors: list[str] = []
+        checker._validate_ds18_time_semantics_coverage(corrupted, errors)
+
+        self.assertTrue(  # noqa: PT009
+            any("ds18_time_semantics_behavioral_evidence_drift" in error for error in errors)
+        )
+
+    def test_post_freeze_root_is_the_landing_slices_red(self) -> None:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        data["ds18_time_semantics_coverage"]["frontend_freeze_commit"] = "f" * 40
+        frozen_scan = checker._ds18_time_semantics_scan()
+        historical_errors: list[str] = []
+        checker._validate_ds18_historical_time_semantics_coverage(
+            data["ds18_time_semantics_coverage"],
+            frozen_scan,
+            historical_errors,
+        )
+        self.assertEqual([], historical_errors)  # noqa: PT009
+
+        later_scan = copy.deepcopy(frozen_scan)
+        later_scan["files"].append(
+            {
+                "path": "apps/runtime-dashboard/src/features/later/LaterDecision.tsx",
+                "source_sha256": "sha256:" + "1" * 64,
+                "roots": [
+                    {
+                        "column": 1,
+                        "component_identity": "LaterDecision",
+                        "kind": "jsx",
+                        "line": 1,
+                        "root_id": "later-decision:jsx:1:1",
+                        "time_semantics_label_render_count": 0,
+                    }
+                ],
+            }
+        )
+        landing_errors: list[str] = []
+        checker._validate_ds18_time_semantics_coverage(
+            data,
+            landing_errors,
+            scan=later_scan,
+        )
+        self.assertTrue(  # noqa: PT009
+            any("landing_slice_reconciliation_required" in error for error in landing_errors)
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1689,6 +1689,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/temporal/runs/{run_id}/epoch-staleness": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Run Epoch Staleness
+     * @description Return replay-bound epoch and staleness chrome for one tenant-owned run.
+     */
+    get: operations["get_run_epoch_staleness"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/health": {
     parameters: {
       query?: never;
@@ -5910,6 +5930,7 @@ export interface components {
       dedupe_key?: string | null;
       /** Dependency Keys */
       dependency_keys?: string[];
+      monitor_event_ref?: components["schemas"]["ArtifactRef-Input"] | null;
       /** Occurred At */
       occurred_at?: string | null;
       /** Payload */
@@ -5917,17 +5938,18 @@ export interface components {
         [key: string]: unknown;
       };
       /** Reason */
-      reason: string;
+      reason?: string | null;
       /** Source Ref */
       source_ref?: string | null;
-      status: components["schemas"]["DecisionValidityStatus"];
-      trigger_type: components["schemas"]["DecisionTriggerType"];
+      status?: components["schemas"]["DecisionValidityStatus"] | null;
+      trigger_type?: components["schemas"]["DecisionTriggerType"] | null;
     };
     /**
      * DecisionValidityEventResponse
      * @description Return the persisted event identity and aggregate impact of the update.
      */
     DecisionValidityEventResponse: {
+      advisory_event_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Affected Packets */
       affected_packets?: string[];
       /** Affected Statuses */
@@ -5938,9 +5960,13 @@ export interface components {
       dedupe_key: string;
       /** Event Id */
       event_id: string;
+      lifecycle_bridge_result_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /** Message */
       message: string;
       meta: components["schemas"]["ApiMeta"];
+      monitor_event_ref?: components["schemas"]["ArtifactRef-Output"] | null;
     };
     /**
      * DecisionValidityLifecycleSummary
@@ -6467,6 +6493,62 @@ export interface components {
       };
     };
     /**
+     * EngineeringCapabilityAbsenceView
+     * @description Assignable producer/read-bridge work with a named code owner.
+     */
+    EngineeringCapabilityAbsenceView: {
+      /**
+       * Absence Class
+       * @default engineering
+       * @constant
+       */
+      absence_class: "engineering";
+      /**
+       * Candidate Owner Module
+       * @default polisyos.runtime.quality.derived_observations
+       * @constant
+       */
+      candidate_owner_module: "polisyos.runtime.quality.derived_observations";
+      /**
+       * Candidate Owner Path
+       * @default src/polisyos/runtime/quality/derived_observations.py
+       * @constant
+       */
+      candidate_owner_path: "src/polisyos/runtime/quality/derived_observations.py";
+      /**
+       * Capability
+       * @default epoch_inheritance_recompute_status
+       * @constant
+       */
+      capability: "epoch_inheritance_recompute_status";
+      /** Closure Condition */
+      closure_condition: string;
+      /** Consequence */
+      consequence: string;
+      /**
+       * Institutional Dependency
+       * @default false
+       * @constant
+       */
+      institutional_dependency: false;
+      /**
+       * Missing Labels
+       * @default [
+       *       "producer_missing",
+       *       "bridge_missing"
+       *     ]
+       */
+      missing_labels: ["producer_missing", "bridge_missing"];
+      /** Missing Output */
+      missing_output: string;
+      /**
+       * Title
+       * @default Engineering capability not wired
+       * @constant
+       */
+      title: "Engineering capability not wired";
+    };
+    /**
      * EnvInfo
      * @description Summarize the runtime environment fingerprint persisted with a manifest.
      */
@@ -6477,6 +6559,401 @@ export interface components {
       platform: string;
       /** Python */
       python: string;
+    };
+    /**
+     * EpochBoundaryLineageView
+     * @description Visible immutable boundary between predecessor and successor epochs.
+     */
+    EpochBoundaryLineageView: {
+      /** Current Epoch Ref */
+      current_epoch_ref: string;
+      predecessor_packet_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      /** Previous Epoch Ref */
+      previous_epoch_ref: string;
+      successor_packet_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      transition_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /**
+       * Trigger Event Refs
+       * @default []
+       */
+      trigger_event_refs: components["schemas"]["ArtifactRef-Output"][];
+    };
+    /**
+     * EpochCertificateStalenessView
+     * @description One immutable certificate rendered against the requested semantic epoch.
+     */
+    EpochCertificateStalenessView: {
+      /** Authority Purpose */
+      authority_purpose: string;
+      /** Bound Epoch Ref */
+      bound_epoch_ref: string;
+      certificate_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Current Epoch Ref */
+      current_epoch_ref?: string | null;
+      /**
+       * Input Certificate Refs
+       * @default []
+       */
+      input_certificate_refs: components["schemas"]["ArtifactRef-Output"][];
+      /**
+       * Native Coordinate Refs
+       * @default []
+       */
+      native_coordinate_refs: string[];
+      recipe_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Revalidation Requirements
+       * @default []
+       */
+      revalidation_requirements: string[];
+      /**
+       * Rule Schema Profile Refs
+       * @default []
+       */
+      rule_schema_profile_refs: string[];
+      /**
+       * Stale Reasons
+       * @default []
+       */
+      stale_reasons: string[];
+      /**
+       * Status
+       * @enum {string}
+       */
+      status:
+        | "current"
+        | "stale"
+        | "revalidation_required"
+        | "contested"
+        | "not_established";
+      /**
+       * Trigger Event Refs
+       * @default []
+       */
+      trigger_event_refs: components["schemas"]["ArtifactRef-Output"][];
+    };
+    /**
+     * EpochDependencyStalenessView
+     * @description One revised input and the exact dependent target reached from it.
+     */
+    EpochDependencyStalenessView: {
+      /**
+       * Advisory Event Refs
+       * @default []
+       */
+      advisory_event_refs: components["schemas"]["ArtifactRef-Output"][];
+      /** Authority Purpose */
+      authority_purpose: string;
+      /**
+       * Disposition
+       * @enum {string}
+       */
+      disposition:
+        | "unchanged"
+        | "annotation_only"
+        | "invalidate"
+        | "reissue"
+        | "supersede"
+        | "withdraw"
+        | "contested"
+        | "review_required";
+      /**
+       * Owner Evidence Refs
+       * @default []
+       */
+      owner_evidence_refs: components["schemas"]["ArtifactRef-Output"][];
+      recompute: components["schemas"]["EpochDerivedRecomputeView"];
+      /** Relation */
+      relation: string;
+      /**
+       * Source Classes
+       * @default []
+       */
+      source_classes: (
+        | "incident"
+        | "appeal"
+        | "correction"
+        | "retraction"
+        | "legal_change"
+        | "discovered_bias"
+      )[];
+      source_ref: components["schemas"]["ArtifactRef-Output"];
+      target_ref: components["schemas"]["ArtifactRef-Output"];
+    };
+    /**
+     * EpochDerivedRecomputeView
+     * @description Owner-emitted recompute state, or an explicit engineering nonreceipt.
+     */
+    EpochDerivedRecomputeView: {
+      /** Evidence Content Hash */
+      evidence_content_hash?: string | null;
+      evidence_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /**
+       * Predicate Provenance
+       * @enum {string}
+       */
+      predicate_provenance:
+        | "recomputed"
+        | "independently_reconciled"
+        | "consumer_asserted"
+        | "institutionally_supplied"
+        | "not_established";
+      /**
+       * Status
+       * @enum {string}
+       */
+      status:
+        | "not_established"
+        | "pending"
+        | "running"
+        | "completed"
+        | "failed";
+    };
+    /**
+     * EpochOpenWorldRiskComponentView
+     * @description One non-numeric OpenWorldRisk component.
+     */
+    EpochOpenWorldRiskComponentView: {
+      /** Component Id */
+      component_id: string;
+      /**
+       * Component Kind
+       * @enum {string}
+       */
+      component_kind: "model" | "obligation" | "calibration" | "novel";
+      evidence_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Limitation Code */
+      limitation_code: string;
+      /**
+       * Predicate Provenance
+       * @enum {string}
+       */
+      predicate_provenance: "independently_reconciled" | "not_established";
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "within_scope" | "outside_scope" | "not_established";
+    };
+    /**
+     * EpochOpenWorldRiskView
+     * @description Actual vector posture and its fail-closed promotion consequence.
+     */
+    EpochOpenWorldRiskView: {
+      /**
+       * Components
+       * @default []
+       */
+      components: components["schemas"]["EpochOpenWorldRiskComponentView"][];
+      /** Limitation Code */
+      limitation_code: string;
+      /** Promotion Frozen */
+      promotion_frozen: boolean;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "established" | "limited" | "not_established";
+      vector_artifact_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+    };
+    /**
+     * EpochPerturbationView
+     * @description Cause identity kept separate from advisory and adjudicated consequence.
+     */
+    EpochPerturbationView: {
+      /**
+       * Adjudicated Disposition
+       * @enum {string}
+       */
+      adjudicated_disposition:
+        | "annotation_only"
+        | "invalidate"
+        | "reissue"
+        | "supersede"
+        | "withdraw"
+        | "contested"
+        | "review_required";
+      /**
+       * Advisory Posture
+       * @enum {string}
+       */
+      advisory_posture: "annotation_only" | "review_required";
+      event_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      /**
+       * Owner Evidence Refs
+       * @default []
+       */
+      owner_evidence_refs: components["schemas"]["ArtifactRef-Output"][];
+      /**
+       * Scope
+       * @enum {string}
+       */
+      scope: "instance" | "dependency_descendants";
+      /**
+       * Source Class
+       * @enum {string}
+       */
+      source_class:
+        | "incident"
+        | "appeal"
+        | "correction"
+        | "retraction"
+        | "legal_change"
+        | "discovered_bias";
+      /**
+       * Source Evidence Refs
+       * @default []
+       */
+      source_evidence_refs: components["schemas"]["ArtifactRef-Output"][];
+      target_ref: components["schemas"]["ArtifactRef-Output"];
+    };
+    /**
+     * EpochProjectionDenominatorView
+     * @description Evidence for the dependency/target set rather than a self-attested count.
+     */
+    EpochProjectionDenominatorView: {
+      /** Denominator Ref */
+      denominator_ref?: string | null;
+      /**
+       * Predicate Provenance
+       * @enum {string}
+       */
+      predicate_provenance:
+        | "recomputed"
+        | "independently_reconciled"
+        | "consumer_asserted"
+        | "institutionally_supplied"
+        | "not_established";
+      /**
+       * Source Count
+       * @default 0
+       */
+      source_count: number;
+      /**
+       * Target Count
+       * @default 0
+       */
+      target_count: number;
+    };
+    /**
+     * EpochStalenessProjectionResponse
+     * @description HTTP response whose request metadata is outside the stable semantic identity.
+     */
+    EpochStalenessProjectionResponse: {
+      meta: components["schemas"]["ApiMeta"];
+      projection: components["schemas"]["EpochStalenessProjectionView"];
+    };
+    /**
+     * EpochStalenessProjectionView
+     * @description Strict replay-bound owner projection for epoch, validity, and staleness chrome.
+     */
+    EpochStalenessProjectionView: {
+      /**
+       * Certificates
+       * @default []
+       */
+      certificates: components["schemas"]["EpochCertificateStalenessView"][];
+      /** Current Epoch Ref */
+      current_epoch_ref?: string | null;
+      decision_packet_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      decision_validity_status?:
+        | components["schemas"]["DecisionValidityStatus"]
+        | null;
+      denominator: components["schemas"]["EpochProjectionDenominatorView"];
+      /**
+       * Dependencies
+       * @default []
+       */
+      dependencies: components["schemas"]["EpochDependencyStalenessView"][];
+      /**
+       * Engineering Absences
+       * @default []
+       */
+      engineering_absences: components["schemas"]["EngineeringCapabilityAbsenceView"][];
+      /**
+       * Fixture Only
+       * @default false
+       */
+      fixture_only: boolean;
+      /**
+       * Institutional Absences
+       * @default []
+       */
+      institutional_absences: components["schemas"]["InstitutionalAuthorityAbsenceView"][];
+      /**
+       * Limitations
+       * @default []
+       */
+      limitations: string[];
+      /**
+       * Lineage
+       * @default []
+       */
+      lineage: components["schemas"]["EpochBoundaryLineageView"][];
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      open_world_risk: components["schemas"]["EpochOpenWorldRiskView"];
+      /** Owner As Of */
+      owner_as_of?: string | null;
+      /** Owner Time Reason */
+      owner_time_reason?:
+        | ("owner_time_not_established" | "epoch_scope_unresolved")
+        | null;
+      /**
+       * Perturbations
+       * @default []
+       */
+      perturbations: components["schemas"]["EpochPerturbationView"][];
+      /**
+       * Predicate Provenance
+       * @enum {string}
+       */
+      predicate_provenance:
+        | "recomputed"
+        | "independently_reconciled"
+        | "consumer_asserted"
+        | "institutionally_supplied"
+        | "not_established";
+      /** Projection Semantic Hash */
+      projection_semantic_hash: string;
+      /** Requested Query Context Ref */
+      requested_query_context_ref: string;
+      /** Revalidation Required */
+      revalidation_required: boolean;
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default polisyos.runtime.epoch-staleness.v1
+       * @constant
+       */
+      schema_version: "polisyos.runtime.epoch-staleness.v1";
+      /**
+       * Scoped Epoch Refs
+       * @default []
+       */
+      scoped_epoch_refs: string[];
+      /**
+       * Status
+       * @enum {string}
+       */
+      status:
+        | "current"
+        | "stale"
+        | "revalidation_required"
+        | "contested"
+        | "not_established";
+      temporal_scope: components["schemas"]["TemporalScope"];
     };
     /**
      * EpochValidityBatchReceipt
@@ -8743,6 +9220,76 @@ export interface components {
       artifact_id: string;
       /** Role */
       role: string;
+    };
+    /**
+     * InstitutionalAuthorityAbsenceView
+     * @description A deliberate institutional non-appointment, not an engineering ticket.
+     */
+    InstitutionalAuthorityAbsenceView: {
+      /**
+       * Absence Class
+       * @default institutional
+       * @constant
+       */
+      absence_class: "institutional";
+      /**
+       * Appointment Is Closure Precondition
+       * @default false
+       * @constant
+       */
+      appointment_is_closure_precondition: false;
+      /** Authority Purpose */
+      authority_purpose: string;
+      /**
+       * Capability State
+       * @default absent/unallocated
+       * @constant
+       */
+      capability_state: "absent/unallocated";
+      /** Closure Condition */
+      closure_condition: string;
+      /** Consequence */
+      consequence: string;
+      /**
+       * Inspectable Capabilities
+       * @default []
+       */
+      inspectable_capabilities: string[];
+      /**
+       * Observed Result
+       * @default not_established
+       * @constant
+       */
+      observed_result: "not_established";
+      /**
+       * Predicate Provenance
+       * @default not_established
+       * @constant
+       */
+      predicate_provenance: "not_established";
+      /**
+       * Refusal Code
+       * @enum {string}
+       */
+      refusal_code:
+        | "policy_admission_missing"
+        | "epoch_transition_signer_not_established";
+      /**
+       * Role
+       * @enum {string}
+       */
+      role: "epoch_predicate_policy_signer" | "epoch_transition_signer";
+      /**
+       * Source Refs
+       * @default []
+       */
+      source_refs: components["schemas"]["ArtifactRef-Output"][];
+      /**
+       * Title
+       * @default Authority not appointed
+       * @constant
+       */
+      title: "Authority not appointed";
     };
     /**
      * InvalidGovernedProjectionPacket
@@ -13744,6 +14291,7 @@ export interface components {
         | "run_workflow"
         | "run_nodes"
         | "artifact_content"
+        | "epoch_staleness"
       )[];
       valid_range?: components["schemas"]["TemporalRange"];
     };
@@ -13904,7 +14452,8 @@ export interface components {
         | "run_evidence_context"
         | "run_workflow"
         | "run_nodes"
-        | "artifact_content";
+        | "artifact_content"
+        | "epoch_staleness";
       tx_range?: components["schemas"]["TemporalRange"] | null;
       valid_range?: components["schemas"]["TemporalRange"] | null;
     };
@@ -23323,6 +23872,109 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["TemporalCapabilitiesResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_run_epoch_staleness: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+        export_projection_hash?: string | null;
+      };
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          /** @description Time at which the exported semantics were valid or observed. */
+          "X-PolicyOS-Export-As-Of"?: string;
+          /** @description Typed runtime export replay-binding contract. */
+          "X-PolicyOS-Export-Contract"?: "policyos.runtime.export_replay_binding.v1";
+          /** @description SHA-256 of the narrow stable semantic export projection. */
+          "X-PolicyOS-Export-Projection-Hash"?: string;
+          /** @description Stable address with the current projection hash pinned. */
+          "X-PolicyOS-Export-Replay-Address"?: string;
+          /** @description Canonical address excluding the replay pin. */
+          "X-PolicyOS-Export-Stable-Address"?: string;
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EpochStalenessProjectionResponse"];
         };
       };
       /** @description Malformed request payload or parameters. */

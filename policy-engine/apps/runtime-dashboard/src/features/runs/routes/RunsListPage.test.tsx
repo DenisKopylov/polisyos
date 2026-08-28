@@ -4,7 +4,8 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 import { NetworkStatusProvider } from "@/shared/network";
 
-const { useRunsMock } = vi.hoisted(() => ({
+const { useEpochStalenessMock, useRunsMock } = vi.hoisted(() => ({
+  useEpochStalenessMock: vi.fn(),
   useRunsMock: vi.fn(),
 }));
 
@@ -12,11 +13,19 @@ vi.mock("@/api/hooks/useRuns", () => ({
   useRuns: (...args: unknown[]) => useRunsMock(...args),
 }));
 
+vi.mock("@/features/runs/api/useEpochStaleness", () => ({
+  useEpochStaleness: (...args: unknown[]) => useEpochStalenessMock(...args),
+}));
+
 vi.mock("@/app/providers/TelemetryProvider", () => ({
   useTelemetryReadyMark: vi.fn(),
 }));
 
 vi.mock("@/shared/i18n/LocaleProvider", () => ({
+  useOptionalI18n: () => ({
+    locale: "en",
+    t: (path: string) => path,
+  }),
   useI18n: () => ({
     label: (
       _mapName: string,
@@ -71,6 +80,32 @@ describe("RunsListPage", () => {
       writable: true,
     });
     useRunsMock.mockReset();
+    useEpochStalenessMock.mockReset();
+    useEpochStalenessMock.mockImplementation(
+      ({ runId }: { runId: string }) => ({
+        data: {
+          projection: {
+            current_epoch_ref: `sha256:${"a".repeat(64)}`,
+            decision_validity_status: "active",
+            owner_as_of: "2026-03-09T12:00:00Z",
+            owner_time_reason: null,
+            projection_semantic_hash: `sha256:${"b".repeat(64)}`,
+            revalidation_required: false,
+            run_id: runId,
+            scoped_epoch_refs: [`sha256:${"a".repeat(64)}`],
+            status: "current",
+            temporal_scope: {
+              tx_at: "2026-03-09T12:05:00Z",
+              valid_at: "2026-03-09T12:00:00Z",
+            },
+          },
+          rawBytes: new Uint8Array(),
+        },
+        error: null,
+        isError: false,
+        isLoading: false,
+      }),
+    );
     useRunsMock.mockImplementation((filters?: { q?: string }) => ({
       data: {
         page: {
@@ -199,9 +234,9 @@ describe("RunsListPage", () => {
 
     renderRunsListPage();
 
-    expect(await screen.findAllByText("awaiting_external_attestation")).not.toHaveLength(
-      0,
-    );
+    expect(
+      await screen.findAllByText("awaiting_external_attestation"),
+    ).not.toHaveLength(0);
     for (const status of screen.getAllByText("completed")) {
       expect(status).toHaveClass("bg-white/65", "text-muted");
     }
@@ -261,7 +296,9 @@ describe("RunsListPage", () => {
       ["run-gamma", "not_established"],
     ] as const) {
       const row = await screen.findByRole("row", { name: new RegExp(runId) });
-      expect(within(row).getByText(runTerminality, { exact: true })).toBeVisible();
+      expect(
+        within(row).getByText(runTerminality, { exact: true }),
+      ).toBeVisible();
     }
   });
 

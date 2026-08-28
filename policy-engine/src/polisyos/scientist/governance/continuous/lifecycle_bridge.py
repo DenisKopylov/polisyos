@@ -33,6 +33,8 @@ from polisyos.scientist.evidence.claims.lifecycle import (
 from .monitors import (
     DecisionValidityStatus,
     GovernanceMonitorEvent,
+    PersistedGovernanceMonitorEvent,
+    resolve_governance_monitor_event,
 )
 from .reissue import (
     PartialPublicationState,
@@ -75,15 +77,6 @@ EpochValidityCompletedBatchEvidenceResolver = (
     core_contracts.EpochValidityCompletedBatchEvidenceResolver
 )
 PersistedEpochValidityBatchEvidence = core_contracts.PersistedEpochValidityBatchEvidence
-_VALID_TRANSITIONS: set[str] = {
-    "stale",
-    "blocked",
-    "invalidated",
-    "superseded",
-    "review_required",
-    "reissued",
-    "withdrawn",
-}
 _TRANSITION_TO_ACTION: dict[ClaimLifecycleTransition, ClaimLifecycleAction] = {
     "stale": ClaimLifecycleAction.MARKED_STALE,
     "blocked": ClaimLifecycleAction.BLOCKED,
@@ -116,6 +109,45 @@ class EpochClaimLifecycleBridgeService:
     claim_owner: ClaimLedgerOwnerPort
     artifacts: ArtifactStore
     dependency_registry_path: Path
+
+    def bridge_monitor_event(
+        self,
+        *,
+        monitor_event_ref: ArtifactRef,
+        actor_id: str,
+    ) -> PersistedMonitorLifecycleBridge:
+        """Reload one monitor ref, persist its bridge result, and return both handles."""
+
+        from polisyos.scientist.evidence.claims.audit import _load_append_only_claim_ledger
+
+        persisted_event = resolve_governance_monitor_event(self.artifacts, monitor_event_ref)
+        packet_ref = persisted_event.event.decision_packet_ref
+        packet_row = _resolve_decision_packet_claim_ledger(
+            store=self.artifacts,
+            packet_ref=packet_ref,
+        )
+        ledger = _load_append_only_claim_ledger(
+            self.artifacts,
+            packet_row.ledger_artifact_ref,
+        )
+        result = bridge_governance_events_to_claim_lifecycle(
+            store=self.artifacts,
+            ledger=ledger,
+            decision_packet_ref=packet_ref,
+            original_claim_ledger_ref=packet_row.ledger_artifact_ref,
+            monitor_event_refs=[monitor_event_ref],
+            actor_id=actor_id,
+            case_id=getattr(ledger, "run_id", None),
+            occurred_at=persisted_event.event.occurred_at,
+        )
+        result_ref = persist_lifecycle_bridge_result(self.artifacts, result)
+        if load_lifecycle_bridge_result(self.artifacts, result_ref) != result:
+            raise ValueError("monitor lifecycle bridge readback mismatch")
+        return PersistedMonitorLifecycleBridge(
+            monitor_event=persisted_event,
+            result=result,
+            result_ref=result_ref,
+        )
 
     def bridge_completed_batch(
         self,
@@ -502,12 +534,21 @@ class LifecycleBridgeResult(BaseModel):
         return self
 
 
+@dataclass(frozen=True, slots=True)
+class PersistedMonitorLifecycleBridge:
+    """Exact monitor input paired with its persisted lifecycle bridge output."""
+
+    monitor_event: PersistedGovernanceMonitorEvent
+    result: LifecycleBridgeResult
+    result_ref: ArtifactRef
+
+
 def bridge_governance_events_to_claim_lifecycle(
     *,
+    store: ArtifactStore,
     ledger: AppendOnlyClaimLedger,
     decision_packet_ref: ArtifactRef,
     original_claim_ledger_ref: ArtifactRef,
-    monitor_events: list[GovernanceMonitorEvent],
     monitor_event_refs: list[ArtifactRef],
     actor_id: str,
     case_id: str | None = None,
@@ -527,6 +568,10 @@ def bridge_governance_events_to_claim_lifecycle(
     projection-only surface over the affected claim ids.
     """
 
+    persisted_events = [
+        resolve_governance_monitor_event(store, ref) for ref in monitor_event_refs
+    ]
+    monitor_events = [row.event for row in persisted_events]
     _validate_bridge_inputs(
         ledger=ledger,
         decision_packet_ref=decision_packet_ref,
@@ -536,9 +581,7 @@ def bridge_governance_events_to_claim_lifecycle(
     )
     generated_at = (occurred_at or datetime.now(UTC)).astimezone(UTC)
     known_claim_ids = [claim.claim_id for claim in ledger.current_claims]
-    event_refs_by_id = {
-        event.event_id: monitor_event_refs[index] for index, event in enumerate(monitor_events)
-    }
+    event_refs_by_id = {row.event.event_id: row.event_ref for row in persisted_events}
 
     transitions: list[ClaimLifecycleTransitionRecord] = []
     blockers: list[LifecycleBridgeBlocker] = []
@@ -773,70 +816,23 @@ def _validate_bridge_inputs(
         raise ValueError("lifecycle bridge requires a closed-case claim ledger")
     if len(monitor_events) != len(monitor_event_refs):
         raise ValueError("monitor_events and monitor_event_refs must have matching lengths")
+    if len({event.event_id for event in monitor_events}) != len(monitor_events):
+        raise ValueError("lifecycle bridge monitor event ids must be unique")
+    if len({str(ref.artifact_id) for ref in monitor_event_refs}) != len(monitor_event_refs):
+        raise ValueError("lifecycle bridge monitor event refs must be unique")
     for event in monitor_events:
         if event.decision_packet_ref.artifact_id != decision_packet_ref.artifact_id:
             raise ValueError("monitor event decision_packet_ref must match bridge decision ref")
 
 
 def _transition_for_event(event: GovernanceMonitorEvent) -> ClaimLifecycleTransition | None:
-    explicit = _explicit_transition(event.metadata)
-    if explicit is not None:
-        return explicit
     if event.severity == "info":
         return None
-    if event.event_type == "source_invalidation":
-        invalidation_type = (_metadata_text(event.metadata, "invalidation_type") or "").casefold()
-        if event.severity == "warning":
-            return "stale"
-        if invalidation_type in {"superseded", "successor_available"}:
-            return "superseded"
-        return "invalidated"
-    if event.event_type == "policy_context_drift":
-        context = " ".join(
-            value
-            for value in (
-                _metadata_text(event.metadata, "change_kind"),
-                _metadata_text(event.metadata, "context_change_kind"),
-                event.reason,
-            )
-            if value
-        ).casefold()
-        if "withdraw" in context:
-            return "withdrawn"
-        if "supersed" in context:
-            return "superseded"
-        return "blocked" if event.severity == "block" else "review_required"
-    if event.event_type in {"calibration_drift", "fairness_drift"}:
-        return "blocked" if event.severity == "block" else "review_required"
-    if event.event_type == "incident":
-        return "withdrawn" if event.severity == "block" else "review_required"
-    return "review_required"
-
-
-def _explicit_transition(metadata: Mapping[str, Any]) -> ClaimLifecycleTransition | None:
-    raw = _metadata_text(metadata, "lifecycle_transition") or _metadata_text(
-        metadata,
-        "claim_lifecycle_transition",
-    )
-    if raw is None:
+    if event.perturbation is not None and event.advisory_posture == "annotation_only":
         return None
-    normalized = raw.replace("-", "_").casefold()
-    aliases = {
-        "reissue": "reissued",
-        "reissue_required": "reissued",
-        "partial_reissue": "reissued",
-        "review": "review_required",
-        "human_review": "review_required",
-        "withdraw": "withdrawn",
-        "supersede": "superseded",
-        "invalidate": "invalidated",
-        "mark_stale": "stale",
-        "marked_stale": "stale",
-    }
-    resolved = aliases.get(normalized, normalized)
-    if resolved not in _VALID_TRANSITIONS:
-        raise ValueError(f"unsupported lifecycle transition: {raw!r}")
-    return resolved  # type: ignore[return-value]
+    # Detector severity, metadata and free text are advisory. Only an independently
+    # resolved owner adjudication may authorize reissue/supersede/withdrawal.
+    return "review_required"
 
 
 def _affected_known_claim_ids(
@@ -1142,6 +1138,7 @@ __all__ = [
     "LifecycleBridgeBlocker",
     "LifecycleBridgeResult",
     "LifecycleBridgeStatus",
+    "PersistedMonitorLifecycleBridge",
     "bridge_governance_events_to_claim_lifecycle",
     "build_epoch_claim_lifecycle_bridge",
     "lifecycle_bridge_authority_boundary",

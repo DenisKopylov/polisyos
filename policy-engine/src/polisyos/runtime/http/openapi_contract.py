@@ -3,10 +3,27 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import UTC, datetime
 from typing import Any
 
-from polisyos.core.contracts import CapabilityDiscoveryResponse
-from polisyos.core.contracts.runtime import RuntimeApiProblem
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core.contracts import (
+    CapabilityDiscoveryResponse,
+    DecisionValidityStatus,
+    EpochValidityBatchReceipt,
+    EpochValidityBatchResponse,
+    EpochValidityBatchTarget,
+)
+from polisyos.core.contracts.runtime import (
+    EngineeringCapabilityAbsenceView,
+    EpochOpenWorldRiskView,
+    EpochProjectionDenominatorView,
+    EpochStalenessProjectionView,
+    InstitutionalAuthorityAbsenceView,
+    RuntimeApiProblem,
+    TemporalScope,
+    epoch_staleness_semantic_hash,
+)
 from polisyos.runtime.http._openapi_contract_helpers import (
     iter_openapi_operations,
     runtime_problem_example,
@@ -885,13 +902,179 @@ _CAPABILITY_DISCOVERY_SUCCESS_EXAMPLES = {
     )
 }
 
+
+def _epoch_staleness_example(*, fixture_only: bool) -> dict[str, Any]:
+    packet_ref = core_artifacts.ArtifactRef(
+        artifact_id=_ARTIFACT_ID_SAMPLE,
+        kind="scientist.decision_packet",
+        media_type="application/json",
+    )
+    scope = TemporalScope.model_validate(_TEMPORAL_SCOPE_SAMPLE)
+    engineering = EngineeringCapabilityAbsenceView(
+        missing_output=(
+            "An owner-emitted epoch-inheritance/recompute-status projection and its "
+            "temporal read bridge."
+        ),
+        consequence=("Dependent derivations remain stale with recompute_status=not_established."),
+        closure_condition=(
+            "Implement the producer/read bridge in the named candidate owner module."
+        ),
+    )
+    institutional = ()
+    status = "current"
+    current_epoch_ref = "sha256:" + "c" * 64
+    predicate_provenance = "independently_reconciled"
+    denominator = EpochProjectionDenominatorView(
+        predicate_provenance="independently_reconciled",
+        denominator_ref="sha256:" + "d" * 64,
+        source_count=2,
+        target_count=3,
+    )
+    limitations = ("derived_recompute_status_not_established",)
+    owner_as_of = datetime(2026, 2, 11, 12, 0, tzinfo=UTC)
+    owner_time_reason = None
+    if not fixture_only:
+        status = "not_established"
+        current_epoch_ref = None
+        predicate_provenance = "not_established"
+        denominator = EpochProjectionDenominatorView(predicate_provenance="not_established")
+        institutional = (
+            InstitutionalAuthorityAbsenceView(
+                role="epoch_predicate_policy_signer",
+                authority_purpose="semantic_epoch_qualification",
+                refusal_code="policy_admission_missing",
+                consequence="Epoch currentness and publication are not established.",
+                closure_condition=(
+                    "Institutional appointment may occur after real-user deployment; "
+                    "DS18 closes on truthful refusal rendering."
+                ),
+                inspectable_capabilities=("history", "candidate", "replay", "MACHINE"),
+            ),
+            InstitutionalAuthorityAbsenceView(
+                role="epoch_transition_signer",
+                authority_purpose="epoch_transition_issuance",
+                refusal_code="epoch_transition_signer_not_established",
+                consequence="Transition issuance is unavailable and promotion stays frozen.",
+                closure_condition=(
+                    "Institutional appointment may occur after real-user deployment; "
+                    "DS18 closes on useful typed refusal rendering."
+                ),
+                inspectable_capabilities=("history", "stale_bindings", "replay", "MACHINE"),
+            ),
+        )
+        limitations = (
+            "epoch_dependency_denominator_not_established",
+            "policy_admission_missing",
+            "epoch_transition_signer_not_established",
+            "derived_recompute_status_not_established",
+        )
+        owner_as_of = None
+        owner_time_reason = "owner_time_not_established"
+    draft = EpochStalenessProjectionView.model_construct(
+        run_id=_RUN_ID_SAMPLE,
+        decision_packet_ref=packet_ref,
+        temporal_scope=scope,
+        requested_query_context_ref="sha256:" + "b" * 64,
+        owner_as_of=owner_as_of,
+        owner_time_reason=owner_time_reason,
+        observed_at=datetime(2026, 2, 11, 12, 2, tzinfo=UTC),
+        status=status,
+        current_epoch_ref=current_epoch_ref,
+        scoped_epoch_refs=((current_epoch_ref,) if current_epoch_ref is not None else ()),
+        decision_validity_status=(DecisionValidityStatus.ACTIVE if fixture_only else None),
+        revalidation_required=False,
+        denominator=denominator,
+        certificates=(),
+        dependencies=(),
+        perturbations=(),
+        lineage=(),
+        open_world_risk=EpochOpenWorldRiskView(
+            status=("established" if fixture_only else "not_established"),
+            limitation_code=(
+                "all_components_within_scope" if fixture_only else "open_world_vector_unresolved"
+            ),
+            promotion_frozen=not fixture_only,
+        ),
+        institutional_absences=institutional,
+        engineering_absences=(engineering,),
+        limitations=limitations,
+        predicate_provenance=predicate_provenance,
+        fixture_only=fixture_only,
+        projection_semantic_hash="sha256:" + "0" * 64,
+    )
+    projection = EpochStalenessProjectionView.model_validate(
+        {
+            **draft.model_dump(mode="json"),
+            "projection_semantic_hash": epoch_staleness_semantic_hash(draft),
+        }
+    )
+    return {
+        "meta": _META_CORE_RUN,
+        "projection": projection.model_dump(mode="json"),
+    }
+
+
+def _epoch_validity_batch_example() -> dict[str, Any]:
+    transition_ref = core_artifacts.ArtifactRef(
+        artifact_id="sha256:" + "1" * 64,
+        kind="chronology.epoch_transition",
+        media_type="application/vnd.polisyos.chronology+json",
+    )
+    target = EpochValidityBatchTarget(
+        packet_ref="sha256:" + "2" * 64,
+        decision_lineage_key="lineage-openapi-epoch-batch",
+        dependency_key="law:openapi-epoch-batch",
+        status=DecisionValidityStatus.REVIEW_REQUIRED,
+        reason="A content-bound epoch transition requires packet revalidation.",
+    )
+    receipt = EpochValidityBatchReceipt(
+        batch_id="epoch-batch-openapi-sample",
+        transition_artifact_ref=transition_ref,
+        transition_content_hash=str(transition_ref.artifact_id),
+        requested_query_context_ref="sha256:" + "3" * 64,
+        dependency_denominator_ref="sha256:" + "4" * 64,
+        adjudication_denominator_ref="sha256:" + "5" * 64,
+        verifier_provenance_ref=core_artifacts.ArtifactRef(
+            artifact_id="sha256:" + "6" * 64,
+            kind="chronology.epoch_transition_verification_receipt",
+            media_type="application/json",
+        ),
+        completion_receipt_ref=core_artifacts.ArtifactRef(
+            artifact_id="sha256:" + "7" * 64,
+            kind="decision_validity.epoch_batch_completion",
+            media_type="application/json",
+        ),
+        affected_packet_refs=(target.packet_ref,),
+        targets=(target,),
+    )
+    return EpochValidityBatchResponse(
+        meta=_META_NO_SOURCE,
+        batch_id=receipt.batch_id,
+        state="completed",
+        transition=transition_ref,
+        completion_receipt=receipt,
+        affected_packet_refs=receipt.affected_packet_refs,
+    ).model_dump(mode="json")
+
+
 _SUCCESS_EXAMPLE_SETS_BY_OPERATION = {
     "search_capabilities": _CAPABILITY_DISCOVERY_SUCCESS_EXAMPLES,
     "search_data_catalog": _CAPABILITY_DISCOVERY_SUCCESS_EXAMPLES,
+    "get_run_epoch_staleness": {
+        "positive_fixture_only": {
+            "summary": "Content-bound positive fixture",
+            "value": _epoch_staleness_example(fixture_only=True),
+        },
+        "declared_production_absence": {
+            "summary": "Production authority not appointed",
+            "value": _epoch_staleness_example(fixture_only=False),
+        },
+    },
 }
 
 
 _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
+    "admit_epoch_validity_batch": _epoch_validity_batch_example(),
     "create_run_human_decision": _HUMAN_DECISION_CREATE_SAMPLE,
     "get_run_authority_values": {
         "run_id": "run-2026-08-17-001",

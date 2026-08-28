@@ -8,7 +8,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import satori from "satori";
 
 import type { PublicShareSummary } from "./email-fixtures";
-import { formatTemporalScope, OGCard, sanitizePublicShareSummary } from "./OGCard";
+import {
+  formatEpochSemantics,
+  formatTemporalScope,
+  OGCard,
+  sanitizePublicShareSummary,
+} from "./OGCard";
 
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
@@ -57,7 +62,9 @@ export async function generateOgPng(summary: PublicShareSummary) {
       mode: "width",
       value: OG_WIDTH,
     },
-  }).render().asPng();
+  })
+    .render()
+    .asPng();
 }
 
 export function generateOgMetadata(summary: PublicShareSummary) {
@@ -88,6 +95,7 @@ function stableStringify(value: unknown): string {
 function withSvgMetadata(svg: string, summary: PublicShareSummary) {
   const metadata = {
     generator: "PolicyOS Runtime",
+    epochSemantics: summary.epochSemantics,
     keyQuantity: summary.keyQuantity,
     kind: summary.kind,
     state: summary.state,
@@ -224,14 +232,18 @@ function ogCardNode(summary: PublicShareSummary) {
           width: "100%",
         },
       },
-      footerItem(summary.keyQuantity.label, [
-        summary.keyQuantity.value,
-        summary.keyQuantity.unit,
-      ]
-        .filter(Boolean)
-        .join(" ")),
+      footerItem(
+        summary.keyQuantity.label,
+        [summary.keyQuantity.value, summary.keyQuantity.unit]
+          .filter(Boolean)
+          .join(" "),
+      ),
       footerItem("State", summary.state),
       footerItem("Temporal scope", temporal),
+      footerItem(
+        "Epoch & validity",
+        formatEpochSemantics(summary.epochSemantics),
+      ),
     ),
   );
 }
@@ -245,7 +257,7 @@ function footerItem(label: string, value: string) {
         flexDirection: "column",
         gap: 10,
         minWidth: 0,
-        width: "33%",
+        width: "25%",
       },
     },
     React.createElement(
@@ -279,9 +291,8 @@ function footerItem(label: string, value: string) {
 
 function loadOgFont() {
   if (fontCache === null) {
-    const fontPath = require.resolve(
-      "@fontsource/manrope/files/manrope-latin-800-normal.woff",
-    );
+    const fontPath =
+      require.resolve("@fontsource/manrope/files/manrope-latin-800-normal.woff");
     const buffer = readFileSync(fontPath);
     fontCache = buffer.buffer.slice(
       buffer.byteOffset,

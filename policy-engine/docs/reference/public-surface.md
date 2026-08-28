@@ -196,7 +196,7 @@ timestamps
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 133 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 449 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 464 |
 | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 102 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 5 |
 
@@ -352,7 +352,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (449)</summary>
+<details><summary>Entrypoint exports (464)</summary>
 
 ```text
 *_CHRONOLOGY_EXPORTS
@@ -503,8 +503,20 @@ DistributionalReportRef
 DownstreamUtilityReportRef
 DriftReadinessRef
 EdgeConfidenceMatrixRef
+EngineeringCapabilityAbsenceView
 EntityType
 EnvironmentManifestRef
+EpochBoundaryLineageView
+EpochCertificateStalenessView
+EpochDependencyStalenessView
+EpochDerivedRecomputeView
+EpochOpenWorldRiskComponentView
+EpochOpenWorldRiskView
+EpochPerturbationClass
+EpochPerturbationView
+EpochProjectionDenominatorView
+EpochProjectionStatus
+EpochStalenessProjectionView
 EpochTransitionVerificationReceipt
 EpochTransitionVerifier
 EpochValidityAuthorityGate
@@ -592,6 +604,7 @@ IdentifiabilityDiagnosticRef
 IncentiveCompatibilityCertificate
 IngestRequest
 IngestResponse
+InstitutionalAuthorityAbsenceView
 IssueSeverity
 IterationLifecycleState
 IterationState
@@ -731,6 +744,7 @@ StopCriteria
 StopReason
 StressTestReportRef
 StructuralCausalModelSpecRef
+TemporalScope
 ThresholdsV1
 TimelineRef
 TraceSliceRef
@@ -801,6 +815,7 @@ classify_optional_analytic_node
 construct_for_legacy_family
 deserialize_skip_blocker_record
 epoch
+epoch_staleness_semantic_hash
 evaluate_skip_blocker_policy
 legacy_family_for_construct
 serialize_skip_blocker_record
@@ -2236,7 +2251,7 @@ select_method_candidates_for_requirements
 ## `polisyos.scientist`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.scientist`, `polisyos.scientist.methods.research_dag`
+- Supported entrypoints: `polisyos.scientist`, `polisyos.scientist.governance.continuous`, `polisyos.scientist.methods.research_dag`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/scientist/README.md`
@@ -2249,6 +2264,7 @@ select_method_candidates_for_requirements
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 26 |
+| `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 58 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
 
 #### `polisyos.scientist`
@@ -2286,6 +2302,77 @@ run_experiment
 run_tool_loop
 summarize_tool_contracts
 tool_contract_default_blockers
+```
+
+</details>
+
+#### `polisyos.scientist.governance.continuous`
+
+- Source: `src/polisyos/scientist/governance/continuous/__init__.py`
+- Facade: `lazy_facade`
+- Summary: Continuous governance and reissue loop for Scientist decision artifacts.
+
+<details><summary>Entrypoint exports (58)</summary>
+
+```text
+CONTINUOUS_GOVERNANCE_FLAG
+ENABLE_REISSUE_WORKFLOW_FLAG
+ENABLE_WITHDRAWAL_STATUS_FLAG
+GOVERNANCE_MONITOR_EVENT_KIND
+AppealPerturbation
+CorrectionPerturbation
+ContinuousInvalidationResult
+DecisionValidityReport
+DecisionValidityStatus
+DetectorConfig
+DriftDetectionResult
+DiscoveredBiasPerturbation
+FairnessDriftSignal
+GovernanceMonitorEvent
+GovernanceMonitorRecommendation
+IncidentReport
+IncidentSeverity
+IncidentPerturbation
+LegalChangePerturbation
+LifecycleBridgeBlocker
+LifecycleBridgeResult
+PartialPublicationState
+PolicyContextSignal
+PersistedGovernanceMonitorEvent
+PublicRevisionDiff
+ReissuePacket
+RetractionPerturbation
+SparseHistoryPolicy
+WithdrawalRecord
+aggregate_validity_status
+build_drift_monitor_event
+bridge_governance_events_to_claim_lifecycle
+build_partial_scope_reissue_packet
+build_reissue_packet
+build_validity_report
+build_withdrawal_record
+detect_calibration_drift
+detect_fairness_drift
+detect_policy_context_drift
+detect_source_invalidation
+export_public_validity_report
+governance_event_from_source_invalidation
+incident_monitor_event
+load_incident_report
+load_lifecycle_bridge_result
+load_reissue_packet
+load_validity_report
+load_withdrawal_record
+mark_dependent_claims_stale
+monitor_event_id
+persist_incident_report
+persist_lifecycle_bridge_result
+persist_reissue_packet
+persist_validity_report
+persist_withdrawal_record
+recommend_validity_action
+reissue_scope_from_monitor_events
+resolve_governance_monitor_event
 ```
 
 </details>

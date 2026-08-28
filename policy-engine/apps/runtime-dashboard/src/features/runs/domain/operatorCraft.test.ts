@@ -1,8 +1,15 @@
 import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+import {
+  epochNonreceipt,
+  type EpochSemantics,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
 
-import { buildSignedPublicDecisionPacket } from "./publicationPacket";
+import {
+  buildSignedPublicDecisionPacket as buildSignedPublicDecisionPacketRaw,
+  type PublicDecisionPacketInput,
+} from "./publicationPacket";
 import {
   buildAnnotationTargets,
   buildEvidenceWalletCandidates,
@@ -21,6 +28,17 @@ import {
   startReadingOnboarding,
 } from "./operatorCraft";
 import type { AuthorityLocalScope } from "@/app/offline/authorityLocalState";
+
+type PacketTestInput = Omit<PublicDecisionPacketInput, "epochSemantics"> & {
+  epochSemantics?: EpochSemantics;
+};
+
+function buildSignedPublicDecisionPacket(input: PacketTestInput) {
+  return buildSignedPublicDecisionPacketRaw({
+    ...input,
+    epochSemantics: input.epochSemantics ?? epochNonreceipt(),
+  });
+}
 
 const decisionView: DecisionCardViewModel = {
   confidence: "HIGH",
@@ -274,9 +292,9 @@ describe("operator craft domain", () => {
       firstCompletionAt: "2026-04-29T10:04:00.000Z",
       timeToCompletionSeconds: 240,
     });
-    expect(readReadingOnboardingState("run-36", verifiedScope).completedAt).toBe(
-      "2026-04-29T10:04:00.000Z",
-    );
+    expect(
+      readReadingOnboardingState("run-36", verifiedScope).completedAt,
+    ).toBe("2026-04-29T10:04:00.000Z");
   });
 
   it("exposes checklist readiness only as interaction completion state", () => {
@@ -320,10 +338,13 @@ describe("operator craft domain", () => {
     saveEvidenceWalletItem(walletItem, verifiedScope);
     startReadingOnboarding({ runId: "run-36", scope: verifiedScope });
 
-    const persisted = Array.from({ length: window.localStorage.length }, (_, index) => {
-      const key = window.localStorage.key(index)!;
-      return [key, JSON.parse(window.localStorage.getItem(key)!)] as const;
-    });
+    const persisted = Array.from(
+      { length: window.localStorage.length },
+      (_, index) => {
+        const key = window.localStorage.key(index)!;
+        return [key, JSON.parse(window.localStorage.getItem(key)!)] as const;
+      },
+    );
     expect(persisted).toHaveLength(4);
     expect(persisted.map(([key]) => key)).toEqual(
       expect.arrayContaining([
@@ -358,9 +379,9 @@ describe("operator craft domain", () => {
     expect(readReviewerAnnotations("run-36", foreignScope)).toEqual([]);
     expect(readEvidenceWallet(verifiedScope)).toHaveLength(1);
     expect(readEvidenceWallet(foreignScope)).toEqual([]);
-    expect(readReadingOnboardingState("run-36", verifiedScope).startedAt).not.toBe(
-      "1970-01-01T00:00:00.000Z",
-    );
+    expect(
+      readReadingOnboardingState("run-36", verifiedScope).startedAt,
+    ).not.toBe("1970-01-01T00:00:00.000Z");
     expect(readReadingOnboardingState("run-36", foreignScope).startedAt).toBe(
       "1970-01-01T00:00:00.000Z",
     );

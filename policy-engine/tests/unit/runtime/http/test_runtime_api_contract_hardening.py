@@ -4,6 +4,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 from importlib.util import find_spec
 from pathlib import Path
 
@@ -13,6 +14,8 @@ if find_spec("fastapi") is None:  # pragma: no cover - optional dependency guard
     pytest.skip("fastapi is not installed", allow_module_level=True)
 
 from polisyos.core.contracts.capability_discovery import CapabilityDiscoveryResponse
+from polisyos.core.contracts.control import EpochValidityBatchResponse
+from polisyos.core.contracts.runtime import EpochStalenessProjectionResponse
 from polisyos.pdc import RunBoundDesignRecordBinding
 from polisyos.runtime.http.app import export_runtime_openapi_schema
 from polisyos.runtime.http.openapi_contract import validate_runtime_openapi_contract
@@ -94,6 +97,53 @@ def test_capability_discovery_examples_cover_truthful_postures_without_authority
         assert packets[1].results[0].authority_result.state == "candidate_only"
         assert packets[2].frontier.completeness_status == "recall_unmeasured"
         assert packets[3].frontier.incompleteness_reasons == ("case:producer_missing",)
+
+
+def test_epoch_staleness_examples_separate_positive_and_declared_absence() -> None:
+    schema = export_runtime_openapi_schema()
+    operation = schema["paths"]["/api/v1/temporal/runs/{run_id}/epoch-staleness"]["get"]
+    examples = operation["responses"]["200"]["content"]["application/json"]["examples"]
+
+    assert set(examples) == {"positive_fixture_only", "declared_production_absence"}
+    positive = EpochStalenessProjectionResponse.model_validate(
+        examples["positive_fixture_only"]["value"]
+    ).projection
+    absence = EpochStalenessProjectionResponse.model_validate(
+        examples["declared_production_absence"]["value"]
+    ).projection
+
+    assert positive.fixture_only is True
+    assert positive.status == "current"
+    assert absence.fixture_only is False
+    assert absence.status == "not_established"
+    assert {row.title for row in absence.institutional_absences} == {
+        "Authority not appointed"
+    }
+    assert [row.title for row in absence.engineering_absences] == [
+        "Engineering capability not wired"
+    ]
+    assert all(
+        row.appointment_is_closure_precondition is False
+        for row in absence.institutional_absences
+    )
+    assert absence.engineering_absences[0].candidate_owner_module == (
+        "polisyos.runtime.quality.derived_observations"
+    )
+
+
+def test_epoch_batch_success_example_is_owner_derived_and_strict() -> None:
+    schema = export_runtime_openapi_schema()
+    operation = schema["paths"]["/api/v1/control/decision-validity/epoch-batches"]["post"]
+    example = operation["responses"]["200"]["content"]["application/json"]["examples"][
+        "default"
+    ]["value"]
+
+    packet = EpochValidityBatchResponse.model_validate(example)
+
+    assert packet.state == "completed"
+    assert packet.affected_packet_refs == packet.completion_receipt.affected_packet_refs
+    assert packet.transition == packet.completion_receipt.transition_artifact_ref
+    assert packet.completion_receipt.targets[0].status.value == "review_required"
 
 
 def test_openapi_exposes_strict_human_decision_unions() -> None:
@@ -452,6 +502,138 @@ def test_generated_runtime_client_includes_capability_search_wrapper(tmp_path: P
         source = client_path.read_text(encoding="utf-8")
         assert "async searchCapabilities(" in source
         assert "`/api/v1/control/capabilities/search`" in source
+
+
+def _invoke_generated_operation(
+    tmp_path: Path,
+    *,
+    spec: dict[str, object],
+    method_name: str,
+    params: dict[str, object],
+) -> dict[str, object]:
+    operations = generate_runtime_client._extract_operations(spec)
+    client_path = tmp_path / "runtimeApiClient.mjs"
+    client_path.write_text(
+        generate_runtime_client._render_js(operations),
+        encoding="utf-8",
+    )
+    probe_path = tmp_path / "invoke-generated-operation.mjs"
+    probe_path.write_text(
+        "\n".join(
+            (
+                f'import {{ RuntimeApiClient }} from {json.dumps(client_path.as_uri())};',
+                "const calls = [];",
+                "const client = new RuntimeApiClient({",
+                '  baseUrl: "https://runtime.example",',
+                "  fetchImpl: async (url, init) => {",
+                "    calls.push({ url, method: init.method, body: init.body ?? null });",
+                "    return {",
+                "      ok: true,",
+                "      status: 200,",
+                '      statusText: "OK",',
+                "      json: async () => ({ admitted: true }),",
+                "    };",
+                "  },",
+                "});",
+                f"await client[{json.dumps(method_name)}]({json.dumps(params)});",
+                "process.stdout.write(JSON.stringify(calls[0]));",
+            )
+        ),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        ["node", str(probe_path)],
+        cwd=Path(__file__).resolve().parents[4],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout
+    payload = json.loads(result.stdout)
+    assert isinstance(payload, dict)
+    return payload
+
+
+def test_generated_epoch_batch_post_is_executable_not_just_typed(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    spec = json.loads(
+        (repo_root / "schemas" / "runtime_api_v1.openapi.json").read_text(encoding="utf-8")
+    )
+    operation = spec["paths"]["/api/v1/control/decision-validity/epoch-batches"]["post"]
+    assert operation["operationId"] == "admit_epoch_validity_batch"
+
+    call = _invoke_generated_operation(
+        tmp_path,
+        spec=spec,
+        method_name="admitEpochValidityBatch",
+        params={"body": {"probe": "content-bound"}},
+    )
+
+    assert call == {
+        "url": "https://runtime.example/api/v1/control/decision-validity/epoch-batches",
+        "method": "POST",
+        "body": '{"probe":"content-bound"}',
+    }
+
+
+def test_generated_epoch_staleness_get_invokes_frozen_operation(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    spec = json.loads(
+        (repo_root / "schemas" / "runtime_api_v1.openapi.json").read_text(encoding="utf-8")
+    )
+    operation = spec["paths"]["/api/v1/temporal/runs/{run_id}/epoch-staleness"]["get"]
+    assert operation["operationId"] == "get_run_epoch_staleness"
+
+    call = _invoke_generated_operation(
+        tmp_path,
+        spec=spec,
+        method_name="getRunEpochStaleness",
+        params={"run_id": "run-ds18-probe", "branch": "review-branch"},
+    )
+
+    assert call == {
+        "url": (
+            "https://runtime.example/api/v1/temporal/runs/run-ds18-probe/"
+            "epoch-staleness?branch=review-branch"
+        ),
+        "method": "GET",
+        "body": None,
+    }
+
+
+def test_runtime_contract_gate_rejects_nested_epoch_semantic_corruption(
+    tmp_path: Path,
+) -> None:
+    schema = export_runtime_openapi_schema()
+    title_schema = schema["components"]["schemas"]["InstitutionalAuthorityAbsenceView"][
+        "properties"
+    ]["title"]
+    assert title_schema["const"] == "Authority not appointed"
+    title_schema["const"] = "Generic error"
+    corrupted = tmp_path / "runtime_api_v1.corrupted.openapi.json"
+    corrupted.write_text(
+        json.dumps(schema, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    repo_root = Path(__file__).resolve().parents[4]
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "tools/ops_runners/runtime/check_runtime_api_contract.py",
+            "--openapi",
+            str(corrupted),
+            "--skip-client-drift",
+        ],
+        cwd=repo_root,
+        env={**os.environ, "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert "OpenAPI drift detected" in result.stdout
 
 
 def test_generated_runtime_js_client_accepts_params_for_body_operations() -> None:

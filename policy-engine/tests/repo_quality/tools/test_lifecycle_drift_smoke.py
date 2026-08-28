@@ -2,9 +2,11 @@ from __future__ import annotations
 
 # ruff: noqa: S101
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.pdc import compile_runtime_policy_design_case
 from polisyos.runtime.quality.rule_evolution import build_rule_evolution_registry
 from polisyos.runtime.quality.rule_replay_engine import replay_under_original_rules
@@ -25,7 +27,10 @@ from polisyos.scientist.governance.continuous.detectors import (
 from polisyos.scientist.governance.continuous.lifecycle_bridge import (
     bridge_governance_events_to_claim_lifecycle,
 )
-from polisyos.scientist.governance.continuous.monitors import DecisionValidityStatus
+from polisyos.scientist.governance.continuous.monitors import (
+    DecisionValidityStatus,
+    persist_governance_monitor_event,
+)
 from polisyos.scientist.methods.search.readiness import DecisionReadiness
 
 
@@ -163,7 +168,9 @@ def _closed_case(registry: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def test_i9_lifecycle_drift_smoke_runs_detector_to_partial_reissue_and_rule_replay() -> None:
+def test_i9_lifecycle_drift_smoke_runs_detector_to_review_and_rule_replay(
+    tmp_path: Path,
+) -> None:
     decision_ref = _ref("1", kind="scientist.decision_packet")
     original_claim_ledger_ref = _ref("2", kind="scientist.claim_ledger_v2")
     registry = _registry(version="2026.05", threshold=0.5)
@@ -193,21 +200,22 @@ def test_i9_lifecycle_drift_smoke_runs_detector_to_partial_reissue_and_rule_repl
                 affected_claim_ids=("claim_legal_context",),
                 scope={"domain": "benefits", "jurisdiction": "UA"},
                 occurred_at=datetime(2026, 5, 24, 12, 0, tzinfo=UTC),
-                metadata={"lifecycle_transition": "reissued"},
             )
         ],
     )
     event = detector_result.events[0]
 
+    store = FileSystemCAS(tmp_path / "cas")
+    event_ref = persist_governance_monitor_event(store, event).event_ref
     bridge = bridge_governance_events_to_claim_lifecycle(
+        store=store,
         ledger=AppendOnlyClaimLedger(
             run_id="run-i9-lifecycle-smoke",
             current_claims=[_claim("claim_legal_context"), _claim("claim_unaffected")],
         ),
         decision_packet_ref=decision_ref,
         original_claim_ledger_ref=original_claim_ledger_ref,
-        monitor_events=[event],
-        monitor_event_refs=[_ref("3", kind="scientist.governance_monitor_event")],
+        monitor_event_refs=[event_ref],
         actor_id="continuous_governance.lifecycle_bridge",
         case_id=closed_case["case_id"],
         new_decision_packet_ref=_ref("4", kind="scientist.decision_packet"),
@@ -236,10 +244,9 @@ def test_i9_lifecycle_drift_smoke_runs_detector_to_partial_reissue_and_rule_repl
     assert event.affected_claim_ids == ["claim_legal_context"]
     assert bridge.status == "pass"
     assert bridge.blockers == []
-    assert bridge.updated_ledger.events[0].action is ClaimLifecycleAction.REISSUED
-    assert bridge.reissue_packet is not None
-    assert bridge.reissue_packet.status is DecisionValidityStatus.REISSUED
-    assert bridge.reissue_packet.scope_to_revise == ["claim_legal_context"]
+    assert bridge.updated_ledger.events[0].action is ClaimLifecycleAction.REVIEW_REQUIRED
+    assert bridge.reissue_packet is None
+    assert bridge.validity_report.status is DecisionValidityStatus.REVIEW_REQUIRED
     assert bridge.public_revision_state.affected_claim_ids == ["claim_legal_context"]
     assert bridge.public_revision_state.unaffected_claim_ids == ["claim_unaffected"]
     assert bridge.public_revision_state.closed_case_historical_meaning == "preserved"

@@ -23,6 +23,7 @@
     "supplemental_findings",
     "ds8_strangle_coverage",
     "ds8b_post_freeze_transition",
+    "ds18_time_semantics_coverage",
     "seeded_negative_lifecycle"
   ],
   "properties": {
@@ -139,6 +140,9 @@
     },
     "ds8b_post_freeze_transition": {
       "$ref": "#/$defs/ds8bPostFreezeTransition"
+    },
+    "ds18_time_semantics_coverage": {
+      "$ref": "#/$defs/ds18TimeSemanticsCoverage"
     },
     "seeded_negative_lifecycle": {
       "type": "array",
@@ -1957,6 +1961,220 @@
             "historical_137_deferrals": { "const": "byte_preserved" },
             "live_tree_disposition": { "const": "outside_frozen_transition" }
           }
+        }
+      }
+    },
+    "ds18SourceReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/pathRef" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "ds18BehavioralEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "assertion_id"],
+      "properties": {
+        "path": { "$ref": "#/$defs/pathRef" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "assertion_id": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "ds18InheritedOwner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "root_id"],
+      "properties": {
+        "path": { "$ref": "#/$defs/pathRef" },
+        "root_id": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "ds18RenderRoot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "column",
+        "component_identity",
+        "kind",
+        "line",
+        "root_id",
+        "root_source_sha256",
+        "epoch_context_read_count",
+        "epoch_semantics_prop_count",
+        "epoch_semantics_provider_render_count",
+        "time_semantics_label_render_count",
+        "classification",
+        "predicate_provenance",
+        "reviewer_receipt",
+        "owner_evidence",
+        "behavioral_evidence"
+      ],
+      "properties": {
+        "column": { "type": "integer", "minimum": 1 },
+        "component_identity": { "$ref": "#/$defs/nonEmptyString" },
+        "kind": {
+          "enum": [
+            "jsx",
+            "html_template",
+            "svg_template",
+            "react_create_element",
+            "server_render",
+            "satori_render",
+            "dom_clone",
+            "dom_serialize",
+            "raster_export",
+            "print_root"
+          ]
+        },
+        "line": { "type": "integer", "minimum": 1 },
+        "root_id": { "$ref": "#/$defs/nonEmptyString" },
+        "root_source_sha256": { "$ref": "#/$defs/sha256" },
+        "epoch_context_read_count": { "type": "integer", "minimum": 0 },
+        "epoch_semantics_prop_count": { "type": "integer", "minimum": 0 },
+        "epoch_semantics_provider_render_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "time_semantics_label_render_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "classification": {
+          "enum": [
+            "decision_bearing",
+            "non_decision_bearing",
+            "inherits_admitted_dom"
+          ]
+        },
+        "predicate_provenance": { "const": "independently_reconciled" },
+        "reviewer_receipt": {
+          "const": "DS18-C06-independent-root-reconciliation"
+        },
+        "owner_evidence": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds18SourceReceipt" }
+        },
+        "behavioral_evidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds18BehavioralEvidence" }
+        },
+        "temporal_binding": {
+          "enum": ["direct_ds4", "strict_non_jsx_projection"]
+        },
+        "temporal_obligation": { "const": "as_of_epoch_validity" },
+        "inherited_from": { "$ref": "#/$defs/ds18InheritedOwner" },
+        "non_decision_reason": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "ds18SourceFileReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "source_sha256",
+        "receipt_kind",
+        "predicate_provenance",
+        "reviewer_receipt",
+        "roots"
+      ],
+      "properties": {
+        "path": { "$ref": "#/$defs/pathRef" },
+        "source_sha256": { "$ref": "#/$defs/sha256" },
+        "receipt_kind": {
+          "enum": ["render_roots_complete", "no_render_root"]
+        },
+        "predicate_provenance": { "const": "independently_reconciled" },
+        "reviewer_receipt": {
+          "const": "DS18-C06-independent-root-reconciliation"
+        },
+        "roots": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ds18RenderRoot" }
+        }
+      }
+    },
+    "ds18TimeSemanticsCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_id",
+        "owner_slice",
+        "predicate_provenance",
+        "source_root",
+        "exclusion_policy",
+        "scanner",
+        "source_file_count",
+        "root_count",
+        "file_manifest_sha256",
+        "root_manifest_sha256",
+        "decision_bearing_root_count",
+        "inherits_admitted_dom_root_count",
+        "obligated_root_count",
+        "covered_root_count",
+        "frontend_freeze_commit",
+        "landing_slice_rule",
+        "landing_slice_checker",
+        "files"
+      ],
+      "properties": {
+        "schema_id": {
+          "const": "polisyos.atlas.ds18-time-semantics-coverage.v1"
+        },
+        "owner_slice": { "const": "DS18" },
+        "predicate_provenance": { "const": "independently_reconciled" },
+        "source_root": { "const": "apps/runtime-dashboard/src" },
+        "exclusion_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["generated_manifest", "kinds"],
+          "properties": {
+            "generated_manifest": {
+              "const": "architecture/generated_artifacts.toml"
+            },
+            "kinds": {
+              "const": [
+                "registered_generated_output",
+                "story_file",
+                "test_directory",
+                "test_file"
+              ]
+            }
+          }
+        },
+        "scanner": { "$ref": "#/$defs/ds18SourceReceipt" },
+        "source_file_count": { "type": "integer", "minimum": 1 },
+        "root_count": { "type": "integer", "minimum": 1 },
+        "file_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "root_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "decision_bearing_root_count": { "type": "integer", "minimum": 1 },
+        "inherits_admitted_dom_root_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "obligated_root_count": { "type": "integer", "minimum": 1 },
+        "covered_root_count": { "type": "integer", "minimum": 1 },
+        "frontend_freeze_commit": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string", "pattern": "^[a-f0-9]{40}$" }
+          ]
+        },
+        "landing_slice_rule": {
+          "const": "the slice landing a post-freeze production render/export root owns its fresh file/root receipt, independent classification, and behavioral proof"
+        },
+        "landing_slice_checker": {
+          "const": "architecture/atlas_surfaces/check_frontend_disposition_register.py --check"
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/ds18SourceFileReceipt" }
         }
       }
     },

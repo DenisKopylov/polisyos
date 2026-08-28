@@ -1,16 +1,38 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
-import { buildSignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
+import {
+  buildSignedPublicDecisionPacket as buildSignedPublicDecisionPacketRaw,
+  type PublicDecisionPacketInput,
+} from "@/features/runs/domain/publicationPacket";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+import {
+  epochNonreceipt,
+  type EpochSemantics,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
 import type { PolicyDesignCaseProjection } from "@polisyos/runtime-api-client";
 
 import PublicDecisionViewerPage from "./PublicDecisionViewerPage";
+
+type PacketTestInput = Omit<PublicDecisionPacketInput, "epochSemantics"> & {
+  epochSemantics?: EpochSemantics;
+};
+
+function buildSignedPublicDecisionPacket(input: PacketTestInput) {
+  return buildSignedPublicDecisionPacketRaw({
+    ...input,
+    epochSemantics: input.epochSemantics ?? epochNonreceipt(),
+  });
+}
 
 const testDecisionScore = () =>
   untracedDecisionQuantity({ metricId: "test.decision_score", point: 0.74 });
 
 vi.mock("@/shared/i18n/LocaleProvider", () => ({
+  useOptionalI18n: () => ({
+    t: (key: string, params?: Record<string, string>) =>
+      params?.reason ? `${key}:${params.reason}` : key,
+  }),
   useI18n: () => ({
     t: (key: string, params?: Record<string, string>) =>
       params?.reason ? `${key}:${params.reason}` : key,

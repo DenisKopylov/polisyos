@@ -17,6 +17,10 @@ from polisyos.core.artifacts.backends.config import (
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.runtime import ApiMeta, SourceKind
 from polisyos.core.security import AccessScope
+from polisyos.runtime.quality.epoch_validity_cascade import (
+    NoEpochTransitionSigningAuthority,
+)
+from polisyos.runtime.quality.semantic_epoch import SemanticEpochService
 
 from .errors import forbidden, service_unavailable, unauthorized
 from .resilience import guard_runtime_cas
@@ -124,7 +128,14 @@ def build_runtime_api_context(
     debug = DebugService(store=store, timeline_service=timeline)
     feedback = FeedbackService(store=store, run_index=run_index)
     fabric = FabricIntegrationService(lineage_service=lineage)
-    temporal = TemporalService(timeline_service=timeline)
+    temporal = TemporalService(
+        timeline_service=timeline,
+        artifact_store=store,
+        semantic_epoch_service=SemanticEpochService.for_unallocated_policy_query(
+            artifact_store=store
+        ),
+        transition_signing_authority=NoEpochTransitionSigningAuthority(),
+    )
     compare = CompareService(lineage_service=lineage, temporal_service=temporal)
     scenarios = ScenarioService(
         lineage_service=lineage,

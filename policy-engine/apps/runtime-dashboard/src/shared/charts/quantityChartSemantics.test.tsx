@@ -103,6 +103,30 @@ const c07Resolutions = (
 ).lint.resolutions.filter((resolution) => resolution.cluster_id === "C07");
 
 describe("chart quantity semantics", () => {
+  it("renders decision time next to a quantity instead of leaving as_of implicit", () => {
+    renderWithProviders(
+      <ChartQuantityEvidence
+        value={quantity("time-bound", {
+          point: 1,
+          time: {
+            tx_at: "2026-02-12T12:00:00Z",
+            valid_at: "2026-02-11T12:00:00Z",
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("time-semantics-valid-at")).toHaveTextContent(
+      "2026-02-11",
+    );
+    expect(screen.getByTestId("time-semantics-tx-at")).toHaveTextContent(
+      "2026-02-12",
+    );
+    expect(screen.getByTestId("time-semantics-epoch-status")).toHaveTextContent(
+      /not established/u,
+    );
+  });
+
   it("preserves every finite point-null evidence entry through Quantity", () => {
     renderWithProviders(<ChartQuantityEvidence value={pointNullEvidence} />);
 

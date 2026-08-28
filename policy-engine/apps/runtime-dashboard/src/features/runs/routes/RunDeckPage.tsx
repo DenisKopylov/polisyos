@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 
 import { useRunErrors } from "@/api/hooks/useRunErrors";
 import { useRunTimeline } from "@/api/hooks/useRunTimeline";
+import { useEpochStaleness } from "@/features/runs/api/useEpochStaleness";
 import { useTelemetryReadyMark } from "@/app/providers/TelemetryProvider";
 import { PrefetchButton } from "@/app/routes/PrefetchButton";
 import {
@@ -10,6 +11,7 @@ import {
   useRunInspector,
 } from "@/features/runs/context/RunInspectorContext";
 import { RunBreadcrumbs } from "@/features/runs/components/RunBreadcrumbs";
+import { epochSemanticsFromProjection } from "@/features/runs/components/EpochStalenessView";
 import {
   AtlasRunDeck,
   type AtlasRunDeckCopy,
@@ -33,10 +35,19 @@ import {
 import { Button, Card, EmptyState } from "@polisyos/atlas-ui";
 import { ApiErrorAlert, copyShareLink, exportJson } from "@/shared/ui";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
+import {
+  epochNonreceipt,
+  TimeSemanticsLabel,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
 
 function RunDeckContent({ runId }: { runId: string }) {
   const { t } = useI18n();
   const summary = useRunInspector();
+  const epochQuery = useEpochStaleness({ runId });
+  const epochProjection = epochQuery.data?.projection;
+  const epochSemantics = epochProjection
+    ? epochSemanticsFromProjection(epochProjection)
+    : epochNonreceipt();
   const timelineQuery = useRunTimeline(runId, Boolean(summary.run));
   const errorsQuery = useRunErrors(runId, Boolean(summary.run));
   const deckRef = useRef<HTMLDivElement | null>(null);
@@ -196,12 +207,25 @@ function RunDeckContent({ runId }: { runId: string }) {
         </div>
       </Card>
 
-      <AtlasRunDeck
-        copy={deckCopy}
-        deck={deck}
-        deckRef={deckRef}
-        onExportSlide={exportSlide}
-      />
+      <div
+        className="space-y-3"
+        data-testid="run-deck-root"
+        id="run-deck-root"
+        ref={deckRef}
+      >
+        <TimeSemanticsLabel
+          epochSemantics={epochSemantics}
+          payloadAsOf={epochProjection?.owner_as_of}
+          txAt={epochProjection?.temporal_scope.tx_at}
+          validAt={epochProjection?.temporal_scope.valid_at}
+        />
+        <AtlasRunDeck
+          copy={deckCopy}
+          deck={deck}
+          onExportSlide={exportSlide}
+          rootId="run-deck-content"
+        />
+      </div>
 
       <Card className="space-y-4">
         <div className="grid gap-3 md:grid-cols-4">

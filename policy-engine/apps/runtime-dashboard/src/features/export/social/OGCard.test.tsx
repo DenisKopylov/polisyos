@@ -18,11 +18,27 @@ import { OGCard, sanitizePublicShareSummary } from "./OGCard";
 
 describe("share templates", () => {
   it("renders an OG card with trust status and temporal scope", () => {
-    render(<OGCard summary={runShareFixture} />);
+    const summary = sanitizePublicShareSummary({
+      ...runShareFixture,
+      epochSemantics: {
+        asOf: null,
+        asOfReason: "epoch_projection_not_established",
+        currentEpochRef: null,
+        epochRefs: [],
+        kind: "nonreceipt",
+        projectionSemanticHash: null,
+        revalidationRequired: false,
+        status: "not_established",
+        validityStatus: null,
+      },
+    } as Parameters<typeof sanitizePublicShareSummary>[0]);
+    render(<OGCard summary={summary} />);
 
     expect(screen.getByText("Reject or replan")).toBeInTheDocument();
     expect(screen.getByText("untraced")).toBeInTheDocument();
     expect(screen.getByText(/valid 2026-04-15/)).toBeInTheDocument();
+    expect(summary).toHaveProperty("epochSemantics.kind", "nonreceipt");
+    expect(screen.getByText(/Epoch not established/u)).toBeInTheDocument();
   });
 
   it("renders email html and plain text without raw sources", () => {

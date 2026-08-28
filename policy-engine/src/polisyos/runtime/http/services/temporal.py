@@ -7,7 +7,10 @@ import json
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core.contracts import chronology as chronology_contract
 from polisyos.core.contracts.runtime import (
+    EpochStalenessProjectionView,
     QuantityCoverageEntry,
     QuantityCoverageSummary,
     QuantityValue,
@@ -29,12 +32,25 @@ from polisyos.runtime.quality.authority import (
     TimeSourceConsistencyDisposition,
     resolve_time_source_consistency_disposition,
 )
+from polisyos.runtime.quality.epoch_staleness_projection import (
+    compile_epoch_staleness_projection,
+)
+from polisyos.runtime.quality.epoch_validity_cascade import (
+    EpochTransitionSigningAuthority,
+    EpochTransitionSigningNonReceipt,
+)
+from polisyos.scientist.governance.continuous import (
+    GOVERNANCE_MONITOR_EVENT_KIND,
+    PersistedGovernanceMonitorEvent,
+    resolve_governance_monitor_event,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
     from polisyos.runtime.http.services.timeline import TimelineService
+    from polisyos.runtime.quality.semantic_epoch import SemanticEpochService
 
 
 _SUPPORTED_SURFACES: tuple[TemporalSurfaceSupport, ...] = (
@@ -44,6 +60,7 @@ _SUPPORTED_SURFACES: tuple[TemporalSurfaceSupport, ...] = (
     "run_quantities",
     "run_fabric_decision_data",
     "run_compare",
+    "epoch_staleness",
 )
 _UNSUPPORTED_SURFACES: tuple[TemporalSurfaceSupport, ...] = (
     "run_agents",
@@ -59,6 +76,16 @@ _WORLD_TEMPORAL_TABLES: tuple[str, ...] = (
     "world.quality_reports",
     "world.trust_assessments",
 )
+
+
+def _semantic_digest(domain: str, payload: Mapping[str, object]) -> str:
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(domain.encode("utf-8") + b"\0" + encoded).hexdigest()
 
 
 def build_time_source_consistency_audit_projection(
@@ -115,8 +142,18 @@ def build_time_source_consistency_audit_projection(
 class TemporalService:
     """Resolve, validate, and describe runtime temporal cursor state."""
 
-    def __init__(self, *, timeline_service: TimelineService | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        timeline_service: TimelineService | None = None,
+        artifact_store: core_artifacts.ArtifactStore | None = None,
+        semantic_epoch_service: SemanticEpochService | None = None,
+        transition_signing_authority: EpochTransitionSigningAuthority | None = None,
+    ) -> None:
         self._timeline_service = timeline_service
+        self._artifact_store = artifact_store
+        self._semantic_epoch_service = semantic_epoch_service
+        self._transition_signing_authority = transition_signing_authority
 
     def resolve_scope(
         self,
@@ -340,6 +377,123 @@ class TemporalService:
             graph_temporal_scope="partial",
             slow_query_evidence=_temporal_index_evidence(),
         )
+
+    def build_epoch_staleness_projection(
+        self,
+        *,
+        run: IndexedRunRecord,
+        scope: TemporalScope,
+        observed_at: datetime,
+    ) -> EpochStalenessProjectionView:
+        """Project real epoch authority refusals without substituting server time."""
+
+        if (
+            self._artifact_store is None
+            or self._semantic_epoch_service is None
+            or self._transition_signing_authority is None
+        ):
+            raise RuntimeError("epoch_staleness_owner_composition_missing")
+        scope_payload = {
+            "run_id": run.run_id,
+            "decision_packet_ref": (
+                run.decision_packet_ref.model_dump(mode="json")
+                if run.decision_packet_ref is not None
+                else None
+            ),
+            "temporal_scope": scope.model_dump(mode="json"),
+        }
+        scope_ref = _semantic_digest(
+            "polisyos.runtime.epoch-staleness.scope.v1",
+            scope_payload,
+        )
+        requested_cutoff_ref = (
+            str(run.decision_packet_ref.artifact_id)
+            if run.decision_packet_ref is not None
+            else _semantic_digest(
+                "polisyos.runtime.epoch-staleness.run-cutoff.v1",
+                {"run_id": run.run_id},
+            )
+        )
+        requested_query_context_ref = _semantic_digest(
+            "polisyos.runtime.epoch-staleness.query.v1",
+            {
+                **scope_payload,
+                "scope_ref": scope_ref,
+                "requested_cutoff_ref": requested_cutoff_ref,
+            },
+        )
+        query = chronology_contract.NativeChronologyQuery(
+            domain=chronology_contract.ChronologyProofDomain(
+                format=chronology_contract.FULL_PREFIX_FORMAT,
+                profile=chronology_contract.FULL_PREFIX_PROFILE,
+                proof_domain="semantic-epoch",
+                family="epoch",
+                scope_ref=scope_ref,
+                authority_purpose="decision_validity",
+            ),
+            requested_cutoff_ref=requested_cutoff_ref,
+            requested_query_context_ref=requested_query_context_ref,
+        )
+        epoch_gate = self._semantic_epoch_service.qualify_chronology_query(query=query)
+        if not isinstance(
+            epoch_gate,
+            chronology_contract.NativeChronologyPolicyResolutionFailed,
+        ):
+            raise unprocessable_entity(
+                "The configured epoch owner has no exact staleness projection reader.",
+                code="epoch_staleness_epoch_reader_not_established",
+            )
+        transition = self._transition_signing_authority.sign_transition(
+            transition_bytes=b"",
+            authority_purpose=query.domain.authority_purpose,
+            requested_query_context_ref=requested_query_context_ref,
+        )
+        if not isinstance(transition, EpochTransitionSigningNonReceipt):
+            raise unprocessable_entity(
+                "A signed transition exists but its exact projection reader is not composed.",
+                code="epoch_staleness_transition_reader_not_established",
+            )
+        return compile_epoch_staleness_projection(
+            run_id=run.run_id,
+            decision_packet_ref=run.decision_packet_ref,
+            temporal_scope=scope,
+            requested_query_context_ref=requested_query_context_ref,
+            owner_as_of=None,
+            observed_at=observed_at,
+            epoch_gate=epoch_gate,
+            transition=transition,
+            monitor_events=self._monitor_events_for_packet(run.decision_packet_ref),
+            fixture_only=False,
+        )
+
+    def _monitor_events_for_packet(
+        self,
+        packet_ref: core_artifacts.ArtifactRef | None,
+    ) -> tuple[PersistedGovernanceMonitorEvent, ...]:
+        if self._artifact_store is None or packet_ref is None:
+            return ()
+        events: list[PersistedGovernanceMonitorEvent] = []
+        for artifact_id in sorted(self._artifact_store.iter_artifact_ids(), key=str):
+            manifest = self._artifact_store.get_manifest(artifact_id)
+            if manifest.kind != GOVERNANCE_MONITOR_EVENT_KIND:
+                continue
+            try:
+                persisted = resolve_governance_monitor_event(
+                    self._artifact_store,
+                    core_artifacts.ArtifactRef(
+                        artifact_id=manifest.artifact_id,
+                        kind=manifest.kind,
+                        media_type=manifest.media_type,
+                    ),
+                )
+            except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+                raise unprocessable_entity(
+                    "A governance monitor artifact cannot be admitted by its owner contract.",
+                    code="epoch_staleness_monitor_artifact_invalid",
+                ) from exc
+            if persisted.event.decision_packet_ref == packet_ref:
+                events.append(persisted)
+        return tuple(events)
 
     def world_query_kwargs(
         self,

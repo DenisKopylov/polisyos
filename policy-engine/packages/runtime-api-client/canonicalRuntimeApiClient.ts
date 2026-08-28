@@ -536,7 +536,40 @@ export type DiscoveryCandidate =
 export type EngineCensusPayload =
   RuntimeApiComponents["schemas"]["EngineCensusPayload"];
 
+export type EngineeringCapabilityAbsenceView =
+  RuntimeApiComponents["schemas"]["EngineeringCapabilityAbsenceView"];
+
 export type EnvInfo = RuntimeApiComponents["schemas"]["EnvInfo"];
+
+export type EpochBoundaryLineageView =
+  RuntimeApiComponents["schemas"]["EpochBoundaryLineageView"];
+
+export type EpochCertificateStalenessView =
+  RuntimeApiComponents["schemas"]["EpochCertificateStalenessView"];
+
+export type EpochDependencyStalenessView =
+  RuntimeApiComponents["schemas"]["EpochDependencyStalenessView"];
+
+export type EpochDerivedRecomputeView =
+  RuntimeApiComponents["schemas"]["EpochDerivedRecomputeView"];
+
+export type EpochOpenWorldRiskComponentView =
+  RuntimeApiComponents["schemas"]["EpochOpenWorldRiskComponentView"];
+
+export type EpochOpenWorldRiskView =
+  RuntimeApiComponents["schemas"]["EpochOpenWorldRiskView"];
+
+export type EpochPerturbationView =
+  RuntimeApiComponents["schemas"]["EpochPerturbationView"];
+
+export type EpochProjectionDenominatorView =
+  RuntimeApiComponents["schemas"]["EpochProjectionDenominatorView"];
+
+export type EpochStalenessProjectionResponse =
+  RuntimeApiComponents["schemas"]["EpochStalenessProjectionResponse"];
+
+export type EpochStalenessProjectionView =
+  RuntimeApiComponents["schemas"]["EpochStalenessProjectionView"];
 
 export type EpochValidityBatchReceipt =
   RuntimeApiComponents["schemas"]["EpochValidityBatchReceipt"];
@@ -744,6 +777,9 @@ export type IngestRequest = RuntimeApiComponents["schemas"]["IngestRequest"];
 export type IngestResponse = RuntimeApiComponents["schemas"]["IngestResponse"];
 
 export type InputRef = RuntimeApiComponents["schemas"]["InputRef"];
+
+export type InstitutionalAuthorityAbsenceView =
+  RuntimeApiComponents["schemas"]["InstitutionalAuthorityAbsenceView"];
 
 export type InvalidGovernedProjectionPacket =
   RuntimeApiComponents["schemas"]["InvalidGovernedProjectionPacket"];
@@ -1704,6 +1740,20 @@ export class RuntimeApiClient {
       path,
       query,
       undefined,
+      undefined,
+    );
+  }
+
+  async admitEpochValidityBatch(params: {
+    body: EpochValidityBatchRequest;
+  }): Promise<EpochValidityBatchResponse> {
+    const path = `/api/v1/control/decision-validity/epoch-batches`;
+    const query = undefined;
+    return this.request<EpochValidityBatchResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
       undefined,
     );
   }
@@ -2927,6 +2977,33 @@ export class RuntimeApiClient {
       run_id: params.run_id,
     });
     return this.request<TemporalCapabilitiesResponse>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async getRunEpochStaleness(params: {
+    run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+    export_projection_hash?: string | null;
+  }): Promise<EpochStalenessProjectionResponse> {
+    const path = `/api/v1/temporal/runs/${encodeURIComponent(String(params.run_id))}/epoch-staleness`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+      export_projection_hash: params.export_projection_hash,
+    });
+    return this.request<EpochStalenessProjectionResponse>(
       "GET",
       path,
       query,

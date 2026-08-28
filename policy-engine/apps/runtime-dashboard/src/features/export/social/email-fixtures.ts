@@ -1,3 +1,8 @@
+import {
+  epochNonreceipt,
+  type EpochSemantics,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
+
 export type ShareKind = "run" | "compare" | "scenario";
 export type ShareTrustStatus =
   | "verified"
@@ -7,6 +12,7 @@ export type ShareTrustStatus =
   | "untraced";
 
 export type PublicShareSummary = {
+  epochSemantics: EpochSemantics;
   kind: ShareKind;
   title: string;
   subtitle?: string;
@@ -28,6 +34,7 @@ export type PublicShareSummary = {
 };
 
 export const runShareFixture: PublicShareSummary = {
+  epochSemantics: epochNonreceipt(),
   href: "https://polisyos.local/runs/R_core_api_001?trust=compact",
   keyQuantity: {
     label: "Decision score",

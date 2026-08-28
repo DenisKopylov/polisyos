@@ -7,19 +7,22 @@ import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Literal
+from typing import Annotated, Any, Literal, TypeAlias
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts.manifest import (
     ArtifactGovernanceInfo,
     ArtifactRef,
+    CanonInfo,
     InputRef,
     ProducerInfo,
     SchemaInfo,
 )
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.contracts import EpochPerturbationClass
 
 CONTINUOUS_GOVERNANCE_FLAG = "scientist.best_in_class.wave2.phase2_6.continuous_governance"
 ENABLE_REISSUE_WORKFLOW_FLAG = "scientist.best_in_class.wave2.phase2_6.enable_reissue_workflow"
@@ -29,6 +32,9 @@ DIAGNOSTIC_EVENT_SCHEMA_VERSION = "1.0"
 SERIOUS_EXECUTION_PROFILES = frozenset({"governed", "production", "research"})
 AUTHORITY_ENVELOPE_ARTIFACT_KIND = "runtime_quality.evidence_authority_envelope"
 DIAGNOSTIC_EVENT_ARTIFACT_KIND = "runtime_quality.diagnostic_event"
+GOVERNANCE_MONITOR_EVENT_KIND = "scientist.governance_monitor_event"
+GOVERNANCE_MONITOR_EVENT_SCHEMA_NAME = "polisyos.scientist.GovernanceMonitorEvent"
+GOVERNANCE_MONITOR_EVENT_SCHEMA_VERSION = "2.0"
 
 MonitorEventType = Literal[
     "source_invalidation",
@@ -46,6 +52,7 @@ MonitorAction = Literal[
     "withdrawal_review",
 ]
 LifecycleDecision = Literal["stale", "reissue", "supersede", "withdraw"]
+AdvisoryPosture = Literal["annotation_only", "review_required"]
 
 GOVERNANCE_LIFECYCLE_REPORT_KIND = "governance_lifecycle_report"
 GOVERNANCE_LIFECYCLE_REPORT_SCHEMA_NAME = "runtime_quality.governance_lifecycle_report"
@@ -82,6 +89,74 @@ _EXPECTED_STATUS_BY_DECISION: dict[LifecycleDecision, DecisionValidityStatus] = 
 }
 
 
+class IncidentPerturbation(BaseModel):
+    """Content-bound operational incident affecting one published packet."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_class: Literal["incident"] = "incident"
+    incident_report_ref: ArtifactRef
+
+
+class AppealPerturbation(BaseModel):
+    """One appeal over one published instance, never an implicit class ruling."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_class: Literal["appeal"] = "appeal"
+    appeal_evidence_ref: ArtifactRef
+    affected_instance_ref: ArtifactRef
+    scope: Literal["instance"] = "instance"
+
+
+class CorrectionPerturbation(BaseModel):
+    """Content-bound correction with explicit replacement evidence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_class: Literal["correction"] = "correction"
+    evidence_validity_event_ref: ArtifactRef
+    replacement_refs: tuple[ArtifactRef, ...] = Field(min_length=1)
+
+
+class RetractionPerturbation(BaseModel):
+    """Content-bound retraction; it carries no replacement evidence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_class: Literal["retraction"] = "retraction"
+    evidence_validity_event_ref: ArtifactRef
+
+
+class LegalChangePerturbation(BaseModel):
+    """Content-bound legal-change evidence awaiting owner adjudication."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_class: Literal["legal_change"] = "legal_change"
+    legal_change_evidence_ref: ArtifactRef
+
+
+class DiscoveredBiasPerturbation(BaseModel):
+    """Content-bound discovered-bias evidence awaiting owner adjudication."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_class: Literal["discovered_bias"] = "discovered_bias"
+    bias_evidence_ref: ArtifactRef
+
+
+EpochPerturbation: TypeAlias = Annotated[
+    IncidentPerturbation
+    | AppealPerturbation
+    | CorrectionPerturbation
+    | RetractionPerturbation
+    | LegalChangePerturbation
+    | DiscoveredBiasPerturbation,
+    Field(discriminator="source_class"),
+]
+
+
 class GovernanceMonitorEvent(BaseModel):
     """One continuous-governance signal tied to a decision packet."""
 
@@ -97,6 +172,12 @@ class GovernanceMonitorEvent(BaseModel):
     affected_dag_node_ids: list[str] = Field(default_factory=list)
     reason: str = Field(min_length=1)
     occurred_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    observed_epoch_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    perturbation: EpochPerturbation | None = None
+    advisory_posture: AdvisoryPosture = "review_required"
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("event_id", "reason")
@@ -105,6 +186,139 @@ class GovernanceMonitorEvent(BaseModel):
         if not value.strip():
             raise ValueError("governance monitor text fields cannot be blank")
         return value
+
+    @model_validator(mode="after")
+    def _validate_perturbation_boundary(self) -> GovernanceMonitorEvent:
+        reserved = {
+            "adjudicated_disposition",
+            "claim_lifecycle_transition",
+            "lifecycle_transition",
+            "owner_disposition",
+            "source_class",
+        }
+        supplied = reserved.intersection(self.metadata)
+        if supplied:
+            raise ValueError(
+                "governance monitor metadata cannot author authority fields: "
+                + ", ".join(sorted(supplied))
+            )
+        if self.perturbation is None:
+            return self
+        expected_event_type: dict[EpochPerturbationClass, MonitorEventType] = {
+            "incident": "incident",
+            "appeal": "policy_context_drift",
+            "correction": "source_invalidation",
+            "retraction": "source_invalidation",
+            "legal_change": "policy_context_drift",
+            "discovered_bias": "fairness_drift",
+        }
+        if self.event_type != expected_event_type[self.perturbation.source_class]:
+            raise ValueError("perturbation source class does not match monitor event family")
+        if (
+            isinstance(self.perturbation, AppealPerturbation)
+            and self.decision_packet_ref != self.perturbation.affected_instance_ref
+        ):
+            raise ValueError("appeal perturbations must remain scoped to the affected instance")
+        return self
+
+
+class PersistedGovernanceMonitorEvent(BaseModel):
+    """One verified monitor-event handle; no parsed object travels beside its ref."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    event_ref: ArtifactRef
+    event_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    event: GovernanceMonitorEvent
+
+
+def persist_governance_monitor_event(
+    store: core_artifacts.ArtifactStore,
+    event: GovernanceMonitorEvent,
+) -> PersistedGovernanceMonitorEvent:
+    """Persist and reload one strict monitor event before returning its handle."""
+
+    ref = store.put_json(
+        event,
+        PutOptions(
+            kind=GOVERNANCE_MONITOR_EVENT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=GOVERNANCE_MONITOR_EVENT_SCHEMA_NAME,
+                version=GOVERNANCE_MONITOR_EVENT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    persisted = resolve_governance_monitor_event(store, ref)
+    if persisted.event != event:
+        raise ValueError("governance monitor event readback mismatch")
+    return persisted
+
+
+def resolve_governance_monitor_event(
+    store: core_artifacts.ArtifactStore,
+    ref: ArtifactRef,
+) -> PersistedGovernanceMonitorEvent:
+    """Resolve exact bytes, manifest profile, and semantic model for one event ref."""
+
+    raw = store.get_bytes(ref.artifact_id)
+    report = store.verify(ref.artifact_id)
+    manifest = store.get_manifest(ref.artifact_id)
+    observed_hash = "sha256:" + hashlib.sha256(raw).hexdigest()
+    if (
+        not report.ok
+        or observed_hash != str(ref.artifact_id)
+        or ref.kind != GOVERNANCE_MONITOR_EVENT_KIND
+        or ref.media_type != "application/json"
+        or manifest.artifact_id != ref.artifact_id
+        or manifest.kind != GOVERNANCE_MONITOR_EVENT_KIND
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema
+        != SchemaInfo(
+            name=GOVERNANCE_MONITOR_EVENT_SCHEMA_NAME,
+            version=GOVERNANCE_MONITOR_EVENT_SCHEMA_VERSION,
+        )
+        or manifest.canon != CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+    ):
+        raise ValueError("governance monitor event artifact profile mismatch")
+    event = GovernanceMonitorEvent.model_validate(from_canonical_bytes(raw))
+    if to_canonical_bytes(event, CanonSpec(forbid_floats=False)) != raw:
+        raise ValueError("governance monitor event canonical bytes mismatch")
+    return PersistedGovernanceMonitorEvent(
+        event_ref=ref,
+        event_content_hash=observed_hash,
+        event=event,
+    )
+
+
+def persist_incident_monitor_event(
+    store: core_artifacts.ArtifactStore,
+    *,
+    incident_report_ref: ArtifactRef,
+    sequence: int = 0,
+) -> PersistedGovernanceMonitorEvent:
+    """Reuse the incident owner and bind its exact report into the strict event arm."""
+
+    from .incident import incident_monitor_event, load_incident_report
+
+    incident = load_incident_report(store, incident_report_ref)
+    event = incident_monitor_event(incident=incident, sequence=sequence)
+    bound = event.model_copy(
+        update={
+            "perturbation": IncidentPerturbation(
+                incident_report_ref=incident_report_ref,
+            ),
+            "advisory_posture": "review_required",
+        }
+    )
+    if (
+        bound.decision_packet_ref != incident.decision_packet_ref
+        or bound.reason != incident.reason
+        or bound.affected_claim_ids != incident.affected_claim_ids
+    ):
+        raise ValueError("incident monitor event owner binding mismatch")
+    return persist_governance_monitor_event(store, bound)
 
 
 class GovernanceMonitorRecommendation(BaseModel):
@@ -902,10 +1116,19 @@ def aggregate_validity_status(
 
 
 __all__ = [
+    "AdvisoryPosture",
+    "AppealPerturbation",
     "CONTINUOUS_GOVERNANCE_FLAG",
+    "CorrectionPerturbation",
+    "DiscoveredBiasPerturbation",
     "ENABLE_REISSUE_WORKFLOW_FLAG",
     "ENABLE_WITHDRAWAL_STATUS_FLAG",
     "DecisionValidityStatus",
+    "EpochPerturbation",
+    "EpochPerturbationClass",
+    "GOVERNANCE_MONITOR_EVENT_KIND",
+    "GOVERNANCE_MONITOR_EVENT_SCHEMA_NAME",
+    "GOVERNANCE_MONITOR_EVENT_SCHEMA_VERSION",
     "GOVERNANCE_LIFECYCLE_DIAGNOSTIC_EVENT_TYPE",
     "GOVERNANCE_LIFECYCLE_REPORT_KIND",
     "GOVERNANCE_LIFECYCLE_REPORT_SCHEMA_ID",
@@ -915,14 +1138,21 @@ __all__ = [
     "GovernanceLifecycleEvidence",
     "GovernanceMonitorEvent",
     "GovernanceMonitorRecommendation",
+    "IncidentPerturbation",
+    "LegalChangePerturbation",
     "LifecycleDecision",
     "MonitorAction",
     "MonitorEventType",
     "MonitorSeverity",
+    "PersistedGovernanceMonitorEvent",
+    "RetractionPerturbation",
     "aggregate_validity_status",
     "build_drift_monitor_event",
     "emit_governance_lifecycle_evidence",
     "lifecycle_decision_id",
     "monitor_event_id",
+    "persist_governance_monitor_event",
+    "persist_incident_monitor_event",
     "recommend_validity_action",
+    "resolve_governance_monitor_event",
 ]

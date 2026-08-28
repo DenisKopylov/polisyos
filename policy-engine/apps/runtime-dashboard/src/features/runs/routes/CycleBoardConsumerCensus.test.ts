@@ -44,6 +44,8 @@ function productionPopulation(): string[] {
 }
 
 type ConsumerCensus = {
+  acquisitionClientCalls: string[];
+  acquisitionHookCalls: string[];
   caseClientCalls: string[];
   caseDirectFetchCalls: string[];
   caseEndpointCalls: string[];
@@ -112,6 +114,8 @@ function comesFrom(
 }
 
 type SymbolAliases = {
+  acquisitionClient: Set<ts.Symbol>;
+  acquisitionHook: Set<ts.Symbol>;
   caseFetch: Set<ts.Symbol>;
   caseHook: Set<ts.Symbol>;
   client: Set<ts.Symbol>;
@@ -126,6 +130,14 @@ type SymbolAliases = {
 };
 
 const canonicalSymbols = {
+  acquisitionClient: {
+    exportName: "getGovernedProjection",
+    sourceSuffix: "/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+  },
+  acquisitionHook: {
+    exportName: "useAcquisitionGrowth",
+    sourceSuffix: "/features/runs/api/useAcquisitionRoutes.ts",
+  },
   caseFetch: {
     exportName: "fetchCaseInspection",
     sourceSuffix: "/features/runs/api/useCaseInspection.ts",
@@ -191,6 +203,8 @@ function collectLocalAliases(
   sources: readonly ts.SourceFile[],
 ) {
   const aliases: SymbolAliases = {
+    acquisitionClient: new Set(),
+    acquisitionHook: new Set(),
     caseFetch: new Set(),
     caseHook: new Set(),
     client: new Set(),
@@ -334,6 +348,8 @@ function inspectConsumers(files: string[]): ConsumerCensus {
   });
   const aliases = collectLocalAliases(checker, sources);
   const census: ConsumerCensus = {
+    acquisitionClientCalls: [],
+    acquisitionHookCalls: [],
     caseClientCalls: [],
     caseDirectFetchCalls: [],
     caseEndpointCalls: [],
@@ -358,6 +374,16 @@ function inspectConsumers(files: string[]): ConsumerCensus {
     const owner = relativeSource(file);
     const visit = (node: ts.Node) => {
       if (ts.isCallExpression(node)) {
+        if (
+          matchesSymbol(checker, node.expression, "acquisitionClient", aliases)
+        ) {
+          census.acquisitionClientCalls.push(owner);
+        }
+        if (
+          matchesSymbol(checker, node.expression, "acquisitionHook", aliases)
+        ) {
+          census.acquisitionHookCalls.push(owner);
+        }
         if (matchesSymbol(checker, node.expression, "caseFetch", aliases)) {
           census.caseDirectFetchCalls.push(owner);
         }
@@ -491,6 +517,17 @@ function inspectConsumers(files: string[]): ConsumerCensus {
 }
 
 describe("Cycle Board production consumer census", () => {
+  it("has one acquisition-growth intake and one Cycle Board hook consumer", () => {
+    const census = inspectConsumers(productionPopulation());
+
+    expect(census.acquisitionClientCalls).toEqual([
+      "features/runs/api/useAcquisitionRoutes.ts",
+    ]);
+    expect(census.acquisitionHookCalls).toEqual([
+      "features/runs/components/CycleBoard.tsx",
+    ]);
+  }, 45_000);
+
   it("has one page that owns the sole resolved hook call and renderer", () => {
     const census = inspectConsumers(productionPopulation());
 

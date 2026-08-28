@@ -17,7 +17,7 @@ c00_status: review_repair_timing_and_authz_admitted_zero_mechanisms
 c01_status: closed_after_delegated_trust_posture_reconciliation
 c02_status: closed_at_8969c10a9
 c03_status: closed_after_measured_generator_widening
-c04_status: in_progress_after_generic_type_graph_repair
+c04_status: closed_with_surface_and_guardrail_receipts
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 gy_plan: ../layer3-slices/GY-engine-subordination.md
 identity_boundary: ../../../system-design-decisions/policyos-identity-and-custody-boundary.md
@@ -384,6 +384,28 @@ gate prerequisite that narrows a false positive without changing product
 behavior, so the widening spend remains **6/11 rounds**. Actual mechanism spend
 becomes **37/42** once C04 commits.
 
+C04 closes with the feature-owned validator boundary and all declared read
+surfaces frozen. The focused behavior lane passes **50/50 tests** in
+`real 5.21`, `user 16.19`, `sys 2.89` seconds (uptime `15:14`); the five owned
+a11y tests pass in `real 3.82`, `user 10.42`, `sys 1.88` seconds (uptime
+`15:20`); the Cycle Board page/parity lane passes **12/12** in `real 5.15`,
+`user 6.87`, `sys 0.98` seconds; and the complete consumer census passes
+**4/4** in `real 28.04`, `user 41.32`, `sys 1.85` seconds. TypeScript passes in
+`real 22.39`, `user 36.72`, `sys 1.34` seconds and targeted ESLint passes in
+`real 18.09`, `user 26.48`, `sys 1.88` seconds. The safe-versus-explicit-unknown
+Atlas falsifier and its adjacent authority cases pass **3/3** in `real 44.75`,
+`user 92.57`, `sys 3.75` seconds; `node --check` is green.
+
+The registered trust-posture writer exits `0` in `real 55.69`, `user 51.37`,
+`sys 2.04` seconds (uptime `15:15` to `15:16`), with AST/token set counts in
+agreement. Architecture guardrails then exit `0` in `real 88.14`,
+`user 79.69`, `sys 10.97` seconds (uptime `15:16` to `15:18`). The standalone
+Atlas enforcement check now reaches, rather than overflows before, its genuine
+C06 badge/query-cache/disposition transition; that shared-register transition
+remains in C06's declared writer/checker transaction. Actual spend is
+**37/42 mechanisms** and **6/11 rounds**. C04 checks CC05 through CC09; C05 and
+C06 remain open.
+
 ## Mission and binding reality
 
 DS15 is the surface dual of GY-N13. Its distinctive product motion is:
@@ -502,10 +524,10 @@ There is no second closure contract.
       observed time, audience, and typed absence for every fact. The same
       packet carries the source-derived backlog score distribution and the
       epoch qualification disclosure; neither may be synthesized by UI copy.
-- [ ] **CC05** Structural capstone routes render their owner witness and missing
+- [x] **CC05** Structural capstone routes render their owner witness and missing
       link with `action_eligibility=not_applicable`; adding catalog rows or a
       client-authored `live_fetchable` field cannot create a button.
-- [ ] **CC06** The 15-row board is labelled “interim residual ordering — ranking
+- [x] **CC06** The 15-row board is labelled “interim residual ordering — ranking
       only, not VOI,” carries `ranking_only_not_voi`, and discloses the complete
       current basis: `binding_confidence=0.0` on 15/15 rows,
       `ranking_score=0.0` on 15/15, and `route_demand=2.0` on 3/15 versus `1.0`
@@ -516,16 +538,16 @@ There is no second closure contract.
       `polisyos.runtime.quality.acquisition_planner.plan_evidence_acquisition`.
       Numeric VOI is available only with a resolved owner decision/ranking
       reference and expected-value/cost inputs.
-- [ ] **CC07** Route detail shows typed requirement -> costed plan -> eligible
+- [x] **CC07** Route detail shows typed requirement -> costed plan -> eligible
       and ineligible strategy -> VOI or typed absence -> independent lifecycle
       facets. Cost is a gate predicate: absent, default-zero, internally
       inconsistent or unverified cost basis is visible and blocks decision
       request/execution. VOI may remain typed absent under
       `ranking_only_not_voi` and is never zero-filled.
-- [ ] **CC08** The connector scorecard shows all 12 families, the 18 actual live
+- [x] **CC08** The connector scorecard shows all 12 families, the 18 actual live
       network probes inside the 144 journal records, 124 metric resolutions
       (`95 + 20 + 9`), liveness state, tier decay, and current carrier mismatch.
-- [ ] **CC09** N13b's historical execution renders 5 attempts, 2 raw responses,
+- [x] **CC09** N13b's historical execution renders 5 attempts, 2 raw responses,
       5 quarantined/terminal outcomes, 0 admissions, 0 epochs, `no_growth`, and
       the deeper terminal without converting it into a success animation.
 - [x] **CC10** An operational route is derived only from a tenant/cell/run/job-

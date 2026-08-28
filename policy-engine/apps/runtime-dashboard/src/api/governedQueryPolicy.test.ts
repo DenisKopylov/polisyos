@@ -1,7 +1,17 @@
-import { onlineManager, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  onlineManager,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
 import { afterEach, describe, expect, it } from "vitest";
+
+import {
+  acquisitionAuthorityQueryPolicy,
+  acquisitionGrowthQueryOptions,
+} from "@/features/runs/api/useAcquisitionRoutes";
+import { queryKeys } from "./queryKeys";
 
 type Packet = Readonly<{
   meta?: Readonly<{ generated_at: string }>;
@@ -11,7 +21,11 @@ type Packet = Readonly<{
 
 function createWrapper(queryClient: QueryClient) {
   return function QueryWrapper({ children }: { children: ReactNode }) {
-    return createElement(QueryClientProvider, { client: queryClient }, children);
+    return createElement(
+      QueryClientProvider,
+      { client: queryClient },
+      children,
+    );
   };
 }
 
@@ -20,8 +34,24 @@ describe("governed query policy", () => {
     onlineManager.setOnline(true);
   });
 
+  it("forces the acquisition-growth authority packet onto zero retention", async () => {
+    const { governedQueryOptions } = await import("./governedQueryPolicy");
+    const issued = governedQueryOptions(
+      acquisitionGrowthQueryOptions(),
+      acquisitionAuthorityQueryPolicy(),
+    );
+
+    expect(issued.queryKey).toEqual(queryKeys.acquisitionGrowth());
+    expect(issued.gcTime).toBe(0);
+    expect(issued.staleTime).toBe(0);
+    expect(issued.initialData).toBeUndefined();
+    expect(issued.placeholderData).toBeUndefined();
+  });
+
   it("test_governed_query_wrapper_forbids_retained_authority_without_owner_as_of", async () => {
-    const policyModule = await import("./governedQueryPolicy").catch(() => null);
+    const policyModule = await import("./governedQueryPolicy").catch(
+      () => null,
+    );
 
     // This assertion is intentionally the named RED witness while the wrapper
     // does not exist. The remaining assertions run only once it is available.
@@ -55,7 +85,9 @@ describe("governed query policy", () => {
         {
           queryKey: ["invalid-owner-as-of", index] as const,
           queryFn: async () =>
-            packet as unknown as Readonly<{ packet: Readonly<{ as_of: unknown }> }>,
+            packet as unknown as Readonly<{
+              packet: Readonly<{ as_of: unknown }>;
+            }>,
         },
         policy,
       );
@@ -74,12 +106,18 @@ describe("governed query policy", () => {
     });
     const validPacket = { packet: { as_of: "2026-08-10T10:00:00Z" } };
     const validOptions = governedQueryOptions(
-      { queryKey: ["valid-owner-as-of"] as const, queryFn: async () => validPacket },
+      {
+        queryKey: ["valid-owner-as-of"] as const,
+        queryFn: async () => validPacket,
+      },
       policy,
     );
-    const { result: validResult } = renderHook(() => useGovernedQuery(validOptions), {
-      wrapper: createWrapper(validClient),
-    });
+    const { result: validResult } = renderHook(
+      () => useGovernedQuery(validOptions),
+      {
+        wrapper: createWrapper(validClient),
+      },
+    );
     await waitFor(() => {
       expect(validResult.current.data).toEqual(validPacket);
     });
@@ -149,7 +187,11 @@ describe("governed query policy", () => {
       await neverCacheResult.current.refetch();
     });
     await waitFor(() => {
-      expect(neverCacheClient.getQueryCache().find({ queryKey: neverCacheOptions.queryKey })).toBeUndefined();
+      expect(
+        neverCacheClient
+          .getQueryCache()
+          .find({ queryKey: neverCacheOptions.queryKey }),
+      ).toBeUndefined();
     });
     onlineManager.setOnline(true);
 
@@ -181,7 +223,11 @@ describe("governed query policy", () => {
       await failedRefetchResult.current.refetch();
     });
     await waitFor(() => {
-      expect(refetchClient.getQueryCache().find({ queryKey: failedRefetchOptions.queryKey })).toBeUndefined();
+      expect(
+        refetchClient
+          .getQueryCache()
+          .find({ queryKey: failedRefetchOptions.queryKey }),
+      ).toBeUndefined();
     });
 
     const operational = governedQueryOptions(

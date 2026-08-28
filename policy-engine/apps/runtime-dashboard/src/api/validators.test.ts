@@ -10,6 +10,10 @@ import {
   runsListSchema,
 } from "./validators";
 import {
+  acquisitionGrowthPayloadSchema,
+  acquisitionRouteListResponseSchema,
+} from "@/features/runs/api/acquisitionRouteValidators";
+import {
   availableHumanDecisionGate,
   humanDecisionDigest,
   humanDecisionReviewEffectivenessFixture,
@@ -169,6 +173,178 @@ function runsListPayload(runTerminality: string | undefined) {
 }
 
 describe("runtime API validators", () => {
+  it("rejects qualification copy that upgrades a pending epoch", () => {
+    const qualification = {
+      appointment_state: "unappointed",
+      appointment_would_establish:
+        "authority to qualify native semantic production, append its history head and permit overlay activation",
+      appointment_would_not_establish: [
+        "gap shape",
+        "passport validity",
+        "positive delta",
+        "re-entry",
+      ],
+      authority_owner_ref: null,
+      authority_role: "semantic epoch policy-admission qualifier",
+      code: "policy_admission_missing",
+      epoch_state: "pending_epoch_activation",
+      status: "not_established",
+    };
+    const payload = {
+      backlog: [],
+      carrier_liveness: {},
+      n13b_history: {
+        admission: "not_reached",
+        attempt_count: 5,
+        epoch_qualification: qualification,
+        execution_phase: "terminal",
+        overlay_epoch_count: 0,
+        quarantine: "raw_terminal",
+        quarantine_count: 2,
+        raw_response_count: 2,
+        reentry: "deeper_terminal",
+        response_admitted_count: 0,
+        terminal_count: 5,
+        world_growth: "no_growth",
+      },
+      schema_version: "policyos.runtime.acquisition_growth_projection.v1",
+      structural_routes: [],
+      summary: {
+        actual_network_call_count: 18,
+        backlog_count: 0,
+        family_scorecard_count: 12,
+        metric_resolution_count: 124,
+        selected_record_count: 144,
+        structural_route_count: 0,
+      },
+    };
+
+    expect(acquisitionGrowthPayloadSchema.parse(payload)).toMatchObject(
+      payload,
+    );
+    expect(() =>
+      acquisitionGrowthPayloadSchema.parse({
+        ...payload,
+        n13b_history: {
+          ...payload.n13b_history,
+          epoch_qualification: {
+            ...qualification,
+            epoch_state: "active",
+            status: "qualified",
+          },
+        },
+      }),
+    ).toThrow();
+  });
+
+  it("rejects forged acquisition hints on a strict structural route", () => {
+    const base = {
+      backlog: [],
+      carrier_liveness: {},
+      n13b_history: {
+        admission: "not_reached",
+        attempt_count: 0,
+        epoch_qualification: {
+          appointment_state: "unappointed",
+          appointment_would_establish:
+            "authority to qualify native semantic production, append its history head and permit overlay activation",
+          appointment_would_not_establish: [
+            "gap shape",
+            "passport validity",
+            "positive delta",
+            "re-entry",
+          ],
+          authority_owner_ref: null,
+          authority_role: "semantic epoch policy-admission qualifier",
+          code: "policy_admission_missing",
+          epoch_state: "pending_epoch_activation",
+          status: "not_established",
+        },
+        execution_phase: "executing",
+        overlay_epoch_count: 0,
+        quarantine: "none",
+        quarantine_count: 0,
+        raw_response_count: 0,
+        reentry: "not_established",
+        response_admitted_count: 0,
+        terminal_count: 0,
+        world_growth: "not_established",
+      },
+      schema_version: "policyos.runtime.acquisition_growth_projection.v1",
+      structural_routes: [
+        {
+          action_eligibility: "not_applicable",
+          gap_class: "structural_gap",
+          missing_link: "owner_relation_missing",
+          route_class: "not_a_data_gap",
+          route_id: "capstone:one",
+          witness_kind: "estimand_binding_refusal",
+        },
+      ],
+      summary: {
+        actual_network_call_count: 0,
+        backlog_count: 0,
+        family_scorecard_count: 12,
+        metric_resolution_count: 124,
+        selected_record_count: 0,
+        structural_route_count: 1,
+      },
+    };
+
+    expect(acquisitionGrowthPayloadSchema.parse(base)).toMatchObject(base);
+    expect(() =>
+      acquisitionGrowthPayloadSchema.parse({
+        ...base,
+        structural_routes: [
+          {
+            ...base.structural_routes[0],
+            available_catalog_rows: 99,
+            cost: 1,
+          },
+        ],
+      }),
+    ).toThrow();
+  });
+
+  it("rejects a route collection whose row belongs to another run", () => {
+    const route = {
+      authority_badge: "behavioral_fixture_not_production",
+      authority_capability: "producer_missing",
+      cell_id: "cell-1",
+      cost_basis: { total_amount: 100 },
+      execution_capability: "producer_missing",
+      external_nonclosures: [],
+      planner_record_id: "planner-1",
+      planner_report_hash: "sha256:planner",
+      qualification_predicate: "not_established",
+      qualification_reason: "policy_admission_missing",
+      qualification_status: "pending_epoch_activation",
+      recommended_strategy: "targeted_primary_data_collection",
+      replay_pins: {
+        compiled_content_hash: "sha256:compiled-content",
+        compiled_ref: "sha256:compiled",
+        cost_basis_hash: "sha256:cost",
+        design_problem_ref: "sha256:problem",
+        source_job_id: "job-1",
+        terminal_event_id: "event-1",
+      },
+      route_id: "sha256:route",
+      route_projection_hash: "sha256:route",
+      route_status: "costed_actionable",
+      run_id: "run-b",
+      schema_version: "AcquisitionRouteProjection@1.0",
+      tenant_id: "tenant-1",
+      world_growth: "no_growth",
+    };
+
+    expect(() =>
+      acquisitionRouteListResponseSchema.parse({
+        routes: [route],
+        run_id: "run-a",
+      }),
+    ).toThrow(/cross-bound/iu);
+  });
+
   it.each(["terminal", "non_terminal", "not_established"] as const)(
     "preserves producer-owned run_terminality state %s",
     (runTerminality) => {

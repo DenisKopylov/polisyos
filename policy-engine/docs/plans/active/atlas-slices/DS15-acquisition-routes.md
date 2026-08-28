@@ -387,11 +387,13 @@ the same 34-element tuple. The case-id dictionary independently has the same
 shared `RuntimePermission.EVIDENCE_ACQUIRE` to that same class. Omitting either
 would make the behavioral matrix disagree with the route's actual gate.
 
-The six new parametrized cases—permission denial, authorized handler reach,
-and no-step-up denial for each operation—plus both generic denominator checks
-pass **8/8**, using the real security middleware/router and replacing only the
-service boundary after authorization. CPU is `63.70 user + 4.84 sys`, uptime
-`20:23` to `20:24`. The complete file then reports branch **7 failed / 145
+The six requested parametrized cases—permission denial, authorized handler
+reach, and no-step-up denial for each operation—plus both generic denominator
+checks pass **8/8**, using the real security middleware/router and replacing
+only the service boundary after authorization. CPU is `63.70 user + 4.84 sys`,
+uptime `20:23` to `20:24`. The two automatically generated missing-identity
+cases also pass in the complete-file lane. The complete file then reports
+branch **7 failed / 145
 passed** versus pinned `main` `dc7bdf79a` **7 failed / 139 passed**, with the
 same seven failing node IDs and no DS15-only failure. Branch CPU is `225.80 user
 + 40.28 sys`, uptime `20:24` to `20:30`; main CPU is `157.94 user + 25.68

@@ -2,7 +2,7 @@
 plan_id: atlas-ds15-acquisition-routes
 title: "DS15 - Acquisition Routes & Data-Pool Growth Surfaces"
 type: slice-plan
-status: execution_c02_closure_resumed_ceiling_40
+status: execution_c03_generated_abi_ceiling_41
 created: 2026-08-27
 last_verified: 2026-08-28
 stability: measured_plan
@@ -15,7 +15,9 @@ execution_entry_commit: 4709562c4ca67e691b355ec2941cf7d48262291e
 execution_entry_plan_blob: 16de6702ab7e79fb0277d9071fdb3b9ded1f7aac
 c00_status: review_repair_timing_and_authz_admitted_zero_mechanisms
 c01_status: closed_after_delegated_trust_posture_reconciliation
-c02_status: resumed_after_owner_rego_parity_repair
+c02_status: closed_at_8969c10a9
+c03_status: closed_after_measured_generator_widening
+c04_status: not_started
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 gy_plan: ../layer3-slices/GY-engine-subordination.md
 identity_boundary: ../../../system-design-decisions/policyos-identity-and-custody-boundary.md
@@ -318,6 +320,46 @@ to `13:29`). These changes use only already-declared C01/C02 mechanism paths and
 registered/P39 companions, so cumulative spend remains **23/40 mechanisms** and
 **5/11 widening rounds**. C02 checks CC10 through CC16; C03-C06 remain open.
 
+### C03 measured generator amendment — 2026-08-28
+
+The registered generators reproduce all seven outputs byte-for-byte, but two
+independent operation censuses expose an executable-client gap. The source
+router and emitted OpenAPI/type maps each contain the exact four DS15 operation
+IDs; independent TypeScript and JavaScript class-method walks each contain only
+the two GET wrappers. The shared generator's closed
+`_GENERATED_POST_OPERATION_IDS` set excludes
+`request_run_acquisition_decision` and `execute_run_acquisition_route`, so
+regeneration alone cannot satisfy C03's four-operation acceptance.
+
+The generic repair adds the existing registered generator
+`tools/ops_runners/runtime/generate_runtime_client.py` as one C03 mechanism and
+admits the two already step-up-protected OpenAPI operations into its POST
+denominator. This path is absent from the prior 40-path union, so the current
+ceiling is **41**, derived both as `40 + 1` unique new path and by cluster
+arithmetic `7 + 16 + 1 + 12 + 4 + 1 = 41`; path 42 is the next stop. C01 closed
+without spending its planned R02 read-owner repair. R02 is therefore reassigned
+to this measured generated-operation-denominator class, taking actual spend to
+**6/11 rounds** without changing the 11-round ceiling. Once the generator path
+is modified, actual mechanism spend becomes **24/41**.
+
+C03 closes with the widened generator and every registered companion committed
+as one transaction. Working outputs, scratch A and scratch B agree byte-for-byte
+on the exact seven-path denominator (`1 OpenAPI + 5 runtime client + 1 dashboard
+type`) in `real 159.76`, `user 162.17`, `sys 7.21` seconds (uptime `13:58` to
+`14:01`). OpenAPI, both type maps and both executable TS/JS clients carry all
+four DS15 operation IDs/methods. The facet, schema-discriminator, replay-pin and
+operation-binding mutations each fail the semantic contract; the focused
+generated-contract wave passes **18 tests** in `real 93.73`, `user 91.85`,
+`sys 4.10` seconds (uptime `14:08` to `14:09`). The runtime API contract exits
+`0` in `real 96.62`, `user 83.14`, `sys 3.83` seconds (uptime `14:01` to
+`14:03`), and architecture guardrails exit `0` in `real 157.29`, `user 138.16`,
+`sys 18.05` seconds (uptime `14:05` to `14:07`). The isolated DS15 release
+fragment reports zero contract errors and three structured compatibility
+changes; the aggregate unreleased-fragment gate separately reports an existing
+error in `2026-08-27-lex-intervention-ownership.toml` and is not used as DS15's
+receipt. Actual spend is **24/41 mechanisms** and **6/11 rounds**. C03 checks
+CC20; C04-C06 remain open.
+
 ## Mission and binding reality
 
 DS15 is the surface dual of GY-N13. Its distinctive product motion is:
@@ -375,7 +417,7 @@ unallocated `QualificationConsumer`. Its `not_established` /
 empty history and zero admitted observations. Therefore an **active but
 institutionally unqualified epoch is not reachable in the consumed code**. It
 would require changing the N13b/semantic-epoch write path, which this slice is
-forbidden to do and which is absent from the 40-path declaration. DS15 instead
+forbidden to do and which is absent from the 41-path declaration. DS15 instead
 renders the real pending/unqualified state as a first-class typed disclosure,
 names the unappointed policy-admission authority and says exactly what its
 appointment would establish. It may never copy-upgrade that state to active or
@@ -512,7 +554,7 @@ There is no second closure contract.
 - [ ] **CC19** Offline and queued acquisition approval/execution are rejected;
       no local storage can create authority, currentness, a passport, or an
       optimistic world-growth state.
-- [ ] **CC20** OpenAPI, the five runtime-client files, and dashboard API types are
+- [x] **CC20** OpenAPI, the five runtime-client files, and dashboard API types are
       regenerated atomically and reproduced byte-for-byte from two clean scratch
       outputs.
 - [x] **CC21** No held DS11 path is touched before its landing ancestry and
@@ -1070,9 +1112,9 @@ complete owned-root rule. No additional moved-constant test is preauthorized:
 if execution discovers one, stop for a plan amendment before editing it. One
 mechanism is never split across commits to fit a cap.
 
-The complete declaration contains **40 unique mechanism paths**. The hard slice
-ceiling is exactly **40**, derived from that declared union; there is no padded
-contingency. Path 41 is a stop and plan-amendment request. A path may narrow
+The complete declaration contains **41 unique mechanism paths**. The hard slice
+ceiling is exactly **41**, derived from that declared union; there is no padded
+contingency. Path 42 is a stop and plan-amendment request. A path may narrow
 away, but an undeclared replacement or companion promoted into mechanism work
 requires the same amendment and a fresh union derivation.
 
@@ -1088,11 +1130,14 @@ permission. Adding that existing policy owner as one C02 mechanism takes the
 union to 39 while adding no permission enum, capability, writer, or widening
 round. C02's measured R05 registry boundary then adds the one exact diagnostic
 event-registry owner path and takes the union to **40**; a generic CAS-write
-event cannot substitute for the planned acquisition phase/loop types.
+event cannot substitute for the planned acquisition phase/loop types. C03's
+measured executable-client denominator then adds the registered runtime-client
+generator and takes the union to **41**; generated type-map entries cannot
+substitute for callable client methods.
 
 Two independent cap derivations must agree before C01 and closeout:
 
-1. cluster arithmetic `7 + 16 + 12 + 4 + 1 = 40`; and
+1. cluster arithmetic `7 + 16 + 1 + 12 + 4 + 1 = 41`; and
 2. a parser union of every bold `Add/Modify (mechanism)` path below, excluding
    P39 companions, with known members
    `src/polisyos/runtime/quality/acquisition_route_loop.py` and
@@ -1100,7 +1145,7 @@ Two independent cap derivations must agree before C01 and closeout:
 
 The widening budget is **11 repair rounds**, one for each concrete predicate
 class below. A round may repair or redistribute work only within the declared
-40-path set; it does not buy another path. Narrowing that only removes a way to
+41-path set; it does not buy another path. Narrowing that only removes a way to
 be fooled is free. A second finding in one class invokes P40: widen the property
 to the quantity it needs inside the ceiling, or declare the bounded residual
 and run its falsifier. A new capability, permission, producer arm, writer or
@@ -1111,7 +1156,7 @@ undeclared path is a plan amendment, not a round.
 | C00 | admit plan, remeasure sets/fences and pin reds | 0 | 0 | 0 |
 | C01 | strict owner cost/read contracts over N13a/N13b, overlay and quarantine | 7 | 7 | 2 |
 | C02 | run-bound HTTP, PA2 decision request, durable worker and exact re-entry receipt | 16 | 16 | 4 |
-| C03 | atomically regenerate/reproduce OpenAPI and both clients | 0 | 0 | 0 |
+| C03 | atomically regenerate/reproduce OpenAPI and both clients | 1 | 1 | 1 |
 | C04 | render global scorecard/backlog/structural routes and strict detail | 12 | 12 | 2 |
 | C05 | accountable approval, continuous timeline and exact-byte MACHINE export | 4 | 4 | 2 |
 | C06 | freeze/review/visual/register/readback closeout | 1 | 1 | 1 |
@@ -1119,7 +1164,7 @@ undeclared path is a plan amendment, not a round.
 | round | cluster | predicate boundary | falsifier that prices the round |
 | --- | --- | --- | --- |
 | R01 | C01 | governed source/content admission | corrupt a registered hash/schema/rule while preserving projection markers |
-| R02 | C01 | read-owner purity across overlay/quarantine | make any projection call open a writer or add a raw sibling consumer |
+| R02 | C03 | generated executable-operation denominator | retain all four OpenAPI/type-map operations while either executable client omits a DS15 mutation wrapper |
 | R03 | C02 | current run/planner/cost closure | stale the manifest/planner or preserve cost while removing its verified basis |
 | R04 | C02 | PA2/DS9 resource binding | reuse a decision across tenant/run/source-job/route/effect or remove step-up |
 | R05 | C02 | safe N13b port plus CAS/event/action-head receipt | offer raw paths, orphan CAS/event/head, omit an owner receipt, or attempt a second fetch/epoch on recovery |
@@ -1419,11 +1464,17 @@ the separately owned production-growth non-closure.
 
 ### C03 - generated ABI transaction
 
-**Mechanism cap:** 0. Generated companions only.
+**Mechanism cap:** 1. **Widening:** R02.
 
-This cluster begins only after C01/C02 source freeze **and DS11 landing**, because
-the generated family includes a held dashboard path. Acquire the schema/client
-token alone; never co-hold the Atlas register or Playwright lane.
+**Add/Modify (mechanism, 1 path):** modify
+`tools/ops_runners/runtime/generate_runtime_client.py` so both strict DS15 POST
+operations enter the registered executable-client denominator. No generic POST
+or unreviewed mutation is admitted.
+
+This cluster begins only after C01/C02 source freeze **and DS11 landing**, both
+of which are satisfied. Its registered generators run directly from the current
+tree; generated outputs are deterministically rebuilt from the integrated tree
+at merge and are never hand-merged.
 
 **P39 generated companions, exact set:**
 `schemas/runtime_api_v1.openapi.json`,
@@ -1600,7 +1651,7 @@ slices' evidence or the deep-import baseline. If the existing generic checker
 already adjudicates the transition, its source path narrows away but its test
 remains in this exact companion set.
 
-Re-derive 40 declared/40 ceiling and actual mechanism paths twice; re-derive all
+Re-derive 41 declared/41 ceiling and actual mechanism paths twice; re-derive all
 set counts, including both post-C01 `gap_class` source-tree scans and the single
 definition/producer-routing invariant; classify every red under P41 against the
 slice base; read the final file set, branch and commits from the committed
@@ -1753,7 +1804,7 @@ Read the failure/repair register again before C01 design and C06 closeout.
 | P32/P37/P38 | `route_id`, status string, record-ref/cost-field presence or rank used as proof | resolve + content-bind + verifier provenance; recompute cost from owner basis; predicate class frozen at admission |
 | P33/P34 | teach fixture IDs or marker fields to tests | remove-property/keep-markers, synonyms, malformed, sibling and historical-ID mutations |
 | P35/P36 | mix 15 residuals with 3 routes or 18 probes with 144 records | two complete-set derivations, denominator and artifact identity on every count |
-| P39 | count plans/tests/generated/register/snapshots as mechanisms | 40 declared mechanisms, exact 40 hard ceiling, companions explicit |
+| P39 | count plans/tests/generated/register/snapshots as mechanisms | 41 declared mechanisms, exact 41 hard ceiling, companions explicit |
 | P40/P41 | patch the second escape or inherit a red from a nearer base | bucket second finding; exact slice-base replay and complete-input disjointness |
 
 Target bounded closure is `typed contract/artifact + owned producer + persisted
@@ -1854,7 +1905,7 @@ The executor/architect receives:
   CAS/event/action-head receipt owner and crash-recovery phase;
 - API packets, generated ABI twins, raw-response/DOM/MACHINE hashes;
 - DS11 landing/path-fence release receipt and exact frontend wait point;
-- 40-declared/40-ceiling mechanism derivations, 11-round accounting, visual/
+- 41-declared/41-ceiling mechanism derivations, 11-round accounting, visual/
   a11y timing with `user + sys` and uptime pairs; and
 - every remaining out-of-scope non-closure, including the separately owned
   `fresh_positive_production_route`; if that receipt is missing, a bounded-close

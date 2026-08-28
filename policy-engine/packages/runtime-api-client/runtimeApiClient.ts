@@ -23,6 +23,109 @@ export type AccessRef = {
   tenant_scope?: string;
 };
 
+export type AcquisitionBacklogProjection = {
+  authority_boundary: string;
+  binding_confidence: number;
+  classification_basis: "independently_reconciled" | "not_established";
+  gap_class: GapClass;
+  rank: number;
+  ranking_method: string;
+  ranking_score: number;
+  route_demand: number;
+  variable_id: string;
+  voi_owner_fit: string;
+  voi_owner_integration: string;
+  voi_owner_ref: string;
+};
+
+export type AcquisitionDecisionRequestResponse = {
+  authority_decision_ref: string;
+  human_decision_request?: {
+  [key: string]: unknown;
+} | null;
+  outcome: "decision_required" | "decision_available";
+  route_id: string;
+  run_id: string;
+  world_growth?: string;
+};
+
+export type AcquisitionExecutionResponse = {
+  authority_decision_ref: string;
+  job_id: string;
+  receipt_phase?: string;
+  route_id: string;
+  run_id: string;
+  status?: string;
+  world_growth?: string;
+};
+
+export type AcquisitionGrowthPayload = {
+  backlog: Array<AcquisitionBacklogProjection>;
+  carrier_liveness: {
+  [key: string]: unknown;
+};
+  n13b_history: N13bHistoryProjection;
+  schema_version?: string;
+  structural_routes: Array<StructuralRouteProjection>;
+  summary: AcquisitionGrowthSummary;
+};
+
+export type AcquisitionGrowthSummary = {
+  actual_network_call_count: number;
+  backlog_count: number;
+  family_scorecard_count: number;
+  metric_resolution_count: number;
+  selected_record_count: number;
+  structural_route_count: number;
+};
+
+export type AcquisitionRouteListResponse = {
+  routes: Array<AcquisitionRouteProjection>;
+  run_id: string;
+};
+
+export type AcquisitionRouteMutationRequest = {
+  human_decision_record_ref?: string | null;
+  idempotency_key: string;
+  planner_report_hash: string;
+  replay_pins: AcquisitionRouteReplayPins;
+  route_projection_hash: string;
+};
+
+export type AcquisitionRouteProjection = {
+  authority_badge?: string;
+  authority_capability: "ready" | "producer_missing";
+  cell_id: string;
+  cost_basis: {
+  [key: string]: unknown;
+};
+  execution_capability: "ready" | "producer_missing";
+  external_nonclosures?: Array<string>;
+  planner_record_id: string;
+  planner_report_hash: string;
+  qualification_predicate?: string;
+  qualification_reason?: string;
+  qualification_status?: string;
+  recommended_strategy: string;
+  replay_pins: AcquisitionRouteReplayPins;
+  route_id: string;
+  route_projection_hash: string;
+  route_status?: string;
+  run_id: string;
+  schema_version?: string;
+  tenant_id: string;
+  world_growth?: string;
+};
+
+export type AcquisitionRouteReplayPins = {
+  compiled_content_hash: string;
+  compiled_ref: string;
+  cost_basis_hash: string;
+  design_problem_ref: string;
+  source_job_id: string;
+  terminal_event_id: string;
+};
+
 export type AcquisitionRoutingPayload = {
   compute_economics: {
   [key: string]: ProjectionJsonValue;
@@ -541,7 +644,7 @@ export type AvailableGovernedProjectionPacket = {
   intended_audience: AudienceClass;
   may_not_use_for: Array<string>;
   packet_schema_version?: string;
-  payload: DepthNCycleBoardPayload | ValueGatePayload | GenerationCycleDispositionPayload | EngineCensusPayload | ForkBRelationCensusPayload | AcquisitionRoutingPayload | N13AAcquisitionCensusPayload | N13ALiveProbeJournalPayload | CapabilityRealityPayload | ClusterOwnershipPayload | Layer3HealthMetricsPayload | LegacyProvingGroundPayload | SurfaceReadinessPayload;
+  payload: DepthNCycleBoardPayload | ValueGatePayload | GenerationCycleDispositionPayload | EngineCensusPayload | ForkBRelationCensusPayload | AcquisitionRoutingPayload | N13AAcquisitionCensusPayload | N13ALiveProbeJournalPayload | AcquisitionGrowthPayload | CapabilityRealityPayload | ClusterOwnershipPayload | Layer3HealthMetricsPayload | LegacyProvingGroundPayload | SurfaceReadinessPayload;
   projection_hash: string;
   projection_id: ProjectionId;
   projection_rule_version?: string;
@@ -1257,7 +1360,7 @@ export type ControlJobResponse = {
   failure?: ControlFailureEnvelope | null;
   finished_at?: string | null;
   job_id: string;
-  kind: "workflow_run" | "natural_language_run" | "lex_pipeline";
+  kind: "workflow_run" | "natural_language_run" | "lex_pipeline" | "acquisition";
   meta: ApiMeta;
   next_diagnostic_commands?: Array<string>;
   operator_diagnostic?: OperatorDiagnostic | null;
@@ -1996,6 +2099,17 @@ export type EnvInfo = {
   python: string;
 };
 
+export type EpochQualificationDisclosure = {
+  appointment_state: string;
+  appointment_would_establish: string;
+  appointment_would_not_establish: Array<string>;
+  authority_owner_ref?: null;
+  authority_role: string;
+  code: string;
+  epoch_state: string;
+  status: string;
+};
+
 export type EpochValidityBatchReceipt = {
   adjudication_denominator_ref: string;
   affected_packet_refs: Array<string>;
@@ -2453,6 +2567,8 @@ export type ForkBRelationCensusPayload = {
   transport_floor: number;
   transport_floor_rule: string;
 };
+
+export type GapClass = "data_gap" | "structural_gap" | "not_established";
 
 export type GenerationCycleDispositionPayload = {
   bridge_artifacts: {
@@ -3339,6 +3455,21 @@ export type N13ALiveProbeJournalPayload = {
 };
 };
 
+export type N13bHistoryProjection = {
+  admission: "not_reached" | "not_established";
+  attempt_count: number;
+  epoch_qualification: EpochQualificationDisclosure;
+  execution_phase: "executing" | "terminal";
+  overlay_epoch_count: number;
+  quarantine: "none" | "raw_terminal";
+  quarantine_count: number;
+  raw_response_count: number;
+  reentry: "not_established" | "deeper_terminal";
+  response_admitted_count: number;
+  terminal_count: number;
+  world_growth: "not_established" | "no_growth";
+};
+
 export type NLProvenance = {
   raw_request: string;
   source_context?: {
@@ -3757,7 +3888,7 @@ export type ProjectionFreshness = {
   state: "observed" | "artifact_missing" | "invalid_source";
 };
 
-export type ProjectionId = "depth-n-cycle-board" | "value-gate" | "generation-cycle-disposition" | "engine-census" | "fork-b-relation-census" | "acquisition-routing-contract" | "n13a-acquisition-census" | "n13a-live-probe-journal" | "capability-reality" | "cluster-ownership" | "layer3-health-metrics" | "legacy-proving-ground" | "surface-readiness";
+export type ProjectionId = "depth-n-cycle-board" | "value-gate" | "generation-cycle-disposition" | "engine-census" | "fork-b-relation-census" | "acquisition-routing-contract" | "n13a-acquisition-census" | "n13a-live-probe-journal" | "acquisition-growth" | "capability-reality" | "cluster-ownership" | "layer3-health-metrics" | "legacy-proving-ground" | "surface-readiness";
 
 export type ProjectionJsonValue = string | number | boolean | Array<unknown> | {
   [key: string]: unknown;
@@ -4804,6 +4935,15 @@ export type SourceProfilesListResponse = {
   profiles?: Array<SourceProfileInfo>;
 };
 
+export type StructuralRouteProjection = {
+  action_eligibility: "not_applicable" | "blocked";
+  gap_class: GapClass;
+  missing_link: string;
+  route_class: string;
+  route_id: string;
+  witness_kind: string;
+};
+
 export type SuppliedAuthorityValue = {
   metric_id: string;
   point?: number | null;
@@ -5811,6 +5951,43 @@ export class RuntimeApiClient {
       scenario_id: params.scenario_id,
     });
     return this.request<RunDetailsResponse>("GET", path, query, undefined, undefined);
+  }
+
+  async listRunAcquisitionRoutes(params: {
+    run_id: string;
+  }): Promise<AcquisitionRouteListResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes`;
+    const query = undefined;
+    return this.request<AcquisitionRouteListResponse>("GET", path, query, undefined, undefined);
+  }
+
+  async getRunAcquisitionRoute(params: {
+    run_id: string;
+    route_id: string;
+  }): Promise<AcquisitionRouteProjection> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}`;
+    const query = undefined;
+    return this.request<AcquisitionRouteProjection>("GET", path, query, undefined, undefined);
+  }
+
+  async requestRunAcquisitionDecision(params: {
+    run_id: string;
+    route_id: string;
+    body: AcquisitionRouteMutationRequest;
+  }): Promise<AcquisitionDecisionRequestResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}/decision-request`;
+    const query = undefined;
+    return this.request<AcquisitionDecisionRequestResponse>("POST", path, query, params.body, undefined);
+  }
+
+  async executeRunAcquisitionRoute(params: {
+    run_id: string;
+    route_id: string;
+    body: AcquisitionRouteMutationRequest;
+  }): Promise<AcquisitionExecutionResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}/execute`;
+    const query = undefined;
+    return this.request<AcquisitionExecutionResponse>("POST", path, query, params.body, undefined);
   }
 
   async getRunAgents(params: {

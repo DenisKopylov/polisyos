@@ -13,7 +13,7 @@ from polisyos.runtime.http.services.acquisition_action_service import (
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
-def test_ds15_backend_contract_is_complete_while_c03_generated_outputs_stay_untouched() -> None:
+def test_ds15_backend_contract_and_generated_client_expose_all_four_operations() -> None:
     schema = export_runtime_openapi_schema()
     paths = schema["paths"]
     expected = {
@@ -31,11 +31,15 @@ def test_ds15_backend_contract_is_complete_while_c03_generated_outputs_stay_unto
         == "acquisition_approval"
     )
 
-    # DS15 C03 owns generated clients. C02 proves the source contract without
-    # silently producing or hand-editing that later slice's artifacts.
     generated_client = REPO_ROOT / "packages/runtime-api-client/runtimeApiClient.ts"
-    assert generated_client.exists()
-    assert "acquisition-routes" not in generated_client.read_text(encoding="utf-8")
+    source = generated_client.read_text(encoding="utf-8")
+    expected_signatures = {
+        "async listRunAcquisitionRoutes(",
+        "async getRunAcquisitionRoute(",
+        "async requestRunAcquisitionDecision(",
+        "async executeRunAcquisitionRoute(",
+    }
+    assert all(signature in source for signature in expected_signatures)
 
 
 @pytest.mark.parametrize(

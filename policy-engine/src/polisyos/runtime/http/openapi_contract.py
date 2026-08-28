@@ -3478,6 +3478,53 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         "affected_statuses": {"invalidated": 1},
         "message": "Decision validity event published; 1 packet(s) affected.",
     },
+    "admit_epoch_validity_batch": {
+        "meta": _META_NO_SOURCE,
+        "batch_id": "epoch-validity-batch-001",
+        "state": "completed",
+        "transition": {
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "runtime.semantic_epoch_transition",
+            "media_type": "application/json",
+        },
+        "completion_receipt": {
+            "schema_version": "polisyos.decision-validity.epoch-batch-receipt.v1",
+            "batch_id": "epoch-validity-batch-001",
+            "state": "completed",
+            "transition_artifact_ref": {
+                "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "kind": "runtime.semantic_epoch_transition",
+                "media_type": "application/json",
+            },
+            "transition_content_hash": _ARTIFACT_ID_SAMPLE,
+            "requested_query_context_ref": _ARTIFACT_ID_SAMPLE,
+            "dependency_denominator_ref": _ARTIFACT_ID_SAMPLE,
+            "adjudication_denominator_ref": _ARTIFACT_ID_SAMPLE,
+            "verifier_provenance_ref": {
+                "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "kind": "runtime.epoch_transition_verifier_provenance",
+                "media_type": "application/json",
+            },
+            "completion_receipt_ref": {
+                "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "kind": "scientist.decision_validity_epoch_batch_completion",
+                "media_type": "application/json",
+            },
+            "affected_packet_refs": [_ARTIFACT_ID_SAMPLE],
+            "targets": [
+                {
+                    "packet_ref": _ARTIFACT_ID_SAMPLE,
+                    "decision_lineage_key": "lineage_R_core_api_001",
+                    "dependency_key": "semantic_epoch:epoch-001",
+                    "status": "stale",
+                    "reason": "The admitted semantic epoch changed a decision dependency.",
+                }
+            ],
+            "claim_bridge_result_refs": [],
+        },
+        "affected_packet_refs": [_ARTIFACT_ID_SAMPLE],
+        "claim_bridge_result_refs": [],
+    },
     "get_run_decision_validity": {
         "meta": _META_NO_SOURCE,
         "run_id": _RUN_ID_SAMPLE,

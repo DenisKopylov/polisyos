@@ -1742,6 +1742,65 @@ Re-run both executor-owner and workflow-registration derivations. The expected
 sets remain 4 owners/6 registrations; the property change is that every live
 owner now consumes explicit mode/safety context.
 
+#### Execution stop after the C04 clear-chokepoint formal review (2026-08-28)
+
+C04's red-first clear-chokepoint candidate proved the transport and owner-gate
+shape, but formal review found **eight new cross-package deep imports** before
+the candidate was admitted. The count has two independent derivations:
+
+- the architecture checker recomputed seven Scientist-to-`runtime.quality.*`
+  edges plus one Scientist-to-`core.components` edge = **8 source import
+  edges**;
+- an explicit five-file source walk found `1 api + 1 context + 1 builder + 2
+  causal owner + 3 production owner = 8` import edges.
+
+The two derivations agree. They are source import-edge counts for the C04
+focused lane, not mechanism-path counts or replay durations.
+
+Two independent supported-surface censuses also agree that no present facade
+can carry the canonical consumer check. First, the generated inventory records
+10 `polisyos.runtime` exports and 957 `polisyos.runtime.quality` exports, with
+zero intersection against the required EvalSafety/mode/WorldModelRecord symbol
+set. Second, a complete AST read of both literal `__all__` definitions finds
+the same zero intersection and locates the canonical symbols only in the
+internal `evaluation_safety.py`, `evaluation_modes.py`, and
+`world_model_record.py` owners. The apparent form
+`from polisyos.runtime.quality import evaluation_safety` is rejected: both
+import scanners record only the containing supported module, while the imported
+submodule is absent from `__all__` and the inventory. Using that parser gap
+would be P06/P38, not a stable seam.
+
+A consumer-local Protocol, injected predicate, or bool/blocker adapter is also
+rejected. A forged caller-supplied port could self-approve and bypass the exact
+canonical type, private producer token, and canonical-byte fingerprint checked
+by `evaluation_safety_consumer_admission_is_verified`; that would regress
+P32/P05 at the boundary C04 exists to close.
+
+The minimum correct repair therefore widens the already supported
+`polisyos.runtime.quality` facade with the canonical symbols and retains the
+canonical receipt predicate. That spends one C04 mechanism path, moving the
+union from `20/24` to `21/24` by both `4 + 4 + 5 + (7 + 1) = 21` and `16 base +
+2 C02 + 2 C03 + 1 facade = 21`. It also necessarily changes these governed
+companions:
+
+- `architecture/public_surface/inventory.json`;
+- `docs/reference/public-surface.md`;
+- one `python-public-api` release fragment under `release-fragments/unreleased/`.
+
+The first two are committed generated artifacts and are explicitly forbidden
+by §§10.4 and 15. Omitting them makes the recomputing public-surface guardrail
+red; hiding the exports makes the semantic guard false-green. This is therefore
+the task's declared serious-outside-focus stop: closing it requires changing a
+governed write path that the execution authority withheld. It is **not** a
+24-path-budget exhaustion and does not authorize a baseline, exception,
+duplicated Scientist contract, or weaker admission predicate.
+
+Disposition: C00-C03 are closed. The nine-file C04 clear-chokepoint candidate
+is quarantined and must not remain in the final source tree; C04 and C05 remain
+open. O0 is not closed. Resume only with explicit authority for the two
+generated public-surface outputs and the release fragment (or with a separately
+landed, read-back stable facade that exports the exact canonical symbols).
+
 ### C05 — Freeze, reviews, focused local closure, cloud replay, and handoff
 
 **Mechanism paths:** none.

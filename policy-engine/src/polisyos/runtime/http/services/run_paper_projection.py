@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import hmac
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.runtime.http.services.adapters.core_run import (
     BOUND_RUN_MANIFEST_SCHEMA_VERSION,
@@ -33,6 +33,7 @@ from polisyos.runtime.http.services.run_paper_contracts import (
     UnavailableRunPaperStageTrace,
     build_run_paper_semantic_projection,
 )
+from polisyos.runtime.quality.authority import authority_surface_decision
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -222,10 +223,22 @@ class RunPaperProjectionService:
             sidecar = self._store.get_manifest(artifact_id)
         except (OSError, TypeError, ValueError):
             return False
-        return (
+        verified = (
             sidecar.kind == getattr(artifact_ref, "kind", None)
             and sidecar.media_type == getattr(artifact_ref, "media_type", None)
         )
+        if not verified:
+            return False
+        decision = authority_surface_decision(
+            {},
+            surface="run",
+            artifact_store=cast("Any", self._store),
+            artifact_id=artifact_id,
+            require_cas_integrity=True,
+        )
+        if "eval_safety_projection" not in decision.composed_gate_inputs:
+            return True
+        return not (decision.blocking or decision.visible_downgrade)
 
     @staticmethod
     def _check_replay_query(

@@ -13,6 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 DIAGNOSTIC_EVENT_SCHEMA_NAME = "polisyos.runtime.quality.diagnostic_event"
 DIAGNOSTIC_EVENT_SCHEMA_VERSION = "1.0"
+DIAGNOSTIC_EVENT_ARTIFACT_KIND = "runtime_quality.diagnostic_event"
 DEFAULT_MAX_EVENT_AGE = timedelta(hours=24)
 DEFAULT_MAX_CLOCK_SKEW = timedelta(minutes=5)
 SERIOUS_EXECUTION_PROFILES = frozenset({"governed", "production", "research"})
@@ -461,6 +462,7 @@ def _bundle_source(event_source: str) -> bool:
 
 __all__ = [
     "DEFAULT_MAX_EVENT_AGE",
+    "DIAGNOSTIC_EVENT_ARTIFACT_KIND",
     "DIAGNOSTIC_EVENT_SCHEMA_NAME",
     "DIAGNOSTIC_EVENT_SCHEMA_VERSION",
     "EXPECTED_DIAGNOSTIC_EVENT_TYPES",

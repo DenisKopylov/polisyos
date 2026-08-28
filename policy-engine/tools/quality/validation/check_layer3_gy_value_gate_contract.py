@@ -52,9 +52,11 @@ from polisyos.runtime.quality.design_problem import (
     OutcomeOfInterest,
 )
 from polisyos.runtime.quality.generation_cycle import (
+    SimulationPortObservation,
     ValueCalibrationReceipt,
     ValueEvaluationMode,
     ValueGateReceipt,
+    ValuePortObservation,
     ValueTransportReceipt,
 )
 from tools.lib.timing import run_timed_entrypoint
@@ -252,6 +254,8 @@ class _AuditAtom:
     content_hash: str
     target_world_slots: tuple[str, ...] = ("firm_survival",)
     world_model_record_ref: str = "world_model_record_runtime_owner"
+    treated_unit_ids: tuple[str, ...] = ()
+    treatment_period: int | None = None
 
 
 @dataclass(frozen=True)
@@ -977,13 +981,54 @@ def _education_lane() -> tuple[DesignProblem, Any, Any]:
     return problem, candidate, context
 
 
-@cache
-def _run_real_education_value_refusal() -> Any:
+def _run_validator_foundry_value_port(
+    *,
+    candidate: object,
+    simulation: SimulationPortObservation,
+    problem: DesignProblem,
+    evaluation_mode: ValueEvaluationMode = "simulate_only",
+    invocation_simulation: SimulationPortObservation | None = None,
+    owner_gateway: Any | None = None,
+    requested_method_fqn: str | None = None,
+    repo_root: Path | None = None,
+    cycle_substrate_context: Any | None = None,
+) -> ValuePortObservation:
+    """Run one real N8 probe with context derived from its actual N5 premise."""
+
+    from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
     from polisyos.runtime.quality.generation_cycle import (
         FoundryValuePort,
-        SimulationPortObservation,
+        simulation_value_execution_context,
     )
 
+    evaluation_context = simulation_value_execution_context(
+        candidate=candidate,
+        simulation=simulation,
+        problem=problem,
+    )
+    if evaluation_context.evaluation_mode != evaluation_mode:
+        evaluation_context = EvaluationExecutionContext.model_validate(
+            {
+                **evaluation_context.model_dump(mode="python"),
+                "evaluation_mode": evaluation_mode,
+            }
+        )
+    return FoundryValuePort(
+        evaluation_context=evaluation_context,
+        owner_gateway=owner_gateway,
+        requested_method_fqn=requested_method_fqn,
+        repo_root=repo_root,
+        cycle_substrate_context=cycle_substrate_context,
+    )(
+        candidate=candidate,
+        simulation=invocation_simulation or simulation,
+        problem=problem,
+        cycle_index=0,
+    )
+
+
+@cache
+def _run_real_education_value_refusal() -> Any:
     problem, candidate, context = _education_lane()
     world = context.world_model_record
     simulation = SimulationPortObservation(
@@ -996,14 +1041,12 @@ def _run_real_education_value_refusal() -> Any:
         k_world_ref_after=world.content_hash,
         world_model_record=world,
     )
-    return FoundryValuePort(
-        repo_root=_repo_root(),
-        cycle_substrate_context=context,
-    )(
+    return _run_validator_foundry_value_port(
         candidate=candidate,
         simulation=simulation,
         problem=problem,
-        cycle_index=0,
+        repo_root=_repo_root(),
+        cycle_substrate_context=context,
     )
 
 
@@ -2846,24 +2889,24 @@ def _probe_no_value_runtime_hint_reads(repo_root: Path) -> str:
 
 
 def _probe_empty_hints_owner_access() -> str:
-    from polisyos.runtime.quality.generation_cycle import FoundryValuePort, RealValueOwnerGateway
+    from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
 
     problem = _audit_problem()
     if problem.runtime_hints:
         raise AssertionError("audit problem unexpectedly contains value hints")
+    candidate = _AuditCandidate(
+        "candidate_no_hints_gap",
+        _AuditAtom("candidate_no_hints_gap", _hash("4")),
+        ("grant", "firms", "panel", "no_hints"),
+    )
+    simulation = _audit_simulation(candidate.candidate_id)
     observation = _quiet_call(
-        lambda: FoundryValuePort(
+        lambda: _run_validator_foundry_value_port(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
             owner_gateway=RealValueOwnerGateway(repo_root=_repo_root()),
             requested_method_fqn="causal.inference.synthetic_control@1.0.0",
-        )(
-            candidate=_AuditCandidate(
-                "candidate_no_hints_gap",
-                _AuditAtom("candidate_no_hints_gap", _hash("4")),
-                ("grant", "firms", "panel", "no_hints"),
-            ),
-            simulation=_audit_simulation(),
-            problem=problem,
-            cycle_index=0,
         )
     )
     blockers = tuple(observation.authority_blockers)
@@ -2900,29 +2943,31 @@ def _probe_audit_not_fed_by_hints() -> str:
 
 
 def _probe_missing_wmr_is_wiring_error() -> str:
-    from polisyos.runtime.quality.generation_cycle import (
-        FoundryValuePort,
-        RealValueOwnerGateway,
-        SimulationPortObservation,
+    from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
+
+    candidate = _AuditCandidate(
+        "candidate_missing_wmr",
+        _AuditAtom("candidate_missing_wmr", _hash("5")),
+        ("grant", "firms", "panel", "missing_wmr"),
+    )
+    problem = _audit_problem()
+    precursor_simulation = _audit_simulation(candidate.candidate_id)
+    simulation_without_wmr = SimulationPortObservation(
+        candidate_id=candidate.candidate_id,
+        status="joint_simulated",
+        simulation_ref=precursor_simulation.simulation_ref,
+        k_world_ref_before=precursor_simulation.k_world_ref_before,
+        k_world_ref_after=precursor_simulation.k_world_ref_after,
     )
 
     observation = _quiet_call(
-        lambda: FoundryValuePort(
+        lambda: _run_validator_foundry_value_port(
+            candidate=candidate,
+            simulation=precursor_simulation,
+            invocation_simulation=simulation_without_wmr,
+            problem=problem,
             owner_gateway=RealValueOwnerGateway(repo_root=_repo_root()),
             requested_method_fqn="causal.inference.synthetic_control@1.0.0",
-        )(
-            candidate=_AuditCandidate(
-                "candidate_missing_wmr",
-                _AuditAtom("candidate_missing_wmr", _hash("5")),
-                ("grant", "firms", "panel", "missing_wmr"),
-            ),
-            simulation=SimulationPortObservation(
-                candidate_id="candidate_missing_wmr",
-                status="joint_simulated",
-                simulation_ref=_hash("7"),
-            ),
-            problem=_audit_problem(),
-            cycle_index=0,
         )
     )
     blockers = tuple(observation.authority_blockers)
@@ -3014,7 +3059,6 @@ def _probe_simulate_only_shrink_rejected() -> str:
 
 def _probe_bad_forecast_cases_blocked() -> str:
     from polisyos.runtime.quality.generation_cycle import (
-        FoundryValuePort,
         RealValueOwnerGateway,
         _run_value_transport,
     )
@@ -3040,25 +3084,29 @@ def _probe_bad_forecast_cases_blocked() -> str:
     }
     observed = []
     for name, config in cases.items():
+        candidate = _AuditCandidate(
+            "candidate_bad_forecast",
+            _AuditAtom(
+                "candidate_bad_forecast",
+                _hash("4"),
+                target_world_slots=("avg_income",),
+                treated_unit_ids=("AM",),
+                treatment_period=2020,
+            ),
+            ("grant", "firms", "value", name),
+        )
+        simulation = _audit_simulation(candidate.candidate_id)
+        problem = _audit_problem()
         observation = _quiet_call(
-            lambda name=name, config=config: FoundryValuePort(
+            lambda candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            config=config: _run_validator_foundry_value_port(
+                candidate=candidate,
+                simulation=simulation,
+                problem=problem,
                 owner_gateway=config["owner"],
                 requested_method_fqn=str(config["method"]),
-            )(
-                candidate=_AuditCandidate(
-                    "candidate_bad_forecast",
-                    _AuditAtom(
-                        "candidate_bad_forecast",
-                        _hash("4"),
-                        target_world_slots=("avg_income",),
-                        treated_unit_ids=("AM",),
-                        treatment_period=2020,
-                    ),
-                    ("grant", "firms", "value", name),
-                ),
-                simulation=_audit_simulation(),
-                problem=_audit_problem(),
-                cycle_index=0,
             )
         )
         if observation.status != "value_blocked" or observation.value_receipt is not None:
@@ -3079,25 +3127,25 @@ def _probe_bad_forecast_cases_blocked() -> str:
 
 
 def _probe_mode_gates_block() -> str:
-    from polisyos.runtime.quality.generation_cycle import FoundryValuePort, RealValueOwnerGateway
+    from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
 
     blocked = []
     for mode in ("sandbox_pilot", "field_pilot", "deployment"):
-        observation = FoundryValuePort(
-            owner_gateway=RealValueOwnerGateway(repo_root=_repo_root()),
-            evaluation_mode=mode,
-            requested_method_fqn="causal.inference.synthetic_control@1.0.0",
-        )(
-            candidate=_AuditCandidate(
-                "candidate_mode_gate",
-                _AuditAtom("candidate_mode_gate", _hash("5")),
-                ("grant", "firms", "mode", mode),
-            ),
-            simulation=_audit_simulation(),
-            problem=_audit_problem(),
-            cycle_index=0,
+        candidate = _AuditCandidate(
+            "candidate_mode_gate",
+            _AuditAtom("candidate_mode_gate", _hash("5")),
+            ("grant", "firms", "mode", mode),
         )
-        if observation.authority_blockers != ("eval_safety_gate_unavailable",):
+        simulation = _audit_simulation(candidate.candidate_id)
+        observation = _run_validator_foundry_value_port(
+            candidate=candidate,
+            simulation=simulation,
+            problem=_audit_problem(),
+            evaluation_mode=mode,
+            owner_gateway=RealValueOwnerGateway(repo_root=_repo_root()),
+            requested_method_fqn="causal.inference.synthetic_control@1.0.0",
+        )
+        if observation.authority_blockers != ("eval_safety_verifier_unresolved",):
             raise AssertionError(f"{mode} did not block on EvalSafety")
         blocked.append(mode)
     return "EvalSafety blocks " + ",".join(blocked)
@@ -3191,12 +3239,10 @@ def _receipt_object(identification_status: str) -> ValueGateReceipt:
     return ValueGateReceipt.model_validate(payload)
 
 
-def _audit_simulation() -> Any:
-    from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
-
+def _audit_simulation(candidate_id: str = "candidate_audit") -> SimulationPortObservation:
     world = _audit_world_record()
     return SimulationPortObservation(
-        candidate_id="candidate_audit",
+        candidate_id=candidate_id,
         status="joint_simulated",
         simulation_ref=_hash("7"),
         k_world_ref_before=world.content_hash,
@@ -3224,7 +3270,7 @@ class _AdversarialAuditGateway:
     expected_policy_context_ref: str | None = None
     selection_diagram: object | None = None
 
-    def load_panel_observational_data(
+    def load_value_data_profile(
         self,
         *,
         candidate: object,
@@ -3233,7 +3279,7 @@ class _AdversarialAuditGateway:
     ) -> object:
         from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
 
-        return RealValueOwnerGateway(repo_root=_repo_root()).load_panel_observational_data(
+        return RealValueOwnerGateway(repo_root=_repo_root()).load_value_data_profile(
             candidate=candidate,
             problem=problem,  # type: ignore[arg-type]
             world_record=world_record,
@@ -3308,18 +3354,14 @@ class _AdversarialAuditGateway:
 
 @cache
 def _run_real_owner_value_refusal() -> Any:
-    from polisyos.runtime.quality.generation_cycle import FoundryValuePort
-
     lane = _canonical_first_vertical_lane()
     return _quiet_call(
-        lambda: FoundryValuePort(
-            repo_root=_repo_root(),
-            cycle_substrate_context=lane["cycle_substrate_context"],
-        )(
+        lambda: _run_validator_foundry_value_port(
             candidate=lane["candidate"],
             simulation=lane["simulation"],
             problem=lane["problem"],
-            cycle_index=0,
+            repo_root=_repo_root(),
+            cycle_substrate_context=lane["cycle_substrate_context"],
         )
     )
 

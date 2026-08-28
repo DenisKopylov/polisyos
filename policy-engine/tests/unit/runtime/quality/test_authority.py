@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
 from polisyos.runtime.http.services.temporal import (
     build_time_source_consistency_audit_projection,
 )
@@ -29,6 +30,10 @@ from polisyos.runtime.quality.authority import (
     deserialize_authority_envelope,
     seal_consumed_input_set,
     serialize_authority_envelope,
+)
+from polisyos.runtime.quality.evaluation_safety import (
+    EvalSafetyMetricsProjection,
+    evaluation_safety_metrics_projection_identity,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -121,6 +126,343 @@ def _time_source_decision(payload: dict[str, object]):
         enforce_s12=False,
         enforce_candidate_firewall=False,
     )
+
+
+def _eval_safety_metrics_projection_payload() -> dict[str, object]:
+    boundary = {
+        "boundary_id": "eval-safety-egress-test-v1",
+        "authoritative_for": ["runtime_closeout_authority", "dashboard_display"],
+        "may_not_use_for": [
+            "attempted_evaluation_admission",
+            "promotion",
+            "evaluation_execution",
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "advisory",
+        "rule_version_refs": ["policyos.runtime.eval_safety.metrics_projection.v1"],
+        "evidence_kind": "derivation",
+        "decision_grade": "descriptive_only",
+        "known_limits": ["informational_projection_only"],
+    }
+    denied_uses = [
+        "attempted_evaluation_admission",
+        "promotion",
+        "evaluation_execution",
+    ]
+    projection = EvalSafetyMetricsProjection.model_validate(
+        {
+            "attempt_disposition": "passed",
+            "selected_decision_artifact_refs": [],
+            "reconciled_decision_artifact_refs": [],
+            "unreconciled_decision_artifact_refs": [],
+            "conflicting_decision_artifact_refs": [],
+            "denominator_decision_ids": [],
+            "unsafe_attempt_blocked_count": 0,
+            "near_miss_count": 0,
+            "near_miss_classification_status": "complete",
+            "unclassified_blocked_decision_ids": [],
+            "reconciliation_status": "complete",
+            "generated_at": "2026-08-28T08:00:00Z",
+            "source_event_refs": [],
+            "authority_boundary": boundary,
+            "authority_surface_packet": {
+                "schema_version": "policyos.runtime.eval_safety_surface_packet.v1",
+                "boundary": boundary,
+                "surfaces": {
+                    "run": {
+                        "surface": "run",
+                        "purpose": "runtime_closeout_authority",
+                        "status": "allow",
+                        "authority_result": "informational_projection_only",
+                        "consumed_boundary_id": "eval-safety-egress-test-v1",
+                        "projection_scope": "faithful_eval_safety_projection",
+                        "may_not_use_for": denied_uses,
+                    },
+                    "artifact": {
+                        "surface": "artifact",
+                        "purpose": "runtime_closeout_authority",
+                        "status": "allow",
+                        "authority_result": "informational_projection_only",
+                        "consumed_boundary_id": "eval-safety-egress-test-v1",
+                        "projection_scope": "faithful_eval_safety_projection",
+                        "may_not_use_for": denied_uses,
+                    },
+                    "lineage": {
+                        "surface": "lineage",
+                        "purpose": "runtime_closeout_authority",
+                        "status": "allow",
+                        "authority_result": "informational_projection_only",
+                        "consumed_boundary_id": "eval-safety-egress-test-v1",
+                        "projection_scope": "faithful_eval_safety_projection",
+                        "may_not_use_for": denied_uses,
+                    },
+                    "dashboard": {
+                        "surface": "dashboard",
+                        "purpose": "dashboard_display",
+                        "status": "allow",
+                        "authority_result": "informational_projection_only",
+                        "consumed_boundary_id": "eval-safety-egress-test-v1",
+                        "projection_scope": "faithful_eval_safety_projection",
+                        "may_not_use_for": denied_uses,
+                    },
+                },
+            },
+        }
+    )
+    return projection.model_dump(mode="json")
+
+
+def test_eval_safety_surface_rejects_removed_packet_with_boundary_intact(
+    tmp_path: Path,
+) -> None:
+    identity = evaluation_safety_metrics_projection_identity("artifact")
+    artifact_store = FileSystemCAS(tmp_path / "cas").for_tenant(
+        "tenant-1",
+        cell_id="cell-a",
+    )
+
+    def persist(
+        payload: dict[str, object],
+        *,
+        kind: str = identity.kind,
+        schema_name: str = identity.schema_name,
+        schema_version: str = identity.schema_version,
+    ):
+        artifact_ref = artifact_store.put_json(
+            payload,
+            PutOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=schema_name,
+                    version=schema_version,
+                ),
+                inputs=[],
+            ),
+        )
+        verification = artifact_store.verify(artifact_ref.artifact_id)
+        manifest = artifact_store.get_manifest(artifact_ref.artifact_id)
+        assert verification.ok
+        assert manifest.kind == kind
+        assert manifest.artifact_schema == SchemaInfo(
+            name=schema_name,
+            version=schema_version,
+        )
+        return artifact_ref.artifact_id
+
+    def decide(artifact_id, *, store=artifact_store, surface_payload=None):
+        return authority_surface_decision(
+            {} if surface_payload is None else surface_payload,
+            surface="artifact",
+            purpose=identity.purpose,
+            artifact_store=store,
+            artifact_id=artifact_id,
+            require_cas_integrity=True,
+            enforce_time_source=False,
+            enforce_s12=False,
+            enforce_candidate_firewall=False,
+        )
+
+    exact_payload = _eval_safety_metrics_projection_payload()
+    exact_artifact_id = persist(exact_payload)
+    exact_decision = decide(exact_artifact_id)
+
+    packet_removed = deepcopy(exact_payload)
+    removed_packet = packet_removed.pop("authority_surface_packet")
+    assert removed_packet == exact_payload["authority_surface_packet"]
+    assert set(packet_removed) == set(exact_payload) - {"authority_surface_packet"}
+    for marker in (
+        "authority_boundary",
+        "attempt_disposition",
+        "denominator_decision_ids",
+        "unsafe_attempt_blocked_count",
+        "near_miss_count",
+        "reconciliation_status",
+    ):
+        assert packet_removed[marker] == exact_payload[marker]
+
+    wrong_purpose = deepcopy(exact_payload)
+    wrong_purpose["authority_surface_packet"]["surfaces"]["artifact"]["purpose"] = (
+        "dashboard_display"
+    )
+    wrong_boundary = deepcopy(exact_payload)
+    wrong_boundary["authority_surface_packet"]["surfaces"]["artifact"][
+        "consumed_boundary_id"
+    ] = "eval-safety-egress-foreign-boundary"
+    wrong_scope = deepcopy(exact_payload)
+    wrong_scope["authority_surface_packet"]["surfaces"]["artifact"][
+        "projection_scope"
+    ] = "marker_present_but_not_faithful"
+
+    semantic_decisions = {
+        "packet_removed": decide(persist(packet_removed)),
+        "wrong_purpose": decide(persist(wrong_purpose)),
+        "wrong_boundary": decide(persist(wrong_boundary)),
+        "wrong_scope": decide(persist(wrong_scope)),
+    }
+
+    class ManifestFailureStore:
+        def get_manifest(self, artifact_id: object) -> object:
+            del artifact_id
+            raise OSError("manifest-read-failed")
+
+        def get_bytes(self, artifact_id: object) -> bytes:
+            return artifact_store.get_bytes(artifact_id)
+
+        def verify(self, artifact_id: object) -> object:
+            return artifact_store.verify(artifact_id)
+
+    class MissingKindStore(ManifestFailureStore):
+        def get_manifest(self, artifact_id: object) -> object:
+            del artifact_id
+            return object()
+
+    favorable_generic_payload = _surface_authority_payload()
+    manifest_identity_decisions = {
+        "manifest_get_failure": decide(
+            exact_artifact_id,
+            store=ManifestFailureStore(),
+            surface_payload=favorable_generic_payload,
+        ),
+        "manifest_kind_missing": decide(
+            exact_artifact_id,
+            store=MissingKindStore(),
+            surface_payload=favorable_generic_payload,
+        ),
+    }
+    unrelated_kind = "test.runtime.unrelated_projection"
+    unrelated_schema = "test.runtime.unrelated_projection.v1"
+    unrelated_artifact_id = persist(
+        favorable_generic_payload,
+        kind=unrelated_kind,
+        schema_name=unrelated_schema,
+    )
+    unrelated_decision = decide(
+        unrelated_artifact_id,
+        surface_payload=favorable_generic_payload,
+    )
+
+    packet_surfaces = tuple(
+        exact_payload["authority_surface_packet"]["surfaces"].values()
+    )
+    packet_purposes = {row["purpose"] for row in packet_surfaces}
+    packet_denials = {
+        denied_use
+        for row in packet_surfaces
+        for denied_use in row["may_not_use_for"]
+    }
+    assert set(exact_payload["authority_boundary"]["authoritative_for"]) == packet_purposes
+    assert set(exact_payload["authority_boundary"]["may_not_use_for"]) == packet_denials
+    assert "publication" not in packet_purposes
+    assert "promotion" in packet_denials
+    assert "scorecard_authority" not in packet_denials
+
+    def mutate_boundaries(
+        *,
+        authoritative_for: set[str] | None = None,
+        may_not_use_for: set[str] | None = None,
+    ) -> dict[str, object]:
+        mutated = deepcopy(exact_payload)
+        boundaries = (
+            mutated["authority_boundary"],
+            mutated["authority_surface_packet"]["boundary"],
+        )
+        for boundary in boundaries:
+            if authoritative_for is not None:
+                boundary["authoritative_for"] = sorted(authoritative_for)
+            if may_not_use_for is not None:
+                boundary["may_not_use_for"] = sorted(may_not_use_for)
+        return mutated
+
+    boundary_decisions = {
+        "unauthorized_purpose_added": decide(
+            persist(
+                mutate_boundaries(
+                    authoritative_for=packet_purposes | {"publication"},
+                )
+            )
+        ),
+        "required_denial_omitted": decide(
+            persist(
+                mutate_boundaries(
+                    may_not_use_for=packet_denials - {"promotion"},
+                )
+            )
+        ),
+        "undeclared_denial_added": decide(
+            persist(
+                mutate_boundaries(
+                    may_not_use_for=packet_denials | {"scorecard_authority"},
+                )
+            )
+        ),
+    }
+    wrong_schema_name_payload = deepcopy(exact_payload)
+    wrong_schema_name_payload["generated_at"] = "2026-08-28T08:01:00Z"
+    wrong_schema_version_payload = deepcopy(exact_payload)
+    wrong_schema_version_payload["generated_at"] = "2026-08-28T08:02:00Z"
+    schema_decisions = {
+        "schema_name_mismatch": decide(
+            persist(
+                wrong_schema_name_payload,
+                schema_name="test.runtime.wrong_eval_safety_schema.v1",
+            )
+        ),
+        "schema_version_mismatch": decide(
+            persist(wrong_schema_version_payload, schema_version="2.0")
+        ),
+    }
+
+    blob_path, _manifest_path = artifact_store.get_paths(exact_artifact_id)
+    blob_path.write_bytes(b'{"authority_boundary":"corrupt-cas-control"}')
+    corrupt_cas_decision = decide(exact_artifact_id)
+
+    assert exact_decision.status == "allowed"
+    assert exact_decision.blocking is False
+    assert {
+        name: (decision.status, decision.blocking)
+        for name, decision in semantic_decisions.items()
+    } == {
+        "packet_removed": ("blocked", True),
+        "wrong_purpose": ("blocked", True),
+        "wrong_boundary": ("blocked", True),
+        "wrong_scope": ("blocked", True),
+    }
+    strict_identity_decisions = {
+        **manifest_identity_decisions,
+        **boundary_decisions,
+        **schema_decisions,
+    }
+    assert {
+        name: (decision.status, decision.blocking)
+        for name, decision in strict_identity_decisions.items()
+    } == {
+        "manifest_get_failure": ("blocked", True),
+        "manifest_kind_missing": ("blocked", True),
+        "unauthorized_purpose_added": ("blocked", True),
+        "required_denial_omitted": ("blocked", True),
+        "undeclared_denial_added": ("blocked", True),
+        "schema_name_mismatch": ("blocked", True),
+        "schema_version_mismatch": ("blocked", True),
+    }
+    assert {
+        name: decision.reason for name, decision in strict_identity_decisions.items()
+    } == {
+        "manifest_get_failure": "eval_safety_projection_identity_unresolved",
+        "manifest_kind_missing": "eval_safety_projection_identity_unresolved",
+        "unauthorized_purpose_added": "eval_safety_projection_boundary_binding_invalid",
+        "required_denial_omitted": "eval_safety_projection_boundary_binding_invalid",
+        "undeclared_denial_added": "eval_safety_projection_boundary_binding_invalid",
+        "schema_name_mismatch": "eval_safety_projection_schema_mismatch",
+        "schema_version_mismatch": "eval_safety_projection_schema_mismatch",
+    }
+    assert unrelated_decision.status == "allowed"
+    assert unrelated_decision.blocking is False
+    assert unrelated_decision.integrity_status == "verified"
+    assert unrelated_decision.reason == "authority_boundary_allows_surface_purpose"
+    assert "eval_safety_projection" not in unrelated_decision.composed_gate_inputs
+    assert corrupt_cas_decision.blocking is True
+    assert corrupt_cas_decision.integrity_status == "failed"
 
 
 def test_declared_time_source_consistency_is_the_only_projection_pass() -> None:

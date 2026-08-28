@@ -6,6 +6,7 @@ import time
 import uuid
 from collections.abc import Mapping
 from contextlib import AbstractContextManager, contextmanager, nullcontext
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -13,12 +14,19 @@ from typing import TYPE_CHECKING, Any, cast
 from opentelemetry.context import attach, detach
 
 from polisyos.common.logger import get_logger
-from polisyos.core import artifacts
+from polisyos.core import artifacts, registry, run
 from polisyos.core.artifacts.async_store import ensure_async_artifact_store
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import (
+    CanonSpec,
+    from_canonical_bytes,
+    to_canonical_bytes,
+)
+from polisyos.core.canon import (
+    content_hash as canonical_content_hash,
+)
 from polisyos.core.contracts import (
     CapabilityDiscoveryRequest,
     CapabilityDiscoveryResponse,
@@ -77,6 +85,10 @@ from polisyos.runtime.http.execution_policy import (
     build_capability_manifest_payload,
 )
 from polisyos.runtime.http.resilience import guard_runtime_cas, guard_runtime_control_store
+from polisyos.runtime.http.services.adapters.core_run import (
+    derive_core_run_dir,
+    load_terminal_core_run_source,
+)
 from polisyos.runtime.http.services.control.admission import (
     _record_control_plane_job_admission_metric,
     _record_control_plane_job_execution_metric,
@@ -90,6 +102,16 @@ from polisyos.runtime.http.services.control.artifacts import (
     write_runtime_authority_artifact,
 )
 from polisyos.runtime.http.services.control.capabilities import CapabilityManifestMixin
+from polisyos.runtime.http.services.control.evaluation_safety import (
+    EvaluationSafetyAdmissionVerifier,
+    EvaluationSafetyAttemptAuthorities,
+    EvaluationSafetyDecisionEvidence,
+    EvaluationSafetyPersistenceContext,
+    EvaluationSafetyPersistenceService,
+    EvaluationSafetyReplayMaterial,
+    PersistedEvaluationSafetyAttempt,
+    PersistedEvaluationSafetyProjection,
+)
 from polisyos.runtime.http.services.control.lex_pipeline import LexPipelineMixin
 from polisyos.runtime.http.services.control.nl_pipeline import NaturalLanguageRunMixin
 from polisyos.runtime.http.services.control.response_shapes import (
@@ -99,6 +121,7 @@ from polisyos.runtime.http.services.control.workspace_loop_transition import (
     ControlPlaneWorkspaceLoopTransitionMixin,
     _WorkflowExecutionNonAuthorityError,
 )
+from polisyos.runtime.quality.authority import GovernanceMetadata, SameInputClosure
 from polisyos.runtime.quality.authority_reconciliation import (
     AuthorityReconciliationReport,
     reconcile_authority_ref,
@@ -108,6 +131,13 @@ from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_SCHEMA_VERSION,
     SERIOUS_EXECUTION_PROFILES,
     DiagnosticEvent,
+)
+from polisyos.runtime.quality.evaluation_safety import (
+    EvalSafetyAppointmentResolution,
+    EvalSafetyAuthorityResolution,
+    EvaluationAttemptIntake,
+    EvaluationExecutionContext,
+    evaluation_execution_context_hash,
 )
 from polisyos.runtime.quality.event_log import (
     DiagnosticEventPayloadPolicy,
@@ -150,6 +180,8 @@ from ..control_worker import ControlWorker
 
 logger = get_logger(__name__)
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
+_EVALUATION_SAFETY_ATTEMPT_KEY = "evaluation_safety_attempt"
+_EVALUATION_SAFETY_EXECUTION_CONTEXT_KEY = "_polisyos_eval_safety_execution_context"
 _EPOCH_VALIDITY_INTAKE_FAILURE_CODES = frozenset(
     {
         "verifier_not_configured",
@@ -183,6 +215,100 @@ def _clean_runtime_text(value: object) -> str | None:
     return text or None
 
 
+class _ControlEvaluationSafetyAuthorityResolver:
+    """Fail-closed authority resolver; it appoints and verifies nothing."""
+
+    def resolve(self, artifact_ref: EvalSafetyArtifactRef) -> EvalSafetyAuthorityResolution:
+        return EvalSafetyAuthorityResolution(
+            status="blocked",
+            artifact_ref=artifact_ref,
+            blocker_codes=("polisyos.eval_safety.authority_unresolved@1.0.0",),
+            predicate_provenance=("not_established",),
+            resolved_at=datetime.now(UTC),
+        )
+
+
+class _ControlEvaluationSafetyAppointmentResolver:
+    """Fail-closed appointment resolver; institutional absence stays explicit."""
+
+    def resolve(self, appointment_ref: EvalSafetyArtifactRef) -> EvalSafetyAppointmentResolution:
+        return EvalSafetyAppointmentResolution(
+            status="blocked",
+            appointment_ref=appointment_ref,
+            appointment=None,
+            blocker_codes=("polisyos.eval_safety.verifier_unappointed@1.0.0",),
+            predicate_provenance=("not_established",),
+            verified_at=datetime.now(UTC),
+        )
+
+
+class _ControlEvaluationSafetyVerifierRegistry:
+    """Empty open registry; unknown contract IDs fail closed without branching."""
+
+    def resolve(self, evidence_contract_id: str) -> None:
+        del evidence_contract_id
+        return None
+
+
+class _ControlEvaluationSafetyCurrentStateResolver:
+    """Immediate exact-context replay cache, never an authority producer."""
+
+    def __init__(self) -> None:
+        self._material_by_context: dict[
+            tuple[str, str, str | None], EvaluationSafetyReplayMaterial
+        ] = {}
+
+    @staticmethod
+    def _key(context: EvaluationExecutionContext) -> tuple[str, str, str | None]:
+        certificate_id = (
+            context.eval_safety_certificate_ref.artifact_id
+            if context.eval_safety_certificate_ref is not None
+            else None
+        )
+        return (
+            str(evaluation_execution_context_hash(context)),
+            context.intake_ref.artifact_id,
+            certificate_id,
+        )
+
+    def register(
+        self,
+        *,
+        context: EvaluationExecutionContext,
+        material: EvaluationSafetyReplayMaterial,
+    ) -> None:
+        if (
+            material.intake_ref != context.intake_ref
+            or material.certificate_ref != context.eval_safety_certificate_ref
+        ):
+            raise ValueError("evaluation_safety_current_state_binding_mismatch")
+        self._material_by_context[self._key(context)] = material
+
+    def resolve(self, context: EvaluationExecutionContext) -> EvaluationSafetyReplayMaterial | None:
+        material = self._material_by_context.get(self._key(context))
+        if material is None:
+            return None
+        expected_head = (
+            material.revision_nodes[-1].revision_ref if material.revision_nodes else None
+        )
+        if expected_head != context.eval_safety_revision_head_ref:
+            return None
+        return material
+
+
+@dataclass(frozen=True, slots=True)
+class _ControlEvaluationSafetyResult:
+    """One container-owned attempt result before any evaluator can run."""
+
+    persisted: PersistedEvaluationSafetyAttempt
+    projection: PersistedEvaluationSafetyProjection
+    execution_context: EvaluationExecutionContext | None
+
+    @property
+    def blocked(self) -> bool:
+        return self.persisted.decision.safety.status == "blocked"
+
+
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
     from typing import Protocol
@@ -193,6 +319,7 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
     from polisyos.fabric.retrieval import RetrievalProviders, RetrievalService
+    from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
@@ -825,6 +952,7 @@ class ControlPlaneService(
         decision_validity_service: DecisionValidityService | None = None,
         promotion_runtime: PromotionRuntime | None = None,
         epoch_claim_lifecycle_bridge: EpochClaimLifecycleBridgeService | None = None,
+        evaluation_safety_persistence_service: EvaluationSafetyPersistenceService | None = None,
     ) -> None:
         from polisyos.fabric.retrieval import RetrievalService
 
@@ -873,10 +1001,44 @@ class ControlPlaneService(
             )
         else:
             self._control_store = control_store
-        self._diagnostic_event_log = RuntimeDiagnosticEventLog(
-            store=self._control_store,
-            artifact_store=self._artifact_store,
+        if evaluation_safety_persistence_service is not None and not isinstance(
+            evaluation_safety_persistence_service,
+            EvaluationSafetyPersistenceService,
+        ):
+            raise ValueError("evaluation_safety_persistence_owner_invalid")
+        if evaluation_safety_persistence_service is None:
+            self._diagnostic_event_log = RuntimeDiagnosticEventLog(
+                store=self._control_store,
+                artifact_store=self._artifact_store,
+            )
+            self._evaluation_safety_persistence_service = EvaluationSafetyPersistenceService(
+                artifact_store=self._artifact_store,
+                event_log=self._diagnostic_event_log,
+            )
+        else:
+            supplied_event_log = evaluation_safety_persistence_service._event_log
+            if (
+                evaluation_safety_persistence_service._artifact_store is not self._artifact_store
+                or supplied_event_log._store is not self._control_store
+                or supplied_event_log._artifact_store is not self._artifact_store
+            ):
+                raise ValueError("evaluation_safety_persistence_owner_mismatch")
+            self._diagnostic_event_log = supplied_event_log
+            self._evaluation_safety_persistence_service = evaluation_safety_persistence_service
+        self._evaluation_safety_state_resolver = _ControlEvaluationSafetyCurrentStateResolver()
+        self._evaluation_safety_authority_resolver = _ControlEvaluationSafetyAuthorityResolver()
+        self._evaluation_safety_appointment_resolver = _ControlEvaluationSafetyAppointmentResolver()
+        self._evaluation_safety_verifier_registry = _ControlEvaluationSafetyVerifierRegistry()
+        self._evaluation_safety_admission_verifier = EvaluationSafetyAdmissionVerifier(
+            persistence_service=self._evaluation_safety_persistence_service,
+            current_state_resolver=self._evaluation_safety_state_resolver,
+            authority_resolver=self._evaluation_safety_authority_resolver,
+            appointment_resolver=self._evaluation_safety_appointment_resolver,
+            verifier_registry=self._evaluation_safety_verifier_registry,
         )
+        self._evaluation_safety_decision_evidence: dict[
+            tuple[str, str], EvaluationSafetyDecisionEvidence
+        ] = {}
         self._human_decision_sink = HumanDecisionAuthoritySink(
             artifact_store=self._artifact_store,
             event_log=self._diagnostic_event_log,
@@ -962,6 +1124,7 @@ class ControlPlaneService(
         compiler_gateway: _DesignProblemGatewayClient | None,
         budget_state: BudgetState,
         recursive_budget: RecursiveCycleBudget,
+        root_evaluation_context: EvaluationExecutionContext | None,
     ) -> CompiledRecursiveGenerationCycleRun:
         """Run the HTTP composition through its container-owned epoch strangle."""
 
@@ -976,6 +1139,8 @@ class ControlPlaneService(
             compiler_gateway=compiler_gateway,
             budget_state=budget_state,
             recursive_budget=recursive_budget,
+            root_evaluation_context=root_evaluation_context,
+            eval_safety_verifier=self._evaluation_safety_admission_verifier,
             promotion_runtime=self._promotion_runtime,
             repo_root=Path.cwd(),
         )
@@ -1761,6 +1926,300 @@ class ControlPlaneService(
         )
         return state_payload
 
+    def _evaluation_safety_persistence_context(
+        self,
+        *,
+        intake: EvaluationAttemptIntake,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+    ) -> EvaluationSafetyPersistenceContext:
+        trace = self._job_trace_context(job_id=job.job_id, payload=payload)
+        tenant_id = _clean_runtime_text(payload.get("tenant_id")) or "tenant-unknown"
+        cell_id = _clean_runtime_text(payload.get("cell_id"))
+        run_id = str(job.run_id or payload.get("run_id") or "run-unknown")
+        input_refs = tuple(ref.artifact_id for ref in intake.evaluation_input_refs)
+        closure_payload = {
+            "attempt_id": intake.attempt_id,
+            "run_id": run_id,
+            "job_id": job.job_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "evidence_input_refs": input_refs,
+        }
+        mode_ref = canonical_content_hash(
+            to_canonical_bytes(intake.mode_resolution.model_dump(mode="json")),
+            prefix=True,
+        )
+        return EvaluationSafetyPersistenceContext(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            job_id=job.job_id,
+            trace_id=str(trace["trace_id"]),
+            span_id=str(trace["span_id"]),
+            parent_span_id=(str(trace["parent_span_id"]) if trace.get("parent_span_id") else None),
+            requested_execution_profile=(
+                job.requested_execution_profile or job.effective_execution_profile
+            ),
+            effective_execution_profile=job.effective_execution_profile,
+            phase="evaluation_safety",
+            generated_at=intake.requested_at,
+            as_of_time=intake.requested_at,
+            same_input_closure=SameInputClosure(
+                closure_id=f"eval-safety:{intake.attempt_id}",
+                status="closed",
+                run_id=run_id,
+                job_id=job.job_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                effective_mode_ref=mode_ref,
+                evidence_input_refs=input_refs,
+                closure_sha256=canonical_content_hash(to_canonical_bytes(closure_payload)),
+            ),
+            effective_mode_ref=mode_ref,
+            governance=GovernanceMetadata(
+                classification="internal",
+                authority_boundary="runtime",
+                pii="none",
+                retention_policy="runtime-quality-90d",
+                review_status="runtime_verified",
+                override_policy="no_override",
+                approval_policy="runtime_owner_required",
+            ),
+        )
+
+    def _admit_evaluation_safety_attempt(
+        self,
+        *,
+        extension_payload: Mapping[str, Any],
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+    ) -> _ControlEvaluationSafetyResult | None:
+        if _EVALUATION_SAFETY_ATTEMPT_KEY not in extension_payload:
+            return None
+        intake = EvaluationAttemptIntake.model_validate(
+            extension_payload[_EVALUATION_SAFETY_ATTEMPT_KEY]
+        )
+        persistence_context = self._evaluation_safety_persistence_context(
+            intake=intake,
+            job=job,
+            payload=payload,
+        )
+        authorities = EvaluationSafetyAttemptAuthorities(
+            mode_basis_ref=None,
+            mode_basis=None,
+            pack_ref=None,
+            pack=None,
+            semantic_facet_denominator_receipt_ref=None,
+            facet_registry=None,
+            facet_denominator=None,
+            authority_resolver=self._evaluation_safety_authority_resolver,
+            appointment_resolver=self._evaluation_safety_appointment_resolver,
+            verifier_registry=self._evaluation_safety_verifier_registry,
+            evidence=(),
+            classification_offer=None,
+            classification=None,
+            certificate_issue_cause_ref=None,
+        )
+        persisted = self._evaluation_safety_persistence_service.compose_and_persist_attempt(
+            intake=intake,
+            authorities=authorities,
+            context=persistence_context,
+            evaluated_at=intake.requested_at,
+        )
+        evidence_key = (
+            persisted.owner_evidence.decision_ref.artifact_id,
+            persisted.owner_evidence.decision_ref.content_hash,
+        )
+        self._evaluation_safety_decision_evidence[evidence_key] = persisted.owner_evidence
+        reduction = self._evaluation_safety_persistence_service.reduce_decisions(
+            evidence=tuple(self._evaluation_safety_decision_evidence.values())
+        )
+        projection = self._evaluation_safety_persistence_service.persist_metrics_projection(
+            reduction=reduction,
+            context=persistence_context,
+            generated_at=intake.requested_at,
+        )
+        safety = persisted.decision.safety
+        execution_context: EvaluationExecutionContext | None = None
+        if safety.status == "passed" and safety.evaluation_mode is not None:
+            revision_head = (
+                persisted.revision_nodes[-1].revision_ref if persisted.revision_nodes else None
+            )
+            execution_context = EvaluationExecutionContext(
+                intake_ref=persisted.intake_ref,
+                evaluator_owner_id=intake.evaluator_owner_id,
+                design_problem_ref=intake.design_problem_ref,
+                evaluation_mode=safety.evaluation_mode,
+                candidate_ref=intake.candidate_ref,
+                world_model_record_ref=intake.world_model_record_ref,
+                target_population_scope_ref=intake.target_population_scope_ref,
+                rule_version=(
+                    intake.requested_rule_version or "policyos.runtime.eval-safety.simulate-only.v1"
+                ),
+                intended_start_at=intake.intended_start_at,
+                evaluation_input_refs=intake.evaluation_input_refs,
+                evaluation_input_provenance=intake.evaluation_input_provenance,
+                eval_safety_certificate_ref=persisted.certificate_ref,
+                eval_safety_revision_head_ref=revision_head,
+            )
+            replay_material = EvaluationSafetyReplayMaterial(
+                intake_ref=persisted.intake_ref,
+                request_ref=persisted.request_ref,
+                mode_basis_ref=None,
+                mode_basis=None,
+                pack_ref=None,
+                pack=None,
+                facet_registry=None,
+                facet_denominator=None,
+                authority_resolver=self._evaluation_safety_authority_resolver,
+                appointment_resolver=self._evaluation_safety_appointment_resolver,
+                verifier_registry=self._evaluation_safety_verifier_registry,
+                evidence=(),
+                classification=None,
+                decision_ref=persisted.decision_ref,
+                certificate_ref=persisted.certificate_ref,
+                revision_nodes=persisted.revision_nodes,
+                decision_evaluated_at=safety.evaluated_at,
+                revalidated_at=safety.evaluated_at,
+            )
+            self._evaluation_safety_state_resolver.register(
+                context=execution_context,
+                material=replay_material,
+            )
+        return _ControlEvaluationSafetyResult(
+            persisted=persisted,
+            projection=projection,
+            execution_context=execution_context,
+        )
+
+    def _blocked_evaluation_safety_progress(
+        self,
+        *,
+        result: _ControlEvaluationSafetyResult,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        run_id = str(job.run_id or payload.get("run_id") or "run-unknown")
+        run_dir = derive_core_run_dir(self._core_runs_root, run_id)
+        projection_ref = ArtifactRef(
+            artifact_id=artifacts.ArtifactID.model_validate(
+                result.projection.projection_ref.artifact_id
+            ),
+            kind=result.projection.projection_ref.artifact_type,
+            media_type="application/json",
+        )
+        blocker_codes = list(result.persisted.decision.safety.blocker_codes)
+        if run_dir.exists():
+            terminal_source = load_terminal_core_run_source(
+                store=self._artifact_store,
+                core_runs_root=self._core_runs_root,
+                run_id=run_id,
+            )
+            if terminal_source.manifest.status != "error" or terminal_source.manifest.outputs != [
+                projection_ref
+            ]:
+                raise ValueError("evaluation_safety_terminal_manifest_mismatch")
+            manifest_ref = terminal_source.manifest_ref
+        else:
+            registry_bundle = registry.build_default_registry_bundle(
+                self._artifact_store
+            ).bundle_ref
+            run_context = run.RunContext.start(
+                self._artifact_store,
+                registry_bundle,
+                producer=artifacts.ProducerInfo(
+                    component="polisyos.runtime.http.control.evaluation_safety",
+                    version="1.0.0",
+                ),
+                run_dir=run_dir,
+                run_id=run_id,
+                tenant_id=_clean_runtime_text(payload.get("tenant_id")),
+                cell_id=_clean_runtime_text(payload.get("cell_id")),
+            )
+            run_context.add_output(projection_ref)
+            manifest_ref = run_context.finalize(
+                status="error",
+                errors=[
+                    {
+                        "code": "evaluation_safety_attempt_blocked",
+                        "blocker_codes": blocker_codes,
+                    }
+                ],
+            )
+        projection = result.projection.projection
+        progress = dict(job.progress)
+        artifacts_index = progress.get("artifacts_index")
+        artifacts_index = dict(artifacts_index) if isinstance(artifacts_index, Mapping) else {}
+        artifacts_index.update(
+            {
+                "eval_safety_projection_ref": result.projection.projection_ref.artifact_id,
+                "manifest_ref": str(manifest_ref.artifact_id),
+            }
+        )
+        progress.update(
+            {
+                "state": "failed",
+                "runtime_state": "blocked",
+                "phase": "evaluation_safety",
+                "run_id": run_id,
+                "authority_path": "evaluation_safety",
+                "authority_result": "blocked",
+                "eval_safety_projection_ref": (result.projection.projection_ref.artifact_id),
+                "eval_safety_disposition": result.persisted.decision.safety.status,
+                "eval_safety_blocker_codes": blocker_codes,
+                "eval_safety_counters": {
+                    "unsafe_attempt_blocked_count": (projection.unsafe_attempt_blocked_count),
+                    "near_miss_count": projection.near_miss_count,
+                    "near_miss_classification_status": (projection.near_miss_classification_status),
+                    "reconciliation_status": projection.reconciliation_status,
+                },
+                "manifest_ref": str(manifest_ref.artifact_id),
+                "artifacts_index": artifacts_index,
+            }
+        )
+        return progress
+
+    def _finish_blocked_evaluation_safety_attempt(
+        self,
+        *,
+        result: _ControlEvaluationSafetyResult,
+        job: ControlJobRecord,
+        payload: Mapping[str, Any],
+        capability_manifest_ref: str,
+    ) -> None:
+        progress = self._blocked_evaluation_safety_progress(
+            result=result,
+            job=job,
+            payload=payload,
+        )
+        self._control_store.fail_job(
+            job_id=job.job_id,
+            error_message="evaluation_safety_attempt_blocked",
+            capability_manifest_ref=capability_manifest_ref,
+            progress=progress,
+        )
+        self._emit_runtime_diagnostic_event(
+            job_id=job.job_id,
+            run_id=job.run_id,
+            execution_profile=job.effective_execution_profile,
+            phase="evaluation_safety",
+            event_type="polisyos.runtime.diagnostic.blocker.v1",
+            state_before="running",
+            state_after="failed",
+            payload=payload,
+            event_payload={
+                "job_kind": job.kind,
+                "blocker_codes": progress["eval_safety_blocker_codes"],
+                "projection_authority": "informational_projection_only",
+            },
+            artifact_refs=[
+                progress["eval_safety_projection_ref"],
+                progress["manifest_ref"],
+            ],
+            blocking_status="blocking",
+        )
+
     def _process_control_job(self, job: ControlJobRecord) -> None:
         payload: dict[str, Any] = {}
         try:
@@ -1792,6 +2251,28 @@ class ControlPlaneService(
                         job=job,
                         capability_manifest_ref=capability_manifest_ref,
                     )
+                    evaluation_safety = self._admit_evaluation_safety_attempt(
+                        extension_payload=cast(
+                            "Mapping[str, Any]", state_payload.get("params") or {}
+                        ),
+                        job=job,
+                        payload=payload,
+                    )
+                    if evaluation_safety is not None and evaluation_safety.blocked:
+                        self._finish_blocked_evaluation_safety_attempt(
+                            result=evaluation_safety,
+                            job=job,
+                            payload=payload,
+                            capability_manifest_ref=capability_manifest_ref,
+                        )
+                        return
+                    if (
+                        evaluation_safety is not None
+                        and evaluation_safety.execution_context is not None
+                    ):
+                        state_payload[_EVALUATION_SAFETY_EXECUTION_CONTEXT_KEY] = (
+                            evaluation_safety.execution_context.model_dump(mode="json")
+                        )
                     progress = self._execute_workflow_control_transition(
                         state_payload,
                         payload["checkpoint_policy"],
@@ -1842,6 +2323,19 @@ class ControlPlaneService(
                     capability_manifest_ref = (
                         job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
                     )
+                    evaluation_safety = self._admit_evaluation_safety_attempt(
+                        extension_payload=cast("Mapping[str, Any]", payload.get("context") or {}),
+                        job=job,
+                        payload=payload,
+                    )
+                    if evaluation_safety is not None and evaluation_safety.blocked:
+                        self._finish_blocked_evaluation_safety_attempt(
+                            result=evaluation_safety,
+                            job=job,
+                            payload=payload,
+                            capability_manifest_ref=capability_manifest_ref,
+                        )
+                        return
                     model_rows = payload.get("llm_models")
                     model_name = (
                         str(model_rows[0]) if isinstance(model_rows, list) and model_rows else ""
@@ -1868,6 +2362,11 @@ class ControlPlaneService(
                                 max_nodes=1,
                                 min_cycles_per_leaf=1,
                                 max_cycles_per_leaf=max_cycles,
+                            ),
+                            root_evaluation_context=(
+                                evaluation_safety.execution_context
+                                if evaluation_safety is not None
+                                else None
                             ),
                         ),
                         timeout_seconds=max(120.0, 120.0 * max_cycles),
@@ -2293,7 +2792,26 @@ class ControlPlaneService(
     def _run_legacy_scientist_workflow(self, state_payload: dict[str, Any]) -> None:
         from polisyos.scientist.api import run_experiment
 
-        run_experiment(state_payload, store=self._artifact_store)
+        execution_payload = dict(state_payload)
+        raw_context = execution_payload.pop(
+            _EVALUATION_SAFETY_EXECUTION_CONTEXT_KEY,
+            None,
+        )
+        execution_context = (
+            EvaluationExecutionContext.model_validate(raw_context)
+            if raw_context is not None
+            else None
+        )
+        run_experiment(
+            execution_payload,
+            store=self._artifact_store,
+            eval_safety_execution_context=execution_context,
+            eval_safety_verifier=(
+                self._evaluation_safety_admission_verifier
+                if execution_context is not None
+                else None
+            ),
+        )
 
     # ---- NL launch (agent circuit) ----------------------------------------
 

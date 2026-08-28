@@ -71,6 +71,7 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.security import AuditLog
+    from polisyos.runtime.quality import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.orchestration.engine.context import (
         FabricPort,
         FoundryPort,
@@ -281,6 +282,8 @@ def build_execution_context(
     audit: AuditLog | None = None,
     memory: object | None = None,
     depth: int = 0,
+    eval_safety_execution_context: EvaluationExecutionContext | None = None,
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None,
 ) -> ClaimCapableExecutionContext:
     """Create the engine execution context shared by all nodes in one run.
 
@@ -336,6 +339,8 @@ def build_execution_context(
         foundry=foundry,
         scholar=scholar,
         lex=lex,
+        eval_safety_execution_context=eval_safety_execution_context,
+        eval_safety_verifier=eval_safety_verifier,
         memory=memory,
         claim_ledger_owner=build_default_claim_ledger_owner(store=store),
     )
@@ -527,6 +532,8 @@ def run_selected_workflow(
     metrics: EngineMetricsCollector | None = None,
     quota_registry: QuotaRegistry | None = None,
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
+    eval_safety_execution_context: EvaluationExecutionContext | None = None,
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None,
 ) -> WorkflowExecutionResult:
     """Dispatch to the builtin workflow runner chosen by `resolve_workflow_id()`.
 
@@ -564,6 +571,8 @@ def run_selected_workflow(
             tracer=tracer,
             metrics=metrics,
             engine_metrics_factory=engine_metrics_factory,
+            eval_safety_execution_context=eval_safety_execution_context,
+            eval_safety_verifier=eval_safety_verifier,
         )
     if workflow_id == "scientist_discovery":
         return run_discovery_workflow(
@@ -581,6 +590,8 @@ def run_selected_workflow(
             tracer=tracer,
             metrics=metrics,
             engine_metrics_factory=engine_metrics_factory,
+            eval_safety_execution_context=eval_safety_execution_context,
+            eval_safety_verifier=eval_safety_verifier,
         )
     if workflow_id == "scientist_policy_verified":
         return run_policy_verified_workflow(
@@ -598,6 +609,8 @@ def run_selected_workflow(
             tracer=tracer,
             metrics=metrics,
             engine_metrics_factory=engine_metrics_factory,
+            eval_safety_execution_context=eval_safety_execution_context,
+            eval_safety_verifier=eval_safety_verifier,
         )
     if workflow_id == "scientist_causal_full":
         return run_causal_full_workflow(
@@ -615,6 +628,8 @@ def run_selected_workflow(
             tracer=tracer,
             metrics=metrics,
             engine_metrics_factory=engine_metrics_factory,
+            eval_safety_execution_context=eval_safety_execution_context,
+            eval_safety_verifier=eval_safety_verifier,
         )
     return run_default_workflow(
         initial_state,
@@ -632,6 +647,8 @@ def run_selected_workflow(
         metrics=metrics,
         quota_registry=quota_registry,
         engine_metrics_factory=engine_metrics_factory,
+        eval_safety_execution_context=eval_safety_execution_context,
+        eval_safety_verifier=eval_safety_verifier,
     )
 
 
@@ -652,6 +669,8 @@ def run_policy_design_workflow(
     tracer: Tracer | None = None,
     metrics: EngineMetricsCollector | None = None,
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
+    eval_safety_execution_context: EvaluationExecutionContext | None = None,
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the `scientist_policy_design` DAG with search and translation stages."""
     store = _resolve_store(store, store_factory=store_factory)
@@ -709,6 +728,8 @@ def run_policy_design_workflow(
             lex=lex,
             metrics=metrics,
             engine_metrics_factory=engine_metrics_factory,
+            eval_safety_execution_context=eval_safety_execution_context,
+            eval_safety_verifier=eval_safety_verifier,
         )
         _propagate_runtime_run_metadata(ctx, state)
 
@@ -745,6 +766,8 @@ def run_discovery_workflow(
     tracer: Tracer | None = None,
     metrics: EngineMetricsCollector | None = None,
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
+    eval_safety_execution_context: EvaluationExecutionContext | None = None,
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the discovery-only DAG and persist prior-knowledge artifacts."""
     store = _resolve_store(store, store_factory=store_factory)
@@ -781,6 +804,8 @@ def run_discovery_workflow(
             lex=lex,
             metrics=metrics,
             engine_metrics_factory=engine_metrics_factory,
+            eval_safety_execution_context=eval_safety_execution_context,
+            eval_safety_verifier=eval_safety_verifier,
         )
         _propagate_runtime_run_metadata(ctx, state)
 
@@ -818,6 +843,8 @@ def run_default_workflow(
     metrics: EngineMetricsCollector | None = None,
     quota_registry: QuotaRegistry | None = None,
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
+    eval_safety_execution_context: EvaluationExecutionContext | None = None,
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the baseline simulation/governance DAG."""
     store = _resolve_store(store, store_factory=store_factory)
@@ -862,6 +889,8 @@ def run_default_workflow(
             lex=lex,
             metrics=metrics,
             engine_metrics_factory=engine_metrics_factory,
+            eval_safety_execution_context=eval_safety_execution_context,
+            eval_safety_verifier=eval_safety_verifier,
         )
         _propagate_runtime_run_metadata(ctx, state)
 
@@ -919,6 +948,8 @@ def run_policy_verified_workflow(
     tracer: Tracer | None = None,
     metrics: EngineMetricsCollector | None = None,
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
+    eval_safety_execution_context: EvaluationExecutionContext | None = None,
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the verified-policy DAG that omits hierarchical champion search."""
     store = _resolve_store(store, store_factory=store_factory)
@@ -973,6 +1004,8 @@ def run_policy_verified_workflow(
             lex=lex,
             metrics=metrics,
             engine_metrics_factory=engine_metrics_factory,
+            eval_safety_execution_context=eval_safety_execution_context,
+            eval_safety_verifier=eval_safety_verifier,
         )
         _propagate_runtime_run_metadata(ctx, state)
 
@@ -1009,6 +1042,8 @@ def run_causal_full_workflow(
     tracer: Tracer | None = None,
     metrics: EngineMetricsCollector | None = None,
     engine_metrics_factory: Callable[[], EngineMetricsCollector | None] | None = None,
+    eval_safety_execution_context: EvaluationExecutionContext | None = None,
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None,
 ) -> WorkflowExecutionResult:
     """Execute the full causal DAG with graph reconciliation and transport checks."""
     store = _resolve_store(store, store_factory=store_factory)
@@ -1053,6 +1088,8 @@ def run_causal_full_workflow(
             lex=lex,
             metrics=metrics,
             engine_metrics_factory=engine_metrics_factory,
+            eval_safety_execution_context=eval_safety_execution_context,
+            eval_safety_verifier=eval_safety_verifier,
         )
         _propagate_runtime_run_metadata(ctx, state)
 

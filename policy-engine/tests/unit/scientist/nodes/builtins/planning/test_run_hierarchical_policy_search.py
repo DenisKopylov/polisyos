@@ -30,10 +30,13 @@ from polisyos.lex import (
 from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
     HierarchicalPolicySearchAdapter,
     RunHierarchicalPolicySearchNode,
+    _evaluate_candidate_payload,
 )
+from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
 )
+from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.policy_design.search import (
     PolicySearchLevel as ScientistPolicySearchLevel,
 )
@@ -311,3 +314,71 @@ def test_run_hierarchical_policy_search_rejects_runtime_legacy_inferred_bounds_c
     assert outcome.status == "fail"
     assert outcome.error is not None
     assert "legacy inferred bounds" in outcome.error.message
+
+
+def test_hierarchical_stage_b_absent_or_mismatched_eval_safety_refuses_without_evaluation(
+    execution_context,
+    minimal_state,
+) -> None:
+    """Stage B translates the production owner's typed refusal without evaluation work."""
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="candidate_eval_safety_absent"
+    )
+    ok = NodeOutcome(status="ok", state=minimal_state)
+    evaluation_work = MagicMock()
+
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
+            "CompileFoundryNode.execute",
+            return_value=ok,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
+            "CompileCrossGraphEvidenceNode.execute",
+            return_value=ok,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
+            "ResolveParametersNode.execute",
+            return_value=ok,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
+            "RunCausalReadinessNode.execute",
+            return_value=ok,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
+            "evaluate_counterfactual_gate",
+            return_value=ok,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
+            "RunSimulationNode.execute",
+            return_value=ok,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
+            "load_simulation_metrics",
+            return_value={"policy_value": 1.0},
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.decide.policy_runtime_support."
+            "_build_evidence_driven_simulation_metrics",
+            evaluation_work,
+        ),
+    ):
+        result = _evaluate_candidate_payload(
+            execution_context,
+            minimal_state,
+            candidate_payload=candidate.model_dump(mode="json"),
+            context={},
+        )
+
+    assert result["status"] == "rejected"
+    assert result["blocked_reason"] == "eval_safety_blocked"
+    assert result["details"]["blocker_codes"] == [
+        "polisyos.eval_safety.execution_context_missing@1.0.0"
+    ]
+    assert evaluation_work.call_count == 0

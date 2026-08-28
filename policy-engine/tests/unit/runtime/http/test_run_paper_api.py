@@ -16,6 +16,7 @@ from polisyos_tests_runtime_http_conftest import (
 )
 from pydantic import TypeAdapter, ValidationError
 
+from polisyos.core.artifacts import ArtifactRef as CoreArtifactRef
 from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
@@ -35,6 +36,11 @@ from polisyos.runtime.http.authorization import (
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.services.adapters.core_run import derive_core_run_dir
 from polisyos.runtime.http.services.case_inspection_contracts import CaseInspectionResponse
+from polisyos.runtime.http.services.control.evaluation_safety import (
+    EvaluationSafetyPersistenceContext,
+    EvaluationSafetyPersistenceService,
+)
+from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.http.services.export_replay import (
     build_export_replay_address,
     hash_export_projection,
@@ -55,6 +61,11 @@ from polisyos.runtime.http.services.run_paper_contracts import (
     build_run_paper_semantic_projection,
 )
 from polisyos.runtime.http.services.run_paper_projection import RunPaperProjectionService
+from polisyos.runtime.quality.authority import GovernanceMetadata, SameInputClosure
+from polisyos.runtime.quality.evaluation_safety import (
+    evaluation_safety_metrics_projection_identity,
+)
+from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from polisyos.runtime.quality.workspace.s2_design_search_operation import (
     S2_DESIGN_SEARCH_OPERATION_ID,
     execute_s2_design_search_operation,
@@ -267,8 +278,10 @@ def _build_bound_case_run(
     tenant_id: str = "tenant-bound",
     cell_id: str | None = "cell-bound",
     include_binding_output: bool = True,
+    store: FileSystemCAS | None = None,
+    additional_outputs: tuple[CoreArtifactRef, ...] = (),
 ):
-    store = FileSystemCAS(tmp_path / "cas")
+    store = store or FileSystemCAS(tmp_path / "cas")
     search_run = run_s2_shadow_design_loop(_s2_run_input())
     persisted = persist_s2_design_search_run(
         search_run,
@@ -292,8 +305,101 @@ def _build_bound_case_run(
     context.add_output(persisted.search_ledger_ref)
     if include_binding_output:
         context.add_output(persisted.binding_ref)
+    for output in additional_outputs:
+        context.add_output(output)
     manifest_ref = context.finalize(status="completed")
     return store, core_runs_root, persisted, manifest_ref
+
+
+def _persist_packetless_eval_safety_projection(
+    tmp_path: Path,
+    store: FileSystemCAS,
+    *,
+    run_id: str,
+    tenant_id: str,
+    cell_id: str,
+) -> CoreArtifactRef:
+    tenant_store = store.for_tenant(tenant_id, cell_id=cell_id)
+    event_log = RuntimeDiagnosticEventLog(
+        store=ControlPlaneStore(
+            backend="sqlite",
+            sqlite_path=tmp_path / "eval-safety-control.sqlite3",
+        ),
+        artifact_store=tenant_store,
+    )
+    service = EvaluationSafetyPersistenceService(
+        artifact_store=tenant_store,
+        event_log=event_log,
+    )
+    generated_at = datetime(2026, 8, 28, 8, 0, tzinfo=UTC)
+    context = EvaluationSafetyPersistenceContext(
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        run_id=run_id,
+        job_id="job-run-paper-eval-safety",
+        trace_id="trace-run-paper-eval-safety",
+        span_id="span-run-paper-eval-safety",
+        parent_span_id=None,
+        requested_execution_profile="production",
+        effective_execution_profile="production",
+        phase="evaluation_safety",
+        generated_at=generated_at,
+        as_of_time=generated_at,
+        same_input_closure=SameInputClosure(
+            closure_id="closure-run-paper-eval-safety",
+            status="closed",
+            run_id=run_id,
+            job_id="job-run-paper-eval-safety",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            closure_sha256="1" * 64,
+        ),
+        effective_mode_ref="sha256:" + "2" * 64,
+        governance=GovernanceMetadata(
+            classification="internal",
+            authority_boundary="runtime",
+            pii="none",
+            retention_policy="runtime-quality-90d",
+            review_status="runtime_verified",
+            override_policy="no_override",
+            approval_policy="runtime_owner_required",
+        ),
+    )
+    produced = service.persist_metrics_projection(
+        reduction=service.reduce_decisions(evidence=()),
+        context=context,
+        generated_at=generated_at,
+    )
+    payload = produced.projection.model_dump(mode="json")
+    packet = payload.pop("authority_surface_packet")
+    assert isinstance(packet, dict)
+    for marker in (
+        "authority_boundary",
+        "attempt_disposition",
+        "denominator_decision_ids",
+        "unsafe_attempt_blocked_count",
+        "near_miss_count",
+        "reconciliation_status",
+    ):
+        assert payload[marker] == produced.projection.model_dump(mode="json")[marker]
+
+    identity = evaluation_safety_metrics_projection_identity("run")
+    return tenant_store.put_json(
+        payload,
+        PutOptions(
+            kind=identity.kind,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=identity.schema_name,
+                version=identity.schema_version,
+            ),
+            producer=ProducerInfo(
+                component="polisyos.runtime.http.control.evaluation_safety",
+                version="1.0.0",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
 
 
 def _put_binding_payload(store: FileSystemCAS, payload: object):
@@ -508,6 +614,42 @@ def test_run_paper_rejects_terminal_run_without_exact_case_binding(
     assert response.status_code == 409
     assert response.json()["code"] == "run_paper_source_invalid"
     assert "exactly one run-bound DesignRecord binding" in response.json()["detail"]
+
+
+def test_run_paper_omits_eval_safety_projection_without_authority_surface_packet(
+    tmp_path: Path,
+) -> None:
+    run_id = "R_eval-safety-run-paper"
+    tenant_id = "tenant-bound"
+    cell_id = "cell-bound"
+    store = FileSystemCAS(tmp_path / "cas")
+    invalid_projection_ref = _persist_packetless_eval_safety_projection(
+        tmp_path,
+        store,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    store, core_runs_root, persisted, _manifest_ref = _build_bound_case_run(
+        tmp_path,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        store=store,
+        additional_outputs=(invalid_projection_ref,),
+    )
+
+    packet = RunPaperProjectionService(
+        store=store,
+        core_runs_root=core_runs_root,
+        tenant_id=tenant_id,
+    ).get(run_id)
+    linked_artifact_ids = {
+        str(link.artifact_ref.artifact_id) for link in packet.artifact_links
+    }
+
+    assert str(invalid_projection_ref.artifact_id) not in linked_artifact_ids
+    assert str(persisted.design_record_ref.artifact_id) in linked_artifact_ids
 
 
 @pytest.mark.parametrize(

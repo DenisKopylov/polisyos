@@ -24,6 +24,7 @@ from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
     RecursiveGenerationCycleController,
+    RecursiveGenerationCycleError,
     build_default_recursive_generation_cycle_controller,
 )
 
@@ -309,7 +310,9 @@ def _assert_constructor_contract(
             "compile_and_run_recursive_generation_cycle",
             "polisyos.runtime.quality.recursive_generation_cycle."
             "build_default_recursive_generation_cycle_controller",
-            frozenset({"repo_root", "model_id", "promotion_runtime"}),
+            frozenset(
+                {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+            ),
         ),
         (
             "polisyos.runtime.quality.recursive_generation_cycle",
@@ -317,7 +320,9 @@ def _assert_constructor_contract(
             "build_default_recursive_generation_cycle_controller",
             "polisyos.runtime.quality.recursive_generation_cycle."
             "RecursiveGenerationCycleController",
-            frozenset({"repo_root", "model_id", "promotion_runtime"}),
+            frozenset(
+                {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+            ),
         ),
         (
             "polisyos.runtime.quality.recursive_generation_cycle",
@@ -331,6 +336,7 @@ def _assert_constructor_contract(
                     "model_id",
                     "cycle_substrate_context",
                     "promotion_runtime",
+                    "value_port",
                 }
             ),
         ),
@@ -608,16 +614,323 @@ def test_direct_recursive_controller_rejects_foreign_epoch_dependencies(tmp_path
 
 
 @pytest.mark.asyncio
+async def test_production_recursive_owner_requires_explicit_eval_safety_context_mapping(
+    tmp_path: Path,
+) -> None:
+    from tests.unit.runtime.quality.test_generation_cycle import _budget, _problem
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem(f"recursive_missing_eval_safety_context_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    controller = build_default_recursive_generation_cycle_controller(
+        promotion_runtime=runtime,
+    )
+
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_eval_safety_context_not_established",
+    ):
+        await controller.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+        )
+
+
+@pytest.mark.asyncio
+async def test_non_simulation_leaf_requires_current_eval_safety_head(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.services.control import evaluation_safety as c02
+    from polisyos.runtime.quality import evaluation_safety as es
+    from polisyos.runtime.quality import generation_cycle as generation_cycle_owner
+    from polisyos.runtime.quality.generation_cycle import (
+        JointSimulationPort,
+        RealValueOwnerGateway,
+        ValueOwnerAccessError,
+    )
+    from tests.unit.runtime.http.services import test_evaluation_safety as c02_test
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _Atom,
+        _budget,
+        _Candidate,
+        _CgfGenerationPort,
+        _problem,
+    )
+    from tests.unit.runtime.quality.test_value_gate import (
+        _non_simulation_execution_context,
+        _simulation,
+        _world_record,
+    )
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
+    problem = _problem(f"recursive_eval_safety_{uuid4().hex}")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    recursive_budget = RecursiveCycleBudget(
+        max_depth=0,
+        max_nodes=1,
+        min_cycles_per_leaf=1,
+        max_cycles_per_leaf=1,
+    )
+    candidate = _Candidate(
+        candidate_id="candidate_cgf_shadow",
+        atom=_Atom(
+            "candidate_cgf_shadow",
+            "sha256:" + "4" * 64,
+            target_world_slots=("firm_survival",),
+        ),
+        diversity_key=("grant", "firms", "cgf_shadow", "baseline"),
+    )
+    world = _world_record("7")
+    simulation = _simulation(world, candidate_id=candidate.candidate_id)
+    bound_context = _non_simulation_execution_context(
+        mode="field_pilot",
+        candidate=candidate,
+        world=world,
+        problem=problem,
+    )
+    original_intake = c02_test.EvaluationAttemptIntake
+
+    def bound_intake(**values: object) -> es.EvaluationAttemptIntake:
+        values.update(
+            {
+                "candidate_ref": bound_context.candidate_ref,
+                "world_model_record_ref": bound_context.world_model_record_ref,
+            }
+        )
+        return original_intake(**values)
+
+    monkeypatch.setattr(c02_test, "EvaluationAttemptIntake", bound_intake)
+    fixture = c02_test._passing_fixture(  # noqa: SLF001
+        tmp_path / "eval-safety",
+        design_problem_ref=problem_ref,
+    )
+
+    def actual_n5_input_ref(
+        observation: object,
+    ) -> object:
+        assert observation is simulation
+        return fixture.execution_context.evaluation_input_refs[0]
+
+    monkeypatch.setattr(
+        generation_cycle_owner,
+        "simulation_evaluation_input_ref",
+        actual_n5_input_ref,
+    )
+
+    class CurrentStateResolver:
+        def resolve(
+            self,
+            context: es.EvaluationExecutionContext,
+        ) -> c02.EvaluationSafetyReplayMaterial:
+            del context
+            return fixture.replay_material
+
+    concrete_verifier = c02.EvaluationSafetyAdmissionVerifier(
+        persistence_service=fixture.service,
+        current_state_resolver=CurrentStateResolver(),
+        authority_resolver=fixture.authority_resolver,
+        appointment_resolver=fixture.appointment_resolver,
+        verifier_registry=fixture.verifier_registry,
+    )
+
+    class ReplayFirstPositive:
+        def __init__(self) -> None:
+            self.first: es.EvalSafetyConsumerAdmissionReceipt | None = None
+
+        def require_admission(
+            self,
+            context: es.EvaluationExecutionContext,
+            challenge: es.EvalSafetyAdmissionChallenge,
+        ) -> es.EvalSafetyConsumerAdmissionReceipt:
+            if self.first is None:
+                self.first = concrete_verifier.require_admission(context, challenge)
+            return self.first
+
+    replaying_verifier = ReplayFirstPositive()
+    owner_calls: list[str] = []
+
+    def actual_n5(
+        self: JointSimulationPort,
+        *,
+        candidate: object,
+        problem: object,
+        cycle_index: int,
+    ) -> object:
+        del self, problem, cycle_index
+        assert candidate.candidate_id == simulation.candidate_id  # type: ignore[attr-defined]
+        return simulation
+
+    def value_owner_spy(
+        self: RealValueOwnerGateway,
+        **values: object,
+    ) -> object:
+        del self, values
+        owner_calls.append("load_value_data_profile")
+        raise ValueOwnerAccessError("value_owner_data_profile_invalid")
+
+    monkeypatch.setattr(JointSimulationPort, "__call__", actual_n5)
+    monkeypatch.setattr(RealValueOwnerGateway, "load_value_data_profile", value_owner_spy)
+
+    class _CanonicalFixtureN4Port(N4GenerationPort):
+        def __init__(self) -> None:
+            super().__init__(model_id="fixture-model")
+            self._delegate = _CgfGenerationPort()
+
+        async def __call__(self, problem, *, cycle_index):
+            return await self._delegate(problem, cycle_index=cycle_index)
+
+    async def run_leaf(
+        *,
+        context: es.EvaluationExecutionContext,
+        verifier: object,
+        context_bindings: dict[str, es.EvaluationExecutionContext] | None = None,
+    ):
+        controller = build_default_recursive_generation_cycle_controller(
+            repo_root=REPO_ROOT,
+            promotion_runtime=runtime,
+            eval_safety_verifier=verifier,
+        )
+        return await controller.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=recursive_budget,
+            n4_generation_ports_by_node={root_ref: _CanonicalFixtureN4Port()},
+            evaluation_contexts_by_node=(
+                {root_ref: context} if context_bindings is None else context_bindings
+            ),
+        )
+
+    current = await run_leaf(
+        context=fixture.execution_context,
+        verifier=replaying_verifier,
+    )
+    replayed = await run_leaf(
+        context=fixture.execution_context,
+        verifier=replaying_verifier,
+    )
+    stale_context = fixture.execution_context.model_copy(
+        update={
+            "eval_safety_revision_head_ref": c02_test._ref(  # noqa: SLF001
+                "sha256:" + "f" * 64,
+                "test.certificate-revision",
+            )
+        }
+    )
+    stale = await run_leaf(context=stale_context, verifier=concrete_verifier)
+
+    foreign_problem = _problem(f"recursive_eval_safety_foreign_{uuid4().hex}")
+    foreign_context = fixture.execution_context.model_copy(
+        update={
+            "design_problem_ref": gy_content_hash(
+                foreign_problem.model_dump(mode="json")
+            )
+        }
+    )
+
+    class VerifierMustNotRun:
+        def require_admission(
+            self,
+            context: es.EvaluationExecutionContext,
+            challenge: es.EvalSafetyAdmissionChallenge,
+        ) -> es.EvalSafetyConsumerAdmissionReceipt:
+            del context, challenge
+            raise AssertionError("foreign problem context reached EvalSafety verifier")
+
+    owner_calls_before_foreign = tuple(owner_calls)
+    with pytest.raises(
+        RecursiveGenerationCycleError,
+        match="recursive_eval_safety_design_problem_mismatch",
+    ):
+        await run_leaf(
+            context=foreign_context,
+            verifier=VerifierMustNotRun(),
+            context_bindings={root_ref: foreign_context},
+        )
+    assert tuple(owner_calls) == owner_calls_before_foreign
+
+    def value_observation(run):
+        leaf = run.leaf_nodes[0]
+        assert leaf.cycle_run is not None
+        return leaf.cycle_run.value_port
+
+    current_value = value_observation(current)
+    replayed_value = value_observation(replayed)
+    stale_value = value_observation(stale)
+    assert replaying_verifier.first is not None
+    assert replaying_verifier.first.status == "verified"
+    assert replaying_verifier.first.certificate_ref == (
+        fixture.execution_context.eval_safety_certificate_ref
+    )
+    assert replaying_verifier.first.current_revision_head_ref == (
+        fixture.execution_context.eval_safety_revision_head_ref
+    )
+    assert current_value.authority_blockers == ("value_owner_data_profile_invalid",)
+    assert replayed_value.authority_blockers == (
+        "eval_safety_consumer_admission_blocked",
+    )
+    assert stale_value.status == "value_blocked"
+    assert any("eval_safety" in blocker for blocker in stale_value.authority_blockers)
+    assert owner_calls == ["load_value_data_profile"]
+    for invalid_bindings in (
+        {},
+        {root_ref: fixture.execution_context, "design-problem://extra": fixture.execution_context},
+        {"design-problem://cross-leaf": fixture.execution_context},
+    ):
+        with pytest.raises(
+            RecursiveGenerationCycleError,
+            match="recursive_eval_safety_context_denominator_mismatch",
+        ):
+            await run_leaf(
+                context=fixture.execution_context,
+                verifier=concrete_verifier,
+                context_bindings=invalid_bindings,
+            )
+
+
+@pytest.mark.asyncio
 async def test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.runtime.quality import evaluation_safety as es
     from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
+    from polisyos.runtime.quality.generation_cycle import (
+        simulation_value_execution_context,
+    )
     from tests.unit.runtime.quality.test_generation_cycle import (
         REPO_ROOT,
         _budget,
         _CgfGenerationPort,
         _problem,
+    )
+    from tests.unit.runtime.quality.test_value_gate import (
+        _candidate,
+        _simulation,
+        _world_record,
     )
 
     monkeypatch.setattr(
@@ -642,6 +955,23 @@ async def test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle
         max_cycles_per_leaf=1,
     )
 
+    class _SimulationOnlyVerifier:
+        def require_admission(
+            self,
+            context: es.EvaluationExecutionContext,
+            challenge: es.EvalSafetyAdmissionChallenge,
+        ) -> es.EvalSafetyConsumerAdmissionReceipt:
+            del context, challenge
+            raise AssertionError("simulation-only recursive fixture called verifier")
+
+    verifier = _SimulationOnlyVerifier()
+    simulation_candidate = _candidate()
+    evaluation_context = simulation_value_execution_context(
+        candidate=simulation_candidate,
+        simulation=_simulation(_world_record()),
+        problem=problem,
+    )
+
     class _CanonicalFixtureN4Port(N4GenerationPort):
         def __init__(self) -> None:
             super().__init__(model_id="fixture-model")
@@ -653,6 +983,7 @@ async def test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle
     direct_controller = build_default_recursive_generation_cycle_controller(
         repo_root=REPO_ROOT,
         promotion_runtime=runtime,
+        eval_safety_verifier=verifier,
     )
     direct = await direct_controller.run(
         graph,
@@ -660,6 +991,7 @@ async def test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle
         budget_state=_budget(),
         recursive_budget=recursive_budget,
         n4_generation_ports_by_node={root_ref: _CanonicalFixtureN4Port()},
+        evaluation_contexts_by_node={root_ref: evaluation_context},
     )
 
     subject_kind = "runtime.promotion.pre_n9_epoch_validity_subject"
@@ -687,6 +1019,8 @@ async def test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle
         recursive_budget=recursive_budget,
         root_n4_generation_port=_CanonicalFixtureN4Port(),
         promotion_runtime=runtime,
+        root_evaluation_context=evaluation_context,
+        eval_safety_verifier=verifier,
         repo_root=REPO_ROOT,
     )
 

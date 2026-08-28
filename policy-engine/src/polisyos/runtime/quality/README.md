@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-08-24
+- Last updated: 2026-08-28
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 authority/status composition, evidence and claim binding, replay, closeout
@@ -119,6 +119,43 @@ Boundary notes:
     recipe execution seam. Per-recipe canonical producers remain
     `producer_missing`, and a global automatic recompute owner remains
     `absent/unallocated`.
+- `evaluation_modes.py` owns the exact six executable evaluation modes and a
+  strict no-default resolver. `evaluation_safety.py` owns generic ratified
+  mode-basis plus domain-pack admission, appointed evidence verification, the
+  promotion-independent safety core, post-core N9 classification, certificate
+  lineage replay, and immediate consumer revalidation. Positive in-process
+  authority carries a private producer capability; persistence consumers must
+  replay public raw DTOs through the exported basis, pack, requirement, core,
+  event, certificate, and revision reconciliation procedures rather than
+  deserialize that capability. The capability is bound to canonical public
+  bytes, so a copied or mutated authority must be re-admitted. Basis and
+  revision-cause admission resolve typed, independent attestations over the
+  exact subject, purpose, rule/schema, component, and effective time. The
+  frozen core and certificate bind the appointed evaluator plus the complete,
+  non-empty evaluation-input denominator and provenance; Foundry derives its
+  input ref from the actual N5 observation. Each positive consumer receipt
+  binds the canonical hash of the complete context plus a fresh consumer-
+  generated UUID4 challenge, so an unchanged receipt cannot replay across a
+  changed context or a second owner call. Consumer replay validates the full
+  revision graph while selecting the unique head effective at its current
+  verification time. A pack's `source_pack_ref` identifies its
+  upstream domain-owned source and participates in the normalized pack hash;
+  the normalized pack's external CAS identity is supplied separately as
+  `pack_ref`, avoiding self-referential bytes. Intake and canonical request
+  identities follow the same external-ref rule. C01 persists or executes
+  nothing: CAS/event
+  resolution, orchestration, and authority-grade metrics remain C02/C03 work.
+- The public experimental facade exports the canonical C04 verification-only
+  contracts used by Scientist: `EvalSafetyAdmissionChallenge`,
+  `EvalSafetyVerifierPort`, `EvaluationExecutionContext`, `WorldModelRecord`,
+  `evaluation_safety_consumer_admission_is_verified`,
+  `resolve_evaluation_mode`, and `world_model_record_content_hash`. Scientist
+  transports an externally supplied context and verifier unchanged; the causal
+  and production evaluation owners fail closed before work, bind the actual
+  attempted inputs and world-model record, and cannot be satisfied by promotion
+  state. These contracts certify an attempt only. They execute no pilot or
+  deployment, appoint no verifier or institution, and confer no execution,
+  pilot, deployment, promotion, or governance authority.
 - Public experimental exports must be reflected in the public-surface
   inventory and release fragments before release promotion.
 

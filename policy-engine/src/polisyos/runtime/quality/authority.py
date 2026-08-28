@@ -18,6 +18,10 @@ from pydantic import (
 )
 
 from polisyos.core import canon
+from polisyos.runtime.quality.evaluation_safety import (
+    EvalSafetyMetricsProjection,
+    evaluation_safety_metrics_projection_identity,
+)
 
 EvidenceClass = Literal[
     "authority_bearing",
@@ -85,6 +89,7 @@ TimeSourceConsistencyProjectionScope = Literal[
 ]
 ValidationStatus = Literal["pass", "fail", "blocked", "not_applicable"]
 BlockingStatus = Literal["non_blocking", "blocking", "non_overridable"]
+_EvalSafetyManifestIdentityState = Literal["exact", "other", "unresolved"]
 AuthorityRootCauseClass = Literal[
     "missing_provenance",
     "unknown_provenance",
@@ -1095,7 +1100,15 @@ def authority_surface_decision(
     disposition, S12 dereference status, and candidate firewall.
     """
 
-    authority_payload = _surface_authority_payload(
+    eval_safety_applies, eval_safety_payload, eval_safety_blocker = (
+        _strict_eval_safety_surface_payload(
+            surface=surface,
+            purpose=purpose,
+            artifact_store=artifact_store,
+            artifact_id=artifact_id,
+        )
+    )
+    authority_payload = eval_safety_payload or _surface_authority_payload(
         payload,
         artifact_store=artifact_store,
         artifact_id=artifact_id,
@@ -1119,6 +1132,11 @@ def authority_surface_decision(
     time_dispositions: list[str] = []
     s12_issue_codes: list[str] = []
     candidate_issue_codes: list[str] = []
+
+    if eval_safety_applies:
+        gate_inputs.append("eval_safety_projection")
+        if eval_safety_blocker is not None:
+            blocking_reasons.append(eval_safety_blocker)
 
     if base.blocking:
         blocking_reasons.append(base.reason)
@@ -1245,6 +1263,106 @@ def authority_surface_decision(
         s12_issue_codes=sorted(set(s12_issue_codes)),
         candidate_firewall_issue_codes=sorted(set(candidate_issue_codes)),
     )
+
+
+def _strict_eval_safety_surface_payload(
+    *,
+    surface: str,
+    purpose: str | None,
+    artifact_store: _ArtifactSurfaceStore | None,
+    artifact_id: object | None,
+) -> tuple[bool, Mapping[str, Any] | None, str | None]:
+    """Strict-load one exact EvalSafety projection for the generic egress gate."""
+
+    if artifact_store is None or artifact_id is None:
+        return False, None, None
+
+    artifact_identity = evaluation_safety_metrics_projection_identity("artifact")
+    manifest_identity, manifest = _eval_safety_manifest_identity(
+        artifact_store=artifact_store,
+        artifact_id=artifact_id,
+        expected_kind=artifact_identity.kind,
+    )
+    if manifest_identity == "unresolved":
+        return True, None, "eval_safety_projection_identity_unresolved"
+    if manifest_identity == "other":
+        return False, None, None
+    if manifest is None:  # pragma: no cover - exact identity always carries a manifest.
+        return True, None, "eval_safety_projection_identity_unresolved"
+
+    try:
+        verification = artifact_store.verify(artifact_id)
+    except (OSError, ValueError):
+        return True, None, "eval_safety_projection_cas_verify_failed"
+    if not getattr(verification, "ok", False):
+        return True, None, "eval_safety_projection_cas_unverified"
+
+    schema = getattr(manifest, "artifact_schema", None)
+    if (
+        schema is None
+        or getattr(schema, "name", None) != artifact_identity.schema_name
+        or getattr(schema, "version", None) != artifact_identity.schema_version
+    ):
+        return True, None, "eval_safety_projection_schema_mismatch"
+
+    try:
+        stored_payload = canon.from_canonical_bytes(artifact_store.get_bytes(artifact_id))
+        projection = EvalSafetyMetricsProjection.model_validate(stored_payload)
+    except (OSError, UnicodeError, ValueError):
+        return True, None, "eval_safety_projection_payload_invalid"
+
+    projection_payload = projection.model_dump(mode="json")
+    surfaces = projection.authority_surface_packet.surfaces
+    packet_purposes = {row.purpose for row in surfaces.values()}
+    packet_denials = {
+        denied_use
+        for row in surfaces.values()
+        for denied_use in row.may_not_use_for
+    }
+    boundary = projection.authority_boundary
+    if (
+        set(boundary.authoritative_for) != packet_purposes
+        or len(boundary.authoritative_for) != len(packet_purposes)
+        or set(boundary.may_not_use_for) != packet_denials
+        or len(boundary.may_not_use_for) != len(packet_denials)
+    ):
+        return True, projection_payload, "eval_safety_projection_boundary_binding_invalid"
+    surface_key = next((key for key in surfaces if key == surface), None)
+    if surface_key is None:
+        return True, projection_payload, "eval_safety_projection_surface_binding_invalid"
+    surface_identity = evaluation_safety_metrics_projection_identity(surface_key)
+    surface_packet = surfaces[surface_key]
+    effective_purpose = purpose if purpose is not None else _default_surface_purpose(surface)
+    if (
+        effective_purpose != surface_identity.purpose
+        or surface_packet.purpose != surface_identity.purpose
+    ):
+        return True, projection_payload, "eval_safety_projection_surface_binding_invalid"
+    return True, projection_payload, None
+
+
+def _eval_safety_manifest_identity(
+    *,
+    artifact_store: _ArtifactSurfaceStore,
+    artifact_id: object,
+    expected_kind: str,
+) -> tuple[_EvalSafetyManifestIdentityState, object | None]:
+    """Resolve whether one manifest is the exact governed family, another, or unknown."""
+
+    try:
+        manifest = artifact_store.get_manifest(artifact_id)
+    except (OSError, ValueError):
+        return "unresolved", None
+    manifest_kind = getattr(manifest, "kind", None)
+    if (
+        not isinstance(manifest_kind, str)
+        or not manifest_kind
+        or manifest_kind != manifest_kind.strip()
+    ):
+        return "unresolved", manifest
+    if manifest_kind == expected_kind:
+        return "exact", manifest
+    return "other", manifest
 
 
 def _authority_boundary_surface_decision(
@@ -1389,11 +1507,11 @@ def _authority_boundary_surface_decision(
 
 
 def _surface_authority_payload(
-    payload: object,
+    payload: Mapping[str, Any] | AuthorityEnvelopeInput | None,
     *,
     artifact_store: _ArtifactSurfaceStore | None,
     artifact_id: object | None,
-) -> object:
+) -> Mapping[str, Any] | AuthorityEnvelopeInput | None:
     """Resolve the authority carrier for a surface without replacing scan bytes."""
 
     carrier = _authority_payload(payload)

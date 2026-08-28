@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 import pytest
@@ -12,7 +13,7 @@ from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts.control import NaturalLanguageRunRequest
+from polisyos.core.contracts.control import NaturalLanguageRunRequest, WorkflowRunRequest
 from polisyos.core.contracts.decision_validity import (
     DecisionBasisSection,
     DecisionDependencyKind,
@@ -30,6 +31,7 @@ from polisyos.fabric.data_plane.orchestrator import IngestionResult
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
+from polisyos.runtime.quality.evaluation_modes import resolve_evaluation_mode
 from polisyos.scientist.governance.continuous.monitors import (
     DecisionValidityStatus as ContinuousDecisionValidityStatus,
 )
@@ -47,6 +49,95 @@ from tests.unit.runtime.http.test_runtime_api_authz import (
 
 def _sha(char: str) -> str:
     return "sha256:" + char * 64
+
+
+def test_explicit_non_simulation_attempt_blocks_before_workspace_loop(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core import components as core_components
+    from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
+    from polisyos.runtime.quality.evaluation_safety import (
+        EvaluationAttemptIntake,
+        EvaluationInputProvenance,
+    )
+    from tests.unit.runtime.http.test_control_service_di import _build_control_service
+
+    service = _build_control_service(tmp_path)
+    source = service._artifact_store.put_json(
+        {"observed": "real-world"},
+        ArtifactWriteOptions(kind="test.eval-input", media_type="application/json"),
+    )
+
+    def ref(value: str, kind: str) -> EvalSafetyArtifactRef:
+        return EvalSafetyArtifactRef(
+            artifact_id=value,
+            artifact_type=kind,
+            content_hash=value,
+            schema_ref=f"{kind}.v1",
+            uri=f"cas://sha256/{value.removeprefix('sha256:')}",
+            version="1.0",
+        )
+
+    source_ref = ref(str(source.artifact_id), "test.eval-input")
+    intake = EvaluationAttemptIntake(
+        attempt_id="attempt-control-api-field-pilot",
+        evaluator_owner_id=core_components.ComponentId(
+            "polisyos.runtime.quality.foundry_value_port@1.0.0"
+        ),
+        design_problem_ref=_sha("0"),
+        candidate_ref=ref(_sha("1"), "test.candidate"),
+        world_model_record_ref=ref(_sha("2"), "test.world-model"),
+        requested_mode_token="field_pilot",  # noqa: S106 - evaluation mode.
+        mode_resolution=resolve_evaluation_mode("field_pilot"),
+        domain_hint="unseen-domain",
+        domain_pack_ref=ref(_sha("9"), "test.eval-safety-pack"),
+        target_population_scope_ref=ref(_sha("3"), "test.population"),
+        evaluation_input_refs=(source_ref,),
+        evaluation_input_provenance=(
+            EvaluationInputProvenance(
+                input_ref=source_ref,
+                input_class="real_world",
+                predicate_provenance="independently_reconciled",
+            ),
+        ),
+        evidence_refs=(),
+        requested_at=datetime(2026, 8, 28, 8, 0, tzinfo=UTC),
+        intended_start_at=datetime(2026, 8, 28, 8, 0, tzinfo=UTC),
+        requested_rule_version="policyos.runtime.eval-safety.v1",
+        external_executor_identity_ref=None,
+    )
+    workspace_calls = 0
+
+    def workspace_must_not_run(*args, **kwargs):
+        nonlocal workspace_calls
+        del args, kwargs
+        workspace_calls += 1
+        raise AssertionError("blocked attempt reached WorkspaceLoop")
+
+    monkeypatch.setattr(service, "_execute_workflow_control_transition", workspace_must_not_run)
+    try:
+        launch = service.launch_workflow_run(
+            WorkflowRunRequest(
+                data_source={"data_snapshot_ref": str(source.artifact_id)},
+                params={
+                    "evaluation_safety_attempt": intake.model_dump(mode="json"),
+                },
+            )
+        )
+        record = service._control_store.get_job(launch.job_id)
+        assert record is not None
+        service._process_control_job(record)
+        terminal = service._control_store.get_job(launch.job_id)
+
+        assert terminal is not None
+        assert terminal.state == "failed"
+        assert terminal.progress["authority_path"] == "evaluation_safety"
+        assert terminal.progress["authority_result"] == "blocked"
+        assert terminal.progress["eval_safety_disposition"] == "blocked"
+        assert workspace_calls == 0
+    finally:
+        service.close()
 
 
 def _secure_control_client(

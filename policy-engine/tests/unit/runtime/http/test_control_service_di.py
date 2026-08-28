@@ -25,13 +25,27 @@ from polisyos.runtime.http.execution_policy import (
     RuntimePrincipal,
 )
 from polisyos.runtime.http.services.control import ControlPlaneService
+from polisyos.runtime.http.services.control.evaluation_safety import (
+    EvaluationSafetyAdmissionVerifier,
+    EvaluationSafetyPersistenceService,
+)
+from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.http.services.control_registry_providers import (
     ControlRegistryProviders,
     resolve_control_registry_providers,
 )
 from polisyos.runtime.http.services.task_runner import TaskRunner
 from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
-from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+from polisyos.runtime.quality.evaluation_safety import (
+    EvalSafetyAdmissionChallenge,
+    EvalSafetyConsumerAdmissionReceipt,
+    EvaluationExecutionContext,
+)
+from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+from polisyos.runtime.quality.generation_cycle import (
+    N4GenerationPort,
+    simulation_value_execution_context,
+)
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
@@ -49,6 +63,31 @@ except ModuleNotFoundError:  # pragma: no cover
 class _NoOpRetrievalService:
     def list_promotion_candidates(self):
         return []
+
+
+class _NeverCalledEvalSafetyVerifier:
+    def require_admission(
+        self,
+        context: EvaluationExecutionContext,
+        challenge: EvalSafetyAdmissionChallenge,
+    ) -> EvalSafetyConsumerAdmissionReceipt:
+        del context, challenge
+        raise AssertionError("simulation-only control fixture called EvalSafety verifier")
+
+
+def _explicit_simulation_execution_context(problem: object) -> EvaluationExecutionContext:
+    from tests.unit.runtime.quality.test_value_gate import (
+        _candidate,
+        _simulation,
+        _world_record,
+    )
+
+    candidate = _candidate()
+    return simulation_value_execution_context(
+        candidate=candidate,
+        simulation=_simulation(_world_record()),
+        problem=problem,
+    )
 
 
 def _fixture_claims() -> UserIdentityClaims:
@@ -152,6 +191,92 @@ def test_control_service_types_malformed_promotion_runtime(tmp_path) -> None:
         )
 
 
+def test_control_service_owns_one_eval_safety_service_verifier_and_store(tmp_path) -> None:
+    service = _build_control_service(tmp_path)
+    try:
+        persistence = service._evaluation_safety_persistence_service
+        verifier = service._evaluation_safety_admission_verifier
+
+        assert isinstance(persistence, EvaluationSafetyPersistenceService)
+        assert isinstance(verifier, EvaluationSafetyAdmissionVerifier)
+        assert persistence._artifact_store is service._artifact_store
+        assert persistence._event_log is service._diagnostic_event_log
+        assert verifier._persistence_service is persistence
+        assert verifier._current_state_resolver is service._evaluation_safety_state_resolver
+        assert verifier._authority_resolver is service._evaluation_safety_authority_resolver
+        assert verifier._appointment_resolver is service._evaluation_safety_appointment_resolver
+        assert verifier._verifier_registry is service._evaluation_safety_verifier_registry
+    finally:
+        service.close()
+
+
+def test_control_service_accepts_exact_eval_safety_persistence_owner(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    control_store = ControlPlaneStore(
+        backend="sqlite",
+        sqlite_path=tmp_path / "control.sqlite3",
+    )
+    event_log = RuntimeDiagnosticEventLog(
+        store=control_store,
+        artifact_store=store,
+    )
+    persistence = EvaluationSafetyPersistenceService(
+        artifact_store=store,
+        event_log=event_log,
+    )
+    resolver = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="external",
+        state_store_backend="sqlite",
+        sqlite_path=str(tmp_path / "control.sqlite3"),
+        postgres_dsn=None,
+    )
+    service = ControlPlaneService(
+        cas_root=tmp_path / "cas",
+        core_runs_root=tmp_path / "runs",
+        artifact_store=store,
+        control_store=control_store,
+        retrieval_service=_NoOpRetrievalService(),
+        policy_resolver=resolver,
+        registry_providers=_build_registry_providers(),
+        evaluation_safety_persistence_service=persistence,
+    )
+    try:
+        assert service._diagnostic_event_log is event_log
+        assert service._evaluation_safety_persistence_service is persistence
+        assert service._evaluation_safety_admission_verifier._persistence_service is persistence
+    finally:
+        service.close()
+
+
+def test_control_service_rejects_foreign_eval_safety_persistence_store(tmp_path) -> None:
+    owner = _build_control_service(tmp_path / "owner")
+    foreign = EvaluationSafetyPersistenceService(
+        artifact_store=FileSystemCAS(tmp_path / "foreign" / "cas"),
+        event_log=owner._diagnostic_event_log,
+    )
+    resolver = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="external",
+        state_store_backend="sqlite",
+        sqlite_path=".polisyos/control.sqlite3",
+        postgres_dsn=None,
+    )
+    try:
+        with pytest.raises(ValueError, match="evaluation_safety_persistence_owner_mismatch"):
+            ControlPlaneService(
+                cas_root=tmp_path / "target" / ".polisyos",
+                core_runs_root=tmp_path / "target" / ".polisyos" / "runs",
+                artifact_store=FileSystemCAS(tmp_path / "target" / "cas"),
+                retrieval_service=_NoOpRetrievalService(),
+                policy_resolver=resolver,
+                registry_providers=_build_registry_providers(),
+                evaluation_safety_persistence_service=foreign,
+            )
+    finally:
+        owner.close()
+
+
 def test_control_service_rejects_foreign_promotion_store(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "owner-cas")
     decision_validity = DecisionValidityService(store)
@@ -234,6 +359,94 @@ async def test_recursive_http_without_container_promotion_runtime_fails_closed()
 
 
 @pytest.mark.asyncio
+async def test_recursive_http_eval_safety_inputs_fail_typed_before_compilation(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
+    verifier = _NeverCalledEvalSafetyVerifier()
+    compile_calls = 0
+
+    async def compiler_must_not_run(**kwargs):
+        nonlocal compile_calls
+        del kwargs
+        compile_calls += 1
+        raise AssertionError("invalid EvalSafety input reached the compiler")
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compiler_must_not_run,
+    )
+    common = {
+        "raw_request": "This request must not be compiled.",
+        "context": {},
+        "model_name": "fixture-model",
+        "compiler_gateway": object(),
+        "budget_state": object(),
+        "recursive_budget": object(),
+        "promotion_runtime": runtime,
+    }
+    cases = (
+        ({"eval_safety_verifier": verifier}, "eval_safety_execution_context_not_established"),
+        (
+            {"root_evaluation_context": object()},
+            "eval_safety_verifier_not_established",
+        ),
+        (
+            {
+                "root_evaluation_context": object(),
+                "eval_safety_verifier": verifier,
+            },
+            "eval_safety_execution_context_not_canonical",
+        ),
+    )
+    for supplied, expected_code in cases:
+        with pytest.raises(DesignProblemAuthorityError) as exc_info:
+            await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+                **common,
+                **supplied,
+            )
+        assert exc_info.value.code == expected_code
+    assert compile_calls == 0
+
+    from tests.unit.runtime.quality.test_generation_cycle import _problem
+
+    problem = _problem(f"foreign_eval_safety_verifier_{uuid4().hex}")
+
+    async def compile_problem(**kwargs):
+        nonlocal compile_calls
+        del kwargs
+        compile_calls += 1
+        return problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_problem,
+    )
+    owner_verifier = _NeverCalledEvalSafetyVerifier()
+    foreign_verifier = _NeverCalledEvalSafetyVerifier()
+    controller = build_default_recursive_generation_cycle_controller(
+        promotion_runtime=runtime,
+        eval_safety_verifier=owner_verifier,
+    )
+    foreign_common = {
+        **common,
+        "raw_request": problem.nl_provenance.raw_request,
+    }
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+            **foreign_common,
+            root_evaluation_context=_explicit_simulation_execution_context(problem),
+            eval_safety_verifier=foreign_verifier,
+            controller=controller,
+        )
+    assert exc_info.value.code == "recursive_controller_eval_safety_verifier_mismatch"
+    assert compile_calls == 1
+
+
+@pytest.mark.asyncio
 async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
@@ -255,7 +468,11 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
     )
     runtime = app.state.runtime_container.promotion_runtime
     problem = _problem(f"http_shared_open_world_context_{uuid4().hex}")
-    recursive = build_default_recursive_generation_cycle_controller(promotion_runtime=runtime)
+    verifier = _NeverCalledEvalSafetyVerifier()
+    recursive = build_default_recursive_generation_cycle_controller(
+        promotion_runtime=runtime,
+        eval_safety_verifier=verifier,
+    )
     assert recursive._promotion_runtime is runtime
 
     recursive_budget = RecursiveCycleBudget(
@@ -300,6 +517,8 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
         recursive_budget=recursive_budget,
         root_n4_generation_port=_CanonicalFixtureN4Port(),
         promotion_runtime=runtime,
+        root_evaluation_context=_explicit_simulation_execution_context(problem),
+        eval_safety_verifier=verifier,
         repo_root=REPO_ROOT,
     )
 
@@ -453,6 +672,8 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
                 recursive_budget=recursive_budget,
                 root_n4_generation_port=_CanonicalFixtureN4Port(),
                 promotion_runtime=service._promotion_runtime,
+                root_evaluation_context=_explicit_simulation_execution_context(problem),
+                eval_safety_verifier=_NeverCalledEvalSafetyVerifier(),
                 repo_root=REPO_ROOT,
             )
         )

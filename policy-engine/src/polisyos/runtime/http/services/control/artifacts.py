@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import os
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import NAMESPACE_URL, uuid5
 
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts.manifest import (
     ArtifactAuthorityInfo,
     ArtifactGovernanceInfo,
@@ -42,16 +43,19 @@ from polisyos.runtime.quality.authority import (
 )
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.diagnostic_events import (
+    DIAGNOSTIC_EVENT_ARTIFACT_KIND,
     DIAGNOSTIC_EVENT_SCHEMA_NAME,
     DIAGNOSTIC_EVENT_SCHEMA_VERSION,
     DiagnosticEvent,
     validate_diagnostic_event,
 )
-from polisyos.runtime.quality.event_log import DiagnosticEventPayloadPolicy
+from polisyos.runtime.quality.event_log import (
+    DiagnosticEventPayloadPolicy,
+    RuntimeDiagnosticEventLog,
+)
 
 NORMATIVE_APPLICABILITY_REPORT_KIND = "lex.normative_applicability_report"
 AUTHORITY_ENVELOPE_ARTIFACT_KIND = "runtime_quality.evidence_authority_envelope"
-DIAGNOSTIC_EVENT_ARTIFACT_KIND = "runtime_quality.diagnostic_event"
 TRUST_BOUNDARY_ATTESTATION_ARTIFACT_KIND = "runtime_quality.trust_boundary_attestation"
 
 
@@ -64,6 +68,51 @@ class AuthorityArtifactWriteResult:
     manifest_ref: str
     authority_envelope_ref: ArtifactRef
     diagnostic_event_ref: ArtifactRef
+    identity_context: AuthorityArtifactIdentityContext
+
+
+@dataclass(frozen=True, slots=True)
+class AuthorityArtifactIdentityContext:
+    """Complete caller-declared authority identity for reuse and readback."""
+
+    evidence_id: str
+    evidence_class: str
+    authority_role: str
+    provenance_kind: str
+    owner: str
+    reader_contract: str
+    reader_contract_version: str
+    tenant_id: str
+    cell_id: str | None
+    run_id: str
+    job_id: str
+    trace_id: str
+    span_id: str
+    parent_span_id: str | None
+    requested_execution_profile: str
+    effective_execution_profile: str
+    phase: str
+    generated_at: str
+    as_of_time: str
+    same_input_closure: SameInputClosure
+    manifest_inputs: tuple[InputRef, ...]
+    manifest_governance: ArtifactGovernanceInfo | None
+    input_refs: tuple[str, ...]
+    effective_mode_ref: str
+    validation_status: str
+    blocking_status: str
+    governance: GovernanceMetadata
+    degradation_ledger_ref: str | None = None
+    schema_compatibility_ref: str | None = None
+    semantic_binding_ref: str | None = None
+    attestation_ref: str | None = None
+    redaction_policy_ref: str | None = None
+    event_id: str | None = None
+    event_source: str = "polisyos.runtime.cas"
+    event_type: str = "polisyos.runtime.diagnostic.cas_write.v1"
+    event_subject: str | None = None
+    state_before: str | None = None
+    state_after: str | None = "persisted"
 
 
 def _make_artifact_ref(
@@ -79,16 +128,16 @@ def _typed_artifact_ref(
     ref_str: str,
     *,
     kind: str,
-    ref_type: Any,
+    ref_type: type[ArtifactRef],
     media_type: str = "application/json",
-) -> Any:
+) -> ArtifactRef:
     return ref_type.model_validate(
         _make_artifact_ref(ref_str, kind=kind, media_type=media_type).model_dump(mode="json")
     )
 
 
 def _artifact_ref_from_summary_payload(
-    payload: Any,
+    payload: object,
     *,
     kind: str,
     media_type: str = "application/json",
@@ -117,7 +166,7 @@ def _normative_applicability_report_write_options(
 
 
 def write_authority_artifact(
-    store: Any,
+    store: core_artifacts.ArtifactStore,
     payload: object,
     opts: ArtifactWriteOptions,
     *,
@@ -172,26 +221,70 @@ def write_authority_artifact(
     authority_governance = GovernanceMetadata.model_validate(governance)
     manifest_inputs = _coerce_manifest_inputs(opts.inputs)
     envelope_input_refs = tuple(input_refs or _input_ref_values(manifest_inputs))
-    existing = _existing_authority_result(
-        store,
-        cas_ref_value=cas_ref_value,
-        payload_sha256=payload_sha256,
-        artifact_kind=opts.kind,
+    expected_context = AuthorityArtifactIdentityContext(
+        evidence_id=evidence_id,
+        evidence_class=evidence_class,
+        authority_role=authority_role,
+        provenance_kind=provenance_kind,
+        owner=owner,
+        reader_contract=reader_contract,
+        reader_contract_version=reader_contract_version,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        run_id=run_id,
+        job_id=job_id,
+        trace_id=trace_id,
+        span_id=span_id,
+        parent_span_id=parent_span_id,
+        requested_execution_profile=requested_execution_profile,
+        effective_execution_profile=effective_execution_profile,
+        phase=phase,
+        generated_at=generated_at,
+        as_of_time=as_of_time,
+        same_input_closure=closure,
+        manifest_inputs=tuple(manifest_inputs),
+        manifest_governance=_copy_governance(opts),
+        input_refs=envelope_input_refs,
+        effective_mode_ref=effective_mode_ref,
+        validation_status=validation_status,
+        blocking_status=blocking_status,
+        governance=authority_governance,
+        degradation_ledger_ref=degradation_ledger_ref,
+        schema_compatibility_ref=schema_compatibility_ref,
+        semantic_binding_ref=semantic_binding_ref,
+        attestation_ref=attestation_ref,
+        redaction_policy_ref=redaction_policy_ref,
+        event_id=event_id,
+        event_source=event_source,
+        event_type=event_type,
+        event_subject=event_subject,
+        state_before=state_before,
+        state_after=state_after,
     )
-    if existing is not None:
-        return existing
-    effective_attestation_ref = attestation_ref or _persist_cas_writer_attestation(
-        store,
+    expected_context, attestation_payload = _freeze_cas_writer_attestation_identity(
+        expected_context,
         cas_ref_value=cas_ref_value,
         manifest_ref=manifest_ref,
         payload_sha256=payload_sha256,
         schema=schema,
         producer=producer,
+    )
+    existing = _existing_authority_result(
+        store,
+        cas_ref_value=cas_ref_value,
+        payload_sha256=payload_sha256,
+        opts=opts,
+        expected_context=expected_context,
+    )
+    if existing is not None:
+        return existing
+    effective_attestation_ref = _persist_cas_writer_attestation(
+        store,
+        payload=attestation_payload,
+        expected_ref=expected_context.attestation_ref,
+        producer=producer,
         tenant_id=tenant_id,
         cell_id=cell_id,
-        execution_profile=effective_execution_profile,
-        phase=phase,
-        generated_at=generated_at,
     )
 
     diagnostic_event = _build_diagnostic_event(
@@ -316,17 +409,44 @@ def write_authority_artifact(
         manifest_ref=manifest_ref,
         payload_sha256=payload_sha256,
     )
-    return AuthorityArtifactWriteResult(
-        cas_ref=cas_ref,
+    verified = _existing_authority_result(
+        store,
+        cas_ref_value=cas_ref_value,
         payload_sha256=payload_sha256,
-        manifest_ref=manifest_ref,
-        authority_envelope_ref=authority_envelope_ref,
-        diagnostic_event_ref=diagnostic_event_ref,
+        opts=opts,
+        expected_context=expected_context,
     )
+    if verified is None:
+        raise ValueError("authority post-write identity readback missing")
+    return verified
 
 
 def _persist_cas_writer_attestation(
-    store: Any,
+    store: core_artifacts.ArtifactStore,
+    *,
+    payload: dict[str, Any],
+    expected_ref: str | None,
+    producer: ProducerInfo,
+    tenant_id: str,
+    cell_id: str | None,
+) -> str:
+    if expected_ref is None:
+        raise ValueError("authority attestation identity missing")
+    ref = store.put_json(
+        payload,
+        _cas_writer_attestation_write_options(
+            producer=producer,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        ),
+        CanonSpec(forbid_floats=False),
+    )
+    if str(ref.artifact_id) != expected_ref:
+        raise ValueError("authority attestation identity mismatch")
+    return str(ref.artifact_id)
+
+
+def _cas_writer_attestation_payload(
     *,
     cas_ref_value: str,
     manifest_ref: str,
@@ -338,7 +458,7 @@ def _persist_cas_writer_attestation(
     execution_profile: str,
     phase: str,
     generated_at: str,
-) -> str:
+) -> dict[str, Any]:
     record = build_verified_attestation_record(
         boundary_id="cas_writer",
         material_refs={
@@ -362,29 +482,61 @@ def _persist_cas_writer_attestation(
         },
         generated_at=_event_time(generated_at),
     )
-    ref = store.put_json(
-        serialize_attestation_record(record),
-        ArtifactWriteOptions(
-            kind=TRUST_BOUNDARY_ATTESTATION_ARTIFACT_KIND,
-            media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.runtime.quality.AttestationRecord",
-                version="1.0",
-            ),
-            producer=producer,
-            tenant_context=_tenant_context(tenant_id, cell_id),
+    return serialize_attestation_record(record)
+
+
+def _cas_writer_attestation_write_options(
+    *,
+    producer: ProducerInfo,
+    tenant_id: str,
+    cell_id: str | None,
+) -> ArtifactWriteOptions:
+    return ArtifactWriteOptions(
+        kind=TRUST_BOUNDARY_ATTESTATION_ARTIFACT_KIND,
+        media_type="application/json",
+        schema=SchemaInfo(
+            name="polisyos.runtime.quality.AttestationRecord",
+            version="1.0",
         ),
-        CanonSpec(forbid_floats=False),
+        producer=producer,
+        tenant_context=_tenant_context(tenant_id, cell_id),
     )
-    return str(ref.artifact_id)
+
+
+def _freeze_cas_writer_attestation_identity(
+    context: AuthorityArtifactIdentityContext,
+    *,
+    cas_ref_value: str,
+    manifest_ref: str,
+    payload_sha256: str,
+    schema: SchemaInfo,
+    producer: ProducerInfo,
+) -> tuple[AuthorityArtifactIdentityContext, dict[str, Any]]:
+    payload = _cas_writer_attestation_payload(
+        cas_ref_value=cas_ref_value,
+        manifest_ref=manifest_ref,
+        payload_sha256=payload_sha256,
+        schema=schema,
+        producer=producer,
+        tenant_id=context.tenant_id,
+        cell_id=context.cell_id,
+        execution_profile=context.effective_execution_profile,
+        phase=context.phase,
+        generated_at=context.generated_at,
+    )
+    spec = CanonSpec(forbid_floats=False)
+    expected_ref = f"sha256:{content_hash(to_canonical_bytes(payload, spec))}"
+    if context.attestation_ref is not None and context.attestation_ref != expected_ref:
+        raise ValueError("authority attestation identity mismatch")
+    return replace(context, attestation_ref=expected_ref), payload
 
 
 def write_runtime_authority_artifact(
-    store: Any,
-    event_log: Any,
+    store: core_artifacts.ArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
     payload: object,
     opts: ArtifactWriteOptions,
-    **authority_fields: Any,
+    **authority_fields: object,
 ) -> AuthorityArtifactWriteResult:
     """Write a runtime authority artifact and append its event to the durable log."""
 
@@ -393,11 +545,21 @@ def write_runtime_authority_artifact(
         canon_spec = CanonSpec()
     payload_sha256 = content_hash(to_canonical_bytes(payload, canon_spec))
     cas_ref_value = f"sha256:{payload_sha256}"
+    expected_context = _identity_context_from_fields(opts, authority_fields)
+    expected_context, _ = _freeze_cas_writer_attestation_identity(
+        expected_context,
+        cas_ref_value=cas_ref_value,
+        manifest_ref=f"cas-manifest://{cas_ref_value}",
+        payload_sha256=payload_sha256,
+        schema=_require_schema(opts),
+        producer=_require_producer(opts),
+    )
     existing = _existing_authority_result(
         store,
         cas_ref_value=cas_ref_value,
         payload_sha256=payload_sha256,
-        artifact_kind=opts.kind,
+        opts=opts,
+        expected_context=expected_context,
     )
     if existing is not None:
         reconcile_authority_ref(
@@ -427,18 +589,17 @@ def write_runtime_authority_artifact(
 
 
 def _existing_authority_result(
-    store: Any,
+    store: core_artifacts.ArtifactStore,
     *,
     cas_ref_value: str,
     payload_sha256: str,
-    artifact_kind: str,
+    opts: ArtifactWriteOptions,
+    expected_context: AuthorityArtifactIdentityContext,
 ) -> AuthorityArtifactWriteResult | None:
-    try:
-        if not store.has(cas_ref_value):
-            return None
-        manifest = store.get_manifest(cas_ref_value)
-    except Exception:
+    artifact_id = core_artifacts.ArtifactID.model_validate(cas_ref_value)
+    if not store.has(artifact_id):
         return None
+    manifest = store.get_manifest(artifact_id)
     authority = manifest.authority
     if authority is None:
         return None
@@ -447,8 +608,169 @@ def _existing_authority_result(
             "existing authority manifest payload hash mismatch for "
             f"{cas_ref_value}: expected {payload_sha256}, got {authority.payload_sha256}"
         )
+    schema = _require_schema(opts)
+    producer = _require_producer(opts)
+    manifest_schema = manifest.artifact_schema
+    manifest_producer = manifest.producer
+    try:
+        verification = store.verify(artifact_id)
+        envelope_id = core_artifacts.ArtifactID.model_validate(
+            authority.authority_envelope_ref
+        )
+        envelope_verification = store.verify(envelope_id)
+        envelope = EvidenceAuthorityEnvelope.model_validate(
+            from_canonical_bytes(store.get_bytes(envelope_id))
+        )
+        diagnostic_event_id = core_artifacts.ArtifactID.model_validate(
+            authority.diagnostic_event_ref
+        )
+        diagnostic_event_verification = store.verify(diagnostic_event_id)
+        diagnostic_event = DiagnosticEvent.model_validate(
+            from_canonical_bytes(store.get_bytes(diagnostic_event_id))
+        )
+        if envelope.attestation_ref != expected_context.attestation_ref:
+            raise ValueError("existing authority identity mismatch")
+        attestation_id = core_artifacts.ArtifactID.model_validate(
+            expected_context.attestation_ref
+        )
+        attestation_verification = store.verify(attestation_id)
+        attestation_manifest = store.get_manifest(attestation_id)
+        attestation_payload = from_canonical_bytes(store.get_bytes(attestation_id))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("existing authority identity mismatch") from exc
+    if (
+        not verification.ok
+        or not envelope_verification.ok
+        or not diagnostic_event_verification.ok
+        or not attestation_verification.ok
+    ):
+        raise ValueError("existing authority identity mismatch")
+    expected_tenant = _tenant_context(
+        expected_context.tenant_id,
+        expected_context.cell_id,
+    )
+    expected_closure = _same_input_closure_summary(
+        expected_context.same_input_closure
+    )
+    expected_event_id = expected_context.event_id or _stable_event_id(
+        evidence_id=expected_context.evidence_id,
+        cas_ref=cas_ref_value,
+        trace_id=expected_context.trace_id,
+        span_id=expected_context.span_id,
+    )
+    expected_event_subject = expected_context.event_subject or (
+        f"run/{expected_context.run_id}/job/{expected_context.job_id}/"
+        f"phase/{expected_context.phase}/artifact/{cas_ref_value}"
+    )
+    expected_attestation_payload = _cas_writer_attestation_payload(
+        cas_ref_value=cas_ref_value,
+        manifest_ref=f"cas-manifest://{cas_ref_value}",
+        payload_sha256=payload_sha256,
+        schema=schema,
+        producer=producer,
+        tenant_id=expected_context.tenant_id,
+        cell_id=expected_context.cell_id,
+        execution_profile=expected_context.effective_execution_profile,
+        phase=expected_context.phase,
+        generated_at=expected_context.generated_at,
+    )
+    attestation_schema = attestation_manifest.artifact_schema
+    if (
+        manifest.kind != opts.kind
+        or manifest.media_type != opts.media_type
+        or manifest_schema is None
+        or manifest_schema.name != schema.name
+        or manifest_schema.version != schema.version
+        or manifest_producer is None
+        or manifest_producer.component != producer.component
+        or manifest_producer.version != producer.version
+        or manifest.inputs != list(expected_context.manifest_inputs)
+        or manifest.tenant_context != expected_tenant
+        or manifest.same_input_closure != expected_closure
+        or manifest.governance != expected_context.manifest_governance
+        or envelope.artifact_ref != cas_ref_value
+        or envelope.cas_ref != cas_ref_value
+        or envelope.artifact_kind != opts.kind
+        or envelope.payload_sha256 != payload_sha256
+        or envelope.schema_name != schema.name
+        or envelope.schema_version != schema.version
+        or envelope.producer_component != str(producer.component)
+        or envelope.producer_version != producer.version
+        or envelope.evidence_id != expected_context.evidence_id
+        or envelope.evidence_class != expected_context.evidence_class
+        or envelope.authority_role != expected_context.authority_role
+        or envelope.provenance_kind != expected_context.provenance_kind
+        or envelope.owner != expected_context.owner
+        or envelope.reader_contract != expected_context.reader_contract
+        or envelope.reader_contract_version
+        != expected_context.reader_contract_version
+        or envelope.tenant_id != expected_context.tenant_id
+        or envelope.cell_id != expected_context.cell_id
+        or envelope.run_id != expected_context.run_id
+        or envelope.job_id != expected_context.job_id
+        or envelope.trace_id != expected_context.trace_id
+        or envelope.span_id != expected_context.span_id
+        or envelope.parent_span_id != expected_context.parent_span_id
+        or envelope.requested_execution_profile
+        != expected_context.requested_execution_profile
+        or envelope.effective_execution_profile
+        != expected_context.effective_execution_profile
+        or envelope.phase != expected_context.phase
+        or envelope.generated_at != expected_context.generated_at
+        or envelope.as_of_time != expected_context.as_of_time
+        or envelope.same_input_closure != expected_context.same_input_closure
+        or envelope.input_refs != expected_context.input_refs
+        or envelope.output_refs != (cas_ref_value,)
+        or envelope.effective_mode_ref != expected_context.effective_mode_ref
+        or envelope.validation_status != expected_context.validation_status
+        or envelope.blocking_status != expected_context.blocking_status
+        or envelope.governance != expected_context.governance
+        or envelope.degradation_ledger_ref
+        != expected_context.degradation_ledger_ref
+        or envelope.schema_compatibility_ref
+        != expected_context.schema_compatibility_ref
+        or envelope.semantic_binding_ref != expected_context.semantic_binding_ref
+        or envelope.attestation_ref != expected_context.attestation_ref
+        or attestation_manifest.kind != TRUST_BOUNDARY_ATTESTATION_ARTIFACT_KIND
+        or attestation_schema is None
+        or attestation_schema.name != "polisyos.runtime.quality.AttestationRecord"
+        or attestation_schema.version != "1.0"
+        or attestation_manifest.producer != producer
+        or attestation_manifest.tenant_context != expected_tenant
+        or attestation_payload != expected_attestation_payload
+        or envelope.redaction_policy_ref != expected_context.redaction_policy_ref
+        or envelope.state_before != expected_context.state_before
+        or envelope.state_after != expected_context.state_after
+        or envelope.runtime_event_ref != authority.diagnostic_event_ref
+        or diagnostic_event.event_id != expected_event_id
+        or diagnostic_event.event_source != expected_context.event_source
+        or diagnostic_event.event_type != expected_context.event_type
+        or diagnostic_event.event_subject != expected_event_subject
+        or diagnostic_event.event_time != _event_time(expected_context.generated_at)
+        or diagnostic_event.trace_id != expected_context.trace_id
+        or diagnostic_event.span_id != expected_context.span_id
+        or diagnostic_event.parent_span_id != expected_context.parent_span_id
+        or diagnostic_event.run_id != expected_context.run_id
+        or diagnostic_event.job_id != expected_context.job_id
+        or diagnostic_event.tenant_id != expected_context.tenant_id
+        or diagnostic_event.cell_id != (expected_context.cell_id or "")
+        or diagnostic_event.producer_component != str(producer.component)
+        or diagnostic_event.producer_version != producer.version
+        or diagnostic_event.execution_profile
+        != expected_context.effective_execution_profile
+        or diagnostic_event.phase != expected_context.phase
+        or diagnostic_event.state_before != expected_context.state_before
+        or diagnostic_event.state_after != expected_context.state_after
+        or diagnostic_event.payload_ref != cas_ref_value
+        or diagnostic_event.artifact_refs != (cas_ref_value,)
+        or diagnostic_event.input_refs != expected_context.input_refs
+        or diagnostic_event.blocking_status != expected_context.blocking_status
+        or diagnostic_event.redaction_policy_ref
+        != expected_context.redaction_policy_ref
+    ):
+        raise ValueError("existing authority identity mismatch")
     return AuthorityArtifactWriteResult(
-        cas_ref=_make_artifact_ref(cas_ref_value, kind=artifact_kind),
+        cas_ref=_make_artifact_ref(cas_ref_value, kind=opts.kind),
         payload_sha256=payload_sha256,
         manifest_ref=authority.manifest_ref,
         authority_envelope_ref=_make_artifact_ref(
@@ -459,6 +781,90 @@ def _existing_authority_result(
             authority.diagnostic_event_ref,
             kind=DIAGNOSTIC_EVENT_ARTIFACT_KIND,
         ),
+        identity_context=expected_context,
+    )
+
+
+def verify_runtime_authority_artifact_identity(
+    store: core_artifacts.ArtifactStore,
+    *,
+    artifact_id: core_artifacts.ArtifactID,
+    opts: ArtifactWriteOptions,
+    expected_context: AuthorityArtifactIdentityContext,
+) -> AuthorityArtifactWriteResult:
+    """Re-read one authority artifact through the shared strict identity owner."""
+
+    typed_id = core_artifacts.ArtifactID.model_validate(artifact_id)
+    result = _existing_authority_result(
+        store,
+        cas_ref_value=str(typed_id),
+        payload_sha256=typed_id.hex,
+        opts=opts,
+        expected_context=expected_context,
+    )
+    if result is None:
+        raise ValueError("authority post-write identity readback missing")
+    return result
+
+
+def _identity_context_from_fields(
+    opts: ArtifactWriteOptions,
+    values: Mapping[str, Any],
+) -> AuthorityArtifactIdentityContext:
+    manifest_inputs = _coerce_manifest_inputs(opts.inputs)
+    closure = SameInputClosure.model_validate(values.get("same_input_closure"))
+    governance = GovernanceMetadata.model_validate(values.get("governance"))
+    raw_input_refs = values.get("input_refs")
+    input_refs = tuple(raw_input_refs or _input_ref_values(manifest_inputs))
+
+    def required(name: str) -> str:
+        value = values.get(name)
+        if not isinstance(value, str) or not value:
+            raise ValueError(f"authority identity field {name!r} is required")
+        return value
+
+    return AuthorityArtifactIdentityContext(
+        evidence_id=required("evidence_id"),
+        evidence_class=required("evidence_class"),
+        authority_role=required("authority_role"),
+        provenance_kind=required("provenance_kind"),
+        owner=required("owner"),
+        reader_contract=required("reader_contract"),
+        reader_contract_version=required("reader_contract_version"),
+        tenant_id=required("tenant_id"),
+        cell_id=values.get("cell_id"),
+        run_id=required("run_id"),
+        job_id=required("job_id"),
+        trace_id=required("trace_id"),
+        span_id=required("span_id"),
+        parent_span_id=values.get("parent_span_id"),
+        requested_execution_profile=required("requested_execution_profile"),
+        effective_execution_profile=required("effective_execution_profile"),
+        phase=required("phase"),
+        generated_at=required("generated_at"),
+        as_of_time=required("as_of_time"),
+        same_input_closure=closure,
+        manifest_inputs=tuple(manifest_inputs),
+        manifest_governance=_copy_governance(opts),
+        input_refs=input_refs,
+        effective_mode_ref=required("effective_mode_ref"),
+        validation_status=required("validation_status"),
+        blocking_status=required("blocking_status"),
+        governance=governance,
+        degradation_ledger_ref=values.get("degradation_ledger_ref"),
+        schema_compatibility_ref=values.get("schema_compatibility_ref"),
+        semantic_binding_ref=values.get("semantic_binding_ref"),
+        attestation_ref=values.get("attestation_ref"),
+        redaction_policy_ref=values.get("redaction_policy_ref"),
+        event_id=values.get("event_id"),
+        event_source=str(values.get("event_source") or "polisyos.runtime.cas"),
+        event_type=str(
+            values.get("event_type")
+            or "polisyos.runtime.diagnostic.cas_write.v1"
+        ),
+        event_subject=values.get("event_subject"),
+        state_before=values.get("state_before"),
+        state_after=values.get("state_after", "persisted"),
     )
 
 
@@ -699,7 +1105,7 @@ def _stable_event_id(
 
 
 def _assert_authority_manifest_linkage(
-    store: Any,
+    store: core_artifacts.ArtifactStore,
     *,
     cas_ref: ArtifactRef,
     authority_envelope_ref: ArtifactRef,
@@ -724,7 +1130,7 @@ def _assert_authority_manifest_linkage(
         )
 
 
-def _nested_get(payload: Any, key: str) -> Any:
+def _nested_get(payload: object, key: str) -> object | None:
     if isinstance(payload, Mapping):
         if key in payload:
             return payload[key]
@@ -740,7 +1146,7 @@ def _nested_get(payload: Any, key: str) -> Any:
     return None
 
 
-def _runtime_quality_evidence_from_payloads(*payloads: Any) -> dict[str, Any]:
+def _runtime_quality_evidence_from_payloads(*payloads: object) -> dict[str, Any]:
     """Extract runtime-owned quality reports embedded in job/run/agent payloads."""
     evidence: dict[str, Any] = {}
     for payload in payloads:
@@ -793,6 +1199,7 @@ __all__ = [
     "DIAGNOSTIC_EVENT_ARTIFACT_KIND",
     "NORMATIVE_APPLICABILITY_REPORT_KIND",
     "TRUST_BOUNDARY_ATTESTATION_ARTIFACT_KIND",
+    "AuthorityArtifactIdentityContext",
     "AuthorityArtifactWriteResult",
     "_artifact_ref_from_summary_payload",
     "_make_artifact_ref",
@@ -800,6 +1207,7 @@ __all__ = [
     "_resolve_curated_dir",
     "_runtime_quality_evidence_from_payloads",
     "_typed_artifact_ref",
+    "verify_runtime_authority_artifact_identity",
     "write_authority_artifact",
     "write_runtime_authority_artifact",
 ]

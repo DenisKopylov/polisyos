@@ -1571,7 +1571,7 @@ note is itself the evidence. Anything else is `ambiguous` with its line number �
 | `GY-DI2` | infra | `executed` | `c889ee085` | timing catalog |
 | `GY-DI3` | infra | `executed` | Rev 41: `GY-DI2, GY-DI3 and GY-DI4 are ALL CLOSED` — `15b41f960`, `ee44c5e8d` | timing persistence |
 | `GY-DI4` | infra | `executed` | Rev 41, same closure | lane health, re-severitied |
-| `GY-O0` | 6 | `not_started` | no commit and no note; absence is the evidence | Phase-6 learning loop — opens when Phase 5 closes |
+| `GY-O0` | 6 | `executed` | `<MERGE>` | attempted-evaluation safety gate — the Phase 5→6 bridge. Promotion independence discharged **structurally**, not empirically: the safety core takes no promotion input, and absent / maximally-favourable / forged-passing injections all return identical `blocked`, identical typed blockers, identical core-byte digest and safety hash, zero verifier calls. 21/24 mechanism paths, 2/4 widening rounds. `GY-O0-NC-01` — the empirical cross-gate disagreement on a real promoted design — is registered and does **not** gate closure |
 | `GY-O1` | 6 | `not_started` | no commit and no note; absence is the evidence | Phase-6 learning loop — opens when Phase 5 closes |
 | `GY-O2` | 6 | `not_started` | no commit and no note; absence is the evidence | Phase-6 learning loop — opens when Phase 5 closes |
 | `GY-O3` | 6 | `not_started` | no commit and no note; absence is the evidence | Phase-6 learning loop — opens when Phase 5 closes |
@@ -1583,7 +1583,7 @@ note is itself the evidence. Anything else is `ambiguous` with its line number �
 | `GY-V6` | 7 | `not_started` | no commit and no note; absence is the evidence | Deep Workability Verification — runs only after Phases 5–6 land |
 | `GY-V7` | 7 | `not_started` | no commit and no note; absence is the evidence | Deep Workability Verification — runs only after Phases 5–6 land |
 
-**Denominator: 37 tasks — 25 `executed`, 0 `in_flight`, 1 `not_executable`, 11 `not_started`, 0 `ambiguous`.**
+**Denominator: 37 tasks — 26 `executed`, 0 `in_flight`, 1 `not_executable`, 10 `not_started`, 0 `ambiguous`.**
 
 **Sequencing consequence — updated 2026-08-27.** **Phase 5 is complete.** `GY-N12` merged at
 `c6fbfa388` and `GY-PA1` is a completed negative rather than pending work, so no Phase-5 row

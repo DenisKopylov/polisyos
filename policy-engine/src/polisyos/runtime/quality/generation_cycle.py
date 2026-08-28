@@ -22,12 +22,14 @@ import re
 import time
 from collections.abc import Awaitable, Mapping, Sequence
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core import components as core_components
 from polisyos.core import contracts as core_contracts
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
@@ -41,6 +43,7 @@ from polisyos.foundry.methods.selection import (
     method_selection_context_hash,
 )
 from polisyos.pdc import (
+    ArtifactRef,
     CounterexampleRecord,
     RefinementDecision,
     SearchIteration,
@@ -64,6 +67,20 @@ from polisyos.runtime.quality.acquisition_planner import (
     value_input_world_knowledge_requirement_gap,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
+from polisyos.runtime.quality.evaluation_modes import (
+    EvaluationMode as ValueEvaluationMode,
+)
+from polisyos.runtime.quality.evaluation_modes import (
+    EvaluationModeResolution,
+    resolve_evaluation_mode,
+)
+from polisyos.runtime.quality.evaluation_safety import (
+    EvalSafetyAdmissionChallenge,
+    EvalSafetyVerifierPort,
+    EvaluationExecutionContext,
+    EvaluationInputProvenance,
+    evaluation_safety_consumer_admission_is_verified,
+)
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
 from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -84,6 +101,7 @@ from polisyos.runtime.quality.workspace.loop import (
 from polisyos.runtime.quality.world_model_record import (
     WorldModelRecord,
     WorldModelRecordError,
+    world_model_record_content_hash,
 )
 from polisyos.scientist.methods.search.voi_scheduler import (
     ParetoSnapshot,
@@ -94,8 +112,6 @@ from polisyos.scientist.orchestration.engine.budget import BudgetState  # noqa: 
 from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
 
 if TYPE_CHECKING:
-    from datetime import datetime
-
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
     from polisyos.runtime.quality.open_world_risk import (
@@ -147,14 +163,6 @@ GroundingStatus = Literal[
 LoopNextAction = Literal["advance", "stop", "escalate", "blocked"]
 QuarantineAction = Literal["none", "adversarial_validate"]
 ValuePortStatus = Literal["value_pending_n8", "value_ready", "value_blocked"]
-ValueEvaluationMode = Literal[
-    "simulate_only",
-    "retrospective",
-    "measurement_audit",
-    "sandbox_pilot",
-    "field_pilot",
-    "deployment",
-]
 PromotionPortStatus = Literal["promotion_pending_n9", "certified_current_valid", "not_promoted"]
 TerminalStatus = Literal["completed", "blocked"]
 
@@ -1621,14 +1629,124 @@ class RealValueOwnerGateway:
         }
 
 
+FOUNDRY_VALUE_PORT_EVALUATOR_ID = core_components.ComponentId(
+    "polisyos.runtime.quality.foundry_value_port@1.0.0"
+)
+
+
+def simulation_evaluation_input_ref(
+    simulation: SimulationPortObservation,
+) -> ArtifactRef | None:
+    """Return the canonical reference for the actual N5 observation."""
+
+    if (
+        simulation.status != "joint_simulated"
+        or not simulation.simulation_ref
+        or simulation.authority_blockers
+    ):
+        return None
+    try:
+        return ArtifactRef(
+            artifact_id=f"polisyos.runtime.n5.simulation.{simulation.candidate_id}",
+            artifact_type="joint_simulation_observation",
+            content_hash=simulation.simulation_ref,
+            schema_ref="policyos.runtime.n5.joint_simulation_observation.v1",
+            uri=f"runtime://n5/simulation/{simulation.candidate_id}",
+            version="1.0.0",
+        )
+    except ValueError:
+        return None
+
+
+def simulation_value_execution_context(
+    *,
+    candidate: object,
+    simulation: SimulationPortObservation,
+    problem: DesignProblem,
+) -> EvaluationExecutionContext:
+    """Build an explicit certificate-free context from the actual N5 output."""
+
+    input_ref = simulation_evaluation_input_ref(simulation)
+    world = simulation.world_model_record
+    if input_ref is None or world is None:
+        raise ValueError("eval_safety_simulation_input_unresolved")
+    candidate_id = _candidate_id(candidate)
+    if simulation.candidate_id != candidate_id:
+        raise ValueError("eval_safety_simulation_candidate_mismatch")
+    world_hash = str(_object_get(world, "content_hash") or "")
+    world_id = str(_object_get(world, "world_model_record_id") or "")
+    if not world_hash or not world_id:
+        raise ValueError("eval_safety_simulation_wmr_unresolved")
+    design_problem_ref = _problem_ref(problem)
+    intake_hash = gy_content_hash(
+        {
+            "candidate_id": candidate_id,
+            "design_problem_ref": design_problem_ref,
+            "simulation_input_ref": input_ref.model_dump(mode="json"),
+            "world_model_record_content_hash": world_hash,
+        }
+    )
+    intake_ref = ArtifactRef(
+        artifact_id=f"polisyos.runtime.n6.simulation_intake.{candidate_id}",
+        artifact_type="evaluation_attempt_intake",
+        content_hash=intake_hash,
+        schema_ref="policyos.runtime.eval_safety.intake.v1",
+        uri=f"runtime://n6/simulation-intake/{candidate_id}",
+        version="1.0.0",
+    )
+    return EvaluationExecutionContext(
+        intake_ref=intake_ref,
+        evaluator_owner_id=FOUNDRY_VALUE_PORT_EVALUATOR_ID,
+        design_problem_ref=design_problem_ref,
+        evaluation_mode="simulate_only",
+        candidate_ref=ArtifactRef(
+            artifact_id=candidate_id,
+            artifact_type="candidate",
+            content_hash=_candidate_content_hash(candidate),
+            schema_ref="policyos.runtime.candidate.v1",
+            uri=f"runtime://candidate/{candidate_id}",
+            version="1.0.0",
+        ),
+        world_model_record_ref=ArtifactRef(
+            artifact_id=world_id,
+            artifact_type="world_model_record",
+            content_hash=world_hash,
+            schema_ref="policyos.runtime.world_model_record.v1",
+            uri=f"runtime://world-model/{world_id}",
+            version="1.0.0",
+        ),
+        target_population_scope_ref=ArtifactRef(
+            artifact_id=f"polisyos.runtime.n5.simulation_population.{candidate_id}",
+            artifact_type="simulation_population_scope",
+            content_hash=input_ref.content_hash,
+            schema_ref="policyos.runtime.n5.simulation_population_scope.v1",
+            uri=f"runtime://n5/simulation-population/{candidate_id}",
+            version="1.0.0",
+        ),
+        rule_version="polisyos.runtime.eval_safety.simulation_only@1.0.0",
+        intended_start_at=datetime.now(UTC),
+        evaluation_input_refs=(input_ref,),
+        evaluation_input_provenance=(
+            EvaluationInputProvenance(
+                input_ref=input_ref,
+                input_class="simulation",
+                predicate_provenance="recomputed",
+            ),
+        ),
+        eval_safety_certificate_ref=None,
+        eval_safety_revision_head_ref=None,
+    )
+
+
 class FoundryValuePort:
     """Default N8 port delegating value authority to Foundry and S10 owners."""
 
     def __init__(
         self,
         *,
+        evaluation_context: EvaluationExecutionContext,
+        eval_safety_verifier: EvalSafetyVerifierPort | None = None,
         owner_gateway: ValueOwnerGateway | None = None,
-        evaluation_mode: ValueEvaluationMode = "simulate_only",
         data_trust: DataTrust | None = None,
         requested_method_fqn: str | None = None,
         observation_to_contract_manifest: object | None = None,
@@ -1640,7 +1758,8 @@ class FoundryValuePort:
             repo_root=repo_root,
             cycle_substrate_context=cycle_substrate_context,
         )
-        self._evaluation_mode = evaluation_mode
+        self._evaluation_context = evaluation_context
+        self._eval_safety_verifier = eval_safety_verifier
         self._data_trust = data_trust
         self._requested_method_fqn = requested_method_fqn
         self._observation_to_contract_manifest = observation_to_contract_manifest
@@ -1661,25 +1780,75 @@ class FoundryValuePort:
         started = time.monotonic()
         del cycle_index
         candidate_id = _candidate_id(candidate)
-        inputs = self._selection_inputs()
-        mode = self._evaluation_mode
-        if mode in {"sandbox_pilot", "field_pilot", "deployment"}:
+        context = self._evaluation_context
+        mode = context.evaluation_mode
+        if context.evaluator_owner_id != FOUNDRY_VALUE_PORT_EVALUATOR_ID:
             return _blocked_value_observation(
-                code="eval_safety_gate_unavailable",
-                reason="EvalSafety is not wired yet; pilot/deployment value execution is blocked.",
+                code="eval_safety_evaluator_owner_mismatch",
+                reason="EvalSafety context is bound to another evaluator owner.",
                 mode=mode,
                 started=started,
                 candidate_id=candidate_id,
             )
-        data_trust = self._data_trust
-        if mode in {"retrospective", "measurement_audit"} and data_trust is None:
+        if context.design_problem_ref != _problem_ref(problem):
             return _blocked_value_observation(
-                code="data_trust_gate_missing",
-                reason="Retrospective and measurement-audit value modes require DataTrust.",
+                code="eval_safety_design_problem_binding_mismatch",
+                reason="EvalSafety context does not bind this DesignProblem.",
                 mode=mode,
                 started=started,
                 candidate_id=candidate_id,
             )
+        actual_input_ref = simulation_evaluation_input_ref(simulation)
+        actual_input_provenance = next(
+            (
+                row
+                for row in context.evaluation_input_provenance
+                if actual_input_ref is not None and row.input_ref == actual_input_ref
+            ),
+            None,
+        )
+        actual_input_is_bound = bool(
+            actual_input_ref is not None
+            and actual_input_ref in context.evaluation_input_refs
+            and actual_input_provenance is not None
+            and actual_input_provenance.predicate_provenance
+            in {"recomputed", "independently_reconciled"}
+        )
+        if not actual_input_is_bound:
+            return _blocked_value_observation(
+                code=(
+                    "eval_safety_simulation_provenance_mismatch"
+                    if mode == "simulate_only"
+                    else "eval_safety_execution_context_binding_mismatch"
+                ),
+                reason="EvalSafety context does not bind the actual N5 input.",
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+        if mode == "simulate_only":
+            declared_inputs_are_simulation = (
+                context.attempt_class == "simulation"
+                and actual_input_provenance is not None
+                and actual_input_provenance.input_class == "simulation"
+            )
+            actual_n5_is_simulation = bool(
+                simulation.status == "joint_simulated"
+                and simulation.simulation_ref
+                and not simulation.authority_blockers
+                and simulation.candidate_id == candidate_id
+                and simulation.k_world_update_mode == "read_only_no_k_world_narrowing"
+                and simulation.k_world_ref_before is not None
+                and simulation.k_world_ref_before == simulation.k_world_ref_after
+            )
+            if not declared_inputs_are_simulation or not actual_n5_is_simulation:
+                return _blocked_value_observation(
+                    code="eval_safety_simulation_provenance_mismatch",
+                    reason="simulate_only requires independently established simulation inputs.",
+                    mode=mode,
+                    started=started,
+                    candidate_id=candidate_id,
+                )
         if simulation.candidate_id != candidate_id:
             return _blocked_value_observation(
                 code="value_candidate_simulation_mismatch",
@@ -1699,6 +1868,86 @@ class FoundryValuePort:
                     "N8 production value requires the cycle's typed WorldModelRecord; "
                     "missing WMR is controller wiring, not an acquisition gap."
                 ),
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+        recomputed_world_hash = world_model_record_content_hash(world_record)
+        world_model_binds = bool(
+            world_record.content_hash == recomputed_world_hash
+            and context.world_model_record_ref.artifact_id == world_record.world_model_record_id
+            and context.world_model_record_ref.artifact_type == "world_model_record"
+            and context.world_model_record_ref.content_hash == recomputed_world_hash
+            and context.world_model_record_ref.schema_ref
+            == "policyos.runtime.world_model_record.v1"
+        )
+        if not world_model_binds:
+            return _blocked_value_observation(
+                code="eval_safety_world_model_record_binding_mismatch",
+                reason=(
+                    "EvalSafety context does not bind the actual canonical "
+                    "WorldModelRecord identity."
+                ),
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+        if mode != "simulate_only":
+            if (
+                context.candidate_ref.artifact_id != candidate_id
+                or context.candidate_ref.content_hash != _candidate_content_hash(candidate)
+            ):
+                return _blocked_value_observation(
+                    code="eval_safety_execution_context_binding_mismatch",
+                    reason="EvalSafety context does not bind this candidate and WMR.",
+                    mode=mode,
+                    started=started,
+                    candidate_id=candidate_id,
+                )
+            verifier = self._eval_safety_verifier
+            if verifier is None:
+                return _blocked_value_observation(
+                    code="eval_safety_verifier_unresolved",
+                    reason="Non-simulation value work requires the verification-only safety port.",
+                    mode=mode,
+                    started=started,
+                    candidate_id=candidate_id,
+                )
+            challenge = EvalSafetyAdmissionChallenge.fresh(
+                consumer_component_id=FOUNDRY_VALUE_PORT_EVALUATOR_ID
+            )
+            admission = verifier.require_admission(context, challenge)
+            if (
+                not evaluation_safety_consumer_admission_is_verified(
+                    admission, context, challenge
+                )
+                or context.eval_safety_certificate_ref is None
+                or admission.certificate_ref is None
+                or admission.current_revision_head_ref is None
+                or context.eval_safety_revision_head_ref is None
+                or bool(admission.blocker_codes)
+                or admission.intake_ref != context.intake_ref
+                or admission.certificate_ref != context.eval_safety_certificate_ref
+                or admission.current_revision_head_ref
+                != context.eval_safety_revision_head_ref
+            ):
+                return _blocked_value_observation(
+                    code=(
+                        admission.blocker_codes[0]
+                        if admission.blocker_codes
+                        else "eval_safety_consumer_admission_blocked"
+                    ),
+                    reason="EvalSafety consumer admission did not verify this exact context.",
+                    mode=mode,
+                    started=started,
+                    candidate_id=candidate_id,
+                )
+        inputs = self._selection_inputs()
+        data_trust = self._data_trust
+        if mode in {"retrospective", "measurement_audit"} and data_trust is None:
+            return _blocked_value_observation(
+                code="data_trust_gate_missing",
+                reason="Retrospective and measurement-audit value modes require DataTrust.",
                 mode=mode,
                 started=started,
                 candidate_id=candidate_id,
@@ -1888,6 +2137,47 @@ class FoundryValuePort:
         return record, "built", None
 
 
+@dataclass(frozen=True)
+class _DefaultSimulationBoundFoundryValuePort:
+    """Derive the default Foundry context only after the actual N5 output exists."""
+
+    repo_root: Path | None
+    cycle_substrate_context: CycleSubstrateContext | None
+
+    def __call__(
+        self,
+        *,
+        candidate: object,
+        simulation: SimulationPortObservation,
+        problem: DesignProblem,
+        cycle_index: int,
+    ) -> ValuePortObservation:
+        try:
+            context = simulation_value_execution_context(
+                candidate=candidate,
+                simulation=simulation,
+                problem=problem,
+            )
+        except ValueError:
+            return _blocked_value_observation(
+                code="eval_safety_simulation_provenance_mismatch",
+                reason="The actual N5 observation cannot establish simulation provenance.",
+                mode="simulate_only",
+                started=time.monotonic(),
+                candidate_id=_candidate_id(candidate),
+            )
+        return FoundryValuePort(
+            evaluation_context=context,
+            repo_root=self.repo_root,
+            cycle_substrate_context=self.cycle_substrate_context,
+        )(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=cycle_index,
+        )
+
+
 class PendingN9PromotionPort:
     """Honest N9-pending promotion port."""
 
@@ -2030,7 +2320,7 @@ class GenerationCycleController:
             repo_root=repo_root,
             cycle_substrate_context=cycle_substrate_context,
         )
-        self._value_port = value_port or FoundryValuePort(
+        self._value_port = value_port or _DefaultSimulationBoundFoundryValuePort(
             repo_root=repo_root,
             cycle_substrate_context=cycle_substrate_context,
         )
@@ -4262,10 +4552,11 @@ def _s10_value_authority_boundary() -> dict[str, Any]:
     }
 
 
-def _value_evaluation_mode(inputs: Mapping[str, Any]) -> ValueEvaluationMode:
-    raw = str(inputs.get("evaluation_mode") or "simulate_only")
-    allowed = set(get_args(ValueEvaluationMode))
-    return raw if raw in allowed else "simulate_only"  # type: ignore[return-value]
+def _value_evaluation_mode(inputs: Mapping[str, Any]) -> EvaluationModeResolution:
+    """Return the strict typed resolution for an untrusted N8 mode token."""
+
+    raw = inputs.get("evaluation_mode")
+    return resolve_evaluation_mode(raw if isinstance(raw, str) else None)
 
 
 def _value_data_trust(inputs: Mapping[str, Any]) -> DataTrust | None:
@@ -5480,34 +5771,15 @@ def _promotion_receipt_allows_decision_front(
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
 ) -> bool:
     from polisyos.runtime.quality.promotion_sequence import (
-        CanonicalPromotionReceipt,
-        validate_canonical_promotion_receipt,
+        promotion_receipt_allows_decision_front,
     )
 
-    for receipt in promotion.receipts:
-        if str(receipt.get("candidate_id") or "") != summary.candidate_id:
-            continue
-        try:
-            parsed = CanonicalPromotionReceipt.model_validate(receipt)
-        except ValueError:
-            return False
-        if type(parsed) is not CanonicalPromotionReceipt:
-            return False
-        if validate_canonical_promotion_receipt(
-            parsed,
-            candidate_summary=summary,
-            design_problem=problem,
-            value_receipt=summary.value_receipt,
-            open_world_resolver=open_world_resolver,
-        ):
-            return False
-        return bool(
-            parsed.promoted
-            and parsed.consumer_promotable
-            and parsed.promotion_lane == "production"
-            and not parsed.non_promotable_reason
-        )
-    return False
+    return promotion_receipt_allows_decision_front(
+        promotion,
+        summary,
+        design_problem=problem,
+        open_world_resolver=open_world_resolver,
+    )
 
 
 def _run_fixture_callers(repo_root: Path) -> tuple[str, ...]:
@@ -5646,5 +5918,7 @@ __all__ = [
     "enforce_no_retry_without_new_grammar",
     "generation_cycle_terminal_state",
     "is_value_panel_shape",
+    "simulation_evaluation_input_ref",
+    "simulation_value_execution_context",
     "validate_generation_cycle_run",
 ]

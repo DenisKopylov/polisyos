@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import logging
+from dataclasses import replace
 from types import SimpleNamespace
+
+import pytest
 
 import polisyos.scientist.nodes.builtins.c6c_runtime_support as c6c_runtime_support
 from polisyos.core.artifacts.ids import ArtifactID
@@ -27,23 +30,28 @@ from polisyos.ir.analytics.strategic import (
     persist_strategic_payoff_table,
 )
 from polisyos.ir.registry.refs import ArtifactRefModel
+from polisyos.runtime.quality import WorldModelRecord
+from polisyos.scientist.evidence.sources import EvidenceSourcesConfig
 from polisyos.scientist.methods.doe.stress_report import (
     StressTestReport,
     Vulnerability,
     VulnerabilityType,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.evidence.sources import EvidenceSourcesConfig
-from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    PolicyRuntimeEvaluationSafetyError,
+)
 from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
     _SPEC,
+    RunPolicyBlueprintRuntimeNode,
     _merge_stress_test_reports,
     _persist_runtime_strategic_artifacts,
     _resolve_policy_runtime_source_statuses,
     _resolve_replay_bundle_ref,
 )
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CAUSAL_REPORT_REF
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
 
 
 def _ref(seed: str) -> ArtifactRef:
@@ -173,6 +181,76 @@ def test_runtime_source_statuses_prefer_cross_graph_profile_when_available() -> 
     )
 
     assert statuses["legal"] == "available"
+
+
+def test_blueprint_caller_cannot_bypass_production_eval_safety_owner(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    """Blueprint transports exact safety dependencies into the sole production owner."""
+    import polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime as owner
+
+    safety_context = object()
+    verifier = object()
+    world_model_record = WorldModelRecord.model_construct(
+        world_model_record_id="world_model_record_1111111111111111",
+        content_hash="sha256:" + "1" * 64,
+    )
+    ctx = replace(
+        _build_ctx(tmp_path, run_id="run-blueprint-eval-safety"),
+        eval_safety_execution_context=safety_context,
+        eval_safety_verifier=verifier,
+    )
+    state = ExperimentState.model_construct(
+        run_id="run-blueprint-eval-safety",
+        params={"policy_mode": True, "world_model_record": world_model_record},
+        artifacts_index={},
+        reports_index={},
+    )
+    request = SimpleNamespace(
+        candidate=object(),
+        candidate_ref=_ref("blueprint-candidate"),
+        uncertainty_envelope=None,
+        governance_report=None,
+        causal_report=None,
+        distributional_report=None,
+        cross_graph_profile=None,
+        evidence_sources=EvidenceSourcesConfig(),
+        simulation_metrics={"policy_value": 1.0},
+        ambiguity_certificate=None,
+        ambiguity_certificate_ref=None,
+    )
+    captured: dict[str, object] = {}
+    evaluate_calls = 0
+
+    class _OwnerBackend:
+        def evaluate(self, *args, **kwargs):
+            del args, kwargs
+            nonlocal evaluate_calls
+            evaluate_calls += 1
+            raise PolicyRuntimeEvaluationSafetyError(
+                ("polisyos.eval_safety.consumer_admission_blocked@1.0.0",)
+            )
+
+    def _backend(**kwargs):
+        captured.update(kwargs)
+        return _OwnerBackend()
+
+    monkeypatch.setattr(owner, "resolve_policy_runtime_request", lambda *_args: request)
+    monkeypatch.setattr(owner, "ProductionPolicyEvaluationBackend", _backend)
+
+    with pytest.raises(PolicyRuntimeEvaluationSafetyError) as exc_info:
+        RunPolicyBlueprintRuntimeNode().execute(ctx, state)
+
+    assert exc_info.value.blocker_codes == (
+        "polisyos.eval_safety.consumer_admission_blocked@1.0.0",
+    )
+    assert captured == {
+        "eval_safety_execution_context": safety_context,
+        "eval_safety_verifier": verifier,
+        "world_model_record": world_model_record,
+    }
+    assert evaluate_calls == 1
 
 
 def test_merge_stress_reports_replaces_phase_d4_suite_findings_by_suite_id() -> None:

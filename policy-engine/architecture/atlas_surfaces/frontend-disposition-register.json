@@ -10646,8 +10646,8 @@
     },
     "source_file_count": 605,
     "root_count": 719,
-    "file_manifest_sha256": "sha256:1de3682aecb0a2fec97962e5d955ae38a9ee97efb2c353c94d7ab78c3a55f7c8",
-    "root_manifest_sha256": "sha256:bab49cd9801004d51048ea10ac470de8cbcb0bd3f7d59f135a2c3fec8e723e5a",
+    "file_manifest_sha256": "sha256:fec49c4afbc7fe171ad71be20d6239ba112bd235d1120cacb7c51ca8c9b2edb9",
+    "root_manifest_sha256": "sha256:d5bfa41f1d7a3d0a73f2d4254c3edb3970ed2bd9300827939dc182424fb9769c",
     "decision_bearing_root_count": 33,
     "inherits_admitted_dom_root_count": 44,
     "obligated_root_count": 77,
@@ -21840,9 +21840,9 @@
             "column": 5,
             "component_identity": "EpochStalenessView",
             "kind": "jsx",
-            "line": 47,
-            "root_id": "EpochStalenessView:jsx:47:5",
-            "root_source_sha256": "sha256:5dae2d3b670039472a17a63a3f0cb753211accd412d4de04fc4d56c1a76de755",
+            "line": 48,
+            "root_id": "EpochStalenessView:jsx:48:5",
+            "root_source_sha256": "sha256:bfa3d8e897db89697c996137904836a8efc5ac156d135efb7d67aa916ac03091",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 1,
             "epoch_semantics_provider_render_count": 0,
@@ -21850,7 +21850,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/components/EpochStalenessView.tsx",
-                "sha256": "sha256:6ad17ed66d65a6f9e846bfcd5dccc367507fa020dcec7af97cc8c2c0d1cf54e0"
+                "sha256": "sha256:995b21cc0bf9ab97d74235652ed5d839e7a9843304168b84ec8c673cdfca3f0e"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -21859,7 +21859,7 @@
             "behavioral_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/components/EpochStalenessView.test.tsx",
-                "sha256": "sha256:5a9b3e74a7dd7b386bed2286735d256c789e0418b51af5d0171ce3db6557faf8",
+                "sha256": "sha256:4ac31dae18c0444b22cdef82c6cf5f9715e157b263fbd2f8bf427231d1f21667",
                 "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
               }
             ],
@@ -21867,7 +21867,7 @@
             "temporal_obligation": "as_of_epoch_validity"
           }
         ],
-        "source_sha256": "sha256:6ad17ed66d65a6f9e846bfcd5dccc367507fa020dcec7af97cc8c2c0d1cf54e0"
+        "source_sha256": "sha256:995b21cc0bf9ab97d74235652ed5d839e7a9843304168b84ec8c673cdfca3f0e"
       },
       {
         "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",

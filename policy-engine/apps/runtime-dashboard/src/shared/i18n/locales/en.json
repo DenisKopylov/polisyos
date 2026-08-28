@@ -114,7 +114,55 @@
     "admissionPending": "Epoch projection is being admitted; no currentness claim is made yet.",
     "admissionUnavailable": "Epoch projection could not be admitted; no currentness claim is made.",
     "machine": "Download MACHINE twin",
-    "openWorldFreeze": "Promotion frozen by open-world risk"
+    "openWorldFreeze": "Promotion frozen by open-world risk",
+    "eyebrow": "Epoch & validity",
+    "title": "Claim custody over time",
+    "fixtureOnly": {
+      "title": "Fixture-only evidence",
+      "description": "Content-bound demonstration fixture; never production authority."
+    },
+    "labels": {
+      "typedRefusal": "Typed refusal",
+      "institutionalDependency": "Institutional dependency",
+      "candidateOwner": "Candidate owner",
+      "engineeringClosure": "Engineering closure"
+    },
+    "certificates": {
+      "title": "Certificates",
+      "empty": "No certificate projection.",
+      "revalidation": "Revalidation: {requirements}"
+    },
+    "dependencies": {
+      "title": "Derived-data inheritance",
+      "empty": "No projected dependencies.",
+      "summary": "{relation} — {disposition}; recompute {status}"
+    },
+    "perturbations": {
+      "title": "Post-publication perturbations",
+      "empty": "No projected perturbations."
+    },
+    "lineage": {
+      "title": "Epoch lineage",
+      "empty": "No crossed epoch boundary."
+    },
+    "disposition": {
+      "unchanged": "unchanged",
+      "annotation_only": "annotation only",
+      "invalidate": "invalidate",
+      "reissue": "reissue",
+      "supersede": "supersede",
+      "withdraw": "withdraw",
+      "contested": "contested",
+      "review_required": "review required"
+    },
+    "recomputeStatus": {
+      "not_established": "not established",
+      "pending": "pending",
+      "running": "running",
+      "completed": "completed",
+      "failed": "failed"
+    },
+    "inspectableNoncurrent": "This claim remains inspectable; its epoch posture is not current."
   },
   "shell": {
     "eyebrow": "PolisyOS Runtime",

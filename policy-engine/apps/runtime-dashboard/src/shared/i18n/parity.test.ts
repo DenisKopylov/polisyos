@@ -198,6 +198,7 @@ dataset
 date
 diff
 direction
+disposition
 effort
 engine
 filename
@@ -233,6 +234,8 @@ reason
 reasons
 ref
 refs
+relation
+requirements
 requestId
 residual
 runId
@@ -267,14 +270,14 @@ why`
 );
 
 const NON_NUMERIC_VARIABLE_KEY_SET_SHA256 =
-  "b5b3aa0106b331d5b639b53c929748417e2fc9fbe1932a4384df81047327c7d3";
+  "50f796f6c245ab27b028ccce622a0d618dc841fa5fdc8e7c918413293ea5cb80";
 const INTERPOLATION_VARIABLE_KEY_SET_SHA256 =
-  "c6e55dde50b11769f4babae1c8c2d835ce9b671340aa8afbd452fc70da4c1f70";
-const ACTIVE_LOCALE_LEAF_COUNT = 2652;
-const NON_COUNT_MESSAGE_COUNT = 245;
-const NON_COUNT_VARIABLE_USE_COUNT = 361;
+  "c4bd3cc7d9456a6dc58ed77cb9ff26238866b2b782931dbb8eb0ad0117207e6d";
+const ACTIVE_LOCALE_LEAF_COUNT = 2733;
+const NON_COUNT_MESSAGE_COUNT = 248;
+const NON_COUNT_VARIABLE_USE_COUNT = 366;
 const NON_COUNT_VARIABLE_USE_KEY_SET_SHA256 =
-  "791057b29c0cd78eebd831c2f86285316d1a204ebb893f9598df693dff84417d";
+  "1447d8c0a8bb7eca11ce8cff2e421c2939ac06c7dcebca67ec8159b18055cbf6";
 
 type NumericUseClassification = "pluralized" | "invariant";
 
@@ -738,11 +741,11 @@ const QUANTITATIVE_USE_DECLARATIONS = mergeNumericUseDeclarations(
 const QUANTITATIVE_USE_DECLARATION_KEY_SET_SHA256 =
   "4bc1fc6d6b2600cfbebd509630f3f5ad82276c47e88b38834ce6fa3d526ee858";
 
-const LEGACY_CONTINUITY_RU_KEY_COUNT = 2449;
+const LEGACY_CONTINUITY_RU_KEY_COUNT = 2456;
 const LEGACY_CONTINUITY_RU_KEY_SET_SHA256 =
-  "67b7a921f503f108a9b47e034c31be130911c1fe8b7b9321fa8a163ef8d271a8";
+  "afcb270475b8a61f3ff4606478c6a0916ab1890932b56e9468a5cb590a0f014d";
 const LEGACY_CONTINUITY_RU_LEAF_VALUE_SHA256 =
-  "0426d4ce0397027d25f5a2053bce794b12e31fbe3757d3afefb24de6ba3f45eb";
+  "cae91dad4312ba94da446db5d9ca1747f3512937b9da0db39f2708064095b3d4";
 
 function collectCountMessages(
   value: unknown,
@@ -1963,9 +1966,9 @@ describe("locale catalogs", () => {
     expect(paths.size).toBe(23);
     expect(NUMERIC_AGREEMENT_COHORT_DECLARATIONS.size).toBe(36);
     expect(NUMERIC_VARIABLE_REASONS.size).toBe(71);
-    expect(NON_NUMERIC_VARIABLE_REASONS.size).toBe(78);
-    expect(declaredVariableNames).toHaveLength(149);
-    expect(new Set(declaredVariableNames).size).toBe(149);
+    expect(NON_NUMERIC_VARIABLE_REASONS.size).toBe(81);
+    expect(declaredVariableNames).toHaveLength(152);
+    expect(new Set(declaredVariableNames).size).toBe(152);
     expect([collectLeafPairs(en).length, collectLeafPairs(uk).length]).toEqual([
       ACTIVE_LOCALE_LEAF_COUNT,
       ACTIVE_LOCALE_LEAF_COUNT,

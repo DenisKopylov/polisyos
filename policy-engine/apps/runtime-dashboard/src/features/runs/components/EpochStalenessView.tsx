@@ -1,5 +1,6 @@
 import { Download, Snowflake, TriangleAlert } from "lucide-react";
 
+import { Glyph } from "@/shared/brand/Glyph";
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 import {
@@ -53,10 +54,10 @@ export function EpochStalenessView({
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-muted font-mono text-xs tracking-wide uppercase">
-            Epoch &amp; validity
+            {t("epochChrome.eyebrow")}
           </p>
           <h2 id="epoch-staleness-title" className="text-lg font-semibold">
-            Claim custody over time
+            {t("epochChrome.title")}
           </h2>
         </div>
         <button
@@ -77,6 +78,27 @@ export function EpochStalenessView({
         txAt={projection.temporal_scope.tx_at}
         validAt={projection.temporal_scope.valid_at}
       />
+
+      {projection.fixture_only ? (
+        <div
+          className="flex items-start gap-2 rounded-md border border-dashed border-[var(--color-status-warning)] bg-[color-mix(in_srgb,var(--color-status-warning)_8%,transparent)] p-3"
+          data-testid="epoch-fixture-only"
+          role="status"
+        >
+          <TriangleAlert
+            aria-hidden="true"
+            className="mt-0.5 size-4 shrink-0"
+          />
+          <div>
+            <p className="font-semibold">
+              {t("epochChrome.fixtureOnly.title")}
+            </p>
+            <p className="text-muted text-sm">
+              {t("epochChrome.fixtureOnly.description")}
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       {projection.open_world_risk.promotion_frozen ? (
         <div
@@ -108,11 +130,15 @@ export function EpochStalenessView({
             <p className="text-muted mt-1 text-sm">{absence.consequence}</p>
             <dl className="mt-2 grid gap-1 text-xs">
               <div>
-                <dt className="font-semibold">Typed refusal</dt>
+                <dt className="font-semibold">
+                  {t("epochChrome.labels.typedRefusal")}
+                </dt>
                 <dd className="font-mono">{absence.refusal_code}</dd>
               </div>
               <div>
-                <dt className="font-semibold">Institutional dependency</dt>
+                <dt className="font-semibold">
+                  {t("epochChrome.labels.institutionalDependency")}
+                </dt>
                 <dd>{absence.closure_condition}</dd>
               </div>
             </dl>
@@ -132,13 +158,17 @@ export function EpochStalenessView({
             <p className="text-muted mt-1 text-sm">{absence.consequence}</p>
             <dl className="mt-2 grid gap-1 text-xs">
               <div>
-                <dt className="font-semibold">Candidate owner</dt>
+                <dt className="font-semibold">
+                  {t("epochChrome.labels.candidateOwner")}
+                </dt>
                 <dd className="font-mono break-all">
                   {absence.candidate_owner_module}
                 </dd>
               </div>
               <div>
-                <dt className="font-semibold">Engineering closure</dt>
+                <dt className="font-semibold">
+                  {t("epochChrome.labels.engineeringClosure")}
+                </dt>
                 <dd>{absence.closure_condition}</dd>
               </div>
             </dl>
@@ -153,10 +183,12 @@ export function EpochStalenessView({
         <div className="mt-3 grid gap-4">
           <section aria-labelledby="epoch-certificates-title">
             <h3 id="epoch-certificates-title" className="font-semibold">
-              Certificates
+              {t("epochChrome.certificates.title")}
             </h3>
             {projection.certificates.length === 0 ? (
-              <p className="text-muted text-sm">No certificate projection.</p>
+              <p className="text-muted text-sm">
+                {t("epochChrome.certificates.empty")}
+              </p>
             ) : (
               <ul className="mt-2 grid gap-2">
                 {projection.certificates.map((certificate) => (
@@ -171,14 +203,18 @@ export function EpochStalenessView({
                     data-testid={`epoch-certificate-${certificate.certificate_ref.artifact_id}`}
                     key={certificate.certificate_ref.artifact_id}
                   >
-                    <strong>{certificate.status.replaceAll("_", " ")}</strong>
+                    <strong>
+                      {t(`epochChrome.status.${certificate.status}`)}
+                    </strong>
                     {certificate.stale_reasons.length > 0
                       ? ` — ${certificate.stale_reasons.join("; ")}`
                       : null}
                     {certificate.revalidation_requirements.length > 0 ? (
                       <span className="block no-underline">
-                        Revalidation:{" "}
-                        {certificate.revalidation_requirements.join("; ")}
+                        {t("epochChrome.certificates.revalidation", {
+                          requirements:
+                            certificate.revalidation_requirements.join("; "),
+                        })}
                       </span>
                     ) : null}
                   </li>
@@ -189,10 +225,12 @@ export function EpochStalenessView({
 
           <section aria-labelledby="epoch-dependencies-title">
             <h3 id="epoch-dependencies-title" className="font-semibold">
-              Derived-data inheritance
+              {t("epochChrome.dependencies.title")}
             </h3>
             {projection.dependencies.length === 0 ? (
-              <p className="text-muted text-sm">No projected dependencies.</p>
+              <p className="text-muted text-sm">
+                {t("epochChrome.dependencies.empty")}
+              </p>
             ) : (
               <ul className="mt-2 grid gap-2">
                 {projection.dependencies.map((dependency) => (
@@ -200,8 +238,15 @@ export function EpochStalenessView({
                     className="rounded border border-[var(--line)] p-2 text-sm"
                     key={`${dependency.source_ref.artifact_id}:${dependency.target_ref.artifact_id}`}
                   >
-                    <span className="font-semibold">{dependency.relation}</span>
-                    {` — ${dependency.disposition}; recompute ${dependency.recompute.status}`}
+                    {t("epochChrome.dependencies.summary", {
+                      disposition: t(
+                        `epochChrome.disposition.${dependency.disposition}`,
+                      ),
+                      relation: dependency.relation,
+                      status: t(
+                        `epochChrome.recomputeStatus.${dependency.recompute.status}`,
+                      ),
+                    })}
                   </li>
                 ))}
               </ul>
@@ -210,10 +255,12 @@ export function EpochStalenessView({
 
           <section aria-labelledby="epoch-perturbations-title">
             <h3 id="epoch-perturbations-title" className="font-semibold">
-              Post-publication perturbations
+              {t("epochChrome.perturbations.title")}
             </h3>
             {projection.perturbations.length === 0 ? (
-              <p className="text-muted text-sm">No projected perturbations.</p>
+              <p className="text-muted text-sm">
+                {t("epochChrome.perturbations.empty")}
+              </p>
             ) : (
               <ul className="mt-2 grid gap-2 sm:grid-cols-2">
                 {projection.perturbations.map((event) => (
@@ -225,7 +272,9 @@ export function EpochStalenessView({
                     <span className="font-semibold">
                       {t(`epochChrome.perturbation.${event.source_class}`)}
                     </span>
-                    {` — ${t(`epochChrome.scope.${event.scope}`)}; ${event.adjudicated_disposition.replaceAll("_", " ")}`}
+                    {` — ${t(`epochChrome.scope.${event.scope}`)}; ${t(
+                      `epochChrome.disposition.${event.adjudicated_disposition}`,
+                    )}`}
                   </li>
                 ))}
               </ul>
@@ -234,10 +283,12 @@ export function EpochStalenessView({
 
           <section aria-labelledby="epoch-lineage-title">
             <h3 id="epoch-lineage-title" className="font-semibold">
-              Epoch lineage
+              {t("epochChrome.lineage.title")}
             </h3>
             {projection.lineage.length === 0 ? (
-              <p className="text-muted text-sm">No crossed epoch boundary.</p>
+              <p className="text-muted text-sm">
+                {t("epochChrome.lineage.empty")}
+              </p>
             ) : (
               <ol className="mt-2 grid gap-2">
                 {projection.lineage.map((boundary) => (
@@ -255,8 +306,8 @@ export function EpochStalenessView({
                       <span className="block break-all">
                         {boundary.previous_epoch_ref}
                       </span>
-                      <span aria-hidden="true" className="block">
-                        ↓ boundary ↓
+                      <span className="flex justify-center py-1">
+                        <Glyph decorative name="freshness" size={16} />
                       </span>
                       <span className="block break-all">
                         {boundary.current_epoch_ref}
@@ -273,7 +324,7 @@ export function EpochStalenessView({
       {projection.status !== "current" ? (
         <p className="flex items-start gap-2 text-sm" role="status">
           <TriangleAlert aria-hidden="true" className="mt-0.5 size-4" />
-          This claim remains inspectable; its epoch posture is not current.
+          {t("epochChrome.inspectableNoncurrent")}
         </p>
       ) : null}
     </section>

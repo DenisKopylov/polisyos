@@ -226,5 +226,11 @@ describe("epoch staleness surface", () => {
     expect(
       screen.queryByTestId("epoch-open-world-freeze"),
     ).not.toBeInTheDocument();
+    expect(screen.getByTestId("epoch-fixture-only")).toHaveTextContent(
+      "Fixture-only evidence",
+    );
+    expect(screen.getByTestId("epoch-fixture-only")).toHaveTextContent(
+      "never production authority",
+    );
   });
 });

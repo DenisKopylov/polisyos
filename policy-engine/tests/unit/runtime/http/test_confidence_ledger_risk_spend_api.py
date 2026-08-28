@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import TypeAdapter, ValidationError
 
 try:  # pragma: no cover - optional dependency guard
     from fastapi.routing import APIRoute
@@ -88,6 +89,12 @@ def test_confidence_ledger_risk_spend_operation_is_typed_and_protected(
     assert dependency.requirement.resource_binding.source is ResourceBindingSource.TENANT_COLLECTION
 
     payload = response.json()
+    adapter = TypeAdapter(static_route.response_model)
+    typed_payload = adapter.validate_python(payload, strict=True)
+    assert not isinstance(typed_payload, dict)
+    assert typed_payload.model_dump(mode="json") == payload
+    with pytest.raises(ValidationError):
+        adapter.validate_python({**payload, "unexpected": "DS17 typed-contract probe"}, strict=True)
     assert payload["projection_id"] == "confidence-ledger-risk-spend"
     assert payload["intended_audience"] == "REVIEWER"
     assert payload["availability"] in {"available", "source_blocked"}

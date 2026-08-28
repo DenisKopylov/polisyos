@@ -29,12 +29,23 @@ required contribution walks against that base agree at **65/65**:
 
 ```text
 git diff --name-only 4ff11db52^1 4ff11db52 | wc -l                         65
-git diff --name-only $(git merge-base 4ff11db52^1 4ff11db52^2) 4ff11db52 | wc -l 65
+git diff --name-only $(git merge-base 4ff11db52^1 4ff11db52^2) 4ff11db52^2 | wc -l 65
 ```
 
-This no-writer command completed exit `0`, `real 0.28`, `user 0.02`, `sys
-0.05`, at uptime `20:28` -> `20:28`. Its operational-only ceiling is `30s`
-(`2 × (0.02 + 0.05) < 30`). There is no disagreement to normalize.
+The fresh no-writer replay completed exit `0`, `real 0.09`, `user 0.01`, `sys
+0.02`, at uptime `21:00` -> `21:00`. Its operational-only ceiling is `30s`
+(`2 × (0.01 + 0.02) < 30`). There is no disagreement to normalize.
+
+### Review correction — independent parent walk
+
+The first C00 journal incorrectly wrote the fork-to-merge command (fork →
+`4ff11db52`) while recording the second-parent result. A fresh replay showed
+that wrong comparison is **374**, not 65. The independent contribution property
+is fork → second parent, so the corrected command ends at `4ff11db52^2` above.
+This is review-round-1 **NEW P35**: the former receipt compared the wrong
+complete set and was numerically false. Cost if wrong: the journal could call a
+merge-result delta an independent branch contribution and conceal imported
+first-parent changes.
 
 ## N11 census and inventory re-derivations
 
@@ -87,15 +98,41 @@ uv run pytest \
   tests/unit/runtime/http/test_confidence_ledger_risk_spend_api.py -q
 ```
 
-The final pre-commit run completed exit `1`, `9 failed`, `real 48.44`, `user
-44.92`, `sys 2.20`, uptime `20:39` -> `20:40`; its operational-only no-writer
-ceiling is `94.24s`. (The original equivalent RED run was also exit `1`, 9
-failed, `user 45.05`, `sys 2.10`; no RED became green.)
+The post-review RED run completed exit `1`, `9 failed`, `real 47.13`, `user
+44.89`, `sys 2.09`, uptime `20:56` -> `20:56`; its operational-only no-writer
+ceiling is `93.96s`. The initial equivalent RED run was also exit `1`, 9
+failed; no RED became green.
 All coverage and ledger-surface tests fail through their in-test dynamic module
 checks, not during collection/import setup: C01 lacks
 `polisyos.runtime.quality.obligation_coverage` and
-`polisyos.runtime.quality.confidence_ledger_surface`. Their messages name the
-specific missing semantic mutation each future implementation must catch.
+`polisyos.runtime.quality.confidence_ledger_surface`. They are not import
+sentinels: if either module exists, the witnesses call C01's planned concrete
+owners, require strict DTO output, and exercise their mutation/falsifier. The
+coverage witnesses derive an envelope then require the **surface** (not
+coverage) owner to construct and bind `ConditionalDeltaAmount` from the
+canonical N11 registry; they remove the ref/riders, move only on a typed
+content-bound witness, and prohibit claim narrowing. The surface witnesses load
+the canonical registry plus typed runtime N11 semantic ledger, derive C01's
+seven available-domain values and C02's five-code allowset without accepting
+caller enumerations, reject a typed-but-stale over-spend ledger through C02's
+content-bound worker receipt before it can select a source blocker, then require
+a test-local injected owner-source adapter to build a coherent content-bound
+worker-evidence mutation (markers fixed, current-check sum above δ, allowlisted
+non-empty issue set) before it can select
+`source_blocked/over_spend`, prove caller Bayesian eligibility cannot create a
+certificate, and require the valid-zero register. An empty or
+marker-only C01 module therefore fails after dynamic import at the planned call
+or assertion, rather than passing on path presence.
+
+Review-round-1 **NEW P29** corrected the former module-existence shells;
+the same **P29/ownership** bucket keeps C01 at seven available-domain values
+and reserves C02's source-blocked over-spend arm. **P37/P38 owner-input
+alignment** keeps reason/allowset derivation and projector authority on the
+canonical registry plus typed runtime semantic-ledger source and a content-bound
+worker receipt, not caller lists, raw validator strings, or a shaped one-check
+dictionary.
+Cost if wrong: a future module could echo user input or accept a display marker
+as authority while all C00 reds passed.
 
 The HTTP test reaches the real current router and fails its desired `200` typed
 review-operation assertion with current **HTTP 422**, not a tooling error.
@@ -105,12 +142,22 @@ and viewer `403` denial. Its final one-test run remains an intended `422` RED:
 exit `1`, `real 46.67`, `user 44.31`, `sys 2.25`, uptime `20:42` -> `20:43`,
 with a `93.12s` operational-only ceiling.
 
+The HTTP witness additionally resolves the future static route's
+`response_model` with Pydantic `TypeAdapter`, requires a strict DTO/tagged-union
+instance and round-trip payload, and rejects an unexpected field. This is
+review-round-1 **NEW strict-typing** closure: a static route returning a raw
+dictionary cannot satisfy the test once it reaches the desired `200` path.
+
 A complete AST walk over all test Python files finds exactly the nine named
 functions in the execution tree's 2,460-file denominator and none in the clean
 exact-base main tree's 2,457-file denominator. The three-file denominator delta
 is exactly the three C00 test companions. Ruff over those three files completed
 exit `0` (`All checks passed!`), `real 1.00`, `user 0.05`, `sys 0.03`, uptime
 `20:38` -> `20:38`; its operational-only ceiling is `30s`.
+
+After the review corrections, the same three-file Ruff lane again completed
+exit `0` (`All checks passed!`), `real 0.14`, `user 0.04`, `sys 0.04`, uptime
+`21:07` -> `21:07`; its operational-only ceiling remains `30s`.
 
 ### Ruling — current-main 404 -> 422 route drift
 

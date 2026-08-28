@@ -2,7 +2,7 @@
 plan_id: atlas-ds15-acquisition-routes
 title: "DS15 - Acquisition Routes & Data-Pool Growth Surfaces"
 type: slice-plan
-status: execution_blocked_c02_rego_parity_ceiling_40
+status: execution_c02_closure_resumed_ceiling_40
 created: 2026-08-27
 last_verified: 2026-08-28
 stability: measured_plan
@@ -15,7 +15,7 @@ execution_entry_commit: 4709562c4ca67e691b355ec2941cf7d48262291e
 execution_entry_plan_blob: 16de6702ab7e79fb0277d9071fdb3b9ded1f7aac
 c00_status: review_repair_timing_and_authz_admitted_zero_mechanisms
 c01_status: closed_after_delegated_trust_posture_reconciliation
-c02_status: checkpointed_not_closed_outside_owner_rego_parity_stop
+c02_status: resumed_after_owner_rego_parity_repair
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 gy_plan: ../layer3-slices/GY-engine-subordination.md
 identity_boundary: ../../../system-design-decisions/policyos-identity-and-custody-boundary.md
@@ -243,6 +243,41 @@ the seven-output census is rerun. The C02 source seam shared with DS18 and GY-O0
 is frozen at `b633ea7b75`; because this task permits neither push nor merge,
 that commit is an append-only source-sync coordinate, not an owner-side landing
 claim.
+
+### C02 owner repair and forward-merge standing — 2026-08-28
+
+The authorization owner repaired the two pre-existing live-router/Rego mirror
+omissions on `main` at `f17c48555809b1166a43ec96f7873f3e6d81e921` without changing
+the guarded-router source of truth. DS15 independently reran the unchanged
+generic parity falsifier on that clean main worktree and again after the
+append-only forward merge; both runs exit `0`. The branch is clean and attached
+after merge commit `0687eea2b81a1b56a2d3275f4bb95c178dd65055`, whose first parent
+is the preserved DS15 head `a0941b0bc1f492dfb68cb1e59a3f062930f21aae` and second parent
+is `f17c48555809b1166a43ec96f7873f3e6d81e921`. The outside-owner parity stop is
+therefore cleared, while C02 remains open until its three unstarted companions
+and the phase-versus-terminal receipt separation are red-first and green.
+
+The merge also reconciles the landed trust-posture repair generically: the
+tokenizer excludes the complete annotation span before unary/conditional
+operator classification, genuine value-expression `|` remains semantic, and
+the registered writer regenerates the artifact. Independent AST/token walks
+agree on 2,603 scanned Python files, 115 candidates, and the complete role and
+literal censuses; the writer and `--check` exit `0`, the eight focused
+annotation/operator cases pass, and the whole 53-test posture module passes.
+Its first declared 360-second ceiling was exceeded by 2.65 seconds (`real
+362.65`, `user 276.00`, `sys 32.95`; uptime `12:05` to `12:11`), so that
+timing declaration is retained as a disagreement and any replay uses the
+measured 480-second ceiling.
+
+The forward-merged seven-output generated-family census remains **5 changed / 2
+unchanged** relative to the pre-merge DS15 head by both name-status and blob
+comparison. OpenAPI, both TypeScript clients/types, and dashboard types changed;
+both JavaScript clients did not. The landed decision-validity epoch-batch
+operation is present in OpenAPI and type projections but has no generated
+client method because the registered generator's POST allow-set does not name
+that operation. This measured partial propagation is not silently treated as a
+DS15 change; C03 must re-coordinate with DS18 and rerun the seven-output census
+immediately before its registered generator transaction.
 
 ## Mission and binding reality
 

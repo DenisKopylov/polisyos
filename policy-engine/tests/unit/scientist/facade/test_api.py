@@ -6,7 +6,6 @@ from contextlib import contextmanager
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 # ---------------------------------------------------------------------------
@@ -170,8 +169,6 @@ class TestRunExperiment:
         store_factory = MagicMock()
         quota_registry = object()
         engine_metrics_factory = MagicMock(return_value=object())
-        eval_safety_execution_context = object()
-        eval_safety_verifier = object()
 
         from polisyos.scientist.api import run_experiment
 
@@ -183,8 +180,6 @@ class TestRunExperiment:
             store_factory=store_factory,
             quota_registry=quota_registry,
             engine_metrics_factory=engine_metrics_factory,
-            eval_safety_execution_context=eval_safety_execution_context,
-            eval_safety_verifier=eval_safety_verifier,
         )
 
         assert result["run_id"] == "R_provider"
@@ -196,8 +191,6 @@ class TestRunExperiment:
         assert kwargs["metrics"] is metrics
         assert kwargs["quota_registry"] is quota_registry
         assert kwargs["engine_metrics_factory"] is engine_metrics_factory
-        assert kwargs["eval_safety_execution_context"] is eval_safety_execution_context
-        assert kwargs["eval_safety_verifier"] is eval_safety_verifier
 
 
 # ---------------------------------------------------------------------------

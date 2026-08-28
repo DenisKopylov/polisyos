@@ -8,10 +8,6 @@ from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from polisyos.core.security import AuditLog
-    from polisyos.runtime.quality.evaluation_safety import (
-        EvalSafetyVerifierPort,
-        EvaluationExecutionContext,
-    )
     from polisyos.scientist.evidence.claims.head_index import ClaimLedgerOwnerPort
     from polisyos.scientist.orchestration.engine.metrics_protocol import EngineMetricsCollector
 
@@ -101,9 +97,6 @@ class ExecutionContext:
     foundry: FoundryPort | None = None
     scholar: ScholarPort | None = None
     lex: LexPort | None = None
-
-    eval_safety_execution_context: EvaluationExecutionContext | None = None
-    eval_safety_verifier: EvalSafetyVerifierPort | None = None
 
     memory: Any | None = None  # PersistentMemoryStore (lazy import to avoid cycles)
 

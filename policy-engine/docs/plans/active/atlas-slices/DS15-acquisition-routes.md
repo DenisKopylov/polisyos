@@ -2,7 +2,7 @@
 plan_id: atlas-ds15-acquisition-routes
 title: "DS15 - Acquisition Routes & Data-Pool Growth Surfaces"
 type: slice-plan
-status: execution_c02_in_progress_ceiling_40
+status: execution_blocked_c02_rego_parity_ceiling_40
 created: 2026-08-27
 last_verified: 2026-08-28
 stability: measured_plan
@@ -15,7 +15,7 @@ execution_entry_commit: 4709562c4ca67e691b355ec2941cf7d48262291e
 execution_entry_plan_blob: 16de6702ab7e79fb0277d9071fdb3b9ded1f7aac
 c00_status: review_repair_timing_and_authz_admitted_zero_mechanisms
 c01_status: closed_after_delegated_trust_posture_reconciliation
-c02_status: in_progress_after_diagnostic_registry_path_amendment
+c02_status: checkpointed_not_closed_outside_owner_rego_parity_stop
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 gy_plan: ../layer3-slices/GY-engine-subordination.md
 identity_boundary: ../../../system-design-decisions/policyos-identity-and-custody-boundary.md
@@ -192,6 +192,50 @@ independent cluster arithmetic is `7 + 16 + 12 + 4 + 1 = 40`. C02 therefore has
 a **16-path** ceiling, the slice has a **40-path** ceiling, and path 41 is the
 next stop. The R05 mechanism class was already budgeted, so the widening budget
 remains 11 and current spend remains 1.
+
+### C02 blocked checkpoint and outside-owner stop — 2026-08-28
+
+C02 is preserved but **not formally closed** at attached-branch commit
+`b633ea7b75af4d07feaf0690926712353022d21f`, whose parent is the committed
+40-path amendment `26d9c8f3b15b3bb60343f2eb1b33219b9bccfb5d`. Post-commit readback
+returns exactly 30 paths: the complete 16/16 C02 mechanism set, 11 test
+companions, and 3 nearest-parent README companions. An independent
+plan-intersection derivation returns the same 16 mechanisms. Cumulative slice
+spend is therefore **23/40 mechanism paths** and **5/11 widening rounds**
+(`R01`, `R03`, `R04`, `R05`, `R06`). No path or round is inferred from the
+three planned test companions that were not started before freeze.
+
+The bounded bridge behavior is green under focused authority, route-loop,
+generation, HTTP, store, worker, OpenAPI, access-audit, and integration tests.
+It preserves the real production-negative qualification state
+`pending_epoch_activation` / `not_established` /
+`policy_admission_missing`; it does not synthesize activation and edits neither
+the world writer nor `data_state_substrate.py`. C02 nevertheless cannot pass
+the complete live-router/Rego parity predicate. Both current and exact slice
+base are missing these two pre-DS15 contracts:
+
+- `evidence.discover` /
+  `runtime.capability_discovery.search` / `tenant_collection`; and
+- `decisions.validity.publish` /
+  `runtime.decision_validity.epoch_batch` / `request_bound`.
+
+The omissions reproduce unchanged at `f3e3d996b`, but C02 adds one live guarded
+contract and edits the closed Rego map, so its intersection with the gate's
+complete input denominator is nonzero. P41 therefore forbids calling the
+current failure inherited or passable. Adding the two unrelated grants would
+change another owner's authorization contract and would be a P31 instance
+patch; weakening set equality would be a P38 proxy repair. This is the declared
+serious outside-owner stop. Closure requires that authorization owner to admit
+or otherwise govern both existing live contracts, after which DS15 must rerun
+the unchanged generic parity falsifier and the remaining C02 companions.
+
+No additional closure item is checked at this checkpoint: C01's CC02, CC03,
+CC04 and CC21 remain the only checked items. C03-C06 have not started. DS15
+never entered the registered OpenAPI/runtime-client/dashboard-types generation
+transaction, and its seven registered outputs remain clean. The C02 source seam
+shared with DS18 and GY-O0 is frozen at `b633ea7b75`; because this task permits
+neither push nor merge, that commit is an append-only source-sync coordinate,
+not an owner-side landing claim.
 
 ## Mission and binding reality
 

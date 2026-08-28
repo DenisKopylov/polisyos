@@ -459,3 +459,41 @@ but no production-growth claim may.
   event types. Slice ceiling becomes 40 and path 41 is the stop. R05 was already
   a declared mechanism class, so the 11-round budget and 1-round current spend
   do not move.
+
+## C02 preserved checkpoint and parity stop
+
+- C02 froze and committed at
+  `b633ea7b75af4d07feaf0690926712353022d21f`, parent
+  `26d9c8f3b15b3bb60343f2eb1b33219b9bccfb5d`. Attached-branch readback is
+  clean. Its exact 30-path set partitions as 16 mechanisms, 11 tests and 3
+  README companions; independent intersection with the declared C02 set also
+  returns 16/16 mechanisms.
+- Cumulative budget is 23/40 mechanisms and 5/11 widening rounds: `R01`,
+  `R03`, `R04`, `R05`, and `R06`. C03-C06 are not started. The registered
+  OpenAPI/runtime-client/dashboard-types writer did not run and holds no DS15
+  transaction.
+- Frozen focused receipts are 6 authority-sink/worker/API/container tests, 14
+  quality authority/route-loop/generation tests, and 11 OpenAPI/access-audit/
+  integration tests, all exit `0`. Introduced-line Ruff, 25-file formatting,
+  and `git diff --check` are green. Three base-identical `ANN401` findings in
+  `_control_contracts.py` remain outside C02's changed lines and were neither
+  altered nor suppressed.
+- The generic parity falsifier exits `1` on exactly two missing pre-DS15 rows:
+  `evidence.discover/runtime.capability_discovery.search/tenant_collection`
+  and
+  `decisions.validity.publish/runtime.decision_validity.epoch_batch/request_bound`.
+  Exact slice-base replay exits `1` on the same rows. Because C02 changes both
+  a live guarded route set member and the closed Rego map, its complete-input
+  intersection is nonzero; P41 does not permit an inherited/passable label.
+- Bucket: serious problem outside this task's focus. Adding the two unrelated
+  authorization grants is another owner's contract change and a P31 instance
+  repair; weakening the equality test is a P38 proxy. C02 remains unclosed
+  until that owner governs both live contracts and the unchanged generic test
+  passes. No new CC is checked; C01's CC02, CC03, CC04 and CC21 remain the only
+  checked items.
+- The real qualification result remains
+  `pending_epoch_activation/not_established/policy_admission_missing`; no active
+  epoch is synthesized and no governed world-write path is changed.
+- DS18 and GY-O0 received the frozen source-sync coordinate `b633ea7b75` for
+  the shared contract/dependency/OpenAPI/lifecycle seam. This branch makes no
+  push or merge claim.

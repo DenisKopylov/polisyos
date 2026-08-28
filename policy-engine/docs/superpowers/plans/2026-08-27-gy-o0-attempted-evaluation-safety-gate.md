@@ -48,6 +48,13 @@ append-only merge `2eca093151adedffb7dd937d61095bfcb2eec0bb`; no rebase was
 used. Execution re-derives C00 on that new base rather than treating planning
 receipts as current repository evidence.
 
+Execution resumed after the C04 generated-companion ruling by merging local
+`main` at `a38ff50a505f0d53f52a32eac220a5644483bcfb` forward, append-only, in merge
+commit `b7fdc2bd3174ffce04fddeaada0039ae021eeef2`. That base includes the
+unbound-writes public-facade precedent and the relocation release. C00 and all
+set-level counts are re-derived on this merged tree; no pre-merge denominator
+is carried forward as current evidence.
+
 Two independent parsers over the complete task table in
 `docs/plans/active/layer3-slices/GY-engine-subordination.md` agree on the live
 ladder denominator: **37 tasks = 25 `executed` + 1 `not_executable` + 11
@@ -1152,6 +1159,15 @@ derivations. They spend four of the eight slack paths: cluster arithmetic is
 diagnostic-event ownership paths = 20. Both derivations agree on **20 current /
 24 hard ceiling**, leaving four paths of aggregate slack.
 
+**Execution amendment after the C04 stop was overturned:** completing the
+already-published eager `polisyos.runtime.quality` entrypoint admits exactly one
+additional mechanism path, `src/polisyos/runtime/quality/__init__.py`. The
+arithmetic is `C01 4 + C02 4 + C03 5 + C04 (7 + 1) = 21`; the independent set
+union is `16 base + 2 C02 + 2 C03 + 1 facade = 21`. Both therefore read
+**21 current / 24 hard ceiling**, leaving three paths of aggregate slack. This
+is completion of an existing supported public entrypoint, so it narrows the
+deep-import set and does not spend C04's new-class widening round.
+
 ### 10.3 Per-cluster mechanism caps and widening rounds
 
 | Cluster | Declared base | Hard cap | Widening budget |
@@ -1160,7 +1176,7 @@ diagnostic-event ownership paths = 20. Both derivations agree on **20 current /
 | C01 contracts, strict mode, pure gate, canonical N9 classifier, N8 local seam | 4 | 6 | 1 round, at most 2 paths |
 | C02 persistence, exact reconciliation, counters, projection adapter | 2 + 2 admitted | 4 | **spent**: diagnostic-event contract owner + writer re-export |
 | C03 container/recursive composition and existing surface | 3 + 2 admitted | 5 | **spent**: authority egress owner + run-paper sibling consumer |
-| C04 Scientist verifier DI and executor strangle | 7 | 9 | 1 round, at most 2 paths |
+| C04 Scientist verifier DI, canonical facade completion, and executor strangle | 7 + 1 admitted | 9 | **unspent**: 1 round, at most 2 paths; facade completion is narrowing |
 | C05 freeze/replay/handoff | 0 | 0 | 0 |
 
 Admissible widening classes are limited to: a newly proven canonical contract
@@ -1184,12 +1200,18 @@ These are mandatory companions but not mechanism paths:
   `src/polisyos/scientist/orchestration/workflows/README.md`, and
   `src/polisyos/scientist/nodes/README.md`;
 - scratch receipts, source-digest comparisons, and command logs;
-- any automatically generated OpenAPI/public-surface comparison run in scratch
-  only.
+- the exact public-surface companions recomputed from C04's legitimate facade
+  source change by `guardrails sync --skip-deep-import-baseline`:
+  `architecture/public_surface/inventory.json` and
+  `docs/reference/public-surface.md`;
+- one `python-public-api` release fragment for that facade change;
+- any automatically generated OpenAPI/public-surface comparison run in scratch.
 
-The debt register, deep-import baseline, committed generated artifacts,
-`tools/quality/timing_budgets.json`, dashboard, and Atlas surfaces are not
-companions and remain forbidden.
+The debt register, deep-import baseline, hand-edited or unrelated generated
+artifacts, `tools/quality/timing_budgets.json`, dashboard, and Atlas surfaces
+are not companions and remain forbidden. The sync must change exactly the two
+registered generated companions above; any additional generated output is a
+finding rather than an accepted write.
 
 ### 10.5 Declared test companions
 
@@ -1742,7 +1764,7 @@ Re-run both executor-owner and workflow-registration derivations. The expected
 sets remain 4 owners/6 registrations; the property change is that every live
 owner now consumes explicit mode/safety context.
 
-#### Execution stop after the C04 clear-chokepoint formal review (2026-08-28)
+#### C04 stop evidence retained; stop conclusion overturned (2026-08-28)
 
 C04's red-first clear-chokepoint candidate proved the transport and owner-gate
 shape, but formal review found **eight new cross-package deep imports** before
@@ -1787,22 +1809,40 @@ companions:
 - `docs/reference/public-surface.md`;
 - one `python-public-api` release fragment under `release-fragments/unreleased/`.
 
-The first two are committed generated artifacts and are explicitly forbidden
-by §§10.4 and 15. Omitting them makes the recomputing public-surface guardrail
-red; hiding the exports makes the semantic guard false-green. This is therefore
-the task's declared serious-outside-focus stop: closing it requires changing a
-governed write path that the execution authority withheld. It is **not** a
-24-path-budget exhaustion and does not authorize a baseline, exception,
-duplicated Scientist contract, or weaker admission predicate.
+The original stop conclusion was too broad. Repository-owned public-surface
+sync output is a mandatory generated consequence of a legitimate supported
+facade edit, not a hand edit or a governed-baseline rewrite. The merged
+unbound-writes lane supplies the same-shape precedent on the same `main`:
+source facade completion followed by
+`uv run polisyos-tools architecture guardrails sync
+--skip-deep-import-baseline`, with exactly the two registered generated files
+and one `python-public-api` release fragment admitted. The deep-import baseline
+remains absolutely forbidden, and any extra sync output remains a finding.
 
-Disposition: C00-C02 are closed. C03's uncontended service, recursive, and
-generic-authority-egress subcluster is closed, while its collision-held
-`run_lifecycle.py`, run-paper projection, and run-paper owner-test slice remains
-open. The nine-file C04 clear-chokepoint candidate is quarantined and must not
-remain in the final source tree; C04 and C05 remain open. O0 is not closed.
-Resume only with explicit authority for the two generated public-surface
-outputs and the release fragment (or with a separately landed, read-back stable
-facade that exports the exact canonical symbols).
+The repair order is therefore binding:
+
+1. Re-spell the single Scientist-to-`core.components` import through the
+   already-exporting `polisyos.core` facade; this changes no public surface.
+2. Derive the exact canonical EvalSafety/mode/world-model-record symbol set
+   twice from the five merged-tree Scientist call sites, export only that set
+   from the already-supported eager `polisyos.runtime.quality` facade, and
+   re-spell the remaining seven imports through it.
+3. Run the sync command above under the 180-second guardrail lane; accept only
+   `architecture/public_surface/inventory.json` and
+   `docs/reference/public-surface.md`, plus the separately authored
+   `python-public-api` release fragment. Never touch the deep-import baseline.
+
+This adds one mechanism path and moves the manifest to **21/24** by both
+derivations in §10.2. It does not spend C04's widening round because it
+completes an already-published entrypoint and strictly narrows unsupported
+imports. The earlier Protocol/bool adapter and non-exported-submodule routes
+remain rejected under P32/P05 and P06/P38.
+
+Both prior collision holds are released on merged `main`: the unbound-writes
+lane and relocation lane are merged. C03 must finish its lifecycle/run-paper
+slice after an immediate pre-touch intersection readback. C04 must recover the
+quarantined checkpoint semantically against the relocated tree, close all five
+Scientist chokepoints, and only then permit C05 to run.
 
 ### C05 — Freeze, reviews, focused local closure, cloud replay, and handoff
 
@@ -1898,7 +1938,9 @@ green on the current base would itself be fabricated authority.
 - `fabric/world/`, `runtime/quality/data_state_substrate.py`, `pdc/`,
   `tools/quality/timing_budgets.json`.
 - Debt register, deep-import baseline, dashboard, Atlas surfaces, new governed
-  projection definition, new HTTP route, or committed generated artifact.
+  projection definition, new HTTP route, or any hand-edited/unrelated generated
+  artifact. The two public-surface companions produced by the authorized C04
+  facade sync are mandatory and in scope.
 - Turning unresolved `INT-R4` questions into O0 code contracts.
 
 ---

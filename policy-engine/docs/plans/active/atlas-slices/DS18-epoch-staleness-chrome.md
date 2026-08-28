@@ -2,13 +2,13 @@
 plan_id: atlas-ds18-epoch-staleness-chrome
 title: "DS18 - Epoch and Staleness Chrome"
 type: slice-plan
-status: proposed_execution_approval_required
+status: executing
 created: 2026-08-27
-last_verified: 2026-08-27
-stability: proposed
+last_verified: 2026-08-28
+stability: active_execution
 slice: DS18
-baseline_commit: 2525da7306d329ae28fa394690e1c39133eb0d55
-branch: codex/ds18-epoch-staleness-chrome-plan
+baseline_commit: a38ff50a505f0d53f52a32eac220a5644483bcfb
+branch: codex/ds18-epoch-staleness-chrome
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 surface_constitution: ../../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
 identity_boundary: ../../../system-design-decisions/policyos-identity-and-custody-boundary.md
@@ -19,8 +19,7 @@ audiences: [PUBLIC, REVIEWER, EXPERT, MACHINE]
 depends_on:
   - DS4 merged at 7f450eb7b
   - GY-N12 merged at c6fbfa388
-blocks_on:
-  - DS11 must land before any apps/runtime-dashboard or architecture/atlas_surfaces implementation
+  - DS11 merged at 4ff11db52; WAIT-DS11 satisfied at execution entry
 laws:
   - 3
   - 6
@@ -29,10 +28,10 @@ laws:
 
 # DS18 — Epoch & Staleness Chrome
 
-> **For implementing agents:** execute this plan cluster by cluster with red-first
-> behavioral tests and verification-before-completion. This file authorizes no
-> implementation by itself. Do not start the post-WAIT clusters until the DS11
-> landing receipt is an ancestor of the execution base.
+> **Execution state:** execute cluster by cluster with red-first behavioral tests and
+> verification-before-completion. The execution base already contains DS11. C01-C04
+> are temporarily serialized behind the measured live DS15 C02 overlap recorded in
+> Section 12; this is a lane hold, not a widening or mechanism change.
 
 ## 1. Outcome
 
@@ -78,12 +77,14 @@ The laws are operational here:
    revalidation, reissue, supersession, or withdrawal with visible lineage; they do
    not rewrite the closed record.
 
-## 3. Planning coordinate and census discipline
+## 3. Execution coordinate and census discipline
 
-All planning reads were taken from the attached worktree branch named in the
-frontmatter. Every path-bearing command first ran `git rev-parse --show-prefix`; every
-measured command had an `uptime` pair and `/usr/bin/time -p`; pipe statuses were read
-before results were admitted.
+The planning census at `2525da730` is historical. C00 re-ran every set-level fact used
+by execution on attached branch `codex/ds18-epoch-staleness-chrome`, whose execution
+base is `a38ff50a5`; the amended plan was then carried forward append-only. Every
+path-bearing command first ran `git rev-parse --show-prefix`; every admitted measured
+command had an `uptime` pair and `/usr/bin/time -p`; pipe statuses were read before
+results were admitted.
 
 No count below is single-derived.
 
@@ -106,30 +107,39 @@ N12 census.
 
 | Set-level fact | Derivation A | Derivation B | Result / disagreement |
 | --- | --- | --- | --- |
-| Python source denominator | `rg --files src/polisyos -g '*.py'` | union of root and recursive `git ls-files` Python pathspecs | `2,600 = 2,600`; the first recursive-only git pathspec returned `2,599` because it omitted root `src/polisyos/__init__.py`; that rejected denominator is recorded, not hidden |
+| Python source denominator | `Path('src/polisyos').rglob('*.py')` complete filesystem walk | full `HEAD` tree filter for `src/polisyos/**/*.py` | `2,598 = 2,598`, symmetric difference `0`; planning `2,600` is obsolete on this base |
 | HTTP route-directory Python files / decorated operations | Python AST over every `src/polisyos/runtime/http/routes/*.py`, including `__init__.py` | anchored decorator census over the same complete glob and inclusion rule | `17 / 105 = 17 / 105`; excluding only zero-operation `__init__.py` gives `16 / 105` by both derivations |
-| visible source operations | AST excludes the two `include_in_schema=False` SSE routes | `105 - 2` using the two exact decorators at `routes/runs.py:799,1143` | `103 = 103` |
-| frozen OpenAPI paths / operations | `jq` structured traversal | independent Python JSON traversal | `100 / 102 = 100 / 102` |
+| non-HTTP route operation | route-tree AST separates WebSocket decorators | independent anchored WebSocket-decorator census | `1 = 1`; it is reported separately and is not part of the 105 HTTP/OpenAPI denominator |
+| visible source operations | AST excludes the two `include_in_schema=False` SSE routes | `105 - 2` using the exact decorators at `routes/runs.py:799` and `:1145` | `103 = 103` |
+| frozen OpenAPI paths / operations | Node structured traversal | independent Python JSON traversal | `101 / 103 = 101 / 103` |
 | registered generated client outputs | TOML parse of the runtime-client and dashboard-type families | exact tracked-file census of the registered paths | `6 = 6`; with the OpenAPI snapshot, the generated bridge transaction has `7` outputs |
 
-One rejected lexical OpenAPI proxy counted `98` path-looking lines and `116`
-`operationId` tokens because examples and schema fields share those markers. It is a
-P38 witness, not a usable derivation. The structured comparison finds exactly one
-visible source operation absent from the frozen OpenAPI set:
+The source/OpenAPI operation sets now have an empty symmetric difference: the drift is
+**zero**. `POST /api/v1/control/decision-validity/epoch-batches`, live at
+`src/polisyos/runtime/http/routes/control.py:521-535`, is present in the frozen schema.
+The generated-family state is more granular than that set equality:
 
-`POST /api/v1/control/decision-validity/epoch-batches`.
+- the schema, package `types.ts`, and dashboard `types.ts` carry the path/operation and
+  epoch-batch DTOs: source→schema and raw path typing are implemented;
+- `runtimeApiClient.ts` and `canonicalRuntimeApiClient.ts` carry DTO types but no
+  executable epoch-batch method, and neither JavaScript wrapper carries a method;
+- the canonical generator's `_GENERATED_POST_OPERATION_IDS` selection omits the
+  epoch-batch operation, so the executable-generator link is `bridge_missing`;
+- therefore the executable generated-client operation is `consumer_missing`, while
+  operation-set completeness is `semantic_test_missing`. Existing freshness tests
+  correctly reproduce the omission and do not establish semantic completeness.
 
-An independent exact-literal scan over the snapshot plus all six registered generated
-outputs finds neither that path nor `EpochValidityBatchResponse`, while the source
-route/DTO scan finds both. Thus the singleton set difference is not inferred from the
-operation-count arithmetic alone.
+The old aggregate label “epoch-batch schema/client family `bridge_missing`” is stale:
+it flattened implemented schema/typing, the missing generator selection and missing
+executable consumers into one row. C03-C04 must repair and prove the complete generated
+transaction rather than replaying already finished source→schema work.
 
 The route-file denominator is therefore reproducible, not conventional: **route
 files means every Python module matched directly under
 `src/polisyos/runtime/http/routes/*.py`, including `__init__.py`**. That is 17 files;
 the initializer contributes zero decorated operations. A report that excludes only
 the initializer must say 16 files and still derive the same 105 operations. Neither
-choice changes the `103 visible - 102 frozen = 1` drift arithmetic.
+choice changes the current `103 visible = 103 frozen` zero-drift result.
 
 ### 3.3 DS4 and current decision-bearing lower bound
 
@@ -140,8 +150,8 @@ recompute, perturbation, supersession, or OpenWorldRisk input. Missing time role
 render `unknown`; DS4 correctly forbids substituting one clock for another.
 
 Two complete production-tree identifier walks (`rg` and `git grep`, excluding tests and
-stories, then excluding the definition/barrel/contrast metadata) both found **zero
-production call sites** for `TimeSemanticsLabel` on the planning base. DS18 therefore
+stories, then excluding the definition/barrel/contrast metadata) both re-found **zero
+production call sites** for `TimeSemanticsLabel` on the execution base. DS18 therefore
 extends and consumes the existing primitive; it does not create a parallel badge
 vocabulary.
 
@@ -157,27 +167,33 @@ the owner lacks an exhaustive decision-bearing-render → DS4-primitive relation
 `21 / 10` result must therefore be described as a lower bound. Cluster C06 establishes
 the complete relation before the universal claim may become green.
 
-### 3.4 DS11 live conflict fence
+### 3.4 DS11 landing fence — satisfied at entry
 
-The brief's **63** is the tracked DS11 holding set. The live DS11 worktree has since
-acquired one untracked visual snapshot, so the collision set used for scheduling is
-**64**.
+DS11 landed at `4ff11db52`. Its branch contribution
+`f935e0c2e..8b9b47309` and the equivalent landing first-parent delta
+`2525da730..4ff11db52` independently produce the same **65-path** set, with symmetric
+difference zero. The execution base already contains that landing, so the original
+WAIT condition 3 alternative applies: DS18 started after landing and needs no inward
+source-sync merge.
 
-| Set-level fact | Derivation A | Derivation B | Result |
-| --- | --- | --- | --- |
-| live DS11 changed-path union | `diff base..working-tree` union untracked | committed diff union working diff union untracked | `64 = 64`, symmetric difference `0` |
-| tracked / untracked split | tracked diff from `f935e0c2e` plus `ls-files --others` | partition of either union above | `63 tracked + 1 untracked snapshot` |
+The planning-time 63-tracked/64-live union remains historical evidence. Relative to
+the 64-path live union, the landed set has one addition and no removal:
+`apps/runtime-dashboard/e2e/a11y/routes.a11y.spec.ts`. The formerly untracked DS11
+visual snapshot is tracked in the landed set. The C04-C06 fence contains 22 existing
+owners and five planned additions; no owner moved, so this re-read spends no widening
+round.
 
-The additional path is
-`apps/runtime-dashboard/e2e/ds11-runtime-dashboard.visual.spec.ts-snapshots/ds11-trust-posture-chromium-darwin.png`.
-The live set includes shared UI, locales, route registration, the frontend disposition
-register, the DS11 visual spec, and its snapshot root. This plan does not edit or
-borrow DS11 evidence. It waits.
+The exact-byte rule was verified from the landed source, not an unmerged worktree:
+`apps/runtime-dashboard/src/features/trust/domain/loadPosture.ts:47-50` captures and
+defensively copies `arrayBuffer()` bytes before fatal decode (`:58-63`), parse (`:65-70`),
+and strict admission (`:71-74`). The DS11 range does not change `pnpm-lock.yaml`, and
+the landed frozen install completed before C00 trusted TypeScript scans.
 
-### 3.5 Planning measurement receipt
+### 3.5 Historical planning and current execution receipts
 
-The load values were captured by the surrounding `uptime` pair; the admitted command
-receipts below record the requested CPU basis explicitly.
+The first table is explicitly historical planning evidence and is not used as an
+execution denominator. Its load values were captured by the surrounding `uptime` pair;
+the admitted command receipts record the requested CPU basis explicitly.
 
 | Planning command | `real` | `user` | `sys` | `user + sys` |
 | --- | ---: | ---: | ---: | ---: |
@@ -191,6 +207,19 @@ receipts below record the requested CPU basis explicitly.
 | amendment invariant/census verifier | `12.55 s` | `12.07 s` | `0.36 s` | `12.43 s` |
 | amendment explicit symbol-inventory dual sweep | `15.58 s` | `13.49 s` | `14.22 s` | `27.71 s` |
 | amendment focused docs gate | `3.19 s` | `2.48 s` | `0.36 s` | `2.84 s` |
+
+C00 re-derived the execution facts instead of carrying those numbers forward. The
+current journal holds the complete command/uptime receipts; the concise admitted CPU
+results are:
+
+| C00 command | `real` | `user` | `sys` | `user + sys` | result |
+| --- | ---: | ---: | ---: | ---: | --- |
+| route AST double census | `0.13 s` | `0.12 s` | `0.01 s` | `0.13 s` | 17/16 files, 105 HTTP, one WebSocket, two hidden SSE |
+| OpenAPI structured set census | `0.11 s` | `0.09 s` | `0.00 s` | `0.09 s` | 101 paths / 103 operations; zero drift |
+| generated-family propagation census | `0.14 s` | `0.07 s` | `0.04 s` | `0.11 s` | seven outputs partitioned by capability layer |
+| Python denominator double census | `0.51 s` | `0.05 s` | `0.05 s` | `0.10 s` | 2,598 / 2,598; symmetric difference zero |
+| DS11 branch-contribution set | `0.01 s` | `0.00 s` | `0.00 s` | `0.00 s` | 65 paths |
+| DS11 landing first-parent set | `0.02 s` | `0.00 s` | `0.00 s` | `0.00 s` | 65 paths; symmetric difference zero |
 
 ### 3.6 Symbol-name verification sweep
 
@@ -248,12 +277,12 @@ row count is used.
 | HTTP + frozen OpenAPI, canonical temporal owner | `TemporalRef`, `TemporalScope`, `TemporalCapabilitiesView/Response`: independent valid/transaction coordinates, ranges, event points, gaps and supported surfaces (`core/contracts/runtime.py:596-711`) | `GET /api/v1/temporal/capabilities?run_id=...` returns `200` with or without a decision packet, enforces run/tenant access when bound, and delegates to `TemporalService` (`routes/temporal.py:29-80`, `services/temporal.py:115-386`) | temporal contract/route/service implemented; semantic epoch, validity, staleness and reviewer action permission are not yet composed |
 | HTTP + frozen OpenAPI | `DecisionValiditySummaryResponse`: packet/run ref, `status`, `lifecycle_status`, `checked_at`, reasons, triggers, review flag, supersession refs, lineage key, recommended action, events/transitions/reviews/jobs/reissue candidates (`core/contracts/control.py:236-270`) | `GET /api/v1/control/runs/{run_id}/decision-validity` and packet-ref twin; replay hash bound in `routes/control.py:550-625` | implemented generic lifecycle; epoch chrome fields `surface_missing` |
 | HTTP + frozen OpenAPI | `DecisionValidityEventRequest/Response`: append-only event request, affected packets and status counts (`core/contracts/control.py:174-200`) | `POST /api/v1/control/decision-validity/events` | implemented generic lifecycle; the six perturbation source classes are not represented |
-| In-process/artifact canonical perturbation owner | `GovernanceMonitorEvent`: event id/type, decision ref, severity, exact claim/DAG scope, reason, occurrence time and metadata; current `MonitorEventType` has five detector kinds, including `incident`, but not the complete six-class M36 taxonomy (`scientist/governance/continuous/monitors.py:33-108`) | `incident_monitor_event(...)`, validity-report persistence and `bridge_governance_events_to_claim_lifecycle(...)` exist, but a 2,600-file AST census finds one definition and zero production calls for each named function; an independent literal call-site scan finds only unit/smoke-test calls (`incident.py:91`, `reports.py:25-109`, `lifecycle_bridge.py:505`) | `implemented_but_not_orchestrated`; complete class taxonomy, standalone exact event persistence, production intake, evidence-validity chain and surface are incomplete |
-| Source route, absent frozen bridge | `EpochValidityBatchRequest`: transition ref + query-context ref; `EpochValidityBatchResponse`: batch id, completed state, transition, completion receipt, affected packets, claim-bridge refs (`core/contracts/control.py:202-225`) | source route at `routes/control.py:521`; owner intake then claim bridge at `run_lifecycle.py:2122`; absent from schema and all generated clients | generated family is `bridge_missing`; `EpochTransitionVerifier` is the candidate contract owner (`src/polisyos/core/contracts/decision_validity.py:399`) and `DecisionValidityService` installs `NoEpochTransitionVerifier` by default (`src/polisyos/scientist/validation/decision_validity.py:367-409`), so positive verification is engineering `producer_missing`, never `absent/unallocated` |
+| In-process/artifact canonical perturbation owner | `GovernanceMonitorEvent`: event id/type, decision ref, severity, exact claim/DAG scope, reason, occurrence time and metadata; current `MonitorEventType` has five detector kinds, including `incident`, but not the complete six-class M36 taxonomy (`scientist/governance/continuous/monitors.py:33-108`) | `incident_monitor_event(...)`, validity-report persistence and `bridge_governance_events_to_claim_lifecycle(...)` exist, but a 2,598-file AST census finds one definition and zero production calls for each named function; an independent literal call-site scan finds only unit/smoke-test calls (`incident.py:91`, `reports.py:25-109`, `lifecycle_bridge.py:505`) | `implemented_but_not_orchestrated`; complete class taxonomy, standalone exact event persistence, production intake, evidence-validity chain and surface are incomplete |
+| HTTP + frozen OpenAPI, incomplete generated operation consumer | `EpochValidityBatchRequest`: transition ref + query-context ref; `EpochValidityBatchResponse`: batch id, completed state, transition, completion receipt, affected packets, claim-bridge refs (`core/contracts/control.py:202-225`) | source route at `routes/control.py:521-535`; owner intake then claim bridge at `run_lifecycle.py:2122`; frozen schema and raw TypeScript path artifacts carry it, but the canonical generator omits its POST operation selection and generated TS/JS executable clients expose no method | source→schema and raw path typing implemented; executable-generator selection `bridge_missing`; executable client operation `consumer_missing`; operation-set completeness `semantic_test_missing`. Positive transition verification is separately engineering `producer_missing`: `EpochTransitionVerifier` is the candidate contract owner (`src/polisyos/core/contracts/decision_validity.py:399`) and `DecisionValidityService` installs `NoEpochTransitionVerifier` by default (`src/polisyos/scientist/validation/decision_validity.py:367-409`) |
 | Public contract, no dedicated route | `SemanticEpochProductionReceiptStatement`: production mode, `appended|no_change|not_established|contested`, prepared/admitted/epoch/manifest/history/chronology refs, query context, `failure_codes` (`core/contracts/epoch.py:884-925`) | acquisition finalization persists `epoch.production_receipt`; no typed read projection | producer/artifact implemented; API/consumer/surface missing |
 | In-process service results | `EpochResolutionResult`, `EpochHistoryAppendReceipt`, `PreparedSemanticEpoch`, `PersistedSemanticEpochProductionReceipt`: resolution/reconciliation, manifest/head/history refs and hashes, query/stamp, receipt bytes (`runtime/quality/semantic_epoch.py:646,849,1196,1246`) | acquisition bridge calls finalization at `acquisition_executor.py:1745,1774` | implemented but only indirectly reachable |
 | Public contract, no dedicated route | pending/completion/receipt/persisted batch evidence; gate receipt/nonreceipt; pre-N9 subject/admitted candidate/N9 projection (`core/contracts/decision_validity.py:228-602`) | Decision Validity persists an admitted batch and claim bridge consumes completion; other gate DTOs remain internal | contract + partial producer/consumer; surface missing |
-| In-process only | `EpochValidityTransitionArtifact`: previous/current epoch, certificate bindings, dependency graph, complete target vector, denominator refs, query context, purpose, content hash (`epoch_validity_cascade.py:535-563`) | `EpochValidityTransitionProducer.produce_and_persist` is the canonical candidate owner (`src/polisyos/runtime/quality/epoch_validity_cascade.py:763-830`); an exact literal census finds its sole occurrence at the definition, and an independent AST census finds one definition and zero calls in the complete 2,600-file source denominator | transition production is `implemented_but_not_orchestrated`; the institutional transition signer is separately `absent/unallocated` and yields the typed refusal in the next row |
+| In-process only | `EpochValidityTransitionArtifact`: previous/current epoch, certificate bindings, dependency graph, complete target vector, denominator refs, query context, purpose, content hash (`epoch_validity_cascade.py:535-563`) | `EpochValidityTransitionProducer.produce_and_persist` is the canonical candidate owner (`src/polisyos/runtime/quality/epoch_validity_cascade.py:763-830`); an exact literal census finds its sole occurrence at the definition, and an independent AST census finds one definition and zero calls in the complete 2,598-file source denominator | transition production is `implemented_but_not_orchestrated`; the institutional transition signer is separately `absent/unallocated` and yields the typed refusal in the next row |
 | In-process typed refusal | `EpochTransitionSigningNonReceipt`: `not_established|rejected`, exact code, predicate class (`epoch_validity_cascade.py:711-750`) | `NoEpochTransitionSigningAuthority` returns `epoch_transition_signer_not_established`; not externally routed | contract exists; bridge/consumer/surface missing |
 | In-process typed refusal | `EpochValidityGateNonReceipt`: status/code/subject/query refs (`core/contracts/decision_validity.py:470-501`) | gate returns `policy_admission_missing` at `epoch_validity_cascade.py:2096-2108` | contract exists; bridge/consumer/surface missing |
 | In-process staleness | `CertificateStalenessDecision`: `current|stale|revalidation_required`, reasons, stale edge keys (`credal_reference.py:389-397`) | its sole producer at `credal_reference.py:498-526` currently returns only `current` or `stale` | `revalidation_required` producer path missing; surface missing |
@@ -312,7 +341,8 @@ DS18 is therefore not “add badges.” It contains:
    status;
 2. a typed read bridge for existing persisted epoch, Decision Validity, lineage, and
    OpenWorldRisk artifacts plus the real typed absences;
-3. OpenAPI/client repair, including the already-live epoch-batch source route;
+3. an epoch-staleness OpenAPI/client addition plus complete executable-client and
+   seven-output verification for the already-frozen epoch-batch route;
 4. dashboard admission, chrome, detailed view, exact-byte MACHINE twin, and universal
    semantic enforcement.
 
@@ -616,7 +646,7 @@ state above. The signers remain unappointed by standing decision.
 | DS18-CC02 | Real producer readback | projector resolves exact persisted bytes/receipts and real typed nonreceipts; forged/present-only evidence fails closed |
 | DS18-CC03 | Six-class preservation | persisted monitor-event ref enters through the live Decision Validity POST, exact bytes drive the persisted lifecycle/transition, and class survives read API → client → DOM → MACHINE; free-standing class/status input fails |
 | DS18-CC04 | Dependency inheritance | revised input flags every complete-denominator descendant; missing edge/denominator fails closed; recompute status is owner-emitted or explicitly `producer_missing + bridge_missing`, with the derived-observation candidate owner visible and no institutional closure copy |
-| DS18-CC05 | Route and generated bridge | epoch-staleness GET plus the already-live epoch-batch POST appear in frozen OpenAPI and every registered generated output |
+| DS18-CC05 | Route and generated bridge | the epoch-batch POST is already in frozen OpenAPI at C00; closure adds the epoch-staleness GET and proves both operations propagate semantically through all seven registered outputs, including executable client methods |
 | DS18-CC06 | DS4 extension | one `TimeSemanticsLabel` grammar renders independent clocks plus epoch/validity; no local status vocabulary or time substitution |
 | DS18-CC07 | Universal coverage and denominator handoff | complete production `.ts`/`.tsx` source-file denominator is recomputed at `ds18_frontend_freeze_commit`; every file's render/export roots and every root's decision-bearing status are independently reconciled with fresh evidence, every decision-bearing member behaviorally renders `as_of`, epoch and validity, unknown/stale classification fails closed, and a later landing slice owns receipts for every root it adds or changes |
 | DS18-CC08 | Stale truthfulness | stale/revalidation-required certificates cannot render current; current cannot inherit stale styling accidentally |
@@ -667,27 +697,29 @@ component name, or route string constant is not enough to keep a test green.
 | --- | --- | ---: | ---: | --- |
 | C00 | rebase-free readback, baseline reds, exact denominators | 0 | 0 | yes |
 | C01 | canonical monitor contracts, six-class/lineage preservation, projection compiler | 7 | 9 | yes |
-| C02 | live monitor intake, temporal read owner, DI, OpenAPI contract | 5 | 6 | yes |
-| C03 | frozen schema + package-client regeneration receipt | 0 | 0 | yes, but no dashboard output |
-| WAIT-DS11 | prove DS11 landed; re-census post-landing frontend owners | 0 | 0 | mandatory boundary |
+| C02 | live monitor intake, temporal read owner, DI, OpenAPI contract | 5 | 5 | yes |
+| C03 | generator selection + frozen schema/package-client regeneration receipt | 1 | 1 | yes, but no dashboard output |
+| WAIT-DS11 | landed-owner and exact-byte receipt | 0 | 0 | satisfied at C00 entry |
 | C04 | dashboard strict admission and exact-byte MACHINE | 3 | 4 | no |
 | C05 | DS4 extension, detailed surface, universal consumers, active locales | 19 | 19 | no |
 | C06 | complete render/export census and semantic lint | 5 | 6 | no |
 | C07 | visual/a11y/replay/closeout verification | 0 | 0 | no |
-| **Total** | unique production/tooling mechanisms | **39** | **44** | — |
+| **Total** | unique production/tooling mechanisms | **40** | **44** | — |
 
 The total is independently derived in two ways at plan closeout:
 
-- cluster arithmetic: `7 + 5 + 0 + 3 + 19 + 5 = 39`;
+- cluster arithmetic: `7 + 5 + 1 + 3 + 19 + 5 = 40`;
 - parser union of the Add/Modify mechanism table below, excluding mandatory P39
-  companions: `39` unique paths, no duplicates.
+  companions: `40` unique paths, no duplicates.
 
-The hard ceiling is the 39-path declared union plus **5** paths of reserve: two for
-backend owner/readback seams, one HTTP/ABI seam, one raw-byte admission seam, and one
-census/lint seam. The three post-DS11 packet-producer seams originally identified as
-reserve were resolved during plan review and moved into the declared set; retaining
-them as reserve as well would double-count them. The ceiling is therefore not a
-round-number guess. Tests, generated outputs, the plan/journal, release fragment, receipts,
+The hard ceiling is now the 40-path declared union plus **4** paths of reserve: two for
+backend owner/readback seams, one raw-byte admission seam, and one census/lint seam.
+The former HTTP/ABI reserve is spent on the canonical runtime-client generator after
+the C00 semantic probe proved regeneration preserves the missing executable operation.
+The three post-DS11 packet-producer seams originally identified as reserve were
+resolved during plan review and moved into the declared set; retaining them as reserve
+as well would double-count them. The ceiling therefore remains **44**, not a round-
+number guess. Tests, generated outputs, the plan/journal, release fragment, receipts,
 snapshots, and tests pinning a changed constant are mandatory companions outside the
 mechanism cap under P39.
 
@@ -706,6 +738,45 @@ and adds one C06 falsifier. Both use already-declared paths and mechanisms. The
 declared union remains **39** and the hard ceiling remains **44**. This amendment does
 not reopen or revisit the rejected `36` estimate.
 
+**C00 execution budget receipt.** The fresh base and lane census initially preserved
+the 39-path union, but the independent generator probe found a measured necessity:
+`tools/ops_runners/runtime/generate_runtime_client.py` deliberately filters POST
+operations and omits `admit_epoch_validity_batch`, so sanctioned regeneration reproduces
+the missing executable methods. This is a **NEW generator-semantic-completeness class**,
+not a deeper source/schema drift instance. It spends widening seam 6 and one HTTP/ABI
+reserve path. The current union is therefore **40**, the ceiling remains **44**, and
+**1 of 7** widening rounds is spent. Zero schema drift narrows C03 schema work; it does
+not erase the generator repair, new GET, executable-client gap, or semantic proof.
+
+### Entry serialization receipts
+
+The current coordination sets supersede the planning-time lane estimates:
+
+- DS15: local declared-set intersection and the DS15 owner readback independently
+  agree on these four C02 overlap mechanisms:
+  `src/polisyos/core/contracts/control.py`,
+  `src/polisyos/runtime/http/dependencies.py`,
+  `src/polisyos/runtime/http/openapi_contract.py`, and
+  `src/polisyos/runtime/http/services/control/run_lifecycle.py`. DS15 has now supplied
+  attached, clean source-freeze coordinate `b633ea7b75af4d07feaf0690926712353022d21f`.
+  Its parent-diff and independent `diff-tree` derivations both contain 30 paths,
+  symmetric difference zero; all four overlaps are present and the seven generated
+  outputs intersect at zero. C01-C04 remain held only until that exact append-only
+  source input is integrated or lands on main and is read back; the hash alone is not
+  silently treated as branch ancestry. The earlier zero-overlap planning observation
+  is rejected as stale, not reconciled away.
+- The seven registered generated outputs are one serialized transaction seam. DS15
+  reported that it is not yet inside C03 and all seven outputs are clean; DS18 must
+  re-derive the intersection and re-coordinate immediately before C03's regeneration
+  receipt and again before C04's dashboard regeneration. A clean observation now is
+  not a future lock.
+- GY-O0 released the companion `src/polisyos/runtime/quality/README.md` at attached,
+  clean branch readback `e5d1c3ab7ffc2c4da00d26eb395d6f4c287175fd`; its last
+  README edit is committed at `08332b724`. DS18 orders its README companion after that
+  committed owner state. GY-O0 has agreed that any later C04 resumption will merge the
+  then-current owner state forward rather than overwrite DS18. The seam changes no
+  production mechanism.
+
 ### Declared mechanism paths
 
 | Cluster | Action | Mechanism path | Purpose |
@@ -722,6 +793,7 @@ not reopen or revisit the rejected `36` estimate.
 | C02 | Modify | `src/polisyos/runtime/http/routes/temporal.py` | `RUNS_REVIEW`-authorized replay-bound GET route |
 | C02 | Modify | `src/polisyos/runtime/http/dependencies.py` | compose `TemporalService` with exact readers/providers, including real typed absences |
 | C02 | Modify | `src/polisyos/runtime/http/openapi_contract.py` | live success/absence contract examples and semantic contract checks |
+| C03 | Modify | `tools/ops_runners/runtime/generate_runtime_client.py` | include admitted epoch operations in executable clients; freshness alone is not operation completeness |
 | C04 | Add | `apps/runtime-dashboard/src/features/runs/domain/epochStaleness.ts` | strict recursive schema plus semantic admission |
 | C04 | Add | `apps/runtime-dashboard/src/features/runs/api/useEpochStaleness.ts` | generated-client fetch with pre-parse byte capture |
 | C04 | Add | `apps/runtime-dashboard/src/features/runs/export/epochStalenessTwin.ts` | download copied captured bytes, never reserialize |
@@ -803,6 +875,12 @@ for the semantic property, not merely because a future component or route name i
 **May not:** edit any source, register, generated output, DS11 path, debt register, or
 deep-import baseline.
 
+**C00 entry receipt:** the current counts are recorded in Section 3; the four-state
+scratch falsifier changes the underlying epoch/refusal/replay state while holding the
+existing DS4 component shell and fails all four assertions for the intended missing
+behavior. Existing focused backend and DS4/chart baselines are green. C01-C04 now wait
+at the DS15 lane boundary above; this is serialization, not a product blocker.
+
 ### C01 — contracts and real projection inputs
 
 1. Extend `GovernanceMonitorEvent` as the single typed six-class intake and persist/load
@@ -858,54 +936,49 @@ locally reconstructed valid/tx fields.
 **May not:** add a new permission, unauthenticated public endpoint, mutation, local
 signer, or UI-derived authority.
 
-### C03 — pre-WAIT schema/package bridge
+### C03 — schema/package completeness and regeneration receipt
 
 Regenerate the frozen OpenAPI snapshot and the five package-client outputs from the
 canonical generator. The receipt must show both the new GET and the already-live epoch-
-batch POST. Do not hand-edit JSON and do not touch the dashboard generated type yet.
+batch POST. At entry the epoch-batch POST is already frozen and present in both raw
+TypeScript path artifacts; C03 does no schema catch-up for it. The canonical generator's
+explicit POST selection omits that operation, so sanctioned regeneration alone
+preserves the gap. C03 repairs that owner, adds/regenerates the new GET, propagates
+executable package-client operations, and adds a semantic completeness receipt covering
+the existing POST. Do not hand-edit JSON and do not touch the dashboard generated type
+yet.
 Regenerate the public-stable inventory/reference pair with the registered guardrails
 generator and `--skip-deep-import-baseline`; reject any diff outside the two declared
 public-surface outputs and keep `public_surface_inventory_reviewed` false until owner
 review.
 
-This checkpoint is explicitly `bridge_missing` until C04 regenerates the dashboard
-family. It is not a closure point.
+This checkpoint remains incomplete until C04 refreshes the dashboard member and all
+seven outputs pass both freshness and operation-semantic checks. It is not a closure
+point.
+Immediately before regeneration, re-derive the DS15 intersection and confirm its
+generated-family transaction is released; never regenerate over another lane.
 
-**Red first:** corrupt one generated operation/enum in harness scratch and require the
-drift gate to fail.
+**Red first:** keep the schema path, operation id, DTOs and byte-fresh outputs fixed but
+remove the operation from the generator selection; a generated-client behavior test
+must fail because the method cannot be invoked even though ordinary freshness remains
+green. Separately corrupt one generated operation/enum in harness scratch and require
+the drift gate to fail.
 
 **May not:** touch `apps/runtime-dashboard/**`, suppress generated drift, or weaken the
 contract checker.
 
-### WAIT-DS11 — mandatory serialized boundary
+### WAIT-DS11 — satisfied at execution entry
 
-Stop before the first C04 path. Frontend work may begin only when all are true:
+The execution branch starts from post-landing main `a38ff50a5`, which contains DS11
+landing `4ff11db52`; no source-sync merge is required or planned. C00 completed all
+remaining obligations: the final set is 65 paths by two derivations, its exact delta
+from planning is recorded in Section 3.4, the landed exact-byte loader was read, the
+lockfile/install was revalidated, and no C04-C06 owner moved. The frontend slice base
+for P41 is therefore this post-landing execution base.
 
-1. DS11 is landed on the designated integration branch and its landing commit is
-   identified from that branch, not from the live DS11 worktree;
-2. if C01-C03 already produced append-only DS18 commits, perform one ordinary
-   **source-sync merge** from that DS11-containing integration branch into the attached
-   DS18 feature branch. This merge is required integration input, never publication of
-   DS18; rebase/reset/cherry-pick substitution is forbidden. If it conflicts in a
-   DS11-owned path, stop for owner adjudication rather than invent a resolution;
-3. after the source-sync merge, the DS11 landing commit is an ancestor of DS18 `HEAD`,
-   the branch is attached, and the tree is clean. If execution did not begin before
-   DS11, start from the post-landing integration head and no source-sync merge is needed;
-4. DS11's branch/worktree no longer owns an unlanded frontend path set;
-5. derive the complete final `DS11 base..landing` path set twice and report its set
-   difference from the planning-time 63-tracked/64-live union. The planning numbers are
-   historical evidence, not a stop predicate: the formerly untracked snapshot may be
-   tracked at landing and new owner paths must be reported rather than forced away;
-6. DS11's exact-byte loader and strict recursive admission are read from the landed
-   branch, not copied from an unmerged worktree;
-7. the frozen install is revalidated against the landed lockfile, and repeated if that
-   lockfile changed; no TypeScript scanner result predating the landed dependency graph
-   is trusted;
-8. the C04-C06 declared path fence is re-read against landed owners. A moved owner path
-   spends one widening round; it is not silently substituted.
-
-The frontend slice base for P41 is the DS11 landing base, not the original DS18 planning
-base and not the cluster entry from C01.
+The active serialization before C04 is now the generated-family seam with DS15, not
+DS11. Re-coordinate immediately before C04's atomic dashboard regeneration; a moved
+generated owner spends the relevant widening round and is never silently substituted.
 
 ### C04 — strict client admission and MACHINE
 
@@ -1049,7 +1122,9 @@ by the census:
 3. a missing OpenWorldRisk public-limitation read seam;
 4. a DS11 landing owner-path change;
 5. a newly discovered decision-bearing surface family;
-6. a changed generated-client owner/command;
+6. a changed generated-client owner/command — **spent at C00** on
+   `tools/ops_runners/runtime/generate_runtime_client.py` after in-memory sanctioned
+   regeneration reproduced the missing epoch-batch method;
 7. an accessibility/visual owner seam not reachable from the declared test harness.
 
 A round is spent only when the capability or owner/path family expands. A narrowing
@@ -1100,7 +1175,7 @@ Every identifiable engineering owner uses a finer label:
 | --- | --- | --- | --- |
 | Semantic-epoch production/read projection | production/artifact implemented; read consumer/API/surface missing | `src/polisyos/runtime/quality/semantic_epoch.py`, planned projection compiler, and `TemporalService` | exact read projection and surface; never the signer appointment |
 | Positive epoch-transition production | `implemented_but_not_orchestrated` | `src/polisyos/runtime/quality/epoch_validity_cascade.py::EpochValidityTransitionProducer.produce_and_persist` | only a real production call could close orchestration; projection alone cannot |
-| Epoch-batch frozen schema/client family | `bridge_missing` | `src/polisyos/runtime/http/routes/control.py::admit_epoch_validity_batch` plus the canonical OpenAPI/generated-family bridge | C03-C04 generated semantic parity |
+| Epoch-batch generated family, decomposed by layer | source→frozen OpenAPI and raw TypeScript path artifacts implemented; executable-generator selection `bridge_missing`; executable client operation `consumer_missing`; operation completeness `semantic_test_missing` | `src/polisyos/runtime/http/routes/control.py::admit_epoch_validity_batch`, `tools/ops_runners/runtime/generate_runtime_client.py`, generated consumers and semantic checkers | C03-C04 generator repair, executable method propagation and semantic parity; no already-finished schema catch-up |
 | Positive epoch-transition verification | `producer_missing` | `src/polisyos/core/contracts/decision_validity.py::EpochTransitionVerifier` and `src/polisyos/scientist/validation/decision_validity.py::DecisionValidityService` | only a configured, provenance-bearing producer could close it; the default `NoEpochTransitionVerifier` proves the gap |
 | Six-class monitor production/propagation | generic pieces `implemented_but_not_orchestrated`; missing class-specific producer/persistence arms are `producer_missing` / `bridge_missing` | `src/polisyos/scientist/governance/continuous/monitors.py::GovernanceMonitorEvent`, `incident.py::incident_monitor_event`, invalidation owner, and lifecycle bridge | C01-C02 exact event persistence plus live POST → persisted bridge → read projection, without inventing adjudication authority |
 | Epoch-inheritance/recompute-status projection | `producer_missing + bridge_missing` | `src/polisyos/runtime/quality/derived_observations.py` (`DerivedSeries`, derivation certificates/materializations, `materialize_derivation`) | truthful engineering nonreceipt/read projection; the declared path set does not implement a global executor |
@@ -1201,10 +1276,10 @@ DS18 does not:
 - modify `docs/plans/active/DEBT-REGISTER.md`, another slice's plan/journal/receipts/
   snapshots, the DS5 baseline debt manifest, or the deep-import baseline;
 - hand-edit generated artifacts, run unscoped `guardrails sync`, push, merge DS18 into
-  an integration/publication branch, rebase, reset, or detach HEAD. The scoped C03
-  public-surface regeneration with `--skip-deep-import-baseline` is mandatory; the one
-  append-only DS11-containing source-sync merge required by WAIT-DS11 is the only inward
-  merge. Neither is performed during this read-only planning task.
+  an integration/publication branch, perform an inward source-sync merge, rebase,
+  reset, or detach HEAD. The scoped C03 public-surface regeneration with
+  `--skip-deep-import-baseline` is mandatory. DS11 is already in the execution base;
+  no inward DS11 merge remains.
 
 ## 17. Hand-back summary
 
@@ -1216,22 +1291,27 @@ DS18 does not:
   `__init__.py`: `17` files / `105` decorated operations by both derivations. Excluding
   only the initializer gives `16 / 105`; two SSE operations are deliberately hidden
   from OpenAPI.
-- Frozen OpenAPI: `100` paths / `102` operations, twice structured-derived.
-- Exact drift: the visible source set has one extra operation — epoch-batch admission.
-- Source denominator: `2,600` Python files, twice derived; the rejected 2,599 pathspec
-  and its missing root file are recorded.
+- Frozen OpenAPI: `101` paths / `103` operations, twice structured-derived.
+- Exact drift: zero; the 103 visible source and 103 frozen operation sets have an empty
+  symmetric difference. Epoch-batch admission is already frozen.
+- Source denominator: `2,598` Python files by complete filesystem and full-HEAD tree
+  walks, with symmetric difference zero. Planning `2,600` is historical and rejected
+  for execution.
 - DS4 production consumers: zero, from two complete identifier walks.
 - Existing DS5 decision-bearing data: 21 resolutions / 10 paths by two parsers, explicitly
   only a lower bound because the owner says the exhaustive relation is not established.
-- DS11: 63 tracked held paths; 64 live collision paths after one untracked snapshot;
-  both live-union methods agree.
+- DS11 landing: 65 paths by branch-contribution and landing first-parent derivations;
+  both sets agree. Relative to planning live 64, the landed set adds only
+  `apps/runtime-dashboard/e2e/a11y/routes.a11y.spec.ts`.
 
 ### Reachable versus in-process
 
 - Routed and frozen canonical time owner: temporal capabilities and
   `TemporalScope`/`TemporalRef`; no epoch-staleness composition yet.
 - Routed and frozen: generic Decision Validity event and run/packet summary surfaces.
-- Routed in source but absent from schema/clients: epoch-batch admission.
+- Routed and frozen: epoch-batch admission. Raw TypeScript path artifacts carry it;
+  executable generated client methods do not, so that consumer and its seven-output
+  semantic proof remain incomplete.
 - Public typed contracts without a dedicated read route: semantic production receipt,
   batch/gate/pre-N9 artifacts and nonreceipts.
 - In-process/artifact only: semantic resolution/history details, transition artifact and
@@ -1251,8 +1331,11 @@ DS18 does not:
 - Engineering `implemented_but_not_orchestrated`: positive transition production.
   Candidate owner:
   `src/polisyos/runtime/quality/epoch_validity_cascade.py::EpochValidityTransitionProducer.produce_and_persist`.
-- Engineering `bridge_missing`: the live epoch-batch route's frozen schema/client
-  family. Candidate owner: the canonical route plus OpenAPI/generated-family bridge.
+- Epoch-batch family: source→frozen schema and raw TypeScript path artifacts are
+  implemented; executable-generator selection is engineering `bridge_missing`, the
+  generated client operation is `consumer_missing`, and operation completeness is
+  `semantic_test_missing`. Candidate owners are the canonical generator, generated
+  clients and semantic contract checkers.
 - Engineering `producer_missing`: positive epoch-transition verification. Candidate
   contract/integration owners: `EpochTransitionVerifier` and `DecisionValidityService`;
   `NoEpochTransitionVerifier` is the current default.
@@ -1306,11 +1389,17 @@ and health metric to fail until it reconciles that root.
 
 ### Mechanism budget
 
-The declared union remains **39** and the hard ceiling remains **44**. The amendment
-changes labels/rules/falsifiers inside existing mechanisms and does not revisit `36`.
+The amendment itself held **39 / 44**. C00 then proved that the canonical generator is
+a required mechanism, so execution truthfully widens to **40 / 44**, spends **1 of 7**
+rounds, and consumes the named HTTP/ABI reserve. It does not revisit `36` or move the
+hard ceiling.
 
-### Frontend wait point
+### Frontend and lane boundary
 
-C00-C03 may execute without DS11 and touch only backend/schema/package-client paths.
-The hard stop is immediately before C04's first `apps/runtime-dashboard/**` path.
-C04-C07 begin only after the WAIT-DS11 receipt above is satisfied.
+WAIT-DS11 is satisfied at entry: C04-C07 need no DS11 source-sync merge. The active
+hold is earlier and narrower: C01-C04 wait for DS15's exact four-path C02 release, and
+DS18 re-coordinates the seven-output generator immediately before C03 and C04. The
+GY-O0 README companion is released at `e5d1c3ab7`; DS18 is ordered after its committed
+owner state. None of these
+lane-serialization facts caused the widening: the measured generator owner did. The
+current budget is **40 / 44**, with **1 of 7** rounds spent.

@@ -306,6 +306,10 @@ class HierarchicalSearchCoordinator:
             intervention.intervention_id: index
             for index, intervention in enumerate(candidate.trinity_bundle.policy_spec.interventions)
         }
+        parameter_specs = {
+            parameter.param_id: parameter
+            for parameter in candidate.trinity_bundle.policy_spec.parameters
+        }
         bounds: list[ParameterBounds] = []
         parameter_paths: dict[str, str] = {}
         template_values: dict[str, Any] = {}
@@ -367,7 +371,20 @@ class HierarchicalSearchCoordinator:
             template_values[parameter.param_id] = parameter.default_value
 
         for index, entry in enumerate(candidate.parameter_schedule):
+            parameter = parameter_specs[entry.param_id]
+            if not parameter.tunable:
+                continue
             default = _normalize_value_like(entry.scheduled_value)
+            lower = (
+                None
+                if parameter.min_value is None
+                else _normalize_value_like(parameter.min_value)
+            )
+            upper = (
+                None
+                if parameter.max_value is None
+                else _normalize_value_like(parameter.max_value)
+            )
             dtype = _parameter_type(entry.scheduled_value)
             if self._config.require_explicit_parameter_bounds:
                 phase2_bounds = derive_phase2_parameter_bounds(
@@ -376,16 +393,16 @@ class HierarchicalSearchCoordinator:
                     ),
                     invocation_id=f"invoke-schedule-{entry.entry_id}",
                     default=default,
-                    lower=None,
-                    upper=None,
+                    lower=lower,
+                    upper=upper,
                 )
                 if phase2_bounds.blocker is not None:
                     raise ValueError(phase2_bounds.blocker.reason)
                 bounds.append(
                     ParameterBounds.explicit(
                         name=f"schedule::{entry.entry_id}",
-                        lower=None,
-                        upper=None,
+                        lower=lower,
+                        upper=upper,
                         dtype=dtype,
                     )
                 )
@@ -395,7 +412,7 @@ class HierarchicalSearchCoordinator:
                         "Inferred schedule bounds are legacy-shadow/candidate-only; "
                         "set allow_legacy_shadow_inferred_bounds=True for compatibility."
                     )
-                lower, upper = _derive_bounds(default, None, None)
+                lower, upper = _derive_bounds(default, lower, upper)
                 bounds.append(
                     ParameterBounds(
                         name=f"schedule::{entry.entry_id}",

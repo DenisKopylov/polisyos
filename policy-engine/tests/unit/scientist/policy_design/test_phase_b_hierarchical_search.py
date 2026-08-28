@@ -70,6 +70,24 @@ def test_build_parameter_search_spec_extracts_bounds_and_paths() -> None:
     assert any(bound.name.startswith("schedule::") for bound in spec.search_space.bounds)
 
 
+def test_explicit_schedule_search_reuses_referenced_parameter_bounds() -> None:
+    coordinator = HierarchicalSearchCoordinator(
+        config=HierarchicalSearchConfig(
+            enable_hybrid_seeds=False,
+            require_explicit_parameter_bounds=True,
+        )
+    )
+
+    spec = coordinator.build_parameter_search_spec(_candidate())
+
+    assert any(
+        bound.name == "schedule::schedule_tax_rate"
+        and bound.lower == 0.05
+        and bound.upper == 0.2
+        for bound in spec.search_space.bounds
+    )
+
+
 def test_phase2_parameter_search_blocks_missing_explicit_bounds() -> None:
     candidate = _candidate()
     parameter = candidate.trinity_bundle.policy_spec.parameters[0].model_copy(

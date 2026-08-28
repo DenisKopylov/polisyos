@@ -2058,6 +2058,22 @@ builder test file. That existing test companion is now declared above and the
 exact selector is corrected; no source or mechanism count follows from the
 record repair.
 
+The complete changed-Python Ruff denominator then exposed **14** untyped
+function-boundary annotations in the already-admitted C02 artifact writer.
+Two independent derivations agree with zero disagreement: Ruff emitted 14
+`ANN401` findings, and an AST walk of the pre-repair file found 14 argument,
+variadic-argument, or return annotations whose complete annotation was `Any`.
+P41 does not permit an inherited-red exclusion because GY-O0 changed that
+file. The repair reuses the existing `ArtifactStore` and
+`RuntimeDiagnosticEventLog` contracts and uses `object` only at recursive JSON
+traversal boundaries; it changes no runtime branch. The exact durable-write
+and reconciled-reuse pair passed at CPU **28.30s**, the full changed-Python
+Ruff denominator then exited 0 at CPU **0.09s**, and the registered
+trust-posture generator exited 0 at CPU **34.30s** with both scanners at
+**2,601** Python files. This is a blocking verification repair within an
+already-admitted mechanism path: **21/24** and the widening-round ledger are
+unchanged.
+
 1. Freeze source and record `git diff --name-status` against the slice base.
 2. Prove exact equality with the 16-path base manifest or an admitted widening
    ledger not exceeding 24.

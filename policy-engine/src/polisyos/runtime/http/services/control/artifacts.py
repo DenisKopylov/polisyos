@@ -49,7 +49,10 @@ from polisyos.runtime.quality.diagnostic_events import (
     DiagnosticEvent,
     validate_diagnostic_event,
 )
-from polisyos.runtime.quality.event_log import DiagnosticEventPayloadPolicy
+from polisyos.runtime.quality.event_log import (
+    DiagnosticEventPayloadPolicy,
+    RuntimeDiagnosticEventLog,
+)
 
 NORMATIVE_APPLICABILITY_REPORT_KIND = "lex.normative_applicability_report"
 AUTHORITY_ENVELOPE_ARTIFACT_KIND = "runtime_quality.evidence_authority_envelope"
@@ -125,16 +128,16 @@ def _typed_artifact_ref(
     ref_str: str,
     *,
     kind: str,
-    ref_type: Any,
+    ref_type: type[ArtifactRef],
     media_type: str = "application/json",
-) -> Any:
+) -> ArtifactRef:
     return ref_type.model_validate(
         _make_artifact_ref(ref_str, kind=kind, media_type=media_type).model_dump(mode="json")
     )
 
 
 def _artifact_ref_from_summary_payload(
-    payload: Any,
+    payload: object,
     *,
     kind: str,
     media_type: str = "application/json",
@@ -163,7 +166,7 @@ def _normative_applicability_report_write_options(
 
 
 def write_authority_artifact(
-    store: Any,
+    store: core_artifacts.ArtifactStore,
     payload: object,
     opts: ArtifactWriteOptions,
     *,
@@ -419,7 +422,7 @@ def write_authority_artifact(
 
 
 def _persist_cas_writer_attestation(
-    store: Any,
+    store: core_artifacts.ArtifactStore,
     *,
     payload: dict[str, Any],
     expected_ref: str | None,
@@ -529,11 +532,11 @@ def _freeze_cas_writer_attestation_identity(
 
 
 def write_runtime_authority_artifact(
-    store: Any,
-    event_log: Any,
+    store: core_artifacts.ArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
     payload: object,
     opts: ArtifactWriteOptions,
-    **authority_fields: Any,
+    **authority_fields: object,
 ) -> AuthorityArtifactWriteResult:
     """Write a runtime authority artifact and append its event to the durable log."""
 
@@ -586,7 +589,7 @@ def write_runtime_authority_artifact(
 
 
 def _existing_authority_result(
-    store: Any,
+    store: core_artifacts.ArtifactStore,
     *,
     cas_ref_value: str,
     payload_sha256: str,
@@ -783,7 +786,7 @@ def _existing_authority_result(
 
 
 def verify_runtime_authority_artifact_identity(
-    store: Any,
+    store: core_artifacts.ArtifactStore,
     *,
     artifact_id: core_artifacts.ArtifactID,
     opts: ArtifactWriteOptions,
@@ -1102,7 +1105,7 @@ def _stable_event_id(
 
 
 def _assert_authority_manifest_linkage(
-    store: Any,
+    store: core_artifacts.ArtifactStore,
     *,
     cas_ref: ArtifactRef,
     authority_envelope_ref: ArtifactRef,
@@ -1127,7 +1130,7 @@ def _assert_authority_manifest_linkage(
         )
 
 
-def _nested_get(payload: Any, key: str) -> Any:
+def _nested_get(payload: object, key: str) -> object | None:
     if isinstance(payload, Mapping):
         if key in payload:
             return payload[key]
@@ -1143,7 +1146,7 @@ def _nested_get(payload: Any, key: str) -> Any:
     return None
 
 
-def _runtime_quality_evidence_from_payloads(*payloads: Any) -> dict[str, Any]:
+def _runtime_quality_evidence_from_payloads(*payloads: object) -> dict[str, Any]:
     """Extract runtime-owned quality reports embedded in job/run/agent payloads."""
     evidence: dict[str, Any] = {}
     for payload in payloads:

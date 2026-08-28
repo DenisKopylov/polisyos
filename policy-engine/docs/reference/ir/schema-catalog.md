@@ -12,15 +12,15 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1557`.
-- Public/root-or-package facade types: `422`.
+- Total IR types: `1582`.
+- Public/root-or-package facade types: `430`.
 - ABI snapshot-backed types: `95`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 276 |
-| `polisyos.ir.analytics` | 249 |
+| `polisyos.ir` | 280 |
+| `polisyos.ir.analytics` | 260 |
 | `polisyos.ir.kernel` | 52 |
 | `polisyos.ir.world` | 54 |
 
@@ -28,20 +28,20 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 950 | 232 | 37 |
+| `analytics` | 972 | 239 | 37 |
 | `artifacts` | 25 | 0 | 0 |
-| `governance` | 97 | 20 | 8 |
-| `kernel` | 43 | 38 | 0 |
+| `governance` | 99 | 21 | 8 |
+| `kernel` | 47 | 38 | 0 |
 | `linker` | 7 | 0 | 0 |
 | `migrations` | 7 | 0 | 0 |
-| `observation` | 139 | 63 | 30 |
+| `observation` | 137 | 63 | 30 |
 | `trinity` | 2 | 1 | 1 |
 | `world` | 32 | 32 | 12 |
 | `connectors` | 24 | 4 | 0 |
 | `data` | 7 | 0 | 0 |
 | `loading` | 25 | 10 | 6 |
 | `model_layer` | 30 | 8 | 1 |
-| `passes` | 17 | 0 | 0 |
+| `passes` | 16 | 0 | 0 |
 | `registry` | 146 | 30 | 0 |
 | `schemas` | 6 | 0 | 0 |
 
@@ -50,9 +50,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics._truthfulness.TruthfulnessReceipt` { #polisyos-ir-analytics-truthfulness-truthfulnessreceipt }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:TruthfulnessReceipt`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics._truthfulness.TruthfulnessScope`, `polisyos.ir.analytics._truthfulness.TruthfulnessStatus`, `polisyos.ir.analytics._truthfulness.TruthfulnessTier`
@@ -73,9 +73,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics._truthfulness.TruthfulnessScope` { #polisyos-ir-analytics-truthfulness-truthfulnessscope }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:TruthfulnessScope`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -92,9 +92,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics._truthfulness.TruthfulnessStatus` { #polisyos-ir-analytics-truthfulness-truthfulnessstatus }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:TruthfulnessStatus`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -112,13 +112,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics._truthfulness.TruthfulnessTier` { #polisyos-ir-analytics-truthfulness-truthfulnesstier }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:TruthfulnessTier`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Normalized epistemic strength of a runtime truthfulness claim.
+- Summary: Normalized epistemic strength of a runtime or catalog truthfulness claim.
 
 | Enum values |
 | ----------- |
@@ -1429,6 +1429,34 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `p_value` | `float \| NoneType` | `no` | `—` | — |
 | `statistical_test` | `str` | `no` | `''` | — |
 
+### `polisyos.ir.analytics.calibration.CalibrationCandidateScore` { #polisyos-ir-analytics-calibration-calibrationcandidatescore }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Split-aware score summary for one calibration candidate.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `candidate_id` | `str` | `yes` | `—` | — |
+| `candidate_kind` | `str` | `yes` | `—` | — |
+| `governance_penalty` | `float` | `yes` | `—` | — |
+| `holdout_fit_score` | `float \| NoneType` | `no` | `—` | — |
+| `interference_fit_score` | `float` | `yes` | `—` | — |
+| `measurement_fit_score` | `float` | `yes` | `—` | — |
+| `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `robustness_penalty` | `float` | `yes` | `—` | — |
+| `strategic_plausibility_score` | `float` | `yes` | `—` | — |
+| `train_fit_score` | `float` | `yes` | `—` | — |
+| `transportability_score` | `float` | `yes` | `—` | — |
+| `used_holdout` | `bool` | `no` | `False` | — |
+| `validation_composite_score` | `float` | `yes` | `—` | — |
+| `validation_fit_score` | `float` | `yes` | `—` | — |
+
 ### `polisyos.ir.analytics.calibration.CalibrationConfig` { #polisyos-ir-analytics-calibration-calibrationconfig }
 
 - Kind: `pydantic_model`
@@ -1463,6 +1491,30 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `targets` | `list[polisyos.ir.analytics.calibration.CalibrationTarget]` | `no` | `—` | `polisyos.ir.analytics.calibration.CalibrationTarget` |
 | `time_axis` | `list[float] \| NoneType` | `no` | `—` | — |
 | `trainables` | `list[polisyos.ir.analytics.calibration.TrainableParamRef]` | `no` | `—` | `polisyos.ir.analytics.calibration.TrainableParamRef` |
+
+### `polisyos.ir.analytics.calibration.CalibrationRunManifest` { #polisyos-ir-analytics-calibration-calibrationrunmanifest }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.calibration.CalibrationCandidateScore`, `polisyos.ir.analytics.calibration.SplitWindow`, `polisyos.ir.observation.contracts.ObservationFamily`
+- Summary: Typed D4 calibration-run artifact.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `candidates` | `list[polisyos.ir.analytics.calibration.CalibrationCandidateScore]` | `no` | `—` | `polisyos.ir.analytics.calibration.CalibrationCandidateScore` |
+| `excluded_families` | `list[str]` | `no` | `—` | — |
+| `frozen_before_holdout` | `bool` | `no` | `True` | — |
+| `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `run_id` | `str` | `yes` | `—` | — |
+| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `selected_candidate_id` | `str` | `yes` | `—` | — |
+| `selected_on_split` | `str` | `no` | `'validation'` | — |
+| `split_windows` | `list[polisyos.ir.analytics.calibration.SplitWindow]` | `no` | `—` | `polisyos.ir.analytics.calibration.SplitWindow` |
+| `used_families` | `list[polisyos.ir.observation.contracts.ObservationFamily]` | `no` | `—` | `polisyos.ir.observation.contracts.ObservationFamily` |
 
 ### `polisyos.ir.analytics.calibration.CalibrationTarget` { #polisyos-ir-analytics-calibration-calibrationtarget }
 
@@ -1564,6 +1616,25 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `rank_tol` | `float` | `no` | `1e-06` | — |
 | `std_warn` | `float` | `no` | `1000000.0` | — |
 
+### `polisyos.ir.analytics.calibration.HoldoutScoresManifest` { #polisyos-ir-analytics-calibration-holdoutscoresmanifest }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Typed holdout-score artifact.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `by_family` | `dict[str, float]` | `no` | `—` | — |
+| `candidate_id` | `str` | `yes` | `—` | — |
+| `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `overall_score` | `float` | `yes` | `—` | — |
+| `schema_version` | `str` | `no` | `'1.0'` | — |
+
 ### `polisyos.ir.analytics.calibration.MultiStartConfig` { #polisyos-ir-analytics-calibration-multistartconfig }
 
 - Kind: `pydantic_model`
@@ -1598,6 +1669,100 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `enabled` | `bool` | `no` | `False` | — |
 | `epsilon` | `float` | `no` | `1e-08` | — |
 | `weight` | `float` | `no` | `1.0` | — |
+
+### `polisyos.ir.analytics.calibration.SpecificationCurveScenario` { #polisyos-ir-analytics-calibration-specificationcurvescenario }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.observation.contracts.ObservationFamily`
+- Summary: One specification-curve combination scored on eligible families.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `estimate` | `float` | `yes` | `—` | — |
+| `included_families` | `list[polisyos.ir.observation.contracts.ObservationFamily]` | `no` | `—` | `polisyos.ir.observation.contracts.ObservationFamily` |
+| `source_combination_id` | `str` | `yes` | `—` | — |
+| `trust_weight` | `float` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.calibration.SpecificationCurveSummaryManifest` { #polisyos-ir-analytics-calibration-specificationcurvesummarymanifest }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.calibration.SpecificationCurveScenario`
+- Summary: Typed specification-curve robustness artifact.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `robustness_score` | `float` | `yes` | `—` | — |
+| `scenarios` | `list[polisyos.ir.analytics.calibration.SpecificationCurveScenario]` | `no` | `—` | `polisyos.ir.analytics.calibration.SpecificationCurveScenario` |
+| `schema_version` | `str` | `no` | `'1.0'` | — |
+
+### `polisyos.ir.analytics.calibration.SplitWindow` { #polisyos-ir-analytics-calibration-splitwindow }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Time split used by train/validation/holdout calibration logic.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `end` | `str` | `yes` | `—` | — |
+| `split_id` | `str` | `yes` | `—` | — |
+| `start` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.calibration.StrategicResponseChannelMetric` { #polisyos-ir-analytics-calibration-strategicresponsechannelmetric }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.observation.contracts.ObservationFamily`, `polisyos.ir.observation.contracts.StrategicResponseChannel`
+- Summary: Quantified strategic-response metric for one intervention channel.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `channel_id` | `str` | `yes` | `—` | — |
+| `fallback_mode` | `str` | `yes` | `—` | — |
+| `family` | `polisyos.ir.observation.contracts.ObservationFamily` | `yes` | `—` | `polisyos.ir.observation.contracts.ObservationFamily` |
+| `intervention_kind` | `str` | `yes` | `—` | — |
+| `notes` | `list[str]` | `no` | `—` | — |
+| `plausibility_score` | `float` | `yes` | `—` | — |
+| `quantified` | `bool` | `no` | `False` | — |
+| `transmission_channels` | `list[polisyos.ir.observation.contracts.StrategicResponseChannel]` | `no` | `—` | `polisyos.ir.observation.contracts.StrategicResponseChannel` |
+
+### `polisyos.ir.analytics.calibration.StrategicResponseMetricsManifest` { #polisyos-ir-analytics-calibration-strategicresponsemetricsmanifest }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.calibration.StrategicResponseChannelMetric`
+- Summary: Typed D4 strategic-response artifact.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `aggregate_plausibility` | `float` | `yes` | `—` | — |
+| `channels` | `list[polisyos.ir.analytics.calibration.StrategicResponseChannelMetric]` | `no` | `—` | `polisyos.ir.analytics.calibration.StrategicResponseChannelMetric` |
+| `quantified_channels` | `int` | `no` | `0` | — |
+| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `strategic_summary` | `dict[str, Any]` | `no` | `—` | — |
 
 ### `polisyos.ir.analytics.calibration.TargetAlignConfig` { #polisyos-ir-analytics-calibration-targetalignconfig }
 
@@ -1655,6 +1820,47 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `param_id` | `str` | `yes` | `—` | — |
 | `selector` | `Any \| NoneType` | `no` | `—` | — |
 | `tie_id` | `str \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.calibration.TransportabilityChannelResult` { #polisyos-ir-analytics-calibration-transportabilitychannelresult }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.transportability.TransportMode`, `polisyos.ir.analytics.transportability.TransportabilityStatus`, `polisyos.ir.observation.contracts.ObservationFamily`
+- Summary: Transportability score for one channel/family pair.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `channel_id` | `str` | `yes` | `—` | — |
+| `family` | `polisyos.ir.observation.contracts.ObservationFamily` | `yes` | `—` | `polisyos.ir.observation.contracts.ObservationFamily` |
+| `final_confidence` | `float` | `yes` | `—` | — |
+| `notes` | `list[str]` | `no` | `—` | — |
+| `source_regime_id` | `str` | `no` | `'regime_a'` | — |
+| `status` | `polisyos.ir.analytics.transportability.TransportabilityStatus` | `yes` | `—` | `polisyos.ir.analytics.transportability.TransportabilityStatus` |
+| `target_regime_id` | `str` | `no` | `'regime_b'` | — |
+| `transport_mode` | `polisyos.ir.analytics.transportability.TransportMode` | `yes` | `—` | `polisyos.ir.analytics.transportability.TransportMode` |
+
+### `polisyos.ir.analytics.calibration.TransportabilitySummaryManifest` { #polisyos-ir-analytics-calibration-transportabilitysummarymanifest }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.calibration.TransportabilityChannelResult`
+- Summary: Typed transportability evidence artifact.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `aggregate_score` | `float` | `yes` | `—` | — |
+| `channels` | `list[polisyos.ir.analytics.calibration.TransportabilityChannelResult]` | `no` | `—` | `polisyos.ir.analytics.calibration.TransportabilityChannelResult` |
+| `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `n_transportable_channels` | `int` | `no` | `0` | — |
+| `schema_version` | `str` | `no` | `'1.0'` | — |
 
 ### `polisyos.ir.analytics.calibration_diagnostics.CalibrationCurveBin` { #polisyos-ir-analytics-calibration-diagnostics-calibrationcurvebin }
 
@@ -3516,6 +3722,98 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `recommendations` | `tuple[str]` | `no` | `()` | — |
 | `variable_smd` | `dict[str, float]` | `no` | `—` | — |
 | `weighted` | `bool` | `no` | `False` | — |
+
+### `polisyos.ir.analytics.cross_graph.AcademicBenchmarkScenario` { #polisyos-ir-analytics-cross-graph-academicbenchmarkscenario }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.cross_graph.BenchmarkCausalEdge`, `polisyos.ir.analytics.cross_graph.BenchmarkCredibilityPolicy`, `polisyos.ir.analytics.cross_graph.BenchmarkScholarQuery`
+- Summary: Neutral scenario definition used by an academic benchmark suite.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `causal_edges` | `list[polisyos.ir.analytics.cross_graph.BenchmarkCausalEdge]` | `no` | `—` | `polisyos.ir.analytics.cross_graph.BenchmarkCausalEdge` |
+| `credibility_policy` | `polisyos.ir.analytics.cross_graph.BenchmarkCredibilityPolicy` | `no` | `—` | `polisyos.ir.analytics.cross_graph.BenchmarkCredibilityPolicy` |
+| `parameters` | `list[str]` | `no` | `—` | — |
+| `policy_domain` | `str` | `no` | `''` | — |
+| `scenario_id` | `str` | `yes` | `—` | — |
+| `scholar_queries` | `list[polisyos.ir.analytics.cross_graph.BenchmarkScholarQuery]` | `no` | `—` | `polisyos.ir.analytics.cross_graph.BenchmarkScholarQuery` |
+| `title` | `str` | `yes` | `—` | — |
+| `weight` | `float` | `no` | `1.0` | — |
+
+### `polisyos.ir.analytics.cross_graph.AcademicBenchmarkSuite` { #polisyos-ir-analytics-cross-graph-academicbenchmarksuite }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.cross_graph.AcademicBenchmarkScenario`
+- Summary: Neutral, serializable suite definition for academic benchmark scenarios.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `scenarios` | `list[polisyos.ir.analytics.cross_graph.AcademicBenchmarkScenario]` | `no` | `—` | `polisyos.ir.analytics.cross_graph.AcademicBenchmarkScenario` |
+| `suite_id` | `str` | `no` | `'academic_usefulness'` | — |
+
+### `polisyos.ir.analytics.cross_graph.BenchmarkCausalEdge` { #polisyos-ir-analytics-cross-graph-benchmarkcausaledge }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Neutral causal-edge descriptor used by an academic benchmark suite.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `cause` | `str` | `yes` | `—` | — |
+| `effect` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.cross_graph.BenchmarkCredibilityPolicy` { #polisyos-ir-analytics-cross-graph-benchmarkcredibilitypolicy }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Evidence thresholds used when an academic benchmark evaluates a causal edge.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `max_evidence_age_years` | `int \| NoneType` | `no` | `—` | — |
+| `min_confidence` | `float` | `no` | `0.7` | — |
+| `min_design_tier` | `int \| NoneType` | `no` | `3` | — |
+| `min_unique_works` | `int` | `no` | `2` | — |
+| `require_conflict_free` | `bool` | `no` | `True` | — |
+
+### `polisyos.ir.analytics.cross_graph.BenchmarkScholarQuery` { #polisyos-ir-analytics-cross-graph-benchmarkscholarquery }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Neutral scholar-coverage query used by an academic benchmark suite.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `cause` | `str` | `yes` | `—` | — |
+| `effect` | `str` | `yes` | `—` | — |
+| `min_results` | `int` | `no` | `1` | — |
+| `min_trust` | `float` | `no` | `0.5` | — |
+| `support_mode` | `str` | `no` | `'hybrid'` | — |
 
 ### `polisyos.ir.analytics.cross_graph.BridgeRelation` { #polisyos-ir-analytics-cross-graph-bridgerelation }
 
@@ -11721,6 +12019,31 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `require_scalar_invariance` | `bool` | `no` | `False` | — |
 | `require_two_proxy_families` | `bool` | `no` | `True` | — |
 
+### `polisyos.ir.analytics.literature.AdmittedClaimAdjudicationBatch` { #polisyos-ir-analytics-literature-admittedclaimadjudicationbatch }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.literature.ClaimAdjudicationResult`
+- Summary: Scientist-signed claim publishability results and their admitted basis.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `admission_predicate` | `Literal[independently_reconciled]` | `no` | `'independently_reconciled'` | — |
+| `authoritative_for` | `tuple[Literal[academic_claim_edge_publishability]]` | `no` | `('academic_claim_edge_publishability',)` | — |
+| `candidate_ref` | `str` | `yes` | `—` | — |
+| `champion_pointer_sha256` | `str` | `yes` | `—` | — |
+| `evaluation_ref` | `str` | `yes` | `—` | — |
+| `input_claim_ids` | `list[str]` | `no` | `—` | — |
+| `may_not_use_for` | `tuple[Literal[method_validity], Literal[governance_admissibility]]` | `no` | `('method_validity', 'governance_admissibility')` | — |
+| `raw_input_ref` | `str` | `yes` | `—` | — |
+| `results` | `list[polisyos.ir.analytics.literature.ClaimAdjudicationResult]` | `no` | `—` | `polisyos.ir.analytics.literature.ClaimAdjudicationResult` |
+| `rule_version` | `Literal[claim-adjudication-admission.v1]` | `no` | `'claim-adjudication-admission.v1'` | — |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+
 ### `polisyos.ir.analytics.literature.ArticleExtractionResult` { #polisyos-ir-analytics-literature-articleextractionresult }
 
 - Kind: `pydantic_model`
@@ -11878,6 +12201,60 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `mixed` |
 | `ambiguous` |
 | `non_linear` |
+
+### `polisyos.ir.analytics.literature.ClaimAdjudicationInputBatch` { #polisyos-ir-analytics-literature-claimadjudicationinputbatch }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.literature.ClaimAdjudicationInputItem`
+- Summary: Immutable raw-input denominator for one claim-adjudication run.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `items` | `list[polisyos.ir.analytics.literature.ClaimAdjudicationInputItem]` | `no` | `—` | `polisyos.ir.analytics.literature.ClaimAdjudicationInputItem` |
+| `retraction_artifact_ref` | `str \| NoneType` | `no` | `—` | — |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+| `source_artifact_ref` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.literature.ClaimAdjudicationInputItem` { #polisyos-ir-analytics-literature-claimadjudicationinputitem }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.literature.CausalDirection`, `polisyos.ir.analytics.literature.ClaimExplicitness`, `polisyos.ir.analytics.literature.ClaimType`, `polisyos.ir.analytics.literature.DesignFamily`, `polisyos.ir.analytics.literature.EvidenceSpan`, `polisyos.ir.analytics.literature.EvidenceStrength`, `polisyos.ir.analytics.literature.SourceBasis`, `polisyos.ir.analytics.literature.TextQuality`
+- Summary: Authority-neutral claim evidence supplied to Scientist for adjudication.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `cause_variable` | `str` | `yes` | `—` | — |
+| `claim_explicitness` | `polisyos.ir.analytics.literature.ClaimExplicitness` | `no` | `<ClaimExplicitness.UNCLEAR: 'unclear'>` | `polisyos.ir.analytics.literature.ClaimExplicitness` |
+| `claim_id` | `str` | `yes` | `—` | — |
+| `claim_text` | `str` | `no` | `''` | — |
+| `claim_type_hint` | `polisyos.ir.analytics.literature.ClaimType` | `no` | `<ClaimType.UNCLEAR: 'unclear'>` | `polisyos.ir.analytics.literature.ClaimType` |
+| `design_family_hint` | `polisyos.ir.analytics.literature.DesignFamily` | `no` | `<DesignFamily.UNCLEAR: 'unclear'>` | `polisyos.ir.analytics.literature.DesignFamily` |
+| `direction` | `polisyos.ir.analytics.literature.CausalDirection` | `no` | `<CausalDirection.MIXED: 'mixed'>` | `polisyos.ir.analytics.literature.CausalDirection` |
+| `effect_size` | `float \| NoneType` | `no` | `—` | — |
+| `effect_variable` | `str` | `yes` | `—` | — |
+| `extraction_confidence` | `float` | `no` | `0.0` | — |
+| `extraction_model` | `str` | `no` | `''` | — |
+| `extraction_timestamp` | `str` | `no` | `''` | — |
+| `intra_paper_contradiction` | `bool` | `no` | `False` | — |
+| `method_spans` | `list[polisyos.ir.analytics.literature.EvidenceSpan]` | `no` | `—` | `polisyos.ir.analytics.literature.EvidenceSpan` |
+| `methodology` | `str` | `no` | `''` | — |
+| `methodology_enum` | `polisyos.ir.analytics.literature.EvidenceStrength` | `no` | `<EvidenceStrength.UNKNOWN: 'unknown'>` | `polisyos.ir.analytics.literature.EvidenceStrength` |
+| `openalex_id` | `str` | `yes` | `—` | — |
+| `scope_conditions` | `list[str]` | `no` | `—` | — |
+| `source_basis` | `polisyos.ir.analytics.literature.SourceBasis` | `no` | `<SourceBasis.FULLTEXT: 'fulltext'>` | `polisyos.ir.analytics.literature.SourceBasis` |
+| `supporting_spans` | `list[polisyos.ir.analytics.literature.EvidenceSpan]` | `no` | `—` | `polisyos.ir.analytics.literature.EvidenceSpan` |
+| `text_quality` | `polisyos.ir.analytics.literature.TextQuality` | `no` | `<TextQuality.EXTRACTED_FULLTEXT: 'extracted_fulltext'>` | `polisyos.ir.analytics.literature.TextQuality` |
+| `title` | `str` | `no` | `''` | — |
 
 ### `polisyos.ir.analytics.literature.ClaimAdjudicationResult` { #polisyos-ir-analytics-literature-claimadjudicationresult }
 
@@ -14546,12 +14923,12 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: `polisyos.ir.analytics:ABMBifurcationReport`, `polisyos.ir:ABMBifurcationReport`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.registry.refs.ArtifactRefModel`
+- References: `polisyos.ir.analytics.phase4_dynamics._ABMAttractorAnalysisArtifactRef`
 - Summary: Lightweight Phase-4 bifurcation/attractor report pointer for ABM results.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
-| `attractor_analysis_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+| `attractor_analysis_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMAttractorAnalysisArtifactRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMAttractorAnalysisArtifactRef` |
 | `attractor_count` | `int \| NoneType` | `no` | `—` | — |
 | `bifurcation_count` | `int \| NoneType` | `no` | `—` | — |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
@@ -14566,12 +14943,12 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: `polisyos.ir.analytics:ABMIdentifiabilityCertificate`, `polisyos.ir:ABMIdentifiabilityCertificate`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.registry.refs.ArtifactRefModel`
+- References: `polisyos.ir.analytics.phase4_dynamics._ABMIdentifiabilityDiagnosticArtifactRef`
 - Summary: Lightweight Phase-4 certificate pointing to aggregate-moment ABM diagnostics.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
-| `diagnostic_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+| `diagnostic_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMIdentifiabilityDiagnosticArtifactRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMIdentifiabilityDiagnosticArtifactRef` |
 | `identified` | `bool \| NoneType` | `no` | `—` | — |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
 | `method` | `str` | `no` | `'aggregate_moment_identifiability'` | — |
@@ -14586,31 +14963,31 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: `polisyos.ir.analytics:ABMResult`, `polisyos.ir:ABMResult`
 - ABI snapshot: `abm_result` / `schemas/snapshots/ir/abm_result.schema.json`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.phase4_dynamics.ABMBifurcationReport`, `polisyos.ir.analytics.phase4_dynamics.ABMIdentifiabilityCertificate`, `polisyos.ir.registry.refs.DistributionalReportRef`, `polisyos.ir.registry.refs.UncertaintyEnvelopeRef`, `polisyos.ir.registry.refs.WelfareBundleRef`
-- Summary: Phase-4 ABM execution result with exact identifiability and bifurcation fields.
+- References: `polisyos.ir.analytics.phase4_dynamics.ABMBifurcationReport`, `polisyos.ir.analytics.phase4_dynamics.ABMIdentifiabilityCertificate`, `polisyos.ir.analytics.phase4_dynamics._ABMEnvironmentArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMExecPlanArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMFeedbackResultArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMIdentifiabilityDiagnosticArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMMetricObservationBundleArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMMetricsArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMStateSnapshotArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMTraceSliceArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMWelfareBoundArtifactRef`, `polisyos.ir.registry.refs.ArtifactRefModel`, `polisyos.ir.registry.refs.DistributionalReportRef`, `polisyos.ir.registry.refs.FairnessAuditReportRef`, `polisyos.ir.registry.refs.MetricValidationReportRef`, `polisyos.ir.registry.refs.UncertaintyEnvelopeRef`, `polisyos.ir.registry.refs.WelfareBundleRef`
+- Summary: Neutral Phase-4 analytical result for a completed ABM execution.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
 | `bifurcation_report` | `polisyos.ir.analytics.phase4_dynamics.ABMBifurcationReport \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics.ABMBifurcationReport` |
 | `distributional_report_ref` | `polisyos.ir.registry.refs.DistributionalReportRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.DistributionalReportRef` |
 | `environment_fingerprint` | `str \| NoneType` | `no` | `—` | — |
-| `environment_ref` | `EnvironmentManifestRef \| NoneType` | `no` | `—` | — |
-| `exec_plan_ref` | `ExecPlanRef` | `yes` | `—` | — |
-| `fairness_audit_report_ref` | `FairnessAuditReportRef \| NoneType` | `no` | `—` | — |
-| `feedback_result_ref` | `FeedbackResultRef \| NoneType` | `no` | `—` | — |
+| `environment_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMEnvironmentArtifactRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMEnvironmentArtifactRef` |
+| `exec_plan_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMExecPlanArtifactRef` | `yes` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMExecPlanArtifactRef` |
+| `fairness_audit_report_ref` | `polisyos.ir.registry.refs.FairnessAuditReportRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.FairnessAuditReportRef` |
+| `feedback_result_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMFeedbackResultArtifactRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMFeedbackResultArtifactRef` |
 | `identifiability_certificate` | `polisyos.ir.analytics.phase4_dynamics.ABMIdentifiabilityCertificate \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics.ABMIdentifiabilityCertificate` |
-| `identifiability_diagnostic_ref` | `IdentifiabilityDiagnosticRef \| NoneType` | `no` | `—` | — |
-| `metric_observation_bundle_ref` | `MetricObservationBundleRef \| NoneType` | `no` | `—` | — |
-| `metric_validation_report_ref` | `MetricValidationReportRef \| NoneType` | `no` | `—` | — |
-| `metrics_ref` | `MetricsRef` | `yes` | `—` | — |
+| `identifiability_diagnostic_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMIdentifiabilityDiagnosticArtifactRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMIdentifiabilityDiagnosticArtifactRef` |
+| `metric_observation_bundle_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMMetricObservationBundleArtifactRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMMetricObservationBundleArtifactRef` |
+| `metric_validation_report_ref` | `polisyos.ir.registry.refs.MetricValidationReportRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.MetricValidationReportRef` |
+| `metrics_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMMetricsArtifactRef` | `yes` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMMetricsArtifactRef` |
 | `notes` | `list[str]` | `no` | `—` | — |
-| `propagation_config_ref` | `ArtifactRef \| NoneType` | `no` | `—` | — |
-| `propagation_report_ref` | `ArtifactRef \| NoneType` | `no` | `—` | — |
+| `propagation_config_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+| `propagation_report_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
 | `schema_version` | `str` | `no` | `'1.3'` | — |
-| `state_snapshot_ref` | `StateSnapshotRef \| NoneType` | `no` | `—` | — |
-| `trace_slice_ref` | `TraceSliceRef \| NoneType` | `no` | `—` | — |
+| `state_snapshot_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMStateSnapshotArtifactRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMStateSnapshotArtifactRef` |
+| `trace_slice_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMTraceSliceArtifactRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMTraceSliceArtifactRef` |
 | `uncertainty_envelopes` | `Mapping[str, polisyos.ir.registry.refs.UncertaintyEnvelopeRef] \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.UncertaintyEnvelopeRef` |
-| `welfare_bound_refs` | `Mapping[str, WelfareBoundReportRef] \| NoneType` | `no` | `—` | — |
+| `welfare_bound_refs` | `Mapping[str, polisyos.ir.analytics.phase4_dynamics._ABMWelfareBoundArtifactRef] \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMWelfareBoundArtifactRef` |
 | `welfare_bundle_ref` | `polisyos.ir.registry.refs.WelfareBundleRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.WelfareBundleRef` |
 
 ### `polisyos.ir.analytics.phase4_dynamics.DynamicMicrosimValidationError` { #polisyos-ir-analytics-phase4-dynamics-dynamicmicrosimvalidationerror }
@@ -17408,7 +17785,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.registry.refs.ArtifactRefModel`
+- References: `polisyos.ir.analytics._truthfulness.TruthfulnessReceipt`, `polisyos.ir.registry.refs.ArtifactRefModel`
 - Summary: Persist the runtime calibration/truthfulness receipt for one simulation result.
 
 | Field | Type | Required | Default | IR refs |
@@ -17420,7 +17797,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `schema_version` | `str` | `no` | `'1.0'` | — |
 | `simulation_result_ref` | `polisyos.ir.registry.refs.ArtifactRefModel` | `yes` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
 | `source` | `Literal[explicit, simulation_result, metrics, default_unverified]` | `yes` | `—` | — |
-| `truthfulness_receipt` | `TruthfulnessReceipt` | `yes` | `—` | — |
+| `truthfulness_receipt` | `polisyos.ir.analytics._truthfulness.TruthfulnessReceipt` | `yes` | `—` | `polisyos.ir.analytics._truthfulness.TruthfulnessReceipt` |
 
 ### `polisyos.ir.analytics.simulation_proof_bridge.SimulationCertificationStatus` { #polisyos-ir-analytics-simulation-proof-bridge-simulationcertificationstatus }
 
@@ -18534,13 +18911,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: `polisyos.ir.analytics:StrategicSCM`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.strategic.StrategicEquilibriumConcept`, `polisyos.ir.analytics.strategic.StrategicEquilibriumDescriptor`, `polisyos.ir.registry.refs.ArtifactRefModel`, `polisyos.ir.registry.refs.StrategicPayoffTableRef`
+- References: `polisyos.ir.analytics.strategic.StrategicEquilibriumConcept`, `polisyos.ir.analytics.strategic.StrategicEquilibriumDescriptor`, `polisyos.ir.kernel.base.ComputeBudget`, `polisyos.ir.registry.refs.ArtifactRefModel`, `polisyos.ir.registry.refs.StrategicPayoffTableRef`
 - Summary: Strategic augmentation of a causal policy rule plus admissibility metadata.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
 | `base_graph_ref` | `polisyos.ir.registry.refs.ArtifactRefModel` | `yes` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
-| `compute_budget` | `ComputeBudget` | `no` | `—` | — |
+| `compute_budget` | `polisyos.ir.kernel.base.ComputeBudget` | `no` | `—` | `polisyos.ir.kernel.base.ComputeBudget` |
 | `equilibrium_concept` | `polisyos.ir.analytics.strategic.StrategicEquilibriumConcept \| NoneType` | `no` | `—` | `polisyos.ir.analytics.strategic.StrategicEquilibriumConcept` |
 | `equilibrium_descriptor` | `polisyos.ir.analytics.strategic.StrategicEquilibriumDescriptor \| NoneType` | `no` | `—` | `polisyos.ir.analytics.strategic.StrategicEquilibriumDescriptor` |
 | `macro_utility_refs` | `dict[str, polisyos.ir.registry.refs.StrategicPayoffTableRef] \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.StrategicPayoffTableRef` |
@@ -19604,6 +19981,23 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `approximation` |
 | `constraint_only` |
 
+### `polisyos.ir.analytics.uncertainty.FailureSeverity` { #polisyos-ir-analytics-uncertainty-failureseverity }
+
+- Kind: `enum`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir:FailureSeverity`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Severity of a typed analytical failure.
+
+| Enum values |
+| ----------- |
+| `blocker` |
+| `warning` |
+| `info` |
+
 ### `polisyos.ir.analytics.uncertainty.IntervalSemantics` { #polisyos-ir-analytics-uncertainty-intervalsemantics }
 
 - Kind: `enum`
@@ -19757,6 +20151,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `contract_id` | `str` | `yes` | `—` | — |
 | `capabilities` | `frozenset[OutputContractCapability]` | `no` | `frozenset()` | — |
+| `value_uncertainty_projection_kind` | `ValueUncertaintyProjectionKind \| None` | `no` | `None` | — |
 
 ### `polisyos.ir.analytics.uncertainty.ParametricFitCarrier` { #polisyos-ir-analytics-uncertainty-parametricfitcarrier }
 
@@ -19980,6 +20375,32 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `schema_version` | `str` | `no` | `'1.0'` | — |
 | `size_parameter` | `float` | `yes` | `—` | — |
 
+### `polisyos.ir.analytics.uncertainty.TypedFailureCard` { #polisyos-ir-analytics-uncertainty-typedfailurecard }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir:TypedFailureCard`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.uncertainty.FailureSeverity`, `polisyos.ir.analytics.uncertainty.UncertaintyType`, `polisyos.ir.registry.refs.ArtifactRefModel`
+- Summary: Structured failure record shared by analytical producers and consumers.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `description` | `str` | `yes` | `—` | — |
+| `evidence_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+| `failure_type` | `str` | `yes` | `—` | — |
+| `judge_name` | `str` | `yes` | `—` | — |
+| `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `metric_name` | `str \| NoneType` | `no` | `—` | — |
+| `observed_value` | `float \| NoneType` | `no` | `—` | — |
+| `remediation_hint` | `str \| NoneType` | `no` | `—` | — |
+| `severity` | `polisyos.ir.analytics.uncertainty.FailureSeverity` | `yes` | `—` | `polisyos.ir.analytics.uncertainty.FailureSeverity` |
+| `threshold_direction` | `Literal[max, min] \| NoneType` | `no` | `—` | — |
+| `threshold_value` | `float \| NoneType` | `no` | `—` | — |
+| `uncertainty_type` | `polisyos.ir.analytics.uncertainty.UncertaintyType \| NoneType` | `no` | `—` | `polisyos.ir.analytics.uncertainty.UncertaintyType` |
+
 ### `polisyos.ir.analytics.uncertainty.UncertaintyCompatibilityError` { #polisyos-ir-analytics-uncertainty-uncertaintycompatibilityerror }
 
 - Kind: `class`
@@ -20040,6 +20461,46 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `bootstrap` |
 | `ensemble` |
 | `manual` |
+
+### `polisyos.ir.analytics.uncertainty.UncertaintyType` { #polisyos-ir-analytics-uncertainty-uncertaintytype }
+
+- Kind: `enum`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir:UncertaintyType`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Typed uncertainty categories shared by analytical failure contracts.
+
+| Enum values |
+| ----------- |
+| `statistical` |
+| `structural` |
+| `transport` |
+| `measurement` |
+| `model` |
+| `optimization` |
+
+### `polisyos.ir.analytics.uncertainty.ValueUncertaintyProjectionKind` { #polisyos-ir-analytics-uncertainty-valueuncertaintyprojectionkind }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Native interval semantics owned by an analytical output contract.
+
+| Enum values |
+| ----------- |
+| `posterior` |
+| `econometric` |
+| `forecasting` |
+| `distributional` |
+| `partial_identification` |
+| `transport` |
 
 ### `polisyos.ir.analytics.welfare.ChannelDecompositionArtifact` { #polisyos-ir-analytics-welfare-channeldecompositionartifact }
 
@@ -21603,6 +22064,23 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `independent` |
 | `explicit_negotiation` |
 
+### `polisyos.ir.governance.policy_spec.CompiledLexIntervention` { #polisyos-ir-governance-policy-spec-compiledlexintervention }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir:CompiledLexIntervention`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.governance.policy_spec.InterventionSpec`, `polisyos.ir.governance.policy_spec.ParameterSpec`
+- Summary: Neutral compiled intervention contract shared across runtime owners.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `intervention` | `polisyos.ir.governance.policy_spec.InterventionSpec` | `yes` | `—` | `polisyos.ir.governance.policy_spec.InterventionSpec` |
+| `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `parameters` | `list[polisyos.ir.governance.policy_spec.ParameterSpec]` | `no` | `—` | `polisyos.ir.governance.policy_spec.ParameterSpec` |
+
 ### `polisyos.ir.governance.policy_spec.InterventionSpec` { #polisyos-ir-governance-policy-spec-interventionspec }
 
 - Kind: `pydantic_model`
@@ -21672,6 +22150,23 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `param_path` | `str` | `yes` | `—` | — |
 | `sensitivity_priority` | `int` | `no` | `5` | — |
 | `tunable` | `bool` | `no` | `True` | — |
+
+### `polisyos.ir.governance.policy_spec.PolicySearchLevel` { #polisyos-ir-governance-policy-spec-policysearchlevel }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Neutral structure-to-narrative search-level contract.
+
+| Enum values |
+| ----------- |
+| `structure` |
+| `parameter` |
+| `narrative` |
 
 ### `polisyos.ir.governance.policy_spec.PolicySpec` { #polisyos-ir-governance-policy-spec-policyspec }
 
@@ -22669,6 +23164,23 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Kernel
 
+### `polisyos.ir.kernel.base.ComputeBudget` { #polisyos-ir-kernel-base-computebudget }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Compute budget public type.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `max_llm_calls` | `float` | `no` | `3.0` | — |
+| `max_sim_runs` | `float` | `no` | `1.0` | — |
+| `max_wall_time_s` | `float` | `no` | `120.0` | — |
+
 ### `polisyos.ir.kernel.base.KernelModel` { #polisyos-ir-kernel-base-kernelmodel }
 
 - Kind: `pydantic_model`
@@ -23049,6 +23561,41 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `conflict_resolution` | `polisyos.ir.kernel.merge_rules.ConflictResolution \| NoneType` | `no` | `—` | `polisyos.ir.kernel.merge_rules.ConflictResolution` |
 | `default_priority` | `int \| NoneType` | `no` | `—` | — |
 
+### `polisyos.ir.kernel.slots.SlotFamily` { #polisyos-ir-kernel-slots-slotfamily }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.kernel.slots.SlotScope`
+- Summary: Group slots with a shared state scope and cardinality key.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `entity_size_key` | `str \| NoneType` | `no` | `—` | — |
+| `scope` | `polisyos.ir.kernel.slots.SlotScope` | `yes` | `—` | `polisyos.ir.kernel.slots.SlotScope` |
+| `slots` | `list[str]` | `no` | `—` | — |
+| `state_prefix` | `str \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.kernel.slots.SlotFamilyManifest` { #polisyos-ir-kernel-slots-slotfamilymanifest }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.kernel.slots.SlotFamily`
+- Summary: Inventory slot families derived from an active slot registry.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `families` | `dict[str, polisyos.ir.kernel.slots.SlotFamily]` | `no` | `—` | `polisyos.ir.kernel.slots.SlotFamily` |
+| `notes` | `list[str]` | `no` | `—` | — |
+| `schema_version` | `str` | `no` | `'1.0'` | — |
+
 ### `polisyos.ir.kernel.slots.SlotKind` { #polisyos-ir-kernel-slots-slotkind }
 
 - Kind: `enum`
@@ -23065,6 +23612,23 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `stock` |
 | `flow` |
 | `parameter` |
+
+### `polisyos.ir.kernel.slots.SlotLayout` { #polisyos-ir-kernel-slots-slotlayout }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Resolve slot identifiers to state paths for execution and documentation.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `layout` | `dict[str, str]` | `no` | `—` | — |
+| `notes` | `list[str]` | `no` | `—` | — |
+| `schema_version` | `str` | `no` | `'1.0'` | — |
 
 ### `polisyos.ir.kernel.slots.SlotRegistry` { #polisyos-ir-kernel-slots-slotregistry }
 
@@ -23880,7 +24444,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `backtest_plan_bundle` / `schemas/snapshots/ir/backtest_plan_bundle.schema.json`
 - Compatibility mode: `—`
 - References: `polisyos.ir.observation.bundles.ContractCompatibilityTarget`
-- Summary: Bundle of historical validation plans and their frozen payloads.
+- Summary: Bundle of neutral historical-validation payloads and frozen observations.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -23888,7 +24452,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `contract_target` | `polisyos.ir.observation.bundles.ContractCompatibilityTarget` | `yes` | `—` | `polisyos.ir.observation.bundles.ContractCompatibilityTarget` |
 | `historical_payloads` | `dict[str, dict[str, Any]]` | `no` | `—` | — |
 | `holdout_windows` | `list[str]` | `no` | `—` | — |
-| `plans` | `list[HistoricalValidationPlan]` | `no` | `—` | — |
+| `plans` | `list[dict[str, Any]]` | `no` | `—` | — |
 | `required_fields` | `list[str]` | `yes` | `—` | — |
 | `schema_version` | `str` | `no` | `'1.0'` | — |
 
@@ -24819,7 +25383,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `covariate_names` | `list[str]` | `no` | `—` | — |
 | `dtr_method` | `Literal[q_learning, a_learning, owl, dr_dtr]` | `no` | `'q_learning'` | — |
 | `dynamic_intervention_id` | `str \| NoneType` | `no` | `—` | — |
-| `dynamic_treatment_data` | `DynamicTreatmentData \| NoneType` | `no` | `—` | — |
+| `dynamic_treatment_data` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
 | `identification_mode` | `polisyos.ir.observation.contracts.IdentificationMode` | `no` | `<IdentificationMode.SEQUENTIAL: 'sequential'>` | `polisyos.ir.observation.contracts.IdentificationMode` |
 | `intervention_trajectory` | `polisyos.ir.analytics.dynamic_regime.TemporalInterventionTrajectory \| NoneType` | `no` | `—` | `polisyos.ir.analytics.dynamic_regime.TemporalInterventionTrajectory` |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
@@ -25043,28 +25607,6 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - References: —
 - Summary: Assign observation periods to calibration splits with boundary awareness.
 
-### `polisyos.ir.observation.compiler.CalibrationTargetBundleCompiler` { #polisyos-ir-observation-compiler-calibrationtargetbundlecompiler }
-
-- Kind: `class`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Compiler from observation panels to measurement-aware calibration bundles.
-
-### `polisyos.ir.observation.compiler.NegativeControlGenerator` { #polisyos-ir-observation-compiler-negativecontrolgenerator }
-
-- Kind: `class`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Generator for placebo targets derived from a calibration target bundle.
-
 ### `polisyos.ir.observation.compiler.NegativeControlSpec` { #polisyos-ir-observation-compiler-negativecontrolspec }
 
 - Kind: `pydantic_model`
@@ -25152,7 +25694,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `compiler_id` | `str` | `yes` | `—` | — |
 | `artifact_key` | `str` | `yes` | `—` | — |
-| `contract` | `Any` | `yes` | `—` | — |
+| `contract` | `BaseModel \| dict[str, Any]` | `yes` | `—` | — |
 | `bundle` | `KernelModel` | `yes` | `—` | — |
 
 ### `polisyos.ir.observation.contract_compilers.DynamicTreatmentCompileSpec` { #polisyos-ir-observation-contract-compilers-dynamictreatmentcompilespec }
@@ -25326,11 +25868,11 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Pair a generated backtest plan with the payload snapshot used to run it.
+- Summary: Pair neutral plan payloads with the observation snapshot used to run them.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
-| `plans` | `list[HistoricalValidationPlan]` | `yes` | `—` | — |
+| `plans` | `list[dict[str, Any]]` | `yes` | `—` | — |
 | `historical_payloads` | `dict[str, dict[str, Any]]` | `yes` | `—` | — |
 | `bundle` | `BacktestPlanBundle` | `yes` | `—` | — |
 
@@ -25354,7 +25896,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `metric_ids` | `list[str]` | `yes` | `—` | — |
 | `post_intervention_periods` | `int` | `yes` | `—` | — |
 | `pre_intervention_periods` | `int` | `yes` | `—` | — |
-| `prediction_source` | `PredictionSource` | `no` | `<PredictionSource.NAIVE: 'naive'>` | — |
+| `prediction_source` | `str \| NoneType` | `no` | `—` | — |
 | `spec_id` | `str` | `yes` | `—` | — |
 
 ### `polisyos.ir.observation.contract_compilers.HistoricalValidationPlanCompiler` { #polisyos-ir-observation-contract-compilers-historicalvalidationplancompiler }
@@ -25366,7 +25908,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Compile panel history into backtest plans for Scientist validation runners.
+- Summary: Compile panel history into neutral payloads for Scientist validation runners.
 
 ### `polisyos.ir.observation.contract_compilers.LeontiefIOCompileSpec` { #polisyos-ir-observation-contract-compilers-leontiefiocompilespec }
 
@@ -28954,17 +29496,6 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Compatibility mode: `—`
 - References: —
 - Summary: Normalize estimand ASTs for semantic dedupe and CAS stability.
-
-### `polisyos.ir.passes.core.KernelLoweringPass` { #polisyos-ir-passes-core-kernelloweringpass }
-
-- Kind: `class`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Build a typed RKHS lowering contract after estimand normalization.
 
 ### `polisyos.ir.passes.core.RegistryDependencyPass` { #polisyos-ir-passes-core-registrydependencypass }
 

@@ -30,6 +30,9 @@ _SHA_LINEAGE = "sha256:0713f136ea316c8f3e274d55012e3bf10d05b5263837187a39593ff0d
 _RUN_ID_SAMPLE = "R_core_api_001"
 _REQUEST_ID_SAMPLE = "req_0123456789abcdef"
 _TS_SAMPLE = "2026-02-11T12:00:00Z"
+_SCHEMA_COMPATIBILITY_ALIASES = {
+    "RunPaperDesignRecordBinding": "RunBoundDesignRecordBinding",
+}
 _ANALYST_PERMISSION_EXAMPLE = [
     permission.value for permission in permissions_for_roles([PolicyOSRole.ANALYST])
 ]
@@ -3620,6 +3623,10 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
     mutated = deepcopy(schema)
     components = mutated.setdefault("components", {})
     component_schemas = components.setdefault("schemas", {})
+    for alias, owner in _SCHEMA_COMPATIBILITY_ALIASES.items():
+        if owner not in component_schemas:
+            raise ValueError(f"OpenAPI compatibility alias owner is missing: {owner}")
+        component_schemas[alias] = {"$ref": f"#/components/schemas/{owner}"}
     if "RuntimeApiProblem" not in component_schemas:
         component_schemas["RuntimeApiProblem"] = RuntimeApiProblem.model_json_schema(
             ref_template="#/components/schemas/{model}"

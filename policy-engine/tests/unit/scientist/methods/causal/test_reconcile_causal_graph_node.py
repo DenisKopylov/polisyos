@@ -2,13 +2,21 @@ from __future__ import annotations
 
 import logging
 
+import pytest
+
+import polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph as reconcile_module
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
     load_composition_failure_card_bundle,
 )
+from polisyos.ir import FailureSeverity, TypedFailureCard
 from polisyos.ir.analytics.alignment_certification import (
+    AlignmentOverallStatus,
+    AlignmentReviewerState,
+    AlignmentReviewStatus,
+    AlignmentType,
     AlignmentVerificationConfig,
     load_alignment_report,
     persist_alignment_report,
@@ -30,6 +38,16 @@ from polisyos.ir.analytics.cross_graph import (
     persist_interface_mapping,
     persist_scm_fragment,
 )
+from polisyos.ir.analytics.latent_bridge_synthesis import (
+    LatentBridgeFalsificationTest,
+    LatentBridgeFalsificationTestFamily,
+    LatentBridgeFalsificationTestStatus,
+    LatentBridgeHeldoutMetrics,
+    LatentBridgeHypothesis,
+    LatentBridgeStatus,
+    LatentBridgeSynthesisMode,
+    persist_latent_bridge_hypothesis,
+)
 from polisyos.ir.analytics.literature import (
     LiteratureCausalPrior,
     LiteratureEdgePrior,
@@ -39,9 +57,8 @@ from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
     load_negative_certificate,
 )
-from polisyos.ir.registry.refs import NegativeCertificateRef
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.ir.registry.refs import LatentBridgeHypothesisRef, NegativeCertificateRef
+from polisyos.scientist.methods.search.lessons import lesson_from_failure_card
 from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
     ReconcileCausalGraphNode,
 )
@@ -53,6 +70,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LITERATURE_PRIOR_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _build_ctx(tmp_path):
@@ -61,6 +80,41 @@ def _build_ctx(tmp_path):
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_phase9_recon")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.phase9.recon"))
     return ctx
+
+
+def _persist_human_verified_latent_bridge(
+    store: FileSystemCAS,
+    *,
+    pair_key: str,
+) -> LatentBridgeHypothesisRef:
+    return persist_latent_bridge_hypothesis(
+        store,
+        LatentBridgeHypothesis(
+            bridge_id=f"latent::bridge::{pair_key}",
+            pair_key=pair_key,
+            status=LatentBridgeStatus.HUMAN_VERIFIED,
+            synthesis_mode=LatentBridgeSynthesisMode.MEASUREMENT_MODEL,
+            measurement_side_a_refs=["indicator:a:1", "indicator:a:2"],
+            measurement_side_b_refs=["indicator:b:1", "indicator:b:2"],
+            heldout_metrics=LatentBridgeHeldoutMetrics(
+                delta_cv=0.14,
+                lower_ci=0.05,
+                upper_ci=0.19,
+                scoring_rule="loglik",
+            ),
+            falsification_tests=[
+                LatentBridgeFalsificationTest(
+                    test_family=LatentBridgeFalsificationTestFamily.CTA,
+                    status=LatentBridgeFalsificationTestStatus.PASS,
+                    p_value=0.35,
+                )
+            ],
+            metadata={
+                "opaque_label_required": True,
+                "semantic_interpretation_confidence": "none",
+            },
+        ),
+    )
 
 
 def test_reconcile_causal_graph_node_persists_graph_and_params(tmp_path) -> None:
@@ -209,7 +263,10 @@ def test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts(t
     assert outcome.state.params["reconciliation_diagnostics"]["review_status"] == "clear"
 
 
-def test_reconcile_causal_graph_node_reuses_precomputed_alignment_artifacts(tmp_path) -> None:
+def test_reconcile_causal_graph_node_recomputes_content_mismatched_precomputed_alignment(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     ctx = _build_ctx(tmp_path)
     graph_a = CausalGraphModel(
         graph_type=GraphType.DAG,
@@ -246,8 +303,54 @@ def test_reconcile_causal_graph_node_reuses_precomputed_alignment_artifacts(tmp_
     report, mapping = verify_fragment_bundle_alignment(
         [SCMFragment.model_validate(item) for item in fragments]
     )
-    report_ref = persist_alignment_report(ctx.store, report)
-    mapping_ref = persist_interface_mapping(ctx.store, mapping)
+    certificate = report.per_variable_certificates[0]
+    forged_certificate = certificate.model_copy(
+        update={
+            "alignment_type": AlignmentType.LATENT_BRIDGE,
+            "latent_bridge_ref": "artifact:latent:self_attested",
+            "reviewer": AlignmentReviewerState.HUMAN_VERIFIED,
+            "metadata": {
+                **certificate.metadata,
+                "latent_bridge_governance": {
+                    "readiness_cap": "estimation_ready",
+                    "promotion_allowed": True,
+                    "not_for_decision_support": False,
+                    "metadata": {"latent_artifact_blockers": []},
+                    "no_promotion_reasons": [],
+                },
+            },
+        }
+    )
+    forged_report = report.model_copy(
+        update={
+            "per_variable_certificates": [forged_certificate],
+            "overall_status": AlignmentOverallStatus.ALIGNED,
+            "review_status": AlignmentReviewStatus.CLEAR,
+        }
+    )
+    entry = mapping.entries[0]
+    forged_mapping = mapping.model_copy(
+        update={
+            "entries": [
+                entry.model_copy(
+                    update={
+                        "alignment_type": "latent_bridge",
+                        "reviewer": "human_verified",
+                        "metadata": {
+                            **entry.metadata,
+                            "latent_bridge_readiness_cap": "estimation_ready",
+                            "latent_bridge_promotion_allowed": True,
+                            "latent_artifact_blockers": [],
+                        },
+                    }
+                )
+            ]
+        }
+    )
+    report_ref = persist_alignment_report(ctx.store, forged_report)
+    mapping_ref = persist_interface_mapping(ctx.store, forged_mapping)
+    assert load_alignment_report(ctx.store, report_ref) == forged_report
+    assert load_interface_mapping(ctx.store, mapping_ref) == forged_mapping
 
     state = ExperimentState(
         run_id="R_phase9_compose_reuse",
@@ -258,16 +361,29 @@ def test_reconcile_causal_graph_node_reuses_precomputed_alignment_artifacts(tmp_
         params={"scm_fragments": fragments},
     )
 
+    canonical_verify = reconcile_module._verify_fragment_bundle_alignment_with_governance
+    verification_calls = 0
+
+    def _track_canonical_verify(*args, **kwargs):
+        nonlocal verification_calls
+        verification_calls += 1
+        return canonical_verify(*args, **kwargs)
+
+    monkeypatch.setattr(
+        reconcile_module,
+        "_verify_fragment_bundle_alignment_with_governance",
+        _track_canonical_verify,
+    )
+
     outcome = ReconcileCausalGraphNode().execute(ctx, state)
 
     assert outcome.status == "ok"
-    assert (
-        outcome.state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF].artifact_id
-        == report_ref.artifact_id
+    assert verification_calls == 1
+    assert outcome.state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF].artifact_id != (
+        report_ref.artifact_id
     )
-    assert (
-        outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF].artifact_id
-        == mapping_ref.artifact_id
+    assert outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF].artifact_id != (
+        mapping_ref.artifact_id
     )
     loaded_report = load_alignment_report(
         ctx.store,
@@ -275,6 +391,7 @@ def test_reconcile_causal_graph_node_reuses_precomputed_alignment_artifacts(tmp_
     )
     assert loaded_report.overall_status.value == "aligned"
     assert loaded_report.review_status.value == "clear"
+    assert loaded_report.per_variable_certificates[0].alignment_type is AlignmentType.EXACT
 
 
 def test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing(
@@ -468,6 +585,11 @@ def test_reconcile_causal_graph_node_persists_latent_projection_certificate_arti
             variable_units={"shared_pressure": "index", "mediator": "points"},
         ),
     )
+    latent_pair_key = "a:shared_pressure|b:shared_pressure"
+    latent_hypothesis_ref = _persist_human_verified_latent_bridge(
+        ctx.store,
+        pair_key=latent_pair_key,
+    )
 
     state = ExperimentState(
         run_id="R_phase9_latent_projection_frontdoor",
@@ -477,10 +599,8 @@ def test_reconcile_causal_graph_node_persists_latent_projection_certificate_arti
                 str(fragment_b_ref.artifact_id),
             ],
             "alignment_verification_config": AlignmentVerificationConfig(
-                explicit_latent_bridges={
-                    "a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"
-                },
-                human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
+                explicit_latent_bridges={latent_pair_key: latent_hypothesis_ref},
+                human_verified_pairs=[latent_pair_key],
             ).model_dump(mode="json"),
             "query_preservation_queries": [
                 CausalQuery(
@@ -581,6 +701,11 @@ def test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_he
             variable_units={"shared_pressure": "index", "policy": "binary"},
         ),
     )
+    latent_pair_key = "a:shared_pressure|b:shared_pressure"
+    latent_hypothesis_ref = _persist_human_verified_latent_bridge(
+        ctx.store,
+        pair_key=latent_pair_key,
+    )
 
     state = ExperimentState(
         run_id="R_phase9_latent_projection_hedge",
@@ -590,10 +715,8 @@ def test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_he
                 str(fragment_b_ref.artifact_id),
             ],
             "alignment_verification_config": AlignmentVerificationConfig(
-                explicit_latent_bridges={
-                    "a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"
-                },
-                human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
+                explicit_latent_bridges={latent_pair_key: latent_hypothesis_ref},
+                human_verified_pairs=[latent_pair_key],
             ).model_dump(mode="json"),
             "query_preservation_queries": [
                 CausalQuery(
@@ -681,6 +804,15 @@ def test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_com
     assert outcome.status == "ok"
     assert ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF not in outcome.state.artifacts_index
     assert ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF in outcome.state.artifacts_index
+    failure_card_bundle_ref = outcome.state.artifacts_index[
+        ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF
+    ]
+    failure_card_manifest = ctx.store.get_manifest(failure_card_bundle_ref.artifact_id)
+    assert failure_card_manifest.artifact_schema is not None
+    assert failure_card_manifest.artifact_schema.name == (
+        "ir.composition_failure_card_bundle"
+    )
+    assert failure_card_manifest.artifact_schema.version == "1.0"
     certificate = load_composition_certificate(
         ctx.store,
         outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
@@ -689,9 +821,21 @@ def test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_com
     assert certificate.failure_card_bundle_ref is not None
     bundle = load_composition_failure_card_bundle(
         ctx.store,
-        outcome.state.artifacts_index[ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF],
+        failure_card_bundle_ref,
     )
-    assert {card.failure_type for card in bundle.cards} >= {"alignment_incompatible"}
+    card = next(card for card in bundle.cards if card.failure_type == "alignment_incompatible")
+    lesson = lesson_from_failure_card(
+        card,
+        candidate_hash="candidate:broken-composition",
+        stage_name="causal_graph_reconciliation",
+        fidelity_level=4,
+        source_run_id=state.run_id,
+    )
+
+    assert type(card) is TypedFailureCard
+    assert card.severity is FailureSeverity.BLOCKER
+    assert lesson.failure_type == "alignment_incompatible"
+    assert lesson.confidence == 1.0
 
 
 def test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology(tmp_path) -> None:

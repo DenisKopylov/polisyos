@@ -11,6 +11,8 @@ import { authAwareRuntimeFetch } from "@/app/auth/authSession";
 import { API_BASE_URL } from "@/shared/lib/constants";
 
 export type RunPaperPacket = components["schemas"]["RunPaperPacket"];
+export type RunPaperDesignRecordBinding =
+  components["schemas"]["RunPaperDesignRecordBinding"];
 
 export type CapturedRunPaper = Readonly<{
   packet: RunPaperPacket;
@@ -34,6 +36,47 @@ const RUN_PAPER_CASE_DENIED_USES = [
   "objections",
   "abstentions",
 ] as const;
+
+const RUN_PAPER_AUTHORITY_NONRECEIPT_REQUIREMENTS = [
+  {
+    deniedUses: [
+      "grounding_state",
+      "grounded_case_projection",
+      "available_run_paper_case",
+    ],
+    field: "grounding_nonreceipt",
+    missingAuthority: "generation_cycle_grounding_authority",
+    ownerRoute: "polisyos.runtime.quality.generation_cycle.GroundingStatus",
+  },
+  {
+    deniedUses: [
+      "admission_state",
+      "admitted_case_projection",
+      "available_run_paper_case",
+    ],
+    field: "admission_nonreceipt",
+    missingAuthority: "hypothesis_ledger_admission_authority",
+    ownerRoute:
+      "polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState",
+  },
+  {
+    deniedUses: [
+      "promotion_state",
+      "governed_case_projection",
+      "available_run_paper_case",
+    ],
+    field: "promotion_nonreceipt",
+    missingAuthority: "layer3_g4_promotion_authority",
+    ownerRoute:
+      "polisyos.runtime.quality.proving_ground.governed_promotion_gate.Layer3G4PromotionRecord.promotion_state",
+  },
+] as const;
+
+type ObservedArtifactRef = Readonly<{
+  artifact_id: string;
+  kind: string;
+  media_type: string;
+}>;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -60,6 +103,127 @@ function hasExactStringMembers(
     value.length === expected.length &&
     value.every((member, index) => member === expected[index])
   );
+}
+
+function observedArtifactRef(
+  value: unknown,
+  expectedKind?: string,
+): ObservedArtifactRef | null {
+  if (
+    !isRecord(value) ||
+    !hasExactKeys(value, ["artifact_id", "kind", "media_type"]) ||
+    typeof value.artifact_id !== "string" ||
+    value.artifact_id.length === 0 ||
+    typeof value.kind !== "string" ||
+    value.kind.length === 0 ||
+    typeof value.media_type !== "string" ||
+    value.media_type.length === 0 ||
+    (expectedKind !== undefined && value.kind !== expectedKind)
+  ) {
+    return null;
+  }
+  return value as ObservedArtifactRef;
+}
+
+function hasExactAuthorityNonreceipt(
+  value: unknown,
+  requirement: (typeof RUN_PAPER_AUTHORITY_NONRECEIPT_REQUIREMENTS)[number],
+): boolean {
+  return (
+    isRecord(value) &&
+    hasExactKeys(value, [
+      "authority_state",
+      "denied_uses",
+      "kind",
+      "missing_authority",
+      "owner_route",
+      "status",
+    ]) &&
+    value.authority_state === "absent/unallocated" &&
+    hasExactStringMembers(value.denied_uses, requirement.deniedUses) &&
+    value.kind === "run_paper_authority_nonreceipt" &&
+    value.missing_authority === requirement.missingAuthority &&
+    value.owner_route === requirement.ownerRoute &&
+    value.status === "not_established"
+  );
+}
+
+function requireBoundCaseArtifactRefs(
+  caseRecord: Record<string, unknown>,
+  packetRun: Record<string, unknown>,
+): readonly ObservedArtifactRef[] {
+  const binding = caseRecord.design_record_binding;
+  const designRecord = caseRecord.design_record;
+  if (
+    !isRecord(binding) ||
+    !hasExactKeys(binding, [
+      "binding_id",
+      "case_id",
+      "cell_id",
+      "design_record_content_digest",
+      "design_record_record_id",
+      "design_record_ref",
+      "design_record_schema_name",
+      "design_record_schema_version",
+      "producer",
+      "run_id",
+      "schema_version",
+      "search_ledger_content_digest",
+      "search_ledger_id",
+      "search_ledger_ref",
+      "tenant_id",
+    ]) ||
+    !isRecord(designRecord) ||
+    !isRecord(binding.producer)
+  ) {
+    throw new TypeError("contract_error: run paper case binding is invalid");
+  }
+  const requiredBindingStrings = [
+    binding.binding_id,
+    binding.case_id,
+    binding.design_record_content_digest,
+    binding.design_record_record_id,
+    binding.design_record_schema_version,
+    binding.run_id,
+    binding.search_ledger_content_digest,
+    binding.search_ledger_id,
+    binding.tenant_id,
+    binding.producer.component,
+    binding.producer.version,
+  ];
+  const designRecordRef = observedArtifactRef(
+    binding.design_record_ref,
+    "policyos.layer2_s2.design_record_v0",
+  );
+  const searchLedgerRef = observedArtifactRef(
+    binding.search_ledger_ref,
+    "policyos.layer2_s2.search_ledger",
+  );
+  if (
+    requiredBindingStrings.some(
+      (member) => typeof member !== "string" || member.length === 0,
+    ) ||
+    (binding.cell_id !== null && typeof binding.cell_id !== "string") ||
+    binding.design_record_schema_name !==
+      "policyos.layer2_s2.design_record_v0" ||
+    binding.schema_version !==
+      "policyos.pdc.run_bound_design_record_binding.v1" ||
+    designRecordRef === null ||
+    designRecordRef.media_type !== "application/json" ||
+    searchLedgerRef === null ||
+    searchLedgerRef.media_type !== "application/json" ||
+    binding.design_record_content_digest !== designRecordRef.artifact_id ||
+    binding.search_ledger_content_digest !== searchLedgerRef.artifact_id ||
+    caseRecord.case_id !== binding.case_id ||
+    designRecord.record_id !== binding.design_record_record_id ||
+    designRecord.schema_version !== binding.design_record_schema_version ||
+    packetRun.run_id !== binding.run_id ||
+    packetRun.tenant_id !== binding.tenant_id ||
+    packetRun.cell_id !== binding.cell_id
+  ) {
+    throw new TypeError("contract_error: run paper case binding is invalid");
+  }
+  return [designRecordRef, searchLedgerRef];
 }
 
 function assertFrozenPaperPacket(
@@ -113,6 +277,7 @@ function assertFrozenPaperPacket(
   if (!isRecord(caseRecord)) {
     throw new TypeError("contract_error: run paper case union is invalid");
   }
+  let boundCaseArtifactRefs: readonly ObservedArtifactRef[] = [];
   if (caseRecord.availability === "artifact_missing") {
     if (
       !hasExactKeys(caseRecord, [
@@ -156,6 +321,41 @@ function assertFrozenPaperPacket(
         "contract_error: run paper available case is invalid",
       );
     }
+    boundCaseArtifactRefs = requireBoundCaseArtifactRefs(caseRecord, packetRun);
+  } else if (
+    caseRecord.availability === "record_available_authority_abstaining"
+  ) {
+    if (
+      !hasExactKeys(caseRecord, [
+        "admission_nonreceipt",
+        "authority_projection",
+        "availability",
+        "case_id",
+        "design_record",
+        "design_record_binding",
+        "grounding_nonreceipt",
+        "promotion_nonreceipt",
+      ]) ||
+      caseRecord.authority_projection !== "abstained"
+    ) {
+      throw new TypeError(
+        "contract_error: run paper authority-abstaining case is invalid",
+      );
+    }
+    boundCaseArtifactRefs = requireBoundCaseArtifactRefs(caseRecord, packetRun);
+    if (
+      RUN_PAPER_AUTHORITY_NONRECEIPT_REQUIREMENTS.some(
+        (requirement) =>
+          !hasExactAuthorityNonreceipt(
+            caseRecord[requirement.field],
+            requirement,
+          ),
+      )
+    ) {
+      throw new TypeError(
+        "contract_error: run paper authority nonreceipt is invalid",
+      );
+    }
   } else {
     throw new TypeError(
       "contract_error: run paper case discriminator is invalid",
@@ -164,13 +364,33 @@ function assertFrozenPaperPacket(
   if (!Array.isArray(value.artifact_links)) {
     throw new TypeError("contract_error: run paper artifact links are invalid");
   }
+  const admittedArtifactRefs: ObservedArtifactRef[] = [];
   for (const link of value.artifact_links) {
+    const artifactRef = isRecord(link)
+      ? observedArtifactRef(link.artifact_ref)
+      : null;
     if (
       !isRecord(link) ||
-      !isRecord(link.artifact_ref) ||
-      link.href !== `/api/v1/artifacts/${String(link.artifact_ref.artifact_id)}`
+      !hasExactKeys(link, ["artifact_ref", "href", "relation"]) ||
+      artifactRef === null ||
+      link.href !== `/api/v1/artifacts/${artifactRef.artifact_id}` ||
+      link.relation !== "run_output"
     ) {
       throw new TypeError("contract_error: run paper artifact link is unbound");
+    }
+    admittedArtifactRefs.push(artifactRef);
+  }
+  for (const requiredRef of boundCaseArtifactRefs) {
+    const matches = admittedArtifactRefs.filter(
+      (candidate) =>
+        candidate.artifact_id === requiredRef.artifact_id &&
+        candidate.kind === requiredRef.kind &&
+        candidate.media_type === requiredRef.media_type,
+    );
+    if (matches.length !== 1) {
+      throw new TypeError(
+        "contract_error: run paper bound artifact requirements are invalid",
+      );
     }
   }
   if (

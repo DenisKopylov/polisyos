@@ -15,6 +15,7 @@ from __future__ import annotations
 import dataclasses
 
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.id_engine import (
     IdentificationResult,
     IdentificationStatus,
@@ -27,6 +28,7 @@ from polisyos.foundry.methods.catalog.causal.id_engine import (
     z_id_algorithm,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.transportability import SNode, SourceDomainSpec
 
 # ---------------------------------------------------------------------------
 # Graph helpers
@@ -573,6 +575,45 @@ class TestZIDAlgorithm:
 
 
 class TestMZIDAlgorithm:
+    def test_mz_id_accepts_ir_source_domain_specs(self):
+        graph = make_dag([("X", "Y")])
+        domain = SourceDomainSpec(
+            domain_id="source_spec",
+            s_nodes=(
+                SNode(
+                    target_variable="X",
+                    context_dimension="programmatic",
+                    source_value=0.0,
+                    target_value=1.0,
+                    delta=1.0,
+                    severity="medium",
+                ),
+            ),
+            z_interventions=("X",),
+            dataset_ref="ds:source-spec",
+        )
+
+        result = mz_id_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            source_domains=[domain],
+            graph=graph,
+        )
+
+        assert isinstance(result, IdentificationResult)
+        assert result.status is IdentificationStatus.IDENTIFIED
+
+    def test_mz_id_rejects_untyped_source_domain_input(self):
+        graph = make_dag([("X", "Y")])
+
+        with pytest.raises(TypeError, match="SourceDomain or SourceDomainSpec"):
+            mz_id_algorithm(
+                treatment=frozenset({"X"}),
+                outcome=frozenset({"Y"}),
+                source_domains=[{"domain_id": "untyped"}],  # type: ignore[list-item]
+                graph=graph,
+            )
+
     def test_mz_id_no_domains_returns_result(self):
         graph = make_confounded_graph(
             directed=[("X", "Y")],

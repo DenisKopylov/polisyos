@@ -5,15 +5,14 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.observability.truthfulness import (
+from polisyos.ir.analytics._truthfulness import (
     TruthfulnessReceipt,
     TruthfulnessScope,
     TruthfulnessTier,
-    extract_truthfulness_receipt,
     truthfulness_depth,
     validate_truthfulness_receipt,
 )
@@ -38,7 +37,7 @@ from polisyos.ir.artifacts import (
     get_json_artifact,
     put_json_artifact,
 )
-from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     EvidenceBundleRef,
@@ -54,11 +53,41 @@ _UNSPECIFIED_ASSUMPTIONS = {
     "noise_model": "unspecified",
     "allowed_adaptive_designs": "unspecified",
 }
-_CALIBRATED_TIERS = (
-    TruthfulnessTier.APPROXIMATE_CALIBRATED,
-    TruthfulnessTier.ASYMPTOTIC,
-    TruthfulnessTier.EXACT,
-)
+# Frozen to the existing Foundry producer manifests. Contract drift degrades
+# calibration instead of silently widening which artifacts may authorize it.
+_OWNER_ARTIFACT_CONTRACTS = {
+    "simulation": (
+        "foundry.simulation_result",
+        "polisyos.core.SimulationResult",
+        "1.3",
+    ),
+    "metrics": (
+        "foundry.metrics",
+        "polisyos.core.Metrics",
+        "0.1.0",
+    ),
+}
+_SIMULATION_RESULT_FIELDS = {
+    "schema_version",
+    "exec_plan_ref",
+    "metrics_ref",
+    "metric_observation_bundle_ref",
+    "state_snapshot_ref",
+    "environment_ref",
+    "environment_fingerprint",
+    "trace_slice_ref",
+    "uncertainty_envelopes",
+    "distributional_report_ref",
+    "welfare_bundle_ref",
+    "welfare_bound_refs",
+    "metric_validation_report_ref",
+    "fairness_audit_report_ref",
+    "propagation_config_ref",
+    "propagation_report_ref",
+    "feedback_result_ref",
+    "identifiability_diagnostic_ref",
+    "notes",
+}
 
 
 class SimulationCertificationStatus(str, Enum):
@@ -83,6 +112,26 @@ class SimulationCalibrationReceipt(BaseModel):
     accepted: bool
     degradation_reasons: tuple[str, ...] = ()
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _require_current_authority_state(self) -> Self:
+        if (
+            self.accepted
+            or self.source != "default_unverified"
+            or any(
+                truthfulness_depth(tier) > 0
+                for tier in (
+                    self.truthfulness_receipt.runtime_truthfulness_tier,
+                    self.truthfulness_receipt.effective_truthfulness_tier,
+                )
+            )
+        ):
+            raise ValueError(
+                "simulation calibration requires an admitted producer/verifier; "
+                "current receipts must remain default_unverified, unaccepted, and runtime/effective "
+                "unverified"
+            )
+        return self
 
 
 class SimulationProofBridge(BaseModel):
@@ -117,6 +166,18 @@ class SimulationProofBridge(BaseModel):
     )
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    @model_validator(mode="after")
+    def _require_current_authority_state(self) -> Self:
+        if (
+            self.calibration_status != "unverified"
+            or self.certification_status is SimulationCertificationStatus.IDENTIFIED
+        ):
+            raise ValueError(
+                "simulation proof authority requires an admitted producer/verifier; "
+                "current bridges must remain calibration_status='unverified' and non-IDENTIFIED"
+            )
+        return self
+
 
 class SimulationProofBridgeArtifacts(BaseModel):
     """Return all refs materialized by the simulation proof bridge stage."""
@@ -132,6 +193,15 @@ class SimulationProofBridgeArtifacts(BaseModel):
     certification_status: SimulationCertificationStatus
     degradation_reasons: tuple[str, ...] = ()
 
+    @model_validator(mode="after")
+    def _require_current_authority_state(self) -> Self:
+        if self.certification_status is SimulationCertificationStatus.IDENTIFIED:
+            raise ValueError(
+                "simulation proof authority requires an admitted producer/verifier; "
+                "current artifact projections must remain non-IDENTIFIED"
+            )
+        return self
+
 
 def persist_simulation_calibration_receipt(
     store: ArtifactStore,
@@ -143,9 +213,12 @@ def persist_simulation_calibration_receipt(
 ) -> SimulationCalibrationReceiptRef:
     """Persist a simulation calibration receipt and return its typed ref."""
 
+    validated = SimulationCalibrationReceipt.model_validate(
+        receipt.model_dump(mode="python", warnings=False)
+    )
     ref = put_json_artifact(
         store,
-        receipt.model_dump(mode="json"),
+        validated.model_dump(mode="json"),
         kind="ir.simulation_calibration_receipt",
         schema_name=schema_name,
         schema_version=schema_version,
@@ -175,9 +248,12 @@ def persist_simulation_proof_bridge(
 ) -> SimulationProofBridgeRef:
     """Persist a simulation-proof bridge and return its typed ref."""
 
+    validated = SimulationProofBridge.model_validate(
+        bridge.model_dump(mode="python", warnings=False)
+    )
     ref = put_json_artifact(
         store,
-        bridge.model_dump(mode="json"),
+        validated.model_dump(mode="json"),
         kind="ir.simulation_proof_bridge",
         schema_name=schema_name,
         schema_version=schema_version,
@@ -234,10 +310,30 @@ def build_simulation_proof_bridge_artifacts(
     query_ref = _coerce_optional_ref(causal_query_ref)
     base_proof_ref = _coerce_typed_optional_ref(base_proof_bundle_ref, ProofBundleRef)
 
-    if simulation_payload is None:
-        simulation_payload = _load_payload(store, sim_ref)
-    if metrics_payload is None and metric_ref is not None:
-        metrics_payload = _load_payload(store, metric_ref)
+    bound_simulation_payload, simulation_intake_reasons = _load_truthfulness_owner_payload(
+        store,
+        sim_ref,
+        role="simulation",
+    )
+    if metric_ref is not None:
+        bound_metrics_payload, metrics_intake_reasons = _load_truthfulness_owner_payload(
+            store,
+            metric_ref,
+            role="metrics",
+        )
+    else:
+        bound_metrics_payload, metrics_intake_reasons = None, ()
+    payload_binding_errors: list[str] = []
+    if simulation_payload is not None and not _payloads_exact_match(
+        simulation_payload,
+        bound_simulation_payload,
+    ):
+        payload_binding_errors.append("simulation_payload_content_mismatch")
+    if metrics_payload is not None and not _payloads_exact_match(
+        metrics_payload,
+        bound_metrics_payload,
+    ):
+        payload_binding_errors.append("metrics_payload_content_mismatch")
 
     lineage_inputs = _lineage_inputs(
         (
@@ -258,10 +354,15 @@ def build_simulation_proof_bridge_artifacts(
 
     receipt, receipt_source = _resolve_truthfulness_receipt(
         explicit=calibration_receipt,
-        simulation_payload=simulation_payload,
-        metrics_payload=metrics_payload,
+        intake_reasons=(
+            *simulation_intake_reasons,
+            *metrics_intake_reasons,
+            *payload_binding_errors,
+        ),
     )
-    calibration_accepted = _receipt_is_calibrated(receipt)
+    # The current strict Foundry owner DTOs cannot carry a truthfulness receipt,
+    # and no admitted verifier artifact binds one to these payloads.
+    calibration_accepted = False
     calibration_model = SimulationCalibrationReceipt(
         simulation_result_ref=sim_ref,
         metrics_ref=metric_ref,
@@ -481,6 +582,103 @@ def _load_payload(store: ArtifactStore, ref: ArtifactRefModel | None) -> dict[st
     return dict(payload) if isinstance(payload, Mapping) else None
 
 
+def _load_truthfulness_owner_payload(
+    store: ArtifactStore,
+    ref: ArtifactRefModel,
+    *,
+    role: Literal["simulation", "metrics"],
+) -> tuple[dict[str, Any] | None, tuple[str, ...]]:
+    """Reload one owner artifact and record why it cannot authorize truthfulness."""
+
+    expected_kind, expected_schema, expected_version = _OWNER_ARTIFACT_CONTRACTS[role]
+    reasons: list[str] = []
+    try:
+        manifest = store.get_manifest(ref.artifact_id)
+    except (FileNotFoundError, OSError, TypeError, ValueError):
+        return None, (f"{role}_manifest_unavailable",)
+
+    manifest_kind = str(getattr(manifest, "kind", ""))
+    manifest_media_type = str(getattr(manifest, "media_type", ""))
+    manifest_artifact_id = str(getattr(manifest, "artifact_id", ""))
+    if manifest_kind != expected_kind:
+        reasons.append(f"{role}_manifest_kind_mismatch")
+    if manifest_media_type != "application/json":
+        reasons.append(f"{role}_manifest_media_type_mismatch")
+    if manifest_artifact_id != str(ref.artifact_id):
+        reasons.append(f"{role}_manifest_content_binding_mismatch")
+    if ref.kind != manifest_kind or ref.media_type != manifest_media_type:
+        reasons.append(f"{role}_ref_manifest_mismatch")
+
+    schema = getattr(manifest, "artifact_schema", None)
+    if (
+        getattr(schema, "name", None) != expected_schema
+        or getattr(schema, "version", None) != expected_version
+    ):
+        reasons.append(f"{role}_manifest_schema_mismatch")
+
+    payload = _load_payload(store, ref)
+    if payload is None or not _owner_payload_is_valid(role=role, payload=payload):
+        reasons.append(f"{role}_owner_payload_invalid")
+
+    producer = getattr(manifest, "producer", None)
+    authority = getattr(manifest, "authority", None)
+    if producer is None:
+        reasons.append(f"{role}_truthfulness_producer_missing")
+    else:
+        reasons.append(f"{role}_truthfulness_producer_not_admitted")
+    if authority is None:
+        reasons.append(f"{role}_truthfulness_verifier_missing")
+    else:
+        reasons.append(f"{role}_truthfulness_verifier_not_admitted")
+
+    return payload, tuple(dict.fromkeys(reasons))
+
+
+def _owner_payload_is_valid(
+    *,
+    role: Literal["simulation", "metrics"],
+    payload: Mapping[str, Any],
+) -> bool:
+    if role == "metrics":
+        if not set(payload).issubset({"values", "notes"}):
+            return False
+        values = payload.get("values", {})
+        notes = payload.get("notes", [])
+        return isinstance(values, Mapping) and all(
+            isinstance(value, (bool, int, float, str)) for value in values.values()
+        ) and isinstance(notes, list) and all(isinstance(note, str) for note in notes)
+
+    if not {"schema_version", "exec_plan_ref", "metrics_ref"}.issubset(payload):
+        return False
+    if not set(payload).issubset(_SIMULATION_RESULT_FIELDS):
+        return False
+    if payload.get("schema_version") != "1.3":
+        return False
+    return _owner_ref_is_valid(payload.get("exec_plan_ref"), kind="foundry.exec_plan") and (
+        _owner_ref_is_valid(payload.get("metrics_ref"), kind="foundry.metrics")
+    )
+
+
+def _owner_ref_is_valid(value: Any, *, kind: str) -> bool:
+    if not isinstance(value, Mapping):
+        return False
+    try:
+        ArtifactID.model_validate(str(value.get("artifact_id")))
+    except (TypeError, ValueError):
+        return False
+    return value.get("kind") == kind and value.get("media_type") == "application/json"
+
+
+def _payloads_exact_match(left: Mapping[str, Any], right: Mapping[str, Any] | None) -> bool:
+    if right is None:
+        return False
+    try:
+        spec = CanonSpec(forbid_floats=False)
+        return to_canonical_bytes(dict(left), spec) == to_canonical_bytes(dict(right), spec)
+    except (TypeError, ValueError):
+        return False
+
+
 def _load_causal_validity_payload(
     store: ArtifactStore,
     ref: ArtifactRefModel,
@@ -510,34 +708,24 @@ def _load_causal_validity_payload(
 def _resolve_truthfulness_receipt(
     *,
     explicit: TruthfulnessReceipt | Mapping[str, Any] | None,
-    simulation_payload: Mapping[str, Any] | None,
-    metrics_payload: Mapping[str, Any] | None,
+    intake_reasons: Sequence[str],
 ) -> tuple[TruthfulnessReceipt, Literal["explicit", "simulation_result", "metrics", "default_unverified"]]:
+    reasons = list(intake_reasons)
     if explicit is not None:
-        receipt = validate_truthfulness_receipt(explicit)
-        if receipt is not None:
-            return receipt, "explicit"
-    for source, payload in (
-        ("simulation_result", simulation_payload),
-        ("metrics", metrics_payload),
-    ):
-        receipt = extract_truthfulness_receipt(payload)
-        if receipt is not None:
-            return receipt, source
-    return (
-        TruthfulnessReceipt(
-            runtime_truthfulness_tier=TruthfulnessTier.UNVERIFIED,
-            truthfulness_scope=TruthfulnessScope.POSTERIOR,
-            diagnostics={"source": "simulation_proof_bridge"},
-            degradation_reasons=("runtime_calibration_receipt_missing",),
-        ),
-        "default_unverified",
+        validate_truthfulness_receipt(explicit)
+        reasons.append("explicit_truthfulness_receipt_unverified")
+    else:
+        reasons.append("runtime_calibration_receipt_missing")
+    return _default_unverified_receipt(reasons), "default_unverified"
+
+
+def _default_unverified_receipt(reasons: Sequence[str]) -> TruthfulnessReceipt:
+    return TruthfulnessReceipt(
+        runtime_truthfulness_tier=TruthfulnessTier.UNVERIFIED,
+        truthfulness_scope=TruthfulnessScope.POSTERIOR,
+        diagnostics={"source": "simulation_proof_bridge"},
+        degradation_reasons=tuple(dict.fromkeys(str(reason) for reason in reasons)),
     )
-
-
-def _receipt_is_calibrated(receipt: TruthfulnessReceipt) -> bool:
-    tier = receipt.effective_truthfulness_tier or receipt.runtime_truthfulness_tier
-    return any(truthfulness_depth(tier) >= truthfulness_depth(candidate) for candidate in _CALIBRATED_TIERS)
 
 
 def _diagnostic_scores(

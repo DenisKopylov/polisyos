@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import uuid
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
+from pydantic import BaseModel, ConfigDict
+
+from polisyos.core.contracts import ControlFailureEnvelope
+from polisyos.core.security import TenantContextNotSetError
 from polisyos.pdc import AuthorityBoundary, EvidenceBasis
 
 if TYPE_CHECKING:
@@ -20,6 +24,33 @@ class _WorkflowExecutionNonAuthorityError(RuntimeError):
     def __init__(self, message: str, *, progress: dict[str, Any]) -> None:
         super().__init__(message)
         self.progress = progress
+
+
+class RunBoundDesignRecordTenantNonReceipt(BaseModel):
+    """Typed refusal to execute or persist S2 outputs without ambient tenancy."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    kind: Literal["run_bound_design_record_nonreceipt"] = (
+        "run_bound_design_record_nonreceipt"
+    )
+    status: Literal["not_established"] = "not_established"
+    missing_authority: Literal["tenant_identity"] = "tenant_identity"
+    authority_state: Literal["absent/unallocated"] = "absent/unallocated"
+    owner_route: Literal["runtime.authenticated_principal.tenant_id"] = (
+        "runtime.authenticated_principal.tenant_id"
+    )
+    denied_uses: tuple[
+        Literal["s2_design_search_execution"],
+        Literal["design_record_persistence"],
+        Literal["search_ledger_persistence"],
+        Literal["run_case_tenant_binding"],
+    ] = (
+        "s2_design_search_execution",
+        "design_record_persistence",
+        "search_ledger_persistence",
+        "run_case_tenant_binding",
+    )
 
 
 class ControlPlaneWorkspaceLoopTransitionMixin:
@@ -116,12 +147,22 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             ProductionLoopRunProof,
             build_outcome_replay_proof,
         )
+        from polisyos.runtime.quality.workspace.s2_design_search_operation import (
+            S2_DESIGN_SEARCH_OPERATION_ID,
+        )
 
         execute_invocation_id = f"execute-workflow-{uuid.uuid4().hex[:16]}"
         loop_invocation_id = f"workspace-loop-{uuid.uuid4().hex[:16]}"
         params = dict(state_payload.get("params") or {})
         fixture_id = str(params.get("slice0_fixture_id") or "ua_msme_credit_worldbank_measurement")
         input_artifacts = self._input_artifact_refs(state_payload)
+        workspace_operation_id = str(params.get("workspace_operation_id") or "")
+        if workspace_operation_id == S2_DESIGN_SEARCH_OPERATION_ID:
+            return self._execute_s2_design_search_operation(
+                state_payload=state_payload,
+                params=params,
+                job=job,
+            )
         try:
             contract = self._run_workspace_loop_fixture(job=job, fixture_id=fixture_id)
         except _WorkflowExecutionNonAuthorityError as exc:
@@ -255,6 +296,141 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             },
             "quality_scorecard": quality_scorecard,
             "approval_projection": approval_projection,
+        }
+
+    def _execute_s2_design_search_operation(
+        self,
+        *,
+        state_payload: dict[str, Any],
+        params: dict[str, Any],
+        job: ControlJobRecord,
+    ) -> dict[str, Any]:
+        """Dispatch the one governed S2 operation or preserve a typed refusal."""
+
+        from polisyos.pdc import Layer2S2DesignSearchInput
+        from polisyos.runtime.quality.workspace.loop import WorkspaceLoop
+        from polisyos.runtime.quality.workspace.s2_design_search_operation import (
+            S2_DESIGN_SEARCH_OPERATION_ID,
+        )
+
+        run_id = str(job.run_id or state_payload.get("run_id") or "")
+        try:
+            search_input = Layer2S2DesignSearchInput.model_validate(
+                params.get("layer2_s2_design_search_input")
+            )
+            result = WorkspaceLoop(
+                catalog_graph=getattr(self._registry_providers, "gy_catalog_graph", None),
+                artifact_store=self._artifact_store,
+            ).execute_registered_s2_design_search_operation(
+                operation_id=S2_DESIGN_SEARCH_OPERATION_ID,
+                search_input=search_input,
+                core_runs_root=self._core_runs_root,
+                run_id=run_id,
+            )
+        except TenantContextNotSetError as exc:
+            nonreceipt = RunBoundDesignRecordTenantNonReceipt()
+            failure = ControlFailureEnvelope(
+                code="run_bound_design_record_tenant_scope_missing",
+                layer="pdc.gy",
+                phase="s2_design_search_persist",
+                message=(
+                    "Run-bound DesignRecord persistence requires a verified ambient "
+                    "tenant scope."
+                ),
+                retryable=False,
+                next_action=(
+                    "Re-launch under an authenticated principal with a verified tenant "
+                    "scope; tenant_id is not caller-supplied."
+                ),
+                run_id=run_id,
+                job_id=job.job_id,
+                artifact_refs={},
+            )
+            progress = {
+                "state": "failed",
+                "phase": "s2_design_search_persist",
+                "runtime_state": "blocked",
+                "authority_path": "workspace_loop",
+                "authority_result": "repair_required",
+                "legacy_path_disposition": "governed_s2_tenant_scope_refused",
+                "run_id": run_id,
+                "workspace_operation_id": S2_DESIGN_SEARCH_OPERATION_ID,
+                "run_bound_design_record_nonreceipt": nonreceipt.model_dump(mode="json"),
+                "failure": failure.model_dump(mode="json"),
+                "quality_scorecard": {
+                    "quality_status": "fail",
+                    "approval_state": "candidate_only",
+                    "approval_ready": False,
+                    "quality_gates": [
+                        {
+                            "name": failure.code,
+                            "code": failure.code,
+                            "status": "fail",
+                            "layer": failure.layer,
+                            "phase": failure.phase,
+                            "message": failure.message,
+                            "blocking": True,
+                            "evidence_ref": None,
+                            "next_action": failure.next_action,
+                        }
+                    ],
+                    "blocking_quality_failures": [],
+                    "evidence_refs": {},
+                },
+                "approval_projection": {
+                    "state": "candidate_only",
+                    "eligible": False,
+                    "reasons": [failure.code],
+                },
+            }
+            raise _WorkflowExecutionNonAuthorityError(
+                failure.message,
+                progress=progress,
+            ) from exc
+        except _WorkflowExecutionNonAuthorityError:
+            raise
+        except Exception as exc:
+            progress = self._workflow_failure_progress(
+                job=job,
+                phase="s2_design_search_failed",
+                reason="The governed S2 operation failed before terminal closure.",
+                failure_code="s2_design_search_failed_non_authority",
+                failure_message=str(exc),
+            )
+            raise _WorkflowExecutionNonAuthorityError(str(exc), progress=progress) from exc
+        result_payload = result.model_dump(mode="json")
+        return {
+            "state": "completed",
+            "phase": "s2_design_search_persist",
+            "runtime_state": "completed",
+            "authority_path": "workspace_loop",
+            "authority_result": "candidate_only",
+            "legacy_path_disposition": "governed_s2_operation",
+            "run_id": run_id,
+            "workspace_operation_id": S2_DESIGN_SEARCH_OPERATION_ID,
+            **result_payload,
+            "artifacts_index": {
+                "design_record_ref": str(result.design_record_ref.artifact_id),
+                "search_ledger_ref": str(result.search_ledger_ref.artifact_id),
+                "binding_ref": str(result.binding_ref.artifact_id),
+                "manifest_ref": str(result.manifest_ref.artifact_id),
+            },
+            "quality_scorecard": {
+                "quality_status": "warn",
+                "approval_state": "candidate_only",
+                "approval_ready": False,
+                "quality_gates": [],
+                "blocking_quality_failures": [],
+                "evidence_refs": {
+                    "manifest_ref": str(result.manifest_ref.artifact_id),
+                    "binding_ref": str(result.binding_ref.artifact_id),
+                },
+            },
+            "approval_projection": {
+                "state": "candidate_only",
+                "eligible": False,
+                "reasons": ["run_paper_authorities_not_established"],
+            },
         }
 
     def _attach_failed_workspace_loop_proof(

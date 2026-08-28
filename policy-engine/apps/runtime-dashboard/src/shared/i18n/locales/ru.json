@@ -582,7 +582,18 @@
         "artifacts": "Artifacts",
         "transport": "Transport",
         "timelineEyebrow": "Severity-filterable timeline",
-        "auditTrailTitle": "Audit trail"
+        "auditTrailTitle": "Audit trail",
+        "paper": {
+          "fields": {
+            "authorityProjection": "Проекция полномочий",
+            "authorityState": "Состояние полномочий",
+            "missingAuthority": "Отсутствующие полномочия",
+            "run": "Запуск",
+            "binding": "Привязка запуска",
+            "designRecordRef": "Артефакт DesignRecord",
+            "searchLedgerRef": "Артефакт журнала поиска"
+          }
+        }
       },
       "deck": {
         "requiredTitle": "Run deck requires a run id",

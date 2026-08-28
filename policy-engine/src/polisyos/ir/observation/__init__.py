@@ -44,7 +44,6 @@ __all__ = [
     "CalibrationSplitPlan",
     "CalibrationSplitWindow",
     "CalibrationSplitter",
-    "CalibrationTargetBundleCompiler",
     "CalibrationTargetBundleManifest",
     "CausalExecutionBundle",
     "CausalPanelBundleManifest",
@@ -96,7 +95,6 @@ __all__ = [
     "MeasurementTrustTier",
     "MicrosimSurveyContractBundle",
     "MultiplexGraphLayerId",
-    "NegativeControlGenerator",
     "NegativeControlSpec",
     "NetworkCausalCompileSpec",
     "NetworkCausalContractBundle",
@@ -603,14 +601,6 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "CalibrationSplitPlan": ("polisyos.ir.observation.compiler", "CalibrationSplitPlan"),
     "NegativeControlSpec": ("polisyos.ir.observation.compiler", "NegativeControlSpec"),
     "CalibrationSplitter": ("polisyos.ir.observation.compiler", "CalibrationSplitter"),
-    "CalibrationTargetBundleCompiler": (
-        "polisyos.ir.observation.compiler",
-        "CalibrationTargetBundleCompiler",
-    ),
-    "NegativeControlGenerator": (
-        "polisyos.ir.observation.compiler",
-        "NegativeControlGenerator",
-    ),
     "BoundsEstimationTask": (
         "polisyos.ir.observation.causal_execution",
         "BoundsEstimationTask",

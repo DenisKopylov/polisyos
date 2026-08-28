@@ -556,12 +556,7 @@ class Calibrator:
             ).run()
             ```
         """
-        from polisyos.scientist.methods.autotune.calibration import apply_calibration_meta_overrides
-
-        cfg = apply_calibration_meta_overrides(
-            self.inputs.config,
-            context={"calibrator_inputs": self.inputs},
-        )
+        cfg = self.inputs.config
         diagnostics: list[str] = []
         bundle = self._build_bundle()
         targets, metric_paths, path_by_target = self._target_meta()

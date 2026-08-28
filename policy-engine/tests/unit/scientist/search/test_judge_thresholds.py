@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.methods.catalog.causal.algebraic_calibration import (
     tetrad_threshold_recommendations,
 )
@@ -146,3 +147,46 @@ def test_threshold_registry_prefers_dp_specific_scope(tmp_path) -> None:
 
     assert resolved.threshold_value("mc_bootstrap_B") == pytest.approx(1000.0)
     assert resolved.scope["dp_epsilon_bucket"] == "0.5_to_1.0"
+
+
+def test_threshold_registry_resolves_typed_foundry_ci_policy(tmp_path) -> None:
+    registry = JudgeThresholdRegistry(tmp_path / "judge_thresholds")
+    registry.record(
+        JudgeThresholdEntry(
+            judge_name="ci_tests",
+            metric_name="mc_bootstrap_B",
+            threshold_value=1234,
+            direction="min",
+            rationale="DP-scoped test policy",
+            benchmark_source="unit_test",
+            scope_family="categorical_ci",
+            scope_query_type="g2",
+            scope_estimator="stratified_counts",
+            scope_readiness_target="diagnostic",
+            scope_dp_mechanism="laplace_counts",
+            scope_dp_epsilon_bucket="0.5_to_1.0",
+            scope_dp_delta_bucket="zero",
+        ),
+        change_reason="test Scientist-to-Foundry resolution",
+        approved_by="tests",
+    )
+
+    policy = registry.resolve_ci_test_policy(
+        family="categorical_ci",
+        query_type="g2",
+        estimator="stratified_counts",
+        dp_context={"mechanism": "laplace_counts", "epsilon": 0.7, "delta": 0.0},
+        n_bootstrap=2000,
+        readiness_target="diagnostic",
+    )
+
+    assert policy.mc_bootstrap_B == 1234
+    assert policy.threshold_scope == {
+        "family": "categorical_ci",
+        "query_type": "g2",
+        "estimator": "stratified_counts",
+        "readiness_target": "diagnostic",
+        "dp_mechanism": "laplace_counts",
+        "dp_epsilon_bucket": "0.5_to_1.0",
+        "dp_delta_bucket": "zero",
+    }

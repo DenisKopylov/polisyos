@@ -1255,82 +1255,66 @@ def _write_fabric_world_snapshot(
     payload_hash: str,
     stats: Mapping[str, Any],
 ) -> Path:
-    from polisyos.fabric.io.db import SimulationDB
-    from polisyos.fabric.world import ensure_world_schema
-    from polisyos.fabric.world.store import create_world_snapshot
+    from polisyos.fabric.world import (
+        WorldSnapshotFactWrite,
+        WorldSnapshotNodeWrite,
+        WorldSnapshotWriteRequest,
+        write_world_snapshot,
+    )
 
     snapshot_root = workspace_dir / "fabric-world"
     db_path = workspace_dir / "fabric-world.duckdb"
     snapshot_root.mkdir(parents=True, exist_ok=True)
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    with SimulationDB(db_path=str(db_path)) as db:
-        ensure_world_schema(db)
-        node_id = f"world.data_state.{snapshot_id}"
-        fact_ids = (
-            f"fact:{snapshot_id}:bound_agent_count",
-            f"fact:{snapshot_id}:payload_hash",
-        )
-        db.conn.execute(
-            "DELETE FROM world.world_facts WHERE fact_id IN (?, ?)",
-            list(fact_ids),
-        )
-        db.conn.execute("DELETE FROM world.world_nodes WHERE node_id = ?", [node_id])
-        db.conn.execute(
-            """
-            INSERT INTO world.world_nodes (node_id, kind, label, artifact_id)
-            VALUES (?, 'data_state', 'GY-S1 real L4 data-state substrate', ?)
-            """,
-            [node_id, payload_hash],
-        )
-        db.conn.execute(
-            """
-            INSERT INTO world.world_facts (
-                fact_id,
-                schema_version,
-                subject_id,
-                predicate_id,
-                object_value,
-                target_id,
-                valid_time,
-                tx_time,
-                provenance_json,
-                trust_json,
-                legal_json,
-                segment_id
-            )
-            VALUES
-                (?, '1.0', ?, 'data_state.bound_agent_count', ?, NULL,
-                 '2026-05-01T00:00:00Z', '2026-05-01T00:00:00Z', ?, NULL, NULL, ?),
-                (?, '1.0', ?, 'data_state.payload_hash', ?, NULL,
-                 '2026-05-01T00:00:00Z', '2026-05-01T00:00:00Z', ?, NULL, NULL, ?)
-            """,
-            [
-                fact_ids[0],
-                node_id,
-                str(stats.get("bound_agent_count") or 0),
-                json.dumps({"producer": "data_state_substrate"}, sort_keys=True),
-                f"seg:{snapshot_id}:count",
-                fact_ids[1],
-                node_id,
-                payload_hash,
-                json.dumps({"producer": "data_state_substrate"}, sort_keys=True),
-                f"seg:{snapshot_id}:hash",
-            ],
-        )
-        create_world_snapshot(
-            db,
+    node_id = f"world.data_state.{snapshot_id}"
+    world_node = WorldSnapshotNodeWrite(
+        node_id=node_id,
+        kind="data_state",
+        label="GY-S1 real L4 data-state substrate",
+        artifact_id=payload_hash,
+        props_ref=None,
+    )
+    bound_agent_count_fact = WorldSnapshotFactWrite(
+        fact_id=f"fact:{snapshot_id}:bound_agent_count",
+        schema_version="1.0",
+        subject_id=node_id,
+        predicate_id="data_state.bound_agent_count",
+        object_value=str(stats.get("bound_agent_count") or 0),
+        target_id=None,
+        valid_time="2026-05-01T00:00:00Z",
+        tx_time="2026-05-01T00:00:00Z",
+        provenance_json={"producer": "data_state_substrate"},
+        trust_json=None,
+        legal_json=None,
+        segment_id=f"seg:{snapshot_id}:count",
+    )
+    payload_hash_fact = WorldSnapshotFactWrite(
+        fact_id=f"fact:{snapshot_id}:payload_hash",
+        schema_version="1.0",
+        subject_id=node_id,
+        predicate_id="data_state.payload_hash",
+        object_value=payload_hash,
+        target_id=None,
+        valid_time="2026-05-01T00:00:00Z",
+        tx_time="2026-05-01T00:00:00Z",
+        provenance_json={"producer": "data_state_substrate"},
+        trust_json=None,
+        legal_json=None,
+        segment_id=f"seg:{snapshot_id}:hash",
+    )
+    write_world_snapshot(
+        db_path,
+        WorldSnapshotWriteRequest(
             snapshot_root=snapshot_root,
             snapshot_id=snapshot_id,
             branch_name="observed",
             as_of_valid_time="2026-05-01T00:00:00+00:00",
             as_of_tx_time="2026-05-01T00:00:00+00:00",
-            provenance={
-                "producer": (
-                    "polisyos.runtime.quality.data_state_substrate._write_fabric_world_snapshot"
-                ),
-                "payload_hash": payload_hash,
-            },
-        )
+            provenance={"producer": "polisyos.runtime.quality.data_state_substrate"},
+            nodes=(world_node,),
+            facts=(bound_agent_count_fact, payload_hash_fact),
+        ),
+    )
     return snapshot_root
 
 

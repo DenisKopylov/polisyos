@@ -4,7 +4,7 @@
 targets while keeping a strict boundary between synthetic runtime dynamics and
 measurement-aware loss adaptation.
 
-- Last updated: 2026-05-03
+- Last updated: 2026-08-28
 
 Generic calibration diagnostics, recalibration helpers, and validation-report
 adapters live in the shared `polisyos.calibration` package. This package owns
@@ -20,8 +20,8 @@ diagnostics into uncertainty envelopes or post-fit evidence.
 
 ## Where to Start
 
-- [measurement.py](measurement.py) for observation-quality metadata and weight
-  adaptation.
+- [measurement.py](measurement.py) for observation-panel compilation, placebo
+  materialization, observation-quality metadata, and weight adaptation.
 
 - [pure_executor.py](pure_executor.py) for the no-CAS inner-loop execution path
   used by calibration.

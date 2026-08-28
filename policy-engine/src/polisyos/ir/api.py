@@ -830,6 +830,50 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.transportability",
         "TransportabilityResult",
     ),
+    "TruthfulnessReceipt": (
+        "polisyos.ir.analytics._truthfulness",
+        "TruthfulnessReceipt",
+    ),
+    "TruthfulnessScope": (
+        "polisyos.ir.analytics._truthfulness",
+        "TruthfulnessScope",
+    ),
+    "TruthfulnessStatus": (
+        "polisyos.ir.analytics._truthfulness",
+        "TruthfulnessStatus",
+    ),
+    "TruthfulnessTier": (
+        "polisyos.ir.analytics._truthfulness",
+        "TruthfulnessTier",
+    ),
+    "extract_truthfulness_receipt": (
+        "polisyos.ir.analytics._truthfulness",
+        "extract_truthfulness_receipt",
+    ),
+    "parse_truthfulness_scope": (
+        "polisyos.ir.analytics._truthfulness",
+        "parse_truthfulness_scope",
+    ),
+    "parse_truthfulness_status": (
+        "polisyos.ir.analytics._truthfulness",
+        "parse_truthfulness_status",
+    ),
+    "parse_truthfulness_tier": (
+        "polisyos.ir.analytics._truthfulness",
+        "parse_truthfulness_tier",
+    ),
+    "reconcile_truthfulness_tiers": (
+        "polisyos.ir.analytics._truthfulness",
+        "reconcile_truthfulness_tiers",
+    ),
+    "truthfulness_depth": (
+        "polisyos.ir.analytics._truthfulness",
+        "truthfulness_depth",
+    ),
+    "validate_truthfulness_receipt": (
+        "polisyos.ir.analytics._truthfulness",
+        "validate_truthfulness_receipt",
+    ),
     "ForecastCalibrationMethod": (
         "polisyos.ir.analytics.forecasting_uncertainty",
         "ForecastCalibrationMethod",

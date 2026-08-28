@@ -22,7 +22,10 @@ from polisyos.core.contracts.backtest import BacktestReportRef
 from polisyos.ir.analytics.backtest import BacktestScenario, persist_backtest_report
 from polisyos.ir.observation.bundles import BacktestPlanBundle
 from polisyos.ir.observation.contracts import ObservationFamily
-from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator, _collapse_modes
+from polisyos.scientist.methods.backtesting.orchestrator import (
+    BacktestOrchestrator,
+    _collapse_modes,
+)
 from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
 
 
@@ -129,6 +132,10 @@ class BacktestMatrixRunner:
             backtest kind, plus a persisted report ref and composite summary.
         """
 
+        materialized_plans = {
+            kind: [HistoricalValidationPlan.model_validate(payload) for payload in bundle.plans]
+            for kind, bundle in bundles.items()
+        }
         scenario_groups: dict[BacktestKind, list[BacktestScenario]] = defaultdict(list)
         kind_results: list[BacktestKindResult] = []
         report_scenarios: list[BacktestScenario] = []
@@ -139,7 +146,8 @@ class BacktestMatrixRunner:
 
         for kind in BacktestKind:
             bundle = bundles.get(kind)
-            if bundle is None or not bundle.plans:
+            plans = materialized_plans.get(kind, [])
+            if bundle is None or not plans:
                 gap_flag = f"missing_backtest_bundle:{kind.value}"
                 gap_flags.append(gap_flag)
                 kind_results.append(
@@ -156,7 +164,7 @@ class BacktestMatrixRunner:
                 continue
 
             notes: list[str] = []
-            for plan in bundle.plans:
+            for plan in plans:
                 scenario_plan = self._decorate_plan(kind, bundle, plan)
                 (
                     scenario,
@@ -188,7 +196,7 @@ class BacktestMatrixRunner:
                     kind=kind,
                     status="ok",
                     score=_score_backtest_scenarios(scenarios_for_kind),
-                    n_plans=len(bundle.plans),
+                    n_plans=len(plans),
                     n_scenarios=len(scenarios_for_kind),
                     scenario_ids=[scenario.scenario_id for scenario in scenarios_for_kind],
                     observation_families=list(_BACKTEST_KIND_FAMILIES[kind]),

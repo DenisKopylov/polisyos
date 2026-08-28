@@ -9,6 +9,7 @@ should be changed" layer, not the "how the world evolves" layer.
 
 from __future__ import annotations
 
+from enum import Enum
 from typing import TYPE_CHECKING, Annotated, Any
 
 from pydantic import Field, model_validator
@@ -187,6 +188,22 @@ class ParameterSpec(KernelModel):
             max_depth=MAX_PARAM_PATH_DEPTH,
         )
         return self
+
+
+class CompiledLexIntervention(KernelModel):
+    """Neutral compiled intervention contract shared across runtime owners."""
+
+    intervention: InterventionSpec
+    parameters: list[ParameterSpec] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class PolicySearchLevel(str, Enum):
+    """Neutral structure-to-narrative search-level contract."""
+
+    STRUCTURE = "structure"
+    PARAMETER = "parameter"
+    NARRATIVE = "narrative"
 
 
 class PolicySpec(KernelModel):

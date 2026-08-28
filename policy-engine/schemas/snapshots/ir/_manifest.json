@@ -6,8 +6,8 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-ir"
   },
-  "content_hash": "6436335c3e740f15f89af7a067b3a3623f45cde608c5770471762f3dd57720d3",
-  "generated_at": "2026-07-13T13:41:46+00:00",
+  "content_hash": "043a4935b5da12dc4357d88513d05999f08a27771b670a19877282e6b24b1d71",
+  "generated_at": "2026-08-28T00:17:53+00:00",
   "generator_version": "1.0.0",
   "models": {
     "abm_alignment_report": {
@@ -30,8 +30,8 @@
       "priority": "p1",
       "schema_file": "abm_result.schema.json",
       "schema_version": "1.3",
-      "sha256_full": "ea93b5fdee6a1de0013929ca34314b74ebb7ae15dc5c673f310e7cbc6bf793c4",
-      "sha256_semantic": "ef594db94fa3f90f9cf890bb4c9833c44304030cb8ac837c276dc3f1634b3c20",
+      "sha256_full": "72db0c1c55d03768a618f43ca45f67d318dedef30fde51bfff47f44485a505c6",
+      "sha256_semantic": "47222a7806ca0611e972774ab2c3194ecc1401a3697ecb0757bbbe47fb958631",
       "version_field": "schema_version"
     },
     "article_extraction_result": {
@@ -54,8 +54,8 @@
       "priority": "p2",
       "schema_file": "backtest_plan_bundle.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "94e780aa5784e58f29d4add3ccb3b2c53ea1fc83603bf7c8867361d6c7373136",
-      "sha256_semantic": "b022fdc0aeb3f0eb188d019942bfe1dc42497785bd7960b6f79952ea3d7354c7",
+      "sha256_full": "7f9be1a9d32529821c00e87c5723bb7005b369df00194b4d3fb93e30f89a5636",
+      "sha256_semantic": "8c000853048b12ba51de2c7fefc2a4baa94447100ae38fb5db3d55f7181a9aab",
       "version_field": "schema_version"
     },
     "backtest_report": {
@@ -90,8 +90,8 @@
       "priority": "p2",
       "schema_file": "calibration_config.schema.json",
       "schema_version": "0.1",
-      "sha256_full": "6dcc11f87b5f8d618a3747aa61a2010531fb0dfb1c250d5c091701a5fff0028b",
-      "sha256_semantic": "acbdeb793d00a6d9d5ca93a9fe918b9489a6aee6ec2118a5d24eb745eeb1c024",
+      "sha256_full": "d45e879c03d8ee95fcf1d1a6ed706219890edd3ff1a288352234f5a5f97b255c",
+      "sha256_semantic": "52d45f7c745b29d3c4317b520a95db992cd30fedc6e3ee3181de7be714760ad9",
       "version_field": "schema_version"
     },
     "calibration_target_bundle_manifest": {

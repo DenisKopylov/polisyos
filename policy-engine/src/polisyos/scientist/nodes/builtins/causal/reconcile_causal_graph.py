@@ -36,7 +36,6 @@ from polisyos.ir.analytics.alignment_certification import (
     AlignmentVerificationConfig,
     load_alignment_report,
     persist_alignment_report,
-    verify_fragment_bundle_alignment,
 )
 from polisyos.ir.analytics.causal_graph import (
     CausalGraphModel,
@@ -61,6 +60,9 @@ from polisyos.ir.registry.refs import (
     CompositionCertificateRef,
     InterfaceMappingRef,
     SCMFragmentRef,
+)
+from polisyos.scientist.cross_graph.compiler import (
+    _verify_fragment_bundle_alignment_with_governance,
 )
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -601,41 +603,36 @@ class ReconcileCausalGraphNode:
             alignment_report, interface_mapping, alignment_report_ref, interface_mapping_ref = (
                 _load_precomputed_alignment(ctx, state)
             )
-            requested_selected_pairs = sorted(tuple(sorted(pair)) for pair in direct_stitch_pairs)
-            precomputed_selected_pairs = []
-            if alignment_report is not None:
-                precomputed_selected_pairs = sorted(
-                    tuple(sorted((str(pair[0]), str(pair[1]))))
-                    for pair in alignment_report.metadata.get("selected_stitch_pairs", [])
-                    if isinstance(pair, (list, tuple)) and len(pair) == 2
+            try:
+                verification_config = AlignmentVerificationConfig.model_validate(
+                    state.params.get("alignment_verification_config", {})
+                )
+                governed_report, governed_mapping = (
+                    _verify_fragment_bundle_alignment_with_governance(
+                        fragments,
+                        config=verification_config,
+                        stitch_pairs=direct_stitch_pairs,
+                        artifact_store=ctx.store,
+                    )
+                )
+            except _RECONCILE_VALIDATION_ERRORS as exc:
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
+                        message=f"fragment alignment verification failed: {exc}",
+                    ),
                 )
             reuse_precomputed_alignment = bool(
                 alignment_report is not None
                 and interface_mapping is not None
-                and (
-                    not requested_selected_pairs
-                    or requested_selected_pairs == precomputed_selected_pairs
-                )
+                and alignment_report == governed_report
+                and interface_mapping == governed_mapping
             )
             if not reuse_precomputed_alignment:
-                try:
-                    verification_config = AlignmentVerificationConfig.model_validate(
-                        state.params.get("alignment_verification_config", {})
-                    )
-                    alignment_report, interface_mapping = verify_fragment_bundle_alignment(
-                        fragments,
-                        config=verification_config,
-                        stitch_pairs=direct_stitch_pairs,
-                    )
-                except _RECONCILE_VALIDATION_ERRORS as exc:
-                    return NodeOutcome(
-                        status="fail",
-                        state=state,
-                        error=NodeError(
-                            code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
-                            message=f"fragment alignment verification failed: {exc}",
-                        ),
-                    )
+                alignment_report = governed_report
+                interface_mapping = governed_mapping
                 alignment_report_ref = persist_alignment_report(ctx.store, alignment_report)
                 interface_mapping_ref = persist_interface_mapping(ctx.store, interface_mapping)
 

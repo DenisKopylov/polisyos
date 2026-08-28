@@ -10,22 +10,21 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.contracts.foundry import (
-    ExecPlanRef,
-    IdentifiabilityDiagnosticRef,
-    MetricsRef,
-    SimulationResult,
-)
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     ABMResultRef,
     ArtifactRefModel,
+    DistributionalReportRef,
     DynamicMicrosimValidationReportRef,
+    FairnessAuditReportRef,
+    MetricValidationReportRef,
     MicrosimCalibrationReportRef,
     RegimeShiftForecastBundleRef,
     SpaceTimeCausalCertificateRef,
     TemporalGraphCausalCertificateRef,
+    UncertaintyEnvelopeRef,
+    WelfareBundleRef,
 )
 
 from .forecasting_uncertainty import ForecastingUncertaintyBundle, HorizonDiagnosticState
@@ -192,6 +191,82 @@ def validate_phase4_temporal_policy_query(
     )
 
 
+class _ABMExecPlanArtifactRef(ArtifactRefModel):
+    """Neutral typed reference to the Foundry execution plan used by an ABM run."""
+
+    kind: Literal["foundry.exec_plan"] = "foundry.exec_plan"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class _ABMMetricsArtifactRef(ArtifactRefModel):
+    """Neutral typed reference to metrics emitted by an ABM run."""
+
+    kind: Literal["foundry.metrics"] = "foundry.metrics"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class _ABMMetricObservationBundleArtifactRef(ArtifactRefModel):
+    """Neutral typed reference to metric observations emitted by Foundry."""
+
+    kind: Literal["foundry.metric_observation_bundle"] = (
+        "foundry.metric_observation_bundle"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class _ABMStateSnapshotArtifactRef(ArtifactRefModel):
+    """Neutral typed reference to a Foundry state snapshot."""
+
+    kind: Literal["foundry.state_snapshot"] = "foundry.state_snapshot"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class _ABMEnvironmentArtifactRef(ArtifactRefModel):
+    """Neutral typed reference to the Foundry execution environment manifest."""
+
+    kind: Literal["foundry.environment_manifest"] = "foundry.environment_manifest"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class _ABMTraceSliceArtifactRef(ArtifactRefModel):
+    """Neutral typed reference to a Foundry execution trace slice."""
+
+    kind: Literal["foundry.trace_slice"] = "foundry.trace_slice"
+    media_type: Literal["application/jsonl"] = "application/jsonl"
+
+
+class _ABMWelfareBoundArtifactRef(ArtifactRefModel):
+    """Neutral typed reference to a Foundry welfare-bound report."""
+
+    kind: Literal["foundry.welfare_bound_report"] = "foundry.welfare_bound_report"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class _ABMFeedbackResultArtifactRef(ArtifactRefModel):
+    """Neutral typed reference to a Foundry feedback result."""
+
+    kind: Literal["foundry.feedback_result"] = "foundry.feedback_result"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class _ABMIdentifiabilityDiagnosticArtifactRef(ArtifactRefModel):
+    """Neutral typed reference to a Foundry identifiability diagnostic."""
+
+    kind: Literal["foundry.identifiability_diagnostic"] = (
+        "foundry.identifiability_diagnostic"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
+class _ABMAttractorAnalysisArtifactRef(ArtifactRefModel):
+    """Neutral typed reference to a Foundry attractor-analysis result."""
+
+    kind: Literal["foundry.attractor_analysis_result"] = (
+        "foundry.attractor_analysis_result"
+    )
+    media_type: Literal["application/json"] = "application/json"
+
+
 class ABMIdentifiabilityCertificate(BaseModel):
     """Lightweight Phase-4 certificate pointing to aggregate-moment ABM diagnostics."""
 
@@ -200,7 +275,7 @@ class ABMIdentifiabilityCertificate(BaseModel):
     status: Literal["certified", "diagnostic_attached", "not_available", "failed"] = (
         "not_available"
     )
-    diagnostic_ref: ArtifactRefModel | None = None
+    diagnostic_ref: _ABMIdentifiabilityDiagnosticArtifactRef | None = None
     identified: bool | None = None
     method: str = "aggregate_moment_identifiability"
     summary: str | None = None
@@ -213,16 +288,37 @@ class ABMBifurcationReport(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     status: Literal["available", "not_available", "failed"] = "not_available"
-    attractor_analysis_ref: ArtifactRefModel | None = None
+    attractor_analysis_ref: _ABMAttractorAnalysisArtifactRef | None = None
     bifurcation_count: int | None = Field(default=None, ge=0)
     attractor_count: int | None = Field(default=None, ge=0)
     summary: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
-class ABMResult(SimulationResult):
-    """Phase-4 ABM execution result with exact identifiability and bifurcation fields."""
+class ABMResult(BaseModel):
+    """Neutral Phase-4 analytical result for a completed ABM execution."""
 
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field("1.3", pattern=r"^\d+\.\d+$")
+    exec_plan_ref: _ABMExecPlanArtifactRef
+    metrics_ref: _ABMMetricsArtifactRef
+    metric_observation_bundle_ref: _ABMMetricObservationBundleArtifactRef | None = None
+    state_snapshot_ref: _ABMStateSnapshotArtifactRef | None = None
+    environment_ref: _ABMEnvironmentArtifactRef | None = None
+    environment_fingerprint: str | None = None
+    trace_slice_ref: _ABMTraceSliceArtifactRef | None = None
+    uncertainty_envelopes: Mapping[str, UncertaintyEnvelopeRef] | None = None
+    distributional_report_ref: DistributionalReportRef | None = None
+    welfare_bundle_ref: WelfareBundleRef | None = None
+    welfare_bound_refs: Mapping[str, _ABMWelfareBoundArtifactRef] | None = None
+    metric_validation_report_ref: MetricValidationReportRef | None = None
+    fairness_audit_report_ref: FairnessAuditReportRef | None = None
+    propagation_config_ref: ArtifactRefModel | None = None
+    propagation_report_ref: ArtifactRefModel | None = None
+    feedback_result_ref: _ABMFeedbackResultArtifactRef | None = None
+    identifiability_diagnostic_ref: _ABMIdentifiabilityDiagnosticArtifactRef | None = None
+    notes: list[str] = Field(default_factory=list)
     identifiability_certificate: ABMIdentifiabilityCertificate | None = None
     bifurcation_report: ABMBifurcationReport | None = None
 
@@ -322,83 +418,6 @@ def verify_strangle_receipt(
         raise StrangleReceiptError("receipt_content_mismatch")
     if not parsed.diagnostics_attached:
         raise StrangleReceiptError("receipt_diagnostics_missing")
-
-
-def build_abm_result_from_content_bound_simulation(
-    *,
-    method_id: str,
-    horizon: int,
-    payload: Mapping[str, Any],
-    diagnostics: Mapping[str, Any],
-) -> ABMResult:
-    """Build an ABM result whose refs bind actual trajectory and diagnostics."""
-
-    receipt = build_strangle_receipt(
-        method_id=method_id,
-        horizon=horizon,
-        payload=payload,
-        diagnostics=diagnostics,
-    )
-    diagnostic_ref = IdentifiabilityDiagnosticRef(
-        artifact_id=receipt.diagnostics_hash
-    )
-    simulation = SimulationResult(
-        exec_plan_ref=ExecPlanRef(artifact_id=receipt.payload_hash),
-        metrics_ref=MetricsRef(artifact_id=receipt.metrics_hash),
-        identifiability_diagnostic_ref=diagnostic_ref,
-        notes=[
-            "content_bound_abm_result",
-            f"trajectory_hash:{receipt.trajectory_hash}",
-            f"diagnostics_hash:{receipt.diagnostics_hash}",
-            f"strangle_receipt:{receipt.model_dump_json()}",
-        ],
-    )
-    return build_abm_result_from_simulation(
-        simulation,
-        identifiability_diagnostic_ref=diagnostic_ref,
-    )
-
-
-def build_abm_result_from_simulation(
-    simulation_result: SimulationResult | Mapping[str, Any],
-    *,
-    identifiability_diagnostic_ref: Any | None = None,
-    attractor_analysis_ref: Any | None = None,
-    bifurcation_count: int | None = None,
-    attractor_count: int | None = None,
-) -> ABMResult:
-    """Lift a legacy ``SimulationResult`` into the exact Phase-4 ``ABMResult`` surface."""
-
-    base = (
-        simulation_result
-        if isinstance(simulation_result, SimulationResult)
-        else SimulationResult.model_validate(simulation_result)
-    )
-    diagnostic_ref = _artifact_ref_model(
-        identifiability_diagnostic_ref or getattr(base, "identifiability_diagnostic_ref", None)
-    )
-    attractor_ref = _artifact_ref_model(attractor_analysis_ref)
-    payload = base.model_dump(mode="python")
-    if diagnostic_ref is not None:
-        payload["identifiability_diagnostic_ref"] = diagnostic_ref.model_dump(mode="python")
-    payload["identifiability_certificate"] = ABMIdentifiabilityCertificate(
-        status="diagnostic_attached" if diagnostic_ref is not None else "not_available",
-        diagnostic_ref=diagnostic_ref,
-        identified=None if diagnostic_ref is None else True,
-        summary="aggregate moment identifiability diagnostic attached"
-        if diagnostic_ref is not None
-        else "aggregate moment identifiability diagnostic missing",
-    )
-    payload["bifurcation_report"] = ABMBifurcationReport(
-        status="available" if attractor_ref is not None else "not_available",
-        attractor_analysis_ref=attractor_ref,
-        bifurcation_count=bifurcation_count,
-        attractor_count=attractor_count,
-        summary="attractor/bifurcation analysis attached"
-        if attractor_ref is not None
-        else "attractor/bifurcation analysis missing",
-    )
-    return ABMResult.model_validate(payload)
 
 
 class DynamicMicrosimValidationReport(BaseModel):
@@ -861,8 +880,6 @@ __all__ = [
     "StrangleReceipt",
     "StrangleReceiptError",
     "TemporalGraphCausalCertificate",
-    "build_abm_result_from_content_bound_simulation",
-    "build_abm_result_from_simulation",
     "build_dynamic_microsim_validation_report",
     "build_space_time_causal_certificate",
     "build_strangle_receipt",

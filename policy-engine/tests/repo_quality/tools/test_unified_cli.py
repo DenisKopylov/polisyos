@@ -4,12 +4,17 @@ import ast
 import json
 import subprocess
 import sys
+import tomllib
+from importlib.metadata import distribution
 from pathlib import Path
+from types import SimpleNamespace
 
 from tools.cli import EX_CONFIG, main
 from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 from tools.lib.runner import ToolStatus
 from tools.lib.timing import ToolRunRecord, append_timing_record, read_timing_records
+from tools.ops_runners.runtime_cli import foundry_main
+from tools.ops_runners.runtime_cli import main as polisyos_main
 from tools.registry import (
     CATEGORY_MANIFEST,
     TOOL_SPECS_BY_KEY,
@@ -19,6 +24,107 @@ from tools.registry import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def test_polisyos_console_script_uses_tools_composition_root() -> None:
+    project = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    installed_entrypoint = next(
+        entrypoint
+        for entrypoint in distribution("policy-engine").entry_points
+        if entrypoint.group == "console_scripts" and entrypoint.name == "polisyos"
+    )
+
+    assert project["project"]["scripts"]["polisyos"] == "tools.ops_runners.runtime_cli:main"
+    assert installed_entrypoint.value == "tools.ops_runners.runtime_cli:main"
+    assert installed_entrypoint.load() is polisyos_main
+
+
+def test_foundry_console_script_uses_runtime_composition_root() -> None:
+    project = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    assert project["project"]["scripts"]["polisyos-foundry"] == (
+        "tools.ops_runners.runtime_cli:foundry_main"
+    )
+
+
+def test_foundry_runtime_composition_injects_scientist_release_consumer(
+    tmp_path: Path,
+    monkeypatch,
+    capsys,
+) -> None:
+    from polisyos.scientist.governance import blueprint_release
+
+    build_root = tmp_path / "build"
+    manifest_path = build_root / "bundles" / "d5" / "release_manifest.json"
+    runtime_bundle_dir = build_root / "runtime_bundle_v1"
+    method_contract_bundle_dir = build_root / "method_contract_bundle_v1"
+    calls: dict[str, object] = {}
+
+    def _run_release(**kwargs):
+        calls.update(kwargs)
+        return SimpleNamespace(
+            passed=True,
+            manifest_path=str(manifest_path),
+            release_bundle_root=str(manifest_path.parent),
+            governance_verdict="approve",
+            release_admissibility_status="admissible",
+            packet_ref="packet-123",
+            steps=[],
+            notes=[],
+            model_dump=lambda mode="json": {
+                "passed": True,
+                "governance_verdict": "approve",
+                "release_admissibility_status": "admissible",
+                "packet_ref": "packet-123",
+            },
+        )
+
+    monkeypatch.setattr(blueprint_release, "run_verified_ukraine_d5_release", _run_release)
+    rc = foundry_main(
+        [
+            "release-acceptance",
+            "--manifest-path",
+            str(manifest_path),
+            "--runtime-bundle-dir",
+            str(runtime_bundle_dir),
+            "--method-contract-bundle-dir",
+            str(method_contract_bundle_dir),
+            "--store-root",
+            str(build_root / "cas"),
+            "--json",
+        ]
+    )
+
+    assert rc == 0
+    json_payload = json.loads(capsys.readouterr().out)
+    assert json_payload["packet_ref"] == "packet-123"
+    assert json_payload["governance_verdict"] == "approve"
+    assert json_payload["release_admissibility_status"] == "admissible"
+    assert calls == {
+        "build_root": build_root.resolve(),
+        "release_manifest_path": manifest_path,
+        "runtime_bundle_dir": runtime_bundle_dir,
+        "method_contract_bundle_dir": method_contract_bundle_dir,
+        "cas_root": build_root / "cas",
+    }
+
+    text_rc = foundry_main(
+        [
+            "release-acceptance",
+            "--manifest-path",
+            str(manifest_path),
+            "--runtime-bundle-dir",
+            str(runtime_bundle_dir),
+            "--method-contract-bundle-dir",
+            str(method_contract_bundle_dir),
+            "--store-root",
+            str(build_root / "cas"),
+        ]
+    )
+    text_output = capsys.readouterr().out
+    assert text_rc == 0
+    assert "governance_verdict=approve" in text_output
+    assert "release_admissibility_status=admissible" in text_output
 
 
 def _entry_callable(path: Path) -> str | None:

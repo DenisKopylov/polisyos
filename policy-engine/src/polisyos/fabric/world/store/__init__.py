@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from importlib import import_module as _import_module
+from typing import TYPE_CHECKING, Any
+
 from polisyos.fabric.world.store.emit import (
     emit_attr_fact,
     emit_claim_facts,
@@ -62,32 +65,6 @@ from polisyos.fabric.world.store.segments import (
     vacuum_world_segment_index,
     write_world_fact_segment,
 )
-from polisyos.fabric.world.store.snapshots import (
-    WorldBranchConflictSummary,
-    WorldBranchGovernanceEvidence,
-    WorldBranchMergeConflictError,
-    WorldBranchMergeReport,
-    WorldBranchRecord,
-    WorldMergeConflictResolution,
-    WorldSnapshotAdapterError,
-    WorldSnapshotAdapterSpec,
-    WorldSnapshotGCReport,
-    WorldSnapshotRecord,
-    create_world_branch,
-    create_world_snapshot,
-    default_world_snapshot_root,
-    delete_world_branch,
-    export_world_branch_governance,
-    gc_world_snapshots,
-    get_world_branch,
-    get_world_snapshot_adapter,
-    list_world_snapshot_adapters,
-    list_world_snapshots,
-    merge_world_branch,
-    register_world_snapshot_record,
-    resolve_world_snapshot,
-    update_world_branch_head,
-)
 from polisyos.fabric.world.store.validate import (
     validate_claim_id,
     validate_conflict_set_id,
@@ -99,6 +76,80 @@ from polisyos.fabric.world.store.validate import (
     validate_world_event_id,
     validate_world_facts,
 )
+
+_SNAPSHOT_EXPORT_NAMES = frozenset(
+    {
+        "WorldBranchConflictSummary",
+        "WorldBranchGovernanceEvidence",
+        "WorldBranchMergeConflictError",
+        "WorldBranchMergeReport",
+        "WorldBranchRecord",
+        "WorldMergeConflictResolution",
+        "WorldSnapshotAdapterError",
+        "WorldSnapshotAdapterSpec",
+        "WorldSnapshotGCReport",
+        "WorldSnapshotRecord",
+        "create_world_branch",
+        "create_world_snapshot",
+        "default_world_snapshot_root",
+        "delete_world_branch",
+        "export_world_branch_governance",
+        "gc_world_snapshots",
+        "get_world_branch",
+        "get_world_snapshot_adapter",
+        "list_world_snapshot_adapters",
+        "list_world_snapshots",
+        "merge_world_branch",
+        "register_world_snapshot_record",
+        "resolve_world_snapshot",
+        "update_world_branch_head",
+    }
+)
+
+if TYPE_CHECKING:
+    from polisyos.fabric.world.store.snapshots import (
+        WorldBranchConflictSummary,
+        WorldBranchGovernanceEvidence,
+        WorldBranchMergeConflictError,
+        WorldBranchMergeReport,
+        WorldBranchRecord,
+        WorldMergeConflictResolution,
+        WorldSnapshotAdapterError,
+        WorldSnapshotAdapterSpec,
+        WorldSnapshotGCReport,
+        WorldSnapshotRecord,
+        create_world_branch,
+        create_world_snapshot,
+        default_world_snapshot_root,
+        delete_world_branch,
+        export_world_branch_governance,
+        gc_world_snapshots,
+        get_world_branch,
+        get_world_snapshot_adapter,
+        list_world_snapshot_adapters,
+        list_world_snapshots,
+        merge_world_branch,
+        register_world_snapshot_record,
+        resolve_world_snapshot,
+        update_world_branch_head,
+    )
+
+
+def __getattr__(name: str) -> Any:
+    """Lazily resolve snapshot helpers that require the optional DuckDB backend."""
+
+    if name not in _SNAPSHOT_EXPORT_NAMES:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    snapshots = _import_module("polisyos.fabric.world.store.snapshots")
+    value = getattr(snapshots, name)
+    globals()[name] = value
+    return value
+
+
+def __dir__() -> list[str]:
+    """Return the declared world-store surface without acquiring snapshot dependencies."""
+
+    return sorted(set(globals()) | _SNAPSHOT_EXPORT_NAMES)
 
 __all__ = [
     "SEGMENTS_INDEX_NAME",

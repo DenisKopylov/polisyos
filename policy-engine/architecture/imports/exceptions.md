@@ -3,7 +3,7 @@
 Реестр временных исключений import-policy. Все исключения должны существовать в `architecture/imports/exceptions.toml` и иметь owner + expiry + issue/ADR reference.
 
 Status is derived rather than stored: an exception remains valid through its `expires` date and
-is lapsed only when `expires < current date`. As of 2026-08-24, all 23 entries below are lapsed.
+is lapsed only when `expires < current date`. As of 2026-08-24, all 21 entries below are lapsed.
 
 The former synthetic-world root shim has been removed; first-party consumers
 use `polisyos.foundry.agent_sim.world`.
@@ -11,8 +11,6 @@ use `polisyos.foundry.agent_sim.world`.
 | id                                                   | owner           | reason                                                                                                          | added_on   | expires    |
 | ---------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------- | ---------- | ---------- |
 | `E-2026-04-ACADEMIC-SCIENTIST-001`                   | `team-data-forge` | Data Forge academic batch preserves existing scientist autotune/cross_graph dependencies for claim adjudication and benchmarking until those contracts are extracted | 2026-04-02 | 2026-07-01 |
-| `E-2026-04-CORE-CLI-METRIC-VALIDATION-SCIENTIST-001` | `team-polisyos` | core metric-validation CLI imports Scientist metric comparison helpers until CLI glue moves out of Core         | 2026-04-24 | 2026-07-01 |
-| `E-2026-04-CORE-CLI-SCIENTIST-001`                   | `team-polisyos` | core CLI scientist subcommands lazily import Scientist provider and agent evaluation entrypoints                | 2026-04-17 | 2026-07-01 |
 | `E-2026-05-DATA-FORGE-LEGAL-BATCH-LEX-001`           | `team-data-forge` | Data Forge legal offline code still reuses Lex runtime contracts/errors/artifact helpers while Lex runtime consumers reach legal artifacts through read_api.legal | 2026-05-01 | 2026-07-30 |
 | `E-2026-05-DATA-FORGE-LEGAL-BATCH-SCIENTIST-001`     | `team-data-forge` | Phase 4 legal benchmark code keeps its existing scientist quality-scoring dependency after the no-behavior-change move | 2026-05-01 | 2026-07-30 |
 | `E-2026-05-DATA-FORGE-UKRAINE-BUILDERS-FOUNDRY-001`  | `team-data-forge` | Phase 5 moved accepted Ukraine production builders into Data Forge without behavior changes; Foundry protocol and release bundle dependencies remain until builder contracts are split downward | 2026-05-01 | 2026-07-30 |

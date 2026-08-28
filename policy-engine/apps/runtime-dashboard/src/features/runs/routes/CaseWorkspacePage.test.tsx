@@ -6,6 +6,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import {
   availableRunPaperCaseFixture,
+  authorityAbstainingRunPaperPacketFixture,
   runPaperPacketFixture,
 } from "@/test/fixtures/runPaper";
 import { server } from "@/test/msw/server";
@@ -402,6 +403,52 @@ describe("CaseWorkspacePage", () => {
     expect(available).toHaveTextContent("governed_promoted");
     for (const kind of ["blocker", "limitation", "objection", "abstention"]) {
       expect(available).toHaveTextContent(`${kind} fixture statement`);
+    }
+  });
+
+  it("renders the bound record and each authority-abstaining nonreceipt", () => {
+    const packet = authorityAbstainingRunPaperPacketFixture();
+    useCaseInspectionMock.mockReturnValue({
+      data: {
+        packet,
+        rawPacketBytes: new TextEncoder().encode(JSON.stringify(packet)),
+      },
+      isError: false,
+      isLoading: false,
+    });
+
+    renderCase();
+
+    const abstaining = screen.getByTestId(
+      "case-inspection-authority-abstaining",
+    );
+    for (const value of [
+      "case.fixture",
+      "binding.fixture",
+      "case.design.fixture",
+      "run-1",
+      "tenant-a",
+      "cell-a",
+      "abstained",
+      `sha256:${"c".repeat(64)}`,
+      `sha256:${"9".repeat(64)}`,
+      "generation_cycle_grounding_authority",
+      "hypothesis_ledger_admission_authority",
+      "layer3_g4_promotion_authority",
+      "polisyos.runtime.quality.generation_cycle.GroundingStatus",
+      "polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState",
+      "polisyos.runtime.quality.proving_ground.governed_promotion_gate.Layer3G4PromotionRecord.promotion_state",
+      "grounding_state",
+      "grounded_case_projection",
+      "admission_state",
+      "admitted_case_projection",
+      "promotion_state",
+      "governed_case_projection",
+      "available_run_paper_case",
+      "not_established",
+      "absent/unallocated",
+    ]) {
+      expect(abstaining).toHaveTextContent(value);
     }
   });
 });

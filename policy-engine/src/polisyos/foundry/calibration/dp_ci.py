@@ -16,8 +16,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.analytics.dp_robustness import classical_gaussian_sigma
 
-type Path = Any
-_Path = __import__("pathlib", fromlist=("Path",)).Path
 _EPS = 1e-12
 
 DPMechanism = Literal["none", "laplace_counts", "gaussian_counts", "noised_rows"]
@@ -27,11 +25,16 @@ __all__ = [
     "CISampleSizeRequirement",
     "CITestCalibration",
     "CITestThresholdPolicy",
+    "CITestThresholdPolicySet",
     "DPContext",
+    "bucket_dp_delta",
+    "bucket_dp_epsilon",
     "calibrate_discrete_ci",
     "calibrate_kernel_ci",
+    "ci_threshold_scope",
     "coerce_dp_context",
     "effective_privacy_xi",
+    "normalize_ci_scope_value",
     "required_n_chi2",
     "required_n_kernel",
     "resolve_ci_threshold_policy",
@@ -80,6 +83,45 @@ class CITestThresholdPolicy(BaseModel):
     naive_fpr_bound_rho: float = Field(default=0.01, ge=0.0, le=1.0)
     threshold_scope: dict[str, str | None] = Field(default_factory=dict)
     threshold_registry_version: int | None = None
+
+
+class CITestThresholdPolicySet(BaseModel):
+    """Resolved CI threshold policies keyed by their complete runtime scope."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    policies: tuple[CITestThresholdPolicy, ...]
+
+    def policy_for(
+        self,
+        *,
+        family: Literal["kernel_ci", "categorical_ci"],
+        query_type: str,
+        estimator: str,
+        dp_context: DPContext | Mapping[str, Any] | None,
+        readiness_target: str,
+    ) -> CITestThresholdPolicy:
+        """Return the one policy whose admitted scope equals the runtime scope."""
+
+        expected_scope = ci_threshold_scope(
+            family=family,
+            query_type=query_type,
+            estimator=estimator,
+            dp_context=dp_context,
+            readiness_target=readiness_target,
+        )
+        matches = [
+            policy
+            for policy in self.policies
+            if dict(policy.threshold_scope) == expected_scope
+        ]
+        if len(matches) != 1:
+            raise ValueError(
+                "CI threshold policy scope mismatch: expected exactly one policy for "
+                f"{expected_scope}, found {len(matches)}"
+            )
+        return matches[0]
 
 
 class CIFPRInflationBound(BaseModel):
@@ -139,6 +181,76 @@ def coerce_dp_context(payload: DPContext | Mapping[str, Any] | None) -> DPContex
     return context if context.is_private else None
 
 
+def normalize_ci_scope_value(value: str | None) -> str | None:
+    """Normalize one optional CI threshold scope discriminator."""
+
+    text = str(value or "").strip()
+    return text or None
+
+
+def _coerce_optional_float(value: float | str | None) -> float | None:
+    try:
+        return None if value is None else float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def bucket_dp_epsilon(value: float | str | None) -> str | None:
+    """Return the canonical threshold-registry bucket for epsilon."""
+
+    epsilon = _coerce_optional_float(value)
+    if epsilon is None:
+        return normalize_ci_scope_value(value if isinstance(value, str) else None)
+    if epsilon < 0.1:
+        return "lt_0.1"
+    if epsilon < 0.5:
+        return "0.1_to_0.5"
+    if epsilon < 1.0:
+        return "0.5_to_1.0"
+    if epsilon < 3.0:
+        return "1.0_to_3.0"
+    return "ge_3.0"
+
+
+def bucket_dp_delta(value: float | str | None) -> str | None:
+    """Return the canonical threshold-registry bucket for delta."""
+
+    delta = _coerce_optional_float(value)
+    if delta is None:
+        return normalize_ci_scope_value(value if isinstance(value, str) else None)
+    if delta <= 0.0:
+        return "zero"
+    if delta <= 1e-8:
+        return "lte_1e-8"
+    if delta <= 1e-6:
+        return "1e-8_to_1e-6"
+    if delta <= 1e-4:
+        return "1e-6_to_1e-4"
+    return "gt_1e-4"
+
+
+def ci_threshold_scope(
+    *,
+    family: Literal["kernel_ci", "categorical_ci"],
+    query_type: str,
+    estimator: str,
+    dp_context: DPContext | Mapping[str, Any] | None,
+    readiness_target: str,
+) -> dict[str, str | None]:
+    """Recompute the complete scope used to admit a resolved CI policy."""
+
+    context = coerce_dp_context(dp_context)
+    return {
+        "family": normalize_ci_scope_value(family),
+        "query_type": normalize_ci_scope_value(query_type),
+        "estimator": normalize_ci_scope_value(estimator),
+        "readiness_target": normalize_ci_scope_value(readiness_target),
+        "dp_mechanism": normalize_ci_scope_value(None if context is None else context.mechanism),
+        "dp_epsilon_bucket": bucket_dp_epsilon(None if context is None else context.epsilon),
+        "dp_delta_bucket": bucket_dp_delta(None if context is None else context.delta),
+    }
+
+
 def effective_privacy_xi(dp_context: DPContext | None) -> float:
     """Return an effective privacy level used by DP kernel-rate heuristics."""
 
@@ -161,49 +273,31 @@ def resolve_ci_threshold_policy(
     query_type: str,
     estimator: str,
     dp_context: DPContext | Mapping[str, Any] | None = None,
-    registry_root: str | Path | None = None,
+    resolved_policies: CITestThresholdPolicySet | Mapping[str, Any] | None = None,
     alpha: float = 0.05,
     n_bootstrap: int = 299,
     readiness_target: str = "diagnostic",
 ) -> CITestThresholdPolicy:
-    """Resolve CI calibration controls from the threshold registry when present."""
+    """Select an injected resolved policy or construct declared local defaults."""
 
-    context = coerce_dp_context(dp_context)
     policy = CITestThresholdPolicy(
         alpha_base=float(alpha),
         mc_bootstrap_B=int(n_bootstrap),
     )
-    if registry_root is None:
+    if resolved_policies is None:
         return policy
 
-    from polisyos.scientist.methods.search.judge_thresholds import JudgeThresholdRegistry
-
-    registry = JudgeThresholdRegistry(_Path(registry_root))
-    resolved = registry.resolve(
-        "ci_tests",
+    policy_set = (
+        resolved_policies
+        if isinstance(resolved_policies, CITestThresholdPolicySet)
+        else CITestThresholdPolicySet.model_validate(resolved_policies)
+    )
+    return policy_set.policy_for(
         family=family,
         query_type=query_type,
         estimator=estimator,
+        dp_context=dp_context,
         readiness_target=readiness_target,
-        dp_mechanism=None if context is None else context.mechanism,
-        dp_epsilon=None if context is None else context.epsilon,
-        dp_delta=None if context is None else context.delta,
-    )
-    alpha_base = resolved.threshold_value("alpha_base")
-    mc_bootstrap_B = resolved.threshold_value("mc_bootstrap_B")
-    min_n_rule_constant = resolved.threshold_value("min_n_rule_constant")
-    naive_fpr_bound_rho = resolved.threshold_value("naive_fpr_bound_rho")
-    return CITestThresholdPolicy(
-        alpha_base=float(alpha_base if alpha_base is not None else alpha),
-        mc_bootstrap_B=int(round(mc_bootstrap_B if mc_bootstrap_B is not None else n_bootstrap)),
-        min_n_rule_constant=float(
-            min_n_rule_constant if min_n_rule_constant is not None else policy.min_n_rule_constant
-        ),
-        naive_fpr_bound_rho=float(
-            naive_fpr_bound_rho if naive_fpr_bound_rho is not None else policy.naive_fpr_bound_rho
-        ),
-        threshold_scope=dict(resolved.scope),
-        threshold_registry_version=resolved.registry_version,
     )
 
 

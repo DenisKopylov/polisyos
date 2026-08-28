@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.components.cli import main
+from tools.ops_runners.runtime_cli import main
 
 
 def test_keygen_creates_files_with_permissions(tmp_path: Path) -> None:

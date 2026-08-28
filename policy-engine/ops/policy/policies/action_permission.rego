@@ -77,9 +77,15 @@ action_contracts := {
 	},
 	"artifacts.batch.read": {"runtime.artifact.batch": {"ownership_verified"}},
 	"artifacts.render": {"runtime.artifact.bureaucratic_render": {"ownership_verified"}},
-	"decisions.validity.publish": {"runtime.decision_validity.event": {"request_bound"}},
+	"decisions.validity.publish": {
+		"runtime.decision_validity.epoch_batch": {"request_bound"},
+		"runtime.decision_validity.event": {"request_bound"},
+	},
 	"evidence.acquire": {"runtime.evidence.acquisition": {"request_bound"}},
-	"evidence.discover": {"runtime.evidence.discover": {"request_bound"}},
+	"evidence.discover": {
+		"runtime.capability_discovery.search": {"tenant_collection"},
+		"runtime.evidence.discover": {"request_bound"},
+	},
 	"evidence.preview": {"runtime.evidence.preview": {"request_bound"}},
 	"evidence.promotions.approve": {"runtime.evidence.promotion.approve": {"content_resolved_unscoped"}},
 	"evidence.promotions.reject": {"runtime.evidence.promotion.reject": {"content_resolved_unscoped"}},

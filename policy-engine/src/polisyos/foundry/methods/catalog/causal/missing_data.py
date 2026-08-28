@@ -917,7 +917,7 @@ def assess_administrative_missingness(
     outcome: Any | None = None,
     max_conditioning_set_size: int = 2,
     dp_context: Mapping[str, Any] | None = None,
-    judge_threshold_registry_root: str | None = None,
+    ci_threshold_policies: Mapping[str, Any] | None = None,
     readiness_target: str = "diagnostic",
 ) -> MissingnessAssessmentReport:
     """Assess recoverability/testability for common administrative missingness patterns."""
@@ -1013,7 +1013,7 @@ def assess_administrative_missingness(
                 data=data,
                 max_conditioning_set_size=max_conditioning_set_size,
                 dp_context=dp_context,
-                judge_threshold_registry_root=judge_threshold_registry_root,
+                ci_threshold_policies=ci_threshold_policies,
                 readiness_target=readiness_target,
             )
             testability_invalid = not bool(test_report.overall_valid)
@@ -1232,7 +1232,7 @@ class AdministrativeMissingnessAssessment:
             ParameterSpec(name="outcome", default=[]),
             ParameterSpec(name="max_conditioning_set_size", default=2),
             ParameterSpec(name="dp_context", default=None),
-            ParameterSpec(name="judge_threshold_registry_root", default=None),
+            ParameterSpec(name="ci_threshold_policies", default=None),
             ParameterSpec(name="readiness_target", default="diagnostic"),
         ),
         fidelity=FidelityLevel.HIGH,
@@ -1301,7 +1301,7 @@ class AdministrativeMissingnessAssessment:
             outcome=params.get("outcome"),
             max_conditioning_set_size=int(params.get("max_conditioning_set_size", 2)),
             dp_context=params.get("dp_context"),
-            judge_threshold_registry_root=params.get("judge_threshold_registry_root"),
+            ci_threshold_policies=params.get("ci_threshold_policies"),
             readiness_target=str(params.get("readiness_target", "diagnostic")),
         )
         return {"assessment_report": report.model_dump(mode="json")}
@@ -1499,7 +1499,7 @@ def _mixed_kernel_test(
     z: np.ndarray | None,
     alpha: float,
     dp_context: Mapping[str, Any] | None = None,
-    judge_threshold_registry_root: str | None = None,
+    ci_threshold_policies: Mapping[str, Any] | None = None,
     readiness_target: str = "diagnostic",
 ) -> dict[str, Any]:
     """Approximate mixed-data CI via kernel tests on encoded columns."""
@@ -1518,7 +1518,7 @@ def _mixed_kernel_test(
                 "alpha": alpha,
                 "n_bootstrap": 99,
                 "dp_context": dp_context,
-                "judge_threshold_registry_root": judge_threshold_registry_root,
+                "ci_threshold_policies": ci_threshold_policies,
                 "readiness_target": readiness_target,
             },
         )["result"]
@@ -1562,7 +1562,7 @@ def _mixed_kernel_test(
             "n_bootstrap": 99,
             "ridge": 1e-2,
             "dp_context": dp_context,
-            "judge_threshold_registry_root": judge_threshold_registry_root,
+            "ci_threshold_policies": ci_threshold_policies,
             "readiness_target": readiness_target,
         },
     )["result"]
@@ -1697,7 +1697,7 @@ def test_mgraph_implications(
     max_conditioning_set_size: int = 2,
     variable_order: tuple[str, ...] | None = None,
     dp_context: Mapping[str, Any] | None = None,
-    judge_threshold_registry_root: str | None = None,
+    ci_threshold_policies: Mapping[str, Any] | None = None,
     readiness_target: str = "diagnostic",
 ) -> TestReport:
     """Run CI tests for all supplied or graph-derived M-graph implications."""
@@ -1754,7 +1754,7 @@ def test_mgraph_implications(
                         "alpha": alpha,
                         "statistic_family": "g2",
                         "dp_context": dp_context,
-                        "judge_threshold_registry_root": judge_threshold_registry_root,
+                        "ci_threshold_policies": ci_threshold_policies,
                         "readiness_target": readiness_target,
                     },
                 )["result"]
@@ -1812,7 +1812,7 @@ def test_mgraph_implications(
                     z=None,
                     alpha=alpha,
                     dp_context=dp_context,
-                    judge_threshold_registry_root=judge_threshold_registry_root,
+                    ci_threshold_policies=ci_threshold_policies,
                     readiness_target=readiness_target,
                 )
                 raw["metadata"] = {
@@ -1831,7 +1831,7 @@ def test_mgraph_implications(
                         "alpha": alpha,
                         "statistic_family": "g2",
                         "dp_context": dp_context,
-                        "judge_threshold_registry_root": judge_threshold_registry_root,
+                        "ci_threshold_policies": ci_threshold_policies,
                         "readiness_target": readiness_target,
                     },
                 )["result"]
@@ -1889,7 +1889,7 @@ def test_mgraph_implications(
                     z=z_numeric,
                     alpha=alpha,
                     dp_context=dp_context,
-                    judge_threshold_registry_root=judge_threshold_registry_root,
+                    ci_threshold_policies=ci_threshold_policies,
                     readiness_target=readiness_target,
                 )
                 raw["metadata"] = {
@@ -2416,7 +2416,7 @@ class MGraphImplicationTester:
             ParameterSpec(name="implications", default=[]),
             ParameterSpec(name="variable_order", default=[]),
             ParameterSpec(name="dp_context", default=None),
-            ParameterSpec(name="judge_threshold_registry_root", default=None),
+            ParameterSpec(name="ci_threshold_policies", default=None),
             ParameterSpec(name="readiness_target", default="diagnostic"),
         ),
         fidelity=FidelityLevel.MEDIUM,
@@ -2499,7 +2499,7 @@ class MGraphImplicationTester:
             max_conditioning_set_size=int(params.get("max_conditioning_set_size", 2)),
             variable_order=tuple(params.get("variable_order", ())) or None,
             dp_context=params.get("dp_context"),
-            judge_threshold_registry_root=params.get("judge_threshold_registry_root"),
+            ci_threshold_policies=params.get("ci_threshold_policies"),
             readiness_target=str(params.get("readiness_target", "diagnostic")),
         )
         return {"test_report": report.model_dump(mode="json")}

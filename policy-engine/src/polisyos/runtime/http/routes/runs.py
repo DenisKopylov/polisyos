@@ -987,6 +987,7 @@ if router is not None:
     ) -> RunPaperPacket:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
+        scope = require_access_scope(request)
         set_authz_resource(
             request,
             tenant_id=run.details.tenant_id,
@@ -999,8 +1000,8 @@ if router is not None:
         )
         service = RunPaperProjectionService(
             store=ctx.store,
-            run_index=ctx.run_index,
-            tenant_id=run.details.tenant_id,
+            core_runs_root=ctx.core_runs_root,
+            tenant_id=scope.tenant_id,
         )
         packet = _resolve_replay_bound_paper_packet(
             request,
@@ -1041,6 +1042,7 @@ if router is not None:
                 code="case_inspection_run_not_found",
             ) from exc
         enforce_run_tenant_access(request, ctx=ctx, run=run)
+        scope = require_access_scope(request)
         set_authz_resource(
             request,
             tenant_id=run.details.tenant_id,
@@ -1054,8 +1056,8 @@ if router is not None:
         service = CaseInspectionService(
             RunPaperProjectionService(
                 store=ctx.store,
-                run_index=ctx.run_index,
-                tenant_id=run.details.tenant_id,
+                core_runs_root=ctx.core_runs_root,
+                tenant_id=scope.tenant_id,
             )
         )
         packet = _resolve_replay_bound_paper_packet(

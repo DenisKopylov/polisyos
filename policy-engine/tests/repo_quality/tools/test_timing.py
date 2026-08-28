@@ -12,8 +12,9 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+from datetime import datetime
 from decimal import Decimal
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 
@@ -24,6 +25,7 @@ from tools.lib.timing import (
     SAMPLE_ADMISSION_PREDICATE_ID,
     SAMPLE_ADMISSION_PREDICATE_IDS,
     ToolRunRecord,
+    _coerce_record,
     _mode_and_output_format_from_argv,
     admit_duration_sample,
     append_timing_record,
@@ -290,6 +292,96 @@ def _source_derived_unittest_denominator(path: Path) -> int:
     return module_tests + class_tests
 
 
+def _preserved_tool_run_record_duration(
+    lane: dict[str, object],
+    *,
+    evidence_path: Path,
+    excerpt: str,
+    start: int,
+    end: int,
+) -> tuple[Decimal, list[str]] | None:
+    """Parse a preserved timing-evidence wrapper into its admitted wall-clock duration."""
+
+    try:
+        evidence_path.relative_to(REPO_ROOT / "docs" / "superpowers" / "timing-evidence")
+    except ValueError:
+        return None
+
+    timing_key = lane["timing_key"]
+    assert isinstance(timing_key, str)
+    if end != start:
+        return Decimal("NaN"), [f"{timing_key}:uncited_tool_run_record:source_range"]
+    try:
+        entry = json.loads(excerpt)
+    except json.JSONDecodeError:
+        return Decimal("NaN"), [f"{timing_key}:uncited_tool_run_record:wrapper"]
+    if not isinstance(entry, dict) or set(entry) != {
+        "salvaged_at",
+        "source_path",
+        "source_line",
+        "raw",
+    }:
+        return Decimal("NaN"), [f"{timing_key}:uncited_tool_run_record:wrapper_fields"]
+
+    violations: list[str] = []
+    salvaged_at = entry["salvaged_at"]
+    if not isinstance(salvaged_at, str) or not salvaged_at.strip():
+        violations.append(f"{timing_key}:uncited_tool_run_record:salvaged_at")
+    else:
+        try:
+            datetime.fromisoformat(salvaged_at)
+        except ValueError:
+            violations.append(f"{timing_key}:uncited_tool_run_record:salvaged_at")
+    source_path = entry["source_path"]
+    if not isinstance(source_path, str) or not source_path.strip():
+        violations.append(f"{timing_key}:uncited_tool_run_record:source_path")
+    else:
+        rendered_source_path = PurePosixPath(source_path)
+        if rendered_source_path.is_absolute() or ".." in rendered_source_path.parts:
+            violations.append(f"{timing_key}:uncited_tool_run_record:source_path")
+    source_line = entry["source_line"]
+    if isinstance(source_line, bool) or not isinstance(source_line, int) or source_line <= 0:
+        violations.append(f"{timing_key}:uncited_tool_run_record:source_line")
+    raw = entry["raw"]
+    if not isinstance(raw, str) or not raw.strip():
+        violations.append(f"{timing_key}:uncited_tool_run_record:raw")
+        return Decimal("NaN"), violations
+    try:
+        record_payload = json.loads(raw)
+    except json.JSONDecodeError:
+        violations.append(f"{timing_key}:uncited_tool_run_record:raw")
+        return Decimal("NaN"), violations
+    if not isinstance(record_payload, dict) or set(record_payload) != {
+        field.name for field in dataclasses.fields(ToolRunRecord)
+    }:
+        violations.append(f"{timing_key}:uncited_tool_run_record:shape")
+        return Decimal("NaN"), violations
+    try:
+        record = _coerce_record(record_payload)
+        duration_ms = Decimal(str(record.duration_ms))
+    except (TypeError, ValueError):
+        violations.append(f"{timing_key}:uncited_tool_run_record:shape")
+        return Decimal("NaN"), violations
+    expected_fields = {"tool": lane["tool"], "mode": lane["mode"], "regime": lane["regime"]}
+    for field, expected in expected_fields.items():
+        if getattr(record, field) != expected:
+            violations.append(f"{timing_key}:uncited_tool_run_record:{field}")
+    if record.category != record.tool.split(".", 1)[0]:
+        violations.append(f"{timing_key}:uncited_tool_run_record:category")
+    declarations = load_healthy_terminal_declarations()
+    admission = admit_duration_sample(
+        record,
+        healthy_terminal_exit_codes=healthy_terminal_exit_codes_for(
+            record.tool,
+            record.mode,
+            declarations,
+        ),
+    )
+    if not admission.admitted:
+        violations.append(f"{timing_key}:uncited_tool_run_record:admission:{admission.reason}")
+    return duration_ms, violations
+
+
 def _catalog_evidence_violations(payload: dict[str, object]) -> list[str]:
     """Return samples not positionally bound to their cited workload receipt."""
 
@@ -331,6 +423,19 @@ def _catalog_evidence_violations(payload: dict[str, object]) -> list[str]:
             excerpt = "\n".join(lines[start - 1 : end])
             mode = lane.get("mode")
             assert isinstance(mode, str)
+            preserved_record = _preserved_tool_run_record_duration(
+                lane,
+                evidence_path=source_path,
+                excerpt=excerpt,
+                start=start,
+                end=end,
+            )
+            if preserved_record is not None:
+                cited_duration_ms, record_violations = preserved_record
+                violations.extend(record_violations)
+                if Decimal(str(sample)) != cited_duration_ms:
+                    violations.append(f"{timing_key}:uncited_sample:{sample}")
+                continue
             workload_markers = _lane_workload_identity_markers(lane)
             normalized_excerpt = f" {_normalized_workload_text(excerpt)} "
             if not any(
@@ -981,6 +1086,299 @@ def test_committed_timing_budget_samples_are_bound_to_cited_excerpts() -> None:
     payload = json.loads(TIMING_BUDGET_CATALOG.read_text(encoding="utf-8"))
 
     assert _catalog_evidence_violations(payload) == []
+
+
+def test_timing_budget_evidence_binds_preserved_raw_tool_run_record(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Admit only an exact healthy ToolRunRecord preserved in a JSONL evidence wrapper."""
+
+    evidence_path = (
+        tmp_path
+        / "docs"
+        / "superpowers"
+        / "timing-evidence"
+        / "2026-08-27-gy-n12-epoch-corrupt-field-drift.jsonl"
+    )
+    evidence_path.parent.mkdir(parents=True)
+    tool_record = {
+        "tool": "quality.validation.check_layer3_gy_epoch_chronology_contract",
+        "category": "quality",
+        "output_format": "json",
+        "status": "ok",
+        "preflight_status": "ok",
+        "started_at": "2026-08-27T00:00:00+00:00",
+        "duration_ms": 321.5,
+        "exit_code": 0,
+        "mode": "corrupt-field-drift-check",
+        "regime": "serialized",
+    }
+    raw = json.dumps(tool_record, separators=(",", ":"))
+    evidence_path.write_text(
+        json.dumps(
+            {
+                "salvaged_at": "2026-08-27T00:00:01+00:00",
+                "source_path": ".polisyos-tools/unbound-writes-epoch-timing/"
+                "gy-n12-epoch-corrupt-field-drift.jsonl",
+                "source_line": 17,
+                "raw": raw,
+            },
+            separators=(",", ":"),
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(sys.modules[__name__], "REPO_ROOT", tmp_path)
+    payload = {
+        "lanes": [
+            {
+                "timing_key": "quality.validation.check_layer3_gy_epoch_chronology_contract:"
+                "corrupt-field-drift-check",
+                "tool": tool_record["tool"],
+                "mode": tool_record["mode"],
+                "command": ".venv/bin/python tools/quality/validation/"
+                "check_layer3_gy_epoch_chronology_contract.py "
+                "--corrupt-field-drift-check --expected-source-freeze "
+                "0123456789abcdef0123456789abcdef01234567 --output-format json",
+                "samples_ms": [tool_record["duration_ms"]],
+                "measured_p95_ms": tool_record["duration_ms"],
+                "recommended_timeout_ms": 2 * tool_record["duration_ms"],
+                "source_refs": [
+                    "docs/superpowers/timing-evidence/"
+                    "2026-08-27-gy-n12-epoch-corrupt-field-drift.jsonl:1"
+                ],
+                "sample_admission_predicate": "declared_healthy_terminal:v1",
+                "regime": "serialized",
+            }
+        ]
+    }
+
+    assert _catalog_evidence_violations(payload) == []
+
+    for field, invalid_value in {
+        "tool": "quality.validation.other",
+        "mode": "check",
+        "regime": "contended",
+    }.items():
+        bad_record = {**tool_record, field: invalid_value}
+        evidence_path.write_text(
+            json.dumps(
+                {
+                    "salvaged_at": "2026-08-27T00:00:01+00:00",
+                    "source_path": ".polisyos-tools/unbound-writes-epoch-timing/"
+                    "gy-n12-epoch-corrupt-field-drift.jsonl",
+                    "source_line": 17,
+                    "raw": json.dumps(bad_record, separators=(",", ":")),
+                },
+                separators=(",", ":"),
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        assert (
+            "quality.validation.check_layer3_gy_epoch_chronology_contract:"
+            f"corrupt-field-drift-check:uncited_tool_run_record:{field}"
+        ) in _catalog_evidence_violations(copy.deepcopy(payload))
+
+    for field, invalid_value, reason in (
+        ("exit_code", 1, "terminal_not_declared_healthy"),
+        ("preflight_status", "quarantined", "preflight_quarantined"),
+    ):
+        bad_record = {**tool_record, field: invalid_value}
+        evidence_path.write_text(
+            json.dumps(
+                {
+                    "salvaged_at": "2026-08-27T00:00:01+00:00",
+                    "source_path": ".polisyos-tools/unbound-writes-epoch-timing/"
+                    "gy-n12-epoch-corrupt-field-drift.jsonl",
+                    "source_line": 17,
+                    "raw": json.dumps(bad_record, separators=(",", ":")),
+                },
+                separators=(",", ":"),
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        assert (
+            "quality.validation.check_layer3_gy_epoch_chronology_contract:"
+            f"corrupt-field-drift-check:uncited_tool_run_record:admission:{reason}"
+        ) in _catalog_evidence_violations(copy.deepcopy(payload))
+
+
+def test_timing_budget_evidence_admits_declared_opposite_polarity_tool_run_record(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Admit an exit-1 receipt when the emitting tool declares exit 1 healthy."""
+
+    tool = "quality.validation.check_layer3_gy_depth_n_universality_contract"
+    mode = "corrupt-field-drift-check"
+    evidence_path = tmp_path / "docs" / "superpowers" / "timing-evidence" / "depth-n.jsonl"
+    evidence_path.parent.mkdir(parents=True)
+    raw = json.dumps(
+        {
+            "tool": tool,
+            "category": "quality",
+            "output_format": "json",
+            "status": "failed",
+            "preflight_status": "ok",
+            "started_at": "2026-08-27T00:00:00+00:00",
+            "duration_ms": 321.5,
+            "exit_code": 1,
+            "mode": mode,
+            "regime": "serialized",
+        },
+        separators=(",", ":"),
+    )
+    evidence_path.write_text(
+        json.dumps(
+            {
+                "salvaged_at": "2026-08-27T00:00:01+00:00",
+                "source_path": ".polisyos-tools/unbound-writes-epoch-timing/depth-n.jsonl",
+                "source_line": 31,
+                "raw": raw,
+            },
+            separators=(",", ":"),
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(sys.modules[__name__], "REPO_ROOT", tmp_path)
+    payload = {
+        "lanes": [
+            {
+                "timing_key": f"{tool}:{mode}",
+                "tool": tool,
+                "mode": mode,
+                "command": ".venv/bin/python tools/quality/validation/"
+                "check_layer3_gy_depth_n_universality_contract.py "
+                "--corrupt-field-drift-check --output-format json",
+                "samples_ms": [321.5],
+                "measured_p95_ms": 321.5,
+                "recommended_timeout_ms": 643.0,
+                "source_refs": ["docs/superpowers/timing-evidence/depth-n.jsonl:1"],
+                "sample_admission_predicate": "declared_healthy_terminal:v1",
+                "regime": "serialized",
+            }
+        ]
+    }
+
+    assert _catalog_evidence_violations(payload) == []
+
+
+@pytest.mark.parametrize(
+    ("wrapper_update", "record_update", "field"),
+    [
+        ({"salvaged_at": True}, {}, "salvaged_at"),
+        ({"salvaged_at": ""}, {}, "salvaged_at"),
+        ({"salvaged_at": "not-a-timestamp"}, {}, "salvaged_at"),
+        ({"source_path": "../outside.jsonl"}, {}, "source_path"),
+        ({"source_path": ""}, {}, "source_path"),
+        ({"source_path": "/tmp/outside.jsonl"}, {}, "source_path"),
+        ({"source_line": True}, {}, "source_line"),
+        ({"source_line": 0}, {}, "source_line"),
+        ({"raw": True}, {}, "raw"),
+        ({"raw": ""}, {}, "raw"),
+        ({"unexpected": None}, {}, "wrapper_fields"),
+        ({}, {"duration_ms": True}, "shape"),
+        ({}, {"exit_code": True}, "shape"),
+        ({}, {"started_at": "not-a-timestamp"}, "shape"),
+        ({}, {"regime": "impossible"}, "shape"),
+        ({}, {"status": ""}, "shape"),
+        ({}, {"category": "other"}, "category"),
+    ],
+)
+def test_timing_budget_evidence_rejects_malformed_preserved_raw_tool_run_record(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    wrapper_update: dict[str, object],
+    record_update: dict[str, object],
+    field: str,
+) -> None:
+    """Reject malformed wrapper metadata and malformed ToolRunRecord scalar fields."""
+
+    tool = "quality.validation.check_layer3_gy_epoch_chronology_contract"
+    mode = "corrupt-field-drift-check"
+    record = {
+        "tool": tool,
+        "category": "quality",
+        "output_format": "json",
+        "status": "ok",
+        "preflight_status": "ok",
+        "started_at": "2026-08-27T00:00:00+00:00",
+        "duration_ms": 321.5,
+        "exit_code": 0,
+        "mode": mode,
+        "regime": "serialized",
+    }
+    entry: dict[str, object] = {
+        "salvaged_at": "2026-08-27T00:00:01+00:00",
+        "source_path": ".polisyos-tools/unbound-writes-epoch-timing/epoch.jsonl",
+        "source_line": 17,
+        "raw": json.dumps({**record, **record_update}, separators=(",", ":")),
+    }
+    entry.update(wrapper_update)
+    evidence_path = tmp_path / "docs" / "superpowers" / "timing-evidence" / "epoch.jsonl"
+    evidence_path.parent.mkdir(parents=True)
+    evidence_path.write_text(json.dumps(entry, separators=(",", ":")) + "\n", encoding="utf-8")
+    monkeypatch.setattr(sys.modules[__name__], "REPO_ROOT", tmp_path)
+    payload = {
+        "lanes": [
+            {
+                "timing_key": f"{tool}:{mode}",
+                "tool": tool,
+                "mode": mode,
+                "command": ".venv/bin/python tools/quality/validation/"
+                "check_layer3_gy_epoch_chronology_contract.py "
+                "--corrupt-field-drift-check --output-format json",
+                "samples_ms": [321.5],
+                "measured_p95_ms": 321.5,
+                "recommended_timeout_ms": 643.0,
+                "source_refs": ["docs/superpowers/timing-evidence/epoch.jsonl:1"],
+                "sample_admission_predicate": "declared_healthy_terminal:v1",
+                "regime": "serialized",
+            }
+        ]
+    }
+
+    assert f"{tool}:{mode}:uncited_tool_run_record:{field}" in _catalog_evidence_violations(payload)
+
+
+def test_epoch_corrupt_field_drift_catalog_lane_binds_healthy_wall_receipt() -> None:
+    """Require the future serialized epoch lane to bind its exact preserved wall receipt."""
+
+    key = "quality.validation.check_layer3_gy_epoch_chronology_contract:corrupt-field-drift-check"
+    lanes = [lane for lane in load_timing_budget_catalog() if lane.timing_key == key]
+
+    assert len(lanes) == 1
+    lane = lanes[0]
+    evidence_path = Path(
+        "docs/superpowers/timing-evidence/"
+        "2026-08-27-gy-n12-epoch-corrupt-field-drift.jsonl"
+    )
+    assert lane.source_refs == (f"{evidence_path}:1",)
+    evidence_lines = evidence_path.read_text(encoding="utf-8").splitlines()
+    assert len(evidence_lines) == 1
+    entry = json.loads(evidence_lines[0])
+    assert set(entry) == {"salvaged_at", "source_path", "source_line", "raw"}
+    assert entry["source_line"] == 1
+    raw = json.loads(entry["raw"])
+
+    assert raw["tool"] == lane.tool
+    assert raw["mode"] == lane.mode == "corrupt-field-drift-check"
+    assert raw["regime"] == lane.regime == "serialized"
+    assert raw["category"] == "quality"
+    assert raw["output_format"] == "json"
+    assert raw["exit_code"] == 0
+    assert raw["status"] == "ok"
+    assert raw["preflight_status"] == "ok"
+    assert not ({"user", "sys", "cpu_seconds"} & raw.keys())
+    assert lane.samples_ms == (raw["duration_ms"],)
+    assert lane.measured_p95_ms == raw["duration_ms"]
+    assert lane.recommended_timeout_ms == 2 * raw["duration_ms"]
+    assert lane.budget_basis == "max_observed"
+    assert lane.ceiling_is_declared is False
 
 
 def test_timing_budget_evidence_rejects_a_line_shifted_receipt() -> None:

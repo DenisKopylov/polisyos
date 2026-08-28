@@ -1,0 +1,35 @@
+id = "2026-08-27-lex-intervention-ownership"
+title = "Correct Lex intervention execution ownership"
+type = "changed"
+component = "lex"
+owner = "team-policyos-runtime"
+summary = "Move the shared compiled intervention contract into IR and place policy-search and temporal-DTR execution adapters under Scientist ownership."
+evidence = [
+  "tests/unit/ir/governance/test_policy_spec_c0.py",
+  "tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
+  "tests/unit/scientist/nodes/builtins/causal/test_run_causal_contract_execution.py",
+]
+compatibility = "Moves CompiledLexIntervention from its Lex module path to IR, removes three execution helpers from the stable polisyos.lex root facade, and removes TemporalInterventionSequencer.to_dynamic_treatment; neutral Lex compilation and temporal sequence construction remain public."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.lex; public_stable: polisyos.ir"
+migration = "Use Scientist planning and causal execution nodes for policy-search and DTR workflows, including dynamic-treatment materialization; import CompiledLexIntervention from polisyos.ir."
+api = "Adds polisyos.ir.CompiledLexIntervention; removes HierarchicalPolicySearchAdapter, TemporalInterventionSequenceCompiler, and TemporalInterventionSequenceCompileResult from polisyos.lex; and removes TemporalInterventionSequencer.to_dynamic_treatment."
+limitations = "Scientist execution adapters remain internal node implementations and are deliberately excluded from their modules' __all__ and from package-root facades."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/lex/interventions.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "lex-intervention-execution-ownership"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.lex"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "Architecture-boundary correction; upward Lex compatibility imports are not retained."
+release_note = "Lex now exposes compilation and neutral sequencing contracts only; Scientist owns policy-search, dynamic-treatment materialization, and temporal-DTR execution."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/lex/interventions.md"]
+runbook_docs = []

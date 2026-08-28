@@ -1,0 +1,1230 @@
+# Import Relocations: Nine Rows — Execution Journal
+
+## Fixed slice and initial predicates
+
+- Branch: `codex/import-relocations-nine-seams`, attached.
+- Base/readback: `2525da7306d329ae28fa394690e1c39133eb0d55`.
+- Git prefix before coordinates: `policy-engine/`.
+- Source denominator: complete `src/**/*.py`, 2,600 Python files.
+- Canonical source linter: direct exit 1, 42 violations — ARCH001=39,
+  ARCH002=1, ARCH004=2, ARCH006=0. Measured `user=8.81s`, `sys=0.71s`;
+  uptime 20:33/up 3d10:46 to 20:34/up 3d10:47.
+- Independent AST target census: direct exit 0, 39 statements over the nine
+  target rows; its pair totals match the canonical report exactly. An initial
+  derivation that treated relative imports as roots produced 42 and was rejected
+  as a harness non-receipt before any repository edit.
+- Release guardrail: direct exit 0 with zero creep. Measured `user=30.54s`,
+  `sys=7.02s`; uptime 20:34 to 20:35.
+- Package gate: direct exit 1, 151 findings. `finding_count`, list length, and
+  unique serialized finding count each equal 151; its fail-closed package
+  summary reports current=34, registered=0, unregistered=34. Measured
+  `user=59.04s`, `sys=3.33s`; uptime 20:35 to 20:36.
+
+The target pair totals are: `ir -> foundry` 13, `ir -> scientist` 6,
+`foundry -> scientist` 5, `lex -> scientist` 4, `core -> scientist` 4,
+`lex -> foundry` 3, `ir -> core` 2, `foundry -> lex` 1, and `ir -> jax` 1.
+
+## Frozen pre-edit classification — all 39 statements
+
+Every row below was classified before the first source edit. Result:
+`consumer-up`=34, `shared-contract-down`=5, `ambiguous`=0.
+
+| ID | Statement and bound symbols | Shape | Reason / legal owner move |
+| --- | --- | --- | --- |
+| LF-01 | `lex/interventions.py:17` — `CausalEngine` | `consumer-up` | Lex invokes Foundry causal execution; move temporal execution to the existing upper causal orchestration owner. |
+| LF-02 | `lex/interventions.py:18` — `ALearningDTR`, `DoublyRobustDTR`, `OutcomeWeightedLearning`, `QLearningDTR` | `consumer-up` | Estimator selection/execution is Foundry behavior consumed above Lex, not a legal-language contract. |
+| LF-03 | `lex/interventions.py:24` — `DynamicTreatmentData` | `consumer-up` | Lex materializes a Foundry protocol DTO; retain neutral temporal declarations and materialize at the upper adapter. |
+| LF-04 | `lex/interventions.py:54` — `SearchIteration`, `SearchResult`, `SearchStatus` | `consumer-up` | Lex executes Scientist search and interprets its runtime result; move the adapter to Scientist. |
+| LF-05 | `lex/interventions.py:55` — `PolicyCandidateSchema` | `consumer-up` | Candidate validation is Scientist policy-design behavior; Lex supplies compiled legal inputs. |
+| LF-06 | `lex/interventions.py:56` — `HierarchicalSearchConfig`, `HierarchicalSearchCoordinator`, `PolicySearchLevel` | `consumer-up` | Hierarchical search orchestration belongs with the existing Scientist coordinator. |
+| LF-07 | `lex/interventions.py:1083` — `HierarchicalSearchResult` | `consumer-up` | Lex's return annotation exposes an upper execution result; the adapter and result remain Scientist-owned. |
+| LF-08 | `foundry/agent_sim/wiring/contracts.py:22` — `CompiledLexIntervention` | `shared-contract-down` | The model contains only neutral IR intervention/parameter contracts; lower one compiled artifact identity to IR and consume it from Lex and Foundry. |
+| CO-01 | `core/components/_cli_metric_validation.py:18` — `TestConfig`, `compare_metric_family`, `load_metric_observation_bundle` | `consumer-up` | A composition CLI handler invokes Scientist validation; move the entry-point handler above Core. |
+| CO-02 | `core/components/_cli_scientist.py:284` — `run_gonka_provider_smoke` | `consumer-up` | Scientist provider evaluation is composition behavior, not Core infrastructure. |
+| CO-03 | `core/components/_cli_scientist.py:317` — `run_starter_eval_harness` | `consumer-up` | The evaluation harness consumer belongs in an upper CLI composition owner. |
+| CO-04 | `core/components/_cli_scientist.py:345` — `evaluate_reflexion_replay_cases` | `consumer-up` | Reflexion evaluation is Scientist behavior; relocate the command handler rather than hide the import. |
+| FS-01 | `foundry/validation/release_acceptance.py:33` — `postflight_checks` | `consumer-up` | Scientist owns governance admission; make it the real content-bound D5 consumer and leave Foundry execution below. |
+| FS-02 | `foundry/calibration/calibrator.py:559` — `apply_calibration_meta_overrides` | `consumer-up` | Scientist owns calibration meta-policy; execute the override in Scientist around neutral Foundry calibration inputs/results. |
+| FS-03 | `foundry/calibration/dp_ci.py:179` — `JudgeThresholdRegistry` | `consumer-up` | Threshold governance belongs in Scientist; Foundry computes intervals and passes their neutral evidence upward. |
+| FS-04 | `foundry/methods/catalog/causal/composition_failure_cards.py:20` — `FailureSeverity`, `TypedFailureCard` | `shared-contract-down` | These dependency-free failure DTOs cross Foundry and Scientist; consolidate them in the existing neutral IR analytics contract. |
+| FS-05 | `foundry/methods/catalog/policy/frontier.py:23` — `SentenceTransformerEmbedder`, `TFIDFEmbedder` | `shared-contract-down` | The generic implementations are consumed in both roots and carry no Scientist authority; lower their single implementation to Foundry. |
+| IF-01 | `ir/observation/contract_compilers.py:20` — `DynamicTreatmentData`, `NetworkCausalData`, `PanelObservationalData`, `ProxyMeasurementData` | `consumer-up` | IR owns manifests/codecs; Foundry data-plane owns concrete method DTO materialization. |
+| IF-02 | `ir/observation/contract_compilers.py:26` — `PanelData` | `consumer-up` | Constructing an econometric protocol input is Foundry binding behavior; retain the neutral panel manifest in IR. |
+| IF-03 | `ir/observation/contract_compilers.py:27` — `SurveyMicroData` | `consumer-up` | Survey-to-method materialization belongs with Foundry microsimulation. |
+| IF-04 | `ir/observation/contract_compilers.py:28` — `SurvivalData` | `consumer-up` | Censoring rows remain neutral IR data; the ML protocol constructor moves upward. |
+| IF-05 | `ir/observation/contract_compilers.py:29` — `MultiplexNetworkData`, `NetworkData` | `consumer-up` | IR keeps graph payloads/manifests; Foundry binds concrete network method contracts. |
+| IF-06 | `ir/observation/causal_execution.py:39` — `DynamicTreatmentData` (`TYPE_CHECKING`) | `consumer-up` | A neutral task must not expose a concrete Foundry DTO; validate/materialize its payload at the upper adapter. |
+| IF-07 | `ir/observation/causal_execution.py:51` — `DynamicTreatmentData` (runtime) | `consumer-up` | This independent Pydantic/runtime import is the second half of the same upper materialization seam. |
+| IF-08 | `ir/analytics/strategic.py:2232` — `strategic_decomposition_summary` | `consumer-up` | IR persistence interprets a Foundry solve result; interpretation moves beside the Foundry producer. |
+| IF-09 | `ir/analytics/strategic.py:2274` — `build_strategic_response_bundle`, `strategic_decomposition_summary` | `consumer-up` | Foundry owns solve-result-to-response assembly; IR retains dependency-neutral persistence helpers. |
+| IF-10 | `ir/analytics/transportability.py:343` — `SourceDomain` | `consumer-up` | Neutral `SourceDomainSpec` stays in IR; conversion to the Foundry ID-engine DTO moves beside that engine. |
+| IF-11 | `ir/passes/core.py:395` — `classify_estimand` | `consumer-up` | Execution-aware estimand classification belongs in the existing Foundry compiler, not an IR pass. |
+| IF-12 | `ir/passes/core.py:396` — `build_kernel_estimator_spec`, `should_request_kernel_lowering` | `consumer-up` | Kernel strategy selection/construction is Foundry behavior; consolidate the duplicate IR lowering path. |
+| IF-13 | `ir/observation/compiler.py:20` — `MEASUREMENT_AWARE_TARGET_CONTRACT`, `CalibrationTargetBundle`, `MeasurementAwareTarget` | `consumer-up` | The compiler materializes Foundry calibration objects; move compiler/placebo bundle work to the existing Foundry measurement owner. |
+| IS-01 | `ir/observation/bundles.py:32` — `HistoricalValidationPlan` (`TYPE_CHECKING`) | `consumer-up` | IR transports neutral payloads; Scientist owns executable backtest plans. |
+| IS-02 | `ir/observation/bundles.py:41` — `HistoricalValidationPlan` (runtime) | `consumer-up` | The independent runtime/Pydantic half must move to Scientist intake with malformed-payload rejection. |
+| IS-03 | `ir/observation/contract_compilers.py:82` — `HistoricalValidationPlan`, `PredictionSource` | `consumer-up` | Defaulting and materializing executable validation plans is Scientist backtesting behavior. |
+| IS-04 | `ir/analytics/alignment_certification.py:46` — `build_fragment_alignment_ontology_warnings` | `consumer-up` | Scientist computes ontology-service warnings and injects a frozen typed snapshot into pure IR certificate building. |
+| IS-05 | `ir/analytics/alignment_certification.py:49` — `assess_latent_bridge_governance`, `materialize_latent_bridge_governance` | `consumer-up` | Promotion/readiness governance remains Scientist-owned; IR persists supplied neutral outcomes. |
+| IS-06 | `ir/analytics/strategic.py:28` — `ComputeBudget` | `shared-contract-down` | This dependency-free schema is embedded in IR and shared broadly; lower one identity to existing IR and re-export it from Scientist. |
+| IC-01 | `ir/analytics/phase4_dynamics.py:13` — `ExecPlanRef`, `IdentifiabilityDiagnosticRef`, `MetricsRef`, `SimulationResult` | `consumer-up` | IR owns an analytical result, while Core execution refs/results are converted at the existing Foundry simulation boundary. |
+| IC-02 | `ir/analytics/simulation_proof_bridge.py:12` — `TruthfulnessReceipt`, `TruthfulnessScope`, `TruthfulnessTier`, `extract_truthfulness_receipt`, `truthfulness_depth`, `validate_truthfulness_receipt` | `shared-contract-down` | Consolidate the duplicate identity/helper set in existing IR truthfulness ownership; Core re-exports it and the bridge stays in IR. |
+| IJ-01 | `ir/observation/compiler.py:15` — `jax.numpy as jnp` | `consumer-up` | Every tensor use serves the adjacent Foundry calibration compiler; move JAX/NumPy materialization with that compiler and close this row separately. |
+
+## Widening ledger
+
+| Commit boundary | Ledger | What it bought / rows cleared | Standing |
+| --- | ---: | --- | --- |
+| pinned base / pre-edit census | 0/10 | No mechanism change; all 39 statements classified, 0 ambiguous. | stands; no round consumed |
+| seam 1 — Lex/Foundry intervention coupling | 0/10 | Existing IR now owns `CompiledLexIntervention`; existing Scientist nodes own hierarchical-search and temporal-DTR execution. Cleared `lex -> foundry` 3/3, `lex -> scientist` 4/4, and `foundry -> lex` 1/1. | stands; downward shared-contract completion and consumer-up relocation are round-free |
+| seam 2 — Core metric-validation CLI | 1/10 | One new packaged tools composition module owns the installed CLI and metric-validation handler. Cleared CO-01, the first 1/4 `core -> scientist` statements; the row remains open on CO-02..04. | stands; round 1 bought `tools/ops_runners/runtime_cli.py` |
+| seam 3 — Core Scientist CLI | 1/10 | The already-paid tools composition module now owns all nine Scientist commands; Core's remaining three upper-runtime imports and its obsolete internal handler are gone. Cleared CO-02..04 and closed `core -> scientist` 4/4. | stands; no new module, package, public authority export, constraint loosening, or surface |
+| seam 4 — D5 release acceptance | 2/10 | A strict D5 handoff/admission/technical-receipt/Scientist-decision chain replaces Foundry's direct governance call. Cleared FS-01, the release-acceptance member of `foundry -> scientist`; the composite working tree also closes the row after the separately declared pending seams remove FS-02..05. | stands; round 2 bought the new typed D5 admission and release-decision surface, with purpose-limited authority and fail-closed predicate provenance |
+| seam 5 — calibration policy pair | 3/10 | Scientist now applies calibration meta-overrides before persisting Foundry inputs and resolves the complete CI-threshold scope before dispatch; Foundry consumes only a typed resolved policy set or declared local defaults. Cleared FS-02 and FS-03. | stands; round 3 bought the public-stable `CITestThresholdPolicySet` handoff and its explicit breaking migration surface |
+| seam 6 — composition failure-card contract | 4/10 | The dependency-neutral failure-card DTOs/enums have one IR identity consumed by the existing Foundry producer and Scientist persistence/orchestration paths. Cleared FS-04. | stands; round 4 bought the three-name stable IR contract surface and its schema/identity obligations; shared generated inventory projection is deferred intact to the final generator boundary |
+| seam 7 — policy-frontier embedders | 5/10 | Generic TF-IDF and optional sentence-transformer implementations now have one Foundry-owned identity; existing Foundry and Scientist consumers use the narrow stable root. Cleared FS-05 and closes `foundry -> scientist` 5/5. | stands; round 5 bought exactly three stable root names; the rejected 26-name backend publication was withdrawn and consumed no additional round |
+| seam 8 — IR method-protocol binding | 6/10 | IR now emits neutral JSON payloads for nine method-contract families; one fail-closed Foundry materializer admits them by exact contract ID and FQN, and both real upper consumers use that chokepoint. Cleared IF-01..07. | stands; round 6 bought the single new `foundry.data_plane.materialize_method_contract` export; the P31 consumer repair widened the same mechanism and consumed no additional round |
+| seam 9 — IR strategic/transportability adapters | 6/10 | Existing Foundry owners now interpret solve results, assemble strategic responses, and materialize `SourceDomain`; IR retains neutral declarations and persistence only. Cleared IF-08..10. | stands; consumer-up relocation into existing modules and already-allowed directions introduced no package, module, surface, authority publication, or constraint loosening |
+| seam 10 — IR kernel lowering | 6/10 | The duplicate execution-aware IR pass is removed; the existing Foundry compiler now carries a typed blocked kernel specification through real refusal execution and audit persistence. Cleared IF-11/12. | stands; consolidation and a private repair inside existing Foundry ownership introduced no new surface or constraint |
+| seam 11 — IR calibration/JAX | 7/10 | Existing Foundry measurement ownership now contains calibration-target compilation, placebo materialization, and optional JAX/NumPy tensors; IR retains neutral split/window/control declarations. Cleared IF-13 and IJ-01 separately, closing `ir -> foundry` 13/13 and `ir -> jax` 1/1. | stands; round 7 bought the two-name internal Foundry measurement execution surface; no root/package/module, stable root facade, or constraint was added |
+| seam 12 — IR backtesting | 7/10 | IR now emits sparse neutral validation-plan payloads; the existing Scientist matrix runner strictly materializes the complete bundle set before any execution. Cleared IS-01..03. | stands; existing modules, bundle surface, and Scientist plan authority were reused; no new surface, module, package, constraint, or authority publication |
+| seam 13 — IR alignment governance | 7/10 | One private Scientist chokepoint recomputes and content-binds ontology and latent-governance predicates for both real callers; IR consumes frozen governed snapshots and fails closed on absent/tampered inputs. Cleared IS-04/05. | stands; private consolidation in existing modules narrows the existing IR verifier surface and introduces no module/export/constraint/new surface |
+| seam 14 — IR strategic budget identity | 8/10 | `ComputeBudget` has one lightweight IR-kernel identity; Strategic IR and the already-published Scientist budgets path import that identity, while real Foundry budget enforcement and persistence remain intact. Cleared IS-06 and closes `ir -> scientist` 6/6. | stands; round 8 bought the new direct module-level `polisyos.ir.kernel.base.ComputeBudget` path after the first zero-round location was withdrawn for eager Strategic/NumPy import weight |
+| seam 15 — IR phase-4 dynamics | 9/10 | IR now owns an independent `ABMResult`; the existing Foundry simulation owner converts Core execution results and refs before IR persistence, and both existing Foundry consumers use that chokepoint. Cleared IC-01. | stands; round 9 bought only the module-local `foundry.methods.catalog.simulation.dynamics.build_abm_result_from_simulation` export; the private typed-reference compatibility repair widened the same mechanism and consumed no second round |
+| seam 16 — IR truthfulness identity | 10/10 | The complete 11-name truthfulness identity/helper set now has one IR owner; Core exactly re-exports it, and the IR simulation-proof bridge plus its sole Scientist consumer reject unsupported calibration authority. Cleared IC-02 and closes `ir -> core` 2/2. | stands; round 10 bought one expansion of the existing IR analytics facade by the 11 already-published Core contract names; both P40 authority repairs widened the same mechanism and consumed no additional round |
+| closeout — package-gate facade repair | 10/10 | The first final package receipt exposed one task-owned forbidden deep import: Scientist read `ReleaseManifest` from the Ukraine domain module even though the identical object was already published by `data_forge.read_api.ukraine`. Scientist now uses that supported entrypoint. | stands; wire-existing through an already-published facade adds no module/export/constraint/surface and consumes no round |
+| closeout — strict schedule-bound repair | 10/10 | The complete changed-test wave exposed that strict schedule entries discarded the explicit bounds of their referenced canonical `ParameterSpec`. The existing search bridge now reuses those normalized bounds and still fails closed when they are absent. | stands; this closes a latent producer/consumer handshake inside an existing module and adds no module/export/constraint/surface |
+| closeout — ID-engine static dependency repair | 10/10 | Complete changed-file Ruff exposed seven runtime names supplied only through `globals().update`; the touched transport module now explicitly imports the same seven existing Core identities while retaining compatibility injection. | stands; the runtime object identities and surface are unchanged, so no round is consumed |
+| closeout — policy-runtime import order | 10/10 | Ruff's canonical first-party order was applied mechanically to the touched policy-runtime import block. | stands; import-only formatting clears no row, publishes nothing, and consumes no round |
+
+No round has been withdrawn.
+
+## Pattern and capability pass
+
+Relevant patterns before design: P01/P02/P12, P05/P15/P32/P37,
+P06/P27/P31, P29/P33/P38, P35/P36, P39/P40/P41. The target pattern is one
+canonical lower identity for shared contracts and an explicit upper consumer
+for behavior/authority. The release-acceptance D5 seam begins
+`bridge_missing` / `consumer_missing`; it cannot be called complete until a
+Scientist consumer verifies and persists the handoff. Other capability states
+will be recorded at their seam boundaries rather than inferred from contracts.
+
+## Collision dispositions
+
+- `simulation_proof_bridge`: stays in IR. Truthfulness models and helpers move
+  to the existing IR canonical implementation; Core becomes an identity
+  re-export. This closes only the shared statement and does not claim the wider
+  observability family.
+- `observation/compiler.py`: calibration/JAX code moves as one physical seam,
+  but `IF-13` and `IJ-01` remain separately enumerated and separately closed.
+
+## Execution receipts
+
+### Seam 1 — Lex/Foundry intervention coupling
+
+- Attachment before closeout: prefix `policy-engine/`, branch
+  `refs/heads/codex/import-relocations-nine-seams`, attached at the pinned-base
+  descendant.
+- Observed seam path set (20 observed = 20 declared): 11 source mechanism
+  paths plus 9 P39 companions (5 focused tests, 3 Lex/reference docs, and the
+  structured release fragment). The spec, plan, and this journal are three
+  additional global record companions outside the mechanism count.
+- TDD RED was the missing IR export during relocation (collection exit 2). The
+  pre-source characterization also established the existing explicit-bounds
+  failure in
+  `test_hierarchical_policy_search_adapter_validates_against_policy_design_api`;
+  its message is `Lex search bounds are missing or invalid; no default zero may
+  be used.` The base environment's missing `sklearn` was a tooling non-receipt,
+  so the focused wave used a temporary `uv --with scikit-learn` overlay.
+- Initial seven-file focused wave: direct exit 1, 39 passed and the one
+  previously established bounds-gate test failed. After delta-review fixes,
+  the final wave with only that inherited test deselected completed direct exit
+  0 with 41 passed; `real=30.90s`, `user=32.05s`, `sys=1.69s`, uptime
+  21:26/up 3d11:39 at both endpoints.
+- Changed-file Ruff: direct exit 0. Restricted `git diff --check`: direct exit
+  0. The release fragment parses as TOML.
+- The Lex root-surface count is 51 by both complete AST evaluation of `__all__`
+  and runtime `len(polisyos.lex.__all__)`; runtime uniqueness is also 51 and the
+  reference-table groups sum to 51.
+- The three row-owned literal commands each completed direct exit 0:
+  `lex -> foundry`, `lex -> scientist`, and `foundry -> lex`.
+- Deferred enumerated deep-edge additions are the existing Scientist causal
+  node to Foundry `causal_engine`, `dtr`, and `protocols` modules. They are not
+  synchronized into the baseline by a generator.
+- Capability result: the contract has one neutral IR identity; Lex remains the
+  producer of compiled legal inputs; Scientist is the execution bridge and
+  consumer; Foundry supplies causal execution. The three removed Lex execution
+  helpers have an explicit breaking migration fragment rather than upward
+  shims. No ambiguous statement remains.
+- Delta review found and closed four relocation regressions before commit:
+  `compiled_interventions=None` again coerces to the empty list; the existing
+  `PolicySearchLevel` enum identity is lowered to IR and re-exported by
+  Scientist rather than replaced with strings; moved adapters are excluded
+  from node-module `__all__`; and removal of the public
+  `to_dynamic_treatment` method is now explicit in both migration docs and the
+  release fragment. A final negative probe also proves that neither old Lex
+  module path silently re-exports `CompiledLexIntervention`.
+
+### Seam 2 — Core metric-validation CLI
+
+- Attachment/prefix at closeout: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 1 commit
+  `6a12c05ea` read back before this work was staged.
+- Observed seam path set (16 observed = 16 declared): 5 mechanism paths (the
+  new tools composition module, three deleted Core CLI modules, and the console
+  entry-point declaration) plus 11 P39 companions (dynamic/exception/Ruff
+  registries, CLI documentation, and six focused test paths). This journal and
+  the implementation plan are two additional record companions.
+- TDD RED: the installed-entrypoint ownership assertion failed against the old
+  Core target (direct exit 1). The plain metric characterization was a tooling
+  non-receipt because the default environment lacked `sklearn`; the declared
+  ML-extra run was the accepted receipt.
+- Final six-file CLI/importer wave under `--extra ml`: direct exit 0, 33 passed;
+  `real=37.27s`, `user=34.97s`, `sys=1.98s`, uptime 21:32/up 3d11:45 to
+  21:32/up 3d11:46. Changed-file Ruff and installed `polisyos --version`
+  each completed direct exit 0; the latter printed `polisyos 0.1.0`.
+- Complete AST traversal over all 205 Core Python files found three remaining
+  Core-to-Scientist statements, exactly CO-02..04 in `_cli_scientist.py`, and
+  zero imports of `scientist.validation.metrics`. A complete-tree `rg`
+  independently found zero metric imports. The row's own literal command
+  therefore correctly remains direct exit 1; the canonical linter independently
+  counts three remaining findings. No row closure is claimed at this boundary.
+- The dynamic-import collector and registry independently enumerate the same
+  two `runtime_cli.py` calls (lines 31 and 470). The exception TOML and its
+  Markdown projection independently count 22 rows after removing the obsolete
+  metric exception.
+- Review re-derived an unchanged parser AST and all 26 unaffected dispatch
+  mappings, confirmed the wheel includes the tools module, and found no
+  supported consumer of the deleted internal Core module. No finding remained.
+- Capability result: the stable console script is the surface; the upper tools
+  composition root is its real bridge/consumer and directly invokes the
+  existing typed metric producer/persistence path. The new module mints no
+  policy authority, but is a new surface and therefore consumes round 1.
+
+### Seam 3 — Core Scientist CLI
+
+- Attachment/prefix before closeout: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 2 commit
+  `47b5f1bfd` read back before staging.
+- Observed seam path set (8 observed = 8 declared): 2 mechanism paths (the
+  existing tools composition module and deleted Core handler) plus 6 P39
+  companions (dynamic registry, TOML/Markdown exception projections, Core
+  component README, and two focused test paths). This journal and the
+  implementation plan are two additional mandatory record companions outside
+  the mechanism count.
+- The move is structurally exact: AST-normalized comparison found all 14
+  definitions from the deleted handler present and unchanged in the tools
+  composition module. Dispatch now calls those local handlers directly; the
+  installed `polisyos scientist --help` smoke completed direct exit 0 and
+  enumerated all nine commands.
+- Final seven-file CLI/importer wave: direct exit 0, 51 passed;
+  `real=29.11s`, `user=26.83s`, `sys=1.25s`, uptime 21:53/up 3d12:07 to
+  21:54/up 3d12:07. Changed-file Ruff and unrestricted `git diff --check`
+  each completed direct exit 0.
+- A complete AST traversal and an independent `rg --files` derivation each
+  enumerated 204 Core Python files. The AST import walk and an independent
+  complete-tree text scan each found zero Core-to-Scientist imports. The row's
+  literal closure command completed direct exit 0.
+- The runtime collector and registry each enumerate exactly 20 tools CLI
+  dynamic calls: missing=0, stale=0, and obsolete `_cli_scientist.py` rows=0.
+  The exception TOML and its Markdown projection independently enumerate the
+  same 21 IDs after removal of the closed Core exception.
+- Capability result: the supported console script remains unchanged; its
+  already-existing upper composition owner is the bridge and real consumer of
+  Scientist provider, agent-evaluation, reflexion, search, and backtesting
+  behavior. Core now supplies only lower CLI parser/store infrastructure. No
+  facade, compatibility shim, new authority, or widening round was introduced.
+- Independent delta review found no behavioral or architectural defect. Its
+  sole minor finding was a stale prose denominator (`22`) in the exception
+  projection; that P35 mismatch was corrected to the independently verified
+  TOML/Markdown count of 21 before commit.
+
+### Seam 4 — D5 release acceptance
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 3 commit
+  `d5bb48724` read back before the seam was staged.
+- Observed seam path set (14 observed = 14 declared): 8 mechanism/configuration
+  paths (`pyproject.toml`, three DataForge producer/admission paths, two Foundry
+  technical-execution paths, one Scientist governance consumer, and the tools
+  composition root) plus 6 focused-test companions. This journal and the
+  implementation plan are two additional P39 record companions.
+- DataForge now emits a purpose-limited handoff whose exact manifest/evidence
+  set is admitted by path, hash, byte size, and CAS content. Foundry compiles,
+  executes, and replays only CAS-admitted inputs and emits a frozen technical
+  receipt with no release/legal authority. Scientist independently reconciles
+  compression evidence, reloads and exact-binds the persisted D4 receipt,
+  evaluates postflight checks, and emits the strict release-decision packet.
+- The gate predicates are frozen at admission as follows: artifact content and
+  hashes are recomputed; compression aggregates are
+  `independently_reconciled`; D4 is `independently_reconciled` only after the
+  persisted Scientist bundle and producer receipt exact-bind, otherwise
+  `not_established`; a missing/inconsistent predicate fails closed. Manifest
+  error findings, forged bytes, path escape, non-exact evidence, self-consistent
+  handoff mismatch, inadequate compression, missing D4, and postflight failure
+  each have a negative semantic test.
+- The first root 26-test receipt was rejected as a harness receipt: pytest
+  printed 26 passes, then zsh rejected the wrapper's read-only variable name
+  `status`, so the wrapper exited 1 after the product run. The corrected final
+  command completed direct exit 0 with 26 passed; `real=80.93s`,
+  `user=68.62s`, `sys=5.97s`, uptime 23:20/up 3d13:33 to
+  23:21/up 3d13:34. Changed-path Ruff and restricted `git diff --check` each
+  completed direct exit 0.
+- A complete AST traversal over all 600 Foundry Python files found zero imports
+  of `polisyos.scientist`. The earlier broader assertion "zero DataForge or
+  Scientist imports" was rejected: the same complete traversal found two
+  pre-existing DataForge imports outside this seam. The row-owned literal
+  command completed direct exit 0 on the composite tree; this seam claims only
+  FS-01 because the still-uncommitted, separately declared calibration,
+  failure-card, and embedder seams supply the removals of FS-02..05.
+- Capability result: DataForge is the typed producer and content-bound
+  admission owner; Foundry is the technical producer; Scientist is the real
+  governance bridge/consumer; CAS artifacts and the decision packet are the
+  persisted/audit-visible surface. The initial `consumer_missing` /
+  `bridge_missing` state is closed without laundering Foundry's technical pass
+  into publication or legal authority.
+- Independent review initially returned NO-GO for ignored manifest errors,
+  declared-only D4/compression predicates, ambiguous authority, compatibility
+  regressions, and missing negative cases. After one batched P40 repair, the
+  delta review returned Ready with no remaining Critical/Important/Minor
+  finding; its 15 falsifier/integration tests passed.
+
+### Seam 5 — calibration policy pair
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 4 commit
+  `cd14d2da1` read back before staging.
+- Observed seam path set (21 observed = 21 declared): 10 source mechanism
+  paths (three Foundry calibration paths, three real causal-method consumers,
+  one IR schema correction, and three Scientist policy/orchestration paths)
+  plus 11 P39 companions (10 focused-test paths and one additive release
+  fragment). This journal and the implementation plan are two additional
+  record companions.
+- FS-02 now applies Scientist's existing meta-policy before the exact
+  `CalibrationConfig` is persisted and passed to `Calibrator`; Foundry no
+  longer reaches upward during execution. FS-03 uses the existing Scientist
+  threshold registry to produce a frozen `CITestThresholdPolicySet`; real
+  Foundry PC/FCI/PCMCI, kernel-CI, and missingness routes receive only the
+  resolved payload or their declared local defaults.
+- All seven scope discriminators — family, query type, estimator, readiness
+  target, DP mechanism, epsilon bucket, and delta bucket — are recomputed from
+  the runtime call and exact-matched before dispatch. A family, privacy-bucket,
+  duplicate, missing, or otherwise mismatched policy fails before Foundry
+  execution; no path/self-attestation controls the technical decision.
+- One initial root test selection was rejected as a harness non-receipt: two
+  correct test names were assigned to the wrong files, so collection completed
+  exit 4 (`real=257.20s` under unrelated CPU contention). Resolving the names
+  over the complete `tests/` tree and running the six selected real-path,
+  persistence, registry, dispatch, and mismatch tests completed direct exit 0
+  with 6 passed; `real=52.01s`, `user=46.10s`, `sys=2.95s`, uptime
+  23:39/up 3d13:52 to 23:40/up 3d13:53.
+- Changed-path Ruff, restricted `git diff --check`, release-fragment TOML
+  parsing, and the two exact calibration-module AST checks each completed
+  direct exit 0. The schema round-trip test exposed and closes the pre-existing
+  escaped-regex defect that rejected the persisted default version `0.1`.
+- A complete AST traversal over all 600 Foundry Python files found zero
+  Scientist imports. The row-owned literal command independently completed
+  direct exit 0 on the composite tree. This seam claims FS-02/03; FS-01 was
+  committed separately and FS-04/05 remain separately declared dirty seams.
+- Capability result: the existing registry/meta-policy producers, typed policy
+  artifact, persistence/dispatch bridges, real Foundry consumers, compatibility
+  surface, and negative semantic tests are wired. The prior upper-authority
+  leak is closed; direct callers receive the documented TypeError or compiled
+  parameter-validation failure rather than a compatibility callback into
+  Scientist.
+- Independent review found three rollout/compatibility issues in its first
+  pass; the batched repair added the stable facade identity, exact direct versus
+  compiled exception contract, and real persisted/dispatch coverage. Final
+  delta review returned Ready with no remaining finding.
+
+### Seam 6 — composition failure-card contract
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 5 commit
+  `9a46a1e10` read back before staging.
+- Observed seam path set is 27 declared commit paths: 15 source mechanism
+  paths, the IR facade, 7 focused-test paths, 2 recomputing semantic validators,
+  and this plan/journal pair. The two shared generated public-inventory paths
+  are deliberately not split by hunk or attributed to this commit: their
+  current generator-complete delta jointly projects Seams 1, 6, and 7 and is
+  retained for the final sync/baseline boundary.
+- `FailureSeverity`, `TypedFailureCard`, and `UncertaintyType` now have one
+  dependency-neutral implementation in existing IR analytics and exact root
+  facade identities. Foundry emits the typed cards; Scientist challenge,
+  funnel, judge, memory, critic, and preflight consumers import that identity.
+  The old Scientist owner and test are deleted without a facade shim.
+- Persisted bundles use the existing artifact path with schema
+  `ir.composition_failure_card_bundle@1.0`; explicit conversions preserve upper
+  `ArtifactRef` consumers. Producer-to-persistence-to-Scientist consumption is
+  covered, including severity/uncertainty semantics and malformed/legacy-path
+  negatives rather than constructor-only checks.
+- Root's seven-file focused wave completed direct exit 0 with 48 passed;
+  `real=86.80s`, `user=69.33s`, `sys=4.85s`, uptime 23:42/up 3d13:55 to
+  23:44/up 3d13:57. The independently executed wider seam wave completed with
+  70 passes before review.
+- Both recomputing validators (`scientist-best-in-class-phase2-5` and Wave 2)
+  completed direct exit 0 and reported accepted. Changed-path Ruff and
+  restricted `git diff --check` completed direct exit 0.
+- Complete `rg --files -g '*.py'` enumeration found 5,665 repository Python
+  paths; its AST import walk found zero imports of the deleted Scientist module,
+  and an independent complete-tree text scan also found zero (expected `rg`
+  exit 1). Runtime identity initially imported the main checkout through the
+  ambient editable install and was rejected as a tooling non-receipt; the
+  explicit worktree `PYTHONPATH=src` probe completed exit 0 with all three
+  identities exact.
+- Capability result: typed contract, real Foundry producer, persisted bundle,
+  Scientist bridge/consumers, recomputing validators, root facade, and negative
+  semantic tests are wired. Independent review twice returned Ready after the
+  facade identity and generic consumer coverage were added. No ambiguous
+  statement remains.
+
+### Seam 7 — policy-frontier embedders
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 6 commit
+  `558789ad5` read back before staging.
+- Observed commit path set is 19 declared paths: the exact 17-path FS-05
+  mechanism/contract/documentation/test set plus this plan/journal pair. The
+  lazy backend facade is part of the mechanism; the shared generated inventory
+  and reference projection remain unstaged for the final serialized generator
+  boundary; they currently combine Seams 1, 6, and 7.
+- The canonical implementation moved from the deleted Scientist owner to the
+  existing Foundry backend protocol module. The already-stable lazy
+  `polisyos.foundry` root publishes exactly `EmbedderProtocol`,
+  `TFIDFEmbedder`, and `SentenceTransformerEmbedder`; all consumers use those
+  identities. The optional sentence-transformers dependency remains lazy and
+  fails with the preserved install guidance, and TF-IDF output matches the
+  legacy oracle.
+- The first implementation attempt declared the whole
+  `polisyos.foundry.methods.backends` facade stable, unintentionally graduating
+  23 unrelated internals alongside the three names. Independent review returned
+  Not Ready and demonstrated why that obligation was material with an existing
+  async-executor defect. The attempt was withdrawn. The first narrow-root
+  repair still initialized the eager backend package and cached a partial
+  `AsyncChainExecutor=None`; P40 classified this as the same import-state class,
+  so the mechanism was widened once to make the existing 23-name backend facade
+  genuinely lazy. Its names and identities are unchanged, its overlap with the
+  embedder set is zero, and the stable root remains the only new surface. No
+  second widening round is charged.
+- Root's four-file surface/behavior wave completed direct exit 0 with 48 passed
+  and one expected BoTorch-not-installed skip; `real=38.28s`, `user=32.13s`,
+  `sys=2.37s`, uptime 00:01/up 3d14:14 to 00:02/up 3d14:15. The implementer
+  independently completed the final repaired 52-test wave and strict mypy over
+  all five touched source modules. Root then ran the three decisive
+  surface/lazy-executor falsifiers against the final repair: direct exit 0,
+  3 passed, `real=33.92s`, `user=32.45s`, `sys=1.34s`, uptime 00:27 at both
+  endpoints.
+- A first static wrapper passed TOML/INI/Markdown paths to Ruff and was rejected
+  as a harness non-receipt after emitting syntax noise. The corrected Python-only
+  Ruff command, restricted `git diff --check`, both TOML parses, and the live
+  identity/surface falsifier completed direct exit 0: Foundry root total=11,
+  embedder additions=3, backend internal total=23, overlap=0, and an unrelated
+  backend function is absent from the root. The behavioral subprocess proves
+  that resolving the real frontier/root embedder leaves chain modules unloaded,
+  then lazily resolves `AsyncChainExecutor` and awaits a compatible empty chain.
+- Complete AST traversal over the 2,594 `src/**/*.py` files found zero imports
+  of the retired Scientist owner; the implementer's independent broader
+  5,474-file denominator also found zero. The row-owned literal command
+  completed direct exit 0 and `foundry -> scientist` is closed 5/5.
+- Capability result: canonical owner, typed protocol/implementations, real
+  Foundry producer/consumer and Scientist consumer, public compatibility
+  surface, optional-dependency negative test, identity tests, and migration
+  fragment are present. The surface carries no policy authority; its one round
+  is charged solely because the three-name stable API is new.
+- The subsequent `FrozenCompositionDAG.compute_parallel_levels` mismatch was
+  bucketed as a bounded, pre-existing async-DAG contract gap: an isolated clean
+  HEAD replay reproduces it without any embedder import, while
+  `chain_executor.py` is byte-identical to HEAD in this patch. The smallest
+  future closure is a persisted immutable effective dependency/parallel-level
+  plan across compilation and executors; that capability is outside this seam.
+  Final independent delta review returned Ready after the lazy-facade repair.
+
+### Seam 8 — IR method-protocol binding
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 7 commit
+  `85f0b8f935ec` read back before staging.
+- Observed mechanism/test path set is exactly 10 paths: two existing Foundry
+  data-plane paths, two IR observation paths, two Scientist consumer paths,
+  and four focused test paths. This plan and journal are the two mandatory P39
+  record companions. The dirty C7 integration test belongs to Seam 11 and is
+  deliberately excluded from this commit.
+- IR emits deterministic JSON payloads for all nine causal, econometric,
+  microsimulation, ML, and network families. The existing Foundry data-plane
+  owns a single allow-registry/materializer that exact-matches both stable
+  contract ID and fully qualified name before strict DTO validation. Unknown
+  IDs, mismatched FQNs, and malformed known payloads fail closed.
+- The P31 reopen found the C7 survival adapter's direct `.features` assumption.
+  A complete 2,594/2,594-file production AST census, independently matched by
+  `rg --files`, found three materializer call sites: the central Foundry intake
+  and the two real neutral-payload consumers (DTR and C7 survival). Both real
+  consumers now use the same chokepoint; the apparent simulation route reloads
+  CAS data already admitted at Foundry intake. Six unused family outputs remain
+  `consumer_missing` if claimed individually; proxy is bundle-consumed. No
+  residual sibling consumer or ambiguous statement remains.
+- The P31 repair was demonstrated RED at the original dict `.features` escape
+  (2 failed; `real=44.40s`, `user=42.19s`, `sys=1.64s`) and GREEN after the
+  chokepoint repair (2 passed; `real=40.56s`, `user=38.99s`, `sys=1.41s`).
+  Independent review ran six decisive materialization/consumer tests in
+  37.09s and returned Ready. Root separately reran the previously failing real
+  C7 synthetic pipeline: direct exit 0, 1 passed, `real=53.64s`,
+  `user=53.66s`, `sys=3.08s`, with uptime 00:38/up 3d14:52 to
+  00:39/up 3d14:52. Changed-path Ruff, compile checks, and `git diff --check`
+  completed exit 0.
+- Independent two-file AST comparison reports the seven IR-to-Foundry
+  statements moved 7 -> 0 without a facade. The complete current source
+  linter reports 11 findings total and zero `ir -> foundry`; the row's exact
+  literal closure command completed direct exit 0. This seam claims IF-01..07;
+  the separately declared strategic, lowering, and compiler/JAX seams supply
+  the other six removals already present in the composite tree.
+- Capability result: neutral typed target/payload contract, IR producer,
+  persisted bundle/CAS routes, Foundry admission bridge, two real Scientist
+  consumers, strict negative verification, and internal audit-visible payloads
+  are wired. Materialization grants no policy authority. Round 6 is charged
+  solely for the new `foundry.data_plane` export; the same-class P31 repair
+  widened that one mechanism and consumed no second round.
+
+### Seam 9 — IR strategic/transportability adapters
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 8 commit
+  `752b27e07553` read back after writing and before this boundary.
+- Observed seam path set is exactly 11 paths: four Foundry/IR mechanism paths,
+  three existing Scientist consumers, and four focused test paths. This plan
+  and journal are the two P39 record companions. No shared generated path is
+  attributed to the seam.
+- The existing Foundry strategic owner now interprets Foundry solver results
+  and builds the response bundle. IR retains dependency-neutral strategic
+  declarations and persistence. The existing Foundry ID-engine transport owner
+  converts strict `SourceDomainSpec` values to `SourceDomain`; mapping-shaped
+  stand-ins are rejected rather than silently admitted.
+- The focused implementation wave passed 3 tests. Independent review then ran
+  the 34-test strategic/transport blast radius plus two transportability
+  falsifiers; both receipts passed. Changed-path Ruff and `git diff --check`
+  completed direct exit 0. Full-file Ruff still reports pre-existing F821/I001
+  findings in touched large files, so the scoped unchanged-code comparison used
+  the recorded `--ignore F821,I001` baseline and was green; because the touched
+  files intersect the gate denominator, provenance of those full-file reds is
+  `not_established` under P41 rather than claimed inherited.
+- Complete AST enumeration removes IF-08..10. The composite source linter and
+  the row's literal command report zero `ir -> foundry`; this seam claims the
+  three strategic/transport removals only, separately from the protocol,
+  lowering, and compiler/JAX seams.
+- Capability result: Foundry remains the technical producer and conversion
+  owner, IR carries neutral typed inputs/persisted artifacts, and the existing
+  Scientist nodes are the real orchestration consumers. Strict type rejection
+  and end-to-end strategic-response coverage supply the semantic negatives.
+  This downward/consumer-up move uses existing modules and surfaces and consumes
+  no widening round; the ledger remains 6/10.
+
+### Seam 10 — IR kernel lowering
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 9 commit
+  `c3ad78f933aa` read back after writing and before this boundary.
+- Observed mechanism/test path set is exactly four: the existing Foundry
+  estimand compiler, the IR pass implementation and facade, and the focused
+  Foundry kernel runtime test. This plan/journal pair are P39 record companions.
+  `docs/reference/ir/schema-catalog.md` is a mandatory generated companion that
+  still names the deleted pass and is explicitly deferred to the final
+  serialized generator boundary; its current `--check` correctly reports stale.
+- The duplicate, unwired `KernelLoweringPass` is removed from IR and its facade;
+  existing Foundry lowering remains canonical. Review exposed a NEW class inside
+  the same seam: the first test checked a recommendation marker, while the real
+  `KernelRefusal` could not execute because compilation omitted `kernel_spec`.
+  This was bucketed as `semantic_test_missing` / P38, not another ownership
+  relocation instance.
+- The repair deterministically rebuilds the same typed blocked
+  `KernelEstimatorSpec` at the existing Foundry compiler and binds its JSON to
+  the kernel-refusal node. A RED real compile -> execute -> audit test observed
+  `report is None` (`real=31.64s`, `user=29.56s`, `sys=1.38s`). GREEN reports
+  `ASSUMPTION_FAILED`, exact `operator_certificate_missing`, CAS-persisted
+  `proof_only` disposition, and audit method configuration (`real=33.27s`,
+  `user=31.41s`, `sys=1.45s`). The 12-test focused lowering/runtime wave passed;
+  independent review reran four kernel tests and returned Ready.
+- The refusal parameter is gated only on `causal.kernel.refusal@1.0.0`; the
+  existing generic recovery-refusal test remains green. Complete independent
+  AST census over 5,044 source/test Python files found zero live
+  `KernelLoweringPass` references and zero IR-to-Foundry imports. Changed-path
+  Ruff and `git diff --check` completed exit 0.
+- Capability result: the existing Foundry compiler produces the typed blocked
+  spec, the executable DAG carries it, the engine consumes it, CAS/audit persist
+  it, and the negative semantic test proves the refused path itself works.
+  Consolidation uses existing owners and surfaces, so the ledger remains 6/10.
+
+### Seam 11 — IR calibration/JAX
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 10 commit
+  `ede93e2c5d3b` read back after writing and before this boundary.
+- Observed mechanism/test path set is exactly seven: Foundry measurement source
+  and README, IR compiler and observation facade, two focused unit tests, and
+  the real C7 integration witness. This plan/journal pair are P39 record
+  companions. The shared public inventory/projection contain no Seam 11 names
+  and remain attributed to the final serialized boundary.
+- IF-13 and IJ-01 were kept as separate predicates. Against the one-file HEAD
+  source, the compiler had exactly one IR-to-Foundry statement and one JAX
+  import. The current complete IR denominator is 191 Python files with zero
+  parse errors, zero Foundry imports, and independently zero JAX imports.
+- Executable target compilation, JAX/NumPy tensor materialization, and placebo
+  generation now live in existing `foundry.calibration.measurement`; IR retains
+  neutral split/window and negative-control declarations. Both relocated class
+  identities report the Foundry owner. A missing-JAX subprocess proves importing
+  IR attempts JAX zero times, while direct Foundry import takes the NumPy
+  fallback and retains both identities.
+- Independent review's seven-unit-test wave passed (`real=46.10s`,
+  `user=42.35s`, `sys=1.76s`); targeted Ruff and `git diff --check` passed.
+  Negative semantic coverage includes missing-row masking, finite JAX gradient,
+  non-overlapping placebos, holdout exclusion, and non-finite loss fail-closed.
+  Root's post-Seam-8 C7 pipeline is the real end-to-end consumer witness:
+  direct exit 0, one passed, `real=53.64s`, `user=53.66s`, `sys=3.08s`.
+- Complete source/test AST census found exactly three relocated-symbol import
+  bindings, all at the new owner/tests, and no old-owner consumer. The exact
+  `ir -> foundry` literal closure command and the separately executed exact
+  `ir -> jax` literal command each completed direct exit 0.
+- Manual deep-baseline enumeration is frozen for final patching. REMOVE exactly
+  `polisyos.ir.observation.compiler -> polisyos.foundry.calibration.measurement`.
+  ADD exactly three independently enumerated edges:
+  `polisyos.foundry.calibration.measurement -> polisyos.ir.model_layer.types`,
+  `-> polisyos.ir.observation.compiler`, and
+  `-> polisyos.ir.observation.measurement`. The existing edges to
+  `ir.kernel.base`, `ir.observation.bundles`, and
+  `ir.observation.contracts` remain. No baseline generator was run.
+- `docs/reference/ir/schema-catalog.md` still carries both old IR class FQNs and
+  is a mandatory generated companion deferred to the final generator boundary.
+  Capability result: neutral declarations, Foundry producer/materializer,
+  manifest/tensor artifacts, C7 consumer, negative verification, and execution
+  surface are wired. Round 7 is charged for the new two-name internal Foundry
+  measurement surface; no policy authority is published.
+
+### Seam 12 — IR backtesting
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 11 commit
+  `133c32a919ff` read back after writing and before this boundary.
+- Observed seam path set is exactly eight: IR bundles/compiler; existing
+  Scientist matrix/blueprint consumers; three focused unit-test paths; and the
+  opt-in C7 integration witness. This plan/journal pair are P39 record
+  companions. The dirty Seam 13 `composition_bridge.py` path remained hash
+  `c24e6c65...` and was neither edited nor staged for this seam.
+- IS-01/02 are `shared-contract-down`; IS-03 is `consumer-up`. IR persists
+  deterministic sparse `dict[str, Any]` plan payloads. Omitting
+  `prediction_source` preserves Scientist's authoritative `NAIVE` default
+  instead of copying the enum/default downward.
+- Existing `BacktestMatrixRunner.run` is the one strict intake. It materializes
+  and validates every payload in the complete supplied bundle set before any
+  scenario executes, so an unknown later payload prevents partial earlier
+  execution. Both real producers—the IR compiler and Scientist blueprint
+  release—emit neutral payloads, and calibration governance still consumes
+  them through the matrix.
+- Fresh decisive wave passed 3 tests, direct exit 0 (`real=33.78s`,
+  `user=32.47s`, `sys=1.26s`): producer -> neutral bundle -> matrix with NAIVE
+  default, unknown later payload before an unreadable earlier execution, and
+  the compile-all downstream path through the matrix. The governance/calibration
+  wave passed five tests; opt-in C7 passed one (`real=72.01s`,
+  `user=68.48s`, `sys=3.51s`). A first C7 invocation without its opt-in env was
+  skipped and is recorded as a non-receipt. Ruff on all eight paths and
+  `git diff --check` completed exit 0.
+- Complete AST walk parsed 5,044/5,044 source/test Python files and found zero
+  forbidden plan-module imports in the two IR files. The 2,594-file production
+  census found exactly two `BacktestPlanBundle` constructors and one bundle-plan
+  execution reader, the matrix chokepoint. The composite exact
+  `ir -> scientist` literal command completed direct exit 0; this seam claims
+  IS-01..03 while the separately reviewed alignment and budget seams supply the
+  other three removals in the current tree.
+- Manual final-baseline delta: REMOVE
+  `polisyos.ir.observation.bundles -> polisyos.scientist.methods.backtesting.plan`
+  and REMOVE
+  `polisyos.ir.observation.contract_compilers -> polisyos.scientist.methods.backtesting.plan`;
+  ADD none. Generated schema/public companions are deferred intact.
+- Capability result: compiler producer, neutral persisted bundle artifact,
+  strict Scientist bridge, matrix/calibration consumers, and semantic negative
+  plus e2e tests are wired. No incomplete label remains and the ledger stays
+  7/10.
+
+### Seam 13 — IR alignment governance
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 12 commit
+  `a567ec30b7fa` read back after writing and before this boundary.
+- Observed seam path set is exactly 10: four existing production modules and
+  six focused semantic-test paths. This plan/journal pair are P39 record
+  companions. No generated or baseline path is attributed to the commit.
+- IS-04 and IS-05 are both `consumer-up`, ambiguous=0. IR performs deterministic
+  candidate verification only. One private Scientist chokepoint computes
+  ontology warnings/degraded outcomes and latent-governance admission, content
+  binds source candidate, governance-stripped candidate, governed CAS artifact,
+  and receipt, then supplies frozen inputs back to IR. Both real production
+  callers use the same chokepoint.
+- Missing or tampered governance becomes `INCOMPATIBLE` with no mapping;
+  caller-provided human flags and legacy strings cannot authorize a latent
+  bridge. Precomputed report/mapping reuse requires exact equality with a fresh
+  governed recomputation. A latent component permits promotion only when every
+  latent edge—not unrelated exact edges—permits it. Ontology service failure
+  preserves the typed degraded outcome rather than silently succeeding.
+- The final bounded wave passed 135/135 tests, direct exit 0
+  (`real=84.00s`, `user=75.94s`, `sys=3.10s`); AST counted the same 135 test
+  functions with no parametrization. The critical hardening replay passed 5/5
+  (`real=42.51s`). Ruff and `git diff --check` completed exit 0. Independent
+  delta review returned GO and separately replayed seven critical cases.
+- Complete production AST parse covered 2,594/2,594 Python files and found no
+  IR-to-Scientist imports; independent `rg` agreed. One whole-gate derivation
+  observed six residual findings while review observed seven under concurrent
+  work; the disagreement is retained rather than averaged or silently
+  reconciled. The exact `ir -> scientist` literal row command is nevertheless
+  direct exit 0 on the composite tree, and this seam claims only IS-04/05.
+- Manual final-baseline delta removes exactly
+  `polisyos.ir.analytics.alignment_certification -> polisyos.scientist.cross_graph.compiler`
+  and
+  `polisyos.ir.analytics.alignment_certification -> polisyos.scientist.methods.search.latent_governance`;
+  it adds no edge. The final public inventory/docs regeneration must reflect
+  the intentionally narrowed existing IR verifier signatures.
+- Capability result: internal producer, frozen typed snapshots, persisted CAS
+  artifacts/receipts, one bridge, two real consumers, fail-closed verification,
+  and semantic tests are wired. The private chokepoint is
+  `surface_out_of_scope`; `bridge_missing`, `consumer_missing`, and
+  `semantic_test_missing` are closed. No widening round is consumed and the
+  ledger remains 7/10.
+
+### Seam 14 — IR strategic budget identity
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 13 commit
+  `646a8002af92` read back after writing and before this boundary.
+- Observed mechanism/test path set is exactly four: existing IR kernel base,
+  existing Strategic analytics, existing Scientist budgets, and the focused IR
+  contract test. This plan/journal pair are P39 record companions.
+- IS-06 is `shared-contract-down`, ambiguous=0. The first zero-round move placed
+  the single class in the 2,600-line Strategic module and preserved behavior,
+  but independent review found a NEW import-weight class: importing the
+  lightweight published Scientist budgets path eagerly loaded Strategic and
+  NumPy (~0.73s; the later explicit reproduce measured 1.53s). That location
+  was withdrawn before commit.
+- The repaired canonical identity lives in existing lightweight
+  `ir.kernel.base`; Strategic and Scientist budgets import/re-export the same
+  object, and `budget_pass` continues through the published Scientist path.
+  Five fresh imports took 0.14-0.18s, loaded neither Strategic nor NumPy, and
+  both import orders avoided a cycle. This new direct module-level path consumes
+  round 8; no facade or `__all__` export was added.
+- Exact class AST, strict config, defaults, JSON, schema, all three nonnegative
+  constraints, and extra-field rejection match the former Scientist owner.
+  Real `solve_strategic_response -> _check_budget` exhaustion behavior and
+  `StrategicSCM` CAS persistence passed. The final implementation wave passed
+  30 tests in 33.25s; independent delta review passed 60 focused tests. Ruff,
+  compileall, and `git diff --check` completed exit 0.
+- Complete 5,044-file AST census (2,594 source + 2,450 tests, zero parse errors)
+  found one definition and exactly three production imports: Strategic and
+  Scientist budgets from kernel base, plus unchanged `budget_pass` from the
+  Scientist compatibility path. Independent `rg` agreed after one over-escaped
+  expression was rejected as a non-receipt. No IR-to-Scientist import remains;
+  the exact row literal completed exit 0 on the composite tree.
+- Manual final-baseline delta removes
+  `polisyos.ir.analytics.strategic -> polisyos.scientist.orchestration.kernel.budgets`
+  and adds the two direct edges from Strategic and Scientist budgets to
+  `polisyos.ir.kernel.base`. Generated schema/public companions are deferred to
+  the final serialized owner boundary.
+- Capability result: one typed identity, `StrategicSCM` carrier/persistence,
+  stable compatibility surface, real Foundry consumer, and positive/negative
+  semantic tests are intact. Round 8 stands; no incomplete label remains.
+
+### Seam 15 — IR phase-4 dynamics
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 14 commit
+  `afab3030a00d` read back after writing and before this boundary.
+- Observed mechanism/test path set is exactly six: existing IR phase-4 DTO,
+  existing Foundry simulation conversion owner, its two existing Foundry
+  consumers, and two focused semantic-test paths. This plan/journal pair are
+  P39 record companions. No generated or baseline path is attributed to the
+  seam commit.
+- IC-01 is `consumer-up`, ambiguous=0. `ABMResult` is now an independent IR
+  analytical DTO. Core execution-ref/result interpretation occurs only in the
+  canonical Foundry converter before IR CAS persistence; calibration and
+  attractor consumers use that converter rather than reconstructing it.
+- Independent review first found a same-class typed-reference compatibility
+  escape: the generic replacement broke compact `{artifact_id}` defaults and
+  could accept semantically swapped refs. Under P40 the same mechanism was
+  widened structurally, without another round: all 14 formerly typed top-level
+  slots and both nested refs now carry exact private Literal-kind constraints,
+  while propagation config/report remain intentionally generic.
+- The complete falsifier derives the 14-slot set from
+  `SimulationResult.model_fields`, rejects a cyclic wrong-kind assignment for
+  every member plus both nested swaps, preserves compact strict persistence,
+  and proves fully populated Core -> Foundry -> IR load is wire-equivalent.
+  It passed 18/18 (`real=61.65s`, `user=50.60s`, `sys=3.47s`); the implementer
+  wave passed 30/30 (`real=38.39s`). Ruff and `git diff --check` completed exit
+  0. The new IR schema has 19 definitions versus the former 20 solely because
+  two semantically identical ArtifactID string definitions consolidate to one.
+- Ten private ref classes are underscore-prefixed, absent from
+  `phase4_dynamics.__all__`, and absent from the generated public inventory.
+  Round 9 therefore buys exactly the one module-local Foundry converter export.
+- Manual final-baseline delta removes
+  `polisyos.ir.analytics.phase4_dynamics -> polisyos.core.contracts.foundry`,
+  `polisyos.foundry.calibration.identifiability -> polisyos.ir.analytics.phase4_dynamics`,
+  and
+  `polisyos.foundry.analysis.attractors -> polisyos.ir.analytics.phase4_dynamics`;
+  it adds
+  `polisyos.foundry.methods.catalog.simulation.dynamics -> polisyos.ir.registry.refs`.
+  The ABM snapshot, IR manifest, schema catalog, schemas reference, and deep
+  baseline remain deferred intact to the final serialized owner boundary.
+- Capability result: typed artifact, canonical producer/converter, CAS
+  persistence, both real consumers, negative semantic verification, and the
+  module-local integration surface are wired. Round 9 stands; no incomplete
+  label remains.
+
+### Seam 16 — IR truthfulness identity
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 15 commit
+  `64ed84be6a25` read back after writing and before this boundary.
+- The first six-path declaration is withdrawn under P40 after two independent
+  findings of the same P31/P32 authority-by-form class. The replacement scope
+  is exactly eight mechanism/test paths: IR truthfulness ownership, Core's
+  compatibility owner, the IR simulation-proof bridge, the IR facade table,
+  the sole Scientist scheduler consumer, and three focused test files. This
+  plan/journal pair are P39 record companions. The two pre-existing dirty
+  generated public-surface files remain excluded from this seam commit.
+- IC-02 is `shared-contract-down`, ambiguous=0. All 11 models, enums, parsers,
+  reconciliation/extraction/validation helpers have one dependency-neutral IR
+  identity; Core re-exports those exact objects. The bridge remains in IR and
+  imports neither Core nor Scientist. This closes only the shared statement;
+  the wider truthfulness/observability family is unchanged and unclaimed.
+- The first review falsified receipt-presence admission: arbitrary CAS JSON,
+  including a kind-correct but unprovenanced object, could authorize
+  calibration. The replacement has one manifest-aware simulation/metrics
+  intake that recomputes content identity, checks exact kind/schema/basic owner
+  shape, and binds caller payload bytes. Current Foundry manifests establish no
+  admitted producer/verifier and cannot carry the required receipt, so
+  `calibration_accepted` is structurally false and capability state is
+  precisely `producer_missing`.
+- P37 predicate classification at admission is: CAS manifest/content identity,
+  kind/schema/basic owner shape, caller-payload equality, and effective/status
+  reconciliation are `recomputed`; an embedded receipt is
+  `consumer_asserted`; producer and verifier provenance are
+  `not_established`. The last three fail closed and are frozen into the
+  unverified receipt/projection.
+- The second same-class review found that public constructors and CAS helpers
+  could still mint an accepted receipt directly. Under P40 the replacement
+  mechanism was widened, without another round: model validators forbid
+  `accepted`, non-default source, positive runtime/effective tier,
+  positive bridge calibration/`IDENTIFIED`, and positive artifact projection;
+  persistence revalidates `model_construct` objects; loaders validate forged
+  CAS payloads; and `proof_gate_from_bridge` dump/revalidates even existing
+  instances before scheduling. A positive declared tier remains candidate
+  context when runtime/effective tiers remain `UNVERIFIED`.
+- Complete AST census parsed 2,594/2,594 source Python files with zero failures:
+  one canonical builder, one production caller
+  (`run_simulation::_materialize_simulation_proof_bridge`), and one production
+  consumer (`sbi_scheduler::proof_gate_from_bridge`), with no sibling
+  constructor or consumer. Independent focused verification passed 45/45
+  (`real=45.53s`, `user=41.54s`, `sys=2.30s`); the broader seam wave passed
+  100/100. Changed-path Ruff, `git diff --check`, exact 11-object identity in
+  both import orders, historic Core receipt schema/config/defaults, forged
+  constructor/persist/load/consumer falsifiers, and ARCH006 all passed.
+- Bounded residual, classified rather than repaired again: the pre-existing
+  generic `ProofGateReceipt` can self-declare `IDENTIFIED` for candidate-budget
+  scheduling. It is unchanged from HEAD and has zero production constructors
+  outside the revalidating bridge translator. Closing it requires a separate
+  multi-source proof-gate provenance intake that is absent here; it cannot
+  authorize this simulation calibration chain. Separately, the local 19-field
+  shape check can admit diagnostic-only type malformations, but the unconditional
+  authority strangle prevents them from changing calibration/certification.
+- Round 10 buys one expansion of the existing `polisyos.ir.analytics` facade by
+  the complete 11-name contract already published from Core. No package,
+  module, constraint, or second surface is added. The manual final-baseline
+  delta removes
+  `polisyos.ir.analytics.simulation_proof_bridge -> polisyos.core.observability.truthfulness`
+  and adds
+  `polisyos.core.observability.truthfulness -> polisyos.ir.analytics`.
+- Capability result: canonical typed contract, producer/builder, content-bound
+  persisted artifact, real scheduler consumer, compatibility/audit surface,
+  and negative end-to-end semantic tests are wired. Calibrated acceptance
+  remains honestly `producer_missing` and fail-closed. Round 10 stands; the
+  widening ceiling is reached, so any further surface/package/module/constraint
+  change would stop this task rather than consume an eleventh round.
+
+## Source freeze and enumerated deep-import transaction
+
+- The preliminary source freeze at attached Seam 16 commit `e39143d28af4` was
+  withdrawn when the final package gate found one task-owned forbidden deep
+  import. The repair routes the identical `ReleaseManifest` identity through
+  its already-supported `data_forge.read_api.ukraine` entrypoint; P41 therefore
+  closes our red rather than exporting it as inherited debt. The subsequent
+  complete blast-radius wave closed three zero-round latent defects in already
+  touched mechanisms: strict schedule entries now reuse their referenced
+  canonical parameter bounds, the ID-engine transport module explicitly binds
+  its seven runtime Core dependencies, and the policy-runtime import block uses
+  Ruff's canonical order. Final source froze at attached commit
+  `87f5eaf80e8507e1aa3dad62b8787260635fb6f2`; no source changed after that
+  boundary. `diagnostics gen-schema` updated four ABI snapshots plus their
+  generated references. Guardrail sync was run exactly as
+  `uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline`;
+  the deep-import baseline remained byte-identical until the manual patch.
+- Derivation A, the canonical complete guardrails collector, parsed 2,600/2,600
+  base files and 2,594/2,594 final files: 3,551 -> 3,539 edges, 35 additions and
+  47 removals. Derivation B, an independent complete AST census, parsed the same
+  denominators: 3,621 -> 3,608 edges, 35 additions and 48 removals. Both had
+  zero parse failures and zero unresolved relative imports.
+- The sole disagreement is
+  `foundry.validation.release_acceptance -> data_forge.read_api`: derivation B
+  deliberately counts every non-facade cross-root import, while the canonical
+  collector excludes this documented supported entrypoint. It is reported, not
+  reconciled away, and is not a baseline edge. The manual authoritative patch
+  is therefore exactly 35 additions / 47 removals / 3,539 final unique sorted
+  edges, and its bytes equal a fresh canonical render.
+
+### Added deep-import edges — 35, one current-source citation each
+
+1. `src/polisyos/core/observability/truthfulness.py:3` —
+   `core.observability.truthfulness -> ir.analytics`; Seam 16 Core compatibility
+   re-exports the single canonical IR truthfulness identity.
+2. `src/polisyos/foundry/agent_sim/wiring/contracts.py:21` —
+   `foundry.agent_sim.wiring.contracts -> ir.governance.policy_spec`; Seam 1
+   Foundry wiring consumes neutral `CompiledLexIntervention` rather than Lex.
+3. `src/polisyos/foundry/calibration/measurement.py:25` —
+   `foundry.calibration.measurement -> ir.model_layer.types`; Seam 11 Foundry
+   materializes time-frequency declarations.
+4. `src/polisyos/foundry/calibration/measurement.py:33` —
+   `foundry.calibration.measurement -> ir.observation.compiler`; Seam 11 Foundry
+   consumes neutral split and negative-control specifications.
+5. `src/polisyos/foundry/calibration/measurement.py:46` —
+   `foundry.calibration.measurement -> ir.observation.measurement`; Seam 11
+   Foundry consumes the neutral measurement registry/router contracts.
+6. `src/polisyos/foundry/data_plane/bindings.py:61` —
+   `foundry.data_plane.bindings -> ir.observation.bundles`; Seam 8's sole strict
+   materializer consumes `ContractCompatibilityTarget`.
+7. `src/polisyos/foundry/methods/catalog/causal/strategic.py:75` —
+   `foundry.methods.catalog.causal.strategic -> ir.artifacts`; Seam 9's Foundry
+   owner persists its result through the neutral artifact protocol.
+8. `src/polisyos/foundry/methods/catalog/simulation/dynamics.py:37` —
+   `foundry.methods.catalog.simulation.dynamics -> ir.registry.refs`; Seam 15's
+   canonical converter emits neutral artifact refs.
+9. `src/polisyos/scientist/cross_graph/compiler.py:15` —
+   `scientist.cross_graph.compiler -> ir.analytics.alignment_certification`;
+   Seam 13's Scientist chokepoint consumes pure alignment DTOs/finalizers.
+10. `src/polisyos/scientist/cross_graph/compiler.py:51` —
+    `scientist.cross_graph.compiler -> ir.analytics.latent_bridge_synthesis`;
+    Seam 13 consumes neutral latent-bridge artifacts.
+11. `src/polisyos/scientist/cross_graph/compiler.py:59` —
+    `scientist.cross_graph.compiler -> ir.artifacts`; Seam 13 persists governed
+    results through the neutral artifact protocol.
+12. `src/polisyos/scientist/cross_graph/compiler.py:64` —
+    `scientist.cross_graph.compiler -> ir.registry.refs`; Seam 13 emits
+    content-bound neutral refs.
+13. `src/polisyos/scientist/governance/blueprint_release.py:41` —
+    `scientist.governance.blueprint_release -> foundry.validation.release_acceptance`;
+    Seam 4 consumes Foundry's technical receipt/runner.
+14. `src/polisyos/scientist/governance/blueprint_release.py:75` —
+    `scientist.governance.blueprint_release -> ir.governance.gate`; Seam 4 issues
+    the governed decision over a neutral gate contract.
+15. `src/polisyos/scientist/governance/blueprint_release.py:76` —
+    `scientist.governance.blueprint_release -> ir.governance.policy_spec`; Seam 4
+    consumes neutral intervention/policy specifications.
+16. `src/polisyos/scientist/governance/blueprint_release.py:77` —
+    `scientist.governance.blueprint_release -> ir.governance.problem_frame`;
+    Seam 4 consumes the neutral problem frame.
+17. `src/polisyos/scientist/governance/blueprint_release.py:78` —
+    `scientist.governance.blueprint_release -> ir.governance.schedule`; Seam 4
+    consumes the neutral schedule.
+18. `src/polisyos/scientist/governance/blueprint_release.py:79` —
+    `scientist.governance.blueprint_release -> ir.governance.selector_expr`;
+    Seam 4 consumes neutral selector predicates.
+19. `src/polisyos/scientist/governance/blueprint_release.py:80` —
+    `scientist.governance.blueprint_release -> ir.model_layer.model_spec`; Seam 4
+    consumes neutral model specifications.
+20. `src/polisyos/scientist/governance/blueprint_release.py:81` —
+    `scientist.governance.blueprint_release -> ir.model_layer.types`; Seam 4
+    consumes neutral selector operators.
+21. `src/polisyos/scientist/governance/blueprint_release.py:93` —
+    `scientist.governance.blueprint_release -> ir.trinity`; Seam 4 consumes the
+    neutral Trinity bundle.
+22. `src/polisyos/scientist/methods/advanced.py:20` —
+    `scientist.methods.advanced -> foundry.data_plane`; Seam 8's real consumer
+    routes neutral payloads through the strict Foundry materializer.
+23. `src/polisyos/scientist/methods/discovery/portfolio.py:15` —
+    `scientist.methods.discovery.portfolio -> foundry.calibration.dp_ci`; Seam 5
+    threshold governance consumes typed Foundry DP/CI primitives.
+24. `src/polisyos/scientist/methods/search/judge_thresholds.py:13` —
+    `scientist.methods.search.judge_thresholds -> foundry.calibration.dp_ci`;
+    Seam 5 exact-binds and resolves threshold policy before execution.
+25. `src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py:44` —
+    `scientist.nodes.builtins.c6c_runtime_support -> ir.governance.policy_spec`;
+    Seam 1 consumes the neutral compiled intervention rather than Lex.
+26. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:19` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> foundry.data_plane`;
+    Seam 8's real DTR consumer uses the single strict materializer.
+27. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:20` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> foundry.methods.catalog.causal.causal_engine`;
+    Seam 1's upper execution bridge consumes the Foundry causal engine.
+28. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:21` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> foundry.methods.catalog.causal.dtr`;
+    Seam 1's upper bridge consumes Foundry-owned estimators.
+29. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:27` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> foundry.methods.catalog.causal.protocols`;
+    Seam 1's upper bridge consumes the technical DTR protocol.
+30. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:28` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> ir.analytics.dynamic_regime`;
+    Seam 1's bridge emits the neutral DTR result.
+31. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:30` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> ir.governance.policy_spec`;
+    Seam 1 consumes the neutral temporal-intervention sequence.
+32. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:31` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> ir.kernel.base`;
+    Seam 1 consumes the neutral kernel contract.
+33. `src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py:32` —
+    `scientist.nodes.builtins.causal.run_causal_contract_execution -> ir.observation.bundles`;
+    Seam 1 consumes neutral DTR target/compatibility artifacts.
+34. `src/polisyos/scientist/orchestration/kernel/budgets.py:7` —
+    `scientist.orchestration.kernel.budgets -> ir.kernel.base`; Seam 14 reuses
+    the single lightweight `ComputeBudget` identity.
+35. `src/polisyos/scientist/policy_design/search.py:15` —
+    `scientist.policy_design.search -> ir.governance.policy_spec`; Seam 1 search
+    consumes the single lowered `PolicySearchLevel` identity.
+
+### Removed deep-import edges — 47, one pinned-base citation each
+
+1. `src/polisyos/core/components/_cli_metric_validation.py:13@2525da730` —
+   `core.components._cli_metric_validation -> ir.analytics.metric_validation_report`.
+2. `src/polisyos/core/components/_cli_metric_validation.py:17@2525da730` —
+   `core.components._cli_metric_validation -> ir.artifacts`.
+3. `src/polisyos/core/components/_cli_metric_validation.py:18@2525da730` —
+   `core.components._cli_metric_validation -> scientist.validation.metrics`.
+4. `src/polisyos/core/components/_cli_scientist.py:317@2525da730` —
+   `core.components._cli_scientist -> scientist.agent.eval_harness`.
+5. `src/polisyos/core/components/_cli_scientist.py:345@2525da730` —
+   `core.components._cli_scientist -> scientist.agent.reflexion_evaluator`.
+6. `src/polisyos/core/components/_cli_scientist.py:284@2525da730` —
+   `core.components._cli_scientist -> scientist.orchestration.llm`.
+7. `src/polisyos/foundry/agent_sim/wiring/contracts.py:22@2525da730` —
+   `foundry.agent_sim.wiring.contracts -> lex.interventions`.
+8. `src/polisyos/foundry/analysis/attractors.py:41@2525da730` —
+   `foundry.analysis.attractors -> ir.analytics.phase4_dynamics`.
+9. `src/polisyos/foundry/calibration/calibrator.py:559@2525da730` —
+   `foundry.calibration.calibrator -> scientist.methods.autotune.calibration`.
+10. `src/polisyos/foundry/calibration/dp_ci.py:179@2525da730` —
+    `foundry.calibration.dp_ci -> scientist.methods.search.judge_thresholds`.
+11. `src/polisyos/foundry/calibration/identifiability.py:30@2525da730` —
+    `foundry.calibration.identifiability -> ir.analytics.phase4_dynamics`.
+12. `src/polisyos/foundry/methods/catalog/causal/composition_failure_cards.py:20@2525da730` —
+    `foundry.methods.catalog.causal.composition_failure_cards -> scientist.methods.search.failure_cards`.
+13. `src/polisyos/foundry/methods/catalog/policy/frontier.py:23@2525da730` —
+    `foundry.methods.catalog.policy.frontier -> scientist.agent.embedder`.
+14. `src/polisyos/foundry/methods/cli/__init__.py:269@2525da730` —
+    `foundry.methods.cli -> core.artifacts.store`.
+15. `src/polisyos/foundry/validation/release_acceptance.py:24@2525da730` —
+    `foundry.validation.release_acceptance -> core.governance.profiles`.
+16. `src/polisyos/foundry/validation/release_acceptance.py:33@2525da730` —
+    `foundry.validation.release_acceptance -> scientist.governance.postflight`.
+17. `src/polisyos/ir/analytics/alignment_certification.py:46@2525da730` —
+    `ir.analytics.alignment_certification -> scientist.cross_graph.compiler`.
+18. `src/polisyos/ir/analytics/alignment_certification.py:49@2525da730` —
+    `ir.analytics.alignment_certification -> scientist.methods.search.latent_governance`.
+19. `src/polisyos/ir/analytics/phase4_dynamics.py:13@2525da730` —
+    `ir.analytics.phase4_dynamics -> core.contracts.foundry`.
+20. `src/polisyos/ir/analytics/simulation_proof_bridge.py:12@2525da730` —
+    `ir.analytics.simulation_proof_bridge -> core.observability.truthfulness`.
+21. `src/polisyos/ir/analytics/strategic.py:2232@2525da730` —
+    `ir.analytics.strategic -> foundry.methods.catalog.causal.strategic`.
+22. `src/polisyos/ir/analytics/strategic.py:28@2525da730` —
+    `ir.analytics.strategic -> scientist.orchestration.kernel.budgets`.
+23. `src/polisyos/ir/analytics/transportability.py:343@2525da730` —
+    `ir.analytics.transportability -> foundry.methods.catalog.causal.id_engine`.
+24. `src/polisyos/ir/observation/bundles.py:32@2525da730` —
+    `ir.observation.bundles -> scientist.methods.backtesting.plan`.
+25. `src/polisyos/ir/observation/causal_execution.py:39@2525da730` —
+    `ir.observation.causal_execution -> foundry.methods.catalog.causal.protocols`.
+26. `src/polisyos/ir/observation/compiler.py:20@2525da730` —
+    `ir.observation.compiler -> foundry.calibration.measurement`.
+27. `src/polisyos/ir/observation/contract_compilers.py:20@2525da730` —
+    `ir.observation.contract_compilers -> foundry.methods.catalog.causal.protocols`.
+28. `src/polisyos/ir/observation/contract_compilers.py:26@2525da730` —
+    `ir.observation.contract_compilers -> foundry.methods.catalog.econometrics.protocols`.
+29. `src/polisyos/ir/observation/contract_compilers.py:27@2525da730` —
+    `ir.observation.contract_compilers -> foundry.methods.catalog.microsim.protocols`.
+30. `src/polisyos/ir/observation/contract_compilers.py:28@2525da730` —
+    `ir.observation.contract_compilers -> foundry.methods.catalog.ml.protocols`.
+31. `src/polisyos/ir/observation/contract_compilers.py:29@2525da730` —
+    `ir.observation.contract_compilers -> foundry.methods.catalog.network.protocols`.
+32. `src/polisyos/ir/observation/contract_compilers.py:82@2525da730` —
+    `ir.observation.contract_compilers -> scientist.methods.backtesting.plan`.
+33. `src/polisyos/ir/passes/core.py:395@2525da730` —
+    `ir.passes.core -> foundry.methods.catalog.causal.estimand_compiler`.
+34. `src/polisyos/ir/passes/core.py:396@2525da730` —
+    `ir.passes.core -> foundry.methods.catalog.causal.kernel_lowering`.
+35. `src/polisyos/lex/interventions.py:17@2525da730` —
+    `lex.interventions -> foundry.methods.catalog.causal.causal_engine`.
+36. `src/polisyos/lex/interventions.py:18@2525da730` —
+    `lex.interventions -> foundry.methods.catalog.causal.dtr`.
+37. `src/polisyos/lex/interventions.py:24@2525da730` —
+    `lex.interventions -> foundry.methods.catalog.causal.protocols`.
+38. `src/polisyos/lex/interventions.py:25@2525da730` —
+    `lex.interventions -> ir.analytics.dynamic_regime`.
+39. `src/polisyos/lex/interventions.py:63@2525da730` —
+    `lex.interventions -> ir.artifacts`.
+40. `src/polisyos/lex/interventions.py:43@2525da730` —
+    `lex.interventions -> ir.observation.causal_execution`.
+41. `src/polisyos/lex/interventions.py:48@2525da730` —
+    `lex.interventions -> ir.registry.refs`.
+42. `src/polisyos/lex/interventions.py:49@2525da730` —
+    `lex.interventions -> ir.trinity`.
+43. `src/polisyos/lex/interventions.py:54@2525da730` —
+    `lex.interventions -> scientist.methods.search.controller`.
+44. `src/polisyos/lex/interventions.py:55@2525da730` —
+    `lex.interventions -> scientist.policy_design.schema`.
+45. `src/polisyos/lex/interventions.py:56@2525da730` —
+    `lex.interventions -> scientist.policy_design.search`.
+46. `src/polisyos/scientist/methods/search/failure_cards.py:10@2525da730` —
+    `scientist.methods.search.failure_cards -> core.artifacts.manifest`.
+47. `src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py:46@2525da730` —
+    `scientist.nodes.builtins.c6c_runtime_support -> lex.interventions`.
+
+## Final closure receipts
+
+### Source import predicate and literal row closures
+
+- Direct timed source command:
+  `/usr/bin/time -p uv run python tools/quality/lint/lint_imports.py`.
+  It completed with exit 1, `real=1.49s`, `user=1.09s`, `sys=0.26s`, so the
+  measured CPU ceiling is `user+sys=1.35s`. Uptime before/after was unchanged at
+  3 days 18:12 (`load=3.87,3.57,3.44`). The parser reported 2,591 cache hits and
+  3 misses, for the complete 2,594-file denominator.
+- Two independent finding parsers agree on total 3: ARCH001=1, ARCH002=0,
+  ARCH004=2, ARCH006=0. One section-scoped parser and one fixed-token census
+  agree; an initially over-broad scratch parser was rejected because it counted
+  the non-finding `Top god files` line.
+- The three residuals are exactly the assigned/out-of-scope set:
+  `fabric/data_plane/benchmarks.py:28` ARCH004,
+  `runtime/http/services/governed_projection_validation_worker.py:397`
+  ARCH001 (`runtime -> corpus`), and
+  `runtime/quality/data_state_substrate.py:1260` ARCH004. All nine target-row
+  substring populations are zero.
+- Every literal register command was executed separately, without a pipe, and
+  its direct exit read before interpretation:
+
+| Row / exact searched literal | Direct exit |
+| --- | ---: |
+| `ir -> foundry`: `forbidden internal import: ir -> foundry ` | 0 |
+| `ir -> scientist`: `forbidden internal import: ir -> scientist ` | 0 |
+| `foundry -> scientist`: `forbidden internal import: foundry -> scientist ` | 0 |
+| `lex -> scientist`: `forbidden internal import: lex -> scientist ` | 0 |
+| `core -> scientist`: `forbidden internal import: core -> scientist ` | 0 |
+| `lex -> foundry`: `forbidden internal import: lex -> foundry ` | 0 |
+| `ir -> core`: `forbidden internal import: ir -> core ` | 0 |
+| `foundry -> lex`: `forbidden internal import: foundry -> lex ` | 0 |
+| `ir -> jax`: `forbidden external import in ir: jax ` | 0 |
+
+The dual-row `ir/observation/compiler.py` disposition remains explicit: its
+Foundry calibration edge and JAX external dependency were moved together but
+the `ir -> foundry` and `ir -> jax` literal predicates were closed separately.
+The shared `simulation_proof_bridge` disposition is likewise explicit: the
+bridge remains IR-owned, Core re-exports IR truthfulness identities, and no
+claim is made about the remaining observability family.
+
+### Package predicate and P41 closeout
+
+- The preliminary final-package receipt completed exit 1 with 194 declared /
+  194 list / 194 unique findings and one fail-closed forbidden edge:
+  `scientist.governance.blueprint_release -> data_forge.domains.ukraine.manifests`.
+  Timing was `real=128.77s`, `user=119.95s`, `sys=5.59s`. Exact-base replay at
+  `2525da730` reproduced the original 34 forbidden edges without this edge, and
+  `git -S` assigns its introduction to this task's Seam 4 commit `cd14d2da1`;
+  it was therefore task-owned under P41.
+- `ReleaseManifest` was already a lazy export of the supported
+  `data_forge.read_api.ukraine` entrypoint, with exact object and schema identity.
+  The final one-import rewrite reuses it; no package, export, constraint, or
+  surface changed, so the ledger remains 10/10. The affected 16-test file and
+  Ruff passed before the repair commit was read back from the attached branch.
+- Final direct command:
+  `/usr/bin/time -p uv run python tools/quality/validation/check_package_import_gates.py --fail-closed --json-output _build/.tmp/last-mile/package-import-gates.json`.
+  It completed exit 1 with `real=162.74s`, `user=144.11s`, `sys=7.85s`; uptime
+  moved from 3 days 18:13 (`load=4.87,3.94,3.58`) to 3 days 18:16
+  (`load=5.60,4.73,3.97`).
+- Python and jq independently agree on 192 declared / 192 list / 192 unique
+  findings and on 19 declared / 19 listed package contracts. The fail-closed
+  forbidden set is zero by the declared summary, the empty package-level list,
+  and the empty unique edge-key union; registered and unregistered forbidden
+  counts are both zero. Thus the predicate still reports exit 1 on its broader
+  192-finding report, while its load-bearing forbidden set moves from base 34
+  to final 0. `tmp/`, `production_data/`, and `runs/` were absent before and
+  after, excluding the ignored-directory count confounder. The ignored JSON
+  receipt is 113,537 bytes with SHA-256
+  `841d6110f1e18b6850e047f256cda33ae25db528cc7452f791175af26b66b360`.
+
+### Recomputed generators and architecture guardrail
+
+- `uv run --extra ml polisyos-tools diagnostics gen-schema --check` completed
+  exit 0 in `real=41.52s`, `user=39.09s`, `sys=1.40s`; all 101 models passed a
+  full scan. The final four snapshot changes and their reference projections
+  are therefore generated-owner receipts, not hand-authored schema drift.
+- `/usr/bin/time -p uv run polisyos-tools architecture guardrails check`
+  completed exit 0 in `real=52.16s`, `user=43.41s`, `sys=10.72s`; runtime API
+  client and dashboard API-type freshness were clean and the architecture
+  guardrail reported zero creep.
+- A separate `mktemp` corruption probe copied the final 3,539-edge baseline,
+  changed one target while retaining the JSON shape, and ran
+  `guardrails check --skip-generated-checks --deep-import-baseline <copy>`.
+  It completed exit 1 in 50.74s specifically on baseline drift/new creep. The
+  uncorrupted copy still had 3,539 edges and the temporary directory was
+  removed. This is the remove-the-property/keep-the-markers witness for P29.
+
+### Complete changed-path verification wave
+
+- Two independent Git-diff derivations agree on 152 changed Python paths:
+  144 existing and 8 deleted. They separately agree on 63 changed Python test
+  paths: 61 existing and 2 deleted. There were zero untracked Python files.
+- One Ruff invocation over all 144 existing changed Python paths completed
+  exit 0 (`real=0.20s`, `user=0.29s`, `sys=0.08s`).
+- One pytest invocation over all 61 existing changed Python test files
+  completed exit 0: 784 passed, 6 skipped, 0 failed/errors, 790 total
+  (`real=210.88s`, `user=193.72s`, `sys=12.99s`). The six skips are three
+  opt-in C7 integration cases, two missing-`causallearn` cases, and one
+  missing-BoTorch case. `git diff --check 2525da730 --` also completed exit 0.
+- The preliminary 60-file wave was a completed failure, not a non-receipt:
+  770 passed, 6 skipped, and 2 failed. One failure exposed a generated IR
+  public-surface count whose body enumerated 260 names while the heading still
+  said 249; the companion was corrected to 260. The other exposed that strict
+  schedule entries discarded the explicit bounds of their referenced canonical
+  `ParameterSpec`; the existing bridge now reuses those bounds, skips
+  non-tunable parameters, and still fails closed on absent bounds. Focused RED,
+  positive, negative, and 19-test bridge receipts passed before the zero-round
+  repair commit.
+- Changed-file Ruff then exposed 17 `F821` findings in the touched ID-engine
+  transport module. Exact replay showed the dynamic-injection defect at the
+  base and seam parent, but this task had brought that path into the changed
+  denominator, so P41 made closure task-owned. Explicit imports bind the same
+  seven existing Core objects; 172 focused ID-engine tests passed. The sole
+  remaining `I001` likewise reproduced historically but was closure-owned by
+  the import-order repair slice; Ruff's import-only rewrite passed the exact
+  file check and 36 strategic-runtime/workflow tests.
+- Three broader promotion tests selected during that import-order check were
+  classified separately rather than taught to the repair. Exact-node replay on
+  `2525da730`, the strategic seam parent/current, pre-reorder `8f48ac11d`, and
+  final source all returns the same intentional
+  `canonical_n9_promotion_sequence_required` strangle. Those three nodes import
+  `judge_stack` directly and do not import or execute the one path changed by
+  the import-order repair, so their complete input denominator intersects that
+  repair slice at zero. A fresh-process node that imports the reordered module
+  and executes `_resolve_benchmark_scope` passed in 54.78s. Restoring legacy
+  promotion would have violated the canonical N9 boundary and is out of scope.
+
+### Final pattern and capability pass
+
+- Re-reading the failure/repair register leaves the target chain closed without
+  P01/P02 contract-only or thin-orchestration claims: every relocated shared
+  contract has its producer/consumer identity tests, and every consumer-up move
+  has a real bridge or execution consumer. D5's initial `consumer_missing`
+  state is closed by content-bound Scientist admission, persistence, decision,
+  and negative authority tests.
+- P05/P15/P32/P37 remain fail-closed at the truthfulness seam. The only precise
+  incomplete label is the already-recorded calibrated-acceptance
+  `producer_missing`; it cannot grant authority and does not reopen IC-02. The
+  observability family beyond the shared IC-02 identity remains explicitly
+  `surface_out_of_scope` for this task.
+- P35 is satisfied by complete source, edge, changed-path, and test-path
+  denominators with disagreements preserved. P39 records generated/docs/tests
+  outside mechanism-round arithmetic. P40 stopped same-class truthfulness
+  instance repair at the structural strangle. P41 assigned every closeout red
+  from the appropriate slice base before repair or exclusion.
+- Final target state: all 39 statements are classified, all nine literal rows
+  close at zero, ambiguous=0, the deep baseline is manually enumerated, the
+  guardrail is exit 0, and no eleventh widening round was taken.

@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.ir import FailureSeverity, TypedFailureCard
+from polisyos.scientist.methods.search.lessons import LessonKind, LessonQuery, LessonRegistry
 from polisyos.scientist.orchestration.memory import (
     MemoryContaminationPolicy,
     MemoryVisibility,
@@ -9,8 +12,6 @@ from polisyos.scientist.orchestration.memory import (
     failure_card_to_reflexive_lesson,
 )
 from polisyos.scientist.orchestration.memory.contamination import lesson_payload_for_contamination
-from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
-from polisyos.scientist.methods.search.lessons import LessonKind, LessonQuery, LessonRegistry
 
 
 def test_failure_card_becomes_scoped_retrieval_lesson() -> None:

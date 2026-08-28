@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import json
 
+import pytest
+from pydantic import ValidationError
+
 from polisyos.ir.analytics.backtest import load_backtest_report
 from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
-from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixRunner
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
 
 
 def _plan(tmp_path, kind: BacktestKind) -> HistoricalValidationPlan:
@@ -31,7 +34,7 @@ def _bundle(tmp_path, kind: BacktestKind) -> BacktestPlanBundle:
         ),
         required_fields=["metric"],
         holdout_windows=["2024-Q4"],
-        plans=[_plan(tmp_path, kind)],
+        plans=[_plan(tmp_path, kind).model_dump(mode="json")],
         historical_payloads={kind.value: {"metric": [1.0, 1.05, 1.1, 1.15]}},
     )
 
@@ -67,3 +70,46 @@ def test_backtest_matrix_runner_marks_missing_bundles_as_explicit_gaps(tmp_path,
     report = load_backtest_report(cas_store, result.backtest_report_ref)
     assert report.n_scenarios == 1
     assert report.trust_eligible is True
+
+
+def test_backtest_matrix_rejects_unknown_payload_before_any_execution(tmp_path, cas_store) -> None:
+    unreadable_path = tmp_path / "must_not_be_read.json"
+    valid_bundle = BacktestPlanBundle(
+        contract_target=ContractCompatibilityTarget(
+            contract_id="macro_bundle",
+            contract_fqn="polisyos.tests.BacktestPlanBundle",
+        ),
+        required_fields=["metric"],
+        plans=[
+            {
+                "plan_id": "valid_but_unreadable",
+                "historical_data_path": str(unreadable_path),
+                "ground_truth_outcomes": {"metric": [1.0]},
+                "target_metrics": ["metric"],
+            }
+        ],
+    )
+    unknown_bundle = BacktestPlanBundle(
+        contract_target=ContractCompatibilityTarget(
+            contract_id="cell_bundle",
+            contract_fqn="polisyos.tests.BacktestPlanBundle",
+        ),
+        required_fields=["metric"],
+        plans=[
+            {
+                "plan_id": "unknown_prediction_source",
+                "historical_data_path": str(tmp_path / "unused.json"),
+                "ground_truth_outcomes": {"metric": [1.0]},
+                "target_metrics": ["metric"],
+                "prediction_source": "self_attested_oracle",
+            }
+        ],
+    )
+
+    with pytest.raises(ValidationError, match="prediction_source"):
+        BacktestMatrixRunner(cas_store).run(
+            {
+                BacktestKind.MACRO: valid_bundle,
+                BacktestKind.CELL: unknown_bundle,
+            }
+        )

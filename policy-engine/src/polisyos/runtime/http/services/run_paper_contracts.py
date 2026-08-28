@@ -9,7 +9,10 @@ from typing import TYPE_CHECKING, Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.core import artifacts  # noqa: TC001 - Pydantic resolves DTOs
-from polisyos.pdc import DesignRecordV0  # noqa: TC001 - frozen future ABI slot
+from polisyos.pdc import (
+    DesignRecordV0,
+    RunBoundDesignRecordBinding,
+)
 from polisyos.runtime.http.services.export_replay import (
     build_export_replay_address,
     hash_export_projection,
@@ -122,32 +125,7 @@ class RunPaperReplayPins(_StrictModel):
     paper_projection_hash: str = Field(pattern=_SHA256_PATTERN)
 
 
-class RunPaperDesignRecordBinding(_StrictModel):
-    """Future content-bound DesignRecord identity; DS8-A never constructs it."""
-
-    case_id: str = Field(min_length=1)
-    run_id: str = Field(min_length=1)
-    tenant_id: str = Field(min_length=1)
-    design_record_ref: artifacts.ArtifactRef
-    design_record_record_id: str = Field(min_length=1)
-    schema_name: Literal["policyos.layer2_s2.design_record_v0"] = (
-        "policyos.layer2_s2.design_record_v0"
-    )
-    schema_version: Literal["policyos.policy_design_case.layer2_readiness.v1"] = (
-        "policyos.policy_design_case.layer2_readiness.v1"
-    )
-    content_digest: str = Field(pattern=_SHA256_PATTERN)
-    producer: artifacts.ProducerInfo
-
-    @model_validator(mode="after")
-    def _bind_design_record_ref(self) -> RunPaperDesignRecordBinding:
-        if self.content_digest != str(self.design_record_ref.artifact_id):
-            raise ValueError("content_digest must equal design_record_ref.artifact_id")
-        if self.design_record_ref.kind != self.schema_name:
-            raise ValueError("design_record_ref.kind must equal the owner schema name")
-        if self.design_record_ref.media_type != "application/json":
-            raise ValueError("DesignRecordV0 must be bound to application/json CAS bytes")
-        return self
+RunPaperDesignRecordBinding = RunBoundDesignRecordBinding
 
 
 class RunPaperCaseSourceVerification(_StrictModel):
@@ -160,6 +138,7 @@ class RunPaperCaseSourceVerification(_StrictModel):
     bound_case_id: str = Field(min_length=1)
     bound_run_id: str = Field(min_length=1)
     bound_tenant_id: str = Field(min_length=1)
+    bound_cell_id: str | None
     bound_design_record_record_id: str = Field(min_length=1)
 
 
@@ -250,6 +229,62 @@ class RunPaperAbstention(_RunPaperCaseIssue):
     kind: Literal["abstention"] = "abstention"
 
 
+_AUTHORITY_NONRECEIPT_ROLES = {
+    "generation_cycle_grounding_authority": (
+        "polisyos.runtime.quality.generation_cycle.GroundingStatus",
+        ("grounding_state", "grounded_case_projection", "available_run_paper_case"),
+    ),
+    "hypothesis_ledger_admission_authority": (
+        "polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState",
+        ("admission_state", "admitted_case_projection", "available_run_paper_case"),
+    ),
+    "layer3_g4_promotion_authority": (
+        "polisyos.runtime.quality.proving_ground.governed_promotion_gate."
+        "Layer3G4PromotionRecord.promotion_state",
+        ("promotion_state", "governed_case_projection", "available_run_paper_case"),
+    ),
+}
+
+
+class RunPaperAuthorityNonReceipt(_StrictModel):
+    """Typed proof that one authority owner did not supply an admitted record."""
+
+    kind: Literal["run_paper_authority_nonreceipt"] = "run_paper_authority_nonreceipt"
+    status: Literal["not_established"] = "not_established"
+    missing_authority: Literal[
+        "generation_cycle_grounding_authority",
+        "hypothesis_ledger_admission_authority",
+        "layer3_g4_promotion_authority",
+    ]
+    authority_state: Literal["absent/unallocated"] = "absent/unallocated"
+    owner_route: str = Field(min_length=1)
+    denied_uses: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _require_role_specific_nonreceipt(self) -> RunPaperAuthorityNonReceipt:
+        expected_owner, expected_denied_uses = _AUTHORITY_NONRECEIPT_ROLES[
+            self.missing_authority
+        ]
+        if self.owner_route != expected_owner or self.denied_uses != expected_denied_uses:
+            raise ValueError(
+                f"{self.missing_authority} nonreceipt carries the wrong owner or denied uses"
+            )
+        return self
+
+
+def _require_bound_case_content(
+    case_id: str,
+    binding: RunPaperDesignRecordBinding,
+    design_record: DesignRecordV0,
+) -> None:
+    if case_id != binding.case_id:
+        raise ValueError("case_id must equal design_record_binding.case_id")
+    if design_record.record_id != binding.design_record_record_id:
+        raise ValueError("design_record.record_id must equal the content-bound binding record id")
+    if design_record.schema_version != binding.design_record_schema_version:
+        raise ValueError("DesignRecordV0 schema version does not match its binding")
+
+
 class AvailableRunPaperCase(_StrictModel):
     """Frozen DS8-B slot for a future verified run-bound DesignRecord."""
 
@@ -267,15 +302,11 @@ class AvailableRunPaperCase(_StrictModel):
 
     @model_validator(mode="after")
     def _bind_case_and_authority(self) -> AvailableRunPaperCase:
-        binding = self.design_record_binding
-        if self.case_id != binding.case_id:
-            raise ValueError("case_id must equal design_record_binding.case_id")
-        if self.design_record.record_id != binding.design_record_record_id:
-            raise ValueError(
-                "design_record.record_id must equal the content-bound binding record id"
-            )
-        if self.design_record.schema_version != binding.schema_version:
-            raise ValueError("DesignRecordV0 schema version does not match its binding")
+        _require_bound_case_content(
+            self.case_id,
+            self.design_record_binding,
+            self.design_record,
+        )
         authority_sources = {
             "grounding_state": self.grounding_state.source_binding,
             "admission_state": self.admission_state.source_binding,
@@ -330,16 +361,57 @@ class AvailableRunPaperCase(_StrictModel):
             self.case_id,
             binding.run_id,
             binding.tenant_id,
+            binding.cell_id,
             binding.design_record_record_id,
         )
         actual = (
             verification.bound_case_id,
             verification.bound_run_id,
             verification.bound_tenant_id,
+            verification.bound_cell_id,
             verification.bound_design_record_record_id,
         )
         if actual != expected:
             raise ValueError(f"{role} source verifier does not bind the packet case identity")
+
+
+class AuthorityAbstainingRunPaperCase(_StrictModel):
+    """Verified S2 record rendered without fabricating absent authority owners."""
+
+    availability: Literal["record_available_authority_abstaining"] = (
+        "record_available_authority_abstaining"
+    )
+    authority_projection: Literal["abstained"] = "abstained"
+    case_id: str = Field(min_length=1)
+    design_record_binding: RunPaperDesignRecordBinding
+    design_record: DesignRecordV0
+    grounding_nonreceipt: RunPaperAuthorityNonReceipt
+    admission_nonreceipt: RunPaperAuthorityNonReceipt
+    promotion_nonreceipt: RunPaperAuthorityNonReceipt
+
+    @model_validator(mode="after")
+    def _bind_case_and_authority_roles(self) -> AuthorityAbstainingRunPaperCase:
+        _require_bound_case_content(
+            self.case_id,
+            self.design_record_binding,
+            self.design_record,
+        )
+        expected = {
+            "grounding": "generation_cycle_grounding_authority",
+            "admission": "hypothesis_ledger_admission_authority",
+            "promotion": "layer3_g4_promotion_authority",
+        }
+        actual = {
+            "grounding": self.grounding_nonreceipt.missing_authority,
+            "admission": self.admission_nonreceipt.missing_authority,
+            "promotion": self.promotion_nonreceipt.missing_authority,
+        }
+        mismatched = [role for role, authority in expected.items() if actual[role] != authority]
+        if mismatched:
+            raise ValueError(
+                "authority nonreceipt is in the wrong role: " + ", ".join(mismatched)
+            )
+        return self
 
 
 class UnavailableRunPaperCase(_StrictModel):
@@ -362,7 +434,7 @@ class UnavailableRunPaperCase(_StrictModel):
 
 
 RunPaperCaseRecord = Annotated[
-    AvailableRunPaperCase | UnavailableRunPaperCase,
+    AvailableRunPaperCase | AuthorityAbstainingRunPaperCase | UnavailableRunPaperCase,
     Field(discriminator="availability"),
 ]
 
@@ -471,12 +543,17 @@ class RunPaperPacket(_StrictModel):
 
     @model_validator(mode="after")
     def _bind_packet_identity(self) -> RunPaperPacket:
-        if isinstance(self.case_record, AvailableRunPaperCase):
+        if isinstance(
+            self.case_record,
+            AvailableRunPaperCase | AuthorityAbstainingRunPaperCase,
+        ):
             binding = self.case_record.design_record_binding
             if binding.run_id != self.run.run_id:
                 raise ValueError("case binding run_id must equal packet run_id")
             if binding.tenant_id != self.run.tenant_id:
                 raise ValueError("case binding tenant_id must equal packet tenant_id")
+            if binding.cell_id != self.run.cell_id:
+                raise ValueError("case binding cell_id must equal packet cell_id")
         if self.replay_pins.manifest_artifact_id != str(self.source.manifest_ref.artifact_id):
             raise ValueError("replay manifest pin must equal source manifest artifact id")
         if self.replay_pins.manifest_schema_version != self.source.manifest_schema_version:
@@ -543,8 +620,11 @@ __all__ = [
     "RUN_PAPER_MANIFEST_SCHEMA_VERSION",
     "RUN_PAPER_PACKET_SCHEMA_VERSION",
     "RUN_PAPER_PROJECTION_RULE_VERSION",
+    "AuthorityAbstainingRunPaperCase",
     "AvailableRunPaperCase",
+    "RunPaperAuthorityNonReceipt",
     "RunPaperCaseRecord",
+    "RunPaperDesignRecordBinding",
     "RunPaperPacket",
     "RunPaperReplayConflictError",
     "RunPaperReplayPins",

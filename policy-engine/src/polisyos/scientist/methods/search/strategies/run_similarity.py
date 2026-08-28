@@ -8,7 +8,7 @@ import math
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from polisyos.scientist.agent.embedder import EmbedderProtocol
+    from polisyos.foundry import EmbedderProtocol
     from polisyos.scientist.methods.search.strategies.space import SearchSpace
 
 

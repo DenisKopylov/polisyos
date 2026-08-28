@@ -4,15 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
-
-class ComputeBudget(BaseModel):
-    """Compute budget public type."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    max_llm_calls: float = Field(default=3.0, ge=0)
-    max_sim_runs: float = Field(default=1.0, ge=0)
-    max_wall_time_s: float = Field(default=120.0, ge=0)
+from polisyos.ir.kernel.base import ComputeBudget
 
 
 class EvidenceBudget(BaseModel):

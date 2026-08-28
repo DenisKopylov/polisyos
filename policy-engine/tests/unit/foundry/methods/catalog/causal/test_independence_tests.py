@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
+from polisyos.foundry.calibration.dp_ci import (
+    CITestThresholdPolicy,
+    CITestThresholdPolicySet,
+    ci_threshold_scope,
+)
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.scientist.methods.search.judge_thresholds import (
-    JudgeThresholdEntry,
-    JudgeThresholdRegistry,
-)
 
 
 @pytest.fixture(autouse=True)
@@ -128,43 +130,23 @@ def test_hsic_dp_calibration_reports_shifted_threshold() -> None:
     assert dp["naive_fpr_inflation_bound"]["reject_probability_upper_bound"] >= dp["alpha"]
 
 
-def test_hsic_dp_registry_policy_override(tmp_path) -> None:
-    registry = JudgeThresholdRegistry(tmp_path / "judge_thresholds")
-    registry.record(
-        JudgeThresholdEntry(
-            judge_name="ci_tests",
-            metric_name="alpha_base",
-            threshold_value=0.10,
-            direction="max",
-            rationale="unit test override",
-            benchmark_source="unit_test",
-            scope_family="kernel_ci",
-            scope_query_type="hsic",
-            scope_estimator="permutation",
-            scope_dp_mechanism="gaussian_counts",
-            scope_dp_epsilon_bucket="0.5_to_1.0",
-            scope_dp_delta_bucket="zero",
-        ),
-        change_reason="seed DP scoped alpha override",
-        approved_by="tests",
-    )
-    registry.record(
-        JudgeThresholdEntry(
-            judge_name="ci_tests",
-            metric_name="mc_bootstrap_B",
-            threshold_value=49,
-            direction="min",
-            rationale="unit test override",
-            benchmark_source="unit_test",
-            scope_family="kernel_ci",
-            scope_query_type="hsic",
-            scope_estimator="permutation",
-            scope_dp_mechanism="gaussian_counts",
-            scope_dp_epsilon_bucket="0.5_to_1.0",
-            scope_dp_delta_bucket="zero",
-        ),
-        change_reason="seed DP scoped bootstrap override",
-        approved_by="tests",
+def test_hsic_consumes_resolved_dp_policy() -> None:
+    dp_context = {"mechanism": "gaussian_counts", "epsilon": 0.7, "delta": 0.0}
+    policies = CITestThresholdPolicySet(
+        policies=(
+            CITestThresholdPolicy(
+                alpha_base=0.10,
+                mc_bootstrap_B=49,
+                threshold_scope=ci_threshold_scope(
+                    family="kernel_ci",
+                    query_type="hsic",
+                    estimator="permutation",
+                    dp_context=dp_context,
+                    readiness_target="diagnostic",
+                ),
+                threshold_registry_version=2,
+            ),
+        )
     )
 
     rng = np.random.default_rng(123)
@@ -177,8 +159,8 @@ def test_hsic_dp_registry_policy_override(tmp_path) -> None:
         params={
             "alpha": 0.05,
             "n_bootstrap": 199,
-            "dp_context": {"mechanism": "gaussian_counts", "epsilon": 0.7, "delta": 0.0},
-            "judge_threshold_registry_root": str(tmp_path / "judge_thresholds"),
+            "dp_context": dp_context,
+            "ci_threshold_policies": policies.model_dump(mode="python"),
         },
     )
 

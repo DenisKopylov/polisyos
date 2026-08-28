@@ -2,7 +2,10 @@ import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 
-import { runPaperPacketFixture } from "@/test/fixtures/runPaper";
+import {
+  authorityAbstainingRunPaperPacketFixture,
+  runPaperPacketFixture,
+} from "@/test/fixtures/runPaper";
 
 import {
   caseInspectionQueryOptions,
@@ -35,6 +38,22 @@ describe("case inspection governed adapter", () => {
     expect(new URL(requests[0].url).search).toBe(rawSearch);
     expect(new TextDecoder().decode(result.rawPacketBytes)).toBe(wire);
     expect(result.packet).toEqual(packet);
+  });
+
+  it("admits the exact authority-abstaining packet through case inspection", async () => {
+    const packet = authorityAbstainingRunPaperPacketFixture();
+    const fetchImpl = vi.fn(async () =>
+      Response.json(packet, {
+        headers: { "content-type": "application/json" },
+        status: 200,
+      }),
+    );
+
+    const result = await fetchCaseInspection("run-1", "", fetchImpl);
+
+    expect(result.packet.case_record.availability).toBe(
+      "record_available_authority_abstaining",
+    );
   });
 
   it("removes only human-decision-owned keys from strict case replay input", async () => {

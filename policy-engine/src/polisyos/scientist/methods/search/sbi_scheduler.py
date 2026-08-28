@@ -479,7 +479,12 @@ def proof_gate_from_bridge(
 ) -> ProofGateReceipt:
     """Convert a simulation proof bridge artifact into a scheduler proof gate."""
 
-    model = bridge if isinstance(bridge, SimulationProofBridge) else SimulationProofBridge.model_validate(bridge)
+    payload = (
+        bridge.model_dump(mode="python", warnings=False)
+        if isinstance(bridge, SimulationProofBridge)
+        else bridge
+    )
+    model = SimulationProofBridge.model_validate(payload)
     status = _proof_gate_status(model.certification_status)
     reasons = tuple(dict.fromkeys((*model.degradation_reasons, *extra_reasons)))
     return ProofGateReceipt(

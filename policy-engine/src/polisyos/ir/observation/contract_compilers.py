@@ -17,26 +17,15 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.foundry.methods.catalog.causal.protocols import (
-    DynamicTreatmentData,
-    NetworkCausalData,
-    PanelObservationalData,
-    ProxyMeasurementData,
-)
-from polisyos.foundry.methods.catalog.econometrics.protocols import PanelData
-from polisyos.foundry.methods.catalog.microsim.protocols import SurveyMicroData
-from polisyos.foundry.methods.catalog.ml.protocols import SurvivalData
-from polisyos.foundry.methods.catalog.network.protocols import (
-    MultiplexNetworkData,
-    NetworkData,
-)
 from polisyos.ir._internal.validation import ensure_unique_ids
 from polisyos.ir.analytics.microsim_calibration import build_microsim_calibration_report
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 from polisyos.ir.observation.bundles import (
     BACKTEST_PLAN_TARGET,
     DYNAMIC_TREATMENT_TARGET,
+    MULTIPLEX_NETWORK_TARGET,
     NETWORK_ANALYSIS_TARGET,
+    NETWORK_DATA_TARGET,
     PANEL_ECONOMETRIC_TARGET,
     PANEL_OBSERVATIONAL_TARGET,
     PROXY_MEASUREMENT_TARGET,
@@ -79,7 +68,6 @@ from polisyos.ir.observation.measurement import (
     MeasurementRegistry,
     SchemaRegimeRegistry,
 )
-from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -456,7 +444,7 @@ class HistoricalValidationCompileSpec(KernelModel):
     post_intervention_periods: int = Field(..., ge=1)
     historical_data_ref: str | None = Field(None, max_length=255)
     historical_data_path: str | None = Field(None, max_length=255)
-    prediction_source: PredictionSource = PredictionSource.NAIVE
+    prediction_source: str | None = Field(default=None, min_length=1, max_length=64)
     jurisdiction: str = Field(default="", max_length=64)
 
 
@@ -490,15 +478,15 @@ class CompiledObservationArtifact:
 
     compiler_id: str
     artifact_key: str
-    contract: Any
+    contract: BaseModel | dict[str, Any]
     bundle: KernelModel
 
 
 @dataclass(frozen=True)
 class HistoricalValidationCompilation:
-    """Pair a generated backtest plan with the payload snapshot used to run it."""
+    """Pair neutral plan payloads with the observation snapshot used to run them."""
 
-    plans: list[HistoricalValidationPlan]
+    plans: list[dict[str, Any]]
     historical_payloads: dict[str, dict[str, Any]]
     bundle: BacktestPlanBundle
 
@@ -684,6 +672,30 @@ def _finite_list(values: Sequence[float]) -> list[float]:
     return [float(value) for value in values]
 
 
+def _json_payload_value(value: Any) -> Any:
+    """Normalize one neutral method payload value without importing its consumer DTO."""
+
+    if isinstance(value, np.ndarray):
+        return value.tolist()
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, BaseModel):
+        return value.model_dump(mode="json")
+    if isinstance(value, dict):
+        return {key: _json_payload_value(item) for key, item in value.items()}
+    if isinstance(value, tuple):
+        return [_json_payload_value(item) for item in value]
+    if isinstance(value, list):
+        return [_json_payload_value(item) for item in value]
+    return value
+
+
+def _method_contract_payload(**values: Any) -> dict[str, Any]:
+    """Return a deterministic JSON payload for upper-layer method materialization."""
+
+    return {key: _json_payload_value(value) for key, value in values.items()}
+
+
 class SparseDenseBridge:
     """Utility for converting sparse multiplex graphs into dense tensors.
 
@@ -848,12 +860,23 @@ class SurveyMicroDataCompiler:
                 )
                 feature_columns.append([mapping[unit_id] for unit_id in units])
             feature_matrix = np.asarray(feature_columns, dtype=float).T
-        contract = SurveyMicroData(
+        contract = _method_contract_payload(
             market_income=income,
             weights=np.asarray([weights_map[unit_id] for unit_id in units], dtype=float),
             household_ids=np.asarray(units),
             features=feature_matrix,
             feature_names=list(spec.feature_metric_ids) or None,
+            period_id=None,
+            cohort_id=None,
+            region_id=None,
+            policy_id=None,
+            reform_id=None,
+            instrument_z=None,
+            schedule_segments=None,
+            kink_points=None,
+            notch_points=None,
+            income_repeat_measure=None,
+            taxrate_repeat_measure=None,
             microsim_calibration_report=build_microsim_calibration_report(
                 compatibility_status="compatible",
                 metadata={
@@ -861,6 +884,8 @@ class SurveyMicroDataCompiler:
                     "compiler_id": self.compiler_id,
                 },
             ).model_dump(mode="json"),
+            microsim_calibration_report_ref=None,
+            sample_design={},
             metadata={
                 "data_shape": "survey_microdata",
                 "panel_id": panel.panel_id,
@@ -872,7 +897,7 @@ class SurveyMicroDataCompiler:
             contract_target=SURVEY_MICRODATA_TARGET,
             required_fields=["market_income", "weights", "household_ids"],
             observation_families=[panel.family],
-            contract_payload=contract.model_dump(mode="json"),
+            contract_payload=contract,
         )
         return CompiledObservationArtifact(
             compiler_id=self.compiler_id,
@@ -918,7 +943,7 @@ class NetworkContractCompiler:
             materialize_node_ids=spec.materialize_node_ids,
             max_bytes=spec.dense_max_bytes,
         )
-        network_contract = NetworkData(
+        network_contract = _method_contract_payload(
             adjacency=adjacency,
             node_features=node_features,
             node_states=node_states,
@@ -937,7 +962,7 @@ class NetworkContractCompiler:
                 max_bytes=spec.dense_max_bytes,
             )
         )
-        multiplex_contract = MultiplexNetworkData(
+        multiplex_contract = _method_contract_payload(
             adjacency_layers=multiplex_layers,
             node_features=node_features,
             node_ids=multiplex_order,
@@ -969,10 +994,7 @@ class NetworkContractCompiler:
         bundle = NetworkContractBundle(
             contract_targets=[
                 NETWORK_ANALYSIS_TARGET,
-                ContractCompatibilityTarget(
-                    contract_id=MultiplexNetworkData.contract_id,
-                    contract_fqn="polisyos.foundry.methods.catalog.network.protocols.MultiplexNetworkData",
-                ),
+                MULTIPLEX_NETWORK_TARGET,
             ],
             graph_layers=list(layer_order),
             source_artifacts=[graph.artifact_id],
@@ -982,8 +1004,8 @@ class NetworkContractCompiler:
             slice_settings={"materialize_node_ids": list(spec.materialize_node_ids)},
             low_rank_factors=low_rank,
             contract_payloads={
-                "network_data": network_contract.model_dump(mode="json"),
-                "multiplex_network_data": multiplex_contract.model_dump(mode="json"),
+                "network_data": network_contract,
+                "multiplex_network_data": multiplex_contract,
             },
         )
         return {
@@ -1106,13 +1128,14 @@ class NetworkCausalDataCompiler:
                 ],
                 dtype=int,
             )
-        contract = NetworkCausalData(
+        contract = _method_contract_payload(
             outcome=outcome,
             treatment=treatment,
             covariates=covariates,
             adjacency_matrix=adjacency,
             cluster_id=cluster_id,
             coordinates=coordinates,
+            treatment_unit_ids=None,
             bipartite_edges=bipartite_edges,
             metadata={
                 "panel_id": panel.panel_id,
@@ -1123,12 +1146,9 @@ class NetworkCausalDataCompiler:
             },
         )
         bundle = NetworkCausalContractBundle(
-            contract_target=ContractCompatibilityTarget(
-                contract_id=NetworkCausalData.contract_id,
-                contract_fqn="polisyos.foundry.methods.catalog.causal.protocols.NetworkCausalData",
-            ),
+            contract_target=NETWORK_DATA_TARGET,
             supported_layers=[chosen_layer],
-            contract_payload=contract.model_dump(mode="json"),
+            contract_payload=contract,
         )
         return CompiledObservationArtifact(
             compiler_id=self.compiler_id,
@@ -1213,7 +1233,7 @@ class PanelObservationalCompiler:
             baseline_period=baseline_period,
             compiler_id=self.compiler_id,
         )
-        contract = PanelObservationalData(
+        contract = _method_contract_payload(
             outcome=outcome,
             treatment=treatment,
             time_treatment=time_treatment,
@@ -1246,7 +1266,7 @@ class PanelObservationalCompiler:
             ],
             lineage=_lineage_from_panel(panel),
             table_rows=rows,
-            contract_payload=contract.model_dump(mode="json"),
+            contract_payload=contract,
         )
         return CompiledObservationArtifact(
             compiler_id=self.compiler_id,
@@ -1365,12 +1385,14 @@ class DynamicTreatmentCompiler:
                 compiler_id=self.compiler_id,
             )
             behavior_probs = np.clip(behavior_probs, 1e-3, 1.0 - 1e-3)
-        contract = DynamicTreatmentData(
+        contract = _method_contract_payload(
             outcome=outcome_matrix[:, -1],
             treatment_sequence=treatment_sequence,
             covariate_sequence=covariate_sequence,
             time_ids=np.asarray([period.isoformat() for period in periods]),
             variable_names=list(spec.covariate_metric_ids),
+            treatment_name="A",
+            outcome_name="Y",
             behavior_policy_probs=behavior_probs,
             metadata={
                 "data_shape": "dynamic_treatment",
@@ -1395,7 +1417,7 @@ class DynamicTreatmentCompiler:
                 BundleAxisSemantic(axis="covariate", description="Time-varying confounder axis"),
             ],
             lineage=_lineage_from_panel(panel),
-            contract_payload=contract.model_dump(mode="json"),
+            contract_payload=contract,
         )
         return CompiledObservationArtifact(
             compiler_id=self.compiler_id,
@@ -1456,7 +1478,7 @@ class SurvivalDataCompiler:
             ):
                 row[metric_name] = metric_value
             rows.append(row)
-        contract = SurvivalData(
+        contract = _method_contract_payload(
             features=np.asarray(feature_rows, dtype=float),
             durations=np.asarray(durations, dtype=float),
             events=np.asarray(events, dtype=int),
@@ -1475,7 +1497,7 @@ class SurvivalDataCompiler:
                 BundleLineageRef(source_artifact=f"{firm_panels.panel_id}.firm_panels"),
             ],
             table_rows=rows,
-            contract_payload=contract.model_dump(mode="json"),
+            contract_payload=contract,
         )
         return CompiledObservationArtifact(
             compiler_id=self.compiler_id,
@@ -1531,7 +1553,7 @@ class PanelEconometricCompiler:
                 ],
                 dtype=float,
             )
-        contract = PanelData(
+        contract = _method_contract_payload(
             dependent=dependent,
             exog=exog,
             entity_ids=np.asarray([row.firm_id for row in rows]),
@@ -1562,7 +1584,7 @@ class PanelEconometricCompiler:
             ],
             lineage=[BundleLineageRef(source_artifact=f"{firm_panels.panel_id}.firm_panels")],
             table_rows=bundle_rows,
-            contract_payload=contract.model_dump(mode="json"),
+            contract_payload=contract,
         )
         return CompiledObservationArtifact(
             compiler_id=self.compiler_id,
@@ -1755,7 +1777,7 @@ class ProxyMeasurementCompiler:
                 compiler_id=self.compiler_id,
             )
             validation_proxy = np.asarray([mapping[unit_id] for unit_id in units], dtype=float)
-        contract = ProxyMeasurementData(
+        contract = _method_contract_payload(
             outcome=outcome,
             treatment_proxy=np.asarray([proxy_values[unit_id] for unit_id in units], dtype=float),
             covariates=covariates,
@@ -1781,7 +1803,7 @@ class ProxyMeasurementCompiler:
         bundle = ProxyIdentificationBundle(
             contract_target=PROXY_MEASUREMENT_TARGET,
             proxy_channels=proxy_channels,
-            contract_payload=contract.model_dump(mode="json"),
+            contract_payload=contract,
             proxy_map=dict(proxy_map.mapping),
         )
         return CompiledObservationArtifact(
@@ -1793,12 +1815,13 @@ class ProxyMeasurementCompiler:
 
 
 class HistoricalValidationPlanCompiler:
-    """Compile panel history into backtest plans for Scientist validation runners.
+    """Compile panel history into neutral payloads for Scientist validation runners.
 
     Downstream historical-validation and governance flows consume the emitted
-    ``HistoricalValidationPlan`` records plus frozen ground-truth series.
-    Callers must provide enough ordered periods to cover the requested
-    pre/post-intervention window for every requested metric.
+    payloads plus frozen ground-truth series. Scientist materializes its strict
+    plan contract at the execution intake. Callers must provide enough ordered
+    periods to cover the requested pre/post-intervention window for every
+    requested metric.
     """
 
     compiler_id = "observation.historical_validation"
@@ -1824,34 +1847,39 @@ class HistoricalValidationPlanCompiler:
             "time_index": [period.isoformat() for period in periods],
             "series": dict(ground_truth),
         }
-        plan = HistoricalValidationPlan(
-            plan_id=spec.spec_id,
-            plan_label=f"{panel.panel_id}_backtest",
-            historical_data_ref=spec.historical_data_ref
-            or f"compiled://{panel.panel_id}/{spec.spec_id}",
-            historical_data_path=spec.historical_data_path,
-            intervention_date=spec.intervention_date,
-            intervention_step=spec.pre_intervention_periods,
-            pre_intervention_periods=spec.pre_intervention_periods,
-            post_intervention_periods=spec.post_intervention_periods,
-            ground_truth_outcomes=ground_truth,
-            target_metrics=list(spec.metric_ids),
-            prediction_source=spec.prediction_source,
-            jurisdiction=spec.jurisdiction,
-            metadata={"panel_id": panel.panel_id},
-        )
+        historical_data_ref = spec.historical_data_ref
+        if historical_data_ref is None and spec.historical_data_path is None:
+            historical_data_ref = f"compiled://{panel.panel_id}/{spec.spec_id}"
+        plan_payload: dict[str, Any] = {
+            "plan_id": spec.spec_id,
+            "plan_label": f"{panel.panel_id}_backtest",
+            "intervention_date": spec.intervention_date,
+            "intervention_step": spec.pre_intervention_periods,
+            "pre_intervention_periods": spec.pre_intervention_periods,
+            "post_intervention_periods": spec.post_intervention_periods,
+            "ground_truth_outcomes": ground_truth,
+            "target_metrics": list(spec.metric_ids),
+            "jurisdiction": spec.jurisdiction,
+            "metadata": {"panel_id": panel.panel_id},
+        }
+        if historical_data_ref is not None:
+            plan_payload["historical_data_ref"] = historical_data_ref
+        if spec.historical_data_path is not None:
+            plan_payload["historical_data_path"] = spec.historical_data_path
+        if spec.prediction_source is not None:
+            plan_payload["prediction_source"] = spec.prediction_source
         bundle = BacktestPlanBundle(
             contract_target=BACKTEST_PLAN_TARGET,
             required_fields=["historical_data_ref", "ground_truth_outcomes", "target_metrics"],
             holdout_windows=[
                 f"{periods[-spec.post_intervention_periods].isoformat()}:{periods[-1].isoformat()}"
             ],
-            plans=[plan],
-            historical_payloads={plan.plan_id: historical_payload},
+            plans=[plan_payload],
+            historical_payloads={spec.spec_id: historical_payload},
         )
         return HistoricalValidationCompilation(
-            plans=[plan],
-            historical_payloads={plan.plan_id: historical_payload},
+            plans=[plan_payload],
+            historical_payloads={spec.spec_id: historical_payload},
             bundle=bundle,
         )
 
@@ -2312,15 +2340,9 @@ class ObservationContractCompilerSuite:
         if artifact.artifact_key == "network_data":
             return NETWORK_ANALYSIS_TARGET
         if artifact.artifact_key == "multiplex_network_data":
-            return ContractCompatibilityTarget(
-                contract_id=MultiplexNetworkData.contract_id,
-                contract_fqn="polisyos.foundry.methods.catalog.network.protocols.MultiplexNetworkData",
-            )
+            return MULTIPLEX_NETWORK_TARGET
         if artifact.artifact_key == "network_causal_data":
-            return ContractCompatibilityTarget(
-                contract_id=NetworkCausalData.contract_id,
-                contract_fqn="polisyos.foundry.methods.catalog.causal.protocols.NetworkCausalData",
-            )
+            return NETWORK_DATA_TARGET
         if artifact.artifact_key == "panel_observational_data":
             return PANEL_OBSERVATIONAL_TARGET
         if artifact.artifact_key == "dynamic_treatment_data":

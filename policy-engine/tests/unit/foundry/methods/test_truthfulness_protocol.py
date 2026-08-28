@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import pytest
+
+import polisyos.core.observability.truthfulness as core_truthfulness
+import polisyos.ir.analytics as analytics_truthfulness
+import polisyos.ir.analytics._truthfulness as ir_truthfulness
 from polisyos.core.contracts.execution_plan import MethodCatalogEntry
 from polisyos.core.observability.truthfulness import (
     TruthfulnessReceipt,
@@ -13,6 +18,61 @@ from polisyos.ir.analytics.calibration_diagnostics import (
     CalibrationDiagnosticsReport,
     CalibrationMetrics,
 )
+
+_TRUTHFULNESS_SURFACE = (
+    "TruthfulnessReceipt",
+    "TruthfulnessScope",
+    "TruthfulnessStatus",
+    "TruthfulnessTier",
+    "extract_truthfulness_receipt",
+    "parse_truthfulness_scope",
+    "parse_truthfulness_status",
+    "parse_truthfulness_tier",
+    "reconcile_truthfulness_tiers",
+    "truthfulness_depth",
+    "validate_truthfulness_receipt",
+)
+
+
+def test_core_truthfulness_surface_is_exact_ir_identity() -> None:
+    for name in _TRUTHFULNESS_SURFACE:
+        private_identity = getattr(ir_truthfulness, name)
+        assert getattr(analytics_truthfulness, name, None) is private_identity
+        assert getattr(core_truthfulness, name) is private_identity
+
+    schema = core_truthfulness.TruthfulnessReceipt.model_json_schema()
+    assert schema == ir_truthfulness.TruthfulnessReceipt.model_json_schema()
+    assert schema["$defs"]["TruthfulnessTier"]["description"] == (
+        "Normalized epistemic strength of a runtime or catalog truthfulness claim."
+    )
+
+
+def test_truthfulness_validate_and_extract_preserve_strict_semantics() -> None:
+    payload = {
+        "runtime_truthfulness_tier": "approximate_calibrated",
+        "truthfulness_scope": "posterior",
+    }
+
+    validated = ir_truthfulness.validate_truthfulness_receipt(payload)
+
+    assert validated is not None
+    assert validated.runtime_truthfulness_tier is ir_truthfulness.TruthfulnessTier.APPROXIMATE_CALIBRATED
+    assert ir_truthfulness.extract_truthfulness_receipt(
+        {"nested": {"truthfulness_receipt": payload}}
+    ) == validated
+    assert ir_truthfulness.extract_truthfulness_receipt(
+        {"truthfulness_receipt": {"runtime_truthfulness_tier": "not-a-tier"}}
+    ) is None
+    with pytest.raises(TypeError, match="mapping or TruthfulnessReceipt"):
+        ir_truthfulness.validate_truthfulness_receipt("not-a-receipt")
+
+
+def test_truthfulness_receipt_rejects_self_attested_effective_tier() -> None:
+    with pytest.raises(ValueError, match="effective_truthfulness_tier"):
+        ir_truthfulness.TruthfulnessReceipt(
+            effective_truthfulness_tier=ir_truthfulness.TruthfulnessTier.EXACT,
+            status=ir_truthfulness.TruthfulnessStatus.RUNTIME_CONSISTENT,
+        )
 
 
 def test_truthfulness_reconcile_downgrades_to_runtime_certificate() -> None:

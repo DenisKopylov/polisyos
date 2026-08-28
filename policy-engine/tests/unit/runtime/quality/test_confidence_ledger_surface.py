@@ -91,6 +91,31 @@ def _stale_over_spend_ledger(semantic_ledger):
     return type(semantic_ledger).model_validate(payload)
 
 
+def _rehash_projection(payload: dict[str, object]) -> dict[str, object]:
+    body = {key: value for key, value in payload.items() if key != "projection_hash"}
+    payload["projection_hash"] = fingerprint(
+        body,
+        prefix=True,
+        canon_spec=CanonSpec(exclude_none=False),
+    )
+    return payload
+
+
+def _replace_amount(amount: dict[str, object], value: Fraction) -> None:
+    amount["amount"] = {
+        "numerator": value.numerator,
+        "denominator": value.denominator,
+    }
+    amount["rational_display"] = f"{value.numerator}/{value.denominator}"
+    amount["canonical_decimal"] = _surface().format_canonical_decimal_v1(value)
+    body = {key: item for key, item in amount.items() if key != "amount_hash"}
+    amount["amount_hash"] = fingerprint(
+        body,
+        prefix=True,
+        canon_spec=CanonSpec(exclude_none=False),
+    )
+
+
 @dataclass(frozen=True)
 class _CoherentOverSpendOwnerSourceAdapter:
     """C02-only owner adapter for a scratch artifact with rebuilt bindings."""
@@ -424,3 +449,79 @@ def test_domain_projection_admission_revalidates_real_semantics_and_hash_identit
     assert projection.status == "not_promoted"
     assert projection.budget_posture == "within_budget"
     assert "safe" not in blocked.model_dump(mode="json")
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "class_denominator",
+        "definition_denominator",
+        "route_denominator",
+        "instance_role_denominator",
+        "reason_slot",
+        "cross_row_allocation",
+    ],
+)
+def test_domain_projection_admission_blocks_coherent_recursive_narrowing(
+    mutation: str,
+) -> None:
+    surface = _surface()
+    projection = _project()
+    payload = projection.model_dump(mode="python")
+
+    if mutation == "class_denominator":
+        payload["obligation_class_risk_spend"] = payload[
+            "obligation_class_risk_spend"
+        ][:-1]
+    elif mutation == "definition_denominator":
+        payload["instrument_definitions"] = payload["instrument_definitions"][:-1]
+    elif mutation == "route_denominator":
+        routes = payload["certificate_routes"][:-1]
+        payload["certificate_routes"] = routes
+        payload["certificate_route_denominator_count"] = len(routes)
+        payload["certificate_route_denominator_hash"] = fingerprint(
+            [row["route_binding_hash"] for row in routes],
+            prefix=True,
+            canon_spec=CanonSpec(exclude_none=False),
+        )
+    elif mutation == "instance_role_denominator":
+        removed = payload["instrument_instances"][-1]
+        payload["instrument_instances"] = payload["instrument_instances"][:-1]
+        for field_name in (
+            "refusal_instance_refs",
+            "acquisition_instance_refs",
+            "conformance_instance_refs",
+        ):
+            payload[field_name] = tuple(
+                ref for ref in payload[field_name] if ref != removed["instance_ref"]
+            )
+        payload["grouped_spend"] = tuple(
+            row
+            for row in payload["grouped_spend"]
+            if not (
+                row["obligation_class"] == removed["obligation_class"]
+                and row["instrument_id"] == removed["instrument_id"]
+            )
+        )
+        for row in payload["obligation_class_risk_spend"]:
+            if removed["instance_ref"] in row["check_refs"]:
+                row["check_refs"] = tuple(
+                    ref for ref in row["check_refs"] if ref != removed["instance_ref"]
+                )
+                row["instrument_refs"] = tuple(
+                    ref
+                    for ref in row["instrument_refs"]
+                    if ref != removed["instrument_id"]
+                )
+    elif mutation == "reason_slot":
+        payload["positive_register"]["blockers"][0]["slot"] = "appointment_posture"
+    else:
+        row = payload["obligation_class_risk_spend"][0]
+        _replace_amount(row["allocation"], Fraction())
+        _replace_amount(row["remaining"], Fraction())
+
+    blocked = surface.admit_confidence_ledger_risk_spend_projection(
+        _rehash_projection(payload)
+    )
+    assert blocked.status == "blocked"
+    assert blocked.reason.value == "parser_or_schema_failure"

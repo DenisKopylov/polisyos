@@ -7,7 +7,13 @@ from enum import StrEnum
 from fractions import Fraction
 from typing import Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    model_validator,
+)
 
 from polisyos.core.canon import CanonSpec, fingerprint, to_canonical_bytes
 from polisyos.pdc import PromotionObligationClass  # noqa: TC001
@@ -290,6 +296,19 @@ class ReasonAlgebraRow(_StrictModel):
     slot: Literal["coverage_assessment", "instrument_blocker", "appointment_posture"]
     value: str = Field(min_length=1)
 
+    @model_validator(mode="after")
+    def _value_is_legal_for_slot(self) -> Self:
+        enum_type = {
+            "coverage_assessment": CoverageAssessment,
+            "instrument_blocker": InstrumentBlocker,
+            "appointment_posture": AppointmentPosture,
+        }[self.slot]
+        try:
+            enum_type(self.value)
+        except ValueError as exc:
+            raise ValueError("confidence_reason_slot_value_mismatch") from exc
+        return self
+
 
 class DS17ReasonAlgebra(_StrictModel):
     """Reconciliation of typed declarations and independently reachable emitters."""
@@ -317,6 +336,8 @@ class ConfidenceLedgerRiskSpendProjection(_StrictModel):
     rule_version: Literal[SURFACE_RULE_VERSION]
     source_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     registry_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    registry_basis: ConfidenceLedgerRegistry
+    semantic_ledger_basis: ConfidenceLedgerSemanticReceiptProjection
     risk_scope: ConfidenceRiskBudgetScope
     scope_id: str = Field(pattern=r"^confidence-risk-scope:sha256:[0-9a-f]{64}$")
     owner_scope_key: str = Field(min_length=1)
@@ -350,7 +371,14 @@ class ConfidenceLedgerRiskSpendProjection(_StrictModel):
     @model_validator(mode="after")
     def _sets_and_hash_are_bound(self) -> Self:
         if (
-            self.risk_scope != self.coverage_envelope.declared_scope
+            self.registry_basis.content_hash != self.registry_content_hash
+            or self.semantic_ledger_basis.projection_hash
+            != self.source_projection_hash
+            or self.semantic_ledger_basis.registry_content_hash
+            != self.registry_content_hash
+            or self.semantic_ledger_basis.risk_scope != self.risk_scope
+            or self.semantic_ledger_basis.scope_id != self.scope_id
+            or self.risk_scope != self.coverage_envelope.declared_scope
             or self.risk_scope.scope_id != self.scope_id
             or self.risk_scope.owner_scope_key != self.owner_scope_key
             or self.coverage_envelope.scope_id != self.scope_id
@@ -421,6 +449,16 @@ class ConfidenceLedgerRiskSpendProjection(_StrictModel):
             for amount in amounts
         ):
             raise ValueError("confidence_risk_surface_nested_amount_binding_mismatch")
+        expected_body = _build_projection_body(
+            registry=self.registry_basis,
+            semantic_ledger=self.semantic_ledger_basis,
+            coverage_envelope=self.coverage_envelope,
+        )
+        observed_body = self.model_dump(mode="json", exclude={"projection_hash"})
+        if to_canonical_bytes(observed_body, _CANON) != to_canonical_bytes(
+            expected_body, _CANON
+        ):
+            raise ValueError("confidence_risk_surface_recursive_basis_mismatch")
         body = self.model_dump(mode="json", exclude={"projection_hash"})
         if self.projection_hash != fingerprint(body, prefix=True, canon_spec=_CANON):
             raise ValueError("confidence_risk_surface_hash_mismatch")
@@ -594,14 +632,14 @@ def derive_ds17_reason_algebra(*, registry: ConfidenceLedgerRegistry) -> DS17Rea
     return DS17ReasonAlgebra(declared_rows=declared, reachable_rows=reachable)
 
 
-def project_confidence_ledger_risk_spend(
+def _build_projection_body(
     *,
     registry: ConfidenceLedgerRegistry,
     semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
     coverage_envelope: ObligationCoverageEnvelope,
     caller_eligibility_by_instrument: dict[str, bool] | None = None,
-) -> ConfidenceLedgerRiskSpendProjection:
-    """Project exact local spend and registry-derived blockers from typed inputs."""
+) -> dict[str, object]:
+    """Recompute the complete projection body from its typed source basis."""
 
     del caller_eligibility_by_instrument
     if not isinstance(registry, ConfidenceLedgerRegistry):
@@ -866,6 +904,8 @@ def project_confidence_ledger_risk_spend(
         "rule_version": SURFACE_RULE_VERSION,
         "source_projection_hash": semantic_ledger.projection_hash,
         "registry_content_hash": registry.content_hash,
+        "registry_basis": registry,
+        "semantic_ledger_basis": semantic_ledger,
         "risk_scope": semantic_ledger.risk_scope,
         "scope_id": semantic_ledger.scope_id,
         "owner_scope_key": semantic_ledger.risk_scope.owner_scope_key,
@@ -901,6 +941,24 @@ def project_confidence_ledger_risk_spend(
         ),
         "status": "not_promoted",
     }
+    return body
+
+
+def project_confidence_ledger_risk_spend(
+    *,
+    registry: ConfidenceLedgerRegistry,
+    semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
+    coverage_envelope: ObligationCoverageEnvelope,
+    caller_eligibility_by_instrument: dict[str, bool] | None = None,
+) -> ConfidenceLedgerRiskSpendProjection:
+    """Project exact local spend and registry-derived blockers from typed inputs."""
+
+    body = _build_projection_body(
+        registry=registry,
+        semantic_ledger=semantic_ledger,
+        coverage_envelope=coverage_envelope,
+        caller_eligibility_by_instrument=caller_eligibility_by_instrument,
+    )
     return ConfidenceLedgerRiskSpendProjection.model_validate(
         {**body, "projection_hash": fingerprint(body, prefix=True, canon_spec=_CANON)}
     )

@@ -14,8 +14,8 @@ from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts import FileSystemCAS
-from polisyos.core.canon import CanonSpec, fingerprint
+from polisyos.core.artifacts import Ed25519Verifier, FileSystemCAS
+from polisyos.core.canon import CanonSpec, content_hash, fingerprint
 from polisyos.pdc import PromotionObligationClass
 from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerRegistry,
@@ -26,6 +26,12 @@ from polisyos.runtime.quality.confidence_ledger import (
 
 COVERAGE_SCHEMA_VERSION = "policyos.runtime.obligation_coverage.v1"
 WITNESS_SCHEMA_VERSION = "policyos.runtime.obligation_coverage.witness.v1"
+WITNESS_SOURCE_SCHEMA_VERSION = (
+    "policyos.runtime.obligation_coverage.witness-source.v1"
+)
+WITNESS_REPLAY_RULE_VERSION = (
+    "policyos.runtime.obligation_coverage.witness-replay.v1"
+)
 COVERAGE_RULE_VERSION = "policyos.runtime.obligation_coverage.negative.v1"
 DECLARED_SET_RIDER = "≤ δ relative to the declared obligation set"
 LOCALITY_RIDER = (
@@ -36,6 +42,9 @@ _WITNESS_KIND = "obligation_coverage_witness_verification"
 _WITNESS_SCHEMA_NAME = "polisyos.runtime.obligation-coverage-witness-verification"
 _WITNESS_SCHEMA_VERSION = "1.0.0"
 _WITNESS_VERIFIER = "polisyos.pdc.coverage-witness-verifier"
+_WITNESS_SOURCE_KIND = "obligation_coverage_witness_source"
+_WITNESS_SOURCE_SCHEMA_NAME = "polisyos.runtime.obligation-coverage-witness-source"
+_WITNESS_SOURCE_SCHEMA_VERSION = "1.0.0"
 _CANON = CanonSpec(exclude_none=False)
 
 
@@ -95,6 +104,51 @@ class CoverageUnknownRemainder(_StrictModel):
     probability: Literal["not_calibrated"]
 
 
+class CoverageOmissionIssue(_StrictModel):
+    """One source-owned decisive omission identity."""
+
+    code: Literal["decisive_obligation_omitted"]
+    obligation_instance_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class CoverageWitnessSourceArtifact(_StrictModel):
+    """Resolved source facts replayed before an omission witness is admitted."""
+
+    schema_version: Literal[WITNESS_SOURCE_SCHEMA_VERSION]
+    risk_scope: ConfidenceRiskBudgetScope
+    assessment_key: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    protected_action_id: str | None = Field(default=None, min_length=1)
+    authority_issue_codes: tuple[Literal["decisive_obligation_omitted"], ...]
+    authority_issues: tuple[CoverageOmissionIssue, ...]
+    authority_status: Literal["red"]
+    class_denominator_count: int = Field(gt=0)
+    class_denominator_status: Literal["green"]
+    mutation_id: str = Field(min_length=1)
+    removed_instance_count: Literal[1]
+    removed_obligation_instance_id: str = Field(
+        pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    removed_obligation_role: Literal["decisive_predicate"]
+    removed_source_obligation_ref: str = Field(min_length=1)
+    verification_session_provenance: Literal["verification"]
+    producer_ref: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _source_denominator_and_issue_are_exact(self) -> Self:
+        if (
+            self.class_denominator_count != len(PromotionObligationClass)
+            or self.authority_issue_codes != ("decisive_obligation_omitted",)
+            or len(self.authority_issues) != 1
+            or self.authority_issues[0].obligation_instance_id
+            != self.removed_obligation_instance_id
+        ):
+            raise ValueError("coverage_witness_source_issue_binding_invalid")
+        return self
+
+
 class CoverageWitnessVerificationReceipt(_StrictModel):
     """Verifier-produced admission receipt for one decisive omission."""
 
@@ -108,6 +162,7 @@ class CoverageWitnessVerificationReceipt(_StrictModel):
     source_artifact_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     source_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     replay_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    verifier_provenance_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     producer_ref: str = Field(min_length=1)
     verifier_ref: Literal[_WITNESS_VERIFIER]
     verification_provenance: Literal["independent_recompute"]
@@ -243,6 +298,7 @@ def build_coverage_envelope(
     semantic_source_verifier_ref: str,
     protected_action_id: str,
     witness_store: FileSystemCAS | None = None,
+    witness_verifier: Ed25519Verifier | None = None,
     witness_refs: tuple[str, ...] = (),
 ) -> ObligationCoverageEnvelope:
     """Derive one negative envelope from typed sources and verified CAS witnesses."""
@@ -291,6 +347,7 @@ def build_coverage_envelope(
     )
     admitted = _resolve_witnesses(
         store=witness_store,
+        verifier=witness_verifier,
         refs=witness_refs,
         assessment_key=assessment_key,
         scope_id=semantic_ledger.scope_id,
@@ -392,6 +449,7 @@ def evaluate_protected_action(
 def _resolve_witnesses(
     *,
     store: FileSystemCAS | None,
+    verifier: Ed25519Verifier | None,
     refs: tuple[str, ...],
     assessment_key: str,
     scope_id: str,
@@ -408,15 +466,30 @@ def _resolve_witnesses(
         raise ValueError("coverage_witness_duplicate_reference")
     if refs and not isinstance(store, FileSystemCAS):
         raise TypeError("coverage_witness_CAS_resolver_required")
+    if refs and not isinstance(verifier, Ed25519Verifier):
+        raise TypeError("coverage_witness_signature_verifier_required")
     if not refs:
         return ()
     if store is None:  # narrowed above; retained as a runtime boundary.
         raise TypeError("coverage_witness_CAS_resolver_required")
+    if verifier is None:  # narrowed above; retained as a runtime boundary.
+        raise TypeError("coverage_witness_signature_verifier_required")
     admitted: list[str] = []
     for ref in refs:
         report = store.verify(ref)
         if not report.ok:
             raise ValueError("coverage_witness_CAS_verification_failed")
+        receipt_signature = store.verify_signature(
+            ref,
+            verifier,
+            strict_identity=True,
+        )
+        if (
+            not receipt_signature.ok
+            or receipt_signature.expected_identity != _WITNESS_VERIFIER
+            or receipt_signature.signer_identity != _WITNESS_VERIFIER
+        ):
+            raise ValueError("coverage_witness_verifier_signature_invalid")
         manifest = store.get_manifest(ref)
         producer = manifest.producer
         schema = manifest.artifact_schema
@@ -441,5 +514,79 @@ def _resolve_witnesses(
             raise ValueError("coverage_witness_scope_or_assessment_mismatch")
         if receipt.verifier_ref != str(producer.component):
             raise ValueError("coverage_witness_manifest_verifier_mismatch")
+        try:
+            source_report = store.verify(receipt.source_artifact_ref)
+        except (FileNotFoundError, OSError, ValueError) as exc:
+            raise ValueError("coverage_witness_source_CAS_verification_failed") from exc
+        if not source_report.ok:
+            raise ValueError("coverage_witness_source_CAS_verification_failed")
+        source_manifest = store.get_manifest(receipt.source_artifact_ref)
+        source_schema = source_manifest.artifact_schema
+        source_producer = source_manifest.producer
+        if (
+            source_manifest.kind != _WITNESS_SOURCE_KIND
+            or source_schema is None
+            or source_schema.name != _WITNESS_SOURCE_SCHEMA_NAME
+            or source_schema.version != _WITNESS_SOURCE_SCHEMA_VERSION
+            or source_producer is None
+        ):
+            raise ValueError("coverage_witness_source_provenance_invalid")
+        source_bytes = store.get_bytes(receipt.source_artifact_ref)
+        resolved_source_hash = content_hash(source_bytes, prefix=True)
+        if receipt.source_content_hash != resolved_source_hash:
+            raise ValueError("coverage_witness_source_content_hash_mismatch")
+        source = CoverageWitnessSourceArtifact.model_validate(json.loads(source_bytes))
+        source_signature = store.verify_signature(
+            receipt.source_artifact_ref,
+            verifier,
+            strict_identity=True,
+        )
+        if (
+            not source_signature.ok
+            or source_signature.expected_identity != source.producer_ref
+            or source_signature.signer_identity != source.producer_ref
+        ):
+            raise ValueError("coverage_witness_source_signature_invalid")
+        if (
+            source.producer_ref != str(source_producer.component)
+            or receipt.producer_ref != source.producer_ref
+        ):
+            raise ValueError("coverage_witness_source_producer_binding_mismatch")
+        if (
+            source.assessment_key != assessment_key
+            or source.risk_scope.scope_id != scope_id
+            or source.risk_scope.owner_scope_key != owner_scope_key
+            or source.protected_action_id != protected_action_id
+            or source.removed_obligation_instance_id
+            != receipt.obligation_instance_id
+            or source.authority_issue_codes != (receipt.issue_code,)
+        ):
+            raise ValueError("coverage_witness_source_scope_or_assessment_mismatch")
+        expected_replay_hash = fingerprint(
+            {
+                "rule_version": WITNESS_REPLAY_RULE_VERSION,
+                "source_artifact_ref": receipt.source_artifact_ref,
+                "source_content_hash": resolved_source_hash,
+                "source": source.model_dump(mode="json"),
+            },
+            prefix=True,
+            canon_spec=_CANON,
+        )
+        if receipt.replay_hash != expected_replay_hash:
+            raise ValueError("coverage_witness_source_replay_hash_mismatch")
+        expected_verifier_provenance_hash = fingerprint(
+            {
+                "verifier_ref": _WITNESS_VERIFIER,
+                "rule_version": WITNESS_REPLAY_RULE_VERSION,
+                "resolution": "filesystem_cas_verified_source_replay",
+                "source_artifact_ref": receipt.source_artifact_ref,
+                "source_content_hash": resolved_source_hash,
+                "replay_hash": expected_replay_hash,
+            },
+            prefix=True,
+            canon_spec=_CANON,
+        )
+        if receipt.verifier_provenance_hash != expected_verifier_provenance_hash:
+            raise ValueError("coverage_witness_verifier_provenance_hash_mismatch")
         admitted.append(ref)
     return tuple(admitted)

@@ -262,3 +262,56 @@ widened the same mechanism to the complete consumer-required quantity; P41
 classifies the five importer reds by exact-base replay. Capability state is
 `surface_out_of_scope` for HTTP/dashboard/publication until C02/C04; the C01
 domain producer, verification, and semantic tests are implemented.
+
+## C01 independent-review correction — authenticated witness replay and recursive basis
+
+The independent review bucketed the witness escape as the same P29/P32 class
+and the coherent projection narrowing as a first NEW P35/P38 recursive-
+admission class. Both close inside the existing two mechanism paths; mechanism
+spend remains **2/2** and reserve remains **0**.
+
+`known_incomplete` now requires two independently resolved CAS objects: the
+source-owned omission artifact and its verifier receipt. Both blob/manifest
+pairs must carry valid detached Ed25519 signatures under an externally supplied
+trusted verifier with strict, exact producer/verifier identity bindings. The
+resolver verifies CAS integrity, source kind/schema, actual source-content hash,
+exact source scope/owner/action/assessment/issue/instance facts, a deterministic
+source replay hash, and a code-owned verifier-provenance hash. A self-authored
+manifest/model/hash/verifier string cannot select the arm. The real GY OM-01
+source is persisted with its actual risk scope and omission values, then a
+receipt relabelled to the DS17 scope is rejected from resolved source facts.
+Unresolved, corrupt, content-mismatched, replay-mismatched, provenance-
+mismatched, and untrusted-signature variants all fail closed.
+
+The risk-spend projection now carries the exact typed registry and runtime
+semantic-ledger bases from which it was built. Its model validator rebuilds the
+entire projection body from those bases and canonically compares it before
+checking the projection hash. This one recursive invariant covers the complete
+15-class denominator and cross-row arithmetic, all 13 definitions, the complete
+six-route registry denominator, all semantic instances and role partitions,
+grouped/scope totals, blockers, positive-register predicates, good-event refs,
+and reason-slot legality. Coherently removing a row while recomputing local
+counts/hashes is therefore blocked. The validator does not expose a context or
+boolean bypass and does not use `model_construct`.
+
+### Independent-review correction receipts
+
+- TDD RED (matching/source variants plus six coherent narrowing arms): exit
+  `1`, `13 failed`; `real 37.09`, `user 35.56`, `sys 1.25`, uptime `00:27` ->
+  `00:28`.
+- Final C01-owned light lane (the two exact C02 tests deselected): exit `0`,
+  `29 passed`; `real 29.27`, `user 28.34`, `sys 0.93`, uptime `00:36` ->
+  `00:36`.
+- Four-path Ruff: exit `0`, `All checks passed!`; `real 0.04`, `user 0.03`,
+  `sys 0.01`, uptime `00:36` -> `00:36`.
+- Delta-focused existing confidence-ledger importer lane: execution branch
+  exit `0`, `8 passed`, `real 73.01`, `user 70.69`, `sys 1.93`, uptime `00:37`
+  -> `00:38`; clean exact-base main exit `0`, `8 passed`, `real 81.94`, `user
+  77.45`, `sys 2.85`, uptime `00:38` -> `00:40`.
+
+P40 disposition is class-first: the repeated P29/P32 witness finding widened
+the intake to the full signed source+receipt chain rather than another label
+check; the first P35/P38 finding widened projection admission to a complete
+source-derived body reconstruction rather than enumerating six mutation sites.
+C02 remains the owner of governed worker admission, over-spend source blocking,
+and HTTP integration; no C02 path or behavior changed.

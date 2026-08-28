@@ -10,7 +10,10 @@ import pytest
 
 from polisyos.core.artifacts import (
     ArtifactID,
+    Ed25519Signer,
+    Ed25519Verifier,
     FileSystemCAS,
+    KeyPair,
     ProducerInfo,
     PutOptions,
     SchemaInfo,
@@ -28,6 +31,8 @@ _N11 = _ROOT / "architecture/policy_design_case/layer3_gy_confidence_ledger_cont
 _GY = _ROOT / "architecture/policy_design_case/layer3_gy_promotion_contract.json"
 _ACTION = "protected-action://ds17/review-risk-spend"
 _VERIFIER = "polisyos.pdc.coverage-witness-verifier"
+_REPLAY_RULE = "policyos.runtime.obligation_coverage.witness-replay.v1"
+_CANON = CanonSpec(exclude_none=False)
 
 
 def _coverage():
@@ -60,13 +65,119 @@ def _envelope():
     )
 
 
+def _source(envelope, **changes: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "schema_version": "policyos.runtime.obligation_coverage.witness-source.v1",
+        "risk_scope": envelope.declared_scope.model_dump(mode="json"),
+        "assessment_key": envelope.assessment_key,
+        "protected_action_id": _ACTION,
+        "authority_issue_codes": ["decisive_obligation_omitted"],
+        "authority_issues": [
+            {
+                "code": "decisive_obligation_omitted",
+                "obligation_instance_id": "sha256:" + "1" * 64,
+            }
+        ],
+        "authority_status": "red",
+        "class_denominator_count": 15,
+        "class_denominator_status": "green",
+        "mutation_id": "ds17_test_decisive_obligation_omission",
+        "removed_instance_count": 1,
+        "removed_obligation_instance_id": "sha256:" + "1" * 64,
+        "removed_obligation_role": "decisive_predicate",
+        "removed_source_obligation_ref": "test.ds17.decisive_obligation",
+        "verification_session_provenance": "verification",
+        "producer_ref": "test.harness.obligation-omission-producer",
+    }
+    payload.update(changes)
+    return payload
+
+
+def _put_source(cas: FileSystemCAS, source: object) -> str:
+    ref = cas.put_json(
+        source,
+        PutOptions(
+            kind="obligation_coverage_witness_source",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.runtime.obligation-coverage-witness-source",
+                version="1.0.0",
+            ),
+            producer=ProducerInfo(
+                component=str(source["producer_ref"]),  # type: ignore[index]
+                version="1.0.0",
+            ),
+        ),
+    )
+    return str(ref.artifact_id)
+
+
+def _replay_hash(*, source_ref: str, source_hash: str, source: object) -> str:
+    return fingerprint(
+        {
+            "rule_version": _REPLAY_RULE,
+            "source_artifact_ref": source_ref,
+            "source_content_hash": source_hash,
+            "source": source,
+        },
+        prefix=True,
+        canon_spec=_CANON,
+    )
+
+
+def _verifier_provenance_hash(
+    *, source_ref: str, source_hash: str, replay_hash: str
+) -> str:
+    return fingerprint(
+        {
+            "verifier_ref": _VERIFIER,
+            "rule_version": _REPLAY_RULE,
+            "resolution": "filesystem_cas_verified_source_replay",
+            "source_artifact_ref": source_ref,
+            "source_content_hash": source_hash,
+            "replay_hash": replay_hash,
+        },
+        prefix=True,
+        canon_spec=_CANON,
+    )
+
+
 def _put_witness(
     tmp_path: Path,
-    receipt: object,
+    envelope,
     *,
+    source: object | None = None,
+    receipt_changes: dict[str, object] | None = None,
     producer_component: str = _VERIFIER,
-) -> tuple[FileSystemCAS, str]:
+) -> tuple[FileSystemCAS, Ed25519Verifier, str, str]:
     cas = FileSystemCAS(tmp_path / "cas")
+    source_payload = _source(envelope) if source is None else source
+    source_ref = _put_source(cas, source_payload)
+    source_pair = KeyPair.generate()
+    source_signer = Ed25519Signer.from_pem(source_pair.private_pem())
+    cas.sign_artifact(
+        ArtifactID.model_validate(source_ref),
+        source_signer,
+        signer_identity=str(source_payload["producer_ref"]),  # type: ignore[index]
+    )
+    source_hash = content_hash(cas.get_bytes(source_ref), prefix=True)
+    replay_hash = _replay_hash(
+        source_ref=source_ref,
+        source_hash=source_hash,
+        source=source_payload,
+    )
+    receipt_kwargs: dict[str, object] = {
+        "source_artifact_ref": source_ref,
+        "source_content_hash": source_hash,
+        "replay_hash": replay_hash,
+        "verifier_provenance_hash": _verifier_provenance_hash(
+            source_ref=source_ref,
+            source_hash=source_hash,
+            replay_hash=replay_hash,
+        ),
+    }
+    receipt_kwargs.update(receipt_changes or {})
+    receipt = _receipt(envelope, **receipt_kwargs)
     ref = cas.put_json(
         receipt,
         PutOptions(
@@ -79,7 +190,25 @@ def _put_witness(
             producer=ProducerInfo(component=producer_component, version="1.0.0"),
         ),
     )
-    return cas, str(ref.artifact_id)
+    verifier_pair = KeyPair.generate()
+    verifier_signer = Ed25519Signer.from_pem(verifier_pair.private_pem())
+    cas.sign_artifact(
+        ref.artifact_id,
+        verifier_signer,
+        signer_identity=_VERIFIER,
+    )
+    verifier = Ed25519Verifier(strict_identity=True)
+    verifier.add_trusted_key(
+        source_pair.public_key,
+        key_id=source_pair.key_id,
+        identity=str(source_payload["producer_ref"]),  # type: ignore[index]
+    )
+    verifier.add_trusted_key(
+        verifier_pair.public_key,
+        key_id=verifier_pair.key_id,
+        identity=_VERIFIER,
+    )
+    return cas, verifier, str(ref.artifact_id), source_ref
 
 
 def _receipt(envelope, **changes: object) -> object:
@@ -94,6 +223,7 @@ def _receipt(envelope, **changes: object) -> object:
         "source_artifact_ref": "sha256:" + "2" * 64,
         "source_content_hash": "sha256:" + "3" * 64,
         "replay_hash": "sha256:" + "4" * 64,
+        "verifier_provenance_hash": "sha256:" + "5" * 64,
         "producer_ref": "test.harness.obligation-omission-producer",
         "verifier_ref": _VERIFIER,
         "verification_provenance": "independent_recompute",
@@ -130,7 +260,7 @@ def test_every_delta_amount_binds_exact_envelope_scope_and_both_riders() -> None
 def test_content_bound_matching_cas_witness_moves_the_same_derivation(tmp_path: Path) -> None:
     baseline = _envelope()
     assert baseline.assessment.value == "open_world_unresolved"
-    cas, witness_ref = _put_witness(tmp_path, _receipt(baseline))
+    cas, verifier, witness_ref, _ = _put_witness(tmp_path, baseline)
     registry, semantic = _inputs()
     moved = _coverage().build_coverage_envelope(
         registry=registry,
@@ -139,6 +269,7 @@ def test_content_bound_matching_cas_witness_moves_the_same_derivation(tmp_path: 
         semantic_source_verifier_ref=baseline.source_identities[1].verifier_ref,
         protected_action_id=_ACTION,
         witness_store=cas,
+        witness_verifier=verifier,
         witness_refs=(witness_ref,),
     )
     assert moved.assessment.value == "known_incomplete"
@@ -150,7 +281,7 @@ def test_content_bound_matching_cas_witness_moves_the_same_derivation(tmp_path: 
 
     for shaped in (
         {"receipt_ref": witness_ref},
-        _receipt(baseline),
+        {"schema_version": "policyos.runtime.obligation_coverage.witness.v1"},
         True,
         "decisive_obligation_omitted",
     ):
@@ -173,13 +304,25 @@ def test_real_gy_omission_witness_is_rejected_as_cross_scope(tmp_path: Path) -> 
     gy_scope = gy["contract_lane_anytime_refusal"][
         "confidence_ledger_semantic_projection"
     ]["risk_scope"]
-    receipt = _receipt(
+    source = {
+        "schema_version": "policyos.runtime.obligation_coverage.witness-source.v1",
+        "risk_scope": gy_scope,
+        "assessment_key": None,
+        "protected_action_id": None,
+        **witness,
+        "producer_ref": "polisyos.runtime.quality.generation_cycle",
+    }
+    cas, verifier, witness_ref, _ = _put_witness(
+        tmp_path,
         envelope,
-        scope_id="confidence-risk-scope:sha256:" + "8" * 64,
-        owner_scope_key=gy_scope["owner_scope_key"],
-        obligation_instance_id=witness["removed_obligation_instance_id"],
+        source=source,
+        receipt_changes={
+            "scope_id": envelope.scope_id,
+            "owner_scope_key": envelope.owner_scope_key,
+            "obligation_instance_id": witness["removed_obligation_instance_id"],
+            "producer_ref": "polisyos.runtime.quality.generation_cycle",
+        },
     )
-    cas, witness_ref = _put_witness(tmp_path, receipt)
     registry, semantic = _inputs()
     with pytest.raises((TypeError, ValueError), match=r"scope|assessment"):
         _coverage().build_coverage_envelope(
@@ -189,6 +332,7 @@ def test_real_gy_omission_witness_is_rejected_as_cross_scope(tmp_path: Path) -> 
             semantic_source_verifier_ref=envelope.source_identities[1].verifier_ref,
             protected_action_id=_ACTION,
             witness_store=cas,
+            witness_verifier=verifier,
             witness_refs=(witness_ref,),
         )
 
@@ -200,8 +344,11 @@ def test_witness_resolver_rejects_key_corruption_manifest_and_duplicate_refs(
     registry, semantic = _inputs()
     source = envelope.source_identities[1]
 
-    wrong_key = _receipt(envelope, assessment_key="sha256:" + "6" * 64)
-    wrong_key_cas, wrong_key_ref = _put_witness(tmp_path / "key", wrong_key)
+    wrong_key_cas, wrong_key_verifier, wrong_key_ref, _ = _put_witness(
+        tmp_path / "key",
+        envelope,
+        receipt_changes={"assessment_key": "sha256:" + "6" * 64},
+    )
     with pytest.raises(ValueError, match=r"assessment"):
         _coverage().build_coverage_envelope(
             registry=registry,
@@ -210,12 +357,13 @@ def test_witness_resolver_rejects_key_corruption_manifest_and_duplicate_refs(
             semantic_source_verifier_ref=source.verifier_ref,
             protected_action_id=_ACTION,
             witness_store=wrong_key_cas,
+            witness_verifier=wrong_key_verifier,
             witness_refs=(wrong_key_ref,),
         )
 
-    wrong_manifest_cas, wrong_manifest_ref = _put_witness(
+    wrong_manifest_cas, wrong_manifest_verifier, wrong_manifest_ref, _ = _put_witness(
         tmp_path / "manifest",
-        _receipt(envelope),
+        envelope,
         producer_component="test.untrusted.coverage-verifier",
     )
     with pytest.raises(ValueError, match=r"provenance"):
@@ -226,10 +374,26 @@ def test_witness_resolver_rejects_key_corruption_manifest_and_duplicate_refs(
             semantic_source_verifier_ref=source.verifier_ref,
             protected_action_id=_ACTION,
             witness_store=wrong_manifest_cas,
+            witness_verifier=wrong_manifest_verifier,
             witness_refs=(wrong_manifest_ref,),
         )
 
-    corrupt_cas, corrupt_ref = _put_witness(tmp_path / "corrupt", _receipt(envelope))
+    signed_cas, _, signed_ref, _ = _put_witness(tmp_path / "untrusted", envelope)
+    with pytest.raises(ValueError, match=r"signature"):
+        _coverage().build_coverage_envelope(
+            registry=registry,
+            semantic_ledger=semantic,
+            semantic_source_ref=source.source_ref,
+            semantic_source_verifier_ref=source.verifier_ref,
+            protected_action_id=_ACTION,
+            witness_store=signed_cas,
+            witness_verifier=Ed25519Verifier(strict_identity=True),
+            witness_refs=(signed_ref,),
+        )
+
+    corrupt_cas, corrupt_verifier, corrupt_ref, _ = _put_witness(
+        tmp_path / "corrupt", envelope
+    )
     blob_path, _ = corrupt_cas.get_paths(ArtifactID.model_validate(corrupt_ref))
     blob_path.write_bytes(b"corrupted witness bytes")
     with pytest.raises(ValueError, match=r"CAS"):
@@ -240,10 +404,13 @@ def test_witness_resolver_rejects_key_corruption_manifest_and_duplicate_refs(
             semantic_source_verifier_ref=source.verifier_ref,
             protected_action_id=_ACTION,
             witness_store=corrupt_cas,
+            witness_verifier=corrupt_verifier,
             witness_refs=(corrupt_ref,),
         )
 
-    duplicate_cas, duplicate_ref = _put_witness(tmp_path / "duplicate", _receipt(envelope))
+    duplicate_cas, duplicate_verifier, duplicate_ref, _ = _put_witness(
+        tmp_path / "duplicate", envelope
+    )
     with pytest.raises(ValueError, match=r"duplicate"):
         _coverage().build_coverage_envelope(
             registry=registry,
@@ -252,7 +419,70 @@ def test_witness_resolver_rejects_key_corruption_manifest_and_duplicate_refs(
             semantic_source_verifier_ref=source.verifier_ref,
             protected_action_id=_ACTION,
             witness_store=duplicate_cas,
+            witness_verifier=duplicate_verifier,
             witness_refs=(duplicate_ref, duplicate_ref),
+        )
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        ("missing_source", r"source|CAS"),
+        ("corrupt_source", r"source|CAS"),
+        ("source_hash", r"source.*hash|content"),
+        ("replay_hash", r"replay"),
+        ("verifier_provenance", r"provenance"),
+    ],
+)
+def test_witness_requires_resolved_source_replay_and_verifier_provenance(
+    tmp_path: Path, mutation: str, message: str
+) -> None:
+    envelope = _envelope()
+    changes: dict[str, object] = {}
+    if mutation == "source_hash":
+        changes["source_content_hash"] = "sha256:" + "6" * 64
+    elif mutation == "replay_hash":
+        changes["replay_hash"] = "sha256:" + "7" * 64
+    elif mutation == "verifier_provenance":
+        changes["verifier_provenance_hash"] = "sha256:" + "8" * 64
+    cas, verifier, witness_ref, source_ref = _put_witness(
+        tmp_path,
+        envelope,
+        receipt_changes=changes,
+    )
+    if mutation == "missing_source":
+        receipt = json.loads(cas.get_bytes(witness_ref))
+        receipt["source_artifact_ref"] = "sha256:" + "9" * 64
+        receipt["source_content_hash"] = "sha256:" + "9" * 64
+        receipt["replay_hash"] = _replay_hash(
+            source_ref=receipt["source_artifact_ref"],
+            source_hash=receipt["source_content_hash"],
+            source=_source(envelope),
+        )
+        receipt["verifier_provenance_hash"] = _verifier_provenance_hash(
+            source_ref=receipt["source_artifact_ref"],
+            source_hash=receipt["source_content_hash"],
+            replay_hash=receipt["replay_hash"],
+        )
+        cas, verifier, witness_ref, _ = _put_witness(
+            tmp_path / "missing",
+            envelope,
+            receipt_changes=receipt,
+        )
+    elif mutation == "corrupt_source":
+        source_blob, _ = cas.get_paths(ArtifactID.model_validate(source_ref))
+        source_blob.write_bytes(b"corrupted source bytes")
+    registry, semantic = _inputs()
+    with pytest.raises((TypeError, ValueError), match=message):
+        _coverage().build_coverage_envelope(
+            registry=registry,
+            semantic_ledger=semantic,
+            semantic_source_ref=envelope.source_identities[1].source_ref,
+            semantic_source_verifier_ref=envelope.source_identities[1].verifier_ref,
+            protected_action_id=_ACTION,
+            witness_store=cas,
+            witness_verifier=verifier,
+            witness_refs=(witness_ref,),
         )
 
 

@@ -435,3 +435,27 @@ but no production-growth claim may.
 - C01 checks CC02, CC03, CC04 and CC21. All surface/action/generated/parity
   conditions remain unchecked. Running slice budget: 7/39 mechanism paths and
   1/11 widening rounds.
+
+## C02 measured event-registry path amendment
+
+- R05's first authority-sink run reached the real diagnostic registry and
+  failed `unknown_diagnostic_event_type` for the planned
+  `polisyos.runtime.acquisition.route_phase.v1` event before the phase receipt
+  could be admitted.
+- The committed plan also requires
+  `polisyos.runtime.acquisition.route_loop.v1`. Neither type is present in the
+  complete TOML registry; the runtime registry loader admits additional owner
+  rows, so `diagnostic_events.py` does not need an edit.
+- Reusing `polisyos.runtime.diagnostic.cas_write.v1` was rejected as P38: that
+  event establishes generic CAS persistence, not acquisition phase or terminal
+  loop semantics.
+- Derivation A: pre-amendment cluster arithmetic 7+15+12+4+1=39 plus one absent
+  registry owner path gives 7+16+12+4+1=40. Derivation B: a list-item parser
+  returns pre-amendment cluster sets 7/15/12/4/1 and 39 unique paths, proves
+  `architecture/production_quality/diagnostic_event_types.toml` absent, and
+  returns 40 unique after insertion. An earlier unbounded parser returned 44/44
+  by overrunning C06 prose and is retained as a parser non-receipt.
+- Ruling: add only the TOML registry as C02 mechanism 16; register both exact
+  event types. Slice ceiling becomes 40 and path 41 is the stop. R05 was already
+  a declared mechanism class, so the 11-round budget and 1-round current spend
+  do not move.

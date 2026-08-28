@@ -13,8 +13,17 @@ from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Annotated, Literal, Protocol, Self
+from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, StringConstraints, model_validator
+from pydantic import (
+    UUID4,
+    BaseModel,
+    ConfigDict,
+    Field,
+    PrivateAttr,
+    StringConstraints,
+    model_validator,
+)
 from pydantic_core import to_jsonable_python
 
 from polisyos.core import components as core_components  # noqa: TC001
@@ -51,6 +60,16 @@ PredicateProvenance = Literal[
     "institutionally_supplied",
     "not_established",
 ]
+AuthorityAttestationRole = Literal[
+    "producer_statement",
+    "independent_verification",
+]
+AuthoritySubjectPurpose = Literal[
+    "attempted_evaluation_mode_basis",
+    "certificate_revision_issue",
+    "certificate_revision_supersede",
+    "certificate_revision_revoke",
+]
 
 _BLOCKER_PREFIX = "polisyos.eval_safety"
 _PRODUCER_TOKEN = object()
@@ -78,19 +97,22 @@ class _FrozenModel(BaseModel):
 
 
 class _ProducerOwned:
-    """Private capability marker populated only by an owner procedure."""
+    """Private capability bound to the exact canonical public bytes."""
 
     _producer_token: object | None = PrivateAttr(default=None)
+    _producer_fingerprint: str | None = PrivateAttr(default=None)
 
 
 def _mark_produced(value: _ProducerOwned) -> None:
     value._producer_token = _PRODUCER_TOKEN
+    value._producer_fingerprint = _content_hash(value)
 
 
 def _is_produced(value: object, expected_type: type[object]) -> bool:
     return (
         type(value) is expected_type
         and getattr(value, "_producer_token", None) is _PRODUCER_TOKEN
+        and getattr(value, "_producer_fingerprint", None) == _content_hash(value)
     )
 
 
@@ -195,6 +217,14 @@ class EvalSafetyAuthorityResolution(_FrozenModel):
     blocker_codes: tuple[NamespacedEvalSafetyId, ...]
     predicate_provenance: tuple[PredicateProvenance, ...]
     resolved_at: datetime
+    attestation_role: AuthorityAttestationRole | None = None
+    subject_refs: tuple[ArtifactRef, ...] = ()
+    subject_schema_version: str | None = None
+    subject_rule_version: str | None = None
+    subject_purpose: AuthoritySubjectPurpose | None = None
+    subject_effective_at: datetime | None = None
+    subject_valid_until: datetime | None = None
+    attesting_component_id: core_components.ComponentId | None = None
 
     @model_validator(mode="after")
     def _verify_resolution_shape(self) -> Self:
@@ -202,7 +232,16 @@ class EvalSafetyAuthorityResolution(_FrozenModel):
             row in {"recomputed", "independently_reconciled"}
             for row in self.predicate_provenance
         )
-        verified_shape = not self.blocker_codes and trusted
+        verified_shape = bool(
+            not self.blocker_codes
+            and trusted
+            and self.attestation_role is not None
+            and self.subject_refs
+            and self.subject_schema_version
+            and self.subject_purpose is not None
+            and self.subject_effective_at is not None
+            and self.attesting_component_id is not None
+        )
         if (self.status == "verified") is not verified_shape:
             raise ValueError("eval_safety_authority_resolution_incoherent")
         return self
@@ -229,10 +268,32 @@ def verify_evaluation_safety_mode_basis(
         and (basis.valid_until is None or verified_at < basis.valid_until)
     ):
         return None
-    for artifact_ref in (basis.producer_authority_ref, basis.verifier_receipt_ref):
+    attestation_refs = (basis.producer_authority_ref, basis.verifier_receipt_ref)
+    if len({_identity(basis_ref), *map(_identity, attestation_refs)}) != 3:
+        return None
+    resolutions: list[EvalSafetyAuthorityResolution] = []
+    for artifact_ref, role in zip(
+        attestation_refs,
+        ("producer_statement", "independent_verification"),
+        strict=True,
+    ):
         resolution = authority_resolver.resolve(artifact_ref)
-        if resolution.status != "verified" or resolution.artifact_ref != artifact_ref:
+        if (
+            resolution.status != "verified"
+            or resolution.artifact_ref != artifact_ref
+            or resolution.attestation_role != role
+            or resolution.subject_refs != (basis_ref,)
+            or resolution.subject_schema_version != basis.schema_version
+            or resolution.subject_rule_version != basis.rule_version
+            or resolution.subject_purpose != "attempted_evaluation_mode_basis"
+            or resolution.subject_effective_at != basis.valid_from
+            or resolution.subject_valid_until != basis.valid_until
+            or resolution.resolved_at > verified_at
+        ):
             return None
+        resolutions.append(resolution)
+    if resolutions[0].attesting_component_id == resolutions[1].attesting_component_id:
+        return None
     produced = _ProducedEvalSafetyModeBasis.model_validate(basis.model_dump(mode="python"))
     _mark_produced(produced)
     return produced
@@ -385,6 +446,7 @@ class EvaluationAttemptIntake(_FrozenModel):
     """Audit-safe envelope retained even when strict parsing fails."""
 
     attempt_id: str = Field(min_length=1)
+    evaluator_owner_id: core_components.ComponentId
     candidate_ref: ArtifactRef
     world_model_record_ref: ArtifactRef
     requested_mode_token: str | None
@@ -406,12 +468,15 @@ class EvaluationAttemptRequest(_FrozenModel):
 
     intake_ref: ArtifactRef
     attempt_id: str = Field(min_length=1)
+    evaluator_owner_id: core_components.ComponentId
     candidate_ref: ArtifactRef
     world_model_record_ref: ArtifactRef
     evaluation_mode: EvaluationMode
     domain_pack_ref: ArtifactRef
     semantic_facet_denominator_receipt_ref: ArtifactRef
     target_population_scope_ref: ArtifactRef
+    evaluation_input_refs: tuple[ArtifactRef, ...]
+    evaluation_input_provenance: tuple[EvaluationInputProvenance, ...]
     evidence_refs: tuple[ArtifactRef, ...]
     requested_at: datetime
     intended_start_at: datetime
@@ -440,6 +505,27 @@ class EvaluationExecutionContext(_FrozenModel):
         """Recompute action class from the complete bound input provenance."""
 
         return recompute_attempt_class(self.evaluation_input_refs, self.evaluation_input_provenance)
+
+
+def evaluation_execution_context_hash(context: EvaluationExecutionContext) -> Digest:
+    """Return the canonical hash of every execution-context field."""
+
+    return _content_hash(context)
+
+
+class EvalSafetyAdmissionChallenge(_FrozenModel):
+    """Unrepeatable consumer-generated subject for one admission call."""
+
+    consumer_component_id: core_components.ComponentId
+    nonce: UUID4
+
+    @classmethod
+    def fresh(
+        cls, *, consumer_component_id: core_components.ComponentId
+    ) -> EvalSafetyAdmissionChallenge:
+        """Create a fresh challenge immediately before consumer verification."""
+
+        return cls(consumer_component_id=consumer_component_id, nonce=uuid4())
 
 
 class EvalSafetyRequirementResult(_FrozenModel):
@@ -499,10 +585,13 @@ class EvaluationSafetyDecisionCore(_FrozenModel):
 
     intake_ref: ArtifactRef
     request_ref: ArtifactRef | None
+    evaluator_owner_id: core_components.ComponentId
     requested_mode_token: str | None
     evaluation_mode: EvaluationMode | None
     attempt_class: Literal["simulation", "non_simulation", "not_established"]
     attempt_class_provenance: PredicateProvenance
+    evaluation_input_refs: tuple[ArtifactRef, ...]
+    evaluation_input_provenance: tuple[EvaluationInputProvenance, ...]
     status: Literal["passed", "blocked"]
     blocker_codes: tuple[NamespacedEvalSafetyId, ...]
     requirement_results: tuple[EvalSafetyRequirementResult, ...]
@@ -547,6 +636,7 @@ class EvalSafetyNearMissClassificationOffer(_FrozenModel):
     promotion_rule_version: str
     open_world_resolver_basis_ref: ArtifactRef
     epoch_resolver_basis_ref: ArtifactRef
+    safety_semantic_hash: Digest
     offered_at: datetime
     content_hash: Digest
 
@@ -564,7 +654,14 @@ class VerifiedNearMissClassification:
     offer_ref: ArtifactRef
     validation_basis_ref: ArtifactRef
     promotion_safe_facet: bool
+    safety_semantic_hash: Digest
     _producer_token: object | None = field(
+        default=None,
+        init=False,
+        repr=False,
+        compare=False,
+    )
+    _producer_fingerprint: str | None = field(
         default=None,
         init=False,
         repr=False,
@@ -572,11 +669,29 @@ class VerifiedNearMissClassification:
     )
 
 
-def _classification_is_produced(value: object) -> bool:
+def _classification_fingerprint(value: VerifiedNearMissClassification) -> str:
+    return _content_hash(
+        {
+            "offer_ref": value.offer_ref,
+            "validation_basis_ref": value.validation_basis_ref,
+            "promotion_safe_facet": value.promotion_safe_facet,
+            "safety_semantic_hash": value.safety_semantic_hash,
+        }
+    )
+
+
+def _classification_is_produced(
+    value: object,
+    core: EvaluationSafetyDecisionCore,
+) -> bool:
     if not isinstance(value, VerifiedNearMissClassification):
         return False
     try:
-        return value._producer_token is _PRODUCER_TOKEN
+        return bool(
+            value._producer_token is _PRODUCER_TOKEN
+            and value._producer_fingerprint == _classification_fingerprint(value)
+            and value.safety_semantic_hash == core.safety_semantic_hash
+        )
     except AttributeError:
         return False
 
@@ -626,11 +741,14 @@ class EvalSafetyCertificate(_FrozenModel):
 
     decision_ref: ArtifactRef
     request_ref: ArtifactRef
+    evaluator_owner_id: core_components.ComponentId
     evaluation_mode: EvaluationMode
     candidate_ref: ArtifactRef
     world_model_record_ref: ArtifactRef
     domain_pack_ref: ArtifactRef
     target_population_scope_ref: ArtifactRef
+    evaluation_input_refs: tuple[ArtifactRef, ...]
+    evaluation_input_provenance: tuple[EvaluationInputProvenance, ...]
     rule_version: str
     revision_lineage_id: str
     valid_from: datetime
@@ -700,7 +818,13 @@ class EvalSafetyCertificateRevision(_FrozenModel):
         """Create the unique issue head for a certificate lineage."""
 
         resolution = cause_resolver.resolve(verified_cause_ref)
-        if resolution.status != "verified" or resolution.artifact_ref != verified_cause_ref:
+        if not _revision_cause_resolution_matches(
+            resolution=resolution,
+            cause_ref=verified_cause_ref,
+            subject_refs=(certificate_ref,),
+            purpose="certificate_revision_issue",
+            effective_at=effective_at,
+        ):
             raise ValueError("eval_safety_revision_cause_unverified")
         values = {
             "revision_id": "eval-safety-revision:" + certificate_ref.content_hash,
@@ -729,7 +853,13 @@ class EvalSafetyCertificateRevision(_FrozenModel):
         """Create a content-bound successor revision."""
 
         resolution = cause_resolver.resolve(verified_cause_ref)
-        if resolution.status != "verified" or resolution.artifact_ref != verified_cause_ref:
+        if not _revision_cause_resolution_matches(
+            resolution=resolution,
+            cause_ref=verified_cause_ref,
+            subject_refs=(predecessor_ref, certificate_ref),
+            purpose=f"certificate_revision_{action}",
+            effective_at=effective_at,
+        ):
             raise ValueError("eval_safety_revision_cause_unverified")
         values = {
             "revision_id": (
@@ -759,6 +889,34 @@ class _ProducedEvalSafetyCertificateRevision(
     _ProducerOwned, EvalSafetyCertificateRevision
 ):
     """Owner-produced revision node; parsed public nodes carry no authority."""
+
+
+def _revision_cause_resolution_matches(
+    *,
+    resolution: EvalSafetyAuthorityResolution,
+    cause_ref: ArtifactRef,
+    subject_refs: tuple[ArtifactRef, ...],
+    purpose: Literal[
+        "certificate_revision_issue",
+        "certificate_revision_supersede",
+        "certificate_revision_revoke",
+    ],
+    effective_at: datetime,
+) -> bool:
+    return bool(
+        resolution.status == "verified"
+        and resolution.artifact_ref == cause_ref
+        and resolution.attestation_role == "independent_verification"
+        and resolution.subject_refs == subject_refs
+        and resolution.subject_schema_version
+        == "polisyos.eval_safety.certificate_revision.v1"
+        and resolution.subject_rule_version is None
+        and resolution.subject_purpose == purpose
+        and resolution.subject_effective_at == effective_at
+        and resolution.subject_valid_until is None
+        and resolution.resolved_at <= effective_at
+        and _identity(cause_ref) not in {_identity(ref) for ref in subject_refs}
+    )
 
 
 def _produce_certificate_revision(
@@ -825,6 +983,8 @@ class EvalSafetyConsumerAdmissionReceipt(_FrozenModel):
     intake_ref: ArtifactRef
     certificate_ref: ArtifactRef | None
     current_revision_head_ref: ArtifactRef | None
+    execution_context_hash: Digest
+    challenge: EvalSafetyAdmissionChallenge
     blocker_codes: tuple[NamespacedEvalSafetyId, ...]
     verified_at: datetime
 
@@ -833,11 +993,19 @@ class EvalSafetyConsumerAdmissionReceipt(_FrozenModel):
         verified_shape = (
             self.certificate_ref is not None
             and self.current_revision_head_ref is not None
+            and self.challenge.consumer_component_id
+            and self.execution_context_hash
             and not self.blocker_codes
         )
         if (self.status == "verified") is not verified_shape:
             raise ValueError("eval_safety_consumer_admission_incoherent")
         return self
+
+
+class _ProducedEvalSafetyConsumerAdmissionReceipt(
+    _ProducerOwned, EvalSafetyConsumerAdmissionReceipt
+):
+    """Consumer admission emitted only by the canonical current-state verifier."""
 
 
 class EvalSafetyCertificateRevisionNode(_FrozenModel):
@@ -909,7 +1077,9 @@ class EvalSafetyVerifierPort(Protocol):
     """Verification-only port; it cannot execute or schedule evaluations."""
 
     def require_admission(
-        self, context: EvaluationExecutionContext
+        self,
+        context: EvaluationExecutionContext,
+        challenge: EvalSafetyAdmissionChallenge,
     ) -> EvalSafetyConsumerAdmissionReceipt:
         """Re-resolve and verify admission immediately before work."""
 
@@ -1062,8 +1232,8 @@ def admit_domain_evaluation_safety_pack(
                 continue
             appointments[appointment.evidence_contract_id] = appointment
             resolved_refs.append(appointment_ref)
-    if pack_profile is not None:
-        for requirement in pack_profile.all_of:
+    if effective_profile is not None:
+        for requirement in effective_profile.all_of:
             if requirement.evidence_contract_id not in appointments:
                 blockers.append(_blocker("verifier_unappointed"))
 
@@ -1116,6 +1286,9 @@ def verify_evaluation_safety_requirements(
     profile = admitted_pack.effective_profile
     if (
         admitted_pack.status != "admitted"
+        or not _is_produced(
+            admitted_pack, _ProducedEvalSafetyPackAdmissionReceipt
+        )
         or profile is None
         or profile.mode != request.evaluation_mode
     ):
@@ -1354,12 +1527,15 @@ def decide_evaluation_safety_core(
     payload: dict[str, object] = {
         "intake_ref": intake_ref,
         "request_ref": request_ref if request is not None else None,
+        "evaluator_owner_id": intake.evaluator_owner_id,
         "requested_mode_token": intake.requested_mode_token,
         "evaluation_mode": mode,
         "attempt_class": attempt_class,
         "attempt_class_provenance": (
             "recomputed" if attempt_class != "not_established" else "not_established"
         ),
+        "evaluation_input_refs": intake.evaluation_input_refs,
+        "evaluation_input_provenance": intake.evaluation_input_provenance,
         "status": status,
         "blocker_codes": tuple(blockers),
         "requirement_results": verified_results,
@@ -1387,11 +1563,14 @@ def _request_matches_intake(
     return bool(
         request.intake_ref == intake_ref
         and request.attempt_id == intake.attempt_id
+        and request.evaluator_owner_id == intake.evaluator_owner_id
         and request.candidate_ref == intake.candidate_ref
         and request.world_model_record_ref == intake.world_model_record_ref
         and request.evaluation_mode == intake.mode_resolution.canonical_mode
         and request.domain_pack_ref == intake.domain_pack_ref
         and request.target_population_scope_ref == intake.target_population_scope_ref
+        and request.evaluation_input_refs == intake.evaluation_input_refs
+        and request.evaluation_input_provenance == intake.evaluation_input_provenance
         and request.evidence_refs == intake.evidence_refs
         and request.requested_at == intake.requested_at
         and request.intended_start_at == intake.intended_start_at
@@ -1495,7 +1674,7 @@ def build_evaluation_safety_decision_event(
         raise ValueError("eval_safety_decision_core_unreconciled")
     admitted = (
         classification
-        if _classification_is_produced(classification)
+        if _classification_is_produced(classification, core)
         else None
     )
     facet = admitted.promotion_safe_facet if admitted is not None else None
@@ -1535,6 +1714,7 @@ def verify_near_miss_classification(
     value_receipt: ValueGateReceipt,
     open_world_resolver: OpenWorldRiskArtifactResolver,
     epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver,
+    core: EvaluationSafetyDecisionCore,
 ) -> VerifiedNearMissClassification | None:
     """Produce an opaque post-core classification only after canonical N9 replay."""
 
@@ -1564,7 +1744,9 @@ def verify_near_miss_classification(
     receipt_hash = gy_content_hash(receipt.model_dump(mode="json"))
     design_hash = gy_content_hash(owner.design_problem_binding.model_dump(mode="json"))
     exact_bindings = (
+        _is_produced(core, _ProducedEvaluationSafetyDecisionCore),
         offer.content_hash == offer_ref.content_hash,
+        offer.safety_semantic_hash == core.safety_semantic_hash,
         offer.promotion_receipt_ref.content_hash == receipt_hash,
         offer.canonical_promotion_input_ref == canonical_promotion_input_ref,
         offer.canonical_promotion_input_ref.content_hash == owner.projection_hash,
@@ -1606,7 +1788,9 @@ def verify_near_miss_classification(
     object.__setattr__(result, "offer_ref", offer_ref)
     object.__setattr__(result, "validation_basis_ref", validation_basis_ref)
     object.__setattr__(result, "promotion_safe_facet", safe)
+    object.__setattr__(result, "safety_semantic_hash", core.safety_semantic_hash)
     object.__setattr__(result, "_producer_token", _PRODUCER_TOKEN)
+    object.__setattr__(result, "_producer_fingerprint", _classification_fingerprint(result))
     return result
 
 
@@ -1628,6 +1812,9 @@ def build_evaluation_safety_certificate(
         raise ValueError("eval_safety_certificate_ineligible")
     if (
         core.request_ref != request_ref
+        or core.evaluator_owner_id != request.evaluator_owner_id
+        or core.evaluation_input_refs != request.evaluation_input_refs
+        or core.evaluation_input_provenance != request.evaluation_input_provenance
         or core.evaluation_mode != request.evaluation_mode
         or not _is_produced(decision, _ProducedEvaluationSafetyDecisionEvent)
         or decision.safety != core
@@ -1649,11 +1836,14 @@ def build_evaluation_safety_certificate(
     values = {
         "decision_ref": decision_ref,
         "request_ref": request_ref,
+        "evaluator_owner_id": request.evaluator_owner_id,
         "evaluation_mode": request.evaluation_mode,
         "candidate_ref": request.candidate_ref,
         "world_model_record_ref": request.world_model_record_ref,
         "domain_pack_ref": request.domain_pack_ref,
         "target_population_scope_ref": request.target_population_scope_ref,
+        "evaluation_input_refs": request.evaluation_input_refs,
+        "evaluation_input_provenance": request.evaluation_input_provenance,
         "rule_version": request.rule_version,
         "revision_lineage_id": "eval-safety-lineage:" + core.safety_semantic_hash,
         "valid_from": core.evaluated_at,
@@ -1822,6 +2012,7 @@ def replay_evaluation_safety_authority(
 def verify_evaluation_safety_consumer_admission(
     *,
     context: EvaluationExecutionContext,
+    challenge: EvalSafetyAdmissionChallenge,
     intake: EvaluationAttemptIntake,
     request: EvaluationAttemptRequest,
     request_ref: ArtifactRef,
@@ -1837,8 +2028,11 @@ def verify_evaluation_safety_consumer_admission(
     """Verify exact binding, currentness, and the unique certificate revision head."""
 
     blockers: list[str] = []
+    if challenge.consumer_component_id != context.evaluator_owner_id:
+        blockers.append(_blocker("consumer_challenge_binding_mismatch"))
     if (
         context.evaluation_mode != intake.mode_resolution.canonical_mode
+        or context.evaluator_owner_id != intake.evaluator_owner_id
         or context.candidate_ref != intake.candidate_ref
         or context.world_model_record_ref != intake.world_model_record_ref
         or context.target_population_scope_ref != intake.target_population_scope_ref
@@ -1871,6 +2065,9 @@ def verify_evaluation_safety_consumer_admission(
             or certificate.decision_ref != decision_ref
             or certificate.request_ref != request_ref
             or request.intake_ref != context.intake_ref
+            or request.evaluator_owner_id != context.evaluator_owner_id
+            or decision_core.evaluator_owner_id != context.evaluator_owner_id
+            or certificate.evaluator_owner_id != context.evaluator_owner_id
             or certificate.evaluation_mode != context.evaluation_mode
             or certificate.evaluation_mode != request.evaluation_mode
             or certificate.candidate_ref != context.candidate_ref
@@ -1880,6 +2077,14 @@ def verify_evaluation_safety_consumer_admission(
             or certificate.domain_pack_ref != request.domain_pack_ref
             or certificate.target_population_scope_ref != context.target_population_scope_ref
             or certificate.target_population_scope_ref != request.target_population_scope_ref
+            or request.evaluation_input_refs != context.evaluation_input_refs
+            or request.evaluation_input_provenance != context.evaluation_input_provenance
+            or decision_core.evaluation_input_refs != context.evaluation_input_refs
+            or decision_core.evaluation_input_provenance
+            != context.evaluation_input_provenance
+            or certificate.evaluation_input_refs != context.evaluation_input_refs
+            or certificate.evaluation_input_provenance
+            != context.evaluation_input_provenance
             or certificate.rule_version != context.rule_version
             or certificate.rule_version != request.rule_version
             or context.intended_start_at != request.intended_start_at
@@ -1892,6 +2097,7 @@ def verify_evaluation_safety_consumer_admission(
                 certificate=certificate,
                 certificate_ref=certificate_ref,
                 revision_nodes=revision_nodes,
+                verified_at=verified_at,
             )
         )
         current_by_requirement = {
@@ -1918,7 +2124,9 @@ def verify_evaluation_safety_consumer_admission(
         ):
             blockers.append(_blocker("certificate_evidence_head_invalid"))
     current_head_ref = (
-        _current_revision_head_ref(revision_nodes) if not blockers else None
+        _current_revision_head_ref(revision_nodes, verified_at)
+        if not blockers
+        else None
     )
     if (
         not blockers
@@ -1926,13 +2134,40 @@ def verify_evaluation_safety_consumer_admission(
     ):
         blockers.append(_blocker("certificate_revision_head_binding_mismatch"))
         current_head_ref = None
-    return EvalSafetyConsumerAdmissionReceipt(
+    result = _ProducedEvalSafetyConsumerAdmissionReceipt(
         status="blocked" if blockers else "verified",
         intake_ref=context.intake_ref,
         certificate_ref=certificate_ref,
         current_revision_head_ref=current_head_ref,
+        execution_context_hash=evaluation_execution_context_hash(context),
+        challenge=challenge,
         blocker_codes=tuple(sorted(set(blockers))),
         verified_at=verified_at,
+    )
+    if not blockers:
+        _mark_produced(result)
+    return result
+
+
+def evaluation_safety_consumer_admission_is_verified(
+    receipt: EvalSafetyConsumerAdmissionReceipt,
+    context: EvaluationExecutionContext,
+    challenge: EvalSafetyAdmissionChallenge,
+) -> bool:
+    """Return whether an owner-produced receipt admits this exact context."""
+
+    return bool(
+        _is_produced(receipt, _ProducedEvalSafetyConsumerAdmissionReceipt)
+        and receipt.status == "verified"
+        and not receipt.blocker_codes
+        and receipt.execution_context_hash == evaluation_execution_context_hash(context)
+        and receipt.challenge == challenge
+        and challenge.consumer_component_id == context.evaluator_owner_id
+        and receipt.intake_ref == context.intake_ref
+        and receipt.certificate_ref is not None
+        and receipt.certificate_ref == context.eval_safety_certificate_ref
+        and receipt.current_revision_head_ref is not None
+        and receipt.current_revision_head_ref == context.eval_safety_revision_head_ref
     )
 
 
@@ -1965,6 +2200,7 @@ def _revision_head_blockers(
     certificate: EvalSafetyCertificate,
     certificate_ref: ArtifactRef,
     revision_nodes: tuple[EvalSafetyCertificateRevisionNode, ...],
+    verified_at: datetime,
 ) -> tuple[str, ...]:
     if not revision_nodes:
         return (_blocker("certificate_revision_head_invalid"),)
@@ -2014,6 +2250,11 @@ def _revision_head_blockers(
         predecessor_identity = _identity(node.revision.predecessor_ref)
         if predecessor_identity not in by_ref:
             return (_blocker("certificate_revision_predecessor_missing"),)
+        if (
+            node.revision.effective_at
+            < by_ref[predecessor_identity].revision.effective_at
+        ):
+            return (_blocker("certificate_revision_time_nonmonotone"),)
         successors[predecessor_identity].append(node)
     if any(len(rows) > 1 for rows in successors.values()):
         return (_blocker("certificate_revision_forked"),)
@@ -2023,10 +2264,12 @@ def _revision_head_blockers(
     ):
         return (_blocker("certificate_revoked"),)
     visited: set[tuple[str, str]] = set()
+    ordered: list[EvalSafetyCertificateRevisionNode] = []
     cursor = roots[0]
     while _identity(cursor.revision_ref) not in visited:
         cursor_identity = _identity(cursor.revision_ref)
         visited.add(cursor_identity)
+        ordered.append(cursor)
         rows = successors[cursor_identity]
         if not rows:
             break
@@ -2038,11 +2281,17 @@ def _revision_head_blockers(
         return (_blocker("certificate_revision_cyclic"),)
     if visited != set(by_ref):
         return (_blocker("certificate_revision_disconnected"),)
-    if cursor.revision.action == "revoke":
+    active = tuple(
+        node for node in ordered if node.revision.effective_at <= verified_at
+    )
+    if not active:
+        return (_blocker("certificate_revision_not_effective"),)
+    current = active[-1]
+    if current.revision.action == "revoke":
         return (_blocker("certificate_revoked"),)
-    if cursor.revision.certificate_ref != certificate_ref:
+    if current.revision.certificate_ref != certificate_ref:
         return (_blocker("certificate_superseded"),)
-    if cursor.revision.predicate_provenance not in {
+    if current.revision.predicate_provenance not in {
         "recomputed",
         "independently_reconciled",
     }:
@@ -2052,15 +2301,23 @@ def _revision_head_blockers(
 
 def _current_revision_head_ref(
     revision_nodes: tuple[EvalSafetyCertificateRevisionNode, ...],
+    verified_at: datetime,
 ) -> ArtifactRef | None:
+    active = tuple(
+        node
+        for node in revision_nodes
+        if node.revision.effective_at <= verified_at
+    )
+    if not active:
+        return None
     predecessor_identities = {
         _identity(node.revision.predecessor_ref)
-        for node in revision_nodes
+        for node in active
         if node.revision.predecessor_ref is not None
     }
     heads = tuple(
         node
-        for node in revision_nodes
+        for node in active
         if _identity(node.revision_ref) not in predecessor_identities
     )
     if len(heads) != 1:
@@ -2081,6 +2338,7 @@ def verifier_port_is_verification_only(port_type: type[object]) -> bool:
 
 __all__ = [
     "DomainEvalSafetyPack",
+    "EvalSafetyAdmissionChallenge",
     "EvalSafetyAllApplicability",
     "EvalSafetyAppointmentResolution",
     "EvalSafetyAuthorityResolution",
@@ -2118,6 +2376,8 @@ __all__ = [
     "build_evaluation_safety_certificate",
     "build_evaluation_safety_decision_event",
     "decide_evaluation_safety_core",
+    "evaluation_execution_context_hash",
+    "evaluation_safety_consumer_admission_is_verified",
     "evaluation_safety_core_bytes",
     "evaluation_safety_decision_id",
     "recompute_attempt_class",

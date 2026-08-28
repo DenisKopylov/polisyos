@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import hashlib
 import inspect
+import json
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from types import SimpleNamespace
 from typing import get_args
 
 import pytest
 from pydantic import BaseModel
+from pydantic_core import to_jsonable_python
 
 from polisyos.core import components as core_components
 from polisyos.core.artifacts import ArtifactID as CoreArtifactID
@@ -21,6 +24,27 @@ NOW = datetime(2026, 8, 27, 12, tzinfo=UTC)
 
 def _digest(char: str) -> str:
     return f"sha256:{char * 64}"
+
+
+def _copy_with_recomputed_hash(
+    value: BaseModel,
+    *,
+    hash_field: str,
+    updates: dict[str, object],
+) -> BaseModel:
+    payload = value.model_dump(mode="python", exclude={hash_field})
+    payload.update(updates)
+    content_hash = _content_hash_values(payload)
+    return value.model_copy(
+        update={**updates, hash_field: content_hash}
+    )
+
+
+def _content_hash_values(values: dict[str, object]) -> str:
+    encoded = json.dumps(
+        to_jsonable_python(values), sort_keys=True, separators=(",", ":")
+    ).encode()
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 
 def _ref(char: str, kind: str = "test", *, content_hash: str | None = None) -> ArtifactRef:
@@ -53,6 +77,9 @@ def _intake(
 
     return es.EvaluationAttemptIntake(
         attempt_id="attempt-transit-1",
+        evaluator_owner_id=core_components.ComponentId(
+            "polisyos.runtime.quality.foundry_value_port@1.0.0"
+        ),
         candidate_ref=_ref("6", "candidate"),
         world_model_record_ref=_ref("7", "wmr"),
         requested_mode_token=mode,
@@ -90,6 +117,7 @@ def _request(
     return es.EvaluationAttemptRequest(
         intake_ref=intake_ref,
         attempt_id=intake.attempt_id,
+        evaluator_owner_id=intake.evaluator_owner_id,
         candidate_ref=intake.candidate_ref,
         world_model_record_ref=intake.world_model_record_ref,
         evaluation_mode=intake.mode_resolution.canonical_mode,
@@ -98,6 +126,8 @@ def _request(
             denominator_ref or _ref("2", "facet-denominator")
         ),
         target_population_scope_ref=intake.target_population_scope_ref,
+        evaluation_input_refs=intake.evaluation_input_refs,
+        evaluation_input_provenance=intake.evaluation_input_provenance,
         evidence_refs=intake.evidence_refs,
         requested_at=intake.requested_at,
         intended_start_at=intake.intended_start_at,
@@ -268,7 +298,11 @@ def test_promotion_state_injection_cannot_change_safety_core(
 ) -> None:
     """O0-PROMOTION-INDEPENDENCE-C01: post-core offers cannot alter safety."""
 
+    from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality import evaluation_safety as es
+    from polisyos.runtime.quality import promotion_sequence
+
+    classification_producer = es.verify_near_miss_classification
 
     def annotation_names(annotation: object, seen: set[object] | None = None) -> set[str]:
         visited = seen or set()
@@ -352,6 +386,133 @@ def test_promotion_state_injection_cannot_change_safety_core(
         classification=forged,
     )
     assert forged_event.promotion_safe_facet is None and not forged_event.near_miss
+
+    def named_ref(artifact_id: str, kind: str, content_hash: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id=artifact_id,
+            artifact_type=kind,
+            content_hash=content_hash,
+            schema_ref=f"schema://{kind}",
+            uri=f"cas://{artifact_id}",
+            version="1.0.0",
+        )
+
+    projection_hash = _digest("1")
+    candidate_hash = _digest("2")
+    value_hash = _digest("3")
+    world_hash = _digest("4")
+    open_ref = named_ref("open-world", "open-world", _digest("5"))
+    epoch_ref = named_ref("epoch", "epoch", _digest("6"))
+    design_binding = SimpleNamespace(
+        model_dump=lambda **_kwargs: {"design": "bound"}
+    )
+    owner_projection = SimpleNamespace(
+        open_world_gate=SimpleNamespace(vector_artifact_ref=open_ref),
+        epoch_validity_projection=SimpleNamespace(gate_receipt_ref=epoch_ref),
+        design_problem_binding=design_binding,
+        projection_hash=projection_hash,
+    )
+    fake_receipt = SimpleNamespace(
+        candidate_id="candidate-classified",
+        owner_projection=owner_projection,
+        schema_version="polisyos.promotion.canonical.v1",
+        model_dump=lambda **_kwargs: {"receipt": "canonical"},
+    )
+    monkeypatch.setattr(
+        promotion_sequence,
+        "CanonicalPromotionReceipt",
+        SimpleNamespace(model_validate=lambda _payload: fake_receipt),
+    )
+    monkeypatch.setattr(
+        promotion_sequence,
+        "validate_canonical_promotion_receipt",
+        lambda *_args, **_kwargs: (),
+    )
+    monkeypatch.setattr(
+        promotion_sequence,
+        "promotion_receipt_allows_decision_front",
+        lambda *_args, **_kwargs: True,
+    )
+    receipt_ref = named_ref(
+        "promotion-receipt",
+        "promotion-receipt",
+        gy_content_hash(fake_receipt.model_dump()),
+    )
+    canonical_input_ref = named_ref(
+        "promotion-input", "promotion-input", projection_hash
+    )
+    design_ref = named_ref(
+        "design-binding",
+        "design-binding",
+        gy_content_hash(design_binding.model_dump()),
+    )
+    value_ref = named_ref("value", "value", value_hash)
+    candidate_ref = named_ref("candidate-classified", "candidate", candidate_hash)
+    world_ref = named_ref("wmr", "wmr", world_hash)
+    validation_ref = named_ref("validation", "validation", projection_hash)
+    offer_values = {
+        "promotion_receipt_ref": receipt_ref,
+        "canonical_promotion_input_ref": canonical_input_ref,
+        "design_problem_binding_ref": design_ref,
+        "value_receipt_ref": value_ref,
+        "candidate_ref": candidate_ref,
+        "world_model_record_ref": world_ref,
+        "promotion_rule_version": fake_receipt.schema_version,
+        "open_world_resolver_basis_ref": open_ref,
+        "epoch_resolver_basis_ref": epoch_ref,
+        "safety_semantic_hash": core.safety_semantic_hash,
+        "offered_at": NOW,
+    }
+    offer = es.EvalSafetyNearMissClassificationOffer(
+        **offer_values,
+        content_hash=_content_hash_values(offer_values),
+    )
+    classification = classification_producer(
+        offer=offer,
+        offer_ref=named_ref("offer", "classification-offer", offer.content_hash),
+        validation_basis_ref=validation_ref,
+        canonical_promotion_input_ref=canonical_input_ref,
+        design_problem_binding_ref=design_ref,
+        value_receipt_ref=value_ref,
+        candidate_ref=candidate_ref,
+        world_model_record_ref=world_ref,
+        promotion_rule_version=fake_receipt.schema_version,
+        current_open_world_resolver_basis_ref=open_ref,
+        current_epoch_resolver_basis_ref=epoch_ref,
+        promotion=SimpleNamespace(receipts=({"receipt": "canonical"},)),
+        candidate_summary=SimpleNamespace(
+            candidate_id="candidate-classified", content_hash=candidate_hash
+        ),
+        design_problem=SimpleNamespace(),
+        value_receipt=SimpleNamespace(
+            value_ref=value_hash,
+            world_model_record_content_hash=world_hash,
+        ),
+        open_world_resolver=SimpleNamespace(),
+        epoch_validity_resolver=SimpleNamespace(),
+        core=core,
+    )
+    assert classification is not None
+    classified_event = es.build_evaluation_safety_decision_event(
+        core=core,
+        classification=classification,
+    )
+    sibling_core = es.decide_evaluation_safety_core(
+        intake=intake,
+        intake_ref=intake_ref,
+        request=_request(intake, intake_ref),
+        request_ref=request_ref,
+        admitted_pack=None,
+        mode_basis=None,
+        requirement_results=(),
+        evaluated_at=NOW + timedelta(seconds=1),
+    )
+    sibling_event = es.build_evaluation_safety_decision_event(
+        core=sibling_core,
+        classification=classification,
+    )
+    assert classified_event.promotion_safe_facet is True
+    assert sibling_event.promotion_safe_facet is None and not sibling_event.near_miss
     public_core = es.EvaluationSafetyDecisionCore.model_validate(
         core.model_dump(mode="python")
     )
@@ -400,16 +561,90 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         valid_until=NOW + timedelta(days=1),
     )
     mode_basis_ref = _ref("f", "mode-basis", content_hash=basis.content_hash)
+    cause_bindings: dict[tuple[str, str], dict[str, object]] = {}
 
-    class AuthorityResolver:
+    class EchoOnlyAuthorityResolver:
         def resolve(self, artifact_ref: ArtifactRef) -> es.EvalSafetyAuthorityResolution:
-            return es.EvalSafetyAuthorityResolution(
+            return es.EvalSafetyAuthorityResolution.model_construct(
                 status="verified",
                 artifact_ref=artifact_ref,
                 blocker_codes=(),
                 predicate_provenance=("independently_reconciled",),
                 resolved_at=NOW,
             )
+
+    class AuthorityResolver:
+        def resolve(self, artifact_ref: ArtifactRef) -> es.EvalSafetyAuthorityResolution:
+            if artifact_ref in (
+                basis.producer_authority_ref,
+                basis.verifier_receipt_ref,
+            ):
+                producer = artifact_ref == basis.producer_authority_ref
+                return es.EvalSafetyAuthorityResolution(
+                    status="verified",
+                    artifact_ref=artifact_ref,
+                    blocker_codes=(),
+                    predicate_provenance=("independently_reconciled",),
+                    resolved_at=NOW,
+                    attestation_role=(
+                        "producer_statement" if producer else "independent_verification"
+                    ),
+                    subject_refs=(mode_basis_ref,),
+                    subject_schema_version=basis.schema_version,
+                    subject_rule_version=basis.rule_version,
+                    subject_purpose="attempted_evaluation_mode_basis",
+                    subject_effective_at=basis.valid_from,
+                    subject_valid_until=basis.valid_until,
+                    attesting_component_id=core_components.ComponentId(
+                        "polisyos.eval_safety.basis_producer@1.0.0"
+                        if producer
+                        else "polisyos.eval_safety.basis_verifier@1.0.0"
+                    ),
+                )
+            binding = cause_bindings.get(
+                (artifact_ref.artifact_id, artifact_ref.content_hash)
+            )
+            if binding is None:
+                return es.EvalSafetyAuthorityResolution(
+                    status="blocked",
+                    artifact_ref=artifact_ref,
+                    blocker_codes=(
+                        "polisyos.eval_safety.revision_cause_unresolved@1.0.0",
+                    ),
+                    predicate_provenance=(),
+                    resolved_at=NOW,
+                )
+            return es.EvalSafetyAuthorityResolution(
+                status="verified",
+                artifact_ref=artifact_ref,
+                blocker_codes=(),
+                predicate_provenance=("independently_reconciled",),
+                resolved_at=binding.get(
+                    "resolved_at", NOW - timedelta(days=2)
+                ),
+                attestation_role="independent_verification",
+                subject_refs=binding["subject_refs"],
+                subject_schema_version=(
+                    "polisyos.eval_safety.certificate_revision.v1"
+                ),
+                subject_rule_version=None,
+                subject_purpose=binding["subject_purpose"],
+                subject_effective_at=binding["subject_effective_at"],
+                subject_valid_until=None,
+                attesting_component_id=core_components.ComponentId(
+                    "polisyos.eval_safety.revision_cause_verifier@1.0.0"
+                ),
+            )
+
+    assert (
+        es.verify_evaluation_safety_mode_basis(
+            basis_ref=mode_basis_ref,
+            basis=basis,
+            authority_resolver=EchoOnlyAuthorityResolver(),
+            verified_at=NOW,
+        )
+        is None
+    )
 
     verified_basis = es.verify_evaluation_safety_mode_basis(
         basis_ref=mode_basis_ref,
@@ -418,6 +653,29 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         verified_at=NOW,
     )
     assert verified_basis is not None
+
+    class SelfAttestedBasisResolver(AuthorityResolver):
+        def resolve(self, artifact_ref: ArtifactRef) -> es.EvalSafetyAuthorityResolution:
+            resolved = super().resolve(artifact_ref)
+            if artifact_ref == basis.verifier_receipt_ref:
+                return resolved.model_copy(
+                    update={
+                        "attesting_component_id": core_components.ComponentId(
+                            "polisyos.eval_safety.basis_producer@1.0.0"
+                        )
+                    }
+                )
+            return resolved
+
+    assert (
+        es.verify_evaluation_safety_mode_basis(
+            basis_ref=mode_basis_ref,
+            basis=basis,
+            authority_resolver=SelfAttestedBasisResolver(),
+            verified_at=NOW,
+        )
+        is None
+    )
     appointment_refs = (_ref("0", "appointment"), _ref("1", "appointment"))
     pack = es.DomainEvalSafetyPack.build(
         schema_version="polisyos.eval_safety.domain_pack.v1",
@@ -597,13 +855,47 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         decision_ref=decision_ref,
     )
     certificate_ref = _ref("2", "certificate", content_hash=certificate.content_hash)
+
+    def register_cause(
+        cause_ref: ArtifactRef,
+        *,
+        subject_refs: tuple[ArtifactRef, ...],
+        subject_purpose: str,
+        subject_effective_at: datetime,
+    ) -> ArtifactRef:
+        cause_bindings[(cause_ref.artifact_id, cause_ref.content_hash)] = {
+            "subject_refs": subject_refs,
+            "subject_purpose": subject_purpose,
+            "subject_effective_at": subject_effective_at,
+            "resolved_at": NOW - timedelta(days=2),
+        }
+        return cause_ref
+
     revision = es.EvalSafetyCertificateRevision.issue(
         revision_lineage_id=certificate.revision_lineage_id,
         certificate_ref=certificate_ref,
-        verified_cause_ref=_ref("3", "cause"),
+        verified_cause_ref=register_cause(
+            _ref("3", "cause"),
+            subject_refs=(certificate_ref,),
+            subject_purpose="certificate_revision_issue",
+            subject_effective_at=NOW,
+        ),
         cause_resolver=AuthorityResolver(),
         effective_at=NOW,
     )
+    with pytest.raises(ValueError, match="revision_cause_unverified"):
+        es.EvalSafetyCertificateRevision.issue(
+            revision_lineage_id=certificate.revision_lineage_id,
+            certificate_ref=certificate_ref,
+            verified_cause_ref=register_cause(
+                _ref("e", "cause"),
+                subject_refs=(certificate_ref,),
+                subject_purpose="certificate_revision_issue",
+                subject_effective_at=NOW,
+            ),
+            cause_resolver=AuthorityResolver(),
+            effective_at=NOW + timedelta(minutes=1),
+        )
     issue_ref = _ref("4", "certificate-revision", content_hash=revision.content_hash)
     issue_node = es.EvalSafetyCertificateRevisionNode(
         revision_ref=issue_ref,
@@ -612,7 +904,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
     context = es.EvaluationExecutionContext(
         intake_ref=intake_ref,
         evaluator_owner_id=core_components.ComponentId(
-            "polisyos.foundry.value_port@1.0.0"
+            "polisyos.runtime.quality.foundry_value_port@1.0.0"
         ),
         evaluation_mode=request.evaluation_mode,
         candidate_ref=request.candidate_ref,
@@ -625,8 +917,12 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         eval_safety_certificate_ref=certificate_ref,
         eval_safety_revision_head_ref=issue_ref,
     )
+    challenge = es.EvalSafetyAdmissionChallenge.fresh(
+        consumer_component_id=context.evaluator_owner_id
+    )
     consumer = es.verify_evaluation_safety_consumer_admission(
         context=context,
+        challenge=challenge,
         intake=intake,
         request=request,
         request_ref=request_ref,
@@ -651,6 +947,241 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
     assert core.status == "passed" and core.certificate_eligible
     assert certificate.evaluation_mode == "field_pilot"
     assert revision.action == "issue" and consumer.status == "verified"
+    changed_replay_context = context.model_copy(
+        update={"evaluation_mode": "deployment"}
+    )
+    fresh_call_challenge = es.EvalSafetyAdmissionChallenge.fresh(
+        consumer_component_id=context.evaluator_owner_id
+    )
+    fresh_consumer = es.verify_evaluation_safety_consumer_admission(
+        context=context,
+        challenge=fresh_call_challenge,
+        intake=intake,
+        request=request,
+        request_ref=request_ref,
+        certificate_ref=certificate_ref,
+        certificate=certificate,
+        decision_ref=decision_ref,
+        decision=decision,
+        decision_core=core,
+        revision_nodes=(issue_node,),
+        current_requirement_results=results,
+        verified_at=NOW,
+    )
+    assert es.evaluation_safety_consumer_admission_is_verified(
+        consumer, context, challenge
+    )
+    replay_observed = (
+        es.evaluation_safety_consumer_admission_is_verified(
+            consumer, changed_replay_context, challenge
+        ),
+        es.evaluation_safety_consumer_admission_is_verified(
+            consumer, context, fresh_call_challenge
+        ),
+    )
+    assert replay_observed == (False, False)
+    assert es.evaluation_safety_consumer_admission_is_verified(
+        fresh_consumer, context, fresh_call_challenge
+    )
+
+    sibling_owner_admission = es.verify_evaluation_safety_consumer_admission(
+        context=context.model_copy(
+            update={
+                "evaluator_owner_id": core_components.ComponentId(
+                    "polisyos.runtime.quality.sibling_value_port@1.0.0"
+                )
+            }
+        ),
+        challenge=challenge,
+        intake=intake,
+        request=request,
+        request_ref=request_ref,
+        certificate_ref=certificate_ref,
+        certificate=certificate,
+        decision_ref=decision_ref,
+        decision=decision,
+        decision_core=core,
+        revision_nodes=(issue_node,),
+        current_requirement_results=results,
+        verified_at=NOW,
+    )
+    substituted_input_ref = _ref("e", "input")
+    substituted_input_provenance = (
+        es.EvaluationInputProvenance(
+            input_ref=substituted_input_ref,
+            input_class="real_world",
+            predicate_provenance="recomputed",
+        ),
+    )
+    substituted_input_admission = es.verify_evaluation_safety_consumer_admission(
+        context=context.model_copy(
+            update={
+                "evaluation_input_refs": (substituted_input_ref,),
+                "evaluation_input_provenance": substituted_input_provenance,
+            }
+        ),
+        challenge=challenge,
+        intake=intake.model_copy(
+            update={
+                "evaluation_input_refs": (substituted_input_ref,),
+                "evaluation_input_provenance": substituted_input_provenance,
+            }
+        ),
+        request=request.model_copy(
+            update={
+                "evaluation_input_refs": (substituted_input_ref,),
+                "evaluation_input_provenance": substituted_input_provenance,
+            }
+        ),
+        request_ref=request_ref,
+        certificate_ref=certificate_ref,
+        certificate=certificate,
+        decision_ref=decision_ref,
+        decision=decision,
+        decision_core=core,
+        revision_nodes=(issue_node,),
+        current_requirement_results=results,
+        verified_at=NOW,
+    )
+    assert sibling_owner_admission.status == "blocked"
+    assert substituted_input_admission.status == "blocked"
+
+    weakened_basis = verified_basis.model_copy(
+        update={
+            "profiles": (
+                es.EvalSafetyModeProfile(mode="field_pilot", all_of=()),
+            )
+        }
+    )
+    weakened_basis_admission = es.admit_domain_evaluation_safety_pack(
+        **{**admission_args, "mode_basis": weakened_basis},
+        pack=pack,
+        appointment_resolver=Resolver(),
+    )
+    copied_pack_admission = admitted.model_copy(
+        update={"resolved_appointment_refs": ()}
+    )
+    copied_pack_core = es.decide_evaluation_safety_core(
+        intake=intake,
+        intake_ref=intake_ref,
+        request=request,
+        request_ref=request_ref,
+        admitted_pack=copied_pack_admission,
+        mode_basis=verified_basis,
+        requirement_results=results,
+        evaluated_at=NOW,
+    )
+    copied_result = _copy_with_recomputed_hash(
+        results[0],
+        hash_field="content_hash",
+        updates={"valid_until": NOW + timedelta(days=365)},
+    )
+    copied_result_core = es.decide_evaluation_safety_core(
+        intake=intake,
+        intake_ref=intake_ref,
+        request=request,
+        request_ref=request_ref,
+        admitted_pack=admitted,
+        mode_basis=verified_basis,
+        requirement_results=(
+            copied_result,
+            results[1],
+        ),
+        evaluated_at=NOW,
+    )
+    copied_core = _copy_with_recomputed_hash(
+        core,
+        hash_field="safety_semantic_hash",
+        updates={"valid_until": NOW + timedelta(days=365)},
+    )
+    with pytest.raises(ValueError, match="decision_core_unreconciled"):
+        es.build_evaluation_safety_decision_event(
+            core=copied_core,
+            classification=None,
+        )
+    copied_certificate_admission = es.verify_evaluation_safety_consumer_admission(
+        context=context,
+        challenge=challenge,
+        intake=intake,
+        request=request,
+        request_ref=request_ref,
+        certificate_ref=certificate_ref,
+        certificate=certificate.model_copy(
+            update={"valid_until": NOW + timedelta(days=365)}
+        ),
+        decision_ref=decision_ref,
+        decision=decision,
+        decision_core=core,
+        revision_nodes=(issue_node,),
+        current_requirement_results=results,
+        verified_at=NOW,
+    )
+    copied_revision = _copy_with_recomputed_hash(
+        revision,
+        hash_field="content_hash",
+        updates={"verified_cause_ref": _ref("f", "cause")},
+    )
+    copied_revision_ref = _ref(
+        "f", "certificate-revision", content_hash=copied_revision.content_hash
+    )
+    copied_revision_node = es.EvalSafetyCertificateRevisionNode(
+        revision_ref=copied_revision_ref,
+        revision=copied_revision,
+    )
+    copied_revision_admission = es.verify_evaluation_safety_consumer_admission(
+        context=context.model_copy(
+            update={"eval_safety_revision_head_ref": copied_revision_ref}
+        ),
+        challenge=challenge,
+        intake=intake,
+        request=request,
+        request_ref=request_ref,
+        certificate_ref=certificate_ref,
+        certificate=certificate,
+        decision_ref=decision_ref,
+        decision=decision,
+        decision_core=core,
+        revision_nodes=(copied_revision_node,),
+        current_requirement_results=results,
+        verified_at=NOW,
+    )
+    assert weakened_basis_admission.status == "refused"
+    assert copied_pack_core.status == copied_result_core.status == "blocked"
+    assert copied_certificate_admission.status == "blocked"
+    assert copied_revision_admission.status == "blocked"
+
+    missing_basis_pack = es.DomainEvalSafetyPack.build(
+        **pack.model_dump(
+            mode="python",
+            exclude={"content_hash", "verifier_appointment_refs", "source_pack_ref"},
+        ),
+        source_pack_ref=_ref("8", "domain-pack-source"),
+        verifier_appointment_refs=(appointment_refs[1],),
+    )
+    missing_basis_pack_ref = _ref(
+        "e", "domain-pack", content_hash=missing_basis_pack.content_hash
+    )
+    missing_basis_intake = intake.model_copy(
+        update={"domain_pack_ref": missing_basis_pack_ref}
+    )
+    missing_basis_request = request.model_copy(
+        update={"domain_pack_ref": missing_basis_pack_ref}
+    )
+    missing_basis_appointment = es.admit_domain_evaluation_safety_pack(
+        **{
+            **admission_args,
+            "pack_ref": missing_basis_pack_ref,
+            "request": missing_basis_request,
+        },
+        pack=missing_basis_pack,
+        appointment_resolver=Resolver(),
+    )
+    assert missing_basis_intake.domain_pack_ref == missing_basis_pack_ref
+    assert missing_basis_appointment.status == "refused"
+    assert (
+        "polisyos.eval_safety.verifier_unappointed@1.0.0"
+        in missing_basis_appointment.blocker_codes
+    )
     changed_intake = intake.model_copy(
         update={
             "evaluation_input_provenance": (
@@ -664,6 +1195,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
     )
     replayed = es.verify_evaluation_safety_consumer_admission(
         context=context,
+        challenge=challenge,
         intake=changed_intake,
         request=request,
         request_ref=request_ref,
@@ -686,16 +1218,26 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         predecessor_ref=issue_ref,
         action="revoke",
         certificate_ref=certificate_ref,
-        verified_cause_ref=_ref("5", "cause"),
-        cause_resolver=AuthorityResolver(),
-        effective_at=NOW + timedelta(minutes=1),
-    )
+        verified_cause_ref=register_cause(
+                _ref("5", "cause"),
+                subject_refs=(issue_ref, certificate_ref),
+                subject_purpose="certificate_revision_revoke",
+                subject_effective_at=NOW,
+            ),
+            cause_resolver=AuthorityResolver(),
+            effective_at=NOW,
+        )
     fork_a = es.EvalSafetyCertificateRevision.transition(
         revision_lineage_id=certificate.revision_lineage_id,
         predecessor_ref=issue_ref,
         action="supersede",
         certificate_ref=certificate_ref,
-        verified_cause_ref=_ref("6", "cause"),
+        verified_cause_ref=register_cause(
+            _ref("6", "cause"),
+            subject_refs=(issue_ref, certificate_ref),
+            subject_purpose="certificate_revision_supersede",
+            subject_effective_at=NOW + timedelta(minutes=1),
+        ),
         cause_resolver=AuthorityResolver(),
         effective_at=NOW + timedelta(minutes=1),
     )
@@ -704,7 +1246,12 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         predecessor_ref=issue_ref,
         action="supersede",
         certificate_ref=certificate_ref,
-        verified_cause_ref=_ref("7", "cause"),
+        verified_cause_ref=register_cause(
+            _ref("7", "cause"),
+            subject_refs=(issue_ref, certificate_ref),
+            subject_purpose="certificate_revision_supersede",
+            subject_effective_at=NOW + timedelta(minutes=2),
+        ),
         cause_resolver=AuthorityResolver(),
         effective_at=NOW + timedelta(minutes=2),
     )
@@ -713,9 +1260,68 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         predecessor_ref=revision_ref(fork_a, "8"),
         action="supersede",
         certificate_ref=certificate_ref,
-        verified_cause_ref=_ref("8", "cause"),
+        verified_cause_ref=register_cause(
+            _ref("8", "cause"),
+            subject_refs=(revision_ref(fork_a, "8"), certificate_ref),
+            subject_purpose="certificate_revision_supersede",
+            subject_effective_at=NOW + timedelta(minutes=2),
+        ),
         cause_resolver=AuthorityResolver(),
         effective_at=NOW + timedelta(minutes=2),
+    )
+    future_revoke = es.EvalSafetyCertificateRevision.transition(
+        revision_lineage_id=certificate.revision_lineage_id,
+        predecessor_ref=issue_ref,
+        action="revoke",
+        certificate_ref=certificate_ref,
+        verified_cause_ref=register_cause(
+            _ref("a", "cause"),
+            subject_refs=(issue_ref, certificate_ref),
+            subject_purpose="certificate_revision_revoke",
+            subject_effective_at=NOW + timedelta(minutes=10),
+        ),
+        cause_resolver=AuthorityResolver(),
+        effective_at=NOW + timedelta(minutes=10),
+    )
+    future_supersede = es.EvalSafetyCertificateRevision.transition(
+        revision_lineage_id=certificate.revision_lineage_id,
+        predecessor_ref=issue_ref,
+        action="supersede",
+        certificate_ref=certificate_ref,
+        verified_cause_ref=register_cause(
+            _ref("b", "cause"),
+            subject_refs=(issue_ref, certificate_ref),
+            subject_purpose="certificate_revision_supersede",
+            subject_effective_at=NOW + timedelta(minutes=10),
+        ),
+        cause_resolver=AuthorityResolver(),
+        effective_at=NOW + timedelta(minutes=10),
+    )
+    nonmonotone_supersede = es.EvalSafetyCertificateRevision.transition(
+        revision_lineage_id=certificate.revision_lineage_id,
+        predecessor_ref=issue_ref,
+        action="supersede",
+        certificate_ref=certificate_ref,
+        verified_cause_ref=register_cause(
+            _ref("c", "cause"),
+            subject_refs=(issue_ref, certificate_ref),
+            subject_purpose="certificate_revision_supersede",
+            subject_effective_at=NOW - timedelta(minutes=1),
+        ),
+        cause_resolver=AuthorityResolver(),
+        effective_at=NOW - timedelta(minutes=1),
+    )
+    future_issue = es.EvalSafetyCertificateRevision.issue(
+        revision_lineage_id=certificate.revision_lineage_id,
+        certificate_ref=certificate_ref,
+        verified_cause_ref=register_cause(
+            _ref("d", "cause"),
+            subject_refs=(certificate_ref,),
+            subject_purpose="certificate_revision_issue",
+            subject_effective_at=NOW + timedelta(minutes=10),
+        ),
+        cause_resolver=AuthorityResolver(),
+        effective_at=NOW + timedelta(minutes=10),
     )
     cyclic_head = fork_a.model_copy(
         update={"predecessor_ref": revision_ref(cycle_tail, "9")}
@@ -732,9 +1338,13 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         current_results: tuple[object, ...] = results,
         bound_decision_ref: ArtifactRef = decision_ref,
         bound_context: object = context,
+        at: datetime = NOW,
     ) -> str:
         return es.verify_evaluation_safety_consumer_admission(
             context=bound_context,
+            challenge=es.EvalSafetyAdmissionChallenge.fresh(
+                consumer_component_id=bound_context.evaluator_owner_id
+            ),
             intake=intake,
             request=request,
             request_ref=request_ref,
@@ -745,7 +1355,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
             decision_core=core,
             revision_nodes=revision_nodes,
             current_requirement_results=current_results,
-            verified_at=NOW,
+            verified_at=at,
         ).status
 
     assert consumer_status((issue_node, revision_node(revoke, "5"))) == "blocked"
@@ -780,12 +1390,34 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         revision=replayed_revisions[0],
     )
     assert consumer_status((replayed_node,)) == "verified"
+    assert consumer_status(
+        (issue_node, revision_node(future_revoke, "a"))
+    ) == "verified"
+    assert consumer_status(
+        (issue_node, revision_node(future_supersede, "b"))
+    ) == "verified"
+    nonmonotone_node = revision_node(nonmonotone_supersede, "c")
+    assert consumer_status(
+        (issue_node, nonmonotone_node),
+        bound_context=context.model_copy(
+            update={"eval_safety_revision_head_ref": nonmonotone_node.revision_ref}
+        ),
+    ) == "blocked"
+    future_issue_node = revision_node(future_issue, "d")
+    assert consumer_status(
+        (future_issue_node,),
+        bound_context=context.model_copy(
+            update={"eval_safety_revision_head_ref": future_issue_node.revision_ref}
+        ),
+    ) == "blocked"
     fork_a_node = revision_node(fork_a, "6")
     fork_a_context = context.model_copy(
         update={"eval_safety_revision_head_ref": fork_a_node.revision_ref}
     )
     assert consumer_status(
-        (issue_node, fork_a_node), bound_context=fork_a_context
+        (issue_node, fork_a_node),
+        bound_context=fork_a_context,
+        at=NOW + timedelta(minutes=1),
     ) == "verified"
     aliased_issue_node = es.EvalSafetyCertificateRevisionNode(
         revision_ref=_ref(
@@ -794,7 +1426,9 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         revision=revision,
     )
     assert consumer_status(
-        (aliased_issue_node, fork_a_node), bound_context=fork_a_context
+        (aliased_issue_node, fork_a_node),
+        bound_context=fork_a_context,
+        at=NOW + timedelta(minutes=1),
     ) == "blocked"
     replay_inputs = {
         "intake_ref": intake_ref,
@@ -840,6 +1474,9 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
     assert replay is not None
     replay_consumer = es.verify_evaluation_safety_consumer_admission(
         context=context,
+        challenge=es.EvalSafetyAdmissionChallenge.fresh(
+            consumer_component_id=context.evaluator_owner_id
+        ),
         intake=intake,
         request=request,
         request_ref=request_ref,

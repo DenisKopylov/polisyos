@@ -127,7 +127,18 @@ Boundary notes:
   authority carries a private producer capability; persistence consumers must
   replay public raw DTOs through the exported basis, pack, requirement, core,
   event, certificate, and revision reconciliation procedures rather than
-  deserialize that capability. A pack's `source_pack_ref` identifies its
+  deserialize that capability. The capability is bound to canonical public
+  bytes, so a copied or mutated authority must be re-admitted. Basis and
+  revision-cause admission resolve typed, independent attestations over the
+  exact subject, purpose, rule/schema, component, and effective time. The
+  frozen core and certificate bind the appointed evaluator plus the complete,
+  non-empty evaluation-input denominator and provenance; Foundry derives its
+  input ref from the actual N5 observation. Each positive consumer receipt
+  binds the canonical hash of the complete context plus a fresh consumer-
+  generated UUID4 challenge, so an unchanged receipt cannot replay across a
+  changed context or a second owner call. Consumer replay validates the full
+  revision graph while selecting the unique head effective at its current
+  verification time. A pack's `source_pack_ref` identifies its
   upstream domain-owned source and participates in the normalized pack hash;
   the normalized pack's external CAS identity is supplied separately as
   `pack_ref`, avoiding self-referential bytes. Intake and canonical request

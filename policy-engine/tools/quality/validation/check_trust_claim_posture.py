@@ -239,9 +239,7 @@ def reconcile_source_derivations(
                 for site in ast_sites ^ token_sites
             }
         )
-        raise ValueError(
-            "may_not_use_for derivations disagree at " + ", ".join(coordinates)
-        )
+        raise ValueError("may_not_use_for derivations disagree at " + ", ".join(coordinates))
     inventory_paths = {row.path for row in rows}
     denied_only_sites = tuple(
         site
@@ -2373,6 +2371,67 @@ def _token_depths(statement: Sequence[tokenize.TokenInfo]) -> list[int]:
     return depths
 
 
+#: Statement keywords that own a depth-0 colon which is not an annotation.
+_ANNOTATION_EXCLUDED_OPENERS = frozenset(
+    {
+        "async",
+        "class",
+        "def",
+        "elif",
+        "else",
+        "except",
+        "finally",
+        "for",
+        "if",
+        "lambda",
+        "try",
+        "while",
+        "with",
+    }
+)
+
+
+def _token_annotation_span(
+    statement: Sequence[tokenize.TokenInfo],
+) -> tuple[int, int] | None:
+    """The annotated-assignment type span, which is syntax rather than semantic evidence.
+
+    ``metrics: dict[str, int | float] = {...}`` carries a PEP 604 union whose ``|`` is type
+    syntax, not a set operation. The AST owner never confuses the two because it walks the
+    value and never the annotation; the tokenizer has no such structure, so without this
+    span every name in such a statement reads as a semantic use and the two derivations
+    disagree. Returns ``None`` when the statement is not an annotated assignment.
+    """
+
+    if not statement or statement[0].string in _ANNOTATION_EXCLUDED_OPENERS:
+        return None
+    depths = _token_depths(statement)
+    colon = next(
+        (
+            position
+            for position, item in enumerate(statement)
+            if item.string == ":" and depths[position] == 0
+        ),
+        None,
+    )
+    if not colon:
+        return None
+    target_is_dotted_name = all(
+        item.type == tokenize.NAME or item.string == "." for item in statement[:colon]
+    )
+    if not target_is_dotted_name:
+        return None
+    assignment = next(
+        (
+            position
+            for position in range(colon + 1, len(statement))
+            if statement[position].string == "=" and depths[position] == 0
+        ),
+        None,
+    )
+    return (colon + 1, assignment if assignment is not None else len(statement))
+
+
 def _token_use_is_semantic(statement: Sequence[tokenize.TokenInfo], index: int) -> bool:
     if not statement:
         return False
@@ -2398,7 +2457,12 @@ def _token_use_is_semantic(statement: Sequence[tokenize.TokenInfo], index: int) 
         if depths[position] == target_depth and statement[position].string == ",":
             right = position
             break
-    expression = {item.string for item in statement[left:right]}
+    annotation = _token_annotation_span(statement)
+    expression = {
+        item.string
+        for position, item in enumerate(statement[left:right], start=left)
+        if annotation is None or not annotation[0] <= position < annotation[1]
+    }
     return bool(
         expression
         & {
@@ -2687,12 +2751,8 @@ def _report(register: ClaimPostureRegisterV1) -> dict[str, object]:
         "schema_version": register.schema_version,
         "source_set_digest": register.source_set_digest,
         "payload_digest": register.payload_digest,
-        "ast": register.ast_derivation.model_dump(
-            mode="json", exclude=receipt_exclusions
-        ),
-        "tokenize": register.token_derivation.model_dump(
-            mode="json", exclude=receipt_exclusions
-        ),
+        "ast": register.ast_derivation.model_dump(mode="json", exclude=receipt_exclusions),
+        "tokenize": register.token_derivation.model_dump(mode="json", exclude=receipt_exclusions),
         "issue_codes": sorted(
             {code for row in register.source_inventory for code in row.issue_codes}
         ),

@@ -263,25 +263,25 @@ def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
     token_result = checker.derive_token_sources(REPO_ROOT)
     reconciled = checker.reconcile_source_derivations(ast_result, token_result)
 
-    assert ast_result.receipt.scanned_python_count == 2580
-    assert token_result.receipt.scanned_python_count == 2580
-    assert ast_result.receipt.raw_candidate_count == 105
-    assert token_result.receipt.raw_candidate_count == 105
+    assert ast_result.receipt.scanned_python_count == 2603
+    assert token_result.receipt.scanned_python_count == 2603
+    assert ast_result.receipt.raw_candidate_count == 113
+    assert token_result.receipt.raw_candidate_count == 113
     assert (
         ast_result.receipt.role_counts
         == token_result.receipt.role_counts
         == {
-            "declares_only": 66,
-            "carries_only": 5,
-            "consumes_only": 5,
+            "declares_only": 72,
+            "carries_only": 6,
+            "consumes_only": 6,
             "declares_and_consumes": 28,
             "substring_collision": 1,
             "ambiguous": 0,
         }
     )
-    assert ast_result.receipt.exact_field_file_count == 104
-    assert ast_result.receipt.declaring_file_count == 94
-    assert ast_result.receipt.consuming_file_count == 33
+    assert ast_result.receipt.exact_field_file_count == 112
+    assert ast_result.receipt.declaring_file_count == 100
+    assert ast_result.receipt.consuming_file_count == 34
     assert not reconciled.disagreements
     posture = next(row for row in reconciled.rows if row.path.endswith("claims/posture.py"))
     assert posture.role == "declares_and_consumes"
@@ -289,16 +289,16 @@ def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
     entry_roles = dict(ast_result.receipt.role_counts)
     entry_roles["declares_and_consumes"] -= 1
     assert entry_roles == {
-        "declares_only": 66,
-        "carries_only": 5,
-        "consumes_only": 5,
+        "declares_only": 72,
+        "carries_only": 6,
+        "consumes_only": 6,
         "declares_and_consumes": 27,
         "substring_collision": 1,
         "ambiguous": 0,
     }
-    assert ast_result.receipt.scanned_python_count - 1 == 2579
-    assert ast_result.receipt.raw_candidate_count - 1 == 104
-    assert ast_result.receipt.exact_field_file_count - 1 == 103
+    assert ast_result.receipt.scanned_python_count - 1 == 2602
+    assert ast_result.receipt.raw_candidate_count - 1 == 112
+    assert ast_result.receipt.exact_field_file_count - 1 == 111
     collision = next(row for row in reconciled.rows if row.role == "substring_collision")
     assert collision.path.endswith("data_forge/domains/academic/batch/best_snapshot.py")
     assert collision.issue_codes == ("DS11-SOURCE-COLLISION",)
@@ -329,6 +329,53 @@ def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
     )
 
 
+@pytest.mark.parametrize(
+    ("source", "expected_role"),
+    [
+        pytest.param(
+            "report = authoritative_for\nmetrics: dict[str, int | float] = report\n",
+            "carries_only",
+            id="annotation-operator-is-not-value-semantics",
+        ),
+        pytest.param(
+            "report = authoritative_for\nmetrics: dict = report\n",
+            "carries_only",
+            id="bare-dict-annotation-control",
+        ),
+        pytest.param(
+            "report = authoritative_for\nmetrics: dict = report | other\n",
+            "consumes_only",
+            id="value-set-union-remains-semantic",
+        ),
+    ],
+)
+def test_tokenizer_matches_ast_when_annotations_and_value_operators_share_a_statement(
+    tmp_path: Path,
+    source: str,
+    expected_role: str,
+) -> None:
+    """Catch `_token_use_is_semantic` treating annotation operators as value evidence."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    probe = repo / "src/polisyos/annotation_probe.py"
+    probe.write_text(source, encoding="utf-8")
+
+    ast_row = next(
+        row
+        for row in _sources().derive_ast_sources(repo).rows
+        if row.path == "src/polisyos/annotation_probe.py"
+    )
+    token_row = next(
+        row
+        for row in _checker().derive_token_sources(repo).rows
+        if row.path == "src/polisyos/annotation_probe.py"
+    )
+
+    assert ast_row.path == token_row.path == "src/polisyos/annotation_probe.py"
+    assert ast_row.role == expected_role
+    assert token_row.role == expected_role
+
+
 def test_literal_censuses_reconcile_for_both_complete_walks() -> None:
     """Catch a compiler mutation that drops wrappers, empty sites, or denied purposes."""
     ast_result = _sources().derive_ast_sources(REPO_ROOT)
@@ -342,19 +389,19 @@ def test_literal_censuses_reconcile_for_both_complete_walks() -> None:
             receipt.direct_literal_file_count,
             receipt.direct_literal_subject_count,
             receipt.direct_empty_site_count,
-        ) == (35, 13, 21, 5)
+        ) == (39, 17, 25, 6)
         assert (
             receipt.wrapper_literal_site_count,
             receipt.wrapper_literal_file_count,
             receipt.wrapper_literal_subject_count,
-        ) == (59, 24, 28)
+        ) == (63, 28, 32)
         assert (
             receipt.may_not_use_for_raw_file_count,
             receipt.may_not_use_for_literal_site_count,
             receipt.may_not_use_for_literal_file_count,
             receipt.may_not_use_for_literal_subject_count,
-        ) == (117, 34, 22, 44)
-        assert receipt.may_not_use_for_raw_file_count - 1 == 116
+        ) == (126, 37, 25, 48)
+        assert receipt.may_not_use_for_raw_file_count - 1 == 125
     reconciled = _checker().reconcile_source_derivations(ast_result, token_result)
     inventory_denied = tuple(
         site
@@ -364,7 +411,7 @@ def test_literal_censuses_reconcile_for_both_complete_walks() -> None:
         and site.wrapper_kind != "dynamic"
         and site.resolution == "resolved"
     )
-    assert (len(inventory_denied), len(reconciled.may_not_use_for_denied_only_sites)) == (30, 4)
+    assert (len(inventory_denied), len(reconciled.may_not_use_for_denied_only_sites)) == (33, 4)
     assert (
         *inventory_denied,
         *reconciled.may_not_use_for_denied_only_sites,

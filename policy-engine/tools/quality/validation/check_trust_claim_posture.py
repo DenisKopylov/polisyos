@@ -2387,6 +2387,32 @@ def _token_use_is_semantic(statement: Sequence[tokenize.TokenInfo], index: int) 
     if index > 0 and strings[index - 1] in {"not", "~"}:
         return True
     depths = _token_depths(statement)
+    annotation_start = next(
+        (
+            position
+            for position, item in enumerate(statement)
+            if item.string == ":" and depths[position] == 0
+        ),
+        None,
+    )
+    annotation_end = (
+        next(
+            (
+                position
+                for position in range(annotation_start + 1, len(statement))
+                if statement[position].string == "=" and depths[position] == 0
+            ),
+            None,
+        )
+        if annotation_start is not None
+        else None
+    )
+    if (
+        annotation_start is not None
+        and annotation_end is not None
+        and annotation_start < index < annotation_end
+    ):
+        return False
     target_depth = depths[index]
     left = 0
     for position in range(index - 1, -1, -1):
@@ -2398,7 +2424,15 @@ def _token_use_is_semantic(statement: Sequence[tokenize.TokenInfo], index: int) 
         if depths[position] == target_depth and statement[position].string == ",":
             right = position
             break
-    expression = {item.string for item in statement[left:right]}
+    expression = {
+        item.string
+        for position, item in enumerate(statement[left:right], left)
+        if not (
+            annotation_start is not None
+            and annotation_end is not None
+            and annotation_start < position < annotation_end
+        )
+    }
     return bool(
         expression
         & {

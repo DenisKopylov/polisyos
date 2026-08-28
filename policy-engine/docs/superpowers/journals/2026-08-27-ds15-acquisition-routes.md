@@ -502,3 +502,39 @@ but no production-growth claim may.
 - DS18 and GY-O0 received the frozen source-sync coordinate `b633ea7b75` for
   the shared contract/dependency/OpenAPI/lifecycle seam. This branch makes no
   push or merge claim.
+
+## C03 receipt correction — authorization matrix was not exercised
+
+- The C03 receipt at `4d02940e5` said “18 focused generated-contract tests
+  passed” and the closeout hand-back used that result as support for a green
+  C03 contract predicate. That broader predicate was false: the unchanged
+  `tests/unit/runtime/http/test_runtime_api_authz.py` was not in the invocation,
+  and the branch had two DS15-owned failures there while `main` had seven
+  pre-existing failures. The 18 selected cases did pass; what failed was the
+  receipt boundary that projected that selection as coverage of the complete
+  affected contract gate.
+- The exact invocation behind the green claim was:
+
+  ```text
+  uv run pytest \
+    tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_openapi_contract_includes_examples_and_problem_payloads \
+    tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_epoch_validity_batch_success_example_matches_its_wire_contract \
+    tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_openapi_exposes_strict_acquisition_route_boundary_without_growth_authority \
+    tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_ds15_acquisition_openapi_mutations_fail_the_semantic_contract \
+    tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_generated_runtime_client_includes_all_acquisition_route_wrappers \
+    tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_generated_runtime_js_client_accepts_params_for_body_operations \
+    tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_committed_runtime_client_matches_package_generation_pipeline \
+    tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_schema_and_clients_regenerate_byte_identically_twice \
+    tests/integration/runtime_frontend/test_ds15_acquisition_route_contract_bridge.py -q
+  ```
+
+- Within C03, the generated schema/client bridge checks and the four OpenAPI
+  semantic mutations share this invocation. The C03 scratch-regeneration,
+  runtime API contract, architecture-guardrail, and release-fragment receipts
+  came from separate invocations. No C02, C04, C05, or C06 receipt rests on
+  this 18-case invocation.
+- Root cause: the focused list proved generated ABI shape and reproducibility,
+  but its denominator omitted the generic behavioral authorization matrix even
+  though C03 added two step-up-guarded mutating operations. Closure now requires
+  branch-versus-`main` deltas and direct execution of the generated permission,
+  authorized-handler, and no-step-up cases for both operations.

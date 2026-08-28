@@ -1074,3 +1074,129 @@ bindings, eight ambiguous TypeScript bindings, one TypeScript content drift and 
 expected-count drift. Its timing is `97.44 + 9.28 = 106.72 CPU-s`, uptime
 `3.09 2.85 3.13` → `3.13 2.89 3.11`. Thus DS18's register-checker delta is zero;
 the inherited one remains visible on both sides.
+
+### Final reopened verification — exact delta shape
+
+The first paired Atlas replay after arming the freeze exposed a branch-only failure:
+one historical test still expected the pre-freeze bare denominator-drift label. That
+was DS18's test predicate, not inherited debt. Its assertion now requires the armed
+`landing_slice_reconciliation_required` label. The same replay also showed that an
+existing DS10 external-admission test had accidentally been made green on the branch
+even though it is part of the inherited red set the owner directed this round to
+preserve. Its historical expected set was restored; the test is red on both refs and
+continues to expose the admitted C13 residual. This was a delta-shape correction, not
+an attempt to make an absolute suite green.
+
+The final three-file Atlas replay is therefore **37 failures on the branch / 54 on
+`main`**, with **37 shared, 0 branch-only and exactly 17 main-only**. The branch run
+used `user + sys = 1339.36 + 82.23 = 1421.59 CPU-s`, uptime
+`2.96 3.32 3.66` → `3.73 3.35 3.41`, within the declared 2226.19 CPU-s ceiling.
+The `main` run used `1632.60 + 99.61 = 1732.21 CPU-s`, uptime
+`2.47 2.81 3.05` → `2.24 3.71 3.89`; the second uptime sample was recovered after
+the completed output, so it is an environment/load receipt rather than an exact
+process-boundary sample. Independent reads of each ref's pytest `lastfailed` cache,
+restricted to the three invoked Atlas files, reproduced 37 and 54. Set subtraction
+reproduced 0 branch-only and 17 main-only; comparison with the architect-supplied
+17-node set returned no missing and no unexpected member.
+
+The exact 37-node shared set is below; every identifier is relative to the common
+`architecture/atlas_surfaces/` prefix:
+
+```text
+test_atlas_enforcement.py::AtlasEnforcementTests::test_authority_escape_exemptions_are_exact_owned_and_current
+test_atlas_enforcement.py::AtlasEnforcementTests::test_authority_issuer_requires_generated_exhaustiveness_and_runtime_novelty
+test_atlas_enforcement.py::AtlasEnforcementTests::test_c13a_terminal_dispositions_have_live_census_and_composer_rebind
+test_atlas_enforcement.py::AtlasEnforcementTests::test_full_corruption_probes_exercise_removed_query_producer
+test_atlas_enforcement.py::AtlasEnforcementTests::test_generated_owner_receipt_and_status_bridge_are_content_bound
+test_atlas_enforcement.py::AtlasEnforcementTests::test_lint_enforcement_executes_the_three_architecture_engines
+test_atlas_enforcement.py::AtlasEnforcementTests::test_offline_queue_denominator_tracks_scanned_production_sources
+test_atlas_enforcement.py::AtlasEnforcementTests::test_offline_queue_type_rejects_authority_action_kind
+test_atlas_enforcement.py::AtlasEnforcementTests::test_persistence_construction_census_is_source_complete_and_bounded
+test_atlas_enforcement.py::AtlasEnforcementTests::test_query_construction_and_producer_censuses_are_source_complete
+test_atlas_enforcement.py::AtlasEnforcementTests::test_query_construction_options_resolution_is_required_and_nonsemantic
+test_atlas_enforcement.py::AtlasEnforcementTests::test_real_illegal_edges_fail_custom_and_dependency_engines
+test_atlas_enforcement.py::AtlasEnforcementTests::test_unknown_authz_decision_never_defaults_authority_surface_to_allow
+test_frontend_disposition_register.py::DS5LineAddressCensusTests::test_c21b_real_gate_ignores_moved_construct_and_rejects_rename
+test_frontend_disposition_register.py::DS5LineAddressCensusTests::test_c21c_real_gate_ignores_json_move_but_rejects_rename_and_content
+test_frontend_disposition_register.py::DS5LineAddressCensusTests::test_ds5_line_address_complete_partition_is_derived_from_live_register
+test_frontend_disposition_register.py::DS6C13PrintTransitionTests::test_independent_receipt_binds_the_full_conjunction_and_current_bytes
+test_frontend_disposition_register.py::DS6RegisterTransitionTests::test_c06_transition_is_surgical_idempotent_and_rejects_bypass
+test_frontend_disposition_register.py::DS8BPostFreezeTransitionTests::test_status_companion_maps_only_the_two_regeneration_drifts
+test_frontend_disposition_register.py::DS8StrangleCoverageTests::test_companion_baseline_candidate_reanchors_only_three_source_bytes
+test_frontend_disposition_register.py::DS8StrangleCoverageTests::test_companion_reference_reanchors_resolve_without_peer_drift
+test_frontend_disposition_register.py::DS8StrangleCoverageTests::test_status_candidate_reanchors_only_reconciled_receipts
+test_frontend_disposition_register.py::DS9C07AdjudicationTests::test_all_18_opening_objects_have_one_checked_disposition
+test_frontend_disposition_register.py::PersistenceConstructionCensusTests::test_storage_construction_rows_validate_explicit_adjudication
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_auth_session_revision_debt_binds_generated_auth_me_contract
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_c06_waist_owner_debts_bind_remaining_independent_planes
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_c07b_dashboard_generated_client_debt_binds_single_owner_strangle
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_capability_state_vocabulary_matches_the_failure_register
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_report_projects_capability_states_and_closure_signal
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_schema_requires_capability_states_and_closure_signal_only_for_producer_binding_debt
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_supplemental_refresh_preserves_terminal_history_and_changes_only_the_derived_set
+test_frontend_disposition_register.py::StructuredReferenceIdentityTests::test_live_c21c_selector_hashes_are_complete_and_frozen
+test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_c21d_live_register_identity_census_preserves_every_distinct_binding
+test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_c21d_real_composer_move_relocates_unique_badges_and_keeps_reds
+test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_c21d_retired_address_owners_are_absent_and_counts_are_complete
+test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_def21_additive_role_preserves_ds5_identity_bytes
+test_frontend_disposition_register.py::test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure
+```
+
+The exact 17-node `main`-only set uses that same common prefix:
+
+```text
+test_frontend_baseline_debt_manifest.py::FrontendBaselineDebtLifecycleTests::test_architecture_origin_active_and_resolved_form_an_exact_partition
+test_frontend_baseline_debt_manifest.py::FrontendBaselineDebtLifecycleTests::test_lint_origin_active_and_resolved_form_an_exact_partition
+test_frontend_baseline_debt_manifest.py::FrontendBaselineDebtLifecycleTests::test_resolution_content_bindings_cover_exact_derived_roles_and_live_bytes
+test_frontend_baseline_debt_manifest.py::FrontendBaselineDebtLifecycleTests::test_vitest_accepts_the_exact_open_or_c16_resolved_lifecycle
+test_frontend_disposition_register.py::AuthorityPresentationCensusTests::test_authority_debt_corruptions_fail_closed
+test_frontend_disposition_register.py::AuthorityPresentationCensusTests::test_ds11_trust_presentation_writer_is_exact_idempotent_and_forgery_closed
+test_frontend_disposition_register.py::AuthorityPresentationCensusTests::test_every_authority_presentation_prop_is_branded_or_typed_debt
+test_frontend_disposition_register.py::AuthorityPresentationCensusTests::test_writer_removes_only_retired_authority_presentation_rows
+test_frontend_disposition_register.py::DS5LineAddressCensusTests::test_c21b_protected_probe_retains_hybrid_identity_multiplicity
+test_frontend_disposition_register.py::DS5LineAddressCensusTests::test_c21b_validator_replays_migrated_protected_probe_identities
+test_frontend_disposition_register.py::DS5LineAddressCensusTests::test_c21c_surgical_writer_is_idempotent_with_navigation_residual
+test_frontend_disposition_register.py::DS8BPostFreezeTransitionTests::test_surgical_writer_preserves_the_217_row_historical_value
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_c11b_cache_posture_debt_closes_after_typed_consumer
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_c14a_local_state_envelope_owner_debt_binds_absent_producer_contract
+test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_c21d_multi_site_authority_sink_ignores_navigation_only_changes
+test_frontend_disposition_register.py::test_ds10_baseline_candidate_reanchors_only_owned_source_bytes
+test_frontend_disposition_register.py::test_ds10_protected_signing_census_adds_the_complete_stable_identity_set
+```
+
+The remaining mandatory branch-versus-`main` matrix is:
+
+| Predicate | DS18 branch | `main` | Delta conclusion |
+| --- | --- | --- | --- |
+| Frontend disposition CLI | 1 shared C13 finding; 108.04 CPU-s; uptime `2.11 2.66 3.10` → `3.18 2.87 3.14` | 38 findings; 106.72 CPU-s; uptime `3.09 2.85 3.13` → `3.13 2.89 3.11` | 37 DS18 findings closed; branch-only 0 |
+| Three Atlas test files | 37 failures; 1421.59 CPU-s; uptime `2.96 3.32 3.66` → `3.73 3.35 3.41` | 54 failures; 1732.21 CPU-s; uptime `2.47 2.81 3.05` → `2.24 3.71 3.89` | exact shared 37; exact main-only 17; branch-only 0 |
+| Architecture guardrails | deep-import creep 0; only shared local PATH artifact; 33.68 CPU-s | deep-import creep 0; identical PATH artifact; 33.54 CPU-s | creep 0 / 0 |
+| Runtime/Rego authorization parity | 24/24 pass; 38.40 CPU-s | 24/24 pass; 38.66 CPU-s | identical green |
+| Atlas health metrics | 20 pass / exact shared 3 red; 25.11 CPU-s | 20 pass / same 3 red; 25.08 CPU-s | no fourth red |
+| DS18 freeze census | 605 files, 719 roots, 77 obligated / 77 covered, 0 missing and 0 digest mismatch; 2.37 CPU-s | identical 605 / 719 / 77 / 77 / 0 / 0; 2.38 CPU-s | identical green |
+
+Guardrail uptime was `2.12 3.40 3.76` → `2.63 3.34 3.72` on both refs;
+Rego parity used `2.74 3.35 3.72` → `3.10 3.39 3.71`; Atlas health used
+`2.94 3.34 3.69` → `3.62 3.47 3.73`; and the freeze census used
+`3.30 3.41 3.70` → `3.35 3.42 3.70`. The guardrail's identical local
+`trust-claim-posture-register` PATH failure, the identical unavailable CP-SAT
+collection, and the enforcement scanner's identical Node stack-size failure remain
+environmental non-findings and were not repaired or promoted into product debt.
+
+The live-coordinate landing falsifier reports exactly
+`ds18_time_semantics_landing_slice_reconciliation_required:missing=['apps/runtime-dashboard/src/features/later/LaterDecision.tsx']:extra=[]`
+at `user + sys = 1.95 + 0.07 = 2.02 CPU-s`, uptime
+`3.15 3.37 3.68` → `3.13 3.36 3.68`. This proves the landing-slice label is armed;
+DS18 has not pre-reconciled any later slice's roots.
+
+The prior DS5 owner stop is superseded only for the six content bindings named in the
+architecture ruling: those six are now closed, and every other DS5 field remains
+untouched and outside DS18. The DS6 Atlas-health persistence/provenance owner stop
+remains unchanged, visible as the same three reds on both refs. No deep-import
+baseline, debt register, DS5 plan/journal/evidence, or non-ruled manifest field moved.
+
+This reopening adds no mechanism path and spends no widening round. The budget remains
+**47 / 44 mechanism paths with 6 / 7 widening rounds spent**. The over-ceiling state
+and prior facade widening remain exactly as previously declared; this receipt repair
+uses existing checker/test paths plus mandatory journal, register, report and the
+six-row baseline companion authorized by the architecture owner.

@@ -699,23 +699,25 @@ component name, or route string constant is not enough to keep a test green.
 | --- | --- | ---: | ---: | --- |
 | C00 | rebase-free readback, baseline reds, exact denominators | 0 | 0 | yes |
 | C01 | canonical monitor contracts, six-class/lineage preservation, projection compiler | 7 | 8 | yes |
-| C02 | live monitor intake, temporal read owner, DI, OpenAPI contract | 5 | 5 | yes |
+| C02 | live monitor intake, temporal read owner, DI, authorization binding, OpenAPI contract | 6 | 6 | yes |
 | C03 | generator selection + frozen schema/package-client regeneration receipt | 1 | 1 | yes, but no dashboard output |
 | WAIT-DS11 | landed-owner and exact-byte receipt | 0 | 0 | satisfied at C00 entry |
 | C04 | dashboard strict admission and exact-byte MACHINE | 3 | 4 | no |
 | C05 | DS4 extension, detailed surface, universal consumers, active locales | 20 | 20 | no |
 | C06 | complete render/export census and semantic lint | 5 | 6 | no |
 | C07 | visual/a11y/replay/closeout verification | 0 | 0 | no |
-| **Total** | unique production/tooling mechanisms | **41** | **44** | — |
+| **Total** | unique production/tooling mechanisms | **42** | **44** | — |
 
 The current total is independently derived in two ways:
 
-- cluster arithmetic: `7 + 5 + 1 + 3 + 20 + 5 = 41`;
+- cluster arithmetic: `7 + 6 + 1 + 3 + 20 + 5 = 42`;
 - parser union of the Add/Modify mechanism table below, excluding mandatory P39
-  companions: `41` unique paths, no duplicates.
+  companions: `42` unique paths, no duplicates.
 
-The hard ceiling is now the 41-path declared union plus **3** paths of reserve: one
-backend owner/readback seam, one raw-byte admission seam, and one census/lint seam.
+The hard ceiling is now the 42-path declared union plus **2** paths of reserve: one
+raw-byte admission seam and one census/lint seam. The backend owner/readback reserve
+was spent during C02 on the canonical owned-run authorization resolver after the live
+route dependency proved that no registered resolver existed for the new resource kind.
 The former HTTP/ABI reserve is spent on the canonical runtime-client generator after
 the C00 semantic probe proved regeneration preserves the missing executable operation.
 One of the two original backend owner/readback reserves was independently released when
@@ -768,38 +770,26 @@ spends widening seam 5, and moves **40 → 41** declared mechanisms. Reallocatin
 independently released C01 backend reserve moves the C01/C05 cluster ceilings
 `9/19 → 8/20`; the total hard ceiling remains **44**, and **2 of 7** rounds are spent.
 
-### Entry serialization receipts
+**C02 execution budget receipt.** The route-level cross-tenant falsifier held the
+`RUNS_REVIEW` dependency and route markers constant while exercising the real owned-
+path binder. It failed before the endpoint because
+`runtime.run.epoch_staleness/run_id` had no canonical resolver; changing to a tenant-
+collection or another resource kind would have made the markers pass while losing
+exact run ownership. A direct resolver-table census and an independent executable
+request trace both identified
+`src/polisyos/runtime/http/resource_binding.py` as the smallest owner. This is **NEW:
+owned-run authorization binding**, spends the backend owner/readback seam, and moves
+**41 → 42** mechanisms and **2 → 3 of 7** rounds. The hard ceiling remains **44**.
 
-The current coordination sets supersede the planning-time lane estimates:
+### Execution serialization ruling
 
-- DS15: a merge-base-aware tree diff and an independent full tree-object comparison
-  agree that the current DS15 lane contribution is 49 paths. A Markdown-table parser
-  and an independent row parser both derive DS18's current 41 mechanisms; both intersections
-  contain exactly these four mechanisms:
-  `src/polisyos/core/contracts/control.py`,
-  `src/polisyos/runtime/http/dependencies.py`,
-  `src/polisyos/runtime/http/openapi_contract.py`, and
-  `src/polisyos/runtime/http/services/control/run_lifecycle.py`. The first belongs to
-  C01 and the other three to C02. The earlier 30-path result remains a truthful count
-  of DS15's historical `b633ea7b7` C02 checkpoint commit, but it is not the lane's
-  complete contribution denominator. An attempted cherry-pick of that unlanded
-  checkpoint was aborted before any DS18 source commit; importing a sibling feature
-  branch is rejected as cross-lane contamination. C01-C04 wait until DS15 lands on the
-  integration branch, then DS18 merges `main` forward append-only and re-derives the
-  release. A feature-branch hash is a coordination coordinate, never source-sync
-  authority. The earlier zero-overlap planning observation is rejected as stale, not
-  reconciled away.
-- The seven registered generated outputs are one serialized transaction seam. DS15
-  is not yet inside C03; parsing the register and exact path-membership independently
-  derives seven outputs, and each current 49-path DS15 derivation intersects them at
-  zero. DS18 must still re-derive the intersection and re-coordinate immediately before
-  C03's regeneration receipt and again before C04's dashboard regeneration. A clean
-  observation now is not a future lock.
-- GY-O0 resumed C04 from clean attached coordinate
-  `e5d1c3ab7ffc2c4da00d26eb395d6f4c287175fd` and again holds the companion
-  `src/polisyos/runtime/quality/README.md`. DS18 defers that companion until GY-O0
-  supplies its exact clean attached C04 release coordinate. The seam changes no
-  production mechanism.
+The architecture owner withdrew every sibling-lane hold before C01 implementation.
+DS18 does not inspect, coordinate with, or wait on sibling state. Contended hand-
+authored paths are ordinary integration conflicts, and registered generated artifacts
+are rebuilt deterministically from this branch. Historical entry receipts remain in
+the execution journal only; they impose no current sequencing condition. No sibling
+commit may enter this branch, and the only permitted inward flow remains an append-only
+merge from `main`.
 
 ### Declared mechanism paths
 
@@ -815,6 +805,7 @@ The current coordination sets supersede the planning-time lane estimates:
 | C02 | Modify | `src/polisyos/runtime/http/services/control/run_lifecycle.py` | resolve exact monitor-event ref, invoke/persist lifecycle bridge, then derive generic Decision Validity/epoch bindings |
 | C02 | Modify | `src/polisyos/runtime/http/services/temporal.py` | canonical run-scoped epoch-staleness projection method over `TemporalScope` and owner readers |
 | C02 | Modify | `src/polisyos/runtime/http/routes/temporal.py` | `RUNS_REVIEW`-authorized replay-bound GET route |
+| C02 | Modify | `src/polisyos/runtime/http/resource_binding.py` | canonical exact owned-run resolver for the epoch-staleness authorization resource |
 | C02 | Modify | `src/polisyos/runtime/http/dependencies.py` | compose `TemporalService` with exact readers/providers, including real typed absences |
 | C02 | Modify | `src/polisyos/runtime/http/openapi_contract.py` | live success/absence contract examples and semantic contract checks |
 | C03 | Modify | `tools/ops_runners/runtime/generate_runtime_client.py` | include admitted epoch operations in executable clients; freshness alone is not operation completeness |
@@ -903,8 +894,9 @@ deep-import baseline.
 **C00 entry receipt:** the current counts are recorded in Section 3; the four-state
 scratch falsifier changes the underlying epoch/refusal/replay state while holding the
 existing DS4 component shell and fails all four assertions for the intended missing
-behavior. Existing focused backend and DS4/chart baselines are green. C01-C04 now wait
-at the DS15 lane boundary above; this is serialization, not a product blocker.
+behavior. Existing focused backend and DS4/chart baselines are green. The architecture
+owner subsequently withdrew every sibling-lane hold, so C01-C07 execute in order
+without a sibling-state census or release check.
 
 ### C01 — contracts and real projection inputs
 
@@ -980,8 +972,9 @@ review.
 This checkpoint remains incomplete until C04 refreshes the dashboard member and all
 seven outputs pass both freshness and operation-semantic checks. It is not a closure
 point.
-Immediately before regeneration, re-derive the DS15 intersection and confirm its
-generated-family transaction is released; never regenerate over another lane.
+Run the registered generator directly from this branch. No sibling-lane census,
+coordination or release check precedes regeneration; generated output is rebuilt from
+the current tree rather than hand-merged.
 
 **Red first:** keep the schema path, operation id, DTOs and byte-fresh outputs fixed but
 remove the operation from the generator selection; a generated-client behavior test
@@ -1001,9 +994,8 @@ from planning is recorded in Section 3.4, the landed exact-byte loader was read,
 lockfile/install was revalidated, and no C04-C06 owner moved. The frontend slice base
 for P41 is therefore this post-landing execution base.
 
-The active serialization before C04 is now the generated-family seam with DS15, not
-DS11. Re-coordinate immediately before C04's atomic dashboard regeneration; a moved
-generated owner spends the relevant widening round and is never silently substituted.
+No sibling-lane serialization remains before C04. The dashboard generated type is
+rebuilt from the same current-tree source and checked as the seventh registered output.
 
 ### C04 — strict client admission and MACHINE
 
@@ -1142,7 +1134,10 @@ not a closeout repair.
 The slice has **7 widening rounds**, one for each independent uncertainty seam exposed
 by the census:
 
-1. an additional persisted epoch-result family needed by the compiler;
+1. an additional backend owner/readback or authorization-binding seam — **spent during
+   C02** on the exact owned-run resolver for `runtime.run.epoch_staleness` after the
+   executable cross-tenant falsifier proved the route dependency had no canonical
+   resolver;
 2. a missing canonical source→claim/publication lineage read seam;
 3. a missing OpenWorldRisk public-limitation read seam;
 4. a DS11 landing owner-path change;
@@ -1419,15 +1414,14 @@ and health metric to fail until it reconciles that root.
 The amendment itself held **39 / 44**. C00 then proved that the canonical generator is
 a required mechanism, so execution truthfully widened to **40 / 44**, spent the first
 round, and consumed the named HTTP/ABI reserve. The later C05 inherited-DOM preflight
-proved a second measured mechanism, moving the current declaration to **41 / 44** and
-**2 of 7** rounds without revisiting `36` or moving the hard ceiling.
+proved a second measured mechanism, moving the declaration to **41 / 44** and **2 of
+7** rounds. C02 then proved the canonical owned-run authorization resolver was a third
+measured mechanism, moving the current declaration to **42 / 44** and **3 of 7** rounds
+without revisiting `36` or moving the hard ceiling.
 
 ### Frontend and lane boundary
 
-WAIT-DS11 is satisfied at entry: C04-C07 need no DS11 source-sync merge. The active
-hold is earlier and narrower: C01-C04 wait for DS15's exact four-path C02 release, and
-DS18 re-coordinates the seven-output generator immediately before C03 and C04. The
-GY-O0 README companion is released at `e5d1c3ab7`; DS18 is ordered after its committed
-owner state. None of these
-lane-serialization facts caused the widening: the measured generator owner did. The
-current budget is **41 / 44**, with **2 of 7** rounds spent.
+WAIT-DS11 is satisfied at entry: C04-C07 need no DS11 source-sync merge. The architecture
+owner withdrew all sibling-lane holds before C01 implementation, so no sibling state
+governs C01-C07 and no coordination check precedes regeneration. The current budget is
+**42 / 44**, with **3 of 7** rounds spent.

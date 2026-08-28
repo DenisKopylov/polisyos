@@ -64,7 +64,12 @@ from polisyos.core.contracts.control import (
     SourceProfilesListResponse,
     WorkflowRunRequest,
 )
-from polisyos.core.contracts.decision_validity import DecisionDependencyEvent
+from polisyos.core.contracts.decision_validity import (
+    DecisionDependencyEvent,
+    DecisionTriggerRecord,
+    DecisionTriggerType,
+    DecisionValidityStatus,
+)
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.security import tenant_scope
 from polisyos.runtime.http.errors import conflict, forbidden, unprocessable_entity
@@ -109,6 +114,9 @@ from polisyos.runtime.quality.diagnostic_events import (
     SERIOUS_EXECUTION_PROFILES,
     DiagnosticEvent,
 )
+from polisyos.runtime.quality.epoch_validity_cascade import (
+    persist_advisory_perturbation_event,
+)
 from polisyos.runtime.quality.event_log import (
     DiagnosticEventPayloadPolicy,
     RuntimeDiagnosticEventLog,
@@ -123,6 +131,9 @@ from polisyos.scientist import (
     EpochClaimLifecycleBridgeService,
     build_default_claim_ledger_owner,
     build_epoch_claim_lifecycle_bridge,
+)
+from polisyos.scientist.governance.continuous.monitors import (
+    resolve_governance_monitor_event,
 )
 from polisyos.scientist.orchestration.llm.provider_verification import run_provider_preflight
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
@@ -166,6 +177,14 @@ _EPOCH_VALIDITY_INTAKE_FAILURE_CODES = frozenset(
         "decision_validity_epoch_receipt_unresolved",
     }
 )
+_MONITOR_TRIGGER_BY_SOURCE_CLASS: dict[str, DecisionTriggerType] = {
+    "incident": DecisionTriggerType.POST_DEPLOYMENT_REFUTATION,
+    "appeal": DecisionTriggerType.EXPERT_REVIEW,
+    "correction": DecisionTriggerType.DATA_INVALIDATION,
+    "retraction": DecisionTriggerType.SOURCE_INVALIDATION,
+    "legal_change": DecisionTriggerType.LAW_CHANGE,
+    "discovered_bias": DecisionTriggerType.CONTEXT_PROFILE_DRIFT,
+}
 
 
 def _default_runtime_metrics() -> MetricsRegistry:
@@ -2057,6 +2076,11 @@ class ControlPlaneService(
         request_id: str | None = None,
     ) -> DecisionValidityEventResponse:
         """Record a decision-dependency event and enqueue one deduplicated outbox notification."""
+        if request.monitor_event_ref is not None:
+            return self._publish_monitor_decision_validity_event(
+                request.monitor_event_ref,
+                request_id=request_id,
+            )
         dependency_keys = [item.strip() for item in request.dependency_keys if str(item).strip()]
         dedupe_key = request.dedupe_key or self._derive_decision_validity_dedupe_key(
             request,
@@ -2116,6 +2140,116 @@ class ControlPlaneService(
             message=(
                 f"Decision validity event {event.event_id} accepted for "
                 f"{len(affected_packets)} packet(s)."
+            ),
+        )
+
+    def _publish_monitor_decision_validity_event(
+        self,
+        monitor_event_ref: ArtifactRef,
+        *,
+        request_id: str | None,
+    ) -> DecisionValidityEventResponse:
+        """Content-bind the monitor arm before deriving any lifecycle consequence."""
+
+        try:
+            persisted = resolve_governance_monitor_event(
+                self._artifact_store,
+                monitor_event_ref,
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise unprocessable_entity(
+                "The governance monitor event could not be resolved exactly.",
+                code="monitor_event_unresolvable",
+            ) from exc
+        event = persisted.event
+        perturbation = event.perturbation
+        if perturbation is None:
+            raise unprocessable_entity(
+                "The monitor event does not carry a typed epoch perturbation.",
+                code="monitor_event_perturbation_missing",
+            )
+        if event.observed_epoch_ref is None:
+            raise unprocessable_entity(
+                "The monitor event does not bind the epoch in which it was observed.",
+                code="monitor_event_epoch_binding_missing",
+            )
+
+        try:
+            bridge = self._epoch_claim_lifecycle_bridge.bridge_monitor_event(
+                monitor_event_ref=monitor_event_ref,
+                actor_id="runtime.control.decision_validity.monitor_event",
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise unprocessable_entity(
+                "The monitor event could not be bound to the packet claim lifecycle.",
+                code="monitor_event_lifecycle_bridge_rejected",
+            ) from exc
+        if bridge.monitor_event != persisted:
+            raise unprocessable_entity(
+                "The lifecycle bridge resolved different monitor bytes.",
+                code="monitor_event_lifecycle_bridge_rejected",
+            )
+        try:
+            advisory_event_ref = persist_advisory_perturbation_event(
+                store=self._artifact_store,
+                persisted_monitor_event=persisted,
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise unprocessable_entity(
+                "The monitor event could not be bound to the epoch advisory stream.",
+                code="monitor_event_epoch_advisory_rejected",
+            ) from exc
+
+        source_class = perturbation.source_class
+        trigger = DecisionTriggerRecord(
+            trigger_type=_MONITOR_TRIGGER_BY_SOURCE_CLASS[source_class],
+            status=(
+                DecisionValidityStatus.WARNING
+                if event.advisory_posture == "annotation_only"
+                else DecisionValidityStatus.REVIEW_REQUIRED
+            ),
+            reason=event.reason,
+            source_ref=str(monitor_event_ref.artifact_id),
+            details={
+                "monitor_event_ref": monitor_event_ref.model_dump(mode="json"),
+                "source_class": source_class,
+                "observed_epoch_ref": event.observed_epoch_ref,
+                "advisory_event_ref": advisory_event_ref.model_dump(mode="json"),
+            },
+        )
+        evaluation = self._decision_validity_service.mark_packet_trigger(
+            packet_ref=str(event.decision_packet_ref.artifact_id),
+            trigger=trigger,
+        )
+        dedupe_key = f"monitor:{monitor_event_ref.artifact_id}"
+        affected_packets = [str(event.decision_packet_ref.artifact_id)]
+        affected_statuses = {evaluation.status.value: 1}
+        self._control_store.enqueue_outbox_event(
+            topic="control.decision_validity.monitor_event_published",
+            event_key=dedupe_key,
+            payload={
+                "event_id": event.event_id,
+                "dedupe_key": dedupe_key,
+                "monitor_event_ref": monitor_event_ref.model_dump(mode="json"),
+                "lifecycle_bridge_result_ref": bridge.result_ref.model_dump(mode="json"),
+                "advisory_event_ref": advisory_event_ref.model_dump(mode="json"),
+                "source_class": source_class,
+                "affected_packets": affected_packets,
+                "affected_statuses": affected_statuses,
+            },
+        )
+        return DecisionValidityEventResponse(
+            meta=_build_api_meta(request_id),
+            event_id=event.event_id,
+            dedupe_key=dedupe_key,
+            affected_packets=affected_packets,
+            affected_statuses=affected_statuses,
+            monitor_event_ref=monitor_event_ref,
+            lifecycle_bridge_result_ref=bridge.result_ref,
+            advisory_event_ref=advisory_event_ref,
+            message=(
+                f"Governance monitor event {event.event_id} was content-bound to "
+                "the claim lifecycle and epoch advisory stream."
             ),
         )
 

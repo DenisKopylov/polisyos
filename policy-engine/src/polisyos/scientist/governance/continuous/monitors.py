@@ -172,6 +172,10 @@ class GovernanceMonitorEvent(BaseModel):
     affected_dag_node_ids: list[str] = Field(default_factory=list)
     reason: str = Field(min_length=1)
     occurred_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    observed_epoch_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     perturbation: EpochPerturbation | None = None
     advisory_posture: AdvisoryPosture = "review_required"
     metadata: dict[str, Any] = Field(default_factory=dict)

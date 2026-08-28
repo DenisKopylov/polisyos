@@ -41,6 +41,9 @@ Digest = core_contracts.chronology.Digest
 
 _MEDIA_TYPE = "application/vnd.polisyos.chronology+json"
 _RUNTIME_CONTEXT_CANON = canon.CanonSpec(forbid_floats=False)
+_ADVISORY_EVENT_KIND = "polisyos.epoch.advisory_perturbation_event"
+_ADVISORY_EVENT_SCHEMA_NAME = "polisyos.runtime.AdvisoryPerturbationEvent"
+_ADVISORY_EVENT_SCHEMA_VERSION = "1.0"
 c4_canonical_bytes = core_contracts.c4_canonical_bytes
 c4_profile = core_contracts.c4_profile
 c4_profile_manifest_is_exact = core_contracts.c4_profile_manifest_is_exact
@@ -352,6 +355,116 @@ class AdvisoryPerturbationEvent(_StrictModel):
         if self.source_class == "appeal" and self.scope != "instance":
             raise ValueError("appeal_perturbation_requires_instance_scope")
         return self
+
+
+_ADVISORY_ACTION_BY_SOURCE_CLASS: dict[
+    EpochPerturbationClass,
+    Literal["annotation_only", "invalidate", "reissue", "supersede", "withdraw"],
+] = {
+    "incident": "invalidate",
+    "appeal": "reissue",
+    "correction": "supersede",
+    "retraction": "withdraw",
+    "legal_change": "supersede",
+    "discovered_bias": "invalidate",
+}
+
+
+def advisory_perturbation_from_monitor_event(
+    persisted_monitor_event: object,
+) -> AdvisoryPerturbationEvent:
+    """Derive an epoch advisory only from an exact persisted monitor handle."""
+
+    from polisyos.scientist.governance.continuous.monitors import (
+        AppealPerturbation,
+        PersistedGovernanceMonitorEvent,
+    )
+
+    if not isinstance(persisted_monitor_event, PersistedGovernanceMonitorEvent):
+        raise TypeError("epoch advisory requires a persisted governance monitor event")
+    event = persisted_monitor_event.event
+    perturbation = event.perturbation
+    if perturbation is None:
+        raise ValueError("epoch advisory requires a typed perturbation")
+    if event.observed_epoch_ref is None:
+        raise ValueError("epoch advisory requires observed_epoch_ref")
+    source_class = perturbation.source_class
+    return AdvisoryPerturbationEvent(
+        event_ref=persisted_monitor_event.event_ref,
+        target_ref=event.decision_packet_ref,
+        source_class=source_class,
+        scope=(
+            "instance"
+            if isinstance(perturbation, AppealPerturbation)
+            else "dependency_descendants"
+        ),
+        event_kind=_ADVISORY_ACTION_BY_SOURCE_CLASS[source_class],
+        authority_purpose="decision_validity",
+        observed_epoch_ref=event.observed_epoch_ref,
+    )
+
+
+def persist_advisory_perturbation_event(
+    *,
+    store: ArtifactStore,
+    persisted_monitor_event: object,
+) -> ArtifactRef:
+    """Persist and exactly reload the advisory binding derived from monitor bytes."""
+
+    advisory = advisory_perturbation_from_monitor_event(persisted_monitor_event)
+    ref = store.put_json(
+        advisory,
+        artifacts.PutOptions(
+            kind=_ADVISORY_EVENT_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=_ADVISORY_EVENT_SCHEMA_NAME,
+                version=_ADVISORY_EVENT_SCHEMA_VERSION,
+            ),
+            inputs=[
+                artifacts.InputRef(
+                    artifact_id=advisory.event_ref.artifact_id,
+                    role="governance_monitor_event",
+                )
+            ],
+        ),
+        canon_spec=_RUNTIME_CONTEXT_CANON,
+    )
+    if resolve_advisory_perturbation_event(store=store, ref=ref) != advisory:
+        raise ValueError("epoch advisory event readback mismatch")
+    return ref
+
+
+def resolve_advisory_perturbation_event(
+    *,
+    store: ArtifactStore,
+    ref: ArtifactRef,
+) -> AdvisoryPerturbationEvent:
+    """Resolve exact advisory bytes and reject profile or canonical drift."""
+
+    raw = store.get_bytes(ref.artifact_id)
+    report = store.verify(ref.artifact_id)
+    manifest = store.get_manifest(ref.artifact_id)
+    expected_schema = artifacts.SchemaInfo(
+        name=_ADVISORY_EVENT_SCHEMA_NAME,
+        version=_ADVISORY_EVENT_SCHEMA_VERSION,
+    )
+    if (
+        not report.ok
+        or str(ref.artifact_id) != _raw_hash(raw)
+        or manifest.artifact_id != ref.artifact_id
+        or ref.kind != _ADVISORY_EVENT_KIND
+        or manifest.kind != ref.kind
+        or ref.media_type != "application/json"
+        or manifest.media_type != ref.media_type
+        or manifest.artifact_schema != expected_schema
+        or manifest.canon != artifacts.CanonInfo.from_spec(_RUNTIME_CONTEXT_CANON)
+    ):
+        raise ValueError("epoch advisory event artifact profile mismatch")
+    advisory = AdvisoryPerturbationEvent.model_validate(canon.from_canonical_bytes(raw))
+    if _canonical_bytes(advisory) != raw:
+        raise ValueError("epoch advisory event canonical bytes mismatch")
+    return advisory
 
 
 class OwnerAdjudicatedTargetDisposition(_StrictModel):
@@ -2390,10 +2503,13 @@ __all__ = [
     "PromotionOwnerQueryContextStatement",
     "PromotionOwnerQueryContextVerifier",
     "TargetDispositionVector",
+    "advisory_perturbation_from_monitor_event",
     "bind_certificate_to_epoch",
     "build_epoch_validity_transition",
+    "persist_advisory_perturbation_event",
     "promotion_candidate_summary_content_hash",
     "promotion_epoch_query",
+    "resolve_advisory_perturbation_event",
     "resolve_owner_target_dispositions",
     "seal_pre_n9_admitted_candidate_batch",
 ]

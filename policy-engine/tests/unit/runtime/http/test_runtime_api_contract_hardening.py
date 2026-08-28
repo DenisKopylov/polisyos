@@ -13,6 +13,7 @@ if find_spec("fastapi") is None:  # pragma: no cover - optional dependency guard
     pytest.skip("fastapi is not installed", allow_module_level=True)
 
 from polisyos.core.contracts.capability_discovery import CapabilityDiscoveryResponse
+from polisyos.core.contracts.runtime import EpochStalenessProjectionResponse
 from polisyos.pdc import RunBoundDesignRecordBinding
 from polisyos.runtime.http.app import export_runtime_openapi_schema
 from polisyos.runtime.http.openapi_contract import validate_runtime_openapi_contract
@@ -94,6 +95,38 @@ def test_capability_discovery_examples_cover_truthful_postures_without_authority
         assert packets[1].results[0].authority_result.state == "candidate_only"
         assert packets[2].frontier.completeness_status == "recall_unmeasured"
         assert packets[3].frontier.incompleteness_reasons == ("case:producer_missing",)
+
+
+def test_epoch_staleness_examples_separate_positive_and_declared_absence() -> None:
+    schema = export_runtime_openapi_schema()
+    operation = schema["paths"]["/api/v1/temporal/runs/{run_id}/epoch-staleness"]["get"]
+    examples = operation["responses"]["200"]["content"]["application/json"]["examples"]
+
+    assert set(examples) == {"positive_fixture_only", "declared_production_absence"}
+    positive = EpochStalenessProjectionResponse.model_validate(
+        examples["positive_fixture_only"]["value"]
+    ).projection
+    absence = EpochStalenessProjectionResponse.model_validate(
+        examples["declared_production_absence"]["value"]
+    ).projection
+
+    assert positive.fixture_only is True
+    assert positive.status == "current"
+    assert absence.fixture_only is False
+    assert absence.status == "not_established"
+    assert {row.title for row in absence.institutional_absences} == {
+        "Authority not appointed"
+    }
+    assert [row.title for row in absence.engineering_absences] == [
+        "Engineering capability not wired"
+    ]
+    assert all(
+        row.appointment_is_closure_precondition is False
+        for row in absence.institutional_absences
+    )
+    assert absence.engineering_absences[0].candidate_owner_module == (
+        "polisyos.runtime.quality.derived_observations"
+    )
 
 
 def test_openapi_exposes_strict_human_decision_unions() -> None:

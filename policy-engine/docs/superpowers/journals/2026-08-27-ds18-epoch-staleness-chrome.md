@@ -328,3 +328,63 @@ uptime `3.78 3.78 3.70` → `4.02 3.86 3.74`;
 `real/user/sys/user+sys = 98.94/93.64/4.12/97.76 s`, under the declared 180-second
 wall ceiling. Changed-path Ruff exited 0. The full C01 path fence remains seven
 mechanisms; global budget remains **41 / 44**, with **2 / 7** widening rounds spent.
+
+## C02 live bridge, temporal route, and authorization closure
+
+C02 began from behavioral failures, not route markers. `TemporalService` rejected the
+real artifact/epoch/signer owner composition; the new monitor-ref request arm fell into
+the legacy parallel-input path; and an executable owned-run request proved the new
+authorization resource kind had no canonical resolver. The latter held the route,
+permission and resource markers constant while changing the requested run tenant, so a
+tenant-collection binding or borrowed resource kind could not satisfy the property.
+
+The live control POST now resolves the exact persisted monitor bytes, requires a typed
+perturbation plus `observed_epoch_ref`, exact-reads the packet→claim-ledger chain,
+persists and reloads the canonical lifecycle result, derives and persists the epoch
+advisory, and only then records the generic Decision Validity trigger. Callers cannot
+supply class, target or disposition beside the ref. The monitor→advisory bridge is
+behaviorally pinned for incident, appeal, correction, retraction, legal change and
+discovered bias; each keeps its source class and distinct action, and appeal alone is
+instance-scoped.
+
+The temporal GET is directly `RUNS_REVIEW`-authorized through an exact owned-run
+resolver, composes the real unallocated epoch predicate policy and transition-signing
+authority, and returns their typed refusals as `200`. The same payload keeps inspection,
+replay and MACHINE capabilities present. Institutional rows remain **Authority not
+appointed** with `appointment_is_closure_precondition=false`; the derived-recompute row
+remains **Engineering capability not wired** and names
+`polisyos.runtime.quality.derived_observations`. A malformed owner artifact receives a
+typed `422`, while server `observed_at` changes neither owner `as_of` nor semantic/replay
+identity.
+
+The positive fixture-only and real production-absence OpenAPI examples both validate
+strictly. The whole runtime OpenAPI validator intentionally remains red before C03 on
+the already-known property
+`POST /api/v1/control/decision-validity/epoch-batches: missing 2xx success response
+example`; the new GET example test was green in that same run. This is C03's preserved
+red, not a C02 regression.
+
+The owned-path resolver is a measured **NEW: owned-run authorization binding** class.
+A complete resolver-table read and the independent executable request trace both name
+`src/polisyos/runtime/http/resource_binding.py` as the smallest owner. The plan-table
+regex census and an independent split-row parser each derive 42 unique mechanisms with
+empty symmetric difference and identical cluster distribution
+`C01=7, C02=6, C03=1, C04=3, C05=20, C06=5`. The budget is therefore **42 / 44** and
+**3 / 7** widening rounds; the ceiling did not move.
+
+Admitted verification receipts:
+
+| Command | Uptime before → after | `real` | `user` | `sys` | `user + sys` | Result |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| epoch-staleness route behaviors | `3.85 3.36 3.39` → `5.00 3.84 3.57` | `91.26 s` | `78.58 s` | `5.20 s` | `83.78 s` | exit 0; service dispatch, absences, role/tenant binding, malformed artifact, replay, time-role separation |
+| live monitor POST exact-ref behaviors | `4.70 3.81 3.56` → `5.33 4.26 3.77` | `102.27 s` | `84.61 s` | `5.81 s` | `90.42 s` | exit 0; exact lifecycle/advisory persistence and pre-persist missing-epoch rejection |
+| C01/C02 focused blast radius | `3.52 4.25 3.89` → `3.11 4.01 3.82` | `50.58 s` | `45.94 s` | `4.01 s` | `49.95 s` | exit 0; cascade, projection, monitor, lifecycle, invalidation, drift smoke, temporal and Decision Validity HTTP |
+| architecture guardrails with venv on `PATH` | `2.34 3.33 3.56` → `3.78 3.54 3.62` | `64.81 s` | `58.44 s` | `8.43 s` | `66.87 s` | exit 0; all registered freshness probes and architecture checks passed |
+
+Changed-path Ruff and `git diff --check` both exited 0. The first guardrail attempt
+reached both runtime generated-family freshness checks, then exited 1 because its
+trust-posture subprocess could not resolve the bare `python` executable; it is a tooling
+non-receipt. Replaying with the lock-identical venv bin on `PATH` produced the admitted
+green receipt above. Earlier combined-test ceiling, incomplete fixture-provider,
+wrong-`PYTHONPATH`, and displaced test-helper-return failures were likewise harness
+non-receipts and produced no product finding.

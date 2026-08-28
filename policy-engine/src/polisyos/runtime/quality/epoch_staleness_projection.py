@@ -10,6 +10,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from polisyos.core.contracts.chronology import (
+    NativeChronologyPolicyResolutionFailed,
+    PolicyAdmissionMissingFailure,
+)
 from polisyos.core.contracts.decision_validity import (
     DecisionValidityStatus,
     EpochValidityGateNonReceipt,
@@ -66,14 +70,27 @@ _RECOMPUTE_OWNER_PATH = "src/polisyos/runtime/quality/derived_observations.py"
 
 def _institutional_absences(
     *,
-    epoch_gate: EpochValidityN9Projection | EpochValidityGateNonReceipt,
+    epoch_gate: (
+        EpochValidityN9Projection
+        | EpochValidityGateNonReceipt
+        | NativeChronologyPolicyResolutionFailed
+    ),
     transition: EpochValidityTransitionArtifact | EpochTransitionSigningNonReceipt,
 ) -> tuple[InstitutionalAuthorityAbsenceView, ...]:
     rows: list[InstitutionalAuthorityAbsenceView] = []
-    if (
+    policy_missing = (
         isinstance(epoch_gate, EpochValidityGateNonReceipt)
         and epoch_gate.code == "policy_admission_missing"
-    ):
+    ) or (
+        isinstance(epoch_gate, NativeChronologyPolicyResolutionFailed)
+        and isinstance(epoch_gate.failure, PolicyAdmissionMissingFailure)
+    )
+    if policy_missing:
+        source_refs = (
+            (epoch_gate.subject_ref,)
+            if isinstance(epoch_gate, EpochValidityGateNonReceipt)
+            else ()
+        )
         rows.append(
             InstitutionalAuthorityAbsenceView(
                 role="epoch_predicate_policy_signer",
@@ -88,7 +105,7 @@ def _institutional_absences(
                     "DS18 closes on truthful refusal rendering, not on that appointment."
                 ),
                 inspectable_capabilities=("history", "candidate", "replay", "MACHINE"),
-                source_refs=(epoch_gate.subject_ref,),
+                source_refs=source_refs,
             )
         )
     if (
@@ -391,7 +408,11 @@ def compile_epoch_staleness_projection(
     requested_query_context_ref: str,
     owner_as_of: datetime | None,
     observed_at: datetime,
-    epoch_gate: EpochValidityN9Projection | EpochValidityGateNonReceipt,
+    epoch_gate: (
+        EpochValidityN9Projection
+        | EpochValidityGateNonReceipt
+        | NativeChronologyPolicyResolutionFailed
+    ),
     transition: EpochValidityTransitionArtifact | EpochTransitionSigningNonReceipt,
     dependency_denominator: EpochDependencyDenominatorReceipt | None = None,
     monitor_events: Sequence[PersistedGovernanceMonitorEvent] = (),
@@ -406,7 +427,12 @@ def compile_epoch_staleness_projection(
 ) -> EpochStalenessProjectionView:
     """Compose a strict projection without upgrading any input's authority band."""
 
-    if epoch_gate.requested_query_context_ref != requested_query_context_ref:
+    gate_query_context_ref = (
+        epoch_gate.query.requested_query_context_ref
+        if isinstance(epoch_gate, NativeChronologyPolicyResolutionFailed)
+        else epoch_gate.requested_query_context_ref
+    )
+    if gate_query_context_ref != requested_query_context_ref:
         raise ValueError("epoch gate query context mismatch")
     if isinstance(transition, EpochValidityTransitionArtifact) and not fixture_only:
         raise ValueError("positive transition projection requires an exact owner reader")

@@ -33,6 +33,7 @@ from polisyos.scientist.evidence.claims.lifecycle import (
 from .monitors import (
     DecisionValidityStatus,
     GovernanceMonitorEvent,
+    PersistedGovernanceMonitorEvent,
     resolve_governance_monitor_event,
 )
 from .reissue import (
@@ -108,6 +109,45 @@ class EpochClaimLifecycleBridgeService:
     claim_owner: ClaimLedgerOwnerPort
     artifacts: ArtifactStore
     dependency_registry_path: Path
+
+    def bridge_monitor_event(
+        self,
+        *,
+        monitor_event_ref: ArtifactRef,
+        actor_id: str,
+    ) -> PersistedMonitorLifecycleBridge:
+        """Reload one monitor ref, persist its bridge result, and return both handles."""
+
+        from polisyos.scientist.evidence.claims.audit import _load_append_only_claim_ledger
+
+        persisted_event = resolve_governance_monitor_event(self.artifacts, monitor_event_ref)
+        packet_ref = persisted_event.event.decision_packet_ref
+        packet_row = _resolve_decision_packet_claim_ledger(
+            store=self.artifacts,
+            packet_ref=packet_ref,
+        )
+        ledger = _load_append_only_claim_ledger(
+            self.artifacts,
+            packet_row.ledger_artifact_ref,
+        )
+        result = bridge_governance_events_to_claim_lifecycle(
+            store=self.artifacts,
+            ledger=ledger,
+            decision_packet_ref=packet_ref,
+            original_claim_ledger_ref=packet_row.ledger_artifact_ref,
+            monitor_event_refs=[monitor_event_ref],
+            actor_id=actor_id,
+            case_id=getattr(ledger, "run_id", None),
+            occurred_at=persisted_event.event.occurred_at,
+        )
+        result_ref = persist_lifecycle_bridge_result(self.artifacts, result)
+        if load_lifecycle_bridge_result(self.artifacts, result_ref) != result:
+            raise ValueError("monitor lifecycle bridge readback mismatch")
+        return PersistedMonitorLifecycleBridge(
+            monitor_event=persisted_event,
+            result=result,
+            result_ref=result_ref,
+        )
 
     def bridge_completed_batch(
         self,
@@ -492,6 +532,15 @@ class LifecycleBridgeResult(BaseModel):
         if not self.capability_reality:
             self.capability_reality = lifecycle_bridge_capability_reality()
         return self
+
+
+@dataclass(frozen=True, slots=True)
+class PersistedMonitorLifecycleBridge:
+    """Exact monitor input paired with its persisted lifecycle bridge output."""
+
+    monitor_event: PersistedGovernanceMonitorEvent
+    result: LifecycleBridgeResult
+    result_ref: ArtifactRef
 
 
 def bridge_governance_events_to_claim_lifecycle(
@@ -1089,6 +1138,7 @@ __all__ = [
     "LifecycleBridgeBlocker",
     "LifecycleBridgeResult",
     "LifecycleBridgeStatus",
+    "PersistedMonitorLifecycleBridge",
     "bridge_governance_events_to_claim_lifecycle",
     "build_epoch_claim_lifecycle_bridge",
     "lifecycle_bridge_authority_boundary",

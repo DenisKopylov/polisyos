@@ -24,11 +24,18 @@ from polisyos.runtime.quality.epoch_validity_cascade import (
     OwnerAdjudicatedTargetDisposition,
     _framed_semantic_hash,
     _semantic_hash,
+    advisory_perturbation_from_monitor_event,
     bind_certificate_to_epoch,
     build_epoch_validity_transition,
+    persist_advisory_perturbation_event,
+    resolve_advisory_perturbation_event,
     resolve_owner_target_dispositions,
 )
 from polisyos.runtime.quality.semantic_epoch import SemanticEpochManifest
+from polisyos.scientist.governance.continuous.monitors import (
+    GovernanceMonitorEvent,
+    persist_governance_monitor_event,
+)
 
 
 def _digest(label: str) -> str:
@@ -61,6 +68,88 @@ def _graph(
         edges=edges,
         denominator_ref=_semantic_hash("polisyos.epoch.dependency-graph.v1", {"edges": edges}),
     )
+
+
+@pytest.mark.parametrize(
+    ("source_class", "event_type", "expected_action"),
+    [
+        ("incident", "incident", "invalidate"),
+        ("appeal", "policy_context_drift", "reissue"),
+        ("correction", "source_invalidation", "supersede"),
+        ("retraction", "source_invalidation", "withdraw"),
+        ("legal_change", "policy_context_drift", "supersede"),
+        ("discovered_bias", "fairness_drift", "invalidate"),
+    ],
+)
+def test_persisted_monitor_bridge_preserves_each_perturbation_class_and_scope(
+    tmp_path,
+    source_class: str,
+    event_type: str,
+    expected_action: str,
+) -> None:
+    store = artifacts.FileSystemCAS(tmp_path / source_class)
+    packet_ref = _ref(f"{source_class}-packet", kind="scientist.decision_packet")
+    evidence_ref = _ref(f"{source_class}-evidence")
+    perturbation_payloads = {
+        "incident": {
+            "source_class": "incident",
+            "incident_report_ref": evidence_ref,
+        },
+        "appeal": {
+            "source_class": "appeal",
+            "appeal_evidence_ref": evidence_ref,
+            "affected_instance_ref": packet_ref,
+            "scope": "instance",
+        },
+        "correction": {
+            "source_class": "correction",
+            "evidence_validity_event_ref": evidence_ref,
+            "replacement_refs": [_ref("correction-replacement")],
+        },
+        "retraction": {
+            "source_class": "retraction",
+            "evidence_validity_event_ref": evidence_ref,
+        },
+        "legal_change": {
+            "source_class": "legal_change",
+            "legal_change_evidence_ref": evidence_ref,
+        },
+        "discovered_bias": {
+            "source_class": "discovered_bias",
+            "bias_evidence_ref": evidence_ref,
+        },
+    }
+    persisted_monitor = persist_governance_monitor_event(
+        store,
+        GovernanceMonitorEvent.model_validate(
+            {
+                "event_id": f"event-{source_class}",
+                "decision_packet_ref": packet_ref,
+                "event_type": event_type,
+                "severity": "warning",
+                "reason": f"Content-bound {source_class} perturbation.",
+                "observed_epoch_ref": _digest(f"{source_class}-epoch"),
+                "perturbation": perturbation_payloads[source_class],
+            }
+        ),
+    )
+
+    derived = advisory_perturbation_from_monitor_event(persisted_monitor)
+    persisted_ref = persist_advisory_perturbation_event(
+        store=store,
+        persisted_monitor_event=persisted_monitor,
+    )
+    loaded = resolve_advisory_perturbation_event(store=store, ref=persisted_ref)
+
+    assert loaded == derived
+    assert loaded.source_class == source_class
+    assert loaded.event_kind == expected_action
+    assert loaded.scope == ("instance" if source_class == "appeal" else "dependency_descendants")
+    assert loaded.event_ref == persisted_monitor.event_ref
+    manifest = store.get_manifest(persisted_ref.artifact_id)
+    assert [(str(row.artifact_id), row.role) for row in manifest.inputs] == [
+        (str(persisted_monitor.event_ref.artifact_id), "governance_monitor_event")
+    ]
 
 
 def test_outer_query_context_uses_the_frozen_canonicalization_domain() -> None:

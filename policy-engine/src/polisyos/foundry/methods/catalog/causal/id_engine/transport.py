@@ -88,6 +88,15 @@ from polisyos.ir.analytics.transportability import SourceDomainSpec
 # PAG-specific identification (Malinsky & Spirtes 2017)
 # ---------------------------------------------------------------------------
 from . import core as _core
+from .core import (
+    _dag_g_formula,
+    _wrap_root,
+    _z_transport_direct_pass,
+    id_algorithm,
+    id_with_oracle_fallback,
+    idc_algorithm,
+    tr_algorithm,
+)
 
 globals().update({name: getattr(_core, name) for name in dir(_core) if not name.startswith("__")})
 

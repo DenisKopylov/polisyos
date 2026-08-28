@@ -142,9 +142,9 @@ At every seam boundary:
 
 ### Seam 16: IR truthfulness identity — 1 statement
 
-- [ ] Consolidate the complete model/parser/validation/extraction helper surface
+- [x] Consolidate the complete model/parser/validation/extraction helper surface
   in existing IR truthfulness ownership.
-- [ ] Make Core re-export exact identities, keep the simulation proof bridge in
+- [x] Make Core re-export exact identities, keep the simulation proof bridge in
   IR, and prove authority-negative behavior plus schema identity.
 
 ## Source freeze and closeout

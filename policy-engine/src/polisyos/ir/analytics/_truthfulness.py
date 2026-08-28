@@ -1,11 +1,12 @@
-"""IR-local truthfulness receipt types used by analytics contracts.
+"""Canonical truthfulness receipt types and helpers owned by IR analytics.
 
-These contracts mirror the runtime truthfulness surface without importing
-`polisyos.core`, which keeps the `common -> ir -> core` dependency order clean.
+Core compatibility exports reuse these dependency-neutral identities; IR does
+not import Core to define or validate truthfulness contracts.
 """
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import Enum
 from typing import Any
 
@@ -13,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class TruthfulnessTier(str, Enum):
-    """Normalized epistemic strength of a runtime truthfulness claim."""
+    """Normalized epistemic strength of a runtime or catalog truthfulness claim."""
 
     UNVERIFIED = "unverified"
     APPROXIMATE_CALIBRATED = "approximate_calibrated"
@@ -66,6 +67,38 @@ def parse_truthfulness_tier(value: str | TruthfulnessTier | None) -> Truthfulnes
         return None
 
 
+def parse_truthfulness_scope(value: str | TruthfulnessScope | None) -> TruthfulnessScope | None:
+    """Parse truthfulness scope helper."""
+
+    if value is None:
+        return None
+    if isinstance(value, TruthfulnessScope):
+        return value
+    normalized = str(value).strip().lower()
+    if not normalized:
+        return None
+    try:
+        return TruthfulnessScope(normalized)
+    except ValueError:
+        return None
+
+
+def parse_truthfulness_status(value: str | TruthfulnessStatus | None) -> TruthfulnessStatus | None:
+    """Parse truthfulness status helper."""
+
+    if value is None:
+        return None
+    if isinstance(value, TruthfulnessStatus):
+        return value
+    normalized = str(value).strip().lower()
+    if not normalized:
+        return None
+    try:
+        return TruthfulnessStatus(normalized)
+    except ValueError:
+        return None
+
+
 def truthfulness_depth(value: str | TruthfulnessTier | None) -> int:
     """Return numeric rank depth for a truthfulness tier."""
 
@@ -113,16 +146,72 @@ class TruthfulnessReceipt(BaseModel):
 
     @model_validator(mode="after")
     def _reconcile_defaults(self) -> TruthfulnessReceipt:
-        if self.effective_truthfulness_tier is None or self.status is None:
-            effective, status = reconcile_truthfulness_tiers(
-                self.declared_truthfulness_tier,
-                self.runtime_truthfulness_tier,
+        effective, status = reconcile_truthfulness_tiers(
+            self.declared_truthfulness_tier,
+            self.runtime_truthfulness_tier,
+        )
+        if (
+            self.effective_truthfulness_tier is not None
+            and self.effective_truthfulness_tier is not effective
+        ):
+            raise ValueError(
+                "effective_truthfulness_tier must match declared/runtime reconciliation"
             )
-            if self.effective_truthfulness_tier is None:
-                object.__setattr__(self, "effective_truthfulness_tier", effective)
-            if self.status is None:
-                object.__setattr__(self, "status", status)
+        if self.status is not None and self.status is not status:
+            raise ValueError("status must match declared/runtime truthfulness reconciliation")
+        if self.effective_truthfulness_tier is None:
+            object.__setattr__(self, "effective_truthfulness_tier", effective)
+        if self.status is None:
+            object.__setattr__(self, "status", status)
         return self
+
+
+def validate_truthfulness_receipt(
+    value: TruthfulnessReceipt | Mapping[str, Any] | None,
+) -> TruthfulnessReceipt | None:
+    """Validate a mapping-or-model as a `TruthfulnessReceipt`."""
+
+    if value is None:
+        return None
+    if isinstance(value, TruthfulnessReceipt):
+        return value
+    if isinstance(value, Mapping):
+        return TruthfulnessReceipt.model_validate(dict(value))
+    raise TypeError("truthfulness receipt must be a mapping or TruthfulnessReceipt")
+
+
+def extract_truthfulness_receipt(value: Any) -> TruthfulnessReceipt | None:
+    """Extract a truthfulness receipt from common result and artifact shapes."""
+
+    if value is None:
+        return None
+    try:
+        if isinstance(value, TruthfulnessReceipt):
+            return value
+        if isinstance(value, Mapping):
+            if "truthfulness_receipt" in value:
+                return validate_truthfulness_receipt(value.get("truthfulness_receipt"))
+            for nested in value.values():
+                receipt = extract_truthfulness_receipt(nested)
+                if receipt is not None:
+                    return receipt
+            return None
+        attr = getattr(value, "truthfulness_receipt", None)
+        if attr is not None:
+            if isinstance(attr, TruthfulnessReceipt):
+                return attr
+            if isinstance(attr, Mapping):
+                return validate_truthfulness_receipt(attr)
+        to_receipt = getattr(value, "to_truthfulness_receipt", None)
+        if callable(to_receipt):
+            candidate = to_receipt()
+            if isinstance(candidate, TruthfulnessReceipt):
+                return candidate
+            if isinstance(candidate, Mapping):
+                return validate_truthfulness_receipt(candidate)
+    except (TypeError, ValueError):
+        return None
+    return None
 
 
 __all__ = [
@@ -130,6 +219,11 @@ __all__ = [
     "TruthfulnessScope",
     "TruthfulnessStatus",
     "TruthfulnessTier",
+    "extract_truthfulness_receipt",
+    "parse_truthfulness_scope",
+    "parse_truthfulness_status",
+    "parse_truthfulness_tier",
     "reconcile_truthfulness_tiers",
     "truthfulness_depth",
+    "validate_truthfulness_receipt",
 ]

@@ -91,6 +91,7 @@ Every row below was classified before the first source edit. Result:
 | seam 13 — IR alignment governance | 7/10 | One private Scientist chokepoint recomputes and content-binds ontology and latent-governance predicates for both real callers; IR consumes frozen governed snapshots and fails closed on absent/tampered inputs. Cleared IS-04/05. | stands; private consolidation in existing modules narrows the existing IR verifier surface and introduces no module/export/constraint/new surface |
 | seam 14 — IR strategic budget identity | 8/10 | `ComputeBudget` has one lightweight IR-kernel identity; Strategic IR and the already-published Scientist budgets path import that identity, while real Foundry budget enforcement and persistence remain intact. Cleared IS-06 and closes `ir -> scientist` 6/6. | stands; round 8 bought the new direct module-level `polisyos.ir.kernel.base.ComputeBudget` path after the first zero-round location was withdrawn for eager Strategic/NumPy import weight |
 | seam 15 — IR phase-4 dynamics | 9/10 | IR now owns an independent `ABMResult`; the existing Foundry simulation owner converts Core execution results and refs before IR persistence, and both existing Foundry consumers use that chokepoint. Cleared IC-01. | stands; round 9 bought only the module-local `foundry.methods.catalog.simulation.dynamics.build_abm_result_from_simulation` export; the private typed-reference compatibility repair widened the same mechanism and consumed no second round |
+| seam 16 — IR truthfulness identity | 10/10 | The complete 11-name truthfulness identity/helper set now has one IR owner; Core exactly re-exports it, and the IR simulation-proof bridge plus its sole Scientist consumer reject unsupported calibration authority. Cleared IC-02 and closes `ir -> core` 2/2. | stands; round 10 bought one expansion of the existing IR analytics facade by the 11 already-published Core contract names; both P40 authority repairs widened the same mechanism and consumed no additional round |
 
 No round has been withdrawn.
 
@@ -766,3 +767,74 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   persistence, both real consumers, negative semantic verification, and the
   module-local integration surface are wired. Round 9 stands; no incomplete
   label remains.
+
+### Seam 16 — IR truthfulness identity
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 15 commit
+  `64ed84be6a25` read back after writing and before this boundary.
+- The first six-path declaration is withdrawn under P40 after two independent
+  findings of the same P31/P32 authority-by-form class. The replacement scope
+  is exactly eight mechanism/test paths: IR truthfulness ownership, Core's
+  compatibility owner, the IR simulation-proof bridge, the IR facade table,
+  the sole Scientist scheduler consumer, and three focused test files. This
+  plan/journal pair are P39 record companions. The two pre-existing dirty
+  generated public-surface files remain excluded from this seam commit.
+- IC-02 is `shared-contract-down`, ambiguous=0. All 11 models, enums, parsers,
+  reconciliation/extraction/validation helpers have one dependency-neutral IR
+  identity; Core re-exports those exact objects. The bridge remains in IR and
+  imports neither Core nor Scientist. This closes only the shared statement;
+  the wider truthfulness/observability family is unchanged and unclaimed.
+- The first review falsified receipt-presence admission: arbitrary CAS JSON,
+  including a kind-correct but unprovenanced object, could authorize
+  calibration. The replacement has one manifest-aware simulation/metrics
+  intake that recomputes content identity, checks exact kind/schema/basic owner
+  shape, and binds caller payload bytes. Current Foundry manifests establish no
+  admitted producer/verifier and cannot carry the required receipt, so
+  `calibration_accepted` is structurally false and capability state is
+  precisely `producer_missing`.
+- P37 predicate classification at admission is: CAS manifest/content identity,
+  kind/schema/basic owner shape, caller-payload equality, and effective/status
+  reconciliation are `recomputed`; an embedded receipt is
+  `consumer_asserted`; producer and verifier provenance are
+  `not_established`. The last three fail closed and are frozen into the
+  unverified receipt/projection.
+- The second same-class review found that public constructors and CAS helpers
+  could still mint an accepted receipt directly. Under P40 the replacement
+  mechanism was widened, without another round: model validators forbid
+  `accepted`, non-default source, positive runtime/effective tier,
+  positive bridge calibration/`IDENTIFIED`, and positive artifact projection;
+  persistence revalidates `model_construct` objects; loaders validate forged
+  CAS payloads; and `proof_gate_from_bridge` dump/revalidates even existing
+  instances before scheduling. A positive declared tier remains candidate
+  context when runtime/effective tiers remain `UNVERIFIED`.
+- Complete AST census parsed 2,594/2,594 source Python files with zero failures:
+  one canonical builder, one production caller
+  (`run_simulation::_materialize_simulation_proof_bridge`), and one production
+  consumer (`sbi_scheduler::proof_gate_from_bridge`), with no sibling
+  constructor or consumer. Independent focused verification passed 45/45
+  (`real=45.53s`, `user=41.54s`, `sys=2.30s`); the broader seam wave passed
+  100/100. Changed-path Ruff, `git diff --check`, exact 11-object identity in
+  both import orders, historic Core receipt schema/config/defaults, forged
+  constructor/persist/load/consumer falsifiers, and ARCH006 all passed.
+- Bounded residual, classified rather than repaired again: the pre-existing
+  generic `ProofGateReceipt` can self-declare `IDENTIFIED` for candidate-budget
+  scheduling. It is unchanged from HEAD and has zero production constructors
+  outside the revalidating bridge translator. Closing it requires a separate
+  multi-source proof-gate provenance intake that is absent here; it cannot
+  authorize this simulation calibration chain. Separately, the local 19-field
+  shape check can admit diagnostic-only type malformations, but the unconditional
+  authority strangle prevents them from changing calibration/certification.
+- Round 10 buys one expansion of the existing `polisyos.ir.analytics` facade by
+  the complete 11-name contract already published from Core. No package,
+  module, constraint, or second surface is added. The manual final-baseline
+  delta removes
+  `polisyos.ir.analytics.simulation_proof_bridge -> polisyos.core.observability.truthfulness`
+  and adds
+  `polisyos.core.observability.truthfulness -> polisyos.ir.analytics`.
+- Capability result: canonical typed contract, producer/builder, content-bound
+  persisted artifact, real scheduler consumer, compatibility/audit surface,
+  and negative end-to-end semantic tests are wired. Calibrated acceptance
+  remains honestly `producer_missing` and fail-closed. Round 10 stands; the
+  widening ceiling is reached, so any further surface/package/module/constraint
+  change would stop this task rather than consume an eleventh round.

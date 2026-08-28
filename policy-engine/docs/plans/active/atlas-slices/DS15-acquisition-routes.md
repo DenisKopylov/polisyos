@@ -2,7 +2,7 @@
 plan_id: atlas-ds15-acquisition-routes
 title: "DS15 - Acquisition Routes & Data-Pool Growth Surfaces"
 type: slice-plan
-status: execution_c04_surface_typing_ceiling_42
+status: execution_c05_closed_c06_pending
 created: 2026-08-27
 last_verified: 2026-08-28
 stability: measured_plan
@@ -18,6 +18,7 @@ c01_status: closed_after_delegated_trust_posture_reconciliation
 c02_status: closed_at_8969c10a9
 c03_status: closed_after_measured_generator_widening
 c04_status: closed_with_surface_and_guardrail_receipts
+c05_status: closed_with_continuous_motion_and_exact_byte_receipts
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 gy_plan: ../layer3-slices/GY-engine-subordination.md
 identity_boundary: ../../../system-design-decisions/policyos-identity-and-custody-boundary.md
@@ -406,6 +407,51 @@ remains in C06's declared writer/checker transaction. Actual spend is
 **37/42 mechanisms** and **6/11 rounds**. C04 checks CC05 through CC09; C05 and
 C06 remain open.
 
+### C05 closure and two generic review widenings — 2026-08-28
+
+C05 closes the visible loop on the four declared action-surface mechanisms.
+The red-first behavioral lane initially fails all **11/11** cases because the
+flow has no state-driven approval, execution, stale/offline refusal, cost gate,
+ordered timeline or exact-byte export. The implemented flow reuses the DS9
+gate and mutation builder, revalidates both the owner route and DS9 selector,
+submits the durable human record, executes exactly once, polls the acquisition
+job and refreshes the owner route plus global N13b history after terminality.
+Every timeline fact retains its own raw block and receipt link; the global N13b
+history is explicitly scoped `global_n13b_history` and is never joined into a
+run-route receipt.
+
+R09 is spent on the accountable-action boundary. Freeze review finds that the
+first stale comparator uses key-order-sensitive `JSON.stringify` over only a
+subset of the route and that the optimistic companion bans guessed function
+names. The generic repair compares the complete JSON value independent of
+object insertion order and executes every exported optimistic updater against
+all three seeded acquisition authority caches. A cost mutation with every
+route ID/hash/replay pin held constant is refused, a pure key reorder is
+accepted, and every acquisition cache retains object identity.
+
+R10 is spent on continuous motion and parity. Real-browser review first exposes
+two honest prerequisite failures—missing DS9 dissent and non-hex fixture
+digests—then exposes a P38 overflow gate: document clipping passes while the
+flow itself renders at 2,944.80 normalized CSS pixels in a 390-pixel viewport.
+The widened surface bounds the complete motion and makes every machine fact and
+fact-header child reflow generically. The final development snapshot writer
+passes **2/2** in `real 46.01`, `user 26.62`, `sys 2.41` seconds (uptime
+`16:15`), and two unchanged no-writer repetitions pass **2/2** in
+`real 41.24`, `user 16.83`, `sys 2.02` and `real 40.22`, `user 17.14`,
+`sys 2.05` seconds. C06 reruns its final writer-plus-two sequence after its own
+evidence extension and source freeze; these C05 runs do not substitute for that
+closeout wave.
+
+The final focused C05 lane passes **32/32 tests across 9 files** in `real 3.13`,
+`user 14.22`, `sys 2.37` seconds. TypeScript passes in `real 15.79`,
+`user 29.63`, `sys 1.01`; exact-path ESLint passes in `real 17.97`,
+`user 26.49`, `sys 1.87`. The registered trust-posture writer independently
+agrees on 2,603 Python files and 115 candidates and is byte-stable in
+`real 41.12`, `user 37.39`, `sys 1.69`. Architecture guardrails exit `0` in
+`real 102.03`, `user 90.34`, `sys 12.83` seconds (uptime `16:29` to `16:31`).
+Actual spend is **41/42 mechanisms** and **8/11 rounds**. C05 checks CC17,
+CC18 and CC19; C06 and CC22 through CC25 remain open.
+
 ## Mission and binding reality
 
 DS15 is the surface dual of GY-N13. Its distinctive product motion is:
@@ -591,13 +637,13 @@ There is no second closure contract.
       changed availability, changed rights, or changed mandate returns
       `revalidation_required` or another typed negative and cannot be revived by
       resubmitting stale selectors.
-- [ ] **CC17** REVIEWER/EXPERT HTTP packets and MACHINE exports use one captured
+- [x] **CC17** REVIEWER/EXPERT HTTP packets and MACHINE exports use one captured
       response byte sequence; the dashboard does no authority recomputation,
       status synthesis, re-ranking, or cross-packet identity guessing.
-- [ ] **CC18** Case Workspace displays blocked reason, cost, review/approval,
+- [x] **CC18** Case Workspace displays blocked reason, cost, review/approval,
       execution, passport/quarantine, growth/no-growth, and re-entry as one
       ordered motion while preserving the independent facets.
-- [ ] **CC19** Offline and queued acquisition approval/execution are rejected;
+- [x] **CC19** Offline and queued acquisition approval/execution are rejected;
       no local storage can create authority, currentness, a passport, or an
       optimistic world-growth state.
 - [x] **CC20** OpenAPI, the five runtime-client files, and dashboard API types are
@@ -612,17 +658,19 @@ There is no second closure contract.
 - [ ] **CC23** Slice-owned visual, responsive, keyboard, screen-reader, focus,
       and rendered-DOM/MACHINE parity receipts cover structural refusal,
       all-zero ranking basis, quarantine/no-growth, pending/unqualified
-      disclosure, and an admitted/re-entry test mechanism.
+      disclosure, and a quarantine/no-growth or honestly deeper-terminal test
+      mechanism.
 - [ ] **CC24** DS15 proves the bounded surface mechanism in two honest lanes. The
       production lane renders the real historical `government.balance` chain as
       quarantine/no-growth/deeper-terminal and renders any current
       `policy_admission_missing` receipt as pending/unqualified, never active.
       The semantic-test lane visibly completes blocked reason -> cost -> PA2/DS9
-      approval -> execution -> admitted passport -> active overlay epoch ->
-      positive admitted delta -> exact same-case re-entry through the strict
-      owner-port contract, with a permanent `behavioral_fixture_not_production`
-      authority badge. A fixture, historical ID or resurrected capstone
-      hypothesis cannot satisfy or be projected as a production-growth receipt.
+      approval -> execution -> terminal quarantine/no-growth or honestly deeper
+      terminal -> exact same-case trace through the strict owner-port contract,
+      with a permanent `behavioral_fixture_not_production` authority badge.
+      It never synthesizes an active epoch. A fixture, historical ID or
+      resurrected capstone hypothesis cannot satisfy or be projected as a
+      production-growth receipt.
       Any future non-fixture production claim is governed by the separately
       owned `fresh_positive_production_route` non-closure, not by this bounded
       criterion.
@@ -1680,7 +1728,7 @@ historical-only rows have no active flow.
 - modify `architecture/atlas_surfaces/check_frontend_disposition_register.py`
   only if the existing generic checker cannot adjudicate DS15's real new
   operations/surfaces.
-If no checker code is needed, the actual mechanism count narrows to 38.
+If no checker code is needed, the actual mechanism count narrows to 41.
 
 Freeze source, run architecture/backend/frontend review in parallel, batch only
 blocking findings, then run the expensive wave once. Before acquiring the Atlas
@@ -1723,10 +1771,11 @@ claim; that external non-closure does not prevent the bounded C06 transition.
 | --- | --- | ---: |
 | owner cost/read contracts/projections | `acquisition_planner.py`, `acquisition_surface_contracts.py`, `acquisition_surface_projection.py`, `governed_projections.py`, `governed_projection_validation_worker.py`, catalog `overlay.py`, catalog read API | 7 |
 | action/HTTP bridge | `acquisition_route_loop.py`, `generation_cycle.py`, `agent_action_authority.py`, `acquisition_action_service.py`, control lifecycle/store/contracts, diagnostic event registry, canonical `ControlJobKind`, acquisition routes, app/router/container/dependencies/OpenAPI contract, exact Rego action contract | 16 |
-| dashboard reads | hook, presentation, five read components, Cycle Board, query keys, validators, two locales | 12 |
+| generated client owner | runtime-client generated-artifact owner | 1 |
+| dashboard reads | hook, presentation, five read components, Cycle Board, query keys, validators, two locales | 13 |
 | dashboard action/MACHINE | timeline, approval flow, export, Case Workspace | 4 |
 | Atlas checker | disposition checker, conditionally narrowed away | 1 |
-| **total** | parser union must match | **40** |
+| **total** | parser union must match | **42** |
 
 Mandatory P39 generated client family is seven files: one OpenAPI schema, five
 runtime-client files, and one dashboard types file. The three exact README

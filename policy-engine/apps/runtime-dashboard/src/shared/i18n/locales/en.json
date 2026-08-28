@@ -493,6 +493,22 @@
           "status": "Route status",
           "voi": "VOI",
           "costedPlan": "Owner-backed costed plan"
+        },
+        "action": {
+          "eyebrow": "Acquisition route motion",
+          "title": "Refusal, approval, growth and re-entry",
+          "timelineAria": "Acquisition execution timeline",
+          "cost": "Owner-backed estimated cost",
+          "qualification": "Qualification",
+          "owner": "Institutional qualification owner",
+          "ownerValue": "semantic epoch policy-admission qualifier · unappointed",
+          "appointmentWouldEstablish": "Appointment would establish",
+          "appointmentEffect": "authority to qualify native semantic production, append its history head and permit overlay activation",
+          "requestReview": "Request accountable review",
+          "costNotEstablished": "owner_backed_cost:not_established",
+          "exportRoute": "Export acquisition route MACHINE packet",
+          "exportReview": "Export accountable review MACHINE packet",
+          "loadingReview": "Loading accountable review…"
         }
       }
     },

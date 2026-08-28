@@ -493,6 +493,22 @@
           "status": "Статус route",
           "voi": "VOI",
           "costedPlan": "Costed plan, підтверджений owner"
+        },
+        "action": {
+          "eyebrow": "Рух acquisition route",
+          "title": "Відмова, схвалення, зростання та повторний вхід",
+          "timelineAria": "Timeline виконання acquisition",
+          "cost": "Орієнтовна вартість, підтверджена owner",
+          "qualification": "Qualification",
+          "owner": "Інституційний owner qualification",
+          "ownerValue": "semantic epoch policy-admission qualifier · unappointed",
+          "appointmentWouldEstablish": "Призначення встановило б",
+          "appointmentEffect": "authority to qualify native semantic production, append its history head and permit overlay activation",
+          "requestReview": "Запросити accountable review",
+          "costNotEstablished": "owner_backed_cost:not_established",
+          "exportRoute": "Експортувати MACHINE packet acquisition route",
+          "exportReview": "Експортувати MACHINE packet accountable review",
+          "loadingReview": "Завантаження accountable review…"
         }
       }
     },

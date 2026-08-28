@@ -2178,6 +2178,61 @@ registered generator is the published remedy. `INT-R4` gates O1/O3 and the
 O-block's closure, not GY-O0. GY-O0 certifies an attempted evaluation; it
 neither executes deployment nor closes the O-block.
 
+#### Post-closure Scientist import-boundary repair receipt (2026-08-28)
+
+C05's final review found one GY-O0-introduced `scientist -> pdc` import in
+`policy_runtime_support.py`. The plain import linter was red first at CPU
+**0.91s** with two findings: the standing `runtime -> corpus` finding also
+present on `main`, and the new GY-O0 finding. The public-facade identity test
+was independently red first at CPU **28.96s** because
+`polisyos.runtime.quality` did not expose `gy_content_hash`.
+
+Two independent complete-set derivations agree that the minimal canonical
+export set has exactly one member. An AST walk of the complete offending
+consumer found one imported-and-loaded PDC symbol, `gy_content_hash`; an
+independent intersection of symbols defined by the PDC owner, exported by the
+PDC facade, and loaded by that consumer returned the same singleton. Runtime's
+import policy admits PDC and Scientist's admits Runtime. Complete AST and text
+walks found zero `pdc -> runtime` imports, so the canonical re-export introduces
+no new package cycle. Runtime quality now re-exports the exact PDC callable,
+and Scientist imports that identity through its already-supported
+`public_experimental` facade.
+
+The exact facade identity test turned green at CPU **29.53s**; the two
+production-owner safety selectors passed at CPU **28.73s**; and the final
+three-test boundary selection passed at CPU **27.54s**. The P29 probe removed
+the legal route while keeping the facade export and all test markers: the
+plain linter immediately rediscovered the exact `scientist -> pdc` edge at CPU
+**0.76s**. Restoring the property reduced the linter population from two to
+one, leaving only the standing `runtime -> corpus` finding. Changed-Python
+Ruff exited 0 at CPU **0.05s**.
+
+The registered public-surface sync exited 0 at CPU **8.90s** and changed
+exactly `architecture/public_surface/inventory.json` and
+`docs/reference/public-surface.md`; the existing Python-public-API fragment was
+updated separately from seven to eight minimal canonical exports. The
+trust-claim posture manifest command exited 0 at CPU **34.71s**, changed only
+its declared Atlas register, and left the generated-artifacts reference
+byte-stable. AST and tokenizer independently agreed on **2,601 Python files**.
+
+At committed source freeze `008932511`, the three non-composite repository
+predicates were read separately. The architecture/release guardrail exited 0
+at CPU **69.84s** with every registered artifact family fresh. The plain import
+linter exited 1 at CPU **0.78s** with exactly the one standing `runtime ->
+corpus` finding and no GY-O0 boundary finding. The package-import gate exited 0
+at CPU **57.90s**, with forbidden edge count **0** and **97** report-only
+unregistered hidden edges; its baseline remains owner-controlled and is not
+changed here. A final-HEAD repetition after this plan-only receipt commit is
+the hand-back authority for those three results.
+
+No mechanism path or widening round follows from this repair: both production
+files were already admitted C04 paths, and the test, release fragment, plan,
+and registered generated outputs are mandatory companions. Two independent
+enumerations -- final source diff and commit-history source union -- contain
+the same **21 Python mechanism paths**. The explicit amendment ledger and the
+per-cluster table still independently identify exactly **2/4** widening rounds
+spent (C02 and C03); the final budget remains **21/24**.
+
 ---
 
 ## 14. Required semantic acceptance matrix

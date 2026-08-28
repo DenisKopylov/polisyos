@@ -6,6 +6,8 @@ import type {
   CycleBoardProjectionPacket,
   InvalidGovernedProjectionPacket,
   ProjectionSourceValidation,
+  RunBoundDesignRecordBinding,
+  RunPaperDesignRecordBinding,
   RuntimeApiClient,
 } from "./canonicalRuntimeApiClient.js";
 
@@ -83,6 +85,7 @@ type CanonicalLiteralWitnesses = [
   >,
   Assert<Equal<ChannelRegistryEntry["include_in_schema"], false>>,
   Assert<Equal<ChannelRegistryEntry["status"], "active">>,
+  Assert<Equal<RunPaperDesignRecordBinding, RunBoundDesignRecordBinding>>,
   Assert<
     Equal<
       ChannelRegistryResponse["schema_version"],

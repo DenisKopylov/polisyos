@@ -147,6 +147,9 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             ProductionLoopRunProof,
             build_outcome_replay_proof,
         )
+        from polisyos.runtime.quality.workspace.s2_design_search_operation import (
+            S2_DESIGN_SEARCH_OPERATION_ID,
+        )
 
         execute_invocation_id = f"execute-workflow-{uuid.uuid4().hex[:16]}"
         loop_invocation_id = f"workspace-loop-{uuid.uuid4().hex[:16]}"
@@ -154,7 +157,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         fixture_id = str(params.get("slice0_fixture_id") or "ua_msme_credit_worldbank_measurement")
         input_artifacts = self._input_artifact_refs(state_payload)
         workspace_operation_id = str(params.get("workspace_operation_id") or "")
-        if workspace_operation_id == "phase2.refine.layer2_s2_design_search":
+        if workspace_operation_id == S2_DESIGN_SEARCH_OPERATION_ID:
             return self._execute_s2_design_search_operation(
                 state_payload=state_payload,
                 params=params,
@@ -305,9 +308,9 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         """Dispatch the one governed S2 operation or preserve a typed refusal."""
 
         from polisyos.pdc import Layer2S2DesignSearchInput
+        from polisyos.runtime.quality.workspace.loop import WorkspaceLoop
         from polisyos.runtime.quality.workspace.s2_design_search_operation import (
             S2_DESIGN_SEARCH_OPERATION_ID,
-            execute_s2_design_search_operation,
         )
 
         run_id = str(job.run_id or state_payload.get("run_id") or "")
@@ -315,10 +318,12 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             search_input = Layer2S2DesignSearchInput.model_validate(
                 params.get("layer2_s2_design_search_input")
             )
-            result = execute_s2_design_search_operation(
+            result = WorkspaceLoop(
+                catalog_graph=getattr(self._registry_providers, "gy_catalog_graph", None),
+                artifact_store=self._artifact_store,
+            ).execute_registered_s2_design_search_operation(
                 operation_id=S2_DESIGN_SEARCH_OPERATION_ID,
                 search_input=search_input,
-                store=self._artifact_store,
                 core_runs_root=self._core_runs_root,
                 run_id=run_id,
             )

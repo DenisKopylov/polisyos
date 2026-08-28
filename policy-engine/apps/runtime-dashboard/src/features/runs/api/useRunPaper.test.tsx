@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 
+import type { components } from "@/api/types";
 import { queryKeys } from "@/api/queryKeys";
 import {
   authorityAbstainingRunPaperPacketFixture,
@@ -15,8 +16,17 @@ import {
   runPaperQueryPolicy,
   useRunPaper,
 } from "./useRunPaper";
+import type { RunPaperDesignRecordBinding } from "./useRunPaper";
 
 describe("run paper governed adapter", () => {
+  // expectTypeOf is compile-only and is not counted by vitest/expect-expect.
+  // eslint-disable-next-line vitest/expect-expect
+  it("exposes the run paper DesignRecord binding as the exact owner alias", () => {
+    expectTypeOf<RunPaperDesignRecordBinding>().toEqualTypeOf<
+      components["schemas"]["RunBoundDesignRecordBinding"]
+    >();
+  });
+
   it("forwards the raw replay multiset and captures the exact one response", async () => {
     const packet = runPaperPacketFixture();
     const wire = `  ${JSON.stringify(packet)}\n`;

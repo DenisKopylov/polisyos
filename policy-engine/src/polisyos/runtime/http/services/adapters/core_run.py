@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import os
+import stat
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import content_hash, from_canonical_bytes
 from polisyos.core.run.context import recover_pending_run_finalize
 from polisyos.core.run.manifest import RunManifest as CoreRunManifest
 from polisyos.core.trace import RunTerminality, TraceRecord
@@ -70,6 +72,17 @@ class TerminalCoreRunSource:
 def derive_core_run_dir(core_runs_root: Path, run_id: str) -> Path:
     """Return the exact direct run child, rejecting traversal and normalization aliases."""
 
+    _validate_direct_child_run_id(run_id)
+    trusted_root = core_runs_root.resolve()
+    candidate = (trusted_root / run_id).resolve()
+    if candidate.parent != trusted_root or candidate.name != run_id:
+        raise ValueError("run_id normalized outside the trusted Core-run root")
+    return candidate
+
+
+def _validate_direct_child_run_id(run_id: str) -> None:
+    """Reject any run identifier that cannot be one descriptor-relative child."""
+
     if not isinstance(run_id, str) or not run_id or run_id != run_id.strip():
         raise ValueError("run_id must be a non-empty normalized direct-child name")
     if run_id in {".", ".."} or "/" in run_id or "\\" in run_id:
@@ -77,11 +90,6 @@ def derive_core_run_dir(core_runs_root: Path, run_id: str) -> Path:
     run_path = Path(run_id)
     if run_path.is_absolute() or len(run_path.parts) != 1:
         raise ValueError("run_id must name one direct child of core_runs_root")
-    trusted_root = core_runs_root.resolve()
-    candidate = (trusted_root / run_id).resolve()
-    if candidate.parent != trusted_root or candidate.name != run_id:
-        raise ValueError("run_id normalized outside the trusted Core-run root")
-    return candidate
 
 
 def load_terminal_core_run_source(
@@ -92,12 +100,16 @@ def load_terminal_core_run_source(
 ) -> TerminalCoreRunSource:
     """Resolve one terminal Core source without recovery, scanning, or index facts."""
 
-    run_dir = derive_core_run_dir(core_runs_root, run_id)
+    _validate_direct_child_run_id(run_id)
+    trusted_root = core_runs_root.absolute()
+    run_dir = trusted_root / run_id
     trace_path = run_dir / "trace.jsonl"
-    if not trace_path.is_file():
-        raise ValueError("terminal Core run trace is not established")
     try:
-        records = [_parse_trace_record(line) for line in _iter_trace_lines(trace_path)]
+        strict_lines = list(_iter_strict_terminal_trace_lines(trusted_root, run_id))
+    except (OSError, UnicodeError, ValueError) as exc:
+        raise ValueError("terminal Core run trace intake is invalid") from exc
+    try:
+        records = [_parse_trace_record(line) for line in strict_lines]
     except (TypeError, ValueError) as exc:
         raise ValueError("terminal Core run trace record is invalid") from exc
     if not records:
@@ -128,6 +140,8 @@ def load_terminal_core_run_source(
     ]
     if len(finalized) != 1 or records[-1] is not finalized[0]:
         raise ValueError("terminal Core run requires one final RUN_FINALIZED fact")
+    if any(record.run_terminality is RunTerminality.TERMINAL for record in records[:-1]):
+        raise ValueError("terminal Core trace has an intermediate terminal fact")
     terminal = finalized[0]
     if terminal.run_terminality is not RunTerminality.TERMINAL:
         raise ValueError("RUN_FINALIZED does not carry the terminal lifecycle fact")
@@ -429,7 +443,10 @@ def load_bound_terminal_manifest(
     ):
         raise ValueError("terminal run manifest schema provenance mismatch")
 
-    payload = from_canonical_bytes(store.get_bytes(manifest_ref.artifact_id))
+    manifest_bytes = store.get_bytes(manifest_ref.artifact_id)
+    if content_hash(manifest_bytes, prefix=True) != str(manifest_ref.artifact_id):
+        raise ValueError("terminal run manifest bytes do not match the bound artifact id")
+    payload = from_canonical_bytes(manifest_bytes)
     manifest = CoreRunManifest.model_validate(payload)
     if (
         manifest.run_id != run_id
@@ -510,6 +527,51 @@ def _iter_trace_lines(path: Path) -> Iterator[str]:
             stripped = line.strip()
             if stripped:
                 yield stripped
+
+
+def _iter_strict_terminal_trace_lines(
+    core_runs_root: Path,
+    run_id: str,
+) -> Iterator[str]:
+    """Open the exact run child and trace leaf relative to trusted descriptors."""
+
+    no_follow = getattr(os, "O_NOFOLLOW", None)
+    if not isinstance(no_follow, int):
+        raise ValueError("terminal Core run trace no-follow intake is unavailable")
+    directory_only = getattr(os, "O_DIRECTORY", None)
+    if not isinstance(directory_only, int):
+        raise ValueError("terminal Core run directory-only intake is unavailable")
+    directory_flags = os.O_RDONLY | directory_only | no_follow
+    root_fd: int | None = None
+    run_fd: int | None = None
+    trace_fd: int | None = None
+    try:
+        root_fd = os.open(core_runs_root, directory_flags)
+        if not stat.S_ISDIR(os.fstat(root_fd).st_mode):
+            raise ValueError("trusted Core run root is not a directory")
+        run_fd = os.open(run_id, directory_flags, dir_fd=root_fd)
+        if not stat.S_ISDIR(os.fstat(run_fd).st_mode):
+            raise ValueError("terminal Core run child is not a directory")
+        trace_fd = os.open(
+            "trace.jsonl",
+            os.O_RDONLY | no_follow,
+            dir_fd=run_fd,
+        )
+        if not stat.S_ISREG(os.fstat(trace_fd).st_mode):
+            raise ValueError("terminal Core run trace leaf is not a regular file")
+        with os.fdopen(trace_fd, "r", encoding="utf-8") as handle:
+            trace_fd = None
+            for line in handle:
+                stripped = line.strip()
+                if stripped:
+                    yield stripped
+    finally:
+        if trace_fd is not None:
+            os.close(trace_fd)
+        if run_fd is not None:
+            os.close(run_fd)
+        if root_fd is not None:
+            os.close(root_fd)
 
 
 def _parse_trace_record(line: str) -> TraceRecord:

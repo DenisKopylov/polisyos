@@ -1108,6 +1108,9 @@ export type RunPaperBlocker =
 export type RunPaperCaseSourceVerification =
   RuntimeApiComponents["schemas"]["RunPaperCaseSourceVerification"];
 
+export type RunPaperDesignRecordBinding =
+  RuntimeApiComponents["schemas"]["RunPaperDesignRecordBinding"];
+
 export type RunPaperGroundingState =
   RuntimeApiComponents["schemas"]["RunPaperGroundingState"];
 

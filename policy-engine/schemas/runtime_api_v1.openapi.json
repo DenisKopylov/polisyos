@@ -25163,6 +25163,9 @@
         "title": "RunPaperCaseSourceVerification",
         "type": "object"
       },
+      "RunPaperDesignRecordBinding": {
+        "$ref": "#/components/schemas/RunBoundDesignRecordBinding"
+      },
       "RunPaperGroundingState": {
         "additionalProperties": false,
         "description": "Grounding state using the generation-cycle owner's closed vocabulary.",

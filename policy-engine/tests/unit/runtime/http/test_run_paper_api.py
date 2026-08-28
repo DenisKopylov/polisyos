@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
@@ -17,7 +18,7 @@ from pydantic import TypeAdapter, ValidationError
 
 from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.core.security import tenant_scope
@@ -352,6 +353,23 @@ class _FaultingArtifactStore:
                 }
             )
         return sidecar
+
+
+class _SubstitutingArtifactBytesStore:
+    def __init__(self, store: FileSystemCAS, *, target: str, replacement: bytes) -> None:
+        self._store = store
+        self._target = target
+        self._replacement = replacement
+        self.target_reads = 0
+
+    def __getattr__(self, name: str):
+        return getattr(self._store, name)
+
+    def get_bytes(self, artifact_id):
+        if str(artifact_id) == self._target:
+            self.target_reads += 1
+            return self._replacement
+        return self._store.get_bytes(artifact_id)
 
 
 @pytest.mark.parametrize(
@@ -846,6 +864,96 @@ def test_run_bound_case_resolver_uses_only_the_unique_terminal_trace_binding(
     assert resolved.design_record.record_id == persisted.binding.design_record_record_id
     assert resolved.search_ledger.ledger_id == persisted.binding.search_ledger_id
     assert resolved.search_ledger.case_id == persisted.binding.case_id
+
+
+def test_run_bound_case_resolver_hashes_the_exact_manifest_bytes_it_parses(
+    tmp_path: Path,
+) -> None:
+    store, core_runs_root, _persisted, manifest_ref = _build_bound_case_run(tmp_path)
+    original = store.get_bytes(manifest_ref.artifact_id)
+    alternate_payload = from_canonical_bytes(original)
+    assert isinstance(alternate_payload, dict)
+    alternate_payload["status"] = "alternate-valid-manifest"
+    alternate = to_canonical_bytes(alternate_payload)
+    assert alternate != original
+    substituting_store = _SubstitutingArtifactBytesStore(
+        store,
+        target=str(manifest_ref.artifact_id),
+        replacement=alternate,
+    )
+
+    with pytest.raises(RunPaperSourceError, match="manifest"):
+        RunBoundDesignRecordResolver(substituting_store, core_runs_root).resolve("R_bound-case")
+
+    assert substituting_store.target_reads == 1
+
+
+def test_run_bound_case_resolver_rejects_an_outside_trace_symlink(
+    tmp_path: Path,
+) -> None:
+    store, core_runs_root, _persisted, _manifest_ref = _build_bound_case_run(tmp_path)
+    trace_path = core_runs_root / "R_bound-case" / "trace.jsonl"
+    outside_trace = tmp_path / "outside-trace.jsonl"
+    outside_trace.write_bytes(trace_path.read_bytes())
+    trace_path.unlink()
+    trace_path.symlink_to(outside_trace)
+
+    with pytest.raises(RunPaperSourceError, match="trace"):
+        RunBoundDesignRecordResolver(store, core_runs_root).resolve("R_bound-case")
+
+
+def test_run_bound_case_resolver_rejects_a_swapped_outside_run_directory(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, core_runs_root, _persisted, _manifest_ref = _build_bound_case_run(tmp_path)
+    run_id = "R_bound-case"
+    run_dir = core_runs_root / run_id
+    held_run_dir = tmp_path / "held-run"
+    outside_run_dir = tmp_path / "outside-run"
+    outside_run_dir.mkdir()
+    (outside_run_dir / "trace.jsonl").write_bytes((run_dir / "trace.jsonl").read_bytes())
+    real_open = os.open
+    swapped = False
+
+    def _swap_before_run_directory_open(path, flags, mode=0o777, *, dir_fd=None):
+        nonlocal swapped
+        direct_run_open = dir_fd is None and Path(path) == run_dir
+        descriptor_child_open = dir_fd is not None and path == run_id
+        if not swapped and (direct_run_open or descriptor_child_open):
+            run_dir.rename(held_run_dir)
+            run_dir.symlink_to(outside_run_dir, target_is_directory=True)
+            swapped = True
+        return real_open(path, flags, mode, dir_fd=dir_fd)
+
+    monkeypatch.setattr(os, "open", _swap_before_run_directory_open)
+
+    with pytest.raises(RunPaperSourceError, match="trace"):
+        RunBoundDesignRecordResolver(store, core_runs_root).resolve(run_id)
+
+    assert swapped is True
+
+
+def test_run_bound_case_resolver_rejects_every_intermediate_terminal_fact(
+    tmp_path: Path,
+) -> None:
+    store, core_runs_root, _persisted, _manifest_ref = _build_bound_case_run(tmp_path)
+    trace_path = core_runs_root / "R_bound-case" / "trace.jsonl"
+    records = [json.loads(line) for line in trace_path.read_text(encoding="utf-8").splitlines()]
+    intermediate = deepcopy(records[0])
+    intermediate["phase"] = "pdc.gy"
+    intermediate["event"] = "INTERMEDIATE_TERMINAL_FACT"
+    intermediate["run_terminality"] = "terminal"
+    trace_path.write_text(
+        "".join(
+            json.dumps(record, sort_keys=True) + "\n"
+            for record in [records[0], intermediate, *records[1:]]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(RunPaperSourceError, match="terminal"):
+        RunBoundDesignRecordResolver(store, core_runs_root).resolve("R_bound-case")
 
 
 @pytest.mark.parametrize(

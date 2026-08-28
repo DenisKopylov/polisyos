@@ -11,6 +11,8 @@ import { authAwareRuntimeFetch } from "@/app/auth/authSession";
 import { API_BASE_URL } from "@/shared/lib/constants";
 
 export type RunPaperPacket = components["schemas"]["RunPaperPacket"];
+export type RunPaperDesignRecordBinding =
+  components["schemas"]["RunPaperDesignRecordBinding"];
 
 export type CapturedRunPaper = Readonly<{
   packet: RunPaperPacket;

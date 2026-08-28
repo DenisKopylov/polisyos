@@ -13,6 +13,7 @@ if find_spec("fastapi") is None:  # pragma: no cover - optional dependency guard
     pytest.skip("fastapi is not installed", allow_module_level=True)
 
 from polisyos.core.contracts.capability_discovery import CapabilityDiscoveryResponse
+from polisyos.pdc import RunBoundDesignRecordBinding
 from polisyos.runtime.http.app import export_runtime_openapi_schema
 from polisyos.runtime.http.openapi_contract import validate_runtime_openapi_contract
 from polisyos.runtime.http.permissions import RuntimePermission
@@ -37,6 +38,7 @@ from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionReviewEffectivenessResponse,
 )
 from polisyos.runtime.http.services.run_paper_contracts import (
+    RunPaperDesignRecordBinding,
     RunPaperPacket,
     build_run_paper_semantic_projection,
 )
@@ -50,6 +52,15 @@ def test_openapi_contract_includes_examples_and_problem_payloads() -> None:
     schema = export_runtime_openapi_schema()
     violations = validate_runtime_openapi_contract(schema)
     assert violations == []
+
+
+def test_openapi_preserves_run_paper_design_record_binding_as_an_exact_alias() -> None:
+    schema = export_runtime_openapi_schema()
+
+    assert RunPaperDesignRecordBinding is RunBoundDesignRecordBinding
+    assert schema["components"]["schemas"]["RunPaperDesignRecordBinding"] == {
+        "$ref": "#/components/schemas/RunBoundDesignRecordBinding"
+    }
 
 
 def test_capability_discovery_examples_cover_truthful_postures_without_authority() -> None:

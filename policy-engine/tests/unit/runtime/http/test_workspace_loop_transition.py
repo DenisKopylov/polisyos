@@ -10,13 +10,18 @@ import pytest
 from polisyos.core.contracts import ControlFailureEnvelope
 from polisyos.core.contracts.control import NaturalLanguageRunRequest, WorkflowRunRequest
 from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
+from polisyos.pdc import OperationClass
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
 from polisyos.runtime.http.services.control.workspace_loop_transition import (
     RunBoundDesignRecordTenantNonReceipt,
 )
 from polisyos.runtime.quality.authority import ProductionLoopRunProof
+from polisyos.runtime.quality.workspace import loop as workspace_loop_module
 from polisyos.runtime.quality.workspace.loop import WorkspaceLoopRunProof
+from polisyos.runtime.quality.workspace.s2_design_search_operation import (
+    S2_DESIGN_SEARCH_OPERATION_ID,
+)
 
 
 def _await_terminal_job(service: ControlPlaneService, job_id: str):
@@ -79,6 +84,49 @@ def _s2_artifact_census(cas_root: Path) -> dict[str, int]:
         if kind in counts:
             counts[kind] += 1
     return counts
+
+
+def _s2_registry_with_fault(fault: str):
+    registry = workspace_loop_module.build_workspace_operation_registry()
+    operations = dict(registry.operations)
+    registration = operations[S2_DESIGN_SEARCH_OPERATION_ID]
+    if fault == "removed":
+        operations.pop(S2_DESIGN_SEARCH_OPERATION_ID)
+    elif fault == "disabled":
+        operations[S2_DESIGN_SEARCH_OPERATION_ID] = registration.model_copy(
+            update={"executable": False}
+        )
+    elif fault == "registration_id":
+        operations[S2_DESIGN_SEARCH_OPERATION_ID] = registration.model_copy(
+            update={"operation_id": "phase2.refine.substituted_design_search"}
+        )
+    elif fault == "operation_class":
+        substituted_contract = registration.contract.model_copy(
+            update={"operation_class": OperationClass.BIND}
+        )
+        operations[S2_DESIGN_SEARCH_OPERATION_ID] = registration.model_copy(
+            update={
+                "operation_class": OperationClass.BIND,
+                "contract": substituted_contract,
+            }
+        )
+    elif fault == "contract_id":
+        substituted_contract = registration.contract.model_copy(
+            update={"operation_id": "phase2.refine.substituted_design_search"}
+        )
+        operations[S2_DESIGN_SEARCH_OPERATION_ID] = registration.model_copy(
+            update={"contract": substituted_contract}
+        )
+    elif fault == "contract_class":
+        substituted_contract = registration.contract.model_copy(
+            update={"operation_class": OperationClass.BIND}
+        )
+        operations[S2_DESIGN_SEARCH_OPERATION_ID] = registration.model_copy(
+            update={"contract": substituted_contract}
+        )
+    else:  # pragma: no cover - the parametrization is the complete mutation set
+        raise AssertionError(f"unsupported registry fault: {fault}")
+    return registry.model_copy(update={"operations": operations})
 
 
 def _assert_surface_packet_consumes_boundary(
@@ -372,6 +420,66 @@ def test_s2_design_search_real_http_worker_tenantless_refuses_with_zero_pdc_writ
     rendered_progress = json.dumps(response.progress, sort_keys=True)
     assert "tenant-unknown" not in rendered_progress
     assert "forged-cell" not in rendered_progress
+
+
+@pytest.mark.parametrize(
+    "registry_fault",
+    [
+        "removed",
+        "disabled",
+        "registration_id",
+        "operation_class",
+        "contract_id",
+        "contract_class",
+    ],
+)
+def test_s2_design_search_real_http_worker_refuses_untrusted_registry_rows_before_writes(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+    registry_fault: str,
+) -> None:
+    client = runtime_api_env["client"]
+    service: ControlPlaneService = runtime_api_env["app"].state._control_service
+    producer_calls: list[object] = []
+    faulting_registry = _s2_registry_with_fault(registry_fault)
+
+    monkeypatch.setattr(
+        workspace_loop_module,
+        "build_workspace_operation_registry",
+        lambda: faulting_registry,
+    )
+
+    def _producer_must_not_run(value: object):
+        producer_calls.append(value)
+        raise AssertionError("S2 producer ran without a trusted executable registration")
+
+    monkeypatch.setattr(
+        "polisyos.runtime.quality.workspace.s2_design_search_operation.run_s2_shadow_design_loop",
+        _producer_must_not_run,
+    )
+    before = _s2_artifact_census(Path(runtime_api_env["cas_root"]))
+    launch_response = client.post(
+        "/api/v1/control/runs",
+        json={
+            "data_source": {"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
+            "params": {
+                "control_plane_transition": "workspace_loop",
+                "workspace_operation_id": S2_DESIGN_SEARCH_OPERATION_ID,
+                "layer2_s2_design_search_input": _layer2_s2_design_search_input(),
+            },
+        },
+    )
+    assert launch_response.status_code == 200, launch_response.text
+    launch = launch_response.json()
+    assert service._worker is not None
+    service._worker.dispatch_once()
+    response = _await_terminal_job(service, launch["job_id"])
+
+    assert response.state == "failed"
+    assert response.failure is not None
+    assert response.failure.code == "s2_design_search_failed_non_authority"
+    assert producer_calls == []
+    assert _s2_artifact_census(Path(runtime_api_env["cas_root"])) == before
 
 
 def test_workspace_loop_non_authority_terminal_is_not_verifier_stamped(

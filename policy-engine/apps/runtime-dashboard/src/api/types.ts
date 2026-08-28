@@ -12390,6 +12390,7 @@ export interface components {
       /** Validator Version */
       validator_version: string;
     };
+    RunPaperDesignRecordBinding: components["schemas"]["RunBoundDesignRecordBinding"];
     /**
      * RunPaperGroundingState
      * @description Grounding state using the generation-cycle owner's closed vocabulary.

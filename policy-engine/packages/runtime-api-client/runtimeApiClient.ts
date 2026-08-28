@@ -4320,6 +4320,8 @@ export type RunPaperCaseSourceVerification = {
   validator_version: string;
 };
 
+export type RunPaperDesignRecordBinding = RunBoundDesignRecordBinding;
+
 export type RunPaperGroundingState = {
   source_binding: RunPaperVerifiedCaseSource;
   state: "current_valid" | "grounded_shadow" | "grounding_gap" | "grounding_failed" | "grounding_unavailable";

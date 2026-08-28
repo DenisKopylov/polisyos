@@ -233,14 +233,7 @@ def test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure() ->
     assert admission_errors == []  # noqa: S101
     assert admitted == (exact,)  # noqa: S101
     assert set(checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES) == {  # noqa: S101
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "AmbientTelemetryHud.tsx",
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "OperatorCraftPanel.tsx",
         "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-        "apps/runtime-dashboard/src/features/runs/routes/"
-        "RunReportPage.test.tsx",
         "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
     }
     assert checker._ds10_blocking_register_errors([]) == []  # noqa: S101
@@ -7856,7 +7849,11 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
         file_errors: list[str] = []
         checker._validate_ds18_time_semantics_coverage(missing_file, file_errors)
         self.assertTrue(  # noqa: PT009
-            any("ds18_time_semantics_file_denominator_drift" in error for error in file_errors)
+            any(
+                "ds18_time_semantics_landing_slice_reconciliation_required"
+                in error
+                for error in file_errors
+            )
         )
 
         row_with_root = next(row for row in coverage["files"] if row["roots"])

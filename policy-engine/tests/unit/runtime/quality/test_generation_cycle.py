@@ -14,6 +14,7 @@ from uuid import uuid4
 
 import pytest
 
+import polisyos.runtime.quality.generation_cycle as generation_cycle_module
 import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
 from polisyos.core import canon
 from polisyos.core import contracts as core_contracts
@@ -53,8 +54,10 @@ from polisyos.runtime.quality.design_problem import (
     OutcomeOfInterest,
 )
 from polisyos.runtime.quality.generation_cycle import (
+    AcquisitionOverlayReentryReceipt,
     CandidateGroundingObservation,
     CandidateSummary,
+    FoundryValuePort,
     GenerationCycleController,
     GenerationCycleError,
     GenerationCycleRun,
@@ -63,6 +66,7 @@ from polisyos.runtime.quality.generation_cycle import (
     PendingN8ValuePort,
     PolicyGroundingPort,
     PromotionPortObservation,
+    RealValueOwnerGateway,
     SimulationPortObservation,
     StrangleReceipt,
     ValuePortObservation,
@@ -358,9 +362,16 @@ class _LegacyOnlyGenerationPort:
 
 
 class _CgfGenerationPort:
-    def __init__(self, *, missing_owner_target: bool = False, proxy_gap: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        missing_owner_target: bool = False,
+        proxy_gap: bool = False,
+        target_world_slots: tuple[str, ...] = ("firm_survival",),
+    ) -> None:
         self._missing_owner_target = missing_owner_target
         self._proxy_gap = proxy_gap
+        self._target_world_slots = target_world_slots
 
     async def __call__(
         self,
@@ -374,7 +385,7 @@ class _CgfGenerationPort:
             atom=_Atom(
                 "candidate_cgf_shadow",
                 "sha256:" + "4" * 64,
-                target_world_slots=() if self._missing_owner_target else ("firm_survival",),
+                target_world_slots=() if self._missing_owner_target else self._target_world_slots,
             ),
             diversity_key=("grant", "firms", "cgf_shadow", "baseline"),
         )
@@ -3260,6 +3271,66 @@ class _DataGapValuePort:
         )
 
 
+class _CostedDataGapValuePort:
+    def __call__(self, **kwargs: Any) -> ValuePortObservation:
+        candidate = kwargs["candidate"]
+        problem = kwargs["problem"]
+        variable_id = "administrative_tax_receipts"
+        return ValuePortObservation(
+            status="value_blocked",
+            candidate_id=candidate.candidate_id,
+            authority_blockers=("acquire_data:value_panel_data_missing",),
+            reason="Current owner tax-receipt observations are missing.",
+            decision_grade="blocked",
+            acquisition_requirement=l1_variable_availability_requirement_gap(
+                candidate_id=candidate.candidate_id,
+                candidate_content_hash=candidate.atom.content_hash,
+                design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+                availability=L1VariableAvailability(
+                    variable_id=variable_id,
+                    status="unavailable",
+                    dataset_count=0,
+                    metric_binding_count=0,
+                    observation_count=0,
+                    coverage_ref=(
+                        f"repo://production_data/dataset_catalog.duckdb#variable/{variable_id}"
+                    ),
+                ),
+                authority_level=problem.authority_profile.requested_authority_level,
+            ),
+        )
+
+
+class _OverlayDataGapValuePort:
+    def __call__(self, **kwargs: Any) -> ValuePortObservation:
+        candidate = kwargs["candidate"]
+        problem = kwargs["problem"]
+        variable_id = "cells.distress_score"
+        return ValuePortObservation(
+            status="value_blocked",
+            candidate_id=candidate.candidate_id,
+            authority_blockers=("acquire_data:value_panel_data_missing",),
+            reason="Current owner distress observations are missing.",
+            decision_grade="blocked",
+            acquisition_requirement=l1_variable_availability_requirement_gap(
+                candidate_id=candidate.candidate_id,
+                candidate_content_hash=candidate.atom.content_hash,
+                design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+                availability=L1VariableAvailability(
+                    variable_id=variable_id,
+                    status="unavailable",
+                    dataset_count=0,
+                    metric_binding_count=0,
+                    observation_count=0,
+                    coverage_ref=(
+                        f"repo://production_data/dataset_catalog.duckdb#variable/{variable_id}"
+                    ),
+                ),
+                authority_level=problem.authority_profile.requested_authority_level,
+            ),
+        )
+
+
 class _WorldKnowledgeGapValuePort:
     def __call__(self, **kwargs: Any) -> ValuePortObservation:
         del kwargs
@@ -3363,6 +3434,206 @@ async def test_value_data_gap_routes_to_n7_acquisition_terminal() -> None:
     assert record.terminal_disposition.value == "acquire"
     assert record.claim_ref == "value-claim:candidate_cgf_shadow"
     assert run.fronts.decision.candidate_ids == ()
+
+
+@pytest.mark.asyncio
+async def test_canonical_n7_route_attaches_exact_owner_cost_basis() -> None:
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(target_world_slots=("administrative_tax_receipts",)),
+        value_port=_CostedDataGapValuePort(),
+    )
+
+    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+
+    cycle = run.cycles[0]
+    assert cycle.acquisition_routing_report is not None
+    assert cycle.acquisition_cost_basis_record is not None
+    cost = cycle.acquisition_cost_basis_record
+    assert cost.missing_distribution == "administrative_tax_receipts"
+    assert (
+        cost.strategy
+        == cycle.acquisition_routing_report.acquisition_records[0].recommended_strategy
+    )
+    assert cost.schedule_content_hash == (
+        "sha256:258c2dd22214b8a3bf9157cb6ad186b6320317b526d2f951098bd72ead9328d3"
+    )
+    assert cycle.acquisition_cost_basis_hash == cost.record_content_hash
+
+
+@pytest.mark.asyncio
+async def test_active_overlay_reentry_is_exact_direct_and_read_only(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tests.unit.runtime.quality.test_acquisition_executor import (
+        _activate_real_epoch_scenario,
+        _real_epoch_scenario,
+    )
+
+    problem = _problem("ds15_active_overlay_reentry")
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(target_world_slots=("cells.distress_score",)),
+        value_port=_OverlayDataGapValuePort(),
+    )
+    source_run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
+    source_cycle = source_run.cycles[0]
+    scenario = _real_epoch_scenario(tmp_path / "epoch")
+    _production, activated = _activate_real_epoch_scenario(scenario)
+    calls: list[tuple[object, ...]] = []
+
+    async def direct_cycle(
+        received_problem: DesignProblem,
+        *,
+        cycle_index: int,
+        budget_state: BudgetState,
+        previous_cycle: object,
+        value_port_override: object,
+    ) -> tuple[object, tuple[CandidateSummary, ...]]:
+        assert received_problem is problem
+        assert cycle_index == source_cycle.cycle_index + 1
+        assert previous_cycle is source_cycle
+        assert isinstance(value_port_override, FoundryValuePort)
+        assert isinstance(value_port_override._owner_gateway, RealValueOwnerGateway)
+        assert value_port_override._owner_gateway.catalog_overlay_path == (
+            scenario.overlay.overlay_path
+        )
+        calls.append((received_problem, previous_cycle, value_port_override))
+        return (
+            source_cycle.model_copy(update={"cycle_index": cycle_index}),
+            tuple(
+                row.model_copy(update={"cycle_index": cycle_index})
+                for row in source_run.candidate_summaries
+            ),
+        )
+
+    def forbidden(*args: Any, **kwargs: Any) -> Any:
+        del args, kwargs
+        raise AssertionError("legacy_or_world_write_reentry_path_called")
+
+    monkeypatch.setattr(controller, "_run_cycle", direct_cycle)
+    monkeypatch.setattr(controller, "run", forbidden)
+    monkeypatch.setattr(controller, "_reenter_cycle_after_n7_acquisition", forbidden)
+    monkeypatch.setattr(controller, "_run_n7_acquisition_if_requested", forbidden)
+    monkeypatch.setattr(generation_cycle_module, "run_acquisition_closed_loop", forbidden)
+
+    receipt = await controller.reenter_after_active_acquisition_overlay(
+        original_run=source_run,
+        source_cycle=source_cycle,
+        problem=problem,
+        overlay_receipt=activated,
+        baseline_path=scenario.authority.baseline_path,
+        overlay_path=scenario.overlay.overlay_path,
+        budget_state=_budget(),
+    )
+
+    assert isinstance(receipt, AcquisitionOverlayReentryReceipt)
+    assert len(calls) == 1
+    assert receipt.source_run_id == source_run.run_id
+    assert receipt.source_candidate_ref == source_cycle.selected_candidate_ref
+    assert receipt.overlay_receipt_ref == str(activated.receipt_ref.artifact_id)
+    assert receipt.overlay_receipt_content_hash == activated.receipt_content_hash
+    assert receipt.epoch_id == activated.epoch_id
+    assert receipt.passport_id == activated.passport_id
+    assert receipt.overlay_path == scenario.overlay.overlay_path.as_posix()
+    assert receipt.new_cycle.cycle_index == source_cycle.cycle_index + 1
+    assert source_run.cycles == (source_cycle,)
+
+
+@pytest.mark.asyncio
+async def test_active_overlay_reentry_rejects_binding_and_trace_mutations(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import duckdb
+
+    from tests.unit.runtime.quality.test_acquisition_executor import (
+        _activate_real_epoch_scenario,
+        _real_epoch_scenario,
+    )
+
+    problem = _problem("ds15_overlay_reentry_mutations")
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(target_world_slots=("cells.distress_score",)),
+        value_port=_OverlayDataGapValuePort(),
+    )
+    source_run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
+    source_cycle = source_run.cycles[0]
+    scenario = _real_epoch_scenario(tmp_path / "epoch-a")
+    _production, activated = _activate_real_epoch_scenario(scenario)
+
+    async def forbidden_cycle(*args: Any, **kwargs: Any) -> Any:
+        del args, kwargs
+        raise AssertionError("reentry_cycle_called_for_mismatched_owner_state")
+
+    monkeypatch.setattr(controller, "_run_cycle", forbidden_cycle)
+    arguments = {
+        "original_run": source_run,
+        "source_cycle": source_cycle,
+        "problem": problem,
+        "overlay_receipt": activated,
+        "baseline_path": scenario.authority.baseline_path,
+        "overlay_path": scenario.overlay.overlay_path,
+        "budget_state": _budget(),
+    }
+
+    with pytest.raises(
+        GenerationCycleError,
+        match="acquisition_reentry_case_binding_mismatch",
+    ):
+        await controller.reenter_after_active_acquisition_overlay(
+            **{**arguments, "problem": _problem("another_case")}
+        )
+
+    mismatched_run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(target_world_slots=("administrative_tax_receipts",)),
+        value_port=_CostedDataGapValuePort(),
+    ).run(problem, budget_state=_budget(), max_cycles=1)
+    with pytest.raises(
+        GenerationCycleError,
+        match="acquisition_reentry_requirement_overlay_mismatch",
+    ):
+        await controller.reenter_after_active_acquisition_overlay(
+            **{
+                **arguments,
+                "original_run": mismatched_run,
+                "source_cycle": mismatched_run.cycles[0],
+            }
+        )
+
+    with pytest.raises(
+        GenerationCycleError,
+        match="acquisition_reentry_activation_receipt_mismatch",
+    ):
+        await controller.reenter_after_active_acquisition_overlay(
+            **{
+                **arguments,
+                "overlay_receipt": activated.model_copy(
+                    update={"epoch_id": activated.epoch_id + 1}
+                ),
+            }
+        )
+
+    with pytest.raises(
+        GenerationCycleError,
+        match="acquisition_reentry_overlay_binding_mismatch",
+    ):
+        await controller.reenter_after_active_acquisition_overlay(
+            **{**arguments, "overlay_path": tmp_path / "overlay-b.duckdb"}
+        )
+
+    connection = duckdb.connect(str(scenario.overlay.overlay_path))
+    try:
+        connection.execute(
+            "DELETE FROM acquisition_semantic_receipts "
+            "WHERE receipt_kind = 'epoch.activated_overlay_admission_receipt'"
+        )
+    finally:
+        connection.close()
+    with pytest.raises(
+        GenerationCycleError,
+        match="acquisition_reentry_post_epoch_trace_missing",
+    ):
+        await controller.reenter_after_active_acquisition_overlay(**arguments)
 
 
 @pytest.mark.asyncio

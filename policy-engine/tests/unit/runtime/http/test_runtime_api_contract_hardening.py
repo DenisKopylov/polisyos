@@ -52,6 +52,49 @@ def test_openapi_contract_includes_examples_and_problem_payloads() -> None:
     assert violations == []
 
 
+def test_openapi_exposes_strict_acquisition_route_boundary_without_growth_authority() -> None:
+    schema = export_runtime_openapi_schema()
+    paths = schema["paths"]
+    operations = {
+        "list": paths["/api/v1/runs/{run_id}/acquisition-routes"]["get"],
+        "get": paths["/api/v1/runs/{run_id}/acquisition-routes/{route_id}"]["get"],
+        "decision": paths["/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request"][
+            "post"
+        ],
+        "execute": paths["/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"]["post"],
+    }
+    assert operations["decision"]["x-polisyos-step-up-class"] == "acquisition_approval"
+    assert operations["execute"]["x-polisyos-step-up-class"] == "acquisition_approval"
+    body = schema["components"]["schemas"]["AcquisitionRouteMutationRequest"]
+    assert body["additionalProperties"] is False
+    assert set(body["properties"]) == {
+        "route_projection_hash",
+        "planner_report_hash",
+        "replay_pins",
+        "idempotency_key",
+        "human_decision_record_ref",
+    }
+    forbidden_authority_fields = {
+        "gap_class",
+        "cost",
+        "voi",
+        "action_eligibility",
+        "decision_status",
+        "passport",
+        "rejection",
+        "epoch",
+        "growth",
+        "reentry",
+    }
+    assert forbidden_authority_fields.isdisjoint(body["properties"])
+    projection = schema["components"]["schemas"]["AcquisitionRouteProjection"]
+    assert projection["properties"]["world_growth"]["const"] == "no_growth"
+    assert projection["properties"]["qualification_status"]["const"] == ("pending_epoch_activation")
+    for operation in operations.values():
+        examples = operation["responses"]["200"]["content"]["application/json"]["examples"]
+        assert examples
+
+
 def test_capability_discovery_examples_cover_truthful_postures_without_authority() -> None:
     schema = export_runtime_openapi_schema()
     for method, path in (

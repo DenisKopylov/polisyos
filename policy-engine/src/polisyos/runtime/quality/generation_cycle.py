@@ -16,6 +16,7 @@ controller over those owners, not a second grounding or search engine.
 from __future__ import annotations
 
 import ast
+import hashlib
 import inspect
 import math
 import re
@@ -52,6 +53,7 @@ from polisyos.pdc import (
     gy_content_hash,
 )
 from polisyos.runtime.quality.acquisition_planner import (
+    AcquisitionCostBasisRecord,
     AcquisitionPlannerReport,
     AcquisitionReceipt,
     AcquisitionRequirementGap,
@@ -60,6 +62,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     grounding_coverage_requirement_gap,
     l1_variable_availability_requirement_gap,
     plan_requirement_gap_acquisition,
+    produce_acquisition_cost_basis_record,
     run_acquisition_closed_loop,
     value_input_world_knowledge_requirement_gap,
 )
@@ -701,6 +704,27 @@ def _cycle_acquisition_requirement(
     return grounding.acquisition_requirement or value_port.acquisition_requirement
 
 
+def _requirement_missing_distributions(
+    requirement: AcquisitionRequirementGap,
+) -> tuple[str, ...]:
+    """Return only owner-carried exact distribution identities for costing."""
+
+    rows: list[str] = []
+    availability = requirement.metadata.get("availability")
+    if isinstance(availability, Mapping):
+        variable_id = availability.get("variable_id")
+        if isinstance(variable_id, str) and variable_id.strip():
+            rows.append(variable_id.strip())
+    for field in requirement.missing_requirement_fields:
+        prefix = "missing_distribution:"
+        if field.startswith(prefix) and field[len(prefix) :].strip():
+            rows.append(field[len(prefix) :].strip())
+        variable_prefix = "canonical_variable_observations:"
+        if field.startswith(variable_prefix) and field[len(variable_prefix) :].strip():
+            rows.append(field[len(variable_prefix) :].strip())
+    return tuple(dict.fromkeys(rows))
+
+
 class GenerationCycleRecord(_StrictModel):
     """Replay-visible record for one real generate-ground-value-revise cycle."""
 
@@ -724,6 +748,11 @@ class GenerationCycleRecord(_StrictModel):
     revision_driver: Literal["counterexample", "none"] = "none"
     acquisition_receipt: dict[str, Any] | None = None
     acquisition_routing_report: AcquisitionPlannerReport | None = None
+    acquisition_cost_basis_record: AcquisitionCostBasisRecord | None = None
+    acquisition_cost_basis_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
 
     @model_validator(mode="after")
     def _bind_every_stage_to_selected_candidate(self) -> GenerationCycleRecord:
@@ -762,6 +791,11 @@ class GenerationCycleRecord(_StrictModel):
         if self.acquisition_receipt is not None and self.acquisition_routing_report is not None:
             raise ValueError("acquisition_route_cannot_mint_owner_receipt")
         if self.acquisition_routing_report is None:
+            if (
+                self.acquisition_cost_basis_record is not None
+                or self.acquisition_cost_basis_hash is not None
+            ):
+                raise ValueError("acquisition_cost_requires_canonical_route")
             return self
         if self.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
             raise ValueError("acquisition_route_cannot_satisfy_terminal")
@@ -779,6 +813,66 @@ class GenerationCycleRecord(_StrictModel):
             or record.claim_ref != requirement.claim_ref
         ):
             raise ValueError("acquisition_route_requirement_mismatch")
+        cost = self.acquisition_cost_basis_record
+        if cost is None:
+            if self.acquisition_cost_basis_hash is not None:
+                raise ValueError("acquisition_cost_basis_hash_without_record")
+            return self
+        if (
+            self.acquisition_cost_basis_hash != cost.record_content_hash
+            or cost.strategy is not record.recommended_strategy
+            or cost.missing_distribution not in _requirement_missing_distributions(requirement)
+        ):
+            raise ValueError("acquisition_cost_basis_route_mismatch")
+        return self
+
+
+class AcquisitionOverlayReentryReceipt(_StrictModel):
+    """Immutable proof of direct N6 re-entry over one active owner overlay."""
+
+    schema_version: Literal["policyos.runtime.acquisition_overlay_reentry.v1"] = (
+        "policyos.runtime.acquisition_overlay_reentry.v1"
+    )
+    source_run_id: str = Field(min_length=1)
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_cycle_index: int = Field(ge=0)
+    source_candidate_ref: str = Field(min_length=1)
+    overlay_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    overlay_receipt_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    baseline_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    overlay_path: str = Field(min_length=1)
+    epoch_id: int = Field(gt=0)
+    passport_id: str = Field(min_length=1)
+    passport_variable_id: str = Field(min_length=1)
+    admitted_observation_count: int = Field(gt=0)
+    semantic_epoch_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    semantic_epoch_production_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    semantic_epoch_production_receipt_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    new_cycle: GenerationCycleRecord
+    candidate_summaries: tuple[CandidateSummary, ...]
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @classmethod
+    def issue(cls, **payload: object) -> AcquisitionOverlayReentryReceipt:
+        """Content-bind one independently reconciled direct re-entry result."""
+
+        identity_payload = {
+            "schema_version": "policyos.runtime.acquisition_overlay_reentry.v1",
+            **payload,
+        }
+        draft = cls.model_construct(
+            **identity_payload,
+            content_hash="sha256:" + "0" * 64,
+        )
+        return cls(
+            **identity_payload,
+            content_hash=gy_content_hash(gy_artifact_self_identity_projection(draft)),
+        )
+
+    @model_validator(mode="after")
+    def _verify_self_hash(self) -> AcquisitionOverlayReentryReceipt:
+        if self.content_hash != gy_content_hash(gy_artifact_self_identity_projection(self)):
+            raise ValueError("acquisition_overlay_reentry_hash_mismatch")
         return self
 
 
@@ -2136,14 +2230,16 @@ class GenerationCycleController:
                     cycle = _blocked_cycle(cycle, reason=fake_reason)
             acquisition_receipt: AcquisitionReceipt | None = None
             try:
-                routing_report = self._plan_n7_requirement_gap_if_requested(
+                planned_route = self._plan_n7_requirement_gap_if_requested(
                     current_problem,
                     cycle=cycle,
                 )
-                if routing_report is not None:
+                if planned_route is not None:
+                    routing_report, cost_basis = planned_route
                     cycle = _cycle_with_acquisition_routing_report(
                         cycle,
                         report=routing_report,
+                        cost_basis=cost_basis,
                     )
                 else:
                     acquisition_receipt = self._run_n7_acquisition_if_requested(
@@ -2213,6 +2309,187 @@ class GenerationCycleController:
             blocked_reason=blocked_reason,
         )
         return run
+
+    async def reenter_after_active_acquisition_overlay(
+        self,
+        *,
+        original_run: GenerationCycleRun,
+        source_cycle: GenerationCycleRecord,
+        problem: DesignProblem,
+        overlay_receipt: data_forge_read_api.catalog.OverlayAdmissionReceipt,
+        baseline_path: Path,
+        overlay_path: Path,
+        budget_state: BudgetState,
+    ) -> AcquisitionOverlayReentryReceipt:
+        """Run one new N6 cycle over an exact already-active owner overlay.
+
+        This bridge consumes Data Forge's read-only active-state projection. It
+        cannot fetch, passport, activate, mutate the prior run, or enter through
+        either legacy acquisition arm.
+        """
+
+        problem_ref = _problem_ref(problem)
+        if (
+            original_run.design_problem_ref != problem_ref
+            or source_cycle.design_problem_ref != problem_ref
+            or tuple(
+                row for row in original_run.cycles if row.cycle_index == source_cycle.cycle_index
+            )
+            != (source_cycle,)
+        ):
+            raise GenerationCycleError("acquisition_reentry_case_binding_mismatch")
+        if source_cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
+            raise GenerationCycleError("acquisition_reentry_source_not_acquisition_terminal")
+        requirement = _cycle_acquisition_requirement(
+            source_cycle.grounding,
+            source_cycle.value_port,
+        )
+        if requirement is None or source_cycle.acquisition_routing_report is None:
+            raise GenerationCycleError("acquisition_reentry_requirement_missing")
+        owner_receipt_type = data_forge_read_api.catalog.OverlayAdmissionReceipt
+        if not isinstance(overlay_receipt, owner_receipt_type):
+            raise GenerationCycleError("acquisition_reentry_overlay_receipt_invalid")
+
+        selected_baseline_path = Path(baseline_path)
+        selected_overlay_path = Path(overlay_path)
+        projection = data_forge_read_api.catalog.project_catalog_acquisition_state(
+            selected_baseline_path,
+            overlay_path=selected_overlay_path,
+        )
+        if (
+            not projection.overlay_exists
+            or projection.overlay_ref != selected_overlay_path.as_posix()
+            or projection.baseline.source_path != selected_baseline_path.as_posix()
+            or projection.baseline.content_sha256 != overlay_receipt.baseline_before_sha256
+            or overlay_receipt.baseline_before_sha256 != overlay_receipt.baseline_after_sha256
+            or overlay_receipt.activation_state != "active"
+        ):
+            raise GenerationCycleError("acquisition_reentry_overlay_binding_mismatch")
+
+        statement = core_contracts.ActivatedOverlayAdmissionStatement.model_validate(
+            overlay_receipt.model_dump(
+                mode="python",
+                exclude={"receipt_ref", "receipt_content_hash", "replayed"},
+            )
+        )
+        from polisyos.fabric.data_plane import canonical_json_bytes, content_sha256
+
+        statement_bytes = canonical_json_bytes(statement.model_dump(mode="json"))
+        framed_statement = len(statement_bytes).to_bytes(8, "big") + statement_bytes
+        expected_receipt_ref = f"sha256:{hashlib.sha256(framed_statement).hexdigest()}"
+        if (
+            overlay_receipt.receipt_ref.kind != "epoch.activated_overlay_admission_receipt"
+            or overlay_receipt.receipt_ref.media_type != "application/vnd.polisyos.epoch+json"
+            or str(overlay_receipt.receipt_ref.artifact_id) != expected_receipt_ref
+            or overlay_receipt.receipt_content_hash
+            != content_sha256(statement.model_dump(mode="json"))
+        ):
+            raise GenerationCycleError("acquisition_reentry_activation_receipt_mismatch")
+
+        epochs = tuple(
+            row
+            for row in projection.epochs
+            if row.epoch_id == overlay_receipt.epoch_id
+            and row.passport_id == overlay_receipt.passport_id
+        )
+        passports = tuple(
+            row
+            for row in projection.passports
+            if row.epoch_id == overlay_receipt.epoch_id
+            and row.passport_id == overlay_receipt.passport_id
+        )
+        missing_distributions = _requirement_missing_distributions(requirement)
+        if (
+            len(epochs) != 1
+            or epochs[0].epoch_activation_state != "active"
+            or epochs[0].admitted_observation_count != overlay_receipt.admitted_observation_count
+            or epochs[0].admitted_observation_count <= 0
+            or epochs[0].semantic_epoch_ref != overlay_receipt.semantic_epoch_stamp.epoch_ref
+            or len(passports) != 1
+            or passports[0].status not in {"admitted", "admitted_degraded"}
+            or missing_distributions != (passports[0].variable_id,)
+        ):
+            raise GenerationCycleError("acquisition_reentry_requirement_overlay_mismatch")
+        if (
+            source_cycle.acquisition_cost_basis_record is not None
+            and source_cycle.acquisition_cost_basis_record.missing_distribution
+            != passports[0].variable_id
+        ):
+            raise GenerationCycleError("acquisition_reentry_cost_overlay_mismatch")
+
+        activation_events = tuple(
+            event
+            for event in projection.events
+            if event.receipt_kind == "epoch.activated_overlay_admission_receipt"
+            and event.receipt_ref == str(overlay_receipt.receipt_ref.artifact_id)
+            and event.receipt_content_hash == overlay_receipt.receipt_content_hash
+        )
+        production_ref = str(overlay_receipt.semantic_epoch_production_receipt_ref.artifact_id)
+        production_events = tuple(
+            event
+            for event in projection.events
+            if event.receipt_kind == "epoch.production_receipt"
+            and event.receipt_ref == production_ref
+        )
+        if len(activation_events) != 1 or len(production_events) != 1:
+            raise GenerationCycleError("acquisition_reentry_post_epoch_trace_missing")
+
+        existing_port = self._value_port
+        value_port_kwargs: dict[str, Any] = {}
+        if isinstance(existing_port, FoundryValuePort):
+            value_port_kwargs = {
+                "evaluation_mode": existing_port._evaluation_mode,
+                "data_trust": existing_port._data_trust,
+                "requested_method_fqn": existing_port._requested_method_fqn,
+                "observation_to_contract_manifest": (
+                    existing_port._observation_to_contract_manifest
+                ),
+                "runtime_budget_ms": existing_port._runtime_budget_ms,
+            }
+        reentry_value_port = FoundryValuePort(
+            owner_gateway=RealValueOwnerGateway(
+                repo_root=self._repo_root,
+                cycle_substrate_context=self._cycle_substrate_context,
+                catalog_overlay_path=selected_overlay_path,
+            ),
+            cycle_substrate_context=self._cycle_substrate_context,
+            **value_port_kwargs,
+        )
+        next_cycle_index = source_cycle.cycle_index + 1
+        new_cycle, summaries = await self._run_cycle(
+            problem,
+            cycle_index=next_cycle_index,
+            budget_state=budget_state,
+            previous_cycle=source_cycle,
+            value_port_override=reentry_value_port,
+        )
+        if (
+            new_cycle.design_problem_ref != problem_ref
+            or new_cycle.cycle_index != next_cycle_index
+            or any(summary.cycle_index != next_cycle_index for summary in summaries)
+        ):
+            raise GenerationCycleError("acquisition_reentry_result_binding_mismatch")
+        return AcquisitionOverlayReentryReceipt.issue(
+            source_run_id=original_run.run_id,
+            design_problem_ref=problem_ref,
+            source_cycle_index=source_cycle.cycle_index,
+            source_candidate_ref=source_cycle.selected_candidate_ref,
+            overlay_receipt_ref=str(overlay_receipt.receipt_ref.artifact_id),
+            overlay_receipt_content_hash=overlay_receipt.receipt_content_hash,
+            baseline_content_hash=projection.baseline.content_sha256,
+            overlay_path=selected_overlay_path.as_posix(),
+            epoch_id=overlay_receipt.epoch_id,
+            passport_id=overlay_receipt.passport_id,
+            passport_variable_id=passports[0].variable_id,
+            admitted_observation_count=overlay_receipt.admitted_observation_count,
+            semantic_epoch_ref=overlay_receipt.semantic_epoch_stamp.epoch_ref,
+            semantic_epoch_production_receipt_ref=production_ref,
+            semantic_epoch_production_receipt_content_hash=(
+                production_events[0].receipt_content_hash
+            ),
+            new_cycle=new_cycle,
+            candidate_summaries=summaries,
+        )
 
     def _promote_completed_generation(
         self,
@@ -2393,12 +2670,14 @@ class GenerationCycleController:
         cycle_index: int,
         budget_state: BudgetState,
         previous_cycle: GenerationCycleRecord | None,
+        value_port_override: ValuePort | None = None,
     ) -> tuple[GenerationCycleRecord, tuple[CandidateSummary, ...]]:
         state: dict[str, Any] = {
             "problem": problem,
             "cycle_index": cycle_index,
             "budget_state": budget_state,
             "previous_cycle": previous_cycle,
+            "value_port_override": value_port_override,
         }
         finished = await self._engine.run_async(state)
         return finished["cycle"], tuple(finished["candidate_summaries"])
@@ -2443,7 +2722,7 @@ class GenerationCycleController:
         problem: DesignProblem,
         *,
         cycle: GenerationCycleRecord,
-    ) -> AcquisitionPlannerReport | None:
+    ) -> tuple[AcquisitionPlannerReport, AcquisitionCostBasisRecord | None] | None:
         """Route one typed requirement gap without fabricating acquired evidence."""
 
         if cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
@@ -2461,11 +2740,22 @@ class GenerationCycleController:
                 "n7_requirement_gap_invalid",
                 str(exc),
             ) from exc
-        return plan_requirement_gap_acquisition(
+        report = plan_requirement_gap_acquisition(
             run_id=(f"n7-routing:{problem.design_problem_id}:{cycle.cycle_index}"),
             requirement_gaps=(gap,),
             generated_at=self._generated_at,
         )
+        record = report.acquisition_records[0] if len(report.acquisition_records) == 1 else None
+        distributions = _requirement_missing_distributions(gap)
+        cost_basis = (
+            produce_acquisition_cost_basis_record(
+                missing_distribution=distributions[0],
+                strategy=record.recommended_strategy,
+            )
+            if record is not None and len(distributions) == 1
+            else None
+        )
+        return report, cost_basis
 
     def _n7_data_requirement_specs(
         self,
@@ -2765,7 +3055,8 @@ class GenerationCycleController:
             problem=problem,
             cycle_index=cycle_index,
         )
-        value = self._value_port(
+        value_port = state.get("value_port_override") or self._value_port
+        value = value_port(
             candidate=candidate,
             simulation=simulation,
             problem=problem,
@@ -3146,7 +3437,13 @@ def generation_cycle_terminal_state(run: GenerationCycleRun) -> SearchTerminalSt
             costed_plan = {
                 "canonical_planner_report": (
                     last_cycle.acquisition_routing_report.model_dump(mode="json")
-                )
+                ),
+                "acquisition_cost_basis_record": (
+                    last_cycle.acquisition_cost_basis_record.model_dump(mode="json")
+                    if last_cycle.acquisition_cost_basis_record is not None
+                    else None
+                ),
+                "acquisition_cost_basis_hash": last_cycle.acquisition_cost_basis_hash,
             }
         requirement = _cycle_acquisition_requirement(
             last_cycle.grounding,
@@ -5347,11 +5644,16 @@ def _cycle_with_acquisition_routing_report(
     cycle: GenerationCycleRecord,
     *,
     report: AcquisitionPlannerReport,
+    cost_basis: AcquisitionCostBasisRecord | None,
 ) -> GenerationCycleRecord:
     """Attach typed N7 routing evidence through full record validation."""
 
     values = {name: getattr(cycle, name) for name in GenerationCycleRecord.model_fields}
     values["acquisition_routing_report"] = report
+    values["acquisition_cost_basis_record"] = cost_basis
+    values["acquisition_cost_basis_hash"] = (
+        cost_basis.record_content_hash if cost_basis is not None else None
+    )
     return GenerationCycleRecord.model_validate(values)
 
 
@@ -5617,6 +5919,7 @@ __all__ = [
     "GENERATION_CYCLE_CONTROLLER_REF",
     "GENERATION_CYCLE_SCHEMA_VERSION",
     "VALUE_DATA_SHAPE_RULE_VERSION",
+    "AcquisitionOverlayReentryReceipt",
     "CandidateFront",
     "CandidateGroundingObservation",
     "CandidateSummary",

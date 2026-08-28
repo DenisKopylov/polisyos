@@ -37,10 +37,17 @@ projections. Route handlers should stay thin and delegate behavior here.
   ranking distinct from VOI, and exposes historical non-growth and pending
   qualification without executing acquisition or publishing raw quarantine
   bodies.
+- **Run-bound acquisition actions** - `AcquisitionActionService` resolves one
+  verified completed natural-language run and its exact costed route, composes
+  the existing PA2/DS9 gateway, reserves a durable acquisition job, and exposes
+  only a strict external owner port. Recovery resumes direct re-entry from the
+  persisted action head; it never repeats owner activation or treats the
+  fixture badge as production authority.
 
 ## Public API
 
 - `ArtifactInspectorService`
+- `AcquisitionActionService`
 - `AttractorAnalysisService`
 - `DebugService`
 - `IndexedRunRecord`
@@ -72,6 +79,10 @@ projections. Route handlers should stay thin and delegate behavior here.
   recomputes the composite read projection and raw-sibling strangle. The
   governed projection service and its isolated validation worker content-bind
   all 3 N13a and 43 N13b files before serving it.
+- [`acquisition_action_service.py`](acquisition_action_service.py) owns the
+  run-bound costed-route projection and deferred PA2/worker composition. It
+  consumes the control-plane phase-head sink and strict owner port without
+  becoming a passport, overlay, epoch, or world writer.
 - [`adapters/`](adapters/) contains service adapters for core runtime state and
   should stay thin.
 - Scenario, temporal, mobility, attractor, feedback, and rendering services own

@@ -54,6 +54,111 @@ REPORT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-frontend-disposition-re
 AUDIT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-live-application-audit.md"
 STATUS_CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
 STATUS_INVENTORY_PATH = ATLAS_DIR / "status-retirement-inventory.json"
+DS18_TIME_SEMANTICS_SCANNER_REF = (
+    "architecture/atlas_surfaces/decision_time_semantics_scan.mjs"
+)
+DS18_TIME_SEMANTICS_SCANNER_PATH = REPO_ROOT / DS18_TIME_SEMANTICS_SCANNER_REF
+DS18_TIME_SEMANTICS_SCHEMA_ID = (
+    "polisyos.atlas.ds18-time-semantics-coverage.v1"
+)
+DS18_TIME_SEMANTICS_REVIEWER = "DS18-C06-independent-root-reconciliation"
+DS18_TIME_SEMANTICS_LANDING_RULE = (
+    "the slice landing a post-freeze production render/export root owns its "
+    "fresh file/root receipt, independent classification, and behavioral proof"
+)
+DS18_TIME_SEMANTICS_BEHAVIOR_TESTS = {
+    "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts": [
+        "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/"
+        "bureaucratic-document-ast.test.ts",
+    ],
+    "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/"
+    "BaseBureaucraticRenderer.tsx": [
+        "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/"
+        "BaseBureaucraticRenderer.test.tsx",
+        "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/"
+        "bureaucratic-document-ast.test.ts",
+    ],
+    "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/"
+    "BureaucraticHeader.tsx": [
+        "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/"
+        "bureaucratic-document-ast.test.ts",
+    ],
+    "apps/runtime-dashboard/src/features/export/social/EmailSummary.tsx": [
+        "apps/runtime-dashboard/src/features/export/social/OGCard.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/export/social/OGCard.tsx": [
+        "apps/runtime-dashboard/src/features/export/social/OGCard.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/export/social/generate-og.ts": [
+        "apps/runtime-dashboard/src/features/export/social/OGCard.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/EpochStalenessView.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "EpochStalenessView.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "PublicationPacketPanel.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx": [
+        "apps/runtime-dashboard/src/features/runs/routes/"
+        "PublicDecisionViewerPage.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/routes/RunComparePage.tsx": [
+        "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/routes/RunDeckPage.tsx": [
+        "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx": [
+        "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx": [
+        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx": [
+        "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx": [
+        "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/shared/export/printExport.ts": [
+        "apps/runtime-dashboard/src/shared/export/printExport.test.ts",
+    ],
+}
+DS18_TIME_SEMANTICS_STRICT_PROJECTION_FILES = {
+    "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts",
+    "apps/runtime-dashboard/src/features/export/social/EmailSummary.tsx",
+    "apps/runtime-dashboard/src/features/export/social/OGCard.tsx",
+    "apps/runtime-dashboard/src/features/export/social/generate-og.ts",
+}
+DS18_TIME_SEMANTICS_DIRECT_FILES = {
+    "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/"
+    "BureaucraticHeader.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/EpochStalenessView.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunComparePage.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunDeckPage.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+    "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx",
+}
+DS18_TIME_SEMANTICS_CROSS_FILE_INHERITANCE = {
+    "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/"
+    "BaseBureaucraticRenderer.tsx": (
+        "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/"
+        "BureaucraticHeader.tsx"
+    ),
+    "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx": (
+        "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx"
+    ),
+    "apps/runtime-dashboard/src/shared/export/printExport.ts": (
+        "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/"
+        "BureaucraticHeader.tsx"
+    ),
+}
 
 _STATUS_SPEC = importlib.util.spec_from_file_location(
     "frontend_disposition_status_checker", STATUS_CHECKER_PATH
@@ -4769,7 +4874,7 @@ AUTHORITY_PRESENTATION_COUNTS = {
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:cf18b1aed1f8425dd855737cb7a2655bed48bc7ab3836f13a332cb3fd478f5a0"
+    "sha256:88723b991e24cbd4d92d08466714a293ab10a8a8569718be1db7858c089d3163"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
     "sha256:d41e26792102015380983470c5a4d91e57cd86ecd7e95b0cc61fc7798d2bd55f"
@@ -6566,6 +6671,72 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS = {
         if identity not in DS11_C04_REMOVED_AUTHORITY_PROP_IDENTITIES
     },
     **DS11_C04_ADDED_AUTHORITY_PROP_IDENTITIES,
+}
+
+DS18_REMOVED_AUTHORITY_BADGE_IDENTITIES = frozenset(
+    {
+        "12d25f70a1e4d12752533d44a2ff623892cf8a0324712949d2fd9a114372e264",
+        "28b2c47947ef00f03eeb3b569db7c89488ac9e22712e5c72373d19033aa4fd24",
+        "2af60ce47149ca4c1cb7f29627a16695c047f44fd87ac1de932ec2b63d0d25fe",
+        "4c06f4fadf11ce470b22bb90b672256d6968ba462efc0972de32570a3de34d7a",
+        "5684c71e7fde2485d3193d42e95f3e84732ac3cacc9c63fcbf38d54d3dc7186c",
+        "7b7a686875b59b4b487be6ffd6040155dbbbea162d3034ae49e8de6a81a40695",
+        "ba194a850616423573ab6ded36d2839fc80ae0470c30f57438a447f4232a4d41",
+        "bee1d8b47272f2e55577d8bd97988f38cee5f6857811e69b12d4c06d7545457a",
+        "c240d2feaa07748f063fcff49d11df7617c812f95f3341136ca14d54f644c66b",
+        "c81aad6b01055c35286a42a8bfdc07cf2223a8c47721aa6a1eaeaaf5b52bbb28",
+        "d5175929f2fea0f9bf06ab5951a76e03d416363447a01b1449ff1c0f04fd5d69",
+        "dbe9710ceb60817af97733abdfa27ca081c78b89a98e2242ffc4f6166567e256",
+    }
+)
+DS18_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    # Publication-packet and run-route badges keep their prior semantic classes;
+    # DS18 changed the enclosing temporal composition, so their content-bound
+    # identities must be re-anchored without reclassifying their authority role.
+    "0575c55f6ebe5ff8826e45eb83a65a82b92643d0df52b0c463cfc5cdeed85a3f": (
+        "benign:opaque_metadata_or_taxonomy"
+    ),
+    "271e00c65bd0dffe5bfde9bc266b3d176d4dc8a555a11d19bcd97701c57c26b1": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "48afb8800a54f65740380edf689c89e85a81d0287daad6e154cace7cda5f087a": (
+        "debt:badge-threshold-unavailable"
+    ),
+    "5168e6785fb7acaa07ea2ca55fbaa64744dbd620fc09d5bdaf5deeffa8d84449": (
+        "benign:opaque_metadata_or_taxonomy"
+    ),
+    "7c35b64cc9ffd9a4c4550e1376dbcbdb8d7169e6288e211c18f73e91e105ad72": (
+        "debt:badge-public-integrity-result"
+    ),
+    "925d08ec731fd751c28761936c469d90d9e24c656cea4595b74556f9dba77a46": (
+        "benign:transport_or_runtime_health"
+    ),
+    "9a246aa9a2660efd3fcbad5b4714e770b7dadcf3ebfae8571dd298ffe65b2cbe": (
+        "benign:opaque_metadata_or_taxonomy"
+    ),
+    "ae00515ea52ca304394195043dbc08d04b2512bbefc7b505f9d1c6d113bcf7b6": (
+        "benign:layout_or_counts"
+    ),
+    "af58c8ec7a345c5c17f6871d8bbb21d8e3c2ff270d6de8b185efa84247fb44e0": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "c29904369f531395c03515056ccec0a0fb95d9c97aadf406e697bd3a89cd5516": (
+        "debt:badge-public-anti-authority-role"
+    ),
+    "dbc9b18cdd0f356fd4106541af1770fea4e32dd396929d37697d132cefb3146c": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "e5ca0b526c7fe04b851598118f3b020ef565eba27b4dca35a0588bfad9f1fe82": (
+        "benign:opaque_metadata_or_taxonomy"
+    ),
+}
+FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    **{
+        identity: classification
+        for identity, classification in FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS.items()
+        if identity not in DS18_REMOVED_AUTHORITY_BADGE_IDENTITIES
+    },
+    **DS18_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS,
 }
 
 AUTHORITY_BADGE_CLASSIFICATIONS = FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS
@@ -14671,6 +14842,446 @@ def _validate_ds9_c07_adjudication(
         errors.append("ds9_c07_adjudication_denominator_drift")
 
 
+def _ds18_time_semantics_scan() -> dict[str, Any]:
+    """Run the complete TypeScript AST render/export census."""
+    completed = subprocess.run(
+        [
+            os.environ.get("POLISYOS_NODE_EXECUTABLE", "node"),
+            str(DS18_TIME_SEMANTICS_SCANNER_PATH),
+            "--repo-root",
+            str(REPO_ROOT),
+            "--json",
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise ValueError(
+            "DS18 time-semantics scanner failed: " + completed.stderr.strip()
+        )
+    result = json.loads(completed.stdout)
+    if result.get("schema_id") != "polisyos.atlas.ds18-time-semantics-scan.v1":
+        raise ValueError("DS18 time-semantics scanner schema drift")
+    return result
+
+
+def _ds18_source_receipt(path_ref: str) -> dict[str, str]:
+    """Bind a current source/test path to its exact bytes."""
+    path = REPO_ROOT / path_ref
+    if not path.is_file():
+        raise ValueError(f"DS18 evidence path is not a file: {path_ref}")
+    return {
+        "path": path_ref,
+        "sha256": "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest(),
+    }
+
+
+def _ds18_primary_direct_roots(scan: Mapping[str, Any]) -> dict[str, str]:
+    """Resolve one independently reviewed direct DS4 root per direct file."""
+    resolved: dict[str, str] = {}
+    files = {
+        str(row["path"]): row
+        for row in scan.get("files", [])
+        if isinstance(row, Mapping)
+    }
+    for path_ref in sorted(DS18_TIME_SEMANTICS_DIRECT_FILES):
+        row = files.get(path_ref)
+        if not isinstance(row, Mapping):
+            raise ValueError(f"DS18 direct file absent from scanner: {path_ref}")
+        matching = [
+            root
+            for root in row.get("roots", [])
+            if isinstance(root, Mapping)
+            and int(root.get("time_semantics_label_render_count", 0)) > 0
+        ]
+        if len(matching) != 1:
+            raise ValueError(
+                f"DS18 direct file requires one TimeSemanticsLabel root: "
+                f"{path_ref}:{len(matching)}"
+            )
+        resolved[path_ref] = str(matching[0]["root_id"])
+    return resolved
+
+
+def _ds18_behavioral_evidence(path_ref: str) -> list[dict[str, str]]:
+    """Return content-bound executable evidence for one reconciled surface file."""
+    return [
+        {
+            **_ds18_source_receipt(test_ref),
+            "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics",
+        }
+        for test_ref in DS18_TIME_SEMANTICS_BEHAVIOR_TESTS[path_ref]
+    ]
+
+
+def _build_ds18_time_semantics_coverage(
+    scan: Mapping[str, Any],
+    *,
+    frontend_freeze_commit: str | None = None,
+) -> dict[str, Any]:
+    """Build explicit per-file/per-root receipts from the reconciled C06 census."""
+    primary_roots = _ds18_primary_direct_roots(scan)
+    file_rows = {
+        str(row["path"]): row
+        for row in scan.get("files", [])
+        if isinstance(row, Mapping)
+    }
+
+    def owner_for(path_ref: str) -> tuple[str, str] | None:
+        owner_path = DS18_TIME_SEMANTICS_CROSS_FILE_INHERITANCE.get(path_ref)
+        if owner_path is not None:
+            return owner_path, primary_roots[owner_path]
+        own_root = primary_roots.get(path_ref)
+        return (path_ref, own_root) if own_root is not None else None
+
+    files: list[dict[str, Any]] = []
+    obligated_roots = 0
+    covered_roots = 0
+    decision_roots = 0
+    inherited_roots = 0
+    for scan_file in scan.get("files", []):
+        path_ref = str(scan_file["path"])
+        owner = owner_for(path_ref)
+        roots: list[dict[str, Any]] = []
+        for scanned_root in scan_file.get("roots", []):
+            root = dict(scanned_root)
+            root.update(
+                {
+                    "owner_evidence": [_ds18_source_receipt(path_ref)],
+                    "predicate_provenance": "independently_reconciled",
+                    "reviewer_receipt": DS18_TIME_SEMANTICS_REVIEWER,
+                }
+            )
+            root_id = str(scanned_root["root_id"])
+            if path_ref in DS18_TIME_SEMANTICS_STRICT_PROJECTION_FILES:
+                classification = "decision_bearing"
+                temporal_binding = "strict_non_jsx_projection"
+            elif path_ref in primary_roots and root_id == primary_roots[path_ref]:
+                classification = "decision_bearing"
+                temporal_binding = "direct_ds4"
+            elif owner is not None:
+                classification = "inherits_admitted_dom"
+                temporal_binding = None
+            else:
+                classification = "non_decision_bearing"
+                temporal_binding = None
+            root["classification"] = classification
+            if classification == "decision_bearing":
+                decision_roots += 1
+                obligated_roots += 1
+                covered_roots += 1
+                root["behavioral_evidence"] = _ds18_behavioral_evidence(path_ref)
+                root["temporal_binding"] = temporal_binding
+                root["temporal_obligation"] = "as_of_epoch_validity"
+            elif classification == "inherits_admitted_dom":
+                inherited_roots += 1
+                obligated_roots += 1
+                covered_roots += 1
+                if owner is None:  # pragma: no cover - construction guard
+                    raise ValueError(f"DS18 inherited root has no owner: {path_ref}")
+                root["behavioral_evidence"] = _ds18_behavioral_evidence(path_ref)
+                root["inherited_from"] = {
+                    "path": owner[0],
+                    "root_id": owner[1],
+                }
+                root["temporal_obligation"] = "as_of_epoch_validity"
+            else:
+                root["behavioral_evidence"] = []
+                root["non_decision_reason"] = (
+                    "independently reviewed as layout, interaction, editor, "
+                    "diagnostic, or candidate-only rendering without an "
+                    "admissibility-changing recommendation/status/limitation/quantity"
+                )
+            roots.append(root)
+        files.append(
+            {
+                "path": path_ref,
+                "predicate_provenance": "independently_reconciled",
+                "receipt_kind": scan_file["receipt_kind"],
+                "reviewer_receipt": DS18_TIME_SEMANTICS_REVIEWER,
+                "roots": roots,
+                "source_sha256": scan_file["source_sha256"],
+            }
+        )
+    scanner_receipt = _ds18_source_receipt(DS18_TIME_SEMANTICS_SCANNER_REF)
+    return {
+        "schema_id": DS18_TIME_SEMANTICS_SCHEMA_ID,
+        "owner_slice": "DS18",
+        "predicate_provenance": "independently_reconciled",
+        "source_root": scan["source_root"],
+        "exclusion_policy": scan["exclusion_policy"],
+        "scanner": scanner_receipt,
+        "source_file_count": scan["file_count"],
+        "root_count": scan["root_count"],
+        "file_manifest_sha256": scan["file_manifest_sha256"],
+        "root_manifest_sha256": scan["root_manifest_sha256"],
+        "decision_bearing_root_count": decision_roots,
+        "inherits_admitted_dom_root_count": inherited_roots,
+        "obligated_root_count": obligated_roots,
+        "covered_root_count": covered_roots,
+        "frontend_freeze_commit": frontend_freeze_commit,
+        "landing_slice_rule": DS18_TIME_SEMANTICS_LANDING_RULE,
+        "landing_slice_checker": (
+            "architecture/atlas_surfaces/check_frontend_disposition_register.py "
+            "--check"
+        ),
+        "files": files,
+    }
+
+
+def _ds18_evidence_errors(
+    evidence: object,
+    *,
+    root_label: str,
+) -> list[str]:
+    """Reject absent or stale executable/root evidence."""
+    errors: list[str] = []
+    if not isinstance(evidence, list) or not evidence:
+        return [f"ds18_time_semantics_behavioral_evidence_missing:{root_label}"]
+    for row in evidence:
+        if not isinstance(row, Mapping):
+            errors.append(
+                f"ds18_time_semantics_behavioral_evidence_invalid:{root_label}"
+            )
+            continue
+        path_ref = str(row.get("path", ""))
+        path = REPO_ROOT / path_ref
+        if not path.is_file():
+            errors.append(
+                f"ds18_time_semantics_behavioral_evidence_missing:{root_label}:{path_ref}"
+            )
+            continue
+        observed = "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+        if row.get("sha256") != observed:
+            errors.append(
+                f"ds18_time_semantics_behavioral_evidence_drift:{root_label}:{path_ref}"
+            )
+    return errors
+
+
+def _validate_ds18_time_semantics_coverage_core(
+    coverage: object,
+    scan: Mapping[str, Any],
+    errors: list[str],
+    *,
+    post_freeze_is_landing_red: bool,
+) -> None:
+    """Validate composition, current bytes, and independently reconciled roots."""
+    if not isinstance(coverage, Mapping):
+        errors.append("ds18_time_semantics_coverage_missing")
+        return
+    expected_header = {
+        "schema_id": DS18_TIME_SEMANTICS_SCHEMA_ID,
+        "owner_slice": "DS18",
+        "predicate_provenance": "independently_reconciled",
+        "source_root": scan.get("source_root"),
+        "source_file_count": scan.get("file_count"),
+        "root_count": scan.get("root_count"),
+        "file_manifest_sha256": scan.get("file_manifest_sha256"),
+        "root_manifest_sha256": scan.get("root_manifest_sha256"),
+        "landing_slice_rule": DS18_TIME_SEMANTICS_LANDING_RULE,
+    }
+    for field, expected in expected_header.items():
+        if coverage.get(field) != expected:
+            suffix = (
+                "landing_slice_reconciliation_required"
+                if post_freeze_is_landing_red
+                and field
+                in {
+                    "source_file_count",
+                    "root_count",
+                    "file_manifest_sha256",
+                    "root_manifest_sha256",
+                }
+                else "coverage_header_drift"
+            )
+            errors.append(f"ds18_time_semantics_{suffix}:{field}")
+    if coverage.get("exclusion_policy") != scan.get("exclusion_policy"):
+        errors.append("ds18_time_semantics_exclusion_policy_drift")
+    scanner = coverage.get("scanner")
+    if scanner != _ds18_source_receipt(DS18_TIME_SEMANTICS_SCANNER_REF):
+        errors.append("ds18_time_semantics_scanner_receipt_drift")
+
+    stored_files = coverage.get("files")
+    if not isinstance(stored_files, list):
+        errors.append("ds18_time_semantics_files_invalid")
+        return
+    stored_by_path = {
+        str(row.get("path")): row
+        for row in stored_files
+        if isinstance(row, Mapping)
+    }
+    scanned_by_path = {
+        str(row.get("path")): row
+        for row in scan.get("files", [])
+        if isinstance(row, Mapping)
+    }
+    if set(stored_by_path) != set(scanned_by_path):
+        suffix = (
+            "landing_slice_reconciliation_required"
+            if post_freeze_is_landing_red
+            else "file_denominator_drift"
+        )
+        errors.append(
+            f"ds18_time_semantics_{suffix}:"
+            f"missing={sorted(set(scanned_by_path)-set(stored_by_path))}:"
+            f"extra={sorted(set(stored_by_path)-set(scanned_by_path))}"
+        )
+
+    all_roots: dict[tuple[str, str], Mapping[str, Any]] = {}
+    scanned_roots: dict[tuple[str, str], Mapping[str, Any]] = {}
+    for path_ref, scanned_file in scanned_by_path.items():
+        for root in scanned_file.get("roots", []):
+            if isinstance(root, Mapping):
+                scanned_roots[(path_ref, str(root.get("root_id")))] = root
+    for path_ref, stored_file in stored_by_path.items():
+        if stored_file.get("predicate_provenance") != "independently_reconciled":
+            errors.append(f"ds18_time_semantics_file_provenance_drift:{path_ref}")
+        scanned_file = scanned_by_path.get(path_ref)
+        if scanned_file is None:
+            continue
+        for field in ("receipt_kind", "source_sha256"):
+            if stored_file.get(field) != scanned_file.get(field):
+                errors.append(f"ds18_time_semantics_file_receipt_drift:{path_ref}:{field}")
+        stored_roots = stored_file.get("roots")
+        if not isinstance(stored_roots, list):
+            errors.append(f"ds18_time_semantics_roots_invalid:{path_ref}")
+            continue
+        stored_root_ids = {
+            str(root.get("root_id"))
+            for root in stored_roots
+            if isinstance(root, Mapping)
+        }
+        scanned_root_ids = {
+            str(root.get("root_id"))
+            for root in scanned_file.get("roots", [])
+            if isinstance(root, Mapping)
+        }
+        if stored_root_ids != scanned_root_ids:
+            errors.append(f"ds18_time_semantics_root_inventory_drift:{path_ref}")
+        for root in stored_roots:
+            if not isinstance(root, Mapping):
+                continue
+            root_id = str(root.get("root_id"))
+            label = f"{path_ref}:{root_id}"
+            scanned_root = scanned_roots.get((path_ref, root_id))
+            if scanned_root is None:
+                continue
+            scanner_fields = {
+                "column",
+                "component_identity",
+                "epoch_context_read_count",
+                "epoch_semantics_prop_count",
+                "epoch_semantics_provider_render_count",
+                "kind",
+                "line",
+                "root_id",
+                "root_source_sha256",
+                "time_semantics_label_render_count",
+            }
+            for field in scanner_fields:
+                if root.get(field) != scanned_root.get(field):
+                    errors.append(
+                        f"ds18_time_semantics_root_receipt_drift:{label}:{field}"
+                    )
+            if root.get("predicate_provenance") != "independently_reconciled":
+                errors.append(f"ds18_time_semantics_root_provenance_drift:{label}")
+            if root.get("reviewer_receipt") != DS18_TIME_SEMANTICS_REVIEWER:
+                errors.append(f"ds18_time_semantics_reviewer_receipt_drift:{label}")
+            all_roots[(path_ref, root_id)] = root
+
+    decision_count = 0
+    inherited_count = 0
+    covered_count = 0
+    for (path_ref, root_id), root in all_roots.items():
+        label = f"{path_ref}:{root_id}"
+        classification = root.get("classification")
+        if classification == "decision_bearing":
+            decision_count += 1
+            covered_count += 1
+            if root.get("temporal_obligation") != "as_of_epoch_validity":
+                errors.append(f"ds18_time_semantics_obligation_drift:{label}")
+            binding = root.get("temporal_binding")
+            if binding == "direct_ds4":
+                if int(root.get("time_semantics_label_render_count", 0)) < 1:
+                    errors.append(f"ds18_time_semantics_direct_ds4_render_missing:{label}")
+            elif binding != "strict_non_jsx_projection":
+                errors.append(f"ds18_time_semantics_binding_invalid:{label}")
+            errors.extend(
+                _ds18_evidence_errors(root.get("behavioral_evidence"), root_label=label)
+            )
+        elif classification == "inherits_admitted_dom":
+            inherited_count += 1
+            covered_count += 1
+            inherited_from = root.get("inherited_from")
+            if not isinstance(inherited_from, Mapping):
+                errors.append(f"ds18_time_semantics_inherited_owner_missing:{label}")
+            else:
+                owner_key = (
+                    str(inherited_from.get("path")),
+                    str(inherited_from.get("root_id")),
+                )
+                owner = all_roots.get(owner_key)
+                if owner is None or owner.get("classification") != "decision_bearing":
+                    errors.append(f"ds18_time_semantics_inherited_owner_invalid:{label}")
+            errors.extend(
+                _ds18_evidence_errors(root.get("behavioral_evidence"), root_label=label)
+            )
+        elif classification == "non_decision_bearing":
+            if not str(root.get("non_decision_reason", "")).strip():
+                errors.append(f"ds18_time_semantics_nondecision_reason_missing:{label}")
+        else:
+            errors.append(f"ds18_time_semantics_root_unclassified:{label}")
+    expected_counts = {
+        "decision_bearing_root_count": decision_count,
+        "inherits_admitted_dom_root_count": inherited_count,
+        "obligated_root_count": decision_count + inherited_count,
+        "covered_root_count": covered_count,
+    }
+    for field, expected in expected_counts.items():
+        if coverage.get(field) != expected:
+            errors.append(f"ds18_time_semantics_count_drift:{field}")
+    if decision_count + inherited_count == 0:
+        errors.append("ds18_time_semantics_empty_obligation_denominator")
+
+
+def _validate_ds18_time_semantics_coverage(
+    data: Mapping[str, Any],
+    errors: list[str],
+    *,
+    scan: Mapping[str, Any] | None = None,
+) -> None:
+    """Validate the current denominator; post-freeze growth is the landing red."""
+    current_scan = scan if scan is not None else _ds18_time_semantics_scan()
+    coverage = data.get("ds18_time_semantics_coverage")
+    frozen = (
+        isinstance(coverage, Mapping)
+        and isinstance(coverage.get("frontend_freeze_commit"), str)
+    )
+    _validate_ds18_time_semantics_coverage_core(
+        coverage,
+        current_scan,
+        errors,
+        post_freeze_is_landing_red=frozen,
+    )
+
+
+def _validate_ds18_historical_time_semantics_coverage(
+    coverage: Mapping[str, Any],
+    frozen_scan: Mapping[str, Any],
+    errors: list[str],
+) -> None:
+    """Keep the exact DS18 freeze independently replayable after later growth."""
+    _validate_ds18_time_semantics_coverage_core(
+        coverage,
+        frozen_scan,
+        errors,
+        post_freeze_is_landing_red=False,
+    )
+
+
 def validate_register(
     data: Mapping[str, Any],
     *,
@@ -14728,6 +15339,7 @@ def validate_register(
         errors.extend(_schema_errors(data, SCHEMA_PATH))
         if any(error.startswith("schema:") for error in errors):
             return errors
+    _validate_ds18_time_semantics_coverage(data, errors)
     ds8_coverage = data.get("ds8_strangle_coverage")
     if not isinstance(ds8_coverage, Mapping):
         errors.append("ds8_strangle_coverage_missing")
@@ -16436,6 +17048,7 @@ def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
     persistence = data["storage_construction_census"]
     ds8 = data["ds8_strangle_coverage"]
     ds8b = data["ds8b_post_freeze_transition"]
+    ds18 = data["ds18_time_semantics_coverage"]
     dispositions = Counter(row["disposition"] for row in ds8["assignments"])
     return {
         "root_entries": len(data["entries"]),
@@ -16455,6 +17068,10 @@ def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
         "ds8_strangle_family_complete": ds8["family_complete"],
         "ds8b_transition_assignments": len(ds8b["assignments"]),
         "ds8b_transition_complete": ds8b["transition_complete"],
+        "ds18_time_semantics_files": ds18["source_file_count"],
+        "ds18_time_semantics_roots": ds18["root_count"],
+        "ds18_time_semantics_obligated_roots": ds18["obligated_root_count"],
+        "ds18_time_semantics_covered_roots": ds18["covered_root_count"],
     }
 
 
@@ -16518,6 +17135,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="atomically repair only the two DS11 Trust View authority rows and report",
     )
     parser.add_argument(
+        "--write-ds18-time-semantics-coverage",
+        action="store_true",
+        help="materialize the complete DS18 production file/root reconciliation",
+    )
+    parser.add_argument(
+        "--check-ds18-time-semantics-coverage",
+        action="store_true",
+        help="recompute only the DS18 file/root denominator and semantic receipts",
+    )
+    parser.add_argument(
         "--migrate-c21b",
         action="store_true",
         help="surgically migrate gated TypeScript reference strings to C21a identities",
@@ -16565,6 +17192,102 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="compare custom architecture JSON against the active debt set",
     )
     args = parser.parse_args(argv)
+
+    if args.check_ds18_time_semantics_coverage:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {"check_ds18_time_semantics_coverage"}:
+            sys.stderr.write(
+                "DS18 time-semantics check requires only "
+                "--check-ds18-time-semantics-coverage\n"
+            )
+            return 1
+        try:
+            data = _load_json(REGISTER_PATH)
+            errors: list[str] = []
+            _validate_ds18_time_semantics_coverage(data, errors)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            sys.stderr.write(f"DS18 time-semantics check rejected: {exc}\n")
+            return 1
+        if errors:
+            for error in errors:
+                sys.stderr.write(error + "\n")
+            return 1
+        coverage = data["ds18_time_semantics_coverage"]
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "predicate_provenance": coverage[
+                        "predicate_provenance"
+                    ],
+                    "source_file_count": coverage["source_file_count"],
+                    "root_count": coverage["root_count"],
+                    "obligated_root_count": coverage["obligated_root_count"],
+                    "covered_root_count": coverage["covered_root_count"],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        )
+        return 0
+
+    if args.write_ds18_time_semantics_coverage:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {"write_ds18_time_semantics_coverage"}:
+            sys.stderr.write(
+                "DS18 time-semantics writer requires only "
+                "--write-ds18-time-semantics-coverage\n"
+            )
+            return 1
+        try:
+            opening = _load_json(REGISTER_PATH)
+            coverage = _build_ds18_time_semantics_coverage(
+                _ds18_time_semantics_scan()
+            )
+            candidate: dict[str, Any] = {}
+            for key, value in opening.items():
+                if key == "seeded_negative_lifecycle":
+                    candidate["ds18_time_semantics_coverage"] = coverage
+                if key != "ds18_time_semantics_coverage":
+                    candidate[key] = value
+            candidate_errors = _schema_errors(candidate, SCHEMA_PATH)
+            _validate_ds18_time_semantics_coverage(
+                candidate,
+                candidate_errors,
+            )
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            sys.stderr.write(f"DS18 time-semantics writer rejected: {exc}\n")
+            return 1
+        if candidate_errors:
+            for error in candidate_errors:
+                sys.stderr.write(f"DS18 time-semantics writer rejected: {error}\n")
+            return 1
+        REGISTER_PATH.write_text(
+            json.dumps(candidate, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "files": coverage["source_file_count"],
+                    "roots": coverage["root_count"],
+                    "obligated_roots": coverage["obligated_root_count"],
+                    "covered_roots": coverage["covered_root_count"],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        )
+        return 0
 
     if args.check_ds11_trust_presentation_lock:
         selected = {

@@ -8,12 +8,17 @@ import {
   runPaperPacketFixture,
 } from "@/test/fixtures/runPaper";
 
-const { downloadRunPaperPacketMock, useAuthzDecisionMock, useRunPaperMock } =
-  vi.hoisted(() => ({
-    downloadRunPaperPacketMock: vi.fn(),
-    useAuthzDecisionMock: vi.fn(),
-    useRunPaperMock: vi.fn(),
-  }));
+const {
+  downloadRunPaperPacketMock,
+  useAuthzDecisionMock,
+  useEpochStalenessMock,
+  useRunPaperMock,
+} = vi.hoisted(() => ({
+  downloadRunPaperPacketMock: vi.fn(),
+  useAuthzDecisionMock: vi.fn(),
+  useEpochStalenessMock: vi.fn(),
+  useRunPaperMock: vi.fn(),
+}));
 
 vi.mock("@/app/authz/AuthzProvider", () => ({
   useAuthzDecision: () => useAuthzDecisionMock(),
@@ -23,6 +28,10 @@ vi.mock("@/features/runs/api/useRunPaper", () => ({
   useRunPaper: (...args: unknown[]) => useRunPaperMock(...args),
 }));
 
+vi.mock("@/features/runs/api/useEpochStaleness", () => ({
+  useEpochStaleness: (...args: unknown[]) => useEpochStalenessMock(...args),
+}));
+
 vi.mock("@/features/runs/components/runPaperExport", () => ({
   downloadRunPaperPacket: (...args: unknown[]) =>
     downloadRunPaperPacketMock(...args),
@@ -30,6 +39,7 @@ vi.mock("@/features/runs/components/runPaperExport", () => ({
 
 vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({ t: (key: string) => key }),
+  useOptionalI18n: () => ({ t: (key: string) => key }),
 }));
 
 vi.mock("@/app/providers/TelemetryProvider", () => ({
@@ -80,12 +90,14 @@ describe("RunReportPage", () => {
   beforeEach(() => {
     window.localStorage.setItem("operator-craft", "DS8_BROWSER_LOCAL_SENTINEL");
     useAuthzDecisionMock.mockReset();
+    useEpochStalenessMock.mockReset();
     useRunPaperMock.mockReset();
     downloadRunPaperPacketMock.mockReset();
     useAuthzDecisionMock.mockReturnValue({
       can: (permission: string) => permission === "runs.review",
       kind: "verified",
     });
+    useEpochStalenessMock.mockReturnValue({ data: undefined });
   });
 
   it("does not mount the paper query before verified review authorization", () => {

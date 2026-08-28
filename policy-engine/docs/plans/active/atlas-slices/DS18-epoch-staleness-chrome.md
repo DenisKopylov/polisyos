@@ -704,18 +704,19 @@ component name, or route string constant is not enough to keep a test green.
 | WAIT-DS11 | landed-owner and exact-byte receipt | 0 | 0 | satisfied at C00 entry |
 | C04 | dashboard strict admission and exact-byte MACHINE | 3 | 4 | no |
 | C05 | DS4 extension, detailed surface, universal consumers, active locales | 20 | 20 | no |
-| C06 | complete render/export census and semantic lint | 5 | 6 | no |
+| C06 | complete render/export census, standalone decision-export repair, and semantic lint | 7 | 7 | no |
 | C07 | visual/a11y/replay/closeout verification | 0 | 0 | no |
-| **Total** | unique production/tooling mechanisms | **42** | **44** | — |
+| **Total** | unique production/tooling mechanisms | **44** | **44** | — |
 
 The current total is independently derived in two ways:
 
-- cluster arithmetic: `7 + 6 + 1 + 3 + 20 + 5 = 42`;
+- cluster arithmetic: `7 + 6 + 1 + 3 + 20 + 7 = 44`;
 - parser union of the Add/Modify mechanism table below, excluding mandatory P39
-  companions: `42` unique paths, no duplicates.
+  companions: `44` unique paths, no duplicates.
 
-The hard ceiling is now the 42-path declared union plus **2** paths of reserve: one
-raw-byte admission seam and one census/lint seam. The backend owner/readback reserve
+The hard ceiling is now the **44-path declared union**, with no path reserve remaining.
+The prior raw-byte admission and census/lint reserve paths were consumed by the
+scanner-proven standalone report/deck decision-export family. The backend owner/readback reserve
 was spent during C02 on the canonical owned-run authorization resolver after the live
 route dependency proved that no registered resolver existed for the new resource kind.
 The former HTTP/ABI reserve is spent on the canonical runtime-client generator after
@@ -862,6 +863,8 @@ merge from `main`.
 | C06 | Modify | `architecture/atlas_surfaces/check_frontend_disposition_register.py` | complete denominator and recomputing validation |
 | C06 | Add | `architecture/atlas_surfaces/decision_time_semantics_scan.mjs` | complete TS/TSX file census plus AST render/export candidates; semantic classification remains independently reconciled |
 | C06 | Modify | `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts` | promote metric from `not_established` only after exhaustive relation exists |
+| C06 | Modify | `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx` | standalone decision paper admits and renders epoch semantics inside its selected print/MACHINE DOM |
+| C06 | Modify | `apps/runtime-dashboard/src/features/runs/routes/RunDeckPage.tsx` | standalone decision deck admits and renders epoch semantics inside its selected print/raster DOM |
 
 ### Mandatory companions outside the cap
 
@@ -1450,3 +1453,15 @@ WAIT-DS11 is satisfied at entry: C04-C07 need no DS11 source-sync merge. The arc
 owner withdrew all sibling-lane holds before C01 implementation, so no sibling state
 governs C01-C07 and no coordination check precedes regeneration. The current budget is
 **42 / 44**, with **3 of 7** rounds spent.
+**C06 standalone decision-export budget receipt.** The complete AST census found the
+standalone report and deck routes outside `RunDetailLayout`: both communicate decisions
+and quantities, and their print/raster selectors capture roots containing zero admitted
+epoch nodes. An independent route-tree trace confirms both are top-level
+`WorkspaceBoundary` children rather than descendants of the run-scoped epoch provider.
+Holding route, print, report/deck and quantity markers fixed while supplying an admitted
+epoch projection leaves both selected roots unchanged, so the behavioral falsifier is
+red for the intended missing property. This is the second finding in the inherited/
+standalone decision-export class. P40 therefore widens once to the complete two-owner
+route family instead of treating either page as another isolated patch. C06 adds
+`RunReportPage.tsx` and `RunDeckPage.tsx`, consumes the final two path reserves, moves
+**42 → 44 / 44**, and spends widening round **4 / 7**. The hard ceiling does not move.

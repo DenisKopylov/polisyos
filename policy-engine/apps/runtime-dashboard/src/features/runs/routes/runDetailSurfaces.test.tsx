@@ -1225,6 +1225,16 @@ describe("run detail surfaces", () => {
   });
 
   it("renders comparison, report, and deck pages", async () => {
+    const positive = epochStalenessPositiveFixture();
+    useEpochStalenessMock.mockReturnValue({
+      data: {
+        projection: epochProjection(positive),
+        rawBytes: new TextEncoder().encode(JSON.stringify(positive)),
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
     renderRoute("/runs/compare", "/runs/compare", <RunComparePage />);
     expect(
       screen.getByText("pages.runs.compare.requiredTitle"),
@@ -1254,6 +1264,11 @@ describe("run detail surfaces", () => {
     expect(screen.getByTestId("run-paper-document")).toHaveTextContent(
       "artifact_missing",
     );
+    expect(
+      within(screen.getByTestId("run-paper-document")).getByTestId(
+        "time-semantics-epoch-status",
+      ),
+    ).toHaveTextContent("epochChrome.status.current");
 
     renderRoute("/deck", "/deck", <RunDeckPage />);
     expect(
@@ -1266,6 +1281,11 @@ describe("run detail surfaces", () => {
       screen.getByRole("button", { name: "pages.runs.deck.printPdf" }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("run-deck-slide-evidence")).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("run-deck-root")).getByTestId(
+        "time-semantics-epoch-status",
+      ),
+    ).toHaveTextContent("epochChrome.status.current");
     expect(
       within(screen.getByTestId("run-deck-page")).queryByText(
         /\b(?:ratify|hold|recommendation)\b/iu,

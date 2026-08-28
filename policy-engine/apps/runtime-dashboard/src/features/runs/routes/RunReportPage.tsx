@@ -1,10 +1,12 @@
 import { useLocation, useParams } from "react-router-dom";
 
 import { useAuthzDecision } from "@/app/authz/AuthzProvider";
+import { useEpochStaleness } from "@/features/runs/api/useEpochStaleness";
 import {
   type RunPaperPacket,
   useRunPaper,
 } from "@/features/runs/api/useRunPaper";
+import { epochSemanticsFromProjection } from "@/features/runs/components/EpochStalenessView";
 import { downloadRunPaperPacket } from "@/features/runs/components/runPaperExport";
 import {
   buildRunPaperSemanticRoster,
@@ -12,6 +14,12 @@ import {
   type RunPaperSemanticNode,
 } from "@/features/runs/domain/runPaperPresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import {
+  type EpochSemantics,
+  epochNonreceipt,
+  TimeSemanticsLabel,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
+import type { AdmittedEpochStalenessProjection } from "@/features/runs/domain/epochStaleness";
 import { Button, Card, EmptyState, PanelSkeleton } from "@polisyos/atlas-ui";
 
 function PaperFact({
@@ -298,7 +306,15 @@ function CaseRecordSection({
   }
 }
 
-function RunPaperDocument({ packet }: { packet: RunPaperPacket }) {
+function RunPaperDocument({
+  epochProjection,
+  epochSemantics,
+  packet,
+}: {
+  epochProjection?: AdmittedEpochStalenessProjection;
+  epochSemantics: EpochSemantics;
+  packet: RunPaperPacket;
+}) {
   const { t } = useI18n();
   const paper = presentRunPaper(packet);
   const semanticRoster = buildRunPaperSemanticRoster(paper);
@@ -319,6 +335,12 @@ function RunPaperDocument({ packet }: { packet: RunPaperPacket }) {
         <h1 className="text-3xl font-semibold">
           {t("pages.runs.report.paper.runHeading", { runId: paper.run.run_id })}
         </h1>
+        <TimeSemanticsLabel
+          epochSemantics={epochSemantics}
+          payloadAsOf={epochProjection?.owner_as_of}
+          txAt={epochProjection?.temporal_scope.tx_at}
+          validAt={epochProjection?.temporal_scope.valid_at}
+        />
       </header>
 
       <section data-print-keep-together="true">
@@ -559,6 +581,11 @@ function AuthorizedRunReportPage({ runId }: { runId: string }) {
   const { t } = useI18n();
   const location = useLocation();
   const query = useRunPaper(runId, location.search);
+  const epochQuery = useEpochStaleness({ runId });
+  const epochProjection = epochQuery.data?.projection;
+  const epochSemantics = epochProjection
+    ? epochSemanticsFromProjection(epochProjection)
+    : epochNonreceipt();
 
   if (query.isLoading) return <PanelSkeleton rows={8} />;
   if (query.isError || !query.data) {
@@ -587,7 +614,11 @@ function AuthorizedRunReportPage({ runId }: { runId: string }) {
           {t("pages.runs.report.printPdf")}
         </Button>
       </div>
-      <RunPaperDocument packet={query.data.packet} />
+      <RunPaperDocument
+        epochProjection={epochProjection}
+        epochSemantics={epochSemantics}
+        packet={query.data.packet}
+      />
     </div>
   );
 }

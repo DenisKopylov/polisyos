@@ -553,3 +553,97 @@ symmetric difference.
 
 C05 spends no new path and no widening round beyond its admitted preflight owner. The
 slice remains **42 / 44** mechanisms with **3 / 7** rounds spent.
+
+## C06 complete denominator — in-scope closure and owner-contract stop
+
+C06 began with the planned behavioral reds. With marker/import strings held fixed, the
+new scanner tests first failed because no complete production-file/render-root census
+or per-root temporal receipt existed. The landing-slice falsifier then held the DS18
+historical freeze and all its receipts constant, added one later decision-bearing root,
+and required the current landing check to reject it. A separate route harness supplied
+an admitted current epoch while preserving the standalone report/deck print and raster
+selectors; both selected roots still contained no epoch node. That proved the route
+pages, not `RunDetailLayout`, were the missing owners.
+
+The generic TypeScript compiler scanner now walks every production `.ts`/`.tsx` file
+and inventories JSX, `React.createElement`, server/Satori rendering, HTML/SVG templates,
+DOM clone/serialization, raster and print roots. Test, story and registered generated
+paths are excluded by typed rule. The independently reconciled register carries an
+explicit `render_roots_complete|no_render_root` receipt for every admitted source file,
+and every root is classified as `decision_bearing`, `non_decision_bearing`, or
+`inherits_admitted_dom` with source-bound behavioral evidence where required.
+
+Two denominator derivations agree exactly. `Path.rglob` and `rg --files` each find
+1,058 raw dashboard TypeScript/TSX paths with empty symmetric difference; the typed
+scanner and registered file set each retain 605 production files with empty symmetric
+difference. The scanner and nested register each enumerate 719 render/export roots with
+empty symmetric difference. A direct classification/evidence sum and the stored totals
+both give **77 obligated / 77 covered**. The scoped recomputing checker emits
+`predicate_provenance=independently_reconciled` and those same four counts.
+
+`RunReportPage` and `RunDeckPage` now admit the run-scoped projection independently and
+render `TimeSemanticsLabel` inside the exact print/raster roots. Their behavioral test
+changes the projection from the typed nonreceipt to admitted current semantics and
+requires the selected roots to change. This measured second finding in the standalone
+decision-export class consumes the final two reserve paths together: the declaration is
+**44 / 44**, with **4 / 7** widening rounds spent. A regex table walk and an independent
+column parser each derive 44 unique declared mechanisms and cluster counts
+`7 + 6 + 1 + 3 + 20 + 7`; `git diff --name-only` plus the untracked set and an
+independent committed-diff plus porcelain-status derivation both prove all 44 have
+changed since C00, with empty symmetric differences.
+
+The Atlas primitive-adoption row is measured only while the recomputing DS18 checker is
+green. It reports 77/77 today. If a later root invalidates the moving denominator, the
+same row becomes `unknown/time_semantics_coverage_not_established` with
+`predicate_provenance=not_established`; it does not throw, preserve 100%, or turn the
+unknown denominator into zero. The Python post-freeze falsifier and the TypeScript
+not-established schema falsifier are green.
+
+The checker also re-anchored 12 C05-moved direct `Badge` identities. An AST scan of the
+C04 source and an independent current-source scan matched every old/new site by owner,
+syntax and semantic role; all 12 retain their previous debt/benign classification. No
+authority role was reclassified, and the complete partition hash now recomputes to
+`sha256:88723b991e24cbd4d92d08466714a293ab10a8a8569718be1db7858c089d3163`.
+
+Admitted in-scope receipts:
+
+- five DS18 scanner/register behavioral tests pass, including marker-only evidence
+  rejection and the post-freeze landing-slice red;
+- 31 standalone report/deck and run-surface tests pass;
+- the three focused health-metric current/fail-closed/denial-proxy tests pass;
+- dashboard typecheck passes;
+- targeted ESLint and Prettier pass for all changed C06 TypeScript/TSX/MJS paths;
+- the new Python scanner test passes Ruff and Ruff format; all three changed Python
+  files compile;
+- the scoped DS18 checker is green at 605 files / 719 roots / 77 obligated / 77 covered.
+
+The local worktree venv lacked `jsonschema>=4.25`, and the offline cache could not
+provision it. Those attempts are tooling non-receipts. The lock-identical integration
+venv was linked read-only into the worktree and reproduced the scoped checker result.
+The whole pre-existing checker/test files have 705 inherited Ruff findings, so a whole-
+file Ruff invocation is a baseline-red non-receipt; the new file and Python compilation
+checks above are the admitted changed-path evidence.
+
+Two hand-authored, generatorless owner contracts prevent C06 from closing end to end
+without violating the slice fence:
+
+1. DS6's `apps/runtime-dashboard/scripts/persist_atlas_evidence.py` duplicates the old
+   primitive-adoption row as `not_established`. Its exact admission rejects DS18's
+   recomputed 77/77 output with `health-metric rows do not bind the recomputed
+   canonical-source projection`. The full health blast radius therefore has 50 green
+   tests and three persistence-consumer reds after the independently re-derived denial
+   proxy count was corrected from six to seven. The script is other-slice evidence, is
+   not generated, and is not a declared DS18 path.
+2. DS5's hand-authored
+   `architecture/atlas_surfaces/frontend-baseline-debt-manifest.json` content-binds six
+   C05-changed resolved-lint sources. The full register checker rejects those six stale
+   bindings before its sanctioned supplemental writer may run. The C06 plan explicitly
+   forbids editing that DS5 baseline. The same diagnostic also exposes downstream C13
+   print and protected-signing receipts that the single C05 packet-producer
+   consolidation legitimately moved; refreshing them would rewrite other slices'
+   evidence rather than DS18's declared reconciliation.
+
+Both are the explicit stop class: a hand-authored contract owned by another team, with
+no generator, blocks the property. Neither is a generated-artifact, contended-file, or
+coordination stop. C07 cannot freeze or claim end-to-end green while either admission
+consumer rejects the new truth.

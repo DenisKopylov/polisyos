@@ -15,9 +15,12 @@ from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
 from polisyos.data_forge.kernel.snapshot import finalize_snapshot
-from polisyos.fabric.io.db import SimulationDB
-from polisyos.fabric.world.materialize import ensure_world_schema
-from polisyos.fabric.world.store import create_world_snapshot
+from polisyos.fabric.world import (
+    WorldSnapshotFactWrite,
+    WorldSnapshotNodeWrite,
+    WorldSnapshotWriteRequest,
+    write_world_snapshot,
+)
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.ir.analytics.interventions import (
@@ -228,63 +231,105 @@ def _write_fabric_world_snapshot(
 ) -> Path:
     snapshot_root = tmp_path / "fabric-world"
     db_path = tmp_path / "fabric-world.duckdb"
-    with SimulationDB(db_path=str(db_path)) as db:
-        ensure_world_schema(db)
-        if node_id is not None:
-            db.conn.execute(
-                """
-                INSERT INTO world.world_nodes (node_id, kind)
-                SELECT ?, 'claim'
-                WHERE NOT EXISTS (
-                    SELECT 1 FROM world.world_nodes WHERE node_id = ?
-                )
-                """,
-                [node_id, node_id],
-            )
-            if include_as_of_facts:
-                db.conn.execute(
-                    """
-                    INSERT INTO world.world_facts (
-                        fact_id,
-                        schema_version,
-                        subject_id,
-                        predicate_id,
-                        object_value,
-                        target_id,
-                        valid_time,
-                        tx_time,
-                        provenance_json,
-                        trust_json,
-                        legal_json,
-                        segment_id
-                    )
-                    VALUES
-                        (?, '1.0', ?, 'world.kind', 'claim', NULL, ?, ?, '{}', NULL, NULL, ?),
-                        (?, '1.0', ?, 'world.label', ?, NULL, ?, ?, '{}', NULL, NULL, ?)
-                    """,
-                    [
-                        f"fact:{snapshot_id}:{node_id}:kind",
-                        node_id,
-                        fact_valid_time,
-                        fact_tx_time,
-                        f"seg:{snapshot_id}:kind",
-                        f"fact:{snapshot_id}:{node_id}:label",
-                        node_id,
-                        f"Fixture {node_id}",
-                        fact_valid_time,
-                        fact_tx_time,
-                        f"seg:{snapshot_id}:label",
-                    ],
-                )
-        create_world_snapshot(
-            db,
+    if node_id is None:
+        # Emit through the owner, then corrupt only the retained file for the hostile consumer test.
+        fixture_node_id = "world.audit.empty-fixture"
+        record = write_world_snapshot(
+            db_path,
+            WorldSnapshotWriteRequest(
+                snapshot_root=snapshot_root,
+                snapshot_id=snapshot_id,
+                branch_name=branch,
+                as_of_valid_time="2026-05-24T00:00:00+00:00",
+                as_of_tx_time="2026-05-24T12:00:00+00:00",
+                provenance={"source": "world_model_record_fixture"},
+                nodes=(
+                    WorldSnapshotNodeWrite(
+                        node_id=fixture_node_id,
+                        kind="claim",
+                        label=None,
+                        artifact_id=None,
+                        props_ref=None,
+                    ),
+                ),
+                facts=(
+                    WorldSnapshotFactWrite(
+                        fact_id=f"fact:{snapshot_id}:empty-fixture",
+                        schema_version="1.0",
+                        subject_id=fixture_node_id,
+                        predicate_id="world.kind",
+                        object_value="claim",
+                        target_id=None,
+                        valid_time="2026-05-24T00:00:00Z",
+                        tx_time="2026-05-24T12:00:00Z",
+                        provenance_json={},
+                        trust_json=None,
+                        legal_json=None,
+                        segment_id=f"seg:{snapshot_id}:empty-fixture",
+                    ),
+                ),
+            ),
+        )
+        snapshot_db = duckdb.connect(record.snapshot_path)
+        try:
+            snapshot_db.execute("DELETE FROM world.world_facts")
+            snapshot_db.execute("DELETE FROM world.world_nodes")
+        finally:
+            snapshot_db.close()
+        return snapshot_root
+
+    visible_valid_time = fact_valid_time if include_as_of_facts else "2026-05-25T00:00:00Z"
+    visible_tx_time = fact_tx_time if include_as_of_facts else "2026-05-25T12:00:00Z"
+    world_node = WorldSnapshotNodeWrite(
+        node_id=node_id,
+        kind="claim",
+        label=None,
+        artifact_id=None,
+        props_ref=None,
+    )
+    facts = (
+        WorldSnapshotFactWrite(
+            fact_id=f"fact:{snapshot_id}:{node_id}:kind",
+            schema_version="1.0",
+            subject_id=node_id,
+            predicate_id="world.kind",
+            object_value="claim",
+            target_id=None,
+            valid_time=visible_valid_time,
+            tx_time=visible_tx_time,
+            provenance_json={},
+            trust_json=None,
+            legal_json=None,
+            segment_id=f"seg:{snapshot_id}:kind",
+        ),
+        WorldSnapshotFactWrite(
+            fact_id=f"fact:{snapshot_id}:{node_id}:label",
+            schema_version="1.0",
+            subject_id=node_id,
+            predicate_id="world.label",
+            object_value=f"Fixture {node_id}",
+            target_id=None,
+            valid_time=visible_valid_time,
+            tx_time=visible_tx_time,
+            provenance_json={},
+            trust_json=None,
+            legal_json=None,
+            segment_id=f"seg:{snapshot_id}:label",
+        ),
+    )
+    write_world_snapshot(
+        db_path,
+        WorldSnapshotWriteRequest(
             snapshot_root=snapshot_root,
             snapshot_id=snapshot_id,
             branch_name=branch,
             as_of_valid_time="2026-05-24T00:00:00+00:00",
             as_of_tx_time="2026-05-24T12:00:00+00:00",
             provenance={"source": "world_model_record_fixture"},
-        )
+            nodes=(world_node,),
+            facts=facts,
+        ),
+    )
     return snapshot_root
 
 

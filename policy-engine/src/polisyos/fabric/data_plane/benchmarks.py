@@ -25,7 +25,7 @@ from polisyos.fabric.data_plane.streaming import (
     StreamRuntimeOptions,
     process_stream_dataset,
 )
-from polisyos.fabric.world.materialize import (
+from polisyos.fabric.world import (
     WorldMaterializationPolicy,
     WorldMaterializeStats,
     ensure_world_materialized,

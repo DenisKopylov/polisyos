@@ -1,4 +1,7 @@
-import { runPaperPacketFixture } from "@/test/fixtures/runPaper";
+import {
+  authorityAbstainingRunPaperPacketFixture,
+  runPaperPacketFixture,
+} from "@/test/fixtures/runPaper";
 
 import {
   buildRunPaperSemanticRoster,
@@ -46,5 +49,39 @@ describe("run paper presentation", () => {
       path: "/source/environment",
     });
     expect(new Set(roster.map((node) => node.path)).size).toBe(roster.length);
+  });
+
+  it("preserves every authority-abstaining record fact in the semantic roster", () => {
+    const packet = authorityAbstainingRunPaperPacketFixture();
+    const presentation = presentRunPaper(packet);
+    const roster = buildRunPaperSemanticRoster(presentation);
+
+    expect(presentation.caseRecord).toEqual(packet.case_record);
+    for (const [role, authority] of [
+      ["grounding", "generation_cycle_grounding_authority"],
+      ["admission", "hypothesis_ledger_admission_authority"],
+      ["promotion", "layer3_g4_promotion_authority"],
+    ] as const) {
+      expect(roster).toContainEqual({
+        kind: "string",
+        path: `/caseRecord/${role}_nonreceipt/missing_authority`,
+        value: authority,
+      });
+    }
+    expect(roster).toContainEqual({
+      kind: "string",
+      path: "/caseRecord/grounding_nonreceipt/denied_uses/1",
+      value: "grounded_case_projection",
+    });
+    expect(roster).toContainEqual({
+      kind: "string",
+      path: "/caseRecord/admission_nonreceipt/denied_uses/1",
+      value: "admitted_case_projection",
+    });
+    expect(roster).toContainEqual({
+      kind: "string",
+      path: "/caseRecord/promotion_nonreceipt/denied_uses/1",
+      value: "governed_case_projection",
+    });
   });
 });

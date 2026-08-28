@@ -13845,21 +13845,7 @@
       "source_module": "polisyos.runtime.quality.data_state_substrate",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
-      "target_module": "polisyos.fabric.io.db",
-      "target_root": "fabric"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.data_state_substrate",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
       "target_module": "polisyos.fabric.world",
-      "target_root": "fabric"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.data_state_substrate",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
-      "target_module": "polisyos.fabric.world.store",
       "target_root": "fabric"
     },
     {

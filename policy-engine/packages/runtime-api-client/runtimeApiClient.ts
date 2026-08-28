@@ -433,6 +433,17 @@ export type AuthoredText = {
   text: string;
 };
 
+export type AuthorityAbstainingRunPaperCase = {
+  admission_nonreceipt: RunPaperAuthorityNonReceipt;
+  authority_projection?: string;
+  availability?: string;
+  case_id: string;
+  design_record: DesignRecordV0;
+  design_record_binding: RunBoundDesignRecordBinding;
+  grounding_nonreceipt: RunPaperAuthorityNonReceipt;
+  promotion_nonreceipt: RunPaperAuthorityNonReceipt;
+};
+
 export type AuthorityBoundary = {
   authoritative_for: Array<string>;
   boundary_id?: string | null;
@@ -549,7 +560,7 @@ export type AvailableRunPaperCase = {
   blockers: Array<RunPaperBlocker>;
   case_id: string;
   design_record: DesignRecordV0;
-  design_record_binding: RunPaperDesignRecordBinding;
+  design_record_binding: RunBoundDesignRecordBinding;
   grounding_state: RunPaperGroundingState;
   limitations: Array<RunPaperLimitation>;
   objections: Array<RunPaperObjection>;
@@ -1983,6 +1994,45 @@ export type EnvInfo = {
   deps_lock_hash: string;
   platform: string;
   python: string;
+};
+
+export type EpochValidityBatchReceipt = {
+  adjudication_denominator_ref: string;
+  affected_packet_refs: Array<string>;
+  batch_id: string;
+  claim_bridge_result_refs?: Array<ArtifactRefOutput>;
+  completion_receipt_ref: ArtifactRefOutput;
+  dependency_denominator_ref: string;
+  requested_query_context_ref: string;
+  schema_version?: string;
+  state?: string;
+  targets: Array<EpochValidityBatchTarget>;
+  transition_artifact_ref: ArtifactRefOutput;
+  transition_content_hash: string;
+  verifier_provenance_ref: ArtifactRefOutput;
+};
+
+export type EpochValidityBatchRequest = {
+  requested_query_context_ref: string;
+  transition_artifact_ref: ArtifactRefInput;
+};
+
+export type EpochValidityBatchResponse = {
+  affected_packet_refs?: Array<string>;
+  batch_id: string;
+  claim_bridge_result_refs?: Array<ArtifactRefOutput>;
+  completion_receipt: EpochValidityBatchReceipt;
+  meta: ApiMeta;
+  state: string;
+  transition: ArtifactRefOutput;
+};
+
+export type EpochValidityBatchTarget = {
+  decision_lineage_key: string;
+  dependency_key: string;
+  packet_ref: string;
+  reason: string;
+  status: DecisionValidityStatus;
 };
 
 export type EquilibriumBasinInterval = {
@@ -3964,6 +4014,24 @@ export type RunAuthorityProjection = {
   values: Array<RefusedAuthorityValue | SuppliedAuthorityValue>;
 };
 
+export type RunBoundDesignRecordBinding = {
+  binding_id: string;
+  case_id: string;
+  cell_id: string | null;
+  design_record_content_digest: string;
+  design_record_record_id: string;
+  design_record_ref: ArtifactRefOutput;
+  design_record_schema_name?: string;
+  design_record_schema_version: string;
+  producer: ProducerInfo;
+  run_id: string;
+  schema_version?: string;
+  search_ledger_content_digest: string;
+  search_ledger_id: string;
+  search_ledger_ref: ArtifactRefOutput;
+  tenant_id: string;
+};
+
 export type RunCompareResponse = {
   compare: RunCompareView;
   meta: ApiMeta;
@@ -4220,6 +4288,15 @@ export type RunPaperArtifactLink = {
   relation?: string;
 };
 
+export type RunPaperAuthorityNonReceipt = {
+  authority_state?: string;
+  denied_uses: Array<string>;
+  kind?: string;
+  missing_authority: "generation_cycle_grounding_authority" | "hypothesis_ledger_admission_authority" | "layer3_g4_promotion_authority";
+  owner_route: string;
+  status?: string;
+};
+
 export type RunPaperBlocker = {
   code: string;
   issue_id: string;
@@ -4234,6 +4311,7 @@ export type RunPaperBlocker = {
 export type RunPaperCaseSourceVerification = {
   bound_artifact_content_hash: string;
   bound_case_id: string;
+  bound_cell_id: string | null;
   bound_design_record_record_id: string;
   bound_run_id: string;
   bound_tenant_id: string;
@@ -4242,17 +4320,7 @@ export type RunPaperCaseSourceVerification = {
   validator_version: string;
 };
 
-export type RunPaperDesignRecordBinding = {
-  case_id: string;
-  content_digest: string;
-  design_record_record_id: string;
-  design_record_ref: ArtifactRefOutput;
-  producer: ProducerInfo;
-  run_id: string;
-  schema_name?: string;
-  schema_version?: string;
-  tenant_id: string;
-};
+export type RunPaperDesignRecordBinding = RunBoundDesignRecordBinding;
 
 export type RunPaperGroundingState = {
   source_binding: RunPaperVerifiedCaseSource;
@@ -4284,7 +4352,7 @@ export type RunPaperObjection = {
 
 export type RunPaperPacket = {
   artifact_links: Array<RunPaperArtifactLink>;
-  case_record: AvailableRunPaperCase | UnavailableRunPaperCase;
+  case_record: AvailableRunPaperCase | AuthorityAbstainingRunPaperCase | UnavailableRunPaperCase;
   intended_audiences?: Array<unknown>;
   packet_schema_version?: string;
   projection_hash: string;

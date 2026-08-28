@@ -5,6 +5,10 @@ type AvailableRunPaperCase = Extract<
   RunPaperPacket["case_record"],
   { availability: "available" }
 >;
+type AuthorityAbstainingRunPaperCase = Extract<
+  RunPaperPacket["case_record"],
+  { availability: "record_available_authority_abstaining" }
+>;
 type VerifiedCaseSource = components["schemas"]["RunPaperVerifiedCaseSource"];
 
 const digest = (character: string) => `sha256:${character.repeat(64)}`;
@@ -32,6 +36,7 @@ function verifiedCaseSource(
     verification: {
       bound_artifact_content_hash: sourceDigest,
       bound_case_id: "case.fixture",
+      bound_cell_id: "cell-a",
       bound_design_record_record_id: "case.design.fixture",
       bound_run_id: "run-1",
       bound_tenant_id: "tenant-a",
@@ -57,6 +62,7 @@ export function availableRunPaperCaseFixture(): AvailableRunPaperCase {
     status_vocabulary_ref: "polisyos.pdc.ObligationRecord.status",
   });
   const designDigest = digest("c");
+  const searchLedgerDigest = digest("9");
   return {
     abstentions: [issue("abstention", "2")],
     admission_state: {
@@ -99,21 +105,32 @@ export function availableRunPaperCaseFixture(): AvailableRunPaperCase {
       schema_version: "policyos.policy_design_case.layer2_readiness.v1",
     },
     design_record_binding: {
+      binding_id: "binding.fixture",
       case_id: "case.fixture",
-      content_digest: designDigest,
+      cell_id: "cell-a",
+      design_record_content_digest: designDigest,
       design_record_record_id: "case.design.fixture",
       design_record_ref: {
         artifact_id: designDigest,
         kind: "policyos.layer2_s2.design_record_v0",
         media_type: "application/json",
       },
+      design_record_schema_name: "policyos.layer2_s2.design_record_v0",
+      design_record_schema_version:
+        "policyos.policy_design_case.layer2_readiness.v1",
       producer: {
         component: "polisyos.fixture.run-paper",
         version: "1.0.0",
       },
       run_id: "run-1",
-      schema_name: "policyos.layer2_s2.design_record_v0",
-      schema_version: "policyos.policy_design_case.layer2_readiness.v1",
+      schema_version: "policyos.pdc.run_bound_design_record_binding.v1",
+      search_ledger_content_digest: searchLedgerDigest,
+      search_ledger_id: "search-ledger.fixture",
+      search_ledger_ref: {
+        artifact_id: searchLedgerDigest,
+        kind: "policyos.layer2_s2.search_ledger",
+        media_type: "application/json",
+      },
       tenant_id: "tenant-a",
     },
     grounding_state: {
@@ -131,6 +148,55 @@ export function availableRunPaperCaseFixture(): AvailableRunPaperCase {
         "polisyos.runtime.quality.proving_ground.governed_promotion_gate.Layer3G4PromotionRecord.promotion_state",
     },
   } as AvailableRunPaperCase;
+}
+
+export function authorityAbstainingRunPaperCaseFixture(): AuthorityAbstainingRunPaperCase {
+  const available = availableRunPaperCaseFixture();
+  return {
+    admission_nonreceipt: {
+      authority_state: "absent/unallocated",
+      denied_uses: [
+        "admission_state",
+        "admitted_case_projection",
+        "available_run_paper_case",
+      ],
+      kind: "run_paper_authority_nonreceipt",
+      missing_authority: "hypothesis_ledger_admission_authority",
+      owner_route:
+        "polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState",
+      status: "not_established",
+    },
+    authority_projection: "abstained",
+    availability: "record_available_authority_abstaining",
+    case_id: available.case_id,
+    design_record: available.design_record,
+    design_record_binding: available.design_record_binding,
+    grounding_nonreceipt: {
+      authority_state: "absent/unallocated",
+      denied_uses: [
+        "grounding_state",
+        "grounded_case_projection",
+        "available_run_paper_case",
+      ],
+      kind: "run_paper_authority_nonreceipt",
+      missing_authority: "generation_cycle_grounding_authority",
+      owner_route: "polisyos.runtime.quality.generation_cycle.GroundingStatus",
+      status: "not_established",
+    },
+    promotion_nonreceipt: {
+      authority_state: "absent/unallocated",
+      denied_uses: [
+        "promotion_state",
+        "governed_case_projection",
+        "available_run_paper_case",
+      ],
+      kind: "run_paper_authority_nonreceipt",
+      missing_authority: "layer3_g4_promotion_authority",
+      owner_route:
+        "polisyos.runtime.quality.proving_ground.governed_promotion_gate.Layer3G4PromotionRecord.promotion_state",
+      status: "not_established",
+    },
+  };
 }
 
 export function runPaperPacketFixture(
@@ -228,4 +294,20 @@ export function runPaperPacketFixture(
     },
     ...overrides,
   } as RunPaperPacket;
+}
+
+export function authorityAbstainingRunPaperPacketFixture(): RunPaperPacket {
+  const caseRecord = authorityAbstainingRunPaperCaseFixture();
+  const requiredRefs = [
+    caseRecord.design_record_binding.design_record_ref,
+    caseRecord.design_record_binding.search_ledger_ref,
+  ];
+  return runPaperPacketFixture({
+    artifact_links: requiredRefs.map((artifactRef) => ({
+      artifact_ref: artifactRef,
+      href: `/api/v1/artifacts/${artifactRef.artifact_id}`,
+      relation: "run_output",
+    })),
+    case_record: caseRecord,
+  });
 }

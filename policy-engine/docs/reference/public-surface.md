@@ -196,7 +196,7 @@ timestamps
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 133 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 448 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 449 |
 | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 102 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 5 |
 
@@ -352,10 +352,22 @@ security
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (448)</summary>
+<details><summary>Entrypoint exports (449)</summary>
 
 ```text
 *_CHRONOLOGY_EXPORTS
+BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION
+C4_PERSISTED_PROFILE_SPECS
+CAPABILITY_DISCOVERY_SCHEMA_VERSION
+OPTIONAL_ANALYTIC_NODE_KINDS
+POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION
+PRODUCER_SPINE_CONSUMER_COMPONENTS
+PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION
+RECOURSE_POINTER_SCHEMA_VERSION
+REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION
+SERIOUS_SKIP_BLOCKER_PROFILES
+SKIP_BLOCKER_REQUIRED_FIELDS
+SKIP_BLOCKER_SURFACES
 ActiveDisambiguationPlanRef
 ActivityType
 AgentType
@@ -387,7 +399,6 @@ AttractorSummary
 AttractorUncertainty
 AttractorUncertaintySummary
 AuthorityPosture
-BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION
 BacktestReportRef
 BasinEstimate
 BasinMap
@@ -401,8 +412,6 @@ BoundedLivenessResolution
 BudgetSpec
 BudgetsV1
 C4PersistedProfileSpec
-C4_PERSISTED_PROFILE_SPECS
-CAPABILITY_DISCOVERY_SCHEMA_VERSION
 CacheEntryInfo
 CacheStatusResponse
 CalibrationReportRef
@@ -448,6 +457,7 @@ ConnectorsListResponse
 ContinuationBranch
 ContinuationBranchPoint
 ContinuationBranchRef
+ControlFailureEnvelope
 ControlOutboxEventInfo
 ControlOutboxEventsResponse
 ControlWorkerLeaseInfo
@@ -624,11 +634,7 @@ NormImpactReportRef
 NormPack
 NormRef
 NormRule
-OPTIONAL_ANALYTIC_NODE_KINDS
 OrdinalPovertyReportRef
-POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION
-PRODUCER_SPINE_CONSUMER_COMPONENTS
-PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION
 PeriodicOrbitDiagnostics
 PeriodicOrbitDiagnosticsRef
 PersistedEpochValidityBatchEvidence
@@ -674,8 +680,6 @@ ProvenanceEdge
 ProvenanceEntity
 QueryPlan
 QueryPlanRef
-RECOURSE_POINTER_SCHEMA_VERSION
-REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION
 RefutationReportRef
 RegimeShiftForecastBundleRef
 RelationType
@@ -705,9 +709,6 @@ RunTimelineView
 RunsListResponse
 RuntimeApiError
 RuntimeApiProblem
-SERIOUS_SKIP_BLOCKER_PROFILES
-SKIP_BLOCKER_REQUIRED_FIELDS
-SKIP_BLOCKER_SURFACES
 ScenarioFamilyConstructRow
 ScenarioFamilyConstructRows
 SearchCompletenessStatus

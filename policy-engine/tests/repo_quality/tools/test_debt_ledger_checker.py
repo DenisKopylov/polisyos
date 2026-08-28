@@ -1184,7 +1184,7 @@ def test_real_census_replays_published_invariants() -> None:
     report = checker.audit_repository(REPO_ROOT)
     metrics = report.metrics
 
-    assert metrics["register_ids"] == 118
+    assert metrics["register_ids"] == 119
     assert metrics["gy_ids"] == 38
     assert metrics["atlas_debt_rows"] == 22
     assert metrics["frontend_disposition_entries"] == 261
@@ -1362,10 +1362,10 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     assert "implemented_but_not_orchestrated" not in gap8
     assert "bridge_missing" not in gap8
     assert (
-        "| `DEBT-REGISTER.md` | 118 | 118 | 76 | "
-        "ambiguous=12, blocked=11, closed=42, folded=2, foreign=6, open=45 |" in rendered
+        "| `DEBT-REGISTER.md` | 119 | 119 | 74 | "
+        "ambiguous=12, blocked=11, closed=45, folded=2, foreign=6, open=43 |" in rendered
     )
-    assert "| Atlas master debt table | 22 | 22 | 8 |" in rendered
+    assert "| Atlas master debt table | 22 | 22 | 7 |" in rendered
     assert (
         "| `frontend-disposition-register.json` entries | 261 | 261 | 0 | "
         "deleted=19, rebind_pending=179, retire_disposition=25, use_as_is=22, "

@@ -143,3 +143,83 @@ PYTHONPATH=src:. .venv/bin/python -S -c 'import dataclasses,json; from datetime 
 ```
 
 Durable closure command exit: `0`.
+
+## Final attached-branch verification
+
+The mechanism source was frozen at
+`c904fc253abf03b090005d02c659956ed885a135`. The final receipt commit changes
+only this journal; it does not re-price the source or
+the once-only timing sample.
+
+### Targeted behavioral wave
+
+| Cluster | Direct receipt | Resource receipt |
+| --- | --- | --- |
+| Fabric world write waist | exit `0`; 40/40 tests (independent collection `9 + 16 + 15`) | wall `82.17s`; `77.04 user + 3.45 sys = 80.49` core-seconds under the declared 300 ceiling |
+| Run-bound case record | exit `0`; `265 - 5 = 260` selected tests, independently matched by 260 stdout pass dots | wall `325.22s`; `300.98 user + 28.30 sys = 329.28` core-seconds under the declared 700 ceiling |
+| Timing evidence/catalog | exit `0`; 42 focused cases plus duplicate-key falsifier and durable closure command | wall `7.38s`; `6.35 user + 0.85 sys = 7.20` core-seconds under the declared 300 ceiling |
+| Changed Python Ruff | exit `0`; all changed Python paths | wall `0.12s`; `0.05 user + 0.03 sys = 0.08` core-seconds |
+
+The case wave completed the explicit five-node exclusion: four known Phase-2
+playbook nodes and
+`test_nl_runs_path_is_legacy_shadow_until_loop_proposer_exists` reproduce at
+the exact base and were deselected by node id. This is not a whole-file-green
+claim. Runtime-client tests were 6/6 with typecheck exit `0`; the dashboard's
+five focused files were 25/25 with app typecheck exit `0`. The timing wave did
+not invoke the epoch validator: its original nine scratch files and mtime
+fingerprint were unchanged, and no epoch-validator process existed before or
+after the wave.
+
+### Three predicates, reported separately
+
+1. **Import linter:** direct exit `1`, wall `21.62s`, CPU `20.00 user + 1.37
+   sys = 21.37` core-seconds. Parsed-message and raw bracketed-finding methods
+   independently agree on 40 architecture findings: 39 `ARCH001`, 1
+   `ARCH002`, 0 `ARCH004`, and 0 `ARCH006`.
+2. **Release guardrail:** direct exit `0` against a scratch deep-import
+   baseline produced by source enumeration, with `--skip-generated-checks`;
+   wall `36.20s`, CPU `34.51 user + 0.68 sys = 35.19` core-seconds. Source
+   collector/loader comparison and raw-JSON tuple comparison independently
+   agree on 3,549 current edges versus 3,551 governed baseline edges, zero
+   additions, and exactly two removals:
+   `data_state_substrate -> polisyos.fabric.io.db` and
+   `data_state_substrate -> polisyos.fabric.world.store`. The governed
+   deep-import baseline was not edited or synchronized.
+3. **Package gate:** direct exit `1`, wall `147.90s`, CPU `135.66 user + 6.54
+   sys = 142.20` core-seconds. Declared count and finding-array length both
+   equal 151. Unique forbidden-edge keys and the sum of package buckets both
+   equal 34. Shell path tests and an independent `Path.exists()/is_dir()`
+   pass agree that ignored `tmp/`, `production_data/`, and `runs/` are absent.
+
+The default generated-freshness add-on separately emitted the
+`trust-claim-posture-register` error `source derivation receipts disagree`.
+An exact tracked-tree replay at slice base `f3e3d996b` reproduced it with
+direct exit `1`, but P41 ownership is **`not_established`**, not inherited:
+the check's complete denominator is every `src/**/*.py` file (2,601 at base,
+2,604 current by two methods), and 18 branch-changed Python paths intersect
+that denominator. The checker, semantic side inputs, and dependency locks are
+unchanged, but zero intersection is false, so this task does not export the red
+as another owner's debt.
+
+### Ownership, no-touch, and widening ledger
+
+Filesystem and committed-object AST walks agree on 267 Runtime Python files,
+14 DDL-derived Fabric world tables, and zero literal Runtime mutations against
+those tables. Static AST and fresh-import facade censuses agree on 41
+unconditional plus 18 conditional names (59 with materialization); the prior
+surface was 36 plus 17 (53). The DuckDB-blocked branch imports all 41
+unconditional names without loading DuckDB, retains `write_world_snapshot`,
+and omits `WorldMaterializationPolicy`.
+
+The exact `slice0.refine.stub` source slice is unchanged, SHA-256
+`c5ec5d2aea6c8a72a71ac458f970ab2f3b3a2635c07d67830194f4d9eaebd6cd`.
+`src/polisyos/core/contracts/control.py` is unchanged, SHA-256
+`4f48d1ca230f060caacc5e87243dcca63c5c15f87307179abfe9e272aa2ca7a0`.
+The protected register, ledger, debt checker, and deep-import baseline are also
+unchanged.
+
+The widening ledger remains **2/4**. Round 1 bought the Fabric-owned write
+waist and cleared `fabric-world-store-write-authority`; round 2 bought the
+governed S2 operation, binding, resolver, and consumer chain and cleared
+`case-record-not-run-bound`. Both stand, none was withdrawn, timing consumed no
+round, and two rounds remain.

@@ -2117,6 +2117,67 @@ run. Apply P41 to every pre-existing red using the exact slice base and complete
 input denominator; without that proof its provenance is `not_established`, not
 inherited.
 
+#### C05 execution closure receipt (2026-08-28)
+
+The final freeze is exact by two independent derivations: the complete Python
+source diff against `a38ff50a5` contains **21** paths, and the admitted manifest
+union contains the same **21** paths with no missing or unexpected member.
+Cluster arithmetic independently reads `4 + 4 + 5 + 8 = 21`; the hard ceiling
+remains **24**. Two plan-derived widening censuses also agree: the explicit
+amendments and the per-cluster table each report exactly **2** spent rounds
+(C02 and C03). C01 and C04 remain unspent.
+
+Every named C00-C04 behavioral selector passed in the focused lane. The CPU
+receipts, grouped by one- or two-node selection, were **54.22s** (C00 N9
+baseline), **27.75s** (pure-core independence plus unseen-pack resolution),
+**28.01s** (Foundry admission plus exact actual-WMR binding), **31.77s**
+(persisted promotion injection plus honest counters), **28.83s** (exact-event
+reconciliation plus informational projection), **29.87s** (lifecycle
+three-injection admission), **56.95s** (recursive current-head admission),
+**27.77s** (causal plus production owner injections), **29.43s** (remote-worker
+omission), **60.56s** (strict mode plus no-executor/no-kwargs structure), and
+**42.23s** (service-level unseen-domain composition). The previously over-budget
+recursive selector is therefore a valid focused receipt in this final wave;
+the old timing non-receipt is superseded, not reclassified.
+
+The explicit three-state readback at CPU **25.37s** returned the same result for
+absent, maximally favorable, and forged-passing promotion state:
+`status=blocked`; blocker tuple
+`(polisyos.eval_safety.domain_pack_missing@1.0.0,
+polisyos.eval_safety.mode_basis_missing@1.0.0)`;
+`certificate_eligible=false`; core-byte SHA-256
+`54e846f7ec398ae21d3cfef1f041c0ed556b7828c2ae5394e98c6e6b007cccc6`;
+decision ID with that same digest; and safety semantic hash
+`sha256:864c318960ab0f13bbf53f9f65b4c5d1a247fcb5cfda4633813461f54d6278ea`.
+All three produced `promotion_safe_facet=None`, `near_miss=false`, and zero
+external/evaluator calls. Signature inspection independently proves no
+promotion argument, catch-all kwargs, or promotion-bearing nested input.
+
+The universality falsifier resolved a previously unseen `novel_domain` pack
+from pack data, typed-refused missing facet/appointment cases, observed zero
+action-capable resolver/verifier calls, and proved the engine bytes unchanged
+with zero `novel_domain` engine conditional. Runtime `Literal` introspection and
+an independent AST walk both return the same six modes in the same order:
+`simulate_only`, `retrospective`, `measurement_audit`, `sandbox_pilot`,
+`field_pilot`, and `deployment`.
+
+The complete changed-Python Ruff denominator exited 0 at CPU **0.09s** after
+the recorded artifact-writer repair. The registered trust generator exited 0
+at CPU **34.30s**; AST and tokenizer again agreed on **2,601** Python files.
+The final aggregate architecture guardrail exited 0 at CPU **67.60s** under its
+separate 390s lane and reported all three registered artifact families fresh.
+No full owner-file, browser, or CI-parity run was launched locally: those remain
+the post-plan replay/cloud lane under the 2360s replay-only ceiling and are not
+local C05 evidence.
+
+C05 is closed. The attempted-evaluation chain is complete through its existing
+audit/API surfaces, while `GY-O0-NC-01` remains only the non-closing empirical
+cross-gate observation at `producer_missing + bridge_missing` with its two
+code-named candidate owners. `GY-O0-NC-02` remains withdrawn because the
+registered generator is the published remedy. `INT-R4` gates O1/O3 and the
+O-block's closure, not GY-O0. GY-O0 certifies an attempted evaluation; it
+neither executes deployment nor closes the O-block.
+
 ---
 
 ## 14. Required semantic acceptance matrix

@@ -2,7 +2,7 @@
 plan_id: atlas-ds15-acquisition-routes
 title: "DS15 - Acquisition Routes & Data-Pool Growth Surfaces"
 type: slice-plan
-status: execution_c05_closed_c06_pending
+status: execution_c06_verified_commit_readback_pending
 created: 2026-08-27
 last_verified: 2026-08-28
 stability: measured_plan
@@ -19,6 +19,7 @@ c02_status: closed_at_8969c10a9
 c03_status: closed_after_measured_generator_widening
 c04_status: closed_with_surface_and_guardrail_receipts
 c05_status: closed_with_continuous_motion_and_exact_byte_receipts
+c06_status: verification_green_commit_readback_pending
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 gy_plan: ../layer3-slices/GY-engine-subordination.md
 identity_boundary: ../../../system-design-decisions/policyos-identity-and-custody-boundary.md
@@ -452,6 +453,73 @@ agrees on 2,603 Python files and 115 candidates and is byte-stable in
 Actual spend is **41/42 mechanisms** and **8/11 rounds**. C05 checks CC17,
 CC18 and CC19; C06 and CC22 through CC25 remain open.
 
+### C06 verification freeze - 2026-08-28
+
+C06 spends the final declared checker mechanism and closes the evidence-backed
+transition without changing any production-growth claim. The opening generic
+checker finds **11** unclassified DS15 Badge sites by both the complete identity
+list and `172 - 161`; the adjudicated complete partition is **172 total = 6
+branded + 59 typed debt + 107 benign**. DS15's 11-site delta is six acquisition
+authority/qualification/terminality/eligibility/cost-availability debt sites
+and five benign workflow/taxonomy/interaction/health sites. A copy mutation
+holds the Badge, field marker and identity coordinate constant while upgrading
+`qualification.status=not_established` to displayed `active`; the full scanner
+rejects it with the partition-hash falsifier.
+
+The surgical register writer moves only the C11b query-memory root and its
+refresh-owned supplemental findings. The successor binds **22** complete live
+consumer refs, adds the six-site typed debt row, and preserves all **261**
+readiness entries byte-for-byte. Its independently admitted C13 residual is
+exactly **4 mismatches / 11 source bindings** by both current-content hashes and
+tree-object comparison with the verified revision; DS10's historical two-file
+receipt stays frozen and cannot admit the current tree. Two final writer runs
+are byte-idempotent at register
+`sha256:8f4d65ef0f1471ad597477954d3f94a611f90dcd27f81e13751fe0b2f2a33ee9`,
+report
+`sha256:0a0fe93dffa2a4b3090b67ed46c7d5fbcdb96d1d5440709d37972cee4ab9cc4f`,
+and readiness ledger
+`sha256:4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`.
+The last run exits `0` in `real 60.40`, `user 74.44`, `sys 8.63` seconds
+(uptime `17:33` to `17:34`).
+
+The slice-owned visual spec now carries three state-moving scenarios. Its
+growth-board scenario renders all 15 zero-score residuals, the named VOI-owner
+granularity refusal, a real local-order override, the pending/unappointed
+qualification disclosure and all three structural routes without acquisition
+buttons. Real-browser review finds long global truth tokens escaping their
+cards; R07 widens the already-declared scorecard mechanism with generic
+`min-width: 0`/word breaking rather than abbreviating the evidence. The final
+snapshot writer passes **3/3** in `real 43.30`, `user 22.76`, `sys 3.04`
+seconds (uptime `17:26` to `17:27`); two unchanged no-writer repetitions pass
+**3/3** in `real 42.18`, `user 23.27`, `sys 2.88` and `real 42.40`,
+`user 23.48`, `sys 2.97` seconds (uptime `17:27` to `17:28` and `17:28` to
+`17:28`). The production lane remains quarantine/no-growth or
+`pending_epoch_activation / not_established / policy_admission_missing`; no
+active epoch is synthesized. The visibly positive continuous-motion lane stays
+permanently `behavioral_fixture_not_production`.
+
+R11 is spent on the evidence-backed disposition transition. Its full
+authority-presentation class and the six exact DS15/DS10/query-transition
+behavioral nodes are green in `real 113.42`, `user 163.21`, `sys 15.35` and
+`real 83.53`, `user 97.19`, `sys 13.91` seconds. The changed scorecard behavior
+and a11y tests pass one each; dashboard typecheck and exact-path ESLint exit
+`0`. Fatal/undefined-name Ruff is green after excluding only two untouched
+`F841` sites introduced at `702256135f`; raw whole-file Ruff's 700 historical
+style findings are a non-receipt, not a DS15 green. The registered trust-posture
+writer remains byte-stable and independently agrees on 2,603 Python files and
+115 candidates in `real 40.36`, `user 36.33`, `sys 1.57` seconds. Architecture
+guardrails, including all three registered generated-family freshness checks,
+exit `0` in `real 71.19`, `user 59.10`, `sys 8.64` seconds (uptime `17:46` to
+`17:47`).
+
+Mechanism arithmetic and the corrected bounded-block parser agree on
+`7 + 16 + 1 + 13 + 4 + 1 = 42` unique paths, and all 42 occur in the complete
+merge-base tree delta. The first parser is retained as a rejected disagreement:
+it returned **1** because it stopped on the Markdown separator immediately
+after five headings. Advancing past that separator returns per-cluster
+`7/7, 16/16, 1/1, 13/13, 4/4, 1/1`. Final spend before committed readback is
+**42/42 mechanisms** and **10/11 widening rounds**; R08 remains unspent.
+
 ## Mission and binding reality
 
 DS15 is the surface dual of GY-N13. Its distinctive product motion is:
@@ -553,7 +621,7 @@ Opening capability states are:
 DS15 closes only when every applicable item has a committed-branch receipt.
 There is no second closure contract.
 
-- [ ] **CC01** Attached branch, exact base, three gate ancestries, prefix,
+- [x] **CC01** Attached branch, exact base, three gate ancestries, prefix,
       clean-tree predicate, complete path fences, and red witnesses are read
       before every cluster commit.
 - [x] **CC02** The N13a three-output and N13b 43-output families, their logical
@@ -652,15 +720,15 @@ There is no second closure contract.
 - [x] **CC21** No held DS11 path is touched before its landing ancestry and
       complete-prefix path census agree; backend clusters can land first, but the
       generated family waits because it includes one dashboard file.
-- [ ] **CC22** Every cluster's named red-first behavioral falsifier fails for the
+- [x] **CC22** Every cluster's named red-first behavioral falsifier fails for the
       intended missing property, then passes without weakening its mutation
       probe or laundering fixture identity.
-- [ ] **CC23** Slice-owned visual, responsive, keyboard, screen-reader, focus,
+- [x] **CC23** Slice-owned visual, responsive, keyboard, screen-reader, focus,
       and rendered-DOM/MACHINE parity receipts cover structural refusal,
       all-zero ranking basis, quarantine/no-growth, pending/unqualified
       disclosure, and a quarantine/no-growth or honestly deeper-terminal test
       mechanism.
-- [ ] **CC24** DS15 proves the bounded surface mechanism in two honest lanes. The
+- [x] **CC24** DS15 proves the bounded surface mechanism in two honest lanes. The
       production lane renders the real historical `government.balance` chain as
       quarantine/no-growth/deeper-terminal and renders any current
       `policy_admission_missing` receipt as pending/unqualified, never active.

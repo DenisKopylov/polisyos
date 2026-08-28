@@ -7,6 +7,7 @@ import {
   humanDecisionReviewEffectivenessFixture,
   humanDecisionSourceRef,
 } from "../src/test/fixtures/humanDecision";
+import { cycleBoardProjectionPacketFixture } from "../src/test/fixtures/depthNCycleBoard";
 import { runPaperPacketFixture } from "../src/test/fixtures/runPaper";
 import {
   installDashboardTestState,
@@ -166,6 +167,58 @@ function acquisitionGrowthPacket(terminal: boolean) {
   };
 }
 
+function acquisitionBoardPacket() {
+  const opening = acquisitionGrowthPacket(false);
+  return {
+    ...opening,
+    payload: {
+      ...opening.payload,
+      backlog: Array.from({ length: 15 }, (_, index) => ({
+        authority_boundary: "ranking_only_not_voi",
+        binding_confidence: 0,
+        classification_basis:
+          index === 7 ? "independently_reconciled" : "not_established",
+        gap_class: index === 7 ? "data_gap" : "not_established",
+        rank: index + 1,
+        ranking_method: "interim_binding_confidence_x_route_demand",
+        ranking_score: 0,
+        route_demand: index < 3 ? 2 : 1,
+        variable_id:
+          index === 7 ? "government.balance" : `residual.${index + 1}`,
+        voi_owner_fit: "metric_residual_granularity_not_supported",
+        voi_owner_integration: "routed_to_gy_n13b",
+        voi_owner_ref:
+          "polisyos.runtime.quality.acquisition_planner.plan_evidence_acquisition",
+      })),
+      carrier_liveness: {
+        carrier_disposition: "carrier_current_source_profile_mismatch",
+        connector_id: "worldbank.wdi",
+        execution_tier: "transport_ready",
+        tier_decay_findings: [
+          "execution_tier_decay:transport_ready:carrier_current_source_profile_mismatch",
+        ],
+      },
+      structural_routes: [
+        "first_vertical",
+        "education",
+        "unseen",
+      ].map((routeId) => ({
+        action_eligibility: "not_applicable",
+        gap_class: "structural_gap",
+        missing_link: "grounding_relation_missing",
+        route_class: "not_a_data_gap",
+        route_id: `capstone:${routeId}`,
+        witness_kind: "estimand_binding_refusal",
+      })),
+      summary: {
+        ...opening.payload.summary,
+        backlog_count: 15,
+        structural_route_count: 3,
+      },
+    },
+  };
+}
+
 function gateForRun(runId: string): HumanDecisionGate {
   const gate = structuredClone(availableHumanDecisionGate());
   gate.run_id = runId;
@@ -181,7 +234,12 @@ function gateForRun(runId: string): HumanDecisionGate {
   return gate;
 }
 
-async function installAcquisitionFixture(page: Page, runId: string) {
+async function installAcquisitionFixture(
+  page: Page,
+  runId: string,
+  growthPacket: (_readCount: number) => unknown = (readCount) =>
+    acquisitionGrowthPacket(readCount > 1),
+) {
   const routePacket = acquisitionRoute(runId);
   const routeWire = ` ${JSON.stringify(routePacket)}\n`;
   const gate = gateForRun(runId);
@@ -222,7 +280,16 @@ async function installAcquisitionFixture(page: Page, runId: string) {
     async (route) => {
       growthReads += 1;
       await route.fulfill({
-        json: acquisitionGrowthPacket(growthReads > 1),
+        json: growthPacket(growthReads),
+        status: 200,
+      });
+    },
+  );
+  await page.route(
+    "**/api/v1/exports/governed-projections/depth-n-cycle-board*",
+    async (route) => {
+      await route.fulfill({
+        json: cycleBoardProjectionPacketFixture(),
         status: 200,
       });
     },
@@ -486,5 +553,55 @@ test.describe("DS15 acquisition route loop", () => {
         maxDiffPixels: 100,
       },
     );
+  });
+
+  test("shows the zero-score basis and keeps structural gaps non-actionable", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await installDashboardTestState(page, { theme: "light" });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    const runId = readFixtureMetadata().core_run_id;
+    await installAcquisitionFixture(page, runId, () => acquisitionBoardPacket());
+
+    await page.goto("/runs/cycle-board");
+    const growth = page.getByTestId("acquisition-growth-surface");
+    await expect(growth).toBeVisible({ timeout: 30_000 });
+    const backlog = page.getByTestId("acquisition-growth-backlog");
+    await expect(backlog).toContainText(/15 of 15.*ranking scores.*0\.0/iu);
+    await expect(backlog).toContainText(
+      "metric_residual_granularity_not_supported",
+    );
+    await expect(backlog).toContainText("routed_to_gy_n13b");
+    await expect(backlog.locator("[data-acquisition-backlog-row]")).toHaveCount(
+      15,
+    );
+
+    const order = backlog.getByRole("combobox");
+    await order.selectOption("route_demand");
+    await expect(backlog).toHaveAttribute("data-local-order-override", "true");
+    await expect(backlog).toContainText("local_order_override");
+    await order.selectOption("server_rank");
+    await expect(backlog).toHaveAttribute("data-local-order-override", "false");
+
+    const structural = growth.locator('[data-testid^="acquisition-structural-route-"]');
+    await expect(structural).toHaveCount(3);
+    for (const card of await structural.all()) {
+      await expect(card).toContainText("structural_gap");
+      await expect(card).toContainText("not_a_data_gap");
+      await expect(card).toContainText("not_applicable");
+      await expect(card.getByRole("button")).toHaveCount(0);
+    }
+    expect(await horizontalOverflowOffenders(growth)).toEqual([]);
+    const accessibility = await new AxeBuilder({ page })
+      .include('[data-testid="acquisition-growth-surface"]')
+      .analyze();
+    expect(accessibility.violations).toEqual([]);
+
+    await expect(growth).toHaveScreenshot("ds15-growth-board-honest-basis.png", {
+      animations: "disabled",
+      caret: "hide",
+      maxDiffPixels: 100,
+    });
   });
 });

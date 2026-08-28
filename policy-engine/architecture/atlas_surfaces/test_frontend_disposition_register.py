@@ -131,18 +131,149 @@ def test_ds10_authority_badge_partition_tracks_candidate_grade_surfaces() -> Non
     scan = checker._authority_presentation_scan()
 
     assert checker._badge_classification_errors(scan) == []  # noqa: S101
-    assert checker.AUTHORITY_PRESENTATION_COUNTS["badge_total"] == 161  # noqa: S101
-    assert checker.AUTHORITY_PRESENTATION_COUNTS["badge_benign"] == 102  # noqa: S101
+    assert checker.AUTHORITY_PRESENTATION_COUNTS["badge_total"] == 172  # noqa: S101
+    assert checker.AUTHORITY_PRESENTATION_COUNTS["badge_benign"] == 107  # noqa: S101
     assert checker.BENIGN_BADGE_CLASS_COUNTS == {  # noqa: S101
-        "interaction_or_editor_state": 13,
-        "transport_or_runtime_health": 21,
-        "workflow_or_lifecycle_display_without_terminality_inference": 27,
+        "interaction_or_editor_state": 14,
+        "transport_or_runtime_health": 22,
+        "workflow_or_lifecycle_display_without_terminality_inference": 28,
         "layout_or_counts": 19,
-        "opaque_metadata_or_taxonomy": 22,
+        "opaque_metadata_or_taxonomy": 24,
     }
     assert checker.DS10_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS[  # noqa: S101
         "dfc72b6a2459a5f1bbae0f083d12aa72bfbd5bf7fbc428729b36504914a27c71"
     ] == "benign:transport_or_runtime_health"
+
+
+def test_ds15_authority_badges_bind_rendered_semantics_not_badge_markers() -> None:
+    """Adjudicate every DS15 badge and reject an active-state copy upgrade."""
+    scan = checker._authority_presentation_scan()
+    assert checker._badge_classification_errors(scan) == []  # noqa: S101
+    assert Counter(  # noqa: S101
+        checker.DS15_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS.values()
+    ) == {
+        "debt:badge-acquisition-boundary-status": 6,
+        "benign:interaction_or_editor_state": 1,
+        "benign:opaque_metadata_or_taxonomy": 2,
+        "benign:transport_or_runtime_health": 1,
+        "benign:workflow_or_lifecycle_display_without_terminality_inference": 1,
+    }
+
+    passport_path = (
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionPassportPanel.tsx"
+    )
+    sites = [
+        site
+        for site in scan["badgeSites"]
+        if site["path"] == passport_path
+    ]
+    assert len(sites) == 1  # noqa: S101
+    identities = checker._authority_badge_live_identity_by_location(
+        scan["badgeSites"]
+    )
+    identity = checker._typescript_reference_identity_record(
+        identities[checker._site_location(sites[0])]
+    )
+    source = (checker.REPO_ROOT / passport_path).read_text(encoding="utf-8")
+    original = "{qualification.status}"
+    assert original in source  # noqa: S101
+    upgraded = source.replace(
+        original,
+        '{qualification.status === "not_established" ? "active" : qualification.status}',
+        1,
+    )
+    assert checker._validate_typescript_reference_identity(  # noqa: S101
+        identity,
+        {passport_path: upgraded},
+    ) == []
+
+    request = {
+        "authorityPathDescriptors": (
+            checker._ds11_trust_presentation_path_descriptors()
+        ),
+        "authorityPropDescriptors": checker._authority_prop_descriptors(),
+        "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
+        "sourceOverrides": {passport_path: upgraded},
+    }
+    mutated = checker.status_checker._scan_json(
+        json.dumps(request, sort_keys=True, separators=(",", ":"))
+    )
+    assert len(mutated["badgeSites"]) == 1  # noqa: S101
+    complete_mutation = copy.deepcopy(scan)
+    complete_mutation["badgeSites"] = [
+        mutated["badgeSites"][0]
+        if site["path"] == passport_path
+        else site
+        for site in scan["badgeSites"]
+    ]
+    errors = checker._badge_classification_errors(complete_mutation)
+    assert len(errors) == 1  # noqa: S101
+    assert errors[0].startswith("authority_badge_partition_hash_drift:")  # noqa: S101
+
+
+def test_ds15_register_transition_binds_query_consumer_and_preserves_peers() -> None:
+    """Admit DS15 evidence without upgrading its bounded external non-closure."""
+    original = _register_text_at(
+        "fb06e4942b1daad7cab32c106740c89693fe5975"
+    )
+    readiness = checker.DS1_PATH.read_bytes()
+    candidate = checker._ds15_acquisition_routes_candidate_text(original)
+
+    assert candidate != original  # noqa: S101
+    assert candidate == checker.REGISTER_PATH.read_text(encoding="utf-8")  # noqa: S101
+    assert (  # noqa: S101
+        checker._ds15_acquisition_routes_candidate_text(candidate) == candidate
+    )
+    assert (  # noqa: S101
+        checker._ds15_acquisition_routes_preservation_errors(original, candidate)
+        == []
+    )
+    assert checker.DS1_PATH.read_bytes() == readiness  # noqa: S101
+
+    data = json.loads(candidate)
+    entry = next(
+        row
+        for row in data["entries"]
+        if row["unit_id"] == checker.C11B_QUERY_MEMORY_ROOT_ID
+    )
+    assert (  # noqa: S101
+        entry["successor"]["consumer_refs"]
+        == checker.DS15_QUERY_MEMORY_SUCCESSOR_REFS
+    )
+    findings = {
+        row["finding_id"]: row for row in data["supplemental_findings"]
+    }
+    ds15_finding = findings[
+        "authority-presentation-badge-acquisition-boundary-status"
+    ]
+    assert ds15_finding["owner_slice"] == "DS15"  # noqa: S101
+    assert ds15_finding["authority_sink"]["consumer_count"] == 6  # noqa: S101
+    assert checker._ds15_acquisition_routes_candidate_errors(  # noqa: S101
+        data,
+        report_parity=False,
+    ) == []
+    assert set(checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES) == {  # noqa: S101
+        "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+    }
+
+    missing_consumer = copy.deepcopy(data)
+    mutated_entry = next(
+        row
+        for row in missing_consumer["entries"]
+        if row["unit_id"] == checker.C11B_QUERY_MEMORY_ROOT_ID
+    )
+    mutated_entry["successor"]["consumer_refs"].remove(
+        "apps/runtime-dashboard/src/features/runs/api/useAcquisitionRoutes.ts"
+    )
+    errors = checker._ds15_acquisition_routes_candidate_errors(
+        missing_consumer,
+        report_parity=False,
+    )
+    assert "c11b_query_memory_root_drift:successor.consumer_refs" in errors  # noqa: S101
 
 
 def test_ds10_baseline_candidate_reanchors_only_owned_source_bytes() -> None:
@@ -224,12 +355,20 @@ def test_ds10_query_key_evidence_identity_binds_the_current_owner() -> None:
 
 
 def test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure() -> None:
-    """Keep the stale DS6 whole-file receipt visible without weakening DS10 writes."""
+    """Keep DS10 frozen while DS15 admits only the current four-source drift."""
     exact = checker.DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES[0]
-    admitted, admission_errors = checker._ds10_c13_external_nonclosure_admission(
+    stale_admitted, stale_errors = checker._ds10_c13_external_nonclosure_admission(
         [exact]
     )
 
+    assert stale_admitted == ()  # noqa: S101
+    assert stale_errors == [  # noqa: S101
+        "ds10_c13_external_source_binding_census_drift"
+    ]
+    admitted, admission_errors = checker._ds10_c13_external_nonclosure_admission(
+        [exact],
+        expected_mismatches=checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
+    )
     assert admission_errors == []  # noqa: S101
     assert admitted == (exact,)  # noqa: S101
     assert set(checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES) == {  # noqa: S101
@@ -298,11 +437,13 @@ def test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure() ->
     unaffected = next(
         path
         for path in checker.C13_SOURCE_REFS
-        if path not in checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
+        if path not in checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
     )
     source_bytes[unaffected] += b"\nthird mismatch"
     rejected, rejection_errors = checker._ds10_c13_external_nonclosure_admission(
-        [exact], source_bytes=source_bytes
+        [exact],
+        source_bytes=source_bytes,
+        expected_mismatches=checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
     )
     assert rejected == ()  # noqa: S101
     assert rejection_errors == [  # noqa: S101
@@ -3869,7 +4010,7 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         scan = checker._authority_presentation_scan()
         rows = checker._authority_presentation_rows(scan)
 
-        self.assertEqual(34, len(rows))
+        self.assertEqual(35, len(rows))
         self.assertEqual(
             9,
             sum(
@@ -3878,7 +4019,7 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             ),
         )
         self.assertEqual(
-            24,
+            25,
             sum(
                 row.get("authority_sink", {}).get("sink_kind")
                 == "direct_badge_group"
@@ -4085,14 +4226,6 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             set(checker.DS11_TRUST_PRESENTATION_FINDING_IDS), set(target_rows)
         )
         self.assertTrue(all(row["status"] == "repaired" for row in target_rows.values()))
-        self.assertEqual(
-            [],
-            checker._ds11_trust_presentation_candidate_errors(
-                candidate_data,
-                report_parity=False,
-            ),
-        )
-
         def replace_target(
             text: str, finding_id: str, replacement: dict[str, object]
         ) -> str:
@@ -4107,6 +4240,32 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
                 + checker._render_supplemental_finding(replacement)
                 + text[end + 1 :]
             )
+
+        opening_rows = {
+            row["finding_id"]: row
+            for row in json.loads(opening)["supplemental_findings"]
+            if row["finding_id"] in checker.DS11_TRUST_PRESENTATION_FINDING_IDS
+        }
+        current = REGISTER_PATH.read_text(encoding="utf-8")
+        current_predecessor = current
+        for finding_id, opening_row in opening_rows.items():
+            current_predecessor = replace_target(
+                current_predecessor,
+                finding_id,
+                opening_row,
+            )
+        current_candidate = checker._ds11_trust_presentation_transition_text(
+            current_predecessor,
+            scan=scan,
+        )
+        self.assertEqual(current, current_candidate)
+        self.assertEqual(
+            [],
+            checker._ds11_trust_presentation_candidate_errors(
+                json.loads(current_candidate),
+                report_parity=False,
+            ),
+        )
 
         target_id = sorted(checker.DS11_TRUST_PRESENTATION_FINDING_IDS)[0]
         with self.assertRaisesRegex(ValueError, "target cardinality"):
@@ -4565,8 +4724,8 @@ import type DS11TrustEquals = require("./trust-glyphs");
         badge = checker.AUTHORITY_BADGE_CLASSIFICATIONS
         prop = checker.AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
         prop_records = [record for records in prop.values() for record in records]
-        self.assertEqual(161, len(badge))
-        self.assertEqual(161, len(set(badge)))
+        self.assertEqual(172, len(badge))
+        self.assertEqual(172, len(set(badge)))
         self.assertEqual(70, len(prop_records))
         self.assertEqual(69, len(prop))
         shared = [records for records in prop.values() if len(records) == 2]
@@ -4641,9 +4800,9 @@ import type DS11TrustEquals = require("./trust-glyphs");
             "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx"
         )
         expected = {
-            (cycle_board_path, 78): "debt:badge-governed-projection-availability",
-            (cycle_board_path, 136): "benign:opaque_metadata_or_taxonomy",
-            (cycle_board_path, 354): "debt:badge-governed-projection-availability",
+            (cycle_board_path, 87): "debt:badge-governed-projection-availability",
+            (cycle_board_path, 145): "benign:opaque_metadata_or_taxonomy",
+            (cycle_board_path, 474): "debt:badge-governed-projection-availability",
         }
         self.assertEqual(
             expected,
@@ -4662,7 +4821,7 @@ import type DS11TrustEquals = require("./trust-glyphs");
         )
         grouped = checker._authority_badge_sites_by_debt_group(scan)
         self.assertEqual(
-            [(cycle_board_path, 78), (cycle_board_path, 354)],
+            [(cycle_board_path, 87), (cycle_board_path, 474)],
             sorted(
                 (str(site["path"]), int(site["line"]))
                 for site in grouped["badge-governed-projection-availability"]
@@ -4675,7 +4834,7 @@ import type DS11TrustEquals = require("./trust-glyphs");
         }
         self.assertNotIn("prop-time-semantics-freshness", props)
         self.assertEqual(
-            [(cycle_board_path, 358)],
+            [(cycle_board_path, 478)],
             [
                 (str(site["path"]), int(site["line"]))
                 for site in props["prop-data-freshness"]["consumerSites"]
@@ -4762,7 +4921,7 @@ import type DS11TrustEquals = require("./trust-glyphs");
             },
         )
         self.assertEqual(
-            {"2026-08-02": 29, "2026-08-24": 5},
+            {"2026-08-02": 30, "2026-08-24": 5},
             dict(
                 Counter(
                     row["decision_date"]
@@ -5766,7 +5925,7 @@ it("second", () => {
         ):
             spec.loader.exec_module(module)
         self.assertEqual(  # noqa: PT009
-            161, len(module.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
+            172, len(module.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
         )
         self.assertEqual(  # noqa: PT009
             69, len(module.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
@@ -5777,15 +5936,15 @@ it("second", () => {
         self.assertFalse(hasattr(checker, "BENIGN_BADGE_CLASS_SPECS"))  # noqa: PT009
         self.assertEqual(  # noqa: PT009
             {
-                "interaction_or_editor_state": 13,
-                "transport_or_runtime_health": 21,
-                "workflow_or_lifecycle_display_without_terminality_inference": 27,
+                "interaction_or_editor_state": 14,
+                "transport_or_runtime_health": 22,
+                "workflow_or_lifecycle_display_without_terminality_inference": 28,
                 "layout_or_counts": 19,
-                "opaque_metadata_or_taxonomy": 22,
+                "opaque_metadata_or_taxonomy": 24,
             },
             checker.BENIGN_BADGE_CLASS_COUNTS,
         )
-        self.assertEqual(102, sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()))  # noqa: PT009
+        self.assertEqual(107, sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()))  # noqa: PT009
         self.assertEqual(18, len(checker.AUTHORITY_PROP_CLASSIFICATIONS))  # noqa: PT009
         self.assertEqual(  # noqa: PT009
             34,
@@ -5804,11 +5963,11 @@ it("second", () => {
                     for path in specification["consumer_paths"]
                 )
             )
-        self.assertEqual(25, len(checker.AUTHORITY_BADGE_DEBT_SPECS))  # noqa: PT009
+        self.assertEqual(26, len(checker.AUTHORITY_BADGE_DEBT_SPECS))  # noqa: PT009
         for specification in checker.AUTHORITY_BADGE_DEBT_SPECS.values():
             self.assertNotIn("locations", specification)  # noqa: PT009
         badge_values = checker.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS.values()
-        self.assertEqual(53, sum(value.startswith("debt:") for value in badge_values))  # noqa: PT009
+        self.assertEqual(59, sum(value.startswith("debt:") for value in badge_values))  # noqa: PT009
         prop_records = [
             record
             for records in checker.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS.values()
@@ -5833,8 +5992,8 @@ it("second", () => {
         }
         self.assertEqual(  # noqa: PT009
             {
-                "benign_or_count_anchors": (102, 0),
-                "debt_group_bindings": (53, 0),
+                "benign_or_count_anchors": (107, 0),
+                "debt_group_bindings": (59, 0),
                 "prop_addresses": (66, 0),
             },
             {

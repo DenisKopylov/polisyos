@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **70364**
-- Application lines deleted: **25307**
-- Net application LOC reduction: **-45057**
+- Application lines added: **84274**
+- Application lines deleted: **25520**
+- Net application LOC reduction: **-58754**
 - Application files deleted: **92**
 
 ## Wave-end full verification
@@ -310,6 +310,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `c08b-auth-session-revision-producer-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `producer_missing`, `artifact_missing`, `bridge_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_auth_me_query_key_partitions_tenant_user_and_revision tests.unit.runtime.http.test_auth_api.AuthApiTests.test_auth_me_publishes_auth_session_revision exits 0 after /auth/me and generated AuthMeResponse publish a server-issued auth_session_revision and queryKeys binds it; tenant/user-switch corruption fails | `open_debt` — The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, useAuthMe, and queryKeys all lack auth_session_revision. This is the missing client-bound producer contract, not ownership of server identity. |
 | `c07b-dashboard-generated-client-single-owner-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `bridge_missing`, `consumer_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_frontend_disposition_register.ProducerBindingDebtTests.test_c07b_dashboard_generated_client_has_one_canonical_owner exits 0 after manifest/reference/package cleanup, deletion of apps/runtime-dashboard/src/api/types.ts, and all compiler-resolved dashboard imports directly use @polisyos/runtime-api-client. | `open_debt` — Canonical package client exists, but the dashboard keeps a divergent local generated artifact; this row records the single-owner strangle without a comparator or dashboard change. |
 | `baseline-test-a11y-rendered-contrast-incomplete-debt` | `baseline_test_debt` | `rebind_pending` | `DS6` | — | — | `repaired` — C01/C06/C09/C14 comprise seven declared source identities. Axe incomplete nodes are neither passes, source-attributed receipts, nor denominator members; closure requires 7/7 numeric WCAG-AA receipts on an opaque real-browser background. |
+| `authority-presentation-badge-acquisition-boundary-status` | `authority_presentation_debt` | `rebind_pending` | `DS15` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after generated acquisition authority, qualification, quarantine, eligibility, and cost-availability unions enter a private issuer and copy cannot upgrade a negative or unknown owner state | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 
 ### Seeded-negative lifecycle
 
@@ -893,8 +894,156 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 
 ## Commits
 
+- `fb06e4942 feat(atlas): connect acquisition approval and re-entry`
+- `2565e8fac feat(atlas): render acquisition growth surfaces`
+- `01b97d5da docs(atlas): record C04 type-graph widening`
+- `4d02940e5 feat(api): publish acquisition route ABI`
+- `8969c10a9 feat(runtime): close accountable acquisition loop`
+- `38309d842 docs(ds15): record parity owner repair and merge`
+- `0687eea2b Merge branch 'refs/heads/main' into codex/ds15-acquisition-routes-execution`
+- `f17c48555 fix(authz): sync the Rego mirror to two live route contracts`
+- `a0941b0bc docs(atlas): record DS15 generator serialization`
+- `bd63c3359 docs(atlas): record DS15 C02 parity stop`
+- `b633ea7b7 checkpoint(ds15): preserve blocked acquisition bridge`
+- `a38ff50a5 docs(debt): bind the relocation closure rows to their merge commit`
+- `927296b8d merge(relocation): nine ownership seams, 39 statements`
+- `26d9c8f3b docs(atlas): add DS15 acquisition event registry path`
+- `38e35f936 docs(debt): bind the unbound-writes closure rows to their merge commit`
+- `d9eba546e merge(unbound-writes): three authority closures`
+- `d1658f9b1 fix(trust-posture): stop reading PEP 604 annotations as set operators`
+- `48d96ca85 docs(atlas): close DS15 C01 after posture repair`
+- `fe53c182e fix(quality): reject unary annotation operators`
+- `c52fb00b2 fix(quality): ignore annotation operators in posture tokenizer`
+- `fe028145f docs(journal): record unbound write closeout`
+- `c904fc253 fix(timing): bind epoch budget to wall receipt`
+- `deee40faf test(timing): freeze epoch sample admission`
+- `5af800679 chore(architecture): record import relocation closeout`
+- `68b8490d0 fix(runtime): close S2 authority review gaps`
+- `87f5eaf80 style(scientist): sort policy runtime imports`
+- `8f48ac11d fix(id-engine): declare transport core dependencies`
+- `f6e175569 fix(search): bind schedule bounds to parameters`
+- `a8e90727f fix: route release manifest through read API`
+- `e39143d28 refactor: consolidate truthfulness identity`
+- `957841569 fix(runtime): bind S2 case records to terminal runs`
+- `18bd72c2d fix(api): bind acquisition validator provenance`
+- `64ed84be6 refactor: relocate phase4 execution conversion`
+- `25abf5a54 feat(api): bind acquisition cost and owner truth`
+- `afab3030a refactor(ir): lower compute budget contract`
+- `646a8002a refactor(ir): move alignment governance to scientist`
+- `a567ec30b refactor(ir): materialize backtest plans in scientist`
+- `133c32a91 refactor(ir): move calibration compilation to foundry`
+- `ede93e2c5 refactor(ir): consolidate kernel lowering in foundry`
+- `d43cc75a4 docs(plan): pin case authority abstentions`
+- `c3ad78f93 refactor(ir): move strategic adapters to foundry`
+- `752b27e07 refactor(ir): materialize method contracts in foundry`
+- `af38cffed docs(plan): bind reviewed authority falsifiers`
+- `a7f49993d fix(fabric): close lazy store source imports`
+- `85f0b8f93 refactor(foundry): own embedding backends`
+- `76f6bb2e3 docs(atlas): prove DS15 inherited N13b red`
+- `1a0d8069c fix(fabric): close write-waist import aliases`
+- `5af93e9d3 docs(atlas): repair DS15 C00 review receipts`
+- `55d7f3930 fix(fabric): own world snapshot replacement`
+- `558789ad5 refactor(failure-cards): lower shared contract to ir`
+- `fb5d98e24 docs(atlas): bind DS15 acquisition surface reds`
+- `9a46a1e10 refactor(calibration): resolve scientist policy before foundry`
+- `d557dc2bd docs(plan): lock unbound-write execution seams`
+- `cd14d2da1 refactor(release): wire scientist-owned D5 acceptance`
+- `374b46aa0 Merge branch 'main' into codex/unbound-writes`
+- `4709562c4 merge: bring DS15 acquisition routes plan forward`
+- `f3e3d996b plans(atlas): record DS11 closure and restore the seventh anti-role`
+- `4ff11db52 merge(ds11): trust/docs posture surface`
+- `d6a5c9c2e docs: design unbound write authority repairs`
+- `8b9b47309 docs(atlas): close DS11 trust posture`
+- `cc71a5994 docs(atlas): amend DS15 acquisition claim bands`
+- `d5bb48724 refactor(cli): relocate scientist composition above core`
+- `b5189eda7 docs(atlas): plan DS15 acquisition routes`
+- `47b5f1bfd refactor(cli): move metric validation above core`
+- `6a12c05ea refactor(architecture): relocate intervention orchestration`
+- `2525da730 merge(govern): split the appointment blockers`
+- `7b90cb5df govern(debt): split the appointment blockers by what actually blocks them`
+- `ace0d7d80 merge(govern): close the DataForge and ratification rows`
+- `2935e292a govern(debt): close five import-policy rows on their executed conditions`
+- `1f089daf3 merge(imports): land the DataForge relocation and its enumerated baseline`
+- `06429ecf1 chore(architecture): ratify relocation import baseline`
+- `f1c0f5c1b merge(plans): land the post-Phase-5 standing refresh`
+- `6d36a0131 plans: refresh task standing after the Phase-5 close`
+- `58118c3d9 feat(lex): own legal search command`
+- `02b3f7896 feat(scientist): own legal retrieval benchmark`
+- `044b5f978 feat(lex): own legal semantic benchmark`
+- `24ef44ae9 feat(scientist): own claim adjudication runtime`
+- `b6f7e395b fix(architecture): close legal compatibility edges`
+- `c74299e3d fix(foundry): orchestrate verified method inputs`
+- `c6fbfa388 merge(gy): land GY-N12 Clusters 2-4 and close the epoch-chronology task`
+- `09a9a2911 test(atlas): prove posture growth and authority bounds`
+- `7e8a19abd fix(scientist): remove producer authority from D4 signoff`
+- `c27c6b48b fix(data-forge): freeze verified stage bytes in CAS`
+- `3a6b64d59 docs: plan DataForge relocation repairs`
+- `29b8d6b75 merge(govern): close the cross-cutting contract-drift class`
+- `756a5ee0f govern(debt): close three contract-drift rows and re-type observability`
+- `2513b91bc merge(govern): close three canonical-interface contract drifts`
+- `360137d3f fix(atlas): distinguish erased trust issuer exports`
+- `c2a13679e fix(atlas): govern trust issuer module acquisition`
+- `f901c0ff7 fix(atlas): census every trust issuer reference`
+- `ae6d01224 fix(atlas): fail closed on unbound trust metadata`
+- `e3df33744 refactor(atlas): issue trust presentation privately`
+- `52182fe26 fix(atlas): bind null posture and dates`
+- `cc1ab3293 fix(atlas): validate trust posture semantics`
+- `e0eea3143 feat(atlas): render trust posture and machine twin`
+- `b8e16b0d1 test(atlas): execute posture output probe`
+- `9300a06e9 refactor(data-forge): strangle D5 authority leaks`
+- `a1f0d4bdf feat(scientist): govern verified Ukraine D4 inputs`
+- `584f47872 feat(foundry): admit verified Ukraine method inputs`
+- `ae6e3c636 feat(atlas): generate honest claim posture`
+- `ee032101a feat(data-forge): verify Ukraine stage artifact intake`
+- `ad2526a42 refactor(architecture): invert shared DataForge imports`
+- `769202736 fix: bind cross-cutting closure to owners`
+- `ba176147b fix(claims): require governed performance evidence`
+- `969cfc6fb fix: harden cross-cutting contract closure`
+- `f29fca903 fix(claims): bind posture rows to admitted bytes`
+- `1ceb10e0c fix(architecture): apply import seam ratifications`
+- `0a002f67d chore: refresh canonical import baseline`
+- `b89d3d13c fix: close canonical interface contract drift`
+- `3d1a7d916 plan: close cross-cutting interface drift class`
+- `ec6cc3d60 fix(claims): close posture authority gaps`
+- `238ea72fe merge(govern): land the boundaries coverage gap and the corpus ruling`
+- `52d3e1c15 govern(boundaries): correct an enforcement claim, rule the corpus row, register the coverage gap`
+- `ce4ee41d3 merge(govern): land the remaining import-governance rulings`
+- `21947ac0a govern(imports): rule the remaining reserved questions and register what they exposed`
+- `b99152069 docs(debt): register GY-N12 pre-merge timing debts`
+- `298d13ef5 merge(govern): land four import-governance rulings`
+- `f51e61034 govern(imports): rule four reserved import-governance questions`
+- `3e36c38e6 fix(gy-n12): route promotion posture imports through facade`
+- `84c1c762e merge(debt): land the open-unmerged rule and the closure-signal census`
+- `5e3878c43 feat(claims): compile typed trust posture`
+- `983327959 fix(debt): validate closure signal selection`
+- `f44032ade test(gy-n12): freeze epoch and artifact-transition validators`
+- `5da45e6c1 docs(atlas): bind DS11 a11y debt set`
+- `b58f69eb8 test(atlas): bind DS11 a11y predicates`
+- `08514bf76 test(atlas): harden DS11 posture receipts`
+- `07edd1a98 test(atlas): bind DS11 posture reds`
+- `8e5832bbd docs(atlas): plan DS11 trust posture`
+- `a1d154f62 fix(chronology): project verified pre-N9 risk limitations`
+- `46fd8962d fix(debt): reject stale open-unmerged status`
+- `f935e0c2e merge(atlas): land DS10 capability discovery`
+- `b1a2e63f1 docs(governance): register the calibration fixture observation as ambiguous`
+- `38a21d080 merge(governance): register import debt classes and projection readiness`
+- `fae097cfd merge: close six measurement-lies debts`
+- `02458a440 refactor(core): close DS10 contract facade edges`
+- `7615c002a fix: repair measurement debt checkers`
+- `552213d90 feat(claims): consume completed epoch validity batches`
+- `040000ed9 docs(atlas): close DS10 capability discovery`
+- `247473b7c fix(decision-validity): enumerate completed epoch evidence`
+- `f1f6046e1 architecture: check import matrix projection readiness`
+- `d7bce8c39 docs: register import policy debt classes`
+- `a86d8983f research: adjudicate import edge classes`
 - `b4e96e0eb refactor(atlas): separate fixed chrome from discovery`
 - `1d87637f8 feat(atlas): render capability discovery and frontier`
+- `b18937856 merge(governance): adjudicate import violations and repair the register`
+- `6e4802939 fix(decision-validity): preserve completed epoch target denominator`
+- `df01d5e8a fix(chronology): freeze complete Claim persistence profiles`
+- `a30625640 feat(decision-validity): admit verified epoch transition batches`
+- `e2c6e47f3 fix(epochs): bind pre-N9 evidence to negative owner`
+- `f74e439f3 fix(epochs): prove production chronology invocation route`
 - `9d4fbc050 docs(atlas): bind DS10 growth to complete frontend set`
 - `290b5ef14 docs(atlas): register DS10 capability bridge blocker`
 - `c279bbd14 chore(api): regenerate capability discovery ABI`
@@ -911,11 +1060,13 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 - `fd69e66cb docs(atlas): make DS10 census receipts replayable`
 - `d134aa5d5 test(atlas): make DS10 discovery reds behavioral`
 - `a5755a584 test(atlas): bind DS10 discovery reds`
+- `70ba76230 feat(epochs): bind validity cascade and OpenWorldRisk to N9`
 - `8f760b813 docs(atlas): plan DS10 capability discovery`
 - `c31c8cec7 docs(atlas): close DS9 and register its unproven residual`
 - `39ac0eb21 fix(architecture): reconcile public surface after the DS9 merge`
 - `fd243d1ad merge(atlas): land DS9 human decision integrity`
 - `af90dafc2 docs(atlas): close DS9 execution receipts`
+- `00ff2f1a5 feat(epochs): derive and bind fixed semantics to N13b`
 - `63de3e82c test(runtime): classify DS9 approval companion honestly`
 - `33334e8f2 docs(atlas): correct live debt denominator`
 - `fa6845af1 test(runtime): preserve DS9 strangle denominator`
@@ -924,17 +1075,29 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 - `ea1a886f5 docs(governance): correct DS9 debt provenance`
 - `2c798e620 chore(governance): close receipt-backed DS9 debts`
 - `8697fe1aa docs(atlas): record DS9 verification and consumer handoff`
+- `8da9c390a fix(chronology): preserve absent predicate-policy authority`
 - `04ec7914e fix(atlas): close DS9 authority presentation and register scope`
 - `b7006c2b2 fix(atlas): bind production gate GET to signed basis`
 - `9791abd99 feat(atlas): land accountable human decision workspace`
 - `17a36756c fix(architecture): inventory and regenerate DS9 public surfaces`
+- `837a7641e feat(chronology): separate anchor acceptance from custody without appointing either owner`
 - `09d6b8d1a feat(runtime): project review effectiveness from access audit`
 - `20467fceb fix(runtime): bind production approval to decision integrity`
 - `587de3599 feat(runtime): enforce human decision routes and step-up`
+- `3df606d51 feat(chronology): add owner-qualified conformance consumer and two native witnesses`
+- `601404794 fix(chronology): route proof persistence through core facade`
+- `ff7fb362e fix(chronology): enforce plan-stated qualification invariants`
 - `3b1a87fd0 feat(runtime): persist custodied human decision records`
+- `0e95b1f6e fix(chronology): align qualification input and terminal constraints`
+- `298800817 governance: adjudicate import violations and repair register`
+- `89c02bf66 fix(chronology): route denominator mismatch before qualification`
+- `12900f6f7 fix(chronology): complete owner dependency registry`
+- `3a8623b39 fix(chronology): complete qualification entry contract`
 - `e17f768eb plan(debt): close deep-import-baseline-stale in both registers`
 - `5cc68c43e merge(architecture): adjudicate the six deep-import edges; the release gate is green`
+- `80c3bc3cd feat(chronology): persist bundles through the canonical artifact store`
 - `76be63c1f chore(governance): admit DS9 owner plan and pin red controls`
+- `74f9d92a4 feat(chronology): add exact full-prefix contract and verifier`
 - `5a6de66ce Merge branch 'main' into codex/ds9-human-decision-integrity-plan`
 - `715c25f1e plan(gy): record Cluster 1 landing and reconcile what its merge moved`
 - `911657027 merge(gy): land GY-N12 Cluster 1 — the Foundry owner boundary, refusing honestly`

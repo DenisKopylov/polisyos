@@ -15,7 +15,7 @@ export function ConnectorAcquisitionScorecard({
   const visible = presentConnectorAcquisitionScorecard(carrierLiveness);
   return (
     <Card
-      className="space-y-3 p-4"
+      className="min-w-0 space-y-3 p-4"
       data-acquisition-raw={JSON.stringify(visible.raw)}
       data-connector-health={visible.health}
       data-testid="connector-acquisition-scorecard"
@@ -33,30 +33,30 @@ export function ConnectorAcquisitionScorecard({
           count: familyCount,
         })}
       </p>
-      <dl className="grid gap-2 text-sm md:grid-cols-3">
-        <div>
+      <dl className="grid min-w-0 gap-2 text-sm md:grid-cols-3">
+        <div className="min-w-0">
           <dt className="font-semibold">
             {t("pages.cycleBoard.acquisition.connector.connector")}
           </dt>
-          <dd>{visible.connectorId}</dd>
+          <dd className="break-all">{visible.connectorId}</dd>
         </div>
-        <div>
+        <div className="min-w-0">
           <dt className="font-semibold">
             {t("pages.cycleBoard.acquisition.connector.tier")}
           </dt>
-          <dd>{visible.executionTier}</dd>
+          <dd className="break-all">{visible.executionTier}</dd>
         </div>
-        <div>
+        <div className="min-w-0">
           <dt className="font-semibold">
             {t("pages.cycleBoard.acquisition.connector.disposition")}
           </dt>
-          <dd>{visible.carrierDisposition}</dd>
+          <dd className="break-all">{visible.carrierDisposition}</dd>
         </div>
       </dl>
       {visible.tierDecayFindings.length > 0 ? (
-        <ul className="list-disc space-y-1 pl-5 text-sm">
+        <ul className="min-w-0 list-disc space-y-1 pl-5 text-sm">
           {visible.tierDecayFindings.map((finding) => (
-            <li className="font-mono" key={finding}>
+            <li className="break-all font-mono" key={finding}>
               {finding}
             </li>
           ))}

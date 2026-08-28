@@ -5348,15 +5348,26 @@
           "apps/runtime-dashboard/src/api/governedQueryPolicy.test.ts",
           "apps/runtime-dashboard/src/api/cacheDiscipline.ts",
           "apps/runtime-dashboard/src/api/cacheDiscipline.test.ts",
+          "apps/runtime-dashboard/src/api/optimistic.test.ts",
           "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
           "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/api/useAcquisitionRoutes.ts",
+          "apps/runtime-dashboard/src/features/runs/api/useAcquisitionRoutes.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.a11y.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.parity.test.tsx",
           "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
           "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
           "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.parity.test.tsx",
           "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts"
         ]
       },
-      "rationale": "C11a/C11b, C12b, and DS7 strangle the generic query-memory root through the governed-query option issuer, one representation-specific key, explicit never_cache_authority posture, and one permission-gated global Cycle Board consumer. Transaction observation time is not owner as_of, run detail neither fetches nor retains the packet, and exact response bytes remain per-request export custody only; no DS8, DS9, or DS14 semantics are claimed."
+      "rationale": "C11a/C11b, C12b, DS7, and DS15 strangle the generic query-memory root through the governed-query option issuer, depth-N and acquisition key families, explicit never_cache_authority posture, and the complete live Cycle Board, Case Workspace, and acquisition-approval consumer set. Transaction observation time is not owner as_of, exact response bytes remain per-request export custody only, and DS15's test-only positive flow does not establish production world growth; no DS8, DS9, or DS14 semantics are claimed."
     },
     {
       "unit_id": "cache-local-storage-state",
@@ -6597,7 +6608,7 @@
       "evidence_refs": [
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
         "packages/atlas-ui/src/primitives/Badge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZmFjMDRlZGNmZTkwOGFiZTIyMzFkMGNlZjczZWMyMTdiZGE5OTc2ZTJhZGQ0YWY3YjZhOTVjMDZmNzdjNjMwOSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6Q3ljbGVCb2FyZDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiMzhjZDBjZGFjNzFkMzU4YWY5YTNmMjAzYjMyOTI5NmJmYWY0ZDMzOGViNmViNTJmOWJkZTJhMzIyNTRjMzRmYiIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0N5Y2xlQm9hcmQudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6MiIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjgiLCJKc3hFbGVtZW50OjQiLCJKc3hFeHByZXNzaW9uOjIiLCJDYWxsRXhwcmVzc2lvbjowIiwiQXJyb3dGdW5jdGlvbjoxIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MiIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6MiIsIkpzeEVsZW1lbnQ6NCIsIkpzeE9wZW5pbmdFbGVtZW50OjAiXSwidmVyc2lvbiI6MX0",
+        "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6Q3ljbGVCb2FyZDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiMzhjZDBjZGFjNzFkMzU4YWY5YTNmMjAzYjMyOTI5NmJmYWY0ZDMzOGViNmViNTJmOWJkZTJhMzIyNTRjMzRmYiIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0N5Y2xlQm9hcmQudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6MiIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjEwIiwiSnN4RWxlbWVudDo0IiwiSnN4RXhwcmVzc2lvbjoyIiwiQ2FsbEV4cHJlc3Npb246MCIsIkFycm93RnVuY3Rpb246MSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjIiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjQiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
         "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6RmFjdEZpZWxkOmltcG9ydDpAcG9saXN5b3MvYXRsYXMtdWk6cGFja2FnZXMvYXRsYXMtdWkvc3JjL2luZGV4LnRzOkJhZGdlIiwic3ltYm9sOkJhZGdlIiwicmVzb2x2ZWQ6QmFkZ2UiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9hdGxhcy11aS9zcmMvcHJpbWl0aXZlcy9CYWRnZS50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiQmFkZ2UiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIzOGNkMGNkYWM3MWQzNThhZjlhM2YyMDNiMzI5Mjk2YmZhZjRkMzM4ZWI2ZWI1MmY5YmRlMmEzMjI1NGMzNGZiIiwicm9sZSI6ImpzeF9vcGVuaW5nIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL2NvbXBvbmVudHMvQ3ljbGVCb2FyZC50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiQmxvY2s6MiIsIlJldHVyblN0YXRlbWVudDowIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeEV4cHJlc3Npb246NCIsIkNvbmRpdGlvbmFsRXhwcmVzc2lvbjowIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246NCIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6MiIsIkpzeE9wZW5pbmdFbGVtZW50OjAiXSwidmVyc2lvbiI6MX0"
       ],
       "owner_slice": "DS7",
@@ -6623,13 +6634,13 @@
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
-            "line": 78,
+            "line": 87,
             "site_sha256": "sha256:33f590459f350b8ea6521f8f90237e1012100144bdd6ef3f51d1f1c9b56798de"
           },
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
-            "line": 354,
+            "line": 474,
             "site_sha256": "sha256:94ccfd36d2ad4ba6ac0029bece6f708ff96958eeee4dc90b295acbfbb718587b"
           }
         ]
@@ -7337,7 +7348,7 @@
       "evidence_refs": [
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
         "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpEYXRhRnJlc2huZXNzQmFkZ2UiLCJzeW1ib2w6RGF0YUZyZXNobmVzc0JhZGdlIiwicmVzb2x2ZWQ6RGF0YUZyZXNobmVzc0JhZGdlIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL2NvbXBvdW5kcy9EYXRhRnJlc2huZXNzQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkRhdGFGcmVzaG5lc3NCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImQ3NTdhNTA1ZGRkZTg1NTJiNjU2NTY4NDU2NWI5OWMxN2FkNzZjOTY0N2YwZjVjOTZiNzQ1NzUxNDgzY2UzNTAiLCJyb2xlIjoibmFtZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL3NoYXJlZC91aS9jb21wb3VuZHMvRGF0YUZyZXNobmVzc0JhZGdlLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6W10sInZlcnNpb24iOjF9",
-        "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOkRhdGFGcmVzaG5lc3NCYWRnZTpmcmVzaG5lc3M6ZW5jbG9zaW5nOkN5Y2xlQm9hcmQiLCJzeW1ib2w6ZnJlc2huZXNzIiwicmVzb2x2ZWQ6ZnJlc2huZXNzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0N5Y2xlQm9hcmQudHN4OkpzeEF0dHJpYnV0ZSJdLCJkaXNjcmltaW5hdG9yIjoiZnJlc2huZXNzIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiYWUzMDNhYjViMDQ1MGZjMDdjNjI3YzNiNjMzZmU0MGM1OGUzNmIwNTVkODAyY2FjN2NhYWY1NWY4MjJjNDM2YSIsInJvbGUiOiJqc3hfYXR0cmlidXRlIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL2NvbXBvbmVudHMvQ3ljbGVCb2FyZC50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiQmxvY2s6MyIsIlJldHVyblN0YXRlbWVudDoyIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6OCIsIkpzeEVsZW1lbnQ6NCIsIkpzeEV4cHJlc3Npb246MiIsIkNhbGxFeHByZXNzaW9uOjAiLCJBcnJvd0Z1bmN0aW9uOjEiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjoyIiwiSnN4RWxlbWVudDowIiwiSnN4RXhwcmVzc2lvbjo0IiwiQ29uZGl0aW9uYWxFeHByZXNzaW9uOjAiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjoyIiwiSnN4RnJhZ21lbnQ6MCIsIkpzeFNlbGZDbG9zaW5nRWxlbWVudDoyIiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjAiXSwidmVyc2lvbiI6MX0"
+        "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOkRhdGFGcmVzaG5lc3NCYWRnZTpmcmVzaG5lc3M6ZW5jbG9zaW5nOkN5Y2xlQm9hcmQiLCJzeW1ib2w6ZnJlc2huZXNzIiwicmVzb2x2ZWQ6ZnJlc2huZXNzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0N5Y2xlQm9hcmQudHN4OkpzeEF0dHJpYnV0ZSJdLCJkaXNjcmltaW5hdG9yIjoiZnJlc2huZXNzIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiYWUzMDNhYjViMDQ1MGZjMDdjNjI3YzNiNjMzZmU0MGM1OGUzNmIwNTVkODAyY2FjN2NhYWY1NWY4MjJjNDM2YSIsInJvbGUiOiJqc3hfYXR0cmlidXRlIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL2NvbXBvbmVudHMvQ3ljbGVCb2FyZC50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiQmxvY2s6MyIsIlJldHVyblN0YXRlbWVudDoyIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6MTAiLCJKc3hFbGVtZW50OjQiLCJKc3hFeHByZXNzaW9uOjIiLCJDYWxsRXhwcmVzc2lvbjowIiwiQXJyb3dGdW5jdGlvbjoxIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MiIsIkpzeEVsZW1lbnQ6MCIsIkpzeEV4cHJlc3Npb246NCIsIkNvbmRpdGlvbmFsRXhwcmVzc2lvbjowIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MiIsIkpzeEZyYWdtZW50OjAiLCJKc3hTZWxmQ2xvc2luZ0VsZW1lbnQ6MiIsIkpzeEF0dHJpYnV0ZXM6MSIsIkpzeEF0dHJpYnV0ZTowIl0sInZlcnNpb24iOjF9"
       ],
       "owner_slice": "DS18",
       "decision_date": "2026-08-02",
@@ -7369,7 +7380,7 @@
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
-            "line": 358,
+            "line": 478,
             "site_sha256": "sha256:b5d85941a81ae66e89499d7fca5d95a487df484f625ff79074c8497814dd18a0"
           }
         ]
@@ -7969,7 +7980,7 @@
         "schemas/runtime_api_v1.openapi.json#structured-identity=eyJmb3JtYXRfYWRhcHRlciI6Impzb24iLCJub3JtYWxpemVkX3ZhbHVlX3NoYTI1NiI6Ijc5ODNhNTBlNDdkOWMwYTZlNzc4NWRlOTM2NzYxNDUxMmNlMmJlMjdhM2UxODNhYzdkODQ0Y2I0ZGJhNmJkM2YiLCJzZWxlY3RvciI6Ii9jb21wb25lbnRzL3NjaGVtYXMvQXV0aE1lUmVzcG9uc2UiLCJzb3VyY2VfcGF0aCI6InNjaGVtYXMvcnVudGltZV9hcGlfdjEub3BlbmFwaS5qc29uIiwidmVyc2lvbiI6MX0",
         "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuQXV0aE1lUmVzcG9uc2UiLCJzeW1ib2w6QXV0aE1lUmVzcG9uc2UiLCJyZXNvbHZlZDpBdXRoTWVSZXNwb25zZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5BdXRoTWVSZXNwb25zZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImE5MWQ2NGU4OTdlYWYyMTQ0ZDI1MmZhMDA1NDI4YTFjOTU1ZTcxNjg5YzFhYjllMTMzMzY1YzYwZGE1MmUwMmUiLCJyb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6NDAiXSwidmVyc2lvbiI6MX0",
         "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpmZXRjaEF1dGhNZSIsInN5bWJvbDpmZXRjaEF1dGhNZSIsInJlc29sdmVkOmZldGNoQXV0aE1lIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL2hvb2tzL3VzZUF1dGhNZS50czpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJmZXRjaEF1dGhNZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjZkMjU2OWQyZTNjMjA2NjAxODY4YzU5ZWE3MGE1ZjAxMTMwNGNmMWJlNmEyNjdiYjU1MGJhNzk2ZDg5NTExYWQiLCJyb2xlIjoibmFtZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2FwaS9ob29rcy91c2VBdXRoTWUudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
-        "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIyYWEzMGRlMWI2OTIwNDRjYjQ5MjE1MzVjNjFjNzM0Y2ZhMGFhZDFhMDMyZjRhYTg0MGY0ODU3ZDBlZWZhMzcxIiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjQiLCJWYXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNpb24iOjF9"
+        "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiJkNDViZDRjZWE0MDIzM2VjMzcyMTA5YWM1ZTk2M2NkNmM0NWIyZDI2MzU4ODhlYTFkNmQxNDY2OTE1MjY2OTAxIiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjQiLCJWYXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNpb24iOjF9"
       ],
       "rationale": "The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, useAuthMe, and queryKeys all lack auth_session_revision. This is the missing client-bound producer contract, not ownership of server identity.",
       "closure_signal": "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_auth_me_query_key_partitions_tenant_user_and_revision tests.unit.runtime.http.test_auth_api.AuthApiTests.test_auth_me_publishes_auth_session_revision exits 0 after /auth/me and generated AuthMeResponse publish a server-issued auth_session_revision and queryKeys binds it; tenant/user-switch corruption fails",
@@ -8013,6 +8024,80 @@
       "decision_date": "2026-08-11",
       "rationale": "C01/C06/C09/C14 comprise seven declared source identities. Axe incomplete nodes are neither passes, source-attributed receipts, nor denominator members; closure requires 7/7 numeric WCAG-AA receipts on an opaque real-browser background.",
       "repair_commit": "97d0c620836a3e6d33c347a1f7f563aaa9177d0c"
+    },
+    {
+      "finding_id": "authority-presentation-badge-acquisition-boundary-status",
+      "finding_kind": "authority_presentation_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
+        "packages/atlas-ui/src/primitives/Badge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZmFjMDRlZGNmZTkwOGFiZTIyMzFkMGNlZjczZWMyMTdiZGE5OTc2ZTJhZGQ0YWY3YjZhOTVjMDZmNzdjNjMwOSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionExecutionTimeline.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWNxdWlzaXRpb25FeGVjdXRpb25UaW1lbGluZTppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNGYwNWEwMDQ1ZDIyYWU0YzU2OWQ4NmUwN2UxYjQ2MDQ1Y2I5MWM0OGM0NWFiNGI4YmViOTQ1NDRkMjkxMmUwNSIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0FjcXVpc2l0aW9uRXhlY3V0aW9uVGltZWxpbmUudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6MiIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjQiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionPassportPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWNxdWlzaXRpb25QYXNzcG9ydFBhbmVsOmltcG9ydDpAcG9saXN5b3MvYXRsYXMtdWk6cGFja2FnZXMvYXRsYXMtdWkvc3JjL2luZGV4LnRzOkJhZGdlIiwic3ltYm9sOkJhZGdlIiwicmVzb2x2ZWQ6QmFkZ2UiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9hdGxhcy11aS9zcmMvcHJpbWl0aXZlcy9CYWRnZS50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiQmFkZ2UiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI0ZjA1YTAwNDVkMjJhZTRjNTY5ZDg2ZTA3ZTFiNDYwNDVjYjkxYzQ4YzQ1YWI0YjhiZWI5NDU0NGQyOTEyZTA1Iiwicm9sZSI6ImpzeF9vcGVuaW5nIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL2NvbXBvbmVudHMvQWNxdWlzaXRpb25QYXNzcG9ydFBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazozIiwiUmV0dXJuU3RhdGVtZW50OjIiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDoyIiwiSnN4RWxlbWVudDo0IiwiSnN4T3BlbmluZ0VsZW1lbnQ6MCJdLCJ2ZXJzaW9uIjoxfQ",
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionQuarantineLedger.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWNxdWlzaXRpb25RdWFyYW50aW5lTGVkZ2VyOmltcG9ydDpAcG9saXN5b3MvYXRsYXMtdWk6cGFja2FnZXMvYXRsYXMtdWkvc3JjL2luZGV4LnRzOkJhZGdlIiwic3ltYm9sOkJhZGdlIiwicmVzb2x2ZWQ6QmFkZ2UiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9hdGxhcy11aS9zcmMvcHJpbWl0aXZlcy9CYWRnZS50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiQmFkZ2UiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiJhOWE0NmFlNjQ4YmFlYjhlN2Q1YmIzYzJkZDRjM2RlZThkNDI5NWQxOGQ5OTE0NzdiOTZmNzhmOThjMzljZDc4Iiwicm9sZSI6ImpzeF9vcGVuaW5nIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL2NvbXBvbmVudHMvQWNxdWlzaXRpb25RdWFyYW50aW5lTGVkZ2VyLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazozIiwiUmV0dXJuU3RhdGVtZW50OjEiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDoyIiwiSnN4RWxlbWVudDo0IiwiSnN4T3BlbmluZ0VsZW1lbnQ6MCJdLCJ2ZXJzaW9uIjoxfQ",
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWNxdWlzaXRpb25Sb3V0ZURldGFpbDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiMzhjZDBjZGFjNzFkMzU4YWY5YTNmMjAzYjMyOTI5NmJmYWY0ZDMzOGViNmViNTJmOWJkZTJhMzIyNTRjMzRmYiIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0FjcXVpc2l0aW9uUm91dGVEZXRhaWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6MyIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjYiLCJKc3hFbGVtZW50OjQiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWNxdWlzaXRpb25Sb3V0ZURldGFpbDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNGYwNWEwMDQ1ZDIyYWU0YzU2OWQ4NmUwN2UxYjQ2MDQ1Y2I5MWM0OGM0NWFiNGI4YmViOTQ1NDRkMjkxMmUwNSIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0FjcXVpc2l0aW9uUm91dGVEZXRhaWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJJZlN0YXRlbWVudDoxIiwiQmxvY2s6MSIsIlJldHVyblN0YXRlbWVudDowIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6MiIsIkpzeEVsZW1lbnQ6NCIsIkpzeE9wZW5pbmdFbGVtZW50OjAiXSwidmVyc2lvbiI6MX0",
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWNxdWlzaXRpb25Sb3V0ZURldGFpbDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNGYwNWEwMDQ1ZDIyYWU0YzU2OWQ4NmUwN2UxYjQ2MDQ1Y2I5MWM0OGM0NWFiNGI4YmViOTQ1NDRkMjkxMmUwNSIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0FjcXVpc2l0aW9uUm91dGVEZXRhaWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6MyIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjQiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9"
+      ],
+      "owner_slice": "DS15",
+      "decision_date": "2026-08-02",
+      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "capability_states": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after generated acquisition authority, qualification, quarantine, eligibility, and cost-availability unions enter a private issuer and copy cannot upgrade a negative or unknown owner state",
+      "authority_sink": {
+        "sink_kind": "direct_badge_group",
+        "descriptor_id": "badge-acquisition-boundary-status",
+        "component": "Badge",
+        "component_declaration": {
+          "role": "component_declaration",
+          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
+          "line": 31,
+          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
+        },
+        "consumer_count": 6,
+        "consumer_sites": [
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionExecutionTimeline.tsx",
+            "line": 177,
+            "site_sha256": "sha256:66fcfabfe45c3a8caab1c82a0ccb0af0f0447e0a0df933801a5c8f5d8c256d88"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionPassportPanel.tsx",
+            "line": 27,
+            "site_sha256": "sha256:b880c191ad4969db91723a928b24120e1a98e2b7dbc8a1d217fb4095b4a99862"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionQuarantineLedger.tsx",
+            "line": 22,
+            "site_sha256": "sha256:d3c34a5b4e49c863dee17694198c0ec49bd8dfc32fa815faa2e91137690b1cfb"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx",
+            "line": 40,
+            "site_sha256": "sha256:8b8c9723077aee8766367b5eb8a28ca70451b22a207b856a4329a732a331ee0d"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx",
+            "line": 90,
+            "site_sha256": "sha256:26d53825457f7754677b10376886d4af894003844a5df9816bb5b361144db150"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx",
+            "line": 124,
+            "site_sha256": "sha256:309b1026ef5e7e0a865598f3bc4df5a7475c34176d381ff2b6f73a81ea69b07c"
+          }
+        ]
+      }
     }
   ],
   "ds8_strangle_coverage": {

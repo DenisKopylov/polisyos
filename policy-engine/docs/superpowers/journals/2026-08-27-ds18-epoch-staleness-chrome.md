@@ -991,3 +991,86 @@ or protected-signing evidence, and no DS5 plan, journal, or receipt may move. A 
 for a seventh binding or any non-binding manifest change is a stop, not an implicit
 widening. Only after those six own-blast-radius hashes are current may the sanctioned
 descriptor writers refresh their derived register rows.
+
+### Reopened repair — owned bindings, sanctioned projections and real defects
+
+The six-binding ruling was applied literally. `shasum -a 256` and an independent
+Python `hashlib` walk agreed on the replacement hashes: C06
+`PublicationPacketPanel.tsx` `80000ffa…`, `publicationPacket.test.ts` `86d7e6b4…`,
+`publicationPacket.ts` `16c3687f…`, and `RunDetailLayout.tsx` `f4533fee…`; C07
+`quantityChartSemantics.test.tsx` `b93d0d93…` and
+`quantityChartSemantics.tsx` `746ee78a…`. A semantic before/after comparison found
+exactly those six changed binding rows, identical binding-key sets, and equality for
+every non-binding manifest value. `validate_baseline_manifest(...,
+verify_source_bytes=True)` then returned no error. No seventh binding and no other
+manifest field moved.
+
+`--write-supplemental` refreshed five descriptor-derived authority rows and no peer
+row; it returned nonzero only because downstream reference families were still stale.
+The first DS10 family attempt then failed before promotion on three ambiguous
+`call_expression` creation anchors. The root cause was a proxy mismatch: the textual
+reference census selected wrapper **function declaration** lines, while
+`_c21b_identity_anchor` treated every line containing the function name as a call.
+The generic anchor now classifies exported and local wrapper declarations before the
+call-expression arm. Its complete protected-signing census test moved red to green.
+The resulting denominator is **31** by two derivations: the AST writer emitted 31
+identities and an exit-checked `rg` unique-line census over both declared roots found
+31. The stale 29 test constant moved to 31.
+
+The DS10 family also correctly refused to hide the inherited C13 print-evidence red.
+Its exact external admission still described only two historical mismatches, while a
+complete receipt-binding walk found six DS18-moved sources. Python receipt comparison
+and independent `shasum` agreed on all six: `AmbientTelemetryHud.tsx`,
+`OperatorCraftPanel.tsx`, `RunDetailLayout.tsx`, `RunReportPage.tsx`,
+`RunReportPage.test.tsx`, and `runtime-dashboard.visual.spec.ts`. The admission was
+rebound to those exact expected/current hash pairs; it still replays the verified
+bytes and rejects any seventh mismatch. This does not refresh or close the DS6 receipt:
+the full checker continues to emit its one C13 finding. With that honest residual
+bound, `--write-ds10-capability-discovery` promoted the protected census and report
+atomically; its baseline candidate was byte-identical before and after. Timing was
+`user + sys = 115.20 + 12.74 = 127.94 CPU-s`, uptime
+`2.82 2.99 3.37` → `4.27 3.45 3.50`.
+
+The thirteen undisclosed failures resolved as follows:
+
+| Enforced failure | Instrument | Outcome |
+| --- | --- | --- |
+| `test_authority_debt_corruptions_fail_closed` | `--write-supplemental` | stale descriptor row; refreshed, corruption probe remains fail-closed |
+| `test_ds11_trust_presentation_writer_is_exact_idempotent_and_forgery_closed` | current-context historical projection in the checker | real validator defect; later required fields and peer receipts no longer contaminate the C04 candidate, while a forged owned target remains red |
+| `test_every_authority_presentation_prop_is_branded_or_typed_debt` | `--write-supplemental` | stale descriptor rows refreshed |
+| `test_writer_removes_only_retired_authority_presentation_rows` | `--write-supplemental` | stale descriptor rows refreshed; peer-row preservation remains exact |
+| `test_c21b_protected_probe_retains_hybrid_identity_multiplicity` | DS10 protected-signing writer | stale identity census refreshed; duplicate construct still raises both observation and count drift |
+| `test_c21b_validator_replays_migrated_protected_probe_identities` | DS10 protected-signing writer | live 31-identity probe replays cleanly |
+| `test_c21c_surgical_writer_is_idempotent_with_navigation_residual` | supplemental/identity refresh plus its no-write surgical replay | stale peer identities removed; the C21c transform is byte-idempotent and keeps the declared navigation residual |
+| `test_surgical_writer_preserves_the_217_row_historical_value` | current-context historical projection in the checker/test | real test predicate defect; the DS8-B owned field validates under the live schema, malformed owned data remains red, and all 217 historical rows remain byte-preserved |
+| `test_c11b_cache_posture_debt_closes_after_typed_consumer` | `--write-supplemental` | stale peer-row cascade; typed-consumer proof itself remained valid |
+| `test_c14a_local_state_envelope_owner_debt_binds_absent_producer_contract` | `--write-supplemental` | stale peer-row cascade; producer-contract falsifier remained valid |
+| `test_c21d_multi_site_authority_sink_ignores_navigation_only_changes` | `--write-supplemental` | authority sink identities refreshed; semantic site/hash removal remains red while navigation-only movement stays green |
+| `test_ds10_baseline_candidate_reanchors_only_owned_source_bytes` | the six ruled manifest bindings | stale DS18-owned content bindings; candidate is now byte-idempotent and source-valid |
+| `test_ds10_protected_signing_census_adds_the_complete_stable_identity_set` | wrapper-classification repair plus DS10 writer | real writer defect and stale 29 denominator repaired to the independently derived 31 |
+
+The first focused replay after the writers returned 11 green and the two historical
+future-schema failures above; `user + sys = 164.78 + 16.65 = 181.43 CPU-s`, uptime
+`3.92 3.41 3.49` → `2.59 3.21 3.40`. After the property-level projection repair,
+those final two pass with both negative controls at
+`73.94 + 7.91 = 81.85 CPU-s`, uptime `2.52 3.10 3.34` →
+`2.68 3.06 3.30`. This is one same-class-one-level-deeper repair, not two exception
+instances.
+
+The register now carries the real DS18 freeze
+`3011c9584a0327661c8f5a9b695a1769ddb64385`, verified as a commit and an ancestor of
+the branch. The landing falsifier no longer injects `"f" * 40`: it asserts that live
+coordinate, holds its stored receipts fixed, adds one later decision-bearing root to
+the recomputed scan, and observes `landing_slice_reconciliation_required`. The
+historical freeze remains valid. The focused test passes at
+`user + sys = 2.45 + 0.19 = 2.64 CPU-s`.
+
+The first full delta receipt is now **branch 1 / main 38** findings. Branch emits only
+the shared C13 print-evidence residual at
+`user + sys = 98.58 + 9.46 = 108.04 CPU-s`, uptime
+`2.11 2.66 3.10` → `3.18 2.87 3.14`. `main` emits that same row plus 37 DS18-moved
+rows: six authority, six ruled baseline bindings, fifteen missing/renamed TypeScript
+bindings, eight ambiguous TypeScript bindings, one TypeScript content drift and one
+expected-count drift. Its timing is `97.44 + 9.28 = 106.72 CPU-s`, uptime
+`3.09 2.85 3.13` → `3.13 2.89 3.11`. Thus DS18's register-checker delta is zero;
+the inherited one remains visible on both sides.

@@ -27,7 +27,7 @@ import tempfile
 import tomllib
 import unittest
 from collections import Counter, defaultdict
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
 from contextlib import contextmanager
 from functools import lru_cache
 from pathlib import Path, PurePosixPath
@@ -8695,12 +8695,37 @@ DS10_RETIRED_CAPABILITY_DISCOVERY_SUCCESSORS = {
 }
 DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES = (
     "c13_print_receipt_invalid:C13 current evidence drift:"
-    "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
 )
 DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = {
+    (
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AmbientTelemetryHud.tsx"
+    ): (
+        "232392b06df5bbaca4380a20fd669554d9ddd0f132396c8f290dea5804faf740",
+        "a06e6a98fc766b48b569d7215ee3e6f390abe8a3022ffe2bb98116ace23093cd",
+    ),
+    (
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "OperatorCraftPanel.tsx"
+    ): (
+        "687a831dce4165393622ed37d60e4269f61b3dd424589b62fb3ae924b1196b66",
+        "8d94ade694f63613d913042cf36f612e62327b843e01781cd3b9872d365702ef",
+    ),
     "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx": (
         "514ddff6df513859ec99e2b429e50b7e6bf5c6417b320f416c2a576a744777df",
-        "443f022e4e202c91fdc5e42dd6173fabead87397404a16908ae5b757c17b3591",
+        "f4533fee648a8e2de5fb7ca6bedc56ac1e908b02351019950bae11b21cf25d66",
+    ),
+    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx": (
+        "4bb0bea6d71ad045d3d129dc9455cb0f4786d723199d77d95a372de2c22542bb",
+        "5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76",
+    ),
+    (
+        "apps/runtime-dashboard/src/features/runs/routes/"
+        "RunReportPage.test.tsx"
+    ): (
+        "d3b5819eb8e3a0390d4c7bc4f261457ddf2583d504424feaad2584c04ad5b6dd",
+        "30023d274e3a48235cc72a1dbbe1ee39d8276a5299b9c2c8ab12cbd46c96d1a9",
     ),
     "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts": (
         "c472f411f4ee512a9e1a54057b8c5a3a64130d6df8a6d79a6c09a4e5efeca8d9",
@@ -10358,14 +10383,82 @@ def _failure_atomic_write_texts(
         temporary.unlink(missing_ok=True)
 
 
+def _historical_register_projection(
+    data: Mapping[str, Any],
+    *,
+    top_level_fields: Sequence[str] = (),
+    supplemental_finding_ids: Collection[str] = (),
+) -> dict[str, Any]:
+    """Project only a historical writer's owned values into today's register.
+
+    Historical surgical writers separately prove that every peer byte is
+    preserved.  Their semantic/schema check must therefore judge the values
+    they own without making the historical preimage responsible for required
+    fields and live receipts introduced by later slices.
+    """
+    projected = copy.deepcopy(_load_json(REGISTER_PATH))
+    for field in top_level_fields:
+        if field not in data:
+            raise ValueError(f"historical projection field missing:{field}")
+        projected[field] = copy.deepcopy(data[field])
+
+    finding_ids = set(supplemental_finding_ids)
+    if finding_ids:
+        candidate_rows = {
+            str(row.get("finding_id")): copy.deepcopy(row)
+            for row in data.get("supplemental_findings", [])
+            if isinstance(row, Mapping)
+            and str(row.get("finding_id")) in finding_ids
+        }
+        if set(candidate_rows) != finding_ids:
+            raise ValueError("historical projection finding cardinality drift")
+        live_rows = projected.get("supplemental_findings")
+        if not isinstance(live_rows, list):
+            raise ValueError("historical projection live finding container drift")
+        replaced: set[str] = set()
+        for index, row in enumerate(live_rows):
+            if not isinstance(row, Mapping):
+                continue
+            finding_id = str(row.get("finding_id"))
+            if finding_id in candidate_rows:
+                live_rows[index] = candidate_rows[finding_id]
+                replaced.add(finding_id)
+        if replaced != finding_ids:
+            raise ValueError("historical projection live finding cardinality drift")
+    return projected
+
+
+def _historical_register_projection_schema_errors(
+    data: Mapping[str, Any],
+    *,
+    top_level_fields: Sequence[str] = (),
+) -> list[str]:
+    """Validate historical owned fields inside the complete live schema context."""
+    try:
+        projected = _historical_register_projection(
+            data,
+            top_level_fields=top_level_fields,
+        )
+    except ValueError as exc:
+        return [str(exc)]
+    return _schema_errors(projected, SCHEMA_PATH)
+
+
 def _ds11_trust_presentation_candidate_errors(
     data: Mapping[str, Any],
     *,
     report_parity: bool,
 ) -> list[str]:
-    """Permit only the independently declared C13 red while C04 writes."""
+    """Validate C04-owned rows in today's complete register context."""
+    try:
+        projected = _historical_register_projection(
+            data,
+            supplemental_finding_ids=DS11_TRUST_PRESENTATION_FINDING_IDS,
+        )
+    except ValueError as exc:
+        return [f"DS11 C04 candidate projection rejected:{exc}"]
     errors = validate_register(
-        data,
+        projected,
         live_probes=False,
         report_parity=report_parity,
     )
@@ -11277,8 +11370,17 @@ def _c21b_identity_anchor(reference: str) -> dict[str, Any] | None:
     )
     if route_match:
         role, discriminator = "string_literal", route_match.group(1)
-    elif re.search(r"\bexport\s+(?:async\s+)?function\s+(?:build|verify)SignedPublicDecisionPacket\b", source_line):
-        role, discriminator = "exported_declaration", re.search(r"(?:build|verify)SignedPublicDecisionPacket", source_line).group(0)
+    elif declaration_match := re.search(
+        r"\b(?P<export>export\s+)?(?:async\s+)?function\s+"
+        r"(?P<name>(?:build|verify)SignedPublicDecisionPacket)\b",
+        source_line,
+    ):
+        role = (
+            "exported_declaration"
+            if declaration_match.group("export")
+            else "named_declaration"
+        )
+        discriminator = declaration_match.group("name")
     elif "buildSignedPublicDecisionPacket" in source_line:
         role, discriminator = "call_expression", "buildSignedPublicDecisionPacket"
     elif "verifySignedPublicDecisionPacket" in source_line:

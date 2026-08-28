@@ -29,9 +29,11 @@ laws:
 # DS18 — Epoch & Staleness Chrome
 
 > **Execution state:** execute cluster by cluster with red-first behavioral tests and
-> verification-before-completion. The execution base already contains DS11. C01-C04
-> are temporarily serialized behind the measured live DS15 C02 overlap recorded in
-> Section 12; this is a lane hold, not a widening or mechanism change.
+> verification-before-completion. The execution base already contains DS11. C01 is
+> temporarily held because its canonical control contract is one of the four live DS15
+> overlaps; the other six C01 mechanisms cannot close the cluster's mutually exclusive,
+> content-bound intake property without that owner. C02-C04 are likewise serialized as
+> recorded in Section 12. This is a lane hold, not a widening or mechanism change.
 
 ## 1. Outcome
 
@@ -752,29 +754,33 @@ not erase the generator repair, new GET, executable-client gap, or semantic proo
 
 The current coordination sets supersede the planning-time lane estimates:
 
-- DS15: local declared-set intersection and the DS15 owner readback independently
-  agree on these four C02 overlap mechanisms:
+- DS15: a merge-base-aware tree diff and an independent full tree-object comparison
+  agree that the current DS15 lane contribution is 49 paths. A Markdown-table parser
+  and an independent row parser both derive DS18's 40 mechanisms; both intersections
+  contain exactly these four mechanisms:
   `src/polisyos/core/contracts/control.py`,
   `src/polisyos/runtime/http/dependencies.py`,
   `src/polisyos/runtime/http/openapi_contract.py`, and
-  `src/polisyos/runtime/http/services/control/run_lifecycle.py`. DS15 has now supplied
-  attached, clean source-freeze coordinate `b633ea7b75af4d07feaf0690926712353022d21f`.
-  Its parent-diff and independent `diff-tree` derivations both contain 30 paths,
-  symmetric difference zero; all four overlaps are present and the seven generated
-  outputs intersect at zero. C01-C04 remain held only until that exact append-only
-  source input is integrated or lands on main and is read back; the hash alone is not
-  silently treated as branch ancestry. The earlier zero-overlap planning observation
-  is rejected as stale, not reconciled away.
+  `src/polisyos/runtime/http/services/control/run_lifecycle.py`. The first belongs to
+  C01 and the other three to C02. The earlier 30-path result remains a truthful count
+  of DS15's historical `b633ea7b7` C02 checkpoint commit, but it is not the lane's
+  complete contribution denominator. An attempted cherry-pick of that unlanded
+  checkpoint was aborted before any DS18 source commit; importing a sibling feature
+  branch is rejected as cross-lane contamination. C01-C04 wait until DS15 lands on the
+  integration branch, then DS18 merges `main` forward append-only and re-derives the
+  release. A feature-branch hash is a coordination coordinate, never source-sync
+  authority. The earlier zero-overlap planning observation is rejected as stale, not
+  reconciled away.
 - The seven registered generated outputs are one serialized transaction seam. DS15
-  reported that it is not yet inside C03 and all seven outputs are clean; DS18 must
-  re-derive the intersection and re-coordinate immediately before C03's regeneration
-  receipt and again before C04's dashboard regeneration. A clean observation now is
-  not a future lock.
-- GY-O0 released the companion `src/polisyos/runtime/quality/README.md` at attached,
-  clean branch readback `e5d1c3ab7ffc2c4da00d26eb395d6f4c287175fd`; its last
-  README edit is committed at `08332b724`. DS18 orders its README companion after that
-  committed owner state. GY-O0 has agreed that any later C04 resumption will merge the
-  then-current owner state forward rather than overwrite DS18. The seam changes no
+  is not yet inside C03; parsing the register and exact path-membership independently
+  derives seven outputs, and each current 49-path DS15 derivation intersects them at
+  zero. DS18 must still re-derive the intersection and re-coordinate immediately before
+  C03's regeneration receipt and again before C04's dashboard regeneration. A clean
+  observation now is not a future lock.
+- GY-O0 resumed C04 from clean attached coordinate
+  `e5d1c3ab7ffc2c4da00d26eb395d6f4c287175fd` and again holds the companion
+  `src/polisyos/runtime/quality/README.md`. DS18 defers that companion until GY-O0
+  supplies its exact clean attached C04 release coordinate. The seam changes no
   production mechanism.
 
 ### Declared mechanism paths

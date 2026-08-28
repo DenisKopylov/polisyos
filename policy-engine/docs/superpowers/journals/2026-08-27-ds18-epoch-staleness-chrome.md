@@ -179,3 +179,47 @@ will merge the then-current owner forward.
 Next boundary: preserve the clean attached branch with the C00 documentation receipt,
 then integrate or consume from main the exact DS15 C02 source-freeze coordinate before
 resuming C01. Mechanism budget is **40 / 44** and rounds are **1 / 7**.
+
+## Sequencing correction and abort receipt
+
+The former next-boundary wording above is historical and too broad: a sibling lane's
+unlanded feature commit is not an integration source. `git cherry-pick -x b633ea7b...`
+partially applied DS15's 30-path C02 checkpoint and exposed two conflicts in DS15-owned
+documentation/test evidence. It would also have imported unrelated DS15 mechanisms,
+including a Rego file predating the integration branch's authorization-parity repair.
+No DS18 work was uncommitted: C00 was already frozen at `f4520cdb7`.
+
+With explicit owner authorization, `git cherry-pick --abort` exited 0. Immediate
+readback returned attached branch `codex/ds18-epoch-staleness-chrome`, HEAD
+`f4520cdb76bd0f7ed4b9eeb8b80de67af72dc9ae`, and a clean status. No committed history
+was rewritten and no DS15 path remains in the worktree or index.
+
+The corrected lane census uses merge base
+`f3e3d996bd6710e26f24fd913d4fe0547f1d1a0d` rather than a two-dot comparison against
+`main`. A net tree diff and an independent full tree-object comparison each derive
+**49** current DS15 contribution paths with symmetric difference zero. A regular-expression
+Markdown-table parser and an independent row parser each derive **40** DS18 mechanisms;
+both intersections contain exactly:
+
+- `src/polisyos/core/contracts/control.py` (C01);
+- `src/polisyos/runtime/http/dependencies.py` (C02);
+- `src/polisyos/runtime/http/openapi_contract.py` (C02);
+- `src/polisyos/runtime/http/services/control/run_lifecycle.py` (C02).
+
+The seven-output set was independently recovered from the generated-artifact register
+and exact registered-path membership; both current DS15 contribution derivations
+intersect it at zero. DS15 is not yet an ancestor of current `main`; the integration
+branch is at `f17c48555`, whose Rego parity repair is an ancestor of itself. DS18 waits
+for DS15 to land on `main`, then merges `main` forward append-only and re-derives the
+four-path release. It does not import another feature branch.
+
+C01 has six currently uncontended mechanisms, but its seventh path is the canonical
+`DecisionValidityEventRequest`/response owner. The cluster requires the mutually
+exclusive, content-bound `monitor_event_ref` intake arm and bridge refs, so the six
+paths cannot establish C01's full property without that contract. C01 is held whole;
+C02-C04 may receive read-only red-test design but no mechanism execution before the
+integration landing.
+
+GY-O0 resumed C04 at clean attached `e5d1c3ab7` and again holds
+`src/polisyos/runtime/quality/README.md`. DS18 will not edit that companion until GY-O0
+returns its exact clean attached C04 release coordinate.

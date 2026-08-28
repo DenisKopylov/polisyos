@@ -26,9 +26,9 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.governance.profiles import ValidationProfile
-from polisyos.data_forge.domains.ukraine.manifests import ReleaseManifest
 from polisyos.data_forge.read_api.ukraine import (
     REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
+    ReleaseManifest,
     UkraineStageArtifactVerificationError,
     VerifiedUkraineReleaseArtifact,
     VerifiedUkraineReleaseArtifacts,

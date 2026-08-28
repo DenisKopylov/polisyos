@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from pydantic import ValidationError
 
 from polisyos.data_forge.domains.ukraine.builders import (
     MemoryAwareScheduler,
@@ -40,6 +41,7 @@ from polisyos.data_forge.domains.ukraine.builders import (
     build_d5_stage,
 )
 from polisyos.data_forge.domains.ukraine.builders import sources as source_builders
+from polisyos.data_forge.domains.ukraine.manifests import D5ReleaseHandoffRequest
 from polisyos.data_forge.domains.ukraine.models import (
     SourceConfig,
     StageId,
@@ -58,6 +60,7 @@ from polisyos.scientist.governance import (
     StrategicResponseRunner,
     build_family_eligibility_registry,
 )
+from polisyos.scientist.governance.blueprint_release import run_verified_ukraine_d5_release
 
 
 def test_ukraine_builder_reads_canonical_l5_registry_without_regime_literals() -> None:
@@ -877,38 +880,47 @@ def test_build_d5_stage_emits_only_a_purpose_limited_release_handoff_request(tmp
         "advanced_policy_trials.json",
         "release_acceptance_report.json",
     }.intersection(result.outputs)
-    handoff = json.loads(
-        (config.build_root.bundles_dir / "d5" / "d5_release_handoff_request.json").read_text(
-            encoding="utf-8"
-        )
+    handoff = D5ReleaseHandoffRequest.model_validate_json(
+        (config.build_root.bundles_dir / "d5" / "d5_release_handoff_request.json").read_bytes()
     )
-    assert handoff["authority_purpose"] == "producer_release_handoff_request"
-    assert handoff["capability_state"] == "bridge_missing"
-    assert handoff["consumer_state"] == "consumer_missing"
-    assert set(handoff["may_not_use_for"]) == {
+    assert handoff.authority_purpose == "producer_release_handoff_request"
+    assert handoff.capability_state == "bridge_missing"
+    assert handoff.consumer_state == "consumer_missing"
+    assert set(handoff.may_not_use_for) == {
         "legal_intervention_compilation",
         "governance_admissibility",
         "release_acceptance",
         "publication",
     }
-    assert handoff["producer_facts"] == {
+    assert handoff.producer_facts.model_dump(mode="json") == {
         "graph_compression_degree_preservation_score": 1.0,
         "graph_compression_edge_weight_reconstruction_error": 0.0,
         "primary_region_id": "01",
         "primary_sector_id": "A",
     }
-    assert set(handoff["content_refs"]) == {
+    assert set(handoff.content_refs) == {
         "cell_registry",
         "d4_governance_request",
         "graph_compression_bundle",
     }
-    assert all(record["sha256"] for record in handoff["content_refs"].values())
+    assert all(record.sha256 for record in handoff.content_refs.values())
+    with pytest.raises(ValidationError, match="unexpected_authority"):
+        D5ReleaseHandoffRequest.model_validate(
+            {**handoff.model_dump(mode="json"), "unexpected_authority": True}
+        )
+    with pytest.raises(ValidationError, match="frozen"):
+        handoff.authority_purpose = "release_acceptance"
     manifest = json.loads(
         (config.build_root.bundles_dir / "d5" / "release_manifest_v1.json").read_text(
             encoding="utf-8"
         )
     )
-    assert manifest["evidence_refs"] == {}
+    assert set(manifest["evidence_refs"]) == {
+        "cell_registry",
+        "d4_governance_request",
+        "d5_release_handoff_request",
+        "graph_compression_bundle",
+    }
     assert manifest["lineage"]["authority_purpose"] == "producer_bundle_inventory"
     assert manifest["lineage"]["capability_state"] == "bridge_missing"
     assert "publication" in manifest["lineage"]["may_not_use_for"]
@@ -926,6 +938,23 @@ def test_build_d5_stage_emits_only_a_purpose_limited_release_handoff_request(tmp
         "status": "not_established",
         "reason": "requires the absent D5 downstream bridge and consumer",
     }
+    release_report = run_verified_ukraine_d5_release(
+        build_root=config.build_root.root,
+        release_manifest_path=config.build_root.bundles_dir / "d5" / "release_manifest_v1.json",
+        runtime_bundle_dir=config.build_root.bundles_dir / "d5" / "runtime_bundle_v1",
+        method_contract_bundle_dir=(
+            config.build_root.bundles_dir / "d5" / "method_contract_bundle_v1"
+        ),
+        cas_root=tmp_path / "release-cas",
+    )
+    assert release_report.passed is False
+    assert release_report.governance_verdict == "reject"
+    assert release_report.release_admissibility_status == "blocked"
+    assert "d4_governance_not_established" in release_report.notes
+    assert release_report.admission_receipt_ref
+    assert release_report.foundry_receipt_ref
+    assert release_report.postflight_receipt_ref
+    assert release_report.packet_ref
 
 
 def test_d5_release_builder_has_no_lex_or_foundry_imports() -> None:

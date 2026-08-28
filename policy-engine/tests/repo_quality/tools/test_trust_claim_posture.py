@@ -263,25 +263,25 @@ def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
     token_result = checker.derive_token_sources(REPO_ROOT)
     reconciled = checker.reconcile_source_derivations(ast_result, token_result)
 
-    assert ast_result.receipt.scanned_python_count == 2580
-    assert token_result.receipt.scanned_python_count == 2580
-    assert ast_result.receipt.raw_candidate_count == 105
-    assert token_result.receipt.raw_candidate_count == 105
+    assert ast_result.receipt.scanned_python_count == 2598
+    assert token_result.receipt.scanned_python_count == 2598
+    assert ast_result.receipt.raw_candidate_count == 115
+    assert token_result.receipt.raw_candidate_count == 115
     assert (
         ast_result.receipt.role_counts
         == token_result.receipt.role_counts
         == {
-            "declares_only": 66,
-            "carries_only": 5,
-            "consumes_only": 5,
-            "declares_and_consumes": 28,
+            "declares_only": 70,
+            "carries_only": 6,
+            "consumes_only": 6,
+            "declares_and_consumes": 32,
             "substring_collision": 1,
             "ambiguous": 0,
         }
     )
-    assert ast_result.receipt.exact_field_file_count == 104
-    assert ast_result.receipt.declaring_file_count == 94
-    assert ast_result.receipt.consuming_file_count == 33
+    assert ast_result.receipt.exact_field_file_count == 114
+    assert ast_result.receipt.declaring_file_count == 102
+    assert ast_result.receipt.consuming_file_count == 38
     assert not reconciled.disagreements
     posture = next(row for row in reconciled.rows if row.path.endswith("claims/posture.py"))
     assert posture.role == "declares_and_consumes"
@@ -289,16 +289,16 @@ def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
     entry_roles = dict(ast_result.receipt.role_counts)
     entry_roles["declares_and_consumes"] -= 1
     assert entry_roles == {
-        "declares_only": 66,
-        "carries_only": 5,
-        "consumes_only": 5,
-        "declares_and_consumes": 27,
+        "declares_only": 70,
+        "carries_only": 6,
+        "consumes_only": 6,
+        "declares_and_consumes": 31,
         "substring_collision": 1,
         "ambiguous": 0,
     }
-    assert ast_result.receipt.scanned_python_count - 1 == 2579
-    assert ast_result.receipt.raw_candidate_count - 1 == 104
-    assert ast_result.receipt.exact_field_file_count - 1 == 103
+    assert ast_result.receipt.scanned_python_count - 1 == 2597
+    assert ast_result.receipt.raw_candidate_count - 1 == 114
+    assert ast_result.receipt.exact_field_file_count - 1 == 113
     collision = next(row for row in reconciled.rows if row.role == "substring_collision")
     assert collision.path.endswith("data_forge/domains/academic/batch/best_snapshot.py")
     assert collision.issue_codes == ("DS11-SOURCE-COLLISION",)
@@ -342,19 +342,19 @@ def test_literal_censuses_reconcile_for_both_complete_walks() -> None:
             receipt.direct_literal_file_count,
             receipt.direct_literal_subject_count,
             receipt.direct_empty_site_count,
-        ) == (35, 13, 21, 5)
+        ) == (45, 20, 27, 10)
         assert (
             receipt.wrapper_literal_site_count,
             receipt.wrapper_literal_file_count,
             receipt.wrapper_literal_subject_count,
-        ) == (59, 24, 28)
+        ) == (69, 31, 34)
         assert (
             receipt.may_not_use_for_raw_file_count,
             receipt.may_not_use_for_literal_site_count,
             receipt.may_not_use_for_literal_file_count,
             receipt.may_not_use_for_literal_subject_count,
-        ) == (117, 34, 22, 44)
-        assert receipt.may_not_use_for_raw_file_count - 1 == 116
+        ) == (128, 43, 28, 50)
+        assert receipt.may_not_use_for_raw_file_count - 1 == 127
     reconciled = _checker().reconcile_source_derivations(ast_result, token_result)
     inventory_denied = tuple(
         site
@@ -364,11 +364,15 @@ def test_literal_censuses_reconcile_for_both_complete_walks() -> None:
         and site.wrapper_kind != "dynamic"
         and site.resolution == "resolved"
     )
-    assert (len(inventory_denied), len(reconciled.may_not_use_for_denied_only_sites)) == (30, 4)
+    assert (len(inventory_denied), len(reconciled.may_not_use_for_denied_only_sites)) == (39, 4)
     assert (
-        *inventory_denied,
-        *reconciled.may_not_use_for_denied_only_sites,
-    ) == ast_receipt.may_not_use_for_sites == token_receipt.may_not_use_for_sites
+        (
+            *inventory_denied,
+            *reconciled.may_not_use_for_denied_only_sites,
+        )
+        == ast_receipt.may_not_use_for_sites
+        == token_receipt.may_not_use_for_sites
+    )
 
 
 def test_all_declaration_forms_survive_and_ambiguity_never_invents_subject(
@@ -988,9 +992,7 @@ def test_custody_row_bytes_are_recomputed_while_markers_stay_fixed(tmp_path: Pat
     register, _ = _checker().compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
     authored = register.model_dump(mode="json")
     custody = next(
-        item
-        for item in authored["claims"]
-        if item["subject"] == "universal_custody_commitment"
+        item for item in authored["claims"] if item["subject"] == "universal_custody_commitment"
     )
     marker_snapshot = tuple(
         (binding["owner"]["owner"], binding["owner"]["source_ref"], binding["closure_signal"])
@@ -1099,9 +1101,7 @@ def test_marker_preserving_byte_mutation_and_unknown_verifier_fail_closed(
 )
 def test_admission_replays_evidence_content_and_complete_source_receipts(case: str) -> None:
     """Reject internally re-authored evidence and a stale complete-set receipt."""
-    artifact = (
-        REPO_ROOT / "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
-    )
+    artifact = REPO_ROOT / "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
     payload = json.loads(artifact.read_text(encoding="utf-8"))
     if case == "page_receipt":
         receipt = payload["page_a11y_receipt"]
@@ -1110,9 +1110,7 @@ def test_admission_replays_evidence_content_and_complete_source_receipts(case: s
         receipt["failures"] = []
     elif case == "accessibility_selector":
         accessibility = payload["accessibility_document"]
-        selector = next(
-            item for item in accessibility["bindings"] if item["key"] == "audit_type"
-        )
+        selector = next(item for item in accessibility["bindings"] if item["key"] == "audit_type")
         selector["value"] = "external audit"
     elif case == "denied_receipt_counts":
         payload["ast_derivation"]["may_not_use_for_raw_file_count"] += 1
@@ -1123,8 +1121,7 @@ def test_admission_replays_evidence_content_and_complete_source_receipts(case: s
             row["claim_id"]
             for row in payload["claims"]
             if any(
-                binding["coordinate"]["path"] == omitted_path
-                for binding in row["source_bindings"]
+                binding["coordinate"]["path"] == omitted_path for binding in row["source_bindings"]
             )
         }
         assert omitted_ids
@@ -1132,13 +1129,9 @@ def test_admission_replays_evidence_content_and_complete_source_receipts(case: s
             row for row in payload["source_inventory"] if row["path"] != omitted_path
         ]
         payload["admitted_sources"] = [
-            member
-            for member in payload["admitted_sources"]
-            if member["path"] != omitted_path
+            member for member in payload["admitted_sources"] if member["path"] != omitted_path
         ]
-        payload["claims"] = [
-            row for row in payload["claims"] if row["claim_id"] not in omitted_ids
-        ]
+        payload["claims"] = [row for row in payload["claims"] if row["claim_id"] not in omitted_ids]
         for group in payload["projection_groups"]:
             group["claim_ids"] = [
                 claim_id for claim_id in group["claim_ids"] if claim_id not in omitted_ids
@@ -1213,9 +1206,12 @@ def test_live_check_recomputes_denied_source_bytes_and_free_growth(
     target = repo / "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(payload)
-    assert checker.main(
-        ["--repo-root", str(repo), "--register-as-of", FROZEN_AS_OF.isoformat(), "--check"]
-    ) == 0
+    assert (
+        checker.main(
+            ["--repo-root", str(repo), "--register-as-of", FROZEN_AS_OF.isoformat(), "--check"]
+        )
+        == 0
+    )
 
     if case == "literal_value":
         source = repo / "src/polisyos/example.py"
@@ -1697,3 +1693,63 @@ def test_runtime_registry_payload_is_rejected_as_source_adapter() -> None:
     assert runtime_registry["status"] == "pass"
     with pytest.raises(ValueError, match=r"RuntimeClaimRegistry|per-run|unsupported"):
         _sources().compile_source_adapter(runtime_registry)
+
+
+@pytest.mark.parametrize(
+    ("case", "annotation", "expected_role"),
+    [
+        ("pep604_union_annotation", "dict[str, int | float]", "carries_only"),
+        ("bare_annotation", "dict", "carries_only"),
+    ],
+)
+def test_type_annotation_syntax_is_not_semantic_operator_evidence(
+    case: str, annotation: str, expected_role: str
+) -> None:
+    """A PEP 604 union in an annotation is type syntax, never a set operation.
+
+    The AST owner walks the value and never the annotation, so it reports the carry
+    correctly. Before the tokenizer excluded the annotation span, its ``|`` matched the
+    set-operator evidence and every name in the statement read as a semantic use, which
+    made the two derivations disagree on a file neither derivation had any real quarrel
+    with. Both spellings must agree, and both must agree on ``carries_only``.
+    """
+    sources = _sources()
+    checker = _checker()
+    body = (
+        "def f(batch):\n"
+        '    report = {"authoritative_for": list(batch.authoritative_for)}\n'
+        f"    metrics: {annotation} = {{'published': int(report['published'])}}\n"
+        "    return metrics\n"
+    )
+    raw = body.encode("utf-8")
+    member = sources.AdmittedSourceMember(
+        path=f"{case}.py", content_digest="sha256:" + sha256(raw).hexdigest()
+    )
+    ast_row = sources._derive_ast_row(member, raw)
+    token_row = checker._derive_token_row(member, raw)
+    assert ast_row.role.value == expected_role
+    assert token_row.role == ast_row.role
+
+
+def test_a_real_set_operation_still_reads_as_a_semantic_consumer() -> None:
+    """Narrowing the false positive may not blind the true one.
+
+    ``if authoritative_for | other:`` is a genuine set operation on the field, so both
+    derivations must still classify it as a consumer. A repair that simply dropped ``|``
+    from the operator evidence would pass the annotation case and silently lose this one.
+    """
+    sources = _sources()
+    checker = _checker()
+    raw = (
+        b"def g(authoritative_for, other):\n"
+        b"    if authoritative_for | other:\n"
+        b"        return True\n"
+        b"    return False\n"
+    )
+    member = sources.AdmittedSourceMember(
+        path="real_set_operation.py", content_digest="sha256:" + sha256(raw).hexdigest()
+    )
+    ast_row = sources._derive_ast_row(member, raw)
+    token_row = checker._derive_token_row(member, raw)
+    assert ast_row.role.value == "consumes_only"
+    assert token_row.role == ast_row.role

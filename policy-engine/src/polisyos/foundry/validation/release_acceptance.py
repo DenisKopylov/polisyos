@@ -1,14 +1,14 @@
-"""Release-bundle acceptance roundtrip for bundle-backed Foundry execution."""
+"""CAS-backed Foundry compilation, execution, and replay acceptance receipt."""
 
 from __future__ import annotations
 
 import hashlib
 import json
-from pathlib import Path
-from typing import Any
+from io import BytesIO
+from typing import Any, Literal
 
 import pandas as pd
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -21,24 +21,13 @@ from polisyos.core.contracts.foundry import (
     Metrics,
     SimulationResult,
 )
-from polisyos.core.governance.profiles import ValidationProfile
 from polisyos.core.registry import build_default_registry_bundle
-from polisyos.data_forge.read_api import ukraine as ukraine_read_api
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.data_plane.bindings import build_input_bindings
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scientist.governance.postflight import postflight_checks
-
-
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def _sha256_bytes(payload: bytes) -> str:
@@ -79,20 +68,18 @@ def _extract_metrics_ref(execute_result: Any) -> ArtifactRef | None:
 
 def _stable_metrics(values: dict[str, Any]) -> dict[str, Any]:
     unstable_suffixes = ("_latency_ms", "_wall_ms", "_duration_ms")
-    filtered: dict[str, Any] = {}
-    for key, value in values.items():
-        if key in {"step_latency_ms"}:
-            continue
-        if any(key.endswith(suffix) for suffix in unstable_suffixes):
-            continue
-        filtered[key] = value
-    return filtered
+    return {
+        key: value
+        for key, value in values.items()
+        if key != "step_latency_ms"
+        and not any(key.endswith(suffix) for suffix in unstable_suffixes)
+    }
 
 
 class ReleaseAcceptanceStep(BaseModel):
-    """One executed acceptance step and its outcome."""
+    """One executed Foundry acceptance step and its outcome."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     step_id: str
     status: str = Field(pattern="^(passed|failed)$")
@@ -100,25 +87,108 @@ class ReleaseAcceptanceStep(BaseModel):
 
 
 class ReleaseAcceptanceReport(BaseModel):
-    """Typed D5 acceptance report for the disk-backed release bundle."""
+    """Legacy-shaped Scientist release projection returned at the CLI boundary."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["2.0"] = "2.0"
     passed: bool = False
     manifest_path: str
     release_bundle_root: str
     packet_ref: str | None = None
+    admission_receipt_ref: str | None = None
+    predicate_receipt_ref: str | None = None
+    foundry_receipt_ref: str | None = None
+    postflight_receipt_ref: str | None = None
     original_simulation_result_ref: str | None = None
     replay_simulation_result_ref: str | None = None
-    governance_verdict: str | None = None
+    governance_verdict: Literal["approve", "reject"] | None = None
+    release_admissibility_status: Literal["admissible", "blocked"] | None = None
+    execution_artifacts: dict[str, str] = Field(default_factory=dict)
     replay_verification: dict[str, Any] = Field(default_factory=dict)
     steps: list[ReleaseAcceptanceStep] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
+    @model_validator(mode="after")
+    def _preserve_legacy_status_projection(self) -> ReleaseAcceptanceReport:
+        if self.governance_verdict is None and self.release_admissibility_status is None:
+            return self
+        expected_governance = "approve" if self.passed else "reject"
+        expected_admissibility = "admissible" if self.passed else "blocked"
+        if (
+            self.governance_verdict != expected_governance
+            or self.release_admissibility_status != expected_admissibility
+        ):
+            raise ValueError("legacy and scoped release statuses must project the final outcome")
+        return self
+
+
+class FoundryReleaseAcceptanceReceipt(BaseModel):
+    """Purpose-limited receipt for Foundry technical execution and replay only."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.foundry.release_acceptance_receipt.v1"] = (
+        "policyos.foundry.release_acceptance_receipt.v1"
+    )
+    rule_version: Literal["foundry-technical-release-acceptance.v1"] = (
+        "foundry-technical-release-acceptance.v1"
+    )
+    authority_purpose: Literal["foundry_technical_acceptance_receipt"] = (
+        "foundry_technical_acceptance_receipt"
+    )
+    authoritative_for: tuple[str, ...] = ()
+    verified_for: tuple[str, ...] = (
+        "technical_compilation",
+        "technical_execution",
+        "technical_replay",
+    )
+    may_not_use_for: tuple[str, ...] = (
+        "release_admissibility",
+        "governance_admissibility",
+        "publication_authorization",
+    )
+    technical_passed: bool = False
+    manifest_path: str
+    release_bundle_root: str
+    original_simulation_result_ref: str | None = None
+    replay_simulation_result_ref: str | None = None
+    execution_artifacts: dict[str, str] = Field(default_factory=dict)
+    replay_verification: dict[str, Any] = Field(default_factory=dict)
+    steps: list[ReleaseAcceptanceStep] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _enforce_technical_scope(self) -> FoundryReleaseAcceptanceReceipt:
+        if self.authoritative_for:
+            raise ValueError("Foundry technical receipt cannot declare release authority")
+        if self.verified_for != (
+            "technical_compilation",
+            "technical_execution",
+            "technical_replay",
+        ):
+            raise ValueError("Foundry technical receipt must retain its exact verified scope")
+        if self.may_not_use_for != (
+            "release_admissibility",
+            "governance_admissibility",
+            "publication_authorization",
+        ):
+            raise ValueError("Foundry technical receipt must retain every authority denial")
+        replay_passed = self.replay_verification.get("passed") is True
+        executed_steps_passed = bool(self.steps) and all(
+            step.status == "passed" for step in self.steps
+        )
+        if self.technical_passed != (executed_steps_passed and replay_passed):
+            raise ValueError("technical_passed must compose executed steps and replay proof")
+        return self
+
 
 class ReleaseAcceptanceRunner:
-    """Run the real D5 acceptance roundtrip from assembled bundle files on disk."""
+    """Compile, execute, and replay from artifacts already admitted into CAS.
+
+    Foundry deliberately does not inspect producer paths, admit DataForge
+    declarations, invoke governance, or emit Scientist decision artifacts.
+    """
 
     def __init__(self, store: FileSystemCAS) -> None:
         self._store = store
@@ -126,35 +196,53 @@ class ReleaseAcceptanceRunner:
     def run(
         self,
         *,
-        release_manifest_path: Path,
-        runtime_bundle_dir: Path,
-        method_contract_bundle_dir: Path,
-        governance_profile: ValidationProfile | None = None,
-    ) -> ReleaseAcceptanceReport:
-        manifest = ukraine_read_api.load_manifest(
-            release_manifest_path,
-            ukraine_read_api.ReleaseManifest,
-        )
-        steps: list[ReleaseAcceptanceStep] = []
+        release_manifest_ref: ArtifactRef,
+        runtime_agent_registry_ref: ArtifactRef,
+        cell_registry_ref: ArtifactRef,
+        trinity_bundle_ref: ArtifactRef,
+        manifest_path: str,
+        release_bundle_root: str,
+    ) -> FoundryReleaseAcceptanceReceipt:
+        """Run deterministic Foundry acceptance over immutable CAS inputs."""
 
-        hash_errors = self._verify_manifest_hashes(manifest)
+        steps: list[ReleaseAcceptanceStep] = []
+        try:
+            manifest_bytes = self._store.get_bytes(release_manifest_ref.artifact_id)
+            runtime_agents_bytes = self._store.get_bytes(
+                runtime_agent_registry_ref.artifact_id
+            )
+            cell_registry_bytes = self._store.get_bytes(cell_registry_ref.artifact_id)
+            trinity_bytes = self._store.get_bytes(trinity_bundle_ref.artifact_id)
+            trinity_bundle = TrinityBundle.model_validate_json(trinity_bytes)
+            runtime_agents = pd.read_parquet(BytesIO(runtime_agents_bytes))
+            cell_registry = pd.read_parquet(BytesIO(cell_registry_bytes))
+        except Exception as exc:
+            return self._failed(
+                manifest_path=manifest_path,
+                release_bundle_root=release_bundle_root,
+                steps=[
+                    ReleaseAcceptanceStep(
+                        step_id="load_admitted_release_artifacts",
+                        status="failed",
+                        details={"error": str(exc)},
+                    )
+                ],
+                note="admitted_release_artifact_load_failed",
+            )
         steps.append(
             ReleaseAcceptanceStep(
-                step_id="verify_release_hashes",
-                status="passed" if not hash_errors else "failed",
-                details={"errors": hash_errors},
+                step_id="load_admitted_release_artifacts",
+                status="passed",
+                details={
+                    "manifest_sha256": _sha256_bytes(manifest_bytes),
+                    "runtime_agent_registry_sha256": _sha256_bytes(runtime_agents_bytes),
+                    "cell_registry_sha256": _sha256_bytes(cell_registry_bytes),
+                    "trinity_bundle_sha256": _sha256_bytes(trinity_bytes),
+                },
             )
         )
-        if hash_errors:
-            return ReleaseAcceptanceReport(
-                passed=False,
-                manifest_path=str(release_manifest_path),
-                release_bundle_root=str(release_manifest_path.parent),
-                steps=steps,
-                notes=["release_manifest_hash_verification_failed"],
-            )
 
-        state = self._build_bundle_backed_state(runtime_bundle_dir)
+        state = self._build_bundle_backed_state(runtime_agents, cell_registry)
         steps.append(
             ReleaseAcceptanceStep(
                 step_id="materialize_global_state",
@@ -197,56 +285,32 @@ class ReleaseAcceptanceRunner:
             )
         )
 
-        acceptance_bundle_path = method_contract_bundle_dir / "acceptance_contract_bundle.json"
-        if not acceptance_bundle_path.exists():
-            return ReleaseAcceptanceReport(
-                passed=False,
-                manifest_path=str(release_manifest_path),
-                release_bundle_root=str(release_manifest_path.parent),
-                steps=[
-                    *steps,
-                    ReleaseAcceptanceStep(
-                        step_id="load_acceptance_contract",
-                        status="failed",
-                        details={"missing_path": str(acceptance_bundle_path)},
-                    ),
-                ],
-                notes=["acceptance_contract_bundle_missing"],
-            )
-
-        trinity_bundle = TrinityBundle.model_validate_json(
-            acceptance_bundle_path.read_text(encoding="utf-8")
-        )
-        trinity_bundle = trinity_bundle.model_copy(
+        effective_trinity = trinity_bundle.model_copy(
             update={
                 "model_spec": trinity_bundle.model_spec.model_copy(
-                    update={"registry_bundle_ref": str(registry_bundle.bundle_ref.artifact_id)}
+                    update={
+                        "data_snapshot_ref": str(data_snapshot_ref.artifact_id),
+                        "registry_bundle_ref": str(registry_bundle.bundle_ref.artifact_id),
+                    }
                 )
             }
         )
-        trinity_ref = self._store.put_json(
-            trinity_bundle,
+        effective_trinity_ref = self._store.put_json(
+            effective_trinity,
             PutOptions(
                 kind="ir.trinity_bundle",
                 media_type="application/json",
                 schema=SchemaInfo(
-                    name="polisyos.ir.TrinityBundle", version=trinity_bundle.schema_version
+                    name="polisyos.ir.TrinityBundle",
+                    version=effective_trinity.schema_version,
                 ),
             ),
         )
-        steps.append(
-            ReleaseAcceptanceStep(
-                step_id="load_acceptance_contract",
-                status="passed",
-                details={"policy_id": trinity_bundle.policy_spec.policy_id},
-            )
-        )
-
         compile_result = compile_foundry(
             self._store,
             CompileRequest(
                 input_kind="trinity",
-                policy_ref=ArtifactRef.model_validate(trinity_ref),
+                policy_ref=ArtifactRef.model_validate(effective_trinity_ref),
                 registry_bundle_ref=registry_bundle.bundle_ref,
             ),
         )
@@ -259,12 +323,11 @@ class ReleaseAcceptanceRunner:
             )
         )
         if not compile_ok:
-            return ReleaseAcceptanceReport(
-                passed=False,
-                manifest_path=str(release_manifest_path),
-                release_bundle_root=str(release_manifest_path.parent),
+            return self._failed(
+                manifest_path=manifest_path,
+                release_bundle_root=release_bundle_root,
                 steps=steps,
-                notes=["acceptance_compile_failed"],
+                note="acceptance_compile_failed",
             )
 
         exec_request = ExecuteRequest(
@@ -284,49 +347,11 @@ class ReleaseAcceptanceRunner:
             )
         )
         if not execute_ok:
-            return ReleaseAcceptanceReport(
-                passed=False,
-                manifest_path=str(release_manifest_path),
-                release_bundle_root=str(release_manifest_path.parent),
+            return self._failed(
+                manifest_path=manifest_path,
+                release_bundle_root=release_bundle_root,
                 steps=steps,
-                notes=["acceptance_execute_failed"],
-            )
-
-        postflight_state, gate_decision = postflight_checks(
-            {
-                "run_id": "R_release_acceptance",
-                "ir": trinity_bundle.model_dump(mode="json"),
-                "registry_bundle_ref": registry_bundle.bundle_ref.model_dump(mode="json"),
-                "simulation_result_ref": execute_result.simulation_result_ref.model_dump(
-                    mode="json"
-                ),
-            },
-            profile=governance_profile or ValidationProfile.mvp(),
-        )
-        governance_ok = gate_decision is None
-        steps.append(
-            ReleaseAcceptanceStep(
-                step_id="run_governance",
-                status="passed" if governance_ok else "failed",
-                details={
-                    "gate_decision": None
-                    if gate_decision is None
-                    else gate_decision.model_dump(mode="json"),
-                    "validation_issues": list(postflight_state.get("validation_issues", [])),
-                },
-            )
-        )
-        if not governance_ok:
-            return ReleaseAcceptanceReport(
-                passed=False,
-                manifest_path=str(release_manifest_path),
-                release_bundle_root=str(release_manifest_path.parent),
-                governance_verdict="reject",
-                original_simulation_result_ref=str(
-                    execute_result.simulation_result_ref.artifact_id
-                ),
-                steps=steps,
-                notes=["acceptance_governance_failed"],
+                note="acceptance_execute_failed",
             )
 
         replay_execute_result = execute_foundry(self._store, exec_request)
@@ -341,41 +366,18 @@ class ReleaseAcceptanceRunner:
             )
         )
         if not replay_ok:
-            return ReleaseAcceptanceReport(
-                passed=False,
-                manifest_path=str(release_manifest_path),
-                release_bundle_root=str(release_manifest_path.parent),
-                governance_verdict="approve",
+            return self._failed(
+                manifest_path=manifest_path,
+                release_bundle_root=release_bundle_root,
+                steps=steps,
+                note="acceptance_replay_execute_failed",
                 original_simulation_result_ref=str(
                     execute_result.simulation_result_ref.artifact_id
                 ),
-                steps=steps,
-                notes=["acceptance_replay_execute_failed"],
             )
 
         original_metrics_ref = _extract_metrics_ref(execute_result)
         replay_metrics_ref = _extract_metrics_ref(replay_execute_result)
-        packet_payload = {
-            "schema_version": "3.0",
-            "run_id": "R_release_acceptance",
-            "inputs": {
-                "trinity_bundle_ref": str(ArtifactRef.model_validate(trinity_ref).artifact_id),
-                "input_bindings_ref": str(built.input_bindings_ref.artifact_id),
-                "data_snapshot_ref": str(ArtifactRef.model_validate(data_snapshot_ref).artifact_id),
-                "registry_bundle_ref": str(registry_bundle.bundle_ref.artifact_id),
-            },
-            "artifacts": {
-                "exec_plan_ref": str(compile_result.exec_plan_ref.artifact_id),
-                "simulation_result_ref": str(execute_result.simulation_result_ref.artifact_id),
-                "metrics_ref": None
-                if original_metrics_ref is None
-                else str(original_metrics_ref.artifact_id),
-            },
-        }
-        packet_ref = self._store.put_json(
-            packet_payload,
-            PutOptions(kind="scientist.decision_packet", media_type="application/json"),
-        )
         original_sim_payload = SimulationResult.model_validate(
             from_canonical_bytes(
                 self._store.get_bytes(execute_result.simulation_result_ref.artifact_id)
@@ -406,63 +408,59 @@ class ReleaseAcceptanceRunner:
                 Metrics.model_validate(from_canonical_bytes(replay_metrics_bytes)).values
             )
             metrics_exact = stable_original_metrics == stable_replay_metrics
-        replay_verified = bool(normalized_original == normalized_replay and metrics_exact)
+        replay_verified = normalized_original == normalized_replay and metrics_exact
+        replay_details = {
+            "simulation_structure_match": normalized_original == normalized_replay,
+            "metrics_bit_exact": metrics_exact,
+            "original_metrics_sha256": original_metrics_sha,
+            "replay_metrics_sha256": replay_metrics_sha,
+            "stable_original_metrics": stable_original_metrics,
+            "stable_replay_metrics": stable_replay_metrics,
+        }
         steps.append(
             ReleaseAcceptanceStep(
                 step_id="verify_replay_roundtrip",
                 status="passed" if replay_verified else "failed",
-                details={
-                    "simulation_structure_match": normalized_original == normalized_replay,
-                    "metrics_bit_exact": metrics_exact,
-                    "original_metrics_sha256": original_metrics_sha,
-                    "replay_metrics_sha256": replay_metrics_sha,
-                    "stable_original_metrics": stable_original_metrics,
-                    "stable_replay_metrics": stable_replay_metrics,
-                },
+                details=replay_details,
             )
         )
-        return ReleaseAcceptanceReport(
-            passed=all(step.status == "passed" for step in steps),
-            manifest_path=str(release_manifest_path),
-            release_bundle_root=str(release_manifest_path.parent),
-            packet_ref=str(packet_ref.artifact_id),
-            original_simulation_result_ref=str(execute_result.simulation_result_ref.artifact_id),
+        execution_artifacts = {
+            "release_manifest_ref": str(release_manifest_ref.artifact_id),
+            "runtime_agent_registry_ref": str(runtime_agent_registry_ref.artifact_id),
+            "cell_registry_ref": str(cell_registry_ref.artifact_id),
+            "trinity_bundle_ref": str(trinity_bundle_ref.artifact_id),
+            "compiled_trinity_bundle_ref": str(effective_trinity_ref.artifact_id),
+            "registry_bundle_ref": str(registry_bundle.bundle_ref.artifact_id),
+            "input_bindings_ref": str(built.input_bindings_ref.artifact_id),
+            "exec_plan_ref": str(compile_result.exec_plan_ref.artifact_id),
+            "simulation_result_ref": str(execute_result.simulation_result_ref.artifact_id),
+        }
+        if original_metrics_ref is not None:
+            execution_artifacts["metrics_ref"] = str(original_metrics_ref.artifact_id)
+        return FoundryReleaseAcceptanceReceipt(
+            technical_passed=all(step.status == "passed" for step in steps),
+            manifest_path=manifest_path,
+            release_bundle_root=release_bundle_root,
+            original_simulation_result_ref=str(
+                execute_result.simulation_result_ref.artifact_id
+            ),
             replay_simulation_result_ref=str(
                 replay_execute_result.simulation_result_ref.artifact_id
             ),
-            governance_verdict="approve",
+            execution_artifacts=execution_artifacts,
             replay_verification={
                 "passed": replay_verified,
                 "mode": "content_exact_filtered_metrics",
-                "details": {
-                    "simulation_structure_match": normalized_original == normalized_replay,
-                    "metrics_bit_exact": metrics_exact,
-                    "original_metrics_sha256": original_metrics_sha,
-                    "replay_metrics_sha256": replay_metrics_sha,
-                    "stable_original_metrics": stable_original_metrics,
-                    "stable_replay_metrics": stable_replay_metrics,
-                },
+                "details": replay_details,
             },
             steps=steps,
         )
 
-    def _verify_manifest_hashes(self, manifest: Any) -> list[str]:
-        errors: list[str] = []
-        for bundle_name, files in manifest.bundle_contents.items():
-            for relative_name, record in files.items():
-                path = Path(record.path)
-                if not path.exists():
-                    errors.append(f"missing:{bundle_name}:{relative_name}")
-                    continue
-                if path.stat().st_size != int(record.size_bytes):
-                    errors.append(f"size_mismatch:{bundle_name}:{relative_name}")
-                if record.sha256 and _sha256_file(path) != record.sha256:
-                    errors.append(f"sha256_mismatch:{bundle_name}:{relative_name}")
-        return errors
-
-    def _build_bundle_backed_state(self, runtime_bundle_dir: Path) -> GlobalState:
-        runtime_agents = pd.read_parquet(runtime_bundle_dir / "agent_registry_runtime.parquet")
-        cell_registry = pd.read_parquet(runtime_bundle_dir / "cell_registry_region_sector.parquet")
+    @staticmethod
+    def _build_bundle_backed_state(
+        runtime_agents: pd.DataFrame,
+        cell_registry: pd.DataFrame,
+    ) -> GlobalState:
         n_agents = max(1, len(runtime_agents))
         n_firms = max(1, min(len(runtime_agents), max(1, len(runtime_agents) // 128)))
         n_cells = max(0, len(cell_registry))
@@ -474,8 +472,27 @@ class ReleaseAcceptanceRunner:
             n_household_cells=n_household_cells,
         )
 
+    @staticmethod
+    def _failed(
+        *,
+        manifest_path: str,
+        release_bundle_root: str,
+        steps: list[ReleaseAcceptanceStep],
+        note: str,
+        original_simulation_result_ref: str | None = None,
+    ) -> FoundryReleaseAcceptanceReceipt:
+        return FoundryReleaseAcceptanceReceipt(
+            technical_passed=False,
+            manifest_path=manifest_path,
+            release_bundle_root=release_bundle_root,
+            original_simulation_result_ref=original_simulation_result_ref,
+            steps=steps,
+            notes=[note],
+        )
+
 
 __all__ = [
+    "FoundryReleaseAcceptanceReceipt",
     "ReleaseAcceptanceReport",
     "ReleaseAcceptanceRunner",
     "ReleaseAcceptanceStep",

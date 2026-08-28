@@ -16,17 +16,17 @@ from polisyos.ir.governance.validation import (
     ValidationReport,
     persist_validation_report,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_FAIRNESS_AUDIT_REPORT_REF,
     ARTIFACT_DRIFT_READINESS_REF,
     ARTIFACT_EXPLANATION_BUNDLE_REF,
+    ARTIFACT_FAIRNESS_AUDIT_REPORT_REF,
     ARTIFACT_JUDGE_VERDICT_REF,
     ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
     ARTIFACT_SHIFT_DIAGNOSTIC_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _BLOCKING_STATUSES = {"fail", "blocked", "not_run"}
 _READINESS_ORDER: dict[str, int] = {
@@ -1032,8 +1032,12 @@ def _has_all_six_judges(verdict: Mapping[str, Any]) -> bool:
 
 
 def _blocked_judge_verdict(reason: str) -> Any:
-    from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
-    from polisyos.scientist.methods.search.judge_stack import JudgeName, JudgeVerdict, SingleJudgeVerdict
+    from polisyos.ir import FailureSeverity, TypedFailureCard
+    from polisyos.scientist.methods.search.judge_stack import (
+        JudgeName,
+        JudgeVerdict,
+        SingleJudgeVerdict,
+    )
 
     per_judge = {}
     failures = []

@@ -7,7 +7,7 @@
         "attractor_analysis_ref": {
           "anyOf": [
             {
-              "$ref": "#/$defs/ArtifactRefModel"
+              "$ref": "#/$defs/_ABMAttractorAnalysisArtifactRef"
             },
             {
               "type": "null"
@@ -79,7 +79,7 @@
         "diagnostic_ref": {
           "anyOf": [
             {
-              "$ref": "#/$defs/ArtifactRefModel"
+              "$ref": "#/$defs/_ABMIdentifiabilityDiagnosticArtifactRef"
             },
             {
               "type": "null"
@@ -136,36 +136,17 @@
       "title": "ABMIdentifiabilityCertificate",
       "type": "object"
     },
-    "ArtifactRef": {
-      "additionalProperties": false,
-      "description": "Reference an artifact across service, registry, and governance boundaries.",
-      "properties": {
-        "artifact_id": {
-          "$ref": "#/$defs/polisyos__core__artifacts__ids__ArtifactID"
-        },
-        "kind": {
-          "title": "Kind",
-          "type": "string"
-        },
-        "media_type": {
-          "title": "Media Type",
-          "type": "string"
-        }
-      },
-      "required": [
-        "artifact_id",
-        "kind",
-        "media_type"
-      ],
-      "title": "ArtifactRef",
-      "type": "object"
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "title": "ArtifactID",
+      "type": "string"
     },
     "ArtifactRefModel": {
       "additionalProperties": false,
       "description": "Provide the common mapping-compatible base contract for artifact refs.",
       "properties": {
         "artifact_id": {
-          "$ref": "#/$defs/polisyos__ir__artifacts__contracts__ArtifactID"
+          "$ref": "#/$defs/ArtifactID"
         },
         "kind": {
           "title": "Kind",
@@ -189,7 +170,7 @@
       "description": "Stable handle for persisted distributional-impact reports read by equity and policy-governance workflows.",
       "properties": {
         "artifact_id": {
-          "$ref": "#/$defs/polisyos__ir__artifacts__contracts__ArtifactID"
+          "$ref": "#/$defs/ArtifactID"
         },
         "kind": {
           "const": "ir.distributional_report",
@@ -210,67 +191,21 @@
       "title": "DistributionalReportRef",
       "type": "object"
     },
-    "EnvironmentManifestRef": {
-      "additionalProperties": false,
-      "description": "Typed reference to EnvironmentManifest artifact.",
-      "properties": {
-        "artifact_id": {
-          "$ref": "#/$defs/polisyos__core__artifacts__ids__ArtifactID"
-        },
-        "kind": {
-          "default": "foundry.environment_manifest",
-          "title": "Kind",
-          "type": "string"
-        },
-        "media_type": {
-          "default": "application/json",
-          "title": "Media Type",
-          "type": "string"
-        }
-      },
-      "required": [
-        "artifact_id"
-      ],
-      "title": "EnvironmentManifestRef",
-      "type": "object"
-    },
-    "ExecPlanRef": {
-      "additionalProperties": false,
-      "description": "Artifact reference for the resolved Foundry execution plan and runtime posture.",
-      "properties": {
-        "artifact_id": {
-          "$ref": "#/$defs/polisyos__core__artifacts__ids__ArtifactID"
-        },
-        "kind": {
-          "default": "foundry.exec_plan",
-          "title": "Kind",
-          "type": "string"
-        },
-        "media_type": {
-          "default": "application/json",
-          "title": "Media Type",
-          "type": "string"
-        }
-      },
-      "required": [
-        "artifact_id"
-      ],
-      "title": "ExecPlanRef",
-      "type": "object"
-    },
     "FairnessAuditReportRef": {
       "additionalProperties": false,
-      "description": "Reference to a stored validation-stage fairness audit report artifact.",
+      "description": "Stable handle for persisted validation-stage fairness audit reports.",
       "properties": {
         "artifact_id": {
-          "$ref": "#/$defs/polisyos__core__artifacts__ids__ArtifactID"
+          "$ref": "#/$defs/ArtifactID"
         },
         "kind": {
+          "const": "scientist.fairness_audit_report",
           "default": "scientist.fairness_audit_report",
           "title": "Kind",
           "type": "string"
         },
         "media_type": {
+          "const": "application/json",
           "default": "application/json",
           "title": "Media Type",
           "type": "string"
@@ -282,91 +217,21 @@
       "title": "FairnessAuditReportRef",
       "type": "object"
     },
-    "FeedbackResultRef": {
-      "additionalProperties": false,
-      "description": "Artifact reference for the top-level feedback solve result.",
-      "properties": {
-        "artifact_id": {
-          "$ref": "#/$defs/polisyos__core__artifacts__ids__ArtifactID"
-        },
-        "kind": {
-          "default": "foundry.feedback_result",
-          "title": "Kind",
-          "type": "string"
-        },
-        "media_type": {
-          "default": "application/json",
-          "title": "Media Type",
-          "type": "string"
-        }
-      },
-      "required": [
-        "artifact_id"
-      ],
-      "title": "FeedbackResultRef",
-      "type": "object"
-    },
-    "IdentifiabilityDiagnosticRef": {
-      "additionalProperties": false,
-      "description": "Artifact reference for aggregate-moment identifiability diagnostics.",
-      "properties": {
-        "artifact_id": {
-          "$ref": "#/$defs/polisyos__core__artifacts__ids__ArtifactID"
-        },
-        "kind": {
-          "default": "foundry.identifiability_diagnostic",
-          "title": "Kind",
-          "type": "string"
-        },
-        "media_type": {
-          "default": "application/json",
-          "title": "Media Type",
-          "type": "string"
-        }
-      },
-      "required": [
-        "artifact_id"
-      ],
-      "title": "IdentifiabilityDiagnosticRef",
-      "type": "object"
-    },
-    "MetricObservationBundleRef": {
-      "additionalProperties": false,
-      "description": "Artifact reference for per-example observations required for formal metric validation.",
-      "properties": {
-        "artifact_id": {
-          "$ref": "#/$defs/polisyos__core__artifacts__ids__ArtifactID"
-        },
-        "kind": {
-          "default": "foundry.metric_observation_bundle",
-          "title": "Kind",
-          "type": "string"
-        },
-        "media_type": {
-          "default": "application/json",
-          "title": "Media Type",
-          "type": "string"
-        }
-      },
-      "required": [
-        "artifact_id"
-      ],
-      "title": "MetricObservationBundleRef",
-      "type": "object"
-    },
     "MetricValidationReportRef": {
       "additionalProperties": false,
-      "description": "Reference to a stored formal metric-validation report artifact.",
+      "description": "Stable handle for persisted metric-validation reports.",
       "properties": {
         "artifact_id": {
-          "$ref": "#/$defs/polisyos__core__artifacts__ids__ArtifactID"
+          "$ref": "#/$defs/ArtifactID"
         },
         "kind": {
+          "const": "scientist.metric_validation_report",
           "default": "scientist.metric_validation_report",
           "title": "Kind",
           "type": "string"
         },
         "media_type": {
+          "const": "application/json",
           "default": "application/json",
           "title": "Media Type",
           "type": "string"
@@ -378,84 +243,12 @@
       "title": "MetricValidationReportRef",
       "type": "object"
     },
-    "MetricsRef": {
-      "additionalProperties": false,
-      "description": "Artifact reference for the scalar metrics emitted by a Foundry execution.",
-      "properties": {
-        "artifact_id": {
-          "$ref": "#/$defs/polisyos__core__artifacts__ids__ArtifactID"
-        },
-        "kind": {
-          "default": "foundry.metrics",
-          "title": "Kind",
-          "type": "string"
-        },
-        "media_type": {
-          "default": "application/json",
-          "title": "Media Type",
-          "type": "string"
-        }
-      },
-      "required": [
-        "artifact_id"
-      ],
-      "title": "MetricsRef",
-      "type": "object"
-    },
-    "StateSnapshotRef": {
-      "additionalProperties": false,
-      "description": "Artifact reference for a persisted state snapshot emitted by a simulation.",
-      "properties": {
-        "artifact_id": {
-          "$ref": "#/$defs/polisyos__core__artifacts__ids__ArtifactID"
-        },
-        "kind": {
-          "default": "foundry.state_snapshot",
-          "title": "Kind",
-          "type": "string"
-        },
-        "media_type": {
-          "default": "application/json",
-          "title": "Media Type",
-          "type": "string"
-        }
-      },
-      "required": [
-        "artifact_id"
-      ],
-      "title": "StateSnapshotRef",
-      "type": "object"
-    },
-    "TraceSliceRef": {
-      "additionalProperties": false,
-      "description": "Artifact reference for the structured execution trace slice captured during a run.",
-      "properties": {
-        "artifact_id": {
-          "$ref": "#/$defs/polisyos__core__artifacts__ids__ArtifactID"
-        },
-        "kind": {
-          "default": "foundry.trace_slice",
-          "title": "Kind",
-          "type": "string"
-        },
-        "media_type": {
-          "default": "application/jsonl",
-          "title": "Media Type",
-          "type": "string"
-        }
-      },
-      "required": [
-        "artifact_id"
-      ],
-      "title": "TraceSliceRef",
-      "type": "object"
-    },
     "UncertaintyEnvelopeRef": {
       "additionalProperties": false,
       "description": "Stable handle for a persisted uncertainty envelope produced by estimators and read by reporting layers.",
       "properties": {
         "artifact_id": {
-          "$ref": "#/$defs/polisyos__ir__artifacts__contracts__ArtifactID"
+          "$ref": "#/$defs/ArtifactID"
         },
         "kind": {
           "const": "ir.uncertainty_envelope",
@@ -476,36 +269,12 @@
       "title": "UncertaintyEnvelopeRef",
       "type": "object"
     },
-    "WelfareBoundReportRef": {
-      "additionalProperties": false,
-      "description": "Artifact reference for a mechanism-level welfare-loss certificate.",
-      "properties": {
-        "artifact_id": {
-          "$ref": "#/$defs/polisyos__core__artifacts__ids__ArtifactID"
-        },
-        "kind": {
-          "default": "foundry.welfare_bound_report",
-          "title": "Kind",
-          "type": "string"
-        },
-        "media_type": {
-          "default": "application/json",
-          "title": "Media Type",
-          "type": "string"
-        }
-      },
-      "required": [
-        "artifact_id"
-      ],
-      "title": "WelfareBoundReportRef",
-      "type": "object"
-    },
     "WelfareBundleRef": {
       "additionalProperties": false,
       "description": "Stable handle for persisted welfare aggregation summaries.",
       "properties": {
         "artifact_id": {
-          "$ref": "#/$defs/polisyos__ir__artifacts__contracts__ArtifactID"
+          "$ref": "#/$defs/ArtifactID"
         },
         "kind": {
           "const": "ir.welfare_bundle",
@@ -526,19 +295,269 @@
       "title": "WelfareBundleRef",
       "type": "object"
     },
-    "polisyos__core__artifacts__ids__ArtifactID": {
-      "description": "Represent a normalized CAS identifier in `sha256:<64hex>` form.\n\nThe `sha256:` prefix and lowercase 64-hex digest are part of the stable ABI\nused in manifests, runtime URLs, CLI arguments, and signature statements.",
-      "title": "ArtifactID",
-      "type": "string"
+    "_ABMAttractorAnalysisArtifactRef": {
+      "additionalProperties": false,
+      "description": "Neutral typed reference to a Foundry attractor-analysis result.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "foundry.attractor_analysis_result",
+          "default": "foundry.attractor_analysis_result",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "_ABMAttractorAnalysisArtifactRef",
+      "type": "object"
     },
-    "polisyos__ir__artifacts__contracts__ArtifactID": {
-      "description": "IR-local artifact ID model compatible with CAS interfaces.",
-      "title": "ArtifactID",
-      "type": "string"
+    "_ABMEnvironmentArtifactRef": {
+      "additionalProperties": false,
+      "description": "Neutral typed reference to the Foundry execution environment manifest.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "foundry.environment_manifest",
+          "default": "foundry.environment_manifest",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "_ABMEnvironmentArtifactRef",
+      "type": "object"
+    },
+    "_ABMExecPlanArtifactRef": {
+      "additionalProperties": false,
+      "description": "Neutral typed reference to the Foundry execution plan used by an ABM run.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "foundry.exec_plan",
+          "default": "foundry.exec_plan",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "_ABMExecPlanArtifactRef",
+      "type": "object"
+    },
+    "_ABMFeedbackResultArtifactRef": {
+      "additionalProperties": false,
+      "description": "Neutral typed reference to a Foundry feedback result.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "foundry.feedback_result",
+          "default": "foundry.feedback_result",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "_ABMFeedbackResultArtifactRef",
+      "type": "object"
+    },
+    "_ABMIdentifiabilityDiagnosticArtifactRef": {
+      "additionalProperties": false,
+      "description": "Neutral typed reference to a Foundry identifiability diagnostic.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "foundry.identifiability_diagnostic",
+          "default": "foundry.identifiability_diagnostic",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "_ABMIdentifiabilityDiagnosticArtifactRef",
+      "type": "object"
+    },
+    "_ABMMetricObservationBundleArtifactRef": {
+      "additionalProperties": false,
+      "description": "Neutral typed reference to metric observations emitted by Foundry.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "foundry.metric_observation_bundle",
+          "default": "foundry.metric_observation_bundle",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "_ABMMetricObservationBundleArtifactRef",
+      "type": "object"
+    },
+    "_ABMMetricsArtifactRef": {
+      "additionalProperties": false,
+      "description": "Neutral typed reference to metrics emitted by an ABM run.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "foundry.metrics",
+          "default": "foundry.metrics",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "_ABMMetricsArtifactRef",
+      "type": "object"
+    },
+    "_ABMStateSnapshotArtifactRef": {
+      "additionalProperties": false,
+      "description": "Neutral typed reference to a Foundry state snapshot.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "foundry.state_snapshot",
+          "default": "foundry.state_snapshot",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "_ABMStateSnapshotArtifactRef",
+      "type": "object"
+    },
+    "_ABMTraceSliceArtifactRef": {
+      "additionalProperties": false,
+      "description": "Neutral typed reference to a Foundry execution trace slice.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "foundry.trace_slice",
+          "default": "foundry.trace_slice",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/jsonl",
+          "default": "application/jsonl",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "_ABMTraceSliceArtifactRef",
+      "type": "object"
+    },
+    "_ABMWelfareBoundArtifactRef": {
+      "additionalProperties": false,
+      "description": "Neutral typed reference to a Foundry welfare-bound report.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "foundry.welfare_bound_report",
+          "default": "foundry.welfare_bound_report",
+          "title": "Kind",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "_ABMWelfareBoundArtifactRef",
+      "type": "object"
     }
   },
   "additionalProperties": false,
-  "description": "Phase-4 ABM execution result with exact identifiability and bifurcation fields.",
+  "description": "Neutral Phase-4 analytical result for a completed ABM execution.",
   "properties": {
     "bifurcation_report": {
       "anyOf": [
@@ -577,7 +596,7 @@
     "environment_ref": {
       "anyOf": [
         {
-          "$ref": "#/$defs/EnvironmentManifestRef"
+          "$ref": "#/$defs/_ABMEnvironmentArtifactRef"
         },
         {
           "type": "null"
@@ -586,7 +605,7 @@
       "default": null
     },
     "exec_plan_ref": {
-      "$ref": "#/$defs/ExecPlanRef"
+      "$ref": "#/$defs/_ABMExecPlanArtifactRef"
     },
     "fairness_audit_report_ref": {
       "anyOf": [
@@ -602,7 +621,7 @@
     "feedback_result_ref": {
       "anyOf": [
         {
-          "$ref": "#/$defs/FeedbackResultRef"
+          "$ref": "#/$defs/_ABMFeedbackResultArtifactRef"
         },
         {
           "type": "null"
@@ -624,7 +643,7 @@
     "identifiability_diagnostic_ref": {
       "anyOf": [
         {
-          "$ref": "#/$defs/IdentifiabilityDiagnosticRef"
+          "$ref": "#/$defs/_ABMIdentifiabilityDiagnosticArtifactRef"
         },
         {
           "type": "null"
@@ -635,7 +654,7 @@
     "metric_observation_bundle_ref": {
       "anyOf": [
         {
-          "$ref": "#/$defs/MetricObservationBundleRef"
+          "$ref": "#/$defs/_ABMMetricObservationBundleArtifactRef"
         },
         {
           "type": "null"
@@ -655,7 +674,7 @@
       "default": null
     },
     "metrics_ref": {
-      "$ref": "#/$defs/MetricsRef"
+      "$ref": "#/$defs/_ABMMetricsArtifactRef"
     },
     "notes": {
       "items": {
@@ -667,7 +686,7 @@
     "propagation_config_ref": {
       "anyOf": [
         {
-          "$ref": "#/$defs/ArtifactRef"
+          "$ref": "#/$defs/ArtifactRefModel"
         },
         {
           "type": "null"
@@ -678,7 +697,7 @@
     "propagation_report_ref": {
       "anyOf": [
         {
-          "$ref": "#/$defs/ArtifactRef"
+          "$ref": "#/$defs/ArtifactRefModel"
         },
         {
           "type": "null"
@@ -695,7 +714,7 @@
     "state_snapshot_ref": {
       "anyOf": [
         {
-          "$ref": "#/$defs/StateSnapshotRef"
+          "$ref": "#/$defs/_ABMStateSnapshotArtifactRef"
         },
         {
           "type": "null"
@@ -706,7 +725,7 @@
     "trace_slice_ref": {
       "anyOf": [
         {
-          "$ref": "#/$defs/TraceSliceRef"
+          "$ref": "#/$defs/_ABMTraceSliceArtifactRef"
         },
         {
           "type": "null"
@@ -733,7 +752,7 @@
       "anyOf": [
         {
           "additionalProperties": {
-            "$ref": "#/$defs/WelfareBoundReportRef"
+            "$ref": "#/$defs/_ABMWelfareBoundArtifactRef"
           },
           "type": "object"
         },

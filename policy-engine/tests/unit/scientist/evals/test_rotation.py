@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
+from polisyos.ir import FailureSeverity, TypedFailureCard
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.evals.challenge_factory import (
     ChallengeStatus,
     generate_challenge_from_failure_card,
@@ -14,7 +16,6 @@ from polisyos.scientist.evals.rotation import (
     dedupe_challenge_lineage,
     validate_fresh_rotating_challenge_evidence,
 )
-from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
 
 from .test_challenge_factory import _ref
 
@@ -26,7 +27,9 @@ def _reviewed_challenge():
         severity=FailureSeverity.BLOCKER,
         description="Source is stale.",
         remediation_hint="Use a stale-source challenge.",
-        evidence_ref=_ref("failure", kind="scientist.failure_card"),
+        evidence_ref=ArtifactRefModel.model_validate(
+            _ref("failure", kind="scientist.failure_card").model_dump(mode="json")
+        ),
     )
     challenge = generate_challenge_from_failure_card(
         failure,

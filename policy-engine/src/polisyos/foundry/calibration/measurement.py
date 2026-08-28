@@ -1,15 +1,17 @@
-"""Attach observation-quality metadata to calibration targets and loss weights.
+"""Compile measurement targets and attach observation-quality loss weights.
 
-The classes in this module describe observed targets and measurement metadata
-at the boundary between real-world observations and synthetic Foundry traces.
-They never advance simulation dynamics; they only adapt loss weights applied
-to already-simulated series inside `Calibrator.run()`.
+This module owns Foundry's JAX-backed materialization of observed targets and
+placebos plus the measurement metadata applied at the boundary between
+real-world observations and synthetic traces. It never advances simulation
+dynamics; loss adapters only weight already-simulated series in `Calibrator.run()`.
 """
 
 from __future__ import annotations
 
+from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from datetime import date
 from typing import Any, Protocol, runtime_checkable
 
 try:  # pragma: no cover - preferred in full Foundry runtime environments.
@@ -20,11 +22,32 @@ import numpy as np
 from pydantic import Field
 
 from polisyos.ir.kernel.base import KernelModel
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.bundles import (
+    BundleAxisSemantic,
+    BundleLineageRef,
     CalibrationTargetBundleManifest,
     ContractCompatibilityTarget,
+    RequiredArraySpec,
 )
-from polisyos.ir.observation.contracts import IdentificationMode, ObservationFamily
+from polisyos.ir.observation.compiler import (
+    CalibrationSplitLabel,
+    CalibrationSplitPlan,
+    CalibrationSplitter,
+    NegativeControlSpec,
+)
+from polisyos.ir.observation.contracts import (
+    EntityScope,
+    IdentificationMode,
+    ObservationFamily,
+    ObservationPanel,
+    ObservationRecord,
+)
+from polisyos.ir.observation.measurement import (
+    IdentificationModeRouter,
+    MeasurementRegistry,
+    SchemaRegimeRegistry,
+)
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 
@@ -136,6 +159,289 @@ class CalibrationTargetBundle:
     def target_ids(self) -> tuple[str, ...]:
         """Return target IDs in bundle order for validation and diagnostics."""
         return tuple(target.target_id for target in self.targets)
+
+
+def _month_add(year: int, month: int, delta_months: int) -> tuple[int, int]:
+    total_months = (year * 12 + (month - 1)) + delta_months
+    new_year, new_month_zero = divmod(total_months, 12)
+    return new_year, new_month_zero + 1
+
+
+def _shift_period(value: date, time_grain: TimeFrequency, periods: int) -> date:
+    if time_grain == TimeFrequency.MONTH:
+        year, month = _month_add(value.year, value.month, periods)
+        return date(year, month, 1)
+    if time_grain == TimeFrequency.QUARTER:
+        year, month = _month_add(value.year, value.month, periods * 3)
+        return date(year, month, 1)
+    if time_grain == TimeFrequency.YEAR:
+        return date(value.year + periods, 1, 1)
+    raise ValueError(f"Unsupported time grain: {time_grain}")
+
+
+def _scope_locator(record: ObservationRecord) -> str:
+    scope = record.entity_scope
+    if scope in {EntityScope.AGENT, EntityScope.FIRM, EntityScope.HOUSEHOLD} and record.entity_id:
+        return record.entity_id
+    if scope in {EntityScope.CELL, EntityScope.HOUSEHOLD_CELL} and record.cell_id:
+        return record.cell_id
+    if scope == EntityScope.REGION and record.region_code:
+        return record.region_code.lower()
+    if scope == EntityScope.SECTOR and record.sector_id:
+        return record.sector_id.lower()
+    return "global"
+
+
+def _target_id(record: ObservationRecord) -> str:
+    return ".".join(
+        [
+            record.family.value,
+            record.metric_id,
+            record.entity_scope.value,
+            _scope_locator(record),
+        ]
+    )
+
+
+class CalibrationTargetBundleCompiler:
+    """Compile observation panels into Foundry calibration target bundles."""
+
+    def __init__(
+        self,
+        *,
+        measurement_registry: MeasurementRegistry | None = None,
+        identification_router: IdentificationModeRouter | None = None,
+        schema_regime_registry: SchemaRegimeRegistry | None = None,
+        splitter: CalibrationSplitter | None = None,
+    ) -> None:
+        self._measurement_registry = measurement_registry or MeasurementRegistry.default()
+        self._identification_router = identification_router or IdentificationModeRouter(
+            measurement_registry=self._measurement_registry
+        )
+        self._splitter = splitter or CalibrationSplitter(
+            schema_regime_registry=schema_regime_registry
+        )
+
+    def compile(self, panel: ObservationPanel) -> CalibrationTargetBundle:
+        """Materialize one aligned JAX-backed target bundle from an IR panel."""
+        sorted_records = sorted(
+            panel.records, key=lambda item: (item.period_start, item.observation_id)
+        )
+        full_axis = tuple(sorted({record.period_start for record in sorted_records}))
+        axis_index = {value: idx for idx, value in enumerate(full_axis)}
+        grouped: dict[str, list[ObservationRecord]] = defaultdict(list)
+        split_plan = self._splitter.plan_for_panel(panel)
+
+        for record in sorted_records:
+            grouped[_target_id(record)].append(record)
+
+        targets: list[MeasurementAwareTarget] = []
+        observed_value: dict[str, jnp.ndarray] = {}
+        trust_weight: dict[str, jnp.ndarray] = {}
+        coverage_estimate: dict[str, jnp.ndarray] = {}
+        censoring_mask: dict[str, jnp.ndarray] = {}
+        lag_days_estimate: dict[str, jnp.ndarray] = {}
+        shock_mask: dict[str, jnp.ndarray] = {}
+        schema_regime_id: dict[str, tuple[str, ...]] = {}
+        observation_id: dict[str, tuple[str, ...]] = {}
+        time_axis: dict[str, tuple[str, ...]] = {}
+        split_label: dict[str, tuple[str, ...]] = {}
+        identification_mode: dict[str, tuple[IdentificationMode, ...]] = {}
+        time_grain: dict[str, TimeFrequency] = {}
+
+        for target_id, records in grouped.items():
+            first = records[0]
+            values = [0.0] * len(full_axis)
+            trust = [0.0] * len(full_axis)
+            coverage = [0.0] * len(full_axis)
+            censor = [False] * len(full_axis)
+            lag = [0] * len(full_axis)
+            shock = [False] * len(full_axis)
+            schema_ids = ["missing"] * len(full_axis)
+            observation_ids = [
+                f"missing.{panel.panel_id}.{first.metric_id}.{idx}" for idx in range(len(full_axis))
+            ]
+            split_labels = [split_plan.label_for_period(point, point).value for point in full_axis]
+            routed_modes = [first.identification_mode] * len(full_axis)
+
+            for record in records:
+                idx = axis_index[record.period_start]
+                route = self._identification_router.route_record(record)
+                values[idx] = float(record.observed_value)
+                trust[idx] = self._measurement_registry.normalize_record_trust(record)
+                coverage[idx] = float(record.coverage_estimate)
+                censor[idx] = bool(record.censoring_mask)
+                lag[idx] = int(record.lag_days_estimate)
+                shock[idx] = bool(record.shock_mask)
+                schema_ids[idx] = record.schema_regime_id
+                observation_ids[idx] = record.observation_id
+                split_labels[idx] = self._splitter.label_record(record, split_plan=split_plan).value
+                routed_modes[idx] = route.selected_mode
+
+            dominant_mode = Counter(routed_modes).most_common(1)[0][0]
+            targets.append(
+                MeasurementAwareTarget(
+                    target_id=target_id,
+                    observation_family=first.family,
+                    metric_id=first.metric_id,
+                    identification_mode=dominant_mode,
+                )
+            )
+            observed_value[target_id] = jnp.asarray(values, dtype=jnp.float32)
+            trust_weight[target_id] = jnp.asarray(trust, dtype=jnp.float32)
+            coverage_estimate[target_id] = jnp.asarray(coverage, dtype=jnp.float32)
+            censoring_mask[target_id] = jnp.asarray(censor, dtype=bool)
+            lag_days_estimate[target_id] = jnp.asarray(lag, dtype=jnp.int32)
+            shock_mask[target_id] = jnp.asarray(shock, dtype=bool)
+            schema_regime_id[target_id] = tuple(schema_ids)
+            observation_id[target_id] = tuple(observation_ids)
+            time_axis[target_id] = tuple(point.isoformat() for point in full_axis)
+            split_label[target_id] = tuple(split_labels)
+            identification_mode[target_id] = tuple(routed_modes)
+            time_grain[target_id] = first.time_grain
+
+        manifest = CalibrationTargetBundleManifest(
+            contract_target=MEASUREMENT_AWARE_TARGET_CONTRACT,
+            required_arrays=[
+                RequiredArraySpec(name="observed_value", axes=["time"], dtype="float32"),
+                RequiredArraySpec(name="trust_weight", axes=["time"], dtype="float32"),
+                RequiredArraySpec(name="coverage_estimate", axes=["time"], dtype="float32"),
+                RequiredArraySpec(name="censoring_mask", axes=["time"], dtype="bool"),
+                RequiredArraySpec(name="lag_days_estimate", axes=["time"], dtype="int32"),
+                RequiredArraySpec(name="shock_mask", axes=["time"], dtype="bool"),
+            ],
+            axis_semantics=[
+                BundleAxisSemantic(axis="time", description="Aligned observation time axis")
+            ],
+            observation_families=[panel.family],
+            lineage=[BundleLineageRef(source_artifact=panel.panel_id, source_family=panel.family)],
+        )
+        return CalibrationTargetBundle(
+            manifest=manifest,
+            targets=tuple(targets),
+            observed_value=observed_value,
+            trust_weight=trust_weight,
+            coverage_estimate=coverage_estimate,
+            censoring_mask=censoring_mask,
+            lag_days_estimate=lag_days_estimate,
+            shock_mask=shock_mask,
+            schema_regime_id=schema_regime_id,
+            observation_id=observation_id,
+            time_axis=time_axis,
+            split_label=split_label,
+            identification_mode=identification_mode,
+            time_grain=time_grain,
+        )
+
+
+class NegativeControlGenerator:
+    """Materialize non-overlapping Foundry placebo calibration targets."""
+
+    def __init__(self, *, shift_periods: int | None = None) -> None:
+        self._shift_periods = shift_periods
+
+    def generate(
+        self,
+        bundle: CalibrationTargetBundle,
+        *,
+        split_plan: CalibrationSplitPlan | None = None,
+    ) -> tuple[CalibrationTargetBundle, tuple[NegativeControlSpec, ...]]:
+        """Build placebo tensors while retaining neutral IR control specs."""
+        targets: list[MeasurementAwareTarget] = []
+        specs: list[NegativeControlSpec] = []
+        observed_value: dict[str, jnp.ndarray] = {}
+        trust_weight: dict[str, jnp.ndarray] = {}
+        coverage_estimate: dict[str, jnp.ndarray] = {}
+        censoring_mask: dict[str, jnp.ndarray] = {}
+        lag_days_estimate: dict[str, jnp.ndarray] = {}
+        shock_mask: dict[str, jnp.ndarray] = {}
+        schema_regime_id: dict[str, tuple[str, ...]] = {}
+        observation_id: dict[str, tuple[str, ...]] = {}
+        time_axis: dict[str, tuple[str, ...]] = {}
+        split_label: dict[str, tuple[str, ...]] = {}
+        identification_mode: dict[str, tuple[IdentificationMode, ...]] = {}
+        time_grain: dict[str, TimeFrequency] = {}
+
+        for target in bundle.targets:
+            source_target_id = target.target_id
+            source_time = tuple(bundle.time_axis[source_target_id])
+            source_dates = tuple(date.fromisoformat(point) for point in source_time)
+            if not source_dates:
+                continue
+            grain = bundle.time_grain[source_target_id]
+            shift_periods = self._shift_periods or (len(source_dates) + 1)
+            placebo_dates = tuple(
+                _shift_period(point, grain, shift_periods) for point in source_dates
+            )
+            while set(placebo_dates).intersection(source_dates):
+                shift_periods += 1
+                placebo_dates = tuple(
+                    _shift_period(point, grain, shift_periods) for point in source_dates
+                )
+
+            placebo_target_id = f"placebo.{source_target_id}"
+            placebo_time = tuple(point.isoformat() for point in placebo_dates)
+            placebo_labels = []
+            for point in placebo_dates:
+                label = (
+                    split_plan.label_for_period(point, point).value
+                    if split_plan is not None
+                    else CalibrationSplitLabel.TEST.value
+                )
+                placebo_labels.append(label)
+            if CalibrationSplitLabel.HOLDOUT.value in placebo_labels:
+                continue
+
+            targets.append(
+                MeasurementAwareTarget(
+                    target_id=placebo_target_id,
+                    observation_family=target.observation_family,
+                    metric_id=f"placebo_{target.metric_id}",
+                    identification_mode=target.identification_mode,
+                    base_weight=target.base_weight,
+                )
+            )
+            observed_value[placebo_target_id] = bundle.observed_value[source_target_id]
+            trust_weight[placebo_target_id] = bundle.trust_weight[source_target_id]
+            coverage_estimate[placebo_target_id] = bundle.coverage_estimate[source_target_id]
+            censoring_mask[placebo_target_id] = bundle.censoring_mask[source_target_id]
+            lag_days_estimate[placebo_target_id] = bundle.lag_days_estimate[source_target_id]
+            shock_mask[placebo_target_id] = bundle.shock_mask[source_target_id]
+            schema_regime_id[placebo_target_id] = bundle.schema_regime_id[source_target_id]
+            observation_id[placebo_target_id] = tuple(
+                f"placebo.{identifier}" for identifier in bundle.observation_id[source_target_id]
+            )
+            time_axis[placebo_target_id] = placebo_time
+            split_label[placebo_target_id] = tuple(placebo_labels)
+            identification_mode[placebo_target_id] = bundle.identification_mode[source_target_id]
+            time_grain[placebo_target_id] = grain
+            specs.append(
+                NegativeControlSpec(
+                    source_target_id=source_target_id,
+                    placebo_target_id=placebo_target_id,
+                    shift_periods=shift_periods,
+                    source_time_axis=source_time,
+                    placebo_time_axis=placebo_time,
+                )
+            )
+
+        placebo_bundle = CalibrationTargetBundle(
+            manifest=bundle.manifest,
+            targets=tuple(targets),
+            observed_value=observed_value,
+            trust_weight=trust_weight,
+            coverage_estimate=coverage_estimate,
+            censoring_mask=censoring_mask,
+            lag_days_estimate=lag_days_estimate,
+            shock_mask=shock_mask,
+            schema_regime_id=schema_regime_id,
+            observation_id=observation_id,
+            time_axis=time_axis,
+            split_label=split_label,
+            identification_mode=identification_mode,
+            time_grain=time_grain,
+        )
+        return placebo_bundle, tuple(specs)
 
 
 @runtime_checkable
@@ -322,10 +628,12 @@ class DefaultMeasurementAwareLossAdapter:
 __all__ = [
     "MEASUREMENT_AWARE_TARGET_CONTRACT",
     "CalibrationTargetBundle",
+    "CalibrationTargetBundleCompiler",
     "CalibrationTargetBundleManifest",
     "DefaultMeasurementAwareLossAdapter",
     "MeasurementAwareLossAdapter",
     "MeasurementAwareLossConfig",
     "MeasurementAwareTarget",
+    "NegativeControlGenerator",
     "compute_effective_weight",
 ]

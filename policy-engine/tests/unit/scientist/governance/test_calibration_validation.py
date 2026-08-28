@@ -14,11 +14,6 @@ from polisyos.ir.analytics.interference import (
 )
 from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
-from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
-from polisyos.scientist.methods.discovery.utility_judge import (
-    DownstreamUtilityReport,
-    HypothesisUtilityScore,
-)
 from polisyos.scientist.governance.accountability import GovernanceAccountabilityInput
 from polisyos.scientist.governance.backtest_matrix import BacktestKind
 from polisyos.scientist.governance.calibration import (
@@ -29,6 +24,11 @@ from polisyos.scientist.governance.calibration_validation import (
     CalibrationValidationRunner,
     CalibrationValidationRunnerInput,
     load_calibration_validation_bundle,
+)
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
+from polisyos.scientist.methods.discovery.utility_judge import (
+    DownstreamUtilityReport,
+    HypothesisUtilityScore,
 )
 from polisyos.scientist.methods.search.lessons import LessonQuery, LessonRegistry, load_lesson_card
 
@@ -80,7 +80,7 @@ def _plan_bundle(tmp_path, kind: BacktestKind) -> BacktestPlanBundle:
                 target_metrics=["metric"],
                 prediction_source=PredictionSource.PROVIDED,
                 predicted_outcomes={"metric": [0.98, 1.02]},
-            )
+            ).model_dump(mode="json")
         ],
         historical_payloads={"metric": {"values": [1.0, 1.0, 1.0]}},
     )

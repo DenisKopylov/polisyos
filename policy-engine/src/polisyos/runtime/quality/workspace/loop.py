@@ -15,7 +15,7 @@ import logging
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -109,6 +109,12 @@ from polisyos.scientist.orchestration.engine.context import (
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.workflows.builder import build_registry_with_builtin_nodes
+
+if TYPE_CHECKING:
+    from polisyos.pdc import Layer2S2DesignSearchInput
+    from polisyos.runtime.quality.workspace.s2_design_search_operation import (
+        S2DesignSearchOperationResult,
+    )
 
 ACTIVE_WORKSPACE_OPERATIONS = frozenset(
     {OperationClass.BIND, OperationClass.ESTIMATE, OperationClass.VERIFY}
@@ -855,6 +861,38 @@ def build_workspace_operation_registry() -> OperationRegistry:
             discovery_evidence=_operation_discovery_evidence(OperationClass.COMPOSE),
         ),
     }
+    from polisyos.runtime.quality.workspace.s2_design_search_operation import (
+        S2_DESIGN_SEARCH_OPERATION_ID,
+    )
+
+    operations[S2_DESIGN_SEARCH_OPERATION_ID] = OperationRegistration(
+        operation_id=S2_DESIGN_SEARCH_OPERATION_ID,
+        operation_class=OperationClass.REFINE,
+        contract=_operation_contract(
+            operation_id=S2_DESIGN_SEARCH_OPERATION_ID,
+            operation_class=OperationClass.REFINE,
+            authority_transform={
+                "kind": "hint_only",
+                "rule_ref": "policyos.runtime.s2_design_search_operation.v1",
+            },
+        ),
+        executable=True,
+        discovered_from=(
+            "engine_registry:polisyos.runtime.quality.workspace.s2_design_search_operation"
+        ),
+        discovery_evidence={
+            "source_kind": "governed_workspace_adapter",
+            "source_ref": (
+                "polisyos.runtime.quality.workspace.s2_design_search_operation."
+                "execute_s2_design_search_operation"
+            ),
+            "adapter_conformance": {
+                "passed": True,
+                "required_contract": "Layer2S2DesignSearchInput -> terminal Core run binding",
+            },
+            "registration_mode": "executable",
+        },
+    )
     return OperationRegistry(operations=operations)
 
 
@@ -879,6 +917,50 @@ class WorkspaceLoop:
         """Return the registry consumed by this workspace loop."""
 
         return self._registry
+
+    def execute_registered_s2_design_search_operation(
+        self,
+        *,
+        operation_id: str,
+        search_input: Layer2S2DesignSearchInput,
+        core_runs_root: Path,
+        run_id: str,
+    ) -> S2DesignSearchOperationResult:
+        """Resolve and execute the exact registered S2 REFINE operation."""
+
+        from polisyos.runtime.quality.workspace.s2_design_search_operation import (
+            S2_DESIGN_SEARCH_OPERATION_ID,
+            execute_s2_design_search_operation,
+        )
+
+        if operation_id != S2_DESIGN_SEARCH_OPERATION_ID:
+            raise WorkspaceInvariantError("S2 execution requires the exact owner operation id")
+        try:
+            registration = self._registry.get(operation_id)
+        except KeyError as exc:
+            raise WorkspaceInvariantError(
+                "S2 execution requires an admitted operation registration"
+            ) from exc
+        if registration.operation_id != operation_id:
+            raise WorkspaceInvariantError("S2 registration id does not match its registry key")
+        if registration.operation_class is not OperationClass.REFINE:
+            raise WorkspaceInvariantError("S2 registration is not a REFINE operation")
+        if (
+            registration.contract.operation_id != registration.operation_id
+            or registration.contract.operation_class is not registration.operation_class
+        ):
+            raise WorkspaceInvariantError("S2 registration contract is inconsistent")
+        if registration.executable is not True:
+            raise WorkspaceInvariantError("S2 registration is not executable")
+        if self._artifact_store is None:
+            raise WorkspaceInvariantError("S2 execution requires the workspace artifact store")
+        return execute_s2_design_search_operation(
+            operation_id=operation_id,
+            search_input=search_input,
+            store=self._artifact_store,
+            core_runs_root=core_runs_root,
+            run_id=run_id,
+        )
 
     def decompose_fixture(
         self,

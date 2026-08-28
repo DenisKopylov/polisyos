@@ -10,8 +10,10 @@ from _helpers.c7_synthetic_data import (
     N_CELLS,
     build_c7_synthetic_fixture,
 )
-from polisyos.core.artifacts.store import FileSystemCAS
+
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.foundry.methods.catalog.ml.protocols import SurvivalData
 from polisyos.foundry.methods.registry import MethodRegistry, registry_scope
 from polisyos.ir.observation.bundles import (
     BilevelProblemBundle,
@@ -23,6 +25,7 @@ from polisyos.ir.observation.contract_compilers import (
     load_npz_payload,
     load_parquet_rows,
 )
+from polisyos.scientist.compute.runner import MethodBackend, MethodRuntimeProviders
 from polisyos.scientist.methods.advanced import (
     BilevelOptimizationAdapter,
     CellPrototypeBuilder,
@@ -30,9 +33,9 @@ from polisyos.scientist.methods.advanced import (
     HeckmanCorrectionAdapter,
     SobolDiagnosticsAdapter,
     SpecificationCurveAdapter,
+    SurvivalModelAdapter,
     run_c7_advanced_suite,
 )
-from polisyos.scientist.compute.runner import MethodBackend, MethodRuntimeProviders
 
 
 def _write_cas_artifact(store: FileSystemCAS, ref, path):
@@ -218,6 +221,63 @@ def test_bilevel_c7_bundle_roundtrip_with_new_params(tmp_path) -> None:
     assert bundle.tie_break == "optimistic"
     assert bundle.delta_near_opt == pytest.approx(0.25)
     assert bundle.certificate_mode == "leader_objective_bounds"
+
+
+def test_survival_adapter_materializes_compiled_ir_payload(tmp_path, monkeypatch) -> None:
+    fixture = build_c7_synthetic_fixture(tmp_path)
+    store = FileSystemCAS(tmp_path / ".cas_survival_materialization")
+    adapter = SurvivalModelAdapter(store)
+    method_result_ref = store.put_bytes(
+        b"{}",
+        PutOptions(kind="scientist.method_result", media_type="application/json"),
+    )
+    method_evidence_ref = store.put_bytes(
+        b'{"evidence":true}',
+        PutOptions(kind="scientist.method_evidence", media_type="application/json"),
+    )
+    observed_input: list[SurvivalData] = []
+
+    def _run_method(**kwargs):
+        input_state = kwargs["input_state"]
+        assert isinstance(input_state, SurvivalData)
+        observed_input.append(input_state)
+        return (
+            {
+                "result": {
+                    "method_name": "survival_analysis",
+                    "risk_scores": np.linspace(0.1, 0.9, input_state.features.shape[0]),
+                    "concordance_index": 0.75,
+                    "coefficients": {},
+                    "metadata": {"backend": "test"},
+                }
+            },
+            method_result_ref,
+            method_evidence_ref,
+        )
+
+    monkeypatch.setattr(adapter, "_run_method", _run_method)
+
+    result = adapter.run(fixture.advanced_inputs)
+
+    assert isinstance(fixture.advanced_inputs.survival_contract, dict)
+    assert observed_input
+    assert store.has(result.bundle_ref.artifact_id)
+
+
+def test_survival_adapter_rejects_malformed_compiled_ir_payload(tmp_path) -> None:
+    fixture = build_c7_synthetic_fixture(tmp_path)
+    store = FileSystemCAS(tmp_path / ".cas_survival_materialization_invalid")
+    malformed_inputs = replace(
+        fixture.advanced_inputs,
+        survival_contract={
+            "features": [[1.0], [2.0]],
+            "durations": [1.0],
+            "events": [1, 0],
+        },
+    )
+
+    with pytest.raises(ValueError, match="invalid payload for method contract"):
+        SurvivalModelAdapter(store).run(malformed_inputs)
 
 
 @pytest.mark.skipif(

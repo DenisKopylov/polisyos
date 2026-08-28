@@ -14,7 +14,7 @@ from polisyos.scientist.methods.search.lessons import lesson_from_failure_card
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from polisyos.scientist.methods.search.failure_cards import TypedFailureCard
+    from polisyos.ir import TypedFailureCard
     from polisyos.scientist.methods.search.lessons import LessonCard
 
 

@@ -178,48 +178,6 @@
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.core.components._cli_metric_validation",
-      "source_root": "core",
-      "source_file": "src/polisyos/core/components/_cli_metric_validation.py",
-      "target_module": "polisyos.ir.analytics.metric_validation_report",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.core.components._cli_metric_validation",
-      "source_root": "core",
-      "source_file": "src/polisyos/core/components/_cli_metric_validation.py",
-      "target_module": "polisyos.ir.artifacts",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.core.components._cli_metric_validation",
-      "source_root": "core",
-      "source_file": "src/polisyos/core/components/_cli_metric_validation.py",
-      "target_module": "polisyos.scientist.validation.metrics",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.core.components._cli_scientist",
-      "source_root": "core",
-      "source_file": "src/polisyos/core/components/_cli_scientist.py",
-      "target_module": "polisyos.scientist.agent.eval_harness",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.core.components._cli_scientist",
-      "source_root": "core",
-      "source_file": "src/polisyos/core/components/_cli_scientist.py",
-      "target_module": "polisyos.scientist.agent.reflexion_evaluator",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.core.components._cli_scientist",
-      "source_root": "core",
-      "source_file": "src/polisyos/core/components/_cli_scientist.py",
-      "target_module": "polisyos.scientist.orchestration.llm",
-      "target_root": "scientist"
-    },
-    {
       "source_module": "polisyos.core.components.compliance",
       "source_root": "core",
       "source_file": "src/polisyos/core/components/compliance.py",
@@ -350,6 +308,13 @@
       "source_root": "core",
       "source_file": "src/polisyos/core/governance/passes/legal_pass.py",
       "target_module": "polisyos.ir.loading.norm_pack",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.core.observability.truthfulness",
+      "source_root": "core",
+      "source_file": "src/polisyos/core/observability/truthfulness.py",
+      "target_module": "polisyos.ir.analytics",
       "target_root": "ir"
     },
     {
@@ -5305,15 +5270,15 @@
       "source_module": "polisyos.foundry.agent_sim.wiring.contracts",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/agent_sim/wiring/contracts.py",
-      "target_module": "polisyos.ir.observation.contracts",
+      "target_module": "polisyos.ir.governance.policy_spec",
       "target_root": "ir"
     },
     {
       "source_module": "polisyos.foundry.agent_sim.wiring.contracts",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/agent_sim/wiring/contracts.py",
-      "target_module": "polisyos.lex.interventions",
-      "target_root": "lex"
+      "target_module": "polisyos.ir.observation.contracts",
+      "target_root": "ir"
     },
     {
       "source_module": "polisyos.foundry.agent_sim.wiring.executors",
@@ -5363,13 +5328,6 @@
       "source_file": "src/polisyos/foundry/analysis/attractors.py",
       "target_module": "polisyos.core.contracts.foundry",
       "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.analysis.attractors",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/analysis/attractors.py",
-      "target_module": "polisyos.ir.analytics.phase4_dynamics",
-      "target_root": "ir"
     },
     {
       "source_module": "polisyos.foundry.analysis.attractors",
@@ -5428,25 +5386,11 @@
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.foundry.calibration.calibrator",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/calibration/calibrator.py",
-      "target_module": "polisyos.scientist.methods.autotune.calibration",
-      "target_root": "scientist"
-    },
-    {
       "source_module": "polisyos.foundry.calibration.dp_ci",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/calibration/dp_ci.py",
       "target_module": "polisyos.ir.analytics.dp_robustness",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.foundry.calibration.dp_ci",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/calibration/dp_ci.py",
-      "target_module": "polisyos.scientist.methods.search.judge_thresholds",
-      "target_root": "scientist"
     },
     {
       "source_module": "polisyos.foundry.calibration.fabric_quality",
@@ -5487,13 +5431,6 @@
       "source_module": "polisyos.foundry.calibration.identifiability",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/calibration/identifiability.py",
-      "target_module": "polisyos.ir.analytics.phase4_dynamics",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.foundry.calibration.identifiability",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/calibration/identifiability.py",
       "target_module": "polisyos.ir.registry.refs",
       "target_root": "ir"
     },
@@ -5515,6 +5452,13 @@
       "source_module": "polisyos.foundry.calibration.measurement",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/calibration/measurement.py",
+      "target_module": "polisyos.ir.model_layer.types",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.foundry.calibration.measurement",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/calibration/measurement.py",
       "target_module": "polisyos.ir.observation.bundles",
       "target_root": "ir"
     },
@@ -5522,7 +5466,21 @@
       "source_module": "polisyos.foundry.calibration.measurement",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/calibration/measurement.py",
+      "target_module": "polisyos.ir.observation.compiler",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.foundry.calibration.measurement",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/calibration/measurement.py",
       "target_module": "polisyos.ir.observation.contracts",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.foundry.calibration.measurement",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/calibration/measurement.py",
+      "target_module": "polisyos.ir.observation.measurement",
       "target_root": "ir"
     },
     {
@@ -5887,6 +5845,13 @@
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/data_plane/bindings.py",
       "target_module": "polisyos.ir.kernel",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.foundry.data_plane.bindings",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/data_plane/bindings.py",
+      "target_module": "polisyos.ir.observation.bundles",
       "target_root": "ir"
     },
     {
@@ -7204,13 +7169,6 @@
       "source_file": "src/polisyos/foundry/methods/catalog/causal/composition_failure_cards.py",
       "target_module": "polisyos.ir.registry.refs",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.foundry.methods.catalog.causal.composition_failure_cards",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/methods/catalog/causal/composition_failure_cards.py",
-      "target_module": "polisyos.scientist.methods.search.failure_cards",
-      "target_root": "scientist"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.causal.constraint_discovery",
@@ -8966,6 +8924,13 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.strategic",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/strategic.py",
+      "target_module": "polisyos.ir.artifacts",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.foundry.methods.catalog.causal.strategic",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/methods/catalog/causal/strategic.py",
       "target_module": "polisyos.ir.registry.refs",
       "target_root": "ir"
     },
@@ -9999,13 +9964,6 @@
       "target_root": "core"
     },
     {
-      "source_module": "polisyos.foundry.methods.catalog.policy.frontier",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/methods/catalog/policy/frontier.py",
-      "target_module": "polisyos.scientist.agent.embedder",
-      "target_root": "scientist"
-    },
-    {
       "source_module": "polisyos.foundry.methods.catalog.policy.mcda",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/policy/mcda.py",
@@ -10129,6 +10087,13 @@
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
       "target_module": "polisyos.ir.analytics.phase4_dynamics",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.foundry.methods.catalog.simulation.dynamics",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+      "target_module": "polisyos.ir.registry.refs",
       "target_root": "ir"
     },
     {
@@ -10416,13 +10381,6 @@
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/validation/scoring.py",
       "target_module": "polisyos.core.observability.determinism",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.methods.cli",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/methods/cli/__init__.py",
-      "target_module": "polisyos.core.artifacts.store",
       "target_root": "core"
     },
     {
@@ -10926,13 +10884,6 @@
       "source_module": "polisyos.foundry.validation.release_acceptance",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/validation/release_acceptance.py",
-      "target_module": "polisyos.core.governance.profiles",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.validation.release_acceptance",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/validation/release_acceptance.py",
       "target_module": "polisyos.core.registry",
       "target_root": "core"
     },
@@ -10942,13 +10893,6 @@
       "source_file": "src/polisyos/foundry/validation/release_acceptance.py",
       "target_module": "polisyos.ir.trinity",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.foundry.validation.release_acceptance",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/validation/release_acceptance.py",
-      "target_module": "polisyos.scientist.governance.postflight",
-      "target_root": "scientist"
     },
     {
       "source_module": "polisyos.foundry.welfare.bounds",
@@ -10986,137 +10930,11 @@
       "target_root": "data_forge"
     },
     {
-      "source_module": "polisyos.ir.analytics.alignment_certification",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/analytics/alignment_certification.py",
-      "target_module": "polisyos.scientist.cross_graph.compiler",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.ir.analytics.alignment_certification",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/analytics/alignment_certification.py",
-      "target_module": "polisyos.scientist.methods.search.latent_governance",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.ir.analytics.phase4_dynamics",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/analytics/phase4_dynamics.py",
-      "target_module": "polisyos.core.contracts.foundry",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.ir.analytics.simulation_proof_bridge",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/analytics/simulation_proof_bridge.py",
-      "target_module": "polisyos.core.observability.truthfulness",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.ir.analytics.strategic",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/analytics/strategic.py",
-      "target_module": "polisyos.foundry.methods.catalog.causal.strategic",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.ir.analytics.strategic",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/analytics/strategic.py",
-      "target_module": "polisyos.scientist.orchestration.kernel.budgets",
-      "target_root": "scientist"
-    },
-    {
       "source_module": "polisyos.ir.analytics.transportability",
       "source_root": "ir",
       "source_file": "src/polisyos/ir/analytics/transportability.py",
       "target_module": "polisyos.data_forge.read_api.catalog",
       "target_root": "data_forge"
-    },
-    {
-      "source_module": "polisyos.ir.analytics.transportability",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/analytics/transportability.py",
-      "target_module": "polisyos.foundry.methods.catalog.causal.id_engine",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.ir.observation.bundles",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/observation/bundles.py",
-      "target_module": "polisyos.scientist.methods.backtesting.plan",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.ir.observation.causal_execution",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/observation/causal_execution.py",
-      "target_module": "polisyos.foundry.methods.catalog.causal.protocols",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.ir.observation.compiler",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/observation/compiler.py",
-      "target_module": "polisyos.foundry.calibration.measurement",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.ir.observation.contract_compilers",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/observation/contract_compilers.py",
-      "target_module": "polisyos.foundry.methods.catalog.causal.protocols",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.ir.observation.contract_compilers",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/observation/contract_compilers.py",
-      "target_module": "polisyos.foundry.methods.catalog.econometrics.protocols",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.ir.observation.contract_compilers",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/observation/contract_compilers.py",
-      "target_module": "polisyos.foundry.methods.catalog.microsim.protocols",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.ir.observation.contract_compilers",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/observation/contract_compilers.py",
-      "target_module": "polisyos.foundry.methods.catalog.ml.protocols",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.ir.observation.contract_compilers",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/observation/contract_compilers.py",
-      "target_module": "polisyos.foundry.methods.catalog.network.protocols",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.ir.observation.contract_compilers",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/observation/contract_compilers.py",
-      "target_module": "polisyos.scientist.methods.backtesting.plan",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.ir.passes.core",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/passes/core.py",
-      "target_module": "polisyos.foundry.methods.catalog.causal.estimand_compiler",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.ir.passes.core",
-      "source_root": "ir",
-      "source_file": "src/polisyos/ir/passes/core.py",
-      "target_module": "polisyos.foundry.methods.catalog.causal.kernel_lowering",
-      "target_root": "foundry"
     },
     {
       "source_module": "polisyos.ir.schemas.catalog",
@@ -11276,41 +11094,6 @@
       "source_module": "polisyos.lex.interventions",
       "source_root": "lex",
       "source_file": "src/polisyos/lex/interventions.py",
-      "target_module": "polisyos.foundry.methods.catalog.causal.causal_engine",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.lex.interventions",
-      "source_root": "lex",
-      "source_file": "src/polisyos/lex/interventions.py",
-      "target_module": "polisyos.foundry.methods.catalog.causal.dtr",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.lex.interventions",
-      "source_root": "lex",
-      "source_file": "src/polisyos/lex/interventions.py",
-      "target_module": "polisyos.foundry.methods.catalog.causal.protocols",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.lex.interventions",
-      "source_root": "lex",
-      "source_file": "src/polisyos/lex/interventions.py",
-      "target_module": "polisyos.ir.analytics.dynamic_regime",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.lex.interventions",
-      "source_root": "lex",
-      "source_file": "src/polisyos/lex/interventions.py",
-      "target_module": "polisyos.ir.artifacts",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.lex.interventions",
-      "source_root": "lex",
-      "source_file": "src/polisyos/lex/interventions.py",
       "target_module": "polisyos.ir.governance.policy_spec",
       "target_root": "ir"
     },
@@ -11353,50 +11136,8 @@
       "source_module": "polisyos.lex.interventions",
       "source_root": "lex",
       "source_file": "src/polisyos/lex/interventions.py",
-      "target_module": "polisyos.ir.observation.causal_execution",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.lex.interventions",
-      "source_root": "lex",
-      "source_file": "src/polisyos/lex/interventions.py",
       "target_module": "polisyos.ir.observation.contracts",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.lex.interventions",
-      "source_root": "lex",
-      "source_file": "src/polisyos/lex/interventions.py",
-      "target_module": "polisyos.ir.registry.refs",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.lex.interventions",
-      "source_root": "lex",
-      "source_file": "src/polisyos/lex/interventions.py",
-      "target_module": "polisyos.ir.trinity",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.lex.interventions",
-      "source_root": "lex",
-      "source_file": "src/polisyos/lex/interventions.py",
-      "target_module": "polisyos.scientist.methods.search.controller",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.lex.interventions",
-      "source_root": "lex",
-      "source_file": "src/polisyos/lex/interventions.py",
-      "target_module": "polisyos.scientist.policy_design.schema",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.lex.interventions",
-      "source_root": "lex",
-      "source_file": "src/polisyos/lex/interventions.py",
-      "target_module": "polisyos.scientist.policy_design.search",
-      "target_root": "scientist"
     },
     {
       "source_module": "polisyos.lex.knowledge.search",
@@ -13845,21 +13586,7 @@
       "source_module": "polisyos.runtime.quality.data_state_substrate",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
-      "target_module": "polisyos.fabric.io.db",
-      "target_root": "fabric"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.data_state_substrate",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
       "target_module": "polisyos.fabric.world",
-      "target_root": "fabric"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.data_state_substrate",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
-      "target_module": "polisyos.fabric.world.store",
       "target_root": "fabric"
     },
     {
@@ -16379,6 +16106,13 @@
       "source_module": "polisyos.scientist.cross_graph.compiler",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/cross_graph/compiler.py",
+      "target_module": "polisyos.ir.analytics.alignment_certification",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.cross_graph.compiler",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/cross_graph/compiler.py",
       "target_module": "polisyos.ir.analytics.causal_graph",
       "target_root": "ir"
     },
@@ -16400,6 +16134,13 @@
       "source_module": "polisyos.scientist.cross_graph.compiler",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/cross_graph/compiler.py",
+      "target_module": "polisyos.ir.analytics.latent_bridge_synthesis",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.cross_graph.compiler",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/cross_graph/compiler.py",
       "target_module": "polisyos.ir.analytics.literature",
       "target_root": "ir"
     },
@@ -16414,6 +16155,13 @@
       "source_module": "polisyos.scientist.cross_graph.compiler",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/cross_graph/compiler.py",
+      "target_module": "polisyos.ir.artifacts",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.cross_graph.compiler",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/cross_graph/compiler.py",
       "target_module": "polisyos.ir.governance.policy_spec",
       "target_root": "ir"
     },
@@ -16422,6 +16170,13 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/cross_graph/compiler.py",
       "target_module": "polisyos.ir.governance.problem_frame",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.cross_graph.compiler",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/cross_graph/compiler.py",
+      "target_module": "polisyos.ir.registry.refs",
       "target_root": "ir"
     },
     {
@@ -16974,6 +16729,13 @@
       "source_module": "polisyos.scientist.governance.blueprint_release",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
+      "target_module": "polisyos.foundry.validation.release_acceptance",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.scientist.governance.blueprint_release",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
       "target_module": "polisyos.ir.analytics.abstraction",
       "target_root": "ir"
     },
@@ -17002,6 +16764,55 @@
       "source_module": "polisyos.scientist.governance.blueprint_release",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
+      "target_module": "polisyos.ir.governance.gate",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.governance.blueprint_release",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
+      "target_module": "polisyos.ir.governance.policy_spec",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.governance.blueprint_release",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
+      "target_module": "polisyos.ir.governance.problem_frame",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.governance.blueprint_release",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
+      "target_module": "polisyos.ir.governance.schedule",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.governance.blueprint_release",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
+      "target_module": "polisyos.ir.governance.selector_expr",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.governance.blueprint_release",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
+      "target_module": "polisyos.ir.model_layer.model_spec",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.governance.blueprint_release",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
+      "target_module": "polisyos.ir.model_layer.types",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.governance.blueprint_release",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
       "target_module": "polisyos.ir.observation.bundles",
       "target_root": "ir"
     },
@@ -17017,6 +16828,13 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
       "target_module": "polisyos.ir.registry.refs",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.governance.blueprint_release",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/governance/blueprint_release.py",
+      "target_module": "polisyos.ir.trinity",
       "target_root": "ir"
     },
     {
@@ -18388,6 +18206,13 @@
       "source_module": "polisyos.scientist.methods.advanced",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/methods/advanced.py",
+      "target_module": "polisyos.foundry.data_plane",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.advanced",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/methods/advanced.py",
       "target_module": "polisyos.foundry.methods.catalog.ml.protocols",
       "target_root": "foundry"
     },
@@ -19214,6 +19039,13 @@
       "source_module": "polisyos.scientist.methods.discovery.portfolio",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/methods/discovery/portfolio.py",
+      "target_module": "polisyos.foundry.calibration.dp_ci",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.discovery.portfolio",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/methods/discovery/portfolio.py",
       "target_module": "polisyos.foundry.methods.catalog.causal.constraint_discovery",
       "target_root": "foundry"
     },
@@ -19715,13 +19547,6 @@
       "target_root": "core"
     },
     {
-      "source_module": "polisyos.scientist.methods.search.failure_cards",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/methods/search/failure_cards.py",
-      "target_module": "polisyos.core.artifacts.manifest",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.scientist.methods.search.frontier",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/methods/search/frontier.py",
@@ -19965,6 +19790,13 @@
       "source_file": "src/polisyos/scientist/methods/search/judge_stack.py",
       "target_module": "polisyos.ir.trinity",
       "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.methods.search.judge_thresholds",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/methods/search/judge_thresholds.py",
+      "target_module": "polisyos.foundry.calibration.dp_ci",
+      "target_root": "foundry"
     },
     {
       "source_module": "polisyos.scientist.methods.search.judge_thresholds",
@@ -20348,6 +20180,13 @@
       "source_module": "polisyos.scientist.nodes.builtins.c6c_runtime_support",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py",
+      "target_module": "polisyos.ir.governance.policy_spec",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.c6c_runtime_support",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py",
       "target_module": "polisyos.ir.registry.refs",
       "target_root": "ir"
     },
@@ -20356,13 +20195,6 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py",
       "target_module": "polisyos.lex.intervention_artifacts",
-      "target_root": "lex"
-    },
-    {
-      "source_module": "polisyos.scientist.nodes.builtins.c6c_runtime_support",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py",
-      "target_module": "polisyos.lex.interventions",
       "target_root": "lex"
     },
     {
@@ -20817,7 +20649,63 @@
       "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py",
+      "target_module": "polisyos.foundry.data_plane",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py",
+      "target_module": "polisyos.foundry.methods.catalog.causal.causal_engine",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py",
+      "target_module": "polisyos.foundry.methods.catalog.causal.dtr",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py",
+      "target_module": "polisyos.foundry.methods.catalog.causal.protocols",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py",
+      "target_module": "polisyos.ir.analytics.dynamic_regime",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py",
       "target_module": "polisyos.ir.artifacts",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py",
+      "target_module": "polisyos.ir.governance.policy_spec",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py",
+      "target_module": "polisyos.ir.kernel.base",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.causal.run_causal_contract_execution",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py",
+      "target_module": "polisyos.ir.observation.bundles",
       "target_root": "ir"
     },
     {
@@ -23789,6 +23677,13 @@
       "target_root": "core"
     },
     {
+      "source_module": "polisyos.scientist.orchestration.kernel.budgets",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/orchestration/kernel/budgets.py",
+      "target_module": "polisyos.ir.kernel.base",
+      "target_root": "ir"
+    },
+    {
       "source_module": "polisyos.scientist.orchestration.kernel.gate_protocol",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/kernel/gate_protocol.py",
@@ -24339,6 +24234,13 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/policy_design/schema.py",
       "target_module": "polisyos.ir.trinity",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.scientist.policy_design.search",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/policy_design/search.py",
+      "target_module": "polisyos.ir.governance.policy_spec",
       "target_root": "ir"
     },
     {

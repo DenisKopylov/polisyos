@@ -14,7 +14,7 @@ typed runtime/evaluation contracts.
 
 ## Роль в системе
 
-- **Зависит от:** `polisyos.ir`, `polisyos.core`, `polisyos.fabric`, `polisyos.foundry`
+- **Зависит от:** `polisyos.ir`, `polisyos.core`, `polisyos.fabric`
 - **Используется в:** `polisyos.scientist`, `polisyos.runtime`, governance and policy-design flows
 - Модуль связывает опубликованные legal artifacts, factual world state и policy execution surface через CAS, fact log и typed contracts.
 
@@ -22,7 +22,7 @@ typed runtime/evaluation contracts.
 
 - **Compliance path** — `read_api.legal -> normpack -> legal_evaluation -> simulator` формирует юридическую проверку и change proposals.
 - **Knowledge path** — Data Forge legal batch публикует DuckDB/HNSW graph, а `lex.knowledge` читает его без write-side логики.
-- **Intervention mapping** — `interventions.py` и `intervention_artifacts.py` компилируют provision directives в intervention knobs, temporal sequences и strategic-response specs.
+- **Intervention mapping** — `interventions.py` и `intervention_artifacts.py` компилируют provision directives в neutral IR intervention contracts, temporal sequences и strategic-response specs; Scientist owns policy-search and DTR execution bridges.
 - **Version-aware reads** — `resolve_active_version()` читает Data Forge version-index artifacts через `polisyos.data_forge.read_api.legal`.
 - **Component-driven extensibility** — providers, evaluators и extractors поднимаются через registry/entry points, а не хардкодятся в orchestration.
 - **Artifact-first execution** — ключевые выходы сохраняются как `lex.*` artifacts и world events с provenance.
@@ -103,7 +103,7 @@ legal corpus or graph artifacts.
 
 - Last updated: 2026-08-27
 - Files: 10 top-level Python files plus 5 tracked subpackages
-- Exports: 54 names in the lazy facade `__all__`
+- Exports: 51 names in the lazy facade `__all__`
 - Notable delta: Lex owns the semantic legal benchmark; Data Forge publishes
   query fixtures through its read API and no longer imports Lex benchmark
   consumers.

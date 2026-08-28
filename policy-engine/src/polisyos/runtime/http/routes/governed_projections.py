@@ -78,7 +78,7 @@ def _get_cycle_board_projection_service(request: Request) -> CycleBoardProjectio
         repository_root=_repository_root(),
         stage_trace_resolver=RunPaperProjectionService(
             store=context.store,
-            run_index=context.run_index,
+            core_runs_root=context.core_runs_root,
             tenant_id=access_scope.tenant_id,
         ),
     )

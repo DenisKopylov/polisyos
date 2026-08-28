@@ -2126,6 +2126,18 @@ def compile_to_method_dag_nodes(
             readiness_payload = dict(data_readiness)
         elif hasattr(data_readiness, "model_dump"):
             readiness_payload = data_readiness.model_dump(mode="json")
+        refusal_params: dict[str, Any] = {}
+        if recommendation.primary_method_fqn == "causal.kernel.refusal@1.0.0":
+            from polisyos.foundry.methods.catalog.causal.kernel_lowering import (
+                build_kernel_estimator_spec,
+            )
+
+            refused_kernel_spec = build_kernel_estimator_spec(
+                ast,
+                shape=recommendation.shape.value,
+                identification_metadata=identification_metadata,
+            )
+            refusal_params["kernel_spec"] = refused_kernel_spec.model_dump(mode="json")
         refuse_id = _node(
             recommendation.primary_method_fqn,
             depends_on=[diag_id] if diag_id is not None else [],
@@ -2139,6 +2151,7 @@ def compile_to_method_dag_nodes(
                 if isinstance(readiness_payload, dict)
                 else ()
             ),
+            **refusal_params,
         )
         _warnings.append(recommendation.notes)
         _ = _node(

@@ -3,20 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-
-class UncertaintyType(str, Enum):
-    """Typed uncertainty categories per blueprint §4.1."""
-
-    STATISTICAL = "statistical"
-    STRUCTURAL = "structural"
-    TRANSPORT = "transport"
-    MEASUREMENT = "measurement"
-    MODEL = "model"
-    OPTIMIZATION = "optimization"
+from polisyos.ir import UncertaintyType
 
 
 class UncertaintyEstimate(BaseModel):

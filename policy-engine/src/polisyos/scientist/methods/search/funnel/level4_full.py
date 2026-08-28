@@ -6,16 +6,15 @@ from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.ir import FailureSeverity, TypedFailureCard
 from polisyos.scientist.methods.search.actionable_side_information import (
     ActionableSideInformation,
     persist_actionable_side_information,
     resolve_actionable_store,
 )
-from polisyos.scientist.methods.search.failure_cards import FailureSeverity
 from polisyos.scientist.methods.search.funnel.types import (
     FunnelStage,
     FunnelStageResult,
-    TypedFailureCard,
     UncertaintyEnvelope,
     UncertaintyEstimate,
     UncertaintyType,

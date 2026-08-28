@@ -1188,16 +1188,41 @@ def test_s2_persists_design_record_and_search_ledger(tmp_path: Path) -> None:
 
     run = run_s2_shadow_design_loop(_input())
     store = FileSystemCAS(tmp_path / "cas")
-    refs = persist_s2_design_search_run(run, store=store)
+    refs = persist_s2_design_search_run(
+        run,
+        store=store,
+        run_id="R_s2-persist",
+        tenant_id="tenant-s2",
+        cell_id="cell-s2",
+    )
 
-    assert refs["design_record"].kind == "policyos.layer2_s2.design_record_v0"
-    assert refs["search_ledger"].kind == "policyos.layer2_s2.search_ledger"
-    assert refs["design_record"].media_type == "application/json"
-    assert refs["search_ledger"].media_type == "application/json"
-    design_record = json.loads(store.get_bytes(refs["design_record"].artifact_id))
-    search_ledger = json.loads(store.get_bytes(refs["search_ledger"].artifact_id))
+    assert refs.design_record_ref.kind == "policyos.layer2_s2.design_record_v0"
+    assert refs.search_ledger_ref.kind == "policyos.layer2_s2.search_ledger"
+    assert refs.binding_ref.kind == "policyos.pdc.run_bound_design_record_binding"
+    assert refs.design_record_ref.media_type == "application/json"
+    assert refs.search_ledger_ref.media_type == "application/json"
+    design_record = json.loads(store.get_bytes(refs.design_record_ref.artifact_id))
+    search_ledger = json.loads(store.get_bytes(refs.search_ledger_ref.artifact_id))
     assert design_record["record_id"] == run.design_record.record_id
     assert search_ledger["deterministic_replay_key"] == (run.search_ledger.deterministic_replay_key)
+    assert refs.binding.run_id == "R_s2-persist"
+    assert refs.binding.tenant_id == "tenant-s2"
+    assert refs.binding.cell_id == "cell-s2"
+    assert refs.binding.case_id == run.search_ledger.case_id
+    assert refs.binding.design_record_ref == refs.design_record_ref
+    assert refs.binding.search_ledger_ref == refs.search_ledger_ref
+    assert refs.binding.design_record_content_digest == str(refs.design_record_ref.artifact_id)
+    assert refs.binding.search_ledger_content_digest == str(refs.search_ledger_ref.artifact_id)
+
+    binding_sidecar = store.get_manifest(refs.binding_ref.artifact_id)
+    assert binding_sidecar.artifact_schema is not None
+    assert binding_sidecar.artifact_schema.name == (
+        "policyos.pdc.run_bound_design_record_binding"
+    )
+    assert binding_sidecar.artifact_schema.version == (
+        "policyos.pdc.run_bound_design_record_binding.v1"
+    )
+    assert binding_sidecar.producer == refs.binding.producer
 
 
 def test_s2_loaded_ledger_replays_same_key(tmp_path: Path) -> None:
@@ -1206,10 +1231,48 @@ def test_s2_loaded_ledger_replays_same_key(tmp_path: Path) -> None:
 
     run = run_s2_shadow_design_loop(_input())
     store = FileSystemCAS(tmp_path / "cas")
-    refs = persist_s2_design_search_run(run, store=store)
-    loaded = load_s2_search_ledger(store=store, artifact_ref=refs["search_ledger"])
+    refs = persist_s2_design_search_run(
+        run,
+        store=store,
+        run_id="R_s2-replay",
+        tenant_id="tenant-s2",
+        cell_id=None,
+    )
+    loaded = load_s2_search_ledger(store=store, artifact_ref=refs.search_ledger_ref)
 
     assert loaded == run.search_ledger
+
+
+def test_run_bound_design_record_binding_rejects_empty_identity_and_digest_substitution(
+    tmp_path: Path,
+) -> None:
+    from pydantic import ValidationError
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.pdc import RunBoundDesignRecordBinding, persist_s2_design_search_run
+
+    run = run_s2_shadow_design_loop(_input())
+    persisted = persist_s2_design_search_run(
+        run,
+        store=FileSystemCAS(tmp_path / "cas"),
+        run_id="R_s2-binding",
+        tenant_id="tenant-s2",
+        cell_id="cell-s2",
+    )
+    payload = persisted.binding.model_dump(mode="python")
+
+    with pytest.raises(ValidationError):
+        RunBoundDesignRecordBinding.model_validate({**payload, "run_id": ""})
+    with pytest.raises(ValidationError):
+        RunBoundDesignRecordBinding.model_validate({**payload, "tenant_id": ""})
+    with pytest.raises(ValidationError, match="design_record_content_digest"):
+        RunBoundDesignRecordBinding.model_validate(
+            {**payload, "design_record_content_digest": "sha256:" + "0" * 64}
+        )
+    with pytest.raises(ValidationError, match="search_ledger_content_digest"):
+        RunBoundDesignRecordBinding.model_validate(
+            {**payload, "search_ledger_content_digest": "sha256:" + "1" * 64}
+        )
 
 
 def test_injected_composition_recorded_on_record_without_self_decomposition() -> None:
@@ -1664,9 +1727,15 @@ def test_s2_s7_persisted_search_ledger_round_trips_delegation_refs(tmp_path: Pat
     )
     run = run_s2_shadow_design_loop(_input(), delegation_posture=posture)
     store = FileSystemCAS(tmp_path / "cas")
-    refs = persist_s2_design_search_run(run, store=store)
+    refs = persist_s2_design_search_run(
+        run,
+        store=store,
+        run_id="R_s2-delegation",
+        tenant_id="tenant-s2",
+        cell_id=None,
+    )
 
-    loaded = load_s2_search_ledger(store=store, artifact_ref=refs["search_ledger"])
+    loaded = load_s2_search_ledger(store=store, artifact_ref=refs.search_ledger_ref)
 
     assert loaded.delegation_request_refs == [posture.human_decision_request_ref]
     assert loaded.delegation_record_refs == [posture.human_decision_record_ref]
@@ -2192,9 +2261,15 @@ def test_s2_s11_persisted_search_ledger_round_trips_predictive_refs(
     posture = _s11_predictive_posture()
     run = run_s2_shadow_design_loop(_input(), predictive_posture=posture)
     store = FileSystemCAS(tmp_path / "cas")
-    refs = persist_s2_design_search_run(run, store=store)
+    refs = persist_s2_design_search_run(
+        run,
+        store=store,
+        run_id="R_s2-predictive",
+        tenant_id="tenant-s2",
+        cell_id=None,
+    )
 
-    loaded = load_s2_search_ledger(store=store, artifact_ref=refs["search_ledger"])
+    loaded = load_s2_search_ledger(store=store, artifact_ref=refs.search_ledger_ref)
 
     assert loaded.predictive_knowledge_refs == [posture.predictive_knowledge_ref]
     assert loaded.predictive_axis_upgrade_refs == list(posture.axis_upgrade_refs)
@@ -2286,9 +2361,15 @@ def test_s2_s12_persisted_search_ledger_round_trips_resource_refs(
     posture = _s12_resource_posture()
     run = run_s2_shadow_design_loop(_input(), resource_posture=posture)
     store = FileSystemCAS(tmp_path / "cas")
-    refs = persist_s2_design_search_run(run, store=store)
+    refs = persist_s2_design_search_run(
+        run,
+        store=store,
+        run_id="R_s2-resource",
+        tenant_id="tenant-s2",
+        cell_id=None,
+    )
 
-    loaded = load_s2_search_ledger(store=store, artifact_ref=refs["search_ledger"])
+    loaded = load_s2_search_ledger(store=store, artifact_ref=refs.search_ledger_ref)
 
     assert loaded.resource_allocation_policy_refs == [
         posture.resource_allocation_policy_ref
@@ -2423,9 +2504,15 @@ def test_s2_s13_persisted_search_ledger_round_trips_accountability_refs(
     posture = _s13_accountability_posture()
     run = run_s2_shadow_design_loop(_input(), accountability_posture=posture)
     store = FileSystemCAS(tmp_path / "cas")
-    refs = persist_s2_design_search_run(run, store=store)
+    refs = persist_s2_design_search_run(
+        run,
+        store=store,
+        run_id="R_s2-accountability",
+        tenant_id="tenant-s2",
+        cell_id=None,
+    )
 
-    loaded = load_s2_search_ledger(store=store, artifact_ref=refs["search_ledger"])
+    loaded = load_s2_search_ledger(store=store, artifact_ref=refs.search_ledger_ref)
 
     assert loaded.accountability_posture_refs == [posture.accountability_posture_ref]
     assert loaded.deployment_dossier_refs == [posture.deployment_dossier_ref]

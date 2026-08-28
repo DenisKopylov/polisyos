@@ -234,7 +234,7 @@ supported_entrypoints = [
   "polisyos.foundry.execute",
 ]
 major_subsystem = true
-notes = "Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml."
+notes = "Stable lazy facade over compile/execute and three generic text-embedding surfaces. Phase 6 keeps public exports on declared facades; moved legacy FQN are compatibility shims registered in architecture/shims.toml."
 
 [[package]]
 module = "polisyos.scientist"

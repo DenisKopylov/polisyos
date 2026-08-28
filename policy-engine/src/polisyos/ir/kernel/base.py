@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 # Generic IR identifiers allow dots and hyphens for namespaced registry ids,
 # artifact-friendly labels, and cross-module references.
@@ -19,6 +19,16 @@ class KernelModel(BaseModel):
     """Kernel model public type."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+class ComputeBudget(BaseModel):
+    """Compute budget public type."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    max_llm_calls: float = Field(default=3.0, ge=0)
+    max_sim_runs: float = Field(default=1.0, ge=0)
+    max_wall_time_s: float = Field(default=120.0, ge=0)
 
 
 def reject_float(value: Any) -> Any:

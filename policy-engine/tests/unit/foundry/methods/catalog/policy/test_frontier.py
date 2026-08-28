@@ -1,7 +1,13 @@
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
+from pathlib import Path
+
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.catalog.policy import ensure_policy_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 
@@ -166,6 +172,77 @@ def test_foundation_model_policy_analysis_uses_tfidf_runtime() -> None:
 
     assert result["runtime_backend"] == "tfidf"
     assert result["policy_rankings"][0]["policy_index"] == 0
+
+
+def test_frontier_embedder_import_preserves_async_backend_state() -> None:
+    repo_root = Path(__file__).parents[6]
+    script = """
+import builtins
+import asyncio
+import importlib
+import importlib.util
+import sys
+from pathlib import Path
+
+try:
+    importlib.import_module("polisyos.scientist.agent.embedder")
+except ModuleNotFoundError as exc:
+    assert exc.name == "polisyos.scientist.agent.embedder"
+else:
+    raise AssertionError("the retired Scientist embedder owner remains importable")
+
+original_import = builtins.__import__
+
+def guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
+    if name == "polisyos.scientist.agent.embedder":
+        raise RuntimeError("frontier reached the retired Scientist embedder owner")
+    return original_import(name, globals, locals, fromlist, level)
+
+builtins.__import__ = guarded_import
+module_path = Path("src/polisyos/foundry/methods/catalog/policy/frontier.py")
+spec = importlib.util.spec_from_file_location("_fs05_frontier", module_path)
+assert spec is not None and spec.loader is not None
+frontier = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(frontier)
+
+assert frontier.TFIDFEmbedder.__module__ == "polisyos.foundry.methods.backends.protocol"
+assert "polisyos.foundry.methods.backends.async_chain_executor" not in sys.modules
+assert "polisyos.foundry.methods.backends.chain_executor" not in sys.modules
+
+from polisyos.foundry.methods.backends import AsyncChainExecutor
+
+class EmptyDAG:
+    def compute_parallel_levels(self):
+        return []
+
+class EmptyChain:
+    dag = EmptyDAG()
+
+result = asyncio.run(
+    AsyncChainExecutor().execute(
+        EmptyChain(),
+        initial_state={"sentinel": 7},
+    )
+)
+
+assert result.final_state == {"sentinel": 7}
+assert result.node_results == ()
+"""
+    env = os.environ.copy()
+    source_root = str(repo_root / "src")
+    env["PYTHONPATH"] = os.pathsep.join(
+        part for part in (source_root, env.get("PYTHONPATH", "")) if part
+    )
+    completed = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=repo_root,
+        env=env,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+
+    assert completed.returncode == 0, completed.stderr
 
 
 def test_sufficient_statistics_propagates_social_weight_ref() -> None:

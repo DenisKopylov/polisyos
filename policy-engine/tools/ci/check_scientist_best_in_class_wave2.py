@@ -264,6 +264,8 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.manifest import ArtifactRef
         from polisyos.core.contracts.c4_persisted_profiles import c4_semantic_digest
+        from polisyos.ir import FailureSeverity, TypedFailureCard
+        from polisyos.ir.registry.refs import ArtifactRefModel
         from polisyos.scientist.evals.challenge_factory import (
             ChallengeStatus,
             generate_challenge_from_failure_card,
@@ -320,10 +322,6 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             validate_memory_influence_dag_attribution,
         )
         from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
-        from polisyos.scientist.methods.search.failure_cards import (
-            FailureSeverity,
-            TypedFailureCard,
-        )
         from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind
         from polisyos.scientist.methods.search.readiness import DecisionReadiness
         from polisyos.scientist.methods.search.voi_models import (
@@ -613,7 +611,9 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         severity=FailureSeverity.BLOCKER,
         description="The cited source did not support the claim.",
         remediation_hint="Generate forged-citation challenge.",
-        evidence_ref=ref("failure-card", kind="scientist.failure_card"),
+        evidence_ref=ArtifactRefModel.model_validate(
+            ref("failure-card", kind="scientist.failure_card").model_dump(mode="json")
+        ),
     )
     challenge = generate_challenge_from_failure_card(
         failure_card,

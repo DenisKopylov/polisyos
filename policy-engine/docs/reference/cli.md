@@ -4,7 +4,7 @@ Related explanation: [Architecture](../explanation/architecture.md).
 
 Owner: `@tools-owners`
 Backup owner: `@platform-owners`
-Source of truth: `pyproject.toml`, `tools/cli.py`, `tools/registry.py`, `src/polisyos/core/components/cli.py`, `src/polisyos/foundry/methods/cli.py`, and `src/polisyos/foundry/plugins/cli.py`
+Source of truth: `pyproject.toml`, `tools/cli.py`, `tools/registry.py`, `tools/ops_runners/runtime_cli.py`, `src/polisyos/foundry/methods/cli.py`, and `src/polisyos/foundry/plugins/cli.py`
 
 This page documents the console scripts declared in `pyproject.toml` and the repo-local workspace
 commands used for contributor setup.
@@ -14,7 +14,7 @@ commands used for contributor setup.
 | Script                         | Entry point                                                 | Purpose                              | Notes                                                           |
 | ------------------------------ | ----------------------------------------------------------- | ------------------------------------ | --------------------------------------------------------------- |
 | `polisy`                       | `polisyos.foundry.plugins.cli:main`                         | Foundry plugin simulator CLI         | Simulation, training, and result analysis                       |
-| `polisyos`                     | `polisyos.core.components.cli:main`                         | Core platform operations CLI         | Components, Lex, Scientist, replay, signing, audit              |
+| `polisyos`                     | `tools.ops_runners.runtime_cli:main`                         | Platform composition CLI             | Components, Lex, Scientist, replay, signing, audit              |
 | `polisyos-foundry`             | `polisyos.foundry.methods.cli:main`                         | Foundry methods developer CLI        | Scaffold, validate, catalog, compatibility checks               |
 | `polisyos-causal-capabilities` | `polisyos.foundry.methods.catalog.causal.capabilities:main` | Emit causal capability contract JSON | No subcommands or `--help` mode                                 |
 | `polisyos-tools`               | `tools.cli:main`                                            | Unified Policy Engine tooling CLI    | Category-based entry point for repo-local engineering workflows |
@@ -150,7 +150,7 @@ polisyos [--version] COMMAND ...
 
 ### Runtime Notes
 
-- `polisyos.core.components.cli_parts` imports subcommand handlers lazily after argument parsing, so importing the module is safe for docs/tests that only need parser metadata.
+- `tools.ops_runners.runtime_cli` composes Core and Scientist command handlers above the product package boundaries; Core handlers remain lazy after argument parsing.
 - Local component discovery honors `POLISYOS_PACKS_PATHS` in addition to repeatable `--dev-scan-path`.
 - Artifact signing/verification commands honor `POLISYOS_SIGNING_KEY`, `POLISYOS_SIGNING_KEY_FILE`, `POLISYOS_SIGN_TRUST_DIR`, `POLISYOS_SIGN_REVOKED_DIR`, `POLISYOS_SIGN_IDENTITIES`, and strict-identity/sign-on-put flags documented in [Configuration](configuration.md).
 - `audit export` SLSA defaults come from `POLISYOS_SLSA_*` unless `--slsa-mode` or `--slsa-policy` is passed explicitly.

@@ -205,9 +205,9 @@ search_mo = [
 
 [project.scripts]
 polisy = "polisyos.foundry.plugins.cli:main"
-polisyos = "polisyos.core.components.cli:main"
+polisyos = "tools.ops_runners.runtime_cli:main"
 polisyos-causal-capabilities = "polisyos.foundry.methods.catalog.causal.capabilities:main"
-polisyos-foundry = "polisyos.foundry.methods.cli:main"
+polisyos-foundry = "tools.ops_runners.runtime_cli:foundry_main"
 polisyos-tools = "tools.cli:main"
 ukraine-data = "polisyos.data_forge.domains.ukraine.cli:main"
 

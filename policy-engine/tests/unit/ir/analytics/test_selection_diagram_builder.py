@@ -1,6 +1,8 @@
 """Tests for SigmaVariable, SelectionDiagramBuilder, SourceDomainSpec, MultiSourceSelectionDiagram."""
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.transportability import (
@@ -13,7 +15,6 @@ from polisyos.ir.analytics.transportability import (
     SNodeRole,
     SourceDomainSpec,
 )
-from pydantic import ValidationError
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -287,14 +288,6 @@ class TestMultiSourceSelectionDiagram:
         with pytest.raises(KeyError):
             mssd.to_selection_diagram("nonexistent")
 
-    def test_to_source_domains_returns_list(self):
-        mssd = self._make_mssd()
-        source_domains = mssd.to_source_domains()
-        assert len(source_domains) == 2
-        ids = [d.domain_id for d in source_domains]
-        assert "dom1" in ids
-        assert "dom2" in ids
-
     def test_frozen_rejects_mutation(self):
         mssd = self._make_mssd()
         with pytest.raises((TypeError, Exception)):
@@ -316,7 +309,7 @@ class TestMultiSourceSelectionDiagram:
             domains=(),
             target_context=ContextProfile(),
         )
-        assert mssd.to_source_domains() == []
+        assert mssd.domains == ()
 
     def test_round_trip_json(self):
         mssd = self._make_mssd()

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
@@ -10,7 +11,7 @@ from polisyos.foundry.methods.catalog.causal.kernel_methods import KernelCMEPlug
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.causal import EstimationStatus, ProofBundle
 from polisyos.ir.analytics.estimand import make_backdoor_estimand
-from polisyos.ir.passes import KernelLoweringPass, PassContext
+from polisyos.ir.analytics.kernel_causal import load_kernel_estimator_spec
 
 
 def _synthetic_state(seed: int = 7, n_obs: int = 160) -> dict[str, np.ndarray]:
@@ -25,35 +26,6 @@ def _synthetic_state(seed: int = 7, n_obs: int = 160) -> dict[str, np.ndarray]:
         "treatment": treatment,
         "outcome": outcome,
     }
-
-
-def test_kernel_lowering_pass_emits_ready_spec() -> None:
-    ast = make_backdoor_estimand(
-        treatment="T",
-        outcome="Y",
-        adjustment_set=("Z",),
-        dataset_ref="ds1",
-    )
-    context = (
-        PassContext()
-        .with_surface("estimand_ast", ast)
-        .with_surface(
-            "kernel_lowering_metadata",
-            {
-                "kernel_lowering_requested": True,
-                "kernel_template": "backdoor_cme",
-                "distributional_query_kind": "interventional_law",
-            },
-        )
-    )
-
-    result = KernelLoweringPass().run(context)
-    spec = result.analysis_updates["kernel_estimator_spec"]
-
-    assert spec.template.value == "backdoor_cme"
-    assert spec.lowering_disposition.value == "ready"
-    assert spec.variable_roles["treatment"] == ("T",)
-    assert spec.variable_roles["outcome"] == ("Y",)
 
 
 def test_kernel_methods_register_under_kernel_namespaces() -> None:
@@ -168,3 +140,62 @@ def test_kernel_compile_execute_and_audit_persists_kernel_spec(tmp_path) -> None
     assert bundle.method_config["kernel_template"] == "dr_cme"
     assert bundle.diagnostic_scores["kernel_effect_norm"] > 0.0
     assert bundle.diagnostic_scores["kernel_characteristic"] == 1.0
+
+
+def test_kernel_compile_execute_and_audit_persists_typed_refusal(tmp_path) -> None:
+    MethodRegistry.reset_instance()
+    ensure_causal_methods_registered()
+    registry = MethodRegistry.get_instance()
+    store = FileSystemCAS(tmp_path / "cas")
+    engine = CausalEngine(registry=registry, artifact_store=store)
+
+    ast = make_backdoor_estimand(
+        treatment="T",
+        outcome="Y",
+        adjustment_set=("Z",),
+        dataset_ref="ds1",
+    ).model_copy(update={"identification_method": "iv"})
+    recommendation, executor_graph = compile_estimand(
+        ast,
+        run_id="kernel-refusal-stage14",
+        n_obs=160,
+        identification_metadata={"kernel_lowering_requested": True},
+    )
+
+    report, node_outputs = engine.estimate(executor_graph, _synthetic_state())
+
+    assert recommendation.strategy.value == "refuse"
+    assert report is not None
+    assert report.status is EstimationStatus.ASSUMPTION_FAILED
+    assert report.status_reason == "kernel lowering blocked: operator_certificate_missing"
+    refusal_outputs = [
+        node_outputs[node.node_id]
+        for node in executor_graph.nodes
+        if node.method_fqn == "causal.kernel.refusal"
+    ]
+    assert len(refusal_outputs) == 1
+    assert refusal_outputs[0]["result"] == {
+        "blocking_reasons": ["operator_certificate_missing"]
+    }
+
+    bundle = engine.audit(
+        None,
+        report,
+        run_id="kernel-refusal-stage14",
+        executor_graph=executor_graph,
+        node_outputs=node_outputs,
+        proof_bundle=ProofBundle(
+            proof_status="identified",
+            proof_stratum="A0_trusted",
+            theorem_family="iv_identification",
+            completeness_regime="complete",
+            implementation_coverage="stage14.1",
+            estimand_ast=ast.model_dump(mode="json"),
+        ),
+    )
+
+    assert bundle.kernel_estimator_spec_ref is not None
+    refused_spec = load_kernel_estimator_spec(store, bundle.kernel_estimator_spec_ref)
+    assert refused_spec.lowering_disposition.value == "proof_only"
+    assert refused_spec.blocking_reasons == ("operator_certificate_missing",)
+    assert bundle.method_config["kernel_lowering_disposition"] == "proof_only"

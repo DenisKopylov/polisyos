@@ -48,137 +48,254 @@ function semanticNodeValue(node: RunPaperSemanticNode): string {
   }
 }
 
+function assertNever(value: never): never {
+  throw new TypeError(`Unhandled run paper case arm: ${JSON.stringify(value)}`);
+}
+
 function CaseRecordSection({
   caseRecord,
 }: {
   caseRecord: RunPaperPacket["case_record"];
 }) {
   const { t } = useI18n();
-  if (caseRecord.availability === "artifact_missing") {
-    return (
-      <section className="space-y-3" data-run-paper-case="artifact_missing">
-        <h2 className="text-xl font-semibold">
-          {t("pages.runs.report.paper.caseTitle")}
-        </h2>
-        <dl className="grid gap-3 sm:grid-cols-2">
-          <PaperFact
-            field="case.availability"
-            label={t("pages.runs.report.paper.fields.availability")}
-            value={caseRecord.availability}
-          />
-          <PaperFact
-            field="case.capability_state"
-            label={t("pages.runs.report.paper.fields.capabilityState")}
-            value={caseRecord.capability_state}
-          />
-          <PaperFact
-            field="case.reason_code"
-            label={t("pages.runs.report.paper.fields.reason")}
-            value={caseRecord.reason_code}
-          />
-          <PaperFact
-            field="case.owner_route"
-            label={t("pages.runs.report.paper.fields.ownerRoute")}
-            value={caseRecord.owner_route}
-          />
-          <PaperFact
-            field="case.closure_signal"
-            label={t("pages.runs.report.paper.fields.closureSignal")}
-            value={caseRecord.closure_signal}
-          />
-        </dl>
-        <div>
-          <h3 className="text-sm font-semibold">
-            {t("pages.runs.report.paper.mayNotUseFor")}
-          </h3>
-          <ul className="mt-2 list-disc space-y-1 pl-5 font-mono text-sm">
-            {caseRecord.may_not_use_for.map((use) => (
-              <li key={use} data-run-paper-case-denied-use={use}>
-                {use}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-    );
-  }
-
-  const issueGroups = [
-    [
-      "blockers",
-      "pages.runs.report.paper.groups.blockers",
-      caseRecord.blockers,
-    ],
-    [
-      "limitations",
-      "pages.runs.report.paper.groups.limitations",
-      caseRecord.limitations,
-    ],
-    [
-      "objections",
-      "pages.runs.report.paper.groups.objections",
-      caseRecord.objections,
-    ],
-    [
-      "abstentions",
-      "pages.runs.report.paper.groups.abstentions",
-      caseRecord.abstentions,
-    ],
-  ] as const;
-  return (
-    <section className="space-y-4" data-run-paper-case="available">
-      <h2 className="text-xl font-semibold">
-        {t("pages.runs.report.paper.caseTitle")}
-      </h2>
-      <dl className="grid gap-3 sm:grid-cols-2">
-        <PaperFact
-          field="case.availability"
-          label={t("pages.runs.report.paper.fields.availability")}
-          value={caseRecord.availability}
-        />
-        <PaperFact
-          field="case.case_id"
-          label={t("pages.runs.report.paper.fields.case")}
-          value={caseRecord.case_id}
-        />
-        <PaperFact
-          field="case.design_record_id"
-          label={t("pages.runs.report.paper.fields.designRecord")}
-          value={caseRecord.design_record_binding.design_record_record_id}
-        />
-        <PaperFact
-          field="case.grounding_state"
-          label={t("pages.runs.report.paper.fields.grounding")}
-          value={caseRecord.grounding_state.state}
-        />
-        <PaperFact
-          field="case.admission_state"
-          label={t("pages.runs.report.paper.fields.admission")}
-          value={caseRecord.admission_state.state}
-        />
-        <PaperFact
-          field="case.promotion_state"
-          label={t("pages.runs.report.paper.fields.promotion")}
-          value={caseRecord.promotion_state.state}
-        />
-      </dl>
-      {issueGroups.map(([group, titleKey, issues]) => (
-        <section key={group} data-run-paper-issue-group={group}>
-          <h3 className="font-semibold">{t(titleKey)}</h3>
-          <ul className="mt-2 space-y-2">
-            {issues.map((issue) => (
-              <li key={issue.issue_id} className="border-line border-l-2 pl-3">
-                <strong>{issue.statement}</strong>
-                <div className="font-mono text-xs">
-                  {issue.status} · {issue.owner_route} · {issue.code}
-                </div>
-              </li>
-            ))}
-          </ul>
+  switch (caseRecord.availability) {
+    case "artifact_missing":
+      return (
+        <section className="space-y-3" data-run-paper-case="artifact_missing">
+          <h2 className="text-xl font-semibold">
+            {t("pages.runs.report.paper.caseTitle")}
+          </h2>
+          <dl className="grid gap-3 sm:grid-cols-2">
+            <PaperFact
+              field="case.availability"
+              label={t("pages.runs.report.paper.fields.availability")}
+              value={caseRecord.availability}
+            />
+            <PaperFact
+              field="case.capability_state"
+              label={t("pages.runs.report.paper.fields.capabilityState")}
+              value={caseRecord.capability_state}
+            />
+            <PaperFact
+              field="case.reason_code"
+              label={t("pages.runs.report.paper.fields.reason")}
+              value={caseRecord.reason_code}
+            />
+            <PaperFact
+              field="case.owner_route"
+              label={t("pages.runs.report.paper.fields.ownerRoute")}
+              value={caseRecord.owner_route}
+            />
+            <PaperFact
+              field="case.closure_signal"
+              label={t("pages.runs.report.paper.fields.closureSignal")}
+              value={caseRecord.closure_signal}
+            />
+          </dl>
+          <div>
+            <h3 className="text-sm font-semibold">
+              {t("pages.runs.report.paper.mayNotUseFor")}
+            </h3>
+            <ul className="mt-2 list-disc space-y-1 pl-5 font-mono text-sm">
+              {caseRecord.may_not_use_for.map((use) => (
+                <li key={use} data-run-paper-case-denied-use={use}>
+                  {use}
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
-      ))}
-    </section>
-  );
+      );
+    case "record_available_authority_abstaining": {
+      const nonreceipts = [
+        ["grounding", caseRecord.grounding_nonreceipt],
+        ["admission", caseRecord.admission_nonreceipt],
+        ["promotion", caseRecord.promotion_nonreceipt],
+      ] as const;
+      return (
+        <section
+          className="space-y-4"
+          data-run-paper-case="record_available_authority_abstaining"
+          data-testid="run-paper-case-authority-abstaining"
+        >
+          <h2 className="text-xl font-semibold">
+            {t("pages.runs.report.paper.caseTitle")}
+          </h2>
+          <dl className="grid gap-3 sm:grid-cols-2">
+            <PaperFact
+              field="case.availability"
+              label={t("pages.runs.report.paper.fields.availability")}
+              value={caseRecord.availability}
+            />
+            <PaperFact
+              field="case.authority_projection"
+              label={t("pages.runs.report.paper.fields.authorityProjection")}
+              value={caseRecord.authority_projection}
+            />
+            <PaperFact
+              field="case.case_id"
+              label={t("pages.runs.report.paper.fields.case")}
+              value={caseRecord.case_id}
+            />
+            <PaperFact
+              field="case.binding_id"
+              label={t("pages.runs.report.paper.fields.binding")}
+              value={caseRecord.design_record_binding.binding_id}
+            />
+            <PaperFact
+              field="case.design_record_id"
+              label={t("pages.runs.report.paper.fields.designRecord")}
+              value={caseRecord.design_record.record_id}
+            />
+            <PaperFact
+              field="case.design_record_ref"
+              label={t("pages.runs.report.paper.fields.designRecordRef")}
+              value={
+                caseRecord.design_record_binding.design_record_ref.artifact_id
+              }
+            />
+            <PaperFact
+              field="case.search_ledger_ref"
+              label={t("pages.runs.report.paper.fields.searchLedgerRef")}
+              value={
+                caseRecord.design_record_binding.search_ledger_ref.artifact_id
+              }
+            />
+            <PaperFact
+              field="case.binding_run_id"
+              label={t("pages.runs.report.paper.fields.run")}
+              value={caseRecord.design_record_binding.run_id}
+            />
+            <PaperFact
+              field="case.binding_tenant_id"
+              label={t("pages.runs.report.paper.fields.tenant")}
+              value={caseRecord.design_record_binding.tenant_id}
+            />
+            <PaperFact
+              field="case.binding_cell_id"
+              label={t("pages.runs.report.paper.fields.cell")}
+              value={caseRecord.design_record_binding.cell_id ?? "null"}
+            />
+          </dl>
+          {nonreceipts.map(([role, receipt]) => (
+            <section key={role} data-run-paper-authority-nonreceipt={role}>
+              <h3 className="font-semibold">{role}</h3>
+              <dl className="grid gap-3 sm:grid-cols-2">
+                <PaperFact
+                  field={`case.${role}.missing_authority`}
+                  label={t("pages.runs.report.paper.fields.missingAuthority")}
+                  value={receipt.missing_authority}
+                />
+                <PaperFact
+                  field={`case.${role}.status`}
+                  label={t("pages.runs.report.paper.fields.status")}
+                  value={receipt.status}
+                />
+                <PaperFact
+                  field={`case.${role}.authority_state`}
+                  label={t("pages.runs.report.paper.fields.authorityState")}
+                  value={receipt.authority_state}
+                />
+                <PaperFact
+                  field={`case.${role}.owner_route`}
+                  label={t("pages.runs.report.paper.fields.ownerRoute")}
+                  value={receipt.owner_route}
+                />
+              </dl>
+              <ul className="mt-2 list-disc space-y-1 pl-5 font-mono text-sm">
+                {receipt.denied_uses.map((deniedUse) => (
+                  <li key={deniedUse}>{deniedUse}</li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </section>
+      );
+    }
+    case "available": {
+      const issueGroups = [
+        [
+          "blockers",
+          "pages.runs.report.paper.groups.blockers",
+          caseRecord.blockers,
+        ],
+        [
+          "limitations",
+          "pages.runs.report.paper.groups.limitations",
+          caseRecord.limitations,
+        ],
+        [
+          "objections",
+          "pages.runs.report.paper.groups.objections",
+          caseRecord.objections,
+        ],
+        [
+          "abstentions",
+          "pages.runs.report.paper.groups.abstentions",
+          caseRecord.abstentions,
+        ],
+      ] as const;
+      return (
+        <section className="space-y-4" data-run-paper-case="available">
+          <h2 className="text-xl font-semibold">
+            {t("pages.runs.report.paper.caseTitle")}
+          </h2>
+          <dl className="grid gap-3 sm:grid-cols-2">
+            <PaperFact
+              field="case.availability"
+              label={t("pages.runs.report.paper.fields.availability")}
+              value={caseRecord.availability}
+            />
+            <PaperFact
+              field="case.case_id"
+              label={t("pages.runs.report.paper.fields.case")}
+              value={caseRecord.case_id}
+            />
+            <PaperFact
+              field="case.design_record_id"
+              label={t("pages.runs.report.paper.fields.designRecord")}
+              value={caseRecord.design_record_binding.design_record_record_id}
+            />
+            <PaperFact
+              field="case.grounding_state"
+              label={t("pages.runs.report.paper.fields.grounding")}
+              value={caseRecord.grounding_state.state}
+            />
+            <PaperFact
+              field="case.admission_state"
+              label={t("pages.runs.report.paper.fields.admission")}
+              value={caseRecord.admission_state.state}
+            />
+            <PaperFact
+              field="case.promotion_state"
+              label={t("pages.runs.report.paper.fields.promotion")}
+              value={caseRecord.promotion_state.state}
+            />
+          </dl>
+          {issueGroups.map(([group, titleKey, issues]) => (
+            <section key={group} data-run-paper-issue-group={group}>
+              <h3 className="font-semibold">{t(titleKey)}</h3>
+              <ul className="mt-2 space-y-2">
+                {issues.map((issue) => (
+                  <li
+                    key={issue.issue_id}
+                    className="border-line border-l-2 pl-3"
+                  >
+                    <strong>{issue.statement}</strong>
+                    <div className="font-mono text-xs">
+                      {issue.status} · {issue.owner_route} · {issue.code}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </section>
+      );
+    }
+    default:
+      return assertNever(caseRecord);
+  }
 }
 
 function RunPaperDocument({ packet }: { packet: RunPaperPacket }) {

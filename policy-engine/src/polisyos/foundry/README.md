@@ -5,14 +5,15 @@ CAS-backed execution plans, binds runtime state, executes patch-first program
 graphs, and hands off to methods, calibration, uncertainty, and agent-based
 simulation surfaces.
 
-- Last updated: 2026-05-06
+- Last updated: 2026-08-27
 
 ## Purpose
 
 Use `polisyos.foundry` as the narrow public facade for compile/execute
-workflows. Everything else in this package tree exists to support that facade:
-runtime contracts, method catalogs, calibration flows, reproducibility hooks,
-and agent-sim tooling.
+workflows and the generic text-embedding contract and implementations.
+Everything else in this package tree exists to support that facade: runtime
+contracts, method catalogs, calibration flows, reproducibility hooks, and
+agent-sim tooling.
 
 ## Where to Start
 
@@ -25,6 +26,10 @@ and agent-sim tooling.
 
 - [execute/api.py](execute/api.py) for `execute()`, input bindings, and replay
   behavior.
+
+- [__init__.py](__init__.py) for the lazy public embedding exports and
+  [methods/backends/protocol.py](methods/backends/protocol.py) for their
+  Foundry-owned implementation.
 
 - [contracts/README.md](contracts/README.md) for runtime state, patch, and
   fidelity contracts.
@@ -43,11 +48,14 @@ and agent-sim tooling.
 
 ## Public API
 
-| Entrypoint          | Description                                                                                                |
-| ------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `compile()`         | Compile a Trinity bundle into `foundry.program_graph`, `foundry.exec_plan`, and a compile report artifact. |
-| `compile_program()` | Compatibility alias for `compile()` on the package facade.                                                 |
-| `execute()`         | Execute a compiled plan from `FoundryInputBindingsRef` and persist simulation evidence.                    |
+| Entrypoint                    | Description                                                                                                |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `compile()`                   | Compile a Trinity bundle into `foundry.program_graph`, `foundry.exec_plan`, and a compile report artifact. |
+| `compile_program()`           | Compatibility alias for `compile()` on the package facade.                                                 |
+| `execute()`                   | Execute a compiled plan from `FoundryInputBindingsRef` and persist simulation evidence.                    |
+| `EmbedderProtocol`            | Structural contract for fixed-dimensional text embedders.                                                 |
+| `TFIDFEmbedder`               | Dependency-free fitted TF-IDF text embedder.                                                               |
+| `SentenceTransformerEmbedder` | Optional sentence-transformers adapter whose dependency loads only on construction.                        |
 
 The stable package facade is intentionally small. If a workflow needs lower
 level helpers, start from the subpackage README for that area instead of
@@ -55,12 +63,12 @@ deep-importing ad hoc internals.
 
 ## Internal Layout
 
-- [`api.py`](api.py), [`__init__.py`](__init__.py), [`compile/`](compile/),
-  and [`execute/`](execute/) own the stable public compile/execute surface.
+- [`api.py`](api.py), [`__init__.py`](__init__.py), [`compile/`](compile/), and
+  [`execute/`](execute/) own the stable public Foundry facades.
 - [`contracts/`](contracts/README.md) owns runtime state, patch, and fidelity
   contracts used by compilation and execution.
 - [`methods/`](methods/README.md) owns reusable method ABI, registries, and
-  catalog families.
+  catalog families; its backend modules remain internal implementation paths.
 - [`agent_sim/`](agent_sim/README.md), [`calibration/`](calibration/README.md),
   [`uncertainty/`](uncertainty/README.md), and domain helpers are
   implementation surfaces unless exported by the root facade.

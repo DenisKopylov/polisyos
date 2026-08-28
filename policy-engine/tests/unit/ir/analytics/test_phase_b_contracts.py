@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentOverallStatus,
@@ -12,6 +13,7 @@ from polisyos.ir.analytics.alignment_certification import (
     MeasurementComparabilityGrade,
     MetadataCheckStatus,
     VariableAlignmentCertificate,
+    _component_latent_bridge_metadata,
     build_alignment_report,
     load_alignment_report,
     load_variable_alignment_certificate,
@@ -47,6 +49,9 @@ from polisyos.ir.registry.refs import (
     InterfaceMappingRef,
     SCMFragmentRef,
     VariableAlignmentCertificateRef,
+)
+from polisyos.scientist.cross_graph.compiler import (
+    _verify_fragment_bundle_alignment_with_governance,
 )
 
 
@@ -144,6 +149,49 @@ def _certificate(
         reviewer=reviewer,
         metadata={"source": "test"},
     )
+
+
+def test_latent_component_requires_every_edge_to_allow_promotion() -> None:
+    promoted = _certificate(alignment_type=AlignmentType.LATENT_BRIDGE).model_copy(
+        update={
+            "metadata": {
+                "latent_bridge_governance": {
+                    "readiness_cap": "estimation_ready",
+                    "promotion_allowed": True,
+                    "no_promotion_reasons": [],
+                    "metadata": {"latent_artifact_blockers": []},
+                }
+            }
+        }
+    )
+    proof_only = _certificate(alignment_type=AlignmentType.LATENT_BRIDGE).model_copy(
+        update={
+            "variable_a": "household_income",
+            "variable_b": "household_income",
+            "metadata": {
+                "latent_bridge_governance": {
+                    "readiness_cap": "proof_only",
+                    "promotion_allowed": False,
+                    "no_promotion_reasons": ["latent_artifact_proof_only"],
+                    "metadata": {
+                        "latent_artifact_blockers": ["latent_artifact_proof_only"]
+                    },
+                }
+            },
+        }
+    )
+
+    metadata = _component_latent_bridge_metadata([promoted, proof_only])
+
+    assert metadata["latent_bridge_readiness_cap"] == "proof_only"
+    assert metadata["latent_bridge_promotion_allowed"] is False
+    assert metadata["latent_artifact_blockers"] == ["latent_artifact_proof_only"]
+
+    promoted_with_exact = _component_latent_bridge_metadata(
+        [promoted, _certificate(alignment_type=AlignmentType.EXACT)]
+    )
+    assert promoted_with_exact["latent_bridge_readiness_cap"] == "estimation_ready"
+    assert promoted_with_exact["latent_bridge_promotion_allowed"] is True
 
 
 def test_scm_fragment_validates_interface_subsets() -> None:
@@ -593,7 +641,7 @@ def test_verify_fragment_alignment_emits_explicit_incompatible_for_unrelated_int
     assert mapping.entries == []
 
 
-def test_verify_fragment_alignment_emits_latent_bridge_and_ontology_warning() -> None:
+def test_scientist_alignment_emits_ontology_warning() -> None:
     fragment_a = SCMFragment(
         fragment_id="labor",
         graph_ref="artifact:graph:labor",
@@ -611,13 +659,8 @@ def test_verify_fragment_alignment_emits_latent_bridge_and_ontology_warning() ->
         variable_definitions={"employment_rate": "Employment rate"},
     )
 
-    pair_key = "health:employment_rate|labor:employment_rate"
-    report, _ = verify_fragment_alignment(
-        fragment_a,
-        fragment_b,
-        config=AlignmentVerificationConfig(
-            explicit_latent_bridges={pair_key: "artifact:latent:bridge"}
-        ),
+    report, _ = _verify_fragment_bundle_alignment_with_governance(
+        [fragment_a, fragment_b],
         ontology=[
             {
                 "concept_id": "concept.labor.employment",
@@ -634,13 +677,11 @@ def test_verify_fragment_alignment_emits_latent_bridge_and_ontology_warning() ->
         ],
     )
 
-    assert report.per_variable_certificates[0].alignment_type is AlignmentType.LATENT_BRIDGE
-    assert report.per_variable_certificates[0].reviewer is AlignmentReviewerState.PENDING_REVIEW
-    assert report.review_status is AlignmentReviewStatus.PENDING_REVIEW
+    assert report.per_variable_certificates[0].alignment_type is AlignmentType.PROXY
     assert report.ontology_mismatch_warnings
 
 
-def test_verify_fragment_alignment_marks_human_verified_latent_bridge_as_aligned() -> None:
+def test_legacy_latent_bridge_human_flag_cannot_authorize_latent_alignment() -> None:
     fragment_a = SCMFragment(
         fragment_id="labor",
         graph_ref="artifact:graph:labor",
@@ -668,12 +709,17 @@ def test_verify_fragment_alignment_marks_human_verified_latent_bridge_as_aligned
         ),
     )
 
-    assert report.overall_status is AlignmentOverallStatus.ALIGNED
+    assert report.overall_status is AlignmentOverallStatus.INCOMPATIBLE
     assert report.review_status is AlignmentReviewStatus.CLEAR
-    assert report.measurement_comparability_grade is MeasurementComparabilityGrade.LOW
-    assert report.per_variable_certificates[0].alignment_type is AlignmentType.LATENT_BRIDGE
-    assert report.per_variable_certificates[0].reviewer is AlignmentReviewerState.HUMAN_VERIFIED
-    assert mapping.entries[0].reviewer == "human_verified"
+    certificate = report.per_variable_certificates[0]
+    assert certificate.alignment_type is AlignmentType.INCOMPATIBLE
+    assert "latent_governance_recomputation_missing" in certificate.metadata[
+        "hard_conflict_reasons"
+    ]
+    governance = report.per_variable_certificates[0].metadata["latent_bridge_governance"]
+    assert governance["readiness_cap"] == "proof_only"
+    assert governance["promotion_allowed"] is False
+    assert mapping.entries == []
 
 
 def test_verify_fragment_bundle_alignment_merges_pairwise_mapping() -> None:

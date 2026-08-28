@@ -2,15 +2,28 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.data_forge.read_api.academic import ParameterCandidate, SKGQuery
 from polisyos.data_forge.read_api.catalog import DatasetRegistry, resolve_proxy
+from polisyos.ir.analytics.alignment_certification import (
+    AlignmentDegradedOutcome,
+    AlignmentDegradedOutcomeCode,
+    AlignmentReport,
+    AlignmentVerificationConfig,
+    _build_latent_governance_input,
+    _build_ontology_warning_result,
+    _finalize_fragment_bundle_alignment,
+    _LatentGovernanceInput,
+    _OntologyWarningResult,
+    verify_fragment_bundle_alignment,
+)
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.cross_graph import (
@@ -28,17 +41,27 @@ from polisyos.ir.analytics.cross_graph import (
     EvidenceSourceState,
     EvidenceSourceStatus,
     EvidenceStatus,
+    InterfaceMapping,
     LegalStatus,
     ObservabilityStatus,
+    SCMFragment,
     TransportStatus,
     build_evidence_need_id,
 )
+from polisyos.ir.analytics.latent_bridge_synthesis import (
+    LatentBridgeHypothesis,
+    LatentBridgeStatus,
+    load_latent_bridge_hypothesis,
+    persist_latent_bridge_hypothesis,
+)
 from polisyos.ir.analytics.literature import LiteratureCausalPrior
 from polisyos.ir.analytics.transportability import TransportMode
+from polisyos.ir.artifacts import ArtifactStore
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec
 from polisyos.ir.governance.problem_frame import (
     ConstraintSpec,
 )
+from polisyos.ir.registry.refs import LatentBridgeHypothesisRef
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.api import evaluate_transport_constraints
 from polisyos.lex.errors import LexError
@@ -50,6 +73,14 @@ from polisyos.scientist.cross_graph.alignment import (
 )
 from polisyos.scientist.cross_graph.gatherers.academic import AcademicGatherer
 from polisyos.scientist.evidence.sources import build_path_source_status, update_source_status
+from polisyos.scientist.methods.search.latent_governance import (
+    materialize_latent_bridge_governance,
+)
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+logger = logging.getLogger(__name__)
 
 _CROSS_GRAPH_QUERY_ERRORS = (
     duckdb.Error,
@@ -1922,6 +1953,206 @@ def _append_unique_diagnostics(
             continue
         seen.add(key)
         target.append(diagnostic)
+
+
+_ALIGNMENT_GOVERNANCE_LOAD_ERRORS = (
+    KeyError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+_ALIGNMENT_ONTOLOGY_ERRORS = (
+    AttributeError,
+    KeyError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+
+
+def _coerce_alignment_hypothesis_ref(value: Any) -> LatentBridgeHypothesisRef | None:
+    if value in (None, ""):
+        return None
+    candidate = value
+    if hasattr(candidate, "model_dump") and not isinstance(candidate, dict):
+        candidate = candidate.model_dump(mode="json")
+    try:
+        return LatentBridgeHypothesisRef.model_validate(candidate)
+    except (TypeError, ValueError, ValidationError):
+        return None
+
+
+def _alignment_candidate_hypothesis(certificate: Any) -> LatentBridgeHypothesis | None:
+    payload = getattr(certificate, "metadata", {}).get("latent_bridge_status_snapshot")
+    if not isinstance(payload, dict):
+        return None
+    try:
+        return LatentBridgeHypothesis.model_validate(payload)
+    except (TypeError, ValueError, ValidationError):
+        return None
+
+
+def _materialize_alignment_governance_inputs(
+    *,
+    report: AlignmentReport,
+    config: AlignmentVerificationConfig,
+    artifact_store: ArtifactStore | None,
+) -> tuple[_LatentGovernanceInput, ...]:
+    inputs: list[_LatentGovernanceInput] = []
+    seen_pairs: set[str] = set()
+    for certificate in report.per_variable_certificates:
+        pair_key = str(certificate.metadata.get("pair_key", "")).strip()
+        if not pair_key or pair_key in seen_pairs:
+            continue
+        seen_pairs.add(pair_key)
+        source_ref = _coerce_alignment_hypothesis_ref(
+            config.explicit_latent_bridges.get(pair_key)
+        )
+        candidate: LatentBridgeHypothesis | None = None
+        if source_ref is not None:
+            if artifact_store is None:
+                continue
+            try:
+                candidate = load_latent_bridge_hypothesis(artifact_store, source_ref)
+            except _ALIGNMENT_GOVERNANCE_LOAD_ERRORS:
+                continue
+        elif config.explicit_latent_bridges.get(pair_key) in (None, ""):
+            candidate = _alignment_candidate_hypothesis(certificate)
+
+        if candidate is None or candidate.status not in {
+            LatentBridgeStatus.PROPOSED,
+            LatentBridgeStatus.HUMAN_VERIFIED,
+        }:
+            continue
+        if artifact_store is None:
+            raise ValueError(
+                "artifact_store is required to persist governed latent bridge hypotheses"
+            )
+        governed = materialize_latent_bridge_governance(candidate)
+        governed_ref = persist_latent_bridge_hypothesis(artifact_store, governed)
+        inputs.append(
+            _build_latent_governance_input(
+                source_ref=source_ref,
+                candidate_hypothesis=candidate,
+                governed_ref=governed_ref,
+                governed_hypothesis=governed,
+            )
+        )
+    return tuple(inputs)
+
+
+def _alignment_ontology_warning_results(
+    *,
+    fragments: Sequence[SCMFragment],
+    report: AlignmentReport,
+    ontology: Sequence[Any],
+) -> tuple[_OntologyWarningResult, ...]:
+    if not ontology:
+        return ()
+    fragments_by_id = {fragment.fragment_id: fragment for fragment in fragments}
+    results: list[_OntologyWarningResult] = []
+    for raw_pair in report.metadata.get("selected_stitch_pairs", []):
+        if not isinstance(raw_pair, (list, tuple)) or len(raw_pair) != 2:
+            continue
+        fragment_pair = tuple(sorted((str(raw_pair[0]), str(raw_pair[1]))))
+        fragment_a = fragments_by_id.get(fragment_pair[0])
+        fragment_b = fragments_by_id.get(fragment_pair[1])
+        if fragment_a is None or fragment_b is None:
+            continue
+        certificates = [
+            certificate
+            for certificate in report.per_variable_certificates
+            if {
+                certificate.fragment_a_id,
+                certificate.fragment_b_id,
+            }
+            == set(fragment_pair)
+        ]
+        if not certificates:
+            continue
+        warnings: tuple[str, ...] = ()
+        degraded_outcomes: tuple[AlignmentDegradedOutcome, ...] = ()
+        try:
+            warnings = tuple(
+                build_fragment_alignment_ontology_warnings(
+                    fragment_a=fragment_a,
+                    fragment_b=fragment_b,
+                    certificates=certificates,
+                    ontology=list(ontology),
+                )
+            )
+        except _ALIGNMENT_ONTOLOGY_ERRORS as exc:
+            logger.warning(
+                "Alignment ontology warning build failed for fragments %s/%s: %s",
+                fragment_a.fragment_id,
+                fragment_b.fragment_id,
+                exc,
+            )
+            warnings = (
+                "alignment degraded: ontology_warning_build_failed for pair "
+                f"{fragment_a.fragment_id}<->{fragment_b.fragment_id}",
+            )
+            degraded_outcomes = (
+                AlignmentDegradedOutcome(
+                    code=AlignmentDegradedOutcomeCode.ONTOLOGY_WARNING_BUILD_FAILED,
+                    fragment_pair=fragment_pair,
+                    detail=str(exc),
+                ),
+            )
+        results.append(
+            _build_ontology_warning_result(
+                fragment_pair=fragment_pair,
+                certificates=certificates,
+                warnings=warnings,
+                degraded_outcomes=degraded_outcomes,
+            )
+        )
+    return tuple(results)
+
+
+def _verify_fragment_bundle_alignment_with_governance(
+    fragments: Sequence[SCMFragment],
+    *,
+    config: AlignmentVerificationConfig | None = None,
+    ontology: Sequence[Any] | None = None,
+    stitch_pairs: Sequence[tuple[str, str]] | None = None,
+    artifact_store: ArtifactStore | None = None,
+) -> tuple[AlignmentReport, InterfaceMapping]:
+    """Compute Scientist governance, then inject frozen values into pure IR."""
+    verification_config = config or AlignmentVerificationConfig()
+    ordered_fragments = list(fragments)
+    draft_report, _draft_mapping = verify_fragment_bundle_alignment(
+        ordered_fragments,
+        config=verification_config,
+        stitch_pairs=stitch_pairs,
+    )
+    governance_inputs = _materialize_alignment_governance_inputs(
+        report=draft_report,
+        config=verification_config,
+        artifact_store=artifact_store,
+    )
+    governed_report, governed_mapping = _finalize_fragment_bundle_alignment(
+        ordered_fragments,
+        config=verification_config,
+        stitch_pairs=stitch_pairs,
+        latent_governance_inputs=governance_inputs,
+    )
+    ontology_results = _alignment_ontology_warning_results(
+        fragments=ordered_fragments,
+        report=governed_report,
+        ontology=tuple(ontology or ()),
+    )
+    if not ontology:
+        return governed_report, governed_mapping
+    return _finalize_fragment_bundle_alignment(
+        ordered_fragments,
+        config=verification_config,
+        stitch_pairs=stitch_pairs,
+        latent_governance_inputs=governance_inputs,
+        ontology_warning_results=ontology_results,
+    )
 
 
 def build_fragment_alignment_ontology_warnings(

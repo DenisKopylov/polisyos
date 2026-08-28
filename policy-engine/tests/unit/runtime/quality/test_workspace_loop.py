@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from unittest.mock import patch
@@ -151,6 +152,28 @@ def test_slice0_registry_has_only_bind_estimate_verify_active() -> None:
         assert registration.discovery_evidence["source_ref"]
         assert registration.discovery_evidence["adapter_conformance"]["passed"] is True
         assert registration.contract.formal_preconditions
+
+
+def test_s2_design_search_has_distinct_executable_registration_and_preserves_refine_stub() -> None:
+    registry = build_workspace_operation_registry()
+    registration = registry.get("phase2.refine.layer2_s2_design_search")
+    stub = registry.get("slice0.refine.stub")
+    canonical_stub = json.dumps(
+        stub.model_dump(mode="json"),
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode()
+
+    assert len(registry.operations) == 10
+    assert sum(item.executable for item in registry.operations.values()) == 6
+    assert sum(not item.executable for item in registry.operations.values()) == 4
+    assert registration.operation_id == "phase2.refine.layer2_s2_design_search"
+    assert registration.operation_class is OperationClass.REFINE
+    assert registration.executable is True
+    assert registration.contract.operation_id == registration.operation_id
+    assert hashlib.sha256(canonical_stub).hexdigest() == (
+        "c2df1bac85c46b719680999dcc4be09aa8e80a509fde2882249eef9bf3cc3243"
+    )
 
 
 def test_workspace_loop_decomposes_children_and_composes_certificate() -> None:

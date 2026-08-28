@@ -8,7 +8,12 @@ from typing import Any, ClassVar
 
 import numpy as np
 
-from polisyos.core.contracts.foundry import ExecPlanRef, MetricsRef, SimulationResult
+from polisyos.core.contracts.foundry import (
+    ExecPlanRef,
+    IdentifiabilityDiagnosticRef,
+    MetricsRef,
+    SimulationResult,
+)
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -24,10 +29,12 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.ir.analytics.phase4_dynamics import (
+    ABMBifurcationReport,
+    ABMIdentifiabilityCertificate,
     ABMResult,
-    build_abm_result_from_content_bound_simulation,
-    build_abm_result_from_simulation,
+    build_strangle_receipt,
 )
+from polisyos.ir.registry.refs import ArtifactRefModel
 
 
 def _result_slot() -> frozenset[SlotSpec]:
@@ -55,6 +62,57 @@ def _abm_result_stub(
     return build_abm_result_from_simulation(simulation)
 
 
+def _artifact_ref_payload(value: Any | None) -> dict[str, Any] | None:
+    if value is None:
+        return None
+    if isinstance(value, ArtifactRefModel):
+        return value.model_dump(mode="python")
+    return value.model_dump(mode="python") if hasattr(value, "model_dump") else dict(value)
+
+
+def build_abm_result_from_simulation(
+    simulation_result: SimulationResult | Mapping[str, Any],
+    *,
+    identifiability_diagnostic_ref: Any | None = None,
+    attractor_analysis_ref: Any | None = None,
+    bifurcation_count: int | None = None,
+    attractor_count: int | None = None,
+) -> ABMResult:
+    """Convert a validated Foundry simulation result into a neutral IR result."""
+
+    base = (
+        simulation_result
+        if isinstance(simulation_result, SimulationResult)
+        else SimulationResult.model_validate(simulation_result)
+    )
+    supplied_diagnostic_ref = identifiability_diagnostic_ref
+    if supplied_diagnostic_ref is None:
+        supplied_diagnostic_ref = base.identifiability_diagnostic_ref
+    diagnostic_ref = _artifact_ref_payload(supplied_diagnostic_ref)
+    attractor_ref = _artifact_ref_payload(attractor_analysis_ref)
+    payload = base.model_dump(mode="python")
+    if diagnostic_ref is not None:
+        payload["identifiability_diagnostic_ref"] = diagnostic_ref
+    payload["identifiability_certificate"] = ABMIdentifiabilityCertificate(
+        status="diagnostic_attached" if diagnostic_ref is not None else "not_available",
+        diagnostic_ref=diagnostic_ref,
+        identified=None if diagnostic_ref is None else True,
+        summary="aggregate moment identifiability diagnostic attached"
+        if diagnostic_ref is not None
+        else "aggregate moment identifiability diagnostic missing",
+    )
+    payload["bifurcation_report"] = ABMBifurcationReport(
+        status="available" if attractor_ref is not None else "not_available",
+        attractor_analysis_ref=attractor_ref,
+        bifurcation_count=bifurcation_count,
+        attractor_count=attractor_count,
+        summary="attractor/bifurcation analysis attached"
+        if attractor_ref is not None
+        else "attractor/bifurcation analysis missing",
+    )
+    return ABMResult.model_validate(payload)
+
+
 def build_content_bound_abm_result(
     *,
     method_id: str,
@@ -64,11 +122,29 @@ def build_content_bound_abm_result(
 ) -> ABMResult:
     """Build an ABM result whose evidence refs bind the actual simulation output."""
 
-    return build_abm_result_from_content_bound_simulation(
+    receipt = build_strangle_receipt(
         method_id=method_id,
         horizon=horizon,
         payload=payload,
         diagnostics=diagnostics,
+    )
+    diagnostic_ref = IdentifiabilityDiagnosticRef(
+        artifact_id=receipt.diagnostics_hash
+    )
+    simulation = SimulationResult(
+        exec_plan_ref=ExecPlanRef(artifact_id=receipt.payload_hash),
+        metrics_ref=MetricsRef(artifact_id=receipt.metrics_hash),
+        identifiability_diagnostic_ref=diagnostic_ref,
+        notes=[
+            "content_bound_abm_result",
+            f"trajectory_hash:{receipt.trajectory_hash}",
+            f"diagnostics_hash:{receipt.diagnostics_hash}",
+            f"strangle_receipt:{receipt.model_dump_json()}",
+        ],
+    )
+    return build_abm_result_from_simulation(
+        simulation,
+        identifiability_diagnostic_ref=diagnostic_ref,
     )
 
 
@@ -850,5 +926,6 @@ __all__ = [
     "SEIRCompartmentalEstimator",
     "SIRCompartmentalEstimator",
     "StockFlowSystemDynamicsEstimator",
+    "build_abm_result_from_simulation",
     "build_content_bound_abm_result",
 ]

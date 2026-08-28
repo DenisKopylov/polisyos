@@ -10,6 +10,12 @@ Covers:
 
 import numpy as np
 import pytest
+
+from polisyos.foundry.calibration.dp_ci import (
+    CITestThresholdPolicy,
+    CITestThresholdPolicySet,
+    ci_threshold_scope,
+)
 from polisyos.foundry.methods.catalog.causal.missing_data import (
     AdministrativeMissingnessAssessment,
     assess_administrative_missingness,
@@ -1151,7 +1157,7 @@ def test_mgraph_implications_categorical_route():
     assert report.warnings == []
 
 
-def test_mgraph_implications_categorical_route_preserves_dp_calibration(tmp_path):
+def test_mgraph_implications_categorical_route_preserves_dp_calibration():
     from polisyos.foundry.methods.catalog.causal.missing_data import (
         ConditionalIndependence,
         MGraphImplicationTester,
@@ -1170,6 +1176,25 @@ def test_mgraph_implications_categorical_route_preserves_dp_calibration(tmp_path
     x = np.where(z == "0", rng.integers(0, 3, size=n), rng.integers(0, 3, size=n)).astype(str)
     y_dep = x.copy()
     data = {"X": x, "Y_dep": y_dep, "Z": z}
+    dp_context = {
+        "mechanism": "gaussian_counts",
+        "epsilon": 0.7,
+        "delta": 1e-6,
+    }
+    policies = CITestThresholdPolicySet(
+        policies=(
+            CITestThresholdPolicy(
+                threshold_scope=ci_threshold_scope(
+                    family="categorical_ci",
+                    query_type="g2",
+                    estimator="stratified_counts",
+                    dp_context=dp_context,
+                    readiness_target="diagnostic",
+                ),
+                threshold_registry_version=1,
+            ),
+        )
+    )
 
     implications = [ConditionalIndependence(x="X", y="Y_dep", z=("Z",))]
     report = test_mgraph_implications(
@@ -1178,12 +1203,8 @@ def test_mgraph_implications_categorical_route_preserves_dp_calibration(tmp_path
         data=data,
         implications=implications,
         alpha=0.05,
-        dp_context={
-            "mechanism": "gaussian_counts",
-            "epsilon": 0.7,
-            "delta": 1e-6,
-        },
-        judge_threshold_registry_root=str(tmp_path),
+        dp_context=dp_context,
+        ci_threshold_policies=policies.model_dump(mode="python"),
     )
 
     result = report.results[0]
@@ -1199,12 +1220,8 @@ def test_mgraph_implications_categorical_route_preserves_dp_calibration(tmp_path
         {
             "implications": implications,
             "alpha": 0.05,
-            "dp_context": {
-                "mechanism": "gaussian_counts",
-                "epsilon": 0.7,
-                "delta": 1e-6,
-            },
-            "judge_threshold_registry_root": str(tmp_path),
+            "dp_context": dp_context,
+            "ci_threshold_policies": policies.model_dump(mode="python"),
         },
     )
     result_payload = out["test_report"]["results"][0]["metadata"]

@@ -411,7 +411,7 @@ class CalibrationConfig(BaseModel):
     fidelity mode, multi-start/Hessian behavior, and deterministic seeding.
     """
 
-    schema_version: str = Field("0.1", pattern=r"^\\d+\\.\\d+$")
+    schema_version: str = Field("0.1", pattern=r"^\d+\.\d+$")
     targets: list[CalibrationTarget] = Field(default_factory=list)
     trainables: list[TrainableParamRef] = Field(
         default_factory=list,

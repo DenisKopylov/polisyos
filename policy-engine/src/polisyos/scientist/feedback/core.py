@@ -52,6 +52,7 @@ from polisyos.scientist.feedback.utils import (
     _path_get,
     _within_range,
 )
+from polisyos.scientist.methods.autotune.calibration import apply_calibration_meta_overrides
 from polisyos.scientist.orchestration.engine.operational_monitoring import get_operational_monitor
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
@@ -439,7 +440,7 @@ class DecisionFeedbackService:
             item for item in monitoring_report.metrics if item.verdict == MonitoringVerdict.REFUTED
         ]
         if refuted_metrics:
-            config = CalibrationConfig(
+            base_config = CalibrationConfig(
                 targets=[
                     CalibrationTarget(
                         target_id=item.metric_id,
@@ -449,6 +450,18 @@ class DecisionFeedbackService:
                     for item in refuted_metrics
                 ],
                 max_steps=100,
+            )
+            config = apply_calibration_meta_overrides(
+                base_config,
+                context={
+                    "source_run_id": source_run_id,
+                    "source_packet_ref": source_packet_ref,
+                    "source_packet_payload": dict(source_packet_payload),
+                    "monitoring_report": monitoring_report,
+                    "monitoring_report_ref": monitoring_report_ref,
+                    "compare_report": compare_report,
+                    "compare_report_ref": compare_report_ref,
+                },
             )
             config_ref = self._put_model(
                 config,

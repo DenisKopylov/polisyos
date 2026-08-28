@@ -144,6 +144,8 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     try:
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.ir import FailureSeverity, TypedFailureCard
+        from polisyos.ir.registry.refs import ArtifactRefModel
         from polisyos.scientist.evals.authority import (
             BenchmarkAuthority,
             PromotionEvidenceRequest,
@@ -175,7 +177,6 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         )
         from polisyos.scientist.evals.sentinels import SentinelChallengeCase, SentinelChallengeKind
         from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
-        from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
     except Exception as exc:  # pragma: no cover - surfaced in payload.
         return False, [f"phase2_5_import_failed:{exc.__class__.__name__}:{exc}"]
 
@@ -196,7 +197,9 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         severity=FailureSeverity.BLOCKER,
         description="The output used a forged citation.",
         remediation_hint="Add a forged-citation adversarial challenge.",
-        evidence_ref=_ref("failure", kind="scientist.failure_card"),
+        evidence_ref=ArtifactRefModel.model_validate(
+            _ref("failure", kind="scientist.failure_card").model_dump(mode="json")
+        ),
     )
     challenge = generate_challenge_from_failure_card(
         failure_card,

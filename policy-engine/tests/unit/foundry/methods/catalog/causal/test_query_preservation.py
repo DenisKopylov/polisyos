@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ComposeSCMFragments
 from polisyos.foundry.methods.catalog.causal.protocols import FragmentCompositionData
 from polisyos.foundry.methods.catalog.causal.query_preservation import (
@@ -35,7 +36,21 @@ from polisyos.ir.analytics.cross_graph import (
     SolverKind,
     UniquenessScope,
 )
+from polisyos.ir.analytics.latent_bridge_synthesis import (
+    LatentBridgeFalsificationTest,
+    LatentBridgeFalsificationTestFamily,
+    LatentBridgeFalsificationTestStatus,
+    LatentBridgeHeldoutMetrics,
+    LatentBridgeHypothesis,
+    LatentBridgeStatus,
+    LatentBridgeSynthesisMode,
+    persist_latent_bridge_hypothesis,
+)
 from polisyos.ir.analytics.negative_certificate import BlockingType
+from polisyos.ir.registry.refs import LatentBridgeHypothesisRef
+from polisyos.scientist.cross_graph.compiler import (
+    _verify_fragment_bundle_alignment_with_governance,
+)
 
 
 def _edge(src: str, dst: str) -> CausalEdge:
@@ -138,18 +153,75 @@ def _cyclic_fragment(
     )
 
 
+def _persist_human_verified_latent_bridge(
+    store: FileSystemCAS,
+    *,
+    pair_key: str,
+) -> LatentBridgeHypothesisRef:
+    return persist_latent_bridge_hypothesis(
+        store,
+        LatentBridgeHypothesis(
+            bridge_id=f"latent::bridge::{pair_key}",
+            pair_key=pair_key,
+            status=LatentBridgeStatus.HUMAN_VERIFIED,
+            synthesis_mode=LatentBridgeSynthesisMode.MEASUREMENT_MODEL,
+            measurement_side_a_refs=["indicator:a:1", "indicator:a:2"],
+            measurement_side_b_refs=["indicator:b:1", "indicator:b:2"],
+            heldout_metrics=LatentBridgeHeldoutMetrics(
+                delta_cv=0.14,
+                lower_ci=0.05,
+                upper_ci=0.19,
+                scoring_rule="loglik",
+            ),
+            falsification_tests=[
+                LatentBridgeFalsificationTest(
+                    test_family=LatentBridgeFalsificationTestFamily.CTA,
+                    status=LatentBridgeFalsificationTestStatus.PASS,
+                    p_value=0.35,
+                )
+            ],
+            metadata={
+                "opaque_label_required": True,
+                "semantic_interpretation_confidence": "none",
+            },
+        ),
+    )
+
+
+def _human_verified_latent_config(
+    store: FileSystemCAS,
+    *pair_keys: str,
+) -> AlignmentVerificationConfig:
+    return AlignmentVerificationConfig(
+        explicit_latent_bridges={
+            pair_key: _persist_human_verified_latent_bridge(store, pair_key=pair_key)
+            for pair_key in pair_keys
+        },
+        human_verified_pairs=list(pair_keys),
+    )
+
+
 def _compose(
     fragments: list[SCMFragment],
     fragment_graphs: dict[str, CausalGraphModel],
     *,
     config: AlignmentVerificationConfig | None = None,
     direct_stitch_pairs: list[tuple[str, str]] | None = None,
+    artifact_store: FileSystemCAS | None = None,
 ) -> tuple[CausalGraphModel, CompositionCertificate, object]:
-    report, mapping = verify_fragment_bundle_alignment(
-        fragments,
-        config=config,
-        stitch_pairs=direct_stitch_pairs,
-    )
+    if artifact_store is None:
+        report, mapping = verify_fragment_bundle_alignment(
+            fragments,
+            config=config,
+            stitch_pairs=direct_stitch_pairs,
+        )
+    else:
+        report, mapping = _verify_fragment_bundle_alignment_with_governance(
+            fragments,
+            config=config,
+            stitch_pairs=direct_stitch_pairs,
+            artifact_store=artifact_store,
+        )
     result = ComposeSCMFragments.pure_step(
         FragmentCompositionData(
             fragments=fragments,
@@ -635,7 +707,9 @@ def test_evaluate_query_preservation_uses_witness_subgraph_for_chain() -> None:
     assert trace.assumption_boundary is None
 
 
-def test_evaluate_query_preservation_identifies_frontdoor_after_latent_projection() -> None:
+def test_evaluate_query_preservation_identifies_frontdoor_after_latent_projection(
+    tmp_path,
+) -> None:
     fragments = [
         _fragment(
             "a",
@@ -666,15 +740,13 @@ def test_evaluate_query_preservation_identifies_frontdoor_after_latent_projectio
             ],
         ),
     }
+    store = FileSystemCAS(tmp_path / "cas")
+    pair_key = "a:shared_pressure|b:shared_pressure"
     composed_graph, certificate, mapping = _compose(
         fragments,
         fragment_graphs,
-        config=AlignmentVerificationConfig(
-            explicit_latent_bridges={
-                "a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"
-            },
-            human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
-        ),
+        config=_human_verified_latent_config(store, pair_key),
+        artifact_store=store,
     )
     query = CausalQuery(
         query_type=QueryType.INTERVENTIONAL,
@@ -706,7 +778,9 @@ def test_evaluate_query_preservation_identifies_frontdoor_after_latent_projectio
     assert trace.latent_projection_graph is not None
 
 
-def test_evaluate_query_preservation_identifies_adjustment_family_after_latent_projection() -> None:
+def test_evaluate_query_preservation_identifies_adjustment_family_after_latent_projection(
+    tmp_path,
+) -> None:
     fragments = [
         _fragment(
             "a",
@@ -746,15 +820,13 @@ def test_evaluate_query_preservation_identifies_adjustment_family_after_latent_p
             ],
         ),
     }
+    store = FileSystemCAS(tmp_path / "cas")
+    pair_key = "a:shared_pressure|b:shared_pressure"
     composed_graph, certificate, mapping = _compose(
         fragments,
         fragment_graphs,
-        config=AlignmentVerificationConfig(
-            explicit_latent_bridges={
-                "a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"
-            },
-            human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
-        ),
+        config=_human_verified_latent_config(store, pair_key),
+        artifact_store=store,
     )
     query = CausalQuery(
         query_type=QueryType.INTERVENTIONAL,
@@ -780,7 +852,7 @@ def test_evaluate_query_preservation_identifies_adjustment_family_after_latent_p
     assert trace.required_distributions
 
 
-def test_evaluate_query_preservation_emits_hedge_for_latent_projection_bow() -> None:
+def test_evaluate_query_preservation_emits_hedge_for_latent_projection_bow(tmp_path) -> None:
     fragments = [
         _fragment(
             "a",
@@ -808,15 +880,13 @@ def test_evaluate_query_preservation_emits_hedge_for_latent_projection_bow() -> 
             ],
         ),
     }
+    store = FileSystemCAS(tmp_path / "cas")
+    pair_key = "a:shared_pressure|b:shared_pressure"
     composed_graph, certificate, mapping = _compose(
         fragments,
         fragment_graphs,
-        config=AlignmentVerificationConfig(
-            explicit_latent_bridges={
-                "a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"
-            },
-            human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
-        ),
+        config=_human_verified_latent_config(store, pair_key),
+        artifact_store=store,
     )
     query = CausalQuery(
         query_type=QueryType.INTERVENTIONAL,
@@ -852,9 +922,9 @@ def test_evaluate_query_preservation_emits_hedge_for_latent_projection_bow() -> 
     )
 
 
-def test_update_query_preservation_cache_persists_query_certificates_for_latent_projection() -> (
-    None
-):
+def test_update_query_preservation_cache_persists_query_certificates_for_latent_projection(
+    tmp_path,
+) -> None:
     fragments = [
         _fragment(
             "a",
@@ -885,15 +955,13 @@ def test_update_query_preservation_cache_persists_query_certificates_for_latent_
             ],
         ),
     }
+    store = FileSystemCAS(tmp_path / "cas")
+    pair_key = "a:shared_pressure|b:shared_pressure"
     composed_graph, certificate, mapping = _compose(
         fragments,
         fragment_graphs,
-        config=AlignmentVerificationConfig(
-            explicit_latent_bridges={
-                "a:shared_pressure|b:shared_pressure": "artifact:latent:shared_pressure"
-            },
-            human_verified_pairs=["a:shared_pressure|b:shared_pressure"],
-        ),
+        config=_human_verified_latent_config(store, pair_key),
+        artifact_store=store,
     )
     query = CausalQuery(
         query_type=QueryType.INTERVENTIONAL,
@@ -930,9 +998,9 @@ def test_update_query_preservation_cache_persists_query_certificates_for_latent_
     assert replay_trace.theorem_family == "frontdoor_exact"
 
 
-def test_evaluate_query_preservation_marks_direct_latent_query_as_unknown_after_projection() -> (
-    None
-):
+def test_evaluate_query_preservation_marks_direct_latent_query_as_unknown_after_projection(
+    tmp_path,
+) -> None:
     fragments = [
         _fragment("a", interface_variables=["x", "y"], outputs=["x", "y"]),
         _fragment("b", interface_variables=["x", "y"], inputs=["x", "y"]),
@@ -948,16 +1016,13 @@ def test_evaluate_query_preservation_marks_direct_latent_query_as_unknown_after_
         ),
         "b": _graph(["x", "y", "spill"], [_edge("x", "spill")]),
     }
+    store = FileSystemCAS(tmp_path / "cas")
+    pair_keys = ("a:x|b:x", "a:y|b:y")
     composed_graph, certificate, mapping = _compose(
         fragments,
         fragment_graphs,
-        config=AlignmentVerificationConfig(
-            explicit_latent_bridges={
-                "a:x|b:x": "artifact:latent:x",
-                "a:y|b:y": "artifact:latent:y",
-            },
-            human_verified_pairs=["a:x|b:x", "a:y|b:y"],
-        ),
+        config=_human_verified_latent_config(store, *pair_keys),
+        artifact_store=store,
     )
     query = CausalQuery(
         query_type=QueryType.INTERVENTIONAL,

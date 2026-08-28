@@ -4,9 +4,12 @@ import json
 from pathlib import Path
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.components.cli import main
-from polisyos.scientist.orchestration.engine.checkpoint import create_checkpoint, update_checkpoint_head
+from polisyos.scientist.orchestration.engine.checkpoint import (
+    create_checkpoint,
+    update_checkpoint_head,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from tools.ops_runners.runtime_cli import main
 
 
 def _seed_checkpoint(cas_root: Path, run_id: str) -> None:

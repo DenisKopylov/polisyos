@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentReviewerState,
@@ -33,6 +34,9 @@ from polisyos.ir.analytics.latent_bridge_synthesis import (
     synthesize_latent_bridge,
 )
 from polisyos.ir.registry.refs import LatentBridgeHypothesisRef
+from polisyos.scientist.cross_graph.compiler import (
+    _verify_fragment_bundle_alignment_with_governance,
+)
 
 PAIR_KEY = "fragA:var|fragB:var"
 
@@ -576,9 +580,8 @@ def test_verify_fragment_alignment_emits_auto_latent_bridge_when_policy_enabled(
         latent_bridge_policy=_accept_policy(),
         latent_bridge_evidence={pair_key: evidence},
     )
-    report, _mapping = verify_fragment_alignment(
-        fragment_a,
-        fragment_b,
+    report, _mapping = _verify_fragment_bundle_alignment_with_governance(
+        [fragment_a, fragment_b],
         config=config,
         artifact_store=store,
     )
@@ -619,12 +622,15 @@ def test_verify_fragment_alignment_requires_artifact_store_for_auto_latent_bridg
 
     with pytest.raises(
         ValueError,
-        match="artifact_store is required to persist automatic latent bridge hypotheses",
+        match="artifact_store is required to persist governed latent bridge hypotheses",
     ):
-        verify_fragment_alignment(fragment_a, fragment_b, config=config)
+        _verify_fragment_bundle_alignment_with_governance(
+            [fragment_a, fragment_b],
+            config=config,
+        )
 
 
-def test_explicit_latent_bridges_take_priority_over_auto_synthesis() -> None:
+def test_legacy_latent_bridge_cannot_activate_governed_alignment() -> None:
     fragment_a, fragment_b = _pair_fragments()
     pair_key = build_pair_key(
         fragment_a.fragment_id,
@@ -640,10 +646,11 @@ def test_explicit_latent_bridges_take_priority_over_auto_synthesis() -> None:
     report, _ = verify_fragment_alignment(fragment_a, fragment_b, config=config)
 
     certificate = report.per_variable_certificates[0]
-    assert certificate.alignment_type is AlignmentType.LATENT_BRIDGE
+    assert certificate.alignment_type is not AlignmentType.LATENT_BRIDGE
     assert certificate.latent_bridge_hypothesis_ref is None
-    assert certificate.latent_bridge_ref == "artifact:manual:bridge"
-    assert "latent_bridge_evidence_required" in certificate.assumptions_introduced
+    assert certificate.latent_bridge_ref is None
+    assert certificate.metadata["legacy_latent_bridge_ref"] == "artifact:manual:bridge"
+    assert certificate.metadata["latent_bridge_governance"]["promotion_allowed"] is False
     assert not any(
         assumption.startswith("latent_bridge:auto:")
         for assumption in certificate.assumptions_introduced
@@ -652,14 +659,6 @@ def test_explicit_latent_bridges_take_priority_over_auto_synthesis() -> None:
 
 def test_explicit_typed_latent_bridge_ref_is_canonical(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
-    hypothesis = persist_latent_bridge_hypothesis(
-        store,
-        synthesize_latent_bridge(
-            pair_key=PAIR_KEY,
-            evidence=_admissible_measurement_evidence(),
-            policy=_accept_policy(),
-        ),
-    )
     fragment_a, fragment_b = _pair_fragments()
     pair_key = build_pair_key(
         fragment_a.fragment_id,
@@ -667,23 +666,37 @@ def test_explicit_typed_latent_bridge_ref_is_canonical(tmp_path) -> None:
         fragment_b.fragment_id,
         "civic_trust_index",
     )
+    hypothesis = persist_latent_bridge_hypothesis(
+        store,
+        synthesize_latent_bridge(
+            pair_key=pair_key,
+            evidence=_admissible_measurement_evidence(),
+            policy=_accept_policy(),
+        ),
+    )
     config = AlignmentVerificationConfig(
         explicit_latent_bridges={pair_key: hypothesis},
         latent_bridge_policy=_accept_policy(),
         latent_bridge_evidence={pair_key: _admissible_measurement_evidence()},
     )
 
-    report, _ = verify_fragment_alignment(
-        fragment_a,
-        fragment_b,
+    report, _ = _verify_fragment_bundle_alignment_with_governance(
+        [fragment_a, fragment_b],
         config=config,
         artifact_store=store,
     )
 
     certificate = report.per_variable_certificates[0]
     assert certificate.alignment_type is AlignmentType.LATENT_BRIDGE
-    assert certificate.latent_bridge_hypothesis_ref == hypothesis
+    assert certificate.latent_bridge_hypothesis_ref is not None
     assert certificate.latent_bridge_ref is None
+    provenance = certificate.metadata["latent_governance_provenance"]
+    assert provenance["candidate_artifact_content_hash"] == str(hypothesis.artifact_id)
+    assert provenance["governed_content_hash"] == str(
+        certificate.latent_bridge_hypothesis_ref.artifact_id
+    )
+    governed = load_latent_bridge_hypothesis(store, certificate.latent_bridge_hypothesis_ref)
+    assert governed.metadata["latent_governance"]["promotion_allowed"] is False
 
 
 def test_verify_fragment_alignment_blocks_auto_synthesis_when_evidence_missing() -> None:

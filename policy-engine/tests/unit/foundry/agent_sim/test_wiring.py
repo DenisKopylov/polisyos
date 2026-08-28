@@ -21,12 +21,11 @@ from polisyos.foundry.contracts.state import (
     HouseholdCellState,
     ProcurementGraphState,
 )
-from polisyos.ir.governance.policy_spec import InterventionSpec
+from polisyos.ir.governance.policy_spec import CompiledLexIntervention, InterventionSpec
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.observation.contracts import MultiplexGraphLayerId
-from polisyos.lex.interventions import CompiledLexIntervention
 
 
 def _household_value_outer_set(

@@ -19,7 +19,6 @@ from polisyos.ir.analytics.alignment_certification import (
     AlignmentVerificationConfig,
     load_alignment_report,
     persist_alignment_report,
-    verify_fragment_bundle_alignment,
 )
 from polisyos.ir.analytics.causal_graph import (
     CausalGraphModel,
@@ -32,6 +31,9 @@ from polisyos.ir.analytics.cross_graph import (
     load_interface_mapping,
     persist_interface_mapping,
     persist_scm_fragment,
+)
+from polisyos.scientist.cross_graph.compiler import (
+    _verify_fragment_bundle_alignment_with_governance,
 )
 from polisyos.scientist.evidence.claims import build_default_claim_ledger_owner
 from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import ReconcileCausalGraphNode
@@ -148,13 +150,14 @@ def replay_fragment_composition_case(
 
     artifacts_index: dict[str, Any] = {}
     if precompute_alignment:
-        report, mapping = verify_fragment_bundle_alignment(
+        report, mapping = _verify_fragment_bundle_alignment_with_governance(
             [
                 fragment.model_copy(update={"graph_ref": f"artifact:graph:{fragment.fragment_id}"})
                 for fragment in fragments
             ],
             config=alignment_verification_config,
             stitch_pairs=direct_stitch_pairs,
+            artifact_store=ir_store,
         )
         artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF] = persist_alignment_report(ir_store, report)
         artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF] = persist_interface_mapping(

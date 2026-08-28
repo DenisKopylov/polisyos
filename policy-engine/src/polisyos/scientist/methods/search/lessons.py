@@ -17,8 +17,8 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.ir import FailureSeverity, TypedFailureCard
 from polisyos.scientist.methods.autotune.models import default_search_registry_root
-from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
 from polisyos.scientist.methods.search.transfer_context import (
     TransferAuditHop,
     TransferContext,
@@ -266,7 +266,9 @@ def lesson_from_failure_card(
         remediation_hint=failure_card.remediation_hint,
         anti_patterns=anti_patterns,
         failure_card_refs=(
-            [failure_card.evidence_ref] if failure_card.evidence_ref is not None else []
+            [ArtifactRef.model_validate(failure_card.evidence_ref.model_dump(mode="json"))]
+            if failure_card.evidence_ref is not None
+            else []
         ),
         trace_refs=list(trace_refs or []),
         metadata=metadata,

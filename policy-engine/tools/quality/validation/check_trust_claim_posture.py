@@ -2380,12 +2380,6 @@ def _token_use_is_semantic(statement: Sequence[tokenize.TokenInfo], index: int) 
     if declaration:
         return False
     strings = [item.string for item in statement]
-    if strings[0] in {"for", "async", "def", "class"}:
-        return False
-    if strings[0] in {"if", "elif", "while", "assert"}:
-        return True
-    if index > 0 and strings[index - 1] in {"not", "~"}:
-        return True
     depths = _token_depths(statement)
     annotation_start = next(
         (
@@ -2413,6 +2407,12 @@ def _token_use_is_semantic(statement: Sequence[tokenize.TokenInfo], index: int) 
         and annotation_start < index < annotation_end
     ):
         return False
+    if strings[0] in {"for", "async", "def", "class"}:
+        return False
+    if strings[0] in {"if", "elif", "while", "assert"}:
+        return True
+    if index > 0 and strings[index - 1] in {"not", "~"}:
+        return True
     target_depth = depths[index]
     left = 0
     for position in range(index - 1, -1, -1):

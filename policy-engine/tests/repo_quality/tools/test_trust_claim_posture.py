@@ -347,6 +347,18 @@ def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
             "consumes_only",
             id="value-set-union-remains-semantic",
         ),
+        pytest.param(
+            'report = {"authoritative_for": list(batch.authoritative_for)}\n'
+            "metrics: dict[~authoritative_for] = report\n",
+            "carries_only",
+            id="annotation-unary-operator-is-not-value-semantics",
+        ),
+        pytest.param(
+            'report = {"authoritative_for": list(batch.authoritative_for)}\n'
+            "metrics: dict = not authoritative_for\n",
+            "consumes_only",
+            id="value-unary-operator-remains-semantic",
+        ),
     ],
 )
 def test_tokenizer_matches_ast_when_annotations_and_value_operators_share_a_statement(

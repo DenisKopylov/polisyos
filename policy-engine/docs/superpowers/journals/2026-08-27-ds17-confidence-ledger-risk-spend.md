@@ -315,3 +315,48 @@ check; the first P35/P38 finding widened projection admission to a complete
 source-derived body reconstruction rather than enumerating six mutation sites.
 C02 remains the owner of governed worker admission, over-spend source blocking,
 and HTTP integration; no C02 path or behavior changed.
+
+## C01 P40 widening — downstream witness re-authentication
+
+The C01 re-review classified a forgeable embedded `known_incomplete` envelope
+as the SECOND finding of the SAME P29/P32 witness-admission class. Per P40, the
+repair does not special-case the forged hash. It widens the existing mechanism
+to the complete property: every public C01 boundary that can turn a coverage
+arm into a projected or exact-admitted result must re-resolve the authenticated
+exact-scope witness chain.
+
+`reauthenticate_coverage_envelope` is the one reusable intake. It recomputes the
+assessment key from rule version, exact scope/owner/action, and both source
+identities; then re-runs signed CAS source+receipt resolution and requires the
+resolved reference tuple to equal the envelope tuple. The public risk-spend
+projector calls it before building any surface. Exact domain admission calls it
+both before canonical serialization and after canonical re-admission. An open-
+world envelope has no witness authority and remains self-contained; a non-empty
+witness set requires the external CAS and trusted verifier at every admitting
+boundary. The strict projection DTO is explicitly candidate parsing, never the
+authority result.
+
+The class-level falsifier substitutes an arbitrary `sha256:ffff…` witness into
+an open-world envelope, coherently updates assessment/reasons/TTL/envelope hash,
+rebinds every nested amount, updates the positive-register coverage reason, and
+recomputes the projection hash. Candidate parsing remains possible, but the
+public projector rejects before emission and exact admission blocks. The
+positive companion proves one legitimate signed exact-scope witness traverses
+builder -> projector -> exact admission, while the existing real GY OM-01
+source continues to reject cross-scope.
+
+### P40 widening receipts
+
+- Focused TDD RED: exit `1`, `2 failed`; `real 29.67`, `user 27.29`, `sys
+  1.34`, uptime `00:49` -> `00:50`.
+- Final C01-owned lane (two exact C02 tests deselected): exit `0`, `31 passed`;
+  `real 28.60`, `user 27.69`, `sys 0.93`, uptime `00:52` -> `00:52`.
+- Final four-path Ruff: exit `0`, `All checks passed!`; `real 0.04`, `user
+  0.03`, `sys 0.01`, uptime `00:53` -> `00:53`.
+- Delta-focused existing confidence-ledger importer lane: execution branch
+  exit `0`, `8 passed`, `real 73.74`, `user 71.84`, `sys 1.91`, uptime `00:53`
+  -> `00:54`; clean exact-base main exit `0`, `8 passed`, `real 72.61`, `user
+  68.73`, `sys 2.26`, uptime `00:54` -> `00:55`.
+
+This is the one P40 widening round for the witness-admission class. Mechanism
+spend remains **2/2**, reserve remains **0**, and no C02 owner path changed.

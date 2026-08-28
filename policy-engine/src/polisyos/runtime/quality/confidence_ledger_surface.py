@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from enum import StrEnum
 from fractions import Fraction
-from typing import Literal, Self
+from typing import TYPE_CHECKING, Literal, Self
 
 from pydantic import (
     BaseModel,
@@ -29,7 +29,11 @@ from polisyos.runtime.quality.obligation_coverage import (
     CoverageAssessment,
     CoverageSourceIdentity,
     ObligationCoverageEnvelope,
+    reauthenticate_coverage_envelope,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import Ed25519Verifier, FileSystemCAS
 
 SURFACE_SCHEMA_VERSION = "policyos.runtime.confidence_ledger_surface.v1"
 SURFACE_RULE_VERSION = "policyos.runtime.confidence_ledger_surface.exact.v1"
@@ -330,7 +334,7 @@ class DS17ReasonAlgebra(_StrictModel):
 
 
 class ConfidenceLedgerRiskSpendProjection(_StrictModel):
-    """Scope-local derived confidence-risk surface."""
+    """Candidate scope-local surface; exact admission reauthenticates witnesses."""
 
     schema_version: Literal[SURFACE_SCHEMA_VERSION]
     rule_version: Literal[SURFACE_RULE_VERSION]
@@ -949,10 +953,17 @@ def project_confidence_ledger_risk_spend(
     registry: ConfidenceLedgerRegistry,
     semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
     coverage_envelope: ObligationCoverageEnvelope,
+    witness_store: FileSystemCAS | None = None,
+    witness_verifier: Ed25519Verifier | None = None,
     caller_eligibility_by_instrument: dict[str, bool] | None = None,
 ) -> ConfidenceLedgerRiskSpendProjection:
     """Project exact local spend and registry-derived blockers from typed inputs."""
 
+    coverage_envelope = reauthenticate_coverage_envelope(
+        envelope=coverage_envelope,
+        witness_store=witness_store,
+        witness_verifier=witness_verifier,
+    )
     body = _build_projection_body(
         registry=registry,
         semantic_ledger=semantic_ledger,
@@ -966,13 +977,26 @@ def project_confidence_ledger_risk_spend(
 
 def admit_confidence_ledger_risk_spend_projection(
     candidate: object,
+    *,
+    witness_store: FileSystemCAS | None = None,
+    witness_verifier: Ed25519Verifier | None = None,
 ) -> DomainProjectionAdmission:
     """Revalidate and canonically re-admit one domain projection candidate."""
 
     try:
         admitted = ConfidenceLedgerRiskSpendProjection.model_validate(candidate)
+        reauthenticate_coverage_envelope(
+            envelope=admitted.coverage_envelope,
+            witness_store=witness_store,
+            witness_verifier=witness_verifier,
+        )
         canonical = to_canonical_bytes(admitted, _CANON)
         readmitted = ConfidenceLedgerRiskSpendProjection.model_validate_json(canonical)
+        reauthenticate_coverage_envelope(
+            envelope=readmitted.coverage_envelope,
+            witness_store=witness_store,
+            witness_verifier=witness_verifier,
+        )
     except ValidationError as exc:
         return DomainProjectionBlockedAdmission(reason=_classify_admission_failure(exc))
     except (TypeError, ValueError):

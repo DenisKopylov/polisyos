@@ -334,16 +334,11 @@ def build_coverage_envelope(
             admission_state="worker_admission_not_established",
         ),
     )
-    assessment_key = fingerprint(
-        {
-            "rule_version": COVERAGE_RULE_VERSION,
-            "scope_id": semantic_ledger.scope_id,
-            "owner_scope_key": semantic_ledger.risk_scope.owner_scope_key,
-            "protected_action_id": protected_action_id,
-            "sources": [row.model_dump(mode="json") for row in sources],
-        },
-        prefix=True,
-        canon_spec=_CANON,
+    assessment_key = _derive_assessment_key(
+        scope_id=semantic_ledger.scope_id,
+        owner_scope_key=semantic_ledger.risk_scope.owner_scope_key,
+        protected_action_id=protected_action_id,
+        sources=sources,
     )
     admitted = _resolve_witnesses(
         store=witness_store,
@@ -443,6 +438,58 @@ def evaluate_protected_action(
         status="blocked",
         assessment=envelope.assessment,
         coverage_envelope_ref=envelope.envelope_ref,
+    )
+
+
+def reauthenticate_coverage_envelope(
+    *,
+    envelope: ObligationCoverageEnvelope,
+    witness_store: FileSystemCAS | None = None,
+    witness_verifier: Ed25519Verifier | None = None,
+) -> ObligationCoverageEnvelope:
+    """Re-resolve every witness before a downstream boundary trusts its arm."""
+
+    if not isinstance(envelope, ObligationCoverageEnvelope):
+        raise TypeError("coverage_envelope_must_be_typed")
+    expected_key = _derive_assessment_key(
+        scope_id=envelope.scope_id,
+        owner_scope_key=envelope.owner_scope_key,
+        protected_action_id=envelope.protected_action_id,
+        sources=envelope.source_identities,
+    )
+    if envelope.assessment_key != expected_key:
+        raise ValueError("coverage_envelope_assessment_key_mismatch")
+    admitted = _resolve_witnesses(
+        store=witness_store,
+        verifier=witness_verifier,
+        refs=envelope.witness_refs,
+        assessment_key=expected_key,
+        scope_id=envelope.scope_id,
+        owner_scope_key=envelope.owner_scope_key,
+        protected_action_id=envelope.protected_action_id,
+    )
+    if admitted != envelope.witness_refs:
+        raise ValueError("coverage_envelope_witness_admission_mismatch")
+    return envelope
+
+
+def _derive_assessment_key(
+    *,
+    scope_id: str,
+    owner_scope_key: str,
+    protected_action_id: str,
+    sources: tuple[CoverageSourceIdentity, CoverageSourceIdentity],
+) -> str:
+    return fingerprint(
+        {
+            "rule_version": COVERAGE_RULE_VERSION,
+            "scope_id": scope_id,
+            "owner_scope_key": owner_scope_key,
+            "protected_action_id": protected_action_id,
+            "sources": [row.model_dump(mode="json") for row in sources],
+        },
+        prefix=True,
+        canon_spec=_CANON,
     )
 
 

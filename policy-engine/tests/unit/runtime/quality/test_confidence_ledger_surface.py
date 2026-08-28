@@ -116,6 +116,57 @@ def _replace_amount(amount: dict[str, object], value: Fraction) -> None:
     )
 
 
+def _forge_known_incomplete_envelope(envelope):
+    coverage = _coverage()
+    payload = envelope.model_dump(mode="python")
+    payload["assessment"] = "known_incomplete"
+    payload["reason_codes"] = (
+        "DS17-COVERAGE-KNOWN-INCOMPLETE",
+        "DS17-COVERAGE-SEARCH-NOT-ESTABLISHED",
+        "DS17-COVERAGE-EXCLUSIONS-NOT-ESTABLISHED",
+        "DS17-COVERAGE-INDEPENDENCE-MISSING",
+    )
+    payload["witness_refs"] = ("sha256:" + "f" * 64,)
+    payload["ttl_state"] = "not_issued_known_incomplete"
+    body = {
+        key: value
+        for key, value in payload.items()
+        if key not in {"envelope_hash", "envelope_ref"}
+    }
+    envelope_hash = fingerprint(
+        body,
+        prefix=True,
+        canon_spec=CanonSpec(exclude_none=False),
+    )
+    return coverage.ObligationCoverageEnvelope.model_validate(
+        {
+            **body,
+            "envelope_hash": envelope_hash,
+            "envelope_ref": f"coverage-envelope:{envelope_hash}",
+        }
+    )
+
+
+def _rebind_projection_to_envelope(payload: object, envelope) -> None:
+    if isinstance(payload, dict):
+        if "amount_hash" in payload:
+            payload["coverage_envelope_ref"] = envelope.envelope_ref
+            payload["coverage_envelope_hash"] = envelope.envelope_hash
+            amount_body = {
+                key: value for key, value in payload.items() if key != "amount_hash"
+            }
+            payload["amount_hash"] = fingerprint(
+                amount_body,
+                prefix=True,
+                canon_spec=CanonSpec(exclude_none=False),
+            )
+        for value in payload.values():
+            _rebind_projection_to_envelope(value, envelope)
+    elif isinstance(payload, (list, tuple)):
+        for value in payload:
+            _rebind_projection_to_envelope(value, envelope)
+
+
 @dataclass(frozen=True)
 class _CoherentOverSpendOwnerSourceAdapter:
     """C02-only owner adapter for a scratch artifact with rebuilt bindings."""
@@ -523,5 +574,32 @@ def test_domain_projection_admission_blocks_coherent_recursive_narrowing(
     blocked = surface.admit_confidence_ledger_risk_spend_projection(
         _rehash_projection(payload)
     )
+    assert blocked.status == "blocked"
+    assert blocked.reason.value == "parser_or_schema_failure"
+
+
+def test_forged_known_incomplete_envelope_cannot_cross_projection_or_admission() -> None:
+    surface = _surface()
+    registry, semantic = _inputs()
+    open_envelope = _envelope(registry, semantic)
+    forged_envelope = _forge_known_incomplete_envelope(open_envelope)
+
+    with pytest.raises((TypeError, ValueError), match=r"witness|signature|authentic"):
+        surface.project_confidence_ledger_risk_spend(
+            registry=registry,
+            semantic_ledger=semantic,
+            coverage_envelope=forged_envelope,
+        )
+
+    candidate = _project(registry, semantic).model_dump(mode="python")
+    candidate["coverage_envelope"] = forged_envelope.model_dump(mode="python")
+    candidate["coverage_envelope_ref"] = forged_envelope.envelope_ref
+    candidate["coverage_assessment"] = _coverage().CoverageAssessment.KNOWN_INCOMPLETE
+    candidate["positive_register"]["blockers"][0]["value"] = "known_incomplete"
+    _rebind_projection_to_envelope(candidate, forged_envelope)
+    _rehash_projection(candidate)
+    parsed = surface.ConfidenceLedgerRiskSpendProjection.model_validate(candidate)
+    assert parsed.coverage_assessment.value == "known_incomplete"
+    blocked = surface.admit_confidence_ledger_risk_spend_projection(candidate)
     assert blocked.status == "blocked"
     assert blocked.reason.value == "parser_or_schema_failure"

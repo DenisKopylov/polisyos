@@ -297,6 +297,38 @@ def test_content_bound_matching_cas_witness_moves_the_same_derivation(tmp_path: 
             )
 
 
+def test_signed_exact_scope_witness_traverses_projection_and_exact_admission(
+    tmp_path: Path,
+) -> None:
+    baseline = _envelope()
+    cas, verifier, witness_ref, _ = _put_witness(tmp_path, baseline)
+    registry, semantic = _inputs()
+    moved = _coverage().build_coverage_envelope(
+        registry=registry,
+        semantic_ledger=semantic,
+        semantic_source_ref=baseline.source_identities[1].source_ref,
+        semantic_source_verifier_ref=baseline.source_identities[1].verifier_ref,
+        protected_action_id=_ACTION,
+        witness_store=cas,
+        witness_verifier=verifier,
+        witness_refs=(witness_ref,),
+    )
+    projection = _surface().project_confidence_ledger_risk_spend(
+        registry=registry,
+        semantic_ledger=semantic,
+        coverage_envelope=moved,
+        witness_store=cas,
+        witness_verifier=verifier,
+    )
+    admitted = _surface().admit_confidence_ledger_risk_spend_projection(
+        projection,
+        witness_store=cas,
+        witness_verifier=verifier,
+    )
+    assert projection.coverage_assessment.value == "known_incomplete"
+    assert admitted.status == "exact"
+
+
 def test_real_gy_omission_witness_is_rejected_as_cross_scope(tmp_path: Path) -> None:
     envelope = _envelope()
     gy = json.loads(_GY.read_text())

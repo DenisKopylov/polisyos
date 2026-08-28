@@ -8,6 +8,10 @@ from typing import Any, ClassVar
 import numpy as np
 
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry import (
+    SentenceTransformerEmbedder,
+    TFIDFEmbedder,
+)
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -20,7 +24,6 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.scientist.agent.embedder import SentenceTransformerEmbedder, TFIDFEmbedder
 
 
 def _result_slot() -> frozenset[SlotSpec]:

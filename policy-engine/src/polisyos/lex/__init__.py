@@ -17,7 +17,6 @@ __all__ = [
     "ChangeProposalRef",
     "ComplianceDelta",
     "ComplianceTransition",
-    "HierarchicalPolicySearchAdapter",
     "HierarchicalPolicySearchPlan",
     "InterventionKnobDictionaryEntry",
     "InterventionKnobSpec",
@@ -51,8 +50,6 @@ __all__ = [
     "ProvisionProgramCrosswalkEntry",
     "StrategicResponseRegistryEntry",
     "StrategicResponseSpecRegistry",
-    "TemporalInterventionSequenceCompileResult",
-    "TemporalInterventionSequenceCompiler",
     "TemporalInterventionSequencer",
     "TemporalInterventionStepInput",
     "assemble_norm_pack",
@@ -119,10 +116,6 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     # knowledge
     "LegalKnowledgeGraph": ("polisyos.lex.knowledge.search", "LegalKnowledgeGraph"),
     # interventions
-    "HierarchicalPolicySearchAdapter": (
-        "polisyos.lex.interventions",
-        "HierarchicalPolicySearchAdapter",
-    ),
     "HierarchicalPolicySearchPlan": (
         "polisyos.lex.interventions",
         "HierarchicalPolicySearchPlan",
@@ -157,14 +150,6 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "StrategicResponseSpecRegistry": (
         "polisyos.lex.interventions",
         "StrategicResponseSpecRegistry",
-    ),
-    "TemporalInterventionSequenceCompiler": (
-        "polisyos.lex.interventions",
-        "TemporalInterventionSequenceCompiler",
-    ),
-    "TemporalInterventionSequenceCompileResult": (
-        "polisyos.lex.interventions",
-        "TemporalInterventionSequenceCompileResult",
     ),
     "TemporalInterventionSequencer": (
         "polisyos.lex.interventions",

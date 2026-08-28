@@ -4,7 +4,13 @@ from __future__ import annotations
 
 import shutil
 
-from polisyos.data_forge.domains.ukraine.manifests import ReleaseManifest, write_manifest
+from polisyos.data_forge.domains.ukraine.manifests import (
+    D5ReleaseContentRef,
+    D5ReleaseHandoffRequest,
+    D5ReleaseProducerFacts,
+    ReleaseManifest,
+    write_manifest,
+)
 from polisyos.data_forge.domains.ukraine.resources import directory_size_bytes
 
 from .common import *
@@ -248,40 +254,31 @@ def _build_d5_release_handoff_request(
     cell_registry: pd.DataFrame,
     graph_compression_bundle: dict[str, Any],
     content_refs: dict[str, ArtifactRecord],
-) -> dict[str, Any]:
-    """Build a content-bound producer request for a future downstream D5 bridge."""
+    release_root: Path,
+) -> D5ReleaseHandoffRequest:
+    """Build the strict, non-authoritative D5 producer handoff contract."""
 
-    return {
-        "schema_version": "policyos.data_forge.ukraine.d5_release_handoff_request.v1",
-        "authority_purpose": "producer_release_handoff_request",
-        "capability_state": "bridge_missing",
-        "consumer_state": "consumer_missing",
-        "authoritative_for": [],
-        "may_not_use_for": [
-            "legal_intervention_compilation",
-            "governance_admissibility",
-            "release_acceptance",
-            "publication",
-        ],
-        "producer_facts": {
-            "primary_region_id": _safe_first(
+    return D5ReleaseHandoffRequest(
+        declared_release_root=str(release_root),
+        producer_facts=D5ReleaseProducerFacts(
+            primary_region_id=_safe_first(
                 cell_registry.get("region_code", pd.Series(dtype=str)), "00"
             ),
-            "primary_sector_id": _safe_first(
+            primary_sector_id=_safe_first(
                 cell_registry.get("sector_id", pd.Series(dtype=str)), "unknown"
             ),
-            "graph_compression_degree_preservation_score": graph_compression_bundle[
+            graph_compression_degree_preservation_score=graph_compression_bundle[
                 "fidelity_metrics"
             ]["degree_preservation_score"],
-            "graph_compression_edge_weight_reconstruction_error": graph_compression_bundle[
+            graph_compression_edge_weight_reconstruction_error=graph_compression_bundle[
                 "fidelity_metrics"
             ]["edge_weight_reconstruction_error"],
-        },
-        "content_refs": {
-            name: record.model_dump(mode="json")
+        ),
+        content_refs={
+            name: D5ReleaseContentRef.from_artifact_record(record)
             for name, record in sorted(content_refs.items())
         },
-    }
+    )
 
 
 def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
@@ -351,6 +348,7 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
         cell_registry=cell_registry,
         graph_compression_bundle=graph_compression_bundle,
         content_refs=handoff_content_refs,
+        release_root=stage_dir,
     )
     outputs["d5_release_handoff_request.json"] = ArtifactRecord.from_path(
         _write_json(stage_dir / "d5_release_handoff_request.json", handoff_request)
@@ -406,6 +404,10 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
     release_manifest = ReleaseManifest(
         bundles=bundle_records,
         bundle_contents=bundle_contents,
+        evidence_refs={
+            **handoff_content_refs,
+            "d5_release_handoff_request": outputs["d5_release_handoff_request.json"],
+        },
         metrics={
             "runtime_bundle_size_gib": _directory_file_size_gib(release_dirs["runtime_bundle_v1"]),
             "calibration_bundle_size_gib": _directory_file_size_gib(

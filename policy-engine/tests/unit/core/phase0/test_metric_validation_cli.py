@@ -4,9 +4,9 @@ import json
 from pathlib import Path
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.components.cli import main
 from polisyos.core.contracts.foundry import MetricObservationBundle, ModelOutputs
 from polisyos.scientist.validation.metrics import persist_metric_observation_bundle
+from tools.ops_runners.runtime_cli import main
 
 
 def test_metric_validate_cli_emits_summary_json(tmp_path: Path, capsys) -> None:

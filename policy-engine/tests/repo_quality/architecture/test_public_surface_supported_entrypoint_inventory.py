@@ -58,6 +58,23 @@ def test_supported_entrypoint_inventory_resolves_module_and_package_facades() ->
         )
 
 
+def test_foundry_public_surface_exposes_only_embedding_contract_from_backends() -> None:
+    foundry = next(package for package in _inventory() if package.module == "polisyos.foundry")
+    root_exports = set(foundry.exports)
+    internal_backend_exports = set(
+        guardrails._entrypoint_inventory("polisyos.foundry.methods.backends").exports
+    )
+    embedding_exports = {
+        "EmbedderProtocol",
+        "SentenceTransformerEmbedder",
+        "TFIDFEmbedder",
+    }
+
+    assert "polisyos.foundry.methods.backends" not in foundry.supported_entrypoints
+    assert embedding_exports <= root_exports
+    assert root_exports.isdisjoint(internal_backend_exports)
+
+
 def test_supported_entrypoint_inventory_rejects_missing_or_ambiguous_facade(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

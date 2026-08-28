@@ -13,6 +13,7 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.foundry.methods.catalog.causal.strategic import (
+    persist_strategic_solve_artifacts,
     solve_strategic_response,
     strategic_result_summary,
 )
@@ -28,10 +29,12 @@ from polisyos.ir.analytics.strategic import (
     load_strategic_payoff_table,
     persist_strategic_payoff_table,
     persist_strategic_scm,
-    persist_strategic_solve_artifacts,
 )
 from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.registry.refs import ArtifactRefModel
+from polisyos.scientist.evidence.sources import (
+    build_path_source_status,
+)
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
@@ -45,13 +48,37 @@ from polisyos.scientist.methods.backtesting.adversarial import (
     run_phase_d4_challenge_suites,
 )
 from polisyos.scientist.methods.doe.stress_report import StressTestReport
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
-from polisyos.scientist.evidence.sources import (
-    build_path_source_status,
+from polisyos.scientist.methods.search.actionable_side_information import resolve_actionable_store
+from polisyos.scientist.methods.search.adversarial import (
+    PlatformMetaEvaluationInput,
+    PlatformMetaEvaluator,
+    load_platform_meta_evaluation_report,
+    persist_platform_meta_evaluation_report,
 )
+from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
+from polisyos.scientist.methods.search.calibration_report import (
+    build_calibration_report,
+    load_funnel_calibration_report,
+    persist_funnel_calibration_report,
+)
+from polisyos.scientist.methods.search.funnel.level0_static import Level0StaticValidator
+from polisyos.scientist.methods.search.funnel.level1_heuristic import Level1CheapHeuristic
+from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
+from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
+    Level5RefutationGovernanceStage,
+)
+from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator, FunnelOutcome
+from polisyos.scientist.methods.search.lessons import LessonRegistry
+from polisyos.scientist.methods.search.promotion_evidence import (
+    PromotionEvidenceBundle,
+    load_promotion_evidence_bundle,
+    persist_promotion_evidence_bundle,
+)
+from polisyos.scientist.methods.search.stages import CorrelationTracker
+from polisyos.scientist.methods.search.voi_scheduler import persist_voi_run_report
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     StrategicRuntimeOutput as _SharedStrategicRuntimeOutput,
 )
@@ -110,41 +137,14 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_CALIBRATION_REPORT_REF,
     INPUT_PROMOTION_EVIDENCE_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.replay.verification import ReplayRegistry, verify_and_persist_replay_bundle
-from polisyos.scientist.methods.search.actionable_side_information import resolve_actionable_store
-from polisyos.scientist.methods.search.adversarial import (
-    PlatformMetaEvaluationInput,
-    PlatformMetaEvaluator,
-    load_platform_meta_evaluation_report,
-    persist_platform_meta_evaluation_report,
-)
-from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
-from polisyos.scientist.methods.search.calibration_report import (
-    build_calibration_report,
-    load_funnel_calibration_report,
-    persist_funnel_calibration_report,
-)
-from polisyos.scientist.methods.search.funnel.level0_static import Level0StaticValidator
-from polisyos.scientist.methods.search.funnel.level1_heuristic import Level1CheapHeuristic
-from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
-from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
-from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
-from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
-    Level5RefutationGovernanceStage,
-)
-from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
-from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator, FunnelOutcome
-from polisyos.scientist.methods.search.lessons import LessonRegistry
-from polisyos.scientist.methods.search.promotion_evidence import (
-    PromotionEvidenceBundle,
-    load_promotion_evidence_bundle,
-    persist_promotion_evidence_bundle,
-)
-from polisyos.scientist.methods.search.stages import CorrelationTracker
-from polisyos.scientist.methods.search.voi_scheduler import persist_voi_run_report
-from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
 
 _POLICY_RUNTIME_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
 _POLICY_RUNTIME_LOAD_ERRORS = (

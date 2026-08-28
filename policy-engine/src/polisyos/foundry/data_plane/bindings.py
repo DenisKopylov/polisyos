@@ -18,7 +18,7 @@ from typing import Any, Literal
 
 import jax.numpy as jnp
 import numpy as np
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.common.serialization import to_python_data
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
@@ -48,6 +48,7 @@ from polisyos.foundry.methods.catalog.causal.protocols import (
     DynamicTreatmentData,
     NetworkCausalData,
     PanelObservationalData,
+    ProxyMeasurementData,
 )
 from polisyos.foundry.methods.catalog.econometrics.protocols import PanelData
 from polisyos.foundry.methods.catalog.microsim.protocols import SurveyMicroData
@@ -57,11 +58,75 @@ from polisyos.foundry.methods.catalog.network.protocols import (
     NetworkData,
 )
 from polisyos.ir.kernel import SlotRegistry, SlotScope, SlotSpec, SlotValueType
+from polisyos.ir.observation.bundles import ContractCompatibilityTarget
 
 _MISSING = object()
 _FLOAT_QUANT = Decimal("0.000000001")
 _CELL_PREFIX = "cells."
 _HOUSEHOLD_CELL_PREFIX = "household_cells."
+
+
+@dataclass(frozen=True)
+class _MethodContractSpec:
+    """Bind one admitted IR target identity to its concrete Foundry DTO."""
+
+    contract_fqn: str
+    model_type: type[BaseModel]
+
+
+_METHOD_CONTRACT_ALLOW_REGISTRY: dict[str, _MethodContractSpec] = {
+    model_type.contract_id: _MethodContractSpec(
+        contract_fqn=f"{model_type.__module__}.{model_type.__name__}",
+        model_type=model_type,
+    )
+    for model_type in (
+        DynamicTreatmentData,
+        MultiplexNetworkData,
+        NetworkCausalData,
+        NetworkData,
+        PanelData,
+        PanelObservationalData,
+        ProxyMeasurementData,
+        SurveyMicroData,
+        SurvivalData,
+    )
+}
+
+
+def materialize_method_contract(
+    *,
+    contract_target: ContractCompatibilityTarget | Mapping[str, Any],
+    contract_payload: Mapping[str, Any],
+) -> BaseModel:
+    """Validate a neutral IR payload as one allowlisted Foundry method DTO.
+
+    Args:
+        contract_target: IR-declared contract identity. Both its stable ID and
+            fully-qualified name must match the Foundry allow registry.
+        contract_payload: Dependency-neutral JSON payload emitted by IR.
+
+    Returns:
+        The concrete, fully validated Foundry method DTO.
+
+    Raises:
+        ValueError: If the target is unknown, its FQN disagrees with the
+            allowlisted ID, or the payload violates the concrete DTO.
+    """
+
+    target = ContractCompatibilityTarget.model_validate(contract_target)
+    spec = _METHOD_CONTRACT_ALLOW_REGISTRY.get(target.contract_id)
+    if spec is None:
+        raise ValueError(f"unsupported method contract '{target.contract_id}'")
+    if target.contract_fqn != spec.contract_fqn:
+        raise ValueError(
+            "contract target mismatch for "
+            f"'{target.contract_id}': expected '{spec.contract_fqn}', "
+            f"got '{target.contract_fqn}'"
+        )
+    try:
+        return spec.model_type.model_validate(dict(contract_payload))
+    except ValidationError as exc:
+        raise ValueError(f"invalid payload for method contract '{target.contract_id}'") from exc
 
 
 @dataclass(frozen=True)
@@ -243,8 +308,17 @@ def load_ukraine_foundry_intake(
     validated_contracts: dict[str, dict[str, str]] = {}
     for contract_name, stage_id, output_name, model_type in contract_specs:
         try:
-            method_contracts[contract_name] = model_type.model_validate(
-                _load_verified_json_output(store, receipts[stage_id], output_name)
+            registry_spec = _METHOD_CONTRACT_ALLOW_REGISTRY[model_type.contract_id]
+            method_contracts[contract_name] = materialize_method_contract(
+                contract_target=ContractCompatibilityTarget(
+                    contract_id=model_type.contract_id,
+                    contract_fqn=registry_spec.contract_fqn,
+                ),
+                contract_payload=_load_verified_json_output(
+                    store,
+                    receipts[stage_id],
+                    output_name,
+                ),
             )
         except Exception as exc:
             raise ValueError(f"invalid Ukraine method contract {contract_name}: {exc}") from exc

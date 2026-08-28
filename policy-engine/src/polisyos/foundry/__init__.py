@@ -7,10 +7,10 @@ solver, or optional catalog backends unless `compile()` or `execute()` is
 actually called.
 
 The stable public surface of this package is intentionally narrow.  Alongside
-compile/execute and W7 method selection, it exposes the Foundry-owned N8
-dependency-authority request, its negative-only result union, and the two
-catalog boundaries that resolve that authority before reading candidate
-runtime posture.
+compile/execute and W7 method selection, it exposes three generic text-embedding
+surfaces plus the Foundry-owned N8 dependency-authority request, its
+negative-only result union, and the two catalog boundaries that resolve that
+authority before reading candidate runtime posture.
 """
 
 from __future__ import annotations
@@ -19,10 +19,21 @@ import importlib
 import sys
 import threading
 import types
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from polisyos.foundry.methods.backends.protocol import (
+        EmbedderProtocol,
+        SentenceTransformerEmbedder,
+        TFIDFEmbedder,
+    )
 
 __all__ = [
     "DependencyProfileResolutionFailure",
+    "EmbedderProtocol",
     "MethodCatalogDependencyAuthorityRequest",
+    "SentenceTransformerEmbedder",
+    "TFIDFEmbedder",
     "build_method_catalog_provenance_manifest",
     "build_method_catalog_runtime_identity",
     "compile",
@@ -36,9 +47,21 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.catalog.dependency_authority",
         "DependencyProfileResolutionFailure",
     ),
+    "EmbedderProtocol": (
+        "polisyos.foundry.methods.backends.protocol",
+        "EmbedderProtocol",
+    ),
     "MethodCatalogDependencyAuthorityRequest": (
         "polisyos.foundry.methods.catalog.dependency_authority",
         "MethodCatalogDependencyAuthorityRequest",
+    ),
+    "SentenceTransformerEmbedder": (
+        "polisyos.foundry.methods.backends.protocol",
+        "SentenceTransformerEmbedder",
+    ),
+    "TFIDFEmbedder": (
+        "polisyos.foundry.methods.backends.protocol",
+        "TFIDFEmbedder",
     ),
     "build_method_catalog_provenance_manifest": (
         "polisyos.foundry.methods.catalog.snapshot",

@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import logging
 
-import polisyos.ir.analytics.alignment_certification as alignment_module
 import pytest
+
+import polisyos.scientist.cross_graph.compiler as cross_graph_compiler_module
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentDegradedOutcomeCode,
-    verify_fragment_alignment,
+    AlignmentType,
+    AlignmentVerificationConfig,
 )
 from polisyos.ir.analytics.context import (
     ContextEnrichmentIssueCode,
@@ -14,6 +17,20 @@ from polisyos.ir.analytics.context import (
     ContextProfileInferenceLevel,
 )
 from polisyos.ir.analytics.cross_graph import SCMFragment
+from polisyos.ir.analytics.latent_bridge_synthesis import (
+    LatentBridgeFalsificationTest,
+    LatentBridgeFalsificationTestFamily,
+    LatentBridgeFalsificationTestStatus,
+    LatentBridgeHeldoutMetrics,
+    LatentBridgeHypothesis,
+    LatentBridgeStatus,
+    LatentBridgeSynthesisMode,
+    load_latent_bridge_hypothesis,
+    persist_latent_bridge_hypothesis,
+)
+from polisyos.scientist.cross_graph.compiler import (
+    _verify_fragment_bundle_alignment_with_governance,
+)
 
 
 class _RaisingIndicatorsClient:
@@ -136,15 +153,17 @@ def test_alignment_report_records_degraded_outcome_when_ontology_warning_builder
         raise ValueError("ontology adapter mismatch")
 
     monkeypatch.setattr(
-        alignment_module,
+        cross_graph_compiler_module,
         "build_fragment_alignment_ontology_warnings",
         _raise_builder,
     )
 
     with caplog.at_level(logging.WARNING):
-        report, _ = verify_fragment_alignment(
-            _fragment("education", "policy.education"),
-            _fragment("labor", "policy.labor"),
+        report, _ = _verify_fragment_bundle_alignment_with_governance(
+            [
+                _fragment("education", "policy.education"),
+                _fragment("labor", "policy.labor"),
+            ],
             ontology=[{"unexpected": "payload"}],
         )
 
@@ -159,3 +178,149 @@ def test_alignment_report_records_degraded_outcome_when_ontology_warning_builder
     assert tuple(degraded_outcomes[0]["fragment_pair"]) == ("education", "labor")
     assert degraded_outcomes[0]["detail"] == "ontology adapter mismatch"
     assert "Alignment ontology warning build failed" in caplog.text
+
+
+def test_alignment_ontology_missing_snapshot_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        cross_graph_compiler_module,
+        "_alignment_ontology_warning_results",
+        lambda **_: (),
+    )
+
+    report, _ = _verify_fragment_bundle_alignment_with_governance(
+        [
+            _fragment("education", "policy.education"),
+            _fragment("labor", "policy.labor"),
+        ],
+        ontology=[{"concept_id": "concept:employment"}],
+    )
+
+    degraded_outcomes = report.metadata.get("degraded_outcomes")
+    assert isinstance(degraded_outcomes, list)
+    assert degraded_outcomes[0]["code"] == (
+        AlignmentDegradedOutcomeCode.ONTOLOGY_WARNING_BUILD_FAILED.value
+    )
+    assert degraded_outcomes[0]["detail"] == "ontology warning snapshot missing"
+
+
+def test_alignment_governance_recomputes_forged_candidate_metadata(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    pair_key = "education:employment_rate|labor:employment_rate"
+    fragment_a = _fragment("education", "policy.education").model_copy(
+        update={
+            "interface_variables": ["employment_rate"],
+            "exposed_inputs": [],
+            "exposed_outputs": ["employment_rate"],
+        }
+    )
+    fragment_b = _fragment("labor", "policy.labor").model_copy(
+        update={
+            "interface_variables": ["employment_rate"],
+            "exposed_inputs": ["employment_rate"],
+            "exposed_outputs": [],
+        }
+    )
+    candidate_ref = persist_latent_bridge_hypothesis(
+        store,
+        LatentBridgeHypothesis(
+            bridge_id="latent::bridge::candidate",
+            pair_key=pair_key,
+            status=LatentBridgeStatus.PROPOSED,
+            synthesis_mode=LatentBridgeSynthesisMode.MEASUREMENT_MODEL,
+            heldout_metrics=LatentBridgeHeldoutMetrics(
+                delta_cv=0.2,
+                lower_ci=0.1,
+            ),
+            falsification_tests=[
+                LatentBridgeFalsificationTest(
+                    test_family=LatentBridgeFalsificationTestFamily.CTA,
+                    status=LatentBridgeFalsificationTestStatus.PASS,
+                )
+            ],
+            metadata={
+                "latent_governance": {
+                    "active": True,
+                    "valid": True,
+                    "claim_mode": "validated_measurement_latent",
+                    "degradation_mode": "measurement_ready",
+                    "readiness_cap": "estimation_ready",
+                    "promotion_allowed": True,
+                    "human_gate_required": False,
+                    "not_for_decision_support": False,
+                    "missing_requirements": [],
+                    "surfaced_assumptions": [],
+                    "surfaced_falsification_tests": [],
+                    "no_promotion_reasons": [],
+                    "promotion_verdict": None,
+                    "metadata": {"latent_artifact_kind": "latent_bridge"},
+                }
+            },
+        ),
+    )
+
+    report, mapping = _verify_fragment_bundle_alignment_with_governance(
+        [fragment_a, fragment_b],
+        config=AlignmentVerificationConfig(
+            explicit_latent_bridges={pair_key: candidate_ref}
+        ),
+        artifact_store=store,
+    )
+
+    certificate = next(
+        item
+        for item in report.per_variable_certificates
+        if item.metadata.get("pair_key") == pair_key
+    )
+    governance = certificate.metadata["latent_bridge_governance"]
+    assert certificate.alignment_type is AlignmentType.LATENT_BRIDGE
+    assert governance["readiness_cap"] == "proof_only"
+    assert governance["promotion_allowed"] is False
+    assert governance["not_for_decision_support"] is True
+    assert certificate.latent_bridge_hypothesis_ref is not None
+    governed = load_latent_bridge_hypothesis(
+        store,
+        certificate.latent_bridge_hypothesis_ref,
+    )
+    assert governed.readiness_cap == "proof_only"
+    assert governed.promotion_allowed is False
+    assert governed.metadata["latent_governance"]["promotion_allowed"] is False
+    latent_entry = next(item for item in mapping.entries if item.alignment_type == "latent_bridge")
+    assert latent_entry.metadata["latent_bridge_readiness_cap"] == "proof_only"
+    assert latent_entry.metadata["latent_bridge_promotion_allowed"] is False
+
+    canonical_builder = cross_graph_compiler_module._build_latent_governance_input
+
+    def _tamper_receipt(**kwargs):
+        return canonical_builder(**kwargs).model_copy(
+            update={"receipt_content_hash": "sha256:" + "0" * 64}
+        )
+
+    monkeypatch.setattr(
+        cross_graph_compiler_module,
+        "_build_latent_governance_input",
+        _tamper_receipt,
+    )
+    rejected_report, rejected_mapping = (
+        _verify_fragment_bundle_alignment_with_governance(
+            [fragment_a, fragment_b],
+            config=AlignmentVerificationConfig(
+                explicit_latent_bridges={pair_key: candidate_ref}
+            ),
+            artifact_store=store,
+        )
+    )
+    rejected = next(
+        item
+        for item in rejected_report.per_variable_certificates
+        if item.metadata.get("pair_key") == pair_key
+    )
+    assert rejected.alignment_type is AlignmentType.INCOMPATIBLE
+    assert "latent_governance_snapshot_invalid" in rejected.metadata[
+        "hard_conflict_reasons"
+    ]
+    assert rejected_mapping.entries == []

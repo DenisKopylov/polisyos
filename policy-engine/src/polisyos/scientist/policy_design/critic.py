@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.ir import FailureSeverity, TypedFailureCard, UncertaintyType
 from polisyos.ir.analytics.causal import CausalEffectReport
 from polisyos.scientist.agent.constraint_context import ConstraintContextAssembler
 from polisyos.scientist.governance.pass_entrypoints import (
@@ -22,12 +23,10 @@ from polisyos.scientist.governance.pass_entrypoints import (
     transportability_required_pass_factory,
 )
 from polisyos.scientist.governance.report import GovernanceReport
-from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
-from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
-from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
 from polisyos.scientist.methods.search.lessons import LessonCard, lesson_from_failure_card
-from polisyos.scientist.methods.search.uncertainty import UncertaintyType
+from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 
 class ConstraintFinding(BaseModel):

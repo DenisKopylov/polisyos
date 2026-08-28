@@ -12,11 +12,11 @@ from typing import Any, ClassVar, Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.ir import TypedFailureCard
 from polisyos.scientist.evals.leakage import detect_benchmark_contamination
 from polisyos.scientist.methods.search.benchmark_registry import (
     BenchmarkRegistry,
 )
-from polisyos.scientist.methods.search.failure_cards import TypedFailureCard
 
 __all__ = [
     "R14_ADVERSARIAL_PROBES",
@@ -635,7 +635,11 @@ def generate_challenge_from_failure_card(
     if target_visibility == "public" and _failure_card_has_private_data(failure_card):
         raise ValueError("failure card with private data cannot generate public challenge content")
     challenge_class = challenge_class_for_failure_card(failure_card)
-    source_failure_refs = [failure_card.evidence_ref] if failure_card.evidence_ref else []
+    source_failure_refs = (
+        [ArtifactRef.model_validate(failure_card.evidence_ref.model_dump(mode="json"))]
+        if failure_card.evidence_ref is not None
+        else []
+    )
     expected_failure_mode = _expected_failure_mode(failure_card, challenge_class)
     generated_id = challenge_id or _stable_id(
         "challenge",

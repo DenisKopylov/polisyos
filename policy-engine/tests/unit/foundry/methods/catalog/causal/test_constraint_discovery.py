@@ -2,7 +2,13 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry.calibration.dp_ci import (
+    CITestThresholdPolicy,
+    CITestThresholdPolicySet,
+    ci_threshold_scope,
+)
 from polisyos.foundry.methods.catalog.causal import constraint_discovery as constraint_module
 from polisyos.foundry.methods.catalog.causal.constraint_discovery import (
     FCIDiscovery,
@@ -464,7 +470,7 @@ def test_ci_violation_escalates_to_blocker(monkeypatch) -> None:
     assert "ci" in report.metadata["algebraic_constraint_families_run"]
 
 
-def test_ci_violation_carries_dp_calibration_metadata(monkeypatch, tmp_path) -> None:
+def test_ci_violation_carries_dp_calibration_metadata(monkeypatch) -> None:
     x = np.tile(np.array([0.0, 1.0]), 200)
     y = x.copy()
     state = TabularCausalDiscoveryData(
@@ -483,16 +489,31 @@ def test_ci_violation_carries_dp_calibration_metadata(monkeypatch, tmp_path) -> 
 
     monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
 
+    dp_context = {
+        "mechanism": "gaussian_counts",
+        "epsilon": 0.6,
+        "delta": 1e-6,
+    }
+    policies = CITestThresholdPolicySet(
+        policies=(
+            CITestThresholdPolicy(
+                threshold_scope=ci_threshold_scope(
+                    family="categorical_ci",
+                    query_type="g2",
+                    estimator="stratified_counts",
+                    dp_context=dp_context,
+                    readiness_target="diagnostic",
+                ),
+                threshold_registry_version=1,
+            ),
+        )
+    )
     report = PCDiscovery.pure_step(
         state,
         params={
             "timeout_seconds": 30,
-            "dp_context": {
-                "mechanism": "gaussian_counts",
-                "epsilon": 0.6,
-                "delta": 1e-6,
-            },
-            "judge_threshold_registry_root": str(tmp_path),
+            "dp_context": dp_context,
+            "ci_threshold_policies": policies.model_dump(mode="python"),
         },
     )["report"]
 

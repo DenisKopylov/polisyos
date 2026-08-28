@@ -88,18 +88,18 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 133 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 273 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 277 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 39 | `team-polisyos` | `src/polisyos/fabric/README.md` |
-| `polisyos.foundry` | `public_stable` | `lazy_facade` | 8 | `team-polisyos` | `src/polisyos/foundry/README.md` |
+| `polisyos.foundry` | `public_stable` | `lazy_facade` | 11 | `team-polisyos` | `src/polisyos/foundry/README.md` |
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 26 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 957 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
-| `polisyos.lex` | `public_stable` | `lazy_facade` | 54 | `team-polisyos` | `src/polisyos/lex/README.md` |
+| `polisyos.lex` | `public_stable` | `lazy_facade` | 51 | `team-polisyos` | `src/polisyos/lex/README.md` |
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 25 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
 | `polisyos.berl` | `public_experimental` | `eager_exports` | 11 | `team-scientist` | `src/polisyos/berl/README.md` |
@@ -1096,7 +1096,7 @@ security
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 273 |
+| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 277 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 11 |
 
 #### `polisyos.ir`
@@ -1105,7 +1105,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Entrypoint exports (273)</summary>
+<details><summary>Entrypoint exports (277)</summary>
 
 ```text
 ABMBifurcationReport
@@ -1154,6 +1154,7 @@ CausalQueryResultRef
 CausalReadinessBundle
 CohortDimension
 CohortImpact
+CompiledLexIntervention
 ConnectorCapability
 ConnectorMetadataSpec
 ConstraintType
@@ -1184,6 +1185,7 @@ EquilibriumMultiplicityWelfareAnnotation
 EstimationStatus
 ExplanationBundleRef
 ExposureMappingType
+FailureSeverity
 FanChartSpec
 FeatureImportance
 FidelityLevel
@@ -1360,8 +1362,10 @@ TransportabilityCheckBundle
 TransportabilityResult
 TransportabilityResultRef
 TrustLevel
+TypedFailureCard
 UncertaintyEnvelope
 UncertaintySource
+UncertaintyType
 WelfareBundle
 WelfareBundleRef
 WelfareIntervalSemantics
@@ -1409,7 +1413,7 @@ resolve_lazy_export
 
 </details>
 
-<details><summary>Supported exports (273)</summary>
+<details><summary>Supported exports (277)</summary>
 
 ```text
 ABMBifurcationReport
@@ -1458,6 +1462,7 @@ CausalQueryResultRef
 CausalReadinessBundle
 CohortDimension
 CohortImpact
+CompiledLexIntervention
 ConnectorCapability
 ConnectorMetadataSpec
 ConstraintType
@@ -1488,6 +1493,7 @@ EquilibriumMultiplicityWelfareAnnotation
 EstimationStatus
 ExplanationBundleRef
 ExposureMappingType
+FailureSeverity
 FanChartSpec
 FeatureImportance
 FidelityLevel
@@ -1664,8 +1670,10 @@ TransportabilityCheckBundle
 TransportabilityResult
 TransportabilityResultRef
 TrustLevel
+TypedFailureCard
 UncertaintyEnvelope
 UncertaintySource
+UncertaintyType
 WelfareBundle
 WelfareBundleRef
 WelfareIntervalSemantics
@@ -2125,14 +2133,14 @@ world
 - Owner: `team-polisyos`
 - README: `src/polisyos/foundry/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml.
+- Notes: Stable lazy facade over compile/execute and three generic text-embedding surfaces. Phase 6 keeps public exports on declared facades; moved legacy FQN are compatibility shims registered in architecture/shims.toml.
 - Summary: Expose the stable Foundry compile/execute entrypoints behind lazy imports.
 
 ### Resolved supported entrypoints
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 8 |
+| `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 11 |
 | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
 | `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 1 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 3 |
@@ -2143,11 +2151,14 @@ world
 - Facade: `lazy_facade`
 - Summary: Expose the stable Foundry compile/execute entrypoints behind lazy imports.
 
-<details><summary>Entrypoint exports (8)</summary>
+<details><summary>Entrypoint exports (11)</summary>
 
 ```text
 DependencyProfileResolutionFailure
+EmbedderProtocol
 MethodCatalogDependencyAuthorityRequest
+SentenceTransformerEmbedder
+TFIDFEmbedder
 build_method_catalog_provenance_manifest
 build_method_catalog_runtime_identity
 compile
@@ -2204,11 +2215,14 @@ resolve_execution_posture
 
 </details>
 
-<details><summary>Supported exports (8)</summary>
+<details><summary>Supported exports (11)</summary>
 
 ```text
 DependencyProfileResolutionFailure
+EmbedderProtocol
 MethodCatalogDependencyAuthorityRequest
+SentenceTransformerEmbedder
+TFIDFEmbedder
 build_method_catalog_provenance_manifest
 build_method_catalog_runtime_identity
 compile
@@ -4464,7 +4478,7 @@ write_authority_envelope_json_schema
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.lex` | `src/polisyos/lex/__init__.py` | `lazy_facade` | 54 |
+| `polisyos.lex` | `src/polisyos/lex/__init__.py` | `lazy_facade` | 51 |
 | `polisyos.lex.knowledge` | `src/polisyos/lex/knowledge/__init__.py` | `lazy_facade` | 11 |
 
 #### `polisyos.lex`
@@ -4473,7 +4487,7 @@ write_authority_envelope_json_schema
 - Facade: `lazy_facade`
 - Summary: Stable Lex facade for runtime legal evaluation, NormPack assembly, and interventions.
 
-<details><summary>Entrypoint exports (54)</summary>
+<details><summary>Entrypoint exports (51)</summary>
 
 ```text
 ActiveVersionResult
@@ -4482,7 +4496,6 @@ AffectedKPI
 ChangeProposalRef
 ComplianceDelta
 ComplianceTransition
-HierarchicalPolicySearchAdapter
 HierarchicalPolicySearchPlan
 InterventionKnobDictionaryEntry
 InterventionKnobSpec
@@ -4516,8 +4529,6 @@ NormPackMutator
 ProvisionProgramCrosswalkEntry
 StrategicResponseRegistryEntry
 StrategicResponseSpecRegistry
-TemporalInterventionSequenceCompileResult
-TemporalInterventionSequenceCompiler
 TemporalInterventionSequencer
 TemporalInterventionStepInput
 assemble_norm_pack
@@ -4558,7 +4569,7 @@ search_legal_knowledge
 
 </details>
 
-<details><summary>Supported exports (54)</summary>
+<details><summary>Supported exports (51)</summary>
 
 ```text
 ActiveVersionResult
@@ -4567,7 +4578,6 @@ AffectedKPI
 ChangeProposalRef
 ComplianceDelta
 ComplianceTransition
-HierarchicalPolicySearchAdapter
 HierarchicalPolicySearchPlan
 InterventionKnobDictionaryEntry
 InterventionKnobSpec
@@ -4601,8 +4611,6 @@ NormPackMutator
 ProvisionProgramCrosswalkEntry
 StrategicResponseRegistryEntry
 StrategicResponseSpecRegistry
-TemporalInterventionSequenceCompileResult
-TemporalInterventionSequenceCompiler
 TemporalInterventionSequencer
 TemporalInterventionStepInput
 assemble_norm_pack

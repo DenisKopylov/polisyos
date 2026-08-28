@@ -4,8 +4,11 @@ import hashlib
 import json
 
 import pytest
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.ir import FailureSeverity, TypedFailureCard
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.evals.challenge_factory import (
     ChallengeClass,
     ChallengeSeed,
@@ -21,7 +24,6 @@ from polisyos.scientist.evals.challenge_factory import (
     register_challenge_pack_with_benchmark_registry,
 )
 from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
-from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
 
 
 def _ref(seed: str, *, kind: str = "scientist.challenge_case") -> ArtifactRef:
@@ -41,7 +43,9 @@ def _failure_card(**metadata) -> TypedFailureCard:
         severity=FailureSeverity.BLOCKER,
         description="The report cited a source that does not support the claim.",
         remediation_hint="Build a forged-citation challenge before promotion.",
-        evidence_ref=_ref("failure", kind="scientist.failure_card"),
+        evidence_ref=ArtifactRefModel.model_validate(
+            _ref("failure", kind="scientist.failure_card").model_dump(mode="json")
+        ),
         metadata=metadata,
     )
 

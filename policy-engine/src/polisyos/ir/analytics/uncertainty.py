@@ -15,7 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.common import serialization
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
-from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
+from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable
@@ -25,6 +25,50 @@ if TYPE_CHECKING:
 
 class UncertaintyCompatibilityError(ValueError):
     """Raised when envelopes with incompatible interval semantics are combined."""
+
+
+class UncertaintyType(str, Enum):
+    """Typed uncertainty categories shared by analytical failure contracts."""
+
+    STATISTICAL = "statistical"
+    STRUCTURAL = "structural"
+    TRANSPORT = "transport"
+    MEASUREMENT = "measurement"
+    MODEL = "model"
+    OPTIMIZATION = "optimization"
+
+
+class FailureSeverity(str, Enum):
+    """Severity of a typed analytical failure."""
+
+    BLOCKER = "blocker"
+    WARNING = "warning"
+    INFO = "info"
+
+
+class TypedFailureCard(BaseModel):
+    """Structured failure record shared by analytical producers and consumers."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    judge_name: str = Field(min_length=1)
+    failure_type: str = Field(min_length=1)
+    severity: FailureSeverity
+    description: str = Field(min_length=1)
+    uncertainty_type: UncertaintyType | None = None
+    remediation_hint: str | None = None
+    evidence_ref: ArtifactRefModel | None = None
+    metric_name: str | None = None
+    observed_value: float | None = None
+    threshold_value: float | None = None
+    threshold_direction: Literal["max", "min"] | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @property
+    def is_blocker(self) -> bool:
+        """Return whether this failure blocks the evaluated operation."""
+
+        return self.severity is FailureSeverity.BLOCKER
 
 
 class OutputContractCapability(str, Enum):
@@ -2107,6 +2151,7 @@ __all__ = [
     "DistributionFamily",
     "EnvelopeCombinationMethod",
     "ExactnessKind",
+    "FailureSeverity",
     "IntervalSemantics",
     "MixtureComponent",
     "MixtureDistributionCarrier",
@@ -2127,9 +2172,11 @@ __all__ = [
     "RobustSetFamily",
     "RobustSetFrontierPoint",
     "RobustSetSpec",
+    "TypedFailureCard",
     "UncertaintyCompatibilityError",
     "UncertaintyEnvelope",
     "UncertaintySource",
+    "UncertaintyType",
     "ValueUncertaintyProjectionKind",
     "build_composition_provenance",
     "combine_envelopes",

@@ -15,6 +15,7 @@ from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.ir import FailureSeverity, TypedFailureCard
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     DataReadinessReport,
@@ -27,7 +28,9 @@ from polisyos.ir.analytics.causal_discovery import LatentDiscoveryBundle
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, TransportStatus
 from polisyos.ir.analytics.distributional import DistributionalReport
 from polisyos.ir.analytics.partial_identification import load_bounds_bundle
-from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope as IRUncertaintyEnvelope
+from polisyos.ir.analytics.uncertainty import (
+    UncertaintyEnvelope as IRUncertaintyEnvelope,
+)
 from polisyos.ir.trinity import TrinityBundle
 
 # Governance pass implementations are lazy-imported via judge_passes to keep
@@ -41,7 +44,6 @@ from polisyos.scientist.methods.autotune.models import (
 )
 from polisyos.scientist.methods.discovery.priors import PriorKnowledgeBundle
 from polisyos.scientist.methods.search.adversarial import PlatformMetaEvaluationReport
-from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
 from polisyos.scientist.methods.search.judge_passes import (
     load_benchmark_split_enum,

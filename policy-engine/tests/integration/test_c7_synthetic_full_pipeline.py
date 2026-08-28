@@ -13,6 +13,7 @@ from _helpers.c7_synthetic_data import (
     expected_compile_all_artifact_keys,
     persist_c7_synthetic_snapshot,
 )
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -31,6 +32,7 @@ from polisyos.foundry.agent_sim.wiring import (
 )
 from polisyos.foundry.calibration.loss import pointwise_base_loss, reduce_weighted_loss
 from polisyos.foundry.calibration.measurement import (
+    CalibrationTargetBundleCompiler,
     DefaultMeasurementAwareLossAdapter,
     MeasurementAwareLossConfig,
 )
@@ -58,7 +60,6 @@ from polisyos.ir.observation.bundles import (
     TransportabilityCheckBundle,
 )
 from polisyos.ir.observation.causal_execution import BoundsEstimationTask
-from polisyos.ir.observation.compiler import CalibrationTargetBundleCompiler
 from polisyos.ir.observation.contract_compilers import ObservationContractCompilerSuite
 from polisyos.ir.observation.contracts import ObservationFamily
 from polisyos.ir.observation.governance import (
@@ -72,18 +73,7 @@ from polisyos.ir.registry.refs import (
     StrategicPayoffTableRef,
 )
 from polisyos.runtime.replay import measure_replayable_audit_bundle
-from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
-from polisyos.scientist.methods.causal import (
-    BoundsEstimationRunner,
-    ProxyIdentificationRunner,
-    StrategicResponseRunner,
-    TransportabilityChecker,
-)
 from polisyos.scientist.compute import run_c7_advanced_suite
-from polisyos.scientist.methods.discovery.utility_judge import (
-    DownstreamUtilityReport,
-    HypothesisUtilityScore,
-)
 from polisyos.scientist.governance import (
     BacktestKind,
     CalibrationGovernanceInput,
@@ -92,12 +82,23 @@ from polisyos.scientist.governance import (
     CalibrationValidationRunnerInput,
 )
 from polisyos.scientist.governance.calibration import CalibrationAdversarialSuiteRegistry
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
+from polisyos.scientist.methods.causal import (
+    BoundsEstimationRunner,
+    ProxyIdentificationRunner,
+    StrategicResponseRunner,
+    TransportabilityChecker,
+)
+from polisyos.scientist.methods.discovery.utility_judge import (
+    DownstreamUtilityReport,
+    HypothesisUtilityScore,
+)
+from polisyos.scientist.methods.search.lessons import LessonQuery, LessonRegistry
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF
 from polisyos.scientist.policy_design.output import (
     ReplayableAuditBundle,
     persist_replayable_audit_bundle,
 )
-from polisyos.scientist.methods.search.lessons import LessonQuery, LessonRegistry
 
 pytestmark = [
     pytest.mark.integration,
@@ -270,7 +271,7 @@ def _build_backtest_bundle(tmp_path: Path, kind: BacktestKind) -> BacktestPlanBu
                 target_metrics=["metric"],
                 prediction_source=PredictionSource.PROVIDED,
                 predicted_outcomes={"metric": [0.99, 1.01]},
-            )
+            ).model_dump(mode="json")
         ],
         historical_payloads={"metric": {"values": [1.0, 1.0, 1.0, 1.0]}},
     )

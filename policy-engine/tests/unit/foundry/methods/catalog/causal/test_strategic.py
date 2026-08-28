@@ -6,6 +6,7 @@ from types import ModuleType, SimpleNamespace
 
 import numpy as np
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.dtr import QLearningDTR
 from polisyos.foundry.methods.catalog.causal.policy_learning import OptimalPolicyLearner
@@ -17,6 +18,7 @@ from polisyos.foundry.methods.catalog.causal.strategic import (
     PerformativeLoopSpec,
     analyze_performative_loop,
     evaluate_strategic_hook,
+    persist_strategic_solve_artifacts,
     solve_strategic_response,
     strategic_result_summary,
 )
@@ -44,7 +46,6 @@ from polisyos.ir.analytics.strategic import (
     load_mean_field_solver_residual_report,
     load_strategic_component_bounds_summary,
     load_strategic_decomposition_certificate,
-    persist_strategic_solve_artifacts,
 )
 from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.governance.passes.strategic_response_pass import _bundle_summary

@@ -301,7 +301,7 @@ def _mixed_kernel_test(
     z: np.ndarray | None,
     alpha: float,
     dp_context: Mapping[str, Any] | None = None,
-    judge_threshold_registry_root: str | None = None,
+    ci_threshold_policies: Mapping[str, Any] | None = None,
     readiness_target: str = "diagnostic",
 ) -> dict[str, Any]:
     from polisyos.foundry.methods.catalog.causal.independence_tests import (
@@ -318,7 +318,7 @@ def _mixed_kernel_test(
                 "alpha": alpha,
                 "n_bootstrap": 99,
                 "dp_context": dp_context,
-                "judge_threshold_registry_root": judge_threshold_registry_root,
+                "ci_threshold_policies": ci_threshold_policies,
                 "readiness_target": readiness_target,
             },
         )["result"]
@@ -362,7 +362,7 @@ def _mixed_kernel_test(
             "n_bootstrap": 99,
             "ridge": 1e-2,
             "dp_context": dp_context,
-            "judge_threshold_registry_root": judge_threshold_registry_root,
+            "ci_threshold_policies": ci_threshold_policies,
             "readiness_target": readiness_target,
         },
     )["result"]
@@ -406,7 +406,7 @@ def _run_ci_test(
     z: np.ndarray | None,
     alpha: float,
     dp_context: Mapping[str, Any] | None = None,
-    judge_threshold_registry_root: str | None = None,
+    ci_threshold_policies: Mapping[str, Any] | None = None,
     readiness_target: str = "diagnostic",
 ) -> dict[str, Any]:
     from polisyos.foundry.methods.catalog.causal.independence_tests import (
@@ -456,7 +456,7 @@ def _run_ci_test(
                         "alpha": alpha,
                         "statistic_family": "g2",
                         "dp_context": dp_context,
-                        "judge_threshold_registry_root": judge_threshold_registry_root,
+                        "ci_threshold_policies": ci_threshold_policies,
                         "readiness_target": readiness_target,
                     },
                 )["result"]
@@ -521,7 +521,7 @@ def _run_ci_test(
                 z=None,
                 alpha=alpha,
                 dp_context=dp_context,
-                judge_threshold_registry_root=judge_threshold_registry_root,
+                ci_threshold_policies=ci_threshold_policies,
                 readiness_target=readiness_target,
             )
             return {
@@ -557,7 +557,7 @@ def _run_ci_test(
                     "alpha": alpha,
                     "statistic_family": "g2",
                     "dp_context": dp_context,
-                    "judge_threshold_registry_root": judge_threshold_registry_root,
+                    "ci_threshold_policies": ci_threshold_policies,
                     "readiness_target": readiness_target,
                 },
             )["result"]
@@ -622,7 +622,7 @@ def _run_ci_test(
             z=z_obs,
             alpha=alpha,
             dp_context=dp_context,
-            judge_threshold_registry_root=judge_threshold_registry_root,
+            ci_threshold_policies=ci_threshold_policies,
             readiness_target=readiness_target,
         )
         return {
@@ -1218,7 +1218,7 @@ def _evaluate_ci_family(
     variable_names: list[str],
     alpha: float,
     dp_context: Mapping[str, Any] | None = None,
-    judge_threshold_registry_root: str | None = None,
+    ci_threshold_policies: Mapping[str, Any] | None = None,
     readiness_target: str = "diagnostic",
 ) -> dict[str, Any]:
     implied_constraints = _implied_ci_constraints(graph)
@@ -1250,7 +1250,7 @@ def _evaluate_ci_family(
             z=conditioning,
             alpha=alpha,
             dp_context=dp_context,
-            judge_threshold_registry_root=judge_threshold_registry_root,
+            ci_threshold_policies=ci_threshold_policies,
             readiness_target=readiness_target,
         )
         raw_results.append({"constraint": constraint, **raw})
@@ -2176,7 +2176,7 @@ def _stamp_algebraic_constraint_audit(
     algebraic_blocks: list[AlgebraicBlockSpec] | None = None,
     degraded_reason: str | None = None,
     dp_context: Mapping[str, Any] | None = None,
-    judge_threshold_registry_root: str | None = None,
+    ci_threshold_policies: Mapping[str, Any] | None = None,
     readiness_target: str = "diagnostic",
 ) -> CausalDiscoveryReport:
     graph = _inject_algebraic_blocks_metadata(
@@ -2204,7 +2204,7 @@ def _stamp_algebraic_constraint_audit(
                 significance_level=significance_level,
                 seed=seed,
                 dp_context=dp_context,
-                judge_threshold_registry_root=judge_threshold_registry_root,
+                ci_threshold_policies=ci_threshold_policies,
                 readiness_target=readiness_target,
             )
         except Exception as exc:
@@ -2241,7 +2241,7 @@ def _run_algebraic_constraint_audit(
     significance_level: float,
     seed: int,
     dp_context: Mapping[str, Any] | None = None,
-    judge_threshold_registry_root: str | None = None,
+    ci_threshold_policies: Mapping[str, Any] | None = None,
     readiness_target: str = "diagnostic",
 ) -> AlgebraicConstraintReport:
     implied_constraints: list[ImpliedConstraintSpec] = []
@@ -2258,7 +2258,7 @@ def _run_algebraic_constraint_audit(
         variable_names=variable_names,
         alpha=significance_level,
         dp_context=dp_context,
-        judge_threshold_registry_root=judge_threshold_registry_root,
+        ci_threshold_policies=ci_threshold_policies,
         readiness_target=readiness_target,
     )
     families_run.append(AlgebraicConstraintFamily.CI)
@@ -2966,7 +2966,7 @@ def _run_constraint_discovery(
     seed = int(params.get("__seed__", 0) or 0)
     algebraic_blocks = _validate_algebraic_blocks(params.get("algebraic_blocks"))
     dp_context = params.get("dp_context")
-    judge_threshold_registry_root = params.get("judge_threshold_registry_root")
+    ci_threshold_policies = params.get("ci_threshold_policies")
     readiness_target = str(params.get("readiness_target", "diagnostic"))
     ci_backend = _resolve_constraint_ci_backend(params.get("discovery_ci_backend"))
     scale_backend = _resolve_scale_backend(
@@ -3054,7 +3054,7 @@ def _run_constraint_discovery(
             seed=seed,
             algebraic_blocks=algebraic_blocks,
             dp_context=dp_context,
-            judge_threshold_registry_root=judge_threshold_registry_root,
+            ci_threshold_policies=ci_threshold_policies,
             readiness_target=readiness_target,
         )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
@@ -3091,7 +3091,7 @@ def _run_constraint_discovery(
             seed=seed,
             algebraic_blocks=algebraic_blocks,
             dp_context=dp_context,
-            judge_threshold_registry_root=judge_threshold_registry_root,
+            ci_threshold_policies=ci_threshold_policies,
             readiness_target=readiness_target,
         )
         return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
@@ -3193,7 +3193,7 @@ def _run_constraint_discovery(
         seed=seed,
         algebraic_blocks=algebraic_blocks,
         dp_context=dp_context,
-        judge_threshold_registry_root=judge_threshold_registry_root,
+        ci_threshold_policies=ci_threshold_policies,
         readiness_target=readiness_target,
     )
     return {"report": report, "__determinism_tier__": DeterminismTier.STATISTICAL}
@@ -3240,7 +3240,7 @@ class PCDiscovery:
             ParameterSpec(name="uc_priority", default=2),
             ParameterSpec(name="algebraic_blocks", default=[]),
             ParameterSpec(name="dp_context", default=None),
-            ParameterSpec(name="judge_threshold_registry_root", default=None),
+            ParameterSpec(name="ci_threshold_policies", default=None),
             ParameterSpec(name="readiness_target", default="diagnostic"),
             ParameterSpec(name="discovery_scale_backend", default="auto"),
             ParameterSpec(name="discovery_ci_backend", default="auto"),
@@ -3316,7 +3316,7 @@ class FCIDiscovery:
             ParameterSpec(name="max_path_length", default=-1),
             ParameterSpec(name="algebraic_blocks", default=[]),
             ParameterSpec(name="dp_context", default=None),
-            ParameterSpec(name="judge_threshold_registry_root", default=None),
+            ParameterSpec(name="ci_threshold_policies", default=None),
             ParameterSpec(name="readiness_target", default="diagnostic"),
             ParameterSpec(name="discovery_scale_backend", default="auto"),
             ParameterSpec(name="discovery_ci_backend", default="auto"),
@@ -3392,7 +3392,7 @@ class GESDiscovery:
             ParameterSpec(name="max_parents", default=None),
             ParameterSpec(name="algebraic_blocks", default=[]),
             ParameterSpec(name="dp_context", default=None),
-            ParameterSpec(name="judge_threshold_registry_root", default=None),
+            ParameterSpec(name="ci_threshold_policies", default=None),
             ParameterSpec(name="readiness_target", default="diagnostic"),
             ParameterSpec(name="discovery_scale_backend", default="auto"),
             ParameterSpec(name="discovery_ci_backend", default="auto"),

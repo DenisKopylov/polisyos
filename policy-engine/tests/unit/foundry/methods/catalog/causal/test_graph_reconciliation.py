@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.graph_reconciliation import (
     MAX_RECON_EDGES,
     ComposeSCMFragments,
@@ -35,7 +36,21 @@ from polisyos.ir.analytics.cross_graph import (
     SolverKind,
     UniquenessScope,
 )
+from polisyos.ir.analytics.latent_bridge_synthesis import (
+    LatentBridgeFalsificationTest,
+    LatentBridgeFalsificationTestFamily,
+    LatentBridgeFalsificationTestStatus,
+    LatentBridgeHeldoutMetrics,
+    LatentBridgeHypothesis,
+    LatentBridgeStatus,
+    LatentBridgeSynthesisMode,
+    persist_latent_bridge_hypothesis,
+)
 from polisyos.ir.analytics.literature import LiteratureCausalPrior, LiteratureEdgePrior
+from polisyos.ir.registry.refs import LatentBridgeHypothesisRef
+from polisyos.scientist.cross_graph.compiler import (
+    _verify_fragment_bundle_alignment_with_governance,
+)
 
 
 def _data_edge(
@@ -85,6 +100,47 @@ def _fragment(
         variable_definitions=dict(definitions or {}),
         variable_units=dict(units or {}),
         measurement_models=dict(measurement_models or {}),
+    )
+
+
+def _persist_latent_bridge_candidate(
+    store: FileSystemCAS,
+    *,
+    pair_key: str,
+    human_verified: bool = False,
+) -> LatentBridgeHypothesisRef:
+    status = (
+        LatentBridgeStatus.HUMAN_VERIFIED
+        if human_verified
+        else LatentBridgeStatus.PROPOSED
+    )
+    return persist_latent_bridge_hypothesis(
+        store,
+        LatentBridgeHypothesis(
+            bridge_id=f"latent::bridge::{pair_key}",
+            pair_key=pair_key,
+            status=status,
+            synthesis_mode=LatentBridgeSynthesisMode.MEASUREMENT_MODEL,
+            measurement_side_a_refs=["indicator:a:1", "indicator:a:2"],
+            measurement_side_b_refs=["indicator:b:1", "indicator:b:2"],
+            heldout_metrics=LatentBridgeHeldoutMetrics(
+                delta_cv=0.14,
+                lower_ci=0.05,
+                upper_ci=0.19,
+                scoring_rule="loglik",
+            ),
+            falsification_tests=[
+                LatentBridgeFalsificationTest(
+                    test_family=LatentBridgeFalsificationTestFamily.CTA,
+                    status=LatentBridgeFalsificationTestStatus.PASS,
+                    p_value=0.35,
+                )
+            ],
+            metadata={
+                "opaque_label_required": True,
+                "semantic_interpretation_confidence": "none",
+            },
+        ),
     )
 
 
@@ -989,7 +1045,9 @@ def test_compose_scm_fragments_blocks_explicit_incompatible_pair_labels() -> Non
     assert {card.failure_type for card in result["failure_cards"]} >= {"alignment_incompatible"}
 
 
-def test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles() -> None:
+def test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles(
+    tmp_path,
+) -> None:
     fragment_a = _fragment(
         "a",
         interface_variables=["x", "y"],
@@ -1003,10 +1061,14 @@ def test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles()
         definitions={"x": "Labor market state", "y": "Wage outcome"},
     )
     pair_key = "a:x|b:x"
-    report, mapping = verify_fragment_alignment(
-        fragment_a,
-        fragment_b,
-        config=AlignmentVerificationConfig(explicit_latent_bridges={pair_key: "artifact:latent:x"}),
+    store = FileSystemCAS(tmp_path / "cas")
+    hypothesis_ref = _persist_latent_bridge_candidate(store, pair_key=pair_key)
+    report, mapping = _verify_fragment_bundle_alignment_with_governance(
+        [fragment_a, fragment_b],
+        config=AlignmentVerificationConfig(
+            explicit_latent_bridges={pair_key: hypothesis_ref}
+        ),
+        artifact_store=store,
     )
 
     latent_result = ComposeSCMFragments.pure_step(
@@ -1062,7 +1124,7 @@ def test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles()
     assert {card.failure_type for card in cycle_result["failure_cards"]} >= {"directed_cycle"}
 
 
-def test_compose_scm_fragments_allows_human_verified_latent_bridge() -> None:
+def test_compose_scm_fragments_allows_human_verified_latent_bridge(tmp_path) -> None:
     fragment_a = _fragment(
         "a",
         interface_variables=["x"],
@@ -1075,13 +1137,20 @@ def test_compose_scm_fragments_allows_human_verified_latent_bridge() -> None:
         inputs=["x"],
         definitions={"x": "Labor market state"},
     )
-    report, mapping = verify_fragment_alignment(
-        fragment_a,
-        fragment_b,
+    pair_key = "a:x|b:x"
+    store = FileSystemCAS(tmp_path / "cas")
+    hypothesis_ref = _persist_latent_bridge_candidate(
+        store,
+        pair_key=pair_key,
+        human_verified=True,
+    )
+    report, mapping = _verify_fragment_bundle_alignment_with_governance(
+        [fragment_a, fragment_b],
         config=AlignmentVerificationConfig(
-            explicit_latent_bridges={"a:x|b:x": "artifact:latent:x"},
-            human_verified_pairs=["a:x|b:x"],
+            explicit_latent_bridges={pair_key: hypothesis_ref},
+            human_verified_pairs=[pair_key],
         ),
+        artifact_store=store,
     )
 
     result = ComposeSCMFragments.pure_step(

@@ -1,17 +1,26 @@
 from __future__ import annotations
 
+import importlib
+
 import pytest
+
 from polisyos.foundry.calibration.dp_ci import (
+    CITestThresholdPolicy,
+    CITestThresholdPolicySet,
     DPContext,
+    ci_threshold_scope,
     effective_privacy_xi,
     required_n_chi2,
     required_n_kernel,
     resolve_ci_threshold_policy,
 )
-from polisyos.scientist.methods.search.judge_thresholds import (
-    JudgeThresholdEntry,
-    JudgeThresholdRegistry,
-)
+
+
+def test_calibration_facade_exports_canonical_ci_threshold_policy_set() -> None:
+    calibration = importlib.import_module("polisyos.foundry.calibration")
+
+    assert "CITestThresholdPolicySet" in calibration.__all__
+    assert calibration.CITestThresholdPolicySet is CITestThresholdPolicySet
 
 
 def test_effective_privacy_xi_shrinks_with_delta_penalty() -> None:
@@ -34,38 +43,59 @@ def test_required_n_bounds_grow_as_privacy_strengthens() -> None:
     assert kernel_strong.required_n > kernel_weak.required_n
 
 
-def test_resolve_ci_threshold_policy_prefers_dp_specific_entry(tmp_path) -> None:
-    registry = JudgeThresholdRegistry(tmp_path / "judge_thresholds")
-    registry.record(
-        JudgeThresholdEntry(
-            judge_name="ci_tests",
-            metric_name="mc_bootstrap_B",
-            threshold_value=1234,
-            direction="min",
-            rationale="unit test override",
-            benchmark_source="unit_test",
-            scope_family="categorical_ci",
-            scope_query_type="g2",
-            scope_estimator="stratified_counts",
-            scope_dp_mechanism="laplace_counts",
-            scope_dp_epsilon_bucket="0.5_to_1.0",
-            scope_dp_delta_bucket="zero",
-        ),
-        change_reason="seed DP specific MC override",
-        approved_by="tests",
+def _resolved_policy_set(*, epsilon: float = 0.7) -> CITestThresholdPolicySet:
+    dp_context = {"mechanism": "laplace_counts", "epsilon": epsilon, "delta": 0.0}
+    return CITestThresholdPolicySet(
+        policies=(
+            CITestThresholdPolicy(
+                mc_bootstrap_B=1234,
+                threshold_scope=ci_threshold_scope(
+                    family="categorical_ci",
+                    query_type="g2",
+                    estimator="stratified_counts",
+                    dp_context=dp_context,
+                    readiness_target="diagnostic",
+                ),
+                threshold_registry_version=3,
+            ),
+        )
     )
 
+
+def test_resolve_ci_threshold_policy_consumes_exact_resolved_policy() -> None:
     policy = resolve_ci_threshold_policy(
         family="categorical_ci",
         query_type="g2",
         estimator="stratified_counts",
         dp_context={"mechanism": "laplace_counts", "epsilon": 0.7, "delta": 0.0},
-        registry_root=tmp_path / "judge_thresholds",
+        resolved_policies=_resolved_policy_set(),
         n_bootstrap=2000,
     )
 
     assert policy.mc_bootstrap_B == 1234
     assert policy.threshold_scope["dp_mechanism"] == "laplace_counts"
+
+
+def test_resolve_ci_threshold_policy_rejects_family_mismatch() -> None:
+    with pytest.raises(ValueError, match="scope mismatch"):
+        resolve_ci_threshold_policy(
+            family="kernel_ci",
+            query_type="g2",
+            estimator="stratified_counts",
+            dp_context={"mechanism": "laplace_counts", "epsilon": 0.7, "delta": 0.0},
+            resolved_policies=_resolved_policy_set(),
+        )
+
+
+def test_resolve_ci_threshold_policy_rejects_epsilon_bucket_mismatch() -> None:
+    with pytest.raises(ValueError, match="scope mismatch"):
+        resolve_ci_threshold_policy(
+            family="categorical_ci",
+            query_type="g2",
+            estimator="stratified_counts",
+            dp_context={"mechanism": "laplace_counts", "epsilon": 1.5, "delta": 0.0},
+            resolved_policies=_resolved_policy_set(epsilon=0.7),
+        )
 
 
 def test_resolve_ci_threshold_policy_uses_defaults_without_registry() -> None:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import sys
 from datetime import datetime
 
@@ -9,11 +10,13 @@ import pytest
 
 sys.path.insert(0, "src")
 
+from polisyos.foundry import TFIDFEmbedder
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 from polisyos.scientist.methods.search.strategies.neural import (
     NeuralSearchConfig,
     NeuralSearchStrategy,
 )
+from polisyos.scientist.methods.search.strategies.run_similarity import embed_run_config
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import (
     Evaluation,
@@ -25,6 +28,22 @@ from polisyos.scientist.methods.search.strategies.types import (
 
 def _make_space() -> SearchSpace:
     return SearchSpace(bounds=[ParameterBounds(name="x", lower=0.0, upper=1.0)])
+
+
+def test_foundry_embedder_feeds_scientist_run_similarity() -> None:
+    embedder = TFIDFEmbedder(max_features=32)
+    embedder.fit(
+        [
+            "search space parameter objective",
+            "unrelated comparison text",
+            "another unrelated document",
+        ]
+    )
+
+    vector = embed_run_config(_make_space(), ["welfare"], embedder=embedder)
+
+    assert len(vector) == embedder.dim
+    assert math.sqrt(sum(value * value for value in vector)) == pytest.approx(1.0)
 
 
 def _make_evaluation(

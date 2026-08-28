@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -9,6 +10,14 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.foundry.calibration.dp_ci import (
+    CITestThresholdPolicy,
+    DPContext,
+    bucket_dp_delta,
+    bucket_dp_epsilon,
+    coerce_dp_context,
+    normalize_ci_scope_value,
+)
 from polisyos.foundry.methods.catalog.causal.algebraic_calibration import (
     tetrad_threshold_recommendations,
 )
@@ -237,6 +246,57 @@ class JudgeThresholdRegistry:
             scope=scope,
             entries=resolved,
             registry_version=max((item.version for item in resolved.values()), default=None),
+        )
+
+    def resolve_ci_test_policy(
+        self,
+        *,
+        family: Literal["kernel_ci", "categorical_ci"],
+        query_type: str,
+        estimator: str,
+        dp_context: DPContext | Mapping[str, object] | None = None,
+        alpha: float = 0.05,
+        n_bootstrap: int = 299,
+        readiness_target: str = "diagnostic",
+    ) -> CITestThresholdPolicy:
+        """Resolve one CI policy above Foundry's execution boundary."""
+
+        context = coerce_dp_context(dp_context)
+        default_policy = CITestThresholdPolicy(
+            alpha_base=float(alpha),
+            mc_bootstrap_B=int(n_bootstrap),
+        )
+        resolved = self.resolve(
+            "ci_tests",
+            family=family,
+            query_type=query_type,
+            estimator=estimator,
+            readiness_target=readiness_target,
+            dp_mechanism=None if context is None else context.mechanism,
+            dp_epsilon=None if context is None else context.epsilon,
+            dp_delta=None if context is None else context.delta,
+        )
+        alpha_base = resolved.threshold_value("alpha_base")
+        mc_bootstrap_B = resolved.threshold_value("mc_bootstrap_B")
+        min_n_rule_constant = resolved.threshold_value("min_n_rule_constant")
+        naive_fpr_bound_rho = resolved.threshold_value("naive_fpr_bound_rho")
+        return CITestThresholdPolicy(
+            alpha_base=float(alpha_base if alpha_base is not None else alpha),
+            mc_bootstrap_B=int(
+                round(mc_bootstrap_B if mc_bootstrap_B is not None else n_bootstrap)
+            ),
+            min_n_rule_constant=float(
+                min_n_rule_constant
+                if min_n_rule_constant is not None
+                else default_policy.min_n_rule_constant
+            ),
+            naive_fpr_bound_rho=float(
+                naive_fpr_bound_rho
+                if naive_fpr_bound_rho is not None
+                else default_policy.naive_fpr_bound_rho
+            ),
+            threshold_scope=dict(resolved.scope),
+            threshold_registry_version=resolved.registry_version,
         )
 
     def snapshot(self) -> JudgeThresholdSnapshot:
@@ -526,39 +586,7 @@ def _check_threshold_violation(
     )
 
 
-def _normalize_scope_value(value: str | None) -> str | None:
-    text = str(value or "").strip()
-    return text or None
-
-
-def bucket_dp_epsilon(value: float | str | None) -> str | None:
-    epsilon = _coerce_optional_float(value)
-    if epsilon is None:
-        return _normalize_scope_value(value if isinstance(value, str) else None)
-    if epsilon < 0.1:
-        return "lt_0.1"
-    if epsilon < 0.5:
-        return "0.1_to_0.5"
-    if epsilon < 1.0:
-        return "0.5_to_1.0"
-    if epsilon < 3.0:
-        return "1.0_to_3.0"
-    return "ge_3.0"
-
-
-def bucket_dp_delta(value: float | str | None) -> str | None:
-    delta = _coerce_optional_float(value)
-    if delta is None:
-        return _normalize_scope_value(value if isinstance(value, str) else None)
-    if delta <= 0.0:
-        return "zero"
-    if delta <= 1e-8:
-        return "lte_1e-8"
-    if delta <= 1e-6:
-        return "1e-8_to_1e-6"
-    if delta <= 1e-4:
-        return "1e-6_to_1e-4"
-    return "gt_1e-4"
+_normalize_scope_value = normalize_ci_scope_value
 
 
 def _scope_match_score(
@@ -583,10 +611,3 @@ def _scope_match_score(
             return None
         score += weight
     return score
-
-
-def _coerce_optional_float(value: float | str | None) -> float | None:
-    try:
-        return None if value is None else float(value)
-    except (TypeError, ValueError):
-        return None

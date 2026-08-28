@@ -28,5 +28,5 @@ components into runtime registries.
 ## Current State
 
 - Last updated: 2026-04-03
-- The tree now includes the CLI facades `_cli_audit.py`, `_cli_crypto.py`, `_cli_lex.py`, `_cli_replay.py`, `_cli_scholar.py`, and `_cli_scientist.py`.
+- The tree includes the Core CLI handlers `_cli_audit.py`, `_cli_crypto.py`, `_cli_lex.py`, `_cli_replay.py`, and `_cli_scholar.py`; cross-product Scientist command composition lives in `tools/ops_runners/runtime_cli.py`.
 - Component discovery still supports both entry points and local dev-scan fallback.

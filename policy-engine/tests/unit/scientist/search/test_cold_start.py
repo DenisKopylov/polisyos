@@ -4,7 +4,6 @@ from argparse import Namespace
 from unittest.mock import MagicMock
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.components._cli_scientist import _cmd_scientist_burn_in
 from polisyos.scientist.methods.search.cold_start import BurnInConfig, run_burn_in
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
 from polisyos.scientist.methods.search.funnel.types import (
@@ -16,6 +15,7 @@ from polisyos.scientist.methods.search.funnel.types import (
 )
 from polisyos.scientist.methods.search.lessons import LessonRegistry
 from polisyos.scientist.methods.search.stages import CorrelationTracker
+from tools.ops_runners import runtime_cli
 
 
 def _make_stage_result(
@@ -163,7 +163,7 @@ def test_burn_in_cli_happy_path_and_invalid_config(tmp_path) -> None:
         encoding="utf-8",
     )
 
-    code = _cmd_scientist_burn_in(
+    code = runtime_cli._cmd_scientist_burn_in(
         Namespace(
             config=str(config_path),
             output=str(output_path),
@@ -176,7 +176,7 @@ def test_burn_in_cli_happy_path_and_invalid_config(tmp_path) -> None:
 
     bad_config = tmp_path / "burn_in_bad.json"
     bad_config.write_text('{"regular_candidates": "oops"}', encoding="utf-8")
-    bad_code = _cmd_scientist_burn_in(
+    bad_code = runtime_cli._cmd_scientist_burn_in(
         Namespace(
             config=str(bad_config),
             output=None,

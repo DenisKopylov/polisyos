@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from polisyos.ir.analytics.simulation_proof_bridge import (
     SimulationCertificationStatus,
     SimulationProofBridge,
@@ -145,9 +147,32 @@ def test_calibration_summary_tracks_required_sbi_diagnostics() -> None:
     assert passed.calibration_debt == 0.75
 
 
-def test_proof_gate_from_bridge_maps_certification_status_and_refs() -> None:
+def test_proof_gate_from_bridge_maps_current_unverified_scenario_and_refs() -> None:
     bridge = SimulationProofBridge(
         run_id="R1",
+        simulation_result_ref=_ref(char="1"),
+        evidence_bundle_ref=EvidenceBundleRef(artifact_id=_artifact_id("2")),
+        proof_bundle_ref=ProofBundleRef(artifact_id=_artifact_id("3")),
+        calibration_receipt_ref=SimulationCalibrationReceiptRef(artifact_id=_artifact_id("4")),
+        interface_mapping_ref=InterfaceMappingRef(artifact_id=_artifact_id("5")),
+        certification_status=SimulationCertificationStatus.SCENARIO,
+        proof_status="identified",
+        calibration_status="unverified",
+        composability_status="reusable",
+    )
+
+    gate = proof_gate_from_bridge(bridge)
+
+    assert gate.status is ProofGateStatus.SCENARIO
+    assert gate.effective_validity_multiplier == 0.25
+    assert gate.proof_bundle_ref is not None
+    assert str(gate.proof_bundle_ref.artifact_id) == _artifact_id("3")
+    assert gate.metadata["calibration_status"] == "unverified"
+
+
+def test_proof_gate_from_bridge_revalidates_model_construct_bypass() -> None:
+    forged = SimulationProofBridge.model_construct(
+        run_id="R_forged",
         simulation_result_ref=_ref(char="1"),
         evidence_bundle_ref=EvidenceBundleRef(artifact_id=_artifact_id("2")),
         proof_bundle_ref=ProofBundleRef(artifact_id=_artifact_id("3")),
@@ -159,13 +184,8 @@ def test_proof_gate_from_bridge_maps_certification_status_and_refs() -> None:
         composability_status="reusable",
     )
 
-    gate = proof_gate_from_bridge(bridge)
-
-    assert gate.status is ProofGateStatus.IDENTIFIED
-    assert gate.effective_validity_multiplier == 1.0
-    assert gate.proof_bundle_ref is not None
-    assert str(gate.proof_bundle_ref.artifact_id) == _artifact_id("3")
-    assert gate.metadata["calibration_status"] == "accepted"
+    with pytest.raises(ValueError, match="producer/verifier"):
+        proof_gate_from_bridge(forged)
 
 
 def test_search_facade_lazy_exports_cp_basis_scheduler() -> None:

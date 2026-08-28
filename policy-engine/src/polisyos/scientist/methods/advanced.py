@@ -17,6 +17,7 @@ import numpy as np
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.foundry.data_plane import materialize_method_contract
 from polisyos.foundry.methods.catalog.ml.protocols import (
     ClusteringResult,
     SurvivalData,
@@ -25,6 +26,7 @@ from polisyos.foundry.methods.catalog.ml.protocols import (
 )
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.observation.bundles import (
+    SURVIVAL_DATA_TARGET,
     AgentFactorEmbeddingsBundleManifest,
     BilevelProblemBundle,
     BundleAxisSemantic,
@@ -44,7 +46,6 @@ from polisyos.ir.observation.contract_compilers import (
     write_npz_payload,
     write_parquet_rows,
 )
-
 from polisyos.scientist.compute.runner import MethodBackend, MethodRuntimeProviders
 
 if TYPE_CHECKING:
@@ -118,7 +119,7 @@ class C7AdvancedInputs:
     firm_panel_rows: Sequence[Mapping[str, Any]]
     cell_rows: Sequence[Mapping[str, Any]]
     household_cell_rows: Sequence[Mapping[str, Any]]
-    survival_contract: SurvivalData
+    survival_contract: SurvivalData | Mapping[str, Any]
     survival_row_metadata: Sequence[Mapping[str, Any]]
     specification_curve_input: SpecificationCurveInput
     sobol_targets: Mapping[str, Mapping[str, Any]]
@@ -812,15 +813,34 @@ class HeckmanCorrectionAdapter(_AdvancedMethodBase):
         )
 
 
+def _materialize_survival_contract(
+    contract: SurvivalData | Mapping[str, Any],
+) -> SurvivalData:
+    """Admit a neutral IR payload through Foundry's method-contract registry."""
+
+    payload = contract.model_dump(mode="python") if isinstance(contract, SurvivalData) else contract
+    materialized = materialize_method_contract(
+        contract_target=SURVIVAL_DATA_TARGET,
+        contract_payload=payload,
+    )
+    if not isinstance(materialized, SurvivalData):
+        raise ValueError(
+            "C7 survival input must materialize SurvivalData, "
+            f"got {type(materialized).__name__}"
+        )
+    return materialized
+
+
 class SurvivalModelAdapter(_AdvancedMethodBase):
     """Fit firm hazard scores and persist a survival-hazard contract bundle."""
 
     def run(self, inputs: C7AdvancedInputs) -> C7PersistedArtifact:
-        if len(inputs.survival_row_metadata) != int(inputs.survival_contract.features.shape[0]):
+        survival_contract = _materialize_survival_contract(inputs.survival_contract)
+        if len(inputs.survival_row_metadata) != int(survival_contract.features.shape[0]):
             raise ValueError("survival_row_metadata must align with SurvivalData rows")
         result, method_result_ref, method_evidence_ref = self._run_method(
             method_fqn="ml.survival.survival_analysis@1.0.0",
-            input_state=inputs.survival_contract,
+            input_state=survival_contract,
             method_params={},
             seed=inputs.seed,
         )

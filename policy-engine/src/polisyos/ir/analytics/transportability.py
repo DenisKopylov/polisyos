@@ -335,20 +335,6 @@ class SourceDomainSpec(BaseModel):
     source_context: ContextProfile | None = None
     """Optional context profile for this domain."""
 
-    def to_source_domain(self) -> Any:
-        """Convert to ``id_engine.SourceDomain`` for algorithmic use.
-
-        Uses a lazy import to avoid foundry→IR circular imports.
-        """
-        from polisyos.foundry.methods.catalog.causal.id_engine import SourceDomain
-
-        return SourceDomain(
-            domain_id=self.domain_id,
-            s_nodes=frozenset(sn.target_variable for sn in self.s_nodes),
-            z_interventions=frozenset(self.z_interventions),
-            dataset_ref=self.dataset_ref,
-        )
-
     def to_selection_diagram(self, base_graph: CausalGraphModel) -> SelectionDiagram:
         """Project this domain spec to a standalone :class:`SelectionDiagram`."""
         sc = self.source_context if self.source_context is not None else ContextProfile()
@@ -368,8 +354,8 @@ class MultiSourceSelectionDiagram(BaseModel):
     multiple source studies, each potentially having different mechanism shifts
     (S-nodes) and/or experimental distributions (Z-interventions).
 
-    Use ``to_source_domains()`` to convert to the list expected by
-    ``mz_id_algorithm()`` in ``id_engine.py``.
+    Foundry's ``mz_id_algorithm()`` accepts typed ``SourceDomainSpec`` values and
+    owns conversion to its private algorithm descriptor.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -399,11 +385,6 @@ class MultiSourceSelectionDiagram(BaseModel):
             if spec.domain_id == domain_id:
                 return spec.to_selection_diagram(self.base_graph)
         raise KeyError(f"No domain with domain_id={domain_id!r} in MultiSourceSelectionDiagram")
-
-    def to_source_domains(self) -> list[Any]:
-        """Convert all domains to ``id_engine.SourceDomain`` objects."""
-        return [spec.to_source_domain() for spec in self.domains]
-
 
 class StratificationVariable(BaseModel):
     """Stratification variable public type."""

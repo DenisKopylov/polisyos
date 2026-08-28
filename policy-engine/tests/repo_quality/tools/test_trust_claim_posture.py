@@ -263,25 +263,25 @@ def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
     token_result = checker.derive_token_sources(REPO_ROOT)
     reconciled = checker.reconcile_source_derivations(ast_result, token_result)
 
-    assert ast_result.receipt.scanned_python_count == 2601
-    assert token_result.receipt.scanned_python_count == 2601
-    assert ast_result.receipt.raw_candidate_count == 113
-    assert token_result.receipt.raw_candidate_count == 113
+    assert ast_result.receipt.scanned_python_count == 2598
+    assert token_result.receipt.scanned_python_count == 2598
+    assert ast_result.receipt.raw_candidate_count == 115
+    assert token_result.receipt.raw_candidate_count == 115
     assert (
         ast_result.receipt.role_counts
         == token_result.receipt.role_counts
         == {
-            "declares_only": 72,
+            "declares_only": 70,
             "carries_only": 6,
             "consumes_only": 6,
-            "declares_and_consumes": 28,
+            "declares_and_consumes": 32,
             "substring_collision": 1,
             "ambiguous": 0,
         }
     )
-    assert ast_result.receipt.exact_field_file_count == 112
-    assert ast_result.receipt.declaring_file_count == 100
-    assert ast_result.receipt.consuming_file_count == 34
+    assert ast_result.receipt.exact_field_file_count == 114
+    assert ast_result.receipt.declaring_file_count == 102
+    assert ast_result.receipt.consuming_file_count == 38
     assert not reconciled.disagreements
     posture = next(row for row in reconciled.rows if row.path.endswith("claims/posture.py"))
     assert posture.role == "declares_and_consumes"
@@ -289,16 +289,16 @@ def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
     entry_roles = dict(ast_result.receipt.role_counts)
     entry_roles["declares_and_consumes"] -= 1
     assert entry_roles == {
-        "declares_only": 72,
+        "declares_only": 70,
         "carries_only": 6,
         "consumes_only": 6,
-        "declares_and_consumes": 27,
+        "declares_and_consumes": 31,
         "substring_collision": 1,
         "ambiguous": 0,
     }
-    assert ast_result.receipt.scanned_python_count - 1 == 2600
-    assert ast_result.receipt.raw_candidate_count - 1 == 112
-    assert ast_result.receipt.exact_field_file_count - 1 == 111
+    assert ast_result.receipt.scanned_python_count - 1 == 2597
+    assert ast_result.receipt.raw_candidate_count - 1 == 114
+    assert ast_result.receipt.exact_field_file_count - 1 == 113
     collision = next(row for row in reconciled.rows if row.role == "substring_collision")
     assert collision.path.endswith("data_forge/domains/academic/batch/best_snapshot.py")
     assert collision.issue_codes == ("DS11-SOURCE-COLLISION",)
@@ -342,19 +342,19 @@ def test_literal_censuses_reconcile_for_both_complete_walks() -> None:
             receipt.direct_literal_file_count,
             receipt.direct_literal_subject_count,
             receipt.direct_empty_site_count,
-        ) == (39, 17, 25, 6)
+        ) == (45, 20, 27, 10)
         assert (
             receipt.wrapper_literal_site_count,
             receipt.wrapper_literal_file_count,
             receipt.wrapper_literal_subject_count,
-        ) == (63, 28, 32)
+        ) == (69, 31, 34)
         assert (
             receipt.may_not_use_for_raw_file_count,
             receipt.may_not_use_for_literal_site_count,
             receipt.may_not_use_for_literal_file_count,
             receipt.may_not_use_for_literal_subject_count,
-        ) == (126, 37, 25, 48)
-        assert receipt.may_not_use_for_raw_file_count - 1 == 125
+        ) == (128, 43, 28, 50)
+        assert receipt.may_not_use_for_raw_file_count - 1 == 127
     reconciled = _checker().reconcile_source_derivations(ast_result, token_result)
     inventory_denied = tuple(
         site
@@ -364,7 +364,7 @@ def test_literal_censuses_reconcile_for_both_complete_walks() -> None:
         and site.wrapper_kind != "dynamic"
         and site.resolution == "resolved"
     )
-    assert (len(inventory_denied), len(reconciled.may_not_use_for_denied_only_sites)) == (33, 4)
+    assert (len(inventory_denied), len(reconciled.may_not_use_for_denied_only_sites)) == (39, 4)
     assert (
         (
             *inventory_denied,

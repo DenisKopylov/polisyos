@@ -1,4 +1,13 @@
 import numpy as np
+import pytest
+
+from polisyos.foundry.calibration.dp_ci import (
+    CITestThresholdPolicy,
+    CITestThresholdPolicySet,
+    ci_threshold_scope,
+)
+from polisyos.foundry.methods.catalog.causal import constraint_discovery as constraint_module
+from polisyos.foundry.methods.catalog.causal.constraint_discovery import PCDiscovery
 from polisyos.foundry.methods.catalog.causal.protocols import (
     TabularCausalDiscoveryData,
     TimeSeriesCausalData,
@@ -18,6 +27,10 @@ from polisyos.scientist.methods.discovery.portfolio import (
 from polisyos.scientist.methods.discovery.schema import (
     DiscoveryAlgorithmFamily,
     DiscoveryMethod,
+)
+from polisyos.scientist.methods.search.judge_thresholds import (
+    JudgeThresholdEntry,
+    JudgeThresholdRegistry,
 )
 
 
@@ -85,6 +98,132 @@ def _report_for_method(method: DiscoveryMethod) -> CausalDiscoveryReport:
         computation_time_seconds=0.2,
         metadata={"scale_backend_used": "classic", "optimizer": method.value},
     )
+
+
+def test_discovery_registry_policy_reaches_real_foundry_dispatch_and_report(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    registry_root = tmp_path / "judge_thresholds"
+    registry = JudgeThresholdRegistry(registry_root)
+    registry.record(
+        JudgeThresholdEntry(
+            judge_name="ci_tests",
+            metric_name="alpha_base",
+            threshold_value=0.137,
+            direction="max",
+            rationale="Distinct bridge-integration threshold.",
+            benchmark_source="test_discovery_registry_policy_bridge",
+            scope_family="categorical_ci",
+            scope_query_type="g2",
+            scope_estimator="stratified_counts",
+            scope_readiness_target="diagnostic",
+            scope_dp_mechanism="gaussian_counts",
+            scope_dp_epsilon_bucket="0.5_to_1.0",
+            scope_dp_delta_bucket="zero",
+        )
+    )
+    x = np.tile(np.array([0.0, 1.0]), 200)
+    state = TabularCausalDiscoveryData(
+        data=np.column_stack([x, x]),
+        variable_names=["X", "Y"],
+    )
+
+    def fake_discovery_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=np.zeros((2, 2), dtype=int),
+            metadata={},
+            error=None,
+            timed_out=False,
+        )
+
+    observed_lower_params: list[dict[str, object]] = []
+    real_pure_step = PCDiscovery.pure_step
+
+    def observing_pure_step(state, params):
+        observed_lower_params.append(dict(params))
+        return real_pure_step(state, params)
+
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", fake_discovery_runner)
+    monkeypatch.setattr(PCDiscovery, "pure_step", staticmethod(observing_pure_step))
+
+    report = portfolio_module.run_discovery_method(
+        state,
+        DiscoveryMethod.PC,
+        {
+            "judge_threshold_registry_root": str(registry_root),
+            "significance_level": 0.05,
+            "dp_context": {
+                "mechanism": "gaussian_counts",
+                "epsilon": 0.7,
+                "delta": 0.0,
+            },
+            "discovery_scale_backend": "classic",
+            "n_bootstrap": 0,
+            "timeout_seconds": 30,
+        },
+    )
+
+    assert len(observed_lower_params) == 1
+    assert "judge_threshold_registry_root" not in observed_lower_params[0]
+    assert "ci_threshold_policies" in observed_lower_params[0]
+    assert report.algebraic_constraints is not None
+    violation = next(
+        item
+        for item in report.algebraic_constraints.violated_constraints_preview
+        if item.metadata.get("route") == "g_test"
+    )
+    assert violation.metadata["critical_value"] == pytest.approx(0.137)
+    assert violation.metadata["threshold_registry_scope"]["dp_epsilon_bucket"] == "0.5_to_1.0"
+
+
+def test_discovery_rejects_mismatched_policy_scope_before_foundry_dispatch(
+    monkeypatch,
+) -> None:
+    runtime_dp_context = {
+        "mechanism": "gaussian_counts",
+        "epsilon": 0.7,
+        "delta": 0.0,
+    }
+    mismatched = CITestThresholdPolicySet(
+        policies=(
+            CITestThresholdPolicy(
+                alpha_base=0.137,
+                threshold_scope=ci_threshold_scope(
+                    family="kernel_ci",
+                    query_type="hsic",
+                    estimator="permutation",
+                    dp_context={
+                        "mechanism": "gaussian_counts",
+                        "epsilon": 0.2,
+                        "delta": 0.0,
+                    },
+                    readiness_target="diagnostic",
+                ),
+            ),
+        )
+    )
+    lower_called = False
+
+    def observing_pure_step(state, params):
+        nonlocal lower_called
+        lower_called = True
+        return {"report": _report_for_method(DiscoveryMethod.PC)}
+
+    monkeypatch.setattr(PCDiscovery, "pure_step", staticmethod(observing_pure_step))
+
+    with pytest.raises(ValueError, match="CI threshold policy scope mismatch"):
+        portfolio_module.run_discovery_method(
+            _tabular_state(),
+            DiscoveryMethod.PC,
+            {
+                "dp_context": runtime_dp_context,
+                "ci_threshold_policies": mismatched.model_dump(mode="python"),
+            },
+        )
+
+    assert lower_called is False
 
 
 def test_cross_sectional_portfolio_runs_constraint_score_and_functional_methods(

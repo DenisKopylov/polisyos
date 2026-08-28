@@ -2,15 +2,18 @@ from __future__ import annotations
 
 from decimal import Decimal
 
+from polisyos.ir import CompiledLexIntervention as RootCompiledLexIntervention
+from polisyos.ir.governance import CompiledLexIntervention as GovernanceCompiledLexIntervention
 from polisyos.ir.governance.policy_spec import (
+    CompiledLexIntervention,
     InterventionSpec,
     PolicySpec,
     TemporalInterventionSequence,
 )
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
 from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
 
 
 def _target_selector() -> SelectorPredicate:
@@ -102,3 +105,22 @@ def test_temporal_intervention_sequence_schema_supports_dtr_sequences() -> None:
 
     assert sequence.identification_mode == IdentificationMode.SEQUENTIAL
     assert len(sequence.steps) == 2
+
+
+def test_compiled_intervention_is_one_shared_ir_contract_and_round_trips() -> None:
+    compiled = CompiledLexIntervention(
+        intervention=InterventionSpec(
+            intervention_id="tax_cut",
+            kind="income_tax",
+            target=_target_selector(),
+            schedule=ScheduleSpec(start_step=0, duration_steps=1),
+            params={"rate": Decimal("0.1")},
+        ),
+        metadata={"provision_ref": "lex.tax.article_1"},
+    )
+
+    restored = RootCompiledLexIntervention.model_validate_json(compiled.model_dump_json())
+
+    assert RootCompiledLexIntervention is CompiledLexIntervention
+    assert GovernanceCompiledLexIntervention is CompiledLexIntervention
+    assert restored.model_dump(mode="json") == compiled.model_dump(mode="json")

@@ -9,10 +9,8 @@ from typing import TYPE_CHECKING, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict
 
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import InputRef, ProducerInfo, SchemaInfo
-from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core import canon
 from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
 from polisyos.pdc import AuthorityBoundary
 from polisyos.runtime.http.services.control.artifacts import (
@@ -66,7 +64,6 @@ from polisyos.runtime.quality.evaluation_safety import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
     from polisyos.runtime.quality.semantic_epoch import (
         SemanticFacetDenominatorReceipt,
@@ -314,7 +311,7 @@ class EvaluationSafetyPersistenceService:
     def __init__(
         self,
         *,
-        artifact_store: ArtifactStore,
+        artifact_store: core_artifacts.ArtifactStore,
         event_log: RuntimeDiagnosticEventLog,
     ) -> None:
         self._artifact_store = artifact_store
@@ -716,7 +713,7 @@ class EvaluationSafetyPersistenceService:
         reconciled: list[tuple[EvalSafetyArtifactRef, EvaluationSafetyDecisionEvent]] = []
         event_refs: list[EvalSafetyArtifactRef] = []
         for artifact_id in self._artifact_store.iter_artifact_ids():
-            typed_id = ArtifactID.model_validate(artifact_id)
+            typed_id = core_artifacts.ArtifactID.model_validate(artifact_id)
             try:
                 manifest = self._artifact_store.get_manifest(typed_id)
             except (OSError, TypeError, ValueError) as exc:
@@ -748,7 +745,7 @@ class EvaluationSafetyPersistenceService:
                 )
                 payload = self._artifact_store.get_bytes(typed_id)
                 decision = EvaluationSafetyDecisionEvent.model_validate(
-                    from_canonical_bytes(payload)
+                    canon.from_canonical_bytes(payload)
                 )
                 selected_ref = selected_ref.model_copy(
                     update={"content_hash": decision.content_hash}
@@ -781,7 +778,7 @@ class EvaluationSafetyPersistenceService:
                     raise ValueError("eval_safety_decision_producer_mismatch")
                 reconciled.append((selected_ref, rebuilt))
                 event_manifest = self._artifact_store.get_manifest(
-                    ArtifactID.model_validate(
+                    core_artifacts.ArtifactID.model_validate(
                         self._artifact_store.get_manifest(typed_id).authority.diagnostic_event_ref
                     )
                 )
@@ -1087,7 +1084,7 @@ class EvaluationSafetyPersistenceService:
     def _authority_envelope_is_exact(
         self,
         *,
-        artifact_id: ArtifactID,
+        artifact_id: core_artifacts.ArtifactID,
         identity: EvaluationSafetyArtifactIdentity,
     ) -> bool:
         manifest = self._artifact_store.get_manifest(artifact_id)
@@ -1095,12 +1092,14 @@ class EvaluationSafetyPersistenceService:
         if authority is None:
             return False
         try:
-            envelope_id = ArtifactID.model_validate(authority.authority_envelope_ref)
+            envelope_id = core_artifacts.ArtifactID.model_validate(
+                authority.authority_envelope_ref
+            )
             verification = self._artifact_store.verify(envelope_id)
             if not verification.ok:
                 return False
             envelope = EvidenceAuthorityEnvelope.model_validate(
-                from_canonical_bytes(self._artifact_store.get_bytes(envelope_id))
+                canon.from_canonical_bytes(self._artifact_store.get_bytes(envelope_id))
             )
         except (TypeError, ValueError):
             return False
@@ -1129,7 +1128,7 @@ class EvaluationSafetyPersistenceService:
         key: str,
         model_type: type[ModelT],
     ) -> ModelT:
-        artifact_id = ArtifactID.model_validate(artifact_ref.artifact_id)
+        artifact_id = core_artifacts.ArtifactID.model_validate(artifact_ref.artifact_id)
         identity = EVALUATION_SAFETY_ARTIFACT_IDENTITIES[key]
         verification = self._artifact_store.verify(artifact_id)
         if not verification.ok:
@@ -1153,7 +1152,7 @@ class EvaluationSafetyPersistenceService:
             cas_ref=str(artifact_id),
         )
         result = model_type.model_validate(
-            from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+            canon.from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
         )
         embedded_hash = getattr(result, "content_hash", None)
         expected_hash = embedded_hash if isinstance(embedded_hash, str) else str(artifact_id)
@@ -1180,16 +1179,19 @@ class EvaluationSafetyPersistenceService:
             self._artifact_store,
             self._event_log,
             payload,
-            ArtifactWriteOptions(
+            core_artifacts.ArtifactWriteOptions(
                 kind=identity.kind,
                 media_type="application/json",
-                schema=SchemaInfo(name=identity.schema, version="1.0"),
-                producer=ProducerInfo(
+                schema=core_artifacts.SchemaInfo(name=identity.schema, version="1.0"),
+                producer=core_artifacts.ProducerInfo(
                     component=_PRODUCER_COMPONENT,
                     version=_PRODUCER_VERSION,
                 ),
                 inputs=[
-                    InputRef(artifact_id=ArtifactID.model_validate(ref.artifact_id), role=key)
+                    core_artifacts.InputRef(
+                        artifact_id=core_artifacts.ArtifactID.model_validate(ref.artifact_id),
+                        role=key,
+                    )
                     for ref in input_refs
                 ],
             ),
@@ -1226,7 +1228,7 @@ class EvaluationSafetyPersistenceService:
 
     def _verified_eval_ref(
         self,
-        artifact_id: ArtifactID,
+        artifact_id: core_artifacts.ArtifactID,
         *,
         key: str,
         semantic_hash: str,
@@ -1234,7 +1236,7 @@ class EvaluationSafetyPersistenceService:
         artifact_type: str | None = None,
         schema_ref: str | None = None,
     ) -> EvalSafetyArtifactRef:
-        typed_id = ArtifactID.model_validate(artifact_id)
+        typed_id = core_artifacts.ArtifactID.model_validate(artifact_id)
         identity = EVALUATION_SAFETY_ARTIFACT_IDENTITIES[key]
         if artifact_type is not None or schema_ref is not None:
             verification = self._artifact_store.verify(typed_id)
@@ -1253,11 +1255,14 @@ class EvaluationSafetyPersistenceService:
             verify_runtime_authority_artifact_identity(
                 self._artifact_store,
                 artifact_id=typed_id,
-                opts=ArtifactWriteOptions(
+                opts=core_artifacts.ArtifactWriteOptions(
                     kind=identity.kind,
                     media_type="application/json",
-                    schema=SchemaInfo(name=identity.schema, version="1.0"),
-                    producer=ProducerInfo(
+                    schema=core_artifacts.SchemaInfo(
+                        name=identity.schema,
+                        version="1.0",
+                    ),
+                    producer=core_artifacts.ProducerInfo(
                         component=_PRODUCER_COMPONENT,
                         version=_PRODUCER_VERSION,
                     ),
@@ -1275,7 +1280,7 @@ class EvaluationSafetyPersistenceService:
                 "metrics_projection": EvalSafetyMetricsProjection,
             }
             parsed = model_types[key].model_validate(
-                from_canonical_bytes(self._artifact_store.get_bytes(typed_id))
+                canon.from_canonical_bytes(self._artifact_store.get_bytes(typed_id))
             )
             embedded_hash = getattr(parsed, "content_hash", None)
             expected_semantic_hash = (
@@ -1442,7 +1447,7 @@ class EvaluationSafetyAdmissionVerifier:
         identity = EVALUATION_SAFETY_ARTIFACT_IDENTITIES["certificate_revision"]
         nodes: list[EvalSafetyCertificateRevisionNode] = []
         for artifact_id in self._persistence_service._artifact_store.iter_artifact_ids():
-            typed_id = ArtifactID.model_validate(artifact_id)
+            typed_id = core_artifacts.ArtifactID.model_validate(artifact_id)
             manifest = self._persistence_service._artifact_store.get_manifest(typed_id)
             schema = manifest.artifact_schema
             if (
@@ -1453,7 +1458,7 @@ class EvaluationSafetyAdmissionVerifier:
             ):
                 continue
             raw = EvalSafetyCertificateRevision.model_validate(
-                from_canonical_bytes(
+                canon.from_canonical_bytes(
                     self._persistence_service._artifact_store.get_bytes(typed_id)
                 )
             )
@@ -1518,7 +1523,7 @@ def _blocked_consumer_receipt(
 
 
 def _eval_ref(
-    artifact_id: ArtifactID,
+    artifact_id: core_artifacts.ArtifactID,
     *,
     identity: EvaluationSafetyArtifactIdentity,
     semantic_hash: str,

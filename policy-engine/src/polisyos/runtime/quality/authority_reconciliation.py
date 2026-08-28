@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.core import canon
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_ARTIFACT_KIND,
     DIAGNOSTIC_EVENT_SCHEMA_NAME,
@@ -133,7 +133,7 @@ def reconcile_authority_ref(
         )
     try:
         linked_event = DiagnosticEvent.model_validate(
-            from_canonical_bytes(artifact_store.get_bytes(linked_event_ref))
+            canon.from_canonical_bytes(artifact_store.get_bytes(linked_event_ref))
         )
     except (TypeError, ValueError) as exc:
         _fail(

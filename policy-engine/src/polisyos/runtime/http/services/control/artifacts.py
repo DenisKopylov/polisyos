@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 from uuid import NAMESPACE_URL, uuid5
 
-from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts.manifest import (
     ArtifactAuthorityInfo,
     ArtifactGovernanceInfo,
@@ -593,7 +593,7 @@ def _existing_authority_result(
     opts: ArtifactWriteOptions,
     expected_context: AuthorityArtifactIdentityContext,
 ) -> AuthorityArtifactWriteResult | None:
-    artifact_id = ArtifactID.model_validate(cas_ref_value)
+    artifact_id = core_artifacts.ArtifactID.model_validate(cas_ref_value)
     if not store.has(artifact_id):
         return None
     manifest = store.get_manifest(artifact_id)
@@ -611,12 +611,14 @@ def _existing_authority_result(
     manifest_producer = manifest.producer
     try:
         verification = store.verify(artifact_id)
-        envelope_id = ArtifactID.model_validate(authority.authority_envelope_ref)
+        envelope_id = core_artifacts.ArtifactID.model_validate(
+            authority.authority_envelope_ref
+        )
         envelope_verification = store.verify(envelope_id)
         envelope = EvidenceAuthorityEnvelope.model_validate(
             from_canonical_bytes(store.get_bytes(envelope_id))
         )
-        diagnostic_event_id = ArtifactID.model_validate(
+        diagnostic_event_id = core_artifacts.ArtifactID.model_validate(
             authority.diagnostic_event_ref
         )
         diagnostic_event_verification = store.verify(diagnostic_event_id)
@@ -625,7 +627,9 @@ def _existing_authority_result(
         )
         if envelope.attestation_ref != expected_context.attestation_ref:
             raise ValueError("existing authority identity mismatch")
-        attestation_id = ArtifactID.model_validate(expected_context.attestation_ref)
+        attestation_id = core_artifacts.ArtifactID.model_validate(
+            expected_context.attestation_ref
+        )
         attestation_verification = store.verify(attestation_id)
         attestation_manifest = store.get_manifest(attestation_id)
         attestation_payload = from_canonical_bytes(store.get_bytes(attestation_id))
@@ -781,13 +785,13 @@ def _existing_authority_result(
 def verify_runtime_authority_artifact_identity(
     store: Any,
     *,
-    artifact_id: ArtifactID,
+    artifact_id: core_artifacts.ArtifactID,
     opts: ArtifactWriteOptions,
     expected_context: AuthorityArtifactIdentityContext,
 ) -> AuthorityArtifactWriteResult:
     """Re-read one authority artifact through the shared strict identity owner."""
 
-    typed_id = ArtifactID.model_validate(artifact_id)
+    typed_id = core_artifacts.ArtifactID.model_validate(artifact_id)
     result = _existing_authority_result(
         store,
         cas_ref_value=str(typed_id),

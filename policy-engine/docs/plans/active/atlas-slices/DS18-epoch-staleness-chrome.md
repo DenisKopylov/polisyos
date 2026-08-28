@@ -704,17 +704,20 @@ component name, or route string constant is not enough to keep a test green.
 | WAIT-DS11 | landed-owner and exact-byte receipt | 0 | 0 | satisfied at C00 entry |
 | C04 | dashboard strict admission and exact-byte MACHINE | 3 | 4 | no |
 | C05 | DS4 extension, detailed surface, universal consumers, active locales | 20 | 20 | no |
-| C06 | complete render/export census, standalone decision-export repair, and semantic lint | 7 | 7 | no |
+| C06 | complete render/export census, standalone decision-export repair, semantic lint, and facade-bound guardrail closure | 10 | 10 | no |
 | C07 | visual/a11y/replay/closeout verification | 0 | 0 | no |
-| **Total** | unique production/tooling mechanisms | **44** | **44** | — |
+| **Total** | unique production/tooling mechanisms against the original hard ceiling | **47** | **44** | — |
 
 The current total is independently derived in two ways:
 
-- cluster arithmetic: `7 + 6 + 1 + 3 + 20 + 7 = 44`;
+- cluster arithmetic: `7 + 6 + 1 + 3 + 20 + 10 = 47`;
 - parser union of the Add/Modify mechanism table below, excluding mandatory P39
-  companions: `44` unique paths, no duplicates.
+  companions: `47` unique paths, no duplicates.
 
-The hard ceiling is now the **44-path declared union**, with no path reserve remaining.
+The original hard ceiling remains **44**, with no path reserve remaining. The
+architecture-owner continuation admits the measured facade repair above that ceiling:
+the declared union is **47 / 44**, recorded as two widening rounds rather than hidden
+inside generated companions or temporary exceptions.
 The prior raw-byte admission and census/lint reserve paths were consumed by the
 scanner-proven standalone report/deck decision-export family. The backend owner/readback reserve
 was spent during C02 on the canonical owned-run authorization resolver after the live
@@ -789,8 +792,9 @@ failed because the new route was not yet frozen. Adding the already-measured can
 generator owner and regenerating from the current tree produced exactly the registered
 OpenAPI snapshot plus five package-client outputs by both register and changed-family
 censuses. The real contract checker, executable POST/GET probes, nested-semantic
-corruption probe, double-regeneration test, client tests/typecheck/lint, and repository
-guardrails are green. C03 adds no path beyond the C00 generator widening: the budget
+corruption probe, double-regeneration test, and client tests/typecheck/lint are green.
+The former repository-guardrail claim is withdrawn by the execution journal's receipt
+correction and closes only through the C06 facade repair below. C03 adds no path beyond the C00 generator widening: the budget
 remains **42 / 44**, with **3 of 7** rounds spent. The dashboard member remains C04's
 declared atomic regeneration and admission boundary.
 
@@ -803,8 +807,9 @@ to the generated client's parser, independently decodes and recursively admits t
 captured copy, recomputes the server semantic hash, binds the requested run/replay hash,
 and downloads only a defensive byte copy. Register and branch-range derivations agree
 on all **seven** generated outputs with empty symmetric difference; the dashboard
-generator is byte-stable, the runtime contract and repository guardrails are green, and
-ten focused admission/bridge/twin tests pass. C04 stays within its three declared
+generator is byte-stable, the runtime contract and ten focused admission/bridge/twin
+tests pass. The former repository-guardrail claim is withdrawn and is not reused as a
+C04 receipt. C04 stays within its three declared
 mechanisms: **42 / 44**, **3 of 7** rounds.
 
 ### Execution serialization ruling
@@ -865,6 +870,9 @@ merge from `main`.
 | C06 | Modify | `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts` | promote metric from `not_established` only after exhaustive relation exists |
 | C06 | Modify | `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx` | standalone decision paper admits and renders epoch semantics inside its selected print/MACHINE DOM |
 | C06 | Modify | `apps/runtime-dashboard/src/features/runs/routes/RunDeckPage.tsx` | standalone decision deck admits and renders epoch semantics inside its selected print/raster DOM |
+| C06 | Modify | `src/polisyos/core/contracts/__init__.py` | complete the existing supported Core contract facade for the epoch/time DTOs consumed across package roots |
+| C06 | Modify | `src/polisyos/scientist/governance/continuous/__init__.py` | complete the existing lazy continuous-governance facade for the persisted six-class monitor artifact/read contract |
+| C06 | Modify | `architecture/public_surface/contract.toml` | register the already-existing Core artifact and Scientist continuous-governance facades; generated inventory/reference outputs remain P39 companions |
 
 ### Mandatory companions outside the cap
 
@@ -1134,12 +1142,15 @@ or leave the moving denominator without a landing owner.
 
 ### C07 — freeze, visual/a11y, and closeout
 
-1. After C06 is green and before review, freeze source and record the attached branch
+1. After C06's in-scope checker and direct architecture delta are green and before
+   review, freeze source and record the attached branch
    head as `ds18_frontend_freeze_commit` in the mandatory execution journal. Recompute
    the complete C06 denominator and receipt freshness at that exact commit. Any later
    DS18 source change invalidates the coordinate and requires C06 plus review to run
    again; a root landed by another slice after that coordinate carries the landing-
    slice obligation declared above and does not falsify DS18's historical receipt.
+   The DS5 baseline-manifest and DS6 health-persistence owner stops remain named
+   non-closures and do not block this freeze; DS18 neither edits nor claims them.
 2. Run backend, contract, frontend, checker, visual, and accessibility waves with
    measured budgets.
 3. Capture DS18-only snapshots for real declared absence, content-bound positive test
@@ -1465,3 +1476,25 @@ standalone decision-export class. P40 therefore widens once to the complete two-
 route family instead of treating either page as another isolated patch. C06 adds
 `RunReportPage.tsx` and `RunDeckPage.tsx`, consumes the final two path reserves, moves
 **42 → 44 / 44**, and spends widening round **4 / 7**. The hard ceiling does not move.
+
+**C06 architecture-guardrail continuation receipt.** A direct guardrail run at the
+delivered head exposed 19 DS18-owned deep-import creep edges. The guardrail owner walk
+and an independent AST/baseline walk agree on the exact partition: **15 Core-boundary
+edges + 4 Scientist-boundary edges**. The 15 Core edges are stable-contract access:
+`polisyos.core.artifacts` already declares itself the stable CAS ABI, while
+`polisyos.core.contracts` is already a supported entrypoint. Completing/using those
+facades is the property-level repair. The four Scientist edges consume the persisted
+six-class monitor artifact/read contract; the governance README already declares
+`continuous/` as its public-contract location and its `__init__.py` is already a lazy
+facade. Completing and registering that narrow facade is therefore a real public
+surface, not an expiring waiver. No exception is registered and the forbidden
+deep-import baseline remains untouched.
+
+This is two NEW architectural classes, so it spends widening rounds **5 and 6 of 7**:
+Core facade completion and Scientist continuous-governance facade completion. The
+complete mechanisms are `src/polisyos/core/contracts/__init__.py`,
+`src/polisyos/scientist/governance/continuous/__init__.py`, and the shared
+`architecture/public_surface/contract.toml`. Generated public-surface inventory and
+reference files are mandatory companions. The declaration moves **44 → 47 / 44**;
+the hard-ceiling exceedance is explicit and no mechanism is split or disguised as a
+companion.

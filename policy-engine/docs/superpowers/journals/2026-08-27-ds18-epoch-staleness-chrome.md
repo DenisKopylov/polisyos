@@ -673,3 +673,53 @@ No implementation remedy begins until this correction is committed. Closure now
 requires edge-by-edge classification, a facade or registered expiring exception for
 each edge, and a fresh direct branch-versus-`main` guardrail delta proving that the
 branch contributes zero creep.
+
+## C06 continuation — 19-edge classification and red receipts
+
+The receipt correction is committed independently at `074a57d43`, before any source
+or architecture remedy. The direct delivered-head command then reproduced all 19
+creep edges at uptime `2.95 3.54 3.63` → `3.14 3.52 3.62`, with
+`user + sys = 26.36 + 7.76 = 34.12 CPU-s` under the declared 120 CPU-second ceiling.
+The additional `trust-claim-posture-register` message was the expected local
+`env: python: No such file or directory` PATH artifact and is excluded from the delta.
+
+Two independent derivations agree: the guardrail engine's structured violations and
+an independent complete AST/public-entrypoint/baseline comparison both return
+**19 = 15 Core + 4 Scientist**, with the same edge set.
+
+| Edge | Classification | Remedy and reason |
+| --- | --- | --- |
+| `runtime.http.openapi_contract -> core.artifacts.manifest` | stable Core artifact ABI | import `ArtifactRef` from the existing `polisyos.core.artifacts` facade; its module contract explicitly owns the stable CAS ABI |
+| `runtime.http.openapi_contract -> core.contracts.control` | stable Core request/response contract | import `EpochValidityBatchResponse` through the already-supported `polisyos.core.contracts` facade |
+| `runtime.http.openapi_contract -> core.contracts.decision_validity` | stable Core Decision Validity contract | import all three DTOs through `polisyos.core.contracts` |
+| `runtime.http.services.control.run_lifecycle -> scientist.governance.continuous.monitors` | cross-layer persisted monitor read contract | use the existing lazy `polisyos.scientist.governance.continuous` facade; only the exact resolver is exported |
+| `runtime.http.services.temporal -> core.artifacts.manifest` | stable Core artifact ABI | import `ArtifactRef` from `polisyos.core.artifacts` |
+| `runtime.http.services.temporal -> core.artifacts.protocol` | stable Core artifact-store protocol | import `ArtifactStore` from `polisyos.core.artifacts`; keep it type-only |
+| `runtime.http.services.temporal -> scientist.governance.continuous.monitors` | cross-layer persisted monitor artifact/read contract | export the kind, persisted DTO, and resolver through the existing continuous-governance facade |
+| `runtime.quality.epoch_staleness_projection -> core.artifacts.manifest` | stable Core artifact ABI | import type-only `ArtifactRef` through `polisyos.core.artifacts` |
+| `runtime.quality.epoch_staleness_projection -> core.contracts.chronology` | stable Core chronology contract | import the two failures through `polisyos.core.contracts`, where both are already exported |
+| `runtime.quality.epoch_staleness_projection -> core.contracts.decision_validity` | stable Core Decision Validity contract | import the three DTOs through `polisyos.core.contracts`, where they are already exported |
+| `runtime.quality.epoch_staleness_projection -> core.contracts.runtime` | stable epoch/time projection contract | complete the existing `polisyos.core.contracts` lazy facade and import the epoch/time DTO family there |
+| `runtime.quality.epoch_staleness_projection -> scientist.governance.continuous.monitors` | cross-layer six-class monitor artifact contract | export the six strict perturbation arms and persisted event through the existing continuous-governance facade |
+| `runtime.quality.epoch_validity_cascade -> core.contracts.runtime` | stable epoch perturbation contract | consume `EpochPerturbationClass` through the existing `core_contracts` facade already imported by the module |
+| `runtime.quality.epoch_validity_cascade -> scientist.governance.continuous.monitors` | cross-layer persisted monitor artifact contract | import the exact persisted event through the continuous-governance facade |
+| `scientist.governance.continuous.invalidation -> core.artifacts.protocol` | stable Core artifact-store protocol | import `ArtifactStore` from `polisyos.core.artifacts` while preserving baseline-covered manifest imports |
+| `scientist.governance.continuous.invalidation -> core.artifacts.store` | stable Core artifact write option | import `PutOptions` from `polisyos.core.artifacts` while preserving baseline-covered imports |
+| `scientist.governance.continuous.invalidation -> core.canon` | stable Core package module | use supported `from polisyos.core import canon`; no new Canon facade is invented |
+| `scientist.governance.continuous.monitors -> core.artifacts.protocol` | stable Core artifact-store protocol | import `ArtifactStore` from `polisyos.core.artifacts`; baseline-covered sibling imports remain unchanged |
+| `scientist.governance.continuous.monitors -> core.contracts.runtime` | stable epoch perturbation contract | import `EpochPerturbationClass` through `polisyos.core.contracts` |
+
+The split is **19 facades / 0 exceptions**. Core's artifact facade already exports every
+needed artifact/store symbol. The Core contract facade lacks the new epoch/time family;
+the Scientist continuous facade lacks the exact persisted-event/read/six-class family.
+Two executable import probes failed on those missing exports at uptime
+`4.54 3.74 3.62` → `4.50 3.74 3.62`, each with
+`user + sys = 0.04 CPU-s`. These are the facade-completion reds; the direct 19-edge
+guardrail run is the public-entrypoint red.
+
+The repair adds three mechanism paths: the Core contracts facade, the Scientist
+continuous-governance facade, and the shared public-surface contract. It spends two
+NEW architectural widening rounds—Core stable-facade completion and Scientist
+continuous-governance facade completion—moving **44 → 47 / 44** and **4 → 6 of 7**
+rounds. Generated public inventory/reference outputs are companions. The deep-import
+baseline and both exception registries remain untouched.

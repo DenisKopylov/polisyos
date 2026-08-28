@@ -16,7 +16,7 @@ execution_entry_plan_blob: 16de6702ab7e79fb0277d9071fdb3b9ded1f7aac
 c00_status: review_repair_timing_and_authz_admitted_zero_mechanisms
 c01_status: closed_after_delegated_trust_posture_reconciliation
 c02_status: closed_at_8969c10a9
-c03_status: closed_after_measured_generator_widening
+c03_status: closed_after_generated_abi_and_authz_matrix_reconciliation
 c04_status: closed_with_surface_and_guardrail_receipts
 c05_status: closed_with_continuous_motion_and_exact_byte_receipts
 c06_status: closed_at_4613954a4bfc08f87460e0dee2a68c8a00d0d6e4
@@ -361,6 +361,54 @@ changes; the aggregate unreleased-fragment gate separately reports an existing
 error in `2026-08-27-lex-intervention-ownership.toml` and is not used as DS15's
 receipt. Actual spend is **24/41 mechanisms** and **6/11 rounds**. C03 checks
 CC20; C04-C06 remain open.
+
+### C03 authorization-matrix re-closure — 2026-08-28
+
+Review reopened C03's contract predicate after the 18-case generated-contract
+receipt was projected beyond the invocation it actually ran. The exact command
+and the receipt-boundary correction are journaled before the matrix edit at
+commit `2f230df8d`. That invocation covered generated schema/client semantics;
+it did not run `test_runtime_api_authz.py`, where the two DS15 mutations were
+absent from the behavioral authorization denominator.
+
+The denominator moves from **32 to 34** by exactly these mappings:
+
+| operation | case id | permission | high-stakes class |
+| --- | --- | --- | --- |
+| `POST /api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request` | `request-run-acquisition-decision` | `evidence.acquire` | `acquisition_approval` |
+| `POST /api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute` | `execute-run-acquisition-route` | `evidence.acquire` | `acquisition_approval` |
+
+Derivation A walks the live FastAPI router's complete unsafe-method set and
+returns 34 operations; its sorted tuple equals `_EXPECTED_MUTATING_OPERATIONS`.
+Derivation B walks every unsafe OpenAPI path/method and independently returns
+the same 34-element tuple. The case-id dictionary independently has the same
+34-key set. Both additions are high-stakes: the route declarations require
+`StepUpClass.ACQUISITION_APPROVAL`, and the canonical permission map binds their
+shared `RuntimePermission.EVIDENCE_ACQUIRE` to that same class. Omitting either
+would make the behavioral matrix disagree with the route's actual gate.
+
+The six new parametrized cases—permission denial, authorized handler reach,
+and no-step-up denial for each operation—plus both generic denominator checks
+pass **8/8**, using the real security middleware/router and replacing only the
+service boundary after authorization. CPU is `63.70 user + 4.84 sys`, uptime
+`20:23` to `20:24`. The complete file then reports branch **7 failed / 145
+passed** versus pinned `main` `dc7bdf79a` **7 failed / 139 passed**, with the
+same seven failing node IDs and no DS15-only failure. Branch CPU is `225.80 user
++ 40.28 sys`, uptime `20:24` to `20:30`; main CPU is `157.94 user + 25.68
+sys`, uptime `20:30` to `20:33`.
+
+The unchanged Rego parity file reports branch **24 passed / 0 failed** versus
+main **24 / 0** (`53.25 user + 8.27 sys`, uptime `20:33` to `20:35`, versus
+`52.36 user + 5.18 sys`, uptime `20:35` to `20:36`). Architecture guardrails
+exit `0` on both branch and main (`99.32 user + 13.75 sys`, uptime `20:36` to
+`20:38`, versus `99.45 user + 13.61 sys`, uptime `20:38` to `20:40`).
+
+This edit is the test that pins the changed route denominator plus its mandated
+plan/journal records. Under the plan's declared P39 rule, all are companions
+outside the mechanism ceiling: final spend remains **42/42 mechanisms** and
+**10/11 widening rounds**; R08 remains unspent. C03 and the overall bounded
+slice are therefore genuinely re-closed without changing any production
+source, generated artifact, permission, route, or closure criterion.
 
 ### C04 measured type-graph amendment — 2026-08-28
 

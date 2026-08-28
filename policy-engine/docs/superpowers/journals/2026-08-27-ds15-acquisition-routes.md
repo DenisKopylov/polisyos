@@ -471,7 +471,12 @@ but no production-growth claim may.
 - Cumulative budget is 23/40 mechanisms and 5/11 widening rounds: `R01`,
   `R03`, `R04`, `R05`, and `R06`. C03-C06 are not started. The registered
   OpenAPI/runtime-client/dashboard-types writer did not run and holds no DS15
-  transaction.
+  transaction. A fresh seven-output serialization census finds unbound-writes
+  head `fe028145f` clean and ancestral to local `main`, but not ancestral to
+  DS15. OpenAPI, canonical-client TypeScript, runtime-client TypeScript, client
+  types and dashboard types differ from the DS15 base; the two JavaScript
+  outputs do not. C03 must source-sync that landed family and recensus before
+  any regeneration.
 - Frozen focused receipts are 6 authority-sink/worker/API/container tests, 14
   quality authority/route-loop/generation tests, and 11 OpenAPI/access-audit/
   integration tests, all exit `0`. Introduced-line Ruff, 25-file formatting,

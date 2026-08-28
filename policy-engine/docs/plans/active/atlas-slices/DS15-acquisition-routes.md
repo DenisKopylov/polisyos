@@ -232,10 +232,17 @@ the unchanged generic parity falsifier and the remaining C02 companions.
 No additional closure item is checked at this checkpoint: C01's CC02, CC03,
 CC04 and CC21 remain the only checked items. C03-C06 have not started. DS15
 never entered the registered OpenAPI/runtime-client/dashboard-types generation
-transaction, and its seven registered outputs remain clean. The C02 source seam
-shared with DS18 and GY-O0 is frozen at `b633ea7b75`; because this task permits
-neither push nor merge, that commit is an append-only source-sync coordinate,
-not an owner-side landing claim.
+transaction, and its seven registered outputs have no DS15 worktree delta. The
+independent serialization readback nevertheless finds that unbound-writes head
+`fe028145f` is already an ancestor of local `main` but is **not** an ancestor of
+this branch. Five of the seven outputs differ from the DS15 base: OpenAPI,
+canonical-client TypeScript, runtime-client TypeScript, client types, and
+dashboard types; both JavaScript outputs are unchanged. C03 therefore remains
+fenced until that landed generated family is brought forward append-only and
+the seven-output census is rerun. The C02 source seam shared with DS18 and GY-O0
+is frozen at `b633ea7b75`; because this task permits neither push nor merge,
+that commit is an append-only source-sync coordinate, not an owner-side landing
+claim.
 
 ## Mission and binding reality
 

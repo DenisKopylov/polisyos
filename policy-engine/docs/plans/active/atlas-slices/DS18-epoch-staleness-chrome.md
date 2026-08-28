@@ -781,6 +781,18 @@ request trace both identified
 owned-run authorization binding**, spends the backend owner/readback seam, and moves
 **41 → 42** mechanisms and **2 → 3 of 7** rounds. The hard ceiling remains **44**.
 
+**C03 execution budget receipt.** The behavioral generator falsifier kept the frozen
+path, operation id and DTO markers present while invoking the generated client. Before
+repair, `admitEpochValidityBatch` was not a function; the independent GET falsifier
+failed because the new route was not yet frozen. Adding the already-measured canonical
+generator owner and regenerating from the current tree produced exactly the registered
+OpenAPI snapshot plus five package-client outputs by both register and changed-family
+censuses. The real contract checker, executable POST/GET probes, nested-semantic
+corruption probe, double-regeneration test, client tests/typecheck/lint, and repository
+guardrails are green. C03 adds no path beyond the C00 generator widening: the budget
+remains **42 / 44**, with **3 of 7** rounds spent. The dashboard member remains C04's
+declared atomic regeneration and admission boundary.
+
 ### Execution serialization ruling
 
 The architecture owner withdrew every sibling-lane hold before C01 implementation.

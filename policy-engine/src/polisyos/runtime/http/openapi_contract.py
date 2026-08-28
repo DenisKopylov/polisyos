@@ -8,7 +8,12 @@ from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import CapabilityDiscoveryResponse
-from polisyos.core.contracts.decision_validity import DecisionValidityStatus
+from polisyos.core.contracts.control import EpochValidityBatchResponse
+from polisyos.core.contracts.decision_validity import (
+    DecisionValidityStatus,
+    EpochValidityBatchReceipt,
+    EpochValidityBatchTarget,
+)
 from polisyos.core.contracts.runtime import (
     EngineeringCapabilityAbsenceView,
     EpochOpenWorldRiskView,
@@ -1016,6 +1021,49 @@ def _epoch_staleness_example(*, fixture_only: bool) -> dict[str, Any]:
         "projection": projection.model_dump(mode="json"),
     }
 
+
+def _epoch_validity_batch_example() -> dict[str, Any]:
+    transition_ref = ArtifactRef(
+        artifact_id="sha256:" + "1" * 64,
+        kind="chronology.epoch_transition",
+        media_type="application/vnd.polisyos.chronology+json",
+    )
+    target = EpochValidityBatchTarget(
+        packet_ref="sha256:" + "2" * 64,
+        decision_lineage_key="lineage-openapi-epoch-batch",
+        dependency_key="law:openapi-epoch-batch",
+        status=DecisionValidityStatus.REVIEW_REQUIRED,
+        reason="A content-bound epoch transition requires packet revalidation.",
+    )
+    receipt = EpochValidityBatchReceipt(
+        batch_id="epoch-batch-openapi-sample",
+        transition_artifact_ref=transition_ref,
+        transition_content_hash=str(transition_ref.artifact_id),
+        requested_query_context_ref="sha256:" + "3" * 64,
+        dependency_denominator_ref="sha256:" + "4" * 64,
+        adjudication_denominator_ref="sha256:" + "5" * 64,
+        verifier_provenance_ref=ArtifactRef(
+            artifact_id="sha256:" + "6" * 64,
+            kind="chronology.epoch_transition_verification_receipt",
+            media_type="application/json",
+        ),
+        completion_receipt_ref=ArtifactRef(
+            artifact_id="sha256:" + "7" * 64,
+            kind="decision_validity.epoch_batch_completion",
+            media_type="application/json",
+        ),
+        affected_packet_refs=(target.packet_ref,),
+        targets=(target,),
+    )
+    return EpochValidityBatchResponse(
+        meta=_META_NO_SOURCE,
+        batch_id=receipt.batch_id,
+        state="completed",
+        transition=transition_ref,
+        completion_receipt=receipt,
+        affected_packet_refs=receipt.affected_packet_refs,
+    ).model_dump(mode="json")
+
 _SUCCESS_EXAMPLE_SETS_BY_OPERATION = {
     "search_capabilities": _CAPABILITY_DISCOVERY_SUCCESS_EXAMPLES,
     "search_data_catalog": _CAPABILITY_DISCOVERY_SUCCESS_EXAMPLES,
@@ -1033,6 +1081,7 @@ _SUCCESS_EXAMPLE_SETS_BY_OPERATION = {
 
 
 _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
+    "admit_epoch_validity_batch": _epoch_validity_batch_example(),
     "create_run_human_decision": _HUMAN_DECISION_CREATE_SAMPLE,
     "get_run_authority_values": {
         "run_id": "run-2026-08-17-001",

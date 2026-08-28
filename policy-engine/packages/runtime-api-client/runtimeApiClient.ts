@@ -1731,25 +1731,29 @@ export type DecisionTriggerType = "norm_invalidation" | "data_invalidation" | "s
 export type DecisionValidityEventRequest = {
   dedupe_key?: string | null;
   dependency_keys?: Array<string>;
+  monitor_event_ref?: ArtifactRefInput | null;
   occurred_at?: string | null;
   payload?: {
   [key: string]: unknown;
 };
-  reason: string;
+  reason?: string | null;
   source_ref?: string | null;
-  status: DecisionValidityStatus;
-  trigger_type: DecisionTriggerType;
+  status?: DecisionValidityStatus | null;
+  trigger_type?: DecisionTriggerType | null;
 };
 
 export type DecisionValidityEventResponse = {
+  advisory_event_ref?: ArtifactRefOutput | null;
   affected_packets?: Array<string>;
   affected_statuses?: {
   [key: string]: number;
 };
   dedupe_key: string;
   event_id: string;
+  lifecycle_bridge_result_ref?: ArtifactRefOutput | null;
   message: string;
   meta: ApiMeta;
+  monitor_event_ref?: ArtifactRefOutput | null;
 };
 
 export type DecisionValidityLifecycleSummary = {
@@ -1990,10 +1994,135 @@ export type EngineCensusPayload = {
 };
 };
 
+export type EngineeringCapabilityAbsenceView = {
+  absence_class?: string;
+  candidate_owner_module?: string;
+  candidate_owner_path?: string;
+  capability?: string;
+  closure_condition: string;
+  consequence: string;
+  institutional_dependency?: boolean;
+  missing_labels?: Array<unknown>;
+  missing_output: string;
+  title?: string;
+};
+
 export type EnvInfo = {
   deps_lock_hash: string;
   platform: string;
   python: string;
+};
+
+export type EpochBoundaryLineageView = {
+  current_epoch_ref: string;
+  predecessor_packet_ref?: ArtifactRefOutput | null;
+  previous_epoch_ref: string;
+  successor_packet_ref?: ArtifactRefOutput | null;
+  transition_ref?: ArtifactRefOutput | null;
+  trigger_event_refs?: Array<ArtifactRefOutput>;
+};
+
+export type EpochCertificateStalenessView = {
+  authority_purpose: string;
+  bound_epoch_ref: string;
+  certificate_ref: ArtifactRefOutput;
+  current_epoch_ref?: string | null;
+  input_certificate_refs?: Array<ArtifactRefOutput>;
+  native_coordinate_refs?: Array<string>;
+  recipe_ref: ArtifactRefOutput;
+  revalidation_requirements?: Array<string>;
+  rule_schema_profile_refs?: Array<string>;
+  stale_reasons?: Array<string>;
+  status: "current" | "stale" | "revalidation_required" | "contested" | "not_established";
+  trigger_event_refs?: Array<ArtifactRefOutput>;
+};
+
+export type EpochDependencyStalenessView = {
+  advisory_event_refs?: Array<ArtifactRefOutput>;
+  authority_purpose: string;
+  disposition: "unchanged" | "annotation_only" | "invalidate" | "reissue" | "supersede" | "withdraw" | "contested" | "review_required";
+  owner_evidence_refs?: Array<ArtifactRefOutput>;
+  recompute: EpochDerivedRecomputeView;
+  relation: string;
+  source_classes?: Array<"incident" | "appeal" | "correction" | "retraction" | "legal_change" | "discovered_bias">;
+  source_ref: ArtifactRefOutput;
+  target_ref: ArtifactRefOutput;
+};
+
+export type EpochDerivedRecomputeView = {
+  evidence_content_hash?: string | null;
+  evidence_ref?: ArtifactRefOutput | null;
+  predicate_provenance: "recomputed" | "independently_reconciled" | "consumer_asserted" | "institutionally_supplied" | "not_established";
+  status: "not_established" | "pending" | "running" | "completed" | "failed";
+};
+
+export type EpochOpenWorldRiskComponentView = {
+  component_id: string;
+  component_kind: "model" | "obligation" | "calibration" | "novel";
+  evidence_ref?: ArtifactRefOutput | null;
+  limitation_code: string;
+  predicate_provenance: "independently_reconciled" | "not_established";
+  status: "within_scope" | "outside_scope" | "not_established";
+};
+
+export type EpochOpenWorldRiskView = {
+  components?: Array<EpochOpenWorldRiskComponentView>;
+  limitation_code: string;
+  promotion_frozen: boolean;
+  status: "established" | "limited" | "not_established";
+  vector_artifact_ref?: ArtifactRefOutput | null;
+};
+
+export type EpochPerturbationView = {
+  adjudicated_disposition: "annotation_only" | "invalidate" | "reissue" | "supersede" | "withdraw" | "contested" | "review_required";
+  advisory_posture: "annotation_only" | "review_required";
+  event_ref: ArtifactRefOutput;
+  observed_at: string;
+  owner_evidence_refs?: Array<ArtifactRefOutput>;
+  scope: "instance" | "dependency_descendants";
+  source_class: "incident" | "appeal" | "correction" | "retraction" | "legal_change" | "discovered_bias";
+  source_evidence_refs?: Array<ArtifactRefOutput>;
+  target_ref: ArtifactRefOutput;
+};
+
+export type EpochProjectionDenominatorView = {
+  denominator_ref?: string | null;
+  predicate_provenance: "recomputed" | "independently_reconciled" | "consumer_asserted" | "institutionally_supplied" | "not_established";
+  source_count?: number;
+  target_count?: number;
+};
+
+export type EpochStalenessProjectionResponse = {
+  meta: ApiMeta;
+  projection: EpochStalenessProjectionView;
+};
+
+export type EpochStalenessProjectionView = {
+  certificates?: Array<EpochCertificateStalenessView>;
+  current_epoch_ref?: string | null;
+  decision_packet_ref?: ArtifactRefOutput | null;
+  decision_validity_status?: DecisionValidityStatus | null;
+  denominator: EpochProjectionDenominatorView;
+  dependencies?: Array<EpochDependencyStalenessView>;
+  engineering_absences?: Array<EngineeringCapabilityAbsenceView>;
+  fixture_only?: boolean;
+  institutional_absences?: Array<InstitutionalAuthorityAbsenceView>;
+  limitations?: Array<string>;
+  lineage?: Array<EpochBoundaryLineageView>;
+  observed_at: string;
+  open_world_risk: EpochOpenWorldRiskView;
+  owner_as_of?: string | null;
+  owner_time_reason?: "owner_time_not_established" | "epoch_scope_unresolved" | null;
+  perturbations?: Array<EpochPerturbationView>;
+  predicate_provenance: "recomputed" | "independently_reconciled" | "consumer_asserted" | "institutionally_supplied" | "not_established";
+  projection_semantic_hash: string;
+  requested_query_context_ref: string;
+  revalidation_required: boolean;
+  run_id: string;
+  schema_version?: string;
+  scoped_epoch_refs?: Array<string>;
+  status: "current" | "stale" | "revalidation_required" | "contested" | "not_established";
+  temporal_scope: TemporalScope;
 };
 
 export type EpochValidityBatchReceipt = {
@@ -2870,6 +2999,22 @@ export type IngestResponse = {
 export type InputRef = {
   artifact_id: string;
   role: string;
+};
+
+export type InstitutionalAuthorityAbsenceView = {
+  absence_class?: string;
+  appointment_is_closure_precondition?: boolean;
+  authority_purpose: string;
+  capability_state?: string;
+  closure_condition: string;
+  consequence: string;
+  inspectable_capabilities?: Array<string>;
+  observed_result?: string;
+  predicate_provenance?: string;
+  refusal_code: "policy_admission_missing" | "epoch_transition_signer_not_established";
+  role: "epoch_predicate_policy_signer" | "epoch_transition_signer";
+  source_refs?: Array<ArtifactRefOutput>;
+  title?: string;
 };
 
 export type InvalidGovernedProjectionPacket = {
@@ -4840,7 +4985,7 @@ export type TemporalCapabilitiesView = {
   supported_tables?: Array<string>;
   surfaces?: Array<TemporalSurfaceCapability>;
   tx_range?: TemporalRange;
-  unsupported_surfaces?: Array<"run_details" | "run_timeline" | "run_lineage" | "run_quantities" | "run_fabric_decision_data" | "run_compare" | "run_agents" | "run_evidence_context" | "run_workflow" | "run_nodes" | "artifact_content">;
+  unsupported_surfaces?: Array<"run_details" | "run_timeline" | "run_lineage" | "run_quantities" | "run_fabric_decision_data" | "run_compare" | "run_agents" | "run_evidence_context" | "run_workflow" | "run_nodes" | "artifact_content" | "epoch_staleness">;
   valid_range?: TemporalRange;
 };
 
@@ -4898,7 +5043,7 @@ export type TemporalSurfaceCapability = {
   reason_code?: string | null;
   resolution?: string;
   supported: boolean;
-  surface: "run_details" | "run_timeline" | "run_lineage" | "run_quantities" | "run_fabric_decision_data" | "run_compare" | "run_agents" | "run_evidence_context" | "run_workflow" | "run_nodes" | "artifact_content";
+  surface: "run_details" | "run_timeline" | "run_lineage" | "run_quantities" | "run_fabric_decision_data" | "run_compare" | "run_agents" | "run_evidence_context" | "run_workflow" | "run_nodes" | "artifact_content" | "epoch_staleness";
   tx_range?: TemporalRange | null;
   valid_range?: TemporalRange | null;
 };
@@ -5344,6 +5489,14 @@ export class RuntimeApiClient {
       export_projection_hash: params.export_projection_hash,
     });
     return this.request<DecisionValiditySummaryResponse>("GET", path, query, undefined, undefined);
+  }
+
+  async admitEpochValidityBatch(params: {
+    body: EpochValidityBatchRequest;
+  }): Promise<EpochValidityBatchResponse> {
+    const path = `/api/v1/control/decision-validity/epoch-batches`;
+    const query = undefined;
+    return this.request<EpochValidityBatchResponse>("POST", path, query, params.body, undefined);
   }
 
   async getControlJobStatus(params: {
@@ -6218,6 +6371,27 @@ export class RuntimeApiClient {
       run_id: params.run_id,
     });
     return this.request<TemporalCapabilitiesResponse>("GET", path, query, undefined, undefined);
+  }
+
+  async getRunEpochStaleness(params: {
+    run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+    export_projection_hash?: string | null;
+  }): Promise<EpochStalenessProjectionResponse> {
+    const path = `/api/v1/temporal/runs/${encodeURIComponent(String(params.run_id))}/epoch-staleness`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+      export_projection_hash: params.export_projection_hash,
+    });
+    return this.request<EpochStalenessProjectionResponse>("GET", path, query, undefined, undefined);
   }
 
   async health(): Promise<{

@@ -204,6 +204,12 @@ export class RuntimeApiClient {
     return this.request('GET', path, query, undefined, undefined);
   }
 
+  async admitEpochValidityBatch(params) {
+    const path = `/api/v1/control/decision-validity/epoch-batches`;
+    const query = undefined;
+    return this.request('POST', path, query, params?.body, undefined);
+  }
+
   async getControlJobStatus(params) {
     const path = `/api/v1/control/jobs/${encodeURIComponent(String(params.job_id))}`;
     const query = undefined;
@@ -776,6 +782,19 @@ export class RuntimeApiClient {
     const path = `/api/v1/temporal/capabilities`;
     const query = this.buildQuery({
       run_id: params?.run_id,
+    });
+    return this.request('GET', path, query, undefined, undefined);
+  }
+
+  async getRunEpochStaleness(params) {
+    const path = `/api/v1/temporal/runs/${encodeURIComponent(String(params.run_id))}/epoch-staleness`;
+    const query = this.buildQuery({
+      valid_at: params?.valid_at,
+      tx_at: params?.tx_at,
+      branch: params?.branch,
+      snapshot_id: params?.snapshot_id,
+      scenario_id: params?.scenario_id,
+      export_projection_hash: params?.export_projection_hash,
     });
     return this.request('GET', path, query, undefined, undefined);
   }

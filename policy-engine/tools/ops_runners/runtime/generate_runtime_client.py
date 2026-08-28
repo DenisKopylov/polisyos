@@ -16,6 +16,7 @@ _GENERATED_POST_OPERATION_IDS = frozenset(
     {
         "get_artifact_batch",
         "analyze_fabric_impact",
+        "admit_epoch_validity_batch",
         "get_fabric_quality_batch",
         "get_fabric_trust_batch",
         "get_lineage_batch",

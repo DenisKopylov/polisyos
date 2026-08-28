@@ -388,3 +388,51 @@ non-receipt. Replaying with the lock-identical venv bin on `PATH` produced the a
 green receipt above. Earlier combined-test ceiling, incomplete fixture-provider,
 wrong-`PYTHONPATH`, and displaced test-helper-return failures were likewise harness
 non-receipts and produced no product finding.
+
+## C03 generated schema and executable package-client closure
+
+C03 preserved the route/schema/type markers and exercised the generated clients. Its
+first behavioral run exited 1 for the intended missing properties: the frozen POST had
+operation id `admit_epoch_validity_batch`, but invoking
+`admitEpochValidityBatch` raised `TypeError`; the live epoch-staleness GET was absent
+from the frozen snapshot. The run took `real/user/sys = 34.12/30.16/1.96 s`.
+
+The canonical generator now selects `admit_epoch_validity_batch`. The frozen OpenAPI
+was regenerated from the live app and gained the epoch-staleness GET plus a strict,
+owner-derived completed epoch-batch response example. Canonical package generation
+then emitted executable `admitEpochValidityBatch` and `getRunEpochStaleness` methods in
+both TypeScript and JavaScript wrappers. A register parse and an independent changed-
+family path census each returned the same six C03 generated outputs — one schema and
+five package outputs — with empty symmetric difference. No file outside those
+registered outputs was produced by either generator.
+
+The semantic gate is behavioral as well as fresh. A scratch copy retained the complete
+schema shape and marker strings but changed nested
+`InstitutionalAuthorityAbsenceView.title.const` from **Authority not appointed** to a
+generic error; the real runtime contract checker exited 1 on drift. The admitted
+nine-test C03 wave covered that falsifier, executable POST and GET calls, strict batch
+example, whole OpenAPI validation, committed-client parity, dashboard-type parity, and
+two byte-identical regenerations. It exited 0 at uptime
+`3.48 3.33 3.35` → `3.04 3.24 3.33` with
+`real/user/sys/user+sys = 74.63/74.38/3.86/78.24 s`.
+
+The registered runtime contract checker exited 0 at uptime
+`2.99 3.35 3.46` → `3.04 3.32 3.44` with
+`real/user/sys/user+sys = 28.10/26.53/1.25/27.78 s`. Package client tests (six),
+typecheck and lint exited 0. Repository architecture guardrails exited 0 at uptime
+`3.44 3.41 3.46` → `3.13 3.33 3.43` with
+`real/user/sys/user+sys = 68.57/59.81/8.58/68.39 s` under the declared 120-second
+ceiling. Changed-Python Ruff and `git diff --check` also exited 0.
+
+The package-local architecture checker remains red on two findings that reproduce
+unchanged at C03 entry commit `7bf6363d9`: its allow-list rejects the pre-existing
+`scripts/generate-runtime-api-client.sh`, and its expected imports omit the existing
+canonical-client import in `runtimeApiClient.test.mjs`. The exact entry-snapshot replay
+exited 1 with the same two messages. Neither reported path changed in C03; this is an
+inherited package-checker finding, not a generated-client product regression or a C03
+receipt.
+
+C03 consumes no new mechanism and no widening round beyond the owner already admitted
+at C00. The budget stays **42 / 44**, with **3 / 7** rounds spent. Its schema and five
+package outputs are closed; the seventh dashboard generated type and exact-byte UI
+admission remain the declared C04 boundary.

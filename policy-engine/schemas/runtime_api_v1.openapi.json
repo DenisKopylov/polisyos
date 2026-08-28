@@ -10234,6 +10234,16 @@
             "title": "Dependency Keys",
             "type": "array"
           },
+          "monitor_event_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "occurred_at": {
             "anyOf": [
               {
@@ -10252,10 +10262,17 @@
             "type": "object"
           },
           "reason": {
-            "maxLength": 512,
-            "minLength": 1,
-            "title": "Reason",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
           },
           "source_ref": {
             "anyOf": [
@@ -10269,17 +10286,26 @@
             "title": "Source Ref"
           },
           "status": {
-            "$ref": "#/components/schemas/DecisionValidityStatus"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionValidityStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "trigger_type": {
-            "$ref": "#/components/schemas/DecisionTriggerType"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionTriggerType"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
-        "required": [
-          "trigger_type",
-          "status",
-          "reason"
-        ],
         "title": "DecisionValidityEventRequest",
         "type": "object"
       },
@@ -10287,6 +10313,16 @@
         "additionalProperties": false,
         "description": "Return the persisted event identity and aggregate impact of the update.",
         "properties": {
+          "advisory_event_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "affected_packets": {
             "items": {
               "type": "string"
@@ -10309,12 +10345,32 @@
             "title": "Event Id",
             "type": "string"
           },
+          "lifecycle_bridge_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "message": {
             "title": "Message",
             "type": "string"
           },
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
+          },
+          "monitor_event_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -11590,6 +11646,90 @@
         "title": "EngineCensusPayload",
         "type": "object"
       },
+      "EngineeringCapabilityAbsenceView": {
+        "additionalProperties": false,
+        "description": "Assignable producer/read-bridge work with a named code owner.",
+        "properties": {
+          "absence_class": {
+            "const": "engineering",
+            "default": "engineering",
+            "title": "Absence Class",
+            "type": "string"
+          },
+          "candidate_owner_module": {
+            "const": "polisyos.runtime.quality.derived_observations",
+            "default": "polisyos.runtime.quality.derived_observations",
+            "title": "Candidate Owner Module",
+            "type": "string"
+          },
+          "candidate_owner_path": {
+            "const": "src/polisyos/runtime/quality/derived_observations.py",
+            "default": "src/polisyos/runtime/quality/derived_observations.py",
+            "title": "Candidate Owner Path",
+            "type": "string"
+          },
+          "capability": {
+            "const": "epoch_inheritance_recompute_status",
+            "default": "epoch_inheritance_recompute_status",
+            "title": "Capability",
+            "type": "string"
+          },
+          "closure_condition": {
+            "minLength": 1,
+            "title": "Closure Condition",
+            "type": "string"
+          },
+          "consequence": {
+            "minLength": 1,
+            "title": "Consequence",
+            "type": "string"
+          },
+          "institutional_dependency": {
+            "const": false,
+            "default": false,
+            "title": "Institutional Dependency",
+            "type": "boolean"
+          },
+          "missing_labels": {
+            "default": [
+              "producer_missing",
+              "bridge_missing"
+            ],
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "const": "producer_missing",
+                "type": "string"
+              },
+              {
+                "const": "bridge_missing",
+                "type": "string"
+              }
+            ],
+            "title": "Missing Labels",
+            "type": "array"
+          },
+          "missing_output": {
+            "minLength": 1,
+            "title": "Missing Output",
+            "type": "string"
+          },
+          "title": {
+            "const": "Engineering capability not wired",
+            "default": "Engineering capability not wired",
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "missing_output",
+          "consequence",
+          "closure_condition"
+        ],
+        "title": "EngineeringCapabilityAbsenceView",
+        "type": "object"
+      },
       "EnvInfo": {
         "additionalProperties": false,
         "description": "Summarize the runtime environment fingerprint persisted with a manifest.",
@@ -11613,6 +11753,774 @@
           "deps_lock_hash"
         ],
         "title": "EnvInfo",
+        "type": "object"
+      },
+      "EpochBoundaryLineageView": {
+        "additionalProperties": false,
+        "description": "Visible immutable boundary between predecessor and successor epochs.",
+        "properties": {
+          "current_epoch_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Current Epoch Ref",
+            "type": "string"
+          },
+          "predecessor_packet_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "previous_epoch_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Previous Epoch Ref",
+            "type": "string"
+          },
+          "successor_packet_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "transition_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trigger_event_refs": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Trigger Event Refs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "previous_epoch_ref",
+          "current_epoch_ref"
+        ],
+        "title": "EpochBoundaryLineageView",
+        "type": "object"
+      },
+      "EpochCertificateStalenessView": {
+        "additionalProperties": false,
+        "description": "One immutable certificate rendered against the requested semantic epoch.",
+        "properties": {
+          "authority_purpose": {
+            "minLength": 1,
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "bound_epoch_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Bound Epoch Ref",
+            "type": "string"
+          },
+          "certificate_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "current_epoch_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Epoch Ref"
+          },
+          "input_certificate_refs": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Input Certificate Refs",
+            "type": "array"
+          },
+          "native_coordinate_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Native Coordinate Refs",
+            "type": "array"
+          },
+          "recipe_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "revalidation_requirements": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Revalidation Requirements",
+            "type": "array"
+          },
+          "rule_schema_profile_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Rule Schema Profile Refs",
+            "type": "array"
+          },
+          "stale_reasons": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Stale Reasons",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "current",
+              "stale",
+              "revalidation_required",
+              "contested",
+              "not_established"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trigger_event_refs": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Trigger Event Refs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "certificate_ref",
+          "authority_purpose",
+          "bound_epoch_ref",
+          "status",
+          "recipe_ref"
+        ],
+        "title": "EpochCertificateStalenessView",
+        "type": "object"
+      },
+      "EpochDependencyStalenessView": {
+        "additionalProperties": false,
+        "description": "One revised input and the exact dependent target reached from it.",
+        "properties": {
+          "advisory_event_refs": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Advisory Event Refs",
+            "type": "array"
+          },
+          "authority_purpose": {
+            "minLength": 1,
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "disposition": {
+            "enum": [
+              "unchanged",
+              "annotation_only",
+              "invalidate",
+              "reissue",
+              "supersede",
+              "withdraw",
+              "contested",
+              "review_required"
+            ],
+            "title": "Disposition",
+            "type": "string"
+          },
+          "owner_evidence_refs": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Owner Evidence Refs",
+            "type": "array"
+          },
+          "recompute": {
+            "$ref": "#/components/schemas/EpochDerivedRecomputeView"
+          },
+          "relation": {
+            "minLength": 1,
+            "title": "Relation",
+            "type": "string"
+          },
+          "source_classes": {
+            "default": [],
+            "items": {
+              "enum": [
+                "incident",
+                "appeal",
+                "correction",
+                "retraction",
+                "legal_change",
+                "discovered_bias"
+              ],
+              "type": "string"
+            },
+            "title": "Source Classes",
+            "type": "array"
+          },
+          "source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "target_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "source_ref",
+          "target_ref",
+          "relation",
+          "authority_purpose",
+          "disposition",
+          "recompute"
+        ],
+        "title": "EpochDependencyStalenessView",
+        "type": "object"
+      },
+      "EpochDerivedRecomputeView": {
+        "additionalProperties": false,
+        "description": "Owner-emitted recompute state, or an explicit engineering nonreceipt.",
+        "properties": {
+          "evidence_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Content Hash"
+          },
+          "evidence_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "predicate_provenance": {
+            "enum": [
+              "recomputed",
+              "independently_reconciled",
+              "consumer_asserted",
+              "institutionally_supplied",
+              "not_established"
+            ],
+            "title": "Predicate Provenance",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "not_established",
+              "pending",
+              "running",
+              "completed",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "predicate_provenance"
+        ],
+        "title": "EpochDerivedRecomputeView",
+        "type": "object"
+      },
+      "EpochOpenWorldRiskComponentView": {
+        "additionalProperties": false,
+        "description": "One non-numeric OpenWorldRisk component.",
+        "properties": {
+          "component_id": {
+            "minLength": 1,
+            "title": "Component Id",
+            "type": "string"
+          },
+          "component_kind": {
+            "enum": [
+              "model",
+              "obligation",
+              "calibration",
+              "novel"
+            ],
+            "title": "Component Kind",
+            "type": "string"
+          },
+          "evidence_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limitation_code": {
+            "minLength": 1,
+            "title": "Limitation Code",
+            "type": "string"
+          },
+          "predicate_provenance": {
+            "enum": [
+              "independently_reconciled",
+              "not_established"
+            ],
+            "title": "Predicate Provenance",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "within_scope",
+              "outside_scope",
+              "not_established"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "component_id",
+          "component_kind",
+          "status",
+          "limitation_code",
+          "predicate_provenance"
+        ],
+        "title": "EpochOpenWorldRiskComponentView",
+        "type": "object"
+      },
+      "EpochOpenWorldRiskView": {
+        "additionalProperties": false,
+        "description": "Actual vector posture and its fail-closed promotion consequence.",
+        "properties": {
+          "components": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/EpochOpenWorldRiskComponentView"
+            },
+            "title": "Components",
+            "type": "array"
+          },
+          "limitation_code": {
+            "minLength": 1,
+            "title": "Limitation Code",
+            "type": "string"
+          },
+          "promotion_frozen": {
+            "title": "Promotion Frozen",
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "established",
+              "limited",
+              "not_established"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "vector_artifact_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "limitation_code",
+          "promotion_frozen"
+        ],
+        "title": "EpochOpenWorldRiskView",
+        "type": "object"
+      },
+      "EpochPerturbationView": {
+        "additionalProperties": false,
+        "description": "Cause identity kept separate from advisory and adjudicated consequence.",
+        "properties": {
+          "adjudicated_disposition": {
+            "enum": [
+              "annotation_only",
+              "invalidate",
+              "reissue",
+              "supersede",
+              "withdraw",
+              "contested",
+              "review_required"
+            ],
+            "title": "Adjudicated Disposition",
+            "type": "string"
+          },
+          "advisory_posture": {
+            "enum": [
+              "annotation_only",
+              "review_required"
+            ],
+            "title": "Advisory Posture",
+            "type": "string"
+          },
+          "event_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "owner_evidence_refs": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Owner Evidence Refs",
+            "type": "array"
+          },
+          "scope": {
+            "enum": [
+              "instance",
+              "dependency_descendants"
+            ],
+            "title": "Scope",
+            "type": "string"
+          },
+          "source_class": {
+            "enum": [
+              "incident",
+              "appeal",
+              "correction",
+              "retraction",
+              "legal_change",
+              "discovered_bias"
+            ],
+            "title": "Source Class",
+            "type": "string"
+          },
+          "source_evidence_refs": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Source Evidence Refs",
+            "type": "array"
+          },
+          "target_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "source_class",
+          "event_ref",
+          "target_ref",
+          "scope",
+          "observed_at",
+          "advisory_posture",
+          "adjudicated_disposition"
+        ],
+        "title": "EpochPerturbationView",
+        "type": "object"
+      },
+      "EpochProjectionDenominatorView": {
+        "additionalProperties": false,
+        "description": "Evidence for the dependency/target set rather than a self-attested count.",
+        "properties": {
+          "denominator_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Denominator Ref"
+          },
+          "predicate_provenance": {
+            "enum": [
+              "recomputed",
+              "independently_reconciled",
+              "consumer_asserted",
+              "institutionally_supplied",
+              "not_established"
+            ],
+            "title": "Predicate Provenance",
+            "type": "string"
+          },
+          "source_count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Source Count",
+            "type": "integer"
+          },
+          "target_count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Target Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "predicate_provenance"
+        ],
+        "title": "EpochProjectionDenominatorView",
+        "type": "object"
+      },
+      "EpochStalenessProjectionResponse": {
+        "additionalProperties": false,
+        "description": "HTTP response whose request metadata is outside the stable semantic identity.",
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "projection": {
+            "$ref": "#/components/schemas/EpochStalenessProjectionView"
+          }
+        },
+        "required": [
+          "meta",
+          "projection"
+        ],
+        "title": "EpochStalenessProjectionResponse",
+        "type": "object"
+      },
+      "EpochStalenessProjectionView": {
+        "additionalProperties": false,
+        "description": "Strict replay-bound owner projection for epoch, validity, and staleness chrome.",
+        "properties": {
+          "certificates": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/EpochCertificateStalenessView"
+            },
+            "title": "Certificates",
+            "type": "array"
+          },
+          "current_epoch_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Epoch Ref"
+          },
+          "decision_packet_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_validity_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionValidityStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "denominator": {
+            "$ref": "#/components/schemas/EpochProjectionDenominatorView"
+          },
+          "dependencies": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/EpochDependencyStalenessView"
+            },
+            "title": "Dependencies",
+            "type": "array"
+          },
+          "engineering_absences": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/EngineeringCapabilityAbsenceView"
+            },
+            "title": "Engineering Absences",
+            "type": "array"
+          },
+          "fixture_only": {
+            "default": false,
+            "title": "Fixture Only",
+            "type": "boolean"
+          },
+          "institutional_absences": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/InstitutionalAuthorityAbsenceView"
+            },
+            "title": "Institutional Absences",
+            "type": "array"
+          },
+          "limitations": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "lineage": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/EpochBoundaryLineageView"
+            },
+            "title": "Lineage",
+            "type": "array"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "open_world_risk": {
+            "$ref": "#/components/schemas/EpochOpenWorldRiskView"
+          },
+          "owner_as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner As Of"
+          },
+          "owner_time_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "owner_time_not_established",
+                  "epoch_scope_unresolved"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Time Reason"
+          },
+          "perturbations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/EpochPerturbationView"
+            },
+            "title": "Perturbations",
+            "type": "array"
+          },
+          "predicate_provenance": {
+            "enum": [
+              "recomputed",
+              "independently_reconciled",
+              "consumer_asserted",
+              "institutionally_supplied",
+              "not_established"
+            ],
+            "title": "Predicate Provenance",
+            "type": "string"
+          },
+          "projection_semantic_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Projection Semantic Hash",
+            "type": "string"
+          },
+          "requested_query_context_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Requested Query Context Ref",
+            "type": "string"
+          },
+          "revalidation_required": {
+            "title": "Revalidation Required",
+            "type": "boolean"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "polisyos.runtime.epoch-staleness.v1",
+            "default": "polisyos.runtime.epoch-staleness.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "scoped_epoch_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Scoped Epoch Refs",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "current",
+              "stale",
+              "revalidation_required",
+              "contested",
+              "not_established"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "temporal_scope": {
+            "$ref": "#/components/schemas/TemporalScope"
+          }
+        },
+        "required": [
+          "run_id",
+          "temporal_scope",
+          "requested_query_context_ref",
+          "observed_at",
+          "status",
+          "revalidation_required",
+          "denominator",
+          "open_world_risk",
+          "predicate_provenance",
+          "projection_semantic_hash"
+        ],
+        "title": "EpochStalenessProjectionView",
         "type": "object"
       },
       "EpochValidityBatchReceipt": {
@@ -16901,6 +17809,104 @@
           "role"
         ],
         "title": "InputRef",
+        "type": "object"
+      },
+      "InstitutionalAuthorityAbsenceView": {
+        "additionalProperties": false,
+        "description": "A deliberate institutional non-appointment, not an engineering ticket.",
+        "properties": {
+          "absence_class": {
+            "const": "institutional",
+            "default": "institutional",
+            "title": "Absence Class",
+            "type": "string"
+          },
+          "appointment_is_closure_precondition": {
+            "const": false,
+            "default": false,
+            "title": "Appointment Is Closure Precondition",
+            "type": "boolean"
+          },
+          "authority_purpose": {
+            "minLength": 1,
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "capability_state": {
+            "const": "absent/unallocated",
+            "default": "absent/unallocated",
+            "title": "Capability State",
+            "type": "string"
+          },
+          "closure_condition": {
+            "minLength": 1,
+            "title": "Closure Condition",
+            "type": "string"
+          },
+          "consequence": {
+            "minLength": 1,
+            "title": "Consequence",
+            "type": "string"
+          },
+          "inspectable_capabilities": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Inspectable Capabilities",
+            "type": "array"
+          },
+          "observed_result": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Observed Result",
+            "type": "string"
+          },
+          "predicate_provenance": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Predicate Provenance",
+            "type": "string"
+          },
+          "refusal_code": {
+            "enum": [
+              "policy_admission_missing",
+              "epoch_transition_signer_not_established"
+            ],
+            "title": "Refusal Code",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "epoch_predicate_policy_signer",
+              "epoch_transition_signer"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "source_refs": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Source Refs",
+            "type": "array"
+          },
+          "title": {
+            "const": "Authority not appointed",
+            "default": "Authority not appointed",
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "authority_purpose",
+          "refusal_code",
+          "consequence",
+          "closure_condition"
+        ],
+        "title": "InstitutionalAuthorityAbsenceView",
         "type": "object"
       },
       "InvalidGovernedProjectionPacket": {
@@ -28308,7 +29314,8 @@
                 "run_evidence_context",
                 "run_workflow",
                 "run_nodes",
-                "artifact_content"
+                "artifact_content",
+                "epoch_staleness"
               ],
               "type": "string"
             },
@@ -28714,7 +29721,8 @@
               "run_evidence_context",
               "run_workflow",
               "run_nodes",
-              "artifact_content"
+              "artifact_content",
+              "epoch_staleness"
             ],
             "title": "Surface",
             "type": "string"
@@ -39853,6 +40861,66 @@
           "200": {
             "content": {
               "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "admit_epoch_validity_batch response example",
+                    "value": {
+                      "affected_packet_refs": [
+                        "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+                      ],
+                      "batch_id": "epoch-batch-openapi-sample",
+                      "claim_bridge_result_refs": [],
+                      "completion_receipt": {
+                        "adjudication_denominator_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+                        "affected_packet_refs": [
+                          "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+                        ],
+                        "batch_id": "epoch-batch-openapi-sample",
+                        "claim_bridge_result_refs": [],
+                        "completion_receipt_ref": {
+                          "artifact_id": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+                          "kind": "decision_validity.epoch_batch_completion",
+                          "media_type": "application/json"
+                        },
+                        "dependency_denominator_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                        "requested_query_context_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+                        "schema_version": "polisyos.decision-validity.epoch-batch-receipt.v1",
+                        "state": "completed",
+                        "targets": [
+                          {
+                            "decision_lineage_key": "lineage-openapi-epoch-batch",
+                            "dependency_key": "law:openapi-epoch-batch",
+                            "packet_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                            "reason": "A content-bound epoch transition requires packet revalidation.",
+                            "status": "review_required"
+                          }
+                        ],
+                        "transition_artifact_ref": {
+                          "artifact_id": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                          "kind": "chronology.epoch_transition",
+                          "media_type": "application/vnd.polisyos.chronology+json"
+                        },
+                        "transition_content_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                        "verifier_provenance_ref": {
+                          "artifact_id": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+                          "kind": "chronology.epoch_transition_verification_receipt",
+                          "media_type": "application/json"
+                        }
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "state": "completed",
+                      "transition": {
+                        "artifact_id": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                        "kind": "chronology.epoch_transition",
+                        "media_type": "application/vnd.polisyos.chronology+json"
+                      }
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/EpochValidityBatchResponse"
                 }
@@ -64482,6 +65550,571 @@
         "tags": [
           "runtime-temporal"
         ]
+      }
+    },
+    "/api/v1/temporal/runs/{run_id}/epoch-staleness": {
+      "get": {
+        "description": "Return replay-bound epoch and staleness chrome for one tenant-owned run.",
+        "operationId": "get_run_epoch_staleness",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "valid_at",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Valid At"
+            }
+          },
+          {
+            "in": "query",
+            "name": "tx_at",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tx At"
+            }
+          },
+          {
+            "in": "query",
+            "name": "branch",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Branch"
+            }
+          },
+          {
+            "in": "query",
+            "name": "snapshot_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Snapshot Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "scenario_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Scenario Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "export_projection_hash",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Export Projection Hash"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "declared_production_absence": {
+                    "summary": "Production authority not appointed",
+                    "value": {
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": [
+                          "core_run"
+                        ]
+                      },
+                      "projection": {
+                        "certificates": [],
+                        "current_epoch_ref": null,
+                        "decision_packet_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "scientist.decision_packet",
+                          "media_type": "application/json"
+                        },
+                        "decision_validity_status": null,
+                        "denominator": {
+                          "denominator_ref": null,
+                          "predicate_provenance": "not_established",
+                          "source_count": 0,
+                          "target_count": 0
+                        },
+                        "dependencies": [],
+                        "engineering_absences": [
+                          {
+                            "absence_class": "engineering",
+                            "candidate_owner_module": "polisyos.runtime.quality.derived_observations",
+                            "candidate_owner_path": "src/polisyos/runtime/quality/derived_observations.py",
+                            "capability": "epoch_inheritance_recompute_status",
+                            "closure_condition": "Implement the producer/read bridge in the named candidate owner module.",
+                            "consequence": "Dependent derivations remain stale with recompute_status=not_established.",
+                            "institutional_dependency": false,
+                            "missing_labels": [
+                              "producer_missing",
+                              "bridge_missing"
+                            ],
+                            "missing_output": "An owner-emitted epoch-inheritance/recompute-status projection and its temporal read bridge.",
+                            "title": "Engineering capability not wired"
+                          }
+                        ],
+                        "fixture_only": false,
+                        "institutional_absences": [
+                          {
+                            "absence_class": "institutional",
+                            "appointment_is_closure_precondition": false,
+                            "authority_purpose": "semantic_epoch_qualification",
+                            "capability_state": "absent/unallocated",
+                            "closure_condition": "Institutional appointment may occur after real-user deployment; DS18 closes on truthful refusal rendering.",
+                            "consequence": "Epoch currentness and publication are not established.",
+                            "inspectable_capabilities": [
+                              "history",
+                              "candidate",
+                              "replay",
+                              "MACHINE"
+                            ],
+                            "observed_result": "not_established",
+                            "predicate_provenance": "not_established",
+                            "refusal_code": "policy_admission_missing",
+                            "role": "epoch_predicate_policy_signer",
+                            "source_refs": [],
+                            "title": "Authority not appointed"
+                          },
+                          {
+                            "absence_class": "institutional",
+                            "appointment_is_closure_precondition": false,
+                            "authority_purpose": "epoch_transition_issuance",
+                            "capability_state": "absent/unallocated",
+                            "closure_condition": "Institutional appointment may occur after real-user deployment; DS18 closes on useful typed refusal rendering.",
+                            "consequence": "Transition issuance is unavailable and promotion stays frozen.",
+                            "inspectable_capabilities": [
+                              "history",
+                              "stale_bindings",
+                              "replay",
+                              "MACHINE"
+                            ],
+                            "observed_result": "not_established",
+                            "predicate_provenance": "not_established",
+                            "refusal_code": "epoch_transition_signer_not_established",
+                            "role": "epoch_transition_signer",
+                            "source_refs": [],
+                            "title": "Authority not appointed"
+                          }
+                        ],
+                        "limitations": [
+                          "epoch_dependency_denominator_not_established",
+                          "policy_admission_missing",
+                          "epoch_transition_signer_not_established",
+                          "derived_recompute_status_not_established"
+                        ],
+                        "lineage": [],
+                        "observed_at": "2026-02-11T12:02:00Z",
+                        "open_world_risk": {
+                          "components": [],
+                          "limitation_code": "open_world_vector_unresolved",
+                          "promotion_frozen": true,
+                          "status": "not_established",
+                          "vector_artifact_ref": null
+                        },
+                        "owner_as_of": null,
+                        "owner_time_reason": "owner_time_not_established",
+                        "perturbations": [],
+                        "predicate_provenance": "not_established",
+                        "projection_semantic_hash": "sha256:bb24ccd7051f3ad7bcde7679294e12839861559ce9b3e47a6835d82fe4673e82",
+                        "requested_query_context_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                        "revalidation_required": false,
+                        "run_id": "R_core_api_001",
+                        "schema_version": "polisyos.runtime.epoch-staleness.v1",
+                        "scoped_epoch_refs": [],
+                        "status": "not_established",
+                        "temporal_scope": {
+                          "branch": "main",
+                          "scenario_id": null,
+                          "snapshot_id": null,
+                          "tx_at": "2026-02-11T12:01:00Z",
+                          "valid_at": "2026-02-11T12:00:00Z"
+                        }
+                      }
+                    }
+                  },
+                  "positive_fixture_only": {
+                    "summary": "Content-bound positive fixture",
+                    "value": {
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": [
+                          "core_run"
+                        ]
+                      },
+                      "projection": {
+                        "certificates": [],
+                        "current_epoch_ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                        "decision_packet_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "scientist.decision_packet",
+                          "media_type": "application/json"
+                        },
+                        "decision_validity_status": "active",
+                        "denominator": {
+                          "denominator_ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+                          "predicate_provenance": "independently_reconciled",
+                          "source_count": 2,
+                          "target_count": 3
+                        },
+                        "dependencies": [],
+                        "engineering_absences": [
+                          {
+                            "absence_class": "engineering",
+                            "candidate_owner_module": "polisyos.runtime.quality.derived_observations",
+                            "candidate_owner_path": "src/polisyos/runtime/quality/derived_observations.py",
+                            "capability": "epoch_inheritance_recompute_status",
+                            "closure_condition": "Implement the producer/read bridge in the named candidate owner module.",
+                            "consequence": "Dependent derivations remain stale with recompute_status=not_established.",
+                            "institutional_dependency": false,
+                            "missing_labels": [
+                              "producer_missing",
+                              "bridge_missing"
+                            ],
+                            "missing_output": "An owner-emitted epoch-inheritance/recompute-status projection and its temporal read bridge.",
+                            "title": "Engineering capability not wired"
+                          }
+                        ],
+                        "fixture_only": true,
+                        "institutional_absences": [],
+                        "limitations": [
+                          "derived_recompute_status_not_established"
+                        ],
+                        "lineage": [],
+                        "observed_at": "2026-02-11T12:02:00Z",
+                        "open_world_risk": {
+                          "components": [],
+                          "limitation_code": "all_components_within_scope",
+                          "promotion_frozen": false,
+                          "status": "established",
+                          "vector_artifact_ref": null
+                        },
+                        "owner_as_of": "2026-02-11T12:00:00Z",
+                        "owner_time_reason": null,
+                        "perturbations": [],
+                        "predicate_provenance": "independently_reconciled",
+                        "projection_semantic_hash": "sha256:7c66e84d4866e70d4dd9d9c6aef5692b9fcad5fbabd71184d443bd6cc81e6d2f",
+                        "requested_query_context_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                        "revalidation_required": false,
+                        "run_id": "R_core_api_001",
+                        "schema_version": "polisyos.runtime.epoch-staleness.v1",
+                        "scoped_epoch_refs": [
+                          "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+                        ],
+                        "status": "current",
+                        "temporal_scope": {
+                          "branch": "main",
+                          "scenario_id": null,
+                          "snapshot_id": null,
+                          "tx_at": "2026-02-11T12:01:00Z",
+                          "valid_at": "2026-02-11T12:00:00Z"
+                        }
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/EpochStalenessProjectionResponse"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "X-PolicyOS-Export-As-Of": {
+                "description": "Time at which the exported semantics were valid or observed.",
+                "schema": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Contract": {
+                "description": "Typed runtime export replay-binding contract.",
+                "schema": {
+                  "const": "policyos.runtime.export_replay_binding.v1",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Projection-Hash": {
+                "description": "SHA-256 of the narrow stable semantic export projection.",
+                "schema": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Replay-Address": {
+                "description": "Stable address with the current projection hash pinned.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Stable-Address": {
+                "description": "Canonical address excluding the replay pin.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/temporal/runs/{run_id}/epoch-staleness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/temporal/runs/{run_id}/epoch-staleness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/temporal/runs/{run_id}/epoch-staleness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/temporal/runs/{run_id}/epoch-staleness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/temporal/runs/{run_id}/epoch-staleness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/temporal/runs/{run_id}/epoch-staleness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/temporal/runs/{run_id}/epoch-staleness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Epoch Staleness",
+        "tags": [
+          "runtime-temporal"
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.epoch_staleness",
+          "source": "owned_existing_path"
+        }
       }
     },
     "/health": {

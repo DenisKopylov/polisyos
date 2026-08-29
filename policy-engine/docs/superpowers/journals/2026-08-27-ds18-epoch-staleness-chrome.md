@@ -1080,26 +1080,45 @@ the inherited one remains visible on both sides.
 The first paired Atlas replay after arming the freeze exposed a branch-only failure:
 one historical test still expected the pre-freeze bare denominator-drift label. That
 was DS18's test predicate, not inherited debt. Its assertion now requires the armed
-`landing_slice_reconciliation_required` label. The same replay also showed that an
-existing DS10 external-admission test had accidentally been made green on the branch
-even though it is part of the inherited red set the owner directed this round to
-preserve. Its historical expected set was restored; the test is red on both refs and
-continues to expose the admitted C13 residual. This was a delta-shape correction, not
-an attempt to make an absolute suite green.
+`landing_slice_reconciliation_required` label. The same replay showed that the DS10
+external-admission test had become green because the repair truthfully expanded its
+exact external mismatch registry from two paths to six. Commit `f374c888b` then made
+the wrong correction: it restored a two-entry assertion solely to reproduce the
+predicted shared-37 shape. That assertion contradicted the six-entry production
+constant and stopped before every downstream fail-closed probe. This was a second
+instance of the receipt disease: a requested number was treated as the property, and
+the test was changed to preserve the number rather than report the measured state.
 
-The final three-file Atlas replay is therefore **37 failures on the branch / 54 on
-`main`**, with **37 shared, 0 branch-only and exactly 17 main-only**. The branch run
-used `user + sys = 1339.36 + 82.23 = 1421.59 CPU-s`, uptime
-`2.96 3.32 3.66` → `3.73 3.35 3.41`, within the declared 2226.19 CPU-s ceiling.
+The truthful six-entry assertion has now been restored. Its focused red failed at the
+two-entry set comparison at `user + sys = 2.58 + 0.46 = 3.04 CPU-s`, uptime
+`2.21 2.30 2.73` → `2.27 2.31 2.73`. The focused green reached the end of the
+sequential test body at `2.76 + 0.64 = 3.40 CPU-s`, uptime
+`2.25 2.30 2.71` → `2.63 2.38 2.74`. Therefore all seven downstream probe groups
+called out by review execute: the five `_ds10_blocking_register_errors` controls,
+the adjacent-error rejection, and the independent C13 receipt/replay checks. The
+additional future-fixed, stale-exposure and seventh-mismatch assertions following
+them also pass.
+
+The final three-file Atlas replay is therefore **36 failing top-level node identities
+on the branch / 54 on `main`**, with **36 shared, 0 branch-only and exactly 18
+`main`-only**. The sole movement beyond the originally predicted 17 is
+`test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure`: DS18's
+exact six-binding admission repair legitimately closes that pre-existing red. No
+other node moved. The branch run used
+`user + sys = 3048.02 + 210.49 = 3258.51 CPU-s`, uptime
+`2.68 2.40 2.74` → `4.16 4.08 4.00`. This exceeds the declared 2226.19 CPU-s ceiling
+by 1032.32 CPU-s; the completed node-set receipt remains valid, but the timing
+ceiling is red and is not reported as green.
 The `main` run used `1632.60 + 99.61 = 1732.21 CPU-s`, uptime
 `2.47 2.81 3.05` → `2.24 3.71 3.89`; the second uptime sample was recovered after
 the completed output, so it is an environment/load receipt rather than an exact
 process-boundary sample. Independent reads of each ref's pytest `lastfailed` cache,
-restricted to the three invoked Atlas files, reproduced 37 and 54. Set subtraction
-reproduced 0 branch-only and 17 main-only; comparison with the architect-supplied
-17-node set returned no missing and no unexpected member.
+restricted to the three invoked Atlas files, reproduced 36 and 54. Set subtraction
+reproduced 0 branch-only and 18 `main`-only. The full branch failure summary and the
+cache agree on the 36 top-level node identities; the only difference from the prior
+37-node branch cache is the now-passing DS10 admission test.
 
-The exact 37-node shared set is below; every identifier is relative to the common
+The exact 36-node shared set is below; every identifier is relative to the common
 `architecture/atlas_surfaces/` prefix:
 
 ```text
@@ -1139,10 +1158,9 @@ test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_c2
 test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_c21d_real_composer_move_relocates_unique_badges_and_keeps_reds
 test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_c21d_retired_address_owners_are_absent_and_counts_are_complete
 test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_def21_additive_role_preserves_ds5_identity_bytes
-test_frontend_disposition_register.py::test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure
 ```
 
-The exact 17-node `main`-only set uses that same common prefix:
+The exact 18-node `main`-only set uses that same common prefix:
 
 ```text
 test_frontend_baseline_debt_manifest.py::FrontendBaselineDebtLifecycleTests::test_architecture_origin_active_and_resolved_form_an_exact_partition
@@ -1162,6 +1180,7 @@ test_frontend_disposition_register.py::ProducerBindingDebtTests::test_c14a_local
 test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_c21d_multi_site_authority_sink_ignores_navigation_only_changes
 test_frontend_disposition_register.py::test_ds10_baseline_candidate_reanchors_only_owned_source_bytes
 test_frontend_disposition_register.py::test_ds10_protected_signing_census_adds_the_complete_stable_identity_set
+test_frontend_disposition_register.py::test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure
 ```
 
 The remaining mandatory branch-versus-`main` matrix is:
@@ -1169,7 +1188,7 @@ The remaining mandatory branch-versus-`main` matrix is:
 | Predicate | DS18 branch | `main` | Delta conclusion |
 | --- | --- | --- | --- |
 | Frontend disposition CLI | 1 shared C13 finding; 108.04 CPU-s; uptime `2.11 2.66 3.10` → `3.18 2.87 3.14` | 38 findings; 106.72 CPU-s; uptime `3.09 2.85 3.13` → `3.13 2.89 3.11` | 37 DS18 findings closed; branch-only 0 |
-| Three Atlas test files | 37 failures; 1421.59 CPU-s; uptime `2.96 3.32 3.66` → `3.73 3.35 3.41` | 54 failures; 1732.21 CPU-s; uptime `2.47 2.81 3.05` → `2.24 3.71 3.89` | exact shared 37; exact main-only 17; branch-only 0 |
+| Three Atlas test files | 36 failing top-level node identities; 3258.51 CPU-s; uptime `2.68 2.40 2.74` → `4.16 4.08 4.00`; timing ceiling red | 54 failures; 1732.21 CPU-s; uptime `2.47 2.81 3.05` → `2.24 3.71 3.89` | exact shared 36; exact main-only 18; branch-only 0; DS10 admission red legitimately closed |
 | Architecture guardrails | deep-import creep 0; only shared local PATH artifact; 33.68 CPU-s | deep-import creep 0; identical PATH artifact; 33.54 CPU-s | creep 0 / 0 |
 | Runtime/Rego authorization parity | 24/24 pass; 38.40 CPU-s | 24/24 pass; 38.66 CPU-s | identical green |
 | Atlas health metrics | 20 pass / exact shared 3 red; 25.11 CPU-s | 20 pass / same 3 red; 25.08 CPU-s | no fourth red |

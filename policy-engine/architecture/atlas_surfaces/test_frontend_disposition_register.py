@@ -233,7 +233,11 @@ def test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure() ->
     assert admission_errors == []  # noqa: S101
     assert admitted == (exact,)  # noqa: S101
     assert set(checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES) == {  # noqa: S101
+        "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
+        "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
         "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
         "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
     }
     assert checker._ds10_blocking_register_errors([]) == []  # noqa: S101

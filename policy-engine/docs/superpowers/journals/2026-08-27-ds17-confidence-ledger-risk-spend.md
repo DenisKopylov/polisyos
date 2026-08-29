@@ -931,3 +931,55 @@ changed.
 
 Mechanism spend remains **2/2**, reserve remains **0**. The remaining
 architecture reds are owned outside C01; no exception or baseline was added.
+
+## 2026-08-29 — C02 canonical schema companion refresh
+
+C03 stopped correctly before its six-file client transaction after the C01
+public-facade correction changed the guarded validator's byte-dependency
+receipt. At clean attached HEAD `a7b12125e`, the tracked runtime schema still
+had SHA-256
+`19cc6ae5a7a46685cb00a87e7b02ebec6e9ea59c2fee7c96ff856c1f3d4ddb41`.
+The runtime contract pre-write receipt was exit `1`; it reported the canonical
+OpenAPI drift, the inherited epoch-batch missing-success-example violation,
+and the two base runtime-client outputs from the intentionally deferred C03
+six-file family. Real `185.12`, user `158.24`, sys `8.79`; uptime `08:58` ->
+`09:02`.
+
+The canonical exporter then wrote two independent ignored scratch targets and,
+only after their equality was established, the tracked schema:
+
+- scratch A: exit `0`; real `165.30`, user `148.29`, sys `7.40`; uptime
+  `09:02` -> `09:06`;
+- scratch B: exit `0`; real `175.91`, user `153.79`, sys `8.05`; uptime
+  `09:06` -> `09:09`;
+- A <-> B: `cmp --silent` exit `0`;
+- canonical tracked writer: exit `0`; real `172.73`, user `150.33`, sys
+  `8.06`; uptime `09:10` -> `09:14`;
+- A <-> tracked and B <-> tracked: both `cmp --silent` exit `0`;
+- all three SHA-256 values:
+  `bdff039ca63e0f5d6a4afb7e2581a3e8c3278e28873d3b42c6dcbc1905524fc1`.
+
+Before, scratch A, scratch B, and tracked after the write all have the same
+complete structural denominator: **102 paths, 104 operations, 72 GET, 32 POST,
+and 501 component schemas**. The full source-of-truth diff changes exactly nine
+value leaves in the single DS17 available example: outer and replay-pin
+projection hashes; replay address; outer, replay-pin, and nested validation
+dependency identities; nested and outer worker-receipt hashes; and the outer
+worker-receipt ref. No path, operation, response shape, component schema,
+route, authorization, Rego, source, or mechanism changed.
+
+Post-write verification separates the intentionally unclosed transactions:
+
+- runtime contract: exit `1`, with **no OpenAPI drift**; only the inherited
+  epoch-batch example violation and stale `runtimeApiClient.ts/.js` remain;
+  real `166.32`, user `149.54`, sys `7.88`; uptime `09:15` -> `09:19`;
+- complete schema-hardening file: 22 collected, **19 passed / 3 failed**, exit
+  `1`; the exact failures are the same inherited epoch violation plus the
+  committed-runtime-client pipeline and shared-types checks that represent the
+  intentional stale six-client C03 transaction; real `246.49`, user `234.74`,
+  sys `13.31`; uptime `09:19` -> `09:23`.
+
+No tracked client writer, client, source, release, route, Rego, or mechanism
+path was touched. This P39 companion correction has exactly two tracked paths:
+`schemas/runtime_api_v1.openapi.json` and this append-only journal. It spends no
+C02 mechanism path and reserve remains **0**.

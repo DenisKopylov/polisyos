@@ -1868,3 +1868,36 @@ remains byte-identical at
 generated failure attachments were removed before staging, and reserve remains
 zero. Planned append-only subject:
 `fix(atlas): prove complete confidence text regions`.
+
+### Post-round-5 audit — C04 verification stop
+
+The bounded final replay did not approve C04. This is another worked example
+of the already-declared P38 text-paint class, not a new repair round. The
+round-5 mechanism proves complete layout rectangles but cannot prove that an
+element's paint is contained by those rectangles.
+
+The exact native witness is a fixed 1 x 1 sibling at the viewport origin with
+`box-shadow: 0 0 0 1000px black`. Its sole layout rectangle is disjoint from
+the governed text Range at `(100,100)-(479.40625,146)`, so the complete
+positive-area layout index correctly reports no intersection. Chromium still
+paints the shadow across the Range: `checkVisibility` is true, generated
+pseudo content is absent, the hit test still resolves to the governed text,
+and the screenshot's black-pixel ratio over the Range moves from `0.1800` to
+`1.0`. The production twin nevertheless returns `exact`.
+
+Adding `box-shadow` to a denylist would teach the verifier this spelling while
+leaving the same property open for outlines, reflections, filter paint, and
+future paint-extending effects. The missing quantity is a positive proof that
+every admitted element's complete paint is contained by the indexed region,
+or a side-effect-free glyph-level paint/occlusion observation bound to
+stylesheet and font integrity. The browser DOM/layout APIs used here do not
+supply that quantity. Capability state is `verification_missing`; the owner is
+the runtime-dashboard/Atlas projection-safety verifier. Closing it requires a
+new paint-containment capability or a plan amendment. Until then the native
+`exact` arm is not proved and C04 is not closed.
+
+The same audit replayed all 65 committed native cases successfully, including
+the prior wide-gamut alpha, holed overlay, edge-sliver, pointer-transparent,
+and pseudo-element witnesses; the new shadow-extension witness alone escapes.
+No source correction follows this section. The branch remains unpushed and
+unmerged for owner adjudication.

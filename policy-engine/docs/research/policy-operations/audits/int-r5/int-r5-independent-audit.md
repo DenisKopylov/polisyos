@@ -70,16 +70,18 @@ substantive audit writing:
 
 | Artifact | Skeleton commit |
 |---|---|
-| `int-r5-independent-audit.md` | `6ecf960df6c236f2ff90bc68dba6175487593fef` |
-| `int-r5-formal-argument-audit.md` | `a87289688322cbc239f641be09ffeecd289979a3` |
-| `int-r5-claim-evidence-ledger.md` | `ca72fa78b02949f684261cb71e65cf3dbf686cb4` |
-| `int-r5-anchor-and-citation-verification.md` | `f1f6c708a2e8ec7e0a3f6e260617b4e4112a40ce` |
-| `int-r5-seam-and-crosscheck.md` | `61d9bab285cb5dcb018ce2165b11122156437284` |
-| `int-r5-orientation-error-ledger.md` | `26ad36f69dcc82bf894046369973656680183c09` |
-| `int-r5-recommended-revision.md` | `a09d69d0f23a70f628399ca48e5f219a383cbabb` |
+| `int-r5-independent-audit.md` | `5b6506eca45dd38ddbe78abd5d5bd5b1abb278c0` |
+| `int-r5-formal-argument-audit.md` | `aab84073115c78ca7f85cd6dff9da4b1fc1c54d5` |
+| `int-r5-claim-evidence-ledger.md` | `e2ad5542cdc9c61ef5b9f8e989065d8e7fce6d4f` |
+| `int-r5-anchor-and-citation-verification.md` | `590ef05305a6954b6e807123bc613e28592d9c95` |
+| `int-r5-seam-and-crosscheck.md` | `671f0413e5d55516dd6f49855d8eb85e59a5bb75` |
+| `int-r5-orientation-error-ledger.md` | `9b1f1336665da41fdc176e30edd3fdb5e27ef9af` |
+| `int-r5-recommended-revision.md` | `698dd040f126f92f38d3620128dc989ce99f9594` |
 
 After the seventh skeleton, compare reported `ahead_by: 7`, `behind_by: 0`, the package head as exact
-merge base, and exactly the seven audit paths as additions.
+merge base, and exactly the seven audit paths as additions. Final verification found that an earlier
+version of this table had recorded incorrect SHA values; this metadata-only correction records the
+actual GitHub commit history and changes no package finding or verdict.
 
 ## 3. Verdict
 

@@ -2105,3 +2105,30 @@ cross-slice total was found.
 The repair is inside existing C02 test/documentation companions: no mechanism
 path or widening reserve is spent. The ledger remains 17 mechanisms used of
 18 declared, hard ceiling 22, reserve 0.
+
+## 2026-08-29 — new-base P41 inherited-red replay
+
+The byte identity of the complete preceding 2,107-line, 131,086-byte journal
+was
+`9e7962e1d11f8b4b72eef8aa7e245df63677c775dc576ba29046b7f7536d6afe`.
+Exact current main is the landing merge's second parent
+`df90e10fb48b8df5b959c6b0074d69e255e16cc9`; the branch entry for this replay
+is pin-repair commit `57c10b7983628f5f9980508c87357b39adad0dd7`.
+
+The fresh exact-main scratch first received
+`corepack pnpm install --frozen-lockfile`, exit 0, real/user/sys
+`5.36/2.98/10.34`, uptime `22:14` -> `22:14`. This is dependency setup only,
+not a product gate or source write.
+
+| exact gate | branch | exact current main | P41 disposition |
+| --- | --- | --- | --- |
+| dashboard i18n parity, complete 38-test file | exit 1; 12 failed / 26 passed; real/user/sys `2.06/1.74/0.29`; uptime `22:15` -> `22:15` | exit 1; 12 failed / 26 passed; real/user/sys `3.24/1.90/0.30`; uptime `22:14` -> `22:15` | inherited: all 12 failing test identities and the missing semantic keys are identical and exclusively `pages.cycleBoard.acquisition.*`; DS17's own confidence-ledger keys do not occur in the red set |
+| Ruff check of `openapi_contract.py` | exit 1; one F601 duplicate `admit_epoch_validity_batch`, branch line 3745; real/user/sys `0.05/0.03/0.01`; uptime `22:15` -> `22:15` | exit 1; the same sole F601, main line 3664; real/user/sys `0.12/0.03/0.02`; uptime `22:15` -> `22:15` | inherited: the two duplicate definitions blame to DS18 `716078d530` and DS15 `4d02940e5b`; DS17 only shifts the later line |
+| Ruff format check of `test_governed_projection_validation_worker.py` | exit 1; exactly one file would be reformatted; real/user/sys `0.03/0.02/0.00`; uptime `22:15` -> `22:15` | exit 1; exactly the same one file would be reformatted; real/user/sys `0.11/0.02/0.02`; uptime `22:15` -> `22:15` | inherited: exact current main is already red; no formatter writer is run because it would rewrite main-owned lines rather than isolate a DS17 correction |
+
+The i18n raw assertion's observed leaf total is 2,806 on main and 2,837 on
+landing because DS17 legitimately adds 31 translated leaves; that diagnostic
+number is not the failure ownership predicate. The failing test set and the
+unadmitted acquisition declarations are unchanged. All three reds therefore
+reproduce from the exact new base for the same semantic reason. None is
+repaired, counted as a DS17 finding, or used to claim a green gate.

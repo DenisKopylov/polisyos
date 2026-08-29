@@ -235,3 +235,99 @@ The former fixed precedence among intervention/version, context/interference and
 The class meanings, contributor retention, unresolved terminal, and observation-first validity gate are
 preserved. Later architecture must encode lane obligations as an enforceable consumer property, not as
 an optional field.
+
+## 5. `AUD-F05` — GY-O1 Conflict Routed To The Principal
+
+Audit defect: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:111`.  
+Disposition: `routed_pending_principal` by explicit stage-3 instruction; this finding is not accepted or
+declined by the package author.
+
+### 5.1 Interim binding semantics applied
+
+Until a competent principal ratifies different text, the amended package rule is:
+
+```text
+expected_variation → no effect-posterior mutation
+```
+
+This rule supersedes the contrary stage-1 clauses in INT-R4 §§4.3, 4.8 and 5.1 and the corresponding
+rider-audit row. Specifically:
+
+- `expected_variation` may not move the causal effect-posterior mean;
+- it may not narrow the causal effect-posterior interval;
+- it may not increase confidence in a substantive world edge;
+- a predeclared schedule is not by itself evidence of causal independence;
+- policy-produced compatibility is not confirmation;
+- only `prediction_error`, after every other gate, may enter an effect-posterior update proposal under
+  the currently written GY-O1 rider.
+
+Observation diagnostics, goodness-of-fit reporting and data-quality monitoring may continue, but they
+must not mutate the effect posterior through another field or consumer. No loosening is implemented by
+this amendment.
+
+### 5.2 Why predeclaration alone does not close the loop
+
+Let deployment `A` affect observation, selection or behavior and thereby generate rows that remain
+compatible with the deployed model. Repeated assimilation can then:
+
+```text
+move posterior mean
+OR narrow posterior interval
+OR increase edge confidence
+```
+
+while the only new fact is that the model is self-consistent with data produced under its own policy.
+That is performative stability, not identified evidence about the counterfactual effect. A sealed
+schedule proves temporal precommitment; it does not prove that the evidence source is causally
+independent from deployment.
+
+### 5.3 Separate amendment request — not a change and not a ruling
+
+**Request to the principal:** amend GY-O1 to distinguish a causal effect posterior from a separately
+named observation/predictive-calibration state, and permit a narrowly bounded routine assimilation path
+for `expected_variation` only under all eight conditions below.
+
+1. **Exact update-target whitelist.** The ratified text names every mutable target. The default request
+   is limited to observation-noise, calibration or predictive-distribution parameters. It may not
+   change a substantive causal effect parameter or world-edge confidence merely because observations
+   are compatible.
+2. **Sealed pre-deployment schedule.** The cadence, information windows, likelihood or calibration
+   operator, stopping rule and cumulative budget are content-bound before deployment.
+3. **No outcome-adaptive schedule changes.** Compatibility, interval width, posterior movement or
+   policy performance cannot change the schedule, target, likelihood, horizon or stopping rule after
+   outcomes are observed.
+4. **The same ancestry, version, context and interference gates.** Routine assimilation receives no
+   weaker observation-ancestry, treatment-version, exposure-map, context, maturity, censoring or
+   provenance review than discrepancy repair.
+5. **Independent identification for any causal-posterior movement.** A causal effect posterior may move
+   only when an independent sensor, randomized/design-based source, valid proxy/bridge or other admitted
+   identification argument proves that the evidence is not solely policy-produced. Without that bridge,
+   the causal posterior and world edge remain frozen.
+6. **Cumulative confidence-gain cap.** The schedule has a predeclared aggregate bound over information
+   gain, interval shrinkage, mean movement and confidence increase. Reaching the bound freezes further
+   assimilation pending independent evidence and review. Splitting one update into many small updates
+   cannot evade the cap.
+7. **New claim/version identity when a signed statement changes.** Any routine update that changes a
+   signed effect statement, its interval, confidence, population, version or material assumptions
+   creates a new claim/version record; it cannot silently mutate the historical statement.
+8. **Negative fixture with policy-produced compatible observations.** A case in which deployment raises
+   observation density or selects easier-to-predict rows while all observations remain model-compatible
+   must fail any attempt to increase causal-effect confidence or world-edge confidence. Retaining
+   “predeclared” markers while removing causal independence must still fail.
+
+### 5.4 Requested ruling alternatives
+
+The principal can rule one of two coherent forms:
+
+```yaml
+preserve_current_GY_O1:
+  expected_variation_effect_posterior_mutation: forbidden
+
+amend_GY_O1:
+  routine_target: explicitly_whitelisted
+  causal_effect_movement: independent_identification_required
+  eight_conditions: binding
+```
+
+Silence, this prompt, or the existence of the request is not the second ruling. Pending ratification,
+the first form remains controlling.

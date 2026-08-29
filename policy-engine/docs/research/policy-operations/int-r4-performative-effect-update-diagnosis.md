@@ -1,6 +1,6 @@
 ---
 title: INT-R4 — Performativity-Safe Effect Updating
-status: in_progress — repository baseline recorded
+status: in_progress — external baseline and result recorded
 kind: deep-research
 research_task: INT-R4
 joint_with: OPS-R5
@@ -138,7 +138,172 @@ Supporting baseline and finding coordinates are maintained in [the INT-R4 eviden
 
 ## 3. External Research Baseline
 
+### 3.1 Source posture
+
+The five commissioned surveys are treated as `institutionally_supplied` research inputs relative to this package. Their source hierarchies distinguish primary law/standards, canonical papers, empirical studies, simulations, audits and design recommendations, but this pass did not independently reproduce every underlying study. They establish what practices are possible, what they cost, where literatures disagree and what remains unidentified. They establish no repository capability and register no PolicyOS vocabulary.
+
+The source set is:
+
+| ID | Supplied survey | Primary contribution to this task |
+|---|---|---|
+| S1 | *Identification When Policy Changes Its Own Evidence* | Causal separation of latent outcome, observation, selection and behavioral response; identification strategies and self-confirmation limit. |
+| S2 | *Graded Response To New Evidence: Stopping Rules, Escalation And Reversibility* | Sequential adaptation, treatment versions, exploratory/confirmatory boundary, multi-axis response and reversibility. |
+| S3 | *How Mature Monitoring Regimes Decide Why A Number Moved* | Cross-domain diagnosis vocabularies, residue policies, detector-versus-diagnosis boundary and classification reliability. |
+| S4 | *Metric As A Governed Contract* | KPI contract fields, Goodhart/Campbell mechanisms, role separation, decision rights and revision/version integrity. |
+| S5 | *How Surveillance Finds Delayed, Unreported, Distributed And Spillover Harm* | Delayed/censored harm, absent channels, subgroups, interference, sentinel health and honest unknowns. |
+
+### 3.2 What is well supported across the surveys
+
+Five propositions survive the disagreements.
+
+1. **A changed observed quantity is not self-interpreting.** S1 formalizes the observed value as a function of the latent outcome, measurement, selection, behavioral response and policy. If policy can alter observation, selection or response, the observed movement alone does not identify movement in the latent outcome (S1:5-33, 70-122, 256-383).
+2. **Detector output is not a cause label.** S3 shows this across SPC, epidemiology, SRE and experimentation: control-chart alarms, SRM, out-of-range metrics and pages precede causal diagnosis. The strongest transferable rule is causal typing before learning, not causal typing before every protective action (S3:5-41, 43-79, 183-287, 330-379).
+3. **The same numerical delta legitimately selects different update operators.** Official-statistics revisions, IAS 8 estimate changes versus prior-period errors, experiment trust failures and pharmacovigilance causality states all route the same numerical movement differently according to why it occurred (S3:43-130, 289-321).
+4. **The observation process is part of the causal system after deployment.** Independent sensors, dual runs, selection-margin accounting, observation-intensity normalization, negative controls and policy-off/randomized probes are methods for testing whether evidence is about the target or about its production (S1:35-68, 112-122).
+5. **Unknown is a legitimate terminal research result.** Where no independent sensor, randomized variation, valid proxy or structural restriction separates latent-outcome and observation-process effects, the decomposition is generally not identified. More rows from the same contaminated pipeline do not close that gap (S1:256-268; S3:89-112, 132-181; S5:253-300).
+
+### 3.3 Disagreements preserved rather than reconciled
+
+The surveys do not support a single universal operational doctrine.
+
+- **Act before diagnosis or freeze?** SRE, aviation and safety monitoring may mitigate or contain before root cause is known; experimentation freezes inference; SPC warns against tampering with common-cause variation. The safe synthesis is purpose-specific: uncertainty may license protective containment, but not substantive model learning (S2:34-82, 84-137; S3:5-9, 81-130, 183-287).
+- **Single cause or multiple contributors?** Epidemiology, SRE, official-statistics revisions and online experimentation commonly permit multiple mechanisms. A single routing label is defensible only if the record also retains contributors and fails unresolved when a unique primary cannot be justified (S3:15-41, 132-181, 183-287, 350-379).
+- **Negative controls diagnose or identify?** The epidemiological tradition uses them mainly as falsification tools; proximal inference can identify under stronger bridge/completeness assumptions. A null negative control is not automatic proof of no bias (S1:39-68, 228-254).
+- **Imputation or exploration for selective labels?** Reject-inference methods depend on modeling assumptions; controlled exploration creates missing counterfactual labels but costs exposure, money and sometimes ethical permission. The surveys do not establish one universal solution (S1:39-68, 188-194, 228-254).
+- **Targets help or distort?** NHS and education evidence shows beneficial substantive effects can coexist with bunching, score inflation, selection and effort substitution. A target-linked metric is not automatically invalid, but cannot validate itself alone (S1:138-164, 228-252; S4:67-143).
+
+### 3.4 Sequential adaptation, interference and delayed harm
+
+S2 establishes that after `A0 → A1 → A2`, “the effect of the intervention” is not a single estimand unless the relevant object is fixed: a specific version, a declared distribution over versions, or a dynamic policy rule. Version assignment may be endogenous to prior outcomes; unplanned versions do not inherit confirmatory status from an earlier design. Intervention artifact, eligibility/scope, decision rule, outcome definition, exposure history, measurement pipeline, adaptation trigger, concurrent interventions and the causal claim attached to release all require version identity (S2:214-301).
+
+Interference changes the unit and denominator: outcomes can depend on others' assignments, controls can be contaminated and displacement can make local improvement overstate system benefit. Exposure mapping and cluster/network designs help only when the exposure structure is declared and sufficiently observed; an endogenously changing network remains an identification gap (S1:41-48, 58-66, 256-283; S5:179-251).
+
+Delayed, censored and distributed harm also limits update safety. Absence of recorded harm is informative only relative to a latency horizon and non-trivial detection probability. Exited, rejected, never-entered and neighboring populations may have zero inclusion probability in the production channel. Honest reporting must distinguish observed harm, model-estimated missing harm and unquantified exposure (S5:5-19, 21-131, 133-251, 253-300).
+
+### 3.5 Evidence-grade conclusion
+
+The literature supports a **research-level routing discipline**, not a validated universal classifier. No surveyed regime supplies the exact vocabulary required here, no cross-domain base rate for the unresolved class exists, and cause-label reliability is rarely measured. Where measured in pharmacovigilance, agreement is useful but not deterministic. The result below is therefore a bounded candidate vocabulary with explicit operational tests and an unresolved terminal, not a registered standard or proven automated adjudicator.
+
 ## 4. Result
+
+### 4.1 Result type and name
+
+**Result: `accepted_narrow_scope`.** This deliverable defines one candidate **Shared Movement Diagnosis Vocabulary (SMDV-1)** for INT-R4 and OPS-R5. This section is its sole derivation and owner. OPS-R5 imports SMDV-1 by reference; it does not define another vocabulary.
+
+SMDV-1 is a research rulebook for deciding whether an observed movement is admissible evidence about a predictive mechanism and for routing non-model explanations. It is not a registered vocabulary, production schema, automated classifier or authority grant.
+
+### 4.2 The comparison object precedes the category
+
+A diagnosis is void unless a `MovementComparison` identifies at least:
+
+```text
+prediction/effect carrier and content identity
+estimand and target construct
+predicted distribution, interval or set — not only a point
+intervention artifact and rule version
+intended and realized eligibility, dose, exposure and implementation trace
+population and subgroup frame
+observation definition, instrument, schema and pipeline versions
+observation, valid, transaction and decision times
+follow-up maturity, censoring and missingness posture
+context/concurrent-policy version and interference/exposure map
+behavioral-response hypothesis
+calibration, identification and uncertainty basis
+```
+
+The delta is therefore a typed relation between conditioned objects. `realized - predicted` is only one projection and may be undefined for interval-, set- or distribution-valued carriers. An implementation that coerces every carrier to one scalar has not implemented this result.
+
+### 4.3 The seven terminal primary classes
+
+| Class | Meaning | Operational assignment test | Permitted effect-posterior consequence |
+|---|---|---|---|
+| `expected_variation` | The realized observation is model-compatible under the declared predictive and measurement envelope, and no material divergence in observation, intervention, context/interference or behavior is established. It is an operational “common variation” result, not proof that no harm exists. | Comparison is evaluable; measurement-health predicates pass; realized intervention matches the declared version; relevant context and exposure remain inside the declared envelope; posterior-predictive or equivalent predeclared check does not reject model compatibility. | No discrepancy-driven model repair. It may enter only a separately predeclared routine likelihood/calibration schedule; it cannot trigger adaptive re-estimation, policy change or world-edge creation by itself. |
+| `observation_process_change` | The mapping from latent outcome to recorded evidence changed: definition, instrument, coding, reporting/testing intensity, selection, inclusion, denominator, attrition/censoring, join/logging pipeline, revision or data availability. | A version/change record, dual run, bridge/backcast, independent sensor divergence, selection-margin shift, observation-intensity change, negative-control failure or equivalent evidence establishes a material observation-path change. | Freeze substantive effect update unless an independent identification bridge recovers the latent-outcome estimand. Route to measurement/semantic-epoch and data-quality lanes. |
+| `intervention_delivery_or_version` | The intervention compared is not the intervention predicted: delivery failure, fidelity change, eligibility/scope change, dose/exposure change, deliberate version change or altered adaptive decision rule. | Content-bound intended-versus-delivered comparison, exposure history and implementation evidence establish a material mismatch. Deliberate and failed changes use subcodes; neither is silently pooled. | Do not update the old-version effect posterior from the mixed delta. Route to delivery evidence, version-specific evaluation, partial reissue or new estimand. |
+| `behavioral_response` | Actors respond to the policy, target or disclosure in a way that changes the substantive outcome or treatment uptake: adaptation, gaming, avoidance, substitution or strategic response. | A predeclared or newly supported response path `policy → actor response → latent outcome/exposure` is evidenced independently of mere reporting/inclusion change. | Route to mechanism/strategic-response model. The old effect posterior updates only under a model whose estimand includes that response and whose identification basis remains valid. |
+| `context_or_interference` | The movement is materially attributable to external world change, concurrent policy, regime change, network/geographic spillover, equilibrium effect, control contamination or other-unit exposure not represented by the prediction. | Context/version comparison, concurrent-intervention ledger, exposure mapping, untreated-neighbor/saturation evidence or a transport/regime check establishes the divergence. | Route to context, coupling, regime or interference model. Do not treat as a clean unit-level prediction error. |
+| `prediction_error` | After the preceding gates pass, the remaining movement is admissible evidence about the predictive mechanism or its effect parameters. The term means a **model-relevant innovation**, not automatically model misspecification or an out-of-band alarm. | Observation process is stable or bridged; the intended version and exposure are established; context/interference and behavioral paths are absent, already modeled or separately identified; the outcome is mature enough; the identification basis remains valid; a residual remains. | Eligible for the predeclared effect-posterior update. Eligibility is not authorization: provenance, calibration, power/maturity, authority boundary and any required human decision must still pass. |
+| `diagnosis_unresolved` | Available evidence is missing, contradictory, too immature or compatible with multiple materially different primary explanations that cannot be ordered. | One or more decisive predicates are `consumer_asserted`, `institutionally_supplied` without independent admission, or `not_established`; no unique primary class survives falsification; or the latent-outcome/observation decomposition is nonidentified. | Freeze substantive posterior and world-edge update. Protective containment, investigation, acquisition, annotation or publication downgrade may still proceed under separate authority. Never default to `prediction_error`. |
+
+### 4.4 Precedence and multi-causality rule
+
+The procedure is an **admission precedence**, not a claim that causes occur in this order:
+
+```text
+0  establish comparison identity, maturity and admissible evidence
+1  test observation-process invariance and series comparability
+2  test intended-versus-delivered intervention and version identity
+3  test context, concurrent policy and interference/exposure assumptions
+4  test behavioral-response paths and whether they reach outcome or only observation
+5  split model-compatible expected variation from remaining model-relevant prediction error
+6  if no unique supported primary survives, diagnosis_unresolved
+```
+
+One `primary_class` is emitted for routing, but the record also carries `contributing_classes`. A class that blocks learning remains blocking even when it is not primary. If two contributors require incompatible primary routes and their relative contribution cannot be identified, the primary result is `diagnosis_unresolved`; the system does not manufacture exclusivity.
+
+This makes the classes operationally disjoint without erasing multi-causality: disjointness belongs to the **assignment procedure**, while the causal record retains all supported contributors.
+
+### 4.5 The measurement-change / behavioral-response boundary
+
+The hard overlap is resolved by the path that is actually established:
+
+- `policy → behavior → latent outcome` is `behavioral_response`;
+- `policy → behavior → reporting/testing/selection/coding → recorded evidence`, without an independently identified latent-outcome change, is `observation_process_change` with behavioral response recorded as a contributor;
+- both paths established: choose `behavioral_response` only if an independent outcome channel identifies the substantive path, retain `observation_process_change` as a blocking contributor, and freeze any update that cannot remove its contamination;
+- paths plausible but not separable: `diagnosis_unresolved`.
+
+Thus “people reported more because the rule rewarded reporting” is not allowed to become “the underlying outcome increased.” Conversely, a real behavioral effect is not downgraded to mere instrumentation simply because it also changes reporting.
+
+### 4.6 Bounded exhaustiveness and the residue
+
+SMDV-1 is exhaustive only relative to a declared comparison graph with five possible material departure locations: observation process; intervention/delivery/version; behavior; context/interference; predictive mechanism — plus model-compatible variation. It is **not** an exhaustive ontology of every physical cause in public policy.
+
+The unresolved terminal does not make the claim vacuously exhaustive because it has a cost and a falsifier:
+
+- it freezes substantive learning;
+- it names the competing classes and missing discriminator;
+- it identifies the next evidence that could separate them;
+- it expires or reopens on a declared clock;
+- a case that contains sufficient distinguishing evidence but still lands unresolved is a false block;
+- a case that lacks distinguishing evidence but lands in a substantive class is a false pass.
+
+No defensible cross-domain production proportion for `diagnosis_unresolved` is available in the supplied surveys. The expected production share is therefore `not_established`, not zero. It is likely non-trivial and may be high in feedback-heavy, newly deployed or weakly observed policies. The proposed 24-case benchmark deliberately assigns 8/24 cases (33⅓% of the test population) to unresolved or inseparable-compound conditions; that is a stress-test composition, **not** a prevalence estimate. A high realized unresolved rate is acceptable as honest refusal but prevents governed promotion and should fund better observation/design rather than be normalized away.
+
+### 4.7 Mapping to existing S13 without owner duplication
+
+SMDV-1 does not replace S13's `DivergenceAttributionClass`; the two axes answer different questions.
+
+| SMDV-1 result | Nearest S13 lane | Mapping loss that must remain explicit |
+|---|---|---|
+| `expected_variation` | no learning divergence / accountability observation | S13 has no explicit model-compatible terminal. |
+| `observation_process_change` | `evidence_error` is nearest | `evidence_error` does not explicitly distinguish policy-caused ascertainment/selection from ordinary evidence defects. |
+| `intervention_delivery_or_version` | `implementation_failure` is nearest | Planned version/eligibility/rule change is not necessarily failure. |
+| `behavioral_response` | `strategic_response` | Non-adversarial adaptation and intended mediation may also belong here. |
+| `context_or_interference` | `world_change`, `regime_error`, or `coupling_error` | One shared class may route to several S13 model components. |
+| `prediction_error` | `design_error`, `evidence_error`, `regime_error` or `coupling_error` after diagnosis | S13's destination taxonomy is finer about the model component, not the source of observed movement. |
+| `diagnosis_unresolved` | `unattributable` / pending | Preserve whether more evidence can resolve the case and which discriminator is missing. |
+
+The safe integration is two-stage: SMDV-1 establishes why the observed movement may or may not inform the predictive mechanism; S13 then routes an admitted model-relevant divergence to the accountable component. Collapsing them would reintroduce the failure this joint pair exists to prevent.
+
+### 4.8 Update rule
+
+A substantive effect-posterior or candidate world edge may be proposed only when all of the following hold:
+
+```text
+primary_class == prediction_error
+AND no blocking contributing class exists
+AND comparison and identification statuses are positive
+AND outcome maturity / censoring / interference predicates pass
+AND evidence provenance is recomputed or independently reconciled
+AND the update is inside a predeclared version-specific update rule
+AND required decision authority is established
+```
+
+`expected_variation` can feed only a separately predeclared routine update/calibration schedule; it does not license a discrepancy-driven repair. All other classes route elsewhere. `diagnosis_unresolved` freezes learning but not necessarily protective action.
+
+### 4.9 What this result does not settle
+
+SMDV-1 does not provide a universal statistical test, inter-rater reliability threshold, causal-discovery method, signer, default observation horizon or domain-independent action threshold. It does not prove that the latent outcome is observed. It does not turn a DAG declaration into causal ancestry evidence. Those are explicit later obligations, and some may remain open or institutional rather than engineering work.
 
 ## 5. Counterexamples And Failure Modes
 

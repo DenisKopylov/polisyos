@@ -1,0 +1,77 @@
+id = "2026-08-27-ds15-acquisition-routes"
+title = "Add accountable acquisition-route surfaces"
+type = "added"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Add run-bound acquisition route reads, approval and execution operations, strict growth projections, and generated runtime/dashboard contracts."
+evidence = [
+  "tests/unit/runtime/http/test_acquisition_routes_api.py",
+  "tests/integration/runtime_frontend/test_ds15_acquisition_route_contract_bridge.py",
+  "tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+  "schemas/runtime_api_v1.openapi.json",
+]
+compatibility = "The four run-bound acquisition operations, acquisition-growth governed projection, response contracts, and generated client methods/types are additive. Existing consumers continue unchanged; consumers adopting these surfaces must regenerate clients."
+change_class = "schema-openapi-abi; js-package-api"
+surface_classification = "public_stable: runtime acquisition-route HTTP API; internal: runtime-dashboard generated API types"
+migration = "Regenerate both client families. Preserve server-issued route, planner, replay, authority and lifecycle fields exactly; do not infer VOI, active epochs, qualification, or world growth from ordinal rank or client state."
+api = "Adds list/detail, decision-request and execute operations under /api/v1/runs/{run_id}/acquisition-routes, plus strict acquisition-growth projection schemas."
+limitations = "Current production evidence remains quarantine/no-growth or pending qualification. Successful admitted growth and re-entry are demonstrated only by a permanently badged behavioral fixture until a fresh positive production route is independently established."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "docs/reference/api/migration-guide.md",
+]
+runbook_docs = [
+  "docs/runbooks/migration-release-promotion.md",
+]
+
+[[compatibility_change]]
+id = "acquisition-route-runtime-schema"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: runtime acquisition-route HTTP API"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Runtime OpenAPI adds strict acquisition-route list, detail, decision-request and execute operations plus ranking, cost, qualification and lifecycle facets."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = [
+  "docs/reference/api/migration-guide.md",
+]
+runbook_docs = [
+  "docs/runbooks/migration-release-promotion.md",
+]
+
+[[compatibility_change]]
+id = "acquisition-route-runtime-client"
+change_class = "js-package-api"
+impact = "additive"
+surface = "public_stable: @polisyos/runtime-api-client"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The generated runtime client adds all four acquisition-route operations and their strict request/response types."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = [
+  "docs/reference/api/migration-guide.md",
+]
+runbook_docs = [
+  "docs/runbooks/migration-release-promotion.md",
+]
+
+[[compatibility_change]]
+id = "acquisition-route-dashboard-types"
+change_class = "js-package-api"
+impact = "additive"
+surface = "internal: runtime-dashboard generated API types"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The dashboard generated types add acquisition-growth, route detail, authority, qualification and lifecycle contracts."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = [
+  "docs/reference/api/migration-guide.md",
+]
+runbook_docs = [
+  "docs/runbooks/migration-release-promotion.md",
+]

@@ -14,6 +14,7 @@ import type { SignedPublicDecisionPacket } from "@/features/runs/domain/publicat
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn, formatDate, formatNumber } from "@/shared/lib/utils";
 import { Quantity } from "@/shared/ui/quantity";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { Badge, Button } from "@polisyos/atlas-ui";
 
 export function PublicationPacketPanel({
@@ -84,6 +85,16 @@ export function PublicationPacketPanel({
             </Badge>
           </div>
         </div>
+      </section>
+
+      <section
+        className="border-line bg-surface/80 rounded-2xl border p-4"
+        data-testid="signed-epoch-semantics"
+      >
+        <TimeSemanticsLabel
+          epochSemantics={packet.epochSemantics}
+          payloadAsOf={packet.decision.generatedAt}
+        />
       </section>
 
       <section

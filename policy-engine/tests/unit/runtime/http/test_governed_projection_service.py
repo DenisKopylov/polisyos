@@ -205,6 +205,31 @@ def test_runtime_http_import_does_not_read_governed_artifacts(
     assert ProjectionId.DEPTH_N_CYCLE_BOARD in {entry.projection_id for entry in service.catalog()}
 
 
+def test_acquisition_growth_is_one_content_bound_composite_projection(
+    owner_validator_pass: None,
+) -> None:
+    service = GovernedProjectionService(REPO_ROOT)
+    definition = MODULE._DEFINITION_BY_ID[ProjectionId.ACQUISITION_GROWTH]
+    loaded = service._load(definition)
+    packet = service.get(ProjectionId.ACQUISITION_GROWTH)
+
+    assert definition.source_format == "acquisition_growth"
+    assert len(loaded.component_bindings) == 46
+    assert {
+        "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json",
+        "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json",
+        "architecture/policy_design_case/"
+        "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json",
+        "architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json",
+        "architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json",
+        "architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json",
+    }.issubset(dict(loaded.component_bindings))
+    assert packet.availability is ProjectionAvailability.AVAILABLE
+    payload = _payload(packet)
+    assert payload["summary"]["backlog_count"] == 15
+    assert payload["n13b_history"]["response_admitted_count"] == 0
+
+
 def test_owner_validation_receipt_rejects_forged_aggregate_binding(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

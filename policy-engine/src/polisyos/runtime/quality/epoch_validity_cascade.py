@@ -23,6 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core import contracts as core_contracts
+from polisyos.core.contracts import EpochPerturbationClass  # noqa: TC001
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import CandidateSummary  # noqa: TC001
@@ -40,6 +41,9 @@ Digest = core_contracts.chronology.Digest
 
 _MEDIA_TYPE = "application/vnd.polisyos.chronology+json"
 _RUNTIME_CONTEXT_CANON = canon.CanonSpec(forbid_floats=False)
+_ADVISORY_EVENT_KIND = "polisyos.epoch.advisory_perturbation_event"
+_ADVISORY_EVENT_SCHEMA_NAME = "polisyos.runtime.AdvisoryPerturbationEvent"
+_ADVISORY_EVENT_SCHEMA_VERSION = "1.0"
 c4_canonical_bytes = core_contracts.c4_canonical_bytes
 c4_profile = core_contracts.c4_profile
 c4_profile_manifest_is_exact = core_contracts.c4_profile_manifest_is_exact
@@ -340,9 +344,125 @@ class AdvisoryPerturbationEvent(_StrictModel):
 
     event_ref: ArtifactRef
     target_ref: ArtifactRef
+    source_class: EpochPerturbationClass
+    scope: Literal["instance", "dependency_descendants"]
     event_kind: Literal["annotation_only", "invalidate", "reissue", "supersede", "withdraw"]
     authority_purpose: str = Field(min_length=1)
     observed_epoch_ref: Digest
+
+    @model_validator(mode="after")
+    def _source_scope_is_exact(self) -> Self:
+        if self.source_class == "appeal" and self.scope != "instance":
+            raise ValueError("appeal_perturbation_requires_instance_scope")
+        return self
+
+
+_ADVISORY_ACTION_BY_SOURCE_CLASS: dict[
+    EpochPerturbationClass,
+    Literal["annotation_only", "invalidate", "reissue", "supersede", "withdraw"],
+] = {
+    "incident": "invalidate",
+    "appeal": "reissue",
+    "correction": "supersede",
+    "retraction": "withdraw",
+    "legal_change": "supersede",
+    "discovered_bias": "invalidate",
+}
+
+
+def advisory_perturbation_from_monitor_event(
+    persisted_monitor_event: object,
+) -> AdvisoryPerturbationEvent:
+    """Derive an epoch advisory only from an exact persisted monitor handle."""
+
+    from polisyos.scientist.governance.continuous import (
+        AppealPerturbation,
+        PersistedGovernanceMonitorEvent,
+    )
+
+    if not isinstance(persisted_monitor_event, PersistedGovernanceMonitorEvent):
+        raise TypeError("epoch advisory requires a persisted governance monitor event")
+    event = persisted_monitor_event.event
+    perturbation = event.perturbation
+    if perturbation is None:
+        raise ValueError("epoch advisory requires a typed perturbation")
+    if event.observed_epoch_ref is None:
+        raise ValueError("epoch advisory requires observed_epoch_ref")
+    source_class = perturbation.source_class
+    return AdvisoryPerturbationEvent(
+        event_ref=persisted_monitor_event.event_ref,
+        target_ref=event.decision_packet_ref,
+        source_class=source_class,
+        scope=(
+            "instance" if isinstance(perturbation, AppealPerturbation) else "dependency_descendants"
+        ),
+        event_kind=_ADVISORY_ACTION_BY_SOURCE_CLASS[source_class],
+        authority_purpose="decision_validity",
+        observed_epoch_ref=event.observed_epoch_ref,
+    )
+
+
+def persist_advisory_perturbation_event(
+    *,
+    store: ArtifactStore,
+    persisted_monitor_event: object,
+) -> ArtifactRef:
+    """Persist and exactly reload the advisory binding derived from monitor bytes."""
+
+    advisory = advisory_perturbation_from_monitor_event(persisted_monitor_event)
+    ref = store.put_json(
+        advisory,
+        artifacts.PutOptions(
+            kind=_ADVISORY_EVENT_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=_ADVISORY_EVENT_SCHEMA_NAME,
+                version=_ADVISORY_EVENT_SCHEMA_VERSION,
+            ),
+            inputs=[
+                artifacts.InputRef(
+                    artifact_id=advisory.event_ref.artifact_id,
+                    role="governance_monitor_event",
+                )
+            ],
+        ),
+        canon_spec=_RUNTIME_CONTEXT_CANON,
+    )
+    if resolve_advisory_perturbation_event(store=store, ref=ref) != advisory:
+        raise ValueError("epoch advisory event readback mismatch")
+    return ref
+
+
+def resolve_advisory_perturbation_event(
+    *,
+    store: ArtifactStore,
+    ref: ArtifactRef,
+) -> AdvisoryPerturbationEvent:
+    """Resolve exact advisory bytes and reject profile or canonical drift."""
+
+    raw = store.get_bytes(ref.artifact_id)
+    report = store.verify(ref.artifact_id)
+    manifest = store.get_manifest(ref.artifact_id)
+    expected_schema = artifacts.SchemaInfo(
+        name=_ADVISORY_EVENT_SCHEMA_NAME,
+        version=_ADVISORY_EVENT_SCHEMA_VERSION,
+    )
+    if (
+        not report.ok
+        or str(ref.artifact_id) != _raw_hash(raw)
+        or manifest.artifact_id != ref.artifact_id
+        or ref.kind != _ADVISORY_EVENT_KIND
+        or manifest.kind != ref.kind
+        or ref.media_type != "application/json"
+        or manifest.media_type != ref.media_type
+        or manifest.artifact_schema != expected_schema
+        or manifest.canon != artifacts.CanonInfo.from_spec(_RUNTIME_CONTEXT_CANON)
+    ):
+        raise ValueError("epoch advisory event artifact profile mismatch")
+    advisory = AdvisoryPerturbationEvent.model_validate(canon.from_canonical_bytes(raw))
+    if _canonical_bytes(advisory) != raw:
+        raise ValueError("epoch advisory event canonical bytes mismatch")
+    return advisory
 
 
 class OwnerAdjudicatedTargetDisposition(_StrictModel):
@@ -380,6 +500,7 @@ class TargetDispositionRow(_StrictModel):
         "review_required",
     ]
     advisory_event_refs: tuple[ArtifactRef, ...]
+    source_classes: tuple[EpochPerturbationClass, ...]
     owner_evidence_refs: tuple[ArtifactRef, ...]
 
 
@@ -447,14 +568,15 @@ def resolve_owner_target_dispositions(
                 raise ValueError("advisory_event_authority_purpose_mismatch")
             raise ValueError("advisory_event_target_outside_dependency_denominator")
         reached = {start_key}
-        pending = [start_key]
-        adjacency = adjacency_by_purpose.get(event.authority_purpose, {})
-        while pending:
-            source_key = pending.pop()
-            for descendant_key in adjacency.get(source_key, set()):
-                if descendant_key not in reached:
-                    reached.add(descendant_key)
-                    pending.append(descendant_key)
+        if event.scope == "dependency_descendants":
+            pending = [start_key]
+            adjacency = adjacency_by_purpose.get(event.authority_purpose, {})
+            while pending:
+                source_key = pending.pop()
+                for descendant_key in adjacency.get(source_key, set()):
+                    if descendant_key not in reached:
+                        reached.add(descendant_key)
+                        pending.append(descendant_key)
         for key in reached & target_refs.keys():
             previous = events_by_target[key].get(event_key)
             if previous is not None and previous != event:
@@ -519,6 +641,7 @@ def resolve_owner_target_dispositions(
                 target_ref=target_refs[key],
                 disposition=resolved,
                 advisory_event_refs=tuple(event.event_ref for event in events),
+                source_classes=tuple(sorted({event.source_class for event in events})),
                 owner_evidence_refs=tuple(row.owner_evidence_ref for row in owners),
             )
         )
@@ -552,8 +675,6 @@ class EpochValidityTransitionArtifact(_StrictModel):
             raise ValueError("epoch_validity_transition_requires_distinct_epochs")
         if self.target_vector.dependency_denominator_ref != self.dependency_graph.denominator_ref:
             raise ValueError("epoch_validity_transition_denominator_mismatch")
-        if self.dependency_denominator_ref != self.dependency_graph.denominator_ref:
-            raise ValueError("epoch_validity_transition_dependency_denominator_mismatch")
         expected = _semantic_hash(
             "polisyos.epoch.validity-transition.v1",
             self.model_dump(mode="json", exclude={"transition_content_hash"}),
@@ -2380,10 +2501,13 @@ __all__ = [
     "PromotionOwnerQueryContextStatement",
     "PromotionOwnerQueryContextVerifier",
     "TargetDispositionVector",
+    "advisory_perturbation_from_monitor_event",
     "bind_certificate_to_epoch",
     "build_epoch_validity_transition",
+    "persist_advisory_perturbation_event",
     "promotion_candidate_summary_content_hash",
     "promotion_epoch_query",
+    "resolve_advisory_perturbation_event",
     "resolve_owner_target_dispositions",
     "seal_pre_n9_admitted_candidate_batch",
 ]

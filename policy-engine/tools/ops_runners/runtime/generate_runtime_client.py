@@ -16,6 +16,7 @@ _GENERATED_POST_OPERATION_IDS = frozenset(
     {
         "get_artifact_batch",
         "analyze_fabric_impact",
+        "admit_epoch_validity_batch",
         "get_fabric_quality_batch",
         "get_fabric_trust_batch",
         "get_lineage_batch",
@@ -24,6 +25,8 @@ _GENERATED_POST_OPERATION_IDS = frozenset(
         "compute_mobility_bounds",
         "create_run_human_decision",
         "search_capabilities",
+        "request_run_acquisition_decision",
+        "execute_run_acquisition_route",
     }
 )
 ResponseMode = Literal["json", "array_buffer"]

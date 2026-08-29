@@ -1330,6 +1330,74 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/runs/{run_id}/acquisition-routes": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Run Acquisition Routes */
+    get: operations["list_run_acquisition_routes"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/acquisition-routes/{route_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Run Acquisition Route */
+    get: operations["get_run_acquisition_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Request Run Acquisition Decision */
+    post: operations["request_run_acquisition_decision"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Execute Run Acquisition Route */
+    post: operations["execute_run_acquisition_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs/{run_id}/agents": {
     parameters: {
       query?: never;
@@ -1706,6 +1774,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/temporal/runs/{run_id}/epoch-staleness": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Run Epoch Staleness
+     * @description Return replay-bound epoch and staleness chrome for one tenant-owned run.
+     */
+    get: operations["get_run_epoch_staleness"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/health": {
     parameters: {
       query?: never;
@@ -1787,6 +1875,269 @@ export interface components {
        * @default shared_public
        */
       tenant_scope: string;
+    };
+    /**
+     * AcquisitionBacklogProjection
+     * @description One ranking-only residual with independently reconciled gap shape.
+     */
+    AcquisitionBacklogProjection: {
+      /** Authority Boundary */
+      authority_boundary: string;
+      /** Binding Confidence */
+      binding_confidence: number;
+      /**
+       * Classification Basis
+       * @enum {string}
+       */
+      classification_basis: "independently_reconciled" | "not_established";
+      gap_class: components["schemas"]["GapClass"];
+      /** Rank */
+      rank: number;
+      /** Ranking Method */
+      ranking_method: string;
+      /** Ranking Score */
+      ranking_score: number;
+      /** Route Demand */
+      route_demand: number;
+      /** Variable Id */
+      variable_id: string;
+      /** Voi Owner Fit */
+      voi_owner_fit: string;
+      /** Voi Owner Integration */
+      voi_owner_integration: string;
+      /** Voi Owner Ref */
+      voi_owner_ref: string;
+    };
+    /**
+     * AcquisitionDecisionRequestResponse
+     * @description Persisted authority result without an external effect.
+     */
+    AcquisitionDecisionRequestResponse: {
+      /** Authority Decision Ref */
+      authority_decision_ref: string;
+      /** Human Decision Request */
+      human_decision_request?: {
+        [key: string]: unknown;
+      } | null;
+      /**
+       * Outcome
+       * @enum {string}
+       */
+      outcome: "decision_required" | "decision_available";
+      /** Route Id */
+      route_id: string;
+      /** Run Id */
+      run_id: string;
+      /**
+       * World Growth
+       * @default no_growth
+       * @constant
+       */
+      world_growth: "no_growth";
+    };
+    /**
+     * AcquisitionExecutionResponse
+     * @description Durable deferred-job acceptance response.
+     */
+    AcquisitionExecutionResponse: {
+      /** Authority Decision Ref */
+      authority_decision_ref: string;
+      /** Job Id */
+      job_id: string;
+      /**
+       * Receipt Phase
+       * @default requested
+       * @constant
+       */
+      receipt_phase: "requested";
+      /** Route Id */
+      route_id: string;
+      /** Run Id */
+      run_id: string;
+      /**
+       * Status
+       * @default accepted
+       * @constant
+       */
+      status: "accepted";
+      /**
+       * World Growth
+       * @default no_growth
+       * @constant
+       */
+      world_growth: "no_growth";
+    };
+    /**
+     * AcquisitionGrowthPayload
+     * @description Strict composite read packet for acquisition growth and non-growth truth.
+     */
+    AcquisitionGrowthPayload: {
+      /** Backlog */
+      backlog: components["schemas"]["AcquisitionBacklogProjection"][];
+      /** Carrier Liveness */
+      carrier_liveness: {
+        [key: string]: unknown;
+      };
+      n13b_history: components["schemas"]["N13bHistoryProjection"];
+      /**
+       * Schema Version
+       * @default policyos.runtime.acquisition_growth_projection.v1
+       * @constant
+       */
+      schema_version: "policyos.runtime.acquisition_growth_projection.v1";
+      /** Structural Routes */
+      structural_routes: components["schemas"]["StructuralRouteProjection"][];
+      summary: components["schemas"]["AcquisitionGrowthSummary"];
+    };
+    /**
+     * AcquisitionGrowthSummary
+     * @description Complete N13a denominators projected without relabeling.
+     */
+    AcquisitionGrowthSummary: {
+      /** Actual Network Call Count */
+      actual_network_call_count: number;
+      /** Backlog Count */
+      backlog_count: number;
+      /** Family Scorecard Count */
+      family_scorecard_count: number;
+      /** Metric Resolution Count */
+      metric_resolution_count: number;
+      /** Selected Record Count */
+      selected_record_count: number;
+      /** Structural Route Count */
+      structural_route_count: number;
+    };
+    /**
+     * AcquisitionRouteListResponse
+     * @description Run-bound list response; the current closure admits at most one route.
+     */
+    AcquisitionRouteListResponse: {
+      /** Routes */
+      routes: components["schemas"]["AcquisitionRouteProjection"][];
+      /** Run Id */
+      run_id: string;
+    };
+    /**
+     * AcquisitionRouteMutationRequest
+     * @description Strict caller fields; route facts, status, authority, and epochs are forbidden.
+     */
+    AcquisitionRouteMutationRequest: {
+      /** Human Decision Record Ref */
+      human_decision_record_ref?: string | null;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /** Planner Report Hash */
+      planner_report_hash: string;
+      replay_pins: components["schemas"]["AcquisitionRouteReplayPins"];
+      /** Route Projection Hash */
+      route_projection_hash: string;
+    };
+    /**
+     * AcquisitionRouteProjection
+     * @description Read-only current route with independent execution and authority postures.
+     */
+    AcquisitionRouteProjection: {
+      /**
+       * Authority Badge
+       * @default behavioral_fixture_not_production
+       * @constant
+       */
+      authority_badge: "behavioral_fixture_not_production";
+      /**
+       * Authority Capability
+       * @enum {string}
+       */
+      authority_capability: "ready" | "producer_missing";
+      /** Cell Id */
+      cell_id: string;
+      /** Cost Basis */
+      cost_basis: {
+        [key: string]: unknown;
+      };
+      /**
+       * Execution Capability
+       * @enum {string}
+       */
+      execution_capability: "ready" | "producer_missing";
+      /**
+       * External Nonclosures
+       * @default [
+       *       "fresh_positive_production_route:absent/unallocated",
+       *       "current_mandate_owner:producer_missing",
+       *       "deterministic_admission_bundle:producer_missing",
+       *       "non_fixture_n13b_owner_port:bridge_missing"
+       *     ]
+       */
+      external_nonclosures: string[];
+      /** Planner Record Id */
+      planner_record_id: string;
+      /** Planner Report Hash */
+      planner_report_hash: string;
+      /**
+       * Qualification Predicate
+       * @default not_established
+       * @constant
+       */
+      qualification_predicate: "not_established";
+      /**
+       * Qualification Reason
+       * @default policy_admission_missing
+       * @constant
+       */
+      qualification_reason: "policy_admission_missing";
+      /**
+       * Qualification Status
+       * @default pending_epoch_activation
+       * @constant
+       */
+      qualification_status: "pending_epoch_activation";
+      /** Recommended Strategy */
+      recommended_strategy: string;
+      replay_pins: components["schemas"]["AcquisitionRouteReplayPins"];
+      /** Route Id */
+      route_id: string;
+      /** Route Projection Hash */
+      route_projection_hash: string;
+      /**
+       * Route Status
+       * @default costed_actionable
+       * @constant
+       */
+      route_status: "costed_actionable";
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default AcquisitionRouteProjection@1.0
+       * @constant
+       */
+      schema_version: "AcquisitionRouteProjection@1.0";
+      /** Tenant Id */
+      tenant_id: string;
+      /**
+       * World Growth
+       * @default no_growth
+       * @constant
+       */
+      world_growth: "no_growth";
+    };
+    /**
+     * AcquisitionRouteReplayPins
+     * @description Server-projected pins callers may only echo for optimistic concurrency.
+     */
+    AcquisitionRouteReplayPins: {
+      /** Compiled Content Hash */
+      compiled_content_hash: string;
+      /** Compiled Ref */
+      compiled_ref: string;
+      /** Cost Basis Hash */
+      cost_basis_hash: string;
+      /** Design Problem Ref */
+      design_problem_ref: string;
+      /** Source Job Id */
+      source_job_id: string;
+      /** Terminal Event Id */
+      terminal_event_id: string;
     };
     /**
      * AcquisitionRoutingPayload
@@ -3239,6 +3590,7 @@ export interface components {
         | components["schemas"]["AcquisitionRoutingPayload"]
         | components["schemas"]["N13AAcquisitionCensusPayload"]
         | components["schemas"]["N13ALiveProbeJournalPayload"]
+        | components["schemas"]["AcquisitionGrowthPayload"]
         | components["schemas"]["CapabilityRealityPayload"]
         | components["schemas"]["ClusterOwnershipPayload"]
         | components["schemas"]["Layer3HealthMetricsPayload"]
@@ -5479,7 +5831,11 @@ export interface components {
        * Kind
        * @enum {string}
        */
-      kind: "workflow_run" | "natural_language_run" | "lex_pipeline";
+      kind:
+        | "workflow_run"
+        | "natural_language_run"
+        | "lex_pipeline"
+        | "acquisition";
       meta: components["schemas"]["ApiMeta"];
       /** Next Diagnostic Commands */
       next_diagnostic_commands?: string[];
@@ -6726,6 +7082,7 @@ export interface components {
       dedupe_key?: string | null;
       /** Dependency Keys */
       dependency_keys?: string[];
+      monitor_event_ref?: components["schemas"]["ArtifactRef-Input"] | null;
       /** Occurred At */
       occurred_at?: string | null;
       /** Payload */
@@ -6733,17 +7090,18 @@ export interface components {
         [key: string]: unknown;
       };
       /** Reason */
-      reason: string;
+      reason?: string | null;
       /** Source Ref */
       source_ref?: string | null;
-      status: components["schemas"]["DecisionValidityStatus"];
-      trigger_type: components["schemas"]["DecisionTriggerType"];
+      status?: components["schemas"]["DecisionValidityStatus"] | null;
+      trigger_type?: components["schemas"]["DecisionTriggerType"] | null;
     };
     /**
      * DecisionValidityEventResponse
      * @description Return the persisted event identity and aggregate impact of the update.
      */
     DecisionValidityEventResponse: {
+      advisory_event_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       /** Affected Packets */
       affected_packets?: string[];
       /** Affected Statuses */
@@ -6754,9 +7112,13 @@ export interface components {
       dedupe_key: string;
       /** Event Id */
       event_id: string;
+      lifecycle_bridge_result_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /** Message */
       message: string;
       meta: components["schemas"]["ApiMeta"];
+      monitor_event_ref?: components["schemas"]["ArtifactRef-Output"] | null;
     };
     /**
      * DecisionValidityLifecycleSummary
@@ -7283,6 +7645,62 @@ export interface components {
       };
     };
     /**
+     * EngineeringCapabilityAbsenceView
+     * @description Assignable producer/read-bridge work with a named code owner.
+     */
+    EngineeringCapabilityAbsenceView: {
+      /**
+       * Absence Class
+       * @default engineering
+       * @constant
+       */
+      absence_class: "engineering";
+      /**
+       * Candidate Owner Module
+       * @default polisyos.runtime.quality.derived_observations
+       * @constant
+       */
+      candidate_owner_module: "polisyos.runtime.quality.derived_observations";
+      /**
+       * Candidate Owner Path
+       * @default src/polisyos/runtime/quality/derived_observations.py
+       * @constant
+       */
+      candidate_owner_path: "src/polisyos/runtime/quality/derived_observations.py";
+      /**
+       * Capability
+       * @default epoch_inheritance_recompute_status
+       * @constant
+       */
+      capability: "epoch_inheritance_recompute_status";
+      /** Closure Condition */
+      closure_condition: string;
+      /** Consequence */
+      consequence: string;
+      /**
+       * Institutional Dependency
+       * @default false
+       * @constant
+       */
+      institutional_dependency: false;
+      /**
+       * Missing Labels
+       * @default [
+       *       "producer_missing",
+       *       "bridge_missing"
+       *     ]
+       */
+      missing_labels: ["producer_missing", "bridge_missing"];
+      /** Missing Output */
+      missing_output: string;
+      /**
+       * Title
+       * @default Engineering capability not wired
+       * @constant
+       */
+      title: "Engineering capability not wired";
+    };
+    /**
      * EnvInfo
      * @description Summarize the runtime environment fingerprint persisted with a manifest.
      */
@@ -7293,6 +7711,438 @@ export interface components {
       platform: string;
       /** Python */
       python: string;
+    };
+    /**
+     * EpochBoundaryLineageView
+     * @description Visible immutable boundary between predecessor and successor epochs.
+     */
+    EpochBoundaryLineageView: {
+      /** Current Epoch Ref */
+      current_epoch_ref: string;
+      predecessor_packet_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      /** Previous Epoch Ref */
+      previous_epoch_ref: string;
+      successor_packet_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      transition_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /**
+       * Trigger Event Refs
+       * @default []
+       */
+      trigger_event_refs: components["schemas"]["ArtifactRef-Output"][];
+    };
+    /**
+     * EpochCertificateStalenessView
+     * @description One immutable certificate rendered against the requested semantic epoch.
+     */
+    EpochCertificateStalenessView: {
+      /** Authority Purpose */
+      authority_purpose: string;
+      /** Bound Epoch Ref */
+      bound_epoch_ref: string;
+      certificate_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Current Epoch Ref */
+      current_epoch_ref?: string | null;
+      /**
+       * Input Certificate Refs
+       * @default []
+       */
+      input_certificate_refs: components["schemas"]["ArtifactRef-Output"][];
+      /**
+       * Native Coordinate Refs
+       * @default []
+       */
+      native_coordinate_refs: string[];
+      recipe_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Revalidation Requirements
+       * @default []
+       */
+      revalidation_requirements: string[];
+      /**
+       * Rule Schema Profile Refs
+       * @default []
+       */
+      rule_schema_profile_refs: string[];
+      /**
+       * Stale Reasons
+       * @default []
+       */
+      stale_reasons: string[];
+      /**
+       * Status
+       * @enum {string}
+       */
+      status:
+        | "current"
+        | "stale"
+        | "revalidation_required"
+        | "contested"
+        | "not_established";
+      /**
+       * Trigger Event Refs
+       * @default []
+       */
+      trigger_event_refs: components["schemas"]["ArtifactRef-Output"][];
+    };
+    /**
+     * EpochDependencyStalenessView
+     * @description One revised input and the exact dependent target reached from it.
+     */
+    EpochDependencyStalenessView: {
+      /**
+       * Advisory Event Refs
+       * @default []
+       */
+      advisory_event_refs: components["schemas"]["ArtifactRef-Output"][];
+      /** Authority Purpose */
+      authority_purpose: string;
+      /**
+       * Disposition
+       * @enum {string}
+       */
+      disposition:
+        | "unchanged"
+        | "annotation_only"
+        | "invalidate"
+        | "reissue"
+        | "supersede"
+        | "withdraw"
+        | "contested"
+        | "review_required";
+      /**
+       * Owner Evidence Refs
+       * @default []
+       */
+      owner_evidence_refs: components["schemas"]["ArtifactRef-Output"][];
+      recompute: components["schemas"]["EpochDerivedRecomputeView"];
+      /** Relation */
+      relation: string;
+      /**
+       * Source Classes
+       * @default []
+       */
+      source_classes: (
+        | "incident"
+        | "appeal"
+        | "correction"
+        | "retraction"
+        | "legal_change"
+        | "discovered_bias"
+      )[];
+      source_ref: components["schemas"]["ArtifactRef-Output"];
+      target_ref: components["schemas"]["ArtifactRef-Output"];
+    };
+    /**
+     * EpochDerivedRecomputeView
+     * @description Owner-emitted recompute state, or an explicit engineering nonreceipt.
+     */
+    EpochDerivedRecomputeView: {
+      /** Evidence Content Hash */
+      evidence_content_hash?: string | null;
+      evidence_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /**
+       * Predicate Provenance
+       * @enum {string}
+       */
+      predicate_provenance:
+        | "recomputed"
+        | "independently_reconciled"
+        | "consumer_asserted"
+        | "institutionally_supplied"
+        | "not_established";
+      /**
+       * Status
+       * @enum {string}
+       */
+      status:
+        | "not_established"
+        | "pending"
+        | "running"
+        | "completed"
+        | "failed";
+    };
+    /**
+     * EpochOpenWorldRiskComponentView
+     * @description One non-numeric OpenWorldRisk component.
+     */
+    EpochOpenWorldRiskComponentView: {
+      /** Component Id */
+      component_id: string;
+      /**
+       * Component Kind
+       * @enum {string}
+       */
+      component_kind: "model" | "obligation" | "calibration" | "novel";
+      evidence_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Limitation Code */
+      limitation_code: string;
+      /**
+       * Predicate Provenance
+       * @enum {string}
+       */
+      predicate_provenance: "independently_reconciled" | "not_established";
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "within_scope" | "outside_scope" | "not_established";
+    };
+    /**
+     * EpochOpenWorldRiskView
+     * @description Actual vector posture and its fail-closed promotion consequence.
+     */
+    EpochOpenWorldRiskView: {
+      /**
+       * Components
+       * @default []
+       */
+      components: components["schemas"]["EpochOpenWorldRiskComponentView"][];
+      /** Limitation Code */
+      limitation_code: string;
+      /** Promotion Frozen */
+      promotion_frozen: boolean;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "established" | "limited" | "not_established";
+      vector_artifact_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+    };
+    /**
+     * EpochPerturbationView
+     * @description Cause identity kept separate from advisory and adjudicated consequence.
+     */
+    EpochPerturbationView: {
+      /**
+       * Adjudicated Disposition
+       * @enum {string}
+       */
+      adjudicated_disposition:
+        | "annotation_only"
+        | "invalidate"
+        | "reissue"
+        | "supersede"
+        | "withdraw"
+        | "contested"
+        | "review_required";
+      /**
+       * Advisory Posture
+       * @enum {string}
+       */
+      advisory_posture: "annotation_only" | "review_required";
+      event_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      /**
+       * Owner Evidence Refs
+       * @default []
+       */
+      owner_evidence_refs: components["schemas"]["ArtifactRef-Output"][];
+      /**
+       * Scope
+       * @enum {string}
+       */
+      scope: "instance" | "dependency_descendants";
+      /**
+       * Source Class
+       * @enum {string}
+       */
+      source_class:
+        | "incident"
+        | "appeal"
+        | "correction"
+        | "retraction"
+        | "legal_change"
+        | "discovered_bias";
+      /**
+       * Source Evidence Refs
+       * @default []
+       */
+      source_evidence_refs: components["schemas"]["ArtifactRef-Output"][];
+      target_ref: components["schemas"]["ArtifactRef-Output"];
+    };
+    /**
+     * EpochProjectionDenominatorView
+     * @description Evidence for the dependency/target set rather than a self-attested count.
+     */
+    EpochProjectionDenominatorView: {
+      /** Denominator Ref */
+      denominator_ref?: string | null;
+      /**
+       * Predicate Provenance
+       * @enum {string}
+       */
+      predicate_provenance:
+        | "recomputed"
+        | "independently_reconciled"
+        | "consumer_asserted"
+        | "institutionally_supplied"
+        | "not_established";
+      /**
+       * Source Count
+       * @default 0
+       */
+      source_count: number;
+      /**
+       * Target Count
+       * @default 0
+       */
+      target_count: number;
+    };
+    /**
+     * EpochQualificationDisclosure
+     * @description Fail-closed production qualification for the historical pending epoch.
+     */
+    EpochQualificationDisclosure: {
+      /**
+       * Appointment State
+       * @constant
+       */
+      appointment_state: "unappointed";
+      /** Appointment Would Establish */
+      appointment_would_establish: string;
+      /** Appointment Would Not Establish */
+      appointment_would_not_establish: string[];
+      /** Authority Owner Ref */
+      authority_owner_ref?: null;
+      /**
+       * Authority Role
+       * @constant
+       */
+      authority_role: "semantic epoch policy-admission qualifier";
+      /**
+       * Code
+       * @constant
+       */
+      code: "policy_admission_missing";
+      /**
+       * Epoch State
+       * @constant
+       */
+      epoch_state: "pending_epoch_activation";
+      /**
+       * Status
+       * @constant
+       */
+      status: "not_established";
+    };
+    /**
+     * EpochStalenessProjectionResponse
+     * @description HTTP response whose request metadata is outside the stable semantic identity.
+     */
+    EpochStalenessProjectionResponse: {
+      meta: components["schemas"]["ApiMeta"];
+      projection: components["schemas"]["EpochStalenessProjectionView"];
+    };
+    /**
+     * EpochStalenessProjectionView
+     * @description Strict replay-bound owner projection for epoch, validity, and staleness chrome.
+     */
+    EpochStalenessProjectionView: {
+      /**
+       * Certificates
+       * @default []
+       */
+      certificates: components["schemas"]["EpochCertificateStalenessView"][];
+      /** Current Epoch Ref */
+      current_epoch_ref?: string | null;
+      decision_packet_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      decision_validity_status?:
+        | components["schemas"]["DecisionValidityStatus"]
+        | null;
+      denominator: components["schemas"]["EpochProjectionDenominatorView"];
+      /**
+       * Dependencies
+       * @default []
+       */
+      dependencies: components["schemas"]["EpochDependencyStalenessView"][];
+      /**
+       * Engineering Absences
+       * @default []
+       */
+      engineering_absences: components["schemas"]["EngineeringCapabilityAbsenceView"][];
+      /**
+       * Fixture Only
+       * @default false
+       */
+      fixture_only: boolean;
+      /**
+       * Institutional Absences
+       * @default []
+       */
+      institutional_absences: components["schemas"]["InstitutionalAuthorityAbsenceView"][];
+      /**
+       * Limitations
+       * @default []
+       */
+      limitations: string[];
+      /**
+       * Lineage
+       * @default []
+       */
+      lineage: components["schemas"]["EpochBoundaryLineageView"][];
+      /**
+       * Observed At
+       * Format: date-time
+       */
+      observed_at: string;
+      open_world_risk: components["schemas"]["EpochOpenWorldRiskView"];
+      /** Owner As Of */
+      owner_as_of?: string | null;
+      /** Owner Time Reason */
+      owner_time_reason?:
+        | ("owner_time_not_established" | "epoch_scope_unresolved")
+        | null;
+      /**
+       * Perturbations
+       * @default []
+       */
+      perturbations: components["schemas"]["EpochPerturbationView"][];
+      /**
+       * Predicate Provenance
+       * @enum {string}
+       */
+      predicate_provenance:
+        | "recomputed"
+        | "independently_reconciled"
+        | "consumer_asserted"
+        | "institutionally_supplied"
+        | "not_established";
+      /** Projection Semantic Hash */
+      projection_semantic_hash: string;
+      /** Requested Query Context Ref */
+      requested_query_context_ref: string;
+      /** Revalidation Required */
+      revalidation_required: boolean;
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default polisyos.runtime.epoch-staleness.v1
+       * @constant
+       */
+      schema_version: "polisyos.runtime.epoch-staleness.v1";
+      /**
+       * Scoped Epoch Refs
+       * @default []
+       */
+      scoped_epoch_refs: string[];
+      /**
+       * Status
+       * @enum {string}
+       */
+      status:
+        | "current"
+        | "stale"
+        | "revalidation_required"
+        | "contested"
+        | "not_established";
+      temporal_scope: components["schemas"]["TemporalScope"];
     };
     /**
      * EpochValidityBatchReceipt
@@ -8351,6 +9201,12 @@ export interface components {
       /** Transport Floor Rule */
       transport_floor_rule: string;
     };
+    /**
+     * GapClass
+     * @description Classify a route only from reconciled owner evidence.
+     * @enum {string}
+     */
+    GapClass: "data_gap" | "structural_gap" | "not_established";
     /**
      * GenerationCycleDispositionPayload
      * @description Generation-cycle task and owner disposition projection.
@@ -9594,6 +10450,76 @@ export interface components {
       artifact_id: string;
       /** Role */
       role: string;
+    };
+    /**
+     * InstitutionalAuthorityAbsenceView
+     * @description A deliberate institutional non-appointment, not an engineering ticket.
+     */
+    InstitutionalAuthorityAbsenceView: {
+      /**
+       * Absence Class
+       * @default institutional
+       * @constant
+       */
+      absence_class: "institutional";
+      /**
+       * Appointment Is Closure Precondition
+       * @default false
+       * @constant
+       */
+      appointment_is_closure_precondition: false;
+      /** Authority Purpose */
+      authority_purpose: string;
+      /**
+       * Capability State
+       * @default absent/unallocated
+       * @constant
+       */
+      capability_state: "absent/unallocated";
+      /** Closure Condition */
+      closure_condition: string;
+      /** Consequence */
+      consequence: string;
+      /**
+       * Inspectable Capabilities
+       * @default []
+       */
+      inspectable_capabilities: string[];
+      /**
+       * Observed Result
+       * @default not_established
+       * @constant
+       */
+      observed_result: "not_established";
+      /**
+       * Predicate Provenance
+       * @default not_established
+       * @constant
+       */
+      predicate_provenance: "not_established";
+      /**
+       * Refusal Code
+       * @enum {string}
+       */
+      refusal_code:
+        | "policy_admission_missing"
+        | "epoch_transition_signer_not_established";
+      /**
+       * Role
+       * @enum {string}
+       */
+      role: "epoch_predicate_policy_signer" | "epoch_transition_signer";
+      /**
+       * Source Refs
+       * @default []
+       */
+      source_refs: components["schemas"]["ArtifactRef-Output"][];
+      /**
+       * Title
+       * @default Authority not appointed
+       * @constant
+       */
+      title: "Authority not appointed";
     };
     /**
      * InstrumentBlocker
@@ -11053,6 +11979,50 @@ export interface components {
       };
     };
     /**
+     * N13bHistoryProjection
+     * @description Historical execution facts that cannot authorize a current action.
+     */
+    N13bHistoryProjection: {
+      /**
+       * Admission
+       * @enum {string}
+       */
+      admission: "not_reached" | "not_established";
+      /** Attempt Count */
+      attempt_count: number;
+      epoch_qualification: components["schemas"]["EpochQualificationDisclosure"];
+      /**
+       * Execution Phase
+       * @enum {string}
+       */
+      execution_phase: "executing" | "terminal";
+      /** Overlay Epoch Count */
+      overlay_epoch_count: number;
+      /**
+       * Quarantine
+       * @enum {string}
+       */
+      quarantine: "none" | "raw_terminal";
+      /** Quarantine Count */
+      quarantine_count: number;
+      /** Raw Response Count */
+      raw_response_count: number;
+      /**
+       * Reentry
+       * @enum {string}
+       */
+      reentry: "not_established" | "deeper_terminal";
+      /** Response Admitted Count */
+      response_admitted_count: number;
+      /** Terminal Count */
+      terminal_count: number;
+      /**
+       * World Growth
+       * @enum {string}
+       */
+      world_growth: "not_established" | "no_growth";
+    };
+    /**
      * NLProvenance
      * @description Record raw natural-language request provenance.
      *
@@ -12399,6 +13369,7 @@ export interface components {
       | "acquisition-routing-contract"
       | "n13a-acquisition-census"
       | "n13a-live-probe-journal"
+      | "acquisition-growth"
       | "capability-reality"
       | "cluster-ownership"
       | "layer3-health-metrics"
@@ -15179,6 +16150,26 @@ export interface components {
       profiles?: components["schemas"]["SourceProfileInfo"][];
     };
     /**
+     * StructuralRouteProjection
+     * @description One capstone structural route with no data-acquisition action.
+     */
+    StructuralRouteProjection: {
+      /**
+       * Action Eligibility
+       * @enum {string}
+       */
+      action_eligibility: "not_applicable" | "blocked";
+      gap_class: components["schemas"]["GapClass"];
+      /** Missing Link */
+      missing_link: string;
+      /** Route Class */
+      route_class: string;
+      /** Route Id */
+      route_id: string;
+      /** Witness Kind */
+      witness_kind: string;
+    };
+    /**
      * SuppliedAuthorityValue
      * @description A value the runtime genuinely computes.
      *
@@ -15282,6 +16273,7 @@ export interface components {
         | "run_workflow"
         | "run_nodes"
         | "artifact_content"
+        | "epoch_staleness"
       )[];
       valid_range?: components["schemas"]["TemporalRange"];
     };
@@ -15442,7 +16434,8 @@ export interface components {
         | "run_evidence_context"
         | "run_workflow"
         | "run_nodes"
-        | "artifact_content";
+        | "artifact_content"
+        | "epoch_staleness";
       tx_range?: components["schemas"]["TemporalRange"] | null;
       valid_range?: components["schemas"]["TemporalRange"] | null;
     };
@@ -22805,6 +23798,361 @@ export interface operations {
       };
     };
   };
+  list_run_acquisition_routes: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AcquisitionRouteListResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_run_acquisition_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+        route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AcquisitionRouteProjection"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  request_run_acquisition_decision: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+        route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AcquisitionRouteMutationRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AcquisitionDecisionRequestResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  execute_run_acquisition_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+        route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AcquisitionRouteMutationRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AcquisitionExecutionResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
   get_run_agents: {
     parameters: {
       query?: {
@@ -24955,6 +26303,109 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["TemporalCapabilitiesResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_run_epoch_staleness: {
+    parameters: {
+      query?: {
+        valid_at?: string | null;
+        tx_at?: string | null;
+        branch?: string | null;
+        snapshot_id?: string | null;
+        scenario_id?: string | null;
+        export_projection_hash?: string | null;
+      };
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          /** @description Time at which the exported semantics were valid or observed. */
+          "X-PolicyOS-Export-As-Of"?: string;
+          /** @description Typed runtime export replay-binding contract. */
+          "X-PolicyOS-Export-Contract"?: "policyos.runtime.export_replay_binding.v1";
+          /** @description SHA-256 of the narrow stable semantic export projection. */
+          "X-PolicyOS-Export-Projection-Hash"?: string;
+          /** @description Stable address with the current projection hash pinned. */
+          "X-PolicyOS-Export-Replay-Address"?: string;
+          /** @description Canonical address excluding the replay pin. */
+          "X-PolicyOS-Export-Stable-Address"?: string;
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EpochStalenessProjectionResponse"];
         };
       };
       /** @description Malformed request payload or parameters. */

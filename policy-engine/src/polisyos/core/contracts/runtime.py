@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from datetime import UTC, datetime
 from typing import Any, Literal
 
@@ -106,6 +108,14 @@ BureaucraticEpistemicKind = Literal[
 ]
 BureaucraticDocumentStatus = Literal["draft", "signed_external", "archived"]
 BureaucraticExportFormat = Literal["html", "pdf", "docx"]
+EpochPerturbationClass = Literal[
+    "incident",
+    "appeal",
+    "correction",
+    "retraction",
+    "legal_change",
+    "discovered_bias",
+]
 TemporalSurfaceSupport = Literal[
     "run_details",
     "run_timeline",
@@ -118,6 +128,7 @@ TemporalSurfaceSupport = Literal[
     "run_workflow",
     "run_nodes",
     "artifact_content",
+    "epoch_staleness",
 ]
 TemporalEventKind = Literal[
     "run_start",
@@ -615,6 +626,355 @@ class TemporalScope(BaseModel):
     branch: str | None = None
     snapshot_id: str | None = None
     scenario_id: str | None = None
+
+
+EpochProjectionStatus = Literal[
+    "current",
+    "stale",
+    "revalidation_required",
+    "contested",
+    "not_established",
+]
+EpochPredicateProvenance = Literal[
+    "recomputed",
+    "independently_reconciled",
+    "consumer_asserted",
+    "institutionally_supplied",
+    "not_established",
+]
+
+
+class EpochCertificateStalenessView(BaseModel):
+    """One immutable certificate rendered against the requested semantic epoch."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    certificate_ref: ArtifactRef
+    authority_purpose: str = Field(min_length=1)
+    bound_epoch_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    current_epoch_ref: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    status: EpochProjectionStatus
+    stale_reasons: tuple[str, ...] = ()
+    trigger_event_refs: tuple[ArtifactRef, ...] = ()
+    input_certificate_refs: tuple[ArtifactRef, ...] = ()
+    recipe_ref: ArtifactRef
+    native_coordinate_refs: tuple[str, ...] = ()
+    rule_schema_profile_refs: tuple[str, ...] = ()
+    revalidation_requirements: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _status_matches_epoch_relationship(self) -> EpochCertificateStalenessView:
+        if self.status == "current":
+            if self.current_epoch_ref is None or self.bound_epoch_ref != self.current_epoch_ref:
+                raise ValueError("current certificate requires the requested epoch")
+            if self.stale_reasons or self.revalidation_requirements:
+                raise ValueError("current certificate cannot carry stale obligations")
+        elif self.status in {"stale", "revalidation_required", "contested"}:
+            if not self.stale_reasons:
+                raise ValueError("non-current certificate requires a stale reason")
+        return self
+
+
+class EpochDerivedRecomputeView(BaseModel):
+    """Owner-emitted recompute state, or an explicit engineering nonreceipt."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["not_established", "pending", "running", "completed", "failed"]
+    predicate_provenance: EpochPredicateProvenance
+    evidence_ref: ArtifactRef | None = None
+    evidence_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+
+    @model_validator(mode="after")
+    def _owner_evidence_controls_status(self) -> EpochDerivedRecomputeView:
+        evidence = self.evidence_ref is not None and self.evidence_content_hash is not None
+        if self.status == "not_established":
+            if evidence or self.predicate_provenance != "not_established":
+                raise ValueError("not-established recompute cannot carry positive owner evidence")
+        elif not evidence or self.predicate_provenance not in {
+            "recomputed",
+            "independently_reconciled",
+        }:
+            raise ValueError("recompute status requires content-bound owner evidence")
+        return self
+
+
+class EpochDependencyStalenessView(BaseModel):
+    """One revised input and the exact dependent target reached from it."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_ref: ArtifactRef
+    target_ref: ArtifactRef
+    relation: str = Field(min_length=1)
+    authority_purpose: str = Field(min_length=1)
+    disposition: Literal[
+        "unchanged",
+        "annotation_only",
+        "invalidate",
+        "reissue",
+        "supersede",
+        "withdraw",
+        "contested",
+        "review_required",
+    ]
+    source_classes: tuple[EpochPerturbationClass, ...] = ()
+    advisory_event_refs: tuple[ArtifactRef, ...] = ()
+    owner_evidence_refs: tuple[ArtifactRef, ...] = ()
+    recompute: EpochDerivedRecomputeView
+
+
+class EpochPerturbationView(BaseModel):
+    """Cause identity kept separate from advisory and adjudicated consequence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_class: EpochPerturbationClass
+    event_ref: ArtifactRef
+    target_ref: ArtifactRef
+    scope: Literal["instance", "dependency_descendants"]
+    observed_at: datetime
+    advisory_posture: Literal["annotation_only", "review_required"]
+    adjudicated_disposition: Literal[
+        "annotation_only",
+        "invalidate",
+        "reissue",
+        "supersede",
+        "withdraw",
+        "contested",
+        "review_required",
+    ]
+    source_evidence_refs: tuple[ArtifactRef, ...] = ()
+    owner_evidence_refs: tuple[ArtifactRef, ...] = ()
+
+    @model_validator(mode="after")
+    def _appeal_is_instance_scoped(self) -> EpochPerturbationView:
+        if self.source_class == "appeal" and self.scope != "instance":
+            raise ValueError("appeal projection requires instance scope")
+        return self
+
+
+class EpochBoundaryLineageView(BaseModel):
+    """Visible immutable boundary between predecessor and successor epochs."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    previous_epoch_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    current_epoch_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    transition_ref: ArtifactRef | None = None
+    trigger_event_refs: tuple[ArtifactRef, ...] = ()
+    predecessor_packet_ref: ArtifactRef | None = None
+    successor_packet_ref: ArtifactRef | None = None
+
+    @model_validator(mode="after")
+    def _boundary_is_real(self) -> EpochBoundaryLineageView:
+        if self.previous_epoch_ref == self.current_epoch_ref:
+            raise ValueError("epoch boundary requires distinct epochs")
+        return self
+
+
+class EpochOpenWorldRiskComponentView(BaseModel):
+    """One non-numeric OpenWorldRisk component."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    component_id: str = Field(min_length=1)
+    component_kind: Literal["model", "obligation", "calibration", "novel"]
+    status: Literal["within_scope", "outside_scope", "not_established"]
+    limitation_code: str = Field(min_length=1)
+    evidence_ref: ArtifactRef | None = None
+    predicate_provenance: Literal["independently_reconciled", "not_established"]
+
+
+class EpochOpenWorldRiskView(BaseModel):
+    """Actual vector posture and its fail-closed promotion consequence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["established", "limited", "not_established"]
+    limitation_code: str = Field(min_length=1)
+    vector_artifact_ref: ArtifactRef | None = None
+    components: tuple[EpochOpenWorldRiskComponentView, ...] = ()
+    promotion_frozen: bool
+
+    @model_validator(mode="after")
+    def _freeze_is_derived(self) -> EpochOpenWorldRiskView:
+        expected = self.status != "established"
+        if self.promotion_frozen != expected:
+            raise ValueError("OpenWorldRisk promotion freeze must be derived from vector status")
+        if self.status == "established" and any(
+            row.status != "within_scope" for row in self.components
+        ):
+            raise ValueError("established OpenWorldRisk requires every component within scope")
+        return self
+
+
+class InstitutionalAuthorityAbsenceView(BaseModel):
+    """A deliberate institutional non-appointment, not an engineering ticket."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    absence_class: Literal["institutional"] = "institutional"
+    title: Literal["Authority not appointed"] = "Authority not appointed"
+    role: Literal["epoch_predicate_policy_signer", "epoch_transition_signer"]
+    authority_purpose: str = Field(min_length=1)
+    capability_state: Literal["absent/unallocated"] = "absent/unallocated"
+    observed_result: Literal["not_established"] = "not_established"
+    refusal_code: Literal[
+        "policy_admission_missing",
+        "epoch_transition_signer_not_established",
+    ]
+    predicate_provenance: Literal["not_established"] = "not_established"
+    consequence: str = Field(min_length=1)
+    closure_condition: str = Field(min_length=1)
+    inspectable_capabilities: tuple[str, ...] = ()
+    source_refs: tuple[ArtifactRef, ...] = ()
+    appointment_is_closure_precondition: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _role_matches_refusal(self) -> InstitutionalAuthorityAbsenceView:
+        expected = {
+            "epoch_predicate_policy_signer": "policy_admission_missing",
+            "epoch_transition_signer": "epoch_transition_signer_not_established",
+        }[self.role]
+        if self.refusal_code != expected:
+            raise ValueError("institutional authority role/refusal mismatch")
+        return self
+
+
+class EngineeringCapabilityAbsenceView(BaseModel):
+    """Assignable producer/read-bridge work with a named code owner."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    absence_class: Literal["engineering"] = "engineering"
+    title: Literal["Engineering capability not wired"] = "Engineering capability not wired"
+    capability: Literal["epoch_inheritance_recompute_status"] = (
+        "epoch_inheritance_recompute_status"
+    )
+    missing_labels: tuple[Literal["producer_missing"], Literal["bridge_missing"]] = (
+        "producer_missing",
+        "bridge_missing",
+    )
+    candidate_owner_module: Literal["polisyos.runtime.quality.derived_observations"] = (
+        "polisyos.runtime.quality.derived_observations"
+    )
+    candidate_owner_path: Literal[
+        "src/polisyos/runtime/quality/derived_observations.py"
+    ] = "src/polisyos/runtime/quality/derived_observations.py"
+    missing_output: str = Field(min_length=1)
+    consequence: str = Field(min_length=1)
+    closure_condition: str = Field(min_length=1)
+    institutional_dependency: Literal[False] = False
+
+
+class EpochProjectionDenominatorView(BaseModel):
+    """Evidence for the dependency/target set rather than a self-attested count."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    predicate_provenance: EpochPredicateProvenance
+    denominator_ref: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    source_count: int = Field(default=0, ge=0)
+    target_count: int = Field(default=0, ge=0)
+
+    @model_validator(mode="after")
+    def _positive_denominator_requires_owner_evidence(self) -> EpochProjectionDenominatorView:
+        established = self.predicate_provenance in {
+            "recomputed",
+            "independently_reconciled",
+        }
+        if established != (self.denominator_ref is not None):
+            raise ValueError("denominator evidence/provenance mismatch")
+        return self
+
+
+class EpochStalenessProjectionView(BaseModel):
+    """Strict replay-bound owner projection for epoch, validity, and staleness chrome."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.runtime.epoch-staleness.v1"] = (
+        "polisyos.runtime.epoch-staleness.v1"
+    )
+    run_id: str = Field(min_length=1)
+    decision_packet_ref: ArtifactRef | None = None
+    temporal_scope: TemporalScope
+    requested_query_context_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    owner_as_of: datetime | None = None
+    owner_time_reason: Literal[
+        "owner_time_not_established",
+        "epoch_scope_unresolved",
+    ] | None = None
+    observed_at: datetime
+    status: EpochProjectionStatus
+    current_epoch_ref: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    scoped_epoch_refs: tuple[str, ...] = ()
+    decision_validity_status: DecisionValidityStatus | None = None
+    revalidation_required: bool
+    denominator: EpochProjectionDenominatorView
+    certificates: tuple[EpochCertificateStalenessView, ...] = ()
+    dependencies: tuple[EpochDependencyStalenessView, ...] = ()
+    perturbations: tuple[EpochPerturbationView, ...] = ()
+    lineage: tuple[EpochBoundaryLineageView, ...] = ()
+    open_world_risk: EpochOpenWorldRiskView
+    institutional_absences: tuple[InstitutionalAuthorityAbsenceView, ...] = ()
+    engineering_absences: tuple[EngineeringCapabilityAbsenceView, ...] = ()
+    limitations: tuple[str, ...] = ()
+    predicate_provenance: EpochPredicateProvenance
+    fixture_only: bool = False
+    projection_semantic_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _semantic_state_is_bound(self) -> EpochStalenessProjectionView:
+        if (self.owner_as_of is None) == (self.owner_time_reason is None):
+            raise ValueError("owner as_of requires exactly one value or typed reason")
+        if self.revalidation_required != (
+            self.status == "revalidation_required"
+            or any(row.status == "revalidation_required" for row in self.certificates)
+        ):
+            raise ValueError("revalidation_required must be derived from projection state")
+        if self.status == "current" and (
+            self.current_epoch_ref is None
+            or self.institutional_absences
+            or self.predicate_provenance
+            not in {"recomputed", "independently_reconciled"}
+        ):
+            raise ValueError("current epoch requires reconciled owner evidence")
+        if self.projection_semantic_hash != epoch_staleness_semantic_hash(self):
+            raise ValueError("epoch staleness projection semantic hash mismatch")
+        return self
+
+
+class EpochStalenessProjectionResponse(BaseModel):
+    """HTTP response whose request metadata is outside the stable semantic identity."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    meta: ApiMeta
+    projection: EpochStalenessProjectionView
+
+
+def epoch_staleness_semantic_hash(
+    projection: EpochStalenessProjectionView,
+) -> str:
+    """Hash owner semantics while excluding server read time and the hash itself."""
+
+    payload = projection.model_dump(
+        mode="json",
+        exclude={"observed_at", "projection_semantic_hash"},
+    )
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    framed = b"polisyos.runtime.epoch-staleness.semantic.v1\x00" + encoded
+    return "sha256:" + hashlib.sha256(framed).hexdigest()
 
 
 class TemporalRange(BaseModel):
@@ -2582,6 +2942,20 @@ __all__ = [
     "DeltaQuantity",
     "DeltaSignificance",
     "DisputeStatus",
+    "EngineeringCapabilityAbsenceView",
+    "EpochBoundaryLineageView",
+    "EpochCertificateStalenessView",
+    "EpochDependencyStalenessView",
+    "EpochDerivedRecomputeView",
+    "EpochOpenWorldRiskComponentView",
+    "EpochOpenWorldRiskView",
+    "EpochPerturbationClass",
+    "EpochPerturbationView",
+    "EpochPredicateProvenance",
+    "EpochProjectionDenominatorView",
+    "EpochProjectionStatus",
+    "EpochStalenessProjectionResponse",
+    "EpochStalenessProjectionView",
     "EvaluatorReportView",
     "EvaluatorScoresView",
     "FabricImpactAnalysisRequest",
@@ -2596,6 +2970,7 @@ __all__ = [
     "FeedbackActionResponse",
     "GovernanceDebugResponse",
     "GovernanceDebugView",
+    "InstitutionalAuthorityAbsenceView",
     "IterationLifecycleView",
     "LineageBatchRequest",
     "LineageBatchResponse",
@@ -2703,4 +3078,5 @@ __all__ = [
     "UniversalPolicyGrammarBlocker",
     "VerificationMetadata",
     "VerificationStatus",
+    "epoch_staleness_semantic_hash",
 ]

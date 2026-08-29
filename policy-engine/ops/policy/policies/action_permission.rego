@@ -111,9 +111,11 @@ action_contracts := {
 	"runs.production_approval.create": {"runtime.run.production_approval": {"ownership_verified"}},
 	"runs.reissue": {"runtime.run.reissue": {"ownership_verified"}},
 	"runs.review": {
+		"runtime.acquisition_route": {"tenant_collection"},
 		"runtime.case_inspection": {"tenant_collection"},
 		"runtime.governed_projection.confidence_ledger_risk_spend": {"tenant_collection"},
 		"runtime.governed_projection.depth_n_cycle_board": {"tenant_collection"},
+		"runtime.run.epoch_staleness": {"ownership_verified"},
 		"runtime.run.human_decision_evidence": {"ownership_verified"},
 		"runtime.run.human_decision_gate": {"ownership_verified"},
 		"runtime.run.human_decision_record": {"ownership_verified"},
@@ -232,6 +234,31 @@ resource_kind_matches if {
 	input.resource.kind == sprintf("%s.%s", [resource_class, binding_authority])
 }
 
+acquisition_get_path if {
+	input.request.method == "GET"
+	regex.match("^/api/v1/runs/[^/]+/acquisition-routes(/[^/]+)?$", input.request.path)
+}
+
+acquisition_mutation_path if {
+	input.request.method == "POST"
+	regex.match("^/api/v1/runs/[^/]+/acquisition-routes/[^/]+/(decision-request|execute)$", input.request.path)
+}
+
+request_path_resource_allow if {
+	not acquisition_get_path
+	not acquisition_mutation_path
+}
+
+request_path_resource_allow if {
+	acquisition_get_path
+	resource_class == "runtime.acquisition_route"
+}
+
+request_path_resource_allow if {
+	acquisition_mutation_path
+	resource_class == "runtime.evidence.acquisition"
+}
+
 tenant_binding_allow if {
 	binding_authority in {"ownership_verified", "tenant_collection"}
 	identity_tenant := object.get(input.identity, "tenant_id", "")
@@ -268,6 +295,7 @@ allow if {
 	principal_has_permission
 	action_resource_contract_allow
 	resource_kind_matches
+	request_path_resource_allow
 	tenant_binding_allow
 }
 
@@ -336,6 +364,11 @@ deny_reasons contains "ACTION_RESOURCE_KIND_MISMATCH" if {
 	known_resource_class
 	known_binding_authority
 	not resource_kind_matches
+}
+
+deny_reasons contains "ACTION_REQUEST_PATH_RESOURCE_MISMATCH" if {
+	action_request
+	not request_path_resource_allow
 }
 
 deny_reasons contains "ACTION_RESOURCE_TENANT_BINDING_DENY" if {

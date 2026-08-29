@@ -235,6 +235,8 @@ _EXPECTED_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/mobility/bounds"),
     ("POST", "/api/v1/mobility/estimate"),
     ("POST", "/api/v1/runs/batch"),
+    ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request"),
+    ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
     ("POST", "/api/v1/runs/{run_id}/human-decisions"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
     ("POST", "/api/v1/runs/{run_id}/scenarios"),
@@ -292,6 +294,14 @@ _EXPECTED_MUTATING_PERMISSIONS = {
     ("POST", "/api/v1/runs/batch"): RuntimePermission.RUNS_BATCH_READ,
     (
         "POST",
+        "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request",
+    ): RuntimePermission.EVIDENCE_ACQUIRE,
+    (
+        "POST",
+        "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute",
+    ): RuntimePermission.EVIDENCE_ACQUIRE,
+    (
+        "POST",
         "/api/v1/runs/{run_id}/human-decisions",
     ): RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE,
     (
@@ -330,6 +340,14 @@ _MUTATING_OPERATION_CASE_IDS = {
     ("POST", "/api/v1/mobility/bounds"): "compute-mobility-bounds",
     ("POST", "/api/v1/mobility/estimate"): "estimate-mobility",
     ("POST", "/api/v1/runs/batch"): "get-runs-batch",
+    (
+        "POST",
+        "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request",
+    ): "request-run-acquisition-decision",
+    (
+        "POST",
+        "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute",
+    ): "execute-run-acquisition-route",
     ("POST", "/api/v1/runs/{run_id}/human-decisions"): ("create-run-human-decision"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"): ("create-run-production-approval"),
     ("POST", "/api/v1/runs/{run_id}/scenarios"): "create-run-scenario",
@@ -341,6 +359,8 @@ _HIGH_STAKES_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/control/decision-validity/events"),
     ("POST", "/api/v1/control/decision-validity/epoch-batches"),
     ("POST", "/api/v1/control/runs/{run_id}/reissue"),
+    ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request"),
+    ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
     ("POST", "/api/v1/runs/{run_id}/human-decisions"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
 )
@@ -421,6 +441,7 @@ def _operation_path(path: str, runtime_api_env) -> str:
         "packet_id": runtime_api_env["workflow_report_artifact_id"],
         "promotion_id": "promotion-ds20-authz-probe",
         "run_id": runtime_api_env["core_run_id"],
+        "route_id": "sha256:" + "a" * 64,
     }
     return _PATH_PARAMETER.sub(
         lambda match: str(values.get(match.group(1), f"ds20-{match.group(1)}")),
@@ -823,6 +844,54 @@ def _authorized_mutation_request(
         }
     if case_id == "get-runs-batch":
         return default_path, {"run_ids": [run_id]}
+    if case_id in {
+        "request-run-acquisition-decision",
+        "execute-run-acquisition-route",
+    }:
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionDecisionRequestResponse,
+            AcquisitionExecutionResponse,
+        )
+
+        route_id = "sha256:" + "a" * 64
+        authority_ref = "sha256:" + "9" * 64
+        service = client.app.state.runtime_container.acquisition_action_service
+        assert service is not None
+        if case_id == "request-run-acquisition-decision":
+            monkeypatch.setattr(
+                service,
+                "request_decision",
+                lambda **kwargs: AcquisitionDecisionRequestResponse(
+                    run_id=kwargs["run_id"],
+                    route_id=kwargs["route_id"],
+                    authority_decision_ref=authority_ref,
+                    outcome="decision_required",
+                ),
+            )
+        else:
+            monkeypatch.setattr(
+                service,
+                "execute",
+                lambda **kwargs: AcquisitionExecutionResponse(
+                    run_id=kwargs["run_id"],
+                    route_id=kwargs["route_id"],
+                    job_id="job-ds20-acquisition-authorized",
+                    authority_decision_ref=authority_ref,
+                ),
+            )
+        return default_path, {
+            "route_projection_hash": route_id,
+            "planner_report_hash": "sha256:" + "b" * 64,
+            "replay_pins": {
+                "source_job_id": "job-ds20-acquisition-source",
+                "compiled_ref": "sha256:" + "c" * 64,
+                "compiled_content_hash": "sha256:" + "d" * 64,
+                "terminal_event_id": "event-ds20-acquisition-terminal",
+                "design_problem_ref": "sha256:" + "e" * 64,
+                "cost_basis_hash": "sha256:" + "f" * 64,
+            },
+            "idempotency_key": case_id,
+        }
     if case_id == "create-run-human-decision":
         digest = "sha256:" + "a" * 64
         return default_path, {

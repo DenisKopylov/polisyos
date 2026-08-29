@@ -12,6 +12,7 @@ from polisyos.runtime.http.access_audit import RuntimeDataAccessAuditTrail
 from polisyos.runtime.http.dependencies import RuntimeApiContext, build_runtime_api_context
 from polisyos.runtime.http.mutation_policy import build_runtime_mutation_services
 from polisyos.runtime.http.resilience import build_runtime_opa_async_guard
+from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
 from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control.capability_discovery import (
     CapabilityDiscoveryService,
@@ -63,6 +64,8 @@ class RuntimeContainerOverrides:
     decision_validity_service: Any | None = None
     claim_ledger_owner: Any | None = None
     epoch_claim_lifecycle_bridge: Any | None = None
+    acquisition_authority_provider: Any | None = None
+    acquisition_execution_port: Any | None = None
 
 
 @dataclass(frozen=True)
@@ -127,6 +130,7 @@ class RuntimeServiceContainer:
     control_registry_providers: ControlRegistryProviders
     control_service: ControlPlaneService | None = None
     human_decision_service: HumanDecisionService | None = None
+    acquisition_action_service: AcquisitionActionService | None = None
     production_approval_resolver: ProductionApprovalPacketResolver | None = None
     lifecycle: RuntimeLifecycleState = field(default_factory=RuntimeLifecycleState)
 
@@ -316,6 +320,12 @@ class RuntimeServiceContainer:
                 ),
                 access_audit_path=access_audit_path,
             )
+            self.acquisition_action_service = AcquisitionActionService(
+                control_service=control_service,
+                human_decision_service=self.human_decision_service,
+                authority_provider=self.config.overrides.acquisition_authority_provider,
+                execution_port=self.config.overrides.acquisition_execution_port,
+            )
             from polisyos.runtime.quality.approval import (
                 _issue_production_decision_packet_resolver,
             )
@@ -394,6 +404,10 @@ class RuntimeServiceContainer:
             "review_collaboration_hub": _resource_state(self.review_collaboration_hub),
             "control_plane_service": _resource_state(self.control_service, pending_ok=True),
             "human_decision_service": _human_decision_resource_state(self.human_decision_service),
+            "acquisition_action_service": _resource_state(
+                self.acquisition_action_service,
+                pending_ok=True,
+            ),
             "production_approval_resolver": _resource_state(
                 self.production_approval_resolver,
                 pending_ok=True,
@@ -443,6 +457,11 @@ class RuntimeServiceContainer:
                     "human_decision_service",
                     "deployment_security",
                 ],
+                "acquisition_action_service": [
+                    "control_plane_service",
+                    "human_decision_service",
+                    "runtime_access_audit",
+                ],
                 "mutation_policy": [
                     "runtime_rate_limiter",
                     "runtime_idempotency_store",
@@ -473,6 +492,7 @@ class RuntimeServiceContainer:
         app.state.runtime_review_opa_guard = self.runtime_review_opa_guard
         app.state._control_service = self.control_service
         app.state._human_decision_service = self.human_decision_service
+        app.state._acquisition_action_service = self.acquisition_action_service
         app.state._production_approval_resolver = self.production_approval_resolver
         app.state.promotion_runtime = self.promotion_runtime
 
@@ -542,6 +562,16 @@ def resolve_human_decision_service(subject: Any) -> HumanDecisionService | None:
         return None
     service = container.human_decision_service
     return service if type(service) is HumanDecisionService else None
+
+
+def resolve_acquisition_action_service(subject: Any) -> AcquisitionActionService | None:
+    """Resolve the sole container-composed acquisition action service."""
+
+    container = get_runtime_container(subject)
+    if container is None:
+        return None
+    service = container.acquisition_action_service
+    return service if type(service) is AcquisitionActionService else None
 
 
 def resolve_production_approval_resolver(
@@ -656,6 +686,7 @@ __all__ = [
     "RuntimeLifecycleState",
     "RuntimeServiceContainer",
     "get_runtime_container",
+    "resolve_acquisition_action_service",
     "resolve_control_service",
     "resolve_human_decision_service",
     "resolve_production_approval_resolver",

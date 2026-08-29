@@ -67,6 +67,103 @@
       "ru": "Русский"
     }
   },
+  "epochChrome": {
+    "validAt": "Політика чинна на",
+    "txAt": "Знання станом на tx",
+    "payloadAsOf": "Payload станом на",
+    "sourceAsOf": "Джерело станом на",
+    "observedAt": "Спостережено",
+    "sourceState": "Стан джерела",
+    "asOf": "Твердження станом на",
+    "epoch": "Епоха",
+    "epochStatus": "Стан епохи",
+    "validity": "Чинність",
+    "revalidation": "Повторна валідація",
+    "cacheAge": "Вік кешу",
+    "required": "потрібна",
+    "notRequired": "не потрібна",
+    "notEstablished": "Епоху не встановлено",
+    "status": {
+      "current": "поточна",
+      "stale": "застаріла",
+      "revalidation_required": "потрібна повторна валідація",
+      "contested": "оскаржується",
+      "not_established": "не встановлено"
+    },
+    "absence": {
+      "institutional": "Уповноважений орган не призначено",
+      "engineering": "Інженерну можливість не підключено"
+    },
+    "perturbation": {
+      "incident": "Інцидент",
+      "appeal": "Апеляція",
+      "correction": "Виправлення",
+      "retraction": "Відкликання",
+      "legal_change": "Зміна законодавства",
+      "discovered_bias": "Виявлене упередження"
+    },
+    "scope": {
+      "instance": "окремий екземпляр",
+      "dependency_descendants": "залежні нащадки"
+    },
+    "replayInspection": "Перегляд відтворення",
+    "epochBoundary": "Межа епох",
+    "compareBoundary": "Окремі семантики епох для порівнюваних запусків",
+    "compareRun": "Семантика епохи для {runId}",
+    "admission": "Допуск проєкції епохи",
+    "admissionPending": "Проєкція епохи проходить допуск; твердження про актуальність ще не зроблено.",
+    "admissionUnavailable": "Проєкцію епохи не вдалося допустити; твердження про актуальність не зроблено.",
+    "machine": "Завантажити MACHINE twin",
+    "openWorldFreeze": "Просування заморожене через ризик відкритого світу",
+    "eyebrow": "Епоха й чинність",
+    "title": "Супровід твердження в часі",
+    "fixtureOnly": {
+      "title": "Доказ лише для демонстрації",
+      "description": "Демонстраційний приклад із прив’язкою до вмісту; ніколи не є виробничим повноваженням."
+    },
+    "labels": {
+      "typedRefusal": "Типізована відмова",
+      "institutionalDependency": "Інституційна залежність",
+      "candidateOwner": "Модуль-кандидат власника",
+      "engineeringClosure": "Інженерна умова закриття"
+    },
+    "certificates": {
+      "title": "Сертифікати",
+      "empty": "Проєкції сертифікатів немає.",
+      "revalidation": "Повторна валідація: {requirements}"
+    },
+    "dependencies": {
+      "title": "Успадкування застарілості похідних даних",
+      "empty": "Проєктованих залежностей немає.",
+      "summary": "{relation} — {disposition}; повторне обчислення: {status}"
+    },
+    "perturbations": {
+      "title": "Події після публікації",
+      "empty": "Проєктованих подій немає."
+    },
+    "lineage": {
+      "title": "Походження епох",
+      "empty": "Перетину межі епох немає."
+    },
+    "disposition": {
+      "unchanged": "без змін",
+      "annotation_only": "лише анотація",
+      "invalidate": "визнати недійсним",
+      "reissue": "перевидати",
+      "supersede": "замінити новою версією",
+      "withdraw": "відкликати",
+      "contested": "оскаржується",
+      "review_required": "потрібен перегляд"
+    },
+    "recomputeStatus": {
+      "not_established": "не встановлено",
+      "pending": "очікує",
+      "running": "виконується",
+      "completed": "завершено",
+      "failed": "не вдалося"
+    },
+    "inspectableNoncurrent": "Твердження залишається доступним для перевірки; його епохальний стан не є поточним."
+  },
   "shell": {
     "eyebrow": "PolisyOS Runtime",
     "title": "Atlas",
@@ -470,6 +567,95 @@
         "surfaceReadiness": "Готовність surface",
         "stageTrace": "Stage-trace binding",
         "explanation": "Пояснення owner"
+      },
+      "acquisition": {
+        "eyebrow": "Evidence acquisition і зростання world",
+        "title": "Відмова зі шляхом",
+        "subtitle": "Чому route заблоковано, що підтверджує evidence owner і які факти зростання world справді відбулися.",
+        "loading": "Завантаження evidence owner для acquisition…",
+        "unavailableTitle": "Evidence acquisition недоступні",
+        "unavailableBody": "Governed packet acquisition-growth не завантажився. Суміжний run або історичний rank не використовується як заміна.",
+        "structuralRoutes": "Структурні відмови — без acquisition action",
+        "summary": {
+          "familyScorecards": "Сімейства connector",
+          "networkCalls": "Live probes",
+          "selectedRecords": "Вибрані записи",
+          "metricResolutions": "Metric resolutions",
+          "backlogRows": "Residual rows",
+          "structuralRoutes": "Структурні routes"
+        },
+        "backlog": {
+          "title": "Проміжне впорядкування residual — лише ranking, не VOI",
+          "zeroScoreBasis": "{scoreCount} з {total} ranking scores дорівнюють 0.0; {confidenceCount} з {total} значень binding confidence дорівнюють 0.0.",
+          "noGradient": "Ненульового градієнта пріоритету немає. VOI не встановлено.",
+          "demandSplit": "Route demand дорівнює 2.0 для {demandTwo} rows і 1.0 для {demandOne} rows.",
+          "voiOwnerFit": "Відповідність VOI owner",
+          "voiOwnerIntegration": "Інтеграція VOI owner",
+          "voiOwnerRef": "VOI owner",
+          "authorityBoundary": "ranking_only_not_voi",
+          "localOverride": "local_order_override",
+          "orderLabel": "Порядок перегляду",
+          "orderServer": "Source ordinal",
+          "orderDemand": "Route demand (локально)",
+          "orderVariable": "Variable ID (локально)",
+          "serverRank": "Source ordinal",
+          "variable": "Variable",
+          "score": "Ranking score",
+          "demand": "Route demand"
+        },
+        "connector": {
+          "title": "Scorecard connector acquisition",
+          "familyCount": "Census охоплює {count} сімейств connector; ця картка показує live disposition вибраного carrier.",
+          "connector": "Connector",
+          "tier": "Заявлений execution tier",
+          "disposition": "Виміряний disposition carrier"
+        },
+        "passport": {
+          "title": "Admission passport і qualification epoch",
+          "epochState": "Стан epoch",
+          "code": "Код qualification",
+          "authority": "Інституційна authority",
+          "overlayEpochs": "Активні overlay epochs",
+          "appointmentWouldEstablish": "Призначення встановило б",
+          "appointmentWouldNotEstablish": "Призначення не встановило б"
+        },
+        "quarantine": {
+          "title": "Ledger карантину acquisition",
+          "counts": "{raw} raw responses · {admitted} admitted",
+          "worldGrowth": "Зростання world",
+          "reentry": "Повторний вхід case",
+          "terminal": "Terminal attempts"
+        },
+        "route": {
+          "structuralEyebrow": "Структурний route",
+          "runEyebrow": "Costed route, прив'язаний до run",
+          "gapClass": "Клас gap",
+          "routeClass": "Клас route від owner",
+          "witness": "Witness owner",
+          "missingLink": "Відсутня ланка",
+          "structuralRefusal": "Цей route структурно відсутній. Додаткові catalog rows або cost від client не можуть перетворити його на data-acquisition action.",
+          "requirement": "Typed requirement",
+          "strategy": "Рекомендована strategy",
+          "status": "Статус route",
+          "voi": "VOI",
+          "costedPlan": "Costed plan, підтверджений owner"
+        },
+        "action": {
+          "eyebrow": "Рух acquisition route",
+          "title": "Відмова, схвалення, зростання та повторний вхід",
+          "timelineAria": "Timeline виконання acquisition",
+          "cost": "Орієнтовна вартість, підтверджена owner",
+          "qualification": "Qualification",
+          "owner": "Інституційний owner qualification",
+          "ownerValue": "semantic epoch policy-admission qualifier · unappointed",
+          "appointmentWouldEstablish": "Призначення встановило б",
+          "appointmentEffect": "authority to qualify native semantic production, append its history head and permit overlay activation",
+          "requestReview": "Запросити accountable review",
+          "costNotEstablished": "owner_backed_cost:not_established",
+          "exportRoute": "Експортувати MACHINE packet acquisition route",
+          "exportReview": "Експортувати MACHINE packet accountable review",
+          "loadingReview": "Завантаження accountable review…"
+        }
       }
     },
     "runs": {

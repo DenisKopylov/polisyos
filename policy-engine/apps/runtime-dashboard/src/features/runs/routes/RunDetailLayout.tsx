@@ -13,6 +13,10 @@ import {
   useRunInspector,
 } from "@/features/runs/context/RunInspectorContext";
 import { AmbientTelemetryHud } from "@/features/runs/components/AmbientTelemetryHud";
+import {
+  EpochStalenessView,
+  epochSemanticsFromProjection,
+} from "@/features/runs/components/EpochStalenessView";
 import { OperatorCraftPanel } from "@/features/runs/components/OperatorCraftPanel";
 import { PublicSectorReadinessPanel } from "@/features/runs/components/PublicSectorReadinessPanel";
 import { PublicationReadinessPanel } from "@/features/runs/components/PublicationReadinessPanel";
@@ -20,6 +24,8 @@ import { RunBreadcrumbs } from "@/features/runs/components/RunBreadcrumbs";
 import { getVisibleRunInspectorTabs } from "@/features/runs/domain/tabs";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { ScientificDepthPanel } from "@/features/runs/components/ScientificDepthPanel";
+import { useEpochStaleness } from "@/features/runs/api/useEpochStaleness";
+import { buildSignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
 import { metricIdentifiability } from "@/shared/lib/domain/decision";
 import { LEGACY_RUN_DETAIL_TAB_MAP } from "@/features/runs/routes/useRunDetailSummary";
 import { buildEvidenceHref } from "@/features/evidence";
@@ -51,6 +57,12 @@ import {
   useAuthorship,
 } from "@/shared/ui/authored-text";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
+import {
+  EpochSemanticsProvider,
+  epochNonreceipt,
+  TimeSemanticsLabel,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
+import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
 import { UncertaintyBand } from "@/shared/charts";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
@@ -172,6 +184,39 @@ function RunInspectorContent() {
   const authzDecision = useAuthzDecision(),
     { flags } = useFeatureFlags();
   const summary = useRunInspector();
+  const temporalCursor = useMaybeTemporalCursor();
+  const epochQuery = useEpochStaleness({
+    runId: runId ?? "__unresolved_run__",
+    temporalScope: temporalCursor?.effectiveScope,
+  });
+  const epochSemantics = useMemo(
+    () =>
+      epochQuery.data
+        ? epochSemanticsFromProjection(epochQuery.data.projection)
+        : epochNonreceipt(),
+    [epochQuery.data],
+  );
+  const signedPacket = useMemo(
+    () =>
+      buildSignedPublicDecisionPacket({
+        decisionScore: summary.decisionScore,
+        decisionView: summary.decisionView,
+        epochSemantics,
+        evidenceContext: summary.evidenceContext,
+        governanceIssues: summary.governanceIssues,
+        policyDesignCaseProjection: summary.run?.policy_design_case_projection,
+        runId: runId ?? "__unresolved_run__",
+      }),
+    [
+      epochSemantics,
+      runId,
+      summary.decisionScore,
+      summary.decisionView,
+      summary.evidenceContext,
+      summary.governanceIssues,
+      summary.run?.policy_design_case_projection,
+    ],
+  );
   const screenDecision = useMemo(() => {
     const strongestEvidence = summary.selectedPromotion
       ? {
@@ -402,233 +447,46 @@ function RunInspectorContent() {
   });
 
   return (
-    <div
-      className="space-y-5"
-      data-print-hidden="true"
-      data-run-detail-screen-only="true"
-      data-testid="run-detail-page"
-    >
-      <AmbientTelemetryHud
-        activeTab={activeTab}
-        runId={runId}
-        summary={summary}
-      />
-      <DetailLayout
-        sidebar={
-          <section
-            data-testid="run-detail-summary"
-            className="border-line bg-panel rounded-[28px] border p-5"
-            aria-label={t("pages.runs.detailTitle", { runId })}
-            data-authored-exempt="true"
-            data-authored-exempt-reason="Run summary rail labels are structural inspector chrome, not authored prose."
-          >
-            <RunBreadcrumbs runId={runId} />
-            <p className="eyebrow mt-4">{t("pages.runs.decisionArtifact")}</p>
-            <h2>{summary.decisionHeadline}</h2>
-            <div className="score-ring" style={summary.decisionScoreStyle}>
-              <Quantity
-                value={summary.decisionScore}
-                precision={2}
-                variant="hero"
-              />
-            </div>
-            <div className="space-y-3">
-              <div className="bg-surface/80 border-line rounded-2xl border p-3">
-                <span className="text-muted text-xs tracking-wide uppercase">
-                  {t("pages.runs.evaluator")}
-                </span>
-                <strong className="mt-2 block">
-                  <span
-                    data-testid="run-evaluator-grade"
-                    data-decision-grade-presentation={
-                      evaluatorGrade.classification
-                    }
-                    data-owner-decision-grade={
-                      evaluatorGrade.ownerLabel ?? undefined
-                    }
-                  >
-                    {evaluatorGrade.ownerLabel ?? t("common.unknown")}
-                  </span>
-                </strong>
-              </div>
-              <div className="bg-surface/80 border-line rounded-2xl border p-3">
-                <span className="text-muted text-xs tracking-wide uppercase">
-                  {t("pages.runs.governance")}
-                </span>
-                <strong className="mt-2 block">
-                  <Quantity value={blockerCountQuantity} variant="dense" />
-                </strong>
-              </div>
-              <details className="bg-surface/80 border-line rounded-2xl border p-3">
-                <summary className="text-muted cursor-pointer list-none text-xs tracking-wide uppercase">
-                  {t("pages.runs.diagnostics")}
-                </summary>
-                <div className="mt-3 space-y-3">
-                  <div>
-                    <span className="text-muted text-xs tracking-wide uppercase">
-                      {t("pages.runs.evidence")}
-                    </span>
-                    <strong className="mt-2 block">
-                      {t("pages.runs.evidenceSummary", {
-                        plans: formatNumber(
-                          summary.evidenceContext?.fetchPlans.length ?? 0,
-                        ),
-                        promotions: formatNumber(
-                          summary.evidenceContext?.promotionCandidates.length ??
-                            0,
-                        ),
-                      })}
-                    </strong>
-                  </div>
-                  <div>
-                    <span className="text-muted text-xs tracking-wide uppercase">
-                      {t("pages.runs.transport")}
-                    </span>
-                    <strong className="mt-2 block">
-                      {summary.transportStatus}
-                    </strong>
-                  </div>
-                </div>
-              </details>
-            </div>
-          </section>
-        }
-        content={
-          <div className="space-y-5">
-            <Card
-              className="space-y-4"
+    <EpochSemanticsProvider value={epochSemantics}>
+      <div
+        className="space-y-5"
+        data-print-hidden="true"
+        data-run-detail-screen-only="true"
+        data-testid="run-detail-page"
+      >
+        <AmbientTelemetryHud
+          activeTab={activeTab}
+          packet={signedPacket}
+          runId={runId}
+          summary={summary}
+        />
+        <DetailLayout
+          sidebar={
+            <section
+              data-testid="run-detail-summary"
+              className="border-line bg-panel rounded-[28px] border p-5"
+              aria-label={t("pages.runs.detailTitle", { runId })}
               data-authored-exempt="true"
-              data-authored-exempt-reason="Run detail header and metrics are structural inspector chrome, not authored prose."
+              data-authored-exempt-reason="Run summary rail labels are structural inspector chrome, not authored prose."
             >
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <ProvenanceStrip
-                    title={t("pages.runs.title")}
-                    items={runDetailProvenance(summary)}
-                    density="compact"
-                  />
-                  <h3>{t("pages.runs.detailTitle", { runId })}</h3>
-                  <p className="topbar-subtitle">{t("pages.runs.subtitle")}</p>
-                </div>
-                <div className="topbar-actions">
-                  <Badge kind="neutral">{run.status}</Badge>
-                  <Badge kind="neutral">
-                    {label("runSourceKinds", run.source_kind, run.source_kind)}
-                  </Badge>
-                  {pipelineState ? (
-                    <Badge kind="neutral">
-                      {label("workflowStates", pipelineState, pipelineState)}
-                    </Badge>
-                  ) : null}
-                  {canOpenEvidence ? (
-                    <PrefetchButton
-                      to={buildEvidenceHref({ focus: "overview", runId })}
-                      prefetch="intent"
-                      variant="ghost"
-                    >
-                      {t("pages.runs.openEvidence")}
-                    </PrefetchButton>
-                  ) : (
-                    <Button
-                      type="button"
-                      disabled
-                      title={t("common.accessDenied")}
-                      variant="ghost"
-                    >
-                      {t("pages.runs.openEvidence")}
-                    </Button>
-                  )}
-                  {canReviewRuns ? (
-                    <PrefetchButton
-                      to={buildRunReportHref(runId)}
-                      prefetch="intent"
-                      variant="ghost"
-                    >
-                      {t("pages.runs.auditReport")}
-                    </PrefetchButton>
-                  ) : (
-                    <Button
-                      type="button"
-                      disabled
-                      title={t("common.accessDenied")}
-                      variant="ghost"
-                    >
-                      {t("pages.runs.auditReport")}
-                    </Button>
-                  )}
-                  <PrefetchButton
-                    to={buildRunDeckHref(runId)}
-                    prefetch="intent"
-                    variant="ghost"
-                  >
-                    {t("pages.runs.openDeck")}
-                  </PrefetchButton>
-                  {readingViewHref ? (
-                    <PrefetchButton
-                      to={readingViewHref}
-                      data-testid="run-reading-view-link"
-                      prefetch="intent"
-                      variant="ghost"
-                    >
-                      {t("common.readingView")}
-                    </PrefetchButton>
-                  ) : null}
-                  {summary.pipeline?.preflight?.ready_to_run === false ? (
-                    canLaunchRuns ? (
-                      <PrefetchButton
-                        to={`/compose?fromRun=${runId}`}
-                        data-testid="run-replan-link"
-                        prefetch="intent"
-                        variant="primary"
-                      >
-                        {t("pages.runs.replan")}
-                      </PrefetchButton>
-                    ) : (
-                      <Button
-                        type="button"
-                        data-testid="run-replan-link"
-                        disabled
-                        title={t("common.accessDenied")}
-                        variant="primary"
-                      >
-                        {t("pages.runs.replan")}
-                      </Button>
-                    )
-                  ) : summary.primaryDecisionArtifactId ? (
-                    <PrefetchButton
-                      to={`/artifacts/${summary.primaryDecisionArtifactId}`}
-                      prefetch="intent"
-                      variant="primary"
-                    >
-                      {t("common.openArtifact")}
-                    </PrefetchButton>
-                  ) : null}
-                </div>
+              <RunBreadcrumbs runId={runId} />
+              <p className="eyebrow mt-4">{t("pages.runs.decisionArtifact")}</p>
+              <h2>{summary.decisionHeadline}</h2>
+              <div className="score-ring" style={summary.decisionScoreStyle}>
+                <Quantity
+                  value={summary.decisionScore}
+                  precision={2}
+                  variant="hero"
+                />
               </div>
-
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <MetricCard
-                  label={t("pages.runs.started")}
-                  value={formatDate(run.started_at)}
-                  meta={`${t("pages.runs.duration")}: ${formatDuration(run.duration_ms)}`}
-                />
-                <MetricCard
-                  label={t("pages.runs.preflight")}
-                  value={
-                    summary.pipeline?.preflight?.ready_to_run
-                      ? t("common.ready")
-                      : t("common.blocked")
-                  }
-                  meta={t("pages.runs.diagnosticsCount", {
-                    count: formatNumber(
-                      summary.pipeline?.preflight?.diagnostics?.length ?? 0,
-                    ),
-                  })}
-                />
-                <MetricCard
-                  label={t("pages.runs.evaluator")}
-                  value={
+              <div className="space-y-3">
+                <div className="bg-surface/80 border-line rounded-2xl border p-3">
+                  <span className="text-muted text-xs tracking-wide uppercase">
+                    {t("pages.runs.evaluator")}
+                  </span>
+                  <strong className="mt-2 block">
                     <span
+                      data-testid="run-evaluator-grade"
                       data-decision-grade-presentation={
                         evaluatorGrade.classification
                       }
@@ -638,296 +496,517 @@ function RunInspectorContent() {
                     >
                       {evaluatorGrade.ownerLabel ?? t("common.unknown")}
                     </span>
-                  }
-                  meta={
-                    <Quantity
-                      value={evaluatorScoreQuantity}
-                      precision={3}
-                      variant="dense"
-                    />
-                  }
-                />
-                <MetricCard
-                  label={t("pages.runs.governance")}
-                  value={<Quantity value={blockerCountQuantity} />}
-                  meta={summary.transportStatus}
-                />
-                <MetricCard
-                  label={t("pages.runs.rootArtifacts")}
-                  value={formatNumber(run.root_artifacts?.length ?? 0)}
-                  meta={t("pages.runs.artifactSummary", {
-                    count: formatNumber(summary.artifactRefs.length),
-                  })}
-                />
+                  </strong>
+                </div>
+                <div className="bg-surface/80 border-line rounded-2xl border p-3">
+                  <span className="text-muted text-xs tracking-wide uppercase">
+                    {t("pages.runs.governance")}
+                  </span>
+                  <strong className="mt-2 block">
+                    <Quantity value={blockerCountQuantity} variant="dense" />
+                  </strong>
+                </div>
+                <details className="bg-surface/80 border-line rounded-2xl border p-3">
+                  <summary className="text-muted cursor-pointer list-none text-xs tracking-wide uppercase">
+                    {t("pages.runs.diagnostics")}
+                  </summary>
+                  <div className="mt-3 space-y-3">
+                    <div>
+                      <span className="text-muted text-xs tracking-wide uppercase">
+                        {t("pages.runs.evidence")}
+                      </span>
+                      <strong className="mt-2 block">
+                        {t("pages.runs.evidenceSummary", {
+                          plans: formatNumber(
+                            summary.evidenceContext?.fetchPlans.length ?? 0,
+                          ),
+                          promotions: formatNumber(
+                            summary.evidenceContext?.promotionCandidates
+                              .length ?? 0,
+                          ),
+                        })}
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-muted text-xs tracking-wide uppercase">
+                        {t("pages.runs.transport")}
+                      </span>
+                      <strong className="mt-2 block">
+                        {summary.transportStatus}
+                      </strong>
+                    </div>
+                  </div>
+                </details>
               </div>
-            </Card>
-
-            <div
-              className={cn(
-                "gap-4",
-                highlightMode === "prominent" &&
-                  "xl:grid xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start",
-              )}
-            >
+            </section>
+          }
+          content={
+            <div className="space-y-5">
               <Card
                 className="space-y-4"
-                data-testid="run-decision-packet"
                 data-authored-exempt="true"
-                data-authored-exempt-reason="Decision-packet surface headings and metric labels are structural chrome; narrative bodies are explicitly authored."
+                data-authored-exempt-reason="Run detail header and metrics are structural inspector chrome, not authored prose."
               >
-                <div className="panel-header">
+                <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <p className="eyebrow">
-                      {t("pages.runs.decisionPacketTitle")}
+                    <ProvenanceStrip
+                      title={t("pages.runs.title")}
+                      items={runDetailProvenance(summary)}
+                      density="compact"
+                    />
+                    <h3>{t("pages.runs.detailTitle", { runId })}</h3>
+                    <p className="topbar-subtitle">
+                      {t("pages.runs.subtitle")}
                     </p>
-                    <h3>{t("pages.runs.decisionPacketHeading")}</h3>
                   </div>
-                  <Badge kind="neutral">{screenDecision.transportStatus}</Badge>
+                  <div className="topbar-actions">
+                    <Badge kind="neutral">{run.status}</Badge>
+                    <Badge kind="neutral">
+                      {label(
+                        "runSourceKinds",
+                        run.source_kind,
+                        run.source_kind,
+                      )}
+                    </Badge>
+                    {pipelineState ? (
+                      <Badge kind="neutral">
+                        {label("workflowStates", pipelineState, pipelineState)}
+                      </Badge>
+                    ) : null}
+                    {canOpenEvidence ? (
+                      <PrefetchButton
+                        to={buildEvidenceHref({ focus: "overview", runId })}
+                        prefetch="intent"
+                        variant="ghost"
+                      >
+                        {t("pages.runs.openEvidence")}
+                      </PrefetchButton>
+                    ) : (
+                      <Button
+                        type="button"
+                        disabled
+                        title={t("common.accessDenied")}
+                        variant="ghost"
+                      >
+                        {t("pages.runs.openEvidence")}
+                      </Button>
+                    )}
+                    {canReviewRuns ? (
+                      <PrefetchButton
+                        to={buildRunReportHref(runId)}
+                        prefetch="intent"
+                        variant="ghost"
+                      >
+                        {t("pages.runs.auditReport")}
+                      </PrefetchButton>
+                    ) : (
+                      <Button
+                        type="button"
+                        disabled
+                        title={t("common.accessDenied")}
+                        variant="ghost"
+                      >
+                        {t("pages.runs.auditReport")}
+                      </Button>
+                    )}
+                    <PrefetchButton
+                      to={buildRunDeckHref(runId)}
+                      prefetch="intent"
+                      variant="ghost"
+                    >
+                      {t("pages.runs.openDeck")}
+                    </PrefetchButton>
+                    {readingViewHref ? (
+                      <PrefetchButton
+                        to={readingViewHref}
+                        data-testid="run-reading-view-link"
+                        prefetch="intent"
+                        variant="ghost"
+                      >
+                        {t("common.readingView")}
+                      </PrefetchButton>
+                    ) : null}
+                    {summary.pipeline?.preflight?.ready_to_run === false ? (
+                      canLaunchRuns ? (
+                        <PrefetchButton
+                          to={`/compose?fromRun=${runId}`}
+                          data-testid="run-replan-link"
+                          prefetch="intent"
+                          variant="primary"
+                        >
+                          {t("pages.runs.replan")}
+                        </PrefetchButton>
+                      ) : (
+                        <Button
+                          type="button"
+                          data-testid="run-replan-link"
+                          disabled
+                          title={t("common.accessDenied")}
+                          variant="primary"
+                        >
+                          {t("pages.runs.replan")}
+                        </Button>
+                      )
+                    ) : summary.primaryDecisionArtifactId ? (
+                      <PrefetchButton
+                        to={`/artifacts/${summary.primaryDecisionArtifactId}`}
+                        prefetch="intent"
+                        variant="primary"
+                      >
+                        {t("common.openArtifact")}
+                      </PrefetchButton>
+                    ) : null}
+                  </div>
                 </div>
 
-                <div className="grid gap-3 md:grid-cols-3">
+                {epochQuery.data ? (
+                  <EpochStalenessView
+                    projection={epochQuery.data.projection}
+                    rawBytes={epochQuery.data.rawBytes}
+                  />
+                ) : (
+                  <section
+                    aria-label={t("epochChrome.admission")}
+                    className="rounded-lg border border-[var(--line)] p-3"
+                    data-testid="epoch-staleness-nonreceipt"
+                  >
+                    <TimeSemanticsLabel epochSemantics={epochSemantics} />
+                    <p className="text-muted mt-2 text-sm">
+                      {epochQuery.isError
+                        ? t("epochChrome.admissionUnavailable")
+                        : t("epochChrome.admissionPending")}
+                    </p>
+                  </section>
+                )}
+
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                   <MetricCard
-                    label={t("pages.runs.verdictLabel")}
+                    label={t("pages.runs.started")}
+                    value={formatDate(run.started_at)}
+                    meta={`${t("pages.runs.duration")}: ${formatDuration(run.duration_ms)}`}
+                  />
+                  <MetricCard
+                    label={t("pages.runs.preflight")}
+                    value={
+                      summary.pipeline?.preflight?.ready_to_run
+                        ? t("common.ready")
+                        : t("common.blocked")
+                    }
+                    meta={t("pages.runs.diagnosticsCount", {
+                      count: formatNumber(
+                        summary.pipeline?.preflight?.diagnostics?.length ?? 0,
+                      ),
+                    })}
+                  />
+                  <MetricCard
+                    label={t("pages.runs.evaluator")}
                     value={
                       <span
-                        data-testid="run-packet-grade"
                         data-decision-grade-presentation={
-                          packetGrade.classification
+                          evaluatorGrade.classification
                         }
                         data-owner-decision-grade={
-                          packetGrade.ownerLabel ?? undefined
+                          evaluatorGrade.ownerLabel ?? undefined
                         }
                       >
-                        {packetGrade.ownerLabel ?? t("common.unknown")}
+                        {evaluatorGrade.ownerLabel ?? t("common.unknown")}
                       </span>
                     }
-                    meta={screenDecision.decisionHeadline}
-                  />
-                  <MetricCard
-                    label={t("pages.runs.confidenceLabel")}
-                    value={
-                      screenDecision.decisionConfidence ?? t("common.unknown")
+                    meta={
+                      <Quantity
+                        value={evaluatorScoreQuantity}
+                        precision={3}
+                        variant="dense"
+                      />
                     }
-                    meta={t("pages.runs.report.decisionScore")}
                   />
                   <MetricCard
-                    label={t("pages.runs.blockerStateLabel")}
-                    value={<Quantity value={screenDecisionBlockerQuantity} />}
-                    meta={t("pages.runs.governance")}
+                    label={t("pages.runs.governance")}
+                    value={<Quantity value={blockerCountQuantity} />}
+                    meta={summary.transportStatus}
+                  />
+                  <MetricCard
+                    label={t("pages.runs.rootArtifacts")}
+                    value={formatNumber(run.root_artifacts?.length ?? 0)}
+                    meta={t("pages.runs.artifactSummary", {
+                      count: formatNumber(summary.artifactRefs.length),
+                    })}
                   />
                 </div>
+              </Card>
 
-                <div className="grid gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.95fr)_minmax(0,0.95fr)]">
-                  <section
-                    className="bg-surface/80 border-line rounded-2xl border p-4"
-                    data-authored-exempt="true"
-                    data-authored-exempt-reason="Impact delta labels are metric chrome; empty state prose is explicitly authored."
-                  >
-                    <p className="eyebrow">
-                      {t("pages.runs.impactDeltasTitle")}
-                    </p>
-                    <div className="mt-4 space-y-3">
-                      {screenDecision.impactRows.length > 0 ? (
-                        screenDecision.impactRows.slice(0, 4).map((row) => (
-                          <div
-                            key={row.label}
-                            className="flex items-center justify-between gap-3"
-                          >
-                            <span className="text-sm font-semibold">
-                              {row.label}
-                            </span>
-                            <span
-                              className="text-muted font-mono text-sm"
-                              data-quantity-metric-id={row.quantity.metric_id}
-                            >
-                              <Quantity value={row.quantity} variant="dense" />
-                            </span>
-                          </div>
-                        ))
-                      ) : (
-                        <AuthoredText
-                          author="human"
-                          className="text-muted text-sm"
-                          timestamp={screenDecisionTimestamp}
-                        >
-                          {t("pages.runs.impactDeltasEmpty")}
-                        </AuthoredText>
-                      )}
+              <div
+                className={cn(
+                  "gap-4",
+                  highlightMode === "prominent" &&
+                    "xl:grid xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start",
+                )}
+              >
+                <Card
+                  className="space-y-4"
+                  data-testid="run-decision-packet"
+                  data-authored-exempt="true"
+                  data-authored-exempt-reason="Decision-packet surface headings and metric labels are structural chrome; narrative bodies are explicitly authored."
+                >
+                  <div className="panel-header">
+                    <div>
+                      <p className="eyebrow">
+                        {t("pages.runs.decisionPacketTitle")}
+                      </p>
+                      <h3>{t("pages.runs.decisionPacketHeading")}</h3>
                     </div>
-                  </section>
+                    <Badge kind="neutral">
+                      {screenDecision.transportStatus}
+                    </Badge>
+                  </div>
 
-                  <section
-                    className="bg-surface/80 border-line rounded-2xl border p-4"
-                    data-authored-exempt="true"
-                    data-authored-exempt-reason="Evidence card heading is structural chrome; evidence body is explicitly authored."
-                  >
-                    <p className="eyebrow">
-                      {t("pages.runs.strongestEvidenceTitle")}
-                    </p>
-                    <strong className="mt-4 block text-base">
-                      {screenDecision.strongestEvidence.title}
-                    </strong>
-                    <AuthoredText
-                      author="citation"
-                      className="mt-3 text-sm leading-6 text-[var(--ink)]"
-                      sourceHref={strongestEvidenceHref}
-                      sourceRef={screenDecision.strongestEvidence.provenance}
-                      timestamp={screenDecisionTimestamp}
-                    >
-                      {screenDecision.strongestEvidence.body}
-                    </AuthoredText>
-                  </section>
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <MetricCard
+                      label={t("pages.runs.verdictLabel")}
+                      value={
+                        <span
+                          data-testid="run-packet-grade"
+                          data-decision-grade-presentation={
+                            packetGrade.classification
+                          }
+                          data-owner-decision-grade={
+                            packetGrade.ownerLabel ?? undefined
+                          }
+                        >
+                          {packetGrade.ownerLabel ?? t("common.unknown")}
+                        </span>
+                      }
+                      meta={screenDecision.decisionHeadline}
+                    />
+                    <MetricCard
+                      label={t("pages.runs.confidenceLabel")}
+                      value={
+                        screenDecision.decisionConfidence ?? t("common.unknown")
+                      }
+                      meta={t("pages.runs.report.decisionScore")}
+                    />
+                    <MetricCard
+                      label={t("pages.runs.blockerStateLabel")}
+                      value={<Quantity value={screenDecisionBlockerQuantity} />}
+                      meta={t("pages.runs.governance")}
+                    />
+                  </div>
 
-                  <section
-                    className="bg-surface/80 border-line rounded-2xl border p-4"
-                    data-authored-exempt="true"
-                    data-authored-exempt-reason="Uncertainty chart labels are structural chart chrome; uncertainty prose is explicitly authored."
-                  >
-                    <p className="eyebrow">
-                      {t("pages.runs.uncertaintyTitle")}
-                    </p>
-                    <AuthoredText
-                      author="formalizer"
-                      className="mt-4 text-sm leading-6 font-semibold"
-                      timestamp={screenDecisionTimestamp}
+                  <div className="grid gap-3 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.95fr)_minmax(0,0.95fr)]">
+                    <section
+                      className="bg-surface/80 border-line rounded-2xl border p-4"
+                      data-authored-exempt="true"
+                      data-authored-exempt-reason="Impact delta labels are metric chrome; empty state prose is explicitly authored."
                     >
-                      {screenDecision.mainUncertainty}
-                    </AuthoredText>
-                    {primaryUncertaintyMetric ? (
-                      <div
-                        className="border-line bg-background/55 mt-4 space-y-3 rounded-2xl border p-3"
-                        data-testid="run-detail-uncertainty-visual"
+                      <p className="eyebrow">
+                        {t("pages.runs.impactDeltasTitle")}
+                      </p>
+                      <div className="mt-4 space-y-3">
+                        {screenDecision.impactRows.length > 0 ? (
+                          screenDecision.impactRows.slice(0, 4).map((row) => (
+                            <div
+                              key={row.label}
+                              className="flex items-center justify-between gap-3"
+                            >
+                              <span className="text-sm font-semibold">
+                                {row.label}
+                              </span>
+                              <span
+                                className="text-muted font-mono text-sm"
+                                data-quantity-metric-id={row.quantity.metric_id}
+                              >
+                                <Quantity
+                                  value={row.quantity}
+                                  variant="dense"
+                                />
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <AuthoredText
+                            author="human"
+                            className="text-muted text-sm"
+                            timestamp={screenDecisionTimestamp}
+                          >
+                            {t("pages.runs.impactDeltasEmpty")}
+                          </AuthoredText>
+                        )}
+                      </div>
+                    </section>
+
+                    <section
+                      className="bg-surface/80 border-line rounded-2xl border p-4"
+                      data-authored-exempt="true"
+                      data-authored-exempt-reason="Evidence card heading is structural chrome; evidence body is explicitly authored."
+                    >
+                      <p className="eyebrow">
+                        {t("pages.runs.strongestEvidenceTitle")}
+                      </p>
+                      <strong className="mt-4 block text-base">
+                        {screenDecision.strongestEvidence.title}
+                      </strong>
+                      <AuthoredText
+                        author="citation"
+                        className="mt-3 text-sm leading-6 text-[var(--ink)]"
+                        sourceHref={strongestEvidenceHref}
+                        sourceRef={screenDecision.strongestEvidence.provenance}
+                        timestamp={screenDecisionTimestamp}
                       >
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold">
-                              {primaryUncertaintyMetric.label}
-                            </p>
-                            <p className="text-muted mt-1 text-xs leading-5">
-                              {t("shared.uncertainty.defaultFraming.range", {
+                        {screenDecision.strongestEvidence.body}
+                      </AuthoredText>
+                    </section>
+
+                    <section
+                      className="bg-surface/80 border-line rounded-2xl border p-4"
+                      data-authored-exempt="true"
+                      data-authored-exempt-reason="Uncertainty chart labels are structural chart chrome; uncertainty prose is explicitly authored."
+                    >
+                      <p className="eyebrow">
+                        {t("pages.runs.uncertaintyTitle")}
+                      </p>
+                      <AuthoredText
+                        author="formalizer"
+                        className="mt-4 text-sm leading-6 font-semibold"
+                        timestamp={screenDecisionTimestamp}
+                      >
+                        {screenDecision.mainUncertainty}
+                      </AuthoredText>
+                      {primaryUncertaintyMetric ? (
+                        <div
+                          className="border-line bg-background/55 mt-4 space-y-3 rounded-2xl border p-3"
+                          data-testid="run-detail-uncertainty-visual"
+                        >
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold">
+                                {primaryUncertaintyMetric.label}
+                              </p>
+                              <p className="text-muted mt-1 text-xs leading-5">
+                                {t("shared.uncertainty.defaultFraming.range", {
+                                  confidence: Math.round(
+                                    primaryUncertaintyMetric.level * 100,
+                                  ),
+                                  lower: `${primaryUncertaintyMetric.bands[0].lower.toFixed(2)}${
+                                    primaryUncertaintyMetric.unit
+                                  }`,
+                                  upper: `${primaryUncertaintyMetric.bands[0].upper.toFixed(2)}${
+                                    primaryUncertaintyMetric.unit
+                                  }`,
+                                })}
+                              </p>
+                            </div>
+                            <Badge
+                              kind={
+                                primaryUncertaintyMetric.disputed
+                                  ? "warn"
+                                  : "neutral"
+                              }
+                            >
+                              {t("pages.runs.confidenceIntervalShort", {
                                 confidence: Math.round(
                                   primaryUncertaintyMetric.level * 100,
                                 ),
-                                lower: `${primaryUncertaintyMetric.bands[0].lower.toFixed(2)}${
-                                  primaryUncertaintyMetric.unit
-                                }`,
-                                upper: `${primaryUncertaintyMetric.bands[0].upper.toFixed(2)}${
-                                  primaryUncertaintyMetric.unit
-                                }`,
                               })}
-                            </p>
+                            </Badge>
                           </div>
-                          <Badge
-                            kind={
-                              primaryUncertaintyMetric.disputed
-                                ? "warn"
-                                : "neutral"
+                          <UncertaintyBand
+                            estimate={primaryUncertaintyMetric.estimate}
+                            bands={primaryUncertaintyMetric.bands}
+                            label={primaryUncertaintyMetric.label}
+                            unit={primaryUncertaintyMetric.unit}
+                            disputed={primaryUncertaintyMetric.disputed}
+                            identifiability={
+                              primaryUncertaintyMetric.identifiability
                             }
-                          >
-                            {t("pages.runs.confidenceIntervalShort", {
-                              confidence: Math.round(
-                                primaryUncertaintyMetric.level * 100,
-                              ),
-                            })}
-                          </Badge>
+                            className="w-full"
+                          />
                         </div>
-                        <UncertaintyBand
-                          estimate={primaryUncertaintyMetric.estimate}
-                          bands={primaryUncertaintyMetric.bands}
-                          label={primaryUncertaintyMetric.label}
-                          unit={primaryUncertaintyMetric.unit}
-                          disputed={primaryUncertaintyMetric.disputed}
-                          identifiability={
-                            primaryUncertaintyMetric.identifiability
-                          }
-                          className="w-full"
-                        />
-                      </div>
-                    ) : null}
-                  </section>
-                </div>
-
-                <section
-                  className="bg-surface/80 border-line rounded-2xl border p-4"
-                  data-authored-exempt="true"
-                  data-authored-exempt-reason="Downstream dependency helper text is structural deck chrome, not authored prose."
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="eyebrow">
-                        {t("pages.runs.downstreamDependenciesTitle")}
-                      </p>
-                      <p className="text-muted mt-2 text-sm">
-                        {t("pages.runs.deck.dependencies")}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {screenDependencies.map((item) => (
-                        <Badge key={item} kind="neutral">
-                          {item}
-                        </Badge>
-                      ))}
-                    </div>
+                      ) : null}
+                    </section>
                   </div>
-                </section>
 
-                <ScientificDepthPanel runId={runId} />
-                {run.operator_diagnostic ? (
-                  <OperatorDiagnosticPanel
-                    diagnostic={run.operator_diagnostic}
-                  />
-                ) : null}
-                <PublicSectorReadinessPanel runId={runId} />
-                <PublicationReadinessPanel runId={runId} summary={summary} />
-                <OperatorCraftPanel runId={runId} summary={summary} />
-              </Card>
-              <AuthorshipTimeline />
-            </div>
-
-            <nav
-              aria-label={t("pages.runs.sectionNav")}
-              data-testid="run-tab-nav"
-              className="bg-panel/85 border-line shadow-panel rounded-2xl border px-3 py-3 backdrop-blur"
-            >
-              <div className="flex min-w-max gap-2 overflow-x-auto">
-                {tabs.map((tab) => (
-                  <PrefetchNavLink
-                    key={tab.key}
-                    to={tab.key}
-                    data-testid={`run-tab-link-${tab.key}`}
-                    prefetch="intent"
-                    className={({ isActive }) =>
-                      cn(
-                        "rounded-full border px-3 py-1.5 text-xs font-semibold tracking-wide uppercase",
-                        isActive
-                          ? "border-accent/30 bg-accent/10 text-accent"
-                          : "border-line bg-surface text-muted",
-                      )
-                    }
+                  <section
+                    className="bg-surface/80 border-line rounded-2xl border p-4"
+                    data-authored-exempt="true"
+                    data-authored-exempt-reason="Downstream dependency helper text is structural deck chrome, not authored prose."
                   >
-                    {t(tab.labelKey)}
-                  </PrefetchNavLink>
-                ))}
-              </div>
-            </nav>
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="eyebrow">
+                          {t("pages.runs.downstreamDependenciesTitle")}
+                        </p>
+                        <p className="text-muted mt-2 text-sm">
+                          {t("pages.runs.deck.dependencies")}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {screenDependencies.map((item) => (
+                          <Badge key={item} kind="neutral">
+                            {item}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
 
-            <PageErrorBoundary
-              resetKey={location.pathname}
-              title={t("pages.runs.tabErrorTitle")}
-              body={t("pages.runs.tabErrorBody")}
-            >
-              <PanelErrorBoundary
+                  <ScientificDepthPanel runId={runId} />
+                  {run.operator_diagnostic ? (
+                    <OperatorDiagnosticPanel
+                      diagnostic={run.operator_diagnostic}
+                    />
+                  ) : null}
+                  <PublicSectorReadinessPanel runId={runId} />
+                  <PublicationReadinessPanel packet={signedPacket} />
+                  <OperatorCraftPanel packet={signedPacket} runId={runId} />
+                </Card>
+                <AuthorshipTimeline />
+              </div>
+
+              <nav
+                aria-label={t("pages.runs.sectionNav")}
+                data-testid="run-tab-nav"
+                className="bg-panel/85 border-line shadow-panel rounded-2xl border px-3 py-3 backdrop-blur"
+              >
+                <div className="flex min-w-max gap-2 overflow-x-auto">
+                  {tabs.map((tab) => (
+                    <PrefetchNavLink
+                      key={tab.key}
+                      to={tab.key}
+                      data-testid={`run-tab-link-${tab.key}`}
+                      prefetch="intent"
+                      className={({ isActive }) =>
+                        cn(
+                          "rounded-full border px-3 py-1.5 text-xs font-semibold tracking-wide uppercase",
+                          isActive
+                            ? "border-accent/30 bg-accent/10 text-accent"
+                            : "border-line bg-surface text-muted",
+                        )
+                      }
+                    >
+                      {t(tab.labelKey)}
+                    </PrefetchNavLink>
+                  ))}
+                </div>
+              </nav>
+
+              <PageErrorBoundary
                 resetKey={location.pathname}
                 title={t("pages.runs.tabErrorTitle")}
                 body={t("pages.runs.tabErrorBody")}
               >
-                <Outlet />
-              </PanelErrorBoundary>
-            </PageErrorBoundary>
-          </div>
-        }
-      />
-    </div>
+                <PanelErrorBoundary
+                  resetKey={location.pathname}
+                  title={t("pages.runs.tabErrorTitle")}
+                  body={t("pages.runs.tabErrorBody")}
+                >
+                  <Outlet />
+                </PanelErrorBoundary>
+              </PageErrorBoundary>
+            </div>
+          }
+        />
+      </div>
+    </EpochSemanticsProvider>
   );
 }
 

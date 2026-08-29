@@ -15,6 +15,33 @@ export type AbsentFact = RuntimeApiComponents["schemas"]["AbsentFact"];
 
 export type AccessRef = RuntimeApiComponents["schemas"]["AccessRef"];
 
+export type AcquisitionBacklogProjection =
+  RuntimeApiComponents["schemas"]["AcquisitionBacklogProjection"];
+
+export type AcquisitionDecisionRequestResponse =
+  RuntimeApiComponents["schemas"]["AcquisitionDecisionRequestResponse"];
+
+export type AcquisitionExecutionResponse =
+  RuntimeApiComponents["schemas"]["AcquisitionExecutionResponse"];
+
+export type AcquisitionGrowthPayload =
+  RuntimeApiComponents["schemas"]["AcquisitionGrowthPayload"];
+
+export type AcquisitionGrowthSummary =
+  RuntimeApiComponents["schemas"]["AcquisitionGrowthSummary"];
+
+export type AcquisitionRouteListResponse =
+  RuntimeApiComponents["schemas"]["AcquisitionRouteListResponse"];
+
+export type AcquisitionRouteMutationRequest =
+  RuntimeApiComponents["schemas"]["AcquisitionRouteMutationRequest"];
+
+export type AcquisitionRouteProjection =
+  RuntimeApiComponents["schemas"]["AcquisitionRouteProjection"];
+
+export type AcquisitionRouteReplayPins =
+  RuntimeApiComponents["schemas"]["AcquisitionRouteReplayPins"];
+
 export type AcquisitionRoutingPayload =
   RuntimeApiComponents["schemas"]["AcquisitionRoutingPayload"];
 
@@ -601,7 +628,43 @@ export type DiscoveryCandidate =
 export type EngineCensusPayload =
   RuntimeApiComponents["schemas"]["EngineCensusPayload"];
 
+export type EngineeringCapabilityAbsenceView =
+  RuntimeApiComponents["schemas"]["EngineeringCapabilityAbsenceView"];
+
 export type EnvInfo = RuntimeApiComponents["schemas"]["EnvInfo"];
+
+export type EpochBoundaryLineageView =
+  RuntimeApiComponents["schemas"]["EpochBoundaryLineageView"];
+
+export type EpochCertificateStalenessView =
+  RuntimeApiComponents["schemas"]["EpochCertificateStalenessView"];
+
+export type EpochDependencyStalenessView =
+  RuntimeApiComponents["schemas"]["EpochDependencyStalenessView"];
+
+export type EpochDerivedRecomputeView =
+  RuntimeApiComponents["schemas"]["EpochDerivedRecomputeView"];
+
+export type EpochOpenWorldRiskComponentView =
+  RuntimeApiComponents["schemas"]["EpochOpenWorldRiskComponentView"];
+
+export type EpochOpenWorldRiskView =
+  RuntimeApiComponents["schemas"]["EpochOpenWorldRiskView"];
+
+export type EpochPerturbationView =
+  RuntimeApiComponents["schemas"]["EpochPerturbationView"];
+
+export type EpochProjectionDenominatorView =
+  RuntimeApiComponents["schemas"]["EpochProjectionDenominatorView"];
+
+export type EpochQualificationDisclosure =
+  RuntimeApiComponents["schemas"]["EpochQualificationDisclosure"];
+
+export type EpochStalenessProjectionResponse =
+  RuntimeApiComponents["schemas"]["EpochStalenessProjectionResponse"];
+
+export type EpochStalenessProjectionView =
+  RuntimeApiComponents["schemas"]["EpochStalenessProjectionView"];
 
 export type EpochValidityBatchReceipt =
   RuntimeApiComponents["schemas"]["EpochValidityBatchReceipt"];
@@ -731,6 +794,8 @@ export type FiveRightsRequirement =
 export type ForkBRelationCensusPayload =
   RuntimeApiComponents["schemas"]["ForkBRelationCensusPayload"];
 
+export type GapClass = RuntimeApiComponents["schemas"]["GapClass"];
+
 export type GenerationCycleDispositionPayload =
   RuntimeApiComponents["schemas"]["GenerationCycleDispositionPayload"];
 
@@ -818,6 +883,9 @@ export type IngestRequest = RuntimeApiComponents["schemas"]["IngestRequest"];
 export type IngestResponse = RuntimeApiComponents["schemas"]["IngestResponse"];
 
 export type InputRef = RuntimeApiComponents["schemas"]["InputRef"];
+
+export type InstitutionalAuthorityAbsenceView =
+  RuntimeApiComponents["schemas"]["InstitutionalAuthorityAbsenceView"];
 
 export type InstrumentBlocker =
   RuntimeApiComponents["schemas"]["InstrumentBlocker"];
@@ -958,6 +1026,9 @@ export type N13AAcquisitionCensusPayload =
 
 export type N13ALiveProbeJournalPayload =
   RuntimeApiComponents["schemas"]["N13ALiveProbeJournalPayload"];
+
+export type N13bHistoryProjection =
+  RuntimeApiComponents["schemas"]["N13bHistoryProjection"];
 
 export type NLProvenance = RuntimeApiComponents["schemas"]["NLProvenance"];
 
@@ -1373,6 +1444,9 @@ export type SourceProfileInfo =
 
 export type SourceProfilesListResponse =
   RuntimeApiComponents["schemas"]["SourceProfilesListResponse"];
+
+export type StructuralRouteProjection =
+  RuntimeApiComponents["schemas"]["StructuralRouteProjection"];
 
 export type SuppliedAuthorityValue =
   RuntimeApiComponents["schemas"]["SuppliedAuthorityValue"];
@@ -1833,6 +1907,20 @@ export class RuntimeApiClient {
       path,
       query,
       undefined,
+      undefined,
+    );
+  }
+
+  async admitEpochValidityBatch(params: {
+    body: EpochValidityBatchRequest;
+  }): Promise<EpochValidityBatchResponse> {
+    const path = `/api/v1/control/decision-validity/epoch-batches`;
+    const query = undefined;
+    return this.request<EpochValidityBatchResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
       undefined,
     );
   }
@@ -2546,6 +2634,67 @@ export class RuntimeApiClient {
     );
   }
 
+  async listRunAcquisitionRoutes(params: {
+    run_id: string;
+  }): Promise<AcquisitionRouteListResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes`;
+    const query = undefined;
+    return this.request<AcquisitionRouteListResponse>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async getRunAcquisitionRoute(params: {
+    run_id: string;
+    route_id: string;
+  }): Promise<AcquisitionRouteProjection> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}`;
+    const query = undefined;
+    return this.request<AcquisitionRouteProjection>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async requestRunAcquisitionDecision(params: {
+    run_id: string;
+    route_id: string;
+    body: AcquisitionRouteMutationRequest;
+  }): Promise<AcquisitionDecisionRequestResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}/decision-request`;
+    const query = undefined;
+    return this.request<AcquisitionDecisionRequestResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
+      undefined,
+    );
+  }
+
+  async executeRunAcquisitionRoute(params: {
+    run_id: string;
+    route_id: string;
+    body: AcquisitionRouteMutationRequest;
+  }): Promise<AcquisitionExecutionResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}/execute`;
+    const query = undefined;
+    return this.request<AcquisitionExecutionResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
+      undefined,
+    );
+  }
+
   async getRunAgents(params: {
     run_id: string;
     valid_at?: string | null;
@@ -3084,6 +3233,33 @@ export class RuntimeApiClient {
       run_id: params.run_id,
     });
     return this.request<TemporalCapabilitiesResponse>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async getRunEpochStaleness(params: {
+    run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+    export_projection_hash?: string | null;
+  }): Promise<EpochStalenessProjectionResponse> {
+    const path = `/api/v1/temporal/runs/${encodeURIComponent(String(params.run_id))}/epoch-staleness`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+      export_projection_hash: params.export_projection_hash,
+    });
+    return this.request<EpochStalenessProjectionResponse>(
       "GET",
       path,
       query,

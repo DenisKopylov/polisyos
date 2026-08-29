@@ -2136,7 +2136,7 @@
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
         "roles": ["consumer"],
-        "sha256": "e0d048195bbc2293793b0d5b9661bbcc40226386f2723350cad133414ae7a09a"
+        "sha256": "80000ffa965289e35de15adeeb8346b13d2686f8f65b034e434046973b819e9e"
       },
       {
         "cluster_id": "C06",
@@ -2160,19 +2160,19 @@
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts",
         "roles": ["closure_test"],
-        "sha256": "43d440f04ac532e7872f9baf1aabaeea2c5ab0c7d2a74dea5029df417bae1d3b"
+        "sha256": "86d7e6b44f193c414c81f4daf4d2756c4ed5580bc38367644671c3f9c359962d"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
         "roles": ["implementation"],
-        "sha256": "653c4e2b5df27acb7c947e0ec965afe87ec6d9e49d6d684d7f4f7491ee486667"
+        "sha256": "16c3687f6d81a70e94a33d99c0c7ee83af670bebc857b34ac33ca3c11e0bd0d2"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
         "roles": ["consumer"],
-        "sha256": "443f022e4e202c91fdc5e42dd6173fabead87397404a16908ae5b757c17b3591"
+        "sha256": "f4533fee648a8e2de5fb7ca6bedc56ac1e908b02351019950bae11b21cf25d66"
       },
       {
         "cluster_id": "C06",
@@ -2250,13 +2250,13 @@
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.test.tsx",
         "roles": ["closure_test", "consumer"],
-        "sha256": "5146647127264b7b2aea820f9b0338d19c0c1dd2486161500f2c733e04251056"
+        "sha256": "b93d0d93c2b7a7a0553e33d2b698c593dd33bc97a01f7fc67b33cadfba550245"
       },
       {
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx",
         "roles": ["implementation"],
-        "sha256": "1a37bff0c5f78b378ed6268a78c1db71d8c506d24c9b259263f64badf7e56c6c"
+        "sha256": "746ee78a1d71ea6618cbc53df077852d6be6d10ea6697e77fd0dcd5d1d338cfd"
       },
       {
         "cluster_id": "C07",

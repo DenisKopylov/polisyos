@@ -22,6 +22,13 @@ Boundary notes:
   packages need DTOs or protocols.
 - Keep runtime-only persistence, ledger, replay, and validation wiring in this
   package.
+- `acquisition_route_loop.py` owns verified current-route closure and crash-safe
+  acquisition phase orchestration. It requires exact source job/CAS/progress/
+  terminal-event and C01 cost agreement, persists no owner data itself, and
+  resumes only same-case direct re-entry after a durable
+  `world_committed_reentry_pending` head. Missing production owners remain typed
+  non-closures, and the behavioral fixture can never establish active
+  qualification or production world growth.
 - `layer3_grounding_inventory.py` is the internal G0 pre-adapter inventory and
   firewall producer. It reads repository architecture/data artifacts, registers
   source touchpoints in shadow form, and enforces quarantine/status/import
@@ -88,9 +95,16 @@ Boundary notes:
   `not_established` row per model, obligation, and calibration component.
   Neither negative mints policy or deployment authority. Positive lifecycle
   evidence remains `producer_missing`, its institutional owner remains
-  `absent/unallocated`, automatic global recipe execution remains
   `absent/unallocated`, and public export exposes only the limitation status,
   code, and vector ref—never numeric risk or raw evidence.
+- `epoch_staleness_projection.py` is the read-only temporal-surface compiler.
+  It preserves the real `policy_admission_missing` and
+  `epoch_transition_signer_not_established` institutional nonreceipts, while
+  classifying the derived recompute projection separately as engineering
+  `producer_missing + bridge_missing`. The named candidate owner is
+  `polisyos.runtime.quality.derived_observations`; no signer appointment is
+  implied by that assignable gap. Positive transition examples remain
+  `fixture_only` until an exact owner reader exists.
   The negative path carries these bounded residuals without promoting them:
 
   - canonical target dispositions remain `producer_missing` for the Decision
@@ -116,8 +130,11 @@ Boundary notes:
     `absent/unallocated`; the bounded consequence is fail-closed denial of
     service, never false promotion; and
   - recipes are bound as inert bytes and a complete source census rejects any
-    recipe execution seam. Per-recipe canonical producers remain
-    `producer_missing`, and a global automatic recompute owner remains
+    ambient execution seam. `derived_observations.py` already owns
+    `DerivedSeries`, derivation certificates/materializations, and
+    `materialize_derivation`; what remains is an epoch-inheritance/recompute-
+    status producer plus temporal read bridge, classified as engineering
+    `producer_missing + bridge_missing`, not institutional
     `absent/unallocated`.
 - `evaluation_modes.py` owns the exact six executable evaluation modes and a
   strict no-default resolver. `evaluation_safety.py` owns generic ratified

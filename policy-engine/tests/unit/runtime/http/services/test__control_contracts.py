@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib
+
 import pytest
 
 from polisyos.core.contracts.control import DataSourceBinding
@@ -8,9 +10,12 @@ from polisyos.runtime.http.services import control as runtime
 from polisyos.runtime.http.services.control import (
     admission,
     api,
-    artifacts,
     response_shapes,
     run_lifecycle,
+)
+
+control_artifacts = importlib.import_module(
+    "polisyos.runtime.http.services.control.artifacts"
 )
 
 
@@ -27,20 +32,18 @@ def test_control_split_modules_preserve_legacy_api_aliases() -> None:
         admission._record_control_plane_job_admission_metric
     )
     assert runtime._build_api_meta is response_shapes._build_api_meta
-    assert runtime._make_artifact_ref is artifacts._make_artifact_ref
+    assert runtime._make_artifact_ref is control_artifacts._make_artifact_ref
 
 
 def test_control_split_modules_own_moved_helpers() -> None:
-    assert (
-        admission._record_control_plane_job_admission_metric.__module__
-        == admission.__name__
-    )
-    assert artifacts._make_artifact_ref.__module__ == artifacts.__name__
+    assert admission._record_control_plane_job_admission_metric.__module__ == admission.__name__
+    assert control_artifacts._make_artifact_ref.__module__ == control_artifacts.__name__
     assert response_shapes._sum_call_events.__module__ == response_shapes.__name__
 
 
 def test_control_contract_helper_behavior_is_characterized() -> None:
     assert contracts._coerce_control_job_kind("workflow_run") == "workflow_run"
+    assert contracts._coerce_control_job_kind("acquisition") == "acquisition"
     with pytest.raises(ValueError, match="Unsupported control job kind"):
         contracts._coerce_control_job_kind("unknown")
 

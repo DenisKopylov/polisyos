@@ -1680,6 +1680,19 @@ corepack pnpm --filter @polisyos/runtime-dashboard exec tsc -p tsconfig.app.json
 
 **Mechanism cap:** 1. **Widening:** 1.
 
+**Architect amendment 2026-08-29 — C05 scope.** The Bayesian-without-coverage
+semantic/visual witness is removed from C05's required set and registered in
+*Explicit non-closure* with owner GY-N11. Its blocker is another lane's
+validator contract and is not reachable from C05's single Atlas-writer
+mechanism path. Everything else in C05 — the disposition-register writer, its
+register/report/test companions, and every semantic and visual scenario not
+requiring a real Bayesian-without-coverage packet — remains required. The
+source-chain prohibitions are unchanged: no hand-authored packet, no
+<code>page.route</code>, no second source artifact, no second route or UI host,
+no C02 test injection, no synthesized coverage row. A remaining scenario that
+needs one of those is a stop, not a workaround.
+
+
 **Modify mechanism:**
 
 1. <code>architecture/atlas_surfaces/check_frontend_disposition_register.py</code>
@@ -1992,6 +2005,7 @@ the debt register untouched.
 | live deployment-wide ledger scope index | <code>absent/unallocated</code>; N11 can persist per-scope ledger state but no global typed index/HTTP owner was found | team-runtime; closure requires enumerated current scopes, receipt refs, currentness, tenant boundary, and replay |
 | persisted semantic-receipt and N12 projection artifacts | <code>artifact_missing + consumer_missing</code>; N12 also says <code>epoch_not_implemented</code> | GY-N12/DS18, not DS17 |
 | PUBLIC δ claim and first governed promotion | <code>surface_out_of_scope</code> here and gated by DS12/DS13 | team-design successor slices |
+| C05 Bayesian-without-coverage semantic/visual witness | <code>bridge_missing</code>; a real exact-scope session persists <code>coverage_argument_missing</code>, but its <code>promotion</code>-role row cannot enter an owner-admitted <code>available</code> packet: omitting it emits <code>n9_projection_owner_binding_drift</code>, including it emits <code>day_one_positive_promotion_fabricated</code>. Proved structurally and behaviorally; persisted refusal <code>sha256:94d60c54cac8155fa3da2765a65a6c73157876211d92771cd4e85478e864fbf3</code> | GY-N11 confidence-ledger contract/validator; closure requires the validator to distinguish a governed refusal from an issued positive promotion, per ratified <code>INT-K08</code> (negative completion is a valid governed result). Never DS17's Atlas writer |
 | debt register, other-slice evidence, deep-import baseline | explicitly out of scope | no DS17 edit or closure claim |
 
 An absent future test is <code>artifact_missing</code>, never a green receipt.

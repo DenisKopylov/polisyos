@@ -3,15 +3,38 @@ import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 import { isInteractionState } from "@/shared/lib/domain/statusOwnership";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+import {
+  epochNonreceipt,
+  type EpochSemantics,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
 import type { PolicyDesignCaseProjection } from "@polisyos/runtime-api-client";
 
 import {
-  buildPublicDecisionPacket,
-  buildSignedPublicDecisionPacket,
+  buildPublicDecisionPacket as buildPublicDecisionPacketRaw,
+  buildSignedPublicDecisionPacket as buildSignedPublicDecisionPacketRaw,
   packetContainsPrivateContext,
   signPublicDecisionPacket,
+  type PublicDecisionPacketInput,
   verifySignedPublicDecisionPacket,
 } from "./publicationPacket";
+
+type PacketTestInput = Omit<PublicDecisionPacketInput, "epochSemantics"> & {
+  epochSemantics?: EpochSemantics;
+};
+
+function buildPublicDecisionPacket(input: PacketTestInput) {
+  return buildPublicDecisionPacketRaw({
+    ...input,
+    epochSemantics: input.epochSemantics ?? epochNonreceipt(),
+  });
+}
+
+function buildSignedPublicDecisionPacket(input: PacketTestInput) {
+  return buildSignedPublicDecisionPacketRaw({
+    ...input,
+    epochSemantics: input.epochSemantics ?? epochNonreceipt(),
+  });
+}
 
 const testDecisionScore = (point: number) =>
   untracedDecisionQuantity({ metricId: "test.decision_score", point });
@@ -594,5 +617,47 @@ describe("publication packet domain", () => {
     expect(signPublicDecisionPacket(packet).signedId).toBe(
       signPublicDecisionPacket(packet).signedId,
     );
+  });
+});
+
+describe("publication packet epoch binding", () => {
+  const current = {
+    asOf: "2026-02-11T12:00:00Z",
+    asOfReason: null,
+    currentEpochRef: `sha256:${"a".repeat(64)}`,
+    epochRefs: [`sha256:${"a".repeat(64)}`],
+    kind: "admitted",
+    projectionSemanticHash: `sha256:${"b".repeat(64)}`,
+    revalidationRequired: false,
+    status: "current",
+    validityStatus: "active",
+  } as const;
+
+  it("binds admitted epoch semantics into the packet hash", () => {
+    const first = buildPublicDecisionPacket({
+      epochSemantics: current,
+      runId: "run-epoch-packet",
+    } as Parameters<typeof buildPublicDecisionPacket>[0]);
+    const second = buildPublicDecisionPacket({
+      epochSemantics: {
+        ...current,
+        currentEpochRef: `sha256:${"c".repeat(64)}`,
+        revalidationRequired: true,
+        status: "revalidation_required",
+        validityStatus: "review_required",
+      },
+      runId: "run-epoch-packet",
+    } as Parameters<typeof buildPublicDecisionPacket>[0]);
+
+    expect(first).toHaveProperty("epochSemantics", current);
+    expect(first.packetHash).not.toBe(second.packetHash);
+  });
+
+  it("fails closed when the single packet producer omits epoch semantics", () => {
+    expect(() =>
+      buildPublicDecisionPacketRaw({
+        runId: "run-epoch-omitted",
+      } as unknown as PublicDecisionPacketInput),
+    ).toThrow(/epoch semantics/i);
   });
 });

@@ -120,9 +120,12 @@ describe("Atlas health metrics", () => {
     for (const row of report.measurements.slice(0, 6)) {
       expect(row.instrumentation_status).toBe("instrumented");
     }
-    expect(metric(report, "primitive_adoption").measurement.kind).toBe(
-      "unknown",
-    );
+    expect(metric(report, "primitive_adoption").measurement).toMatchObject({
+      kind: "measured",
+      numerator: 94,
+      denominator: 94,
+      ratio: 1,
+    });
     expect(metric(report, "fail_closed_fidelity").measurement.kind).toBe(
       "unknown",
     );
@@ -162,7 +165,9 @@ describe("Atlas health metrics", () => {
       })),
     );
     expect(metric(report, "primitive_adoption").known_facts).toMatchObject({
-      readiness_entry_count: 261,
+      source_file_count: 616,
+      render_root_count: 733,
+      obligated_root_count: 94,
     });
     expect(metric(report, "fail_closed_fidelity").known_facts).toMatchObject({
       readiness_entry_count: 261,
@@ -180,11 +185,43 @@ describe("Atlas health metrics", () => {
     });
   });
 
+  it("drops primitive adoption to not established when its moving denominator is red", () => {
+    const primitive = clone(metric(report, "primitive_adoption"));
+    const candidate = replaceMetric(report, 0, {
+      ...primitive,
+      scope: {
+        ...primitive.scope,
+        description:
+          "The post-freeze landing slice added an unreconciled decision-bearing root.",
+      },
+      basis: {
+        ...primitive.basis,
+        predicate_provenance: "not_established",
+        limitation:
+          "The landing-slice checker rejected an unreconciled render root.",
+      },
+      measurement: {
+        kind: "unknown",
+        reason_code: "time_semantics_coverage_not_established",
+        predicate_provenance: "not_established",
+      },
+      known_facts: {
+        source_file_count: 0,
+        render_root_count: 0,
+        obligated_root_count: 0,
+      },
+    });
+
+    expect(atlasHealthMetricReportSchema.safeParse(candidate).success).toBe(
+      true,
+    );
+  });
+
   it("keeps unknown, zero, missing, and incomparable structurally distinct", () => {
-    const unknown = clone(metric(report, "primitive_adoption"));
+    const unknown = clone(metric(report, "fail_closed_fidelity"));
     expect(unknown.measurement.kind).toBe("unknown");
     (unknown.measurement as unknown as { value: number }).value = 0;
-    const badUnknown = replaceMetric(report, 0, unknown);
+    const badUnknown = replaceMetric(report, 1, unknown);
     expect(atlasHealthMetricReportSchema.safeParse(badUnknown).success).toBe(
       false,
     );
@@ -217,7 +254,6 @@ describe("Atlas health metrics", () => {
       "missing",
     );
     for (const metricId of [
-      "primitive_adoption",
       "fail_closed_fidelity",
       "audience_enforcement",
     ] as const) {
@@ -247,7 +283,6 @@ describe("Atlas health metrics", () => {
       expect(row.basis.kind).toBe("observed_by_instrument");
     }
     for (const metricId of [
-      "primitive_adoption",
       "fail_closed_fidelity",
       "audience_enforcement",
       "machine_twin_parity",
@@ -262,6 +297,10 @@ describe("Atlas health metrics", () => {
       predicate_provenance: "recomputed",
     });
     expect(metric(report, "evidence_coverage").basis).toMatchObject({
+      kind: "observed_by_instrument",
+      predicate_provenance: "recomputed",
+    });
+    expect(metric(report, "primitive_adoption").basis).toMatchObject({
       kind: "observed_by_instrument",
       predicate_provenance: "recomputed",
     });
@@ -338,7 +377,6 @@ describe("Atlas health metrics", () => {
       metric(report, "surface_missing_closure").measurement,
     );
     for (const [index, metricId] of [
-      [0, "primitive_adoption"],
       [1, "fail_closed_fidelity"],
       [2, "audience_enforcement"],
       [5, "machine_twin_parity"],
@@ -576,7 +614,7 @@ describe("Atlas health metrics", () => {
     expect(machine.measurement.kind).toBe("missing");
 
     const audience = metric(report, "audience_enforcement");
-    expect(audience.known_facts).toMatchObject({ proxy_test_count: 6 });
+    expect(audience.known_facts).toMatchObject({ proxy_test_count: 7 });
     expect(audience.measurement.kind).toBe("unknown");
     expect(audience.known_facts).not.toHaveProperty("passed_test_count");
   });
@@ -715,7 +753,7 @@ describe("Atlas health metrics", () => {
       expect(
         metric(parsed.resolved_report.report, "primitive_adoption").measurement
           .kind,
-      ).toBe("unknown");
+      ).toBe("measured");
     } finally {
       rmSync(casRoot, { recursive: true, force: true });
       rmSync(fakeRoot, { recursive: true, force: true });

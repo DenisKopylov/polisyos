@@ -24,11 +24,18 @@ from polisyos.runtime.quality.epoch_validity_cascade import (
     OwnerAdjudicatedTargetDisposition,
     _framed_semantic_hash,
     _semantic_hash,
+    advisory_perturbation_from_monitor_event,
     bind_certificate_to_epoch,
     build_epoch_validity_transition,
+    persist_advisory_perturbation_event,
+    resolve_advisory_perturbation_event,
     resolve_owner_target_dispositions,
 )
 from polisyos.runtime.quality.semantic_epoch import SemanticEpochManifest
+from polisyos.scientist.governance.continuous.monitors import (
+    GovernanceMonitorEvent,
+    persist_governance_monitor_event,
+)
 
 
 def _digest(label: str) -> str:
@@ -61,6 +68,88 @@ def _graph(
         edges=edges,
         denominator_ref=_semantic_hash("polisyos.epoch.dependency-graph.v1", {"edges": edges}),
     )
+
+
+@pytest.mark.parametrize(
+    ("source_class", "event_type", "expected_action"),
+    [
+        ("incident", "incident", "invalidate"),
+        ("appeal", "policy_context_drift", "reissue"),
+        ("correction", "source_invalidation", "supersede"),
+        ("retraction", "source_invalidation", "withdraw"),
+        ("legal_change", "policy_context_drift", "supersede"),
+        ("discovered_bias", "fairness_drift", "invalidate"),
+    ],
+)
+def test_persisted_monitor_bridge_preserves_each_perturbation_class_and_scope(
+    tmp_path,
+    source_class: str,
+    event_type: str,
+    expected_action: str,
+) -> None:
+    store = artifacts.FileSystemCAS(tmp_path / source_class)
+    packet_ref = _ref(f"{source_class}-packet", kind="scientist.decision_packet")
+    evidence_ref = _ref(f"{source_class}-evidence")
+    perturbation_payloads = {
+        "incident": {
+            "source_class": "incident",
+            "incident_report_ref": evidence_ref,
+        },
+        "appeal": {
+            "source_class": "appeal",
+            "appeal_evidence_ref": evidence_ref,
+            "affected_instance_ref": packet_ref,
+            "scope": "instance",
+        },
+        "correction": {
+            "source_class": "correction",
+            "evidence_validity_event_ref": evidence_ref,
+            "replacement_refs": [_ref("correction-replacement")],
+        },
+        "retraction": {
+            "source_class": "retraction",
+            "evidence_validity_event_ref": evidence_ref,
+        },
+        "legal_change": {
+            "source_class": "legal_change",
+            "legal_change_evidence_ref": evidence_ref,
+        },
+        "discovered_bias": {
+            "source_class": "discovered_bias",
+            "bias_evidence_ref": evidence_ref,
+        },
+    }
+    persisted_monitor = persist_governance_monitor_event(
+        store,
+        GovernanceMonitorEvent.model_validate(
+            {
+                "event_id": f"event-{source_class}",
+                "decision_packet_ref": packet_ref,
+                "event_type": event_type,
+                "severity": "warning",
+                "reason": f"Content-bound {source_class} perturbation.",
+                "observed_epoch_ref": _digest(f"{source_class}-epoch"),
+                "perturbation": perturbation_payloads[source_class],
+            }
+        ),
+    )
+
+    derived = advisory_perturbation_from_monitor_event(persisted_monitor)
+    persisted_ref = persist_advisory_perturbation_event(
+        store=store,
+        persisted_monitor_event=persisted_monitor,
+    )
+    loaded = resolve_advisory_perturbation_event(store=store, ref=persisted_ref)
+
+    assert loaded == derived
+    assert loaded.source_class == source_class
+    assert loaded.event_kind == expected_action
+    assert loaded.scope == ("instance" if source_class == "appeal" else "dependency_descendants")
+    assert loaded.event_ref == persisted_monitor.event_ref
+    manifest = store.get_manifest(persisted_ref.artifact_id)
+    assert [(str(row.artifact_id), row.role) for row in manifest.inputs] == [
+        (str(persisted_monitor.event_ref.artifact_id), "governance_monitor_event")
+    ]
 
 
 def test_outer_query_context_uses_the_frozen_canonicalization_domain() -> None:
@@ -171,6 +260,8 @@ def test_same_advisory_event_follows_changed_canonical_owner_disposition() -> No
     event = AdvisoryPerturbationEvent(
         event_ref=_ref("owner-event"),
         target_ref=target,
+        source_class="incident",
+        scope="dependency_descendants",
         event_kind="invalidate",
         authority_purpose="decision_validity",
         observed_epoch_ref=_digest("old-epoch"),
@@ -227,6 +318,8 @@ def test_linked_invalidation_preserves_historically_authentic_certificate_bytes(
     event = AdvisoryPerturbationEvent(
         event_ref=_ref("later-invalidation"),
         target_ref=target,
+        source_class="incident",
+        scope="dependency_descendants",
         event_kind="invalidate",
         authority_purpose="decision_validity",
         observed_epoch_ref=_digest("later-epoch"),
@@ -259,6 +352,8 @@ def test_owner_dispositions_preserve_mixed_append_only_history() -> None:
     event_a = AdvisoryPerturbationEvent(
         event_ref=_ref("event-a"),
         target_ref=first,
+        source_class="incident",
+        scope="dependency_descendants",
         event_kind="invalidate",
         authority_purpose="decision_validity",
         observed_epoch_ref=_digest("old-epoch"),
@@ -266,6 +361,8 @@ def test_owner_dispositions_preserve_mixed_append_only_history() -> None:
     event_b = AdvisoryPerturbationEvent(
         event_ref=_ref("event-b"),
         target_ref=second,
+        source_class="incident",
+        scope="dependency_descendants",
         event_kind="annotation_only",
         authority_purpose="decision_validity",
         observed_epoch_ref=_digest("old-epoch"),
@@ -317,6 +414,8 @@ def test_owner_disposition_cannot_nominate_a_target_outside_denominator() -> Non
     event = AdvisoryPerturbationEvent(
         event_ref=_ref("event"),
         target_ref=target,
+        source_class="incident",
+        scope="dependency_descendants",
         event_kind="invalidate",
         authority_purpose="decision_validity",
         observed_epoch_ref=_digest("epoch"),
@@ -344,6 +443,8 @@ def test_disposition_requires_exact_target_and_authority_purpose() -> None:
     event = AdvisoryPerturbationEvent(
         event_ref=_ref("event"),
         target_ref=target,
+        source_class="incident",
+        scope="dependency_descendants",
         event_kind="invalidate",
         authority_purpose="claim_lifecycle",
         observed_epoch_ref=_digest("epoch"),
@@ -388,6 +489,8 @@ def test_disposition_vector_is_invariant_to_transport_order() -> None:
         AdvisoryPerturbationEvent(
             event_ref=_ref(f"event-{index}"),
             target_ref=target,
+            source_class="incident",
+            scope="dependency_descendants",
             event_kind="invalidate",
             authority_purpose="decision_validity",
             observed_epoch_ref=_digest("epoch"),
@@ -454,6 +557,8 @@ def test_exact_graph_propagates_to_descendants_and_stops_at_sibling() -> None:
     event = AdvisoryPerturbationEvent(
         event_ref=_ref("root-event"),
         target_ref=root,
+        source_class="incident",
+        scope="dependency_descendants",
         event_kind="invalidate",
         authority_purpose="decision_validity",
         observed_epoch_ref=_digest("old-epoch"),
@@ -492,11 +597,81 @@ def test_exact_graph_propagates_to_descendants_and_stops_at_sibling() -> None:
         )
 
 
+def test_six_source_classes_remain_distinct_and_appeal_stays_instance_scoped() -> None:
+    upstream = _ref("six-class-upstream")
+    root = _ref("six-class-root")
+    child = _ref("six-class-child")
+    edges = (
+        EpochDependencyEdge(
+            source_ref=upstream,
+            target_ref=root,
+            relation="invalidates",
+            authority_purpose="decision_validity",
+        ),
+        EpochDependencyEdge(
+            source_ref=root,
+            target_ref=child,
+            relation="invalidates",
+            authority_purpose="decision_validity",
+        ),
+    )
+    graph = EpochDependencyGraph(
+        edges=edges,
+        denominator_ref=_semantic_hash("polisyos.epoch.dependency-graph.v1", {"edges": edges}),
+    )
+    source_classes = (
+        "incident",
+        "appeal",
+        "correction",
+        "retraction",
+        "legal_change",
+        "discovered_bias",
+    )
+    events = tuple(
+        AdvisoryPerturbationEvent(
+            event_ref=_ref(f"six-class-{source_class}"),
+            target_ref=root,
+            source_class=source_class,
+            scope="instance" if source_class == "appeal" else "dependency_descendants",
+            event_kind="invalidate",
+            authority_purpose="decision_validity",
+            observed_epoch_ref=_digest("six-class-old-epoch"),
+        )
+        for source_class in source_classes
+    )
+
+    vector = resolve_owner_target_dispositions(
+        advisory_events=events,
+        owner_dispositions=(),
+        dependency_graph=graph,
+    )
+    by_target = {str(row.target_ref.artifact_id): row for row in vector.rows}
+
+    assert by_target[str(root.artifact_id)].source_classes == tuple(sorted(source_classes))
+    assert by_target[str(root.artifact_id)].disposition == "review_required"
+    assert "appeal" not in by_target[str(child.artifact_id)].source_classes
+    assert by_target[str(child.artifact_id)].source_classes == tuple(
+        sorted(source_class for source_class in source_classes if source_class != "appeal")
+    )
+    with pytest.raises(ValueError, match="appeal_perturbation_requires_instance_scope"):
+        AdvisoryPerturbationEvent(
+            event_ref=_ref("overbroad-appeal"),
+            target_ref=root,
+            source_class="appeal",
+            scope="dependency_descendants",
+            event_kind="invalidate",
+            authority_purpose="decision_validity",
+            observed_epoch_ref=_digest("six-class-old-epoch"),
+        )
+
+
 def test_annotation_cannot_cancel_an_authority_transition() -> None:
     target = _ref("annotation-target")
     event = AdvisoryPerturbationEvent(
         event_ref=_ref("annotation-event"),
         target_ref=target,
+        source_class="incident",
+        scope="dependency_descendants",
         event_kind="annotation_only",
         authority_purpose="decision_validity",
         observed_epoch_ref=_digest("old-epoch"),
@@ -555,6 +730,8 @@ def test_dependency_and_adjudication_receipts_bind_complete_denominators() -> No
     event = AdvisoryPerturbationEvent(
         event_ref=_ref("bound-event"),
         target_ref=target,
+        source_class="incident",
+        scope="dependency_descendants",
         event_kind="invalidate",
         authority_purpose="decision_validity",
         observed_epoch_ref=_digest("old-epoch"),
@@ -619,7 +796,7 @@ def test_signed_transition_preimage_binds_owner_purpose_and_both_denominators() 
         (
             "dependency_denominator_ref",
             _digest("other-dependency-denominator"),
-            "epoch_validity_transition_dependency_denominator_mismatch",
+            "epoch_validity_transition_content_mismatch",
         ),
         (
             "adjudication_denominator_ref",

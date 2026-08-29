@@ -1,6 +1,12 @@
 import { ShieldCheck } from "lucide-react";
 
 import { cn } from "@/shared/lib/utils";
+import {
+  epochNonreceipt,
+  formatEpochSemanticsSummary,
+  isEpochSemantics,
+  type EpochSemantics,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
 
 import type { PublicShareSummary } from "./email-fixtures";
 
@@ -12,6 +18,7 @@ type OGCardProps = {
 const OG_BRAND_LABEL = "PolicyOS Runtime";
 const OG_STATE_LABEL = "State";
 const OG_TEMPORAL_SCOPE_LABEL = "Temporal scope";
+const OG_EPOCH_LABEL = "Epoch & validity";
 
 export function OGCard({ summary, className }: OGCardProps) {
   const safeSummary = sanitizePublicShareSummary(summary);
@@ -54,7 +61,7 @@ export function OGCard({ summary, className }: OGCardProps) {
       </main>
 
       <footer className="grid grid-cols-[1fr_auto] items-end gap-8 border-t border-[var(--line)] pt-6">
-        <dl className="grid grid-cols-3 gap-6">
+        <dl className="grid grid-cols-4 gap-6">
           <div>
             <dt className="text-muted-foreground text-xs font-bold uppercase">
               {safeSummary.keyQuantity.label}
@@ -66,6 +73,14 @@ export function OGCard({ summary, className }: OGCardProps) {
                   {safeSummary.keyQuantity.unit}
                 </span>
               ) : null}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground text-xs font-bold uppercase">
+              {OG_EPOCH_LABEL}
+            </dt>
+            <dd className="font-mono text-sm">
+              {formatEpochSemantics(safeSummary.epochSemantics)}
             </dd>
           </div>
           <div>
@@ -95,6 +110,9 @@ export function sanitizePublicShareSummary(
   summary: PublicShareSummary,
 ): PublicShareSummary {
   return {
+    epochSemantics: isEpochSemantics(summary.epochSemantics)
+      ? structuredClone(summary.epochSemantics)
+      : epochNonreceipt(),
     href: summary.href,
     keyQuantity: { ...summary.keyQuantity },
     kind: summary.kind,
@@ -105,6 +123,10 @@ export function sanitizePublicShareSummary(
     title: summary.title,
     trustStatus: summary.trustStatus,
   };
+}
+
+export function formatEpochSemantics(epoch: EpochSemantics): string {
+  return formatEpochSemanticsSummary(epoch);
 }
 
 export function formatTemporalScope(

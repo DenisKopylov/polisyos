@@ -10,9 +10,11 @@ from fastapi.testclient import TestClient
 
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.container import (
+    resolve_acquisition_action_service,
     resolve_human_decision_service,
     resolve_production_approval_resolver,
 )
+from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
 from polisyos.runtime.http.services.human_decisions import HumanDecisionService
 from tests.unit.runtime.http.test_runtime_deployment_security import (
     _config_mapping,
@@ -49,6 +51,22 @@ def test_runtime_container_installs_exact_human_decision_dependencies(
             "status": "ready",
             "type": "HumanDecisionService",
         }
+
+
+def test_runtime_container_installs_one_acquisition_action_service(tmp_path) -> None:
+    runtime = _runtime(_config_mapping_with_human_decision_custody(tmp_path / "acquisition"))
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "cas",
+        deployment_security=runtime,
+    )
+
+    with TestClient(app) as client:
+        container = cast("Any", client.app).state.runtime_container
+        service = resolve_acquisition_action_service(client.app)
+        assert type(service) is AcquisitionActionService
+        assert service is container.acquisition_action_service
+        assert service.control_service is container.control_service
+        assert service.human_decision_service is container.human_decision_service
 
 
 def test_runtime_container_surfaces_typed_unavailable_custody_without_failing_health(

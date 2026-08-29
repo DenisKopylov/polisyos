@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { epochNonreceipt } from "@/shared/ui/temporal/TimeSemanticsLabel";
 
 import type { BureaucraticDocumentAST } from "./ast/bureaucratic-document-ast";
 
@@ -152,6 +153,7 @@ function fixtureDocument(genre: BureaucraticDocumentAST["genre"]) {
     packet_hash: "abcdef123456",
     packet_id: "sha256:abc",
     render_timestamp: "2026-02-11T12:00:00Z",
+    temporal_semantics: epochNonreceipt(),
     status: "draft",
     template: {
       genre,

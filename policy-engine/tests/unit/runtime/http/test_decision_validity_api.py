@@ -5,10 +5,14 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts.control import EpochValidityBatchRequest
+from polisyos.core.contracts.control import (
+    DecisionValidityEventRequest,
+    DecisionValidityEventResponse,
+    EpochValidityBatchRequest,
+)
 from polisyos.core.contracts.decision_validity import (
     DecisionBasisSection,
     DecisionDependencyKind,
@@ -17,13 +21,31 @@ from polisyos.core.contracts.decision_validity import (
     DecisionValidityEvaluation,
     DecisionValidityStatus,
 )
+from polisyos.core.contracts.runtime import ApiMeta
 from polisyos.core.security.identity import PolicyOSRole
-from polisyos.scientist.evidence.claims import build_default_claim_ledger_owner
+from polisyos.runtime.http.errors import RuntimeHTTPError
+from polisyos.scientist.evidence.claims import (
+    AppendOnlyClaimLedger,
+    ClaimPublishability,
+    ClaimRecord,
+    ClaimSupportStatus,
+    ClaimType,
+    build_default_claim_ledger_owner,
+)
+from polisyos.scientist.evidence.claims.audit import _persist_append_only_claim_ledger
 from polisyos.scientist.evidence.claims.head_index import ClaimLifecycleBridgeNonReceipt
+from polisyos.scientist.governance.continuous import load_lifecycle_bridge_result
 from polisyos.scientist.governance.continuous.lifecycle_bridge import (
     EpochClaimLifecycleBridgeService,
     build_epoch_claim_lifecycle_bridge,
 )
+from polisyos.scientist.governance.continuous.monitors import (
+    GovernanceMonitorEvent,
+    LegalChangePerturbation,
+    persist_governance_monitor_event,
+    resolve_governance_monitor_event,
+)
+from polisyos.scientist.methods.search.readiness import DecisionReadiness
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
@@ -43,6 +65,15 @@ def _put_json(store: FileSystemCAS, payload, *, kind: str):
             schema=SchemaInfo(name=kind, version="1.0"),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+
+def _artifact_ref(store: FileSystemCAS, artifact_id: str) -> ArtifactRef:
+    manifest = store.get_manifest(artifact_id)
+    return ArtifactRef(
+        artifact_id=manifest.artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
     )
 
 
@@ -70,6 +101,237 @@ def test_epoch_batch_request_has_no_status_reason_dependency_keys_or_verifier() 
                     forbidden: "caller-controlled",
                 }
             )
+
+
+def test_monitor_event_request_arm_forbids_every_legacy_authority_field() -> None:
+    monitor_ref = {
+        "artifact_id": "sha256:" + "a" * 64,
+        "kind": "scientist.governance_monitor_event",
+        "media_type": "application/json",
+    }
+
+    request = DecisionValidityEventRequest.model_validate({"monitor_event_ref": monitor_ref})
+    assert request.monitor_event_ref is not None
+
+    forbidden_values = {
+        "trigger_type": "law_change",
+        "status": "stale",
+        "reason": "caller-shaped",
+        "dependency_keys": ["norm::caller"],
+        "source_ref": "caller://source",
+        "dedupe_key": "caller-dedupe",
+        "occurred_at": datetime(2026, 8, 27, tzinfo=UTC).isoformat(),
+        "payload": {"source_class": "appeal"},
+    }
+    for field, value in forbidden_values.items():
+        with pytest.raises(ValidationError, match="monitor_event_ref arm"):
+            DecisionValidityEventRequest.model_validate(
+                {"monitor_event_ref": monitor_ref, field: value}
+            )
+
+    with pytest.raises(ValidationError, match="legacy arm"):
+        DecisionValidityEventRequest.model_validate({"reason": "incomplete"})
+
+
+def test_monitor_bridge_response_refs_are_an_all_or_none_receipt() -> None:
+    ref = {
+        "artifact_id": "sha256:" + "b" * 64,
+        "kind": "scientist.governance_monitor_event",
+        "media_type": "application/json",
+    }
+    base = {
+        "meta": ApiMeta(request_id="request-ds18"),
+        "event_id": "event-ds18",
+        "dedupe_key": "dedupe-ds18",
+        "message": "accepted",
+    }
+    with pytest.raises(ValidationError, match="bridge refs"):
+        DecisionValidityEventResponse.model_validate({**base, "monitor_event_ref": ref})
+
+
+def test_live_monitor_ref_reloads_bytes_and_persists_lifecycle_and_epoch_bindings(
+    runtime_api_env,
+) -> None:
+    """The live POST must consume the exact event ref, not a parallel shaped class."""
+
+    bearer = _fixture_bearer("decision-validity-monitor-ref")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-decision-validity-monitor-ref",
+            roles=frozenset({PolicyOSRole.ADMIN}),
+        ),
+    )
+
+    with client:
+        control = client.app.state._control_service
+        store = control._artifact_store
+        claim = ClaimRecord(
+            claim_id="claim-live-monitor",
+            run_id="run-live-monitor",
+            claim_type=ClaimType.FACTUAL,
+            text="The live monitor claim remains append-only.",
+            support_status=ClaimSupportStatus.SUPPORTED,
+            publishability=ClaimPublishability.INTERNAL_ONLY,
+            readiness_level=DecisionReadiness.RESEARCH_ARTIFACT,
+        )
+        ledger_ref = _persist_append_only_claim_ledger(
+            store,
+            AppendOnlyClaimLedger(
+                run_id="run-live-monitor",
+                current_claims=[claim],
+            ),
+        )
+        store.record_artifact_owner(
+            ledger_ref.artifact_id,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            writer="tests.runtime_http.ds18",
+        )
+        envelope = DecisionValidityEnvelope(
+            decision_lineage_key="lineage-live-monitor",
+            policy_fingerprint="policy-live-monitor-v1",
+        )
+        baseline = DecisionValidityEvaluation(
+            decision_lineage_key=envelope.decision_lineage_key,
+            status=DecisionValidityStatus.ACTIVE,
+        )
+        packet_ref = _put_json(
+            store,
+            {
+                "schema_version": "3.4",
+                "run_id": "run-live-monitor",
+                "claim_ledger_v2_ref": ledger_ref.model_dump(mode="json"),
+                "decision_validity_envelope": envelope.model_dump(mode="json"),
+                "decision_validity_baseline": baseline.model_dump(mode="json"),
+            },
+            kind="scientist.decision_packet",
+        )
+        store.record_artifact_owner(
+            packet_ref.artifact_id,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            writer="tests.runtime_http.ds18",
+        )
+        control._decision_validity_service.register_decision_packet(
+            packet_ref=str(packet_ref.artifact_id),
+            envelope=envelope,
+            baseline=baseline,
+        )
+        evidence_ref = _artifact_ref(store, runtime_api_env["legal_artifact_id"])
+        monitor = GovernanceMonitorEvent(
+            event_id="monitor-live-legal-change",
+            decision_packet_ref=packet_ref,
+            event_type="policy_context_drift",
+            severity="block",
+            affected_claim_ids=[claim.claim_id],
+            reason="A content-bound legal change requires owner review.",
+            occurred_at=datetime(2026, 8, 28, 8, 0, tzinfo=UTC),
+            observed_epoch_ref="sha256:" + "e" * 64,
+            perturbation=LegalChangePerturbation(
+                legal_change_evidence_ref=evidence_ref,
+            ),
+        )
+        persisted = persist_governance_monitor_event(store, monitor)
+        store.record_artifact_owner(
+            persisted.event_ref.artifact_id,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            writer="tests.runtime_http.ds18",
+        )
+        assert resolve_governance_monitor_event(store, persisted.event_ref) == persisted
+
+        response = client.post(
+            "/api/v1/control/decision-validity/events",
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+                "X-PolicyOS-Step-Up": _install_bound_test_step_up(client),
+            },
+            json={"monitor_event_ref": persisted.event_ref.model_dump(mode="json")},
+        )
+
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["event_id"] == monitor.event_id
+        assert body["monitor_event_ref"] == persisted.event_ref.model_dump(mode="json")
+        assert body["affected_packets"] == [str(packet_ref.artifact_id)]
+        assert body["affected_statuses"] == {"review_required": 1}
+        bridge_ref = ArtifactRef.model_validate(body["lifecycle_bridge_result_ref"])
+        bridge = load_lifecycle_bridge_result(store, bridge_ref)
+        assert bridge.monitor_event_refs == [persisted.event_ref]
+        assert [row.transition for row in bridge.transition_records] == ["review_required"]
+        advisory_ref = ArtifactRef.model_validate(body["advisory_event_ref"])
+        from polisyos.core.canon import from_canonical_bytes
+
+        advisory_payload = from_canonical_bytes(store.get_bytes(advisory_ref.artifact_id))
+        assert advisory_payload["source_class"] == "legal_change"
+        assert advisory_payload["observed_epoch_ref"] == monitor.observed_epoch_ref
+        assert advisory_payload["target_ref"] == packet_ref.model_dump(mode="json")
+
+
+def test_monitor_ref_without_epoch_binding_is_rejected_before_bridge_persistence(
+    tmp_path,
+) -> None:
+    from polisyos.runtime.http.services.control import ControlPlaneService
+    from polisyos.runtime.http.services.control_registry_providers import (
+        resolve_control_registry_providers,
+    )
+
+    control = ControlPlaneService(
+        cas_root=tmp_path / "cas",
+        core_runs_root=tmp_path / "runs",
+        registry_providers=resolve_control_registry_providers(),
+    )
+    store = control._artifact_store
+    packet_ref = ArtifactRef(
+        artifact_id="sha256:" + "d" * 64,
+        kind="scientist.decision_packet",
+        media_type="application/json",
+    )
+    evidence_ref = ArtifactRef(
+        artifact_id="sha256:" + "e" * 64,
+        kind="lex.legal_report",
+        media_type="application/json",
+    )
+    persisted = persist_governance_monitor_event(
+        store,
+        GovernanceMonitorEvent(
+            event_id="monitor-missing-epoch",
+            decision_packet_ref=packet_ref,
+            event_type="policy_context_drift",
+            severity="warning",
+            reason="No observed epoch was bound.",
+            perturbation=LegalChangePerturbation(
+                legal_change_evidence_ref=evidence_ref,
+            ),
+        ),
+    )
+    kinds_before = tuple(
+        store.get_manifest(artifact_id).kind for artifact_id in store.iter_artifact_ids()
+    )
+
+    with pytest.raises(RuntimeHTTPError) as exc_info:
+        control.publish_decision_validity_event(
+            DecisionValidityEventRequest(monitor_event_ref=persisted.event_ref)
+        )
+    assert exc_info.value.status_code == 422
+    assert exc_info.value.code == "monitor_event_epoch_binding_missing"
+
+    kinds_after = tuple(
+        store.get_manifest(artifact_id).kind for artifact_id in store.iter_artifact_ids()
+    )
+    assert kinds_after.count("scientist.lifecycle_bridge_result") == kinds_before.count(
+        "scientist.lifecycle_bridge_result"
+    )
 
 
 def test_generation_control_caller_cannot_supply_epoch_targets_or_status() -> None:

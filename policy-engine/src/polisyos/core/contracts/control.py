@@ -41,7 +41,12 @@ PolicyAuthorityProfile = Literal["research", "governed", "production"]
 PolicyValidationProfile = Literal["fast", "mvp", "strict"]
 PolicyFallbackProfile = Literal["serious_fallback_fail_closed"]
 ControlJobState = Literal["pending", "running", "completed", "failed"]
-ControlJobKind = Literal["workflow_run", "natural_language_run", "lex_pipeline"]
+ControlJobKind = Literal[
+    "workflow_run",
+    "natural_language_run",
+    "lex_pipeline",
+    "acquisition",
+]
 OperatorProjectionAuthority = Literal["runtime_authority", "projection_only"]
 OperatorProjectionState = Literal[
     "draft",
@@ -176,14 +181,47 @@ class DecisionValidityEventRequest(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    trigger_type: DecisionTriggerType
-    status: DecisionValidityStatus
-    reason: str = Field(..., min_length=1, max_length=512)
+    monitor_event_ref: ArtifactRef | None = None
+    trigger_type: DecisionTriggerType | None = None
+    status: DecisionValidityStatus | None = None
+    reason: str | None = Field(default=None, min_length=1, max_length=512)
     dependency_keys: list[str] = Field(default_factory=list)
     source_ref: str | None = None
     dedupe_key: str | None = None
     occurred_at: datetime | None = None
     payload: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _select_exactly_one_intake_arm(self) -> Self:
+        legacy_fields = {
+            "trigger_type",
+            "status",
+            "reason",
+            "dependency_keys",
+            "source_ref",
+            "dedupe_key",
+            "occurred_at",
+            "payload",
+        }
+        if self.monitor_event_ref is not None:
+            supplied = legacy_fields.intersection(self.model_fields_set)
+            if supplied:
+                raise ValueError(
+                    "monitor_event_ref arm forbids legacy authority fields: "
+                    + ", ".join(sorted(supplied))
+                )
+            return self
+        missing = [
+            field
+            for field in ("trigger_type", "status", "reason")
+            if getattr(self, field) is None
+        ]
+        if missing:
+            raise ValueError(
+                "legacy arm requires trigger_type, status, and reason: "
+                + ", ".join(missing)
+            )
+        return self
 
 
 class DecisionValidityEventResponse(BaseModel):
@@ -196,7 +234,21 @@ class DecisionValidityEventResponse(BaseModel):
     dedupe_key: str
     affected_packets: list[str] = Field(default_factory=list)
     affected_statuses: dict[str, int] = Field(default_factory=dict)
+    monitor_event_ref: ArtifactRef | None = None
+    lifecycle_bridge_result_ref: ArtifactRef | None = None
+    advisory_event_ref: ArtifactRef | None = None
     message: str
+
+    @model_validator(mode="after")
+    def _bridge_refs_are_all_or_none(self) -> Self:
+        refs = (
+            self.monitor_event_ref,
+            self.lifecycle_bridge_result_ref,
+            self.advisory_event_ref,
+        )
+        if any(ref is not None for ref in refs) and not all(ref is not None for ref in refs):
+            raise ValueError("monitor lifecycle bridge refs must be supplied together")
+        return self
 
 
 class EpochValidityBatchRequest(BaseModel):

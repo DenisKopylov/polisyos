@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from pathlib import Path
+from typing import Literal
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.evidence.claims.lifecycle import (
     AppendOnlyClaimLedger,
     ClaimLifecycleAction,
@@ -15,8 +20,12 @@ from polisyos.scientist.evidence.claims.models import (
     ClaimType,
 )
 from polisyos.scientist.governance.continuous.invalidation import (
+    EvidenceValidityEvent,
+    governance_event_from_evidence_validity,
     governance_event_from_source_invalidation,
     mark_dependent_claims_stale,
+    persist_evidence_validity_event,
+    resolve_evidence_validity_event,
 )
 from polisyos.scientist.governance.continuous.monitors import DecisionValidityStatus
 from polisyos.scientist.methods.research_dag.builder import ResearchDAGBuilder
@@ -27,7 +36,6 @@ from polisyos.scientist.methods.research_dag.invalidation import (
 )
 from polisyos.scientist.methods.research_dag.models import ResearchEdgeType, ResearchNodeType
 from polisyos.scientist.methods.search.readiness import DecisionReadiness
-from pydantic import ValidationError
 
 
 def _ref(seed: str, *, kind: str = "scientist.source") -> ArtifactRef:
@@ -152,3 +160,59 @@ def test_source_invalidation_without_lineage_cannot_silently_pass() -> None:
 def test_monitor_result_validation_keeps_updated_ledger_typed() -> None:
     with pytest.raises(ValidationError):
         AppendOnlyClaimLedger(run_id="", current_claims=[])
+
+
+@pytest.mark.parametrize("event_class", ["correction", "retraction"])
+def test_evidence_validity_event_binds_complete_publication_path(
+    tmp_path: Path,
+    event_class: Literal["correction", "retraction"],
+) -> None:
+    replacements = (_ref("5", kind="scientist.evidence_line"),) if event_class == "correction" else ()
+    event = EvidenceValidityEvent(
+        event_id=f"evidence-{event_class}",
+        event_class=event_class,
+        source_event_ref=_ref("1", kind="scientist.source_event"),
+        evidence_line_ref=_ref("2", kind="scientist.evidence_line"),
+        claim_ref=_ref("3", kind="scientist.claim"),
+        claim_id="claim_1",
+        publication_ref=_ref("4", kind="scientist.decision_packet"),
+        reason=f"Evidence {event_class} changed the published basis.",
+        replacement_refs=replacements,
+        logic_relation="changed",
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+
+    persisted = persist_evidence_validity_event(store, event)
+    loaded = resolve_evidence_validity_event(store, persisted.event_ref)
+    monitor = governance_event_from_evidence_validity(persisted=loaded)
+
+    assert loaded.event == event
+    assert monitor.perturbation is not None
+    assert monitor.perturbation.source_class == event_class
+    assert monitor.decision_packet_ref == event.publication_ref
+    assert monitor.affected_claim_ids == [event.claim_id]
+
+
+def test_evidence_validity_event_rejects_incomplete_or_substituted_path() -> None:
+    common = {
+        "event_id": "evidence-correction",
+        "event_class": "correction",
+        "source_event_ref": _ref("1", kind="scientist.source_event"),
+        "evidence_line_ref": _ref("2", kind="scientist.evidence_line"),
+        "claim_ref": _ref("3", kind="scientist.claim"),
+        "claim_id": "claim_1",
+        "publication_ref": _ref("4", kind="scientist.decision_packet"),
+        "reason": "Correction changes the published evidence basis.",
+        "logic_relation": "changed",
+    }
+
+    with pytest.raises(ValidationError, match="replacement evidence"):
+        EvidenceValidityEvent(**common)
+    with pytest.raises(ValidationError, match="distinct artifacts"):
+        EvidenceValidityEvent(
+            **{
+                **common,
+                "claim_ref": common["source_event_ref"],
+                "replacement_refs": (_ref("5", kind="scientist.evidence_line"),),
+            }
+        )

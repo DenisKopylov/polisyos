@@ -14,6 +14,10 @@ import {
   DEFAULT_PROJECTION_USE_LIMITS,
   type GeneratedProjectionAuthority,
 } from "@/shared/lib/domain/projectionFailClosed";
+import {
+  isEpochSemantics,
+  type EpochSemantics,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
 
 export type ToulminNodeKind =
   | "backing"
@@ -168,6 +172,7 @@ export type PublicDecisionPacket = {
   coverageCaveat: CoverageCaveat;
   decision: PublicDecisionSummary;
   deterministicExplanations: DeterministicExplanation[];
+  epochSemantics: EpochSemantics;
   glossary: GlossaryTerm[];
   modelCard: CitationModelCard;
   packetHash: string;
@@ -219,6 +224,7 @@ export type PublicDecisionPacketInput = {
   decisionScore?: QuantityValueOutput | null;
   decisionView?: DecisionCardViewModel | null;
   evidenceContext?: RunEvidenceContext | null;
+  epochSemantics: EpochSemantics;
   governanceIssues?: GovernanceIssueView[];
   now?: string;
   policyDesignCaseProjection?: GeneratedProjectionAuthority | null;
@@ -967,6 +973,11 @@ function buildTrustFraming(input: {
 export function buildPublicDecisionPacket(
   input: PublicDecisionPacketInput,
 ): PublicDecisionPacket {
+  if (!isEpochSemantics(input.epochSemantics)) {
+    throw new TypeError(
+      "public decision packet requires exact admitted epoch semantics or a typed epoch semantics nonreceipt",
+    );
+  }
   const governanceIssues = input.governanceIssues ?? [];
   const decision = buildDecisionSummary(input);
   const metrics = input.decisionView?.keyMetrics ?? [];
@@ -996,6 +1007,7 @@ export function buildPublicDecisionPacket(
     coverageCaveat: buildCoverageCaveat(input.evidenceContext),
     decision,
     deterministicExplanations,
+    epochSemantics: structuredClone(input.epochSemantics),
     glossary: GLOSSARY_TERMS,
     modelCard: buildModelCard({
       decision,
@@ -1072,6 +1084,7 @@ function isSignedPublicDecisionPacket(
     Boolean(record.argumentMap) &&
     Boolean(record.modelCard) &&
     Boolean(record.coverageCaveat) &&
+    isEpochSemantics(record.epochSemantics) &&
     Boolean(record.projectionSemantics) &&
     Boolean(record.thresholdContract) &&
     Boolean(record.trustFraming)
@@ -1190,6 +1203,7 @@ function isPublicDecisionPacket(value: unknown): value is PublicDecisionPacket {
     Boolean(record.argumentMap) &&
     Boolean(record.modelCard) &&
     Boolean(record.coverageCaveat) &&
+    isEpochSemantics(record.epochSemantics) &&
     Boolean(record.projectionSemantics) &&
     Boolean(record.thresholdContract) &&
     Boolean(record.trustFraming)

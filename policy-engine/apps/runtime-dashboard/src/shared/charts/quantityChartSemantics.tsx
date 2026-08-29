@@ -6,6 +6,7 @@ import {
   type QuantityFormatOptions,
 } from "@/shared/ui/quantity/quantity-format";
 import { cn } from "@/shared/lib/utils";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 
 export type ChartQuantityInput =
   | QuantityValueOutput
@@ -75,15 +76,23 @@ export function ChartQuantityEvidence({
         };
         const key = `${quantity.metric_id ?? quantity.lineage.id}:${index}`;
 
-        return pointNullEvidence === null ? (
-          <Quantity key={key} {...quantityProps} />
-        ) : (
-          <Quantity
-            key={key}
-            {...quantityProps}
-            absentValue={pointNullEvidence}
-            absentValueLabel={pointNullEvidence}
-          />
+        return (
+          <span className="inline-flex flex-wrap items-start gap-1.5" key={key}>
+            {pointNullEvidence === null ? (
+              <Quantity {...quantityProps} />
+            ) : (
+              <Quantity
+                {...quantityProps}
+                absentValue={pointNullEvidence}
+                absentValueLabel={pointNullEvidence}
+              />
+            )}
+            <TimeSemanticsLabel
+              className="max-w-xs"
+              txAt={quantity.time?.tx_at}
+              validAt={quantity.time?.valid_at}
+            />
+          </span>
         );
       })}
     </span>

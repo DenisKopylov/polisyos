@@ -166,6 +166,9 @@ describe("CycleBoardPage authorization boundary", () => {
     expect(useConfidenceLedgerRiskSpendMock).toHaveBeenCalledTimes(1);
     expect(cycleBoardMock).toHaveBeenCalledTimes(1);
     expect(confidenceLedgerRiskSpendMock).toHaveBeenCalledTimes(1);
+    expect(cycleBoardMock.mock.calls[0]?.[0]).not.toHaveProperty(
+      "acquisitionGrowth",
+    );
     expect(screen.getByTestId("cycle-board")).toHaveAttribute(
       "data-audiences",
       "REVIEWER,EXPERT",

@@ -17,7 +17,13 @@ from polisyos.common.logger import get_logger
 from polisyos.core import artifacts, registry, run
 from polisyos.core.artifacts.async_store import ensure_async_artifact_store
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactGovernanceInfo,
+    ArtifactManifest,
+    ArtifactRef,
+    ProducerInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import (
     CanonSpec,
@@ -72,7 +78,12 @@ from polisyos.core.contracts.control import (
     SourceProfilesListResponse,
     WorkflowRunRequest,
 )
-from polisyos.core.contracts.decision_validity import DecisionDependencyEvent
+from polisyos.core.contracts.decision_validity import (
+    DecisionDependencyEvent,
+    DecisionTriggerRecord,
+    DecisionTriggerType,
+    DecisionValidityStatus,
+)
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.security import tenant_scope
 from polisyos.runtime.http.errors import conflict, forbidden, unprocessable_entity
@@ -121,6 +132,10 @@ from polisyos.runtime.http.services.control.workspace_loop_transition import (
     ControlPlaneWorkspaceLoopTransitionMixin,
     _WorkflowExecutionNonAuthorityError,
 )
+from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionRouteLoopReceipt,
+    AcquisitionRoutePhaseReceipt,
+)
 from polisyos.runtime.quality.authority import GovernanceMetadata, SameInputClosure
 from polisyos.runtime.quality.authority_reconciliation import (
     AuthorityReconciliationReport,
@@ -131,6 +146,9 @@ from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_SCHEMA_VERSION,
     SERIOUS_EXECUTION_PROFILES,
     DiagnosticEvent,
+)
+from polisyos.runtime.quality.epoch_validity_cascade import (
+    persist_advisory_perturbation_event,
 )
 from polisyos.runtime.quality.evaluation_safety import (
     EvalSafetyAppointmentResolution,
@@ -154,6 +172,9 @@ from polisyos.scientist import (
     build_default_claim_ledger_owner,
     build_epoch_claim_lifecycle_bridge,
 )
+from polisyos.scientist.governance.continuous import (
+    resolve_governance_monitor_event,
+)
 from polisyos.scientist.orchestration.llm.provider_verification import run_provider_preflight
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
@@ -169,6 +190,7 @@ from .._control_contracts import (
     _resolve_data_source,
 )
 from ..control_plane_store import (
+    AcquisitionActionHeadRecord,
     ControlJobRecord,
     ControlPlaneStore,
     HumanDecisionRecoveryFence,
@@ -198,6 +220,14 @@ _EPOCH_VALIDITY_INTAKE_FAILURE_CODES = frozenset(
         "decision_validity_epoch_receipt_unresolved",
     }
 )
+_MONITOR_TRIGGER_BY_SOURCE_CLASS: dict[str, DecisionTriggerType] = {
+    "incident": DecisionTriggerType.POST_DEPLOYMENT_REFUTATION,
+    "appeal": DecisionTriggerType.EXPERT_REVIEW,
+    "correction": DecisionTriggerType.DATA_INVALIDATION,
+    "retraction": DecisionTriggerType.SOURCE_INVALIDATION,
+    "legal_change": DecisionTriggerType.LAW_CHANGE,
+    "discovered_bias": DecisionTriggerType.CONTEXT_PROFILE_DRIFT,
+}
 
 
 def _default_runtime_metrics() -> MetricsRegistry:
@@ -361,6 +391,222 @@ if TYPE_CHECKING:
 # ---------------------------------------------------------------------------
 # Service
 # ---------------------------------------------------------------------------
+
+
+class AcquisitionRouteLoopAuthoritySink:
+    """Persist and advance verified acquisition route phase heads."""
+
+    __slots__ = ("_artifact_store", "_control_store", "_event_log")
+
+    def __init__(
+        self,
+        *,
+        artifact_store: object,
+        event_log: RuntimeDiagnosticEventLog,
+        control_store: ControlPlaneStore,
+    ) -> None:
+        for capability in ("has", "get_bytes", "get_manifest", "put_json"):
+            if not callable(getattr(artifact_store, capability, None)):
+                raise TypeError("acquisition sink requires guarded CAS capabilities")
+        self._artifact_store = artifact_store
+        self._event_log = event_log
+        self._control_store = control_store
+
+    def get_head(
+        self,
+        receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+    ) -> AcquisitionActionHeadRecord | None:
+        """Read the latest exact durable action head for a phase identity."""
+
+        return self._control_store.get_acquisition_action_head(
+            tenant_id=receipt.tenant_id,
+            cell_id=receipt.cell_id,
+            run_id=receipt.run_id,
+            source_job_id=receipt.source_job_id,
+            route_id=receipt.route_id,
+            action_generation=receipt.action_generation,
+        )
+
+    def persist_phase(
+        self,
+        receipt: AcquisitionRoutePhaseReceipt,
+    ) -> AcquisitionActionHeadRecord:
+        """Write, reconcile, read back, and then advance one exact phase head."""
+
+        typed = AcquisitionRoutePhaseReceipt.model_validate(receipt)
+        return self._persist_receipt(
+            typed,
+            artifact_kind="runtime_quality.acquisition_route_phase_receipt",
+            schema_name="polisyos.runtime.AcquisitionRoutePhaseReceipt",
+            event_type="polisyos.runtime.acquisition.route_phase.v1",
+            event_suffix=typed.receipt_phase,
+            receipt_type=AcquisitionRoutePhaseReceipt,
+            receipt_label="phase",
+        )
+
+    def persist_terminal(
+        self,
+        receipt: AcquisitionRouteLoopReceipt,
+    ) -> AcquisitionActionHeadRecord:
+        """Write and expose a terminal head only after exact loop-receipt readback."""
+
+        typed = AcquisitionRouteLoopReceipt.model_validate(receipt)
+        return self._persist_receipt(
+            typed,
+            artifact_kind="runtime_quality.acquisition_route_loop_receipt",
+            schema_name="polisyos.runtime.AcquisitionRouteLoopReceipt",
+            event_type="polisyos.runtime.acquisition.route_loop.v1",
+            event_suffix="loop_terminal",
+            receipt_type=AcquisitionRouteLoopReceipt,
+            receipt_label="loop",
+        )
+
+    def _persist_receipt(
+        self,
+        typed: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+        *,
+        artifact_kind: str,
+        schema_name: str,
+        event_type: str,
+        event_suffix: str,
+        receipt_type: type[AcquisitionRoutePhaseReceipt] | type[AcquisitionRouteLoopReceipt],
+        receipt_label: str,
+    ) -> AcquisitionActionHeadRecord:
+        """Persist one strict receipt family before advancing its shared action head."""
+
+        current = self.get_head(typed)
+        if (current is None and typed.predecessor_receipt_ref is not None) or (
+            current is not None and typed.predecessor_receipt_ref != current.receipt_ref
+        ):
+            raise ValueError("acquisition_action_predecessor_conflict")
+        payload = typed.model_dump(mode="json")
+        canon_spec = CanonSpec(forbid_floats=False)
+        generated_at = typed.generated_at.isoformat()
+        input_refs = (
+            (typed.predecessor_receipt_ref,) if typed.predecessor_receipt_ref is not None else ()
+        )
+        result = write_runtime_authority_artifact(
+            self._artifact_store,
+            self._event_log,
+            payload,
+            ArtifactWriteOptions(
+                kind=artifact_kind,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=schema_name,
+                    version="1.0",
+                ),
+                producer=ProducerInfo(
+                    component="polisyos.runtime.acquisition_route_loop",
+                    version="2026.08.28+ds15-c02",
+                ),
+                governance=ArtifactGovernanceInfo(classification="internal"),
+                inputs=[],
+            ),
+            evidence_id=typed.receipt_id,
+            evidence_class="authority_bearing",
+            authority_role="producer_authority",
+            provenance_kind="runtime_emitted",
+            owner="team-runtime-quality",
+            reader_contract="runtime.acquisition_route_loop.reader",
+            reader_contract_version="1.0",
+            tenant_id=typed.tenant_id,
+            cell_id=typed.cell_id,
+            run_id=typed.run_id,
+            job_id=typed.job_id,
+            trace_id=f"trace-{typed.job_id}",
+            span_id=f"span-{typed.receipt_phase}",
+            parent_span_id=None,
+            requested_execution_profile="governed",
+            effective_execution_profile="governed",
+            phase="acquisition_route_loop",
+            generated_at=generated_at,
+            as_of_time=generated_at,
+            same_input_closure={
+                "closure_id": f"acquisition-route:{typed.receipt_id}",
+                "status": "closed",
+                "run_id": typed.run_id,
+                "job_id": typed.job_id,
+                "tenant_id": typed.tenant_id,
+                "cell_id": typed.cell_id,
+                "evidence_input_refs": input_refs,
+                "closure_sha256": typed.route_id,
+            },
+            input_refs=input_refs,
+            effective_mode_ref=typed.route_id,
+            degradation_ledger_ref=None,
+            semantic_binding_ref=typed.cost_basis_hash,
+            validation_status="pass",
+            blocking_status=(
+                "blocking"
+                if typed.recovery_state == "reentry_recovery_required"
+                else "non_blocking"
+            ),
+            governance=GovernanceMetadata(
+                classification="internal",
+                authority_boundary="runtime.acquisition_route_loop",
+                pii="none",
+                retention_policy="runtime-quality-90d",
+                review_status="runtime_verified",
+                override_policy="no_override",
+                approval_policy="pa2_ds9_decision_required",
+            ),
+            event_id=f"evt_acquisition_{typed.action_generation}_{event_suffix}",
+            event_source="polisyos.runtime.quality.acquisition_route_loop",
+            event_type=event_type,
+            event_subject=(
+                f"run/{typed.run_id}/job/{typed.job_id}/acquisition/{typed.receipt_phase}"
+            ),
+            state_before=(current.receipt_phase if current is not None else None),
+            state_after=typed.receipt_phase,
+            canon_spec=canon_spec,
+        )
+        receipt_ref = str(result.cas_ref.artifact_id)
+        if result.payload_sha256 != receipt_ref.removeprefix("sha256:"):
+            raise RuntimeError(f"acquisition_{receipt_label}_payload_hash_mismatch")
+        report = reconcile_authority_ref(
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            cas_ref=receipt_ref,
+            expected_tenant_id=typed.tenant_id,
+            expected_cell_id=typed.cell_id,
+            expected_run_id=typed.run_id,
+            expected_job_id=typed.job_id,
+        )
+        loaded = receipt_type.model_validate(
+            from_canonical_bytes(self._artifact_store.get_bytes(receipt_ref))
+        )
+        manifest = self._artifact_store.get_manifest(receipt_ref)
+        schema = manifest.artifact_schema
+        if (
+            loaded != typed
+            or report.durable_event_id is None
+            or manifest.kind != artifact_kind
+            or schema is None
+            or schema.name != schema_name
+            or schema.version != "1.0"
+        ):
+            raise RuntimeError(f"acquisition_{receipt_label}_readback_failed")
+        head = self._control_store.advance_acquisition_action_head(
+            tenant_id=typed.tenant_id,
+            cell_id=typed.cell_id,
+            run_id=typed.run_id,
+            source_job_id=typed.source_job_id,
+            route_id=typed.route_id,
+            action_generation=typed.action_generation,
+            expected_head_generation=(current.head_generation if current is not None else 0),
+            receipt_ref=receipt_ref,
+            receipt_sha256=receipt_ref,
+            durable_event_id=report.durable_event_id,
+            coarse_phase=typed.coarse_phase,
+            receipt_phase=typed.receipt_phase,
+            recovery_state=typed.recovery_state,
+            job_id=typed.job_id,
+            predecessor_receipt_ref=typed.predecessor_receipt_ref,
+        )
+        if self.get_head(typed) != head:
+            raise RuntimeError("acquisition_action_head_readback_failed")
+        return head
 
 
 class HumanDecisionAuthoritySink:
@@ -1044,6 +1290,14 @@ class ControlPlaneService(
             event_log=self._diagnostic_event_log,
             reservation_store=self._control_store,
         )
+        self._acquisition_route_sink = AcquisitionRouteLoopAuthoritySink(
+            artifact_store=self._artifact_store,
+            event_log=self._diagnostic_event_log,
+            control_store=self._control_store,
+        )
+        self._acquisition_job_handler: (
+            Callable[[ControlJobRecord, dict[str, Any]], dict[str, Any]] | None
+        ) = None
         if decision_validity_service is not None and not isinstance(
             decision_validity_service, DecisionValidityService
         ):
@@ -1155,6 +1409,55 @@ class ControlPlaneService(
         """Expose only the custodied human-decision persistence boundary."""
 
         return self._human_decision_sink
+
+    @property
+    def acquisition_route_sink(self) -> AcquisitionRouteLoopAuthoritySink:
+        """Expose the sole durable acquisition action-head authority."""
+
+        return self._acquisition_route_sink
+
+    def bind_acquisition_job_handler(
+        self,
+        handler: Callable[[ControlJobRecord, dict[str, Any]], dict[str, Any]],
+    ) -> None:
+        """Bind one container-composed acquisition worker bridge."""
+
+        if not callable(handler):
+            raise TypeError("acquisition job handler must be callable")
+        if self._acquisition_job_handler is not None:
+            raise RuntimeError("acquisition job handler is already bound")
+        self._acquisition_job_handler = handler
+
+    def enqueue_acquisition_job(
+        self,
+        *,
+        job_id: str,
+        run_id: str,
+        payload: dict[str, Any],
+        request_id: str | None = None,
+        principal: RuntimePrincipal | None = None,
+    ) -> ControlJobRecord:
+        """Persist one deterministic acquisition payload and queue it for the generic worker."""
+
+        existing = self._control_store.get_job(job_id)
+        if existing is not None:
+            if existing.kind != "acquisition" or existing.run_id != run_id:
+                raise RuntimeError("acquisition_job_identity_conflict")
+            return existing
+        policy = self._resolve_execution_policy(
+            requested_profile=None,
+            policy_flags=PolicyFlags(),
+            principal=principal,
+        )
+        return self._enqueue_job(
+            job_id=job_id,
+            job_kind="acquisition",
+            run_id=run_id,
+            pipeline_id=None,
+            payload=payload,
+            policy=policy,
+            request_id=request_id,
+        )
 
     @property
     def execution_policy_resolver(self) -> RuntimeExecutionPolicyResolver:
@@ -2428,6 +2731,40 @@ class ControlPlaneService(
                         capability_manifest_ref=capability_manifest_ref,
                     )
                     return
+                if job.kind == "acquisition":
+                    handler = self._acquisition_job_handler
+                    if handler is None:
+                        raise RuntimeError("acquisition_job_handler_missing")
+                    capability_manifest_ref = (
+                        job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
+                    )
+                    progress = handler(job, payload)
+                    self._control_store.complete_job(
+                        job_id=job.job_id,
+                        run_id=str(job.run_id or payload.get("run_id") or ""),
+                        capability_manifest_ref=capability_manifest_ref,
+                        progress=progress,
+                    )
+                    artifact_refs = [capability_manifest_ref]
+                    terminal_receipt_ref = progress.get("terminal_receipt_ref")
+                    if isinstance(terminal_receipt_ref, str):
+                        artifact_refs.append(terminal_receipt_ref)
+                    self._emit_runtime_diagnostic_event(
+                        job_id=job.job_id,
+                        run_id=str(job.run_id or payload.get("run_id") or ""),
+                        execution_profile=job.effective_execution_profile,
+                        phase="job_execution",
+                        event_type="polisyos.runtime.diagnostic.phase_transition.v1",
+                        state_before="running",
+                        state_after="completed",
+                        payload=payload,
+                        event_payload={
+                            "job_kind": job.kind,
+                            "receipt_phase": progress.get("receipt_phase"),
+                        },
+                        artifact_refs=artifact_refs,
+                    )
+                    return
                 raise RuntimeError(f"Unsupported control job kind: {job.kind}")
         except Exception as exc:
             logger.exception("Control job %s failed: %s", job.job_id, exc)
@@ -2556,6 +2893,11 @@ class ControlPlaneService(
         request_id: str | None = None,
     ) -> DecisionValidityEventResponse:
         """Record a decision-dependency event and enqueue one deduplicated outbox notification."""
+        if request.monitor_event_ref is not None:
+            return self._publish_monitor_decision_validity_event(
+                request.monitor_event_ref,
+                request_id=request_id,
+            )
         dependency_keys = [item.strip() for item in request.dependency_keys if str(item).strip()]
         dedupe_key = request.dedupe_key or self._derive_decision_validity_dedupe_key(
             request,
@@ -2615,6 +2957,116 @@ class ControlPlaneService(
             message=(
                 f"Decision validity event {event.event_id} accepted for "
                 f"{len(affected_packets)} packet(s)."
+            ),
+        )
+
+    def _publish_monitor_decision_validity_event(
+        self,
+        monitor_event_ref: ArtifactRef,
+        *,
+        request_id: str | None,
+    ) -> DecisionValidityEventResponse:
+        """Content-bind the monitor arm before deriving any lifecycle consequence."""
+
+        try:
+            persisted = resolve_governance_monitor_event(
+                self._artifact_store,
+                monitor_event_ref,
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise unprocessable_entity(
+                "The governance monitor event could not be resolved exactly.",
+                code="monitor_event_unresolvable",
+            ) from exc
+        event = persisted.event
+        perturbation = event.perturbation
+        if perturbation is None:
+            raise unprocessable_entity(
+                "The monitor event does not carry a typed epoch perturbation.",
+                code="monitor_event_perturbation_missing",
+            )
+        if event.observed_epoch_ref is None:
+            raise unprocessable_entity(
+                "The monitor event does not bind the epoch in which it was observed.",
+                code="monitor_event_epoch_binding_missing",
+            )
+
+        try:
+            bridge = self._epoch_claim_lifecycle_bridge.bridge_monitor_event(
+                monitor_event_ref=monitor_event_ref,
+                actor_id="runtime.control.decision_validity.monitor_event",
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise unprocessable_entity(
+                "The monitor event could not be bound to the packet claim lifecycle.",
+                code="monitor_event_lifecycle_bridge_rejected",
+            ) from exc
+        if bridge.monitor_event != persisted:
+            raise unprocessable_entity(
+                "The lifecycle bridge resolved different monitor bytes.",
+                code="monitor_event_lifecycle_bridge_rejected",
+            )
+        try:
+            advisory_event_ref = persist_advisory_perturbation_event(
+                store=self._artifact_store,
+                persisted_monitor_event=persisted,
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise unprocessable_entity(
+                "The monitor event could not be bound to the epoch advisory stream.",
+                code="monitor_event_epoch_advisory_rejected",
+            ) from exc
+
+        source_class = perturbation.source_class
+        trigger = DecisionTriggerRecord(
+            trigger_type=_MONITOR_TRIGGER_BY_SOURCE_CLASS[source_class],
+            status=(
+                DecisionValidityStatus.WARNING
+                if event.advisory_posture == "annotation_only"
+                else DecisionValidityStatus.REVIEW_REQUIRED
+            ),
+            reason=event.reason,
+            source_ref=str(monitor_event_ref.artifact_id),
+            details={
+                "monitor_event_ref": monitor_event_ref.model_dump(mode="json"),
+                "source_class": source_class,
+                "observed_epoch_ref": event.observed_epoch_ref,
+                "advisory_event_ref": advisory_event_ref.model_dump(mode="json"),
+            },
+        )
+        evaluation = self._decision_validity_service.mark_packet_trigger(
+            packet_ref=str(event.decision_packet_ref.artifact_id),
+            trigger=trigger,
+        )
+        dedupe_key = f"monitor:{monitor_event_ref.artifact_id}"
+        affected_packets = [str(event.decision_packet_ref.artifact_id)]
+        affected_statuses = {evaluation.status.value: 1}
+        self._control_store.enqueue_outbox_event(
+            topic="control.decision_validity.monitor_event_published",
+            event_key=dedupe_key,
+            payload={
+                "event_id": event.event_id,
+                "dedupe_key": dedupe_key,
+                "monitor_event_ref": monitor_event_ref.model_dump(mode="json"),
+                "lifecycle_bridge_result_ref": bridge.result_ref.model_dump(mode="json"),
+                "advisory_event_ref": advisory_event_ref.model_dump(mode="json"),
+                "source_class": source_class,
+                "affected_packets": affected_packets,
+                "affected_statuses": affected_statuses,
+            },
+        )
+        return DecisionValidityEventResponse(
+            meta=_build_api_meta(request_id),
+            event_id=event.event_id,
+            dedupe_key=dedupe_key,
+            affected_packets=affected_packets,
+            affected_statuses=affected_statuses,
+            monitor_event_ref=monitor_event_ref,
+            lifecycle_bridge_result_ref=bridge.result_ref,
+            advisory_event_ref=advisory_event_ref,
+            message=(
+                f"Governance monitor event {event.event_id} was content-bound to "
+                "the claim lifecycle and epoch advisory stream."
             ),
         )
 

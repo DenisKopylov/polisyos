@@ -8,22 +8,30 @@ __all__ = [
     "CONTINUOUS_GOVERNANCE_FLAG",
     "ENABLE_REISSUE_WORKFLOW_FLAG",
     "ENABLE_WITHDRAWAL_STATUS_FLAG",
+    "GOVERNANCE_MONITOR_EVENT_KIND",
+    "AppealPerturbation",
+    "CorrectionPerturbation",
     "ContinuousInvalidationResult",
     "DecisionValidityReport",
     "DecisionValidityStatus",
     "DetectorConfig",
     "DriftDetectionResult",
+    "DiscoveredBiasPerturbation",
     "FairnessDriftSignal",
     "GovernanceMonitorEvent",
     "GovernanceMonitorRecommendation",
     "IncidentReport",
     "IncidentSeverity",
+    "IncidentPerturbation",
+    "LegalChangePerturbation",
     "LifecycleBridgeBlocker",
     "LifecycleBridgeResult",
     "PartialPublicationState",
     "PolicyContextSignal",
+    "PersistedGovernanceMonitorEvent",
     "PublicRevisionDiff",
     "ReissuePacket",
+    "RetractionPerturbation",
     "SparseHistoryPolicy",
     "WithdrawalRecord",
     "aggregate_validity_status",
@@ -54,6 +62,7 @@ __all__ = [
     "persist_withdrawal_record",
     "recommend_validity_action",
     "reissue_scope_from_monitor_events",
+    "resolve_governance_monitor_event",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -68,6 +77,22 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ENABLE_WITHDRAWAL_STATUS_FLAG": (
         "polisyos.scientist.governance.continuous.monitors",
         "ENABLE_WITHDRAWAL_STATUS_FLAG",
+    ),
+    "GOVERNANCE_MONITOR_EVENT_KIND": (
+        "polisyos.scientist.governance.continuous.monitors",
+        "GOVERNANCE_MONITOR_EVENT_KIND",
+    ),
+    "AppealPerturbation": (
+        "polisyos.scientist.governance.continuous.monitors",
+        "AppealPerturbation",
+    ),
+    "CorrectionPerturbation": (
+        "polisyos.scientist.governance.continuous.monitors",
+        "CorrectionPerturbation",
+    ),
+    "DiscoveredBiasPerturbation": (
+        "polisyos.scientist.governance.continuous.monitors",
+        "DiscoveredBiasPerturbation",
     ),
     "DecisionValidityStatus": (
         "polisyos.scientist.governance.continuous.monitors",
@@ -92,6 +117,22 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "GovernanceMonitorRecommendation": (
         "polisyos.scientist.governance.continuous.monitors",
         "GovernanceMonitorRecommendation",
+    ),
+    "IncidentPerturbation": (
+        "polisyos.scientist.governance.continuous.monitors",
+        "IncidentPerturbation",
+    ),
+    "LegalChangePerturbation": (
+        "polisyos.scientist.governance.continuous.monitors",
+        "LegalChangePerturbation",
+    ),
+    "PersistedGovernanceMonitorEvent": (
+        "polisyos.scientist.governance.continuous.monitors",
+        "PersistedGovernanceMonitorEvent",
+    ),
+    "RetractionPerturbation": (
+        "polisyos.scientist.governance.continuous.monitors",
+        "RetractionPerturbation",
     ),
     "LifecycleBridgeBlocker": (
         "polisyos.scientist.governance.continuous.lifecycle_bridge",
@@ -144,6 +185,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "recommend_validity_action": (
         "polisyos.scientist.governance.continuous.monitors",
         "recommend_validity_action",
+    ),
+    "resolve_governance_monitor_event": (
+        "polisyos.scientist.governance.continuous.monitors",
+        "resolve_governance_monitor_event",
     ),
     "IncidentReport": (
         "polisyos.scientist.governance.continuous.incident",

@@ -23,6 +23,109 @@ export type AccessRef = {
   tenant_scope?: string;
 };
 
+export type AcquisitionBacklogProjection = {
+  authority_boundary: string;
+  binding_confidence: number;
+  classification_basis: "independently_reconciled" | "not_established";
+  gap_class: GapClass;
+  rank: number;
+  ranking_method: string;
+  ranking_score: number;
+  route_demand: number;
+  variable_id: string;
+  voi_owner_fit: string;
+  voi_owner_integration: string;
+  voi_owner_ref: string;
+};
+
+export type AcquisitionDecisionRequestResponse = {
+  authority_decision_ref: string;
+  human_decision_request?: {
+  [key: string]: unknown;
+} | null;
+  outcome: "decision_required" | "decision_available";
+  route_id: string;
+  run_id: string;
+  world_growth?: string;
+};
+
+export type AcquisitionExecutionResponse = {
+  authority_decision_ref: string;
+  job_id: string;
+  receipt_phase?: string;
+  route_id: string;
+  run_id: string;
+  status?: string;
+  world_growth?: string;
+};
+
+export type AcquisitionGrowthPayload = {
+  backlog: Array<AcquisitionBacklogProjection>;
+  carrier_liveness: {
+  [key: string]: unknown;
+};
+  n13b_history: N13bHistoryProjection;
+  schema_version?: string;
+  structural_routes: Array<StructuralRouteProjection>;
+  summary: AcquisitionGrowthSummary;
+};
+
+export type AcquisitionGrowthSummary = {
+  actual_network_call_count: number;
+  backlog_count: number;
+  family_scorecard_count: number;
+  metric_resolution_count: number;
+  selected_record_count: number;
+  structural_route_count: number;
+};
+
+export type AcquisitionRouteListResponse = {
+  routes: Array<AcquisitionRouteProjection>;
+  run_id: string;
+};
+
+export type AcquisitionRouteMutationRequest = {
+  human_decision_record_ref?: string | null;
+  idempotency_key: string;
+  planner_report_hash: string;
+  replay_pins: AcquisitionRouteReplayPins;
+  route_projection_hash: string;
+};
+
+export type AcquisitionRouteProjection = {
+  authority_badge?: string;
+  authority_capability: "ready" | "producer_missing";
+  cell_id: string;
+  cost_basis: {
+  [key: string]: unknown;
+};
+  execution_capability: "ready" | "producer_missing";
+  external_nonclosures?: Array<string>;
+  planner_record_id: string;
+  planner_report_hash: string;
+  qualification_predicate?: string;
+  qualification_reason?: string;
+  qualification_status?: string;
+  recommended_strategy: string;
+  replay_pins: AcquisitionRouteReplayPins;
+  route_id: string;
+  route_projection_hash: string;
+  route_status?: string;
+  run_id: string;
+  schema_version?: string;
+  tenant_id: string;
+  world_growth?: string;
+};
+
+export type AcquisitionRouteReplayPins = {
+  compiled_content_hash: string;
+  compiled_ref: string;
+  cost_basis_hash: string;
+  design_problem_ref: string;
+  source_job_id: string;
+  terminal_event_id: string;
+};
+
 export type AcquisitionRoutingPayload = {
   compute_economics: {
   [key: string]: ProjectionJsonValue;
@@ -599,7 +702,7 @@ export type AvailableGovernedProjectionPacket = {
   intended_audience: AudienceClass;
   may_not_use_for: Array<string>;
   packet_schema_version?: string;
-  payload: DepthNCycleBoardPayload | ValueGatePayload | GenerationCycleDispositionPayload | EngineCensusPayload | ForkBRelationCensusPayload | AcquisitionRoutingPayload | N13AAcquisitionCensusPayload | N13ALiveProbeJournalPayload | CapabilityRealityPayload | ClusterOwnershipPayload | Layer3HealthMetricsPayload | LegacyProvingGroundPayload | SurfaceReadinessPayload;
+  payload: DepthNCycleBoardPayload | ValueGatePayload | GenerationCycleDispositionPayload | EngineCensusPayload | ForkBRelationCensusPayload | AcquisitionRoutingPayload | N13AAcquisitionCensusPayload | N13ALiveProbeJournalPayload | AcquisitionGrowthPayload | CapabilityRealityPayload | ClusterOwnershipPayload | Layer3HealthMetricsPayload | LegacyProvingGroundPayload | SurfaceReadinessPayload;
   projection_hash: string;
   projection_id: ProjectionId;
   projection_rule_version?: string;
@@ -1530,7 +1633,7 @@ export type ControlJobResponse = {
   failure?: ControlFailureEnvelope | null;
   finished_at?: string | null;
   job_id: string;
-  kind: "workflow_run" | "natural_language_run" | "lex_pipeline";
+  kind: "workflow_run" | "natural_language_run" | "lex_pipeline" | "acquisition";
   meta: ApiMeta;
   next_diagnostic_commands?: Array<string>;
   operator_diagnostic?: OperatorDiagnostic | null;
@@ -2023,25 +2126,29 @@ export type DecisionTriggerType = "norm_invalidation" | "data_invalidation" | "s
 export type DecisionValidityEventRequest = {
   dedupe_key?: string | null;
   dependency_keys?: Array<string>;
+  monitor_event_ref?: ArtifactRefInput | null;
   occurred_at?: string | null;
   payload?: {
   [key: string]: unknown;
 };
-  reason: string;
+  reason?: string | null;
   source_ref?: string | null;
-  status: DecisionValidityStatus;
-  trigger_type: DecisionTriggerType;
+  status?: DecisionValidityStatus | null;
+  trigger_type?: DecisionTriggerType | null;
 };
 
 export type DecisionValidityEventResponse = {
+  advisory_event_ref?: ArtifactRefOutput | null;
   affected_packets?: Array<string>;
   affected_statuses?: {
   [key: string]: number;
 };
   dedupe_key: string;
   event_id: string;
+  lifecycle_bridge_result_ref?: ArtifactRefOutput | null;
   message: string;
   meta: ApiMeta;
+  monitor_event_ref?: ArtifactRefOutput | null;
 };
 
 export type DecisionValidityLifecycleSummary = {
@@ -2282,10 +2389,146 @@ export type EngineCensusPayload = {
 };
 };
 
+export type EngineeringCapabilityAbsenceView = {
+  absence_class?: string;
+  candidate_owner_module?: string;
+  candidate_owner_path?: string;
+  capability?: string;
+  closure_condition: string;
+  consequence: string;
+  institutional_dependency?: boolean;
+  missing_labels?: Array<unknown>;
+  missing_output: string;
+  title?: string;
+};
+
 export type EnvInfo = {
   deps_lock_hash: string;
   platform: string;
   python: string;
+};
+
+export type EpochBoundaryLineageView = {
+  current_epoch_ref: string;
+  predecessor_packet_ref?: ArtifactRefOutput | null;
+  previous_epoch_ref: string;
+  successor_packet_ref?: ArtifactRefOutput | null;
+  transition_ref?: ArtifactRefOutput | null;
+  trigger_event_refs?: Array<ArtifactRefOutput>;
+};
+
+export type EpochCertificateStalenessView = {
+  authority_purpose: string;
+  bound_epoch_ref: string;
+  certificate_ref: ArtifactRefOutput;
+  current_epoch_ref?: string | null;
+  input_certificate_refs?: Array<ArtifactRefOutput>;
+  native_coordinate_refs?: Array<string>;
+  recipe_ref: ArtifactRefOutput;
+  revalidation_requirements?: Array<string>;
+  rule_schema_profile_refs?: Array<string>;
+  stale_reasons?: Array<string>;
+  status: "current" | "stale" | "revalidation_required" | "contested" | "not_established";
+  trigger_event_refs?: Array<ArtifactRefOutput>;
+};
+
+export type EpochDependencyStalenessView = {
+  advisory_event_refs?: Array<ArtifactRefOutput>;
+  authority_purpose: string;
+  disposition: "unchanged" | "annotation_only" | "invalidate" | "reissue" | "supersede" | "withdraw" | "contested" | "review_required";
+  owner_evidence_refs?: Array<ArtifactRefOutput>;
+  recompute: EpochDerivedRecomputeView;
+  relation: string;
+  source_classes?: Array<"incident" | "appeal" | "correction" | "retraction" | "legal_change" | "discovered_bias">;
+  source_ref: ArtifactRefOutput;
+  target_ref: ArtifactRefOutput;
+};
+
+export type EpochDerivedRecomputeView = {
+  evidence_content_hash?: string | null;
+  evidence_ref?: ArtifactRefOutput | null;
+  predicate_provenance: "recomputed" | "independently_reconciled" | "consumer_asserted" | "institutionally_supplied" | "not_established";
+  status: "not_established" | "pending" | "running" | "completed" | "failed";
+};
+
+export type EpochOpenWorldRiskComponentView = {
+  component_id: string;
+  component_kind: "model" | "obligation" | "calibration" | "novel";
+  evidence_ref?: ArtifactRefOutput | null;
+  limitation_code: string;
+  predicate_provenance: "independently_reconciled" | "not_established";
+  status: "within_scope" | "outside_scope" | "not_established";
+};
+
+export type EpochOpenWorldRiskView = {
+  components?: Array<EpochOpenWorldRiskComponentView>;
+  limitation_code: string;
+  promotion_frozen: boolean;
+  status: "established" | "limited" | "not_established";
+  vector_artifact_ref?: ArtifactRefOutput | null;
+};
+
+export type EpochPerturbationView = {
+  adjudicated_disposition: "annotation_only" | "invalidate" | "reissue" | "supersede" | "withdraw" | "contested" | "review_required";
+  advisory_posture: "annotation_only" | "review_required";
+  event_ref: ArtifactRefOutput;
+  observed_at: string;
+  owner_evidence_refs?: Array<ArtifactRefOutput>;
+  scope: "instance" | "dependency_descendants";
+  source_class: "incident" | "appeal" | "correction" | "retraction" | "legal_change" | "discovered_bias";
+  source_evidence_refs?: Array<ArtifactRefOutput>;
+  target_ref: ArtifactRefOutput;
+};
+
+export type EpochProjectionDenominatorView = {
+  denominator_ref?: string | null;
+  predicate_provenance: "recomputed" | "independently_reconciled" | "consumer_asserted" | "institutionally_supplied" | "not_established";
+  source_count?: number;
+  target_count?: number;
+};
+
+export type EpochQualificationDisclosure = {
+  appointment_state: string;
+  appointment_would_establish: string;
+  appointment_would_not_establish: Array<string>;
+  authority_owner_ref?: null;
+  authority_role: string;
+  code: string;
+  epoch_state: string;
+  status: string;
+};
+
+export type EpochStalenessProjectionResponse = {
+  meta: ApiMeta;
+  projection: EpochStalenessProjectionView;
+};
+
+export type EpochStalenessProjectionView = {
+  certificates?: Array<EpochCertificateStalenessView>;
+  current_epoch_ref?: string | null;
+  decision_packet_ref?: ArtifactRefOutput | null;
+  decision_validity_status?: DecisionValidityStatus | null;
+  denominator: EpochProjectionDenominatorView;
+  dependencies?: Array<EpochDependencyStalenessView>;
+  engineering_absences?: Array<EngineeringCapabilityAbsenceView>;
+  fixture_only?: boolean;
+  institutional_absences?: Array<InstitutionalAuthorityAbsenceView>;
+  limitations?: Array<string>;
+  lineage?: Array<EpochBoundaryLineageView>;
+  observed_at: string;
+  open_world_risk: EpochOpenWorldRiskView;
+  owner_as_of?: string | null;
+  owner_time_reason?: "owner_time_not_established" | "epoch_scope_unresolved" | null;
+  perturbations?: Array<EpochPerturbationView>;
+  predicate_provenance: "recomputed" | "independently_reconciled" | "consumer_asserted" | "institutionally_supplied" | "not_established";
+  projection_semantic_hash: string;
+  requested_query_context_ref: string;
+  revalidation_required: boolean;
+  run_id: string;
+  schema_version?: string;
+  scoped_epoch_refs?: Array<string>;
+  status: "current" | "stale" | "revalidation_required" | "contested" | "not_established";
+  temporal_scope: TemporalScope;
 };
 
 export type EpochValidityBatchReceipt = {
@@ -2748,6 +2991,8 @@ export type ForkBRelationCensusPayload = {
   transport_floor_rule: string;
 };
 
+export type GapClass = "data_gap" | "structural_gap" | "not_established";
+
 export type GenerationCycleDispositionPayload = {
   bridge_artifacts: {
   [key: string]: ProjectionJsonValue;
@@ -3173,6 +3418,22 @@ export type IngestResponse = {
 export type InputRef = {
   artifact_id: string;
   role: string;
+};
+
+export type InstitutionalAuthorityAbsenceView = {
+  absence_class?: string;
+  appointment_is_closure_precondition?: boolean;
+  authority_purpose: string;
+  capability_state?: string;
+  closure_condition: string;
+  consequence: string;
+  inspectable_capabilities?: Array<string>;
+  observed_result?: string;
+  predicate_provenance?: string;
+  refusal_code: "policy_admission_missing" | "epoch_transition_signer_not_established";
+  role: "epoch_predicate_policy_signer" | "epoch_transition_signer";
+  source_refs?: Array<ArtifactRefOutput>;
+  title?: string;
 };
 
 export type InstrumentBlocker = "coverage_argument_missing" | "non_anytime_valid" | "owner_theorem_unavailable" | "other_runtime_refusal";
@@ -3726,6 +3987,21 @@ export type N13ALiveProbeJournalPayload = {
 };
 };
 
+export type N13bHistoryProjection = {
+  admission: "not_reached" | "not_established";
+  attempt_count: number;
+  epoch_qualification: EpochQualificationDisclosure;
+  execution_phase: "executing" | "terminal";
+  overlay_epoch_count: number;
+  quarantine: "none" | "raw_terminal";
+  quarantine_count: number;
+  raw_response_count: number;
+  reentry: "not_established" | "deeper_terminal";
+  response_admitted_count: number;
+  terminal_count: number;
+  world_growth: "not_established" | "no_growth";
+};
+
 export type NLProvenance = {
   raw_request: string;
   source_context?: {
@@ -4219,7 +4495,7 @@ export type ProjectionFreshness = {
   state: "observed" | "artifact_missing" | "invalid_source";
 };
 
-export type ProjectionId = "depth-n-cycle-board" | "value-gate" | "generation-cycle-disposition" | "engine-census" | "fork-b-relation-census" | "acquisition-routing-contract" | "n13a-acquisition-census" | "n13a-live-probe-journal" | "capability-reality" | "cluster-ownership" | "layer3-health-metrics" | "legacy-proving-ground" | "surface-readiness";
+export type ProjectionId = "depth-n-cycle-board" | "value-gate" | "generation-cycle-disposition" | "engine-census" | "fork-b-relation-census" | "acquisition-routing-contract" | "n13a-acquisition-census" | "n13a-live-probe-journal" | "acquisition-growth" | "capability-reality" | "cluster-ownership" | "layer3-health-metrics" | "legacy-proving-ground" | "surface-readiness";
 
 export type ProjectionJsonValue = string | number | boolean | Array<unknown> | {
   [key: string]: unknown;
@@ -5322,6 +5598,15 @@ export type SourceProfilesListResponse = {
   profiles?: Array<SourceProfileInfo>;
 };
 
+export type StructuralRouteProjection = {
+  action_eligibility: "not_applicable" | "blocked";
+  gap_class: GapClass;
+  missing_link: string;
+  route_class: string;
+  route_id: string;
+  witness_kind: string;
+};
+
 export type SuppliedAuthorityValue = {
   metric_id: string;
   point?: number | null;
@@ -5358,7 +5643,7 @@ export type TemporalCapabilitiesView = {
   supported_tables?: Array<string>;
   surfaces?: Array<TemporalSurfaceCapability>;
   tx_range?: TemporalRange;
-  unsupported_surfaces?: Array<"run_details" | "run_timeline" | "run_lineage" | "run_quantities" | "run_fabric_decision_data" | "run_compare" | "run_agents" | "run_evidence_context" | "run_workflow" | "run_nodes" | "artifact_content">;
+  unsupported_surfaces?: Array<"run_details" | "run_timeline" | "run_lineage" | "run_quantities" | "run_fabric_decision_data" | "run_compare" | "run_agents" | "run_evidence_context" | "run_workflow" | "run_nodes" | "artifact_content" | "epoch_staleness">;
   valid_range?: TemporalRange;
 };
 
@@ -5416,7 +5701,7 @@ export type TemporalSurfaceCapability = {
   reason_code?: string | null;
   resolution?: string;
   supported: boolean;
-  surface: "run_details" | "run_timeline" | "run_lineage" | "run_quantities" | "run_fabric_decision_data" | "run_compare" | "run_agents" | "run_evidence_context" | "run_workflow" | "run_nodes" | "artifact_content";
+  surface: "run_details" | "run_timeline" | "run_lineage" | "run_quantities" | "run_fabric_decision_data" | "run_compare" | "run_agents" | "run_evidence_context" | "run_workflow" | "run_nodes" | "artifact_content" | "epoch_staleness";
   tx_range?: TemporalRange | null;
   valid_range?: TemporalRange | null;
 };
@@ -5862,6 +6147,14 @@ export class RuntimeApiClient {
       export_projection_hash: params.export_projection_hash,
     });
     return this.request<DecisionValiditySummaryResponse>("GET", path, query, undefined, undefined);
+  }
+
+  async admitEpochValidityBatch(params: {
+    body: EpochValidityBatchRequest;
+  }): Promise<EpochValidityBatchResponse> {
+    const path = `/api/v1/control/decision-validity/epoch-batches`;
+    const query = undefined;
+    return this.request<EpochValidityBatchResponse>("POST", path, query, params.body, undefined);
   }
 
   async getControlJobStatus(params: {
@@ -6349,6 +6642,43 @@ export class RuntimeApiClient {
     return this.request<RunDetailsResponse>("GET", path, query, undefined, undefined);
   }
 
+  async listRunAcquisitionRoutes(params: {
+    run_id: string;
+  }): Promise<AcquisitionRouteListResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes`;
+    const query = undefined;
+    return this.request<AcquisitionRouteListResponse>("GET", path, query, undefined, undefined);
+  }
+
+  async getRunAcquisitionRoute(params: {
+    run_id: string;
+    route_id: string;
+  }): Promise<AcquisitionRouteProjection> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}`;
+    const query = undefined;
+    return this.request<AcquisitionRouteProjection>("GET", path, query, undefined, undefined);
+  }
+
+  async requestRunAcquisitionDecision(params: {
+    run_id: string;
+    route_id: string;
+    body: AcquisitionRouteMutationRequest;
+  }): Promise<AcquisitionDecisionRequestResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}/decision-request`;
+    const query = undefined;
+    return this.request<AcquisitionDecisionRequestResponse>("POST", path, query, params.body, undefined);
+  }
+
+  async executeRunAcquisitionRoute(params: {
+    run_id: string;
+    route_id: string;
+    body: AcquisitionRouteMutationRequest;
+  }): Promise<AcquisitionExecutionResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}/execute`;
+    const query = undefined;
+    return this.request<AcquisitionExecutionResponse>("POST", path, query, params.body, undefined);
+  }
+
   async getRunAgents(params: {
     run_id: string;
     valid_at?: string | null;
@@ -6754,6 +7084,27 @@ export class RuntimeApiClient {
       run_id: params.run_id,
     });
     return this.request<TemporalCapabilitiesResponse>("GET", path, query, undefined, undefined);
+  }
+
+  async getRunEpochStaleness(params: {
+    run_id: string;
+    valid_at?: string | null;
+    tx_at?: string | null;
+    branch?: string | null;
+    snapshot_id?: string | null;
+    scenario_id?: string | null;
+    export_projection_hash?: string | null;
+  }): Promise<EpochStalenessProjectionResponse> {
+    const path = `/api/v1/temporal/runs/${encodeURIComponent(String(params.run_id))}/epoch-staleness`;
+    const query = this.buildQuery({
+      valid_at: params.valid_at,
+      tx_at: params.tx_at,
+      branch: params.branch,
+      snapshot_id: params.snapshot_id,
+      scenario_id: params.scenario_id,
+      export_projection_hash: params.export_projection_hash,
+    });
+    return this.request<EpochStalenessProjectionResponse>("GET", path, query, undefined, undefined);
   }
 
   async health(): Promise<{

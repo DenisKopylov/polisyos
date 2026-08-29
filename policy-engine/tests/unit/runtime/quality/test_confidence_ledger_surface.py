@@ -11,25 +11,29 @@ from pathlib import Path
 import pytest
 
 from polisyos.core.canon import CanonSpec, fingerprint
+from polisyos.runtime.http.services.confidence_ledger_risk_spend_contracts import (
+    SourceBlockedConfidenceLedgerRiskSpendPacket,
+    SourceBlockedReason,
+)
+from polisyos.runtime.http.services.confidence_ledger_risk_spend_projection import (
+    ConfidenceLedgerRiskSpendProjectionService,
+    derive_over_spend_allowset,
+    validate_over_spend_allowset,
+)
 from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerRegistry,
     ConfidenceLedgerSemanticReceiptProjection,
     load_confidence_ledger_registry,
+)
+from tests.unit.runtime.http.test_confidence_ledger_risk_spend_projection import (
+    coherent_over_spend_artifact,
+    owner_issue_codes,
 )
 
 _ROOT = Path(__file__).resolve().parents[4]
 _REGISTRY = _ROOT / "architecture/production_quality/confidence_ledger.toml"
 _N11 = _ROOT / "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
 _ACTION = "protected-action://ds17/review-risk-spend"
-_OVER_SPEND_ALLOWSET = frozenset(
-    {
-        "semantic_forged_spend_row",
-        "semantic_total_spend_drift",
-        "semantic_budget_status_drift",
-        "semantic_deterministic_spend_nonzero",
-        "deterministic_real_run_spend_nonzero",
-    }
-)
 
 
 def _surface():
@@ -38,12 +42,6 @@ def _surface():
 
 def _coverage():
     return import_module("polisyos.runtime.quality.obligation_coverage")
-
-
-def _projection_module():
-    return import_module(
-        "polisyos.runtime.http.services.confidence_ledger_risk_spend_projection"
-    )
 
 
 def _inputs() -> tuple[ConfidenceLedgerRegistry, ConfidenceLedgerSemanticReceiptProjection]:
@@ -138,15 +136,6 @@ def _mutate_check(semantic, index: int, **updates: object):
     payload = semantic.model_dump(mode="json")
     payload["checks"][index].update(updates)
     return type(semantic).model_validate(payload)
-
-
-def _stale_over_spend_ledger(semantic_ledger):
-    payload = semantic_ledger.model_dump(mode="json")
-    payload["checks"][0]["spend"] = {"numerator": 2, "denominator": 100}
-    payload["total_spend"] = {"numerator": 1, "denominator": 50}
-    payload["total_spend_decimal"] = "0.02"
-    payload["within_budget"] = True
-    return type(semantic_ledger).model_validate(payload)
 
 
 def _rehash_projection(payload: dict[str, object]) -> dict[str, object]:
@@ -292,13 +281,26 @@ def test_ds17_reason_algebra_derives_typed_declarations_and_reachable_emitters()
         surface.derive_ds17_reason_algebra(registry=mutated)
 
 
-def test_ds17_over_spend_allowset_matches_every_owner_diagnostic() -> None:
-    """C02 owns source-worker diagnostic reachability."""
-    projection = _projection_module()
-    derived = projection.derive_over_spend_allowset()
-    assert set(derived) == _OVER_SPEND_ALLOWSET
+def test_ds17_over_spend_allowset_matches_every_owner_diagnostic(
+    tmp_path: Path,
+) -> None:
+    """Derive the C02 denominator from real owner-validator emissions."""
+    artifacts = [coherent_over_spend_artifact(index) for index in range(3)]
+    artifacts.append(coherent_over_spend_artifact(2, stale_total=True))
+    emitted_codes = set().union(*(owner_issue_codes(value) for value in artifacts))
+    derived = derive_over_spend_allowset()
+
+    source = tmp_path / _N11.relative_to(_ROOT)
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text(json.dumps(artifacts[0], sort_keys=True), encoding="utf-8")
+    packet = ConfidenceLedgerRiskSpendProjectionService(tmp_path).get()
+
+    assert set(derived) == emitted_codes
+    assert isinstance(packet, SourceBlockedConfidenceLedgerRiskSpendPacket)
+    assert packet.source_blocked_reason is SourceBlockedReason.OVER_SPEND
+    validate_over_spend_allowset(derived_codes=tuple(sorted(emitted_codes)))
     with pytest.raises((TypeError, ValueError), match=r"allowset|diagnostic|DS17"):
-        projection.validate_over_spend_allowset(
+        validate_over_spend_allowset(
             derived_codes=tuple(
                 code
                 for code in derived
@@ -307,29 +309,32 @@ def test_ds17_over_spend_allowset_matches_every_owner_diagnostic() -> None:
         )
 
 
-def test_over_spend_recomputes_blocker_when_display_markers_stay_constant() -> None:
-    """C02 ignores persisted budget posture when worker arithmetic crosses delta."""
-    projection = _projection_module()
-    registry, semantic_ledger = _inputs()
-    stale_ledger = _stale_over_spend_ledger(semantic_ledger)
+def test_over_spend_recomputes_blocker_when_display_markers_stay_constant(
+    tmp_path: Path,
+) -> None:
+    """Drive stale display markers through the real worker and packet service."""
+    artifact = coherent_over_spend_artifact(2, stale_total=True)
+    source = tmp_path / _N11.relative_to(_ROOT)
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text(json.dumps(artifact, sort_keys=True), encoding="utf-8")
+    real_projection = artifact["real_ledger_projection"]
     recomputed_total = sum(
-        (check.spend.fraction for check in stale_ledger.checks),
-        start=Fraction(0, 1),
-    )
-    blocked = projection.classify_over_spend_owner_failure(
-        issue_codes=(
-            "semantic_budget_status_drift",
-            "semantic_deterministic_spend_nonzero",
-            "deterministic_real_run_spend_nonzero",
+        (
+            Fraction(
+                check["spend"]["numerator"],
+                check["spend"]["denominator"],
+            )
+            for check in real_projection["checks"]
         ),
-        source_payload_equal=True,
-        recomputed_total_spend=recomputed_total,
-        registry_delta=registry.policy.delta.fraction,
+        start=Fraction(),
     )
+    packet = ConfidenceLedgerRiskSpendProjectionService(tmp_path).get()
 
-    assert stale_ledger.within_budget is True
-    assert recomputed_total > registry.policy.delta.fraction
-    assert blocked is projection.SourceBlockedReason.OVER_SPEND
+    assert real_projection["within_budget"] is True
+    assert real_projection["total_spend"] == {"numerator": 0, "denominator": 1}
+    assert recomputed_total > Fraction(1, 100)
+    assert isinstance(packet, SourceBlockedConfidenceLedgerRiskSpendPacket)
+    assert packet.source_blocked_reason is SourceBlockedReason.OVER_SPEND
 
 
 def test_real_projection_has_complete_disjoint_denominators_and_exact_bindings() -> None:

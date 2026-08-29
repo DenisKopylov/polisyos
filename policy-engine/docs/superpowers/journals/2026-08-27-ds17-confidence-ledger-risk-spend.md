@@ -569,3 +569,80 @@ C02's owner-validated reviewer HTTP sub-capability is `implemented`. The full
 DS17 slice remains `consumer_missing` until C03-C05 generate the client and add
 the dashboard/twin consumer. No reserve, second route/source/UI, foreign
 contract stop, or 23rd mechanism path was encountered.
+
+## C02 append-only correction — owner intake and recursive issue census
+
+The first C02 review result above is superseded. Finding 1 is the **SAME**
+P05/P32/P33/P37 owner-context-selection class already identified at C02. It is
+closed by one intake invariant before either blocker selection or C01
+derivation: the guarded ID, canonical path, source schema, absent source rule,
+and validator ID/version come from the owner catalog constants; the service
+re-reads and SHA-256 binds the canonical bytes; strict-parses the embedded
+`real_ledger_projection`; requires exact equality to the requested semantic
+payload; loads the registry through the canonical owner loader; and reconciles
+nested/outer validation, worker receipt, artifact, dependency, registry, and
+semantic hashes. The `available` arm additionally requires passed validation,
+an empty issue set, and owner-derived source/request equality. C01 receives the
+fixed owner source/verifier context, never values selected from the candidate.
+The strict packet independently fixes the same canonical source/validator
+facts, every nested/outer binding, and the exact `authoritative_for` and
+`may_not_use_for` tuples even after a coherent packet rehash.
+
+Finding 2 is the first finding of a **NEW** P29/P33/P37/P38 recursive issue-set
+class. The worker now walks every descendant of arbitrary mappings and
+non-string sequences, collects every issue-object `code`, and performs the
+single normalization only after traversal. A real validator wrapper inserts
+`outside_diagnostic` under an otherwise allowed issue's nested `detail`; the
+real isolated worker retains both codes and worker -> service -> protected API
+returns `invalid_source`, never `source_blocked`. No rejected issue detail is
+emitted.
+
+The deferred C00 P29/P32 shell is also replaced without a new mechanism. Its
+two tests generate coherent and stale-marker N11 artifacts, derive the exact
+five-code denominator from actual `validate_payload` emissions, and traverse
+the real worker plus `ConfidenceLedgerRiskSpendProjectionService`. They assert
+typed `source_blocked/over_spend`, while independently proving exact check
+spend exceeds canonical delta even though persisted `total_spend` is zero and
+`within_budget` remains true. The duplicated five-code literal and direct
+classifier invocation are gone.
+
+### Correction falsifiers and receipts
+
+- The complete coherent-forgery set has 19 variants: nine fully typed source
+  resolutions (path, schema, rule, validator ID/version, nested receipt,
+  artifact, dependency, and available issue) plus ten strict-JSON packet
+  rehashes (source equality, nested receipt, issue, path, schema, rule,
+  validator ID/version, empty authority, and empty limitations). The initial
+  16 review variants were red before the invariant; the nested real API probe
+  specifically returned `source_blocked` instead of `invalid_source`. A final
+  source schema/rule audit added three genuine reds. The final 19-variant lane
+  is exit `0`; `real 59.88`, `user 55.79`, `sys 4.12`, uptime `04:57` ->
+  `04:58`.
+- The final correction cluster is exit `0`, **34 passed**; `real 246.88`,
+  `user 236.22`, `sys 11.10`, uptime `04:59` -> `05:03`. The C00 real-path pair
+  alone is exit `0`, **2 passed**; `real 79.38`, `user 76.40`, `sys 2.60`,
+  uptime `04:28` -> `04:29`.
+- The full worker lane is branch/base 11 collected, **10 passed, 1 skipped**;
+  branch exit `0`, `real 106.05`; exact slice base exit `0`, `real 83.23`.
+  The governed-service importer lane is branch/base 69 collected, **68 passed,
+  1 skipped**; branch/base exits `0/0`, `real 210.92/211.25`.
+- Runtime authz remains the exact same branch/base **154 passed, 7 failed**;
+  branch `real 124.23`, exact base `real 94.75`. OpenAPI hardening remains
+  branch **19 passed, 3 failed** versus exact base **21 passed, 1 failed**:
+  both retain the foreign epoch-example red and branch adds only the two
+  intentional C03 stale-client assertions. No C02 correction path intersects
+  those inherited/next-cluster failures.
+- Targeted Ruff is green. The final canonical OpenAPI scratch A/B exports are
+  byte-identical; the canonical tracked writer is byte-identical to them at
+  SHA-256
+  `97d9ac1a5e12ecaf23efb1d4d6563b6d74f3e3d9b3d7711cba2217dc5f1e0d65`.
+  The changed example hashes are owner-derived consequences of the corrected
+  validation dependency/receipt; the route/schema denominator is unchanged.
+  The six generated client/dashboard outputs remain the intentional C03
+  transaction.
+
+The bounded correction changes only four of the already-declared six C02
+mechanisms and their existing tests; the canonical schema and this journal are
+P39 companions. Generic `ProjectionId` remains 13, and no second route, source,
+UI, test adapter outside tests, reserve path, foreign contract, or forbidden
+debt repair was added. C02 reserve remains **0**.

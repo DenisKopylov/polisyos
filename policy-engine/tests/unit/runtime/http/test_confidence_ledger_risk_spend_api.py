@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 from pydantic import TypeAdapter, ValidationError
@@ -18,9 +19,22 @@ from polisyos.runtime.http.authorization import (
     get_route_action_permission_dependency,
 )
 from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.routes.governed_projections import (
+    _get_confidence_ledger_risk_spend_projection_service,
+)
 from polisyos.runtime.http.services.confidence_ledger_risk_spend_contracts import (
     AvailableConfidenceLedgerRiskSpendPacket,
     ConfidenceLedgerRiskSpendPacket,
+)
+from polisyos.runtime.http.services.confidence_ledger_risk_spend_projection import (
+    ConfidenceLedgerRiskSpendProjectionService,
+)
+from polisyos.runtime.http.services.governed_projections import (
+    GovernedProjectionService,
+    GuardedProjectionId,
+)
+from tests.unit.runtime.http.test_confidence_ledger_risk_spend_projection import (
+    coherent_over_spend_artifact,
 )
 from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
@@ -31,6 +45,7 @@ from tests.unit.runtime.http.test_runtime_api_authz import (
 
 _PATH = "/api/v1/exports/governed-projections/confidence-ledger-risk-spend"
 _DYNAMIC_PATH = "/api/v1/exports/governed-projections/{projection_id}"
+_SOURCE = "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
 
 
 def _secure_client(runtime_api_env, *, role: PolicyOSRole, suffix: str):
@@ -160,3 +175,66 @@ def test_confidence_ledger_risk_spend_openapi_is_strict_measured_negative(
     assert parsed.payload.total_spend.amount.fraction == 0
     assert parsed.payload.coverage_assessment.value == "open_world_unresolved"
     assert parsed.payload.status == "not_promoted"
+
+
+def test_nested_outside_owner_issue_fails_closed_through_worker_service_and_api(
+    runtime_api_env,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = tmp_path / _SOURCE
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text(
+        json.dumps(coherent_over_spend_artifact(0), sort_keys=True),
+        encoding="utf-8",
+    )
+    hook_root = tmp_path / "worker-hook"
+    hook_root.mkdir()
+    (hook_root / "sitecustomize.py").write_text(
+        "\n".join(
+            (
+                "from tools.quality.validation import "
+                "check_layer3_gy_confidence_ledger as owner",
+                "original = owner.validate_payload",
+                "def validate_payload(payload):",
+                "    result = original(payload)",
+                "    issues = list(result.get('issues') or [])",
+                "    if issues:",
+                "        first = dict(issues[0])",
+                "        first['detail'] = {'code': 'outside_diagnostic'}",
+                "        result = {**result, 'issues': [first, *issues[1:]]}",
+                "    return result",
+                "owner.validate_payload = validate_payload",
+            )
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("PYTHONPATH", str(hook_root))
+    source_service = GovernedProjectionService(tmp_path)
+    resolution = source_service.resolve_guarded_source(
+        GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND
+    )
+    assert resolution.validation is not None
+    assert "outside_diagnostic" in resolution.validation.issue_codes
+    service = ConfidenceLedgerRiskSpendProjectionService(
+        tmp_path,
+        source_service=source_service,
+    )
+    analyst, headers = _secure_client(
+        runtime_api_env,
+        role=PolicyOSRole.ANALYST,
+        suffix="ds17-nested-owner-issue",
+    )
+    analyst.app.dependency_overrides[
+        _get_confidence_ledger_risk_spend_projection_service
+    ] = lambda: service
+    try:
+        response = analyst.get(_PATH, headers=headers)
+    finally:
+        analyst.app.dependency_overrides.pop(
+            _get_confidence_ledger_risk_spend_projection_service,
+            None,
+        )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["availability"] == "invalid_source"

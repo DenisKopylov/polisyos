@@ -40,6 +40,18 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
 _PROJECTION_BASE_PATH = "/api/v1/exports/governed-projections"
+CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH = (
+    "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
+)
+CONFIDENCE_LEDGER_GUARDED_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1"
+)
+CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID = (
+    "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload"
+)
+CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION = (
+    "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1"
+)
 
 
 class AudienceClass(StrEnum):
@@ -882,7 +894,7 @@ _DEFINITION_BY_ID = {definition.projection_id: definition for definition in _DEF
 _GUARDED_DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
     _ProjectionDefinition(
         GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND,
-        "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+        CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH,
         "json",
         "required",
         AudienceClass.REVIEWER,
@@ -892,10 +904,10 @@ _GUARDED_DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
             "source_validation_posture",
         ),
         (*_COMMON_NOT_PUBLIC, "promotion_authority", "bounded_completeness"),
-        "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
+        CONFIDENCE_LEDGER_GUARDED_SCHEMA_VERSION,
         None,
-        "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
-        "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
+        CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID,
+        CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION,
     ),
 )
 
@@ -2282,6 +2294,10 @@ def _replay_datetime(value: datetime) -> str:
 
 __all__ = [
     "CHANNEL_REGISTRY",
+    "CONFIDENCE_LEDGER_GUARDED_SCHEMA_VERSION",
+    "CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH",
+    "CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID",
+    "CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION",
     "AudienceClass",
     "ChannelRegistryEntry",
     "ChannelRegistryResponse",

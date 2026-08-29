@@ -14,7 +14,7 @@ import json
 import re
 import sys
 import tomllib
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -182,13 +182,15 @@ def _identity_issues(
 def _extract_issue_codes(value: object) -> list[str]:
     if isinstance(value, Mapping):
         codes: list[str] = []
-        code = value.get("code")
-        if isinstance(code, str) and code:
-            codes.append(code)
-        for key in ("issues", "violations", "errors"):
-            codes.extend(_extract_issue_codes(value.get(key)))
+        for key, item in value.items():
+            if key == "code" and isinstance(item, str) and item:
+                codes.append(item)
+            codes.extend(_extract_issue_codes(item))
         return codes
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, Sequence) and not isinstance(
+        value,
+        (str, bytes, bytearray),
+    ):
         return [code for item in value for code in _extract_issue_codes(item)]
     return []
 

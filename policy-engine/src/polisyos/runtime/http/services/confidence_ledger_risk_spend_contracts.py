@@ -14,6 +14,10 @@ from polisyos.runtime.http.services.export_replay import (
     hash_export_projection,
 )
 from polisyos.runtime.http.services.governed_projections import (
+    CONFIDENCE_LEDGER_GUARDED_SCHEMA_VERSION,
+    CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH,
+    CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID,
+    CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION,
     AudienceClass,
     ProjectionFreshness,
     ProjectionSourceIdentity,
@@ -28,6 +32,17 @@ STABLE_ADDRESS = "/api/v1/exports/governed-projections/confidence-ledger-risk-sp
 PROJECTION_ID = "confidence-ledger-risk-spend"
 _SHA256_PATTERN = r"^sha256:[0-9a-f]{64}$"
 _WORKER_RECEIPT_PATTERN = r"^owner-validation:sha256:[0-9a-f]{64}$"
+AUTHORITATIVE_FOR = (
+    "conditionality_disclosure",
+    "declared_set_accounting",
+    "source_validation_posture",
+)
+MAY_NOT_USE_FOR = (
+    "promotion_authority",
+    "publication_authority",
+    "public_audience",
+    "bounded_completeness",
+)
 
 
 class _StrictModel(BaseModel):
@@ -93,11 +108,7 @@ class _ConfidenceLedgerRiskSpendPacketBase(_StrictModel):
             "source_validation_posture",
         ],
         ...,
-    ] = (
-        "conditionality_disclosure",
-        "declared_set_accounting",
-        "source_validation_posture",
-    )
+    ] = AUTHORITATIVE_FOR
     may_not_use_for: tuple[
         Literal[
             "promotion_authority",
@@ -106,12 +117,7 @@ class _ConfidenceLedgerRiskSpendPacketBase(_StrictModel):
             "bounded_completeness",
         ],
         ...,
-    ] = (
-        "promotion_authority",
-        "publication_authority",
-        "public_audience",
-        "bounded_completeness",
-    )
+    ] = MAY_NOT_USE_FOR
     source_schema_version: str | None
     source_rule_version: str | None
     as_of: datetime
@@ -119,6 +125,15 @@ class _ConfidenceLedgerRiskSpendPacketBase(_StrictModel):
     stable_address: Literal[
         "/api/v1/exports/governed-projections/confidence-ledger-risk-spend"
     ] = STABLE_ADDRESS
+
+    @model_validator(mode="after")
+    def _bind_exact_authority(self) -> Self:
+        if (
+            self.authoritative_for != AUTHORITATIVE_FOR
+            or self.may_not_use_for != MAY_NOT_USE_FOR
+        ):
+            raise ValueError("confidence_packet_authority_mismatch")
+        return self
 
 
 class AvailableConfidenceLedgerRiskSpendPacket(_ConfidenceLedgerRiskSpendPacketBase):
@@ -141,14 +156,37 @@ class AvailableConfidenceLedgerRiskSpendPacket(_ConfidenceLedgerRiskSpendPacketB
 
     @model_validator(mode="after")
     def _bind_available_packet(self) -> Self:
-        if self.source.validation.status != "passed":
+        validation = self.source.validation
+        if (
+            self.source_schema_version != CONFIDENCE_LEDGER_GUARDED_SCHEMA_VERSION
+            or self.source_rule_version is not None
+            or self.source.relative_path != CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH
+            or validation.validator_id != CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID
+            or validation.validator_version
+            != CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION
+            or validation.status != "passed"
+            or validation.issue_codes != ()
+            or validation.source_payload_equal is not True
+        ):
             raise ValueError("available_confidence_source_not_owner_admitted")
         if (
             self.source.artifact_content_hash != self.replay_pins.artifact_content_hash
+            or validation.bound_artifact_content_hash
+            != self.source.artifact_content_hash
             or self.source_dependency_hash != self.replay_pins.source_dependency_hash
+            or validation.bound_dependency_aggregate_identity
+            != self.source_dependency_hash
             or self.projection_rule_version != self.replay_pins.projection_rule_version
             or self.projection_hash != self.replay_pins.projection_hash
             or self.as_of != self.replay_pins.source_as_of
+            or validation.worker_validation_receipt_hash
+            != self.worker_validation_receipt_hash
+            or validation.registry_content_hash != self.registry_content_hash
+            or validation.registry_projection_hash != self.registry_projection_hash
+            or validation.frozen_semantic_projection_hash
+            != self.frozen_semantic_projection_hash
+            or validation.semantic_projection_hash
+            != self.frozen_semantic_projection_hash
             or self.payload.registry_content_hash != self.registry_content_hash
             or self.payload.source_projection_hash
             != self.frozen_semantic_projection_hash
@@ -293,6 +331,8 @@ def _validate_packet_identity(
 
 
 __all__ = [
+    "AUTHORITATIVE_FOR",
+    "MAY_NOT_USE_FOR",
     "PACKET_SCHEMA_VERSION",
     "PROJECTION_ID",
     "PROJECTION_RULE_VERSION",

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from fractions import Fraction
@@ -27,6 +29,10 @@ from polisyos.runtime.http.services.export_replay import (
     hash_export_projection,
 )
 from polisyos.runtime.http.services.governed_projections import (
+    CONFIDENCE_LEDGER_GUARDED_SCHEMA_VERSION,
+    CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH,
+    CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID,
+    CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION,
     GovernedProjectionService,
     GuardedProjectionId,
     GuardedProjectionSourceResolution,
@@ -36,6 +42,7 @@ from polisyos.runtime.http.services.governed_projections import (
 )
 from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerRegistry,
+    ConfidenceLedgerSemanticReceiptProjection,
     load_confidence_ledger_registry,
 )
 from polisyos.runtime.quality.confidence_ledger_surface import (
@@ -57,7 +64,9 @@ OVER_SPEND_OWNER_DIAGNOSTIC_CODES = (
 )
 _OVER_SPEND_OWNER_DIAGNOSTIC_SET = frozenset(OVER_SPEND_OWNER_DIAGNOSTIC_CODES)
 _PROTECTED_ACTION_ID = "protected-action://ds17/review-risk-spend"
-_SEMANTIC_SOURCE_FRAGMENT = "#real_ledger_projection"
+_SEMANTIC_SOURCE_REF = (
+    CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH + "#real_ledger_projection"
+)
 
 
 def derive_over_spend_allowset() -> tuple[str, ...]:
@@ -155,6 +164,13 @@ class ConfidenceLedgerRiskSpendProjectionService:
         ):
             return _invalid_packet(resolution)
 
+        try:
+            registry, registry_projection_hash = _admit_owner_resolution(
+                resolution,
+                repository_root=self._repository_root,
+            )
+        except (KeyError, OSError, TypeError, ValueError):
+            return _invalid_packet(resolution)
         validation = resolution.validation
         source_blocker = _source_blocker(validation)
         if source_blocker is not None:
@@ -163,26 +179,13 @@ class ConfidenceLedgerRiskSpendProjectionService:
             return _invalid_packet(resolution)
 
         try:
-            registry, registry_projection_hash = _load_registry_projection(
-                resolution.source_document
-            )
             semantic = resolution.projection_payload
-            if (
-                validation.source_payload_equal is not True
-                or validation.registry_content_hash != registry.content_hash
-                or validation.registry_projection_hash != registry_projection_hash
-                or validation.frozen_semantic_projection_hash != semantic.projection_hash
-                or validation.semantic_projection_hash != semantic.projection_hash
-                or validation.worker_validation_receipt_hash is None
-                or resolution.source_dependency_hash is None
-            ):
-                raise ValueError("confidence_owner_fact_binding_mismatch")
             derivation_context = CoverageDerivationContext(
                 protected_action_id=_PROTECTED_ACTION_ID,
-                semantic_source_ref=(
-                    resolution.source.relative_path + _SEMANTIC_SOURCE_FRAGMENT
+                semantic_source_ref=_SEMANTIC_SOURCE_REF,
+                semantic_source_verifier_ref=(
+                    CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID
                 ),
-                semantic_source_verifier_ref=validation.validator_id,
             )
             envelope = build_coverage_envelope(
                 registry=registry,
@@ -211,6 +214,81 @@ class ConfidenceLedgerRiskSpendProjectionService:
             registry_projection_hash=registry_projection_hash,
             payload=admitted.projection,
         )
+
+
+def _admit_owner_resolution(
+    resolution: GuardedProjectionSourceResolution,
+    *,
+    repository_root: Path,
+) -> tuple[ConfidenceLedgerRegistry, str]:
+    """Reconcile every owner fact before any transport or C01 derivation."""
+
+    source = resolution.source
+    validation = resolution.validation
+    source_document = resolution.source_document
+    semantic = resolution.projection_payload
+    if (
+        resolution.projection_id
+        is not GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND
+        or source is None
+        or validation is None
+        or source_document is None
+        or semantic is None
+        or source.relative_path != CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH
+        or source.validation != validation
+        or validation.validator_id != CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID
+        or validation.validator_version
+        != CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION
+        or resolution.source_schema_version
+        != CONFIDENCE_LEDGER_GUARDED_SCHEMA_VERSION
+        or resolution.source_rule_version is not None
+        or validation.worker_validation_receipt_hash is None
+        or validation.source_payload_equal is not True
+        or validation.bound_artifact_content_hash
+        != source.artifact_content_hash
+        or validation.bound_dependency_aggregate_identity
+        != resolution.source_dependency_hash
+    ):
+        raise ValueError("confidence_owner_intake_identity_mismatch")
+
+    source_path = repository_root / CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH
+    raw_source = source_path.read_bytes()
+    actual_artifact_hash = f"sha256:{hashlib.sha256(raw_source).hexdigest()}"
+    parsed_source = json.loads(raw_source)
+    if (
+        actual_artifact_hash != source.artifact_content_hash
+        or not isinstance(parsed_source, Mapping)
+        or parsed_source != source_document
+    ):
+        raise ValueError("confidence_owner_intake_source_mismatch")
+
+    raw_semantic = source_document.get("real_ledger_projection")
+    admitted_semantic = ConfidenceLedgerSemanticReceiptProjection.model_validate_json(
+        json.dumps(raw_semantic, separators=(",", ":"), sort_keys=True),
+        strict=True,
+    )
+    if admitted_semantic.model_dump(mode="json") != semantic.model_dump(mode="json"):
+        raise ValueError("confidence_owner_intake_semantic_mismatch")
+
+    registry, registry_projection_hash = _load_registry_projection(source_document)
+    if (
+        validation.registry_content_hash != registry.content_hash
+        or validation.registry_projection_hash != registry_projection_hash
+        or validation.frozen_semantic_projection_hash != admitted_semantic.projection_hash
+    ):
+        raise ValueError("confidence_owner_intake_registry_mismatch")
+
+    if resolution.availability is ProjectionAvailability.AVAILABLE:
+        if (
+            validation.status != "passed"
+            or validation.issue_codes != ()
+            or validation.semantic_projection_hash
+            != admitted_semantic.projection_hash
+        ):
+            raise ValueError("confidence_owner_intake_available_mismatch")
+    elif validation.status != "failed" or not validation.issue_codes:
+        raise ValueError("confidence_owner_intake_failed_mismatch")
+    return registry, registry_projection_hash
 
 
 def _load_registry_projection(

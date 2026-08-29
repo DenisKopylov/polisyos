@@ -44,6 +44,7 @@ const JSDOM_COMPUTED_DEFAULTS: Readonly<Record<string, string>> = Object.freeze(
     opacity: "1",
     "paint-order": "normal",
     perspective: "none",
+    "pointer-events": "auto",
     rotate: "none",
     scale: "none",
     "text-decoration-line": "none",
@@ -75,15 +76,18 @@ export async function withConfidenceLedgerTestVisibilityPlatform<T>(
     throw new TypeError("confidence-ledger test platform requires JSDOM");
   }
   const elementPrototype = view.HTMLElement.prototype;
+  const rangePrototype = view.Range.prototype;
   const snapshots = [
     snapshotProperty(elementPrototype, "checkVisibility"),
     snapshotProperty(elementPrototype, "getBoundingClientRect"),
     snapshotProperty(elementPrototype, "scrollIntoView"),
+    snapshotProperty(rangePrototype, "getClientRects"),
     snapshotProperty(document, "elementsFromPoint"),
     snapshotProperty(view, "getComputedStyle"),
     snapshotProperty(view, "scrollTo"),
   ];
   let scrolledElement: HTMLElement | null = null;
+  let rangeHost: HTMLElement | null = null;
   const nativeGetComputedStyle = view.getComputedStyle.bind(view);
 
   Object.defineProperty(elementPrototype, "checkVisibility", {
@@ -101,9 +105,26 @@ export async function withConfidenceLedgerTestVisibilityPlatform<T>(
       scrolledElement = this;
     },
   });
+  Object.defineProperty(rangePrototype, "getClientRects", {
+    configurable: true,
+    value(this: Range) {
+      const start = this.startContainer;
+      rangeHost =
+        start instanceof view.HTMLElement ? start : start.parentElement;
+      const rect = new view.DOMRect(16, 16, 160, 20);
+      return Object.freeze({
+        0: rect,
+        item: (index: number) => (index === 0 ? rect : null),
+        length: 1,
+      });
+    },
+  });
   Object.defineProperty(document, "elementsFromPoint", {
     configurable: true,
-    value: () => (scrolledElement === null ? [] : [scrolledElement]),
+    value: () => {
+      const hit = rangeHost ?? scrolledElement;
+      return hit === null ? [] : [hit];
+    },
   });
   Object.defineProperty(view, "getComputedStyle", {
     configurable: true,

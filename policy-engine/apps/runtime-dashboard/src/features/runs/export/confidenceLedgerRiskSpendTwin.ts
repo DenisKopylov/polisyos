@@ -102,15 +102,98 @@ function cssValue(style: CSSStyleDeclaration, property: string): string {
   return compactCss(style.getPropertyValue(property));
 }
 
-function isOpaqueColor(value: string): boolean {
-  return (
-    value.length > 0 &&
-    value !== "transparent" &&
-    value !== "rgba(0,0,0,0)" &&
-    !/^rgba\([^)]*,0(?:\.0+)?\)$/u.test(value) &&
-    !/^hsla\([^)]*,0(?:\.0+)?\)$/u.test(value) &&
-    !/^oklch\([^/]+\/0(?:\.0+)?\)$/u.test(value)
-  );
+const NORMALIZED_CSS_NUMBER = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?%?$/u;
+
+function normalizedComputedCss(value: string): string {
+  return value.toLowerCase().trim().replace(/\s+/gu, " ");
+}
+
+function parsedNormalizedNumber(token: string): number | null {
+  if (!NORMALIZED_CSS_NUMBER.test(token)) return null;
+  const number = Number.parseFloat(token);
+  return Number.isFinite(number) ? number : null;
+}
+
+function parsedNormalizedAlpha(token: string): number | null {
+  const number = parsedNormalizedNumber(token);
+  if (number === null) return null;
+  const alpha = token.endsWith("%") ? number / 100 : number;
+  return alpha >= 0 && alpha <= 1 ? alpha : null;
+}
+
+type NormalizedColorBody = Readonly<{
+  alpha: number;
+  channels: readonly string[];
+}>;
+
+function parsedSpaceSeparatedColorBody(
+  body: string,
+): NormalizedColorBody | null {
+  const slashParts = body.split("/");
+  if (slashParts.length > 2) return null;
+  const channels = slashParts[0].trim().split(" ").filter(Boolean);
+  if (slashParts.length === 1) return Object.freeze({ alpha: 1, channels });
+  const alphaToken = slashParts[1].trim();
+  if (alphaToken.includes(" ")) return null;
+  const alpha = parsedNormalizedAlpha(alphaToken);
+  return alpha === null ? null : Object.freeze({ alpha, channels });
+}
+
+function parsedNormalizedColorAlpha(value: string): number | null {
+  const normalized = normalizedComputedCss(value);
+  const functional = /^([a-z-]+)\((.*)\)$/u.exec(normalized);
+  if (functional === null) return null;
+  const [, name, body] = functional;
+  if (name === "rgb" || name === "rgba") {
+    if (body.includes(",")) {
+      if (body.includes("/")) return null;
+      const parts = body.split(",").map((part) => part.trim());
+      if (parts.length !== 3 && parts.length !== 4) return null;
+      if (
+        parts
+          .slice(0, 3)
+          .some((channel) => parsedNormalizedNumber(channel) === null)
+      ) {
+        return null;
+      }
+      return parts.length === 3 ? 1 : parsedNormalizedAlpha(parts[3]);
+    }
+    const parsed = parsedSpaceSeparatedColorBody(body);
+    return parsed !== null &&
+      parsed.channels.length === 3 &&
+      parsed.channels.every(
+        (channel) => parsedNormalizedNumber(channel) !== null,
+      )
+      ? parsed.alpha
+      : null;
+  }
+  if (
+    name !== "color" &&
+    name !== "lab" &&
+    name !== "lch" &&
+    name !== "oklab" &&
+    name !== "oklch"
+  ) {
+    return null;
+  }
+  const parsed = parsedSpaceSeparatedColorBody(body);
+  if (parsed === null) return null;
+  if (name === "color") {
+    if (parsed.channels.length !== 4) return null;
+    const [colorSpace, ...channels] = parsed.channels;
+    return (colorSpace === "srgb" || colorSpace === "display-p3") &&
+      channels.every((channel) => parsedNormalizedNumber(channel) !== null)
+      ? parsed.alpha
+      : null;
+  }
+  return parsed.channels.length === 3 &&
+    parsed.channels.every((channel) => parsedNormalizedNumber(channel) !== null)
+    ? parsed.alpha
+    : null;
+}
+
+function isProvenOpaqueNormalizedColor(value: string): boolean {
+  return parsedNormalizedColorAlpha(value) === 1;
 }
 
 function isZeroCssLength(value: string): boolean {
@@ -185,12 +268,12 @@ function finitePaintGrammarProof(
       return "unproved";
     }
   }
-  const color = cssValue(style, "color");
-  const textFill = cssValue(style, "-webkit-text-fill-color");
-  if (!isOpaqueColor(color)) return "hidden";
+  const color = style.getPropertyValue("color");
+  const textFill = style.getPropertyValue("-webkit-text-fill-color");
   if (
-    !isOpaqueColor(textFill) ||
-    (textFill !== "currentcolor" && textFill !== color)
+    !isProvenOpaqueNormalizedColor(color) ||
+    !isProvenOpaqueNormalizedColor(textFill) ||
+    compactCss(textFill) !== compactCss(color)
   ) {
     return "unproved";
   }
@@ -291,7 +374,6 @@ function styleVisibilityProof(
   const clipPath = compactCss(clipPathValues.join(" "));
   const filter = compactCss(filterValues.join(" "));
   const transform = compactCss(transformValues.join(" "));
-  const color = cssValue(style, "color");
   if (
     element.hidden ||
     element.getAttribute("aria-hidden") === "true" ||
@@ -303,8 +385,6 @@ function styleVisibilityProof(
     opacity === 0 ||
     contentVisibility === "hidden" ||
     fontSize === 0 ||
-    color === "transparent" ||
-    color === "rgba(0,0,0,0)" ||
     clip.includes("rect(0px0px0px0px)") ||
     clip.includes("rect(0000)") ||
     clipPath.includes("circle(0)") ||
@@ -337,11 +417,17 @@ type ScrollSnapshot = Readonly<{
   top: number;
 }>;
 
+const CONFIDENCE_LEDGER_MAX_TEXT_RANGE_RECTS = 64;
+const CONFIDENCE_LEDGER_TEXT_RECT_SAMPLE_FRACTIONS = Object.freeze([
+  [0.5, 0.5],
+] as const);
+
 class RenderedVisibilitySession {
   readonly #cache = new WeakMap<HTMLElement, VisibilityProof>();
   readonly #chainVisible = new WeakSet<HTMLElement>();
   readonly #document: Document;
   readonly #focus: Element | null;
+  readonly #hitTestTransparentCandidates: readonly Element[];
   readonly #scroll: readonly ScrollSnapshot[];
   readonly #view: Window & typeof globalThis;
   readonly #windowX: number;
@@ -372,15 +458,38 @@ class RenderedVisibilitySession {
     this.#focus = document.activeElement;
     this.#windowX = view.scrollX;
     this.#windowY = view.scrollY;
-    this.#scroll = [...document.querySelectorAll<HTMLElement>("*")].map(
-      (element) =>
+    const elements = [...document.querySelectorAll("*")];
+    if (elements.length > CONFIDENCE_LEDGER_DOM_NODE_CAP) {
+      throw new VisibilityUnprovedError(
+        "rendered visibility element cap exceeded",
+      );
+    }
+    this.#scroll = elements
+      .filter(
+        (element): element is HTMLElement =>
+          element instanceof view.HTMLElement,
+      )
+      .map((element) =>
         Object.freeze({
           element,
           left: element.scrollLeft,
           top: element.scrollTop,
         }),
-    );
-    this.consume(this.#scroll.length);
+      );
+    try {
+      this.#hitTestTransparentCandidates = Object.freeze(
+        elements.filter(
+          (element) =>
+            cssValue(view.getComputedStyle(element), "pointer-events") !==
+            "auto",
+        ),
+      );
+    } catch {
+      throw new VisibilityUnprovedError(
+        "rendered pointer-event state is unavailable",
+      );
+    }
+    this.consume(elements.length + this.#scroll.length);
   }
 
   consume(work: number): void {
@@ -418,6 +527,190 @@ class RenderedVisibilitySession {
     return "visible";
   }
 
+  proveText(textNode: Text, boundary: HTMLElement): VisibilityProof {
+    this.consume(2);
+    const host = textNode.parentElement;
+    if (host === null || !boundary.contains(textNode)) return "unproved";
+    const hostProof = this.prove(host, boundary);
+    if (hostProof !== "visible") return hostProof;
+    let range: Range;
+    try {
+      range = this.#document.createRange();
+      if (typeof range.getClientRects !== "function") return "unproved";
+      range.selectNodeContents(textNode);
+    } catch {
+      return "unproved";
+    }
+    let rectCount: number;
+    try {
+      const nativeRects = range.getClientRects();
+      if (
+        nativeRects.length === 0 ||
+        nativeRects.length > CONFIDENCE_LEDGER_MAX_TEXT_RANGE_RECTS
+      ) {
+        return "unproved";
+      }
+      rectCount = nativeRects.length;
+    } catch {
+      return "unproved";
+    }
+    this.consume(
+      rectCount * (2 + CONFIDENCE_LEDGER_TEXT_RECT_SAMPLE_FRACTIONS.length),
+    );
+    for (let rectIndex = 0; rectIndex < rectCount; rectIndex += 1) {
+      let rect = this.rangeRectAt(range, rectIndex, rectCount);
+      if (rect === null) return "unproved";
+      if (!this.isFiniteVisibleRect(rect)) return "unproved";
+      for (const [
+        xFraction,
+        yFraction,
+      ] of CONFIDENCE_LEDGER_TEXT_RECT_SAMPLE_FRACTIONS) {
+        let x = rect.left + rect.width * xFraction;
+        let y = rect.top + rect.height * yFraction;
+        if (
+          x < 0 ||
+          x > this.#view.innerWidth ||
+          y < 0 ||
+          y > this.#view.innerHeight
+        ) {
+          this.consume(4);
+          try {
+            this.#view.scrollTo(
+              this.#view.scrollX + x - this.#view.innerWidth / 2,
+              this.#view.scrollY + y - this.#view.innerHeight / 2,
+            );
+            rect = this.rangeRectAt(range, rectIndex, rectCount);
+            if (rect === null || !this.isFiniteVisibleRect(rect)) {
+              return "unproved";
+            }
+            x = rect.left + rect.width * xFraction;
+            y = rect.top + rect.height * yFraction;
+          } catch {
+            return "unproved";
+          }
+          if (
+            x < 0 ||
+            x > this.#view.innerWidth ||
+            y < 0 ||
+            y > this.#view.innerHeight
+          ) {
+            return "unproved";
+          }
+        }
+        let frontmost: Element | undefined;
+        try {
+          frontmost = this.#document.elementsFromPoint(x, y).at(0);
+        } catch {
+          return "unproved";
+        }
+        if (frontmost === undefined || !frontmost.contains(textNode)) {
+          return "unproved";
+        }
+        if (this.hasHitTestTransparentOverlap(textNode, x, y)) {
+          return "unproved";
+        }
+      }
+    }
+    return "visible";
+  }
+
+  private rangeRectAt(
+    range: Range,
+    index: number,
+    expectedCount: number,
+  ): DOMRect | null {
+    try {
+      const rects = range.getClientRects();
+      return rects.length === expectedCount ? rects.item(index) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private isFiniteVisibleRect(rect: DOMRect | DOMRectReadOnly): boolean {
+    return (
+      Number.isFinite(rect.left) &&
+      Number.isFinite(rect.top) &&
+      Number.isFinite(rect.width) &&
+      Number.isFinite(rect.height) &&
+      rect.width > 0 &&
+      rect.height > 0
+    );
+  }
+
+  private hasHitTestTransparentOverlap(
+    textNode: Text,
+    x: number,
+    y: number,
+  ): boolean {
+    for (const candidate of this.#hitTestTransparentCandidates) {
+      this.consume(3);
+      if (!candidate.isConnected || candidate.contains(textNode)) continue;
+      const nativeCandidate = candidate as Element & {
+        checkVisibility?: (options?: {
+          checkOpacity?: boolean;
+          checkVisibilityCSS?: boolean;
+          contentVisibilityAuto?: boolean;
+        }) => boolean;
+      };
+      if (typeof nativeCandidate.checkVisibility !== "function") {
+        throw new VisibilityUnprovedError(
+          "transparent hit-test candidate cannot prove visibility",
+        );
+      }
+      let visible: boolean;
+      try {
+        visible = nativeCandidate.checkVisibility({
+          checkOpacity: true,
+          checkVisibilityCSS: true,
+          contentVisibilityAuto: true,
+        });
+      } catch {
+        throw new VisibilityUnprovedError(
+          "transparent hit-test candidate visibility failed",
+        );
+      }
+      if (!visible) continue;
+      let rects: DOMRectList;
+      try {
+        rects = candidate.getClientRects();
+      } catch {
+        throw new VisibilityUnprovedError(
+          "transparent hit-test candidate geometry failed",
+        );
+      }
+      if (rects.length > CONFIDENCE_LEDGER_MAX_TEXT_RANGE_RECTS) {
+        throw new VisibilityUnprovedError(
+          "transparent hit-test candidate rectangle cap exceeded",
+        );
+      }
+      this.consume(rects.length);
+      for (let index = 0; index < rects.length; index += 1) {
+        const rect = rects.item(index);
+        if (rect === null) {
+          throw new VisibilityUnprovedError(
+            "transparent hit-test candidate rectangle is unavailable",
+          );
+        }
+        if (
+          Number.isFinite(rect.left) &&
+          Number.isFinite(rect.top) &&
+          Number.isFinite(rect.right) &&
+          Number.isFinite(rect.bottom) &&
+          rect.width > 0 &&
+          rect.height > 0 &&
+          x >= rect.left &&
+          x <= rect.right &&
+          y >= rect.top &&
+          y <= rect.bottom
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   private proveNativeElement(element: HTMLElement): VisibilityProof {
     const nativeElement = element as HTMLElement & {
       checkVisibility?: (options?: {
@@ -428,7 +721,6 @@ class RenderedVisibilitySession {
     };
     if (
       typeof nativeElement.checkVisibility !== "function" ||
-      typeof this.#document.elementsFromPoint !== "function" ||
       typeof element.scrollIntoView !== "function" ||
       typeof this.#view.scrollTo !== "function"
     ) {
@@ -478,21 +770,7 @@ class RenderedVisibilitySession {
       return "unproved";
     }
     if (rect.width <= 0 || rect.height <= 0) return "hidden";
-    const viewportWidth = this.#view.innerWidth;
-    const viewportHeight = this.#view.innerHeight;
-    const left = Math.max(0, rect.left);
-    const right = Math.min(viewportWidth, rect.right);
-    const top = Math.max(0, rect.top);
-    const bottom = Math.min(viewportHeight, rect.bottom);
-    if (right <= left || bottom <= top) return "unproved";
-    const x = left + (right - left) / 2;
-    const y = top + (bottom - top) / 2;
-    const paintedStack = this.#document.elementsFromPoint(x, y);
-    return paintedStack.some(
-      (painted) => painted === element || element.contains(painted),
-    )
-      ? "visible"
-      : "unproved";
+    return "visible";
   }
 
   restore(): boolean {
@@ -1236,7 +1514,7 @@ const CONFIDENCE_LEDGER_DOM_TEXT_CODE_UNIT_CAP = 80 * 1000;
 const CONFIDENCE_LEDGER_DOM_ATTRIBUTE_COUNT_CAP = 20 * 1000;
 const CONFIDENCE_LEDGER_DOM_ATTRIBUTE_CODE_UNIT_CAP = 640 * 1000;
 const CONFIDENCE_LEDGER_DOM_SINGLE_ATTRIBUTE_CAP = 4 * 1000;
-const CONFIDENCE_LEDGER_DOM_WORK_RESERVE = 140 * 1000;
+const CONFIDENCE_LEDGER_DOM_WORK_RESERVE = 160 * 1000;
 
 function normalizedText(value: string): string {
   return value
@@ -1394,7 +1672,7 @@ function collectGovernedText(
       const parent = node.parentElement;
       if (parent === null)
         throw new SemanticDomError("visible text has no parent");
-      const proof = visibility.prove(parent, boundary);
+      const proof = visibility.proveText(node as Text, boundary);
       if (proof === "unproved") {
         throw new VisibilityUnprovedError("visible text is unproved");
       }

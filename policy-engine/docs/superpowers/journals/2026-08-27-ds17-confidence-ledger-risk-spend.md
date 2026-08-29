@@ -1667,3 +1667,95 @@ because source cannot freeze at a plan-complete C05 boundary. C01/C02/C04
 remain at 2/6/9 mechanism paths respectively: 17 implemented mechanism paths,
 zero reserve paths spent, below the unchanged 18 declared / 22 hard ceiling;
 the unimplemented eighteenth path is C05's Atlas writer.
+
+### C04 round 4 — positive paint and text-frontmost proof
+
+This append resumes C04 only after the independently committed C05 stop. The
+first 1,669 lines above remained byte-identical to `cbfd83016` at
+`c6eda68c4b23dea089ef48243e7ea4216b920e30667c1f82256cebf29eb1418a`
+before this section was added. No C05 mechanism, finding, or conclusion moved.
+
+The review witnesses are a second finding in the already-declared P38 paint
+class, so P40 forbids another spelling or overlay-instance patch. The closure
+widens the mechanism to two positive quantities. First, computed foreground
+and text-fill colors enter exact only through a deliberately narrow,
+fully-consumed normalized-color parser. It admits legacy RGB,
+`color(srgb ...)`, `color(display-p3 ...)`, Lab/LCH, and OKLab/OKLCH only when
+every channel parses as a finite browser-normalized number and the optional
+alpha parses to exactly `1` or `100%`; a missing alpha is the normalized opaque
+form. Unknown syntax, malformed/partial values, unsupported color spaces, and
+every parsed alpha below one yield `unproved_approximation`. There is no list of
+transparent spellings.
+
+Second, element-center hit testing no longer carries text visibility. Every
+nonempty text node under the complete governed root and its uniquely bound
+dialog supplies a native `Range`; every finite nonzero Range rectangle is
+bounded at 64 and sampled at its glyph midpoint. The evaluator scrolls an
+off-viewport midpoint into view under the existing side-effect-restoration
+contract. Exact requires the frontmost `elementsFromPoint` result to contain
+that actual text node. An empty descendant or sibling therefore cannot satisfy
+the proof. Because pointer-transparent elements disappear from the hit stack,
+the session separately walks the already-capped complete document element set,
+freezes every computed non-`auto` pointer-event candidate, and conservatively
+rejects any independently visible candidate rectangle overlapping the sampled
+glyph unless it contains the text node. Missing APIs, changed Range
+cardinality, nonfinite geometry, unsupported visibility, work exhaustion, or
+failed focus/scroll restoration remain `unproved_approximation`.
+
+The total live evaluator budget remains the finite 1,100,000-unit cap. The DOM
+share increases from 140,000 to 160,000 to debit the complete element scan,
+Range geometry, hit tests, pointer-transparent overlap work, and restoration;
+the independent captured-byte/candidate preflight still receives 940,000 and
+the real protected response remains exact. The JSDOM Range and frontmost-hit
+substitute exists only in the already test-only P39 helper. Production still
+exports no oracle or capability-minting parameter, and a production-build scan
+finds none of the test-helper/oracle identifiers.
+
+`receiving-code-review` and the P40 pass fixed this as one deeper P38 class
+before editing. `brainstorming` held implementation behind an approved bounded
+design. `test-driven-development` required the complete generated color and
+overlay matrix to fail before the mechanism changed. `systematic-debugging`
+isolated the later route-only failure to honest DOM-work exhaustion rather than
+weakening the native proof. `code-work` and React best practices kept ownership
+inside the existing evaluator and retained the single hook/panel/download host.
+`verification-before-completion` required the final native, focused,
+branch/main common, type/build, lint, format, identity, and locale receipts
+below.
+
+#### Round-4 falsifiers, paths, and verification
+
+The persistent native matrix is generated across seven normalized color
+families, three alpha states, and leaf/ancestor targets: 14 opaque cases must be
+exact, while 28 zero/tiny-alpha cases must block. Four additional cases cover
+empty descendant/sibling glyph overlays with `pointer-events:auto` and
+`pointer-events:none`. Together with the canonical baseline, eight prior paint
+effects, and the UA-spoof case, the suite contains 56 native tests.
+
+The exact red run returned **32 failed / 24 passed**: all 28 zero/tiny-alpha
+cases and all four overlay cases escaped, while the baseline, every opaque
+case, the prior paint refusals, and UA-spoof refusal remained green. After the
+structural change the same suite is **56/56**. The first consolidated focused
+wave exposed an honest test-platform DOM-work exhaustion at **121 passed / 2
+failed / 1 skipped**; funding the new bounded work within the unchanged total
+budget restored the route receipt without relaxing paint or frontmost proof.
+
+| Gate | C04 round-4 branch | Exact main `dc7bdf79` | Disposition |
+| --- | --- | --- | --- |
+| complete nine-file focused Vitest | exit 0; 9 files, 123 passed + 1 native-only skip; duration 93.38s, real 94.33 | six C04 test files absent; common Cycle Board denominator below | green; no full suite |
+| persistent native Chromium | exit 0; 56/56; duration 13.19s, real 14.19 | C04 twin/browser suite absent | baseline + 14 opaque exact; 28 nonopaque + 4 overlays + 9 prior negative/UA probes block |
+| Cycle Board page/parity/census | exit 0; 23/23; duration 44.72s, real 46.06 | exit 0; 14/14; duration 55.25s, real 56.73 | authorization, sibling isolation, parity, census, and live twin exact |
+| DS10 query-key identity | exit 0; 1/1; real 4.18 | exit 0; 1/1; real 5.17 | governed shared declaration remains byte-preserved |
+| full dashboard typecheck | exit 0; real 38.87 | exit 0; real 38.03 | green |
+| production build | exit 0; real 53.49 | exit 0; real 53.48 | green; normal chunk warning only; test-oracle strings absent on branch |
+| scoped ESLint over all three correction TS/TSX paths | exit 0; real 13.10 | C04-only paths absent | green ownership gate |
+| scoped Prettier over all three correction TS/TSX paths | 3/3 matched; real 1.04 | C04-only paths absent | green |
+| i18n parity | exit 1; 37/38; real 2.83 | exit 1; 36/38; real 2.84 | branch retains only the same RU expected `67b7…` / actual `afcb…` red; main also retains the active-count red C04 closes |
+
+Round 4 changes one existing mechanism:
+`apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.ts`.
+Its two P39 companions are the persistent native browser test and the existing
+test-only JSDOM visibility-platform helper. This append is the mandatory
+record. The complete C04 capability remains exactly the original nine
+mechanism paths; no tenth mechanism, locale, route, shared exporter, second
+host, direct fetch, visual/snapshot root, or C05 path is added. `ru.json`
+remains frozen, and reserve remains zero.

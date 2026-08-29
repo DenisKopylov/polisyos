@@ -1607,3 +1607,63 @@ both compute the legacy RU key-set hash `afcb2704…` against the frozen expecte
 `67b7a921…`. The whole lint gate is not called inherited because C04 paths are
 inside its denominator even though the exact 130-finding sets match. Planned
 append-only subject: `fix(atlas): harden confidence risk-spend ownership`.
+
+### C05 preflight — execution stop at the owner-admission boundary
+
+C05 did not begin. Read-only preflight established that its required real
+Bayesian-without-coverage semantic/visual witness cannot reach the sole DS17
+HTTP surface through the owner-admitted source chain declared by the plan.
+This is the plan's explicit stop condition for a falsifier that cannot fail for
+its declared reason; it is not permission to synthesize a packet or add a
+second source seam.
+
+The guarded service has exactly four result arms. `artifact_missing` covers an
+absent N11 artifact. `invalid_source` covers incomplete resolution, failed
+owner admission, non-over-spend validation failures, or a non-exact semantic
+projection. `source_blocked/over_spend` requires the exact five owner
+diagnostics, source-payload equality, and the independent strict sum test.
+`available` requires the N11 owner validator to pass before the semantic
+projection is admitted. `coverage_argument_missing` is therefore observable
+only as a row inside an owner-admitted `available` packet; neither the service
+nor route has persisted-session intake or an overlay path.
+
+Two independent derivations agree that the planned scratch state cannot enter
+that arm:
+
+1. Structurally, `_expected_frozen_n9_rows` projects every check whose role is
+   `promotion` and polarity is `false_accept`, including a preflight refusal.
+   Omitting the resulting row from `n9_promotion_projection` emits
+   `n9_projection_owner_binding_drift`; including it makes the validator's
+   unconditional nonempty-row predicate emit
+   `day_one_positive_promotion_fabricated`. Either issue prevents
+   owner-admitted `available` output.
+2. Behaviorally, a real exact-N11-scope
+   `ConfidenceLedgerSession._for_verification` invocation of
+   `bayesian_credible_interval` produced and persisted the canonical
+   `coverage_argument_missing` refusal at
+   `sha256:94d60c54cac8155fa3da2765a65a6c73157876211d92771cd4e85478e864fbf3`.
+   The receipt and semantic projection each contained one check with role
+   `promotion`; the N9 projection contained one row, so the live N11
+   `day_one_positive_promotion_fabricated` predicate was true. Timing was
+   uptime `17:02 -> 17:03`, user `58.80` + sys `2.69` seconds.
+
+Changing the role is not a substitute: the registry permits
+`bayesian_credible_interval` only for `promotion`, so another role yields
+`certificate_role_not_permitted`. A hand-authored packet, `page.route`, a
+second source artifact, a second route or UI host, or a C02 test injection is
+forbidden. C05's sole mechanism path is the Atlas writer and cannot close this
+producer/bridge boundary.
+
+The missing capability is an N11-owner-issued negative/refusal-attempt
+projection plus guarded HTTP bridge that carries a content-bound persisted
+refusal for the exact DS17 scope while retaining an honestly empty positive
+N9 register. The current capability label is `bridge_missing`; the named owner
+is the GY-N11 confidence-ledger contract/validator owner. That work or a plan
+amendment is required before C05 can execute.
+
+No C05 path, register byte, generated report, semantic spec, visual spec,
+snapshot, mechanism reserve, or commit was created. C06 was not started
+because source cannot freeze at a plan-complete C05 boundary. C01/C02/C04
+remain at 2/6/9 mechanism paths respectively: 17 implemented mechanism paths,
+zero reserve paths spent, below the unchanged 18 declared / 22 hard ceiling;
+the unimplemented eighteenth path is C05's Atlas writer.

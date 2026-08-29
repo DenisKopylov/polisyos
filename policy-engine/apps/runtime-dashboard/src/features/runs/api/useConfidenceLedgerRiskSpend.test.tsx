@@ -6,7 +6,7 @@ import type { AvailableConfidenceLedgerRiskSpendPacket } from "@polisyos/runtime
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 
-import { queryKeys } from "@/api/queryKeys";
+import { confidenceLedgerRiskSpendQueryKey, queryKeys } from "@/api/queryKeys";
 
 import {
   confidenceLedgerRiskSpendQueryOptions,
@@ -68,13 +68,16 @@ describe("confidence-ledger risk-spend query", () => {
     expect(result.status).toBe("exact");
     if (result.status !== "exact") return;
     expect(result.packet).toEqual(packet);
-    expect(result.rawPacketBytes).toBe(rawPacketBytes);
+    expect(
+      result.capturedResponseBytes
+        .copy()
+        .every((byte, index) => byte === rawPacketBytes[index]),
+    ).toBe(true);
     expect(result.receipt.observation_basis).toBe(
       "candidate_and_captured_bytes_independently_admitted",
     );
-    expect(query.queryKey).toEqual(
-      queryKeys.confidenceLedgerRiskSpendProjection(),
-    );
+    expect(query.queryKey).toEqual(confidenceLedgerRiskSpendQueryKey());
+    expect("confidenceLedgerRiskSpendProjection" in queryKeys).toBe(false);
     expect(query.queryKey).not.toEqual([
       "governed-projection",
       "confidence-ledger-risk-spend",
@@ -146,7 +149,11 @@ describe("confidence-ledger risk-spend query", () => {
     expect(result.current.data?.status).toBe("exact");
     if (result.current.data?.status !== "exact") return;
     expect(result.current.data.packet).toEqual(packet);
-    expect(result.current.data.rawPacketBytes).toBe(rawPacketBytes);
+    expect(
+      result.current.data.capturedResponseBytes
+        .copy()
+        .every((byte, index) => byte === rawPacketBytes[index]),
+    ).toBe(true);
     expect(queryClient.getQueryCache().findAll()).toHaveLength(1);
   });
 });

@@ -2367,6 +2367,12 @@ export type ConfidenceLedgerSafetyBlockedReason =
   | "model_observation_inconsistent"
   | "unproved_approximation";
 
+/** Immutable ownership boundary for the exact captured transport body. */
+export type ConfidenceLedgerCapturedResponseBytes = Readonly<{
+  byteLength: number;
+  copy: () => Uint8Array;
+}>;
+
 const CONFIDENCE_LEDGER_MAX_RESPONSE_BYTES = 262_144;
 const CONFIDENCE_LEDGER_MAX_JSON_NODES = 32_768;
 const CONFIDENCE_LEDGER_MAX_JSON_TEXT_CODE_UNITS = 262_144;
@@ -2380,11 +2386,11 @@ const CONFIDENCE_LEDGER_MAX_EVALUATION_BUDGET =
 
 export type ConfidenceLedgerProtectedQueryEvaluation =
   | Readonly<{
+      capturedResponseBytes: ConfidenceLedgerCapturedResponseBytes;
       packet: ConfidenceLedgerRiskSpendPacket;
       protectedQueries: Readonly<
         Record<ConfidenceLedgerProtectedQuery, ConfidenceLedgerProtectedAnswer>
       >;
-      rawPacketBytes: Uint8Array;
       receipt: Readonly<{
         observation_basis: "candidate_and_captured_bytes_independently_admitted";
         packet_availability: ConfidenceLedgerRiskSpendPacket["availability"];
@@ -2420,6 +2426,21 @@ function packetSchemaVersion(candidate: unknown): string | null {
 
 function isUint8Array(value: unknown): value is Uint8Array {
   return Object.prototype.toString.call(value) === "[object Uint8Array]";
+}
+
+function ownCapturedResponseBytes(
+  value: unknown,
+): ConfidenceLedgerCapturedResponseBytes | null {
+  if (!isUint8Array(value)) return null;
+  try {
+    const owned = new Uint8Array(value);
+    return Object.freeze({
+      byteLength: owned.byteLength,
+      copy: () => new Uint8Array(owned),
+    });
+  } catch {
+    return null;
+  }
 }
 
 type JsonWork = Readonly<{ nodeCount: number; textCodeUnits: number }>;
@@ -2631,6 +2652,8 @@ export async function evaluateConfidenceLedgerProtectedQuery({
   rawPacketBytes,
   stepBudget,
 }: ProtectedQueryEvaluationInput): Promise<ConfidenceLedgerProtectedQueryEvaluation> {
+  const capturedResponseBytes = ownCapturedResponseBytes(rawPacketBytes);
+  const ownedRawPacketBytes = capturedResponseBytes?.copy() ?? null;
   if (
     !Number.isFinite(stepBudget) ||
     !Number.isSafeInteger(stepBudget) ||
@@ -2642,19 +2665,20 @@ export async function evaluateConfidenceLedgerProtectedQuery({
   if (
     packetCandidate === null ||
     packetCandidate === undefined ||
-    !isUint8Array(rawPacketBytes) ||
-    rawPacketBytes.byteLength === 0
+    capturedResponseBytes === null ||
+    ownedRawPacketBytes === null ||
+    ownedRawPacketBytes.byteLength === 0
   ) {
     return blockedEvaluation("missing_input_or_incomplete_history");
   }
   if (evaluationMode !== "exact_finite_schema") {
     return blockedEvaluation("unproved_approximation");
   }
-  if (rawPacketBytes.byteLength > CONFIDENCE_LEDGER_MAX_RESPONSE_BYTES) {
+  if (ownedRawPacketBytes.byteLength > CONFIDENCE_LEDGER_MAX_RESPONSE_BYTES) {
     return blockedEvaluation("unsupported_or_out_of_model");
   }
   const minimumWorkBound =
-    rawPacketBytes.byteLength * 2 +
+    ownedRawPacketBytes.byteLength * 2 +
     CONFIDENCE_LEDGER_MAX_JSON_NODES * 2 +
     CONFIDENCE_LEDGER_SCHEMA_WORK_BOUND +
     CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA.length;
@@ -2673,7 +2697,7 @@ export async function evaluateConfidenceLedgerProtectedQuery({
     return blockedEvaluation("unsupported_or_out_of_model");
   }
   const preDecodeWorkBound =
-    rawPacketBytes.byteLength * 2 +
+    ownedRawPacketBytes.byteLength * 2 +
     candidateAdmissionWork.json.nodeCount +
     candidateAdmissionWork.json.textCodeUnits +
     candidateAdmissionWork.rational.workUnits +
@@ -2684,7 +2708,7 @@ export async function evaluateConfidenceLedgerProtectedQuery({
   let rawCandidate: unknown;
   try {
     rawCandidate = JSON.parse(
-      new TextDecoder("utf-8", { fatal: true }).decode(rawPacketBytes),
+      new TextDecoder("utf-8", { fatal: true }).decode(ownedRawPacketBytes),
     );
   } catch {
     return blockedEvaluation("parser_or_schema_failure");
@@ -2701,7 +2725,7 @@ export async function evaluateConfidenceLedgerProtectedQuery({
     return blockedEvaluation("unsupported_or_out_of_model");
   }
   const completeWorkBound =
-    rawPacketBytes.byteLength * 2 +
+    ownedRawPacketBytes.byteLength * 2 +
     candidateAdmissionWork.json.nodeCount +
     candidateAdmissionWork.json.textCodeUnits +
     candidateAdmissionWork.rational.workUnits +
@@ -2733,9 +2757,9 @@ export async function evaluateConfidenceLedgerProtectedQuery({
     return blockedEvaluation("unsupported_or_out_of_model");
   }
   return Object.freeze({
+    capturedResponseBytes,
     packet,
     protectedQueries,
-    rawPacketBytes,
     receipt: Object.freeze({
       observation_basis:
         "candidate_and_captured_bytes_independently_admitted" as const,

@@ -86,7 +86,13 @@ function availableProjection(): ExactProjection {
       ConfidenceLedgerProtectedQuery,
       ConfidenceLedgerProtectedAnswer
     >,
-    rawPacketBytes: new TextEncoder().encode("exact MACHINE packet"),
+    capturedResponseBytes: (() => {
+      const owned = new TextEncoder().encode("exact MACHINE packet");
+      return Object.freeze({
+        byteLength: owned.byteLength,
+        copy: () => new Uint8Array(owned),
+      });
+    })(),
     receipt: {
       observation_basis: "candidate_and_captured_bytes_independently_admitted",
       packet_availability: "available",
@@ -155,6 +161,8 @@ describe("ConfidenceLedgerRiskSpend", () => {
 
   it("downloads only the captured owner-response bytes from the final MACHINE section", () => {
     const projection = availableProjection();
+    if (projection.status !== "exact") return;
+    const expectedBytes = projection.capturedResponseBytes.copy();
     render(<ConfidenceLedgerRiskSpend projection={projection} />);
 
     const exportSection = document.querySelector<HTMLElement>(
@@ -170,9 +178,22 @@ describe("ConfidenceLedgerRiskSpend", () => {
     expect(exportCapturedResponseBytesMock).toHaveBeenCalledTimes(1);
     expect(exportCapturedResponseBytesMock).toHaveBeenCalledWith(
       "confidence-ledger-risk-spend.machine.json",
-      projection.rawPacketBytes,
+      expectedBytes,
       "application/json",
     );
+    const firstExport = exportCapturedResponseBytesMock.mock.calls[0]?.[1];
+    if (!(firstExport instanceof Uint8Array)) {
+      throw new TypeError("MACHINE export did not receive bytes");
+    }
+    firstExport.fill(0xff);
+    fireEvent.click(
+      within(exportSection as HTMLElement).getByRole("button", {
+        name: /machine/iu,
+      }),
+    );
+    const secondExport = exportCapturedResponseBytesMock.mock.calls[1]?.[1];
+    expect(secondExport).toEqual(expectedBytes);
+    expect(secondExport).not.toBe(firstExport);
   });
 
   it("limits source-blocked rendering to blocker and source/validator/replay identities", () => {

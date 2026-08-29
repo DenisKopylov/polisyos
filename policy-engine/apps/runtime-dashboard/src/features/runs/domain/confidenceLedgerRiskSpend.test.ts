@@ -757,13 +757,43 @@ describe("confidence-ledger shared protected-query evaluator", () => {
     expect(result.status).toBe("exact");
     if (result.status !== "exact") return;
     expect(result.packet).toEqual(packet);
-    expect(result.rawPacketBytes).toBe(rawPacketBytes);
+    const capturedCopy = result.capturedResponseBytes.copy();
+    expect(capturedCopy.byteLength).toBe(rawPacketBytes.byteLength);
+    expect(
+      capturedCopy.every((byte, index) => byte === rawPacketBytes[index]),
+    ).toBe(true);
+    expect(result.capturedResponseBytes.copy()).not.toBe(
+      result.capturedResponseBytes.copy(),
+    );
     expect(result.receipt.observation_basis).toBe(
       "candidate_and_captured_bytes_independently_admitted",
     );
     expect(Object.keys(result.protectedQueries)).toEqual(
       CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
     );
+  });
+
+  it("owns the transport bytes synchronously and exposes only fresh copies", async () => {
+    const packet = availablePacket();
+    const rawPacketBytes = new TextEncoder().encode(JSON.stringify(packet));
+    const entrySnapshot = new Uint8Array(rawPacketBytes);
+
+    const pending = evaluateConfidenceLedgerProtectedQuery({
+      evaluationMode: "exact_finite_schema",
+      packetCandidate: packet,
+      rawPacketBytes,
+      stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+    });
+    queueMicrotask(() => rawPacketBytes.fill(0x5a));
+    rawPacketBytes.fill(0xa5);
+
+    const result = await pending;
+    expect(result.status).toBe("exact");
+    if (result.status !== "exact") return;
+    const firstCopy = result.capturedResponseBytes.copy();
+    expect(firstCopy).toEqual(entrySnapshot);
+    firstCopy.fill(0xff);
+    expect(result.capturedResponseBytes.copy()).toEqual(entrySnapshot);
   });
 
   it.each([Number.NaN, Number.POSITIVE_INFINITY, 1.5, 0, -1, 64])(

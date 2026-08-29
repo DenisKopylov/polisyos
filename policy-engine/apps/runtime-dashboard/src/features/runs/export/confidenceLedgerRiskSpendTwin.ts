@@ -8,6 +8,7 @@ import {
   orderedConfidenceLedgerActualRows,
   type ConfidenceLedgerProtectedAnswer,
   type ConfidenceLedgerProtectedQuery,
+  type ConfidenceLedgerCapturedResponseBytes,
   type ConfidenceLedgerRiskSpendPacket,
   type ConfidenceLedgerSafetyBlockedReason,
 } from "@/features/runs/domain/confidenceLedgerRiskSpend";
@@ -19,7 +20,7 @@ export type ConfidenceLedgerTwinBlockedReason =
 
 export type ConfidenceLedgerRiskSpendTwinResult =
   | Readonly<{
-      byteTwin: Uint8Array;
+      byteTwin: ConfidenceLedgerCapturedResponseBytes;
       protectedQueries: Readonly<
         Record<ConfidenceLedgerProtectedQuery, ConfidenceLedgerProtectedAnswer>
       >;
@@ -36,7 +37,6 @@ type EvaluateConfidenceLedgerRiskSpendTwinInput = Readonly<{
   rawPacketBytes: Uint8Array;
   root: HTMLElement | null;
   stepBudget: number;
-  visibilityOracle?: ConfidenceLedgerTestVisibilityOracle;
 }>;
 
 type VisibleFigure = Readonly<{
@@ -88,14 +88,6 @@ class VisibilityUnprovedError extends Error {}
 
 type VisibilityProof = "hidden" | "unproved" | "visible";
 
-export type ConfidenceLedgerTestVisibilityOracle = Readonly<{
-  document: Document;
-  kind: "explicit_jsdom_test_oracle";
-  prove: (element: HTMLElement, boundary: HTMLElement) => VisibilityProof;
-}>;
-
-const registeredTestVisibilityOracles = new WeakSet();
-
 function blocked(
   reason: ConfidenceLedgerTwinBlockedReason,
 ): ConfidenceLedgerRiskSpendTwinResult {
@@ -106,16 +98,159 @@ function compactCss(value: string): string {
   return value.toLowerCase().replaceAll(" ", "").replaceAll("\n", "");
 }
 
-function nonDefaultCss(value: string, defaults: readonly string[]): boolean {
-  const normalized = compactCss(value);
-  return normalized.length > 0 && !defaults.includes(normalized);
+function cssValue(style: CSSStyleDeclaration, property: string): string {
+  return compactCss(style.getPropertyValue(property));
 }
 
-function anyNonDefaultCss(
-  values: readonly string[],
-  defaults: readonly string[],
-): boolean {
-  return values.some((value) => nonDefaultCss(value, defaults));
+function isOpaqueColor(value: string): boolean {
+  return (
+    value.length > 0 &&
+    value !== "transparent" &&
+    value !== "rgba(0,0,0,0)" &&
+    !/^rgba\([^)]*,0(?:\.0+)?\)$/u.test(value) &&
+    !/^hsla\([^)]*,0(?:\.0+)?\)$/u.test(value) &&
+    !/^oklch\([^/]+\/0(?:\.0+)?\)$/u.test(value)
+  );
+}
+
+function isZeroCssLength(value: string): boolean {
+  return /^(?:0|0\.0+)(?:px|em|rem|%)?$/u.test(value);
+}
+
+function isPureTranslation(value: string): boolean {
+  if (value === "none") return true;
+  if (/^-?[\d.]+(?:px|%)-?[\d.]+(?:px|%)$/u.test(value)) return true;
+  if (/^matrix\(1,0,0,1,-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?\)$/u.test(value)) {
+    return true;
+  }
+  return /^translate(?:3d)?\(-?[\d.]+(?:px|%),-?[\d.]+(?:px|%)(?:,0(?:px)?)?\)$/u.test(
+    value,
+  );
+}
+
+const ADMITTED_INLINE_VISIBILITY_PROPERTIES = new Set([
+  "-webkit-text-fill-color",
+  "-webkit-text-security",
+  "-webkit-text-stroke-width",
+  "backdrop-filter",
+  "background-blend-mode",
+  "box-shadow",
+  "clip",
+  "clip-path",
+  "color",
+  "content-visibility",
+  "display",
+  "filter",
+  "font-size",
+  "height",
+  "isolation",
+  "left",
+  "mask",
+  "mask-image",
+  "mix-blend-mode",
+  "opacity",
+  "overflow",
+  "overflow-x",
+  "overflow-y",
+  "paint-order",
+  "perspective",
+  "position",
+  "rotate",
+  "scale",
+  "text-decoration-line",
+  "text-emphasis-style",
+  "text-indent",
+  "text-shadow",
+  "text-transform",
+  "top",
+  "transform",
+  "translate",
+  "visibility",
+  "width",
+  "will-change",
+  "-webkit-mask-image",
+]);
+
+function finitePaintGrammarProof(
+  element: HTMLElement,
+  style: CSSStyleDeclaration,
+  allowGeometricProof: boolean,
+): VisibilityProof {
+  for (let index = 0; index < element.style.length; index += 1) {
+    const property = element.style.item(index);
+    if (
+      !property.startsWith("--") &&
+      !ADMITTED_INLINE_VISIBILITY_PROPERTIES.has(property)
+    ) {
+      return "unproved";
+    }
+  }
+  const color = cssValue(style, "color");
+  const textFill = cssValue(style, "-webkit-text-fill-color");
+  if (!isOpaqueColor(color)) return "hidden";
+  if (
+    !isOpaqueColor(textFill) ||
+    (textFill !== "currentcolor" && textFill !== color)
+  ) {
+    return "unproved";
+  }
+  const exactDefaults: Readonly<Record<string, readonly string[]>> = {
+    "-webkit-text-security": ["none"],
+    "backdrop-filter": ["none"],
+    "background-blend-mode": ["normal"],
+    clip: ["auto"],
+    "clip-path": ["none"],
+    "content-visibility": ["visible"],
+    filter: ["none"],
+    isolation: ["auto", "isolate"],
+    "mask-image": ["none"],
+    "-webkit-mask-image": ["none"],
+    "mix-blend-mode": ["normal"],
+    "paint-order": ["normal"],
+    perspective: ["none"],
+    rotate: ["none"],
+    scale: ["none", "1"],
+    "text-decoration-line": ["none"],
+    "text-emphasis-style": ["none"],
+    "text-shadow": ["none"],
+    "text-transform": ["none"],
+    "will-change": ["auto"],
+  };
+  for (const [property, admitted] of Object.entries(exactDefaults)) {
+    const value = cssValue(style, property);
+    if (value.length === 0 || !admitted.includes(value)) {
+      return "unproved";
+    }
+  }
+  const strokeWidth = cssValue(style, "-webkit-text-stroke-width");
+  if (strokeWidth.length === 0 || !isZeroCssLength(strokeWidth)) {
+    return "unproved";
+  }
+  const boxShadow = cssValue(style, "box-shadow");
+  if (boxShadow.length === 0 || boxShadow.includes("inset")) {
+    return "unproved";
+  }
+  const opacity = Number.parseFloat(cssValue(style, "opacity"));
+  if (!Number.isFinite(opacity) || opacity !== 1) {
+    return "unproved";
+  }
+  const transform = cssValue(style, "transform");
+  if (
+    transform.length === 0 ||
+    (!allowGeometricProof && transform !== "none") ||
+    !isPureTranslation(transform)
+  ) {
+    return "unproved";
+  }
+  const translate = cssValue(style, "translate");
+  if (
+    translate.length === 0 ||
+    (!allowGeometricProof && translate !== "none") ||
+    !isPureTranslation(translate)
+  ) {
+    return "unproved";
+  }
+  return "visible";
 }
 
 function styleVisibilityProof(
@@ -123,49 +258,48 @@ function styleVisibilityProof(
   style: CSSStyleDeclaration,
   allowGeometricProof: boolean,
 ): VisibilityProof {
-  const contentVisibility = (
-    style as CSSStyleDeclaration & { contentVisibility?: string }
-  ).contentVisibility;
-  const overflowX = compactCss(`${style.overflow} ${style.overflowX}`);
-  const overflowY = compactCss(`${style.overflow} ${style.overflowY}`);
-  const width = Number.parseFloat(style.width || element.style.width);
-  const height = Number.parseFloat(style.height || element.style.height);
-  const opacity = Number.parseFloat(style.opacity || element.style.opacity);
-  const fontSize = Number.parseFloat(style.fontSize || element.style.fontSize);
-  const textIndent = Number.parseFloat(
-    style.textIndent || element.style.textIndent,
+  const contentVisibility = cssValue(style, "content-visibility");
+  const overflowX = compactCss(
+    `${cssValue(style, "overflow")} ${cssValue(style, "overflow-x")}`,
   );
-  const left = Number.parseFloat(style.left || element.style.left);
-  const top = Number.parseFloat(style.top || element.style.top);
+  const overflowY = compactCss(
+    `${cssValue(style, "overflow")} ${cssValue(style, "overflow-y")}`,
+  );
+  const width = Number.parseFloat(cssValue(style, "width"));
+  const height = Number.parseFloat(cssValue(style, "height"));
+  const opacity = Number.parseFloat(cssValue(style, "opacity"));
+  const fontSize = Number.parseFloat(cssValue(style, "font-size"));
+  const textIndent = Number.parseFloat(
+    cssValue(style, "text-indent") || element.style.textIndent,
+  );
+  const left = Number.parseFloat(cssValue(style, "left") || element.style.left);
+  const top = Number.parseFloat(cssValue(style, "top") || element.style.top);
   const positioned =
-    style.position === "absolute" || style.position === "fixed";
+    cssValue(style, "position") === "absolute" ||
+    cssValue(style, "position") === "fixed";
   const clipValues = [
     style.getPropertyValue("clip"),
     element.style.getPropertyValue("clip"),
   ];
-  const clipPathValues = [style.clipPath, element.style.clipPath];
-  const filterValues = [style.filter, element.style.filter];
-  const transformValues = [style.transform, element.style.transform];
-  const maskValues = [
-    style.getPropertyValue("mask-image"),
-    style.getPropertyValue("-webkit-mask-image"),
-    element.style.getPropertyValue("mask"),
-    element.style.getPropertyValue("mask-image"),
-    element.style.getPropertyValue("-webkit-mask-image"),
+  const clipPathValues = [cssValue(style, "clip-path"), element.style.clipPath];
+  const filterValues = [cssValue(style, "filter"), element.style.filter];
+  const transformValues = [
+    cssValue(style, "transform"),
+    element.style.transform,
   ];
   const clip = compactCss(clipValues.join(" ")).replaceAll(",", "");
   const clipPath = compactCss(clipPathValues.join(" "));
   const filter = compactCss(filterValues.join(" "));
   const transform = compactCss(transformValues.join(" "));
-  const color = compactCss(style.color || element.style.color);
+  const color = cssValue(style, "color");
   if (
     element.hidden ||
     element.getAttribute("aria-hidden") === "true" ||
     element.classList.contains("sr-only") ||
     element.classList.contains("visually-hidden") ||
-    style.display === "none" ||
-    style.visibility === "hidden" ||
-    style.visibility === "collapse" ||
+    cssValue(style, "display") === "none" ||
+    cssValue(style, "visibility") === "hidden" ||
+    cssValue(style, "visibility") === "collapse" ||
     opacity === 0 ||
     contentVisibility === "hidden" ||
     fontSize === 0 ||
@@ -194,57 +328,7 @@ function styleVisibilityProof(
   ) {
     return "hidden";
   }
-  if (anyNonDefaultCss(maskValues, ["none"])) return "unproved";
-  if (anyNonDefaultCss(filterValues, ["none"])) return "unproved";
-  if (
-    !allowGeometricProof &&
-    (anyNonDefaultCss(clipValues, ["auto", "none"]) ||
-      anyNonDefaultCss(clipPathValues, ["none"]) ||
-      anyNonDefaultCss(transformValues, ["none"]))
-  ) {
-    return "unproved";
-  }
-  return "visible";
-}
-
-/** Explicit layout substitute for JSDOM unit tests; never accepted in a browser. */
-export function createConfidenceLedgerTestVisibilityOracle(
-  document: Document,
-): ConfidenceLedgerTestVisibilityOracle {
-  const userAgent = document.defaultView?.navigator.userAgent.toLowerCase();
-  if (userAgent?.includes("jsdom") !== true) {
-    throw new TypeError(
-      "confidence-ledger test visibility oracle requires an explicit JSDOM document",
-    );
-  }
-  const cache = new WeakMap<HTMLElement, VisibilityProof>();
-  const oracle: ConfidenceLedgerTestVisibilityOracle = Object.freeze({
-    document,
-    kind: "explicit_jsdom_test_oracle" as const,
-    prove(element: HTMLElement, boundary: HTMLElement): VisibilityProof {
-      if (!boundary.contains(element) && boundary !== element)
-        return "unproved";
-      const view = document.defaultView;
-      if (view === null) return "unproved";
-      let current: HTMLElement | null = element;
-      while (current !== null) {
-        let proof = cache.get(current);
-        if (proof === undefined) {
-          proof = styleVisibilityProof(
-            current,
-            view.getComputedStyle(current),
-            false,
-          );
-          cache.set(current, proof);
-        }
-        if (proof !== "visible") return proof;
-        current = current.parentElement;
-      }
-      return "visible";
-    },
-  });
-  registeredTestVisibilityOracles.add(oracle);
-  return oracle;
+  return finitePaintGrammarProof(element, style, allowGeometricProof);
 }
 
 type ScrollSnapshot = Readonly<{
@@ -259,40 +343,26 @@ class RenderedVisibilitySession {
   readonly #document: Document;
   readonly #focus: Element | null;
   readonly #scroll: readonly ScrollSnapshot[];
-  readonly #testOracle: ConfidenceLedgerTestVisibilityOracle | null;
   readonly #view: Window & typeof globalThis;
   readonly #windowX: number;
   readonly #windowY: number;
   #remainingWork: number;
 
-  constructor(
-    document: Document,
-    workBudget: number,
-    testOracle?: ConfidenceLedgerTestVisibilityOracle,
-  ) {
+  constructor(document: Document, workBudget: number) {
     const view = document.defaultView;
     if (view === null) {
       throw new VisibilityUnprovedError("document view is unavailable");
     }
-    if (
-      testOracle !== undefined &&
-      (!registeredTestVisibilityOracles.has(testOracle) ||
-        testOracle.document !== document)
-    ) {
-      throw new VisibilityUnprovedError("test visibility oracle is untrusted");
-    }
     this.#document = document;
     this.#view = view;
-    this.#testOracle = testOracle ?? null;
     const documentElement = document.documentElement as HTMLElement & {
       checkVisibility?: () => boolean;
     };
     if (
-      this.#testOracle === null &&
-      (typeof documentElement.checkVisibility !== "function" ||
-        typeof document.elementsFromPoint !== "function" ||
-        typeof documentElement.scrollIntoView !== "function" ||
-        typeof view.scrollTo !== "function")
+      typeof documentElement.checkVisibility !== "function" ||
+      typeof document.elementsFromPoint !== "function" ||
+      typeof documentElement.scrollIntoView !== "function" ||
+      typeof view.scrollTo !== "function"
     ) {
       throw new VisibilityUnprovedError(
         "native rendered visibility APIs are unavailable",
@@ -322,9 +392,6 @@ class RenderedVisibilitySession {
 
   prove(element: HTMLElement, boundary: HTMLElement): VisibilityProof {
     this.consume(1);
-    if (this.#testOracle !== null) {
-      return this.#testOracle.prove(element, boundary);
-    }
     if (!boundary.contains(element) && boundary !== element) return "unproved";
     const newlyProved: HTMLElement[] = [];
     let current: HTMLElement | null = element;
@@ -384,6 +451,18 @@ class RenderedVisibilitySession {
       true,
     );
     if (styleProof !== "visible") return styleProof;
+    this.consume(2);
+    try {
+      for (const pseudo of ["::before", "::after"] as const) {
+        const content = cssValue(
+          this.#view.getComputedStyle(element, pseudo),
+          "content",
+        );
+        if (content !== "none" && content !== "normal") return "unproved";
+      }
+    } catch {
+      return "unproved";
+    }
     try {
       element.scrollIntoView({ block: "center", inline: "center" });
     } catch {
@@ -417,18 +496,6 @@ class RenderedVisibilitySession {
   }
 
   restore(): boolean {
-    if (this.#testOracle !== null) {
-      return (
-        this.#document.activeElement === this.#focus &&
-        this.#view.scrollX === this.#windowX &&
-        this.#view.scrollY === this.#windowY &&
-        this.#scroll.every(
-          (snapshot) =>
-            snapshot.element.scrollLeft === snapshot.left &&
-            snapshot.element.scrollTop === snapshot.top,
-        )
-      );
-    }
     let restored = true;
     try {
       if (this.#document.activeElement !== this.#focus) {
@@ -2002,7 +2069,6 @@ export async function evaluateConfidenceLedgerRiskSpendTwin({
   rawPacketBytes,
   root,
   stepBudget,
-  visibilityOracle,
 }: EvaluateConfidenceLedgerRiskSpendTwinInput): Promise<ConfidenceLedgerRiskSpendTwinResult> {
   if (
     !Number.isFinite(stepBudget) ||
@@ -2058,7 +2124,6 @@ export async function evaluateConfidenceLedgerRiskSpendTwin({
     visibility = new RenderedVisibilitySession(
       root.ownerDocument,
       CONFIDENCE_LEDGER_DOM_WORK_RESERVE - domWork.workUnits,
-      visibilityOracle,
     );
   } catch (error) {
     return blocked(
@@ -2110,7 +2175,7 @@ export async function evaluateConfidenceLedgerRiskSpendTwin({
             result = blocked("unsupported_or_out_of_model");
           } else {
             result = Object.freeze({
-              byteTwin: preflight.rawPacketBytes,
+              byteTwin: preflight.capturedResponseBytes,
               protectedQueries: preflight.protectedQueries,
               status: "exact" as const,
             });

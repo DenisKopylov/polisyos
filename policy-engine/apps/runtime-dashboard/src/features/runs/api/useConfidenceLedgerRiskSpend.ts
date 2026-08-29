@@ -1,6 +1,6 @@
 import { RuntimeApiClient } from "@polisyos/runtime-api-client";
 
-import { queryKeys } from "@/api/queryKeys";
+import { confidenceLedgerRiskSpendQueryKey } from "@/api/queryKeys";
 import {
   governedQueryOptions,
   useGovernedQuery,
@@ -61,7 +61,7 @@ export function confidenceLedgerRiskSpendQueryOptions(
   client: ConfidenceLedgerRiskSpendClient,
 ) {
   return {
-    queryKey: queryKeys.confidenceLedgerRiskSpendProjection(),
+    queryKey: confidenceLedgerRiskSpendQueryKey(),
     queryFn: async (): Promise<ConfidenceLedgerRiskSpendProjection> => {
       const response = await client.getConfidenceLedgerRiskSpendProjection({});
       return evaluateConfidenceLedgerProtectedQuery({

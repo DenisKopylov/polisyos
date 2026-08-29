@@ -88,11 +88,14 @@ import CycleBoardPage from "./CycleBoardPage";
 const packet = cycleBoardProjectionPacketFixture();
 const projection = { packet, payload: packet.payload };
 const riskSpendProjection = {
+  capturedResponseBytes: Object.freeze({
+    byteLength: 3,
+    copy: () => new Uint8Array([1, 2, 3]),
+  }),
   packet: {
     absence_reason: "governed confidence-ledger source is absent",
     availability: "artifact_missing",
   },
-  rawPacketBytes: new Uint8Array([1, 2, 3]),
 };
 
 describe("CycleBoardPage authorization boundary", () => {

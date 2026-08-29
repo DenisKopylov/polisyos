@@ -57,6 +57,10 @@ function exactProjection(
   packet: AvailableConfidenceLedgerRiskSpendPacket,
 ): Extract<ConfidenceLedgerRiskSpendProjection, { status: "exact" }> {
   return {
+    capturedResponseBytes: Object.freeze({
+      byteLength: 3,
+      copy: () => new Uint8Array([1, 2, 3]),
+    }),
     packet: packet as unknown as ConfidenceLedgerRiskSpendPacket,
     protectedQueries: Object.fromEntries(
       CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA.map((query) => [
@@ -67,7 +71,6 @@ function exactProjection(
       ConfidenceLedgerProtectedQuery,
       ConfidenceLedgerProtectedAnswer
     >,
-    rawPacketBytes: new Uint8Array([1, 2, 3]),
     receipt: {
       observation_basis: "candidate_and_captured_bytes_independently_admitted",
       packet_availability: "available",

@@ -1508,3 +1508,102 @@ Current en/uk hashes are `2ae387596c20…` and `9c6970522875…`.
 `5366a250bd34ec702035c0953348d25e824acf80e75136bb212895cd76c36273`.
 No full suite ran. Planned append-only subject:
 `fix(atlas): complete confidence risk-spend proof`.
+
+### C04 review round 3 — closed paint, test-authority, and byte-ownership quantities
+
+This round keeps the reviewer buckets explicit. The paint escape is a SECOND
+finding in the existing P38 rendered-visibility class, so the implementation
+now admits a finite positive paint grammar and fails closed on every checked
+non-admitted state instead of adding a transparent-text-fill denylist. The
+production-oracle escape is a SECOND P32/P37 finding: the production-callable
+twin has no oracle parameter, oracle type, factory, or registered test
+capability; the JSDOM platform substitute lives only in a P39 test helper and
+does not appear in the production bundle. Mutable transport bytes are a NEW
+P05/P37 TOCTOU class and close at one intake: the shared protected-query
+preflight synchronously owns the bytes at invocation and exposes only a frozen
+fresh-copy closure to the panel and twin.
+
+`receiving-code-review` fixed those class dispositions before editing;
+`test-driven-development` required the paint/UA and immediate/microtask/copy
+mutation failures before the mechanisms changed; `systematic-debugging` kept
+the native-browser harness separate from product behavior; React guidance kept
+the existing hook/panel ownership and avoided a second render/download host;
+and `verification-before-completion` required the serial native, focused,
+type/build, locale, lint, DS10 identity, and exact-main replays below.
+
+#### Structural closures and falsifiers
+
+- `RenderedVisibilitySession` is the only production visibility path. It
+  requires native `checkVisibility`, geometry, viewport and hit-test evidence,
+  consumes the DOM budget, and snapshots/restores focus, window scroll, and all
+  element scroll positions in `finally`. Its finite paint grammar admits only
+  explicit default/opaque states plus geometrically proved translations and
+  non-inset shadows; unsupported concealment, text, mask, filter, transform,
+  compositing, pseudo-content, or inline paint states yield
+  `unproved_approximation`.
+- The persistent Chromium suite proves the canonical baseline exact and proves
+  transparent text fill, text shadow, inset paint, and non-normal compositing
+  on both governed leaves and ancestors cannot be exact. Spoofing
+  `navigator.userAgent` and passing an arbitrary legacy-shaped object also
+  cannot mint a visibility capability.
+- `evaluateConfidenceLedgerProtectedQuery` clones the incoming `Uint8Array`
+  before its first `await`; all byte limits, decoding, independent admission,
+  reconciliation, download, and byte-twin observations use that owned
+  snapshot. The frozen capture yields a new `Uint8Array` for each consumer.
+  Immediate caller mutation, queued-microtask mutation, mutation of a returned
+  copy, and mutation of a prior download copy leave every later byte identical
+  to the invocation snapshot.
+- The DS17 query key is a sibling export after the governed shared `queryKeys`
+  declaration. This retains a distinct never-cache authority key while
+  restoring the complete DS10 declaration identity; no peer register or stamp
+  moved.
+
+The bounded paint residual remains fail-closed: exact is unavailable when the
+browser cannot prove a checked rendering state, the native APIs are absent, or
+focus/scroll restoration is not exact. A side-effect-free glyph-level paint and
+occlusion primitive, coupled to stylesheet/font integrity, is the smallest
+future capability that could safely widen that exact subset; it is not present
+here. This residual cannot authorize a positive receipt.
+
+#### Round-3 paths and verification
+
+Five existing mechanisms change: query keys, hook, domain, panel, and twin.
+Ten P39 companions change or are added: hook, domain, panel, panel-a11y, twin,
+Cycle Board page, and Cycle Board parity tests; the persistent Chromium test,
+its Vitest configuration, and the JSDOM-only platform helper. This journal is
+the mandatory tracked record. The complete C04 capability still occupies the
+original nine mechanism paths; no tenth mechanism, locale, generated client,
+route/navigation entry, shared exporter, second host, direct fetch, visual
+root, snapshot root, or reserve path is added. `ru.json` remains frozen and
+reserve remains zero.
+
+The red receipts were domain 2 failed / 36 passed before byte ownership,
+hook/panel/twin 5 failed / 52 passed / one skip before fresh-copy propagation
+and oracle removal, and native Chromium one baseline pass / nine intended
+failures while the paint and UA-spoof probes still returned `exact`. The DS10
+owner validator also failed while the DS17 key remained inside its governed
+declaration. All now close for their declared reason.
+
+| Gate | C04 branch | Exact main `dc7bdf79` | Disposition |
+| --- | --- | --- | --- |
+| complete nine-file focused Vitest | exit 0; 9 files, 123 passed + 1 native-only skip; duration 101.04s, real 101.93 | six C04 test files absent; common Cycle Board denominator below | green; no full suite |
+| persistent native Chromium | exit 0; 10/10; duration 3.79s, real 4.60 | C04 twin/browser suite absent | exact baseline plus 9 negative paint/UA probes |
+| Cycle Board page/parity/census | exit 0; 23/23; real 27.07 after production staging | exit 0; 14/14; real 34.26 | authorization, sibling isolation, parity, and census green |
+| DS10 query-key identity | exit 0; 1/1; real 4.50 | exit 0; 1/1; real 4.65 | governed declaration identity preserved |
+| full dashboard typecheck | exit 0; real 34.90 | exit 0; real 25.27 | green |
+| production build | exit 0; real 45.54 | exit 0; real 46.32 | green; normal chunk warning only; production oracle strings absent |
+| exact 15-file ESLint | exit 0; real 36.71 | C04-only files absent | green ownership gate |
+| whole-dashboard ESLint | exit 1; 130 errors / 0 warnings; real 46.97 with warm cache | exit 1; identical 130 / 0; real 988.64 uncached | no C04 finding path; whole gate remains red |
+| exact 15-file Prettier | 15/15 matched; real 1.65 | C04-only files absent | green |
+| i18n parity | exit 1; 37/38; real 2.35 | exit 1; 36/38; real 2.60 | branch closes main active-count red; both retain only the same RU subject after that delta |
+
+The complete branch catalog has 2,693 English and 2,693 Ukrainian leaves,
+versus 2,662/2,662 at exact main. Their branch file hashes are
+`2ae387596c20dc593d6af884a6ca7a7d0141bb2ceae065233142cec1bcb5fba6` and
+`9c6970522875338aa69ceff172b0e5c4f82de94b984b62db3ab4acdb07fc3615`.
+Round 3 changes neither active catalog. `ru.json` is byte-identical branch/main
+at `5366a250bd34ec702035c0953348d25e824acf80e75136bb212895cd76c36273`;
+both compute the legacy RU key-set hash `afcb2704…` against the frozen expected
+`67b7a921…`. The whole lint gate is not called inherited because C04 paths are
+inside its denominator even though the exact 130-finding sets match. Planned
+append-only subject: `fix(atlas): harden confidence risk-spend ownership`.

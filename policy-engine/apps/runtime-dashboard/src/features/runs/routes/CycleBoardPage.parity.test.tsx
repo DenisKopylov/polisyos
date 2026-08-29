@@ -15,11 +15,9 @@ import { cycleBoardProjectionPacketFixture } from "@/test/fixtures/depthNCycleBo
 import { server } from "@/test/msw/server";
 import { renderWithProviders } from "@/test/render";
 
-import {
-  createConfidenceLedgerTestVisibilityOracle,
-  evaluateConfidenceLedgerRiskSpendTwin,
-} from "../export/confidenceLedgerRiskSpendTwin";
+import { evaluateConfidenceLedgerRiskSpendTwin } from "../export/confidenceLedgerRiskSpendTwin";
 import { CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET } from "../domain/confidenceLedgerRiskSpend";
+import { withConfidenceLedgerTestVisibilityPlatform } from "@/test/confidenceLedgerVisibilityPlatform";
 
 import CycleBoardPage from "./CycleBoardPage";
 
@@ -221,16 +219,17 @@ describe("CycleBoardPage MACHINE/rendered-DOM parity", () => {
     const root = required(container, '[data-confidence-surface="risk-spend"]');
     await openRiskSpendDialog(root);
 
-    const result = await evaluateConfidenceLedgerRiskSpendTwin({
-      evaluationMode: "exact_finite_schema",
-      packetCandidate: riskPacket,
-      rawPacketBytes: riskWireBytes,
-      root,
-      stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
-      visibilityOracle: createConfidenceLedgerTestVisibilityOracle(
-        root.ownerDocument,
-      ),
-    });
+    const result = await withConfidenceLedgerTestVisibilityPlatform(
+      root.ownerDocument,
+      () =>
+        evaluateConfidenceLedgerRiskSpendTwin({
+          evaluationMode: "exact_finite_schema",
+          packetCandidate: riskPacket,
+          rawPacketBytes: riskWireBytes,
+          root,
+          stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+        }),
+    );
 
     expect(result.status).toBe("exact");
     expect(riskRequests()).toBe(1);
@@ -275,16 +274,15 @@ describe("CycleBoardPage MACHINE/rendered-DOM parity", () => {
     apply(root);
 
     await expect(
-      evaluateConfidenceLedgerRiskSpendTwin({
-        evaluationMode: "exact_finite_schema",
-        packetCandidate: riskPacket,
-        rawPacketBytes: riskWireBytes,
-        root,
-        stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
-        visibilityOracle: createConfidenceLedgerTestVisibilityOracle(
-          root.ownerDocument,
-        ),
-      }),
+      withConfidenceLedgerTestVisibilityPlatform(root.ownerDocument, () =>
+        evaluateConfidenceLedgerRiskSpendTwin({
+          evaluationMode: "exact_finite_schema",
+          packetCandidate: riskPacket,
+          rawPacketBytes: riskWireBytes,
+          root,
+          stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+        }),
+      ),
     ).resolves.toEqual({ reason, status: "blocked" });
   });
 

@@ -14,6 +14,7 @@ import type { ConfidenceLedgerRiskSpendProjection } from "@/features/runs/api/us
 import {
   confidenceLedgerPromotionBlockers,
   orderedConfidenceLedgerActualRows,
+  type ConfidenceLedgerCapturedResponseBytes,
   type ConfidenceLedgerRiskSpendPacket,
 } from "@/features/runs/domain/confidenceLedgerRiskSpend";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
@@ -383,13 +384,13 @@ function CertificateRoute({ row }: Readonly<{ row: CertificateRouteRow }>) {
 
 function AvailableRiskSpend({
   packet,
-  rawPacketBytes,
+  capturedResponseBytes,
 }: Readonly<{
   packet: Extract<
     ConfidenceLedgerRiskSpendPacket,
     { availability: "available" }
   >;
-  rawPacketBytes: Uint8Array;
+  capturedResponseBytes: ConfidenceLedgerCapturedResponseBytes;
 }>) {
   const { locale, t } = useI18n();
   const body = packet.payload;
@@ -692,7 +693,7 @@ function AvailableRiskSpend({
           onClick={() =>
             exportCapturedResponseBytes(
               "confidence-ledger-risk-spend.machine.json",
-              rawPacketBytes,
+              capturedResponseBytes.copy(),
               "application/json",
             )
           }
@@ -810,8 +811,8 @@ export function ConfidenceLedgerRiskSpend({
   }
   return projection.packet.availability === "available" ? (
     <AvailableRiskSpend
+      capturedResponseBytes={projection.capturedResponseBytes}
       packet={projection.packet}
-      rawPacketBytes={projection.rawPacketBytes}
     />
   ) : (
     <NonAvailableRiskSpend packet={projection.packet} />

@@ -14,10 +14,8 @@ import {
 } from "@/features/runs/domain/confidenceLedgerRiskSpend";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 
-import {
-  createConfidenceLedgerTestVisibilityOracle,
-  evaluateConfidenceLedgerRiskSpendTwin,
-} from "./confidenceLedgerRiskSpendTwin";
+import { evaluateConfidenceLedgerRiskSpendTwin } from "./confidenceLedgerRiskSpendTwin";
+import { withConfidenceLedgerTestVisibilityPlatform } from "@/test/confidenceLedgerVisibilityPlatform";
 
 function availablePacket(): AvailableConfidenceLedgerRiskSpendPacket {
   const openApi = openApiDocument as unknown as {
@@ -71,10 +69,14 @@ function exactProjection(
   packet: AvailableConfidenceLedgerRiskSpendPacket,
   rawPacketBytes: Uint8Array,
 ): ConfidenceLedgerRiskSpendProjection {
+  const ownedBytes = new Uint8Array(rawPacketBytes);
   return {
+    capturedResponseBytes: Object.freeze({
+      byteLength: ownedBytes.byteLength,
+      copy: () => new Uint8Array(ownedBytes),
+    }),
     packet: packet as unknown as ConfidenceLedgerRiskSpendPacket,
     protectedQueries: protectedQueries(),
-    rawPacketBytes,
     receipt: {
       observation_basis: "candidate_and_captured_bytes_independently_admitted",
       packet_availability: "available",
@@ -115,17 +117,18 @@ function evaluate(
     Parameters<typeof evaluateConfidenceLedgerRiskSpendTwin>[0]
   > = {},
 ) {
-  return evaluateConfidenceLedgerRiskSpendTwin({
-    evaluationMode: "exact_finite_schema",
-    packetCandidate: fixture.packet,
-    rawPacketBytes: fixture.rawPacketBytes,
-    root: fixture.root,
-    stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
-    visibilityOracle: createConfidenceLedgerTestVisibilityOracle(
-      fixture.root.ownerDocument,
-    ),
-    ...overrides,
-  });
+  return withConfidenceLedgerTestVisibilityPlatform(
+    fixture.root.ownerDocument,
+    () =>
+      evaluateConfidenceLedgerRiskSpendTwin({
+        evaluationMode: "exact_finite_schema",
+        packetCandidate: fixture.packet,
+        rawPacketBytes: fixture.rawPacketBytes,
+        root: fixture.root,
+        stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+        ...overrides,
+      }),
+  );
 }
 
 function envelopeLeafPaths(value: unknown, prefix = ""): readonly string[] {
@@ -154,10 +157,44 @@ describe("confidence-ledger risk-spend production twin", () => {
       "exact",
     );
     if (result.status !== "exact") return;
-    expect(result.byteTwin).toBe(fixture.rawPacketBytes);
+    expect(
+      result.byteTwin
+        .copy()
+        .every((byte, index) => byte === fixture.rawPacketBytes[index]),
+    ).toBe(true);
+    const returnedCopy = result.byteTwin.copy();
+    returnedCopy.fill(0xff);
+    expect(
+      result.byteTwin
+        .copy()
+        .every((byte, index) => byte === fixture.rawPacketBytes[index]),
+    ).toBe(true);
     expect(Object.keys(result.protectedQueries)).toEqual(
       CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
     );
+  });
+
+  it("keeps the byte twin at the invocation snapshot across caller mutations", async () => {
+    const fixture = renderEvaluation();
+    const entrySnapshot = new Uint8Array(fixture.rawPacketBytes);
+
+    const pending = evaluate(fixture);
+    queueMicrotask(() => fixture.rawPacketBytes.fill(0x5a));
+    fixture.rawPacketBytes.fill(0xa5);
+
+    const result = await pending;
+    expect(result.status).toBe("exact");
+    if (result.status !== "exact") return;
+    const firstCopy = result.byteTwin.copy();
+    expect(
+      firstCopy.every((byte, index) => byte === entrySnapshot[index]),
+    ).toBe(true);
+    firstCopy.fill(0xff);
+    expect(
+      result.byteTwin
+        .copy()
+        .every((byte, index) => byte === entrySnapshot[index]),
+    ).toBe(true);
   });
 
   it.runIf(
@@ -327,11 +364,27 @@ describe("confidence-ledger risk-spend production twin", () => {
     const fixture = renderEvaluation();
 
     await expect(
-      evaluate(fixture, { visibilityOracle: undefined }),
+      evaluateConfidenceLedgerRiskSpendTwin({
+        evaluationMode: "exact_finite_schema",
+        packetCandidate: fixture.packet,
+        rawPacketBytes: fixture.rawPacketBytes,
+        root: fixture.root,
+        stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+      }),
     ).resolves.toEqual({
       reason: "unproved_approximation",
       status: "blocked",
     });
+  });
+
+  it("exposes no production-callable visibility proof capability", async () => {
+    const productionExports = await import("./confidenceLedgerRiskSpendTwin");
+
+    expect(
+      Object.keys(productionExports).filter((name) =>
+        /visibility.*oracle|oracle.*visibility/iu.test(name),
+      ),
+    ).toEqual([]);
   });
 
   it.each(["class-spend", "instrument-definitions"])(

@@ -1,4 +1,4 @@
-/* eslint-disable testing-library/no-node-access */
+/* eslint-disable testing-library/no-container, testing-library/no-node-access */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -10,7 +10,12 @@ import {
   runPaperPacketFixture,
 } from "@/test/fixtures/runPaper";
 
-const { useAuthzDecisionMock, useCaseInspectionMock } = vi.hoisted(() => ({
+const {
+  useAcquisitionRoutesMock,
+  useAuthzDecisionMock,
+  useCaseInspectionMock,
+} = vi.hoisted(() => ({
+  useAcquisitionRoutesMock: vi.fn(),
   useAuthzDecisionMock: vi.fn(),
   useCaseInspectionMock: vi.fn(),
 }));
@@ -23,13 +28,27 @@ vi.mock("@/features/runs/api/useCaseInspection", () => ({
   useCaseInspection: (...args: unknown[]) => useCaseInspectionMock(...args),
 }));
 
+vi.mock("@/features/runs/api/useAcquisitionRoutes", () => ({
+  useAcquisitionRoutes: (...args: unknown[]) =>
+    useAcquisitionRoutesMock(...args),
+}));
+
+vi.mock("@/features/runs/components/AcquisitionApprovalFlow", () => ({
+  AcquisitionApprovalFlow: ({ route }: { route: { route_id: string } }) => (
+    <div data-testid="acquisition-approval-flow">{route.route_id}</div>
+  ),
+}));
+
 vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
 import CaseWorkspacePage from "./CaseWorkspacePage";
 
-function renderPacket(packet = runPaperPacketFixture()) {
+function renderPacket(
+  packet = runPaperPacketFixture(),
+  routes: readonly { route_id: string }[] = [],
+) {
   useAuthzDecisionMock.mockReturnValue({
     can: (permission: string) => permission === "runs.review",
     kind: "verified",
@@ -40,6 +59,10 @@ function renderPacket(packet = runPaperPacketFixture()) {
       rawPacketBytes: new TextEncoder().encode(JSON.stringify(packet)),
     },
     isError: false,
+    isLoading: false,
+  });
+  useAcquisitionRoutesMock.mockReturnValue({
+    data: { packet: { routes, run_id: "run-1" } },
     isLoading: false,
   });
   const queryClient = new QueryClient({
@@ -67,6 +90,7 @@ function required(container: HTMLElement, selector: string): HTMLElement {
 describe("CaseWorkspacePage MACHINE/rendered-DOM parity", () => {
   beforeEach(() => {
     useAuthzDecisionMock.mockReset();
+    useAcquisitionRoutesMock.mockReset();
     useCaseInspectionMock.mockReset();
   });
 
@@ -106,5 +130,17 @@ describe("CaseWorkspacePage MACHINE/rendered-DOM parity", () => {
     expect(() => decodeRunPaperDom(container)).toThrow(
       /unadmitted or missing link/iu,
     );
+  });
+
+  it("preserves the complete run-paper twin beside the acquisition flow", () => {
+    const packet = runPaperPacketFixture();
+    const { container } = renderPacket(packet, [
+      { route_id: "sha256:route-current" },
+    ]);
+
+    expect(decodeRunPaperDom(container)).toEqual(presentRunPaper(packet));
+    expect(
+      container.querySelector("[data-testid='acquisition-approval-flow']"),
+    ).not.toBeNull();
   });
 });

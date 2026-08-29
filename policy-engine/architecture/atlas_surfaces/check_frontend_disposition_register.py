@@ -67,6 +67,44 @@ DS18_TIME_SEMANTICS_LANDING_RULE = (
     "fresh file/root receipt, independent classification, and behavioral proof"
 )
 DS18_TIME_SEMANTICS_BEHAVIOR_TESTS = {
+    "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionApprovalFlow.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionApprovalFlow.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionExecutionTimeline.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionGrowthBacklog.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionPassportPanel.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionQuarantineLedger.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionRouteDetail.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "ConnectorAcquisitionScorecard.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
     "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts": [
         "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/"
         "bureaucratic-document-ast.test.ts",
@@ -117,6 +155,10 @@ DS18_TIME_SEMANTICS_BEHAVIOR_TESTS = {
         "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
         "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
     ],
+    "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
     "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx": [
         "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.test.tsx",
     ],
@@ -145,6 +187,127 @@ DS18_TIME_SEMANTICS_DIRECT_FILES = {
     "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
     "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx",
 }
+DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS = {
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionApprovalFlow.tsx": {
+        (
+            "AcquisitionApprovalFlow",
+            0,
+            "sha256:bf985a18cd992ecd33096bcd32b5970f30024465d2cfc29f81f1483018e64f61",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionApprovalFlow.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionExecutionTimeline.tsx": {
+        (
+            "AcquisitionExecutionTimeline",
+            0,
+            "sha256:2e3a55451f2a9fe83d84e59b6de223b276539c0923cdbcca53a3f6cc401f1f62",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionGrowthBacklog.tsx": {
+        (
+            "AcquisitionGrowthBacklog",
+            0,
+            "sha256:74efd164f8d65840ecc7a795be0c374b9e428e5d2aecbc890f2801d785e36aac",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionPassportPanel.tsx": {
+        (
+            "AcquisitionPassportPanel",
+            0,
+            "sha256:c891d6c9dd6c73e65038f5be9ff2616817a303f9ce81934ffda9a700004eaff2",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionQuarantineLedger.tsx": {
+        (
+            "AcquisitionQuarantineLedger",
+            0,
+            "sha256:69aa3e633dd69df6fa9823e2311222f180b6414f7ad77ec9fe19332f9d42b5ad",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionRouteDetail.tsx": {
+        (
+            "AcquisitionRouteDetail",
+            0,
+            "sha256:677ab0b53b7b0be51278af00d898b27242370df84acfad277a7a65365518b0bf",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+        (
+            "AcquisitionRouteDetail",
+            1,
+            "sha256:4bad58733f957422093da2738b3cc31e5be9e439d125500cbd35c9eb744830f9",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "ConnectorAcquisitionScorecard.tsx": {
+        (
+            "ConnectorAcquisitionScorecard",
+            0,
+            "sha256:0aecbb01871407cb5abea64a4a34db271d5dad436cd881fa66beb06cb0ac49b7",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx": {
+        (
+            "LoadedAcquisitionGrowth",
+            0,
+            "sha256:aaf2037830f66b58ed3edef33b14a6c797842b60875972c5911d36bf1b6b1b35",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+        ),
+        (
+            "AcquisitionGrowthBoundary",
+            0,
+            "sha256:5a293c7aa700958316730ef3f14f70177a1d59e1a8dff7243416a55200b8de34",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx": {
+        (
+            "HumanDecisionWorkspace",
+            0,
+            "sha256:5e20d2720b5b9fd4c9f4ce04fb4105adc2b2da0f6baae237b7610c38130a4efb",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+        (
+            "AuthorizedCaseWorkspace",
+            2,
+            "sha256:76be3f9893d401fb5a21df186e21ba2d39ca9f9058a2bae8207b7b7a54f18c16",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+}
 DS18_TIME_SEMANTICS_CROSS_FILE_INHERITANCE = {
     "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/"
     "BaseBureaucraticRenderer.tsx": (
@@ -158,6 +321,73 @@ DS18_TIME_SEMANTICS_CROSS_FILE_INHERITANCE = {
         "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/"
         "BureaucraticHeader.tsx"
     ),
+}
+DS18_TIME_SEMANTICS_ROOT_INHERITANCE = {
+    "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx": {
+        (
+            "QueriedAcquisitionGrowth",
+            0,
+            "sha256:7fc881226ab298dfee643a5e425d77146fde6af85d43230406e3257e29ad79d4",
+        ): (
+            (
+                "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+                "AcquisitionGrowthBoundary",
+                0,
+                "sha256:5a293c7aa700958316730ef3f14f70177a1d59e1a8dff7243416a55200b8de34",
+            ),
+        ),
+        (
+            "AcquisitionGrowthSurface",
+            0,
+            "sha256:50ca218a929ae89535f3da6f1a93d92ebec11c940f21970700a8c211b2709776",
+        ): (
+            (
+                "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+                "AcquisitionGrowthBoundary",
+                0,
+                "sha256:5a293c7aa700958316730ef3f14f70177a1d59e1a8dff7243416a55200b8de34",
+            ),
+        ),
+        (
+            "AcquisitionGrowthSurface",
+            1,
+            "sha256:325fc2a8f56a7d37f7530e2dbaf8ee3d236c19fbbc8ad38e3f26f93c0fa49471",
+        ): (
+            (
+                "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+                "AcquisitionGrowthBoundary",
+                0,
+                "sha256:5a293c7aa700958316730ef3f14f70177a1d59e1a8dff7243416a55200b8de34",
+            ),
+        ),
+        (
+            "CycleBoard",
+            0,
+            "sha256:ce474a47d9b505617216b2081cffb389b304995b8fd2ef3b1a304d312324475b",
+        ): (
+            (
+                "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+                "AcquisitionGrowthBoundary",
+                0,
+                "sha256:5a293c7aa700958316730ef3f14f70177a1d59e1a8dff7243416a55200b8de34",
+            ),
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx": {
+        (
+            "CaseWorkspacePage",
+            3,
+            "sha256:ab4d87d0bb35b966c4139b3f4ce7aaf8e623f14deea3721c4d6182fa1e07010c",
+        ): (
+            (
+                "apps/runtime-dashboard/src/features/runs/routes/"
+                "CaseWorkspacePage.tsx",
+                "AuthorizedCaseWorkspace",
+                2,
+                "sha256:76be3f9893d401fb5a21df186e21ba2d39ca9f9058a2bae8207b7b7a54f18c16",
+            ),
+        ),
+    },
 }
 
 _STATUS_SPEC = importlib.util.spec_from_file_location(
@@ -3698,16 +3928,16 @@ DS6_REGISTER_TRANSITION_FINDING_IDS = {
 }
 
 DS10_QUERY_KEYS_IDENTITY = (
-    "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlv"
-    "bl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVz"
-    "b2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9z"
-    "cmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0"
-    "b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIyYWEzMGRlMWI2"
-    "OTIwNDRjYjQ5MjE1MzVjNjFjNzM0Y2ZhMGFhZDFhMDMyZjRhYTg0MGY0ODU3ZDBlZWZhMzcx"
-    "Iiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1"
-    "bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRo"
-    "IjpbIkZpcnN0U3RhdGVtZW50OjQiLCJWYXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFy"
-    "aWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNpb24iOjF9"
+    "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9j"
+    "aGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6"
+    "cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1"
+    "ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtl"
+    "eXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiJkNDViZDRjZWE0MDIzM2VjMzcyMTA5YWM1"
+    "ZTk2M2NkNmM0NWIyZDI2MzU4ODhlYTFkNmQxNDY2OTE1MjY2OTAxIiwicm9sZSI6InZhcmlhYmxl"
+    "X2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9h"
+    "cGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjQiLCJW"
+    "YXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNp"
+    "b24iOjF9"
 )
 
 
@@ -4476,6 +4706,15 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
             "a generated promotion union enters a private issuer and novel values render unrecognized"
         ),
     },
+    "badge-acquisition-boundary-status": {
+        "owner_slice": "DS15",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "generated acquisition authority, qualification, quarantine, eligibility, "
+            "and cost-availability unions enter a private issuer and copy cannot upgrade "
+            "a negative or unknown owner state"
+        ),
+    },
     "badge-evidence-source-freshness": {
         "owner_slice": "DS8",
         "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
@@ -4782,16 +5021,16 @@ BENIGN_BADGE_BASES = (
 )
 
 BENIGN_BADGE_CLASS_COUNTS: dict[str, int] = {
-    "interaction_or_editor_state": 13,
-    "transport_or_runtime_health": 21,
-    "workflow_or_lifecycle_display_without_terminality_inference": 27,
+    "interaction_or_editor_state": 14,
+    "transport_or_runtime_health": 22,
+    "workflow_or_lifecycle_display_without_terminality_inference": 28,
     "layout_or_counts": 19,
-    "opaque_metadata_or_taxonomy": 22,
+    "opaque_metadata_or_taxonomy": 24,
 }
 
 if set(BENIGN_BADGE_CLASS_COUNTS) != set(BENIGN_BADGE_BASES):
     raise RuntimeError("benign Badge class vocabulary drift")
-if sum(BENIGN_BADGE_CLASS_COUNTS.values()) != 102:
+if sum(BENIGN_BADGE_CLASS_COUNTS.values()) != 107:
     raise RuntimeError("benign Badge class count drift")
 
 DS11_TRUST_PRESENTATION_FINDING_IDS = frozenset(
@@ -4860,10 +5099,10 @@ AUTHORITY_PRESENTATION_DEBT_SPECS.update(
 )
 
 AUTHORITY_PRESENTATION_COUNTS = {
-    "badge_total": 161,
+    "badge_total": 172,
     "badge_branded": 6,
-    "badge_debt": 53,
-    "badge_benign": 102,
+    "badge_debt": 59,
+    "badge_benign": 107,
     "prop_total": 18,
     "prop_branded": 4,
     "prop_debt": 9,
@@ -4874,7 +5113,7 @@ AUTHORITY_PRESENTATION_COUNTS = {
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:88723b991e24cbd4d92d08466714a293ab10a8a8569718be1db7858c089d3163"
+    "sha256:6b4bb4eb26fc363b7bff448811539c2a32b229e30d4280efc9951bceac2fdae0"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
     "sha256:d41e26792102015380983470c5a4d91e57cd86ecd7e95b0cc61fc7798d2bd55f"
@@ -4928,7 +5167,7 @@ def _badge_classification_errors(
     scan: Mapping[str, Any],
     classifications: Mapping[str, str] | None = None,
 ) -> list[str]:
-    """Validate the exact 161-site Badge partition as a finite set property."""
+    """Validate the exact 172-site Badge partition as a finite set property."""
     errors: list[str] = []
     sites = scan.get("badgeSites", [])
     if not isinstance(sites, list):
@@ -6543,6 +6782,51 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS = {
     **DS10_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS,
 }
 
+DS15_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    # Raw authority, qualification, terminality, eligibility and cost-availability
+    # clothing remains typed debt until a private issuer owns its presentation.
+    "ad3a39f757d1fedf96e9ab5073019b19b9e2dcc38caf6813ed3d710d08295303": (
+        "debt:badge-acquisition-boundary-status"
+    ),
+    "9f254fb9fb7832a512196ba07dc61ac5fb757ff6839bb82ea273b4a582f33c44": (
+        "debt:badge-acquisition-boundary-status"
+    ),
+    "735be90e13141b7f003e7a6ec4af1b2c896a4edfacfb30cf99bf301d88b30ff8": (
+        "debt:badge-acquisition-boundary-status"
+    ),
+    "798bad599ebe71b41bc05bc17adc43bf8891c151583c3f779c9e6ad944be5585": (
+        "debt:badge-acquisition-boundary-status"
+    ),
+    "efb98925e5a7561c62fadfb42f9111c498f71151a7e2756d3c1177c0f7802e2b": (
+        "debt:badge-acquisition-boundary-status"
+    ),
+    "cdce54e61af1cf1ca87b6daf260fecf57db9f283b4f4bdfc090e6189398f4aef": (
+        "debt:badge-acquisition-boundary-status"
+    ),
+    # Timeline order, ranking disclosure, local sorting and the plan-owned gap
+    # vocabulary do not carry authority or infer terminality.
+    "bb9927e8f2d5a34cf61a58a7c1ed4915d6cebb880e8307ed97a6b3b65a20d247": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "3ea2d651ef81f94280a96f9b5ac1da08ab0f68a5037032137d0935e1fdf7efbd": (
+        "benign:opaque_metadata_or_taxonomy"
+    ),
+    "529e354ba61570ed09ee3f79fe302c2406eb66aedc61b625a32b9cf2f8b34887": (
+        "benign:interaction_or_editor_state"
+    ),
+    "dda67814744dbbf033d2dfd0b5b728b5ec68b8405b6c2e273e52688cf7fb16bd": (
+        "benign:opaque_metadata_or_taxonomy"
+    ),
+    # Connector health is runtime liveness, never admission or policy authority.
+    "704142beb6972df013980e33f0356e5adab5af2d820ec06ee209755a60b905af": (
+        "benign:transport_or_runtime_health"
+    ),
+}
+FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    **FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS,
+    **DS15_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS,
+}
+
 DS9_REMOVED_AUTHORITY_PROP_IDENTITIES = frozenset(
     {
         "39f8c143570efef26b5c310b1bf429389358d39fe5bf936a40c19ee6c7211c79",
@@ -6780,7 +7064,7 @@ def _authority_row_semantic_value(row: Mapping[str, Any]) -> dict[str, Any]:
 def _authority_presentation_rows(
     scan: Mapping[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
-    """Build the 39 typed debt rows from the live finite census."""
+    """Build the 40 typed debt rows from the live finite census."""
     scan = scan or _authority_presentation_scan()
     census_errors = [
         *_badge_classification_errors(scan),
@@ -7388,7 +7672,7 @@ GOVERNED_DEBT_DESCRIPTORS.update(copy.deepcopy(INTEGRATE_DEBT_DESCRIPTORS))
 
 C11B_QUERY_MEMORY_ROOT_ID = "cache-query-memory"
 C11B_QUERY_MEMORY_SUCCESSOR_ID = "dashboard-governed-query-cache-posture"
-C11B_QUERY_MEMORY_SUCCESSOR_REFS = [
+C11B_QUERY_MEMORY_OPENING_SUCCESSOR_REFS = [
     "apps/runtime-dashboard/src/api/queryKeys.ts",
     "apps/runtime-dashboard/src/api/governedQueryPolicy.ts",
     "apps/runtime-dashboard/src/api/governedQueryPolicy.test.ts",
@@ -7401,13 +7685,38 @@ C11B_QUERY_MEMORY_SUCCESSOR_REFS = [
     "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.parity.test.tsx",
     "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts",
 ]
+DS15_QUERY_MEMORY_SUCCESSOR_REFS = [
+    "apps/runtime-dashboard/src/api/queryKeys.ts",
+    "apps/runtime-dashboard/src/api/governedQueryPolicy.ts",
+    "apps/runtime-dashboard/src/api/governedQueryPolicy.test.ts",
+    "apps/runtime-dashboard/src/api/cacheDiscipline.ts",
+    "apps/runtime-dashboard/src/api/cacheDiscipline.test.ts",
+    "apps/runtime-dashboard/src/api/optimistic.test.ts",
+    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
+    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/api/useAcquisitionRoutes.ts",
+    "apps/runtime-dashboard/src/features/runs/api/useAcquisitionRoutes.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.a11y.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.parity.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.parity.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts",
+]
+C11B_QUERY_MEMORY_SUCCESSOR_REFS = DS15_QUERY_MEMORY_SUCCESSOR_REFS
 C11B_QUERY_MEMORY_PENDING_RATIONALE = (
     "DS1 does not record this narrow unit as implemented; C04a-R1 removes the "
     "local capability fallback and query placeholder from its CommandPalette "
     "discovery consumer, while cache-policy transition remains owned by C11/C12 "
     "without creating a parallel owner."
 )
-C11B_QUERY_MEMORY_RATIONALE = (
+C11B_QUERY_MEMORY_OPENING_RATIONALE = (
     "C11a/C11b, C12b, and DS7 strangle the generic query-memory root through the "
     "governed-query option issuer, one representation-specific key, explicit "
     "never_cache_authority posture, and one permission-gated global Cycle Board "
@@ -7415,6 +7724,17 @@ C11B_QUERY_MEMORY_RATIONALE = (
     "fetches nor retains the packet, and exact response bytes remain per-request "
     "export custody only; no DS8, DS9, or DS14 semantics are claimed."
 )
+DS15_QUERY_MEMORY_RATIONALE = (
+    "C11a/C11b, C12b, DS7, and DS15 strangle the generic query-memory root "
+    "through the governed-query option issuer, depth-N and acquisition key "
+    "families, explicit never_cache_authority posture, and the complete live "
+    "Cycle Board, Case Workspace, and acquisition-approval consumer set. "
+    "Transaction observation time is not owner as_of, exact response bytes "
+    "remain per-request export custody only, and DS15's test-only positive flow "
+    "does not establish production world growth; no DS8, DS9, or DS14 semantics "
+    "are claimed."
+)
+C11B_QUERY_MEMORY_RATIONALE = DS15_QUERY_MEMORY_RATIONALE
 
 
 def _json_entry_object_span(
@@ -8436,6 +8756,62 @@ def _c11b_query_memory_transition_text(text: str) -> str:
     )
     return text[:start] + replacement + text[end:]
 
+
+def _ds15_query_memory_transition_text(text: str) -> str:
+    """Extend the strangled query root to DS15's complete live consumer set."""
+    start, end, source = _json_entry_object_span(
+        text, C11B_QUERY_MEMORY_ROOT_ID
+    )
+    successor = source.get("successor")
+    final = (
+        source.get("strangle_status") == "strangled"
+        and source.get("rationale") == DS15_QUERY_MEMORY_RATIONALE
+        and isinstance(successor, Mapping)
+        and successor.get("unit_id") == C11B_QUERY_MEMORY_SUCCESSOR_ID
+        and successor.get("consumer_refs") == DS15_QUERY_MEMORY_SUCCESSOR_REFS
+    )
+    if final:
+        errors: list[str] = []
+        _validate_c11b_query_memory_root(
+            {C11B_QUERY_MEMORY_ROOT_ID: source}, errors
+        )
+        if errors:
+            raise ValueError(";".join(errors))
+        return text
+
+    opening_fields = {
+        "disposition": "rebind_pending",
+        "strangle_status": "strangled",
+        "owner": "team-architecture",
+        "owner_slice": "DS5",
+        "seed_rule": "ds1_incomplete_rebind_pending",
+        "rationale": C11B_QUERY_MEMORY_OPENING_RATIONALE,
+    }
+    if any(source.get(field) != expected for field, expected in opening_fields.items()):
+        raise ValueError("ds15_query_memory_transition_source_drift")
+    if not isinstance(successor, Mapping):
+        raise ValueError("ds15_query_memory_transition_source_successor")
+    if (
+        successor.get("unit_id") != C11B_QUERY_MEMORY_SUCCESSOR_ID
+        or successor.get("consumer_refs")
+        != C11B_QUERY_MEMORY_OPENING_SUCCESSOR_REFS
+    ):
+        raise ValueError("ds15_query_memory_transition_source_successor_drift")
+
+    transitioned = copy.deepcopy(dict(source))
+    transitioned["successor"] = {
+        "unit_id": C11B_QUERY_MEMORY_SUCCESSOR_ID,
+        "consumer_refs": DS15_QUERY_MEMORY_SUCCESSOR_REFS,
+    }
+    transitioned["rationale"] = DS15_QUERY_MEMORY_RATIONALE
+    errors = []
+    _validate_c11b_query_memory_root(
+        {C11B_QUERY_MEMORY_ROOT_ID: transitioned}, errors
+    )
+    if errors:
+        raise ValueError(";".join(errors))
+    return text[:start] + _render_root_entry(transitioned) + text[end:]
+
 C23_ROOT_IDS = frozenset(
     {
         "status-stress-scene",
@@ -8732,6 +9108,9 @@ DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = {
         "3a69dd559452400e50eec543fdf365c03cf5b3d358b6fc04adcb1b8953ce9ab8",
     ),
 }
+DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = dict(
+    DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
+)
 
 
 def _validate_ds10_capability_discovery_roots(
@@ -8945,8 +9324,11 @@ def _ds10_c13_external_nonclosure_admission(
     errors: Sequence[str],
     *,
     source_bytes: Mapping[str, bytes] | None = None,
+    expected_mismatches: Mapping[str, tuple[str, str]] | None = None,
 ) -> tuple[tuple[str, ...], list[str]]:
     """Admit the exact fail-fast C13 error only after a complete binding census."""
+    if expected_mismatches is None:
+        expected_mismatches = DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
     declared = DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES[0]
     cardinality = errors.count(declared)
     if cardinality > 1:
@@ -8979,7 +9361,7 @@ def _ds10_c13_external_nonclosure_admission(
         for source_ref, expected_sha256 in bindings.items()
         if hashlib.sha256(source_bytes[source_ref]).hexdigest() != expected_sha256
     }
-    if observed_mismatches != DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES:
+    if observed_mismatches != expected_mismatches:
         return (), ["ds10_c13_external_source_binding_census_drift"]
 
     replay_bytes = dict(source_bytes)
@@ -12536,6 +12918,155 @@ def _raw_transport_writer_preservation_errors(
     return errors
 
 
+def _ds15_acquisition_routes_preservation_errors(
+    original_text: str, candidate_text: str
+) -> list[str]:
+    """Allow only the query root and refresh-owned supplemental rows to move."""
+    try:
+        query_candidate = _ds15_query_memory_transition_text(original_text)
+        original_start, original_end, _original = _json_entry_object_span(
+            original_text, C11B_QUERY_MEMORY_ROOT_ID
+        )
+        candidate_start, candidate_end, _candidate = _json_entry_object_span(
+            query_candidate, C11B_QUERY_MEMORY_ROOT_ID
+        )
+    except (json.JSONDecodeError, ValueError) as exc:
+        return [f"ds15_acquisition_routes_preservation_span_invalid:{exc}"]
+
+    errors: list[str] = []
+    if original_text[:original_start] != query_candidate[:candidate_start]:
+        errors.append("ds15_acquisition_routes_query_prefix_drift")
+    if original_text[original_end:] != query_candidate[candidate_end:]:
+        errors.append("ds15_acquisition_routes_query_suffix_drift")
+    errors.extend(
+        _raw_transport_writer_preservation_errors(query_candidate, candidate_text)
+    )
+    try:
+        expected = _refresh_supplemental_findings_text(query_candidate)
+    except (json.JSONDecodeError, ValueError) as exc:
+        errors.append(f"ds15_acquisition_routes_refresh_invalid:{exc}")
+    else:
+        if candidate_text != expected:
+            errors.append("ds15_acquisition_routes_candidate_payload_drift")
+    return errors
+
+
+def _ds15_acquisition_routes_candidate_errors(
+    data: Mapping[str, Any],
+    *,
+    report_parity: bool,
+) -> list[str]:
+    """Permit only the independently admitted C13 source drift in DS15's family."""
+    errors = validate_register(
+        data,
+        live_probes=False,
+        report_parity=report_parity,
+    )
+    admitted, admission_errors = _ds10_c13_external_nonclosure_admission(
+        errors,
+        expected_mismatches=DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
+    )
+    return [
+        *admission_errors,
+        *_ds10_blocking_register_errors(
+            errors,
+            admitted_external_errors=admitted,
+        ),
+    ]
+
+
+def _ds15_acquisition_routes_candidate_text(
+    original_text: str,
+    *,
+    verify_idempotency: bool = True,
+) -> str:
+    """Build the bounded DS15 query/disposition transition without peer drift."""
+    query_candidate = _ds15_query_memory_transition_text(original_text)
+    candidate = _refresh_supplemental_findings_text(query_candidate)
+    preservation_errors = _ds15_acquisition_routes_preservation_errors(
+        original_text, candidate
+    )
+    if preservation_errors:
+        raise ValueError(
+            "DS15 acquisition-routes candidate rejected:"
+            + ";".join(preservation_errors)
+        )
+    candidate_errors = _ds15_acquisition_routes_candidate_errors(
+        json.loads(candidate),
+        report_parity=False,
+    )
+    if candidate_errors:
+        raise ValueError(
+            "DS15 acquisition-routes candidate rejected:"
+            + ";".join(candidate_errors)
+        )
+    if verify_idempotency:
+        repeated = _ds15_acquisition_routes_candidate_text(
+            candidate,
+            verify_idempotency=False,
+        )
+        if repeated != candidate:
+            raise ValueError("DS15 acquisition-routes candidate is not idempotent")
+    return candidate
+
+
+def _write_ds15_acquisition_routes_family() -> dict[str, int]:
+    """Atomically write DS15's register/report while preserving DS1 bytes."""
+    original_texts = {
+        REGISTER_PATH: REGISTER_PATH.read_text(encoding="utf-8"),
+        REPORT_PATH: REPORT_PATH.read_text(encoding="utf-8"),
+    }
+    original_readiness = DS1_PATH.read_bytes()
+    register_candidate = _ds15_acquisition_routes_candidate_text(
+        original_texts[REGISTER_PATH]
+    )
+    register_data = json.loads(register_candidate)
+    report_candidate = render_report(register_data)
+    candidates = {
+        REGISTER_PATH: register_candidate,
+        REPORT_PATH: report_candidate,
+    }
+
+    def validate_after() -> list[str]:
+        errors: list[str] = []
+        for governed_path, expected_text in candidates.items():
+            if governed_path.read_text(encoding="utf-8") != expected_text:
+                errors.append(
+                    "ds15_acquisition_routes_family_readback_drift:"
+                    + str(governed_path)
+                )
+        errors.extend(
+            _ds15_acquisition_routes_candidate_errors(
+                _load_json(REGISTER_PATH),
+                report_parity=True,
+            )
+        )
+        if DS1_PATH.read_bytes() != original_readiness:
+            errors.append("ds15_acquisition_routes_readiness_ledger_drift")
+        return errors
+
+    def final_pre_promote_fence() -> None:
+        for governed_path, original_text in original_texts.items():
+            if governed_path.read_text(encoding="utf-8") != original_text:
+                raise ValueError(
+                    "DS15 acquisition-routes governed preimage moved:"
+                    + str(governed_path)
+                )
+        if DS1_PATH.read_bytes() != original_readiness:
+            raise ValueError("DS15 acquisition-routes readiness preimage moved")
+
+    _failure_atomic_write_texts(
+        candidates,
+        validate_after=validate_after,
+        pre_promote=final_pre_promote_fence,
+    )
+    return {
+        "badge_sites": len(DS15_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS),
+        "query_consumer_refs": len(DS15_QUERY_MEMORY_SUCCESSOR_REFS),
+        "readiness_entries_preserved": len(json.loads(original_readiness)["entries"]),
+    }
+
+
 def _seeded_negatives() -> list[dict[str, Any]]:
     affected = {
         "DS1-N001": ["derivation-browser-signature"],
@@ -14980,9 +15511,11 @@ def _ds18_source_receipt(path_ref: str) -> dict[str, str]:
     }
 
 
-def _ds18_primary_direct_roots(scan: Mapping[str, Any]) -> dict[str, str]:
-    """Resolve one independently reviewed direct DS4 root per direct file."""
-    resolved: dict[str, str] = {}
+def _ds18_primary_direct_roots(
+    scan: Mapping[str, Any],
+) -> dict[str, dict[str, tuple[str, ...] | None]]:
+    """Resolve independently reviewed direct roots and root-specific proofs."""
+    resolved: dict[str, dict[str, tuple[str, ...] | None]] = {}
     files = {
         str(row["path"]): row
         for row in scan.get("files", [])
@@ -15000,22 +15533,131 @@ def _ds18_primary_direct_roots(scan: Mapping[str, Any]) -> dict[str, str]:
         ]
         if len(matching) != 1:
             raise ValueError(
-                f"DS18 direct file requires one TimeSemanticsLabel root: "
-                f"{path_ref}:{len(matching)}"
+                "DS18 legacy direct file requires exactly one "
+                f"TimeSemanticsLabel root: {path_ref}:{len(matching)}"
             )
-        resolved[path_ref] = str(matching[0]["root_id"])
+        resolved[path_ref] = {
+            str(root["root_id"]): None for root in matching
+        }
+
+    roots_by_selector = _ds18_root_selector_index(scan)
+    for path_ref, declarations in sorted(
+        DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS.items()
+    ):
+        if path_ref in resolved:
+            raise ValueError(
+                f"DS18 direct-root modes overlap for reconciled file: {path_ref}"
+            )
+        row = files.get(path_ref)
+        if not isinstance(row, Mapping):
+            raise ValueError(
+                f"DS18 reconciled direct file absent from scanner: {path_ref}"
+            )
+        root_bindings: dict[str, tuple[str, ...] | None] = {}
+        for selector, test_refs in declarations.items():
+            component, occurrence, expected_digest = selector
+            root = _ds18_resolve_root_selector(
+                roots_by_selector,
+                path_ref,
+                component,
+                occurrence,
+                expected_digest,
+                role="reconciled direct",
+            )
+            root_id = str(root["root_id"])
+            if root_id in root_bindings:
+                raise ValueError(
+                    f"DS18 reconciled direct root is declared twice: "
+                    f"{path_ref}:{root_id}"
+                )
+            if not test_refs:
+                raise ValueError(
+                    f"DS18 reconciled direct root lacks behavioral evidence: "
+                    f"{path_ref}:{root_id}"
+                )
+            root_bindings[root_id] = tuple(test_refs)
+        label_root_ids = {
+            str(root["root_id"])
+            for root in row.get("roots", [])
+            if isinstance(root, Mapping)
+            and int(root.get("time_semantics_label_render_count", 0)) > 0
+        }
+        if set(root_bindings) != label_root_ids:
+            raise ValueError(
+                "DS18 reconciled direct declarations disagree with label-bearing "
+                f"root set: {path_ref}:"
+                f"declared={sorted(root_bindings)}:scanned={sorted(label_root_ids)}"
+            )
+        resolved[path_ref] = root_bindings
     return resolved
 
 
-def _ds18_behavioral_evidence(path_ref: str) -> list[dict[str, str]]:
+def _ds18_behavioral_evidence(
+    path_ref: str,
+    test_refs: tuple[str, ...] | None = None,
+) -> list[dict[str, str]]:
     """Return content-bound executable evidence for one reconciled surface file."""
+    refs = (
+        tuple(DS18_TIME_SEMANTICS_BEHAVIOR_TESTS[path_ref])
+        if test_refs is None
+        else test_refs
+    )
     return [
         {
             **_ds18_source_receipt(test_ref),
             "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics",
         }
-        for test_ref in DS18_TIME_SEMANTICS_BEHAVIOR_TESTS[path_ref]
+        for test_ref in refs
     ]
+
+
+def _ds18_root_selector_index(
+    scan: Mapping[str, Any],
+) -> dict[tuple[str, str, int], Mapping[str, Any]]:
+    """Index scan roots by component-local occurrence, independent of line moves."""
+    by_selector: dict[tuple[str, str, int], Mapping[str, Any]] = {}
+    for scan_file in scan.get("files", []):
+        if not isinstance(scan_file, Mapping):
+            continue
+        path_ref = str(scan_file["path"])
+        occurrences: Counter[str] = Counter()
+        for scanned_root in scan_file.get("roots", []):
+            if not isinstance(scanned_root, Mapping):
+                continue
+            component = str(scanned_root.get("component_identity", ""))
+            occurrence = occurrences[component]
+            occurrences[component] += 1
+            selector = (path_ref, component, occurrence)
+            if selector in by_selector:
+                raise ValueError(f"DS18 root selector is ambiguous: {selector}")
+            by_selector[selector] = scanned_root
+    return by_selector
+
+
+def _ds18_resolve_root_selector(
+    roots_by_selector: Mapping[tuple[str, str, int], Mapping[str, Any]],
+    path_ref: str,
+    component: str,
+    occurrence: int,
+    expected_digest: str,
+    *,
+    role: str,
+) -> Mapping[str, Any]:
+    """Resolve one root selector and bind it to the reviewed root bytes."""
+    root = roots_by_selector.get((path_ref, component, occurrence))
+    if root is None:
+        raise ValueError(
+            f"DS18 {role} root selector is absent: "
+            f"{path_ref}:{component}:{occurrence}"
+        )
+    actual_digest = str(root.get("root_source_sha256", ""))
+    if actual_digest != expected_digest:
+        raise ValueError(
+            f"DS18 {role} root digest disagrees: "
+            f"{path_ref}:{component}:{occurrence}:"
+            f"expected={expected_digest}:actual={actual_digest}"
+        )
+    return root
 
 
 def _build_ds18_time_semantics_coverage(
@@ -15024,19 +15666,84 @@ def _build_ds18_time_semantics_coverage(
     frontend_freeze_commit: str | None = None,
 ) -> dict[str, Any]:
     """Build explicit per-file/per-root receipts from the reconciled C06 census."""
-    primary_roots = _ds18_primary_direct_roots(scan)
-    file_rows = {
-        str(row["path"]): row
-        for row in scan.get("files", [])
-        if isinstance(row, Mapping)
+    primary_root_bindings = _ds18_primary_direct_roots(scan)
+    primary_roots = {
+        path_ref: tuple(bindings)
+        for path_ref, bindings in primary_root_bindings.items()
     }
+    roots_by_selector = _ds18_root_selector_index(scan)
 
-    def owner_for(path_ref: str) -> tuple[str, str] | None:
+    declared_root_owners: dict[
+        tuple[str, str], tuple[tuple[str, str], ...]
+    ] = {}
+    for path_ref, rules in DS18_TIME_SEMANTICS_ROOT_INHERITANCE.items():
+        for selector, owner_selectors in rules.items():
+            component, occurrence, expected_digest = selector
+            target = _ds18_resolve_root_selector(
+                roots_by_selector,
+                path_ref,
+                component,
+                occurrence,
+                expected_digest,
+                role="inherited target",
+            )
+            target_root_id = str(target["root_id"])
+            if target_root_id in primary_roots.get(path_ref, ()):
+                raise ValueError(
+                    "DS18 inherited target is already a direct decision root: "
+                    f"{path_ref}:{target_root_id}"
+                )
+            owners: list[tuple[str, str]] = []
+            for owner_selector in owner_selectors:
+                (
+                    owner_path,
+                    owner_component,
+                    owner_occurrence,
+                    owner_expected_digest,
+                ) = owner_selector
+                owner_root = _ds18_resolve_root_selector(
+                    roots_by_selector,
+                    owner_path,
+                    owner_component,
+                    owner_occurrence,
+                    owner_expected_digest,
+                    role="inherited owner",
+                )
+                owner_root_id = str(owner_root["root_id"])
+                if owner_root_id not in primary_roots.get(owner_path, ()):
+                    raise ValueError(
+                        "DS18 inherited owner is not a direct decision root: "
+                        f"{owner_path}:{owner_root_id}"
+                    )
+                owners.append((owner_path, owner_root_id))
+            if not owners:
+                raise ValueError(
+                    "DS18 inherited target requires an admitted owner: "
+                    f"{path_ref}:{component}:{occurrence}"
+                )
+            if len(owners) != 1:
+                raise ValueError(
+                    "DS18 inherited target requires one unambiguous owner: "
+                    f"{path_ref}:{component}:{occurrence}:{len(owners)}"
+                )
+            declared_root_owners[(path_ref, target_root_id)] = tuple(owners)
+
+    def file_owner_for(path_ref: str) -> tuple[str, str] | None:
         owner_path = DS18_TIME_SEMANTICS_CROSS_FILE_INHERITANCE.get(path_ref)
         if owner_path is not None:
-            return owner_path, primary_roots[owner_path]
-        own_root = primary_roots.get(path_ref)
-        return (path_ref, own_root) if own_root is not None else None
+            owner_roots = primary_roots[owner_path]
+            if len(owner_roots) != 1:
+                raise ValueError(
+                    "DS18 inherited owner requires one unambiguous direct root: "
+                    f"{path_ref}:{owner_path}:{len(owner_roots)}"
+                )
+            return owner_path, owner_roots[0]
+        if path_ref in DS18_TIME_SEMANTICS_ROOT_INHERITANCE:
+            return None
+        own_roots = primary_roots.get(path_ref)
+        if own_roots is None or len(own_roots) != 1:
+            return None
+        return path_ref, own_roots[0]
 
     files: list[dict[str, Any]] = []
     obligated_roots = 0
@@ -15045,7 +15752,6 @@ def _build_ds18_time_semantics_coverage(
     inherited_roots = 0
     for scan_file in scan.get("files", []):
         path_ref = str(scan_file["path"])
-        owner = owner_for(path_ref)
         roots: list[dict[str, Any]] = []
         for scanned_root in scan_file.get("roots", []):
             root = dict(scanned_root)
@@ -15057,13 +15763,17 @@ def _build_ds18_time_semantics_coverage(
                 }
             )
             root_id = str(scanned_root["root_id"])
+            owners = declared_root_owners.get((path_ref, root_id))
+            if owners is None:
+                file_owner = file_owner_for(path_ref)
+                owners = () if file_owner is None else (file_owner,)
             if path_ref in DS18_TIME_SEMANTICS_STRICT_PROJECTION_FILES:
                 classification = "decision_bearing"
                 temporal_binding = "strict_non_jsx_projection"
-            elif path_ref in primary_roots and root_id == primary_roots[path_ref]:
+            elif root_id in primary_roots.get(path_ref, ()):
                 classification = "decision_bearing"
                 temporal_binding = "direct_ds4"
-            elif owner is not None:
+            elif owners:
                 classification = "inherits_admitted_dom"
                 temporal_binding = None
             else:
@@ -15074,19 +15784,26 @@ def _build_ds18_time_semantics_coverage(
                 decision_roots += 1
                 obligated_roots += 1
                 covered_roots += 1
-                root["behavioral_evidence"] = _ds18_behavioral_evidence(path_ref)
+                root_specific_tests = primary_root_bindings.get(
+                    path_ref, {}
+                ).get(root_id)
+                root["behavioral_evidence"] = _ds18_behavioral_evidence(
+                    path_ref,
+                    root_specific_tests,
+                )
                 root["temporal_binding"] = temporal_binding
                 root["temporal_obligation"] = "as_of_epoch_validity"
             elif classification == "inherits_admitted_dom":
                 inherited_roots += 1
                 obligated_roots += 1
                 covered_roots += 1
-                if owner is None:  # pragma: no cover - construction guard
+                if not owners:  # pragma: no cover - construction guard
                     raise ValueError(f"DS18 inherited root has no owner: {path_ref}")
                 root["behavioral_evidence"] = _ds18_behavioral_evidence(path_ref)
+                owner_path, owner_root_id = owners[0]
                 root["inherited_from"] = {
-                    "path": owner[0],
-                    "root_id": owner[1],
+                    "path": owner_path,
+                    "root_id": owner_root_id,
                 }
                 root["temporal_obligation"] = "as_of_epoch_validity"
             else:
@@ -15131,6 +15848,24 @@ def _build_ds18_time_semantics_coverage(
         ),
         "files": files,
     }
+
+
+def _refresh_ds18_time_semantics_coverage(
+    opening: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Recompute landing receipts without silently disarming an existing freeze."""
+    existing = opening.get("ds18_time_semantics_coverage")
+    if not isinstance(existing, Mapping):
+        raise ValueError("DS18 time-semantics opening coverage is missing")
+    frontend_freeze_commit = existing.get("frontend_freeze_commit")
+    if frontend_freeze_commit is not None and not isinstance(
+        frontend_freeze_commit, str
+    ):
+        raise ValueError("DS18 frontend freeze commit is invalid")
+    return _build_ds18_time_semantics_coverage(
+        _ds18_time_semantics_scan(),
+        frontend_freeze_commit=frontend_freeze_commit,
+    )
 
 
 def _ds18_evidence_errors(
@@ -17247,6 +17982,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="recompute only the DS18 file/root denominator and semantic receipts",
     )
     parser.add_argument(
+        "--write-ds15-acquisition-routes",
+        action="store_true",
+        help="atomically admit the bounded DS15 query/disposition transition",
+    )
+    parser.add_argument(
         "--migrate-c21b",
         action="store_true",
         help="surgically migrate gated TypeScript reference strings to C21a identities",
@@ -17351,9 +18091,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
         try:
             opening = _load_json(REGISTER_PATH)
-            coverage = _build_ds18_time_semantics_coverage(
-                _ds18_time_semantics_scan()
-            )
+            coverage = _refresh_ds18_time_semantics_coverage(opening)
             candidate: dict[str, Any] = {}
             for key, value in opening.items():
                 if key == "seeded_negative_lifecycle":
@@ -17418,6 +18156,26 @@ def main(argv: Sequence[str] | None = None) -> int:
         sys.stdout.write(completed.stdout)
         sys.stderr.write(completed.stderr)
         return completed.returncode
+
+    if args.write_ds15_acquisition_routes:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {"write_ds15_acquisition_routes"}:
+            sys.stderr.write(
+                "DS15 transition requires only --write-ds15-acquisition-routes\n"
+            )
+            return 1
+        try:
+            summary = _write_ds15_acquisition_routes_family()
+        except (OSError, ValueError, RuntimeError, KeyError) as exc:
+            sys.stderr.write(f"DS15 transition rejected: {exc}\n")
+            return 1
+        sys.stdout.write("materialized DS15 register/report transition\n")
+        sys.stdout.write(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+        return 0
 
     if args.write_ds11_trust_presentation_resolution:
         selected = {

@@ -1,11 +1,21 @@
 import type { ReactNode } from "react";
 
 import type { DepthNCycleBoardProjection } from "@/features/runs/api/useDepthNCycleBoardProjection";
+import {
+  useAcquisitionGrowth,
+  type AcquisitionGrowthProjection,
+} from "@/features/runs/api/useAcquisitionRoutes";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { DataFreshnessBadge } from "@/shared/ui/compounds/DataFreshnessBadge";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { Badge, Button, Card } from "@polisyos/atlas-ui";
 
 import { downloadCycleBoardPacket } from "./cycleBoardExport";
+import { AcquisitionGrowthBacklog } from "./AcquisitionGrowthBacklog";
+import { AcquisitionPassportPanel } from "./AcquisitionPassportPanel";
+import { AcquisitionQuarantineLedger } from "./AcquisitionQuarantineLedger";
+import { AcquisitionRouteDetail } from "./AcquisitionRouteDetail";
+import { ConnectorAcquisitionScorecard } from "./ConnectorAcquisitionScorecard";
 import {
   packetToVisibleCycleBoard,
   type VisibleCycleBoard,
@@ -245,9 +255,164 @@ function CycleBoardRow({ row }: { row: VisibleCycleBoard["rows"][number] }) {
   );
 }
 
-export function CycleBoard({
+function LoadedAcquisitionGrowth({
   projection,
 }: {
+  projection: AcquisitionGrowthProjection;
+}) {
+  const { t } = useI18n();
+  const { payload } = projection;
+  return (
+    <section
+      className="space-y-4"
+      data-acquisition-growth-packet=""
+      data-acquisition-raw={JSON.stringify(projection.packet)}
+      data-testid="acquisition-growth-surface"
+    >
+      <header className="space-y-1">
+        <p className="eyebrow">{t("pages.cycleBoard.acquisition.eyebrow")}</p>
+        <h2 className="text-xl font-semibold">
+          {t("pages.cycleBoard.acquisition.title")}
+        </h2>
+        <p className="text-muted-foreground">
+          {t("pages.cycleBoard.acquisition.subtitle")}
+        </p>
+      </header>
+      <div data-testid="acquisition-growth-time-semantics">
+        <TimeSemanticsLabel
+          freshness={projection.packet.freshness}
+          payloadAsOf={projection.packet.as_of}
+        />
+      </div>
+
+      <dl className="grid gap-2 text-sm sm:grid-cols-2 xl:grid-cols-6">
+        {(
+          [
+            ["familyScorecards", payload.summary.family_scorecard_count],
+            ["networkCalls", payload.summary.actual_network_call_count],
+            ["selectedRecords", payload.summary.selected_record_count],
+            ["metricResolutions", payload.summary.metric_resolution_count],
+            ["backlogRows", payload.summary.backlog_count],
+            ["structuralRoutes", payload.summary.structural_route_count],
+          ] as const
+        ).map(([label, value]) => (
+          <div className="border-border rounded-lg border p-2" key={label}>
+            <dt className="text-muted-foreground text-xs">
+              {t(`pages.cycleBoard.acquisition.summary.${label}`)}
+            </dt>
+            <dd className="font-mono text-lg font-semibold">{value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <ConnectorAcquisitionScorecard
+          carrierLiveness={payload.carrier_liveness}
+          familyCount={payload.summary.family_scorecard_count}
+          freshness={projection.packet.freshness}
+          payloadAsOf={projection.packet.as_of}
+        />
+        <AcquisitionQuarantineLedger
+          freshness={projection.packet.freshness}
+          history={payload.n13b_history}
+          payloadAsOf={projection.packet.as_of}
+        />
+      </div>
+      <AcquisitionPassportPanel
+        freshness={projection.packet.freshness}
+        history={payload.n13b_history}
+        payloadAsOf={projection.packet.as_of}
+      />
+      <AcquisitionGrowthBacklog
+        backlog={payload.backlog}
+        freshness={projection.packet.freshness}
+        payloadAsOf={projection.packet.as_of}
+      />
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">
+          {t("pages.cycleBoard.acquisition.structuralRoutes")}
+        </h2>
+        <div className="grid gap-3 xl:grid-cols-2">
+          {payload.structural_routes.map((route) => (
+            <AcquisitionRouteDetail
+              key={route.route_id}
+              kind="structural"
+              route={route}
+            />
+          ))}
+        </div>
+      </section>
+    </section>
+  );
+}
+
+function AcquisitionGrowthBoundary({
+  isError = false,
+  isLoading = false,
+  projection,
+}: {
+  isError?: boolean;
+  isLoading?: boolean;
+  projection?: AcquisitionGrowthProjection;
+}) {
+  const { t } = useI18n();
+  return (
+    <section className="space-y-4" data-testid="acquisition-growth-boundary">
+      <div data-testid="acquisition-growth-boundary-time-semantics">
+        <TimeSemanticsLabel
+          freshness={projection?.packet.freshness}
+          payloadAsOf={projection?.packet.as_of}
+        />
+      </div>
+      {isLoading ? (
+        <Card data-testid="acquisition-growth-loading">
+          {t("pages.cycleBoard.acquisition.loading")}
+        </Card>
+      ) : null}
+      {!isLoading && (isError || !projection) ? (
+        <Card data-testid="acquisition-growth-unavailable">
+          <h2 className="font-semibold">
+            {t("pages.cycleBoard.acquisition.unavailableTitle")}
+          </h2>
+          <p>{t("pages.cycleBoard.acquisition.unavailableBody")}</p>
+        </Card>
+      ) : null}
+      {!isLoading && !isError && projection ? (
+        <LoadedAcquisitionGrowth projection={projection} />
+      ) : null}
+    </section>
+  );
+}
+
+function QueriedAcquisitionGrowth() {
+  const query = useAcquisitionGrowth();
+  return (
+    <AcquisitionGrowthBoundary
+      isError={query.isError}
+      isLoading={query.isLoading}
+      projection={query.data}
+    />
+  );
+}
+
+function AcquisitionGrowthSurface({
+  projection,
+}: {
+  projection?: AcquisitionGrowthProjection;
+}) {
+  return projection ? (
+    <AcquisitionGrowthBoundary projection={projection} />
+  ) : (
+    <QueriedAcquisitionGrowth />
+  );
+}
+
+export function CycleBoard({
+  acquisitionGrowth,
+  projection,
+}: {
+  acquisitionGrowth?: AcquisitionGrowthProjection;
   projection: DepthNCycleBoardProjection;
 }) {
   const { t } = useI18n();
@@ -285,6 +450,8 @@ export function CycleBoard({
           </span>
         </p>
       </header>
+
+      <AcquisitionGrowthSurface projection={acquisitionGrowth} />
 
       <div className="grid gap-4 xl:grid-cols-2">
         <GapCard

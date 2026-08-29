@@ -15,6 +15,33 @@ export type AbsentFact = RuntimeApiComponents["schemas"]["AbsentFact"];
 
 export type AccessRef = RuntimeApiComponents["schemas"]["AccessRef"];
 
+export type AcquisitionBacklogProjection =
+  RuntimeApiComponents["schemas"]["AcquisitionBacklogProjection"];
+
+export type AcquisitionDecisionRequestResponse =
+  RuntimeApiComponents["schemas"]["AcquisitionDecisionRequestResponse"];
+
+export type AcquisitionExecutionResponse =
+  RuntimeApiComponents["schemas"]["AcquisitionExecutionResponse"];
+
+export type AcquisitionGrowthPayload =
+  RuntimeApiComponents["schemas"]["AcquisitionGrowthPayload"];
+
+export type AcquisitionGrowthSummary =
+  RuntimeApiComponents["schemas"]["AcquisitionGrowthSummary"];
+
+export type AcquisitionRouteListResponse =
+  RuntimeApiComponents["schemas"]["AcquisitionRouteListResponse"];
+
+export type AcquisitionRouteMutationRequest =
+  RuntimeApiComponents["schemas"]["AcquisitionRouteMutationRequest"];
+
+export type AcquisitionRouteProjection =
+  RuntimeApiComponents["schemas"]["AcquisitionRouteProjection"];
+
+export type AcquisitionRouteReplayPins =
+  RuntimeApiComponents["schemas"]["AcquisitionRouteReplayPins"];
+
 export type AcquisitionRoutingPayload =
   RuntimeApiComponents["schemas"]["AcquisitionRoutingPayload"];
 
@@ -565,6 +592,9 @@ export type EpochPerturbationView =
 export type EpochProjectionDenominatorView =
   RuntimeApiComponents["schemas"]["EpochProjectionDenominatorView"];
 
+export type EpochQualificationDisclosure =
+  RuntimeApiComponents["schemas"]["EpochQualificationDisclosure"];
+
 export type EpochStalenessProjectionResponse =
   RuntimeApiComponents["schemas"]["EpochStalenessProjectionResponse"];
 
@@ -695,6 +725,8 @@ export type FiveRightsRequirement =
 
 export type ForkBRelationCensusPayload =
   RuntimeApiComponents["schemas"]["ForkBRelationCensusPayload"];
+
+export type GapClass = RuntimeApiComponents["schemas"]["GapClass"];
 
 export type GenerationCycleDispositionPayload =
   RuntimeApiComponents["schemas"]["GenerationCycleDispositionPayload"];
@@ -899,6 +931,9 @@ export type N13AAcquisitionCensusPayload =
 
 export type N13ALiveProbeJournalPayload =
   RuntimeApiComponents["schemas"]["N13ALiveProbeJournalPayload"];
+
+export type N13bHistoryProjection =
+  RuntimeApiComponents["schemas"]["N13bHistoryProjection"];
 
 export type NLProvenance = RuntimeApiComponents["schemas"]["NLProvenance"];
 
@@ -1280,6 +1315,9 @@ export type SourceProfileInfo =
 
 export type SourceProfilesListResponse =
   RuntimeApiComponents["schemas"]["SourceProfilesListResponse"];
+
+export type StructuralRouteProjection =
+  RuntimeApiComponents["schemas"]["StructuralRouteProjection"];
 
 export type SuppliedAuthorityValue =
   RuntimeApiComponents["schemas"]["SuppliedAuthorityValue"];
@@ -2435,6 +2473,67 @@ export class RuntimeApiClient {
       path,
       query,
       undefined,
+      undefined,
+    );
+  }
+
+  async listRunAcquisitionRoutes(params: {
+    run_id: string;
+  }): Promise<AcquisitionRouteListResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes`;
+    const query = undefined;
+    return this.request<AcquisitionRouteListResponse>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async getRunAcquisitionRoute(params: {
+    run_id: string;
+    route_id: string;
+  }): Promise<AcquisitionRouteProjection> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}`;
+    const query = undefined;
+    return this.request<AcquisitionRouteProjection>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async requestRunAcquisitionDecision(params: {
+    run_id: string;
+    route_id: string;
+    body: AcquisitionRouteMutationRequest;
+  }): Promise<AcquisitionDecisionRequestResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}/decision-request`;
+    const query = undefined;
+    return this.request<AcquisitionDecisionRequestResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
+      undefined,
+    );
+  }
+
+  async executeRunAcquisitionRoute(params: {
+    run_id: string;
+    route_id: string;
+    body: AcquisitionRouteMutationRequest;
+  }): Promise<AcquisitionExecutionResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}/execute`;
+    const query = undefined;
+    return this.request<AcquisitionExecutionResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
       undefined,
     );
   }

@@ -51,10 +51,23 @@ projections. Route handlers should stay thin and delegate behavior here.
   sole business output in the Core run manifest. The container constructs one verifier over its
   own store and event log, ignores promotion state, and exposes no evaluation callback. Explicit
   `simulate_only` transport remains certificate-free and is still rechecked by the evaluator owner.
+- **Acquisition-growth custody** - `acquisition-growth` is one non-public,
+  read-only governed projection over the complete N13a/N13b owner family. It
+  separates structural routes from independently reconciled data gaps, keeps
+  ranking distinct from VOI, and exposes historical non-growth and pending
+  qualification without executing acquisition or publishing raw quarantine
+  bodies.
+- **Run-bound acquisition actions** - `AcquisitionActionService` resolves one
+  verified completed natural-language run and its exact costed route, composes
+  the existing PA2/DS9 gateway, reserves a durable acquisition job, and exposes
+  only a strict external owner port. Recovery resumes direct re-entry from the
+  persisted action head; it never repeats owner activation or treats the
+  fixture badge as production authority.
 
 ## Public API
 
 - `ArtifactInspectorService`
+- `AcquisitionActionService`
 - `AttractorAnalysisService`
 - `DebugService`
 - `IndexedRunRecord`
@@ -88,6 +101,16 @@ projections. Route handlers should stay thin and delegate behavior here.
   owns signed-input reconciliation, append-only record custody, reservation
   recovery, and operational revalidation. They reuse the access-audit trail and
   control-plane artifact/event path; they do not establish a second log.
+- [`acquisition_surface_contracts.py`](acquisition_surface_contracts.py) owns
+  the strict DS15 DTOs and sole `GapClass` enum;
+  [`acquisition_surface_projection.py`](acquisition_surface_projection.py)
+  recomputes the composite read projection and raw-sibling strangle. The
+  governed projection service and its isolated validation worker content-bind
+  all 3 N13a and 43 N13b files before serving it.
+- [`acquisition_action_service.py`](acquisition_action_service.py) owns the
+  run-bound costed-route projection and deferred PA2/worker composition. It
+  consumes the control-plane phase-head sink and strict owner port without
+  becoming a passport, overlay, epoch, or world writer.
 - [`adapters/`](adapters/) contains service adapters for core runtime state and
   should stay thin.
 - Scenario, temporal, mobility, attractor, feedback, and rendering services own

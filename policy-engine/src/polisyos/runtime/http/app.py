@@ -48,6 +48,7 @@ from polisyos.runtime.http.jwt_auth_middleware import JWTAuthMiddleware
 from polisyos.runtime.http.mutation_policy import MutationProtectionMiddleware
 from polisyos.runtime.http.openapi_contract import install_runtime_openapi_contract
 from polisyos.runtime.http.response_policies import set_versioning_headers
+from polisyos.runtime.http.routes.acquisitions import router as acquisitions_router
 from polisyos.runtime.http.routes.analysis import router as analysis_router
 from polisyos.runtime.http.routes.artifacts import router as artifacts_router
 from polisyos.runtime.http.routes.auth import router as auth_router
@@ -376,6 +377,7 @@ def create_runtime_api_app(
         app.include_router(auth_router)
     if runs_router is not None:
         app.include_router(runs_router)
+        app.include_router(acquisitions_router)
     if human_decisions_router is not None:
         app.include_router(human_decisions_router)
     if scenarios_router is not None:

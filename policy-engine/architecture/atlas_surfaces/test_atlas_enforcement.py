@@ -3802,6 +3802,52 @@ class AtlasEnforcementTests(unittest.TestCase):
             errors,
         )
 
+    def test_authority_escape_lint_bounds_external_generic_expansion(self) -> None:
+        errors, scan = self._validate(
+            ATLAS_EXPORTS,
+            ts_source(
+                """
+                import * as Atlas from "@polisyos/atlas-ui";
+                import { z } from "zod";
+                declare const safeSchema:
+                  z.ZodType<{ payload: string }, { payload: string }>;
+                declare const unsafeSchema:
+                  z.ZodType<{ payload: unknown }, { payload: unknown }>;
+                const safe = safeSchema satisfies
+                  z.ZodType<{ payload: string }, { payload: string }>;
+                const unsafe = unsafeSchema satisfies
+                  z.ZodType<{ payload: unknown }, { payload: unknown }>;
+                const presentation =
+                  Atlas.createOpaqueAuthorityPresentation("owner");
+                export const Probe = () =>
+                  <Atlas.AuthorityBadge presentation={presentation} />;
+                void safe;
+                void unsafe;
+                """
+            ),
+            enforce_authority_escapes=True,
+        )
+
+        self.assertEqual([], scan.get("overrideDiagnostics", []), errors)
+        safety = {
+            str(site.get("target")): str(site.get("safety"))
+            for site in scan["authorityEscapeSites"]
+            if site.get("construct") == "satisfies"
+        }
+        self.assertEqual(
+            "unrelated_conformance",
+            safety['z.ZodType<{ payload: string }, { payload: string }>']
+        )
+        self.assertEqual(
+            "unsafe_widening",
+            safety['z.ZodType<{ payload: unknown }, { payload: unknown }>']
+        )
+        self.assertEqual(
+            1,
+            sum(error.startswith("authority_escape_unregistered:") for error in errors),
+            errors,
+        )
+
     def test_authority_paths_reject_compiler_recognized_nocheck(self) -> None:
         errors, scan = self._validate(
             ATLAS_EXPORTS,

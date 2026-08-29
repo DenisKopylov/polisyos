@@ -42,6 +42,30 @@ allowed_event_sources = ["polisyos.runtime"]
 payload_ref_policy = "optional"
 
 [[event_types]]
+name = "polisyos.runtime.acquisition.route_phase.v1"
+category = "acquisition_route_phase"
+description = "A content-bound acquisition action generation advanced one predecessor-consistent lifecycle phase."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime"]
+payload_ref_policy = "cas_required_for_authority_payload"
+
+[[event_types]]
+name = "polisyos.runtime.acquisition.route_loop.v1"
+category = "acquisition_route_loop"
+description = "An acquisition route reached a verified terminal only after owner effect and re-entry closure."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime"]
+payload_ref_policy = "cas_required_for_authority_payload"
+
+[[event_types]]
 name = "polisyos.runtime.diagnostic.phase_transition.v1"
 category = "phase_transition"
 description = "A serious-run state machine phase transition was accepted or blocked."

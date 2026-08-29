@@ -20,10 +20,12 @@ import {
 const {
   downloadRunPaperPacketMock,
   useAuthzDecisionMock,
+  useAcquisitionRoutesMock,
   useCaseInspectionMock,
 } = vi.hoisted(() => ({
   downloadRunPaperPacketMock: vi.fn(),
   useAuthzDecisionMock: vi.fn(),
+  useAcquisitionRoutesMock: vi.fn(),
   useCaseInspectionMock: vi.fn(),
 }));
 
@@ -33,6 +35,17 @@ vi.mock("@/app/authz/AuthzProvider", () => ({
 
 vi.mock("@/features/runs/api/useCaseInspection", () => ({
   useCaseInspection: (...args: unknown[]) => useCaseInspectionMock(...args),
+}));
+
+vi.mock("@/features/runs/api/useAcquisitionRoutes", () => ({
+  useAcquisitionRoutes: (...args: unknown[]) =>
+    useAcquisitionRoutesMock(...args),
+}));
+
+vi.mock("@/features/runs/components/AcquisitionApprovalFlow", () => ({
+  AcquisitionApprovalFlow: ({ route }: { route: { route_id: string } }) => (
+    <div data-testid="acquisition-approval-flow">{route.route_id}</div>
+  ),
 }));
 
 vi.mock("@/features/runs/components/runPaperExport", () => ({
@@ -64,11 +77,16 @@ function renderCase(entry = "/runs/run-1/case?paper_projection_hash=pin") {
 describe("CaseWorkspacePage", () => {
   beforeEach(() => {
     useAuthzDecisionMock.mockReset();
+    useAcquisitionRoutesMock.mockReset();
     useCaseInspectionMock.mockReset();
     downloadRunPaperPacketMock.mockReset();
     useAuthzDecisionMock.mockReturnValue({
       can: (permission: string) => permission === "runs.review",
       kind: "verified",
+    });
+    useAcquisitionRoutesMock.mockReturnValue({
+      data: { packet: { routes: [], run_id: "run-1" } },
+      isLoading: false,
     });
     server.use(
       http.get(
@@ -140,6 +158,36 @@ describe("CaseWorkspacePage", () => {
     renderCase(entry);
     await waitFor(() => expect(reads).toBe(1));
     expect(writes).toBe(0);
+  });
+
+  it("keeps one run-bound acquisition route in the same case workspace", () => {
+    useCaseInspectionMock.mockReturnValue({
+      data: {
+        packet: runPaperPacketFixture(),
+        rawPacketBytes: new TextEncoder().encode("{}"),
+      },
+      isError: false,
+      isLoading: false,
+    });
+    useAcquisitionRoutesMock.mockReturnValue({
+      data: {
+        packet: {
+          routes: [{ route_id: "sha256:route-current" }],
+          run_id: "run-1",
+        },
+      },
+      isLoading: false,
+    });
+
+    renderCase();
+
+    expect(screen.getByTestId("case-workspace-document")).toBeInTheDocument();
+    expect(screen.getByTestId("acquisition-approval-flow")).toHaveTextContent(
+      "sha256:route-current",
+    );
+    expect(
+      screen.queryByTestId("human-decision-workspace"),
+    ).not.toBeInTheDocument();
   });
 
   it("MACHINE export bytes equal the one human-decision response bytes", async () => {

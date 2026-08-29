@@ -536,6 +536,30 @@ export class RuntimeApiClient {
     return this.request("GET", path, query, undefined, undefined);
   }
 
+  async listRunAcquisitionRoutes(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes`;
+    const query = undefined;
+    return this.request("GET", path, query, undefined, undefined);
+  }
+
+  async getRunAcquisitionRoute(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}`;
+    const query = undefined;
+    return this.request("GET", path, query, undefined, undefined);
+  }
+
+  async requestRunAcquisitionDecision(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}/decision-request`;
+    const query = undefined;
+    return this.request("POST", path, query, params?.body, undefined);
+  }
+
+  async executeRunAcquisitionRoute(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}/execute`;
+    const query = undefined;
+    return this.request("POST", path, query, params?.body, undefined);
+  }
+
   async getRunAgents(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/agents`;
     const query = this.buildQuery({

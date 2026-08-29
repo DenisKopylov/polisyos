@@ -19,6 +19,12 @@ from pydantic import BaseModel, ConfigDict, Field, WithJsonSchema, model_validat
 
 from polisyos.common import serialization
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.http.services.acquisition_surface_contracts import (
+    AcquisitionGrowthPayload,
+)
+from polisyos.runtime.http.services.acquisition_surface_projection import (
+    build_acquisition_growth_projection,
+)
 from polisyos.runtime.http.services.channel_contracts import (
     RUNS_CHANNEL_DATA_EVENT_CONTRACT,
     ReviewPresenceSnapshot,
@@ -63,6 +69,7 @@ class ProjectionId(StrEnum):
     ACQUISITION_ROUTING_CONTRACT = "acquisition-routing-contract"
     N13A_ACQUISITION_CENSUS = "n13a-acquisition-census"
     N13A_LIVE_PROBE_JOURNAL = "n13a-live-probe-journal"
+    ACQUISITION_GROWTH = "acquisition-growth"
     CAPABILITY_REALITY = "capability-reality"
     CLUSTER_OWNERSHIP = "cluster-ownership"
     LAYER3_HEALTH_METRICS = "layer3-health-metrics"
@@ -404,6 +411,7 @@ ProjectionPayload = (
     | AcquisitionRoutingPayload
     | N13AAcquisitionCensusPayload
     | N13ALiveProbeJournalPayload
+    | AcquisitionGrowthPayload
     | CapabilityRealityPayload
     | ClusterOwnershipPayload
     | Layer3HealthMetricsPayload
@@ -580,7 +588,7 @@ class InvalidProjectionSourceError(ValueError):
 class _ProjectionDefinition:
     projection_id: ProjectionId
     source_path: str
-    source_format: Literal["json", "toml", "proving_ground"]
+    source_format: Literal["json", "toml", "proving_ground", "acquisition_growth"]
     source_policy: Literal["required", "presence_gated", "fixture_identity_only"]
     intended_audience: AudienceClass
     authoritative_for: tuple[str, ...]
@@ -754,6 +762,20 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         "policyos.layer3.gy.n13a.acquisition_census.v1",
     ),
     _ProjectionDefinition(
+        ProjectionId.ACQUISITION_GROWTH,
+        "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json",
+        "acquisition_growth",
+        "presence_gated",
+        AudienceClass.EXPERT,
+        ("acquisition_growth_audit_history", "acquisition_gap_shape"),
+        (*_COMMON_NOT_PUBLIC, "current_action_authority", "execute_acquisition"),
+        "policyos.policy_design_case.gy_n13a.acquisition_census.v1",
+        "policyos.layer3.gy.n13a.acquisition_census.v1",
+        "polisyos.runtime.http.services."
+        "governed_projection_validation_worker:validate_acquisition_growth",
+        "policyos.runtime.acquisition_growth_projection.v1",
+    ),
+    _ProjectionDefinition(
         ProjectionId.CAPABILITY_REALITY,
         "architecture/policy_design_case/capability_reality_report.json",
         "json",
@@ -836,6 +858,7 @@ _PAYLOAD_MODEL_BY_ID: dict[ProjectionId, type[_StrictModel]] = {
     ProjectionId.ACQUISITION_ROUTING_CONTRACT: AcquisitionRoutingPayload,
     ProjectionId.N13A_ACQUISITION_CENSUS: N13AAcquisitionCensusPayload,
     ProjectionId.N13A_LIVE_PROBE_JOURNAL: N13ALiveProbeJournalPayload,
+    ProjectionId.ACQUISITION_GROWTH: AcquisitionGrowthPayload,
     ProjectionId.CAPABILITY_REALITY: CapabilityRealityPayload,
     ProjectionId.CLUSTER_OWNERSHIP: ClusterOwnershipPayload,
     ProjectionId.LAYER3_HEALTH_METRICS: Layer3HealthMetricsPayload,
@@ -1178,6 +1201,74 @@ class GovernedProjectionService:
         return packet
 
     def _load(self, definition: _ProjectionDefinition) -> _LoadedSource:
+        if definition.source_format == "acquisition_growth":
+            n13a_paths = (
+                definition.source_path,
+                "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json",
+                "architecture/policy_design_case/"
+                "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json",
+            )
+            observations = {path: self._read_file(path) for path in n13a_paths}
+            census = self._parse(observations[n13a_paths[0]], "json")
+            journal = self._parse(observations[n13a_paths[1]], "json")
+            carrier = self._parse(observations[n13a_paths[2]], "json")
+            lifecycle_path = (
+                "architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json"
+            )
+            lifecycle_observation = self._read_file(lifecycle_path)
+            lifecycle = self._parse(lifecycle_observation, "json")
+            registrations = _required_list(lifecycle, "registrations")
+            component_observations = dict(observations)
+            component_observations[lifecycle_path] = lifecycle_observation
+            for registration in registrations:
+                row = _mapping(registration, "registrations[]")
+                path = _required_string(row, "path")
+                observed = self._read_file(path)
+                status = _required_string(row, "registration_status")
+                if status == "content_bound" and (
+                    row.get("byte_sha256") != observed.content_hash
+                    or row.get("byte_size") != len(observed.raw)
+                ):
+                    raise InvalidProjectionSourceError(
+                        f"registered acquisition source drift: {path}"
+                    )
+                if status not in {"content_bound", "writer_managed"}:
+                    raise InvalidProjectionSourceError(
+                        f"registered acquisition status invalid: {path}"
+                    )
+                component_observations[path] = observed
+            executor_path = (
+                "architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json"
+            )
+            reentry_path = "architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json"
+            executor = self._parse(component_observations[executor_path], "json")
+            reentry = self._parse(component_observations[reentry_path], "json")
+            bindings = tuple(
+                sorted(
+                    (path, observed.content_hash)
+                    for path, observed in component_observations.items()
+                )
+            )
+            return _LoadedSource(
+                relative_path="acquisition-growth:N13a+N13b",
+                content_hash=hash_export_projection(dict(bindings)),
+                parsed={
+                    "schema_version": census.get("schema_version"),
+                    "rule_version": census.get("rule_version"),
+                    "observed_at": census.get("observed_at"),
+                    "census": census,
+                    "journal": journal,
+                    "carrier_liveness": carrier,
+                    "executor_contract": executor,
+                    "lifecycle_manifest": lifecycle,
+                    "reentry_trace": reentry,
+                },
+                modified_at=max(
+                    observed.modified_at for observed in component_observations.values()
+                ),
+                declared_content_hash=None,
+                component_bindings=bindings,
+            )
         if definition.source_format == "proving_ground":
             manifest_observation = self._read_file(definition.source_path)
             manifest: dict[str, Any] = {}
@@ -1269,7 +1360,7 @@ class GovernedProjectionService:
     def _parse(
         self,
         observation: _FileObservation,
-        source_format: Literal["json", "toml", "proving_ground"],
+        source_format: Literal["json", "toml", "proving_ground", "acquisition_growth"],
     ) -> dict[str, Any]:
         cache_key = (observation.content_hash, source_format)
         cached = self._parsed_cache.get(cache_key)
@@ -1693,6 +1784,17 @@ def _project_n13a_journal(source: dict[str, Any]) -> dict[str, Any]:
     )
 
 
+def _project_acquisition_growth(source: dict[str, Any]) -> dict[str, Any]:
+    return build_acquisition_growth_projection(
+        census=_required_mapping(source, "census"),
+        journal=_required_mapping(source, "journal"),
+        carrier_liveness=_required_mapping(source, "carrier_liveness"),
+        executor_contract=_required_mapping(source, "executor_contract"),
+        lifecycle_manifest=_required_mapping(source, "lifecycle_manifest"),
+        reentry_trace=_required_mapping(source, "reentry_trace"),
+    ).model_dump(mode="json")
+
+
 def _project_capability_reality(source: dict[str, Any]) -> dict[str, Any]:
     return _required_projection_fields(
         source,
@@ -1799,6 +1901,7 @@ _PROJECTORS = {
     ProjectionId.ACQUISITION_ROUTING_CONTRACT: _project_acquisition_contract,
     ProjectionId.N13A_ACQUISITION_CENSUS: _project_n13a_census,
     ProjectionId.N13A_LIVE_PROBE_JOURNAL: _project_n13a_journal,
+    ProjectionId.ACQUISITION_GROWTH: _project_acquisition_growth,
     ProjectionId.CAPABILITY_REALITY: _project_capability_reality,
     ProjectionId.CLUSTER_OWNERSHIP: _project_cluster_ownership,
     ProjectionId.LAYER3_HEALTH_METRICS: _project_health_metrics,

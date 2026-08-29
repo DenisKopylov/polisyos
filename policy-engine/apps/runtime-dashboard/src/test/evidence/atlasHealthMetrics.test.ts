@@ -122,8 +122,8 @@ describe("Atlas health metrics", () => {
     }
     expect(metric(report, "primitive_adoption").measurement).toMatchObject({
       kind: "measured",
-      numerator: 77,
-      denominator: 77,
+      numerator: 94,
+      denominator: 94,
       ratio: 1,
     });
     expect(metric(report, "fail_closed_fidelity").measurement.kind).toBe(
@@ -165,9 +165,9 @@ describe("Atlas health metrics", () => {
       })),
     );
     expect(metric(report, "primitive_adoption").known_facts).toMatchObject({
-      source_file_count: 605,
-      render_root_count: 719,
-      obligated_root_count: 77,
+      source_file_count: 616,
+      render_root_count: 733,
+      obligated_root_count: 94,
     });
     expect(metric(report, "fail_closed_fidelity").known_facts).toMatchObject({
       readiness_entry_count: 261,

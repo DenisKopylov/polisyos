@@ -518,6 +518,95 @@
         "surfaceReadiness": "Surface readiness",
         "stageTrace": "Stage-trace binding",
         "explanation": "Owner explanation"
+      },
+      "acquisition": {
+        "eyebrow": "Acquisition and world-growth evidence",
+        "title": "Refusal with a path",
+        "subtitle": "Why the route is blocked, what the owner evidence supports, and which world-growth facts actually occurred.",
+        "loading": "Loading acquisition owner evidence…",
+        "unavailableTitle": "Acquisition evidence unavailable",
+        "unavailableBody": "The governed acquisition-growth packet could not be loaded. No adjacent run or historical rank is used as a substitute.",
+        "structuralRoutes": "Structural refusals — no acquisition action",
+        "summary": {
+          "familyScorecards": "Connector families",
+          "networkCalls": "Live probes",
+          "selectedRecords": "Selected records",
+          "metricResolutions": "Metric resolutions",
+          "backlogRows": "Residual rows",
+          "structuralRoutes": "Structural routes"
+        },
+        "backlog": {
+          "title": "Interim residual ordering — ranking only, not VOI",
+          "zeroScoreBasis": "{scoreCount} of {total} ranking scores are 0.0; {confidenceCount} of {total} binding-confidence values are 0.0.",
+          "noGradient": "There is no nonzero priority gradient. VOI is not established.",
+          "demandSplit": "Route demand is 2.0 on {demandTwo} rows and 1.0 on {demandOne} rows.",
+          "voiOwnerFit": "VOI owner fit",
+          "voiOwnerIntegration": "VOI owner integration",
+          "voiOwnerRef": "VOI owner",
+          "authorityBoundary": "ranking_only_not_voi",
+          "localOverride": "local_order_override",
+          "orderLabel": "View order",
+          "orderServer": "Source ordinal",
+          "orderDemand": "Route demand (local)",
+          "orderVariable": "Variable ID (local)",
+          "serverRank": "Source ordinal",
+          "variable": "Variable",
+          "score": "Ranking score",
+          "demand": "Route demand"
+        },
+        "connector": {
+          "title": "Connector acquisition scorecard",
+          "familyCount": "The census covers {count} connector families; this card shows the selected carrier's live disposition.",
+          "connector": "Connector",
+          "tier": "Declared execution tier",
+          "disposition": "Measured carrier disposition"
+        },
+        "passport": {
+          "title": "Admission passport and epoch qualification",
+          "epochState": "Epoch state",
+          "code": "Qualification code",
+          "authority": "Institutional authority",
+          "overlayEpochs": "Active overlay epochs",
+          "appointmentWouldEstablish": "Appointment would establish",
+          "appointmentWouldNotEstablish": "Appointment would not establish"
+        },
+        "quarantine": {
+          "title": "Acquisition quarantine ledger",
+          "counts": "{raw} raw responses · {admitted} admitted",
+          "worldGrowth": "World growth",
+          "reentry": "Case re-entry",
+          "terminal": "Terminal attempts"
+        },
+        "route": {
+          "structuralEyebrow": "Structural route",
+          "runEyebrow": "Run-bound costed route",
+          "gapClass": "Gap class",
+          "routeClass": "Owner route class",
+          "witness": "Owner witness",
+          "missingLink": "Missing link",
+          "structuralRefusal": "This route is structurally missing. Additional catalog rows or a client-authored cost cannot make it a data-acquisition action.",
+          "requirement": "Typed requirement",
+          "strategy": "Recommended strategy",
+          "status": "Route status",
+          "voi": "VOI",
+          "costedPlan": "Owner-backed costed plan"
+        },
+        "action": {
+          "eyebrow": "Acquisition route motion",
+          "title": "Refusal, approval, growth and re-entry",
+          "timelineAria": "Acquisition execution timeline",
+          "cost": "Owner-backed estimated cost",
+          "qualification": "Qualification",
+          "owner": "Institutional qualification owner",
+          "ownerValue": "semantic epoch policy-admission qualifier · unappointed",
+          "appointmentWouldEstablish": "Appointment would establish",
+          "appointmentEffect": "authority to qualify native semantic production, append its history head and permit overlay activation",
+          "requestReview": "Request accountable review",
+          "costNotEstablished": "owner_backed_cost:not_established",
+          "exportRoute": "Export acquisition route MACHINE packet",
+          "exportReview": "Export accountable review MACHINE packet",
+          "loadingReview": "Loading accountable review…"
+        }
       }
     },
     "runs": {

@@ -34,6 +34,13 @@ export const queryKeys = {
       "depth-n-cycle-board",
       { representation: "composed-v2" },
     ] as const,
+  acquisitionGrowth: () =>
+    [
+      "runtime",
+      "exports",
+      "governed-projections",
+      "acquisition-growth",
+    ] as const,
   temporalCapabilities: (runId: string | null | undefined) =>
     ["runtime", "temporal", "capabilities", { runId: runId ?? null }] as const,
   runsRoot: () => ["runtime", "runs"] as const,
@@ -46,6 +53,10 @@ export const queryKeys = {
       runId,
       { temporal: temporalScopeKey(temporalScope) },
     ] as const,
+  runAcquisitionRoutes: (runId: string) =>
+    ["runtime", "run", runId, "acquisition-routes"] as const,
+  runAcquisitionRoute: (runId: string, routeId: string) =>
+    ["runtime", "run", runId, "acquisition-routes", routeId] as const,
   runPaper: (runId: string, rawReplaySearch: string) =>
     ["runtime", "run", runId, "paper", { rawReplaySearch }] as const,
   humanDecisionGate: (runId: string, selectorKey: string) =>

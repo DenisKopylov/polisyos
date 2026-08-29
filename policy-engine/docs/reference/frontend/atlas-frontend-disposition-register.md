@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **83046**
-- Application lines deleted: **26595**
-- Net application LOC reduction: **-56451**
+- Application lines added: **89552**
+- Application lines deleted: **26705**
+- Net application LOC reduction: **-62847**
 - Application files deleted: **92**
 
 ## Wave-end full verification
@@ -310,6 +310,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `c08b-auth-session-revision-producer-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `producer_missing`, `artifact_missing`, `bridge_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_auth_me_query_key_partitions_tenant_user_and_revision tests.unit.runtime.http.test_auth_api.AuthApiTests.test_auth_me_publishes_auth_session_revision exits 0 after /auth/me and generated AuthMeResponse publish a server-issued auth_session_revision and queryKeys binds it; tenant/user-switch corruption fails | `open_debt` — The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, useAuthMe, and queryKeys all lack auth_session_revision. This is the missing client-bound producer contract, not ownership of server identity. |
 | `c07b-dashboard-generated-client-single-owner-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `bridge_missing`, `consumer_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_frontend_disposition_register.ProducerBindingDebtTests.test_c07b_dashboard_generated_client_has_one_canonical_owner exits 0 after manifest/reference/package cleanup, deletion of apps/runtime-dashboard/src/api/types.ts, and all compiler-resolved dashboard imports directly use @polisyos/runtime-api-client. | `open_debt` — Canonical package client exists, but the dashboard keeps a divergent local generated artifact; this row records the single-owner strangle without a comparator or dashboard change. |
 | `baseline-test-a11y-rendered-contrast-incomplete-debt` | `baseline_test_debt` | `rebind_pending` | `DS6` | — | — | `repaired` — C01/C06/C09/C14 comprise seven declared source identities. Axe incomplete nodes are neither passes, source-attributed receipts, nor denominator members; closure requires 7/7 numeric WCAG-AA receipts on an opaque real-browser background. |
+| `authority-presentation-badge-acquisition-boundary-status` | `authority_presentation_debt` | `rebind_pending` | `DS15` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after generated acquisition authority, qualification, quarantine, eligibility, and cost-availability unions enter a private issuer and copy cannot upgrade a negative or unknown owner state | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 
 ### Seeded-negative lifecycle
 
@@ -893,41 +894,63 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 
 ## Commits
 
+- `dbdc4c809 merge(ds15-landing): integrate DS15 onto the armed DS18 freeze`
+- `58a040c87 docs: record the DS18 reopening and close the landing-red row`
+- `f722b1140 merge(ds18): close the reopened receipt and the register drift it hid`
+- `f1e23d39a test(ds18): report truthful atlas failure delta`
+- `f2770375c docs(ds18): close reopened receipt with exact deltas`
+- `f374c888b test(ds18): preserve exact inherited atlas red set`
+- `e4e7a56b8 fix(ds18): reconcile frontend disposition receipts`
 - `31f66448a fix(ds18): reanchor six owned baseline bindings`
 - `f41d421f8 docs(ds18): withdraw incomplete C07 wave receipt`
 - `716261ab2 docs: record the DS18 closure and its three findings`
 - `49e969e16 fix(authz): mirror the DS18 epoch-staleness route contract`
 - `6b8ab3455 merge(ds18): epoch staleness chrome and universal coverage freeze`
+- `4c9d29803 docs(ds15): distinguish requested authz cases`
+- `989058b26 test(runtime): admit acquisition routes to authz matrix`
 - `3e6e8ae28 docs(ds18): bind final readback coordinate`
 - `f465bfd99 docs(ds18): record C07 closeout receipts`
+- `2f230df8d docs(ds15): correct the C03 authorization receipt`
 - `3011c9584 feat(ds18): freeze epoch staleness chrome`
 - `8dacab788 docs(ds18): record frontend source freeze`
 - `c553f4c30 fix(ds18): close deep-import guardrail delta`
 - `eacec37dd docs(ds18): classify guardrail facade repairs`
 - `074a57d43 docs(ds18): withdraw false guardrail receipts`
+- `af20f24d9 docs(atlas): close DS15 acquisition routes`
+- `4613954a4 test(atlas): freeze DS15 acquisition closure receipts`
 - `54f9ff4f2 feat(ds18): reconcile decision time semantics roots`
+- `fb06e4942 feat(atlas): connect acquisition approval and re-entry`
 - `dc7bdf79a docs: bind the GY-O0 closure records to their merge commit`
 - `313132b6b merge(gy-o0): attempted-evaluation safety gate`
 - `2d95e0773 docs(plan): record GY-O0 boundary repair receipts`
 - `008932511 fix(architecture): route GY hash through runtime quality`
 - `9ae4badd2 feat(ds18): render universal epoch staleness chrome`
+- `2565e8fac feat(atlas): render acquisition growth surfaces`
 - `7a08a44a7 feat(ds18): admit exact epoch wire semantics`
 - `2b5fff7b7 GY-O0 C05 close attempted-evaluation safety slice`
+- `01b97d5da docs(atlas): record C04 type-graph widening`
 - `b6c75328b GY-O0 C05 close changed-path lint denominator`
 - `716078d53 feat(ds18): generate executable epoch clients`
 - `87204caec GY-O0 C05 bind Foundry to actual WMR`
 - `7bf6363d9 feat(ds18): expose live epoch staleness bridge`
 - `b4bcd32d3 feat(eval-safety): close control lifecycle admission`
+- `4d02940e5 feat(api): publish acquisition route ABI`
 - `bc128588e feat(ds18): bind epoch staleness projection inputs`
+- `8969c10a9 feat(runtime): close accountable acquisition loop`
 - `f715bfdc4 feat(gy-o0): gate Scientist evaluation attempts`
 - `f6b1f18cf Merge branch 'main' into codex/ds18-epoch-staleness-chrome`
 - `298542f70 docs(ds18): pin C01 authority falsifiers`
 - `83b76a974 docs(ds18): widen for inherited PDF chrome`
+- `38309d842 docs(ds15): record parity owner repair and merge`
+- `0687eea2b Merge branch 'refs/heads/main' into codex/ds15-acquisition-routes-execution`
 - `7cd3e84be docs(ds18): correct lane sequencing after abort`
 - `f17c48555 fix(authz): sync the Rego mirror to two live route contracts`
 - `d2472f6f2 chore(gy-o0): regenerate trust posture receipt`
 - `f4520cdb7 docs(ds18): record C00 execution census`
+- `a0941b0bc docs(atlas): record DS15 generator serialization`
 - `e5d1c3ab7 docs(gy-o0): record DS11 trust artifact stop`
+- `bd63c3359 docs(atlas): record DS15 C02 parity stop`
+- `b633ea7b7 checkpoint(ds15): preserve blocked acquisition bridge`
 - `a1f4e2360 fix(runtime): gate eval safety run-paper links`
 - `1b78d1a12 merge(ds18): carry amended plan onto execution head`
 - `d3aa6eee6 docs(gy-o0): resume C04 with governed facade sync`
@@ -938,10 +961,14 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 - `edcfe3845 docs(plan): record C04 governed-surface stop`
 - `a38ff50a5 docs(debt): bind the relocation closure rows to their merge commit`
 - `927296b8d merge(relocation): nine ownership seams, 39 statements`
+- `26d9c8f3b docs(atlas): add DS15 acquisition event registry path`
 - `38e35f936 docs(debt): bind the unbound-writes closure rows to their merge commit`
 - `d9eba546e merge(unbound-writes): three authority closures`
 - `d1658f9b1 fix(trust-posture): stop reading PEP 604 annotations as set operators`
+- `48d96ca85 docs(atlas): close DS15 C01 after posture repair`
+- `fe53c182e fix(quality): reject unary annotation operators`
 - `dd2185602 feat(eval-safety): wire uncontended C03 owners`
+- `c52fb00b2 fix(quality): ignore annotation operators in posture tokenizer`
 - `96ba0abb4 refactor(runtime): move eval-safety identity owner`
 - `00d777850 fix(runtime): use stable facades for eval safety`
 - `26c71e498 feat(runtime): add attempted-evaluation safety custody`
@@ -957,7 +984,9 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 - `e39143d28 refactor: consolidate truthfulness identity`
 - `08332b724 fix(runtime): bind evaluation safety admission`
 - `957841569 fix(runtime): bind S2 case records to terminal runs`
+- `18bd72c2d fix(api): bind acquisition validator provenance`
 - `64ed84be6 refactor: relocate phase4 execution conversion`
+- `25abf5a54 feat(api): bind acquisition cost and owner truth`
 - `afab3030a refactor(ir): lower compute budget contract`
 - `646a8002a refactor(ir): move alignment governance to scientist`
 - `a567ec30b refactor(ir): materialize backtest plans in scientist`
@@ -971,10 +1000,13 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 - `af38cffed docs(plan): bind reviewed authority falsifiers`
 - `a7f49993d fix(fabric): close lazy store source imports`
 - `85f0b8f93 refactor(foundry): own embedding backends`
+- `76f6bb2e3 docs(atlas): prove DS15 inherited N13b red`
 - `1a0d8069c fix(fabric): close write-waist import aliases`
 - `3d5c6433f docs(plan): admit C03 egress widening`
+- `5af93e9d3 docs(atlas): repair DS15 C00 review receipts`
 - `55d7f3930 fix(fabric): own world snapshot replacement`
 - `558789ad5 refactor(failure-cards): lower shared contract to ir`
+- `fb5d98e24 docs(atlas): bind DS15 acquisition surface reds`
 - `650094376 docs(plan): sequence new relocation collision`
 - `9a46a1e10 refactor(calibration): resolve scientist policy before foundry`
 - `d557dc2bd docs(plan): lock unbound-write execution seams`
@@ -982,15 +1014,18 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 - `41ca5311f docs(plan): record GY-O0 execution lane barriers`
 - `2eca09315 merge: bring GY-O0 plan into execution branch`
 - `374b46aa0 Merge branch 'main' into codex/unbound-writes`
+- `4709562c4 merge: bring DS15 acquisition routes plan forward`
 - `f3e3d996b plans(atlas): record DS11 closure and restore the seventh anti-role`
 - `4ff11db52 merge(ds11): trust/docs posture surface`
 - `39d8f0293 docs(plan): narrow GY-O0 N9 stop`
 - `f9b8be125 docs(ds18): amend absence and denominator rules`
 - `d6a5c9c2e docs: design unbound write authority repairs`
 - `8b9b47309 docs(atlas): close DS11 trust posture`
+- `cc71a5994 docs(atlas): amend DS15 acquisition claim bands`
 - `6dc0da6b1 docs(plan): define GY-O0 evaluation safety gate`
 - `03a48b878 docs: plan DS18 epoch staleness chrome`
 - `d5bb48724 refactor(cli): relocate scientist composition above core`
+- `b5189eda7 docs(atlas): plan DS15 acquisition routes`
 - `47b5f1bfd refactor(cli): move metric validation above core`
 - `6a12c05ea refactor(architecture): relocate intervention orchestration`
 - `2525da730 merge(govern): split the appointment blockers`

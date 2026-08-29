@@ -169,6 +169,59 @@ class BaselineIdentity(_StrictModel):
     epoch: Literal[0] = 0
 
 
+class CatalogAcquisitionEpochProjection(_StrictModel):
+    """Read-only metadata for one persisted acquisition epoch."""
+
+    epoch_id: int
+    passport_id: str
+    admitted_observation_count: int
+    epoch_activation_state: str
+    semantic_epoch_ref: str | None = None
+
+
+class CatalogAcquisitionPassportProjection(_StrictModel):
+    """Narrow metadata projection of one content-bound admission passport."""
+
+    schema_version: Literal[
+        "polisyos.runtime.acquisition_admission_passport.v1",
+        "polisyos.runtime.acquisition_admission_passport.v2",
+    ]
+    passport_id: str = Field(pattern=r"^passport:sha256:[0-9a-f]{64}$")
+    epoch_id: int = Field(gt=0)
+    variable_id: str = Field(min_length=1)
+    source_lane: Literal["local_lift", "live_fetch"]
+    observation_class: ObservationProvenanceClass
+    status: Literal["admitted", "admitted_degraded", "quarantined"]
+    rejection_codes: tuple[str, ...]
+
+
+class CatalogAcquisitionEventProjection(_StrictModel):
+    """Content-bound event metadata without its persisted statement payload."""
+
+    receipt_ref: str = Field(pattern=_SHA256_PATTERN)
+    receipt_kind: str = Field(min_length=1)
+    receipt_content_hash: str = Field(pattern=_SHA256_PATTERN)
+
+
+class CatalogAcquisitionStateProjection(_StrictModel):
+    """Validated metadata-only projection of overlay/passport/event state."""
+
+    schema_version: str = "polisyos.data_forge.acquisition_state_projection.v1"
+    baseline: BaselineIdentity
+    overlay_ref: str | None
+    overlay_exists: bool
+    epoch_count: int
+    passport_count: int
+    pending_epoch_count: int
+    active_epoch_count: int
+    admitted_observation_count: int
+    semantic_receipt_count: int
+    registration_count: int
+    epochs: tuple[CatalogAcquisitionEpochProjection, ...]
+    passports: tuple[CatalogAcquisitionPassportProjection, ...]
+    events: tuple[CatalogAcquisitionEventProjection, ...]
+
+
 class MetricFieldBinding(_StrictModel):
     """Measured distribution-field edge into one canonical variable."""
 
@@ -2245,6 +2298,238 @@ def default_acquisition_overlay_path(repo_root: Path) -> Path:
     return Path(repo_root) / DEFAULT_ACQUISITION_OVERLAY_PATH
 
 
+_EXTERNAL_RECEIPT_KINDS = frozenset(
+    {
+        "epoch.activated_overlay_admission_receipt",
+        "epoch.acquisition_passport_snapshot",
+        "epoch.pending_overlay_admission_receipt",
+    }
+)
+_SEMANTIC_RECEIPT_DOMAINS = {
+    "epoch.acquisition_native_member": "polisyos.epoch.acquisition-native-member.v1",
+    "epoch.acquisition_native_membership": (
+        "polisyos.epoch.acquisition-native-membership-receipt.v1"
+    ),
+    "epoch.acquisition_native_membership_receipt": (
+        "polisyos.epoch.acquisition-native-membership-receipt.v1"
+    ),
+    "epoch.acquisition_owner_snapshot": "polisyos.epoch.acquisition-owner-snapshot.v1",
+    "epoch.acquisition_projection_verifier_provenance": (
+        "polisyos.epoch.acquisition-projection-verifier.v1"
+    ),
+    "epoch.acquisition_semantic_denominator_receipt": (
+        "polisyos.epoch.acquisition-semantic-denominator-receipt.v1"
+    ),
+    "epoch.acquisition_semantic_projection_verification_receipt": (
+        "polisyos.epoch.acquisition-semantic-projection-verification-receipt.v1"
+    ),
+    "epoch.admitted_acquisition_boundary_evidence": (
+        "polisyos.epoch.admitted-acquisition-boundary-evidence.v1"
+    ),
+    "epoch.production_receipt": "polisyos.epoch.production-receipt.v1",
+}
+
+
+def _validated_semantic_receipt_metadata(
+    *,
+    receipt_ref: object,
+    receipt_kind: object,
+    receipt_content_hash: object,
+    receipt_json: object,
+) -> CatalogAcquisitionEventProjection:
+    """Validate persisted receipt bytes and return their metadata-only carrier."""
+
+    kind = str(receipt_kind)
+    try:
+        payload = json.loads(str(receipt_json))
+    except json.JSONDecodeError as exc:
+        raise OverlayAdmissionError("overlay_semantic_receipt_json_invalid") from exc
+    if not isinstance(payload, dict):
+        raise OverlayAdmissionError("overlay_semantic_receipt_not_mapping")
+    if kind in _EXTERNAL_RECEIPT_KINDS:
+        framed = _overlay_statement_payload(payload)
+        recomputed_hash = _overlay_statement_content_hash(payload)
+    elif kind == "epoch.acquisition_semantic_boundary_candidate":
+        try:
+            statement = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement.model_validate(
+                payload
+            )
+        except ValueError as exc:
+            raise OverlayAdmissionError("overlay_semantic_receipt_payload_invalid", kind) from exc
+        canonical = epoch_contract.canonical_epoch_bytes(statement)
+        framed = len(canonical).to_bytes(8, "big") + canonical
+        recomputed_hash = epoch_contract.acquisition_semantic_candidate_content_hash(statement)
+    elif domain := _SEMANTIC_RECEIPT_DOMAINS.get(kind):
+        canonical = epoch_contract.canonical_epoch_bytes(payload)
+        framed = len(canonical).to_bytes(8, "big") + canonical
+        recomputed_hash = _semantic_content_hash(domain=domain, value=payload)
+    else:
+        raise OverlayAdmissionError("overlay_semantic_receipt_kind_not_supported", kind)
+    if str(receipt_ref) != f"sha256:{hashlib.sha256(framed).hexdigest()}":
+        raise OverlayAdmissionError("overlay_semantic_receipt_ref_content_mismatch", kind)
+    if str(receipt_content_hash) != recomputed_hash:
+        raise OverlayAdmissionError("overlay_semantic_receipt_content_hash_mismatch", kind)
+    return CatalogAcquisitionEventProjection(
+        receipt_ref=str(receipt_ref),
+        receipt_kind=kind,
+        receipt_content_hash=str(receipt_content_hash),
+    )
+
+
+def validate_overlay_admission_receipt(
+    receipt: object,
+) -> CatalogAcquisitionEventProjection:
+    """Validate one active owner receipt and return its content-bound metadata."""
+
+    if isinstance(receipt, BaseModel):
+        candidate = receipt.model_dump(mode="python")
+    elif isinstance(receipt, Mapping):
+        candidate = dict(receipt)
+    else:
+        raise OverlayAdmissionError("overlay_admission_receipt_payload_invalid")
+    try:
+        validated = OverlayAdmissionReceipt.model_validate(candidate)
+        statement = epoch_contract.ActivatedOverlayAdmissionStatement.model_validate(
+            validated.model_dump(
+                mode="python",
+                exclude={"receipt_ref", "receipt_content_hash", "replayed"},
+            )
+        )
+    except ValueError as exc:
+        raise OverlayAdmissionError("overlay_admission_receipt_payload_invalid") from exc
+    if (
+        validated.receipt_ref.kind != "epoch.activated_overlay_admission_receipt"
+        or validated.receipt_ref.media_type != "application/vnd.polisyos.epoch+json"
+    ):
+        raise OverlayAdmissionError("overlay_admission_receipt_kind_invalid")
+    return _validated_semantic_receipt_metadata(
+        receipt_ref=validated.receipt_ref.artifact_id,
+        receipt_kind=validated.receipt_ref.kind,
+        receipt_content_hash=validated.receipt_content_hash,
+        receipt_json=json.dumps(statement.model_dump(mode="json")),
+    )
+
+
+def project_catalog_acquisition_state(
+    baseline_path: Path,
+    *,
+    overlay_path: Path | None = None,
+) -> CatalogAcquisitionStateProjection:
+    """Project validated overlay metadata without opening any writer connection."""
+
+    baseline = _baseline_identity(Path(baseline_path))
+    selected = None if overlay_path is None else Path(overlay_path)
+    if selected is None or not (selected.exists() or selected.is_symlink()):
+        return CatalogAcquisitionStateProjection(
+            baseline=baseline,
+            overlay_ref=None if selected is None else selected.as_posix(),
+            overlay_exists=False,
+            epoch_count=0,
+            passport_count=0,
+            pending_epoch_count=0,
+            active_epoch_count=0,
+            admitted_observation_count=0,
+            semantic_receipt_count=0,
+            registration_count=0,
+            epochs=(),
+            passports=(),
+            events=(),
+        )
+    con = open_catalog_read_session(Path(baseline_path), overlay_path=selected)
+    try:
+        raw_epochs = con.execute(
+            "SELECT epoch_id, passport_id, admitted_observation_count, "
+            "epoch_activation_state, semantic_epoch_ref FROM acquisition_epochs "
+            "ORDER BY epoch_id"
+        ).fetchall()
+        raw_passports = con.execute(
+            "SELECT passport_id, epoch_id, passport_content_sha256, passport_json "
+            "FROM acquisition_passports ORDER BY epoch_id, passport_id"
+        ).fetchall()
+        epoch_owners = {(int(row[0]), str(row[1])) for row in raw_epochs}
+        passports: list[CatalogAcquisitionPassportProjection] = []
+        for passport_id, epoch_id, expected_hash, raw_json in raw_passports:
+            try:
+                payload = json.loads(str(raw_json))
+            except json.JSONDecodeError as exc:
+                raise OverlayAdmissionError("overlay_passport_json_invalid") from exc
+            if not isinstance(payload, dict) or content_sha256(payload) != str(expected_hash):
+                raise OverlayAdmissionError("overlay_passport_content_hash_mismatch")
+            if (int(epoch_id), str(passport_id)) not in epoch_owners:
+                raise OverlayAdmissionError("overlay_passport_epoch_binding_mismatch")
+            if payload.get("passport_id") != str(passport_id) or int(
+                payload.get("epoch_id") or -1
+            ) != int(epoch_id):
+                raise OverlayAdmissionError("overlay_passport_identity_mismatch")
+            try:
+                passports.append(
+                    CatalogAcquisitionPassportProjection.model_validate(
+                        {
+                            field: payload.get(field)
+                            for field in (
+                                "schema_version",
+                                "passport_id",
+                                "epoch_id",
+                                "variable_id",
+                                "source_lane",
+                                "observation_class",
+                                "status",
+                                "rejection_codes",
+                            )
+                        }
+                    )
+                )
+            except ValueError as exc:
+                raise OverlayAdmissionError("overlay_passport_metadata_invalid") from exc
+        if len(raw_passports) != len(raw_epochs):
+            raise OverlayAdmissionError("overlay_passport_denominator_mismatch")
+        raw_receipts = con.execute(
+            "SELECT receipt_ref, receipt_kind, receipt_content_hash, receipt_json "
+            "FROM acquisition_semantic_receipts ORDER BY receipt_ref"
+        ).fetchall()
+        events = tuple(
+            _validated_semantic_receipt_metadata(
+                receipt_ref=receipt_ref,
+                receipt_kind=receipt_kind,
+                receipt_content_hash=receipt_content_hash,
+                receipt_json=receipt_json,
+            )
+            for receipt_ref, receipt_kind, receipt_content_hash, receipt_json in raw_receipts
+        )
+        registration_count = int(
+            con.execute("SELECT count(*) FROM acquisition_registrations").fetchone()[0]
+        )
+    finally:
+        con.close()
+    epochs = tuple(
+        CatalogAcquisitionEpochProjection(
+            epoch_id=int(epoch_id),
+            passport_id=str(passport_id),
+            admitted_observation_count=int(admitted_count),
+            epoch_activation_state=str(state),
+            semantic_epoch_ref=None if semantic_ref is None else str(semantic_ref),
+        )
+        for epoch_id, passport_id, admitted_count, state, semantic_ref in raw_epochs
+    )
+    return CatalogAcquisitionStateProjection(
+        baseline=baseline,
+        overlay_ref=selected.as_posix(),
+        overlay_exists=True,
+        epoch_count=len(epochs),
+        passport_count=len(raw_passports),
+        pending_epoch_count=sum(
+            epoch.epoch_activation_state == "pending_epoch_activation" for epoch in epochs
+        ),
+        active_epoch_count=sum(epoch.epoch_activation_state == "active" for epoch in epochs),
+        admitted_observation_count=sum(epoch.admitted_observation_count for epoch in epochs),
+        semantic_receipt_count=len(events),
+        registration_count=registration_count,
+        epochs=epochs,
+        passports=tuple(passports),
+        events=events,
+    )
+
+
 def open_catalog_read_session(
     baseline_path: Path,
     *,
@@ -4018,7 +4303,11 @@ __all__ = [
     "BaselineIdentity",
     "BaselineMutationError",
     "CanonicalAcquisitionObservation",
+    "CatalogAcquisitionEpochProjection",
+    "CatalogAcquisitionEventProjection",
     "CatalogAcquisitionOverlay",
+    "CatalogAcquisitionPassportProjection",
+    "CatalogAcquisitionStateProjection",
     "MetricFieldBinding",
     "ObservationProvenanceClass",
     "OverlayAdmissionError",
@@ -4027,4 +4316,6 @@ __all__ = [
     "default_acquisition_overlay_path",
     "derive_canonical_observations",
     "open_catalog_read_session",
+    "project_catalog_acquisition_state",
+    "validate_overlay_admission_receipt",
 ]

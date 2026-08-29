@@ -67,6 +67,25 @@ if TYPE_CHECKING:
         @property
         def payload_sha256(self) -> str: ...
 
+    class _SignedCasProtocol(Protocol):
+        """Minimum guarded CAS capability used by the authority boundary."""
+
+        def has(self, artifact_id: object) -> bool: ...
+
+        def get_bytes(self, artifact_id: object) -> bytes: ...
+
+        def get_manifest(self, artifact_id: object) -> object: ...
+
+        def verify_signature(
+            self,
+            artifact_id: object,
+            verifier: object,
+            *,
+            strict_identity: bool = ...,
+        ) -> object: ...
+
+        def put_json(self, payload: object, options: object) -> object: ...
+
 
 def write_runtime_authority_artifact(
     store: object,
@@ -124,6 +143,11 @@ DELEGATION_CONTRACT_ARTIFACT_KIND = "runtime_quality.agent_action_delegation_con
 AGENT_ACTION_ADMISSION_ARTIFACT_KIND = "runtime_quality.agent_action_admission"
 HUMAN_DECISION_ARTIFACT_KIND = "runtime_quality.agent_action_human_decision"
 AGENT_ACTION_DECISION_ARTIFACT_KIND = "runtime_quality.agent_action_authority_decision"
+ACQUISITION_ACTION_KIND = "runtime.evidence.acquisition.execute"
+CURRENT_MANDATE_OWNER_SCHEMA_VERSION: Literal["policyos.runtime.current_mandate_owner.v1"] = (
+    "policyos.runtime.current_mandate_owner.v1"
+)
+CURRENT_MANDATE_OWNER_ARTIFACT_KIND = "runtime_quality.current_mandate_owner"
 
 AgentActionOutcome = Literal["allowed", "refused"]
 PredicateName = Literal[
@@ -218,6 +242,34 @@ class AgentActionAdmissionBundle(Layer2ReadinessModel):
         return self
 
 
+class CurrentMandateOwnerEvidence(Layer2ReadinessModel):
+    """Externally produced, signed evidence of current mandate authority."""
+
+    schema_version: Literal["policyos.runtime.current_mandate_owner.v1"] = (
+        CURRENT_MANDATE_OWNER_SCHEMA_VERSION
+    )
+    evidence_id: str = Field(..., min_length=1, max_length=200)
+    evidence_ref: str = Field(..., min_length=1, max_length=300)
+    mandate_owner_ref: str = Field(..., min_length=1, max_length=300)
+    authority_purpose: Literal["agent_action_delegation"]
+    current: bool
+    effective_from: AwareDatetime
+    effective_until: AwareDatetime
+    revoked_at: AwareDatetime | None = None
+    delegation_rule_version_ref: str = Field(..., min_length=1, max_length=300)
+    evidence_signer_identity: str = Field(..., min_length=1, max_length=300)
+    verifier_provenance: Literal["independently_reconciled"]
+    provenance_refs: tuple[str, ...] = Field(..., min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_effective_interval(self) -> CurrentMandateOwnerEvidence:
+        if self.effective_until <= self.effective_from:
+            raise ValueError("current mandate evidence requires a positive interval")
+        if self.revoked_at is not None and self.revoked_at < self.effective_from:
+            raise ValueError("mandate revocation cannot predate effectiveness")
+        return self
+
+
 @dataclass(frozen=True, slots=True)
 class AgentActionEffectBinding:
     """Composition-root-owned binding from an action tuple to one effect adapter."""
@@ -298,6 +350,9 @@ class ResolvedDelegationContract(Layer2ReadinessModel):
     resolved_for_resource_digest: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     signer_identity: str = Field(..., min_length=1, max_length=300)
     reconciliation_event_id: str = Field(..., min_length=1, max_length=300)
+    mandate_authority_evidence_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    mandate_authority_signer_identity: str = Field(..., min_length=1, max_length=300)
+    mandate_authority_reconciliation_event_id: str = Field(..., min_length=1, max_length=300)
     predicate_provenance: Literal["independently_reconciled"] = "independently_reconciled"
 
 
@@ -403,6 +458,14 @@ class PersistedAgentActionDecision:
     durable_event_id: str
 
 
+@dataclass(frozen=True, slots=True)
+class _LoadedDecisionWriteResult:
+    """Minimum exact write receipt reconstructed from owner CAS/event state."""
+
+    cas_ref: artifacts.ArtifactRef
+    payload_sha256: str
+
+
 class AgentActionAuthorityRefused(ValueError):  # noqa: N818 - governed outcome, then raise
     """Raised after a governed refusal decision has been durably recorded."""
 
@@ -432,7 +495,7 @@ class AgentActionAuthorityGateway:
     def __init__(
         self,
         *,
-        artifact_store: artifacts.FileSystemCAS,
+        artifact_store: _SignedCasProtocol,
         event_log: RuntimeDiagnosticEventLog,
         idempotency_store: RuntimeIdempotencyStore,
         artifact_verifier: artifacts.Ed25519Verifier,
@@ -440,6 +503,7 @@ class AgentActionAuthorityGateway:
         admission_producer_identity: str,
         write_context: AgentActionAuthorityWriteContext,
         contract_refs_by_resource_digest: Mapping[str, str],
+        mandate_authority_evidence_refs_by_owner_ref: Mapping[str, str],
         admission_refs_by_invocation_hash: Mapping[str, str],
         effect_bindings: tuple[AgentActionEffectBinding, ...],
         human_decision_refs_by_request_ref: Mapping[str, str] | None = None,
@@ -448,8 +512,18 @@ class AgentActionAuthorityGateway:
         | None = None,
         production_approval_resolver: object | None = None,
     ) -> None:
-        if type(artifact_store) is not artifacts.FileSystemCAS:
-            raise TypeError("agent action authority requires the concrete server CAS")
+        required_cas_capabilities = (
+            "has",
+            "get_bytes",
+            "get_manifest",
+            "verify_signature",
+            "put_json",
+        )
+        if not all(
+            callable(getattr(artifact_store, capability, None))
+            for capability in required_cas_capabilities
+        ):
+            raise TypeError("agent action authority requires a signed server CAS capability")
         if type(event_log) is not RuntimeDiagnosticEventLog:
             raise TypeError("agent action authority requires the durable runtime event log")
         if type(idempotency_store) is not RuntimeIdempotencyStore:
@@ -473,6 +547,9 @@ class AgentActionAuthorityGateway:
         self._admission_producer_identity = admission_producer_identity
         self._write_context = write_context
         self._contract_refs = _frozen_ref_mapping(contract_refs_by_resource_digest)
+        self._mandate_authority_evidence_refs = _frozen_ref_mapping(
+            mandate_authority_evidence_refs_by_owner_ref
+        )
         self._admission_refs = _frozen_ref_mapping(admission_refs_by_invocation_hash)
         self._human_decision_refs = _frozen_ref_mapping(human_decision_refs_by_request_ref or {})
         adapter_rows = dict(human_decision_adapters_by_request_ref or {})
@@ -594,6 +671,14 @@ class AgentActionAuthorityGateway:
             raise AgentActionAuthorityOwnerResolutionError(
                 "delegation_contract_owner_signature_mismatch"
             )
+        (
+            mandate_evidence_ref,
+            mandate_evidence_signer,
+            mandate_evidence_event_id,
+        ) = self._resolve_current_mandate_authority(
+            contract=contract,
+            evaluated_at=_utcnow(),
+        )
         return ResolvedDelegationContract(
             contract=contract,
             contract_cas_ref=ref,
@@ -601,7 +686,58 @@ class AgentActionAuthorityGateway:
             resolved_for_resource_digest=resource_digest,
             signer_identity=signer_identity,
             reconciliation_event_id=event_id,
+            mandate_authority_evidence_ref=mandate_evidence_ref,
+            mandate_authority_signer_identity=mandate_evidence_signer,
+            mandate_authority_reconciliation_event_id=mandate_evidence_event_id,
         )
+
+    def _resolve_current_mandate_authority(
+        self,
+        *,
+        contract: DelegationContract,
+        evaluated_at: datetime,
+    ) -> tuple[str, str, str]:
+        owner_ref = contract.mandate_owner_ref
+        if owner_ref is None:
+            raise AgentActionAuthorityOwnerResolutionError(
+                "current_mandate_authority_not_established"
+            )
+        evidence_ref = self._mandate_authority_evidence_refs.get(owner_ref)
+        if evidence_ref is None:
+            raise AgentActionAuthorityOwnerResolutionError(
+                "current_mandate_authority_not_established"
+            )
+        payload, signer_identity, event_id = self._read_signed_artifact(
+            ref=evidence_ref,
+            expected_kind=CURRENT_MANDATE_OWNER_ARTIFACT_KIND,
+            expected_schema_name="polisyos.runtime.CurrentMandateOwnerEvidence",
+            expected_schema_version=CURRENT_MANDATE_OWNER_SCHEMA_VERSION,
+            failure_prefix="current_mandate_authority",
+            expected_signer_identity=None,
+            expect_current_run=False,
+        )
+        try:
+            evidence = CurrentMandateOwnerEvidence.model_validate(payload)
+        except (TypeError, ValueError) as exc:
+            raise AgentActionAuthorityOwnerResolutionError(
+                "current_mandate_authority_invalid"
+            ) from exc
+        instant = _aware_utc(evaluated_at)
+        if (
+            evidence.mandate_owner_ref != owner_ref
+            or evidence.authority_purpose != "agent_action_delegation"
+            or not evidence.current
+            or instant < evidence.effective_from
+            or instant >= evidence.effective_until
+            or (evidence.revoked_at is not None and instant >= evidence.revoked_at)
+            or evidence.delegation_rule_version_ref != contract.rule_version_ref
+            or evidence.evidence_signer_identity != signer_identity
+            or evidence.verifier_provenance != "independently_reconciled"
+        ):
+            raise AgentActionAuthorityOwnerResolutionError(
+                "current_mandate_authority_not_established"
+            )
+        return evidence_ref, signer_identity, event_id
 
     def resolve_admission_bundle(
         self,
@@ -903,6 +1039,65 @@ class AgentActionAuthorityGateway:
             durable_event_id=report.durable_event_id,
         )
 
+    def load_persisted_decision(self, decision_ref: str) -> PersistedAgentActionDecision:
+        """Load one exact decision ref without scanning or trusting a job payload."""
+
+        try:
+            artifact_id = artifacts.ArtifactID.model_validate(decision_ref)
+            if not self._artifact_store.has(artifact_id):
+                raise ValueError("decision artifact missing")
+            payload_bytes = self._artifact_store.get_bytes(artifact_id)
+            payload_sha256 = canon.content_hash(payload_bytes)
+            if decision_ref != f"sha256:{payload_sha256}":
+                raise ValueError("decision artifact identity mismatch")
+            decision = AgentActionAuthorityDecision.model_validate(
+                canon.from_canonical_bytes(payload_bytes)
+            )
+            manifest = self._artifact_store.get_manifest(artifact_id)
+            schema = manifest.artifact_schema
+            if (
+                manifest.artifact_id != artifact_id
+                or manifest.kind != AGENT_ACTION_DECISION_ARTIFACT_KIND
+                or manifest.media_type != "application/json"
+                or schema is None
+                or schema.name != "polisyos.runtime.AgentActionAuthorityDecision"
+                or schema.version != AGENT_ACTION_AUTHORITY_SCHEMA_VERSION
+                or manifest.authority is None
+                or manifest.authority.payload_sha256 != payload_sha256
+            ):
+                raise ValueError("decision manifest mismatch")
+            report = reconcile_authority_ref(
+                artifact_store=self._artifact_store,
+                event_log=self._event_log,
+                cas_ref=decision_ref,
+                expected_tenant_id=self._write_context.tenant_id,
+                expected_cell_id=self._write_context.cell_id,
+                expected_run_id=self._write_context.run_id,
+                expected_job_id=self._write_context.job_id,
+            )
+            if report.durable_event_id is None:
+                raise ValueError("decision durable event missing")
+            loaded = PersistedAgentActionDecision(
+                decision=decision,
+                write_result=_LoadedDecisionWriteResult(
+                    cas_ref=artifacts.ArtifactRef(
+                        artifact_id=artifact_id,
+                        kind=manifest.kind,
+                        media_type=manifest.media_type,
+                    ),
+                    payload_sha256=payload_sha256,
+                ),
+                durable_event_id=report.durable_event_id,
+            )
+            self._revalidate_persisted_decision(loaded)
+        except AgentActionAuthorityRecordingError:
+            raise
+        except Exception as exc:
+            raise AgentActionAuthorityRecordingError(
+                "agent action effect requires a durable decision ref"
+            ) from exc
+        return loaded
+
     def execute_bound_effect(
         self,
         *,
@@ -933,6 +1128,10 @@ class AgentActionAuthorityGateway:
         resolved = self.resolve_delegation_contract(decision.bound_resource_digest)
         if resolved.contract_cas_ref != decision.contract_ref:
             raise AgentActionAuthorityRecordingError("delegation contract head changed")
+        if resolved.mandate_authority_evidence_ref not in decision.replay_input_refs:
+            raise AgentActionAuthorityRecordingError(
+                "current mandate authority changed after decision; effect refused"
+            )
         envelope = next(
             (
                 row
@@ -1238,6 +1437,47 @@ def dispatch_agent_external_action(
         raise
 
 
+def reserve_agent_external_action(
+    *,
+    bound_permission: BoundActionPermissionVerification,
+    operation: OperationContract,
+    invocation: OperationInvocationRecord,
+    intent: AgentActionIntent,
+) -> PersistedAgentActionDecision:
+    """Persist and consume an allow for deferred execution without an effect."""
+
+    gateway = _active_gateway()
+    dispatch_hash = _dispatch_binding_hash(operation, invocation, intent)
+    reservation_state = gateway.begin_dispatch(dispatch_hash)
+    reservation_issue = (
+        None if reservation_state == "started" else "agent_action_invocation_already_consumed"
+    )
+    completed = False
+    try:
+        decision = _produce_decision(
+            gateway=gateway,
+            bound_permission=bound_permission,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            reservation_issue=reservation_issue,
+        )
+        persisted = gateway.persist_decision(decision)
+        if decision.outcome == "refused":
+            if reservation_state == "started":
+                gateway.release_dispatch(dispatch_hash)
+            raise AgentActionAuthorityRefused(persisted)
+        gateway.complete_dispatch(dispatch_hash, persisted)
+        completed = True
+        return persisted
+    except AgentActionAuthorityRefused:
+        raise
+    except Exception:
+        if reservation_state == "started" and not completed:
+            gateway.release_dispatch(dispatch_hash)
+        raise
+
+
 def _produce_decision(
     *,
     gateway: AgentActionAuthorityGateway,
@@ -1469,8 +1709,20 @@ def _produce_decision(
         contract_ref=resolved.contract_cas_ref if resolved is not None else None,
         resource_digest=(bound_resource.resource_digest if bound_resource is not None else None),
         effect_binding_digest=(binding.binding_digest if binding is not None else None),
+        required_decision_reason=(
+            "acquisition_required"
+            if _is_acquisition_execution(validated_intent, validated_operation)
+            else "out_of_envelope"
+        ),
     )
     decision_record_ref: str | None = None
+    acquisition_requires_human = _is_acquisition_execution(
+        validated_intent,
+        validated_operation,
+    )
+    permitted_pre_human_reasons = (
+        {"operation_out_of_envelope"} if "operation_out_of_envelope" in reasons else set()
+    )
     if (
         contract is not None
         and selected is not None
@@ -1479,8 +1731,8 @@ def _produce_decision(
         and admission_ref is not None
         and binding is not None
         and proof_snapshot is not None
-        and "operation_out_of_envelope" in reasons
-        and not (set(reasons) - {"operation_out_of_envelope"})
+        and ("operation_out_of_envelope" in reasons or acquisition_requires_human)
+        and not (set(reasons) - permitted_pre_human_reasons)
     ):
         try:
             human_resolution = gateway.resolve_human_decision(
@@ -1511,13 +1763,19 @@ def _produce_decision(
                 now=instant,
                 envelope=selected,
             )
-            if human_issue is None and human_resolution is not None:
-                reasons.remove("operation_out_of_envelope")
+            if human_resolution is None:
+                reasons.append("human_decision_missing")
+            elif human_issue is None:
+                if "operation_out_of_envelope" in reasons:
+                    reasons.remove("operation_out_of_envelope")
                 satisfied["operation_in_envelope"] = True
                 decision_record_ref = human_resolution[1]
                 request = signed_request
-            elif human_issue is not None and human_resolution is not None:
+            else:
                 reasons.append(human_issue)
+
+    if acquisition_requires_human and decision_record_ref is None:
+        satisfied["live_accountability"] = False
 
     reasons = list(dict.fromkeys(reasons))
     allowed = all(satisfied.values()) and not reasons
@@ -1753,6 +2011,19 @@ def _tool_is_admitted(tool_name: str, ledger: object) -> bool:
     return bool(calls) and all(call.status == "pass" for call in calls)
 
 
+def _is_acquisition_execution(
+    intent: AgentActionIntent,
+    operation: OperationContract,
+) -> bool:
+    """Return whether the exact DS15 authority tuple is being evaluated."""
+
+    return (
+        intent.action_kind == ACQUISITION_ACTION_KIND
+        and operation.operation_id == ACQUISITION_ACTION_KIND
+        and operation.operation_version == "v1"
+    )
+
+
 def _human_decision_request(
     *,
     contract: DelegationContract | None,
@@ -1766,6 +2037,7 @@ def _human_decision_request(
     contract_ref: str | None,
     resource_digest: str | None,
     effect_binding_digest: str | None,
+    required_decision_reason: str,
 ) -> HumanDecisionRequest:
     binding_hash = _exact_hash(
         {
@@ -1816,6 +2088,7 @@ def _human_decision_request(
                 "decision_due_at": decidable_until,
                 "decidable_until": decidable_until,
                 "provenance_refs": list(dict.fromkeys(provenance)),
+                "need_reasons": [required_decision_reason],
             }
         )
     return HumanDecisionRequest(
@@ -1828,7 +2101,7 @@ def _human_decision_request(
         required_role="mandate_owner",
         interaction_mode="request_driven",
         disposition="request_human_decision",
-        need_reasons=["out_of_envelope"],
+        need_reasons=[required_decision_reason],
         requested_at=now,
         decision_due_at=now,
         decidable_until=now,
@@ -1965,7 +2238,14 @@ def _replay_refs(
 ) -> tuple[str, ...]:
     refs = [operation_hash, invocation_hash, intent_hash]
     if resolved is not None:
-        refs.extend((resolved.contract_cas_ref, resolved.reconciliation_event_id))
+        refs.extend(
+            (
+                resolved.contract_cas_ref,
+                resolved.reconciliation_event_id,
+                resolved.mandate_authority_evidence_ref,
+                resolved.mandate_authority_reconciliation_event_id,
+            )
+        )
     if admission_ref is not None:
         refs.append(admission_ref)
     if selected is not None:
@@ -2086,4 +2366,5 @@ __all__ = [
     "agent_action_permission_hash",
     "dispatch_agent_external_action",
     "produce_agent_action_authority_decision",
+    "reserve_agent_external_action",
 ]

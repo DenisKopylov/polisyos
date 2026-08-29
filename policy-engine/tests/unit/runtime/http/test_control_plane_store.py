@@ -489,6 +489,80 @@ def test_human_decision_fence_reuses_store_transaction_for_durable_event(
     assert len(event_log.list_events(event_id=event.event_id)) == 1
 
 
+def test_completed_natural_language_lookup_ignores_newer_acquisition_and_rejects_ambiguity(
+    tmp_path,
+) -> None:
+    store = _make_store(tmp_path)
+    common = {
+        "run_id": "run-acquisition-closure",
+        "pipeline_id": None,
+        "requested_execution_profile": "governed",
+        "effective_execution_profile": "governed",
+        "policy_flags": {},
+        "capability_manifest_ref": None,
+        "payload_ref": None,
+        "submitted_by": "tester",
+    }
+    store.create_job(job_id="job-nl", kind="natural_language_run", **common)
+    store.complete_job(job_id="job-nl", run_id=common["run_id"])
+    store.create_job(job_id="job-acquisition", kind="acquisition", **common)
+    store.complete_job(job_id="job-acquisition", run_id=common["run_id"])
+
+    resolved = store.get_unique_completed_job_by_run_and_kind(
+        run_id=common["run_id"],
+        kind="natural_language_run",
+    )
+
+    assert resolved is not None
+    assert resolved.job_id == "job-nl"
+    store.create_job(job_id="job-nl-duplicate", kind="natural_language_run", **common)
+    store.complete_job(job_id="job-nl-duplicate", run_id=common["run_id"])
+    with pytest.raises(ValueError, match="control_job_completion_ambiguous"):
+        store.get_unique_completed_job_by_run_and_kind(
+            run_id=common["run_id"],
+            kind="natural_language_run",
+        )
+
+
+def test_acquisition_action_head_requires_exact_predecessor(tmp_path) -> None:
+    store = _make_store(tmp_path)
+    identity = {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a",
+        "run_id": "run-a",
+        "source_job_id": "job-source",
+        "route_id": "sha256:" + "a" * 64,
+        "action_generation": 1,
+    }
+    first_ref = "sha256:" + "b" * 64
+    first = store.advance_acquisition_action_head(
+        **identity,
+        expected_head_generation=0,
+        receipt_ref=first_ref,
+        receipt_sha256=first_ref,
+        durable_event_id="evt-requested",
+        coarse_phase="requested",
+        receipt_phase="requested",
+        recovery_state="none",
+        job_id="job-acquisition",
+        predecessor_receipt_ref=None,
+    )
+    assert first.head_generation == 1
+    with pytest.raises(ValueError, match="acquisition_action_predecessor_conflict"):
+        store.advance_acquisition_action_head(
+            **identity,
+            expected_head_generation=1,
+            receipt_ref="sha256:" + "c" * 64,
+            receipt_sha256="sha256:" + "c" * 64,
+            durable_event_id="evt-fork",
+            coarse_phase="executing",
+            receipt_phase="executing",
+            recovery_state="none",
+            job_id="job-acquisition",
+            predecessor_receipt_ref="sha256:" + "d" * 64,
+        )
+
+
 def test_control_plane_store_tracks_worker_leases_and_outbox(tmp_path) -> None:
     store = _make_store(tmp_path)
     store.heartbeat_worker(

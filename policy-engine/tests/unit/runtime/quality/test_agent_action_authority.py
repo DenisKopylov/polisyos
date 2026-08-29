@@ -35,6 +35,7 @@ from polisyos.runtime.http.authorization import (
 )
 from polisyos.runtime.http.mutation_policy import RuntimeIdempotencyStore
 from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.resilience import guard_runtime_cas
 from polisyos.runtime.http.resource_binding import (
     BindingAuthority,
     BoundAuthorizationResource,
@@ -63,6 +64,7 @@ NOW = datetime(2026, 8, 19, 12, tzinfo=UTC)
 CASE_ID = "gy-pa2-case"
 RULE_VERSION_REF = "policyos.gy.pa2.agent-action-authority.v1"
 MANDATE_OWNER_REF = "principal://mandate-owner/gy-pa2"
+MANDATE_AUTHORITY_IDENTITY = "service://institutional-mandate-registry"
 ADMISSION_PRODUCER_IDENTITY = "service://runtime/agent-action-admission"
 DIGEST = "sha256:" + "a" * 64
 
@@ -259,6 +261,34 @@ def _contract(*envelopes: object) -> DelegationContract:
     return DelegationContract.model_validate(payload)
 
 
+def _mandate_authority_evidence(
+    *,
+    owner_ref: str = MANDATE_OWNER_REF,
+    purpose: str = "agent_action_delegation",
+    current: bool = True,
+    effective_from: datetime = NOW - timedelta(hours=1),
+    effective_until: datetime = NOW + timedelta(hours=2),
+    revoked_at: datetime | None = None,
+    rule_version_ref: str = RULE_VERSION_REF,
+    signer_identity: str = MANDATE_AUTHORITY_IDENTITY,
+) -> object:
+    authority = _authority_module()
+    return authority.CurrentMandateOwnerEvidence(
+        evidence_id="mandate-authority.gy-pa2",
+        evidence_ref="institution://mandate-authority/gy-pa2",
+        mandate_owner_ref=owner_ref,
+        authority_purpose=purpose,
+        current=current,
+        effective_from=effective_from,
+        effective_until=effective_until,
+        revoked_at=revoked_at,
+        delegation_rule_version_ref=rule_version_ref,
+        evidence_signer_identity=signer_identity,
+        verifier_provenance="independently_reconciled",
+        provenance_refs=("institution://mandate-registry/snapshot/gy-pa2",),
+    )
+
+
 @dataclass
 class Harness:
     root: Path
@@ -268,6 +298,7 @@ class Harness:
     idempotency_store: RuntimeIdempotencyStore
     verifier: Ed25519Verifier
     owner_signer: Ed25519Signer
+    mandate_authority_signer: Ed25519Signer
     admission_signer: Ed25519Signer
 
 
@@ -282,9 +313,14 @@ def _harness(tmp_path: Path) -> Harness:
         artifact_store=store,
     )
     owner_pair = KeyPair.generate()
+    mandate_authority_pair = KeyPair.generate()
     admission_pair = KeyPair.generate()
     verifier = Ed25519Verifier(strict_identity=True)
     verifier.add_trusted_key(owner_pair.public_key, identity=MANDATE_OWNER_REF)
+    verifier.add_trusted_key(
+        mandate_authority_pair.public_key,
+        identity=MANDATE_AUTHORITY_IDENTITY,
+    )
     verifier.add_trusted_key(
         admission_pair.public_key,
         identity=ADMISSION_PRODUCER_IDENTITY,
@@ -297,6 +333,7 @@ def _harness(tmp_path: Path) -> Harness:
         idempotency_store=RuntimeIdempotencyStore(root=tmp_path / "idempotency"),
         verifier=verifier,
         owner_signer=Ed25519Signer(owner_pair.private_key),
+        mandate_authority_signer=Ed25519Signer(mandate_authority_pair.private_key),
         admission_signer=Ed25519Signer(admission_pair.private_key),
     )
 
@@ -488,6 +525,9 @@ def _prepare_gateway(
     human_decision_adapters: dict[str, Any] | None = None,
     production_approval_resolver: Any | None = None,
     bound_permission: object | None = None,
+    artifact_store: object | None = None,
+    mandate_authority_evidence: object | None = None,
+    include_mandate_authority: bool = True,
 ) -> tuple[object, str, str | None]:
     authority = _authority_module()
     owner_proof = bound_permission or _proof()
@@ -531,8 +571,20 @@ def _prepare_gateway(
             signer_identity=ADMISSION_PRODUCER_IDENTITY,
         )
         admission_mapping[authority.agent_action_content_hash(invocation)] = admission_ref
+    mandate_authority_mapping: dict[str, str] = {}
+    if include_mandate_authority:
+        evidence = mandate_authority_evidence or _mandate_authority_evidence()
+        mandate_authority_mapping[MANDATE_OWNER_REF] = _persist_signed(
+            harness,
+            evidence,
+            kind=authority.CURRENT_MANDATE_OWNER_ARTIFACT_KIND,
+            schema_name="polisyos.runtime.CurrentMandateOwnerEvidence",
+            schema_version=authority.CURRENT_MANDATE_OWNER_SCHEMA_VERSION,
+            signer=harness.mandate_authority_signer,
+            signer_identity=MANDATE_AUTHORITY_IDENTITY,
+        )
     gateway = authority.AgentActionAuthorityGateway(
-        artifact_store=harness.store,
+        artifact_store=artifact_store or harness.store,
         event_log=harness.event_log,
         idempotency_store=harness.idempotency_store,
         artifact_verifier=harness.verifier,
@@ -540,6 +592,7 @@ def _prepare_gateway(
         admission_producer_identity=ADMISSION_PRODUCER_IDENTITY,
         write_context=_write_context(),
         contract_refs_by_resource_digest={DIGEST: contract_ref},
+        mandate_authority_evidence_refs_by_owner_ref=mandate_authority_mapping,
         admission_refs_by_invocation_hash=admission_mapping,
         effect_bindings=bindings,
         human_decision_refs_by_request_ref=human_decision_refs or {},
@@ -693,6 +746,144 @@ def _persist_human_record(
         signer_identity=MANDATE_OWNER_REF,
         sign=signed,
     )
+
+
+def test_acquisition_action_in_envelope_still_requires_ds9_record(
+    tmp_path: Path,
+) -> None:
+    harness = _harness(tmp_path)
+    action_kind = "runtime.evidence.acquisition.execute"
+    operation = _operation(action_kind)
+    invocation = _invocation(operation)
+    intent = _intent(action_kind)
+    permission = _proof(RuntimePermission.EVIDENCE_ACQUIRE)
+    effects: list[str] = []
+    binding = _binding(operation, effects, action_kind=action_kind)
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(
+            _envelope(
+                action_kind=action_kind,
+                operation_id=operation.operation_id,
+                permission=RuntimePermission.EVIDENCE_ACQUIRE,
+            )
+        ),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(binding,),
+        bound_permission=permission,
+    )
+
+    _assert_refused_with_zero_effect(
+        harness,
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        effects=effects,
+        expected_reason="human_decision_missing",
+        proof=permission,
+    )
+
+
+def test_gateway_accepts_guarded_signed_cas_capability(tmp_path: Path) -> None:
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    binding = _binding(operation, [])
+    guarded_store = guard_runtime_cas(harness.store)
+
+    gateway, contract_ref, admission_ref = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope()),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(binding,),
+        artifact_store=guarded_store,
+    )
+
+    assert gateway.bound_permission == _proof()
+    assert guarded_store.has(contract_ref)
+    assert admission_ref is not None
+    assert guarded_store.verify_signature(contract_ref, harness.verifier)
+
+
+def test_matching_contract_signer_without_current_mandate_evidence_refuses(
+    tmp_path: Path,
+) -> None:
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    effects: list[str] = []
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope()),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(_binding(operation, effects),),
+        include_mandate_authority=False,
+    )
+
+    _assert_refused_with_zero_effect(
+        harness,
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        effects=effects,
+        expected_reason="current_mandate_authority_not_established",
+    )
+
+
+def test_current_mandate_evidence_is_rechecked_immediately_before_effect(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    effects: list[str] = []
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope(valid_until=NOW + timedelta(hours=4))),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(_binding(operation, effects),),
+        mandate_authority_evidence=_mandate_authority_evidence(
+            effective_until=NOW + timedelta(hours=2)
+        ),
+    )
+    decision = _produce(
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+    )
+    persisted = gateway.persist_decision(decision)
+    monkeypatch.setattr(
+        _authority_module(),
+        "_utcnow",
+        lambda: NOW + timedelta(hours=3),
+    )
+
+    with pytest.raises(
+        _authority_module().AgentActionAuthorityOwnerResolutionError,
+        match="current_mandate_authority_not_established",
+    ):
+        gateway.execute_bound_effect(
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            persisted=persisted,
+        )
+    assert effects == []
 
 
 def test_wrong_role_human_click_is_persisted_and_never_fires_effect(tmp_path: Path) -> None:
@@ -2199,6 +2390,46 @@ def test_allowed_invocation_is_single_use_across_gateway_reconstruction(tmp_path
         expected_reason="agent_action_invocation_already_consumed",
     )
     assert effects == ["search"]
+
+
+def test_deferred_decision_is_loaded_from_durable_ref_before_effect(tmp_path: Path) -> None:
+    authority = _authority_module()
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation, suffix="deferred")
+    intent = _intent()
+    effects: list[str] = []
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope()),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(_binding(operation, effects),),
+    )
+
+    with authority.agent_action_authority_scope(gateway):
+        reserved = authority.reserve_agent_external_action(
+            bound_permission=gateway.bound_permission,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+        )
+    assert effects == []
+    decision_ref = str(reserved.write_result.cas_ref.artifact_id)
+
+    loaded = gateway.load_persisted_decision(decision_ref)
+    result = gateway.execute_bound_effect(
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        persisted=loaded,
+    )
+
+    assert result == "search"
+    assert effects == ["search"]
+    assert loaded.decision == reserved.decision
+    assert loaded.durable_event_id == reserved.durable_event_id
 
 
 def test_allowed_decision_is_durable_before_effect(tmp_path: Path) -> None:

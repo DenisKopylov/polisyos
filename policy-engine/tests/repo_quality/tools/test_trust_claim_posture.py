@@ -263,8 +263,8 @@ def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
     token_result = checker.derive_token_sources(REPO_ROOT)
     reconciled = checker.reconcile_source_derivations(ast_result, token_result)
 
-    assert ast_result.receipt.scanned_python_count == 2598
-    assert token_result.receipt.scanned_python_count == 2598
+    assert ast_result.receipt.scanned_python_count == 2603
+    assert token_result.receipt.scanned_python_count == 2603
     assert ast_result.receipt.raw_candidate_count == 115
     assert token_result.receipt.raw_candidate_count == 115
     assert (
@@ -296,7 +296,7 @@ def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
         "substring_collision": 1,
         "ambiguous": 0,
     }
-    assert ast_result.receipt.scanned_python_count - 1 == 2597
+    assert ast_result.receipt.scanned_python_count - 1 == 2602
     assert ast_result.receipt.raw_candidate_count - 1 == 114
     assert ast_result.receipt.exact_field_file_count - 1 == 113
     collision = next(row for row in reconciled.rows if row.role == "substring_collision")
@@ -327,6 +327,65 @@ def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
         )
         > 0
     )
+
+
+@pytest.mark.parametrize(
+    ("source", "expected_role"),
+    [
+        pytest.param(
+            "report = authoritative_for\nmetrics: dict[str, int | float] = report\n",
+            "carries_only",
+            id="annotation-operator-is-not-value-semantics",
+        ),
+        pytest.param(
+            "report = authoritative_for\nmetrics: dict = report\n",
+            "carries_only",
+            id="bare-dict-annotation-control",
+        ),
+        pytest.param(
+            "report = authoritative_for\nmetrics: dict = report | other\n",
+            "consumes_only",
+            id="value-set-union-remains-semantic",
+        ),
+        pytest.param(
+            'report = {"authoritative_for": list(batch.authoritative_for)}\n'
+            "metrics: dict[~authoritative_for] = report\n",
+            "carries_only",
+            id="annotation-unary-operator-is-not-value-semantics",
+        ),
+        pytest.param(
+            'report = {"authoritative_for": list(batch.authoritative_for)}\n'
+            "metrics: dict = not authoritative_for\n",
+            "consumes_only",
+            id="value-unary-operator-remains-semantic",
+        ),
+    ],
+)
+def test_tokenizer_matches_ast_when_annotations_and_value_operators_share_a_statement(
+    tmp_path: Path,
+    source: str,
+    expected_role: str,
+) -> None:
+    """Catch `_token_use_is_semantic` treating annotation operators as value evidence."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    probe = repo / "src/polisyos/annotation_probe.py"
+    probe.write_text(source, encoding="utf-8")
+
+    ast_row = next(
+        row
+        for row in _sources().derive_ast_sources(repo).rows
+        if row.path == "src/polisyos/annotation_probe.py"
+    )
+    token_row = next(
+        row
+        for row in _checker().derive_token_sources(repo).rows
+        if row.path == "src/polisyos/annotation_probe.py"
+    )
+
+    assert ast_row.path == token_row.path == "src/polisyos/annotation_probe.py"
+    assert ast_row.role == expected_role
+    assert token_row.role == expected_role
 
 
 def test_literal_censuses_reconcile_for_both_complete_walks() -> None:

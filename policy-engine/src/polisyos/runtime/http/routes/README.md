@@ -22,17 +22,23 @@ translate requests to service calls, set authz context, and return contract-back
 - **Epoch-validity batch intake** - accepts only a transition artifact ref and requested query
   context. Status, targets, dependency keys, dedupe values, and verifier identity are resolved by
   the container-owned Decision Validity service rather than accepted from HTTP callers.
+- **Acquisition routes** - expose run-bound costed-route GETs under
+  `RUNS_REVIEW`/tenant-collection binding and decision/execute POSTs under the
+  existing `EVIDENCE_ACQUIRE` request-composite binding plus acquisition
+  step-up. Route facts and lifecycle status are server projections; callers may
+  only echo the strict replay pins used for optimistic concurrency.
 
 ## Public API
 
 - route modules: `health.py`, `runs.py`, `debug.py`, `artifacts.py`, `control.py`,
-  `human_decisions.py`
+  `human_decisions.py`, `acquisitions.py`
 - route routers exported from `__init__.py`: `health_router`, `runs_router`,
-  `debug_router`, `artifacts_router`, `control_router`, `human_decisions_router`
+  `debug_router`, `artifacts_router`, `control_router`, `human_decisions_router`,
+  `acquisitions_router`
 
 ## Current State
 
-- Last updated: 2026-08-24
+- Last updated: 2026-08-28
 - The control-plane surface still includes the broader data/lex endpoints documented in the current routes.
 - `openapi_contract.py` now mirrors new control and decision-validity examples that sit behind these routes.
 - Completed human-decision exposure receipts are appended only by the dedicated

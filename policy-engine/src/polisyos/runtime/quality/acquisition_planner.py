@@ -17,7 +17,7 @@ from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from importlib import import_module
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -120,6 +120,102 @@ class AcquisitionStrategy(StrEnum):
     RERUN = "rerun"
     PUBLISH_WITH_LIMITATION = "publish_with_limitation"
     CLOSEOUT_BLOCK = "closeout_block"
+
+
+class PlannerAcquisitionCostScheduleRow(BaseModel):
+    """One named planner-owned acquisition cost basis."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    missing_distribution: str = Field(min_length=1)
+    basis_ref: str = Field(min_length=1)
+    collection_mode: str = Field(min_length=1)
+    enumerator_days: float = Field(default=0.0, ge=0.0)
+    registry_extracts: float = Field(default=0.0, ge=0.0)
+    expert_hours: float = Field(default=0.0, ge=0.0)
+    data_license_days: float = Field(default=0.0, ge=0.0)
+    calendar_days: int = Field(ge=0)
+
+
+class PlannerAcquisitionCostSchedule(BaseModel):
+    """Versioned planner-owned schedule for actionable cost records."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["PlannerAcquisitionCostSchedule@1.0"]
+    schedule_ref: Literal["planner-acquisition-cost-schedule:1.0"]
+    owner_ref: Literal["polisyos.runtime.quality.acquisition_planner"]
+    authority_purpose: Literal["costing_and_provenance_only"]
+    effective_at: datetime
+    rule_version: str
+    currency: Literal["USD"]
+    rate_basis: dict[str, float]
+    rows: tuple[PlannerAcquisitionCostScheduleRow, ...] = Field(min_length=1)
+    schedule_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _content_hash_is_recomputed(self) -> Self:
+        if set(self.rate_basis) != set(_ACQUISITION_RATE_BASIS) or any(
+            rate <= 0.0 for rate in self.rate_basis.values()
+        ):
+            raise ValueError("schedule_rate_basis_invalid")
+        distributions = tuple(row.missing_distribution for row in self.rows)
+        if len(set(distributions)) != len(distributions):
+            raise ValueError("schedule_gap_basis_duplicate")
+        payload = self.model_dump(mode="json", exclude={"schedule_content_hash"})
+        if self.schedule_content_hash != _stable_content_hash(payload):
+            raise ValueError("schedule_content_hash_mismatch")
+        return self
+
+
+class AcquisitionCostLineItem(BaseModel):
+    """One quantity-times-rate term in an acquisition cost record."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    line_item_id: str = Field(min_length=1)
+    quantity: float = Field(gt=0.0)
+    rate_name: str = Field(min_length=1)
+    unit_rate: float = Field(gt=0.0)
+    amount: float = Field(gt=0.0)
+
+    @model_validator(mode="after")
+    def _amount_is_recomputed(self) -> Self:
+        if self.amount != round(self.quantity * self.unit_rate, 2):
+            raise ValueError("cost_line_item_amount_mismatch")
+        return self
+
+
+class AcquisitionCostBasisRecord(BaseModel):
+    """Separate strict planner output that may authorize a displayed cost."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["AcquisitionCostBasisRecord@1.0"]
+    record_ref: str = Field(min_length=1)
+    record_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    schedule_ref: str
+    schedule_content_hash: str
+    basis_ref: str
+    missing_distribution: str
+    collection_mode: str
+    strategy: AcquisitionStrategy
+    currency: Literal["USD"]
+    effective_at: datetime
+    rule_version: str
+    calendar_days: int
+    expert_hours: float
+    line_items: tuple[AcquisitionCostLineItem, ...] = Field(min_length=1)
+    total_amount: float = Field(gt=0.0)
+
+    @model_validator(mode="after")
+    def _totals_and_hash_are_recomputed(self) -> Self:
+        if self.total_amount != round(sum(item.amount for item in self.line_items), 2):
+            raise ValueError("cost_basis_total_mismatch")
+        payload = self.model_dump(mode="json", exclude={"record_content_hash"})
+        if self.record_content_hash != _stable_content_hash(payload):
+            raise ValueError("cost_basis_content_hash_mismatch")
+        return self
 
 
 class AcquisitionGapType(StrEnum):
@@ -2637,6 +2733,108 @@ def _stable_content_hash(payload: Mapping[str, Any] | Sequence[Any]) -> str:
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 
+def load_planner_acquisition_cost_schedule() -> PlannerAcquisitionCostSchedule:
+    """Load the exact versioned schedule owned by the acquisition planner."""
+
+    rows = [
+        {
+            "missing_distribution": missing_distribution,
+            "basis_ref": basis["basis_ref"],
+            "collection_mode": basis["collection_mode"],
+            "enumerator_days": float(basis.get("enumerator_days") or 0.0),
+            "registry_extracts": float(basis.get("registry_extracts") or 0.0),
+            "expert_hours": float(basis.get("expert_hours") or 0.0),
+            "data_license_days": float(basis.get("data_license_days") or 0.0),
+            "calendar_days": int(basis.get("calendar_days") or 0),
+        }
+        for missing_distribution, basis in sorted(_ACQUISITION_GAP_BASIS.items())
+    ]
+    payload: dict[str, Any] = {
+        "schema_version": "PlannerAcquisitionCostSchedule@1.0",
+        "schedule_ref": "planner-acquisition-cost-schedule:1.0",
+        "owner_ref": "polisyos.runtime.quality.acquisition_planner",
+        "authority_purpose": "costing_and_provenance_only",
+        "effective_at": "2026-07-20T00:00:00Z",
+        "rule_version": "policyos.runtime.acquisition_cost_schedule.v1",
+        "currency": "USD",
+        "rate_basis": dict(_ACQUISITION_RATE_BASIS),
+        "rows": rows,
+    }
+    return PlannerAcquisitionCostSchedule.model_validate(
+        {**payload, "schedule_content_hash": _stable_content_hash(payload)}
+    )
+
+
+def produce_acquisition_cost_basis_record(
+    *,
+    missing_distribution: str,
+    strategy: AcquisitionStrategy,
+    schedule: PlannerAcquisitionCostSchedule | None = None,
+) -> AcquisitionCostBasisRecord | None:
+    """Produce a cost record only for an exact row in the current owner schedule."""
+
+    canonical = load_planner_acquisition_cost_schedule()
+    supplied = (
+        canonical
+        if schedule is None
+        else PlannerAcquisitionCostSchedule.model_validate(schedule.model_dump(mode="json"))
+    )
+    if supplied != canonical:
+        raise ValueError("cost_schedule_owner_drift")
+    row = next(
+        (
+            candidate
+            for candidate in supplied.rows
+            if candidate.missing_distribution == missing_distribution
+        ),
+        None,
+    )
+    if row is None:
+        return None
+    quantity_rates = (
+        ("enumerator_days", row.enumerator_days, "enumerator_day_usd"),
+        ("registry_extracts", row.registry_extracts, "registry_extract_base_usd"),
+        ("expert_review", row.expert_hours, "expert_hour_usd"),
+        ("data_license_or_panel", row.data_license_days, "data_license_day_usd"),
+    )
+    line_items = [
+        {
+            "line_item_id": line_item_id,
+            "quantity": quantity,
+            "rate_name": rate_name,
+            "unit_rate": supplied.rate_basis[rate_name],
+            "amount": round(quantity * supplied.rate_basis[rate_name], 2),
+        }
+        for line_item_id, quantity, rate_name in quantity_rates
+        if quantity > 0.0
+    ]
+    if not line_items:
+        return None
+    record_payload: dict[str, Any] = {
+        "schema_version": "AcquisitionCostBasisRecord@1.0",
+        "record_ref": (f"acquisition-cost-basis:{_slug(missing_distribution)}:{strategy.value}:v1"),
+        "schedule_ref": supplied.schedule_ref,
+        "schedule_content_hash": supplied.schedule_content_hash,
+        "basis_ref": row.basis_ref,
+        "missing_distribution": missing_distribution,
+        "collection_mode": row.collection_mode,
+        "strategy": strategy,
+        "currency": supplied.currency,
+        "effective_at": supplied.model_dump(mode="json")["effective_at"],
+        "rule_version": supplied.rule_version,
+        "calendar_days": row.calendar_days,
+        "expert_hours": row.expert_hours,
+        "line_items": line_items,
+        "total_amount": round(sum(float(item["amount"]) for item in line_items), 2),
+    }
+    return AcquisitionCostBasisRecord.model_validate(
+        {
+            **record_payload,
+            "record_content_hash": _stable_content_hash(record_payload),
+        }
+    )
+
+
 def _receipt_content_hash(receipt: AcquisitionReceipt) -> str:
     payload = serialization.artifact_self_identity_projection(receipt)
     stable_payload = strip_gy_volatile_fields(payload)
@@ -4898,6 +5096,8 @@ __all__ = [
     "AcquisitionActionRecord",
     "AcquisitionAffectedRegion",
     "AcquisitionCaptureProvenance",
+    "AcquisitionCostBasisRecord",
+    "AcquisitionCostLineItem",
     "AcquisitionDisposition",
     "AcquisitionFamily",
     "AcquisitionFamilyScore",
@@ -4921,6 +5121,8 @@ __all__ = [
     "AcquisitionWorldWriteOutcome",
     "AuthorityLevel",
     "MandatoryGateState",
+    "PlannerAcquisitionCostSchedule",
+    "PlannerAcquisitionCostScheduleRow",
     "RealAcquisitionOwnerGateway",
     "RecordedAcquisitionOwnerGateway",
     "RequiredDataGap",
@@ -4936,9 +5138,11 @@ __all__ = [
     "grounding_coverage_requirement_gap",
     "l1_variable_availability_requirement_gap",
     "load_acquisition_planner_report",
+    "load_planner_acquisition_cost_schedule",
     "persist_acquisition_planner_report",
     "plan_evidence_acquisition",
     "plan_requirement_gap_acquisition",
+    "produce_acquisition_cost_basis_record",
     "rank_acquisition_candidates_by_family",
     "requirement_gaps_from_compiled_specs",
     "run_acquisition_closed_loop",

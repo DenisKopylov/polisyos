@@ -6,6 +6,7 @@ import multiprocessing
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
@@ -19,6 +20,7 @@ try:  # pragma: no cover - optional dependency guard
 except ModuleNotFoundError:  # pragma: no cover
     pytest.skip("fastapi is not installed", allow_module_level=True)
 
+from polisyos.core.security.authz import AuthzDecision, AuthzResult
 from polisyos.core.security.identity import PolicyOSRole
 from polisyos.runtime.http.authorization import (
     ResourceBindingSource,
@@ -27,6 +29,7 @@ from polisyos.runtime.http.authorization import (
 )
 from polisyos.runtime.http.authz_middleware import AuthzMiddleware
 from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
 from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
     _build_secure_client,
@@ -36,10 +39,35 @@ from tests.unit.runtime.http.test_runtime_api_authz import (
     _fixture_bearer,
     _SlowOPA,
 )
+from tests.unit.runtime.http.test_runtime_rego_authorization_parity import _opa_eval
 from tests.unit.runtime.http.test_runtime_step_up_authz import (
     _production_approval_body,
     _production_approval_test_context,
 )
+
+
+class _AcquisitionRegoMutationOPA:
+    def __init__(self, resource_class: str) -> None:
+        self.resource_class = resource_class
+        self.payloads: list[dict[str, Any]] = []
+
+    async def check(self, authz_input):
+        payload = deepcopy(authz_input.to_opa_input())
+        authority = str(payload["resource"]["binding_authority"])
+        payload["resource"]["class"] = self.resource_class
+        payload["resource"]["kind"] = f"{self.resource_class}.{authority}"
+        self.payloads.append(payload)
+        allowed = bool(
+            _opa_eval(
+                "data.polisyos.authz.decision.allow",
+                input_value=payload,
+            )
+        )
+        return AuthzResult(
+            decision=AuthzDecision.ALLOW if allowed else AuthzDecision.DENY,
+            policy="polisyos/authz/decision",
+            reasons=("ACTION_REQUEST_PATH_RESOURCE_MISMATCH",) if not allowed else (),
+        )
 
 
 def _hold_exposure_audit_file_lock(path: str, locked, release) -> None:
@@ -198,6 +226,64 @@ def test_authorization_deny_is_appended_to_existing_access_audit_trail(
     assert event["denial_reason"] == "action_permission_denied"
     assert event["permission"] == "runs.launch"
     assert event["resource_digest"] == ""
+
+
+@pytest.mark.parametrize(
+    "proxy_resource_class",
+    [
+        "runtime.case_inspection",
+        "runtime.run_paper",
+        "runtime.governed_projection.depth_n_cycle_board",
+    ],
+)
+def test_acquisition_get_rego_denies_same_permission_proxy_before_projection(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+    proxy_resource_class: str,
+) -> None:
+    opa = _AcquisitionRegoMutationOPA(proxy_resource_class)
+    bearer = _fixture_bearer(f"acquisition-proxy-{proxy_resource_class}")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti=f"jwt-acquisition-proxy-{proxy_resource_class}",
+            roles=frozenset({PolicyOSRole.ADMIN}),
+        ),
+    )
+    projection_calls: list[str] = []
+
+    def _must_not_project(_service, **kwargs):
+        projection_calls.append(str(kwargs.get("run_id")))
+        raise AssertionError("acquisition projection executed after proxy authorization")
+
+    monkeypatch.setattr(AcquisitionActionService, "list_routes", _must_not_project)
+    audit = _CaptureAudit()
+    with client:
+        _install_audit(client, audit)
+        response = client.get(
+            "/api/v1/runs/run-ds15/acquisition-routes",
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+            },
+        )
+
+    assert response.status_code == 403, response.text
+    assert projection_calls == []
+    assert len(opa.payloads) == 1
+    payload = opa.payloads[0]
+    assert payload["action"] == {"permission": "runs.review"}
+    assert "runs.review" in payload["identity"]["permissions"]
+    assert payload["resource"]["class"] == proxy_resource_class
+    assert audit.entries[-1]["outcome"] == "deny"
 
 
 def test_invalid_delegation_denial_emits_one_terminal_audit(

@@ -111,6 +111,30 @@ def test_governed_projection_endpoint_uses_runtime_api_env(runtime_api_env) -> N
     assert payload["freshness"]["observed_at"]
 
 
+def test_acquisition_growth_endpoint_exposes_owner_negative_truth(runtime_api_env) -> None:
+    response = runtime_api_env["client"].get(
+        "/api/v1/exports/governed-projections/acquisition-growth"
+    )
+
+    assert response.status_code == 200, response.text
+    packet = response.json()
+    assert packet["projection_id"] == "acquisition-growth"
+    assert packet["availability"] == "available"
+    assert packet["intended_audience"] in {"REVIEWER", "EXPERT", "MACHINE"}
+    assert packet["payload"]["summary"] == {
+        "family_scorecard_count": 12,
+        "actual_network_call_count": 18,
+        "selected_record_count": 144,
+        "metric_resolution_count": 124,
+        "backlog_count": 15,
+        "structural_route_count": 3,
+    }
+    assert packet["payload"]["n13b_history"]["attempt_count"] == 5
+    assert packet["payload"]["n13b_history"]["raw_response_count"] == 2
+    assert packet["payload"]["n13b_history"]["response_admitted_count"] == 0
+    assert packet["payload"]["n13b_history"]["overlay_epoch_count"] == 0
+
+
 def test_governed_projection_endpoint_enforces_replay_time_pin(
     runtime_api_env,
 ) -> None:

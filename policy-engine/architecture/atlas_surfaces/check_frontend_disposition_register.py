@@ -3698,16 +3698,16 @@ DS6_REGISTER_TRANSITION_FINDING_IDS = {
 }
 
 DS10_QUERY_KEYS_IDENTITY = (
-    "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlv"
-    "bl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVz"
-    "b2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9z"
-    "cmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0"
-    "b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIyYWEzMGRlMWI2"
-    "OTIwNDRjYjQ5MjE1MzVjNjFjNzM0Y2ZhMGFhZDFhMDMyZjRhYTg0MGY0ODU3ZDBlZWZhMzcx"
-    "Iiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1"
-    "bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRo"
-    "IjpbIkZpcnN0U3RhdGVtZW50OjQiLCJWYXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFy"
-    "aWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNpb24iOjF9"
+    "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9j"
+    "aGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6"
+    "cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1"
+    "ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtl"
+    "eXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiJkNDViZDRjZWE0MDIzM2VjMzcyMTA5YWM1"
+    "ZTk2M2NkNmM0NWIyZDI2MzU4ODhlYTFkNmQxNDY2OTE1MjY2OTAxIiwicm9sZSI6InZhcmlhYmxl"
+    "X2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9h"
+    "cGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjQiLCJW"
+    "YXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNp"
+    "b24iOjF9"
 )
 
 
@@ -4476,6 +4476,15 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
             "a generated promotion union enters a private issuer and novel values render unrecognized"
         ),
     },
+    "badge-acquisition-boundary-status": {
+        "owner_slice": "DS15",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "generated acquisition authority, qualification, quarantine, eligibility, "
+            "and cost-availability unions enter a private issuer and copy cannot upgrade "
+            "a negative or unknown owner state"
+        ),
+    },
     "badge-evidence-source-freshness": {
         "owner_slice": "DS8",
         "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
@@ -4782,16 +4791,16 @@ BENIGN_BADGE_BASES = (
 )
 
 BENIGN_BADGE_CLASS_COUNTS: dict[str, int] = {
-    "interaction_or_editor_state": 13,
-    "transport_or_runtime_health": 21,
-    "workflow_or_lifecycle_display_without_terminality_inference": 27,
+    "interaction_or_editor_state": 14,
+    "transport_or_runtime_health": 22,
+    "workflow_or_lifecycle_display_without_terminality_inference": 28,
     "layout_or_counts": 19,
-    "opaque_metadata_or_taxonomy": 22,
+    "opaque_metadata_or_taxonomy": 24,
 }
 
 if set(BENIGN_BADGE_CLASS_COUNTS) != set(BENIGN_BADGE_BASES):
     raise RuntimeError("benign Badge class vocabulary drift")
-if sum(BENIGN_BADGE_CLASS_COUNTS.values()) != 102:
+if sum(BENIGN_BADGE_CLASS_COUNTS.values()) != 107:
     raise RuntimeError("benign Badge class count drift")
 
 DS11_TRUST_PRESENTATION_FINDING_IDS = frozenset(
@@ -4860,10 +4869,10 @@ AUTHORITY_PRESENTATION_DEBT_SPECS.update(
 )
 
 AUTHORITY_PRESENTATION_COUNTS = {
-    "badge_total": 161,
+    "badge_total": 172,
     "badge_branded": 6,
-    "badge_debt": 53,
-    "badge_benign": 102,
+    "badge_debt": 59,
+    "badge_benign": 107,
     "prop_total": 18,
     "prop_branded": 4,
     "prop_debt": 9,
@@ -4874,7 +4883,7 @@ AUTHORITY_PRESENTATION_COUNTS = {
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:88723b991e24cbd4d92d08466714a293ab10a8a8569718be1db7858c089d3163"
+    "sha256:a6e22fb4982717dcde705496e4e19545ef0f5d5f6afdba9f791ada09a3a70274"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
     "sha256:d41e26792102015380983470c5a4d91e57cd86ecd7e95b0cc61fc7798d2bd55f"
@@ -4928,7 +4937,7 @@ def _badge_classification_errors(
     scan: Mapping[str, Any],
     classifications: Mapping[str, str] | None = None,
 ) -> list[str]:
-    """Validate the exact 161-site Badge partition as a finite set property."""
+    """Validate the exact 172-site Badge partition as a finite set property."""
     errors: list[str] = []
     sites = scan.get("badgeSites", [])
     if not isinstance(sites, list):
@@ -6543,6 +6552,51 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS = {
     **DS10_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS,
 }
 
+DS15_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    # Raw authority, qualification, terminality, eligibility and cost-availability
+    # clothing remains typed debt until a private issuer owns its presentation.
+    "ad3a39f757d1fedf96e9ab5073019b19b9e2dcc38caf6813ed3d710d08295303": (
+        "debt:badge-acquisition-boundary-status"
+    ),
+    "9f254fb9fb7832a512196ba07dc61ac5fb757ff6839bb82ea273b4a582f33c44": (
+        "debt:badge-acquisition-boundary-status"
+    ),
+    "735be90e13141b7f003e7a6ec4af1b2c896a4edfacfb30cf99bf301d88b30ff8": (
+        "debt:badge-acquisition-boundary-status"
+    ),
+    "798bad599ebe71b41bc05bc17adc43bf8891c151583c3f779c9e6ad944be5585": (
+        "debt:badge-acquisition-boundary-status"
+    ),
+    "efb98925e5a7561c62fadfb42f9111c498f71151a7e2756d3c1177c0f7802e2b": (
+        "debt:badge-acquisition-boundary-status"
+    ),
+    "cdce54e61af1cf1ca87b6daf260fecf57db9f283b4f4bdfc090e6189398f4aef": (
+        "debt:badge-acquisition-boundary-status"
+    ),
+    # Timeline order, ranking disclosure, local sorting and the plan-owned gap
+    # vocabulary do not carry authority or infer terminality.
+    "bb9927e8f2d5a34cf61a58a7c1ed4915d6cebb880e8307ed97a6b3b65a20d247": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "3ea2d651ef81f94280a96f9b5ac1da08ab0f68a5037032137d0935e1fdf7efbd": (
+        "benign:opaque_metadata_or_taxonomy"
+    ),
+    "529e354ba61570ed09ee3f79fe302c2406eb66aedc61b625a32b9cf2f8b34887": (
+        "benign:interaction_or_editor_state"
+    ),
+    "c70aa19e61d4a1d03270ace8db367d7d5df9a94a5c3b95f4d70d0f87010102ac": (
+        "benign:opaque_metadata_or_taxonomy"
+    ),
+    # Connector health is runtime liveness, never admission or policy authority.
+    "704142beb6972df013980e33f0356e5adab5af2d820ec06ee209755a60b905af": (
+        "benign:transport_or_runtime_health"
+    ),
+}
+FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    **FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS,
+    **DS15_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS,
+}
+
 DS9_REMOVED_AUTHORITY_PROP_IDENTITIES = frozenset(
     {
         "39f8c143570efef26b5c310b1bf429389358d39fe5bf936a40c19ee6c7211c79",
@@ -6780,7 +6834,7 @@ def _authority_row_semantic_value(row: Mapping[str, Any]) -> dict[str, Any]:
 def _authority_presentation_rows(
     scan: Mapping[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
-    """Build the 39 typed debt rows from the live finite census."""
+    """Build the 40 typed debt rows from the live finite census."""
     scan = scan or _authority_presentation_scan()
     census_errors = [
         *_badge_classification_errors(scan),
@@ -7388,7 +7442,7 @@ GOVERNED_DEBT_DESCRIPTORS.update(copy.deepcopy(INTEGRATE_DEBT_DESCRIPTORS))
 
 C11B_QUERY_MEMORY_ROOT_ID = "cache-query-memory"
 C11B_QUERY_MEMORY_SUCCESSOR_ID = "dashboard-governed-query-cache-posture"
-C11B_QUERY_MEMORY_SUCCESSOR_REFS = [
+C11B_QUERY_MEMORY_OPENING_SUCCESSOR_REFS = [
     "apps/runtime-dashboard/src/api/queryKeys.ts",
     "apps/runtime-dashboard/src/api/governedQueryPolicy.ts",
     "apps/runtime-dashboard/src/api/governedQueryPolicy.test.ts",
@@ -7401,13 +7455,38 @@ C11B_QUERY_MEMORY_SUCCESSOR_REFS = [
     "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.parity.test.tsx",
     "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts",
 ]
+DS15_QUERY_MEMORY_SUCCESSOR_REFS = [
+    "apps/runtime-dashboard/src/api/queryKeys.ts",
+    "apps/runtime-dashboard/src/api/governedQueryPolicy.ts",
+    "apps/runtime-dashboard/src/api/governedQueryPolicy.test.ts",
+    "apps/runtime-dashboard/src/api/cacheDiscipline.ts",
+    "apps/runtime-dashboard/src/api/cacheDiscipline.test.ts",
+    "apps/runtime-dashboard/src/api/optimistic.test.ts",
+    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
+    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/api/useAcquisitionRoutes.ts",
+    "apps/runtime-dashboard/src/features/runs/api/useAcquisitionRoutes.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.a11y.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.parity.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.parity.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts",
+]
+C11B_QUERY_MEMORY_SUCCESSOR_REFS = DS15_QUERY_MEMORY_SUCCESSOR_REFS
 C11B_QUERY_MEMORY_PENDING_RATIONALE = (
     "DS1 does not record this narrow unit as implemented; C04a-R1 removes the "
     "local capability fallback and query placeholder from its CommandPalette "
     "discovery consumer, while cache-policy transition remains owned by C11/C12 "
     "without creating a parallel owner."
 )
-C11B_QUERY_MEMORY_RATIONALE = (
+C11B_QUERY_MEMORY_OPENING_RATIONALE = (
     "C11a/C11b, C12b, and DS7 strangle the generic query-memory root through the "
     "governed-query option issuer, one representation-specific key, explicit "
     "never_cache_authority posture, and one permission-gated global Cycle Board "
@@ -7415,6 +7494,17 @@ C11B_QUERY_MEMORY_RATIONALE = (
     "fetches nor retains the packet, and exact response bytes remain per-request "
     "export custody only; no DS8, DS9, or DS14 semantics are claimed."
 )
+DS15_QUERY_MEMORY_RATIONALE = (
+    "C11a/C11b, C12b, DS7, and DS15 strangle the generic query-memory root "
+    "through the governed-query option issuer, depth-N and acquisition key "
+    "families, explicit never_cache_authority posture, and the complete live "
+    "Cycle Board, Case Workspace, and acquisition-approval consumer set. "
+    "Transaction observation time is not owner as_of, exact response bytes "
+    "remain per-request export custody only, and DS15's test-only positive flow "
+    "does not establish production world growth; no DS8, DS9, or DS14 semantics "
+    "are claimed."
+)
+C11B_QUERY_MEMORY_RATIONALE = DS15_QUERY_MEMORY_RATIONALE
 
 
 def _json_entry_object_span(
@@ -8436,6 +8526,62 @@ def _c11b_query_memory_transition_text(text: str) -> str:
     )
     return text[:start] + replacement + text[end:]
 
+
+def _ds15_query_memory_transition_text(text: str) -> str:
+    """Extend the strangled query root to DS15's complete live consumer set."""
+    start, end, source = _json_entry_object_span(
+        text, C11B_QUERY_MEMORY_ROOT_ID
+    )
+    successor = source.get("successor")
+    final = (
+        source.get("strangle_status") == "strangled"
+        and source.get("rationale") == DS15_QUERY_MEMORY_RATIONALE
+        and isinstance(successor, Mapping)
+        and successor.get("unit_id") == C11B_QUERY_MEMORY_SUCCESSOR_ID
+        and successor.get("consumer_refs") == DS15_QUERY_MEMORY_SUCCESSOR_REFS
+    )
+    if final:
+        errors: list[str] = []
+        _validate_c11b_query_memory_root(
+            {C11B_QUERY_MEMORY_ROOT_ID: source}, errors
+        )
+        if errors:
+            raise ValueError(";".join(errors))
+        return text
+
+    opening_fields = {
+        "disposition": "rebind_pending",
+        "strangle_status": "strangled",
+        "owner": "team-architecture",
+        "owner_slice": "DS5",
+        "seed_rule": "ds1_incomplete_rebind_pending",
+        "rationale": C11B_QUERY_MEMORY_OPENING_RATIONALE,
+    }
+    if any(source.get(field) != expected for field, expected in opening_fields.items()):
+        raise ValueError("ds15_query_memory_transition_source_drift")
+    if not isinstance(successor, Mapping):
+        raise ValueError("ds15_query_memory_transition_source_successor")
+    if (
+        successor.get("unit_id") != C11B_QUERY_MEMORY_SUCCESSOR_ID
+        or successor.get("consumer_refs")
+        != C11B_QUERY_MEMORY_OPENING_SUCCESSOR_REFS
+    ):
+        raise ValueError("ds15_query_memory_transition_source_successor_drift")
+
+    transitioned = copy.deepcopy(dict(source))
+    transitioned["successor"] = {
+        "unit_id": C11B_QUERY_MEMORY_SUCCESSOR_ID,
+        "consumer_refs": DS15_QUERY_MEMORY_SUCCESSOR_REFS,
+    }
+    transitioned["rationale"] = DS15_QUERY_MEMORY_RATIONALE
+    errors = []
+    _validate_c11b_query_memory_root(
+        {C11B_QUERY_MEMORY_ROOT_ID: transitioned}, errors
+    )
+    if errors:
+        raise ValueError(";".join(errors))
+    return text[:start] + _render_root_entry(transitioned) + text[end:]
+
 C23_ROOT_IDS = frozenset(
     {
         "status-stress-scene",
@@ -8732,6 +8878,17 @@ DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = {
         "3a69dd559452400e50eec543fdf365c03cf5b3d358b6fc04adcb1b8953ce9ab8",
     ),
 }
+DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = {
+    **DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
+    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx": (
+        "d3b5819eb8e3a0390d4c7bc4f261457ddf2583d504424feaad2584c04ad5b6dd",
+        "53e8f6a47eceec9ce35b11fe1b8af9feac454167638bec5285cf4b2443861704",
+    ),
+    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx": (
+        "4bb0bea6d71ad045d3d129dc9455cb0f4786d723199d77d95a372de2c22542bb",
+        "65737022fc6b4c4a1c58a6aee45627be34b51a962bb0af6d145490a4496227c7",
+    ),
+}
 
 
 def _validate_ds10_capability_discovery_roots(
@@ -8945,8 +9102,11 @@ def _ds10_c13_external_nonclosure_admission(
     errors: Sequence[str],
     *,
     source_bytes: Mapping[str, bytes] | None = None,
+    expected_mismatches: Mapping[str, tuple[str, str]] | None = None,
 ) -> tuple[tuple[str, ...], list[str]]:
     """Admit the exact fail-fast C13 error only after a complete binding census."""
+    if expected_mismatches is None:
+        expected_mismatches = DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
     declared = DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES[0]
     cardinality = errors.count(declared)
     if cardinality > 1:
@@ -8979,7 +9139,7 @@ def _ds10_c13_external_nonclosure_admission(
         for source_ref, expected_sha256 in bindings.items()
         if hashlib.sha256(source_bytes[source_ref]).hexdigest() != expected_sha256
     }
-    if observed_mismatches != DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES:
+    if observed_mismatches != expected_mismatches:
         return (), ["ds10_c13_external_source_binding_census_drift"]
 
     replay_bytes = dict(source_bytes)
@@ -12534,6 +12694,155 @@ def _raw_transport_writer_preservation_errors(
     if original_accepted != candidate_accepted:
         errors.append("raw_transport_writer_accepted_row_drift")
     return errors
+
+
+def _ds15_acquisition_routes_preservation_errors(
+    original_text: str, candidate_text: str
+) -> list[str]:
+    """Allow only the query root and refresh-owned supplemental rows to move."""
+    try:
+        query_candidate = _ds15_query_memory_transition_text(original_text)
+        original_start, original_end, _original = _json_entry_object_span(
+            original_text, C11B_QUERY_MEMORY_ROOT_ID
+        )
+        candidate_start, candidate_end, _candidate = _json_entry_object_span(
+            query_candidate, C11B_QUERY_MEMORY_ROOT_ID
+        )
+    except (json.JSONDecodeError, ValueError) as exc:
+        return [f"ds15_acquisition_routes_preservation_span_invalid:{exc}"]
+
+    errors: list[str] = []
+    if original_text[:original_start] != query_candidate[:candidate_start]:
+        errors.append("ds15_acquisition_routes_query_prefix_drift")
+    if original_text[original_end:] != query_candidate[candidate_end:]:
+        errors.append("ds15_acquisition_routes_query_suffix_drift")
+    errors.extend(
+        _raw_transport_writer_preservation_errors(query_candidate, candidate_text)
+    )
+    try:
+        expected = _refresh_supplemental_findings_text(query_candidate)
+    except (json.JSONDecodeError, ValueError) as exc:
+        errors.append(f"ds15_acquisition_routes_refresh_invalid:{exc}")
+    else:
+        if candidate_text != expected:
+            errors.append("ds15_acquisition_routes_candidate_payload_drift")
+    return errors
+
+
+def _ds15_acquisition_routes_candidate_errors(
+    data: Mapping[str, Any],
+    *,
+    report_parity: bool,
+) -> list[str]:
+    """Permit only the independently admitted C13 source drift in DS15's family."""
+    errors = validate_register(
+        data,
+        live_probes=False,
+        report_parity=report_parity,
+    )
+    admitted, admission_errors = _ds10_c13_external_nonclosure_admission(
+        errors,
+        expected_mismatches=DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
+    )
+    return [
+        *admission_errors,
+        *_ds10_blocking_register_errors(
+            errors,
+            admitted_external_errors=admitted,
+        ),
+    ]
+
+
+def _ds15_acquisition_routes_candidate_text(
+    original_text: str,
+    *,
+    verify_idempotency: bool = True,
+) -> str:
+    """Build the bounded DS15 query/disposition transition without peer drift."""
+    query_candidate = _ds15_query_memory_transition_text(original_text)
+    candidate = _refresh_supplemental_findings_text(query_candidate)
+    preservation_errors = _ds15_acquisition_routes_preservation_errors(
+        original_text, candidate
+    )
+    if preservation_errors:
+        raise ValueError(
+            "DS15 acquisition-routes candidate rejected:"
+            + ";".join(preservation_errors)
+        )
+    candidate_errors = _ds15_acquisition_routes_candidate_errors(
+        json.loads(candidate),
+        report_parity=False,
+    )
+    if candidate_errors:
+        raise ValueError(
+            "DS15 acquisition-routes candidate rejected:"
+            + ";".join(candidate_errors)
+        )
+    if verify_idempotency:
+        repeated = _ds15_acquisition_routes_candidate_text(
+            candidate,
+            verify_idempotency=False,
+        )
+        if repeated != candidate:
+            raise ValueError("DS15 acquisition-routes candidate is not idempotent")
+    return candidate
+
+
+def _write_ds15_acquisition_routes_family() -> dict[str, int]:
+    """Atomically write DS15's register/report while preserving DS1 bytes."""
+    original_texts = {
+        REGISTER_PATH: REGISTER_PATH.read_text(encoding="utf-8"),
+        REPORT_PATH: REPORT_PATH.read_text(encoding="utf-8"),
+    }
+    original_readiness = DS1_PATH.read_bytes()
+    register_candidate = _ds15_acquisition_routes_candidate_text(
+        original_texts[REGISTER_PATH]
+    )
+    register_data = json.loads(register_candidate)
+    report_candidate = render_report(register_data)
+    candidates = {
+        REGISTER_PATH: register_candidate,
+        REPORT_PATH: report_candidate,
+    }
+
+    def validate_after() -> list[str]:
+        errors: list[str] = []
+        for governed_path, expected_text in candidates.items():
+            if governed_path.read_text(encoding="utf-8") != expected_text:
+                errors.append(
+                    "ds15_acquisition_routes_family_readback_drift:"
+                    + str(governed_path)
+                )
+        errors.extend(
+            _ds15_acquisition_routes_candidate_errors(
+                _load_json(REGISTER_PATH),
+                report_parity=True,
+            )
+        )
+        if DS1_PATH.read_bytes() != original_readiness:
+            errors.append("ds15_acquisition_routes_readiness_ledger_drift")
+        return errors
+
+    def final_pre_promote_fence() -> None:
+        for governed_path, original_text in original_texts.items():
+            if governed_path.read_text(encoding="utf-8") != original_text:
+                raise ValueError(
+                    "DS15 acquisition-routes governed preimage moved:"
+                    + str(governed_path)
+                )
+        if DS1_PATH.read_bytes() != original_readiness:
+            raise ValueError("DS15 acquisition-routes readiness preimage moved")
+
+    _failure_atomic_write_texts(
+        candidates,
+        validate_after=validate_after,
+        pre_promote=final_pre_promote_fence,
+    )
+    return {
+        "badge_sites": len(DS15_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS),
+        "query_consumer_refs": len(DS15_QUERY_MEMORY_SUCCESSOR_REFS),
+        "readiness_entries_preserved": len(json.loads(original_readiness)["entries"]),
+    }
 
 
 def _seeded_negatives() -> list[dict[str, Any]]:
@@ -17247,6 +17556,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="recompute only the DS18 file/root denominator and semantic receipts",
     )
     parser.add_argument(
+        "--write-ds15-acquisition-routes",
+        action="store_true",
+        help="atomically admit the bounded DS15 query/disposition transition",
+    )
+    parser.add_argument(
         "--migrate-c21b",
         action="store_true",
         help="surgically migrate gated TypeScript reference strings to C21a identities",
@@ -17418,6 +17732,26 @@ def main(argv: Sequence[str] | None = None) -> int:
         sys.stdout.write(completed.stdout)
         sys.stderr.write(completed.stderr)
         return completed.returncode
+
+    if args.write_ds15_acquisition_routes:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {"write_ds15_acquisition_routes"}:
+            sys.stderr.write(
+                "DS15 transition requires only --write-ds15-acquisition-routes\n"
+            )
+            return 1
+        try:
+            summary = _write_ds15_acquisition_routes_family()
+        except (OSError, ValueError, RuntimeError, KeyError) as exc:
+            sys.stderr.write(f"DS15 transition rejected: {exc}\n")
+            return 1
+        sys.stdout.write("materialized DS15 register/report transition\n")
+        sys.stdout.write(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+        return 0
 
     if args.write_ds11_trust_presentation_resolution:
         selected = {

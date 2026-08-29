@@ -8,6 +8,7 @@ import duckdb
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core import contracts
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.data_forge.domains.catalog.knowledge import overlay as overlay_module
 from polisyos.data_forge.domains.catalog.knowledge.overlay import (
@@ -111,6 +112,11 @@ def _downgrade_to_authentic_v1(scenario) -> str:
 def test_overlay_owner_is_available_through_the_canonical_read_api() -> None:
     assert catalog_read_api.CatalogAcquisitionOverlay is CatalogAcquisitionOverlay
     assert callable(catalog_read_api.open_catalog_read_session)
+    assert callable(catalog_read_api.project_catalog_acquisition_state)
+    assert callable(catalog_read_api.validate_overlay_admission_receipt)
+    assert catalog_read_api.CatalogAcquisitionEventProjection is not None
+    assert catalog_read_api.CatalogAcquisitionPassportProjection is not None
+    assert catalog_read_api.CatalogAcquisitionStateProjection is not None
     assert callable(catalog_read_api.verify_local_source_rights)
     assert callable(catalog_read_api.build_local_rights_trust_registry)
     assert callable(catalog_read_api.build_acquisition_authority_provision)
@@ -123,6 +129,156 @@ def test_overlay_owner_is_available_through_the_canonical_read_api() -> None:
     assert catalog_read_api.default_acquisition_overlay_path(Path("/repo")) == Path(
         "/repo/architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb"
     )
+
+
+def test_overlay_owner_validates_the_active_receipt_identity(tmp_path: Path) -> None:
+    """The read API, rather than a runtime copy, owns float-aware receipt identity."""
+
+    scenario = _real_epoch_scenario(tmp_path / "active-receipt")
+    _production, activated = _activate_real_epoch_scenario(scenario)
+
+    metadata = catalog_read_api.validate_overlay_admission_receipt(activated)
+
+    assert metadata.receipt_ref == str(activated.receipt_ref.artifact_id)
+    assert metadata.receipt_kind == "epoch.activated_overlay_admission_receipt"
+    assert metadata.receipt_content_hash == activated.receipt_content_hash
+
+    with pytest.raises(
+        OverlayAdmissionError,
+        match=r"overlay_semantic_receipt_(ref|content_hash)_.*mismatch",
+    ):
+        catalog_read_api.validate_overlay_admission_receipt(
+            activated.model_copy(update={"epoch_id": activated.epoch_id + 1})
+        )
+
+
+def test_catalog_acquisition_projection_is_read_only_and_content_bound(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """R02: projection reads owner state without opening its writer path."""
+
+    passport, store, authority, _ = _valid_passport(tmp_path / "evidence")
+    overlay_path = tmp_path / "acquisition-overlay.duckdb"
+    overlay = CatalogAcquisitionOverlay(authority.baseline_path, overlay_path)
+    overlay.initialize()
+    _admit(overlay, passport=passport, store=store, authority=authority)
+    overlay.close()
+    before = _sha256(overlay_path)
+
+    def fail_writer(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("read projection must not initialize an overlay")
+
+    monkeypatch.setattr(CatalogAcquisitionOverlay, "initialize", fail_writer)
+    projection = catalog_read_api.project_catalog_acquisition_state(
+        authority.baseline_path,
+        overlay_path=overlay_path,
+    )
+
+    assert projection.overlay_exists is True
+    assert projection.epoch_count == 1
+    assert projection.passport_count == 1
+    assert projection.pending_epoch_count == 1
+    assert projection.active_epoch_count == 0
+    assert projection.admitted_observation_count == passport.measured_profile.sample_row_count
+    assert projection.admitted_observation_count > 0
+    assert projection.epochs[0].epoch_activation_state == "pending_epoch_activation"
+    assert projection.passports[0].passport_id == passport.passport_id
+    assert projection.passports[0].epoch_id == passport.epoch_id
+    assert projection.passports[0].variable_id == passport.variable_id
+    assert projection.passports[0].source_lane == passport.source_lane
+    assert projection.passports[0].status == passport.status
+    assert projection.passports[0].rejection_codes == passport.rejection_codes
+    assert not hasattr(projection.passports[0], "raw_evidence_ref")
+    assert projection.semantic_receipt_count == len(projection.events)
+    assert projection.semantic_receipt_count > 0
+    assert all(not hasattr(event, "receipt_json") for event in projection.events)
+    assert _sha256(overlay_path) == before
+
+
+def test_catalog_acquisition_projection_rejects_passport_property_drift(
+    tmp_path: Path,
+) -> None:
+    """Remove the content-binding property while keeping passport markers."""
+
+    passport, store, authority, _ = _valid_passport(tmp_path / "evidence")
+    overlay_path = tmp_path / "acquisition-overlay.duckdb"
+    overlay = CatalogAcquisitionOverlay(authority.baseline_path, overlay_path)
+    overlay.initialize()
+    _admit(overlay, passport=passport, store=store, authority=authority)
+    overlay.close()
+    con = duckdb.connect(str(overlay_path))
+    try:
+        con.execute(
+            "UPDATE acquisition_passports SET passport_json = ? WHERE passport_id = ?",
+            [json.dumps({"status": "admitted", "markers": ["passport_id"]}), passport.passport_id],
+        )
+    finally:
+        con.close()
+
+    with pytest.raises(OverlayAdmissionError, match="overlay_passport_content_hash_mismatch"):
+        catalog_read_api.project_catalog_acquisition_state(
+            authority.baseline_path,
+            overlay_path=overlay_path,
+        )
+
+
+@pytest.mark.parametrize(
+    "receipt_kind",
+    [
+        "epoch.acquisition_semantic_boundary_candidate",
+        "epoch.pending_overlay_admission_receipt",
+    ],
+)
+def test_catalog_acquisition_projection_rejects_event_property_drift(
+    tmp_path: Path,
+    receipt_kind: str,
+) -> None:
+    """Mutate decisive event bytes while retaining its identity and markers."""
+
+    passport, store, authority, _ = _valid_passport(tmp_path / "evidence")
+    overlay_path = tmp_path / "acquisition-overlay.duckdb"
+    overlay = CatalogAcquisitionOverlay(authority.baseline_path, overlay_path)
+    overlay.initialize()
+    _admit(overlay, passport=passport, store=store, authority=authority)
+    overlay.close()
+    con = duckdb.connect(str(overlay_path))
+    try:
+        row = con.execute(
+            "SELECT receipt_ref, receipt_json FROM acquisition_semantic_receipts "
+            "WHERE receipt_kind = ?",
+            [receipt_kind],
+        ).fetchone()
+        assert row is not None
+        payload = json.loads(str(row[1]))
+        assert isinstance(payload, dict)
+        if receipt_kind == "epoch.acquisition_semantic_boundary_candidate":
+            payload["requested_query_context_ref"] = "sha256:" + "0" * 64
+            statement = (
+                contracts.epoch.AcquisitionSemanticBoundaryCandidateStatement.model_validate(
+                    payload
+                )
+            )
+            content_hash = contracts.epoch.acquisition_semantic_candidate_content_hash(statement)
+        else:
+            payload["admitted_observation_count"] = int(payload["admitted_observation_count"]) + 1
+            content_hash = overlay_module._overlay_statement_content_hash(payload)
+        con.execute(
+            "UPDATE acquisition_semantic_receipts "
+            "SET receipt_content_hash = ?, receipt_json = ? WHERE receipt_ref = ?",
+            [content_hash, json.dumps(payload), str(row[0])],
+        )
+    finally:
+        con.close()
+
+    with pytest.raises(
+        OverlayAdmissionError,
+        match="overlay_semantic_receipt_ref_content_mismatch",
+    ):
+        catalog_read_api.project_catalog_acquisition_state(
+            authority.baseline_path,
+            overlay_path=overlay_path,
+        )
 
 
 def test_catalog_read_session_unifies_epoch_zero_and_overlay_audit_views(

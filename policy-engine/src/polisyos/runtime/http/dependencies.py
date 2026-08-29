@@ -49,6 +49,9 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        AcquisitionActionService,
+    )
     from polisyos.runtime.http.services.human_decisions import HumanDecisionService
 else:
     try:  # pragma: no cover - optional runtime dependency
@@ -207,6 +210,20 @@ def get_optional_human_decision_service(
     from .container import resolve_human_decision_service
 
     return resolve_human_decision_service(request)
+
+
+def get_acquisition_action_service(request: Request) -> AcquisitionActionService:
+    """Return the container-composed acquisition action service or a typed refusal."""
+
+    from .container import resolve_acquisition_action_service
+
+    service = resolve_acquisition_action_service(request)
+    if service is None:
+        raise service_unavailable(
+            "Acquisition action service is unavailable",
+            code="acquisition_action_service_unavailable",
+        )
+    return service
 
 
 def ensure_request_id(request: Request) -> str:  # pragma: no cover

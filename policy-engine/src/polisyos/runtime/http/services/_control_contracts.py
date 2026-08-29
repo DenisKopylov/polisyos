@@ -6,7 +6,7 @@ import os
 import re
 import time
 import uuid
-from typing import Any, Protocol, cast
+from typing import Any, Protocol, cast, get_args
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.control import (
@@ -18,7 +18,7 @@ from polisyos.core.contracts.control import (
 from polisyos.core.contracts.runtime import ApiMeta
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 
-_CONTROL_JOB_KINDS = frozenset({"workflow_run", "natural_language_run", "lex_pipeline"})
+_CONTROL_JOB_KINDS = frozenset(get_args(ControlJobKind))
 _RETRIEVAL_MODES = frozenset({"fastlane", "explorelane", "hybrid"})
 
 

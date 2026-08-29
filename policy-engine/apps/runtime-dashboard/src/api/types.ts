@@ -1313,6 +1313,74 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/runs/{run_id}/acquisition-routes": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Run Acquisition Routes */
+    get: operations["list_run_acquisition_routes"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/acquisition-routes/{route_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Run Acquisition Route */
+    get: operations["get_run_acquisition_route"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Request Run Acquisition Decision */
+    post: operations["request_run_acquisition_decision"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Execute Run Acquisition Route */
+    post: operations["execute_run_acquisition_route"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs/{run_id}/agents": {
     parameters: {
       query?: never;
@@ -1790,6 +1858,269 @@ export interface components {
        * @default shared_public
        */
       tenant_scope: string;
+    };
+    /**
+     * AcquisitionBacklogProjection
+     * @description One ranking-only residual with independently reconciled gap shape.
+     */
+    AcquisitionBacklogProjection: {
+      /** Authority Boundary */
+      authority_boundary: string;
+      /** Binding Confidence */
+      binding_confidence: number;
+      /**
+       * Classification Basis
+       * @enum {string}
+       */
+      classification_basis: "independently_reconciled" | "not_established";
+      gap_class: components["schemas"]["GapClass"];
+      /** Rank */
+      rank: number;
+      /** Ranking Method */
+      ranking_method: string;
+      /** Ranking Score */
+      ranking_score: number;
+      /** Route Demand */
+      route_demand: number;
+      /** Variable Id */
+      variable_id: string;
+      /** Voi Owner Fit */
+      voi_owner_fit: string;
+      /** Voi Owner Integration */
+      voi_owner_integration: string;
+      /** Voi Owner Ref */
+      voi_owner_ref: string;
+    };
+    /**
+     * AcquisitionDecisionRequestResponse
+     * @description Persisted authority result without an external effect.
+     */
+    AcquisitionDecisionRequestResponse: {
+      /** Authority Decision Ref */
+      authority_decision_ref: string;
+      /** Human Decision Request */
+      human_decision_request?: {
+        [key: string]: unknown;
+      } | null;
+      /**
+       * Outcome
+       * @enum {string}
+       */
+      outcome: "decision_required" | "decision_available";
+      /** Route Id */
+      route_id: string;
+      /** Run Id */
+      run_id: string;
+      /**
+       * World Growth
+       * @default no_growth
+       * @constant
+       */
+      world_growth: "no_growth";
+    };
+    /**
+     * AcquisitionExecutionResponse
+     * @description Durable deferred-job acceptance response.
+     */
+    AcquisitionExecutionResponse: {
+      /** Authority Decision Ref */
+      authority_decision_ref: string;
+      /** Job Id */
+      job_id: string;
+      /**
+       * Receipt Phase
+       * @default requested
+       * @constant
+       */
+      receipt_phase: "requested";
+      /** Route Id */
+      route_id: string;
+      /** Run Id */
+      run_id: string;
+      /**
+       * Status
+       * @default accepted
+       * @constant
+       */
+      status: "accepted";
+      /**
+       * World Growth
+       * @default no_growth
+       * @constant
+       */
+      world_growth: "no_growth";
+    };
+    /**
+     * AcquisitionGrowthPayload
+     * @description Strict composite read packet for acquisition growth and non-growth truth.
+     */
+    AcquisitionGrowthPayload: {
+      /** Backlog */
+      backlog: components["schemas"]["AcquisitionBacklogProjection"][];
+      /** Carrier Liveness */
+      carrier_liveness: {
+        [key: string]: unknown;
+      };
+      n13b_history: components["schemas"]["N13bHistoryProjection"];
+      /**
+       * Schema Version
+       * @default policyos.runtime.acquisition_growth_projection.v1
+       * @constant
+       */
+      schema_version: "policyos.runtime.acquisition_growth_projection.v1";
+      /** Structural Routes */
+      structural_routes: components["schemas"]["StructuralRouteProjection"][];
+      summary: components["schemas"]["AcquisitionGrowthSummary"];
+    };
+    /**
+     * AcquisitionGrowthSummary
+     * @description Complete N13a denominators projected without relabeling.
+     */
+    AcquisitionGrowthSummary: {
+      /** Actual Network Call Count */
+      actual_network_call_count: number;
+      /** Backlog Count */
+      backlog_count: number;
+      /** Family Scorecard Count */
+      family_scorecard_count: number;
+      /** Metric Resolution Count */
+      metric_resolution_count: number;
+      /** Selected Record Count */
+      selected_record_count: number;
+      /** Structural Route Count */
+      structural_route_count: number;
+    };
+    /**
+     * AcquisitionRouteListResponse
+     * @description Run-bound list response; the current closure admits at most one route.
+     */
+    AcquisitionRouteListResponse: {
+      /** Routes */
+      routes: components["schemas"]["AcquisitionRouteProjection"][];
+      /** Run Id */
+      run_id: string;
+    };
+    /**
+     * AcquisitionRouteMutationRequest
+     * @description Strict caller fields; route facts, status, authority, and epochs are forbidden.
+     */
+    AcquisitionRouteMutationRequest: {
+      /** Human Decision Record Ref */
+      human_decision_record_ref?: string | null;
+      /** Idempotency Key */
+      idempotency_key: string;
+      /** Planner Report Hash */
+      planner_report_hash: string;
+      replay_pins: components["schemas"]["AcquisitionRouteReplayPins"];
+      /** Route Projection Hash */
+      route_projection_hash: string;
+    };
+    /**
+     * AcquisitionRouteProjection
+     * @description Read-only current route with independent execution and authority postures.
+     */
+    AcquisitionRouteProjection: {
+      /**
+       * Authority Badge
+       * @default behavioral_fixture_not_production
+       * @constant
+       */
+      authority_badge: "behavioral_fixture_not_production";
+      /**
+       * Authority Capability
+       * @enum {string}
+       */
+      authority_capability: "ready" | "producer_missing";
+      /** Cell Id */
+      cell_id: string;
+      /** Cost Basis */
+      cost_basis: {
+        [key: string]: unknown;
+      };
+      /**
+       * Execution Capability
+       * @enum {string}
+       */
+      execution_capability: "ready" | "producer_missing";
+      /**
+       * External Nonclosures
+       * @default [
+       *       "fresh_positive_production_route:absent/unallocated",
+       *       "current_mandate_owner:producer_missing",
+       *       "deterministic_admission_bundle:producer_missing",
+       *       "non_fixture_n13b_owner_port:bridge_missing"
+       *     ]
+       */
+      external_nonclosures: string[];
+      /** Planner Record Id */
+      planner_record_id: string;
+      /** Planner Report Hash */
+      planner_report_hash: string;
+      /**
+       * Qualification Predicate
+       * @default not_established
+       * @constant
+       */
+      qualification_predicate: "not_established";
+      /**
+       * Qualification Reason
+       * @default policy_admission_missing
+       * @constant
+       */
+      qualification_reason: "policy_admission_missing";
+      /**
+       * Qualification Status
+       * @default pending_epoch_activation
+       * @constant
+       */
+      qualification_status: "pending_epoch_activation";
+      /** Recommended Strategy */
+      recommended_strategy: string;
+      replay_pins: components["schemas"]["AcquisitionRouteReplayPins"];
+      /** Route Id */
+      route_id: string;
+      /** Route Projection Hash */
+      route_projection_hash: string;
+      /**
+       * Route Status
+       * @default costed_actionable
+       * @constant
+       */
+      route_status: "costed_actionable";
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default AcquisitionRouteProjection@1.0
+       * @constant
+       */
+      schema_version: "AcquisitionRouteProjection@1.0";
+      /** Tenant Id */
+      tenant_id: string;
+      /**
+       * World Growth
+       * @default no_growth
+       * @constant
+       */
+      world_growth: "no_growth";
+    };
+    /**
+     * AcquisitionRouteReplayPins
+     * @description Server-projected pins callers may only echo for optimistic concurrency.
+     */
+    AcquisitionRouteReplayPins: {
+      /** Compiled Content Hash */
+      compiled_content_hash: string;
+      /** Compiled Ref */
+      compiled_ref: string;
+      /** Cost Basis Hash */
+      cost_basis_hash: string;
+      /** Design Problem Ref */
+      design_problem_ref: string;
+      /** Source Job Id */
+      source_job_id: string;
+      /** Terminal Event Id */
+      terminal_event_id: string;
     };
     /**
      * AcquisitionRoutingPayload
@@ -3004,6 +3335,7 @@ export interface components {
         | components["schemas"]["AcquisitionRoutingPayload"]
         | components["schemas"]["N13AAcquisitionCensusPayload"]
         | components["schemas"]["N13ALiveProbeJournalPayload"]
+        | components["schemas"]["AcquisitionGrowthPayload"]
         | components["schemas"]["CapabilityRealityPayload"]
         | components["schemas"]["ClusterOwnershipPayload"]
         | components["schemas"]["Layer3HealthMetricsPayload"]
@@ -4750,7 +5082,11 @@ export interface components {
        * Kind
        * @enum {string}
        */
-      kind: "workflow_run" | "natural_language_run" | "lex_pipeline";
+      kind:
+        | "workflow_run"
+        | "natural_language_run"
+        | "lex_pipeline"
+        | "acquisition";
       meta: components["schemas"]["ApiMeta"];
       /** Next Diagnostic Commands */
       next_diagnostic_commands?: string[];
@@ -6843,6 +7179,43 @@ export interface components {
       target_count: number;
     };
     /**
+     * EpochQualificationDisclosure
+     * @description Fail-closed production qualification for the historical pending epoch.
+     */
+    EpochQualificationDisclosure: {
+      /**
+       * Appointment State
+       * @constant
+       */
+      appointment_state: "unappointed";
+      /** Appointment Would Establish */
+      appointment_would_establish: string;
+      /** Appointment Would Not Establish */
+      appointment_would_not_establish: string[];
+      /** Authority Owner Ref */
+      authority_owner_ref?: null;
+      /**
+       * Authority Role
+       * @constant
+       */
+      authority_role: "semantic epoch policy-admission qualifier";
+      /**
+       * Code
+       * @constant
+       */
+      code: "policy_admission_missing";
+      /**
+       * Epoch State
+       * @constant
+       */
+      epoch_state: "pending_epoch_activation";
+      /**
+       * Status
+       * @constant
+       */
+      status: "not_established";
+    };
+    /**
      * EpochStalenessProjectionResponse
      * @description HTTP response whose request metadata is outside the stable semantic identity.
      */
@@ -8005,6 +8378,12 @@ export interface components {
       /** Transport Floor Rule */
       transport_floor_rule: string;
     };
+    /**
+     * GapClass
+     * @description Classify a route only from reconciled owner evidence.
+     * @enum {string}
+     */
+    GapClass: "data_gap" | "structural_gap" | "not_established";
     /**
      * GenerationCycleDispositionPayload
      * @description Generation-cycle task and owner disposition projection.
@@ -10483,6 +10862,50 @@ export interface components {
       };
     };
     /**
+     * N13bHistoryProjection
+     * @description Historical execution facts that cannot authorize a current action.
+     */
+    N13bHistoryProjection: {
+      /**
+       * Admission
+       * @enum {string}
+       */
+      admission: "not_reached" | "not_established";
+      /** Attempt Count */
+      attempt_count: number;
+      epoch_qualification: components["schemas"]["EpochQualificationDisclosure"];
+      /**
+       * Execution Phase
+       * @enum {string}
+       */
+      execution_phase: "executing" | "terminal";
+      /** Overlay Epoch Count */
+      overlay_epoch_count: number;
+      /**
+       * Quarantine
+       * @enum {string}
+       */
+      quarantine: "none" | "raw_terminal";
+      /** Quarantine Count */
+      quarantine_count: number;
+      /** Raw Response Count */
+      raw_response_count: number;
+      /**
+       * Reentry
+       * @enum {string}
+       */
+      reentry: "not_established" | "deeper_terminal";
+      /** Response Admitted Count */
+      response_admitted_count: number;
+      /** Terminal Count */
+      terminal_count: number;
+      /**
+       * World Growth
+       * @enum {string}
+       */
+      world_growth: "not_established" | "no_growth";
+    };
+    /**
      * NLProvenance
      * @description Record raw natural-language request provenance.
      *
@@ -11599,6 +12022,7 @@ export interface components {
       | "acquisition-routing-contract"
       | "n13a-acquisition-census"
       | "n13a-live-probe-journal"
+      | "acquisition-growth"
       | "capability-reality"
       | "cluster-ownership"
       | "layer3-health-metrics"
@@ -14186,6 +14610,26 @@ export interface components {
       meta: components["schemas"]["ApiMeta"];
       /** Profiles */
       profiles?: components["schemas"]["SourceProfileInfo"][];
+    };
+    /**
+     * StructuralRouteProjection
+     * @description One capstone structural route with no data-acquisition action.
+     */
+    StructuralRouteProjection: {
+      /**
+       * Action Eligibility
+       * @enum {string}
+       */
+      action_eligibility: "not_applicable" | "blocked";
+      gap_class: components["schemas"]["GapClass"];
+      /** Missing Link */
+      missing_link: string;
+      /** Route Class */
+      route_class: string;
+      /** Route Id */
+      route_id: string;
+      /** Witness Kind */
+      witness_kind: string;
     };
     /**
      * SuppliedAuthorityValue
@@ -21654,6 +22098,361 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["RunDetailsResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  list_run_acquisition_routes: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AcquisitionRouteListResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_run_acquisition_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+        route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AcquisitionRouteProjection"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  request_run_acquisition_decision: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+        route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AcquisitionRouteMutationRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AcquisitionDecisionRequestResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  execute_run_acquisition_route: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+        route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AcquisitionRouteMutationRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AcquisitionExecutionResponse"];
         };
       };
       /** @description Malformed request payload or parameters. */

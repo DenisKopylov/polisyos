@@ -41,7 +41,12 @@ PolicyAuthorityProfile = Literal["research", "governed", "production"]
 PolicyValidationProfile = Literal["fast", "mvp", "strict"]
 PolicyFallbackProfile = Literal["serious_fallback_fail_closed"]
 ControlJobState = Literal["pending", "running", "completed", "failed"]
-ControlJobKind = Literal["workflow_run", "natural_language_run", "lex_pipeline"]
+ControlJobKind = Literal[
+    "workflow_run",
+    "natural_language_run",
+    "lex_pipeline",
+    "acquisition",
+]
 OperatorProjectionAuthority = Literal["runtime_authority", "projection_only"]
 OperatorProjectionState = Literal[
     "draft",

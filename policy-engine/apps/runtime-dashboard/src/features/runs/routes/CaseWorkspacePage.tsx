@@ -1,6 +1,7 @@
 import { useLocation, useParams } from "react-router-dom";
 
 import { useAuthzDecision } from "@/app/authz/AuthzProvider";
+import { useAcquisitionRoutes } from "@/features/runs/api/useAcquisitionRoutes";
 import { useCaseInspection } from "@/features/runs/api/useCaseInspection";
 import {
   fetchHumanDecisionEvidence,
@@ -9,6 +10,7 @@ import {
   useHumanDecisionReviewEffectiveness,
 } from "@/features/runs/api/useHumanDecisions";
 import type { RunPaperPacket } from "@/features/runs/api/useRunPaper";
+import { AcquisitionApprovalFlow } from "@/features/runs/components/AcquisitionApprovalFlow";
 import { HumanDecisionGate } from "@/features/runs/components/HumanDecisionGate";
 import { HumanDecisionReviewEffectivenessPanel } from "@/features/runs/components/HumanDecisionReviewEffectivenessPanel";
 import { downloadRunPaperPacket } from "@/features/runs/components/runPaperExport";
@@ -350,62 +352,33 @@ function CaseWorkspaceDocument({ packet }: { packet: RunPaperPacket }) {
   );
 }
 
-function AuthorizedCaseWorkspace({
+function HumanDecisionWorkspace({
   canCreateHumanDecision,
   runId,
-}: {
-  canCreateHumanDecision: boolean;
-  runId: string;
-}) {
+}: Readonly<{ canCreateHumanDecision: boolean; runId: string }>) {
   const { t } = useI18n();
   const location = useLocation();
-  const query = useCaseInspection(runId, location.search);
   const gateQuery = useHumanDecisionGate(runId, location.search);
   const createDecision = useCreateHumanDecision(runId);
-  const reviewEffectiveness = useHumanDecisionReviewEffectiveness(runId);
   const capturedGate = gateQuery.data;
-
-  if (query.isLoading) return <PanelSkeleton rows={8} />;
-  if (query.isError || !query.data) {
-    return (
-      <Card>
-        <EmptyState
-          body={t("pages.runs.report.unavailableBody")}
-          title={t("pages.runs.unavailableRun")}
-        />
-      </Card>
-    );
-  }
   return (
-    <div className="space-y-4" data-testid="case-workspace-page">
-      <div className="flex flex-wrap gap-2">
+    <div className="space-y-4" data-testid="human-decision-workspace">
+      {capturedGate ? (
         <Button
+          data-testid="human-decision-machine-export"
           type="button"
           variant="ghost"
           onClick={() =>
-            downloadRunPaperPacket(runId, query.data.rawPacketBytes)
+            exportCapturedResponseBytes(
+              `policyos-run-${runId}-human-decision.json`,
+              capturedGate.rawPacketBytes,
+              "application/json",
+            )
           }
         >
-          {t("pages.runs.report.exportMachine")}
+          {t("pages.runs.report.humanDecision.machineExport")}
         </Button>
-        {capturedGate ? (
-          <Button
-            data-testid="human-decision-machine-export"
-            type="button"
-            variant="ghost"
-            onClick={() =>
-              exportCapturedResponseBytes(
-                `policyos-run-${runId}-human-decision.json`,
-                capturedGate.rawPacketBytes,
-                "application/json",
-              )
-            }
-          >
-            {t("pages.runs.report.humanDecision.machineExport")}
-          </Button>
-        ) : null}
-      </div>
-      <CaseWorkspaceDocument packet={query.data.packet} />
+      ) : null}
       {gateQuery.hasSelector && gateQuery.isLoading ? (
         <PanelSkeleton rows={6} />
       ) : null}
@@ -463,6 +436,57 @@ function AuthorizedCaseWorkspace({
           }}
         />
       ) : null}
+    </div>
+  );
+}
+
+function AuthorizedCaseWorkspace({
+  canCreateHumanDecision,
+  runId,
+}: {
+  canCreateHumanDecision: boolean;
+  runId: string;
+}) {
+  const { t } = useI18n();
+  const location = useLocation();
+  const query = useCaseInspection(runId, location.search);
+  const routesQuery = useAcquisitionRoutes(runId);
+  const reviewEffectiveness = useHumanDecisionReviewEffectiveness(runId);
+  const acquisitionRoute = routesQuery.data?.packet.routes[0];
+
+  if (query.isLoading) return <PanelSkeleton rows={8} />;
+  if (query.isError || !query.data) {
+    return (
+      <Card>
+        <EmptyState
+          body={t("pages.runs.report.unavailableBody")}
+          title={t("pages.runs.unavailableRun")}
+        />
+      </Card>
+    );
+  }
+  return (
+    <div className="space-y-4" data-testid="case-workspace-page">
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={() => downloadRunPaperPacket(runId, query.data.rawPacketBytes)}
+      >
+        {t("pages.runs.report.exportMachine")}
+      </Button>
+      <CaseWorkspaceDocument packet={query.data.packet} />
+      {routesQuery.isLoading ? <PanelSkeleton rows={6} /> : null}
+      {acquisitionRoute ? (
+        <AcquisitionApprovalFlow
+          canMutate={canCreateHumanDecision}
+          route={acquisitionRoute}
+        />
+      ) : (
+        <HumanDecisionWorkspace
+          canCreateHumanDecision={canCreateHumanDecision}
+          runId={runId}
+        />
+      )}
       {reviewEffectiveness.data ? (
         <HumanDecisionReviewEffectivenessPanel
           report={reviewEffectiveness.data}

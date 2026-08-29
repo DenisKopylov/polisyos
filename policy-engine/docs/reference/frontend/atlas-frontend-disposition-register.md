@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **83046**
-- Application lines deleted: **26595**
-- Net application LOC reduction: **-56451**
+- Application lines added: **89262**
+- Application lines deleted: **26705**
+- Net application LOC reduction: **-62557**
 - Application files deleted: **92**
 
 ## Wave-end full verification
@@ -310,6 +310,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `c08b-auth-session-revision-producer-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `producer_missing`, `artifact_missing`, `bridge_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_auth_me_query_key_partitions_tenant_user_and_revision tests.unit.runtime.http.test_auth_api.AuthApiTests.test_auth_me_publishes_auth_session_revision exits 0 after /auth/me and generated AuthMeResponse publish a server-issued auth_session_revision and queryKeys binds it; tenant/user-switch corruption fails | `open_debt` — The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, useAuthMe, and queryKeys all lack auth_session_revision. This is the missing client-bound producer contract, not ownership of server identity. |
 | `c07b-dashboard-generated-client-single-owner-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `bridge_missing`, `consumer_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_frontend_disposition_register.ProducerBindingDebtTests.test_c07b_dashboard_generated_client_has_one_canonical_owner exits 0 after manifest/reference/package cleanup, deletion of apps/runtime-dashboard/src/api/types.ts, and all compiler-resolved dashboard imports directly use @polisyos/runtime-api-client. | `open_debt` — Canonical package client exists, but the dashboard keeps a divergent local generated artifact; this row records the single-owner strangle without a comparator or dashboard change. |
 | `baseline-test-a11y-rendered-contrast-incomplete-debt` | `baseline_test_debt` | `rebind_pending` | `DS6` | — | — | `repaired` — C01/C06/C09/C14 comprise seven declared source identities. Axe incomplete nodes are neither passes, source-attributed receipts, nor denominator members; closure requires 7/7 numeric WCAG-AA receipts on an opaque real-browser background. |
+| `authority-presentation-badge-acquisition-boundary-status` | `authority_presentation_debt` | `rebind_pending` | `DS15` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after generated acquisition authority, qualification, quarantine, eligibility, and cost-availability unions enter a private issuer and copy cannot upgrade a negative or unknown owner state | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 
 ### Seeded-negative lifecycle
 
@@ -893,6 +894,12 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 
 ## Commits
 
+- `58a040c87 docs: record the DS18 reopening and close the landing-red row`
+- `f722b1140 merge(ds18): close the reopened receipt and the register drift it hid`
+- `f1e23d39a test(ds18): report truthful atlas failure delta`
+- `f2770375c docs(ds18): close reopened receipt with exact deltas`
+- `f374c888b test(ds18): preserve exact inherited atlas red set`
+- `e4e7a56b8 fix(ds18): reconcile frontend disposition receipts`
 - `31f66448a fix(ds18): reanchor six owned baseline bindings`
 - `f41d421f8 docs(ds18): withdraw incomplete C07 wave receipt`
 - `716261ab2 docs: record the DS18 closure and its three findings`

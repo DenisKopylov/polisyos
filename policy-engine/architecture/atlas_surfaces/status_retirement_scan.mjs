@@ -5528,6 +5528,39 @@ function hasAuthorityGovernanceEdge(sourceFile, componentNames, objectNames) {
 
 const anyUnknownTypeCache = new WeakMap();
 
+function declarationsAreExternalTypeBoundary(declarations) {
+  return (
+    declarations.length > 0 &&
+    declarations.every((declaration) => {
+      const sourceFile = declaration.getSourceFile();
+      return (
+        sourceFile.hasNoDefaultLib ||
+        sourceFile.fileName.split(path.sep).includes("node_modules")
+      );
+    })
+  );
+}
+
+function isExternalTypeExpansionBoundary(type) {
+  const symbols = [
+    type.aliasSymbol,
+    type.getSymbol?.(),
+    type.target?.aliasSymbol,
+    type.target?.getSymbol?.(),
+  ].filter(Boolean);
+  const declarations = symbols.flatMap((symbol) => symbol.declarations ?? []);
+  return declarationsAreExternalTypeBoundary(declarations);
+}
+
+function typeNodeIsExternalTypeBoundary(checker, node) {
+  if (!ts.isTypeReferenceNode(node)) return false;
+  const name = ts.isQualifiedName(node.typeName)
+    ? node.typeName.right
+    : node.typeName;
+  const symbol = resolvedSymbol(checker, name);
+  return declarationsAreExternalTypeBoundary(symbol?.declarations ?? []);
+}
+
 function typeContainsAnyOrUnknown(checker, type, seen = new Set()) {
   if (!type) return false;
   let cache = anyUnknownTypeCache.get(checker);
@@ -5542,6 +5575,10 @@ function typeContainsAnyOrUnknown(checker, type, seen = new Set()) {
   }
   if (seen.has(type)) return false;
   seen.add(type);
+  if (isExternalTypeExpansionBoundary(type)) {
+    cache.set(type, false);
+    return false;
+  }
 
   for (const member of type.types ?? []) {
     if (typeContainsAnyOrUnknown(checker, member, seen)) {
@@ -5635,8 +5672,26 @@ function typeContainsAnyOrUnknown(checker, type, seen = new Set()) {
   return false;
 }
 
+function typeNodeExplicitlyContainsAnyOrUnknown(node) {
+  if (
+    node.kind === ts.SyntaxKind.AnyKeyword ||
+    node.kind === ts.SyntaxKind.UnknownKeyword
+  ) {
+    return true;
+  }
+  let found = false;
+  ts.forEachChild(node, (child) => {
+    if (!found && typeNodeExplicitlyContainsAnyOrUnknown(child)) found = true;
+  });
+  return found;
+}
+
 function typeNodeContainsAnyOrUnknown(checker, node) {
-  return typeContainsAnyOrUnknown(checker, checker.getTypeFromTypeNode(node));
+  if (typeNodeExplicitlyContainsAnyOrUnknown(node)) return true;
+  if (typeNodeIsExternalTypeBoundary(checker, node)) return false;
+  return (
+    typeContainsAnyOrUnknown(checker, checker.getTypeFromTypeNode(node))
+  );
 }
 
 function isGeneratedToneMapTarget(checker, typeNode, governedPaths) {
@@ -5878,6 +5933,8 @@ function collectAuthorityEscapeFacts(
           safety = "generated_conformance";
         } else if (typeNodeContainsAnyOrUnknown(checker, node.type)) {
           safety = "unsafe_widening";
+        } else if (typeNodeIsExternalTypeBoundary(checker, node.type)) {
+          safety = "unrelated_conformance";
         } else if (
           typeTouchesAuthorityBrand(checker, targetType, brandSymbols)
         ) {

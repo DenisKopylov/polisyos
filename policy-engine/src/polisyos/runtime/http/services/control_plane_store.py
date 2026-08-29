@@ -15,7 +15,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Literal, cast
+from typing import Any, Literal, cast, get_args
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -113,7 +113,7 @@ def _progress_carrier_ref(
     return payload_ref or f"control-job:{job_id}:carrier"
 
 
-_CONTROL_JOB_KINDS = frozenset({"workflow_run", "natural_language_run", "lex_pipeline"})
+_CONTROL_JOB_KINDS = frozenset(get_args(ControlJobKind))
 _CONTROL_JOB_STATES = frozenset({"pending", "running", "completed", "failed"})
 _EXECUTION_PROFILES = frozenset({"dev", "research", "governed", "production"})
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
@@ -963,6 +963,28 @@ class ControlDiagnosticEventRecord:
 
 
 @dataclass(frozen=True)
+class AcquisitionActionHeadRecord:
+    """Pointer-only durable head for one acquisition action generation."""
+
+    tenant_id: str
+    cell_id: str
+    run_id: str
+    source_job_id: str
+    route_id: str
+    action_generation: int
+    head_generation: int
+    receipt_ref: str
+    receipt_sha256: str
+    durable_event_id: str
+    coarse_phase: str
+    receipt_phase: str
+    recovery_state: str
+    job_id: str
+    predecessor_receipt_ref: str | None
+    created_at: datetime
+
+
+@dataclass(frozen=True)
 class ControlDeadLetterRecord:
     """Represent one terminally failed control job requiring operator review."""
 
@@ -1226,6 +1248,7 @@ class HumanDecisionRecoveryFence:
             raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
         self._finalized = True
         return result
+
 
 class ControlPlaneStore:
     """Store control jobs and leases with a backend-specific SQL schema.
@@ -1586,9 +1609,7 @@ class ControlPlaneStore:
             try:
                 fence = HumanDecisionWriteFence(
                     reservation=reservation,
-                    _execute=lambda sql, values: cur.execute(
-                        self._translate_sql(sql), values
-                    ),
+                    _execute=lambda sql, values: cur.execute(self._translate_sql(sql), values),
                     _load=lambda: self._postgres_reservation_row(
                         cur,
                         tenant_id=tenant_id,
@@ -1685,9 +1706,7 @@ class ControlPlaneStore:
             try:
                 fence = HumanDecisionRecoveryFence(
                     reservation=reservation,
-                    _execute=lambda sql, values: cur.execute(
-                        self._translate_sql(sql), values
-                    ),
+                    _execute=lambda sql, values: cur.execute(self._translate_sql(sql), values),
                     _load=lambda: self._postgres_reservation_row(
                         cur,
                         tenant_id=tenant_id,
@@ -2443,6 +2462,164 @@ class ControlPlaneStore:
             return None
         return self._row_to_record(row)
 
+    def get_unique_completed_job_by_run_and_kind(
+        self,
+        *,
+        run_id: str,
+        kind: ControlJobKind,
+    ) -> ControlJobRecord | None:
+        """Return the sole completed job for an exact run/kind closure."""
+
+        normalized_kind = _coerce_control_job_kind(kind)
+        rows = self._fetchall(
+            """
+            SELECT
+                j.job_id,
+                j.job_kind,
+                j.state,
+                j.run_id,
+                j.pipeline_id,
+                j.requested_profile,
+                j.effective_profile,
+                j.policy_flags_json,
+                j.capability_manifest_ref,
+                j.payload_ref,
+                j.submitted_by,
+                j.created_at,
+                j.started_at,
+                j.finished_at,
+                j.lease_owner,
+                j.lease_expires_at,
+                j.attempt,
+                j.error_message,
+                p.progress_json
+            FROM control_jobs j
+            LEFT JOIN control_job_progress p ON p.job_id = j.job_id
+            WHERE j.run_id = ? AND j.job_kind = ? AND j.state = 'completed'
+            ORDER BY j.finished_at DESC, j.created_at DESC
+            LIMIT 2
+            """,
+            (run_id, normalized_kind),
+        )
+        if not rows:
+            return None
+        if len(rows) != 1:
+            raise ValueError("control_job_completion_ambiguous")
+        return self._row_to_record(rows[0])
+
+    def get_acquisition_action_head(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+        action_generation: int,
+    ) -> AcquisitionActionHeadRecord | None:
+        """Return the latest phase pointer for one exact action generation."""
+
+        row = self._fetchone(
+            """
+            SELECT tenant_id, cell_id, run_id, source_job_id, route_id,
+                   action_generation, head_generation, receipt_ref, receipt_sha256,
+                   durable_event_id, coarse_phase, receipt_phase, recovery_state,
+                   job_id, predecessor_receipt_ref, created_at
+            FROM runtime_acquisition_action_heads
+            WHERE tenant_id = ? AND cell_id = ? AND run_id = ?
+              AND source_job_id = ? AND route_id = ? AND action_generation = ?
+            ORDER BY head_generation DESC
+            LIMIT 1
+            """,
+            (tenant_id, cell_id, run_id, source_job_id, route_id, action_generation),
+        )
+        return self._row_to_acquisition_action_head(row) if row is not None else None
+
+    def advance_acquisition_action_head(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+        action_generation: int,
+        expected_head_generation: int,
+        receipt_ref: str,
+        receipt_sha256: str,
+        durable_event_id: str,
+        coarse_phase: str,
+        receipt_phase: str,
+        recovery_state: str,
+        job_id: str,
+        predecessor_receipt_ref: str | None,
+    ) -> AcquisitionActionHeadRecord:
+        """Append one predecessor-consistent action-head generation."""
+
+        if action_generation < 1 or expected_head_generation < 0:
+            raise ValueError("acquisition_action_generation_invalid")
+        if receipt_ref != receipt_sha256 or not _is_sha256_ref(receipt_ref):
+            raise ValueError("acquisition_action_receipt_binding_invalid")
+        current = self.get_acquisition_action_head(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=source_job_id,
+            route_id=route_id,
+            action_generation=action_generation,
+        )
+        if (
+            (current is None and expected_head_generation != 0)
+            or (current is not None and current.head_generation != expected_head_generation)
+            or (current is not None and predecessor_receipt_ref != current.receipt_ref)
+            or (current is None and predecessor_receipt_ref is not None)
+        ):
+            raise ValueError("acquisition_action_predecessor_conflict")
+        next_generation = expected_head_generation + 1
+        created_at = _utc_now()
+        try:
+            self._execute(
+                """
+                INSERT INTO runtime_acquisition_action_heads (
+                    tenant_id, cell_id, run_id, source_job_id, route_id,
+                    action_generation, head_generation, receipt_ref, receipt_sha256,
+                    durable_event_id, coarse_phase, receipt_phase, recovery_state,
+                    job_id, predecessor_receipt_ref, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    tenant_id,
+                    cell_id,
+                    run_id,
+                    source_job_id,
+                    route_id,
+                    action_generation,
+                    next_generation,
+                    receipt_ref,
+                    receipt_sha256,
+                    durable_event_id,
+                    coarse_phase,
+                    receipt_phase,
+                    recovery_state,
+                    job_id,
+                    predecessor_receipt_ref,
+                    _iso(created_at),
+                ),
+            )
+        except Exception as exc:
+            raise ValueError("acquisition_action_predecessor_conflict") from exc
+        loaded = self.get_acquisition_action_head(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            source_job_id=source_job_id,
+            route_id=route_id,
+            action_generation=action_generation,
+        )
+        if loaded is None or loaded.head_generation != next_generation:
+            raise RuntimeError("acquisition_action_head_readback_failed")
+        return loaded
+
     def append_event(self, *, job_id: str, event_type: str, payload: dict[str, Any]) -> None:
         """Append one immutable job lifecycle/progress event row."""
         self._execute(
@@ -3168,6 +3345,30 @@ class ControlPlaneStore:
             progress=json.loads(progress_json or "{}"),
         )
 
+    def _row_to_acquisition_action_head(self, row: Any) -> AcquisitionActionHeadRecord:
+        return AcquisitionActionHeadRecord(
+            tenant_id=str(row["tenant_id"]),
+            cell_id=str(row["cell_id"]),
+            run_id=str(row["run_id"]),
+            source_job_id=str(row["source_job_id"]),
+            route_id=str(row["route_id"]),
+            action_generation=int(row["action_generation"]),
+            head_generation=int(row["head_generation"]),
+            receipt_ref=str(row["receipt_ref"]),
+            receipt_sha256=str(row["receipt_sha256"]),
+            durable_event_id=str(row["durable_event_id"]),
+            coarse_phase=str(row["coarse_phase"]),
+            receipt_phase=str(row["receipt_phase"]),
+            recovery_state=str(row["recovery_state"]),
+            job_id=str(row["job_id"]),
+            predecessor_receipt_ref=(
+                str(row["predecessor_receipt_ref"])
+                if row["predecessor_receipt_ref"] is not None
+                else None
+            ),
+            created_at=_parse_dt(row["created_at"]) or _utc_now(),
+        )
+
     def _row_to_worker_lease(self, row: Any) -> ControlWorkerLeaseRecord:
         metadata_json = row["metadata_json"] if "metadata_json" in row.keys() else "{}"
         return ControlWorkerLeaseRecord(
@@ -3443,6 +3644,28 @@ class ControlPlaneStore:
                         progress_json TEXT NOT NULL,
                         updated_at TEXT NOT NULL
                     );
+                    CREATE TABLE IF NOT EXISTS runtime_acquisition_action_heads (
+                        tenant_id TEXT NOT NULL,
+                        cell_id TEXT NOT NULL,
+                        run_id TEXT NOT NULL,
+                        source_job_id TEXT NOT NULL,
+                        route_id TEXT NOT NULL,
+                        action_generation INTEGER NOT NULL,
+                        head_generation INTEGER NOT NULL,
+                        receipt_ref TEXT NOT NULL,
+                        receipt_sha256 TEXT NOT NULL,
+                        durable_event_id TEXT NOT NULL,
+                        coarse_phase TEXT NOT NULL,
+                        receipt_phase TEXT NOT NULL,
+                        recovery_state TEXT NOT NULL,
+                        job_id TEXT NOT NULL,
+                        predecessor_receipt_ref TEXT,
+                        created_at TEXT NOT NULL,
+                        PRIMARY KEY (
+                            tenant_id, cell_id, run_id, source_job_id, route_id,
+                            action_generation, head_generation
+                        )
+                    );
                     CREATE TABLE IF NOT EXISTS control_worker_leases (
                         worker_id TEXT PRIMARY KEY,
                         state TEXT NOT NULL,
@@ -3606,6 +3829,32 @@ class ControlPlaneStore:
                     job_id TEXT PRIMARY KEY,
                     progress_json TEXT NOT NULL,
                     updated_at TIMESTAMPTZ NOT NULL
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS runtime_acquisition_action_heads (
+                    tenant_id TEXT NOT NULL,
+                    cell_id TEXT NOT NULL,
+                    run_id TEXT NOT NULL,
+                    source_job_id TEXT NOT NULL,
+                    route_id TEXT NOT NULL,
+                    action_generation INTEGER NOT NULL,
+                    head_generation INTEGER NOT NULL,
+                    receipt_ref TEXT NOT NULL,
+                    receipt_sha256 TEXT NOT NULL,
+                    durable_event_id TEXT NOT NULL,
+                    coarse_phase TEXT NOT NULL,
+                    receipt_phase TEXT NOT NULL,
+                    recovery_state TEXT NOT NULL,
+                    job_id TEXT NOT NULL,
+                    predecessor_receipt_ref TEXT,
+                    created_at TIMESTAMPTZ NOT NULL,
+                    PRIMARY KEY (
+                        tenant_id, cell_id, run_id, source_job_id, route_id,
+                        action_generation, head_generation
+                    )
                 )
                 """
             )
@@ -3858,8 +4107,7 @@ class ControlPlaneStore:
             rows = lane.fetchall()
             columns = [desc[0] for desc in (lane.description or ())]
             return [
-                {column: value for column, value in zip(columns, row, strict=False)}
-                for row in rows
+                {column: value for column, value in zip(columns, row, strict=False)} for row in rows
             ]
         with self._postgres_cursor() as cur:
             cur.execute(self._translate_sql(sql), params)

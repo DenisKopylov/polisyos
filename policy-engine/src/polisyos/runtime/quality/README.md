@@ -22,6 +22,13 @@ Boundary notes:
   packages need DTOs or protocols.
 - Keep runtime-only persistence, ledger, replay, and validation wiring in this
   package.
+- `acquisition_route_loop.py` owns verified current-route closure and crash-safe
+  acquisition phase orchestration. It requires exact source job/CAS/progress/
+  terminal-event and C01 cost agreement, persists no owner data itself, and
+  resumes only same-case direct re-entry after a durable
+  `world_committed_reentry_pending` head. Missing production owners remain typed
+  non-closures, and the behavioral fixture can never establish active
+  qualification or production world growth.
 - `layer3_grounding_inventory.py` is the internal G0 pre-adapter inventory and
   firewall producer. It reads repository architecture/data artifacts, registers
   source touchpoints in shadow form, and enforces quarantine/status/import

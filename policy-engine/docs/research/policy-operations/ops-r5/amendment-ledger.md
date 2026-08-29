@@ -273,3 +273,169 @@ The following order governs a proposed transition:
 
 This discharges the conflict question: VOI informs choices inside the lawful protective envelope; it
 does not override law, authority or a predeclared safety ceiling.
+
+## 3. `AUD-F06` — Factored But Constrained State Product
+
+Audit defect: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:112`.  
+Disposition: `accepted`.
+
+E/X/V/C is retained and the orthogonality claim is withdrawn. The authoritative amended predicates and
+forbidden tuples are in `amendment-state-invariants.md`.
+
+The state model now requires:
+
+```text
+StateInvariant(E, X, V, C, history, authority)
+AllowedTransition(old_state, event, evidence, authority)
+```
+
+and encodes at minimum:
+
+- `V2_patched_or_reissued + C0_confirmatory_intact` is forbidden absent valid equivalence evidence;
+- `E4_confirmed_unacceptable + X4_terminated + C0_confirmatory_intact` is forbidden for the same
+  unacceptable positive claim object;
+- `V4_rolled_back + X0_full` is forbidden without separate restart evidence and bounded probe;
+- `C3_withdrawn` does not imply `X4_terminated` when an independently evidenced legal, protective or
+  emergency basis permits external policy continuation;
+- termination does not automatically erase a historically valid causal claim;
+- every cross-axis co-transition carries its own evidence and competent authority.
+
+No state engine or mutation suite is claimed implemented.
+
+## 4. `AUD-F08` — Response Corpus Falsifiability
+
+Audit defect: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:114`.  
+Disposition: `accepted_with_variation`.
+
+No twenty thin scenarios were produced. Grounded initial states, event sequences, authority records,
+sealed expected transitions and an independent evaluator do not exist at the pin. Placeholder inputs
+would make the package appear falsifiable without creating a property-bearing fixture.
+
+`amendment-response-corpus-gap.md` is the authoritative gap record. It:
+
+- records zero instantiated and zero placeholder packets;
+- specifies immutable packet identity, current state, ordered events, expected/forbidden transition,
+  authority, execution, claim/version and restart fields;
+- requires requested, authorized and executed state to be asserted separately;
+- requires identical-threshold paired cases that diverge on authority, maturity, waiting harm,
+  reversibility, version, duplicate status or restart evidence;
+- separately exercises all operations discharged in §2;
+- encodes the required illegal E/X/V/C tuples and the independent-basis reverse case;
+- leaves `closure_test_AUD-F08: unmet`.
+
+The stage-1 “20-scenario response corpus” is amended to “specified future 20-scenario response corpus”
+until real packets, oracle records and an evaluator are delivered.
+
+## 5. `AUD-F11` — Evidence-Register Traceability
+
+Audit defect: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:117`.  
+Disposition: `accepted`.
+
+The audit's rejected list hypothesis remains rejected: both registers retain their original six
+substantive columns. The surviving traceability cost is accepted. Both evidence registers now add:
+
+```text
+Evidence refs
+Kind / transfer
+Falsifier or resolution
+Research artifact note
+```
+
+Every row therefore links to supporting repository/source IDs or amendment artifacts, states what kind
+of evidence is being transferred, and names a falsifier or resolving evidence. The added descriptive
+note keeps “research sketch” outside capability standing. This same register revision also implements
+`AUD-F09`; it does not restructure the six-column disposition ledger.
+
+## 6. Commendations Owned By OPS-R5
+
+### `AUD-F15` — Rare `refuted` standing preserved
+
+Audit record: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:121`.  
+Disposition: `accepted`.
+
+`OPS-F06` remains `refuted`. The amendment does not reintroduce a universal linear ladder; it repairs
+the substitute by making E/X/V/C factored but constrained.
+
+### `AUD-F16` — Both institutional blockers preserved
+
+Audit record: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:122`.  
+Disposition: `accepted`.
+
+`INT-F17` and `OPS-F14` remain `blocked`, with `capability_standing: absent/unallocated` and
+`gate_standing: NO_GO`. The unblocker remains external appointment or preauthorization evidence for
+the exact operation, scope and time. No signer, adjudicator, revision board or owner is appointed.
+
+### `AUD-F17` — Reuse-first topology preserved
+
+Audit record: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:123`.  
+Disposition: `accepted`.
+
+The amendment continues to reuse N8 carriers, DDM/FDR signals, monitoring, continuous governance, S13,
+Fabric and Atlas within their bounded owner roles. It creates no parallel post-deployment platform and
+does not treat a fragment as the missing admitted chain.
+
+### `AUD-F18` — Protection/learning and source/destination separation preserved
+
+Audit record: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:124`.  
+Disposition: `accepted`.
+
+A preauthorized protective response may still occur at lower causal certainty than effect learning.
+Unresolved or observation-invalid evidence freezes posterior/world mutation but need not forbid a
+lawfully preauthorized no-expansion, containment or pause. SMDV source diagnosis still precedes and
+does not replace S13 destination accountability.
+
+## 7. OPS-Owned Disposition Register
+
+| Audit finding | Severity | Disposition | Audit line | Amendment line | Recorded outcome |
+|---|---|---|---|---|---|
+| `AUD-F02` | `material` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:108` | `ops-r5/amendment-ledger.md:28-276` | Four collapsed families discharged operation by operation, including authority, version, claim, reversibility and divergent cases. |
+| `AUD-F06` | `material` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:112` | `ops-r5/amendment-ledger.md:277-304` | E/X/V/C retained as factored but constrained; predicates and required tuples encoded. |
+| `AUD-F08` | `material` | `accepted_with_variation` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:114` | `ops-r5/amendment-ledger.md:305-328` | Thin scenarios refused; packet/evaluator contract registered; closure unmet. |
+| `AUD-F11` | `minor` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:117` | `ops-r5/amendment-ledger.md:329-350` | Original six register columns retained and four traceability columns added. |
+| `AUD-F15` | `commendation` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:121` | `ops-r5/amendment-ledger.md:351-358` | `refuted` universal ladder preserved. |
+| `AUD-F16` | `commendation` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:122` | `ops-r5/amendment-ledger.md:359-367` | Both institutional blockers and external unblocker preserved. |
+| `AUD-F17` | `commendation` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:123` | `ops-r5/amendment-ledger.md:368-376` | Reuse-first topology preserved. |
+| `AUD-F18` | `commendation` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:124` | `ops-r5/amendment-ledger.md:377-386` | Protection/learning and source/destination separation preserved. |
+
+## 8. Cross-Ledger Arithmetic
+
+The INT ledger owns ten findings and records the joint arithmetic. This ledger owns eight:
+
+```text
+accepted                     7
+accepted_with_variation      1
+routed_pending_principal     0
+declined_with_reason         0
+                           ---
+OPS-owned total              8
+```
+
+Joint totals, including the INT-owned routed finding:
+
+```text
+accepted                    14
+accepted_with_variation      3
+routed_pending_principal     1
+declined_with_reason         0
+                           ---
+total                       18
+```
+
+Severity remains:
+
+```text
+0 blocking + 9 material + 2 minor + 7 commendation = 18
+```
+
+## 9. Open Closure Tests
+
+```yaml
+AUD-F02_research_argument: amended
+AUD-F06_factored_constrained_model: amended
+AUD-F06_state_engine_and_mutations: absent/unallocated
+AUD-F08_response_corpus: absent/unallocated
+AUD-F11_register_traceability: amended
+audit_verdict_lifted: false
+```
+
+Only stage-4 amendment verification may decide whether the findings close.

@@ -956,6 +956,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/exports/governed-projections/confidence-ledger-risk-spend": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get owner-validated confidence-ledger risk spend */
+    get: operations["get_confidence_ledger_risk_spend_projection"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/exports/governed-projections/depth-n-cycle-board": {
     parameters: {
       query?: never;
@@ -1954,6 +1971,12 @@ export interface components {
       source_kinds?: "core_run"[];
     };
     /**
+     * AppointmentPosture
+     * @description Institutional authority posture available at C01.
+     * @enum {string}
+     */
+    AppointmentPosture: "institutional_authority_unappointed";
+    /**
      * ArtifactBatchRequest
      * @description Batch artifact lookup request used to avoid client-side N+1 fetches.
      */
@@ -2135,6 +2158,121 @@ export interface components {
       schema_name?: string | null;
       /** Schema Version */
       schema_version?: string | null;
+    };
+    /**
+     * ArtifactMissingConfidenceLedgerRiskSpendPacket
+     * @description Typed absence of the one governed N11 source.
+     */
+    ArtifactMissingConfidenceLedgerRiskSpendPacket: {
+      /**
+       * Absence Reason
+       * @constant
+       */
+      absence_reason: "governed confidence-ledger source is absent";
+      /**
+       * As Of
+       * Format: date-time
+       */
+      as_of: string;
+      /**
+       * Authoritative For
+       * @default [
+       *       "conditionality_disclosure",
+       *       "declared_set_accounting",
+       *       "source_validation_posture"
+       *     ]
+       */
+      authoritative_for: (
+        | "conditionality_disclosure"
+        | "declared_set_accounting"
+        | "source_validation_posture"
+      )[];
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      availability: "artifact_missing";
+      /**
+       * Export Replay Contract
+       * @default policyos.runtime.export_replay_binding.v1
+       * @constant
+       */
+      export_replay_contract: "policyos.runtime.export_replay_binding.v1";
+      freshness: components["schemas"]["ProjectionFreshness"];
+      /**
+       * Intended Audience
+       * @default REVIEWER
+       * @constant
+       */
+      intended_audience: "REVIEWER";
+      /**
+       * Intended Audiences
+       * @default [
+       *       "REVIEWER",
+       *       "EXPERT",
+       *       "MACHINE"
+       *     ]
+       */
+      intended_audiences: ["REVIEWER", "EXPERT", "MACHINE"];
+      /**
+       * May Not Use For
+       * @default [
+       *       "promotion_authority",
+       *       "publication_authority",
+       *       "public_audience",
+       *       "bounded_completeness"
+       *     ]
+       */
+      may_not_use_for: (
+        | "promotion_authority"
+        | "publication_authority"
+        | "public_audience"
+        | "bounded_completeness"
+      )[];
+      /**
+       * Packet Schema Version
+       * @default policyos.runtime.confidence_ledger_risk_spend_packet.v1
+       * @constant
+       */
+      packet_schema_version: "policyos.runtime.confidence_ledger_risk_spend_packet.v1";
+      /** Projection Hash */
+      projection_hash?: null;
+      /**
+       * Projection Id
+       * @default confidence-ledger-risk-spend
+       * @constant
+       */
+      projection_id: "confidence-ledger-risk-spend";
+      /**
+       * Projection Rule Version
+       * @default policyos.runtime.confidence_ledger_risk_spend.v1
+       * @constant
+       */
+      projection_rule_version: "policyos.runtime.confidence_ledger_risk_spend.v1";
+      /** Replay Address */
+      replay_address?: null;
+      /** Replay Pins */
+      replay_pins?: null;
+      /** Source Artifact Content Hash */
+      source_artifact_content_hash?: null;
+      /** Source Blocked Reason */
+      source_blocked_reason?: null;
+      /** Source Dependency Hash */
+      source_dependency_hash?: null;
+      /** Source Rule Version */
+      source_rule_version?: null;
+      /** Source Schema Version */
+      source_schema_version?: null;
+      /**
+       * Stable Address
+       * @default /api/v1/exports/governed-projections/confidence-ledger-risk-spend
+       * @constant
+       */
+      stable_address: "/api/v1/exports/governed-projections/confidence-ledger-risk-spend";
+      /** Worker Validation Receipt Hash */
+      worker_validation_receipt_hash?: null;
+      /** Worker Validation Receipt Ref */
+      worker_validation_receipt_ref?: null;
     };
     /**
      * ArtifactMissingGovernedProjectionPacket
@@ -2818,6 +2956,123 @@ export interface components {
       | "scientific.sensitivity_e_value"
       | "scientific.cohort_timeline"
       | "scientific.stress_ranking";
+    /**
+     * AvailableConfidenceLedgerRiskSpendPacket
+     * @description Wire shape emitted after the online service owner-admits the source.
+     */
+    AvailableConfidenceLedgerRiskSpendPacket: {
+      /** Absence Reason */
+      absence_reason?: null;
+      /**
+       * As Of
+       * Format: date-time
+       */
+      as_of: string;
+      /**
+       * Authoritative For
+       * @default [
+       *       "conditionality_disclosure",
+       *       "declared_set_accounting",
+       *       "source_validation_posture"
+       *     ]
+       */
+      authoritative_for: (
+        | "conditionality_disclosure"
+        | "declared_set_accounting"
+        | "source_validation_posture"
+      )[];
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      availability: "available";
+      /**
+       * Export Replay Contract
+       * @default policyos.runtime.export_replay_binding.v1
+       * @constant
+       */
+      export_replay_contract: "policyos.runtime.export_replay_binding.v1";
+      freshness: components["schemas"]["ProjectionFreshness"];
+      /** Frozen Semantic Projection Hash */
+      frozen_semantic_projection_hash: string;
+      /**
+       * Intended Audience
+       * @default REVIEWER
+       * @constant
+       */
+      intended_audience: "REVIEWER";
+      /**
+       * Intended Audiences
+       * @default [
+       *       "REVIEWER",
+       *       "EXPERT",
+       *       "MACHINE"
+       *     ]
+       */
+      intended_audiences: ["REVIEWER", "EXPERT", "MACHINE"];
+      /**
+       * May Not Use For
+       * @default [
+       *       "promotion_authority",
+       *       "publication_authority",
+       *       "public_audience",
+       *       "bounded_completeness"
+       *     ]
+       */
+      may_not_use_for: (
+        | "promotion_authority"
+        | "publication_authority"
+        | "public_audience"
+        | "bounded_completeness"
+      )[];
+      /**
+       * Packet Schema Version
+       * @default policyos.runtime.confidence_ledger_risk_spend_packet.v1
+       * @constant
+       */
+      packet_schema_version: "policyos.runtime.confidence_ledger_risk_spend_packet.v1";
+      payload: components["schemas"]["ConfidenceLedgerRiskSpendProjection"];
+      /** Projection Hash */
+      projection_hash: string;
+      /**
+       * Projection Id
+       * @default confidence-ledger-risk-spend
+       * @constant
+       */
+      projection_id: "confidence-ledger-risk-spend";
+      /**
+       * Projection Rule Version
+       * @default policyos.runtime.confidence_ledger_risk_spend.v1
+       * @constant
+       */
+      projection_rule_version: "policyos.runtime.confidence_ledger_risk_spend.v1";
+      /** Registry Content Hash */
+      registry_content_hash: string;
+      /** Registry Projection Hash */
+      registry_projection_hash: string;
+      /** Replay Address */
+      replay_address: string;
+      replay_pins: components["schemas"]["ConfidenceLedgerRiskSpendReplayPins"];
+      source: components["schemas"]["ProjectionSourceIdentity"];
+      /** Source Blocked Reason */
+      source_blocked_reason?: null;
+      /** Source Dependency Hash */
+      source_dependency_hash: string;
+      /** Source Rule Version */
+      source_rule_version: string | null;
+      /** Source Schema Version */
+      source_schema_version: string | null;
+      /**
+       * Stable Address
+       * @default /api/v1/exports/governed-projections/confidence-ledger-risk-spend
+       * @constant
+       */
+      stable_address: "/api/v1/exports/governed-projections/confidence-ledger-risk-spend";
+      /** Worker Validation Receipt Hash */
+      worker_validation_receipt_hash: string;
+      /** Worker Validation Receipt Ref */
+      worker_validation_receipt_ref: string;
+    };
     /** AvailableFact[CycleBoardAcquisitionEconomics] */
     AvailableFact_CycleBoardAcquisitionEconomics_: {
       /**
@@ -4186,6 +4441,87 @@ export interface components {
       };
     };
     /**
+     * CertificateClassRoute
+     * @description Data-only evidence-class route to code-owned owner verification.
+     */
+    CertificateClassRoute: {
+      /** Certificate Class */
+      certificate_class: string;
+      certificate_role: components["schemas"]["CertificateRole"];
+      claim_polarity: components["schemas"]["ClaimPolarity"];
+      /** Instrument Id */
+      instrument_id: string;
+      obligation_class: components["schemas"]["PromotionObligationClass"];
+      /** Owner Ref */
+      owner_ref: string;
+      /** Verifier Kernel Id */
+      verifier_kernel_id: string;
+      /** Verifier Ref */
+      verifier_ref: string;
+    };
+    /** @enum {string} */
+    CertificateRole:
+      | "promotion"
+      | "promotion_conformance"
+      | "refusal"
+      | "acquisition"
+      | "admission";
+    /**
+     * CertificateRouteRow
+     * @description One canonical certificate route with resolved instrument proof posture.
+     */
+    CertificateRouteRow: {
+      /** Anytime Valid */
+      anytime_valid: boolean;
+      blocker: components["schemas"]["InstrumentBlocker"] | null;
+      /** Certificate Class */
+      certificate_class: string;
+      /**
+       * Certificate Role
+       * @enum {string}
+       */
+      certificate_role:
+        | "promotion"
+        | "promotion_conformance"
+        | "refusal"
+        | "acquisition"
+        | "admission";
+      /**
+       * Claim Polarity
+       * @enum {string}
+       */
+      claim_polarity:
+        | "false_accept"
+        | "confident_wrong_refusal"
+        | "confident_wrong_admission"
+        | "conformance_only";
+      /** Deterministic */
+      deterministic: boolean;
+      /** Guarantee Kind */
+      guarantee_kind: string;
+      /** Instrument Family */
+      instrument_family: string;
+      /** Instrument Id */
+      instrument_id: string;
+      obligation_class: components["schemas"]["PromotionObligationClass"];
+      /** Owner Ref */
+      owner_ref: string;
+      /** Permits Obligation Satisfaction */
+      permits_obligation_satisfaction: boolean;
+      /** Proof Kernel Id */
+      proof_kernel_id: string;
+      /** Proof Profile Id */
+      proof_profile_id: string;
+      /** Registry Content Hash */
+      registry_content_hash: string;
+      /** Route Binding Hash */
+      route_binding_hash: string;
+      /** Verifier Kernel Id */
+      verifier_kernel_id: string;
+      /** Verifier Ref */
+      verifier_ref: string;
+    };
+    /**
      * CertifiedOperationEnvelope
      * @description Certified operation envelope attached to a design record.
      */
@@ -4279,6 +4615,12 @@ export interface components {
        */
       schema_version: "policyos.runtime.channel_registry.v1";
     };
+    /** @enum {string} */
+    ClaimPolarity:
+      | "false_accept"
+      | "confident_wrong_refusal"
+      | "confident_wrong_admission"
+      | "conformance_only";
     /**
      * ClusterOwnershipPayload
      * @description Cluster/cell ownership projection.
@@ -4436,11 +4778,418 @@ export interface components {
        */
       unit_policy: "canonical" | "source" | "mixed";
     };
+    /** @enum {string} */
+    CompletionOutcome:
+      | "prepared"
+      | "started"
+      | "supported"
+      | "not_supported"
+      | "preflight_refusal"
+      | "cancelled"
+      | "owner_refused"
+      | "owner_error"
+      | "recovered_crash"
+      | "refused";
     /**
      * ComponentId
      * @description Component identifier: dot.path.name@semver.
      */
     ComponentId: string;
+    /**
+     * ConditionalDeltaAmount
+     * @description One exact amount bound to its local envelope, scope, and disclosures.
+     */
+    ConditionalDeltaAmount: {
+      amount: components["schemas"]["RationalSpec"];
+      /** Amount Hash */
+      amount_hash: string;
+      /** Canonical Decimal */
+      canonical_decimal: string;
+      /** Coverage Envelope Hash */
+      coverage_envelope_hash: string;
+      /** Coverage Envelope Ref */
+      coverage_envelope_ref: string;
+      /** Declared Obligation Classes Hash */
+      declared_obligation_classes_hash: string;
+      /**
+       * Declared Set Rider
+       * @constant
+       */
+      declared_set_rider: "≤ δ relative to the declared obligation set";
+      /**
+       * Locality Rider
+       * @constant
+       */
+      locality_rider: "Local accounting for this exact confidence scope; no family or sequence-level claim is asserted.";
+      /** Maintained Assumptions */
+      maintained_assumptions: (
+        | "obligation_completeness"
+        | "validator_soundness"
+      )[];
+      obligation_class:
+        | components["schemas"]["PromotionObligationClass"]
+        | null;
+      /** Owner Scope Key */
+      owner_scope_key: string;
+      /** Rational Display */
+      rational_display: string;
+      /**
+       * Rational Display Version
+       * @constant
+       */
+      rational_display_version: "policyos.runtime.exact_rational_display.v1";
+      /** Scope Id */
+      scope_id: string;
+      /** Semantic Role */
+      semantic_role: string;
+    };
+    /**
+     * ConfidenceLedgerPolicy
+     * @description Top-level delta policy and exact conditionality statement.
+     */
+    ConfidenceLedgerPolicy: {
+      /** Conditionality Clause */
+      conditionality_clause: string;
+      /** Default Schedule Profile Id */
+      default_schedule_profile_id: string;
+      delta: components["schemas"]["RationalSpec"];
+    };
+    /**
+     * ConfidenceLedgerRegistry
+     * @description Strict registry and complete N9 delta partition.
+     */
+    ConfidenceLedgerRegistry: {
+      /**
+       * Certificate Class Routes
+       * @default []
+       */
+      certificate_class_routes: components["schemas"]["CertificateClassRoute"][];
+      /** Instruments */
+      instruments: components["schemas"]["InstrumentDefinition"][];
+      /** Obligation Pools */
+      obligation_pools: components["schemas"]["ObligationBudgetPool"][];
+      policy: components["schemas"]["ConfidenceLedgerPolicy"];
+      /** Proof Profiles */
+      proof_profiles: components["schemas"]["InstrumentProofProfile"][];
+      /** Schedule Profiles */
+      schedule_profiles: components["schemas"]["PredictableScheduleProfile"][];
+      /**
+       * Schema Version
+       * @constant
+       */
+      schema_version: "policyos.runtime.confidence_ledger.registry.v1";
+    };
+    /**
+     * ConfidenceLedgerRiskSpendProjection
+     * @description Candidate scope-local surface; exact admission reauthenticates witnesses.
+     */
+    ConfidenceLedgerRiskSpendProjection: {
+      /** Acquisition Instance Refs */
+      acquisition_instance_refs: string[];
+      appointment_posture: components["schemas"]["AppointmentPosture"];
+      /**
+       * Budget Posture
+       * @enum {string}
+       */
+      budget_posture: "within_budget" | "over_spend";
+      /** Certificate Route Denominator Count */
+      certificate_route_denominator_count: number;
+      /** Certificate Route Denominator Hash */
+      certificate_route_denominator_hash: string;
+      /** Certificate Routes */
+      certificate_routes: components["schemas"]["CertificateRouteRow"][];
+      /** Conformance Instance Refs */
+      conformance_instance_refs: string[];
+      coverage_assessment: components["schemas"]["CoverageAssessment"];
+      coverage_envelope: components["schemas"]["ObligationCoverageEnvelope"];
+      /** Coverage Envelope Ref */
+      coverage_envelope_ref: string;
+      /**
+       * Fixed Scope Disclosure
+       * @constant
+       */
+      fixed_scope_disclosure: "Local accounting for this exact confidence scope; no family or sequence-level claim is asserted.";
+      good_event_posture: components["schemas"]["GoodEventPosture"];
+      /** Grouped Spend */
+      grouped_spend: components["schemas"]["InstrumentClassSpend"][];
+      /** Instrument Blockers */
+      instrument_blockers: components["schemas"]["InstrumentBlocker"][];
+      /** Instrument Definitions */
+      instrument_definitions: components["schemas"]["InstrumentDefinitionRow"][];
+      /** Instrument Instances */
+      instrument_instances: components["schemas"]["InstrumentInstanceRow"][];
+      /** Obligation Class Risk Spend */
+      obligation_class_risk_spend: components["schemas"]["ObligationClassRiskSpend"][];
+      /** Owner Scope Key */
+      owner_scope_key: string;
+      positive_register: components["schemas"]["PositiveCertificateRegister"];
+      /** Projection Hash */
+      projection_hash: string;
+      /** Refusal Instance Refs */
+      refusal_instance_refs: string[];
+      registry_basis: components["schemas"]["ConfidenceLedgerRegistry"];
+      /** Registry Content Hash */
+      registry_content_hash: string;
+      risk_scope: components["schemas"]["ConfidenceRiskBudgetScope"];
+      /**
+       * Rule Version
+       * @constant
+       */
+      rule_version: "policyos.runtime.confidence_ledger_surface.exact.v1";
+      /**
+       * Schema Version
+       * @constant
+       */
+      schema_version: "policyos.runtime.confidence_ledger_surface.v1";
+      /** Scope Id */
+      scope_id: string;
+      scope_total_risk_spend: components["schemas"]["ScopeRiskSpend"];
+      semantic_ledger_basis: components["schemas"]["ConfidenceLedgerSemanticReceiptProjection"];
+      /** Source Projection Hash */
+      source_projection_hash: string;
+      /** Source Provenance */
+      source_provenance: components["schemas"]["CoverageSourceIdentity"][];
+      /**
+       * Status
+       * @constant
+       */
+      status: "not_promoted";
+      total_spend: components["schemas"]["ConditionalDeltaAmount"];
+    };
+    /**
+     * ConfidenceLedgerRiskSpendReplayPins
+     * @description Exact tuple required to replay one coherent transport projection.
+     */
+    ConfidenceLedgerRiskSpendReplayPins: {
+      /** Artifact Content Hash */
+      artifact_content_hash: string;
+      /** Projection Hash */
+      projection_hash: string;
+      /**
+       * Projection Rule Version
+       * @default policyos.runtime.confidence_ledger_risk_spend.v1
+       * @constant
+       */
+      projection_rule_version: "policyos.runtime.confidence_ledger_risk_spend.v1";
+      /**
+       * Source As Of
+       * Format: date-time
+       */
+      source_as_of: string;
+      /** Source Dependency Hash */
+      source_dependency_hash: string;
+    };
+    /**
+     * ConfidenceLedgerSemanticCheck
+     * @description Operational-identity-free projection of one ledger check.
+     */
+    ConfidenceLedgerSemanticCheck: {
+      /** Anytime Valid */
+      anytime_valid: boolean;
+      /** Certificate Class */
+      certificate_class?: string | null;
+      /** Certificate Ref */
+      certificate_ref: string;
+      certificate_role: components["schemas"]["CertificateRole"];
+      /** Certificate Route Hash */
+      certificate_route_hash?: string | null;
+      /** Check Projection Hash */
+      check_projection_hash: string;
+      /** Claim Execution Projection Hash */
+      claim_execution_projection_hash: string;
+      claim_polarity: components["schemas"]["ClaimPolarity"];
+      /** Claim Ref */
+      claim_ref: string;
+      /** Claim Scope Ref */
+      claim_scope_ref: string;
+      /** Data Window Ref */
+      data_window_ref: string;
+      /** Deterministic Proof */
+      deterministic_proof: boolean;
+      /** Eligible For Promotion */
+      eligible_for_promotion: boolean;
+      /** Execution Id */
+      execution_id?: string | null;
+      /** Execution Ordinal */
+      execution_ordinal?: number | null;
+      execution_status: components["schemas"]["ExecutionStatus"];
+      /** Filtration Projection Hash */
+      filtration_projection_hash: string;
+      /** Good Event Id */
+      good_event_id?: string | null;
+      /** Instrument Definition Hash */
+      instrument_definition_hash?: string | null;
+      /** Instrument Family */
+      instrument_family: string;
+      /** Instrument Id */
+      instrument_id: string;
+      /** Null Ref */
+      null_ref: string;
+      obligation_class: components["schemas"]["PromotionObligationClass"];
+      outcome: components["schemas"]["CompletionOutcome"];
+      owner_binding:
+        | components["schemas"]["ConfidenceLedgerSemanticOwnerBinding"]
+        | null;
+      /** Owner Invocation Claim Projection Hash */
+      owner_invocation_claim_projection_hash?: string | null;
+      /** Proof Detail */
+      proof_detail: string;
+      /** Proof Profile Hash */
+      proof_profile_hash?: string | null;
+      /** Proof Profile Id */
+      proof_profile_id: string;
+      /** Refusal Code */
+      refusal_code?: string | null;
+      /** Registry Content Hash */
+      registry_content_hash: string;
+      /** Request Fingerprint */
+      request_fingerprint: string;
+      /** Request Key */
+      request_key: string;
+      /** Schedule Query Index */
+      schedule_query_index?: number | null;
+      /**
+       * Schema Version
+       * @constant
+       */
+      schema_version: "policyos.runtime.confidence_ledger.v1";
+      /** Scope Id */
+      scope_id: string;
+      spend: components["schemas"]["RationalSpec"];
+      /** Spend Decimal */
+      spend_decimal: string;
+      /** Supports Obligation */
+      supports_obligation: boolean;
+    };
+    /**
+     * ConfidenceLedgerSemanticEvent
+     * @description Stable semantic append transition with an explicit parent hash.
+     */
+    ConfidenceLedgerSemanticEvent: {
+      check: components["schemas"]["ConfidenceLedgerSemanticCheck"];
+      /** Event Projection Hash */
+      event_projection_hash: string;
+      /**
+       * Event Type
+       * @enum {string}
+       */
+      event_type: "prepared" | "started" | "completed";
+      /** Parent Event Projection Hash */
+      parent_event_projection_hash: string;
+      /** Revision */
+      revision: number;
+    };
+    /**
+     * ConfidenceLedgerSemanticOwnerBinding
+     * @description Stable owner/verifier identity from a fully verified live binding.
+     */
+    ConfidenceLedgerSemanticOwnerBinding: {
+      /** Binding Projection Hash */
+      binding_projection_hash: string;
+      /** Certificate Class */
+      certificate_class: string;
+      /** Certificate Ref */
+      certificate_ref: string;
+      /** Certificate Route Hash */
+      certificate_route_hash: string;
+      /** Owner Projection Hash */
+      owner_projection_hash: string;
+      /** Owner Ref */
+      owner_ref: string;
+      /** Verifier Kernel Id */
+      verifier_kernel_id: string;
+      /** Verifier Ref */
+      verifier_ref: string;
+    };
+    /**
+     * ConfidenceLedgerSemanticReceiptProjection
+     * @description Stable semantic lineage projected from a verified live receipt.
+     */
+    ConfidenceLedgerSemanticReceiptProjection: {
+      authority_provenance: components["schemas"]["SessionAuthorityProvenance"];
+      budget_delta: components["schemas"]["RationalSpec"];
+      /** Budget Delta Decimal */
+      budget_delta_decimal: string;
+      /** Checks */
+      checks: components["schemas"]["ConfidenceLedgerSemanticCheck"][];
+      /**
+       * Conditionality Clause
+       * @constant
+       */
+      conditionality_clause: "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).";
+      /** Deployment Identity */
+      deployment_identity: string;
+      /** Events */
+      events: components["schemas"]["ConfidenceLedgerSemanticEvent"][];
+      /**
+       * Good Event Clause
+       * @constant
+       */
+      good_event_clause: "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.";
+      /** Head Event Projection Hash */
+      head_event_projection_hash: string;
+      /** Maintained Assumptions */
+      maintained_assumptions: (
+        | "obligation_completeness"
+        | "validator_soundness"
+      )[];
+      /** Projection Hash */
+      projection_hash: string;
+      /**
+       * Projection Scope
+       * @enum {string}
+       */
+      projection_scope:
+        | "n11_real_accounting_append_lineage"
+        | "n11_conformance_append_lineage";
+      /** Registry Content Hash */
+      registry_content_hash: string;
+      risk_scope: components["schemas"]["ConfidenceRiskBudgetScope"];
+      /** Root Projection Hash */
+      root_projection_hash: string;
+      /** Schedule Profile Hash */
+      schedule_profile_hash: string;
+      /** Schedule Profile Id */
+      schedule_profile_id: string;
+      /** Schedule Projection Hash */
+      schedule_projection_hash: string;
+      /**
+       * Schema Version
+       * @constant
+       */
+      schema_version: "policyos.runtime.confidence_ledger.v1";
+      /** Scope Anchor Ref */
+      scope_anchor_ref: string;
+      /** Scope Id */
+      scope_id: string;
+      total_spend: components["schemas"]["RationalSpec"];
+      /** Total Spend Decimal */
+      total_spend_decimal: string;
+      /** Within Budget */
+      within_budget: boolean;
+    };
+    /**
+     * ConfidenceRiskBudgetScope
+     * @description Stable owner scope for one non-resettable risk budget.
+     */
+    ConfidenceRiskBudgetScope: {
+      /** Authority Purpose */
+      authority_purpose: string;
+      /** Epoch Ref */
+      epoch_ref: string | null;
+      /** Model Ref */
+      model_ref: string | null;
+      /** Owner Projection Hash */
+      owner_projection_hash: string;
+      /** Owner Scope Key */
+      owner_scope_key: string;
+      /** Rule Ref */
+      rule_ref: string | null;
+      /** Schema Ref */
+      schema_ref: string | null;
+      /** Scope Owner Ref */
+      scope_owner_ref: string;
+    };
     /**
      * ConnectorInfo
      * @description Describe one discovered connector and the datasets/profiles it exposes.
@@ -4974,6 +5723,73 @@ export interface components {
       run_id: string;
       scenario: components["schemas"]["ScenarioManifest"];
       temporal_scope?: components["schemas"]["TemporalScope"] | null;
+    };
+    /**
+     * CoverageAssessment
+     * @description The two negative coverage states available to a protected action.
+     * @enum {string}
+     */
+    CoverageAssessment: "known_incomplete" | "open_world_unresolved";
+    /**
+     * CoverageReasonCode
+     * @description Closed reasons derived from a valid negative coverage envelope.
+     * @enum {string}
+     */
+    CoverageReasonCode:
+      | "DS17-COVERAGE-OPEN-WORLD"
+      | "DS17-COVERAGE-KNOWN-INCOMPLETE"
+      | "DS17-COVERAGE-SEARCH-NOT-ESTABLISHED"
+      | "DS17-COVERAGE-EXCLUSIONS-NOT-ESTABLISHED"
+      | "DS17-COVERAGE-INDEPENDENCE-MISSING";
+    /**
+     * CoverageSourceIdentity
+     * @description Explicit content and verifier identity for one validated source.
+     */
+    CoverageSourceIdentity: {
+      /**
+       * Admission State
+       * @enum {string}
+       */
+      admission_state:
+        | "canonical_registry_validated"
+        | "worker_admission_not_established";
+      /**
+       * Availability State
+       * @constant
+       */
+      availability_state: "available_typed_input";
+      /** Content Hash */
+      content_hash: string;
+      /** Source Ref */
+      source_ref: string;
+      /**
+       * Source Role
+       * @enum {string}
+       */
+      source_role: "canonical_registry" | "semantic_ledger";
+      /** Verifier Ref */
+      verifier_ref: string;
+    };
+    /**
+     * CoverageUnknownRemainder
+     * @description Honest nonnumeric statement of what has not been searched or calibrated.
+     */
+    CoverageUnknownRemainder: {
+      /**
+       * Cardinality
+       * @constant
+       */
+      cardinality: "not_estimated";
+      /**
+       * Kind
+       * @constant
+       */
+      kind: "independent_coverage_producer_missing";
+      /**
+       * Probability
+       * @constant
+       */
+      probability: "not_calibrated";
     };
     /**
      * CursorPage
@@ -6945,6 +7761,13 @@ export interface components {
        */
       media_type: string;
     };
+    /** @enum {string} */
+    ExecutionStatus:
+      | "prepared"
+      | "started"
+      | "executed"
+      | "refused"
+      | "unexecuted";
     /**
      * FabricDecisionData
      * @description Decision-bearing Fabric value plus its trust envelope.
@@ -7576,6 +8399,28 @@ export interface components {
       dirty: boolean;
     };
     /**
+     * GoodEventPosture
+     * @description Union-bound posture without an independence claim.
+     */
+    GoodEventPosture: {
+      /**
+       * Composition Rule
+       * @default union_bound
+       * @constant
+       */
+      composition_rule: "union_bound";
+      /** Executed Probabilistic Good Event Refs */
+      executed_probabilistic_good_event_refs: string[];
+      /** Good Event Clause */
+      good_event_clause: string;
+      /**
+       * Independence Claim
+       * @default false
+       * @constant
+       */
+      independence_claim: false;
+    };
+    /**
      * GovernanceDebugResponse
      * @description Response envelope returned by the governance debug endpoint.
      */
@@ -7645,6 +8490,12 @@ export interface components {
       /** Verdict */
       verdict?: string | null;
     };
+    /**
+     * GuardedProjectionId
+     * @description Source-only governed IDs that have no generic dynamic HTTP emission.
+     * @enum {string}
+     */
+    GuardedProjectionId: "confidence-ledger-risk-spend";
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
@@ -8743,6 +9594,272 @@ export interface components {
       artifact_id: string;
       /** Role */
       role: string;
+    };
+    /**
+     * InstrumentBlocker
+     * @description Registry-resolved instrument blockers available at C01.
+     * @enum {string}
+     */
+    InstrumentBlocker:
+      | "coverage_argument_missing"
+      | "non_anytime_valid"
+      | "owner_theorem_unavailable"
+      | "other_runtime_refusal";
+    /**
+     * InstrumentClassSpend
+     * @description Exact spend grouped by obligation class and instrument.
+     */
+    InstrumentClassSpend: {
+      /** Instrument Id */
+      instrument_id: string;
+      obligation_class: components["schemas"]["PromotionObligationClass"];
+      spend: components["schemas"]["ConditionalDeltaAmount"];
+    };
+    /**
+     * InstrumentDefinition
+     * @description Data-registered instrument definition; IDs are not engine enums.
+     */
+    InstrumentDefinition: {
+      /** Certificate Roles */
+      certificate_roles: components["schemas"]["CertificateRole"][];
+      /** Instrument Family */
+      instrument_family: string;
+      /** Instrument Id */
+      instrument_id: string;
+      /** Proof Profile Id */
+      proof_profile_id: string;
+    };
+    /**
+     * InstrumentDefinitionRow
+     * @description Registry definition with its resolved proof posture.
+     */
+    InstrumentDefinitionRow: {
+      /** Anytime Valid */
+      anytime_valid: boolean;
+      blocker: components["schemas"]["InstrumentBlocker"] | null;
+      /** Certificate Roles */
+      certificate_roles: (
+        | "promotion"
+        | "promotion_conformance"
+        | "refusal"
+        | "acquisition"
+        | "admission"
+      )[];
+      /** Deterministic */
+      deterministic: boolean;
+      /** Guarantee Kind */
+      guarantee_kind: string;
+      /** Instrument Family */
+      instrument_family: string;
+      /** Instrument Id */
+      instrument_id: string;
+      /** Permits Obligation Satisfaction */
+      permits_obligation_satisfaction: boolean;
+      /** Proof Kernel Id */
+      proof_kernel_id: string;
+      /** Proof Profile Id */
+      proof_profile_id: string;
+    };
+    /**
+     * InstrumentInstanceRow
+     * @description One actual semantic-ledger instance with recomputed proof posture.
+     */
+    InstrumentInstanceRow: {
+      /** Anytime Valid */
+      anytime_valid: boolean;
+      blocker: components["schemas"]["InstrumentBlocker"] | null;
+      /** Certificate Class */
+      certificate_class: string | null;
+      /** Certificate Ref */
+      certificate_ref: string;
+      /**
+       * Certificate Role
+       * @enum {string}
+       */
+      certificate_role:
+        | "promotion"
+        | "promotion_conformance"
+        | "refusal"
+        | "acquisition"
+        | "admission";
+      /** Certificate Route Ref */
+      certificate_route_ref: string | null;
+      /** Eligible For Promotion */
+      eligible_for_promotion: boolean;
+      /**
+       * Execution Status
+       * @enum {string}
+       */
+      execution_status:
+        | "prepared"
+        | "started"
+        | "executed"
+        | "refused"
+        | "unexecuted";
+      /** Instance Ref */
+      instance_ref: string;
+      /** Instrument Family */
+      instrument_family: string;
+      /** Instrument Id */
+      instrument_id: string;
+      obligation_class: components["schemas"]["PromotionObligationClass"];
+      /**
+       * Outcome
+       * @enum {string}
+       */
+      outcome:
+        | "prepared"
+        | "started"
+        | "supported"
+        | "not_supported"
+        | "preflight_refusal"
+        | "cancelled"
+        | "owner_refused"
+        | "owner_error"
+        | "recovered_crash"
+        | "refused";
+      /** Proof Profile Id */
+      proof_profile_id: string;
+      /** Raw Runtime Refusal Source */
+      raw_runtime_refusal_source: string | null;
+      spend: components["schemas"]["ConditionalDeltaAmount"];
+      /** Supports Obligation */
+      supports_obligation: boolean;
+    };
+    /**
+     * InstrumentProofProfile
+     * @description Registered selection of a code-owned proof kernel.
+     */
+    InstrumentProofProfile: {
+      /** Anytime Valid */
+      anytime_valid: boolean;
+      /** Deterministic */
+      deterministic: boolean;
+      /** Guarantee Kind */
+      guarantee_kind: string;
+      /** Permits Obligation Satisfaction */
+      permits_obligation_satisfaction: boolean;
+      /** Profile Id */
+      profile_id: string;
+      /** Proof Kernel Id */
+      proof_kernel_id: string;
+      /** Refusal Code */
+      refusal_code?: string | null;
+    };
+    /**
+     * InvalidConfidenceLedgerRiskSpendPacket
+     * @description Generic fail-closed rejection with no untrusted diagnostic detail.
+     */
+    InvalidConfidenceLedgerRiskSpendPacket: {
+      /**
+       * Absence Reason
+       * @constant
+       */
+      absence_reason: "confidence-ledger source failed owner admission";
+      /**
+       * As Of
+       * Format: date-time
+       */
+      as_of: string;
+      /**
+       * Authoritative For
+       * @default [
+       *       "conditionality_disclosure",
+       *       "declared_set_accounting",
+       *       "source_validation_posture"
+       *     ]
+       */
+      authoritative_for: (
+        | "conditionality_disclosure"
+        | "declared_set_accounting"
+        | "source_validation_posture"
+      )[];
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      availability: "invalid_source";
+      /**
+       * Export Replay Contract
+       * @default policyos.runtime.export_replay_binding.v1
+       * @constant
+       */
+      export_replay_contract: "policyos.runtime.export_replay_binding.v1";
+      freshness: components["schemas"]["ProjectionFreshness"];
+      /**
+       * Intended Audience
+       * @default REVIEWER
+       * @constant
+       */
+      intended_audience: "REVIEWER";
+      /**
+       * Intended Audiences
+       * @default [
+       *       "REVIEWER",
+       *       "EXPERT",
+       *       "MACHINE"
+       *     ]
+       */
+      intended_audiences: ["REVIEWER", "EXPERT", "MACHINE"];
+      /**
+       * May Not Use For
+       * @default [
+       *       "promotion_authority",
+       *       "publication_authority",
+       *       "public_audience",
+       *       "bounded_completeness"
+       *     ]
+       */
+      may_not_use_for: (
+        | "promotion_authority"
+        | "publication_authority"
+        | "public_audience"
+        | "bounded_completeness"
+      )[];
+      /**
+       * Packet Schema Version
+       * @default policyos.runtime.confidence_ledger_risk_spend_packet.v1
+       * @constant
+       */
+      packet_schema_version: "policyos.runtime.confidence_ledger_risk_spend_packet.v1";
+      /** Projection Hash */
+      projection_hash?: null;
+      /**
+       * Projection Id
+       * @default confidence-ledger-risk-spend
+       * @constant
+       */
+      projection_id: "confidence-ledger-risk-spend";
+      /**
+       * Projection Rule Version
+       * @default policyos.runtime.confidence_ledger_risk_spend.v1
+       * @constant
+       */
+      projection_rule_version: "policyos.runtime.confidence_ledger_risk_spend.v1";
+      /** Replay Address */
+      replay_address?: null;
+      /** Replay Pins */
+      replay_pins?: null;
+      /** Source Artifact Content Hash */
+      source_artifact_content_hash?: string | null;
+      /** Source Blocked Reason */
+      source_blocked_reason?: null;
+      /** Source Dependency Hash */
+      source_dependency_hash?: null;
+      /** Source Rule Version */
+      source_rule_version: string | null;
+      /** Source Schema Version */
+      source_schema_version: string | null;
+      /**
+       * Stable Address
+       * @default /api/v1/exports/governed-projections/confidence-ledger-risk-spend
+       * @constant
+       */
+      stable_address: "/api/v1/exports/governed-projections/confidence-ledger-risk-spend";
+      /** Worker Validation Receipt Hash */
+      worker_validation_receipt_hash?: string | null;
+      /** Worker Validation Receipt Ref */
+      worker_validation_receipt_ref?: string | null;
     };
     /**
      * InvalidGovernedProjectionPacket
@@ -10060,6 +11177,163 @@ export interface components {
       timeline_events?: components["schemas"]["RunTimelineEvent"][];
     };
     /**
+     * ObligationBudgetPool
+     * @description Exact delta pool over the N9 obligation taxonomy.
+     */
+    ObligationBudgetPool: {
+      /** Obligation Classes */
+      obligation_classes: components["schemas"]["PromotionObligationClass"][];
+      /** Pool Id */
+      pool_id: string;
+      weight: components["schemas"]["RationalSpec"];
+    };
+    /**
+     * ObligationClassRiskSpend
+     * @description Exact allocation and observed spend posture for one obligation class.
+     */
+    ObligationClassRiskSpend: {
+      allocation: components["schemas"]["ConditionalDeltaAmount"];
+      /** Check Refs */
+      check_refs: string[];
+      /** Good Event Refs */
+      good_event_refs: string[];
+      /** Instrument Refs */
+      instrument_refs: string[];
+      obligation_class: components["schemas"]["PromotionObligationClass"];
+      overspend_amount: components["schemas"]["ConditionalDeltaAmount"];
+      remaining: components["schemas"]["ConditionalDeltaAmount"];
+      spent: components["schemas"]["ConditionalDeltaAmount"];
+    };
+    /**
+     * ObligationCoverageEnvelope
+     * @description Content-bound, negative-only coverage envelope for one protected action.
+     */
+    ObligationCoverageEnvelope: {
+      assessment: components["schemas"]["CoverageAssessment"];
+      /** Assessment Key */
+      assessment_key: string;
+      /** Authoritative For */
+      authoritative_for: (
+        | "conditionality_disclosure"
+        | "declared_set_accounting"
+      )[];
+      /** Authority Purpose */
+      authority_purpose: string;
+      /** Authorized Audiences */
+      authorized_audiences: ("reviewer" | "expert" | "machine")[];
+      /**
+       * Challenge Route State
+       * @constant
+       */
+      challenge_route_state: "not_established";
+      /** Declared Obligation Classes */
+      declared_obligation_classes: components["schemas"]["PromotionObligationClass"][];
+      declared_scope: components["schemas"]["ConfidenceRiskBudgetScope"];
+      /**
+       * Declared Set Rider
+       * @constant
+       */
+      declared_set_rider: "≤ δ relative to the declared obligation set";
+      delta: components["schemas"]["RationalSpec"];
+      /** Envelope Hash */
+      envelope_hash: string;
+      /** Envelope Ref */
+      envelope_ref: string;
+      /**
+       * Exclusion Basis State
+       * @default not_established
+       * @constant
+       */
+      exclusion_basis_state: "not_established";
+      /**
+       * Exclusions
+       * @default []
+       */
+      exclusions: unknown[];
+      /**
+       * Expiry State
+       * @constant
+       */
+      expiry_state: "not_issued";
+      /**
+       * Locality Rider
+       * @constant
+       */
+      locality_rider: "Local accounting for this exact confidence scope; no family or sequence-level claim is asserted.";
+      /** Maintained Assumptions */
+      maintained_assumptions: (
+        | "obligation_completeness"
+        | "validator_soundness"
+      )[];
+      /** May Not Use For */
+      may_not_use_for: (
+        | "promotion_authority"
+        | "publication_authority"
+        | "bounded_completeness"
+        | "world_completeness"
+      )[];
+      /** Obligation Language Version */
+      obligation_language_version: string;
+      /** Obligation Rule Ref */
+      obligation_rule_ref: string;
+      /** Obligation Schema Ref */
+      obligation_schema_ref: string;
+      /** Owner Scope Key */
+      owner_scope_key: string;
+      /** Protected Action Id */
+      protected_action_id: string;
+      /** Reason Codes */
+      reason_codes: components["schemas"]["CoverageReasonCode"][];
+      /**
+       * Review State
+       * @constant
+       */
+      review_state: "not_issued";
+      /**
+       * Rule Version
+       * @constant
+       */
+      rule_version: "policyos.runtime.obligation_coverage.negative.v1";
+      /**
+       * Schema Version
+       * @constant
+       */
+      schema_version: "policyos.runtime.obligation_coverage.v1";
+      /** Scope Id */
+      scope_id: string;
+      /**
+       * Search Basis State
+       * @default not_established
+       * @constant
+       */
+      search_basis_state: "not_established";
+      /**
+       * Searched Sources
+       * @default []
+       */
+      searched_sources: unknown[];
+      /**
+       * Source Cutoff State
+       * @constant
+       */
+      source_cutoff_state: "not_established";
+      /** Source Identities */
+      source_identities: [
+        components["schemas"]["CoverageSourceIdentity"],
+        components["schemas"]["CoverageSourceIdentity"],
+      ];
+      /**
+       * Ttl State
+       * @enum {string}
+       */
+      ttl_state:
+        | "not_issued_known_incomplete"
+        | "not_issued_open_world_unresolved";
+      unknown_remainder: components["schemas"]["CoverageUnknownRemainder"];
+      /** Witness Refs */
+      witness_refs: string[];
+    };
+    /**
      * OperatorDiagnostic
      * @description Typed operator root-cause projection for serious runtime failures.
      */
@@ -10708,6 +11982,76 @@ export interface components {
       allow_mock_fallback: boolean;
     };
     /**
+     * PositiveCertificateRegister
+     * @description Explicit honest-zero positive register with no appointed authority.
+     */
+    PositiveCertificateRegister: {
+      /**
+       * Appointment Denominator State
+       * @default recomputed_empty
+       * @constant
+       */
+      appointment_denominator_state: "recomputed_empty";
+      /**
+       * Appointment Sufficiency State
+       * @default not_established
+       * @constant
+       */
+      appointment_sufficiency_state: "not_established";
+      /** @default institutional_authority_unappointed */
+      authority_posture: components["schemas"]["AppointmentPosture"];
+      /** Blockers */
+      blockers: components["schemas"]["ReasonAlgebraRow"][];
+      /**
+       * Entries
+       * @default []
+       */
+      entries: unknown[];
+      /**
+       * Population Count
+       * @default 0
+       * @constant
+       */
+      population_count: 0;
+      /**
+       * Population State
+       * @default valid_zero
+       * @constant
+       */
+      population_state: "valid_zero";
+      /**
+       * Verified Appointment Refs
+       * @default []
+       */
+      verified_appointment_refs: unknown[];
+      /** Would Populate When */
+      would_populate_when: components["schemas"]["PositiveRegisterPredicate"][];
+    };
+    /**
+     * PositiveRegisterPredicate
+     * @description Complete source-derived predicates needed to populate the register.
+     * @enum {string}
+     */
+    PositiveRegisterPredicate:
+      | "owner_validated_promotion_row"
+      | "execution_completed_supported"
+      | "registry_profile_anytime_valid"
+      | "obligation_supported_and_eligible"
+      | "total_and_class_spend_within_budget"
+      | "coverage_supports_protected_use"
+      | "institutional_authority_appointed";
+    /**
+     * PredictableScheduleProfile
+     * @description Data-selected schedule backed by a known symbolic kernel.
+     */
+    PredictableScheduleProfile: {
+      mass: components["schemas"]["RationalSpec"];
+      /** Profile Id */
+      profile_id: string;
+      /** Proof Kernel Id */
+      proof_kernel_id: string;
+    };
+    /**
      * PreflightDiagnosticView
      * @description API view of one preflight diagnostic surfaced to runtime clients.
      */
@@ -10992,7 +12336,10 @@ export interface components {
       owner_validator_id: string;
       /** Owner Validator Version */
       owner_validator_version: string;
-      projection_id: components["schemas"]["ProjectionId"];
+      /** Projection Id */
+      projection_id:
+        | components["schemas"]["ProjectionId"]
+        | components["schemas"]["GuardedProjectionId"];
       /**
        * Source Policy
        * @enum {string}
@@ -11117,15 +12464,31 @@ export interface components {
       bound_dependency_aggregate_identity: string;
       /** Bound Dependency Count */
       bound_dependency_count: number;
+      /** Frozen Semantic Projection Hash */
+      frozen_semantic_projection_hash?: string | null;
       /**
        * Issue Codes
        * @default []
        */
       issue_codes: string[];
+      /** Recomputed Total Spend Denominator */
+      recomputed_total_spend_denominator?: number | null;
+      /** Recomputed Total Spend Numerator */
+      recomputed_total_spend_numerator?: number | null;
+      /** Registry Content Hash */
+      registry_content_hash?: string | null;
+      /** Registry Delta Denominator */
+      registry_delta_denominator?: number | null;
+      /** Registry Delta Numerator */
+      registry_delta_numerator?: number | null;
+      /** Registry Projection Hash */
+      registry_projection_hash?: string | null;
       /** Semantic Projection Hash */
       semantic_projection_hash?: string | null;
       /** Semantic Projection Hash Rule Version */
       semantic_projection_hash_rule_version?: string | null;
+      /** Source Payload Equal */
+      source_payload_equal?: boolean | null;
       /**
        * Status
        * @enum {string}
@@ -11135,6 +12498,8 @@ export interface components {
       validator_id: string;
       /** Validator Version */
       validator_version: string;
+      /** Worker Validation Receipt Hash */
+      worker_validation_receipt_hash?: string | null;
     };
     /**
      * PromotionCandidate
@@ -11215,6 +12580,27 @@ export interface components {
        */
       status: "approved" | "rejected";
     };
+    /**
+     * PromotionObligationClass
+     * @description Declared N9 obligation-class denominator at this promotion rule version.
+     * @enum {string}
+     */
+    PromotionObligationClass:
+      | "syntax"
+      | "type"
+      | "slot"
+      | "param"
+      | "coupling"
+      | "effect"
+      | "identification"
+      | "calibration"
+      | "measurement"
+      | "data"
+      | "implementation"
+      | "equilibrium"
+      | "normative"
+      | "eval_safety"
+      | "value";
     /**
      * ProvingGroundFixtureIdentity
      * @description Manifest-owned identity for one legacy proving-ground case.
@@ -11471,6 +12857,32 @@ export interface components {
         | null;
       uncertainty?: components["schemas"]["QuantityUncertainty"] | null;
       unit: components["schemas"]["polisyos__core__contracts__runtime__UnitRef"];
+    };
+    /**
+     * RationalSpec
+     * @description Exact non-negative rational value.
+     */
+    RationalSpec: {
+      /** Denominator */
+      denominator: number;
+      /** Numerator */
+      numerator: number;
+    };
+    /**
+     * ReasonAlgebraRow
+     * @description One tagged available-domain reason.
+     */
+    ReasonAlgebraRow: {
+      /**
+       * Slot
+       * @enum {string}
+       */
+      slot:
+        | "coverage_assessment"
+        | "instrument_blocker"
+        | "appointment_posture";
+      /** Value */
+      value: string;
     };
     /**
      * RefusedAuthorityValue
@@ -13373,6 +14785,16 @@ export interface components {
       temporal_scope?: components["schemas"]["TemporalScope"] | null;
     };
     /**
+     * ScopeRiskSpend
+     * @description Exact allocation and observed spend posture for the one resolved scope.
+     */
+    ScopeRiskSpend: {
+      allocation: components["schemas"]["ConditionalDeltaAmount"];
+      overspend_amount: components["schemas"]["ConditionalDeltaAmount"];
+      remaining: components["schemas"]["ConditionalDeltaAmount"];
+      spent: components["schemas"]["ConditionalDeltaAmount"];
+    };
+    /**
      * SearchCandidate
      * @description One candidate returned by a reusable search ledger.
      */
@@ -13549,6 +14971,8 @@ export interface components {
        */
       schema_version: "policyos.core.contracts.search.v1";
     };
+    /** @enum {string} */
+    SessionAuthorityProvenance: "canonical_repo" | "verification";
     /**
      * SimulationResultRef
      * @description Artifact reference for the top-level simulation result bundle returned by Foundry.
@@ -13582,6 +15006,120 @@ export interface components {
        * @default application/json
        */
       media_type: string;
+    };
+    /**
+     * SourceBlockedConfidenceLedgerRiskSpendPacket
+     * @description Safe over-spend rejection without rejected-source semantic detail.
+     */
+    SourceBlockedConfidenceLedgerRiskSpendPacket: {
+      /** Absence Reason */
+      absence_reason?: null;
+      /**
+       * As Of
+       * Format: date-time
+       */
+      as_of: string;
+      /**
+       * Authoritative For
+       * @default [
+       *       "conditionality_disclosure",
+       *       "declared_set_accounting",
+       *       "source_validation_posture"
+       *     ]
+       */
+      authoritative_for: (
+        | "conditionality_disclosure"
+        | "declared_set_accounting"
+        | "source_validation_posture"
+      )[];
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      availability: "source_blocked";
+      /**
+       * Export Replay Contract
+       * @default policyos.runtime.export_replay_binding.v1
+       * @constant
+       */
+      export_replay_contract: "policyos.runtime.export_replay_binding.v1";
+      freshness: components["schemas"]["ProjectionFreshness"];
+      /**
+       * Intended Audience
+       * @default REVIEWER
+       * @constant
+       */
+      intended_audience: "REVIEWER";
+      /**
+       * Intended Audiences
+       * @default [
+       *       "REVIEWER",
+       *       "EXPERT",
+       *       "MACHINE"
+       *     ]
+       */
+      intended_audiences: ["REVIEWER", "EXPERT", "MACHINE"];
+      /**
+       * May Not Use For
+       * @default [
+       *       "promotion_authority",
+       *       "publication_authority",
+       *       "public_audience",
+       *       "bounded_completeness"
+       *     ]
+       */
+      may_not_use_for: (
+        | "promotion_authority"
+        | "publication_authority"
+        | "public_audience"
+        | "bounded_completeness"
+      )[];
+      /**
+       * Packet Schema Version
+       * @default policyos.runtime.confidence_ledger_risk_spend_packet.v1
+       * @constant
+       */
+      packet_schema_version: "policyos.runtime.confidence_ledger_risk_spend_packet.v1";
+      /** Projection Hash */
+      projection_hash: string;
+      /**
+       * Projection Id
+       * @default confidence-ledger-risk-spend
+       * @constant
+       */
+      projection_id: "confidence-ledger-risk-spend";
+      /**
+       * Projection Rule Version
+       * @default policyos.runtime.confidence_ledger_risk_spend.v1
+       * @constant
+       */
+      projection_rule_version: "policyos.runtime.confidence_ledger_risk_spend.v1";
+      /** Replay Address */
+      replay_address: string;
+      replay_pins: components["schemas"]["ConfidenceLedgerRiskSpendReplayPins"];
+      /** Source Artifact Content Hash */
+      source_artifact_content_hash: string;
+      /**
+       * Source Blocked Reason
+       * @constant
+       */
+      source_blocked_reason: "over_spend";
+      /** Source Dependency Hash */
+      source_dependency_hash: string;
+      /** Source Rule Version */
+      source_rule_version: string | null;
+      /** Source Schema Version */
+      source_schema_version: string | null;
+      /**
+       * Stable Address
+       * @default /api/v1/exports/governed-projections/confidence-ledger-risk-spend
+       * @constant
+       */
+      stable_address: "/api/v1/exports/governed-projections/confidence-ledger-risk-spend";
+      /** Worker Validation Receipt Hash */
+      worker_validation_receipt_hash: string;
+      /** Worker Validation Receipt Ref */
+      worker_validation_receipt_ref: string;
     };
     /**
      * SourceContractRef
@@ -19226,6 +20764,100 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_confidence_ledger_risk_spend_projection: {
+    parameters: {
+      query?: {
+        artifact_content_hash?: string | null;
+        projection_hash?: string | null;
+        source_dependency_hash?: string | null;
+        source_as_of?: string | null;
+        projection_rule_version?: string | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json":
+            | components["schemas"]["AvailableConfidenceLedgerRiskSpendPacket"]
+            | components["schemas"]["SourceBlockedConfidenceLedgerRiskSpendPacket"]
+            | components["schemas"]["ArtifactMissingConfidenceLedgerRiskSpendPacket"]
+            | components["schemas"]["InvalidConfidenceLedgerRiskSpendPacket"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
           "application/problem+json": components["schemas"]["RuntimeApiProblem"];
         };
       };

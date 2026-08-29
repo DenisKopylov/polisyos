@@ -6,6 +6,7 @@ import type {
 
 import { presentRunAcquisitionRoute } from "@/features/runs/domain/acquisitionRoutePresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { Badge, Card } from "@polisyos/atlas-ui";
 
 type AcquisitionRouteDetailProps =
@@ -39,6 +40,9 @@ export function AcquisitionRouteDetail(props: AcquisitionRouteDetailProps) {
           </div>
           <Badge kind="warn">{props.route.action_eligibility}</Badge>
         </header>
+        <div data-testid="acquisition-route-time-semantics">
+          <TimeSemanticsLabel />
+        </div>
         <dl className="grid gap-2 text-sm md:grid-cols-2">
           <div>
             <dt className="font-semibold">
@@ -89,6 +93,9 @@ export function AcquisitionRouteDetail(props: AcquisitionRouteDetailProps) {
         </div>
         <Badge kind="warn">{visible.authorityBadge}</Badge>
       </header>
+      <div data-testid="acquisition-route-time-semantics">
+        <TimeSemanticsLabel />
+      </div>
       <dl className="grid gap-3 text-sm md:grid-cols-2">
         <div>
           <dt className="font-semibold">

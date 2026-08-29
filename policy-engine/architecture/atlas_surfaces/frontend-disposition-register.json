@@ -8038,7 +8038,7 @@
         "apps/runtime-dashboard/src/features/runs/components/AcquisitionExecutionTimeline.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWNxdWlzaXRpb25FeGVjdXRpb25UaW1lbGluZTppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNGYwNWEwMDQ1ZDIyYWU0YzU2OWQ4NmUwN2UxYjQ2MDQ1Y2I5MWM0OGM0NWFiNGI4YmViOTQ1NDRkMjkxMmUwNSIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0FjcXVpc2l0aW9uRXhlY3V0aW9uVGltZWxpbmUudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6MiIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjQiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
         "apps/runtime-dashboard/src/features/runs/components/AcquisitionPassportPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWNxdWlzaXRpb25QYXNzcG9ydFBhbmVsOmltcG9ydDpAcG9saXN5b3MvYXRsYXMtdWk6cGFja2FnZXMvYXRsYXMtdWkvc3JjL2luZGV4LnRzOkJhZGdlIiwic3ltYm9sOkJhZGdlIiwicmVzb2x2ZWQ6QmFkZ2UiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9hdGxhcy11aS9zcmMvcHJpbWl0aXZlcy9CYWRnZS50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiQmFkZ2UiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI0ZjA1YTAwNDVkMjJhZTRjNTY5ZDg2ZTA3ZTFiNDYwNDVjYjkxYzQ4YzQ1YWI0YjhiZWI5NDU0NGQyOTEyZTA1Iiwicm9sZSI6ImpzeF9vcGVuaW5nIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL2NvbXBvbmVudHMvQWNxdWlzaXRpb25QYXNzcG9ydFBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazozIiwiUmV0dXJuU3RhdGVtZW50OjIiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDoyIiwiSnN4RWxlbWVudDo0IiwiSnN4T3BlbmluZ0VsZW1lbnQ6MCJdLCJ2ZXJzaW9uIjoxfQ",
         "apps/runtime-dashboard/src/features/runs/components/AcquisitionQuarantineLedger.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWNxdWlzaXRpb25RdWFyYW50aW5lTGVkZ2VyOmltcG9ydDpAcG9saXN5b3MvYXRsYXMtdWk6cGFja2FnZXMvYXRsYXMtdWkvc3JjL2luZGV4LnRzOkJhZGdlIiwic3ltYm9sOkJhZGdlIiwicmVzb2x2ZWQ6QmFkZ2UiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9hdGxhcy11aS9zcmMvcHJpbWl0aXZlcy9CYWRnZS50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiQmFkZ2UiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiJhOWE0NmFlNjQ4YmFlYjhlN2Q1YmIzYzJkZDRjM2RlZThkNDI5NWQxOGQ5OTE0NzdiOTZmNzhmOThjMzljZDc4Iiwicm9sZSI6ImpzeF9vcGVuaW5nIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL2NvbXBvbmVudHMvQWNxdWlzaXRpb25RdWFyYW50aW5lTGVkZ2VyLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazozIiwiUmV0dXJuU3RhdGVtZW50OjEiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDoyIiwiSnN4RWxlbWVudDo0IiwiSnN4T3BlbmluZ0VsZW1lbnQ6MCJdLCJ2ZXJzaW9uIjoxfQ",
-        "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWNxdWlzaXRpb25Sb3V0ZURldGFpbDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiMzhjZDBjZGFjNzFkMzU4YWY5YTNmMjAzYjMyOTI5NmJmYWY0ZDMzOGViNmViNTJmOWJkZTJhMzIyNTRjMzRmYiIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0FjcXVpc2l0aW9uUm91dGVEZXRhaWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6MyIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjYiLCJKc3hFbGVtZW50OjQiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWNxdWlzaXRpb25Sb3V0ZURldGFpbDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiMzhjZDBjZGFjNzFkMzU4YWY5YTNmMjAzYjMyOTI5NmJmYWY0ZDMzOGViNmViNTJmOWJkZTJhMzIyNTRjMzRmYiIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0FjcXVpc2l0aW9uUm91dGVEZXRhaWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6MyIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjgiLCJKc3hFbGVtZW50OjQiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
         "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWNxdWlzaXRpb25Sb3V0ZURldGFpbDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNGYwNWEwMDQ1ZDIyYWU0YzU2OWQ4NmUwN2UxYjQ2MDQ1Y2I5MWM0OGM0NWFiNGI4YmViOTQ1NDRkMjkxMmUwNSIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0FjcXVpc2l0aW9uUm91dGVEZXRhaWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJJZlN0YXRlbWVudDoxIiwiQmxvY2s6MSIsIlJldHVyblN0YXRlbWVudDowIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6MiIsIkpzeEVsZW1lbnQ6NCIsIkpzeE9wZW5pbmdFbGVtZW50OjAiXSwidmVyc2lvbiI6MX0",
         "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWNxdWlzaXRpb25Sb3V0ZURldGFpbDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNGYwNWEwMDQ1ZDIyYWU0YzU2OWQ4NmUwN2UxYjQ2MDQ1Y2I5MWM0OGM0NWFiNGI4YmViOTQ1NDRkMjkxMmUwNSIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0FjcXVpc2l0aW9uUm91dGVEZXRhaWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6MyIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjQiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9"
       ],
@@ -8065,37 +8065,37 @@
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionExecutionTimeline.tsx",
-            "line": 177,
+            "line": 178,
             "site_sha256": "sha256:66fcfabfe45c3a8caab1c82a0ccb0af0f0447e0a0df933801a5c8f5d8c256d88"
           },
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionPassportPanel.tsx",
-            "line": 27,
+            "line": 35,
             "site_sha256": "sha256:b880c191ad4969db91723a928b24120e1a98e2b7dbc8a1d217fb4095b4a99862"
           },
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionQuarantineLedger.tsx",
-            "line": 22,
+            "line": 30,
             "site_sha256": "sha256:d3c34a5b4e49c863dee17694198c0ec49bd8dfc32fa815faa2e91137690b1cfb"
           },
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx",
-            "line": 40,
+            "line": 41,
             "site_sha256": "sha256:8b8c9723077aee8766367b5eb8a28ca70451b22a207b856a4329a732a331ee0d"
           },
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx",
-            "line": 90,
+            "line": 94,
             "site_sha256": "sha256:26d53825457f7754677b10376886d4af894003844a5df9816bb5b361144db150"
           },
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx",
-            "line": 124,
+            "line": 131,
             "site_sha256": "sha256:309b1026ef5e7e0a865598f3bc4df5a7475c34176d381ff2b6f73a81ea69b07c"
           }
         ]
@@ -10731,14 +10731,14 @@
       "path": "architecture/atlas_surfaces/decision_time_semantics_scan.mjs",
       "sha256": "sha256:590fcca298e489fa97a9b390fea383ec28fd365fdeab20f396fcf7c859e88eb4"
     },
-    "source_file_count": 605,
-    "root_count": 719,
-    "file_manifest_sha256": "sha256:fec49c4afbc7fe171ad71be20d6239ba112bd235d1120cacb7c51ca8c9b2edb9",
-    "root_manifest_sha256": "sha256:d5bfa41f1d7a3d0a73f2d4254c3edb3970ed2bd9300827939dc182424fb9769c",
-    "decision_bearing_root_count": 33,
-    "inherits_admitted_dom_root_count": 44,
-    "obligated_root_count": 77,
-    "covered_root_count": 77,
+    "source_file_count": 616,
+    "root_count": 733,
+    "file_manifest_sha256": "sha256:d3db84a9ca48cf513d5ca6bdb73efc1c96cb9bf2b70b167120d3f81adb6aae60",
+    "root_manifest_sha256": "sha256:db3923c788f3fa7c39db50ff9afcf9e1d603f0647aa2e9679d634257c0d370c3",
+    "decision_bearing_root_count": 45,
+    "inherits_admitted_dom_root_count": 49,
+    "obligated_root_count": 94,
+    "covered_root_count": 94,
     "frontend_freeze_commit": "3011c9584a0327661c8f5a9b695a1769ddb64385",
     "landing_slice_rule": "the slice landing a post-freeze production render/export root owns its fresh file/root receipt, independent classification, and behavioral proof",
     "landing_slice_checker": "architecture/atlas_surfaces/check_frontend_disposition_register.py --check",
@@ -11173,7 +11173,7 @@
         "receipt_kind": "no_render_root",
         "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
         "roots": [],
-        "source_sha256": "sha256:23113b2d4d308eb3bf2e805c58a3880deea013318011424629d24781e8a9447c"
+        "source_sha256": "sha256:87916e9f740a6db3eeb915133c69b35ef544ccc96f6230130a49daa261359d00"
       },
       {
         "path": "apps/runtime-dashboard/src/api/queryRetryPolicy.ts",
@@ -20633,6 +20633,22 @@
         "source_sha256": "sha256:11b5e049b678f8bc647111c4a807f7b6d6d382a9e6d1256232c5a393e46009b9"
       },
       {
+        "path": "apps/runtime-dashboard/src/features/runs/api/acquisitionRouteValidators.ts",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "no_render_root",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [],
+        "source_sha256": "sha256:939445016c3ed24e18d74e23b8fbe9976ac4617815a70de09617991e1d6d79a9"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/api/useAcquisitionRoutes.ts",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "no_render_root",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [],
+        "source_sha256": "sha256:61964aedf42b8a4eb181bd8c40e64204658a08f6fa11401190fcc6a9586c3057"
+      },
+      {
         "path": "apps/runtime-dashboard/src/features/runs/api/useCaseInspection.ts",
         "predicate_provenance": "independently_reconciled",
         "receipt_kind": "no_render_root",
@@ -21315,6 +21331,278 @@
         "source_sha256": "sha256:bd736ed5d84e1006c6e9d503876f5d74f338025e18c31770d80b0726e01e89ff"
       },
       {
+        "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.tsx",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "render_roots_complete",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [
+          {
+            "column": 5,
+            "component_identity": "AcquisitionApprovalFlow",
+            "kind": "jsx",
+            "line": 275,
+            "root_id": "AcquisitionApprovalFlow:jsx:275:5",
+            "root_source_sha256": "sha256:bf985a18cd992ecd33096bcd32b5970f30024465d2cfc29f81f1483018e64f61",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.tsx",
+                "sha256": "sha256:d1855f1aea58011eae81838dbed30ca27da018a64233d4b755ef1646654bff7d"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.test.tsx",
+                "sha256": "sha256:f57b2af5eae7c14ffc6519537b188dec5d776495386cec037ac39088511ca2d8",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          }
+        ],
+        "source_sha256": "sha256:d1855f1aea58011eae81838dbed30ca27da018a64233d4b755ef1646654bff7d"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionExecutionTimeline.tsx",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "render_roots_complete",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [
+          {
+            "column": 5,
+            "component_identity": "AcquisitionExecutionTimeline",
+            "kind": "jsx",
+            "line": 165,
+            "root_id": "AcquisitionExecutionTimeline:jsx:165:5",
+            "root_source_sha256": "sha256:2e3a55451f2a9fe83d84e59b6de223b276539c0923cdbcca53a3f6cc401f1f62",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionExecutionTimeline.tsx",
+                "sha256": "sha256:e38f1f5f4ce2b829a9eb1a8a616c106bc19eaa6e772e8657aa6c00cb0428e08c"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
+                "sha256": "sha256:0aa75f1da0f45d94fb1ef34a9321626e2d5ee78f4b6199037d6c64eb94b79b2c",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          }
+        ],
+        "source_sha256": "sha256:e38f1f5f4ce2b829a9eb1a8a616c106bc19eaa6e772e8657aa6c00cb0428e08c"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionGrowthBacklog.tsx",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "render_roots_complete",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [
+          {
+            "column": 5,
+            "component_identity": "AcquisitionGrowthBacklog",
+            "kind": "jsx",
+            "line": 32,
+            "root_id": "AcquisitionGrowthBacklog:jsx:32:5",
+            "root_source_sha256": "sha256:74efd164f8d65840ecc7a795be0c374b9e428e5d2aecbc890f2801d785e36aac",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionGrowthBacklog.tsx",
+                "sha256": "sha256:0c657bc70417f0b002b20308323bc564606289444fe815beaf82c8e8ca826e6e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
+                "sha256": "sha256:0aa75f1da0f45d94fb1ef34a9321626e2d5ee78f4b6199037d6c64eb94b79b2c",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          }
+        ],
+        "source_sha256": "sha256:0c657bc70417f0b002b20308323bc564606289444fe815beaf82c8e8ca826e6e"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionPassportPanel.tsx",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "render_roots_complete",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [
+          {
+            "column": 5,
+            "component_identity": "AcquisitionPassportPanel",
+            "kind": "jsx",
+            "line": 22,
+            "root_id": "AcquisitionPassportPanel:jsx:22:5",
+            "root_source_sha256": "sha256:c891d6c9dd6c73e65038f5be9ff2616817a303f9ce81934ffda9a700004eaff2",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionPassportPanel.tsx",
+                "sha256": "sha256:25e1191dad725bb0b5740b550a9ca9709d2e23a1c3c506197bb83f0ae86c86db"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
+                "sha256": "sha256:0aa75f1da0f45d94fb1ef34a9321626e2d5ee78f4b6199037d6c64eb94b79b2c",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          }
+        ],
+        "source_sha256": "sha256:25e1191dad725bb0b5740b550a9ca9709d2e23a1c3c506197bb83f0ae86c86db"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionQuarantineLedger.tsx",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "render_roots_complete",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [
+          {
+            "column": 5,
+            "component_identity": "AcquisitionQuarantineLedger",
+            "kind": "jsx",
+            "line": 21,
+            "root_id": "AcquisitionQuarantineLedger:jsx:21:5",
+            "root_source_sha256": "sha256:69aa3e633dd69df6fa9823e2311222f180b6414f7ad77ec9fe19332f9d42b5ad",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionQuarantineLedger.tsx",
+                "sha256": "sha256:827326884135b8b485dfd1c98840c83c7086c566356c7e4bbbab5fe03c993af4"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
+                "sha256": "sha256:0aa75f1da0f45d94fb1ef34a9321626e2d5ee78f4b6199037d6c64eb94b79b2c",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          }
+        ],
+        "source_sha256": "sha256:827326884135b8b485dfd1c98840c83c7086c566356c7e4bbbab5fe03c993af4"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "render_roots_complete",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [
+          {
+            "column": 7,
+            "component_identity": "AcquisitionRouteDetail",
+            "kind": "jsx",
+            "line": 28,
+            "root_id": "AcquisitionRouteDetail:jsx:28:7",
+            "root_source_sha256": "sha256:677ab0b53b7b0be51278af00d898b27242370df84acfad277a7a65365518b0bf",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx",
+                "sha256": "sha256:05aad46dd550ee019b31a27ec8d764365fb746ccd13b01f5b7e77c25ef772443"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
+                "sha256": "sha256:0aa75f1da0f45d94fb1ef34a9321626e2d5ee78f4b6199037d6c64eb94b79b2c",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "AcquisitionRouteDetail",
+            "kind": "jsx",
+            "line": 81,
+            "root_id": "AcquisitionRouteDetail:jsx:81:5",
+            "root_source_sha256": "sha256:4bad58733f957422093da2738b3cc31e5be9e439d125500cbd35c9eb744830f9",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx",
+                "sha256": "sha256:05aad46dd550ee019b31a27ec8d764365fb746ccd13b01f5b7e77c25ef772443"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
+                "sha256": "sha256:0aa75f1da0f45d94fb1ef34a9321626e2d5ee78f4b6199037d6c64eb94b79b2c",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          }
+        ],
+        "source_sha256": "sha256:05aad46dd550ee019b31a27ec8d764365fb746ccd13b01f5b7e77c25ef772443"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/acquisitionRouteExport.ts",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "no_render_root",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [],
+        "source_sha256": "sha256:7df9093f727e407557460bdb0bbffe1a82d50d5eeeaa49516ee8b6a6c29632e6"
+      },
+      {
         "path": "apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx",
         "predicate_provenance": "independently_reconciled",
         "receipt_kind": "render_roots_complete",
@@ -21558,6 +21846,45 @@
         "source_sha256": "sha256:0cb90244fb123d1070600ad5374c06133578d7bc2eede0504d417c61ea40b0ae"
       },
       {
+        "path": "apps/runtime-dashboard/src/features/runs/components/ConnectorAcquisitionScorecard.tsx",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "render_roots_complete",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [
+          {
+            "column": 5,
+            "component_identity": "ConnectorAcquisitionScorecard",
+            "kind": "jsx",
+            "line": 25,
+            "root_id": "ConnectorAcquisitionScorecard:jsx:25:5",
+            "root_source_sha256": "sha256:0aecbb01871407cb5abea64a4a34db271d5dad436cd881fa66beb06cb0ac49b7",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConnectorAcquisitionScorecard.tsx",
+                "sha256": "sha256:03520a5a4d2da6627dd80e42eba56cceecdae598b8e514b11e5420e2fc7239bc"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
+                "sha256": "sha256:0aa75f1da0f45d94fb1ef34a9321626e2d5ee78f4b6199037d6c64eb94b79b2c",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          }
+        ],
+        "source_sha256": "sha256:03520a5a4d2da6627dd80e42eba56cceecdae598b8e514b11e5420e2fc7239bc"
+      },
+      {
         "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
         "predicate_provenance": "independently_reconciled",
         "receipt_kind": "render_roots_complete",
@@ -21567,8 +21894,8 @@
             "column": 12,
             "component_identity": "JsonValue",
             "kind": "jsx",
-            "line": 33,
-            "root_id": "JsonValue:jsx:33:12",
+            "line": 43,
+            "root_id": "JsonValue:jsx:43:12",
             "root_source_sha256": "sha256:f5f8959052a23953795127f7549f91033550de3ed22d21082bc69b41a00479f5",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -21577,7 +21904,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
-                "sha256": "sha256:22ecc3cef2fd2a0c5675d23d025d2d1a9d7e743614c47e864a9720b06e39fa0d"
+                "sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -21590,8 +21917,8 @@
             "column": 12,
             "component_identity": "JsonValue",
             "kind": "jsx",
-            "line": 36,
-            "root_id": "JsonValue:jsx:36:12",
+            "line": 46,
+            "root_id": "JsonValue:jsx:46:12",
             "root_source_sha256": "sha256:29434caf38b7eca65b30617564f2211ca9da1dadda1a7f040f3f997e7d339db7",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -21600,7 +21927,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
-                "sha256": "sha256:22ecc3cef2fd2a0c5675d23d025d2d1a9d7e743614c47e864a9720b06e39fa0d"
+                "sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -21613,8 +21940,8 @@
             "column": 12,
             "component_identity": "JsonValue",
             "kind": "jsx",
-            "line": 39,
-            "root_id": "JsonValue:jsx:39:12",
+            "line": 49,
+            "root_id": "JsonValue:jsx:49:12",
             "root_source_sha256": "sha256:f5f8959052a23953795127f7549f91033550de3ed22d21082bc69b41a00479f5",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -21623,7 +21950,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
-                "sha256": "sha256:22ecc3cef2fd2a0c5675d23d025d2d1a9d7e743614c47e864a9720b06e39fa0d"
+                "sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -21636,8 +21963,8 @@
             "column": 5,
             "component_identity": "JsonValue",
             "kind": "jsx",
-            "line": 42,
-            "root_id": "JsonValue:jsx:42:5",
+            "line": 52,
+            "root_id": "JsonValue:jsx:52:5",
             "root_source_sha256": "sha256:5b1b7ecb2ade5fbcdade9351776651c0fb04be83c272e86448a961bbfc2cc385",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -21646,7 +21973,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
-                "sha256": "sha256:22ecc3cef2fd2a0c5675d23d025d2d1a9d7e743614c47e864a9720b06e39fa0d"
+                "sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -21659,8 +21986,8 @@
             "column": 5,
             "component_identity": "FactField",
             "kind": "jsx",
-            "line": 60,
-            "root_id": "FactField:jsx:60:5",
+            "line": 70,
+            "root_id": "FactField:jsx:70:5",
             "root_source_sha256": "sha256:0289c848b1fef188b182781f887bcffd487b2a84f7aa2eca1dedba353f56456e",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -21669,7 +21996,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
-                "sha256": "sha256:22ecc3cef2fd2a0c5675d23d025d2d1a9d7e743614c47e864a9720b06e39fa0d"
+                "sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -21682,8 +22009,8 @@
             "column": 5,
             "component_identity": "GapCard",
             "kind": "jsx",
-            "line": 105,
-            "root_id": "GapCard:jsx:105:5",
+            "line": 115,
+            "root_id": "GapCard:jsx:115:5",
             "root_source_sha256": "sha256:6b5e9098380f940873a466f53dbe73d0bcef8fff3eade0d0bbd34be666a2814d",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -21692,7 +22019,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
-                "sha256": "sha256:22ecc3cef2fd2a0c5675d23d025d2d1a9d7e743614c47e864a9720b06e39fa0d"
+                "sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -21705,8 +22032,8 @@
             "column": 5,
             "component_identity": "CycleBoardRow",
             "kind": "jsx",
-            "line": 121,
-            "root_id": "CycleBoardRow:jsx:121:5",
+            "line": 131,
+            "root_id": "CycleBoardRow:jsx:131:5",
             "root_source_sha256": "sha256:f7432e3b86a38ccd6ffa0a3650588196ffaec0e6d8f83e26ec31c5626a5d8ece",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -21715,7 +22042,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
-                "sha256": "sha256:22ecc3cef2fd2a0c5675d23d025d2d1a9d7e743614c47e864a9720b06e39fa0d"
+                "sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -21726,11 +22053,71 @@
           },
           {
             "column": 5,
-            "component_identity": "CycleBoard",
+            "component_identity": "LoadedAcquisitionGrowth",
             "kind": "jsx",
-            "line": 257,
-            "root_id": "CycleBoard:jsx:257:5",
-            "root_source_sha256": "sha256:e2652499c4a3e3ee38d6dd5b0d58f84217bca357354a475c2ab2e4e5b62aafe4",
+            "line": 266,
+            "root_id": "LoadedAcquisitionGrowth:jsx:266:5",
+            "root_source_sha256": "sha256:aaf2037830f66b58ed3edef33b14a6c797842b60875972c5911d36bf1b6b1b35",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+                "sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+                "sha256": "sha256:9538d74f13a7779b779117be6ff7d97ae3bd8ca459e8cf2d0e4d98218a8f0627",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "AcquisitionGrowthBoundary",
+            "kind": "jsx",
+            "line": 361,
+            "root_id": "AcquisitionGrowthBoundary:jsx:361:5",
+            "root_source_sha256": "sha256:5a293c7aa700958316730ef3f14f70177a1d59e1a8dff7243416a55200b8de34",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+                "sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+                "sha256": "sha256:9538d74f13a7779b779117be6ff7d97ae3bd8ca459e8cf2d0e4d98218a8f0627",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "QueriedAcquisitionGrowth",
+            "kind": "jsx",
+            "line": 391,
+            "root_id": "QueriedAcquisitionGrowth:jsx:391:5",
+            "root_source_sha256": "sha256:7fc881226ab298dfee643a5e425d77146fde6af85d43230406e3257e29ad79d4",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
             "epoch_semantics_provider_render_count": 0,
@@ -21738,17 +22125,126 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
-                "sha256": "sha256:22ecc3cef2fd2a0c5675d23d025d2d1a9d7e743614c47e864a9720b06e39fa0d"
+                "sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
               }
             ],
             "predicate_provenance": "independently_reconciled",
             "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
-            "classification": "non_decision_bearing",
-            "behavioral_evidence": [],
-            "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+                "sha256": "sha256:9538d74f13a7779b779117be6ff7d97ae3bd8ca459e8cf2d0e4d98218a8f0627",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+              "root_id": "AcquisitionGrowthBoundary:jsx:361:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "AcquisitionGrowthSurface",
+            "kind": "jsx",
+            "line": 405,
+            "root_id": "AcquisitionGrowthSurface:jsx:405:5",
+            "root_source_sha256": "sha256:50ca218a929ae89535f3da6f1a93d92ebec11c940f21970700a8c211b2709776",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+                "sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+                "sha256": "sha256:9538d74f13a7779b779117be6ff7d97ae3bd8ca459e8cf2d0e4d98218a8f0627",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+              "root_id": "AcquisitionGrowthBoundary:jsx:361:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "AcquisitionGrowthSurface",
+            "kind": "jsx",
+            "line": 407,
+            "root_id": "AcquisitionGrowthSurface:jsx:407:5",
+            "root_source_sha256": "sha256:325fc2a8f56a7d37f7530e2dbaf8ee3d236c19fbbc8ad38e3f26f93c0fa49471",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+                "sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+                "sha256": "sha256:9538d74f13a7779b779117be6ff7d97ae3bd8ca459e8cf2d0e4d98218a8f0627",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+              "root_id": "AcquisitionGrowthBoundary:jsx:361:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "CycleBoard",
+            "kind": "jsx",
+            "line": 422,
+            "root_id": "CycleBoard:jsx:422:5",
+            "root_source_sha256": "sha256:ce474a47d9b505617216b2081cffb389b304995b8fd2ef3b1a304d312324475b",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+                "sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+                "sha256": "sha256:9538d74f13a7779b779117be6ff7d97ae3bd8ca459e8cf2d0e4d98218a8f0627",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+              "root_id": "AcquisitionGrowthBoundary:jsx:361:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
           }
         ],
-        "source_sha256": "sha256:22ecc3cef2fd2a0c5675d23d025d2d1a9d7e743614c47e864a9720b06e39fa0d"
+        "source_sha256": "sha256:643788e0405b73791cecc63bddb280285cd1566e65f6f1d614e970b914a132e3"
       },
       {
         "path": "apps/runtime-dashboard/src/features/runs/components/cycleBoardExport.ts",
@@ -22821,6 +23317,14 @@
         "source_sha256": "sha256:1a89b2db155fe6e9b2fad0cae8a7a230c1b5250b0f1ac1f19b31ba5fe8fd9bb5"
       },
       {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/acquisitionRoutePresentation.ts",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "no_render_root",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [],
+        "source_sha256": "sha256:17f19eeb03be21fcb9470a2d4d363d0de8760b58eed308ac28f45551af4335db"
+      },
+      {
         "path": "apps/runtime-dashboard/src/features/runs/domain/compare.ts",
         "predicate_provenance": "independently_reconciled",
         "receipt_kind": "no_render_root",
@@ -23259,8 +23763,8 @@
             "column": 9,
             "component_identity": "CaseRecordSummary",
             "kind": "jsx",
-            "line": 53,
-            "root_id": "CaseRecordSummary:jsx:53:9",
+            "line": 56,
+            "root_id": "CaseRecordSummary:jsx:56:9",
             "root_source_sha256": "sha256:b96684704486c735c740eadfbd7d265e4a3303ddf30a57b19ab36b49c535897b",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -23269,7 +23773,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
-                "sha256": "sha256:da67430876e0d3e5bf34665add36fa4f467b2b8307be9f41d0c89dfdf1c1ccd8"
+                "sha256": "sha256:98b3e7b9564003adc9db4d2b771b983b643c3c795973a31121fe169eb5a4e4c4"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -23282,8 +23786,8 @@
             "column": 9,
             "component_identity": "CaseRecordSummary",
             "kind": "jsx",
-            "line": 100,
-            "root_id": "CaseRecordSummary:jsx:100:9",
+            "line": 103,
+            "root_id": "CaseRecordSummary:jsx:103:9",
             "root_source_sha256": "sha256:dd74458e0cfb2b73f073d172adda5ed326f7eac033b14f3fa9e7f840d538c4ab",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -23292,7 +23796,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
-                "sha256": "sha256:da67430876e0d3e5bf34665add36fa4f467b2b8307be9f41d0c89dfdf1c1ccd8"
+                "sha256": "sha256:98b3e7b9564003adc9db4d2b771b983b643c3c795973a31121fe169eb5a4e4c4"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -23305,8 +23809,8 @@
             "column": 9,
             "component_identity": "CaseRecordSummary",
             "kind": "jsx",
-            "line": 211,
-            "root_id": "CaseRecordSummary:jsx:211:9",
+            "line": 214,
+            "root_id": "CaseRecordSummary:jsx:214:9",
             "root_source_sha256": "sha256:40c0af3c61eff984f3edab47aa28d66ca6a6d51ef222d734c43a7a670ea6bbae",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -23315,7 +23819,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
-                "sha256": "sha256:da67430876e0d3e5bf34665add36fa4f467b2b8307be9f41d0c89dfdf1c1ccd8"
+                "sha256": "sha256:98b3e7b9564003adc9db4d2b771b983b643c3c795973a31121fe169eb5a4e4c4"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -23328,8 +23832,8 @@
             "column": 5,
             "component_identity": "CaseWorkspaceDocument",
             "kind": "jsx",
-            "line": 271,
-            "root_id": "CaseWorkspaceDocument:jsx:271:5",
+            "line": 274,
+            "root_id": "CaseWorkspaceDocument:jsx:274:5",
             "root_source_sha256": "sha256:cad7e82295e2c8e3f6c9eb14ad7161dda13cf5035d60807969ceb6e4c4ba655b",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -23338,7 +23842,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
-                "sha256": "sha256:da67430876e0d3e5bf34665add36fa4f467b2b8307be9f41d0c89dfdf1c1ccd8"
+                "sha256": "sha256:98b3e7b9564003adc9db4d2b771b983b643c3c795973a31121fe169eb5a4e4c4"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -23348,11 +23852,41 @@
             "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
           },
           {
+            "column": 5,
+            "component_identity": "HumanDecisionWorkspace",
+            "kind": "jsx",
+            "line": 366,
+            "root_id": "HumanDecisionWorkspace:jsx:366:5",
+            "root_source_sha256": "sha256:5e20d2720b5b9fd4c9f4ce04fb4105adc2b2da0f6baae237b7610c38130a4efb",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
+                "sha256": "sha256:98b3e7b9564003adc9db4d2b771b983b643c3c795973a31121fe169eb5a4e4c4"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
+                "sha256": "sha256:0aa75f1da0f45d94fb1ef34a9321626e2d5ee78f4b6199037d6c64eb94b79b2c",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
             "column": 31,
             "component_identity": "AuthorizedCaseWorkspace",
             "kind": "jsx",
-            "line": 368,
-            "root_id": "AuthorizedCaseWorkspace:jsx:368:31",
+            "line": 461,
+            "root_id": "AuthorizedCaseWorkspace:jsx:461:31",
             "root_source_sha256": "sha256:38d9abacc45979878af079b5bc08bbd4219a6ed5bf135094bad2fb13b9dde15d",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -23361,7 +23895,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
-                "sha256": "sha256:da67430876e0d3e5bf34665add36fa4f467b2b8307be9f41d0c89dfdf1c1ccd8"
+                "sha256": "sha256:98b3e7b9564003adc9db4d2b771b983b643c3c795973a31121fe169eb5a4e4c4"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -23374,8 +23908,8 @@
             "column": 7,
             "component_identity": "AuthorizedCaseWorkspace",
             "kind": "jsx",
-            "line": 371,
-            "root_id": "AuthorizedCaseWorkspace:jsx:371:7",
+            "line": 464,
+            "root_id": "AuthorizedCaseWorkspace:jsx:464:7",
             "root_source_sha256": "sha256:67ddb0403480c0b3f63a343690773ffe885c1d5e627b9fd232d85d69e59fdaaa",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -23384,7 +23918,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
-                "sha256": "sha256:da67430876e0d3e5bf34665add36fa4f467b2b8307be9f41d0c89dfdf1c1ccd8"
+                "sha256": "sha256:98b3e7b9564003adc9db4d2b771b983b643c3c795973a31121fe169eb5a4e4c4"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -23397,31 +23931,38 @@
             "column": 5,
             "component_identity": "AuthorizedCaseWorkspace",
             "kind": "jsx",
-            "line": 380,
-            "root_id": "AuthorizedCaseWorkspace:jsx:380:5",
-            "root_source_sha256": "sha256:9461522ac10d4e6d17768aa0058fd5bd0acba86df65aef0d764e1a219ce76720",
+            "line": 473,
+            "root_id": "AuthorizedCaseWorkspace:jsx:473:5",
+            "root_source_sha256": "sha256:76be3f9893d401fb5a21df186e21ba2d39ca9f9058a2bae8207b7b7a54f18c16",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
             "epoch_semantics_provider_render_count": 0,
-            "time_semantics_label_render_count": 0,
+            "time_semantics_label_render_count": 1,
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
-                "sha256": "sha256:da67430876e0d3e5bf34665add36fa4f467b2b8307be9f41d0c89dfdf1c1ccd8"
+                "sha256": "sha256:98b3e7b9564003adc9db4d2b771b983b643c3c795973a31121fe169eb5a4e4c4"
               }
             ],
             "predicate_provenance": "independently_reconciled",
             "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
-            "classification": "non_decision_bearing",
-            "behavioral_evidence": [],
-            "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
+                "sha256": "sha256:0aa75f1da0f45d94fb1ef34a9321626e2d5ee78f4b6199037d6c64eb94b79b2c",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
           },
           {
             "column": 7,
             "component_identity": "CaseWorkspacePage",
             "kind": "jsx",
-            "line": 482,
-            "root_id": "CaseWorkspacePage:jsx:482:7",
+            "line": 513,
+            "root_id": "CaseWorkspacePage:jsx:513:7",
             "root_source_sha256": "sha256:e4e88050d2ff8933d6b6250df3a1e19b6eddd4a8cb073014d9e7a8157f1f2d6f",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -23430,7 +23971,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
-                "sha256": "sha256:da67430876e0d3e5bf34665add36fa4f467b2b8307be9f41d0c89dfdf1c1ccd8"
+                "sha256": "sha256:98b3e7b9564003adc9db4d2b771b983b643c3c795973a31121fe169eb5a4e4c4"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -23443,8 +23984,8 @@
             "column": 7,
             "component_identity": "CaseWorkspacePage",
             "kind": "jsx",
-            "line": 492,
-            "root_id": "CaseWorkspacePage:jsx:492:7",
+            "line": 523,
+            "root_id": "CaseWorkspacePage:jsx:523:7",
             "root_source_sha256": "sha256:564233348622f89c4195b9875925c4214f569b675a172115f5bce228a197f4f7",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -23453,7 +23994,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
-                "sha256": "sha256:da67430876e0d3e5bf34665add36fa4f467b2b8307be9f41d0c89dfdf1c1ccd8"
+                "sha256": "sha256:98b3e7b9564003adc9db4d2b771b983b643c3c795973a31121fe169eb5a4e4c4"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -23466,8 +24007,8 @@
             "column": 7,
             "component_identity": "CaseWorkspacePage",
             "kind": "jsx",
-            "line": 502,
-            "root_id": "CaseWorkspacePage:jsx:502:7",
+            "line": 533,
+            "root_id": "CaseWorkspacePage:jsx:533:7",
             "root_source_sha256": "sha256:e813c6efb845af2f54f1b5d1bc3a82d3ea79b03288257a2e7f70b01005a9f9d3",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -23476,7 +24017,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
-                "sha256": "sha256:da67430876e0d3e5bf34665add36fa4f467b2b8307be9f41d0c89dfdf1c1ccd8"
+                "sha256": "sha256:98b3e7b9564003adc9db4d2b771b983b643c3c795973a31121fe169eb5a4e4c4"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -23489,8 +24030,8 @@
             "column": 5,
             "component_identity": "CaseWorkspacePage",
             "kind": "jsx",
-            "line": 511,
-            "root_id": "CaseWorkspacePage:jsx:511:5",
+            "line": 542,
+            "root_id": "CaseWorkspacePage:jsx:542:5",
             "root_source_sha256": "sha256:ab4d87d0bb35b966c4139b3f4ce7aaf8e623f14deea3721c4d6182fa1e07010c",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -23499,17 +24040,27 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
-                "sha256": "sha256:da67430876e0d3e5bf34665add36fa4f467b2b8307be9f41d0c89dfdf1c1ccd8"
+                "sha256": "sha256:98b3e7b9564003adc9db4d2b771b983b643c3c795973a31121fe169eb5a4e4c4"
               }
             ],
             "predicate_provenance": "independently_reconciled",
             "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
-            "classification": "non_decision_bearing",
-            "behavioral_evidence": [],
-            "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
+                "sha256": "sha256:0aa75f1da0f45d94fb1ef34a9321626e2d5ee78f4b6199037d6c64eb94b79b2c",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
+              "root_id": "AuthorizedCaseWorkspace:jsx:473:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
           }
         ],
-        "source_sha256": "sha256:da67430876e0d3e5bf34665add36fa4f467b2b8307be9f41d0c89dfdf1c1ccd8"
+        "source_sha256": "sha256:98b3e7b9564003adc9db4d2b771b983b643c3c795973a31121fe169eb5a4e4c4"
       },
       {
         "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",

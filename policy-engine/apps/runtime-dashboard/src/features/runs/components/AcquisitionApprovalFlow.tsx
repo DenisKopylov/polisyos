@@ -25,6 +25,7 @@ import { AcquisitionRouteDetail } from "@/features/runs/components/AcquisitionRo
 import { HumanDecisionGate } from "@/features/runs/components/HumanDecisionGate";
 import { buildHumanDecisionMutation } from "@/features/runs/domain/humanDecisionPresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { exportCapturedResponseBytes } from "@/shared/ui/dataExport";
 import { Button, Card } from "@polisyos/atlas-ui";
 
@@ -275,6 +276,9 @@ export function AcquisitionApprovalFlow({
       className="w-[min(42rem,calc(100vw-3rem))] min-w-0 space-y-4 overflow-hidden [&_pre]:max-w-full [&_pre]:break-all"
       data-testid="acquisition-approval-flow"
     >
+      <div data-testid="acquisition-approval-time-semantics">
+        <TimeSemanticsLabel />
+      </div>
       <AcquisitionRouteDetail
         action={
           <div className="space-y-2">

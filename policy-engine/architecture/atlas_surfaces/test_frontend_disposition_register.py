@@ -14,6 +14,7 @@ import sys
 import tempfile
 import unittest
 from collections import Counter
+from contextlib import ExitStack
 from pathlib import Path
 from typing import ClassVar
 from unittest import mock
@@ -214,14 +215,28 @@ def test_ds15_authority_badges_bind_rendered_semantics_not_badge_markers() -> No
 
 def test_ds15_register_transition_binds_query_consumer_and_preserves_peers() -> None:
     """Admit DS15 evidence without upgrading its bounded external non-closure."""
-    original = _register_text_at(
+    historical = _register_text_at(
         "fb06e4942b1daad7cab32c106740c89693fe5975"
+    )
+    _old_start, _old_end, historical_entry = checker._json_entry_object_span(
+        historical,
+        checker.C11B_QUERY_MEMORY_ROOT_ID,
+    )
+    current = checker.REGISTER_PATH.read_text(encoding="utf-8")
+    current_start, current_end, _current_entry = checker._json_entry_object_span(
+        current,
+        checker.C11B_QUERY_MEMORY_ROOT_ID,
+    )
+    original = (
+        current[:current_start]
+        + checker._render_root_entry(historical_entry)
+        + current[current_end:]
     )
     readiness = checker.DS1_PATH.read_bytes()
     candidate = checker._ds15_acquisition_routes_candidate_text(original)
 
     assert candidate != original  # noqa: S101
-    assert candidate == checker.REGISTER_PATH.read_text(encoding="utf-8")  # noqa: S101
+    assert candidate == current  # noqa: S101
     assert (  # noqa: S101
         checker._ds15_acquisition_routes_candidate_text(candidate) == candidate
     )
@@ -254,6 +269,8 @@ def test_ds15_register_transition_binds_query_consumer_and_preserves_peers() -> 
         report_parity=False,
     ) == []
     assert set(checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES) == {  # noqa: S101
+        "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
+        "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
         "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
         "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
         "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
@@ -355,10 +372,13 @@ def test_ds10_query_key_evidence_identity_binds_the_current_owner() -> None:
 
 
 def test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure() -> None:
-    """Keep DS10 frozen while DS15 admits only the current four-source drift."""
+    """Keep DS10 frozen while DS15 admits only the complete current drift."""
     exact = checker.DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES[0]
+    stale_expected = dict(checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES)
+    stale_expected.pop(next(iter(stale_expected)))
     stale_admitted, stale_errors = checker._ds10_c13_external_nonclosure_admission(
-        [exact]
+        [exact],
+        expected_mismatches=stale_expected,
     )
 
     assert stale_admitted == ()  # noqa: S101
@@ -366,11 +386,22 @@ def test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure() ->
         "ds10_c13_external_source_binding_census_drift"
     ]
     admitted, admission_errors = checker._ds10_c13_external_nonclosure_admission(
-        [exact],
-        expected_mismatches=checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
+        [exact]
     )
     assert admission_errors == []  # noqa: S101
     assert admitted == (exact,)  # noqa: S101
+    ds15_admitted, ds15_admission_errors = (
+        checker._ds10_c13_external_nonclosure_admission(
+        [exact],
+        expected_mismatches=checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
+        )
+    )
+    assert ds15_admission_errors == []  # noqa: S101
+    assert ds15_admitted == (exact,)  # noqa: S101
+    assert (  # noqa: S101
+        checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
+        == checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
+    )
     assert set(checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES) == {  # noqa: S101
         "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
         "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
@@ -460,6 +491,95 @@ if _SPEC is None or _SPEC.loader is None:  # pragma: no cover - import bootstrap
     raise RuntimeError(f"Unable to import disposition checker from {CHECKER_PATH}")
 checker = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(checker)
+
+
+def _ds18_synthetic_root(
+    component: str,
+    root_id: str,
+    digest_fill: str,
+    *,
+    label_count: int,
+) -> dict[str, object]:
+    """Build one scanner root with an independently mutable source receipt."""
+    return {
+        "component_identity": component,
+        "root_id": root_id,
+        "root_source_sha256": "sha256:" + digest_fill * 64,
+        "time_semantics_label_render_count": label_count,
+    }
+
+
+def _ds18_synthetic_scan(
+    path_ref: str,
+    roots: list[dict[str, object]],
+) -> dict[str, object]:
+    """Build the smallest complete DS18 scanner result for root admission tests."""
+    return {
+        "exclusion_policy": "production_source_only",
+        "file_count": 1,
+        "file_manifest_sha256": "sha256:" + "a" * 64,
+        "files": [
+            {
+                "path": path_ref,
+                "receipt_kind": "render_roots",
+                "roots": roots,
+                "source_sha256": "sha256:" + "b" * 64,
+            }
+        ],
+        "root_count": len(roots),
+        "root_manifest_sha256": "sha256:" + "c" * 64,
+        "source_root": "apps/runtime-dashboard/src",
+    }
+
+
+def _ds18_synthetic_constants(path_ref: str, test_ref: str) -> ExitStack:
+    """Isolate a synthetic DS18 root graph from production declarations."""
+    stack = ExitStack()
+    stack.enter_context(
+        mock.patch.object(
+            checker,
+            "DS18_TIME_SEMANTICS_BEHAVIOR_TESTS",
+            {path_ref: [test_ref]},
+        )
+    )
+    stack.enter_context(
+        mock.patch.object(
+            checker,
+            "DS18_TIME_SEMANTICS_CROSS_FILE_INHERITANCE",
+            {},
+        )
+    )
+    stack.enter_context(
+        mock.patch.object(checker, "DS18_TIME_SEMANTICS_DIRECT_FILES", set())
+    )
+    stack.enter_context(
+        mock.patch.object(
+            checker,
+            "DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS",
+            {},
+        )
+    )
+    stack.enter_context(
+        mock.patch.object(checker, "DS18_TIME_SEMANTICS_ROOT_INHERITANCE", {})
+    )
+    stack.enter_context(
+        mock.patch.object(
+            checker,
+            "DS18_TIME_SEMANTICS_STRICT_PROJECTION_FILES",
+            set(),
+        )
+    )
+    stack.enter_context(
+        mock.patch.object(
+            checker,
+            "_ds18_source_receipt",
+            side_effect=lambda ref: {
+                "path": ref,
+                "sha256": "sha256:" + "d" * 64,
+            },
+        )
+    )
+    return stack
 
 
 _REGISTER_RELATIVE_PATH = (
@@ -4824,9 +4944,9 @@ import type DS11TrustEquals = require("./trust-glyphs");
             "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx"
         )
         expected = {
-            (cycle_board_path, 87): "debt:badge-governed-projection-availability",
-            (cycle_board_path, 145): "benign:opaque_metadata_or_taxonomy",
-            (cycle_board_path, 474): "debt:badge-governed-projection-availability",
+            (cycle_board_path, 88): "debt:badge-governed-projection-availability",
+            (cycle_board_path, 146): "benign:opaque_metadata_or_taxonomy",
+            (cycle_board_path, 521): "debt:badge-governed-projection-availability",
         }
         self.assertEqual(
             expected,
@@ -4845,7 +4965,7 @@ import type DS11TrustEquals = require("./trust-glyphs");
         )
         grouped = checker._authority_badge_sites_by_debt_group(scan)
         self.assertEqual(
-            [(cycle_board_path, 87), (cycle_board_path, 474)],
+            [(cycle_board_path, 88), (cycle_board_path, 521)],
             sorted(
                 (str(site["path"]), int(site["line"]))
                 for site in grouped["badge-governed-projection-availability"]
@@ -4858,7 +4978,7 @@ import type DS11TrustEquals = require("./trust-glyphs");
         }
         self.assertNotIn("prop-time-semantics-freshness", props)
         self.assertEqual(
-            [(cycle_board_path, 478)],
+            [(cycle_board_path, 525)],
             [
                 (str(site["path"]), int(site["line"]))
                 for site in props["prop-data-freshness"]["consumerSites"]
@@ -8100,6 +8220,359 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
         self.assertTrue(  # noqa: PT009
             any("landing_slice_reconciliation_required" in error for error in landing_errors)
         )
+
+    def test_reconciled_direct_roots_bind_independent_behavioral_evidence(
+        self,
+    ) -> None:
+        """Each reviewed direct root binds its own selector, bytes, and proof."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionRouteDetail.tsx"
+        )
+        structural_test_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionRouteDetail.structural.test.tsx"
+        )
+        run_test_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionRouteDetail.run.test.tsx"
+        )
+        scan = {
+            "exclusion_policy": "production_source_only",
+            "file_count": 1,
+            "file_manifest_sha256": "sha256:" + "a" * 64,
+            "files": [
+                {
+                    "path": path_ref,
+                    "receipt_kind": "render_roots",
+                    "roots": [
+                        {
+                            "component_identity": "AcquisitionRouteDetail",
+                            "root_id": "route-detail:structural",
+                            "root_source_sha256": "sha256:" + "1" * 64,
+                            "time_semantics_label_render_count": 1,
+                        },
+                        {
+                            "component_identity": "AcquisitionRouteDetail",
+                            "root_id": "route-detail:run",
+                            "root_source_sha256": "sha256:" + "2" * 64,
+                            "time_semantics_label_render_count": 1,
+                        },
+                        {
+                            "component_identity": "AcquisitionRouteDetail",
+                            "root_id": "route-detail:interaction-only",
+                            "root_source_sha256": "sha256:" + "3" * 64,
+                            "time_semantics_label_render_count": 0,
+                        },
+                    ],
+                    "source_sha256": "sha256:" + "b" * 64,
+                }
+            ],
+            "root_count": 3,
+            "root_manifest_sha256": "sha256:" + "c" * 64,
+            "source_root": "apps/runtime-dashboard/src",
+        }
+        with (
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_BEHAVIOR_TESTS",
+                {path_ref: [structural_test_ref, run_test_ref]},
+            ),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_CROSS_FILE_INHERITANCE",
+                {},
+            ),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_DIRECT_FILES",
+                set(),
+            ),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS",
+                {
+                    path_ref: {
+                        (
+                            "AcquisitionRouteDetail",
+                            0,
+                            "sha256:" + "1" * 64,
+                        ): (structural_test_ref,),
+                        (
+                            "AcquisitionRouteDetail",
+                            1,
+                            "sha256:" + "2" * 64,
+                        ): (run_test_ref,),
+                    }
+                },
+                create=True,
+            ),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_ROOT_INHERITANCE",
+                {},
+            ),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_STRICT_PROJECTION_FILES",
+                set(),
+            ),
+            mock.patch.object(
+                checker,
+                "_ds18_source_receipt",
+                side_effect=lambda ref: {
+                    "path": ref,
+                    "sha256": "sha256:" + "d" * 64,
+                },
+            ),
+        ):
+            coverage = checker._build_ds18_time_semantics_coverage(scan)
+
+        roots = coverage["files"][0]["roots"]
+        self.assertEqual(2, coverage["decision_bearing_root_count"])  # noqa: PT009
+        self.assertEqual(  # noqa: PT009
+            ["decision_bearing", "decision_bearing", "non_decision_bearing"],
+            [root["classification"] for root in roots],
+        )
+        self.assertEqual(  # noqa: PT009
+            [structural_test_ref],
+            [row["path"] for row in roots[0]["behavioral_evidence"]],
+        )
+        self.assertEqual(  # noqa: PT009
+            [run_test_ref],
+            [row["path"] for row in roots[1]["behavioral_evidence"]],
+        )
+
+    def test_legacy_direct_file_rejects_a_second_label_bearing_root(self) -> None:
+        """Legacy file evidence cannot auto-admit a newly added decision branch."""
+        path_ref = "apps/runtime-dashboard/src/features/example/Legacy.tsx"
+        test_ref = "apps/runtime-dashboard/src/features/example/Legacy.test.tsx"
+        scan = _ds18_synthetic_scan(
+            path_ref,
+            [
+                _ds18_synthetic_root("Legacy", "opening", "1", label_count=1),
+                _ds18_synthetic_root("Legacy", "added", "2", label_count=1),
+            ],
+        )
+        with (
+            _ds18_synthetic_constants(path_ref, test_ref),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_DIRECT_FILES",
+                {path_ref},
+            ),
+            pytest.raises(ValueError, match="exactly one"),
+        ):
+            checker._build_ds18_time_semantics_coverage(scan)
+
+    def test_reconciled_direct_root_rejects_undeclared_label_root(self) -> None:
+        """A new label-bearing branch cannot inherit another root's admission."""
+        path_ref = "apps/runtime-dashboard/src/features/example/Decision.tsx"
+        test_ref = "apps/runtime-dashboard/src/features/example/Decision.test.tsx"
+        scan = _ds18_synthetic_scan(
+            path_ref,
+            [
+                _ds18_synthetic_root("Decision", "declared", "1", label_count=1),
+                _ds18_synthetic_root("Decision", "undeclared", "2", label_count=1),
+            ],
+        )
+        with (
+            _ds18_synthetic_constants(path_ref, test_ref),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS",
+                {
+                    path_ref: {
+                        ("Decision", 0, "sha256:" + "1" * 64): (test_ref,),
+                    }
+                },
+            ),
+            pytest.raises(ValueError, match="label-bearing root set"),
+        ):
+            checker._build_ds18_time_semantics_coverage(scan)
+
+    def test_reconciled_direct_root_rejects_occurrence_retargeting(self) -> None:
+        """An occurrence selector cannot silently bind different root bytes."""
+        path_ref = "apps/runtime-dashboard/src/features/example/Decision.tsx"
+        test_ref = "apps/runtime-dashboard/src/features/example/Decision.test.tsx"
+        scan = _ds18_synthetic_scan(
+            path_ref,
+            [
+                _ds18_synthetic_root("Decision", "inserted", "2", label_count=1),
+            ],
+        )
+        with (
+            _ds18_synthetic_constants(path_ref, test_ref),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS",
+                {
+                    path_ref: {
+                        ("Decision", 0, "sha256:" + "1" * 64): (test_ref,),
+                    }
+                },
+            ),
+            pytest.raises(ValueError, match="root digest disagrees"),
+        ):
+            checker._build_ds18_time_semantics_coverage(scan)
+
+    def test_inherited_target_cannot_already_be_a_direct_root(self) -> None:
+        """Inheritance cannot downgrade or duplicate a directly evidenced root."""
+        path_ref = "apps/runtime-dashboard/src/features/example/Decision.tsx"
+        test_ref = "apps/runtime-dashboard/src/features/example/Decision.test.tsx"
+        root_hash = "sha256:" + "1" * 64
+        scan = _ds18_synthetic_scan(
+            path_ref,
+            [_ds18_synthetic_root("Decision", "direct", "1", label_count=1)],
+        )
+        with (
+            _ds18_synthetic_constants(path_ref, test_ref),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS",
+                {
+                    path_ref: {
+                        ("Decision", 0, root_hash): (test_ref,),
+                    }
+                },
+            ),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_ROOT_INHERITANCE",
+                {
+                    path_ref: {
+                        ("Decision", 0, root_hash): (
+                            (path_ref, "Decision", 0, root_hash),
+                        )
+                    }
+                },
+            ),
+            pytest.raises(ValueError, match="already a direct decision root"),
+        ):
+            checker._build_ds18_time_semantics_coverage(scan)
+
+    def test_landing_refresh_preserves_an_armed_frontend_freeze(self) -> None:
+        """Regeneration must reconcile the landing without disarming its gate."""
+        freeze = "3011c9584a0327661c8f5a9b695a1769ddb64385"
+        opening = {
+            "ds18_time_semantics_coverage": {
+                "frontend_freeze_commit": freeze,
+            }
+        }
+        scan = {"files": []}
+        rebuilt = {"frontend_freeze_commit": freeze}
+        with (
+            mock.patch.object(
+                checker,
+                "_ds18_time_semantics_scan",
+                return_value=scan,
+            ),
+            mock.patch.object(
+                checker,
+                "_build_ds18_time_semantics_coverage",
+                return_value=rebuilt,
+            ) as build,
+        ):
+            refreshed = checker._refresh_ds18_time_semantics_coverage(opening)
+
+        self.assertIs(rebuilt, refreshed)  # noqa: PT009
+        build.assert_called_once_with(scan, frontend_freeze_commit=freeze)
+
+    def test_root_scoped_inheritance_does_not_upgrade_a_sibling_root(self) -> None:
+        """A reviewed wrapper inherits one owner without relabelling its sibling."""
+        path_ref = "apps/runtime-dashboard/src/features/example/Conditional.tsx"
+        test_ref = "apps/runtime-dashboard/src/features/example/Conditional.test.tsx"
+        scan = {
+            "exclusion_policy": "production_source_only",
+            "file_count": 1,
+            "file_manifest_sha256": "sha256:" + "a" * 64,
+            "files": [
+                {
+                    "path": path_ref,
+                    "receipt_kind": "render_roots",
+                    "roots": [
+                        {
+                            "component_identity": "FirstDecision",
+                            "root_id": "first",
+                            "root_source_sha256": "sha256:" + "1" * 64,
+                            "time_semantics_label_render_count": 1,
+                        },
+                        {
+                            "component_identity": "Sibling",
+                            "root_id": "sibling",
+                            "root_source_sha256": "sha256:" + "2" * 64,
+                            "time_semantics_label_render_count": 0,
+                        },
+                        {
+                            "component_identity": "Conditional",
+                            "root_id": "wrapper",
+                            "root_source_sha256": "sha256:" + "3" * 64,
+                            "time_semantics_label_render_count": 0,
+                        },
+                    ],
+                    "source_sha256": "sha256:" + "b" * 64,
+                }
+            ],
+            "root_count": 3,
+            "root_manifest_sha256": "sha256:" + "c" * 64,
+            "source_root": "apps/runtime-dashboard/src",
+        }
+        with (
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_BEHAVIOR_TESTS",
+                {path_ref: [test_ref]},
+            ),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_CROSS_FILE_INHERITANCE",
+                {},
+            ),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_DIRECT_FILES",
+                {path_ref},
+            ),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS",
+                {},
+            ),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_ROOT_INHERITANCE",
+                {
+                    path_ref: {
+                        ("Conditional", 0, "sha256:" + "3" * 64): (
+                            (
+                                path_ref,
+                                "FirstDecision",
+                                0,
+                                "sha256:" + "1" * 64,
+                            ),
+                        )
+                    }
+                },
+            ),
+            mock.patch.object(
+                checker,
+                "DS18_TIME_SEMANTICS_STRICT_PROJECTION_FILES",
+                set(),
+            ),
+            mock.patch.object(
+                checker,
+                "_ds18_source_receipt",
+                return_value={"path": test_ref, "sha256": "sha256:" + "d" * 64},
+            ),
+        ):
+            coverage = checker._build_ds18_time_semantics_coverage(scan)
+
+        roots = coverage["files"][0]["roots"]
+        self.assertEqual(1, coverage["decision_bearing_root_count"])  # noqa: PT009
+        self.assertEqual(1, coverage["inherits_admitted_dom_root_count"])  # noqa: PT009
+        self.assertEqual("non_decision_bearing", roots[1]["classification"])  # noqa: PT009
+        self.assertEqual("inherits_admitted_dom", roots[2]["classification"])  # noqa: PT009
+        self.assertEqual("first", roots[2]["inherited_from"]["root_id"])  # noqa: PT009
 
 
 if __name__ == "__main__":

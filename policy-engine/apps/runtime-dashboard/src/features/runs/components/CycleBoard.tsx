@@ -7,6 +7,7 @@ import {
 } from "@/features/runs/api/useAcquisitionRoutes";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { DataFreshnessBadge } from "@/shared/ui/compounds/DataFreshnessBadge";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { Badge, Button, Card } from "@polisyos/atlas-ui";
 
 import { downloadCycleBoardPacket } from "./cycleBoardExport";
@@ -277,6 +278,12 @@ function LoadedAcquisitionGrowth({
           {t("pages.cycleBoard.acquisition.subtitle")}
         </p>
       </header>
+      <div data-testid="acquisition-growth-time-semantics">
+        <TimeSemanticsLabel
+          freshness={projection.packet.freshness}
+          payloadAsOf={projection.packet.as_of}
+        />
+      </div>
 
       <dl className="grid gap-2 text-sm sm:grid-cols-2 xl:grid-cols-6">
         {(
@@ -302,11 +309,25 @@ function LoadedAcquisitionGrowth({
         <ConnectorAcquisitionScorecard
           carrierLiveness={payload.carrier_liveness}
           familyCount={payload.summary.family_scorecard_count}
+          freshness={projection.packet.freshness}
+          payloadAsOf={projection.packet.as_of}
         />
-        <AcquisitionQuarantineLedger history={payload.n13b_history} />
+        <AcquisitionQuarantineLedger
+          freshness={projection.packet.freshness}
+          history={payload.n13b_history}
+          payloadAsOf={projection.packet.as_of}
+        />
       </div>
-      <AcquisitionPassportPanel history={payload.n13b_history} />
-      <AcquisitionGrowthBacklog backlog={payload.backlog} />
+      <AcquisitionPassportPanel
+        freshness={projection.packet.freshness}
+        history={payload.n13b_history}
+        payloadAsOf={projection.packet.as_of}
+      />
+      <AcquisitionGrowthBacklog
+        backlog={payload.backlog}
+        freshness={projection.packet.freshness}
+        payloadAsOf={projection.packet.as_of}
+      />
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">
@@ -326,27 +347,53 @@ function LoadedAcquisitionGrowth({
   );
 }
 
-function QueriedAcquisitionGrowth() {
+function AcquisitionGrowthBoundary({
+  isError = false,
+  isLoading = false,
+  projection,
+}: {
+  isError?: boolean;
+  isLoading?: boolean;
+  projection?: AcquisitionGrowthProjection;
+}) {
   const { t } = useI18n();
+  return (
+    <section className="space-y-4" data-testid="acquisition-growth-boundary">
+      <div data-testid="acquisition-growth-boundary-time-semantics">
+        <TimeSemanticsLabel
+          freshness={projection?.packet.freshness}
+          payloadAsOf={projection?.packet.as_of}
+        />
+      </div>
+      {isLoading ? (
+        <Card data-testid="acquisition-growth-loading">
+          {t("pages.cycleBoard.acquisition.loading")}
+        </Card>
+      ) : null}
+      {!isLoading && (isError || !projection) ? (
+        <Card data-testid="acquisition-growth-unavailable">
+          <h2 className="font-semibold">
+            {t("pages.cycleBoard.acquisition.unavailableTitle")}
+          </h2>
+          <p>{t("pages.cycleBoard.acquisition.unavailableBody")}</p>
+        </Card>
+      ) : null}
+      {!isLoading && !isError && projection ? (
+        <LoadedAcquisitionGrowth projection={projection} />
+      ) : null}
+    </section>
+  );
+}
+
+function QueriedAcquisitionGrowth() {
   const query = useAcquisitionGrowth();
-  if (query.isLoading) {
-    return (
-      <Card data-testid="acquisition-growth-loading">
-        {t("pages.cycleBoard.acquisition.loading")}
-      </Card>
-    );
-  }
-  if (query.isError || !query.data) {
-    return (
-      <Card data-testid="acquisition-growth-unavailable">
-        <h2 className="font-semibold">
-          {t("pages.cycleBoard.acquisition.unavailableTitle")}
-        </h2>
-        <p>{t("pages.cycleBoard.acquisition.unavailableBody")}</p>
-      </Card>
-    );
-  }
-  return <LoadedAcquisitionGrowth projection={query.data} />;
+  return (
+    <AcquisitionGrowthBoundary
+      isError={query.isError}
+      isLoading={query.isLoading}
+      projection={query.data}
+    />
+  );
 }
 
 function AcquisitionGrowthSurface({
@@ -355,7 +402,7 @@ function AcquisitionGrowthSurface({
   projection?: AcquisitionGrowthProjection;
 }) {
   return projection ? (
-    <LoadedAcquisitionGrowth projection={projection} />
+    <AcquisitionGrowthBoundary projection={projection} />
   ) : (
     <QueriedAcquisitionGrowth />
   );

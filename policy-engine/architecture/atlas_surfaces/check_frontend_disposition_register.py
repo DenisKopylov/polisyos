@@ -67,6 +67,44 @@ DS18_TIME_SEMANTICS_LANDING_RULE = (
     "fresh file/root receipt, independent classification, and behavioral proof"
 )
 DS18_TIME_SEMANTICS_BEHAVIOR_TESTS = {
+    "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionApprovalFlow.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionApprovalFlow.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionExecutionTimeline.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionGrowthBacklog.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionPassportPanel.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionQuarantineLedger.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionRouteDetail.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "ConnectorAcquisitionScorecard.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
     "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts": [
         "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/"
         "bureaucratic-document-ast.test.ts",
@@ -117,6 +155,10 @@ DS18_TIME_SEMANTICS_BEHAVIOR_TESTS = {
         "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
         "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
     ],
+    "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "AcquisitionTimeSemantics.test.tsx",
+    ],
     "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx": [
         "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.test.tsx",
     ],
@@ -145,6 +187,127 @@ DS18_TIME_SEMANTICS_DIRECT_FILES = {
     "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
     "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx",
 }
+DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS = {
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionApprovalFlow.tsx": {
+        (
+            "AcquisitionApprovalFlow",
+            0,
+            "sha256:bf985a18cd992ecd33096bcd32b5970f30024465d2cfc29f81f1483018e64f61",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionApprovalFlow.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionExecutionTimeline.tsx": {
+        (
+            "AcquisitionExecutionTimeline",
+            0,
+            "sha256:2e3a55451f2a9fe83d84e59b6de223b276539c0923cdbcca53a3f6cc401f1f62",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionGrowthBacklog.tsx": {
+        (
+            "AcquisitionGrowthBacklog",
+            0,
+            "sha256:74efd164f8d65840ecc7a795be0c374b9e428e5d2aecbc890f2801d785e36aac",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionPassportPanel.tsx": {
+        (
+            "AcquisitionPassportPanel",
+            0,
+            "sha256:c891d6c9dd6c73e65038f5be9ff2616817a303f9ce81934ffda9a700004eaff2",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionQuarantineLedger.tsx": {
+        (
+            "AcquisitionQuarantineLedger",
+            0,
+            "sha256:69aa3e633dd69df6fa9823e2311222f180b6414f7ad77ec9fe19332f9d42b5ad",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "AcquisitionRouteDetail.tsx": {
+        (
+            "AcquisitionRouteDetail",
+            0,
+            "sha256:677ab0b53b7b0be51278af00d898b27242370df84acfad277a7a65365518b0bf",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+        (
+            "AcquisitionRouteDetail",
+            1,
+            "sha256:4bad58733f957422093da2738b3cc31e5be9e439d125500cbd35c9eb744830f9",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "ConnectorAcquisitionScorecard.tsx": {
+        (
+            "ConnectorAcquisitionScorecard",
+            0,
+            "sha256:0aecbb01871407cb5abea64a4a34db271d5dad436cd881fa66beb06cb0ac49b7",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx": {
+        (
+            "LoadedAcquisitionGrowth",
+            0,
+            "sha256:aaf2037830f66b58ed3edef33b14a6c797842b60875972c5911d36bf1b6b1b35",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+        ),
+        (
+            "AcquisitionGrowthBoundary",
+            0,
+            "sha256:5a293c7aa700958316730ef3f14f70177a1d59e1a8dff7243416a55200b8de34",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx": {
+        (
+            "HumanDecisionWorkspace",
+            0,
+            "sha256:5e20d2720b5b9fd4c9f4ce04fb4105adc2b2da0f6baae237b7610c38130a4efb",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+        (
+            "AuthorizedCaseWorkspace",
+            2,
+            "sha256:76be3f9893d401fb5a21df186e21ba2d39ca9f9058a2bae8207b7b7a54f18c16",
+        ): (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "AcquisitionTimeSemantics.test.tsx",
+        ),
+    },
+}
 DS18_TIME_SEMANTICS_CROSS_FILE_INHERITANCE = {
     "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/"
     "BaseBureaucraticRenderer.tsx": (
@@ -158,6 +321,73 @@ DS18_TIME_SEMANTICS_CROSS_FILE_INHERITANCE = {
         "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/"
         "BureaucraticHeader.tsx"
     ),
+}
+DS18_TIME_SEMANTICS_ROOT_INHERITANCE = {
+    "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx": {
+        (
+            "QueriedAcquisitionGrowth",
+            0,
+            "sha256:7fc881226ab298dfee643a5e425d77146fde6af85d43230406e3257e29ad79d4",
+        ): (
+            (
+                "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+                "AcquisitionGrowthBoundary",
+                0,
+                "sha256:5a293c7aa700958316730ef3f14f70177a1d59e1a8dff7243416a55200b8de34",
+            ),
+        ),
+        (
+            "AcquisitionGrowthSurface",
+            0,
+            "sha256:50ca218a929ae89535f3da6f1a93d92ebec11c940f21970700a8c211b2709776",
+        ): (
+            (
+                "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+                "AcquisitionGrowthBoundary",
+                0,
+                "sha256:5a293c7aa700958316730ef3f14f70177a1d59e1a8dff7243416a55200b8de34",
+            ),
+        ),
+        (
+            "AcquisitionGrowthSurface",
+            1,
+            "sha256:325fc2a8f56a7d37f7530e2dbaf8ee3d236c19fbbc8ad38e3f26f93c0fa49471",
+        ): (
+            (
+                "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+                "AcquisitionGrowthBoundary",
+                0,
+                "sha256:5a293c7aa700958316730ef3f14f70177a1d59e1a8dff7243416a55200b8de34",
+            ),
+        ),
+        (
+            "CycleBoard",
+            0,
+            "sha256:ce474a47d9b505617216b2081cffb389b304995b8fd2ef3b1a304d312324475b",
+        ): (
+            (
+                "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+                "AcquisitionGrowthBoundary",
+                0,
+                "sha256:5a293c7aa700958316730ef3f14f70177a1d59e1a8dff7243416a55200b8de34",
+            ),
+        ),
+    },
+    "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx": {
+        (
+            "CaseWorkspacePage",
+            3,
+            "sha256:ab4d87d0bb35b966c4139b3f4ce7aaf8e623f14deea3721c4d6182fa1e07010c",
+        ): (
+            (
+                "apps/runtime-dashboard/src/features/runs/routes/"
+                "CaseWorkspacePage.tsx",
+                "AuthorizedCaseWorkspace",
+                2,
+                "sha256:76be3f9893d401fb5a21df186e21ba2d39ca9f9058a2bae8207b7b7a54f18c16",
+            ),
+        ),
+    },
 }
 
 _STATUS_SPEC = importlib.util.spec_from_file_location(
@@ -4883,7 +5113,7 @@ AUTHORITY_PRESENTATION_COUNTS = {
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:a6e22fb4982717dcde705496e4e19545ef0f5d5f6afdba9f791ada09a3a70274"
+    "sha256:6b4bb4eb26fc363b7bff448811539c2a32b229e30d4280efc9951bceac2fdae0"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
     "sha256:d41e26792102015380983470c5a4d91e57cd86ecd7e95b0cc61fc7798d2bd55f"
@@ -6584,7 +6814,7 @@ DS15_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS = {
     "529e354ba61570ed09ee3f79fe302c2406eb66aedc61b625a32b9cf2f8b34887": (
         "benign:interaction_or_editor_state"
     ),
-    "c70aa19e61d4a1d03270ace8db367d7d5df9a94a5c3b95f4d70d0f87010102ac": (
+    "dda67814744dbbf033d2dfd0b5b728b5ec68b8405b6c2e273e52688cf7fb16bd": (
         "benign:opaque_metadata_or_taxonomy"
     ),
     # Connector health is runtime liveness, never admission or policy authority.
@@ -8878,17 +9108,9 @@ DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = {
         "3a69dd559452400e50eec543fdf365c03cf5b3d358b6fc04adcb1b8953ce9ab8",
     ),
 }
-DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = {
-    **DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
-    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx": (
-        "d3b5819eb8e3a0390d4c7bc4f261457ddf2583d504424feaad2584c04ad5b6dd",
-        "53e8f6a47eceec9ce35b11fe1b8af9feac454167638bec5285cf4b2443861704",
-    ),
-    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx": (
-        "4bb0bea6d71ad045d3d129dc9455cb0f4786d723199d77d95a372de2c22542bb",
-        "65737022fc6b4c4a1c58a6aee45627be34b51a962bb0af6d145490a4496227c7",
-    ),
-}
+DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = dict(
+    DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
+)
 
 
 def _validate_ds10_capability_discovery_roots(
@@ -15289,9 +15511,11 @@ def _ds18_source_receipt(path_ref: str) -> dict[str, str]:
     }
 
 
-def _ds18_primary_direct_roots(scan: Mapping[str, Any]) -> dict[str, str]:
-    """Resolve one independently reviewed direct DS4 root per direct file."""
-    resolved: dict[str, str] = {}
+def _ds18_primary_direct_roots(
+    scan: Mapping[str, Any],
+) -> dict[str, dict[str, tuple[str, ...] | None]]:
+    """Resolve independently reviewed direct roots and root-specific proofs."""
+    resolved: dict[str, dict[str, tuple[str, ...] | None]] = {}
     files = {
         str(row["path"]): row
         for row in scan.get("files", [])
@@ -15309,22 +15533,131 @@ def _ds18_primary_direct_roots(scan: Mapping[str, Any]) -> dict[str, str]:
         ]
         if len(matching) != 1:
             raise ValueError(
-                f"DS18 direct file requires one TimeSemanticsLabel root: "
-                f"{path_ref}:{len(matching)}"
+                "DS18 legacy direct file requires exactly one "
+                f"TimeSemanticsLabel root: {path_ref}:{len(matching)}"
             )
-        resolved[path_ref] = str(matching[0]["root_id"])
+        resolved[path_ref] = {
+            str(root["root_id"]): None for root in matching
+        }
+
+    roots_by_selector = _ds18_root_selector_index(scan)
+    for path_ref, declarations in sorted(
+        DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS.items()
+    ):
+        if path_ref in resolved:
+            raise ValueError(
+                f"DS18 direct-root modes overlap for reconciled file: {path_ref}"
+            )
+        row = files.get(path_ref)
+        if not isinstance(row, Mapping):
+            raise ValueError(
+                f"DS18 reconciled direct file absent from scanner: {path_ref}"
+            )
+        root_bindings: dict[str, tuple[str, ...] | None] = {}
+        for selector, test_refs in declarations.items():
+            component, occurrence, expected_digest = selector
+            root = _ds18_resolve_root_selector(
+                roots_by_selector,
+                path_ref,
+                component,
+                occurrence,
+                expected_digest,
+                role="reconciled direct",
+            )
+            root_id = str(root["root_id"])
+            if root_id in root_bindings:
+                raise ValueError(
+                    f"DS18 reconciled direct root is declared twice: "
+                    f"{path_ref}:{root_id}"
+                )
+            if not test_refs:
+                raise ValueError(
+                    f"DS18 reconciled direct root lacks behavioral evidence: "
+                    f"{path_ref}:{root_id}"
+                )
+            root_bindings[root_id] = tuple(test_refs)
+        label_root_ids = {
+            str(root["root_id"])
+            for root in row.get("roots", [])
+            if isinstance(root, Mapping)
+            and int(root.get("time_semantics_label_render_count", 0)) > 0
+        }
+        if set(root_bindings) != label_root_ids:
+            raise ValueError(
+                "DS18 reconciled direct declarations disagree with label-bearing "
+                f"root set: {path_ref}:"
+                f"declared={sorted(root_bindings)}:scanned={sorted(label_root_ids)}"
+            )
+        resolved[path_ref] = root_bindings
     return resolved
 
 
-def _ds18_behavioral_evidence(path_ref: str) -> list[dict[str, str]]:
+def _ds18_behavioral_evidence(
+    path_ref: str,
+    test_refs: tuple[str, ...] | None = None,
+) -> list[dict[str, str]]:
     """Return content-bound executable evidence for one reconciled surface file."""
+    refs = (
+        tuple(DS18_TIME_SEMANTICS_BEHAVIOR_TESTS[path_ref])
+        if test_refs is None
+        else test_refs
+    )
     return [
         {
             **_ds18_source_receipt(test_ref),
             "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics",
         }
-        for test_ref in DS18_TIME_SEMANTICS_BEHAVIOR_TESTS[path_ref]
+        for test_ref in refs
     ]
+
+
+def _ds18_root_selector_index(
+    scan: Mapping[str, Any],
+) -> dict[tuple[str, str, int], Mapping[str, Any]]:
+    """Index scan roots by component-local occurrence, independent of line moves."""
+    by_selector: dict[tuple[str, str, int], Mapping[str, Any]] = {}
+    for scan_file in scan.get("files", []):
+        if not isinstance(scan_file, Mapping):
+            continue
+        path_ref = str(scan_file["path"])
+        occurrences: Counter[str] = Counter()
+        for scanned_root in scan_file.get("roots", []):
+            if not isinstance(scanned_root, Mapping):
+                continue
+            component = str(scanned_root.get("component_identity", ""))
+            occurrence = occurrences[component]
+            occurrences[component] += 1
+            selector = (path_ref, component, occurrence)
+            if selector in by_selector:
+                raise ValueError(f"DS18 root selector is ambiguous: {selector}")
+            by_selector[selector] = scanned_root
+    return by_selector
+
+
+def _ds18_resolve_root_selector(
+    roots_by_selector: Mapping[tuple[str, str, int], Mapping[str, Any]],
+    path_ref: str,
+    component: str,
+    occurrence: int,
+    expected_digest: str,
+    *,
+    role: str,
+) -> Mapping[str, Any]:
+    """Resolve one root selector and bind it to the reviewed root bytes."""
+    root = roots_by_selector.get((path_ref, component, occurrence))
+    if root is None:
+        raise ValueError(
+            f"DS18 {role} root selector is absent: "
+            f"{path_ref}:{component}:{occurrence}"
+        )
+    actual_digest = str(root.get("root_source_sha256", ""))
+    if actual_digest != expected_digest:
+        raise ValueError(
+            f"DS18 {role} root digest disagrees: "
+            f"{path_ref}:{component}:{occurrence}:"
+            f"expected={expected_digest}:actual={actual_digest}"
+        )
+    return root
 
 
 def _build_ds18_time_semantics_coverage(
@@ -15333,19 +15666,84 @@ def _build_ds18_time_semantics_coverage(
     frontend_freeze_commit: str | None = None,
 ) -> dict[str, Any]:
     """Build explicit per-file/per-root receipts from the reconciled C06 census."""
-    primary_roots = _ds18_primary_direct_roots(scan)
-    file_rows = {
-        str(row["path"]): row
-        for row in scan.get("files", [])
-        if isinstance(row, Mapping)
+    primary_root_bindings = _ds18_primary_direct_roots(scan)
+    primary_roots = {
+        path_ref: tuple(bindings)
+        for path_ref, bindings in primary_root_bindings.items()
     }
+    roots_by_selector = _ds18_root_selector_index(scan)
 
-    def owner_for(path_ref: str) -> tuple[str, str] | None:
+    declared_root_owners: dict[
+        tuple[str, str], tuple[tuple[str, str], ...]
+    ] = {}
+    for path_ref, rules in DS18_TIME_SEMANTICS_ROOT_INHERITANCE.items():
+        for selector, owner_selectors in rules.items():
+            component, occurrence, expected_digest = selector
+            target = _ds18_resolve_root_selector(
+                roots_by_selector,
+                path_ref,
+                component,
+                occurrence,
+                expected_digest,
+                role="inherited target",
+            )
+            target_root_id = str(target["root_id"])
+            if target_root_id in primary_roots.get(path_ref, ()):
+                raise ValueError(
+                    "DS18 inherited target is already a direct decision root: "
+                    f"{path_ref}:{target_root_id}"
+                )
+            owners: list[tuple[str, str]] = []
+            for owner_selector in owner_selectors:
+                (
+                    owner_path,
+                    owner_component,
+                    owner_occurrence,
+                    owner_expected_digest,
+                ) = owner_selector
+                owner_root = _ds18_resolve_root_selector(
+                    roots_by_selector,
+                    owner_path,
+                    owner_component,
+                    owner_occurrence,
+                    owner_expected_digest,
+                    role="inherited owner",
+                )
+                owner_root_id = str(owner_root["root_id"])
+                if owner_root_id not in primary_roots.get(owner_path, ()):
+                    raise ValueError(
+                        "DS18 inherited owner is not a direct decision root: "
+                        f"{owner_path}:{owner_root_id}"
+                    )
+                owners.append((owner_path, owner_root_id))
+            if not owners:
+                raise ValueError(
+                    "DS18 inherited target requires an admitted owner: "
+                    f"{path_ref}:{component}:{occurrence}"
+                )
+            if len(owners) != 1:
+                raise ValueError(
+                    "DS18 inherited target requires one unambiguous owner: "
+                    f"{path_ref}:{component}:{occurrence}:{len(owners)}"
+                )
+            declared_root_owners[(path_ref, target_root_id)] = tuple(owners)
+
+    def file_owner_for(path_ref: str) -> tuple[str, str] | None:
         owner_path = DS18_TIME_SEMANTICS_CROSS_FILE_INHERITANCE.get(path_ref)
         if owner_path is not None:
-            return owner_path, primary_roots[owner_path]
-        own_root = primary_roots.get(path_ref)
-        return (path_ref, own_root) if own_root is not None else None
+            owner_roots = primary_roots[owner_path]
+            if len(owner_roots) != 1:
+                raise ValueError(
+                    "DS18 inherited owner requires one unambiguous direct root: "
+                    f"{path_ref}:{owner_path}:{len(owner_roots)}"
+                )
+            return owner_path, owner_roots[0]
+        if path_ref in DS18_TIME_SEMANTICS_ROOT_INHERITANCE:
+            return None
+        own_roots = primary_roots.get(path_ref)
+        if own_roots is None or len(own_roots) != 1:
+            return None
+        return path_ref, own_roots[0]
 
     files: list[dict[str, Any]] = []
     obligated_roots = 0
@@ -15354,7 +15752,6 @@ def _build_ds18_time_semantics_coverage(
     inherited_roots = 0
     for scan_file in scan.get("files", []):
         path_ref = str(scan_file["path"])
-        owner = owner_for(path_ref)
         roots: list[dict[str, Any]] = []
         for scanned_root in scan_file.get("roots", []):
             root = dict(scanned_root)
@@ -15366,13 +15763,17 @@ def _build_ds18_time_semantics_coverage(
                 }
             )
             root_id = str(scanned_root["root_id"])
+            owners = declared_root_owners.get((path_ref, root_id))
+            if owners is None:
+                file_owner = file_owner_for(path_ref)
+                owners = () if file_owner is None else (file_owner,)
             if path_ref in DS18_TIME_SEMANTICS_STRICT_PROJECTION_FILES:
                 classification = "decision_bearing"
                 temporal_binding = "strict_non_jsx_projection"
-            elif path_ref in primary_roots and root_id == primary_roots[path_ref]:
+            elif root_id in primary_roots.get(path_ref, ()):
                 classification = "decision_bearing"
                 temporal_binding = "direct_ds4"
-            elif owner is not None:
+            elif owners:
                 classification = "inherits_admitted_dom"
                 temporal_binding = None
             else:
@@ -15383,19 +15784,26 @@ def _build_ds18_time_semantics_coverage(
                 decision_roots += 1
                 obligated_roots += 1
                 covered_roots += 1
-                root["behavioral_evidence"] = _ds18_behavioral_evidence(path_ref)
+                root_specific_tests = primary_root_bindings.get(
+                    path_ref, {}
+                ).get(root_id)
+                root["behavioral_evidence"] = _ds18_behavioral_evidence(
+                    path_ref,
+                    root_specific_tests,
+                )
                 root["temporal_binding"] = temporal_binding
                 root["temporal_obligation"] = "as_of_epoch_validity"
             elif classification == "inherits_admitted_dom":
                 inherited_roots += 1
                 obligated_roots += 1
                 covered_roots += 1
-                if owner is None:  # pragma: no cover - construction guard
+                if not owners:  # pragma: no cover - construction guard
                     raise ValueError(f"DS18 inherited root has no owner: {path_ref}")
                 root["behavioral_evidence"] = _ds18_behavioral_evidence(path_ref)
+                owner_path, owner_root_id = owners[0]
                 root["inherited_from"] = {
-                    "path": owner[0],
-                    "root_id": owner[1],
+                    "path": owner_path,
+                    "root_id": owner_root_id,
                 }
                 root["temporal_obligation"] = "as_of_epoch_validity"
             else:
@@ -15440,6 +15848,24 @@ def _build_ds18_time_semantics_coverage(
         ),
         "files": files,
     }
+
+
+def _refresh_ds18_time_semantics_coverage(
+    opening: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Recompute landing receipts without silently disarming an existing freeze."""
+    existing = opening.get("ds18_time_semantics_coverage")
+    if not isinstance(existing, Mapping):
+        raise ValueError("DS18 time-semantics opening coverage is missing")
+    frontend_freeze_commit = existing.get("frontend_freeze_commit")
+    if frontend_freeze_commit is not None and not isinstance(
+        frontend_freeze_commit, str
+    ):
+        raise ValueError("DS18 frontend freeze commit is invalid")
+    return _build_ds18_time_semantics_coverage(
+        _ds18_time_semantics_scan(),
+        frontend_freeze_commit=frontend_freeze_commit,
+    )
 
 
 def _ds18_evidence_errors(
@@ -17665,9 +18091,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
         try:
             opening = _load_json(REGISTER_PATH)
-            coverage = _build_ds18_time_semantics_coverage(
-                _ds18_time_semantics_scan()
-            )
+            coverage = _refresh_ds18_time_semantics_coverage(opening)
             candidate: dict[str, Any] = {}
             for key, value in opening.items():
                 if key == "seeded_negative_lifecycle":

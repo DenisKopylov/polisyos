@@ -1,5 +1,5 @@
 import { onlineManager } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type {
   AcquisitionDecisionRequestResponse,
@@ -9,6 +9,10 @@ import type {
 import { MemoryRouter } from "react-router-dom";
 
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
+import {
+  EpochSemanticsProvider,
+  type EpochSemantics,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
 
 const mocks = vi.hoisted(() => ({
   clearGate: vi.fn(),
@@ -91,6 +95,23 @@ import { AcquisitionApprovalFlow } from "./AcquisitionApprovalFlow";
 
 const digest = (suffix: string) => `sha256:${suffix.repeat(64).slice(0, 64)}`;
 
+function epoch(status: "current" | "revalidation_required"): EpochSemantics {
+  const requiresRevalidation = status === "revalidation_required";
+  return {
+    asOf: requiresRevalidation
+      ? "2026-08-29T13:00:00Z"
+      : "2026-08-29T12:00:00Z",
+    asOfReason: null,
+    currentEpochRef: digest(requiresRevalidation ? "b" : "a"),
+    epochRefs: [digest("a"), ...(requiresRevalidation ? [digest("b")] : [])],
+    kind: "admitted",
+    projectionSemanticHash: digest(requiresRevalidation ? "d" : "c"),
+    revalidationRequired: requiresRevalidation,
+    status,
+    validityStatus: requiresRevalidation ? "review_required" : "active",
+  };
+}
+
 function runRoute(
   overrides: Partial<AcquisitionRouteProjection> = {},
 ): AcquisitionRouteProjection {
@@ -157,18 +178,34 @@ function routeCapture(route = runRoute()) {
   return { packet: route, rawPacketBytes: new TextEncoder().encode("{}") };
 }
 
-function renderFlow(route = runRoute()) {
+function flowTree(
+  route: AcquisitionRouteProjection,
+  epochSemantics?: EpochSemantics,
+) {
+  const content = (
+    <MemoryRouter initialEntries={["/runs/run-1/case?paper=kept"]}>
+      <AcquisitionApprovalFlow canMutate route={route} />
+    </MemoryRouter>
+  );
+  return (
+    <LocaleProvider>
+      {epochSemantics ? (
+        <EpochSemanticsProvider value={epochSemantics}>
+          {content}
+        </EpochSemanticsProvider>
+      ) : (
+        content
+      )}
+    </LocaleProvider>
+  );
+}
+
+function renderFlow(route = runRoute(), epochSemantics?: EpochSemantics) {
   mocks.useAcquisitionRoute.mockReturnValue({
     data: routeCapture(route),
     refetch: mocks.refetchRoute,
   });
-  return render(
-    <LocaleProvider>
-      <MemoryRouter initialEntries={["/runs/run-1/case?paper=kept"]}>
-        <AcquisitionApprovalFlow canMutate route={route} />
-      </MemoryRouter>
-    </LocaleProvider>,
-  );
+  return render(flowTree(route, epochSemantics));
 }
 
 describe("AcquisitionApprovalFlow", () => {
@@ -211,6 +248,55 @@ describe("AcquisitionApprovalFlow", () => {
 
   afterEach(() => {
     onlineManager.setOnline(true);
+  });
+
+  it("renders its own epoch disclosure and reacts to revalidation", () => {
+    const route = runRoute();
+    const { rerender } = renderFlow(route, epoch("current"));
+    const flow = screen.getByTestId("acquisition-approval-flow");
+    const semantics = within(flow).getByTestId(
+      "acquisition-approval-time-semantics",
+    );
+    expect(
+      within(semantics).getByTestId("time-semantics-as-of"),
+    ).toHaveTextContent("2026-08-29T12:00:00Z");
+    expect(
+      within(semantics).getByTestId("time-semantics-epoch-status"),
+    ).toHaveTextContent("current");
+    expect(
+      within(semantics).getByTestId("time-semantics-validity"),
+    ).toHaveTextContent("active");
+
+    rerender(flowTree(route, epoch("revalidation_required")));
+    const moved = within(
+      screen.getByTestId("acquisition-approval-time-semantics"),
+    );
+    expect(moved.getByTestId("time-semantics-as-of")).toHaveTextContent(
+      "2026-08-29T13:00:00Z",
+    );
+    expect(moved.getByTestId("time-semantics-epoch-status")).toHaveTextContent(
+      "revalidation required",
+    );
+    expect(moved.getByTestId("time-semantics-validity")).toHaveTextContent(
+      "review_required",
+    );
+    expect(moved.getByTestId("time-semantics-revalidation")).toHaveTextContent(
+      "required",
+    );
+
+    rerender(flowTree(route));
+    const unknown = within(
+      screen.getByTestId("acquisition-approval-time-semantics"),
+    );
+    expect(
+      unknown.getByTestId("time-semantics-epoch-status"),
+    ).toHaveTextContent("not established");
+    expect(unknown.getByTestId("time-semantics-epoch")).toHaveTextContent(
+      "Epoch not established",
+    );
+    expect(unknown.getByTestId("time-semantics-validity")).toHaveTextContent(
+      "not established",
+    );
   });
 
   it("turns the refusal path into accountable approval and one fresh execution", async () => {

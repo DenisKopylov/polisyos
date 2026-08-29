@@ -8,6 +8,7 @@ import type {
 import type { ControlJobResponse } from "@/api/hooks/useControlJobStatus";
 import type { HumanDecisionCreateReceipt } from "@/api/validators";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { Badge, Card } from "@polisyos/atlas-ui";
 
 export type AcquisitionExecutionTimelineProps = Readonly<{
@@ -176,6 +177,10 @@ export function AcquisitionExecutionTimeline(
         </div>
         <Badge kind="warn">{props.route.authority_badge}</Badge>
       </header>
+
+      <div data-testid="acquisition-timeline-time-semantics">
+        <TimeSemanticsLabel />
+      </div>
 
       <p className="font-mono text-sm" aria-live="polite">
         {facts.at(-1)?.status}

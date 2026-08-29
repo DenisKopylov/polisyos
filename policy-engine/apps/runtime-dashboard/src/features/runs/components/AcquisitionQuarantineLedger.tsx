@@ -1,12 +1,20 @@
-import type { AcquisitionGrowthPayload } from "@polisyos/runtime-api-client";
+import type {
+  AcquisitionGrowthPayload,
+  ProjectionFreshness,
+} from "@polisyos/runtime-api-client";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { Badge, Card } from "@polisyos/atlas-ui";
 
 export function AcquisitionQuarantineLedger({
+  freshness,
   history,
+  payloadAsOf,
 }: {
+  freshness?: ProjectionFreshness | null;
   history: AcquisitionGrowthPayload["n13b_history"];
+  payloadAsOf?: string | null;
 }) {
   const { t } = useI18n();
   return (
@@ -25,6 +33,9 @@ export function AcquisitionQuarantineLedger({
           {history.quarantine}
         </Badge>
       </header>
+      <div data-testid="acquisition-quarantine-time-semantics">
+        <TimeSemanticsLabel freshness={freshness} payloadAsOf={payloadAsOf} />
+      </div>
       <p className="text-sm font-semibold">
         {t("pages.cycleBoard.acquisition.quarantine.counts", {
           admitted: history.response_admitted_count,

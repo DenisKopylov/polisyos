@@ -1,17 +1,25 @@
 import { useMemo, useState } from "react";
-import type { AcquisitionBacklogProjection } from "@polisyos/runtime-api-client";
+import type {
+  AcquisitionBacklogProjection,
+  ProjectionFreshness,
+} from "@polisyos/runtime-api-client";
 
 import {
   presentAcquisitionBacklog,
   type AcquisitionBacklogOrder,
 } from "@/features/runs/domain/acquisitionRoutePresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { Badge, Card } from "@polisyos/atlas-ui";
 
 export function AcquisitionGrowthBacklog({
   backlog,
+  freshness,
+  payloadAsOf,
 }: {
   backlog: readonly AcquisitionBacklogProjection[];
+  freshness?: ProjectionFreshness | null;
+  payloadAsOf?: string | null;
 }) {
   const { t } = useI18n();
   const [order, setOrder] = useState<AcquisitionBacklogOrder>("server_rank");
@@ -79,6 +87,10 @@ export function AcquisitionGrowthBacklog({
           </div>
         </dl>
       </header>
+
+      <div data-testid="acquisition-backlog-time-semantics">
+        <TimeSemanticsLabel freshness={freshness} payloadAsOf={payloadAsOf} />
+      </div>
 
       <label className="flex flex-wrap items-center gap-2 text-sm font-semibold">
         {t("pages.cycleBoard.acquisition.backlog.orderLabel")}

@@ -21,6 +21,7 @@ import {
   type RunPaperSemanticNode,
 } from "@/features/runs/domain/runPaperPresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { exportCapturedResponseBytes } from "@/shared/ui/dataExport";
 import { Button, Card, EmptyState, PanelSkeleton } from "@polisyos/atlas-ui";
 
@@ -363,6 +364,9 @@ function HumanDecisionWorkspace({
   const capturedGate = gateQuery.data;
   return (
     <div className="space-y-4" data-testid="human-decision-workspace">
+      <div data-testid="case-workspace-time-semantics">
+        <TimeSemanticsLabel />
+      </div>
       {capturedGate ? (
         <Button
           data-testid="human-decision-machine-export"
@@ -467,6 +471,9 @@ function AuthorizedCaseWorkspace({
   }
   return (
     <div className="space-y-4" data-testid="case-workspace-page">
+      <div data-testid="case-workspace-boundary-time-semantics">
+        <TimeSemanticsLabel />
+      </div>
       <Button
         type="button"
         variant="ghost"

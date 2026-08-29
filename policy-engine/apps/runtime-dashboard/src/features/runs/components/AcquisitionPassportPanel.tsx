@@ -1,12 +1,20 @@
-import type { AcquisitionGrowthPayload } from "@polisyos/runtime-api-client";
+import type {
+  AcquisitionGrowthPayload,
+  ProjectionFreshness,
+} from "@polisyos/runtime-api-client";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { Badge, Card } from "@polisyos/atlas-ui";
 
 export function AcquisitionPassportPanel({
+  freshness,
   history,
+  payloadAsOf,
 }: {
+  freshness?: ProjectionFreshness | null;
   history: AcquisitionGrowthPayload["n13b_history"];
+  payloadAsOf?: string | null;
 }) {
   const { t } = useI18n();
   const qualification = history.epoch_qualification;
@@ -26,6 +34,9 @@ export function AcquisitionPassportPanel({
         </h2>
         <Badge kind="warn">{qualification.status}</Badge>
       </header>
+      <div data-testid="acquisition-passport-time-semantics">
+        <TimeSemanticsLabel freshness={freshness} payloadAsOf={payloadAsOf} />
+      </div>
       <dl className="grid gap-2 text-sm md:grid-cols-2">
         <div>
           <dt className="font-semibold">

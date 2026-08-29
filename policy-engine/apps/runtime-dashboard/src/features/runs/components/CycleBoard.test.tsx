@@ -5,6 +5,15 @@ import { cycleBoardProjectionPacketFixture } from "@/test/fixtures/depthNCycleBo
 
 import { CycleBoard } from "./CycleBoard";
 
+const { useAcquisitionGrowthMock } = vi.hoisted(() => ({
+  useAcquisitionGrowthMock: vi.fn(),
+}));
+
+vi.mock("@/features/runs/api/useAcquisitionRoutes", () => ({
+  useAcquisitionGrowth: (...args: unknown[]) =>
+    useAcquisitionGrowthMock(...args),
+}));
+
 const acquisitionGrowthFixture = {
   absence_reason: null,
   as_of: "2026-08-27T12:00:00Z",
@@ -124,22 +133,24 @@ const acquisitionGrowthFixture = {
   stable_address: "/api/v1/exports/governed-projections/acquisition-growth",
 } as const;
 
-vi.mock("@/shared/i18n/LocaleProvider", () => ({
-  useI18n: () => ({
-    t: (key: string, values?: Record<string, unknown>) => {
-      if (key === "pages.cycleBoard.acquisition.backlog.title") {
-        return "Interim residual ordering — ranking only, not VOI";
-      }
-      if (key === "pages.cycleBoard.acquisition.backlog.zeroScoreBasis") {
-        return `${String(values?.scoreCount)} of ${String(values?.total)} ranking scores are 0.0; ${String(values?.confidenceCount)} of ${String(values?.total)} binding-confidence values are 0.0`;
-      }
-      if (key === "pages.cycleBoard.acquisition.quarantine.counts") {
-        return `${String(values?.raw)} raw responses · ${String(values?.admitted)} admitted`;
-      }
-      return key;
-    },
-  }),
-}));
+vi.mock("@/shared/i18n/LocaleProvider", () => {
+  const t = (key: string, values?: Record<string, unknown>) => {
+    if (key === "pages.cycleBoard.acquisition.backlog.title") {
+      return "Interim residual ordering — ranking only, not VOI";
+    }
+    if (key === "pages.cycleBoard.acquisition.backlog.zeroScoreBasis") {
+      return `${String(values?.scoreCount)} of ${String(values?.total)} ranking scores are 0.0; ${String(values?.confidenceCount)} of ${String(values?.total)} binding-confidence values are 0.0`;
+    }
+    if (key === "pages.cycleBoard.acquisition.quarantine.counts") {
+      return `${String(values?.raw)} raw responses · ${String(values?.admitted)} admitted`;
+    }
+    return key;
+  };
+  return {
+    useI18n: () => ({ t }),
+    useOptionalI18n: () => ({ t }),
+  };
+});
 
 function projectionFixture() {
   const packet = cycleBoardProjectionPacketFixture();
@@ -160,7 +171,30 @@ function growthProjectionFixture(): AcquisitionGrowthProjection {
   };
 }
 
+function growthProjectionAt(asOf: string): AcquisitionGrowthProjection {
+  const opening = growthProjectionFixture();
+  const packet: AcquisitionGrowthProjection["packet"] = {
+    ...opening.packet,
+    as_of: asOf,
+    freshness: { ...opening.packet.freshness, observed_at: asOf },
+  };
+  return {
+    packet,
+    payload: packet.payload,
+    rawPacketBytes: new TextEncoder().encode(JSON.stringify(packet)),
+  };
+}
+
 describe("CycleBoard honest hero rendering", () => {
+  beforeEach(() => {
+    useAcquisitionGrowthMock.mockReset();
+    useAcquisitionGrowthMock.mockReturnValue({
+      data: undefined,
+      isError: true,
+      isLoading: false,
+    });
+  });
+
   it("renders acquisition refusals and owner limits without laundering a structural route", () => {
     render(
       <CycleBoard
@@ -343,5 +377,60 @@ describe("CycleBoard honest hero rendering", () => {
         /^(?:current|fresh|up[- ]to[- ]date|board (?:is )?(?:current|fresh|up[- ]to[- ]date))$/iu,
       ),
     ).not.toBeInTheDocument();
+  });
+
+  it("keeps packet time attached through the production growth bridge", () => {
+    const projection = projectionFixture();
+    useAcquisitionGrowthMock.mockReturnValue({
+      data: growthProjectionAt("2026-08-29T12:00:00Z"),
+      isError: false,
+      isLoading: false,
+    });
+    const { rerender } = render(<CycleBoard projection={projection} />);
+    const semanticsIds = [
+      "acquisition-growth-boundary-time-semantics",
+      "acquisition-growth-time-semantics",
+      "connector-acquisition-time-semantics",
+      "acquisition-quarantine-time-semantics",
+      "acquisition-passport-time-semantics",
+      "acquisition-backlog-time-semantics",
+    ] as const;
+    for (const testId of semanticsIds) {
+      expect(
+        within(screen.getByTestId(testId)).getByTestId(
+          "time-semantics-payload-as-of",
+        ),
+      ).toHaveTextContent("2026-08-29T12:00:00Z");
+    }
+
+    useAcquisitionGrowthMock.mockReturnValue({
+      data: growthProjectionAt("2026-08-29T13:00:00Z"),
+      isError: false,
+      isLoading: false,
+    });
+    rerender(<CycleBoard projection={projection} />);
+    for (const testId of semanticsIds) {
+      expect(
+        within(screen.getByTestId(testId)).getByTestId(
+          "time-semantics-payload-as-of",
+        ),
+      ).toHaveTextContent("2026-08-29T13:00:00Z");
+    }
+  });
+
+  it("renders an unavailable acquisition query as a temporal nonreceipt", () => {
+    render(<CycleBoard projection={projectionFixture()} />);
+
+    const refusal = screen.getByTestId("acquisition-growth-unavailable");
+    expect(refusal).toBeInTheDocument();
+    const semantics = screen.getByTestId(
+      "acquisition-growth-boundary-time-semantics",
+    );
+    expect(
+      within(semantics).getByTestId("time-semantics-epoch-status"),
+    ).toHaveTextContent("epochChrome.status.not_established");
+    expect(
+      within(semantics).getByTestId("time-semantics-validity"),
+    ).toHaveTextContent("epochChrome.status.not_established");
   });
 });

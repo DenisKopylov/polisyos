@@ -1,15 +1,23 @@
-import type { AcquisitionGrowthPayload } from "@polisyos/runtime-api-client";
+import type {
+  AcquisitionGrowthPayload,
+  ProjectionFreshness,
+} from "@polisyos/runtime-api-client";
 
 import { presentConnectorAcquisitionScorecard } from "@/features/runs/domain/acquisitionRoutePresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { Badge, Card } from "@polisyos/atlas-ui";
 
 export function ConnectorAcquisitionScorecard({
   carrierLiveness,
   familyCount,
+  freshness,
+  payloadAsOf,
 }: {
   carrierLiveness: AcquisitionGrowthPayload["carrier_liveness"];
   familyCount: number;
+  freshness?: ProjectionFreshness | null;
+  payloadAsOf?: string | null;
 }) {
   const { t } = useI18n();
   const visible = presentConnectorAcquisitionScorecard(carrierLiveness);
@@ -28,6 +36,9 @@ export function ConnectorAcquisitionScorecard({
           {visible.health}
         </Badge>
       </header>
+      <div data-testid="connector-acquisition-time-semantics">
+        <TimeSemanticsLabel freshness={freshness} payloadAsOf={payloadAsOf} />
+      </div>
       <p className="text-muted-foreground text-sm">
         {t("pages.cycleBoard.acquisition.connector.familyCount", {
           count: familyCount,
@@ -56,7 +67,7 @@ export function ConnectorAcquisitionScorecard({
       {visible.tierDecayFindings.length > 0 ? (
         <ul className="min-w-0 list-disc space-y-1 pl-5 text-sm">
           {visible.tierDecayFindings.map((finding) => (
-            <li className="break-all font-mono" key={finding}>
+            <li className="font-mono break-all" key={finding}>
               {finding}
             </li>
           ))}

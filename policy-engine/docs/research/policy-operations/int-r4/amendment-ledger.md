@@ -331,3 +331,207 @@ amend_GY_O1:
 
 Silence, this prompt, or the existence of the request is not the second ruling. Pending ratification,
 the first form remains controlling.
+
+## 6. `AUD-F07` — Diagnosis Corpus Falsifiability
+
+Audit defect: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:113`.  
+Disposition: `accepted_with_variation`.
+
+No 24 thin packets were produced. The required input records, independent sealed oracle and
+consumer-level evaluator do not exist at this stage, so placeholder packet names would preserve the
+defect while overstating artifact maturity.
+
+The authoritative gap record is `amendment-diagnosis-corpus-gap.md`. It:
+
+- records zero instantiated packets and zero fabricated oracle outputs;
+- defines the immutable packet and sealed-oracle contract;
+- separates the five O3 mutations—wrong diagnosis, false ancestry, posterior escape, world-writer
+  escape and reprocess escape;
+- requires an adjacent independent-evidence positive control;
+- requires separately failing assertions at diagnosis, ancestry, posterior, writer and quarantine
+  consumers;
+- leaves `closure_test_AUD-F07: unmet`.
+
+The stage-1 phrase “fixed 24-case corpus” is therefore amended to “specified future 24-case corpus”
+until those artifacts and executions exist.
+
+## 7. `AUD-F09` — W4-K06 Capability-Standing Correction
+
+Audit defect: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:115`.  
+Disposition: `accepted`.
+
+Every capability cell that used `contract_only` solely because a Markdown research sketch existed has
+been corrected. The original six evidence-register columns remain, and traceability columns were
+added rather than replacing the ledgers.
+
+### 7.1 Corrected cells
+
+| Register row | Former cell | Corrected capability standing | Descriptive location retained |
+|---|---|---|---|
+| `INT-F07` | `contract_only as a research sketch` | `absent/unallocated` | `Research artifact note`: SMDV-1 research contract sketch; no admitted type. |
+| `INT-F15` | `contract_only research sketch` | `absent/unallocated` | `Research artifact note`: OPS-R7 closure matrix is a research contract sketch. |
+| `OPS-F04` | `contract_only research proposal` | `absent/unallocated` | `Research artifact note`: source-semantics/crosswalk proposal; no admitted type. |
+| `OPS-F05` | `contract_only` | `absent/unallocated` | `Research artifact note`: KPI contract sketch only. |
+| `OPS-F07` | `contract_only` | `absent/unallocated` | `Research artifact note`: constrained state-model sketch; no admitted type. |
+| `OPS-F09` | `contract_only response rule` | `absent/unallocated` | `Research artifact note`: response rule sketch. |
+| `OPS-F10` | `contract_only` | `absent/unallocated` | `Research artifact note`: role contract sketch. |
+| `OPS-F11` | `contract_only` | `absent/unallocated` | `Research artifact note`: reversibility contract sketch. |
+| `OPS-F12` | `contract_only` | `absent/unallocated` | `Research artifact note`: surveillance contract sketch. |
+| `OPS-F15` | `contract_only` | `absent/unallocated` | `Research artifact note`: operation-charter sketches. |
+
+The registers still explain W4-K06 in prose; no capability cell uses the stronger token for prose.
+
+### 7.2 Added traceability columns
+
+Both registers retain:
+
+```text
+Finding ID
+Finding
+Research standing
+Capability standing
+Gate consequence
+Route
+```
+
+and add:
+
+```text
+Evidence refs
+Kind / transfer
+Falsifier or resolution
+Research artifact note
+```
+
+This accepts `AUD-F11`'s surviving traceability cost without importing the rejected “register is a
+list” hypothesis.
+
+## 8. `AUD-F10` — Semantic Compatibility Without Representation Monopoly
+
+Audit defect: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:116`.  
+Disposition: `accepted`.
+
+The stage-1 “one vocabulary or kill” formulation is narrowed. The binding invariant is now:
+
+```text
+one governed source-diagnosis contract
+OR
+a versioned, total, tested crosswalk that preserves every authority consequence
+```
+
+Purpose-specific vocabularies may coexist:
+
+- SMDV-1 source diagnosis;
+- S13 destination/component attribution;
+- DDM signal and localization records;
+- OPS action families and constrained E/X/V/C state;
+- public validity and lifecycle statuses.
+
+A crosswalk conforms only if it is:
+
+1. total for every terminal and every contributor combination used by admitted consumers;
+2. versioned and content-bound;
+3. unable to map `expected_variation`, observation, version, behavior, context or unresolved into a
+   wider `prediction_error` permission;
+4. unable to erase a blocking contributor or mandatory lane;
+5. unable to convert `diagnosis_unresolved` into a positive learning or action authorization;
+6. conservative under domain refinements—a refinement may partition or annotate a class but cannot
+   widen authority;
+7. fail-closed when no mapping exists or mapping versions disagree;
+8. exercised by divergent cases retaining labels while violating the underlying property.
+
+This is an acceptance, not a decline. The evidence supports semantic unity at the authority boundary,
+but not one representation, one owner or one terminal set for every purpose.
+
+## 9. Commendations Owned By INT-R4
+
+### `AUD-F12` — Greenfield correction preserved
+
+Audit record: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:118`.  
+Disposition: `accepted`.
+
+The amended package continues to distinguish existing S13 typed attribution/accountability from the
+missing evidence-derived joint movement-diagnosis producer. Nothing reverts to “no typed attribution
+exists.”
+
+### `AUD-F13` — P35 restraint preserved
+
+Audit record: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:119`.  
+Disposition: `accepted`.
+
+The unexecuted repository-wide census remains `not_established`. No downstream conclusion is widened
+to require a global token zero; absence remains bounded to the inspected admitted chain.
+
+### `AUD-F14` — Receipt provenance preserved
+
+Audit record: `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:120`.  
+Disposition: `accepted`.
+
+Terminal and connector observations remain distinct. Failed Git transport is reported with its exact
+stderr; connector-observed SHAs and compare metadata are never presented as terminal command output.
+
+## 10. INT-Owned Disposition Register
+
+| Audit finding | Severity | Disposition | Audit line | Amendment line | Recorded outcome |
+|---|---|---|---|---|---|
+| `AUD-F01` | `material` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:107` | `int-r4/amendment-ledger.md:30-57` | Seven OPS-R7 validity questions discharged; implementation/verification still future. |
+| `AUD-F03` | `material` | `accepted_with_variation` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:109` | `int-r4/amendment-ledger.md:58-153` | Evaluation fully specified; holdout, oracle and results honestly remain absent. |
+| `AUD-F04` | `material` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:110` | `int-r4/amendment-ledger.md:154-238` | Fixed causal precedence withdrawn; five-field admission/routing shape and mandatory lanes adopted. |
+| `AUD-F05` | `material` | `routed_pending_principal` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:111` | `int-r4/amendment-ledger.md:239-334` | Literal interim GY-O1 semantics applied; separate eight-condition request awaits ruling. |
+| `AUD-F07` | `material` | `accepted_with_variation` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:113` | `int-r4/amendment-ledger.md:335-357` | Thin packets refused; artifact gap and five independent O3 mutations specified; closure unmet. |
+| `AUD-F09` | `material` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:115` | `int-r4/amendment-ledger.md:358-408` | All ten erroneous capability cells corrected; original six columns kept and four added. |
+| `AUD-F10` | `minor` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:116` | `int-r4/amendment-ledger.md:409-447` | Representation monopoly narrowed to one source semantics or total authority-preserving crosswalk. |
+| `AUD-F12` | `commendation` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:118` | `int-r4/amendment-ledger.md:448-456` | Greenfield correction preserved. |
+| `AUD-F13` | `commendation` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:119` | `int-r4/amendment-ledger.md:457-464` | P35 restraint and bounded absence preserved. |
+| `AUD-F14` | `commendation` | `accepted` | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md:120` | `int-r4/amendment-ledger.md:465-472` | Terminal/connector provenance separation preserved. |
+
+## 11. Joint Disposition And Severity Arithmetic
+
+Across both ledgers:
+
+```text
+accepted                    14
+accepted_with_variation      3
+routed_pending_principal     1
+declined_with_reason         0
+                           ---
+total                       18
+```
+
+```text
+blocking      0
+material      9
+minor         2
+commendation  7
+              --
+total        18
+```
+
+Checks:
+
+```text
+14 + 3 + 1 + 0 = 18
+0 + 9 + 2 + 7 = 18
+```
+
+`AUD-F05` is the one routed exception and is not counted as an ordinary acceptance or decline.
+No finding is omitted or duplicated. The OPS ledger owns eight rows; this ledger owns ten.
+
+## 12. Open Closure Tests
+
+The amendment closes or narrows arguments but does not claim fresh verification. At hand-back:
+
+```yaml
+AUD-F01_research_argument: amended
+AUD-F03_evaluation_specified: yes
+AUD-F03_results: not_established
+AUD-F04_five_field_shape: amended
+AUD-F05_interim_semantics: applied
+AUD-F05_principal_ruling: pending
+AUD-F07_fixture_corpus: absent/unallocated
+AUD-F09_capability_cells: corrected
+AUD-F10_semantic_invariant: amended
+audit_verdict_lifted: false
+```
+
+A stage-4 verifier, not this ledger, decides whether any audit finding is closed.

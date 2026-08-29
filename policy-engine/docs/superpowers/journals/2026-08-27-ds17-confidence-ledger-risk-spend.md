@@ -713,3 +713,78 @@ specialized projection service. Its existing three test companions, canonical
 schema, and this journal are outside the P39 mechanism count. The other three
 C02 mechanisms remain unchanged, generic `ProjectionId` remains 13, and every
 previous route/Rego/schema denominator remains frozen. Reserve remains **0**.
+
+## C02 cache-currentness correction — owner receipt reuse is not per-GET execution
+
+Review found a **NEW P38 current-execution/cache-proxy class**. This section
+supersedes every r2 phrase above that says each `get()` executes the worker, the
+result is a fresh execution, or each arm carries a fresh receipt. The r2 commit
+subject is historical, not a per-call contract. The owner-correct property is:
+each request resolves through `GovernedProjectionService`; the first unique
+exact owner identity executes the real isolated worker; an unchanged identity
+may reuse only that content-bound passed receipt after current source and every
+recorded dependency identity are revalidated; any decisive key/currentness
+change executes the worker again and reclassifies. A typed resolution or packet
+still cannot enter or seed the cache.
+
+The complete cache/currentness denominator, read from `_run_owner_validation`,
+is:
+
+1. pre-lookup guards re-evaluate the current expected source schema and rule;
+2. the exact cache key is resolved repository root, projection ID, current
+   expected owner-validator ID, current expected owner-validator version,
+   source content hash, the complete sorted `(relative path, content hash)`
+   component-binding tuple, and the canonical projected-payload hash;
+3. a cache hit re-hashes **every** path/identity in the complete dependency
+   manifest recorded by the worker (file bytes, directory listing, missing,
+   unreadable, or special-file identity); a malformed/outside-root binding or
+   any mismatch rejects reuse;
+4. only `passed` results are cached, and the locked second lookup repeats the
+   same dependency-currentness check;
+5. a new worker result is admitted only after strict result parsing and exact
+   reconciliation of projection ID, validator ID/version, complete component
+   identities and aggregate, projected-payload hash, dependency aggregate, and
+   required component dependencies. The worker receipt hash covers the complete
+   typed result.
+
+The audit found one decisive omission: current expected validator ID/version
+were used to admit a worker result but absent from the cache key. A coherent
+validator-version change therefore reused the old receipt and returned
+`available`. Both identity members are now part of the generic key; this fixes
+the mechanism for every governed projection, not only the C02 instance. The
+expected source schema/rule configuration is deliberately a pre-lookup guard
+rather than a key member because it is not passed to the worker: a mismatch
+blocks before cache lookup, and a current match cannot change the worker
+computation over the already-keyed source bytes.
+
+### Cache falsifier and focused receipts
+
+- The specialized test delegates to the unmodified real subprocess and only
+  counts executions. Before the key fix it fails at the validator-currentness
+  boundary: changed expected validator version returns cached `available`
+  (`1 failed`, exit `1`; real `105.90`, user `102.44`, sys `3.44`, uptime
+  `06:43` -> `06:45`).
+- Final behavior is exact: first plus unchanged request executes once and
+  returns the same receipt; coherent canonical source-byte change executes a
+  second time and selects `source_blocked/over_spend`; exact source restoration
+  reuses the original receipt with the count still two; validator-version and
+  validator-ID changes execute the third and fourth workers and both return
+  `invalid_source`; an attempted packet candidate changes neither the cache
+  snapshot nor the count. The final specialized test is `1 passed`, exit `0`;
+  real `131.06`, user `127.19`, sys `3.84`, uptime `07:02` -> `07:04`.
+- The focused cache family adds the coherent offline-candidate non-ingress test
+  and the generic full-dependency-manifest and exact-payload-key tests: `4
+  passed`, exit `0`; real `157.85`, user `152.59`, sys `5.22`, uptime `06:53`
+  -> `06:56`.
+- The complete governed-service importer denominator is branch/base 69
+  collected, **68 passed, 1 skipped**, exit `0/0`; branch real `207.20`, user
+  `194.54`, sys `7.80`, uptime `06:56` -> `06:59`; exact slice base real
+  `209.96`, user `197.35`, sys `8.15`, uptime `06:56` -> `07:00`. Targeted Ruff
+  is exit `0`, `All checks passed!`.
+
+This bounded correction changes three already-declared C02 mechanisms
+(`governed_projections.py`, the specialized packet contracts, and the
+specialized projection service), the existing specialized service test, and
+this journal. No schema, route, Rego, generated client, generic projection ID,
+second source, UI, signer, or reserve path changes. All previously frozen route
+denominators remain unchanged and C02 reserve remains **0**.

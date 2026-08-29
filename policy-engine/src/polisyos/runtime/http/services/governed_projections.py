@@ -945,6 +945,8 @@ _OWNER_VALIDATION_CACHE: dict[
         str,
         ProjectionId | GuardedProjectionId,
         str,
+        str,
+        str,
         tuple[tuple[str, str], ...],
         str,
     ],
@@ -1033,6 +1035,8 @@ def _run_owner_validation(
     cache_key = (
         str(resolved_root),
         definition.projection_id,
+        definition.owner_validator_id,
+        definition.owner_validator_version,
         loaded.content_hash,
         loaded.component_bindings,
         payload_hash,

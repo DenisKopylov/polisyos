@@ -1,8 +1,11 @@
 """Strict reviewer transport shape for confidence-ledger risk-spend packets.
 
 Parsing proves structural and self-hash coherence only. Owner provenance is
-established online by ``ConfidenceLedgerRiskSpendProjectionService`` running
-the isolated owner worker; no offline DTO label or self-hash authenticates it.
+established online by ``ConfidenceLedgerRiskSpendProjectionService`` resolving
+the current exact source, payload, validator, and dependency identity. The
+first unique identity executes the isolated owner worker; unchanged identities
+may reuse only its content-bound receipt after currentness revalidation. No
+offline DTO label or self-hash authenticates it.
 """
 
 from __future__ import annotations

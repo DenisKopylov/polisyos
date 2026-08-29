@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import json
 import shutil
+import subprocess
 from dataclasses import replace
 from fractions import Fraction
 from pathlib import Path
@@ -12,6 +13,7 @@ from typing import Any
 
 import pytest
 
+from polisyos.runtime.http.services import governed_projections as governed_sources
 from polisyos.runtime.http.services.confidence_ledger_risk_spend_contracts import (
     ArtifactMissingConfidenceLedgerRiskSpendPacket,
     AvailableConfidenceLedgerRiskSpendPacket,
@@ -341,3 +343,97 @@ def test_hand_authored_typed_resolution_cannot_enter_supported_service_api() -> 
             _ROOT,
             source_service=_FixedGuardedSourceService(forged),  # type: ignore[call-arg]
         )
+
+
+def test_owner_receipt_cache_reuses_only_complete_current_identity(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Reject reuse when canonical source or validator identity changes."""
+
+    source = _copy_source(tmp_path)
+    monkeypatch.setattr(governed_sources, "_OWNER_VALIDATION_CACHE", {})
+    real_run = governed_sources.subprocess.run
+    owner_worker_runs = 0
+
+    def count_real_owner_runs(
+        *args: Any,
+        **kwargs: Any,
+    ) -> subprocess.CompletedProcess[str]:
+        nonlocal owner_worker_runs
+        owner_worker_runs += 1
+        return real_run(*args, **kwargs)
+
+    monkeypatch.setattr(
+        governed_sources.subprocess,
+        "run",
+        count_real_owner_runs,
+    )
+    service = ConfidenceLedgerRiskSpendProjectionService(tmp_path)
+
+    first = service.get()
+    unchanged = service.get()
+
+    assert isinstance(first, AvailableConfidenceLedgerRiskSpendPacket)
+    assert isinstance(unchanged, AvailableConfidenceLedgerRiskSpendPacket)
+    assert unchanged.worker_validation_receipt_hash == first.worker_validation_receipt_hash
+    assert owner_worker_runs == 1
+
+    source.write_text(
+        json.dumps(coherent_over_spend_artifact(2, stale_total=True), sort_keys=True),
+        encoding="utf-8",
+    )
+    source_changed = service.get()
+
+    assert isinstance(source_changed, SourceBlockedConfidenceLedgerRiskSpendPacket)
+    assert source_changed.source_blocked_reason is SourceBlockedReason.OVER_SPEND
+    assert owner_worker_runs == 2
+
+    _copy_source(tmp_path)
+    source_restored = service.get()
+
+    assert isinstance(source_restored, AvailableConfidenceLedgerRiskSpendPacket)
+    assert (
+        source_restored.worker_validation_receipt_hash
+        == first.worker_validation_receipt_hash
+    )
+    assert owner_worker_runs == 2
+
+    definition = governed_sources._GUARDED_DEFINITION_BY_ID[  # noqa: SLF001
+        GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND
+    ]
+    monkeypatch.setitem(
+        governed_sources._GUARDED_DEFINITION_BY_ID,  # noqa: SLF001
+        GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND,
+        replace(
+            definition,
+            owner_validator_version=f"{definition.owner_validator_version}.changed",
+        ),
+    )
+    validator_changed = service.get()
+
+    assert isinstance(validator_changed, InvalidConfidenceLedgerRiskSpendPacket)
+    assert owner_worker_runs == 3
+
+    monkeypatch.setitem(
+        governed_sources._GUARDED_DEFINITION_BY_ID,  # noqa: SLF001
+        GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND,
+        replace(
+            definition,
+            owner_validator_id=f"{definition.owner_validator_id}.changed",
+        ),
+    )
+    validator_id_changed = service.get()
+
+    assert isinstance(validator_id_changed, InvalidConfidenceLedgerRiskSpendPacket)
+    assert owner_worker_runs == 4
+
+    cache_snapshot = dict(  # noqa: SLF001
+        governed_sources._OWNER_VALIDATION_CACHE
+    )
+    with pytest.raises(TypeError, match="packet_candidate"):
+        service.get(
+            packet_candidate=source_restored,  # type: ignore[call-arg]
+        )
+    assert cache_snapshot == governed_sources._OWNER_VALIDATION_CACHE  # noqa: SLF001
+    assert owner_worker_runs == 4

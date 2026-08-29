@@ -1,39 +1,45 @@
 ---
 title: "INT-R5 — Pre-action decision authority proof"
 research_id: INT-R5
-status: delivered_research
+status: amended_research
 kind: deep-research
 result_type: accepted_narrow_scope
 research_only: true
 repository: https://github.com/DenisKopylov/polisyos
-repository_branch: research/int-r5-research
+repository_branch: research/int-r5-amendment
 current_repo_baseline: dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f
+package_head_audited: 02e203de90d51280d569e7f641a158569ae4df39
+audit_head: 247f89f016f71ee603ed76ef6dbb6403f7e651a0
 inspection_date: 2026-08-29
 research_standing: accepted_narrow_scope
 capability_standing: absent/unallocated
 gate_standing: NO_GO
-repository_verdict: shipped_model_sound_but_materially_incomplete
-canonical_owner_files_inspected: 10
+repository_verdict: narrow_components_sound_acquisition_composition_claim_withdrawn_full_model_incomplete
+selected_authority_slice_files: 10
+complete_executable_closure_claimed: false
 external_surveys_consumed: 5
-authoritative_for:
-  - research-level specification of a DecisionAuthorityGraph
-  - research-level specification of a pre-action DelegationValidityCertificate
-  - bounded comparison of that specification with the pinned shipped repository
-  - red-first semantic fixtures for later implementation
-  - implementation-routing and kill criteria for this authority capability
-may_not_use_for:
-  - production implementation authorization
-  - final wire, schema, database, package, API, or serialization contract
-  - legal-sufficiency conclusion in any jurisdiction
-  - institutional appointment or authority grant
-  - capability claim
-  - permission to publish, approve, execute, or open a gate
-  - individual-case authorization governed by PAO-R4
+external_survey_full_bytes_committed: false
 supporting_files:
   - int-r5/repository-baseline.md
   - int-r5/external-evidence-ledger.md
+  - int-r5/survey-source-manifest.md
   - int-r5/decision-authority-specification.md
   - int-r5/adversarial-fixtures.md
+  - int-r5/amendment-ledger.md
+authoritative_for:
+  - research-level specification of DecisionAuthorityGraph
+  - research-level specification of pre-action DelegationValidityCertificate
+  - bounded comparison with pinned selected repository surfaces
+  - red-first semantic fixtures and falsifiers
+  - later implementation routing and kill criteria
+may_not_use_for:
+  - production implementation authorization
+  - final wire, schema, package, API or persistence contract
+  - legal-sufficiency conclusion in any jurisdiction
+  - institutional appointment or authority grant
+  - repository-wide semantic absence claim
+  - capability promotion or gate opening
+  - individual-case authorization governed by PAO-R4
 ---
 
 # INT-R5 — Decision Authority Graph And Delegation Validity Certificate
@@ -49,725 +55,661 @@ conflict-of-interest posture?
 
 The research result is a `DecisionAuthorityGraph` and a
 `DelegationValidityCertificate`. The graph preserves authority provenance and
-jurisdiction-dependent predicates. The certificate is a reproducible pre-action reduction of that
-graph against an exact decision commitment and evaluation time. It is not an approval asserted by
-the requester and not an audit trail assembled after execution.
+jurisdiction-dependent predicates. The certificate is a reproducible pre-action reduction against an
+exact decision, independently established decision time and intended effect. It is neither an approval
+asserted by the requester nor an audit record assembled after execution.
 
-### 1.2 Why this remained research-first after the sequencing failure
+### 1.2 Sequencing relationships, corrected
 
-The backlog ordered `INT-R5` before `GY-PA2`, Atlas `DS9` and `DS14`, the DS20 vocabulary and
-acquisition approvals. At the pinned baseline, `GY-PA2`, `DS9` and `DS20` have shipped and the
-acquisition-approval path composes their primitives. The sequencing failure does not convert shipped
-behavior into the correct model. This pass therefore kept two objects separate:
+The backlog contains more than one relationship. It requires INT-R5 to land before GY-PA2 or Atlas
+DS9/DS14 consumers close, and separately says INT-R5 feeds DS20 vocabulary and acquisition approvals.
+The corrected ledger is:
 
-1. **Requirement-derived model** — derived from the question, identity decision and five external
-   surveys without accepting shipped fields merely because they exist.
-2. **Repository comparison** — mapping shipped predicates to that model, including explicit
-   absences and contradictions.
+```yaml
+closure_order_violations:
+  - GY-PA2
+  - DS9
+unclosed_named_consumer:
+  - DS14
+missed_feed_dependencies:
+  - DS20 action-permission vocabulary
+missing_integrations:
+  - acquisition -> PA2/DS9 institutional-authority bridge
+```
 
-The early-stop condition was a materially wrong merged authority rule requiring an architect ruling.
-No such contradiction was found. The shipped controls are sound inside their declared operational
-boundaries and materially incomplete as proof of institutional decision authority.
+There were **two explicit closure-order violations**, not three identical violations. DS20 is a
+separate missed feed; acquisition is a separate missing integration. This correction does not excuse
+the sequencing failure. It makes its types and arithmetic accurate.
 
-### 1.3 False production claims prevented
+### 1.3 Requirement-derived model versus shipped model
 
-This result rejects the following equivalences:
+The model is derived from the requirement and five external surveys before comparison with shipped
+fields. Existing code is not silently promoted into the correct authority model merely because it
+shipped first.
 
-- verified login, runtime role and permission **do not equal** institutional competence;
-- fresh MFA or step-up **does not equal** a valid delegation or appointment;
-- a signed `HumanDecisionRecord` **does not prove** that a collegial body validly acted;
-- a `governance_board` role token **does not prove** forum, composition, quorum or voting;
-- a disclosed conflict **does not cure** structural self-approval;
-- a permit computed at `t_check` **does not prove** authority at a later irreversible effect;
-- an authenticated external assertion **does not equal** cross-agency legal recognition;
-- a UI action called `approve` **does not determine** whether the legal act was consultation,
-  recommendation, condition-precedent approval or a binding decision.
+The comparison now yields four different statements:
 
-The most dangerous false claim would be: “DS20 admitted the request and DS9 persisted a signed human
-decision, therefore the named person or body was legally entitled to decide.” The repository does
-not support that conclusion.
+1. GY-PA2's declared five-predicate operational core is sound but incomplete for institutional
+   authority.
+2. DS9's run-bound source/currentness/custody path is sound but incomplete.
+3. DS20 is sound within its runtime operation/resource authorization boundary.
+4. The prior claim that acquisition already composes DS20 + PA2 + DS9 is **wrong and withdrawn**.
+   The production acquisition route is DS20-only; the institutional bridge is missing.
 
-### 1.4 Four-way boundary verdict
+No unsafe universal rule was found inside the three narrow component cores. One false topology claim
+was found in the research package itself and corrected by amendment.
+
+### 1.4 False equivalences prevented
+
+This result rejects:
+
+- verified login, role or permission = institutional competence;
+- fresh MFA/step-up = valid delegation or appointment;
+- signed `HumanDecisionRecord` = valid collegial act;
+- board role token = forum, composition, quorum or vote proof;
+- disclosed conflict = cured structural self-approval;
+- canonical hash of caller input = independently established semantic fact;
+- certificate at `t0` = knowledge of every possible authority state at `t1`;
+- authenticated external assertion = local recognition/authorization;
+- UI verb `approve` = legal classification of the act;
+- architectural adjacency = production call edge;
+- ten inspected files = complete executable closure;
+- INT-R5 certificate = PAO-R4 individual-use pass, or vice versa.
+
+### 1.5 Four-way identity and custody boundary
 
 | Plane | Verdict | PolicyOS responsibility | Boundary retained |
-| --- | --- | --- | --- |
-| Computation and custody of PolicyOS's own authority-validity statement | **OWN** | Recompute, bind, persist, monitor and replay the certificate or typed refusal. | PolicyOS owns its statement, not the office, meeting or external power. |
-| Appointments, delegations, meeting/quorum records, conflict/recusal decisions, recognition and legal-effect rules | **INTEGRATE** | Define typed purpose-limited interfaces; verify issuer, signature, scope, applicability and currentness. | External institutions remain source and adjudicator. |
-| Institutional succession and changes in who answers for external authority | **OBSERVE** | Consume changes because they can freeze or invalidate PolicyOS's certificate. | PolicyOS does not run succession or appoint holders. |
-| Meetings, appointments, disputed recusal adjudication, legal effect, execution and remedies | **OUT_OF_SCOPE** | Name the external owner and refuse when evidence is absent. | No administrator, court, case manager or executor role is absorbed. |
+|---|---|---|---|
+| computation and custody of PolicyOS's own bounded certificate/refusal | **OWN candidate** | recompute, bind, persist, monitor and replay after allocation | PolicyOS owns its statement, not the office or external power |
+| appointment, delegation, body/meeting, COI/recusal, recognition and legal-effect facts | **INTEGRATE** | typed purpose-limited adapters; issuer/content/scope/time verification | external institutions remain source/adjudicator |
+| succession and changes in external authority | **OBSERVE** | consume changes because they affect certificate standing | PolicyOS does not conduct succession |
+| meetings, appointments, disputed adjudication, execution and remedies | **OUT_OF_SCOPE** | name external owner and refuse when evidence is missing | no court, administrator, meeting operator or appointing authority absorbed |
 
-This extends the identity decision's existing §6 pattern: PolicyOS owns the contract and reaction of
-its signature while integrating or observing the sovereign function.
+No role holder is appointed by this research.
 
-### 1.5 PAO-R4 boundary
+### 1.6 PAO-R4 boundary and executable conjunction
 
-`PAO-R4` remains the individual-use firewall. `INT-R5` answers **who or which body had authority to
-make a decision**. It does not establish individual facts, decide whether a policy-level artifact
-may be applied to an individual, or authorize an individual outcome. A valid
-`DelegationValidityCertificate` cannot substitute for `PAO-R4`, and a `PAO-R4` pass cannot establish
-the decision-maker's competence.
+PAO-R4 remains the individual-use firewall. INT-R5 proves who or which body had authority to make the
+decision. It does not establish individual facts or permit a policy-level artifact to decide an
+individual case.
 
-### 1.6 Result in one sentence
+For an individual-case or pointwise-recoverable target, the future effect predicate is conjunctive:
 
-**The shipped model is sound but materially incomplete: it can prove a verified runtime principal
-had a current resource-bound permission and bounded human-decision mandate for a protected
-operation, but it cannot prove the full institutional proposition that the person or body had
-authority to make this exact decision.**
+```text
+protected effect :=
+    current INT-R5 institutional-authority receipt
+    ∩ DS20 exact operation/resource/permission/step-up admission
+    ∩ PAO-R4 crossing-gate receipt
+```
+
+Required negatives:
+
+- valid INT-R5 + failed/missing PAO-R4 -> zero individual effect;
+- valid PAO-R4 + failed/missing INT-R5 -> zero protected effect.
+
+Neither owner may infer or mint the other's result.
 
 ## 2. Current Repo Baseline
 
 ### 2.1 Pin, holder and denominator
 
-- Repository: `DenisKopylov/polisyos`
-- Pinned baseline: `dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f`
-- Research branch: `research/int-r5-research`
-- Step-0 skeleton commit: `000573d25bf3f38bdd8042e59f5ab4a1e59ab0c1`
-- Measurement holder: this INT-R5 pass through exact authenticated GitHub reads.
-- Canonical executable denominator: **10 files — nine Python owners and one Rego mirror**.
-- GitHub search-index zeroes were orientation only; executable absence claims come from reading the
-  complete named owner closure.
+```yaml
+repository: DenisKopylov/polisyos
+pin: dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f
+measurement_holder: INT-R5 stage-1 pass, corrected by stage-3 amendment
+selected_slice: int-r5-authority-slice-v1
+files: 10
+python: 9
+rego: 1
+complete_executable_closure: false
+```
 
-The full coordinate ledger is
-[`int-r5/repository-baseline.md`](int-r5/repository-baseline.md).
+The ten files are a selected authority slice covering named PA2, DS9, DS20 and acquisition
+coordinates. They are **not** a complete import/call/route/producer/consumer closure. Known positive
+controls outside the slice include the real human-decision route, production-approval resolver,
+acquisition effect service and transitive identity/security/event/store owners.
+
+Accordingly:
+
+```text
+absence in selected ten-file slice: established where all ten were read
+absence in complete executable/authority closure: not established by this research
+```
+
+Search-index zeroes remain orientation only.
 
 ### 2.2 Shipped component verdicts
 
-| Component | What it actually proves | Verdict |
-| --- | --- | --- |
-| `GY-PA2` | Five operational predicates — verified identity, explicit permission, mandate-bounded delegation, operation in envelope and live accountability — with exact operation/resource/subject/tenant/time/status binding. | **Sound but incomplete.** No source-law/jurisdiction, amount, parent grant, succession, collegial validity, COI, recognition or legal-effect model. |
-| `DS9` | Issuer-qualified human actor, separation from custody signer, exact evidence/presentation binding, narrow reviewer separation, strict source union, currentness re-resolution, CAS/event/idempotent guarded persistence. | **Sound but incomplete.** No general proposer/approver/executor/reviewer lineage, quorum, recusal, amount, succession or recognition. |
-| `DS20` | Verified runtime principal, exact permission, operation, resource binding, authorization source and signed replay-protected step-up; Python/Rego permission parity. | **Sound within boundary.** It proves runtime authorization, not institutional competence. |
-| acquisition-approval composition | `EVIDENCE_ACQUIRE` + request-bound acquisition resource + `ACQUISITION_APPROVAL` step-up, with PA2/DS9 mandate/currentness and guarded use. | **Sound but incomplete.** Closest pre-effect seam, still no institutional certificate. |
+| Component | What the inspected path proves | Amended verdict |
+|---|---|---|
+| `GY-PA2` | verified identity, explicit permission, mandate-bounded delegation, operation/envelope match and live accountability with operation/resource/subject/tenant/time/status binding | **sound within declared predicates; incomplete for INT-R5** |
+| `DS9` | actor/custodian separation, strict source union, raw-source re-resolution, currentness, narrow reviewer separation, guarded persistence/readback | **sound on run-bound human-decision path; incomplete for INT-R5** |
+| `DS20` | verified principal, exact permission, operation, resource, authorization source and signed replay-protected step-up | **sound within runtime authorization boundary** |
+| acquisition route | `EVIDENCE_ACQUIRE`, request-bound `runtime.evidence.acquisition`, `ACQUISITION_APPROVAL`, then `run_data_ingestion` | **DS20-only today; PA2/DS9 institutional bridge missing** |
 
-Historical DS20 closure recorded 29 unsafe POST operations and 29/29 admission/denial witnesses. At
-the pinned post-DS9 baseline, Python and Rego each contain **34** exact permissions. The older prose
-count of 33 is documentation drift caused by the later `runs.human_decisions.create` addition, not a
-parity failure.
+The acquisition route/service contains no PA2 resolver, `HumanDecisionService`, human-decision record,
+reviewer-separation receipt or DS9 guarded authority/currentness write. DS9's PA2 arm exists on a
+separate route; it is a reusable candidate seam, not a landed acquisition composition.
 
-### 2.3 Attribute-by-attribute repository capability
+### 2.3 Permission parity
 
-`represented` means the current chain carries and enforces the required semantic. `partial` means a
-narrower predicate exists. `not representable` means the strict owner closure has no field, producer
-and consumer for the semantic.
+At the pin:
 
-| Required attribute | Today | Positive coordinate | Missing part |
-| --- | --- | --- | --- |
-| Temporal and subject-matter delegation | **partial** | `DelegatedActionEnvelope`; PA2 currentness | source law/jurisdiction, amount/valuation, reserved matters and full legal-purpose scope |
-| Quorum and co-signature | **not representable** | board role label only | body/forum, roster, timeline, denominator, vote branches, quorum profile and co-signature purpose |
-| Separation of duties | **partial** | DS9 `ReviewerSeparationCredential` | complete transaction lineage and controlling-subject resolution |
-| Recusal and conflict of interest | **not representable** | none | disclosure, detected conflict, recusal, waiver/management and detectability boundary |
-| Acting appointments and succession | **not representable** | current principal/role only | office, vacancy, acting basis, succession order, qualifications and predecessor path |
-| Subdelegation limits | **not representable** | none | parent grant, right/depth, delegee class, attenuation and creation-time power |
-| Expiry and emergency authority | **partial** | envelope validity/status | emergency source, trigger, necessity/urgency, exceptional scope and expiry profile |
-| Revocation mid-operation | **partial** | re-resolution before DS9 protected use | checkpoint/cancel/irreversible-effect and post-effect consequence semantics |
-| Cross-agency acceptance | **not representable** | producer authentication only | legal gateway, accepted assertion type, negative perimeter, refusal grounds and retained duties |
-| Consultation/recommendation/approval/binding decision | **not representable** | workflow verbs only | legal effect, condition precedent, freedom to depart, operative act and ultimate maker |
+```yaml
+RuntimePermission: 34
+Rego permission_vocabulary: 34
+set_equality: true
+```
 
-Cross-cutting coordinates:
+The historical DS20 prose count of 33 predates `runs.human_decisions.create`; it is documentation
+drift, not current parity failure.
 
-| Coordinate | Today |
-| --- | --- |
-| specific person and runtime role | represented |
-| exact runtime operation and resource | represented |
-| time window/currentness | represented narrowly |
-| jurisdictional competence | not representable |
-| amount threshold, currency, aggregation and valuation | not representable |
-| conflict-of-interest posture | not representable |
-| collegial-body validity | not representable |
+### 2.4 Ten-attribute observation table
 
-### 2.4 Capability label and reuse-first path
+`observed_fragment` means a narrower enforced predicate exists in the selected slice.
+`not_observed_in_selected_slice` is a bounded non-observation, not a repository-wide zero.
 
-The complete capability is **`absent/unallocated`**, not `contract_only`: there is no admitted
-`DecisionAuthorityGraph`, no certificate, no appointed institutional producer, no complete bridge,
-no enforcing consumer and no semantic e2e chain. This research does not change that label.
+| Required attribute | Observation | Positive coordinate | Missing/unsettled proposition |
+|---|---|---|---|
+| temporal and subject-matter delegation | `observed_fragment` | `DelegatedActionEnvelope`; PA2 currentness | source law, jurisdiction, amount, reserved matters, full purpose scope |
+| quorum and co-signature | `not_observed_in_selected_slice` | role labels only | body/forum, roster, timeline, threshold, votes, signature purpose |
+| separation of duties | `observed_fragment` | DS9 `ReviewerSeparationCredential` | full lineage and controlling-subject closure |
+| recusal and conflict of interest | `not_observed_in_selected_slice` | none in slice | disclosure, detection, recusal, waiver/management and bounded producer |
+| acting appointments and succession | `not_observed_in_selected_slice` | principal/role only | office, vacancy, basis, succession, qualification, predecessor path |
+| subdelegation limits | `not_observed_in_selected_slice` | none in slice | parent grant, permission/depth, class, attenuation, creation-time power |
+| expiry and emergency authority | `observed_fragment` | envelope time/status | emergency source, trigger, necessity/urgency, scope and end condition |
+| revocation mid-operation | `observed_fragment` | DS9 pre-use currentness | checkpoint/effect semantics; absent on acquisition route |
+| cross-agency acceptance | `not_observed_in_selected_slice` | authentication fragments | gateway, accepted assertion, negative perimeter, refusal grounds, duties |
+| consultation/recommendation/approval/binding decision | `not_observed_in_selected_slice` | workflow labels | legal effect, condition precedent, freedom to depart, operative maker |
 
-The smallest reuse path is to extend the existing mandate/delegation owner, consume the certificate
-through DS9's pre-effect/currentness/guarded-store seam, retain DS20 as the narrow
-operation/resource/permission floor, reuse CAS/signature/event/audit machinery, integrate external
-institutional facts through typed adapters, project through Atlas/DS14, and keep `PAO-R4` separate.
+```yaml
+observed_fragment: 4
+not_observed_in_selected_slice: 6
+full_INT_R5_representation: 0
+repository_wide_zero_claims_from_table: 0
+```
+
+### 2.5 Capability standing
+
+The full capability is `absent/unallocated`: no admitted production graph/certificate, allocated
+complete owner, institutional producer chain, graph reducer, enforcing acquisition/other consumer or
+semantic end-to-end chain exists. This conclusion does not depend on pretending the six slice
+non-observations are repository-wide zeroes.
 
 ## 3. External Research Baseline
 
-### 3.1 Inputs and source discipline
+### 3.1 Source custody
 
-Five commissioned surveys were consumed:
+The exact five survey identities, SHA-256 digests, line/byte denominators, external file versions,
+claim anchors and admitted extracts are in
+[`int-r5/survey-source-manifest.md`](int-r5/survey-source-manifest.md).
 
-1. delegation scope, amount, expiry, acting/succession, subdelegation, emergency, revocation and
-   cure;
-2. collegial competence, forum, composition, quorum, vote, decision mode and co-signature;
-3. structural self-approval, SoD, COI, recusal, waiver and detectability;
-4. pre-action proof, chain reduction, freshness and mid-operation revocation;
-5. cross-agency recognition and consultation/recommendation/approval/decision taxonomy.
+A branch reader can replay every transferred claim against package-local extracts and exact source
+identity. Full original survey byte verification still requires the external artifact matching the
+manifest digest. This is an explicit residual, not a bibliography presented as full custody.
 
-The transfer ledger is
-[`int-r5/external-evidence-ledger.md`](int-r5/external-evidence-ledger.md). It distinguishes named
-legal regimes, formal mechanisms, control patterns, empirical findings, engineering inferences and
-known limitations. External vocabulary is not silently registered as PolicyOS vocabulary.
+### 3.2 Transfer discipline
 
-### 3.2 High-confidence transferable results
+The surveys are external practice, never repository capability or authority. Legal material retains
+its jurisdiction and source class. External terms are not silently registered as PolicyOS vocabulary.
+Public-law and corporate-governance disagreements remain visible because remedies differ.
 
-- `person → role → delegation` is insufficient; the decision right is the intersection of source
-  power, exact function, exclusions, time, trigger, amount/valuation, geography, appointment,
-  subdelegation, succession, emergency and current status.
-- A child path cannot amplify its parent, and the parent must have possessed the right to create the
-  child link at creation time.
-- Acting, statutory succession, implied departmental authorization, emergency authority and cure are
-  distinct provenance edges, not aliases for delegation.
-- The legal organ and forum matter independently of the people present. Membership equivalence is
-  not organ equivalence.
-- Quorum is item- and profile-relative. It requires an event timeline, valid authority branch per
-  participant and the applicable denominator/temporal rule, not a count or opening Boolean.
-- Co-signature is a separate layer from quorum and internal approval.
-- Self-approval is a structural role incompatibility, not a disclosed COI that can be waived by the
-  conflicted actor.
-- No system can prove the absence of conflicts known only to a person; a positive statement must be
-  bounded to named records and current declarations.
-- A pre-action certificate proves a proposition relative to `t_check`; it cannot know a later
-  revocation. Snapshot, lease or revalidation semantics must be explicit.
-- A decision receipt is not an authority proof. The latter must carry the chain, policy, state,
-  provenance, status and replay material needed for independent recomputation.
-- Cross-agency acceptance is purpose-limited reliance on a specific assertion under a legal/trust
-  gateway, with a positive scope and negative perimeter; it is not blanket trust.
-- Act type follows legal effect and responsibility, not title or UI verb.
+High-confidence transfers:
+
+- role/delegation alone is insufficient;
+- child authority is attenuated and creation-time parent power matters;
+- amount is an economic-transaction valuation rule;
+- acting, succession, implied authorization, emergency and cure are distinct provenance paths;
+- legal organ/forum is separate from physical membership;
+- quorum is item- and profile-relative and requires event evidence;
+- co-signature is independent of quorum;
+- structural self-approval is not cured by disclosure;
+- undisclosed/off-system conflicts cannot be disproved;
+- pre-action proof is relative to admitted state and cannot know a future event;
+- cross-agency acceptance is purpose-limited and preserves a negative perimeter;
+- act type follows legal effect and responsibility, not title;
+- cure may be prospective, relation-back, saved, limited, forbidden or unresolved by profile.
 
 ### 3.3 Preserved disagreements
 
-The research does not create universal answers for:
+No universal answer is created for:
 
-- `void`, `voidable`, saved, curable, non-binding and non-ratifiable consequences;
-- the denominator and temporal persistence of quorum;
-- the legal meaning of remote presence and written votes;
-- whether a title defect destroys or is saved for a particular act;
-- which COI grounds are mandatory, manageable or waivable;
-- whether authority is protected at start, leased or revocable at checkpoints;
-- what a recognition regime permits the acceptor not to re-examine;
-- whether an approval is preparatory or itself the final binding act.
+- void/voidable/saved/curable/non-ratifiable consequences;
+- quorum denominator, persistence or remote presence;
+- title defects and saving rules;
+- mandatory, manageable and waivable conflict grounds;
+- snapshot, lease or checkpoint treatment;
+- recognition residual duties;
+- preparatory versus binding approval;
+- prospective versus relation-back cure effect.
 
-Every such predicate therefore requires a versioned `jurisdiction + body_type + governing
-instrument + decision_type + effective_date` profile. Unknown profile or unresolved evaluative
-question cannot yield a positive.
-
-### 3.4 External limitations
-
-- The surveys support formal and control design more strongly than causal equivalence of compensating
-  controls to true separation.
-- Some forum, deception, apparent-bias and emergency-necessity questions require a competent human or
-  legal adjudicator.
-- Technical standards provide proof containers, path reduction, threshold and status mechanisms;
-  they do not create universal legal competence.
-- No universal public-law notice grace period for revocation was established.
+Unknown mandatory profile or unresolved adjudication cannot yield a positive.
 
 ## 4. Result
 
 ### 4.1 Result type
 
-**`accepted_narrow_scope`.** The research supports a jurisdiction-profiled, pre-action authority
-proof with exact decision/effect binding, graph reduction, event-sourced collegial evidence,
-transaction-level separation, bounded conflict claims, purpose-limited recognition and mandatory
-freshness semantics. It does not support a universal legal-validity Boolean or a production claim.
+**`accepted_narrow_scope`.** The research supports a jurisdiction-profiled pre-action proof with exact
+commitment, graph reduction, event-sourced collegial evidence, transaction-level separation, bounded
+conflict claims, purpose-limited recognition and explicit freshness/cure semantics. It does not
+support a universal legal-validity Boolean, repository-wide semantic zero or production claim.
 
-### 4.2 Information-limit theorem
+### 4.2 Correct information-limit proposition
 
-For mutable authority state:
+Mutable authority does not imply actual change. An unchanged history may have equal authority at
+`t0` and `t1`.
+
+The defensible proposition is:
 
 ```text
-authority_at_check(t0) != authority_at_use(t1)
+there exist histories H0 and H1 such that
+observations(H0, <= t0) = observations(H1, <= t0)
+but authority(H0, t1) != authority(H1, t1), t1 > t0
 ```
 
-unless the applicable regime explicitly selects snapshot/grandfathering, an issuer-authorized lease,
-or revalidation/checkpoint semantics. A certificate at `t0` cannot contain a truthful event that
-first occurs at `t1 > t0`. Therefore a pre-action positive must carry `as_of`, `fresh_until`, mutable
-dependencies and the required pre-effect revalidation mode.
+A certificate computed from `t0` evidence cannot distinguish those futures and cannot determine
+`t1` authority across all admissible histories. This is a non-inferability proposition, not a theorem
+that inequality occurs in every history.
+
+The consequence remains: record `as_of`, `fresh_until`, mutable dependencies and one profile-derived
+mode — snapshot, issuer-authorized lease, revalidate-before-commit or continuous checkpoints.
 
 ### 4.3 `DecisionAuthorityGraph`
 
-The graph binds one canonical decision and protected effect. It contains typed nodes for source
-power, jurisdiction profile, institution, office, principal, appointment, vacancy/trigger,
-delegation, recognition rule/external act, forum/session/item/participation, conflict/recusal,
-separation, amount valuation, emergency predicate, revocation/invalidation and act effect.
+The graph binds one exact decision/effect and preserves typed nodes/edges for:
 
-It preserves distinct edges for delegation, subdelegation, acting/succession, implied/agency
-authorization, emergency, recognition, forum/quorum/vote/co-signature, transaction roles,
-conflict/recusal, revocation, cure and the four act-effect relationships.
+- source power, jurisdiction/profile applicability, institution, office, principal and appointment;
+- delegation, subdelegation, succession/acting, implied/agency and emergency paths;
+- amount valuation and place/subject scope;
+- body, forum, session, item, participation, vote, quorum and co-signature;
+- transaction roles, conflict records and recusal/management decisions;
+- recognition rule/external act and act-effect classification;
+- revocation/invalidation and cure effect.
 
-Every load-bearing statement carries issuer, producer, source class, jurisdiction/rule version,
-validity/currentness, evidence refs, authority boundary and a P37 admission class. A fact whose
-origin is `institutionally_supplied` becomes positive only after issuer/signature/content/scope/time
-verification makes the gate predicate `recomputed` or `independently_reconciled`.
+No generic `AUTHORIZED_BY`, `TRUSTED` or undifferentiated `APPROVED_BY` replaces these distinctions.
 
-The full research sketch is
-[`int-r5/decision-authority-specification.md`](int-r5/decision-authority-specification.md).
+### 4.4 Independent producers and canonicalization
 
-### 4.4 Path reduction
+Every decisive semantic coordinate has a producer distinct from the requester:
 
-For each root-to-actor/body path:
+| Coordinate | Required semantic producer |
+|---|---|
+| decision time | constitutive decision-event system; trusted timestamp where required |
+| issued/as-of time | PolicyOS custody event plus trusted time where profile requires |
+| effect/commit time | protected-effect ledger/consumer event |
+| effect class | versioned operation/effect classification owner |
+| jurisdiction/profile applicability | competent profile-governance role plus independent resolver |
+| revalidation mode | reducer derived from admitted profile, revocability and effect class |
+| decision fields | authoritative transaction/case/decision source per field |
+| all institutional predicates | named external/system producers and verifiers in the specification |
+
+Canonicalization proves deterministic bytes and detects mismatch. It does not make a caller-selected
+value semantically authoritative. A valid hash with non-positive provenance remains non-positive.
+
+### 4.5 Path reduction
+
+Each candidate path is validated root-to-actor/body. Issuer continuity, signature, creation-time
+power, delegation permission, activation, currentness and understood constraints are verified.
+Effective scope and validity are intersections. A child cannot amplify a parent. One invalid path
+does not destroy an independent valid path, but threshold/conjunction requirements are recomputed.
+
+### 4.6 Collegial, separation and conflict predicates
+
+Collegial validity is per exact decision item and profile. Forum is resolved before quorum. Quorum
+uses lawful seats/holders, item-specific eligibility and an event timeline. Vote and co-signature are
+separate.
+
+Role comparisons use controlling subject, not account. Configured self-approval is a structural hard
+failure. Conflict conclusions distinguish record-established, record-indicated, current declaration,
+required adjudication and undisclosed/off-system facts. The certificate never claims psychological
+neutrality or absence of undisclosed conflicts.
+
+### 4.7 Cross-agency and act effect
+
+Acceptance verifies legal gateway, source identity/competence, act type/status, purpose/scope,
+authenticity/assurance, refusal grounds, retained duties and responsibility allocation. It stores both
+`recognised_as` and `not_recognised_as`.
+
+Act effect records formal type, binding effect, condition precedent, freedom to depart, reasons,
+legal consequences, operative act, ultimate maker, reviewability and practical departure cost.
+
+### 4.8 `DelegationValidityCertificate`
+
+The certificate carries:
+
+- exact decision/effect commitment;
+- independent time receipts;
+- graph/root and applicable profile receipts;
+- surviving paths and effective scope/validity;
+- predicate receipts with producer, provenance, evidence and freshness;
+- every mutable dependency;
+- local result `pre_action_valid | refused | not_established | not_applicable`;
+- namespaced/versioned candidate reason IDs;
+- missing role/owner refs and bounded limitations;
+- custody computation proof and explicit `authoritative_for`/`may_not_use_for`.
+
+The local result union feeds the existing system lattice. It does not create a second global lattice.
+
+### 4.9 Reason identity and crosswalk
+
+Candidate reason identity shape:
 
 ```text
-effective_scope    := intersection(root and every child scope)
-effective_validity := intersection(root and every child validity interval)
-
-for every link:
-    verify issuer and signature
-    verify prior subject/grantor continuity
-    verify permission to delegate this power
-    verify creation-time grantor power
-    verify appointment/trigger/qualification/currentness
-    verify mandatory constraints and status
-    reject path on empty scope/validity or unknown critical rule
+polisyos.int_r5.reason.<slug>@0.1.0-candidate
 ```
 
-One invalid path does not destroy an independent path. A conjunction or threshold fails when the
-remaining valid branches cannot satisfy its rule.
+Bare uppercase fixture tokens are withdrawn. The INT-R5 candidate
+`polisyos.int_r5.reason.certificate_stale@0.1.0-candidate` is recorded as a semantic sibling — not an
+alias — of live `polisyos.eval_safety.certificate_stale@1.0.0` until the owning registry ratifies a
+crosswalk. Mapping may never upgrade `not_established` or `refused` to positive.
 
-### 4.5 Ten required attributes in the target model
+### 4.10 Unappointed-holder behavior
 
-| Attribute | Target graph predicate |
-| --- | --- |
-| temporal and subject delegation | root/source-law path, effective-scope and validity intersection, reserved matters, amount/place/purpose |
-| quorum and co-signature | competent forum, lawful composition, event-sourced participation, profile-specific threshold/vote, separate constitutive signature |
-| separation of duties | controlling-subject lineage across proposer, contributor, approver, executor and independent reviewer |
-| recusal and COI | registered/detected/declared facts, bounded detectability, competent recusal/waiver/management producer |
-| acting and succession | vacancy/trigger, applicable succession/designation rule, qualifications, start/end and saving provisions |
-| subdelegation | parent ref, right/depth/delegee class, creation-time power and monotonic attenuation |
-| expiry and emergency | interval/event expiry plus named emergency source, trigger, scope, necessity/urgency and end condition |
-| mid-operation revocation | dependency index, legal-effective time, pre-effect/checkpoint revalidation and honest post-effect consequence |
-| cross-agency acceptance | legal gateway, source competence, assertion type/scope/status/assurance, refusal grounds, negative perimeter and retained duties |
-| act-type distinction | formal type, binding effect, condition precedent, departure freedom, operative act, ultimate maker and reviewability |
-
-### 4.6 `DelegationValidityCertificate`
-
-The certificate is a local result union — `pre_action_valid | refused | not_established |
-not_applicable` — that feeds the one Atlas/system lattice. It does not create a new global status
-system.
-
-It includes:
-
-- certificate ID and technical custody proof;
-- exact decision and effect commitments;
-- principal/body, office/role and graph-root refs;
-- `issued_at`, `as_of`, `fresh_until` and profile-selected revalidation mode;
-- surviving authority paths and effective scope/validity;
-- one receipt for every decisive predicate with producer, evidence, P37 class and freshness;
-- every mutable dependency;
-- stable local refusal reasons and limitations;
-- `authoritative_for` this exact pre-action proposition;
-- `may_not_use_for` any other decision/effect, legal-sufficiency claim or PAO-R4 individual use.
-
-The requester cannot construct a positive certificate or select the least restrictive freshness
-mode. The PolicyOS signature attests to the computation only.
-
-### 4.7 Unappointed-holder behavior
-
-A required role exists independently of its holder. With no qualifying appointment:
+With no qualifying holder:
 
 ```yaml
 local_result: not_established
-refusal_codes: [MISSING_APPOINTED_HOLDER]
+reason_ids:
+  - polisyos.int_r5.reason.missing_appointed_holder@0.1.0-candidate
 missing_role_or_owner_refs: [exact required role]
 ```
 
-The output also names the appointing authority or marks it unestablished and states the evidence
-needed. This is a normal result, not an exception. Candidate computation, demonstration, negative
-replay and non-authority surfaces continue. Later appointment changes graph data; no model or schema
-change is needed. A team name, maintainer, runtime role or adjacent signer may not be substituted.
+This is normal typed output. Candidate/demo and negative replay remain available. Later appointment
+changes evidence, not model/schema. A team, maintainer, runtime role or adjacent signer cannot be
+substituted.
 
-### 4.8 Detectability boundary
+### 4.11 Cure and historical replay
 
-The certificate separately reports:
+The original certificate is immutable evidence of what was established at its `as_of`. A later cure
+is a new event/result carrying:
 
-1. record-established structural conflicts;
-2. record-indicated conflicts requiring adjudication;
-3. current participant declarations;
-4. off-system/self-known conflicts whose absence is not provable;
-5. evaluative apparent-bias questions and their competent adjudicator.
+```text
+prospective | relation_back | saved_act | limited | unresolved
+```
 
-Its strongest automated COI statement is bounded to named reconciled records and declarations. A
-profile requiring stronger resolution returns `not_established`; PolicyOS does not borrow an
-adjudicator.
-
-### 4.9 Freshness and revocation
-
-`fresh_until` is the minimum of authority-path expiry, status next-update, appointment/attribute and
-conflict-declaration expiry, recognition status, policy lease and effect deadline. It is an evidence
-bound, not proof no emergency revocation can arrive sooner.
-
-Default mode is `revalidate_before_commit` for revocable authority. Snapshot or lease behavior
-requires an explicit profile and competent issuer. Before an irreversible effect, any legally
-effective revocation refuses the effect. After an irreversible effect, PolicyOS preserves history,
-stops dependent effects and routes invalidation/incident/reissue/withdrawal/remedy; it does not claim
-an impossible rollback.
-
-### 4.10 Explicit repository verdict
-
-No merged component is wrong within its stated purpose. The failure is **coverage and sequencing**,
-not an unsafe universal rule already embedded in production:
-
-- `GY-PA2`: sound, incomplete;
-- `DS9`: sound, incomplete;
-- `DS20`: sound within runtime authorization, incomplete for institutional competence;
-- acquisition gateway: sound composition, incomplete and the natural certificate landing seam.
-
-No architect-stop finding fired.
+plus `legally_effective_from`, effect scope and `historical_certificate_mutated: false`. Relation back
+is representable where a named profile supplies it; no universal relation-back or no-relation-back
+rule is encoded.
 
 ## 5. Counterexamples And Failure Modes
 
-The complete red-first definitions are in
+The detailed red-first suite is
 [`int-r5/adversarial-fixtures.md`](int-r5/adversarial-fixtures.md).
 
 | Required fixture | Unsafe conclusion | Required result |
-| --- | --- | --- |
-| `self_approval` | two accounts or disclosure create independence | refuse `SELF_APPROVAL` and `SEPARATION_OF_DUTIES_FAILED`; zero effect |
-| `expired_delegation` | current permission/MFA revives expired grant | refuse `DELEGATION_EXPIRED`; no surviving path/effect |
-| `wrong_forum` | correct people/signatures convert committee into full board | refuse `FORUM_NOT_COMPETENT`; quorum not used to rescue forum |
-| `quorum_loss` | opening quorum remains true for every later item | recompute by profile and refuse `QUORUM_LOST_AT_DECISION` where applicable |
-| `post_hoc_authorization` | later grant/ratification can backdate original validity | original certificate remains refused `AUTHORITY_NOT_PREEXISTING`; later cure is a new result |
+|---|---|---|
+| self-approval | disclosure/two accounts create independence | namespaced self-approval/SoD refusal; zero effect |
+| expired delegation | current permission or caller-backdated time revives grant | authoritative event time used; expired path refused |
+| wrong forum | correct people/signatures convert committee into board | forum refusal before quorum rescue |
+| quorum loss | opening quorum remains true | item/profile recomputation; zero effect where threshold fails |
+| post-hoc authorization | later grant mutates original history | original refusal immutable; separate profile-specific cure result |
 
-Additional failure classes:
+Additional producer attacks:
 
-- current invoice checked instead of aggregate transaction;
-- child grant wider than parent;
-- displayed acting title with invalid succession root;
-- requester-supplied emergency;
-- one authenticated foreign assertion treated as local competence;
-- recommendation auto-executed as binding decision;
-- certificate reused for another recipient, amount or effect;
-- conflict/status provider absent but absence treated as permission;
-- late quorum/recusal/revocation event silently ignored;
-- current law/state substituted into historical replay;
-- chair/minutes conclusion accepted without underlying evidence;
-- technical signer treated as institutional grantor.
+- caller backdates decision time;
+- caller downgrades irreversible effect;
+- caller profile-shops;
+- caller requests snapshot while profile requires checkpoint;
+- canonical hash is valid but semantic provenance is non-positive.
+
+PAO-R4 attacks run in both directions. Acquisition topology fixture requires the real route/call edge;
+calling a separate DS9 service does not prove acquisition integration.
+
+Other failures include split amount, widened child grant, invalid succession root, requester-only
+emergency, blanket external trust, recommendation auto-execution, commitment substitution, source
+provider degradation, late quorum/recusal/revocation event and current-state historical replay.
 
 ## 6. Benchmark Or Fixture Proposal
 
 ### 6.1 Corpus
 
-The future semantic suite has:
+The public pack contains mandatory fixtures, all profile variants, valid near-passes, decisive-field
+mutations, producer-substitution attacks, unappointed-holder, cross-agency negative perimeter,
+title-versus-effect, PAO-R4 two-direction and acquisition-missing-bridge cases.
 
-- a frozen public pack containing the five required fixtures, profile variants, valid near-pass
-  controls, field mutations, unappointed-holder, negative-perimeter and title-versus-effect cases;
-- a sealed holdout changing names, edge order, document titles, account aliases and harmless
-  metadata and including structurally novel equivalents;
-- explicit jurisdiction/rule-profile assumptions for every case;
-- authority-admissibility labels, not claims of ultimate legal truth.
+A sealed holdout changes names, edge order, titles, aliases and harmless metadata and includes
+structurally novel equivalents. Labels concern authority admissibility under declared profiles, not
+ultimate legal truth.
 
 ### 6.2 Metrics
 
 ```text
 false_grant
 false_refusal
-wrong_refusal_reason
+wrong_reason_identity
 missed_dependency
 stale_certificate_use
 commitment_replay_or_substitution
 profile_collapse
 post_hoc_backdating
 unbounded_conflict_claim
+PAO_R4_substitution
+caller_fact_upgrade
 ```
 
-`false_grant` is primary. A test passing because no real producer or consumer exists is vacuous.
+`false_grant` is primary. A pass caused by absence of a real producer, bridge or consumer is vacuous.
 
-### 6.3 Required test shape
+### 6.3 Test shape and fault injection
 
-Each fixture must run through the real reducer, persistence/revalidation bridge and protected
-consumer; assert exact effect count; read back the graph, certificate/refusal and dependency events;
-run a near-pass and adversarial variants; prove no sibling consumer bypass; and verify the verifier
-with corruption. Marker or reason-code presence is insufficient.
+Each fixture must exercise the real reducer, persistence/currentness bridge and protected consumer;
+assert exact effect count; read back graph, output and dependency events; run a near-pass and
+mutations; prove no sibling bypass; and corrupt producer evidence/profile/time/commitment.
 
-### 6.4 Fault injection
-
-Required drills include provider loss before effect, delayed/out-of-order/duplicate revocation,
-corrupted parent grant, removed quorum branch, late recusal changing denominator, conflicting
-recognition status, guarded-store failure, historical profile change and mass root invalidation.
-Recovery must fail closed, remain idempotent, preserve history and never execute without final
-currentness.
+Fault injection includes provider loss before effect, delayed/duplicate/out-of-order revocation,
+corrupted parent grant, removed quorum branch, late recusal, conflicting recognition, guarded-store
+failure, profile change and mass root invalidation. Recovery must fail closed, remain idempotent,
+preserve history and execute no effect without final currentness.
 
 ## 7. Artifact Contract Sketch
 
-### 7.1 Graph and certificate contracts
+### 7.1 Candidate artifacts
 
-The detailed candidate node/edge vocabulary, common claim envelope, reducer, refusal vocabulary and
-certificate fields are defined once in
-[`int-r5/decision-authority-specification.md`](int-r5/decision-authority-specification.md).
+- `DecisionAuthorityGraph`;
+- `DelegationValidityCertificate` local result union;
+- `AuthorityPredicateReceipt`;
+- `ProfileApplicabilityReceipt`;
+- `EffectClassificationReceipt`;
+- `AuthorityDependencyEvent`;
+- `AuthorityRevalidationReceipt`;
+- `AuthorityInvalidationEvent`;
+- `CureEffectReceipt`;
+- jurisdiction/body/recognition/act-effect profile refs;
+- bounded external assertion adapters.
 
-Every decisive graph fact carries:
+All remain research candidates.
 
-```text
-claim identity and typed assertion
-jurisdiction and governing rule version
-named non-requester producer and issuer
-P37 admission class
-legal/observed/freshness times
-evidence refs and content binding
-authoritative_for / may_not_use_for
-```
+### 7.2 Common evidence contract
 
-### 7.2 Producer rule
+Every decisive fact carries claim identity/type, subject, typed assertion, source jurisdiction,
+governing instrument/rule version, named producer role/instance, issuer/source class, P37 provenance,
+verifier receipts, legal/observed/freshness times, evidence refs and authority boundary.
 
-The requester may provide raw candidate material but cannot produce the canonical decision/effect
-commitment, appointment, authority path, amount aggregate, quorum result, conflict determination,
-recognition result, act effect or positive certificate. Each is recomputed or independently
-reconciled by its owner.
+`institutionally_supplied`, `consumer_asserted` and `not_established` are non-positive until the
+relevant verifier recomputes or independently reconciles the gate predicate.
 
-### 7.3 One-lattice rule
+### 7.3 Producer discipline
 
-`pre_action_valid`, `refused`, `not_established` and `not_applicable` are local certificate outcomes.
-They are inputs to the existing status lattice. Atlas DS4 or its successor owns the projection
-mapping. No `authority_status` lattice is created here.
+The requester may provide candidates but cannot produce decision/effect time, effect classification,
+profile applicability, revalidation mode, appointment, authority path, amount aggregate, quorum,
+conflict determination, recognition result, act effect or positive certificate.
 
-### 7.4 Canonical owner map
+Missing producer or adjudicator returns a namespaced typed negative; it does not fall back to caller
+input.
 
-| Concern | Existing owner/placement | Disposition |
-| --- | --- | --- |
-| operational mandate and PA2 | `mandate_bounded_delegation.py`, `agent_action_authority.py` | extend, do not replace |
-| human decision/currentness/guarded persistence | DS9 contracts/service | certificate consumer and revalidation chokepoint |
-| permission/resource/step-up | DS20 Python/Rego owners | retain as narrow floor |
-| acquisition approval | `control.py::ingest_data` composition | first candidate consumer |
-| CAS/signature/event/audit/idempotency | existing runtime owners | reuse |
-| appointments/body constitution/meeting facts | external institution | typed INTEGRATE contracts |
-| COI/recusal adjudication | external ethics/governance owner | typed INTEGRATE; absence visible |
-| legal/jurisdiction/recognition/effect profiles | incomplete owner chain | later owner decision; no parallel private law engine |
-| DS14/Atlas | Atlas owner | projection/consumer, never authority producer |
-| individual use | PAO-R4 | separate mandatory boundary |
+### 7.4 One-lattice rule
 
-A research sketch does not appoint the missing canonical owner.
+Certificate local results and family reasons project through the existing status architecture. DS4 or
+successor owns mapping. Candidate reason IDs are namespaced/versioned and remain distinct from live
+family codes until ratified.
+
+### 7.5 Source-custody contract
+
+`survey-source-manifest.md` records exact source identity and admitted extracts. It does not claim the
+external full survey files are committed. Future stages must either retain this explicit residual or
+admit the matching full bytes under ordinary evidence custody; they may not replace it with an
+unanchored bibliography.
 
 ## 8. Later Integration Handoff
 
 ### 8.1 Capability chain
 
 | Link | Future responsibility | Current standing |
-| --- | --- | --- |
-| typed graph/certificate | extend mandate/delegation authority owner with pure contracts | absent |
-| institutional-fact producers | external appointment, body/meeting, COI, recognition and legal-profile sources | absent/unappointed |
-| reducer | owner-first graph/path/predicate computation | absent |
-| persisted artifact/event | CAS graph, certificate/refusal, dependency and invalidation events | absent for INT-R5 |
-| orchestration bridge | DS9 pre-effect gateway and guarded store | partial reusable seam |
-| enforcement consumer | acquisition first; later DS14 and other protected acts | no complete consumer |
-| runtime authorization | DS20 exact permission/resource/step-up | implemented narrower floor |
-| verification | red-first corpus, corruption, replay, no-bypass and fault injection | absent |
-| surface | REVIEWER/EXPERT/MACHINE through Atlas, PUBLIC only when separately authorized | absent |
+|---|---|---|
+| graph/certificate contracts | extend mandate/delegation authority domain after allocation | absent |
+| institutional fact producers | appointments, body/meeting, conflict, recognition and profiles | absent/unappointed |
+| reducer | graph/path/predicate computation with producer discipline | absent |
+| persistence/dependency | graph, result, receipts and invalidation events | absent for INT-R5 |
+| human-decision/currentness bridge | DS9-like source re-resolution and guarded custody | reusable seam, not acquisition-wired |
+| PAO-R4 crossing | separate receipt for individual/pointwise use | delivered separate boundary; future conjunction missing |
+| runtime enforcement | DS20 exact permission/resource/step-up | implemented narrow floor |
+| acquisition consumer | bridge before `run_data_ingestion` | missing |
+| Atlas/DS14 projection | reviewer/expert/machine projection | unstarted/future consumer |
+| verification | semantic corpus, corruption, replay, no-bypass and fault injection | absent |
 
-### 8.2 Boundary census — operational closure addendum 1
-
-| Function | Owner state | Boundary |
-| --- | --- | --- |
-| compute/custody PolicyOS certificate | missing implementation owner; PolicyOS OWN candidate | OWN after allocation |
-| appointments and office succession | external institution | INTEGRATE/OBSERVE |
-| meetings, quorum facts and signatures | external body/meeting system | INTEGRATE |
-| conflict declarations/recusal adjudication | external participant and ethics/governance authority | INTEGRATE |
-| cross-agency source act | external issuer | INTEGRATE |
-| accepting body's recognition decision | external competent accepting body | INTEGRATE |
-| permission/resource enforcement | existing DS20 owner | OWN existing narrow floor |
-| individual-case crossing | PAO-R4 owner | separate OWN firewall |
-
-### 8.3 Real operator workflow — addendum 2
-
-1. Operator initiates an exact decision/effect request.
-2. PolicyOS canonicalizes the request; operator cannot edit the commitment after resolution.
-3. The reducer resolves identity/permission, institutional roots/paths, amount, body/forum/quorum,
-   separation/COI, recognition and act-effect profiles.
-4. Missing holder, owner, adjudicator, provider or decisive evidence returns a typed refusal or
-   `not_established` naming the missing role/source and closure route.
-5. A positive certificate is shown with scope, limitations, freshness and required next checkpoint.
-6. The human decision is recorded through DS9.
-7. Immediately before protected effect, the consumer re-resolves every mutable dependency.
-8. On revocation/staleness/conflict, the effect is blocked or later dependent effects stop.
-9. After hours, no maintainer or requester is borrowed as institutional adjudicator; the case remains
-   held/refused until the named external role acts.
-
-### 8.4 State machine — addendum 3
-
-This is an internal artifact lifecycle, not a new product lattice:
+### 8.2 Correct acquisition handoff
 
 ```text
-requested
-  -> resolving
-      -> refused [terminal for this request; new evidence opens a new attempt]
-      -> not_established [held; reopen on named evidence/appointment/profile]
-      -> pre_action_valid
-          -> decision_recorded
-          -> revalidation_required
-              -> effect_authorized
-                  -> effect_committed
-              -> revoked_before_effect [no effect]
-          -> certificate_expired [new evaluation required]
-
-effect_committed
-  -> current
-  -> invalidated_after_effect
-  -> superseded
-  -> withdrawn
+exact acquisition decision/effect commitment
+  -> INT-R5 graph/certificate/currentness
+  -> PAO-R4 receipt if target crosses individual-use boundary
+  -> DS20 EVIDENCE_ACQUIRE/resource/step-up
+  -> run_data_ingestion
 ```
 
-Every transition has event time, legal-effective time where relevant, owner, rule version and public
-meaning. Historical states are immutable. `not_established` is not an error; `refused` is a completed
-governed result; irreversible effects cannot transition to fictional rollback.
+At the baseline only the final DS20-to-ingestion portion exists. The missing bridge is named
+`acquisition_authority_bridge` as a research placement, not an implemented owner.
 
-### 8.5 Typed artifacts — addendum 4
+### 8.3 Operator workflow
 
-Candidate artifacts:
+1. Operator initiates an exact decision/effect candidate.
+2. Field-specific producers resolve semantic facts; canonicalization commits admitted values.
+3. Applicability resolver selects jurisdiction/body/effect profiles; requester cannot profile-shop.
+4. Reducer resolves identity, roots/paths, amount, forum/quorum, SoD/COI, recognition and effect.
+5. Missing holder, producer, adjudicator or evidence yields typed `not_established`/refusal.
+6. Positive certificate shows exact scope, source boundary, limitations and freshness.
+7. Human decision is recorded through a governed custody path.
+8. Conditional PAO-R4 receipt is obtained when required.
+9. Immediately before effect, mutable dependencies are re-resolved.
+10. DS20 enforces exact operation/resource/step-up and the effect consumer evaluates the conjunction.
+11. Revocation or correction blocks the effect or stops later dependencies; history is preserved.
 
-- `DecisionAuthorityGraph`;
-- `DelegationValidityCertificate` local result union;
-- `AuthorityPredicateReceipt`;
-- `AuthorityDependencyEvent`;
-- `AuthorityRevalidationReceipt`;
-- `AuthorityInvalidationEvent`;
-- jurisdiction/body/recognition/act-effect profile refs;
-- bounded external assertion adapters.
+No maintainer or requester is borrowed as institutional adjudicator after hours.
 
-All remain research candidates and carry explicit authority boundaries.
+### 8.4 Lifecycle and typed outcomes
 
-### 8.6 Edge cases — addendum 5
+The lifecycle is internal artifact state, not a new product lattice:
 
-The fixture pack covers happy path, missing evidence, late and duplicate events, conflicting
-authority, owner/adjudicator unavailable, malicious identity alias, degraded provider, partial
-success, pre-effect cancellation, honest post-effect non-rollback and historical replay. The five
-commissioned adversarial cases are specified to executable Given/When/Then precision.
+```text
+requested -> resolving
+  -> refused
+  -> not_established
+  -> pre_action_valid
+      -> decision_recorded
+      -> revalidation_required
+          -> PAO_R4_required/received where applicable
+          -> effect_authorized
+          -> effect_committed
+      -> revoked_before_effect
+      -> certificate_expired
 
-### 8.7 Tabletop/fault injection — addendum 6
+effect_committed -> current | invalidated_after_effect | superseded | withdrawn
+```
 
-The future chain must kill a provider, corrupt a parent grant, delay/duplicate revocation, remove a
-quorum branch, inject late recusal, conflict recognition sources, fail the guarded store and mass
-invalidate a root. Success is measured by zero false effects, complete dependency reaction,
-idempotency, preserved history and recoverable reconciliation.
+Every transition records event time, legal-effective time where applicable, producer, profile/rule and
+meaning. Irreversible effects never transition to fictional rollback.
 
-### 8.8 OPS-R15 capstone linkage — addendum 7
+### 8.5 Boundary census
 
-In the custody-cycle capstone, INT-R5 sits between a proposed/recorded institutional decision and any
-protected effect:
+| Function | Owner state | Boundary |
+|---|---|---|
+| compute/custody PolicyOS certificate | missing implementation owner; PolicyOS OWN candidate | OWN only after allocation |
+| decision/effect time and source fields | external/source systems plus protected-effect ledger | INTEGRATE/OWN by field |
+| appointments and succession | external institution | INTEGRATE/OBSERVE |
+| meetings/quorum/signatures | external body/meeting system | INTEGRATE |
+| conflict declarations/adjudication | participant and ethics/governance authority | INTEGRATE |
+| recognition/act-effect profiles | external legal/governance sources plus applicability owner | INTEGRATE |
+| permission/resource enforcement | DS20 | existing OWN narrow floor |
+| individual-use crossing | PAO-R4 | separate OWN firewall |
+| projection | Atlas/DS14 | consumer only |
+
+### 8.6 OPS-R15 capstone linkage
 
 ```text
 external institutional facts
   -> DecisionAuthorityGraph
-  -> pre-action certificate or typed refusal
-  -> DS9 human decision custody
-  -> pre-effect revalidation
+  -> certificate or typed negative
+  -> governed decision custody/currentness
+  -> conditional PAO-R4 crossing
   -> DS20-protected effect
   -> dependency monitoring
-  -> revalidate / invalidate / supersede / withdraw
+  -> revalidate / invalidate / supersede / withdraw / cure-effect record
 ```
 
-A succession, revocation, conflict correction, quorum correction or recognition change becomes a
-custody event affecting PolicyOS's certificate. The external appointment, meeting, adjudication and
-remedy remain outside PolicyOS.
+The external appointment, meeting, adjudication and remedy remain outside PolicyOS.
 
 ## 9. Promotion And Kill Rules
 
-### 9.1 `research_only`
+### 9.1 Research-only
 
-Current state. The model may inform consolidation and design. It may not be used as capability,
+Current state. The model may inform consolidation and design. It cannot be used as capability,
 authority grant, legal-sufficiency claim or implementation authorization.
 
-### 9.2 `prototype_allowed`
+### 9.2 Prototype allowed
 
-Allowed only for synthetic/non-protected demonstrations when:
+Only synthetic/non-protected demonstrations with no external/individual legal effect, visible missing
+producers, candidate/non-authoritative positives, red fixtures and no opening of runtime permissions or
+production approvals.
 
-- no external or individual legal effect is possible;
-- all missing institutional producers are visible;
-- positive outputs are labelled candidate/non-authoritative;
-- the five red fixtures and commitment-substitution tests run against the prototype;
-- no runtime permission or production approval is opened by the prototype.
+### 9.3 Governed allowed
 
-### 9.3 `governed_allowed`
+Requires approved owner/profile governance; typed contracts; independent producers for every decisive
+field; persisted result/dependencies; real bridge and protected consumer; conditional PAO-R4
+conjunction; DS20 integration; registered reason/status crosswalk; complete semantic/replay/corruption/
+no-bypass/fault verification; and honest holder absence behavior.
 
-Requires:
+### 9.4 Production candidate
 
-- approved canonical owner and rule/profile governance;
-- typed graph/certificate and all decisive producer contracts;
-- persisted graph, certificate/refusal and dependency events;
-- DS9 bridge and at least one real protected consumer;
-- DS20 operation/resource integration without competence collapse;
-- complete semantic, replay, corruption, no-bypass and fault-injection verification;
-- one-lattice projection mapping;
-- explicit surface/boundary ownership;
-- real appointments or honest typed missing-holder results.
-
-### 9.4 `production_candidate`
-
-Additionally requires deployment-jurisdiction legal review, appointed accountable roles, real
-institutional sources and SLAs, independent audit, measured revocation/currentness behavior,
-operational tabletop, historical replay and a real-world pilot demonstrating false-grant controls.
+Additionally requires deployment-jurisdiction legal review, appointed roles, real institutional
+sources/SLAs, independent audit, measured currentness/revocation behavior, operational tabletop,
+historical replay and real-world pilot false-grant evidence.
 
 ### 9.5 Blocking conditions
 
-Block a positive certificate or protected effect when any of the following holds:
+Block positive/effect when:
 
-- decisive field is caller-supplied or only `institutionally_supplied`;
-- jurisdiction/body/effect profile is absent or inapplicable;
-- required holder, source owner or adjudicator is missing;
-- root or path, appointment/succession, amount valuation or scope is not established;
-- wrong forum, quorum/vote/co-signature failure;
-- self-approval or required separation failure;
-- unresolved required conflict/recusal predicate;
-- emergency or cross-agency acceptance not established;
-- stale certificate or missing checkpoint;
-- exact commitment mismatch or replay;
-- PAO-R4 is required and not satisfied.
+- any decisive fact is caller-supplied or non-positive;
+- decision/effect time lacks an authoritative receipt;
+- effect class/profile applicability/revalidation mode is caller-selected;
+- required profile, holder, producer or adjudicator is missing;
+- root/path, appointment, amount, scope, forum, quorum, vote or co-signature fails;
+- self-approval or required separation fails;
+- required conflict/recusal, emergency, recognition or act-effect predicate is unresolved;
+- certificate is stale or checkpoint missing;
+- commitment/replay mismatch exists;
+- PAO-R4 is required and missing/failed;
+- the protected consumer does not actually invoke the complete conjunction.
 
 ### 9.6 Kill criteria
 
-Withdraw or redesign the mechanism if it:
+Withdraw/redesign if the mechanism:
 
-- produces any false grant in the sealed authority corpus;
+- produces a false grant in the sealed corpus;
 - permits requester construction of a positive;
-- accepts field presence, role name, minutes conclusion or signature count as authority evidence;
+- treats canonical bytes as semantic authority;
+- accepts role name, minutes conclusion, signature count or authenticated assertion as authority;
 - reuses a certificate across decisions/effects;
-- backdates later appointment/ratification;
-- loses a revocation dependency or permits post-revocation effect contrary to profile;
-- claims no conflict beyond observable/declaration boundaries;
-- normalizes jurisdiction disagreements into one hidden default;
-- lets a projection or DS20 `allow` mint institutional competence;
-- cannot replay the exact historical proposition;
-- requires PolicyOS to become administrator, court, meeting operator or institutional appointing
-  authority.
+- backdates an original certificate or denies relation-back regimes universally;
+- loses revocation dependencies;
+- claims absence of undisclosed conflicts;
+- hides jurisdiction disagreement in a default;
+- lets DS20, Atlas, PAO-R4 or projection mint a different predicate;
+- cannot replay historical state;
+- calls adjacency a production call edge;
+- calls a selected slice a complete closure;
+- creates a second global status lattice or strips reason namespace/version;
+- requires PolicyOS to become court, appointing authority, meeting operator or administrator.
 
-## 10. Open Questions For Consolidation
-
-### 10.1 Questions requiring later owner or architect decisions
-
-1. Which existing runtime-quality domain owner formally owns the graph/certificate rather than only
-   the current operational envelope?
-2. Which component owns versioned jurisdiction/body/recognition/act-effect profiles without creating
-   a second Lex or private legal engine?
-3. What is the exact DS4 one-lattice projection mapping for local certificate outcomes?
-4. Which protected effect is the first complete consumer: acquisition approval, DS14 or another
-   authority-bearing operation?
-5. Which external institution supplies appointment, body/meeting and conflict facts in the first
-   pilot, and what makes their predicates independently reconciled?
-6. Who adjudicates contested forum, recusal and emergency predicates when the pilot institution does
-   not already have an owner?
-7. Which actions have snapshot, lease or checkpoint semantics under the pilot jurisdiction?
-8. What is the transaction identity/valuation owner for amount-limited authority?
-9. How are mass root invalidations joined to the broader Decision-Validity/custody cascade without a
-   parallel invalidation system?
-10. What public claim, if any, is justified before real institutional holders exist? The default is
-    the typed refusal, not a simulated holder.
-
-### 10.2 Finding classification register
-
-| ID | Classification | Finding | Disposition |
-| --- | --- | --- | --- |
-| `INT-R5-F01` | repository/process | Required research landed after three named consumers. | record sequencing violation; audit shipped code first |
-| `INT-R5-F02` | repository/model | GY-PA2 is internally sound for its five predicates. | reuse as bounded subset |
-| `INT-R5-F03` | repository/model | DS9 actor/custodian split, re-resolution and guarded store are sound. | reuse as bridge/consumer |
-| `INT-R5-F04` | repository/model | DS20 accurately enforces what/which resource for a verified runtime principal, not institutional competence. | retain boundary |
-| `INT-R5-F05` | repository/model | acquisition composition is the closest pre-effect seam. | candidate first consumer |
-| `INT-R5-F06` | repository/absence | six of ten required attributes are wholly unrepresentable; four are partial. | full capability absent |
-| `INT-R5-F07` | documentation drift | DS20 historical 33-permission prose differs from pinned 34/34 Python/Rego parity. | do not treat as semantic defect |
-| `INT-R5-F08` | formal/design result | authority provenance requires typed graph and monotonic attenuation. | adopted in research spec |
-| `INT-R5-F09` | information limit | certificate-at-check cannot prove later mutable state. | mandatory freshness/checkpoint semantics |
-| `INT-R5-F10` | jurisdiction-dependent rule | quorum, presence, forum defects and cure consequences differ. | mandatory versioned profiles |
-| `INT-R5-F11` | control invariant | self-approval is structural and non-waivable in the target baseline. | hard refusal fixture |
-| `INT-R5-F12` | information limit | undisclosed/off-system conflicts cannot be disproved. | bounded claim or `not_established` |
-| `INT-R5-F13` | boundary result | cross-agency acceptance transfers a narrow assertion, not blanket authority. | `recognised_as` plus negative perimeter |
-| `INT-R5-F14` | semantic result | act type follows legal effect/responsibility, not title. | separate act-effect profile |
-| `INT-R5-F15` | institutional result | no appointed holder/adjudicator must remain a typed missing-role result. | no model change needed on appointment |
-| `INT-R5-F16` | boundary result | PAO-R4 remains independent. | no absorption or substitution |
-| `INT-R5-F17` | capability classification | research package is not a live artifact chain. | `absent/unallocated` |
-| `INT-R5-F18` | stop-rule result | no merged model was wrong enough to require early architect stop. | complete research; route gaps normally |
-
-### 10.3 Standing on the three W4-K05 axes
+### 9.7 Standing non-movement
 
 ```yaml
 research_standing: accepted_narrow_scope
@@ -775,59 +717,103 @@ capability_standing: absent/unallocated
 gate_standing: NO_GO
 ```
 
-- **Research standing — `accepted_narrow_scope`:** the model and falsifiers are supported within
-  explicitly profiled jurisdictions, sources and information boundaries; no universal legal
-  validity theorem is claimed.
-- **Capability standing — `absent/unallocated`:** no admitted complete chain or appointed canonical
-  owner exists. The shipped components are narrower reusable capabilities; Markdown is not
-  `contract_only`.
-- **Gate standing — `NO_GO`:** PolicyOS may not issue a positive institutional authority certificate
-  or treat it as permission until the promotion conditions are met. This does not gate candidate
-  demonstrations or the existing narrower DS20/DS9/GY-PA2 capabilities.
+The amendment changes research text only. It does not implement, allocate, appoint, register, publish
+or open a gate.
+
+## 10. Open Questions For Consolidation
+
+### 10.1 Owner and architecture questions
+
+1. Which existing domain formally owns graph/certificate contracts after allocation?
+2. Which owner governs jurisdiction/body/recognition/act-effect profiles without a private legal
+   engine?
+3. Who independently produces decision time and effect classification in the first consumer?
+4. Which component owns profile applicability resolution?
+5. What exact registered status/reason crosswalk replaces candidate IDs?
+6. Which component evaluates the INT-R5 ∩ PAO-R4 ∩ DS20 conjunction?
+7. Which protected effect is first: acquisition, DS14 or another operation?
+8. Which pilot institutions supply appointment, meeting and conflict facts?
+9. Who adjudicates disputed forum, recusal, emergency and cure effect?
+10. What transaction/valuation owner supplies amount authority?
+11. How are mass root invalidations joined to the custody cascade?
+12. Will full survey bytes be admitted to repository custody, or will the manifest residual remain?
+
+### 10.2 Corrected finding classification
+
+| ID | Classification | Current finding | Disposition in amended package |
+|---|---|---|---|
+| `INT-R5-F01` | repository/process | two closure-order violations plus separate DS20 feed/acquisition integration drift | corrected relationship ledger |
+| `INT-R5-F02` | repository/model | GY-PA2 narrow core sound/incomplete | retain bounded subset |
+| `INT-R5-F03` | repository/model | DS9 run-bound seam sound/incomplete | retain candidate bridge |
+| `INT-R5-F04` | repository/model | DS20 narrow floor sound | retain boundary |
+| `INT-R5-F05` | repository/topology | acquisition production composition claim was wrong | withdrawn; bridge named missing |
+| `INT-R5-F06` | repository/measurement | four fragments and six non-observations in selected slice | no repository-wide zero claimed |
+| `INT-R5-F07` | documentation drift | historical 33 versus current 34/34 | retained as drift |
+| `INT-R5-F08` | formal/design | typed graph and attenuation required | retained |
+| `INT-R5-F09` | information limit | future authority not inferable from `t0` evidence across all histories | corrected quantifier |
+| `INT-R5-F10` | jurisdiction rule | quorum/forum/cure differ | profiles required |
+| `INT-R5-F11` | control invariant | structural self-approval | retained red fixture |
+| `INT-R5-F12` | information boundary | off-system conflicts cannot be disproved | bounded claim retained |
+| `INT-R5-F13` | boundary | cross-agency acceptance is narrow | negative perimeter retained |
+| `INT-R5-F14` | semantic | act type follows effect/responsibility | retained |
+| `INT-R5-F15` | institutional | no holder/adjudicator remains typed negative | retained |
+| `INT-R5-F16` | boundary | PAO-R4 independent and conjunctive where applicable | corrected handoff |
+| `INT-R5-F17` | vocabulary | candidate reasons require namespace/version/crosswalk | corrected |
+| `INT-R5-F18` | source custody | exact identities/anchors committed; full bytes external | explicit residual |
+| `INT-R5-F19` | capability | complete chain absent | `absent/unallocated` |
+
+### 10.3 W4-K05 standing
+
+```yaml
+research_standing: accepted_narrow_scope
+capability_standing: absent/unallocated
+gate_standing: NO_GO
+```
 
 ### 10.4 Pattern Pass
 
-| Pattern | Check and result |
-| --- | --- |
-| `P01` contract-only capability | prevented: research remains `absent/unallocated` |
-| `P02` mature fragments without bridge | recorded: PA2/DS9/DS20 are reusable fragments; full bridge absent |
-| `P03` internal state without surface | future REVIEWER/EXPERT/MACHINE surface required; none claimed |
-| `P04` status proliferation | local result union feeds one lattice; no new global lattice |
-| `P05` authority dilution | exact `authoritative_for`/`may_not_use_for`; DS20/projection cannot mint competence |
-| `P07` rule-version replay | jurisdiction/body/effect/profile refs and historical/current questions separated |
-| `P08` time-role fragmentation | decision, effect, assertion, legal-effective, observed, freshness and replay times separated |
-| `P09` soft-gate lifecycle | no warning substitutes for required authority predicate |
-| `P10` structural-only validation | real-consumer, effect-count, near-pass, holdout and corruption tests required |
-| `P13` contract gravity/ERP | reuses existing owners and integrates sovereign functions; no meeting/court/appointment subsystem |
-| `P15` candidate laundering | requester/external assertion cannot become authority without admission |
-| `P20` normative choice laundering | jurisdiction/adjudicator decisions remain external and visible |
-| `P22` mandate/legitimacy laundering | role/permission is not mandate; full path required |
-| `P26` responsibility integrity | operative maker and source/acceptance/decision/execution responsibility separated |
-| `P27` parallel owner bypass | extends mandate/DS9/DS20 owners; no second permission system |
-| `P29` authorial proof | graph/certificate recomputed; caller cannot author positive; real consumer required |
-| `P31` instance patching | one graph/reducer/pre-effect chokepoint intended for the class, not five fixture patches |
-| `P32` trust by form | role names, refs, signatures, minutes and assertions require resolve/bind/verify |
-| `P33` witness as spec | mutation variants and sealed holdout required |
-| `P35` denominator | 10-file executable owner denominator named; index zero not used as proof |
-| `P36` inherited warrant | source doctrines transferred by named regime and classification, not surrounding prose |
-| `P37` declared predicate | every decisive predicate has producer and admission class; missing producer fails closed |
-| `P38` proxy/property divergence | role token vs competence, count vs quorum, title vs effect and signature vs forum explicitly tested |
-| `P41` attribution | shipped behavior is attributed to exact owners; historical documentation drift separated from current code |
+| Pattern | Amended check |
+|---|---|
+| `P01` | research remains absent/unallocated, not contract-only |
+| `P02` | PA2/DS9/DS20 are fragments; acquisition bridge is explicitly missing |
+| `P03` | no surface capability claimed |
+| `P04` | local union and namespaced reasons feed one lattice; crosswalk owner remains external |
+| `P05` | exact boundaries; no component mints another predicate |
+| `P07` | profile/rule version and historical/current questions separated |
+| `P08` | decision, issue, effect, legal-effective, observed and freshness times separated |
+| `P09` | no warning substitutes for failed authority |
+| `P10` | real producer/bridge/consumer/effect-count tests required |
+| `P13` | reuses owners; no court/meeting/appointment subsystem |
+| `P15` | caller/external assertion cannot be laundered through canonicalization |
+| `P20` | profile/adjudication choices remain visible |
+| `P22` | role/permission not mandate |
+| `P26` | source, acceptance, final decision and execution responsibility separated |
+| `P27` | no parallel permission or PAO-R4 system |
+| `P29` | every decisive field has producer; requester cannot author positive |
+| `P31` | one class mechanism, not fixture patches |
+| `P32` | form/role/signature/minutes require resolution and verification |
+| `P33` | near-pass, mutation and holdout retained |
+| `P35` | ten-file denominator narrowed; no complete closure or repo-wide zero claimed |
+| `P36` | survey identities and claim anchors explicit; full-byte residual explicit |
+| `P37` | producer/provenance for each decisive predicate |
+| `P38` | role/competence, count/quorum, title/effect, hash/semantic fact and adjacency/call edge tested |
+| `P41` | shipped behavior attributed to exact owners; history and current state separated |
 
-No pattern-register edit is made from research stage.
+No pattern-register edit is made.
 
 ### 10.5 Consolidation recommendation
 
-Consolidation should adopt the graph/certificate proposition, producer discipline, exact commitment,
-profiled predicates, unappointed-holder refusal, freshness/revalidation contract and red-first
-fixtures. It should not directly adopt the candidate field names as final wire schema.
+Consolidation may consume the graph/certificate proposition, independent-producer discipline, exact
+commitment, profiled predicates, typed missing-holder output, namespaced candidate reason design,
+freshness/cure semantics and red fixtures. It must not consume the withdrawn acquisition composition,
+complete-ten-file-closure claim or universal inequality.
 
-The final architecture decision should preserve the central separation:
+The final separation remains:
 
 ```text
-DS20: may this verified runtime principal perform this exact operation/resource now?
-INT-R5 certificate: did this person/body possess the institutional authority to make this exact decision?
-PAO-R4: may this policy-level output cross into an individual case?
+DS20: may this verified runtime principal perform this operation/resource now?
+INT-R5: did this person/body possess institutional authority for this exact decision?
+PAO-R4: may this policy-level artifact cross into this individual case?
 ```
 
-All three may be required for one protected effect. None substitutes for another.
+All may be required. None substitutes for another.

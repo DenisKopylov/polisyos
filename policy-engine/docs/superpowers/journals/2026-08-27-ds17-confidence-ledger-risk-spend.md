@@ -2132,3 +2132,154 @@ number is not the failure ownership predicate. The failing test set and the
 unadmitted acquisition declarations are unchanged. All three reds therefore
 reproduce from the exact new base for the same semantic reason. None is
 repaired, counted as a DS17 finding, or used to claim a green gate.
+
+## 2026-08-30 — C04 generic paint derivation and mandatory closed-shadow stop
+
+The byte identity of the complete preceding 2,134-line, 133,531-byte journal
+was
+`eebd6cc75aee52885a4f7a5feb316a0d6cf622615be5b6f8838500f02413f358`.
+The bounded C04 implementation and its persistent falsifiers are committed at
+`aef9eb09785878e8bbc78f0365f30865eb775ec1`. The plan remains byte-identical at
+`6c8b53cad6e5b002313563a81122392d91884927`.
+
+### Architect-directed repair built before disposition
+
+The verifier now derives Chromium's complete computed-property set from each
+visible element's own `getComputedStyle` enumeration and derives initial values
+from a connected `all: initial` probe. A noninitial property that has no
+positive paint-bounded proof returns `unproved_approximation`; a future engine
+property therefore enters the denominator automatically and fails closed. The
+same transaction:
+
+- censuses pseudo selectors from document/adopted CSSOM rules and blocks
+  noninitial unproved pseudo paint;
+- rejects generated `::before`, `::after`, and marker paint, and proves the
+  stylesheet-derived `::first-letter` shadow witness;
+- rejects open shadow roots rather than excluding their descendants silently;
+- compares every nonblank direct Text-node Range rectangle with the complete
+  `getClientRects()` set of its element, closing the concrete `text-indent`
+  overflow found in review;
+- restricts appearance to computed `none`, requires marker-free list items,
+  and scopes those normalizations to the DS17 Cycle Board page root; and
+- preserves finite work through the existing DOM/style/rule/rectangle caps and
+  returns typed blocking on every unsupported or incomplete observation.
+
+No denylist was added for the named witness spellings. The mechanism changes
+remain inside the already-declared C04 paths
+`confidenceLedgerRiskSpendTwin.ts`, `confidenceLedgerRiskSpend.ts`,
+`ConditionalDeltaFigure.tsx`, `ConfidenceLedgerRiskSpend.tsx`, and
+`CycleBoardPage.tsx`. The native/browser and real-page parity tests plus
+`confidenceLedgerVisibilityPlatform.ts` are P39 companions. No tenth C04
+mechanism path and no widening reserve were spent.
+
+The required targeted Chromium lane — canonical exact, the four property
+extensions (box shadow, offset outline, filter drop shadow, text shadow),
+stylesheet-derived first-letter, open shadow root, and text-indent escape —
+passed 8/8, exit 0, real/user/sys `13.48/14.93/0.52`, uptime `23:58` ->
+`23:58`. Before the final adversarial review, the complete native census
+passed 72/72, exit 0, real/user/sys `54.69/59.33/0.94`, uptime `23:58` ->
+`23:59`. The canonical text-indent baseline initially exposed a test-fixture
+error (a long word already overflowed its one-pixel host); replacing it with
+the contained one-glyph baseline made the same test exact before mutation and
+blocked after mutation.
+
+The JSDOM test platform originally returned one shared rectangle for every
+element and text node. Once element `getClientRects()` joined the production
+proof, that proxy made every text range appear covered by every non-ancestor.
+The companion now assigns one deterministic rectangle per element and uses the
+same rectangle for the element, its Range, and its bounding box. This exercises
+the production containment/overlap property without pretending JSDOM has a
+layout engine. After that owner fix, the twin plus real-page parity lane passed
+62 tests with one intentional native-only skip, exit 0, real/user/sys
+`41.53/62.56/1.85`, uptime `00:16` -> `00:16`.
+
+### P29 remove-property/keep-marker receipt
+
+The first literal P29 probe removed the page's list normalization while
+retaining `data-ds17-confidence-ledger-page`. The old test helper inferred
+`list-style: none` from that marker and the real-page parity baseline remained
+green: exit 0, real/user/sys `4.33/5.84/0.45`, uptime `23:50` -> `23:50`.
+That is the prohibited form-based result.
+
+The helper was changed to derive list normalization from an actual matching
+author CSSOM declaration. Repeating the same property removal with the marker
+unchanged made parity fail, exit 1, real/user/sys `2.54/3.78/0.40`, uptime
+`23:53` -> `23:53`. A permanent real-page test now removes only the
+list-normalization rule, asserts the page marker remains, and requires
+`unproved_approximation`; it passes, exit 0, real/user/sys
+`2.93/3.95/0.47`, uptime `00:12` -> `00:12`. The reviewer-reported P29 gap is
+therefore closed behaviorally, not by a marker assertion.
+
+### Independent-review bucket and actual divergent case
+
+The first frozen review confirmed the property enumeration, direct-text,
+scoped normalization, open-root, pseudo, and required extension repairs. Its
+remaining finding was classified under P38/P40 as the same paint-containment
+class one level deeper: a closed shadow root is deliberately absent from
+`element.shadowRoot`, while `document.querySelectorAll("*")`, document CSSOM,
+and host `getClientRects()` cannot enumerate the root's descendants, computed
+styles, pseudos, or paint.
+
+The property is “all computed-visible paint that can affect the protected DOM
+is positively contained by the indexed paint regions.” The implementation
+actually observes the light-DOM element/style/rectangle census plus only
+observable open roots. The exact present divergent case is:
+
+1. append a fixed one-pixel host whose own rectangle is disjoint from the
+   governed leaf and confirm the canonical evaluation is `exact`;
+2. attach `host.attachShadow({mode: "closed"})`, append a one-pixel child with
+   `box-shadow: 0 0 0 1000px black`, and retain the host marker;
+3. prove `host.shadowRoot === null` and independently capture the governed
+   leaf before and after; its screenshot bytes change, proving the closed-root
+   paint reaches that protected region; and
+4. rerun the production twin unchanged. It returns `exact`, including the
+   exact byte twin and all nine denied protected-query answers, instead of
+   `unproved_approximation`.
+
+The isolated witness failed for precisely that mismatch, exit 1,
+real/user/sys `3.18/3.92/0.43`, uptime `00:12` -> `00:12`. The final complete
+native census reports exactly 72 prior cases passed and this one new case
+failed, exit 1, real/user/sys `57.04/61.84/0.98`, uptime `00:14` -> `00:15`.
+Thus none of the architect's required four paint-extension cases regressed;
+the red denominator is exactly the new closed-root witness.
+
+A second reviewer proposed italic glyph overhang as another candidate, then
+retracted it after the production replay: baseline was `exact`, the mutated
+case was already `blocked/unproved_approximation`, and zero painted candidate
+pixels intersected the governed Range. It is not recorded as a finding and no
+repair was made for it.
+
+### Why this is the mandated stop
+
+Closed mode intentionally makes “no shadow root” and “a closed shadow root”
+identical through the standard after-the-fact `shadowRoot` observation. A
+module-local denylist or an `attachShadow` monkey patch installed when this
+late evaluator is imported cannot establish roots created earlier and would
+still not inventory browser-created closed trees. The smallest sufficient
+quantity is a provenance-complete shadow-root creation ledger installed before
+any relevant tree can be created, or a browser/compositor API that returns
+complete painted containment across closed trees. Neither capability exists in
+the current runtime-dashboard verifier. Installing an earlier application-wide
+observer would cross the declared C04 path set and would still require a new
+proof of pre-installation absence; treating a closed host as open would violate
+the platform authority boundary.
+
+This is an actual present escape against a generic mechanism, not a
+hypothetical future property. P40's second-same-class rule and the architect's
+explicit “if generic enumeration provably cannot be made complete” condition
+therefore require STOP rather than another spelling repair. Capability state:
+`verification_missing`; owner: runtime-dashboard/Atlas projection-safety
+verifier plus browser paint-observation substrate.
+
+The eight-file ESLint lane is green, exit 0, real/user/sys
+`22.73/33.08/3.10`, uptime `00:16` -> `00:17`; TypeScript is green, exit 0,
+real/user/sys `14.37/23.16/1.08`, uptime `00:16` -> `00:17`; `git diff --check`
+is green. The broader nine-file C04 lane, before the stop witness was appended,
+reported 124 passed, one skipped, and the one already-replayed DS15 acquisition
+consumer-census red, exit 1, real/user/sys `43.80/107.64/4.83`, uptime
+`00:03` -> `00:04`.
+
+C04 is not closed. C05's eighteenth Atlas-writer mechanism path is not spent,
+C05 is not started, and C06 is not started. The ledger remains 17 mechanisms
+used of 18 declared, 17/22 hard ceiling, reserve 0. The branch remains attached,
+unpushed, and unmerged.

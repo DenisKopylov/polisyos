@@ -75,7 +75,7 @@ export async function withConfidenceLedgerTestVisibilityPlatform<T>(
   ) {
     throw new TypeError("confidence-ledger test platform requires JSDOM");
   }
-  const elementPrototype = view.HTMLElement.prototype;
+  const elementPrototype = view.Element.prototype;
   const rangePrototype = view.Range.prototype;
   const snapshots = [
     snapshotProperty(elementPrototype, "checkVisibility"),

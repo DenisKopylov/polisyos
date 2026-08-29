@@ -418,16 +418,111 @@ type ScrollSnapshot = Readonly<{
 }>;
 
 const CONFIDENCE_LEDGER_MAX_TEXT_RANGE_RECTS = 64;
-const CONFIDENCE_LEDGER_TEXT_RECT_SAMPLE_FRACTIONS = Object.freeze([
-  [0.5, 0.5],
-] as const);
+const CONFIDENCE_LEDGER_PAINT_RECT_TREE_LEAF_CAP =
+  CONFIDENCE_LEDGER_MAX_TEXT_RANGE_RECTS / 4;
+
+type FinitePaintRect = Readonly<{
+  bottom: number;
+  left: number;
+  right: number;
+  top: number;
+}>;
+
+type ElementPaintRect = FinitePaintRect &
+  Readonly<{
+    element: Element;
+  }>;
+
+type PaintRectTree =
+  | (FinitePaintRect &
+      Readonly<{
+        boxes: readonly ElementPaintRect[];
+        kind: "leaf";
+      }>)
+  | (FinitePaintRect &
+      Readonly<{
+        children: readonly [PaintRectTree, PaintRectTree];
+        kind: "branch";
+      }>);
+
+function positiveAreaIntersection(
+  left: FinitePaintRect,
+  right: FinitePaintRect,
+): boolean {
+  return (
+    Math.max(left.left, right.left) < Math.min(left.right, right.right) &&
+    Math.max(left.top, right.top) < Math.min(left.bottom, right.bottom)
+  );
+}
+
+function paintRectBounds(boxes: readonly ElementPaintRect[]): FinitePaintRect {
+  const first = boxes[0];
+  if (first === undefined) {
+    throw new VisibilityUnprovedError("paint rectangle bounds are empty");
+  }
+  let bottom = first.bottom;
+  let left = first.left;
+  let right = first.right;
+  let top = first.top;
+  for (let index = 1; index < boxes.length; index += 1) {
+    const box = boxes[index];
+    if (box === undefined) {
+      throw new VisibilityUnprovedError("paint rectangle is unavailable");
+    }
+    bottom = Math.max(bottom, box.bottom);
+    left = Math.min(left, box.left);
+    right = Math.max(right, box.right);
+    top = Math.min(top, box.top);
+  }
+  return Object.freeze({
+    bottom,
+    left,
+    right,
+    top,
+  });
+}
+
+function buildPaintRectTree(
+  boxes: readonly ElementPaintRect[],
+): PaintRectTree | null {
+  if (boxes.length === 0) return null;
+  const bounds = paintRectBounds(boxes);
+  if (boxes.length <= CONFIDENCE_LEDGER_PAINT_RECT_TREE_LEAF_CAP) {
+    return Object.freeze({
+      ...bounds,
+      boxes: Object.freeze([...boxes]),
+      kind: "leaf" as const,
+    });
+  }
+  const horizontalSpan = bounds.right - bounds.left;
+  const verticalSpan = bounds.bottom - bounds.top;
+  const ordered = [...boxes].sort((left, right) =>
+    horizontalSpan >= verticalSpan
+      ? left.left + left.right - (right.left + right.right)
+      : left.top + left.bottom - (right.top + right.bottom),
+  );
+  const midpoint = Math.floor(ordered.length / 2);
+  const first = buildPaintRectTree(ordered.slice(0, midpoint));
+  const second = buildPaintRectTree(ordered.slice(midpoint));
+  if (first === null || second === null) {
+    throw new VisibilityUnprovedError("paint rectangle tree is incomplete");
+  }
+  return Object.freeze({
+    ...bounds,
+    children: Object.freeze([first, second]) as readonly [
+      PaintRectTree,
+      PaintRectTree,
+    ],
+    kind: "branch" as const,
+  });
+}
 
 class RenderedVisibilitySession {
   readonly #cache = new WeakMap<HTMLElement, VisibilityProof>();
   readonly #chainVisible = new WeakSet<HTMLElement>();
   readonly #document: Document;
   readonly #focus: Element | null;
-  readonly #hitTestTransparentCandidates: readonly Element[];
+  readonly #paintRectTree: PaintRectTree | null;
   readonly #scroll: readonly ScrollSnapshot[];
   readonly #view: Window & typeof globalThis;
   readonly #windowX: number;
@@ -446,8 +541,6 @@ class RenderedVisibilitySession {
     };
     if (
       typeof documentElement.checkVisibility !== "function" ||
-      typeof document.elementsFromPoint !== "function" ||
-      typeof documentElement.scrollIntoView !== "function" ||
       typeof view.scrollTo !== "function"
     ) {
       throw new VisibilityUnprovedError(
@@ -476,20 +569,8 @@ class RenderedVisibilitySession {
           top: element.scrollTop,
         }),
       );
-    try {
-      this.#hitTestTransparentCandidates = Object.freeze(
-        elements.filter(
-          (element) =>
-            cssValue(view.getComputedStyle(element), "pointer-events") !==
-            "auto",
-        ),
-      );
-    } catch {
-      throw new VisibilityUnprovedError(
-        "rendered pointer-event state is unavailable",
-      );
-    }
     this.consume(elements.length + this.#scroll.length);
+    this.#paintRectTree = this.capturePaintRectTree(elements);
   }
 
   consume(work: number): void {
@@ -541,147 +622,118 @@ class RenderedVisibilitySession {
     } catch {
       return "unproved";
     }
-    let rectCount: number;
+    let nativeRects: DOMRectList;
     try {
-      const nativeRects = range.getClientRects();
+      nativeRects = range.getClientRects();
       if (
+        !Number.isSafeInteger(nativeRects.length) ||
         nativeRects.length === 0 ||
         nativeRects.length > CONFIDENCE_LEDGER_MAX_TEXT_RANGE_RECTS
       ) {
         return "unproved";
       }
-      rectCount = nativeRects.length;
     } catch {
       return "unproved";
     }
-    this.consume(
-      rectCount * (2 + CONFIDENCE_LEDGER_TEXT_RECT_SAMPLE_FRACTIONS.length),
-    );
-    for (let rectIndex = 0; rectIndex < rectCount; rectIndex += 1) {
-      let rect = this.rangeRectAt(range, rectIndex, rectCount);
+    this.consume(nativeRects.length * 2);
+    for (let rectIndex = 0; rectIndex < nativeRects.length; rectIndex += 1) {
+      const rect = nativeRects.item(rectIndex);
       if (rect === null) return "unproved";
       if (!this.isFiniteVisibleRect(rect)) return "unproved";
-      for (const [
-        xFraction,
-        yFraction,
-      ] of CONFIDENCE_LEDGER_TEXT_RECT_SAMPLE_FRACTIONS) {
-        let x = rect.left + rect.width * xFraction;
-        let y = rect.top + rect.height * yFraction;
-        if (
-          x < 0 ||
-          x > this.#view.innerWidth ||
-          y < 0 ||
-          y > this.#view.innerHeight
-        ) {
-          this.consume(4);
-          try {
-            this.#view.scrollTo(
-              this.#view.scrollX + x - this.#view.innerWidth / 2,
-              this.#view.scrollY + y - this.#view.innerHeight / 2,
-            );
-            rect = this.rangeRectAt(range, rectIndex, rectCount);
-            if (rect === null || !this.isFiniteVisibleRect(rect)) {
-              return "unproved";
-            }
-            x = rect.left + rect.width * xFraction;
-            y = rect.top + rect.height * yFraction;
-          } catch {
-            return "unproved";
-          }
-          if (
-            x < 0 ||
-            x > this.#view.innerWidth ||
-            y < 0 ||
-            y > this.#view.innerHeight
-          ) {
-            return "unproved";
-          }
-        }
-        let frontmost: Element | undefined;
-        try {
-          frontmost = this.#document.elementsFromPoint(x, y).at(0);
-        } catch {
-          return "unproved";
-        }
-        if (frontmost === undefined || !frontmost.contains(textNode)) {
-          return "unproved";
-        }
-        if (this.hasHitTestTransparentOverlap(textNode, x, y)) {
-          return "unproved";
-        }
+      if (
+        this.hasIntersectingNonAncestor(textNode, {
+          bottom: rect.bottom,
+          left: rect.left,
+          right: rect.right,
+          top: rect.top,
+        })
+      ) {
+        return "unproved";
       }
     }
     return "visible";
-  }
-
-  private rangeRectAt(
-    range: Range,
-    index: number,
-    expectedCount: number,
-  ): DOMRect | null {
-    try {
-      const rects = range.getClientRects();
-      return rects.length === expectedCount ? rects.item(index) : null;
-    } catch {
-      return null;
-    }
   }
 
   private isFiniteVisibleRect(rect: DOMRect | DOMRectReadOnly): boolean {
     return (
       Number.isFinite(rect.left) &&
       Number.isFinite(rect.top) &&
+      Number.isFinite(rect.right) &&
+      Number.isFinite(rect.bottom) &&
       Number.isFinite(rect.width) &&
       Number.isFinite(rect.height) &&
+      rect.right > rect.left &&
+      rect.bottom > rect.top &&
       rect.width > 0 &&
       rect.height > 0
     );
   }
 
-  private hasHitTestTransparentOverlap(
-    textNode: Text,
-    x: number,
-    y: number,
-  ): boolean {
-    for (const candidate of this.#hitTestTransparentCandidates) {
-      this.consume(3);
-      if (!candidate.isConnected || candidate.contains(textNode)) continue;
-      const nativeCandidate = candidate as Element & {
+  private capturePaintRectTree(
+    elements: readonly Element[],
+  ): PaintRectTree | null {
+    const boxes: ElementPaintRect[] = [];
+    for (const element of elements) {
+      this.consume(5);
+      if (!element.isConnected) {
+        throw new VisibilityUnprovedError(
+          "rendered element census changed during capture",
+        );
+      }
+      const nativeElement = element as Element & {
         checkVisibility?: (options?: {
           checkOpacity?: boolean;
           checkVisibilityCSS?: boolean;
           contentVisibilityAuto?: boolean;
         }) => boolean;
       };
-      if (typeof nativeCandidate.checkVisibility !== "function") {
+      if (typeof nativeElement.checkVisibility !== "function") {
         throw new VisibilityUnprovedError(
-          "transparent hit-test candidate cannot prove visibility",
+          "rendered element cannot prove visibility",
         );
       }
       let visible: boolean;
       try {
-        visible = nativeCandidate.checkVisibility({
+        visible = nativeElement.checkVisibility({
           checkOpacity: true,
           checkVisibilityCSS: true,
           contentVisibilityAuto: true,
         });
       } catch {
-        throw new VisibilityUnprovedError(
-          "transparent hit-test candidate visibility failed",
-        );
+        throw new VisibilityUnprovedError("rendered element visibility failed");
       }
       if (!visible) continue;
-      let rects: DOMRectList;
       try {
-        rects = candidate.getClientRects();
-      } catch {
+        for (const pseudo of ["::before", "::after", "::marker"] as const) {
+          const content = cssValue(
+            this.#view.getComputedStyle(element, pseudo),
+            "content",
+          );
+          if (content !== "none" && content !== "normal") {
+            throw new VisibilityUnprovedError(
+              "generated paint cannot be proven absent",
+            );
+          }
+        }
+      } catch (error) {
+        if (error instanceof VisibilityUnprovedError) throw error;
         throw new VisibilityUnprovedError(
-          "transparent hit-test candidate geometry failed",
+          "generated paint state is unavailable",
         );
       }
-      if (rects.length > CONFIDENCE_LEDGER_MAX_TEXT_RANGE_RECTS) {
+      let rects: DOMRectList;
+      try {
+        rects = element.getClientRects();
+      } catch {
+        throw new VisibilityUnprovedError("rendered element geometry failed");
+      }
+      if (
+        !Number.isSafeInteger(rects.length) ||
+        rects.length < 0 ||
+        rects.length > CONFIDENCE_LEDGER_MAX_TEXT_RANGE_RECTS
+      ) {
         throw new VisibilityUnprovedError(
-          "transparent hit-test candidate rectangle cap exceeded",
+          "rendered element rectangle cap exceeded",
         );
       }
       this.consume(rects.length);
@@ -689,20 +741,75 @@ class RenderedVisibilitySession {
         const rect = rects.item(index);
         if (rect === null) {
           throw new VisibilityUnprovedError(
-            "transparent hit-test candidate rectangle is unavailable",
+            "rendered element rectangle is unavailable",
           );
         }
         if (
-          Number.isFinite(rect.left) &&
-          Number.isFinite(rect.top) &&
-          Number.isFinite(rect.right) &&
-          Number.isFinite(rect.bottom) &&
-          rect.width > 0 &&
-          rect.height > 0 &&
-          x >= rect.left &&
-          x <= rect.right &&
-          y >= rect.top &&
-          y <= rect.bottom
+          !Number.isFinite(rect.left) ||
+          !Number.isFinite(rect.top) ||
+          !Number.isFinite(rect.right) ||
+          !Number.isFinite(rect.bottom) ||
+          !Number.isFinite(rect.width) ||
+          !Number.isFinite(rect.height)
+        ) {
+          throw new VisibilityUnprovedError(
+            "rendered element rectangle is nonfinite",
+          );
+        }
+        if (rect.width === 0 || rect.height === 0) continue;
+        if (
+          rect.width < 0 ||
+          rect.height < 0 ||
+          rect.right <= rect.left ||
+          rect.bottom <= rect.top
+        ) {
+          throw new VisibilityUnprovedError(
+            "rendered element rectangle is incoherent",
+          );
+        }
+        boxes.push(
+          Object.freeze({
+            bottom: rect.bottom,
+            element,
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+          }),
+        );
+      }
+    }
+    const treeWork =
+      boxes.length * Math.max(1, Math.ceil(Math.log2(boxes.length + 1)));
+    this.consume(treeWork);
+    return buildPaintRectTree(boxes);
+  }
+
+  private hasIntersectingNonAncestor(
+    textNode: Text,
+    rangeRect: FinitePaintRect,
+  ): boolean {
+    if (this.#paintRectTree === null) return false;
+    const pending: PaintRectTree[] = [this.#paintRectTree];
+    while (pending.length > 0) {
+      this.consume(1);
+      const node = pending.pop();
+      if (node === undefined || !positiveAreaIntersection(node, rangeRect)) {
+        continue;
+      }
+      if (node.kind === "branch") {
+        pending.push(...node.children);
+        continue;
+      }
+      for (const box of node.boxes) {
+        this.consume(1);
+        if (!box.element.isConnected) {
+          throw new VisibilityUnprovedError(
+            "rendered element census changed during evaluation",
+          );
+        }
+        if (
+          positiveAreaIntersection(box, rangeRect) &&
+          !box.element.contains(textNode)
         ) {
           return true;
         }
@@ -719,11 +826,7 @@ class RenderedVisibilitySession {
         contentVisibilityAuto?: boolean;
       }) => boolean;
     };
-    if (
-      typeof nativeElement.checkVisibility !== "function" ||
-      typeof element.scrollIntoView !== "function" ||
-      typeof this.#view.scrollTo !== "function"
-    ) {
+    if (typeof nativeElement.checkVisibility !== "function") {
       return "unproved";
     }
     let platformVisible: boolean;
@@ -745,18 +848,13 @@ class RenderedVisibilitySession {
     if (styleProof !== "visible") return styleProof;
     this.consume(2);
     try {
-      for (const pseudo of ["::before", "::after"] as const) {
+      for (const pseudo of ["::before", "::after", "::marker"] as const) {
         const content = cssValue(
           this.#view.getComputedStyle(element, pseudo),
           "content",
         );
         if (content !== "none" && content !== "normal") return "unproved";
       }
-    } catch {
-      return "unproved";
-    }
-    try {
-      element.scrollIntoView({ block: "center", inline: "center" });
     } catch {
       return "unproved";
     }
@@ -1514,7 +1612,7 @@ const CONFIDENCE_LEDGER_DOM_TEXT_CODE_UNIT_CAP = 80 * 1000;
 const CONFIDENCE_LEDGER_DOM_ATTRIBUTE_COUNT_CAP = 20 * 1000;
 const CONFIDENCE_LEDGER_DOM_ATTRIBUTE_CODE_UNIT_CAP = 640 * 1000;
 const CONFIDENCE_LEDGER_DOM_SINGLE_ATTRIBUTE_CAP = 4 * 1000;
-const CONFIDENCE_LEDGER_DOM_WORK_RESERVE = 160 * 1000;
+const CONFIDENCE_LEDGER_DOM_WORK_RESERVE = 420 * 1000;
 
 function normalizedText(value: string): string {
   return value

@@ -1759,3 +1759,112 @@ record. The complete C04 capability remains exactly the original nine
 mechanism paths; no tenth mechanism, locale, route, shared exporter, second
 host, direct fetch, visual/snapshot root, or C05 path is added. `ru.json`
 remains frozen, and reserve remains zero.
+
+### C04 round 5 — complete Range-region proof
+
+This append resumes C04 only after round 4 and the separately committed C05
+stop. The first 1,761 lines above remained byte-identical at
+`873fb194427e9b2629562e31a31c546f580f4502d330465eece34c9f33f7f631`
+before this section was added. No C05 mechanism, finding, or conclusion moved.
+
+The review witness is one final finding in the same P38 text-paint bucket:
+midpoint authority and complete glyph-region authority diverge whenever
+opaque boxes cover the Range except at that one coordinate. The concrete
+witness used two boxes covering 98.24% of a governed Range while leaving the
+old midpoint clear. P40 therefore permits only the full bounded quantity, not
+more sample points.
+
+The rendered-visibility session now enumerates the complete document element
+set admitted by the existing 20,000-node DOM cap. For every independently
+native-visible element it reads the complete `getClientRects()` list, caps it
+at 64, requires every returned coordinate to be finite and coherent, treats
+an explicit zero-area box as a known non-region, and freezes every positive-
+area numeric observation. The complete observation set is placed in a
+budgeted bounding tree. Tree pruning is authorized only when two complete
+rectangles have no strict positive-area intersection; every surviving leaf
+box is still compared exactly. This is an exact index over the complete
+census, not a sample, hit point, z-order guess, or pointer-event proxy.
+
+Every nonempty governed text node under the root or uniquely bound dialog
+still supplies its complete native `Range` rectangle list. For each rectangle,
+any computed-visible census box with strict positive-area intersection blocks
+unless its element actually contains that exact text node. The rule is
+independent of `pointer-events`; a descendant overlay does not contain its
+ancestor's text. Zero-area boundary contact is deliberately not intersection,
+while any positive sliver is. Changed census membership, missing native APIs,
+non-safe cardinality, unavailable/nonfinite/incoherent geometry, incomplete
+tree construction, or exhausted work yields `unproved_approximation`.
+
+Generated boxes are not silently omitted. Because pseudo geometry cannot be
+bounded independently from its originating element, every computed-visible
+element in the complete census must prove `content` is exactly `none` or
+`normal` for `::before`, `::after`, and `::marker`; unknown or generated
+content blocks before an ancestor exemption. This conservative rule makes a
+non-normal pseudo a potentially intersecting box rather than claiming an
+unobserved location is safe.
+
+Removing element scrolling and point sampling makes all element and Range
+coordinates one stable native observation. The pre-existing focus, window,
+and scroll-container snapshots are still restored and verified in `finally`;
+no focus or scroll mutation is left behind. The complete index and query work
+is debited. The finite live budget moves from 1,100,000 to 1,400,000 units: the
+DOM share moves from 160,000 to 420,000 and the two-observation protected
+transport preflight receives 980,000. Existing rational/cardinality caps and
+the 960,000-unit dual-observation exhaustion falsifier remain green.
+
+The JSDOM native-shaped substitute remains exclusively in the existing P39
+test helper. It now installs the platform method on `Element.prototype`,
+matching Chromium's complete-element API rather than the narrower
+`HTMLElement` test proxy. The production module still exposes no oracle,
+factory, caller parameter, UA bypass, or capability-minting surface; the final
+production bundle contains zero occurrences of those identifiers or the
+removed sample constant.
+
+`receiving-code-review` and the P40 pass classified this as the same P38
+quantity before editing. `brainstorming` held the change behind the approved
+complete-census design. `test-driven-development` required all nine exact
+escapes before implementation. `systematic-debugging` distinguished the
+first baseline failure as honest work-budget exhaustion and the JSDOM failure
+as a test-only prototype mismatch; neither was fixed by weakening the native
+property. `code-work` kept the correction inside existing mechanisms and
+companions. `verification-before-completion` required the source-frozen native,
+focused, type/build, lint/format, identity, locale, and exact-main receipts
+below.
+
+#### Round-5 falsifiers, paths, and verification
+
+The red selector ran four descendant/sibling-by-auto/none cases whose paired
+boxes left a hole around every former sample, four equivalent positive-area
+edge slivers, and one sibling pseudo-generated box. Before the mechanism
+changed, all **9/9** returned `exact`; the filtered run was 9 failed / 56
+skipped. After the structural widening all nine return
+`unproved_approximation`. The persistent suite grows from 56 to 65 tests and
+the final real-Chromium run is **65/65**, including the canonical exact
+baseline and every prior color, paint, overlay, and UA-spoof falsifier.
+
+| Gate | C04 round-5 branch | Exact main `dc7bdf79` | Disposition |
+| --- | --- | --- | --- |
+| complete nine-file focused Vitest | exit 0; 9 files, 123 passed + 1 native-only skip; duration 118.45s, real 119.32 | six C04 test files absent; common Cycle Board denominator below | green; no full suite |
+| persistent native Chromium | exit 0; 65/65; duration 14.11s, real 14.97 | C04 twin/browser suite absent | canonical baseline exact; all 64 conservative cases close |
+| Cycle Board page/parity/census | exit 0; 23/23; duration 29.43s, real 30.31 | exit 0; 14/14; duration 31.01s, real 32.13 | authorization, sibling isolation, parity, census, and live twin exact |
+| DS10 query-key identity | exit 0; 1/1; real 3.81 | exit 0; 1/1; real 3.09 | governed shared declaration remains byte-preserved |
+| full dashboard typecheck | exit 0; real 22.39 | exit 0; real 21.86 | green |
+| production build | exit 0; real 31.00 | exit 0; real 31.49 | green; normal chunk warning only; production oracle/sample scan is 0 |
+| scoped ESLint over four correction TS/TSX paths | exit 0; real 14.36 | C04-only paths absent | green; an initial decision-literal finding was resolved structurally |
+| scoped Prettier over four correction TS/TSX paths | 4/4 matched; real 1.24 | C04-only paths absent | green |
+| i18n parity | exit 1; 37/38; real 2.30 | exit 1; 36/38; real 2.34 | branch retains only the same RU expected `67b7…` / actual `afcb…` red; main also retains the active-count red C04 closes |
+
+Round 5 changes two existing mechanisms:
+`apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.ts`
+and
+`apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.ts`.
+Its two P39 companions are the persistent native browser test and the existing
+test-only JSDOM visibility-platform helper. This append is the mandatory
+record. The complete C04 capability remains exactly the original nine
+mechanism paths; no tenth mechanism, locale, route, shared exporter, second
+host, direct fetch, visual/snapshot root, or C05 path is added. `ru.json`
+remains byte-identical at
+`5366a250bd34ec702035c0953348d25e824acf80e75136bb212895cd76c36273`,
+generated failure attachments were removed before staging, and reserve remains
+zero. Planned append-only subject:
+`fix(atlas): prove complete confidence text regions`.

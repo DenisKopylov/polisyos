@@ -248,7 +248,139 @@ function coverGovernedText(
   parent.append(overlay);
 }
 
+function appendOverlay(
+  leaf: HTMLElement,
+  placement: "descendant" | "sibling",
+  pointerEvents: "auto" | "none",
+  rect: Readonly<{
+    height: number;
+    left: number;
+    top: number;
+    width: number;
+  }>,
+): void {
+  const parent = leaf.parentElement;
+  if (parent === null) throw new Error("governed leaf parent is missing");
+  const anchor = placement === "descendant" ? leaf : parent;
+  const view = leaf.ownerDocument.defaultView;
+  if (view === null) throw new Error("governed document view is missing");
+  if (view.getComputedStyle(anchor).position === "static") {
+    anchor.style.position = "relative";
+  }
+  const anchorRect = anchor.getBoundingClientRect();
+  const overlay = leaf.ownerDocument.createElement("span");
+  Object.assign(overlay.style, {
+    backgroundColor: "rgb(0, 0, 0)",
+    height: `${rect.height}px`,
+    left: `${rect.left - anchorRect.left}px`,
+    pointerEvents,
+    position: "absolute",
+    top: `${rect.top - anchorRect.top}px`,
+    width: `${rect.width}px`,
+    zIndex: "2147483647",
+  });
+  if (placement === "descendant") {
+    leaf.append(overlay);
+    return;
+  }
+  parent.append(overlay);
+}
+
+function governedTextRect(leaf: HTMLElement): DOMRect {
+  const range = leaf.ownerDocument.createRange();
+  range.selectNodeContents(governedTextNode(leaf));
+  const rect = range.getClientRects().item(0);
+  if (rect === null || rect.width <= 0 || rect.height <= 0) {
+    throw new Error("governed text range has no painted rectangle");
+  }
+  return rect;
+}
+
+function coverGovernedTextAroundFormerSamples(
+  leaf: HTMLElement,
+  placement: "descendant" | "sibling",
+  pointerEvents: "auto" | "none",
+): void {
+  const rect = governedTextRect(leaf);
+  const holeWidth = rect.width * 0.0176;
+  const segmentWidth = (rect.width - holeWidth) / 2;
+  appendOverlay(leaf, placement, pointerEvents, {
+    height: rect.height,
+    left: rect.left,
+    top: rect.top,
+    width: segmentWidth,
+  });
+  appendOverlay(leaf, placement, pointerEvents, {
+    height: rect.height,
+    left: rect.right - segmentWidth,
+    top: rect.top,
+    width: segmentWidth,
+  });
+}
+
+function intersectGovernedTextAtEdge(
+  leaf: HTMLElement,
+  placement: "descendant" | "sibling",
+  pointerEvents: "auto" | "none",
+): void {
+  const rect = governedTextRect(leaf);
+  const positiveSliver = Math.min(0.5, rect.width / 100);
+  appendOverlay(leaf, placement, pointerEvents, {
+    height: rect.height,
+    left: rect.left,
+    top: rect.top,
+    width: positiveSliver,
+  });
+}
+
+function coverGovernedTextWithPseudo(leaf: HTMLElement): void {
+  const rect = governedTextRect(leaf);
+  const document = leaf.ownerDocument;
+  const parent = leaf.parentElement;
+  const view = document.defaultView;
+  if (parent === null) throw new Error("governed leaf parent is missing");
+  if (view === null) throw new Error("governed document view is missing");
+  if (view.getComputedStyle(parent).position === "static") {
+    parent.style.position = "relative";
+  }
+  const parentRect = parent.getBoundingClientRect();
+  const pseudoHost = document.createElement("span");
+  pseudoHost.dataset.confidencePseudoOverlay = "range-region";
+  Object.assign(pseudoHost.style, {
+    height: "0px",
+    left: `${rect.left - parentRect.left}px`,
+    pointerEvents: "none",
+    position: "absolute",
+    top: `${rect.top - parentRect.top}px`,
+    width: "0px",
+  });
+  const style = document.createElement("style");
+  style.textContent = `
+    [data-confidence-pseudo-overlay="range-region"]::before {
+      background: rgb(0, 0, 0);
+      content: "";
+      height: ${rect.height}px;
+      left: 0;
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      width: ${rect.width}px;
+      z-index: 2147483647;
+    }
+  `;
+  document.head.append(style);
+  parent.append(pseudoHost);
+}
+
 const NATIVE_OVERLAY_CASES = (["descendant", "sibling"] as const).flatMap(
+  (placement) =>
+    (["auto", "none"] as const).map((pointerEvents) => ({
+      placement,
+      pointerEvents,
+    })),
+);
+
+const NATIVE_RANGE_REGION_CASES = (["descendant", "sibling"] as const).flatMap(
   (placement) =>
     (["auto", "none"] as const).map((pointerEvents) => ({
       placement,
@@ -316,6 +448,50 @@ describe.runIf(
       });
     },
   );
+
+  it.each(NATIVE_RANGE_REGION_CASES)(
+    "blocks $placement overlays that cover the text around every former sample with pointer-events:$pointerEvents",
+    async ({ placement, pointerEvents }) => {
+      const fixture = renderNativeEvaluation();
+      coverGovernedTextAroundFormerSamples(
+        governedLeaf(fixture.root),
+        placement,
+        pointerEvents,
+      );
+
+      await expect(evaluateNative(fixture)).resolves.toEqual({
+        reason: "unproved_approximation",
+        status: "blocked",
+      });
+    },
+  );
+
+  it.each(NATIVE_RANGE_REGION_CASES)(
+    "blocks a positive-area $placement sliver at the text edge with pointer-events:$pointerEvents",
+    async ({ placement, pointerEvents }) => {
+      const fixture = renderNativeEvaluation();
+      intersectGovernedTextAtEdge(
+        governedLeaf(fixture.root),
+        placement,
+        pointerEvents,
+      );
+
+      await expect(evaluateNative(fixture)).resolves.toEqual({
+        reason: "unproved_approximation",
+        status: "blocked",
+      });
+    },
+  );
+
+  it("blocks generated pseudo paint over a governed text range", async () => {
+    const fixture = renderNativeEvaluation();
+    coverGovernedTextWithPseudo(governedLeaf(fixture.root));
+
+    await expect(evaluateNative(fixture)).resolves.toEqual({
+      reason: "unproved_approximation",
+      status: "blocked",
+    });
+  });
 
   it("cannot mint a visibility bypass by spoofing the UA and passing an arbitrary object", async () => {
     const fixture = renderNativeEvaluation();

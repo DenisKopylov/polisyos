@@ -101,12 +101,44 @@ describe("ConditionalDeltaFigure", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button"));
+    const trigger = screen.getByRole("button");
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(trigger);
 
     const dialog = screen.getByRole("dialog", {
       name: /scope allocation.*conditional envelope/iu,
     });
     expect(dialog).toBeVisible();
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+    expect(trigger).toHaveAttribute("aria-controls", dialog.id);
+    expect(trigger).toHaveAttribute(
+      "aria-label",
+      `Scope allocation: ${CONFIDENCE_LEDGER_DECLARED_SET_RIDER} — ${CONFIDENCE_LEDGER_LOCALITY_RIDER}`,
+    );
+    expect(dialog).toHaveAccessibleDescription(
+      "The complete producer-issued conditionality envelope for this amount.",
+    );
+    expect(dialog).toHaveAttribute(
+      "data-confidence-dialog-trigger-id",
+      trigger.id,
+    );
+    expect(dialog).toHaveAttribute(
+      "data-confidence-amount-hash",
+      packet.payload.scope_total_risk_spend.allocation.amount_hash,
+    );
+    expect(dialog).toHaveAttribute(
+      "data-confidence-scope-id",
+      packet.payload.scope_total_risk_spend.allocation.scope_id,
+    );
+    expect(dialog).toHaveAttribute(
+      "data-confidence-declared-classes-hash",
+      packet.payload.scope_total_risk_spend.allocation
+        .declared_obligation_classes_hash,
+    );
+    expect(dialog).toHaveAttribute(
+      "data-confidence-semantic-role",
+      packet.payload.scope_total_risk_spend.allocation.semantic_role,
+    );
     expect(within(dialog).getByText(envelope.envelope_ref)).toBeVisible();
     expect(within(dialog).getByText(envelope.envelope_hash)).toBeVisible();
     expect(within(dialog).getByText(envelope.scope_id)).toBeVisible();

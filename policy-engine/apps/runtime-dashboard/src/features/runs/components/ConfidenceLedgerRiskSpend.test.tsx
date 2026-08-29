@@ -25,7 +25,14 @@ vi.mock("@/shared/ui/dataExport", () => ({
 }));
 
 vi.mock("@/shared/i18n/LocaleProvider", () => ({
-  useI18n: () => ({ t: (key: string) => key }),
+  useI18n: () => ({
+    t: (key: string, variables?: Readonly<Record<string, unknown>>) =>
+      ({
+        "pages.cycleBoard.confidenceLedger.positiveEmpty.body":
+          "No promotion certificate is currently issuable. This is a governed empty state, not a load failure.",
+        "pages.cycleBoard.confidenceLedger.positiveEmpty.status": `${String(variables?.count ?? 0)} issued · institutional authority unappointed in this PolicyOS runtime`,
+      })[key] ?? key,
+  }),
 }));
 
 type ExactProjection = Extract<
@@ -138,6 +145,12 @@ describe("ConfidenceLedgerRiskSpend", () => {
       "institutional_authority_unappointed",
     );
     expect(sections[3]).toHaveTextContent("open_world_unresolved");
+    expect(sections[3]).toHaveTextContent(
+      "0 issued · institutional authority unappointed in this PolicyOS runtime",
+    );
+    expect(sections[3]).toHaveTextContent(
+      "No promotion certificate is currently issuable. This is a governed empty state, not a load failure.",
+    );
   });
 
   it("downloads only the captured owner-response bytes from the final MACHINE section", () => {

@@ -423,8 +423,9 @@
           "body": "Protected packet preflight не створив exact receipt. Значення packet і завантаження не показуються."
         },
         "positiveEmpty": {
-          "title": "Позитивні promotion certificates",
-          "body": "Видано: {count} · {authority} · керований порожній реєстр"
+          "title": "Позитивні сертифікати промоції",
+          "status": "Видано {count} · інституційний орган не призначено в цьому середовищі виконання PolicyOS",
+          "body": "Жоден сертифікат промоції наразі не може бути виданий. Це керований порожній стан, а не помилка завантаження."
         },
         "sections": {
           "actualRows": "Фактичні відмови, потім acquisition",

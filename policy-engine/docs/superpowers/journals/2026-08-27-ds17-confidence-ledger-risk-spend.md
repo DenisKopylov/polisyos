@@ -1353,3 +1353,158 @@ legacy expected `67b7…` / actual `afcb…` RU key-set red; frozen `ru.json` is
 not claimed. No full suite ran. Planned append-only subject:
 `fix(atlas): enforce confidence risk-spend evaluation`; no correction residual
 remains and C05 retains Atlas/visual ownership.
+
+### C04 review round 2 — complete generated, arithmetic, and rendered quantities
+
+This round is the SECOND finding in the already-declared P32/P37/P38 owner
+admission, F21 bounded-evaluation, and P38 visible-projection classes. Per P40,
+the implementation widens each mechanism to the complete quantity instead of
+adding checks for the reviewer's named strings, denominator, or CSS examples.
+`receiving-code-review` kept that class disposition explicit;
+`test-driven-development` put the coherent rehash, aggregate arithmetic,
+accessibility relation, concealment, and native-browser falsifiers red first;
+`systematic-debugging` separated a browser-harness setup import failure and a
+parallel-load test timeout from product behavior; React guidance kept the
+controlled Radix trigger/dialog relation stable; and
+`verification-before-completion` required the final consolidated, Chromium,
+type/build/lint/format, locale, and exact-entry replays below.
+
+#### Complete owner-literal admission
+
+The domain exports one compact `CONFIDENCE_LEDGER_OWNER_LITERAL_RULES` table.
+A generic P39 census starts from all four specialized OpenAPI packet roots,
+resolves `$ref`, `allOf`, `oneOf`, and `anyOf`, walks properties, array items,
+and mapping values recursively, and compares every reachable `const` or
+single-value enum path/value against that table. The two complete sets are
+exactly 99/99. Production admission selects the packet arm and applies every
+matching rule recursively, including wildcard array/mapping members, after
+strict shape parse and before the packet can escape. The table covers the
+common transport/replay literals, all arm discriminators/absence reasons, and
+every nested available owner literal, including all conditional-amount riders
+and display versions.
+
+Coherently rehashing the semantic-ledger schema version, conditionality clause,
+or good-event clause no longer helps: candidate and captured bytes both block
+with `parser_or_schema_failure`. The prior derived coverage classifier,
+available-within-budget requirement, typed `source_blocked/over_spend` arm, and
+non-leaking blocked surface remain intact. This is generated-contract
+completeness for admission, not a browser-side provenance claim; owner
+authority still belongs to the protected route.
+
+#### Complete arithmetic work admission
+
+Every direct admission now performs a no-decimal recursive scan first. It
+requires finite safe nonnegative numerators, finite safe positive denominators,
+and caps numerator, denominator, rational cardinality, conservative period
+sum, exact-decimal code units, and display code units. The aggregate caps apply
+over the entire packet, so 98 individually acceptable denominators cannot
+bypass the bound. The shared protected evaluator cheaply scans the generated
+candidate and captured JSON observation separately, charges both complete JSON
+and rational workloads plus bytes/schema/nine-query work against one finite
+positive safe-integer budget, and only then runs either strict admission. No
+`exactDecimal` loop occurs before both evaluator scans.
+
+The full-rehash 151,866-byte denominator `1,000,171` probe blocks as
+`unsupported_or_out_of_model` and direct admission rejects it; 98 denominators
+of 3,000 reject on aggregate rational work; and a 960,000-step budget that fits
+either one-denominator-100,000 observation alone blocks when both observations
+are debited. Normal protected-route bytes remain exact. The live finite budget
+is 1,100,000 steps; the twin reserves 140,000 for the complete document/DOM
+proof and sends 960,000 to the shared dual-observation preflight.
+
+#### Browser-backed complete visible/accessibility projection
+
+The twin accepts either native rendered proof or one factory-created,
+WeakSet-registered JSDOM-only test oracle. A caller-created lookalike is not
+trusted. Production without `checkVisibility`, bounding rectangles, viewport,
+`elementsFromPoint`, scroll APIs, or a provably restorable session returns
+`unproved_approximation`. Native proof calls `checkVisibility` with opacity,
+visibility, and content-visibility checks, applies a fail-closed CSS grammar,
+scrolls each element into a measurable viewport position, requires nonzero
+geometry and a painted hit-test, and consumes the DOM work budget. A complete
+ancestor chain is cached only after every member was synchronously proven.
+
+The session snapshots focus, window scroll, and every element scroll position
+before probing and restores and verifies all of them in `finally`; any failed
+restoration returns `unproved_approximation`. Hidden/aria-hidden, display,
+visibility, opacity/transparent/font-zero, clipping, zero/collapsed-axis
+overflow, scale/matrix zero, opacity filter, zero clip-path, large positive or
+negative offsets, and text-indent concealment reject on the governed node or
+any ancestor. Unsupported mask/filter/clip/clip-path/transform effects never
+produce exact merely by syntax: they require the independent native
+geometry/paint proof where allowed, otherwise block.
+
+All 67 figures have one unique controlled trigger. The twin independently
+checks each exact packet-derived accessible name, exact ARIA attribute grammar,
+amount hash, scope, envelope, declared-class hash, and semantic role. Exactly
+one actual trigger must be expanded; its unique `aria-controls` target must be
+the unique document portal, and dialog id, trigger id, amount tuple, role,
+`aria-labelledby`, `aria-describedby`, canonical title, and canonical
+description must all agree. Sibling-valid label swaps, alternate name
+relations, dialog/title/description `aria-label` overrides, and portal tuple
+forgeries therefore block even when all visible marker values remain.
+
+The honest packet-derived register copy is now exactly:
+`Positive promotion certificates`,
+`0 issued · institutional authority unappointed in this PolicyOS runtime`, and
+`No promotion certificate is currently issuable. This is a governed empty
+state, not a load failure.` The Ukrainian catalog carries its canonical
+equivalents. The panel renders title, status, and body separately, and the twin
+binds all three as governed visible/accessibility leaves.
+
+The bounded rendering residual is deliberately fail-closed: browser effects
+outside the supported CSS grammar, an unavailable hit-test/layout API, or any
+visibility probe whose scroll/focus restoration cannot be proved yield
+`unproved_approximation`, never `exact`. A stronger side-effect-free browser
+paint/occlusion primitive is the smallest future capability that could widen
+that exact subset; it is not available here. Real Chromium proves the baseline
+surface is inside the supported subset.
+
+#### Round-2 paths and falsifiers
+
+Six existing C04 mechanisms change: domain, conditional figure, panel, twin,
+and en/uk catalogs. Six P39 companions change: domain, figure, panel, twin,
+Cycle Board parity, and i18n parity tests. The hook already contained the live
+shared preflight and remains byte-unchanged; page host and query-key mechanisms
+also remain unchanged. This tracked journal is the mandatory record. There is
+no new mechanism, test file, generated output, `ru.json`, shared exporter,
+route/navigation entry, direct fetch, second host, visual/snapshot root, or
+reserve path. Reserve remains zero.
+
+Behavioral reds included the 99-literal table disagreement and coherent owner
+literal substitutions; the oversized, aggregate-98, and dual-observation
+arithmetic probes; forged accessible relation/name and sibling-swap variants;
+collapsed-width/height, scale/filter/clip-path/offscreen ancestor variants;
+exact-copy drift; and the first real-Chromium visibility run, which returned
+`unproved_approximation` when repeated ancestor work exhausted the finite DOM
+budget. Complete-chain caching closed that last property without raising the
+DOM budget. A generic browser attempt that imported the JSDOM/MSW Node setup
+never collected a test and is a harness non-receipt; the self-contained native
+configuration is the falsifier reported below. Temporary browser configuration
+was deleted after use.
+
+#### Round-2 verification
+
+| Gate | Round-2 branch | Entry `676690f7` | Disposition |
+| --- | --- | --- | --- |
+| complete nine-file focused Vitest | exit 0; 9 files, 120 passed + 1 native-only skip; duration 52.32s, real 53.64 | exit 0; 9 files, 97/97; duration 103.99s, real 107.34 under concurrent lint | green; +23 structural tests |
+| page / parity / census | exit 0; 3 files, 23/23; real 28.88 | exit 0; 3 files, 23/23; real 21.46 after CPU release | green; an earlier exact-base parallel run had 22 pass + one 15.294s timeout and is not the final receipt |
+| feature axe test | exit 0; 1/1; real 24.15 | included green in 97/97 | green; the global a11y config excludes feature paths and its no-test result is a harness non-receipt |
+| real Chromium visibility/restoration | exit 0; 1 passed + 45 unselected/skipped; duration 2.45s, real 3.24 | not applicable to the pre-oracle entry | exact baseline and restoration green |
+| full dashboard typecheck | exit 0; real 27.58, user 48.54, sys 1.85 | exit 0; real 22.37, user 40.48, sys 1.49 | green |
+| production build | exit 0; real 43.67, user 72.74, sys 5.69 | exit 0; real 47.98, user 76.55, sys 6.42 | green; normal chunk warning only |
+| exact ten-file TS/TSX ESLint | exit 0; real 54.46, user 65.06, sys 9.34 | exit 0; real 32.18, user 46.69, sys 3.89 | green |
+| whole-dashboard ESLint | exit 1; 130 errors / 0 warnings; real 1051.85 | exit 1; identical 130 / 0; real 1228.31 | same branch/entry red; no finding path is C04, but the whole gate is not labeled inherited because C04 files are in its input denominator |
+| exact twelve-file Prettier | 12/12 matched; real 2.45 | not applicable | green |
+| i18n parity | exit 1; 37/38; real 2.87 | exit 1; 37/38; real 2.04 | identical sole legacy RU expected `67b7…` / actual `afcb…` hash red |
+
+Focused totals are hook 4, domain 37, figure 3, panel 7, a11y 1, twin
+45 passed + 1 native-only skip, Cycle Board page 6, parity 13, and census 4.
+Active en/uk leaves move `2692 -> 2693`, non-count messages `246 -> 245`,
+variable uses `362 -> 361`, and the corresponding key-set hash becomes
+`791057b29c0cd78eebd831c2f86285316d1a204ebb893f9598df693dff84417d`.
+Current en/uk hashes are `2ae387596c20…` and `9c6970522875…`.
+`ru.json` remains byte-identical to entry at
+`5366a250bd34ec702035c0953348d25e824acf80e75136bb212895cd76c36273`.
+No full suite ran. Planned append-only subject:
+`fix(atlas): complete confidence risk-spend proof`.

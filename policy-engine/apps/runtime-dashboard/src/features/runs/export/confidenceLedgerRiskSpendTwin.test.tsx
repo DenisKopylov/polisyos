@@ -1,10 +1,8 @@
 /* eslint-disable testing-library/no-container, testing-library/no-node-access -- adversarial DOM mutation is the twin falsifier */
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-
 import type { AvailableConfidenceLedgerRiskSpendPacket } from "@polisyos/runtime-api-client";
 import { fireEvent, render } from "@testing-library/react";
 
+import openApiDocument from "../../../../../../schemas/runtime_api_v1.openapi.json";
 import type { ConfidenceLedgerRiskSpendProjection } from "@/features/runs/api/useConfidenceLedgerRiskSpend";
 import { ConfidenceLedgerRiskSpend } from "@/features/runs/components/ConfidenceLedgerRiskSpend";
 import {
@@ -16,15 +14,13 @@ import {
 } from "@/features/runs/domain/confidenceLedgerRiskSpend";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 
-import { evaluateConfidenceLedgerRiskSpendTwin } from "./confidenceLedgerRiskSpendTwin";
+import {
+  createConfidenceLedgerTestVisibilityOracle,
+  evaluateConfidenceLedgerRiskSpendTwin,
+} from "./confidenceLedgerRiskSpendTwin";
 
 function availablePacket(): AvailableConfidenceLedgerRiskSpendPacket {
-  const openApi = JSON.parse(
-    readFileSync(
-      resolve(process.cwd(), "../../schemas/runtime_api_v1.openapi.json"),
-      "utf8",
-    ),
-  ) as {
+  const openApi = openApiDocument as unknown as {
     paths: Record<
       string,
       {
@@ -125,6 +121,9 @@ function evaluate(
     rawPacketBytes: fixture.rawPacketBytes,
     root: fixture.root,
     stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+    visibilityOracle: createConfidenceLedgerTestVisibilityOracle(
+      fixture.root.ownerDocument,
+    ),
     ...overrides,
   });
 }
@@ -160,6 +159,45 @@ describe("confidence-ledger risk-spend production twin", () => {
       CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
     );
   });
+
+  it.runIf(
+    typeof navigator !== "undefined" &&
+      !navigator.userAgent.toLowerCase().includes("jsdom"),
+  )(
+    "produces an exact native Chromium receipt and restores focus and every scroll position",
+    async () => {
+      const fixture = renderEvaluation();
+      const focusBefore = document.activeElement;
+      const windowBefore = { x: window.scrollX, y: window.scrollY };
+      const scrollBefore = [...document.querySelectorAll<HTMLElement>("*")].map(
+        (element) => ({
+          element,
+          left: element.scrollLeft,
+          top: element.scrollTop,
+        }),
+      );
+
+      const result = await evaluateConfidenceLedgerRiskSpendTwin({
+        evaluationMode: "exact_finite_schema",
+        packetCandidate: fixture.packet,
+        rawPacketBytes: fixture.rawPacketBytes,
+        root: fixture.root,
+        stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+      });
+
+      expect(result.status === "blocked" ? result.reason : result.status).toBe(
+        "exact",
+      );
+      expect(document.activeElement).toBe(focusBefore);
+      expect({ x: window.scrollX, y: window.scrollY }).toEqual(windowBefore);
+      expect(
+        scrollBefore.every(
+          ({ element, left, top }) =>
+            element.scrollLeft === left && element.scrollTop === top,
+        ),
+      ).toBe(true);
+    },
+  );
 
   it("projects and behaviorally requires every packet-owned envelope leaf", async () => {
     const fixture = renderEvaluation();
@@ -285,6 +323,17 @@ describe("confidence-ledger risk-spend production twin", () => {
     });
   });
 
+  it("fails closed when rendered visibility has no browser or explicit test oracle", async () => {
+    const fixture = renderEvaluation();
+
+    await expect(
+      evaluate(fixture, { visibilityOracle: undefined }),
+    ).resolves.toEqual({
+      reason: "unproved_approximation",
+      status: "blocked",
+    });
+  });
+
   it.each(["class-spend", "instrument-definitions"])(
     "rejects reordered %s rows instead of reconstructing a ranking",
     async (listName) => {
@@ -328,17 +377,140 @@ describe("confidence-ledger risk-spend production twin", () => {
     });
   });
 
+  it.each([
+    ["chip", "button[aria-controls]"],
+    ["dialog", '[role="dialog"]'],
+  ])("rejects a forged %s accessible name", async (_label, selector) => {
+    const fixture = renderEvaluation();
+    const element = document.querySelector<HTMLElement>(selector);
+    if (element === null) throw new Error(`${selector} is missing`);
+    element.setAttribute("aria-label", "PUBLIC · family claim satisfied");
+
+    await expect(evaluate(fixture)).resolves.toEqual({
+      reason: "model_observation_inconsistent",
+      status: "blocked",
+    });
+  });
+
+  it.each([
+    [
+      "chip name relation",
+      (fixture: ReturnType<typeof renderEvaluation>) => {
+        const trigger = fixture.root.querySelector<HTMLElement>(
+          "button[aria-controls]",
+        );
+        const caption = fixture.root.querySelector<HTMLElement>("figcaption");
+        if (trigger === null || caption === null) {
+          throw new Error("trigger accessibility relation is incomplete");
+        }
+        caption.id = "forged-chip-name";
+        trigger.setAttribute("aria-labelledby", caption.id);
+      },
+    ],
+    [
+      "dialog title name override",
+      (_fixture: ReturnType<typeof renderEvaluation>) => {
+        const title = document.querySelector<HTMLElement>(
+          '[data-confidence-text="dialog.title"]',
+        );
+        if (title === null) throw new Error("dialog title is missing");
+        title.setAttribute("aria-label", "PUBLIC · family claim satisfied");
+      },
+    ],
+    [
+      "dialog description override",
+      (_fixture: ReturnType<typeof renderEvaluation>) => {
+        const description = document.querySelector<HTMLElement>(
+          '[data-confidence-text="dialog.description"]',
+        );
+        if (description === null)
+          throw new Error("dialog description is missing");
+        description.setAttribute(
+          "aria-label",
+          "PUBLIC · family claim satisfied",
+        );
+      },
+    ],
+  ])("rejects a forged %s", async (_label, forge) => {
+    const fixture = renderEvaluation();
+    forge(fixture);
+
+    await expect(evaluate(fixture)).resolves.toEqual({
+      reason: "model_observation_inconsistent",
+      status: "blocked",
+    });
+  });
+
+  it("rejects a sibling-valid chip accessible-name swap", async () => {
+    const fixture = renderEvaluation();
+    const triggers = [
+      ...fixture.root.querySelectorAll<HTMLButtonElement>(
+        "button[data-confidence-trigger]",
+      ),
+    ];
+    expect(triggers.length).toBeGreaterThan(1);
+    const firstName = triggers[0].getAttribute("aria-label");
+    const secondName = triggers[1].getAttribute("aria-label");
+    triggers[0].setAttribute("aria-label", secondName ?? "");
+    triggers[1].setAttribute("aria-label", firstName ?? "");
+
+    await expect(evaluate(fixture)).resolves.toEqual({
+      reason: "model_observation_inconsistent",
+      status: "blocked",
+    });
+  });
+
+  it("binds the unique expanded trigger to the dialog id and packet amount tuple", async () => {
+    const fixture = renderEvaluation();
+    const trigger = fixture.root.querySelector<HTMLButtonElement>(
+      'button[data-confidence-trigger][aria-expanded="true"]',
+    );
+    const dialog = document.querySelector<HTMLElement>('[role="dialog"]');
+    if (trigger === null || dialog === null) {
+      throw new Error("expanded trigger or dialog is missing");
+    }
+    expect(trigger.getAttribute("aria-controls")).toBe(dialog.id);
+    expect(dialog.dataset.confidenceDialogTriggerId).toBe(trigger.id);
+    expect(dialog.dataset.confidenceAmountHash).toBe(
+      fixture.packet.payload.instrument_instances[0].spend.amount_hash,
+    );
+
+    dialog.dataset.confidenceAmountHash =
+      fixture.packet.payload.instrument_instances[1].spend.amount_hash;
+    await expect(evaluate(fixture)).resolves.toEqual({
+      reason: "model_observation_inconsistent",
+      status: "blocked",
+    });
+  });
+
+  it("rejects a duplicate expanded trigger for one portal", async () => {
+    const fixture = renderEvaluation();
+    const trigger = fixture.root.querySelector<HTMLButtonElement>(
+      'button[data-confidence-trigger][aria-expanded="true"]',
+    );
+    if (trigger === null) throw new Error("expanded trigger is missing");
+    trigger.parentElement?.append(trigger.cloneNode(true));
+
+    await expect(evaluate(fixture)).resolves.toEqual({
+      reason: "model_observation_inconsistent",
+      status: "blocked",
+    });
+  });
+
   it("binds the honest-zero register copy to packet-derived count and authority posture", async () => {
     const fixture = renderEvaluation();
     expect(fixture.root).toHaveTextContent("Positive promotion certificates");
     expect(fixture.root).toHaveTextContent(
-      "0 issued · institutional authority unappointed · governed empty register",
+      "0 issued · institutional authority unappointed in this PolicyOS runtime",
     );
-    const body = fixture.root.querySelector<HTMLElement>(
-      '[data-confidence-text="positive.empty.body"]',
+    expect(fixture.root).toHaveTextContent(
+      "No promotion certificate is currently issuable. This is a governed empty state, not a load failure.",
     );
-    if (body === null) throw new Error("honest empty copy is missing");
-    body.textContent = "1 issued · authority appointed";
+    const status = fixture.root.querySelector<HTMLElement>(
+      '[data-confidence-text="positive.empty.status"]',
+    );
+    if (status === null) throw new Error("honest empty status is missing");
+    status.textContent = "1 issued · authority appointed";
 
     await expect(evaluate(fixture)).resolves.toEqual({
       status: "blocked",
@@ -423,6 +595,75 @@ describe("confidence-ledger risk-spend production twin", () => {
     await expect(evaluate(fixture)).resolves.toEqual({
       status: "blocked",
       reason: "parser_or_schema_failure",
+    });
+  });
+
+  it.each([
+    [
+      "zero-width overflow",
+      (element: HTMLElement) => {
+        element.style.width = "0px";
+        element.style.overflowX = "hidden";
+      },
+    ],
+    [
+      "zero-height overflow",
+      (element: HTMLElement) => {
+        element.style.height = "0px";
+        element.style.overflowY = "hidden";
+      },
+    ],
+    [
+      "zero scale",
+      (element: HTMLElement) => {
+        element.style.transform = "scale(0)";
+      },
+    ],
+    [
+      "zero-opacity filter",
+      (element: HTMLElement) => {
+        element.style.filter = "opacity(0)";
+      },
+    ],
+    [
+      "zero-radius clip path",
+      (element: HTMLElement) => {
+        element.style.clipPath = "circle(0)";
+      },
+    ],
+    [
+      "far positive absolute position",
+      (element: HTMLElement) => {
+        element.style.position = "absolute";
+        element.style.left = "100000px";
+      },
+    ],
+  ])("rejects a %s on a governed ancestor", async (_label, hide) => {
+    const fixture = renderEvaluation();
+    const leaf = fixture.root.querySelector<HTMLElement>(
+      '[data-confidence-leaf="actual.instance_ref"]',
+    );
+    if (leaf === null) throw new Error("actual ref is missing");
+    hide(leaf.parentElement ?? leaf);
+
+    await expect(evaluate(fixture)).resolves.toEqual({
+      reason: "parser_or_schema_failure",
+      status: "blocked",
+    });
+  });
+
+  it("blocks a visibility-affecting CSS effect the oracle cannot prove", async () => {
+    const fixture = renderEvaluation();
+    const leaf = fixture.root.querySelector<HTMLElement>(
+      '[data-confidence-leaf="actual.instance_ref"]',
+    );
+    if (leaf === null) throw new Error("actual ref is missing");
+    (leaf.parentElement ?? leaf).style.maskImage =
+      "linear-gradient(transparent, transparent)";
+
+    await expect(evaluate(fixture)).resolves.toEqual({
+      reason: "unproved_approximation",
+      status: "blocked",
     });
   });
 });

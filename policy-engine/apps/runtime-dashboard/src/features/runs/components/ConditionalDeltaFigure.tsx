@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import type {
   ConditionalDeltaAmount,
@@ -10,6 +10,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@polisyos/atlas-ui";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
@@ -119,6 +120,8 @@ export function ConditionalDeltaFigure({
 }: ConditionalDeltaFigureProps) {
   const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
+  const triggerId = `confidence-ledger-trigger-${useId()}`;
+  const riders = `${amount.declared_set_rider} — ${amount.locality_rider}`;
   const dialogTitle = `${label}: ${t("pages.cycleBoard.confidenceLedger.figure.dialogTitle")}`;
 
   return (
@@ -148,22 +151,38 @@ export function ConditionalDeltaFigure({
           </span>
         </span>
       </div>
-      <button
-        aria-label={`${amount.declared_set_rider} — ${amount.locality_rider}`}
-        className="border-border bg-muted/40 hover:bg-muted focus-visible:ring-ring inline-flex w-full rounded-full border px-3 py-1.5 text-left text-xs leading-5 focus-visible:ring-2 focus-visible:outline-none"
-        data-confidence-leaf="conditionality-riders"
-        data-confidence-text="figure.conditionality_riders"
-        onClick={() => setIsOpen(true)}
-        type="button"
-      >
-        {amount.declared_set_rider} — {amount.locality_rider}
-      </button>
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog modal={false} open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <button
+            aria-label={`${label}: ${riders}`}
+            className="border-border bg-muted/40 hover:bg-muted focus-visible:ring-ring inline-flex w-full rounded-full border px-3 py-1.5 text-left text-xs leading-5 focus-visible:ring-2 focus-visible:outline-none"
+            data-confidence-amount-hash={amount.amount_hash}
+            data-confidence-declared-classes-hash={
+              amount.declared_obligation_classes_hash
+            }
+            data-confidence-envelope-ref={amount.coverage_envelope_ref}
+            data-confidence-leaf="conditionality-riders"
+            data-confidence-scope-id={amount.scope_id}
+            data-confidence-semantic-role={amount.semantic_role}
+            data-confidence-text="figure.conditionality_riders"
+            data-confidence-trigger="conditional-delta"
+            id={triggerId}
+            type="button"
+          >
+            {riders}
+          </button>
+        </DialogTrigger>
         <DialogContent
           className="max-h-[86vh] max-w-4xl overflow-y-auto"
           closeLabel={t("common.close")}
+          data-confidence-amount-hash={amount.amount_hash}
+          data-confidence-declared-classes-hash={
+            amount.declared_obligation_classes_hash
+          }
           data-confidence-dialog-envelope-ref={coverageEnvelope.envelope_ref}
-          data-confidence-dialog-figure-label={label}
+          data-confidence-dialog-trigger-id={triggerId}
+          data-confidence-scope-id={amount.scope_id}
+          data-confidence-semantic-role={amount.semantic_role}
         >
           <DialogHeader>
             <DialogTitle data-confidence-text="dialog.title">

@@ -480,14 +480,13 @@ function AvailableRiskSpend({
           <h3 data-confidence-text="positive.empty.title">
             {t("pages.cycleBoard.confidenceLedger.positiveEmpty.title")}
           </h3>
-          <p data-confidence-text="positive.empty.body">
-            {t("pages.cycleBoard.confidenceLedger.positiveEmpty.body", {
-              authority: body.positive_register.authority_posture.replaceAll(
-                "_",
-                " ",
-              ),
+          <p data-confidence-text="positive.empty.status">
+            {t("pages.cycleBoard.confidenceLedger.positiveEmpty.status", {
               count: body.positive_register.population_count,
             })}
+          </p>
+          <p data-confidence-text="positive.empty.body">
+            {t("pages.cycleBoard.confidenceLedger.positiveEmpty.body")}
           </p>
         </div>
         <dl>

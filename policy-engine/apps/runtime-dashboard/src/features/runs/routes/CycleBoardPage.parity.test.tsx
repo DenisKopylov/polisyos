@@ -15,7 +15,10 @@ import { cycleBoardProjectionPacketFixture } from "@/test/fixtures/depthNCycleBo
 import { server } from "@/test/msw/server";
 import { renderWithProviders } from "@/test/render";
 
-import { evaluateConfidenceLedgerRiskSpendTwin } from "../export/confidenceLedgerRiskSpendTwin";
+import {
+  createConfidenceLedgerTestVisibilityOracle,
+  evaluateConfidenceLedgerRiskSpendTwin,
+} from "../export/confidenceLedgerRiskSpendTwin";
 import { CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET } from "../domain/confidenceLedgerRiskSpend";
 
 import CycleBoardPage from "./CycleBoardPage";
@@ -224,6 +227,9 @@ describe("CycleBoardPage MACHINE/rendered-DOM parity", () => {
       rawPacketBytes: riskWireBytes,
       root,
       stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+      visibilityOracle: createConfidenceLedgerTestVisibilityOracle(
+        root.ownerDocument,
+      ),
     });
 
     expect(result.status).toBe("exact");
@@ -275,6 +281,9 @@ describe("CycleBoardPage MACHINE/rendered-DOM parity", () => {
         rawPacketBytes: riskWireBytes,
         root,
         stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+        visibilityOracle: createConfidenceLedgerTestVisibilityOracle(
+          root.ownerDocument,
+        ),
       }),
     ).resolves.toEqual({ reason, status: "blocked" });
   });

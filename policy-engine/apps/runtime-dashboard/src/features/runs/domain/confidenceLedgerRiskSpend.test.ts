@@ -5,6 +5,7 @@ import type { AvailableConfidenceLedgerRiskSpendPacket } from "@polisyos/runtime
 
 import {
   CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+  CONFIDENCE_LEDGER_OWNER_LITERAL_RULES,
   CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
   admitConfidenceLedgerRiskSpendPacket,
   confidenceLedgerPromotionBlockers,
@@ -12,13 +13,36 @@ import {
   orderedConfidenceLedgerActualRows,
 } from "./confidenceLedgerRiskSpend";
 
-function availablePacket(): AvailableConfidenceLedgerRiskSpendPacket {
-  const openApi = JSON.parse(
+type OpenApiSchema = Readonly<{
+  $ref?: string;
+  additionalProperties?: OpenApiSchema | boolean;
+  allOf?: readonly OpenApiSchema[];
+  anyOf?: readonly OpenApiSchema[];
+  const?: unknown;
+  enum?: readonly unknown[];
+  items?: OpenApiSchema;
+  oneOf?: readonly OpenApiSchema[];
+  properties?: Readonly<Record<string, OpenApiSchema>>;
+}>;
+
+type OpenApiDocument = Readonly<{
+  components: Readonly<{
+    schemas: Readonly<Record<string, OpenApiSchema>>;
+  }>;
+  paths: Record<string, unknown>;
+}>;
+
+function openApiDocument(): OpenApiDocument {
+  return JSON.parse(
     readFileSync(
       resolve(process.cwd(), "../../schemas/runtime_api_v1.openapi.json"),
       "utf8",
     ),
-  ) as {
+  ) as OpenApiDocument;
+}
+
+function availablePacket(): AvailableConfidenceLedgerRiskSpendPacket {
+  const openApi = openApiDocument() as OpenApiDocument & {
     paths: Record<
       string,
       {
@@ -46,6 +70,73 @@ function availablePacket(): AvailableConfidenceLedgerRiskSpendPacket {
     openApi.paths[
       "/api/v1/exports/governed-projections/confidence-ledger-risk-spend"
     ].get.responses["200"].content["application/json"].examples.default.value,
+  );
+}
+
+function generatedOwnerLiteralInventory() {
+  const openApi = openApiDocument();
+  const rootSchemas = [
+    "AvailableConfidenceLedgerRiskSpendPacket",
+    "SourceBlockedConfidenceLedgerRiskSpendPacket",
+    "ArtifactMissingConfidenceLedgerRiskSpendPacket",
+    "InvalidConfidenceLedgerRiskSpendPacket",
+  ] as const;
+  const rules: Array<{
+    path: string;
+    rootSchema: (typeof rootSchemas)[number];
+    value: boolean | number | string;
+  }> = [];
+  const walk = (
+    rootSchema: (typeof rootSchemas)[number],
+    schema: OpenApiSchema,
+    path: string,
+    refs: ReadonlySet<string>,
+  ): void => {
+    if (schema.$ref !== undefined) {
+      const name = schema.$ref.split("/").at(-1);
+      if (name === undefined || refs.has(name)) return;
+      const referenced = openApi.components.schemas[name];
+      if (referenced === undefined) {
+        throw new Error(`unresolved OpenAPI schema reference ${schema.$ref}`);
+      }
+      walk(rootSchema, referenced, path, new Set([...refs, name]));
+    }
+    const singleton =
+      schema.const ?? (schema.enum?.length === 1 ? schema.enum[0] : undefined);
+    if (
+      typeof singleton === "boolean" ||
+      typeof singleton === "number" ||
+      typeof singleton === "string"
+    ) {
+      rules.push({ path, rootSchema, value: singleton });
+    }
+    for (const branch of ["allOf", "oneOf", "anyOf"] as const) {
+      schema[branch]?.forEach((nested) =>
+        walk(rootSchema, nested, path, new Set(refs)),
+      );
+    }
+    Object.entries(schema.properties ?? {}).forEach(([field, nested]) =>
+      walk(rootSchema, nested, `${path}/${field}`, new Set(refs)),
+    );
+    if (schema.items !== undefined) {
+      walk(rootSchema, schema.items, `${path}/*`, new Set(refs));
+    }
+    if (
+      typeof schema.additionalProperties === "object" &&
+      schema.additionalProperties !== null
+    ) {
+      walk(rootSchema, schema.additionalProperties, `${path}/*`, new Set(refs));
+    }
+  };
+  rootSchemas.forEach((rootSchema) => {
+    const schema = openApi.components.schemas[rootSchema];
+    if (schema === undefined) throw new Error(`missing root ${rootSchema}`);
+    walk(rootSchema, schema, "", new Set([rootSchema]));
+  });
+  return rules.sort((left, right) =>
+    `${left.rootSchema}${left.path}`.localeCompare(
+      `${right.rootSchema}${right.path}`,
+    ),
   );
 }
 
@@ -108,6 +199,27 @@ async function refreshSelfHashes(
     source_as_of: packet.replay_pins.source_as_of,
     source_dependency_hash: packet.replay_pins.source_dependency_hash,
   }).toString()}`;
+}
+
+async function refreshSemanticOwnerHashes(
+  packet: AvailableConfidenceLedgerRiskSpendPacket,
+): Promise<void> {
+  const semantic = packet.payload.semantic_ledger_basis;
+  const semanticBody = structuredClone(semantic) as unknown as Record<
+    string,
+    unknown
+  >;
+  Reflect.deleteProperty(semanticBody, "projection_hash");
+  semantic.projection_hash = await fingerprint(semanticBody);
+  packet.payload.source_projection_hash = semantic.projection_hash;
+  packet.payload.coverage_envelope.source_identities[1].content_hash =
+    semantic.projection_hash;
+  packet.payload.source_provenance[1].content_hash = semantic.projection_hash;
+  packet.frozen_semantic_projection_hash = semantic.projection_hash;
+  packet.source.validation.frozen_semantic_projection_hash =
+    semantic.projection_hash;
+  packet.source.validation.semantic_projection_hash = semantic.projection_hash;
+  await refreshEnvelopeAndAmountHashes(packet);
 }
 
 async function refreshAmountHash(
@@ -176,6 +288,32 @@ function setAmount(
   amount.amount = { denominator, numerator };
   amount.rational_display = `${numerator}/${denominator}`;
   amount.canonical_decimal = decimal;
+}
+
+function replaceEveryRationalDenominator(
+  value: unknown,
+  denominator: number,
+): number {
+  if (value === null || typeof value !== "object") return 0;
+  if (Array.isArray(value)) {
+    return value.reduce<number>(
+      (count, item) =>
+        count + replaceEveryRationalDenominator(item, denominator),
+      0,
+    );
+  }
+  const record = value as Record<string, unknown>;
+  if (
+    typeof record.denominator === "number" &&
+    typeof record.numerator === "number"
+  ) {
+    record.denominator = denominator;
+    return 1;
+  }
+  return Object.values(record).reduce<number>(
+    (count, item) => count + replaceEveryRationalDenominator(item, denominator),
+    0,
+  );
 }
 
 async function forgeCoherentAvailableOverspend(
@@ -278,6 +416,19 @@ async function refreshTransportIdentity(packet: {
 }
 
 describe("confidence-ledger risk-spend strict admission", () => {
+  it("covers every generated owner const and single-value enum with the runtime literal table", () => {
+    const generated = generatedOwnerLiteralInventory();
+    const runtime = [...CONFIDENCE_LEDGER_OWNER_LITERAL_RULES].sort(
+      (left, right) =>
+        `${left.rootSchema}${left.path}`.localeCompare(
+          `${right.rootSchema}${right.path}`,
+        ),
+    );
+
+    expect(generated).toHaveLength(99);
+    expect(runtime).toEqual(generated);
+  });
+
   it("admits the specialized available packet and resolves actual rows by producer refs", async () => {
     const packet = availablePacket();
 
@@ -517,6 +668,51 @@ describe("confidence-ledger risk-spend strict admission", () => {
     );
   });
 
+  it.each([
+    [
+      "semantic-ledger schema version",
+      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
+        packet.payload.semantic_ledger_basis.schema_version =
+          "policyos.runtime.confidence_ledger.v999" as never;
+      },
+    ],
+    [
+      "conditionality clause",
+      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
+        packet.payload.semantic_ledger_basis.conditionality_clause =
+          "candidate-authored conditionality" as never;
+      },
+    ],
+    [
+      "good-event clause",
+      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
+        packet.payload.semantic_ledger_basis.good_event_clause =
+          "candidate-authored good event" as never;
+        packet.payload.good_event_posture.good_event_clause =
+          "candidate-authored good event";
+      },
+    ],
+  ])(
+    "blocks a coherently rehashed generated owner-literal substitution: %s",
+    async (_label, mutate) => {
+      const packet = availablePacket();
+      mutate(packet);
+      await refreshSemanticOwnerHashes(packet);
+
+      await expect(
+        evaluateConfidenceLedgerProtectedQuery({
+          evaluationMode: "exact_finite_schema",
+          packetCandidate: packet,
+          rawPacketBytes: new TextEncoder().encode(JSON.stringify(packet)),
+          stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+        }),
+      ).resolves.toEqual({
+        reason: "parser_or_schema_failure",
+        status: "blocked",
+      });
+    },
+  );
+
   it("vetoes aggregate promotion for each load-bearing negative posture", () => {
     const baseline = availablePacket();
     expect(confidenceLedgerPromotionBlockers(baseline)).toEqual(
@@ -626,6 +822,54 @@ describe("confidence-ledger shared protected-query evaluator", () => {
       reason: "unsupported_or_out_of_model",
       status: "blocked",
     });
+  });
+
+  it("blocks the 151866-byte reviewer denominator before exact decimal work", async () => {
+    const packet = availablePacket();
+    packet.payload.semantic_ledger_basis.checks[0].spend.denominator = 1_000_171;
+    await refreshSemanticOwnerHashes(packet);
+    const rawPacketBytes = new TextEncoder().encode(JSON.stringify(packet));
+    expect(rawPacketBytes.byteLength).toBe(151_866);
+
+    await expect(
+      evaluateConfidenceLedgerProtectedQuery({
+        evaluationMode: "exact_finite_schema",
+        packetCandidate: packet,
+        rawPacketBytes,
+        stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+      }),
+    ).resolves.toEqual({
+      reason: "unsupported_or_out_of_model",
+      status: "blocked",
+    });
+    await expect(admitConfidenceLedgerRiskSpendPacket(packet)).rejects.toThrow(
+      /contract_error.*arithmetic.*denominator/iu,
+    );
+  });
+
+  it("caps aggregate rational work across all 98 values before admission", async () => {
+    const packet = availablePacket();
+    expect(replaceEveryRationalDenominator(packet, 3_000)).toBe(98);
+
+    await expect(admitConfidenceLedgerRiskSpendPacket(packet)).rejects.toThrow(
+      /contract_error.*aggregate rational work/iu,
+    );
+  });
+
+  it("debits both independently observed near-cap rational workloads", async () => {
+    const packet = availablePacket();
+    packet.payload.semantic_ledger_basis.checks[0].spend.denominator = 100_000;
+    const rawPacketBytes = new TextEncoder().encode(JSON.stringify(packet));
+
+    await expect(
+      evaluateConfidenceLedgerProtectedQuery({
+        evaluationMode: "exact_finite_schema",
+        packetCandidate: packet,
+        rawPacketBytes,
+        // Fits either observation alone, but not both complete arithmetic debits.
+        stepBudget: 960_000,
+      }),
+    ).resolves.toEqual({ reason: "timeout", status: "blocked" });
   });
 
   it.each([

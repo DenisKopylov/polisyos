@@ -80,6 +80,213 @@ export type ConfidenceLedgerRiskSpendPacket =
   | StrictArtifactMissingPacket
   | StrictInvalidSourcePacket;
 
+type ConfidenceLedgerOwnerPacketSchema =
+  | "ArtifactMissingConfidenceLedgerRiskSpendPacket"
+  | "AvailableConfidenceLedgerRiskSpendPacket"
+  | "InvalidConfidenceLedgerRiskSpendPacket"
+  | "SourceBlockedConfidenceLedgerRiskSpendPacket";
+
+export type ConfidenceLedgerOwnerLiteralRule = Readonly<{
+  path: string;
+  rootSchema: ConfidenceLedgerOwnerPacketSchema;
+  value: boolean | number | string;
+}>;
+
+function ownerLiteralRule(
+  rootSchema: ConfidenceLedgerOwnerPacketSchema,
+  path: string,
+  value: ConfidenceLedgerOwnerLiteralRule["value"],
+): ConfidenceLedgerOwnerLiteralRule {
+  return Object.freeze({ path, rootSchema, value });
+}
+
+const COMMON_OWNER_LITERAL_VALUES = [
+  ["/export_replay_contract", "policyos.runtime.export_replay_binding.v1"],
+  ["/intended_audience", "REVIEWER"],
+  [
+    "/packet_schema_version",
+    "policyos.runtime.confidence_ledger_risk_spend_packet.v1",
+  ],
+  ["/projection_id", "confidence-ledger-risk-spend"],
+  [
+    "/projection_rule_version",
+    "policyos.runtime.confidence_ledger_risk_spend.v1",
+  ],
+  [
+    "/stable_address",
+    "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
+  ],
+] as const;
+
+function commonOwnerLiteralRules(
+  rootSchema: ConfidenceLedgerOwnerPacketSchema,
+): readonly ConfidenceLedgerOwnerLiteralRule[] {
+  return COMMON_OWNER_LITERAL_VALUES.map(([path, value]) =>
+    ownerLiteralRule(rootSchema, path, value),
+  );
+}
+
+const CONDITIONAL_AMOUNT_PATHS = [
+  "/payload/grouped_spend/*/spend",
+  "/payload/instrument_instances/*/spend",
+  "/payload/obligation_class_risk_spend/*/allocation",
+  "/payload/obligation_class_risk_spend/*/overspend_amount",
+  "/payload/obligation_class_risk_spend/*/remaining",
+  "/payload/obligation_class_risk_spend/*/spent",
+  "/payload/scope_total_risk_spend/allocation",
+  "/payload/scope_total_risk_spend/overspend_amount",
+  "/payload/scope_total_risk_spend/remaining",
+  "/payload/scope_total_risk_spend/spent",
+  "/payload/total_spend",
+] as const;
+
+const CONDITIONAL_AMOUNT_LITERAL_VALUES = [
+  ["declared_set_rider", CONFIDENCE_LEDGER_DECLARED_SET_RIDER],
+  ["locality_rider", CONFIDENCE_LEDGER_LOCALITY_RIDER],
+  ["rational_display_version", "policyos.runtime.exact_rational_display.v1"],
+] as const;
+
+const AVAILABLE_OWNER_LITERAL_VALUES = [
+  ["/payload/appointment_posture", "institutional_authority_unappointed"],
+  ["/payload/coverage_envelope/challenge_route_state", "not_established"],
+  [
+    "/payload/coverage_envelope/declared_set_rider",
+    CONFIDENCE_LEDGER_DECLARED_SET_RIDER,
+  ],
+  ["/payload/coverage_envelope/exclusion_basis_state", "not_established"],
+  ["/payload/coverage_envelope/expiry_state", "not_issued"],
+  [
+    "/payload/coverage_envelope/locality_rider",
+    CONFIDENCE_LEDGER_LOCALITY_RIDER,
+  ],
+  ["/payload/coverage_envelope/review_state", "not_issued"],
+  [
+    "/payload/coverage_envelope/rule_version",
+    "policyos.runtime.obligation_coverage.negative.v1",
+  ],
+  [
+    "/payload/coverage_envelope/schema_version",
+    "policyos.runtime.obligation_coverage.v1",
+  ],
+  ["/payload/coverage_envelope/search_basis_state", "not_established"],
+  ["/payload/coverage_envelope/source_cutoff_state", "not_established"],
+  ["/payload/coverage_envelope/unknown_remainder/cardinality", "not_estimated"],
+  [
+    "/payload/coverage_envelope/unknown_remainder/kind",
+    "independent_coverage_producer_missing",
+  ],
+  [
+    "/payload/coverage_envelope/unknown_remainder/probability",
+    "not_calibrated",
+  ],
+  ["/payload/fixed_scope_disclosure", CONFIDENCE_LEDGER_LOCALITY_RIDER],
+  ["/payload/good_event_posture/composition_rule", "union_bound"],
+  ["/payload/good_event_posture/independence_claim", false],
+  [
+    "/payload/positive_register/appointment_denominator_state",
+    "recomputed_empty",
+  ],
+  [
+    "/payload/positive_register/appointment_sufficiency_state",
+    "not_established",
+  ],
+  [
+    "/payload/positive_register/authority_posture",
+    "institutional_authority_unappointed",
+  ],
+  ["/payload/positive_register/population_count", 0],
+  ["/payload/positive_register/population_state", "valid_zero"],
+  [
+    "/payload/registry_basis/schema_version",
+    "policyos.runtime.confidence_ledger.registry.v1",
+  ],
+  [
+    "/payload/rule_version",
+    "policyos.runtime.confidence_ledger_surface.exact.v1",
+  ],
+  ["/payload/schema_version", "policyos.runtime.confidence_ledger_surface.v1"],
+  [
+    "/payload/semantic_ledger_basis/checks/*/schema_version",
+    "policyos.runtime.confidence_ledger.v1",
+  ],
+  [
+    "/payload/semantic_ledger_basis/conditionality_clause",
+    "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
+  ],
+  [
+    "/payload/semantic_ledger_basis/events/*/check/schema_version",
+    "policyos.runtime.confidence_ledger.v1",
+  ],
+  [
+    "/payload/semantic_ledger_basis/good_event_clause",
+    "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
+  ],
+  [
+    "/payload/semantic_ledger_basis/schema_version",
+    "policyos.runtime.confidence_ledger.v1",
+  ],
+  ["/payload/source_provenance/*/availability_state", "available_typed_input"],
+  ["/payload/status", "not_promoted"],
+  [
+    "/replay_pins/projection_rule_version",
+    "policyos.runtime.confidence_ledger_risk_spend.v1",
+  ],
+  ["/source/related_artifact_bindings/*/relation", "semantic_projection"],
+] as const;
+
+const AVAILABLE_ROOT = "AvailableConfidenceLedgerRiskSpendPacket" as const;
+
+export const CONFIDENCE_LEDGER_OWNER_LITERAL_RULES = Object.freeze([
+  ...commonOwnerLiteralRules("ArtifactMissingConfidenceLedgerRiskSpendPacket"),
+  ownerLiteralRule(
+    "ArtifactMissingConfidenceLedgerRiskSpendPacket",
+    "/absence_reason",
+    "governed confidence-ledger source is absent",
+  ),
+  ownerLiteralRule(
+    "ArtifactMissingConfidenceLedgerRiskSpendPacket",
+    "/availability",
+    "artifact_missing",
+  ),
+  ...commonOwnerLiteralRules(AVAILABLE_ROOT),
+  ownerLiteralRule(AVAILABLE_ROOT, "/availability", "available"),
+  ...AVAILABLE_OWNER_LITERAL_VALUES.map(([path, value]) =>
+    ownerLiteralRule(AVAILABLE_ROOT, path, value),
+  ),
+  ...CONDITIONAL_AMOUNT_PATHS.flatMap((amountPath) =>
+    CONDITIONAL_AMOUNT_LITERAL_VALUES.map(([field, value]) =>
+      ownerLiteralRule(AVAILABLE_ROOT, `${amountPath}/${field}`, value),
+    ),
+  ),
+  ...commonOwnerLiteralRules("InvalidConfidenceLedgerRiskSpendPacket"),
+  ownerLiteralRule(
+    "InvalidConfidenceLedgerRiskSpendPacket",
+    "/absence_reason",
+    "confidence-ledger source failed owner admission",
+  ),
+  ownerLiteralRule(
+    "InvalidConfidenceLedgerRiskSpendPacket",
+    "/availability",
+    "invalid_source",
+  ),
+  ...commonOwnerLiteralRules("SourceBlockedConfidenceLedgerRiskSpendPacket"),
+  ownerLiteralRule(
+    "SourceBlockedConfidenceLedgerRiskSpendPacket",
+    "/availability",
+    "source_blocked",
+  ),
+  ownerLiteralRule(
+    "SourceBlockedConfidenceLedgerRiskSpendPacket",
+    "/replay_pins/projection_rule_version",
+    "policyos.runtime.confidence_ledger_risk_spend.v1",
+  ),
+  ownerLiteralRule(
+    "SourceBlockedConfidenceLedgerRiskSpendPacket",
+    "/source_blocked_reason",
+    "over_spend",
+  ),
+] satisfies readonly ConfidenceLedgerOwnerLiteralRule[]);
+
 const nonEmptyString = z.string().min(1);
 const hash = z.string().regex(/^sha256:[0-9a-f]{64}$/u);
 const nullableHash = hash.nullable();
@@ -90,12 +297,32 @@ const rawRefusalCode = z
   .string()
   .regex(/^[a-z][a-z0-9_]{2,127}$/u)
   .nullable();
+const CONFIDENCE_LEDGER_MAX_RATIONAL_COUNT = 256;
+const CONFIDENCE_LEDGER_MAX_RATIONAL_DENOMINATOR = 100_000;
+const CONFIDENCE_LEDGER_MAX_RATIONAL_NUMERATOR = 1_000_000_000;
+const CONFIDENCE_LEDGER_MAX_RATIONAL_PERIOD_WORK = 250_000;
+const CONFIDENCE_LEDGER_MAX_EXACT_DECIMAL_CODE_UNITS = 100_032;
+const CONFIDENCE_LEDGER_MAX_RATIONAL_DISPLAY_CODE_UNITS = 32;
 const rational = z
   .object({
-    denominator: z.number().int().positive(),
-    numerator: z.number().int().nonnegative(),
+    denominator: z
+      .number()
+      .int()
+      .positive()
+      .max(CONFIDENCE_LEDGER_MAX_RATIONAL_DENOMINATOR)
+      .refine(Number.isSafeInteger),
+    numerator: z
+      .number()
+      .int()
+      .nonnegative()
+      .max(CONFIDENCE_LEDGER_MAX_RATIONAL_NUMERATOR)
+      .refine(Number.isSafeInteger),
   })
   .strict();
+const exactDecimalText = z
+  .string()
+  .min(1)
+  .max(CONFIDENCE_LEDGER_MAX_EXACT_DECIMAL_CODE_UNITS);
 const obligationClass = z.enum(CONFIDENCE_LEDGER_OBLIGATION_ORDER);
 const maintainedAssumptions = z.tuple([
   z.literal("obligation_completeness"),
@@ -139,7 +366,7 @@ const conditionalDeltaAmount = z
   .object({
     amount: rational,
     amount_hash: hash,
-    canonical_decimal: nonEmptyString,
+    canonical_decimal: exactDecimalText,
     coverage_envelope_hash: hash,
     coverage_envelope_ref: nonEmptyString,
     declared_obligation_classes_hash: hash,
@@ -148,7 +375,10 @@ const conditionalDeltaAmount = z
     maintained_assumptions: maintainedAssumptions,
     obligation_class: obligationClass.nullable(),
     owner_scope_key: nonEmptyString,
-    rational_display: z.string().regex(/^[0-9]+\/[1-9][0-9]*$/u),
+    rational_display: z
+      .string()
+      .max(CONFIDENCE_LEDGER_MAX_RATIONAL_DISPLAY_CODE_UNITS)
+      .regex(/^[0-9]+\/[1-9][0-9]*$/u),
     rational_display_version: z.literal(
       "policyos.runtime.exact_rational_display.v1",
     ),
@@ -391,7 +621,7 @@ const semanticCheck = z
     schema_version: z.literal("policyos.runtime.confidence_ledger.v1"),
     scope_id: nonEmptyString,
     spend: rational,
-    spend_decimal: nonEmptyString,
+    spend_decimal: exactDecimalText,
     supports_obligation: z.boolean(),
   })
   .strict();
@@ -400,7 +630,7 @@ const semanticLedger = z
   .object({
     authority_provenance: z.enum(["canonical_repo", "verification"]),
     budget_delta: rational,
-    budget_delta_decimal: nonEmptyString,
+    budget_delta_decimal: exactDecimalText,
     checks: z.array(semanticCheck),
     conditionality_clause: nonEmptyString,
     deployment_identity: nonEmptyString,
@@ -433,7 +663,7 @@ const semanticLedger = z
     scope_anchor_ref: nonEmptyString,
     scope_id: nonEmptyString,
     total_spend: rational,
-    total_spend_decimal: nonEmptyString,
+    total_spend_decimal: exactDecimalText,
     within_budget: z.boolean(),
   })
   .strict();
@@ -843,6 +1073,74 @@ function contractError(detail: string): TypeError {
   return new TypeError(`contract_error: confidence ledger ${detail}`);
 }
 
+function ownerPacketSchema(
+  packet: ConfidenceLedgerRiskSpendPacket,
+): ConfidenceLedgerOwnerPacketSchema {
+  switch (packet.availability) {
+    case "available":
+      return "AvailableConfidenceLedgerRiskSpendPacket";
+    case "source_blocked":
+      return "SourceBlockedConfidenceLedgerRiskSpendPacket";
+    case "artifact_missing":
+      return "ArtifactMissingConfidenceLedgerRiskSpendPacket";
+    case "invalid_source":
+      return "InvalidConfidenceLedgerRiskSpendPacket";
+  }
+}
+
+type OwnerLiteralPathValues = Readonly<{
+  matched: boolean;
+  values: readonly unknown[];
+}>;
+
+function valuesAtOwnerLiteralPath(
+  value: unknown,
+  segments: readonly string[],
+): OwnerLiteralPathValues {
+  if (segments.length === 0) return { matched: true, values: [value] };
+  const [segment, ...remaining] = segments;
+  if (segment === "*") {
+    const children = Array.isArray(value)
+      ? value
+      : typeof value === "object" && value !== null
+        ? Object.values(value)
+        : null;
+    if (children === null) return { matched: false, values: [] };
+    const nested = children.map((item) =>
+      valuesAtOwnerLiteralPath(item, remaining),
+    );
+    return {
+      matched: nested.every((result) => result.matched),
+      values: nested.flatMap((result) => result.values),
+    };
+  }
+  if (typeof value !== "object" || value === null || !(segment in value)) {
+    return { matched: false, values: [] };
+  }
+  return valuesAtOwnerLiteralPath(
+    (value as Record<string, unknown>)[segment],
+    remaining,
+  );
+}
+
+function verifyGeneratedOwnerLiterals(
+  packet: ConfidenceLedgerRiskSpendPacket,
+): void {
+  const rootSchema = ownerPacketSchema(packet);
+  for (const rule of CONFIDENCE_LEDGER_OWNER_LITERAL_RULES) {
+    if (rule.rootSchema !== rootSchema) continue;
+    const result = valuesAtOwnerLiteralPath(
+      packet,
+      rule.path.split("/").filter(Boolean),
+    );
+    assertCondition(
+      result.matched &&
+        result.values.every((value) => Object.is(value, rule.value)),
+      `generated owner literal mismatch at ${rootSchema}${rule.path}`,
+    );
+  }
+}
+
 function greatestCommonDivisor(left: bigint, right: bigint): bigint {
   let a = left < 0n ? -left : left;
   let b = right < 0n ? -right : right;
@@ -909,6 +1207,11 @@ function nonnegative(value: Fraction): Fraction {
 }
 
 function exactDecimal(value: Fraction): string {
+  assertCondition(
+    value.denominator > 0n &&
+      value.denominator <= BigInt(CONFIDENCE_LEDGER_MAX_RATIONAL_DENOMINATOR),
+    "exact decimal denominator exceeds arithmetic cap",
+  );
   const whole = value.numerator / value.denominator;
   let remainder = value.numerator % value.denominator;
   if (remainder === 0n) return whole.toString();
@@ -920,11 +1223,23 @@ function exactDecimal(value: Fraction): string {
     digits.push((remainder / value.denominator).toString());
     remainder %= value.denominator;
   }
-  if (remainder === 0n) return `${whole}.${digits.join("")}`;
+  if (remainder === 0n) {
+    const decimal = `${whole}.${digits.join("")}`;
+    assertCondition(
+      decimal.length <= CONFIDENCE_LEDGER_MAX_EXACT_DECIMAL_CODE_UNITS,
+      "exact decimal output exceeds arithmetic cap",
+    );
+    return decimal;
+  }
   const repeatAt = seen.get(remainder);
   if (repeatAt === undefined)
     throw contractError("decimal recomputation failed");
-  return `${whole}.${digits.slice(0, repeatAt).join("")}(${digits.slice(repeatAt).join("")})`;
+  const decimal = `${whole}.${digits.slice(0, repeatAt).join("")}(${digits.slice(repeatAt).join("")})`;
+  assertCondition(
+    decimal.length <= CONFIDENCE_LEDGER_MAX_EXACT_DECIMAL_CODE_UNITS,
+    "exact decimal output exceeds arithmetic cap",
+  );
+  return decimal;
 }
 
 function canonicalJson(value: unknown): string {
@@ -1941,8 +2256,7 @@ async function verifyAvailable(packet: StrictAvailablePacket): Promise<void> {
   await verifyPacketIdentity(packet);
 }
 
-/** Strictly parse and independently recompute the specialized four-arm packet. */
-export async function admitConfidenceLedgerRiskSpendPacket(
+async function admitPreflightedConfidenceLedgerRiskSpendPacket(
   candidate: unknown,
 ): Promise<ConfidenceLedgerRiskSpendPacket> {
   let parsed: ConfidenceLedgerRiskSpendPacket;
@@ -1953,6 +2267,7 @@ export async function admitConfidenceLedgerRiskSpendPacket(
       error instanceof Error ? error.message : "unknown schema error";
     throw contractError(`packet schema failure: ${detail}`);
   }
+  verifyGeneratedOwnerLiterals(parsed);
   if (
     parsed.availability === "available" &&
     typeof candidate === "object" &&
@@ -2017,6 +2332,17 @@ export async function admitConfidenceLedgerRiskSpendPacket(
   return Object.freeze(parsed);
 }
 
+/** Strictly parse and independently recompute the specialized four-arm packet. */
+export async function admitConfidenceLedgerRiskSpendPacket(
+  candidate: unknown,
+): Promise<ConfidenceLedgerRiskSpendPacket> {
+  const preflight = admissionWorkWithinCaps(candidate);
+  if (preflight.status === "unsupported") {
+    throw contractError(preflight.detail);
+  }
+  return admitPreflightedConfidenceLedgerRiskSpendPacket(candidate);
+}
+
 export const CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA = [
   "promotion_authority",
   "publication_authority",
@@ -2048,7 +2374,7 @@ const CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS = 512;
 const CONFIDENCE_LEDGER_MAX_OBJECT_FIELDS = 256;
 const CONFIDENCE_LEDGER_MAX_JSON_DEPTH = 64;
 const CONFIDENCE_LEDGER_SCHEMA_WORK_BOUND = 16 * 1024;
-export const CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET = 750 * 1000;
+export const CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET = 1_100 * 1000;
 const CONFIDENCE_LEDGER_MAX_EVALUATION_BUDGET =
   CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET;
 
@@ -2097,6 +2423,14 @@ function isUint8Array(value: unknown): value is Uint8Array {
 }
 
 type JsonWork = Readonly<{ nodeCount: number; textCodeUnits: number }>;
+type RationalWork = Readonly<{
+  periodUpperBound: number;
+  rationalCount: number;
+  workUnits: number;
+}>;
+type AdmissionWorkInspection =
+  | Readonly<{ detail: string; status: "unsupported" }>
+  | Readonly<{ json: JsonWork; rational: RationalWork; status: "supported" }>;
 
 function jsonWorkWithinCaps(value: unknown): JsonWork | null {
   const seen = new WeakSet();
@@ -2130,6 +2464,98 @@ function jsonWorkWithinCaps(value: unknown): JsonWork | null {
   return visit(value, 0)
     ? Object.freeze({ nodeCount: nodes, textCodeUnits })
     : null;
+}
+
+function rationalWorkWithinCaps(
+  value: unknown,
+): RationalWork | Readonly<{ detail: string }> {
+  const seen = new WeakSet();
+  let rationalCount = 0;
+  let periodUpperBound = 0;
+  let detail: string | null = null;
+  const visit = (current: unknown): boolean => {
+    if (current === null || typeof current !== "object") return true;
+    if (seen.has(current)) {
+      detail = "arithmetic input contains a repeated object reference";
+      return false;
+    }
+    seen.add(current);
+    if (Array.isArray(current)) return current.every(visit);
+    const record = current as Record<string, unknown>;
+    if ("denominator" in record && "numerator" in record) {
+      const denominator = record.denominator;
+      const numerator = record.numerator;
+      if (
+        typeof denominator !== "number" ||
+        !Number.isFinite(denominator) ||
+        !Number.isSafeInteger(denominator) ||
+        denominator <= 0
+      ) {
+        detail = "arithmetic denominator is not a positive safe integer";
+        return false;
+      }
+      if (denominator > CONFIDENCE_LEDGER_MAX_RATIONAL_DENOMINATOR) {
+        detail = "arithmetic denominator exceeds the finite cap";
+        return false;
+      }
+      if (
+        typeof numerator !== "number" ||
+        !Number.isFinite(numerator) ||
+        !Number.isSafeInteger(numerator) ||
+        numerator < 0
+      ) {
+        detail = "arithmetic numerator is not a nonnegative safe integer";
+        return false;
+      }
+      if (numerator > CONFIDENCE_LEDGER_MAX_RATIONAL_NUMERATOR) {
+        detail = "arithmetic numerator exceeds the finite cap";
+        return false;
+      }
+      rationalCount += 1;
+      periodUpperBound += denominator;
+      if (rationalCount > CONFIDENCE_LEDGER_MAX_RATIONAL_COUNT) {
+        detail = "aggregate rational cardinality exceeds the finite cap";
+        return false;
+      }
+      if (
+        periodUpperBound + rationalCount >
+        CONFIDENCE_LEDGER_MAX_RATIONAL_PERIOD_WORK
+      ) {
+        detail = "aggregate rational work exceeds the finite cap";
+        return false;
+      }
+      return true;
+    }
+    return Object.values(record).every(visit);
+  };
+  if (!visit(value)) {
+    return Object.freeze({
+      detail: detail ?? "arithmetic input exceeds the finite cap",
+    });
+  }
+  return Object.freeze({
+    periodUpperBound,
+    rationalCount,
+    workUnits: periodUpperBound + rationalCount,
+  });
+}
+
+function admissionWorkWithinCaps(value: unknown): AdmissionWorkInspection {
+  const json = jsonWorkWithinCaps(value);
+  if (json === null) {
+    return Object.freeze({
+      detail: "packet exceeds finite JSON work caps",
+      status: "unsupported" as const,
+    });
+  }
+  const rational = rationalWorkWithinCaps(value);
+  if ("detail" in rational) {
+    return Object.freeze({
+      detail: rational.detail,
+      status: "unsupported" as const,
+    });
+  }
+  return Object.freeze({ json, rational, status: "supported" as const });
 }
 
 function protectedAnswersFromPacket(
@@ -2242,16 +2668,16 @@ export async function evaluateConfidenceLedgerProtectedQuery({
   ) {
     return blockedEvaluation("unsupported_or_out_of_model");
   }
-  const candidateWork = jsonWorkWithinCaps(packetCandidate);
-  if (candidateWork === null) {
+  const candidateAdmissionWork = admissionWorkWithinCaps(packetCandidate);
+  if (candidateAdmissionWork.status === "unsupported") {
     return blockedEvaluation("unsupported_or_out_of_model");
   }
   const preDecodeWorkBound =
     rawPacketBytes.byteLength * 2 +
-    candidateWork.nodeCount +
-    candidateWork.textCodeUnits +
-    CONFIDENCE_LEDGER_MAX_JSON_NODES +
-    CONFIDENCE_LEDGER_SCHEMA_WORK_BOUND +
+    candidateAdmissionWork.json.nodeCount +
+    candidateAdmissionWork.json.textCodeUnits +
+    candidateAdmissionWork.rational.workUnits +
+    CONFIDENCE_LEDGER_SCHEMA_WORK_BOUND * 2 +
     CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA.length;
   if (stepBudget < preDecodeWorkBound) return blockedEvaluation("timeout");
 
@@ -2270,16 +2696,19 @@ export async function evaluateConfidenceLedgerProtectedQuery({
   ) {
     return blockedEvaluation("unsupported_or_out_of_model");
   }
-  const capturedWork = jsonWorkWithinCaps(rawCandidate);
-  if (capturedWork === null) {
+  const capturedAdmissionWork = admissionWorkWithinCaps(rawCandidate);
+  if (capturedAdmissionWork.status === "unsupported") {
     return blockedEvaluation("unsupported_or_out_of_model");
   }
   const completeWorkBound =
     rawPacketBytes.byteLength * 2 +
-    candidateWork.nodeCount +
-    candidateWork.textCodeUnits +
-    capturedWork.nodeCount +
-    CONFIDENCE_LEDGER_SCHEMA_WORK_BOUND +
+    candidateAdmissionWork.json.nodeCount +
+    candidateAdmissionWork.json.textCodeUnits +
+    candidateAdmissionWork.rational.workUnits +
+    capturedAdmissionWork.json.nodeCount +
+    capturedAdmissionWork.json.textCodeUnits +
+    capturedAdmissionWork.rational.workUnits +
+    CONFIDENCE_LEDGER_SCHEMA_WORK_BOUND * 2 +
     CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA.length;
   if (stepBudget < completeWorkBound) return blockedEvaluation("timeout");
 
@@ -2287,8 +2716,8 @@ export async function evaluateConfidenceLedgerProtectedQuery({
   let capturedPacket: ConfidenceLedgerRiskSpendPacket;
   try {
     [packet, capturedPacket] = await Promise.all([
-      admitConfidenceLedgerRiskSpendPacket(packetCandidate),
-      admitConfidenceLedgerRiskSpendPacket(rawCandidate),
+      admitPreflightedConfidenceLedgerRiskSpendPacket(packetCandidate),
+      admitPreflightedConfidenceLedgerRiskSpendPacket(rawCandidate),
     ]);
   } catch {
     return blockedEvaluation("parser_or_schema_failure");

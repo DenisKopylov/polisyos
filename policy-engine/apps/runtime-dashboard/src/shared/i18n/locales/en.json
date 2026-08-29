@@ -424,7 +424,8 @@
         },
         "positiveEmpty": {
           "title": "Positive promotion certificates",
-          "body": "{count} issued · {authority} · governed empty register"
+          "status": "{count} issued · institutional authority unappointed in this PolicyOS runtime",
+          "body": "No promotion certificate is currently issuable. This is a governed empty state, not a load failure."
         },
         "sections": {
           "actualRows": "Actual refusals, then acquisitions",

@@ -36,6 +36,7 @@ type EvaluateConfidenceLedgerRiskSpendTwinInput = Readonly<{
   rawPacketBytes: Uint8Array;
   root: HTMLElement | null;
   stepBudget: number;
+  visibilityOracle?: ConfidenceLedgerTestVisibilityOracle;
 }>;
 
 type VisibleFigure = Readonly<{
@@ -83,6 +84,17 @@ type VisibleSemanticProjection = Readonly<{
 }>;
 
 class SemanticDomError extends Error {}
+class VisibilityUnprovedError extends Error {}
+
+type VisibilityProof = "hidden" | "unproved" | "visible";
+
+export type ConfidenceLedgerTestVisibilityOracle = Readonly<{
+  document: Document;
+  kind: "explicit_jsdom_test_oracle";
+  prove: (element: HTMLElement, boundary: HTMLElement) => VisibilityProof;
+}>;
+
+const registeredTestVisibilityOracles = new WeakSet();
 
 function blocked(
   reason: ConfidenceLedgerTwinBlockedReason,
@@ -90,70 +102,387 @@ function blocked(
   return Object.freeze({ reason, status: "blocked" });
 }
 
-function isElementHidden(element: HTMLElement, root: HTMLElement): boolean {
-  let current: HTMLElement | null = element;
-  while (current !== null) {
-    const style = globalThis.getComputedStyle(current);
-    const contentVisibility = (
-      style as CSSStyleDeclaration & { contentVisibility?: string }
-    ).contentVisibility;
-    const clip =
-      `${style.getPropertyValue("clip")} ${current.style.getPropertyValue("clip")}`.replaceAll(
-        ",",
-        " ",
-      );
-    const clipPath = `${style.clipPath} ${current.style.clipPath}`;
-    const overflow = `${style.overflow} ${current.style.overflow}`;
-    const positioned =
-      style.position === "absolute" ||
-      style.position === "fixed" ||
-      current.style.position === "absolute" ||
-      current.style.position === "fixed";
-    const width = Number.parseFloat(style.width || current.style.width);
-    const height = Number.parseFloat(style.height || current.style.height);
-    const left = Number.parseFloat(style.left || current.style.left);
-    const top = Number.parseFloat(style.top || current.style.top);
-    const rect = current.getBoundingClientRect();
-    if (
-      current.hidden ||
-      current.getAttribute("aria-hidden") === "true" ||
-      current.classList.contains("sr-only") ||
-      current.classList.contains("visually-hidden") ||
-      style.display === "none" ||
-      style.visibility === "hidden" ||
-      style.visibility === "collapse" ||
-      style.opacity === "0" ||
-      contentVisibility === "hidden" ||
-      /rect\(\s*0(?:px)?\s+0(?:px)?\s+0(?:px)?\s+0(?:px)?\s*\)/u.test(clip) ||
-      /inset\(\s*(?:50|100)%/u.test(clipPath) ||
-      (positioned &&
-        Number.isFinite(width) &&
-        Number.isFinite(height) &&
-        width <= 1 &&
-        height <= 1 &&
-        /hidden|clip/u.test(overflow)) ||
-      (positioned && Number.isFinite(left) && left < -999) ||
-      (positioned && Number.isFinite(top) && top < -999) ||
-      (positioned &&
-        (rect.right < -999 ||
-          rect.bottom < -999 ||
-          (rect.width <= 1 &&
-            rect.height <= 1 &&
-            /hidden|clip/u.test(overflow)))) ||
-      Number.parseFloat(style.textIndent || current.style.textIndent) < -999
-    ) {
-      return true;
-    }
-    if (current === root) break;
-    current = current.parentElement;
-  }
-  return false;
+function compactCss(value: string): string {
+  return value.toLowerCase().replaceAll(" ", "").replaceAll("\n", "");
 }
 
-function visibleText(element: HTMLElement, root: HTMLElement): string {
-  if (isElementHidden(element, root)) {
+function nonDefaultCss(value: string, defaults: readonly string[]): boolean {
+  const normalized = compactCss(value);
+  return normalized.length > 0 && !defaults.includes(normalized);
+}
+
+function anyNonDefaultCss(
+  values: readonly string[],
+  defaults: readonly string[],
+): boolean {
+  return values.some((value) => nonDefaultCss(value, defaults));
+}
+
+function styleVisibilityProof(
+  element: HTMLElement,
+  style: CSSStyleDeclaration,
+  allowGeometricProof: boolean,
+): VisibilityProof {
+  const contentVisibility = (
+    style as CSSStyleDeclaration & { contentVisibility?: string }
+  ).contentVisibility;
+  const overflowX = compactCss(`${style.overflow} ${style.overflowX}`);
+  const overflowY = compactCss(`${style.overflow} ${style.overflowY}`);
+  const width = Number.parseFloat(style.width || element.style.width);
+  const height = Number.parseFloat(style.height || element.style.height);
+  const opacity = Number.parseFloat(style.opacity || element.style.opacity);
+  const fontSize = Number.parseFloat(style.fontSize || element.style.fontSize);
+  const textIndent = Number.parseFloat(
+    style.textIndent || element.style.textIndent,
+  );
+  const left = Number.parseFloat(style.left || element.style.left);
+  const top = Number.parseFloat(style.top || element.style.top);
+  const positioned =
+    style.position === "absolute" || style.position === "fixed";
+  const clipValues = [
+    style.getPropertyValue("clip"),
+    element.style.getPropertyValue("clip"),
+  ];
+  const clipPathValues = [style.clipPath, element.style.clipPath];
+  const filterValues = [style.filter, element.style.filter];
+  const transformValues = [style.transform, element.style.transform];
+  const maskValues = [
+    style.getPropertyValue("mask-image"),
+    style.getPropertyValue("-webkit-mask-image"),
+    element.style.getPropertyValue("mask"),
+    element.style.getPropertyValue("mask-image"),
+    element.style.getPropertyValue("-webkit-mask-image"),
+  ];
+  const clip = compactCss(clipValues.join(" ")).replaceAll(",", "");
+  const clipPath = compactCss(clipPathValues.join(" "));
+  const filter = compactCss(filterValues.join(" "));
+  const transform = compactCss(transformValues.join(" "));
+  const color = compactCss(style.color || element.style.color);
+  if (
+    element.hidden ||
+    element.getAttribute("aria-hidden") === "true" ||
+    element.classList.contains("sr-only") ||
+    element.classList.contains("visually-hidden") ||
+    style.display === "none" ||
+    style.visibility === "hidden" ||
+    style.visibility === "collapse" ||
+    opacity === 0 ||
+    contentVisibility === "hidden" ||
+    fontSize === 0 ||
+    color === "transparent" ||
+    color === "rgba(0,0,0,0)" ||
+    clip.includes("rect(0px0px0px0px)") ||
+    clip.includes("rect(0000)") ||
+    clipPath.includes("circle(0)") ||
+    clipPath.includes("circle(0px)") ||
+    clipPath.includes("inset(50%)") ||
+    clipPath.includes("inset(100%)") ||
+    filter.includes("opacity(0)") ||
+    filter.includes("opacity(0%)") ||
+    transform.includes("scale(0)") ||
+    transform.includes("scale(0,0)") ||
+    transform.includes("matrix(0,0,0,0,") ||
+    (Number.isFinite(width) &&
+      width <= 1 &&
+      (overflowX.includes("hidden") || overflowX.includes("clip"))) ||
+    (Number.isFinite(height) &&
+      height <= 1 &&
+      (overflowY.includes("hidden") || overflowY.includes("clip"))) ||
+    (positioned && Number.isFinite(left) && Math.abs(left) >= 10_000) ||
+    (positioned && Number.isFinite(top) && Math.abs(top) >= 10_000) ||
+    (Number.isFinite(textIndent) && Math.abs(textIndent) >= 10_000)
+  ) {
+    return "hidden";
+  }
+  if (anyNonDefaultCss(maskValues, ["none"])) return "unproved";
+  if (anyNonDefaultCss(filterValues, ["none"])) return "unproved";
+  if (
+    !allowGeometricProof &&
+    (anyNonDefaultCss(clipValues, ["auto", "none"]) ||
+      anyNonDefaultCss(clipPathValues, ["none"]) ||
+      anyNonDefaultCss(transformValues, ["none"]))
+  ) {
+    return "unproved";
+  }
+  return "visible";
+}
+
+/** Explicit layout substitute for JSDOM unit tests; never accepted in a browser. */
+export function createConfidenceLedgerTestVisibilityOracle(
+  document: Document,
+): ConfidenceLedgerTestVisibilityOracle {
+  const userAgent = document.defaultView?.navigator.userAgent.toLowerCase();
+  if (userAgent?.includes("jsdom") !== true) {
+    throw new TypeError(
+      "confidence-ledger test visibility oracle requires an explicit JSDOM document",
+    );
+  }
+  const cache = new WeakMap<HTMLElement, VisibilityProof>();
+  const oracle: ConfidenceLedgerTestVisibilityOracle = Object.freeze({
+    document,
+    kind: "explicit_jsdom_test_oracle" as const,
+    prove(element: HTMLElement, boundary: HTMLElement): VisibilityProof {
+      if (!boundary.contains(element) && boundary !== element)
+        return "unproved";
+      const view = document.defaultView;
+      if (view === null) return "unproved";
+      let current: HTMLElement | null = element;
+      while (current !== null) {
+        let proof = cache.get(current);
+        if (proof === undefined) {
+          proof = styleVisibilityProof(
+            current,
+            view.getComputedStyle(current),
+            false,
+          );
+          cache.set(current, proof);
+        }
+        if (proof !== "visible") return proof;
+        current = current.parentElement;
+      }
+      return "visible";
+    },
+  });
+  registeredTestVisibilityOracles.add(oracle);
+  return oracle;
+}
+
+type ScrollSnapshot = Readonly<{
+  element: HTMLElement;
+  left: number;
+  top: number;
+}>;
+
+class RenderedVisibilitySession {
+  readonly #cache = new WeakMap<HTMLElement, VisibilityProof>();
+  readonly #chainVisible = new WeakSet<HTMLElement>();
+  readonly #document: Document;
+  readonly #focus: Element | null;
+  readonly #scroll: readonly ScrollSnapshot[];
+  readonly #testOracle: ConfidenceLedgerTestVisibilityOracle | null;
+  readonly #view: Window & typeof globalThis;
+  readonly #windowX: number;
+  readonly #windowY: number;
+  #remainingWork: number;
+
+  constructor(
+    document: Document,
+    workBudget: number,
+    testOracle?: ConfidenceLedgerTestVisibilityOracle,
+  ) {
+    const view = document.defaultView;
+    if (view === null) {
+      throw new VisibilityUnprovedError("document view is unavailable");
+    }
+    if (
+      testOracle !== undefined &&
+      (!registeredTestVisibilityOracles.has(testOracle) ||
+        testOracle.document !== document)
+    ) {
+      throw new VisibilityUnprovedError("test visibility oracle is untrusted");
+    }
+    this.#document = document;
+    this.#view = view;
+    this.#testOracle = testOracle ?? null;
+    const documentElement = document.documentElement as HTMLElement & {
+      checkVisibility?: () => boolean;
+    };
+    if (
+      this.#testOracle === null &&
+      (typeof documentElement.checkVisibility !== "function" ||
+        typeof document.elementsFromPoint !== "function" ||
+        typeof documentElement.scrollIntoView !== "function" ||
+        typeof view.scrollTo !== "function")
+    ) {
+      throw new VisibilityUnprovedError(
+        "native rendered visibility APIs are unavailable",
+      );
+    }
+    this.#remainingWork = workBudget;
+    this.#focus = document.activeElement;
+    this.#windowX = view.scrollX;
+    this.#windowY = view.scrollY;
+    this.#scroll = [...document.querySelectorAll<HTMLElement>("*")].map(
+      (element) =>
+        Object.freeze({
+          element,
+          left: element.scrollLeft,
+          top: element.scrollTop,
+        }),
+    );
+    this.consume(this.#scroll.length);
+  }
+
+  consume(work: number): void {
+    this.#remainingWork -= work;
+    if (this.#remainingWork < 0) {
+      throw new VisibilityUnprovedError("rendered visibility budget exhausted");
+    }
+  }
+
+  prove(element: HTMLElement, boundary: HTMLElement): VisibilityProof {
+    this.consume(1);
+    if (this.#testOracle !== null) {
+      return this.#testOracle.prove(element, boundary);
+    }
+    if (!boundary.contains(element) && boundary !== element) return "unproved";
+    const newlyProved: HTMLElement[] = [];
+    let current: HTMLElement | null = element;
+    while (current !== null) {
+      this.consume(4);
+      if (this.#chainVisible.has(current)) {
+        newlyProved.forEach((proved) => this.#chainVisible.add(proved));
+        return "visible";
+      }
+      const cached = this.#cache.get(current);
+      if (cached !== undefined) {
+        if (cached !== "visible") return cached;
+        newlyProved.push(current);
+        current = current.parentElement;
+        continue;
+      }
+      const proof = this.proveNativeElement(current);
+      this.#cache.set(current, proof);
+      if (proof !== "visible") return proof;
+      newlyProved.push(current);
+      current = current.parentElement;
+    }
+    newlyProved.forEach((proved) => this.#chainVisible.add(proved));
+    return "visible";
+  }
+
+  private proveNativeElement(element: HTMLElement): VisibilityProof {
+    const nativeElement = element as HTMLElement & {
+      checkVisibility?: (options?: {
+        checkOpacity?: boolean;
+        checkVisibilityCSS?: boolean;
+        contentVisibilityAuto?: boolean;
+      }) => boolean;
+    };
+    if (
+      typeof nativeElement.checkVisibility !== "function" ||
+      typeof this.#document.elementsFromPoint !== "function" ||
+      typeof element.scrollIntoView !== "function" ||
+      typeof this.#view.scrollTo !== "function"
+    ) {
+      return "unproved";
+    }
+    let platformVisible: boolean;
+    try {
+      platformVisible = nativeElement.checkVisibility({
+        checkOpacity: true,
+        checkVisibilityCSS: true,
+        contentVisibilityAuto: true,
+      });
+    } catch {
+      return "unproved";
+    }
+    if (!platformVisible) return "hidden";
+    const styleProof = styleVisibilityProof(
+      element,
+      this.#view.getComputedStyle(element),
+      true,
+    );
+    if (styleProof !== "visible") return styleProof;
+    try {
+      element.scrollIntoView({ block: "center", inline: "center" });
+    } catch {
+      return "unproved";
+    }
+    const rect = element.getBoundingClientRect();
+    if (
+      !Number.isFinite(rect.left) ||
+      !Number.isFinite(rect.top) ||
+      !Number.isFinite(rect.width) ||
+      !Number.isFinite(rect.height)
+    ) {
+      return "unproved";
+    }
+    if (rect.width <= 0 || rect.height <= 0) return "hidden";
+    const viewportWidth = this.#view.innerWidth;
+    const viewportHeight = this.#view.innerHeight;
+    const left = Math.max(0, rect.left);
+    const right = Math.min(viewportWidth, rect.right);
+    const top = Math.max(0, rect.top);
+    const bottom = Math.min(viewportHeight, rect.bottom);
+    if (right <= left || bottom <= top) return "unproved";
+    const x = left + (right - left) / 2;
+    const y = top + (bottom - top) / 2;
+    const paintedStack = this.#document.elementsFromPoint(x, y);
+    return paintedStack.some(
+      (painted) => painted === element || element.contains(painted),
+    )
+      ? "visible"
+      : "unproved";
+  }
+
+  restore(): boolean {
+    if (this.#testOracle !== null) {
+      return (
+        this.#document.activeElement === this.#focus &&
+        this.#view.scrollX === this.#windowX &&
+        this.#view.scrollY === this.#windowY &&
+        this.#scroll.every(
+          (snapshot) =>
+            snapshot.element.scrollLeft === snapshot.left &&
+            snapshot.element.scrollTop === snapshot.top,
+        )
+      );
+    }
+    let restored = true;
+    try {
+      if (this.#document.activeElement !== this.#focus) {
+        const focus = this.#focus;
+        if (focus instanceof this.#view.HTMLElement) {
+          focus.focus({ preventScroll: true });
+        } else {
+          restored = false;
+        }
+      }
+      for (const snapshot of this.#scroll) {
+        snapshot.element.scrollLeft = snapshot.left;
+        snapshot.element.scrollTop = snapshot.top;
+      }
+      this.#view.scrollTo(this.#windowX, this.#windowY);
+      restored =
+        restored &&
+        this.#document.activeElement === this.#focus &&
+        this.#view.scrollX === this.#windowX &&
+        this.#view.scrollY === this.#windowY &&
+        this.#scroll.every(
+          (snapshot) =>
+            snapshot.element.scrollLeft === snapshot.left &&
+            snapshot.element.scrollTop === snapshot.top,
+        );
+    } catch {
+      restored = false;
+    }
+    return restored;
+  }
+}
+
+function assertVisible(
+  element: HTMLElement,
+  boundary: HTMLElement,
+  visibility: RenderedVisibilitySession,
+): void {
+  const proof = visibility.prove(element, boundary);
+  if (proof === "hidden") {
     throw new SemanticDomError("semantic element is hidden");
   }
+  if (proof === "unproved") {
+    throw new VisibilityUnprovedError(
+      `semantic visibility is unproved for ${element.tagName}:${element.dataset.confidenceText ?? element.dataset.confidenceLeaf ?? "unclassified"}`,
+    );
+  }
+}
+
+function visibleText(
+  element: HTMLElement,
+  root: HTMLElement,
+  visibility: RenderedVisibilitySession,
+): string {
+  assertVisible(element, root, visibility);
   const value = element.textContent?.trim() ?? "";
   if (value.length === 0) {
     throw new SemanticDomError("semantic element has no visible text");
@@ -172,16 +501,18 @@ function leafValues(
   leaves: readonly HTMLElement[],
   root: HTMLElement,
   field: string,
+  visibility: RenderedVisibilitySession,
 ): readonly string[] {
   return leaves
     .filter((leaf) => leaf.dataset.confidenceLeaf === field)
-    .map((leaf) => visibleText(leaf, root));
+    .map((leaf) => visibleText(leaf, root, visibility));
 }
 
 function indexedLeafValues(
   leaves: readonly HTMLElement[],
   root: HTMLElement,
   field: string,
+  visibility: RenderedVisibilitySession,
 ): readonly string[] {
   const prefix = `${field}.`;
   return leaves
@@ -191,13 +522,14 @@ function indexedLeafValues(
         candidate?.startsWith(prefix) === true && candidate !== `${field}.count`
       );
     })
-    .map((leaf) => visibleText(leaf, root));
+    .map((leaf) => visibleText(leaf, root, visibility));
 }
 
 function decodeOrderedRowField(
   root: HTMLElement,
   listName: string,
   field: string,
+  visibility: RenderedVisibilitySession,
 ): readonly string[] {
   const lists = [
     ...root.querySelectorAll<HTMLElement>("[data-confidence-list]"),
@@ -208,11 +540,14 @@ function decodeOrderedRowField(
       ...item.querySelectorAll<HTMLElement>("[data-confidence-leaf]"),
     ].filter((leaf) => leaf.dataset.confidenceLeaf === field);
     if (matches.length !== 1) return "";
-    return visibleText(matches[0], root);
+    return visibleText(matches[0], root, visibility);
   });
 }
 
-function decodeVisibleProjection(root: HTMLElement): VisibleSemanticProjection {
+function decodeVisibleProjection(
+  root: HTMLElement,
+  visibility: RenderedVisibilitySession,
+): VisibleSemanticProjection {
   const forbiddenPayloadSelector =
     'script[type="application/json"], input[type="hidden"], [data-confidence-payload], [data-testid]';
   if (
@@ -229,9 +564,7 @@ function decodeVisibleProjection(root: HTMLElement): VisibleSemanticProjection {
     ),
   ];
   semanticElements.forEach((element) => {
-    if (isElementHidden(element, root)) {
-      throw new SemanticDomError("hidden semantic element detected");
-    }
+    assertVisible(element, root, visibility);
   });
   const leaves = semanticElements.filter(
     (element) => element.dataset.confidenceLeaf !== undefined,
@@ -242,7 +575,7 @@ function decodeVisibleProjection(root: HTMLElement): VisibleSemanticProjection {
   const semanticLeaves = leaves.map((leaf) =>
     Object.freeze({
       field: leaf.dataset.confidenceLeaf ?? "",
-      value: visibleText(leaf, root),
+      value: visibleText(leaf, root, visibility),
     }),
   );
   const semanticLists = semanticElements
@@ -255,9 +588,7 @@ function decodeVisibleProjection(root: HTMLElement): VisibleSemanticProjection {
     );
   const figures = [...root.querySelectorAll<HTMLElement>("figure")].map(
     (figure): VisibleFigure => {
-      if (isElementHidden(figure, root)) {
-        throw new SemanticDomError("hidden amount figure detected");
-      }
+      assertVisible(figure, root, visibility);
       const readSingle = (field: string): string => {
         const matches = [
           ...figure.querySelectorAll<HTMLElement>("[data-confidence-leaf]"),
@@ -265,7 +596,7 @@ function decodeVisibleProjection(root: HTMLElement): VisibleSemanticProjection {
         if (matches.length !== 1) {
           throw new SemanticDomError(`amount figure ${field} is not singular`);
         }
-        return visibleText(matches[0], root);
+        return visibleText(matches[0], root, visibility);
       };
       return Object.freeze({
         canonicalDecimal: readSingle("canonical-decimal"),
@@ -286,59 +617,69 @@ function decodeVisibleProjection(root: HTMLElement): VisibleSemanticProjection {
       root,
       "actual-rows",
       "actual.instance_ref",
+      visibility,
     ),
     actualRoles: decodeOrderedRowField(
       root,
       "actual-rows",
       "actual.certificate_role",
+      visibility,
     ),
     classes: decodeOrderedRowField(
       root,
       "class-spend",
       "class.obligation_class",
+      visibility,
     ),
     definitions: decodeOrderedRowField(
       root,
       "instrument-definitions",
       "definition.instrument_id",
+      visibility,
     ),
     envelopeMayNotUseFor: indexedLeafValues(
       leaves,
       root,
       "posture.envelope_may_not_use_for",
+      visibility,
     ),
     figures,
     packetMayNotUseFor: indexedLeafValues(
       leaves,
       root,
       "posture.packet_may_not_use_for",
+      visibility,
     ),
     positiveAppointmentState: leafValues(
       leaves,
       root,
       "positive.appointment_sufficiency_state",
+      visibility,
     ),
     positivePopulationCount: leafValues(
       leaves,
       root,
       "positive.population_count",
+      visibility,
     ),
     positivePopulationState: leafValues(
       leaves,
       root,
       "positive.population_state",
+      visibility,
     ),
     promotionBlockers: indexedLeafValues(
       leaves,
       root,
       "positive.promotion_blockers",
+      visibility,
     ),
-    replayAddress: leafValues(leaves, root, "replay.address"),
+    replayAddress: leafValues(leaves, root, "replay.address", visibility),
     replayPins: Object.freeze(
       Object.fromEntries(
         replayPinFields.map((field) => [
           field,
-          leafValues(leaves, root, `replay.${field}`),
+          leafValues(leaves, root, `replay.${field}`, visibility),
         ]),
       ),
     ),
@@ -346,6 +687,7 @@ function decodeVisibleProjection(root: HTMLElement): VisibleSemanticProjection {
       root,
       "certificate-routes",
       "route.certificate_class",
+      visibility,
     ),
     semanticLeaves,
     semanticLists,
@@ -354,22 +696,45 @@ function decodeVisibleProjection(root: HTMLElement): VisibleSemanticProjection {
       leaves,
       root,
       "source.artifact_content_hash",
+      visibility,
     ),
-    sourcePath: leafValues(leaves, root, "source.relative_path"),
-    sourceProvenance: indexedLeafValues(leaves, root, "source.provenance"),
+    sourcePath: leafValues(leaves, root, "source.relative_path", visibility),
+    sourceProvenance: indexedLeafValues(
+      leaves,
+      root,
+      "source.provenance",
+      visibility,
+    ),
     sourceValidationStatus: leafValues(
       leaves,
       root,
       "source.validation_status",
+      visibility,
     ),
-    sourceValidatorId: leafValues(leaves, root, "source.validator_id"),
+    sourceValidatorId: leafValues(
+      leaves,
+      root,
+      "source.validator_id",
+      visibility,
+    ),
     sourceValidatorVersion: leafValues(
       leaves,
       root,
       "source.validator_version",
+      visibility,
     ),
-    workerReceiptHash: leafValues(leaves, root, "source.worker_receipt_hash"),
-    workerReceiptRef: leafValues(leaves, root, "source.worker_receipt_ref"),
+    workerReceiptHash: leafValues(
+      leaves,
+      root,
+      "source.worker_receipt_hash",
+      visibility,
+    ),
+    workerReceiptRef: leafValues(
+      leaves,
+      root,
+      "source.worker_receipt_ref",
+      visibility,
+    ),
   });
 }
 
@@ -381,12 +746,12 @@ function figureProjection(amount: ConditionalDeltaAmount): VisibleFigure {
   });
 }
 
-function expectedFigures(
+function expectedFigureAmounts(
   packet: Extract<
     ConfidenceLedgerRiskSpendPacket,
     { availability: "available" }
   >,
-): readonly VisibleFigure[] {
+): readonly ConditionalDeltaAmount[] {
   const body = packet.payload;
   return [
     ...orderedConfidenceLedgerActualRows(packet).map((row) => row.spend),
@@ -400,7 +765,16 @@ function expectedFigures(
       row.remaining,
       row.overspend_amount,
     ]),
-  ].map(figureProjection);
+  ];
+}
+
+function expectedFigures(
+  packet: Extract<
+    ConfidenceLedgerRiskSpendPacket,
+    { availability: "available" }
+  >,
+): readonly VisibleFigure[] {
+  return expectedFigureAmounts(packet).map(figureProjection);
 }
 
 function semanticLeaf(
@@ -792,7 +1166,10 @@ type ProductLocale = "en" | "uk";
 
 const CONFIDENCE_LEDGER_DOM_NODE_CAP = 20 * 1000;
 const CONFIDENCE_LEDGER_DOM_TEXT_CODE_UNIT_CAP = 80 * 1000;
-const CONFIDENCE_LEDGER_DOM_WORK_RESERVE = 120 * 1000;
+const CONFIDENCE_LEDGER_DOM_ATTRIBUTE_COUNT_CAP = 20 * 1000;
+const CONFIDENCE_LEDGER_DOM_ATTRIBUTE_CODE_UNIT_CAP = 640 * 1000;
+const CONFIDENCE_LEDGER_DOM_SINGLE_ATTRIBUTE_CAP = 4 * 1000;
+const CONFIDENCE_LEDGER_DOM_WORK_RESERVE = 140 * 1000;
 
 function normalizedText(value: string): string {
   return value
@@ -801,28 +1178,63 @@ function normalizedText(value: string): string {
     .trim();
 }
 
-function documentDomWithinCaps(document: Document): boolean {
+type DomWork = Readonly<{
+  attributeCount: number;
+  attributeCodeUnits: number;
+  nodeCount: number;
+  textCodeUnits: number;
+  workUnits: number;
+}>;
+
+function documentDomWorkWithinCaps(document: Document): DomWork | null {
   const documentElement = document.documentElement;
-  if (documentElement === null) return false;
+  if (documentElement === null) return null;
   const showAll = document.defaultView?.NodeFilter.SHOW_ALL ?? 0xffffffff;
   const walker = document.createTreeWalker(documentElement, showAll);
   let nodeCount = 1;
   let textCodeUnits = 0;
+  let attributeCount = 0;
+  let attributeCodeUnits = 0;
+  const countAttributes = (element: Element): boolean => {
+    for (const attribute of element.attributes) {
+      const size = attribute.name.length + attribute.value.length;
+      attributeCount += 1;
+      attributeCodeUnits += size;
+      if (
+        attributeCount > CONFIDENCE_LEDGER_DOM_ATTRIBUTE_COUNT_CAP ||
+        attributeCodeUnits > CONFIDENCE_LEDGER_DOM_ATTRIBUTE_CODE_UNIT_CAP ||
+        size > CONFIDENCE_LEDGER_DOM_SINGLE_ATTRIBUTE_CAP
+      ) {
+        return false;
+      }
+    }
+    return true;
+  };
+  if (!countAttributes(documentElement)) return null;
   let node = walker.nextNode();
   while (node !== null) {
     nodeCount += 1;
     if (node.nodeType === Node.TEXT_NODE) {
       textCodeUnits += node.nodeValue?.length ?? 0;
     }
+    if (node instanceof Element) {
+      if (!countAttributes(node)) return null;
+    }
     if (
       nodeCount > CONFIDENCE_LEDGER_DOM_NODE_CAP ||
       textCodeUnits > CONFIDENCE_LEDGER_DOM_TEXT_CODE_UNIT_CAP
     ) {
-      return false;
+      return null;
     }
     node = walker.nextNode();
   }
-  return true;
+  return Object.freeze({
+    attributeCount,
+    attributeCodeUnits,
+    nodeCount,
+    textCodeUnits,
+    workUnits: attributeCount + nodeCount + textCodeUnits,
+  });
 }
 
 type ExpectedEnvelopeField = Readonly<{
@@ -892,7 +1304,10 @@ function catalogText(
   );
 }
 
-function collectGovernedText(boundary: HTMLElement): readonly GovernedText[] {
+function collectGovernedText(
+  boundary: HTMLElement,
+  visibility: RenderedVisibilitySession,
+): readonly GovernedText[] {
   const forbiddenPayloadSelector =
     'script[type="application/json"], input[type="hidden"], [data-confidence-payload], [data-testid]';
   if (
@@ -912,7 +1327,11 @@ function collectGovernedText(boundary: HTMLElement): readonly GovernedText[] {
       const parent = node.parentElement;
       if (parent === null)
         throw new SemanticDomError("visible text has no parent");
-      if (!isElementHidden(parent, boundary)) {
+      const proof = visibility.prove(parent, boundary);
+      if (proof === "unproved") {
+        throw new VisibilityUnprovedError("visible text is unproved");
+      }
+      if (proof === "visible") {
         const classified = parent.closest<HTMLElement>(
           "[data-confidence-text]",
         );
@@ -940,9 +1359,7 @@ function collectGovernedText(boundary: HTMLElement): readonly GovernedText[] {
     classifiedElements.unshift(boundary);
   }
   for (const element of classifiedElements) {
-    if (isElementHidden(element, boundary)) {
-      throw new SemanticDomError("governed text is visually hidden");
-    }
+    assertVisible(element, boundary, visibility);
     if (!byElement.has(element)) {
       throw new SemanticDomError("governed text marker has no visible text");
     }
@@ -1137,18 +1554,18 @@ function expectedRootText(
     ),
   );
   push(
-    "positive.empty.body",
+    "positive.empty.status",
     catalogText(
       locale,
-      "pages.cycleBoard.confidenceLedger.positiveEmpty.body",
+      "pages.cycleBoard.confidenceLedger.positiveEmpty.status",
       {
-        authority: body.positive_register.authority_posture.replaceAll(
-          "_",
-          " ",
-        ),
         count: body.positive_register.population_count,
       },
     ),
+  );
+  push(
+    "positive.empty.body",
+    catalogText(locale, "pages.cycleBoard.confidenceLedger.positiveEmpty.body"),
   );
   detail(
     "population_state",
@@ -1348,6 +1765,172 @@ function expectedDialogText(
   return Object.freeze(result);
 }
 
+function uniqueElementById(document: Document, id: string): HTMLElement | null {
+  if (id.length === 0) return null;
+  const matches = [...document.querySelectorAll<HTMLElement>("[id]")].filter(
+    (element) => element.id === id,
+  );
+  return matches.length === 1 ? matches[0] : null;
+}
+
+function singleRelationTarget(
+  owner: HTMLElement,
+  relation: "aria-describedby" | "aria-labelledby",
+): HTMLElement | null {
+  const raw = owner.getAttribute(relation)?.trim() ?? "";
+  const ids = raw.split(" ").filter((id) => id.length > 0);
+  if (ids.length !== 1) return null;
+  return uniqueElementById(owner.ownerDocument, ids[0]);
+}
+
+function hasExactAriaGrammar(
+  element: HTMLElement,
+  expectedNames: readonly string[],
+): boolean {
+  const observedNames = [...element.attributes]
+    .map((attribute) => attribute.name)
+    .filter((name) => name.startsWith("aria-"))
+    .sort();
+  return sameSequence(observedNames, [...expectedNames].sort());
+}
+
+function amountBindingMatches(
+  element: HTMLElement,
+  amount: ConditionalDeltaAmount,
+): boolean {
+  return (
+    element.dataset.confidenceAmountHash === amount.amount_hash &&
+    element.dataset.confidenceScopeId === amount.scope_id &&
+    element.dataset.confidenceEnvelopeRef === amount.coverage_envelope_ref &&
+    element.dataset.confidenceDeclaredClassesHash ===
+      amount.declared_obligation_classes_hash &&
+    element.dataset.confidenceSemanticRole === amount.semantic_role
+  );
+}
+
+function dialogAmountBindingMatches(
+  dialog: HTMLElement,
+  amount: ConditionalDeltaAmount,
+): boolean {
+  return (
+    dialog.dataset.confidenceAmountHash === amount.amount_hash &&
+    dialog.dataset.confidenceScopeId === amount.scope_id &&
+    dialog.dataset.confidenceDialogEnvelopeRef ===
+      amount.coverage_envelope_ref &&
+    dialog.dataset.confidenceDeclaredClassesHash ===
+      amount.declared_obligation_classes_hash &&
+    dialog.dataset.confidenceSemanticRole === amount.semantic_role
+  );
+}
+
+function accessibilityAndPortalBindingMatches(
+  root: HTMLElement,
+  dialog: HTMLElement,
+  packet: Extract<
+    ConfidenceLedgerRiskSpendPacket,
+    { availability: "available" }
+  >,
+  locale: ProductLocale,
+  visibility: RenderedVisibilitySession,
+): Readonly<{ figureLabel: string }> | null {
+  const figures = [...root.querySelectorAll<HTMLElement>("figure")];
+  const amounts = expectedFigureAmounts(packet);
+  const expectedCaptions = expectedRootText(packet, locale)
+    .filter((entry) => entry.marker === "figure.caption")
+    .map((entry) => entry.text);
+  if (
+    figures.length !== amounts.length ||
+    figures.length !== expectedCaptions.length
+  ) {
+    return null;
+  }
+  const triggers: HTMLButtonElement[] = [];
+  for (const [index, figure] of figures.entries()) {
+    const figureTriggers = [
+      ...figure.querySelectorAll<HTMLButtonElement>(
+        'button[data-confidence-trigger="conditional-delta"]',
+      ),
+    ];
+    const captions = [...figure.querySelectorAll<HTMLElement>("figcaption")];
+    if (figureTriggers.length !== 1 || captions.length !== 1) return null;
+    const trigger = figureTriggers[0];
+    const amount = amounts[index];
+    const caption = expectedCaptions[index];
+    const riders = `${amount.declared_set_rider} — ${amount.locality_rider}`;
+    if (
+      visibleText(captions[0], root, visibility) !== caption ||
+      visibleText(trigger, root, visibility) !== riders ||
+      !hasExactAriaGrammar(trigger, [
+        "aria-controls",
+        "aria-expanded",
+        "aria-haspopup",
+        "aria-label",
+      ]) ||
+      trigger.getAttribute("aria-label") !== `${caption}: ${riders}` ||
+      trigger.getAttribute("aria-haspopup") !== "dialog" ||
+      trigger.id.length === 0 ||
+      (trigger.getAttribute("aria-expanded") !== "true" &&
+        trigger.getAttribute("aria-expanded") !== "false") ||
+      (trigger.getAttribute("aria-controls")?.length ?? 0) === 0 ||
+      !amountBindingMatches(trigger, amount)
+    ) {
+      return null;
+    }
+    triggers.push(trigger);
+  }
+  const triggerIds = triggers.map((trigger) => trigger.id);
+  const controlledIds = triggers.map(
+    (trigger) => trigger.getAttribute("aria-controls") ?? "",
+  );
+  if (
+    new Set(triggerIds).size !== triggers.length ||
+    new Set(controlledIds).size !== triggers.length
+  ) {
+    return null;
+  }
+  const expanded = triggers.filter(
+    (trigger) => trigger.getAttribute("aria-expanded") === "true",
+  );
+  if (expanded.length !== 1) return null;
+  const trigger = expanded[0];
+  const index = triggers.indexOf(trigger);
+  const amount = amounts[index];
+  const figureLabel = expectedCaptions[index];
+  if (
+    trigger.getAttribute("aria-controls") !== dialog.id ||
+    uniqueElementById(dialog.ownerDocument, dialog.id) !== dialog ||
+    dialog.getAttribute("role") !== "dialog" ||
+    !hasExactAriaGrammar(dialog, ["aria-describedby", "aria-labelledby"]) ||
+    dialog.dataset.confidenceDialogTriggerId !== trigger.id ||
+    !dialogAmountBindingMatches(dialog, amount)
+  ) {
+    return null;
+  }
+  const title = singleRelationTarget(dialog, "aria-labelledby");
+  const description = singleRelationTarget(dialog, "aria-describedby");
+  if (
+    title === null ||
+    description === null ||
+    !dialog.contains(title) ||
+    !dialog.contains(description) ||
+    !hasExactAriaGrammar(title, []) ||
+    !hasExactAriaGrammar(description, []) ||
+    visibleText(title, dialog, visibility) !==
+      `${figureLabel}: ${catalogText(
+        locale,
+        "pages.cycleBoard.confidenceLedger.figure.dialogTitle",
+      )}` ||
+    visibleText(description, dialog, visibility) !==
+      catalogText(
+        locale,
+        "pages.cycleBoard.confidenceLedger.figure.dialogDescription",
+      )
+  ) {
+    return null;
+  }
+  return Object.freeze({ figureLabel });
+}
+
 function answersFromVisibleDom(
   projection: VisibleSemanticProjection,
 ): Readonly<
@@ -1419,6 +2002,7 @@ export async function evaluateConfidenceLedgerRiskSpendTwin({
   rawPacketBytes,
   root,
   stepBudget,
+  visibilityOracle,
 }: EvaluateConfidenceLedgerRiskSpendTwinInput): Promise<ConfidenceLedgerRiskSpendTwinResult> {
   if (
     !Number.isFinite(stepBudget) ||
@@ -1444,10 +2028,8 @@ export async function evaluateConfidenceLedgerRiskSpendTwin({
   }
 
   const envelopeRef = packet.payload.coverage_envelope_ref;
-  if (
-    !root.ownerDocument.documentElement.contains(root) ||
-    !documentDomWithinCaps(root.ownerDocument)
-  ) {
+  const domWork = documentDomWorkWithinCaps(root.ownerDocument);
+  if (!root.ownerDocument.documentElement.contains(root) || domWork === null) {
     return blocked("unsupported_or_out_of_model");
   }
   if (
@@ -1471,57 +2053,79 @@ export async function evaluateConfidenceLedgerRiskSpendTwin({
   if (dialogs.length !== 1) return blocked("model_observation_inconsistent");
   const dialog = dialogs[0];
 
-  let visible: VisibleSemanticProjection;
-  let rootText: readonly GovernedText[];
-  let dialogText: readonly GovernedText[];
+  let visibility: RenderedVisibilitySession;
   try {
-    visible = decodeVisibleProjection(root);
-    rootText = collectGovernedText(root);
-    dialogText = collectGovernedText(dialog);
+    visibility = new RenderedVisibilitySession(
+      root.ownerDocument,
+      CONFIDENCE_LEDGER_DOM_WORK_RESERVE - domWork.workUnits,
+      visibilityOracle,
+    );
   } catch (error) {
-    if (error instanceof SemanticDomError) {
-      return blocked("parser_or_schema_failure");
+    return blocked(
+      error instanceof VisibilityUnprovedError
+        ? "unproved_approximation"
+        : "parser_or_schema_failure",
+    );
+  }
+  let restored = false;
+  let result: ConfidenceLedgerRiskSpendTwinResult;
+  try {
+    try {
+      const binding = accessibilityAndPortalBindingMatches(
+        root,
+        dialog,
+        packet,
+        locale,
+        visibility,
+      );
+      if (binding === null) {
+        result = blocked("model_observation_inconsistent");
+      } else {
+        const visible = decodeVisibleProjection(root, visibility);
+        const rootText = collectGovernedText(root, visibility);
+        const dialogText = collectGovernedText(dialog, visibility);
+        const expectedRoot = expectedRootText(packet, locale);
+        if (!visibleSemanticsMatch(visible, packet)) {
+          result = blocked("model_observation_inconsistent");
+        } else if (
+          !sameSequence(rootText, expectedRoot) ||
+          !sameSequence(
+            dialogText,
+            expectedDialogText(packet, locale, binding.figureLabel),
+          )
+        ) {
+          result = blocked("model_observation_inconsistent");
+        } else {
+          const domAnswers = answersFromVisibleDom(visible);
+          if (
+            !isEqualOrMoreConservative(domAnswers, preflight.protectedQueries)
+          ) {
+            result = blocked("model_observation_inconsistent");
+          } else if (
+            !sameSequence(
+              Object.keys(preflight.protectedQueries),
+              CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
+            )
+          ) {
+            result = blocked("unsupported_or_out_of_model");
+          } else {
+            result = Object.freeze({
+              byteTwin: preflight.rawPacketBytes,
+              protectedQueries: preflight.protectedQueries,
+              status: "exact" as const,
+            });
+          }
+        }
+      }
+    } catch (error) {
+      result = blocked(
+        error instanceof VisibilityUnprovedError
+          ? "unproved_approximation"
+          : "parser_or_schema_failure",
+      );
     }
-    return blocked("parser_or_schema_failure");
+  } finally {
+    restored = visibility.restore();
   }
-  if (!visibleSemanticsMatch(visible, packet)) {
-    return blocked("model_observation_inconsistent");
-  }
-  const expectedRoot = expectedRootText(packet, locale);
-  const figureLabel = dialog.dataset.confidenceDialogFigureLabel;
-  const allowedFigureLabels = expectedRoot
-    .filter((entry) => entry.marker === "figure.caption")
-    .map((entry) => entry.text);
-  if (
-    figureLabel === undefined ||
-    !allowedFigureLabels.includes(normalizedText(figureLabel))
-  ) {
-    return blocked("model_observation_inconsistent");
-  }
-  if (
-    !sameSequence(rootText, expectedRoot) ||
-    !sameSequence(
-      dialogText,
-      expectedDialogText(packet, locale, normalizedText(figureLabel)),
-    )
-  ) {
-    return blocked("model_observation_inconsistent");
-  }
-  const domAnswers = answersFromVisibleDom(visible);
-  if (!isEqualOrMoreConservative(domAnswers, preflight.protectedQueries)) {
-    return blocked("model_observation_inconsistent");
-  }
-  if (
-    !sameSequence(
-      Object.keys(preflight.protectedQueries),
-      CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
-    )
-  ) {
-    return blocked("unsupported_or_out_of_model");
-  }
-  return Object.freeze({
-    byteTwin: preflight.rawPacketBytes,
-    protectedQueries: preflight.protectedQueries,
-    status: "exact",
-  });
+  return restored ? result : blocked("unproved_approximation");
 }

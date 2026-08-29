@@ -112,6 +112,7 @@ action_contracts := {
 	"runs.reissue": {"runtime.run.reissue": {"ownership_verified"}},
 	"runs.review": {
 		"runtime.case_inspection": {"tenant_collection"},
+		"runtime.governed_projection.confidence_ledger_risk_spend": {"tenant_collection"},
 		"runtime.governed_projection.depth_n_cycle_board": {"tenant_collection"},
 		"runtime.run.human_decision_evidence": {"ownership_verified"},
 		"runtime.run.human_decision_gate": {"ownership_verified"},

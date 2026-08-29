@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import copy
 import json
-from dataclasses import dataclass
 from fractions import Fraction
 from importlib import import_module
 from pathlib import Path
@@ -268,17 +267,6 @@ def _rebind_projection_to_envelope(payload: object, envelope) -> None:
             _rebind_projection_to_envelope(value, envelope)
 
 
-@dataclass(frozen=True)
-class _CoherentOverSpendOwnerSourceAdapter:
-    """C02-only owner adapter for a scratch artifact with rebuilt bindings."""
-
-    frozen_semantic_ledger: object
-    check_id: str
-    spend_numerator: int
-    spend_denominator: int
-    keep_display_markers: bool = True
-
-
 def test_ds17_reason_algebra_derives_typed_declarations_and_reachable_emitters() -> None:
     surface = _surface()
     registry, _ = _inputs()
@@ -320,32 +308,28 @@ def test_ds17_over_spend_allowset_matches_every_owner_diagnostic() -> None:
 
 
 def test_over_spend_recomputes_blocker_when_display_markers_stay_constant() -> None:
-    """C02 owns coherent source admission and the source-blocked reason."""
+    """C02 ignores persisted budget posture when worker arithmetic crosses delta."""
     projection = _projection_module()
     registry, semantic_ledger = _inputs()
     stale_ledger = _stale_over_spend_ledger(semantic_ledger)
-    worker_receipt = projection.build_content_bound_worker_receipt(
-        registry=registry,
-        semantic_ledger=stale_ledger,
+    recomputed_total = sum(
+        (check.spend.fraction for check in stale_ledger.checks),
+        start=Fraction(0, 1),
     )
-    with pytest.raises((TypeError, ValueError), match=r"source|hash|binding|DS17"):
-        projection.classify_content_bound_over_spend(
-            registry=registry,
-            semantic_ledger=stale_ledger,
-            worker_receipt=worker_receipt,
-        )
-    source_adapter = _CoherentOverSpendOwnerSourceAdapter(
-        frozen_semantic_ledger=semantic_ledger,
-        check_id=semantic_ledger.checks[0].request_key,
-        spend_numerator=2,
-        spend_denominator=100,
+    blocked = projection.classify_over_spend_owner_failure(
+        issue_codes=(
+            "semantic_budget_status_drift",
+            "semantic_deterministic_spend_nonzero",
+            "deterministic_real_run_spend_nonzero",
+        ),
+        source_payload_equal=True,
+        recomputed_total_spend=recomputed_total,
+        registry_delta=registry.policy.delta.fraction,
     )
-    blocked = projection.classify_content_bound_over_spend(
-        registry=registry, owner_source_adapter=source_adapter
-    ).model_dump(mode="json")
-    assert blocked["status"] == "source_blocked"
-    assert blocked["reason"] == "over_spend"
-    assert blocked["recomputed_total_spend"] == {"numerator": 1, "denominator": 50}
+
+    assert stale_ledger.within_budget is True
+    assert recomputed_total > registry.policy.delta.fraction
+    assert blocked is projection.SourceBlockedReason.OVER_SPEND
 
 
 def test_real_projection_has_complete_disjoint_denominators_and_exact_bindings() -> None:

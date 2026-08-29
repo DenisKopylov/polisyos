@@ -20,6 +20,12 @@ from polisyos.runtime.http.dependencies import (
 )
 from polisyos.runtime.http.errors import conflict
 from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.services.confidence_ledger_risk_spend_contracts import (
+    ConfidenceLedgerRiskSpendPacket,
+)
+from polisyos.runtime.http.services.confidence_ledger_risk_spend_projection import (
+    ConfidenceLedgerRiskSpendProjectionService,
+)
 from polisyos.runtime.http.services.cycle_board_projection import (
     CycleBoardExportResponse,
     CycleBoardProjectionPacket,
@@ -84,6 +90,15 @@ def _get_cycle_board_projection_service(request: Request) -> CycleBoardProjectio
     )
 
 
+@lru_cache(maxsize=1)
+def _get_confidence_ledger_risk_spend_projection_service(
+) -> ConfidenceLedgerRiskSpendProjectionService:
+    return ConfidenceLedgerRiskSpendProjectionService(
+        _repository_root(),
+        source_service=_get_projection_service(),
+    )
+
+
 _CYCLE_BOARD_EXPORT_AUTHZ = require_action_permission(
     RuntimePermission.RUNS_REVIEW,
     ResourceBindingSpec(
@@ -93,9 +108,21 @@ _CYCLE_BOARD_EXPORT_AUTHZ = require_action_permission(
     ),
 )
 
+_CONFIDENCE_LEDGER_RISK_SPEND_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_REVIEW,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.governed_projection.confidence_ledger_risk_spend",
+        allow_empty_body=True,
+    ),
+)
+
 
 if router is not None:
     _CYCLE_BOARD_SERVICE_DEPENDENCY = Depends(_get_cycle_board_projection_service)
+    _CONFIDENCE_LEDGER_RISK_SPEND_SERVICE_DEPENDENCY = Depends(
+        _get_confidence_ledger_risk_spend_projection_service
+    )
 
     @router.get(
         "/governed-projections",
@@ -147,6 +174,42 @@ if router is not None:
             content=result.model_dump_json().encode("utf-8"),
             media_type="application/json",
         )
+
+    @router.get(
+        "/governed-projections/confidence-ledger-risk-spend",
+        response_model=ConfidenceLedgerRiskSpendPacket,
+        operation_id="get_confidence_ledger_risk_spend_projection",
+        summary="Get owner-validated confidence-ledger risk spend",
+        dependencies=[Depends(_CONFIDENCE_LEDGER_RISK_SPEND_AUTHZ)],
+    )
+    def get_confidence_ledger_risk_spend_projection(
+        artifact_content_hash: str | None = Query(default=None, max_length=128),
+        projection_hash: str | None = Query(default=None, max_length=128),
+        source_dependency_hash: str | None = Query(default=None, max_length=128),
+        source_as_of: Annotated[datetime | None, Query()] = None,
+        projection_rule_version: str | None = Query(default=None, max_length=128),
+        service: ConfidenceLedgerRiskSpendProjectionService = (
+            _CONFIDENCE_LEDGER_RISK_SPEND_SERVICE_DEPENDENCY
+        ),
+    ) -> ConfidenceLedgerRiskSpendPacket:
+        try:
+            return service.get(
+                artifact_content_hash=artifact_content_hash,
+                projection_hash=projection_hash,
+                source_dependency_hash=source_dependency_hash,
+                source_as_of=source_as_of,
+                projection_rule_version=projection_rule_version,
+            )
+        except ReplayPinMismatchError as exc:
+            raise conflict(
+                str(exc),
+                code="governed_projection_replay_pin_mismatch",
+                extensions={
+                    "field": exc.field,
+                    "expected": exc.expected,
+                    "actual": exc.actual,
+                },
+            ) from exc
 
     @router.get(
         "/governed-projections/{projection_id}",

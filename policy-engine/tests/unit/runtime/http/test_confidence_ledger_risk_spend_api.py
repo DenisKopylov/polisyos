@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
@@ -16,6 +18,10 @@ from polisyos.runtime.http.authorization import (
     get_route_action_permission_dependency,
 )
 from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.services.confidence_ledger_risk_spend_contracts import (
+    AvailableConfidenceLedgerRiskSpendPacket,
+    ConfidenceLedgerRiskSpendPacket,
+)
 from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
     _build_secure_client,
@@ -90,15 +96,67 @@ def test_confidence_ledger_risk_spend_operation_is_typed_and_protected(
 
     payload = response.json()
     adapter = TypeAdapter(static_route.response_model)
-    typed_payload = adapter.validate_python(payload, strict=True)
+    typed_payload = adapter.validate_json(response.content, strict=True)
     assert not isinstance(typed_payload, dict)
     assert typed_payload.model_dump(mode="json") == payload
     with pytest.raises(ValidationError):
-        adapter.validate_python({**payload, "unexpected": "DS17 typed-contract probe"}, strict=True)
+        adapter.validate_json(
+            json.dumps({**payload, "unexpected": "DS17 typed-contract probe"}),
+            strict=True,
+        )
     assert payload["projection_id"] == "confidence-ledger-risk-spend"
     assert payload["intended_audience"] == "REVIEWER"
-    assert payload["availability"] in {"available", "source_blocked"}
+    assert payload["intended_audiences"] == ["REVIEWER", "EXPERT", "MACHINE"]
+    assert "PUBLIC" not in payload["intended_audiences"]
+    assert payload["availability"] == "available"
+
+    replay = analyst.get(payload["replay_address"], headers=analyst_headers)
+    assert replay.status_code == 200
+    assert replay.json()["projection_hash"] == payload["projection_hash"]
+    stale = analyst.get(
+        _PATH,
+        headers=analyst_headers,
+        params={"projection_hash": "sha256:" + "0" * 64},
+    )
+    assert stale.status_code == 409
+    assert stale.json()["code"] == "governed_projection_replay_pin_mismatch"
+    assert stale.json()["field"] == "projection_hash"
 
     denied = viewer.get(_PATH, headers=viewer_headers)
     assert denied.status_code == 403
     assert denied.json()["code"] == "action_permission_denied"
+
+
+def test_confidence_ledger_risk_spend_openapi_is_strict_measured_negative(
+    runtime_api_env,
+) -> None:
+    schema = runtime_api_env["app"].openapi()
+    operation = schema["paths"][_PATH]["get"]
+    response_schema = operation["responses"]["200"]["content"]["application/json"][
+        "schema"
+    ]
+    example = operation["responses"]["200"]["content"]["application/json"][
+        "examples"
+    ]["default"]["value"]
+    parsed = TypeAdapter(ConfidenceLedgerRiskSpendPacket).validate_json(
+        json.dumps(example),
+        strict=True,
+    )
+
+    assert operation["operationId"] == "get_confidence_ledger_risk_spend_projection"
+    assert response_schema["discriminator"]["propertyName"] == "availability"
+    assert set(response_schema["discriminator"]["mapping"]) == {
+        "available",
+        "source_blocked",
+        "artifact_missing",
+        "invalid_source",
+    }
+    assert isinstance(parsed, AvailableConfidenceLedgerRiskSpendPacket)
+    assert len(parsed.payload.refusal_instance_refs) == 1
+    assert len(parsed.payload.acquisition_instance_refs) == 2
+    assert len(parsed.payload.obligation_class_risk_spend) == 15
+    assert len(parsed.payload.instrument_definitions) == 13
+    assert parsed.payload.positive_register.population_count == 0
+    assert parsed.payload.total_spend.amount.fraction == 0
+    assert parsed.payload.coverage_assessment.value == "open_world_unresolved"
+    assert parsed.payload.status == "not_promoted"

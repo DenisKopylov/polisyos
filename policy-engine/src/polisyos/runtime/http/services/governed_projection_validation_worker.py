@@ -45,6 +45,9 @@ _CAPABILITY_PATH = "architecture/policy_design_case/capability_reality_report.js
 _CLUSTER_PATH = "architecture/policy_design_case/cluster_ownership_map.toml"
 _HEALTH_PATH = "architecture/policy_design_case/layer3_health_metric_ledgers.toml"
 _PROVING_ROOT = "tests/fixtures/universal-corpus"
+_CONFIDENCE_LEDGER_PATH = (
+    "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
+)
 
 _VALIDATOR_METADATA: dict[str, tuple[str, str]] = {
     "depth-n-cycle-board": (
@@ -98,6 +101,10 @@ _VALIDATOR_METADATA: dict[str, tuple[str, str]] = {
     "surface-readiness": (
         "unregistered:surface-readiness-owner-validator",
         "unregistered",
+    ),
+    "confidence-ledger-risk-spend": (
+        "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
+        "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
     ),
 }
 
@@ -407,6 +414,105 @@ def _validate_proving_ground(root: Path) -> list[str]:
     return []
 
 
+def _validate_confidence_ledger(
+    root: Path,
+    requested_projection: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Run the real N11 validator and freeze source/request arithmetic facts."""
+
+    from polisyos.runtime.quality.confidence_ledger import (
+        ConfidenceLedgerSemanticReceiptProjection,
+        load_confidence_ledger_registry,
+    )
+    from tools.quality.validation.check_layer3_gy_confidence_ledger import (
+        validate_payload,
+    )
+
+    artifact = _load_json(root, _CONFIDENCE_LEDGER_PATH)
+    issues = _extract_issue_codes(validate_payload(artifact))
+    facts: dict[str, Any] = {
+        "issue_codes": issues,
+        "source_payload_equal": None,
+        "registry_content_hash": None,
+        "registry_projection_hash": None,
+        "frozen_semantic_projection_hash": None,
+        "recomputed_total_spend_numerator": None,
+        "recomputed_total_spend_denominator": None,
+        "registry_delta_numerator": None,
+        "registry_delta_denominator": None,
+    }
+    try:
+        semantic = ConfidenceLedgerSemanticReceiptProjection.model_validate_json(
+            json.dumps(
+                artifact.get("real_ledger_projection"),
+                separators=(",", ":"),
+                sort_keys=True,
+            ),
+            strict=True,
+        )
+        requested = ConfidenceLedgerSemanticReceiptProjection.model_validate_json(
+            json.dumps(
+                requested_projection,
+                separators=(",", ":"),
+                sort_keys=True,
+            ),
+            strict=True,
+        )
+    except (TypeError, ValueError):
+        issues.append("confidence_semantic_projection_invalid")
+        return facts
+    facts["source_payload_equal"] = semantic.model_dump(
+        mode="json"
+    ) == requested.model_dump(mode="json")
+    if not facts["source_payload_equal"]:
+        issues.append("source_projection_payload_mismatch")
+
+    raw_registry_projection = artifact.get("registry_projection")
+    if not isinstance(raw_registry_projection, Mapping):
+        issues.append("confidence_registry_projection_invalid")
+        return facts
+    registry_fields = (
+        "policy",
+        "obligation_pools",
+        "proof_profiles",
+        "schedule_profiles",
+        "instruments",
+        "certificate_class_routes",
+    )
+    try:
+        registry_payload = {
+            field: raw_registry_projection[field] for field in registry_fields
+        }
+        registry_payload["schema_version"] = raw_registry_projection[
+            "registry_schema_version"
+        ]
+        registry = load_confidence_ledger_registry(registry_payload)
+        registry_content_hash = str(raw_registry_projection["registry_content_hash"])
+        registry_projection_hash = str(raw_registry_projection["projection_hash"])
+        if registry.content_hash != registry_content_hash:
+            raise ValueError("confidence_registry_content_hash_mismatch")
+    except (KeyError, TypeError, ValueError):
+        issues.append("confidence_registry_projection_invalid")
+        return facts
+
+    recomputed_total = sum(
+        (check.spend.fraction for check in semantic.checks),
+        start=registry.policy.delta.fraction * 0,
+    )
+    facts.update(
+        {
+            "registry_content_hash": registry.content_hash,
+            "registry_projection_hash": registry_projection_hash,
+            "frozen_semantic_projection_hash": semantic.projection_hash,
+            "recomputed_total_spend_numerator": recomputed_total.numerator,
+            "recomputed_total_spend_denominator": recomputed_total.denominator,
+            "registry_delta_numerator": registry.policy.delta.numerator,
+            "registry_delta_denominator": registry.policy.delta.denominator,
+        }
+    )
+    return facts
+
+
 _VALIDATORS: dict[str, Callable[[Path], list[str]]] = {
     "depth-n-cycle-board": _validate_depth,
     "value-gate": _validate_value,
@@ -427,6 +533,19 @@ def _semantic_projection_hash(
     projection_id: str,
     payload: Mapping[str, Any],
 ) -> tuple[str, str]:
+    if projection_id == "confidence-ledger-risk-spend":
+        from polisyos.runtime.quality.confidence_ledger import (
+            ConfidenceLedgerSemanticReceiptProjection,
+        )
+
+        semantic = ConfidenceLedgerSemanticReceiptProjection.model_validate_json(
+            json.dumps(payload, separators=(",", ":"), sort_keys=True),
+            strict=True,
+        )
+        return (
+            semantic.projection_hash,
+            "policyos.runtime.confidence_ledger.semantic_projection.v1",
+        )
     if projection_id in {"n13a-acquisition-census", "n13a-live-probe-journal"}:
         from tools.quality.validation.layer3_gy_n13a_acquisition_census import (
             semantic_content_hash,
@@ -474,6 +593,14 @@ def _validate_request(request: Mapping[str, Any]) -> dict[str, Any]:
         "dependency_aggregate_identity": _aggregate_identity({}),
         "dependency_bindings": {},
         "issue_codes": [],
+        "source_payload_equal": None,
+        "registry_content_hash": None,
+        "registry_projection_hash": None,
+        "frozen_semantic_projection_hash": None,
+        "recomputed_total_spend_numerator": None,
+        "recomputed_total_spend_denominator": None,
+        "registry_delta_numerator": None,
+        "registry_delta_denominator": None,
     }
     if (
         not isinstance(raw_root, str)
@@ -497,9 +624,23 @@ def _validate_request(request: Mapping[str, Any]) -> dict[str, Any]:
         component_issues = _verify_components(root, bindings)
         issues.extend(component_issues)
         validator = _VALIDATORS.get(projection_id)
-        if not issues and validator is None:
+        confidence_ledger = projection_id == "confidence-ledger-risk-spend"
+        if not issues and validator is None and not confidence_ledger:
             issues.append("owner_validator_unregistered")
-        if not issues and validator is not None:
+        if not issues and confidence_ledger:
+            try:
+                with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(
+                    io.StringIO()
+                ):
+                    facts = _validate_confidence_ledger(root, projection_payload)
+                issues.extend(facts.pop("issue_codes"))
+                result.update(facts)
+            except SystemExit as exc:
+                issues.append(f"owner_validator_system_exit_{exc.code}")
+            except Exception as exc:  # isolate owner validator failures as data
+                error_code = getattr(exc, "code", None)
+                issues.append(str(error_code or type(exc).__name__))
+        elif not issues and validator is not None:
             try:
                 with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(
                     io.StringIO()
@@ -563,6 +704,14 @@ def main() -> int:
             "dependency_aggregate_identity": _aggregate_identity({}),
             "dependency_bindings": {},
             "issue_codes": [type(exc).__name__],
+            "source_payload_equal": None,
+            "registry_content_hash": None,
+            "registry_projection_hash": None,
+            "frozen_semantic_projection_hash": None,
+            "recomputed_total_spend_numerator": None,
+            "recomputed_total_spend_denominator": None,
+            "registry_delta_numerator": None,
+            "registry_delta_denominator": None,
         }
     sys.stdout.write(json.dumps(result, separators=(",", ":"), sort_keys=True) + "\n")
     return 0

@@ -22,6 +22,7 @@ from polisyos.runtime.http.routes.governed_projections import (
 )
 from polisyos.runtime.http.services.governed_projections import (
     ChannelRegistryEntry,
+    GuardedProjectionId,
     ProjectionId,
 )
 from tests.unit.runtime.http.test_runtime_api_authz import (
@@ -86,8 +87,11 @@ def test_governed_projection_catalog_is_typed_and_complete(runtime_api_env) -> N
 
     assert response.status_code == 200
     payload = response.json()
+    assert len(ProjectionId) == 13
     assert {entry["projection_id"] for entry in payload["projections"]} == {
         projection_id.value for projection_id in ProjectionId
+    } | {
+        projection_id.value for projection_id in GuardedProjectionId
     }
     assert all(entry["intended_audience"] for entry in payload["projections"])
     assert all(entry["stable_address"] for entry in payload["projections"])

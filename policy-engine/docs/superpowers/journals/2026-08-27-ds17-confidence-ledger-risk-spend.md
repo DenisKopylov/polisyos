@@ -475,3 +475,97 @@ rejected.
 Mechanism spend remains **2/2**, reserve remains **0**. No C02 or other source
 path changed. The unchanged C02 concern is governed worker admission,
 source-blocked over-spend, and HTTP integration.
+
+## C02 source freeze — governed confidence-ledger risk-spend bridge
+
+C02 closes its declared backend boundary with exactly six mechanism paths and
+reserve spend **0**. The generic governed-projection denominator remains 13;
+the N11 source is a separate one-member guarded catalog and the specialized
+static GET is its only HTTP emission. The packet is a strict four-arm union
+using exactly `available`, `source_blocked`, `artifact_missing`, and
+`invalid_source`.
+
+The existing isolated governed-projection worker runs the real N11
+`validate_payload`, strict-parses the validator-admitted
+`real_ledger_projection`, and requires exact canonical equality to the
+requested projection. It resolves the canonical registry through its owner
+loader and independently derives source equality, exact check-spend sum, and
+registry delta. The service constructs C01's `CoverageDerivationContext` from
+fixed owner worker/source facts, never from the candidate.
+
+`source_blocked/over_spend` requires the complete issue set to be a non-empty,
+duplicate-free subset of exactly these five normalized owner diagnostics:
+
+- `semantic_forged_spend_row`;
+- `semantic_total_spend_drift`;
+- `semantic_budget_status_drift`;
+- `semantic_deterministic_spend_nonzero`;
+- `deterministic_real_run_spend_nonzero`.
+
+It additionally requires validator-admitted source/request equality and an
+independent exact `sum(check.spend) > registry.policy.delta`. Persisted
+`total_spend` and `within_budget` never gate. Any outside issue, malformed
+source, forged dependency/registry identity, or source/request mismatch is
+`invalid_source`; the blocked arm leaks no rejected detail.
+
+The single route is
+`GET /api/v1/exports/governed-projections/confidence-ledger-risk-spend`,
+declared before the dynamic path with `RUNS_REVIEW`, `TENANT_COLLECTION`,
+`allow_empty_body=True`, a strict response model, and Rego resource
+`runtime.governed_projection.confidence_ledger_risk_spend`.
+
+### C02 denominator and schema receipts
+
+Complete branch / exact-base censuses are: OpenAPI paths 102/101; operations
+104/103; GET 72/71; POST 32/32; protected 41/40; `runs.review` 8/7; route
+decorators 106/105; decorator GET 74/73; governed GETs 5/4; Rego resource
+classes 40/39; Rego `runs.review` rows 8/7; curated success examples 100/99.
+The generic projection IDs/definitions/models/projectors remain 13/13/13/13;
+the hidden channels remain 3; Rego permissions/action contracts remain 34/26;
+mutating operations remain 32; and generated client public methods remain 81
+until C03 moves them to 82. The brief's prose value 31 for mutating operations
+is stale against the complete executable 32/32 base-and-branch census and was
+not used to change a foreign constant.
+
+The canonical OpenAPI exporter produced two independent scratch outputs and
+the tracked schema with byte equality in both comparisons. The tracked SHA-256
+is `fb1c077387b5f677835c6182425c34b104a2dd506c2d69868e9ab83a2f6cfc5f`.
+No client writer ran in C02; the six generated outputs remain an intentional
+C03 transaction.
+
+### C02 verification receipts
+
+- Initial carried-owner RED: 3 failures (the two C02 owner tests plus absent
+  static route), exit `1`; strict new companions initially failed collection
+  on the absent contracts module, exit `2`.
+- Final specialized lane: exit `0`, `14 passed`; real `138.45`, user `132.38`,
+  sys `5.63`, uptime `02:54` -> `02:56`. The two exact C02-owned carried reds
+  alone are `2 passed`, exit `0`; real `26.73`, user `25.75`, sys `0.93`,
+  uptime `02:56` -> `02:57`.
+- Prescribed six-file lane: `102` collected, exit `1`, `99 passed`, `2
+  skipped`, and one Cycle Board red; real `389.21`, user `369.91`, sys `15.81`,
+  uptime `03:05` -> `03:11`. Clean exact base lacks the three C02 companions;
+  its surviving three files collect `89` and return exit `1`, `86 passed`, `2
+  skipped`, and the same Cycle Board red; real `254.43`, user `243.11`, sys
+  `10.50`, uptime `03:35` -> `03:39`.
+- Targeted Ruff is green. OPA strict compile is branch/base `0/0`; structured
+  policy tests are `45/45` on both. Rego parity is `24/24` on both.
+- Runtime authz is the exact same branch/base `154 passed, 7 failed`; the new
+  operation is GET-only. Schema hardening is branch `19 passed, 3 failed`
+  versus base `21 passed, 1 failed`: the shared epoch-example red plus exactly
+  two intentional stale-client assertions. Runtime contract likewise adds only
+  `runtimeApiClient.ts/.js` drift to the shared epoch-example finding.
+
+The Cycle Board 400 (`historical producer availability owner row is absent`),
+seven POST authz reds, and epoch success-example red reproduce on clean exact
+base and are not C02 repairs. Clean C02 entry `c8fae70b7` already emits four C01
+deep-import findings and `trust-claim-posture-register` drift; C02 does not
+baseline or repair them. Current architecture output adds only the six expected
+C03 generated-client/dashboard files. Exact slice base passes architecture
+guardrails; clean C02 entry and current C02 fail for the separately classified
+slice/C03 reasons above.
+
+C02's owner-validated reviewer HTTP sub-capability is `implemented`. The full
+DS17 slice remains `consumer_missing` until C03-C05 generate the client and add
+the dashboard/twin consumer. No reserve, second route/source/UI, foreign
+contract stop, or 23rd mechanism path was encountered.

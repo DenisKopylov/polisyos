@@ -22,6 +22,10 @@ projections. Route handlers should stay thin and delegate behavior here.
 - **Artifact inspection** - renders CAS manifest/content/schema/lineage views with redaction hooks.
 - **Lineage traversal** - builds lineage graphs and completeness summaries.
 - **Control-plane orchestration** - launches or reissues runs and bridges into `scientist`, `fabric`, and `lex`.
+- **Guarded confidence risk spend** - resolves the governed N11 source through
+  its real isolated owner validator, preserves source/dependency/registry and
+  semantic identities, and composes the strict reviewer-only four-arm packet.
+  The generic 13-ID projection service cannot emit this guarded source.
 - **Human-decision custody** - resolves signed delegation, principal,
   reviewer-separation, presentation, and evidence-exposure inputs before using
   the existing CAS/event writer and durable one-live-record reservation. Public
@@ -88,6 +92,12 @@ projections. Route handlers should stay thin and delegate behavior here.
   owns signed-input reconciliation, append-only record custody, reservation
   recovery, and operational revalidation. They reuse the access-audit trail and
   control-plane artifact/event path; they do not establish a second log.
+- [`confidence_ledger_risk_spend_contracts.py`](confidence_ledger_risk_spend_contracts.py)
+  owns the four-arm transport and replay binding;
+  [`confidence_ledger_risk_spend_projection.py`](confidence_ledger_risk_spend_projection.py)
+  composes only worker-admitted owner facts into the C01 domain projection.
+  [`governed_projection_validation_worker.py`](governed_projection_validation_worker.py)
+  remains the sole `tools.*` validator import boundary.
 - [`adapters/`](adapters/) contains service adapters for core runtime state and
   should stay thin.
 - Scenario, temporal, mobility, attractor, feedback, and rendering services own
@@ -136,6 +146,6 @@ changes.
 
 ## Current State
 
-- Last updated: 2026-08-28
+- Last updated: 2026-08-29
 - The tree still centers on `artifact_inspector.py`, `debug.py`, `lineage.py`, `run_index.py`, and `timeline.py`.
 - The control service continues to support feedback evaluation, reissue, and data/Lex orchestration surfaces.

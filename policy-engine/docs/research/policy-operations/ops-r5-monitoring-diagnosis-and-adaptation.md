@@ -11,7 +11,7 @@ inspection_date: 2026-08-29
 research_only: true
 shared_vocabulary_owner: false
 shared_vocabulary: SMDV-1
-shared_vocabulary_location: ../int-r4-performative-effect-update-diagnosis.md#4-result
+shared_vocabulary_location: int-r4-performative-effect-update-diagnosis.md#4-result
 authoritative_for:
   - research findings about KPI control and adaptation-mode governance
   - research contract for absorbed OPS-R6 adaptation scope
@@ -35,7 +35,7 @@ may_not_use_for:
 
 OPS-R5 treats a KPI as a decision-linked contract, not a number with a band. It owns the research question for contract, diagnosis, and response semantics while integrating data collection. It absorbs OPS-R6, the adaptation ladder, and is the declared joint binding input with INT-R4 (`policy-engine/docs/research/policy-operations-and-real-world-runtime-backlog.md:527-531`).
 
-The same observed movement may invite an operational response and be offered to a learning system. The pair therefore cannot tolerate two diagnosis vocabularies. The sole candidate vocabulary is **SMDV-1**, derived and owned in [INT-R4 §4](../int-r4-performative-effect-update-diagnosis.md#4-result). This document imports its classes, precedence, exhaustiveness boundary, and unresolved policy unchanged.
+The same observed movement may invite an operational response and be offered to a learning system. The pair therefore cannot tolerate two diagnosis vocabularies. The sole candidate vocabulary is **SMDV-1**, derived and owned in [INT-R4 §4](int-r4-performative-effect-update-diagnosis.md#4-result). This document imports its classes, precedence, exhaustiveness boundary, and unresolved policy unchanged.
 
 ### 1.2 Four-way custody boundary
 
@@ -71,37 +71,21 @@ Repository evidence is pinned to `dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f`. Man
 
 Ordinary Git transport could not resolve `github.com`, so no local P35-compliant complete `rg`/`git grep` census was executed. Connector search is not a denominator. No repository-wide zero is claimed; census standing is `not_established`. Details are in [ops-r5/evidence-register.md](ops-r5/evidence-register.md).
 
-### 2.2 Current monitoring distinguishes signal kinds
+### 2.2 Existing fragments and the exact gap
 
-DDM separates calibrated shift, realized/estimated degradation, data-quality failure, readiness, incidents, and root-cause localization (`policy-engine/src/polisyos/ddm/integration/events.py:1-232`). Realized monitors retain intervals and label-delay horizons (`policy-engine/src/polisyos/ddm/detectors/realized_performance_monitor.py:1-151`); data-quality checks retain schema/null/type/range/value/freshness violations (`data_quality_monitor.py:1-142`); FDR records alpha spending/discoveries (`calibration/multiple_testing.py:1-89`).
-
-Track-2.2 maps local severity cutoffs `0.25` and `0.70` to `watch`/`investigate` (`policy-engine/src/polisyos/ddm/detectors/track_2_2_shift_adapter.py:44-62`). These are local DDM risk-routing choices, not general policy thresholds or cause tests.
-
-### 2.3 Monitoring and lifecycle primitives exist
+DDM separates calibrated shift, realized/estimated degradation, data-quality failure, readiness, incidents, and root-cause localization (`policy-engine/src/polisyos/ddm/integration/events.py:1-232`). Realized monitors retain intervals and label-delay horizons (`policy-engine/src/polisyos/ddm/detectors/realized_performance_monitor.py:1-151`); data-quality checks retain schema/null/type/range/value/freshness violations (`data_quality_monitor.py:1-142`); FDR records alpha spending/discoveries (`calibration/multiple_testing.py:1-89`). Track-2.2's `0.25/0.70` cutoffs are local watch/investigate routing, not general policy thresholds (`track_2_2_shift_adapter.py:44-62`).
 
 `ImplementationMonitoringEvaluationRecord` requires indicators, windows, cadence, thresholds, owners, estimand, comparison strategy, DDM evidence, claim links, and publication ordering (`policy-engine/src/polisyos/runtime/quality/ddm_monitoring.py:1-287`). Continuous governance types invalidation, calibration/fairness/context drift, and incidents and recommends monitor/stale/review/reissue/withdrawal review (`policy-engine/src/polisyos/scientist/governance/continuous/monitors.py:1-113`).
 
-They do not bind construct semantics, definition version, baseline vintage, KPI role, gaming exposure, observation health, SMDV-1 diagnosis, permissible response, restart evidence, and institutional authority into one admitted contract.
+S13 has eight typed post-deployment attribution/accountability classes, but canonical fixtures supply the class rather than derive it (`policy-engine/src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py:43-58`, `:164-221`; `policy-engine/tests/fixtures/layer2/s13/s13_post_deploy_case_signals.json:4-204`). Thus the zone is not wholly greenfield; the exact joint evidence-derived movement diagnosis and authorized response chain remains absent.
 
-### 2.4 Adjacent S13 attribution exists
+GY-O2 keeps anomalies `candidate_unverified`; O1 requires cause typing; O3 requires confirmation and the observation-process negative; all are `build-new` (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:5043-5095`). Fabric supplies append-only correction/revocation/branches and generic quarantine, but neither decides cause nor appoints action authority (`policy-engine/docs/reference/fabric/time-travel.md:1-111`; `policy-engine/src/polisyos/fabric/data_plane/quarantine.py:1-106,220-463`).
 
-S13 has an eight-class post-deployment attribution/accountability vocabulary, but fixtures supply the class directly (`policy-engine/src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py:43-58`, `:164-221`; `policy-engine/tests/fixtures/layer2/s13/s13_post_deploy_case_signals.json:4-204`). Thus the zone is not wholly greenfield. The exact joint evidence-derived movement diagnosis controlling both adaptation and learning remains unallocated.
+No institutional signer is appointed for reissue, rollback, termination, or discretionary override. Repository owner/team strings are not appointments.
 
-### 2.5 GY preserves signal/authority separation but is build-new
+### 2.3 Baseline verdict and reuse-first path
 
-GY-O2 keeps DDM/FDR anomalies `candidate_unverified`; O1 requires cause typing; O3 requires confirmation and an observation-process negative (`policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md:5043-5095`). This is the right plan boundary, not implementation evidence.
-
-### 2.6 World and quarantine substrates exist
-
-Fabric supplies append-only correction/revocation, bitemporal snapshots, governed branches, and branch evidence (`policy-engine/docs/reference/fabric/time-travel.md:1-111`). Generic quarantine persists record/payload/reprocess lineage (`policy-engine/src/polisyos/fabric/data_plane/quarantine.py:1-106`, `:220-463`). These can carry response records but cannot decide causal usability or erase O3's permanent confirmation ban.
-
-### 2.7 Institutional authority is absent
-
-No institutional signer is appointed for reissue, rollback, termination, or discretionary override. Repository owner/team strings are not appointments. Those rungs remain `absent/unallocated`.
-
-### 2.8 Current capability and reuse-first path
-
-The repository can detect, localize, retain, and route signals and preserve history. It cannot demonstrate:
+The repository can detect, localize, retain, route, and preserve history. It cannot demonstrate:
 
 ```text
 KPI contract + matured observation
@@ -113,13 +97,13 @@ KPI contract + matured observation
 → separate restart gate and replay
 ```
 
-Joint capability standing is `absent/unallocated`. The smallest path reuses DDM events, `ddm_monitoring`, continuous governance, S13, Fabric, and Atlas; the durable Group-B control state belongs in the proposed H2 custody-runtime plan, not as a new subsystem appended to GY.
+Joint capability standing is `absent/unallocated`. The smallest path reuses DDM, `ddm_monitoring`, continuous governance, S13, Fabric, and Atlas. The durable Group-B control state belongs in the proposed H2 custody-runtime plan, not as a new subsystem appended to GY.
 
 ## 3. External Research Baseline
 
-### 3.1 Source posture and dependency on INT-R4
+### 3.1 Source posture
 
-OPS-R5 uses the same five `institutionally_supplied` surveys described in INT-R4 §3. It does not re-derive cause categories. S4 supplies metric-contract and gaming evidence; S3 detection/diagnosis/residue; S2 response/versioning/stopping/reversibility; S1 and S5 endogenous observation, censoring, latency, and interference.
+OPS-R5 uses the same five `institutionally_supplied` surveys described in INT-R4 §3 and does not re-derive cause categories. S4 supplies metric-contract and gaming evidence; S3 detection/diagnosis/residue; S2 response/versioning/stopping/reversibility; S1 and S5 endogenous observation, censoring, latency, and interference.
 
 ### 3.2 A KPI contract is more than a threshold
 
@@ -137,34 +121,30 @@ predeclared meaning
 
 A threshold may open investigation without deciding cause or legality.
 
-### 3.3 Metric roles are non-compensable
+### 3.3 Non-compensable roles, no universal ladder, and reversibility
 
-S4 distinguishes objective/OEC, guardrail, diagnostic, and data-quality metrics. They answer different questions; benefit cannot buy safety or validity. Candidate roles here are `result`, `implementation`, `guardrail`, `leading`, `diagnostic`, `context`, and `measurement_health`. This is a candidate adaptation, not a registered external taxonomy. Roles may coexist but cannot be summed into one authority score.
+S4 distinguishes objective/OEC, guardrail, diagnostic, and data-quality metrics. Benefit cannot buy safety or validity. Candidate roles here are `result`, `implementation`, `guardrail`, `leading`, `diagnostic`, `context`, and `measurement_health`; they may coexist but cannot be summed into one authority score.
 
-### 3.4 No universal linear ladder
+Trials, aviation, nuclear operations, software delivery, circuit breakers, sandboxes, and sunset clauses control different risks. What transfers is precommitment: measure, review point, evidence, permissible action, authority, uncertainty behavior, restart, and irreversibility (S2:5-82, 84-137, 303-377). Response is therefore multi-axis. Protective action may precede diagnosis; learning and confirmatory claims may not.
 
-Trials, aviation, nuclear operations, software delivery, circuit breakers, sandboxes, and sunset clauses control different risks. What transfers is precommitment: measure, review point, sufficient evidence, permitted action, authority, uncertainty behavior, restart, and irreversibility (S2:5-82, 84-137, 303-377). Therefore response is multi-axis. Protective action may precede diagnosis; learning and confirmatory claims may not.
-
-### 3.5 Reversibility is a vector
+Reversibility is at least:
 
 ```text
-R_control      stop further exposure
-R_state        restore prior system state
-R_outcome      repair harm already caused
-R_inference    recover original information process
+R_control   stop further exposure
+R_state     restore prior system state
+R_outcome   repair harm already caused
+R_inference recover original information process
 ```
 
-Software rollback may restore control but not state; trial stopping cannot undo treatment; legal repeal cannot restore prior behavior. A boolean `reversible` is unsafe (S2:139-190).
+A boolean `reversible` is unsafe (S2:139-190).
 
-### 3.6 Unknown, delayed harm, and missing channels
+### 3.4 Unknown, delayed harm, and exploratory status
 
 “No signal = no harm” is unsupported. Gates need maturity, censoring, attrition, detection probability, and horizon evidence. Exited, rejected, never-entered, and neighboring populations require external channels or `unquantified`; aggregate benefit does not clear subgroup/spillover harm (S5:5-19, 21-131, 179-300).
 
-Uncertainty may justify no-expansion, narrowing, or preauthorized pause, but cannot close harm, validate a positive, authorize learning, or replace an absent signer.
+Uncertainty may justify no-expansion, narrowing, or a preauthorized pause, but cannot close harm, validate a positive, authorize learning, or replace an absent signer.
 
-### 3.7 Exploratory versus confirmatory
-
-Adaptive anomaly/subgroup discovery remains exploratory. Confirmatory claims require frozen estimand, outcome definition, version, population, horizon, and multiplicity plan followed by prospective evidence. A canary or FDR-controlled anomaly is not efficacy evidence. Material intervention/eligibility/measurement/analysis change resets claim status unless a predeclared adaptive design covered it (S2:214-301; S5:179-203).
+Adaptive anomaly/subgroup discovery remains exploratory. Confirmatory claims require frozen estimand, outcome definition, version, population, horizon, and multiplicity plan followed by prospective evidence. Material intervention/eligibility/measurement/analysis change resets claim status unless a predeclared adaptive design covered it (S2:214-301; S5:179-203).
 
 ## 4. Result
 
@@ -174,94 +154,56 @@ Adaptive anomaly/subgroup discovery remains exploratory. Confirmatory claims req
 
 ### 4.2 Candidate `KPIControlContract`
 
-#### Semantic layer
-
-```text
-contract/content identity; construct/claim; metric roles
-definition/version; unit/basis; numerator/denominator/exclusions
-aggregation/non-compensability; population/subgroup/spillover frames
-baseline value/vintage; direction; target type/band
-```
-
-#### Observation layer
-
-```text
-source/lineage; instrument/implementation
-observation/valid/transaction/decision times
-cadence/lag/seasonality/maturity
-censoring/attrition/missing channels
-revision/correction/backcast/series break
-uncertainty/detection-capability statement
-sentinel/negative-control/independent-channel refs
-gaming/endogenous-measurement exposure register
-```
-
-#### Decision layer
-
-```text
-trigger semantics; admissible evidence; identification threshold
-waiting loss; premature-action loss; reversibility vector; blast radius
-permitted protective/substantive actions; SMDV-1 requirement
-claim/version consequence; restart/de-escalation evidence
-```
-
-#### Authority/custody layer
-
-```text
-metric steward and definition-change rights
-data producer/integration boundary; decision/override authority
-owner-unavailable/after-hours behavior
-public meaning during review/pause/reissue/withdrawal
-append-only audit/supersession/replay; rule/schema/authority refs
-```
+| Layer | Required content |
+|---|---|
+| Semantic | Contract/content identity; construct/claim; metric roles; definition/version; unit/basis; numerator/denominator/exclusions; aggregation/non-compensability; population/subgroup/spillover frames; baseline vintage; direction; target type/band. |
+| Observation | Source/lineage; instrument; all time roles; cadence/lag/seasonality/maturity; censoring/attrition/missing channels; revision/correction/backcast/series break; uncertainty/detection capability; sentinel/negative-control/independent channels; gaming/endogenous-measurement exposure. |
+| Decision | Trigger semantics; admissible evidence; identification threshold; waiting/premature-action loss; reversibility/blast radius; permitted actions; SMDV-1 requirement; claim/version consequence; restart evidence. |
+| Authority/custody | Metric steward and definition-change rights; producer/integration boundary; decision/override authority; owner-unavailable/after-hours behavior; public meaning; append-only audit/supersession/replay; rule/schema/authority refs. |
 
 Omissions are typed and scoped; absence never grants power.
 
 ### 4.3 Governed response coordinates
 
-These are internal evidence/permission coordinates projected into the one Atlas lattice, not a competing status system:
+These internal coordinates project into the one Atlas lattice; they are not a competing status system:
 
 ```text
-Epistemic:   E0 normal | E1 signal | E2 credible_anomaly |
-             E3 diagnosed_mechanism | E4 confirmed_unacceptable
-Exposure:    X0 full | X1 no_expansion | X2 narrowed | X3 paused | X4 terminated
+Epistemic:    E0 normal | E1 signal | E2 credible_anomaly |
+              E3 diagnosed_mechanism | E4 confirmed_unacceptable
+Exposure:     X0 full | X1 no_expansion | X2 narrowed | X3 paused | X4 terminated
 Intervention: V0 unchanged | V1 recalibrated | V2 patched_or_reissued |
               V3 redesigned | V4 rolled_back
-Claim:       C0 confirmatory_intact | C1 under_review |
-             C2 exploratory_only | C3 withdrawn
+Claim:        C0 confirmatory_intact | C1 under_review |
+              C2 exploratory_only | C3 withdrawn
 ```
 
 ### 4.4 Action families — absorbed OPS-R6
 
-| Family | Actions | Minimum posture | Automatic authority? |
+| Family | Actions | Minimum posture | Authority |
 |---|---|---|---|
-| `A0_observe` | retain, mature, collect denominator/follow-up | E0 or immature signal | only inside predeclared monitoring contract |
-| `A1_investigate` | validate data, open diagnosis, acquire sentinel/implementation/context | E1 | case creation may be automatic; no substantive change |
-| `A2_contain` | no expansion, degraded mode, scope cap, protective notice | E1/E2 plus waiting-harm/guardrail basis | only preauthorized; otherwise escalate |
-| `A3_refresh` | correct/revise data, bridge series, recompute, recalibrate measurement | diagnosed observation/data issue | no policy-effect update; preserve revision provenance |
-| `A4_adjust` | repair implementation, narrow scope, partial reissue, version-specific change | E3 plus SMDV-1 class and authority | human/institutional where policy changes |
-| `A5_pause_or_rollback` | pause exposure, rollback future control, withdraw operational permission | E2/E3/E4 by risk/reversibility | only preauthorized emergency rule or competent decision |
-| `A6_terminate_or_redesign` | terminate, redesign, re-ratify, retire claim | E4 or unresolved beyond legal/safety clock | never from threshold alone |
+| `A0_observe` | retain, mature, collect denominator/follow-up | E0/immature | predeclared monitoring only |
+| `A1_investigate` | validate, diagnose, acquire sentinel/implementation/context | E1 | case opening may be automatic; no substantive change |
+| `A2_contain` | no expansion, degraded mode, cap, protective notice | E1/E2 + waiting-harm/guardrail | preauthorized or escalate |
+| `A3_refresh` | correct/revise, bridge, recompute, recalibrate measurement | diagnosed observation/data issue | no policy-effect update |
+| `A4_adjust` | repair implementation, narrow scope, partial reissue, version change | E3 + SMDV-1 + authority | competent decision required where policy changes |
+| `A5_pause_or_rollback` | pause exposure, rollback future control, withdraw permission | E2/E3/E4 by risk/reversibility | preauthorized emergency or competent decision |
+| `A6_terminate_or_redesign` | terminate, redesign, re-ratify, retire claim | E4 or unresolved past legal/safety clock | never from threshold alone |
 
-Diagnosis and action are separate. `diagnosis_unresolved` may support investigation, containment, or a preauthorized pause under high waiting harm; never learning or unreviewed redesign.
+`diagnosis_unresolved` may support investigation, containment, or a preauthorized pause under high waiting harm; never learning or unreviewed redesign.
 
-### 4.5 Transition charter
+### 4.5 Transition charter, restart, and learning
 
-Every transition changing exposure/version/claim status requires trigger, admissible evidence, information maturity, measurement-validity test, SMDV-1 requirement, waiting/premature-action loss, reversibility vector, blast radius, VOI/next evidence, legal/governance clock, decision and override authority, restart criteria, version consequence, claim consequence, and audit record. A threshold without this charter is a P37/P38 proxy gate.
+Every transition changing exposure/version/claim requires trigger, admissible evidence, maturity, measurement-validity test, SMDV-1 requirement, waiting/premature losses, reversibility, blast radius, VOI/next evidence, legal/governance clock, decision/override authority, restart, version consequence, claim consequence, and sealed audit record. A threshold without this is a P37/P38 proxy gate.
 
-### 4.6 Restart and version rules
+Restart is asymmetric: alert disappearance is not evidence. It requires identified repair/version, tests, measurement health, bounded probe, renewed authority, and historical-claim statement. A material change creates a new treatment identity unless predeclared pooling/equivalence evidence exists.
 
-Escalation and restart are asymmetric. Alert disappearance does not restore full exposure. Restart requires identified repair/version, tests, measurement health, bounded probe/half-open exposure, renewed authority, and historical-claim statement. A material change creates a new treatment identity unless a predeclared equivalence/pooling rule exists.
+Only SMDV-1 `prediction_error`, with no blocking contributor and all INT-R4 §4.8 predicates, may enter effect-posterior proposal. Observation, delivery/version, behavior, and context route to their own lanes; unresolved freezes learning. Protective action may occur under lower causal certainty than learning.
 
-### 4.7 Relationship to learning
+### 4.6 No universal numbers and institutional limit
 
-Only SMDV-1 `prediction_error`, with no blocking contributor and all INT-R4 §4.8 predicates, may enter effect-posterior proposal. Observation change updates measurement epoch; delivery/version updates implementation/version evaluation; behavioral response updates response model; context/interference updates coupling/context; unresolved freezes learning. Protective action may occur under lower causal certainty than learning.
+No domain-independent threshold, detection rate, horizon, false-signal rate, or reversibility value is established. DDM `0.25/0.70` remains local routing. Future numbers must name measure, population, horizon, assumptions, and authority source.
 
-### 4.8 No universal numbers and institutional limit
-
-No defensible domain-independent threshold, detection rate, follow-up horizon, false-signal rate, or reversibility value is supplied. DDM `0.25/0.70` remains local routing. Future numbers must name measure, population, horizon, assumptions, and authority source.
-
-No signer is appointed for reissue, rollback, termination, or override. The state machine can name required authority; it cannot supply it.
+No signer is appointed for reissue, rollback, termination, or override. Research can name required authority; it cannot supply it.
 
 ## 5. Counterexamples And Failure Modes
 
@@ -272,7 +214,7 @@ No signer is appointed for reissue, rollback, termination, or override. The stat
 | GY-O1 performativity | `yes_with_scope` | `no` | `no` | Threshold may open investigation/containment; only SMDV-1 `prediction_error` may enter discrepancy-driven learning. |
 | GY-O3 self-confirmation | `yes` | `no` | `no` | Policy-generated observation cannot validate a world edge; permanent confirmation quarantine must survive generic reprocessing. |
 
-The authoritative three-question audits are INT-R4 §§5.1–5.2; this document does not re-derive them.
+The authoritative three-question audits are [INT-R4 §§5.1–5.2](int-r4-performative-effect-update-diagnosis.md#5-counterexamples-and-failure-modes).
 
 ### 5.2 Failure register
 
@@ -285,21 +227,19 @@ The authoritative three-question audits are INT-R4 §§5.1–5.2; this document 
 | `FM-OPS-05` | Implementation failure refutes theory. | Delivery/version route. |
 | `FM-OPS-06` | Unresolved cause forbids protection under high waiting harm. | Preauthorized contain/pause; learning frozen. |
 | `FM-OPS-07` | Unresolved cause licenses redesign. | Investigate/contain until diagnosis/authority. |
-| `FM-OPS-08` | Quiet short window proves no delayed harm. | Horizon/maturity/unquantified state. |
+| `FM-OPS-08` | Quiet short window proves no delayed harm. | Horizon/maturity/unquantified. |
 | `FM-OPS-09` | Good average clears subgroup/spillover. | Separate guardrails. |
-| `FM-OPS-10` | Rollback restores control/state/outcome/inference. | Reversibility vector and residue. |
+| `FM-OPS-10` | Rollback restores all dimensions. | Reversibility vector and residue. |
 | `FM-OPS-11` | Alert disappearance is restart evidence. | Separate bounded probe and authority. |
 | `FM-OPS-12` | Owner/team string appoints signer. | External appointment evidence. |
 | `FM-OPS-13` | Duplicate irreversible transition may execute twice. | Content identity, dedupe, duplicate record. |
-| `FM-OPS-14` | FDR anomaly confers causal/operational authority. | Candidate only. |
+| `FM-OPS-14` | FDR anomaly confers cause/action authority. | Candidate only. |
 | `FM-OPS-15` | `v+1` inherits `v` claim. | New version/claim status or predeclared pooling proof. |
-| `FM-OPS-16` | Owner silence after hours means approval/full continuation. | Predeclared degraded posture and escalation clock. |
-| `FM-OPS-17` | OPS may define another cause vocabulary. | Import SMDV-1; fork is blocking. |
-| `FM-OPS-18` | Later correction may overwrite original decision. | Append-only supersede/annotate/reissue. |
+| `FM-OPS-16` | Owner silence after hours means approval. | Declared degraded posture and escalation clock. |
+| `FM-OPS-17` | OPS may define another cause vocabulary. | Import SMDV-1; fork blocks. |
+| `FM-OPS-18` | Correction may overwrite original decision. | Append-only supersede/annotate/reissue. |
 
-### 5.3 Hard boundary cases
-
-A serious safety signal may block expansion or invoke a preauthorized pause before cause is settled, but cannot establish causation or learning. A KPI improvement with degraded observation health remains uninterpretable. An implementation repair that changes eligibility/dose/rule creates a new version. Owner unavailability cannot manufacture emergency authority.
+A serious safety signal may contain before diagnosis but cannot establish causation/learning. KPI improvement with degraded observation health remains uninterpretable. A repair altering eligibility/dose/rule creates a new version. Owner unavailability cannot manufacture authority.
 
 ## 6. Benchmark Or Fixture Proposal
 
@@ -318,19 +258,15 @@ OPS-R5 consumes INT-R4's **24-case** movement corpus and adds a **20-scenario** 
 | `A6_terminate_or_redesign` | 3 |
 | **Total** | **20** |
 
-This is a test denominator, not prevalence.
+Each packet carries contract/version; signals; maturity/uncertainty/censoring/health; SMDV-1 diagnosis or unresolved; E/X/V/C; charter; waiting/premature losses; reversibility/blast radius; authority or absence; expected/forbidden transitions; claim/version/history consequences; restart and replay.
 
-### 6.2 Scenario packet and negative cases
+### 6.2 Required negatives and fault injection
 
-Each packet carries contract/version; DDM/report/revision/incident signals; maturity/uncertainty/censoring/health; SMDV-1 diagnosis or unresolved; current E/X/V/C; charter; waiting/premature losses; reversibility/blast radius; authority or absence; expected/forbidden transitions; claim/version/public-history consequences; restart and replay.
+Required negatives include threshold without charter; FDR anomaly attempting world write; target edited after results; roles collapsed; blocked subgroup under good average; implementation failure routed to model refutation; unresolved high-harm containment with learning forbidden; unresolved low-harm investigation; owner unavailable; duplicate pause/rollback; late correction; rollback residue; restart without probe; `v+1` retaining `v`; silent rewrite; SMDV fork; authority by owner string; malicious denominator change under valid schema; exploratory subgroup alarm; and legal review clock under unresolved cause.
 
-Required negatives include threshold without charter; FDR anomaly attempting world write; target edited after results; role vector collapsed; blocked subgroup under good average; implementation failure routed to model refutation; unresolved high-harm containment with learning forbidden; unresolved low-harm investigation; owner unavailable; duplicate pause/rollback; late correction; rollback residue; restart without probe; `v+1` retaining `v` claim; silent rewrite; SMDV fork; authority by owner string; malicious denominator change under valid schema; multiplicity-controlled exploratory subgroup alarm; and legal review clock under unresolved cause.
+Fault injection repeats with provider unavailable; worker killed after partial writes; out-of-order amendments; concurrent irreversible requests; mass invalidation; conflicting evidence; absent signer; stale world consumer; branch/public projection divergence; and snapshot recovery/reconciliation.
 
-### 6.3 Fault-injection variants
-
-Replay with provider unavailable; worker killed after partial writes; duplicate/out-of-order amendments; concurrent irreversible requests; mass invalidation; conflicting implementation/measurement evidence; signer unavailable through deadline; quarantine available while world consumer is stale; branch/public projection divergence; and retained-snapshot recovery/reconciliation.
-
-### 6.4 Non-compensable measures
+### 6.3 Measures and acceptance proxy
 
 ```text
 threshold_auto_action_escape_count
@@ -349,75 +285,63 @@ time_signal_to_safe_containment
 time_evidence_complete_to_correct_transition
 ```
 
-The first twelve counts are separate guardrails. Prototype conformance requires zero authority/learning/write/restart/version/duplicate/rewrite escapes while still containing predeclared high-waiting-harm unresolved cases. Production latency/false-block thresholds are not set here.
+The first twelve are separate guardrails. Prototype conformance requires zero authority/learning/write/restart/version/duplicate/rewrite escapes while preserving predeclared high-harm containment. Production latency/false-block thresholds are not set here.
 
 ## 7. Artifact Contract Sketch
 
 ### 7.1 Candidate artifacts
 
-| Artifact | Minimum fields/purpose | Boundary |
+| Artifact | Minimum purpose | Boundary |
 |---|---|---|
-| `KPIControlContract` | Content ID; claim/construct; roles; definitions/versions; population/denominator/subgroups/spillover; baseline vintage; observation protocol; uncertainty; gaming exposure; action charter; authority/override; time/rule/schema refs. | Governs interpretation and requested response for this metric; never appoints authority or proves a cause. |
-| `AdaptationTransitionRequest` | Contract/signal/diagnosis refs; current and requested E/X/V/C; action family; waiting/premature loss; reversibility/blast radius; clock; proposed claim/version consequence; requester provenance. | Candidate request only; cannot execute protected transition. |
-| `AdaptationDecisionRecord` | Request ref; admitted evidence; signer/authority evidence; allowed/denied/modified transition; reason; override; effective time; public meaning; idempotency key; supersession. | Authoritative only for the named transition if signer and input closure pass. |
-| `RestartEvidenceRecord` | Prior decision; repair/version; tests; measurement health; bounded probe; residual harms; renewed authority; historical-claim status; expiry. | Only for reopening/de-escalation; never inferred from signal disappearance. |
-| `KPIControlStateSnapshot` | Current contract version; E/X/V/C coordinates; open diagnosis/actions; clocks; owner availability; latest decision/restart refs; public projection refs. | A read model/projection; cannot mint transition authority. |
+| `KPIControlContract` | Content ID; claim/construct; roles; definition/version; population/denominator/subgroups/spillover; baseline; observation protocol; uncertainty; gaming exposure; action charter; authority/override; time/rule/schema refs. | Governs interpretation/request; never appoints authority or proves cause. |
+| `AdaptationTransitionRequest` | Contract/signal/diagnosis refs; current/requested E/X/V/C; action family; losses; reversibility/blast radius; clock; claim/version consequence; provenance. | Candidate only; cannot execute protected transition. |
+| `AdaptationDecisionRecord` | Request; admitted evidence; signer/authority; allowed/denied/modified transition; reason/override; effective time; public meaning; idempotency; supersession. | Authoritative only for named transition when signer/input closure pass. |
+| `RestartEvidenceRecord` | Prior decision; repair/version; tests; measurement health; bounded probe; residual harms; renewed authority; historical-claim status; expiry. | Reopening only; never inferred from signal disappearance. |
+| `KPIControlStateSnapshot` | Contract version; E/X/V/C; open diagnosis/actions; clocks; owner availability; latest decision/restart/public refs. | Read model/projection; cannot mint authority. |
 
-Signals remain existing DDM/monitoring/incident/revision artifacts referenced by identity. Do not create a parallel `MonitoringSignalRecord` unless an owner-gap analysis proves one is required.
+Signals remain existing DDM/monitoring/incident/revision artifacts. Governed identities are content/input-closure derived; retries dedupe; processing time does not define semantic identity.
 
-All governed IDs are content/input-closure derived; retries and duplicates resolve to one transition identity. Processing timestamps do not define semantic identity.
-
-### 7.2 State machine — Operational addendum step 3
+### 7.2 State machine
 
 ```text
 normal
-  → signal_open
-       → observation_invalid       refresh/correct; no substantive action
-       → diagnosis_pending
-            → unresolved_review    investigate / preauthorized contain / clock
-            → diagnosed
-                 → transition_requested
-                      → awaiting_authority
-                           → denied
-                           → authorized
-                                → executing
-                                     → partially_applied
-                                     → applied
-                                     → failed_safe
-  → restart_pending
-       → bounded_probe
-            → remain_contained
-            → restart_authorized
-                 → reopened
-  → terminated_or_withdrawn
+→ signal_open
+   → observation_invalid → refresh/correct
+   → diagnosis_pending
+      → unresolved_review → investigate / preauthorized contain / clock
+      → diagnosed
+         → transition_requested
+            → awaiting_authority
+               → denied
+               → authorized
+                  → executing
+                     → partially_applied | applied | failed_safe
+→ restart_pending
+   → bounded_probe
+      → remain_contained | restart_authorized → reopened
+→ terminated_or_withdrawn
 ```
 
-E/X/V/C coordinates are carried through states; they do not replace Atlas lifecycle status. Duplicate events append a duplicate disposition without repeating an irreversible action. Late evidence may open correction/supersession, not rewrite.
+E/X/V/C travel through states but do not replace Atlas lifecycle status. Duplicate events append a duplicate disposition without repeating an irreversible action. Late evidence opens correction/supersession, not rewrite.
 
-### 7.3 Time, clocks, expiry, and public meaning
+### 7.3 Time, predicate provenance, and owner map
 
-Load-bearing roles: metric-definition effective time; baseline vintage; observation/valid/transaction time; detection time; maturity horizon; diagnosis time/expiry; review/escalation/legal clock; decision time; transition effective time; restart-probe window; replay time. Owner absence starts the declared escalation/degraded-mode clock; it does not approve a transition.
+Time roles: definition effective time; baseline vintage; observation/valid/transaction/detection time; maturity horizon; diagnosis/expiry; review/escalation/legal clock; decision/effective time; probe window; replay. Owner absence starts a declared clock/conservative posture, not approval.
 
-Public meaning must distinguish `monitoring`, `under_review`, `no_expansion`, `narrowed`, `paused`, `reissued`, `superseded`, and `withdrawn` through the existing Atlas/lifecycle vocabulary. E/X/V/C are internal evidence coordinates only.
+Gate predicates—definition identity, denominator integrity, maturity/health, SMDV-1 diagnosis, losses, reversibility, signer competence, execution, restart—carry W4-K02 provenance labels. Only `recomputed` or `independently_reconciled` may support a protected positive.
 
-### 7.4 Predicate provenance and proxy divergence
-
-Gate predicates include metric-definition identity; denominator/population integrity; observation maturity/health; SMDV-1 diagnosis; waiting and premature-action evidence; reversibility; signer competence; successful execution; and restart evidence. Each receives W4-K02's registered provenance label. Only `recomputed` or `independently_reconciled` may carry a positive protected-action gate. An owner field, threshold flag, completion status, or successful API call is a proxy unless it constructs the required property.
-
-### 7.5 Canonical-owner map
-
-| Function | Existing/likely owner | Disposition |
-|---|---|---|
-| Shift/degradation/quality/FDR | `polisyos.ddm` | Reuse; candidate evidence only. |
-| Monitoring/evaluation specification | `runtime/quality/ddm_monitoring.py` | Extend/compose; no parallel plan. |
-| Post-publication validity/reissue/withdrawal recommendation | continuous governance | Reuse lifecycle links; do not duplicate. |
-| Movement diagnosis | INT-R4 SMDV-1 candidate beside S13 | Consume one vocabulary; producer absent. |
-| Accountability/component update routing | S13 | Compose after diagnosis; no owner bypass. |
-| Durable Group-B transition state, clocks, idempotency | proposed H2 custody-runtime plan | Correct implementation home; currently `absent/unallocated`. |
-| GY O1/O3 | GY | Supplies/consumes learning/world consequences; must not own whole response runtime. |
-| Persistence/history | CAS + Fabric branches/time-travel | Reuse append-only substrate. |
-| Surface/status projection | Atlas + continuous-governance public surfaces | Projection only; no authority minting. |
-| Institutional decision/override signer | external institution; none appointed | `absent/unallocated`. |
+| Function | Owner/disposition |
+|---|---|
+| DDM/FDR/quality | Existing `polisyos.ddm`; candidate evidence only. |
+| Monitoring specification | Existing `ddm_monitoring`; extend/compose. |
+| Validity/reissue/withdrawal recommendations | Continuous governance; reuse. |
+| Movement diagnosis | INT-owned SMDV-1 candidate beside S13; producer absent. |
+| Accountability component routing | S13; compose after diagnosis. |
+| Durable state/clocks/idempotency/recovery | Proposed H2 custody runtime; currently `absent/unallocated`. |
+| Learning/world consequences | GY O1/O3; do not own whole response runtime. |
+| Persistence/history | CAS + Fabric. |
+| Surface/status | Atlas + lifecycle projection; no authority minting. |
+| Institutional signer | External; none appointed. |
 
 ## 8. Later Integration Handoff
 
@@ -425,142 +349,81 @@ Gate predicates include metric-definition identity; denominator/population integ
 
 | Layer | Handoff |
 |---|---|
-| Producer | Existing DDM, data quality, delayed-label, incident, revision, implementation, context, and external sensor producers. |
-| Persisted artifact/event | Existing signal artifacts plus candidate KPI contract, transition request, decision, restart, and state snapshot. |
-| Bridge | H2 custody-runtime state machine consumes admitted signals/diagnosis; GY consumes only explicit learning/world consequences; continuous governance consumes validity/reissue/withdrawal consequences. |
-| Consumer | Policy/exposure executor is external; PolicyOS consumes execution evidence and changes only its own claim/custody state. Posterior/world consumers remain GY O1/O3. |
-| Verification | 24 diagnosis + 20 response cases, idempotency/concurrency, delayed/duplicate/contradictory events, actual protected-action consumer probes, recovery/replay. |
-| Surface | Atlas operator/reviewer/machine/public projections; status derived from the one lattice, with contract version, diagnosis, authority, clocks, and restart evidence. |
+| Producer | Existing DDM, quality, delayed-label, incident, revision, implementation, context, and external sensors. |
+| Artifact | Existing signals plus candidate KPI contract, transition request/decision, restart, state snapshot. |
+| Bridge | H2 state machine consumes admitted signals/diagnosis; GY consumes explicit learning/world consequences; continuous governance consumes validity/reissue/withdrawal. |
+| Consumer | External executor applies policy/exposure change and emits execution evidence; PolicyOS changes only its own claim/custody state. |
+| Verification | 24 diagnosis + 20 response cases, concurrency/idempotency, late/duplicate/contradictory events, protected-action consumer probes, recovery/replay. |
+| Surface | Atlas operator/reviewer/machine/public views; one status lattice. |
 
-### 8.2 Real operator workflow — Operational addendum step 2
+### 8.2 Real operator workflow
 
-1. **Data/measurement producer** emits versioned observation and health evidence; PolicyOS verifies/adopts or quarantines it.
-2. **Monitoring service/on-call operator** receives DDM/report/incident signal and opens a case; no cause is implied.
-3. **Metric steward/diagnosis analyst** checks definition, denominator, maturity, implementation, context/interference, behavior, and SMDV-1 evidence.
-4. **Implementation owner** supplies delivery/version/exposure evidence and proposes repair where applicable.
-5. **Institutional decision authority** approves/denies protected transition; PolicyOS verifies authority and records the decision.
-6. **External executor** applies operational change and emits execution evidence; PolicyOS never substitutes itself for execution.
-7. **Justification custodian** updates PolicyOS claim/public state, preserves history, and schedules restart/review.
+1. Data/measurement producer emits versioned observation/health evidence; PolicyOS admits or quarantines.
+2. Monitoring/on-call receives signal and opens a case; no cause implied.
+3. Metric steward/diagnosis analyst checks definition, denominator, maturity, implementation, context/interference, behavior, and SMDV-1.
+4. Implementation owner supplies delivery/version/exposure evidence and proposes repair.
+5. Institutional authority approves/denies protected transition; PolicyOS verifies authority and records it.
+6. External executor acts and emits execution evidence; PolicyOS does not substitute for execution.
+7. Justification custodian updates PolicyOS claim/public state and schedules restart/review.
 
-After hours, only actions explicitly preauthorized by the contract may execute—typically page, open investigation, no-expansion, bounded degraded mode, or emergency pause. If the owner is unavailable, the contract selects the conservative declared state and escalation clock. Silence is never approval. Failure to receive execution evidence leaves the transition pending/failed-safe, not successful.
+After hours, only explicitly preauthorized actions may execute—typically page, investigate, no-expansion, bounded degraded mode, or emergency pause. Owner absence selects the declared conservative state and escalation clock. Missing execution evidence leaves transition pending/failed-safe.
 
-### 8.3 Engineering versus research/institutional blockers
+### 8.3 Engineering, institutional, absorbed-scope, and capstone handoff
 
-**Engineering:** contract storage; durable state/clocks; diagnosis bridge; idempotent transition records; execution-evidence ingestion; restart; replay/recovery; Atlas projection; fixtures.
+Engineering blockers: contract storage; durable state/clocks; diagnosis bridge; idempotent records; execution-evidence intake; restart; replay/recovery; Atlas projection; fixtures.
 
-**Research/institutional:** domain thresholds and consequence models; acceptable false-block/containment trade-offs; SMDV disposition; detection/maturity horizons; treatment-version pooling; independent oracle; operator studies; signer/override appointment.
+Research/institutional blockers: domain thresholds/loss models; acceptable false-block trade-offs; SMDV disposition; maturity horizons; version pooling; oracle; operator studies; signer/override appointment.
 
-### 8.4 Absorbed OPS-R6 handoff
+All OPS-R6 action names are insufficient without authority, entry/exit evidence, restart, reversibility, version/claim consequences, and history.
 
-All ladder actions are represented by `A0`–`A6`, but authority, entry/exit evidence, restart, reversibility, version consequences, and public meaning are mandatory. Implementing only a list of action names would silently lose the absorbed task.
-
-### 8.5 OPS-R15 capstone linkage
-
-The custody-cycle capstone should replay:
+OPS-R15 capstone must replay:
 
 ```text
-published claim
-→ monitored signal
-→ diagnosis / unresolved
-→ protective or substantive transition request
-→ authority decision
-→ external execution evidence
-→ claim revalidation/reissue/withdrawal
-→ restart or terminal state
-→ historical replay from the original epoch
+published claim → signal → diagnosis/unresolved → transition request
+→ authority decision → external execution evidence
+→ claim revalidation/reissue/withdrawal → restart/terminal state
+→ replay from original epoch
 ```
 
-A capstone that stops at detector output or transition request does not close OPS-R5/OPS-R6.
-
-### 8.6 Non-effect
-
-This handoff does not change policy, exposure, posterior, world edge, public claim, capability label, owner, or authority.
+This handoff changes no policy, exposure, claim, posterior, world edge, owner, or authority.
 
 ## 9. Promotion And Kill Rules
 
-### 9.1 Research-only — current state
+### 9.1 Current and future promotion states
 
-Required because SMDV-1 is unregistered; response corpus unexecuted; durable state-machine owner/bridge/consumer absent; no signer; operator performance and domain thresholds unknown; complete repository census not established.
+**Research-only now:** SMDV unregistered; corpus unexecuted; durable owner/bridge/consumer absent; no signer; operator/domain thresholds unknown; complete census not established.
 
-### 9.2 Prototype allowed
+**Prototype allowed:** one experimental SMDV ref; strict content-bound artifacts; reuse existing owners; no path to execution/protected claim/posterior/world/publication/approval; 24+20 fixtures plus concurrency/property-removal; owner absence/unresolved fail safely.
 
-Shadow prototype only when:
+**Governed allowed:** vocabulary disposition; complete producer→H2→decision→execution-evidence→claim-reaction→surface chain; one status lattice; actual protected consumers fail closed; constructed version/maturity/subgroup/spillover/restart predicates; zero authority/learning/write/restart/version/duplicate/rewrite escapes; appointed signer or explicit preauthorization; historical replay/recovery.
 
-- one experimental SMDV-1 ref is shared with INT;
-- KPI/transition/restart artifacts are strict and content-bound;
-- DDM, monitoring, continuous governance, S13, Fabric, and Atlas owners are extended rather than duplicated;
-- no prototype path reaches external execution, protected claim change, posterior/world write, publication, or approval;
-- 24+20 public fixtures, concurrency/idempotency, and property-removal probes run;
-- owner absence and unresolved diagnosis fail safely.
+**Production candidate:** named domain/population/metrics; measured operating characteristics and containment trade-offs; operator/after-hours studies; external execution integration; long-tail/no-channel harm; privacy/security/legal review; tabletop and rollback/recovery; ratified release authority.
 
-### 9.3 Governed allowed
+### 9.2 Kill conditions
 
-Requires:
-
-- vocabulary/governance disposition;
-- complete producer→artifact→H2 bridge→decision consumer→execution-evidence intake→claim reaction→surface chain;
-- one Atlas/lifecycle status composition;
-- actual protected-action consumers fail closed on absent diagnosis/authority;
-- content-bound versions, maturity, subgroup/spillover, and restart predicates;
-- zero threshold-auto-action, diagnosis bypass, unauthorized transition, learning/world bypass, duplicate irreversible action, silent version reuse, historical rewrite, and owner-absence-as-approval escapes;
-- appointed competent signer or explicit preauthorization for each automated transition;
-- historical replay and failure recovery.
-
-### 9.4 Production candidate
-
-Additionally requires named domain/population/metrics; measured operating characteristics and containment trade-offs; operator/after-hours studies; external execution integration; long-tail and no-channel harm monitoring; privacy/security/legal review; tabletop/fault injection; rollback/recovery drills; and ratified release authority. Benchmark passage remains bounded to revision, corpus, environment, oracle, and rule version.
-
-### 9.5 Block/kill conditions
-
-Block or withdraw if:
-
-- an OPS diagnosis vocabulary differs from SMDV-1;
-- threshold, detector, FDR discovery, owner string, or completion flag authorizes action;
-- guardrail/validity roles become compensable;
-- unresolved defaults to full expansion, learning, or redesign without charter/authority;
-- owner absence is approval;
-- restart occurs without independent evidence/probe;
-- `v+1` silently inherits `v` claim;
-- duplicate irreversible action executes;
-- correction overwrites history;
-- an O3-quarantined confirmation reaches world write;
-- public projection mints authority;
-- no appointed signer exists for a protected transition.
-
-Gate standing remains `NO_GO`.
+Kill/block if SMDV forks; threshold/FDR/owner string/completion flag authorizes action; roles become compensable; unresolved defaults to full expansion/learning/redesign; owner absence is approval; restart lacks independent evidence; `v+1` inherits `v`; duplicate irreversible action executes; correction rewrites history; O3 quarantine reaches world write; public projection mints authority; or protected transition lacks appointed signer. Gate remains `NO_GO`.
 
 ## 10. Open Questions For Consolidation
 
 ### 10.1 Questions
 
-1. Which H2 custody-runtime artifact owns durable transition state, clocks, idempotency, and recovery?
-2. How should E/X/V/C coordinates project into the existing Atlas lattice without adding statuses?
-3. Which continuous-governance recommendation types are reused directly, and where is an authority delta required?
-4. Which action families may be preauthorized automatically, by which institution, for which risk class?
-5. Who is the metric-definition steward, transition signer, override signer, and after-hours substitute?
-6. What domain-specific waiting/premature-action loss model selects containment intensity?
-7. What observation maturity and delayed-harm horizons are required per KPI?
-8. How are subgroup/spillover guardrails composed without uncontrolled multiplicity or hiding unmeasured groups?
-9. Which version changes require full reissue, partial reissue, claim downgrade, or termination?
-10. How is external execution evidence verified and what happens when it is late/contradictory?
-11. How is permanent O3 confirmation quarantine protected from generic reprocessing?
-12. Which Atlas/public surfaces communicate unresolved cause, protective action, and absent signer without overstating certainty?
-13. What OPS-R15 capstone oracle adjudicates correct response and historical replay?
+1. Which H2 artifact owns durable transition state, clocks, idempotency, and recovery?
+2. How do E/X/V/C project into the existing Atlas lattice without adding statuses?
+3. Which continuous-governance actions are reused directly and where is an authority delta required?
+4. Which action families may be preauthorized, by whom, for which risk class?
+5. Who is metric steward, transition signer, override signer, and after-hours substitute?
+6. What domain-specific waiting/premature-action model selects containment intensity?
+7. What maturity/delayed-harm horizons apply per KPI?
+8. How are subgroup/spillover guardrails composed under multiplicity and unknown groups?
+9. Which version changes require partial/full reissue, downgrade, or termination?
+10. How is external execution evidence verified when late/contradictory?
+11. How is permanent O3 quarantine protected from generic reprocessing?
+12. Which Atlas/public surfaces communicate unresolved cause, protective action, and absent signer?
+13. What OPS-R15 oracle adjudicates correct response and replay?
 
-### 10.2 Classified finding summary
+### 10.2 Classified findings and W4-K05 standing
 
-| Finding | Classification | Disposition |
-|---|---|---|
-| DDM/monitoring/lifecycle/world fragments exist. | `confirmed` | Reuse; no authority promotion. |
-| Exact KPI-contract→diagnosis→authorized-response chain is absent. | `confirmed` | `absent/unallocated`; route to H2 + GY/Atlas consumers. |
-| Governed metric needs semantic, observation, decision, authority layers. | `accepted_narrow_scope` | Candidate contract for consolidation. |
-| Universal linear ladder is refuted by domain differences. | `refuted` | Use multi-axis coordinates + action families. |
-| Protective action may precede diagnosis while learning freezes. | `confirmed` | Preserve purpose/authority separation. |
-| Universal thresholds and detection rates do not exist. | `deferred_open_problem` | Domain-specific evidence required. |
-| No institutional signer exists. | `blocked` | Institutional appointment required. |
-| Complete repository-wide census was not executed. | `deferred_open_problem` | `not_established`; no zero claim. |
-
-### 10.3 W4-K05 standing
+The complete 18-row finding register is in [ops-r5/evidence-register.md](ops-r5/evidence-register.md); 0 findings are unclassified.
 
 ```yaml
 research_standing: accepted_narrow_scope
@@ -574,66 +437,66 @@ Research acceptance neither implements capability nor opens a gate.
 
 ### 1. Boundary census
 
-| Function | Four-way verdict | Owner mapping |
+| Function | Verdict | Owner mapping |
 |---|---|---|
 | KPI meaning/version/decision linkage and PolicyOS claim reaction | OWN | Existing partial owners; missing H2 bridge. |
-| Data collection, sensor operation, execution of policy change | INTEGRATE | External producer/executor. |
-| Institutional succession/availability/authority status | OBSERVE/INTEGRATE evidence | External institution. |
-| Administrative casework, notices, payments, enforcement | OUT_OF_SCOPE except typed evidence | External sovereign/commodity systems. |
-| DDM detection/FDR | OWN existing diagnostic substrate | `polisyos.ddm`. |
-| Durable response state/clocks/idempotency | OWN mechanical custody core | Missing; proposed H2 owner. |
+| Data collection, sensor operation, policy execution | INTEGRATE | External producer/executor. |
+| Institutional succession/authority status | OBSERVE/INTEGRATE evidence | External institution. |
+| Administrative casework/notices/payments/enforcement | OUT_OF_SCOPE except typed evidence | External systems. |
+| DDM/FDR | OWN existing diagnostic substrate | `polisyos.ddm`. |
+| Durable response state/clocks/idempotency | OWN mechanical core | Proposed H2; absent. |
 | Protected transition decision | INTEGRATE authority act | No appointed signer. |
 
 ### 2. Real operator workflow
 
-Specified in §8.2, including normal flow, external execution evidence, failure, owner unavailable, and after-hours behavior.
+Specified in §8.2, including normal, failed, owner-unavailable, and after-hours paths.
 
 ### 3. State machine
 
-Specified in §7.2 with clocks/expiry/public meaning in §7.3, terminal/reopen behavior, duplicate handling, and one-lattice projection.
+Specified in §7.2 with clocks/public meaning in §7.3, duplicate handling, terminal/reopen behavior, and one-lattice projection.
 
 ### 4. Typed artifacts
 
-Specified in §7.1 with authority boundaries, provenance, versions/time, content identities, transition/restart semantics, and owner map.
+Specified in §7.1 with authority boundaries, versions/time, content identities, transition/restart semantics, and owner map.
 
 ### 5. Edge-case fixtures
 
-Specified in §6: happy path; missing/late/duplicate/conflicting evidence; owner unavailable; malicious denominator; degraded mode; partial execution; rollback residue; version transition; historical replay; subgroup/spillover; O3 quarantine; vocabulary fork.
+Specified in §6: happy path; missing/late/duplicate/conflicting evidence; owner unavailable; malicious denominator; degraded mode; partial execution; rollback residue; version transition; replay; subgroup/spillover; O3 quarantine; vocabulary fork.
 
 ### 6. Tabletop / fault injection
 
-Specified in §6.3: provider failure, killed worker, duplicate amendment, concurrent irreversible request, mass invalidation, conflicting evidence, absent signer, stale consumer, projection/head divergence, snapshot recovery/reconciliation. Success requires no duplicate protected action, no false completion, preserved history, conservative degraded state, and eventual reconciliation or explicit terminal failure.
+Provider failure, killed worker, duplicate amendment, concurrent irreversible request, mass invalidation, conflicting evidence, absent signer, stale consumer, projection/head divergence, and snapshot recovery/reconciliation. Success means no duplicate protected action, no false completion, preserved history, conservative degraded state, and reconciliation or explicit terminal failure.
 
 ### 7. Capstone linkage
 
-Specified in §8.5. OPS-R15 must test the complete custody cycle from published claim through signal, diagnosis, transition authority, external execution evidence, claim reaction, restart/termination, and historical replay.
+OPS-R15 must test the complete cycle in §8.3; stopping at detector or request does not close OPS-R5/OPS-R6.
 
 ## Pattern Pass
 
-| Pattern | Risk found | Result/routing |
+| Pattern | Risk | Result/routing |
 |---|---|---|
-| `P01` | KPI/transition contracts could be called capability. | Standing `absent/unallocated`; full chain required. |
-| `P02` | DDM/S13/lifecycle fragments lack durable bridge. | Reuse-first H2 handoff. |
-| `P03` | Control state could stay internal. | Atlas/public surfaces named; not implemented. |
-| `P04` | E/X/V/C could become parallel status lattice. | Internal coordinates only; one Atlas projection. |
-| `P05` / `P15` | Threshold/LLM/plan/projection could mint authority. | Actual authority evidence and consumer gate required. |
-| `P07` / `P08` | Rule/version/time replay gaps. | Contract/version/time roles and append-only transitions. |
-| `P09` | Warning/unresolved could lack owner, clock, closure. | Steward, escalation, after-hours, expiry, restart required. |
-| `P10` / `P29` | Marker/constructor tests instead of response property. | Actual protected-action and remove-property probes. |
-| `P11` | Only failures remembered. | Normal/expected and successful bounded restart fixtures retained. |
-| `P12` | Meaning resolved after signal emission. | Contract/version/role bind before interpretation. |
-| `P13` | GY could become an operational ERP. | Mechanical core routes to H2; external execution stays external. |
-| `P14` | Correlated metrics/sensors inflate confidence. | Role separation and ancestry/shared-source checks. |
-| `P24` | Target gaming becomes apparent success. | SMDV behavior/observation routing and gaming register. |
-| `P25` | Exploratory anomaly drives control. | Candidate signal only; charter/authority required. |
-| `P27` | New response runtime bypasses continuous governance/S13. | Canonical-owner map; compose, do not replace. |
-| `P30` | Owner/provenance names overstate authority. | Authority act and evidence separate. |
-| `P31` / `P40` | Per-threshold fixes create an endless ladder. | General transition charter and bucketed failure classes. |
-| `P32` / `P33` | Declared fields or taught fixtures pass. | Malicious/adjacent/metamorphic/holdout variants. |
-| `P35` / `W4-K01` | Indexed search could settle zero. | Census limitation `not_established`. |
-| `P36` | Orientation prose could substitute for findings. | Evidence register separates repository facts/corrections. |
-| `P37` / `P38` | Gate turns on threshold, owner string, success flag, or action name rather than property. | Predicate provenance and divergent cases; fail closed. |
-| `P39` | Mechanism budget could count mandatory records. | No implementation path budget proposed in research. |
-| `P41` | Inherited red ownership unknown. | No test-suite success claim; environmental limit stated. |
+| `P01` | Contracts called capability. | `absent/unallocated`; full chain required. |
+| `P02` | Fragments without durable bridge. | Reuse-first H2 handoff. |
+| `P03` | Internal-only control state. | Atlas/public handoff. |
+| `P04` | Parallel status lattice. | E/X/V/C internal; one Atlas projection. |
+| `P05` / `P15` | Threshold/LLM/plan/projection mints authority. | Actual authority evidence/consumer gate. |
+| `P07` / `P08` | Version/time replay gap. | Separate roles and append-only transitions. |
+| `P09` | Warning/unresolved lacks owner/clock. | Steward/escalation/after-hours/expiry/restart. |
+| `P10` / `P29` | Markers substitute for response property. | Actual protected consumer/property-removal probes. |
+| `P11` | Failure-only memory. | Normal and successful bounded-restart fixtures. |
+| `P12` | Meaning resolved after emission. | Contract/version/role bind first. |
+| `P13` | GY becomes operational ERP. | H2 mechanical core; external execution. |
+| `P14` | Correlated metrics inflate confidence. | Role separation and shared-source checks. |
+| `P24` | Target gaming becomes success. | SMDV behavior/observation routing. |
+| `P25` | Exploratory anomaly drives control. | Candidate only; charter/authority. |
+| `P27` | New runtime bypasses continuous governance/S13. | Compose canonical owners. |
+| `P30` | Owner/provenance names overstate authority. | Separate authority act/evidence. |
+| `P31` / `P40` | Per-threshold patch ladder. | General charter and bucketed failure classes. |
+| `P32` / `P33` | Declared fields/taught fixtures pass. | Malicious/adjacent/holdout variants. |
+| `P35` / `W4-K01` | Index settles zero. | Census `not_established`. |
+| `P36` | Orientation prose substitutes for finding. | Evidence register separates facts/corrections. |
+| `P37` / `P38` | Gate uses threshold/owner/success proxy. | Predicate provenance and divergent cases. |
+| `P39` | Mandatory records counted as mechanism budget. | No implementation budget proposed here. |
+| `P41` | Inherited red ownership unknown. | No test-suite success claim; environmental limit explicit. |
 
-**Acceptance signal:** the package defines safe/unsafe implementation, research-only boundaries, falsifying fixtures, owner/integration map, real workflow, state machine, typed artifacts, fault injection, and capstone—without appointing authority or claiming implementation.
+**Acceptance signal:** the package defines safe/unsafe implementation, research-only boundaries, falsifying fixtures, owner/integration map, real workflow, state machine, artifacts, fault injection, and capstone—without appointing authority or claiming implementation.

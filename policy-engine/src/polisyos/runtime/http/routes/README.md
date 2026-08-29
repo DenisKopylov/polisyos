@@ -19,7 +19,7 @@ translate requests to service calls, set authz context, and return contract-back
 - **Human-decision routes** - run-bound pre-action gates, step-up-protected decision
   writes, exact evidence delivery, and review-effectiveness projection. The routes
   consume deployment-verified service results; request DTOs never carry authority.
-- **Governed projection routes** - retain the generic 13-ID read surface and add
+- **Governed projection routes** - retain the generic dynamic-ID read surface and add
   one static-before-dynamic confidence-ledger risk-spend GET. That specialized
   operation is reviewer-protected with tenant-collection binding and is its
   guarded source's sole HTTP surface.

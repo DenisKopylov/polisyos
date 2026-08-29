@@ -87,7 +87,22 @@ def test_governed_projection_catalog_is_typed_and_complete(runtime_api_env) -> N
 
     assert response.status_code == 200
     payload = response.json()
-    assert len(ProjectionId) == 13
+    assert {member.name for member in ProjectionId} == {
+        "DEPTH_N_CYCLE_BOARD",
+        "VALUE_GATE",
+        "GENERATION_CYCLE_DISPOSITION",
+        "ENGINE_CENSUS",
+        "FORK_B_RELATION_CENSUS",
+        "ACQUISITION_ROUTING_CONTRACT",
+        "N13A_ACQUISITION_CENSUS",
+        "N13A_LIVE_PROBE_JOURNAL",
+        "ACQUISITION_GROWTH",
+        "CAPABILITY_REALITY",
+        "CLUSTER_OWNERSHIP",
+        "LAYER3_HEALTH_METRICS",
+        "LEGACY_PROVING_GROUND",
+        "SURFACE_READINESS",
+    }
     assert {entry["projection_id"] for entry in payload["projections"]} == {
         projection_id.value for projection_id in ProjectionId
     } | {

@@ -25,7 +25,7 @@ projections. Route handlers should stay thin and delegate behavior here.
 - **Guarded confidence risk spend** - resolves the governed N11 source through
   its real isolated owner validator, preserves source/dependency/registry and
   semantic identities, and composes the strict reviewer-only four-arm packet.
-  The generic 13-ID projection service cannot emit this guarded source.
+  The generic dynamic-ID projection service cannot emit this guarded source.
 - **Human-decision custody** - resolves signed delegation, principal,
   reviewer-separation, presentation, and evidence-exposure inputs before using
   the existing CAS/event writer and durable one-live-record reservation. Public

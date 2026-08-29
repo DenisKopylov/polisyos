@@ -2030,3 +2030,78 @@ used a pipe before the upstream exit code was recorded. No load-bearing value
 from those invocations is used here; every value in this receipt was rerun
 pipe-free with direct exit-code capture and two complete derivations. This is
 recorded as a discipline deviation rather than silently normalized away.
+
+## 2026-08-29 — denominator ruling and pin repair
+
+The byte identity of the complete preceding 2,032-line, 127,043-byte journal
+was
+`fa69eff18668f65e752629d1f814f64a6c33a0678b094dcecd045a3995948924`.
+This section corrects the causal wording of the preceding stop receipt and
+records the architect-approved repair. The twenty-denominator table in that
+receipt remains the baseline of record, including 13 moved / 7 unchanged,
+generated public methods main/landing 87/88, and Rego `runs.review` resources
+main/landing 9/10.
+
+### Cause correction
+
+There was no textual conflict and no faulty automatic conflict resolution.
+DS17 correctly observed a 13-member `ProjectionId` while executing and added a
+bare total pin in a different test file. DS15 independently and correctly
+added `ACQUISITION_GROWTH`, moving the owner enum to 14 without touching that
+test. Git then composed both correct changes faithfully, yielding a semantic
+contradiction: a 14-member owner enum beside DS17's stale total of 13. The
+defect is the DS17 cross-slice total pin, not DS15's addition and not Git's
+merge. A bare total cannot name which legitimate member changed and therefore
+cannot safely carry completeness across slice boundaries.
+
+The two companion READMEs now describe the owner as the generic dynamic-ID
+surface/service rather than freezing the same stale total in prose. The plan
+blob remains exactly
+`6c8b53cad6e5b002313563a81122392d91884927`.
+
+### Red-first repair receipts
+
+`test_governed_projection_catalog_is_typed_and_complete` now freezes the 14
+explicit `ProjectionId` member names. Its first run deliberately omitted
+`ACQUISITION_GROWTH` and failed by naming that exact extra member, exit 1,
+real/user/sys `37.01/30.26/2.48`, uptime `22:06` -> `22:07`. Adding the named
+member made the same real-router test pass 1/1, exit 0, real/user/sys
+`37.63/30.66/2.21`, uptime `22:07` -> `22:08`. The existing payload-versus-enum
+set comparison remains as a transport check; because both sides derive from
+`ProjectionId`, it is not an independent completeness proof.
+
+Before deleting the second total, the real catalog owner was temporarily
+mutated with a second `GuardedProjectionId` and matching
+`_GUARDED_DEFINITIONS` row. With the old count moved only to the current 14 so
+the semantic assertion could execute, the surviving
+`catalog_ids - set(ProjectionId)` assertion failed by naming the temporary
+`DELETION_PROBE`, exit 1, real/user/sys `30.83/27.73/1.63`, uptime `22:09` ->
+`22:10`. The temporary owner mutation was then reversed exactly; a source diff
+against `HEAD` returned exit 0. The redundant total was deleted, leaving the
+set-difference invariant that proves DS17 is the sole guarded, non-dynamic
+catalog entry.
+
+The final two-test lane passed 2/2, exit 0, real/user/sys
+`30.60/27.57/1.66`, uptime `22:10` -> `22:11`. Both tests exercise the real
+catalog/router rather than shaped markers.
+
+### Complete changed-type sweep
+
+Independent `git diff --name-only` and `git diff --raw` walks from exact
+current main `df90e10fb48b8df5b959c6b0074d69e255e16cc9` agree on 39 DS17-changed
+typed files: 15 `.py`, 13 `.ts`, and 11 `.tsx`. A complete added-line lexical
+scan over those files considered every `len(...)`, `toHaveLength(...)`,
+numeric `toBe(...)`, and numeric `.length` comparison.
+
+Only the two repaired `ProjectionId` totals were DS17-authored totals whose
+denominator another slice may legitimately move. Packet literals 15, 13, 67,
+99, and 98 are checks over DS17's content-bound packet/schema/falsifier
+denominators; zero/one checks are branch or query/cardinality semantics rather
+than shared inventory totals. The 45-binding worker assertion belongs to
+DS15's merged owner test, not the DS17 contribution. Shared i18n inventory
+totals are likewise current-main lines, not DS17-added assertions. No third
+cross-slice total was found.
+
+The repair is inside existing C02 test/documentation companions: no mechanism
+path or widening reserve is spent. The ledger remains 17 mechanisms used of
+18 declared, hard ceiling 22, reserve 0.

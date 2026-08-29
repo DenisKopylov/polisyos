@@ -188,7 +188,6 @@ def test_guarded_source_is_catalogued_without_widening_dynamic_projection_ids() 
     service = GovernedProjectionService(_ROOT)
     catalog_ids = {entry.projection_id for entry in service.catalog()}
 
-    assert len(ProjectionId) == 13
     assert set(ProjectionId).issubset(catalog_ids)
     assert catalog_ids - set(ProjectionId) == {
         GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND

@@ -881,3 +881,53 @@ No dependency-tracker, schema, route, Rego, generated client, generic
 `ProjectionId`, second source, UI, signer, or foreign-debt path changes. All
 route/schema/authz denominators remain frozen from the approved C02 surface;
 C02 reserve remains **0**.
+
+## C01 architecture correction — supported core facades
+
+After C02 approval, a read-only facade audit proved that the supported
+`polisyos.core` root already exports `canon` and `artifacts` module objects that
+are identity-equal to `polisyos.core.canon` and `polisyos.core.artifacts`.
+Therefore the four C01 deep-import edges required no facade addition, baseline,
+exception, inventory, or reserve path.
+
+The two existing C01 mechanisms now import only the supported root modules.
+`confidence_ledger_surface.py` imports runtime `canon` and type-only
+`artifacts`; `obligation_coverage.py` imports both modules at runtime. Every
+canonicalization, hashing, CAS/verifier annotation, and runtime `isinstance`
+check is module-qualified. No behavior, DTO, test, core facade, public
+inventory, generated output, trust register, client output, or C02 path
+changed.
+
+### Architecture correction receipts
+
+- Pre-correction deep-edge census found exactly four edges: both C01 importers
+  to both `polisyos.core.canon` and `polisyos.core.artifacts`. The architecture
+  gate returned exit `1` with those four edges plus six declared C03 generated-
+  client drifts and one declared trust-register drift; `real 154.88`, `user
+  134.62`, `sys 19.65`, uptime `08:19` -> `08:22`.
+- Post-correction deep-edge census over the complete two-importer denominator is
+  `0` (`rg` no-match exit `1`; `real 0.01`, `user 0.00`, `sys 0.00`). Public
+  root identity probe exit `0`: both `core.canon is polisyos.core.canon` and
+  `core.artifacts is polisyos.core.artifacts`; `real 0.56`, `user 0.35`, `sys
+  0.08`, uptime `08:31` -> `08:31`.
+- C01-owned behavioral lane is unchanged: exit `0`, `39 passed`, `2`
+  C02-owned tests deselected; `real 74.00`, `user 69.14`, `sys 2.97`, uptime
+  `08:23` -> `08:24`.
+- Focused mypy was available and ran over both mechanisms: exit `1`, `30`
+  module-semantic errors, with no import/name/facade error; `real 66.83`, `user
+  61.19`, `sys 4.32`, uptime `08:25` -> `08:26`. Exact-main comparison is not
+  applicable because the C01 modules are absent at the exact slice base; this
+  gate is recorded honestly as non-green rather than used as a completion
+  receipt.
+- Four-path Ruff: exit `0`, `All checks passed!`; `real 0.11`, `user 0.04`,
+  `sys 0.02`, uptime `08:31` -> `08:31`.
+- Post-correction execution-branch architecture gate: exit `1`, exactly seven
+  declared non-C01 drifts remain (six C03 generated-client outputs and one
+  trust-register output); `real 157.73`, `user 133.99`, `sys 20.41`, uptime
+  `08:26` -> `08:28`. The four C01 deep edges are absent.
+- Clean exact-base main `dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f`
+  architecture gate: exit `0`, `Architecture guardrail check passed`; `real
+  147.75`, `user 125.79`, `sys 17.24`, uptime `08:29` -> `08:31`.
+
+Mechanism spend remains **2/2**, reserve remains **0**. The remaining
+architecture reds are owned outside C01; no exception or baseline was added.

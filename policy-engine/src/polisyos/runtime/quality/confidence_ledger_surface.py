@@ -15,7 +15,7 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.core.canon import CanonSpec, fingerprint, to_canonical_bytes
+from polisyos.core import canon
 from polisyos.pdc import PromotionObligationClass  # noqa: TC001
 from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerRegistry,
@@ -34,12 +34,12 @@ from polisyos.runtime.quality.obligation_coverage import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts import Ed25519Verifier, FileSystemCAS
+    from polisyos.core import artifacts
 
 SURFACE_SCHEMA_VERSION = "policyos.runtime.confidence_ledger_surface.v1"
 SURFACE_RULE_VERSION = "policyos.runtime.confidence_ledger_surface.exact.v1"
 RATIONAL_DISPLAY_VERSION = "policyos.runtime.exact_rational_display.v1"
-_CANON = CanonSpec(exclude_none=False)
+_CANON = canon.CanonSpec(exclude_none=False)
 _REFUSAL_PATTERN = re.compile(r"^[a-z][a-z0-9_]{2,127}$")
 
 
@@ -107,7 +107,7 @@ class ConditionalDeltaAmount(_StrictModel):
         if self.canonical_decimal != format_canonical_decimal_v1(self.amount.fraction):
             raise ValueError("conditional_amount_canonical_decimal_mismatch")
         body = self.model_dump(mode="json", exclude={"amount_hash"})
-        if self.amount_hash != fingerprint(body, prefix=True, canon_spec=_CANON):
+        if self.amount_hash != canon.fingerprint(body, prefix=True, canon_spec=_CANON):
             raise ValueError("conditional_amount_hash_mismatch")
         return self
 
@@ -218,7 +218,9 @@ class CertificateRouteRow(_StrictModel):
     @model_validator(mode="after")
     def _binding_hash_is_exact(self) -> Self:
         body = self.model_dump(mode="json", exclude={"route_binding_hash"})
-        if self.route_binding_hash != fingerprint(body, prefix=True, canon_spec=_CANON):
+        if self.route_binding_hash != canon.fingerprint(
+            body, prefix=True, canon_spec=_CANON
+        ):
             raise ValueError("certificate_route_registry_binding_mismatch")
         return self
 
@@ -416,7 +418,7 @@ class ConfidenceLedgerRiskSpendProjection(_StrictModel):
                 for row in self.certificate_routes
             )
             or self.certificate_route_denominator_hash
-            != fingerprint(
+            != canon.fingerprint(
                 [row.route_binding_hash for row in self.certificate_routes],
                 prefix=True,
                 canon_spec=_CANON,
@@ -436,7 +438,7 @@ class ConfidenceLedgerRiskSpendProjection(_StrictModel):
             amounts.extend((row.allocation, row.spent, row.remaining, row.overspend_amount))
         amounts.extend(row.spend for row in self.grouped_spend)
         amounts.extend(row.spend for row in self.instrument_instances)
-        declared_classes_hash = fingerprint(
+        declared_classes_hash = canon.fingerprint(
             [item.value for item in self.coverage_envelope.declared_obligation_classes],
             prefix=True,
             canon_spec=_CANON,
@@ -460,12 +462,14 @@ class ConfidenceLedgerRiskSpendProjection(_StrictModel):
             coverage_envelope=self.coverage_envelope,
         )
         observed_body = self.model_dump(mode="json", exclude={"projection_hash"})
-        if to_canonical_bytes(observed_body, _CANON) != to_canonical_bytes(
+        if canon.to_canonical_bytes(observed_body, _CANON) != canon.to_canonical_bytes(
             expected_body, _CANON
         ):
             raise ValueError("confidence_risk_surface_recursive_basis_mismatch")
         body = self.model_dump(mode="json", exclude={"projection_hash"})
-        if self.projection_hash != fingerprint(body, prefix=True, canon_spec=_CANON):
+        if self.projection_hash != canon.fingerprint(
+            body, prefix=True, canon_spec=_CANON
+        ):
             raise ValueError("confidence_risk_surface_hash_mismatch")
         return self
 
@@ -549,7 +553,7 @@ def build_conditional_delta_amount(
         "owner_scope_key": envelope.owner_scope_key,
         "coverage_envelope_ref": envelope.envelope_ref,
         "coverage_envelope_hash": envelope.envelope_hash,
-        "declared_obligation_classes_hash": fingerprint(
+        "declared_obligation_classes_hash": canon.fingerprint(
             [item.value for item in envelope.declared_obligation_classes],
             prefix=True,
             canon_spec=_CANON,
@@ -559,7 +563,12 @@ def build_conditional_delta_amount(
         "locality_rider": LOCALITY_RIDER,
     }
     return ConditionalDeltaAmount.model_validate(
-        {**body, "amount_hash": fingerprint(body, prefix=True, canon_spec=_CANON)}
+        {
+            **body,
+            "amount_hash": canon.fingerprint(
+                body, prefix=True, canon_spec=_CANON
+            ),
+        }
     )
 
 
@@ -584,7 +593,7 @@ def bind_conditional_delta_amount(
         or amount.coverage_envelope_hash != envelope.envelope_hash
         or amount.maintained_assumptions != envelope.maintained_assumptions
         or amount.declared_obligation_classes_hash
-        != fingerprint(
+        != canon.fingerprint(
             [item.value for item in envelope.declared_obligation_classes],
             prefix=True,
             canon_spec=_CANON,
@@ -845,7 +854,7 @@ def _build_projection_body(
             CertificateRouteRow.model_validate(
                 {
                     **route_body,
-                    "route_binding_hash": fingerprint(
+                    "route_binding_hash": canon.fingerprint(
                         route_body, prefix=True, canon_spec=_CANON
                     ),
                 }
@@ -879,7 +888,7 @@ def _build_projection_body(
             semantic_role="scope_total_overspend",
         ),
     )
-    route_denominator_hash = fingerprint(
+    route_denominator_hash = canon.fingerprint(
         [row.route_binding_hash for row in route_rows],
         prefix=True,
         canon_spec=_CANON,
@@ -955,8 +964,8 @@ def project_confidence_ledger_risk_spend(
     semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
     derivation_context: CoverageDerivationContext,
     coverage_envelope: ObligationCoverageEnvelope,
-    witness_store: FileSystemCAS | None = None,
-    witness_verifier: Ed25519Verifier | None = None,
+    witness_store: artifacts.FileSystemCAS | None = None,
+    witness_verifier: artifacts.Ed25519Verifier | None = None,
     caller_eligibility_by_instrument: dict[str, bool] | None = None,
 ) -> ConfidenceLedgerRiskSpendProjection:
     """Project exact local spend and registry-derived blockers from typed inputs."""
@@ -976,7 +985,12 @@ def project_confidence_ledger_risk_spend(
         caller_eligibility_by_instrument=caller_eligibility_by_instrument,
     )
     return ConfidenceLedgerRiskSpendProjection.model_validate(
-        {**body, "projection_hash": fingerprint(body, prefix=True, canon_spec=_CANON)}
+        {
+            **body,
+            "projection_hash": canon.fingerprint(
+                body, prefix=True, canon_spec=_CANON
+            ),
+        }
     )
 
 
@@ -986,8 +1000,8 @@ def admit_confidence_ledger_risk_spend_projection(
     registry: ConfidenceLedgerRegistry,
     semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
     derivation_context: CoverageDerivationContext,
-    witness_store: FileSystemCAS | None = None,
-    witness_verifier: Ed25519Verifier | None = None,
+    witness_store: artifacts.FileSystemCAS | None = None,
+    witness_verifier: artifacts.Ed25519Verifier | None = None,
 ) -> DomainProjectionAdmission:
     """Revalidate and canonically re-admit one domain projection candidate."""
 
@@ -1006,7 +1020,7 @@ def admit_confidence_ledger_risk_spend_projection(
             witness_store=witness_store,
             witness_verifier=witness_verifier,
         )
-        canonical = to_canonical_bytes(admitted, _CANON)
+        canonical = canon.to_canonical_bytes(admitted, _CANON)
         readmitted = ConfidenceLedgerRiskSpendProjection.model_validate_json(canonical)
         if (
             readmitted.registry_basis != registry
@@ -1030,7 +1044,7 @@ def admit_confidence_ledger_risk_spend_projection(
     if (
         admitted != readmitted
         or admitted.projection_hash != readmitted.projection_hash
-        or canonical != to_canonical_bytes(readmitted, _CANON)
+        or canonical != canon.to_canonical_bytes(readmitted, _CANON)
     ):
         return DomainProjectionBlockedAdmission(
             reason=SharedSafetyBlockedReason.PARSER_OR_SCHEMA_FAILURE

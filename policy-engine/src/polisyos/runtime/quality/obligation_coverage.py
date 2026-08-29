@@ -14,8 +14,7 @@ from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts import Ed25519Verifier, FileSystemCAS
-from polisyos.core.canon import CanonSpec, content_hash, fingerprint, to_canonical_bytes
+from polisyos.core import artifacts, canon
 from polisyos.pdc import PromotionObligationClass
 from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerRegistry,
@@ -45,7 +44,7 @@ _WITNESS_VERIFIER = "polisyos.pdc.coverage-witness-verifier"
 _WITNESS_SOURCE_KIND = "obligation_coverage_witness_source"
 _WITNESS_SOURCE_SCHEMA_NAME = "polisyos.runtime.obligation-coverage-witness-source"
 _WITNESS_SOURCE_SCHEMA_VERSION = "1.0.0"
-_CANON = CanonSpec(exclude_none=False)
+_CANON = canon.CanonSpec(exclude_none=False)
 
 
 class _StrictModel(BaseModel):
@@ -278,7 +277,7 @@ class ObligationCoverageEnvelope(_StrictModel):
         if self.ttl_state != expected_ttl:
             raise ValueError("coverage_ttl_arm_mismatch")
         body = self.model_dump(mode="json", exclude={"envelope_hash", "envelope_ref"})
-        expected_hash = fingerprint(body, prefix=True, canon_spec=_CANON)
+        expected_hash = canon.fingerprint(body, prefix=True, canon_spec=_CANON)
         if self.envelope_hash != expected_hash:
             raise ValueError("coverage_envelope_hash_mismatch")
         if self.envelope_ref != f"coverage-envelope:{expected_hash}":
@@ -303,8 +302,8 @@ def build_coverage_envelope(
     registry: ConfidenceLedgerRegistry,
     semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
     derivation_context: CoverageDerivationContext,
-    witness_store: FileSystemCAS | None = None,
-    witness_verifier: Ed25519Verifier | None = None,
+    witness_store: artifacts.FileSystemCAS | None = None,
+    witness_verifier: artifacts.Ed25519Verifier | None = None,
     witness_refs: tuple[str, ...] = (),
 ) -> ObligationCoverageEnvelope:
     """Derive one negative envelope from typed sources and verified CAS witnesses."""
@@ -416,7 +415,7 @@ def build_coverage_envelope(
         "declared_set_rider": DECLARED_SET_RIDER,
         "locality_rider": LOCALITY_RIDER,
     }
-    envelope_hash = fingerprint(body, prefix=True, canon_spec=_CANON)
+    envelope_hash = canon.fingerprint(body, prefix=True, canon_spec=_CANON)
     return ObligationCoverageEnvelope.model_validate(
         {
             **body,
@@ -434,8 +433,8 @@ def evaluate_protected_action(
     derivation_context: CoverageDerivationContext,
     action_id: str,
     presented_claim_scope: str,
-    witness_store: FileSystemCAS | None = None,
-    witness_verifier: Ed25519Verifier | None = None,
+    witness_store: artifacts.FileSystemCAS | None = None,
+    witness_verifier: artifacts.Ed25519Verifier | None = None,
 ) -> ProtectedActionEvaluation:
     """Block a negative envelope; narrowing never changes the admitted action."""
 
@@ -464,8 +463,8 @@ def rederive_and_admit_coverage_envelope(
     registry: ConfidenceLedgerRegistry,
     semantic_ledger: ConfidenceLedgerSemanticReceiptProjection,
     derivation_context: CoverageDerivationContext,
-    witness_store: FileSystemCAS | None = None,
-    witness_verifier: Ed25519Verifier | None = None,
+    witness_store: artifacts.FileSystemCAS | None = None,
+    witness_verifier: artifacts.Ed25519Verifier | None = None,
 ) -> ObligationCoverageEnvelope:
     """Rebuild a candidate from owner bases before trusting any coverage arm."""
 
@@ -476,7 +475,7 @@ def rederive_and_admit_coverage_envelope(
     if not isinstance(derivation_context, CoverageDerivationContext):
         raise TypeError("coverage_derivation_context_must_be_typed")
     parsed = ObligationCoverageEnvelope.model_validate(candidate)
-    canonical = to_canonical_bytes(parsed, _CANON)
+    canonical = canon.to_canonical_bytes(parsed, _CANON)
     reparsed = ObligationCoverageEnvelope.model_validate_json(canonical)
     rebuilt = build_coverage_envelope(
         registry=registry,
@@ -486,10 +485,10 @@ def rederive_and_admit_coverage_envelope(
         witness_verifier=witness_verifier,
         witness_refs=reparsed.witness_refs,
     )
-    rebuilt_canonical = to_canonical_bytes(rebuilt, _CANON)
+    rebuilt_canonical = canon.to_canonical_bytes(rebuilt, _CANON)
     if (
         parsed != reparsed
-        or canonical != to_canonical_bytes(reparsed, _CANON)
+        or canonical != canon.to_canonical_bytes(reparsed, _CANON)
         or canonical != rebuilt_canonical
     ):
         raise ValueError("coverage_envelope_rederivation_mismatch")
@@ -503,7 +502,7 @@ def _derive_assessment_key(
     protected_action_id: str,
     sources: tuple[CoverageSourceIdentity, CoverageSourceIdentity],
 ) -> str:
-    return fingerprint(
+    return canon.fingerprint(
         {
             "rule_version": COVERAGE_RULE_VERSION,
             "scope_id": scope_id,
@@ -518,8 +517,8 @@ def _derive_assessment_key(
 
 def _resolve_witnesses(
     *,
-    store: FileSystemCAS | None,
-    verifier: Ed25519Verifier | None,
+    store: artifacts.FileSystemCAS | None,
+    verifier: artifacts.Ed25519Verifier | None,
     refs: tuple[str, ...],
     assessment_key: str,
     scope_id: str,
@@ -534,9 +533,9 @@ def _resolve_witnesses(
         raise TypeError("coverage_witness_references_must_be_string_tuple")
     if len(refs) != len(set(refs)):
         raise ValueError("coverage_witness_duplicate_reference")
-    if refs and not isinstance(store, FileSystemCAS):
+    if refs and not isinstance(store, artifacts.FileSystemCAS):
         raise TypeError("coverage_witness_CAS_resolver_required")
-    if refs and not isinstance(verifier, Ed25519Verifier):
+    if refs and not isinstance(verifier, artifacts.Ed25519Verifier):
         raise TypeError("coverage_witness_signature_verifier_required")
     if not refs:
         return ()
@@ -602,7 +601,7 @@ def _resolve_witnesses(
         ):
             raise ValueError("coverage_witness_source_provenance_invalid")
         source_bytes = store.get_bytes(receipt.source_artifact_ref)
-        resolved_source_hash = content_hash(source_bytes, prefix=True)
+        resolved_source_hash = canon.content_hash(source_bytes, prefix=True)
         if receipt.source_content_hash != resolved_source_hash:
             raise ValueError("coverage_witness_source_content_hash_mismatch")
         source = CoverageWitnessSourceArtifact.model_validate(json.loads(source_bytes))
@@ -632,7 +631,7 @@ def _resolve_witnesses(
             or source.authority_issue_codes != (receipt.issue_code,)
         ):
             raise ValueError("coverage_witness_source_scope_or_assessment_mismatch")
-        expected_replay_hash = fingerprint(
+        expected_replay_hash = canon.fingerprint(
             {
                 "rule_version": WITNESS_REPLAY_RULE_VERSION,
                 "source_artifact_ref": receipt.source_artifact_ref,
@@ -644,7 +643,7 @@ def _resolve_witnesses(
         )
         if receipt.replay_hash != expected_replay_hash:
             raise ValueError("coverage_witness_source_replay_hash_mismatch")
-        expected_verifier_provenance_hash = fingerprint(
+        expected_verifier_provenance_hash = canon.fingerprint(
             {
                 "verifier_ref": _WITNESS_VERIFIER,
                 "rule_version": WITNESS_REPLAY_RULE_VERSION,

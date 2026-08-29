@@ -1901,3 +1901,132 @@ the prior wide-gamut alpha, holed overlay, edge-sliver, pointer-transparent,
 and pseudo-element witnesses; the new shadow-extension witness alone escapes.
 No source correction follows this section. The branch remains unpushed and
 unmerged for owner adjudication.
+
+## 2026-08-29 — architect rebaseline census and mandatory denominator stop
+
+The byte identity of the complete preceding 1,903-line, 118,368-byte journal
+was
+`c55326851ade555932a98bc31a5fa4dbe83e577501b0e8e97e391f5f2638965d`.
+This append is the first and only local write after the architect rebaseline.
+
+### Rebaseline identity and plan custody
+
+The attached landing branch is
+`codex/ds17-confidence-ledger-risk-spend-landing` at
+`b752dbbd82706f9542af6dffb05145457910aa41`. Its first parent is the clean
+DS17 stop head `7abeac6be7f58d2fe1411ac83c18f5eadfad3dc5`; its second parent and exact
+current-main comparison ref is
+`df90e10fb48b8df5b959c6b0074d69e255e16cc9`. The earlier execution base was
+`dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f`.
+
+The architect merge changed the plan blob from
+`8f57796755b1983e8414a606e3607f40475c99f6` to
+`6c8b53cad6e5b002313563a81122392d91884927`: its diff contains the C05 scope
+ruling and the required Explicit non-closure row for the
+Bayesian-without-coverage witness, owner GY-N11, including persisted refusal
+`sha256:94d60c54cac8155fa3da2765a65a6c73157876211d92771cd4e85478e864fbf3`.
+This continuation does not edit the plan.
+
+### Complete 20-row route census
+
+“Old” is the prior DS17 target at its clean C03 boundary, “new base” is the
+exact current-main parent, and “new target” is the landing union. Composite
+rows preserve the denominator families used by C02; a target is “moved” only
+when its old and rebaselined values differ. This produces the required 13
+moved / 7 unchanged partition without dropping method or OPA sub-denominators.
+
+| # | complete denominator | old DS17 target | new base | new target | disposition and cause |
+| ---: | --- | ---: | ---: | ---: | --- |
+| 1 | OpenAPI paths | 102 | 106 | 107 | moved; DS15 adds four acquisition paths and DS18 one epoch-staleness path; DS17's one path is retained |
+| 2 | OpenAPI operations | 104 | 108 | 109 | moved; the same DS15 +4 and DS18 +1 operations, with DS17 retained |
+| 3 | OpenAPI GET / POST | 72 / 32 | 74 / 34 | 75 / 34 | moved; DS15 adds two GET and two POST, DS18 adds one GET, and DS17's GET is retained |
+| 4 | protected operations | 41 | 45 | 46 | moved; every DS15/DS18 addition is protected |
+| 5 | protected GET / POST | 9 / 32 | 11 / 34 | 12 / 34 | moved; DS15 adds 2/2, DS18 adds 1/0, and DS17's 1/0 is retained |
+| 6 | OpenAPI `runs.review` operations | 8 | 10 | 11 | moved; DS15 adds two review GETs and DS18 one; DS17's review GET is retained |
+| 7 | route files / non-WebSocket decorators | 17 / 106 | 18 / 110 | 18 / 111 | moved; DS15 adds `acquisitions.py` and four decorators, DS18 one decorator, DS17 one retained decorator |
+| 8 | decorator GET / POST | 74 / 32 | 76 / 34 | 77 / 34 | moved; DS15 +2/+2 and DS18 +1/0, with DS17's +1/0 retained |
+| 9 | governed-projection module GET decorators | 5 | 4 | 5 | unchanged in target; current main lacks DS17 and landing restores its one static GET |
+| 10 | guarded IDs / definitions / payload models | 1 / 1 / 1 | 0 / 0 / 0 | 1 / 1 / 1 | unchanged in target; this is DS17's separate guarded catalog, not a generic ID |
+| 11 | hidden channel registry | 3 | 3 | 3 | unchanged; no slice changes the three WebSocket channels |
+| 12 | curated singleton success-example keys | 100 | 104 | 105 | moved; DS15 contributes four distinct keys and DS18 one, with DS17 retained |
+| 13 | generated public operation methods | 82 | 87 | 88 | moved; DS15 contributes four, DS18 its GET plus admission of the existing epoch-batch POST, and DS17 retains one |
+| 14 | runtime-authz mutating-operation constant | 32 | 34 | 34 | moved; DS15 adds two POST operations; DS17 and DS18 are GET-only |
+| 15 | Rego permission vocabulary | 34 | 34 | 34 | unchanged; all additions reuse existing permissions |
+| 16 | Rego top-level action contracts | 26 | 26 | 26 | unchanged; no new permission contract is introduced |
+| 17 | Rego `runs.review` resource rows | 8 | 9 | 10 | moved; DS15 and DS18 each add one shared resource row, and landing retains DS17's row |
+| 18 | Rego distinct resource classes | 40 | 41 | 42 | moved; DS15 and DS18 each add a resource class, and landing retains DS17's class |
+| 19 | Rego `runs.view` regex rows | 3 | 3 | 3 | unchanged; no slice changes that grammar |
+| 20 | Rego unsafe-method vocabulary | 4 | 4 | 4 | unchanged; it remains exactly DELETE/PATCH/POST/PUT |
+
+Two independent complete walks agree on every value: (A) the tracked OpenAPI
+document plus an AST walk over all 18 runtime route files, the canonical
+generator, and both generated client sources; (B) live runtime imports plus
+semantic OPA evaluation and independent source-set reconciliation. The
+OpenAPI walk reports landing/base 107/106 paths, 109/108 operations, 75/74
+GET, 34/34 POST, and 46/45 protected operations. The AST walk reports 111/110
+non-WebSocket decorators. OPA reports landing/base 42/41 resource classes and
+10/9 `runs.review` resource rows. The 11 OpenAPI review operations versus 10
+Rego review resources is intentional: DS15's two acquisition GET operations
+share one resource.
+
+The curated source has landing/base 106/105 lexical rows but 105/104 distinct
+singleton keys because `admit_epoch_validity_batch` is duplicated; the table
+uses the semantic distinct-key denominator. Including the separate
+multi-example map produces 107/106 distinct covered operation IDs. Canonical
+generator extraction and independent enumeration of the TypeScript and
+JavaScript client sources agree at landing/base 88/87 public operation
+methods (75/74 GET plus the same 13 admitted POSTs). The architect's provisional
+91 counts the constructor and two private helpers as well; it is not the
+previously pinned public-operation-method denominator, so it is reported, not
+adopted.
+
+The main additions are content-bound to DS15 commits `4d02940e`, `989058b2`,
+and `25abf5a5`, and DS18 commits `716078d5` and `49e969e1`. The landing-only
+route/resource delta is DS17 commit `3551ea02`; its generated method is in
+`2ac603ff0`. The architect's provisional Rego review value 10 for current main
+also disagrees with both executable walks: exact current main is 9 and landing
+is 10. The rebaselined target remains 10, so this measurement disagreement
+does not itself move a target.
+
+### Supplemental pinned-denominator contradiction — STOP
+
+The generic governed-projection catalog is outside the route-census grouping
+above but is a load-bearing pinned seam. Live import and an independent AST
+walk both derive, on exact current main and landing, 14 `ProjectionId` members,
+14 definitions, 14 payload models, and 14 projectors. DS15 commit `25abf5a54`
+added `ACQUISITION_GROWTH`; DS17 correctly remains in the separate guarded
+one-member catalog.
+
+The landing merge nevertheless resurrected two executable pins at 13:
+
+- `tests/unit/runtime/http/test_governed_projection_api.py:90`;
+- `tests/unit/runtime/http/test_confidence_ledger_risk_spend_projection.py:191`.
+
+It also retains the stale “generic 13-ID” prose in
+`src/polisyos/runtime/http/routes/README.md:22` and
+`src/polisyos/runtime/http/services/README.md:28`. Exact current main has no
+literal count assertion. The focused real-router test proves the divergence:
+landing fails `assert 14 == 13`, exit 1, while the identical test on exact
+current main passes, exit 0. Landing timing is real/user/sys
+`51.06/44.99/5.22`, uptime `21:08` -> `21:09`; current-main timing is
+`48.41/45.36/2.38`, uptime `21:09` -> `21:10`.
+
+This is the prompt's explicit stop condition: a complete re-derivation
+contradicts committed pinned constants. It is not repaired inside C04. Owner:
+architect rebaseline adjudication, with the substantive catalog addition
+owned by DS15 and the stale pins carried by the DS17 merge resolution. C04 was
+not resumed, the C05 Atlas-writer path was not spent, and C06 was not started.
+The mechanism ledger therefore remains 17 mechanism paths, 17/18 declared,
+17/22 hard ceiling, reserve spend 0.
+
+The rebaseline also exposes current-main reds in the synthetic mutating-sibling
+test (`35 == 32` against a real base denominator of 34) and the previously
+named local-environment lanes. They are not claimed inherited here: the
+mandatory pinned-denominator stop occurred before the complete new-base P41
+replay, so C00 remains stopped rather than falsely complete.
+
+During preliminary non-mutating exploration, several search-only commands
+used a pipe before the upstream exit code was recorded. No load-bearing value
+from those invocations is used here; every value in this receipt was rerun
+pipe-free with direct exit-code capture and two complete derivations. This is
+recorded as a discipline deviation rather than silently normalized away.

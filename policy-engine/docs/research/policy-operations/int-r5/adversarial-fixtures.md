@@ -1,30 +1,51 @@
-# INT-R5 Red-First Authority Fixtures
+# INT-R5 Red-First Authority Fixtures — Amended
 
-## 1. Purpose and fixture discipline
+## 1. Fixture contract and reason identity
 
-These fixtures specify observable behavior for a later implementation. They do not authorize code
-or freeze final wire types. Each fixture must exercise the real graph reducer and the real protected
-consumer. A test that only constructs a refusal object or searches for a reason-code string does not
-satisfy the fixture.
+These fixtures specify behavior for a future implementation. They do not authorize code, register
+wire types or allow a test to pass by constructing a refusal object in isolation. Every fixture must
+run through the real graph reducer, the currentness/persistence bridge and one real protected-effect
+consumer.
+
+Research-oracle reason identities use:
+
+```text
+polisyos.int_r5.reason.<slug>@0.1.0-candidate
+```
+
+They are namespaced/versioned candidate semantic IDs. They are not aliases for another family's live
+blocker and must be mapped by the future registered crosswalk before implementation. In particular:
+
+```text
+polisyos.int_r5.reason.certificate_stale@0.1.0-candidate
+```
+
+is a semantic sibling of, not currently an alias for:
+
+```text
+polisyos.eval_safety.certificate_stale@1.0.0
+```
 
 Common assertions for every refusing fixture:
 
 - no `pre_action_valid` certificate is emitted;
 - no protected effect occurs;
-- no DS20 allow or fresh step-up can compensate for the failed institutional predicate;
-- the exact failed predicate and evidence refs are visible;
-- changing an unrelated field does not change the result;
-- a valid near-pass control succeeds without weakening another predicate;
-- historical replay reproduces the original result from the pinned rules/evidence;
-- the fixture is bound to an exact decision and effect commitment.
+- DS20 allow or fresh step-up cannot compensate for failed institutional authority;
+- a PAO-R4 receipt cannot compensate for failed INT-R5 authority, and vice versa;
+- exact failed predicate, producer, evidence refs and reason identity are visible;
+- unrelated-field mutation does not change the result;
+- a valid near-pass succeeds without weakening another predicate;
+- historical replay reproduces the original result under pinned evidence/rules;
+- graph and output are bound to one exact decision and effect commitment;
+- a valid hash never upgrades caller-authored or otherwise non-positive provenance.
 
 ## 2. Fixture F1 — self-approval
 
 ### 2.1 Property
 
-One controlling subject may not materially propose or produce an exact decision and then act as its
-final approver where the profile requires independent approval. Disclosure does not cure the
-structural role incompatibility.
+One controlling subject may not materially propose or produce a decision and then serve as final
+approver where the applicable profile requires independent approval. Disclosure cannot cure the
+structural incompatibility.
 
 ### 2.2 Given
 
@@ -43,12 +64,11 @@ profile:
   incompatible_roles:
     - [proposer_or_material_contributor, final_approver]
   self_approval_waivable: false
-permissions:
-  runtime_permission: present
-  step_up: fresh_and_valid
+runtime:
+  exact_permission: present
+  DS20_admission: valid
+  step_up: fresh
 ```
-
-The two accounts intentionally resolve to one controlling subject.
 
 ### 2.3 When
 
@@ -59,35 +79,36 @@ approval effect.
 
 ```yaml
 local_result: refused
-refusal_codes: [SELF_APPROVAL, SEPARATION_OF_DUTIES_FAILED]
+reason_ids:
+  - polisyos.int_r5.reason.self_approval@0.1.0-candidate
+  - polisyos.int_r5.reason.separation_of_duties_failed@0.1.0-candidate
 failed_predicate: final_approver_independent_of_proposer_and_contributors
 protected_effect_count: 0
 ```
 
-The certificate must not downgrade the failure to a warning because `conflict_disclosed=true`, MFA
-is fresh, or the approver has a higher runtime role.
+`conflict_disclosed=true`, a higher runtime role or new MFA cannot change the result.
 
-### 2.5 Near-pass control
+### 2.5 Near-pass
 
-Replace the final approver with `issuer-A::person-9`, prove no identity-equivalence edge to the
-proposer/contributors, prove the approver's own authority path and keep all other inputs byte-identical.
-The separation predicate may then pass.
+Replace the final approver with `issuer-A::person-9`; prove no controlling-subject equivalence; prove
+that actor's own authority path; keep all other admitted inputs byte-identical. The separation
+predicate may pass.
 
-### 2.6 Mutation variants
+### 2.6 Mutations
 
-- same person under service impersonation;
-- same person through delegated-user session;
-- approver not formal author but recorded as material contributor;
-- proposer changes only display name;
-- conflicted subject attempts to issue their own exception;
-- two genuinely distinct actors share one credential: identity is `not_established`, not independent.
+- alternate account, service impersonation or delegated-user session for the same subject;
+- formal author differs but approver is a material contributor;
+- display-name mutation only;
+- conflicted actor attempts to issue their own exception;
+- two distinct people share one credential: identity is `not_established`, not independent.
 
-## 3. Fixture F2 — expired delegation
+## 3. Fixture F2 — expired delegation and authoritative decision time
 
 ### 3.1 Property
 
-The authority path must be valid at the legally relevant decision time and at every required
-pre-effect checkpoint. A current runtime permission cannot revive an expired institutional grant.
+The path must be valid at an independently established legally relevant decision time and every
+required pre-effect checkpoint. Runtime permission cannot revive an expired grant, and a caller may
+not backdate the decision into a valid interval.
 
 ### 3.2 Given
 
@@ -98,50 +119,57 @@ delegation:
   valid_until: 2026-08-28T23:59:59Z
   status: active
   scope: approve_acquisition up to 50000 EUR
-decision_time: 2026-08-29T09:00:00Z
-effect_time: 2026-08-29T09:00:05Z
-principal:
+caller_candidate:
+  decision_time: 2026-08-28T23:59:00Z
+constitutive_decision_event:
+  decision_time: 2026-08-29T09:00:00Z
+  producer: decision-event-system
+  verifier_receipt: valid
+effect_commit_event:
+  effect_time: 2026-08-29T09:00:05Z
+  producer: protected-effect-ledger
+runtime:
   identity: valid
-  runtime_permission: evidence.acquire
+  exact_permission: evidence.acquire
   step_up: fresh
 ```
 
 ### 3.3 When
 
-The reducer intersects all path validity intervals and evaluates them at `decision_time`; the DS9
-consumer re-resolves the raw path before effect.
+The canonicalizer can validly hash both timestamps, but the reducer admits only the constitutive event
+producer's timestamp and intersects all path intervals at that time.
 
 ### 3.4 Then
 
 ```yaml
 local_result: refused
-refusal_codes: [DELEGATION_EXPIRED]
+reason_ids:
+  - polisyos.int_r5.reason.delegation_expired@0.1.0-candidate
+  - polisyos.int_r5.reason.caller_time_not_authoritative@0.1.0-candidate
 surviving_path_count: 0
 protected_effect_count: 0
 ```
 
-No grace period is inferred from the actor's lack of notice. A profile may separately recognize a
-specific legal saving rule, but it must be present and proven; it is not a default.
+### 3.5 Near-pass
 
-### 3.5 Near-pass control
+The constitutive decision event and effect commit event both occur inside the effective interval and
+no revocation/status event applies. The path may pass.
 
-Move `decision_time` and `effect_time` inside the interval while retaining every other field and
-prove no revocation/status event. The path may pass.
+### 3.6 Mutations
 
-### 3.6 Mutation variants
-
-- child grant expires after parent: effective expiry remains the minimum;
-- parent expires while child still says active;
-- expiry depends on vacancy being filled rather than a fixed date;
-- stale cached envelope says active while status source says expired;
-- actor obtained fresh MFA after expiry;
-- requester edits `valid_until` without a new signed instrument.
+- child expires after parent: effective expiry remains the minimum;
+- parent expired but child record says active;
+- expiry is event-triggered by vacancy fill;
+- cached envelope is active while status source is expired;
+- fresh MFA after expiry;
+- caller edits `valid_until` without a new admitted instrument;
+- timestamp is canonical and signed by the requester but not by the time/event producer.
 
 ## 4. Fixture F3 — wrong forum
 
 ### 4.1 Property
 
-Membership equivalence is not organ equivalence. The actual forum/mode must be competent for the
+Membership equivalence is not organ equivalence. The actual body/forum/mode must be competent for the
 matter under the applicable profile.
 
 ### 4.2 Given
@@ -153,10 +181,7 @@ matter:
   delegable_to_committee: false
 actual_event:
   forum: finance_committee
-  participants:
-    - director-A
-    - director-B
-    - director-C
+  participants: [director-A, director-B, director-C]
   signatures_present: true
   apparent_quorum_if_treated_as_board: true
 profile:
@@ -164,46 +189,41 @@ profile:
   governing_instrument_ref: constitution-v4
 ```
 
-All committee members are also directors. The fixture deliberately makes person identity and
-signature appearance favorable.
-
 ### 4.3 When
 
-The reducer resolves `REQUIRES_FORUM`, the actual meeting capacity and the reserved-matter rule
-before considering the vote.
+The reducer resolves `REQUIRES_FORUM`, actual legal capacity and the reserved-matter rule before
+calculating quorum.
 
 ### 4.4 Then
 
 ```yaml
 local_result: refused
-refusal_codes: [FORUM_NOT_COMPETENT]
+reason_ids:
+  - polisyos.int_r5.reason.forum_not_competent@0.1.0-candidate
 failed_predicate: actual_forum_equals_competent_forum_for_matter
 quorum_result: not_applicable_to_wrong_forum
 protected_effect_count: 0
 ```
 
-The system must not attempt to rescue the act by saying that the same people could have formed a
-full-board quorum.
+### 4.5 Near-pass
 
-### 4.5 Near-pass control
+A properly constituted full-board event uses the same people, correct forum identity, permitted
+mode/notice and valid item-level quorum/vote.
 
-Create a legally constituted full-board decision event with the same participants, proper forum
-identity, required notice/mode and a valid item-level quorum/vote. The forum predicate may pass.
+### 4.6 Mutations
 
-### 4.6 Mutation variants
+- plenary members acting as caucus;
+- full board using a forbidden decision mode;
+- committee with general delegation acting on reserved matter;
+- two external signatures without competent internal act;
+- one virtual meeting link reused under another legal capacity.
 
-- plenary members acting as an informal caucus;
-- full board using a decision mode not permitted by the governing instrument;
-- committee with general delegation but matter appears on the reserved list;
-- external document carries two signatures but no competent internal act;
-- same virtual meeting URL reused for a different legal capacity.
-
-## 5. Fixture F4 — quorum loss
+## 5. Fixture F4 — quorum loss under profile-relative time
 
 ### 5.1 Property
 
-Quorum is recomputed at the temporal scope selected by the jurisdiction/body profile. Opening quorum
-is not a permanent property of the meeting.
+Quorum is recomputed for each decision item at the temporal scope selected by the jurisdiction/body
+profile. Opening quorum is not a permanent meeting property.
 
 ### 5.2 Given
 
@@ -226,57 +246,48 @@ meeting:
     - {time: 10:23:00Z, type: vote_close, item: item-7}
 ```
 
-At vote time only A and B are eligible participants.
-
 ### 5.3 When
 
-The reducer replays the event timeline, applies item-specific recusal and computes quorum under the
-profile at `vote_open`/`vote_close`.
+The reducer replays events, applies item-specific eligibility and computes quorum under the selected
+profile at the required point(s).
 
 ### 5.4 Then
 
 ```yaml
 local_result: refused
-refusal_codes: [QUORUM_LOST_AT_DECISION, QUORUM_NOT_MET_AT_DECISION]
+reason_ids:
+  - polisyos.int_r5.reason.quorum_lost_at_decision@0.1.0-candidate
+  - polisyos.int_r5.reason.quorum_not_met_at_decision@0.1.0-candidate
 eligible_participants_at_decision: [A, B]
 required_quorum: 3
 protected_effect_count: 0
 ```
 
-A signed minute stating `quorum present` cannot override the recomputation.
+A signed minute saying `quorum present` remains evidence, not the recomputed result.
 
-### 5.5 Profile variants
+### 5.5 Required profile variants
 
-The fixture family must include three explicit rule profiles:
+The same event stream must be run under:
 
-1. `at_vote` — failure begins when the item is put without quorum;
-2. `throughout_meeting` — failure begins when the required composition is lost;
-3. `presumptive_until_challenged` — apply the profile's procedural challenge/count machinery rather
-   than treating physical departure as automatic nullity.
+1. `at_vote`;
+2. `throughout_meeting`;
+3. `presumptive_until_challenged`.
 
-The same event stream must produce profile-dependent results. A single global quorum algorithm is a
-fixture failure.
+A single global result for all three profiles is a fixture failure.
 
-### 5.6 Near-pass control
+### 5.6 Near-pass and mutations
 
-Member C remains through vote close, or an eligible replacement joins under a valid appointment and
-participation rule before the vote. The reducer must recompute the exact branch set rather than edit
-a count.
+Near-pass: C remains through vote close or an eligible replacement lawfully joins before the vote.
+Mutations include remote communications failure, abstainer present without affirmative vote,
+conflicted member incorrectly counted, vacancy-dependent denominator and invalid written consent.
 
-### 5.7 Mutation variants
-
-- remote participant loses the legally required communications capability;
-- abstainer remains present but does not supply an affirmative vote;
-- conflicted member is incorrectly counted for both quorum and vote;
-- vacancy changes denominator under one profile but not another;
-- written consent is used instead of a meeting and fails its own unanimity/mode conditions.
-
-## 6. Fixture F5 — post-hoc authorization
+## 6. Fixture F5 — post-hoc cure without historical mutation
 
 ### 6.1 Property
 
-A pre-action certificate cannot be created or backdated from authority granted after the decision.
-Any later statutory cure is a separate event and separate result under a named jurisdiction profile.
+A pre-action certificate cannot be created or backdated from authority granted after the original
+decision. A later cure is a separate event/result whose temporal legal effect is profile-specific and
+may include relation back.
 
 ### 6.2 Given
 
@@ -294,150 +305,230 @@ profile:
   cure_semantics: profile_parameter
 ```
 
-### 6.3 When
-
-The reducer is asked to issue a certificate for the original decision as of 11:00.
-
-### 6.4 Then — invariant across profiles
+### 6.3 Historical invariant
 
 ```yaml
 original_certificate:
   local_result: refused
-  refusal_codes: [AUTHORITY_NOT_PREEXISTING]
+  reason_ids:
+    - polisyos.int_r5.reason.authority_not_preexisting@0.1.0-candidate
   issued_as_if_at_11_00: forbidden
+  historical_certificate_mutated: false
 protected_effect_before_valid_cure: 0
 ```
 
-The later event is never inserted into the 11:00 graph snapshot.
+The later event is not inserted into the 11:00 snapshot.
 
-### 6.5 Separate cure outcomes
+### 6.4 Separate cure result
 
-The fixture then evaluates a **new** graph under three profiles:
+Every new cure evaluation must emit:
 
-- `cure_permitted_if_conditions_satisfied` — emit a new current result only after every statutory
-  condition and competent ratifier predicate passes;
-- `cure_forbidden` — retain refusal, for example where the profile makes the action non-ratifiable;
-- `cure_effect_not_established` — return `not_established` where the legal consequence is disputed or
-  no competent profile/adjudication exists.
+```yaml
+cure_effect:
+  kind: prospective | relation_back | saved_act | limited | unresolved
+  legally_effective_from: timestamp | event_ref | unresolved
+  affects_original_legal_effect: yes | no | qualified | unresolved
+  protected_interval_or_scope: optional profile-qualified value
+  source_profile_ref: required
+  competent_cure_actor_ref: required or not_established
+  historical_certificate_mutated: false
+```
 
-No profile may mutate the original certificate from refused to valid.
+Required variants:
 
-### 6.6 Near-pass control
+- `prospective`: current/future effect only;
+- `relation_back`: profile deems the cured act effective from an earlier point while the historical
+  certificate still records absence of pre-existing authority;
+- `saved_act`: statute preserves effect without pretending a later grant existed earlier;
+- `limited`: only named scope/period/intermediate acts are protected;
+- `unresolved`: no competent profile/adjudication establishes effect;
+- non-ratifiable: refusal remains.
 
-A valid delegation exists and is effective before 11:00; the original decision is made within its
-scope; no later cure is needed. The original pre-action result may pass.
+No fixture may deny relation-back regimes universally or convert relation back into a backdated
+certificate.
 
-### 6.7 Mutation variants
+### 6.5 Near-pass and mutations
 
-- ratifier had authority at 14:00 but not at 11:00;
-- attempted cure fixes authority but another defect remains;
-- cure instrument is signed but its condition precedent is missing;
-- system uses current state to replay historical authority;
-- actor starts work before grant and commits after grant;
-- approval recorded after effect but timestamp is backdated.
+Near-pass: a valid authority path exists before 11:00. Mutations cover unauthorized ratifier,
+additional uncured defect, missing condition precedent, current-state historical replay, work begun
+before grant and a backdated approval record.
 
-## 7. Extended fixture matrix
+## 7. Producer-independence fixture family
 
-| ID | Scenario | Expected result | Required observation |
-| --- | --- | --- | --- |
-| `F6` | valid individual delegation | `pre_action_valid` | exact path, scope, amount, identity, currentness and effect binding |
-| `F7` | required institutional role has no holder | `not_established` + `MISSING_APPOINTED_HOLDER` | role and appointing authority named; demo path remains available |
-| `F8` | required adjudicator absent for disputed recusal | `not_established` + `ADJUDICATOR_UNAPPOINTED` | no borrowed maintainer/requester adjudicator |
-| `F9` | amount appears below limit only because invoices were split | refused + `AMOUNT_LIMIT_EXCEEDED` | economic transaction aggregation visible |
-| `F10` | child grant widens parent amount or subject scope | refused + `AUTHORITY_PATH_INVALID` | intersection and offending edge visible |
-| `F11` | successor's displayed title is valid-looking but predecessor path invalid | refused | root succession failure invalidates descendant path |
-| `F12` | emergency flag supplied only by requester | `not_established` + `EMERGENCY_PREDICATE_NOT_ESTABLISHED` | no elevated authority or permanent role |
-| `F13` | authenticated external assertion used as local authorization | refused + `CROSS_AGENCY_ACCEPTANCE_NOT_ESTABLISHED` | `recognised_as`/`not_recognised_as` and retained duties visible |
-| `F14` | recommendation automatically executed as if binding | refused or effect `not_established` | operative act and ultimate maker unresolved |
-| `F15` | revocation after certificate, before irreversible effect | refused + `REVOCATION_OBSERVED_BEFORE_EFFECT` | no effect; dependency event persisted |
-| `F16` | revocation after irreversible effect | historical certificate retained; current state invalidated | no false rollback; downstream effects stopped |
-| `F17` | duplicate certificate presentation | second use refused | replay store and exact effect commitment |
-| `F18` | same certificate with amount/recipient changed | refused + commitment mismatch | no partial binding acceptance |
-| `F19` | one authority path revoked, independent path valid | positive only if complete alternate path satisfies all conjunctions | path-level, not principal-level invalidation |
-| `F20` | conflict register unavailable in degraded mode | `not_established`, never pass | degraded source named; candidate band may continue |
-| `F21` | late meeting event arrives showing member left before vote | current certificate invalidated/revalidation required | original snapshot and correction both preserved |
-| `F22` | duplicate revocation event | idempotent single transition | no double side effect or duplicate incident |
-| `F23` | conflicting appointment records | `not_established` | contradiction and required adjudicator/owner named |
-| `F24` | historical replay after law/profile change | reproduce original result and separately report current reinterpretation | no use of current rule as historical fact |
+### 7.1 F6 — effect-class downgrade
 
-## 8. Benchmark proposal
+```yaml
+authoritative_effect_profile: irreversible
+caller_candidate: reversible
+canonical_hash_valid: true
+expected:
+  local_result: refused
+  reason_ids:
+    - polisyos.int_r5.reason.effect_class_mismatch@0.1.0-candidate
+  protected_effect_count: 0
+```
 
-### 8.1 Frozen public regression pack
+The effect-classification profile owner, not the caller, is decisive.
 
-The public pack contains:
+### 7.2 F7 — jurisdiction profile shopping
 
-- the five required fixtures;
-- all profile variants explicitly named above;
-- valid near-pass controls;
-- one mutation per decisive field;
-- one exact decision/effect commitment substitution test;
-- one unappointed-holder test;
-- one cross-agency negative-perimeter test;
-- one act-type title-versus-effect test.
+```yaml
+applicability_resolver: jurisdiction-strict-v3
+caller_candidate: jurisdiction-permissive-v1
+both_refs_well_formed: true
+expected:
+  local_result: refused
+  reason_ids:
+    - polisyos.int_r5.reason.profile_applicability_mismatch@0.1.0-candidate
+```
 
-The oracle labels authority **admissibility**, not ultimate legal truth. Every fixture declares its
-jurisdiction/profile and source assumptions.
+Unknown/conflicting mandatory applicability returns `not_established`; it never selects the most
+permissive profile.
 
-### 8.2 Sealed holdout pack
+### 7.3 F8 — revalidation-mode downgrade
 
-The sealed pack changes names, edge order, document titles, account aliases and harmless metadata;
-it also includes structurally novel but semantically equivalent instances. This prevents teaching a
-checker to the literal witness names or refusal codes.
+```yaml
+profile_and_effect_class_derive: revalidate_before_commit
+caller_candidate: snapshot_by_explicit_rule
+expected:
+  local_result: refused
+  reason_ids:
+    - polisyos.int_r5.reason.revalidation_mode_mismatch@0.1.0-candidate
+```
 
-### 8.3 Metrics
+### 7.4 F9 — valid hash, non-positive provenance
+
+A requester supplies correctly canonicalized amount, recipient, time and profile refs, but no
+admitted producers. Expected result is `not_established`; integrity cannot substitute for provenance.
+
+## 8. PAO-R4 two-direction fixture family
+
+### 8.1 F10 — authority valid, PAO-R4 missing
+
+```yaml
+target: individual_case_or_pointwise_recoverable
+INT_R5_certificate: pre_action_valid
+DS20_admission: valid
+PAO_R4_receipt: missing
+expected:
+  protected_effect_count: 0
+  reason_ids:
+    - polisyos.int_r5.reason.pao_r4_receipt_missing@0.1.0-candidate
+```
+
+### 8.2 F11 — PAO-R4 valid, authority missing
+
+```yaml
+target: individual_case_or_pointwise_recoverable
+PAO_R4_receipt: valid
+DS20_admission: valid
+INT_R5_certificate: missing_or_refused
+expected:
+  protected_effect_count: 0
+  reason_ids:
+    - polisyos.int_r5.reason.institutional_authority_missing@0.1.0-candidate
+```
+
+These fixtures keep owners separate. Neither receipt can be manufactured or inferred by the other's
+consumer.
+
+## 9. Acquisition topology fixture
+
+### 9.1 Current-baseline red
+
+At baseline `dc7bdf79a`, the real `ingest_data -> run_data_ingestion` path has DS20 permission/resource
+binding and `ACQUISITION_APPROVAL` step-up but no PA2/DS9 institutional-authority bridge.
+
+A semantic test against that real consumer must be red or explicitly unsupported:
+
+```yaml
+expected_current_baseline:
+  can_express_full_INT_R5_pre_effect_chain: false
+  acquisition_authority_bridge: missing
+  production_positive_certificate_claim: forbidden
+```
+
+A test that passes because it calls the separate human-decision service without proving the
+acquisition call edge is invalid.
+
+### 9.2 Future acceptance
+
+A future test may turn green only when the exact acquisition route consumes:
+
+1. decision/effect commitment;
+2. graph certificate/currentness receipt;
+3. conditional PAO-R4 receipt where applicable;
+4. DS20 exact admission;
+5. effect count/readback proving no sibling bypass.
+
+## 10. Extended adversarial matrix
+
+| ID | Scenario | Expected result/observation |
+|---|---|---|
+| `F12` | required institutional role has no holder | `not_established` + `polisyos.int_r5.reason.missing_appointed_holder@0.1.0-candidate`; candidate lane remains |
+| `F13` | adjudicator absent for disputed recusal | `not_established`; no borrowed maintainer/requester |
+| `F14` | transaction split below amount limit | refused after aggregate valuation |
+| `F15` | child scope wider than parent | offending path invalid; no amplification |
+| `F16` | displayed successor title with invalid predecessor | descendant path invalid |
+| `F17` | requester-only emergency | `not_established`; no permanent elevation |
+| `F18` | authenticated foreign assertion used as local authority | refuse; show `recognised_as`/negative perimeter |
+| `F19` | recommendation automatically executed | refuse or act effect `not_established` |
+| `F20` | revocation after certificate before effect | no effect; dependency event persisted |
+| `F21` | revocation after irreversible effect | history retained; downstream stopped; no false rollback |
+| `F22` | duplicate certificate use | second use refused by replay binding |
+| `F23` | amount/recipient mutation | exact commitment mismatch; no partial acceptance |
+| `F24` | one path revoked, independent path valid | positive only if alternate path independently satisfies all conjunctions |
+| `F25` | conflict register unavailable | `not_established`, never positive |
+| `F26` | late leave/recusal event | current certificate invalidated/revalidation required; original snapshot retained |
+| `F27` | duplicate/out-of-order revocation | one idempotent governed transition |
+| `F28` | conflicting appointment records | `not_established`; contradiction and owner named |
+| `F29` | historical replay after profile change | original result plus separate current reinterpretation |
+
+## 11. Benchmark, holdout and fault injection
+
+The frozen public pack contains the mandatory five fixtures, all named profile variants, near-pass
+controls, one mutation per decisive field, unappointed-holder, cross-agency negative perimeter,
+title-versus-effect, producer-substitution and PAO-R4 two-direction cases.
+
+The sealed holdout changes identities, edge order, titles, aliases and harmless metadata and includes
+structurally novel equivalents. Oracle labels concern authority admissibility under declared profiles,
+not ultimate legal truth.
+
+Metrics:
 
 ```text
 false_grant
 false_refusal
-wrong_refusal_reason
+wrong_reason_identity
 missed_dependency
 stale_certificate_use
 commitment_replay_or_substitution
 profile_collapse
 post_hoc_backdating
 unbounded_conflict_claim
+PAO_R4_substitution
+caller_fact_upgrade
 ```
 
-`false_grant` is the primary safety metric. A structural-only pass with no real consumer effect is
-not a successful fixture run.
+`false_grant` is primary. A passing structural test without a real producer, bridge and consumer is
+vacuous.
 
-## 9. Tabletop and fault injection
+Required fault injections include provider loss before effect, delayed/duplicate/out-of-order
+revocation, corrupted parent grant, removed quorum branch, late recusal, conflicting recognition,
+guarded-store failure, profile change and mass root invalidation. Recovery must fail closed, remain
+idempotent, preserve history and execute no protected effect without final currentness.
 
-A later implementation must execute, not merely discuss, the following drills:
+## 12. Red-first acceptance rule
 
-1. kill the appointment/status provider after graph resolution but before effect;
-2. delay a revocation event until after pre-action issuance but before commit;
-3. deliver revocation twice and out of order;
-4. corrupt one parent delegation while leaving the child signature valid;
-5. remove the meeting event that establishes one required quorum branch;
-6. send a late recusal event that changes both quorum and voting denominator;
-7. return conflicting external-recognition status from two sources;
-8. make the guarded store unavailable after validation;
-9. change the jurisdiction profile between historical replay and current evaluation;
-10. simulate a mass invalidation of one authority root and enumerate all dependent certificates.
+For every fixture:
 
-Required recovery observations:
+1. demonstrate current inability or unsafe behavior against the real consumer;
+2. write the failing semantic/e2e test;
+3. implement the smallest owner-first mechanism under separate authority;
+4. show red before and green after;
+5. run near-pass, mutations and sealed holdout;
+6. prove no sibling consumer bypass;
+7. read back persisted graph, receipt/events and exact effect count;
+8. verify corruption of producer evidence, profile, time or commitment is detected.
 
-- no false grant during provider failure;
-- typed `not_established` or revalidation-required state;
-- idempotent event handling;
-- preserved original graph/certificate;
-- dependency-complete invalidation;
-- no silent substitution of current law/state into historical replay;
-- no effect without a final currentness checkpoint.
-
-## 10. Red-first acceptance rule
-
-For each fixture:
-
-1. demonstrate the current implementation cannot express or enforce the property without the new
-   graph/certificate chain;
-2. write the failing semantic/e2e test against the real consumer;
-3. implement the smallest owner-first mechanism;
-4. show the named failure turns red before the fix and green after it;
-5. run near variants and the sealed holdout;
-6. prove no sibling consumer bypass exists;
-7. read back persisted evidence and effect count.
-
-A test that passes because the protected producer or consumer does not exist is vacuous and cannot
-close a fixture.
+A reason string alone is never proof that the property is enforced.

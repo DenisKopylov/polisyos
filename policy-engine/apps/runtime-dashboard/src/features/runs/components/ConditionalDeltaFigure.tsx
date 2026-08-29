@@ -84,7 +84,10 @@ function EnvelopeField({ field, label, values }: EnvelopeFieldProps) {
             {values[0]}
           </span>
         ) : (
-          <ol className="list-decimal space-y-1 pl-5">
+          <ol
+            className="list-none space-y-1 pl-5"
+            style={{ listStyle: "none" }}
+          >
             {values.map((item, index) => (
               <li
                 data-confidence-text={`dialog.field.${field}.value.${index}`}
@@ -167,6 +170,7 @@ export function ConditionalDeltaFigure({
             data-confidence-text="figure.conditionality_riders"
             data-confidence-trigger="conditional-delta"
             id={triggerId}
+            style={{ appearance: "none" }}
             type="button"
           >
             {riders}
@@ -183,7 +187,13 @@ export function ConditionalDeltaFigure({
           data-confidence-dialog-trigger-id={triggerId}
           data-confidence-scope-id={amount.scope_id}
           data-confidence-semantic-role={amount.semantic_role}
+          onOpenAutoFocus={(event) => event.preventDefault()}
         >
+          <style>
+            {
+              "[data-confidence-dialog-envelope-ref] > button { appearance: none; }"
+            }
+          </style>
           <DialogHeader>
             <DialogTitle data-confidence-text="dialog.title">
               {dialogTitle}

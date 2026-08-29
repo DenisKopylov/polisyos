@@ -52,7 +52,11 @@ function SemanticList({
     return <SemanticValue field={`${field}.count`} value={0} />;
   }
   return (
-    <ol className="list-decimal space-y-1 pl-5" data-confidence-list={field}>
+    <ol
+      className="list-none space-y-1 pl-5"
+      data-confidence-list={field}
+      style={{ listStyle: "none" }}
+    >
       {values.map((value, index) => (
         <li key={`${field}-${index}-${value}`}>
           <SemanticValue field={`${field}.${index}`} value={value} />
@@ -407,7 +411,11 @@ function AvailableRiskSpend({
         section="actual-rows"
         title={t("pages.cycleBoard.confidenceLedger.sections.actualRows")}
       >
-        <ol className="space-y-3" data-confidence-list="actual-rows">
+        <ol
+          className="list-none space-y-3"
+          data-confidence-list="actual-rows"
+          style={{ listStyle: "none" }}
+        >
           {actualRows.map((row) => (
             <li key={row.instance_ref}>
               <ActualRow coverageEnvelope={body.coverage_envelope} row={row} />
@@ -435,7 +443,11 @@ function AvailableRiskSpend({
             spent={body.scope_total_risk_spend.spent}
           />
         </article>
-        <ol className="space-y-4" data-confidence-list="class-spend">
+        <ol
+          className="list-none space-y-4"
+          data-confidence-list="class-spend"
+          style={{ listStyle: "none" }}
+        >
           {body.obligation_class_risk_spend.map((row) => (
             <li key={row.obligation_class}>
               <ClassSpendRow
@@ -454,7 +466,11 @@ function AvailableRiskSpend({
         <h3 data-confidence-text="denominators.instrument_definitions.title">
           {t("pages.cycleBoard.confidenceLedger.instrumentDefinitions")}
         </h3>
-        <ol className="space-y-3" data-confidence-list="instrument-definitions">
+        <ol
+          className="list-none space-y-3"
+          data-confidence-list="instrument-definitions"
+          style={{ listStyle: "none" }}
+        >
           {body.instrument_definitions.map((row) => (
             <li key={row.instrument_id}>
               <InstrumentDefinition row={row} />
@@ -464,7 +480,11 @@ function AvailableRiskSpend({
         <h3 data-confidence-text="denominators.certificate_routes.title">
           {t("pages.cycleBoard.confidenceLedger.certificateRoutes")}
         </h3>
-        <ol className="space-y-3" data-confidence-list="certificate-routes">
+        <ol
+          className="list-none space-y-3"
+          data-confidence-list="certificate-routes"
+          style={{ listStyle: "none" }}
+        >
           {body.certificate_routes.map((row) => (
             <li key={row.certificate_class}>
               <CertificateRoute row={row} />
@@ -697,6 +717,7 @@ function AvailableRiskSpend({
               "application/json",
             )
           }
+          style={{ appearance: "none" }}
           type="button"
           variant="outline"
         >

@@ -353,6 +353,35 @@ describe("CycleBoardPage MACHINE/rendered-DOM parity", () => {
     expect(riskRequests()).toBe(1);
   });
 
+  it("blocks when list normalization is removed while the page marker remains", async () => {
+    const { container, riskPacket, riskWireBytes } = await renderRealBoard();
+    const pageRoot = required(container, "[data-ds17-confidence-ledger-page]");
+    const normalization = required(pageRoot, ":scope > style");
+    const root = required(container, '[data-confidence-surface="risk-spend"]');
+    await openRiskSpendDialog(root);
+
+    normalization.textContent =
+      "[data-ds17-confidence-ledger-page] :is(button, input, select, textarea) { appearance: none !important; }";
+    expect(pageRoot.hasAttribute("data-ds17-confidence-ledger-page")).toBe(
+      true,
+    );
+
+    await expect(
+      withConfidenceLedgerTestVisibilityPlatform(root.ownerDocument, () =>
+        evaluateConfidenceLedgerRiskSpendTwin({
+          evaluationMode: "exact_finite_schema",
+          packetCandidate: riskPacket,
+          rawPacketBytes: riskWireBytes,
+          root,
+          stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+        }),
+      ),
+    ).resolves.toEqual({
+      reason: "unproved_approximation",
+      status: "blocked",
+    });
+  });
+
   it.each([
     {
       apply: (root: HTMLElement) => {

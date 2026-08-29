@@ -80,6 +80,7 @@ export async function withConfidenceLedgerTestVisibilityPlatform<T>(
   const snapshots = [
     snapshotProperty(elementPrototype, "checkVisibility"),
     snapshotProperty(elementPrototype, "getBoundingClientRect"),
+    snapshotProperty(elementPrototype, "getClientRects"),
     snapshotProperty(elementPrototype, "scrollIntoView"),
     snapshotProperty(rangePrototype, "getClientRects"),
     snapshotProperty(document, "elementsFromPoint"),
@@ -88,7 +89,74 @@ export async function withConfidenceLedgerTestVisibilityPlatform<T>(
   ];
   let scrolledElement: HTMLElement | null = null;
   let rangeHost: HTMLElement | null = null;
+  let nextRectIndex = 0;
+  const rectByElement = new WeakMap<Element, DOMRect>();
+  const rectFor = (element: Element): DOMRect => {
+    const existing = rectByElement.get(element);
+    if (existing !== undefined) return existing;
+    const rect = new view.DOMRect(16 + nextRectIndex * 200, 16, 160, 20);
+    nextRectIndex += 1;
+    rectByElement.set(element, rect);
+    return rect;
+  };
   const nativeGetComputedStyle = view.getComputedStyle.bind(view);
+  const pseudoStyleProbe = document.createElement("span");
+  const pseudoComputedStyle = new Proxy(
+    nativeGetComputedStyle(pseudoStyleProbe),
+    {
+      get(target, property) {
+        if (property === "length") return 0;
+        if (property === "item") return () => "";
+        if (property === "getPropertyValue") {
+          return (name: string) => (name === "content" ? "normal" : "");
+        }
+        const value = Reflect.get(target, property, target);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    },
+  );
+
+  const authorRuleDeclaresListNone = (element: HTMLElement): boolean => {
+    let found = false;
+    const visit = (rules: CSSRuleList): void => {
+      for (let index = 0; index < rules.length && !found; index += 1) {
+        const rule = rules.item(index);
+        if (rule === null) continue;
+        const candidate = rule as CSSRule & {
+          readonly cssRules?: CSSRuleList;
+          readonly selectorText?: string;
+          readonly style?: CSSStyleDeclaration;
+        };
+        if (
+          typeof candidate.selectorText === "string" &&
+          candidate.style !== undefined
+        ) {
+          try {
+            found =
+              element.matches(candidate.selectorText) &&
+              candidate.style
+                .getPropertyValue("list-style")
+                .split(/\s+/u)
+                .includes("none");
+          } catch {
+            found = false;
+          }
+        }
+        if (!found && candidate.cssRules !== undefined) {
+          visit(candidate.cssRules);
+        }
+      }
+    };
+    for (const sheet of document.styleSheets) {
+      try {
+        visit(sheet.cssRules);
+      } catch {
+        return false;
+      }
+      if (found) return true;
+    }
+    return false;
+  };
 
   Object.defineProperty(elementPrototype, "checkVisibility", {
     configurable: true,
@@ -96,7 +164,20 @@ export async function withConfidenceLedgerTestVisibilityPlatform<T>(
   });
   Object.defineProperty(elementPrototype, "getBoundingClientRect", {
     configurable: true,
-    value: () => new view.DOMRect(16, 16, 160, 20),
+    value(this: Element) {
+      return rectFor(this);
+    },
+  });
+  Object.defineProperty(elementPrototype, "getClientRects", {
+    configurable: true,
+    value(this: Element) {
+      const rect = rectFor(this);
+      return Object.freeze({
+        0: rect,
+        item: (index: number) => (index === 0 ? rect : null),
+        length: 1,
+      });
+    },
   });
   Object.defineProperty(elementPrototype, "scrollIntoView", {
     configurable: true,
@@ -111,7 +192,10 @@ export async function withConfidenceLedgerTestVisibilityPlatform<T>(
       const start = this.startContainer;
       rangeHost =
         start instanceof view.HTMLElement ? start : start.parentElement;
-      const rect = new view.DOMRect(16, 16, 160, 20);
+      const rect =
+        rangeHost === null
+          ? new view.DOMRect(16, 16, 160, 20)
+          : rectFor(rangeHost);
       return Object.freeze({
         0: rect,
         item: (index: number) => (index === 0 ? rect : null),
@@ -129,12 +213,14 @@ export async function withConfidenceLedgerTestVisibilityPlatform<T>(
   Object.defineProperty(view, "getComputedStyle", {
     configurable: true,
     value: (element: Element, pseudoElement?: string | null) => {
-      const style = nativeGetComputedStyle(
-        element,
-        pseudoElement === null || pseudoElement === undefined
-          ? pseudoElement
-          : undefined,
-      );
+      // JSDOM ignores the pseudo-element argument. Supplying the host style
+      // would falsely transfer host paint into every pseudo census. The test
+      // double therefore exposes an empty, unsupported declaration; real
+      // pseudo paint remains covered by the persistent native-Chromium lane.
+      if (pseudoElement !== null && pseudoElement !== undefined) {
+        return pseudoComputedStyle;
+      }
+      const style = nativeGetComputedStyle(element);
       return new Proxy(style, {
         get(target, property) {
           if (property === "getPropertyValue") {
@@ -149,6 +235,22 @@ export async function withConfidenceLedgerTestVisibilityPlatform<T>(
               }
               if (name === "-webkit-text-fill-color") {
                 return target.getPropertyValue("color") || "rgb(0, 0, 0)";
+              }
+              if (
+                (name === "list-style-image" || name === "list-style-type") &&
+                pseudoElement === undefined &&
+                element instanceof view.HTMLElement
+              ) {
+                let listOwner: HTMLElement | null = element;
+                while (listOwner !== null) {
+                  if (
+                    listOwner.style.listStyle.split(/\s+/u).includes("none") ||
+                    authorRuleDeclaresListNone(listOwner)
+                  ) {
+                    return "none";
+                  }
+                  listOwner = listOwner.parentElement;
+                }
               }
               return JSDOM_COMPUTED_DEFAULTS[name] ?? "";
             };

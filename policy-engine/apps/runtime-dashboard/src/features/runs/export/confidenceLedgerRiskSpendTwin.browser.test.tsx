@@ -1,6 +1,7 @@
 /* eslint-disable testing-library/no-container, testing-library/no-node-access -- native paint falsifiers deliberately mutate governed nodes */
 import type { AvailableConfidenceLedgerRiskSpendPacket } from "@polisyos/runtime-api-client";
 import { fireEvent, render } from "@testing-library/react";
+import { page } from "vitest/browser";
 
 import openApiDocument from "../../../../../../schemas/runtime_api_v1.openapi.json";
 import type { ConfidenceLedgerRiskSpendProjection } from "@/features/runs/api/useConfidenceLedgerRiskSpend";
@@ -92,7 +93,7 @@ function renderNativeEvaluation() {
   if (trigger === null)
     throw new Error("conditionality trigger did not render");
   fireEvent.click(trigger);
-  return { packet, rawPacketBytes, root };
+  return { packet, rawPacketBytes, root, view };
 }
 
 function evaluateNative(
@@ -388,6 +389,104 @@ const NATIVE_RANGE_REGION_CASES = (["descendant", "sibling"] as const).flatMap(
     })),
 );
 
+const NATIVE_PAINT_EXTENSION_CASES = [
+  {
+    apply: (element: HTMLElement) => {
+      element.style.boxShadow = "0 0 0 1000px black";
+    },
+    name: "box-shadow spread",
+    remove: (element: HTMLElement) => {
+      element.style.removeProperty("box-shadow");
+    },
+  },
+  {
+    apply: (element: HTMLElement) => {
+      element.style.outline = "1000px solid black";
+      element.style.outlineOffset = "1px";
+    },
+    name: "offset outline",
+    remove: (element: HTMLElement) => {
+      element.style.removeProperty("outline");
+      element.style.removeProperty("outline-offset");
+    },
+  },
+  {
+    apply: (element: HTMLElement) => {
+      element.style.filter = "drop-shadow(0 0 1000px black)";
+    },
+    name: "drop-shadow filter",
+    remove: (element: HTMLElement) => {
+      element.style.removeProperty("filter");
+    },
+  },
+  {
+    apply: (element: HTMLElement) => {
+      element.style.textShadow = "0 0 1000px black";
+    },
+    name: "text-shadow blur",
+    remove: (element: HTMLElement) => {
+      element.style.removeProperty("text-shadow");
+    },
+  },
+] as const;
+
+function appendDisjointPaintSibling(
+  root: HTMLElement,
+  marker: string,
+): HTMLElement {
+  const leaf = governedLeaf(root);
+  const parent = root.parentElement;
+  if (parent === null) throw new Error("governed surface host is missing");
+  const sibling = leaf.ownerDocument.createElement("span");
+  sibling.dataset.confidencePaintExtension = marker;
+  sibling.textContent = "x";
+  Object.assign(sibling.style, {
+    backgroundColor: "rgb(0, 0, 0)",
+    color: "rgb(0, 0, 0)",
+    fontSize: "1px",
+    height: "1px",
+    left: "0px",
+    lineHeight: "1px",
+    pointerEvents: "none",
+    position: "fixed",
+    top: "0px",
+    width: "1px",
+    zIndex: "2147483647",
+  });
+  parent.append(sibling);
+  const siblingRect = sibling.getClientRects().item(0);
+  if (
+    siblingRect === null ||
+    siblingRect.width <= 0 ||
+    siblingRect.height <= 0
+  ) {
+    throw new Error("paint-extension sibling has no layout rectangle");
+  }
+  const textRect = governedTextRect(leaf);
+  if (
+    siblingRect.left < textRect.right &&
+    siblingRect.right > textRect.left &&
+    siblingRect.top < textRect.bottom &&
+    siblingRect.bottom > textRect.top
+  ) {
+    throw new Error("paint-extension sibling layout intersects governed text");
+  }
+  return sibling;
+}
+
+function appendFirstLetterPaintExtension(
+  root: HTMLElement,
+): Readonly<{ host: HTMLElement; rule: HTMLStyleElement }> {
+  const host = appendDisjointPaintSibling(root, "first-letter-text-shadow");
+  const rule = host.ownerDocument.createElement("style");
+  rule.dataset.confidencePaintExtensionRule = "first-letter-text-shadow";
+  rule.textContent = `
+    [data-confidence-paint-extension="first-letter-text-shadow"]::first-letter {}
+  `;
+  host.before(rule);
+  return { host, rule };
+}
+
 describe.runIf(
   typeof navigator !== "undefined" &&
     !navigator.userAgent.toLowerCase().includes("jsdom"),
@@ -482,6 +581,178 @@ describe.runIf(
       });
     },
   );
+
+  it.each(NATIVE_PAINT_EXTENSION_CASES)(
+    "admits a marked disjoint sibling after only $name is removed, then blocks the extension",
+    async ({ apply, name, remove }) => {
+      const fixture = renderNativeEvaluation();
+      const sibling = appendDisjointPaintSibling(fixture.root, name);
+      try {
+        apply(sibling);
+        remove(sibling);
+        expect(sibling.dataset.confidencePaintExtension).toBe(name);
+        await expect(evaluateNative(fixture)).resolves.toMatchObject({
+          status: "exact",
+        });
+
+        apply(sibling);
+        await expect(evaluateNative(fixture)).resolves.toEqual({
+          reason: "unproved_approximation",
+          status: "blocked",
+        });
+      } finally {
+        sibling.remove();
+        fixture.view.unmount();
+      }
+    },
+  );
+
+  it("blocks a first-letter paint extension while its host and rule markers remain", async () => {
+    const fixture = renderNativeEvaluation();
+    const extension = appendFirstLetterPaintExtension(fixture.root);
+    try {
+      await expect(evaluateNative(fixture)).resolves.toMatchObject({
+        status: "exact",
+      });
+
+      extension.rule.textContent = `
+        [data-confidence-paint-extension="first-letter-text-shadow"]::first-letter {
+          text-shadow: 0 0 1000px black;
+        }
+      `;
+      expect(extension.host.dataset.confidencePaintExtension).toBe(
+        "first-letter-text-shadow",
+      );
+      expect(extension.rule.dataset.confidencePaintExtensionRule).toBe(
+        "first-letter-text-shadow",
+      );
+      await expect(evaluateNative(fixture)).resolves.toEqual({
+        reason: "unproved_approximation",
+        status: "blocked",
+      });
+    } finally {
+      extension.rule.remove();
+      extension.host.remove();
+      fixture.view.unmount();
+    }
+  });
+
+  it("blocks an open shadow-root paint extension while its host marker remains", async () => {
+    const fixture = renderNativeEvaluation();
+    const host = appendDisjointPaintSibling(fixture.root, "open-shadow-root");
+    try {
+      await expect(evaluateNative(fixture)).resolves.toMatchObject({
+        status: "exact",
+      });
+
+      const shadow = host.attachShadow({ mode: "open" });
+      const extension = host.ownerDocument.createElement("span");
+      extension.textContent = "x";
+      Object.assign(extension.style, {
+        boxShadow: "0 0 0 1000px black",
+        display: "block",
+        height: "1px",
+        width: "1px",
+      });
+      shadow.append(extension);
+      expect(host.dataset.confidencePaintExtension).toBe("open-shadow-root");
+      await expect(evaluateNative(fixture)).resolves.toEqual({
+        reason: "unproved_approximation",
+        status: "blocked",
+      });
+    } finally {
+      host.remove();
+      fixture.view.unmount();
+    }
+  });
+
+  it("blocks a closed shadow-root paint extension while its host marker remains", async () => {
+    const fixture = renderNativeEvaluation();
+    const host = appendDisjointPaintSibling(fixture.root, "closed-shadow-root");
+    host.textContent = "";
+    try {
+      await expect(evaluateNative(fixture)).resolves.toMatchObject({
+        status: "exact",
+      });
+      const baselinePixels = await page.screenshot({
+        element: governedLeaf(fixture.root),
+        save: false,
+      });
+
+      const shadow = host.attachShadow({ mode: "closed" });
+      const extension = host.ownerDocument.createElement("span");
+      extension.textContent = "x";
+      Object.assign(extension.style, {
+        boxShadow: "0 0 0 1000px black",
+        display: "block",
+        height: "1px",
+        width: "1px",
+      });
+      shadow.append(extension);
+      expect(host.shadowRoot).toBeNull();
+      expect(host.dataset.confidencePaintExtension).toBe("closed-shadow-root");
+      const coveredPixels = await page.screenshot({
+        element: governedLeaf(fixture.root),
+        save: false,
+      });
+      expect(coveredPixels).not.toBe(baselinePixels);
+      await expect(evaluateNative(fixture)).resolves.toEqual({
+        reason: "unproved_approximation",
+        status: "blocked",
+      });
+    } finally {
+      host.remove();
+      fixture.view.unmount();
+    }
+  });
+
+  it("blocks text paint escaping a disjoint element rectangle while its marker remains", async () => {
+    const fixture = renderNativeEvaluation();
+    const leaf = governedLeaf(fixture.root);
+    const host = appendDisjointPaintSibling(
+      fixture.root,
+      "text-indent-overflow",
+    );
+    Object.assign(host.style, {
+      display: "block",
+      left: "500px",
+      top: "100px",
+    });
+    try {
+      await expect(evaluateNative(fixture)).resolves.toMatchObject({
+        status: "exact",
+      });
+
+      host.style.textIndent = "-400px";
+      const hostRect = host.getClientRects().item(0);
+      const textNode = host.firstChild;
+      if (hostRect === null || !(textNode instanceof Text)) {
+        throw new Error("text-paint extension geometry is unavailable");
+      }
+      const range = host.ownerDocument.createRange();
+      range.selectNodeContents(textNode);
+      const textRect = range.getClientRects().item(0);
+      if (textRect === null) {
+        throw new Error("text-paint extension range is unavailable");
+      }
+      const governedRect = governedTextRect(leaf);
+      expect(hostRect.left).toBeGreaterThanOrEqual(governedRect.right);
+      expect(
+        textRect.left < governedRect.right &&
+          textRect.right > governedRect.left,
+      ).toBe(true);
+      expect(host.dataset.confidencePaintExtension).toBe(
+        "text-indent-overflow",
+      );
+      await expect(evaluateNative(fixture)).resolves.toEqual({
+        reason: "unproved_approximation",
+        status: "blocked",
+      });
+    } finally {
+      host.remove();
+      fixture.view.unmount();
+    }
+  });
 
   it("blocks generated pseudo paint over a governed text range", async () => {
     const fixture = renderNativeEvaluation();

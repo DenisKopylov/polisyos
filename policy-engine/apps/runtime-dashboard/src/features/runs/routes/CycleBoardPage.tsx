@@ -58,7 +58,12 @@ function ConfidenceLedgerRiskSpendQueryPanel() {
 function AuthorizedCycleBoardPage() {
   const { t } = useI18n();
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-ds17-confidence-ledger-page>
+      <style>
+        {
+          "[data-ds17-confidence-ledger-page] :is(button, input, select, textarea) { appearance: none !important; } [data-ds17-confidence-ledger-page] :is(ol, ul, menu, summary) { list-style: none !important; }"
+        }
+      </style>
       <PanelErrorBoundary
         body={t("pages.cycleBoard.boundaryBody")}
         title={t("pages.cycleBoard.boundaryTitle")}

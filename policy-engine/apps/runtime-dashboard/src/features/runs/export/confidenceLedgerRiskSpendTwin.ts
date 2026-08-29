@@ -211,63 +211,10 @@ function isPureTranslation(value: string): boolean {
   );
 }
 
-const ADMITTED_INLINE_VISIBILITY_PROPERTIES = new Set([
-  "-webkit-text-fill-color",
-  "-webkit-text-security",
-  "-webkit-text-stroke-width",
-  "backdrop-filter",
-  "background-blend-mode",
-  "box-shadow",
-  "clip",
-  "clip-path",
-  "color",
-  "content-visibility",
-  "display",
-  "filter",
-  "font-size",
-  "height",
-  "isolation",
-  "left",
-  "mask",
-  "mask-image",
-  "mix-blend-mode",
-  "opacity",
-  "overflow",
-  "overflow-x",
-  "overflow-y",
-  "paint-order",
-  "perspective",
-  "position",
-  "rotate",
-  "scale",
-  "text-decoration-line",
-  "text-emphasis-style",
-  "text-indent",
-  "text-shadow",
-  "text-transform",
-  "top",
-  "transform",
-  "translate",
-  "visibility",
-  "width",
-  "will-change",
-  "-webkit-mask-image",
-]);
-
 function finitePaintGrammarProof(
-  element: HTMLElement,
   style: CSSStyleDeclaration,
   allowGeometricProof: boolean,
 ): VisibilityProof {
-  for (let index = 0; index < element.style.length; index += 1) {
-    const property = element.style.item(index);
-    if (
-      !property.startsWith("--") &&
-      !ADMITTED_INLINE_VISIBILITY_PROPERTIES.has(property)
-    ) {
-      return "unproved";
-    }
-  }
   const color = style.getPropertyValue("color");
   const textFill = style.getPropertyValue("-webkit-text-fill-color");
   if (
@@ -408,7 +355,7 @@ function styleVisibilityProof(
   ) {
     return "hidden";
   }
-  return finitePaintGrammarProof(element, style, allowGeometricProof);
+  return finitePaintGrammarProof(style, allowGeometricProof);
 }
 
 type ScrollSnapshot = Readonly<{
@@ -420,6 +367,120 @@ type ScrollSnapshot = Readonly<{
 const CONFIDENCE_LEDGER_MAX_TEXT_RANGE_RECTS = 64;
 const CONFIDENCE_LEDGER_PAINT_RECT_TREE_LEAF_CAP =
   CONFIDENCE_LEDGER_MAX_TEXT_RANGE_RECTS / 4;
+// eslint-disable-next-line policyos/quantity-must-be-wrapped -- this is a private finite-work cap, never a rendered policy quantity.
+const CONFIDENCE_LEDGER_COMPUTED_STYLE_PROPERTY_CAP = 1024;
+// eslint-disable-next-line policyos/quantity-must-be-wrapped -- these are private finite-work caps, never rendered policy quantities.
+const CONFIDENCE_LEDGER_CSS_RULE_CAP = 8192;
+// eslint-disable-next-line policyos/quantity-must-be-wrapped -- this is a private finite-work cap, never a rendered policy quantity.
+const CONFIDENCE_LEDGER_PSEUDO_SELECTOR_CAP = 64;
+
+const BASE_RENDERED_PSEUDO_SELECTORS = [
+  "::after",
+  "::before",
+  "::marker",
+] as const;
+const RECT_CONTAINED_TEXT_PSEUDO_SELECTORS = new Set([
+  "::file-selector-button",
+  "::first-letter",
+  "::first-line",
+  "::grammar-error",
+  "::placeholder",
+  "::selection",
+  "::spelling-error",
+  "::target-text",
+]);
+const PSEUDO_SELECTOR_TOKEN =
+  /::[-_a-zA-Z][-_a-zA-Z0-9]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\))?/gu;
+
+const BOX_GEOMETRY_COMPUTED_PROPERTY =
+  /^(?:align-content|align-items|align-self|block-size|bottom|box-sizing|clear|column-gap|display|flex-basis|flex-direction|flex-grow|flex-shrink|flex-wrap|float|gap|height|inline-size|inset|inset-block|inset-block-end|inset-block-start|inset-inline|inset-inline-end|inset-inline-start|justify-content|justify-items|justify-self|left|margin|margin-block|margin-block-end|margin-block-start|margin-bottom|margin-inline|margin-inline-end|margin-inline-start|margin-left|margin-right|margin-top|max-block-size|max-height|max-inline-size|max-width|min-block-size|min-height|min-inline-size|min-width|order|padding|padding-block|padding-block-end|padding-block-start|padding-bottom|padding-inline|padding-inline-end|padding-inline-start|padding-left|padding-right|padding-top|place-content|place-items|place-self|position|right|row-gap|top|vertical-align|width)$/u;
+const BORDER_BOX_PAINT_COMPUTED_PROPERTY =
+  /^(?:background-color|border-(?:(?:block|inline)-(?:end|start)|bottom|left|right|top)-(?:color|style|width)|border-(?:bottom-left|bottom-right|end-end|end-start|start-end|start-start|top-left|top-right)-radius|column-rule-color)$/u;
+const TYPOGRAPHIC_GEOMETRY_COMPUTED_PROPERTY =
+  /^(?:-webkit-locale|-webkit-text-fill-color|-webkit-text-stroke-color|caret-color|color|font-family|font-size|font-stretch|font-style|font-variant|font-weight|hyphens|letter-spacing|line-height|overflow-wrap|tab-size|text-align|text-decoration-color|text-emphasis-color|text-indent|text-rendering|text-transform|unicode-bidi|white-space|word-break|word-spacing|writing-mode)$/u;
+const NON_PAINTING_COMPUTED_PROPERTY =
+  /^(?:contain|content-visibility|counter-increment|counter-reset|counter-set|cursor|isolation|opacity|overflow|overflow-block|overflow-inline|overflow-x|overflow-y|perspective-origin|pointer-events|scrollbar-gutter|text-overflow|touch-action|transform-origin|transition-behavior|transition-delay|transition-duration|transition-property|transition-timing-function|user-select|view-transition-name|visibility|z-index)$/u;
+const SVG_RECT_CONTAINED_COMPUTED_PROPERTY =
+  /^(?:d|fill|fill-opacity|fill-rule|stroke-linecap|stroke-linejoin|stroke-opacity)$/u;
+
+function isFiniteCssPixelLength(value: string): boolean {
+  return /^-?(?:\d+|\d*\.\d+)px$/u.test(value);
+}
+
+function positiveFiniteCssPixelLength(value: string): number | null {
+  if (!isFiniteCssPixelLength(value)) return null;
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+}
+
+function propertyIsIntrinsicallyRectContained(
+  element: Element,
+  style: CSSStyleDeclaration,
+  property: string,
+  value: string,
+  allowElementGeometry: boolean,
+): boolean {
+  if (property.startsWith("--")) {
+    // Custom properties cannot paint directly; every resolved longhand remains
+    // independently present in the engine enumeration below.
+    return true;
+  }
+  if (
+    (allowElementGeometry && BOX_GEOMETRY_COMPUTED_PROPERTY.test(property)) ||
+    (allowElementGeometry &&
+      BORDER_BOX_PAINT_COMPUTED_PROPERTY.test(property)) ||
+    TYPOGRAPHIC_GEOMETRY_COMPUTED_PROPERTY.test(property) ||
+    NON_PAINTING_COMPUTED_PROPERTY.test(property)
+  ) {
+    return true;
+  }
+  if (property === "appearance") {
+    return compactCss(value) === "none";
+  }
+  if (property === "outline") {
+    return compactCss(value) === "none";
+  }
+  if (property === "text-shadow") {
+    return compactCss(value) === "none";
+  }
+  if (property === "list-style" || property === "list-style-type") {
+    return (
+      cssValue(style, "display") !== "list-item" ||
+      (cssValue(style, "list-style-type") === "none" &&
+        cssValue(style, "list-style-image") === "none")
+    );
+  }
+  if (property === "list-style-position") {
+    return (
+      cssValue(style, "display") !== "list-item" ||
+      (cssValue(style, "list-style-type") === "none" &&
+        cssValue(style, "list-style-image") === "none")
+    );
+  }
+  if (property === "list-style-image") {
+    return (
+      cssValue(style, "display") !== "list-item" ||
+      (compactCss(value) === "none" &&
+        cssValue(style, "list-style-type") === "none")
+    );
+  }
+  if (property === "overflow-clip-margin") {
+    const normalized = value.trim();
+    return (
+      normalized === "0px" ||
+      normalized === "content-box" ||
+      normalized === "padding-box" ||
+      normalized.endsWith(" 0px")
+    );
+  }
+  if (property === "transform" || property === "translate") {
+    return allowElementGeometry && isPureTranslation(compactCss(value));
+  }
+  if (SVG_RECT_CONTAINED_COMPUTED_PROPERTY.test(property)) {
+    return allowElementGeometry && element instanceof SVGElement;
+  }
+  return false;
+}
 
 type FinitePaintRect = Readonly<{
   bottom: number;
@@ -452,6 +513,18 @@ function positiveAreaIntersection(
   return (
     Math.max(left.left, right.left) < Math.min(left.right, right.right) &&
     Math.max(left.top, right.top) < Math.min(left.bottom, right.bottom)
+  );
+}
+
+function paintRectContains(
+  container: FinitePaintRect,
+  subject: FinitePaintRect,
+): boolean {
+  return (
+    subject.left >= container.left &&
+    subject.right <= container.right &&
+    subject.top >= container.top &&
+    subject.bottom <= container.bottom
   );
 }
 
@@ -551,6 +624,7 @@ class RenderedVisibilitySession {
     this.#focus = document.activeElement;
     this.#windowX = view.scrollX;
     this.#windowY = view.scrollY;
+    const initialComputedValues = this.captureInitialComputedValues();
     const elements = [...document.querySelectorAll("*")];
     if (elements.length > CONFIDENCE_LEDGER_DOM_NODE_CAP) {
       throw new VisibilityUnprovedError(
@@ -570,7 +644,10 @@ class RenderedVisibilitySession {
         }),
       );
     this.consume(elements.length + this.#scroll.length);
-    this.#paintRectTree = this.capturePaintRectTree(elements);
+    this.#paintRectTree = this.capturePaintRectTree(
+      elements,
+      initialComputedValues,
+    );
   }
 
   consume(work: number): void {
@@ -669,12 +746,351 @@ class RenderedVisibilitySession {
     );
   }
 
+  private captureInitialComputedValues(): ReadonlyMap<string, string> {
+    const host = this.#document.body;
+    if (host === null) {
+      throw new VisibilityUnprovedError(
+        "computed-style initial-value host is unavailable",
+      );
+    }
+    const probe = this.#document.createElement("span");
+    probe.style.setProperty("all", "initial", "important");
+    const values = new Map<string, string>();
+    try {
+      host.append(probe);
+      const style = this.#view.getComputedStyle(probe);
+      if (
+        !Number.isSafeInteger(style.length) ||
+        style.length <= 0 ||
+        style.length > CONFIDENCE_LEDGER_COMPUTED_STYLE_PROPERTY_CAP
+      ) {
+        throw new VisibilityUnprovedError(
+          "computed-style property enumeration is outside its finite cap",
+        );
+      }
+      this.consume(style.length);
+      for (let index = 0; index < style.length; index += 1) {
+        const property = style.item(index);
+        if (property.length === 0 || values.has(property)) {
+          throw new VisibilityUnprovedError(
+            "computed-style initial-value enumeration is incoherent",
+          );
+        }
+        values.set(property, style.getPropertyValue(property));
+      }
+    } catch (error) {
+      if (error instanceof VisibilityUnprovedError) throw error;
+      throw new VisibilityUnprovedError(
+        "computed-style initial values are unavailable",
+      );
+    } finally {
+      probe.remove();
+    }
+    if (probe.isConnected) {
+      throw new VisibilityUnprovedError(
+        "computed-style initial-value probe was not restored",
+      );
+    }
+    return values;
+  }
+
+  private captureRenderedPseudoSelectors(): readonly string[] {
+    const selectors = new Set<string>(BASE_RENDERED_PSEUDO_SELECTORS);
+    const sheets = new Set<CSSStyleSheet>([
+      ...this.#document.styleSheets,
+      ...(this.#document.adoptedStyleSheets ?? []),
+    ]);
+    let ruleCount = 0;
+    const visitRules = (rules: CSSRuleList): void => {
+      for (let index = 0; index < rules.length; index += 1) {
+        ruleCount += 1;
+        this.consume(1);
+        if (ruleCount > CONFIDENCE_LEDGER_CSS_RULE_CAP) {
+          throw new VisibilityUnprovedError(
+            "author stylesheet rule census exceeds its finite cap",
+          );
+        }
+        const rule = rules.item(index);
+        if (rule === null) {
+          throw new VisibilityUnprovedError(
+            "author stylesheet rule census is incoherent",
+          );
+        }
+        const selectorText = (rule as CSSStyleRule).selectorText;
+        if (typeof selectorText === "string") {
+          for (const selector of selectorText.match(PSEUDO_SELECTOR_TOKEN) ??
+            []) {
+            selectors.add(selector);
+            if (selectors.size > CONFIDENCE_LEDGER_PSEUDO_SELECTOR_CAP) {
+              throw new VisibilityUnprovedError(
+                "rendered pseudo-selector census exceeds its finite cap",
+              );
+            }
+          }
+        }
+        const nested = (rule as CSSRule & { readonly cssRules?: CSSRuleList })
+          .cssRules;
+        if (nested !== undefined) visitRules(nested);
+        const importedSheet = (
+          rule as CSSRule & { readonly styleSheet?: CSSStyleSheet | null }
+        ).styleSheet;
+        if (importedSheet !== undefined && importedSheet !== null) {
+          sheets.add(importedSheet);
+        }
+      }
+    };
+    for (const sheet of sheets) {
+      if (sheet.disabled) continue;
+      try {
+        visitRules(sheet.cssRules);
+      } catch (error) {
+        if (error instanceof VisibilityUnprovedError) throw error;
+        throw new VisibilityUnprovedError(
+          "author stylesheet rule census is unavailable",
+        );
+      }
+    }
+    return Object.freeze([...selectors].sort());
+  }
+
+  private computedStylePaintOutset(
+    element: Element,
+    style: CSSStyleDeclaration,
+    initialValues: ReadonlyMap<string, string>,
+    allowElementGeometry = true,
+  ): number | null {
+    if (
+      !Number.isSafeInteger(style.length) ||
+      style.length <= 0 ||
+      style.length > CONFIDENCE_LEDGER_COMPUTED_STYLE_PROPERTY_CAP
+    ) {
+      return null;
+    }
+    this.consume(style.length);
+    const enumerated = new Set<string>();
+    let outlineNeedsContainment = false;
+    let svgStrokeNeedsContainment = false;
+    for (let index = 0; index < style.length; index += 1) {
+      const property = style.item(index);
+      if (property.length === 0 || enumerated.has(property)) {
+        return null;
+      }
+      enumerated.add(property);
+      const value = style.getPropertyValue(property);
+      const initialValue = initialValues.get(property);
+      if (initialValue !== undefined && value === initialValue) continue;
+      if (
+        property === "outline-color" ||
+        property === "outline-offset" ||
+        property === "outline-style" ||
+        property === "outline-width"
+      ) {
+        outlineNeedsContainment = true;
+        continue;
+      }
+      if (
+        element instanceof this.#view.SVGElement &&
+        (property === "stroke" ||
+          property === "stroke-linecap" ||
+          property === "stroke-linejoin" ||
+          property === "stroke-opacity" ||
+          property === "stroke-width")
+      ) {
+        svgStrokeNeedsContainment = true;
+        continue;
+      }
+      if (
+        !propertyIsIntrinsicallyRectContained(
+          element,
+          style,
+          property,
+          value,
+          allowElementGeometry,
+        )
+      ) {
+        return null;
+      }
+    }
+    let paintOutset = 0;
+    if (outlineNeedsContainment) {
+      const outlineStyle = cssValue(style, "outline-style");
+      if (outlineStyle !== "none") {
+        return null;
+      }
+    }
+    if (svgStrokeNeedsContainment) {
+      const stroke = cssValue(style, "stroke");
+      if (stroke !== "none") {
+        const width = positiveFiniteCssPixelLength(
+          cssValue(style, "stroke-width"),
+        );
+        const miterLimit = Number.parseFloat(
+          cssValue(style, "stroke-miterlimit"),
+        );
+        if (width === null || !Number.isFinite(miterLimit) || miterLimit < 1) {
+          return null;
+        }
+        paintOutset = Math.max(paintOutset, (width * miterLimit) / 2);
+      }
+    }
+    return Number.isFinite(paintOutset) ? paintOutset : null;
+  }
+
+  private pseudoPaintIsContained(
+    element: Element,
+    hostStyle: CSSStyleDeclaration,
+    initialValues: ReadonlyMap<string, string>,
+    pseudoSelectors: readonly string[],
+  ): boolean {
+    for (const selector of pseudoSelectors) {
+      if (
+        (selector === "::first-letter" || selector === "::first-line") &&
+        (element.textContent ?? "").trim().length === 0
+      ) {
+        continue;
+      }
+      if (
+        selector === "::placeholder" &&
+        !(
+          (element instanceof this.#view.HTMLInputElement ||
+            element instanceof this.#view.HTMLTextAreaElement) &&
+          element.placeholder.length > 0
+        )
+      ) {
+        continue;
+      }
+      if (
+        selector === "::file-selector-button" &&
+        !(
+          element instanceof this.#view.HTMLInputElement &&
+          element.type === "file"
+        )
+      ) {
+        continue;
+      }
+      if (selector === "::backdrop") {
+        let modal = false;
+        let popoverOpen = false;
+        try {
+          modal = element.matches(":modal");
+        } catch {
+          modal = false;
+        }
+        try {
+          popoverOpen = element.matches(":popover-open");
+        } catch {
+          popoverOpen = false;
+        }
+        if (
+          !modal &&
+          !popoverOpen &&
+          this.#document.fullscreenElement !== element
+        ) {
+          continue;
+        }
+      }
+      let style: CSSStyleDeclaration;
+      try {
+        style = this.#view.getComputedStyle(element, selector);
+      } catch {
+        return false;
+      }
+      if (style.length === 0) continue;
+      if (selector === "::before" || selector === "::after") {
+        const content = cssValue(style, "content");
+        if (content === "none" || content === "normal") continue;
+        return false;
+      }
+      if (selector === "::marker") {
+        if (
+          cssValue(hostStyle, "display") !== "list-item" ||
+          (cssValue(hostStyle, "list-style-type") === "none" &&
+            cssValue(hostStyle, "list-style-image") === "none")
+        ) {
+          continue;
+        }
+        return false;
+      }
+      if (!RECT_CONTAINED_TEXT_PSEUDO_SELECTORS.has(selector)) {
+        this.consume(style.length);
+        for (let index = 0; index < style.length; index += 1) {
+          const property = style.item(index);
+          if (
+            property.length === 0 ||
+            style.getPropertyValue(property) !== initialValues.get(property)
+          ) {
+            return false;
+          }
+        }
+        continue;
+      }
+      if (
+        this.computedStylePaintOutset(element, style, initialValues, false) !==
+        0
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private directTextPaintIsContained(
+    element: Element,
+    elementRects: readonly FinitePaintRect[],
+  ): boolean {
+    this.consume(element.childNodes.length);
+    for (const child of element.childNodes) {
+      if (
+        !(child instanceof this.#view.Text) ||
+        (child.textContent ?? "").trim().length === 0
+      ) {
+        continue;
+      }
+      let rangeRects: DOMRectList;
+      try {
+        const range = this.#document.createRange();
+        range.selectNodeContents(child);
+        rangeRects = range.getClientRects();
+      } catch {
+        return false;
+      }
+      if (
+        !Number.isSafeInteger(rangeRects.length) ||
+        rangeRects.length === 0 ||
+        rangeRects.length > CONFIDENCE_LEDGER_MAX_TEXT_RANGE_RECTS
+      ) {
+        return false;
+      }
+      this.consume(rangeRects.length);
+      for (let index = 0; index < rangeRects.length; index += 1) {
+        const rect = rangeRects.item(index);
+        if (
+          rect === null ||
+          !this.isFiniteVisibleRect(rect) ||
+          !elementRects.some((elementRect) =>
+            paintRectContains(elementRect, rect),
+          )
+        ) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   private capturePaintRectTree(
     elements: readonly Element[],
+    initialValues: ReadonlyMap<string, string>,
   ): PaintRectTree | null {
+    const pseudoSelectors = this.captureRenderedPseudoSelectors();
     const boxes: ElementPaintRect[] = [];
     for (const element of elements) {
       this.consume(5);
+      if (element.shadowRoot !== null) {
+        throw new VisibilityUnprovedError(
+          "open shadow-root paint is outside the light-DOM census",
+        );
+      }
       if (!element.isConnected) {
         throw new VisibilityUnprovedError(
           "rendered element census changed during capture",
@@ -703,6 +1119,20 @@ class RenderedVisibilitySession {
         throw new VisibilityUnprovedError("rendered element visibility failed");
       }
       if (!visible) continue;
+      let style: CSSStyleDeclaration;
+      try {
+        style = this.#view.getComputedStyle(element);
+      } catch {
+        throw new VisibilityUnprovedError(
+          "rendered element computed style is unavailable",
+        );
+      }
+      if (
+        element instanceof this.#view.HTMLElement &&
+        styleVisibilityProof(element, style, true) === "hidden"
+      ) {
+        continue;
+      }
       try {
         for (const pseudo of ["::before", "::after", "::marker"] as const) {
           const content = cssValue(
@@ -725,7 +1155,9 @@ class RenderedVisibilitySession {
       try {
         rects = element.getClientRects();
       } catch {
-        throw new VisibilityUnprovedError("rendered element geometry failed");
+        throw new VisibilityUnprovedError(
+          "rendered element style or geometry failed",
+        );
       }
       if (
         !Number.isSafeInteger(rects.length) ||
@@ -736,7 +1168,30 @@ class RenderedVisibilitySession {
           "rendered element rectangle cap exceeded",
         );
       }
+      const paintOutset = this.computedStylePaintOutset(
+        element,
+        style,
+        initialValues,
+      );
+      if (paintOutset === null) {
+        throw new VisibilityUnprovedError(
+          "rendered element paint containment is unproved",
+        );
+      }
+      if (
+        !this.pseudoPaintIsContained(
+          element,
+          style,
+          initialValues,
+          pseudoSelectors,
+        )
+      ) {
+        throw new VisibilityUnprovedError(
+          "rendered pseudo paint containment is unproved",
+        );
+      }
       this.consume(rects.length);
+      const elementBoxes: ElementPaintRect[] = [];
       for (let index = 0; index < rects.length; index += 1) {
         const rect = rects.item(index);
         if (rect === null) {
@@ -767,16 +1222,22 @@ class RenderedVisibilitySession {
             "rendered element rectangle is incoherent",
           );
         }
-        boxes.push(
+        elementBoxes.push(
           Object.freeze({
-            bottom: rect.bottom,
+            bottom: rect.bottom + paintOutset,
             element,
-            left: rect.left,
-            right: rect.right,
-            top: rect.top,
+            left: rect.left - paintOutset,
+            right: rect.right + paintOutset,
+            top: rect.top - paintOutset,
           }),
         );
       }
+      if (!this.directTextPaintIsContained(element, elementBoxes)) {
+        throw new VisibilityUnprovedError(
+          "rendered text paint escapes its element rectangles",
+        );
+      }
+      boxes.push(...elementBoxes);
     }
     const treeWork =
       boxes.length * Math.max(1, Math.ceil(Math.log2(boxes.length + 1)));
@@ -1612,7 +2073,9 @@ const CONFIDENCE_LEDGER_DOM_TEXT_CODE_UNIT_CAP = 80 * 1000;
 const CONFIDENCE_LEDGER_DOM_ATTRIBUTE_COUNT_CAP = 20 * 1000;
 const CONFIDENCE_LEDGER_DOM_ATTRIBUTE_CODE_UNIT_CAP = 640 * 1000;
 const CONFIDENCE_LEDGER_DOM_SINGLE_ATTRIBUTE_CAP = 4 * 1000;
-const CONFIDENCE_LEDGER_DOM_WORK_RESERVE = 420 * 1000;
+// Canonical full-document enumeration consumes 1,554,926 work units; round
+// twice that measurement upward to a power-of-two fail-closed reserve.
+const CONFIDENCE_LEDGER_DOM_WORK_RESERVE = 4 * 1024 * 1024;
 
 function normalizedText(value: string): string {
   return value

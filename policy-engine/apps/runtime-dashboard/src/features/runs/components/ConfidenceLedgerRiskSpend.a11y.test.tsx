@@ -5,7 +5,13 @@ import type { AvailableConfidenceLedgerRiskSpendPacket } from "@polisyos/runtime
 import { fireEvent, render, screen } from "@testing-library/react";
 import { axe } from "vitest-axe";
 
-import type { ConfidenceLedgerRiskSpendPacket } from "@/features/runs/domain/confidenceLedgerRiskSpend";
+import type { ConfidenceLedgerRiskSpendProjection } from "@/features/runs/api/useConfidenceLedgerRiskSpend";
+import {
+  CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
+  type ConfidenceLedgerProtectedAnswer,
+  type ConfidenceLedgerProtectedQuery,
+  type ConfidenceLedgerRiskSpendPacket,
+} from "@/features/runs/domain/confidenceLedgerRiskSpend";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 
 import { ConfidenceLedgerRiskSpend } from "./ConfidenceLedgerRiskSpend";
@@ -47,18 +53,40 @@ function availablePacket(): AvailableConfidenceLedgerRiskSpendPacket {
   );
 }
 
+function exactProjection(
+  packet: AvailableConfidenceLedgerRiskSpendPacket,
+): Extract<ConfidenceLedgerRiskSpendProjection, { status: "exact" }> {
+  return {
+    packet: packet as unknown as ConfidenceLedgerRiskSpendPacket,
+    protectedQueries: Object.fromEntries(
+      CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA.map((query) => [
+        query,
+        "denied" as const,
+      ]),
+    ) as Record<
+      ConfidenceLedgerProtectedQuery,
+      ConfidenceLedgerProtectedAnswer
+    >,
+    rawPacketBytes: new Uint8Array([1, 2, 3]),
+    receipt: {
+      observation_basis: "candidate_and_captured_bytes_independently_admitted",
+      packet_availability: "available",
+      packet_projection_hash: packet.projection_hash,
+      protected_query_count: 9,
+      schema_version:
+        "policyos.runtime.confidence_ledger_protected_query_evaluation.v1",
+    },
+    status: "exact",
+  };
+}
+
 describe("ConfidenceLedgerRiskSpend accessibility", () => {
   it("has no violations in the ordered reviewer surface or full-envelope dialog", async () => {
     const packet = availablePacket();
     render(
       <LocaleProvider>
         <main>
-          <ConfidenceLedgerRiskSpend
-            projection={{
-              packet: packet as unknown as ConfidenceLedgerRiskSpendPacket,
-              rawPacketBytes: new Uint8Array([1, 2, 3]),
-            }}
-          />
+          <ConfidenceLedgerRiskSpend projection={exactProjection(packet)} />
         </main>
       </LocaleProvider>,
     );

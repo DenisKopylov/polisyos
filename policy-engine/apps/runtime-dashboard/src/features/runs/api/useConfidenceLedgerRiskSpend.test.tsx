@@ -54,7 +54,7 @@ function availablePacket(): AvailableConfidenceLedgerRiskSpendPacket {
 describe("confidence-ledger risk-spend query", () => {
   it("uses the generated owner operation, exact captured bytes, and a distinct never-cache key", async () => {
     const packet = availablePacket();
-    const rawPacketBytes = new TextEncoder().encode("exact-owner-response");
+    const rawPacketBytes = new TextEncoder().encode(JSON.stringify(packet));
     const getConfidenceLedgerRiskSpendProjection = vi.fn().mockResolvedValue({
       packet,
       rawPacketBytes,
@@ -64,10 +64,14 @@ describe("confidence-ledger risk-spend query", () => {
       getConfidenceLedgerRiskSpendProjection,
     });
 
-    await expect(query.queryFn()).resolves.toEqual({
-      packet,
-      rawPacketBytes,
-    });
+    const result = await query.queryFn();
+    expect(result.status).toBe("exact");
+    if (result.status !== "exact") return;
+    expect(result.packet).toEqual(packet);
+    expect(result.rawPacketBytes).toBe(rawPacketBytes);
+    expect(result.receipt.observation_basis).toBe(
+      "candidate_and_captured_bytes_independently_admitted",
+    );
     expect(query.queryKey).toEqual(
       queryKeys.confidenceLedgerRiskSpendProjection(),
     );
@@ -81,7 +85,7 @@ describe("confidence-ledger risk-spend query", () => {
     });
   });
 
-  it("admits the packet before exposing it to the surface", async () => {
+  it("returns a typed F21 blocker instead of exposing a packet that fails preflight", async () => {
     const packet = availablePacket();
     Object.assign(packet.payload, { hidden_authority: "publishable" });
     const getConfidenceLedgerRiskSpendProjection = vi.fn().mockResolvedValue({
@@ -92,12 +96,31 @@ describe("confidence-ledger risk-spend query", () => {
       getConfidenceLedgerRiskSpendProjection,
     });
 
-    await expect(query.queryFn()).rejects.toThrow(/contract_error/iu);
+    await expect(query.queryFn()).resolves.toEqual({
+      status: "blocked",
+      reason: "parser_or_schema_failure",
+    });
+  });
+
+  it("cannot render from generated decode when the captured owner bytes fail independent admission", async () => {
+    const packet = availablePacket();
+    const getConfidenceLedgerRiskSpendProjection = vi.fn().mockResolvedValue({
+      packet,
+      rawPacketBytes: new TextEncoder().encode("{}"),
+    });
+    const query = confidenceLedgerRiskSpendQueryOptions({
+      getConfidenceLedgerRiskSpendProjection,
+    });
+
+    await expect(query.queryFn()).resolves.toEqual({
+      status: "blocked",
+      reason: "parser_or_schema_failure",
+    });
   });
 
   it("mounts the protected query without caching authority", async () => {
     const packet = availablePacket();
-    const rawPacketBytes = new Uint8Array([4, 5, 6]);
+    const rawPacketBytes = new TextEncoder().encode(JSON.stringify(packet));
     const getConfidenceLedgerRiskSpendProjection = vi.fn().mockResolvedValue({
       packet,
       rawPacketBytes,
@@ -120,7 +143,10 @@ describe("confidence-ledger risk-spend query", () => {
     );
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual({ packet, rawPacketBytes });
+    expect(result.current.data?.status).toBe("exact");
+    if (result.current.data?.status !== "exact") return;
+    expect(result.current.data.packet).toEqual(packet);
+    expect(result.current.data.rawPacketBytes).toBe(rawPacketBytes);
     expect(queryClient.getQueryCache().findAll()).toHaveLength(1);
   });
 });

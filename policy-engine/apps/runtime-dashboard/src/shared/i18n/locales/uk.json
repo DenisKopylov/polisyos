@@ -418,6 +418,14 @@
         "instrumentDefinitions": "Визначення інструментів",
         "certificateRoutes": "Маршрути сертифікатів",
         "downloadMachine": "Завантажити точний MACHINE packet",
+        "evaluationBlocked": {
+          "title": "Оцінювання confidence ledger не встановлено",
+          "body": "Protected packet preflight не створив exact receipt. Значення packet і завантаження не показуються."
+        },
+        "positiveEmpty": {
+          "title": "Позитивні promotion certificates",
+          "body": "Видано: {count} · {authority} · керований порожній реєстр"
+        },
         "sections": {
           "actualRows": "Фактичні відмови, потім acquisition",
           "riskAccounting": "Scope-local облік confidence risk",

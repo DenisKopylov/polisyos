@@ -15,10 +15,8 @@ import { cycleBoardProjectionPacketFixture } from "@/test/fixtures/depthNCycleBo
 import { server } from "@/test/msw/server";
 import { renderWithProviders } from "@/test/render";
 
-import {
-  createConfidenceLedgerRiskSpendEvaluationContext,
-  evaluateConfidenceLedgerRiskSpendTwin,
-} from "../export/confidenceLedgerRiskSpendTwin";
+import { evaluateConfidenceLedgerRiskSpendTwin } from "../export/confidenceLedgerRiskSpendTwin";
+import { CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET } from "../domain/confidenceLedgerRiskSpend";
 
 import CycleBoardPage from "./CycleBoardPage";
 
@@ -47,6 +45,12 @@ function required(container: HTMLElement, selector: string): HTMLElement {
     throw new Error(`Missing Cycle Board test region: ${selector}`);
   }
   return element;
+}
+
+async function openRiskSpendDialog(root: HTMLElement): Promise<void> {
+  const trigger = required(root, "figure button");
+  const user = userEvent.setup();
+  await user.click(trigger);
 }
 
 function readBlobBytes(blob: Blob): Promise<Uint8Array> {
@@ -212,15 +216,14 @@ describe("CycleBoardPage MACHINE/rendered-DOM parity", () => {
     const { container, riskPacket, riskRequests, riskWireBytes } =
       await renderRealBoard();
     const root = required(container, '[data-confidence-surface="risk-spend"]');
+    await openRiskSpendDialog(root);
 
     const result = await evaluateConfidenceLedgerRiskSpendTwin({
-      context: createConfidenceLedgerRiskSpendEvaluationContext({
-        rawPacketBytes: riskWireBytes,
-        root,
-      }),
+      evaluationMode: "exact_finite_schema",
       packetCandidate: riskPacket,
       rawPacketBytes: riskWireBytes,
       root,
+      stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
     });
 
     expect(result.status).toBe("exact");
@@ -261,19 +264,17 @@ describe("CycleBoardPage MACHINE/rendered-DOM parity", () => {
   ])("blocks a $name mutation", async ({ apply, reason }) => {
     const { container, riskPacket, riskWireBytes } = await renderRealBoard();
     const root = required(container, '[data-confidence-surface="risk-spend"]');
-    const context = createConfidenceLedgerRiskSpendEvaluationContext({
-      rawPacketBytes: riskWireBytes,
-      root,
-    });
+    await openRiskSpendDialog(root);
 
     apply(root);
 
     await expect(
       evaluateConfidenceLedgerRiskSpendTwin({
-        context,
+        evaluationMode: "exact_finite_schema",
         packetCandidate: riskPacket,
         rawPacketBytes: riskWireBytes,
         root,
+        stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
       }),
     ).resolves.toEqual({ reason, status: "blocked" });
   });

@@ -36,6 +36,7 @@ function SemanticValue({
     <span
       className="font-mono text-xs break-words"
       data-confidence-leaf={field}
+      data-confidence-text={`leaf.${field}`}
     >
       {value === null ? "null" : String(value)}
     </span>
@@ -66,7 +67,10 @@ function DetailRow({
 }: Readonly<{ label: string; children: ReactNode }>) {
   return (
     <div className="grid gap-1 py-1.5 md:grid-cols-[minmax(0,12rem)_minmax(0,1fr)]">
-      <dt className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
+      <dt
+        className="text-muted-foreground text-xs font-semibold tracking-wide uppercase"
+        data-confidence-text={`detail.label.${label}`}
+      >
         {label}
       </dt>
       <dd className="min-w-0">{children}</dd>
@@ -84,7 +88,12 @@ function SemanticSection({
       className="border-border space-y-4 border-t pt-5 first:border-t-0 first:pt-0"
       data-confidence-section={section}
     >
-      <h2 className="text-lg font-semibold">{title}</h2>
+      <h2
+        className="text-lg font-semibold"
+        data-confidence-text={`section.${section}.title`}
+      >
+        {title}
+      </h2>
       {children}
     </section>
   );
@@ -382,12 +391,17 @@ function AvailableRiskSpend({
   >;
   rawPacketBytes: Uint8Array;
 }>) {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const body = packet.payload;
   const actualRows = orderedConfidenceLedgerActualRows(packet);
   const promotionBlockers = confidenceLedgerPromotionBlockers(packet);
   return (
-    <Card className="space-y-6 p-5" data-confidence-surface="risk-spend">
+    <Card
+      className="space-y-6 p-5"
+      data-confidence-envelope-ref={body.coverage_envelope_ref}
+      data-confidence-locale={locale}
+      data-confidence-surface="risk-spend"
+    >
       <SemanticSection
         section="actual-rows"
         title={t("pages.cycleBoard.confidenceLedger.sections.actualRows")}
@@ -436,7 +450,9 @@ function AvailableRiskSpend({
         section="instrument-denominators"
         title={t("pages.cycleBoard.confidenceLedger.sections.denominators")}
       >
-        <h3>{t("pages.cycleBoard.confidenceLedger.instrumentDefinitions")}</h3>
+        <h3 data-confidence-text="denominators.instrument_definitions.title">
+          {t("pages.cycleBoard.confidenceLedger.instrumentDefinitions")}
+        </h3>
         <ol className="space-y-3" data-confidence-list="instrument-definitions">
           {body.instrument_definitions.map((row) => (
             <li key={row.instrument_id}>
@@ -444,7 +460,9 @@ function AvailableRiskSpend({
             </li>
           ))}
         </ol>
-        <h3>{t("pages.cycleBoard.confidenceLedger.certificateRoutes")}</h3>
+        <h3 data-confidence-text="denominators.certificate_routes.title">
+          {t("pages.cycleBoard.confidenceLedger.certificateRoutes")}
+        </h3>
         <ol className="space-y-3" data-confidence-list="certificate-routes">
           {body.certificate_routes.map((row) => (
             <li key={row.certificate_class}>
@@ -458,6 +476,20 @@ function AvailableRiskSpend({
         section="positive-register"
         title={t("pages.cycleBoard.confidenceLedger.sections.positiveRegister")}
       >
+        <div className="space-y-1">
+          <h3 data-confidence-text="positive.empty.title">
+            {t("pages.cycleBoard.confidenceLedger.positiveEmpty.title")}
+          </h3>
+          <p data-confidence-text="positive.empty.body">
+            {t("pages.cycleBoard.confidenceLedger.positiveEmpty.body", {
+              authority: body.positive_register.authority_posture.replaceAll(
+                "_",
+                " ",
+              ),
+              count: body.positive_register.population_count,
+            })}
+          </p>
+        </div>
         <dl>
           <DetailRow label="population_state">
             <SemanticValue
@@ -657,6 +689,7 @@ function AvailableRiskSpend({
         title={t("pages.cycleBoard.confidenceLedger.sections.machineExport")}
       >
         <Button
+          data-confidence-text="machine.download"
           onClick={() =>
             exportCapturedResponseBytes(
               "confidence-ledger-risk-spend.machine.json",
@@ -758,6 +791,24 @@ function NonAvailableRiskSpend({
 export function ConfidenceLedgerRiskSpend({
   projection,
 }: ConfidenceLedgerRiskSpendProps) {
+  const { t } = useI18n();
+  if (projection.status === "blocked") {
+    return (
+      <Card
+        className="space-y-3 p-5"
+        data-confidence-surface="risk-spend-evaluation-blocked"
+      >
+        <h2>
+          {t("pages.cycleBoard.confidenceLedger.evaluationBlocked.title")}
+        </h2>
+        <p>{t("pages.cycleBoard.confidenceLedger.evaluationBlocked.body")}</p>
+        <SemanticValue
+          field="evaluation.blocked_reason"
+          value={projection.reason}
+        />
+      </Card>
+    );
+  }
   return projection.packet.availability === "available" ? (
     <AvailableRiskSpend
       packet={projection.packet}

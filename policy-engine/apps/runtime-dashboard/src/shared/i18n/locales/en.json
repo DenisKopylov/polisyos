@@ -418,6 +418,14 @@
         "instrumentDefinitions": "Instrument definitions",
         "certificateRoutes": "Certificate routes",
         "downloadMachine": "Download exact MACHINE packet",
+        "evaluationBlocked": {
+          "title": "Confidence-ledger evaluation not established",
+          "body": "The protected packet preflight did not produce an exact receipt. No packet values or download are exposed."
+        },
+        "positiveEmpty": {
+          "title": "Positive promotion certificates",
+          "body": "{count} issued · {authority} · governed empty register"
+        },
         "sections": {
           "actualRows": "Actual refusals, then acquisitions",
           "riskAccounting": "Scope-local confidence-risk accounting",

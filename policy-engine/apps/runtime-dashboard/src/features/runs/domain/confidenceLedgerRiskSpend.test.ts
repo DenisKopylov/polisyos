@@ -4,8 +4,11 @@ import { resolve } from "node:path";
 import type { AvailableConfidenceLedgerRiskSpendPacket } from "@polisyos/runtime-api-client";
 
 import {
+  CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+  CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
   admitConfidenceLedgerRiskSpendPacket,
   confidenceLedgerPromotionBlockers,
+  evaluateConfidenceLedgerProtectedQuery,
   orderedConfidenceLedgerActualRows,
 } from "./confidenceLedgerRiskSpend";
 
@@ -105,6 +108,126 @@ async function refreshSelfHashes(
     source_as_of: packet.replay_pins.source_as_of,
     source_dependency_hash: packet.replay_pins.source_dependency_hash,
   }).toString()}`;
+}
+
+async function refreshAmountHash(
+  amount: AvailableConfidenceLedgerRiskSpendPacket["payload"]["total_spend"],
+  envelopeHash: string,
+): Promise<void> {
+  amount.coverage_envelope_hash = envelopeHash;
+  amount.coverage_envelope_ref = `coverage-envelope:${envelopeHash}`;
+  const amountBody = structuredClone(amount) as unknown as Record<
+    string,
+    unknown
+  >;
+  Reflect.deleteProperty(amountBody, "amount_hash");
+  amount.amount_hash = await fingerprint(amountBody);
+}
+
+async function refreshEnvelopeAndAmountHashes(
+  packet: AvailableConfidenceLedgerRiskSpendPacket,
+): Promise<void> {
+  const envelope = packet.payload.coverage_envelope;
+  const assessmentKeyBody = {
+    owner_scope_key: envelope.owner_scope_key,
+    protected_action_id: envelope.protected_action_id,
+    rule_version: envelope.rule_version,
+    scope_id: envelope.scope_id,
+    sources: envelope.source_identities,
+  };
+  envelope.assessment_key = await fingerprint(assessmentKeyBody);
+  const envelopeBody = structuredClone(envelope) as unknown as Record<
+    string,
+    unknown
+  >;
+  Reflect.deleteProperty(envelopeBody, "envelope_hash");
+  Reflect.deleteProperty(envelopeBody, "envelope_ref");
+  envelope.envelope_hash = await fingerprint(envelopeBody);
+  envelope.envelope_ref = `coverage-envelope:${envelope.envelope_hash}`;
+  packet.payload.coverage_envelope_ref = envelope.envelope_ref;
+
+  const amounts = [
+    packet.payload.total_spend,
+    packet.payload.scope_total_risk_spend.allocation,
+    packet.payload.scope_total_risk_spend.spent,
+    packet.payload.scope_total_risk_spend.remaining,
+    packet.payload.scope_total_risk_spend.overspend_amount,
+    ...packet.payload.obligation_class_risk_spend.flatMap((row) => [
+      row.allocation,
+      row.spent,
+      row.remaining,
+      row.overspend_amount,
+    ]),
+    ...packet.payload.grouped_spend.map((row) => row.spend),
+    ...packet.payload.instrument_instances.map((row) => row.spend),
+  ];
+  await Promise.all(
+    amounts.map((amount) => refreshAmountHash(amount, envelope.envelope_hash)),
+  );
+  await refreshSelfHashes(packet);
+}
+
+function setAmount(
+  amount: AvailableConfidenceLedgerRiskSpendPacket["payload"]["total_spend"],
+  numerator: number,
+  denominator: number,
+  decimal: string,
+): void {
+  amount.amount = { denominator, numerator };
+  amount.rational_display = `${numerator}/${denominator}`;
+  amount.canonical_decimal = decimal;
+}
+
+async function forgeCoherentAvailableOverspend(
+  packet: AvailableConfidenceLedgerRiskSpendPacket,
+): Promise<void> {
+  const body = packet.payload;
+  const semantic = body.semantic_ledger_basis;
+  const changedCheck = semantic.checks[0];
+  changedCheck.spend = { denominator: 50, numerator: 1 };
+  changedCheck.spend_decimal = "0.02";
+  semantic.total_spend = { denominator: 50, numerator: 1 };
+  semantic.total_spend_decimal = "0.02";
+  semantic.within_budget = false;
+  const semanticBody = structuredClone(semantic) as unknown as Record<
+    string,
+    unknown
+  >;
+  Reflect.deleteProperty(semanticBody, "projection_hash");
+  semantic.projection_hash = await fingerprint(semanticBody);
+
+  body.source_projection_hash = semantic.projection_hash;
+  body.coverage_envelope.source_identities[1].content_hash =
+    semantic.projection_hash;
+  body.source_provenance[1].content_hash = semantic.projection_hash;
+  packet.frozen_semantic_projection_hash = semantic.projection_hash;
+  packet.source.validation.frozen_semantic_projection_hash =
+    semantic.projection_hash;
+  packet.source.validation.semantic_projection_hash = semantic.projection_hash;
+  packet.source.validation.recomputed_total_spend_numerator = 1;
+  packet.source.validation.recomputed_total_spend_denominator = 50;
+
+  setAmount(body.instrument_instances[0].spend, 1, 50, "0.02");
+  const grouped = body.grouped_spend.find(
+    (row) =>
+      row.obligation_class === changedCheck.obligation_class &&
+      row.instrument_id === changedCheck.instrument_id,
+  );
+  if (grouped === undefined) throw new Error("grouped spend row is missing");
+  setAmount(grouped.spend, 1, 50, "0.02");
+  const classRow = body.obligation_class_risk_spend.find(
+    (row) => row.obligation_class === changedCheck.obligation_class,
+  );
+  if (classRow === undefined) throw new Error("class spend row is missing");
+  setAmount(classRow.spent, 1, 50, "0.02");
+  setAmount(classRow.remaining, 0, 1, "0");
+  setAmount(classRow.overspend_amount, 29, 1500, "0.019(3)");
+  setAmount(body.total_spend, 1, 50, "0.02");
+  setAmount(body.scope_total_risk_spend.spent, 1, 50, "0.02");
+  setAmount(body.scope_total_risk_spend.remaining, 0, 1, "0");
+  setAmount(body.scope_total_risk_spend.overspend_amount, 1, 100, "0.01");
+  body.budget_posture = "over_spend";
+  await refreshEnvelopeAndAmountHashes(packet);
 }
 
 function commonTransport(packet: AvailableConfidenceLedgerRiskSpendPacket) {
@@ -365,6 +488,35 @@ describe("confidence-ledger risk-spend strict admission", () => {
     );
   });
 
+  it("rejects a coherently rehashed open-world envelope that contradicts the owner-derived negative arm", async () => {
+    const packet = availablePacket();
+    const envelope = packet.payload.coverage_envelope;
+    envelope.search_basis_state = "governed_search_complete" as never;
+    envelope.exclusion_basis_state = "approved" as never;
+    envelope.review_state = "approved" as never;
+    envelope.expiry_state = "active" as never;
+    envelope.challenge_route_state = "appointed" as never;
+    envelope.unknown_remainder = {
+      cardinality: "0",
+      kind: "none",
+      probability: "0",
+    } as never;
+    await refreshEnvelopeAndAmountHashes(packet);
+
+    await expect(admitConfidenceLedgerRiskSpendPacket(packet)).rejects.toThrow(
+      /contract_error[\s\S]*coverage/iu,
+    );
+  });
+
+  it("rejects a coherently rehashed available packet whose recomputed 1/50 spend exceeds delta 1/100", async () => {
+    const packet = availablePacket();
+    await forgeCoherentAvailableOverspend(packet);
+
+    await expect(admitConfidenceLedgerRiskSpendPacket(packet)).rejects.toThrow(
+      /contract_error.*available.*budget/iu,
+    );
+  });
+
   it("vetoes aggregate promotion for each load-bearing negative posture", () => {
     const baseline = availablePacket();
     expect(confidenceLedgerPromotionBlockers(baseline)).toEqual(
@@ -391,5 +543,133 @@ describe("confidence-ledger risk-spend strict admission", () => {
     expect(confidenceLedgerPromotionBlockers(overspent)).toContain(
       "budget:over_spend",
     );
+  });
+});
+
+describe("confidence-ledger shared protected-query evaluator", () => {
+  it("derives one exact receipt from independently admitted candidate and captured bytes", async () => {
+    const packet = availablePacket();
+    const rawPacketBytes = new TextEncoder().encode(JSON.stringify(packet));
+
+    const result = await evaluateConfidenceLedgerProtectedQuery({
+      evaluationMode: "exact_finite_schema",
+      packetCandidate: packet,
+      rawPacketBytes,
+      stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+    });
+
+    expect(result.status).toBe("exact");
+    if (result.status !== "exact") return;
+    expect(result.packet).toEqual(packet);
+    expect(result.rawPacketBytes).toBe(rawPacketBytes);
+    expect(result.receipt.observation_basis).toBe(
+      "candidate_and_captured_bytes_independently_admitted",
+    );
+    expect(Object.keys(result.protectedQueries)).toEqual(
+      CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
+    );
+  });
+
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, 1.5, 0, -1, 64])(
+    "blocks an invalid or exhausted finite budget %s before admitting bytes",
+    async (stepBudget) => {
+      const packet = availablePacket();
+      const rawPacketBytes = new TextEncoder().encode(JSON.stringify(packet));
+
+      await expect(
+        evaluateConfidenceLedgerProtectedQuery({
+          evaluationMode: "exact_finite_schema",
+          packetCandidate: packet,
+          rawPacketBytes,
+          stepBudget,
+        }),
+      ).resolves.toEqual({ status: "blocked", reason: "timeout" });
+    },
+  );
+
+  it("derives an empty consistency set when two valid transport observations disagree", async () => {
+    const packet = availablePacket();
+    const capturedPacket = structuredClone(packet);
+    capturedPacket.freshness.observed_at = "2026-02-11T12:00:01Z";
+    const rawPacketBytes = new TextEncoder().encode(
+      JSON.stringify(capturedPacket),
+    );
+
+    await expect(
+      evaluateConfidenceLedgerProtectedQuery({
+        evaluationMode: "exact_finite_schema",
+        packetCandidate: packet,
+        rawPacketBytes,
+        stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+      }),
+    ).resolves.toEqual({
+      status: "blocked",
+      reason: "empty_consistency_set",
+    });
+  });
+
+  it("blocks oversized candidate text work before schema admission", async () => {
+    const packet = availablePacket();
+    const oversizedCandidate = {
+      ...packet,
+      evaluator_padding: "x".repeat(262_145),
+    };
+
+    await expect(
+      evaluateConfidenceLedgerProtectedQuery({
+        evaluationMode: "exact_finite_schema",
+        packetCandidate: oversizedCandidate,
+        rawPacketBytes: new TextEncoder().encode(JSON.stringify(packet)),
+        stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+      }),
+    ).resolves.toEqual({
+      reason: "unsupported_or_out_of_model",
+      status: "blocked",
+    });
+  });
+
+  it.each([
+    ["missing_input_or_incomplete_history", null, new Uint8Array()],
+    [
+      "parser_or_schema_failure",
+      availablePacket(),
+      new TextEncoder().encode("{}"),
+    ],
+    [
+      "unsupported_or_out_of_model",
+      {
+        ...availablePacket(),
+        packet_schema_version:
+          "policyos.runtime.confidence_ledger_risk_spend_packet.v2",
+      },
+      new TextEncoder().encode(JSON.stringify(availablePacket())),
+    ],
+  ])(
+    "returns the closed %s blocker from real evaluator inputs",
+    async (reason, packetCandidate, rawPacketBytes) => {
+      await expect(
+        evaluateConfidenceLedgerProtectedQuery({
+          evaluationMode: "exact_finite_schema",
+          packetCandidate,
+          rawPacketBytes: rawPacketBytes as Uint8Array,
+          stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+        }),
+      ).resolves.toEqual({ status: "blocked", reason });
+    },
+  );
+
+  it("blocks a sampled evaluator mode as an unproved approximation", async () => {
+    const packet = availablePacket();
+    await expect(
+      evaluateConfidenceLedgerProtectedQuery({
+        evaluationMode: "sampled_search",
+        packetCandidate: packet,
+        rawPacketBytes: new TextEncoder().encode(JSON.stringify(packet)),
+        stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+      }),
+    ).resolves.toEqual({
+      status: "blocked",
+      reason: "unproved_approximation",
+    });
   });
 });

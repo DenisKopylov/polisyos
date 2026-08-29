@@ -6,7 +6,12 @@ import type { AvailableConfidenceLedgerRiskSpendPacket } from "@polisyos/runtime
 import { fireEvent, render, screen, within } from "@testing-library/react";
 
 import type { ConfidenceLedgerRiskSpendProjection } from "@/features/runs/api/useConfidenceLedgerRiskSpend";
-import type { ConfidenceLedgerRiskSpendPacket } from "@/features/runs/domain/confidenceLedgerRiskSpend";
+import {
+  CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
+  type ConfidenceLedgerProtectedAnswer,
+  type ConfidenceLedgerProtectedQuery,
+  type ConfidenceLedgerRiskSpendPacket,
+} from "@/features/runs/domain/confidenceLedgerRiskSpend";
 
 import { ConfidenceLedgerRiskSpend } from "./ConfidenceLedgerRiskSpend";
 
@@ -23,7 +28,12 @@ vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-function availableProjection(): ConfidenceLedgerRiskSpendProjection {
+type ExactProjection = Extract<
+  ConfidenceLedgerRiskSpendProjection,
+  { status: "exact" }
+>;
+
+function availableProjection(): ExactProjection {
   const openApi = JSON.parse(
     readFileSync(
       resolve(process.cwd(), "../../schemas/runtime_api_v1.openapi.json"),
@@ -60,7 +70,25 @@ function availableProjection(): ConfidenceLedgerRiskSpendProjection {
   );
   return {
     packet: packet as unknown as ConfidenceLedgerRiskSpendPacket,
+    protectedQueries: Object.fromEntries(
+      CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA.map((query) => [
+        query,
+        "denied" as const,
+      ]),
+    ) as Record<
+      ConfidenceLedgerProtectedQuery,
+      ConfidenceLedgerProtectedAnswer
+    >,
     rawPacketBytes: new TextEncoder().encode("exact MACHINE packet"),
+    receipt: {
+      observation_basis: "candidate_and_captured_bytes_independently_admitted",
+      packet_availability: "available",
+      packet_projection_hash: packet.projection_hash,
+      protected_query_count: 9,
+      schema_version:
+        "policyos.runtime.confidence_ledger_protected_query_evaluation.v1",
+    },
+    status: "exact",
   };
 }
 
@@ -212,6 +240,28 @@ describe("ConfidenceLedgerRiskSpend", () => {
     ).not.toBeInTheDocument();
     expect(
       screen.queryByText(/narrowed claim.*satisfied/iu),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders a typed F21 not-established surface without packet values or MACHINE export", () => {
+    render(
+      <ConfidenceLedgerRiskSpend
+        projection={{
+          status: "blocked",
+          reason: "parser_or_schema_failure",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("parser_or_schema_failure")).toBeVisible();
+    expect(
+      screen.getByText(
+        "pages.cycleBoard.confidenceLedger.evaluationBlocked.title",
+      ),
+    ).toBeVisible();
+    expect(document.querySelector("figure")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /machine/iu }),
     ).not.toBeInTheDocument();
   });
 });

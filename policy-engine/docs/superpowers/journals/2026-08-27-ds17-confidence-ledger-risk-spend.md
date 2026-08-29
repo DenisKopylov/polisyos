@@ -1316,3 +1316,40 @@ evidence. Positive certificate issuance and deployment-wide enumeration remain
 explicitly unallocated/open-world; the honest zero register does not claim
 those capabilities. C04 has no bounded implementation residual and uses no
 reserve path.
+
+### C04 post-review structural correction
+
+The correction groups all reviewer examples into three P40 invariants. First,
+strict admission derives both negative coverage arms and the complete
+search/exclusion/remainder/review/expiry/challenge/source/authority tuple from
+the owner basis, and available packets must recompute within delta; a coherent
+open-world forgery and coherent `1/50 > 1/100` available packet are both
+rejected. Second, the production hook invokes one shared protected-query
+preflight over separately capped/admitted generated-candidate and captured-byte
+observations; only an exact receipt can render or download, while finite budget
+and the seven F21 reasons are real behavior. Third, the twin classifies every
+visible root and bound-dialog text node against packet/canonical locale copy,
+checks the complete recursively flattened envelope, rejects missing/forged
+portals and standard hidden/offscreen variants, and binds the governed honest
+zero state. These respectively close P32/P37/P38 owner admission, P01/P02/P29
+orchestration, and the complete PV-K04/PV-K06 visible projection rather than
+patching the named phrases.
+
+The correction changes seven existing C04 mechanisms (hook, domain,
+conditional figure, panel, twin, en and uk) and seven P39 companions. The other
+two original mechanism paths remain unchanged; `ru.json`, generated outputs,
+the shared exporter, route/navigation registries, second-host/direct-fetch
+seams, and DS6/DS11 visual roots remain untouched. Reserve is zero.
+
+Final evidence is 9 focused files / 97 passed: hook 4, domain 30, figure 3,
+panel 7, a11y 1, twin 29, Cycle Board page 6, parity 13, census 4. The
+correction-entry replay is 80/80. Full dashboard typecheck and production build
+are green branch/base; exact focused lint is green branch/base and the final
+delta lint is green; correction formatting is 14/14. Active locale leaves move
+2688 -> 2692, non-count messages 245 -> 246, and variable uses 361 -> 362.
+Branch and correction entry both produce 37/38 i18n with only the identical
+legacy expected `67b7…` / actual `afcb…` RU key-set red; frozen `ru.json` is
+`5366a250…`. The optional whole-dashboard lint attempt did not complete and is
+not claimed. No full suite ran. Planned append-only subject:
+`fix(atlas): enforce confidence risk-spend evaluation`; no correction residual
+remains and C05 retains Atlas/visual ownership.

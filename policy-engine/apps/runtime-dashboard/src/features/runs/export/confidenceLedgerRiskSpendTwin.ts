@@ -1,47 +1,21 @@
 import type { ConditionalDeltaAmount } from "@polisyos/runtime-api-client";
 
 import {
-  admitConfidenceLedgerRiskSpendPacket,
+  CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+  CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
   confidenceLedgerPromotionBlockers,
+  evaluateConfidenceLedgerProtectedQuery,
   orderedConfidenceLedgerActualRows,
+  type ConfidenceLedgerProtectedAnswer,
+  type ConfidenceLedgerProtectedQuery,
   type ConfidenceLedgerRiskSpendPacket,
+  type ConfidenceLedgerSafetyBlockedReason,
 } from "@/features/runs/domain/confidenceLedgerRiskSpend";
+import en from "@/shared/i18n/locales/en.json";
+import uk from "@/shared/i18n/locales/uk.json";
 
-export const CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA = [
-  "promotion_authority",
-  "publication_authority",
-  "public_audience",
-  "bounded_completeness",
-  "world_completeness",
-  "family_level_total",
-  "sequence_level_total",
-  "cross_scope_total",
-  "narrowed_claim_satisfaction",
-] as const;
-
-export type ConfidenceLedgerProtectedQuery =
-  (typeof CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA)[number];
-export type ConfidenceLedgerProtectedAnswer = "denied" | "not_established";
 export type ConfidenceLedgerTwinBlockedReason =
-  | "timeout"
-  | "missing_input_or_incomplete_history"
-  | "parser_or_schema_failure"
-  | "unsupported_or_out_of_model"
-  | "empty_consistency_set"
-  | "model_observation_inconsistent"
-  | "unproved_approximation";
-
-type ObservationRecord = Readonly<{ root: HTMLElement }>;
-
-export type ConfidenceLedgerRiskSpendEvaluationContext = Readonly<{
-  consistencySet: readonly ObservationRecord[];
-  controlledObservations: readonly HTMLElement[];
-  declaredFiniteSchema: readonly string[];
-  evaluationMode: "exact_finite_schema" | "sampled_search";
-  history: readonly (HTMLElement | Uint8Array)[];
-  recordModels: readonly ObservationRecord[];
-  stepBudget: number;
-}>;
+  ConfidenceLedgerSafetyBlockedReason;
 
 export type ConfidenceLedgerRiskSpendTwinResult =
   | Readonly<{
@@ -57,10 +31,11 @@ export type ConfidenceLedgerRiskSpendTwinResult =
     }>;
 
 type EvaluateConfidenceLedgerRiskSpendTwinInput = Readonly<{
-  context: ConfidenceLedgerRiskSpendEvaluationContext;
+  evaluationMode: "exact_finite_schema" | "sampled_search";
   packetCandidate: unknown;
   rawPacketBytes: Uint8Array;
   root: HTMLElement | null;
+  stepBudget: number;
 }>;
 
 type VisibleFigure = Readonly<{
@@ -115,28 +90,6 @@ function blocked(
   return Object.freeze({ reason, status: "blocked" });
 }
 
-/** Create the exact evaluator record from the actual byte and DOM objects. */
-export function createConfidenceLedgerRiskSpendEvaluationContext({
-  rawPacketBytes,
-  root,
-}: Readonly<{
-  rawPacketBytes: Uint8Array;
-  root: HTMLElement;
-}>): ConfidenceLedgerRiskSpendEvaluationContext {
-  const record = Object.freeze({ root });
-  return Object.freeze({
-    consistencySet: Object.freeze([record]),
-    controlledObservations: Object.freeze([root]),
-    declaredFiniteSchema: Object.freeze([
-      ...CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
-    ]),
-    evaluationMode: "exact_finite_schema" as const,
-    history: Object.freeze([rawPacketBytes, root]),
-    recordModels: Object.freeze([record]),
-    stepBudget: Number.MAX_SAFE_INTEGER,
-  });
-}
-
 function isElementHidden(element: HTMLElement, root: HTMLElement): boolean {
   let current: HTMLElement | null = element;
   while (current !== null) {
@@ -144,14 +97,50 @@ function isElementHidden(element: HTMLElement, root: HTMLElement): boolean {
     const contentVisibility = (
       style as CSSStyleDeclaration & { contentVisibility?: string }
     ).contentVisibility;
+    const clip =
+      `${style.getPropertyValue("clip")} ${current.style.getPropertyValue("clip")}`.replaceAll(
+        ",",
+        " ",
+      );
+    const clipPath = `${style.clipPath} ${current.style.clipPath}`;
+    const overflow = `${style.overflow} ${current.style.overflow}`;
+    const positioned =
+      style.position === "absolute" ||
+      style.position === "fixed" ||
+      current.style.position === "absolute" ||
+      current.style.position === "fixed";
+    const width = Number.parseFloat(style.width || current.style.width);
+    const height = Number.parseFloat(style.height || current.style.height);
+    const left = Number.parseFloat(style.left || current.style.left);
+    const top = Number.parseFloat(style.top || current.style.top);
+    const rect = current.getBoundingClientRect();
     if (
       current.hidden ||
       current.getAttribute("aria-hidden") === "true" ||
+      current.classList.contains("sr-only") ||
+      current.classList.contains("visually-hidden") ||
       style.display === "none" ||
       style.visibility === "hidden" ||
       style.visibility === "collapse" ||
       style.opacity === "0" ||
-      contentVisibility === "hidden"
+      contentVisibility === "hidden" ||
+      /rect\(\s*0(?:px)?\s+0(?:px)?\s+0(?:px)?\s+0(?:px)?\s*\)/u.test(clip) ||
+      /inset\(\s*(?:50|100)%/u.test(clipPath) ||
+      (positioned &&
+        Number.isFinite(width) &&
+        Number.isFinite(height) &&
+        width <= 1 &&
+        height <= 1 &&
+        /hidden|clip/u.test(overflow)) ||
+      (positioned && Number.isFinite(left) && left < -999) ||
+      (positioned && Number.isFinite(top) && top < -999) ||
+      (positioned &&
+        (rect.right < -999 ||
+          rect.bottom < -999 ||
+          (rect.width <= 1 &&
+            rect.height <= 1 &&
+            /hidden|clip/u.test(overflow)))) ||
+      Number.parseFloat(style.textIndent || current.style.textIndent) < -999
     ) {
       return true;
     }
@@ -798,48 +787,565 @@ function visibleSemanticsMatch(
   );
 }
 
-function answersFromPacket(
+type GovernedText = Readonly<{ marker: string; text: string }>;
+type ProductLocale = "en" | "uk";
+
+const CONFIDENCE_LEDGER_DOM_NODE_CAP = 20 * 1000;
+const CONFIDENCE_LEDGER_DOM_TEXT_CODE_UNIT_CAP = 80 * 1000;
+const CONFIDENCE_LEDGER_DOM_WORK_RESERVE = 120 * 1000;
+
+function normalizedText(value: string): string {
+  return value
+    .replace(/\s+/gu, " ")
+    .replace(/\s+([:;,.!?])/gu, "$1")
+    .trim();
+}
+
+function documentDomWithinCaps(document: Document): boolean {
+  const documentElement = document.documentElement;
+  if (documentElement === null) return false;
+  const showAll = document.defaultView?.NodeFilter.SHOW_ALL ?? 0xffffffff;
+  const walker = document.createTreeWalker(documentElement, showAll);
+  let nodeCount = 1;
+  let textCodeUnits = 0;
+  let node = walker.nextNode();
+  while (node !== null) {
+    nodeCount += 1;
+    if (node.nodeType === Node.TEXT_NODE) {
+      textCodeUnits += node.nodeValue?.length ?? 0;
+    }
+    if (
+      nodeCount > CONFIDENCE_LEDGER_DOM_NODE_CAP ||
+      textCodeUnits > CONFIDENCE_LEDGER_DOM_TEXT_CODE_UNIT_CAP
+    ) {
+      return false;
+    }
+    node = walker.nextNode();
+  }
+  return true;
+}
+
+type ExpectedEnvelopeField = Readonly<{
+  field: string;
+  label: string;
+  values: readonly string[];
+}>;
+
+function deriveExpectedEnvelopeFields(
+  envelope: unknown,
+): readonly ExpectedEnvelopeField[] {
+  const fields: ExpectedEnvelopeField[] = [];
+  const append = (field: string, value: unknown): void => {
+    if (Array.isArray(value)) {
+      if (value.every((item) => item === null || typeof item !== "object")) {
+        fields.push({
+          field,
+          label: field,
+          values: value.map((item) => (item === null ? "null" : String(item))),
+        });
+        return;
+      }
+      value.forEach((item, index) => append(`${field}.${index}`, item));
+      return;
+    }
+    if (typeof value === "object" && value !== null) {
+      Object.entries(value).forEach(([nestedField, nestedValue]) =>
+        append(field ? `${field}.${nestedField}` : nestedField, nestedValue),
+      );
+      return;
+    }
+    fields.push({
+      field,
+      label: field,
+      values: [value === null ? "null" : String(value)],
+    });
+  };
+  append("", envelope);
+  return Object.freeze(fields);
+}
+
+function catalogText(
+  locale: ProductLocale,
+  path: string,
+  variables: Readonly<Record<string, string | number>> = {},
+): string {
+  let current: unknown = locale === "uk" ? uk : en;
+  for (const segment of path.split(".")) {
+    if (
+      typeof current !== "object" ||
+      current === null ||
+      !(segment in current)
+    ) {
+      throw new SemanticDomError(`locale copy is missing ${path}`);
+    }
+    current = (current as Record<string, unknown>)[segment];
+  }
+  if (typeof current !== "string") {
+    throw new SemanticDomError(`locale copy is not text ${path}`);
+  }
+  return normalizedText(
+    Object.entries(variables).reduce(
+      (message, [name, value]) =>
+        message.replaceAll(`{${name}}`, String(value)),
+      current,
+    ),
+  );
+}
+
+function collectGovernedText(boundary: HTMLElement): readonly GovernedText[] {
+  const forbiddenPayloadSelector =
+    'script[type="application/json"], input[type="hidden"], [data-confidence-payload], [data-testid]';
+  if (
+    boundary.matches(forbiddenPayloadSelector) ||
+    boundary.querySelector(forbiddenPayloadSelector) !== null
+  ) {
+    throw new SemanticDomError("hidden or test-only payload detected");
+  }
+  const document = boundary.ownerDocument;
+  const showText = document.defaultView?.NodeFilter.SHOW_TEXT ?? 4;
+  const walker = document.createTreeWalker(boundary, showText);
+  const byElement = new Map<HTMLElement, { marker: string; parts: string[] }>();
+  let node = walker.nextNode();
+  while (node !== null) {
+    const text = normalizedText(node.textContent ?? "");
+    if (text.length > 0) {
+      const parent = node.parentElement;
+      if (parent === null)
+        throw new SemanticDomError("visible text has no parent");
+      if (!isElementHidden(parent, boundary)) {
+        const classified = parent.closest<HTMLElement>(
+          "[data-confidence-text]",
+        );
+        if (classified === null || !boundary.contains(classified)) {
+          throw new SemanticDomError(`unclassified visible text: ${text}`);
+        }
+        const marker = classified.dataset.confidenceText;
+        if (marker === undefined || marker.length === 0) {
+          throw new SemanticDomError("empty governed text marker");
+        }
+        const existing = byElement.get(classified);
+        if (existing === undefined) {
+          byElement.set(classified, { marker, parts: [text] });
+        } else {
+          existing.parts.push(text);
+        }
+      }
+    }
+    node = walker.nextNode();
+  }
+  const classifiedElements = [
+    ...boundary.querySelectorAll<HTMLElement>("[data-confidence-text]"),
+  ];
+  if (boundary.dataset.confidenceText !== undefined) {
+    classifiedElements.unshift(boundary);
+  }
+  for (const element of classifiedElements) {
+    if (isElementHidden(element, boundary)) {
+      throw new SemanticDomError("governed text is visually hidden");
+    }
+    if (!byElement.has(element)) {
+      throw new SemanticDomError("governed text marker has no visible text");
+    }
+  }
+  return Object.freeze(
+    [...byElement.values()].map(({ marker, parts }) =>
+      Object.freeze({ marker, text: normalizedText(parts.join(" ")) }),
+    ),
+  );
+}
+
+function expectedRootText(
   packet: Extract<
     ConfidenceLedgerRiskSpendPacket,
     { availability: "available" }
   >,
-): Readonly<
-  Record<ConfidenceLedgerProtectedQuery, ConfidenceLedgerProtectedAnswer>
-> {
-  const packetDenials = new Set(packet.may_not_use_for ?? []);
-  const envelopeDenials = new Set(
-    packet.payload.coverage_envelope.may_not_use_for,
+  locale: ProductLocale,
+): readonly GovernedText[] {
+  const result: GovernedText[] = [];
+  const body = packet.payload;
+  const push = (marker: string, value: boolean | number | string | null) =>
+    result.push(
+      Object.freeze({
+        marker,
+        text: normalizedText(value === null ? "null" : String(value)),
+      }),
+    );
+  const semantic = (field: string, value: boolean | number | string | null) =>
+    push(`leaf.${field}`, value);
+  const detail = (
+    label: string,
+    field: string,
+    value: boolean | number | string | null,
+  ) => {
+    push(`detail.label.${label}`, label);
+    semantic(field, value);
+  };
+  const list = (label: string, field: string, values: readonly string[]) => {
+    push(`detail.label.${label}`, label);
+    if (values.length === 0) {
+      semantic(`${field}.count`, 0);
+    } else {
+      values.forEach((value, index) => semantic(`${field}.${index}`, value));
+    }
+  };
+  const figure = (label: string, amount: ConditionalDeltaAmount) => {
+    push("figure.caption", label);
+    push("figure.rational_display", amount.rational_display);
+    push(
+      "figure.canonical_decimal_label",
+      `${catalogText(locale, "pages.cycleBoard.confidenceLedger.figure.canonicalDecimal")}:`,
+    );
+    push("figure.canonical_decimal", amount.canonical_decimal);
+    push(
+      "figure.conditionality_riders",
+      `${amount.declared_set_rider} — ${amount.locality_rider}`,
+    );
+  };
+  const section = (name: string, copyPath: string) =>
+    push(`section.${name}.title`, catalogText(locale, copyPath));
+  const accountingCopy = (name: string) =>
+    catalogText(locale, `pages.cycleBoard.confidenceLedger.accounting.${name}`);
+
+  section(
+    "actual-rows",
+    "pages.cycleBoard.confidenceLedger.sections.actualRows",
   );
-  const hasLocalityRider =
-    packet.payload.fixed_scope_disclosure ===
-    packet.payload.coverage_envelope.locality_rider;
-  return Object.freeze({
-    promotion_authority:
-      packetDenials.has("promotion_authority") ||
-      confidenceLedgerPromotionBlockers(packet).length > 0
-        ? "denied"
-        : "not_established",
-    publication_authority: packetDenials.has("publication_authority")
-      ? "denied"
-      : "not_established",
-    public_audience: packetDenials.has("public_audience")
-      ? "denied"
-      : "not_established",
-    bounded_completeness:
-      packetDenials.has("bounded_completeness") ||
-      envelopeDenials.has("bounded_completeness")
-        ? "denied"
-        : "not_established",
-    world_completeness: envelopeDenials.has("world_completeness")
-      ? "denied"
-      : "not_established",
-    family_level_total: hasLocalityRider ? "denied" : "not_established",
-    sequence_level_total: hasLocalityRider ? "denied" : "not_established",
-    cross_scope_total: hasLocalityRider ? "denied" : "not_established",
-    narrowed_claim_satisfaction: hasLocalityRider
-      ? "denied"
-      : "not_established",
+  const actualFields = [
+    "instance_ref",
+    "certificate_role",
+    "instrument_id",
+    "instrument_family",
+    "obligation_class",
+    "execution_status",
+    "outcome",
+    "certificate_ref",
+    "certificate_class",
+    "certificate_route_ref",
+    "anytime_valid",
+    "eligible_for_promotion",
+    "supports_obligation",
+    "blocker",
+    "proof_profile_id",
+    "raw_runtime_refusal_source",
+  ] as const;
+  orderedConfidenceLedgerActualRows(packet).forEach((row) => {
+    actualFields.forEach((field) =>
+      detail(field, `actual.${field}`, row[field] as boolean | string | null),
+    );
+    figure(`${row.instance_ref} · ${accountingCopy("spent")}`, row.spend);
   });
+
+  section(
+    "risk-accounting",
+    "pages.cycleBoard.confidenceLedger.sections.riskAccounting",
+  );
+  semantic("scope.scope_id", body.scope_id);
+  const scopePrefix = accountingCopy("scopeTotal");
+  (
+    [
+      ["allocation", body.scope_total_risk_spend.allocation],
+      ["spent", body.scope_total_risk_spend.spent],
+      ["remaining", body.scope_total_risk_spend.remaining],
+      ["overspend", body.scope_total_risk_spend.overspend_amount],
+    ] as const
+  ).forEach(([name, amount]) =>
+    figure(`${scopePrefix} · ${accountingCopy(name)}`, amount),
+  );
+  body.obligation_class_risk_spend.forEach((row) => {
+    semantic("class.obligation_class", row.obligation_class);
+    list("check_refs", "class.check_refs", row.check_refs);
+    list("good_event_refs", "class.good_event_refs", row.good_event_refs);
+    list("instrument_refs", "class.instrument_refs", row.instrument_refs);
+    (
+      [
+        ["allocation", row.allocation],
+        ["spent", row.spent],
+        ["remaining", row.remaining],
+        ["overspend", row.overspend_amount],
+      ] as const
+    ).forEach(([name, amount]) =>
+      figure(`${row.obligation_class} · ${accountingCopy(name)}`, amount),
+    );
+  });
+
+  section(
+    "instrument-denominators",
+    "pages.cycleBoard.confidenceLedger.sections.denominators",
+  );
+  push(
+    "denominators.instrument_definitions.title",
+    catalogText(
+      locale,
+      "pages.cycleBoard.confidenceLedger.instrumentDefinitions",
+    ),
+  );
+  body.instrument_definitions.forEach((row) => {
+    detail("instrument_id", "definition.instrument_id", row.instrument_id);
+    detail(
+      "instrument_family",
+      "definition.instrument_family",
+      row.instrument_family,
+    );
+    detail(
+      "proof_profile_id",
+      "definition.proof_profile_id",
+      row.proof_profile_id,
+    );
+    detail(
+      "proof_kernel_id",
+      "definition.proof_kernel_id",
+      row.proof_kernel_id,
+    );
+    detail("guarantee_kind", "definition.guarantee_kind", row.guarantee_kind);
+    list(
+      "certificate_roles",
+      "definition.certificate_roles",
+      row.certificate_roles,
+    );
+    detail("anytime_valid", "definition.anytime_valid", row.anytime_valid);
+    detail("deterministic", "definition.deterministic", row.deterministic);
+    detail(
+      "permits_obligation_satisfaction",
+      "definition.permits_obligation_satisfaction",
+      row.permits_obligation_satisfaction,
+    );
+    detail("blocker", "definition.blocker", row.blocker);
+  });
+  push(
+    "denominators.certificate_routes.title",
+    catalogText(locale, "pages.cycleBoard.confidenceLedger.certificateRoutes"),
+  );
+  body.certificate_routes.forEach((row) => {
+    Object.entries(row).forEach(([field, value]) =>
+      detail(
+        field,
+        `route.${field}`,
+        value as boolean | number | string | null,
+      ),
+    );
+  });
+
+  section(
+    "positive-register",
+    "pages.cycleBoard.confidenceLedger.sections.positiveRegister",
+  );
+  push(
+    "positive.empty.title",
+    catalogText(
+      locale,
+      "pages.cycleBoard.confidenceLedger.positiveEmpty.title",
+    ),
+  );
+  push(
+    "positive.empty.body",
+    catalogText(
+      locale,
+      "pages.cycleBoard.confidenceLedger.positiveEmpty.body",
+      {
+        authority: body.positive_register.authority_posture.replaceAll(
+          "_",
+          " ",
+        ),
+        count: body.positive_register.population_count,
+      },
+    ),
+  );
+  detail(
+    "population_state",
+    "positive.population_state",
+    body.positive_register.population_state,
+  );
+  detail(
+    "population_count",
+    "positive.population_count",
+    body.positive_register.population_count,
+  );
+  detail(
+    "authority_posture",
+    "positive.authority_posture",
+    body.positive_register.authority_posture,
+  );
+  detail(
+    "appointment_denominator_state",
+    "positive.appointment_denominator_state",
+    body.positive_register.appointment_denominator_state,
+  );
+  detail(
+    "appointment_sufficiency_state",
+    "positive.appointment_sufficiency_state",
+    body.positive_register.appointment_sufficiency_state,
+  );
+  list(
+    "promotion_blockers",
+    "positive.promotion_blockers",
+    confidenceLedgerPromotionBlockers(packet),
+  );
+  list(
+    "register_blockers",
+    "positive.register_blockers",
+    body.positive_register.blockers.map((row) => `${row.slot}:${row.value}`),
+  );
+  list(
+    "would_populate_when",
+    "positive.would_populate_when",
+    body.positive_register.would_populate_when,
+  );
+  list(
+    "verified_appointment_refs",
+    "positive.verified_appointment_refs",
+    body.positive_register.verified_appointment_refs as string[],
+  );
+
+  section(
+    "good-event-source-replay",
+    "pages.cycleBoard.confidenceLedger.sections.goodEventSourceReplay",
+  );
+  detail(
+    "coverage_assessment",
+    "posture.coverage_assessment",
+    body.coverage_assessment,
+  );
+  detail("budget_posture", "posture.budget_posture", body.budget_posture);
+  detail(
+    "appointment_posture",
+    "posture.appointment_posture",
+    body.appointment_posture,
+  );
+  list(
+    "packet_may_not_use_for",
+    "posture.packet_may_not_use_for",
+    packet.may_not_use_for,
+  );
+  list(
+    "envelope_may_not_use_for",
+    "posture.envelope_may_not_use_for",
+    body.coverage_envelope.may_not_use_for,
+  );
+  detail(
+    "good_event_clause",
+    "good_event.clause",
+    body.good_event_posture.good_event_clause,
+  );
+  detail(
+    "composition_rule",
+    "good_event.composition_rule",
+    body.good_event_posture.composition_rule,
+  );
+  detail(
+    "independence_claim",
+    "good_event.independence_claim",
+    body.good_event_posture.independence_claim,
+  );
+  list(
+    "executed_probabilistic_good_event_refs",
+    "good_event.executed_refs",
+    body.good_event_posture.executed_probabilistic_good_event_refs,
+  );
+  detail(
+    "source.relative_path",
+    "source.relative_path",
+    packet.source.relative_path,
+  );
+  detail(
+    "source.artifact_content_hash",
+    "source.artifact_content_hash",
+    packet.source.artifact_content_hash,
+  );
+  detail(
+    "source.validator_id",
+    "source.validator_id",
+    packet.source.validation.validator_id,
+  );
+  detail(
+    "source.validator_version",
+    "source.validator_version",
+    packet.source.validation.validator_version,
+  );
+  detail(
+    "source.validation.status",
+    "source.validation_status",
+    packet.source.validation.status,
+  );
+  detail(
+    "worker_validation_receipt_ref",
+    "source.worker_receipt_ref",
+    packet.worker_validation_receipt_ref,
+  );
+  detail(
+    "worker_validation_receipt_hash",
+    "source.worker_receipt_hash",
+    packet.worker_validation_receipt_hash,
+  );
+  detail("replay_address", "replay.address", packet.replay_address);
+  Object.entries(packet.replay_pins).forEach(([field, value]) =>
+    detail(`replay_pins.${field}`, `replay.${field}`, value),
+  );
+  list(
+    "source_provenance",
+    "source.provenance",
+    body.source_provenance.map(
+      (source) =>
+        `${source.source_role}|${source.source_ref}|${source.content_hash}|${source.admission_state}|${source.availability_state}|${source.verifier_ref}`,
+    ),
+  );
+
+  section(
+    "machine-export",
+    "pages.cycleBoard.confidenceLedger.sections.machineExport",
+  );
+  push(
+    "machine.download",
+    catalogText(locale, "pages.cycleBoard.confidenceLedger.downloadMachine"),
+  );
+  return Object.freeze(result);
+}
+
+function expectedDialogText(
+  packet: Extract<
+    ConfidenceLedgerRiskSpendPacket,
+    { availability: "available" }
+  >,
+  locale: ProductLocale,
+  figureLabel: string,
+): readonly GovernedText[] {
+  const result: GovernedText[] = [
+    Object.freeze({
+      marker: "dialog.title",
+      text: `${figureLabel}: ${catalogText(
+        locale,
+        "pages.cycleBoard.confidenceLedger.figure.dialogTitle",
+      )}`,
+    }),
+    Object.freeze({
+      marker: "dialog.description",
+      text: catalogText(
+        locale,
+        "pages.cycleBoard.confidenceLedger.figure.dialogDescription",
+      ),
+    }),
+  ];
+  deriveExpectedEnvelopeFields(packet.payload.coverage_envelope).forEach(
+    ({ field, label, values }) => {
+      result.push(
+        Object.freeze({ marker: `dialog.field.${field}.label`, text: label }),
+      );
+      if (values.length === 0) {
+        result.push(
+          Object.freeze({ marker: `dialog.field.${field}.empty`, text: "[]" }),
+        );
+      } else {
+        values.forEach((value, index) =>
+          result.push(
+            Object.freeze({
+              marker: `dialog.field.${field}.value.${index}`,
+              text: normalizedText(value),
+            }),
+          ),
+        );
+      }
+    },
+  );
+  return Object.freeze(result);
 }
 
 function answersFromVisibleDom(
@@ -906,86 +1412,72 @@ function isEqualOrMoreConservative(
   );
 }
 
-function candidatePacketSchemaVersion(candidate: unknown): string | null {
-  if (typeof candidate !== "object" || candidate === null) return null;
-  const value = (candidate as Record<string, unknown>).packet_schema_version;
-  return typeof value === "string" ? value : null;
-}
-
 /** Evaluate the byte/semantic twins with exact PV-K04 and finite-schema PV-K06. */
 export async function evaluateConfidenceLedgerRiskSpendTwin({
-  context,
+  evaluationMode,
   packetCandidate,
   rawPacketBytes,
   root,
+  stepBudget,
 }: EvaluateConfidenceLedgerRiskSpendTwinInput): Promise<ConfidenceLedgerRiskSpendTwinResult> {
-  if (context.stepBudget <= 0) return blocked("timeout");
   if (
-    root === null ||
-    rawPacketBytes.byteLength === 0 ||
-    !context.history.includes(root) ||
-    !context.history.includes(rawPacketBytes)
+    !Number.isFinite(stepBudget) ||
+    !Number.isSafeInteger(stepBudget) ||
+    stepBudget <= 0 ||
+    stepBudget > CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET ||
+    stepBudget <= CONFIDENCE_LEDGER_DOM_WORK_RESERVE
   ) {
-    return blocked("missing_input_or_incomplete_history");
+    return blocked("timeout");
   }
-  if (context.evaluationMode !== "exact_finite_schema") {
-    return blocked("unproved_approximation");
-  }
-  const schemaVersion = candidatePacketSchemaVersion(packetCandidate);
-  if (
-    schemaVersion !== null &&
-    schemaVersion !== "policyos.runtime.confidence_ledger_risk_spend_packet.v1"
-  ) {
-    return blocked("unsupported_or_out_of_model");
-  }
-  if (
-    !sameSequence(
-      context.declaredFiniteSchema,
-      CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
-    )
-  ) {
-    return blocked("unsupported_or_out_of_model");
-  }
-  if (
-    context.recordModels.length === 0 ||
-    !context.recordModels.some((record) => record.root === root) ||
-    !context.controlledObservations.includes(root)
-  ) {
-    return blocked("model_observation_inconsistent");
-  }
-  if (
-    context.consistencySet.length === 0 ||
-    !context.consistencySet.some((record) => record.root === root)
-  ) {
-    return blocked("empty_consistency_set");
-  }
+  if (root === null) return blocked("missing_input_or_incomplete_history");
 
-  let packet: ConfidenceLedgerRiskSpendPacket;
-  let bytePacket: ConfidenceLedgerRiskSpendPacket;
-  try {
-    packet = await admitConfidenceLedgerRiskSpendPacket(packetCandidate);
-    const rawCandidate: unknown = JSON.parse(
-      new TextDecoder("utf-8", { fatal: true }).decode(rawPacketBytes),
-    );
-    bytePacket = await admitConfidenceLedgerRiskSpendPacket(rawCandidate);
-  } catch {
-    return blocked("parser_or_schema_failure");
-  }
-  if (!sameSequence([bytePacket], [packet])) {
-    return blocked("model_observation_inconsistent");
-  }
+  const preflight = await evaluateConfidenceLedgerProtectedQuery({
+    evaluationMode,
+    packetCandidate,
+    rawPacketBytes,
+    stepBudget: stepBudget - CONFIDENCE_LEDGER_DOM_WORK_RESERVE,
+  });
+  if (preflight.status === "blocked") return blocked(preflight.reason);
+  const packet = preflight.packet;
   if (packet.availability !== "available") {
     return blocked("unsupported_or_out_of_model");
   }
-  const workRequired =
-    root.querySelectorAll(
-      "[data-confidence-leaf], [data-confidence-list], [data-confidence-section]",
-    ).length + CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA.length;
-  if (context.stepBudget < workRequired) return blocked("timeout");
+
+  const envelopeRef = packet.payload.coverage_envelope_ref;
+  if (
+    !root.ownerDocument.documentElement.contains(root) ||
+    !documentDomWithinCaps(root.ownerDocument)
+  ) {
+    return blocked("unsupported_or_out_of_model");
+  }
+  if (
+    root.dataset.confidenceEnvelopeRef !== envelopeRef ||
+    (root.dataset.confidenceLocale !== "en" &&
+      root.dataset.confidenceLocale !== "uk")
+  ) {
+    return blocked("model_observation_inconsistent");
+  }
+  const locale = root.dataset.confidenceLocale;
+  const dialogs = [
+    ...root.ownerDocument.querySelectorAll<HTMLElement>(
+      "[data-confidence-dialog-envelope-ref]",
+    ),
+  ].filter(
+    (dialog) => dialog.dataset.confidenceDialogEnvelopeRef === envelopeRef,
+  );
+  if (dialogs.length === 0) {
+    return blocked("missing_input_or_incomplete_history");
+  }
+  if (dialogs.length !== 1) return blocked("model_observation_inconsistent");
+  const dialog = dialogs[0];
 
   let visible: VisibleSemanticProjection;
+  let rootText: readonly GovernedText[];
+  let dialogText: readonly GovernedText[];
   try {
     visible = decodeVisibleProjection(root);
+    rootText = collectGovernedText(root);
+    dialogText = collectGovernedText(dialog);
   } catch (error) {
     if (error instanceof SemanticDomError) {
       return blocked("parser_or_schema_failure");
@@ -995,22 +1487,41 @@ export async function evaluateConfidenceLedgerRiskSpendTwin({
   if (!visibleSemanticsMatch(visible, packet)) {
     return blocked("model_observation_inconsistent");
   }
-  const packetAnswers = answersFromPacket(packet);
+  const expectedRoot = expectedRootText(packet, locale);
+  const figureLabel = dialog.dataset.confidenceDialogFigureLabel;
+  const allowedFigureLabels = expectedRoot
+    .filter((entry) => entry.marker === "figure.caption")
+    .map((entry) => entry.text);
+  if (
+    figureLabel === undefined ||
+    !allowedFigureLabels.includes(normalizedText(figureLabel))
+  ) {
+    return blocked("model_observation_inconsistent");
+  }
+  if (
+    !sameSequence(rootText, expectedRoot) ||
+    !sameSequence(
+      dialogText,
+      expectedDialogText(packet, locale, normalizedText(figureLabel)),
+    )
+  ) {
+    return blocked("model_observation_inconsistent");
+  }
   const domAnswers = answersFromVisibleDom(visible);
-  if (!isEqualOrMoreConservative(domAnswers, packetAnswers)) {
+  if (!isEqualOrMoreConservative(domAnswers, preflight.protectedQueries)) {
     return blocked("model_observation_inconsistent");
   }
   if (
     !sameSequence(
-      Object.keys(packetAnswers),
+      Object.keys(preflight.protectedQueries),
       CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA,
     )
   ) {
     return blocked("unsupported_or_out_of_model");
   }
   return Object.freeze({
-    byteTwin: rawPacketBytes,
-    protectedQueries: packetAnswers,
+    byteTwin: preflight.rawPacketBytes,
+    protectedQueries: preflight.protectedQueries,
     status: "exact",
   });
 }

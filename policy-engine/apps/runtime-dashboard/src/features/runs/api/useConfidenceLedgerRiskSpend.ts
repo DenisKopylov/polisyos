@@ -7,8 +7,9 @@ import {
 } from "@/api/governedQueryPolicy";
 import { authAwareRuntimeFetch } from "@/app/auth/authSession";
 import {
-  admitConfidenceLedgerRiskSpendPacket,
-  type ConfidenceLedgerRiskSpendPacket,
+  CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+  evaluateConfidenceLedgerProtectedQuery,
+  type ConfidenceLedgerProtectedQueryEvaluation,
 } from "@/features/runs/domain/confidenceLedgerRiskSpend";
 import { API_BASE_URL } from "@/shared/lib/constants";
 
@@ -23,10 +24,8 @@ type ConfidenceLedgerRiskSpendClient = Readonly<{
   ) => Promise<CapturedConfidenceLedgerRiskSpend>;
 }>;
 
-export type ConfidenceLedgerRiskSpendProjection = Readonly<{
-  packet: ConfidenceLedgerRiskSpendPacket;
-  rawPacketBytes: Uint8Array;
-}>;
+export type ConfidenceLedgerRiskSpendProjection =
+  ConfidenceLedgerProtectedQueryEvaluation;
 
 function runtimeApiBaseUrl(): string {
   const applicationOrigin =
@@ -65,10 +64,12 @@ export function confidenceLedgerRiskSpendQueryOptions(
     queryKey: queryKeys.confidenceLedgerRiskSpendProjection(),
     queryFn: async (): Promise<ConfidenceLedgerRiskSpendProjection> => {
       const response = await client.getConfidenceLedgerRiskSpendProjection({});
-      const packet = await admitConfidenceLedgerRiskSpendPacket(
-        response.packet,
-      );
-      return Object.freeze({ packet, rawPacketBytes: response.rawPacketBytes });
+      return evaluateConfidenceLedgerProtectedQuery({
+        evaluationMode: "exact_finite_schema",
+        packetCandidate: response.packet,
+        rawPacketBytes: response.rawPacketBytes,
+        stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+      });
     },
   };
 }

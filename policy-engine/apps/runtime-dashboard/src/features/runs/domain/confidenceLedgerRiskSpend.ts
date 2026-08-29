@@ -163,7 +163,7 @@ const coverageSourceIdentity = z
       "canonical_registry_validated",
       "worker_admission_not_established",
     ]),
-    availability_state: nonEmptyString,
+    availability_state: z.literal("available_typed_input"),
     content_hash: hash,
     source_ref: nonEmptyString,
     source_role: z.enum(["canonical_registry", "semantic_ledger"]),
@@ -185,7 +185,7 @@ const coverageEnvelope = z
       z.literal("expert"),
       z.literal("machine"),
     ]),
-    challenge_route_state: nonEmptyString,
+    challenge_route_state: z.literal("not_established"),
     declared_obligation_classes: z.tuple(
       CONFIDENCE_LEDGER_OBLIGATION_ORDER.map((item) => z.literal(item)) as [
         z.ZodLiteral<"normative">,
@@ -196,10 +196,10 @@ const coverageEnvelope = z
     declared_set_rider: z.literal(CONFIDENCE_LEDGER_DECLARED_SET_RIDER),
     delta: rational,
     envelope_hash: hash,
-    envelope_ref: nonEmptyString,
-    exclusion_basis_state: nonEmptyString,
+    envelope_ref: z.string().regex(/^coverage-envelope:sha256:[0-9a-f]{64}$/u),
+    exclusion_basis_state: z.literal("not_established"),
     exclusions: z.tuple([]),
-    expiry_state: nonEmptyString,
+    expiry_state: z.literal("not_issued"),
     locality_rider: z.literal(CONFIDENCE_LEDGER_LOCALITY_RIDER),
     maintained_assumptions: maintainedAssumptions,
     may_not_use_for: z.tuple([
@@ -212,23 +212,25 @@ const coverageEnvelope = z
     obligation_rule_ref: nonEmptyString,
     obligation_schema_ref: nonEmptyString,
     owner_scope_key: nonEmptyString,
-    protected_action_id: nonEmptyString,
-    reason_codes: z.array(
-      z.enum([
-        "DS17-COVERAGE-OPEN-WORLD",
-        "DS17-COVERAGE-KNOWN-INCOMPLETE",
-        "DS17-COVERAGE-SEARCH-NOT-ESTABLISHED",
-        "DS17-COVERAGE-EXCLUSIONS-NOT-ESTABLISHED",
-        "DS17-COVERAGE-INDEPENDENCE-MISSING",
-      ]),
-    ),
-    review_state: nonEmptyString,
-    rule_version: nonEmptyString,
-    schema_version: nonEmptyString,
-    scope_id: nonEmptyString,
-    search_basis_state: nonEmptyString,
+    protected_action_id: z.literal("protected-action://ds17/review-risk-spend"),
+    reason_codes: z
+      .array(
+        z.enum([
+          "DS17-COVERAGE-OPEN-WORLD",
+          "DS17-COVERAGE-KNOWN-INCOMPLETE",
+          "DS17-COVERAGE-SEARCH-NOT-ESTABLISHED",
+          "DS17-COVERAGE-EXCLUSIONS-NOT-ESTABLISHED",
+          "DS17-COVERAGE-INDEPENDENCE-MISSING",
+        ]),
+      )
+      .length(4),
+    review_state: z.literal("not_issued"),
+    rule_version: z.literal("policyos.runtime.obligation_coverage.negative.v1"),
+    schema_version: z.literal("policyos.runtime.obligation_coverage.v1"),
+    scope_id: z.string().regex(/^confidence-risk-scope:sha256:[0-9a-f]{64}$/u),
+    search_basis_state: z.literal("not_established"),
     searched_sources: z.tuple([]),
-    source_cutoff_state: nonEmptyString,
+    source_cutoff_state: z.literal("not_established"),
     source_identities: z.tuple([
       coverageSourceIdentity,
       coverageSourceIdentity,
@@ -239,12 +241,12 @@ const coverageEnvelope = z
     ]),
     unknown_remainder: z
       .object({
-        cardinality: nonEmptyString,
-        kind: nonEmptyString,
-        probability: nonEmptyString,
+        cardinality: z.literal("not_estimated"),
+        kind: z.literal("independent_coverage_producer_missing"),
+        probability: z.literal("not_calibrated"),
       })
       .strict(),
-    witness_refs: z.array(nonEmptyString),
+    witness_refs: z.array(hash),
   })
   .strict();
 
@@ -316,7 +318,7 @@ const registry = z
           .strict(),
       )
       .min(1),
-    schema_version: nonEmptyString,
+    schema_version: z.literal("policyos.runtime.confidence_ledger.registry.v1"),
   })
   .strict();
 
@@ -386,7 +388,7 @@ const semanticCheck = z
     request_fingerprint: hash,
     request_key: nonEmptyString,
     schedule_query_index: z.number().int().nonnegative().nullable(),
-    schema_version: nonEmptyString,
+    schema_version: z.literal("policyos.runtime.confidence_ledger.v1"),
     scope_id: nonEmptyString,
     spend: rational,
     spend_decimal: nonEmptyString,
@@ -713,7 +715,7 @@ const sourceIdentity = z
       .object({
         bound_artifact_content_hash: hash,
         bound_dependency_aggregate_identity: hash,
-        bound_dependency_count: z.number().int().nonnegative(),
+        bound_dependency_count: z.number().int().positive(),
         frozen_semantic_projection_hash: nullableHash,
         issue_codes: z.tuple([]),
         recomputed_total_spend_denominator: z
@@ -1141,6 +1143,94 @@ function verifyDerivedAmount(
   );
 }
 
+async function verifyOwnerDerivedCoverageArm(
+  body: StrictAvailablePacket["payload"],
+): Promise<void> {
+  const envelope = body.coverage_envelope;
+  const witnessRefs = envelope.witness_refs;
+  assertCondition(
+    new Set(witnessRefs).size === witnessRefs.length,
+    "coverage witness references are duplicated",
+  );
+  const expectedAssessment =
+    witnessRefs.length === 0 ? "open_world_unresolved" : "known_incomplete";
+  const expectedReasons = [
+    witnessRefs.length === 0
+      ? "DS17-COVERAGE-OPEN-WORLD"
+      : "DS17-COVERAGE-KNOWN-INCOMPLETE",
+    "DS17-COVERAGE-SEARCH-NOT-ESTABLISHED",
+    "DS17-COVERAGE-EXCLUSIONS-NOT-ESTABLISHED",
+    "DS17-COVERAGE-INDEPENDENCE-MISSING",
+  ];
+  const expectedTtl =
+    witnessRefs.length === 0
+      ? "not_issued_open_world_unresolved"
+      : "not_issued_known_incomplete";
+  assertCondition(
+    envelope.assessment === expectedAssessment &&
+      body.coverage_assessment === expectedAssessment &&
+      canonicalJson(envelope.reason_codes) === canonicalJson(expectedReasons) &&
+      envelope.ttl_state === expectedTtl,
+    "coverage negative arm is not owner-derived",
+  );
+
+  const expectedSources = [
+    {
+      admission_state: "canonical_registry_validated",
+      availability_state: "available_typed_input",
+      content_hash: body.registry_content_hash,
+      source_ref: "architecture/production_quality/confidence_ledger.toml",
+      source_role: "canonical_registry",
+      verifier_ref:
+        "polisyos.runtime.quality.confidence_ledger.load_confidence_ledger_registry",
+    },
+    {
+      admission_state: "worker_admission_not_established",
+      availability_state: "available_typed_input",
+      content_hash: body.source_projection_hash,
+      source_ref:
+        "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json#real_ledger_projection",
+      source_role: "semantic_ledger",
+      verifier_ref:
+        "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
+    },
+  ];
+  assertCondition(
+    canonicalJson(envelope.source_identities) ===
+      canonicalJson(expectedSources) &&
+      canonicalJson(body.source_provenance) === canonicalJson(expectedSources),
+    "coverage source identity tuple mismatch",
+  );
+
+  const registry = body.registry_basis;
+  const semantic = body.semantic_ledger_basis;
+  assertCondition(
+    canonicalJson(envelope.delta) === canonicalJson(registry.policy.delta) &&
+      canonicalJson(envelope.declared_scope) ===
+        canonicalJson(body.risk_scope) &&
+      envelope.authority_purpose === body.risk_scope.authority_purpose &&
+      canonicalJson(envelope.maintained_assumptions) ===
+        canonicalJson(semantic.maintained_assumptions) &&
+      envelope.obligation_language_version === registry.schema_version &&
+      envelope.obligation_schema_ref ===
+        (body.risk_scope.schema_ref ?? registry.schema_version) &&
+      envelope.obligation_rule_ref ===
+        (body.risk_scope.rule_ref ?? envelope.rule_version),
+    "coverage owner basis tuple mismatch",
+  );
+  const expectedAssessmentKey = await fingerprint({
+    owner_scope_key: envelope.owner_scope_key,
+    protected_action_id: envelope.protected_action_id,
+    rule_version: envelope.rule_version,
+    scope_id: envelope.scope_id,
+    sources: expectedSources,
+  });
+  assertCondition(
+    envelope.assessment_key === expectedAssessmentKey,
+    "coverage assessment key mismatch",
+  );
+}
+
 async function verifyRecursiveProjectionBasis(
   body: StrictAvailablePacket["payload"],
 ): Promise<void> {
@@ -1558,6 +1648,7 @@ async function verifyRecursiveProjectionBasis(
 
 async function verifyAvailable(packet: StrictAvailablePacket): Promise<void> {
   const { payload: body } = packet;
+  await verifyOwnerDerivedCoverageArm(body);
   assertCondition(
     body.scope_id === body.coverage_envelope.scope_id &&
       body.scope_id === body.semantic_ledger_basis.scope_id &&
@@ -1739,6 +1830,17 @@ async function verifyAvailable(packet: StrictAvailablePacket): Promise<void> {
       ),
     "scope accounting total spend mismatch",
   );
+  assertCondition(
+    lessThanOrEqual(
+      fraction(body.semantic_ledger_basis.total_spend),
+      fraction(body.registry_basis.policy.delta),
+    ) &&
+      body.semantic_ledger_basis.within_budget &&
+      body.budget_posture === "within_budget" &&
+      fraction(body.scope_total_risk_spend.overspend_amount.amount)
+        .numerator === 0n,
+    "available packet exceeds the owner budget",
+  );
 
   const amounts: ConditionalDeltaAmount[] = [
     body.total_spend,
@@ -1913,6 +2015,309 @@ export async function admitConfidenceLedgerRiskSpendPacket(
     );
   }
   return Object.freeze(parsed);
+}
+
+export const CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA = [
+  "promotion_authority",
+  "publication_authority",
+  "public_audience",
+  "bounded_completeness",
+  "world_completeness",
+  "family_level_total",
+  "sequence_level_total",
+  "cross_scope_total",
+  "narrowed_claim_satisfaction",
+] as const;
+
+export type ConfidenceLedgerProtectedQuery =
+  (typeof CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA)[number];
+export type ConfidenceLedgerProtectedAnswer = "denied" | "not_established";
+export type ConfidenceLedgerSafetyBlockedReason =
+  | "timeout"
+  | "missing_input_or_incomplete_history"
+  | "parser_or_schema_failure"
+  | "unsupported_or_out_of_model"
+  | "empty_consistency_set"
+  | "model_observation_inconsistent"
+  | "unproved_approximation";
+
+const CONFIDENCE_LEDGER_MAX_RESPONSE_BYTES = 262_144;
+const CONFIDENCE_LEDGER_MAX_JSON_NODES = 32_768;
+const CONFIDENCE_LEDGER_MAX_JSON_TEXT_CODE_UNITS = 262_144;
+const CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS = 512;
+const CONFIDENCE_LEDGER_MAX_OBJECT_FIELDS = 256;
+const CONFIDENCE_LEDGER_MAX_JSON_DEPTH = 64;
+const CONFIDENCE_LEDGER_SCHEMA_WORK_BOUND = 16 * 1024;
+export const CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET = 750 * 1000;
+const CONFIDENCE_LEDGER_MAX_EVALUATION_BUDGET =
+  CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET;
+
+export type ConfidenceLedgerProtectedQueryEvaluation =
+  | Readonly<{
+      packet: ConfidenceLedgerRiskSpendPacket;
+      protectedQueries: Readonly<
+        Record<ConfidenceLedgerProtectedQuery, ConfidenceLedgerProtectedAnswer>
+      >;
+      rawPacketBytes: Uint8Array;
+      receipt: Readonly<{
+        observation_basis: "candidate_and_captured_bytes_independently_admitted";
+        packet_availability: ConfidenceLedgerRiskSpendPacket["availability"];
+        packet_projection_hash: string | null;
+        protected_query_count: 9;
+        schema_version: "policyos.runtime.confidence_ledger_protected_query_evaluation.v1";
+      }>;
+      status: "exact";
+    }>
+  | Readonly<{
+      reason: ConfidenceLedgerSafetyBlockedReason;
+      status: "blocked";
+    }>;
+
+type ProtectedQueryEvaluationInput = Readonly<{
+  evaluationMode: "exact_finite_schema" | "sampled_search";
+  packetCandidate: unknown;
+  rawPacketBytes: Uint8Array;
+  stepBudget: number;
+}>;
+
+function blockedEvaluation(
+  reason: ConfidenceLedgerSafetyBlockedReason,
+): ConfidenceLedgerProtectedQueryEvaluation {
+  return Object.freeze({ reason, status: "blocked" });
+}
+
+function packetSchemaVersion(candidate: unknown): string | null {
+  if (typeof candidate !== "object" || candidate === null) return null;
+  const version = (candidate as Record<string, unknown>).packet_schema_version;
+  return typeof version === "string" ? version : null;
+}
+
+function isUint8Array(value: unknown): value is Uint8Array {
+  return Object.prototype.toString.call(value) === "[object Uint8Array]";
+}
+
+type JsonWork = Readonly<{ nodeCount: number; textCodeUnits: number }>;
+
+function jsonWorkWithinCaps(value: unknown): JsonWork | null {
+  const seen = new WeakSet();
+  let nodes = 0;
+  let textCodeUnits = 0;
+  const visit = (current: unknown, depth: number): boolean => {
+    nodes += 1;
+    if (nodes > CONFIDENCE_LEDGER_MAX_JSON_NODES) return false;
+    if (depth > CONFIDENCE_LEDGER_MAX_JSON_DEPTH) return false;
+    if (typeof current === "string") {
+      textCodeUnits += current.length;
+      return textCodeUnits <= CONFIDENCE_LEDGER_MAX_JSON_TEXT_CODE_UNITS;
+    }
+    if (current === null || typeof current !== "object") return true;
+    if (seen.has(current)) return false;
+    seen.add(current);
+    if (Array.isArray(current)) {
+      if (current.length > CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS) return false;
+      return current.every((item) => visit(item, depth + 1));
+    }
+    const entries = Object.entries(current);
+    if (entries.length > CONFIDENCE_LEDGER_MAX_OBJECT_FIELDS) return false;
+    return entries.every(([key, item]) => {
+      textCodeUnits += key.length;
+      return (
+        textCodeUnits <= CONFIDENCE_LEDGER_MAX_JSON_TEXT_CODE_UNITS &&
+        visit(item, depth + 1)
+      );
+    });
+  };
+  return visit(value, 0)
+    ? Object.freeze({ nodeCount: nodes, textCodeUnits })
+    : null;
+}
+
+function protectedAnswersFromPacket(
+  packet: ConfidenceLedgerRiskSpendPacket,
+): Readonly<
+  Record<ConfidenceLedgerProtectedQuery, ConfidenceLedgerProtectedAnswer>
+> {
+  const packetDenials = new Set(packet.may_not_use_for);
+  if (packet.availability !== "available") {
+    return Object.freeze({
+      promotion_authority: packetDenials.has("promotion_authority")
+        ? "denied"
+        : "not_established",
+      publication_authority: packetDenials.has("publication_authority")
+        ? "denied"
+        : "not_established",
+      public_audience: packetDenials.has("public_audience")
+        ? "denied"
+        : "not_established",
+      bounded_completeness: packetDenials.has("bounded_completeness")
+        ? "denied"
+        : "not_established",
+      world_completeness: "not_established",
+      family_level_total: "not_established",
+      sequence_level_total: "not_established",
+      cross_scope_total: "not_established",
+      narrowed_claim_satisfaction: "not_established",
+    });
+  }
+  const envelopeDenials = new Set(
+    packet.payload.coverage_envelope.may_not_use_for,
+  );
+  const hasLocalityRider =
+    packet.payload.fixed_scope_disclosure ===
+    packet.payload.coverage_envelope.locality_rider;
+  return Object.freeze({
+    promotion_authority:
+      packetDenials.has("promotion_authority") ||
+      confidenceLedgerPromotionBlockers(packet).length > 0
+        ? "denied"
+        : "not_established",
+    publication_authority: packetDenials.has("publication_authority")
+      ? "denied"
+      : "not_established",
+    public_audience: packetDenials.has("public_audience")
+      ? "denied"
+      : "not_established",
+    bounded_completeness:
+      packetDenials.has("bounded_completeness") ||
+      envelopeDenials.has("bounded_completeness")
+        ? "denied"
+        : "not_established",
+    world_completeness: envelopeDenials.has("world_completeness")
+      ? "denied"
+      : "not_established",
+    family_level_total: hasLocalityRider ? "denied" : "not_established",
+    sequence_level_total: hasLocalityRider ? "denied" : "not_established",
+    cross_scope_total: hasLocalityRider ? "denied" : "not_established",
+    narrowed_claim_satisfaction: hasLocalityRider
+      ? "denied"
+      : "not_established",
+  });
+}
+
+/**
+ * Reconcile the generated candidate with independently decoded captured bytes.
+ *
+ * This is a transport/query receipt, not an offline owner-provenance claim.
+ */
+export async function evaluateConfidenceLedgerProtectedQuery({
+  evaluationMode,
+  packetCandidate,
+  rawPacketBytes,
+  stepBudget,
+}: ProtectedQueryEvaluationInput): Promise<ConfidenceLedgerProtectedQueryEvaluation> {
+  if (
+    !Number.isFinite(stepBudget) ||
+    !Number.isSafeInteger(stepBudget) ||
+    stepBudget <= 0 ||
+    stepBudget > CONFIDENCE_LEDGER_MAX_EVALUATION_BUDGET
+  ) {
+    return blockedEvaluation("timeout");
+  }
+  if (
+    packetCandidate === null ||
+    packetCandidate === undefined ||
+    !isUint8Array(rawPacketBytes) ||
+    rawPacketBytes.byteLength === 0
+  ) {
+    return blockedEvaluation("missing_input_or_incomplete_history");
+  }
+  if (evaluationMode !== "exact_finite_schema") {
+    return blockedEvaluation("unproved_approximation");
+  }
+  if (rawPacketBytes.byteLength > CONFIDENCE_LEDGER_MAX_RESPONSE_BYTES) {
+    return blockedEvaluation("unsupported_or_out_of_model");
+  }
+  const minimumWorkBound =
+    rawPacketBytes.byteLength * 2 +
+    CONFIDENCE_LEDGER_MAX_JSON_NODES * 2 +
+    CONFIDENCE_LEDGER_SCHEMA_WORK_BOUND +
+    CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA.length;
+  if (stepBudget < minimumWorkBound) return blockedEvaluation("timeout");
+
+  const candidateVersion = packetSchemaVersion(packetCandidate);
+  if (
+    candidateVersion !== null &&
+    candidateVersion !==
+      "policyos.runtime.confidence_ledger_risk_spend_packet.v1"
+  ) {
+    return blockedEvaluation("unsupported_or_out_of_model");
+  }
+  const candidateWork = jsonWorkWithinCaps(packetCandidate);
+  if (candidateWork === null) {
+    return blockedEvaluation("unsupported_or_out_of_model");
+  }
+  const preDecodeWorkBound =
+    rawPacketBytes.byteLength * 2 +
+    candidateWork.nodeCount +
+    candidateWork.textCodeUnits +
+    CONFIDENCE_LEDGER_MAX_JSON_NODES +
+    CONFIDENCE_LEDGER_SCHEMA_WORK_BOUND +
+    CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA.length;
+  if (stepBudget < preDecodeWorkBound) return blockedEvaluation("timeout");
+
+  let rawCandidate: unknown;
+  try {
+    rawCandidate = JSON.parse(
+      new TextDecoder("utf-8", { fatal: true }).decode(rawPacketBytes),
+    );
+  } catch {
+    return blockedEvaluation("parser_or_schema_failure");
+  }
+  const rawVersion = packetSchemaVersion(rawCandidate);
+  if (
+    rawVersion !== null &&
+    rawVersion !== "policyos.runtime.confidence_ledger_risk_spend_packet.v1"
+  ) {
+    return blockedEvaluation("unsupported_or_out_of_model");
+  }
+  const capturedWork = jsonWorkWithinCaps(rawCandidate);
+  if (capturedWork === null) {
+    return blockedEvaluation("unsupported_or_out_of_model");
+  }
+  const completeWorkBound =
+    rawPacketBytes.byteLength * 2 +
+    candidateWork.nodeCount +
+    candidateWork.textCodeUnits +
+    capturedWork.nodeCount +
+    CONFIDENCE_LEDGER_SCHEMA_WORK_BOUND +
+    CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA.length;
+  if (stepBudget < completeWorkBound) return blockedEvaluation("timeout");
+
+  let packet: ConfidenceLedgerRiskSpendPacket;
+  let capturedPacket: ConfidenceLedgerRiskSpendPacket;
+  try {
+    [packet, capturedPacket] = await Promise.all([
+      admitConfidenceLedgerRiskSpendPacket(packetCandidate),
+      admitConfidenceLedgerRiskSpendPacket(rawCandidate),
+    ]);
+  } catch {
+    return blockedEvaluation("parser_or_schema_failure");
+  }
+  if (canonicalJson(packet) !== canonicalJson(capturedPacket)) {
+    return blockedEvaluation("empty_consistency_set");
+  }
+  const protectedQueries = protectedAnswersFromPacket(packet);
+  if (
+    canonicalJson(Object.keys(protectedQueries)) !==
+    canonicalJson(CONFIDENCE_LEDGER_PROTECTED_QUERY_SCHEMA)
+  ) {
+    return blockedEvaluation("unsupported_or_out_of_model");
+  }
+  return Object.freeze({
+    packet,
+    protectedQueries,
+    rawPacketBytes,
+    receipt: Object.freeze({
+      observation_basis:
+        "candidate_and_captured_bytes_independently_admitted" as const,
+      packet_availability: packet.availability,
+      packet_projection_hash: packet.projection_hash ?? null,
+      protected_query_count: 9 as const,
+      schema_version:
+        "policyos.runtime.confidence_ledger_protected_query_evaluation.v1" as const,
+    }),
+    status: "exact" as const,
+  });
 }
 
 /** Resolve visible actual rows solely through producer-authored role refs and order. */

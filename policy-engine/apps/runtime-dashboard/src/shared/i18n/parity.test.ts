@@ -37,6 +37,10 @@ const COUNT_MESSAGE_ALLOWLIST = new Map<string, string>([
     "Numeric NL-iteration cap value; it is not a noun-bearing quantity phrase.",
   ],
   [
+    "pages.cycleBoard.confidenceLedger.positiveEmpty.body",
+    "The count modifies the invariant issued-status predicate; no counted noun changes form in either active locale.",
+  ],
+  [
     "pages.runs.activeRunAnnouncement",
     "Count is the total denominator in “row … of”; it has no agreeing noun.",
   ],
@@ -270,11 +274,11 @@ const NON_NUMERIC_VARIABLE_KEY_SET_SHA256 =
   "b5b3aa0106b331d5b639b53c929748417e2fc9fbe1932a4384df81047327c7d3";
 const INTERPOLATION_VARIABLE_KEY_SET_SHA256 =
   "c6e55dde50b11769f4babae1c8c2d835ce9b671340aa8afbd452fc70da4c1f70";
-const ACTIVE_LOCALE_LEAF_COUNT = 2688;
-const NON_COUNT_MESSAGE_COUNT = 245;
-const NON_COUNT_VARIABLE_USE_COUNT = 361;
+const ACTIVE_LOCALE_LEAF_COUNT = 2692;
+const NON_COUNT_MESSAGE_COUNT = 246;
+const NON_COUNT_VARIABLE_USE_COUNT = 362;
 const NON_COUNT_VARIABLE_USE_KEY_SET_SHA256 =
-  "791057b29c0cd78eebd831c2f86285316d1a204ebb893f9598df693dff84417d";
+  "3ec2e867b06b1413fdf47e40ef0637e0bb6e44e4d7580cb4c6841cc85b767aa6";
 
 type NumericUseClassification = "pluralized" | "invariant";
 

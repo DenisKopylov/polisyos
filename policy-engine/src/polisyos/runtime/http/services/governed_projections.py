@@ -1041,20 +1041,26 @@ def _run_owner_validation(
         loaded.component_bindings,
         payload_hash,
     )
-    cached = _OWNER_VALIDATION_CACHE.get(cache_key)
-    if cached is not None and dependency_manifest_matches(
-        resolved_root,
-        dict(cached.dependency_bindings),
-    ):
-        return cached.validation
-    with _OWNER_VALIDATION_LOCK:
+    cache_enabled = (
+        definition.projection_id
+        is not GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND
+    )
+    if cache_enabled:
         cached = _OWNER_VALIDATION_CACHE.get(cache_key)
         if cached is not None and dependency_manifest_matches(
             resolved_root,
             dict(cached.dependency_bindings),
         ):
             return cached.validation
-        _OWNER_VALIDATION_CACHE.pop(cache_key, None)
+    with _OWNER_VALIDATION_LOCK:
+        if cache_enabled:
+            cached = _OWNER_VALIDATION_CACHE.get(cache_key)
+            if cached is not None and dependency_manifest_matches(
+                resolved_root,
+                dict(cached.dependency_bindings),
+            ):
+                return cached.validation
+            _OWNER_VALIDATION_CACHE.pop(cache_key, None)
         request = {
             "projection_id": definition.projection_id.value,
             "repository_root": str(resolved_root),
@@ -1146,7 +1152,7 @@ def _run_owner_validation(
             registry_delta_numerator=result.registry_delta_numerator,
             registry_delta_denominator=result.registry_delta_denominator,
         )
-        if validation.status == "passed":
+        if validation.status == "passed" and cache_enabled:
             _OWNER_VALIDATION_CACHE[cache_key] = _OwnerValidationCacheEntry(
                 validation=validation,
                 dependency_bindings=tuple(sorted(result.dependency_bindings.items())),
@@ -1190,7 +1196,7 @@ class GovernedProjectionService:
         *,
         projection_payload: Mapping[str, Any] | None = None,
     ) -> GuardedProjectionSourceResolution:
-        """Resolve and owner-validate source bytes without generic HTTP emission."""
+        """Resolve source bytes and execute the fixed guarded owner validation."""
 
         resolved_id = GuardedProjectionId(projection_id)
         definition = _GUARDED_DEFINITION_BY_ID[resolved_id]

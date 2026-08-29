@@ -107,7 +107,7 @@ def _classify_over_spend_owner_failure(
 
 
 class ConfidenceLedgerRiskSpendProjectionService:
-    """Resolve current owner evidence and compose it into one HTTP packet."""
+    """Execute guarded owner validation and compose one HTTP packet per request."""
 
     def __init__(
         self,
@@ -124,7 +124,7 @@ class ConfidenceLedgerRiskSpendProjectionService:
         source_as_of: datetime | None = None,
         projection_rule_version: str | None = None,
     ) -> ConfidenceLedgerRiskSpendPacket:
-        """Resolve current owner identity and enforce every replay pin exactly."""
+        """Execute the guarded owner worker and enforce every replay pin exactly."""
 
         resolution = GovernedProjectionService(
             self._repository_root

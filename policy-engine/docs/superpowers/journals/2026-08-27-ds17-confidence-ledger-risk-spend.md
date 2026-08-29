@@ -788,3 +788,96 @@ specialized projection service), the existing specialized service test, and
 this journal. No schema, route, Rego, generated client, generic projection ID,
 second source, UI, signer, or reserve path changes. All previously frozen route
 denominators remain unchanged and C02 reserve remains **0**.
+
+## 2026-08-29 — C02 r4 guarded-cache P40 closure
+
+The next review found the **SECOND SAME P38 cache-currentness class**, one
+level below the seven-member cache-key correction above. `DependencyTracker`
+is rooted at the configured artifact repository: `_relative` deliberately
+drops every loaded module or consulted path outside that root. The supported
+worker environment also prepends application source and preserves inherited
+`PYTHONPATH`. Therefore a separately rooted validator hook can change while
+the artifact-root-relative dependency manifest remains unchanged. Before this
+correction, a first `available` receipt was reused after that hook changed; a
+cache clear then exposed the real second execution as `invalid_source`.
+
+Per P40, this section supersedes the preceding r3 claim that the recorded
+dependency manifest is complete for every supported execution input. It also
+supersedes r3's DS17 reuse behavior. No third cache-key/currentness equality was
+added. The owner quantity C02 can establish with its existing mechanisms is:
+**every request for the fixed guarded confidence-ledger source executes the
+real isolated owner worker over the current source and supported environment**.
+The generic governed-projection cache remains unchanged for the 13 dynamic
+projection IDs.
+
+### Complete cache and guarded-bypass denominator
+
+The current `_run_owner_validation` control flow is complete as follows:
+
+1. Every projection rechecks expected source schema and rule before deriving
+   any cache behavior.
+2. The generic cache key still has exactly seven quantities: resolved artifact
+   repository root; projection ID; expected validator ID; expected validator
+   version; source content hash; complete sorted component-binding tuple; and
+   canonical projected-payload hash.
+3. For the fixed `confidence-ledger-risk-spend` guarded ID,
+   `cache_enabled` is derived internally as false. The function performs no
+   optimistic lookup, locked lookup, stale-entry pop, or successful-result
+   write. There is no caller-controlled bypass flag. Each request proceeds to
+   the fixed isolated-worker subprocess and the complete worker-result
+   reconciliation.
+4. For every generic dynamic projection ID, `cache_enabled` remains true. Both
+   lookups re-hash the complete recorded artifact-root-relative dependency
+   manifest; the locked path evicts stale entries; only a reconciled `passed`
+   result is written. The r3 validator-ID/version key correction remains in
+   force for this generic family.
+5. A new worker result remains strict-parsed and reconciled against current
+   projection ID, validator ID/version, complete component identities and
+   aggregate, projected-payload hash, dependency aggregate, and required
+   component dependencies. Its receipt hash remains content-bound to the full
+   typed worker result. An offline packet or typed resolution remains
+   structurally incapable of entering the service or cache API.
+
+The bounded residual is explicit: the generic governed-projection cache cannot
+prove currentness for execution code or environment dependencies outside the
+single configured artifact root, including application-source modules and
+inherited `PYTHONPATH`. The smallest missing future capability is
+**governed-projection dependency-tracker multi-root execution provenance**,
+covering artifact root, application source, and inherited import roots. Its
+future owner is the governed projection dependency tracker; it is absent and
+outside C02. C02 does not edit `governed_projection_dependencies.py`, spend a
+reserve path, or claim the generic residual is repaired. The residual cannot
+stale DS17 because DS17 performs no validation-cache reuse.
+
+### Behavioral falsifiers and receipts
+
+- Exact two-test RED before the bypass: unchanged source executed once rather
+  than twice, and a changed separately rooted `sitecustomize.py` validator hook
+  still returned cached `available` rather than `invalid_source`: **2 failed**,
+  exit `1`; real `79.97`, user `77.35`, sys `2.61`; uptime `07:32` -> `07:33`.
+- Exact two-test GREEN after the bypass: unchanged source executes twice through
+  the real subprocess and may produce the same content-bound receipt; the
+  external hook change causes the second request to execute again and return
+  `invalid_source`; the guarded global cache remains empty; a packet-candidate
+  argument raises `TypeError` and seeds nothing: **2 passed**, exit `0`; real
+  `130.05`, user `126.06`, sys `3.95`; uptime `07:34` -> `07:36`.
+- Complete specialized service file plus both existing generic cache
+  regressions: **10 passed**, exit `0`; real `260.42`, user `252.32`, sys
+  `8.00`; uptime `07:38` -> `07:43`. The generic cases prove unchanged receipt
+  reuse plus dependency-byte and projected-payload invalidation remain green.
+- Targeted Ruff across the three mechanisms and specialized test: `All checks
+  passed!`, exit `0`; real `0.04`, user `0.03`, sys `0.01`; uptime `07:44` ->
+  `07:44`.
+- Complete governed-service importer at branch and exact slice base
+  `dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f`: both collect 69 and report **68
+  passed, 1 identical explicit read-only-witness skip**, exit `0/0`. Branch:
+  real `191.62`, user `183.24`, sys `6.85`, uptime `07:44` -> `07:47`. Exact
+  base: real `195.54`, user `186.64`, sys `7.26`, uptime `07:48` -> `07:51`.
+
+This correction changes the same three declared C02 mechanisms
+(`governed_projections.py`, specialized packet contracts, and specialized
+projection service), the existing specialized service test, and this journal.
+No dependency-tracker, schema, route, Rego, generated client, generic
+`ProjectionId`, second source, UI, signer, or foreign-debt path changes. All
+route/schema/authz denominators remain frozen from the approved C02 surface;
+C02 reserve remains **0**.

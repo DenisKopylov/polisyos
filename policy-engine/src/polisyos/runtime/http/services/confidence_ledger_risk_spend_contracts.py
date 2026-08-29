@@ -2,10 +2,9 @@
 
 Parsing proves structural and self-hash coherence only. Owner provenance is
 established online by ``ConfidenceLedgerRiskSpendProjectionService`` resolving
-the current exact source, payload, validator, and dependency identity. The
-first unique identity executes the isolated owner worker; unchanged identities
-may reuse only its content-bound receipt after currentness revalidation. No
-offline DTO label or self-hash authenticates it.
+the current exact source and executing the isolated owner worker for every
+request. The guarded DS17 source never reuses the generic governed-projection
+validation cache. No offline DTO label or self-hash authenticates it.
 """
 
 from __future__ import annotations

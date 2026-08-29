@@ -2,70 +2,70 @@
 
 ## Consolidated finding register
 
-| ID | finding | evidence basis | classification | route |
+Owner vocabulary in this table is deliberately strict:
+
+- **`existing: <identity>`** cites an owner already named by a governing repository record;
+- **`unallocated`** states that no accountable MAEP owner has been appointed or discovered for the
+  proposed cross-cutting object;
+- a work lane, document type, or generic “specification” route is not presented as an owner.
+
+Stage 3 appoints nobody. The 30-row denominator below is complete and each row has one owner state.
+
+| ID | finding | classification | accountable owner state | evidence-bound next action |
 |---|---|---|---|---|
-| F-001 | D4-A1's UI posture composes with the universal source-content architecture | ratified D4-A1 boundary plus refined-axis analysis | `research_conclusion` | retain D4-A1 unchanged |
-| F-002 | the proposed three-axis partition must be refined to separate authority-text set, rendition, semantic namespace, and presentation variant | counterexamples from co-authentic and adaptation regimes | `architecture_decision_candidate` | architect/specification stage |
-| F-003 | UI locale must never select legal authority or source-content status | D4-A1 separation and failure analysis | `protocol_requirement` | runtime/specification |
-| F-004 | authoritative legal content requires an authority-text-set relation, not a universal `source_language` field | VCLT/EU/Canada/Switzerland comparative evidence | `external_evidence_convergence` | architect/schema specification |
-| F-005 | English must not be a mandatory legal semantic pivot | co-authentic regimes and no-equivalent concept risk | `architecture_decision_candidate` | architect ruling/ratification |
-| F-006 | English remains admissible for authored UI and explicitly informative bridge uses | D4-A1 plus purpose-bounded rendition model | `bounded_architecture_decision_candidate` | specification |
-| F-007 | system-governance IDs and jurisdiction-concept IDs need separate namespaces with versioned mappings | terminology practice and false-universality analysis | `protocol_requirement` | vocabulary/schema specification |
-| F-008 | existing registered statuses/refusals must be reused; MAEP cannot create a second lattice | commission constraint and W4-K05 posture | `scope_constraint` | vocabulary review |
-| F-009 | catalogue key parity is necessary structural evidence but cannot contribute semantic standing | repo coordinate and proposition-level falsifiers | `bounded_repo_fact` | test/specification |
-| F-010 | catalogue identity share is a triage signal, not translation evidence | multiple explanations for identical leaves | `measurement_interpretation` | baseline/audit design |
-| F-011 | high-stakes messages must be whole propositions or typed message functions | English/Ukrainian morphology and scope analysis | `protocol_requirement` | i18n specification |
-| F-012 | equivalence is decided by action-profile/counterexample preservation | entailment and no-upgrade analysis | `protocol_requirement` | MAEP implementation specification |
-| F-013 | `limited`, `may_not_use_for`, `stale`, `superseded`, and `withdrawn` require ID-preserving rendering | three binding falsifiers | `red_first_requirement` | fixture/test specification |
-| F-014 | `unknown`, missing, interval, and point values must remain distinct across rendering and projections | numeric/epistemic fixture analysis | `protocol_requirement` | schema/test specification |
-| F-015 | translation and plain-language adaptation require separate evidence and decisions | survey 5 and opposite-direction failure analysis | `protocol_requirement` | content workflow specification |
-| F-016 | MACHINE twins and Lex projections must consume semantic IDs, structured values, source anchors, and certificate provenance | strict-consumer analysis | `protocol_requirement` | projection contracts |
-| F-017 | equivalence certificates must be proposition-, purpose-, version-, and time-bounded | regulated-practice synthesis and invalidation analysis | `protocol_requirement` | certificate specification |
-| F-018 | co-authentic divergence must remain representable and invoke a jurisdiction-specific rule | VCLT/EU/Canada evidence | `protocol_requirement` | jurisdiction admission specification |
-| F-019 | a required role may have zero holders; this must return a typed refusal naming the role | phased-deployment constraint | `phased_deployment_proof` | authority/role specification |
-| F-020 | appointing a holder later changes records, not the language model/schema | role/appointment/decision separation | `phased_deployment_proof` | implementation specification |
-| F-021 | jurisdiction N+1 can be admitted by records when authority modes, sources, scripts, concepts, mappings, roles, and evidence are data | refined record model | `phased_deployment_proof` | admission specification |
-| F-022 | RTL source-content rendering can be evidenced separately from public RTL UI | D4-A1 capability boundary and bidi evidence | `scope_boundary` | future jurisdiction admission |
-| F-023 | a named RTL UI locale remains `not_supported` until D4-A1's evidence trigger is met | ratified D4-A1 | `ratified_repo_fact` | no action in INT-R6 |
-| F-024 | Ukraine works now: Ukrainian source authority can coexist with English or Ukrainian UI and informative English rendition | first-deployment worked example | `architecture_demonstration` | specification fixture |
-| F-025 | Russian source-content rendering does not reactivate the frozen Russian UI catalogue | D4-A1 separation | `scope_boundary` | runtime/specification |
-| F-026 | current `locale_preference` crossing must be tested as a regression hypothesis and eliminated if it selects unsupported UI/runtime behaviour | D4 evidence snapshot; current baseline not reproduced | `reported_repo_risk` | complete baseline and implementation audit |
-| F-027 | repository-wide absence claims are not established by connector/code-search misses | measurement discipline | `measurement_limitation` | complete tracked-tree walk |
-| F-028 | direct empirical English-to-Ukrainian authority-error rates remain unknown | survey evidence gap | `external_evidence_gap` | empirical corpus/benchmark |
-| F-029 | a universal reconciliation algorithm for co-authentic texts is not available and should not be invented | jurisdictional disagreement | `not_applicable_universalisation` | jurisdiction-specific admission |
-| F-030 | no finding requires early hand-back for a D4-A1 UI-posture change | complete architecture analysis | `research_conclusion` | proceed to next pipeline stage |
+| F-001 | D4-A1 UI posture composes with the source-content architecture | `research_conclusion` | `existing: team-design product owner for D4-A1` | retain D4-A1 unchanged |
+| F-002 | the partition requires five dimensions plus explicit parent/dependency edges | `architecture_decision_candidate` | `unallocated` | later architecture ruling may adopt/reject the record model |
+| F-003 | UI locale must never select legal authority or source-content status | `protocol_requirement` | `unallocated` for MAEP seam; `existing: @frontend-owners` only for D4 UI mechanics | allocate a cross-boundary owner before implementation |
+| F-004 | authoritative legal content needs an authority-text-set relation, not universal `source_language` | `external_evidence_convergence` | `unallocated` | jurisdiction admission/authority owner required later |
+| F-005 | English must not be a mandatory legal semantic pivot | `architecture_decision_candidate` | `unallocated` | preserve as architecture constraint pending ratification |
+| F-006 | English remains admissible for authored UI and explicitly informative uses | `bounded_architecture_decision_candidate` | `existing: team-design` for UI authorship; `unallocated` for source rendition | keep purpose/provenance limits explicit |
+| F-007 | system and jurisdiction concepts need separate namespaces and mappings | `protocol_requirement` | `unallocated` | allocate concept/mapping owner before registry work |
+| F-008 | existing statuses/refusals must be reused; MAEP cannot create a second lattice | `scope_constraint` | `unallocated` for cross-owner mapping; existing namespaced owners remain authoritative | complete owner-by-owner vocabulary mapping |
+| F-009 | catalogue key parity is structural evidence only | `bounded_repo_fact` | `existing: @frontend-owners` for catalogue mechanics | retain parity; prohibit semantic-standing inference |
+| F-010 | catalogue identity share is a triage signal, not translation evidence | `measurement_interpretation` | `existing: INT-R6 research package` for this interpretation | retain current and historical denominators separately |
+| F-011 | high-stakes messages require whole propositions or typed message functions | `protocol_requirement` | `unallocated` | allocate message-contract owner before implementation |
+| F-012 | action-profile counterexamples can refute a candidate over a declared population | `protocol_requirement` | `unallocated` | implement only with complete population, exclusions, and residual |
+| F-013 | `limited`, `may_not_use_for`, `stale`, `superseded`, `withdrawn` need ID-preserving rendering | `red_first_requirement` | `unallocated` for cross-family fixture ownership; existing status owners remain separate | map each fixture to exact namespace/version |
+| F-014 | `unknown`, missing, interval, and point remain distinct | `protocol_requirement` | `unallocated` | allocate structured-value/projection owner before implementation |
+| F-015 | translation and plain-language adaptation require separate evidence/results | `protocol_requirement` | `unallocated` | allocate distinct transformation/review ownership later |
+| F-016 | MACHINE and Lex projections must consume IDs, structured values, anchors, population, residual, provenance | `protocol_requirement` | `unallocated` for cross-consumer contract | bind each existing consumer owner during specification |
+| F-017 | certificates are proposition-, purpose-, version-, time-, and tested-population-bounded | `protocol_requirement` | `unallocated` | allocate certificate authority/custody owner before implementation |
+| F-018 | co-authentic divergence remains representable and invokes a jurisdiction-specific rule | `protocol_requirement` | `unallocated` | each future admission names its competent external/internal owner |
+| F-019 | zero eligible holders are representable as a purpose-scoped refusal | `phased_deployment_proof` | `unallocated`; no holder appointed | reuse an existing refusal owner or leave vocabulary gap explicit |
+| F-020 | a later appointment changes institutional records, not the core language model | `phased_deployment_proof` | `unallocated`; Stage 3 cannot appoint | require competent appointment authority in a later stage |
+| F-021 | N+1 is data-only only inside the admitted relation/vocabulary/evidence envelope | `phased_deployment_proof` | `unallocated` | route novel semantic categories to governance/schema review |
+| F-022 | RTL source-content admission is separate from public RTL UI | `scope_boundary` | `unallocated` for source-content admission | require named jurisdiction evidence; do not claim UI support |
+| F-023 | named RTL UI remains `not_supported` until D4-A1 trigger is met | `ratified_repo_fact` | `existing: team-design` with `@frontend-owners` mechanics | no action in INT-R6 |
+| F-024 | Ukraine is an architecture fixture, not a present capability claim | `architecture_demonstration` | `unallocated` | later implementation must attach real producer/consumer evidence |
+| F-025 | Russian source-content rendition cannot reactivate frozen Russian UI | `scope_boundary` | `existing: team-design` for D4 UI boundary; source-content owner `unallocated` | preserve separate capability records |
+| F-026 | current `locale_preference` serialization is a seam; downstream authority effect is not established | `bounded_repo_risk` | `unallocated` for cross-boundary remediation; existing `@frontend-owners`/`@runtime-owners` own their current components | complete producer-to-consumer audit before changing behaviour |
+| F-027 | code-search misses do not establish repository-wide absence | `measurement_limitation` | `existing: INT-R6 research package` for evidence discipline | require complete tree/file denominator for future zeros |
+| F-028 | direct English→Ukrainian authority-error rates remain unknown | `external_evidence_gap` | `unallocated` | allocate corpus/benchmark owner before empirical claim |
+| F-029 | no universal co-authentic reconciliation algorithm is available | `not_applicable_universalisation` | `unallocated` globally; each jurisdiction must name its competent owner | preserve jurisdiction-specific rule/holder |
+| F-030 | no finding requires a D4-A1 UI-posture early stop | `research_conclusion` | `unallocated` for next pipeline stage; no capability owner implied | proceed only under standing and audit/amendment evidence |
+
+Owner-state census: `30 / 30` rows state either a concrete existing identity or explicit
+`unallocated`; `0 / 30` use a generic work lane as an accountable owner.
 
 ## Decision ledger
 
-### D-01 — language-axis partition
+| decision | result | boundary |
+|---|---|---|
+| D-01 — language partition | `refined` | five dimensions; dependent presentation variant |
+| D-02 — D4-A1 composition | `composes` | no UI-posture amendment |
+| D-03 — mandatory English legal pivot | `rejected` | English still allowed for UI/indexing/informative uses |
+| D-04 — co-authentic authority sets | `required_in_target_architecture` | jurisdiction-specific relation/rule |
+| D-05 — zero-holder operation | `representable_by_record_model` | no present producer or appointment claimed |
+| D-06 — architect early-stop trigger | `not_triggered` | research conclusion only |
+| D-07 — positive equivalence proof | `bounded_to_declared_population` | finite passing suite leaves explicit residual |
+| D-08 — data-only N+1 | `bounded_by_admitted_envelope` | novel category remains governance/schema gap |
 
-`refined`
+These are research conclusions or architecture candidates, not ratified implementation decisions.
 
-### D-02 — D4-A1 composition
+## W4-K05 standing — single package authority
 
-`composes`
-
-### D-03 — mandatory English legal pivot
-
-`rejected`
-
-### D-04 — co-authentic authority sets
-
-`required_in_target_architecture`
-
-### D-05 — zero-holder operation
-
-`supported_by_record_model`
-
-### D-06 — architect early-stop trigger
-
-`not_triggered`
-
-These are INT-R6 research conclusions or architecture candidates as classified above. They are not ratified implementation decisions merely because they appear in a decision-shaped ledger.
-
-## W4-K05 standing
-
-The fields are token-only; the following sentences justify the selected members of the three registered vocabularies.
+This is the package's only W4-K05 tuple. The scaffold and substantive main report link here and
+publish no parallel axes.
 
 ```yaml
 research_standing: accepted_narrow_scope
@@ -73,140 +73,97 @@ capability_standing: absent/unallocated
 gate_standing: NO_GO
 ```
 
-`research_standing: accepted_narrow_scope` — the Stage 1 protocol, falsifiers, and architecture are accepted as bounded research input while the package's declared repository-measurement and institutional gaps remain open.
+`research_standing: accepted_narrow_scope` — the architecture, falsifiers, bounded protocol, and
+amended repository evidence are accepted as research input while empirical, institutional,
+owner-allocation, and implementation gaps remain.
 
-`capability_standing: absent/unallocated` — this Markdown package creates no admitted typed contract, appointed owner, producer, consumer, or verified runtime chain; research prose is an input rather than a capability.
+`capability_standing: absent/unallocated` — Markdown creates no admitted typed contract, owner,
+producer, consumer, appointment, or verified runtime chain.
 
-`gate_standing: NO_GO` — no implemented and verified chain or appointed high-stakes holder exists to open the first-public-signature gate.
+`gate_standing: NO_GO` — no implemented verified chain or appointed high-stakes holder exists to open
+the first-public-signature gate.
 
-## Open questions and routed gaps
+An audit verdict is not a standing value. Stage 3 does not move these axes.
 
-### OQ-01 — complete repository baseline
+## Open questions and owner states
 
-The current tree needs a model-visible complete tracked-tree walk with file denominator, exact catalogue paths and counts, definition-to-render coordinates for the five falsifier terms, runtime locale contract/validator coordinates, message-composition inventory, MACHINE/Lex coordinates, and source-content decoupling evidence. Until closed, INT-R6 makes no set-level absence claim.
-
-**Classification:** `measurement_gap`
-
-**Route:** implementation/specification entry condition.
-
-### OQ-02 — registered vocabulary fit
-
-The proposed relationship modes, rendition statuses, mapping relations, certificate outcomes, and refusal examples must be mapped to existing registered vocabularies. Any non-representable concept is a routed vocabulary gap, not a locally invented token.
-
-**Classification:** `governance_gap`
-
-**Route:** vocabulary owner/architect; no register edit in Stage 1.
-
-### OQ-03 — Ukrainian high-stakes glossary and corpus
-
-The architecture needs a real corpus of English-authored PolicyOS authority messages and Ukrainian legal/source-content examples, with semantic frames, defective variants, and operator-action ground truth. Error frequencies are not inferred from other language pairs.
-
-**Classification:** `evidence_gap`
-
-**Route:** specification and empirical benchmark.
-
-### OQ-04 — role qualification and appointment
-
-MAEP names required decision roles but INT-R6 neither appoints holders nor defines final competence thresholds. Real-user deployment should generate the evidence for those decisions.
-
-**Classification:** `institutional_gap_visible_by_design`
-
-**Route:** post-deployment governance decision.
-
-### OQ-05 — jurisdiction-specific co-authentic reconciliation
-
-Each admitted jurisdiction must supply its own authenticity and divergence rule. A generic “shared meaning” implementation would import Canadian doctrine into systems that do not use it.
-
-**Classification:** `jurisdiction_admission_requirement`
-
-**Route:** per-jurisdiction evidence pack.
-
-### OQ-06 — RTL admission evidence
-
-No named RTL jurisdiction/evidence pack is admitted in this pass. The architecture supplies fields and tests only.
-
-**Classification:** `future_admission_gap`
-
-**Route:** D4-A1/source-content capability admission when triggered.
-
-### OQ-07 — certificate cryptographic form
-
-MAEP identifies the objects that must be digested/signed but does not decide signature algorithms, trust roots, key custody, or legal effect.
-
-**Classification:** `out_of_scope_technical_decision`
-
-**Route:** security and trust architecture.
+| ID | gap | owner state | closure evidence |
+|---|---|---|---|
+| OQ-01 | complete implementation baseline beyond the closed catalogue census | `unallocated` | complete tree/file denominators for message composition, certificate producers/consumers, and source-content bridge |
+| OQ-02 | mapping proposed relations/results/reasons to registered vocabularies | `unallocated` | owner-by-owner mapping; no local token invention |
+| OQ-03 | Ukrainian high-stakes corpus and behavioural ground truth | `unallocated` | versioned corpus, protocol, denominator, reviewer agreement, action ground truth |
+| OQ-04 | role qualification and appointment | `unallocated`; zero appointments | competent appointment record in a later stage |
+| OQ-05 | jurisdiction-specific co-authentic reconciliation | `unallocated` globally | per-jurisdiction rule and competent holder/evidence |
+| OQ-06 | RTL source-content admission | `unallocated` | named jurisdiction pack; D4-A1 UI remains unchanged |
+| OQ-07 | cryptographic certificate form/trust roots/key custody/legal effect | `unallocated` | separate security/trust architecture decision |
 
 ## What this research does not decide
 
 - It does not amend D4-A1 or add a UI locale.
-- It does not appoint a language commission, terminology board, sworn translator, adjudicator, or panel.
-- It does not declare a translation legally authentic.
-- It does not register new status/refusal vocabulary values.
-- It does not choose a database/schema implementation.
+- It does not appoint an owner, translator, commission, terminology board, adjudicator, or panel.
+- It does not declare a translation legally authentic or universally equivalent.
+- It does not register relation, result, status, or refusal tokens.
+- It does not choose or implement a database/schema/runtime design.
 - It does not create source code, tests, workflows, transport files, or registry edits.
 - It does not select one universal interpretation doctrine for co-authentic texts.
 - It does not treat English as authority for Ukrainian law.
+- It does not infer an unblocked function merely from a modeled purpose-scoped refusal.
 
 ## Pattern Pass
 
 ### Method
 
-Each candidate was checked for recurrence beyond INT-R6, stable problem/solution forces, a clear boundary, known counterexamples, interaction with existing registered vocabularies, ability to operate before institutional appointments, and risk of duplicating an existing pattern. The pass routes candidates only; it does not edit the pattern register.
+Each candidate was checked for recurrence, stable forces, boundary, counterexamples, vocabulary
+interaction, zero-holder representation, and duplicate-pattern risk. The pass routes candidates only;
+it does not edit the pattern register or allocate a pattern owner.
 
-| candidate | recurring problem | stable invariant | important boundary | pass result | route |
-|---|---|---|---|---|---|
-| Axis-separated language context | locale repeatedly leaks into source selection, semantics, and rendering | UI, authority text, rendition, semantic ID, and adaptation remain orthogonal | does not itself decide values or UI admissions | `candidate` | architect/pattern review |
-| Authority Text Set | one-source translation model cannot represent co-authentic law | authority attaches to one or more versioned text members under a jurisdictional relation | relation and reconciliation remain jurisdiction-specific | `candidate` | architect/pattern review |
-| Purpose-bounded semantic rendition certificate | “translated” is used as an unqualified global assurance | certificate binds source, target, purpose, IDs, evidence, versions, and invalidators | does not confer legal authenticity | `candidate` | architect/pattern review |
-| Vacant-holder typed refusal | systems assume institutions exist or silently bypass missing decisions | role, appointment, and decision are separate; holder cardinality zero is valid | only governed purposes are blocked | `candidate` | authority/pattern review |
-| No-upgrade action-profile gate | fluent wording broadens permission or weakens prohibition | compare allowed/required/forbidden actions in boundary contexts | cannot replace jurisdictional interpretation of ambiguous authentic texts | `candidate` | evidence/pattern review |
-| Translation/adaptation double gate | readability and fidelity collapse into one quality score | transformations and certificates are separate | behavioural evidence does not confer authority | `candidate` | content/pattern review |
-| Data-only jurisdiction admission | “universal” schemas add a language column per deployment | languages, scripts, authority modes, concepts, roles, and evidence are records | genuinely new semantic categories still require governance, not silent data insertion | `candidate` | architecture/pattern review |
-| Catalogue identity-rate threshold | teams seek one number for translation quality | none: identical strings have heterogeneous causes | rate is diagnostic only | `rejected_as_pattern` | retain as audit metric only |
-| Universal English canonical legal definition | convenience suggests one pivot | falsified by co-authentic/no-equivalent regimes | D4-A1 UI only | `rejected_as_antipattern` | record in design risks |
-| Locale-specific status lattice | local wording appears easier than mapping concepts | violates registered-vocabulary identity | jurisdiction concepts remain separately namespaced | `rejected_as_antipattern` | enforce vocabulary mapping |
+| candidate | stable invariant | boundary | result | owner state |
+|---|---|---|---|---|
+| Language-dimension separation | UI, authority set, rendition, semantic ID, dependent variant remain distinct | does not decide values/UI admissions | `candidate` | `unallocated` |
+| Authority Text Set | authority attaches to versioned members under jurisdictional relation | relation/reconciliation jurisdiction-specific | `candidate` | `unallocated` |
+| Population-bounded semantic rendition certificate | certificate binds source, target, purpose, IDs, versions, population, exclusions, residual | no legal authenticity/universal proof | `candidate` | `unallocated` |
+| Vacant-holder typed refusal | role, appointment, decision separated; zero appointments valid | only governed purpose blocked; other functions separately established | `candidate` | `unallocated` |
+| No-upgrade action-profile gate | source action profile cannot strengthen/soften/collapse | finite context suite only refutes/passes bounded population | `candidate` | `unallocated` |
+| Translation/adaptation double gate | transformations/results separate | behavioural evidence does not confer authority | `candidate` | `unallocated` |
+| Bounded record-based jurisdiction admission | language/script/source/concept/evidence are records | novel semantic category needs governance | `candidate` | `unallocated` |
+| Catalogue identity-rate threshold | no stable semantic invariant | diagnostic only | `rejected_as_pattern` | n/a |
+| Universal English canonical legal definition | falsified by co-authentic/no-equivalent regimes | D4-A1 UI only | `rejected_as_antipattern` | n/a |
+| Locale-specific status lattice | duplicates registered identity | local legal concepts remain separately namespaced | `rejected_as_antipattern` | n/a |
 
-### Pattern interactions
-
-The candidates compose as a chain:
+### Pattern interactions and result
 
 ```text
-Axis-separated language context
+Language-dimension separation
   -> Authority Text Set
   -> semantic IDs and mappings
-  -> rendition/adaptation transformations
+  -> rendition and dependent adaptation transformations
   -> no-upgrade action-profile gate
-  -> purpose-bounded certificate
+  -> population-bounded certificate
   -> vacant-holder refusal where adjudication is unavailable
 ```
 
-They must not be registered as overlapping synonyms. Pattern review should decide whether some are facets of one broader “governed semantic rendition” pattern.
+Candidates must not be registered as overlapping synonyms. Pattern review may determine that several
+are facets of one governed-semantic-rendition pattern.
 
-### Pattern Pass result
-
-`completed_and_routed`
-
-No pattern-register edit was made.
+Pattern Pass result: `completed_and_routed`; no pattern-register edit was made.
 
 ## Research quality self-check
 
-| check | result |
+| check | amended result |
 |---|---|
-| D4-A1 read first and treated as binding UI boundary | `pass` |
-| designated-source and co-authentic practices kept distinct | `pass` |
+| D4-A1 treated as binding UI boundary | `pass` |
+| designated-source and co-authentic practices distinct | `pass` |
 | external practice not represented as repository capability | `pass` |
-| Ukraine first deployment demonstrated | `pass` |
-| zero-holder operation demonstrated | `pass` |
-| N+1 without schema change demonstrated at record-model level | `pass` |
-| three mandatory falsifiers specified red-first | `pass` |
-| negation, exceptions, temporal scope, numeric uncertainty, adaptation fixtures included | `pass` |
-| English pivot costs and permitted uses explicit | `pass` |
-| RTL boundary and admission evidence explicit | `pass` |
-| every substantive finding classified | `pass` |
-| operational closure addendum completed | `pass` |
-| Pattern Pass completed and recorded | `pass` |
-| current-tree complete-walk baseline independently reproduced | `fail` |
-| exact final W4-K05 token conformance independently read back | `requires_repository_validation` |
-
-The two non-pass rows are not converted into confidence prose or silently treated as complete. They remain explicit entry conditions for acceptance or the next stage.
+| Ukraine example typed as architecture fixture | `pass` |
+| zero-holder state represented without appointment/capability claim | `pass` |
+| N+1 claim bounded by admitted envelope | `pass` |
+| three falsifiers remain red-first and parity-compatible | `pass` |
+| finite suite not presented as unrestricted proof | `pass` |
+| English pivot costs/permitted uses explicit | `pass` |
+| RTL boundary/evidence trigger explicit | `pass` |
+| 30/30 findings have existing or unallocated owner state | `pass` |
+| current three-catalogue census independently reproduced | `pass` |
+| historical DS0 census remains historical | `pass` |
+| single conforming W4-K05 tuple | `pass` |
+| capability/gate standings unchanged | `pass` |
+| broader implementation and institutional residuals explicit | `pass` |

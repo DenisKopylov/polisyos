@@ -202,8 +202,8 @@ def test_ds10_protected_signing_census_adds_the_complete_stable_identity_set() -
     refreshed = after_censuses.pop(census_id)
     assert before_censuses == after_censuses  # noqa: S101
     probe = refreshed["probes"][0]
-    assert probe["expected_count"] == 29  # noqa: S101
-    assert len(probe["observed_refs"]) == 29  # noqa: S101
+    assert probe["expected_count"] == 31  # noqa: S101
+    assert len(probe["observed_refs"]) == 31  # noqa: S101
     assert all(  # noqa: S101
         "#ts-identity=" in ref for ref in probe["observed_refs"]
     )
@@ -233,7 +233,11 @@ def test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure() ->
     assert admission_errors == []  # noqa: S101
     assert admitted == (exact,)  # noqa: S101
     assert set(checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES) == {  # noqa: S101
+        "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
+        "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
         "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
         "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
     }
     assert checker._ds10_blocking_register_errors([]) == []  # noqa: S101
@@ -4092,6 +4096,18 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
                 report_parity=False,
             ),
         )
+        forged_target = copy.deepcopy(candidate_data)
+        forged_target_row = next(
+            row
+            for row in forged_target["supplemental_findings"]
+            if row["finding_id"]
+            == sorted(checker.DS11_TRUST_PRESENTATION_FINDING_IDS)[0]
+        )
+        forged_target_row["status"] = "open_debt"
+        assert checker._ds11_trust_presentation_candidate_errors(  # noqa: S101
+            forged_target,
+            report_parity=False,
+        )
 
         def replace_target(
             text: str, finding_id: str, replacement: dict[str, object]
@@ -7554,8 +7570,15 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
         assert (  # noqa: S101
             parsed["ds8_strangle_coverage"] == original_history
         )
-        assert not checker._schema_errors(  # noqa: S101
-            parsed, checker.SCHEMA_PATH
+        assert not checker._historical_register_projection_schema_errors(  # noqa: S101
+            parsed,
+            top_level_fields=("ds8b_post_freeze_transition",),
+        )
+        malformed = copy.deepcopy(parsed)
+        malformed["ds8b_post_freeze_transition"] = {}
+        assert checker._historical_register_projection_schema_errors(  # noqa: S101
+            malformed,
+            top_level_fields=("ds8b_post_freeze_transition",),
         )
         parsed.pop("ds8b_post_freeze_transition")
         parsed["schema_version"] = base_data["schema_version"]
@@ -7830,7 +7853,11 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
         file_errors: list[str] = []
         checker._validate_ds18_time_semantics_coverage(missing_file, file_errors)
         self.assertTrue(  # noqa: PT009
-            any("ds18_time_semantics_file_denominator_drift" in error for error in file_errors)
+            any(
+                "ds18_time_semantics_landing_slice_reconciliation_required"
+                in error
+                for error in file_errors
+            )
         )
 
         row_with_root = next(row for row in coverage["files"] if row["roots"])
@@ -7867,7 +7894,10 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
 
     def test_post_freeze_root_is_the_landing_slices_red(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
-        data["ds18_time_semantics_coverage"]["frontend_freeze_commit"] = "f" * 40
+        assert (  # noqa: S101
+            data["ds18_time_semantics_coverage"]["frontend_freeze_commit"]
+            == "3011c9584a0327661c8f5a9b695a1769ddb64385"
+        )
         frozen_scan = checker._ds18_time_semantics_scan()
         historical_errors: list[str] = []
         checker._validate_ds18_historical_time_semantics_coverage(

@@ -943,3 +943,279 @@ non-receipt. This is the same class as the rejected frontend lint invocation abo
 The property-level readback resolves `git rev-parse --show-toplevel` once and executes
 both set derivations and every tree lookup from that single top-level coordinate; no
 per-path substitution is admitted.
+
+## Reopened receipt correction — selected C07 waves were not a complete predicate set
+
+The C07 closeout ran six measured waves and reported every wave green. That statement
+described the commands selected for those waves; it did not establish that the
+selection covered every binding predicate. The wave set was assembled manually from
+the six category names in C07 step 2, the slice's changed-mechanism blast radius, and
+the timings already available for those commands. It was not derived from an
+exhaustive predicate inventory or reconciled against every focused command in plan
+section 15. In particular, the checker wave was composed from the direct architecture
+guardrail delta, the scoped DS18 time-semantics coverage check and landing falsifier,
+and the Atlas health-metrics test. It did **not** run
+`architecture/atlas_surfaces/check_frontend_disposition_register.py --check`, despite
+that command being named separately in section 15, or the three Atlas test files that
+enforce its writer, baseline-transition, and reference-identity properties.
+
+The result is the same disease as the earlier C02-C04 receipt failure, one level up:
+**selected-wave-set-as-complete command-to-predicate binding failure**. A green result
+for every selected command was promoted into a green closeout claim for the slice,
+without a reconciliation proving that the selected command set equalled the required
+predicate set. The omitted register predicate carried 37 DS18-attributable CLI
+findings and 17 DS18-attributable enforced-test failures at merge. Four test failures
+were the already-declared DS5 baseline-manifest non-closure; thirteen were neither run
+nor disclosed. The earlier six-wave green claim is therefore withdrawn as a complete
+C07 receipt; its individual command results remain evidence only for the predicates
+those commands actually exercised.
+
+There was another known predicate outside the selected set: runtime route/Rego
+authorization parity. It was not named in section 15 or the recorded C07 wave command
+set. The architecture owner's post-merge repair at `49e969e16` added the missing
+`runtime.run.epoch_staleness -> ownership_verified` mirror under `runs.review`; that
+repair stands and DS18 neither reverts nor duplicates it. Within this reopened round,
+the required branch-versus-`main` matrix explicitly includes both the full frontend
+register family and the 24-case Rego parity test. No renewed completeness claim will
+be made from category names alone: each closeout predicate must be bound to its exact
+command and read result.
+
+The architecture-owner ruling for the DS5 artifact is deliberately narrow. DS18 may
+re-anchor exactly six `lint_resolution_content_hash` bindings whose bytes DS18 itself
+changed: the C06 bindings for `PublicationPacketPanel.tsx`,
+`publicationPacket.test.ts`, `publicationPacket.ts`, and `RunDetailLayout.tsx`, plus
+the C07 bindings for `quantityChartSemantics.test.tsx` and
+`quantityChartSemantics.tsx`. Every other manifest binding and every non-binding field
+remain closed: no lifecycle or disposition value, no `authority` block, no C13 print
+or protected-signing evidence, and no DS5 plan, journal, or receipt may move. A need
+for a seventh binding or any non-binding manifest change is a stop, not an implicit
+widening. Only after those six own-blast-radius hashes are current may the sanctioned
+descriptor writers refresh their derived register rows.
+
+### Reopened repair — owned bindings, sanctioned projections and real defects
+
+The six-binding ruling was applied literally. `shasum -a 256` and an independent
+Python `hashlib` walk agreed on the replacement hashes: C06
+`PublicationPacketPanel.tsx` `80000ffa…`, `publicationPacket.test.ts` `86d7e6b4…`,
+`publicationPacket.ts` `16c3687f…`, and `RunDetailLayout.tsx` `f4533fee…`; C07
+`quantityChartSemantics.test.tsx` `b93d0d93…` and
+`quantityChartSemantics.tsx` `746ee78a…`. A semantic before/after comparison found
+exactly those six changed binding rows, identical binding-key sets, and equality for
+every non-binding manifest value. `validate_baseline_manifest(...,
+verify_source_bytes=True)` then returned no error. No seventh binding and no other
+manifest field moved.
+
+`--write-supplemental` refreshed five descriptor-derived authority rows and no peer
+row; it returned nonzero only because downstream reference families were still stale.
+The first DS10 family attempt then failed before promotion on three ambiguous
+`call_expression` creation anchors. The root cause was a proxy mismatch: the textual
+reference census selected wrapper **function declaration** lines, while
+`_c21b_identity_anchor` treated every line containing the function name as a call.
+The generic anchor now classifies exported and local wrapper declarations before the
+call-expression arm. Its complete protected-signing census test moved red to green.
+The resulting denominator is **31** by two derivations: the AST writer emitted 31
+identities and an exit-checked `rg` unique-line census over both declared roots found
+31. The stale 29 test constant moved to 31.
+
+The DS10 family also correctly refused to hide the inherited C13 print-evidence red.
+Its exact external admission still described only two historical mismatches, while a
+complete receipt-binding walk found six DS18-moved sources. Python receipt comparison
+and independent `shasum` agreed on all six: `AmbientTelemetryHud.tsx`,
+`OperatorCraftPanel.tsx`, `RunDetailLayout.tsx`, `RunReportPage.tsx`,
+`RunReportPage.test.tsx`, and `runtime-dashboard.visual.spec.ts`. The admission was
+rebound to those exact expected/current hash pairs; it still replays the verified
+bytes and rejects any seventh mismatch. This does not refresh or close the DS6 receipt:
+the full checker continues to emit its one C13 finding. With that honest residual
+bound, `--write-ds10-capability-discovery` promoted the protected census and report
+atomically; its baseline candidate was byte-identical before and after. Timing was
+`user + sys = 115.20 + 12.74 = 127.94 CPU-s`, uptime
+`2.82 2.99 3.37` → `4.27 3.45 3.50`.
+
+The thirteen undisclosed failures resolved as follows:
+
+| Enforced failure | Instrument | Outcome |
+| --- | --- | --- |
+| `test_authority_debt_corruptions_fail_closed` | `--write-supplemental` | stale descriptor row; refreshed, corruption probe remains fail-closed |
+| `test_ds11_trust_presentation_writer_is_exact_idempotent_and_forgery_closed` | current-context historical projection in the checker | real validator defect; later required fields and peer receipts no longer contaminate the C04 candidate, while a forged owned target remains red |
+| `test_every_authority_presentation_prop_is_branded_or_typed_debt` | `--write-supplemental` | stale descriptor rows refreshed |
+| `test_writer_removes_only_retired_authority_presentation_rows` | `--write-supplemental` | stale descriptor rows refreshed; peer-row preservation remains exact |
+| `test_c21b_protected_probe_retains_hybrid_identity_multiplicity` | DS10 protected-signing writer | stale identity census refreshed; duplicate construct still raises both observation and count drift |
+| `test_c21b_validator_replays_migrated_protected_probe_identities` | DS10 protected-signing writer | live 31-identity probe replays cleanly |
+| `test_c21c_surgical_writer_is_idempotent_with_navigation_residual` | supplemental/identity refresh plus its no-write surgical replay | stale peer identities removed; the C21c transform is byte-idempotent and keeps the declared navigation residual |
+| `test_surgical_writer_preserves_the_217_row_historical_value` | current-context historical projection in the checker/test | real test predicate defect; the DS8-B owned field validates under the live schema, malformed owned data remains red, and all 217 historical rows remain byte-preserved |
+| `test_c11b_cache_posture_debt_closes_after_typed_consumer` | `--write-supplemental` | stale peer-row cascade; typed-consumer proof itself remained valid |
+| `test_c14a_local_state_envelope_owner_debt_binds_absent_producer_contract` | `--write-supplemental` | stale peer-row cascade; producer-contract falsifier remained valid |
+| `test_c21d_multi_site_authority_sink_ignores_navigation_only_changes` | `--write-supplemental` | authority sink identities refreshed; semantic site/hash removal remains red while navigation-only movement stays green |
+| `test_ds10_baseline_candidate_reanchors_only_owned_source_bytes` | the six ruled manifest bindings | stale DS18-owned content bindings; candidate is now byte-idempotent and source-valid |
+| `test_ds10_protected_signing_census_adds_the_complete_stable_identity_set` | wrapper-classification repair plus DS10 writer | real writer defect and stale 29 denominator repaired to the independently derived 31 |
+
+The first focused replay after the writers returned 11 green and the two historical
+future-schema failures above; `user + sys = 164.78 + 16.65 = 181.43 CPU-s`, uptime
+`3.92 3.41 3.49` → `2.59 3.21 3.40`. After the property-level projection repair,
+those final two pass with both negative controls at
+`73.94 + 7.91 = 81.85 CPU-s`, uptime `2.52 3.10 3.34` →
+`2.68 3.06 3.30`. This is one same-class-one-level-deeper repair, not two exception
+instances.
+
+The register now carries the real DS18 freeze
+`3011c9584a0327661c8f5a9b695a1769ddb64385`, verified as a commit and an ancestor of
+the branch. The landing falsifier no longer injects `"f" * 40`: it asserts that live
+coordinate, holds its stored receipts fixed, adds one later decision-bearing root to
+the recomputed scan, and observes `landing_slice_reconciliation_required`. The
+historical freeze remains valid. The focused test passes at
+`user + sys = 2.45 + 0.19 = 2.64 CPU-s`.
+
+The first full delta receipt is now **branch 1 / main 38** findings. Branch emits only
+the shared C13 print-evidence residual at
+`user + sys = 98.58 + 9.46 = 108.04 CPU-s`, uptime
+`2.11 2.66 3.10` → `3.18 2.87 3.14`. `main` emits that same row plus 37 DS18-moved
+rows: six authority, six ruled baseline bindings, fifteen missing/renamed TypeScript
+bindings, eight ambiguous TypeScript bindings, one TypeScript content drift and one
+expected-count drift. Its timing is `97.44 + 9.28 = 106.72 CPU-s`, uptime
+`3.09 2.85 3.13` → `3.13 2.89 3.11`. Thus DS18's register-checker delta is zero;
+the inherited one remains visible on both sides.
+
+### Final reopened verification — exact delta shape
+
+The first paired Atlas replay after arming the freeze exposed a branch-only failure:
+one historical test still expected the pre-freeze bare denominator-drift label. That
+was DS18's test predicate, not inherited debt. Its assertion now requires the armed
+`landing_slice_reconciliation_required` label. The same replay showed that the DS10
+external-admission test had become green because the repair truthfully expanded its
+exact external mismatch registry from two paths to six. Commit `f374c888b` then made
+the wrong correction: it restored a two-entry assertion solely to reproduce the
+predicted shared-37 shape. That assertion contradicted the six-entry production
+constant and stopped before every downstream fail-closed probe. This was a second
+instance of the receipt disease: a requested number was treated as the property, and
+the test was changed to preserve the number rather than report the measured state.
+
+The truthful six-entry assertion has now been restored. Its focused red failed at the
+two-entry set comparison at `user + sys = 2.58 + 0.46 = 3.04 CPU-s`, uptime
+`2.21 2.30 2.73` → `2.27 2.31 2.73`. The focused green reached the end of the
+sequential test body at `2.76 + 0.64 = 3.40 CPU-s`, uptime
+`2.25 2.30 2.71` → `2.63 2.38 2.74`. Therefore all seven downstream probe groups
+called out by review execute: the five `_ds10_blocking_register_errors` controls,
+the adjacent-error rejection, and the independent C13 receipt/replay checks. The
+additional future-fixed, stale-exposure and seventh-mismatch assertions following
+them also pass.
+
+The final three-file Atlas replay is therefore **36 failing top-level node identities
+on the branch / 54 on `main`**, with **36 shared, 0 branch-only and exactly 18
+`main`-only**. The sole movement beyond the originally predicted 17 is
+`test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure`: DS18's
+exact six-binding admission repair legitimately closes that pre-existing red. No
+other node moved. The branch run used
+`user + sys = 3048.02 + 210.49 = 3258.51 CPU-s`, uptime
+`2.68 2.40 2.74` → `4.16 4.08 4.00`. This exceeds the declared 2226.19 CPU-s ceiling
+by 1032.32 CPU-s; the completed node-set receipt remains valid, but the timing
+ceiling is red and is not reported as green.
+The `main` run used `1632.60 + 99.61 = 1732.21 CPU-s`, uptime
+`2.47 2.81 3.05` → `2.24 3.71 3.89`; the second uptime sample was recovered after
+the completed output, so it is an environment/load receipt rather than an exact
+process-boundary sample. Independent reads of each ref's pytest `lastfailed` cache,
+restricted to the three invoked Atlas files, reproduced 36 and 54. Set subtraction
+reproduced 0 branch-only and 18 `main`-only. The full branch failure summary and the
+cache agree on the 36 top-level node identities; the only difference from the prior
+37-node branch cache is the now-passing DS10 admission test.
+
+The exact 36-node shared set is below; every identifier is relative to the common
+`architecture/atlas_surfaces/` prefix:
+
+```text
+test_atlas_enforcement.py::AtlasEnforcementTests::test_authority_escape_exemptions_are_exact_owned_and_current
+test_atlas_enforcement.py::AtlasEnforcementTests::test_authority_issuer_requires_generated_exhaustiveness_and_runtime_novelty
+test_atlas_enforcement.py::AtlasEnforcementTests::test_c13a_terminal_dispositions_have_live_census_and_composer_rebind
+test_atlas_enforcement.py::AtlasEnforcementTests::test_full_corruption_probes_exercise_removed_query_producer
+test_atlas_enforcement.py::AtlasEnforcementTests::test_generated_owner_receipt_and_status_bridge_are_content_bound
+test_atlas_enforcement.py::AtlasEnforcementTests::test_lint_enforcement_executes_the_three_architecture_engines
+test_atlas_enforcement.py::AtlasEnforcementTests::test_offline_queue_denominator_tracks_scanned_production_sources
+test_atlas_enforcement.py::AtlasEnforcementTests::test_offline_queue_type_rejects_authority_action_kind
+test_atlas_enforcement.py::AtlasEnforcementTests::test_persistence_construction_census_is_source_complete_and_bounded
+test_atlas_enforcement.py::AtlasEnforcementTests::test_query_construction_and_producer_censuses_are_source_complete
+test_atlas_enforcement.py::AtlasEnforcementTests::test_query_construction_options_resolution_is_required_and_nonsemantic
+test_atlas_enforcement.py::AtlasEnforcementTests::test_real_illegal_edges_fail_custom_and_dependency_engines
+test_atlas_enforcement.py::AtlasEnforcementTests::test_unknown_authz_decision_never_defaults_authority_surface_to_allow
+test_frontend_disposition_register.py::DS5LineAddressCensusTests::test_c21b_real_gate_ignores_moved_construct_and_rejects_rename
+test_frontend_disposition_register.py::DS5LineAddressCensusTests::test_c21c_real_gate_ignores_json_move_but_rejects_rename_and_content
+test_frontend_disposition_register.py::DS5LineAddressCensusTests::test_ds5_line_address_complete_partition_is_derived_from_live_register
+test_frontend_disposition_register.py::DS6C13PrintTransitionTests::test_independent_receipt_binds_the_full_conjunction_and_current_bytes
+test_frontend_disposition_register.py::DS6RegisterTransitionTests::test_c06_transition_is_surgical_idempotent_and_rejects_bypass
+test_frontend_disposition_register.py::DS8BPostFreezeTransitionTests::test_status_companion_maps_only_the_two_regeneration_drifts
+test_frontend_disposition_register.py::DS8StrangleCoverageTests::test_companion_baseline_candidate_reanchors_only_three_source_bytes
+test_frontend_disposition_register.py::DS8StrangleCoverageTests::test_companion_reference_reanchors_resolve_without_peer_drift
+test_frontend_disposition_register.py::DS8StrangleCoverageTests::test_status_candidate_reanchors_only_reconciled_receipts
+test_frontend_disposition_register.py::DS9C07AdjudicationTests::test_all_18_opening_objects_have_one_checked_disposition
+test_frontend_disposition_register.py::PersistenceConstructionCensusTests::test_storage_construction_rows_validate_explicit_adjudication
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_auth_session_revision_debt_binds_generated_auth_me_contract
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_c06_waist_owner_debts_bind_remaining_independent_planes
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_c07b_dashboard_generated_client_debt_binds_single_owner_strangle
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_capability_state_vocabulary_matches_the_failure_register
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_report_projects_capability_states_and_closure_signal
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_schema_requires_capability_states_and_closure_signal_only_for_producer_binding_debt
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_supplemental_refresh_preserves_terminal_history_and_changes_only_the_derived_set
+test_frontend_disposition_register.py::StructuredReferenceIdentityTests::test_live_c21c_selector_hashes_are_complete_and_frozen
+test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_c21d_live_register_identity_census_preserves_every_distinct_binding
+test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_c21d_real_composer_move_relocates_unique_badges_and_keeps_reds
+test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_c21d_retired_address_owners_are_absent_and_counts_are_complete
+test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_def21_additive_role_preserves_ds5_identity_bytes
+```
+
+The exact 18-node `main`-only set uses that same common prefix:
+
+```text
+test_frontend_baseline_debt_manifest.py::FrontendBaselineDebtLifecycleTests::test_architecture_origin_active_and_resolved_form_an_exact_partition
+test_frontend_baseline_debt_manifest.py::FrontendBaselineDebtLifecycleTests::test_lint_origin_active_and_resolved_form_an_exact_partition
+test_frontend_baseline_debt_manifest.py::FrontendBaselineDebtLifecycleTests::test_resolution_content_bindings_cover_exact_derived_roles_and_live_bytes
+test_frontend_baseline_debt_manifest.py::FrontendBaselineDebtLifecycleTests::test_vitest_accepts_the_exact_open_or_c16_resolved_lifecycle
+test_frontend_disposition_register.py::AuthorityPresentationCensusTests::test_authority_debt_corruptions_fail_closed
+test_frontend_disposition_register.py::AuthorityPresentationCensusTests::test_ds11_trust_presentation_writer_is_exact_idempotent_and_forgery_closed
+test_frontend_disposition_register.py::AuthorityPresentationCensusTests::test_every_authority_presentation_prop_is_branded_or_typed_debt
+test_frontend_disposition_register.py::AuthorityPresentationCensusTests::test_writer_removes_only_retired_authority_presentation_rows
+test_frontend_disposition_register.py::DS5LineAddressCensusTests::test_c21b_protected_probe_retains_hybrid_identity_multiplicity
+test_frontend_disposition_register.py::DS5LineAddressCensusTests::test_c21b_validator_replays_migrated_protected_probe_identities
+test_frontend_disposition_register.py::DS5LineAddressCensusTests::test_c21c_surgical_writer_is_idempotent_with_navigation_residual
+test_frontend_disposition_register.py::DS8BPostFreezeTransitionTests::test_surgical_writer_preserves_the_217_row_historical_value
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_c11b_cache_posture_debt_closes_after_typed_consumer
+test_frontend_disposition_register.py::ProducerBindingDebtTests::test_c14a_local_state_envelope_owner_debt_binds_absent_producer_contract
+test_frontend_disposition_register.py::TypeScriptReferenceIdentityTests::test_c21d_multi_site_authority_sink_ignores_navigation_only_changes
+test_frontend_disposition_register.py::test_ds10_baseline_candidate_reanchors_only_owned_source_bytes
+test_frontend_disposition_register.py::test_ds10_protected_signing_census_adds_the_complete_stable_identity_set
+test_frontend_disposition_register.py::test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure
+```
+
+The remaining mandatory branch-versus-`main` matrix is:
+
+| Predicate | DS18 branch | `main` | Delta conclusion |
+| --- | --- | --- | --- |
+| Frontend disposition CLI | 1 shared C13 finding; 108.04 CPU-s; uptime `2.11 2.66 3.10` → `3.18 2.87 3.14` | 38 findings; 106.72 CPU-s; uptime `3.09 2.85 3.13` → `3.13 2.89 3.11` | 37 DS18 findings closed; branch-only 0 |
+| Three Atlas test files | 36 failing top-level node identities; 3258.51 CPU-s; uptime `2.68 2.40 2.74` → `4.16 4.08 4.00`; timing ceiling red | 54 failures; 1732.21 CPU-s; uptime `2.47 2.81 3.05` → `2.24 3.71 3.89` | exact shared 36; exact main-only 18; branch-only 0; DS10 admission red legitimately closed |
+| Architecture guardrails | deep-import creep 0; only shared local PATH artifact; 33.68 CPU-s | deep-import creep 0; identical PATH artifact; 33.54 CPU-s | creep 0 / 0 |
+| Runtime/Rego authorization parity | 24/24 pass; 38.40 CPU-s | 24/24 pass; 38.66 CPU-s | identical green |
+| Atlas health metrics | 20 pass / exact shared 3 red; 25.11 CPU-s | 20 pass / same 3 red; 25.08 CPU-s | no fourth red |
+| DS18 freeze census | 605 files, 719 roots, 77 obligated / 77 covered, 0 missing and 0 digest mismatch; 2.37 CPU-s | identical 605 / 719 / 77 / 77 / 0 / 0; 2.38 CPU-s | identical green |
+
+Guardrail uptime was `2.12 3.40 3.76` → `2.63 3.34 3.72` on both refs;
+Rego parity used `2.74 3.35 3.72` → `3.10 3.39 3.71`; Atlas health used
+`2.94 3.34 3.69` → `3.62 3.47 3.73`; and the freeze census used
+`3.30 3.41 3.70` → `3.35 3.42 3.70`. The guardrail's identical local
+`trust-claim-posture-register` PATH failure, the identical unavailable CP-SAT
+collection, and the enforcement scanner's identical Node stack-size failure remain
+environmental non-findings and were not repaired or promoted into product debt.
+
+The live-coordinate landing falsifier reports exactly
+`ds18_time_semantics_landing_slice_reconciliation_required:missing=['apps/runtime-dashboard/src/features/later/LaterDecision.tsx']:extra=[]`
+at `user + sys = 1.95 + 0.07 = 2.02 CPU-s`, uptime
+`3.15 3.37 3.68` → `3.13 3.36 3.68`. This proves the landing-slice label is armed;
+DS18 has not pre-reconciled any later slice's roots.
+
+The prior DS5 owner stop is superseded only for the six content bindings named in the
+architecture ruling: those six are now closed, and every other DS5 field remains
+untouched and outside DS18. The DS6 Atlas-health persistence/provenance owner stop
+remains unchanged, visible as the same three reds on both refs. No deep-import
+baseline, debt register, DS5 plan/journal/evidence, or non-ruled manifest field moved.
+
+This reopening adds no mechanism path and spends no widening round. The budget remains
+**47 / 44 mechanism paths with 6 / 7 widening rounds spent**. The over-ceiling state
+and prior facade widening remain exactly as previously declared; this receipt repair
+uses existing checker/test paths plus mandatory journal, register, report and the
+six-row baseline companion authorized by the architecture owner.

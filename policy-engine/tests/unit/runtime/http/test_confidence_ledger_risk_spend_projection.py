@@ -20,16 +20,13 @@ from polisyos.runtime.http.services.confidence_ledger_risk_spend_contracts impor
     SourceBlockedReason,
 )
 from polisyos.runtime.http.services.confidence_ledger_risk_spend_projection import (
-    OVER_SPEND_OWNER_DIAGNOSTIC_CODES,
     ConfidenceLedgerRiskSpendProjectionService,
-    classify_over_spend_owner_failure,
-    derive_over_spend_allowset,
-    validate_over_spend_allowset,
 )
 from polisyos.runtime.http.services.governed_projections import (
     GovernedProjectionService,
     GuardedProjectionId,
     GuardedProjectionSourceResolution,
+    ProjectionAvailability,
     ProjectionId,
     ProjectionSourceIdentity,
     ProjectionSourceValidation,
@@ -198,11 +195,15 @@ def test_guarded_source_is_catalogued_without_widening_dynamic_projection_ids() 
         service.get(GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND.value)
 
 
-def test_real_owner_artifact_reaches_available_domain_projection() -> None:
-    packet = ConfidenceLedgerRiskSpendProjectionService(_ROOT).get()
+def test_real_owner_artifact_reaches_available_domain_projection(
+    tmp_path: Path,
+) -> None:
+    _copy_source(tmp_path)
+    packet = ConfidenceLedgerRiskSpendProjectionService(tmp_path).get()
 
     assert isinstance(packet, AvailableConfidenceLedgerRiskSpendPacket)
     assert packet.availability == "available"
+    assert packet.worker_validation_receipt_hash.startswith("sha256:")
     assert packet.payload.registry_content_hash == packet.registry_content_hash
     assert packet.payload.source_projection_hash == packet.frozen_semantic_projection_hash
     assert packet.payload.coverage_assessment == "open_world_unresolved"
@@ -238,6 +239,7 @@ def test_coherent_owner_over_spend_reaches_detail_free_source_blocker(
 
     assert isinstance(packet, SourceBlockedConfidenceLedgerRiskSpendPacket)
     assert packet.source_blocked_reason is SourceBlockedReason.OVER_SPEND
+    assert packet.worker_validation_receipt_hash.startswith("sha256:")
     assert packet.projection_hash.startswith("sha256:")
     assert packet.replay_address.startswith(packet.stable_address + "?")
 
@@ -262,37 +264,7 @@ def test_missing_malformed_and_forged_sources_fail_closed_distinctly(
     forged = ConfidenceLedgerRiskSpendProjectionService(tmp_path).get()
     assert isinstance(forged, InvalidConfidenceLedgerRiskSpendPacket)
     assert forged.source_artifact_content_hash is not None
-
-
-def test_over_spend_requires_complete_allowset_equality_and_independent_arithmetic() -> None:
-    codes = derive_over_spend_allowset()
-    assert codes == OVER_SPEND_OWNER_DIAGNOSTIC_CODES
-    validate_over_spend_allowset(derived_codes=codes)
-    assert (
-        classify_over_spend_owner_failure(
-            issue_codes=("semantic_total_spend_drift",),
-            source_payload_equal=True,
-            recomputed_total_spend=Fraction(2, 100),
-            registry_delta=Fraction(1, 100),
-        )
-        is SourceBlockedReason.OVER_SPEND
-    )
-
-    for issue_codes, equal, total in (
-        ((), True, Fraction(2, 100)),
-        (("semantic_total_spend_drift", "outside_diagnostic"), True, Fraction(2, 100)),
-        (("semantic_total_spend_drift",), False, Fraction(2, 100)),
-        (("semantic_total_spend_drift",), True, Fraction(1, 100)),
-    ):
-        assert (
-            classify_over_spend_owner_failure(
-                issue_codes=issue_codes,
-                source_payload_equal=equal,
-                recomputed_total_spend=total,
-                registry_delta=Fraction(1, 100),
-            )
-            is None
-        )
+    assert forged.worker_validation_receipt_hash is not None
 
 
 def test_requested_projection_must_equal_owner_artifact_projection(tmp_path: Path) -> None:
@@ -311,7 +283,7 @@ def test_requested_projection_must_equal_owner_artifact_projection(tmp_path: Pat
 
 
 class _FixedGuardedSourceService:
-    """Return one typed resolution without minting any additional owner facts."""
+    """Attempt the forbidden hand-authored owner-resolution seam."""
 
     def __init__(self, resolution: GuardedProjectionSourceResolution) -> None:
         self._resolution = resolution
@@ -324,91 +296,48 @@ class _FixedGuardedSourceService:
         return self._resolution
 
 
-def _validated_resolution_mutation(
+def _coherent_hand_authored_over_spend_resolution(
     resolution: GuardedProjectionSourceResolution,
-    mutation: str,
 ) -> GuardedProjectionSourceResolution:
     assert resolution.source is not None
     assert resolution.validation is not None
     source_payload = resolution.source.model_dump(mode="python")
-    outer_validation = resolution.validation
-    validation_payload = outer_validation.model_dump(mode="python")
-    source_dependency_hash = resolution.source_dependency_hash
-    source_schema_version = resolution.source_schema_version
-    source_rule_version = resolution.source_rule_version
-
-    if mutation == "source_path":
-        source_payload["relative_path"] = "candidate/attacker-selected-ledger.json"
-    elif mutation == "source_schema_version":
-        source_schema_version = "candidate.schema.v999"
-    elif mutation == "source_rule_version":
-        source_rule_version = "candidate.rule.v999"
-    elif mutation == "validator_id":
-        validation_payload["validator_id"] = "candidate.self_attested:validate_payload"
-        outer_validation = ProjectionSourceValidation.model_validate(validation_payload)
-        source_payload["validation"] = outer_validation.model_dump(mode="python")
-    elif mutation == "validator_version":
-        validation_payload["validator_version"] = "candidate.validator.v999"
-        outer_validation = ProjectionSourceValidation.model_validate(validation_payload)
-        source_payload["validation"] = outer_validation.model_dump(mode="python")
-    elif mutation == "nested_receipt":
-        validation_payload["worker_validation_receipt_hash"] = "sha256:" + "9" * 64
-        source_payload["validation"] = ProjectionSourceValidation.model_validate(
-            validation_payload
-        ).model_dump(mode="python")
-    elif mutation == "artifact_identity":
-        artifact_hash = "sha256:" + "8" * 64
-        validation_payload["bound_artifact_content_hash"] = artifact_hash
-        outer_validation = ProjectionSourceValidation.model_validate(validation_payload)
-        source_payload["artifact_content_hash"] = artifact_hash
-        source_payload["validation"] = outer_validation.model_dump(mode="python")
-    elif mutation == "dependency_identity":
-        source_dependency_hash = "sha256:" + "7" * 64
-    elif mutation == "available_issue":
-        validation_payload["issue_codes"] = ("semantic_total_spend_drift",)
-        outer_validation = ProjectionSourceValidation.model_validate(validation_payload)
-        source_payload["validation"] = outer_validation.model_dump(mode="python")
-    else:  # pragma: no cover - parameter denominator is closed below
-        raise AssertionError(mutation)
-
+    validation_payload = resolution.validation.model_dump(mode="python")
+    validation_payload.update(
+        {
+            "status": "failed",
+            "semantic_projection_hash": None,
+            "issue_codes": ("semantic_total_spend_drift",),
+            "recomputed_total_spend_numerator": 2,
+            "recomputed_total_spend_denominator": 100,
+            "registry_delta_numerator": 1,
+            "registry_delta_denominator": 100,
+        }
+    )
+    validation = ProjectionSourceValidation.model_validate(validation_payload)
+    source_payload["validation"] = validation.model_dump(mode="python")
     source = ProjectionSourceIdentity.model_validate(source_payload)
     return replace(
         resolution,
+        availability=ProjectionAvailability.INVALID_SOURCE,
         source=source,
-        source_dependency_hash=source_dependency_hash,
-        source_schema_version=source_schema_version,
-        source_rule_version=source_rule_version,
-        validation=outer_validation,
+        validation=validation,
     )
 
 
-@pytest.mark.parametrize(
-    "mutation",
-    [
-        "source_path",
-        "source_schema_version",
-        "source_rule_version",
-        "validator_id",
-        "validator_version",
-        "nested_receipt",
-        "artifact_identity",
-        "dependency_identity",
-        "available_issue",
-    ],
-)
-def test_owner_intake_rejects_coherently_validated_resolution_forgery(
-    mutation: str,
-) -> None:
+def test_hand_authored_typed_resolution_cannot_enter_supported_service_api() -> None:
     resolution = GovernedProjectionService(_ROOT).resolve_guarded_source(
         GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND
     )
     assert resolution.validation is not None
     assert resolution.validation.status == "passed"
-    forged = _validated_resolution_mutation(resolution, mutation)
+    forged = _coherent_hand_authored_over_spend_resolution(resolution)
+    assert forged.availability is ProjectionAvailability.INVALID_SOURCE
+    assert forged.validation is not None
+    assert forged.validation.issue_codes == ("semantic_total_spend_drift",)
 
-    packet = ConfidenceLedgerRiskSpendProjectionService(
-        _ROOT,
-        source_service=_FixedGuardedSourceService(forged),  # type: ignore[arg-type]
-    ).get()
-
-    assert isinstance(packet, InvalidConfidenceLedgerRiskSpendPacket)
+    with pytest.raises(TypeError, match="source_service"):
+        ConfidenceLedgerRiskSpendProjectionService(
+            _ROOT,
+            source_service=_FixedGuardedSourceService(forged),  # type: ignore[call-arg]
+        )

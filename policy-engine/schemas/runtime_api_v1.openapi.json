@@ -2786,7 +2786,7 @@
       },
       "AvailableConfidenceLedgerRiskSpendPacket": {
         "additionalProperties": false,
-        "description": "Owner-admitted source projected through the exact C01 domain surface.",
+        "description": "Wire shape emitted after the online service owner-admits the source.",
         "properties": {
           "absence_reason": {
             "title": "Absence Reason",
@@ -7292,7 +7292,7 @@
       },
       "ConfidenceLedgerRiskSpendReplayPins": {
         "additionalProperties": false,
-        "description": "Exact tuple required to replay one admitted transport projection.",
+        "description": "Exact tuple required to replay one coherent transport projection.",
         "properties": {
           "artifact_content_hash": {
             "pattern": "^sha256:[0-9a-f]{64}$",
@@ -52826,18 +52826,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:e5bcd4db16c2188f55bc2396d3711469b8ca3e616051d875cb2e112a336363e7",
+                      "projection_hash": "sha256:909b07cfddd8dfaf3e5f9b02853c3cac6ac9f64852ec96bdf0f4b36dc3a3a0cc",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ae5bcd4db16c2188f55bc2396d3711469b8ca3e616051d875cb2e112a336363e7&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A5b4f4ffdf35b6dc701bfcde8dd25300419188b2a3e7cc448b76543293a827196",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A909b07cfddd8dfaf3e5f9b02853c3cac6ac9f64852ec96bdf0f4b36dc3a3a0cc&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A13864d9d4f5fa47d85b4d702ca744e5fd90232a031de34db32865574f7a524fc",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:e5bcd4db16c2188f55bc2396d3711469b8ca3e616051d875cb2e112a336363e7",
+                        "projection_hash": "sha256:909b07cfddd8dfaf3e5f9b02853c3cac6ac9f64852ec96bdf0f4b36dc3a3a0cc",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:5b4f4ffdf35b6dc701bfcde8dd25300419188b2a3e7cc448b76543293a827196"
+                        "source_dependency_hash": "sha256:13864d9d4f5fa47d85b4d702ca744e5fd90232a031de34db32865574f7a524fc"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -52846,7 +52846,7 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:5b4f4ffdf35b6dc701bfcde8dd25300419188b2a3e7cc448b76543293a827196",
+                          "bound_dependency_aggregate_identity": "sha256:13864d9d4f5fa47d85b4d702ca744e5fd90232a031de34db32865574f7a524fc",
                           "bound_dependency_count": 6232,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
@@ -52862,16 +52862,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:f4101bb03a3335a97812aac87eeba0e93f69499f37b6171b878c8c5b38ad93eb"
+                          "worker_validation_receipt_hash": "sha256:046e1b17d24b162db9114a5c51f9c6c929001d8f1f324d23dbad8d99b16fd1e6"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:5b4f4ffdf35b6dc701bfcde8dd25300419188b2a3e7cc448b76543293a827196",
+                      "source_dependency_hash": "sha256:13864d9d4f5fa47d85b4d702ca744e5fd90232a031de34db32865574f7a524fc",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:f4101bb03a3335a97812aac87eeba0e93f69499f37b6171b878c8c5b38ad93eb",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:f4101bb03a3335a97812aac87eeba0e93f69499f37b6171b878c8c5b38ad93eb"
+                      "worker_validation_receipt_hash": "sha256:046e1b17d24b162db9114a5c51f9c6c929001d8f1f324d23dbad8d99b16fd1e6",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:046e1b17d24b162db9114a5c51f9c6c929001d8f1f324d23dbad8d99b16fd1e6"
                     }
                   }
                 },

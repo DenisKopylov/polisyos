@@ -646,3 +646,70 @@ mechanisms and their existing tests; the canonical schema and this journal are
 P39 companions. Generic `ProjectionId` remains 13, and no second route, source,
 UI, test adapter outside tests, reserve path, foreign contract, or forbidden
 debt repair was added. C02 reserve remains **0**.
+
+## C02 P40 widening — execute the owner, do not accept its attestation
+
+The second C02 review is the **SECOND finding of the SAME P05/P32/P37
+owner-attestation class**. Per P40, C02 does not add another equality to the
+typed resolution. The supported service seam is widened to the real owner
+quantity instead: construction accepts only a repository root, and every
+`get()` creates the real `GovernedProjectionService` and executes its isolated
+owner worker over the canonical source. A hand-authored
+`GuardedProjectionSourceResolution` therefore cannot enter the constructor or
+service API. The worker receipt remains the content hash of the complete typed
+worker result, including status, issues, source/request equality, recomputed
+spend, registry facts, dependency bindings, and validator identity.
+
+Offline packet parsing is now named `ConfidenceLedgerRiskSpendPacketCandidate`
+and is explicitly structural/coherence-only. A candidate with coherent
+substitutions for artifact, dependency, registry, and worker-receipt identities
+strict-parses after its self-hash is refreshed; this is the required proof that
+self-hashes do not authenticate provenance. No parsed packet/candidate
+parameter exists on the owner service, so its labels and substituted receipts
+cannot select `available` or `source_blocked`. The HTTP response alias retains
+the same strict four-arm wire schema; no signer, second source, route, or
+offline admission capability was invented.
+
+### Widening falsifiers and final receipts
+
+- The exact seam pair was genuinely red before the widening: the coherent
+  hand-authored typed resolution entered as `source_blocked` while the coherent
+  offline candidate test already demonstrated structural parsing (`1 failed, 1
+  passed`, exit `1`; real `53.88`, user `51.70`, sys `2.16`, uptime `05:36` ->
+  `05:37`). With the constructor seam removed the same pair is `2 passed`, exit
+  `0`; real `53.83`, user `51.69`, sys `2.15`, uptime `05:37` -> `05:38`.
+- Six owner-path falsifiers cover canonical scratch `available`, coherent
+  scratch `over_spend`, missing/malformed/forged scratch `invalid_source`, the
+  forbidden typed-resolution constructor, coherent packet candidate parsing,
+  and the nested outside-code API path: `6 passed`, exit `0`; real `182.34`,
+  user `176.37`, sys `6.23`, uptime `05:39` -> `05:42`.
+- The source-frozen final cluster contains all three specialized test modules
+  plus the two C00 real-worker replacements: **26 passed**, exit `0`; real
+  `276.26`, user `262.51`, sys `13.01`, uptime `06:04` -> `06:08`. At clean C02
+  entry `c8fae70b7`, the exact C00 pair is still exactly two missing-owner-module
+  reds, exit `1`; real `31.59`, user `30.13`, sys `1.42`, uptime `06:04` ->
+  `06:04`. Exact slice base predates the test pair and therefore collects
+  neither; that absence is not classified as a test failure.
+- Canonical OpenAPI scratch A/B and tracked writer bytes compare equal at
+  SHA-256
+  `19cc6ae5a7a46685cb00a87e7b02ebec6e9ea59c2fee7c96ff856c1f3d4ddb41`.
+  Schema hardening is branch **19 passed, 3 failed** versus exact slice base
+  **21 passed, 1 failed**: both retain the epoch-batch success-example red and
+  branch adds only the two intentional C03 generated-client/shared-types reds.
+- Runtime authz remains exact branch/base **154 passed, 7 failed**. The static
+  governed-route importer remains branch/base **8 passed, 1 failed**, with the
+  same inherited Cycle Board 400. Targeted Ruff and `git diff --check` both
+  return exit `0`.
+- Architecture guardrails return exit `0` on exact slice base. Clean C02 entry
+  returns exit `1` with exactly the four C01 deep-import edges and
+  `trust-claim-posture-register` drift; current C02 returns those same five
+  findings plus only the six intentional C03 generated outputs. The C02-entry
+  receipt is real `67.11`, user `59.23`, sys `7.98`, uptime `06:01` -> `06:02`;
+  current/exact-base receipts are real `69.96/69.51`.
+
+The widening changes only three already-declared C02 mechanism paths: the
+static route's service provider, the specialized packet contracts, and the
+specialized projection service. Its existing three test companions, canonical
+schema, and this journal are outside the P39 mechanism count. The other three
+C02 mechanisms remain unchanged, generic `ProjectionId` remains 13, and every
+previous route/Rego/schema denominator remains frozen. Reserve remains **0**.

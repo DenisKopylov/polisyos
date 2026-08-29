@@ -1,4 +1,9 @@
-"""Strict reviewer transport for owner-validated confidence-ledger risk spend."""
+"""Strict reviewer transport shape for confidence-ledger risk-spend packets.
+
+Parsing proves structural and self-hash coherence only. Owner provenance is
+established online by ``ConfidenceLedgerRiskSpendProjectionService`` running
+the isolated owner worker; no offline DTO label or self-hash authenticates it.
+"""
 
 from __future__ import annotations
 
@@ -67,7 +72,7 @@ class SourceBlockedReason(StrEnum):
 
 
 class ConfidenceLedgerRiskSpendReplayPins(_StrictModel):
-    """Exact tuple required to replay one admitted transport projection."""
+    """Exact tuple required to replay one coherent transport projection."""
 
     artifact_content_hash: str = Field(pattern=_SHA256_PATTERN)
     source_dependency_hash: str = Field(pattern=_SHA256_PATTERN)
@@ -137,7 +142,7 @@ class _ConfidenceLedgerRiskSpendPacketBase(_StrictModel):
 
 
 class AvailableConfidenceLedgerRiskSpendPacket(_ConfidenceLedgerRiskSpendPacketBase):
-    """Owner-admitted source projected through the exact C01 domain surface."""
+    """Wire shape emitted after the online service owner-admits the source."""
 
     availability: Literal[ConfidenceLedgerRiskSpendAvailability.AVAILABLE]
     source: ProjectionSourceIdentity
@@ -168,7 +173,7 @@ class AvailableConfidenceLedgerRiskSpendPacket(_ConfidenceLedgerRiskSpendPacketB
             or validation.issue_codes != ()
             or validation.source_payload_equal is not True
         ):
-            raise ValueError("available_confidence_source_not_owner_admitted")
+            raise ValueError("available_confidence_source_structure_mismatch")
         if (
             self.source.artifact_content_hash != self.replay_pins.artifact_content_hash
             or validation.bound_artifact_content_hash
@@ -290,20 +295,23 @@ class InvalidConfidenceLedgerRiskSpendPacket(_ConfidenceLedgerRiskSpendPacketBas
         return self
 
 
-ConfidenceLedgerRiskSpendPacket = Annotated[
+ConfidenceLedgerRiskSpendPacketCandidate = Annotated[
     AvailableConfidenceLedgerRiskSpendPacket
     | SourceBlockedConfidenceLedgerRiskSpendPacket
     | ArtifactMissingConfidenceLedgerRiskSpendPacket
     | InvalidConfidenceLedgerRiskSpendPacket,
     Field(discriminator="availability"),
 ]
+# Owner-emitted responses use the same wire shape. Parsing this alias offline
+# still yields only a structural candidate; it is never an owner-admission API.
+ConfidenceLedgerRiskSpendPacket = ConfidenceLedgerRiskSpendPacketCandidate
 
 
 def packet_semantic_projection(
     packet: AvailableConfidenceLedgerRiskSpendPacket
     | SourceBlockedConfidenceLedgerRiskSpendPacket,
 ) -> dict[str, object]:
-    """Return the complete non-self-referential semantics of an admitted arm."""
+    """Return the non-self-referential semantics used for coherence hashing."""
 
     body = packet.model_dump(
         mode="json",
@@ -341,6 +349,7 @@ __all__ = [
     "AvailableConfidenceLedgerRiskSpendPacket",
     "ConfidenceLedgerRiskSpendAvailability",
     "ConfidenceLedgerRiskSpendPacket",
+    "ConfidenceLedgerRiskSpendPacketCandidate",
     "ConfidenceLedgerRiskSpendReplayPins",
     "InvalidConfidenceLedgerRiskSpendPacket",
     "SourceBlockedConfidenceLedgerRiskSpendPacket",

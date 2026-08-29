@@ -14,6 +14,7 @@ from polisyos.runtime.http.services.confidence_ledger_risk_spend_contracts impor
     STABLE_ADDRESS,
     AvailableConfidenceLedgerRiskSpendPacket,
     ConfidenceLedgerRiskSpendPacket,
+    ConfidenceLedgerRiskSpendPacketCandidate,
     SourceBlockedConfidenceLedgerRiskSpendPacket,
 )
 from polisyos.runtime.http.services.confidence_ledger_risk_spend_projection import (
@@ -55,7 +56,7 @@ def _rebind_available_packet(candidate: dict[str, object]) -> None:
 def test_available_packet_is_strict_self_hashed_and_replay_bound() -> None:
     packet = _available()
     payload = packet.model_dump(mode="json")
-    parsed = TypeAdapter(ConfidenceLedgerRiskSpendPacket).validate_json(
+    parsed = TypeAdapter(ConfidenceLedgerRiskSpendPacketCandidate).validate_json(
         packet.model_dump_json(),
         strict=True,
     )
@@ -80,7 +81,7 @@ def test_available_packet_is_strict_self_hashed_and_replay_bound() -> None:
         candidate = deepcopy(payload)
         mutation(candidate)
         with pytest.raises(ValidationError):
-            TypeAdapter(ConfidenceLedgerRiskSpendPacket).validate_json(
+            TypeAdapter(ConfidenceLedgerRiskSpendPacketCandidate).validate_json(
                 json.dumps(candidate),
                 strict=True,
             )
@@ -115,7 +116,7 @@ def test_transport_union_has_exactly_four_strict_arms() -> None:
     }
     payload = _available().model_dump(mode="json")
     with pytest.raises(ValidationError):
-        TypeAdapter(ConfidenceLedgerRiskSpendPacket).validate_json(
+        TypeAdapter(ConfidenceLedgerRiskSpendPacketCandidate).validate_json(
             json.dumps({**payload, "caller_asserted_safe": True}),
             strict=True,
         )
@@ -148,7 +149,7 @@ def test_request_observation_time_is_not_stable_packet_identity() -> None:
         "empty_limitations",
     ],
 )
-def test_available_packet_rejects_coherently_rehashed_owner_fact_forgery(
+def test_available_packet_candidate_rejects_incoherent_owner_fact_rehash(
     mutation: str,
 ) -> None:
     candidate = _available().model_dump(mode="json")
@@ -181,7 +182,49 @@ def test_available_packet_rejects_coherently_rehashed_owner_fact_forgery(
     _rebind_available_packet(candidate)
 
     with pytest.raises(ValidationError):
-        TypeAdapter(ConfidenceLedgerRiskSpendPacket).validate_json(
+        TypeAdapter(ConfidenceLedgerRiskSpendPacketCandidate).validate_json(
             json.dumps(candidate),
             strict=True,
+        )
+
+
+def test_coherent_offline_identity_substitution_is_only_a_structural_candidate() -> None:
+    owner_packet = _available()
+    candidate = owner_packet.model_dump(mode="json")
+    source = candidate["source"]
+    replay_pins = candidate["replay_pins"]
+    assert isinstance(source, dict)
+    assert isinstance(replay_pins, dict)
+    validation = source["validation"]
+    assert isinstance(validation, dict)
+    forged_artifact = "sha256:" + "6" * 64
+    forged_dependency = "sha256:" + "7" * 64
+    forged_registry = "sha256:" + "8" * 64
+    forged_receipt = "sha256:" + "9" * 64
+    source["artifact_content_hash"] = forged_artifact
+    validation["bound_artifact_content_hash"] = forged_artifact
+    replay_pins["artifact_content_hash"] = forged_artifact
+    candidate["source_dependency_hash"] = forged_dependency
+    validation["bound_dependency_aggregate_identity"] = forged_dependency
+    replay_pins["source_dependency_hash"] = forged_dependency
+    candidate["registry_projection_hash"] = forged_registry
+    validation["registry_projection_hash"] = forged_registry
+    candidate["worker_validation_receipt_hash"] = forged_receipt
+    candidate["worker_validation_receipt_ref"] = f"owner-validation:{forged_receipt}"
+    validation["worker_validation_receipt_hash"] = forged_receipt
+    _rebind_available_packet(candidate)
+
+    parsed_candidate = TypeAdapter(
+        ConfidenceLedgerRiskSpendPacketCandidate
+    ).validate_json(
+        json.dumps(candidate),
+        strict=True,
+    )
+
+    assert isinstance(parsed_candidate, AvailableConfidenceLedgerRiskSpendPacket)
+    assert parsed_candidate.source.artifact_content_hash == forged_artifact
+    assert parsed_candidate.worker_validation_receipt_hash == forged_receipt
+    with pytest.raises(TypeError, match="packet_candidate"):
+        ConfidenceLedgerRiskSpendProjectionService(_ROOT).get(
+            packet_candidate=parsed_candidate,  # type: ignore[call-arg]
         )

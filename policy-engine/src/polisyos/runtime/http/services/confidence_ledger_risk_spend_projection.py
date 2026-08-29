@@ -85,7 +85,7 @@ def validate_over_spend_allowset(*, derived_codes: tuple[str, ...]) -> None:
         raise ValueError("DS17 over-spend owner diagnostic allowset mismatch")
 
 
-def classify_over_spend_owner_failure(
+def _classify_over_spend_owner_failure(
     *,
     issue_codes: tuple[str, ...],
     source_payload_equal: bool,
@@ -107,16 +107,13 @@ def classify_over_spend_owner_failure(
 
 
 class ConfidenceLedgerRiskSpendProjectionService:
-    """Compose the guarded N11 source into one strict reviewer HTTP packet."""
+    """Run the owner worker and compose its fresh result into one HTTP packet."""
 
     def __init__(
         self,
         repository_root: Path,
-        *,
-        source_service: GovernedProjectionService | None = None,
     ) -> None:
         self._repository_root = repository_root
-        self._source_service = source_service or GovernedProjectionService(repository_root)
 
     def get(
         self,
@@ -127,9 +124,11 @@ class ConfidenceLedgerRiskSpendProjectionService:
         source_as_of: datetime | None = None,
         projection_rule_version: str | None = None,
     ) -> ConfidenceLedgerRiskSpendPacket:
-        """Resolve one packet and enforce every supplied replay pin exactly."""
+        """Run fresh owner resolution and enforce every replay pin exactly."""
 
-        resolution = self._source_service.resolve_guarded_source(
+        resolution = GovernedProjectionService(
+            self._repository_root
+        ).resolve_guarded_source(
             GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND
         )
         packet = self._project_resolution(resolution)
@@ -334,7 +333,7 @@ def _source_blocker(
         registry_delta = Fraction(required[2], required[3])
     except (TypeError, ValueError, ZeroDivisionError):
         return None
-    return classify_over_spend_owner_failure(
+    return _classify_over_spend_owner_failure(
         issue_codes=validation.issue_codes,
         source_payload_equal=validation.source_payload_equal is True,
         recomputed_total_spend=recomputed_total,
@@ -564,7 +563,6 @@ def _replay_datetime(value: datetime) -> str:
 __all__ = [
     "OVER_SPEND_OWNER_DIAGNOSTIC_CODES",
     "ConfidenceLedgerRiskSpendProjectionService",
-    "classify_over_spend_owner_failure",
     "derive_over_spend_allowset",
     "validate_over_spend_allowset",
 ]

@@ -24,7 +24,7 @@ from polisyos.runtime.http.routes.governed_projections import (
 )
 from polisyos.runtime.http.services.confidence_ledger_risk_spend_contracts import (
     AvailableConfidenceLedgerRiskSpendPacket,
-    ConfidenceLedgerRiskSpendPacket,
+    ConfidenceLedgerRiskSpendPacketCandidate,
 )
 from polisyos.runtime.http.services.confidence_ledger_risk_spend_projection import (
     ConfidenceLedgerRiskSpendProjectionService,
@@ -153,7 +153,7 @@ def test_confidence_ledger_risk_spend_openapi_is_strict_measured_negative(
     example = operation["responses"]["200"]["content"]["application/json"][
         "examples"
     ]["default"]["value"]
-    parsed = TypeAdapter(ConfidenceLedgerRiskSpendPacket).validate_json(
+    parsed = TypeAdapter(ConfidenceLedgerRiskSpendPacketCandidate).validate_json(
         json.dumps(example),
         strict=True,
     )
@@ -216,10 +216,7 @@ def test_nested_outside_owner_issue_fails_closed_through_worker_service_and_api(
     )
     assert resolution.validation is not None
     assert "outside_diagnostic" in resolution.validation.issue_codes
-    service = ConfidenceLedgerRiskSpendProjectionService(
-        tmp_path,
-        source_service=source_service,
-    )
+    service = ConfidenceLedgerRiskSpendProjectionService(tmp_path)
     analyst, headers = _secure_client(
         runtime_api_env,
         role=PolicyOSRole.ANALYST,

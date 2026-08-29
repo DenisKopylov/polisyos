@@ -93,10 +93,7 @@ def _get_cycle_board_projection_service(request: Request) -> CycleBoardProjectio
 @lru_cache(maxsize=1)
 def _get_confidence_ledger_risk_spend_projection_service(
 ) -> ConfidenceLedgerRiskSpendProjectionService:
-    return ConfidenceLedgerRiskSpendProjectionService(
-        _repository_root(),
-        source_service=_get_projection_service(),
-    )
+    return ConfidenceLedgerRiskSpendProjectionService(_repository_root())
 
 
 _CYCLE_BOARD_EXPORT_AUTHZ = require_action_permission(

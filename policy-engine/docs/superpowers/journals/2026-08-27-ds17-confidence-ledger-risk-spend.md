@@ -1112,3 +1112,207 @@ companions and this record outside a zero mechanism cap; and applies P41 at the
 finding's real input denominator. The generated-client sub-capability is
 implemented. The full DS17 slice remains `consumer_missing` until C04 wires the
 dashboard reviewer experience; C03 does not claim that future surface.
+
+## C04 — conditional reviewer panel and exact MACHINE twin
+
+C04 starts from attached branch
+`codex/ds17-confidence-ledger-risk-spend-execution` at entry HEAD
+`2ac603ff0d1c8f6a6158e67ec217351eba063fab`. The exact slice-base comparison
+remains detached clean `main` at
+`dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f`; no comparison checkout, merge,
+rebase, reset, stash, or publication operation touched the execution branch.
+
+### Skill and pattern discipline
+
+Before React work, the complete `build-web-apps:react-best-practices`,
+`codex-engineering-guardrails:code-work`,
+`superpowers:test-driven-development`, and
+`superpowers:verification-before-completion` instructions were read and used.
+The React guidance kept authorization above both query mounts, moved the two
+query/render paths into sibling components, avoided effect-driven fetching,
+and retained one generated query cache identity. The code-work guidance held
+the production fence at exactly nine paths and reused the generated client,
+governed query policy, Atlas dialog/error boundary, and shared byte exporter.
+TDD made semantic mutations fail before each property repair; verification
+discipline required the complete focused wave after formatting and after the
+last byte-admission change. `good-tests`, `engineering-decisions`, and
+`systematic-debugging` guidance additionally kept falsifiers behavioral,
+recorded the no-reserve decisions, and classified the combined-lane a11y
+timeout by isolated reproduction rather than changing product behavior.
+
+The closeout pattern pass applies P03/P05/P10/P15 by rendering admitted owner
+semantics without promotion/public-authority inference; P29/P32/P37/P38 by
+recomputing the packet, decoding visible DOM text, and falsifying marker-
+constant changes; P39 by separating ten mandatory test companions and this
+journal from the nine mechanisms; P40 by widening the one visible-leaf gap to
+the complete ordered leaf/list quantity and the MACHINE gap to byte parsing;
+and P41 by replaying common gates at the exact slice base.
+
+### Exact mechanism and companion set
+
+The nine mechanism paths are exactly:
+
+1. `apps/runtime-dashboard/src/features/runs/api/useConfidenceLedgerRiskSpend.ts`
+2. `apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.ts`
+3. `apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx`
+4. `apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx`
+5. `apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.ts`
+6. `apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx`
+7. `apps/runtime-dashboard/src/api/queryKeys.ts`
+8. `apps/runtime-dashboard/src/shared/i18n/locales/en.json`
+9. `apps/runtime-dashboard/src/shared/i18n/locales/uk.json`
+
+The ten P39 test companions are the six new hook/domain/figure/panel/a11y/twin
+tests, the three existing Cycle Board page/parity/census tests, and the existing
+i18n parity test. The twin test uses `.tsx`, rather than the brief's illustrative
+`.ts`, because it renders JSX through the real panel; this is a test companion,
+not a tenth mechanism. The tracked journal is the mandatory append-only record.
+`ru.json`, DS6/DS11 visual specs, snapshot roots, route/navigation registries,
+generated files, and every other production path remain outside the diff.
+Reserve spend is **0**.
+
+### Transport and strict admission
+
+The hook calls only generated
+`RuntimeApiClient.getConfidenceLedgerRiskSpendProjection`, injects
+`authAwareRuntimeFetch`, captures `response.clone().arrayBuffer()` before the
+generated decoder consumes the response, strictly admits the decoded result,
+and uses the existing `never_cache_authority` policy with a distinct query key.
+There is no direct `fetch`, duplicate DTO, second route/UI host, or new download
+helper. The available download passes the captured `Uint8Array` object directly
+to `exportCapturedResponseBytes`.
+
+Generated types were sufficient for transport but not authority admission. The
+domain layer uses a strict four-arm schema and independently recomputes the
+available packet's canonical identities, full registry-derived 13-definition
+and six-route denominators, 15-class allocation, exact rational spent/
+remaining/overspend algebra, producer reference partitions/order, positive
+register, source/receipt/replay bindings, and packet/payload/projection hashes.
+The other three arms retain distinct freshness and replay rules. Offline packet
+parsing is candidate/coherence-only: the hook bytes originate at the already-
+protected owner route and C04 adds no new authority ingress.
+
+Negative coverage, unappointed authority, definition/route/instance blockers,
+or over-spend each veto aggregate promotion. The positive register remains
+visible and honest when its population is zero, its appointment denominator is
+recomputed empty, and its sufficiency is not established.
+
+### Human projection and independent failures
+
+The available DOM order is exact:
+
+1. actual refusal rows, then producer-ordered acquisition rows;
+2. exact scope-local total, then all 15 obligation-class rows;
+3. all 13 definitions, then all six certificate routes;
+4. the always-present positive register;
+5. good-event, source, validator, receipt, provenance, and replay identities;
+6. exact-byte MACHINE download.
+
+All 67 rendered allocation/spent/remaining/overspend values traverse
+`ConditionalDeltaFigure`. Each figure has one focusable chip containing both
+exact packet disclosures and one accessible controlled dialog containing the
+complete resolved envelope. No parent/family/sequence/cross-scope total or
+satisfied narrowed claim is emitted. `source_blocked` renders only its typed
+blocker plus source/validator/receipt/replay identities; rejected risk and
+certificate detail remain absent.
+
+`CycleBoardPage` authorizes before either query mounts, then renders two sibling
+query components. Each has a local loading/error card inside its own existing
+`PanelErrorBoundary`, so a query failure or render exception cannot blank the
+other panel. The final page tests prove unsettled and unauthorized users mount
+neither query, while reviewer authorization mounts exactly one of each.
+
+### Exact twin and falsifiers
+
+The production twin parses and strictly admits both the candidate and captured
+bytes, requires them to agree, independently decodes every visible governed
+leaf value plus every ordered-list identity/count and the six section order,
+rejects hidden/`aria-hidden`/CSS-hidden semantics and raw/test-only payload
+markers, then compares packet-derived and DOM-derived protected-query answers
+equal-or-more-conservative under PV-K04. PV-K06 evaluates exactly these nine
+declared queries: promotion authority, publication authority, public audience,
+bounded completeness, world completeness, family total, sequence total,
+cross-scope total, and narrowed-claim satisfaction.
+
+The only exact result returns the original captured byte object. All other
+results select one of the closed seven reasons:
+`timeout`, `missing_input_or_incomplete_history`,
+`parser_or_schema_failure`, `unsupported_or_out_of_model`,
+`empty_consistency_set`, `model_observation_inconsistent`, or
+`unproved_approximation`.
+
+Behavioral red receipts include:
+
+- a coherently rehashed derived definition initially survived generated-shape
+  admission; full basis re-derivation made the mutation fail while the ordinary
+  domain family finishes 15/15 green;
+- definition/route/instance blockers were initially omitted from aggregate
+  promotion; the row-level negative probe forced the complete veto set;
+- eight forged visible leaves (scope, actual/class/definition/route blocker,
+  positive authority, coverage posture, and good-event rule) left markers
+  fixed and produced exactly 8 failures / 17 passes; after widening to the
+  complete ordered semantic leaf/list set, all pass only when unmodified;
+- malformed captured bytes paired with an admitted object initially returned
+  `exact`: the exact twin red was 1 failed / 28 passed, duration `59.67s`.
+  Parsing and admitting the bytes now returns `parser_or_schema_failure`;
+- explicit class/definition reorder, honest-zero-register omission, protected
+  denial removal, hidden/aria/CSS-hidden leaves, raw JSON/test IDs, finite-
+  schema expansion, empty model, missing history, timeout, and sampled-safe
+  approximation each fail for their declared closed reason;
+- captured-byte download identity, Bayesian/non-anytime refused rows, four-arm
+  distinctions, valid zero versus missing source, sibling isolation, and
+  unauthorized non-mounting run through real production consumers.
+
+No raw hidden payload, `data-testid`, server-safe marker, caller boolean, or
+filename proves parity.
+
+### Locale and consumer censuses
+
+Active en/uk leaves move from the C04 entry count `2652` to `2688`, exactly 36
+new leaves per locale. There are no new ICU variables, so interpolation,
+non-count, and variable-use hashes/counts do not move. The two authority riders
+come from exact packet strings and are not translated paraphrases. `ru.json`
+is byte-identical at C04 entry, current worktree, and exact slice base, all
+SHA-256
+`5366a250bd34ec702035c0953348d25e824acf80e75136bb212895cd76c36273`.
+
+The complete TypeScript consumer census is green at 4/4 and proves exactly one
+generated operation intake, one resolved hook call, one Cycle Board page host,
+one panel renderer, and one existing filename-bound exact-byte exporter. It
+finds zero direct fetches, duplicate clients, second hosts, or second download
+helpers.
+
+### Focused branch / exact-base verification
+
+| Gate | Branch | Exact slice base | Disposition |
+| --- | --- | --- | --- |
+| final prescribed nine-file C04 Vitest | exit 0; 9 files, 80/80; real 77.71, user 155.17, sys 8.44; uptime 12:16 -> 12:17 | C04-only files do not exist | green; no full suite |
+| common Cycle Board page/parity/census lane | exit 0; 3 files, 23/23; real 17.80, user 52.95, sys 2.78; uptime 12:08 -> 12:08 | exit 0; 3 files, 14/14; real 35.12, user 59.17, sys 3.83; uptime 12:08 -> 12:09 | exact same selected paths; nine added behavioral cases |
+| dashboard full typecheck | exit 0; real 22.95, user 42.21, sys 1.32; uptime 12:10 -> 12:10 | exit 0; real 24.78, user 44.72, sys 1.41; uptime 12:10 -> 12:10 | green |
+| dashboard production build | exit 0; final real 31.11, user 56.67, sys 2.99; uptime 12:18 -> 12:19 | exit 0; real 32.36, user 57.71, sys 3.80; uptime 12:11 -> 12:11 | green; only normal chunk-size warning |
+| focused ESLint over 17 TS/TSX mechanism/companion files | exit 0; real 57.57, user 77.95, sys 5.81; uptime 12:17 -> 12:18 | not applicable to absent C04 files | green |
+| focused Prettier check over all 19 dashboard mechanism/companion files | exit 0; all matched | not applicable | green |
+| active-locale parity | exit 1; 37/38; real 2.15, user 2.69, sys 0.32; uptime 12:09 -> 12:09 | exit 1; 36/38; real 2.35, user 2.73, sys 0.35; uptime 12:09 -> 12:09 | branch active count is green; exact RU expected `67b7…`, actual `afcb…` reproduces on both |
+
+The i18n suite as a whole is not labeled inherited because C04 changes its
+active-locale denominator. The only branch red is the exact-base-reproduced RU
+key-set subject; neither the frozen RU bytes nor its expected hash constant is
+changed by C04. The exact base also carries a second active-count red that the
+branch's current prior-cluster baseline plus C04 count update closes.
+
+The combined lane initially recorded 77/78 because the axe test took `21.3s`
+under parallel load and exceeded Vitest's inherited `15s` test timeout; the
+same test passed isolated in `12.59s` with zero violations. Per the measured-
+time rule, only that test's ceiling moved to `30s`; the final combined lane is
+80/80. No assertion, product behavior, or accessibility finding was changed.
+
+### Capability state
+
+C04 changes the full DS17 state from `consumer_missing` to
+`verification_missing`: the protected typed producer/artifact/bridge now has
+human and exact MACHINE consumers plus negative semantic/a11y/census/parity
+tests, while C05 still owns the surgical Atlas registration and DS17 visual
+evidence. Positive certificate issuance and deployment-wide enumeration remain
+explicitly unallocated/open-world; the honest zero register does not claim
+those capabilities. C04 has no bounded implementation residual and uses no
+reserve path.

@@ -34,6 +34,14 @@ export const queryKeys = {
       "depth-n-cycle-board",
       { representation: "composed-v2" },
     ] as const,
+  confidenceLedgerRiskSpendProjection: () =>
+    [
+      "runtime",
+      "exports",
+      "governed-projections",
+      "confidence-ledger-risk-spend",
+      { representation: "specialized-v1" },
+    ] as const,
   temporalCapabilities: (runId: string | null | undefined) =>
     ["runtime", "temporal", "capabilities", { runId: runId ?? null }] as const,
   runsRoot: () => ["runtime", "runs"] as const,

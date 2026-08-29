@@ -65,13 +65,19 @@ These are INT-R6 research conclusions or architecture candidates as classified a
 
 ## W4-K05 standing
 
-The standing is reported on three separate axes. Values are intentionally token-only.
+The fields are token-only; the following sentences justify the selected members of the three registered vocabularies.
 
-| axis | token |
-|---|---|
-| evidence_standing | `supported` |
-| decision_standing | `proposed` |
-| implementation_standing | `not_implemented` |
+```yaml
+research_standing: accepted_narrow_scope
+capability_standing: absent/unallocated
+gate_standing: NO_GO
+```
+
+`research_standing: accepted_narrow_scope` — the Stage 1 protocol, falsifiers, and architecture are accepted as bounded research input while the package's declared repository-measurement and institutional gaps remain open.
+
+`capability_standing: absent/unallocated` — this Markdown package creates no admitted typed contract, appointed owner, producer, consumer, or verified runtime chain; research prose is an input rather than a capability.
+
+`gate_standing: NO_GO` — no implemented and verified chain or appointed high-stakes holder exists to open the first-public-signature gate.
 
 ## Open questions and routed gaps
 

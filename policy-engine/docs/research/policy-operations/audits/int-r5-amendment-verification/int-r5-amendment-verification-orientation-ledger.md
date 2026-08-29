@@ -1,6 +1,7 @@
 ---
 title: "INT-R5 — Amendment verification orientation ledger"
 amendment_head_verified: 70f2db6d3a4330664c981721a9305f16bffe369b
+verification_content_head: 9de473f4de3f371c78604d1df3a8f4b421b06358
 orientation_result: architect_baseline_agrees
 stage3_handback_accuracy: inaccurate
 ---
@@ -73,6 +74,39 @@ For each compare, exact merge base plus `behind_by=0` is exactly the ancestor pr
   `HumanDecisionService` in `0/15`.
 - Final delta and final containment are established by post-write `compare_commits`, not inferred from
   the recursive tree.
+
+### 4.4 Fully observed verification-content head
+
+GitHub ref read after all three substantive artifacts were written returned
+`9de473f4de3f371c78604d1df3a8f4b421b06358`. Connector comparisons against that exact SHA returned:
+
+```yaml
+amendment_to_content_head:
+  ahead_by: 6
+  behind_by: 0
+  merge_base: 70f2db6d3a4330664c981721a9305f16bffe369b
+audit_to_content_head:
+  ahead_by: 13
+  behind_by: 0
+  merge_base: 247f89f016f71ee603ed76ef6dbb6403f7e651a0
+package_to_content_head:
+  ahead_by: 28
+  behind_by: 0
+  merge_base: 02e203de90d51280d569e7f641a158569ae4df39
+base_to_content_head:
+  ahead_by: 35
+  behind_by: 0
+  merge_base: dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f
+```
+
+Amendment→content-head compare returned exactly three added Markdown paths and no other delta. GitHub
+Contents at the same SHA returned exactly three files with sizes `12,262`, `6,203`, and `5,676` bytes,
+for a total of **24,141 bytes**.
+
+This receipt update changes only this already-allowed orientation ledger. Its own commit SHA cannot be
+embedded in its bytes without changing that SHA; the exact post-receipt branch tip is therefore the
+GitHub ref observation reported after this write, while the complete observable predecessor receipt is
+preserved above.
 
 ## 5. Orientation errors made and corrected
 

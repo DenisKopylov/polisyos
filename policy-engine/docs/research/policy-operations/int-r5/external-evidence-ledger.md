@@ -1,77 +1,62 @@
-# INT-R5 External Evidence Ledger
+# INT-R5 External Evidence Ledger — Amended
 
-## 1. Status and use restriction
+## 1. Status, source custody and use restriction
 
-This ledger transfers findings from the five commissioned deep-research surveys into INT-R5. The
-surveys are **external practice evidence**. They are not repository capability, legal advice,
-registered PolicyOS vocabulary, an institutional appointment or authority to implement.
+This ledger transfers findings from five commissioned surveys into INT-R5. The surveys are external
+practice evidence. They are not repository capability, legal advice, registered PolicyOS vocabulary,
+institutional appointments or authority to implement.
 
-Each transferred rule is labelled as one of:
+Exact source identities, SHA-256 digests, line/byte denominators, claim anchors and branch-local
+admitted evidence extracts are in [`survey-source-manifest.md`](survey-source-manifest.md). The full
+survey bytes remain external artifacts. Therefore the branch can replay each transferred claim against
+the admitted extracts and source identity, while full-byte re-verification requires the external file
+matching the manifest digest. No section below claims more.
 
-- **legal rule in a named jurisdiction/regime**;
-- **formal or technical mechanism**;
-- **control/design pattern**;
-- **empirical finding**;
-- **engineering inference**;
-- **known limitation or disagreement**.
+Transferred statements are classified as:
 
-No doctrine is used without its jurisdiction. Where public law, corporate law and technical access
-control use the same word differently, the differences are retained.
+- named legal rule in a named jurisdiction/regime;
+- formal or technical mechanism;
+- control/design pattern;
+- empirical finding;
+- engineering inference;
+- known limitation or disagreement.
 
-## 2. Survey inputs
+No doctrine is used without jurisdiction. Public law, corporate governance and technical access
+control may use the same word differently; those differences are preserved.
 
-| ID | Commissioned survey | Principal use in INT-R5 | Material limitation |
-| --- | --- | --- | --- |
-| `S1` | *How authority is delegated, bounded, inherited and taken back* | delegation scope, amount, acting/succession, subdelegation, emergency, expiry, revocation and cure | comparative sample; consequences are regime-specific |
-| `S2` | *What makes a body's decision the body's, and when it is a nullity* | forum, composition, quorum timeline, vote, decision mode, co-signature and proof record | no universal quorum, presence, meeting or nullity rule |
-| `S3` | *Recusal, conflict of interest, and the prohibition on approving your own work* | structural self-approval, transaction-level SoD, COI taxonomy, recusal, waiver and detectability | many control sources are normative/audit practice rather than causal experiments |
-| `S4` | *Authorization decided before the act, and what happens when it changes during* | authority-chain reduction, proof versus receipt, freshness horizon, checkpoint semantics and revocation | technical proof cannot decide jurisdiction-specific legal effect |
-| `S5` | *Accepting another body's authority, and telling consultation from decision* | narrow recognition, retained local duties, act-effect taxonomy and responsibility allocation | recognition regimes transfer different assertions and remedies |
+## 2. Survey inputs and exact package anchors
 
-## 3. Delegation, appointment, amount and revocation
+| ID | Exact commissioned survey | Package anchors | Principal use | Limitation |
+|---|---|---|---|---|
+| `S1` | *Глубокое исследование: как полномочие делегируется, ограничивается, наследуется и отзывается* | `S1:5-9`, `102-130`, `162-272`, `298-381` | delegation scope, amount, succession, subdelegation, emergency, revocation and cure | comparative regimes; consequences differ |
+| `S2` | *Когда решение принадлежит коллегиальному органу — и когда оно юридически не существует* | `S2:5-13`, `28-90`, `120-166` | forum, composition, quorum, vote, mode, co-signature and proof | no universal quorum/presence/nullity rule |
+| `S3` | *Рекузал, конфликт интересов и запрет самосогласования: как не дать участнику замкнуть контур контроля на себе* | `S3:3-80`, `136-178` | structural self-approval, SoD, COI, recusal and detectability | many sources are control/audit standards, not causal trials |
+| `S4` | *Предварительная авторизация как проверяемое доказательство: цепочки полномочий, свежесть и отзыв в ходе действия* | `S4:5-29`, `82-173`, `189-375`, `377-550` | proof versus receipt, chain reduction, freshness and revocation | technical proof cannot determine jurisdiction-specific legal effect |
+| `S5` | *Принятие полномочий другого органа: когда доверие защищаемо и где проходит граница между консультацией, рекомендацией, одобрением и решением* | `S5:3-68`, `70-170`, `172-236` | purpose-limited recognition, act effect and responsibility | regimes transfer different assertions and remedies |
 
-### 3.1 Transferable rule: one role edge is insufficient
+## 3. Delegation, appointment, amount and cure
 
-**Classification: comparative legal synthesis plus engineering normalization.**
+### 3.1 One role edge is insufficient
 
-The delegation survey's central result is that `person → role → delegation` cannot establish the
-right to decide. The effective authority depends on the source power, precise function, exclusions,
-time, trigger, amount and valuation basis, geography, office status, subdelegation permission,
-succession and exceptional conditions.
+**Classification:** comparative legal synthesis plus engineering normalization.  
+**Anchor:** `S1:5-9`, `S1:19-43`.
 
-Primary anchors carried by the survey include:
+`person → role → delegation` cannot prove the right to decide. Effective authority depends on source
+power, exact function and exclusions, time and triggers, amount/valuation, geography/place, office
+status, subdelegation permission, succession and exceptional conditions.
 
-- Commonwealth Australia, Acts Interpretation Act 1901, especially §§33A and 34AA–34AB;
-- United States Federal Vacancies Reform Act, 5 U.S.C. §§3345–3349d;
-- FAR 1.602-3 on unauthorized commitments and ratification;
-- United Kingdom *Carltona* practice and *R v Adams*;
-- public financial-delegation schemes using total transaction value and anti-splitting rules;
-- UK Civil Contingencies Act 2004 for conditional emergency authority.
+The target graph therefore keeps separate edges for delegation, subdelegation, succession/acting,
+implied departmental authorization, agency authorization, emergency authority and cure/validation.
+Collapsing them into one `AUTHORIZED_BY` edge is rejected.
 
-The target graph therefore distinguishes at least these edge kinds:
+### 3.2 Monotonic attenuation and creation-time power
 
-```text
-DELEGATION
-SUBDELEGATION
-ACTING_APPOINTMENT
-STATUTORY_SUCCESSION
-IMPLIED_DEPARTMENTAL_AUTHORIZATION
-AGENCY_AUTHORIZATION
-EMERGENCY_AUTHORITY
-RATIFICATION_OR_CURE
-```
-
-Collapsing them into `AUTHORIZED_BY` is rejected because their creation, scope, expiry and remedies
-differ.
-
-### 3.2 Monotonic attenuation
-
-**Classification: formalized engineering rule supported by public-law and capability examples.**
-
-For every child path:
+**Classification:** conservative reducer invariant supported by named public-law and capability
+examples.  
+**Anchor:** `S1:162-192`.
 
 ```text
-effective_scope(child) =
+effective_scope(child) :=
     effective_scope(parent)
     ∩ source_law_delegable_scope
     ∩ instrument_scope
@@ -81,368 +66,230 @@ effective_scope(child) =
     ∩ geographic_scope
 ```
 
-The parent must also have possessed the power to subdelegate this power **when the child instrument
-was created**. A presently valid parent cannot cure an invalid creation-time link by implication.
+The parent must also have possessed the right to create the child link at creation time. This is not
+promoted into one universal legal doctrine; a jurisdiction profile still determines the legal source
+and exceptions.
 
-The closest technical analogue is SPKI/SDSI authorization reduction and attenuating capability
-caveats. Neither supplies the legal source or issuer competence by itself.
+### 3.3 Amount is a valuation rule
 
-### 3.3 Amount is a rule, not only a number
+**Classification:** recurring institutional-control pattern.  
+**Anchor:** `S1:102-130`.
 
-**Classification: recurring institutional-control pattern.**
+A machine-readable boundary requires limit, currency, valuation basis, aggregation window,
+related-transaction/anti-splitting rule, variation/options and tax treatment, and budget scope. The
+comparison is against the economic transaction defined by the applicable scheme, not one submitted
+invoice.
 
-A machine-readable amount boundary requires:
+### 3.4 Acting, succession and emergency are independent paths
 
-- limit;
-- currency;
-- valuation basis;
-- aggregation window;
-- related-transaction and anti-splitting rule;
-- variation/options treatment;
-- tax treatment;
-- budget or cost-centre scope.
+**Classification:** named legal rules and control mechanisms; no universal default.  
+**Anchor:** `S1:194-272`.
 
-Checking the current invoice against a role limit is rejected. The comparison must be against the
-economic transaction as defined by the applicable delegation scheme.
+Australian §33A, the US FVRA, UK Carltona practice and emergency regimes use different sources,
+activation facts, scopes and consequences. A displayed title or generic emergency flag is not enough.
+The graph keeps vacancy/trigger, succession/designation rule, qualifications, start/end events,
+saving provisions and emergency predicates distinct.
 
-### 3.4 Acting and succession are independent provenance paths
+### 3.5 Post-hoc cure and temporal legal effect
 
-**Classification: named legal rules; no universal default.**
+**Classification:** preserved legal disagreement.  
+**Anchor:** `S1:328-381`.
 
-Australian §33A can confer the powers of the office while a person lawfully acts and contains a
-specific saving rule. The US FVRA instead makes eligibility, vacancy trigger, time, nomination status
-and exclusive functions decisive. The DHS succession failure documented by GAO demonstrates why a
-person's displayed title cannot be trusted without validating the path that placed that person in
-office.
+The original pre-action question remains: did authority pre-exist the original decision? Later
+evidence cannot be inserted into that historical snapshot. A later cure is a new event/result.
 
-The graph must therefore keep the vacancy/trigger, succession rule, appointment event,
-qualifications, start/end events and any saving provision separate from an ordinary delegation.
+Surveyed outcomes include:
 
-### 3.5 Post-hoc authorization is not one rule
+- conditioned ratification under FAR;
+- relation back that can fail because an original filing window or right has intervened, as in the
+  FEC v NRA analysis;
+- express non-ratifiability under the defined FVRA rule;
+- other validation/cure outcomes;
+- statutory saving, which is not ratification.
 
-**Classification: preserved legal disagreement.**
+The amended model therefore requires:
 
-The target pre-action certificate always refuses when authority did not pre-exist the decision. A
-later cure is a **new event and new legal question**. It never backdates the original certificate.
+```text
+prospective | relation_back | saved_act | limited | unresolved
+```
 
-The surveyed regimes disagree:
-
-- FAR 1.602-3 permits narrowly conditioned ratification of certain unauthorized commitments;
-- the FVRA makes a defined class of actions “no force or effect” and non-ratifiable;
-- corporate statutes such as DGCL §§204–205 create special validation procedures;
-- other regimes use saving provisions, voidability or evidentiary presumptions.
-
-Accordingly, `post_hoc_authorization` is a red fixture for the original pre-action claim while a
-separate jurisdiction profile may later classify a cure as permitted, forbidden or unresolved.
+with `legally_effective_from` and `historical_certificate_mutated: false`. No universal denial or
+universal permission of relation back is adopted.
 
 ## 4. Collegial validity
 
-### 4.1 The act belongs to a legal organ, not a collection of people
+### 4.1 The act belongs to a legal organ
 
-**Classification: comparative legal rule.**
+**Classification:** comparative legal validation model.  
+**Anchor:** `S2:5-13`, `S2:28-54`.
 
-The collegial survey's transferable proposition is:
+A document, signatures or minutes do not alone prove that the competent legal organ acted. The model
+checks organ competence, permitted forum/mode, composition, notice/agenda where applicable, quorum at
+the required time, vote and any constitutive form/co-signature.
 
-```text
-competent organ
-∩ lawful decision mode/forum
-∩ valid composition
-∩ applicable notice/agenda conditions
-∩ quorum at the legally required time
-∩ required vote
-∩ constitutive form or co-signature, when applicable
-```
+The consequence of a defect remains profile-specific: no act/invalid, voidable/challengeable,
+curable, saved, evidentiary-only or execution/authentication defect are not normalized into one
+universal Boolean.
 
-This is a validation model, not one trans-jurisdictional substantive rule.
+### 4.2 Forum and membership are distinct
 
-Primary anchors include DGCL §141 and *Fogel v. U.S. Energy Systems*; UK Model Articles 8–14;
-German AktG §§107–108 and §124; US House quorum/voting procedure; and the California Brown Act.
+**Classification:** named comparative rule plus engineering predicate.  
+**Anchor:** `S2:50-54`, `S2:97-103`.
 
-### 4.2 Jurisdiction labels are mandatory
+Correct people sitting as a committee do not become the full board for a reserved matter. The target
+predicate is `actual_forum == competent_forum_for(matter)`, not membership inclusion.
 
-The words `quorum`, `present`, `meeting`, `majority`, `notice`, `agenda` and `consent` are not safe
-standalone vocabulary. They require at least:
+### 4.3 Quorum is event- and profile-relative
 
-```text
-jurisdiction
-body_type
-governing_instrument
-decision_type
-effective_date
-rule_version
-```
+**Classification:** engineering inference from legal variation.  
+**Anchor:** `S2:57-90`, `S2:120-155`.
 
-Examples preserved from the survey:
-
-- Delaware normally computes board quorum from the authorized board and treats certain synchronous
-  communications as presence;
-- UK Model Articles ask whether directors can communicate information and opinions and require
-  quorum when a proposal is put;
-- a bespoke UK constitution may require specified categories throughout the meeting;
-- German supervisory-board rules admit written votes and use their own decision-participation test;
-- the US House uses a procedural presumption of continuing quorum until the rules trigger a count.
-
-A universal `member_left => all later acts void` rule would therefore be false.
-
-### 4.3 Event-sourced quorum proof
-
-**Classification: engineering inference from the legal variation.**
-
-A meeting-level Boolean is insufficient. The graph needs an event sequence such as:
-
-```text
-join
-eligibility established
-item opens
-conflict declared
-recusal begins
-leave or disconnect
-return
-vote opens
-vote cast
-vote closes
-```
-
-Every decision item receives its own eligible roster, quorum denominator, participation test and
-vote calculation under the applicable rule profile.
+The same leave/recusal event can have different consequences under `at_vote`,
+`throughout_meeting` and `presumptive_until_challenged` profiles. The model therefore stores a
+participation timeline and recomputes each decision item. Presence, abstention and affirmative vote
+remain distinct. Remote participation is evaluated under the named legal test.
 
 ### 4.4 Co-signature is not quorum
 
-Constitutional counter-signature, corporate joint representation, a second approval and a second
-vote can all involve two persons while proving different propositions. The graph therefore models
-co-signature/external execution as a separate predicate and never infers internal collegial validity
-from the number of signatures on the resulting document.
+**Classification:** comparative structural distinction.  
+**Anchor:** `S2:149-159`.
 
-### 4.5 Validity and provability are separate
+Counter-signature, joint external representation, a second approval and a second vote may each involve
+two persons while proving different propositions. Signature count cannot imply internal collegial
+validity.
 
-Minutes can be constitutive, evidentiary or merely required records depending on the regime. German
-AktG §107(2), UK Companies Act minutes provisions, *Fogel* and *Morris v Kanssen* collectively reject
-`minutes signed => event true`. The certificate recomputes from underlying appointment, notice,
-participation and vote evidence and records what evidentiary presumption, if any, the jurisdiction
-profile permits.
+## 5. Separation of duties, recusal and detectability
 
-## 5. Separation of duties, recusal and conflict
+### 5.1 Structural self-approval
 
-### 5.1 Self-approval is structural
+**Classification:** control invariant supported by access-control, audit-independence and judicial
+analogies.  
+**Anchor:** `S3:3-49`, `S3:136-178`.
 
-**Classification: control invariant supported by access-control, audit-independence and judicial
-examples.**
+A controlling subject cannot close incompatible roles on the same transaction. Disclosure cannot
+cure configured structural self-approval. Identity comparison resolves alternate accounts,
+impersonation and delegated-user sessions rather than comparing usernames.
 
-The COI survey distinguishes:
+A conflicted subject cannot be the sole producer of their exception. Additional incompatible role
+pairs remain profile/risk specific rather than universalized.
 
-- **structural role incompatibility**, where one controlling subject closes both sides of a control;
-- **conflict of interest**, which can be mandatory, manageable, waivable or disputed under the
-  applicable regime.
+### 5.2 Detectability boundary
 
-`self_approval` belongs to the first class. Disclosure cannot make it valid.
+**Classification:** information boundary.  
+**Anchor:** `S3:51-80`.
 
-Core candidate invariants are:
+Conflict evidence is partitioned into record-established, record-indicated, self-known/off-system and
+evaluative appearance classes. The certificate never states “no conflict exists.” Its strongest
+automated statement is bounded to named reconciled records and current declarations, and it states
+that undisclosed/off-system facts are not disproved.
+
+Where a profile requires stronger adjudication and no competent adjudicator exists, the result is
+`not_established`.
+
+## 6. Pre-action proof, non-inferability and freshness
+
+### 6.1 Corrected information-limit transfer
+
+**Classification:** formal/technical information limit.  
+**Anchor:** `S4:5-29`.
+
+The survey's prose establishes that a `t0` certificate cannot contain a future `t1` revocation event
+and therefore cannot determine all later histories. The amended package does **not** transfer the
+survey's illustrative `authority at check != authority at use` as a universal equation.
+
+The admitted proposition is:
 
 ```text
-Proposer(decision) ∩ Approver(decision) = ∅
-Executor(effect) ∩ IndependentReviewer(effect) = ∅
-MaterialContributor(work) ∩ IndependentReviewer(work) = ∅
+there exist two histories identical through t0
+whose authority at t1 differs
 ```
 
-For profiles that require it:
-
-```text
-Approver(effect) ∩ Executor(effect) = ∅
-```
-
-The identity compared is the real controlling subject, not username or account. Impersonation,
-shared credentials or two accounts of one person do not create independence.
-
-### 5.2 Meta-self-approval
-
-A conflicted subject cannot be the sole decider of the exception:
-
-```text
-SubjectOfConflict(conflict) != SoleDeciderOfException(conflict)
-```
-
-Where real law leaves the initial recusal question to the potentially affected person, the graph
-must record that adjudicator rule and cannot relabel the result “independently determined.”
-
-### 5.3 Detectability boundary
-
-**Classification: information boundary.**
-
-Conflict facts are partitioned into:
-
-1. **record-established** — exact self-approval, authorship, prior workflow role, toxic entitlements;
-2. **record-indicated** — ownership, employer or relationship data that flags but does not fully
-   settle the conflict;
-3. **self-known/off-system** — friendship, promise, hostility, future employment or undocumented
-   participation unavailable to the system;
-4. **evaluative appearance** — external-observer tests requiring a competent human/legal judgment.
-
-The certificate must not state “no conflict exists.” Its strongest automated statement is bounded:
-
-> No prohibited role overlap or registered conflict was found in the named reconciled records;
-> required current declarations were received; undisclosed/off-system facts are not disproved.
-
-A regime that requires stronger resolution returns `not_established` until a competent producer
-supplies it.
-
-## 6. Pre-action proof, freshness and revocation
-
-### 6.1 Authority at check is not authority at use
-
-**Classification: information limit.**
-
-A certificate produced at `t_check` proves only the result relative to the state it used. It cannot
-contain a future revocation event. A system must therefore declare one of three semantics:
-
-- snapshot/grandfathering;
-- an issuer-authorized lease;
-- revalidation before the next material or irreversible effect.
-
-INT-R5 adopts `revalidation_before_commit` as the safe default for revocable authority. Snapshot or
-lease behavior is available only when a jurisdiction/instrument profile expressly supplies it.
+An unchanged history is allowed. The architecture still requires explicit snapshot, issuer-authorized
+lease or revalidation/checkpoint semantics.
 
 ### 6.2 Proof, not receipt
 
-A decision receipt says that one runtime returned `permit`. An authority proof supplies the chain,
-policy, state, provenance and status evidence from which an independent verifier can recompute the
-result. INT-R5 requires the second form.
+**Classification:** technical/formal mechanism.  
+**Anchor:** `S4:82-173`.
 
-Formal and technical anchors transferred by the survey include:
+A decision receipt says one runtime returned permit. An authority proof carries enough chain, policy,
+state, provenance, status and commitment evidence for independent recomputation. Exact action,
+principal/audience, scope, time, policy, external-state evidence, quorum branches and temporal mode
+remain separate coordinates.
 
-- SPKI/SDSI RFC 2693 authorization intersection, threshold subjects and result certificate;
-- PKIX RFC 5280 path validation;
-- RFC 5755 Attribute Certificates;
-- XACML Administration and Delegation Profile;
-- RBAC static/dynamic SoD;
-- Rego/OPA, Cedar and Zanzibar-style relationship authorization;
-- revocation/status examples from RFC 6960, RFC 7009, RFC 7662 and RFC 8693;
-- NIST Zero Trust and continuous-access event patterns.
+### 6.3 Predicate expressibility is not operand provenance
 
-The languages can express predicates only when operands are supplied. Expressibility does not prove
-the issuer, provenance or freshness of `recused=false`, `member=true` or `amount=...`.
+**Classification:** engineering limitation.  
+**Anchor:** `S4:35-80`, `S4:189-375`.
 
-### 6.3 Freshness horizon
+RBAC/ABAC/XACML/Rego/Cedar/Zanzibar/capabilities/SPKI can express useful parts of the problem, but a
+language accepting `recused=false`, `decision_time=x` or `amount=y` does not prove who produced those
+operands or whether they are fresh. This supports the amended independent-producer table and the rule
+that canonicalization establishes bytes, not semantic truth.
 
-The certificate carries a calculated evidence horizon:
+### 6.4 Freshness and mid-operation revocation
 
-```text
-fresh_until = min(
-    authority_path_expiry,
-    status_next_update,
-    appointment_or_attribute_expiry,
-    policy_lease_expiry,
-    state_attestation_expiry,
-    operation_deadline
-)
-```
+**Classification:** control and distributed-systems synthesis.  
+**Anchor:** `S4:377-550` and later operation-semantics sections.
 
-This is not a promise that no emergency revocation will occur before that time. It is the latest time
-for which the admitted evidence remains within its declared freshness bounds.
-
-### 6.4 Mid-operation revocation
-
-The graph records at least:
-
-```text
-revocation_created_at
-revocation_legally_effective_at
-revocation_observed_at
-```
-
-Legal currentness follows the applicable effective-time rule. Before every protected irreversible
-effect, the consumer re-resolves every revocable ancestor and decisive state assertion. A revocation
-before the effect refuses or aborts it. A revocation after an irreversible effect cannot be disguised
-as rollback; it stops downstream effects and opens the applicable incident, invalidation,
-reissue/withdrawal and external-remedy path.
+Freshness is bounded by evidence expiry/status propagation and checkpoints. A result records
+`fresh_until` but does not promise that emergency revocation cannot occur sooner. Snapshot, lease and
+checkpoint semantics allocate risk differently. Before an irreversible effect the applicable
+currentness predicate is re-evaluated; after an irreversible effect the system preserves history and
+routes consequence rather than claiming fictional rollback.
 
 ## 7. Cross-agency acceptance and act effect
 
-### 7.1 Recognition is purpose-limited reliance
+### 7.1 Purpose-limited recognition
 
-**Classification: comparative legal and federation-governance synthesis.**
+**Classification:** comparative legal and federation-governance synthesis.  
+**Anchor:** `S5:3-68`, `S5:70-123`.
 
-Cross-agency acceptance is not `trusted_authority=true`. It is acceptance of a specific assertion,
-from a specific source, under a specific legal gateway, for a specific purpose and scope, subject to
-current status, authenticity, assurance/equivalence, refusal grounds and retained local duties.
+Cross-agency acceptance is reliance on one assertion from one source, for one purpose/scope, under a
+legal/trust gateway, subject to status, authenticity/assurance, refusal grounds, retained duties and
+responsibility allocation. It is not blanket trust or transfer of all competence.
 
-Primary anchors include the HCCH 2019 Judgments Convention, eIDAS trusted-list and assurance
-machinery, NIST SP 800-63C federation agreements, EU professional-qualification recognition,
-*Aranyosi*, *Schrems II* and UK distinctions between agency agreements and non-binding MoUs.
-
-The graph therefore stores:
-
-```text
-recognised_as
-not_recognised_as
-legal_basis
-purpose
-audience
-scope
-current_status
-refusal_grounds
-retained_local_duties
-source_responsibility
-acceptance_responsibility
-final_decision_responsibility
-execution_responsibility
-```
-
-Authentication of origin does not establish truth, institutional competence or authorization to
-act.
+The graph stores `recognised_as` and `not_recognised_as`. Authentication of origin does not establish
+truth; identity/assurance does not establish substantive authorization; recognition does not erase the
+accepting body's own duties.
 
 ### 7.2 Consultation, recommendation, approval and decision
 
-**Classification: jurisdiction-profiled act-effect taxonomy.**
+**Classification:** jurisdiction-profiled act-effect taxonomy.  
+**Anchor:** `S5:125-170`, `S5:172-236`.
 
-The classifier follows legal effect, not document title or UI verb. It records:
-
-- formal source type;
-- whether the act itself has binding effect;
-- whether it is a condition precedent;
-- whether the recipient is legally free to depart;
-- whether departure requires reasons or permission;
-- whether rights, obligations or legal position change;
-- the legally operative document and ultimate decision-maker;
-- reviewability and the competent review forum;
-- practical departure cost as a diagnostic, never as a substitute for legal effect.
-
-The survey's principal contrasts are:
-
-- UK consultation is input while a proposal remains formative, not the final choice;
-- TFEU Article 288 recommendations/opinions are non-binding, though they may be legally relevant;
-- in the Banco Popular structure, Commission endorsement was the condition creating final binding
-  effect and responsibility;
-- under the US APA, a nominally advisory act can be final agency action where the process is complete
-  and legal consequences follow, as illustrated by *Bennett v. Spear*.
+Classification follows legal effect and responsibility, not document/UI title. It records formal
+source type, binding effect, condition precedent, legal freedom to depart, reasons requirement,
+operative act, ultimate maker, reviewability and practical departure cost. Formal bindingness and
+practical pressure remain distinct axes.
 
 ## 8. Preserved disagreements and thin areas
 
-The following are deliberately **not** normalized:
+The package does not normalize:
 
-- consequences such as void, voidable, saved, curable, non-binding or non-ratifiable;
-- when quorum must exist and how presence is established;
-- whether a title defect invalidates an act or activates a saving rule;
-- whether a conflict is non-waivable, waivable after disclosure or manageable;
-- whether emergency authority is automatic, instrument-based or evaluative;
-- whether a revocation affects an already-started operation;
-- what recognition permits the accepting body not to re-examine;
-- whether an approval is preparatory or itself the final binding decision.
+- void, voidable, saved, curable, non-binding and non-ratifiable consequences;
+- quorum denominator, temporal persistence, remote presence or alternative decision mode;
+- title defects and saving provisions;
+- mandatory, manageable or waivable conflicts;
+- emergency source/necessity determinations;
+- operation treatment after revocation;
+- what a recognition regime permits the acceptor not to re-examine;
+- whether an approval is preparatory or the final binding decision;
+- prospective versus relation-back cure effect.
 
-Thin areas retained as uncertainty:
+No universal public-law notice grace period was established. Some forum, apparent-bias, recusal,
+emergency and cure questions require a competent human/legal adjudicator. Technical proof containers
+do not create legal competence.
 
-- no universal public-law notice grace period for revocation was established;
-- some forum, recusal and emergency questions require evaluative legal judgment;
-- the surveys do not establish a causal equivalence between compensating controls and true SoD;
-- no system can prove the absence of facts known only to a person;
-- technical standards provide proof containers and reduction mechanisms, not universal legal
-  authority semantics.
+## 9. Transfer verdict and residual
 
-## 9. Transfer verdict
+The five surveys support a jurisdiction-profiled authority graph, monotonic reduction, event-sourced
+collegial proof, transaction-level separation, bounded conflict claims, purpose-limited recognition,
+explicit act effect and dependency-aware freshness.
 
-The surveys support a narrow-scope design: a jurisdiction-profiled authority graph, monotonic chain
-reduction, event-sourced collegial proof, transaction-level separation, bounded COI claims,
-purpose-limited recognition, exact act-effect classification and revalidation before irreversible
-effect.
+They do not support one global authority Boolean, one nullity doctrine, a caller-produced positive, a
+universal cure rule or a claim that the repository already implements the capability.
 
-They do **not** support one global authority Boolean, one universal nullity doctrine, a caller-supplied
-certificate, or a claim that the repository already possesses this capability.
+Branch-local claim replay is supported by `survey-source-manifest.md`. Full original-survey byte
+reverification remains dependent on the external artifacts matching the recorded digests. This
+residual is explicit; the package does not describe it as closed by prose alone.

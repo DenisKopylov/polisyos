@@ -28,7 +28,7 @@ research_only: true
 
 ## 1. Task And Project Fit
 
-### 1.1 Exact question and research boundary
+### 1.1 Question and research boundary
 
 INT-R2 asks how PolicyOS should model acquisition of eight things that are not interchangeable with
 additional data rows: a grounding relation, an estimand binding, owner writability, a legal mandate,
@@ -38,20 +38,18 @@ independent audit.
 The result is a research-level candidate `GapAcquisitionCase` discriminated union. Every branch
 answers six questions independently:
 
-1. who may produce the object;
+1. who may produce it;
 2. what counts as sufficient acquisition;
 3. what admission proof is required;
-4. what checkable authority ceiling results;
-5. how the original demanding gate re-enters; and
-6. what `deeper_terminal` means for that branch.
+4. what checkable authority ceiling follows;
+5. how the demanding gate re-enters; and
+6. what `deeper_terminal` means.
 
-This is research-first because every answer defines a predicate a later authority gate might turn on.
-Writing a convenient schema before producer standing, sufficiency, proof and ceiling are understood
-would convert an unresolved premise into a positive-eligible gate. Stage 1 therefore specifies
-candidate semantics and falsifiers. It does not create the runtime capability, appoint a canonical
-owner or appoint any institutional signer.
+This is research-first because each answer defines a predicate a future authority gate might turn on.
+Stage 1 specifies candidate semantics and falsifiers. It does not create the capability, appoint the
+canonical owner or appoint any institutional signer.
 
-The adversarial invariant is exact:
+The adversarial invariant is:
 
 ```text
 for case_type in {grounding_relation, estimand_binding, legal_mandate}:
@@ -60,46 +58,41 @@ for case_type in {grounding_relation, estimand_binding, legal_mandate}:
     => the case remains unclosed
 ```
 
-A new experiment or measurement regime can contribute to relation acquisition, and a mandate can
-contain factual conditions. The invariant does not make evidence irrelevant. It requires the system
-to name the new evidence regime or authority artifact and prove that it changes the blocked predicate;
-`row_count increased` is never a universal closure operator.
+A new experiment or measurement regime can contribute to relation acquisition, and factual
+conditions may matter to a mandate. The system must nevertheless name the changed evidence regime or
+authority artifact and prove that it changes the blocked predicate. `row_count increased` is never a
+universal closure operator.
 
-### 1.2 False production claims prevented
+### 1.2 False claims prevented
 
-The union prevents five recurrent false claims:
+The union prevents:
 
-- **row-count closure:** more observations establish a relation, choose an estimand or create a
-  mandate;
-- **document-by-presence closure:** a signed letter, approval, checklist or report is accepted without
-  resolving issuer competence, scope, work performed and current validity;
-- **authority-ceiling theatre:** “limited authority” is recorded but no consumer can test the action,
-  object, population, jurisdiction, purpose, time or maximum claim strength permitted;
-- **terminal-as-progress:** a better characterised negative result is rendered as “almost approved”;
-- **borrowed institution:** external practice is copied while silently assuming an adjudicator,
-  register owner, competent decision-maker or independent provider that PolicyOS does not have.
+- row-count closure of relation, target or authority;
+- document-by-presence closure without issuer, scope, work and currentness;
+- an authority ceiling that no consumer can check;
+- rendering a stronger negative result as “almost approved”;
+- borrowing an institutional signer or adjudicator merely because another field uses one.
 
 ### 1.3 Four-way identity-boundary verdict
 
-The ratified identity makes PolicyOS the custodian of claims it signs, not the institution that
-performs legislation, ethical adjudication, professional licensing, register adjudication, audit or
-service delivery (`policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md:55-112`).
+The ratified identity makes PolicyOS the custodian of claims it signs, not a legislature, ethics body,
+register, licensing body, auditor or delivery organisation
+(`policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md:55-112`).
 
 | Plane | Verdict | Consequence |
 | --- | --- | --- |
-| Typed demand, classification, evidence intake, ceiling enforcement, re-entry and claim reaction | **OWN** | Their absence can make PolicyOS’s own published claim silently false. |
-| Mandates, consent/ethics decisions, canonical write grants, professional decisions, assurance and capacity assessment | **INTEGRATE** | PolicyOS owns the fail-closed contract and verification; the external institution owns the act. |
-| Issuer succession, revocation, professional standing, assurance relationships and institutional changes | **OBSERVE** | These events can stale or reopen PolicyOS claims; PolicyOS does not administer the institution. |
-| Performing the external institutional function | **OUT_OF_SCOPE** | Scarcity does not transfer the function to PolicyOS. Missing partners remain typed blockers. |
+| Typed demand, classification, evidence intake, ceiling enforcement, re-entry and claim reaction | **OWN** | Their absence can make PolicyOS’s own signed claim silently false. |
+| Mandates, normative determinations, canonical write grants, professional decisions, assurance and capacity assessments | **INTEGRATE** | PolicyOS owns the fail-closed evidence contract and verification; the external institution owns the act. |
+| Succession, revocation, standing, assurance relationships and institutional changes | **OBSERVE** | They stale or reopen PolicyOS claims; PolicyOS does not administer them. |
+| Performing the external institutional function | **OUT_OF_SCOPE** | Scarcity does not transfer the function to PolicyOS. |
 
-The commission says the package turns a route to a missing plane into an owner. Stage-1 authority
-narrows that phrase: this report makes the candidate ownership boundary and integration contract
-specifiable. Only later consolidation/ratification can appoint a canonical owner.
+The commission describes the package as turning a route to a missing plane into an owner. Stage-1
+authority narrows this: the report makes the candidate ownership boundary and integration contract
+specifiable. Consolidation/ratification must appoint the canonical owner.
 
 ### 1.4 Project fit and standing
 
-INT-R2 is the stand-alone “+1” in Wave 8. It consumes N13a/N13b residual evidence and may later inform
-GY Phase 6 / O1/O3, but it is not part of the declared `INT-R4` ‖ `OPS-R5` pair.
+INT-R2 is the stand-alone “+1” in Wave 8, not part of `INT-R4` ‖ `OPS-R5`.
 
 ```yaml
 research_standing: accepted_narrow_scope
@@ -107,72 +100,60 @@ capability_standing: absent/unallocated
 gate_standing: NO_GO
 ```
 
-The research result is suitable for independent audit and consolidation. The capability remains
-absent because no admitted producer→artifact→bridge→consumer→verification→surface chain and no
-appointed institutional producer exist. The public/production gate remains closed.
+The result is suitable for independent audit and consolidation. No admitted producer→artifact→bridge
+→consumer→verification→surface chain and no appointed institutional producer exist. The production
+and first-public-signature gates remain closed.
 
 ## 2. Current Repo Baseline
 
-The detailed coordinate and measurement ledger is
+Detailed evidence is in
 `docs/research/policy-operations/int-r2/repo-baseline-and-source-ledger.md`.
 
-> **Headline:** the repository has a strong, content-bound data-acquisition path and several
-> purpose-scoped authority fragments, but no generic `GapAcquisitionCase` owner, residual-shape
-> classifier, eight-type producer/admission chain or complete authority-ceiling evaluator.
+> **Headline:** the repository has a strong, content-bound data-acquisition path and purpose-scoped
+> authority fragments, but no generic `GapAcquisitionCase` owner, residual-shape classifier,
+> eight-type producer/admission chain or complete authority-ceiling evaluator.
 
-### 2.1 Mandatory inspection set
+### 2.1 Mandatory inspection and governing coordinates
 
 The pinned study at `dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f` inspected:
 
-- `AGENTS.md` and `policy-engine/CONTRIBUTING.md`;
-- the identity ruling and required architecture documents:
-  `policyos-identity-and-custody-boundary.md`,
-  `universal-policy-design-system-vision-and-organizing-rules.md`,
-  `universal-policy-design-target-architecture-and-gap.md`,
-  `policy-design-best-in-class-operating-model.md`, `honest-diagnostics-substrate.md` and
-  `policy-design-causal-operating-system-north-star.md`;
-- the failure-pattern register, active GY and Atlas plans, and
-  `deep-research-value-distillation.md`;
+- `AGENTS.md`, `policy-engine/CONTRIBUTING.md`;
+- the identity ruling and required architecture documents;
+- the failure-pattern register, active GY and Atlas plans, and distillation ledger;
+- `policy-operations-research-pipeline.md:18-92,176-218`;
+- the backlog’s Mandatory Baseline, Quality Bar, Unified Form, Operational Addendum and Pattern Pass;
+- W4-K05/W4-K06;
 - N13a census and N13b planner, acquisition authority, passport/overlay and re-entry owners;
 - CG3/CG5 grounding hooks, typed refusal service and human-decision seed.
 
-The architecture converges on four controlling rules: generators produce candidates; external power
-enters through the narrow waist; projections cannot mint authority; and a prose contract remains
-`absent/unallocated` until the complete capability chain exists.
+Architecture constraints are consistent: generators produce candidates; external power enters through
+the narrow waist; projections cannot mint authority; research prose remains `absent/unallocated` until
+the whole capability chain exists.
 
-### 2.2 Refusal vocabulary and path-forward coverage
+### 2.2 What refusal and acquisition do today
 
-| Owner | What exists | INT-R2 limit |
+| Owner | Existing primitive | INT-R2 limit |
 | --- | --- | --- |
-| PDC waist, `src/polisyos/pdc/_impl/gy_waist.py:218-255` | Coarse obligation/refusal outcomes such as `single_obligation_fail`, `proof_timeout`, `scope_insufficient`, `unknown`. | Gate posture is typed; missing acquisition object is not. |
-| Authority-value service, `runtime/http/services/authority_values.py:1-150` | Real `refused | supplied` union and codes including `no_runtime_producer` and `owned_by_another_surface`. | Only some codes name a route; a first-class refusal may still be bare. |
-| Acquisition planner, `runtime/quality/acquisition_planner.py:1-360` | Typed gaps, eligible strategies, authority levels, mandatory-gate state and dispositions. | Planner output routes work and explicitly does not satisfy the domain slot. |
-| N13b re-entry, `tools/quality/validation/layer3_gy_n13b_reentry.py:1-210` | Closure versus two data-specific `deeper_terminal_*` outcomes. | Closure is dataset/binding/observation growth. |
-| CG3/CG5, `grounding_admission.py:1-360`; `grounding_active_controller.py:1-300` | Typed blockers, acquisition need and bounded next actions. | CG5 is a router and explicitly cannot close obligations or mark resolution. |
+| PDC waist, `src/polisyos/pdc/_impl/gy_waist.py:218-255` | Coarse obligation/refusal outcomes. | Gate posture is typed; missing acquisition object is not. |
+| Authority-value service, `runtime/http/services/authority_values.py:1-150` | Real `refused | supplied` union and refusal codes. | A first-class refusal is not necessarily path-bearing. |
+| Acquisition planner, `runtime/quality/acquisition_planner.py:1-360` | Typed gaps, strategies, authority levels, gate state and dispositions. | Routes work; explicitly does not satisfy the domain slot. |
+| Data acquisition authority/passport/overlay | Rights/trust re-resolution, content-bound passport, quarantine and separate epochs. | Ends in admitted observation rows and data availability. |
+| N13b re-entry, `tools/quality/validation/layer3_gy_n13b_reentry.py:1-210` | Real closure versus data-carrier/catalog deeper terminals. | Closure is dataset/binding/observation growth. |
+| CG3/CG5 | Typed grounding blockers and next actions. | CG5 explicitly cannot close obligations or mark resolution. |
 
-A typed refusal is therefore not automatically a complete refusal-with-a-path. It may identify what
-failed without establishing producer, proof, ceiling or re-entry.
-
-### 2.3 The worked data-acquisition path
-
-The existing exemplar is:
+The reusable data-path discipline is:
 
 ```text
-typed requirement gap
-→ eligible acquisition strategy
-→ source/journal/CAS result
-→ owner, rights, licence and trust re-resolution
-→ content-bound admission passport
-→ admitted/degraded/quarantined observation
-→ separate overlay epoch
-→ demanding-stage before/after availability recheck
-→ closure only on real owner-visible growth, else stronger refusal
+typed demand
+→ eligible producer/action
+→ content-bound proof
+→ purpose-scoped admission
+→ bounded authority
+→ demanding-owner re-entry
+→ replayable closure or stronger refusal
 ```
 
-Its discipline is reusable: typed demand, eligible producer, content-bound proof, purpose-scoped
-admission, bounded authority, owner-gated re-entry and replayable terminal.
-
-Its storage/closure assumptions are not reusable:
+The non-reusable assumptions are:
 
 ```text
 acquired object = observation row
@@ -181,218 +162,131 @@ persistence = data overlay epoch
 closure = dataset/binding/observation count increased
 ```
 
-A relation, estimand, mandate, competent decision or audit cannot truthfully close by being forced
-into those four shapes. The current grounding bridge still carries `data_requirement`/`routing_only`
-semantics, demonstrating the exact data-gap gravity this task must prevent.
+Forcing a relation, estimand, mandate, decision or audit into those shapes is the named data-gap
+gravity failure.
 
-### 2.4 Authority fragments and the missing aggregate ceiling
+### 2.3 Authority and ceiling baseline
 
-The repository already has `authoritative_for`, `may_not_use_for`, authority levels, mandatory-gate
-posture, content-bound passports, quarantine/non-admission, P37’s `not_established`, the
-`absent/unallocated` capability label and specialised scope/time/provenance fields.
-
-It does not have one owner-computed, cross-type predicate equivalent to:
+PolicyOS already carries `authoritative_for`, `may_not_use_for`, authority levels, quarantine,
+content identity, P37’s `not_established`, capability labels and specialised scope/time/provenance
+fields. It does not have a generic owner-computed predicate:
 
 ```text
 requested_use ∈ admitted_artifact.authority_ceiling
 ```
 
-where the ceiling binds action/claim, subject/object, population, jurisdiction, purpose/audience,
-effective/review windows, assumptions/evidence class, maximum claim strength or commitment stage,
-permitted operations and prohibited downstream uses.
+covering all eight case types across action/claim, subject/object, population, jurisdiction,
+purpose/audience, time, evidence class, assumptions, claim strength/commitment stage, operations and
+prohibited uses.
 
-**Nothing in the pinned repository can express and enforce a complete generic ceiling for all eight
-case types today.** Existing fragments are reusable; the aggregate evaluator and its registered
-cross-type vocabulary are `absent/unallocated`.
+**A complete generic authority ceiling is not checkable today.** Existing fragments are reusable;
+the aggregate evaluator and registered cross-type vocabulary are `absent/unallocated`.
 
-### 2.5 CG5, the routed residual and the 15-row census
+### 2.4 CG5, 15 residuals and three capstones
 
 `GY-engine-subordination.md:2410-2495` records that N13b converted none of the 15 residuals into world
-growth and that three capstone `not_a_data_gap` routes were sent to a future knowledge/grounding
-acquisition plane — “CG5-class relation/lever acquisition + estimand evidence” — outside N13b.
+growth and routes three `not_a_data_gap` capstones to a future knowledge/grounding plane outside N13b.
+CG5 is correctly a router, not that producer.
 
-The committed N13a census contains a complete 15-row ranked `growth_backlog`; every row says
-`gap_kind: binding_gap`. It also contains three capstone route-evidence rows. The later measurement
-supplied by the commission says one row was established data-shaped and 14 remained
-`shape: not_established`. Holder standing is explicit:
+The N13a census has a complete 15-row ranked backlog; every row says `binding_gap`. The later
+measurement supplied by the commission says one was established data-shaped and 14 remained
+`shape:not_established`. Holder standing:
 
-- the pinned 15-row and three-route collections were read from their owner artifact and are
-  `recomputed` here;
-- the later `1 / 14` partition is `institutionally_supplied` because its executing slice is not in the
-  pinned tree;
-- the supplied zero structural classifications is not a settled zero for this holder under W4-K01/P35.
-  The safe result is `structural classification not established here`.
+- pinned 15-row and three-route collections: `recomputed`;
+- later `1 / 14` partition: `institutionally_supplied` because its executing slice is absent at the
+  pin;
+- supplied zero structural classifications: not a settled zero for this holder under W4-K01/P35.
 
-`binding_gap` is not a discriminator. For each of the 14, classification requires the exact demanding
-gate, minimal missing object, same-stream row-invariance test, competent producer, ruled-out
-neighbouring types and `split_required` where several objects are independently missing. Unknown shape
-must never default to data.
-
-The three capstones narrow as follows:
+`binding_gap` is not a discriminator. Each of the 14 requires the exact demanding predicate, minimal
+missing object, same-stream row-invariance result, competent producer, ruled-out neighbouring types
+and `split_required` where several objects are independently missing. Unknown never defaults to data.
 
 | Route | Candidate disposition |
 | --- | --- |
-| `education`: `method_estimand_binding_mismatch` | `estimand_binding`; identification/data gaps may coexist but do not replace target binding. |
-| `first_vertical`: `grounding_relation_or_owner_lever:gy_n4.emergency_tax_relief` | `grounding_relation`, `owner_writability`, or an ordered two-case sequence if both are absent. |
-| `unseen`: `grounding_relation_or_owner_lever:candidate_fallback_1950390310ca54cb` | Same disjunction and split rule. |
+| `education`: `method_estimand_binding_mismatch` | `estimand_binding`. |
+| `first_vertical`: `grounding_relation_or_owner_lever:gy_n4.emergency_tax_relief` | `grounding_relation`, `owner_writability`, or ordered two-case sequence. |
+| `unseen`: `grounding_relation_or_owner_lever:candidate_fallback_1950390310ca54cb` | Same disjunction/split rule. |
 
-The disjunction is not a ninth hybrid type. It proves that classification must precede case creation.
+The disjunction proves classification must precede case creation; it does not justify a ninth hybrid.
 
-### 2.6 Reuse-first path and current capability labels
+### 2.5 Current labels
 
-A later implementation should extend the canonical acquisition planner’s demand/routing boundary,
-add a pre-union classifier, reuse CAS/provenance/quarantine/epoch/re-entry disciplines, extend existing
-domain owners rather than duplicate them, and have every demanding gate re-resolve and enforce the
-admitted ceiling. Atlas should render the one existing status lattice, not a parallel one.
-
-| Slice | Current label |
-| --- | --- |
-| Generic union, residual classifier, generic ceiling evaluator, institutional producer set and multi-type re-entry bridges | `absent/unallocated` |
-| Adversarial semantic fixture pack | `semantic_test_missing` |
-
-Research blockers, engineering blockers and institutional blockers are separate. None is repaired by
-adding rows to the observation overlay.
+The generic union, classifier, aggregate ceiling evaluator, institutional producer set and multi-type
+re-entry bridges are `absent/unallocated`. The adversarial semantic battery is
+`semantic_test_missing`. Research, engineering and institutional blockers are separate; none is
+repaired by observation growth.
 
 ## 3. External Research Baseline
 
-Five commissioned surveys were read as external practice, never as repository authority. Their full
-source/limitation ledger is in the `int-r2/` support file.
+Five commissioned surveys were treated as `surveyed_external_practice`, not repository capability or
+authority. Their full scope/limitation ledger is in the `int-r2/` directory.
 
-### 3.1 Kinds of not-knowing and closure operators
+### 3.1 What more data can and cannot close
 
-The first survey rejects a scalar “uncertainty is high” test. It distinguishes:
+The first survey distinguishes imprecision from target definition, non-identifiability,
+directness/support mismatch and authority. Its strongest claim is scoped: no number of observations
+from the stated regime closes a target that is not a function of that regime under the stated model
+and assumptions. Structural is therefore relative, not metaphysical. Deepened-refusal analogues
+include non-identifiability certificates, identified sets, `UNSAT` cores and reasoned adverse
+determinations; these mean different things and are not collapsed.
 
-- sampling/imprecision, where more relevant observations may help;
-- target/estimand definition, where data cannot choose the question;
-- non-identifiability, where distinct admissible worlds yield the same observables but different
-  targets;
-- directness/support/design mismatch, where more of the same stream does not repair the channel;
-- authority, where facts do not create permission.
+### 3.2 Relation and estimand
 
-Its strongest operational result is conditional: no amount of observations **from the stated evidence
-regime, for the stated target/model/assumptions** closes a non-identifiability certificate. Structural
-is not metaphysical. A new intervention, measurement, assumption or authority change may reopen the
-case.
-
-The survey’s closest analogues for a deepened refusal are a non-identifiability certificate, an
-identified set, `UNSAT` with an unsat core and a reasoned adverse determination. They disagree about
-what “terminal” means; causal impossibility and administrative exhaustion must not be collapsed.
-
-### 3.2 Causal relation versus estimand binding
-
-The second survey establishes a non-substitution:
+The second survey establishes:
 
 ```text
-relation acquisition = authority to state something about causal structure
-estimand binding = authority to state which quantity is the target
+relation acquisition = warrant about causal structure
+estimand binding = warrant about which quantity is the target
 ```
 
-Neither entails the other. Relation practice ranges from structured elicitation through mechanistic,
-observational, experimental and institution-specific integrated adjudication. There is no universally
-calibrated threshold that turns an arbitrary evidence portfolio into `causal relation established`.
-Domain procedures such as IARC supply local categories and procedures, not a universal policy rule.
-
-Estimand practice is more formal. A sufficient semantic target specifies treatment/regime, population,
-outcome and horizon, handling of intercurrent events and population-level contrast. That still does not
-prove identification or estimator alignment:
+Neither entails the other. No universal calibrated causal-edge threshold exists; domain adjudication
+can supply local categories. Estimand practice is more formal: intervention, population, outcome/time,
+intercurrent-event treatment and contrast must be bound, while identification and estimator alignment
+remain separate:
 
 ```text
 BOUND != IDENTIFIED != ESTIMABLE != ESTIMATED
 ```
 
-A target-trial or protocol-like artifact is useful because it binds the question before the estimator,
-but observational emulation does not become randomisation and transportability must be rechecked.
+### 3.3 Mandate, normative authorization and writability
 
-### 3.3 Legal mandate, normative authorization and owner writability
+The third survey rejects `authorized=true` as a single object. Legal power, normative sanction and
+canonical mutation right can vary independently. They share an issuer-chain discipline but differ in
+source of power, producer, proof, ceiling and terminal. A verifiable credential proves issuer
+assertion/integrity, not issuer competence or truth. Social licence often has no canonical issuer or
+threshold; no token is invented where the regime supplies none.
 
-The third survey rejects a single `authorized=true`. It identifies three different chains:
+### 3.4 Competent decision and independent audit
 
-- **legal mandate:** the governing order gave this actor competence for this action;
-- **normative authorization:** the required ethical/personal/institutional sanction exists;
-- **owner writability:** the canonical truth/change owner authorised this mutation and the technical
-  identity can execute it.
+The fourth survey supplies reconstructability: identity/standing, scope, actual work, contrary
+evidence, attribution, ceiling and revalidation. Audit adds relational independence, suitable criteria,
+engagement scope and assurance level. A signature is not proof of work. `external=true` is not proof of
+independence. No provider is `unavailable`, not an adverse conclusion about the subject.
 
-Their shared abstract form is:
+### 3.5 Capacity evidence
 
-```text
-source of competence
-→ issuer competence
-→ grant/determination
-→ recipient identity
-→ scope
-→ current validity
-→ evidence of this use
-```
+The fifth survey treats capacity as evidence about a specific delivery system, scale, environment,
+dependencies and timeframe. Sufficiency is stage-specific and weakest-link; a composite score cannot
+average away a critical zero. The ceiling is the next demonstrated commitment, not a calibrated
+probability of success or automatic full rollout. A genuine terminal requires no credible build path,
+narrower valuable stage or alternative channel within the decision horizon.
 
-But the source of power, issuer, proof, ceiling and terminal differ. A data-sharing agreement does not
-create underlying legal power. IRB approval does not necessarily equal institutional permission. An
-API role proves technical capability, not substantive write authority. A verifiable credential proves
-issuer assertion and integrity, not issuer competence or truth.
+### 3.6 Disagreements retained
 
-The survey also preserves a material disagreement: social licence often lacks one issuer, threshold,
-credential or expiry. It should not be fabricated into an ordinary authorization token. Where no
-governing regime defines a competent producer and proof, the predicate stays `not_established`.
+- no universal uncertainty taxonomy;
+- no universal calibrated relation threshold;
+- social licence often has no issuer/token;
+- professional standing and independence safeguards do not prove the conclusion true;
+- capacity stage-gating is mature, but universal probability calibration is not.
 
-### 3.4 Competent decision versus independent audit
-
-The fourth survey supplies a common reconstructability discipline but different objects.
-
-A competent decision requires an identified person with standing at the decision time, role authority,
-domain competence, case-specific task scope, access to the material, actual exercise of judgment,
-handling of contrary evidence/uncertainty and a reconstructable attributable record. A signature alone
-is binding proof of authorship/version, not proof of the intellectual work.
-
-Independent assurance adds a relational requirement. Independence is not a permanent person flag; it
-must be evaluated over reviewer, subject, funding, fees, appointment/removal, prior work, employment,
-network and pressure. A competent external person can still be non-independent; an independent person
-can still perform insufficient work. Assurance level, subject, criteria, period, scope and exclusions
-bound the resulting authority. Agreed-upon procedures are not automatically limited assurance.
-
-No competent person/provider is `unavailable`, not an adverse conclusion about the subject. Internal
-review does not become independent because an independent provider is scarce.
-
-### 3.5 Implementation-capacity evidence
-
-The fifth survey treats capacity as evidence about a **specific delivery system**: people, suppliers,
-technology, process, budget, dependencies, load, timeframe, reach, fidelity and quality. It is not legal
-authority, causal effectiveness or a general state-capacity score.
-
-The strongest practical regimes are stage-gated. First-line owners supply evidence; material or
-irreversible commitments need independent challenge. Sufficiency is weakest-link: every critical
-prerequisite must pass a stage-specific threshold. A composite maturity score cannot average away a
-missing supplier, absent staff or untested throughput.
-
-The ceiling is the next bounded commitment demonstrated by the evidence — feasibility work, pilot,
-limited tranche, next load band — not a guarantee of success or automatic national rollout. Readiness
-frameworks and delivery-confidence ratings are useful but not mature calibrated probability models.
-A genuine terminal is horizon-relative: no credible build/maturation path, no narrower valuable stage
-and no feasible alternative delivery channel within the decision horizon.
-
-### 3.6 Preserved disagreements and adopted confidence
-
-| Issue | Survey variation retained | INT-R2 treatment |
-| --- | --- | --- |
-| Universal uncertainty taxonomy | None exists. | Use closure-object classification, not an “uncertainty type” enum. |
-| Causal sufficiency | Domain procedures differ and no universal threshold is calibrated. | Preserve acquisition mode/evidence class; cap language; mark universal threshold `deferred_open_problem`. |
-| Social licence | Important legitimacy condition, usually no issuer/token. | Do not invent issuer; use normative case only where a governing regime supplies producer/proof. |
-| Professional standing | Raises process warrant but does not prove truth. | Require work record and scope; do not let credential alone close. |
-| Independence safeguards | Check known channels but do not scientifically prove independence of mind. | Require relationship evidence and bounded claim; never infer from `external=true`. |
-| Capacity ratings | Stage-gating is mature; probability calibration is weak. | Authorise only next demonstrated commitment; never emit pseudo-probability. |
-
-All adopted external findings are `surveyed_external_practice`. They establish possible mechanisms and
-limits, not capability or authority in this repository.
+External terms are not registered PolicyOS vocabularies merely because a survey uses them.
 
 ## 4. Result
 
-### 4.1 Scope of the union and non-exhaustiveness
+### 4.1 Union scope and classifier
 
-The candidate union is exhaustive over the **eight acquisition objects commissioned by INT-R2**. It
-is not claimed exhaustive over all possible non-data gaps. Unknown unknowns, value-choice formation,
-political settlement, new kinds of institutional act and compound gaps may fall outside it. A residual
-that cannot be classified therefore remains `not_established`; the union does not coerce it into the
-nearest branch.
-
-Research sketch:
+The union is exhaustive over the **eight commissioned acquisition objects**, not all possible non-data
+gaps. Unknown or compound gaps remain `not_established`/`split_required`.
 
 ```text
 GapAcquisitionCase = discriminated_union(case_type):
@@ -406,330 +300,414 @@ GapAcquisitionCase = discriminated_union(case_type):
     independent_audit
 ```
 
-The discriminator denotes the **object whose acquisition the demanding gate requires**, not the
-profession involved, the document format, the acquisition action or the current refusal code.
+The discriminator denotes the object required by the demanding gate, not the profession, document
+format, acquisition action or refusal code.
 
-### 4.2 Classification before case construction
-
-A separate `GapShapeAssessment` is required before the union. It is not a ninth branch and does not
-replace the Atlas status lattice.
-
-```yaml
-GapShapeAssessment:
-  residual_ref: string
-  demanding_gate_ref: string
-  blocked_predicate: string
-  minimal_missing_object: string | null
-  current_evidence_regime_ref: string
-  same_stream_data_effect: can_change | cannot_change | not_established
-  candidate_case_types: [GapAcquisitionCaseType]
-  ruled_out_case_types:
-    - case_type: GapAcquisitionCaseType
-      evidence_refs: [string]
-  predicate_provenance:
-    label: recomputed | independently_reconciled | consumer_asserted |
-           institutionally_supplied | not_established
-    source_refs: [string]
-  classification_outcome: data_gap | one_case | split_required | not_established
-  ordered_case_types: [GapAcquisitionCaseType]
-  rule_version_ref: string
-```
+Before the union, `GapShapeAssessment` binds residual, demanding gate/predicate, minimal missing
+object, evidence regime, same-stream-data effect, candidate/ruled-out types, P37 predicate provenance
+and one outcome: `data_gap | one_case | split_required | not_established`.
 
 Rules:
 
 1. `binding_gap` alone yields `not_established`.
-2. `same_stream_data_effect=can_change` does not by itself prove an ordinary data gap; the exact
-   missing object and demanding predicate still bind the decision.
-3. `same_stream_data_effect=cannot_change` rules out row-only closure but does not select among the
-   eight non-data branches.
-4. A positive branch selection requires `recomputed` or `independently_reconciled` producer/shape
-   predicates. `consumer_asserted`, `institutionally_supplied` or `not_established` fail closed.
-5. Multiple independently required objects produce ordered cases, not a hybrid type.
+2. `cannot_change` rules out row-only closure but does not select a branch.
+3. positive classification requires `recomputed` or `independently_reconciled` predicates;
+4. `consumer_asserted`, `institutionally_supplied` and `not_established` fail closed;
+5. several required objects become ordered cases, not a hybrid.
 
-This classifier is the required treatment of the fourteen `shape:not_established` residuals. The
-later `1 data-shaped / 14 not_established` measurement cannot be converted into 14 guessed union
-members. Each needs the evidence listed in §2.5.
+This is the exact disposition of the 14 unclassified residuals.
 
-### 4.3 Common case envelope
+### 4.2 Common ceiling, re-entry and terminal rules
 
-All branches share identity, provenance and gate-binding fields, but not sufficiency or ceiling
-semantics:
+Every admitted artifact carries a ceiling over registered claim/action, subject/object, population,
+jurisdiction, purpose/audience, source/target context, valid/review time, evidence class, assumptions,
+maximum claim strength/commitment stage, permitted operations, prohibited uses, downstream gates,
+rule versions and reference epochs.
 
-```yaml
-GapAcquisitionCaseCommon:
-  schema_version: string
-  case_id: string
-  case_type: discriminator
-  residual_ref: string
-  shape_assessment_ref: string
-  demanding_gate_ref: string
-  blocked_claim_refs: [string]
-  blocked_action_refs: [string]
-  source_refusal_refs: [string]
-  required_object_identity: object
-  eligible_producer_requirement: object
-  sufficiency_predicate_ref: string
-  admission_proof_requirement: object
-  admitted_artifact_refs: [string]
-  authority_ceiling: AuthorityCeiling
-  reentry_contract: ReentryContract
-  terminal_record: TerminalRecord | null
-  provenance_refs: [string]
-  rule_version_ref: string
-  valid_time: object
-  transaction_time: object
-  status_lattice_input_ref: string
-  authoritative_for: [string]
-  may_not_use_for: [string]
-```
+A consumer resolves and content-binds the artifact, verifies non-producer provenance, re-resolves
+producer standing/currentness, classifies gate predicates under P37 and proves requested use is a
+subset. Unknown dimensions fail closed.
 
-The shared envelope is not evidence that the branches are semantically identical. It is the narrow
-waist through which different owner artifacts can be resolved, content-bound, admitted and consumed.
+Re-entry is reason-triggered and never resumes blindly. A valid trigger invalidates currentness,
+rebinds scope/time/authority and permits the demanding owner to recompute. It never converts a refusal
+or admitted artifact directly into approval.
 
-### 4.4 Checkable authority ceiling
+`deeper_terminal` requires all five:
 
-```yaml
-AuthorityCeiling:
-  claim_kinds: [registered_claim_kind]
-  action_refs: [string]
-  subject_refs: [string]
-  object_refs: [string]
-  population_scope_ref: string | null
-  jurisdiction_scope_ref: string | null
-  purpose_refs: [string]
-  audience_refs: [string]
-  source_context_ref: string | null
-  target_context_ref: string | null
-  valid_from: timestamp | null
-  valid_until: timestamp | null
-  review_at: timestamp | null
-  evidence_class_refs: [string]
-  maintained_assumption_refs: [string]
-  max_claim_strength_ref: string | null
-  max_commitment_stage_ref: string | null
-  permitted_operation_refs: [string]
-  prohibited_use_refs: [string]
-  required_downstream_gate_refs: [string]
-  source_rule_version_refs: [string]
-  reference_epoch_refs: [string]
-```
+1. an eligible route/competent procedure produced new admitted evidence;
+2. the evidence excludes/narrows a plausible closure route or proves a scoped negative boundary;
+3. the refusal is more specific, scoped, replayable and checkable;
+4. no authority or near-success credit follows from extra work; and
+5. re-entry now requires a named change in regime, target, rule, owner, relationship or horizon — not
+   more effort on the same route.
 
-A consumer may rely on an admitted artifact only when it resolves the artifact, verifies its content
-identity and non-producer provenance, re-resolves producer standing/currentness, classifies every
-load-bearing predicate under P37, and proves that the requested use is a subset of the ceiling. Missing
-or unknown ceiling dimensions fail closed; a broad request is never truncated silently to fit.
+Timeout, empty search, queue exhaustion, missing signature without owner resolution and near-threshold
+scores are not deeper terminals.
 
-The fields are checkable in principle. They are **not all checkable today** because several referenced
-vocabularies and owner resolvers do not exist. External survey terms such as `reasonable assurance`,
-`social licence`, `TRL` or IARC groups are not registered PolicyOS vocabularies merely because they
-appear here. A later consolidation must map an adopted term to an existing registered vocabulary or
-register a gap before a gate can turn on it.
+### 4.3 `grounding_relation`
 
-### 4.5 Re-entry contract
-
-Re-entry is reason-triggered, not “resume the old job”. A closing event invalidates the old refusal’s
-currentness and permits a new owner-gate evaluation; it never converts the old refusal into approval.
-
-```yaml
-ReentryContract:
-  accepted_trigger_kinds: [registered_event_kind]
-  trigger_target_predicate_ref: string
-  required_artifact_kinds: [string]
-  invalidate_case_fields: [string]
-  preserve_for_history: [string]
-  rebind_scope_fields: [string]
-  rerun_gate_refs: [string]
-  automatic_closure_permitted: false
-  duplicate_event_policy: idempotent
-  stale_event_policy: reject_or_historical_only
-```
-
-A correct re-entry verifies that the event targets the blocker, resolves the new artifact, rebinds
-scope/time/authority, reruns the demanding gate and records either closure, a new provisional refusal
-or a deeper terminal. Old artifacts remain replayable under the rules that produced them.
-
-### 4.6 The `deeper_terminal` test
-
-`deeper_terminal` is true only if all five conditions hold:
-
-1. an eligible acquisition route or competent owner procedure was actually attempted and produced new
-   admitted evidence;
-2. that evidence excludes or narrows a previously plausible closure route, proves a scoped
-   impossibility/prohibition/unavailability, or establishes a stronger negative result;
-3. the resulting refusal is more specific, scoped, replayable and checkable than the previous one;
-4. no authority, approval or “almost success” credit is inferred from the added work; and
-5. re-entry now requires a named change in evidence regime, target, governing rule, competent owner,
-   provider relationship, delivery horizon or other explicit external condition — not merely more
-   effort on the same route.
-
-Not deeper: a timeout, empty search result, queue exhaustion, more rows with the same blocker, missing
-signature without resolving who could sign, or a score just below a threshold.
-
-A deepened refusal is progress in **knowledge of the boundary**, not progress toward permission.
-
-### 4.7 Variant: `grounding_relation`
-
-| Required answer | Candidate semantics |
+| Answer | Semantics |
 | --- | --- |
-| **Who may produce it** | A canonical causal/grounding evidence owner or a domain adjudicator whose standing and procedure are independently resolved. A subject-matter expert may produce structured background knowledge; expertise alone does not make the edge empirically established. PolicyOS has no appointed universal causal adjudicator. |
-| **Sufficient acquisition** | Exact cause/intervention and effect variables, direction, scope, context, lag/versions, evidence streams, identification assumptions, alternative explanations, mechanism, dissent and transport conditions are bound; the acquisition mode’s governed sufficiency rule is satisfied. No universal cross-domain threshold is asserted. |
-| **Admission proof** | A content-bound causal dossier or relation certificate identifying producer/adjudicator, search/inclusion rules, provenance by evidence stream, quality/bias assessment, assumptions, integration procedure, counterevidence, rationale, dissent, reference epoch and target scope. Pure expert elicitation also preserves individual judgments and aggregation/calibration method. |
-| **Authority ceiling** | At most the relation, population/context, time, intervention/version, evidence class and maintained assumptions actually established. Expert-elicited output caps at `structured_background_assumption`; observational causal output is conditional on identification assumptions; domain adjudication licenses only its registered category. It does not authorise policy action, magnitude, transport or estimand. |
-| **Re-entry** | New material evidence, changed relation definition, mechanism, population/context, intervention version, confounding structure, reference epoch or target-transport demand invalidates currentness and reruns source validity plus source→target transport. |
-| **`deeper_terminal`** | A scoped negative relation is established, the formulated relation is semantically impossible, or a sound/complete procedure proves the query non-identifiable under the current information regime. `No study found` and “not classifiable” are provisional, not negative relation findings. |
+| Producer | Canonical causal/grounding evidence owner or appointed domain adjudicator with resolved standing/procedure. Expert input alone is structured background knowledge. |
+| Sufficient | Exact relation, scope/context/time, evidence streams, assumptions, alternatives, mechanism, dissent and transport conditions satisfy the governed acquisition-mode rule. No universal threshold is claimed. |
+| Admission proof | Content-bound causal dossier/relation certificate with producer/adjudicator, search/inclusion, evidence provenance/quality, assumptions, counterevidence, integration rationale, dissent and epoch. |
+| Ceiling | Exact relation/context/population/time/intervention/evidence class/assumptions. Expert edge caps at structured assumption; observational inference is conditional. No action, magnitude, transport or estimand authority follows. |
+| Re-entry | New material evidence, definition/mechanism/context/intervention/confounding/reference/transport change; rerun source validity and target transport. |
+| Deeper terminal | Scoped negative relation, semantic impossibility, or non-identifiability under the current information regime. “No study found” is provisional. |
 
-**Data-path break:** observation growth can change evidential inputs but cannot itself decide the
-integration assumptions or create the relation object. The demanding grounding owner, not the data
-overlay, closes the case.
+Data can contribute evidence but observation growth cannot itself integrate assumptions or create the
+relation object.
 
-### 4.8 Variant: `estimand_binding`
+### 4.4 `estimand_binding`
 
-| Required answer | Candidate semantics |
+| Answer | Semantics |
 | --- | --- |
-| **Who may produce it** | The accountable owner of the scientific/policy question together with a competent causal/statistical method owner; a regulator or other competent adjudicator where the intended claim is regime-governed. A dataset owner or estimator cannot infer the target from available columns. |
-| **Sufficient acquisition** | Treatment/intervention regimes, target population, outcome and horizon, every relevant intercurrent-event strategy and population-level summary/contrast are unambiguous. A stronger “this analysis targets it” claim separately binds identification assumptions, observed-data functional, estimator and sensitivity plan. |
-| **Admission proof** | Versioned protocol/SAP-like record or target-trial specification mapping every target attribute to the question and, when claimed, to identification and estimator semantics; amendments, rationale, scope, data compatibility, transport conditions and responsible producers are content-bound. `estimand_present=true` is insufficient. |
-| **Authority ceiling** | Semantic binding alone authorises only “this is the defined target”. Identification/estimator proof may authorise “this analysis targets this estimand under these assumptions”. It never establishes the causal relation, unbiasedness, precision, transportability, mandate or action authority. |
-| **Re-entry** | Any change in population, treatment versions, standard of care, outcome/horizon, intercurrent-event environment, contrast, decision purpose, protocol amendment or transport context rebinds all target attributes and then reruns identification. |
-| **`deeper_terminal`** | The target is ill-defined or internally impossible, or it is well-defined but proven non-identifiable under the permitted information regime. `Identifiable but imprecise` is a data/estimation state, not this terminal. |
+| Producer | Accountable question owner plus competent causal/statistical method owner; regulator where regime-governed. Dataset/estimator cannot infer the target from columns. |
+| Sufficient | Intervention regimes, population, outcome/horizon, intercurrent-event strategies and contrast are unambiguous; stronger claims separately bind identification, functional, estimator and sensitivity. |
+| Admission proof | Versioned protocol/SAP-like or target-trial mapping, amendments/rationale, producer, assumptions, data compatibility and transport. `estimand_present=true` is insufficient. |
+| Ceiling | Semantic binding authorises only “defined target”; identification/estimator proof adds “analysis targets it under assumptions”. No relation, unbiasedness, precision, transport, mandate or action authority. |
+| Re-entry | Change to population, treatments, standard of care, outcome/horizon, intercurrent events, contrast, purpose, protocol or transport. |
+| Deeper terminal | Ill-defined/impossible target or defined-but-non-identifiable target. Imprecision is not this terminal. |
 
-**Data-path break:** rows cannot choose between equally legitimate target questions. They become useful
-only after the target is bound and the demanded analysis shows how they map to it.
+Rows cannot choose among legitimate questions; they are useful after target binding.
 
-### 4.9 Variant: `owner_writability`
+### 4.5 `owner_writability`
 
-| Required answer | Candidate semantics |
+| Answer | Semantics |
 | --- | --- |
-| **Who may produce it** | The canonical truth/change authority for the system of record, or a steward acting under a verified delegation, plus the technical security owner for the execution grant. A database administrator, requester or API account cannot self-create substantive change authority. |
-| **Sufficient acquisition** | The substantive right to make the exact operation on the exact object/field for the stated purpose is established; the operation exists in the register ontology; preconditions/evidence are met; and the identified executor has a current least-privilege technical grant. Submission authority, adjudication authority and execution capability remain distinct. |
-| **Admission proof** | Owner/delegation instrument, governance or statutory basis, operation/record/field semantics, decision/order and supporting evidence, executor credential, current status, audit/provenance event and system-of-record/version binding. An ACL or data-sharing agreement alone is insufficient. |
-| **Authority ceiling** | Exact system of record, object/record/field, operation type, purpose, parties, evidence condition, actor/delegation depth and valid interval. It does not authorise a different operation, rewrite history, establish truth or supply legal/normative authority not present in the chain. |
-| **Re-entry** | Owner policy, delegation, credential, purpose/party, operation ontology, underlying law, system of record, evidence condition or revocation changes trigger fresh owner and technical resolution. |
-| **`deeper_terminal`** | The requested mutation is not a valid operation in the authoritative ontology, no competent change authority exists, or the substantive right is barred. A DBA grant cannot cure the terminal. A different legal operation yields `terminal_for_this_route`, not global impossibility. |
+| Producer | Canonical truth/change authority or verified delegate, plus technical security owner. DBA/requester/API account cannot self-create substantive authority. |
+| Sufficient | Exact operation/object/field/purpose right, valid operation ontology/preconditions, and current least-privilege executor grant. Submission, adjudication and execution remain distinct. |
+| Admission proof | Owner/delegation and legal/governance basis, operation semantics, decision/evidence, credential/status, audit/provenance and system/version binding. ACL/DSA alone is insufficient. |
+| Ceiling | Exact system, object/field, operation, purpose, parties, evidence condition, actor/delegation depth and interval. No other operation, truth, legal or normative power follows. |
+| Re-entry | Owner policy/delegation/credential/purpose/ontology/law/system/evidence/revocation change. |
+| Deeper terminal | Operation absent from authoritative ontology, no competent change authority or substantive right barred. A different operation means terminal-for-this-route. |
 
-**Data-path break:** an observation passport admits a value to an overlay; it does not establish the
-right to mutate another owner’s canonical state.
+A data passport admits a value to its overlay; it does not confer mutation authority in another
+owner’s system.
 
-### 4.10 Variant: `legal_mandate`
+### 4.6 `legal_mandate`
 
-| Required answer | Candidate semantics |
+| Answer | Semantics |
 | --- | --- |
-| **Who may produce it** | A competent constitutional/statutory authority or a competent delegator acting within the governing hierarchy and any permitted redelegation rule. PolicyOS and an LLM legal summary cannot issue the mandate. |
-| **Sufficient acquisition** | A valid enabling norm covers the action; jurisdiction/institution competence is established; every delegation link is valid and current; the recipient occupies the covered role/identity; the proposed act lies within subject, function, territory, object, conditions and time. |
-| **Admission proof** | Resolved norm and version, hierarchy/competence record, delegation and redelegation instruments, role-occupancy/identity proof, effective windows, conflicts/supersession, exact action mapping and attributable decision/use record. A signed memo is existence evidence, not proof of vires. |
-| **Authority ceiling** | Action/function, actor, object, population, jurisdiction, instrument, amount/fiscal facet where relevant, conditions, effective interval and delegation depth. One authority facet does not imply another; enabling does not automatically supply funding or implementation authority. |
-| **Re-entry** | Amendment, repeal, supersession, delegation issue/revocation/expiry, competence transfer, office-holder change, jurisdiction/fallback change or requested action/window change causes fresh hierarchy and scope resolution. |
-| **`deeper_terminal`** | A higher-order rule prohibits the act, or no competent grantor exists under the current governing order. `This officer lacks authority but a superior can grant it` is recoverable, not terminal. |
+| Producer | Competent constitutional/statutory authority or valid delegator within hierarchy/redelegation rules. PolicyOS/LLM cannot issue it. |
+| Sufficient | Enabling norm, jurisdiction/institution competence, every delegation link, current role/identity and exact act-in-scope are established. |
+| Admission proof | Resolved norm/version, hierarchy/competence, delegations, role occupancy, effective windows, conflicts/supersession, action mapping and attributable use record. |
+| Ceiling | Action/function, actor, object/population, jurisdiction, instrument, fiscal facet where relevant, conditions, interval and delegation depth. One authority facet does not imply another. |
+| Re-entry | Amendment/repeal/supersession, delegation issue/revocation/expiry, competence transfer, holder, jurisdiction or requested act/window change. |
+| Deeper terminal | Higher-order prohibition or no competent grantor under the current order. A superior-grant route is recoverable, not terminal. |
 
-**Data-path break:** facts may satisfy a mandate’s conditions but cannot create the enabling power or a
-competent delegation chain.
+Facts may satisfy conditions; rows cannot create enabling power or a delegation chain.
 
-### 4.11 Variant: `normative_authorization`
+### 4.7 `normative_authorization`
 
-| Required answer | Candidate semantics |
+| Answer | Semantics |
 | --- | --- |
-| **Who may produce it** | The producer defined by the governing normative regime: affected person or authorised representative for consent, a properly constituted ethics/review body for approval/waiver, an institutional authority, or another formally competent process. Where social legitimacy has no canonical issuer, no issuer is invented. |
-| **Sufficient acquisition** | Every regime-required approval, consent, waiver, participation or institutional determination applies to the exact protocol/action, purpose, population, site, procedures, risk profile and version; issuer standing and any reliance allocation are established. |
-| **Admission proof** | Determination/approval/disapproval record, approved protocol/version, consent or documented waiver findings, minutes/reasons, reliance/responsibility allocation, participant/representative identity where applicable, current status, withdrawals/suspensions and exact scope binding. Popular support or mere consultation is not automatically authorization. |
-| **Authority ceiling** | The approved purpose, protocol/version, procedures, population, sites, consent scope, risk conditions and review/validity triggers. It does not create legal competence, institutional execution permission, write authority or empirical effectiveness. |
-| **Re-entry** | Material protocol, purpose, population, procedure, site or risk change; withdrawal, suspension, complaint, new review point or changed reliance allocation causes fresh determination. |
-| **`deeper_terminal`** | A competent regime-specific disapproval or non-waivable refusal closes the current route, or the governing regime establishes that no authorised path exists. Absence of an issuer for an informal social-licence claim is `not_established` unless a competent regime itself makes it terminal. |
+| Producer | Regime-defined person/body/institution: subject/representative, properly constituted review body, institutional authority or formal process. No issuer is invented for informal social licence. |
+| Sufficient | Every required consent/waiver/approval/participation/institutional determination applies to exact purpose, protocol/action, population, site, procedures, risk and version. |
+| Admission proof | Determination, protocol/version, consent or waiver findings, minutes/reasons, reliance allocation, identity, status, withdrawal/suspension and exact scope. Consultation/popularity is not automatically authorization. |
+| Ceiling | Approved purpose, protocol/version, procedures, population, sites, consent/risk conditions and review triggers. No legal competence, execution, write or effectiveness follows. |
+| Re-entry | Material protocol/purpose/population/procedure/site/risk change, withdrawal/suspension/complaint/review/reliance change. |
+| Deeper terminal | Competent non-waivable disapproval or regime-established absence of a route. Informal no-issuer legitimacy remains `not_established` unless a competent regime makes it terminal. |
 
-**Data-path break:** more facts may inform ethical review, but only the competent regime’s determination
-creates the authorization object.
+Evidence informs review; the competent determination creates the object.
 
-### 4.12 Variant: `implementation_capacity_evidence`
+### 4.8 `implementation_capacity_evidence`
 
-| Required answer | Candidate semantics |
+| Answer | Semantics |
 | --- | --- |
-| **Who may produce it** | The accountable delivery owner produces first-line evidence. For material/irreversible commitment, a competent assessor with sufficient independence from the achievement target adjudicates critical claims. Vendors/sponsors cannot be the sole admissibility source. |
-| **Sufficient acquisition** | The delivery system, scale, environment, timeframe, causal core, reach/dose/fidelity/quality and every critical prerequisite are predeclared; each critical prerequisite passes a stage-specific threshold. An unresolved critical zero cannot be averaged away and yields no-go or a smaller tranche. |
-| **Admission proof** | Prospective versioned assessment; delivery entity/owner; evidence register for workforce, contracts, suppliers, facilities, technology, interfaces, training, throughput and dependencies; assumptions, outside/reference class, conflicts, rating/threshold, baseline, outcome criterion, review triggers and permitted next commitment. A completed framework/checklist is not underlying evidence. |
-| **Authority ceiling** | Only the next stage, tranche, load band, environment and period directly supported. Concept evidence permits feasibility work; representative demonstration permits limited rollout; operational load evidence permits the next bounded expansion. It is not a probability guarantee or automatic full-scale authority. |
-| **Re-entry** | Stage, scope, scale, deadline, funding, supplier, workforce, technology/interface, regulation, dependency, adverse signal, elapsed validity, material pilot underperformance or baseline reset triggers reassessment. Old forecasts remain for calibration. |
-| **`deeper_terminal`** | Capacity is absent and no credible build/maturation path, narrower valuable stage or alternative delivery channel reaches the required state within the decision horizon/envelope. A Red/not-ready rating with a recovery route is provisional. |
+| Producer | Accountable delivery owner supplies first-line evidence; material/irreversible commitment needs competent independent challenge. Vendor/sponsor is not sole admissibility source. |
+| Sufficient | Delivery system, scale/environment/time, causal core, reach/dose/fidelity/quality and every critical prerequisite are predeclared and pass stage-specific thresholds. Critical zero cannot average away. |
+| Admission proof | Prospective assessment and direct evidence register for workforce, contracts, suppliers, facilities, technology/interfaces, training, throughput/dependencies; assumptions, outside view, conflicts, threshold, baseline, outcome and next commitment. |
+| Ceiling | Only next stage/tranche/load/environment/period directly demonstrated. Not probability guarantee or automatic full rollout. |
+| Re-entry | Stage/scope/scale/deadline/funding/supplier/workforce/technology/regulation/dependency/signal/expiry/pilot/reset change. Preserve old forecast for calibration. |
+| Deeper terminal | Capacity absent and no credible build path, narrower valuable stage or alternative delivery channel within the decision horizon. Red/not-ready with recovery is provisional. |
 
-**Data-path break:** capacity evidence may contain many observations, but the acquired object is the
-bounded deliverability warrant over critical prerequisites. Rows do not substitute for missing staff,
-contracts, authority, integration or demonstrated load.
+Many rows cannot substitute for absent staff, contracts, authority, integration or demonstrated load.
 
-### 4.13 Variant: `competent_human_decision`
+### 4.9 `competent_human_decision`
 
-| Required answer | Candidate semantics |
+| Answer | Semantics |
 | --- | --- |
-| **Who may produce it** | An identified human whose professional/institutional standing, role authorization, domain competence, task-specific scope and validity at decision time are resolved. A credential supplies only one factor. No generic appointed signer exists today. |
-| **Sufficient acquisition** | The decision question and exact subject/version are fixed; required inputs were actually available and reviewed; the person performed the required judgment, handled contrary evidence and material uncertainty, referred matters outside scope, and accepts attributable responsibility for the conclusion/qualifications. |
-| **Admission proof** | Reconstructable decision record: person/credential/issuer and validity, role/mandate, competence scope, subject/version, question, inputs reviewed, criteria/method, contrary evidence, uncertainty, consultations/referrals, reasoning, conclusion/qualifications, timestamp/authentication, supersession and re-entry triggers. A click/signature alone is insufficient. |
-| **Authority ceiling** | Exact decision/action, subject, version, conditions and competence/role scope. Another expert’s input does not automatically expand the signer’s scope. The decision does not become truth beyond the judgment actually made. |
-| **Re-entry** | Subject version, evidence, material fact, governing rule/standard, credential/role/competence, conditions or stated trigger changes; human standing and decision validity are rechecked separately. |
-| **`deeper_terminal`** | No competent authorised decision-maker exists and no governed referral or alternative route is available. This is `decision_source_unavailable`, not a negative decision about the subject. A competent decision against the proposal is a different adverse terminal. |
+| Producer | Identified human with resolved standing, role authority, domain competence, task scope and validity at decision time. No generic signer is appointed today. |
+| Sufficient | Question/subject/version fixed; inputs actually reviewed; required judgment performed; contrary evidence/uncertainty/out-of-scope matters handled; attributable responsibility accepted. |
+| Admission proof | Reconstructable record: person/credential/issuer/validity, role/mandate, competence scope, subject/version, question, inputs, criteria/method, contrary evidence, uncertainty, referrals, reasoning, conclusion, authentication, supersession/triggers. |
+| Ceiling | Exact decision/action, subject/version, conditions and competence/role scope. Another expert’s input does not expand it; conclusion is not universal truth. |
+| Re-entry | Subject/evidence/material fact/rule/standard/credential/role/competence/condition change. Recheck person standing and decision validity separately. |
+| Deeper terminal | No competent authorised decision-maker and no governed referral/alternative. This is source-unavailable, not a negative decision. |
 
-**Data-path break:** providing more material to nobody does not acquire a human judgment. Presence of a
-person or signature without reconstructable work is ceremony, not decision acquisition.
+Presence/signature without reconstructable work is ceremony, not acquisition.
 
-### 4.14 Variant: `independent_audit`
+### 4.10 `independent_audit`
 
-| Required answer | Candidate semantics |
+| Answer | Semantics |
 | --- | --- |
-| **Who may produce it** | A competent assurance practitioner/body whose relational eligibility is established for this subject and engagement. Independence is resolved across individual, team, firm/network, funding/fees, appointment/removal, prior/future relationships and threats. No generic provider is appointed today. |
-| **Sufficient acquisition** | Exact subject/version/period, responsible party, suitable criteria, engagement scope and assurance level are defined; independence threats are eliminated or reduced under the governing rule; sufficient appropriate procedures/evidence are performed; limitations, contrary evidence and quality review are recorded. |
-| **Admission proof** | Engagement terms; practitioner/body/partner identity and standing; independence-threat register and safeguards; subject/criteria/scope/period/assurance level; procedures, evidence, contradictory findings/resolution, reviewer/quality review, limitations, conclusion, report identity/version/date and current relationship state. `external=true` is insufficient. |
-| **Authority ceiling** | Only the stated subject, criteria, period/version, assurance level, scope and disclosed limitations. Limited and reasonable assurance differ; agreed-upon procedures report findings and do not silently become assurance. Audit does not create the management decision or establish claims outside the engagement. |
-| **Re-entry** | Subject/control/data/criteria/scope/period change; new financial interest, non-assurance service, employment/familiarity/self-review/intimidation channel, rotation event, provider-status change or material contrary evidence triggers new independence and engagement evaluation. |
-| **`deeper_terminal`** | No competent independent provider exists or independence threats cannot be remediated, so the required engagement is unavailable; alternatively, a valid audit produces an adverse conclusion or scope limitation. Unavailability and adverse audit are distinct terminals and must never be merged. |
+| Producer | Competent assurance person/body with relational eligibility across team, firm/network, funding/fees, appointment, prior/future relations and threats. No generic provider is appointed today. |
+| Sufficient | Exact subject/version/period, responsible party, criteria, scope and level; threats managed; sufficient appropriate procedures/evidence, limitations, contrary evidence and quality review recorded. |
+| Admission proof | Engagement terms; body/partner identity/standing; threat register/safeguards; subject/criteria/scope/period/level; procedures/evidence/contradictions/review/limitations/conclusion/report/current relationship. |
+| Ceiling | Only stated subject, criteria, period/version, assurance level, scope and limitations. AUP is not assurance; audit does not create management decision or outside claims. |
+| Re-entry | Subject/control/data/criteria/scope/period or relationship/threat/rotation/provider/material-evidence change. |
+| Deeper terminal | No competent independent provider or unremediable threats; separately, valid adverse audit or scope limitation. Unavailability and adverse result never merge. |
 
-**Data-path break:** additional auditee records do not create practitioner independence, engagement
-scope or adequate work. An internal review remains internal when independent assurance is required.
+More auditee records do not create independence, engagement scope or adequate work.
 
-### 4.15 Why the branches remain separate, and where they share machinery
+### 4.11 Genuine differences and possible shared bases
 
-| Candidate merge | Shared semantics | Why full merge is rejected |
-| --- | --- | --- |
-| Relation + estimand | Same-stream data invariance; both can precede estimation. | Relation is a world-structure claim; estimand is target meaning. Their producers, proof and ceilings differ and neither entails the other. |
-| Legal + normative + writability | Issuer-chain, scope, validity and grant-style ceilings. | Legal power, normative sanction and canonical mutation right come from different regimes and can vary independently. They may share a `ScopedAuthorityGrant` base, not one discriminator. |
-| Decision + audit | Standing, work record, reconstructability, version/time binding. | Audit additionally requires relational independence, criteria and assurance level; a decision owns the act while assurance evaluates a defined subject. |
-| Capacity + audit | Material capacity claims may require independent challenge. | Audit is an input/admissibility condition; capacity requires direct evidence of the delivery system and authorises a bounded commitment. |
+- relation and estimand share same-stream invariance but acquire world structure versus target meaning;
+- legal, normative and write cases may share a `ScopedAuthorityGrant` base, but their sources of power
+  and effects remain independent discriminators;
+- decision and audit share reconstructability, while audit adds relational independence, criteria and
+  assurance level;
+- capacity may consume audit/decision artifacts, but neither substitutes for direct delivery evidence.
 
-No pair can be collapsed without losing a downstream distinction a gate must check. Shared base
-objects are desirable; false union collapse is not.
+No pair can be collapsed without losing a gate-relevant producer/proof/ceiling distinction.
 
-### 4.16 Authority-ceiling checkability today
+### 4.12 Checkability today
 
-| Case type | Reusable current primitives | Complete ceiling checkable today? | Missing item |
-| --- | --- | --- | --- |
-| grounding relation | CG1–CG3 certificates, reference epochs, mechanism/estimand obligations | **No — partial** | Adopted acquisition-mode/claim-strength vocabulary, competent producer and cross-context ceiling evaluator. |
-| estimand binding | method/estimand hooks and protocol-like evidence patterns | **No — partial** | Canonical target-binding artifact/producer and demanding-gate bridge. |
-| owner writability | data-overlay rights/passport owners | **No — only data-specific** | Generic truth/change owner and operation-ontology resolver. |
-| legal mandate | Lex competence/hierarchy fragments | **No — partial** | Appointed institutional producer, complete mandate artifact and consumer enforcement for the exact action. |
-| normative authorization | participation/legal fragments | **No** | Regime-specific producer registry, proof vocabulary and generic intake. |
-| implementation capacity | planning/implementation obligation fragments | **No** | Canonical capacity evidence owner, thresholds, direct-evidence registry, assessor standing and re-entry bridge. |
-| competent human decision | `HumanDecisionRecord` and delegation seeds | **No — partial** | Deployed competent decision producer pool, reconstructability enforcement and all demanding consumers. |
-| independent audit | core audit packaging and assurance-case fragments | **No — partial** | Appointed independent provider, relationship/threat evidence and engagement-level consumer gate. |
-
-The correct aggregate label remains `absent/unallocated`, not `contract_only`: this research text does
-not establish an admitted canonical contract or owner.
-
-### 4.17 Findings from the result, classified
-
-| Finding | Classification |
+| Type | Complete ceiling checkable today? |
 | --- | --- |
-| `INT-R2-F25` — classification must precede the union; `binding_gap` cannot discriminate. | `confirmed` |
-| `INT-R2-F26` — the union is exhaustive only over the eight commissioned objects, not all non-data gaps. | `accepted_narrow_scope` |
-| `INT-R2-F27` — arbitrary same-stream row growth cannot close relation, estimand or mandate cases. | `confirmed` within the stated object/evidence-regime scope |
-| `INT-R2-F28` — one common checkable ceiling shape is feasible, but complete vocabularies/evaluators are absent. | `accepted_narrow_scope` |
-| `INT-R2-F29` — re-entry opens a new owner evaluation and never auto-approves. | `confirmed` design rule supported by repo and surveyed practice |
-| `INT-R2-F30` — `deeper_terminal` requires new admitted boundary knowledge, not more effort or near-pass. | `accepted_narrow_scope` |
-| `INT-R2-F31` — no commissioned pair can be safely collapsed into one discriminator. | `confirmed` by producer/proof/ceiling derivation in §§4.7–4.15 |
-| `INT-R2-F32` — current end-to-end checkability is absent for all eight; partial primitives do not compose into capability. | `confirmed` |
+| relation | No — partial CG/reference primitives; producer/claim-strength/transport ceiling absent. |
+| estimand | No — partial hooks; target-binding producer/artifact/bridge absent. |
+| writability | No — only data-specific rights/passport path. |
+| mandate | No — Lex fragments; appointed producer and complete exact-action bridge absent. |
+| normative | No — regime producer registry and generic intake absent. |
+| capacity | No — canonical evidence owner, thresholds, assessor standing and bridge absent. |
+| human decision | No — partial HumanDecisionRecord/delegation seed; deployed producer/consumers absent. |
+| audit | No — packaging fragments; provider/relationship evidence and demanding gate absent. |
+
+Aggregate: `absent/unallocated`, not `contract_only`.
 
 ## 5. Counterexamples And Failure Modes
 
+| Counterexample | Unsafe implementation concludes | Correct result |
+| --- | --- | --- |
+| One million observational rows preserve two causally indistinguishable models with different effects. | Relation gap closed by scale. | `grounding_relation` remains open or deepens to scoped non-identifiability. |
+| Protocol contains `estimand=true` but omits intercurrent-event handling. | Estimand acquired by field presence. | Admission refused; target remains unbound. |
+| Valid API token can update a register, but no substantive operation right exists. | Writability acquired. | Technical capability only; `owner_writability` open/terminal-for-route. |
+| Signed delegation comes from an issuer without competence/redelegation right. | Mandate acquired by signature. | Resolve chain fails; mandate remains absent. |
+| Action is lawful and writable but required consent/ethics approval is absent. | Legal power implies normative authorization. | Separate normative case remains blocked. |
+| Capacity score is 82/100 while the only supplier and trained workforce are absent. | Average readiness authorises rollout. | Critical-zero no-go or narrower tranche. |
+| Licensed expert signs an AI-produced conclusion without reviewing inputs or outside task scope. | Competent decision acquired. | Ceremony; no decision artifact admitted. |
+| External firm audits controls it designed and depends on the same fee relationship. | `external=true` proves independence. | Independent audit not acquired. |
+| Search times out after extensive effort. | Deep terminal because work was costly. | Provisional refusal; no new boundary proof. |
+| Relation and owner-write right are both absent, but one case closes. | Compound gap closed by one branch. | Ordered `split_required`; both owner gates must close. |
+| New mandate arrives after the target action/window changed. | Re-entry auto-closes old case. | Rebind and rerun; old mandate may not fit. |
+| Valid audit for period A/criteria X is used for period B/criteria Y. | Audit is universal trust badge. | Ceiling escape blocked. |
+
+Three required P38 divergences are explicit:
+
+1. **property:** non-data object acquired; **proxy:** row count increased — million-row mandate case;
+2. **property:** relational independence; **proxy:** `external=true` — self-reviewing vendor case;
+3. **property:** competent work performed; **proxy:** signature present — out-of-scope rubber stamp.
+
 ## 6. Benchmark Or Fixture Proposal
+
+The full operational/fixture ledger is
+`docs/research/policy-operations/int-r2/operational-closure-and-fixtures.md`.
+
+### 6.1 Public denominator
+
+The proposed minimum public regression denominator is **63 executable cases**:
+
+| Family | Count |
+| --- | ---: |
+| One synthetic happy path per discriminator | 8 |
+| One trust-by-form adversary per discriminator | 8 |
+| Three protected types × four row counts `{0,1,1_000,1_000_000}` | 12 |
+| Eight provisional/deeper-terminal pairs | 16 |
+| One re-entry case per discriminator | 8 |
+| One ceiling escape per discriminator | 8 |
+| Three N13 capstones | 3 |
+| **Total** | **63** |
+
+Synthetic positives are `contract_testing` only and cannot simulate real institutional authority.
+A separate ordinary data-gap positive control must close on valid observation growth, proving the
+harness can observe legitimate closure rather than always refuse.
+
+### 6.2 Acceptance measures
+
+| Measure | Required result |
+| --- | ---: |
+| Happy-path closure | 8/8 after admission and demanding-gate re-entry. |
+| Trust-by-form false close | 0/8. |
+| Protected row-inflation false close | 0/12. |
+| Provisional/deeper discrimination | 16/16. |
+| Automatic re-entry closure | 0/8. |
+| Ceiling escape | 0/8. |
+| Capstone data-default/false single type | 0/3. |
+| Overall unsafe false close/escape | 0/63. |
+
+Add 16 sealed near-variants, two per discriminator, covering synonyms, cross-bound IDs, stale status,
+partial scope, issuer succession, sibling consumers, network independence and non-representative
+capacity evidence. Only typed aggregate results escape.
+
+### 6.3 Required edge classes
+
+The public pack covers happy path, missing evidence, late event, duplicate event, conflicting
+authority, owner unavailable, malicious actor, degraded mode, partial success, rollback and historical
+replay. Every re-entry passes through the demanding gate; no receipt directly closes or approves.
 
 ## 7. Artifact Contract Sketch
 
+These are research sketches, not canonical runtime contracts.
+
+### 7.1 Process state machine
+
+```text
+UNCLASSIFIED_REFUSAL
+→ SHAPE_ASSESSING
+   → SHAPE_NOT_ESTABLISHED
+   → CLASSIFIED
+      → ROUTED
+         → EVIDENCE_RECEIVED
+            → ADMISSION_REFUSED
+            → ADMITTED_REENTRY_REQUIRED
+               → REENTRY_CLOSED
+               → REENTRY_PROVISIONAL_REFUSAL
+               → DEEPER_TERMINAL
+
+closed/provisional/deeper --material trigger→ STALE_REVALIDATION_REQUIRED
+```
+
+These are acquisition-process states, not a second Atlas authority/readiness lattice. They emit or
+reference the status input owned by the demanding gate. No state means approved/publishable/governed.
+Owners, clocks, expiry, public meaning and transitions are fully defined in the support ledger.
+
+### 7.2 Typed artifact family
+
+- `GapShapeAssessment` — pre-union missing-object classification and P37 provenance;
+- `GapAcquisitionCase` — eight-way union with the common identity/provenance envelope;
+- `AcquisitionArtifactEnvelope` — producer standing, exact subject/version, work/procedure,
+  verification, admission and ceiling;
+- `AuthorityCeiling` — subset-testable purpose/scope/time/strength/operation boundary;
+- `GapAcquisitionReentryReceipt` — targeted event, invalidation, rebinding and demanding-gate result;
+- `DeeperTerminalRecord` — new admitted evidence, routes excluded/narrowed, scoped terminal and named
+  re-entry conditions.
+
+All are content-bound and require resolve-bind-verify. Presence, shape, self-declared verifier role or
+signature alone never admits them.
+
+### 7.3 Canonical-owner disposition
+
+- extend the canonical acquisition planner; do not build a second planner;
+- relation re-enters CGF owners;
+- estimand extends method/grounding owners;
+- legal mandate extends Lex;
+- competent decision extends the existing `HumanDecisionRecord`/delegation chain;
+- audit extends `core/audit` packaging and runtime assurance intake while the provider stays external;
+- Atlas renders canonical outputs and cannot invent the union;
+- residual shape, generic capacity evidence and the non-data producer plane currently have no admitted
+  owner: `absent/unallocated`.
+
+Time, rule/schema/reference versions, valid/transaction time, revocation, succession, expiry and
+historical replay remain load-bearing.
+
 ## 8. Later Integration Handoff
+
+The complete handoff is
+`docs/research/policy-operations/int-r2/integration-handoff-and-finding-register.md`.
+
+Safe order:
+
+1. independent audit/amendment/verification, consolidation and ratification;
+2. appoint canonical classifier/non-data acquisition owner and register gate vocabularies;
+3. extend the canonical planner boundary;
+4. bind each branch to its existing domain owner or explicit external producer;
+5. persist admitted artifacts, ceilings, re-entry and terminal receipts;
+6. wire demanding gates to recompute closure and enforce ceilings;
+7. pass public and sealed semantic batteries;
+8. project through the one Atlas lattice.
+
+The draft `gap_acquisition_case_union` consumer row is demand evidence only until merged and backed by
+a ratified producer/artifact. Capstones enter through `GapShapeAssessment`; none defaults to N13 data
+acquisition. The custody cycle retains historical refusal, admitted artifact, ceiling, trigger,
+re-entry and terminal records without turning GY into an administrative subsystem.
+
+All eight future chains currently lack one or more producer, artifact, bridge, consumer, verification,
+surface or institutional prerequisites. Their aggregate label remains `absent/unallocated`.
 
 ## 9. Promotion And Kill Rules
 
+### 9.1 Current and later levels
+
+- **research_only — current:** Markdown evidence only; no runtime consumer or authority effect.
+- **prototype_allowed:** explicit contract-testing scope, synthetic identities, no production artifact,
+  complete classifier/ceiling/no-auto-close behaviour, 0/63 unsafe outcomes, no default-enabled
+  consumer.
+- **governed_allowed:** ratified semantics; named owner; registered vocabularies; persistent
+  resolve-bind-verify artifacts; standing/currentness re-resolution; exact demanding-gate bridges;
+  one-lattice composition; public/sealed/corruption/replay tests; fail-closed absent institutions.
+- **production_candidate:** real institutions operating; retention/revocation/succession/contest and
+  incident/reissue exercised; source-specific law/professional/assurance maintained; orchestration and
+  external surfaces complete; production-shaped unsafe false close remains zero.
+
+Research ratification alone is not governed capability.
+
+### 9.2 Kill rules
+
+Block the affected implementation if any occurs:
+
+1. unclassified residual defaults to data or a branch;
+2. rows close relation/estimand/mandate without the object;
+3. form, keyword, signature, `external=true` or self-verifier substitutes for resolution/provenance;
+4. broader or unknown-ceiling use is permitted;
+5. scarcity turns PolicyOS/internal staff into the missing institution;
+6. producer/route self-closes without demanding-gate recomputation;
+7. timeout/effort/near-pass emits `deeper_terminal`;
+8. surface mints authority/readiness;
+9. unregistered external term drives a gate;
+10. compound objects are collapsed so one closes another.
+
+Legislation, ethics adjudication, consent, register adjudication, licensing, assurance service and
+policy delivery remain out of scope; PolicyOS integrates evidence and owns its reaction.
+
 ## 10. Open Questions For Consolidation
+
+1. placement of the common envelope: narrow waist now, or only after one producer path is proven;
+2. appointment of the residual-shape and generic non-data acquisition owner — CG5 cannot own it;
+3. mapping/registration of relation strength, estimand strength, operation, capacity stage and
+   assurance-level vocabularies;
+4. domain-specific causal adjudication and claim ceilings; universal threshold remains open;
+5. social licence without a canonical issuer;
+6. capacity owner, critical thresholds, independence and longitudinal calibration;
+7. ordering/dependency graph for compound gaps;
+8. import and independent reconciliation of the later 15-row classification, including identity of
+   the one data-shaped member;
+9. consolidation with INT-R5/GY-PA2/Atlas DS9 rather than a second competence certificate;
+10. audit intake extending `core/audit` while provider remains external;
+11. consumer readiness of the unmerged union row;
+12. one-lattice status composition;
+13. institutional signer/provider availability.
+
+Recommended consolidation is cross-owner: Wave-8 consolidator with GY architecture, Lex,
+human-decision, core-audit, Atlas and the future acquisition owner represented.
+
+### 10.1 Finding classification and Pattern Pass
+
+The support register classifies **F01–F40**. No finding is left unclassified. Its research outcomes are
+`confirmed`, `accepted_narrow_scope` or `deferred_open_problem`; capability and gate standing remain
+separate.
+
+The recorded Pattern Pass covers P01–P05, P07–P16, P20–P22, P26–P33 and P35–P38. Load-bearing results:
+
+- no contract-only capability claim (P01/P02);
+- no parallel lattice or owner (P04/P27);
+- checkable ceilings and no projection authority (P05/P15);
+- semantic, adversarial and sibling variants (P10/P29/P33);
+- weakest-link capacity and explicit mandate/normative/human authority (P21/P22/P26);
+- resolve/content-bind/non-producer provenance (P32);
+- complete denominators and holder attribution; supplied zero not settled (P35);
+- finding IDs, not adjacent prose (P36);
+- P37 provenance classification and fail-closed unknowns;
+- P38 divergences: rows versus non-data object, `external=true` versus independence, signature versus
+  competent work.
+
+Final standing:
+
+```yaml
+research_standing: accepted_narrow_scope
+capability_standing: absent/unallocated
+gate_standing: NO_GO
+```
+
+This package is authoritative only as stage-1 research input. It moves no capability, appoints no
+owner or signer and opens no gate.

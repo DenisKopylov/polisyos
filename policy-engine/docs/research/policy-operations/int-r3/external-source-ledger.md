@@ -51,7 +51,7 @@ The stable primary anchors below are therefore the repository-resolvable evidenc
 | `SRC-WOGALTER` | <https://doi.org/10.1177/001872088903100202> | Wogalter, Allison & McKenna (1989), compliance cost and social influence |
 | `SRC-AKHAWE` | <https://www.usenix.org/conference/usenixsecurity13/technical-sessions/presentation/akhawe> | Akhawe & Felt (2013), large-scale browser warning field study |
 | `SRC-SUNSHINE` | <https://www.usenix.org/legacy/event/sec09/tech/full_papers/sunshine.pdf> | Sunshine et al. (2009), SSL-warning understanding and behavior |
-| `SRC-EATON` | `INTERACT 2005, LNCS 3585, pp. 861-872` | Eaton, Plaisant & Drizd, *Visualizing Missing Data: Graph Interpretation User Study*; missing-as-zero experiment |
+| `SRC-EATON` | <https://doi.org/10.1007/11555261_68> | Eaton, Plaisant & Drizd, *Visualizing Missing Data: Graph Interpretation User Study*; missing-as-zero experiment |
 | `SRC-WORSTFIRST` | <https://doi.org/10.1287/mnsc.2022.4411> | Lewis, Feiler & Adner (2022), worst-first heuristic in conjunctive-risk intervention choice |
 | `SRC-SR-BASE` | <https://doi.org/10.1145/3441852.3471202> | Sharif et al. (2021), screen-reader users’ online-visualization accuracy/time and relation-access barriers |
 | `SRC-VOXLENS` | `CHI 2022, ACM DOI:10.1145/3491102.3517431` | Sharif et al., *VoxLens*; interactive summary/query/sonification evaluation |
@@ -61,7 +61,7 @@ The stable primary anchors below are therefore the repository-resolvable evidenc
 | `SRC-OECD` | <https://www.oecd.org/en/publications/do-adults-have-the-skills-they-need-to-thrive-in-a-changing-world_b263dc5d-en.html> | OECD Survey of Adult Skills 2023; adult numeracy distribution |
 | `SRC-BNT` | <https://doi.org/10.1017/S1930297500001819> | Cokely et al., Berlin Numeracy Test; task-relevant statistical numeracy |
 | `SRC-GOOGLE-SRE` | <https://sre.google/workbook/error-budget-policy/> | Google SRE Workbook, example error-budget policy; operational practice, not controlled UI-comprehension evidence |
-| `SRC-HANLEY` | <https://doi.org/10.1136/bmj.311.7003.485> | Hanley & Lippman-Hand, zero-event “rule of three” diagnostic |
+| `SRC-HANLEY` | <https://pubmed.ncbi.nlm.nih.gov/6827763/> | Hanley & Lippman-Hand (1983), *If nothing goes wrong, is everything all right? Interpreting zero numerators*; zero-event “rule of three” diagnostic |
 
 ## `EXT-*` claim map
 

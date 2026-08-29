@@ -117,3 +117,37 @@ establish that the canonical owner can register or write the lever.
 
 The aggregate INT-R2 capability standing is therefore `absent/unallocated`. A research contract is an
 input to later consolidation and ratification, not a capability chain.
+
+## 7. Commissioned external-practice inputs
+
+The five surveys were supplied to this stage as Markdown. Their line measures below are the complete
+Files-parser denominators for the supplied files, not counts inferred from search snippets.
+
+| Source | Denominator | Decision-relevant contribution | Preserved limitation |
+| --- | ---: | --- | --- |
+| **“Виды незнания: какие пробелы закрываются данными, а какие — нет”** | 625 file lines | Distinguishes sampling/imprecision from target definition, non-identifiability, directness/support and authority; provides reason-triggered re-entry and deepened-refusal analogues. | No universal cross-disciplinary taxonomy or model-free `is_structural_gap()` exists. Structurality is relative to target, evidence regime, model class and assumptions. |
+| **“Как приобретаются причинная связь и estimand, когда больше строк данных не решает проблему”** | 434 file lines | Separates relation acquisition from estimand binding; supplies causal-dossier, five-attribute estimand, identification and transportability requirements. | No universally calibrated causal-edge threshold exists; expert causal structures lack a mature prospective calibration record. |
+| **“Приобретение полномочия: юридический мандат, нормативная авторизация и право записи”** | 493 file lines | Separates legal competence, normative sanction and substantive write authority; supplies issuer-chain, ceiling and terminal distinctions. | Jurisdiction examples are not universal law; social licence usually lacks a canonical issuer and cannot safely become a permission token. |
+| **“Компетентное человеческое решение и независимое заверение”** | 665 file lines | Supplies reconstructability, case-specific competence, relational independence, assurance-level and unavailability-versus-adverse-result distinctions. | Standing and process increase warrant for how a conclusion was made; neither proves the conclusion true. Formal independence safeguards do not prove substantive independence. |
+| **“Доказательство реализуемости политики”** | 400 file lines | Treats capacity as evidence about a specific delivery system and next bounded commitment; supplies stage-specific sufficiency, evidence bundle, decay and horizon-terminal semantics. | No mature universal calibrated probability or interval-scale measure of policy deliverability exists. Framework/checklist completion is not direct capacity evidence. |
+
+All five sources are classified `surveyed_external_practice`. They show that mechanisms are possible
+and expose their costs and limits. They are not repository capability, registered project vocabulary,
+owner appointment or authority.
+
+## 8. External findings classified
+
+| Finding | Proposition retained by INT-R2 | Classification | Non-effect |
+| --- | --- | --- | --- |
+| `INT-R2-F13` | “More data” is meaningful only after naming the target and proving that the proposed evidence channel can change the blocked predicate. | `confirmed` across the supplied surveys; adopted as the same-stream invariance test. | Does not prove that any particular residual is structural. |
+| `INT-R2-F14` | Relation acquisition and estimand binding acquire different objects and confer different ceilings. | `confirmed`; union branches must remain distinct. | Does not claim either is identified or estimated. |
+| `INT-R2-F15` | No universal scientifically calibrated rule converts arbitrary evidence streams into an `established` causal relation. | `deferred_open_problem`; preserve evidence classes and scope instead of inventing a scalar threshold. | Does not forbid domain-specific adjudication rules. |
+| `INT-R2-F16` | A bound estimand licenses “the question is defined”; identification and estimator alignment are separate proofs. | `confirmed`. | Does not license causal validity or transportability. |
+| `INT-R2-F17` | Legal mandate, normative authorization and owner writability are three non-substitutable authority objects. | `confirmed`; retain three branches. | Does not imply that every action requires all three. The demanding gate declares which apply. |
+| `INT-R2-F18` | Cryptographic verification proves provenance/integrity of an authority claim, not issuer competence or substantive truth. | `confirmed`; admission requires issuer-chain resolution. | Does not reduce the value of signatures for binding identity/version/time. |
+| `INT-R2-F19` | Social licence commonly has no single issuer, canonical grant threshold or expiry. | `accepted_narrow_scope`; represent only when a governing regime defines an admissible producer and proof, otherwise leave `not_established`. | Does not claim legitimacy concerns are irrelevant. |
+| `INT-R2-F20` | Competent decision requires standing, role, domain competence, task scope, actual work and a reconstructable record. | `confirmed`. | A licence or signature alone cannot close the case. |
+| `INT-R2-F21` | Independence is a relationship over reviewer, subject, funding, appointment, prior work and threats; it is not a permanent person attribute. | `confirmed`; independent audit remains separate from competent decision. | An internal review retains value but cannot silently satisfy an independent-assurance requirement. |
+| `INT-R2-F22` | Audit unavailability and an adverse audit conclusion are different terminal meanings. | `confirmed`. | `provider_unavailable` makes no claim about the audited subject. |
+| `INT-R2-F23` | Implementation-capacity evidence is stage-, scale-, environment-, dependency- and time-specific; its ceiling is the next bounded commitment supported by direct evidence. | `accepted_narrow_scope`. | A pilot, maturity score or readiness checklist cannot authorise automatic full rollout. |
+| `INT-R2-F24` | A genuine capacity terminal requires no credible build/maturation, narrower staged scope or alternative channel within the decision horizon. | `accepted_narrow_scope`; proposed candidate doctrine, not an established universal standard. | A current Red/not-ready rating is not automatically terminal. |

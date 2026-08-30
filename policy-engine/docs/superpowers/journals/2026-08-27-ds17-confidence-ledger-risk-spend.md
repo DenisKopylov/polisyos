@@ -3631,3 +3631,88 @@ path. No register/schema byte, DS18 row/header, seed, foreign row, scanner,
 inheritance map, generated file, Task 9 path, route-denominator input, or
 governing-plan byte moved. Mechanism accounting remains 18/18 declared, 18/22
 hard ceiling, reserve 0.
+
+## 2026-08-30 — Task 10 reference-value abstract-domain correction
+
+The exact predecessor is the complete 3,633-line / 221,172-byte journal with
+Git blob `3a36b788c03c9d5497c900ec6faacdefd1735208` and SHA-256
+`b6bc0fc76e619483ce47dde53741e8735ea2541a21400794cb1c914ccf5974ce`.
+This append-only correction starts from clean attached HEAD
+`711f30b61bb9dc0deb0a16937863340e84fe326c`. The governing DS17 plan remains
+unchanged at blob `42b37c99069855ff614e558ee2d3a5bd77865233`.
+
+### Same-class escape and red-first proof
+
+This is another worked example of the already widened P29/P38/P40 reachability
+class, not a new class or mechanism. The primitive/unknown lattice fixed literal
+truthiness, but array and object literals were represented by TypeScript AST node
+objects. Native JavaScript operators then coerced those host objects rather than
+the source program's array/object values. That is host-value leakage across the
+abstract interpreter boundary.
+
+The red-first test places the only valid aliased role evidence behind each
+reference expression in both module registration and active-test execution. The
+four exact reviewer expressions are `[] + []`, `[] != false`, `[0] != false`,
+and `[] >= [1]`. Reference addition and bitwise-coercion family variants also
+wrongly admitted the role. The focused run produced twelve `DID NOT RAISE`
+subfailures across the two phases. Conservative loose-equality and distinct
+reference comparisons already refused; seven direct reference truthiness
+controls—`if ([])`, `if ({})`, a const-bound array, selected `&&` and
+conditional arms, plus active-test array/object guards—remained green.
+
+### Primitive/reference/unknown abstract domain
+
+The existing inline TypeScript checker now distinguishes three abstract value
+kinds: known primitive, known reference, and unknown. Array/object literals
+produce an opaque reference token, never an AST node or host value. Direct
+ToBoolean of that token is structurally true, so direct guards and logical or
+conditional selection remain constructive. Nullish selection and logical
+negation use only that proven reference property.
+
+All other unary, arithmetic, bitwise, equality, and relational evaluation
+requires primitive operands. If either operand is a reference token, the result
+is unknown and neither guarded arm may contribute a callback, role execution,
+render, or dataflow edge. Static const/helper bindings now carry the complete
+abstract value rather than projecting only its host `value`. Thus no TypeScript
+AST object can reach a native operator, and the property is closed by domain
+construction rather than four operator spellings or a partial model of
+JavaScript object coercion.
+
+The final focused DS17 class is 21/21 green. All sixteen reference-operator
+negative subcases now refuse in both phases, all seven direct reference
+truthiness positives admit, and every prior primitive truthiness, comparison,
+unknown-guard, alias/shadow, registration, behavioral, connected-root, schema,
+DS18, preservation, replay, validator, and atomic-writer proof remains green.
+
+### Writer and final gates
+
+Direct scanner output and the checker scan remain canonical-byte equal at 621
+files / 759 roots. Strict schema validation is `[]`; focused DS18 is 126/126.
+The three owned files remain 4 + 17 + 11 roots, with 1/1/1 label-bearing roots
+and an exhaustive 3 direct + 29 inherited partition. Changed-line Ruff reports
+zero diagnostics across 57 checker and 103 checker-test lines; both legacy files
+retain 701 whole-file diagnostics. `git diff --check` is clean.
+
+The atomic owner writer ran twice after source freeze. Both runs returned 6
+roles / 5 edges / 621 files / 759 roots and reproduced byte-identical output.
+The register remains SHA-256
+`bbb5998bda21a631231b847076e17c7e49fbf4207b068e3550ab2c7fe3ba2687`;
+the report projects predecessor `711f30b61` and is now
+`0e583199b8ca26e1363944ed7d28eec98b8063f01221a10a19925eb3b68d71be`.
+Stored/live DS17 is equal, a fresh candidate equals the stored register and
+repeats idempotently, and report-projection errors are `[]`.
+
+Timed generic `--check` completed at `81.38/110.27/10.97` and timed
+`--check --corruption-probes` at `89.20/122.40/11.71` real/user/sys. Each emitted
+no DS17/DS18 error and exactly the established inherited/disjoint P41 C13 receipt
+error for `AmbientTelemetryHud.tsx`. The prior twenty-path zero-intersection and
+base replay remain applicable.
+
+Immediately before this append, the branch was attached to
+`codex/ds17-confidence-ledger-risk-spend-landing` at predecessor `711f30b61`.
+The exact dirty set was the existing checker, checker test, and writer-owned
+report; this journal is the fourth tracked path. No register/schema byte, scanner,
+inheritance map, DS18 row/header, seed, foreign row, runtime-dashboard source or
+test, generated path, Task 9 path, route-denominator input, or governing plan
+moved. Mechanism accounting remains 18/18 declared, 18/22 hard ceiling, reserve
+0.

@@ -919,6 +919,7 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 
 ## Commits
 
+- `711f30b61 fix(atlas): prove DS17 static reachability`
 - `2ed4921e5 fix(atlas): model DS17 test registration`
 - `ea1570dbe fix(atlas): prove DS17 behavioral wiring`
 - `36dff74a6 feat(atlas): register DS17 risk-spend surface (C05)`

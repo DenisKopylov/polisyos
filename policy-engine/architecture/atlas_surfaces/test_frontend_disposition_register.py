@@ -9209,6 +9209,109 @@ import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
                 ):
                     checker._build_ds17_confidence_ledger_risk_spend_surface()
 
+    def test_behavioral_evidence_rejects_reference_operator_coercion(
+        self,
+    ) -> None:
+        """Reference operands never borrow host-AST coercion in either phase."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        test_call = """it("renders the role", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+})"""
+        role_call = (
+            "render(<Figure packet={null as never} row={null as never} />)"
+        )
+        expressions = {
+            "empty_array_concatenation": "[] + []",
+            "empty_array_inequality": "[] != false",
+            "zero_array_inequality": "[0] != false",
+            "array_relational": "[] >= [1]",
+            "reference_loose_equality": "[] == false",
+            "reference_numeric_coercion": "[1] + 1",
+            "reference_bitwise_coercion": "[] | 1",
+            "distinct_object_strict_comparison": "({}) === ({})",
+        }
+
+        for phase in ("registration", "active_test"):
+            for expression_label, expression in expressions.items():
+                with self.subTest(phase=phase, expression=expression_label):
+                    if phase == "registration":
+                        body = f"if ({expression}) {{ {test_call}; }}"
+                    else:
+                        body = (
+                            'it("guards the role", () => {\n'
+                            f"  if ({expression}) {{ {role_call}; }}\n"
+                            "});"
+                        )
+                    scan = checker._ds17_typescript_surface_scan_uncached(
+                        {path_ref: f"{imports}\n{body}\n"}
+                    )
+                    with (
+                        mock.patch.object(
+                            checker,
+                            "_ds17_typescript_surface_scan",
+                            return_value=scan,
+                        ),
+                        pytest.raises(ValueError, match="behavioral evidence"),
+                    ):
+                        checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_behavioral_evidence_accepts_direct_reference_truthiness(
+        self,
+    ) -> None:
+        """Direct object truthiness stays provable without object coercion."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        test_call = """it("renders the role", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+})"""
+        role_call = (
+            "render(<Figure packet={null as never} row={null as never} />)"
+        )
+        sources = {
+            "array_if": f"if ([]) {{ {test_call}; }}",
+            "object_if": f"if ({{}}) {{ {test_call}; }}",
+            "const_array_if": (
+                f"const enabled = [];\nif (enabled) {{ {test_call}; }}"
+            ),
+            "array_and": f"[] && {test_call};",
+            "object_conditional": f"({{}}) ? {test_call} : 0;",
+            "active_test_array_if": (
+                'it("guards the role", () => {\n'
+                f"  if ([]) {{ {role_call}; }}\n"
+                "});"
+            ),
+            "active_test_object_if": (
+                'it("guards the role", () => {\n'
+                f"  if ({{}}) {{ {role_call}; }}\n"
+                "});"
+            ),
+        }
+
+        for label, body in sources.items():
+            with self.subTest(label=label):
+                scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: f"{imports}\n{body}\n"}
+                )
+                with mock.patch.object(
+                    checker,
+                    "_ds17_typescript_surface_scan",
+                    return_value=scan,
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
     def test_panel_to_exact_twin_rejects_unknown_guarded_connection(
         self,
     ) -> None:

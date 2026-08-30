@@ -15890,9 +15890,20 @@ function parseModule(relativePath) {
   const suiteRegistrationRoots = new Set(["describe", "suite"]);
   const disabledRegistrationModifiers = new Set(["skip", "todo"]);
   const unknownRegistrationValue = Object.freeze({ kind: "unknown" });
-  const unknownRegistrationStaticValue = Object.freeze({ known: false });
+  const unknownRegistrationStaticValue = Object.freeze({
+    known: false,
+    value_kind: "unknown",
+  });
+  const knownRegistrationReferenceValue = Object.freeze({
+    known: true,
+    value_kind: "reference",
+  });
   function knownRegistrationStaticValue(value) {
-    return { known: true, value };
+    return { known: true, value, value_kind: "primitive" };
+  }
+  function registrationStaticTruthiness(value) {
+    if (!value.known) return null;
+    return value.value_kind === "reference" ? true : Boolean(value.value);
   }
   function frameworkRegistrationKind(name) {
     if (testRegistrationRoots.has(name)) return "test";
@@ -15936,7 +15947,7 @@ function parseModule(relativePath) {
     if (ts.isIdentifier(candidate)) {
       const resolved = environment.get(candidate.text);
       if (resolved?.kind === "static") {
-        return knownRegistrationStaticValue(resolved.value);
+        return resolved.static_value;
       }
       if (resolved?.static_value?.known) return resolved.static_value;
       if (resolved !== undefined) return unknownRegistrationStaticValue;
@@ -15955,24 +15966,29 @@ function parseModule(relativePath) {
       ts.isArrayLiteralExpression(candidate) ||
       ts.isObjectLiteralExpression(candidate)
     ) {
-      return knownRegistrationStaticValue(candidate);
+      return knownRegistrationReferenceValue;
     }
     if (ts.isVoidExpression(candidate)) {
       return knownRegistrationStaticValue(undefined);
     }
     if (ts.isTypeOfExpression(candidate)) {
       const operand = registrationStaticValue(candidate.expression, environment);
-      return operand.known
+      return operand.known && operand.value_kind === "primitive"
         ? knownRegistrationStaticValue(typeof operand.value)
         : unknownRegistrationStaticValue;
     }
     if (ts.isPrefixUnaryExpression(candidate)) {
       const operand = registrationStaticValue(candidate.operand, environment);
       if (!operand.known) return unknownRegistrationStaticValue;
+      if (candidate.operator === ts.SyntaxKind.ExclamationToken) {
+        return knownRegistrationStaticValue(
+          !registrationStaticTruthiness(operand)
+        );
+      }
+      if (operand.value_kind !== "primitive") {
+        return unknownRegistrationStaticValue;
+      }
       try {
-        if (candidate.operator === ts.SyntaxKind.ExclamationToken) {
-          return knownRegistrationStaticValue(!operand.value);
-        }
         if (candidate.operator === ts.SyntaxKind.PlusToken) {
           return knownRegistrationStaticValue(+operand.value);
         }
@@ -15991,9 +16007,10 @@ function parseModule(relativePath) {
       const condition = registrationStaticValue(
         candidate.condition, environment
       );
-      if (!condition.known) return unknownRegistrationStaticValue;
+      const truthiness = registrationStaticTruthiness(condition);
+      if (truthiness === null) return unknownRegistrationStaticValue;
       return registrationStaticValue(
-        Boolean(condition.value) ? candidate.whenTrue : candidate.whenFalse,
+        truthiness ? candidate.whenTrue : candidate.whenFalse,
         environment,
       );
     }
@@ -16002,22 +16019,31 @@ function parseModule(relativePath) {
       if (!left.known) return unknownRegistrationStaticValue;
       const operator = candidate.operatorToken.kind;
       if (operator === ts.SyntaxKind.AmpersandAmpersandToken) {
-        return Boolean(left.value)
+        const truthiness = registrationStaticTruthiness(left);
+        return truthiness
           ? registrationStaticValue(candidate.right, environment)
           : left;
       }
       if (operator === ts.SyntaxKind.BarBarToken) {
-        return Boolean(left.value)
+        const truthiness = registrationStaticTruthiness(left);
+        return truthiness
           ? left
           : registrationStaticValue(candidate.right, environment);
       }
       if (operator === ts.SyntaxKind.QuestionQuestionToken) {
-        return left.value === null || left.value === undefined
+        return left.value_kind === "primitive" &&
+          (left.value === null || left.value === undefined)
           ? registrationStaticValue(candidate.right, environment)
           : left;
       }
       const right = registrationStaticValue(candidate.right, environment);
       if (!right.known) return unknownRegistrationStaticValue;
+      if (
+        left.value_kind !== "primitive" ||
+        right.value_kind !== "primitive"
+      ) {
+        return unknownRegistrationStaticValue;
+      }
       try {
         switch (operator) {
           case ts.SyntaxKind.EqualsEqualsEqualsToken:
@@ -16071,7 +16097,7 @@ function parseModule(relativePath) {
   }
   function registrationTruthiness(node, environment) {
     const value = registrationStaticValue(node, environment);
-    return value.known ? Boolean(value.value) : null;
+    return registrationStaticTruthiness(value);
   }
   function registrationKind(callShape, environment) {
     if (callShape === null) return null;
@@ -16112,7 +16138,7 @@ function parseModule(relativePath) {
       walkRegistrationExpression(argument, environment, stack);
       const staticValue = registrationStaticValue(argument, environment);
       return staticValue.known
-        ? { kind: "static", value: staticValue.value }
+        ? { kind: "static", static_value: staticValue }
         : unknownRegistrationValue;
     });
   }
@@ -16169,21 +16195,26 @@ function parseModule(relativePath) {
     if (ts.isBinaryExpression(node)) {
       walkRegistrationExpression(node.left, environment, stack);
       const left = registrationStaticValue(node.left, environment);
+      const leftTruthiness = registrationStaticTruthiness(left);
       const operator = node.operatorToken.kind;
       if (operator === ts.SyntaxKind.AmpersandAmpersandToken) {
-        if (left.known && Boolean(left.value)) {
+        if (leftTruthiness === true) {
           walkRegistrationExpression(node.right, environment, stack);
         }
         return;
       }
       if (operator === ts.SyntaxKind.BarBarToken) {
-        if (left.known && !Boolean(left.value)) {
+        if (leftTruthiness === false) {
           walkRegistrationExpression(node.right, environment, stack);
         }
         return;
       }
       if (operator === ts.SyntaxKind.QuestionQuestionToken) {
-        if (left.known && (left.value === null || left.value === undefined)) {
+        if (
+          left.known &&
+          left.value_kind === "primitive" &&
+          (left.value === null || left.value === undefined)
+        ) {
           walkRegistrationExpression(node.right, environment, stack);
         }
         return;
@@ -16269,7 +16300,7 @@ function parseModule(relativePath) {
               value.kind === "function"
                 ? value
                 : staticBinding.known
-                  ? { kind: "static", value: staticBinding.value }
+                  ? { kind: "static", static_value: staticBinding }
                   : unknownRegistrationValue,
             );
           }
@@ -16617,22 +16648,24 @@ function parseModule(relativePath) {
     if (ts.isBinaryExpression(node)) {
       const leftValue = evaluateExpression(node.left, environment, stack);
       const left = registrationStaticValue(node.left, environment);
+      const leftTruthiness = registrationStaticTruthiness(left);
       const operator = node.operatorToken.kind;
       if (operator === ts.SyntaxKind.AmpersandAmpersandToken) {
-        if (!left.known) return emptyValue();
-        return Boolean(left.value)
+        if (leftTruthiness === null) return emptyValue();
+        return leftTruthiness
           ? evaluateExpression(node.right, environment, stack)
           : leftValue;
       }
       if (operator === ts.SyntaxKind.BarBarToken) {
-        if (!left.known) return emptyValue();
-        return Boolean(left.value)
+        if (leftTruthiness === null) return emptyValue();
+        return leftTruthiness
           ? leftValue
           : evaluateExpression(node.right, environment, stack);
       }
       if (operator === ts.SyntaxKind.QuestionQuestionToken) {
         if (!left.known) return emptyValue();
-        return left.value === null || left.value === undefined
+        return left.value_kind === "primitive" &&
+          (left.value === null || left.value === undefined)
           ? evaluateExpression(node.right, environment, stack)
           : leftValue;
       }

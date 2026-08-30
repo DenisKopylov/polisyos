@@ -233,9 +233,9 @@ def test_v1_scope_rows_cannot_be_restamped_as_current_authority() -> None:
     payload = _current_receipt_with_v1_scope_rows(receipt)
     restamped = CanonicalPromotionReceipt.model_validate(payload)
 
-    assert {
-        issue["code"] for issue in validate_canonical_promotion_receipt(restamped)
-    } == {"obligation_instance_scope_mismatch"}
+    assert {issue["code"] for issue in validate_canonical_promotion_receipt(restamped)} == {
+        "obligation_instance_scope_mismatch"
+    }
 
 
 def test_current_owner_projection_requires_the_physical_open_world_key() -> None:
@@ -1167,14 +1167,12 @@ def test_cg2_open_admissibility_obligation_keeps_promotion_red() -> None:
         proposal_id="n9-cg2-open-admissibility",
     )
     payload = cg1.model_dump(mode="json")
-    payload["proposal_signature"]["hypotheses"][0]["signature"][
-        "admissibility"
-    ] = "candidate_unverified"
+    payload["proposal_signature"]["hypotheses"][0]["signature"]["admissibility"] = (
+        "candidate_unverified"
+    )
     provisional = cg1.__class__.model_validate(payload)
     payload["content_hash"] = recompute_grounding_relation_content_hash(provisional)
-    payload["certificate_id"] = (
-        f"cg1_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
-    )
+    payload["certificate_id"] = f"cg1_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
     open_cg1 = cg1.__class__.model_validate(payload)
     decision = GroundingBindGate.for_contract_testing(
         reference,
@@ -1290,9 +1288,25 @@ def test_invented_measurement_marker_does_not_supply_authority() -> None:
     receipt = _run(
         _promotion_input(value_receipt=value.model_copy(update={"value_outer_set": marked_value}))
     )
-    assert _obligation(receipt, PromotionObligationClass.MEASUREMENT).status == (
-        PromotionObligationStatus.SCOPE_INSUFFICIENT
-    )
+    measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)
+    assert measurement.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+    assert measurement.owner_ref.endswith("MeasurementRootProducer.produce_from_catalog")
+    assert "bridge_missing" in measurement.detail
+
+
+def test_eval_safety_names_the_missing_promotion_authority_without_reusing_o0() -> None:
+    data_only = _run(_promotion_input())
+    pilot_value = _value_receipt().model_copy(update={"evaluation_mode": "field_pilot"})
+    pilot = _run(_promotion_input(value_receipt=pilot_value))
+
+    data_only_gate = _obligation(data_only, PromotionObligationClass.EVAL_SAFETY)
+    pilot_gate = _obligation(pilot, PromotionObligationClass.EVAL_SAFETY)
+    assert data_only_gate.status == PromotionObligationStatus.NOT_APPLICABLE_DATA_ONLY
+    assert data_only_gate.owner_ref.endswith("_eval_safety_obligation")
+    assert pilot_gate.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+    assert pilot_gate.owner_ref == "absent/unallocated"
+    assert "producer_missing" in pilot_gate.detail
+    assert "forbids promotion use" in pilot_gate.detail
 
 
 @pytest.mark.parametrize(
@@ -1747,9 +1761,7 @@ def test_promotion_context_cannot_supply_legacy_gate_predicate(
         summaries=(_summary(),),
     )
     port = CanonicalN9PromotionPort(
-        context_provider=lambda summary, owner_problem: {
-            legacy_field: (summary, owner_problem)
-        },
+        context_provider=lambda summary, owner_problem: {legacy_field: (summary, owner_problem)},
         promotion_runtime=runtime,
         epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
         repo_root=REPO_ROOT,
@@ -1921,9 +1933,7 @@ def test_non_calibration_probabilistic_certificate_bypass_is_rejected() -> None:
 
 
 def test_rehashed_owner_outcome_relabel_is_rejected_by_owner_recomputation() -> None:
-    receipt = _run(
-        _promotion_input(g4_governed_promotion_ref="pdc://forged/g4/not-resolved")
-    )
+    receipt = _run(_promotion_input(g4_governed_promotion_ref="pdc://forged/g4/not-resolved"))
     obligations = tuple(
         obligation.model_copy(
             update={
@@ -1941,6 +1951,9 @@ def test_rehashed_owner_outcome_relabel_is_rejected_by_owner_recomputation() -> 
         update={
             "obligations": obligations,
             "gate_outcome_hash": _gate_outcome_hash(obligations),
+            "refusal_reasons": tuple(
+                reason for reason in receipt.refusal_reasons if not reason.startswith("param:")
+            ),
         }
     )
 
@@ -2231,7 +2244,7 @@ def test_failed_obligation_cannot_be_relabelled_into_decision_front() -> None:
     assert summaries[0].certified_by_n9 is False
 
 
-def test_promotion_history_rule_stays_v3_and_current_v4_requires_full_reissue() -> None:
+def test_promotion_history_rule_stays_v3_and_current_v5_requires_full_reissue() -> None:
     from tools.quality.validation import check_layer3_gy_promotion_contract as validator
 
     frozen = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
@@ -2447,8 +2460,8 @@ def test_runtime_admission_proxy_cannot_fabricate_second_deployment_lineage(
     assert baseline.confidence_ledger_semantic_projection is not None
 
 
-def test_promotion_comparison_repairs_current_v4_lineage_only_through_live_owner_proof() -> None:
-    """Current v4 custody gains semantic lineage only from the live owner."""
+def test_promotion_comparison_repairs_current_v5_lineage_only_through_live_owner_proof() -> None:
+    """Current v5 custody gains semantic lineage only from the live owner."""
 
     promotion_input = _promotion_input()
     session = _verification_ledger_session(binding=promotion_input.design_problem_binding)
@@ -2697,11 +2710,7 @@ def _legacy_v4_history_payload(receipt: CanonicalPromotionReceipt) -> dict[str, 
     projection["projection_hash"] = confidence_ledger_module._content_hash(
         {key: value for key, value in projection.items() if key != "projection_hash"}
     )
-    semantic = payload.get("confidence_ledger_semantic_projection")
-    if isinstance(semantic, dict):
-        semantic_scope = semantic["risk_scope"]
-        assert isinstance(semantic_scope, dict)
-        semantic_scope["rule_ref"] = v4
+    payload["confidence_ledger_semantic_projection"] = None
     return payload
 
 

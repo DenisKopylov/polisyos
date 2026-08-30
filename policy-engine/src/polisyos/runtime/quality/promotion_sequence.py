@@ -105,13 +105,16 @@ PROMOTION_STRANGLE_REF = (
     "polisyos.runtime.quality.promotion_sequence.LegacyPromotionStrangleReceipt"
 )
 CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION = (
-    "policyos.policy_design_case.layer3_gy.n9_promotion.v4"
+    "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
 )
 CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION = (
-    "policyos.policy_design_case.layer3_gy.n9_owner_projection.v2"
+    "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
 )
 _LEGACY_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1"
+)
+_LEGACY_PROMOTION_OWNER_PROJECTION_V2_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer3_gy.n9_owner_projection.v2"
 )
 _SELF_PROMOTION_ROOTS = frozenset(
     {
@@ -133,7 +136,7 @@ _G4_PROMOTION_RECORDS_PATH = Path(
 )
 _VERIFICATION_NON_PROMOTABLE_REASON = "verification_only_replay"
 _PROMOTION_OBLIGATION_SCOPE_RULE_VERSION = (
-    "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v1"
+    "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v2"
 )
 _PROMOTION_CLASS_GATE_SOURCE_RULE_VERSION = (
     "polisyos.policy_design_case.layer3_gy.n9_class_gate_source.v1"
@@ -185,7 +188,7 @@ class CredalReferencePromotabilityProjection(_StrictModel):
 class CanonicalPromotionInput(_StrictModel):
     """Complete input to one canonical N9 promotion attempt."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v4"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v5"] = (
         CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
     )
     design_problem_binding: N9DesignProblemBinding
@@ -212,8 +215,6 @@ class CanonicalPromotionInput(_StrictModel):
     g4_governed_promotion_ref: str | None = (
         "g4-promotion-record:g4-request:ua-msme-source-only-valid"
     )
-    effective_independence: bool = True
-    admissibility: bool = True
     force_proof_timeout: bool = False
 
     @model_validator(mode="after")
@@ -296,20 +297,68 @@ class _LegacyCanonicalPromotionOwnerProjectionV1(_StrictModel):
         return self
 
 
-class CanonicalPromotionOwnerProjection(_LegacyCanonicalPromotionOwnerProjectionV1):
-    """Current content-bound owner projection; the OWR key is physically present."""
+class _LegacyCanonicalPromotionOwnerProjectionV2(_LegacyCanonicalPromotionOwnerProjectionV1):
+    """Exact v4 owner bytes retained solely for history reads."""
 
     schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_owner_projection.v2"] = (
-        CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION
+        _LEGACY_PROMOTION_OWNER_PROJECTION_V2_SCHEMA_VERSION
     )
     open_world_gate: OpenWorldRiskPromotionGate | None
     epoch_validity_projection: core_contracts.EpochValidityN9Projection | None = None
 
 
+class CanonicalPromotionOwnerProjection(_StrictModel):
+    """Current owner projection without caller-asserted gate predicates."""
+
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"] = (
+        CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION
+    )
+    design_problem_binding: N9DesignProblemBinding
+    candidate_summary: CandidateSummary
+    value_receipt: ValueGateReceipt | None = None
+    world_model_record: WorldModelRecord | None = None
+    grounding_decision_certificate: GroundingDecisionCertificate | None = None
+    credal_reference: CredalReferencePromotabilityProjection | None = None
+    s6_blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None
+    s7_delegation_posture: Layer2S7DelegationPostureInput | None = None
+    s8_value_posture: Layer2S8ValuePostureInput | None = None
+    operation_invocation_id: str = Field(..., min_length=1)
+    declared_authority_transform: dict[str, Any] = Field(default_factory=dict)
+    producer_root_classes: tuple[str, ...]
+    producer_root_refs: tuple[ArtifactRef, ...]
+    verifier_refs: tuple[str, ...]
+    certificate_offers: tuple[PromotionCertificateOffer, ...] = ()
+    open_world_gate: OpenWorldRiskPromotionGate | None
+    epoch_validity_projection: core_contracts.EpochValidityN9Projection | None = None
+    g4_governed_promotion_ref: str | None
+    force_proof_timeout: bool
+    projection_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @field_validator("value_receipt", mode="before")
+    @classmethod
+    def _load_persisted_value_receipt(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            return value
+        payload = dict(value)
+        value_outer_set = payload.get("value_outer_set")
+        if isinstance(value_outer_set, Mapping):
+            payload["value_outer_set"] = core_contracts.ValueOuterSet.from_persisted_payload(
+                value_outer_set
+            )
+        return ValueGateReceipt.model_validate(payload)
+
+    @model_validator(mode="after")
+    def _projection_hash_is_content_bound(self) -> CanonicalPromotionOwnerProjection:
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"projection_hash"}))
+        if self.projection_hash != expected:
+            raise ValueError("n9_owner_projection_hash_mismatch")
+        return self
+
+
 class CanonicalPromotionReceipt(_StrictModel):
     """Replay-visible result of the canonical N9 sequence."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v4"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v5"] = (
         CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
     )
     owner_projection: CanonicalPromotionOwnerProjection
@@ -443,6 +492,15 @@ class CanonicalPromotionReceipt(_StrictModel):
         return self
 
 
+class _LegacyCanonicalPromotionReceiptV4(CanonicalPromotionReceipt):
+    """Exact v4/v1 obligation-scope receipt retained only for history reads."""
+
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v4"] = (
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v4"
+    )
+    owner_projection: _LegacyCanonicalPromotionOwnerProjectionV2
+
+
 class _LegacyCanonicalPromotionReceiptV3(CanonicalPromotionReceipt):
     """Exact pre-OpenWorldRisk v3 receipt retained only for history reads."""
 
@@ -462,12 +520,35 @@ class _LegacyCanonicalPromotionReceiptV2(_LegacyCanonicalPromotionReceiptV3):
 
 
 _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+_LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer3_gy.n9_promotion.v4"
+)
+_HISTORICAL_PROMOTION_SEQUENCE_SCHEMA_VERSIONS = frozenset(
+    {
+        _LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION,
+        GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+        _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+    }
+)
+
+
+def _historical_promotion_non_admission_code(
+    schema_version: object,
+) -> str | None:
+    """Return the typed current-authority refusal for one readable history epoch."""
+
+    if schema_version not in _HISTORICAL_PROMOTION_SEQUENCE_SCHEMA_VERSIONS:
+        return None
+    if schema_version == _LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION:
+        return "legacy_obligation_scope_v1_authority_not_admitted"
+    return "legacy_open_world_gate_authority_not_admitted"
 
 
 def parse_canonical_promotion_history_receipt(
     value: Mapping[str, object],
 ) -> (
     CanonicalPromotionReceipt
+    | _LegacyCanonicalPromotionReceiptV4
     | _LegacyCanonicalPromotionReceiptV3
     | _LegacyCanonicalPromotionReceiptV2
 ):
@@ -476,6 +557,8 @@ def parse_canonical_promotion_history_receipt(
     schema_version = value.get("schema_version")
     if schema_version == CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION:
         return CanonicalPromotionReceipt.model_validate(value)
+    if schema_version == _LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION:
+        return _LegacyCanonicalPromotionReceiptV4.model_validate(value)
     if schema_version == GY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
         return _LegacyCanonicalPromotionReceiptV3.model_validate(value)
     if schema_version == _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
@@ -491,9 +574,13 @@ CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE = (
     "polisyos.runtime.quality.promotion_sequence."
     "canonical_promotion_receipt_verification_projection.v2"
 )
-CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE = (
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V4_HISTORY_RULE = (
     "polisyos.runtime.quality.promotion_sequence."
     "canonical_promotion_receipt_verification_projection.v3"
+)
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE = (
+    "polisyos.runtime.quality.promotion_sequence."
+    "canonical_promotion_receipt_verification_projection.v4"
 )
 
 _PROMOTION_OWNER_PROJECTION_LINEAGE_FIELDS = frozenset({"projection_hash"})
@@ -740,19 +827,17 @@ def _canonical_promotion_receipt_legacy_semantic_projection(
 def canonical_promotion_receipt_semantic_projection(
     value: Mapping[str, object],
 ) -> dict[str, Any]:
-    """Project a verified receipt onto its v4 producer-owned semantics.
+    """Project a verified receipt onto its v5 producer-owned semantics.
 
     The complete raw receipt remains the custody record. Physical ledger
     locators are non-decisive only when the confidence-ledger producer's full
     semantic event lineage is present and content-valid.
     """
 
-    if value.get("schema_version") in {
-        GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
-        _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
-    }:
+    history_code = _historical_promotion_non_admission_code(value.get("schema_version"))
+    if history_code is not None:
         parse_canonical_promotion_history_receipt(value)
-        raise ValueError("legacy_open_world_gate_authority_not_admitted")
+        raise ValueError(history_code)
     receipt = CanonicalPromotionReceipt.model_validate(value)
     if type(receipt) is not CanonicalPromotionReceipt:
         raise ValueError("legacy_open_world_gate_authority_not_admitted")
@@ -767,6 +852,26 @@ def canonical_promotion_receipt_semantic_projection(
         receipt.model_dump(mode="json"),
         model_type=CanonicalPromotionReceipt,
         owner_model_type=CanonicalPromotionOwnerProjection,
+        receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
+    )
+
+
+def _canonical_promotion_receipt_v4_semantic_projection(
+    value: Mapping[str, object],
+) -> dict[str, Any]:
+    """Project exact historical v4/v2-owner bytes under their frozen v3 rule ID."""
+
+    receipt = _LegacyCanonicalPromotionReceiptV4.model_validate(value)
+    if receipt.confidence_ledger_semantic_projection is None:
+        raise ValueError("promotion_comparison_semantic_ledger_missing")
+    if not is_gy_declared_non_authority_block(
+        receipt.confidence_ledger_projection.model_dump(mode="json")
+    ):
+        raise ValueError("promotion_comparison_requires_verification_receipt")
+    return _project_promotion_receipt_payload(
+        receipt.model_dump(mode="json"),
+        model_type=_LegacyCanonicalPromotionReceiptV4,
+        owner_model_type=_LegacyCanonicalPromotionOwnerProjectionV2,
         receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
     )
 
@@ -800,6 +905,13 @@ CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE = GyComparisonOwne
 
 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE = GyComparisonOwnerRule(
     projector=_canonical_promotion_receipt_v3_semantic_projection,
+    action="project",
+    predicate_provenance="recomputed",
+)
+
+
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V4_HISTORY_OWNER_RULE = GyComparisonOwnerRule(
+    projector=_canonical_promotion_receipt_v4_semantic_projection,
     action="project",
     predicate_provenance="recomputed",
 )
@@ -918,8 +1030,6 @@ def _owner_projection_from_input(
         "open_world_gate": promotion_input.open_world_gate,
         "epoch_validity_projection": promotion_input.epoch_validity_projection,
         "g4_governed_promotion_ref": promotion_input.g4_governed_promotion_ref,
-        "effective_independence": promotion_input.effective_independence,
-        "admissibility": promotion_input.admissibility,
         "force_proof_timeout": promotion_input.force_proof_timeout,
     }
     payload["projection_hash"] = gy_content_hash(
@@ -968,8 +1078,6 @@ def _input_from_owner_projection(
         open_world_gate=projection.open_world_gate,
         epoch_validity_projection=projection.epoch_validity_projection,
         g4_governed_promotion_ref=projection.g4_governed_promotion_ref,
-        effective_independence=projection.effective_independence,
-        admissibility=projection.admissibility,
         force_proof_timeout=projection.force_proof_timeout,
     )
 
@@ -1280,6 +1388,9 @@ def _run_n9_promotion_port_batch(
     )
     if any("open_world_gate" in context for context in contexts):
         raise ValueError("promotion_context_cannot_supply_open_world_gate")
+    legacy_gate_predicates = frozenset({"admissibility", "effective_independence"})
+    if any(legacy_gate_predicates.intersection(context) for context in contexts):
+        raise ValueError("promotion_context_cannot_supply_gate_predicate")
     receipts_with_inputs: list[tuple[CanonicalPromotionReceipt, CanonicalPromotionInput]] = []
     for summary, context, open_world_gate, epoch_projection in zip(
         summaries,
@@ -1321,8 +1432,6 @@ def _run_n9_promotion_port_batch(
                 "g4_governed_promotion_ref",
                 "g4-promotion-record:g4-request:ua-msme-source-only-valid",
             ),
-            effective_independence=bool(context.get("effective_independence", True)),
-            admissibility=bool(context.get("admissibility", True)),
             force_proof_timeout=bool(context.get("force_proof_timeout", False)),
         )
         runner = (
@@ -2253,12 +2362,14 @@ def admit_canonical_promotion_receipt_for_comparison(
     self-computed projection hash.
     """
 
-    if isinstance(receipt, Mapping) and receipt.get("schema_version") in {
-        GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
-        _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
-    }:
+    history_code = (
+        _historical_promotion_non_admission_code(receipt.get("schema_version"))
+        if isinstance(receipt, Mapping)
+        else None
+    )
+    if history_code is not None:
         parse_canonical_promotion_history_receipt(receipt)
-        raise ValueError("legacy_open_world_gate_authority_not_admitted")
+        raise ValueError(history_code)
     parsed = (
         receipt
         if type(receipt) is CanonicalPromotionReceipt
@@ -2289,7 +2400,7 @@ def admit_canonical_promotion_receipt_for_comparison(
         previous: Mapping[str, object],
         current: Mapping[str, object],
     ) -> Mapping[str, object]:
-        """Admit same-version v4 lineage only; v2/v3 remain history, never authority."""
+        """Admit same-version v5 lineage only; v2/v3/v4 stay history."""
 
         try:
             current_receipt = CanonicalPromotionReceipt.model_validate(current)
@@ -2316,10 +2427,13 @@ def admit_canonical_promotion_receipt_for_comparison(
                 ) != canonical_promotion_receipt_semantic_projection(current):
                     raise ValueError("migrated_semantic_projection_drift")
                 return migrated_payload
-            # v2/v3 lack the decisive OWR owner fact. They remain structurally
-            # readable history but cannot be migrated into v4 authority.
+            # Historical epochs remain structurally readable but cannot be
+            # migrated into current authority without a fresh owner replay.
             parse_canonical_promotion_history_receipt(previous)
-            raise ValueError("legacy_open_world_gate_authority_not_admitted")
+            raise ValueError(
+                _historical_promotion_non_admission_code(previous_schema)
+                or "promotion_history_schema_invalid"
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("promotion_legacy_comparison_semantic_mismatch") from exc
 
@@ -2408,15 +2522,17 @@ def _validate_promotion_receipt_with_bound_session(
 ) -> tuple[dict[str, Any], ...]:
     """Recompute one receipt after its authority mode is fixed by a wrapper."""
 
-    if isinstance(receipt, Mapping) and receipt.get("schema_version") in {
-        GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
-        _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
-    }:
+    history_code = (
+        _historical_promotion_non_admission_code(receipt.get("schema_version"))
+        if isinstance(receipt, Mapping)
+        else None
+    )
+    if history_code is not None:
         try:
             parse_canonical_promotion_history_receipt(receipt)
         except ValueError as exc:
             return ({"code": "promotion_receipt_invalid", "error": str(exc)},)
-        return ({"code": "legacy_open_world_gate_authority_not_admitted"},)
+        return ({"code": history_code},)
     if type(receipt) is not CanonicalPromotionReceipt:
         try:
             receipt = CanonicalPromotionReceipt.model_validate(receipt)
@@ -3078,10 +3194,37 @@ def _decisive_predicate_obligations(
     *,
     instance_scope_content_hash: str,
 ) -> tuple[PromotionObligationRecord, ...]:
+    records: list[PromotionObligationRecord] = []
+    independence_source_ref = f"{PROMOTION_SEQUENCE_REF}#effective_independence"
+    independence_draft = _scope_insufficient_obligation(
+        obligation_class=PromotionObligationClass.DATA,
+        gate_id=PromotionGateId.RING2_WAIST,
+        owner_ref="absent/unallocated",
+        detail=(
+            "producer_missing: no candidate-bound, persisted, verifier-provenance "
+            "effective-independence artifact is allocated for N9 promotion."
+        ),
+    )
+    records.append(
+        PromotionObligationRecord.from_draft(
+            independence_draft,
+            obligation_role="decisive_predicate",
+            source_obligation_ref=independence_source_ref,
+            source_obligation_content_hash=gy_content_hash(
+                {
+                    "rule_version": _PROMOTION_OBLIGATION_SCOPE_RULE_VERSION,
+                    "source_obligation_ref": independence_source_ref,
+                    "predicate_provenance": "not_established",
+                    "capability_state": "producer_missing",
+                    "owner_ref": independence_draft.owner_ref,
+                }
+            ),
+            instance_scope_content_hash=instance_scope_content_hash,
+        )
+    )
     receipt = promotion_input.value_receipt
     if receipt is None:
-        return ()
-    records: list[PromotionObligationRecord] = []
+        return tuple(records)
     for predicate in receipt.decisive_consistency_predicates():
         if not predicate.satisfied:
             raise ValueError("decisive_value_receipt_predicate_not_satisfied")
@@ -3175,6 +3318,7 @@ def _obligation_instance_issues(
     replay_input: CanonicalPromotionInput,
 ) -> tuple[dict[str, Any], ...]:
     issues: list[dict[str, Any]] = []
+    scope_hash = _obligation_instance_scope_content_hash(replay_input)
     ids = [item.obligation_instance_id for item in obligations]
     duplicate_ids = sorted({item for item in ids if ids.count(item) > 1})
     for instance_id in duplicate_ids:
@@ -3185,6 +3329,15 @@ def _obligation_instance_issues(
             }
         )
     for obligation in obligations:
+        if obligation.instance_scope_content_hash != scope_hash:
+            issues.append(
+                {
+                    "code": "obligation_instance_scope_mismatch",
+                    "obligation_instance_id": obligation.obligation_instance_id,
+                    "expected_scope_content_hash": scope_hash,
+                    "actual_scope_content_hash": obligation.instance_scope_content_hash,
+                }
+            )
         expected_id = promotion_obligation_instance_id(
             obligation_role=obligation.obligation_role,
             obligation_class=obligation.obligation_class,
@@ -3200,8 +3353,8 @@ def _obligation_instance_issues(
                     "obligation_instance_id": obligation.obligation_instance_id,
                 }
             )
-
-    scope_hash = _obligation_instance_scope_content_hash(replay_input)
+    if any(issue["code"] == "obligation_instance_scope_mismatch" for issue in issues):
+        return tuple(issues)
     expected_decisive = _decisive_predicate_obligations(
         replay_input,
         instance_scope_content_hash=scope_hash,
@@ -3345,20 +3498,17 @@ def _param_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObli
 
 
 def _coupling_obligation(summary: CandidateSummary) -> PromotionObligationDraft:
-    blockers = set(summary.value_blockers)
-    if "n5_coupling_blocked" in blockers or "joint_obligation_inconsistency" in blockers:
-        return _failed_obligation(
-            obligation_class=PromotionObligationClass.COUPLING,
-            gate_id=PromotionGateId.N5_COUPLING,
-            owner_ref="polisyos.runtime.quality.joint_simulation_horizon",
-            detail="N5 coupling owner recorded a promotion blocker.",
-            reason=PromotionFailClosedReason.JOINT_OBLIGATION_INCONSISTENCY,
-        )
-    return _satisfied_obligation(
+    del summary
+    return _scope_insufficient_obligation(
         obligation_class=PromotionObligationClass.COUPLING,
         gate_id=PromotionGateId.N5_COUPLING,
-        owner_ref="polisyos.runtime.quality.joint_simulation_horizon",
-        detail="No N5 coupling blocker is present on the candidate summary.",
+        owner_ref=(
+            "polisyos.runtime.quality.generation_cycle.SimulationPortObservation.authority_blockers"
+        ),
+        detail=(
+            "bridge_missing: the typed N5 SimulationPortObservation coupling outcome is "
+            "not carried into the N9 promotion input; blocker-string absence is not a pass."
+        ),
     )
 
 
@@ -3475,10 +3625,14 @@ def _measurement_obligation(receipt: ValueGateReceipt | None) -> PromotionObliga
     return _scope_insufficient_obligation(
         obligation_class=PromotionObligationClass.MEASUREMENT,
         gate_id=PromotionGateId.N8_VALUE,
-        owner_ref="measurement-rooted producer owner",
+        owner_ref=(
+            "polisyos.runtime.quality.data_forge_binding."
+            "MeasurementRootProducer.produce_from_catalog"
+        ),
         detail=(
-            "Measurement-rooted producer owner is unwired; ValueOuterSet promotion_decision "
-            "remains value-class semantics only."
+            "bridge_missing: the CAS-backed MeasurementRoot producer exists, but N8 does "
+            "not carry a candidate/current-problem root resolution into N9; ValueOuterSet "
+            "promotion_decision remains value-class semantics only."
         ),
     )
 
@@ -3561,17 +3715,21 @@ def _eval_safety_obligation(receipt: ValueGateReceipt | None) -> PromotionObliga
         return _scope_insufficient_obligation(
             obligation_class=PromotionObligationClass.EVAL_SAFETY,
             gate_id=PromotionGateId.GY_O0_EVAL_SAFETY,
-            owner_ref="GY-O0 eval-safety gate",
-            detail="GY-O0 eval-safety owner is not implemented for pilot/deployment promotion.",
+            owner_ref="absent/unallocated",
+            detail=(
+                "producer_missing: attempted-evaluation safety is implemented and "
+                "orchestrated, but its certificate expressly forbids promotion use; no "
+                "promotion-authoritative pilot/deployment predicate is allocated."
+            ),
         )
     return PromotionObligationDraft(
         obligation_class=PromotionObligationClass.EVAL_SAFETY,
         gate_id=PromotionGateId.GY_O0_EVAL_SAFETY,
         status=PromotionObligationStatus.NOT_APPLICABLE_DATA_ONLY,
-        owner_ref="GY-O0 eval-safety gate",
+        owner_ref="polisyos.runtime.quality.promotion_sequence._eval_safety_obligation",
         detail=(
-            "No pilot/deployment action is attempted; eval-safety remains scope_insufficient "
-            "for future pilot/deployment verticals."
+            "No pilot/deployment action is attempted; the promotion-specific predicate is "
+            "not applicable to this data-only attempt."
         ),
         semantic_scope="data_only_not_required",
     )

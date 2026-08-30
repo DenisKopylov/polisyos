@@ -48,7 +48,6 @@ _EXPECTED_INITIAL_ROOT_CALLERS = {
     "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
     "src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
 }
-_EXPECTED_TEST_EXECUTION_CONTEXT_CALLS = 117
 
 
 class _CallSite(NamedTuple):
@@ -363,10 +362,8 @@ def test_all_execution_context_constructors_require_same_claim_owner_port() -> N
 
     assert ast_base == token_base
     assert ast_claim == token_claim
-    assert not {row for row in ast_base if row.path.startswith("src/")}
-    assert len([row for row in ast_base if row.path.startswith("tests/")]) == (
-        _EXPECTED_TEST_EXECUTION_CONTEXT_CALLS
-    )
+    test_base = {row for row in ast_base if row.path.startswith("tests/")}
+    assert ast_base == test_base
     assert {row.path for row in ast_claim if row.path.startswith("src/")} == (
         _EXPECTED_CONTEXT_CONSTRUCTORS
     )

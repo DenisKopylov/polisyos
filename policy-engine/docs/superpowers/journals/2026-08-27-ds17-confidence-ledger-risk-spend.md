@@ -2818,3 +2818,48 @@ supplying the false owner tuples **together with** the behavioral-evidence
 bindings needed to complete that authored transaction could make the checker
 accept a containment relationship the real DOM disproves. The mandatory stop,
 owner absence, capability labels and mechanism ledger are unchanged.
+
+## 2026-08-30 — amendment (7): one omission at six checkpoints; C04 temporal reopening
+
+The preceding journal content is 2,820 lines and 172,514 bytes, with Git blob
+`abf14f65da8513aed92f98e5a9d90b7857d812e5` and file SHA-256
+`50c66315d184b15712c64cce17727c33f8e3bc53363ab3638cd30e9c3d5310f1`.
+
+The custody chain since the preceding stop is append-only. Architect amendment
+(5), commit `a4a8680bd`, moved the plan blob
+`310198aefe05351ef7fe1c5708256688c6692554` →
+`9f2a8b0776e60784c17d516466ea86ac1b55ee2b`; amendment (6), commit
+`9cd2d028b`, moved it to
+`460e89cfd896830e1ad081a7ad25901ebf8b1631`; amendment (7), commit
+`04825a4f2`, moved it to
+`d25f9c79f891cb6b77f5c35cf3168740e74dd9c8`. The last value is the new
+plan-custody constant.
+
+The root cause is one omission surfacing at six checkpoints, not six distinct
+obstacles. A decision-bearing surface in this repository owes (1) a producer
+capable of emitting each state the demonstration promises, surfaced at stops 1
+and 3; (2) a schema-admitted registration slot, surfaced at stop 2; and (3)
+admitted temporal semantics, surfaced at stops 4, 5, and 6. C04 was correctly
+closed on paint containment, but that cluster closure was approved without
+checking every other standing obligation on the decision-bearing surface kind
+it had built. The reusable rule is: a cluster closure must test all standing
+obligations of the thing it creates, not only the local property the cluster is
+verifying.
+
+The correction reverses the architect prohibition against reopening C04; it is
+not another inheritance or registration workaround. C04 reopens only to render
+the packet-owned `as_of`, `freshness.observed_at`,
+`freshness.source_as_of`, and `freshness.state` coordinates together with the
+canonical admitted-or-nonreceipt epoch/validity/staleness posture, and to add
+the red-first state-mutation plus remove-property/keep-markers behavioral proof
+required by DS18/P29. The paint verifier, its browser-derived property census,
+the 73/0 native lane, the closed-shadow executable boundary, and the declared
+threat model remain frozen; a required change to any of them is still a stop.
+
+The temporal work is confined to paths already counted in C04. Mechanisms
+remain 17/18 declared, 17/22 ceiling, reserve 0; C05's Atlas checker is still
+the eighteenth and final planned mechanism. After C04 temporal closure, DS18
+must derive the affected DS17 roots as direct decision-bearing roots, refresh
+only the seven-path DS17 receipts and current census/manifests, and use no
+inheritance claim. The twenty route denominators remain the baseline and must
+not move.

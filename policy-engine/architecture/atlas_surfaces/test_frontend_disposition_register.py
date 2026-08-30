@@ -8934,6 +8934,95 @@ it("passes the rendered panel root to the twin", () => {
         ):
             checker._build_ds17_confidence_ledger_risk_spend_surface()
 
+    def test_behavioral_evidence_rejects_unreachable_test_registration(
+        self,
+    ) -> None:
+        """Only tests registered by reachable active module code may execute."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        render_test = """
+it("renders the role", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+});
+"""
+        witnesses = {
+            "statically_dead_module_branch": (
+                f"{imports}\nif (false) {{{render_test}}}\n"
+            ),
+            "nested_under_skipped_test": (
+                f'{imports}\nit.skip("disabled parent", () => {{'
+                f"{render_test}}});\n"
+            ),
+            "nested_under_skipped_suite": (
+                f'{imports}\ndescribe.skip("disabled suite", () => {{'
+                f"{render_test}}});\n"
+            ),
+            "inside_uncalled_registration_function": (
+                f"{imports}\nfunction registerRoleTest() {{{render_test}}}\n"
+                "void registerRoleTest;\n"
+            ),
+        }
+
+        for label, source in witnesses.items():
+            with self.subTest(label=label):
+                scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: source}
+                )
+                with (
+                    mock.patch.object(
+                        checker,
+                        "_ds17_typescript_surface_scan",
+                        return_value=scan,
+                    ),
+                    pytest.raises(ValueError, match="behavioral evidence"),
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_behavioral_evidence_accepts_reachable_registration_paths(
+        self,
+    ) -> None:
+        """Reachable suites and called helpers register executable tests."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        render_test = """
+it("renders the role", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+});
+"""
+        sources = {
+            "reachable_suite": (
+                f'{imports}\ndescribe("active suite", () => {{{render_test}}});\n'
+            ),
+            "called_registration_helper": (
+                f"{imports}\nfunction registerRoleTest() {{{render_test}}}\n"
+                "registerRoleTest();\n"
+            ),
+        }
+
+        for label, source in sources.items():
+            with self.subTest(label=label):
+                scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: source}
+                )
+                with mock.patch.object(
+                    checker,
+                    "_ds17_typescript_surface_scan",
+                    return_value=scan,
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
     def test_real_ds18_builder_partitions_every_current_ds17_root(self) -> None:
         """The three owner roots admit every other current same-file root."""
         scan = checker._ds18_time_semantics_scan()

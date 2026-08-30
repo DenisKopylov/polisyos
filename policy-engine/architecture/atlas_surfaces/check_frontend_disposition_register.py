@@ -15706,19 +15706,19 @@ function bindingNames(name, names = []) {
   }
   return names;
 }
-function testCallInfo(expression, modifiers = []) {
+function registrationCallShape(expression, modifiers = []) {
   const node = unwrap(expression);
   if (ts.isIdentifier(node)) {
-    if (node.text !== "it" && node.text !== "test") return null;
-    return {
-      disabled: modifiers.some((name) => name === "skip" || name === "todo"),
-      root: node.text,
-    };
+    return { local: node.text, modifiers };
   }
   if (ts.isPropertyAccessExpression(node)) {
-    return testCallInfo(node.expression, [...modifiers, node.name.text]);
+    return registrationCallShape(
+      node.expression, [...modifiers, node.name.text]
+    );
   }
-  if (ts.isCallExpression(node)) return testCallInfo(node.expression, modifiers);
+  if (ts.isCallExpression(node)) {
+    return registrationCallShape(node.expression, modifiers);
+  }
   return null;
 }
 function parseModule(relativePath) {
@@ -15837,7 +15837,7 @@ function parseModule(relativePath) {
   const nonImportBindings = new Set();
   const moduleFunctions = new Map();
   const testCallbacks = [];
-  function collectExecutionShape(node) {
+  function collectBindings(node) {
     if (ts.isVariableDeclaration(node)) {
       for (const name of bindingNames(node.name)) nonImportBindings.add(name);
       if (
@@ -15879,24 +15879,300 @@ function parseModule(relativePath) {
     ) {
       nonImportBindings.add(node.name.text);
     }
-    if (ts.isCallExpression(node)) {
-      const testCall = testCallInfo(node.expression);
-      if (testCall === null || testCall.disabled) {
-        ts.forEachChild(node, collectExecutionShape);
-        return;
-      }
-      for (const argument of node.arguments) {
-        const candidate = unwrap(argument);
-        if (ts.isArrowFunction(candidate) || ts.isFunctionExpression(candidate)) {
-          testCallbacks.push({ callback: candidate, root: testCall.root });
-        }
-      }
-    }
-    ts.forEachChild(node, collectExecutionShape);
+    ts.forEachChild(node, collectBindings);
   }
-  collectExecutionShape(sourceFile);
+  collectBindings(sourceFile);
   const shadowedImportLocals = new Set(
     [...nonImportBindings].filter((name) => valueImports.has(name)),
+  );
+  const testFrameworkModules = new Set(["vitest", "@jest/globals"]);
+  const testRegistrationRoots = new Set(["it", "test"]);
+  const suiteRegistrationRoots = new Set(["describe", "suite"]);
+  const disabledRegistrationModifiers = new Set(["skip", "todo"]);
+  const unknownRegistrationValue = Object.freeze({ kind: "unknown" });
+  function frameworkRegistrationKind(name) {
+    if (testRegistrationRoots.has(name)) return "test";
+    if (suiteRegistrationRoots.has(name)) return "suite";
+    return null;
+  }
+  function registrationFunctionValue(node, environment) {
+    const candidate = unwrap(node);
+    if (ts.isArrowFunction(candidate) || ts.isFunctionExpression(candidate)) {
+      return { closure: environment, kind: "function", node: candidate };
+    }
+    if (ts.isIdentifier(candidate)) {
+      const resolved = environment.get(candidate.text);
+      if (resolved?.kind === "function") return resolved;
+    }
+    return unknownRegistrationValue;
+  }
+  function registrationStaticValue(node, environment) {
+    const candidate = unwrap(node);
+    const direct = staticValue(candidate);
+    if (direct !== undefined) return direct;
+    if (ts.isIdentifier(candidate)) {
+      const resolved = environment.get(candidate.text);
+      if (resolved?.kind === "static") return resolved.value;
+    }
+    if (
+      ts.isPrefixUnaryExpression(candidate) &&
+      candidate.operator === ts.SyntaxKind.ExclamationToken
+    ) {
+      const operand = registrationStaticValue(candidate.operand, environment);
+      return operand === undefined ? undefined : !operand;
+    }
+    return undefined;
+  }
+  function registrationKind(callShape, environment) {
+    if (callShape === null) return null;
+    if (environment.has(callShape.local)) {
+      const resolved = environment.get(callShape.local);
+      return resolved?.kind === "framework"
+        ? resolved.registration_kind
+        : null;
+    }
+    return frameworkRegistrationKind(callShape.local);
+  }
+  function registrationDisabled(callShape) {
+    return callShape.modifiers.some((name) =>
+      disabledRegistrationModifiers.has(name)
+    );
+  }
+  function executeRegistrationFunction(value, argumentValues, stack) {
+    const stackKey = `registration:${value.node.pos}`;
+    if (stack.has(stackKey)) return;
+    const nextStack = new Set(stack);
+    nextStack.add(stackKey);
+    const environment = new Map(value.closure);
+    value.node.parameters.forEach((parameter, index) => {
+      for (const name of bindingNames(parameter.name)) {
+        environment.set(name, argumentValues[index] ?? unknownRegistrationValue);
+      }
+    });
+    if (ts.isBlock(value.node.body)) {
+      walkRegistrationStatements(value.node.body.statements, environment, nextStack);
+    } else {
+      walkRegistrationExpression(value.node.body, environment, nextStack);
+    }
+  }
+  function registrationArgumentValues(argumentsList, environment, stack) {
+    return argumentsList.map((argument) => {
+      const value = registrationFunctionValue(argument, environment);
+      if (value.kind !== "function") {
+        walkRegistrationExpression(argument, environment, stack);
+      }
+      return value;
+    });
+  }
+  function walkRegistrationCall(node, environment, stack) {
+    const callShape = registrationCallShape(node.expression);
+    const kind = registrationKind(callShape, environment);
+    const argumentValues = registrationArgumentValues(
+      node.arguments, environment, stack
+    );
+    if (kind !== null) {
+      if (registrationDisabled(callShape)) return;
+      const callback = [...argumentValues]
+        .reverse()
+        .find((value) => value.kind === "function");
+      if (callback === undefined) return;
+      if (kind === "suite") {
+        executeRegistrationFunction(callback, [], stack);
+      } else {
+        testCallbacks.push(callback.node);
+      }
+      return;
+    }
+    const callee = unwrap(node.expression);
+    if (ts.isIdentifier(callee)) {
+      const helper = environment.get(callee.text);
+      if (helper?.kind === "function") {
+        executeRegistrationFunction(helper, argumentValues, stack);
+        return;
+      }
+    }
+    walkRegistrationExpression(node.expression, environment, stack);
+  }
+  function walkRegistrationExpression(expression, environment, stack) {
+    const node = unwrap(expression);
+    if (ts.isCallExpression(node)) {
+      walkRegistrationCall(node, environment, stack);
+      return;
+    }
+    if (ts.isAwaitExpression(node)) {
+      walkRegistrationExpression(node.expression, environment, stack);
+      return;
+    }
+    if (ts.isConditionalExpression(node)) {
+      walkRegistrationExpression(node.condition, environment, stack);
+      const condition = registrationStaticValue(node.condition, environment);
+      if (condition !== false) {
+        walkRegistrationExpression(node.whenTrue, environment, stack);
+      }
+      if (condition !== true) {
+        walkRegistrationExpression(node.whenFalse, environment, stack);
+      }
+      return;
+    }
+    if (ts.isBinaryExpression(node)) {
+      walkRegistrationExpression(node.left, environment, stack);
+      const left = registrationStaticValue(node.left, environment);
+      if (
+        (node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken &&
+          left === false) ||
+        (node.operatorToken.kind === ts.SyntaxKind.BarBarToken && left === true)
+      ) {
+        return;
+      }
+      walkRegistrationExpression(node.right, environment, stack);
+      return;
+    }
+    if (
+      ts.isPrefixUnaryExpression(node) ||
+      ts.isPostfixUnaryExpression(node) ||
+      ts.isTypeOfExpression(node) ||
+      ts.isVoidExpression(node)
+    ) {
+      walkRegistrationExpression(
+        node.operand ?? node.expression, environment, stack
+      );
+      return;
+    }
+    if (ts.isArrayLiteralExpression(node)) {
+      for (const element of node.elements) {
+        walkRegistrationExpression(element, environment, stack);
+      }
+      return;
+    }
+    if (ts.isObjectLiteralExpression(node)) {
+      for (const property of node.properties) {
+        if (ts.isPropertyAssignment(property)) {
+          walkRegistrationExpression(property.initializer, environment, stack);
+        } else if (ts.isSpreadAssignment(property)) {
+          walkRegistrationExpression(property.expression, environment, stack);
+        }
+      }
+      return;
+    }
+    if (ts.isNewExpression(node)) {
+      for (const argument of node.arguments ?? []) {
+        walkRegistrationExpression(argument, environment, stack);
+      }
+    }
+  }
+  function bindRegistrationDeclarations(statements, environment) {
+    for (const statement of statements) {
+      if (ts.isFunctionDeclaration(statement) && statement.name && statement.body) {
+        environment.set(statement.name.text, {
+          closure: environment,
+          kind: "function",
+          node: statement,
+        });
+      }
+    }
+  }
+  function walkRegistrationStatements(statements, environment, stack) {
+    bindRegistrationDeclarations(statements, environment);
+    for (const statement of statements) {
+      if (ts.isFunctionDeclaration(statement) || ts.isImportDeclaration(statement)) {
+        continue;
+      }
+      if (ts.isVariableStatement(statement)) {
+        for (const declaration of statement.declarationList.declarations) {
+          if (declaration.initializer) {
+            const candidate = unwrap(declaration.initializer);
+            if (
+              !ts.isArrowFunction(candidate) &&
+              !ts.isFunctionExpression(candidate)
+            ) {
+              walkRegistrationExpression(
+                declaration.initializer, environment, stack
+              );
+            }
+          }
+          const names = bindingNames(declaration.name);
+          const value = declaration.initializer
+            ? registrationFunctionValue(declaration.initializer, environment)
+            : unknownRegistrationValue;
+          const staticBinding = declaration.initializer
+            ? registrationStaticValue(declaration.initializer, environment)
+            : undefined;
+          for (const name of names) {
+            environment.set(
+              name,
+              value.kind === "function"
+                ? value
+                : staticBinding === undefined
+                  ? unknownRegistrationValue
+                  : { kind: "static", value: staticBinding },
+            );
+          }
+        }
+        continue;
+      }
+      if (ts.isExpressionStatement(statement)) {
+        walkRegistrationExpression(statement.expression, environment, stack);
+        continue;
+      }
+      if (ts.isIfStatement(statement)) {
+        walkRegistrationExpression(statement.expression, environment, stack);
+        const condition = registrationStaticValue(
+          statement.expression, environment
+        );
+        if (condition !== false) {
+          walkRegistrationStatement(
+            statement.thenStatement, new Map(environment), stack
+          );
+        }
+        if (condition !== true && statement.elseStatement) {
+          walkRegistrationStatement(
+            statement.elseStatement, new Map(environment), stack
+          );
+        }
+        continue;
+      }
+      if (ts.isBlock(statement)) {
+        walkRegistrationStatements(
+          statement.statements, new Map(environment), stack
+        );
+        continue;
+      }
+      if (ts.isReturnStatement(statement)) {
+        if (statement.expression) {
+          walkRegistrationExpression(statement.expression, environment, stack);
+        }
+        return;
+      }
+      if (ts.isThrowStatement(statement)) {
+        walkRegistrationExpression(statement.expression, environment, stack);
+        return;
+      }
+      if (ts.isExportAssignment(statement)) {
+        walkRegistrationExpression(statement.expression, environment, stack);
+      }
+    }
+  }
+  function walkRegistrationStatement(statement, environment, stack) {
+    if (ts.isBlock(statement)) {
+      walkRegistrationStatements(statement.statements, environment, stack);
+      return;
+    }
+    walkRegistrationStatements([statement], environment, stack);
+  }
+  const moduleRegistrationEnvironment = new Map();
+  for (const imported of imports) {
+    const kind = testFrameworkModules.has(imported.module)
+      ? frameworkRegistrationKind(imported.imported)
+      : null;
+    moduleRegistrationEnvironment.set(
+      imported.local,
+      kind === null
+        ? unknownRegistrationValue
+        : { kind: "framework", registration_kind: kind },
+    );
+  }
+  walkRegistrationStatements(
+    sourceFile.statements, moduleRegistrationEnvironment, new Set()
   );
   const executedImportLocals = new Set();
   const connectedRenderCalls = [];
@@ -16180,13 +16456,12 @@ function parseModule(relativePath) {
     }
     return emptyValue();
   }
-  for (const testCase of testCallbacks) {
-    if (nonImportBindings.has(testCase.root)) continue;
+  for (const testCallback of testCallbacks) {
     executeFunction(
-      testCase.callback,
+      testCallback,
       [],
       new Set(),
-      `test:${testCase.callback.pos}`,
+      `test:${testCallback.pos}`,
     );
   }
   return {

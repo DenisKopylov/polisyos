@@ -3440,3 +3440,91 @@ checker test, and writer-owned report; this journal is the fourth tracked path.
 No register/schema byte, DS18 row/header, seed, foreign row, generated file,
 Task 9 source/test, scanner, inheritance map, route denominator, or governing plan
 byte moved.
+
+## 2026-08-30 — Task 10 second review correction: registration reachability
+
+The exact predecessor is the complete 3,442-line / 209,946-byte journal with
+Git blob `a8c8d126705aa560f6a8fb9b703b2d873b30c946` and SHA-256
+`f17212e8188c5c1ef329b7f1e35ac5a825fbb63746cda4ca0c93e3eca6e8c541`.
+This append-only correction starts from clean attached HEAD
+`ea1570dbe7d98d4658dec5d085c8474eba8c31ff`; the governing plan remains
+unchanged.
+
+### P40 bucket and red-first witnesses
+
+The second independent finding is the same P29/P38 class one level deeper. The
+first correction made test-body execution substantive, but its
+`collectExecutionShape` still harvested every syntactic `it`/`test` callback in
+the file. It therefore confused an AST callback's presence with the separate
+module-registration phase that determines whether Vitest can ever execute it.
+Under P40 this is the second finding of the class, so the correction widens the
+mechanism to the quantity the property requires rather than adding four spelling
+exceptions.
+
+All four exact in-memory witnesses were pinned before the checker changed and
+failed with `DID NOT RAISE`: the only valid role render was (1) under a
+module-level `if (false)`, (2) in an inner test nested under `it.skip`, (3) in a
+test nested under `describe.skip`, or (4) inside an uncalled registration
+function. Each old scan still admitted behavioral evidence. The production
+mutation these tests guard is reintroducing whole-file callback harvesting
+outside reachable module registration.
+
+Two positive controls prevent a denylist repair. A normal reachable
+`describe` -> `it` path is admitted, and a module-local registration function
+that is actually called is admitted. Both execute the same real aliased render
+path as the negatives.
+
+### Two-phase complete-by-construction walk
+
+The inline TypeScript mechanism now has two explicit phases. First, a
+registration interpreter starts at `SourceFile.statements`. It builds a lexical
+environment for imported/global test-framework roots, hoisted function
+declarations, function-valued variables and parameters, static literal bindings,
+and shadowing bindings. It follows reachable statement/expression control flow,
+executes active suite callbacks, and executes module-local registration helpers
+only when their call is reached. Disabled suite/test modifiers do not execute
+their callback, statically false branches are not walked, uncalled functions only
+bind and never execute, and recursion is guarded by the function node identity.
+Unsupported registration constructs contribute no callback and therefore fail
+closed.
+
+Second, only the active test callbacks produced by that registration walk enter
+the existing behavioral interpreter. That phase retains the first correction's
+exact import-module/alias resolution, global shadow rejection, static test-body
+control flow, render-only JSX evidence, and property-sensitive panel render ->
+container -> queried root -> exact-twin input dataflow. Module registration and
+test execution can no longer substitute for one another.
+
+The final focused DS17 class is 15/15 green. It includes the four new negative
+registration witnesses, both reachable positive controls, the earlier
+identifier-only/forged-root/alias/shadow/dead-body probes, and every pre-existing
+schema, DS18, preservation, replay, validator, and failure-atomic writer test.
+
+### Derived artifacts and final verification
+
+After source freeze, the owner writer ran twice consecutively. Both runs returned
+6 roles / 5 edges / 621 files / 759 roots and reproduced identical bytes. The
+register remains unchanged at SHA-256
+`bbb5998bda21a631231b847076e17c7e49fbf4207b068e3550ab2c7fe3ba2687`;
+the report changed only by deriving the preceding correction commit and is now
+`9f5fb07e2bf7a3e24366c3cde18c5a17bb12d796251eee97e5afa1ac7a39b826`.
+
+Strict schema validation returns zero errors. Direct scanner output and checker
+scan are canonical-byte equal at 621 files / 759 roots. The three owned files
+remain 4 + 17 + 11 roots with 1/1/1 label-bearing roots and an exhaustive 3
+`decision_bearing/direct_ds4` + 29 `inherits_admitted_dom` partition. The focused
+DS18 checker is 126/126 covered. Changed-line Ruff has zero diagnostics while the
+legacy whole-file total remains 701; `git diff --check` is clean.
+
+Final generic `--check` and `--corruption-probes` completed with no DS17/DS18
+error and exactly the established inherited/disjoint C13 receipt error for
+`AmbientTelemetryHud.tsx`. Their exact timings were `88.59/121.00/11.41` and
+`86.57/118.57/11.40` real/user/sys. The predecessor's P41 base replay and
+twenty-path zero-intersection proof remain applicable.
+
+Immediately before this append the branch was attached to
+`codex/ds17-confidence-ledger-risk-spend-landing`. The exact dirty set was the
+existing checker mechanism, checker test, and writer-owned report; this journal
+is the fourth tracked path. No register/schema byte, DS18 row/header, seed,
+foreign row, runtime-dashboard source/test, scanner, inheritance map, generated
+file, Task 9 path, route denominator, or governing-plan byte moved.

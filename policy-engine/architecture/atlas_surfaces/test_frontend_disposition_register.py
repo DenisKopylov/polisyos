@@ -9439,6 +9439,42 @@ it("guards the otherwise connected edge", () => {
         }
         self.assertEqual(self.DS17_PATHS, changed_paths)  # noqa: PT009
 
+    def test_surgical_ds18_refresh_accepts_an_owned_row_subset(self) -> None:
+        """Later DS17 edits refresh exactly the owned receipts that moved."""
+        opening = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))[
+            "ds18_time_semantics_coverage"
+        ]
+        fresh = copy.deepcopy(opening)
+        target = next(
+            row
+            for row in fresh["files"]
+            if row["path"] == checker.DS17_CONFIDENCE_LEDGER_PANEL_PATH
+        )
+        target["source_sha256"] = "sha256:" + "0" * 64
+
+        candidate = checker._ds17_surgical_ds18_coverage(opening, fresh)
+
+        self.assertEqual(fresh, candidate)  # noqa: PT009
+
+        foreign = copy.deepcopy(opening)
+        foreign_target = next(
+            row
+            for row in foreign["files"]
+            if row["path"] not in checker.DS17_CONFIDENCE_LEDGER_DS18_PATHS
+        )
+        foreign_target["source_sha256"] = "sha256:" + "1" * 64
+        with self.assertRaisesRegex(ValueError, "DS17 DS18 foreign row drift"):
+            checker._ds17_surgical_ds18_coverage(opening, foreign)
+
+        missing = copy.deepcopy(opening)
+        missing["files"] = [
+            row
+            for row in missing["files"]
+            if row["path"] != checker.DS17_CONFIDENCE_LEDGER_PANEL_PATH
+        ]
+        with self.assertRaisesRegex(ValueError, "DS17 DS18 authorized row missing"):
+            checker._ds17_surgical_ds18_coverage(opening, missing)
+
     def test_historical_ds18_validator_still_replays_the_opening_receipt(
         self,
     ) -> None:

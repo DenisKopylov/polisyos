@@ -39,25 +39,23 @@ function ConfidenceLedgerRiskSpendQueryPanel() {
   const { t } = useI18n();
   const query = useConfidenceLedgerRiskSpend();
   const packet =
-    !query.isLoading &&
-    !query.isError &&
-    query.data?.status === "exact"
+    !query.isLoading && !query.isError && query.data?.status === "exact"
       ? query.data.packet
       : null;
   const surface = query.isLoading ? (
-      <Card>
-        <PanelSkeleton rows={6} />
-      </Card>
-    ) : query.isError || !query.data ? (
-      <Card>
-        <EmptyState
-          body={t("pages.cycleBoard.confidenceLedger.loadErrorBody")}
-          title={t("pages.cycleBoard.confidenceLedger.loadErrorTitle")}
-        />
-      </Card>
-    ) : (
-      <ConfidenceLedgerRiskSpend projection={query.data} />
-    );
+    <Card>
+      <PanelSkeleton rows={6} />
+    </Card>
+  ) : query.isError || !query.data ? (
+    <Card>
+      <EmptyState
+        body={t("pages.cycleBoard.confidenceLedger.loadErrorBody")}
+        title={t("pages.cycleBoard.confidenceLedger.loadErrorTitle")}
+      />
+    </Card>
+  ) : (
+    <ConfidenceLedgerRiskSpend projection={query.data} />
+  );
   return (
     <>
       <div data-testid="confidence-ledger-risk-spend-query-time-semantics">

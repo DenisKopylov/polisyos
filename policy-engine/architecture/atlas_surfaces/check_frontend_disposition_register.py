@@ -18094,16 +18094,12 @@ def _ds17_surgical_ds18_coverage(
     )
     if foreign_drift:
         raise ValueError("DS17 DS18 foreign row drift:" + repr(foreign_drift))
-    changed_paths = {
-        path_ref
-        for path_ref in set(opening_by_path) | set(fresh_by_path)
-        if opening_by_path.get(path_ref) != fresh_by_path.get(path_ref)
-    }
-    if changed_paths and changed_paths != DS17_CONFIDENCE_LEDGER_DS18_PATHS:
+    missing_fresh_paths = sorted(
+        DS17_CONFIDENCE_LEDGER_DS18_PATHS - set(fresh_by_path)
+    )
+    if missing_fresh_paths:
         raise ValueError(
-            "DS17 DS18 authorized row denominator drift:"
-            f"expected={sorted(DS17_CONFIDENCE_LEDGER_DS18_PATHS)}:"
-            f"actual={sorted(changed_paths)}"
+            "DS17 DS18 authorized row missing:" + repr(missing_fresh_paths)
         )
     candidate = copy.deepcopy(dict(opening))
     for field, value in fresh.items():

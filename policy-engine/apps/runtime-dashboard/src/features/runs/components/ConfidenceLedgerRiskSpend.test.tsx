@@ -119,27 +119,27 @@ describe("ConfidenceLedgerRiskSpend", () => {
     const temporalOwner = within(
       screen.getByTestId("confidence-ledger-risk-spend-time-semantics"),
     );
-    expect(temporalOwner.getByTestId("time-semantics-payload-as-of")).toHaveTextContent(
-      packet.as_of,
-    );
-    expect(temporalOwner.getByTestId("time-semantics-observed-at")).toHaveTextContent(
-      packet.freshness.observed_at,
-    );
-    expect(temporalOwner.getByTestId("time-semantics-source-as-of")).toHaveTextContent(
-      packet.freshness.source_as_of ?? "unknown",
-    );
-    expect(temporalOwner.getByTestId("time-semantics-source-state")).toHaveTextContent(
-      packet.freshness.state,
-    );
+    expect(
+      temporalOwner.getByTestId("time-semantics-payload-as-of"),
+    ).toHaveTextContent(packet.as_of);
+    expect(
+      temporalOwner.getByTestId("time-semantics-observed-at"),
+    ).toHaveTextContent(packet.freshness.observed_at);
+    expect(
+      temporalOwner.getByTestId("time-semantics-source-as-of"),
+    ).toHaveTextContent(packet.freshness.source_as_of ?? "unknown");
+    expect(
+      temporalOwner.getByTestId("time-semantics-source-state"),
+    ).toHaveTextContent(packet.freshness.state);
     expect(temporalOwner.getByTestId("time-semantics-epoch")).toHaveTextContent(
       "epochChrome.notEstablished",
     );
-    expect(temporalOwner.getByTestId("time-semantics-validity")).toHaveTextContent(
-      "epochChrome.status.not_established",
-    );
-    expect(temporalOwner.getByTestId("time-semantics-revalidation")).toHaveTextContent(
-      "epochChrome.notRequired",
-    );
+    expect(
+      temporalOwner.getByTestId("time-semantics-validity"),
+    ).toHaveTextContent("epochChrome.status.not_established");
+    expect(
+      temporalOwner.getByTestId("time-semantics-revalidation"),
+    ).toHaveTextContent("epochChrome.notRequired");
 
     const sections = [
       ...document.querySelectorAll<HTMLElement>("[data-confidence-section]"),
@@ -329,18 +329,18 @@ describe("ConfidenceLedgerRiskSpend", () => {
     const temporalOwner = within(
       screen.getByTestId("confidence-ledger-risk-spend-time-semantics"),
     );
-    expect(temporalOwner.getByTestId("time-semantics-payload-as-of")).toHaveTextContent(
-      "unknown",
-    );
-    expect(temporalOwner.getByTestId("time-semantics-source-as-of")).toHaveTextContent(
-      "unknown",
-    );
-    expect(temporalOwner.getByTestId("time-semantics-observed-at")).toHaveTextContent(
-      "unknown",
-    );
-    expect(temporalOwner.getByTestId("time-semantics-source-state")).toHaveTextContent(
-      "unknown",
-    );
+    expect(
+      temporalOwner.getByTestId("time-semantics-payload-as-of"),
+    ).toHaveTextContent("unknown");
+    expect(
+      temporalOwner.getByTestId("time-semantics-source-as-of"),
+    ).toHaveTextContent("unknown");
+    expect(
+      temporalOwner.getByTestId("time-semantics-observed-at"),
+    ).toHaveTextContent("unknown");
+    expect(
+      temporalOwner.getByTestId("time-semantics-source-state"),
+    ).toHaveTextContent("unknown");
     expect(temporalOwner.getByTestId("time-semantics-epoch")).toHaveTextContent(
       "epochChrome.notEstablished",
     );

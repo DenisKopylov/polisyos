@@ -366,27 +366,27 @@ describe("CycleBoardPage MACHINE/rendered-DOM parity", () => {
     for (const temporalOwner of temporalOwners) {
       const label = within(temporalOwner);
       expect(temporalOwner).toBeVisible();
-      expect(label.getByTestId("time-semantics-payload-as-of")).toHaveTextContent(
-        riskPacket.as_of,
-      );
-      expect(label.getByTestId("time-semantics-source-as-of")).toHaveTextContent(
-        riskPacket.freshness.source_as_of ?? "unknown",
-      );
+      expect(
+        label.getByTestId("time-semantics-payload-as-of"),
+      ).toHaveTextContent(riskPacket.as_of);
+      expect(
+        label.getByTestId("time-semantics-source-as-of"),
+      ).toHaveTextContent(riskPacket.freshness.source_as_of ?? "unknown");
       expect(label.getByTestId("time-semantics-observed-at")).toHaveTextContent(
         riskPacket.freshness.observed_at,
       );
-      expect(label.getByTestId("time-semantics-source-state")).toHaveTextContent(
-        riskPacket.freshness.state,
-      );
+      expect(
+        label.getByTestId("time-semantics-source-state"),
+      ).toHaveTextContent(riskPacket.freshness.state);
       expect(label.getByTestId("time-semantics-epoch")).toHaveTextContent(
         "Epoch not established",
       );
       expect(label.getByTestId("time-semantics-validity")).toHaveTextContent(
         "not established",
       );
-      expect(label.getByTestId("time-semantics-revalidation")).toHaveTextContent(
-        "not required",
-      );
+      expect(
+        label.getByTestId("time-semantics-revalidation"),
+      ).toHaveTextContent("not required");
     }
   });
 

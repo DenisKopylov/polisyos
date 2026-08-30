@@ -37,33 +37,35 @@ async function expectThreeTemporalOwners(
   packet: AvailableConfidenceLedgerRiskSpendPacket,
 ) {
   await expect(
-    page.locator('[data-testid^="confidence-ledger-"][data-testid$="time-semantics"]'),
+    page.locator(
+      '[data-testid^="confidence-ledger-"][data-testid$="time-semantics"]',
+    ),
   ).toHaveCount(3);
 
   for (const ownerId of TEMPORAL_OWNER_IDS) {
     const owner = page.getByTestId(ownerId);
     await expect(owner).toBeVisible();
-    await expect(owner.getByTestId("time-semantics-payload-as-of")).toContainText(
-      packet.as_of,
-    );
+    await expect(
+      owner.getByTestId("time-semantics-payload-as-of"),
+    ).toContainText(packet.as_of);
     await expect(owner.getByTestId("time-semantics-observed-at")).toContainText(
       packet.freshness.observed_at,
     );
-    await expect(owner.getByTestId("time-semantics-source-as-of")).toContainText(
-      packet.freshness.source_as_of ?? "unknown",
-    );
-    await expect(owner.getByTestId("time-semantics-source-state")).toContainText(
-      packet.freshness.state,
-    );
+    await expect(
+      owner.getByTestId("time-semantics-source-as-of"),
+    ).toContainText(packet.freshness.source_as_of ?? "unknown");
+    await expect(
+      owner.getByTestId("time-semantics-source-state"),
+    ).toContainText(packet.freshness.state);
     await expect(owner.getByTestId("time-semantics-epoch")).toContainText(
       "Epoch not established",
     );
     await expect(owner.getByTestId("time-semantics-validity")).toContainText(
       "not established",
     );
-    await expect(owner.getByTestId("time-semantics-revalidation")).toContainText(
-      "not required",
-    );
+    await expect(
+      owner.getByTestId("time-semantics-revalidation"),
+    ).toContainText("not required");
   }
 }
 
@@ -85,11 +87,9 @@ async function expectRealOwnerRiskSpend(
   expect(packet.payload.obligation_class_risk_spend).toHaveLength(15);
   expect(packet.payload.positive_register.entries).toEqual([]);
   expect(packet.payload.positive_register.population_count).toBe(0);
-  expect(packet.payload.instrument_instances.map((row) => row.certificate_role)).toEqual([
-    "refusal",
-    "acquisition",
-    "acquisition",
-  ]);
+  expect(
+    packet.payload.instrument_instances.map((row) => row.certificate_role),
+  ).toEqual(["refusal", "acquisition", "acquisition"]);
 
   const actualRows = riskSpend.locator(
     '[data-confidence-list="actual-rows"] > li',
@@ -129,11 +129,15 @@ async function expectRealOwnerRiskSpend(
   const dialog = page.getByRole("dialog", { name: /conditional envelope/iu });
   await expect(dialog).toBeVisible();
   await expect(conditionalChip).toHaveAttribute("aria-expanded", "true");
-  await expect(dialog).toContainText(packet.payload.coverage_envelope.assessment);
+  await expect(dialog).toContainText(
+    packet.payload.coverage_envelope.assessment,
+  );
   await expect(dialog).toContainText(
     packet.payload.coverage_envelope.declared_set_rider,
   );
-  await expect(dialog).toContainText(packet.payload.coverage_envelope.locality_rider);
+  await expect(dialog).toContainText(
+    packet.payload.coverage_envelope.locality_rider,
+  );
 
   await expectThreeTemporalOwners(page, packet);
 }

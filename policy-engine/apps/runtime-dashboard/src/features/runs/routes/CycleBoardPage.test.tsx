@@ -240,18 +240,18 @@ describe("CycleBoardPage authorization boundary", () => {
     const temporalOwner = within(
       screen.getByTestId("confidence-ledger-risk-spend-query-time-semantics"),
     );
-    expect(temporalOwner.getByTestId("time-semantics-payload-as-of")).toHaveTextContent(
-      riskPacket.as_of,
-    );
-    expect(temporalOwner.getByTestId("time-semantics-observed-at")).toHaveTextContent(
-      riskPacket.freshness.observed_at,
-    );
-    expect(temporalOwner.getByTestId("time-semantics-source-as-of")).toHaveTextContent(
-      riskPacket.freshness.source_as_of ?? "unknown",
-    );
-    expect(temporalOwner.getByTestId("time-semantics-source-state")).toHaveTextContent(
-      riskPacket.freshness.state,
-    );
+    expect(
+      temporalOwner.getByTestId("time-semantics-payload-as-of"),
+    ).toHaveTextContent(riskPacket.as_of);
+    expect(
+      temporalOwner.getByTestId("time-semantics-observed-at"),
+    ).toHaveTextContent(riskPacket.freshness.observed_at);
+    expect(
+      temporalOwner.getByTestId("time-semantics-source-as-of"),
+    ).toHaveTextContent(riskPacket.freshness.source_as_of ?? "unknown");
+    expect(
+      temporalOwner.getByTestId("time-semantics-source-state"),
+    ).toHaveTextContent(riskPacket.freshness.state);
     expect(temporalOwner.getByTestId("time-semantics-epoch")).toHaveTextContent(
       "epochChrome.notEstablished",
     );
@@ -275,18 +275,18 @@ describe("CycleBoardPage authorization boundary", () => {
     const temporalOwner = within(
       screen.getByTestId("confidence-ledger-risk-spend-query-time-semantics"),
     );
-    expect(temporalOwner.getByTestId("time-semantics-payload-as-of")).toHaveTextContent(
-      "unknown",
-    );
-    expect(temporalOwner.getByTestId("time-semantics-source-as-of")).toHaveTextContent(
-      "unknown",
-    );
-    expect(temporalOwner.getByTestId("time-semantics-observed-at")).toHaveTextContent(
-      "unknown",
-    );
-    expect(temporalOwner.getByTestId("time-semantics-source-state")).toHaveTextContent(
-      "unknown",
-    );
+    expect(
+      temporalOwner.getByTestId("time-semantics-payload-as-of"),
+    ).toHaveTextContent("unknown");
+    expect(
+      temporalOwner.getByTestId("time-semantics-source-as-of"),
+    ).toHaveTextContent("unknown");
+    expect(
+      temporalOwner.getByTestId("time-semantics-observed-at"),
+    ).toHaveTextContent("unknown");
+    expect(
+      temporalOwner.getByTestId("time-semantics-source-state"),
+    ).toHaveTextContent("unknown");
     expect(temporalOwner.getByTestId("time-semantics-epoch")).toHaveTextContent(
       "epochChrome.notEstablished",
     );
@@ -318,18 +318,18 @@ describe("CycleBoardPage authorization boundary", () => {
     const temporalOwner = within(
       screen.getByTestId("confidence-ledger-risk-spend-query-time-semantics"),
     );
-    expect(temporalOwner.getByTestId("time-semantics-payload-as-of")).toHaveTextContent(
-      "unknown",
-    );
-    expect(temporalOwner.getByTestId("time-semantics-source-as-of")).toHaveTextContent(
-      "unknown",
-    );
-    expect(temporalOwner.getByTestId("time-semantics-observed-at")).toHaveTextContent(
-      "unknown",
-    );
-    expect(temporalOwner.getByTestId("time-semantics-source-state")).toHaveTextContent(
-      "unknown",
-    );
+    expect(
+      temporalOwner.getByTestId("time-semantics-payload-as-of"),
+    ).toHaveTextContent("unknown");
+    expect(
+      temporalOwner.getByTestId("time-semantics-source-as-of"),
+    ).toHaveTextContent("unknown");
+    expect(
+      temporalOwner.getByTestId("time-semantics-observed-at"),
+    ).toHaveTextContent("unknown");
+    expect(
+      temporalOwner.getByTestId("time-semantics-source-state"),
+    ).toHaveTextContent("unknown");
     expect(temporalOwner.getByTestId("time-semantics-epoch")).toHaveTextContent(
       "epochChrome.notEstablished",
     );

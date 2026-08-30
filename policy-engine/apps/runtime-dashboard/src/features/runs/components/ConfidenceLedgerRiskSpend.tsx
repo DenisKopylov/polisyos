@@ -427,311 +427,316 @@ function AvailableRiskSpend({
           >
             {actualRows.map((row) => (
               <li key={row.instance_ref}>
-                <ActualRow coverageEnvelope={body.coverage_envelope} row={row} />
+                <ActualRow
+                  coverageEnvelope={body.coverage_envelope}
+                  row={row}
+                />
               </li>
             ))}
           </ol>
         </SemanticSection>
 
         <SemanticSection
-        section="risk-accounting"
-        title={t("pages.cycleBoard.confidenceLedger.sections.riskAccounting")}
-      >
-        <article className="space-y-3">
-          <h3>
-            <SemanticValue field="scope.scope_id" value={body.scope_id} />
-          </h3>
-          <AmountSet
-            allocation={body.scope_total_risk_spend.allocation}
-            coverageEnvelope={body.coverage_envelope}
-            overspend={body.scope_total_risk_spend.overspend_amount}
-            prefix={t(
-              "pages.cycleBoard.confidenceLedger.accounting.scopeTotal",
-            )}
-            remaining={body.scope_total_risk_spend.remaining}
-            spent={body.scope_total_risk_spend.spent}
-          />
-        </article>
-        <ol
-          className="list-none space-y-4"
-          data-confidence-list="class-spend"
-          style={{ listStyle: "none" }}
+          section="risk-accounting"
+          title={t("pages.cycleBoard.confidenceLedger.sections.riskAccounting")}
         >
-          {body.obligation_class_risk_spend.map((row) => (
-            <li key={row.obligation_class}>
-              <ClassSpendRow
-                coverageEnvelope={body.coverage_envelope}
-                row={row}
+          <article className="space-y-3">
+            <h3>
+              <SemanticValue field="scope.scope_id" value={body.scope_id} />
+            </h3>
+            <AmountSet
+              allocation={body.scope_total_risk_spend.allocation}
+              coverageEnvelope={body.coverage_envelope}
+              overspend={body.scope_total_risk_spend.overspend_amount}
+              prefix={t(
+                "pages.cycleBoard.confidenceLedger.accounting.scopeTotal",
+              )}
+              remaining={body.scope_total_risk_spend.remaining}
+              spent={body.scope_total_risk_spend.spent}
+            />
+          </article>
+          <ol
+            className="list-none space-y-4"
+            data-confidence-list="class-spend"
+            style={{ listStyle: "none" }}
+          >
+            {body.obligation_class_risk_spend.map((row) => (
+              <li key={row.obligation_class}>
+                <ClassSpendRow
+                  coverageEnvelope={body.coverage_envelope}
+                  row={row}
+                />
+              </li>
+            ))}
+          </ol>
+        </SemanticSection>
+
+        <SemanticSection
+          section="instrument-denominators"
+          title={t("pages.cycleBoard.confidenceLedger.sections.denominators")}
+        >
+          <h3 data-confidence-text="denominators.instrument_definitions.title">
+            {t("pages.cycleBoard.confidenceLedger.instrumentDefinitions")}
+          </h3>
+          <ol
+            className="list-none space-y-3"
+            data-confidence-list="instrument-definitions"
+            style={{ listStyle: "none" }}
+          >
+            {body.instrument_definitions.map((row) => (
+              <li key={row.instrument_id}>
+                <InstrumentDefinition row={row} />
+              </li>
+            ))}
+          </ol>
+          <h3 data-confidence-text="denominators.certificate_routes.title">
+            {t("pages.cycleBoard.confidenceLedger.certificateRoutes")}
+          </h3>
+          <ol
+            className="list-none space-y-3"
+            data-confidence-list="certificate-routes"
+            style={{ listStyle: "none" }}
+          >
+            {body.certificate_routes.map((row) => (
+              <li key={row.certificate_class}>
+                <CertificateRoute row={row} />
+              </li>
+            ))}
+          </ol>
+        </SemanticSection>
+
+        <SemanticSection
+          section="positive-register"
+          title={t(
+            "pages.cycleBoard.confidenceLedger.sections.positiveRegister",
+          )}
+        >
+          <div className="space-y-1">
+            <h3 data-confidence-text="positive.empty.title">
+              {t("pages.cycleBoard.confidenceLedger.positiveEmpty.title")}
+            </h3>
+            <p data-confidence-text="positive.empty.status">
+              {t("pages.cycleBoard.confidenceLedger.positiveEmpty.status", {
+                count: body.positive_register.population_count,
+              })}
+            </p>
+            <p data-confidence-text="positive.empty.body">
+              {t("pages.cycleBoard.confidenceLedger.positiveEmpty.body")}
+            </p>
+          </div>
+          <dl>
+            <DetailRow label="population_state">
+              <SemanticValue
+                field="positive.population_state"
+                value={body.positive_register.population_state ?? null}
               />
-            </li>
-          ))}
-        </ol>
-      </SemanticSection>
-
-      <SemanticSection
-        section="instrument-denominators"
-        title={t("pages.cycleBoard.confidenceLedger.sections.denominators")}
-      >
-        <h3 data-confidence-text="denominators.instrument_definitions.title">
-          {t("pages.cycleBoard.confidenceLedger.instrumentDefinitions")}
-        </h3>
-        <ol
-          className="list-none space-y-3"
-          data-confidence-list="instrument-definitions"
-          style={{ listStyle: "none" }}
-        >
-          {body.instrument_definitions.map((row) => (
-            <li key={row.instrument_id}>
-              <InstrumentDefinition row={row} />
-            </li>
-          ))}
-        </ol>
-        <h3 data-confidence-text="denominators.certificate_routes.title">
-          {t("pages.cycleBoard.confidenceLedger.certificateRoutes")}
-        </h3>
-        <ol
-          className="list-none space-y-3"
-          data-confidence-list="certificate-routes"
-          style={{ listStyle: "none" }}
-        >
-          {body.certificate_routes.map((row) => (
-            <li key={row.certificate_class}>
-              <CertificateRoute row={row} />
-            </li>
-          ))}
-        </ol>
-      </SemanticSection>
-
-      <SemanticSection
-        section="positive-register"
-        title={t("pages.cycleBoard.confidenceLedger.sections.positiveRegister")}
-      >
-        <div className="space-y-1">
-          <h3 data-confidence-text="positive.empty.title">
-            {t("pages.cycleBoard.confidenceLedger.positiveEmpty.title")}
-          </h3>
-          <p data-confidence-text="positive.empty.status">
-            {t("pages.cycleBoard.confidenceLedger.positiveEmpty.status", {
-              count: body.positive_register.population_count,
-            })}
-          </p>
-          <p data-confidence-text="positive.empty.body">
-            {t("pages.cycleBoard.confidenceLedger.positiveEmpty.body")}
-          </p>
-        </div>
-        <dl>
-          <DetailRow label="population_state">
-            <SemanticValue
-              field="positive.population_state"
-              value={body.positive_register.population_state ?? null}
-            />
-          </DetailRow>
-          <DetailRow label="population_count">
-            <SemanticValue
-              field="positive.population_count"
-              value={body.positive_register.population_count ?? 0}
-            />
-          </DetailRow>
-          <DetailRow label="authority_posture">
-            <SemanticValue
-              field="positive.authority_posture"
-              value={body.positive_register.authority_posture ?? null}
-            />
-          </DetailRow>
-          <DetailRow label="appointment_denominator_state">
-            <SemanticValue
-              field="positive.appointment_denominator_state"
-              value={
-                body.positive_register.appointment_denominator_state ?? null
-              }
-            />
-          </DetailRow>
-          <DetailRow label="appointment_sufficiency_state">
-            <SemanticValue
-              field="positive.appointment_sufficiency_state"
-              value={
-                body.positive_register.appointment_sufficiency_state ?? null
-              }
-            />
-          </DetailRow>
-          <DetailRow label="promotion_blockers">
-            <SemanticList
-              field="positive.promotion_blockers"
-              values={promotionBlockers}
-            />
-          </DetailRow>
-          <DetailRow label="register_blockers">
-            <SemanticList
-              field="positive.register_blockers"
-              values={body.positive_register.blockers.map(
-                (row) => `${row.slot}:${row.value}`,
-              )}
-            />
-          </DetailRow>
-          <DetailRow label="would_populate_when">
-            <SemanticList
-              field="positive.would_populate_when"
-              values={body.positive_register.would_populate_when}
-            />
-          </DetailRow>
-          <DetailRow label="verified_appointment_refs">
-            <SemanticList
-              field="positive.verified_appointment_refs"
-              values={
-                body.positive_register.verified_appointment_refs as string[]
-              }
-            />
-          </DetailRow>
-        </dl>
-      </SemanticSection>
-
-      <SemanticSection
-        section="good-event-source-replay"
-        title={t(
-          "pages.cycleBoard.confidenceLedger.sections.goodEventSourceReplay",
-        )}
-      >
-        <dl>
-          <DetailRow label="coverage_assessment">
-            <SemanticValue
-              field="posture.coverage_assessment"
-              value={body.coverage_assessment}
-            />
-          </DetailRow>
-          <DetailRow label="budget_posture">
-            <SemanticValue
-              field="posture.budget_posture"
-              value={body.budget_posture}
-            />
-          </DetailRow>
-          <DetailRow label="appointment_posture">
-            <SemanticValue
-              field="posture.appointment_posture"
-              value={body.appointment_posture}
-            />
-          </DetailRow>
-          <DetailRow label="packet_may_not_use_for">
-            <SemanticList
-              field="posture.packet_may_not_use_for"
-              values={packet.may_not_use_for ?? []}
-            />
-          </DetailRow>
-          <DetailRow label="envelope_may_not_use_for">
-            <SemanticList
-              field="posture.envelope_may_not_use_for"
-              values={body.coverage_envelope.may_not_use_for}
-            />
-          </DetailRow>
-          <DetailRow label="good_event_clause">
-            <SemanticValue
-              field="good_event.clause"
-              value={body.good_event_posture.good_event_clause}
-            />
-          </DetailRow>
-          <DetailRow label="composition_rule">
-            <SemanticValue
-              field="good_event.composition_rule"
-              value={body.good_event_posture.composition_rule ?? null}
-            />
-          </DetailRow>
-          <DetailRow label="independence_claim">
-            <SemanticValue
-              field="good_event.independence_claim"
-              value={body.good_event_posture.independence_claim ?? false}
-            />
-          </DetailRow>
-          <DetailRow label="executed_probabilistic_good_event_refs">
-            <SemanticList
-              field="good_event.executed_refs"
-              values={
-                body.good_event_posture.executed_probabilistic_good_event_refs
-              }
-            />
-          </DetailRow>
-          <DetailRow label="source.relative_path">
-            <SemanticValue
-              field="source.relative_path"
-              value={packet.source.relative_path}
-            />
-          </DetailRow>
-          <DetailRow label="source.artifact_content_hash">
-            <SemanticValue
-              field="source.artifact_content_hash"
-              value={packet.source.artifact_content_hash}
-            />
-          </DetailRow>
-          <DetailRow label="source.validator_id">
-            <SemanticValue
-              field="source.validator_id"
-              value={packet.source.validation.validator_id}
-            />
-          </DetailRow>
-          <DetailRow label="source.validator_version">
-            <SemanticValue
-              field="source.validator_version"
-              value={packet.source.validation.validator_version}
-            />
-          </DetailRow>
-          <DetailRow label="source.validation.status">
-            <SemanticValue
-              field="source.validation_status"
-              value={packet.source.validation.status}
-            />
-          </DetailRow>
-          <DetailRow label="worker_validation_receipt_ref">
-            <SemanticValue
-              field="source.worker_receipt_ref"
-              value={packet.worker_validation_receipt_ref}
-            />
-          </DetailRow>
-          <DetailRow label="worker_validation_receipt_hash">
-            <SemanticValue
-              field="source.worker_receipt_hash"
-              value={packet.worker_validation_receipt_hash}
-            />
-          </DetailRow>
-          <DetailRow label="replay_address">
-            <SemanticValue
-              field="replay.address"
-              value={packet.replay_address}
-            />
-          </DetailRow>
-          {Object.entries(packet.replay_pins).map(([field, value]) => (
-            <DetailRow key={field} label={`replay_pins.${field}`}>
-              <SemanticValue field={`replay.${field}`} value={value} />
             </DetailRow>
-          ))}
-          <DetailRow label="source_provenance">
-            <SemanticList
-              field="source.provenance"
-              values={body.source_provenance.map(
-                (source) =>
-                  `${source.source_role}|${source.source_ref}|${source.content_hash}|${source.admission_state}|${source.availability_state}|${source.verifier_ref}`,
-              )}
-            />
-          </DetailRow>
-        </dl>
-      </SemanticSection>
+            <DetailRow label="population_count">
+              <SemanticValue
+                field="positive.population_count"
+                value={body.positive_register.population_count ?? 0}
+              />
+            </DetailRow>
+            <DetailRow label="authority_posture">
+              <SemanticValue
+                field="positive.authority_posture"
+                value={body.positive_register.authority_posture ?? null}
+              />
+            </DetailRow>
+            <DetailRow label="appointment_denominator_state">
+              <SemanticValue
+                field="positive.appointment_denominator_state"
+                value={
+                  body.positive_register.appointment_denominator_state ?? null
+                }
+              />
+            </DetailRow>
+            <DetailRow label="appointment_sufficiency_state">
+              <SemanticValue
+                field="positive.appointment_sufficiency_state"
+                value={
+                  body.positive_register.appointment_sufficiency_state ?? null
+                }
+              />
+            </DetailRow>
+            <DetailRow label="promotion_blockers">
+              <SemanticList
+                field="positive.promotion_blockers"
+                values={promotionBlockers}
+              />
+            </DetailRow>
+            <DetailRow label="register_blockers">
+              <SemanticList
+                field="positive.register_blockers"
+                values={body.positive_register.blockers.map(
+                  (row) => `${row.slot}:${row.value}`,
+                )}
+              />
+            </DetailRow>
+            <DetailRow label="would_populate_when">
+              <SemanticList
+                field="positive.would_populate_when"
+                values={body.positive_register.would_populate_when}
+              />
+            </DetailRow>
+            <DetailRow label="verified_appointment_refs">
+              <SemanticList
+                field="positive.verified_appointment_refs"
+                values={
+                  body.positive_register.verified_appointment_refs as string[]
+                }
+              />
+            </DetailRow>
+          </dl>
+        </SemanticSection>
 
-      <SemanticSection
-        section="machine-export"
-        title={t("pages.cycleBoard.confidenceLedger.sections.machineExport")}
-      >
-        <Button
-          data-confidence-text="machine.download"
-          onClick={() =>
-            exportCapturedResponseBytes(
-              "confidence-ledger-risk-spend.machine.json",
-              capturedResponseBytes.copy(),
-              "application/json",
-            )
-          }
-          style={{ appearance: "none" }}
-          type="button"
-          variant="outline"
+        <SemanticSection
+          section="good-event-source-replay"
+          title={t(
+            "pages.cycleBoard.confidenceLedger.sections.goodEventSourceReplay",
+          )}
         >
-          {t("pages.cycleBoard.confidenceLedger.downloadMachine")}
-        </Button>
+          <dl>
+            <DetailRow label="coverage_assessment">
+              <SemanticValue
+                field="posture.coverage_assessment"
+                value={body.coverage_assessment}
+              />
+            </DetailRow>
+            <DetailRow label="budget_posture">
+              <SemanticValue
+                field="posture.budget_posture"
+                value={body.budget_posture}
+              />
+            </DetailRow>
+            <DetailRow label="appointment_posture">
+              <SemanticValue
+                field="posture.appointment_posture"
+                value={body.appointment_posture}
+              />
+            </DetailRow>
+            <DetailRow label="packet_may_not_use_for">
+              <SemanticList
+                field="posture.packet_may_not_use_for"
+                values={packet.may_not_use_for ?? []}
+              />
+            </DetailRow>
+            <DetailRow label="envelope_may_not_use_for">
+              <SemanticList
+                field="posture.envelope_may_not_use_for"
+                values={body.coverage_envelope.may_not_use_for}
+              />
+            </DetailRow>
+            <DetailRow label="good_event_clause">
+              <SemanticValue
+                field="good_event.clause"
+                value={body.good_event_posture.good_event_clause}
+              />
+            </DetailRow>
+            <DetailRow label="composition_rule">
+              <SemanticValue
+                field="good_event.composition_rule"
+                value={body.good_event_posture.composition_rule ?? null}
+              />
+            </DetailRow>
+            <DetailRow label="independence_claim">
+              <SemanticValue
+                field="good_event.independence_claim"
+                value={body.good_event_posture.independence_claim ?? false}
+              />
+            </DetailRow>
+            <DetailRow label="executed_probabilistic_good_event_refs">
+              <SemanticList
+                field="good_event.executed_refs"
+                values={
+                  body.good_event_posture.executed_probabilistic_good_event_refs
+                }
+              />
+            </DetailRow>
+            <DetailRow label="source.relative_path">
+              <SemanticValue
+                field="source.relative_path"
+                value={packet.source.relative_path}
+              />
+            </DetailRow>
+            <DetailRow label="source.artifact_content_hash">
+              <SemanticValue
+                field="source.artifact_content_hash"
+                value={packet.source.artifact_content_hash}
+              />
+            </DetailRow>
+            <DetailRow label="source.validator_id">
+              <SemanticValue
+                field="source.validator_id"
+                value={packet.source.validation.validator_id}
+              />
+            </DetailRow>
+            <DetailRow label="source.validator_version">
+              <SemanticValue
+                field="source.validator_version"
+                value={packet.source.validation.validator_version}
+              />
+            </DetailRow>
+            <DetailRow label="source.validation.status">
+              <SemanticValue
+                field="source.validation_status"
+                value={packet.source.validation.status}
+              />
+            </DetailRow>
+            <DetailRow label="worker_validation_receipt_ref">
+              <SemanticValue
+                field="source.worker_receipt_ref"
+                value={packet.worker_validation_receipt_ref}
+              />
+            </DetailRow>
+            <DetailRow label="worker_validation_receipt_hash">
+              <SemanticValue
+                field="source.worker_receipt_hash"
+                value={packet.worker_validation_receipt_hash}
+              />
+            </DetailRow>
+            <DetailRow label="replay_address">
+              <SemanticValue
+                field="replay.address"
+                value={packet.replay_address}
+              />
+            </DetailRow>
+            {Object.entries(packet.replay_pins).map(([field, value]) => (
+              <DetailRow key={field} label={`replay_pins.${field}`}>
+                <SemanticValue field={`replay.${field}`} value={value} />
+              </DetailRow>
+            ))}
+            <DetailRow label="source_provenance">
+              <SemanticList
+                field="source.provenance"
+                values={body.source_provenance.map(
+                  (source) =>
+                    `${source.source_role}|${source.source_ref}|${source.content_hash}|${source.admission_state}|${source.availability_state}|${source.verifier_ref}`,
+                )}
+              />
+            </DetailRow>
+          </dl>
+        </SemanticSection>
+
+        <SemanticSection
+          section="machine-export"
+          title={t("pages.cycleBoard.confidenceLedger.sections.machineExport")}
+        >
+          <Button
+            data-confidence-text="machine.download"
+            onClick={() =>
+              exportCapturedResponseBytes(
+                "confidence-ledger-risk-spend.machine.json",
+                capturedResponseBytes.copy(),
+                "application/json",
+              )
+            }
+            style={{ appearance: "none" }}
+            type="button"
+            variant="outline"
+          >
+            {t("pages.cycleBoard.confidenceLedger.downloadMachine")}
+          </Button>
         </SemanticSection>
       </Card>
     </>

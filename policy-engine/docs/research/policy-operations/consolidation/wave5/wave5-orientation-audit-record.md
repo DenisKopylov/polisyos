@@ -58,6 +58,7 @@ The observed 22-ref manifest was:
 | INT-R3 topology | Pipeline §2 requires the audit line to contain the research line. | Divergence found: `819a83a…` is not an ancestor of `8e9be1e…`; this is already `INT-R3-AUD-O01`. The later amendment is a two-parent union and terminal containment is restored. | package row closed; pipeline incident retained |
 | INT-R4 ‖ OPS-R5 subjects | One package has two subjects and two evidence registers. | **No divergence found.** The audit denominator is one 18-row table, split 10 INT / 8 OPS in the response. | count once as one package |
 | Finding totals | The brief deliberately gives no per-package counts. | **No inherited count existed to contradict.** Independent table parsing yields 16, 23, 18, 18 and 14 rows: 89 total. | publish command and both denominators in ledger |
+| Open-question total | The brief requires every open question but supplies no count. | **No inherited count existed to contradict.** Seven response-line `.md` sections contain 79 physical rows; six INT-R6 root bullets content-bind to terminal OQ-02–OQ-07, leaving 73 unique questions. | publish the seven-section walk and equivalence assertions; route 73 IDs |
 | “Two verifiers published mappings” | Both out-of-vocabulary amendment usages already have verifier-published §3.3 mappings. | **Divergence found.** INT-R2's verifier publishes `13 accepted / 3 accepted_with_variation / 0 declined`. The combined verifier flags `routed_pending_principal`, publishes no mapping and says the author neither accepted nor declined F05. | preserve raw token as `unmapped_invalid`; route author correction; consolidation supplies no disposition |
 | GY-N11 existing load | Two DS17 obligations already load GY-N11. | **No divergence found.** The Atlas master plan carries the Bayesian-without-coverage negative and the `over_spend` end-to-end witness. | Wave 5 adds zero GY-N11 obligations; accumulated load stays two |
 | H2 custody-runtime plan | A competent H2 implementation plan may already own OPS-R5 state/runtime work. | Divergence from an assumed route, not from explicit brief text: no `docs/plans/active/H2-*` plan exists. The Wave-2 backlog says one must be commissioned. | routes say `no owner exists`; consolidation does not create it |
@@ -133,8 +134,9 @@ separate. Destination and declared owner: existing pipeline reference, `team-arc
    load showed two already-assigned negative witnesses. No Wave-5 item is routed there.
 4. I treated verifier descriptions as though two underlying hand-back bodies were branch-custodied.
    None is; direct coverage is 0/5, 2/5 are verifier-reported, and no accuracy rate is published.
-5. My first row walk stopped at 70 questions. A complete response-section walk found INT-R2 Q14/Q15
-   and INT-R6 OQ-01; the deduplicated denominator is 73 and the route map now has 106 rows.
+5. My first row walk stopped at 70 questions. The corrected seven-section walk found INT-R2 Q14/Q15
+   and INT-R6 OQ-01, counted 79 physical rows, and content-bound six INT-R6 root repeats to terminal
+   OQ-02–OQ-07; the deduplicated denominator is 73 and the route map has 106 rows.
 6. I compressed source questions into short labels and dropped load-bearing alternatives and
    anti-role constraints. The question artifact now preserves every source conjunct; the route map
    routes the same content.

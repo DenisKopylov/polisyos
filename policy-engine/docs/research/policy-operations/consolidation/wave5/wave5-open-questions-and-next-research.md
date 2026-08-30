@@ -15,8 +15,10 @@ protocol repeats six of the seven rows in the terminal response table; those rep
 question each, not six additional questions. This file does not appoint a researcher, convert an
 unknown into a contract or duplicate a routed obligation. Each ID is used by the routing map.
 
-The complete file-type denominator is six terminal-response `.md` question sections. This exact row
-walk was executed from repository root:
+The complete physical file-type denominator is seven response-line `.md` question sections: the six
+terminal sections plus the INT-R6 root protocol section. They contain 79 raw rows. The exact walk
+below content-binds the six root bullets to terminal rows OQ-02–OQ-07 before reporting 73 unique
+questions; a changed or additional root bullet makes the assertions fail.
 
 ```bash
 python3 - <<'PY'
@@ -29,18 +31,60 @@ specs = [
  ('INT-R5','70f2db6d3a4330664c981721a9305f16bffe369b','policy-engine/docs/research/policy-operations/int-r5-decision-authority-validity.md','### 10.1 Owner and architecture questions','### 10.2 Corrected finding classification','numbered'),
  ('INT-R6','eb9b135089d4a54b648973db02f0312b276ea2ea','policy-engine/docs/research/policy-operations/int-r6/06-findings-standing-and-pattern-pass.md','## Open questions and owner states','## What this research does not decide','table'),
 ]
-total=0
+canonical=[]; terminal_r6={}
 for task,sha,path,start,end,kind in specs:
     body=subprocess.check_output(['git','show',f'{sha}:{path}'],text=True)
     section=body.split(start,1)[1].split(end,1)[0]
-    ids=re.findall(r'^\d+\.',section,re.M) if kind=='numbered' else re.findall(r'^\| OQ-\d{2} \|',section,re.M)
-    total += len(ids); print(task,len(ids),path)
-print('UNIQUE_SOURCE_QUESTIONS',total,'FILES',len(specs))
+    if kind=='numbered': ids=re.findall(r'^(\d+)\.',section,re.M)
+    else:
+        rows=[line for line in section.splitlines() if re.match(r'^\| OQ-\d{2} \|',line)]
+        ids=[]
+        for line in rows:
+            cells=[c.strip().strip('`') for c in line.strip('|').split('|')]
+            ids.append(cells[0]); terminal_r6[cells[0]]=cells[1]
+    canonical.extend((task,x) for x in ids); print(task,len(ids),path)
+root_sha='eb9b135089d4a54b648973db02f0312b276ea2ea'
+root_path='policy-engine/docs/research/policy-operations/int-r6-multilingual-authority-equivalence-protocol.md'
+body=subprocess.check_output(['git','show',f'{root_sha}:{root_path}'],text=True)
+section=body.split('### Open/routed questions',1)[1].split('### Explicit D4 statement',1)[0]
+root=[]; current=[]
+for line in section.splitlines()+['- END']:
+    if line.startswith('- '):
+        if current: root.append(' '.join(current))
+        current=[line[2:].strip()]
+    elif current and line.startswith('  '): current.append(line.strip())
+root_to_terminal={
+ 'map every proposed relation/result/reason to an existing namespaced owner or leave it explicitly unallocated;':('OQ-02','mapping proposed relations/results/reasons to registered vocabularies'),
+ 'build a real English-to-Ukrainian high-stakes corpus and behavioural ground truth;':('OQ-03','Ukrainian high-stakes corpus and behavioural ground truth'),
+ 'decide role qualifications/appointments only when real-user evidence exists;':('OQ-04','role qualification and appointment'),
+ 'supply per-jurisdiction co-authentic reconciliation rules;':('OQ-05','jurisdiction-specific co-authentic reconciliation'),
+ 'admit a named RTL jurisdiction only with its evidence pack;':('OQ-06','RTL source-content admission'),
+ 'decide cryptographic certificate/trust details in security architecture.':('OQ-07','cryptographic certificate form/trust roots/key custody/legal effect'),
+}
+assert set(root)==set(root_to_terminal)
+assert {v[0] for v in root_to_terminal.values()}=={f'OQ-{n:02}' for n in range(2,8)}
+for _,(oq,gap) in root_to_terminal.items(): assert terminal_r6[oq]==gap
+assert len(canonical)==len(set(canonical))==73
+print('INT-R6-ROOT',len(root),root_path)
+print('PHYSICAL_SOURCE_ROWS',len(canonical)+len(root),'SECTIONS',len(specs)+1)
+print('ROOT_EQUIVALENCES',len(root_to_terminal),'UNIQUE_SOURCE_QUESTIONS',len(canonical))
 PY
 ```
 
-Observed counts were `15, 14, 12, 13, 12, 7 = 73`. INT-R6 uses the terminal seven-row table; its
-root protocol's six open bullets duplicate table rows OQ-02–OQ-07 and are not a second population.
+Observed terminal counts were `15, 14, 12, 13, 12, 7 = 73`; the seventh section adds six physical
+rows, so the raw count is `79`. The six asserted equivalences are:
+
+| INT-R6 root subject | Terminal row | Identity predicate |
+| --- | --- | --- |
+| relation/result/reason mapping and owner allocation | OQ-02 | same proposed semantic fields and unallocated owner decision |
+| Ukrainian high-stakes corpus and behavioural ground truth | OQ-03 | same corpus and ground-truth obligation |
+| role qualifications and appointments | OQ-04 | same competence/appointment obligation |
+| per-jurisdiction co-authentic reconciliation | OQ-05 | same jurisdiction-specific reconciliation obligation |
+| named RTL jurisdiction evidence pack | OQ-06 | same RTL source-content admission obligation |
+| certificate form, trust roots, key custody and legal effect | OQ-07 | same security/trust-architecture obligation |
+
+Thus `79 physical rows - 6 content-bound duplicates = 73 unique questions`. OQ-01 occurs only in the
+terminal table and is not deduplicated.
 
 ## INT-R2 — 15 questions
 

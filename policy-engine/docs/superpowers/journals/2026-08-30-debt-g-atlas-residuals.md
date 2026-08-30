@@ -299,3 +299,33 @@ default per-test 15-second ceiling (`2 passed | 21 skipped`, 18.42 s total; 17.5
 combined test phase). Ruff, byte compilation, and `git diff --check` passed. No
 TypeScript source or test changed; the task-D `94/94` expectation remains the known
 focused read-only red.
+
+#### Task 3 final P40 stop correction
+
+Final re-review found a third instance of the same stderr-parity class, so P40's
+stop rule applies and Task G makes no further adapter change. Python currently
+normalizes decoded stderr with `str.strip()`, while the task-D TypeScript producer
+uses ECMAScript `String.prototype.trim()`. Their Unicode whitespace sets differ:
+Python strips U+001C where ECMAScript does not, and ECMAScript trims U+FEFF where
+Python does not. General nonzero stderr parity is therefore **not established**,
+even for output at or below 8 MiB. The 3,000-byte ASCII-`z` witness remains a
+worked example only; its equal 3,070-character reasons and rows do not prove the
+class.
+
+Task G's closure evidence is narrowed to the exercised real failure path: changing
+the DS18 register's `covered_root_count` from 126 to 0 made the canonical checker
+return the ASCII `ds18_time_semantics_count_drift:covered_root_count` rejection,
+and the real producer plus persistence adapter stored `primitive_adoption` as
+`unknown / not_established` with zero known facts. That exact count-drift path is
+established; arbitrary nonzero stderr normalization is not.
+
+The declared task-D bounded residual now folds together all three producer/error
+boundary cases: output beyond `spawnSync`'s 8 MiB `maxBuffer`, zero-exit malformed
+stdout that throws before Python admission, and Unicode trim-set divergence on
+nonzero stderr. The smallest capability that closes the residual is a
+producer-owned, typed and bounded error-normalization contract consumed identically
+by the TypeScript producer and Python admission. No such shared contract exists
+here: the producer and adapter currently construct and normalize their rejection
+strings independently, with no common typed error packet or normalizer. Per P40,
+this third worked example triggers documentation of the limitation, not a third
+Python patch.

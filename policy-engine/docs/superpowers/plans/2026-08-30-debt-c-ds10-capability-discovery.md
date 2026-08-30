@@ -86,7 +86,7 @@
 
   Expected baseline: exit 1 with exactly six findings (two `active_plan_metadata`, four `removed_stub_reference`).
 
-- [ ] **Step 3: Apply the same red-first lifecycle to each unwritten node**
+- [x] **Step 3: Apply the same red-first lifecycle to each unwritten node**
 
   Add the exact node, make it exercise the real named path, and run it once. If it fails because the named producer/artifact/bridge is absent, record the failure and remove the temporary test before commit. If the real chain exists or can be wired within owned paths, keep the test and implement the minimal bridge until green.
 
@@ -102,37 +102,37 @@
 - Consumes: Layer-3 adapter admission registries, `CapabilityIndex`, owner receipts, and `CapabilityDiscoveryComposer`
 - Produces: either a real owner-index provider/receipt bridge or a measured `producer_missing`/`artifact_missing` refusal
 
-- [ ] **Step 1: Probe `ds10-adapter-admission-capability-discovery-bridge` at its exact identity**
+- [x] **Step 1: Probe `ds10-adapter-admission-capability-discovery-bridge` at its exact identity**
 
   Test identity: `tests/unit/runtime/quality/test_adapter_registry_capability_discovery.py::test_admitted_adapter_emits_typed_capability_kind_purpose_passport_evidence_and_currentness`.
 
   The test must pass a newly admitted row through the real admission builder and require `resource_kind`, capability purpose, passport/evidence/currentness receipts, and a concrete provider. It must reject a bare admitted flag and tuple-membership stamp. Run the exact node with `uv run --extra test pytest ... -q` and preserve open if the complete admission family still lacks those objects.
 
-- [ ] **Step 2: Probe `ds10-adapter-registry-data-only-free-growth` at its exact identity**
+- [x] **Step 2: Probe `ds10-adapter-registry-data-only-free-growth` at its exact identity**
 
   Test identity: `tests/unit/runtime/quality/test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation`.
 
   Mutate only the governed adapter contract data in test scratch, run the real post-G0 admission path, and require the new contract to appear without a Python switch. A missing builder or hard-coded owner map is an `open` result with the exact missing producer named, not an ambiguous missing-file result.
 
-- [ ] **Step 3: Probe the causal-method bridge**
+- [x] **Step 3: Probe the causal-method bridge**
 
   Test identity: `tests/unit/runtime/quality/test_capability_discovery.py::test_default_causal_method_index_provider_projects_owner_rows_without_execution_promotion`.
 
   Require the default runtime federation to return owner-indexed method rows plus a content-bound `CapabilityIndexOwnerReceipt`; assert `project_capability_features` booleans cannot satisfy the test. Wire only an existing release `CapabilityIndex` owner; otherwise remove the probe and retain `bridge_missing + semantic_test_missing`.
 
-- [ ] **Step 4: Probe owner-signed capability-purpose currentness**
+- [x] **Step 4: Probe owner-signed capability-purpose currentness**
 
   Test identity: `tests/unit/runtime/quality/test_capability_discovery.py::test_owner_signed_capability_purpose_binding_joins_ds9_currentness`.
 
   Require an independently signed typed capability ref/digest/purpose binding to resolve through the DS9 currentness resolver. Assert a `governed_action_key`, inline self-stamp, and missing binding all remain non-authoritative. If the signed producer does not exist, preserve `bridge_missing + artifact_missing`.
 
-- [ ] **Step 5: Probe Layer-3 rejection richness**
+- [x] **Step 5: Probe Layer-3 rejection richness**
 
   Test identity: `tests/unit/runtime/quality/test_capability_discovery.py::test_all_layer3_providers_emit_real_rejections_and_incompleteness`.
 
   Walk the complete G2/G3/GL owner set and require real selected/rejected candidates plus typed incompleteness from owner ledgers. Do not synthesize missing rejected rows in DS10. If an owner ledger lacks the facts, retain the typed limitation.
 
-- [ ] **Step 6: Run the retained capability-discovery blast radius and commit the coherent producer group**
+- [x] **Step 6: Run the retained capability-discovery blast radius and commit the coherent producer group**
 
   Run exact retained nodes plus `tests/unit/runtime/quality/test_capability_discovery.py` only. Before commit require `git status -sb` to show the attached branch.
 
@@ -152,35 +152,35 @@
 - Consumes: real source/connector registries, an appointed global case index if one exists, Scientist NodeRegistry/ToolRegistry snapshots, public custody projection, and fixed Lex trigger/search paths
 - Produces: default discovery providers or precise typed refusals without cross-kind substitution
 
-- [ ] **Step 1: Probe connector/source production**
+- [x] **Step 1: Probe connector/source production**
 
   Exact node: `tests/unit/runtime/http/test_control_api.py::test_list_connectors_and_profiles_are_producer_backed`.
 
   Require the control API lists to resolve through the installed connector and source-profile registries and bind their snapshots. A static response or fixture registry cannot close the row. If content production belongs to absent DS15 acquisition owners, preserve the limitation and name that producer.
 
-- [ ] **Step 2: Probe canonical global case indexing**
+- [x] **Step 2: Probe canonical global case indexing**
 
   Exact node: `tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index`.
 
   Require a default `case` provider whose owner is a canonical global index. Run-bound records and human-decision case strings are explicit negative variants. If no appointed index exists, retain `absent/unallocated` and state that task G's `ds8-global-case-index` half still lacks the same appointed producer.
 
-- [ ] **Step 3: Probe Scientist agent/tool discovery**
+- [x] **Step 3: Probe Scientist agent/tool discovery**
 
   Exact node: `tests/integration/runtime_quality/test_data_state_substrate.py::test_agent_registry_has_typed_discovery_surface`.
 
   Require NodeRegistry/ToolRegistry snapshots, typed `ScientistCapabilityOwnerTruth`, a content-bound owner receipt, and an API-consumed result. Hold L4 entity/data lookup constant as the divergent P38 negative. If no default registry producer exists, retain `producer_missing`.
 
-- [ ] **Step 4: Probe public decision custody**
+- [x] **Step 4: Probe public decision custody**
 
   Exact node: `tests/unit/runtime/http/test_public_export.py::test_public_decision_projection_is_custody_bound`.
 
   Require a public decision projection to resolve a current custody-bound signature and reject internal REVIEWER/EXPERT posture, MACHINE frontier output, and unsigned discovery. If DS12's public producer/promotion gate is absent, remove the red probe, retain `surface_missing`, and state that task G still lacks the signed public-decision surface.
 
-- [ ] **Step 5: Resolve the Lex mutation row manually**
+- [x] **Step 5: Resolve the Lex mutation row manually**
 
   Run `uv run --extra test pytest tests/unit/runtime/http/services/test_lex_pipeline.py -q`. Then enumerate the exact frontend test titles, imports, trigger calls, discovery calls, and click paths from the two read-only Lex files. The property is: discovery rendering never invokes the fixed authenticated Lex mutation. The current implementation predicate is the measured call graph; a title-filter selecting zero tests is not evidence. Record `closed` only if the complete measured discovery interaction is disjoint from every trigger call; otherwise retain `open` and hand the exact frontend test/source change to task D without editing it.
 
-- [ ] **Step 6: Run only retained exact nodes and relevant importer tests, then commit**
+- [x] **Step 6: Run only retained exact nodes and relevant importer tests, then commit**
 
   If `dependencies.py` changes, record the exact additive line range and include its nearest DI test. Do not run the whole HTTP suite.
 
@@ -196,23 +196,23 @@
 - Consumes: canonical source artifacts and owner validators for `generation-cycle-disposition`, `capability-reality`, and `surface-readiness`
 - Produces: an available validated projection or a reason-bound, owner-attributed typed unavailability; then a complete 13-projection census
 
-- [ ] **Step 1: Investigate `generation-cycle-disposition`**
+- [x] **Step 1: Investigate `generation-cycle-disposition`**
 
   Execute the real projection and owner validator. If the source is valid under its declared dependency semantics, correct the validator/bridge and require `available`. Otherwise bind the exact invalid reason and owner lane; do not manufacture OR-Tools or reinterpret a null dependency.
 
-- [ ] **Step 2: Investigate `capability-reality`**
+- [x] **Step 2: Investigate `capability-reality`**
 
   Execute the real capability-ratchet validator against the canonical report. Correct a stale source/ref bridge only if the owner report validates; otherwise preserve `invalid_source` with its exact owner reason.
 
-- [ ] **Step 3: Investigate `surface-readiness`**
+- [x] **Step 3: Investigate `surface-readiness`**
 
   Confirm whether a canonical live ledger and registered owner validator exist. The example ledger is never production evidence. If either is absent, preserve `artifact_missing` and bind the owner/reason; if both exist, wire the existing validator.
 
-- [ ] **Step 4: Run the exact three nodes plus the availability census**
+- [x] **Step 4: Run the exact three nodes plus the availability census**
 
   Add focused semantic tests that corrupt each source/owner binding and must fail. Recompute all thirteen projection states and record either `13/13 available` or the exact remainder with reason and owner. Close `three-unavailable-governed-producers` when all three investigations are reason-complete, even if an honestly retyped remainder remains.
 
-- [ ] **Step 5: Commit the governed-projection group**
+- [x] **Step 5: Commit the governed-projection group**
 
   Verify branch attachment before commit and include only the source/worker/focused tests.
 
@@ -227,19 +227,19 @@
 - Consumes: two distinct zero-retry/no-writer Playwright terminal outputs and the complete current 11-binding hash census
 - Produces: a current independently bound C13 receipt, or a precise task-D handoff
 
-- [ ] **Step 1: Recompute all eleven source hashes**
+- [x] **Step 1: Recompute all eleven source hashes**
 
   Do not trust the historical 2/11 or 6/11 prose. Enumerate the admitted set and print every mismatch with current/expected digest.
 
-- [ ] **Step 2: Run two distinct no-writer Playwright executions only if current source can satisfy the receipt**
+- [x] **Step 2: Run two distinct no-writer Playwright executions only if current source can satisfy the receipt**
 
   Use zero retries and preserve each terminal output independently. If source changes are required, stop this row as `blocked` and hand task D the exact file/line/property change.
 
-- [ ] **Step 3: Reissue and verify**
+- [x] **Step 3: Reissue and verify**
 
   Run the exact DS6 C13 node and `.venv/bin/python architecture/atlas_surfaces/check_frontend_disposition_register.py --check`. Close only when both exit zero and the complete 11-binding set is current.
 
-- [ ] **Step 4: State the overlap precisely**
+- [x] **Step 4: State the overlap precisely**
 
   Close or block only `ds10-c13-print-receipt-reissue`; task D's `DS11-INHERITED-C13-PRINT-RECEIPT` remains its own row and must separately record inheritance/closure.
 
@@ -253,23 +253,23 @@
 - Consumes: terminal receipts from Tasks 1–5
 - Produces: twelve complete closure blocks, arithmetic, overlap handoff, out-of-scope list, and branch readback
 
-- [ ] **Step 1: Run targeted Python quality checks**
+- [x] **Step 1: Run targeted Python quality checks**
 
   Run Ruff only over changed Python files, the exact retained tests, and architecture guardrails if production imports changed. Do not run any directory-wide pytest command.
 
-- [ ] **Step 2: Replay the two before/after repository checks**
+- [x] **Step 2: Replay the two before/after repository checks**
 
   Run the debt-ledger check in the same truly uv-bound environment used for baseline. Run docs lifecycle and require the same exact six findings as baseline.
 
-- [ ] **Step 3: Re-open the failure/repair register before closeout**
+- [x] **Step 3: Re-open the failure/repair register before closeout**
 
   Confirm no P38/W5-K01 substitution, no contract-only capability claim, and no public/internal authority collapse was introduced.
 
-- [ ] **Step 4: Finish the Register closure dossier**
+- [x] **Step 4: Finish the Register closure dossier**
 
   Append one block per row with verdict (`closed`, `open`, `blocked`, or `ambiguous`), exact deciding command/predicate and exit, and exact supersession prose. Include `12 = closed + open + blocked + ambiguous`, split `9 core + 3 adjacent`, and keep ambiguous at four or fewer.
 
-- [ ] **Step 5: Record declared overlaps and out-of-scope findings**
+- [x] **Step 5: Record declared overlaps and out-of-scope findings**
 
   Name task D's remaining C13 half and task G's remaining case-index/public-decision halves. Name out-of-scope defects without editing them.
 

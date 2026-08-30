@@ -1642,7 +1642,7 @@ all three failed it, so they carry `ambiguous` with that measurement rather than
 | `GY-N-V` | 5 | `executed` | `pdc` | `ValueOuterSet` across 11 `src/` files | set-valued value foundation contract — lands with GY-S1 |
 | `GY-S2` | 5 | `executed` | `scholar / lex` | `skg` across 68 `src/` files; `ac_skg_versions` 10, `lex_kg` 5 | knowledge substrate lift (L2 Scholar KG + L3 Lex KG) |
 | `GY-S3` | 5 | `executed` | `foundry` | `InterventionAtomBinding` 5, `lex_intervention_map` 6, `knob_dictionary` 6 in `src/` | intervention substrate lift (L6 agent-sim bundle) |
-| `GY-PR1` | 5 | `not_started` | `runtime/quality` | registered 2026-08-30; **scope re-measured the same day by the obligation experiment** and it grew rather than shrank — the promotion gate has checks that cannot refuse as well as checks that cannot pass | **the DS12 blocker.** Wire `MEASUREMENT`, orchestrate `EVAL_SAFETY`, rule and implement the `EFFECT`/`ADMISSIBILITY` class, and repair three vacuous passes. Closure signal `GY-O0-NC-01`; governed `n9_obligation_scope.v1 → .v2` |
+| `GY-PR1` | 5 | `not_started` | `runtime/quality` | registered 2026-08-30; **scope re-measured the same day by the obligation experiment** and it grew rather than shrank — the promotion gate has checks that cannot refuse as well as checks that cannot pass | **the DS12 blocker.** Wire `MEASUREMENT`, orchestrate `EVAL_SAFETY`, and repair three vacuous passes. **`EFFECT` left as is 2026-08-30** — deferred to the scoped investigation on `gy-n9-effect-class-has-no-referent`, which must terminate before `GY-O0-NC-01` can be met. Closure signal `GY-O0-NC-01`; governed `n9_obligation_scope.v1 → .v2` |
 | `GY-AQ1` | 1 | `not_started` | `fabric` | registered 2026-08-30; absorbs `W5-R2-Q02`, `W5-S02`, `W5-R2-Q14` | non-data acquisition runtime + the eight ceiling algebras; claim bound by ratified `W5-K01` |
 | `GY-AS1` | 1 | `not_started` | `fabric` | registered 2026-08-30; absorbs `W5-S03`, `W5-R2-Q15` | 63-case acquisition assurance battery with an independent oracle |
 | `GY-AS2` | 6 | `not_started` | `runtime/quality` | registered 2026-08-30; absorbs `W5-S08`, `W5-S10`, `W5-S20` (INT half), `W5-S23`, `W5-R4-Q05`, `W5-R4-Q06` | sealed diagnosis holdout + risk–coverage; gates GY-O1 evidence admission |
@@ -1670,9 +1670,12 @@ a completed negative — but **the promotion capability those rows were supposed
 reachable**: three of the fifteen obligations in
 `src/polisyos/runtime/quality/promotion_sequence.py` return `scope_insufficient` unconditionally,
 `_refusal_reasons` counts that as a refusal outside the `contract_testing` lane, so `promoted` is
-always `False` in production and `consumer_promotable=True` cannot occur. `GY-PR1` is now the open
-Phase-5 row, and `GY-D1` and `GY-K` — both `ambiguous`, both previously absent from this table — are
-its inputs.
+always `False` in production and `consumer_promotable=True` cannot occur. `GY-PR1` is the open Phase-5 row and `GY-D1` — `ambiguous`, previously absent from this table — is
+its input. **Corrected 2026-08-30 after the obligation experiment:** `GY-K` is not an input (its
+entailment lineage is architecturally forbidden from deciding), and `GY-PR1` **alone does not make
+promotion reachable** — `_effect_obligation` still refuses unconditionally, and the `EFFECT` ruling
+was deferred to a scoped investigation on `gy-n9-effect-class-has-no-referent`. That investigation,
+not a build, is now the last link before a first governed promotion.
 
 This is engineering, not appointment. Under the identity decision §9 item 5 an institutional absence
 binds the claim and never the capability, so nothing here waits on a signer.
@@ -5396,9 +5399,22 @@ complete, not the date they were written.
   `z_effect`**; none of the 23 promotion-input fields carries effect evidence; and
   `_effect_obligation` reads only `force_proof_timeout`, a test knob, making it a constant function
   that cannot discriminate between designs. The enum meanwhile has **no `ADMISSIBILITY`** while the
-  input has an `admissibility` field. The architect ruling this task carries is whether `EFFECT`
-  becomes `ADMISSIBILITY` with a real evaluator — which keeps the denominator at fifteen, so no δ
-  weight in `confidence_ledger` and no `open_world_risk` denominator moves.
+  input has an `admissibility` field.
+
+  **Ruled 2026-08-30: `EFFECT` is left as it is and the decision leaves this task.** It is deferred
+  to the scoped investigation on debt row `gy-n9-effect-class-has-no-referent`, which must settle
+  whether GY-N9's *"entailment / grounding (GY-K)"* was a distinct seventh check or an early
+  formulation of what became `IDENTIFICATION`. The measurement does not separate those two readings,
+  and ruling from it would be deciding on evidence that does not reach the question.
+
+  **The consequence is explicit and must not be lost: `GY-PR1` alone no longer makes promotion
+  reachable.** `_effect_obligation` keeps returning `scope_insufficient` unconditionally, and
+  `_refusal_reasons` counts that as a refusal outside the `contract_testing` lane, so `promoted`
+  stays `False` in production after every other repair in this task lands. **The chain to a first
+  governed promotion gains one link, and it is an investigation rather than a build**: the `EFFECT`
+  investigation must terminate before `GY-O0-NC-01` can be met, which is before DS12's
+  promoted-record half opens. Everything else here is worth doing regardless — three vacuous passes
+  that mint are a worse defect than one vacuous refusal that blocks.
 
   **Why every part of this is receipt-affecting.** `_gate_outcome_hash` hashes
   `item.model_dump(mode="json")` over the full obligation records, so `owner_ref` and

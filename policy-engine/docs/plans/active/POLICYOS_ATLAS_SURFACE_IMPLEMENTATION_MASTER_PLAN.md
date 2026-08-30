@@ -1693,6 +1693,15 @@ Loosening the ratified posture is out of scope for every slice.
     This is the **only** conjunct of the original gate that remains open: `DS11` is closed and
     merged, `GY-N9`/`N11`/`N12` are `executed`, and `INT-R1`/`R7`/`R8`/`R9` are all delivered and
     ratified.
+  - **Amended 2026-08-30 after the promotion-gate obligation experiment — the link is longer than
+    one task.** `GY-PR1` alone does not make promotion reachable. `_effect_obligation` returns
+    `scope_insufficient` unconditionally and the `EFFECT` ruling was **deferred** to a scoped
+    investigation on debt row `gy-n9-effect-class-has-no-referent`, because the measurement
+    establishes that the class has no referent today but does not settle whether GY-N9's
+    *"entailment / grounding"* was a distinct check or an early name for `IDENTIFICATION`. So the
+    record half of this gate now reads: **`EFFECT` investigation terminates → `GY-PR1` → first
+    governed promotion → DS12 record half.** The capability half above is untouched by this and
+    stays buildable now — which is the whole point of having split the gate.
   - **Gated on institutions, and never on a build.** The named signers and the independent holder
     stay `absent/unallocated`; they gate the *signature on a published record*, not the surface
     that would carry it. A refusal that stopped the surface would be placed one band too low.

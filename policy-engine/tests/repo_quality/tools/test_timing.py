@@ -1700,29 +1700,31 @@ def test_atlas_python_governance_lane_names_one_exact_runnable_workload(
             "run",
             lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 7, b"", b"failed"),
         )
-        with pytest.raises(ValueError, match="lookup failed with exit 7: historical.py"):
+        with pytest.raises(
+            ValueError,
+            match=re.escape("lookup failed with exit 7: historical.py"),
+        ):
             _historical_git_blob(publication_revision, "historical.py")
     with monkeypatch.context() as patched:
         def timed_out(*args: object, **kwargs: object) -> subprocess.CompletedProcess[bytes]:
             raise subprocess.TimeoutExpired(args[0], kwargs["timeout"])
 
         patched.setattr(subprocess, "run", timed_out)
-        with pytest.raises(ValueError, match="lookup timed out: historical.py"):
+        with pytest.raises(ValueError, match=re.escape("lookup timed out: historical.py")):
             _historical_git_blob(publication_revision, "historical.py")
     with monkeypatch.context() as patched:
         def unavailable(*args: object, **kwargs: object) -> subprocess.CompletedProcess[bytes]:
             raise OSError("missing git")
 
         patched.setattr(subprocess, "run", unavailable)
-        with pytest.raises(ValueError, match="lookup could not start: historical.py"):
+        with pytest.raises(ValueError, match=re.escape("lookup could not start: historical.py")):
             _historical_git_blob(publication_revision, "historical.py")
-    historical_node_ids = [
-        node_id
-        for node_id in _historical_pytest_node_ids(
+    historical_node_ids = list(
+        _historical_pytest_node_ids(
             historical_sources,
             historical_supporting_sources,
         )
-    ]
+    )
     assert len(historical_node_ids) == 67
     assert len(historical_node_ids) == len(set(historical_node_ids))
     assert hashlib.sha256(

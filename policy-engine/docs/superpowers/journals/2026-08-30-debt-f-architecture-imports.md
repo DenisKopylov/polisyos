@@ -246,6 +246,7 @@ listed here.
    - `unsupported import policy version {version!r}; supported versions: 2`
    - `internal.allow must be a table`
    - `internal.allow rows missing from roots.known: {roots}`
+   - `internal.allow.{root} must be defined`
    - `internal.allow.{root} names unknown roots: {roots}`
    - `policy.contract_role must be 'enforced_direction_matrix' for policy version 2`
    - `policy.package_boundaries must name the ownership/narrowing register`

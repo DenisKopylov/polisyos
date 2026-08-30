@@ -64,9 +64,7 @@ OVER_SPEND_OWNER_DIAGNOSTIC_CODES = (
 )
 _OVER_SPEND_OWNER_DIAGNOSTIC_SET = frozenset(OVER_SPEND_OWNER_DIAGNOSTIC_CODES)
 _PROTECTED_ACTION_ID = "protected-action://ds17/review-risk-spend"
-_SEMANTIC_SOURCE_REF = (
-    CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH + "#real_ledger_projection"
-)
+_SEMANTIC_SOURCE_REF = CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH + "#real_ledger_projection"
 
 
 def derive_over_spend_allowset() -> tuple[str, ...]:
@@ -126,9 +124,7 @@ class ConfidenceLedgerRiskSpendProjectionService:
     ) -> ConfidenceLedgerRiskSpendPacket:
         """Execute the guarded owner worker and enforce every replay pin exactly."""
 
-        resolution = GovernedProjectionService(
-            self._repository_root
-        ).resolve_guarded_source(
+        resolution = GovernedProjectionService(self._repository_root).resolve_guarded_source(
             GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND
         )
         packet = self._project_resolution(resolution)
@@ -182,9 +178,7 @@ class ConfidenceLedgerRiskSpendProjectionService:
             derivation_context = CoverageDerivationContext(
                 protected_action_id=_PROTECTED_ACTION_ID,
                 semantic_source_ref=_SEMANTIC_SOURCE_REF,
-                semantic_source_verifier_ref=(
-                    CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID
-                ),
+                semantic_source_verifier_ref=(CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID),
             )
             envelope = build_coverage_envelope(
                 registry=registry,
@@ -227,8 +221,7 @@ def _admit_owner_resolution(
     source_document = resolution.source_document
     semantic = resolution.projection_payload
     if (
-        resolution.projection_id
-        is not GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND
+        resolution.projection_id is not GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND
         or source is None
         or validation is None
         or source_document is None
@@ -236,17 +229,13 @@ def _admit_owner_resolution(
         or source.relative_path != CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH
         or source.validation != validation
         or validation.validator_id != CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID
-        or validation.validator_version
-        != CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION
-        or resolution.source_schema_version
-        != CONFIDENCE_LEDGER_GUARDED_SCHEMA_VERSION
+        or validation.validator_version != CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION
+        or resolution.source_schema_version != CONFIDENCE_LEDGER_GUARDED_SCHEMA_VERSION
         or resolution.source_rule_version is not None
         or validation.worker_validation_receipt_hash is None
         or validation.source_payload_equal is not True
-        or validation.bound_artifact_content_hash
-        != source.artifact_content_hash
-        or validation.bound_dependency_aggregate_identity
-        != resolution.source_dependency_hash
+        or validation.bound_artifact_content_hash != source.artifact_content_hash
+        or validation.bound_dependency_aggregate_identity != resolution.source_dependency_hash
     ):
         raise ValueError("confidence_owner_intake_identity_mismatch")
 
@@ -281,8 +270,7 @@ def _admit_owner_resolution(
         if (
             validation.status != "passed"
             or validation.issue_codes != ()
-            or validation.semantic_projection_hash
-            != admitted_semantic.projection_hash
+            or validation.semantic_projection_hash != admitted_semantic.projection_hash
         ):
             raise ValueError("confidence_owner_intake_available_mismatch")
     elif validation.status != "failed" or not validation.issue_codes:
@@ -395,10 +383,7 @@ def _available_packet(
 def _source_blocked_packet(
     resolution: GuardedProjectionSourceResolution,
     reason: SourceBlockedReason,
-) -> (
-    SourceBlockedConfidenceLedgerRiskSpendPacket
-    | InvalidConfidenceLedgerRiskSpendPacket
-):
+) -> SourceBlockedConfidenceLedgerRiskSpendPacket | InvalidConfidenceLedgerRiskSpendPacket:
     source = resolution.source
     validation = resolution.validation
     source_dependency_hash = resolution.source_dependency_hash
@@ -441,11 +426,7 @@ def _source_blocked_packet(
 def _invalid_packet(
     resolution: GuardedProjectionSourceResolution,
 ) -> InvalidConfidenceLedgerRiskSpendPacket:
-    source_hash = (
-        resolution.source.artifact_content_hash
-        if resolution.source is not None
-        else None
-    )
+    source_hash = resolution.source.artifact_content_hash if resolution.source is not None else None
     receipt_hash = (
         resolution.validation.worker_validation_receipt_hash
         if resolution.validation is not None
@@ -468,9 +449,7 @@ def _invalid_packet(
 
 def _common_body(resolution: GuardedProjectionSourceResolution) -> dict[str, object]:
     return {
-        "packet_schema_version": (
-            "policyos.runtime.confidence_ledger_risk_spend_packet.v1"
-        ),
+        "packet_schema_version": ("policyos.runtime.confidence_ledger_risk_spend_packet.v1"),
         "export_replay_contract": "policyos.runtime.export_replay_binding.v1",
         "projection_id": GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND.value,
         "projection_rule_version": PROJECTION_RULE_VERSION,

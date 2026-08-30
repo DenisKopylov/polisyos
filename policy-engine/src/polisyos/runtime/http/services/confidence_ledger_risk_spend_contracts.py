@@ -78,9 +78,9 @@ class ConfidenceLedgerRiskSpendReplayPins(_StrictModel):
 
     artifact_content_hash: str = Field(pattern=_SHA256_PATTERN)
     source_dependency_hash: str = Field(pattern=_SHA256_PATTERN)
-    projection_rule_version: Literal[
-        "policyos.runtime.confidence_ledger_risk_spend.v1"
-    ] = PROJECTION_RULE_VERSION
+    projection_rule_version: Literal["policyos.runtime.confidence_ledger_risk_spend.v1"] = (
+        PROJECTION_RULE_VERSION
+    )
     projection_hash: str = Field(pattern=_SHA256_PATTERN)
     source_as_of: datetime
 
@@ -88,16 +88,16 @@ class ConfidenceLedgerRiskSpendReplayPins(_StrictModel):
 class _ConfidenceLedgerRiskSpendPacketBase(_StrictModel):
     """Authority, audience, and time fields shared by every transport arm."""
 
-    packet_schema_version: Literal[
-        "policyos.runtime.confidence_ledger_risk_spend_packet.v1"
-    ] = PACKET_SCHEMA_VERSION
+    packet_schema_version: Literal["policyos.runtime.confidence_ledger_risk_spend_packet.v1"] = (
+        PACKET_SCHEMA_VERSION
+    )
     export_replay_contract: Literal["policyos.runtime.export_replay_binding.v1"] = (
         EXPORT_REPLAY_CONTRACT
     )
     projection_id: Literal["confidence-ledger-risk-spend"] = PROJECTION_ID
-    projection_rule_version: Literal[
-        "policyos.runtime.confidence_ledger_risk_spend.v1"
-    ] = PROJECTION_RULE_VERSION
+    projection_rule_version: Literal["policyos.runtime.confidence_ledger_risk_spend.v1"] = (
+        PROJECTION_RULE_VERSION
+    )
     intended_audience: Literal[AudienceClass.REVIEWER] = AudienceClass.REVIEWER
     intended_audiences: tuple[
         Literal[AudienceClass.REVIEWER],
@@ -129,16 +129,13 @@ class _ConfidenceLedgerRiskSpendPacketBase(_StrictModel):
     source_rule_version: str | None
     as_of: datetime
     freshness: ProjectionFreshness
-    stable_address: Literal[
-        "/api/v1/exports/governed-projections/confidence-ledger-risk-spend"
-    ] = STABLE_ADDRESS
+    stable_address: Literal["/api/v1/exports/governed-projections/confidence-ledger-risk-spend"] = (
+        STABLE_ADDRESS
+    )
 
     @model_validator(mode="after")
     def _bind_exact_authority(self) -> Self:
-        if (
-            self.authoritative_for != AUTHORITATIVE_FOR
-            or self.may_not_use_for != MAY_NOT_USE_FOR
-        ):
+        if self.authoritative_for != AUTHORITATIVE_FOR or self.may_not_use_for != MAY_NOT_USE_FOR:
             raise ValueError("confidence_packet_authority_mismatch")
         return self
 
@@ -169,8 +166,7 @@ class AvailableConfidenceLedgerRiskSpendPacket(_ConfidenceLedgerRiskSpendPacketB
             or self.source_rule_version is not None
             or self.source.relative_path != CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH
             or validation.validator_id != CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID
-            or validation.validator_version
-            != CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION
+            or validation.validator_version != CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION
             or validation.status != "passed"
             or validation.issue_codes != ()
             or validation.source_payload_equal is not True
@@ -178,25 +174,19 @@ class AvailableConfidenceLedgerRiskSpendPacket(_ConfidenceLedgerRiskSpendPacketB
             raise ValueError("available_confidence_source_structure_mismatch")
         if (
             self.source.artifact_content_hash != self.replay_pins.artifact_content_hash
-            or validation.bound_artifact_content_hash
-            != self.source.artifact_content_hash
+            or validation.bound_artifact_content_hash != self.source.artifact_content_hash
             or self.source_dependency_hash != self.replay_pins.source_dependency_hash
-            or validation.bound_dependency_aggregate_identity
-            != self.source_dependency_hash
+            or validation.bound_dependency_aggregate_identity != self.source_dependency_hash
             or self.projection_rule_version != self.replay_pins.projection_rule_version
             or self.projection_hash != self.replay_pins.projection_hash
             or self.as_of != self.replay_pins.source_as_of
-            or validation.worker_validation_receipt_hash
-            != self.worker_validation_receipt_hash
+            or validation.worker_validation_receipt_hash != self.worker_validation_receipt_hash
             or validation.registry_content_hash != self.registry_content_hash
             or validation.registry_projection_hash != self.registry_projection_hash
-            or validation.frozen_semantic_projection_hash
-            != self.frozen_semantic_projection_hash
-            or validation.semantic_projection_hash
-            != self.frozen_semantic_projection_hash
+            or validation.frozen_semantic_projection_hash != self.frozen_semantic_projection_hash
+            or validation.semantic_projection_hash != self.frozen_semantic_projection_hash
             or self.payload.registry_content_hash != self.registry_content_hash
-            or self.payload.source_projection_hash
-            != self.frozen_semantic_projection_hash
+            or self.payload.source_projection_hash != self.frozen_semantic_projection_hash
         ):
             raise ValueError("available_confidence_packet_binding_mismatch")
         if self.worker_validation_receipt_ref != (
@@ -207,9 +197,7 @@ class AvailableConfidenceLedgerRiskSpendPacket(_ConfidenceLedgerRiskSpendPacketB
         return self
 
 
-class SourceBlockedConfidenceLedgerRiskSpendPacket(
-    _ConfidenceLedgerRiskSpendPacketBase
-):
+class SourceBlockedConfidenceLedgerRiskSpendPacket(_ConfidenceLedgerRiskSpendPacketBase):
     """Safe over-spend rejection without rejected-source semantic detail."""
 
     availability: Literal[ConfidenceLedgerRiskSpendAvailability.SOURCE_BLOCKED]
@@ -241,9 +229,7 @@ class SourceBlockedConfidenceLedgerRiskSpendPacket(
         return self
 
 
-class ArtifactMissingConfidenceLedgerRiskSpendPacket(
-    _ConfidenceLedgerRiskSpendPacketBase
-):
+class ArtifactMissingConfidenceLedgerRiskSpendPacket(_ConfidenceLedgerRiskSpendPacketBase):
     """Typed absence of the one governed N11 source."""
 
     availability: Literal[ConfidenceLedgerRiskSpendAvailability.ARTIFACT_MISSING]
@@ -310,8 +296,7 @@ ConfidenceLedgerRiskSpendPacket = ConfidenceLedgerRiskSpendPacketCandidate
 
 
 def packet_semantic_projection(
-    packet: AvailableConfidenceLedgerRiskSpendPacket
-    | SourceBlockedConfidenceLedgerRiskSpendPacket,
+    packet: AvailableConfidenceLedgerRiskSpendPacket | SourceBlockedConfidenceLedgerRiskSpendPacket,
 ) -> dict[str, object]:
     """Return the non-self-referential semantics used for coherence hashing."""
 
@@ -326,8 +311,7 @@ def packet_semantic_projection(
 
 
 def _validate_packet_identity(
-    packet: AvailableConfidenceLedgerRiskSpendPacket
-    | SourceBlockedConfidenceLedgerRiskSpendPacket,
+    packet: AvailableConfidenceLedgerRiskSpendPacket | SourceBlockedConfidenceLedgerRiskSpendPacket,
 ) -> None:
     expected_hash = hash_export_projection(packet_semantic_projection(packet))
     if packet.projection_hash != expected_hash:

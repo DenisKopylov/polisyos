@@ -87,14 +87,10 @@ class ConditionalDeltaAmount(_StrictModel):
     obligation_class: PromotionObligationClass | None
     scope_id: str = Field(pattern=r"^confidence-risk-scope:sha256:[0-9a-f]{64}$")
     owner_scope_key: str = Field(min_length=1)
-    coverage_envelope_ref: str = Field(
-        pattern=r"^coverage-envelope:sha256:[0-9a-f]{64}$"
-    )
+    coverage_envelope_ref: str = Field(pattern=r"^coverage-envelope:sha256:[0-9a-f]{64}$")
     coverage_envelope_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     declared_obligation_classes_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    maintained_assumptions: tuple[
-        Literal["obligation_completeness", "validator_soundness"], ...
-    ]
+    maintained_assumptions: tuple[Literal["obligation_completeness", "validator_soundness"], ...]
     declared_set_rider: Literal[DECLARED_SET_RIDER]
     locality_rider: Literal[LOCALITY_RIDER]
     amount_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -218,9 +214,7 @@ class CertificateRouteRow(_StrictModel):
     @model_validator(mode="after")
     def _binding_hash_is_exact(self) -> Self:
         body = self.model_dump(mode="json", exclude={"route_binding_hash"})
-        if self.route_binding_hash != canon.fingerprint(
-            body, prefix=True, canon_spec=_CANON
-        ):
+        if self.route_binding_hash != canon.fingerprint(body, prefix=True, canon_spec=_CANON):
             raise ValueError("certificate_route_registry_binding_mismatch")
         return self
 
@@ -278,9 +272,7 @@ class PositiveCertificateRegister(_StrictModel):
     entries: tuple[()] = ()
     population_count: Literal[0] = 0
     population_state: Literal["valid_zero"] = "valid_zero"
-    authority_posture: AppointmentPosture = (
-        AppointmentPosture.INSTITUTIONAL_AUTHORITY_UNAPPOINTED
-    )
+    authority_posture: AppointmentPosture = AppointmentPosture.INSTITUTIONAL_AUTHORITY_UNAPPOINTED
     verified_appointment_refs: tuple[()] = ()
     appointment_denominator_state: Literal["recomputed_empty"] = "recomputed_empty"
     appointment_sufficiency_state: Literal["not_established"] = "not_established"
@@ -351,9 +343,7 @@ class ConfidenceLedgerRiskSpendProjection(_StrictModel):
     fixed_scope_disclosure: Literal[LOCALITY_RIDER]
     source_provenance: tuple[CoverageSourceIdentity, ...]
     coverage_envelope: ObligationCoverageEnvelope
-    coverage_envelope_ref: str = Field(
-        pattern=r"^coverage-envelope:sha256:[0-9a-f]{64}$"
-    )
+    coverage_envelope_ref: str = Field(pattern=r"^coverage-envelope:sha256:[0-9a-f]{64}$")
     coverage_assessment: CoverageAssessment
     obligation_class_risk_spend: tuple[ObligationClassRiskSpend, ...]
     scope_total_risk_spend: ScopeRiskSpend
@@ -379,10 +369,8 @@ class ConfidenceLedgerRiskSpendProjection(_StrictModel):
     def _sets_and_hash_are_bound(self) -> Self:
         if (
             self.registry_basis.content_hash != self.registry_content_hash
-            or self.semantic_ledger_basis.projection_hash
-            != self.source_projection_hash
-            or self.semantic_ledger_basis.registry_content_hash
-            != self.registry_content_hash
+            or self.semantic_ledger_basis.projection_hash != self.source_projection_hash
+            or self.semantic_ledger_basis.registry_content_hash != self.registry_content_hash
             or self.semantic_ledger_basis.risk_scope != self.risk_scope
             or self.semantic_ledger_basis.scope_id != self.scope_id
             or self.risk_scope != self.coverage_envelope.declared_scope
@@ -448,8 +436,7 @@ class ConfidenceLedgerRiskSpendProjection(_StrictModel):
             or amount.owner_scope_key != self.owner_scope_key
             or amount.coverage_envelope_ref != self.coverage_envelope_ref
             or amount.coverage_envelope_hash != self.coverage_envelope.envelope_hash
-            or amount.maintained_assumptions
-            != self.coverage_envelope.maintained_assumptions
+            or amount.maintained_assumptions != self.coverage_envelope.maintained_assumptions
             or amount.declared_obligation_classes_hash != declared_classes_hash
             or amount.declared_set_rider != self.coverage_envelope.declared_set_rider
             or amount.locality_rider != self.coverage_envelope.locality_rider
@@ -467,9 +454,7 @@ class ConfidenceLedgerRiskSpendProjection(_StrictModel):
         ):
             raise ValueError("confidence_risk_surface_recursive_basis_mismatch")
         body = self.model_dump(mode="json", exclude={"projection_hash"})
-        if self.projection_hash != canon.fingerprint(
-            body, prefix=True, canon_spec=_CANON
-        ):
+        if self.projection_hash != canon.fingerprint(body, prefix=True, canon_spec=_CANON):
             raise ValueError("confidence_risk_surface_hash_mismatch")
         return self
 
@@ -488,9 +473,7 @@ class DomainProjectionBlockedAdmission(_StrictModel):
     reason: SharedSafetyBlockedReason
 
 
-type DomainProjectionAdmission = (
-    DomainProjectionExactAdmission | DomainProjectionBlockedAdmission
-)
+type DomainProjectionAdmission = DomainProjectionExactAdmission | DomainProjectionBlockedAdmission
 
 
 def format_exact_rational_v1(value: Fraction) -> str:
@@ -565,9 +548,7 @@ def build_conditional_delta_amount(
     return ConditionalDeltaAmount.model_validate(
         {
             **body,
-            "amount_hash": canon.fingerprint(
-                body, prefix=True, canon_spec=_CANON
-            ),
+            "amount_hash": canon.fingerprint(body, prefix=True, canon_spec=_CANON),
         }
     )
 
@@ -763,9 +744,7 @@ def _build_projection_body(
     for obligation, weight in registry.obligation_weights.items():
         allocation_value = registry.policy.delta.fraction * weight
         matching = [
-            check
-            for check in semantic_ledger.checks
-            if check.obligation_class is obligation
+            check for check in semantic_ledger.checks if check.obligation_class is obligation
         ]
         spent_value = sum((check.spend.fraction for check in matching), Fraction())
         amount_kwargs = {
@@ -894,13 +873,8 @@ def _build_projection_body(
         canon_spec=_CANON,
     )
     positive_blockers = (
-        ReasonAlgebraRow(
-            slot="coverage_assessment", value=coverage_envelope.assessment.value
-        ),
-        *(
-            ReasonAlgebraRow(slot="instrument_blocker", value=blocker.value)
-            for blocker in blockers
-        ),
+        ReasonAlgebraRow(slot="coverage_assessment", value=coverage_envelope.assessment.value),
+        *(ReasonAlgebraRow(slot="instrument_blocker", value=blocker.value) for blocker in blockers),
         ReasonAlgebraRow(
             slot="appointment_posture",
             value=AppointmentPosture.INSTITUTIONAL_AUTHORITY_UNAPPOINTED.value,
@@ -987,9 +961,7 @@ def project_confidence_ledger_risk_spend(
     return ConfidenceLedgerRiskSpendProjection.model_validate(
         {
             **body,
-            "projection_hash": canon.fingerprint(
-                body, prefix=True, canon_spec=_CANON
-            ),
+            "projection_hash": canon.fingerprint(body, prefix=True, canon_spec=_CANON),
         }
     )
 
@@ -1007,10 +979,7 @@ def admit_confidence_ledger_risk_spend_projection(
 
     try:
         admitted = ConfidenceLedgerRiskSpendProjection.model_validate(candidate)
-        if (
-            admitted.registry_basis != registry
-            or admitted.semantic_ledger_basis != semantic_ledger
-        ):
+        if admitted.registry_basis != registry or admitted.semantic_ledger_basis != semantic_ledger:
             raise ValueError("projection_owner_basis_mismatch")
         rederive_and_admit_coverage_envelope(
             candidate=admitted.coverage_envelope,

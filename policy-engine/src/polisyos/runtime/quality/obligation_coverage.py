@@ -25,12 +25,8 @@ from polisyos.runtime.quality.confidence_ledger import (
 
 COVERAGE_SCHEMA_VERSION = "policyos.runtime.obligation_coverage.v1"
 WITNESS_SCHEMA_VERSION = "policyos.runtime.obligation_coverage.witness.v1"
-WITNESS_SOURCE_SCHEMA_VERSION = (
-    "policyos.runtime.obligation_coverage.witness-source.v1"
-)
-WITNESS_REPLAY_RULE_VERSION = (
-    "policyos.runtime.obligation_coverage.witness-replay.v1"
-)
+WITNESS_SOURCE_SCHEMA_VERSION = "policyos.runtime.obligation_coverage.witness-source.v1"
+WITNESS_REPLAY_RULE_VERSION = "policyos.runtime.obligation_coverage.witness-replay.v1"
 COVERAGE_RULE_VERSION = "policyos.runtime.obligation_coverage.negative.v1"
 DECLARED_SET_RIDER = "≤ δ relative to the declared obligation set"
 LOCALITY_RIDER = (
@@ -135,9 +131,7 @@ class CoverageWitnessSourceArtifact(_StrictModel):
     class_denominator_status: Literal["green"]
     mutation_id: str = Field(min_length=1)
     removed_instance_count: Literal[1]
-    removed_obligation_instance_id: str = Field(
-        pattern=r"^sha256:[0-9a-f]{64}$"
-    )
+    removed_obligation_instance_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     removed_obligation_role: Literal["decisive_predicate"]
     removed_source_obligation_ref: str = Field(min_length=1)
     verification_session_provenance: Literal["verification"]
@@ -205,9 +199,7 @@ class ObligationCoverageEnvelope(_StrictModel):
     exclusion_basis_state: Literal["not_established"] = "not_established"
     unknown_remainder: CoverageUnknownRemainder
     witness_refs: tuple[str, ...]
-    maintained_assumptions: tuple[
-        Literal["obligation_completeness", "validator_soundness"], ...
-    ]
+    maintained_assumptions: tuple[Literal["obligation_completeness", "validator_soundness"], ...]
     obligation_language_version: str = Field(min_length=1)
     obligation_schema_ref: str = Field(min_length=1)
     obligation_rule_ref: str = Field(min_length=1)
@@ -219,9 +211,7 @@ class ObligationCoverageEnvelope(_StrictModel):
         "not_issued_open_world_unresolved",
     ]
     authority_purpose: str = Field(min_length=1)
-    authoritative_for: tuple[
-        Literal["conditionality_disclosure", "declared_set_accounting"], ...
-    ]
+    authoritative_for: tuple[Literal["conditionality_disclosure", "declared_set_accounting"], ...]
     may_not_use_for: tuple[
         Literal[
             "promotion_authority",
@@ -245,8 +235,7 @@ class ObligationCoverageEnvelope(_StrictModel):
             raise ValueError("coverage_declared_scope_binding_mismatch")
         if (
             len(self.declared_obligation_classes) != len(PromotionObligationClass)
-            or len(set(self.declared_obligation_classes))
-            != len(self.declared_obligation_classes)
+            or len(set(self.declared_obligation_classes)) != len(self.declared_obligation_classes)
             or set(self.declared_obligation_classes) != set(PromotionObligationClass)
         ):
             raise ValueError("coverage_declared_obligation_denominator_invalid")
@@ -292,9 +281,7 @@ class ProtectedActionEvaluation(_StrictModel):
     presented_claim_scope: str = Field(min_length=1)
     status: Literal["blocked"]
     assessment: CoverageAssessment
-    coverage_envelope_ref: str = Field(
-        pattern=r"^coverage-envelope:sha256:[0-9a-f]{64}$"
-    )
+    coverage_envelope_ref: str = Field(pattern=r"^coverage-envelope:sha256:[0-9a-f]{64}$")
 
 
 def build_coverage_envelope(
@@ -360,9 +347,7 @@ def build_coverage_envelope(
             else CoverageAssessment.OPEN_WORLD_UNRESOLVED
         ),
         "reason_codes": (
-            CoverageReasonCode.KNOWN_INCOMPLETE
-            if admitted
-            else CoverageReasonCode.OPEN_WORLD,
+            CoverageReasonCode.KNOWN_INCOMPLETE if admitted else CoverageReasonCode.OPEN_WORLD,
             CoverageReasonCode.SEARCH_NOT_ESTABLISHED,
             CoverageReasonCode.EXCLUSIONS_NOT_ESTABLISHED,
             CoverageReasonCode.INDEPENDENCE_MISSING,
@@ -388,17 +373,13 @@ def build_coverage_envelope(
         "witness_refs": admitted,
         "maintained_assumptions": semantic_ledger.maintained_assumptions,
         "obligation_language_version": registry.schema_version,
-        "obligation_schema_ref": semantic_ledger.risk_scope.schema_ref
-        or registry.schema_version,
-        "obligation_rule_ref": semantic_ledger.risk_scope.rule_ref
-        or COVERAGE_RULE_VERSION,
+        "obligation_schema_ref": semantic_ledger.risk_scope.schema_ref or registry.schema_version,
+        "obligation_rule_ref": semantic_ledger.risk_scope.rule_ref or COVERAGE_RULE_VERSION,
         "source_cutoff_state": "not_established",
         "review_state": "not_issued",
         "expiry_state": "not_issued",
         "ttl_state": (
-            "not_issued_known_incomplete"
-            if admitted
-            else "not_issued_open_world_unresolved"
+            "not_issued_known_incomplete" if admitted else "not_issued_open_world_unresolved"
         ),
         "authority_purpose": semantic_ledger.risk_scope.authority_purpose,
         "authoritative_for": (
@@ -626,8 +607,7 @@ def _resolve_witnesses(
             or source.risk_scope.scope_id != scope_id
             or source.risk_scope.owner_scope_key != owner_scope_key
             or source.protected_action_id != protected_action_id
-            or source.removed_obligation_instance_id
-            != receipt.obligation_instance_id
+            or source.removed_obligation_instance_id != receipt.obligation_instance_id
             or source.authority_issue_codes != (receipt.issue_code,)
         ):
             raise ValueError("coverage_witness_source_scope_or_assessment_mismatch")

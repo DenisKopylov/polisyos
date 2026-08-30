@@ -3716,3 +3716,97 @@ inheritance map, DS18 row/header, seed, foreign row, runtime-dashboard source or
 test, generated path, Task 9 path, route-denominator input, or governing plan
 moved. Mechanism accounting remains 18/18 declared, 18/22 hard ceiling, reserve
 0.
+
+## 2026-08-30 — Task 11: C05 real-owner semantic and visual proof
+
+The exact predecessor is the complete 3,718-line / 226,125-byte journal with
+Git blob `dae4f629c717887edb9dd0c495532067f7e5a6ad` and SHA-256
+`bc84dcdb47b769afb5e54b6aea73a0ae91643fad6b127d143702b6a18e798278`.
+This task began from clean attached HEAD
+`dc337d309df3cbd5b3797012a7c63b5e2976e65d`; the governing plan remains blob
+`42b37c99069855ff614e558ee2d3a5bd77865233`.
+
+**Pattern pass.** P01/P02/P05/P10/P15 require a live owner chain, not a
+candidate packet made to resemble one. P29/P38 require the page to render the
+HTTP response's actual values and dialog, rather than merely carry a route or
+chip marker. The task is the one P39 semantic/visual/snapshot/journal companion
+set. It adds no mechanism path: the ledger remains 18/18 declared, 18/22
+ceiling, reserve 0.
+
+### Real owner chain and exact state
+
+`ds17-confidence-ledger-risk-spend.semantic.spec.ts` contains the sole semantic
+test, `DS17 confidence risk spend real-owner HTTP-to-DOM`; the visual companion
+contains the sole test, `DS17 confidence risk spend real-owner available
+open-world`. Each installs only the existing `installDashboardTestState` helper
+in deterministic light mode, waits for the protected exact route before the
+single `/runs/cycle-board` navigation, and reads its unmodified response bytes.
+The normal Playwright configuration starts the real fixture API on 8000 and the
+real Vite host on 5173. No governed-artifact-root environment override is set;
+the service follows its default repository-root resolution to the canonical N11
+artifact.
+
+Both browser tests prove the one owner-emittable response: `available`, total
+spend numerator 0, scope spent 0, fifteen class spends all 0,
+`open_world_unresolved`, thirteen instrument definitions, fifteen obligation
+classes, and an empty positive-certificate entry list/population. They prove the
+visible actual order refusal, acquisition, acquisition; DOM lists of 13 and 15;
+and the honest empty state `0 issued`, `unappointed`, and `not a load failure`.
+The independent Cycle Board projection was unavailable in this fixture run, but
+its explicit no-substitution error rendered beside the independently admitted
+risk panel; no board value was reused.
+
+Each test opens one `conditional-delta` button, confirms both the declared-set
+and local-scope riders in its single accessible name, and confirms the accessible
+conditional-envelope dialog. Each also verifies exactly the three DS17 temporal
+owners against the live response's `as_of`, observed/source `as_of`, and source
+state, plus the canonical epoch/validity/revalidation nonreceipt values.
+
+### Red-first, snapshot, and semantic receipts
+
+The exact visual grep listed one chromium test (exit 0; real/user/sys
+`1.73/1.22/0.12`). Before an explicit writer, the non-writer visual command
+failed only with Playwright's named missing-snapshot error for
+`ds17-real-owner-conditional-envelope-chromium-darwin.png`; the route, state,
+DOM, riders, dialog, and temporal assertions had already passed. Playwright
+reported that red by writing its actual capture, as its missing-snapshot matcher
+does; it was not an `--update-snapshots` invocation.
+
+Exactly one explicit `--update-snapshots` invocation then passed. Two subsequent
+non-writer visual replays each passed 1/1, with `/usr/bin/time -p`
+real/user/sys receipts `65.38/42.55/6.74` and `65.19/42.55/6.46`. The sole
+snapshot stayed byte-identical at SHA-256
+`0ba599f9809505efcb67af02cba4634bc0c944eef7043983ed334967a789db68`.
+The semantic exact-grep lane passed 1/1 with `65.03/42.00/6.69` real/user/sys.
+Every command used `CI=1`, zero retries, one worker, the normal configuration,
+and paired `uptime` coordinates. The initial red and one explicit writer were
+also wrapped in `/usr/bin/time -p`; their live-server startup output exceeded
+the terminal capture before the terminal summary, so only their verified
+Playwright exit dispositions (red missing snapshot; green writer) are asserted
+here rather than fabricated numeric durations.
+
+### Scope and static receipts
+
+The focused ESLint command over both new specifications exited 0. A complete
+TypeScript AST/text census over exactly those two files exited 0: each imports
+only `installDashboardTestState` from the shared helper; each has exactly one
+approved `page.goto('/runs/cycle-board')`; neither contains `page.route`,
+`applyRuntimeApiScenario`, artifact/environment injection, a fixture/source
+import, or another host. The census is run from `apps/runtime-dashboard`, the
+same package coordinate from which the repository's own architecture scanner
+resolves TypeScript.
+
+The broad `tsconfig.eslint.json` type program remains red in pre-existing
+Storybook, a11y, journey, and legacy visual files; neither Task 11 spec appears
+in its diagnostics. A root-conditional focused program also cannot type the
+existing shared e2e helper because that configuration excludes Node builtins
+while the helper imports them. These static-config reds are not represented as
+Task 11 acceptance. The real Chromium lanes, ESLint, and AST parse are green
+and directly exercise the changed browser behavior.
+
+Immediately before this append, the branch remained attached to
+`codex/ds17-confidence-ledger-risk-spend-landing`. The tracked task set is
+exactly the two new specs, the sole visual snapshot, and this journal. No
+producer, HTTP route, generated client, component, helper, config, checker,
+register/schema/report, temporal surface, plan, or route-denominator input
+moved.

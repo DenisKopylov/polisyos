@@ -160,3 +160,47 @@ failed with the expected missing-helper `NameError` before implementation.
 GREEN receipt:
 `uv run --extra test --with 'jsonschema>=4.25' python -m pytest tests/repo_quality/tools/test_timing.py::test_atlas_python_governance_lane_names_one_exact_runnable_workload`
 exited 0: `1 passed in 0.13s`.
+
+### Task 3 — DS6 Python admission of the DS18 projection
+
+The pre-repair four-node Vitest selector had two failures and two passes. The
+read-only current-measurement node expected the dated `94/94` freeze but observed
+the current `126/126`; the persistence node failed because Python still projected
+primitive adoption from the DS1 readiness population as `unknown`. A direct
+persistence invocation confirmed the owned failure as `health-metric rows do not
+bind the recomputed canonical-source projection`.
+
+Mechanism commit: `2d35c2e71` (`fix(atlas): admit live DS18 health projection`).
+
+The Python admission adapter now invokes the canonical DS18 checker through the
+repository `.venv/bin/python -I` with the fixed minimal child environment and the
+resolved allowlisted Node 22 executable from `_trusted_node`. It admits exactly
+five fields, requires `predicate_provenance: independently_reconciled`, positive
+integer counts, and `covered_root_count == obligated_root_count`; it derives the
+measured row without storing any current count in code. The row content-binds the
+register, schema, checker, and AST scanner. Checker rejection, duplicate or
+malformed JSON, extra fields, wrong provenance, boolean/non-positive counts, and
+incomplete coverage all produce an exact bounded reason and retain
+`unknown` / `not_established` with zero known facts. The shared source-projection
+signature was updated for both health and readiness; the readiness reconciler's
+five-value interface replayed successfully. An already-landed producer wording
+change (`Six` to `Seven` source proxies) was mirrored in the owned Python adapter
+because it otherwise independently blocked the persistence node.
+
+GREEN receipts: the canonical fixed-environment checker exited 0 with 621
+production files, 759 roots, and 126/126 covered obligated roots. Direct Core CAS
+persistence exited 0 with a measured 126/126 primitive row, the same three current
+facts, `predicate_provenance: recomputed`, and four DS18 basis refs. The exact
+persistence Vitest node passed (`1 passed | 22 skipped`); the exact caller `PATH`
+and `NODE_OPTIONS` nodes passed (`2 passed | 21 skipped`); Ruff, byte compilation,
+and `git diff --check` passed. The final four-node selector had three passes and
+one task-D-owned read-only failure: the current-measurement node still expects
+`94/94` while the producer correctly emits `126/126`. No TypeScript source or test
+was changed.
+
+Pattern closeout: P03's hidden DS18 richness is now consumed by the existing
+persistence bridge; P29/P32 are met by replay and content refs rather than marker
+presence; P37 fails closed unless the checker itself establishes the independent
+predicate; P38 measures the obligated-root relation rather than a stored count.
+The owned Python predicate is green. The remaining task-D literal expectation is
+the recorded P41 handoff, not a reason to substitute another frozen total.

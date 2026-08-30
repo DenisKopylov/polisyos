@@ -160,7 +160,7 @@ describe("RunReportPage", () => {
     expect(links[0]).toHaveAttribute("data-paper-link-eligible", "true");
 
     await user.click(
-      screen.getByRole("button", { name: "pages.runs.report.exportMachine" }),
+      screen.getByRole("button", { name: "pages.runs.report.exportJson" }),
     );
     expect(downloadRunPaperPacketMock).toHaveBeenCalledTimes(1);
     expect(downloadRunPaperPacketMock).toHaveBeenCalledWith(

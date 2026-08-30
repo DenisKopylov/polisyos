@@ -30,6 +30,7 @@ export type RuntimeFixtureMetadata = {
   data_snapshot_artifact_id: string;
   promotion_candidate_id: string;
   root_artifact_id: string;
+  run_paper_bound_run_id: string;
   run_paper_empty_run_id?: string;
   run_paper_growth_run_id?: string;
   [key: string]: string | undefined;
@@ -138,7 +139,7 @@ export const DASHBOARD_ROUTE_SURFACES: DashboardRouteSurface[] = [
   },
   {
     name: "run-report",
-    path: (metadata) => `/runs/${metadata.core_run_id}/report`,
+    path: (metadata) => `/runs/${metadata.run_paper_bound_run_id}/report`,
     ready: "run-report",
   },
   {

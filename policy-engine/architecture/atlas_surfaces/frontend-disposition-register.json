@@ -10740,7 +10740,7 @@
       },
       {
         "path": "apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.ts",
-        "sha256": "sha256:89037ec75c25a3360582d66e754bc7fdf48cf24990c4b2aeab1858420e3b686e"
+        "sha256": "sha256:4bf40697a819c63835802530c448c3b54190c41b790f50349277693080ae7250"
       }
     ],
     "role_count": 6,
@@ -10771,19 +10771,19 @@
         "symbol": "evaluateConfidenceLedgerProtectedQuery",
         "source": {
           "path": "apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.ts",
-          "sha256": "sha256:89037ec75c25a3360582d66e754bc7fdf48cf24990c4b2aeab1858420e3b686e"
+          "sha256": "sha256:4bf40697a819c63835802530c448c3b54190c41b790f50349277693080ae7250"
         },
         "declaration": {
           "column": 1,
           "declaration_sha256": "sha256:7610bc29abf279a6d869a1717e262e11ca35f349c8d2a288ee6734ae6d770d76",
           "exported": true,
           "kind": "FunctionDeclaration",
-          "line": 2649
+          "line": 2651
         },
         "behavioral_evidence": [
           {
             "path": "apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.test.ts",
-            "sha256": "sha256:84cc2714cff0ba2fe853c947824533dd2321eb7e12568a42dcf11e52cd81fcd3"
+            "sha256": "sha256:1783f1bc7ec568faebdc04a12c2f129fc5eb183b2faf7841f11ba408d752aaef"
           }
         ]
       },
@@ -10885,12 +10885,12 @@
       },
       {
         "behavioral_evidence_sha256": [
-          "sha256:84cc2714cff0ba2fe853c947824533dd2321eb7e12568a42dcf11e52cd81fcd3"
+          "sha256:1783f1bc7ec568faebdc04a12c2f129fc5eb183b2faf7841f11ba408d752aaef"
         ],
         "declaration_sha256": "sha256:7610bc29abf279a6d869a1717e262e11ca35f349c8d2a288ee6734ae6d770d76",
         "role_id": "domain_validator",
         "source_path": "apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.ts",
-        "source_sha256": "sha256:89037ec75c25a3360582d66e754bc7fdf48cf24990c4b2aeab1858420e3b686e",
+        "source_sha256": "sha256:4bf40697a819c63835802530c448c3b54190c41b790f50349277693080ae7250",
         "symbol": "evaluateConfidenceLedgerProtectedQuery"
       },
       {
@@ -10934,7 +10934,7 @@
         "symbol": "ConfidenceLedgerRiskSpendQueryPanel"
       }
     ],
-    "role_manifest_sha256": "sha256:3e06194135bcc6457d88623d13df99c17c730f1eeb0796a17b1717ea826415e5",
+    "role_manifest_sha256": "sha256:60a10daa91d84a57a2f56a695e90b7955b93576404d49791388a4ee8ca7a5ad0",
     "edge_count": 5,
     "edges": [
       {
@@ -11133,7 +11133,7 @@
     },
     "source_file_count": 621,
     "root_count": 759,
-    "file_manifest_sha256": "sha256:b5602aaaa5f3b68ce951b6e541476cc9cb74e7cdf706997a394b80fa391bb2d2",
+    "file_manifest_sha256": "sha256:185d417044b9ae1d5f52d3bbea4be13834c0a84d9e4e26a9ba49672156ea8837",
     "root_manifest_sha256": "sha256:59fd9a112ff72fe6e33552b30c0786f1dbaf10f40bfa559670479c20e9204cfa",
     "decision_bearing_root_count": 48,
     "inherits_admitted_dom_root_count": 78,
@@ -24451,7 +24451,7 @@
         "receipt_kind": "no_render_root",
         "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
         "roots": [],
-        "source_sha256": "sha256:89037ec75c25a3360582d66e754bc7fdf48cf24990c4b2aeab1858420e3b686e"
+        "source_sha256": "sha256:4bf40697a819c63835802530c448c3b54190c41b790f50349277693080ae7250"
       },
       {
         "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",

@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **103291**
+- Application lines added: **103699**
 - Application lines deleted: **26591**
-- Net application LOC reduction: **-76700**
+- Net application LOC reduction: **-77108**
 - Application files deleted: **92**
 
 ## Wave-end full verification
@@ -612,7 +612,7 @@ Predicate provenance: `recomputed`. Projection: `confidence-ledger-risk-spend` a
 
 Bounded closure: `single governed confidence-ledger risk-spend projection`; global coverage, family/sequence, positive promotion, and deployment-wide index claims are all `false`. PolicyOS executes the protected action: `false`; executor ownership: `out_of_scope`.
 
-Role manifest: **6** rows / `sha256:3e06194135bcc6457d88623d13df99c17c730f1eeb0796a17b1717ea826415e5`. Edge manifest: **5** rows / `sha256:39f6a622d94310e21042fc02c930853550adaef90636a827feede5a9f0c24115`.
+Role manifest: **6** rows / `sha256:60a10daa91d84a57a2f56a695e90b7955b93576404d49791388a4ee8ca7a5ad0`. Edge manifest: **5** rows / `sha256:39f6a622d94310e21042fc02c930853550adaef90636a827feede5a9f0c24115`.
 
 | Role | Symbol | Source | Behavioral evidence |
 | --- | --- | --- | --- |
@@ -919,6 +919,8 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 
 ## Commits
 
+- `61b2d9fa9 fix(atlas): derive risk denominators from owner registry`
+- `92f1e1565 fix(atlas): refresh formatted DS17 receipts`
 - `15a2e9b22 test(atlas): prove DS17 risk-spend surface`
 - `dc337d309 fix(atlas): isolate DS17 reference truthiness`
 - `711f30b61 fix(atlas): prove DS17 static reachability`

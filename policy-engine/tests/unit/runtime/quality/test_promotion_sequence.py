@@ -1324,6 +1324,11 @@ def test_coupling_without_bound_n5_projection_is_scope_insufficient(
     assert coupling.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
     assert coupling.semantic_scope == "scope_insufficient"
     assert "bridge_missing" in coupling.detail
+    production_reasons = promotion_sequence_module._refusal_reasons(
+        receipt.obligations,
+        risk_spend=receipt.risk_spend,
+    )
+    assert "coupling:scope_insufficient" in production_reasons
 
 
 def test_effective_independence_missing_is_explicit_decisive_nonreceipt() -> None:
@@ -1340,6 +1345,11 @@ def test_effective_independence_missing_is_explicit_decisive_nonreceipt() -> Non
     assert rows[0].status == PromotionObligationStatus.SCOPE_INSUFFICIENT
     assert rows[0].owner_ref == "absent/unallocated"
     assert "producer_missing" in rows[0].detail
+    production_reasons = promotion_sequence_module._refusal_reasons(
+        receipt.obligations,
+        risk_spend=receipt.risk_spend,
+    )
+    assert "data:scope_insufficient" in production_reasons
 
 
 def test_data_trust_typed_fields_fail_data_obligation() -> None:
@@ -2517,6 +2527,8 @@ def test_promotion_comparison_refuses_v2_without_open_world_owner_fact() -> None
     legacy_owner["schema_version"] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1"
     legacy_owner.pop("open_world_gate")
     legacy_owner.pop("epoch_validity_projection")
+    legacy_owner["effective_independence"] = True
+    legacy_owner["admissibility"] = True
     legacy_owner["projection_hash"] = gy_content_hash(
         {key: value for key, value in legacy_owner.items() if key != "projection_hash"}
     )

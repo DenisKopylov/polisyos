@@ -1806,6 +1806,43 @@ a path DS17 did not change; or reconciling by editing the scanner rather than th
 Every number DS17 writes into that block must come from executing DS18's own scanner and
 must be reported with its executor.
 
+**Architect amendment 2026-08-29 (6) — the third classification terminal, and (5)'s
+"scanner" narrowed.** The fifth C05 stop reports only two options: label decision-bearing
+roots <code>non_decision_bearing</code>, or reopen C04 to add temporal chrome. **There is a
+third, and the slice landing immediately before DS17 used it.**
+
+DS18 does not let anyone <em>label</em> a root; the builder <em>derives</em> the
+classification at <code>check_frontend_disposition_register.py:15770-15779</code>. A root
+falls to <code>non_decision_bearing</code> only when it is in no strict-projection file,
+is no primary root, <strong>and has no owner</strong>. A decision-bearing root whose
+temporal semantics live in an admitted ancestor classifies as
+<code>inherits_admitted_dom</code>, and that branch increments both
+<code>obligated_roots</code> and <code>covered_roots</code> — it is not an escape from
+obligation, it is the designed answer for inherited temporal ownership.
+
+The owner comes from the content-bound maps
+<code>DS18_TIME_SEMANTICS_ROOT_INHERITANCE</code> and
+<code>DS18_TIME_SEMANTICS_CROSS_FILE_INHERITANCE</code>. **DS15 populated the first of
+these in <code>8c20b6f74</code>, "DS15 reconcile acquisition surfaces with DS18 freeze",
+touching checker + register + test and <strong>not</strong> the scanner.** DS17 does the
+same for its own roots.
+
+**Amendment (5)'s prohibition on "reconciling by editing the scanner" means the scanner:
+<code>architecture/atlas_surfaces/decision_time_semantics_scan.mjs</code>.** It does not
+reach the checker's inheritance maps, which are the delegated reconciliation surface. The
+checker is already DS17's declared mechanism path 18, so this adds no path.
+
+**The truth condition binds and is not optional.** <code>inherits_admitted_dom</code>
+asserts that the named owner root genuinely contains the inheriting root in the rendered
+DOM. Prove containment per root against the real render; do not assert it, and do not name
+an owner of convenience. A root that no admitted owner actually contains is not eligible
+for this terminal, and forcing it there would be the false classification the stop rightly
+refused.
+
+**Still forbidden:** editing the scanner; weakening any DS18 validator or its historical
+frozen replay; touching a row, entry, or inheritance key for a path DS17 did not change;
+and classifying any decision-bearing root as <code>non_decision_bearing</code>.
+
 **P39 register/test companions:**
 
 - <code>architecture/atlas_surfaces/frontend-disposition-register.json</code>

@@ -198,12 +198,12 @@ class _DecisionValidityStateStore:
 
     def save_dedupe_event_id(self, dedupe_key: str, event_id: str) -> None:
         path = self._dedupe_path(dedupe_key)
-        temp = path.with_suffix(".json.tmp")
-        temp.write_text(
-            json.dumps({"event_id": event_id}, sort_keys=True, separators=(",", ":")),
-            encoding="utf-8",
+        self._write_bytes_atomic(
+            path,
+            json.dumps(
+                {"event_id": event_id}, sort_keys=True, separators=(",", ":")
+            ).encode("utf-8"),
         )
-        temp.replace(path)
 
     def load_epoch_pending(self, batch_id: str) -> EpochValidityPendingBatch | None:
         """Load one durable phase-one freeze."""
@@ -343,17 +343,29 @@ class _DecisionValidityStateStore:
         payload = json.dumps(
             model.model_dump(mode="json"), sort_keys=True, separators=(",", ":")
         ).encode("utf-8")
+        _DecisionValidityStateStore._write_bytes_atomic(path, payload)
+
+    @staticmethod
+    def _write_bytes_atomic(path: Path, payload: bytes) -> None:
         temp = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
         descriptor = os.open(temp, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
         try:
-            with os.fdopen(descriptor, "wb", closefd=False) as stream:
+            with os.fdopen(descriptor, "wb") as stream:
+                descriptor = -1
                 stream.write(payload)
                 stream.flush()
                 os.fsync(stream.fileno())
+            temp.replace(path)
+            _DecisionValidityStateStore._fsync_directory(path.parent)
+        except BaseException:
+            try:
+                temp.unlink()
+            except FileNotFoundError:
+                pass
+            raise
         finally:
-            os.close(descriptor)
-        temp.replace(path)
-        _DecisionValidityStateStore._fsync_directory(path.parent)
+            if descriptor >= 0:
+                os.close(descriptor)
 
     @staticmethod
     def _fsync_directory(directory: Path) -> None:

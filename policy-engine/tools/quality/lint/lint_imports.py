@@ -40,7 +40,7 @@ DEFAULT_BASELINE_LABEL = "default"
 VIOLATION_RULE_RE = re.compile(r"\[(ARCH\d+)\]")
 DIRECTION_MATRIX_ROLE = "enforced_direction_matrix"
 OWNERSHIP_NARROWING_ROLE = "ownership_and_narrowing_register"
-SUPPORTED_POLICY_VERSIONS = frozenset({"1.0", "2"})
+SUPPORTED_POLICY_VERSIONS = frozenset({"2"})
 
 
 @dataclass(frozen=True)

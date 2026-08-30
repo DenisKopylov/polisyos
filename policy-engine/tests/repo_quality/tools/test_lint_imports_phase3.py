@@ -19,20 +19,38 @@ def _write_policy(path: Path, src_root: Path) -> None:
         textwrap.dedent(
             f"""
             [policy]
-            version = "1.0"
+            version = "2"
+            contract_role = "enforced_direction_matrix"
+            package_boundaries = "boundaries.toml"
             internal_prefix = "polisyos"
             src_root = "{src_root.as_posix()}"
 
             [roots]
-            known = ["ir", "foundry"]
+            known = ["ir"]
 
             [internal.allow]
             ir = []
-            foundry = ["ir"]
 
             [external.allow]
             ir = []
-            foundry = []
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    path.with_name("boundaries.toml").write_text(
+        textwrap.dedent(
+            """
+            [package_boundaries]
+            version = 2
+            contract_role = "ownership_and_narrowing_register"
+
+            [[package]]
+            module = "polisyos.ir"
+            owner = "team-ir"
+            public_facade = "polisyos.ir"
+            allowed_dependencies = []
+            forbidden_dependencies = []
             """
         ).strip()
         + "\n",
@@ -222,7 +240,11 @@ def test_version_two_policy_fails_closed_on_nonexistent_direction_root(
         lint_imports.read_policy(policy)
 
 
-def test_import_policy_fails_closed_on_unsupported_version(tmp_path: Path) -> None:
+@pytest.mark.parametrize("unsupported_version", ["1.0", "2.0"])
+def test_import_policy_fails_closed_on_unsupported_version(
+    tmp_path: Path,
+    unsupported_version: str,
+) -> None:
     src_root = tmp_path / "src"
     for root in ("fabric", "data_forge"):
         package = src_root / "polisyos" / root
@@ -231,13 +253,16 @@ def test_import_policy_fails_closed_on_unsupported_version(tmp_path: Path) -> No
     policy = tmp_path / "policy.toml"
     _write_narrowed_policy(policy, src_root)
     policy.write_text(
-        policy.read_text(encoding="utf-8").replace('version = "2"', 'version = "2.0"'),
+        policy.read_text(encoding="utf-8").replace(
+            'version = "2"',
+            f'version = "{unsupported_version}"',
+        ),
         encoding="utf-8",
     )
 
     with pytest.raises(
         ValueError,
-        match=r"unsupported import policy version '2\.0'; supported versions: 1\.0, 2",
+        match=rf"unsupported import policy version '{unsupported_version}'; supported versions: 2",
     ):
         lint_imports.read_policy(policy)
 

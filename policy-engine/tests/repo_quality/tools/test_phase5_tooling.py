@@ -19,20 +19,38 @@ def _write_policy(path: Path, src_root: Path) -> None:
         textwrap.dedent(
             f"""
             [policy]
-            version = "1.0"
+            version = "2"
+            contract_role = "enforced_direction_matrix"
+            package_boundaries = "boundaries.toml"
             internal_prefix = "polisyos"
             src_root = "{src_root.as_posix()}"
 
             [roots]
-            known = ["ir", "foundry"]
+            known = ["ir"]
 
             [internal.allow]
             ir = []
-            foundry = ["ir"]
 
             [external.allow]
             ir = []
-            foundry = []
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    path.with_name("boundaries.toml").write_text(
+        textwrap.dedent(
+            """
+            [package_boundaries]
+            version = 2
+            contract_role = "ownership_and_narrowing_register"
+
+            [[package]]
+            module = "polisyos.ir"
+            owner = "team-ir"
+            public_facade = "polisyos.ir"
+            allowed_dependencies = []
+            forbidden_dependencies = []
             """
         ).strip()
         + "\n",

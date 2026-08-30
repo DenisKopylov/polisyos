@@ -2941,3 +2941,48 @@ capability state is `consumer_missing + verification_missing`. Mechanisms stay
 17/18 declared, 17/22 ceiling, reserve 0; the plan blob remains
 `d25f9c79f891cb6b77f5c35cf3168740e74dd9c8`; all twenty route denominators are
 unchanged.
+
+## 2026-08-30 — amendment (8): DS18 temporal ownership is per file
+
+The preceding journal content is 2,943 lines and 179,763 bytes, with Git blob
+`1261f8c737ac27f0d558fa588641d8b1fe87f462` and file SHA-256
+`f3c46540615f661a95387f4d57e91c5c553a53999b756209eab793bc5be4b292`.
+
+Architect amendment (8), commit `18b6a1f7f`, moves the plan blob
+`d25f9c79f891cb6b77f5c35cf3168740e74dd9c8` →
+`42b37c99069855ff614e558ee2d3a5bd77865233` (+36/−0). The latter is the
+new plan-custody constant.
+
+The preceding mandatory stop refused the right implementation: marker-only or
+suppressed labels would have been a P29 form gate, and the two independent
+runtime walks correctly counted 978 instances under that proposed per-root
+interpretation. The premise was nevertheless wrong. The DS18 scanner records
+four temporal-binding kinds for each root, while
+`_ds18_primary_direct_roots` enforces exactly one label-bearing primary root
+for each file named by `DS18_TIME_SEMANTICS_DIRECT_FILES`. `file_owner_for`
+then makes that primary root the file's own admitted owner, so the other roots
+in that file derive `inherits_admitted_dom`. DS17 therefore owes three real
+labels, not 978: one in each of `ConfidenceLedgerRiskSpend.tsx`,
+`ConditionalDeltaFigure.tsx`, and `CycleBoardPage.tsx`.
+
+Both causes bind the resumed work. The architect's amendment (7) described the
+posture at decision-bearing-root granularity even though DS18's enforcing
+invariant is per file. Separately, the executor derived the collision from one
+of four scanner binding kinds without first opening the enforcing function and
+its `len(matching) != 1` guard. That is the first substantive executor miss in
+the seven-stop sequence. The reusable rule is: when a requirement appears
+absurd at scale, treat the absurdity as evidence about the reading and inspect
+the enforcing function before rigorously costing the absurd version.
+
+The stop is cleared. Reopened C04 will add one runtime-substantive
+`TimeSemanticsLabel` per named file, rendering packet-owned `as_of` and
+freshness coordinates plus the canonical admitted-or-nonreceipt epoch,
+validity, and staleness posture. Present/usable and absent/unusable cases, plus
+the P29 remove-derivation/keep-identifiers probe, must fail red before the
+mechanism passes. Scanner derivation must then yield exactly one primary root
+per file; every remaining decision-bearing root must inherit from its same-file
+owner. The paint verifier and scanner remain untouched.
+
+This correction stays within existing DS17 production paths. Mechanisms remain
+17/18 declared, 17/22 ceiling, reserve 0; C05's checker is still the eighteenth
+and final mechanism. The twenty route denominators remain unchanged.

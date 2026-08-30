@@ -2447,3 +2447,79 @@ byte changed. Mechanisms remain 17/18 declared, 17/22 ceiling, reserve 0. The
 twenty-denominator table remains baseline because no denominator input changed.
 C06 cannot start. The plan blob remains exactly
 `3e2b48dcadcdd692ddeaa36077dbf2cb60a0a1a5`.
+
+## C05 fourth-amendment DS18 census mandatory stop — DS17
+
+The predecessor journal is 2,449 lines and 152,115 bytes, with Git blob
+`a1e59aed90f96ff802eef0d96be24f6f3ed09243`. The fourth architect amendment is
+commit `bd4d0ca6d`: plan blob
+`3e2b48dcadcdd692ddeaa36077dbf2cb60a0a1a5` →
+`310198aefe05351ef7fe1c5708256688c6692554`. The latter remains the attached
+plan blob at this stop boundary.
+
+The amendment narrowed C05 to the sole owner-produced state: `available`,
+total spend `0`, `open_world_unresolved`, 13 instruments, 15 obligation
+classes, and zero positive entries/unappointed. The Bayesian-without-coverage
+and over-spend end-to-end witnesses remain explicit GY-N11 non-closures. C05
+still required the single existing Atlas register-writer mechanism plus its
+P39 companions; it did not authorize changing a different slice's census block
+or weakening a generic validator.
+
+### C05 red-first and abandoned writer receipts
+
+The initial focused C05 test red was the missing DS17 validator entrypoint
+(`AttributeError` for `_validate_ds17_confidence_ledger_risk_spend_surface`).
+After the temporary candidate checker was introduced, the same focused path
+red by the named condition
+`ds17_confidence_ledger_risk_spend_surface_missing`. These were diagnostic
+working-tree receipts only, not a landed capability.
+
+The first atomic writer attempt used the broad post-promotion validator. It
+entered the existing long generic validation path and restored the temporary
+register/report family when that validation did not complete as a promotable
+receipt; no durable C05 register/report bytes remained from that attempt. A
+bounded candidate writer subsequently produced a six-role/seven-edge candidate
+and its immediate repeat was byte-identical for both candidate register and
+report. That fact is not a closure: the broad validator was not green on the
+landing source state. All temporary checker, schema, register, test, and report
+changes have been reversed exactly to HEAD before this journal append.
+
+The long full-validator attempt and the subsequently interrupted generic P29
+test are non-receipts, not gates. In particular, neither establishes generic
+validation nor a remove-property/keep-marker closure. UI work never started:
+no semantic spec, visual spec, snapshot, route, packet seam, or C05 tracked
+byte remains.
+
+### Mandatory DS18 generic-census gate
+
+The direct DS18 receipt is decisive. At exact current main `df90e10f`,
+`_validate_ds18_time_semantics_coverage` returns zero errors. At this landing
+state it returns exactly eight errors:
+
+- four count/manifest drifts;
+- one missing-list error containing five DS17 production files;
+- two source-hash drifts for `queryKeys` and `CycleBoard`; and
+- one `CycleBoard` root-inventory drift.
+
+An independent complete diff/exclusion walk over the 22 changed dashboard
+paths finds exactly seven DS18-scan inputs: the same five new files plus
+`queryKeys` and `CycleBoard`. The register binding independently derives the
+same five missing receipts and two hash drifts. This is not a sampled or
+marker-only count.
+
+The cause is structural: DS17's already-closed C04 production paths entered the
+shared DS18 frozen census. DS18's own `landing_slice_rule` assigns fresh
+reconciliation to the landing slice, while current main is green. Closing this
+landing red would require modifying/reconciling the
+`ds18_time_semantics_coverage` top-level block and its root classifications, or
+weakening/exempting the generic validator. The fourth-amendment C05 boundary
+forbids changing another slice's block, and weakening the census is not
+allowed.
+
+**MANDATORY STOP:** C05 and C06 remain incomplete. Capability state is
+`verification_missing`; owner is the architect plus the DS18/team-architecture
+frontend census contract. No C05 mechanism was landed: the ledger stays 17/18
+declared, 17/22 ceiling, reserve 0. The twenty route denominators are unchanged
+because no C05 tracked source byte remains. A future closure needs an explicit
+owner ruling and reconciliation transaction for the DS18 census contract; it
+cannot be substituted by a C05-local exemption.

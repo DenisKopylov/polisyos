@@ -3347,6 +3347,9 @@ def validate_slice_scope_obligations(
         if not isinstance(inputs, list):
             errors.append(f"slice_scope_obligation_inputs_missing:{slice_id}:{path}")
             continue
+        if not all(isinstance(input_id, str) for input_id in inputs):
+            errors.append(f"slice_scope_obligation_inputs_not_exact:{slice_id}:{path}")
+            continue
         if (
             len(inputs) != len(required_set)
             or len(set(inputs)) != len(inputs)

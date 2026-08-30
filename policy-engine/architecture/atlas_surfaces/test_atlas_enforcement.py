@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import subprocess
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
@@ -77,23 +78,9 @@ AUTHORITY_ESCAPE_TYPES = ts_source(
 )
 
 
-SCOPE_OBLIGATION_MANIFEST = {
-    "$schema": "./slice-scope-obligations.schema.json",
-    "schema_version": "1.0",
-    "obligation_id": "atlas-ds8-residual-scope-obligations",
-    "authority": {
-        "authoritative_for": ["DS8 residual input scope-setting obligations"],
-        "may_not_use_for": ["closure or implementation evidence"],
-    },
-    "acknowledgement_status": "candidate_only",
-    "closure_effect": "none",
-    "target_slices": ["DS12", "DS13", "DS14"],
-    "atlas_residual_inputs": [
-        "ds8-global-case-index",
-        "ds8-local-reviewer-note-persistence",
-        "ds8-signed-public-decision-surface",
-    ],
-}
+def scope_obligation_manifest() -> dict[str, Any]:
+    """Load the production manifest so fixtures cannot author a rival universe."""
+    return checker.status_checker._load_json(checker.SLICE_SCOPE_OBLIGATIONS_PATH)
 
 
 def write_slice_plan(path: Path, frontmatter: Mapping[str, Any]) -> Path:
@@ -111,9 +98,10 @@ class AtlasEnforcementTests(unittest.TestCase):
 
     def test_slice_scope_obligations_leave_unstarted_targets_open(self) -> None:
         """Do not invent a DS12/DS13/DS14 scope-setting event before its plan exists."""
+        manifest = scope_obligation_manifest()
         with tempfile.TemporaryDirectory() as temp_dir:
             errors = checker.validate_slice_scope_obligations(
-                manifest=SCOPE_OBLIGATION_MANIFEST,
+                manifest=manifest,
                 plan_paths=[
                     write_slice_plan(
                         Path(temp_dir) / "unrelated.md",
@@ -126,35 +114,39 @@ class AtlasEnforcementTests(unittest.TestCase):
 
     def test_slice_scope_obligations_require_the_exact_unique_input_set(self) -> None:
         """Reject missing, duplicate, unknown, and acknowledgement-only target inputs."""
+        manifest = scope_obligation_manifest()
+        required_inputs = manifest["atlas_residual_inputs"]
         variants = {
             "missing": {},
             "duplicate": {
                 "atlas_residual_inputs": [
-                    "ds8-global-case-index",
-                    "ds8-global-case-index",
-                    "ds8-signed-public-decision-surface",
+                    required_inputs[0],
+                    required_inputs[0],
+                    required_inputs[-1],
                 ]
             },
             "unknown": {
                 "atlas_residual_inputs": [
-                    "ds8-global-case-index",
-                    "ds8-local-reviewer-note-persistence",
+                    *required_inputs[:-1],
                     "not-a-manifest-id",
                 ]
             },
             "marker_only": {"residual_inputs_acknowledged": True},
+            "non_string_member": {
+                "atlas_residual_inputs": [{}, *required_inputs[1:]]
+            },
         }
         with tempfile.TemporaryDirectory() as temp_dir:
             for label, additions in variants.items():
                 with self.subTest(label=label):
                     errors = checker.validate_slice_scope_obligations(
-                        manifest=SCOPE_OBLIGATION_MANIFEST,
+                        manifest=manifest,
                         plan_paths=[
                             write_slice_plan(
                                 Path(temp_dir) / f"{label}.md",
                                 {
                                     "type": "slice-plan",
-                                    "slice": "DS12",
+                                    "slice": manifest["target_slices"][0],
                                     **additions,
                                 },
                             )
@@ -168,6 +160,7 @@ class AtlasEnforcementTests(unittest.TestCase):
 
     def test_slice_scope_obligations_accept_each_target_only_with_all_inputs(self) -> None:
         """Accept every target slice only when its parsed field equals the manifest set."""
+        manifest = scope_obligation_manifest()
         with tempfile.TemporaryDirectory() as temp_dir:
             plan_paths = [
                 write_slice_plan(
@@ -175,15 +168,13 @@ class AtlasEnforcementTests(unittest.TestCase):
                     {
                         "type": "slice-plan",
                         "slice": slice_id,
-                        "atlas_residual_inputs": SCOPE_OBLIGATION_MANIFEST[
-                            "atlas_residual_inputs"
-                        ],
+                        "atlas_residual_inputs": manifest["atlas_residual_inputs"],
                     },
                 )
-                for slice_id in ("DS12", "DS13", "DS14")
+                for slice_id in manifest["target_slices"]
             ]
             errors = checker.validate_slice_scope_obligations(
-                manifest=SCOPE_OBLIGATION_MANIFEST,
+                manifest=manifest,
                 plan_paths=plan_paths,
             )
 
@@ -191,48 +182,98 @@ class AtlasEnforcementTests(unittest.TestCase):
 
     def test_slice_scope_obligations_reject_duplicate_target_plans(self) -> None:
         """Reject competing target plans even when both carry the required inputs."""
+        manifest = scope_obligation_manifest()
         with tempfile.TemporaryDirectory() as temp_dir:
             plan_paths = [
                 write_slice_plan(
                     Path(temp_dir) / f"duplicate-{index}.md",
                     {
                         "type": "slice-plan",
-                        "slice": "DS13",
-                        "atlas_residual_inputs": SCOPE_OBLIGATION_MANIFEST[
-                            "atlas_residual_inputs"
-                        ],
+                        "slice": manifest["target_slices"][1],
+                        "atlas_residual_inputs": manifest["atlas_residual_inputs"],
                     },
                 )
                 for index in range(2)
             ]
             errors = checker.validate_slice_scope_obligations(
-                manifest=SCOPE_OBLIGATION_MANIFEST,
+                manifest=manifest,
                 plan_paths=plan_paths,
             )
 
-        self.assertIn("slice_scope_obligation_target_duplicate:DS13", errors)
+        self.assertIn(
+            f"slice_scope_obligation_target_duplicate:{manifest['target_slices'][1]}",
+            errors,
+        )
 
     def test_slice_scope_obligations_read_tracked_slice_plans_without_filename_proxy(self) -> None:
         """Discover target plans by parsed frontmatter, even under unrelated filenames."""
-        with tempfile.TemporaryDirectory() as temp_dir:
+        manifest = scope_obligation_manifest()
+        plans_root = checker.status_checker.REPO_ROOT / "docs/plans"
+        with tempfile.TemporaryDirectory(dir=plans_root) as temp_dir:
             plan_path = write_slice_plan(
                 Path(temp_dir) / "not-a-ds-prefix.md",
-                {"type": "slice-plan", "slice": "DS14"},
+                {"type": "slice-plan", "slice": manifest["target_slices"][-1]},
             )
-            with patch.object(
-                checker, "_tracked_atlas_plan_paths", return_value=(plan_path,)
-            ):
+            relative_path = plan_path.relative_to(checker.status_checker.REPO_ROOT)
+            completed = subprocess.CompletedProcess(
+                args=["git", "ls-files"],
+                returncode=0,
+                stdout=f"{relative_path}\0".encode(),
+            )
+            with patch.object(checker.subprocess, "run", return_value=completed):
                 errors = checker.validate_slice_scope_obligations(
-                    manifest=SCOPE_OBLIGATION_MANIFEST,
+                    manifest=manifest,
                 )
 
         self.assertTrue(
             any(
-                error.startswith("slice_scope_obligation_inputs_missing:DS14:")
+                error.startswith(
+                    "slice_scope_obligation_inputs_missing:"
+                    f"{manifest['target_slices'][-1]}:"
+                )
                 for error in errors
             ),
             errors,
         )
+
+    def test_validate_enforcement_consumes_live_scope_obligation_errors(self) -> None:
+        """Keep the live validation bridge from silently dropping scope-gate failures."""
+        scope_error = "slice_scope_obligation_inputs_not_exact:DS12:fixture.md"
+        with (
+            patch.object(checker, "_enforcement_scan", return_value={}),
+            patch.object(checker, "_generated_owner_receipt", return_value={}),
+            patch.object(checker, "_override_diagnostic_errors", return_value=[]),
+            patch.object(
+                checker, "_capability_discovery_live_sources", return_value=({}, {})
+            ),
+            patch.object(
+                checker, "control_capability_manifest_contributors", return_value=()
+            ),
+            patch.object(
+                checker, "check_capability_discovery_result_boundary", return_value=[]
+            ),
+            patch.object(checker, "_authority_escape_errors", return_value=[]),
+            patch.object(checker, "_capability_discovery_errors", return_value=[]),
+            patch.object(
+                checker, "validate_slice_scope_obligations", return_value=[scope_error]
+            ),
+            patch.object(checker, "_authz_default_allow_errors", return_value=[]),
+            patch.object(checker, "_query_cache_policy_errors", return_value=[]),
+            patch.object(checker, "_offline_queue_errors", return_value=[]),
+            patch.object(checker, "_persistence_construction_errors", return_value=[]),
+            patch.object(checker, "_authority_issuer_errors", return_value=[]),
+            patch.object(checker, "_authority_semantic_copy_errors", return_value=[]),
+            patch.object(checker.status_checker, "validate_inventory", return_value=[]),
+            patch.object(
+                checker.disposition_checker,
+                "_authority_presentation_errors",
+                return_value=[],
+            ),
+        ):
+            errors, scan = checker.validate_enforcement()
+
+        self.assertIn(scope_error, errors)
+        self.assertEqual([scope_error], scan["sliceScopeObligationErrors"])
 
     def test_unknown_authz_decision_never_defaults_authority_surface_to_allow(
         self,

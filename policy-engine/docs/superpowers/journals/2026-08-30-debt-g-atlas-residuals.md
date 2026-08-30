@@ -106,3 +106,28 @@ persistence adapter alone still hard-codes primitive adoption as unknown.
 
 Implementation and review receipts append below. The final section of this file is
 reserved for the eleven-block Register closure dossier.
+
+### Task 1 — DS8 residual scope-obligation gate
+
+Implemented a strict `slice-scope-obligations` manifest and schema, then wired a
+live validator into `check_atlas_enforcement.py`. The manifest is the sole
+enumeration of the three DS8 residual IDs; it explicitly makes acknowledgements
+`candidate_only` with `closure_effect: none`. The validator walks every tracked
+Markdown plan, parses complete YAML frontmatter, identifies a target only by
+`type: slice-plan` plus `slice`, and requires the exact unique
+`atlas_residual_inputs` set. Missing DS12/DS13/DS14 plans remain open and green;
+multiple plans for a target fail.
+
+RED receipt: after the focused environment setup, the five new unittest nodes
+failed with `AttributeError` because `validate_slice_scope_obligations` and
+`_tracked_atlas_plan_paths` did not yet exist. The first collection attempt was
+an environment non-receipt (`ModuleNotFoundError: jsonschema`); the authorized
+locked setup was `uv sync --frozen --extra test`.
+
+GREEN receipt: the same five focused nodes passed (`Ran 5 tests ... OK`). The
+live `uv run python architecture/atlas_surfaces/check_atlas_enforcement.py
+--check` completed with exit 1 from unrelated Atlas inventory/authority,
+source-denominator, query-cache, status, and architecture-graph checks; their
+provenance was not re-established in this task. It emitted no
+`slice_scope_obligation_*` error. One accidental non-PTY duplicate checker process
+was terminated, leaving one PTY-backed authoritative receipt.

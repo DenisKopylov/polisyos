@@ -1,0 +1,27 @@
+{
+  "$schema": "./slice-scope-obligations.schema.json",
+  "schema_version": "1.0",
+  "obligation_id": "atlas-ds8-residual-scope-obligations",
+  "authority": {
+    "authoritative_for": [
+      "DS8 residual input scope-setting obligations for DS12, DS13, and DS14"
+    ],
+    "may_not_use_for": [
+      "closure evidence",
+      "implementation evidence",
+      "a claim that any DS8 residual has been resolved"
+    ]
+  },
+  "acknowledgement_status": "candidate_only",
+  "closure_effect": "none",
+  "target_slices": [
+    "DS12",
+    "DS13",
+    "DS14"
+  ],
+  "atlas_residual_inputs": [
+    "ds8-global-case-index",
+    "ds8-local-reviewer-note-persistence",
+    "ds8-signed-public-decision-surface"
+  ]
+}

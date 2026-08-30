@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
@@ -12,6 +13,9 @@ from pathlib import Path
 from textwrap import dedent
 from time import monotonic
 from typing import Any, Mapping
+from unittest.mock import patch
+
+import yaml
 
 ATLAS_DIR = Path(__file__).resolve().parent
 ENFORCEMENT_CHECKER_PATH = ATLAS_DIR / "check_atlas_enforcement.py"
@@ -73,8 +77,162 @@ AUTHORITY_ESCAPE_TYPES = ts_source(
 )
 
 
+SCOPE_OBLIGATION_MANIFEST = {
+    "$schema": "./slice-scope-obligations.schema.json",
+    "schema_version": "1.0",
+    "obligation_id": "atlas-ds8-residual-scope-obligations",
+    "authority": {
+        "authoritative_for": ["DS8 residual input scope-setting obligations"],
+        "may_not_use_for": ["closure or implementation evidence"],
+    },
+    "acknowledgement_status": "candidate_only",
+    "closure_effect": "none",
+    "target_slices": ["DS12", "DS13", "DS14"],
+    "atlas_residual_inputs": [
+        "ds8-global-case-index",
+        "ds8-local-reviewer-note-persistence",
+        "ds8-signed-public-decision-surface",
+    ],
+}
+
+
+def write_slice_plan(path: Path, frontmatter: Mapping[str, Any]) -> Path:
+    """Write one complete YAML-frontmatter plan fixture."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "---\n" + yaml.safe_dump(dict(frontmatter), sort_keys=False) + "---\n# Slice plan\n",
+        encoding="utf-8",
+    )
+    return path
+
+
 class AtlasEnforcementTests(unittest.TestCase):
     """Prove the retained checker states only decidable local guarantees."""
+
+    def test_slice_scope_obligations_leave_unstarted_targets_open(self) -> None:
+        """Do not invent a DS12/DS13/DS14 scope-setting event before its plan exists."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            errors = checker.validate_slice_scope_obligations(
+                manifest=SCOPE_OBLIGATION_MANIFEST,
+                plan_paths=[
+                    write_slice_plan(
+                        Path(temp_dir) / "unrelated.md",
+                        {"type": "slice-plan", "slice": "DS8"},
+                    )
+                ],
+            )
+
+        self.assertEqual([], errors)  # noqa: PT009
+
+    def test_slice_scope_obligations_require_the_exact_unique_input_set(self) -> None:
+        """Reject missing, duplicate, unknown, and acknowledgement-only target inputs."""
+        variants = {
+            "missing": {},
+            "duplicate": {
+                "atlas_residual_inputs": [
+                    "ds8-global-case-index",
+                    "ds8-global-case-index",
+                    "ds8-signed-public-decision-surface",
+                ]
+            },
+            "unknown": {
+                "atlas_residual_inputs": [
+                    "ds8-global-case-index",
+                    "ds8-local-reviewer-note-persistence",
+                    "not-a-manifest-id",
+                ]
+            },
+            "marker_only": {"residual_inputs_acknowledged": True},
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for label, additions in variants.items():
+                with self.subTest(label=label):
+                    errors = checker.validate_slice_scope_obligations(
+                        manifest=SCOPE_OBLIGATION_MANIFEST,
+                        plan_paths=[
+                            write_slice_plan(
+                                Path(temp_dir) / f"{label}.md",
+                                {
+                                    "type": "slice-plan",
+                                    "slice": "DS12",
+                                    **additions,
+                                },
+                            )
+                        ],
+                    )
+                    self.assertTrue(errors, label)
+                    self.assertTrue(
+                        any(error.startswith("slice_scope_obligation_inputs_") for error in errors),
+                        errors,
+                    )
+
+    def test_slice_scope_obligations_accept_each_target_only_with_all_inputs(self) -> None:
+        """Accept every target slice only when its parsed field equals the manifest set."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            plan_paths = [
+                write_slice_plan(
+                    Path(temp_dir) / f"nonstandard-{slice_id.lower()}.md",
+                    {
+                        "type": "slice-plan",
+                        "slice": slice_id,
+                        "atlas_residual_inputs": SCOPE_OBLIGATION_MANIFEST[
+                            "atlas_residual_inputs"
+                        ],
+                    },
+                )
+                for slice_id in ("DS12", "DS13", "DS14")
+            ]
+            errors = checker.validate_slice_scope_obligations(
+                manifest=SCOPE_OBLIGATION_MANIFEST,
+                plan_paths=plan_paths,
+            )
+
+        self.assertEqual([], errors)  # noqa: PT009
+
+    def test_slice_scope_obligations_reject_duplicate_target_plans(self) -> None:
+        """Reject competing target plans even when both carry the required inputs."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            plan_paths = [
+                write_slice_plan(
+                    Path(temp_dir) / f"duplicate-{index}.md",
+                    {
+                        "type": "slice-plan",
+                        "slice": "DS13",
+                        "atlas_residual_inputs": SCOPE_OBLIGATION_MANIFEST[
+                            "atlas_residual_inputs"
+                        ],
+                    },
+                )
+                for index in range(2)
+            ]
+            errors = checker.validate_slice_scope_obligations(
+                manifest=SCOPE_OBLIGATION_MANIFEST,
+                plan_paths=plan_paths,
+            )
+
+        self.assertIn("slice_scope_obligation_target_duplicate:DS13", errors)
+
+    def test_slice_scope_obligations_read_tracked_slice_plans_without_filename_proxy(self) -> None:
+        """Discover target plans by parsed frontmatter, even under unrelated filenames."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            plan_path = write_slice_plan(
+                Path(temp_dir) / "not-a-ds-prefix.md",
+                {"type": "slice-plan", "slice": "DS14"},
+            )
+            with patch.object(
+                checker, "_tracked_atlas_plan_paths", return_value=(plan_path,)
+            ):
+                errors = checker.validate_slice_scope_obligations(
+                    manifest=SCOPE_OBLIGATION_MANIFEST,
+                )
+
+        self.assertTrue(
+            any(
+                error.startswith("slice_scope_obligation_inputs_missing:DS14:")
+                for error in errors
+            ),
+            errors,
+        )
 
     def test_unknown_authz_decision_never_defaults_authority_surface_to_allow(
         self,

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "slice-scope-obligations.schema.json",
+  "title": "Atlas DS8 residual scope obligations",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "obligation_id",
+    "authority",
+    "acknowledgement_status",
+    "closure_effect",
+    "target_slices",
+    "atlas_residual_inputs"
+  ],
+  "properties": {
+    "$schema": {"const": "./slice-scope-obligations.schema.json"},
+    "schema_version": {"const": "1.0"},
+    "obligation_id": {"const": "atlas-ds8-residual-scope-obligations"},
+    "authority": {"$ref": "#/$defs/authority"},
+    "acknowledgement_status": {"const": "candidate_only"},
+    "closure_effect": {"const": "none"},
+    "target_slices": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {"enum": ["DS12", "DS13", "DS14"]}
+    },
+    "atlas_residual_inputs": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    }
+  },
+  "$defs": {
+    "nonEmpty": {"type": "string", "minLength": 1},
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authoritative_for", "may_not_use_for"],
+      "properties": {
+        "authoritative_for": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/nonEmpty"}
+        },
+        "may_not_use_for": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/nonEmpty"}
+        }
+      }
+    }
+  }
+}

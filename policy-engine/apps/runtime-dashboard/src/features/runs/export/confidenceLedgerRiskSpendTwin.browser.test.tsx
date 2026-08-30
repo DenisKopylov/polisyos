@@ -666,7 +666,8 @@ describe.runIf(
     }
   });
 
-  it("blocks a closed shadow-root paint extension while its host marker remains", async () => {
+  // DS17 MACHINE-twin threat-model amendment: closed-root inspection requires equal script privilege.
+  it("documents the declared limitation: closed shadow roots require script privilege equal to the twin's own", async () => {
     const fixture = renderNativeEvaluation();
     const host = appendDisjointPaintSibling(fixture.root, "closed-shadow-root");
     host.textContent = "";
@@ -696,9 +697,8 @@ describe.runIf(
         save: false,
       });
       expect(coveredPixels).not.toBe(baselinePixels);
-      await expect(evaluateNative(fixture)).resolves.toEqual({
-        reason: "unproved_approximation",
-        status: "blocked",
+      await expect(evaluateNative(fixture)).resolves.toMatchObject({
+        status: "exact",
       });
     } finally {
       host.remove();

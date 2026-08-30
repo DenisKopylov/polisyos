@@ -2283,3 +2283,32 @@ C04 is not closed. C05's eighteenth Atlas-writer mechanism path is not spent,
 C05 is not started, and C06 is not started. The ledger remains 17 mechanisms
 used of 18 declared, 17/22 hard ceiling, reserve 0. The branch remains attached,
 unpushed, and unmerged.
+
+## C04 correction and closure — DS17 executable boundary
+
+Predecessor journal measured before append: 2,285 lines, 142,334 bytes,
+SHA-256 `6e6e584e496d9b0b3da60970225084c910ab2a5ec31778299d39c3d327f9f3b4`.
+
+The plan blob changed from `6c8b53cad6e5b002313563a81122392d91884927` to
+`b290b70159a5a4d798bc8832b4400d2807d37e40` (+18/−0 lines), committed by the
+architect at `66d9b5e16`. The cause was an instruction defect: completeness was
+required without a threat model, and five review rounds correctly exposed that
+requirement as unsatisfiable by construction. The declared adversary is content
+and projection code (packet, stylesheets, rendered DOM), not same-origin script
+with privileges equal to the verifier. Closed shadow roots therefore remain a
+separate executable `verification_missing` limitation owned by the
+runtime-dashboard/Atlas projection-safety verifier plus browser paint-observation
+substrate.
+
+Red-before receipt (obsolete blocking expectation): focused native Chromium test
+failed with the twin returning `status: "exact"` while the governed leaf
+screenshots differed; exit 1, real/user/sys `6.38/6.57/0.92`, uptime `08:36`
+→ `08:36`. Green-after receipt: focused test passed (1 passed / 72 skipped),
+exit 0, real/user/sys `5.36/6.51/0.69`, uptime `08:37` → `08:37`. Complete
+native lane passed exactly 73/73 with 0 failed, exit 0, real/user/sys
+`128.19/130.67/3.67`, uptime `08:39` → `08:41`.
+
+C04 is closed for its declared property. The mechanism ledger remains 17/18
+declared, 17/22 ceiling, reserve 0. No mechanism source changed; generated
+Vitest attachments and screenshots were moved recoverably to
+`_build/.tmp/ds17-c04-harness-20260830/`.

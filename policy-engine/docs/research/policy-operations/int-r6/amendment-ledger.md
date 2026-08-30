@@ -163,9 +163,22 @@ identity or count of the original eight Stage-1 package artifacts.
 
 The post-write connector observations are appended below in the receipt-only successor commit.
 
-`LEDGER_PAYLOAD_HEAD_SHA`
-`LEDGER_PAYLOAD_BLOB_SHA`
-`POST_WRITE_COMPARE_RECEIPTS`
+- Connector observation — `GitHub.fetch` exact ref after the ledger-content write read
+  `3b26daa18c3e6b3c5893819516cf55be2222dee9`.
+- Receipt-subject commit SHA: `3b26daa18c3e6b3c5893819516cf55be2222dee9`.
+- Receipt-subject ledger blob SHA: `cde65c352a2330694d5ee8edc77a63218411d3b1`.
+- `GitHub.compare_commits(base=d782b95c…, head=3b26daa1…)` returned
+  `merge_base_commit.sha=d782b95c…`, `ahead_by=1`, `behind_by=0`, with exactly one added file:
+  `policy-engine/docs/research/policy-operations/int-r6/amendment-ledger.md`
+  (189 additions, 0 deletions).
+- `GitHub.compare_commits(base=bae4f8c2…, head=3b26daa1…)` returned
+  `merge_base_commit.sha=bae4f8c2…`, `ahead_by=9`, `behind_by=0`; the exact delta is the eight
+  pre-existing modified package Markdown files plus this one added ledger; all seven audit blobs are
+  unchanged.
+- `GitHub.compare_commits(base=5e47c868…, head=3b26daa1…)` returned
+  `merge_base_commit.sha=5e47c868…`, `ahead_by=30`, `behind_by=0`.
+- `GitHub.compare_commits(base=dc7bdf79…, head=3b26daa1…)` returned
+  `merge_base_commit.sha=dc7bdf79…`, `ahead_by=41`, `behind_by=0`.
 
 A commit cannot embed its own SHA because changing the embedded value changes the Git object.
 Accordingly, the exact SHA recorded here is the **receipt subject**: the complete ledger-content

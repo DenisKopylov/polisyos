@@ -106,26 +106,30 @@ action. The action-governing half remains routed, not ratified.
 
 ## W5-KC05 — mutable-dependency authority is time-bound
 
-**Proposition.** An authority certificate computed at one time may not be claimed valid for a later
-effect merely from its historical validity when a decisive dependency can change; current validity
-requires a content-bound snapshot, a still-valid lease or fresh revalidation of every decisive
-dependency.
+**Proposition.** PolicyOS may not claim that a certificate computed from evidence through `t0` alone
+determines authority at a later `t1` across all admissible future histories when a decisive dependency
+can change; any current-validity claim must declare and evidence its profile-derived currentness
+semantics.
 
 **Evidence across both lines.** Audit-line `INT-R5-A-001`, `A-004`, `A-007` and `A-008` at
 `247f89f016f71ee603ed76ef6dbb6403f7e651a0` corrects the false universal inequality while preserving
 the information limit, requires independent decisive-field producers, adds the PAO-R4 conjunct and
 requires explicit relation-back semantics. Response-line
 `70f2db6d3a4330664c981721a9305f16bffe369b` makes the two-history non-inferability rule explicit and
-specifies snapshot/lease/revalidation alternatives. Verifier-line
+specifies `snapshot_by_explicit_rule`, `issuer_authorized_lease`, `revalidate_before_commit` and
+`continuous_checkpoint_revalidation` as profile-derived alternatives. Audit claim-ledger `CL-F03`
+expressly treats them as a supported taxonomy, not proof that every regime fits one without profile
+interpretation. Verifier-line
 `d9223d12bf7cb4826c6f1f888d84275364c35fe7` closes those rows without claiming a live certificate
 chain.
 
-**Falsifier.** Change one decisive profile, authority, time or effect dependency after certification
-while leaving certificate bytes intact; a later projection still claims current authority without a
-snapshot, valid lease or revalidation.
+**Falsifier.** Construct two admissible histories identical through `t0` and divergent on a decisive
+authority dependency after `t0`; the unchanged historical certificate is nevertheless claimed to
+determine both `t1` states without additional profile rule or current evidence.
 
 **Non-effect.** Ratification would not implement the graph/certificate producer, choose a profile,
-appoint a signer/adjudicator, authorize an individual case or establish a PA2/DS9 acquisition bridge.
+make the four named modes exhaustive, select a regime's revocation effect, appoint a
+signer/adjudicator, authorize an individual case or establish a PA2/DS9 acquisition bridge.
 
 ## W5-KC06 — multilingual authority cannot be inferred from presentation
 
@@ -150,8 +154,8 @@ co-authenticity.
 
 ## Outcome-vocabulary forward note
 
-No fourth ratifiable outcome entry is established by this wave, so the INT-wave §8 trigger does not
-fire now.
+No **third new element**—which would be the **fourth total outcome entry** under the Wave-4 count—is
+established by this wave, so the INT-wave §8 trigger does not fire now.
 
 The closest candidate is “protective response while diagnosis remains unresolved.” Its
 assertion-only content is already composition of **declared unknown**, **custody without a number** and
@@ -159,8 +163,8 @@ the existing negative-completion rule: PolicyOS can report what was verified wit
 Its genuinely new affirmative content would authorize or constrain protective action, which is outside
 the authority-band ratification bar and is therefore routed rather than proposed as a constitutional
 outcome. If the principal later rules that this is a distinct claim kind, it would be the triggering
-fourth entry and must be handled in one consolidated constitutional amendment with the prior outcome
-vocabulary, never as a separate Wave-5 act.
+third new element/fourth total entry and must be handled in one consolidated constitutional amendment
+with the prior outcome vocabulary, never as a separate Wave-5 act.
 
 ## Propositions deliberately not presented for ratification
 
@@ -172,4 +176,3 @@ vocabulary, never as a separate Wave-5 act.
 
 Each would constrain computation or action, or presuppose an institution/capability that does not
 exist. They remain routing items.
-

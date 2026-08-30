@@ -24,8 +24,8 @@ Wave 5 establishes a coherent claim-boundary kernel across five packages:
 
 Those are research conclusions and ratification candidates, not implementation. The wave remains
 `accepted_narrow_scope / absent/unallocated / NO_GO`. The 89-row audit population has 74 terminally
-closed/preserved rows and 15 carried rows; additional verifier gaps, closure-test failures and all 70
-explicit open questions are routed separately.
+closed/preserved rows and 15 carried rows; additional verifier gaps, closure-test failures and all 73
+unique explicit open questions are routed separately.
 
 ## Stage boundary
 
@@ -40,7 +40,7 @@ All heads below resolved exactly as supplied and all descend from base
 interchangeable revisions.
 
 | Package | Response line, oldest → terminal | Audit line, oldest → terminal |
-|---|---|---|
+| --- | --- | --- |
 | INT-R2 | `5e6a7063da770122155af6300647d0cd2e9c17ea` → `0afc3779e2894f2793cc40150d6923589bd36ee6` | `dbdb1243a277f0864cae9af240ff1d13786d99df` → `b48cdb131c2a8d4f9b30ce217dfa3efcd65119fa` |
 | INT-R3 | `819a83a88315a90320fdd4b25fcb328b434c77de` → `32cfebd02354b4d70fbf8beaca168aea6f2e72ee` | `8e9be1e5e737312f92579b57a7f011b9b14d3a46` → `81635e8878ec99dd6d9e06fc7c53fb6f13ade434` |
 | INT-R4 ‖ OPS-R5 | `c3999897b5be2308513846935f1c4fb68157bcb3` → `329edb60f77867f914581d380acfccf5882d607d` | `ea2eac5575e5b8fb4a5462c068a37bb913076952` → `082ddc26c2f8db55104ccb95518b72d84d94a06b` |
@@ -57,37 +57,45 @@ rewriting the incident.
 
 INT-R2's eight acquisition cases are not renamed data rows. They differ by required producer,
 positive proof and ceiling. The audit preserves all 28 pair distinctions while proving that the first
-classifier and ceiling contracts remain only research specifications. The architectural decision is
-therefore to reuse the discriminated union as candidate grammar and to refuse closure-by-row-count.
+classifier and ceiling contracts remain only research specifications. The evidence supports proposing
+reuse of the discriminated union as candidate grammar and retaining refusal of closure-by-row-count;
+the authority owner has not decided that proposal (`INT-R2-AUD-F005/F007/F009/F011/C003` at audit
+blob `dbdb1243…`; response `0afc3779…`; verifier `b48cdb13…`).
 
 ### B. Human comprehension is not a pre-build property
 
 INT-R3 separates four properties that prior work could blur: surface semantics, enforcement,
 instrument integrity and real-operator behavior. Its twelve red-first predicates contain zero
 behavioral results. The honest product consequence is a limitation carried into surfaces, not an
-assumed comprehension score.
+assumed comprehension score (`INT-R3-AUD-F006`–`F010` at audit blob `8e9be1e5…`; response
+`32cfebd0…`; verifier `81635e88…`).
 
 ### C. Detection, diagnosis, response and learning are separate planes
 
 INT-R4 ‖ OPS-R5 supplies the wave's central composition. Observation validity and causal diagnosis
-precede any learning claim; response can proceed under separate preauthorization without turning the
-detector, response or safe outcome into causal evidence. Destination accountability remains S13's
+precede any learning claim. A PolicyOS record can report an independently authorized protective
+response while diagnosis remains unresolved, without treating the detector, response or safe outcome
+as causal evidence; this does not authorize the response. Destination accountability remains S13's
 subject. The package does not yet supply the corpus, oracle, state engine or H2 runtime required to
-make the composition real.
+make the composition real (`AUD-F03`–`F08`, `AUD-F18` at audit blob `ea2eac55…`; response
+`329edb60…`; verifier `082ddc26…`).
 
 ### D. Authority validity is dependency- and time-relative
 
 INT-R5's corrected information-limit proposition does not claim that authority must differ between
 check and use. It proves that later validity is not inferable from an earlier certificate when a
 decisive dependency may change. Snapshot, lease or revalidation are alternative proof shapes; hashing
-caller input is not an independent producer.
+caller input is not an independent producer (`INT-R5-A-001/A-004/A-007/A-008` at audit blob
+`247f89f0…`; response `70f2db6d…`; verifier `d9223d12…`).
 
 ### E. Multilingual authority is layered, co-authentic and bounded
 
 INT-R6 preserves authored UI locale, translation, frozen locale, source-language authority,
 co-authentic sets, role qualification and presentation as separate dimensions. A finite MAEP suite
 can issue only a certificate bounded to the tested proposition set and purposes. Its prior claimed
-current census was withdrawn rather than laundered; independent execution remains open.
+current census was withdrawn rather than laundered; independent execution remains open
+(`IR6-A03/A04/A06/A07/A08`, `IR6-C01`–`C04` at audit blob `bae4f8c2…`; response `eb9b1350…`; delta
+verifier `24b6813d…`).
 
 ## What the wave did not establish
 
@@ -127,7 +135,7 @@ analogue was found; verifier refinements are listed separately so that statement
 ### Original audit-row sweep — 60 source defects × four siblings
 
 | Source defect and class | INT-R2 | INT-R3 | INT-R4 ‖ OPS-R5 | INT-R5 | INT-R6 |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | R2 F001 incomplete register | source | not found | remarked F11 | not found | remarked A10 |
 | R2 F002 mixed standing cells | source | remarked F010 | remarked F09 | not found | remarked A01 |
 | R2 F003 false anchor | source | remarked F001 | not found | not found | remarked A09 |
@@ -191,12 +199,12 @@ analogue was found; verifier refinements are listed separately so that statement
 
 ### Verifier-originated refinement sweep
 
-These seven named verifier findings/refinements are not added to the 89-row audit denominator. Under
-`P40`, six are the same class one level deeper; the R45 consistency finding is likewise the measured
-survival of F05.
+These eight named verifier findings/refinements are not added to the 89-row audit denominator. Under
+`P40`, each is either the same class one level deeper or the measured survival of its audit finding.
 
 | Verifier finding | Classification | INT-R2 | INT-R3 | INT-R4 ‖ OPS-R5 | INT-R5 | INT-R6 |
-|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- |
+| R2 minor rationale gap — F012 is O-04, not one of three consequential orientation errors | same rationale/antecedent-precision class as R3 O06 | source | remarked O06 | not found | remarked A009 | remarked A02 |
 | R3 G1 — false assertions survive in unchanged authoritative siblings | same class as F001/F002/O05 | not found | source | remarked F05 | not found | remarked A01/A02/A06 |
 | R3 G2 — five EXT rows still depend on uncommitted surveys | same class as F003 | remarked F006 | source | remarked F11 | remarked V-001 | remarked A09 |
 | R45 internal consistency — GY-O1 answers conflict | same class as F05 | not found | remarked G1 | source | not found | remarked A01/A02/A06 |
@@ -205,15 +213,27 @@ survival of F05.
 | R6 V-R6-02 — harness aborts and “independent” parser shares decoder | same class as A04; closed by withdrawal | remarked F004 | remarked F002/O05 | not found | remarked A003 | source |
 | R6 V-R6-03 — package artifact named as owner in 2/30 rows | same class as A05; closed by remediation | remarked F012 | remarked F012 | not found | remarked A004 | source |
 
-The sweep therefore adds no hidden package finding. Its architectural value is the recurrence map:
+The sweep therefore adds no hidden package finding. Its research value is the recurrence map:
 replay/denominator truth, current-versus-planned state, producer/owner identity, and finite-proof
 boundaries recur across four or five packages and should be closed structurally, not per document.
+
+The brief's candidate classes were all established against the complete matrix rather than inherited:
+
+| Candidate class | Source rows establishing the class | Cross-package result |
+| --- | --- | --- |
+| published method could not have run as published | R6 A04; R6 V-R6-02 | analogues already remarked in R2 F004, R3 F002/O05 and R5 A003; none unremarked |
+| set-level number inherited from a hand-back, index or prior document | R2 F004, R3 O02/O05, R5 A003/A009, R6 A02/A04 | every analogue in the other packages is either remarked or explicitly `not_established`; none unremarked |
+| correction landed in one artifact while sibling retained defect | R3 F001/G1, R45 F05/internal-consistency finding | analogues remarked in R6 A01/A02/A06; none unremarked |
+| lane, artifact or package used as owner | R6 A05/V-R6-03, R3 F012 | analogues remarked in R2 F012 and R5 A004; none unremarked |
+| total pinned across a boundary another slice may move | R5 A009, R6 A02 | analogues remarked in R3 O02/O05; none unremarked |
+| finite fixture suite presented as universal proof | R2 F008, R3 F009, R45 F07/F08, R6 A07 | INT-R5 explicitly stays bounded; none unremarked |
+| institutionally supplied figure used to settle a zero | R2 F004, R3 O05, R5 A003, R6 A04 | R45 F13 explicitly preserves `not_established`; none unremarked |
 
 ## Routing and decision handoff
 
 The load-bearing route table is in `wave5-routing-map.md`. It names an exact existing destination or
 `no owner exists` for every carried audit row, verifier gap, failed/unrunnable closure test, unmet lift
-condition and explicit open question. Wave 5 adds **zero** obligations to GY-N11; its accumulated load
-remains the two DS17 witnesses already present. The ratification candidate file carries evidence,
-falsifier and non-effect for each authority-band proposition; action-governing proposals remain routes.
-
+condition and all 73 unique explicit open questions: 106 source-trace rows in total. Wave 5 adds
+**zero** obligations to GY-N11; its accumulated load remains the two DS17 witnesses already present.
+The ratification candidate file carries evidence, falsifier and non-effect for each authority-band
+proposition; action-governing proposals remain routes.

@@ -15,7 +15,7 @@ severity-word occurrences, amendment paragraphs or verifier remarks. The audit-f
 because the combined package has separate INT and OPS ledgers.
 
 | Task | Audit table path at audit head | Audit rows | Blocking | Material | Minor | Commendation | Terminal `closed_or_preserved` | Terminal `carry_and_route` |
-|---|---|---:|---:|---:|---:|---:|---:|---:|
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | INT-R2 | `audits/int-r2/int-r2-independent-audit.md` @ `dbdb1243…` | 16 | 0 | 9 | 3 | 4 | 13 | 3 |
 | INT-R3 | `audits/int-r3/int-r3-independent-audit.md` @ `8e9be1e5…` | 23 | 0 | 13 | 5 | 5 | 19 | 4 |
 | INT-R4 ‖ OPS-R5 | `audits/int-r4-ops-r5/int-r4-ops-r5-independent-audit.md` @ `ea2eac55…` | 18 | 0 | 9 | 2 | 7 | 11 | 7 |
@@ -41,7 +41,7 @@ response line `0afc3779e2894f2793cc40150d6923589bd36ee6`; verifier line
 `b48cdb131c2a8d4f9b30ce217dfa3efcd65119fa`.
 
 | Task | Finding ID | Severity | What the audit found | What the response did | What the verifier concluded | Disposition |
-|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- |
 | INT-R2 | INT-R2-AUD-F001 | material | F01–F40 was a list, not a mechanically complete register. | Added kind, standing, evidence, transfer, holder, consequence and non-effect columns. | satisfied | closed_or_preserved |
 | INT-R2 | INT-R2-AUD-F002 | material | Six standing cells mixed tokens with prose. | Normalized all six and moved qualifiers to typed columns. | satisfied | closed_or_preserved |
 | INT-R2 | INT-R2-AUD-F003 | material | F01 cited the wrong owner/lines. | Removed the false coordinate and cited the canonical refusal owner. | satisfied | closed_or_preserved |
@@ -68,7 +68,7 @@ response line `32cfebd02354b4d70fbf8beaca168aea6f2e72ee`; verifier line
 `81635e8878ec99dd6d9e06fc7c53fb6f13ade434`.
 
 | Task | Finding ID | Severity | What the audit found | What the response did | What the verifier concluded | Disposition |
-|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- |
 | INT-R3 | INT-R3-AUD-F001 | material | Baseline used nonexistent/inaccurate TrustPosture and time anchors. | Added corrected effective baseline while retaining history. | satisfied with gap: false assertions remain in unchanged authoritative siblings (G1) | carry_and_route |
 | INT-R3 | INT-R3-AUD-F002 | material | Repository-wide human-evidence/contract zeroes came from named-path search. | Added bounded walks and downgraded unsupported zeroes. | satisfied with gap: propagated false assertions remain (G1) | carry_and_route |
 | INT-R3 | INT-R3-AUD-F003 | material | Sixteen EXT rows lacked branch-replayable source locators. | Added survey hashes/windows and a stable ledger. | satisfied with gap: five rows still require uncommitted survey content (G2) | carry_and_route |
@@ -102,7 +102,7 @@ response line `329edb60f77867f914581d380acfccf5882d607d`; verifier line
 `082ddc26c2f8db55104ccb95518b72d84d94a06b`.
 
 | Task | Finding ID | Severity | What the audit found | What the response did | What the verifier concluded | Disposition |
-|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- |
 | INT-R4 ‖ OPS-R5 | AUD-F01 | material | Absorbed OPS-R7 questions were covered but not discharged. | Added a seven-row estimand/admission/failure/residue matrix. | partially closed; question fixtures absent, CT-01 fails | carry_and_route |
 | INT-R4 ‖ OPS-R5 | AUD-F02 | material | OPS-R6 operations were grouped without distinct semantics. | Added operation-level transition charters. | partially closed; operation fixtures absent, CT-01 fails | carry_and_route |
 | INT-R4 ‖ OPS-R5 | AUD-F03 | material | `diagnosis_unresolved` had no absorption/risk–coverage bound. | Specified holdouts, metrics, baselines and anti-degeneracy design. | partially closed; holdout/oracle/evaluator/results absent | carry_and_route |
@@ -131,7 +131,7 @@ response line `70f2db6d3a4330664c981721a9305f16bffe369b`; verifier line
 `d9223d12bf7cb4826c6f1f888d84275364c35fe7`.
 
 | Task | Finding ID | Severity | What the audit found | What the response did | What the verifier concluded | Disposition |
-|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- |
 | INT-R5 | INT-R5-A-001 | material | “Theorem” used a false universal inequality. | Replaced it with two-history non-inferability and allowed equality. | closed | closed_or_preserved |
 | INT-R5 | INT-R5-A-002 | material | DS20+PA2+DS9 acquisition composition was not live. | Reclassified route as DS20-only and named absent bridge/consumer. | closed | closed_or_preserved |
 | INT-R5 | INT-R5-A-003 | material | Ten-file slice was not a complete executable/authority closure. | Narrowed it to selected slice and withdrew repository zeroes. | audit row closed; stricter complete-denominator lift remains unmet | closed_or_preserved |
@@ -162,7 +162,7 @@ initial response `8137aa31a4bf5e06c6b1abd4e20458295fd5a506`; initial verifier
 `24b6813d11e87a30e849bf4a799293e682bd7fed`.
 
 | Task | Finding ID | Severity | What the audit found | What the response did | What the verifier concluded | Disposition |
-|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- |
 | INT-R6 | IR6-A01 | blocking | Two live standing blocks contained non-members. | Delegated all standing to one registered tuple. | closed and held through remediation | closed_or_preserved |
 | INT-R6 | IR6-A02 | material | Repair deleted measured predecessor baseline. | Initial grouped recovery missed 2/19; remediation mapped all 19 to 16 rows. | closed by delta verification | closed_or_preserved |
 | INT-R6 | IR6-A03 | material | Phase-0 wording exceeded `absent/unallocated`. | Recast present capability claims as target/research model. | closed and held | closed_or_preserved |
@@ -186,21 +186,20 @@ terminal lift gap, not an unclosed audit row, and is routed separately.
 The raw response-line tokens, counted by amendment-ledger table row, are:
 
 | Task | Raw row-token arithmetic | §3.3 mapping used for Wave-5 reconciliation | Mapping provenance |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | INT-R2 | `11 accepted_corrected + 1 accepted_residual_registered + 4 preserved = 16` | `13 accepted + 3 accepted_with_variation + 0 declined = 16` | published by verifier `b48cdb13…`; variations F006/F007/F008 |
 | INT-R3 | `18 accepted + 5 accepted_with_variation + 0 declined = 23` | unchanged | response and verifier conform |
-| INT-R4 ‖ OPS-R5 | `14 accepted + 3 accepted_with_variation + 1 routed_pending_principal = 18` | `14 accepted + 4 accepted_with_variation + 0 declined = 18` | **consolidator normalization**, not verifier mapping: F05 accepts the defect/interim rule but closure and principal decision remain incomplete |
+| INT-R4 ‖ OPS-R5 | `14 accepted + 3 accepted_with_variation + 1 routed_pending_principal = 18` | `14 accepted + 3 accepted_with_variation + 0 declined + 1 unmapped_invalid = 18` | verifier `082ddc26…` identifies the invalid token and states the author did not accept or decline F05; consolidation supplies no replacement disposition |
 | INT-R5 | `16 accepted + 2 accepted_with_variation + 0 declined = 18` | unchanged | response and verifier conform |
 | INT-R6 | `13 accepted + 1 accepted_with_variation + 0 declined = 14` | unchanged | response and verifier conform |
-| **Wave** | raw values span seven tokens | `74 accepted + 15 accepted_with_variation + 0 declined = 89` | normalized row denominator |
+| **Wave** | raw values span six tokens | `74 accepted + 14 accepted_with_variation + 0 declined + 1 unmapped_invalid = 89` | 88 mapped rows plus one authorial correction owed |
 
-The combined verifier explicitly calls `routed_pending_principal` a §3.3 deviation and does **not**
-publish a mapping. That contradicts the brief's implication that both affected verifiers did so and is
-recorded in the orientation audit. The normalization above makes no principal ruling; it says only
-that an accepted response with incomplete closure is `accepted_with_variation` in the closed
-vocabulary. The numerical `74/15` match with terminal closed/carry arithmetic is coincidental:
-amendment disposition and verification closure are different axes, and several
-`accepted_with_variation` rows are terminally closed.
+The combined verifier explicitly calls `routed_pending_principal` a §3.3 deviation, publishes no
+mapping and says the author did not accept or decline F05. That contradicts the brief's implication
+that both affected verifiers supplied mappings. Stage 6 does not repair the authorial disposition:
+`unmapped_invalid` is this ledger's analytic reconciliation bucket, not a fourth §3.3 token. The
+shared value 74 between accepted responses and terminally closed/preserved audit rows is
+coincidental; amendment disposition and verification closure are different axes.
 
 ## Supplemental verifier findings and gaps
 
@@ -208,7 +207,8 @@ These are not inserted into the 89-row audit denominator. They are separately en
 must be routed.
 
 | Task | Verifier ID/heading | Result at terminal line | Relation to audit denominator | Route status |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
+| INT-R2 | minor rationale gap in verdict vector | amendment explanation associates F012 with three consequential orientation errors although F012 is O-04 | verifier-originated explanation gap; not an audit row | carry |
 | INT-R3 | G1 | false assertions remain in unchanged authoritative siblings | refinement shared by F001/F002/O05 | carry |
 | INT-R3 | G2 | five EXT rows still depend on uncommitted surveys | refinement of F003 | carry |
 | INT-R4 ‖ OPS-R5 | Internal Consistency Finding | report and ledger give opposite GY-O1 answers | survival of F05 | carry |
@@ -217,8 +217,8 @@ must be routed.
 | INT-R6 | V-R6-02 | published harness cannot run; parser not independent | refinement of A04 | closed by withdrawal in remediation/delta |
 | INT-R6 | V-R6-03 | 2/30 rows use artifact as owner | refinement of A05 | closed by remediation/delta |
 
-Arithmetic: `7 verifier refinements = 4 carried + 3 closed`. This count is distinct from both the 89
-audit rows and the 70 explicit response-line open questions.
+Arithmetic: `8 verifier refinements = 5 carried + 3 closed`. This count is distinct from both the 89
+audit rows and the 73 unique response-line open questions.
 
 ## Reproducible row-census command
 
@@ -263,7 +263,31 @@ INT-R6 14 {'blocking': 1, 'material': 6, 'minor': 3, 'commendation': 4}
 WAVE 89 {'blocking': 1, 'material': 44, 'minor': 15, 'commendation': 29}
 ```
 
-The independent cross-check parsed response-ledger table rows at the terminal response heads: one
-ledger each for INT-R2, INT-R3, INT-R5 and INT-R6, two for INT-R4 ‖ OPS-R5. It returned respectively
-`16/16`, `23/23`, `18/18`, `18/18`, `14/14` row occurrences/unique IDs, with no duplicate ID. Thus
-both the audit-table walk and the independent response-table walk reconcile to 89.
+The independent cross-check used this separate terminal-response table walk (the complete file-type
+denominator is six `.md` amendment ledgers):
+
+```bash
+python3 - <<'PY'
+import re, subprocess
+specs = {
+  'INT-R2': ('0afc3779e2894f2793cc40150d6923589bd36ee6', ['policy-engine/docs/research/policy-operations/int-r2/amendment-ledger.md'], r'INT-R2-AUD-(?:F|C)\d{3}'),
+  'INT-R3': ('32cfebd02354b4d70fbf8beaca168aea6f2e72ee', ['policy-engine/docs/research/policy-operations/int-r3/amendment-ledger.md'], r'INT-R3-AUD-(?:F|C|O)\d{2,3}'),
+  'INT-R4||OPS-R5': ('329edb60f77867f914581d380acfccf5882d607d', ['policy-engine/docs/research/policy-operations/int-r4/amendment-ledger.md','policy-engine/docs/research/policy-operations/ops-r5/amendment-ledger.md'], r'AUD-F\d{2}'),
+  'INT-R5': ('70f2db6d3a4330664c981721a9305f16bffe369b', ['policy-engine/docs/research/policy-operations/int-r5/amendment-ledger.md'], r'INT-R5-A-(?:\d{3}|C\d{2})'),
+  'INT-R6': ('eb9b135089d4a54b648973db02f0312b276ea2ea', ['policy-engine/docs/research/policy-operations/int-r6/amendment-ledger.md'], r'IR6-(?:A|C)\d{2}'),
+}
+for task,(sha,paths,id_re) in specs.items():
+    ids=[]
+    for path in paths:
+        body=subprocess.check_output(['git','show',f'{sha}:{path}'],text=True)
+        for line in body.splitlines():
+            if not line.startswith('|'): continue
+            cells=[c.strip().strip('`').strip('*') for c in line.strip().strip('|').split('|')]
+            if cells and re.fullmatch(id_re,cells[0]): ids.append(cells[0])
+    print(task,len(ids),len(set(ids)),len(ids)-len(set(ids)))
+PY
+```
+
+Observed occurrence/unique/duplicate output was `16/16/0`, `23/23/0`, `18/18/0`, `18/18/0` and
+`14/14/0`. Thus both the five-audit-table walk and independent six-response-table walk reconcile to
+89 rows.

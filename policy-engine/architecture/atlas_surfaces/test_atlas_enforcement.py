@@ -8,12 +8,13 @@ import json
 import subprocess
 import tempfile
 import unittest
+from collections.abc import Mapping
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from pathlib import Path
 from textwrap import dedent
 from time import monotonic
-from typing import Any, Mapping
+from typing import Any
 from unittest.mock import patch
 
 import yaml
@@ -152,11 +153,11 @@ class AtlasEnforcementTests(unittest.TestCase):
                             )
                         ],
                     )
-                    self.assertTrue(errors, label)
-                    self.assertTrue(
-                        any(error.startswith("slice_scope_obligation_inputs_") for error in errors),
-                        errors,
-                    )
+                    assert errors, label
+                    assert any(
+                        error.startswith("slice_scope_obligation_inputs_")
+                        for error in errors
+                    ), errors
 
     def test_slice_scope_obligations_accept_each_target_only_with_all_inputs(self) -> None:
         """Accept every target slice only when its parsed field equals the manifest set."""
@@ -200,9 +201,9 @@ class AtlasEnforcementTests(unittest.TestCase):
                 plan_paths=plan_paths,
             )
 
-        self.assertIn(
-            f"slice_scope_obligation_target_duplicate:{manifest['target_slices'][1]}",
-            errors,
+        assert (
+            f"slice_scope_obligation_target_duplicate:{manifest['target_slices'][1]}"
+            in errors
         )
 
     def test_slice_scope_obligations_read_tracked_slice_plans_without_filename_proxy(self) -> None:
@@ -225,16 +226,13 @@ class AtlasEnforcementTests(unittest.TestCase):
                     manifest=manifest,
                 )
 
-        self.assertTrue(
-            any(
-                error.startswith(
-                    "slice_scope_obligation_inputs_missing:"
-                    f"{manifest['target_slices'][-1]}:"
-                )
-                for error in errors
-            ),
-            errors,
-        )
+        assert any(
+            error.startswith(
+                "slice_scope_obligation_inputs_missing:"
+                f"{manifest['target_slices'][-1]}:"
+            )
+            for error in errors
+        ), errors
 
     def test_validate_enforcement_consumes_live_scope_obligation_errors(self) -> None:
         """Keep the live validation bridge from silently dropping scope-gate failures."""
@@ -272,8 +270,8 @@ class AtlasEnforcementTests(unittest.TestCase):
         ):
             errors, scan = checker.validate_enforcement()
 
-        self.assertIn(scope_error, errors)
-        self.assertEqual([scope_error], scan["sliceScopeObligationErrors"])
+        assert scope_error in errors
+        assert [scope_error] == scan["sliceScopeObligationErrors"]
 
     def test_unknown_authz_decision_never_defaults_authority_surface_to_allow(
         self,

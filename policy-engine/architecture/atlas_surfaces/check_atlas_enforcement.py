@@ -3271,7 +3271,7 @@ def _authority_local_state_runtime_errors() -> list[str]:
 def _tracked_atlas_plan_paths() -> tuple[Path, ...]:
     """Return every tracked Markdown plan, without using plan filenames as identity."""
     completed = subprocess.run(
-        ["git", "ls-files", "-z", "--", "docs/plans"],
+        ["git", "ls-files", "-z", "--", "docs/plans"],  # noqa: S607
         cwd=status_checker.REPO_ROOT,
         capture_output=True,
         check=False,

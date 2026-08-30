@@ -363,7 +363,8 @@ PYTHONPATH=. uv run --frozen --extra test python tools/quality/validation/check_
 Actual result: exit `1` with exactly `6 findings`, not the predicted exit `0`: two
 `active_plan_metadata` findings for missing `status` and `owner` front matter in
 `docs/plans/active/LEDGER.md`, plus four `removed_stub_reference` findings for
-`frontend/runtime-dashboard` in `architecture/atlas_surfaces/atlas-v15-adoption-ledger.json`,
+the removed pre-migration dashboard stub path in
+`architecture/atlas_surfaces/atlas-v15-adoption-ledger.json`,
 `architecture/atlas_surfaces/atlas-v15-archive-map.json`,
 `docs/reference/frontend/atlas-v15-adjudication.md`, and
 `docs/research/policy-operations/audits/pao-r0/pao-r0-test-and-fixture-verification.md`.
@@ -404,6 +405,38 @@ LEDGER metadata findings and four stale frontend-stub references. All six findin
 causally disjoint from Task B's changed paths. Under P41, all six are inherited, with the after
 state exactly equal to the before state; the lifecycle checker is not reported green.
 
+## Final-review correction receipt
+
+The final review returned two buckets. The candidate-set escape is the same complete-denominator
+class one level deeper (`P35`/`P38`), so the repair widens the generic mechanism instead of adding a
+cache-directory exception. The lifecycle escape is a new closeout-self-reference class (`P41`), so
+the correction removes only the journal's checker-triggering spelling and preserves the inherited
+six-finding receipt.
+
+At fix base `95440d0f4f4274ddaf2c176906a036de226fcd22`, the exact
+`test_candidate_file_denominators_reconcile_independently` node exited `1`: independent filesystem
+enumeration returned `12,037` candidates while Git returned `5,710`, with the `6,327`-path delta
+entirely below a Git-ignored uv cache. Before the mechanism changed, the self-generated isolated-Git
+falsifier `test_candidate_file_reconciliation_honors_git_ignores` also exited `1` because an ignored
+untracked Python file appeared only in the filesystem set; its admissible untracked and force-tracked
+Python witnesses remained present.
+
+Commit `e0097e3194374196c6fe22d5a7e239007553ec41` (tree
+`cc6e5565d6d15c60ca1d51d4cc75120a680eb8d5`) repairs the test-owned walker. It still discovers
+Python/PYI paths independently from the filesystem, then applies Git's ignore decision generically;
+Git's tracked-file semantics retain a force-tracked path below an ignored pattern. The repaired
+filesystem and Git sets each contain `5,710 paths = 5,705 .py + 5 .pyi`, are set-equal, and feed
+independent AST/token scans that remain equal at `118 tests + 0 src + 0 other`. The exact six-node
+final-review wave exits `0` with `6 passed`; Ruff on the one changed Python file and the slice-base
+diff check both exit `0`.
+
+Before this journal correction, the exact docs-lifecycle control exited `1` with seven findings:
+the base's two active-plan metadata findings, its four removed-stub references, and one additional
+removed-stub reference authored by this journal. Rephrasing that one historical path receipt removes
+the self-reference without changing any inherited input path. The repaired control exits `1` with
+the base's exact six findings; it is intentionally not reported green. The debt control remains the
+expected exit `1` with `17` inherited/disjoint unresolved closure identities.
+
 ## Register closure dossier
 
 Pattern closeout: P01/P02 explain why Tasks 3/4/5 stopped rather than landing orphan components;
@@ -433,11 +466,13 @@ that signer and producer identity remain unappointed and no real transition reac
 
 **Verdict:** `closed` for the Task-B half only.
 
-**Exact deciding command or predicate + exit:** the exact four-node GY-GAP8 pytest command above
-exits `0` with `4 passed`; the independent complete walk exits `0` with `5,710 = 5,705 .py + 5
-.pyi` and equal AST/token partitions of `118 tests + 0 src + 0 other`.
+**Exact deciding command or predicate + exit:** the exact six-node GY-GAP8 final-review pytest
+command exits `0` with `6 passed`: the original four semantic nodes, independent candidate-set
+reconciliation, and the isolated Git-ignore falsifier. Git-ignore-aware filesystem enumeration and
+Git tracked/admissible-untracked enumeration each return `5,710 = 5,705 .py + 5 .pyi`, and their
+independent AST/token partitions remain equal at `118 tests + 0 src + 0 other`.
 
-**Exact append prose:** **SUPERSESSION 2026-08-31 — `closed` for Task B's half only:** the scalar `117` proxy is replaced by the complete authority partition over `5,710 = 5,705 .py + 5 .pyi` paths: AST and token scans agree on exactly `118` base `ExecutionContext` constructions, all `118` in tests and zero in src/other, while the exact production Claim-capable constructor set remains pinned; relative to `552213d90599f392ec6c68871e5c5af12a74ed49`, the sole addition is `tests/unit/scientist/orchestration/workflows/test_builder_pinning.py::test_eval_safety_context_fields_are_keyword_only` (current line 201, column 14; introduced by `f715bfdc46c59cfa70e959b99248c9543379192e`) and no call is removed. The denominator, completed-batch lifecycle, crash/pending freeze, and stale-caller public-export nodes all pass. This closes only GY-GAP8's Task-B denominator/bridge evidence: Task D still lacks `tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py::test_monitor_event_persists_claim_supersession_without_in_place_edit`, the row-specific persisted-supersession E2E witness proving monitor event through persisted append without in-place old-claim edit, so `DS11-CLAIM-LIFECYCLE-ORCHESTRATION` remains open.
+**Exact append prose:** **SUPERSESSION 2026-08-31 — `closed` for Task B's half only:** the scalar `117` proxy is replaced by the complete authority partition over `5,710 = 5,705 .py + 5 .pyi` paths: Git-ignore-aware independent filesystem discovery reconciles exactly with Git's tracked-plus-admissible-untracked set, including an isolated falsifier that excludes ignored untracked Python while retaining admissible untracked and force-tracked Python below an ignored pattern; AST and token scans agree on exactly `118` base `ExecutionContext` constructions, all `118` in tests and zero in src/other, while the exact production Claim-capable constructor set remains pinned. Relative to `552213d90599f392ec6c68871e5c5af12a74ed49`, the sole addition is `tests/unit/scientist/orchestration/workflows/test_builder_pinning.py::test_eval_safety_context_fields_are_keyword_only` (current line 201, column 14; introduced by `f715bfdc46c59cfa70e959b99248c9543379192e`) and no call is removed. The denominator, completed-batch lifecycle, crash/pending freeze, and stale-caller public-export nodes all pass. This closes only GY-GAP8's Task-B denominator/bridge evidence: Task D still lacks `tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py::test_monitor_event_persists_claim_supersession_without_in_place_edit`, the row-specific persisted-supersession E2E witness proving monitor event through persisted append without in-place old-claim edit, so `DS11-CLAIM-LIFECYCLE-ORCHESTRATION` remains open.
 
 ### 3. `gy-n12-epoch-current-decision-lineage-carrier-unallocated`
 

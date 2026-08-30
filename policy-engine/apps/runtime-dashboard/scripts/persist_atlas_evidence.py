@@ -92,7 +92,6 @@ DS18_TIME_SEMANTICS_PACKET_FIELDS = {
     "covered_root_count",
 }
 DS18_CHECKER_MAX_BUFFER_BYTES = 8 * 1024 * 1024
-DS18_LIMITATION_STDERR_BYTES = 2048
 DS18_CHECKER_READ_BYTES = 64 * 1024
 HEALTH_INSTRUMENT_COMPONENT = "polisyos.atlas.health_metric_instrument@1.0.0"
 HEALTH_ADMISSION_COMPONENT = "polisyos.atlas.health_metric_admission@1.0.0"
@@ -869,17 +868,6 @@ def _run_ds18_time_semantics_checker(
     return returncode, bytes(buffers["stdout"]), bytes(buffers["stderr"]), exceeded
 
 
-def _bounded_ds18_stderr(stderr: bytes) -> str:
-    excerpt = stderr[:DS18_LIMITATION_STDERR_BYTES].decode(
-        "utf-8", errors="replace"
-    ).strip()
-    if len(stderr) > DS18_LIMITATION_STDERR_BYTES:
-        return (
-            f"{excerpt} [stderr truncated at {DS18_LIMITATION_STDERR_BYTES} bytes]"
-        )
-    return excerpt
-
-
 def _ds18_time_semantics_coverage_projection(
     node_executable: Path,
 ) -> dict[str, Any]:
@@ -895,11 +883,12 @@ def _ds18_time_semantics_coverage_projection(
             ),
         }
     if returncode != 0:
+        stderr_text = stderr.decode("utf-8", errors="replace").strip()
         return {
             "kind": "not_established",
             "reason": (
                 "DS18 time-semantics coverage validator rejected the current tree "
-                f"({returncode}): {_bounded_ds18_stderr(stderr)}"
+                f"({returncode}): {stderr_text}"
             ),
         }
     try:

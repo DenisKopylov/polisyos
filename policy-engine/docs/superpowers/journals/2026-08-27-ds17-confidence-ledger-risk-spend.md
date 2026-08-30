@@ -3810,3 +3810,266 @@ exactly the two new specs, the sole visual snapshot, and this journal. No
 producer, HTTP route, generated client, component, helper, config, checker,
 register/schema/report, temporal surface, plan, or route-denominator input
 moved.
+
+## 2026-08-30 — C06 source freeze, targeted delta verification, and closeout ledger
+
+The predecessor is the complete 3,812-line / 231,648-byte journal with Git
+blob `c631d53fdab348bd406b4b5df080a7211c1ee9dd` and SHA-256
+`29ee48f2a61a5f69106bf56c7868c8a3a66c6b58a1de61debe52b7614bfebf22`.
+The attached branch entered this transaction at source-freeze HEAD
+`981ec05dd53027937ccb75b1b46eadb9d8aadfcc`; current-main comparison ref is
+`e097f3ac57c3a85596e98c7ffbef0b93a037c2b2`. The architect landing merge
+`b752dbbd82706f9542af6dffb05145457910aa41` remains an ancestor. The original
+execution branch was cut from current main `dc7bdf79a`; the post-landing
+tree-to-tree merge base used for every final changed-set walk is
+`df90e10fb48b8df5b959c6b0074d69e255e16cc9`.
+
+The governing plan is byte-identical at Git blob
+`42b37c99069855ff614e558ee2d3a5bd77865233` and file SHA-256
+`ae4626f76f81f530f74817c9a2a156f7c4501bbaad4d4a3fe65a5122fd8284b3`.
+That is amendment (8)'s custody constant. No source, mechanism, generated ABI,
+register schema, register, test, or snapshot changed after source-freeze commit
+`981ec05dd`; the only pre-closeout writer delta is the governed report's
+append-only commit inventory.
+
+### Cluster commit readback
+
+The ordered first-parent log and the journal's cluster headings agree on these
+boundaries:
+
+- C00: `83627a1ff` (initial red contract), `21429d688` (behavioral-red
+  correction).
+- C01: `372cee774` primary producer; `8858697fa`, `51f66b9fc`, `666bcdd7c`,
+  `c8fae70b7` boundary/derivation corrections; `a7b12125e` supported-facade
+  correction.
+- C02: `3551ea025` primary protected bridge; `bbb6556e1`, `7724c2102`,
+  `4a1bc3c89`, `d8edb0841` owner/cache corrections; `4ef330b7f` schema receipt;
+  `57c10b798` catalog-pin correction.
+- C03: `2ac603ff0` generated-client transaction.
+- C04: `8c334897a` primary surface; `676690f7a`, `121ec1eb9`, `2c265299c`,
+  `374c12690`, `69345b16e`, `aef9eb097` exact/conservative verifier
+  corrections; declared-threat-model closure `834788fc9`; temporal reopening
+  and finalization `d1d30bcb7`, `3586d88f6`, with receipt `4f6b0ae80`.
+- C05: registration `36dff74a6`; checker corrections `ea1570dbe`, `2ed4921e5`,
+  `711f30b61`, `dc337d309`; real-owner semantic/visual proof `15a2e9b22`.
+- C06 pre-close corrections: `92f1e1565`, `61b2d9fa9`, `7161da3df`,
+  `844432c9a`, `981ec05dd`. The final named C06 documentation commit is the
+  next append-only transaction; it is not pre-claimed here.
+
+The independently re-derived landed DS11 contribution remains 65 paths by
+both the merge first-parent walk and the branch-contribution walk, replacing
+the pre-landing planning figure 63. DS11 was therefore already in the landing
+base before every dashboard/Atlas write.
+
+### Twenty-denominator route census, frozen against current main
+
+The executable AST/OpenAPI/OPA/generator census remains the baseline of record.
+The first number is current main; the second is DS17. Exactly 13 families move
+and seven remain unchanged in kind:
+
+| denominator | main | DS17 | disposition |
+| --- | ---: | ---: | --- |
+| OpenAPI paths | 106 | 107 | +1 DS17 static GET |
+| OpenAPI operations | 108 | 109 | +1 DS17 static GET |
+| OpenAPI GET / POST | 74 / 34 | 75 / 34 | GET +1; mutating unchanged |
+| protected operations | 45 | 46 | +1 DS17 protected GET |
+| protected GET / POST | 11 / 34 | 12 / 34 | GET +1; mutating unchanged |
+| OpenAPI `runs.review` | 10 | 11 | +1 DS17 resource |
+| route files / non-WebSocket decorators | 18 / 110 | 18 / 111 | file unchanged; decorator +1 |
+| decorated GET / POST | 76 / 34 | 77 / 34 | GET +1; mutating unchanged |
+| governed-module GET | 4 | 5 | +1, unchanged mechanism kind |
+| guarded ids / definitions / models | 0 / 0 / 0 | 1 / 1 / 1 | DS17 guarded projection |
+| hidden operations | 3 | 3 | unchanged |
+| success-example keys | 104 | 105 | +1 DS17 operation |
+| generated public methods | 87 | 88 | +1 structural public member |
+| mutating-operation constant | 34 | 34 | unchanged |
+| Rego permission vocabulary | 34 | 34 | unchanged |
+| Rego action vocabulary | 26 | 26 | unchanged |
+| Rego `runs.review` resources | 9 | 10 | +1 DS17 resource |
+| Rego resource classes | 41 | 42 | +1 DS17 class |
+| `runs.view` regex matches | 3 | 3 | unchanged |
+| unsafe-operation vocabulary | 4 | 4 | unchanged |
+
+The two corrected architect-handoff values remain explicit: generated public
+methods are 87 -> 88, not 91, and Rego `runs.review` resources are 9 -> 10,
+not 10 in the main column. The route was searched into the OpenAPI path,
+operation, method, protected-operation, route/decorator, success-example,
+generated-client, Rego resource/class, runtime-authz, and unsafe/mutating
+denominators. Every moved constant is paired above with the member that moved
+it; the dynamic projection catalog pin is the explicit frozen member-name set,
+while DS17's guarded-id test carries no foreign total. No denominator changed
+after this rebaseline.
+
+### Mechanism and forbidden-path derivation
+
+Two independent complete tree walks agree exactly: `git diff --name-only` and
+`git diff-tree -r --no-commit-id --name-only`, each over
+`df90e10f..981ec05d`, return the same 59 unique paths. An independent parse of
+the plan's cluster path sets yields C01 2 + C02 6 + C04 9 + C05 1 = 18 unique
+mechanisms, all present. Therefore the final partition is **18 mechanisms + 41
+P39 companions = 59 paths**; mechanisms are 18/18 declared, 18/22 hard
+ceiling, reserve spend 0. The temporal labels modify existing C04 paths and
+the DS18 inheritance/direct-file maps are inside C05's already-counted checker;
+neither creates a mechanism.
+
+Across the complete 59-path denominator, intersections are zero with the debt
+register, `architecture/baselines/imports/deep_import.json`, the pattern
+register, other Atlas-slice plans, other journals, DS6 evidence/snapshots, and
+DS11 evidence/snapshots. The only plan/journal/snapshot-like changed paths are
+the DS17 plan, this DS17 journal, and the DS17 visual snapshot.
+
+### Behavioral falsifier matrix readback
+
+- The same exact-scope, content-bound derivation moves
+  `open_world_unresolved` to `known_incomplete` and carries its witness ref.
+  The real GY witness is rejected as cross-scope because it binds
+  `design-problem:frozen_n9_contract`, not
+  `frozen-owner-bundle:n10+n13b`; shape-only dict/string/boolean witnesses are
+  rejected. `bounded_complete` has no issuing code path.
+- Changing only a displayed subset cannot turn an unresolved or incomplete
+  authority action into satisfied. A new prospective scope identity is needed;
+  the anti-narrowing test stays NO-GO with markers held constant.
+- Over-spend turns on the exact five owner diagnostics paired with independent
+  `sum(current projected check.spend) > registry.policy.delta`. Coherent and
+  stale persisted-total mutations prove `projection.total_spend` cannot turn
+  the gate. The domain-level constructed-input proof remains closed.
+- Non-anytime, missing-coverage, and unavailable-owner-theorem profiles remain
+  hard blockers. No Bayesian interval without a coverage argument can enter
+  the positive-certificate register.
+- Every rendered delta amount carries the declared-obligation-set conditional
+  and the local-scope/no-family-or-sequence claim in the same chip; envelope,
+  scope, and family-swap mutations fail.
+- Valid zero and missing artifact render differently. The real packet shows
+  13 instruments, 15 classes, spend 0, and a visible `0 issued / unappointed`
+  positive register rather than loading, absence, or failure.
+- The MACHINE projection stays exact or typed-blocked. The native Chromium
+  denominator is 73/73, including four paint-extension refusals, open-shadow,
+  pseudo/text/geometry/work-budget failures, canonical exact baseline, and the
+  executable closed-shadow boundary tripwire. The P29 property-removal probes
+  remain red with identifiers held constant.
+- The three temporal files each derive exactly one label-bearing primary root;
+  their remaining 29 roots derive same-file `inherits_admitted_dom`. Usable
+  packet clocks render; unusable/absent freshness uses the canonical
+  nonreceipt. Removing the derivation while retaining labels makes all four
+  temporal-value assertions red.
+- The DS17 registry builder derives six roles and five executable edges. Named
+  corruption, removal-of-validation with markers retained, dead registration,
+  alias/shadow, root-connectivity, and reference-coercion probes all fail
+  closed. Its direct class is 22/22 green after report refresh.
+
+### Targeted branch-versus-current-main delta matrix
+
+No full suite was run.
+
+| gate | DS17 branch | current main | disposition |
+| --- | --- | --- | --- |
+| five-file DS17 backend lane | 68/68 pass; `real/user/sys=1211.44/1130.13/49.55` | five DS17 files absent | branch-only capability green; independent collect sum is 68 |
+| shared epoch-batch replay | 1 identical assertion red (`stale` vs `review_required`) | same red | inherited exact coordinate; not a DS17 finding |
+| runtime API contract | exit 0; `71.95/66.68/3.05` | exit 0; `48.37/43.30/2.08` | green/green; schema and clients reproduce |
+| corrected nine-file dashboard lane | 138 pass / 1 fail / 1 native-only skip | 15 pass / 1 fail | sole common Cycle Board acquisition census red is byte-coordinate identical and disjoint |
+| dashboard typecheck | exit 0 | exit 0 | green/green |
+| native Chromium | 73/73 pass; `115.51/122.51/2.15` | DS17 config/tests absent | branch-only exact/conservative property green |
+| semantic Playwright | 1/1 pass; `90.20/62.46/8.91` | DS17 spec absent | real unmodified owner chain green |
+| exact DS17 visual config | exit 1 before selection: JSON import-attribute requirement | same discovery failure; DS17 test absent | baseline-identical harness nonreceipt, not a product assertion |
+| supplemental base-config DS17 visual | 1/1 pass; `92.10/59.42/9.68` | DS17 spec absent | substantive visual proof; not substituted for exact-config red |
+| DS17 Atlas registration class | 22/22 pass; `78.68/123.49/7.11` | class absent | branch-only registration/corruption property green |
+| Rego authorization parity | 24/24 pass; `user/sys=78.26/10.82` | 24/24 pass; `70.98/8.70` | green/green; corrected complete denominator is 24, not a concatenated 40 |
+| runtime authz contract | 154 pass / 7 fail of 161 | identical 154 / 7 | inherited identical red set; DS17 adds a GET and 0 unsafe operations |
+| i18n parity | 26 pass / 12 fail of 38 | identical 26 / 12 | all reds are DS15 acquisition keys; no DS17 coordinate |
+| depth-N universality | collection exit 2, 0 selected | identical | inherited `cg_substrate_unavailable:ortools_cp_sat`; 0/2 DS17 intersection |
+| architecture guardrails | exit 1; sole `env: python` trust-claim probe | identical | inherited; current deep edges 3537 / 3537, raw/emitted creep 0 / 0 |
+| Ruff check, exact eight paths | one F601 duplicate `admit_epoch_validity_batch` | identical | inherited in `openapi_contract.py`; all DS17 code diagnostics otherwise green |
+| Ruff format, exact eight paths | 6 formatted / 2 inherited unformatted | main 2/4 unformatted, same two files | five DS17-owned backend files formatted; no foreign rewrite |
+| focused DS17 ESLint | exit 0 | exit 0 on extant denominator | green/green |
+| package ESLint | 130 errors | identical 130 | inherited; no DS17 path in diagnostics |
+| package Prettier check | 116-file red | identical | inherited; no DS17 path |
+| `git diff --check` | exit 0 | exit 0 | green/green |
+
+The semantic Playwright's earlier concurrent timeout was a harness-contention
+nonreceipt: trace showed both governed endpoint requests at status `-1` while
+four heavy pytest scanners shared the host, with health still 200. The
+serialized replay above passed without source change. The exact visual-config
+red likewise remains visible; its JSON-import discovery failure occurs before
+test selection on both refs and is not rewritten as green.
+
+### Governed report, stable artifacts, and explicit non-closures
+
+After code freeze, the surgical owner writer ran twice. Each execution returned
+exit 0 and the same derived summary: 621 DS18 files, 759 roots, six DS17 roles,
+five edges. The second run made no further byte change. The post-temporal 759
+root total is the earlier 756-root scan plus exactly the three one-per-file
+label roots; scanner and checker live scan agree. The register remains SHA-256
+`c2893870139f3eae5042e54ba23a1692c10680f1ec0dc404cd3d879efe01544f`.
+The report is SHA-256
+`c95aa6dc9ea3356291cfc29b81402b4b5eb3a2422a4ea66bab4456f418958d2a`
+and differs only by adding the frozen code commits `7161da3df`, `844432c9a`,
+and `981ec05dd` to its commit inventory. The visual snapshot is byte-stable at
+SHA-256
+`0ba599f9809505efcb67af02cba4634bc0c944eef7043983ed334967a789db68`.
+
+Two GY-N11 demonstration non-closures remain visible and do not gate DS17:
+the Bayesian-without-coverage end-to-end witness is `bridge_missing`, and the
+real-artifact over-spend end-to-end witness is
+`producer_missing + artifact_missing`. The latter is scoped only to owner
+artifact -> HTTP -> visual execution: DS17's domain over-spend gate is
+implemented and proved. The closed-shadow paint-observation limitation remains
+`verification_missing` outside the declared content/projection-code threat
+model and is retained as an executable tripwire. No non-closure was moved to
+the debt register.
+
+At the end of this append, the source tree remains frozen, branch attachment is
+unchanged, the plan/register/schema/snapshot bytes above are stable, and the
+only tracked pre-commit deltas are the writer-owned report and this append-only
+journal. A post-commit branch readback must supply the actual final HEAD and
+tree blob identities; this section deliberately does not predict its own blob
+or commit identity.
+
+### Independent C06 review and final structural replay
+
+The preceding journal content is 4,025 lines / 245,426 bytes, with Git blob
+`4a4899e285c1c8f244ca77a266290b196423f83c` and SHA-256
+`2cc75e52d8f7125e376b4c384aa07327e0dc9c3b85e655da7ac5bc1ae3145e68`.
+
+Independent full-delta review returns **PASS with no actionable finding** on
+source-freeze HEAD `981ec05dd` plus the governed report refresh against current
+main `e097f3ac5`. The reviewer re-executed the full checker with corruption
+probes. It no longer crashes or emits DS17/report drift and emits only the
+established inherited C13 `AmbientTelemetryHud.tsx` receipt red. The adjacent
+disposition persistence census is also red identically on branch and current
+main (`expected 184/17`, live `179/22`); it is inherited, not introduced by
+DS17. The DS17 registration class remains 22/22.
+
+The review classifies `844432c9a` as a bounded correctness repair:
+`_report_projection` omits only the DS17 subsection while replaying a pre-DS17
+register, while validation of the current register still requires and
+behaviorally validates the DS17 block. It classifies `981ec05dd` as
+semantics-neutral: AST dumps are equal before/after for all five formatted
+Python mechanisms. The OpenAPI delta is only the governed
+dependency/worker/projection hash cascade, keeps dependency count 6,246, and
+the runtime schema/generated-client contract passes. The report diff is exactly
+the three commit-list entries named above and report parity accepts it.
+
+A separate timed complete structural replay imports the real checker scanner,
+coverage builder, and `_ds18_primary_direct_roots`. It exits 0 at
+`real/user/sys=1.30/1.90/0.08`; raw scan and coverage agree at 621 files / 759
+roots. The exhaustive direct-file partition is:
+
+- `ConditionalDeltaFigure.tsx`: 4 roots, exactly one primary
+  `ConfidenceLedgerTemporalOwner:jsx:46:5`, three same-file inherited;
+- `ConfidenceLedgerRiskSpend.tsx`: 17 roots, exactly one primary
+  `ConfidenceLedgerRiskSpend:jsx:856:5`, sixteen same-file inherited;
+- `CycleBoardPage.tsx`: 11 roots, exactly one primary
+  `ConfidenceLedgerRiskSpendQueryPanel:jsx:60:5`, ten same-file inherited.
+
+Thus all 32 roots partition as 3 `decision_bearing/direct_ds4` + 29
+`inherits_admitted_dom`, with zero other classification and zero failure. A
+second timed structural/OPA/generator walk of the complete twenty route
+denominators exits 0 at `real/user/sys=0.49/0.31/0.09` and reports
+`drift=[]`. It independently confirms generated public methods 88 from both
+generated client sources and the route-file denominator 18 including
+`__init__.py`.
+
+The independent reviewer also reconfirms the union at 59 paths, 18/18 declared
+mechanisms, 18/22 ceiling, reserve 0, with no new route, operation, protected
+operation, Rego, client, or other pinned denominator. C06 is admitted for the
+final documentation commit and committed-branch readback.

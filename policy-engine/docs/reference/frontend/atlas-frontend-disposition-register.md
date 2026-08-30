@@ -919,6 +919,9 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 
 ## Commits
 
+- `981ec05dd style(runtime): format DS17 risk projection`
+- `844432c9a fix(atlas): preserve historical report replay`
+- `7161da3df chore(atlas): refresh DS17 governed receipts`
 - `61b2d9fa9 fix(atlas): derive risk denominators from owner registry`
 - `92f1e1565 fix(atlas): refresh formatted DS17 receipts`
 - `15a2e9b22 test(atlas): prove DS17 risk-spend surface`

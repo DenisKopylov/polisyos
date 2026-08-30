@@ -20132,13 +20132,17 @@ def _report_projection(data: Mapping[str, Any]) -> str:
         lines.append(
             f"| `{row['unit_id']}` | `{row['evidence_link']['ds1_entry_id']}` | {len(row['evidence_link']['ds2_adoption_ids'])} | `{row['disposition']}` | `{row['strangle_status']}` | `{row['owner_slice']}` | `{terminal}` |"
         )
+    lines.append("")
+    ds17_surface = data.get(DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD)
+    if ds17_surface is not None:
+        lines.extend(
+            [
+                _ds17_confidence_ledger_risk_spend_report_projection(ds17_surface),
+                "",
+            ]
+        )
     lines.extend(
         [
-            "",
-            _ds17_confidence_ledger_risk_spend_report_projection(
-                data[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]
-            ),
-            "",
             _ds9_c07_report_projection(data),
             "",
             _ds8_strangle_report_projection(data["ds8_strangle_coverage"]),

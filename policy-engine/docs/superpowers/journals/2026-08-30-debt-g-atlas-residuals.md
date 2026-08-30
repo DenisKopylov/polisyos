@@ -330,6 +330,18 @@ strings independently, with no common typed error packet or normalizer. Per P40,
 this third worked example triggers documentation of the limitation, not a third
 Python patch.
 
+#### Task 1 final review correction
+
+Whole-branch review found the same scope-obligation-loss class one level deeper:
+the manifest schema originally required three unique strings but did not pin the
+three ratified IDs. A mutated manifest could replace `ds8-global-case-index`, and
+a DS12 plan matching that rogue set left the gate green. The reviewer's exact
+falsifier first failed with `errors == []`. Per P40, the mechanism was widened
+once to the real invariant: the schema now admits only the three ratified row IDs,
+while the existing length-three and uniqueness constraints require their complete
+set. The same corrupted-manifest plus matching-plan falsifier now passes, and the
+complete focused scope wave passes 7/7. No per-row checker branch was added.
+
 ## Register closure dossier
 
 Arithmetic is exact and does not merge unlike states:
@@ -429,13 +441,14 @@ task-D-owned 94/94 expectation against live 126/126.
 
 **Verdict:** `open`.
 
-**Predicate and exit:** the exact command below exits `0` at 6/6:
+**Predicate and exit:** the exact command below exits `0` at 7/7:
 
 ```bash
 uv run python -m unittest \
   architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_slice_scope_obligations_leave_unstarted_targets_open \
   architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_slice_scope_obligations_require_the_exact_unique_input_set \
   architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_slice_scope_obligations_accept_each_target_only_with_all_inputs \
+  architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_slice_scope_obligation_manifest_cannot_replace_required_input \
   architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_slice_scope_obligations_reject_duplicate_target_plans \
   architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_slice_scope_obligations_read_tracked_slice_plans_without_filename_proxy \
   architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_validate_enforcement_consumes_live_scope_obligation_errors
@@ -447,14 +460,14 @@ no standalone target plan exists. The manifest fixes acknowledgement at
 
 **Exact append-only register prose:**
 
-> **SCOPE-SETTING GATE ADDED 2026-08-31 — still `open`.** `architecture/atlas_surfaces/slice-scope-obligations.json` makes `ds8-global-case-index` one of exactly three mandatory `atlas_residual_inputs` for every future DS12, DS13, or DS14 `type: slice-plan`; the live Atlas checker requires the exact unique set and rejects omissions, additions, duplicates, marker-only input, duplicate target plans, and filename-proxy enumeration. Acknowledgement is explicitly `candidate_only` with `closure_effect: none`. No standalone target plan currently exists, so no slice has claimed this obligation and this Atlas-side row does not close. The separate task-C producer half, `ds10-global-case-index-producer-allocation`, still lacks on this branch a canonical global-index producer/provider bridge and its named behavioral test; producer completion cannot close this scope half, and this scope mechanism cannot close the producer half.
+> **SCOPE-SETTING GATE ADDED 2026-08-31 — still `open`.** `architecture/atlas_surfaces/slice-scope-obligations.json` makes `ds8-global-case-index` one of exactly three mandatory `atlas_residual_inputs` for every future DS12, DS13, or DS14 `type: slice-plan`; the schema pins the same three ratified IDs, and the live Atlas checker requires their exact unique set. It rejects manifest replacement, omissions, additions, duplicates, marker-only input, duplicate target plans, and filename-proxy enumeration. Acknowledgement is explicitly `candidate_only` with `closure_effect: none`. No standalone target plan currently exists, so no slice has claimed this obligation and this Atlas-side row does not close. The separate task-C producer half, `ds10-global-case-index-producer-allocation`, still lacks on this branch a canonical global-index producer/provider bridge and its named behavioral test; producer completion cannot close this scope half, and this scope mechanism cannot close the producer half.
 
 ### `ds8-local-reviewer-note-persistence`
 
 **Verdict:** `open`.
 
-**Predicate and exit:** the same six exact scope-obligation nodes exit `0` at
-6/6; the complete standalone DS12/DS13/DS14 plan enumeration exits `1` with no
+**Predicate and exit:** the same seven exact scope-obligation nodes exit `0` at
+7/7; the complete standalone DS12/DS13/DS14 plan enumeration exits `1` with no
 matches. The manifest carries this exact row ID and has no closure authority.
 
 **Exact append-only register prose:**
@@ -465,8 +478,8 @@ matches. The manifest carries this exact row ID and has no closure authority.
 
 **Verdict:** `open`.
 
-**Predicate and exit:** the same six exact scope-obligation nodes exit `0` at
-6/6; standalone target-plan enumeration exits `1`. On this branch `rg` for
+**Predicate and exit:** the same seven exact scope-obligation nodes exit `0` at
+7/7; standalone target-plan enumeration exits `1`. On this branch `rg` for
 `test_public_decision_projection_is_custody_bound` exits `2` because the named
 `tests/unit/runtime/http/test_public_export.py` artifact is absent.
 
@@ -535,7 +548,9 @@ The scope-forcing mechanism covers exactly
 `ds8-signed-public-decision-surface`, independently for each future DS12, DS13,
 and DS14 standalone plan: three obligation rows by three target slices. It does
 not cover `ds8-public-case-publication`, appoint an owner, prove implementation,
-or close a row.
+or close a row. Its schema pins the three ratified residual IDs; the focused
+corruption probe proves that a rogue manifest and a matching plan cannot jointly
+replace one while leaving the gate green.
 
 Task C's global-case producer half still needs the canonical index/store producer,
 provider bridge, and

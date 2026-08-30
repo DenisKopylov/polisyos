@@ -104,3 +104,20 @@ the measured failure and why the named corridor is insufficient.
   external-counter-sign and human-behaviour limitations.
 - The C13 conjunction is either green against task C's receipt for final source bytes or
   is handed back with the exact source-binding dependency still open.
+
+## Execution correction — bounded audit receipt surface (appended 2026-08-31)
+
+The public-posture owner discovered during execution accepts only the historical blocked
+receipt and is outside Task D's declared write corridor. The row's authoritative register
+signal requires two independent green no-writer executions and an append-only,
+content-bound current-conformance receipt; it does not require Task D to replace the
+historical `/trust` projection. Accordingly, the current receipt is an **audit surface**:
+raw runs -> recomputing receipt verifier -> committed receipt. `/trust` remains
+conservatively historical/blocked and gains no current-conformance authority in this
+wave. No generated posture or posture-compiler bytes are changed.
+
+This appended ruling supersedes step 7 under **Surface mechanism**, the generated-posture
+and `/trust` entries in the capability table, and the rendered-posture acceptance bullet
+for this task only. The operative chain is runner + two persisted raw runs + strict receipt
++ recomputing verifier + corrupt-field negative + audit receipt surface. W5-K02 and
+W5-K06 remain explicit limitations; external countersignature remains not established.

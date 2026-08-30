@@ -225,3 +225,41 @@ mechanism or test source has been edited at this point.
   renders an unavailable state, so extending the wait or weakening the endpoint would
   test the wrong property. A real bound paper fixture is required before the three
   substantive accessibility predicates can be measured.
+
+## Entry 9 — Independent review corrections and page-a11y source freeze
+
+- Independent review classified the scope-adjudication exact node as the same P32/P37
+  class one level deeper: its fixture self-authored outcomes and labelled them
+  `independently_reconciled`; no production resolver, orchestration consumer, or surface
+  existed in the complete 2,612-file Python census. A separate P08 finding showed that
+  validity time and knowledge time were initially conflated. The time roles were split,
+  but that did not close the missing authority chain. The module and exact test were then
+  forward-removed so the open row again has its honest unwritten closure signal. The
+  exact register node exits 4.
+- The copy node was the same P29/P38 class one level deeper: it enumerated four existing
+  tests rather than deriving the complete owned copy denominator. An unsupported change
+  to untagged frame/methodology/accessibility/non-default-locale copy would remain green.
+  The node was forward-removed; the exact register node again exits 4 and the bounded
+  residual remains open.
+- The lifecycle exact red was independently confirmed as an authority boundary, not a
+  fixture omission. The monitor arm always projects an actionable event to
+  `review_required`, the completed-batch target has no successor ref/hash, production
+  installs an unappointed Claim owner, and `append_verified_owner_event` is a stub. The
+  smallest missing capability is a persisted owner adjudication that binds current head,
+  predecessor, independently verified successor bytes, provenance, and evidence, plus a
+  resolving CAS head advance. The exact node remains red/open.
+- The first dashboard fix used different visible and accessible export names. A new P38
+  falsifier failed, then the `aria-label` override was removed so both audiences receive
+  the truthful visible action `Export MACHINE packet`. The focused Vitest pair passed
+  31/31 and the exact screen-reader identity passed 1/1.
+- The S2 report fixture initially altered every Playwright/visual run population. A new
+  opt-in behavioral test failed before implementation. The fixture is now gated by the
+  dedicated `PLAYWRIGHT_INCLUDE_BOUND_RUN_PAPER_FIXTURE=1` ->
+  `--include-bound-run-paper-fixture` bridge, enabled only by `test:a11y:pages`; the
+  existing visual fixture flag does not enable it. The producer/default-population tests
+  pass 2/2, dashboard typecheck exits 0, Ruff exits 0, Prettier exits 0, and the three
+  directly affected Playwright identities pass 3/3.
+- Dashboard source is frozen at `6af7be1fc`. The current receipt will be the bounded audit
+  surface required by the register signal. The existing `/trust` projection remains
+  conservatively historical/blocked; the unowned posture compiler and generated posture
+  are unchanged, so the audit receipt cannot silently become a broader public claim.

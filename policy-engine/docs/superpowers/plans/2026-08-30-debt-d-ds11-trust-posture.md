@@ -268,3 +268,13 @@ names above were planning paraphrases, not register identities. Execution uses o
 
 The earlier proposed names are retained as historical plan text and are not closure
 signals.
+
+## Receipt-surface correction — appended 2026-08-31
+
+Execution established that the existing public-posture compiler is hard-bound to the
+historical blocked page-a11y receipt and is outside Task D's declared write corridor. The
+authoritative debt-row signal is narrower than Task 4 step 6: two independent green
+no-writer executions plus a content-bound current-conformance receipt. For this task, the
+new receipt is the audit surface and `/trust` remains conservatively historical/blocked.
+No generated posture or posture-compiler bytes are changed. This append-only correction
+supersedes Task 4 step 6 while retaining its W5 limitations and corrupt-field proof.

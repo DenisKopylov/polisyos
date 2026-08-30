@@ -50,6 +50,7 @@ VALIDATION_ROOT = REPO_ROOT / "tools" / "quality" / "validation"
 TIMED_SUITE_RUNNER = REPO_ROOT / "tools" / "quality" / "testing" / "run_timed_suite.py"
 TIMING_BUDGET_CATALOG = REPO_ROOT / "tools" / "quality" / "timing_budgets.json"
 _TIMING_MARKER = "_TIMING_STARTED_AT"
+_HISTORICAL_GIT_BLOB_TIMEOUT_SECONDS = 10
 
 
 def _run_direct_guard(path: Path, *args: str, timing_log: Path) -> subprocess.CompletedProcess[str]:
@@ -293,10 +294,58 @@ def _source_derived_unittest_denominator(path: Path) -> int:
     return module_tests + class_tests
 
 
-def _historical_pytest_node_ids(test_path: str, source: str) -> tuple[str, ...]:
-    """Derive exact pytest IDs from the supported historical unittest forms."""
+def _historical_git_blob(revision: str, test_path: str) -> bytes:
+    """Read one historical test blob as exact Git-emitted bytes."""
 
+    try:
+        completed = subprocess.run(  # noqa: S603 - fixed system Git executable.
+            ["git", "show", f"{revision}:policy-engine/{test_path}"],
+            cwd=REPO_ROOT,
+            check=False,
+            capture_output=True,
+            timeout=_HISTORICAL_GIT_BLOB_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired as error:
+        raise ValueError(f"historical Git blob lookup timed out: {test_path}") from error
+    except OSError as error:
+        raise ValueError(f"historical Git blob lookup could not start: {test_path}") from error
+    if completed.returncode != 0:
+        raise ValueError(
+            f"historical Git blob lookup failed with exit {completed.returncode}: {test_path}"
+        )
+    if not isinstance(completed.stdout, bytes):
+        raise ValueError(f"historical Git blob lookup did not return bytes: {test_path}")
+    return completed.stdout
+
+
+def _historical_pytest_node_ids(test_path: str, source_bytes: bytes) -> tuple[str, ...]:
+    """Derive exact pytest IDs from a deliberately narrow historical source grammar."""
+
+    try:
+        source = source_bytes.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise ValueError(f"historical test source is not UTF-8: {test_path}") from error
     tree = ast.parse(source, filename=test_path)
+    if [
+        (imported.name, imported.asname)
+        for node in tree.body
+        if isinstance(node, ast.Import)
+        for imported in node.names
+        if imported.name == "unittest" and imported.asname is None
+    ] != [("unittest", None)]:
+        raise ValueError(f"unsupported unittest binding: {test_path}")
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            if node.name in {"__getattr__", "__getattribute__", "__dir__", "__init_subclass__"}:
+                raise ValueError(f"unsupported dynamic test hook: {node.name}")
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
+            if node.id.startswith("test_"):
+                raise ValueError(f"unsupported test-producing assignment: {node.id}")
+            if node.id in {"__getattr__", "__getattribute__", "__dir__", "unittest"}:
+                raise ValueError(f"unsupported dynamic test binding: {node.id}")
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            if node.func.id in {"exec", "eval", "globals", "locals", "setattr", "type", "vars"}:
+                raise ValueError(f"unsupported dynamic test producer: {node.func.id}")
     node_ids: list[str] = []
     test_node_types = (ast.FunctionDef, ast.AsyncFunctionDef)
     for node in tree.body:
@@ -307,27 +356,22 @@ def _historical_pytest_node_ids(test_path: str, source: str) -> tuple[str, ...]:
             continue
         if not isinstance(node, ast.ClassDef):
             continue
+        if node.keywords:
+            raise ValueError(f"unsupported test class keyword: {node.name}")
+        if node.decorator_list:
+            raise ValueError(f"unsupported decorated test class: {node.name}")
+        if len(node.bases) != 1 or not (
+            isinstance(node.bases[0], ast.Attribute)
+            and isinstance(node.bases[0].value, ast.Name)
+            and node.bases[0].value.id == "unittest"
+            and node.bases[0].attr == "TestCase"
+        ):
+            raise ValueError(f"unsupported test class inheritance: {node.name}")
         test_methods = [
             member
             for member in node.body
             if isinstance(member, test_node_types) and member.name.startswith("test_")
         ]
-        if not test_methods:
-            continue
-        base_names = {
-            f"{base.value.id}.{base.attr}"
-            if isinstance(base, ast.Attribute) and isinstance(base.value, ast.Name)
-            else base.id
-            if isinstance(base, ast.Name)
-            else ""
-            for base in node.bases
-        }
-        if base_names - {"unittest.TestCase", "TestCase"} or not (
-            {"unittest.TestCase", "TestCase"} & base_names
-        ):
-            raise ValueError(f"unsupported test class form: {node.name}")
-        if node.decorator_list:
-            raise ValueError(f"unsupported decorated test class: {node.name}")
         for method in test_methods:
             if method.decorator_list:
                 raise ValueError(f"unsupported decorated test method: {node.name}.{method.name}")
@@ -1565,7 +1609,9 @@ def test_timing_budget_evidence_rejects_same_mode_cross_tool_swaps() -> None:
     assert any("confidence_ledger:check" in item for item in violations)
 
 
-def test_atlas_python_governance_lane_names_one_exact_runnable_workload() -> None:
+def test_atlas_python_governance_lane_names_one_exact_runnable_workload(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Catch a timing lane that combines samples from different Atlas governance suites."""
 
     payload = json.loads(TIMING_BUDGET_CATALOG.read_text(encoding="utf-8"))
@@ -1600,19 +1646,24 @@ def test_atlas_python_governance_lane_names_one_exact_runnable_workload() -> Non
         "architecture/atlas_surfaces/test_frontend_disposition_register.py",
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
     ]
+    with pytest.raises(ValueError, match="unsupported test-producing assignment"):
+        _historical_pytest_node_ids(
+            "historical.py",
+            """
+import unittest
+
+def helper() -> None:
+    pass
+
+test_alias = helper
+""".encode(),
+        )
     publication_revision = "6bcc95bff32645189ff2ed65a719c7990e48c52a"
     historical_sources = {
-        path: subprocess.run(
-            ["git", "show", f"{publication_revision}:policy-engine/{path}"],
-            cwd=REPO_ROOT,
-            check=True,
-            capture_output=True,
-            text=True,
-        ).stdout
-        for path in command_test_paths
+        path: _historical_git_blob(publication_revision, path) for path in command_test_paths
     }
     assert {
-        path: hashlib.sha256(source.encode("utf-8")).hexdigest()
+        path: hashlib.sha256(source).hexdigest()
         for path, source in historical_sources.items()
     } == {
         "architecture/atlas_surfaces/test_frontend_disposition_register.py": (
@@ -1622,6 +1673,28 @@ def test_atlas_python_governance_lane_names_one_exact_runnable_workload() -> Non
             "7f5418b7e809b1f1bac0470ecc2a553c878b14d886ea39494362067908e7ca0f"
         ),
     }
+    with monkeypatch.context() as patched:
+        patched.setattr(
+            subprocess,
+            "run",
+            lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 7, b"", b"failed"),
+        )
+        with pytest.raises(ValueError, match="lookup failed with exit 7: historical.py"):
+            _historical_git_blob(publication_revision, "historical.py")
+    with monkeypatch.context() as patched:
+        def timed_out(*args: object, **kwargs: object) -> subprocess.CompletedProcess[bytes]:
+            raise subprocess.TimeoutExpired(args[0], kwargs["timeout"])
+
+        patched.setattr(subprocess, "run", timed_out)
+        with pytest.raises(ValueError, match="lookup timed out: historical.py"):
+            _historical_git_blob(publication_revision, "historical.py")
+    with monkeypatch.context() as patched:
+        def unavailable(*args: object, **kwargs: object) -> subprocess.CompletedProcess[bytes]:
+            raise OSError("missing git")
+
+        patched.setattr(subprocess, "run", unavailable)
+        with pytest.raises(ValueError, match="lookup could not start: historical.py"):
+            _historical_git_blob(publication_revision, "historical.py")
     historical_node_ids = [
         node_id
         for path, source in historical_sources.items()
@@ -1645,16 +1718,56 @@ class DuplicateTests(unittest.TestCase):
 class DuplicateTests(unittest.TestCase):
     def test_one(self) -> None:
         pass
-""",
+""".encode(),
         )
     with pytest.raises(ValueError, match="unsupported decorated module test"):
         _historical_pytest_node_ids(
             "historical.py",
             """
+import unittest
+
 @pytest.mark.parametrize(("value",), [(1,), (2,)])
 def test_parameterized(value: int) -> None:
     pass
-""",
+""".encode(),
+        )
+    with pytest.raises(ValueError, match="unsupported test class inheritance"):
+        _historical_pytest_node_ids(
+            "historical.py",
+            """
+import unittest
+
+class BaseTests(unittest.TestCase):
+    def test_inherited(self) -> None:
+        pass
+
+class InheritedTests(BaseTests):
+    pass
+""".encode(),
+        )
+    with pytest.raises(ValueError, match="unsupported test class keyword"):
+        _historical_pytest_node_ids(
+            "historical.py",
+            """
+import unittest
+
+class InjectedTests(unittest.TestCase, metaclass=type):
+    def test_injected(self) -> None:
+        pass
+""".encode(),
+        )
+    with pytest.raises(ValueError, match="unsupported dynamic test binding: unittest"):
+        _historical_pytest_node_ids(
+            "historical.py",
+            """
+import unittest
+
+unittest = object()
+
+class ShadowedTests(unittest.TestCase):
+    def test_shadowed(self) -> None:
+        pass
+""".encode(),
         )
     receipt_count_match = re.search(r"`(?P<count>\d+)` tests passed", source_line)
     assert receipt_count_match is not None

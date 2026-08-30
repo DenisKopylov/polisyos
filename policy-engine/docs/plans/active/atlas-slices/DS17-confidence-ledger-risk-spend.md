@@ -1775,6 +1775,37 @@ stops: no hand-authored packet, no <code>page.route</code>, no second source art
 no second route or UI host, no C02 test injection, no synthesized coverage row, and no
 mutated or fabricated owner content under any artifact root.
 
+**Architect amendment 2026-08-29 (5) — the DS18 landing reconciliation is DS17's, and
+amendment (3)'s wording is narrowed.** Amendment (3) said a slice "must not change
+another slice's block". That was written to forbid rewriting DS18's semantics or
+weakening its validator; as worded it also forbade the one action DS18 explicitly
+assigns to its consumers, and the C05 preflight correctly stopped on it.
+
+DS18's own block carries <code>frontend_freeze_commit</code>, which arms
+<code>post_freeze_is_landing_red</code> in
+<code>check_frontend_disposition_register.py:16094-16104</code>, and its stored
+<code>landing_slice_rule</code> reads: <em>"the slice landing a post-freeze production
+render/export root owns its fresh file/root receipt, independent classification, and
+behavioral proof."</em> The measured checker output is five
+<code>ds18_time_semantics_landing_slice_reconciliation_required</code> errors plus two
+<code>file_receipt_drift</code> and one <code>root_inventory_drift</code> — all eight
+DS17-owned, and five of them named in DS18's own reconciliation vocabulary.
+
+**DS17 therefore performs the DS18 landing reconciliation.** It is not a cross-slice
+edit in the sense (3) forbade; it is the designed path, and DS15 travelled it before
+DS17. The reconciliation supplies, for DS17's own paths only: fresh file and root
+receipts, the recomputed <code>source_file_count</code>, <code>root_count</code>,
+<code>file_manifest_sha256</code> and <code>root_manifest_sha256</code>, an independent
+classification of each new root, and the behavioral proof the rule names.
+
+**Still forbidden, and this is what (3) meant:** altering DS18's
+<code>landing_slice_rule</code>, <code>frontend_freeze_commit</code>,
+<code>schema_id</code>, <code>predicate_provenance</code>, scanner receipt or exclusion
+policy; weakening any DS18 validator or its historical frozen replay; touching a row for
+a path DS17 did not change; or reconciling by editing the scanner rather than the census.
+Every number DS17 writes into that block must come from executing DS18's own scanner and
+must be reported with its executor.
+
 **P39 register/test companions:**
 
 - <code>architecture/atlas_surfaces/frontend-disposition-register.json</code>

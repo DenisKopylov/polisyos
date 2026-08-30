@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **89552**
-- Application lines deleted: **26705**
-- Net application LOC reduction: **-62847**
+- Application lines added: **102980**
+- Application lines deleted: **26591**
+- Net application LOC reduction: **-76389**
 - Application files deleted: **92**
 
 ## Wave-end full verification
@@ -606,6 +606,31 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `evidence-visual` | `evidence-visual` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
 | `evidence-manual-at` | `evidence-manual-at` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
 
+### DS17 confidence-ledger risk-spend surface
+
+Predicate provenance: `recomputed`. Projection: `confidence-ledger-risk-spend` at `/api/v1/exports/governed-projections/confidence-ledger-risk-spend`. Packet/rule versions: `policyos.runtime.confidence_ledger_risk_spend_packet.v1` / `policyos.runtime.confidence_ledger_risk_spend.v1`. Protected action: `protected-action://ds17/review-risk-spend`.
+
+Bounded closure: `single governed confidence-ledger risk-spend projection`; global coverage, family/sequence, positive promotion, and deployment-wide index claims are all `false`. PolicyOS executes the protected action: `false`; executor ownership: `out_of_scope`.
+
+Role manifest: **6** rows / `sha256:f19f97d97d19d347910ed647725c90e410713b3ac1094c3c281ca84955c40f3f`. Edge manifest: **5** rows / `sha256:7314850be10f69f37ade210be9c731203d635a989260eda7219f15756236d184`.
+
+| Role | Symbol | Source | Behavioral evidence |
+| --- | --- | --- | --- |
+| `governed_projection` | `confidenceLedgerRiskSpendQueryOptions` | `apps/runtime-dashboard/src/features/runs/api/useConfidenceLedgerRiskSpend.ts` | `apps/runtime-dashboard/src/features/runs/api/useConfidenceLedgerRiskSpend.test.tsx` |
+| `domain_validator` | `evaluateConfidenceLedgerProtectedQuery` | `apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.ts` | `apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.test.ts` |
+| `conditional_figure` | `ConditionalDeltaFigure` | `apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx` | `apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx` |
+| `panel` | `ConfidenceLedgerRiskSpend` | `apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx` | `apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx` |
+| `exact_twin` | `evaluateConfidenceLedgerRiskSpendTwin` | `apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.ts` | `apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.test.tsx` |
+| `cycle_board_consumer` | `ConfidenceLedgerRiskSpendQueryPanel` | `apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx` | `apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx` |
+
+| Edge | From | To | AST relation |
+| --- | --- | --- | --- |
+| `governed_projection_to_domain_validator` | `governed_projection` | `domain_validator` | `direct_validator_call` |
+| `domain_validator_to_cycle_board_consumer` | `domain_validator` | `cycle_board_consumer` | `governed_query_call_chain` |
+| `cycle_board_consumer_to_panel` | `cycle_board_consumer` | `panel` | `direct_jsx_render` |
+| `panel_to_conditional_figure` | `panel` | `conditional_figure` | `module_local_jsx_render_path` |
+| `panel_to_exact_twin` | `panel` | `exact_twin` | `behavioral_dom_twin_execution` |
+
 ### DS9 C07 human-decision adjudication
 
 Predicate provenance: `independently_reconciled`. Family complete: `false`.
@@ -894,18 +919,71 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 
 ## Commits
 
+- `4f6b0ae80 docs(ds17): record post-temporal root census`
+- `3586d88f6 fix(ds17): fail closed on retained risk packet`
+- `d1d30bcb7 feat(ds17): add per-file temporal labels`
+- `ba7d31053 docs(ds17): record per-file temporal ruling`
+- `18b6a1f7f plan(ds17): DS18 binds temporal ownership per file, not per root`
+- `277176340 docs(ds17): record temporal direct-root stop`
+- `1c45eb9be docs(ds17): record temporal reopening ruling`
+- `04825a4f2 plan(ds17): name the root cause, reopen C04 for temporal semantics`
+- `c95973433 docs(ds17): clarify containment stop receipt`
+- `9110a361f docs(ds17): record real-DOM ownership stop`
+- `9cd2d028b plan(ds17): name the third DS18 classification terminal`
+- `fac9c41b2 docs(atlas): record DS17 temporal-classification stop`
+- `a4a8680bd plan(ds17): the DS18 landing reconciliation is DS17's`
+- `27c173f47 docs(atlas): record DS17 C05 census stop`
+- `bd4d0ca6d plan(ds17): narrow C05 to the producible state, register the rest`
+- `052c8e83b docs: record C05 source-chain stop`
+- `cf47ecd10 plan(ds17): rule the C05 registration shape`
+- `0ba6eafa1 docs: record DS17 C05 registration stop`
+- `834788fc9 docs: close C04 at declared closed-root boundary`
+- `66d9b5e16 plan(ds17): declare the MACHINE twin threat model`
+- `7243efbf4 docs(atlas): record DS17 closed-shadow stop`
+- `aef9eb097 fix(atlas): narrow confidence paint exactness`
+- `3f4538c99 docs(atlas): record DS17 new-base P41 replay`
+- `57c10b798 test(api): bind governed projection catalog by member`
+- `6b139c8ce docs(atlas): stop DS17 on rebaseline denominator drift`
+- `b752dbbd8 merge: bring DS17 execution branch up to main df90e10fb`
+- `7abeac6be docs(atlas): record DS17 verification stop`
+- `69345b16e fix(atlas): prove complete confidence text regions`
+- `374c12690 fix(atlas): prove confidence paint and text`
+- `cbfd83016 docs(atlas): record DS17 C05 owner stop`
+- `2c265299c fix(atlas): harden confidence risk-spend ownership`
+- `121ec1eb9 fix(atlas): complete confidence risk-spend proof`
+- `df90e10fb docs: record the DS15 closure and its eight declared non-closures`
+- `2c8e1c03c merge(ds15): acquisition routes and the first landing-slice reconciliation`
+- `8c20b6f74 DS15 reconcile acquisition surfaces with DS18 freeze`
+- `676690f7a fix(atlas): enforce confidence risk-spend evaluation`
+- `124ad55fa docs(backlog): rebind the INT-R6 language dependency to D4-A1`
+- `8c334897a feat(atlas): render conditional confidence risk spend`
 - `dbdc4c809 merge(ds15-landing): integrate DS15 onto the armed DS18 freeze`
 - `58a040c87 docs: record the DS18 reopening and close the landing-red row`
 - `f722b1140 merge(ds18): close the reopened receipt and the register drift it hid`
+- `2ac603ff0 chore(api): regenerate confidence risk-spend ABI`
 - `f1e23d39a test(ds18): report truthful atlas failure delta`
+- `4ef330b7f chore(api): refresh confidence schema receipts`
+- `a7b12125e fix(runtime): use supported core facades`
+- `d8edb0841 fix(api): disable guarded owner validation cache`
+- `4a1bc3c89 fix(api): bind owner validation cache identity`
+- `7724c2102 fix(api): execute governed confidence owner worker`
+- `bbb6556e1 fix(api): bind governed confidence owner intake`
+- `3551ea025 feat(api): expose governed confidence risk spend`
+- `c8fae70b7 fix(runtime): bind coverage derivation to owner context`
+- `666bcdd7c fix(runtime): rederive coverage envelopes at boundaries`
 - `f2770375c docs(ds18): close reopened receipt with exact deltas`
+- `51f66b9fc fix(runtime): reauthenticate coverage witnesses downstream`
+- `8858697fa fix(runtime): authenticate confidence projection admission`
 - `f374c888b test(ds18): preserve exact inherited atlas red set`
 - `e4e7a56b8 fix(ds18): reconcile frontend disposition receipts`
+- `372cee774 feat(runtime): project conditional confidence risk`
 - `31f66448a fix(ds18): reanchor six owned baseline bindings`
 - `f41d421f8 docs(ds18): withdraw incomplete C07 wave receipt`
 - `716261ab2 docs: record the DS18 closure and its three findings`
 - `49e969e16 fix(authz): mirror the DS18 epoch-staleness route contract`
 - `6b8ab3455 merge(ds18): epoch staleness chrome and universal coverage freeze`
+- `21429d688 test(atlas): make DS17 reds behavioral`
+- `83627a1ff test(atlas): bind DS17 risk-spend reds`
 - `4c9d29803 docs(ds15): distinguish requested authz cases`
 - `989058b26 test(runtime): admit acquisition routes to authz matrix`
 - `3e6e8ae28 docs(ds18): bind final readback coordinate`

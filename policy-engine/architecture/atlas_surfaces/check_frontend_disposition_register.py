@@ -138,6 +138,16 @@ DS18_TIME_SEMANTICS_BEHAVIOR_TESTS = {
         "apps/runtime-dashboard/src/features/runs/components/"
         "PublicationPacketPanel.test.tsx",
     ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "ConditionalDeltaFigure.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "ConditionalDeltaFigure.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "ConfidenceLedgerRiskSpend.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "ConfidenceLedgerRiskSpend.test.tsx",
+    ],
     "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx": [
         "apps/runtime-dashboard/src/features/runs/routes/"
         "PublicDecisionViewerPage.test.tsx",
@@ -158,6 +168,9 @@ DS18_TIME_SEMANTICS_BEHAVIOR_TESTS = {
     "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx": [
         "apps/runtime-dashboard/src/features/runs/components/"
         "AcquisitionTimeSemantics.test.tsx",
+    ],
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx": [
+        "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
     ],
     "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx": [
         "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.test.tsx",
@@ -180,12 +193,137 @@ DS18_TIME_SEMANTICS_DIRECT_FILES = {
     "BureaucraticHeader.tsx",
     "apps/runtime-dashboard/src/features/runs/components/EpochStalenessView.tsx",
     "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
     "apps/runtime-dashboard/src/features/runs/routes/RunComparePage.tsx",
     "apps/runtime-dashboard/src/features/runs/routes/RunDeckPage.tsx",
     "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
     "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
     "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
     "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx",
+}
+DS17_CONFIDENCE_LEDGER_RISK_SPEND_SCHEMA_ID = (
+    "polisyos.atlas.ds17-confidence-ledger-risk-spend-surface.v1"
+)
+DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD = (
+    "ds17_confidence_ledger_risk_spend_surface"
+)
+DS17_CONFIDENCE_LEDGER_QUERY_PATH = "apps/runtime-dashboard/src/api/queryKeys.ts"
+DS17_CONFIDENCE_LEDGER_HOOK_PATH = (
+    "apps/runtime-dashboard/src/features/runs/api/"
+    "useConfidenceLedgerRiskSpend.ts"
+)
+DS17_CONFIDENCE_LEDGER_DOMAIN_PATH = (
+    "apps/runtime-dashboard/src/features/runs/domain/"
+    "confidenceLedgerRiskSpend.ts"
+)
+DS17_CONFIDENCE_LEDGER_FIGURE_PATH = (
+    "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx"
+)
+DS17_CONFIDENCE_LEDGER_PANEL_PATH = (
+    "apps/runtime-dashboard/src/features/runs/components/"
+    "ConfidenceLedgerRiskSpend.tsx"
+)
+DS17_CONFIDENCE_LEDGER_TWIN_PATH = (
+    "apps/runtime-dashboard/src/features/runs/export/"
+    "confidenceLedgerRiskSpendTwin.ts"
+)
+DS17_CONFIDENCE_LEDGER_CYCLE_PATH = (
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx"
+)
+DS17_CONFIDENCE_LEDGER_DS18_PATHS = frozenset(
+    {
+        DS17_CONFIDENCE_LEDGER_QUERY_PATH,
+        DS17_CONFIDENCE_LEDGER_HOOK_PATH,
+        DS17_CONFIDENCE_LEDGER_FIGURE_PATH,
+        DS17_CONFIDENCE_LEDGER_PANEL_PATH,
+        DS17_CONFIDENCE_LEDGER_DOMAIN_PATH,
+        DS17_CONFIDENCE_LEDGER_TWIN_PATH,
+        DS17_CONFIDENCE_LEDGER_CYCLE_PATH,
+    }
+)
+DS17_CONFIDENCE_LEDGER_ROLE_SPECS: tuple[Mapping[str, Any], ...] = (
+    {
+        "role_id": "governed_projection",
+        "symbol": "confidenceLedgerRiskSpendQueryOptions",
+        "source_path": DS17_CONFIDENCE_LEDGER_HOOK_PATH,
+        "test_path": (
+            "apps/runtime-dashboard/src/features/runs/api/"
+            "useConfidenceLedgerRiskSpend.test.tsx"
+        ),
+        "test_symbol": "confidenceLedgerRiskSpendQueryOptions",
+    },
+    {
+        "role_id": "domain_validator",
+        "symbol": "evaluateConfidenceLedgerProtectedQuery",
+        "source_path": DS17_CONFIDENCE_LEDGER_DOMAIN_PATH,
+        "test_path": (
+            "apps/runtime-dashboard/src/features/runs/domain/"
+            "confidenceLedgerRiskSpend.test.ts"
+        ),
+        "test_symbol": "evaluateConfidenceLedgerProtectedQuery",
+    },
+    {
+        "role_id": "conditional_figure",
+        "symbol": "ConditionalDeltaFigure",
+        "source_path": DS17_CONFIDENCE_LEDGER_FIGURE_PATH,
+        "test_path": (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        ),
+        "test_symbol": "ConditionalDeltaFigure",
+    },
+    {
+        "role_id": "panel",
+        "symbol": "ConfidenceLedgerRiskSpend",
+        "source_path": DS17_CONFIDENCE_LEDGER_PANEL_PATH,
+        "test_path": (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConfidenceLedgerRiskSpend.test.tsx"
+        ),
+        "test_symbol": "ConfidenceLedgerRiskSpend",
+    },
+    {
+        "role_id": "exact_twin",
+        "symbol": "evaluateConfidenceLedgerRiskSpendTwin",
+        "source_path": DS17_CONFIDENCE_LEDGER_TWIN_PATH,
+        "test_path": (
+            "apps/runtime-dashboard/src/features/runs/export/"
+            "confidenceLedgerRiskSpendTwin.test.tsx"
+        ),
+        "test_symbol": "evaluateConfidenceLedgerRiskSpendTwin",
+    },
+    {
+        "role_id": "cycle_board_consumer",
+        "symbol": "ConfidenceLedgerRiskSpendQueryPanel",
+        "source_path": DS17_CONFIDENCE_LEDGER_CYCLE_PATH,
+        "test_path": (
+            "apps/runtime-dashboard/src/features/runs/routes/"
+            "CycleBoardPage.test.tsx"
+        ),
+        "test_symbol": "CycleBoardPage",
+    },
+)
+DS17_CONFIDENCE_LEDGER_EXPECTED_SCOPE = {
+    "packet_schema_version": (
+        "policyos.runtime.confidence_ledger_risk_spend_packet.v1"
+    ),
+    "projection_id": "confidence-ledger-risk-spend",
+    "projection_rule_version": (
+        "policyos.runtime.confidence_ledger_risk_spend.v1"
+    ),
+    "protected_action": "protected-action://ds17/review-risk-spend",
+    "specialized_query_identity": [
+        "runtime",
+        "exports",
+        "governed-projections",
+        "confidence-ledger-risk-spend",
+        {"representation": "specialized-v1"},
+    ],
+    "stable_address": (
+        "/api/v1/exports/governed-projections/confidence-ledger-risk-spend"
+    ),
 }
 DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS = {
     "apps/runtime-dashboard/src/features/runs/components/"
@@ -15475,6 +15613,840 @@ def _validate_ds9_c07_adjudication(
         errors.append("ds9_c07_adjudication_denominator_drift")
 
 
+DS17_CONFIDENCE_LEDGER_TYPESCRIPT_AST_SCRIPT = r"""
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import path from "node:path";
+
+const request = JSON.parse(readFileSync(0, "utf8"));
+const dashboardRequire = createRequire(
+  path.join(request.repoRoot, "apps/runtime-dashboard/package.json"),
+);
+const ts = dashboardRequire("typescript");
+
+function sha256(value) {
+  return `sha256:${createHash("sha256").update(value).digest("hex")}`;
+}
+function hasModifier(node, kind) {
+  return Boolean(node.modifiers?.some((modifier) => modifier.kind === kind));
+}
+function exportedDeclaration(node) {
+  let current = node;
+  while (current && !ts.isSourceFile(current)) {
+    if (hasModifier(current, ts.SyntaxKind.ExportKeyword)) return true;
+    current = current.parent;
+  }
+  return false;
+}
+function expressionName(expression) {
+  if (ts.isIdentifier(expression)) return expression.text;
+  if (ts.isPropertyAccessExpression(expression)) return expression.name.text;
+  return expression.getText();
+}
+function unwrap(expression) {
+  let current = expression;
+  while (
+    ts.isAsExpression(current) ||
+    ts.isSatisfiesExpression(current) ||
+    ts.isParenthesizedExpression(current) ||
+    ts.isNonNullExpression(current)
+  ) current = current.expression;
+  return current;
+}
+function staticValue(expression) {
+  const node = unwrap(expression);
+  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+    return node.text;
+  }
+  if (ts.isNumericLiteral(node)) return Number(node.text);
+  if (node.kind === ts.SyntaxKind.TrueKeyword) return true;
+  if (node.kind === ts.SyntaxKind.FalseKeyword) return false;
+  if (node.kind === ts.SyntaxKind.NullKeyword) return null;
+  if (ts.isArrayLiteralExpression(node)) {
+    const result = [];
+    for (const element of node.elements) {
+      const value = staticValue(element);
+      if (value === undefined) return undefined;
+      result.push(value);
+    }
+    return result;
+  }
+  if (ts.isObjectLiteralExpression(node)) {
+    const result = {};
+    for (const property of node.properties) {
+      if (!ts.isPropertyAssignment(property)) return undefined;
+      const name = property.name;
+      if (!ts.isIdentifier(name) && !ts.isStringLiteral(name)) return undefined;
+      const value = staticValue(property.initializer);
+      if (value === undefined) return undefined;
+      result[name.text] = value;
+    }
+    return result;
+  }
+  return undefined;
+}
+function functionStaticValue(initializer) {
+  const node = unwrap(initializer);
+  if (!ts.isArrowFunction(node) && !ts.isFunctionExpression(node)) {
+    return undefined;
+  }
+  if (!ts.isBlock(node.body)) return staticValue(node.body);
+  const returns = node.body.statements.filter(ts.isReturnStatement);
+  if (returns.length !== 1 || !returns[0].expression) return undefined;
+  return staticValue(returns[0].expression);
+}
+function parseModule(relativePath) {
+  const sourceOverridden = Object.hasOwn(request.sourceOverrides, relativePath);
+  const source = sourceOverridden
+    ? request.sourceOverrides[relativePath]
+    : readFileSync(path.join(request.repoRoot, relativePath), "utf8");
+  const sourceFile = ts.createSourceFile(
+    relativePath,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    relativePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+  );
+  const declarations = [];
+  const imports = [];
+  const calls = [];
+  const jsx = [];
+  const identifiers = new Set();
+  const literalBindings = {};
+  const staticExports = {};
+  const diagnostics = sourceFile.parseDiagnostics.map((diagnostic) => {
+    const location = sourceFile.getLineAndCharacterOfPosition(
+      diagnostic.start ?? 0,
+    );
+    return {
+      message: ts.flattenDiagnosticMessageText(diagnostic.messageText, " "),
+      line: location.line + 1,
+      column: location.character + 1,
+    };
+  });
+  function declarationRecord(name, node) {
+    const location = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+    declarations.push({
+      name,
+      kind: ts.SyntaxKind[node.kind],
+      exported: exportedDeclaration(node),
+      line: location.line + 1,
+      column: location.character + 1,
+      declaration_sha256: sha256(node.getText(sourceFile)),
+    });
+  }
+  function visit(node, owner = null) {
+    if (ts.isIdentifier(node)) identifiers.add(node.text);
+    let nestedOwner = owner;
+    if (ts.isFunctionDeclaration(node) && node.name) {
+      declarationRecord(node.name.text, node);
+      nestedOwner = node.name.text;
+    } else if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
+      declarationRecord(node.name.text, node);
+      if (
+        node.initializer &&
+        (ts.isArrowFunction(unwrap(node.initializer)) ||
+          ts.isFunctionExpression(unwrap(node.initializer)))
+      ) {
+        nestedOwner = node.name.text;
+        const value = functionStaticValue(node.initializer);
+        if (value !== undefined) staticExports[node.name.text] = value;
+      }
+    } else if (ts.isMethodDeclaration(node) && node.name) {
+      nestedOwner = node.name.getText(sourceFile);
+    }
+    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
+      const moduleSpecifier = node.moduleSpecifier.text;
+      const clause = node.importClause;
+      if (clause?.name) {
+        imports.push({ imported: "default", local: clause.name.text,
+          module: moduleSpecifier, type_only: Boolean(clause.isTypeOnly) });
+      }
+      const bindings = clause?.namedBindings;
+      if (bindings && ts.isNamedImports(bindings)) {
+        for (const element of bindings.elements) {
+          imports.push({
+            imported: element.propertyName?.text ?? element.name.text,
+            local: element.name.text,
+            module: moduleSpecifier,
+            type_only: Boolean(clause?.isTypeOnly || element.isTypeOnly),
+          });
+        }
+      } else if (bindings && ts.isNamespaceImport(bindings)) {
+        imports.push({ imported: "*", local: bindings.name.text,
+          module: moduleSpecifier, type_only: Boolean(clause?.isTypeOnly) });
+      }
+    }
+    if (ts.isCallExpression(node)) {
+      const location = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+      calls.push({ owner, callee: expressionName(node.expression),
+        line: location.line + 1, column: location.character + 1 });
+      if (
+        ts.isPropertyAccessExpression(node.expression) &&
+        node.expression.name.text === "literal" &&
+        node.arguments.length === 1 &&
+        ts.isPropertyAssignment(node.parent)
+      ) {
+        const name = node.parent.name;
+        if (ts.isIdentifier(name) || ts.isStringLiteral(name)) {
+          const value = staticValue(node.arguments[0]);
+          if (value !== undefined) {
+            literalBindings[name.text] ??= [];
+            literalBindings[name.text].push(value);
+          }
+        }
+      }
+    }
+    if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+      const location = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+      jsx.push({ owner, tag: node.tagName.getText(sourceFile),
+        line: location.line + 1, column: location.character + 1 });
+    }
+    ts.forEachChild(node, (child) => visit(child, nestedOwner));
+  }
+  visit(sourceFile);
+  return {
+    path: relativePath,
+    source_sha256: sha256(source),
+    source_overridden: sourceOverridden,
+    parse_diagnostics: diagnostics,
+    declarations,
+    imports,
+    calls,
+    jsx,
+    identifiers: [...identifiers].sort(),
+    literal_bindings: Object.fromEntries(
+      Object.entries(literalBindings).map(([key, values]) => [
+        key,
+        [...new Set(values.map((value) => JSON.stringify(value)))]
+          .sort().map((value) => JSON.parse(value)),
+      ]),
+    ),
+    static_exports: staticExports,
+  };
+}
+const modules = Object.fromEntries(
+  [...request.paths].sort().map((relativePath) => [
+    relativePath, parseModule(relativePath),
+  ]),
+);
+process.stdout.write(JSON.stringify({
+  schema_id: "polisyos.atlas.ds17-typescript-surface-scan.v1",
+  modules,
+}));
+"""
+
+
+def _ds17_typescript_surface_scan_uncached(
+    source_overrides: Mapping[str, str],
+) -> dict[str, Any]:
+    """Derive DS17 declarations and call/render edges through TypeScript's AST."""
+    all_paths = {
+        DS17_CONFIDENCE_LEDGER_QUERY_PATH,
+        DS17_CONFIDENCE_LEDGER_HOOK_PATH,
+        DS17_CONFIDENCE_LEDGER_DOMAIN_PATH,
+        DS17_CONFIDENCE_LEDGER_FIGURE_PATH,
+        DS17_CONFIDENCE_LEDGER_PANEL_PATH,
+        DS17_CONFIDENCE_LEDGER_TWIN_PATH,
+        DS17_CONFIDENCE_LEDGER_CYCLE_PATH,
+        *(str(spec["test_path"]) for spec in DS17_CONFIDENCE_LEDGER_ROLE_SPECS),
+    }
+    request = {
+        "paths": sorted(all_paths),
+        "repoRoot": str(REPO_ROOT),
+        "sourceOverrides": dict(source_overrides),
+    }
+    completed = subprocess.run(  # noqa: S603 - fixed Node/AST invocation
+        [
+            os.environ.get("POLISYOS_NODE_EXECUTABLE", "node"),
+            "--input-type=module",
+            "--eval",
+            DS17_CONFIDENCE_LEDGER_TYPESCRIPT_AST_SCRIPT,
+        ],
+        cwd=REPO_ROOT,
+        input=json.dumps(request, sort_keys=True, separators=(",", ":")),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise ValueError(
+            "DS17 confidence-ledger TypeScript AST scan failed: "
+            + completed.stderr.strip()
+        )
+    result = json.loads(completed.stdout)
+    if result.get("schema_id") != (
+        "polisyos.atlas.ds17-typescript-surface-scan.v1"
+    ):
+        raise ValueError("DS17 confidence-ledger TypeScript AST schema drift")
+    modules = result.get("modules")
+    if not isinstance(modules, Mapping) or set(modules) != all_paths:
+        raise ValueError("DS17 confidence-ledger TypeScript AST path drift")
+    diagnostics = {
+        path_ref: module.get("parse_diagnostics")
+        for path_ref, module in modules.items()
+        if isinstance(module, Mapping) and module.get("parse_diagnostics")
+    }
+    if diagnostics:
+        raise ValueError(
+            "DS17 confidence-ledger TypeScript AST parse drift:"
+            + json.dumps(diagnostics, sort_keys=True, separators=(",", ":"))
+        )
+    return result
+
+
+@lru_cache(maxsize=1)
+def _ds17_typescript_surface_scan_cached() -> dict[str, Any]:
+    return _ds17_typescript_surface_scan_uncached({})
+
+
+def _ds17_typescript_surface_scan(
+    *, source_overrides: Mapping[str, str] | None = None
+) -> dict[str, Any]:
+    if source_overrides is None:
+        return copy.deepcopy(_ds17_typescript_surface_scan_cached())
+    unknown = set(source_overrides) - DS17_CONFIDENCE_LEDGER_DS18_PATHS
+    if unknown:
+        raise ValueError(
+            "DS17 confidence-ledger source override outside owned paths:"
+            + repr(sorted(unknown))
+        )
+    return _ds17_typescript_surface_scan_uncached(source_overrides)
+
+
+def _ds17_scan_module(
+    scan: Mapping[str, Any], path_ref: str
+) -> Mapping[str, Any]:
+    modules = scan.get("modules")
+    module = modules.get(path_ref) if isinstance(modules, Mapping) else None
+    if not isinstance(module, Mapping):
+        raise ValueError(f"DS17 confidence-ledger AST module missing:{path_ref}")
+    return module
+
+
+def _ds17_source_receipt(
+    path_ref: str, module: Mapping[str, Any]
+) -> dict[str, str]:
+    expected = (
+        str(module.get("source_sha256"))
+        if module.get("source_overridden") is True
+        else "sha256:"
+        + hashlib.sha256((REPO_ROOT / path_ref).read_bytes()).hexdigest()
+    )
+    observed = module.get("source_sha256")
+    if observed != expected:
+        raise ValueError(
+            f"DS17 confidence-ledger source receipt drift:{path_ref}:"
+            f"expected={expected}:actual={observed}"
+        )
+    return {"path": path_ref, "sha256": expected}
+
+
+def _ds17_declaration(
+    module: Mapping[str, Any], symbol: str
+) -> Mapping[str, Any]:
+    rows = [
+        row
+        for row in module.get("declarations", [])
+        if isinstance(row, Mapping) and row.get("name") == symbol
+    ]
+    if len(rows) != 1:
+        raise ValueError(
+            f"DS17 confidence-ledger role declaration cardinality:{symbol}:"
+            f"{len(rows)}"
+        )
+    return rows[0]
+
+
+def _ds17_has_call(
+    module: Mapping[str, Any], owner: str, callee: str
+) -> bool:
+    return any(
+        isinstance(row, Mapping)
+        and row.get("owner") == owner
+        and row.get("callee") == callee
+        for row in module.get("calls", [])
+    )
+
+
+def _ds17_has_jsx(
+    module: Mapping[str, Any], owner: str | None, tag: str
+) -> bool:
+    return any(
+        isinstance(row, Mapping)
+        and (owner is None or row.get("owner") == owner)
+        and row.get("tag") == tag
+        for row in module.get("jsx", [])
+    )
+
+
+def _ds17_imports(
+    module: Mapping[str, Any], imported: str, module_ref: str
+) -> bool:
+    return any(
+        isinstance(row, Mapping)
+        and row.get("imported") == imported
+        and row.get("module") == module_ref
+        and row.get("type_only") is False
+        for row in module.get("imports", [])
+    )
+
+
+def _ds17_jsx_reachable(
+    module: Mapping[str, Any], source_symbol: str, target_symbol: str
+) -> bool:
+    edges: dict[str, set[str]] = defaultdict(set)
+    for row in module.get("jsx", []):
+        if not isinstance(row, Mapping):
+            continue
+        owner = row.get("owner")
+        tag = row.get("tag")
+        if isinstance(owner, str) and isinstance(tag, str):
+            edges[owner].add(tag)
+    pending = [source_symbol]
+    visited: set[str] = set()
+    while pending:
+        current = pending.pop()
+        if current in visited:
+            continue
+        visited.add(current)
+        for successor in edges.get(current, set()):
+            if successor == target_symbol:
+                return True
+            if successor not in visited:
+                pending.append(successor)
+    return False
+
+
+def _ds17_ast_edge_receipt(
+    *,
+    edge_id: str,
+    from_role: str,
+    to_role: str,
+    relation: str,
+    symbol_path: Sequence[str],
+    evidence_paths: Sequence[str],
+    scan: Mapping[str, Any],
+) -> dict[str, Any]:
+    return {
+        "edge_id": edge_id,
+        "from_role": from_role,
+        "to_role": to_role,
+        "relation": relation,
+        "symbol_path": list(symbol_path),
+        "wiring_evidence": [
+            _ds17_source_receipt(path_ref, _ds17_scan_module(scan, path_ref))
+            for path_ref in evidence_paths
+        ],
+    }
+
+
+def _build_ds17_confidence_ledger_risk_spend_surface(
+    *, source_overrides: Mapping[str, str] | None = None
+) -> dict[str, Any]:
+    """Build the six-role DS17 surface from actual TypeScript AST facts."""
+    scan = _ds17_typescript_surface_scan(source_overrides=source_overrides)
+    source_paths = {
+        DS17_CONFIDENCE_LEDGER_QUERY_PATH,
+        DS17_CONFIDENCE_LEDGER_HOOK_PATH,
+        DS17_CONFIDENCE_LEDGER_DOMAIN_PATH,
+        DS17_CONFIDENCE_LEDGER_FIGURE_PATH,
+        DS17_CONFIDENCE_LEDGER_PANEL_PATH,
+        DS17_CONFIDENCE_LEDGER_TWIN_PATH,
+        DS17_CONFIDENCE_LEDGER_CYCLE_PATH,
+    }
+    modules = {
+        path_ref: _ds17_scan_module(scan, path_ref) for path_ref in source_paths
+    }
+    roles: list[dict[str, Any]] = []
+    for spec in DS17_CONFIDENCE_LEDGER_ROLE_SPECS:
+        source_path = str(spec["source_path"])
+        test_path = str(spec["test_path"])
+        symbol = str(spec["symbol"])
+        source_module = modules[source_path]
+        test_module = _ds17_scan_module(scan, test_path)
+        declaration = _ds17_declaration(source_module, symbol)
+        test_symbol = str(spec["test_symbol"])
+        if test_symbol not in test_module.get("identifiers", []):
+            raise ValueError(
+                "DS17 confidence-ledger behavioral evidence symbol missing:"
+                f"{spec['role_id']}:{test_path}:{test_symbol}"
+            )
+        roles.append(
+            {
+                "role_id": spec["role_id"],
+                "symbol": symbol,
+                "source": _ds17_source_receipt(source_path, source_module),
+                "declaration": {
+                    "column": declaration["column"],
+                    "declaration_sha256": declaration["declaration_sha256"],
+                    "exported": declaration["exported"],
+                    "kind": declaration["kind"],
+                    "line": declaration["line"],
+                },
+                "behavioral_evidence": [
+                    _ds17_source_receipt(test_path, test_module)
+                ],
+            }
+        )
+    query_module = modules[DS17_CONFIDENCE_LEDGER_QUERY_PATH]
+    domain_module = modules[DS17_CONFIDENCE_LEDGER_DOMAIN_PATH]
+    literal_bindings = domain_module.get("literal_bindings", {})
+    scope = {
+        "packet_schema_version": literal_bindings.get(
+            "packet_schema_version", [None]
+        )[0],
+        "projection_id": literal_bindings.get("projection_id", [None])[0],
+        "projection_rule_version": literal_bindings.get(
+            "projection_rule_version", [None]
+        )[0],
+        "protected_action": literal_bindings.get(
+            "protected_action_id", [None]
+        )[0],
+        "specialized_query_identity": query_module.get(
+            "static_exports", {}
+        ).get("confidenceLedgerRiskSpendQueryKey"),
+        "stable_address": literal_bindings.get("stable_address", [None])[0],
+    }
+    if scope != DS17_CONFIDENCE_LEDGER_EXPECTED_SCOPE:
+        raise ValueError(
+            "DS17 confidence-ledger governed scope AST drift:"
+            + json.dumps(scope, sort_keys=True, separators=(",", ":"))
+        )
+    hook = modules[DS17_CONFIDENCE_LEDGER_HOOK_PATH]
+    cycle = modules[DS17_CONFIDENCE_LEDGER_CYCLE_PATH]
+    panel = modules[DS17_CONFIDENCE_LEDGER_PANEL_PATH]
+    twin = modules[DS17_CONFIDENCE_LEDGER_TWIN_PATH]
+    twin_test_path = (
+        "apps/runtime-dashboard/src/features/runs/export/"
+        "confidenceLedgerRiskSpendTwin.test.tsx"
+    )
+    twin_test = _ds17_scan_module(scan, twin_test_path)
+    edge_predicates = {
+        "governed_projection_to_domain_validator": _ds17_has_call(
+            hook,
+            "confidenceLedgerRiskSpendQueryOptions",
+            "evaluateConfidenceLedgerProtectedQuery",
+        )
+        and _ds17_imports(
+            hook,
+            "evaluateConfidenceLedgerProtectedQuery",
+            "@/features/runs/domain/confidenceLedgerRiskSpend",
+        ),
+        "domain_validator_to_cycle_board_consumer": _ds17_has_call(
+            cycle,
+            "ConfidenceLedgerRiskSpendQueryPanel",
+            "useConfidenceLedgerRiskSpend",
+        )
+        and _ds17_imports(
+            cycle,
+            "useConfidenceLedgerRiskSpend",
+            "@/features/runs/api/useConfidenceLedgerRiskSpend",
+        )
+        and _ds17_has_call(
+            hook,
+            "useConfidenceLedgerRiskSpend",
+            "confidenceLedgerRiskSpendQueryOptions",
+        )
+        and _ds17_has_call(
+            hook,
+            "confidenceLedgerRiskSpendQueryOptions",
+            "evaluateConfidenceLedgerProtectedQuery",
+        ),
+        "cycle_board_consumer_to_panel": _ds17_has_jsx(
+            cycle,
+            "ConfidenceLedgerRiskSpendQueryPanel",
+            "ConfidenceLedgerRiskSpend",
+        )
+        and _ds17_imports(
+            cycle,
+            "ConfidenceLedgerRiskSpend",
+            "@/features/runs/components/ConfidenceLedgerRiskSpend",
+        ),
+        "panel_to_conditional_figure": _ds17_jsx_reachable(
+            panel,
+            "ConfidenceLedgerRiskSpend",
+            "ConditionalDeltaFigure",
+        )
+        and _ds17_imports(
+            panel,
+            "ConditionalDeltaFigure",
+            "./ConditionalDeltaFigure",
+        ),
+        "panel_to_exact_twin": _ds17_has_jsx(
+            twin_test, None, "ConfidenceLedgerRiskSpend"
+        )
+        and any(
+            isinstance(row, Mapping)
+            and row.get("callee") == "evaluateConfidenceLedgerRiskSpendTwin"
+            for row in twin_test.get("calls", [])
+        )
+        and _ds17_imports(
+            twin_test,
+            "ConfidenceLedgerRiskSpend",
+            "@/features/runs/components/ConfidenceLedgerRiskSpend",
+        )
+        and _ds17_imports(
+            twin_test,
+            "evaluateConfidenceLedgerRiskSpendTwin",
+            "./confidenceLedgerRiskSpendTwin",
+        )
+        and _ds17_has_call(
+            twin,
+            "evaluateConfidenceLedgerRiskSpendTwin",
+            "evaluateConfidenceLedgerProtectedQuery",
+        ),
+    }
+    missing_edges = [
+        edge_id for edge_id, admitted in edge_predicates.items() if not admitted
+    ]
+    if missing_edges:
+        raise ValueError(
+            "DS17 confidence-ledger AST edge missing:" + ",".join(missing_edges)
+        )
+    edges = [
+        _ds17_ast_edge_receipt(
+            edge_id="governed_projection_to_domain_validator",
+            from_role="governed_projection",
+            to_role="domain_validator",
+            relation="direct_validator_call",
+            symbol_path=(
+                "confidenceLedgerRiskSpendQueryOptions",
+                "evaluateConfidenceLedgerProtectedQuery",
+            ),
+            evidence_paths=(DS17_CONFIDENCE_LEDGER_HOOK_PATH,),
+            scan=scan,
+        ),
+        _ds17_ast_edge_receipt(
+            edge_id="domain_validator_to_cycle_board_consumer",
+            from_role="domain_validator",
+            to_role="cycle_board_consumer",
+            relation="governed_query_call_chain",
+            symbol_path=(
+                "evaluateConfidenceLedgerProtectedQuery",
+                "confidenceLedgerRiskSpendQueryOptions",
+                "useConfidenceLedgerRiskSpend",
+                "ConfidenceLedgerRiskSpendQueryPanel",
+            ),
+            evidence_paths=(
+                DS17_CONFIDENCE_LEDGER_HOOK_PATH,
+                DS17_CONFIDENCE_LEDGER_CYCLE_PATH,
+            ),
+            scan=scan,
+        ),
+        _ds17_ast_edge_receipt(
+            edge_id="cycle_board_consumer_to_panel",
+            from_role="cycle_board_consumer",
+            to_role="panel",
+            relation="direct_jsx_render",
+            symbol_path=(
+                "ConfidenceLedgerRiskSpendQueryPanel",
+                "ConfidenceLedgerRiskSpend",
+            ),
+            evidence_paths=(DS17_CONFIDENCE_LEDGER_CYCLE_PATH,),
+            scan=scan,
+        ),
+        _ds17_ast_edge_receipt(
+            edge_id="panel_to_conditional_figure",
+            from_role="panel",
+            to_role="conditional_figure",
+            relation="module_local_jsx_render_path",
+            symbol_path=(
+                "ConfidenceLedgerRiskSpend",
+                "ConditionalDeltaFigure",
+            ),
+            evidence_paths=(DS17_CONFIDENCE_LEDGER_PANEL_PATH,),
+            scan=scan,
+        ),
+        _ds17_ast_edge_receipt(
+            edge_id="panel_to_exact_twin",
+            from_role="panel",
+            to_role="exact_twin",
+            relation="behavioral_dom_twin_execution",
+            symbol_path=(
+                "ConfidenceLedgerRiskSpend",
+                "evaluateConfidenceLedgerRiskSpendTwin",
+            ),
+            evidence_paths=(DS17_CONFIDENCE_LEDGER_TWIN_PATH, twin_test_path),
+            scan=scan,
+        ),
+    ]
+    role_manifest = [
+        {
+            "behavioral_evidence_sha256": [
+                receipt["sha256"] for receipt in role["behavioral_evidence"]
+            ],
+            "declaration_sha256": role["declaration"]["declaration_sha256"],
+            "role_id": role["role_id"],
+            "source_path": role["source"]["path"],
+            "source_sha256": role["source"]["sha256"],
+            "symbol": role["symbol"],
+        }
+        for role in roles
+    ]
+    edge_manifest = [
+        {
+            "edge_id": edge["edge_id"],
+            "from_role": edge["from_role"],
+            "relation": edge["relation"],
+            "symbol_path": edge["symbol_path"],
+            "to_role": edge["to_role"],
+            "wiring_evidence_sha256": [
+                receipt["sha256"] for receipt in edge["wiring_evidence"]
+            ],
+        }
+        for edge in edges
+    ]
+    return {
+        "schema_id": DS17_CONFIDENCE_LEDGER_RISK_SPEND_SCHEMA_ID,
+        "owner_slice": "DS17",
+        "predicate_provenance": "recomputed",
+        "governed_scope": scope,
+        "scope_evidence": [
+            _ds17_source_receipt(
+                DS17_CONFIDENCE_LEDGER_QUERY_PATH, query_module
+            ),
+            _ds17_source_receipt(
+                DS17_CONFIDENCE_LEDGER_DOMAIN_PATH, domain_module
+            ),
+        ],
+        "role_count": len(roles),
+        "roles": roles,
+        "role_manifest": role_manifest,
+        "role_manifest_sha256": "sha256:" + _canonical_sha256(role_manifest),
+        "edge_count": len(edges),
+        "edges": edges,
+        "edge_manifest": edge_manifest,
+        "edge_manifest_sha256": "sha256:" + _canonical_sha256(edge_manifest),
+        "bounded_closure": {
+            "scope": "single governed confidence-ledger risk-spend projection",
+            "global_coverage_claim": False,
+            "family_or_sequence_claim": False,
+            "positive_promotion_claim": False,
+            "deployment_wide_index_claim": False,
+        },
+        "executor": {
+            "policyos_executes_protected_action": False,
+            "ownership": "out_of_scope",
+            "authority": "reviewer_or_external_institution",
+        },
+    }
+
+
+def _validate_ds17_confidence_ledger_risk_spend_surface(
+    data: Mapping[str, Any],
+    errors: list[str],
+    *,
+    expected: Mapping[str, Any] | None = None,
+) -> None:
+    """Reject missing, stale, duplicated, or self-attested DS17 graph receipts."""
+    block = data.get(DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD)
+    if not isinstance(block, Mapping):
+        errors.append("ds17_confidence_ledger_risk_spend_surface_missing")
+        return
+    derived = expected or _build_ds17_confidence_ledger_risk_spend_surface()
+    for field in ("schema_id", "owner_slice", "predicate_provenance"):
+        if block.get(field) != derived.get(field):
+            errors.append(f"ds17_confidence_ledger_header_drift:{field}")
+    if block.get("governed_scope") != derived.get("governed_scope"):
+        errors.append("ds17_confidence_ledger_scope_drift")
+    if block.get("scope_evidence") != derived.get("scope_evidence"):
+        errors.append("ds17_confidence_ledger_scope_evidence_drift")
+    stored_roles = block.get("roles")
+    if not isinstance(stored_roles, list):
+        errors.append("ds17_confidence_ledger_roles_invalid")
+        stored_roles = []
+    role_ids = [
+        str(row.get("role_id"))
+        for row in stored_roles
+        if isinstance(row, Mapping)
+    ]
+    for role_id, count in Counter(role_ids).items():
+        if count > 1:
+            errors.append(f"ds17_confidence_ledger_role_duplicate:{role_id}")
+    stored_by_role = {
+        str(row.get("role_id")): row
+        for row in stored_roles
+        if isinstance(row, Mapping)
+    }
+    expected_by_role = {
+        str(row["role_id"]): row for row in derived["roles"]
+    }
+    for role_id in sorted(set(expected_by_role) - set(stored_by_role)):
+        errors.append(f"ds17_confidence_ledger_role_missing:{role_id}")
+    for role_id in sorted(set(stored_by_role) - set(expected_by_role)):
+        errors.append(f"ds17_confidence_ledger_role_unexpected:{role_id}")
+    for role_id in sorted(set(stored_by_role) & set(expected_by_role)):
+        stored = stored_by_role[role_id]
+        expected_role = expected_by_role[role_id]
+        if stored.get("symbol") != expected_role.get("symbol"):
+            errors.append(f"ds17_confidence_ledger_role_symbol_drift:{role_id}")
+        if stored.get("source") != expected_role.get("source"):
+            errors.append(f"ds17_confidence_ledger_role_source_drift:{role_id}")
+        if stored.get("declaration") != expected_role.get("declaration"):
+            errors.append(
+                f"ds17_confidence_ledger_role_declaration_drift:{role_id}"
+            )
+        if stored.get("behavioral_evidence") != expected_role.get(
+            "behavioral_evidence"
+        ):
+            errors.append(f"ds17_confidence_ledger_role_evidence_drift:{role_id}")
+    stored_edges = block.get("edges")
+    if not isinstance(stored_edges, list):
+        errors.append("ds17_confidence_ledger_edges_invalid")
+        stored_edges = []
+    edge_ids = [
+        str(row.get("edge_id"))
+        for row in stored_edges
+        if isinstance(row, Mapping)
+    ]
+    for edge_id, count in Counter(edge_ids).items():
+        if count > 1:
+            errors.append(f"ds17_confidence_ledger_edge_duplicate:{edge_id}")
+    stored_by_edge = {
+        str(row.get("edge_id")): row
+        for row in stored_edges
+        if isinstance(row, Mapping)
+    }
+    expected_by_edge = {
+        str(row["edge_id"]): row for row in derived["edges"]
+    }
+    for edge_id in sorted(set(expected_by_edge) - set(stored_by_edge)):
+        errors.append(f"ds17_confidence_ledger_edge_missing:{edge_id}")
+    for edge_id in sorted(set(stored_by_edge) - set(expected_by_edge)):
+        errors.append(f"ds17_confidence_ledger_edge_unexpected:{edge_id}")
+    for edge_id in sorted(set(stored_by_edge) & set(expected_by_edge)):
+        if stored_by_edge[edge_id] != expected_by_edge[edge_id]:
+            errors.append(f"ds17_confidence_ledger_edge_drift:{edge_id}")
+    expected_counts = {
+        "role_count": len(stored_roles),
+        "edge_count": len(stored_edges),
+    }
+    for field, count in expected_counts.items():
+        if block.get(field) != count or block.get(field) != derived.get(field):
+            errors.append(f"ds17_confidence_ledger_count_drift:{field}")
+    for kind in ("role", "edge"):
+        manifest_field = f"{kind}_manifest"
+        hash_field = f"{kind}_manifest_sha256"
+        manifest = block.get(manifest_field)
+        if manifest != derived.get(manifest_field):
+            errors.append(f"ds17_confidence_ledger_{kind}_manifest_drift")
+        expected_hash = (
+            "sha256:" + _canonical_sha256(manifest)
+            if isinstance(manifest, list)
+            else None
+        )
+        if (
+            block.get(hash_field) != expected_hash
+            or block.get(hash_field) != derived.get(hash_field)
+        ):
+            errors.append(f"ds17_confidence_ledger_{kind}_manifest_hash_drift")
+    for field in ("bounded_closure", "executor"):
+        if block.get(field) != derived.get(field):
+            errors.append(f"ds17_confidence_ledger_{field}_drift")
+
+
 def _ds18_time_semantics_scan() -> dict[str, Any]:
     """Run the complete TypeScript AST render/export census."""
     completed = subprocess.run(
@@ -16119,6 +17091,407 @@ def _validate_ds18_historical_time_semantics_coverage(
     )
 
 
+def _ds17_surgical_ds18_coverage(
+    opening: Mapping[str, Any],
+    fresh: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Splice only the seven DS17 rows and mechanically derived DS18 header."""
+    frozen_fields = {
+        "schema_id",
+        "owner_slice",
+        "predicate_provenance",
+        "source_root",
+        "exclusion_policy",
+        "scanner",
+        "frontend_freeze_commit",
+        "landing_slice_rule",
+        "landing_slice_checker",
+    }
+    for field in sorted(frozen_fields):
+        if opening.get(field) != fresh.get(field):
+            raise ValueError(f"DS17 DS18 frozen invariant drift:{field}")
+    opening_files = opening.get("files")
+    fresh_files = fresh.get("files")
+    if not isinstance(opening_files, list) or not isinstance(fresh_files, list):
+        raise ValueError("DS17 DS18 file container drift")
+    opening_by_path = {
+        str(row.get("path")): row
+        for row in opening_files
+        if isinstance(row, Mapping)
+    }
+    fresh_by_path = {
+        str(row.get("path")): row
+        for row in fresh_files
+        if isinstance(row, Mapping)
+    }
+    foreign_paths = set(opening_by_path) | set(fresh_by_path)
+    foreign_paths -= DS17_CONFIDENCE_LEDGER_DS18_PATHS
+    foreign_drift = sorted(
+        path_ref
+        for path_ref in foreign_paths
+        if opening_by_path.get(path_ref) != fresh_by_path.get(path_ref)
+    )
+    if foreign_drift:
+        raise ValueError("DS17 DS18 foreign row drift:" + repr(foreign_drift))
+    changed_paths = {
+        path_ref
+        for path_ref in set(opening_by_path) | set(fresh_by_path)
+        if opening_by_path.get(path_ref) != fresh_by_path.get(path_ref)
+    }
+    if changed_paths and changed_paths != DS17_CONFIDENCE_LEDGER_DS18_PATHS:
+        raise ValueError(
+            "DS17 DS18 authorized row denominator drift:"
+            f"expected={sorted(DS17_CONFIDENCE_LEDGER_DS18_PATHS)}:"
+            f"actual={sorted(changed_paths)}"
+        )
+    candidate = copy.deepcopy(dict(opening))
+    for field, value in fresh.items():
+        if field not in frozen_fields and field != "files":
+            candidate[field] = copy.deepcopy(value)
+    candidate["files"] = [
+        copy.deepcopy(
+            fresh_by_path[path_ref]
+            if path_ref in DS17_CONFIDENCE_LEDGER_DS18_PATHS
+            else opening_by_path[path_ref]
+        )
+        for path_ref in (str(row["path"]) for row in fresh_files)
+    ]
+    if candidate != fresh:
+        raise ValueError("DS17 DS18 surgical candidate disagrees with fresh builder")
+    return candidate
+
+
+def _ds17_render_array_object(row: Mapping[str, Any]) -> str:
+    rendered = json.dumps(row, indent=2, ensure_ascii=False)
+    return "\n".join("      " + line for line in rendered.splitlines())
+
+
+def _ds17_json_array_object_spans(
+    text: str,
+    *,
+    within: tuple[int, int],
+    identity_field: str,
+) -> dict[str, tuple[int, int, Mapping[str, Any]]]:
+    """Index only direct objects in a bounded JSON array, never nested receipts."""
+    start, end = within
+    if text[start] != "[":
+        raise ValueError("DS17 JSON array span does not start with '['")
+    cursor = start + 1
+    decoder = json.JSONDecoder()
+    rows: dict[str, tuple[int, int, Mapping[str, Any]]] = {}
+    while cursor < end:
+        while cursor < end and text[cursor] in " \t\r\n,":
+            cursor += 1
+        if cursor >= end or text[cursor] == "]":
+            break
+        row, relative_end = decoder.raw_decode(text[cursor:])
+        row_end = cursor + relative_end
+        if not isinstance(row, Mapping):
+            raise ValueError("DS17 JSON array contains a non-object row")
+        identity = row.get(identity_field)
+        if not isinstance(identity, str) or identity in rows:
+            raise ValueError(
+                f"DS17 JSON array identity drift:{identity_field}:{identity}"
+            )
+        rows[identity] = (cursor, row_end, row)
+        cursor = row_end
+    return rows
+
+
+def _ds17_ds18_transition_text(
+    original_text: str,
+    coverage: Mapping[str, Any],
+) -> str:
+    """Rewrite DS18 header scalars/owned rows while retaining foreign row bytes."""
+    ds18_start, ds18_end, _opening = _json_top_level_object_span(
+        original_text, "ds18_time_semantics_coverage"
+    )
+    files_start, files_end, opening_files = _json_field_value_span(
+        original_text,
+        field="files",
+        within=(ds18_start, ds18_end),
+    )
+    if not isinstance(opening_files, list):
+        raise ValueError("DS17 DS18 text file array drift")
+    opening_spans = _ds17_json_array_object_spans(
+        original_text,
+        within=(files_start, files_end),
+        identity_field="path",
+    )
+    raw_opening_rows = {
+        path_ref: original_text[start:end]
+        for path_ref, (start, end, _row) in opening_spans.items()
+    }
+    candidate_files = coverage.get("files")
+    if not isinstance(candidate_files, list):
+        raise ValueError("DS17 DS18 candidate file array drift")
+    rendered_rows: list[str] = []
+    for row in candidate_files:
+        if not isinstance(row, Mapping):
+            raise ValueError("DS17 DS18 candidate row drift")
+        path_ref = str(row.get("path"))
+        if path_ref in DS17_CONFIDENCE_LEDGER_DS18_PATHS:
+            rendered_rows.append(_ds17_render_array_object(row))
+        else:
+            raw = raw_opening_rows.get(path_ref)
+            if raw is None:
+                raise ValueError(f"DS17 DS18 foreign row missing:{path_ref}")
+            rendered_rows.append("      " + raw)
+    files_rendered = "[\n" + ",\n".join(rendered_rows) + "\n    ]"
+    mutable_header = (
+        "source_file_count",
+        "root_count",
+        "file_manifest_sha256",
+        "root_manifest_sha256",
+        "decision_bearing_root_count",
+        "inherits_admitted_dom_root_count",
+        "obligated_root_count",
+        "covered_root_count",
+    )
+    replacements: list[tuple[int, int, str]] = [
+        (files_start, files_end, files_rendered)
+    ]
+    for field in mutable_header:
+        start, end, _value = _json_field_value_span(
+            original_text,
+            field=field,
+            within=(ds18_start, ds18_end),
+        )
+        replacements.append(
+            (
+                start,
+                end,
+                json.dumps(coverage[field], ensure_ascii=False),
+            )
+        )
+    candidate = original_text
+    for start, end, replacement in sorted(replacements, reverse=True):
+        candidate = candidate[:start] + replacement + candidate[end:]
+    return candidate
+
+
+def _ds17_surface_transition_text(
+    text: str, block: Mapping[str, Any]
+) -> str:
+    rendered = _render_top_level_object(block)
+    if DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD in json.loads(text):
+        start, end, _stored = _json_top_level_object_span(
+            text, DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+        )
+        return text[:start] + rendered + text[end:]
+    needle = '  "ds18_time_semantics_coverage": '
+    positions = [match.start() for match in re.finditer(re.escape(needle), text)]
+    if len(positions) != 1:
+        raise ValueError("DS17 register insertion anchor drift")
+    insertion = (
+        f'  {json.dumps(DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD)}: '
+        + rendered
+        + ",\n"
+    )
+    return text[: positions[0]] + insertion + text[positions[0] :]
+
+
+def _ds17_registration_preservation_errors(
+    original_text: str,
+    candidate_text: str,
+) -> list[str]:
+    """Prove seeds, peer blocks, frozen DS18 fields, and foreign bytes stayed put."""
+    try:
+        opening = json.loads(original_text)
+        candidate = json.loads(candidate_text)
+    except json.JSONDecodeError as exc:
+        return [f"ds17_registration_json_invalid:{exc}"]
+    errors: list[str] = []
+    opening_peers = {
+        key: value
+        for key, value in opening.items()
+        if key != "ds18_time_semantics_coverage"
+        and key != DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+    }
+    candidate_peers = {
+        key: value
+        for key, value in candidate.items()
+        if key != "ds18_time_semantics_coverage"
+        and key != DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+    }
+    if opening_peers != candidate_peers:
+        errors.append("ds17_registration_peer_block_drift")
+    opening_ds18 = opening.get("ds18_time_semantics_coverage", {})
+    candidate_ds18 = candidate.get("ds18_time_semantics_coverage", {})
+    frozen_fields = {
+        "schema_id",
+        "owner_slice",
+        "predicate_provenance",
+        "source_root",
+        "exclusion_policy",
+        "scanner",
+        "frontend_freeze_commit",
+        "landing_slice_rule",
+        "landing_slice_checker",
+    }
+    for field in sorted(frozen_fields):
+        if opening_ds18.get(field) != candidate_ds18.get(field):
+            errors.append(f"ds17_registration_ds18_frozen_drift:{field}")
+    try:
+        opening_start, opening_end, _opening_coverage = (
+            _json_top_level_object_span(
+                original_text, "ds18_time_semantics_coverage"
+            )
+        )
+        candidate_start, candidate_end, _candidate_coverage = (
+            _json_top_level_object_span(
+                candidate_text, "ds18_time_semantics_coverage"
+            )
+        )
+        opening_files_start, opening_files_end, _opening_files = (
+            _json_field_value_span(
+                original_text,
+                field="files",
+                within=(opening_start, opening_end),
+            )
+        )
+        candidate_files_start, candidate_files_end, _candidate_files = (
+            _json_field_value_span(
+                candidate_text,
+                field="files",
+                within=(candidate_start, candidate_end),
+            )
+        )
+        opening_spans = _ds17_json_array_object_spans(
+            original_text,
+            within=(opening_files_start, opening_files_end),
+            identity_field="path",
+        )
+        candidate_spans = _ds17_json_array_object_spans(
+            candidate_text,
+            within=(candidate_files_start, candidate_files_end),
+            identity_field="path",
+        )
+        opening_paths = set(opening_spans)
+        candidate_paths = set(candidate_spans)
+        for path_ref in sorted(
+            (opening_paths | candidate_paths)
+            - DS17_CONFIDENCE_LEDGER_DS18_PATHS
+        ):
+            before_start, before_end, _before = opening_spans[path_ref]
+            after_start, after_end, _after = candidate_spans[path_ref]
+            if (
+                original_text[before_start:before_end]
+                != candidate_text[after_start:after_end]
+            ):
+                errors.append(f"ds17_registration_foreign_row_byte_drift:{path_ref}")
+    except (KeyError, TypeError, ValueError) as exc:
+        errors.append(f"ds17_registration_ds18_span_invalid:{exc}")
+    return errors
+
+
+def _ds17_confidence_ledger_risk_spend_candidate_text(
+    original_text: str,
+    *,
+    scan: Mapping[str, Any] | None = None,
+    verify_idempotency: bool = True,
+) -> str:
+    """Build the schema-valid DS17 block and seven-row DS18 landing splice."""
+    opening = json.loads(original_text)
+    opening_coverage = opening.get("ds18_time_semantics_coverage")
+    if not isinstance(opening_coverage, Mapping):
+        raise ValueError("DS17 register opening DS18 coverage missing")
+    current_scan = scan if scan is not None else _ds18_time_semantics_scan()
+    fresh = _build_ds18_time_semantics_coverage(
+        current_scan,
+        frontend_freeze_commit=opening_coverage.get("frontend_freeze_commit"),
+    )
+    coverage = _ds17_surgical_ds18_coverage(opening_coverage, fresh)
+    block = _build_ds17_confidence_ledger_risk_spend_surface()
+    transitioned = _ds17_ds18_transition_text(original_text, coverage)
+    candidate = _ds17_surface_transition_text(transitioned, block)
+    preservation_errors = _ds17_registration_preservation_errors(
+        original_text, candidate
+    )
+    if preservation_errors:
+        raise ValueError(
+            "DS17 registration candidate rejected:"
+            + ";".join(preservation_errors)
+        )
+    data = json.loads(candidate)
+    candidate_errors = _schema_errors(data, SCHEMA_PATH)
+    _validate_ds17_confidence_ledger_risk_spend_surface(
+        data, candidate_errors, expected=block
+    )
+    _validate_ds18_time_semantics_coverage(
+        data, candidate_errors, scan=current_scan
+    )
+    if candidate_errors:
+        raise ValueError(
+            "DS17 registration candidate rejected:"
+            + ";".join(candidate_errors)
+        )
+    if verify_idempotency:
+        repeated = _ds17_confidence_ledger_risk_spend_candidate_text(
+            candidate,
+            scan=current_scan,
+            verify_idempotency=False,
+        )
+        if repeated != candidate:
+            raise ValueError("DS17 registration candidate is not idempotent")
+    return candidate
+
+
+def _write_ds17_confidence_ledger_risk_spend_family() -> dict[str, int]:
+    """Atomically write the DS17 block, surgical DS18 receipt, and report."""
+    original_texts = {
+        REGISTER_PATH: REGISTER_PATH.read_text(encoding="utf-8"),
+        REPORT_PATH: REPORT_PATH.read_text(encoding="utf-8"),
+    }
+    scan = _ds18_time_semantics_scan()
+    register_candidate = _ds17_confidence_ledger_risk_spend_candidate_text(
+        original_texts[REGISTER_PATH], scan=scan
+    )
+    data = json.loads(register_candidate)
+    report_candidate = render_report(data)
+    candidates = {
+        REGISTER_PATH: register_candidate,
+        REPORT_PATH: report_candidate,
+    }
+
+    def validate_after() -> list[str]:
+        errors: list[str] = []
+        for governed_path, expected_text in candidates.items():
+            if governed_path.read_text(encoding="utf-8") != expected_text:
+                errors.append(
+                    "ds17_registration_family_readback_drift:"
+                    + str(governed_path)
+                )
+        reread = _load_json(REGISTER_PATH)
+        errors.extend(_schema_errors(reread, SCHEMA_PATH))
+        _validate_ds17_confidence_ledger_risk_spend_surface(reread, errors)
+        _validate_ds18_time_semantics_coverage(reread, errors)
+        errors.extend(_report_projection_errors(reread))
+        return errors
+
+    def final_pre_promote_fence() -> None:
+        for governed_path, original_text in original_texts.items():
+            if governed_path.read_text(encoding="utf-8") != original_text:
+                raise ValueError(
+                    "DS17 registration governed preimage moved:"
+                    + str(governed_path)
+                )
+
+    _failure_atomic_write_texts(
+        candidates,
+        validate_after=validate_after,
+        pre_promote=final_pre_promote_fence,
+    )
+    block = data[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]
+    coverage = data["ds18_time_semantics_coverage"]
+    return {
+        "roles": block["role_count"],
+        "edges": block["edge_count"],
+        "ds18_files": coverage["source_file_count"],
+        "ds18_roots": coverage["root_count"],
+    }
+
+
 def validate_register(
     data: Mapping[str, Any],
     *,
@@ -16172,6 +17545,7 @@ def validate_register(
             expected_date = expected_dates.get(finding_id)
             if expected_date is not None and row.get("decision_date") != expected_date:
                 errors.append(f"supplemental_decision_date_drift:{finding_id}")
+    _validate_ds17_confidence_ledger_risk_spend_surface(data, errors)
     if schema:
         errors.extend(_schema_errors(data, SCHEMA_PATH))
         if any(error.startswith("schema:") for error in errors):
@@ -16799,6 +18173,52 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     missing_negative = copy.deepcopy(data)
     missing_negative["seeded_negative_lifecycle"].pop()
     probes.append(("missing-negative", missing_negative))
+
+    ds17_missing = copy.deepcopy(data)
+    ds17_missing.pop(DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD, None)
+    probes.append(("ds17-confidence-ledger-block-missing", ds17_missing))
+    ds17_block = data.get(DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD)
+    if isinstance(ds17_block, Mapping):
+        ds17_scope_drift = copy.deepcopy(data)
+        ds17_scope_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD][
+            "governed_scope"
+        ]["projection_id"] = "confidence-ledger-adjacent"
+        probes.append(("ds17-confidence-ledger-scope-drift", ds17_scope_drift))
+        for role_id in ("conditional_figure", "exact_twin"):
+            ds17_role_missing = copy.deepcopy(data)
+            block = ds17_role_missing[
+                DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+            ]
+            block["roles"] = [
+                role for role in block["roles"] if role["role_id"] != role_id
+            ]
+            probes.append(
+                (f"ds17-confidence-ledger-role-missing-{role_id}", ds17_role_missing)
+            )
+        ds17_source_drift = copy.deepcopy(data)
+        ds17_source_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]["roles"][0][
+            "source"
+        ]["sha256"] = "sha256:" + "0" * 64
+        probes.append(("ds17-confidence-ledger-source-drift", ds17_source_drift))
+        ds17_evidence_drift = copy.deepcopy(data)
+        ds17_evidence_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]["roles"][0][
+            "behavioral_evidence"
+        ][0]["sha256"] = "sha256:" + "0" * 64
+        probes.append(
+            ("ds17-confidence-ledger-evidence-drift", ds17_evidence_drift)
+        )
+        ds17_edge_drift = copy.deepcopy(data)
+        ds17_edge_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]["edges"][0][
+            "to_role"
+        ] = "panel"
+        probes.append(("ds17-confidence-ledger-edge-drift", ds17_edge_drift))
+        ds17_manifest_drift = copy.deepcopy(data)
+        ds17_manifest_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD][
+            "role_manifest_sha256"
+        ] = "sha256:" + "0" * 64
+        probes.append(
+            ("ds17-confidence-ledger-manifest-drift", ds17_manifest_drift)
+        )
 
     wrong_consumer = copy.deepcopy(data)
     op = next(entry for entry in wrong_consumer["entries"] if entry["unit_id"] in WIRE_OPERATION_RATIONALES)
@@ -17428,6 +18848,66 @@ def _ds9_c07_report_projection(data: Mapping[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _ds17_confidence_ledger_risk_spend_report_projection(
+    block: Mapping[str, Any],
+) -> str:
+    """Render the schema-backed six-role DS17 registration."""
+    scope = block["governed_scope"]
+    closure = block["bounded_closure"]
+    executor = block["executor"]
+    lines = [
+        "### DS17 confidence-ledger risk-spend surface",
+        "",
+        (
+            f"Predicate provenance: `{block['predicate_provenance']}`. "
+            f"Projection: `{scope['projection_id']}` at "
+            f"`{scope['stable_address']}`. Packet/rule versions: "
+            f"`{scope['packet_schema_version']}` / "
+            f"`{scope['projection_rule_version']}`. Protected action: "
+            f"`{scope['protected_action']}`."
+        ),
+        "",
+        (
+            f"Bounded closure: `{closure['scope']}`; global coverage, "
+            "family/sequence, positive promotion, and deployment-wide index "
+            "claims are all `false`. PolicyOS executes the protected action: "
+            f"`{str(executor['policyos_executes_protected_action']).lower()}`; "
+            f"executor ownership: `{executor['ownership']}`."
+        ),
+        "",
+        (
+            f"Role manifest: **{block['role_count']}** rows / "
+            f"`{block['role_manifest_sha256']}`. Edge manifest: "
+            f"**{block['edge_count']}** rows / "
+            f"`{block['edge_manifest_sha256']}`."
+        ),
+        "",
+        "| Role | Symbol | Source | Behavioral evidence |",
+        "| --- | --- | --- | --- |",
+    ]
+    for role in block["roles"]:
+        evidence = ", ".join(
+            f"`{receipt['path']}`" for receipt in role["behavioral_evidence"]
+        )
+        lines.append(
+            f"| `{role['role_id']}` | `{role['symbol']}` | "
+            f"`{role['source']['path']}` | {evidence} |"
+        )
+    lines.extend(
+        [
+            "",
+            "| Edge | From | To | AST relation |",
+            "| --- | --- | --- | --- |",
+        ]
+    )
+    for edge in block["edges"]:
+        lines.append(
+            f"| `{edge['edge_id']}` | `{edge['from_role']}` | "
+            f"`{edge['to_role']}` | `{edge['relation']}` |"
+        )
+    return "\n".join(lines)
+
+
 def _report_projection(data: Mapping[str, Any]) -> str:
     entries = data["entries"]
     censuses = {row["census_id"]: row for row in data["reference_censuses"]}
@@ -17698,6 +19178,10 @@ def _report_projection(data: Mapping[str, Any]) -> str:
     lines.extend(
         [
             "",
+            _ds17_confidence_ledger_risk_spend_report_projection(
+                data[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]
+            ),
+            "",
             _ds9_c07_report_projection(data),
             "",
             _ds8_strangle_report_projection(data["ds8_strangle_coverage"]),
@@ -17885,6 +19369,7 @@ def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
     persistence = data["storage_construction_census"]
     ds8 = data["ds8_strangle_coverage"]
     ds8b = data["ds8b_post_freeze_transition"]
+    ds17 = data[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]
     ds18 = data["ds18_time_semantics_coverage"]
     dispositions = Counter(row["disposition"] for row in ds8["assignments"])
     return {
@@ -17905,6 +19390,8 @@ def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
         "ds8_strangle_family_complete": ds8["family_complete"],
         "ds8b_transition_assignments": len(ds8b["assignments"]),
         "ds8b_transition_complete": ds8b["transition_complete"],
+        "ds17_confidence_ledger_roles": ds17["role_count"],
+        "ds17_confidence_ledger_edges": ds17["edge_count"],
         "ds18_time_semantics_files": ds18["source_file_count"],
         "ds18_time_semantics_roots": ds18["root_count"],
         "ds18_time_semantics_obligated_roots": ds18["obligated_root_count"],
@@ -17977,6 +19464,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="materialize the complete DS18 production file/root reconciliation",
     )
     parser.add_argument(
+        "--write-ds17-confidence-ledger-risk-spend",
+        action="store_true",
+        help="atomically register the DS17 surface and reconcile its DS18 rows",
+    )
+    parser.add_argument(
         "--check-ds18-time-semantics-coverage",
         action="store_true",
         help="recompute only the DS18 file/root denominator and semantic receipts",
@@ -18034,6 +19526,29 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="compare custom architecture JSON against the active debt set",
     )
     args = parser.parse_args(argv)
+
+    if args.write_ds17_confidence_ledger_risk_spend:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {"write_ds17_confidence_ledger_risk_spend"}:
+            sys.stderr.write(
+                "DS17 confidence-ledger writer requires only "
+                "--write-ds17-confidence-ledger-risk-spend\n"
+            )
+            return 1
+        try:
+            summary = _write_ds17_confidence_ledger_risk_spend_family()
+        except (OSError, ValueError, RuntimeError, KeyError) as exc:
+            sys.stderr.write(f"DS17 confidence-ledger writer rejected: {exc}\n")
+            return 1
+        sys.stdout.write(
+            "materialized DS17 confidence-ledger register/report family\n"
+        )
+        sys.stdout.write(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+        return 0
 
     if args.check_ds18_time_semantics_coverage:
         selected = {

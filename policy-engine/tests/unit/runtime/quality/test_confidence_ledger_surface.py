@@ -10,6 +10,7 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.runtime.http.services.confidence_ledger_risk_spend_contracts import (
     SourceBlockedConfidenceLedgerRiskSpendPacket,
@@ -23,7 +24,10 @@ from polisyos.runtime.http.services.confidence_ledger_risk_spend_projection impo
 from polisyos.runtime.quality.confidence_ledger import (
     ConfidenceLedgerRegistry,
     ConfidenceLedgerSemanticReceiptProjection,
+    ConfidenceLedgerSession,
+    ConfidenceRiskBudgetScope,
     load_confidence_ledger_registry,
+    project_confidence_ledger_semantic_receipt,
 )
 from tests.unit.runtime.http.test_confidence_ledger_risk_spend_projection import (
     coherent_over_spend_artifact,
@@ -176,9 +180,7 @@ def _forge_known_incomplete_envelope(envelope):
     payload["witness_refs"] = ("sha256:" + "f" * 64,)
     payload["ttl_state"] = "not_issued_known_incomplete"
     body = {
-        key: value
-        for key, value in payload.items()
-        if key not in {"envelope_hash", "envelope_ref"}
+        key: value for key, value in payload.items() if key not in {"envelope_hash", "envelope_ref"}
     }
     envelope_hash = fingerprint(
         body,
@@ -199,13 +201,9 @@ def _forge_derivation_input(envelope, mutation: str):
     if mutation == "action":
         payload["protected_action_id"] = "protected-action://ds17/attacker-selected"
     elif mutation == "source_ref":
-        payload["source_identities"][1]["source_ref"] = (
-            "semantic-ledger://attacker/self-attested"
-        )
+        payload["source_identities"][1]["source_ref"] = "semantic-ledger://attacker/self-attested"
     else:
-        payload["source_identities"][1]["verifier_ref"] = (
-            "attacker.self_attested.verifier"
-        )
+        payload["source_identities"][1]["verifier_ref"] = "attacker.self_attested.verifier"
     payload["assessment_key"] = fingerprint(
         {
             "rule_version": payload["rule_version"],
@@ -218,9 +216,7 @@ def _forge_derivation_input(envelope, mutation: str):
         canon_spec=CanonSpec(exclude_none=False),
     )
     body = {
-        key: value
-        for key, value in payload.items()
-        if key not in {"envelope_hash", "envelope_ref"}
+        key: value for key, value in payload.items() if key not in {"envelope_hash", "envelope_ref"}
     }
     envelope_hash = fingerprint(
         body,
@@ -241,9 +237,7 @@ def _rebind_projection_to_envelope(payload: object, envelope) -> None:
         if "amount_hash" in payload:
             payload["coverage_envelope_ref"] = envelope.envelope_ref
             payload["coverage_envelope_hash"] = envelope.envelope_hash
-            amount_body = {
-                key: value for key, value in payload.items() if key != "amount_hash"
-            }
+            amount_body = {key: value for key, value in payload.items() if key != "amount_hash"}
             payload["amount_hash"] = fingerprint(
                 amount_body,
                 prefix=True,
@@ -302,9 +296,7 @@ def test_ds17_over_spend_allowset_matches_every_owner_diagnostic(
     with pytest.raises((TypeError, ValueError), match=r"allowset|diagnostic|DS17"):
         validate_over_spend_allowset(
             derived_codes=tuple(
-                code
-                for code in derived
-                if code != "deterministic_real_run_spend_nonzero"
+                code for code in derived if code != "deterministic_real_run_spend_nonzero"
             )
         )
 
@@ -345,8 +337,7 @@ def test_real_projection_has_complete_disjoint_denominators_and_exact_bindings()
     assert len(projection.certificate_routes) == len(registry.certificate_class_routes) == 6
     assert len({row.certificate_class for row in projection.certificate_routes}) == 6
     assert all(
-        row.registry_content_hash == registry.content_hash
-        for row in projection.certificate_routes
+        row.registry_content_hash == registry.content_hash for row in projection.certificate_routes
     )
     assert len(projection.instrument_instances) == len(semantic.checks) == 3
     assert all(row.proof_kernel_id for row in projection.instrument_definitions)
@@ -393,6 +384,113 @@ def test_real_projection_has_complete_disjoint_denominators_and_exact_bindings()
         assert amount.owner_scope_key == semantic.risk_scope.owner_scope_key
         assert amount.coverage_envelope_ref == projection.coverage_envelope_ref
         assert amount.canonical_decimal
+
+
+def test_registry_evolution_projects_source_derived_denominators(
+    tmp_path: Path,
+) -> None:
+    registry = load_confidence_ledger_registry(_REGISTRY)
+    source = copy.deepcopy(registry.source_payload())
+    original_class_order = tuple(
+        obligation for pool in registry.obligation_pools for obligation in pool.obligation_classes
+    )
+
+    multi_class_pool = next(
+        pool for pool in source["obligation_pools"] if len(pool["obligation_classes"]) > 1
+    )
+    pool_classes = tuple(multi_class_pool["obligation_classes"])
+    multi_class_pool["obligation_classes"] = (*pool_classes[1:], pool_classes[0])
+
+    routes = tuple(source["certificate_class_routes"])
+    retired_route = next(
+        route
+        for route in routes
+        if sum(candidate["instrument_id"] == route["instrument_id"] for candidate in routes) > 1
+    )
+    retained_routes = tuple(route for route in routes if route != retired_route)
+    source["certificate_class_routes"] = retained_routes
+    routed_instrument_ids = {route["instrument_id"] for route in retained_routes}
+    instruments = tuple(source["instruments"])
+    retired_instrument = next(
+        instrument
+        for instrument in instruments
+        if instrument["instrument_id"] not in routed_instrument_ids
+        and "promotion_conformance" not in instrument["certificate_roles"]
+    )
+    source["instruments"] = tuple(
+        instrument for instrument in instruments if instrument != retired_instrument
+    )
+    evolved = load_confidence_ledger_registry(source)
+
+    risk_scope = ConfidenceRiskBudgetScope(
+        scope_owner_ref=(
+            "tests.unit.runtime.quality.test_confidence_ledger_surface."
+            "test_registry_evolution_projects_source_derived_denominators"
+        ),
+        authority_purpose="n11_real_n10_n13b_accounting",
+        owner_scope_key="ds17:test:dynamic-registry",
+        owner_projection_hash=evolved.content_hash,
+        epoch_ref=None,
+        model_ref=None,
+        rule_ref="policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
+        schema_ref="policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
+    )
+    session = ConfidenceLedgerSession._for_verification(
+        _ROOT,
+        risk_scope=risk_scope,
+        artifact_store=FileSystemCAS(tmp_path / "cas"),
+        state_root=tmp_path / "state",
+        registry_source=evolved.source_payload(),
+    )
+    semantic = project_confidence_ledger_semantic_receipt(
+        session.receipt(),
+        session=session,
+        projection_scope="n11_real_accounting_append_lineage",
+    )
+    context = _derivation_context()
+    envelope = _coverage().build_coverage_envelope(
+        registry=evolved,
+        semantic_ledger=semantic,
+        derivation_context=context,
+    )
+    projection = _surface().project_confidence_ledger_risk_spend(
+        registry=evolved,
+        semantic_ledger=semantic,
+        derivation_context=context,
+        coverage_envelope=envelope,
+    )
+    admission = _surface().admit_confidence_ledger_risk_spend_projection(
+        projection,
+        registry=evolved,
+        semantic_ledger=semantic,
+        derivation_context=context,
+    )
+
+    evolved_class_order = tuple(
+        obligation for pool in evolved.obligation_pools for obligation in pool.obligation_classes
+    )
+    assert evolved_class_order != original_class_order
+    assert (
+        tuple(row.obligation_class for row in projection.obligation_class_risk_spend)
+        == evolved_class_order
+    )
+    assert len(projection.obligation_class_risk_spend) == len(original_class_order)
+    assert len(projection.instrument_definitions) == len(registry.instruments) - 1
+    assert len(projection.certificate_routes) == len(registry.certificate_class_routes) - 1
+    assert tuple(row.instrument_id for row in projection.instrument_definitions) == tuple(
+        instrument.instrument_id for instrument in evolved.instruments
+    )
+    assert tuple(row.certificate_class for row in projection.certificate_routes) == tuple(
+        route.certificate_class for route in evolved.certificate_class_routes
+    )
+    assert semantic.checks == ()
+    assert projection.instrument_instances == ()
+    assert projection.coverage_assessment.value == "open_world_unresolved"
+    assert projection.registry_content_hash == evolved.content_hash
+    assert semantic.registry_content_hash == evolved.content_hash
+    assert registry.content_hash != evolved.content_hash
+    assert admission.status == "exact"
+    assert admission.projection == projection
 
 
 @pytest.mark.parametrize(
@@ -470,9 +568,7 @@ def test_canonical_decimal_and_projection_nested_envelope_binding() -> None:
             prefix=True,
             canon_spec=CanonSpec(exclude_none=False),
         )
-        projection_body = {
-            key: value for key, value in payload.items() if key != "projection_hash"
-        }
+        projection_body = {key: value for key, value in payload.items() if key != "projection_hash"}
         payload["projection_hash"] = fingerprint(
             projection_body,
             prefix=True,
@@ -509,9 +605,7 @@ def test_complete_certificate_route_denominator_rejects_missing_duplicate_and_sw
     mutations.append(swapped)
 
     for payload in mutations:
-        projection_body = {
-            key: value for key, value in payload.items() if key != "projection_hash"
-        }
+        projection_body = {key: value for key, value in payload.items() if key != "projection_hash"}
         payload["projection_hash"] = fingerprint(
             projection_body,
             prefix=True,
@@ -568,17 +662,13 @@ def test_domain_projection_admission_revalidates_real_semantics_and_hash_identit
     remaining["amount"] = {"numerator": 1, "denominator": 1}
     remaining["rational_display"] = "1/1"
     remaining["canonical_decimal"] = "1"
-    remaining_body = {
-        key: value for key, value in remaining.items() if key != "amount_hash"
-    }
+    remaining_body = {key: value for key, value in remaining.items() if key != "amount_hash"}
     remaining["amount_hash"] = fingerprint(
         remaining_body,
         prefix=True,
         canon_spec=CanonSpec(exclude_none=False),
     )
-    forged_body = {
-        key: value for key, value in forged.items() if key != "projection_hash"
-    }
+    forged_body = {key: value for key, value in forged.items() if key != "projection_hash"}
     forged["projection_hash"] = fingerprint(
         forged_body,
         prefix=True,
@@ -612,9 +702,7 @@ def test_domain_projection_admission_blocks_coherent_recursive_narrowing(
     payload = projection.model_dump(mode="python")
 
     if mutation == "class_denominator":
-        payload["obligation_class_risk_spend"] = payload[
-            "obligation_class_risk_spend"
-        ][:-1]
+        payload["obligation_class_risk_spend"] = payload["obligation_class_risk_spend"][:-1]
     elif mutation == "definition_denominator":
         payload["instrument_definitions"] = payload["instrument_definitions"][:-1]
     elif mutation == "route_denominator":
@@ -651,9 +739,7 @@ def test_domain_projection_admission_blocks_coherent_recursive_narrowing(
                     ref for ref in row["check_refs"] if ref != removed["instance_ref"]
                 )
                 row["instrument_refs"] = tuple(
-                    ref
-                    for ref in row["instrument_refs"]
-                    if ref != removed["instrument_id"]
+                    ref for ref in row["instrument_refs"] if ref != removed["instrument_id"]
                 )
     elif mutation == "reason_slot":
         payload["positive_register"]["blockers"][0]["slot"] = "appointment_posture"
@@ -751,15 +837,9 @@ def test_zero_witness_candidate_cannot_select_owner_derivation_inputs(
     assert blocked.reason.value == "parser_or_schema_failure"
 
     context_update = {
-        "action": {
-            "protected_action_id": "protected-action://ds17/wrong-owner-context"
-        },
-        "source_ref": {
-            "semantic_source_ref": "semantic-ledger://wrong-owner-context"
-        },
-        "source_verifier": {
-            "semantic_source_verifier_ref": "wrong.owner.context.verifier"
-        },
+        "action": {"protected_action_id": "protected-action://ds17/wrong-owner-context"},
+        "source_ref": {"semantic_source_ref": "semantic-ledger://wrong-owner-context"},
+        "source_verifier": {"semantic_source_verifier_ref": "wrong.owner.context.verifier"},
     }[mutation]
     wrong_context = context.model_copy(update=context_update)
     with pytest.raises((TypeError, ValueError), match=r"coverage|derivation|envelope"):
@@ -801,10 +881,7 @@ def test_every_arm_reader_rederives_the_complete_envelope(mutation: str) -> None
     elif mutation == "model_construct":
         candidate = coverage.ObligationCoverageEnvelope.model_construct(
             **{
-                **{
-                    name: getattr(envelope, name)
-                    for name in type(envelope).model_fields
-                },
+                **{name: getattr(envelope, name) for name in type(envelope).model_fields},
                 "assessment": coverage.CoverageAssessment.KNOWN_INCOMPLETE,
             }
         )
@@ -814,9 +891,7 @@ def test_every_arm_reader_rederives_the_complete_envelope(mutation: str) -> None
             payload["authorized_audiences"] = ("reviewer",)
         else:
             payload["may_not_use_for"] = tuple(
-                value
-                for value in payload["may_not_use_for"]
-                if value != "world_completeness"
+                value for value in payload["may_not_use_for"] if value != "world_completeness"
             )
         body = {
             key: value

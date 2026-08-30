@@ -14,49 +14,6 @@ export const CONFIDENCE_LEDGER_DECLARED_SET_RIDER =
 export const CONFIDENCE_LEDGER_LOCALITY_RIDER =
   "Local accounting for this exact confidence scope; no family or sequence-level claim is asserted.";
 
-export const CONFIDENCE_LEDGER_OBLIGATION_ORDER = [
-  "normative",
-  "value",
-  "syntax",
-  "type",
-  "slot",
-  "param",
-  "effect",
-  "identification",
-  "measurement",
-  "calibration",
-  "data",
-  "implementation",
-  "eval_safety",
-  "coupling",
-  "equilibrium",
-] as const satisfies readonly PromotionObligationClass[];
-
-export const CONFIDENCE_LEDGER_INSTRUMENT_ORDER = [
-  "constant_unit_e_process",
-  "owner_verified_confidence_sequence",
-  "owner_verified_e_value",
-  "owner_verified_e_process",
-  "owner_verified_sequential_test",
-  "deterministic_owner_proof",
-  "deterministic_refusal_certificate",
-  "bayesian_credible_interval",
-  "fixed_time_confidence_interval",
-  "causal_sensitivity_e_value",
-  "ddm_online_fdr_controller",
-  "foundry_empirical_confidence_sequence",
-  "split_conformal_interval",
-] as const;
-
-export const CONFIDENCE_LEDGER_ROUTE_ORDER = [
-  "n8_fixed_time_calibration_candidate",
-  "n8_data_trust_promotion_candidate",
-  "owner_acquisition_route",
-  "estimand_binding_refusal",
-  "owner_data_gap",
-  "admission_passport",
-] as const;
-
 type StrictAvailablePacket = Omit<
   AvailableConfidenceLedgerRiskSpendPacket,
   "availability"
@@ -303,6 +260,7 @@ const CONFIDENCE_LEDGER_MAX_RATIONAL_NUMERATOR = 1_000_000_000;
 const CONFIDENCE_LEDGER_MAX_RATIONAL_PERIOD_WORK = 250_000;
 const CONFIDENCE_LEDGER_MAX_EXACT_DECIMAL_CODE_UNITS = 100_032;
 const CONFIDENCE_LEDGER_MAX_RATIONAL_DISPLAY_CODE_UNITS = 32;
+const CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS = 512;
 const rational = z
   .object({
     denominator: z
@@ -323,7 +281,9 @@ const exactDecimalText = z
   .string()
   .min(1)
   .max(CONFIDENCE_LEDGER_MAX_EXACT_DECIMAL_CODE_UNITS);
-const obligationClass = z.enum(CONFIDENCE_LEDGER_OBLIGATION_ORDER);
+const obligationClass = nonEmptyString.transform(
+  (value) => value as PromotionObligationClass,
+);
 const maintainedAssumptions = z.tuple([
   z.literal("obligation_completeness"),
   z.literal("validator_soundness"),
@@ -416,12 +376,10 @@ const coverageEnvelope = z
       z.literal("machine"),
     ]),
     challenge_route_state: z.literal("not_established"),
-    declared_obligation_classes: z.tuple(
-      CONFIDENCE_LEDGER_OBLIGATION_ORDER.map((item) => z.literal(item)) as [
-        z.ZodLiteral<"normative">,
-        ...z.ZodLiteral<PromotionObligationClass>[],
-      ],
-    ),
+    declared_obligation_classes: z
+      .array(obligationClass)
+      .min(1)
+      .max(CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS),
     declared_scope: confidenceRiskScope,
     declared_set_rider: z.literal(CONFIDENCE_LEDGER_DECLARED_SET_RIDER),
     delta: rational,
@@ -516,19 +474,28 @@ const registryRoute = z
 
 const registry = z
   .object({
-    certificate_class_routes: z.array(registryRoute).length(6),
-    instruments: z.array(registryInstrument).length(13),
+    certificate_class_routes: z
+      .array(registryRoute)
+      .max(CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS),
+    instruments: z
+      .array(registryInstrument)
+      .min(1)
+      .max(CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS),
     obligation_pools: z
       .array(
         z
           .object({
-            obligation_classes: z.array(obligationClass).min(1),
+            obligation_classes: z
+              .array(obligationClass)
+              .min(1)
+              .max(CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS),
             pool_id: nonEmptyString,
             weight: rational,
           })
           .strict(),
       )
-      .length(7),
+      .min(1)
+      .max(CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS),
     policy: z
       .object({
         conditionality_clause: nonEmptyString,
@@ -805,9 +772,16 @@ const payload = z
     acquisition_instance_refs: z.array(nonEmptyString),
     appointment_posture: z.literal("institutional_authority_unappointed"),
     budget_posture: z.enum(["within_budget", "over_spend"]),
-    certificate_route_denominator_count: z.literal(6),
+    certificate_route_denominator_count: z
+      .number()
+      .int()
+      .nonnegative()
+      .max(CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS)
+      .refine(Number.isSafeInteger),
     certificate_route_denominator_hash: hash,
-    certificate_routes: z.array(certificateRouteRow).length(6),
+    certificate_routes: z
+      .array(certificateRouteRow)
+      .max(CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS),
     conformance_instance_refs: z.array(nonEmptyString),
     coverage_assessment: z.enum(["known_incomplete", "open_world_unresolved"]),
     coverage_envelope: coverageEnvelope,
@@ -831,9 +805,15 @@ const payload = z
         .strict(),
     ),
     instrument_blockers: z.array(instrumentBlocker),
-    instrument_definitions: z.array(instrumentDefinitionRow).length(13),
+    instrument_definitions: z
+      .array(instrumentDefinitionRow)
+      .min(1)
+      .max(CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS),
     instrument_instances: z.array(instrumentInstanceRow),
-    obligation_class_risk_spend: z.array(classSpendRow).length(15),
+    obligation_class_risk_spend: z
+      .array(classSpendRow)
+      .min(1)
+      .max(CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS),
     owner_scope_key: nonEmptyString,
     positive_register: positiveRegister,
     projection_hash: hash,
@@ -1994,14 +1974,32 @@ async function verifyAvailable(packet: StrictAvailablePacket): Promise<void> {
   const flattenedClasses = body.registry_basis.obligation_pools.flatMap(
     (pool) => pool.obligation_classes,
   );
+  uniqueMap(
+    body.registry_basis.obligation_pools,
+    (pool) => pool.pool_id,
+    "obligation pool",
+  );
+  uniqueMap(
+    flattenedClasses,
+    (obligation) => obligation,
+    "obligation denominator",
+  );
+  const obligationDenominator = new Set(flattenedClasses);
   assertCondition(
-    canonicalJson(flattenedClasses) ===
-      canonicalJson(CONFIDENCE_LEDGER_OBLIGATION_ORDER) &&
-      canonicalJson(body.coverage_envelope.declared_obligation_classes) ===
-        canonicalJson(CONFIDENCE_LEDGER_OBLIGATION_ORDER) &&
+    body.registry_basis.certificate_class_routes.every((route) =>
+      obligationDenominator.has(route.obligation_class),
+    ) &&
+      body.semantic_ledger_basis.checks.every((check) =>
+        obligationDenominator.has(check.obligation_class),
+      ),
+    "obligation class is outside the owner registry denominator",
+  );
+  assertCondition(
+    canonicalJson(body.coverage_envelope.declared_obligation_classes) ===
+      canonicalJson(flattenedClasses) &&
       canonicalJson(
         body.obligation_class_risk_spend.map((row) => row.obligation_class),
-      ) === canonicalJson(CONFIDENCE_LEDGER_OBLIGATION_ORDER),
+      ) === canonicalJson(flattenedClasses),
     "obligation denominator order mismatch",
   );
   const poolWeight = body.registry_basis.obligation_pools.reduce(
@@ -2040,22 +2038,27 @@ async function verifyAvailable(packet: StrictAvailablePacket): Promise<void> {
   const registryInstrumentIds = body.registry_basis.instruments.map(
     (row) => row.instrument_id,
   );
+  uniqueMap(
+    body.instrument_definitions,
+    (row) => row.instrument_id,
+    "projected instrument denominator",
+  );
   assertCondition(
-    canonicalJson(definitionIds) ===
-      canonicalJson(CONFIDENCE_LEDGER_INSTRUMENT_ORDER) &&
-      canonicalJson(registryInstrumentIds) ===
-        canonicalJson(CONFIDENCE_LEDGER_INSTRUMENT_ORDER),
+    canonicalJson(definitionIds) === canonicalJson(registryInstrumentIds),
     "instrument denominator order mismatch",
   );
   const routeIds = body.certificate_routes.map((row) => row.certificate_class);
   const registryRouteIds = body.registry_basis.certificate_class_routes.map(
     (row) => row.certificate_class,
   );
+  uniqueMap(
+    body.certificate_routes,
+    (row) => row.certificate_class,
+    "projected certificate route denominator",
+  );
   assertCondition(
-    canonicalJson(routeIds) === canonicalJson(CONFIDENCE_LEDGER_ROUTE_ORDER) &&
-      canonicalJson(registryRouteIds) ===
-        canonicalJson(CONFIDENCE_LEDGER_ROUTE_ORDER) &&
-      body.certificate_route_denominator_count === routeIds.length,
+    canonicalJson(routeIds) === canonicalJson(registryRouteIds) &&
+      body.certificate_route_denominator_count === registryRouteIds.length,
     "certificate route denominator order mismatch",
   );
   assertCondition(
@@ -2376,7 +2379,6 @@ export type ConfidenceLedgerCapturedResponseBytes = Readonly<{
 const CONFIDENCE_LEDGER_MAX_RESPONSE_BYTES = 262_144;
 const CONFIDENCE_LEDGER_MAX_JSON_NODES = 32_768;
 const CONFIDENCE_LEDGER_MAX_JSON_TEXT_CODE_UNITS = 262_144;
-const CONFIDENCE_LEDGER_MAX_COLLECTION_ITEMS = 512;
 const CONFIDENCE_LEDGER_MAX_OBJECT_FIELDS = 256;
 const CONFIDENCE_LEDGER_MAX_JSON_DEPTH = 64;
 const CONFIDENCE_LEDGER_SCHEMA_WORK_BOUND = 16 * 1024;

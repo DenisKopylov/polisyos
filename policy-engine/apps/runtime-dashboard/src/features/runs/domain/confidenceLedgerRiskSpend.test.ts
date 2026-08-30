@@ -222,6 +222,259 @@ async function refreshSemanticOwnerHashes(
   await refreshEnvelopeAndAmountHashes(packet);
 }
 
+async function refreshConsumerSelfBoundRegistryHashes(
+  packet: AvailableConfidenceLedgerRiskSpendPacket,
+): Promise<void> {
+  const body = packet.payload;
+  const registryContentHash = await fingerprint(body.registry_basis);
+  const registryProjectionHash = await fingerprint({
+    fixture_kind: "consumer_self_bound_registry_projection",
+    registry_basis: body.registry_basis,
+    registry_content_hash: registryContentHash,
+  });
+  body.registry_content_hash = registryContentHash;
+  packet.registry_content_hash = registryContentHash;
+  packet.registry_projection_hash = registryProjectionHash;
+  packet.source.validation.registry_content_hash = registryContentHash;
+  packet.source.validation.registry_projection_hash = registryProjectionHash;
+  body.coverage_envelope.source_identities[0].content_hash =
+    registryContentHash;
+  body.source_provenance[0].content_hash = registryContentHash;
+
+  for (const route of body.certificate_routes) {
+    route.registry_content_hash = registryContentHash;
+    const routeBody = structuredClone(route) as unknown as Record<
+      string,
+      unknown
+    >;
+    Reflect.deleteProperty(routeBody, "route_binding_hash");
+    route.route_binding_hash = await fingerprint(routeBody);
+  }
+  body.certificate_route_denominator_hash = await fingerprint(
+    body.certificate_routes.map((route) => route.route_binding_hash),
+  );
+
+  const semantic = body.semantic_ledger_basis;
+  semantic.registry_content_hash = registryContentHash;
+  semantic.root_projection_hash = await fingerprint({
+    authority_provenance: semantic.authority_provenance,
+    budget_delta: semantic.budget_delta,
+    budget_delta_decimal: semantic.budget_delta_decimal,
+    conditionality_clause: semantic.conditionality_clause,
+    deployment_identity: semantic.deployment_identity,
+    maintained_assumptions: semantic.maintained_assumptions,
+    projection_scope: semantic.projection_scope,
+    registry_content_hash: semantic.registry_content_hash,
+    risk_scope: semantic.risk_scope,
+    schedule_profile_hash: semantic.schedule_profile_hash,
+    schedule_profile_id: semantic.schedule_profile_id,
+    schedule_projection_hash: semantic.schedule_projection_hash,
+    schema_version: semantic.schema_version,
+    scope_anchor_ref: semantic.scope_anchor_ref,
+    scope_id: semantic.scope_id,
+  });
+
+  let head = semantic.root_projection_hash;
+  const filtrationByRequest = new Map<string, string>();
+  const currentChecks = new Map<
+    string,
+    (typeof semantic.events)[number]["check"]
+  >();
+  for (const event of semantic.events) {
+    const check = event.check;
+    check.registry_content_hash = registryContentHash;
+    if (
+      event.event_type === "prepared" ||
+      (!filtrationByRequest.has(check.request_key) &&
+        check.outcome === "preflight_refusal")
+    ) {
+      filtrationByRequest.set(check.request_key, head);
+    }
+    const filtrationProjectionHash = filtrationByRequest.get(check.request_key);
+    if (filtrationProjectionHash === undefined) {
+      throw new Error("consumer fixture lacks a semantic preparation event");
+    }
+    check.filtration_projection_hash = filtrationProjectionHash;
+    check.claim_execution_projection_hash = await fingerprint({
+      certificate_role: check.certificate_role,
+      claim_polarity: check.claim_polarity,
+      claim_ref: check.claim_ref,
+      claim_scope_ref: check.claim_scope_ref,
+      data_window_ref: check.data_window_ref,
+      execution_id: check.execution_id,
+      execution_ordinal: check.execution_ordinal,
+      filtration_projection_hash: check.filtration_projection_hash,
+      instrument_definition_hash: check.instrument_definition_hash,
+      null_ref: check.null_ref,
+      proof_profile_hash: check.proof_profile_hash,
+      registry_content_hash: check.registry_content_hash,
+      request_fingerprint: check.request_fingerprint,
+      reserved_alpha: check.spend,
+      schedule_query_index: check.schedule_query_index,
+      scope_id: check.scope_id,
+    });
+    const checkBody = structuredClone(check) as unknown as Record<
+      string,
+      unknown
+    >;
+    Reflect.deleteProperty(checkBody, "check_projection_hash");
+    check.check_projection_hash = await fingerprint(checkBody);
+
+    event.parent_event_projection_hash = head;
+    const eventBody = structuredClone(event) as unknown as Record<
+      string,
+      unknown
+    >;
+    Reflect.deleteProperty(eventBody, "event_projection_hash");
+    event.event_projection_hash = await fingerprint(eventBody);
+    head = event.event_projection_hash;
+    currentChecks.set(check.request_key, structuredClone(check));
+  }
+  semantic.head_event_projection_hash = head;
+  semantic.checks = [...currentChecks]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([, check]) => check);
+
+  const declaredClassesHash = await fingerprint(
+    body.coverage_envelope.declared_obligation_classes,
+  );
+  for (const amount of conditionalAmounts(packet)) {
+    amount.declared_obligation_classes_hash = declaredClassesHash;
+  }
+  await refreshSemanticOwnerHashes(packet);
+
+  const declaredContentHash = await fingerprint({
+    fixture_kind: "consumer_self_bound_declared_content",
+    projection_hash: body.projection_hash,
+    registry_projection_hash: registryProjectionHash,
+  });
+  const artifactContentHash = await fingerprint({
+    declared_content_hash: declaredContentHash,
+    fixture_kind: "consumer_self_bound_artifact",
+    source_projection_hash: body.source_projection_hash,
+  });
+  const dependencyHash = await fingerprint({
+    artifact_content_hash: artifactContentHash,
+    fixture_kind: "consumer_self_bound_dependency_receipt",
+    registry_projection_hash: registryProjectionHash,
+  });
+  const workerReceiptHash = await fingerprint({
+    artifact_content_hash: artifactContentHash,
+    dependency_hash: dependencyHash,
+    fixture_kind: "consumer_self_bound_worker_receipt",
+    registry_content_hash: registryContentHash,
+    semantic_projection_hash: semantic.projection_hash,
+    status: "passed",
+  });
+  packet.source.declared_content_hash = declaredContentHash;
+  packet.source.artifact_content_hash = artifactContentHash;
+  packet.source.validation.bound_artifact_content_hash = artifactContentHash;
+  packet.source.validation.bound_dependency_aggregate_identity = dependencyHash;
+  packet.source.validation.worker_validation_receipt_hash = workerReceiptHash;
+  packet.source_dependency_hash = dependencyHash;
+  packet.worker_validation_receipt_hash = workerReceiptHash;
+  packet.worker_validation_receipt_ref = `owner-validation:${workerReceiptHash}`;
+  packet.replay_pins.artifact_content_hash = artifactContentHash;
+  packet.replay_pins.source_dependency_hash = dependencyHash;
+  await refreshSelfHashes(packet);
+}
+
+function rotateFirstTwo(values: unknown[]): void {
+  if (values.length < 2) throw new Error("owner order cannot be rotated");
+  [values[0], values[1]] = [values[1], values[0]];
+}
+
+async function evolveConsumerSelfBoundOwnerInventory(
+  packet: AvailableConfidenceLedgerRiskSpendPacket,
+): Promise<void> {
+  const body = packet.payload;
+  const classPool = body.registry_basis.obligation_pools.find(
+    (pool) => pool.obligation_classes.length > 1,
+  );
+  if (classPool === undefined) {
+    throw new Error("owner registry has no multi-class obligation pool");
+  }
+  rotateFirstTwo(classPool.obligation_classes);
+  const obligationOrder = body.registry_basis.obligation_pools.flatMap(
+    (pool) => pool.obligation_classes,
+  );
+  body.coverage_envelope.declared_obligation_classes = [...obligationOrder];
+  const classRows = new Map(
+    body.obligation_class_risk_spend.map((row) => [row.obligation_class, row]),
+  );
+  body.obligation_class_risk_spend = obligationOrder.map((obligationClass) => {
+    const row = classRows.get(obligationClass);
+    if (row === undefined) throw new Error("owner class row is missing");
+    return row;
+  });
+
+  const usedCertificateClasses = new Set(
+    body.semantic_ledger_basis.checks.flatMap((check) =>
+      check.certificate_class === null ? [] : [check.certificate_class],
+    ),
+  );
+  const retiredRoute = body.registry_basis.certificate_class_routes.find(
+    (route) => !usedCertificateClasses.has(route.certificate_class),
+  );
+  if (retiredRoute === undefined) {
+    throw new Error("owner registry has no unused certificate route");
+  }
+  body.registry_basis.certificate_class_routes =
+    body.registry_basis.certificate_class_routes.filter(
+      (route) => route.certificate_class !== retiredRoute.certificate_class,
+    );
+  body.certificate_routes = body.certificate_routes.filter(
+    (route) => route.certificate_class !== retiredRoute.certificate_class,
+  );
+  rotateFirstTwo(body.registry_basis.certificate_class_routes);
+  const routes = new Map(
+    body.certificate_routes.map((row) => [row.certificate_class, row]),
+  );
+  body.certificate_routes = body.registry_basis.certificate_class_routes.map(
+    (route) => {
+      const row = routes.get(route.certificate_class);
+      if (row === undefined) throw new Error("owner route row is missing");
+      return row;
+    },
+  );
+  body.certificate_route_denominator_count = body.certificate_routes.length;
+
+  const usedInstrumentIds = new Set([
+    ...body.semantic_ledger_basis.checks.map((check) => check.instrument_id),
+    ...body.registry_basis.certificate_class_routes.map(
+      (route) => route.instrument_id,
+    ),
+  ]);
+  const retiredInstrument = body.registry_basis.instruments.find(
+    (instrument) =>
+      !usedInstrumentIds.has(instrument.instrument_id) &&
+      !instrument.certificate_roles.includes("promotion_conformance"),
+  );
+  if (retiredInstrument === undefined) {
+    throw new Error("owner registry has no unused non-conformance instrument");
+  }
+  body.registry_basis.instruments = body.registry_basis.instruments.filter(
+    (instrument) =>
+      instrument.instrument_id !== retiredInstrument.instrument_id,
+  );
+  body.instrument_definitions = body.instrument_definitions.filter(
+    (instrument) =>
+      instrument.instrument_id !== retiredInstrument.instrument_id,
+  );
+  rotateFirstTwo(body.registry_basis.instruments);
+  const definitions = new Map(
+    body.instrument_definitions.map((row) => [row.instrument_id, row]),
+  );
+  body.instrument_definitions = body.registry_basis.instruments.map(
+    (instrument) => {
+      const row = definitions.get(instrument.instrument_id);
+      if (row === undefined) throw new Error("owner instrument row is missing");
+      return row;
+    },
+  );
+  await refreshConsumerSelfBoundRegistryHashes(packet);
+}
+
 async function refreshAmountHash(
   amount: AvailableConfidenceLedgerRiskSpendPacket["payload"]["total_spend"],
   envelopeHash: string,
@@ -234,6 +487,26 @@ async function refreshAmountHash(
   >;
   Reflect.deleteProperty(amountBody, "amount_hash");
   amount.amount_hash = await fingerprint(amountBody);
+}
+
+function conditionalAmounts(
+  packet: AvailableConfidenceLedgerRiskSpendPacket,
+): Array<AvailableConfidenceLedgerRiskSpendPacket["payload"]["total_spend"]> {
+  return [
+    packet.payload.total_spend,
+    packet.payload.scope_total_risk_spend.allocation,
+    packet.payload.scope_total_risk_spend.spent,
+    packet.payload.scope_total_risk_spend.remaining,
+    packet.payload.scope_total_risk_spend.overspend_amount,
+    ...packet.payload.obligation_class_risk_spend.flatMap((row) => [
+      row.allocation,
+      row.spent,
+      row.remaining,
+      row.overspend_amount,
+    ]),
+    ...packet.payload.grouped_spend.map((row) => row.spend),
+    ...packet.payload.instrument_instances.map((row) => row.spend),
+  ];
 }
 
 async function refreshEnvelopeAndAmountHashes(
@@ -258,23 +531,10 @@ async function refreshEnvelopeAndAmountHashes(
   envelope.envelope_ref = `coverage-envelope:${envelope.envelope_hash}`;
   packet.payload.coverage_envelope_ref = envelope.envelope_ref;
 
-  const amounts = [
-    packet.payload.total_spend,
-    packet.payload.scope_total_risk_spend.allocation,
-    packet.payload.scope_total_risk_spend.spent,
-    packet.payload.scope_total_risk_spend.remaining,
-    packet.payload.scope_total_risk_spend.overspend_amount,
-    ...packet.payload.obligation_class_risk_spend.flatMap((row) => [
-      row.allocation,
-      row.spent,
-      row.remaining,
-      row.overspend_amount,
-    ]),
-    ...packet.payload.grouped_spend.map((row) => row.spend),
-    ...packet.payload.instrument_instances.map((row) => row.spend),
-  ];
   await Promise.all(
-    amounts.map((amount) => refreshAmountHash(amount, envelope.envelope_hash)),
+    conditionalAmounts(packet).map((amount) =>
+      refreshAmountHash(amount, envelope.envelope_hash),
+    ),
   );
   await refreshSelfHashes(packet);
 }
@@ -457,6 +717,88 @@ describe("confidence-ledger risk-spend strict admission", () => {
     ]);
   });
 
+  it("admits a consumer-self-bound owner evolution without a UI-owned denominator", async () => {
+    const baseline = availablePacket();
+    const evolved = availablePacket();
+    await evolveConsumerSelfBoundOwnerInventory(evolved);
+    const rawOwnerMutation = availablePacket();
+    rawOwnerMutation.payload.registry_basis = structuredClone(
+      evolved.payload.registry_basis,
+    );
+
+    await expect(
+      admitConfidenceLedgerRiskSpendPacket(rawOwnerMutation),
+    ).rejects.toThrow(/contract_error/iu);
+
+    const baselineClasses =
+      baseline.payload.registry_basis.obligation_pools.flatMap(
+        (pool) => pool.obligation_classes,
+      );
+    const evolvedClasses =
+      evolved.payload.registry_basis.obligation_pools.flatMap(
+        (pool) => pool.obligation_classes,
+      );
+    expect(new Set(evolvedClasses)).toEqual(new Set(baselineClasses));
+    expect(evolvedClasses).not.toEqual(baselineClasses);
+
+    const baselineInstrumentIds =
+      baseline.payload.registry_basis.instruments.map(
+        (instrument) => instrument.instrument_id,
+      );
+    const evolvedInstrumentIds = evolved.payload.registry_basis.instruments.map(
+      (instrument) => instrument.instrument_id,
+    );
+    expect(evolvedInstrumentIds).toHaveLength(baselineInstrumentIds.length - 1);
+    expect(evolvedInstrumentIds).not.toEqual(
+      baselineInstrumentIds.filter((instrumentId) =>
+        evolvedInstrumentIds.includes(instrumentId),
+      ),
+    );
+
+    const baselineRouteIds =
+      baseline.payload.registry_basis.certificate_class_routes.map(
+        (route) => route.certificate_class,
+      );
+    const evolvedRouteIds =
+      evolved.payload.registry_basis.certificate_class_routes.map(
+        (route) => route.certificate_class,
+      );
+    expect(evolvedRouteIds).toHaveLength(baselineRouteIds.length - 1);
+    expect(evolvedRouteIds).not.toEqual(
+      baselineRouteIds.filter((routeId) => evolvedRouteIds.includes(routeId)),
+    );
+
+    expect(evolved.source.artifact_content_hash).not.toBe(
+      baseline.source.artifact_content_hash,
+    );
+    expect(evolved.source_dependency_hash).not.toBe(
+      baseline.source_dependency_hash,
+    );
+    expect(evolved.worker_validation_receipt_hash).not.toBe(
+      baseline.worker_validation_receipt_hash,
+    );
+    expect(evolved.registry_projection_hash).not.toBe(
+      baseline.registry_projection_hash,
+    );
+    expect(evolved.source.validation).toMatchObject({
+      bound_artifact_content_hash: evolved.source.artifact_content_hash,
+      bound_dependency_aggregate_identity: evolved.source_dependency_hash,
+      issue_codes: [],
+      registry_content_hash: evolved.registry_content_hash,
+      registry_projection_hash: evolved.registry_projection_hash,
+      source_payload_equal: true,
+      status: "passed",
+      worker_validation_receipt_hash: evolved.worker_validation_receipt_hash,
+    });
+    expect(evolved.payload.registry_content_hash).toBe(
+      evolved.registry_content_hash,
+    );
+
+    await expect(
+      admitConfidenceLedgerRiskSpendPacket(evolved),
+    ).resolves.toEqual(evolved);
+  });
+
   it("strictly admits each distinct non-available transport arm", async () => {
     const available = availablePacket();
     const blocked = {
@@ -575,27 +917,6 @@ describe("confidence-ledger risk-spend strict admission", () => {
       },
     ],
     [
-      "a reordered obligation denominator",
-      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
-        const rows = packet.payload.obligation_class_risk_spend;
-        [rows[0], rows[1]] = [rows[1], rows[0]];
-      },
-    ],
-    [
-      "a reordered instrument denominator",
-      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
-        const rows = packet.payload.instrument_definitions;
-        [rows[0], rows[1]] = [rows[1], rows[0]];
-      },
-    ],
-    [
-      "a reordered route denominator",
-      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
-        const rows = packet.payload.certificate_routes;
-        [rows[0], rows[1]] = [rows[1], rows[0]];
-      },
-    ],
-    [
       "a missing valid-zero positive register",
       (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
         Reflect.deleteProperty(packet.payload, "positive_register");
@@ -614,6 +935,91 @@ describe("confidence-ledger risk-spend strict admission", () => {
 
     await expect(admitConfidenceLedgerRiskSpendPacket(packet)).rejects.toThrow(
       /contract_error/iu,
+    );
+  });
+
+  it.each([
+    [
+      "removed obligation row",
+      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
+        packet.payload.obligation_class_risk_spend.pop();
+      },
+    ],
+    [
+      "reordered obligation rows",
+      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
+        const rows = packet.payload.obligation_class_risk_spend;
+        [rows[0], rows[1]] = [rows[1], rows[0]];
+      },
+    ],
+    [
+      "duplicated obligation row",
+      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
+        const rows = packet.payload.obligation_class_risk_spend;
+        rows[rows.length - 1] = structuredClone(rows[0]);
+      },
+    ],
+    [
+      "removed instrument definition",
+      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
+        packet.payload.instrument_definitions.pop();
+      },
+    ],
+    [
+      "reordered instrument definitions",
+      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
+        const rows = packet.payload.instrument_definitions;
+        [rows[0], rows[1]] = [rows[1], rows[0]];
+      },
+    ],
+    [
+      "duplicated instrument definition",
+      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
+        const rows = packet.payload.instrument_definitions;
+        rows[rows.length - 1] = structuredClone(rows[0]);
+      },
+    ],
+    [
+      "removed certificate route",
+      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
+        packet.payload.certificate_routes.pop();
+      },
+    ],
+    [
+      "reordered certificate routes",
+      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
+        const rows = packet.payload.certificate_routes;
+        [rows[0], rows[1]] = [rows[1], rows[0]];
+      },
+    ],
+    [
+      "duplicated certificate route",
+      (packet: AvailableConfidenceLedgerRiskSpendPacket) => {
+        const rows = packet.payload.certificate_routes;
+        rows[rows.length - 1] = structuredClone(rows[0]);
+      },
+    ],
+  ])("rejects a one-sided %s", async (_label, mutate) => {
+    const packet = availablePacket();
+    mutate(packet);
+
+    await expect(admitConfidenceLedgerRiskSpendPacket(packet)).rejects.toThrow(
+      /contract_error.*denominator/iu,
+    );
+  });
+
+  it("rejects a zero-spend semantic class outside the owner registry denominator", async () => {
+    const packet = availablePacket();
+    const zeroSpendCheck = packet.payload.semantic_ledger_basis.checks.find(
+      (check) => check.spend.numerator === 0,
+    );
+    if (zeroSpendCheck === undefined) {
+      throw new Error("fixture has no zero-spend semantic check");
+    }
+    zeroSpendCheck.obligation_class = "__unknown_obligation_class__" as never;
+
+    await expect(admitConfidenceLedgerRiskSpendPacket(packet)).rejects.toThrow(
+      /contract_error.*outside the owner registry denominator/iu,
     );
   });
 

@@ -87,6 +87,16 @@ P38 divergence:
 
 Append each command once, with exact argv, semantic predicate, exit code, and relevant counts. Do not bundle one exit code across predicates.
 
+### Task 1 reviewer correction
+
+The required stale-caller Claim Ledger signal was run after review:
+
+```bash
+uv run --frozen --extra test -m pytest -q tests/unit/scientist/orchestration/orchestrator/test_decision_grade_compiler.py::test_stale_caller_ledger_cannot_bypass_current_head_public_export
+```
+
+Result: exit `0`; pytest output was `.                                                                        [100%]`.
+
 ## Commit receipts
 
 Before every commit record `git symbolic-ref -q HEAD`, expected old `HEAD`, staged paths, commit ID, tree ID, and post-commit readback.

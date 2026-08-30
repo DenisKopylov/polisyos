@@ -106,7 +106,7 @@ not borrowed into a disposition cell:
 - a **verification result** (`satisfied`, `satisfied with gap`, `partially closed`, `not closed`) is
   the verifier's, written in the verification report.
 
-In wave 5 two of five packages used a token from outside the closed set in an amendment ledger, and
+Wave-5 route `W5-P01`. In wave 5 two of five packages used a token from outside the closed set in an amendment ledger, and
 the consolidator had to normalize it — a normalization it then had to declare as its own act rather
 than as the verifier's mapping.
 
@@ -131,7 +131,7 @@ Binding rules:
   environmental limit was graded blocking in one package and a material gap in another, and the
   difference was justified only in one of the two cases.
 - **A verdict is a vector, not a bit** (`PV-K01`). Report which dimension failed.
-- **Grade the delivery disclosure separately from the work**, as
+- **Grade the delivery disclosure separately from the work** (wave-5 route `W5-P02`), as
   `disclosure_accuracy ∈ matches_branch · inaccurate · not_established`. A hand-back message is a
   claim about what landed and is checkable against the branch like any other. In wave 5 only two of
   five terminal hand-backs were branch-assessable at all, and one of those two was inaccurate; the

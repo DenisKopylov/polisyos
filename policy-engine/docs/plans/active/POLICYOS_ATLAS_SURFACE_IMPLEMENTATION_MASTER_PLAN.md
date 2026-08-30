@@ -4,7 +4,7 @@ status: ACTIVE - Revision 3 grounded in Phase-A measured reality; activation sat
 owner: team-design
 runtime_co_owner: team-architecture  # producers, bridges, and authz enforcement land in runtime code; named per task plan
 created: 2026-06-10
-revised: 2026-08-29 (Revision 3.38 - DS15 CLOSED & MERGED `2c8e1c03c`, the first landing slice judged under DS18's armed freeze. 42/42 mechanism paths, 11/11 widening rounds, 25/25 closure criteria, eight declared non-closures registered; register denominator 130 -> 138. THE FREEZE PAID FOR ITSELF ON ITS FIRST CONSUMER: eleven new production files arrived outside the frozen 605 and the register named them under `landing_slice_reconciliation_required` instead of as an anonymous denominator drift, which is exactly what arming it during the DS18 reopening was for. All eleven classified from rendered behaviour, none left unknown, none needing an owner ruling. Census 605 -> 616 files, 719 -> 733 roots, obligated 77 -> 94 as 45 direct + 49 inherited, all covered - verified at merge by two independent derivations with zero digest mismatches across all 616, and DS18's frozen evidence untouched wherever DS15's own edits did not move it. Atlas suite 36 -> 35, zero branch-only. MY THIRD INSTRUCTION ERROR OF THE ROUND, and the agent caught it: I told the lane to work from a branch rebuilt onto current main while reserving the integration conflicts for myself and forbidding an inward merge. It refused to resolve the contradiction, stopped before touching a file and handed back an exact graph readback. That is the behaviour I want and it is the second time this month a correct stop cost a round that a wrong guess would have cost a merge. Standing pattern now four for four across this wave: where my orientation and a package disagreed, the package was right. Both frontend lanes are now closed; DS17 remains written and unstarted.)
+revised: 2026-08-30 (Revision 3.39 - THE WAVE-5 ROUTING PASS. Four routes land here and two gates are corrected, both corrections found by measurement rather than review. DS12's gate CONFLATED THE CAPABILITY TO PUBLISH WITH THE AUTHORITY TO PUBLISH and therefore sat one band too low: under the identity decision §9 item 5 an institutional absence binds the claim and never the capability, so the gate is now split three ways - the whole signing/verification/public-bar mechanism is buildable NOW with the promoted-record slot typed and empty; a real promoted record waits on GY-PR1, which is ENGINEERING [three of fifteen obligations in promotion_sequence.py return scope_insufficient unconditionally, so consumer_promotable=True is unreachable in production]; and the signers gate the signature on a record, never the surface. Every other conjunct of the original gate is already met - DS11 closed and merged, GY-N9/N11/N12 executed, INT-R1/R7/R8/R9 delivered and ratified. DS14's gate was MISNAMED: it said 'Phase-6 O-block' but the O-block is the deployed-policy learning loop and the bounded agent is GY-I, which the 2026-08-30 GY census measured as executed on PromptToolParserAuthorityLedger across 5 src files - a task that until that census had NO STANDING ROW AT ALL. So DS14 is not blocked on Phase 6; its real gate is GY-I and DS9, both met. DS15 gains a successor input for the non-data-gap crosswalk [W5-R2-Q12] whose producer is GY-VC1. DS12 gains the three surface-semantics routes [W5-R3-Q04, W5-R4-Q12, W5-O5-Q12] bound by ratified W5-K02/K03/K04/K06: no public copy may imply a reader understood, an unresolved or compound diagnosis renders as unresolved and never as a settled cause, and a protective action never reads as causal confirmation. No slice is closed or reopened by this pass and no in-flight lane is touched.) | Revision 3.38 - DS15 CLOSED & MERGED `2c8e1c03c`, the first landing slice judged under DS18's armed freeze. 42/42 mechanism paths, 11/11 widening rounds, 25/25 closure criteria, eight declared non-closures registered; register denominator 130 -> 138. THE FREEZE PAID FOR ITSELF ON ITS FIRST CONSUMER: eleven new production files arrived outside the frozen 605 and the register named them under `landing_slice_reconciliation_required` instead of as an anonymous denominator drift, which is exactly what arming it during the DS18 reopening was for. All eleven classified from rendered behaviour, none left unknown, none needing an owner ruling. Census 605 -> 616 files, 719 -> 733 roots, obligated 77 -> 94 as 45 direct + 49 inherited, all covered - verified at merge by two independent derivations with zero digest mismatches across all 616, and DS18's frozen evidence untouched wherever DS15's own edits did not move it. Atlas suite 36 -> 35, zero branch-only. MY THIRD INSTRUCTION ERROR OF THE ROUND, and the agent caught it: I told the lane to work from a branch rebuilt onto current main while reserving the integration conflicts for myself and forbidding an inward merge. It refused to resolve the contradiction, stopped before touching a file and handed back an exact graph readback. That is the behaviour I want and it is the second time this month a correct stop cost a round that a wrong guess would have cost a merge. Standing pattern now four for four across this wave: where my orientation and a package disagreed, the package was right. Both frontend lanes are now closed; DS17 remains written and unstarted.)
 last_reviewed: 2026-07-20
 surface_constitution: ../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
 atlas_source_of_truth: ../../brand/ATLAS_SOURCE_OF_TRUTH.md
@@ -67,6 +67,18 @@ producers and bridges is in-slice work, never an external dependency to wait
 on.
 
 ## Read This Before Anything Else
+
+**Governing decisions this plan is bound by (link added 2026-08-30).** Beyond the surface
+constitution, three records govern what any surface here may *say*:
+[`wave5-evidence-substitution-ratification.md`](../../system-design-decisions/wave5-evidence-substitution-ratification.md)
+(`W5-K01`–`W5-K06` — what one kind of evidence may not stand in for; `W5-K02` and `W5-K06` bind
+public and reviewer copy directly),
+[`withheld-propositions-register.md`](../../system-design-decisions/withheld-propositions-register.md)
+(propositions researched and deliberately not bound, with the task row carrying each engineering
+half), and
+[`policyos-identity-and-custody-boundary.md`](../../system-design-decisions/policyos-identity-and-custody-boundary.md)
+**§9 item 5** — an institutional absence binds the claim, never the capability, which is why the
+DS12 gate is now split three ways rather than held whole.
 
 **Revision 2 (2026-07-16) — this IS the re-derivation.** The Layer-3 closeout
 the original draft waited for has happened, under GY naming: the **GY-N
@@ -1666,6 +1678,31 @@ Loosening the ratified posture is out of scope for every slice.
   the runtime never forces this milestone; the public surface waits honestly. Before it,
   the public-facing story is DS11 posture + the Cycle Board's public-safe projection
   (honest status, not recommendations).
+- **Gate restated 2026-08-30, because as written it sat one band too low.** The clause above
+  conflates two different things: the **capability to publish** and the **authority to publish a
+  real promoted record**. Under the ratified identity decision §9 item 5, an institutional absence
+  binds the claim and never the capability, so the two must be gated separately:
+  - **Buildable now, gated on nothing institutional.** The whole mechanism — server-side signing
+    with real keys, server-backed verification, the citizen verification UX, the public operational
+    bar as CI checks, the public telemetry posture, the strangle of the decorative client-side
+    `public/decisions/:signedId` chain, the public MACHINE twin, and the **forged-packet negative**
+    as the slice's first red-first control. The promoted-record slot is built **typed and empty**.
+  - **Gated on `GY-PR1`, which is engineering.** A real promoted record can exist only once
+    `consumer_promotable=True` is reachable in the production lane. Three of the fifteen obligations
+    in `promotion_sequence.py` return `scope_insufficient` unconditionally, so today it is not.
+    This is the **only** conjunct of the original gate that remains open: `DS11` is closed and
+    merged, `GY-N9`/`N11`/`N12` are `executed`, and `INT-R1`/`R7`/`R8`/`R9` are all delivered and
+    ratified.
+  - **Gated on institutions, and never on a build.** The named signers and the independent holder
+    stay `absent/unallocated`; they gate the *signature on a published record*, not the surface
+    that would carry it. A refusal that stopped the surface would be placed one band too low.
+- **Research-input consumption (wave 5, routes `W5-R3-Q04`, `W5-R4-Q12`, `W5-O5-Q12`).** Ratified
+  `W5-K02` forbids projecting surface, enforcement or instrument conformance as human
+  comprehension, so no DS12 public copy may imply that a reader understood; `W5-K03`/`W5-K04`
+  require that an unresolved or compound diagnosis render as unresolved, never as a settled cause,
+  and that a protective action never read as causal confirmation; `W5-K06` forbids inferring
+  source-language authority from a translation or locale. Producers: `GY-CB1` for the comprehension
+  instrument, `GY-VC1` for the status/reason crosswalk these projections consume.
 - **Goal:** the first honest public surface: one promoted decision record,
   published end-to-end, verifiable by a citizen.
 - **Producer & bridge work (in-slice):** public record/certificate endpoints;
@@ -1799,7 +1836,15 @@ Loosening the ratified posture is out of scope for every slice.
 
 #### DS14 — Bounded-Agent Surface
 
-- **Gate:** Phase-6 bounded-agent contracts closed (the GY plan's O-block /
+- **Gate — adjudicated 2026-08-30, and it was misnamed.** The clause below said "Phase-6
+  bounded-agent contracts closed (the GY plan's O-block)". **The O-block is not the bounded agent.**
+  GY Phase 6 (`GY-O0`–`O3`) is the deployed-policy learning loop; the bounded agent is `GY-I`
+  ("Agent as Ring-1 proposer + event-backed G6"), which the 2026-08-30 GY census measured as
+  `executed` on `PromptToolParserAuthorityLedger` across 5 `src/` files — a task that until that
+  census had **no standing row at all**. So DS14's real gate is `GY-I` **and** DS9, both of which
+  are met, and DS14 is **not blocked on Phase 6**. What DS14 still needs is its own producer and
+  bridge work, not another lane's closure. Superseded clause, retained for history:
+- **Gate (superseded):** Phase-6 bounded-agent contracts closed (the GY plan's O-block /
   bounded LLM agent, formerly "G6"); DS9. The agent surface obeys the GY
   §3.5.9 live-carrier gates by construction — its transcript UI renders the
   constrained-carrier lifecycle honestly (typed refusals, truncation
@@ -1835,6 +1880,16 @@ Loosening the ratified posture is out of scope for every slice.
 
 #### DS15 — Acquisition Routes & Data-Pool Growth Surfaces
 
+- **Successor input (wave 5, route `W5-R2-Q12`; DS15 itself is closed and merged).** The
+  non-data-gap route and status vocabulary must project into the **one** Atlas lattice through a
+  total, authority-nonwidening crosswalk that adds **no** readiness or publication status. Producer
+  is `GY-VC1`; the union itself is `GY-AQ1`'s, and the existing debt row
+  `ds15-int-r2-gap-acquisition-case-union` already records that DS15 may render typed refusals but
+  may not invent `GapAcquisitionCase`. Ratified `W5-K01` binds what the surface may then say: a
+  same-stream volume increase against a missing relation, estimand, mandate, capacity, licence,
+  authority or assurance object must move **nothing** in the rendered resolution state, and the
+  negative control is exactly that — grow the rows, hold the object absent, and assert the surface
+  does not report progress.
 - **Goal:** the surface dual of GY-N13 — the product's distinctive loop:
   **refusal-with-a-path becomes refusal-with-a-button.** The user sees why a
   case is blocked, what closing it costs, and (post-N13b) approves the

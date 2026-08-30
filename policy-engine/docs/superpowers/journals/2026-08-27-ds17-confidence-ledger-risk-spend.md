@@ -2523,3 +2523,136 @@ declared, 17/22 ceiling, reserve 0. The twenty route denominators are unchanged
 because no C05 tracked source byte remains. A future closure needs an explicit
 owner ruling and reconciliation transaction for the DS18 census contract; it
 cannot be substituted by a C05-local exemption.
+
+## C05 fifth-amendment temporal-classification mandatory stop — DS17
+
+The predecessor journal is 2,525 lines and 156,231 bytes, with Git blob
+`db59b64b5e9c13327a51f1ae64e7c5b378d40ff8`. The fifth architect amendment is
+commit `a4a8680bd`: plan blob
+`310198aefe05351ef7fe1c5708256688c6692554` →
+`9f2a8b0776e60784c17d516466ea86ac1b55ee2b`. The latter remains the attached
+plan custody constant at this stop boundary.
+
+The amendment correctly clears the preceding ownership stop: DS18's
+`landing_slice_rule` delegates fresh receipts, independent classification and
+behavioral proof for post-freeze roots to the landing slice. The cause of the
+preceding stop is recorded as the instructed **instruction defect**: the
+over-broad prohibition on changing another slice's block also forbade the
+designed delegated path. That was not a DS18 defect and not a Git merge defect.
+
+The newly authorized preflight found a different, semantic boundary before any
+writer byte changed. DS18-CC07 defines a decision-bearing root as one
+communicating a recommendation, decision status, limitation or quantity whose
+interpretation can change admissibility, and requires admitted temporal context
+plus behavioral `as_of`, epoch and validity rendering. A receipt refresh cannot
+change that property.
+
+### Scanner, live checker and main delta
+
+The direct DS18 scanner and the checker's in-process scanner returned byte-equal
+objects. The complete landing scan is 621 production source files / 756 render
+roots, file manifest
+`sha256:3b77d733281e8503762062790fbfc24da5b55ba3646fe29bda19fc93e5e451c9`
+and root manifest
+`sha256:6d6205ac457950b6a7091b43d215ac06f839d28126ef39c96ef11f44f8a581c1`.
+The first equality transaction exited 0 at uptime `11:46` → `11:46`, with
+real/user/sys `3.04/5.10/0.19` and user+sys `5.29`.
+
+A fresh focused landing replay at uptime `12:10` → `12:10` returned exactly
+eight DS18 errors, exit 0 for the diagnostic harness, real/user/sys
+`2.35/3.15/0.16`, user+sys `3.31`:
+
+- four `landing_slice_reconciliation_required` count/manifest fields;
+- one grouped missing receipt for the five new DS17 source files;
+- stale `source_sha256` receipts for `queryKeys.ts` and `CycleBoardPage.tsx`;
+  and
+- one `CycleBoardPage.tsx` root-inventory drift.
+
+An exact-current-main archive replay at
+`df90e10fb48b8df5b959c6b0074d69e255e16cc9` returned zero errors, exit 0,
+uptime `12:11` → `12:11`, real/user/sys `8.09/4.66/3.64`, user+sys `8.30`.
+The successful replay used an automatically removed `TemporaryDirectory`, the
+exact main archive and the already-provisioned dashboard dependency tree. A
+preceding shell cleanup form was rejected before process creation by the
+harness; it is a non-receipt and changed nothing. Disposition: branch 8 / main
+0, so all eight are DS17-owned landing reds rather than inherited failures.
+
+### Complete DS17 input and root denominator, twice
+
+The scanner walk finds exactly seven DS17 paths in its production denominator:
+
+- four `no_render_root` receipts: `queryKeys.ts`,
+  `useConfidenceLedgerRiskSpend.ts`, `confidenceLedgerRiskSpend.ts` and
+  `confidenceLedgerRiskSpendTwin.ts`;
+- `ConditionalDeltaFigure.tsx`: 3 roots;
+- `ConfidenceLedgerRiskSpend.tsx`: 16 roots; and
+- `CycleBoardPage.tsx`: 10 roots.
+
+That is 29 roots. Independently, a TypeScript-compiler AST walk over every
+PascalCase component return and conditional branch in the three render files
+derived the same `3 + 16 + 10 = 29`. The AST transaction exited 0 at uptime
+`11:57` → `11:57`, real/user/sys `0.63/0.69/0.05`, user+sys `0.74`.
+Both walks derive zero `TimeSemanticsLabel` renders, zero epoch-context reads,
+zero epoch-semantics props and zero epoch-provider renders across all 29 roots.
+There is no disagreement.
+
+Two independent semantic classifications then agreed on the hard denominator.
+Exactly 22 current roots are definitely decision-bearing and unclosed:
+
+- all 3 conditional-figure roots render the governed envelope, local δ amount
+  and its two authority-limiting riders;
+- all 16 risk-spend panel roots render or compose δ quantities, eligibility,
+  execution, anytime-validity, blockers, coverage, budget/appointment posture,
+  positive-register absence, source limitations or evaluation refusal; and
+- 3 `CycleBoardPage.tsx` roots transitively render the DS17 risk subtree: the
+  successful risk query arm, its mixed-surface compositor and the authorized
+  page arm.
+
+Six Cycle Board loading/error/access roots are honestly non-decision-bearing.
+The legacy Cycle Board success adapter is not needed to settle the stop; even
+granting it its strongest plausible existing classification leaves the same 22
+DS17 risk roots unclosed.
+
+The current packet carries source time and a nullable scope `epoch_ref`, but
+the panel does not construct an admitted `EpochSemantics` or its typed
+nonreceipt. Generic replay-key rendering is not the DS18 temporal contract, and
+certificate `anytime_valid` is not decision validity. No exact existing
+decision-bearing owner covers the DS17 risk DOM, so `inherits_admitted_dom`
+cannot apply.
+
+### Why the authorized receipt transaction cannot close
+
+Each register-only spelling would falsify a binding property:
+
+- `non_decision_bearing` would misclassify δ/status/limitation output and create
+  a P05/P10/P38 authority leak;
+- `decision_bearing` with `direct_ds4` is rejected because every root's actual
+  `time_semantics_label_render_count` is zero;
+- `inherits_admitted_dom` is rejected because there is no exact admitted
+  decision-bearing owner; and
+- `strict_non_jsx_projection` would be a false bypass for React roots, not an
+  independent classification.
+
+The checker's generic builder can default an undeclared root to
+`non_decision_bearing`, but that is precisely the remove-property/keep-marker
+false green this slice may not accept. Fresh receipts and matching hashes are
+staleness tripwires, not behavioral time-semantics proof.
+
+The smallest correct closure is to reopen C04 and wire one shared canonical
+temporal owner into every risk-panel decision branch, using admitted
+`EpochSemantics` or its truthful typed nonreceipt, then behaviorally mutate
+`as_of`, epoch, validity and staleness while holding the shell constant. Only
+then can the figure/helper/page descendants inherit that owner and C05 write
+the scanner-derived receipts. The current ruling says C04 is closed at
+`834788fc9` and must not be reopened; C05's sole mechanism is the Atlas checker.
+Proceeding would therefore exceed the authorized cluster boundary even though
+it could reuse an already-counted C04 path.
+
+**MANDATORY STOP:** C05 and C06 remain incomplete. The DS17 surface's DS18
+temporal-consumer state is `consumer_missing + semantic_test_missing`; the C05
+registration remains `verification_missing`. The required ruling owner is the
+DS17 architect/plan owner together with the DS18 runtime-dashboard temporal
+surface contract owner. No source, register, schema, report, test, snapshot or
+generated byte changed. The plan remains byte-identical at
+`9f2a8b0776e60784c17d516466ea86ac1b55ee2b`; mechanisms remain 17/18 declared,
+17/22 ceiling, reserve 0; all twenty route denominators remain unchanged.

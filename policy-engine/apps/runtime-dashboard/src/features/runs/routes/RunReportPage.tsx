@@ -604,7 +604,6 @@ function AuthorizedRunReportPage({ runId }: { runId: string }) {
     <div className="space-y-4" data-testid="run-report-page">
       <div className="flex flex-wrap gap-2" data-print-hidden="true">
         <Button
-          aria-label={t("pages.runs.report.exportJson")}
           type="button"
           variant="ghost"
           onClick={() =>

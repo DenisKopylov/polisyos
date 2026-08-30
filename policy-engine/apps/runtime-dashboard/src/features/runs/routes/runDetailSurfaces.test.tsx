@@ -1259,7 +1259,7 @@ describe("run detail surfaces", () => {
     );
     expect(window.print).toHaveBeenCalled();
     expect(
-      screen.getByRole("button", { name: "pages.runs.report.exportJson" }),
+      screen.getByRole("button", { name: "pages.runs.report.exportMachine" }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("run-paper-document")).toHaveTextContent(
       "artifact_missing",

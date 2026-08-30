@@ -45,7 +45,7 @@ test.describe("runtime-dashboard screen reader snapshots", () => {
     const snapshot = await page.locator("body").ariaSnapshot();
 
     expect(collectNamelessInteractiveLines(snapshot)).toEqual([]);
-    expect(snapshot).toContain('button "Export JSON"');
+    expect(snapshot).toContain('button "Export MACHINE packet"');
     expect(snapshot).toContain("heading");
   });
 

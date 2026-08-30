@@ -1843,6 +1843,47 @@ refused.
 frozen replay; touching a row, entry, or inheritance key for a path DS17 did not change;
 and classifying any decision-bearing root as <code>non_decision_bearing</code>.
 
+**Architect amendment 2026-08-29 (7) — root cause named; C04 reopens, bounded.** Six C05
+stops are not six obstacles. They are **one omission surfacing at six checkpoints**: DS17
+builds a decision-bearing surface, and in this repository such a surface owes a producer
+that can emit the states it demonstrates (stops 1 and 3), a registration slot (stop 2), and
+an admitted temporal owner (stops 4, 5, 6). C04 built and froze the panel with **zero**
+temporal chrome — <code>as_of</code>, epoch, validity and staleness counts are all 0 in
+<code>ConfidenceLedgerRiskSpend.tsx</code> and <code>ConditionalDeltaFigure.tsx</code> —
+while every DS18-admitted decision surface carries it (<code>RunReportPage.tsx</code>
+epoch=20, <code>RunDeckPage.tsx</code> epoch=12). C05 is simply where the repository asks.
+
+The sixth stop is the limit of routing around it. <code>inherits_admitted_dom</code> requires
+real containment, and DS17's panel is structurally a **sibling** of DS15's admitted owner:
+in <code>AuthorizedCycleBoardPage</code>, <code>CycleBoardQueryPanel</code> and
+<code>ConfidenceLedgerRiskSpendQueryPanel</code> are siblings, and
+<code>AcquisitionGrowthBoundary</code> lives inside the first one's subtree. The executor
+measured <code>owner.contains(risk)=false</code> and stopped exactly as amendment (6)
+required.
+
+**C04 therefore reopens, bounded to temporal semantics.** This reverses a prohibition
+restated in amendments (3)–(6); the prohibition was mine and it was protecting a closure that
+had never been tested against this obligation.
+
+Scope of the reopening — additive only:
+
+- render the temporal coordinates the packet **already carries** (<code>as_of</code>,
+  <code>freshness.observed_at</code>, <code>freshness.source_as_of</code>,
+  <code>freshness.state</code>) and the epoch/validity/staleness posture the DS18 regime
+  requires of a decision-bearing root, with the canonical admitted-or-nonreceipt terminal;
+- supply the behavioral <code>as_of</code>/epoch/validity/staleness proof DS18 names;
+- both files are **already DS17 mechanism paths**, so the mechanism cap of 1 for C05 and the
+  18/22 ledger are unchanged. If this appears to need a nineteenth path, stop and report.
+
+**Everything C04 proved stays proved and is not revisited:** the browser-enumerated
+paint-containment verifier, the native lane at 73/0, the closed shadow-root boundary tripwire,
+and the declared twin threat model from amendment (2). This reopening adds a surface
+obligation; it does not reopen the verification property.
+
+Once the roots carry a real temporal binding they classify <code>decision_bearing</code> by
+derivation, and the DS18 landing reconciliation closes on receipts and behavioral evidence
+**without any inheritance claim** — no owner of convenience, no portal-local fiction.
+
 **P39 register/test companions:**
 
 - <code>architecture/atlas_surfaces/frontend-disposition-register.json</code>

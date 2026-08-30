@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import copy
 import dataclasses
+import hashlib
 import json
 import os
 import re
@@ -290,6 +291,50 @@ def _source_derived_unittest_denominator(path: Path) -> int:
         for member in node.body
     )
     return module_tests + class_tests
+
+
+def _historical_pytest_node_ids(test_path: str, source: str) -> tuple[str, ...]:
+    """Derive exact pytest IDs from the supported historical unittest forms."""
+
+    tree = ast.parse(source, filename=test_path)
+    node_ids: list[str] = []
+    test_node_types = (ast.FunctionDef, ast.AsyncFunctionDef)
+    for node in tree.body:
+        if isinstance(node, test_node_types) and node.name.startswith("test_"):
+            if node.decorator_list:
+                raise ValueError(f"unsupported decorated module test: {node.name}")
+            node_ids.append(f"{test_path}::{node.name}")
+            continue
+        if not isinstance(node, ast.ClassDef):
+            continue
+        test_methods = [
+            member
+            for member in node.body
+            if isinstance(member, test_node_types) and member.name.startswith("test_")
+        ]
+        if not test_methods:
+            continue
+        base_names = {
+            f"{base.value.id}.{base.attr}"
+            if isinstance(base, ast.Attribute) and isinstance(base.value, ast.Name)
+            else base.id
+            if isinstance(base, ast.Name)
+            else ""
+            for base in node.bases
+        }
+        if base_names - {"unittest.TestCase", "TestCase"} or not (
+            {"unittest.TestCase", "TestCase"} & base_names
+        ):
+            raise ValueError(f"unsupported test class form: {node.name}")
+        if node.decorator_list:
+            raise ValueError(f"unsupported decorated test class: {node.name}")
+        for method in test_methods:
+            if method.decorator_list:
+                raise ValueError(f"unsupported decorated test method: {node.name}.{method.name}")
+            node_ids.append(f"{test_path}::{node.name}::{method.name}")
+    if len(node_ids) != len(set(node_ids)):
+        raise ValueError(f"ambiguous duplicate pytest node ID in {test_path}")
+    return tuple(node_ids)
 
 
 def _preserved_tool_run_record_duration(
@@ -1547,16 +1592,73 @@ def test_atlas_python_governance_lane_names_one_exact_runnable_workload() -> Non
         .splitlines()[47]
     )
     command_test_paths = [
-        REPO_ROOT / token
+        token
         for token in shlex.split(atlas["command"])
         if token.startswith("architecture/") and Path(token).name.startswith("test_")
     ]
-    source_denominator = sum(
-        _source_derived_unittest_denominator(path) for path in command_test_paths
-    )
+    assert command_test_paths == [
+        "architecture/atlas_surfaces/test_frontend_disposition_register.py",
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+    ]
+    publication_revision = "6bcc95bff32645189ff2ed65a719c7990e48c52a"
+    historical_sources = {
+        path: subprocess.run(
+            ["git", "show", f"{publication_revision}:policy-engine/{path}"],
+            cwd=REPO_ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+        for path in command_test_paths
+    }
+    assert {
+        path: hashlib.sha256(source.encode("utf-8")).hexdigest()
+        for path, source in historical_sources.items()
+    } == {
+        "architecture/atlas_surfaces/test_frontend_disposition_register.py": (
+            "841466263c618a3142a6d5327c72072ad0e95bf4d738516f6d240eb98601b685"
+        ),
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py": (
+            "7f5418b7e809b1f1bac0470ecc2a553c878b14d886ea39494362067908e7ca0f"
+        ),
+    }
+    historical_node_ids = [
+        node_id
+        for path, source in historical_sources.items()
+        for node_id in _historical_pytest_node_ids(path, source)
+    ]
+    assert len(historical_node_ids) == 67
+    assert len(historical_node_ids) == len(set(historical_node_ids))
+    assert hashlib.sha256(
+        json.dumps(historical_node_ids, separators=(",", ":")).encode("utf-8")
+    ).hexdigest() == "9b08f0ed2e74bf888009820529e2901c6dd3bedb40bf55a679a362efaf12aea6"
+    with pytest.raises(ValueError, match="ambiguous duplicate pytest node ID"):
+        _historical_pytest_node_ids(
+            "historical.py",
+            """
+import unittest
+
+class DuplicateTests(unittest.TestCase):
+    def test_one(self) -> None:
+        pass
+
+class DuplicateTests(unittest.TestCase):
+    def test_one(self) -> None:
+        pass
+""",
+        )
+    with pytest.raises(ValueError, match="unsupported decorated module test"):
+        _historical_pytest_node_ids(
+            "historical.py",
+            """
+@pytest.mark.parametrize(("value",), [(1,), (2,)])
+def test_parameterized(value: int) -> None:
+    pass
+""",
+        )
     receipt_count_match = re.search(r"`(?P<count>\d+)` tests passed", source_line)
     assert receipt_count_match is not None
-    assert int(receipt_count_match.group("count")) == source_denominator
+    assert int(receipt_count_match.group("count")) == len(historical_node_ids)
     assert all("<" not in lane["command"] for lane in lanes if isinstance(lane, dict))
     assert not any(
         isinstance(lane, dict) and lane.get("timing_key") == "atlas.status-governance:default"

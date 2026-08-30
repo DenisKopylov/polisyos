@@ -131,3 +131,32 @@ source-denominator, query-cache, status, and architecture-graph checks; their
 provenance was not re-established in this task. It emitted no
 `slice_scope_obligation_*` error. One accidental non-PTY duplicate checker process
 was terminated, leaving one PTY-backed authoritative receipt.
+
+### Task 2 — historical Atlas timing workload identity
+
+The pre-repair focused node was red: the completed receipt's `67` tests passed
+count was compared to the current helper-derived AST count, `191 + 41 = 232`.
+This is distinct from the inherited register derivations `181`, `190`, and `210`,
+and from current pytest collection, `194 + 41 = 235` node IDs. The current forms
+evidence growth; none selects a replacement count for the historical sample.
+
+The repaired test resolves the publication commit
+`6bcc95bff32645189ff2ed65a719c7990e48c52a`, reads precisely the two paths named
+by the catalog command, and derives their ordered pytest node IDs from supported
+unittest forms. It content-binds the historical frontend blob to
+`841466263c618a3142a6d5327c72072ad0e95bf4d738516f6d240eb98601b685` (30 IDs),
+the status blob to
+`7f5418b7e809b1f1bac0470ecc2a553c878b14d886ea39494362067908e7ca0f` (37 IDs),
+and compact canonical JSON of their complete ordered 67-string map to
+`9b08f0ed2e74bf888009820529e2901c6dd3bedb40bf55a679a362efaf12aea6`. It rejects
+duplicate node IDs and decorated forms whose runnable cardinality cannot be
+derived exactly. The cited receipt remains `67` tests passed.
+
+RED receipt:
+`uv run --extra test --with 'jsonschema>=4.25' python -m pytest tests/repo_quality/tools/test_timing.py::test_atlas_python_governance_lane_names_one_exact_runnable_workload -q`
+exited 1 with `AssertionError: assert 67 == 232`. The new test expectation then
+failed with the expected missing-helper `NameError` before implementation.
+
+GREEN receipt:
+`uv run --extra test --with 'jsonschema>=4.25' python -m pytest tests/repo_quality/tools/test_timing.py::test_atlas_python_governance_lane_names_one_exact_runnable_workload`
+exited 0: `1 passed in 0.13s`.

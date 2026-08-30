@@ -1746,6 +1746,35 @@ of its own: DS8-B's <code>ba987a3be</code> changed exactly checker + schema + te
 DS18's <code>54f9ff4f2</code> changed checker + schema + register + test. **The mechanism
 cap of 1 is unchanged.**
 
+**Architect amendment 2026-08-29 (4) — C05 demonstrable state set.** Three C05
+preflights established the same root cause from three different arms: C05 was
+specified to demonstrate several packet states through the real source chain, while
+the sole GY-N11 producer emits exactly one — <code>available</code>, total spend
+<code>0</code>, <code>open_world_unresolved</code>, 13 instruments, 15 classes, 0
+positive entries. Two requested states are not merely absent but <strong>forbidden by
+the owner's own contract</strong>: <code>over_spend</code> is refused at type level
+(<code>spend_numerator: Literal[0]</code> in
+<code>tools/quality/validation/check_layer3_gy_confidence_ledger.py</code>, with
+<code>source_flip_deterministic_proof_nonzero_spend</code> as its named refusal), and
+<code>coverage_argument_missing</code> cannot enter an owner-admitted packet under the
+N9 promotion-row bind recorded in amendment (1).
+
+C05's required demonstration is therefore narrowed to <strong>the one state the
+producer can emit</strong>. The <code>over_spend</code> end-to-end semantic/visual
+witness joins the Bayesian-without-coverage witness in *Explicit non-closure*, owner
+GY-N11. Scope the debt exactly: the over-spend <em>gate</em> is implemented and proved
+at domain level against constructed inputs, and that proof stands; what is absent is
+only the path from a real owner artifact through HTTP to a rendered visual. Recording
+"over-spend is unproved" would be false.
+
+Everything else in C05 remains required and is reachable without packet variety: the
+disposition-register block and its schema property, the checker validation, its test,
+the writer-owned report, and every semantic and visual scenario of the real state. The
+source-chain prohibitions are unchanged and are what produced these three correct
+stops: no hand-authored packet, no <code>page.route</code>, no second source artifact,
+no second route or UI host, no C02 test injection, no synthesized coverage row, and no
+mutated or fabricated owner content under any artifact root.
+
 **P39 register/test companions:**
 
 - <code>architecture/atlas_surfaces/frontend-disposition-register.json</code>
@@ -2053,6 +2082,7 @@ the debt register untouched.
 | PUBLIC δ claim and first governed promotion | <code>surface_out_of_scope</code> here and gated by DS12/DS13 | team-design successor slices |
 | C05 Bayesian-without-coverage semantic/visual witness | <code>bridge_missing</code>; a real exact-scope session persists <code>coverage_argument_missing</code>, but its <code>promotion</code>-role row cannot enter an owner-admitted <code>available</code> packet: omitting it emits <code>n9_projection_owner_binding_drift</code>, including it emits <code>day_one_positive_promotion_fabricated</code>. Proved structurally and behaviorally; persisted refusal <code>sha256:94d60c54cac8155fa3da2765a65a6c73157876211d92771cd4e85478e864fbf3</code> | GY-N11 confidence-ledger contract/validator; closure requires the validator to distinguish a governed refusal from an issued positive promotion, per ratified <code>INT-K08</code> (negative completion is a valid governed result). Never DS17's Atlas writer |
 | closed shadow-root paint observation | <code>verification_missing</code>; the twin refuses every platform-observable paint source including <strong>open</strong> shadow roots (<code>confidenceLedgerRiskSpendTwin.ts:1089</code>), but <code>attachShadow({mode:"closed"})</code> makes "no root" and "a closed root" identical through <code>element.shadowRoot</code>. Creating one requires script privilege equal to the twin's own, which is outside the declared threat model above. Witness retained as an executable boundary test, not deleted | runtime-dashboard/Atlas projection-safety verifier plus the browser paint-observation substrate; closure requires provenance-complete shadow-root tracking installed before any relevant DOM creation, or a compositor paint-containment API. Neither exists |
+| C05 <code>over_spend</code> end-to-end semantic/visual witness | <code>producer_missing + artifact_missing</code>; the sole N11 contract writer emits spend <code>0/1</code> deterministically and its validator types spend as <code>Literal[0]</code>, so a real over-spend artifact cannot exist. Two independent walks — 4,951 source/artifact files and 3,043 Python files by AST — found exactly one writer. <strong>The domain-level over-spend gate is implemented and proved against constructed inputs; only the real-artifact end-to-end path is absent</strong> | GY-N11 confidence-ledger contract/producer; closure requires an owner-produced artifact carrying a real non-zero spend, which today its own validator refuses. Never DS17, and never by mutating owner content |
 | debt register, other-slice evidence, deep-import baseline | explicitly out of scope | no DS17 edit or closure claim |
 
 An absent future test is <code>artifact_missing</code>, never a green receipt.

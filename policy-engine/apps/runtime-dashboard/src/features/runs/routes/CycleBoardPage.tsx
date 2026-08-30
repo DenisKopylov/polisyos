@@ -39,7 +39,11 @@ function ConfidenceLedgerRiskSpendQueryPanel() {
   const { t } = useI18n();
   const query = useConfidenceLedgerRiskSpend();
   const packet =
-    query.data?.status === "exact" ? query.data.packet : null;
+    !query.isLoading &&
+    !query.isError &&
+    query.data?.status === "exact"
+      ? query.data.packet
+      : null;
   const surface = query.isLoading ? (
       <Card>
         <PanelSkeleton rows={6} />

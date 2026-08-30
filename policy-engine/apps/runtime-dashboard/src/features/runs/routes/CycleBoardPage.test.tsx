@@ -292,6 +292,49 @@ describe("CycleBoardPage authorization boundary", () => {
     );
   });
 
+  it("withholds retained packet clocks when the risk query renders its load-error surface", () => {
+    const riskPacket = availableRiskSpendPacket();
+    useAuthzDecisionMock.mockReturnValue({
+      can: (permission: string) => permission === "runs.review",
+      isWorkspaceAllowed: () => true,
+      kind: "verified",
+    });
+    useConfidenceLedgerRiskSpendMock.mockReturnValue({
+      data: { packet: riskPacket, status: "exact" },
+      error: new Error("risk spend refetch failed"),
+      isError: true,
+      isLoading: false,
+    });
+
+    render(<CycleBoardPage />);
+
+    expect(
+      screen.getByText("pages.cycleBoard.confidenceLedger.loadErrorTitle"),
+    ).toBeVisible();
+    expect(
+      screen.queryByTestId("confidence-ledger-risk-spend"),
+    ).not.toBeInTheDocument();
+
+    const temporalOwner = within(
+      screen.getByTestId("confidence-ledger-risk-spend-query-time-semantics"),
+    );
+    expect(temporalOwner.getByTestId("time-semantics-payload-as-of")).toHaveTextContent(
+      "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-source-as-of")).toHaveTextContent(
+      "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-observed-at")).toHaveTextContent(
+      "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-source-state")).toHaveTextContent(
+      "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-epoch")).toHaveTextContent(
+      "epochChrome.notEstablished",
+    );
+  });
+
   it("keeps the risk-spend sibling rendered while the Cycle Board query is loading", () => {
     useAuthzDecisionMock.mockReturnValue({
       can: (permission: string) => permission === "runs.review",

@@ -3078,3 +3078,51 @@ files; their test companions are `ConditionalDeltaFigure.test.tsx`,
 `ConfidenceLedgerRiskSpend.test.tsx`, `CycleBoardPage.test.tsx`, and
 `CycleBoardPage.parity.test.tsx`. The ledger remains 17/18 declared, 17/22 ceiling,
 reserve 0, and the twenty route denominators remain unchanged.
+
+## 2026-08-30 — Task 9 review correction: retained exact data on query error
+
+The predecessor is the complete 3,080-line / 188,335-byte journal with Git blob
+`d009ee495228ec7e24277706b939aa2485475e92` and SHA-256
+`78108fd35ac51929874950f5ea0e6b78d7b0de77e0bd0512e59e57c452645466`.
+
+The review identified a P38 boundary divergence in the page-local temporal owner.
+The property is that risk-packet coordinates are visible only for a *current exact*
+risk-query result: not loading, not error, and exact. The old code instead accepted
+any retained `query.data.status === "exact"`, while the independently rendered surface
+already chose the load-error card on `query.isError`. A failed background refetch can
+therefore retain an earlier exact packet for one render; the page would display an error
+surface beside that stale packet's coordinates. This is a custody failure, not a display
+preference: a retained payload clock cannot certify the current error result.
+
+**Red-first.** `CycleBoardPage.test.tsx` now supplies the concrete state
+`data={status:"exact", packet}`, `isError=true`, `isLoading=false`. It asserts the real
+load-error surface, no risk-spend projection surface, all four packet coordinates unknown,
+and the explicit `epochNonreceipt()` epoch. Against commit `d1d30bcb7`, the focused test
+failed for the intended property: payload-as-of was retained as
+`2026-02-11T12:00:00Z` instead of `unknown` (1 failing / 8 skipped,
+`2026-08-30T11:14:27Z` -> `11:14:29Z`, `real/user/sys=2.39/3.08/0.36`).
+
+**Correction and green.** The existing `packet` seam is now a single current-exact
+predicate: `!query.isLoading && !query.isError && query.data?.status === "exact"`.
+All packet-clock props consume that one value, so loading, error, absent, and non-exact
+states receive unknown coordinates while epoch authority remains the separate explicit
+nonreceipt. The focused regression then passed (1 passed / 8 skipped,
+`2026-08-30T11:15:03Z` -> `11:15:05Z`, `real/user/sys=2.36/3.03/0.36`). The full affected
+route suite and canonical available parity passed together (2 files / 25 tests,
+`2026-08-30T11:15:11Z` -> `11:15:34Z`, `real/user/sys=22.21/29.53/1.49`), including the
+three-visible-owner assertion. This is behavioral P29 evidence: restoring the old
+retained-data predicate keeps every label identifier but makes the regression red.
+Scoped ESLint over the changed route source and test also passed at
+`2026-08-30T11:17:02Z` -> `11:17:23Z` (`real/user/sys=20.53/29.85/2.74`).
+
+The unmodified DS18 scanner also passed at `2026-08-30T11:15:42Z` -> `11:15:43Z`
+(`real/user/sys=0.97/2.01/0.09`). Across the complete three-file denominator, it reports
+exactly one label-bearing root per file: `ConfidenceLedgerTemporalOwner:jsx:46:5`,
+`ConfidenceLedgerRiskSpend:jsx:851:5`, and the updated
+`ConfidenceLedgerRiskSpendQueryPanel:jsx:62:5` (the latter's root digest remains
+`sha256:b35db63a6ddacd8a229c3285e13fa7df52e7e6ebb013c734ea6dbde8472dba8f`).
+
+Only the existing `CycleBoardPage.tsx` mechanism changed, with its focused test and this
+journal as required companions. No twin, scanner, checker/register/schema/report, shared
+primitive, generated file, translation, other Task 9 production source, plan, or route
+denominator changed. The mechanism count and Task 10 ownership therefore remain unchanged.

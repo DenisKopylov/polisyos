@@ -1,5 +1,7 @@
 [policy]
 version = "2"
+contract_role = "enforced_direction_matrix"
+package_boundaries = "../packages/boundaries.toml"
 internal_prefix = "polisyos"
 src_root = "../../src"
 
@@ -32,11 +34,6 @@ known = [
   "scholar",
   "lex",
   "berl",
-  "academic",
-  "batch_common",
-  "batch_snapshot",
-  "datasets",
-  "ukraine_data",
 ]
 
 [[package_cycle_baseline]]
@@ -112,24 +109,8 @@ obligation_graph = ["obligation_graph", "core", "ir", "common"]
 scholar_requirement = ["scholar_requirement", "core", "common"]
 pdc = ["pdc", "runtime", "scientist", "core", "ir", "common"]
 scholar = ["scholar", "scholar_requirement", "fabric", "ir", "core", "common"]
-lex = ["lex", "legal_requirement", "data_forge", "batch_common", "fabric", "ir", "core", "common"]
+lex = ["lex", "legal_requirement", "data_forge", "fabric", "ir", "core", "common"]
 berl = ["berl", "core", "ir", "common"]
-academic = ["academic", "batch_common", "ir", "core", "common"]
-batch_common = ["batch_common", "data_forge", "ir", "core", "common"]
-batch_snapshot = ["batch_snapshot", "data_forge", "batch_common", "ir", "core", "common"]
-datasets = ["datasets", "batch_common", "fabric", "ir", "core", "common"]
-ukraine_data = [
-  "ukraine_data",
-  "data_forge",
-  "scientist",
-  "lex",
-  "foundry",
-  "fabric",
-  "batch_common",
-  "ir",
-  "core",
-  "common",
-]
 
 [external.allow.ir]
 # Top-level external modules allowed in IR (stdlib is always allowed).

@@ -35,9 +35,11 @@ DEFAULT_POLICY_PATH = Path("architecture/imports/policy.toml")
 DEFAULT_EXCEPTIONS_PATH = Path("architecture/imports/exceptions.toml")
 DEFAULT_TOP_GOD_FILES = 10
 CACHE_NAMESPACE = "lint_imports"
-CACHE_VERSION = "2026.04.phase5"
+CACHE_VERSION = "2026.08.import-governance-v2"
 DEFAULT_BASELINE_LABEL = "default"
 VIOLATION_RULE_RE = re.compile(r"\[(ARCH\d+)\]")
+DIRECTION_MATRIX_ROLE = "enforced_direction_matrix"
+OWNERSHIP_NARROWING_ROLE = "ownership_and_narrowing_register"
 
 
 @dataclass(frozen=True)
@@ -45,6 +47,7 @@ class ImportRef:
     source_file: Path
     source_module: str
     target_module: str
+    imported_names: tuple[str, ...]
     lineno: int
     in_type_checking: bool
 
@@ -56,8 +59,10 @@ class PolicyConfig:
     src_root: Path
     known_roots: set[str]
     internal_allow: dict[str, set[str]]
+    internal_narrowings: dict[tuple[str, str], tuple[str, ...]]
     external_allow: dict[str, set[str]]
     package_cycle_baselines: frozenset[tuple[str, ...]]
+    package_boundaries_path: Path | None
 
 
 @dataclass(frozen=True)
@@ -178,7 +183,7 @@ class ImportCollector(ast.NodeVisitor):
 
     def visit_Import(self, node: ast.Import) -> None:
         for alias in node.names:
-            self._record_import(alias.name, node.lineno)
+            self._record_import(alias.name, node.lineno, imported_names=())
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         module = resolve_import_module(self.source_module, self.is_package, node)
@@ -187,17 +192,32 @@ class ImportCollector(ast.NodeVisitor):
         if module == self.internal_prefix:
             for alias in node.names:
                 if alias.name == "*":
-                    self._record_import(module, node.lineno)
+                    self._record_import(module, node.lineno, imported_names=("*",))
                     continue
-                self._record_import(f"{module}.{alias.name}", node.lineno)
+                self._record_import(
+                    f"{module}.{alias.name}",
+                    node.lineno,
+                    imported_names=(),
+                )
             return
-        self._record_import(module, node.lineno)
+        self._record_import(
+            module,
+            node.lineno,
+            imported_names=tuple(alias.name for alias in node.names),
+        )
 
-    def _record_import(self, module: str, lineno: int) -> None:
+    def _record_import(
+        self,
+        module: str,
+        lineno: int,
+        *,
+        imported_names: tuple[str, ...],
+    ) -> None:
         ref = ImportRef(
             source_file=self.source_file,
             source_module=self.source_module,
             target_module=module,
+            imported_names=imported_names,
             lineno=lineno,
             in_type_checking=self.in_type_checking,
         )
@@ -242,6 +262,7 @@ def _parsed_module_to_payload(parsed: ParsedModuleFile) -> dict[str, Any]:
         "imports": [
             {
                 "target_module": ref.target_module,
+                "imported_names": list(ref.imported_names),
                 "lineno": ref.lineno,
                 "in_type_checking": ref.in_type_checking,
             }
@@ -266,14 +287,21 @@ def _parsed_module_from_payload(
         if not isinstance(item, dict):
             return None
         target_module = item.get("target_module")
+        imported_names = item.get("imported_names", [])
         lineno = item.get("lineno")
-        if not isinstance(target_module, str) or not isinstance(lineno, int):
+        if (
+            not isinstance(target_module, str)
+            or not isinstance(imported_names, list)
+            or not all(isinstance(name, str) for name in imported_names)
+            or not isinstance(lineno, int)
+        ):
             return None
         imports.append(
             ImportRef(
                 source_file=source_file,
                 source_module=source_module,
                 target_module=target_module,
+                imported_names=tuple(imported_names),
                 lineno=lineno,
                 in_type_checking=bool(item.get("in_type_checking", False)),
             )
@@ -453,6 +481,140 @@ def format_path(root: Path, path: Path) -> str:
         return str(path)
 
 
+def _exact_package_root(module: object, internal_prefix: str) -> str | None:
+    if not isinstance(module, str):
+        return None
+    parts = module.split(".")
+    if len(parts) != 2 or parts[0] != internal_prefix:
+        return None
+    return parts[1]
+
+
+def _minimal_prefixes(prefixes: set[str]) -> tuple[str, ...]:
+    result: list[str] = []
+    for prefix in sorted(prefixes):
+        if any(prefix == parent or prefix.startswith(f"{parent}.") for parent in result):
+            continue
+        result.append(prefix)
+    return tuple(result)
+
+
+def _read_package_governance(
+    *,
+    policy_path: Path,
+    policy: dict[str, Any],
+    internal_prefix: str,
+    src_root: Path,
+    known_roots: set[str],
+    internal_allow: dict[str, set[str]],
+) -> tuple[Path, dict[tuple[str, str], tuple[str, ...]]]:
+    if policy.get("contract_role") != DIRECTION_MATRIX_ROLE:
+        raise ValueError(
+            f"policy.contract_role must be {DIRECTION_MATRIX_ROLE!r} for policy version 2"
+        )
+    boundary_ref = policy.get("package_boundaries")
+    if not isinstance(boundary_ref, str) or not boundary_ref.strip():
+        raise ValueError("policy.package_boundaries must name the ownership/narrowing register")
+    boundary_path = Path(boundary_ref)
+    if not boundary_path.is_absolute():
+        boundary_path = (policy_path.parent / boundary_path).resolve()
+    if not boundary_path.is_file():
+        raise ValueError(f"Package boundary register not found: {boundary_path}")
+
+    without_directories = sorted(
+        root for root in known_roots if not (src_root / internal_prefix / root).is_dir()
+    )
+    if without_directories:
+        raise ValueError(
+            "direction matrix roots without directories: " + ", ".join(without_directories)
+        )
+
+    data = tomllib.loads(boundary_path.read_text(encoding="utf-8"))
+    contract = data.get("package_boundaries") or {}
+    if contract.get("contract_role") != OWNERSHIP_NARROWING_ROLE:
+        raise ValueError(
+            "package_boundaries.contract_role must be "
+            f"{OWNERSHIP_NARROWING_ROLE!r}"
+        )
+
+    packages = data.get("package", [])
+    if not isinstance(packages, list):
+        raise ValueError("package boundary register [[package]] entries must be a list")
+    governed: set[str] = set()
+    package_rows: dict[str, dict[str, Any]] = {}
+    for item in packages:
+        if not isinstance(item, dict):
+            raise ValueError("package boundary register contains a non-table package entry")
+        root = _exact_package_root(item.get("module"), internal_prefix)
+        if root is None:
+            continue
+        owner = item.get("owner")
+        if not isinstance(owner, str) or not owner.startswith("team-"):
+            raise ValueError(f"package boundary root {root} must name a team-* owner")
+        if root in package_rows:
+            raise ValueError(f"duplicate exact-root package boundary: {root}")
+        governed.add(root)
+        package_rows[root] = item
+
+    ungoverned_rows = data.get("deliberately_ungoverned_root", [])
+    if not isinstance(ungoverned_rows, list):
+        raise ValueError("[[deliberately_ungoverned_root]] entries must be a list")
+    ungoverned: set[str] = set()
+    for item in ungoverned_rows:
+        if not isinstance(item, dict):
+            raise ValueError("deliberately ungoverned root entry must be a table")
+        root = item.get("root")
+        reason = item.get("reason")
+        if not isinstance(root, str) or root not in known_roots:
+            raise ValueError(f"deliberately ungoverned root is not in direction matrix: {root}")
+        if not isinstance(reason, str) or not reason.strip():
+            raise ValueError(f"deliberately ungoverned root {root} must state a reason")
+        if root in ungoverned:
+            raise ValueError(f"duplicate deliberately ungoverned root: {root}")
+        ungoverned.add(root)
+
+    overlap = sorted(governed & ungoverned)
+    if overlap:
+        raise ValueError(
+            "direction roots cannot be both governed and deliberately ungoverned: "
+            + ", ".join(overlap)
+        )
+    missing = sorted(known_roots - governed - ungoverned)
+    if missing:
+        raise ValueError("package governance missing for direction roots: " + ", ".join(missing))
+
+    narrowings: dict[tuple[str, str], tuple[str, ...]] = {}
+    for source_root, item in sorted(package_rows.items()):
+        dependencies = item.get("allowed_dependencies", [])
+        if not isinstance(dependencies, list):
+            raise ValueError(
+                f"package boundary root {source_root} allowed_dependencies must be a list"
+            )
+        exact_targets: set[str] = set()
+        narrowed_targets: dict[str, set[str]] = {}
+        for dependency in dependencies:
+            if not isinstance(dependency, str):
+                raise ValueError(
+                    f"package boundary root {source_root} has a non-string dependency"
+                )
+            parts = dependency.split(".")
+            if len(parts) < 2 or parts[0] != internal_prefix:
+                continue
+            target_root = parts[1]
+            if len(parts) == 2:
+                exact_targets.add(target_root)
+            else:
+                narrowed_targets.setdefault(target_root, set()).add(dependency)
+        for target_root, prefixes in sorted(narrowed_targets.items()):
+            if target_root in exact_targets:
+                continue
+            if target_root not in internal_allow.get(source_root, set()):
+                continue
+            narrowings[(source_root, target_root)] = _minimal_prefixes(prefixes)
+
+    return boundary_path, narrowings
+
+
 def read_policy(path: Path) -> PolicyConfig:
     if not path.exists():
         raise ValueError(f"Policy file not found: {path}")
@@ -460,7 +622,7 @@ def read_policy(path: Path) -> PolicyConfig:
     policy = data.get("policy") or {}
     internal_prefix = policy.get("internal_prefix")
     src_root_raw = policy.get("src_root")
-    version = policy.get("version", "unknown")
+    version = str(policy.get("version", "unknown"))
     if not internal_prefix or not src_root_raw:
         raise ValueError("policy.internal_prefix and policy.src_root are required")
 
@@ -475,11 +637,35 @@ def read_policy(path: Path) -> PolicyConfig:
         raise ValueError("roots.known must list at least one root")
 
     internal_allow = data.get("internal", {}).get("allow", {})
+    if not isinstance(internal_allow, dict):
+        raise ValueError("internal.allow must be a table")
+    extra_allow_roots = sorted(set(internal_allow) - known_roots)
+    if extra_allow_roots:
+        raise ValueError(
+            "internal.allow rows missing from roots.known: " + ", ".join(extra_allow_roots)
+        )
     internal_allow_map: dict[str, set[str]] = {}
     for root in known_roots:
         if root not in internal_allow:
             raise ValueError(f"internal.allow.{root} must be defined")
         internal_allow_map[root] = set(internal_allow.get(root, []))
+        unknown_targets = sorted(internal_allow_map[root] - known_roots - {"*"})
+        if unknown_targets:
+            raise ValueError(
+                f"internal.allow.{root} names unknown roots: " + ", ".join(unknown_targets)
+            )
+
+    package_boundaries_path: Path | None = None
+    internal_narrowings: dict[tuple[str, str], tuple[str, ...]] = {}
+    if version == "2":
+        package_boundaries_path, internal_narrowings = _read_package_governance(
+            policy_path=path,
+            policy=policy,
+            internal_prefix=internal_prefix,
+            src_root=src_root,
+            known_roots=known_roots,
+            internal_allow=internal_allow_map,
+        )
 
     external_allow = data.get("external", {}).get("allow", {})
     external_allow_map: dict[str, set[str]] = {}
@@ -500,8 +686,10 @@ def read_policy(path: Path) -> PolicyConfig:
         src_root=src_root,
         known_roots=known_roots,
         internal_allow=internal_allow_map,
+        internal_narrowings=internal_narrowings,
         external_allow=external_allow_map,
         package_cycle_baselines=frozenset(package_cycle_baselines),
+        package_boundaries_path=package_boundaries_path,
     )
 
 
@@ -658,6 +846,23 @@ def format_allowed_internal(allowed: set[str]) -> str:
     if "*" in allowed:
         return "*"
     return "{" + ", ".join(sorted(allowed)) + "}"
+
+
+def narrowed_import_is_allowed(ref: ImportRef, allowed_prefixes: tuple[str, ...]) -> bool:
+    if any(
+        ref.target_module == prefix or ref.target_module.startswith(f"{prefix}.")
+        for prefix in allowed_prefixes
+    ):
+        return True
+    if not ref.imported_names or "*" in ref.imported_names:
+        return False
+    expanded_targets = tuple(
+        f"{ref.target_module}.{imported_name}" for imported_name in ref.imported_names
+    )
+    return all(
+        any(target == prefix or target.startswith(f"{prefix}.") for prefix in allowed_prefixes)
+        for target in expanded_targets
+    )
 
 
 def format_allowed_external(allowed: set[str]) -> str:
@@ -1017,6 +1222,8 @@ def _changed_scan_scope(
         resolved_exceptions,
         Path(__file__).resolve(),
     }
+    if config.package_boundaries_path is not None:
+        sentinel_paths.add(config.package_boundaries_path.resolve())
     if any(path in sentinel_paths for path in changed_paths):
         return set(iter_py_files(config.src_root)), True
 
@@ -1046,6 +1253,12 @@ def _build_fingerprint(
             "cache_version": CACHE_VERSION,
             "policy_version": config.version,
             "policy_sha256": file_sha256(policy_path) if policy_path.exists() else None,
+            "package_boundaries_sha256": (
+                file_sha256(config.package_boundaries_path)
+                if config.package_boundaries_path is not None
+                and config.package_boundaries_path.exists()
+                else None
+            ),
             "exceptions_sha256": file_sha256(exceptions_path) if exceptions_path.exists() else None,
             "tool_sha256": file_sha256(Path(__file__)),
             "allow_type_checking": allow_type_checking,
@@ -1376,6 +1589,29 @@ def main(argv: Sequence[str] | None = None) -> int:
 
             allowed = config.internal_allow.get(source_root, set())
             if "*" in allowed or target_root in allowed:
+                allowed_prefixes = config.internal_narrowings.get(
+                    (source_root, target_root),
+                    (),
+                )
+                if not allowed_prefixes or narrowed_import_is_allowed(ref, allowed_prefixes):
+                    continue
+                message = (
+                    f"{rel_path}:{ref.lineno} [ARCH007] forbidden narrowed internal import: "
+                    f"{source_root} -> {target_root} via {ref.target_module} "
+                    f"(allowed_prefixes={','.join(allowed_prefixes)})"
+                )
+                violation = _apply_exceptions(
+                    ref,
+                    message,
+                    compiled_exceptions,
+                    rel_path,
+                    target_root,
+                    today,
+                    allowed_exceptions,
+                    expired_exceptions,
+                )
+                if violation is not None:
+                    violations.append(violation)
                 continue
 
             message = (

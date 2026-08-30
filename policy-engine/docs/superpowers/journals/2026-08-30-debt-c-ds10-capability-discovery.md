@@ -1,7 +1,7 @@
 # Task C — DS10 capability discovery closure journal
 
-Date: 2026-08-30  
-Branch: `codex/debt-c-ds10-capability-discovery`  
+Date: 2026-08-30
+Branch: `codex/debt-c-ds10-capability-discovery`
 Entry commit: `784d020148c56e9bfb3a3631909ba11232210a9f`
 
 ## Entry and governing evidence

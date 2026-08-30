@@ -2,14 +2,17 @@ from __future__ import annotations
 
 import ast
 import io
+import os
 import subprocess
+import sys
 import tokenize
 from functools import lru_cache
 from pathlib import Path
 from typing import NamedTuple
 
+import pytest
+
 _ROOT = Path(__file__).resolve().parents[2]
-_IGNORED_PARTS = {".git", ".mypy_cache", ".pytest_cache", ".ruff_cache", ".venv", "node_modules"}
 _LEGACY_CLAIM_API_NAMES = {
     "append_and_persist_claim_event",
     "append_only_audit_summary",
@@ -58,13 +61,30 @@ class _CallSite(NamedTuple):
 
 @lru_cache(maxsize=1)
 def _filesystem_candidate_files() -> tuple[Path, ...]:
-    return tuple(
+    candidates = tuple(
         sorted(
             candidate
             for suffix in ("*.py", "*.pyi")
             for candidate in _ROOT.rglob(suffix)
-            if not (_IGNORED_PARTS & set(candidate.parts))
+            if candidate.is_file() and ".git" not in candidate.relative_to(_ROOT).parts
         )
+    )
+    relative_candidates = tuple(
+        os.fsencode(candidate.relative_to(_ROOT).as_posix()) for candidate in candidates
+    )
+    result = subprocess.run(
+        ["git", "-C", str(_ROOT), "check-ignore", "--stdin", "-z"],
+        input=b"\0".join(relative_candidates) + b"\0",
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode not in {0, 1}:
+        result.check_returncode()
+    ignored = {raw for raw in result.stdout.split(b"\0") if raw}
+    return tuple(
+        candidate
+        for candidate, relative in zip(candidates, relative_candidates, strict=True)
+        if relative not in ignored
     )
 
 
@@ -430,6 +450,45 @@ EC()
 
 def test_candidate_file_denominators_reconcile_independently() -> None:
     assert _filesystem_candidate_files() == _git_candidate_files()
+
+
+def test_candidate_file_reconciliation_honors_git_ignores(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = tmp_path / "repository"
+    repository.mkdir()
+    subprocess.run(["git", "init", "-q", str(repository)], check=True)
+    (repository / ".gitignore").write_text("ignored/\n", encoding="utf-8")
+    ignored = repository / "ignored"
+    ignored.mkdir()
+    force_tracked = ignored / "force_tracked.py"
+    force_tracked.write_text("TRACKED = True\n", encoding="utf-8")
+    ignored_untracked = ignored / "ignored_untracked.py"
+    ignored_untracked.write_text("IGNORED = True\n", encoding="utf-8")
+    admissible_untracked = repository / "admissible_untracked.py"
+    admissible_untracked.write_text("ADMISSIBLE = True\n", encoding="utf-8")
+    subprocess.run(
+        ["git", "-C", str(repository), "add", "-f", "ignored/force_tracked.py"],
+        check=True,
+    )
+
+    with monkeypatch.context() as context:
+        context.setattr(sys.modules[__name__], "_ROOT", repository)
+        _filesystem_candidate_files.cache_clear()
+        _git_candidate_files.cache_clear()
+        _walk_denominator.cache_clear()
+        try:
+            filesystem_candidates = _filesystem_candidate_files()
+            git_candidates = _git_candidate_files()
+        finally:
+            _filesystem_candidate_files.cache_clear()
+            _git_candidate_files.cache_clear()
+            _walk_denominator.cache_clear()
+
+    assert filesystem_candidates == git_candidates
+    assert filesystem_candidates == tuple(sorted((admissible_untracked, force_tracked)))
+    assert ignored_untracked not in filesystem_candidates
 
 
 def test_public_export_api_accepts_owner_key_not_ledger_bytes_or_ref() -> None:

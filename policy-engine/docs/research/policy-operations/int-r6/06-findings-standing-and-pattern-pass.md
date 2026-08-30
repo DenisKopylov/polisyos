@@ -22,7 +22,7 @@ Stage 3 appoints nobody. The 30-row denominator below is complete and each row h
 | F-007 | system and jurisdiction concepts need separate namespaces and mappings | `protocol_requirement` | `unallocated` | allocate concept/mapping owner before registry work |
 | F-008 | existing statuses/refusals must be reused; MAEP cannot create a second lattice | `scope_constraint` | `unallocated` for cross-owner mapping; existing namespaced owners remain authoritative | complete owner-by-owner vocabulary mapping |
 | F-009 | catalogue key parity is structural evidence only | `bounded_repo_fact` | `existing: @frontend-owners` for catalogue mechanics | retain parity; prohibit semantic-standing inference |
-| F-010 | catalogue identity share is a triage signal, not translation evidence | `measurement_interpretation` | `existing: INT-R6 research package` for this interpretation | retain current and historical denominators separately |
+| F-010 | catalogue identity share is a triage signal, not translation evidence | `measurement_interpretation` | `unallocated`; no accountable interpretation owner appointed | retain current and historical denominators separately; allocate before operational use |
 | F-011 | high-stakes messages require whole propositions or typed message functions | `protocol_requirement` | `unallocated` | allocate message-contract owner before implementation |
 | F-012 | action-profile counterexamples can refute a candidate over a declared population | `protocol_requirement` | `unallocated` | implement only with complete population, exclusions, and residual |
 | F-013 | `limited`, `may_not_use_for`, `stale`, `superseded`, `withdrawn` need ID-preserving rendering | `red_first_requirement` | `unallocated` for cross-family fixture ownership; existing status owners remain separate | map each fixture to exact namespace/version |
@@ -39,13 +39,23 @@ Stage 3 appoints nobody. The 30-row denominator below is complete and each row h
 | F-024 | Ukraine is an architecture fixture, not a present capability claim | `architecture_demonstration` | `unallocated` | later implementation must attach real producer/consumer evidence |
 | F-025 | Russian source-content rendition cannot reactivate frozen Russian UI | `scope_boundary` | `existing: team-design` for D4 UI boundary; source-content owner `unallocated` | preserve separate capability records |
 | F-026 | current `locale_preference` serialization is a seam; downstream authority effect is not established | `bounded_repo_risk` | `unallocated` for cross-boundary remediation; existing `@frontend-owners`/`@runtime-owners` own their current components | complete producer-to-consumer audit before changing behaviour |
-| F-027 | code-search misses do not establish repository-wide absence | `measurement_limitation` | `existing: INT-R6 research package` for evidence discipline | require complete tree/file denominator for future zeros |
+| F-027 | code-search misses do not establish repository-wide absence | `measurement_limitation` | `unallocated`; no accountable evidence-discipline owner appointed | require complete tree/file denominator for future zeros |
 | F-028 | direct English→Ukrainian authority-error rates remain unknown | `external_evidence_gap` | `unallocated` | allocate corpus/benchmark owner before empirical claim |
 | F-029 | no universal co-authentic reconciliation algorithm is available | `not_applicable_universalisation` | `unallocated` globally; each jurisdiction must name its competent owner | preserve jurisdiction-specific rule/holder |
 | F-030 | no finding requires a D4-A1 UI-posture early stop | `research_conclusion` | `unallocated` for next pipeline stage; no capability owner implied | proceed only under standing and audit/amendment evidence |
 
-Owner-state census: `30 / 30` rows state either a concrete existing identity or explicit
-`unallocated`; `0 / 30` use a generic work lane as an accountable owner.
+Owner-state census, complete 30-row denominator:
+
+```text
+rows with explicit unallocated state 27
+rows with existing-owner identity only 3
+rows naming an artifact as owner 0
+rows naming a generic work lane as owner 0
+total 30
+```
+
+The 27-row category includes mixed rows that also name bounded existing component owners; the three
+owner-only rows are F-001, F-009, and F-023.
 
 ## Decision ledger
 
@@ -89,7 +99,7 @@ An audit verdict is not a standing value. Stage 3 does not move these axes.
 
 | ID | gap | owner state | closure evidence |
 |---|---|---|---|
-| OQ-01 | complete implementation baseline beyond the closed catalogue census | `unallocated` | complete tree/file denominators for message composition, certificate producers/consumers, and source-content bridge |
+| OQ-01 | complete implementation baseline beyond the bounded catalogue path/blob observations | `unallocated` | complete tree/file denominators for message composition, certificate producers/consumers, and source-content bridge |
 | OQ-02 | mapping proposed relations/results/reasons to registered vocabularies | `unallocated` | owner-by-owner mapping; no local token invention |
 | OQ-03 | Ukrainian high-stakes corpus and behavioural ground truth | `unallocated` | versioned corpus, protocol, denominator, reviewer agreement, action ground truth |
 | OQ-04 | role qualification and appointment | `unallocated`; zero appointments | competent appointment record in a later stage |
@@ -161,8 +171,8 @@ Pattern Pass result: `completed_and_routed`; no pattern-register edit was made.
 | finite suite not presented as unrestricted proof | `pass` |
 | English pivot costs/permitted uses explicit | `pass` |
 | RTL boundary/evidence trigger explicit | `pass` |
-| 30/30 findings have existing or unallocated owner state | `pass` |
-| current three-catalogue census independently reproduced | `pass` |
+| 30/30 findings have an existing-owner identity or explicit unallocated state; no artifact owner | `pass` |
+| catalogue path/blob denominator is connector-established; leaf/identity figures are `institutionally_supplied` and settle no zero | `pass` |
 | historical DS0 census remains historical | `pass` |
 | single conforming W4-K05 tuple | `pass` |
 | capability/gate standings unchanged | `pass` |

@@ -12,9 +12,10 @@ absence and does not present connector output as a terminal transcript.
 | base main | `dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f` |
 | package SHA measured | `5e47c868c2c1d4d66fa11fcddcc972dbb55e95d3` |
 | pre-repair SHA read | `b612b21272c732d53cfde8569846cfb7a0c73f5a` |
-| current catalogue measurement party | Stage-3 INT-R6 author, Python `3.13.5` |
+| current catalogue evidence class | `institutionally_supplied` architect walk; not executed by the Stage-3 author or Stage-5 remediator |
 | prior measurement party | DS0, for the 2,449/888/1,963 snapshot only |
-| catalogue denominator | exactly 3 JSON files / 3 total files under the pinned locale directory |
+| catalogue path denominator | exactly the 3 named locale paths below |
+| catalogue file-type denominator | 3 JSON files / 3 total files under the pinned locale directory |
 | leaf unit | terminal JSON value whose runtime type is `str` |
 | identity unit | shared dot-path whose target string is byte-identical to the `en` string |
 
@@ -31,127 +32,16 @@ absence and does not present connector output as a terminal transcript.
 | `policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json` | `07a1b4fadded69fc3435be9eca235eb85c4c24d4` | 136,204 | JSON |
 
 The bounded directory contained exactly those three files. No code-search result contributed to the
-denominator.
+path or file-type denominator.
 
-### Executed census script
+### Institutionally supplied values — Terminal B
 
-The author executed the following script against the three connector-returned UTF-8 payloads. Parser
-A uses the standard JSON parser and a recursive object walk. Parser B is a separately implemented
-recursive-descent JSON parser; it does not call `json.loads`, `JSONDecoder`, or Parser A. The script
-requires Parser A and Parser B to produce the same ordered path/value map before reporting any count.
+The Stage-3 author-execution and independent-parser assertions are withdrawn. The published harness
+is not treated as an executed artifact, and no author/auditor independent catalogue measurement is
+claimed.
 
-```python
-from __future__ import annotations
-
-import json
-from pathlib import Path
-from typing import Any
-
-ROOT = Path("connector-payloads")
-EXPECTED = ("en.json", "uk.json", "ru.json")
-
-
-def flatten(value: Any, prefix: str = "") -> dict[str, str]:
-    if isinstance(value, dict):
-        out: dict[str, str] = {}
-        for key, nested in value.items():
-            path = f"{prefix}.{key}" if prefix else key
-            out.update(flatten(nested, path))
-        return out
-    if isinstance(value, str) and prefix:
-        return {prefix: value}
-    raise TypeError(f"non-string catalogue leaf at {prefix!r}: {type(value).__name__}")
-
-
-class JsonParser:
-    def __init__(self, text: str) -> None:
-        self.text = text
-        self.i = 0
-
-    def ws(self) -> None:
-        while self.i < len(self.text) and self.text[self.i] in " \t\r\n":
-            self.i += 1
-
-    def take(self, token: str) -> None:
-        self.ws()
-        if not self.text.startswith(token, self.i):
-            raise ValueError(f"expected {token!r} at {self.i}")
-        self.i += len(token)
-
-    def string(self) -> str:
-        self.ws()
-        if self.text[self.i] != '"':
-            raise ValueError(f"expected string at {self.i}")
-        start = self.i
-        self.i += 1
-        escaped = False
-        while self.i < len(self.text):
-            char = self.text[self.i]
-            self.i += 1
-            if escaped:
-                escaped = False
-            elif char == "\\":
-                escaped = True
-            elif char == '"':
-                return json.loads(self.text[start:self.i])
-        raise ValueError("unterminated string")
-
-    def value(self) -> Any:
-        self.ws()
-        char = self.text[self.i]
-        if char == "{":
-            return self.object()
-        if char == '"':
-            return self.string()
-        raise ValueError(f"catalogue contains unsupported non-string value at {self.i}")
-
-    def object(self) -> dict[str, Any]:
-        result: dict[str, Any] = {}
-        self.take("{")
-        self.ws()
-        if self.text[self.i] == "}":
-            self.i += 1
-            return result
-        while True:
-            key = self.string()
-            self.take(":")
-            result[key] = self.value()
-            self.ws()
-            if self.text[self.i] == "}":
-                self.i += 1
-                return result
-            self.take(",")
-
-    def parse(self) -> dict[str, Any]:
-        value = self.object()
-        self.ws()
-        if self.i != len(self.text):
-            raise ValueError(f"trailing data at {self.i}")
-        return value
-
-
-files = sorted(path.name for path in ROOT.iterdir() if path.is_file())
-assert tuple(files) == EXPECTED, files
-maps: dict[str, dict[str, str]] = {}
-for name in EXPECTED:
-    text = (ROOT / name).read_text(encoding="utf-8")
-    parser_a = flatten(json.loads(text))
-    parser_b = flatten(JsonParser(text).parse())
-    assert parser_a == parser_b
-    maps[name.removesuffix(".json")] = parser_a
-
-en, uk, ru = maps["en"], maps["uk"], maps["ru"]
-print({name: len(value) for name, value in maps.items()})
-print("uk_eq_en", sum(uk[k] == en[k] for k in en), len(en))
-print("ru_eq_en", sum(ru[k] == en[k] for k in ru), len(ru))
-print("en_missing_from_ru", len(set(en) - set(ru)))
-print("uk_only", len(set(uk) - set(en)))
-print("ru_only", len(set(ru) - set(en)))
-```
-
-### Execution result and independent cross-check
-
-Both parser maps agreed exactly for each file. The complete result was:
+The following values are recorded as `institutionally_supplied` under W4-K01 from the architect walk
+of the exact three-path population above:
 
 ```text
 string leaves: en=2618, uk=2618, ru=2449
@@ -162,9 +52,14 @@ uk-only paths: 0
 ru-only paths: 0
 ```
 
-The three catalogues now have unequal denominators. This is not a defect in the conclusion: active
-`en`/`uk` path parity and frozen `ru` integrity are structural policies, while semantic equivalence is
-a proposition-level claim. The unequal denominators make the distinction visible.
+These figures are descriptive inputs, not this package's execution result. Under W4-K01 they settle
+no zero: they do not establish repository-wide absence, translation quality, semantic equivalence,
+or an independently reproduced census. The exact path and file-type denominators remain connector
+observations; the leaf and identity values remain institutionally supplied.
+
+The three catalogues have unequal supplied denominators. Active `en`/`uk` path parity and frozen `ru`
+integrity are structural policies, while semantic equivalence is a proposition-level claim. The
+unequal denominators make the distinction visible without changing the evidence class.
 
 ## Historical DS0 snapshot
 
@@ -174,8 +69,8 @@ DS0 reported 2,449 string leaves in each catalogue, with 888 `uk == en` leaves a
 - `888 / 2,449 = 36.2596978…%`, rounded to 36.26%;
 - `1,963 / 2,449 = 80.1551654…%`, rounded to 80.16%.
 
-Those values remain attributed to DS0. They are not current values and do not overwrite the executed
-Stage-3 census.
+Those values remain attributed to DS0. They are not current values and remain separate from the
+institutionally supplied current figures.
 
 An identical leaf has materially different possible causes: untranslated text; a proper noun,
 identifier, code, or product name intentionally held constant; an English loan or controlled shared
@@ -206,7 +101,7 @@ method/denominator and current claim strength; none is promoted into a repositor
 | ID | bounded set and method | denominator | exact coordinates | amended conclusion |
 |---|---|---:|---|---|
 | B-01 | frontend i18n owner cohort, recursive connector tree walk | 18 blobs | `apps/runtime-dashboard/src/shared/i18n/**` | one product-locale owner cohort; no complete source-content axis in that bounded cohort at the pre-repair/package baseline |
-| B-02 | locale catalogues, recursive connector tree walk | 3 JSON / 3 files | `.../locales/{en,uk,ru}.json` | exact current blob identities and census above |
+| B-02 | locale catalogues, recursive connector tree walk | 3 JSON / 3 files | `.../locales/{en,uk,ru}.json` | exact current blob identities; leaf/identity values above are institutionally supplied and settle no zero |
 | B-03 | legal corpus subtree, recursive connector tree walk | 6 blobs | `src/polisyos/data_forge/domains/legal/corpus/**` | absence conclusions limited to that bounded corpus owner subtree |
 | B-04 | product-locale launch path, complete read of named owner/builders/contracts | 4 named files | `shared/i18n/locale.ts`; `features/composer/routes/ComposerModeSections.tsx`; `features/composer/domain/forms.ts`; `src/polisyos/core/contracts/control.py` | selected product locale crosses request construction as `locale_preference`; downstream semantic effect remains an implementation question |
 | B-05 | falsifier terms, symbol-guided owner-to-surface read | 8 named files | decision-validity owner/validator; claims/search owners; trust and run-report surfaces | `stale`/`superseded`/`withdrawn` have distinct canonical IDs; `limited` is namespaced by owner; `may_not_use_for` members remain string-valued in inspected contracts |
@@ -218,6 +113,9 @@ not enlarged into a whole-repository absence claim.
 
 ### Restored named facts
 
+- `docs/research/policy-operations-and-real-world-runtime-backlog.md`, row `INT-R6`, retains the stale
+  `uk`-primary framing. D4-A1 supersedes that source direction for product UI; the row is historical
+  framing only and is not an authority source for this protocol.
 - `apps/runtime-dashboard/src/shared/i18n/locale.ts` defines active `en`/`uk`, `PRIMARY_LOCALE=en`,
   and `LEGACY_CONTINUITY_LOCALE=ru`.
 - `apps/runtime-dashboard/src/features/composer/domain/forms.ts` serializes product locale into
@@ -231,6 +129,9 @@ not enlarged into a whole-repository absence claim.
   values are strings, so field naming alone does not prove deontic preservation.
 - `src/polisyos/scientist/evidence/claims/models.py` contains separately owned `LIMITED` statuses;
   the bare word is not a global semantic ID.
+- `apps/runtime-dashboard/src/api/validators.ts` contains the closed decision-validity member set
+  alongside adjacent status-bearing fields validated with `z.string()`. This observation is bounded
+  to that one named validator file and requires owner-by-owner protocol adoption.
 - `apps/runtime-dashboard/src/features/trust/export/trustPostureTwin.ts` proves exact artifact-to-DOM
   projection for its bounded fields, not translation equivalence.
 - `src/polisyos/data_forge/domains/legal/contracts.py` defines `LegalDocSource.language` and the
@@ -246,15 +147,17 @@ at `b612b21272c732d53cfde8569846cfb7a0c73f5a` is handled below.
 | predecessor claim/method | predecessor denominator | successor action | successor location / what is now true |
 |---|---:|---|---|
 | complete frontend i18n cohort | 18 blobs | **restore as bounded historical/current-baseline observation** | B-01 and restored named facts; no whole-repository absence |
-| exact catalogue files/blobs/bytes | 3/3 JSON | **restore and recompute** | current census table and executed two-parser result |
-| DS0 2,449/888/1,963 percentages | 3 catalogues in DS0 snapshot | **retain as historical; recompute current separately** | historical DS0 section; never labelled current |
+| exact catalogue files/blobs/bytes | 3/3 JSON | **restore; retain supplied numeric census separately** | connector table plus institutionally supplied values; no author-execution claim |
+| DS0 2,449/888/1,963 percentages | 3 catalogues in DS0 snapshot | **retain as historical; keep current supplied values separate** | historical DS0 section; never labelled current execution |
 | active locale contract (`en`,`uk`; frozen `ru`) | named frontend/backend owners | **restore** | B-01/restored named facts; D4-A1 remains governing |
+| `INT-R6-F002` — compare stale Wave-2 `INT-R6` row with governing D4-A1 | 1 named backlog row + 1 governing D4-A1 record | **restore as historical and record supersession boundary** | restored named facts; `en -> uk` governs product UI and the stale row is not protocol authority |
 | `locale_preference` crossing | 4 named path files | **restore with narrower conclusion** | B-04; serialization established, downstream authority selection not established |
 | one frontend language context | 18-file bounded cohort | **restore with bounded absence language** | B-01/restored named facts |
 | structural parity and frozen integrity | named parity test | **restore** | parity section; semantic inference expressly prohibited |
 | whole-message/ICU strengths and morphology gap | named message/provider/parity files | **restore** | main report and protocol fixtures; no claim that MAEP is implemented |
 | distinct validity IDs and namespaced `limited` | named owners/validator | **restore** | B-05/restored named facts |
 | free-string `may_not_use_for` members | four named owners/surfaces | **restore** | B-05; routed to canonical-owner mapping rather than local lattice |
+| `INT-R6-F014` — complete read of adjacent status-bearing declarations outside the closed decision-validity set | 1 named validator file; declarations outside the named closed member set | **restore as bounded repository observation** | restored named facts; adoption remains owner-by-owner and no duplicate ID is invented |
 | trust MACHINE twin exactness | one named twin | **restore** | restored named facts; limited to artifact/DOM parity |
 | Lex language/jurisdiction but no authority relation | 3 owners + 6 corpus blobs | **restore with bounded conclusion** | B-06; capability remains absent/unallocated |
 | `SPOCandidate` Ukraine→English pivot | one named owner | **restore** | restored named facts and language-axis appendix |
@@ -263,11 +166,27 @@ at `b612b21272c732d53cfde8569846cfb7a0c73f5a` is handled below.
 | shell-framed connector receipt in pre-repair main | no shell process for the displayed values | **retract** | no amended package artifact presents connector facts under shell framing |
 | incomplete headings 3–10 in pre-repair main | one artifact | **retract as substantive deliverable** | retained scaffold now identifies itself as navigation/history only |
 
+A complete heading read of the pre-repair baseline found **19 unique numbered findings**,
+`INT-R6-F001`–`INT-R6-F019`. The prior matrix accounted for F001 and F003–F013 and F015–F019; the two
+new rows above individually disposition F002 and F014 with their original bounded methods and
+denominators.
+
+```text
+numbered predecessor findings 19
+individually dispositioned 19
+unaccounted 0
+```
+
+The three non-duplicative delivery/orientation claims from the removed 139-line main file remain
+unchanged and separately accounted in the final three rows.
+
 ## Remaining measurement limitations
 
-The current catalogue census is established. The following remain open and must not be used as settled
-premises:
+The exact catalogue paths, blobs, bytes, and 3-JSON/3-file denominator are connector-established.
+The leaf and identity figures are `institutionally_supplied` and settle no zero. The following remain
+open and must not be used as settled premises:
 
+- independent author/auditor execution of the current catalogue leaf/identity census;
 - complete repository-wide fragment/message composition denominator;
 - complete owner mapping for all proposed relation/result/refusal values;
 - implemented producer/consumer chain for MAEP certificates and vacant-holder refusals;

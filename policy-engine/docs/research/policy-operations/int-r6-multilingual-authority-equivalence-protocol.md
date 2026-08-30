@@ -57,23 +57,26 @@ reported 2,449 primitive string leaves in each catalogue, with `888 / 2,449 = 36
 and `1,963 / 2,449 = 80.16%` of `ru` byte-identical to `en`. Those values remain historical DS0
 facts and are not relabelled as current.
 
-The Stage-3 author reran the current three-file census at the package SHA with a recursive JSON
-walker and an independently implemented event-stream parser. The file denominator was exactly
-`3 JSON / 3 total files` under
-`policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/`:
+The Stage-3 author-execution and independent-parser assertions are withdrawn. The published harness
+is not treated as an executed artifact. The exact catalogue path and file-type denominator is
+connector-observed: `3 JSON / 3 total files` under
+`policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/`.
 
-| catalogue | current string leaves | identical to `en` on shared paths |
+The following leaf/identity values are recorded as `institutionally_supplied` under W4-K01:
+
+| catalogue | supplied string leaves | supplied identity to `en` on shared paths |
 |---|---:|---:|
 | `en.json` | 2,618 | n/a |
 | `uk.json` | 2,618 | 894 / 2,618 = 34.15% |
 | `ru.json` | 2,449 | 1,936 / 2,449 = 79.05% |
 
-`en` has 169 paths absent from `ru`; `uk` has zero unique paths and `ru` has zero unique paths.
-The two parsers produced the same ordered path/value maps and digests. The executable script,
-blob SHAs, parser receipts, and second-parser cross-check are recorded in
+The supplied walk reports 169 `en` paths absent from `ru`, zero `uk`-only paths, and zero `ru`-only
+paths. These values are not Stage-3 or Stage-5 execution results, no independent author/auditor
+measurement is claimed, and under W4-K01 they settle no zero. Exact path/blob observations and the
+evidence boundary are recorded in
 [`int-r6/01-repository-baseline.md`](int-r6/01-repository-baseline.md).
 
-The unequal current denominators strengthen, rather than weaken, the research conclusion:
+The unequal supplied denominators strengthen, rather than weaken, the research conclusion:
 structural catalogue parity and semantic equivalence are different predicates. Active `en`/`uk`
 path parity can coexist with a deliberately frozen `ru` denominator, while equal path sets still say
 nothing about modality, scope, or operator action.
@@ -91,9 +94,11 @@ grade, grammatical composition, or operator action.
 
 ### Remaining baseline limitations
 
-The catalogue census is now closed. The following remain explicit implementation/specification entry
-conditions rather than repository absences:
+The exact catalogue path/blob/file denominator is connector-established; independent leaf/identity
+execution remains open. The following remain explicit implementation/specification entry conditions
+rather than repository absences:
 
+- an independent author/auditor execution of the current catalogue leaf/identity census;
 - a complete fragment/message-composition inventory;
 - a definition-to-render census for every high-stakes status/restriction family;
 - a complete producer-to-render walk for proposed MAEP certificates and refusals;
@@ -161,7 +166,7 @@ unreadable, or readable but authority-changing. Separate results and provenance 
 Real regimes often rely on institutions that PolicyOS deliberately does not yet have. INT-R6 specifies
 role/process shape without inventing holders. In the target protocol, a required high-stakes decision
 with zero eligible holders would return a typed refusal limited to the governed purpose. This research
-does not claim that the current repository already produces that refusal or implements the source,
+does not claim that the current t repository already produces that refusal or implements the source,
 draft, glossary, and fixture surfaces described by the model.
 
 Full evidence synthesis and jurisdiction limits: [`int-r6/02-external-evidence.md`](int-r6/02-external-evidence.md).
@@ -199,14 +204,14 @@ Every finding, evidence basis, classification, and accountable-owner disposition
 ### Architecture
 
 ```text
-ui_locale ─────────────── selects PolicyOS-authored chrome
+ui_locale ␀␀␀␀␀␀␀␀␀␀␀␀␀␀␀ selects PolicyOS-authored chrome
 
 jurisdiction_id
   └─ authority_text_set ─ contains one or more authentic/versioned members
        └─ content_rendition ─ language, script, status, purpose, certificate
-            └─ presentation_variant ─ parent proposition/rendition + transformation
+            └─ presentation_variant ␀ parent proposition/rendition + transformation
 
-semantic_namespace + semantic_id ─ drives logic, status, refusal, MACHINE, Lex
+semantic_namespace + semantic_id ␀ drives logic, status, refusal, MACHINE, Lex
 ```
 
 No arrow runs from `ui_locale` to authority selection. `presentation_variant` cannot exist without
@@ -214,7 +219,7 @@ its parent proposition and, where it transforms a rendition, its parent renditio
 
 ### Claim placement
 
-- A PolicyOS refusal code is a `system_semantic_id`; its evidence may cite a jurisdictional rule.
+- A PolicyOS refusal code is a `system_semantic_id`; to its evidence may cite a jurisdictional rule.
 - A legal act type normally remains a `jurisdiction_concept_id` with explicit mappings.
 - A δ-bound is system-governed when it belongs to a PolicyOS model/certificate and
   jurisdiction-governed when imposed by law or competent decision.
@@ -264,7 +269,7 @@ certificates.
 
 1. classify object and transformation;
 2. bind designated source or co-authentic authority set;
-3. normalise the authority-semantic frame;
+1. normalise the authority-semantic frame;
 4. bind registered system IDs and jurisdiction concept IDs;
 5. select an immutable controlled-glossary release;
 6. render the whole proposition or typed message function;
@@ -308,7 +313,7 @@ Forbidden(s,c) = Forbidden(t,c)
 
 A single material target-only permission, lost prohibition, lost condition, actor switch, boundary
 change, or status upgrade refutes the candidate for that purpose. Absence of a counterexample within
-`C_test` does **not** prove unrestricted semantic equivalence outside `C_test`; the residual and
+@C_test` does **not** prove unrestricted semantic equivalence outside `C_test`; the residual and
 excluded context classes remain explicit certificate fields.
 
 ### Controlled glossary
@@ -503,7 +508,7 @@ Full pass: [`int-r6/06-findings-standing-and-pattern-pass.md`](int-r6/06-finding
 
 ### Principal external sources and durable spans
 
-- [Vienna Convention on the Law of Treaties, Article 33](https://legal.un.org/ilc/texts/instruments/english/conventions/1_1_1969.pdf) — Article 33(1)–(4).
+- [Vienna Convention on the Law of Treaties, Article 33](https://legal.un.org/ilc/texts/instruments/english/conventions/1_1_1969.pdf) — Article 33(1)–4(4).
 - [Council Regulation No 1 determining EEC language use](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31958R0001) — Articles 1–5.
 - [CJEU Case 283/81, CILFIT](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:61981CJ0283) — paragraph 18.
 - [CJEU Case C-161/06, Skoma-Lux](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:62006CJ0161) — paragraphs 37–51.

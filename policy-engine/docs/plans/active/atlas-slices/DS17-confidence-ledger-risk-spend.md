@@ -1719,9 +1719,38 @@ conditional figure, panel, exact twin, and Cycle Board consumer. It does not
 rewrite DS7/DS11 ownership or teach the checker a list of the 15 classes or 13
 instruments.
 
+**Architect amendment 2026-08-29 (3) — C05 registration shape.** The C05 preflight
+correctly established, with executable mutation probes, that none of the register's
+three seed extension points admits an implemented surface: <code>entries</code> is
+fixed by <code>seed_policy.rules[0]</code> to one root row per DS1 <code>surface_id</code>
+at <code>ds1_root_count: 261</code>; <code>subunits.scope_kind</code> is
+<code>['dead_subgraph', 'legacy_continuity']</code>; and every
+<code>supplemental_findings.finding_kind</code> is a debt or a declaration. Refusing to
+register the surface as a <code>producer_binding_debt</code> row was correct — it would
+have left the surface unregistered and attributed a GY-N11-owned closure to DS17.
+
+The resolution is neither a new generic implemented-unit family nor any relaxation of
+DS1/DS7 preservation. **DS19 owns the seed** — <code>entries</code>, <code>subunits</code>,
+<code>supplemental_findings</code> — <strong>not the whole file</strong>. Post-seed slices
+record themselves in their own top-level block, and the repository has done this five
+times: <code>storage_construction_census</code> (DS5), <code>ds8_strangle_coverage</code>
+(DS8), <code>ds8b_post_freeze_transition</code> (DS8-B),
+<code>ds18_time_semantics_coverage</code> (DS18), <code>seeded_negative_lifecycle</code>
+(DS19). DS17 adds one such block. It touches no seed array.
+
+Because <code>additionalProperties</code> is <code>false</code>, a new block requires the
+schema property that backs it. <code>architecture/atlas_surfaces/frontend-disposition-register.schema.json</code>
+is therefore added to C05's P39 companion set — the one companion the original list omitted.
+Both precedents confirm it is a companion of the checker mechanism rather than a mechanism
+of its own: DS8-B's <code>ba987a3be</code> changed exactly checker + schema + test, and
+DS18's <code>54f9ff4f2</code> changed checker + schema + register + test. **The mechanism
+cap of 1 is unchanged.**
+
 **P39 register/test companions:**
 
 - <code>architecture/atlas_surfaces/frontend-disposition-register.json</code>
+- <code>architecture/atlas_surfaces/frontend-disposition-register.schema.json</code>
+  (added by the 2026-08-29 (3) amendment above; P39 companion, not a mechanism);
 - <code>architecture/atlas_surfaces/test_frontend_disposition_register.py</code>
 - mandatory writer-owned report
   <code>docs/reference/frontend/atlas-frontend-disposition-register.md</code>.

@@ -41,6 +41,7 @@ VIOLATION_RULE_RE = re.compile(r"\[(ARCH\d+)\]")
 DIRECTION_MATRIX_ROLE = "enforced_direction_matrix"
 OWNERSHIP_NARROWING_ROLE = "ownership_and_narrowing_register"
 SUPPORTED_POLICY_VERSIONS = frozenset({"2"})
+PACKAGE_BOUNDARIES_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -529,12 +530,14 @@ def _read_package_governance(
         raise ValueError(
             "direction matrix roots without directories: " + ", ".join(without_directories)
         )
-    package_root = src_root / internal_prefix
-    source_package_roots = {
-        path.name
-        for path in package_root.iterdir()
-        if path.is_dir() and (path / "__init__.py").is_file()
-    }
+    source_package_roots: set[str] = set()
+    for source_path in iter_py_files(src_root):
+        module_info = module_name_for_path(src_root, source_path, internal_prefix)
+        if module_info is None:
+            continue
+        module_parts = module_info[0].split(".")
+        if len(module_parts) >= 2 and module_parts[0] == internal_prefix:
+            source_package_roots.add(module_parts[1])
     undeclared_source_roots = sorted(source_package_roots - known_roots)
     if undeclared_source_roots:
         raise ValueError(
@@ -544,6 +547,16 @@ def _read_package_governance(
 
     data = tomllib.loads(boundary_path.read_text(encoding="utf-8"))
     contract = data.get("package_boundaries") or {}
+    boundary_version = contract.get("version")
+    if (
+        not isinstance(boundary_version, int)
+        or isinstance(boundary_version, bool)
+        or boundary_version != PACKAGE_BOUNDARIES_VERSION
+    ):
+        raise ValueError(
+            "package_boundaries.version must be "
+            f"{PACKAGE_BOUNDARIES_VERSION}, got {boundary_version!r}"
+        )
     if contract.get("contract_role") != OWNERSHIP_NARROWING_ROLE:
         raise ValueError(
             "package_boundaries.contract_role must be "

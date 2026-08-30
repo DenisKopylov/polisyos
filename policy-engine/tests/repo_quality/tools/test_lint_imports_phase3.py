@@ -267,14 +267,27 @@ def test_import_policy_fails_closed_on_unsupported_version(
         lint_imports.read_policy(policy)
 
 
-def test_version_two_policy_fails_closed_on_undeclared_source_package(
+@pytest.mark.parametrize(
+    "layout",
+    ["regular-package", "namespace-package", "root-module"],
+)
+def test_version_two_policy_fails_closed_on_undeclared_scanned_root(
     tmp_path: Path,
+    layout: str,
 ) -> None:
     src_root = tmp_path / "src"
-    for root in ("fabric", "data_forge", "rogue"):
+    for root in ("fabric", "data_forge"):
         package = src_root / "polisyos" / root
         package.mkdir(parents=True)
         (package / "__init__.py").write_text("", encoding="utf-8")
+    if layout == "root-module":
+        (src_root / "polisyos" / "rogue.py").write_text("VALUE = 1\n", encoding="utf-8")
+    else:
+        rogue = src_root / "polisyos" / "rogue"
+        rogue.mkdir()
+        (rogue / "module.py").write_text("VALUE = 1\n", encoding="utf-8")
+        if layout == "regular-package":
+            (rogue / "__init__.py").write_text("", encoding="utf-8")
     policy = tmp_path / "policy.toml"
     _write_narrowed_policy(policy, src_root)
 
@@ -283,6 +296,39 @@ def test_version_two_policy_fails_closed_on_undeclared_source_package(
         match="direction matrix missing source package roots: rogue",
     ):
         lint_imports.read_policy(policy)
+
+
+@pytest.mark.parametrize(
+    ("replacement", "rendered"),
+    [
+        ("", "None"),
+        ("version = 1", "1"),
+        ("version = 99", "99"),
+        ("version = 2.0", "2.0"),
+        ('version = "2"', "'2'"),
+    ],
+)
+def test_version_two_policy_rejects_unsupported_boundary_version(
+    tmp_path: Path,
+    replacement: str,
+    rendered: str,
+) -> None:
+    src_root = tmp_path / "src"
+    for root in ("fabric", "data_forge"):
+        package = src_root / "polisyos" / root
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_text("", encoding="utf-8")
+    policy = tmp_path / "policy.toml"
+    _write_narrowed_policy(policy, src_root)
+    boundaries = tmp_path / "boundaries.toml"
+    boundaries.write_text(
+        boundaries.read_text(encoding="utf-8").replace("version = 2", replacement),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        lint_imports.read_policy(policy)
+    assert str(exc_info.value) == f"package_boundaries.version must be 2, got {rendered}"
 
 
 def test_version_two_policy_rejects_extra_exact_root_boundary(tmp_path: Path) -> None:

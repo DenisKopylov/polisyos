@@ -30,6 +30,7 @@ def test_import_authority_contracts_declare_distinct_canonical_roles() -> None:
     assert isinstance(policy_contract, dict)
     assert isinstance(boundary_contract, dict)
     assert policy_contract["contract_role"] == "enforced_direction_matrix"
+    assert boundary_contract["version"] == 2
     assert boundary_contract["contract_role"] == "ownership_and_narrowing_register"
 
     boundary_ref = policy_contract["package_boundaries"]
@@ -46,11 +47,14 @@ def test_every_direction_root_exists_and_has_package_governance_disposition() ->
     allow = internal["allow"]
     assert isinstance(allow, dict)
     matrix_roots = set(allow)
-    source_roots = {
-        path.name
-        for path in SOURCE_ROOT.iterdir()
-        if path.is_dir() and (path / "__init__.py").is_file()
-    }
+    source_roots: set[str] = set()
+    for path in SOURCE_ROOT.rglob("*.py"):
+        relative = path.relative_to(SOURCE_ROOT)
+        if len(relative.parts) == 1:
+            if path.stem != "__init__":
+                source_roots.add(path.stem)
+        else:
+            source_roots.add(relative.parts[0])
     assert matrix_roots == source_roots
     nonexistent = sorted(root for root in matrix_roots if not (SOURCE_ROOT / root).is_dir())
     assert nonexistent == []

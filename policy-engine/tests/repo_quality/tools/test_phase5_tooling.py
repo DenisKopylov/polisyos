@@ -189,7 +189,11 @@ def test_lint_imports_changed_only_skips_without_python_changes(
     assert payload["data"]["changed_file_count"] == 0
 
 
-def test_lint_imports_changed_only_resolves_nested_product_paths(tmp_path: Path) -> None:
+@pytest.mark.parametrize("sentinel", ["policy", "boundaries"])
+def test_lint_imports_changed_only_resolves_nested_product_paths(
+    tmp_path: Path,
+    sentinel: str,
+) -> None:
     worktree_root = tmp_path / "repo"
     product_root = worktree_root / "policy-engine"
     src_root = product_root / "src"
@@ -201,7 +205,11 @@ def test_lint_imports_changed_only_resolves_nested_product_paths(tmp_path: Path)
     policy.parent.mkdir(parents=True)
     _write_policy(policy, src_root)
     _commit_git_fixture(worktree_root)
-    policy.write_text(policy.read_text(encoding="utf-8") + "# sentinel change\n", encoding="utf-8")
+    sentinel_path = policy if sentinel == "policy" else policy.with_name("boundaries.toml")
+    sentinel_path.write_text(
+        sentinel_path.read_text(encoding="utf-8") + "# sentinel change\n",
+        encoding="utf-8",
+    )
 
     output = tmp_path / "report.json"
     exit_code = lint_imports.main(
@@ -414,11 +422,38 @@ def test_lint_imports_fix_canonicalizes_exceptions_and_persists_baseline(tmp_pat
     second_payload = json.loads(second_output.read_text(encoding="utf-8"))
     expected_toml = lint_imports._canonical_exception_file(lint_imports.read_exceptions(exceptions))
 
+    boundaries = policy.with_name("boundaries.toml")
+    boundaries.write_text(
+        boundaries.read_text(encoding="utf-8") + "# cache invalidation witness\n",
+        encoding="utf-8",
+    )
+    third_output = tmp_path / "third.json"
+    third_exit = lint_imports.main(
+        [
+            "--policy",
+            str(policy),
+            "--exceptions",
+            str(exceptions),
+            "--cache-dir",
+            str(cache_dir),
+            "--skip-if-unchanged",
+            "--baseline-label",
+            "ci",
+            "--output-format",
+            "json",
+            "--output",
+            str(third_output),
+        ]
+    )
+    third_payload = json.loads(third_output.read_text(encoding="utf-8"))
+
     assert first_exit == 0
     assert second_exit == 0
+    assert third_exit == 0
     assert first_payload["data"]["fixes_applied"] == 1
     assert exceptions.read_text(encoding="utf-8") == expected_toml
     assert second_payload["status"] == "skipped"
+    assert third_payload["status"] == "ok"
 
 
 def test_lint_foundry_fix_removes_standalone_print(tmp_path: Path) -> None:

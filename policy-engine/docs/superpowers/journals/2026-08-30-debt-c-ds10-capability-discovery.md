@@ -104,6 +104,10 @@ Error: No tests found
 
 Before and after that no-writer attempt, the environment tuple digest was identically `867883c4c6ab6fb16d7b6c2a5e06599c0772df05593b08d4da1d549a9f998c23`; the governed snapshot remained SHA-256 `26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a`, 19,197 bytes; and `git diff --exit-code -- apps/runtime-dashboard` completed exit 0. A second expensive run cannot create an independent passing receipt after the first run selected zero tests, so the row stops as `blocked` under the frontend-corridor rule.
 
+### C13 review correction — exact Task D handoff
+
+The immediate source repair belongs to Task D at `apps/runtime-dashboard/src/shared/i18n/LocaleProvider.tsx:25-26`: make both static locale imports Node 22 ESM JSON imports by appending `with { type: "json" }` to the `en.json` and `uk.json` import declarations. TypeScript 5.7 under this app's `module: "ESNext"`, `moduleResolution: "Bundler"`, and `resolveJsonModule: true` accepts that exact syntax in a no-write `transpileModule` probe (exit 0, no diagnostics). The acceptance signal is not the syntax probe: the exact `DS8 governed run paper` Playwright selection must collect and pass all 3 tests twice, each with exit 0, zero retries, `--update-snapshots=none`, distinct raw output, and an unchanged governed snapshot. Task D must then rebind the six stale members so the complete C13 census reads 11/11 current and replay the exact C13 admission node. This handoff does not close Task D's separate `DS11-INHERITED-C13-PRINT-RECEIPT` row.
+
 ## Register closure dossier
 
 The final section will contain twelve append-only blocks after all measured adjudications. No architect-owned register file is edited in this branch.

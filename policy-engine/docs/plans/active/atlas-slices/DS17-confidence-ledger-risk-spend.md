@@ -1884,6 +1884,42 @@ Once the roots carry a real temporal binding they classify <code>decision_bearin
 derivation, and the DS18 landing reconciliation closes on receipts and behavioral evidence
 **without any inheritance claim** — no owner of convenience, no portal-local fiction.
 
+**Architect amendment 2026-08-29 (8) — DS18 binds at FILE granularity, not per root.**
+Amendment (7) said "the posture DS18 requires of a decision-bearing <em>root</em>". DS18
+applies the obligation per <strong>file</strong>, and that wording produced a seventh stop
+built on a per-root reading. Corrected here.
+
+Two measured facts settle the design:
+
+- The scanner records <strong>four</strong> binding kinds per root —
+  <code>epoch_context_read_count</code> (<code>useEpochSemantics</code>),
+  <code>epoch_semantics_prop_count</code> (<code>epochSemantics={…}</code>),
+  <code>epoch_semantics_provider_render_count</code>
+  (<code>&lt;EpochSemanticsProvider&gt;</code>) and
+  <code>time_semantics_label_render_count</code> (<code>&lt;TimeSemanticsLabel&gt;</code>).
+  Three of the four render nothing.
+- <code>_ds18_primary_direct_roots</code> requires <strong>exactly one</strong>
+  label-bearing root per file in <code>DS18_TIME_SEMANTICS_DIRECT_FILES</code> and
+  <strong>raises</strong> on more than one. DS18's own admitted files obey it:
+  <code>RunReportPage.tsx</code> carries one label at epoch=20,
+  <code>RunDeckPage.tsx</code> one at epoch=12.
+
+So a direct file has one primary root, and <code>file_owner_for</code> makes that root the
+file's own owner, so every other root in the same file classifies
+<code>inherits_admitted_dom</code> against it. **DS17 needs three labels — one per file —
+not one per root, and certainly not one per runtime instance.** The 978-instance collision
+does not arise, and the amendment (6) containment condition is satisfied structurally
+because the owner is inside the same file as the roots inheriting from it.
+
+DS17's three participating files — <code>ConfidenceLedgerRiskSpend.tsx</code>,
+<code>ConditionalDeltaFigure.tsx</code>, <code>CycleBoardPage.tsx</code> — are already
+declared mechanism paths, and adding them to <code>DS18_TIME_SEMANTICS_DIRECT_FILES</code>
+is checker work inside path 18. No nineteenth path, no scanner edit, no reserve spend.
+
+The P29 refusal that produced this stop stands and is reaffirmed: a marker without runtime
+substance is forbidden. One honest label per file is substance; 978 suppressed labels would
+have been markers.
+
 **P39 register/test companions:**
 
 - <code>architecture/atlas_surfaces/frontend-disposition-register.json</code>

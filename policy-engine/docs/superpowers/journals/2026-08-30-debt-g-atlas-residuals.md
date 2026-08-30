@@ -255,3 +255,47 @@ nodes passed under the default 15-second ceiling (`2 passed | 21 skipped`,
 `independently_reconciled`; Ruff, byte compilation, and `git diff --check` passed.
 The separate task-D `94/94` current-measurement expectation remains the only known
 focused read-only red.
+
+#### Task 3 second-review P40 correction
+
+The second review classified the 2,048-byte stderr excerpt as the same producer-
+parity class one level deeper: TypeScript's `runDs18TimeSemanticsCoverageValidator`
+uses the full trimmed stderr available inside its 8 MiB `maxBuffer`, while the
+Python expected row discarded bytes within that producer domain. Per P40, commit
+`9e0847482` widens the adapter once to the full quantity the producer contract
+carries. For a nonzero checker result at or below 8 MiB per stream, Python now
+decodes all stderr with UTF-8 replacement and applies `strip()`, exactly matching
+the producer's replacement/trim semantics. The earlier statement that the
+3,000-byte failure should end with a 2,048-byte truncation suffix is retracted.
+
+The focused 3,000-byte RED witness produced a 2,151-character Python reason versus
+the 3,070-character TypeScript-equivalent reason; reason equality and full
+expected-row equality were both false. After `9e0847482`, the same witness produced
+3,070 characters on both sides with both equalities true. A small nonzero checker
+still produced exactly
+`DS18 time-semantics coverage validator rejected the current tree (7): ordinary failure`.
+The actual register-corruption replay again persisted `unknown / not_established`
+with zero known facts and the exact
+`ds18_time_semantics_count_drift:covered_root_count` limitation; the register was
+restored to SHA-256
+`c2893870139f3eae5042e54ba23a1692c10680f1ec0dc404cd3d879efe01544f` with no Git
+diff.
+
+P40 stopping ruling: this is the second same-class finding and the one permitted
+widening now covers the producer's complete at-or-below-8-MiB stderr domain. Two
+source-boundary handoffs remain explicit. First, checker output beyond the 8 MiB
+`spawnSync.maxBuffer` in task-D-owned `runDs18TimeSemanticsCoverageValidator` is a
+declared bounded residual; Python's own overflow reason is helper behavior, not an
+end-to-end producer-parity claim. Second, zero-exit malformed stdout is parsed by
+task-D-owned `JSON.parse` plus the strict DS18 schema before persistence and can
+throw before Python receives a report. Closing either handoff requires task D to
+emit a stable typed bounded result from the producer. There will be no third
+adapter patch for either beyond-domain case.
+
+Second-review focused receipts: persistence plus red-denominator passed (`2 passed
+| 21 skipped`, 9.79 s); readiness passed without a DS18 scan (`1 passed | 32
+skipped`, 20.58 s); caller `PATH` and `NODE_OPTIONS` isolation passed under the
+default per-test 15-second ceiling (`2 passed | 21 skipped`, 18.42 s total; 17.51 s
+combined test phase). Ruff, byte compilation, and `git diff --check` passed. No
+TypeScript source or test changed; the task-D `94/94` expectation remains the known
+focused read-only red.

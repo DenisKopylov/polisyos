@@ -97,3 +97,40 @@ but unestablished predicates must fail closed.
 
 The implementation plan and Atlas slice plan were written before source changes. No
 mechanism or test source has been edited at this point.
+
+## Entry 4 — Lifecycle closure node and authority stop
+
+- The first runner probe,
+  `.venv/bin/python -m pytest tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py::test_monitor_event_persists_claim_supersession_without_in_place_edit -q`,
+  exited 1 before collection because plain `uv sync --frozen` did not install the
+  optional `test` extra. The repository baseline in `CONTRIBUTING.md` requires
+  `lint + test + runtime`.
+- `uv sync --frozen --extra lint --extra test --extra runtime` exited 0. The same exact
+  node then exited 4 because the named file did not yet exist, which is the expected
+  red-first state for this open debt.
+- The named integration test now drives the real authenticated control-plane route,
+  same-store lifecycle bridge, persisted monitor event, persisted bridge result, and
+  immutable predecessor ledger bytes.
+- A first harness run exited 1 because the unit/runtime subtree fixture is not inherited
+  by an integration test. The test now wraps the repository's canonical
+  `build_runtime_api_env`/`close_runtime_api_env` helpers locally.
+- A first model run exited 1 before orchestration because `GovernanceMonitorEvent`
+  correctly rejects `metadata.lifecycle_transition` as caller-authored authority. The
+  closure test no longer supplies that prohibited field.
+- The resulting exact semantic run exited 1 after traversing the production path. The
+  predecessor bytes were unchanged and the bridge result resolved from CAS, but the
+  persisted lifecycle action was `review_required`; the closure predicate required
+  `superseded`.
+- Root cause: the monitor arm has no independently resolved, content-bound successor
+  claim or owner adjudication. A candidate successor identifier in event metadata is not
+  authority. The current behavior is the intended P05/P32 fail-closed boundary, not an
+  implementation defect to bypass.
+- Provisional verdict for `DS11-CLAIM-LIFECYCLE-ORCHESTRATION`: `open` with
+  `authority_input_missing` for supersession. The implemented monitor orchestration and
+  persisted `review_required` path remain verified; the row's stronger supersession
+  predicate does not.
+- Task B retains only the `GY-GAP8` verification-denominator repair and its three named
+  tests. Task D made no change to that denominator or to lifecycle production source.
+- `.venv/bin/python -m ruff check
+  tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py` exited 0
+  after import normalization.

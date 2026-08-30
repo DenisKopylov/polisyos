@@ -2388,3 +2388,62 @@ declared, 17/22 ceiling, reserve 0. C06 cannot start because source is not
 frozen at a C05-complete boundary. Owner for adjudication: the architect plus
 DS19/team-architecture frontend-disposition-register contract; the GY-N11
 Bayesian non-closure remains unchanged and is not the cause of this stop.
+
+## C05 bounded source-chain stop receipt — DS17
+
+The predecessor journal is 2,390 lines and 148,584 bytes, with Git blob
+`fd03040624bc8d6ab346ff3c655bc1bd82f94355`. The third architect amendment is
+commit `cf47ecd10`: plan blob `b290b70159a5a4d798bc8832b4400d2807d37e40` →
+`3e2b48dcadcdd692ddeaa36077dbf2cb60a0a1a5` (+29/−0). The architect-ratified
+cause is a plan defect: C05 named a register write target without proving that
+its schema admitted the written shape. Preflight caught the defect before any
+writer bytes changed; the top-level-block ruling is understood and is not the
+cause of this stop.
+
+With `POLISYOS_GOVERNED_ARTIFACT_ROOT` unset, both resolver calculations
+identify this `policy-engine` worktree root and reach the real canonical
+`architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json`;
+no environment binding is needed. Real owner-service execution at that root
+returned `AvailableConfidenceLedgerRiskSpendPacket`, `availability=available`,
+total spend 0, coverage `open_world_unresolved`, 13 instruments, 15 classes,
+and 0 positive entries; exit 0, real/user/sys `108.98/100.74/4.75`, uptime
+`09:43` → `09:45`.
+
+Owner-artifact census A: recursive parse of all 502 `architecture/**/*.json`
+files found exactly one N11-schema document, the canonical contract; independent
+literal search also found only that one N11 contract. The sole unrelated
+`within_budget:false` JSON is
+`architecture/policy_design_case/grounding_active_controller_contract.json`.
+
+Owner-producer census A: complete walk of 4,951 files under `src/`, `tools/`,
+`architecture/`, and `apps/`, with suffix denominator
+`.js=37,.json=563,.mjs=25,.py=3056,.toml=120,.ts=478,.tsx=672`, found five
+target-path references and exactly one writer module:
+`tools/quality/validation/check_layer3_gy_confidence_ledger.py`.
+Independent owner-producer census B: AST walk of all 3,043 Python files under
+`src/**/*.py` and `tools/**/*.py` found exactly one module defining the target
+`build_live_contract`/`contract_bytes`/`_write_atomic`/`main` chain, the same
+N11 checker.
+
+The owner writer chain is `--write` → `_run_one_process_closeout` →
+`_run_closeout_worker` → `build_live_contract` → `contract_bytes` →
+`_write_atomic`. It deterministically builds the real N10/N13b accounting run
+at zero spend. `validate_payload` rejects non-zero real spend using the owner
+diagnostics. `ConfidenceLedgerSession.persist_receipt` writes only CAS session
+receipts, not the frozen N11 contract. The HTTP route is consumer-only.
+
+**STOP — C05 remains unstarted.** The remaining non-Bayesian C05 over-spend
+semantic scenario is reachable only by direct JSON mutation/test injection or
+by adding an owner-controlled over-spend producer. The latest architect ruling
+forbids fabricated owner content, C02 injection, hand-authored packets, and
+synthetic artifacts. The scenario therefore needs a forbidden source seam. The
+smallest missing capability is a legitimate GY-N11-owned producer mode that
+derives and persists an exact-scope over-spend fixture/artifact while preserving
+provenance and validator custody: `producer_missing + artifact_missing`, owner
+GY-N11 confidence-ledger contract/producer.
+
+No checker, register, schema, report, semantic spec, visual spec, or snapshot
+byte changed. Mechanisms remain 17/18 declared, 17/22 ceiling, reserve 0. The
+twenty-denominator table remains baseline because no denominator input changed.
+C06 cannot start. The plan blob remains exactly
+`3e2b48dcadcdd692ddeaa36077dbf2cb60a0a1a5`.

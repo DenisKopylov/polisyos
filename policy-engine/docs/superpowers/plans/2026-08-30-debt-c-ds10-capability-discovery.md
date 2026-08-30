@@ -219,7 +219,7 @@
 ### Task 5: C13 Print-Receipt Reissue Without Frontend Writes
 
 **Files:**
-- Read only: the admitted 11 `source_bindings`, including `apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx` and `apps/runtime-dashboard/src/app/routes/routes.tsx`
+- Read only: the complete receipt-defined 11 `source_bindings`, including `apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx`; the fresh census establishes that `apps/runtime-dashboard/src/app/routes/routes.tsx` is not a receipt member and it remains read-only corridor context
 - Modify only if the existing reissue tool supports the current source unchanged: the DS6 C13 receipt artifact owned by the independent print-evidence lane
 - Test: `architecture/atlas_surfaces/test_frontend_disposition_register.py`
 

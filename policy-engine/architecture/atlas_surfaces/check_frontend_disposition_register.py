@@ -15890,6 +15890,10 @@ function parseModule(relativePath) {
   const suiteRegistrationRoots = new Set(["describe", "suite"]);
   const disabledRegistrationModifiers = new Set(["skip", "todo"]);
   const unknownRegistrationValue = Object.freeze({ kind: "unknown" });
+  const unknownRegistrationStaticValue = Object.freeze({ known: false });
+  function knownRegistrationStaticValue(value) {
+    return { known: true, value };
+  }
   function frameworkRegistrationKind(name) {
     if (testRegistrationRoots.has(name)) return "test";
     if (suiteRegistrationRoots.has(name)) return "suite";
@@ -15908,20 +15912,166 @@ function parseModule(relativePath) {
   }
   function registrationStaticValue(node, environment) {
     const candidate = unwrap(node);
-    const direct = staticValue(candidate);
-    if (direct !== undefined) return direct;
+    if (
+      ts.isStringLiteral(candidate) ||
+      ts.isNoSubstitutionTemplateLiteral(candidate)
+    ) {
+      return knownRegistrationStaticValue(candidate.text);
+    }
+    if (ts.isNumericLiteral(candidate)) {
+      return knownRegistrationStaticValue(Number(candidate.text));
+    }
+    if (ts.isBigIntLiteral(candidate)) {
+      return knownRegistrationStaticValue(BigInt(candidate.text.slice(0, -1)));
+    }
+    if (candidate.kind === ts.SyntaxKind.TrueKeyword) {
+      return knownRegistrationStaticValue(true);
+    }
+    if (candidate.kind === ts.SyntaxKind.FalseKeyword) {
+      return knownRegistrationStaticValue(false);
+    }
+    if (candidate.kind === ts.SyntaxKind.NullKeyword) {
+      return knownRegistrationStaticValue(null);
+    }
     if (ts.isIdentifier(candidate)) {
       const resolved = environment.get(candidate.text);
-      if (resolved?.kind === "static") return resolved.value;
+      if (resolved?.kind === "static") {
+        return knownRegistrationStaticValue(resolved.value);
+      }
+      if (resolved?.static_value?.known) return resolved.static_value;
+      if (resolved !== undefined) return unknownRegistrationStaticValue;
+      if (candidate.text === "undefined") {
+        return knownRegistrationStaticValue(undefined);
+      }
+      if (candidate.text === "NaN") {
+        return knownRegistrationStaticValue(Number.NaN);
+      }
+      if (candidate.text === "Infinity") {
+        return knownRegistrationStaticValue(Number.POSITIVE_INFINITY);
+      }
+      return unknownRegistrationStaticValue;
     }
     if (
-      ts.isPrefixUnaryExpression(candidate) &&
-      candidate.operator === ts.SyntaxKind.ExclamationToken
+      ts.isArrayLiteralExpression(candidate) ||
+      ts.isObjectLiteralExpression(candidate)
     ) {
-      const operand = registrationStaticValue(candidate.operand, environment);
-      return operand === undefined ? undefined : !operand;
+      return knownRegistrationStaticValue(candidate);
     }
-    return undefined;
+    if (ts.isVoidExpression(candidate)) {
+      return knownRegistrationStaticValue(undefined);
+    }
+    if (ts.isTypeOfExpression(candidate)) {
+      const operand = registrationStaticValue(candidate.expression, environment);
+      return operand.known
+        ? knownRegistrationStaticValue(typeof operand.value)
+        : unknownRegistrationStaticValue;
+    }
+    if (ts.isPrefixUnaryExpression(candidate)) {
+      const operand = registrationStaticValue(candidate.operand, environment);
+      if (!operand.known) return unknownRegistrationStaticValue;
+      try {
+        if (candidate.operator === ts.SyntaxKind.ExclamationToken) {
+          return knownRegistrationStaticValue(!operand.value);
+        }
+        if (candidate.operator === ts.SyntaxKind.PlusToken) {
+          return knownRegistrationStaticValue(+operand.value);
+        }
+        if (candidate.operator === ts.SyntaxKind.MinusToken) {
+          return knownRegistrationStaticValue(-operand.value);
+        }
+        if (candidate.operator === ts.SyntaxKind.TildeToken) {
+          return knownRegistrationStaticValue(~operand.value);
+        }
+      } catch {
+        return unknownRegistrationStaticValue;
+      }
+      return unknownRegistrationStaticValue;
+    }
+    if (ts.isConditionalExpression(candidate)) {
+      const condition = registrationStaticValue(
+        candidate.condition, environment
+      );
+      if (!condition.known) return unknownRegistrationStaticValue;
+      return registrationStaticValue(
+        Boolean(condition.value) ? candidate.whenTrue : candidate.whenFalse,
+        environment,
+      );
+    }
+    if (ts.isBinaryExpression(candidate)) {
+      const left = registrationStaticValue(candidate.left, environment);
+      if (!left.known) return unknownRegistrationStaticValue;
+      const operator = candidate.operatorToken.kind;
+      if (operator === ts.SyntaxKind.AmpersandAmpersandToken) {
+        return Boolean(left.value)
+          ? registrationStaticValue(candidate.right, environment)
+          : left;
+      }
+      if (operator === ts.SyntaxKind.BarBarToken) {
+        return Boolean(left.value)
+          ? left
+          : registrationStaticValue(candidate.right, environment);
+      }
+      if (operator === ts.SyntaxKind.QuestionQuestionToken) {
+        return left.value === null || left.value === undefined
+          ? registrationStaticValue(candidate.right, environment)
+          : left;
+      }
+      const right = registrationStaticValue(candidate.right, environment);
+      if (!right.known) return unknownRegistrationStaticValue;
+      try {
+        switch (operator) {
+          case ts.SyntaxKind.EqualsEqualsEqualsToken:
+            return knownRegistrationStaticValue(left.value === right.value);
+          case ts.SyntaxKind.ExclamationEqualsEqualsToken:
+            return knownRegistrationStaticValue(left.value !== right.value);
+          case ts.SyntaxKind.EqualsEqualsToken:
+            return knownRegistrationStaticValue(left.value == right.value);
+          case ts.SyntaxKind.ExclamationEqualsToken:
+            return knownRegistrationStaticValue(left.value != right.value);
+          case ts.SyntaxKind.LessThanToken:
+            return knownRegistrationStaticValue(left.value < right.value);
+          case ts.SyntaxKind.LessThanEqualsToken:
+            return knownRegistrationStaticValue(left.value <= right.value);
+          case ts.SyntaxKind.GreaterThanToken:
+            return knownRegistrationStaticValue(left.value > right.value);
+          case ts.SyntaxKind.GreaterThanEqualsToken:
+            return knownRegistrationStaticValue(left.value >= right.value);
+          case ts.SyntaxKind.PlusToken:
+            return knownRegistrationStaticValue(left.value + right.value);
+          case ts.SyntaxKind.MinusToken:
+            return knownRegistrationStaticValue(left.value - right.value);
+          case ts.SyntaxKind.AsteriskToken:
+            return knownRegistrationStaticValue(left.value * right.value);
+          case ts.SyntaxKind.AsteriskAsteriskToken:
+            return knownRegistrationStaticValue(left.value ** right.value);
+          case ts.SyntaxKind.SlashToken:
+            return knownRegistrationStaticValue(left.value / right.value);
+          case ts.SyntaxKind.PercentToken:
+            return knownRegistrationStaticValue(left.value % right.value);
+          case ts.SyntaxKind.LessThanLessThanToken:
+            return knownRegistrationStaticValue(left.value << right.value);
+          case ts.SyntaxKind.GreaterThanGreaterThanToken:
+            return knownRegistrationStaticValue(left.value >> right.value);
+          case ts.SyntaxKind.GreaterThanGreaterThanGreaterThanToken:
+            return knownRegistrationStaticValue(left.value >>> right.value);
+          case ts.SyntaxKind.AmpersandToken:
+            return knownRegistrationStaticValue(left.value & right.value);
+          case ts.SyntaxKind.BarToken:
+            return knownRegistrationStaticValue(left.value | right.value);
+          case ts.SyntaxKind.CaretToken:
+            return knownRegistrationStaticValue(left.value ^ right.value);
+          default:
+            return unknownRegistrationStaticValue;
+        }
+      } catch {
+        return unknownRegistrationStaticValue;
+      }
+    }
+    return unknownRegistrationStaticValue;
+  }
+  function registrationTruthiness(node, environment) {
+    const value = registrationStaticValue(node, environment);
+    return value.known ? Boolean(value.value) : null;
   }
   function registrationKind(callShape, environment) {
     if (callShape === null) return null;
@@ -15958,10 +16108,12 @@ function parseModule(relativePath) {
   function registrationArgumentValues(argumentsList, environment, stack) {
     return argumentsList.map((argument) => {
       const value = registrationFunctionValue(argument, environment);
-      if (value.kind !== "function") {
-        walkRegistrationExpression(argument, environment, stack);
-      }
-      return value;
+      if (value.kind === "function") return value;
+      walkRegistrationExpression(argument, environment, stack);
+      const staticValue = registrationStaticValue(argument, environment);
+      return staticValue.known
+        ? { kind: "static", value: staticValue.value }
+        : unknownRegistrationValue;
     });
   }
   function walkRegistrationCall(node, environment, stack) {
@@ -16005,11 +16157,11 @@ function parseModule(relativePath) {
     }
     if (ts.isConditionalExpression(node)) {
       walkRegistrationExpression(node.condition, environment, stack);
-      const condition = registrationStaticValue(node.condition, environment);
-      if (condition !== false) {
+      const condition = registrationTruthiness(node.condition, environment);
+      if (condition === true) {
         walkRegistrationExpression(node.whenTrue, environment, stack);
       }
-      if (condition !== true) {
+      if (condition === false) {
         walkRegistrationExpression(node.whenFalse, environment, stack);
       }
       return;
@@ -16017,11 +16169,23 @@ function parseModule(relativePath) {
     if (ts.isBinaryExpression(node)) {
       walkRegistrationExpression(node.left, environment, stack);
       const left = registrationStaticValue(node.left, environment);
-      if (
-        (node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken &&
-          left === false) ||
-        (node.operatorToken.kind === ts.SyntaxKind.BarBarToken && left === true)
-      ) {
+      const operator = node.operatorToken.kind;
+      if (operator === ts.SyntaxKind.AmpersandAmpersandToken) {
+        if (left.known && Boolean(left.value)) {
+          walkRegistrationExpression(node.right, environment, stack);
+        }
+        return;
+      }
+      if (operator === ts.SyntaxKind.BarBarToken) {
+        if (left.known && !Boolean(left.value)) {
+          walkRegistrationExpression(node.right, environment, stack);
+        }
+        return;
+      }
+      if (operator === ts.SyntaxKind.QuestionQuestionToken) {
+        if (left.known && (left.value === null || left.value === undefined)) {
+          walkRegistrationExpression(node.right, environment, stack);
+        }
         return;
       }
       walkRegistrationExpression(node.right, environment, stack);
@@ -16095,16 +16259,18 @@ function parseModule(relativePath) {
             ? registrationFunctionValue(declaration.initializer, environment)
             : unknownRegistrationValue;
           const staticBinding = declaration.initializer
+            && ts.isIdentifier(declaration.name)
+            && Boolean(statement.declarationList.flags & ts.NodeFlags.Const)
             ? registrationStaticValue(declaration.initializer, environment)
-            : undefined;
+            : unknownRegistrationStaticValue;
           for (const name of names) {
             environment.set(
               name,
               value.kind === "function"
                 ? value
-                : staticBinding === undefined
-                  ? unknownRegistrationValue
-                  : { kind: "static", value: staticBinding },
+                : staticBinding.known
+                  ? { kind: "static", value: staticBinding.value }
+                  : unknownRegistrationValue,
             );
           }
         }
@@ -16116,15 +16282,15 @@ function parseModule(relativePath) {
       }
       if (ts.isIfStatement(statement)) {
         walkRegistrationExpression(statement.expression, environment, stack);
-        const condition = registrationStaticValue(
+        const condition = registrationTruthiness(
           statement.expression, environment
         );
-        if (condition !== false) {
+        if (condition === true) {
           walkRegistrationStatement(
             statement.thenStatement, new Map(environment), stack
           );
         }
-        if (condition !== true && statement.elseStatement) {
+        if (condition === false && statement.elseStatement) {
           walkRegistrationStatement(
             statement.elseStatement, new Map(environment), stack
           );
@@ -16176,8 +16342,15 @@ function parseModule(relativePath) {
   );
   const executedImportLocals = new Set();
   const connectedRenderCalls = [];
-  function emptyValue() {
-    return { tags: new Set(), props: new Map() };
+  function emptyValue(staticValue = unknownRegistrationStaticValue) {
+    return { tags: new Set(), props: new Map(), static_value: staticValue };
+  }
+  function dataValueWithStatic(value, staticValue) {
+    return {
+      tags: new Set(value.tags),
+      props: new Map(value.props),
+      static_value: staticValue,
+    };
   }
   function mergeValues(...values) {
     const merged = emptyValue();
@@ -16249,7 +16422,14 @@ function parseModule(relativePath) {
             ? evaluateExpression(declaration.initializer, environment, stack)
             : emptyValue();
           if (ts.isIdentifier(declaration.name)) {
-            environment.set(declaration.name.text, value);
+            const staticBinding = declaration.initializer
+              && Boolean(statement.declarationList.flags & ts.NodeFlags.Const)
+              ? registrationStaticValue(declaration.initializer, environment)
+              : unknownRegistrationStaticValue;
+            environment.set(
+              declaration.name.text,
+              dataValueWithStatic(value, staticBinding),
+            );
           }
         }
       } else if (ts.isExpressionStatement(statement)) {
@@ -16264,8 +16444,10 @@ function parseModule(relativePath) {
         break;
       } else if (ts.isIfStatement(statement)) {
         evaluateExpression(statement.expression, environment, stack);
-        const condition = staticValue(statement.expression);
-        if (condition !== false) {
+        const condition = registrationTruthiness(
+          statement.expression, environment
+        );
+        if (condition === true) {
           returned = mergeValues(
             returned,
             executeStatement(
@@ -16273,7 +16455,7 @@ function parseModule(relativePath) {
             ),
           );
         }
-        if (condition !== true && statement.elseStatement) {
+        if (condition === false && statement.elseStatement) {
           returned = mergeValues(
             returned,
             executeStatement(
@@ -16392,7 +16574,7 @@ function parseModule(relativePath) {
       return emptyValue();
     }
     if (ts.isObjectLiteralExpression(node)) {
-      const value = emptyValue();
+      const value = emptyValue(registrationStaticValue(node, environment));
       for (const property of node.properties) {
         if (ts.isPropertyAssignment(property)) {
           const name = property.name;
@@ -16412,38 +16594,54 @@ function parseModule(relativePath) {
       return value;
     }
     if (ts.isArrayLiteralExpression(node)) {
-      return mergeValues(
-        ...node.elements.map((element) =>
-          evaluateExpression(element, environment, stack)
+      return dataValueWithStatic(
+        mergeValues(
+          ...node.elements.map((element) =>
+            evaluateExpression(element, environment, stack)
+          ),
         ),
+        registrationStaticValue(node, environment),
       );
     }
     if (ts.isConditionalExpression(node)) {
       evaluateExpression(node.condition, environment, stack);
-      const condition = staticValue(node.condition);
+      const condition = registrationTruthiness(node.condition, environment);
       if (condition === true) {
         return evaluateExpression(node.whenTrue, environment, stack);
       }
       if (condition === false) {
         return evaluateExpression(node.whenFalse, environment, stack);
       }
-      return mergeValues(
-        evaluateExpression(node.whenTrue, environment, stack),
-        evaluateExpression(node.whenFalse, environment, stack),
-      );
+      return emptyValue();
     }
     if (ts.isBinaryExpression(node)) {
-      const left = staticValue(node.left);
-      if (
-        node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken &&
-        left === false ||
-        node.operatorToken.kind === ts.SyntaxKind.BarBarToken && left === true
-      ) {
-        return evaluateExpression(node.left, environment, stack);
+      const leftValue = evaluateExpression(node.left, environment, stack);
+      const left = registrationStaticValue(node.left, environment);
+      const operator = node.operatorToken.kind;
+      if (operator === ts.SyntaxKind.AmpersandAmpersandToken) {
+        if (!left.known) return emptyValue();
+        return Boolean(left.value)
+          ? evaluateExpression(node.right, environment, stack)
+          : leftValue;
       }
-      return mergeValues(
-        evaluateExpression(node.left, environment, stack),
-        evaluateExpression(node.right, environment, stack),
+      if (operator === ts.SyntaxKind.BarBarToken) {
+        if (!left.known) return emptyValue();
+        return Boolean(left.value)
+          ? leftValue
+          : evaluateExpression(node.right, environment, stack);
+      }
+      if (operator === ts.SyntaxKind.QuestionQuestionToken) {
+        if (!left.known) return emptyValue();
+        return left.value === null || left.value === undefined
+          ? evaluateExpression(node.right, environment, stack)
+          : leftValue;
+      }
+      return dataValueWithStatic(
+        mergeValues(
+          leftValue,
+          evaluateExpression(node.right, environment, stack),
+        ),
+        registrationStaticValue(node, environment),
       );
     }
     if (
@@ -16452,9 +16650,10 @@ function parseModule(relativePath) {
       ts.isTypeOfExpression(node) ||
       ts.isVoidExpression(node)
     ) {
-      return evaluateExpression(node.operand ?? node.expression, environment, stack);
+      evaluateExpression(node.operand ?? node.expression, environment, stack);
+      return emptyValue(registrationStaticValue(node, environment));
     }
-    return emptyValue();
+    return emptyValue(registrationStaticValue(node, environment));
   }
   for (const testCallback of testCallbacks) {
     executeFunction(

@@ -9023,6 +9023,231 @@ it("renders the role", () => {
                 ):
                     checker._build_ds17_confidence_ledger_risk_spend_surface()
 
+    def test_behavioral_evidence_rejects_dead_js_control_flow_matrix(
+        self,
+    ) -> None:
+        """Only registration arms with statically proven reachability count."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        test_call = """it("renders the role", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+})"""
+        witnesses = {
+            "numeric_zero_if": f"if (0) {{ {test_call}; }}",
+            "empty_string_if": f'if ("") {{ {test_call}; }}',
+            "null_if": f"if (null) {{ {test_call}; }}",
+            "undefined_if": f"if (undefined) {{ {test_call}; }}",
+            "false_comparison_if": f"if (1 === 2) {{ {test_call}; }}",
+            "dead_else": f"if (1) {{ void 0; }} else {{ {test_call}; }}",
+            "short_circuited_and": f"0 && {test_call};",
+            "short_circuited_or": f"1 || {test_call};",
+            "dead_conditional_arm": f"0 ? {test_call} : 1;",
+            "const_bound_falsey": (
+                f"const enabled = 0;\nif (enabled) {{ {test_call}; }}"
+            ),
+            "unknown_dynamic_guard": (
+                "declare const enabled: boolean;\n"
+                f"if (enabled) {{ {test_call}; }}"
+            ),
+            "environment_comparison": (
+                "if (process.env.ENABLED === \"true\") { "
+                f"{test_call}; }}"
+            ),
+            "boolean_environment_binding": (
+                "const enabled = Boolean(process.env.ENABLED);\n"
+                f"if (enabled) {{ {test_call}; }}"
+            ),
+            "unknown_conditional": (
+                "declare const enabled: boolean;\n"
+                f"enabled ? {test_call} : 1;"
+            ),
+            "unknown_and": (
+                "declare const enabled: boolean;\n"
+                f"enabled && {test_call};"
+            ),
+        }
+
+        for label, body in witnesses.items():
+            with self.subTest(label=label):
+                scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: f"{imports}\n{body}\n"}
+                )
+                with (
+                    mock.patch.object(
+                        checker,
+                        "_ds17_typescript_surface_scan",
+                        return_value=scan,
+                    ),
+                    pytest.raises(ValueError, match="behavioral evidence"),
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_behavioral_evidence_accepts_proven_js_control_flow(
+        self,
+    ) -> None:
+        """Provably selected truthy and short-circuit arms still register."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        test_call = """it("renders the role", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+})"""
+        sources = {
+            "truthy_number": f"if (1) {{ {test_call}; }}",
+            "truthy_string": f'if ("enabled") {{ {test_call}; }}',
+            "true_comparison": f"if (1 === 1) {{ {test_call}; }}",
+            "reachable_and": f"1 && {test_call};",
+            "reachable_or": f"0 || {test_call};",
+            "reachable_conditional_arm": f"1 ? {test_call} : 0;",
+            "const_bound_truthy": (
+                f"const enabled = 1;\nif (enabled) {{ {test_call}; }}"
+            ),
+            "called_helper_static_argument": (
+                f"function registerRoleTest(enabled: boolean) {{\n"
+                f"  if (enabled) {{ {test_call}; }}\n"
+                "}\nregisterRoleTest(1 === 1);"
+            ),
+            "test_body_truthy": (
+                'it("guards the role", () => {\n'
+                '  if ("enabled") {\n'
+                "    render(\n"
+                "      <Figure packet={null as never} row={null as never} />,\n"
+                "    );\n"
+                "  }\n});"
+            ),
+        }
+
+        for label, body in sources.items():
+            with self.subTest(label=label):
+                scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: f"{imports}\n{body}\n"}
+                )
+                with mock.patch.object(
+                    checker,
+                    "_ds17_typescript_surface_scan",
+                    return_value=scan,
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_behavioral_evidence_rejects_dead_test_body_control_flow_matrix(
+        self,
+    ) -> None:
+        """The same reachability lattice governs an active test's body."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        role_call = (
+            "render(<Figure packet={null as never} row={null as never} />)"
+        )
+        witnesses = {
+            "numeric_zero_if": f"if (0) {{ {role_call}; }}",
+            "empty_string_if": f'if ("") {{ {role_call}; }}',
+            "null_if": f"if (null) {{ {role_call}; }}",
+            "undefined_if": f"if (undefined) {{ {role_call}; }}",
+            "false_comparison_if": f"if (1 === 2) {{ {role_call}; }}",
+            "dead_else": f"if (1) {{ void 0; }} else {{ {role_call}; }}",
+            "short_circuited_and": f"0 && {role_call};",
+            "short_circuited_or": f"1 || {role_call};",
+            "dead_conditional_arm": f"0 ? {role_call} : 1;",
+            "const_bound_falsey": (
+                f"const enabled = 0;\nif (enabled) {{ {role_call}; }}"
+            ),
+            "unknown_dynamic_guard": (
+                "declare const enabled: boolean;\n"
+                f"if (enabled) {{ {role_call}; }}"
+            ),
+            "environment_comparison": (
+                "if (process.env.ENABLED === \"true\") { "
+                f"{role_call}; }}"
+            ),
+            "boolean_environment_binding": (
+                "const enabled = Boolean(process.env.ENABLED);\n"
+                f"if (enabled) {{ {role_call}; }}"
+            ),
+            "unknown_conditional": (
+                "declare const enabled: boolean;\n"
+                f"enabled ? {role_call} : 1;"
+            ),
+            "unknown_and": (
+                "declare const enabled: boolean;\n"
+                f"enabled && {role_call};"
+            ),
+        }
+
+        for label, body in witnesses.items():
+            with self.subTest(label=label):
+                source = (
+                    f'{imports}\nit("guards the role", () => {{\n'
+                    f"{body}\n}});\n"
+                )
+                scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: source}
+                )
+                with (
+                    mock.patch.object(
+                        checker,
+                        "_ds17_typescript_surface_scan",
+                        return_value=scan,
+                    ),
+                    pytest.raises(ValueError, match="behavioral evidence"),
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_panel_to_exact_twin_rejects_unknown_guarded_connection(
+        self,
+    ) -> None:
+        """An unproved runtime predicate cannot authorize the twin edge."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/export/"
+            "confidenceLedgerRiskSpendTwin.test.tsx"
+        )
+        scan = checker._ds17_typescript_surface_scan_uncached(
+            {
+                path_ref: """
+import { render } from "@testing-library/react";
+import { ConfidenceLedgerRiskSpend } from "@/features/runs/components/ConfidenceLedgerRiskSpend";
+import { evaluateConfidenceLedgerRiskSpendTwin } from "./confidenceLedgerRiskSpendTwin";
+
+declare const enabled: boolean;
+it("guards the otherwise connected edge", () => {
+  evaluateConfidenceLedgerRiskSpendTwin({ root: "forged" } as never);
+  if (enabled) {
+    const view = render(
+      <ConfidenceLedgerRiskSpend projection={null as never} />,
+    );
+    const root = view.container.querySelector("[data-confidence-surface]");
+    evaluateConfidenceLedgerRiskSpendTwin({ root } as never);
+  }
+});
+"""
+            }
+        )
+        with (
+            mock.patch.object(
+                checker,
+                "_ds17_typescript_surface_scan",
+                return_value=scan,
+            ),
+            pytest.raises(ValueError, match="panel_to_exact_twin"),
+        ):
+            checker._build_ds17_confidence_ledger_risk_spend_surface()
+
     def test_real_ds18_builder_partitions_every_current_ds17_root(self) -> None:
         """The three owner roots admit every other current same-file root."""
         scan = checker._ds18_time_semantics_scan()

@@ -3528,3 +3528,106 @@ existing checker mechanism, checker test, and writer-owned report; this journal
 is the fourth tracked path. No register/schema byte, DS18 row/header, seed,
 foreign row, runtime-dashboard source/test, scanner, inheritance map, generated
 file, Task 9 path, route denominator, or governing-plan byte moved.
+
+## 2026-08-30 — Task 10 static JavaScript reachability correction
+
+The exact predecessor is the complete 3,530-line / 215,040-byte journal with
+Git blob `96e5135260bc3770146e2dd1afbeab7f90bad72f` and SHA-256
+`937c554eb17bcd478cffbf67910f19e4b5d55f213f1c5e9234577fe53e088a0a`.
+This append-only correction starts from clean attached HEAD
+`2ed4921e5782493865db5738c608141978c64435`. The governing DS17 plan remains
+unchanged at blob `42b37c99069855ff614e558ee2d3a5bd77865233`.
+
+### P40 bucket, property, and red-first witnesses
+
+The review's truthiness escape is a worked example of the already bucketed
+P29/P38 registration-proof class, not a new class or a new repair round. The
+two-phase mechanism had been widened to module registration plus test execution,
+but both phases still used exact `true`/`false` identity as a proxy for the
+property: only an expression arm whose JavaScript execution is statically proven
+may contribute authority-grade behavioral evidence. Under P40 this correction
+widens the existing interpreter's abstract quantity; it does not add a denylist
+for reviewer spellings.
+
+Before the checker changed, the exact module-registration matrix put the only
+valid aliased role test under `if (0)`, `if ("")`, `if (null)`, `if
+(undefined)`, `if (1 === 2)`, the dead `else` of `if (1)`, `0 && it(...)`, `1
+|| it(...)`, or `0 ? it(...) : 1`. All nine wrongly remained admitted. A
+`const`-bound falsey value and an unknown declared boolean also wrongly remained
+admitted. The focused negative method therefore produced eleven `DID NOT RAISE`
+subfailures while the representative truthy controls stayed green.
+
+The same matrix was then pinned inside one normally registered test body. All
+eleven test-body witnesses also failed red before the second phase consumed the
+shared lattice. An exact-twin witness retained an unconditional unrelated twin
+call but placed the only panel-render -> queried-root -> twin connection behind
+an unknown boolean; it wrongly retained the `panel_to_exact_twin` edge before
+the shared correction. Additional P33 variants pin an environment comparison,
+`Boolean(environment)` binding, unknown conditional, and unknown `&&` in both
+phases.
+
+### Shared conservative abstract interpreter
+
+The existing inline TypeScript AST mechanism now represents static evaluation as
+an explicit known-value/unknown lattice, so a known JavaScript `undefined` is no
+longer confused with analysis failure. It derives primitive, array/object,
+unary, comparison, arithmetic, logical, nullish, conditional, and identifier
+values where the current lexical environment proves them. Only identifier
+`const` bindings become static; mutable or destructured bindings remain unknown.
+Logical and conditional walkers evaluate only the JavaScript-selected arm.
+Unknown guards select neither arm, in both module registration and active test
+execution, so an ambiguous predicate cannot manufacture a callback, role call,
+render, or connected twin edge.
+
+Static argument values also cross calls to reachable module-local registration
+helpers, which keeps the mechanism constructive rather than restrictive. The
+positive controls admit truthy number/string/comparison branches, reachable
+`&&`, `||`, and conditional arms, a truthy `const`, a called helper with a
+statically true argument, a truthy active-test branch, the existing active suite,
+and the existing called registration helper. Alias resolution, lexical shadow
+rejection, disabled registration, recursion guards, render-only role evidence,
+and panel-root dataflow remain unchanged. No new scanner/helper path, schema
+field, register shape, runtime-dashboard source/test, or nineteenth mechanism was
+introduced.
+
+### Derived writer and verification receipts
+
+The final focused DS17 class is 19/19 green. It includes every prior Task 10
+schema, DS18, preservation, historical replay, validator, and failure-atomic
+writer proof plus the complete new two-phase matrix and connected-edge witness.
+Changed-line Ruff reports zero diagnostics across 252 checker and 225 checker-test
+added lines; both legacy files retain the same 701 whole-file diagnostics.
+`git diff --check` is clean.
+
+Direct scanner output and the checker's fresh scan are canonical-byte equal at
+621 files / 759 roots. Strict schema validation is `[]`; the DS18 focused check
+is 126/126. The three owned files remain 4 + 17 + 11 roots with exactly one
+label-bearing root apiece and an exhaustive 3 `decision_bearing/direct_ds4` + 29
+`inherits_admitted_dom` partition. Stored/live DS17 is equal at 6 roles / 5
+edges; a fresh candidate equals the stored register, repeats idempotently, and
+has no report-projection error.
+
+After source freeze, the atomic owner writer ran twice consecutively and returned
+6 roles / 5 edges / 621 files / 759 roots on both runs. Register and report bytes
+were identical across those runs. The register correctly remains unchanged at
+SHA-256
+`bbb5998bda21a631231b847076e17c7e49fbf4207b068e3550ab2c7fe3ba2687`;
+the writer-owned report changes only by adding the predecessor correction commit
+and is now
+`e11385eecfcfa2dd2f5b82bfa3adb2e8622348613a05dd87135475ee4adc39c2`.
+
+Timed generic `--check` completed at `79.64/107.02/10.46` and timed
+`--check --corruption-probes` at `80.37/108.21/10.40` real/user/sys. Each emitted
+no DS17/DS18 error and exactly the established inherited/disjoint P41 C13 receipt
+error for `AmbientTelemetryHud.tsx`. This correction has zero intersection with
+the previously enumerated twenty-path C13 input denominator, so the predecessor's
+exact base replay remains the applicable provenance proof.
+
+Immediately before this append, the branch was attached to
+`codex/ds17-confidence-ledger-risk-spend-landing` at exact predecessor
+`2ed4921e5`. The dirty set was exactly the existing checker mechanism, checker
+test, and writer-owned report; this append-only journal is the fourth tracked
+path. No register/schema byte, DS18 row/header, seed, foreign row, scanner,
+inheritance map, generated file, Task 9 path, route-denominator input, or
+governing-plan byte moved. Mechanism accounting remains 18/18 declared, 18/22
+hard ceiling, reserve 0.

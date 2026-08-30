@@ -1,0 +1,1000 @@
+{
+  "config": {
+    "configFile": "/Users/deniskopylov/polisyos/.worktrees/debt-d-ds11-trust-posture/policy-engine/apps/runtime-dashboard/playwright.config.ts",
+    "rootDir": "/Users/deniskopylov/polisyos/.worktrees/debt-d-ds11-trust-posture/policy-engine/apps/runtime-dashboard/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": {},
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/deniskopylov/polisyos/.worktrees/debt-d-ds11-trust-posture/policy-engine/_build/apps/runtime-dashboard/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/deniskopylov/polisyos/.worktrees/debt-d-ds11-trust-posture/policy-engine/apps/runtime-dashboard/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/deniskopylov/polisyos/.worktrees/debt-d-ds11-trust-posture/policy-engine/_build/apps/runtime-dashboard/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-chromium",
+        "name": "mobile-chromium",
+        "testDir": "/Users/deniskopylov/polisyos/.worktrees/debt-d-ds11-trust-posture/policy-engine/apps/runtime-dashboard/e2e",
+        "testIgnore": [
+          "/runtime-dashboard\\.visual\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "none",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "a11y/color-blind-simulation.spec.ts",
+      "file": "a11y/color-blind-simulation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "runtime-dashboard color blind simulation",
+          "file": "../src/test/a11y/color-blind-simulation.spec.ts",
+          "line": 117,
+          "column": 6,
+          "specs": [
+            {
+              "title": "keeps signal pairs distinguishable for deuteranope, protanope, and tritanope viewers",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2983,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:11.977Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "98fe13d81e370e596f79-b57d52e25118f5aa431d",
+              "file": "../src/test/a11y/color-blind-simulation.spec.ts",
+              "line": 122,
+              "column": 3
+            },
+            {
+              "title": "DS10 capability discovery candidate clothing passes opaque-background WCAG AA contrast",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2369,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:15.065Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "98fe13d81e370e596f79-d70ec62b4fde8ac67ba3",
+              "file": "../src/test/a11y/color-blind-simulation.spec.ts",
+              "line": 173,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "a11y/keyboard-journeys.spec.ts",
+      "file": "a11y/keyboard-journeys.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "runtime-dashboard keyboard-only journeys",
+          "file": "../src/test/a11y/keyboard-journeys.spec.ts",
+          "line": 42,
+          "column": 6,
+          "specs": [
+            {
+              "title": "opens a run and downloads the decision packet with keyboard only in at most 20 tab stops",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2659,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:17.451Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "27cf28e19f3417d483af-48c008078fb41530555b",
+              "file": "../src/test/a11y/keyboard-journeys.spec.ts",
+              "line": 53,
+              "column": 3
+            },
+            {
+              "title": "DS10 capability discovery supports keyboard search and MACHINE download",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1481,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:20.115Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "27cf28e19f3417d483af-1dd88b020e157291e920",
+              "file": "../src/test/a11y/keyboard-journeys.spec.ts",
+              "line": 128,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "a11y/routes.a11y.spec.ts",
+      "file": "a11y/routes.a11y.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "runtime-dashboard route accessibility",
+          "file": "a11y/routes.a11y.spec.ts",
+          "line": 38,
+          "column": 6,
+          "specs": [
+            {
+              "title": "login passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1468,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:21.609Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-d7560bf4045da3566c58",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "dashboard passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2001,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:23.082Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-ba62bdda90aa4c1ea29c",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "composer passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2137,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:25.088Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-2019158bfea9e8d7b636",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "runs-list passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2120,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:27.230Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-6d2a064ff3c0026a18fa",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "run-compare passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2183,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:29.355Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-cd430027183dad0e50af",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "run-report passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2483,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:31.545Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-e085ec394028bd00b384",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "run-overview passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2812,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:34.033Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-3243aa2bd29e7abfed47",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "run-governance passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2665,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:36.851Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-5c83ec6546533e624dd1",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "run-evidence passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2590,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:39.520Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-7d837177691f98042db6",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "run-workflow passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2885,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:42.115Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-f3d4f3ea970ac385ad12",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "run-artifacts passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2676,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:45.006Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-3a72b172f634fd0dde9f",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "run-agents passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2788,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:47.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-36c45dd574ffb98a5318",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "run-debug passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2807,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:50.481Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-641806b31bc235311529",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "artifact passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1905,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:53.293Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-652a88c003dfbfd69355",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "evidence passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2895,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:55.203Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-04d4a94283faebcd1490",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "knowledge passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1888,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:58.104Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-3a5f8c8156e3743ecd88",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "platform passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2018,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:05:59.997Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-8d1c5e213160d937d11f",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            },
+            {
+              "title": "trust passes axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 30103,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:06:02.021Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f91459c4716d1d4c8405-38ca805defecb78bff84",
+              "file": "a11y/routes.a11y.spec.ts",
+              "line": 44,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "a11y/screen-reader-snapshots.spec.ts",
+      "file": "a11y/screen-reader-snapshots.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "runtime-dashboard screen reader snapshots",
+          "file": "../src/test/a11y/screen-reader-snapshots.spec.ts",
+          "line": 21,
+          "column": 6,
+          "specs": [
+            {
+              "title": "runs list exposes named landmarks and actions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1160,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:06:32.137Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6928ab3206a5d698f77e-c6087a8baf125991d072",
+              "file": "../src/test/a11y/screen-reader-snapshots.spec.ts",
+              "line": 26,
+              "column": 3
+            },
+            {
+              "title": "run report exposes named export actions and timeline content",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1186,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:06:33.302Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6928ab3206a5d698f77e-c6a766502c5955c2a4ba",
+              "file": "../src/test/a11y/screen-reader-snapshots.spec.ts",
+              "line": 37,
+              "column": 3
+            },
+            {
+              "title": "DS10 capability discovery announces candidate-grade incomplete frontier truth",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1247,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-30T22:06:34.494Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "6928ab3206a5d698f77e-3845c9b28254b4dfa0ff",
+              "file": "../src/test/a11y/screen-reader-snapshots.spec.ts",
+              "line": 52,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-30T22:04:09.315Z",
+    "duration": 146527.48599999998,
+    "expected": 25,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

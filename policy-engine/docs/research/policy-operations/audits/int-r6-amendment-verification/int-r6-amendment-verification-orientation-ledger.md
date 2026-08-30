@@ -102,6 +102,34 @@ repository CODEOWNERS.
 
 ## Connector Receipts
 
-The content-commit SHA and content-head comparisons are appended in a receipt-only successor commit.
-The final successor SHA is reported in the delivery hand-back because a commit cannot contain its own
-SHA.
+### Content-head receipt
+
+Connector exact-ref read resolved the completed substantive verification content to:
+
+```text
+content_commit_sha: 080fd6f6c3a30742ea3f87a47b9a55c2eb9e42b9
+```
+
+At that SHA:
+
+- amendment compare: merge base `8137aa31…`, ahead `6`, behind `0`, exactly three added
+  Markdown files under `audits/int-r6-amendment-verification/`;
+- audit compare: merge base `bae4f8c2…`, ahead `16`, behind `0`;
+- package compare: merge base `5e47c868…`, ahead `37`, behind `0`;
+- base compare: merge base `dc7bdf79…`, ahead `48`, behind `0`;
+- verification subtree `db7a3b7da197c3db49f1d7cfcac5021e4b750303` reported
+  `truncated:false` and exactly three blobs;
+- substantive blob/byte set:
+  - conformance `a50bc4fce416151563a6de2b1969866c22817bf2`, 11,745 bytes;
+  - orientation `c86bdc0f668483ff9f2a21119e87b341312ce2d0`, 5,943 bytes;
+  - preserve/recovery `a61ef6ac87ec8aa2420092cc4ac66913cd10dba9`, 6,861 bytes;
+  - total `24,549` bytes.
+
+Every comparison had `merge_base_commit.sha == stated base` and `behind_by == 0`.
+
+### Receipt-only successor convention
+
+This receipt-only commit records the immutable content-head SHA above. It cannot also contain its own
+final SHA because embedding that value would change the Git object. The final branch-head SHA and the
+four repeated final comparisons are therefore reported in the delivery hand-back and remain directly
+readable from the exact branch ref.

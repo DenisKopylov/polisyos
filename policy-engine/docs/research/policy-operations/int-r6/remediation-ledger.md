@@ -119,7 +119,7 @@ head; the receipt-only successor changes only this ledger to record that content
 | `policy-engine/docs/research/policy-operations/int-r6/01-repository-baseline.md` | `08a69f3194b46a51f6a8b31daa70e2f34c046d08` | `2ab6d88f3eb78d7c363a1aad6b82b95b5fb6dc1e` | A04 Terminal B and A02 F002/F014 dispositions |
 | `policy-engine/docs/research/policy-operations/int-r6/06-findings-standing-and-pattern-pass.md` | `28c277d7e35e23a995bf17bdbfce7d1c546687e2` | `2cb380e50c3239b503344fe986fa7c4a665e1e4f` | A05 owner states and A04 evidence label |
 | `policy-engine/docs/research/policy-operations/int-r6/amendment-ledger.md` | `b43a0435a83f55b5250141620011d6aa7d9a4b20` | `3e15e5ac6c2a385a49ebb51d81f9ad2e58c5654e` | only rows IR6-A02, IR6-A04, and IR6-A05 |
-| `policy-engine/docs/research/policy-operations/int-r6/remediation-ledger.md` | `absent` | recorded by the receipt-only successor | bounded remediation record and connector receipts |
+| `policy-engine/docs/research/policy-operations/int-r6/remediation-ledger.md` | `absent` | `0b585960c9959ff860e484ab31bad2eada883c37` | bounded remediation record before its receipt-only successor |
 
 No source, workflow, staging, binary, `AGENTS.md`, pattern-register, audit, or Stage-4 verification
 path is in the final delta.
@@ -145,6 +145,8 @@ Every `merge_base_commit.sha` equalled the stated base and every `behind_by` was
   no count, zero, or positive.
 - Verification-head `int-r6` recursive subtree `769a35fe09921963b6496adc20ac32e19ae43191`
   reported `truncated:false` and exactly seven Markdown blobs.
+- Content-head `int-r6` recursive subtree `b1e9e4fddea5fe46217b246092bce3641cf829c1`
+  reported `truncated:false` and exactly eight Markdown blobs.
 - Non-recursive traversal reads have no recursive `truncated` claim.
 - No code-search result settles a zero, positive, count, or distribution.
 
@@ -152,19 +154,47 @@ Every `merge_base_commit.sha` equalled the stated base and every `behind_by` was
 
 Intermediate content commit `569e07808439bbee121aacbb6dca1e36acfe5e15` was read back before receipt.
 That read exposed malformed, out-of-scope edits later in the substantive report. History was not
-rewritten. The corrective substantive commit restores the report from `## External evidence` onward
-from the verification-head blob while retaining only the A04 Terminal-B changes in the repository
-baseline section. The intermediate commit is not the receipt subject.
+rewritten. Corrective content commit `be09f117d3de2fe3c50b59be6b84a109757e7fd5` restores the report
+from `## External evidence` onward from the verification-head blob while retaining only the A04
+Terminal-B changes in the repository-baseline section. The intermediate commit is not the receipt
+subject.
 
-### Two-commit receipt convention
+### Content-head receipt
 
 ```text
-content_commit_sha: recorded by the receipt-only successor
-receipt_only_successor_parent: same content commit
+content_commit_sha: be09f117d3de2fe3c50b59be6b84a109757e7fd5
+content_tree_sha: 87819c3828425e4e4712bdacc3c42ef38eba2c2e
+content_int_r6_subtree_sha: b1e9e4fddea5fe46217b246092bce3641cf829c1
+content_int_r6_subtree_truncated: false
 ```
 
-The corrective content commit carries the final substantive state. The receipt-only successor changes
-only this ledger to record the immutable content-commit SHA, its exact blob set, the final recursive
-subtree result, and final ancestry comparisons. A commit cannot embed its own SHA, so the final
-receipt-only successor SHA is reported in the delivery hand-back and remains readable from the branch
-ref.
+At that content head:
+
+- verification compare: merge base `1accee3534befa8ce9bc656a1b35f8eaca7e9b74`, ahead `2`, behind `0`;
+  final net delta exactly 5 Markdown paths, 4 modified and 1 added, with 257 additions / 154 deletions;
+- amendment compare: merge base `8137aa31a4bf5e06c6b1abd4e20458295fd5a506`, ahead `9`, behind `0`;
+- audit compare: merge base `bae4f8c2b5e5ef340dda73f17bfe852c1d0d3cee`, ahead `19`, behind `0`;
+- base compare: merge base `dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f`, ahead `51`, behind `0`.
+
+Every content-head comparison had `merge_base_commit.sha == stated base` and `behind_by == 0`.
+
+Complete ten-file INT-R6 package readback at the content head:
+
+| path | blob SHA | bytes |
+|---|---|---:|
+| `int-r6-multilingual-authority-equivalence-protocol.md` | `d276ad1692aea5857fe04daabc7ec2b9a18e3f58` | 28,798 |
+| `int-r6-multilingual-authority-equivalence.md` | `93ece13470c569a2b44bd3ffae7a891a312c765e` | 1,456 |
+| `int-r6/01-repository-baseline.md` | `2ab6d88f3eb78d7c363a1aad6b82b95b5fb6dc1e` | 14,647 |
+| `int-r6/02-external-evidence.md` | `7fac860086bc7dde7bdc2fb115642abd148367b4` | 19,404 |
+| `int-r6/03-language-axis-partition.md` | `1133b208489ee6252e8499cff1230f79b829feb5` | 15,883 |
+| `int-r6/04-multilingual-authority-equivalence-protocol.md` | `0443cb61dc170df2133ac67fa8797e7d861c28fd` | 24,206 |
+| `int-r6/05-red-first-fixtures-and-phased-deployment.md` | `753b55713d2cabd82782f0ebcce0ee5f0801e640` | 19,041 |
+| `int-r6/06-findings-standing-and-pattern-pass.md` | `2cb380e50c3239b503344fe986fa7c4a665e1e4f` | 15,083 |
+| `int-r6/amendment-ledger.md` | `3e15e5ac6c2a385a49ebb51d81f9ad2e58c5654e` | 20,488 |
+| `int-r6/remediation-ledger.md` | `0b585960c9959ff860e484ab31bad2eada883c37` | 8,409 |
+
+### Receipt-only successor convention
+
+This successor records the immutable content head above and changes only this ledger. A commit cannot
+embed its own SHA; the final receipt-only successor SHA and repeated final comparisons are therefore
+reported in the delivery hand-back and remain directly readable from the branch ref.

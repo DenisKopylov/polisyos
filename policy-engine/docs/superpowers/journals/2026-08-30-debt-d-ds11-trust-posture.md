@@ -134,3 +134,60 @@ mechanism or test source has been edited at this point.
 - `.venv/bin/python -m ruff check
   tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py` exited 0
   after import normalization.
+
+## Entry 5 — Scope adjudication capability
+
+- Register identity correction: the exact node is
+  `tests/unit/core/contracts/test_scope_adjudication.py::test_four_way_ruling_is_produced_consumed_and_plane_specific`.
+  Two planning paraphrases for other rows were also corrected additively in the plan;
+  no register row was edited.
+- `uv run --frozen pytest
+  tests/unit/core/contracts/test_scope_adjudication.py::test_four_way_ruling_is_produced_consumed_and_plane_specific
+  -q` first exited 4 because the module did not exist, then exited 0 after implementation.
+- The Core module now supplies a strict one-plane request, three ordered P37 predicate
+  receipts, the four-way ruling, a typed nonreceipt with no ruling, exact CAS persistence,
+  an injected verifier-evidence resolver, deterministic disposition, and a consumer that
+  re-resolves bytes/manifests/lineage and replays the rule before admission.
+- Predicate authority is not inferred from the ratified Markdown. The architecture-owned
+  resolver is injected, and its verifier appointment, target, rule, evidence, and
+  provenance are all content-bound. Only `recomputed` and `independently_reconciled`
+  predicates needed to reach the branch may carry a positive ruling.
+- `uv run --frozen pytest tests/unit/core/contracts/test_scope_adjudication.py -q`
+  exited 0 with four tests: the four-outcome/priority path, mixed-plane nonreceipt,
+  consumer-asserted predicate nonreceipt, and shaped-record-ref rejection.
+- `.venv/bin/python -m ruff check
+  src/polisyos/core/contracts/scope_adjudication.py
+  tests/unit/core/contracts/test_scope_adjudication.py` exited 0.
+- `uv run --frozen mypy src/polisyos/core/contracts/scope_adjudication.py` exited 0.
+- `uv run --frozen pytest
+  tests/repo_quality/architecture/test_public_api_facades.py -q` exited 0 over its
+  three-test facade blast radius.
+- `uv run --frozen polisyos-tools architecture guardrails check` exited 1 only when the
+  generated-artifact freshness phase compiled the pre-existing trust-posture register and
+  reported `ratified identity basis differs from the admitted closed receipt`. The scope
+  module and test are not trust-posture compiler inputs. P41 classification remains
+  `not_established` until the exact guardrail command is replayed from the supplied base;
+  it is not yet labelled inherited.
+- Provisional verdict for `DS11-SCOPE-ADJUDICATION-RECORD`: `closed`. Measured chain:
+  typed contract + independently supplied predicate producer port + persisted predicate
+  and adjudication artifacts + CAS lineage bridge + replaying consumer + typed
+  nonreceipt + audit artifact surface + negative semantic tests.
+
+## Entry 6 — First current page-a11y measurement
+
+- A read-only lane ran exactly
+  `corepack pnpm --filter @polisyos/runtime-dashboard run test:a11y:pages` without
+  snapshot/update writer flags. It exited 1 after 5.7 minutes with the complete current
+  denominator `25 collected = 22 passed + 3 failed`.
+- The failing identities were the color-blind distinguishability test, run-report axe
+  test, and run-report screen-reader test. In this invocation all three failed before
+  their substantive assertions because `waitForDashboardSurface(..., "run-report")`
+  timed out after 30 seconds with no `run-report-page` test id.
+- This invocation therefore does not establish that the historical token, `dlitem`, or
+  export-name predicates currently fail. The immediate root-cause subject is run-report
+  fixture/surface availability; source fixes for the historical predicates remain
+  unjustified until that shared setup failure is diagnosed.
+- The no-update runner wrote only harness evidence beneath
+  `_build/apps/runtime-dashboard/`: the fixture runtime JSON, `.last-run.json`, and one
+  failure directory per identity containing context, screenshot, trace, and video. No
+  dashboard source or snapshot was edited.

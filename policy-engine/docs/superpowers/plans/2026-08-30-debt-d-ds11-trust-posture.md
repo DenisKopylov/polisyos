@@ -256,3 +256,15 @@ Playwright, pnpm workspaces, content-addressed artifacts, Atlas disposition rece
 7. State measured arithmetic as `10 rows = closed + open + blocked + ambiguous`, list
    every changed dashboard file, identify the precise task B and task C overlap residue,
    and name out-of-scope findings without acting on them.
+
+## Execution identity corrections — appended 2026-08-31
+
+The read-only debt register is authoritative for closure-node identity. Three proposed
+names above were planning paraphrases, not register identities. Execution uses only:
+
+- `tests/unit/core/contracts/test_scope_adjudication.py::test_four_way_ruling_is_produced_consumed_and_plane_specific`
+- `tests/repo_quality/frontend/test_public_claim_copy_inventory.py::test_every_public_capability_assertion_resolves_to_claim_posture`
+- `tests/repo_quality/frontend/test_public_surface_claim_ownership.py::test_every_retained_trust_docs_route_has_an_approved_owner_and_evidence_contract`
+
+The earlier proposed names are retained as historical plan text and are not closure
+signals.

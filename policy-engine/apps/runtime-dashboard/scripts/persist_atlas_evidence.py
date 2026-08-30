@@ -10,8 +10,10 @@ import json
 import os
 import platform
 import re
+import selectors
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, NoReturn
@@ -89,6 +91,9 @@ DS18_TIME_SEMANTICS_PACKET_FIELDS = {
     "obligated_root_count",
     "covered_root_count",
 }
+DS18_CHECKER_MAX_BUFFER_BYTES = 8 * 1024 * 1024
+DS18_LIMITATION_STDERR_BYTES = 2048
+DS18_CHECKER_READ_BYTES = 64 * 1024
 HEALTH_INSTRUMENT_COMPONENT = "polisyos.atlas.health_metric_instrument@1.0.0"
 HEALTH_ADMISSION_COMPONENT = "polisyos.atlas.health_metric_admission@1.0.0"
 HEALTH_IMPLEMENTATION_PATHS = (
@@ -720,9 +725,7 @@ def persist_atlas_evidence(
     }
 
 
-def _health_source_projection(
-    node_executable: Path,
-) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+def _health_source_projection() -> tuple[dict[str, Any], dict[str, Any]]:
     validator_path = _policy_engine_root() / HEALTH_SOURCE_VALIDATOR
     python_locator = _policy_engine_root() / ".venv/bin/python"
     if not python_locator.is_file() or not os.access(python_locator, os.X_OK):
@@ -789,11 +792,7 @@ def _health_source_projection(
             "isolated_python": True,
         },
     }
-    return (
-        projection,
-        observation,
-        _ds18_time_semantics_coverage_projection(node_executable),
-    )
+    return projection, observation
 
 
 def _health_source_ref(path: str, role: str) -> dict[str, str]:
@@ -804,9 +803,9 @@ def _health_source_ref(path: str, role: str) -> dict[str, str]:
     }
 
 
-def _ds18_time_semantics_coverage_projection(
+def _run_ds18_time_semantics_checker(
     node_executable: Path,
-) -> dict[str, Any]:
+) -> tuple[int, bytes, bytes, str | None]:
     python_locator = _policy_engine_root() / ".venv/bin/python"
     if not python_locator.is_file() or not os.access(python_locator, os.X_OK):
         raise AtlasEvidencePersistenceError(
@@ -814,7 +813,7 @@ def _ds18_time_semantics_coverage_projection(
             "Python environment"
         )
     checker_path = _policy_engine_root() / DS18_TIME_SEMANTICS_CHECKER
-    result = subprocess.run(  # noqa: S603 - fixed interpreter and checker paths.
+    process = subprocess.Popen(  # noqa: S603 - fixed interpreter and checker paths.
         [
             str(python_locator),
             "-I",
@@ -822,26 +821,90 @@ def _ds18_time_semantics_coverage_projection(
             "--check-ds18-time-semantics-coverage",
         ],
         cwd=_policy_engine_root(),
-        check=False,
         stdin=subprocess.DEVNULL,
-        capture_output=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         env={
             **HEALTH_CHILD_ENV,
             "POLISYOS_NODE_EXECUTABLE": str(node_executable),
         },
     )
-    if result.returncode != 0:
-        stderr = result.stderr.decode("utf-8", errors="replace").strip()
+    if process.stdout is None or process.stderr is None:
+        process.kill()
+        process.wait()
+        raise AtlasEvidencePersistenceError("DS18 checker output pipes were not created")
+    streams = {
+        "stdout": process.stdout,
+        "stderr": process.stderr,
+    }
+    buffers = {
+        "stdout": bytearray(),
+        "stderr": bytearray(),
+    }
+    selector = selectors.DefaultSelector()
+    for name, stream in streams.items():
+        selector.register(stream, selectors.EVENT_READ, name)
+    exceeded: str | None = None
+    try:
+        while selector.get_map() and exceeded is None:
+            for key, _ in selector.select():
+                name = key.data
+                chunk = os.read(key.fileobj.fileno(), DS18_CHECKER_READ_BYTES)
+                if not chunk:
+                    selector.unregister(key.fileobj)
+                    continue
+                remaining = DS18_CHECKER_MAX_BUFFER_BYTES - len(buffers[name])
+                buffers[name].extend(chunk[:remaining])
+                if len(chunk) > remaining:
+                    exceeded = name
+                    process.kill()
+                    break
+    finally:
+        selector.close()
+        for stream in streams.values():
+            stream.close()
+        if process.poll() is None:
+            process.kill()
+        returncode = process.wait()
+    return returncode, bytes(buffers["stdout"]), bytes(buffers["stderr"]), exceeded
+
+
+def _bounded_ds18_stderr(stderr: bytes) -> str:
+    excerpt = stderr[:DS18_LIMITATION_STDERR_BYTES].decode(
+        "utf-8", errors="replace"
+    ).strip()
+    if len(stderr) > DS18_LIMITATION_STDERR_BYTES:
+        return (
+            f"{excerpt} [stderr truncated at {DS18_LIMITATION_STDERR_BYTES} bytes]"
+        )
+    return excerpt
+
+
+def _ds18_time_semantics_coverage_projection(
+    node_executable: Path,
+) -> dict[str, Any]:
+    returncode, stdout, stderr, exceeded = _run_ds18_time_semantics_checker(
+        node_executable
+    )
+    if exceeded is not None:
+        return {
+            "kind": "not_established",
+            "reason": (
+                "DS18 time-semantics coverage validator "
+                f"exceeded the {DS18_CHECKER_MAX_BUFFER_BYTES}-byte {exceeded} limit"
+            ),
+        }
+    if returncode != 0:
         return {
             "kind": "not_established",
             "reason": (
                 "DS18 time-semantics coverage validator rejected the current tree "
-                f"({result.returncode}): {stderr}"
+                f"({returncode}): {_bounded_ds18_stderr(stderr)}"
             ),
         }
     try:
         projection = json.loads(
-            result.stdout.decode("utf-8"),
+            stdout.decode("utf-8"),
             object_pairs_hook=_reject_duplicate_keys,
             parse_constant=_reject_non_json_constant,
         )
@@ -1340,14 +1403,20 @@ def _run_health_metric_producer() -> tuple[
     dashboard_root = _policy_engine_root() / "apps/runtime-dashboard"
     producer_script = _policy_engine_root() / HEALTH_PRODUCER_SCRIPT
     node_locator, node_executable, node_version = _trusted_node()
-    result = subprocess.run(  # noqa: S603 - allowlisted realpath and fixed script.
-        [str(node_executable), str(producer_script)],
-        cwd=dashboard_root,
-        check=False,
-        stdin=subprocess.DEVNULL,
-        capture_output=True,
-        env=HEALTH_CHILD_ENV,
-    )
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        ds18_future = executor.submit(
+            _ds18_time_semantics_coverage_projection,
+            node_executable,
+        )
+        result = subprocess.run(  # noqa: S603 - allowlisted realpath and fixed script.
+            [str(node_executable), str(producer_script)],
+            cwd=dashboard_root,
+            check=False,
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            env=HEALTH_CHILD_ENV,
+        )
+    ds18_coverage = ds18_future.result()
     if result.returncode != 0:
         stderr = result.stderr.decode("utf-8", errors="replace").strip()
         raise AtlasEvidencePersistenceError(
@@ -1366,11 +1435,7 @@ def _run_health_metric_producer() -> tuple[
         raise AtlasEvidencePersistenceError(
             "fixed health-metric producer emitted invalid UTF-8 JSON"
         ) from exc
-    (
-        source_projection,
-        source_validator_observation,
-        ds18_coverage,
-    ) = _health_source_projection(node_executable)
+    source_projection, source_validator_observation = _health_source_projection()
     report = _require_health_report(decoded, source_projection, ds18_coverage)
     observation = {
         "executable": str(node_executable),
@@ -2059,9 +2124,7 @@ def _run_readiness_reconciler(
     node_locator, node_executable, node_version = _trusted_node()
     node_sha256 = hashlib.sha256(node_executable.read_bytes()).hexdigest()
     vite_loader = _expected_vite_loader()
-    source_projection, source_validator_observation, _ = _health_source_projection(
-        node_executable
-    )
+    source_projection, source_validator_observation = _health_source_projection()
     result = subprocess.run(  # noqa: S603 - allowlisted realpath and fixed script.
         [str(node_executable), str(producer_script)],
         cwd=dashboard_root,

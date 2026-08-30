@@ -970,6 +970,23 @@ missing rider/locality disclosure, or changed empty-state reason fails. Any
 future deliberate human reduction must replace exact reconstruction with a
 proved-conservative protected-query evaluator before it is allowed.
 
+
+**Architect amendment 2026-08-29 (2) — declared twin threat model.** The earlier
+completeness instruction did not bound the adversary, and an unbounded
+completeness demand over an in-page verifier is unsatisfiable by construction
+rather than by missing capability. The twin's adversary is hereby declared to be
+<strong>content and projection code</strong> — packet payload, stylesheets, and
+the rendered DOM — matching this section's own enumerated failure modes (byte
+mutation, omitted or reordered row, hidden blocker, mismatched scope, missing
+rider/locality disclosure, changed empty-state reason). It is <strong>not</strong>
+same-origin script holding privileges equal to the twin's own: such script can
+replace the twin, patch <code>getComputedStyle</code>, or forge the packet, so no
+paint-containment work can make an in-page verifier sound against it. Under this
+model C04's property is: <em>every paint source the platform exposes is either
+proved contained or refused</em>. Sources the platform deliberately hides from
+page script are a declared limitation, registered in *Explicit non-closure*, not
+an open defect.
+
 ## Canonical closure contract
 
 DS17 closes only when every item has its named behavioral receipt.
@@ -2006,6 +2023,7 @@ the debt register untouched.
 | persisted semantic-receipt and N12 projection artifacts | <code>artifact_missing + consumer_missing</code>; N12 also says <code>epoch_not_implemented</code> | GY-N12/DS18, not DS17 |
 | PUBLIC δ claim and first governed promotion | <code>surface_out_of_scope</code> here and gated by DS12/DS13 | team-design successor slices |
 | C05 Bayesian-without-coverage semantic/visual witness | <code>bridge_missing</code>; a real exact-scope session persists <code>coverage_argument_missing</code>, but its <code>promotion</code>-role row cannot enter an owner-admitted <code>available</code> packet: omitting it emits <code>n9_projection_owner_binding_drift</code>, including it emits <code>day_one_positive_promotion_fabricated</code>. Proved structurally and behaviorally; persisted refusal <code>sha256:94d60c54cac8155fa3da2765a65a6c73157876211d92771cd4e85478e864fbf3</code> | GY-N11 confidence-ledger contract/validator; closure requires the validator to distinguish a governed refusal from an issued positive promotion, per ratified <code>INT-K08</code> (negative completion is a valid governed result). Never DS17's Atlas writer |
+| closed shadow-root paint observation | <code>verification_missing</code>; the twin refuses every platform-observable paint source including <strong>open</strong> shadow roots (<code>confidenceLedgerRiskSpendTwin.ts:1089</code>), but <code>attachShadow({mode:"closed"})</code> makes "no root" and "a closed root" identical through <code>element.shadowRoot</code>. Creating one requires script privilege equal to the twin's own, which is outside the declared threat model above. Witness retained as an executable boundary test, not deleted | runtime-dashboard/Atlas projection-safety verifier plus the browser paint-observation substrate; closure requires provenance-complete shadow-root tracking installed before any relevant DOM creation, or a compositor paint-containment API. Neither exists |
 | debt register, other-slice evidence, deep-import baseline | explicitly out of scope | no DS17 edit or closure claim |
 
 An absent future test is <code>artifact_missing</code>, never a green receipt.

@@ -273,6 +273,10 @@
 
   Name task D's remaining C13 half and task G's remaining case-index/public-decision halves. Name out-of-scope defects without editing them.
 
-- [ ] **Step 6: Commit the final dossier and read back branch state**
+- [x] **Step 6: Commit the final dossier and read back branch state**
 
   Run `git status -sb`, commit the journal/plan closeout, then re-read `git status -sb`, `git log --oneline`, and the committed file set from the attached branch before reporting delivery.
+
+  Observed: the dossier commit was attached to the requested branch, the post-commit tree was clean,
+  and committed-file readback returned exactly the plan and journal. The committed dossier parsed as
+  12 headings = 1 closed + 10 open + 1 blocked + 0 ambiguous.

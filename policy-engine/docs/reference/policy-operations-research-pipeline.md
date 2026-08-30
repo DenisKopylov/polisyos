@@ -230,9 +230,9 @@ byte-identical: `S0-K08` applied to ourselves — standing changes by the append
 never by rewriting the artifact. Where a package's verifier head strictly contains its response head,
 landing the verifier head lands both lines.
 
-**A separate act requires a separate subject.** Four exist: custody of claims (Stage 0) · what a
+**A separate act requires a separate subject.** Five exist: custody of claims (Stage 0) · what a
 number may mean (INT) · what a public proof and projection may mean (PV) · what the deciding
-machinery may turn on (wave 4). Amending a prior kernel for a new subject blurs both; the records are
+machinery may turn on (wave 4) · what one kind of evidence may not stand in for (wave 5). Amending a prior kernel for a new subject blurs both; the records are
 related by inheritance, not revision. Index the act in
 `docs/system-design-decisions/README.md`.
 

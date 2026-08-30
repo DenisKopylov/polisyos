@@ -2312,3 +2312,79 @@ C04 is closed for its declared property. The mechanism ledger remains 17/18
 declared, 17/22 ceiling, reserve 0. No mechanism source changed; generated
 Vitest attachments and screenshots were moved recoverably to
 `_build/.tmp/ds17-c04-harness-20260830/`.
+
+## C04 independent admission and C05 representation STOP
+
+Predecessor journal measured before append: 2,314 lines, 144,015 bytes,
+SHA-256 `32735fe2fd93cae34a41b99f72b77ff26de989730cbe6f37b31fc509e668dde6`.
+The custody plan blob remains
+`b290b70159a5a4d798bc8832b4400d2807d37e40`.
+
+The independent C04 review admitted commit `834788fc9`: specification PASS,
+quality PASS, no NEW or same-class-deeper finding. It independently confirmed
+that the fixture/construction and all three tripwires remain intact, the plan
+and production mechanism bytes did not move, the journal append is accurate,
+and the complete native receipt is 73 passed / 0 failed. C04 is therefore
+closed for the declared content/projection-code adversary; the closed-root
+`verification_missing` limitation remains separately executable and visible.
+
+### C05 registration finding
+
+C05 requires one implemented DS17 frontend-disposition unit binding the
+governed projection, domain validator, conditional figure, panel, exact twin,
+and Cycle Board consumer. The amended Bayesian-without-coverage row is a
+different fact: it is already registered in the plan as `bridge_missing`,
+owned by GY-N11. Encoding it as a `producer_binding_debt` supplemental finding
+would leave the implemented surface unregistered and would falsely project
+DS17 as the GY-N11 closure owner. That proposal is rejected under P01/P02,
+P05, and P38.
+
+Two independent walks prove the current register has no legal slot for the
+required implemented post-DS1 unit:
+
+1. Static contract walk over the complete three extension families:
+   `entries` is fixed at exactly 261 DS1 roots; `subunits.scope_kind` admits
+   only `dead_subgraph` and `legacy_continuity`; and
+   `supplemental_findings.finding_kind` admits debts/declarations, not an
+   implemented surface. Landed DS15 extended an existing DS1 root, while DS18
+   required its own schema-backed top-level family. The closest Cycle Board
+   root is the DS7 successor under `status-inline-explainability`, and C05
+   explicitly requires DS7 bytes/semantics to be preserved.
+2. Executable in-memory schema/parity probe over the complete current register
+   (261 entries) injected the required DS17 ID into each candidate family. A
+   new entry produced exact parity `missing=[]`,
+   `extra=['ds17-confidence-ledger-risk-spend']`, `same_order=false`, plus the
+   schema max-cardinality red. `scope_kind='implemented_surface'` failed the
+   complete two-member subunit enum, and
+   `finding_kind='implemented_surface'` failed the complete seven-member
+   finding enum. The clean repeat exited 0 as a proof-of-rejection,
+   real/user/sys `2.76/2.66/0.05`, uptime `08:54` -> `08:54`. An earlier run
+   produced the same semantic findings but is discarded as a timing/exit
+   receipt because its shell wrapper attempted to assign zsh's read-only
+   `status` variable; the repeat used the task-specific `ds17_probe_exit`.
+
+The smallest owner-correct closure is therefore an architect ruling that
+either adds a typed post-seed implemented-unit family to the frontend
+disposition schema/report/checker and accounts for the hand-authored schema
+path, or names an existing DS1 root C05 may extend and explicitly relaxes the
+DS7 preservation promise. The schema is the DS19 frontend-disposition
+contract; changing it is outside C05's sole declared Atlas-writer mechanism
+path and crosses a hand-authored contract owner. A Bayesian debt descriptor is
+not a third option.
+
+The semantic/visual source chain has one honest candidate seam—one scratch
+repository root selected by `POLISYOS_GOVERNED_ARTIFACT_ROOT`, one canonical
+copied N11 path, the existing fixture server/static route, owner worker,
+generated client, exact evaluator, and Cycle Board. The existing Playwright
+commands do not bind that environment root. Without an amended command or an
+explicitly allowed test-harness binding, the over-spend case would require one
+of the forbidden workarounds (`page.route`, governed-artifact mutation, C02
+dependency injection, or another host). None was attempted.
+
+**STOP:** C05 remains `surface_missing + verification_missing`. No C05 writer,
+register, report, semantic spec, visual spec, or snapshot byte was written.
+The eighteenth mechanism path was not spent; the ledger remains 17/18
+declared, 17/22 ceiling, reserve 0. C06 cannot start because source is not
+frozen at a C05-complete boundary. Owner for adjudication: the architect plus
+DS19/team-architecture frontend-disposition-register contract; the GY-N11
+Bayesian non-closure remains unchanged and is not the cause of this stop.

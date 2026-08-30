@@ -33,6 +33,9 @@ vi.mock("@/shared/i18n/LocaleProvider", () => ({
         "pages.cycleBoard.confidenceLedger.positiveEmpty.status": `${String(variables?.count ?? 0)} issued · institutional authority unappointed in this PolicyOS runtime`,
       })[key] ?? key,
   }),
+  useOptionalI18n: () => ({
+    t: (key: string) => key,
+  }),
 }));
 
 type ExactProjection = Extract<
@@ -111,6 +114,32 @@ describe("ConfidenceLedgerRiskSpend", () => {
   it("renders the complete available packet in the mandated semantic order", () => {
     const projection = availableProjection();
     render(<ConfidenceLedgerRiskSpend projection={projection} />);
+
+    const packet = projection.packet;
+    const temporalOwner = within(
+      screen.getByTestId("confidence-ledger-risk-spend-time-semantics"),
+    );
+    expect(temporalOwner.getByTestId("time-semantics-payload-as-of")).toHaveTextContent(
+      packet.as_of,
+    );
+    expect(temporalOwner.getByTestId("time-semantics-observed-at")).toHaveTextContent(
+      packet.freshness.observed_at,
+    );
+    expect(temporalOwner.getByTestId("time-semantics-source-as-of")).toHaveTextContent(
+      packet.freshness.source_as_of ?? "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-source-state")).toHaveTextContent(
+      packet.freshness.state,
+    );
+    expect(temporalOwner.getByTestId("time-semantics-epoch")).toHaveTextContent(
+      "epochChrome.notEstablished",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-validity")).toHaveTextContent(
+      "epochChrome.status.not_established",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-revalidation")).toHaveTextContent(
+      "epochChrome.notRequired",
+    );
 
     const sections = [
       ...document.querySelectorAll<HTMLElement>("[data-confidence-section]"),
@@ -297,5 +326,23 @@ describe("ConfidenceLedgerRiskSpend", () => {
     expect(
       screen.queryByRole("button", { name: /machine/iu }),
     ).not.toBeInTheDocument();
+    const temporalOwner = within(
+      screen.getByTestId("confidence-ledger-risk-spend-time-semantics"),
+    );
+    expect(temporalOwner.getByTestId("time-semantics-payload-as-of")).toHaveTextContent(
+      "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-source-as-of")).toHaveTextContent(
+      "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-observed-at")).toHaveTextContent(
+      "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-source-state")).toHaveTextContent(
+      "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-epoch")).toHaveTextContent(
+      "epochChrome.notEstablished",
+    );
   });
 });

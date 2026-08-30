@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import type { AvailableConfidenceLedgerRiskSpendPacket } from "@polisyos/runtime-api-client";
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 
@@ -351,6 +351,43 @@ describe("CycleBoardPage MACHINE/rendered-DOM parity", () => {
 
     expect(result.status).toBe("exact");
     expect(riskRequests()).toBe(1);
+  });
+
+  it("renders exactly three visible risk-packet temporal labels with explicit epoch nonreceipt", async () => {
+    const { riskPacket } = await renderRealBoard();
+
+    const temporalOwners = [
+      screen.getByTestId("confidence-ledger-risk-spend-query-time-semantics"),
+      screen.getByTestId("confidence-ledger-risk-spend-time-semantics"),
+      screen.getByTestId("confidence-ledger-conditional-time-semantics"),
+    ];
+
+    expect(temporalOwners).toHaveLength(3);
+    for (const temporalOwner of temporalOwners) {
+      const label = within(temporalOwner);
+      expect(temporalOwner).toBeVisible();
+      expect(label.getByTestId("time-semantics-payload-as-of")).toHaveTextContent(
+        riskPacket.as_of,
+      );
+      expect(label.getByTestId("time-semantics-source-as-of")).toHaveTextContent(
+        riskPacket.freshness.source_as_of ?? "unknown",
+      );
+      expect(label.getByTestId("time-semantics-observed-at")).toHaveTextContent(
+        riskPacket.freshness.observed_at,
+      );
+      expect(label.getByTestId("time-semantics-source-state")).toHaveTextContent(
+        riskPacket.freshness.state,
+      );
+      expect(label.getByTestId("time-semantics-epoch")).toHaveTextContent(
+        "Epoch not established",
+      );
+      expect(label.getByTestId("time-semantics-validity")).toHaveTextContent(
+        "not established",
+      );
+      expect(label.getByTestId("time-semantics-revalidation")).toHaveTextContent(
+        "not required",
+      );
+    }
   });
 
   it("blocks when list normalization is removed while the page marker remains", async () => {

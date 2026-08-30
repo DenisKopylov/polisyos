@@ -1,5 +1,9 @@
 /* eslint-disable testing-library/no-node-access -- the reported member is React children, not DOM traversal */
-import { render, screen } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+import type { AvailableConfidenceLedgerRiskSpendPacket } from "@polisyos/runtime-api-client";
+import { render, screen, within } from "@testing-library/react";
 
 import { cycleBoardProjectionPacketFixture } from "@/test/fixtures/depthNCycleBoard";
 
@@ -81,6 +85,7 @@ vi.mock("@/shared/components/ErrorBoundary", async () => {
 
 vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({ t: (key: string) => key }),
+  useOptionalI18n: () => ({ t: (key: string) => key }),
 }));
 
 import CycleBoardPage from "./CycleBoardPage";
@@ -97,6 +102,43 @@ const riskSpendProjection = {
     availability: "artifact_missing",
   },
 };
+
+function availableRiskSpendPacket(): AvailableConfidenceLedgerRiskSpendPacket {
+  const openApi = JSON.parse(
+    readFileSync(
+      resolve(process.cwd(), "../../schemas/runtime_api_v1.openapi.json"),
+      "utf8",
+    ),
+  ) as {
+    paths: Record<
+      string,
+      {
+        get: {
+          responses: Record<
+            string,
+            {
+              content: Record<
+                string,
+                {
+                  examples: {
+                    default: {
+                      value: AvailableConfidenceLedgerRiskSpendPacket;
+                    };
+                  };
+                }
+              >;
+            }
+          >;
+        };
+      }
+    >;
+  };
+  return structuredClone(
+    openApi.paths[
+      "/api/v1/exports/governed-projections/confidence-ledger-risk-spend"
+    ].get.responses["200"].content["application/json"].examples.default.value,
+  );
+}
 
 describe("CycleBoardPage authorization boundary", () => {
   beforeEach(() => {
@@ -176,6 +218,77 @@ describe("CycleBoardPage authorization boundary", () => {
     expect(screen.getByTestId("cycle-board")).not.toHaveAttribute(
       "data-audiences",
       expect.stringContaining("PUBLIC"),
+    );
+  });
+
+  it("binds the page temporal label to the risk packet, not the Cycle Board sibling", () => {
+    const riskPacket = availableRiskSpendPacket();
+    useAuthzDecisionMock.mockReturnValue({
+      can: (permission: string) => permission === "runs.review",
+      isWorkspaceAllowed: () => true,
+      kind: "verified",
+    });
+    useConfidenceLedgerRiskSpendMock.mockReturnValue({
+      data: { packet: riskPacket, status: "exact" },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    render(<CycleBoardPage />);
+
+    const temporalOwner = within(
+      screen.getByTestId("confidence-ledger-risk-spend-query-time-semantics"),
+    );
+    expect(temporalOwner.getByTestId("time-semantics-payload-as-of")).toHaveTextContent(
+      riskPacket.as_of,
+    );
+    expect(temporalOwner.getByTestId("time-semantics-observed-at")).toHaveTextContent(
+      riskPacket.freshness.observed_at,
+    );
+    expect(temporalOwner.getByTestId("time-semantics-source-as-of")).toHaveTextContent(
+      riskPacket.freshness.source_as_of ?? "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-source-state")).toHaveTextContent(
+      riskPacket.freshness.state,
+    );
+    expect(temporalOwner.getByTestId("time-semantics-epoch")).toHaveTextContent(
+      "epochChrome.notEstablished",
+    );
+  });
+
+  it("keeps page temporal nonreceipt visible when the risk query supplies no packet", () => {
+    useAuthzDecisionMock.mockReturnValue({
+      can: (permission: string) => permission === "runs.review",
+      isWorkspaceAllowed: () => true,
+      kind: "verified",
+    });
+    useConfidenceLedgerRiskSpendMock.mockReturnValue({
+      data: undefined,
+      error: new Error("risk spend failed"),
+      isError: true,
+      isLoading: false,
+    });
+
+    render(<CycleBoardPage />);
+
+    const temporalOwner = within(
+      screen.getByTestId("confidence-ledger-risk-spend-query-time-semantics"),
+    );
+    expect(temporalOwner.getByTestId("time-semantics-payload-as-of")).toHaveTextContent(
+      "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-source-as-of")).toHaveTextContent(
+      "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-observed-at")).toHaveTextContent(
+      "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-source-state")).toHaveTextContent(
+      "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-epoch")).toHaveTextContent(
+      "epochChrome.notEstablished",
     );
   });
 

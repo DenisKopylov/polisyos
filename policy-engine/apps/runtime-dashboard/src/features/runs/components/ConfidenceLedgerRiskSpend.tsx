@@ -19,8 +19,15 @@ import {
 } from "@/features/runs/domain/confidenceLedgerRiskSpend";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { exportCapturedResponseBytes } from "@/shared/ui/dataExport";
+import {
+  epochNonreceipt,
+  TimeSemanticsLabel,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
 
-import { ConditionalDeltaFigure } from "./ConditionalDeltaFigure";
+import {
+  ConditionalDeltaFigure,
+  ConfidenceLedgerTemporalOwner,
+} from "./ConditionalDeltaFigure";
 
 type ConfidenceLedgerRiskSpendProps = Readonly<{
   projection: ConfidenceLedgerRiskSpendProjection;
@@ -401,30 +408,32 @@ function AvailableRiskSpend({
   const actualRows = orderedConfidenceLedgerActualRows(packet);
   const promotionBlockers = confidenceLedgerPromotionBlockers(packet);
   return (
-    <Card
-      className="space-y-6 p-5"
-      data-confidence-envelope-ref={body.coverage_envelope_ref}
-      data-confidence-locale={locale}
-      data-confidence-surface="risk-spend"
-    >
-      <SemanticSection
-        section="actual-rows"
-        title={t("pages.cycleBoard.confidenceLedger.sections.actualRows")}
+    <>
+      <ConfidenceLedgerTemporalOwner packet={packet} />
+      <Card
+        className="space-y-6 p-5"
+        data-confidence-envelope-ref={body.coverage_envelope_ref}
+        data-confidence-locale={locale}
+        data-confidence-surface="risk-spend"
       >
-        <ol
-          className="list-none space-y-3"
-          data-confidence-list="actual-rows"
-          style={{ listStyle: "none" }}
+        <SemanticSection
+          section="actual-rows"
+          title={t("pages.cycleBoard.confidenceLedger.sections.actualRows")}
         >
-          {actualRows.map((row) => (
-            <li key={row.instance_ref}>
-              <ActualRow coverageEnvelope={body.coverage_envelope} row={row} />
-            </li>
-          ))}
-        </ol>
-      </SemanticSection>
+          <ol
+            className="list-none space-y-3"
+            data-confidence-list="actual-rows"
+            style={{ listStyle: "none" }}
+          >
+            {actualRows.map((row) => (
+              <li key={row.instance_ref}>
+                <ActualRow coverageEnvelope={body.coverage_envelope} row={row} />
+              </li>
+            ))}
+          </ol>
+        </SemanticSection>
 
-      <SemanticSection
+        <SemanticSection
         section="risk-accounting"
         title={t("pages.cycleBoard.confidenceLedger.sections.riskAccounting")}
       >
@@ -723,8 +732,9 @@ function AvailableRiskSpend({
         >
           {t("pages.cycleBoard.confidenceLedger.downloadMachine")}
         </Button>
-      </SemanticSection>
-    </Card>
+        </SemanticSection>
+      </Card>
+    </>
   );
 }
 
@@ -813,8 +823,9 @@ export function ConfidenceLedgerRiskSpend({
   projection,
 }: ConfidenceLedgerRiskSpendProps) {
   const { t } = useI18n();
-  if (projection.status === "blocked") {
-    return (
+  const packet = projection.status === "blocked" ? null : projection.packet;
+  const surface =
+    projection.status === "blocked" ? (
       <Card
         className="space-y-3 p-5"
         data-confidence-surface="risk-spend-evaluation-blocked"
@@ -828,14 +839,24 @@ export function ConfidenceLedgerRiskSpend({
           value={projection.reason}
         />
       </Card>
+    ) : projection.packet.availability === "available" ? (
+      <AvailableRiskSpend
+        capturedResponseBytes={projection.capturedResponseBytes}
+        packet={projection.packet}
+      />
+    ) : (
+      <NonAvailableRiskSpend packet={projection.packet} />
     );
-  }
-  return projection.packet.availability === "available" ? (
-    <AvailableRiskSpend
-      capturedResponseBytes={projection.capturedResponseBytes}
-      packet={projection.packet}
-    />
-  ) : (
-    <NonAvailableRiskSpend packet={projection.packet} />
+  return (
+    <>
+      <div data-testid="confidence-ledger-risk-spend-time-semantics">
+        <TimeSemanticsLabel
+          epochSemantics={epochNonreceipt()}
+          freshness={packet?.freshness}
+          payloadAsOf={packet?.as_of}
+        />
+      </div>
+      {surface}
+    </>
   );
 }

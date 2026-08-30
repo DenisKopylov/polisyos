@@ -2986,3 +2986,95 @@ owner. The paint verifier and scanner remain untouched.
 This correction stays within existing DS17 production paths. Mechanisms remain
 17/18 declared, 17/22 ceiling, reserve 0; C05's checker is still the eighteenth
 and final mechanism. The twenty route denominators remain unchanged.
+
+## 2026-08-30 — Task 9: per-file temporal surface and behavioral proof
+
+The predecessor is the complete 2,988-line / 182,459-byte journal with Git blob
+`fd2f52c00a819ea7abd6f7638d92e5c08cadf4bc` and SHA-256
+`2e151260444c4c7d20a6ba8ab0f85ef11ba3b034e982f8c7549a0a0e04a2c136`.
+The plan-custody blob remains amendment (8),
+`42b37c99069855ff614e558ee2d3a5bd77865233`.
+
+**Pattern pass.** P01/P02/P03 use the existing packet -> protected-query
+projection -> component/route consumer -> real-page surface chain. P08/P05
+keep packet clocks separate from epoch authority: every new label receives
+`payloadAsOf={packet.as_of}` and `freshness={packet.freshness}`, while epoch,
+validity, and revalidation receive only explicit `epochNonreceipt()`. P10/P29/P38
+reject a marker gate: the assertions read the rendered values and the
+remove-derivation/keep-identifiers probe is red. Missing risk data carries unknown
+source coordinates and the nonreceipt terminal. P39 holds: the three existing C04
+production paths changed; four tests and this journal are mandatory companions,
+outside the 17/18 mechanism count.
+
+**Red-first and implementation.** The first focused Vitest run failed on missing
+temporal DOM output, not an import/harness fault: the new risk-panel and risk-query
+assertions could not find `time-semantics-payload-as-of`. The exact OpenAPI
+`AvailableConfidenceLedgerRiskSpendPacket` fixture provides
+`as_of=2026-02-11T12:00:00Z`, `freshness.observed_at=2026-02-11T12:00:00Z`,
+`freshness.source_as_of=2026-02-11T12:00:00Z`, and `freshness.state=observed`.
+`ConditionalDeltaFigure.tsx` now exports `ConfidenceLedgerTemporalOwner`, its sole
+literal label; `AvailableRiskSpend` renders it once before the conditional amount
+collection. It stays outside the frozen `data-confidence-surface="risk-spend"` card,
+so the unchanged exact DOM twin still evaluates that card. `ConfidenceLedgerRiskSpend.tsx`
+owns one wrapper label around its arms, and `CycleBoardPage.tsx` owns one in the
+risk-query panel only. Neither can borrow the legacy Cycle Board's time authority.
+
+**P29 receipt.** A complete focused lane first exited 0 at uptime
+`2026-08-30T10:56:54Z` -> `2026-08-30T10:57:18Z`, with
+`/usr/bin/time -p real/user/sys=24.16/38.38/2.72`, 4 files / 35 tests pass.
+An inverse `apply_patch` then set only all three literal labels' `freshness` and
+`payloadAsOf` derivations to `null`, retaining their literal labels and owner ids.
+The same lane exited 1 at `2026-08-30T10:57:36Z` -> `2026-08-30T10:58:01Z`,
+`real/user/sys=24.82/39.21/2.97`: all four temporal-value tests red, receiving
+`Payload as of: unknown` instead of the admitted time. The inverse restore exited 0
+at `2026-08-30T10:58:17Z` -> `2026-08-30T10:58:40Z`,
+`real/user/sys=22.80/34.72/2.16`, again 4 files / 35 tests pass. The complete
+frozen parity file also exits 0 (16/16) at `2026-08-30T10:56:23Z` ->
+`2026-08-30T10:56:46Z`, `real/user/sys=22.63/27.61/1.12`.
+
+`corepack pnpm run typecheck` exited 0 at `2026-08-30T10:59:49Z` ->
+`2026-08-30T11:00:15Z`, `real/user/sys=25.66/47.13/1.54`. Scoped ESLint over
+the three production and four focused tests exited 0 at `2026-08-30T11:00:23Z`
+-> `2026-08-30T11:00:55Z`, `real/user/sys=32.05/42.69/3.99`. The final focused
+lane exited 0 at `2026-08-30T11:01:03Z` -> `2026-08-30T11:01:27Z`,
+`real/user/sys=24.44/38.68/3.07`, 4 files / 35 tests pass.
+
+**DS18 scanner receipt.** The unedited scanner command
+`architecture/atlas_surfaces/decision_time_semantics_scan.mjs --repo-root
+/Users/deniskopylov/polisyos/.worktrees/ds17-landing/policy-engine --json` exited 0
+at `2026-08-30T11:01:40Z` -> `2026-08-30T11:01:41Z`,
+`real/user/sys=0.96/1.96/0.08`. Its complete production TS/TSX scan reports one
+label-bearing root in every participating file (3 primary roots / 32 roots), and
+no second label-bearing root:
+
+- `ConditionalDeltaFigure.tsx` (4): `ConfidenceLedgerTemporalOwner:jsx:46:5=1`
+  (`sha256:2039abec9729db2adfb1ab5941d539ba7c47777f93d0c96c3b502cb3d639fd03`),
+  `EnvelopeField:jsx:92:5=0`, `ConditionalEnvelopeDetails:jsx:130:5=0`,
+  `ConditionalDeltaFigure:jsx:151:5=0`.
+- `ConfidenceLedgerRiskSpend.tsx` (17): `SemanticValue:jsx:44:5=0`,
+  `SemanticList:jsx:59:12=0`, `SemanticList:jsx:62:5=0`,
+  `DetailRow:jsx:81:5=0`, `SemanticSection:jsx:99:5=0`, `AmountSet:jsx:131:5=0`,
+  `ActualRow:jsx:165:5=0`, `ClassSpendRow:jsx:272:5=0`,
+  `InstrumentDefinition:jsx:312:5=0`, `CertificateRoute:jsx:381:5=0`,
+  `AvailableRiskSpend:jsx:411:5=0`, `NonAvailableRiskSpend:jsx:752:7=0`,
+  `NonAvailableRiskSpend:jsx:810:5=0`, `ConfidenceLedgerRiskSpend:jsx:829:7=0`,
+  `ConfidenceLedgerRiskSpend:jsx:843:7=0`, `ConfidenceLedgerRiskSpend:jsx:848:7=0`,
+  `ConfidenceLedgerRiskSpend:jsx:851:5=1`
+  (`sha256:3a79faf9de8ff067d1c5f2d1c458f6a48a3dbd61bd79ad4eddd018acff11275a`).
+- `CycleBoardPage.tsx` (11): `CycleBoardQueryPanel:jsx:20:7=0`,
+  `CycleBoardQueryPanel:jsx:27:7=0`, `CycleBoardQueryPanel:jsx:35:10=0`,
+  `ConfidenceLedgerRiskSpendQueryPanel:jsx:44:7=0`,
+  `ConfidenceLedgerRiskSpendQueryPanel:jsx:48:7=0`,
+  `ConfidenceLedgerRiskSpendQueryPanel:jsx:55:7=0`,
+  `ConfidenceLedgerRiskSpendQueryPanel:jsx:58:5=1`
+  (`sha256:b35db63a6ddacd8a229c3285e13fa7df52e7e6ebb013c734ea6dbde8472dba8f`),
+  `AuthorizedCycleBoardPage:jsx:74:5=0`, `CycleBoardPage:jsx:102:7=0`,
+  `CycleBoardPage:jsx:113:7=0`, `CycleBoardPage:jsx:122:10=0`.
+
+Task 10 alone owns the DS18 registration. Scanner, checker/register/schema/report,
+shared primitive, generated files, translations, twin, plan bytes, and route-denominator
+mechanism inputs are unchanged. Changed mechanism paths are exactly the three named source
+files; their test companions are `ConditionalDeltaFigure.test.tsx`,
+`ConfidenceLedgerRiskSpend.test.tsx`, `CycleBoardPage.test.tsx`, and
+`CycleBoardPage.parity.test.tsx`. The ledger remains 17/18 declared, 17/22 ceiling,
+reserve 0, and the twenty route denominators remain unchanged.

@@ -5,6 +5,10 @@ import { ConfidenceLedgerRiskSpend } from "@/features/runs/components/Confidence
 import { CycleBoard } from "@/features/runs/components/CycleBoard";
 import { PanelErrorBoundary } from "@/shared/components/ErrorBoundary";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import {
+  epochNonreceipt,
+  TimeSemanticsLabel,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { Card, EmptyState, PanelSkeleton } from "@polisyos/atlas-ui";
 
 function CycleBoardQueryPanel() {
@@ -34,25 +38,34 @@ function CycleBoardQueryPanel() {
 function ConfidenceLedgerRiskSpendQueryPanel() {
   const { t } = useI18n();
   const query = useConfidenceLedgerRiskSpend();
-
-  if (query.isLoading) {
-    return (
+  const packet =
+    query.data?.status === "exact" ? query.data.packet : null;
+  const surface = query.isLoading ? (
       <Card>
         <PanelSkeleton rows={6} />
       </Card>
-    );
-  }
-  if (query.isError || !query.data) {
-    return (
+    ) : query.isError || !query.data ? (
       <Card>
         <EmptyState
           body={t("pages.cycleBoard.confidenceLedger.loadErrorBody")}
           title={t("pages.cycleBoard.confidenceLedger.loadErrorTitle")}
         />
       </Card>
+    ) : (
+      <ConfidenceLedgerRiskSpend projection={query.data} />
     );
-  }
-  return <ConfidenceLedgerRiskSpend projection={query.data} />;
+  return (
+    <>
+      <div data-testid="confidence-ledger-risk-spend-query-time-semantics">
+        <TimeSemanticsLabel
+          epochSemantics={epochNonreceipt()}
+          freshness={packet?.freshness}
+          payloadAsOf={packet?.as_of}
+        />
+      </div>
+      {surface}
+    </>
+  );
 }
 
 function AuthorizedCycleBoardPage() {

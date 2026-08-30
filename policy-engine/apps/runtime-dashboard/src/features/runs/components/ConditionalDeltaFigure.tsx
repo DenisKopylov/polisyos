@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 
 import type {
+  AvailableConfidenceLedgerRiskSpendPacket,
   ConditionalDeltaAmount,
   ObligationCoverageEnvelope,
 } from "@polisyos/runtime-api-client";
@@ -14,6 +15,10 @@ import {
 } from "@polisyos/atlas-ui";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import {
+  epochNonreceipt,
+  TimeSemanticsLabel,
+} from "@/shared/ui/temporal/TimeSemanticsLabel";
 
 type ConditionalDeltaFigureProps = Readonly<{
   amount: ConditionalDeltaAmount;
@@ -32,6 +37,21 @@ export type ConfidenceLedgerEnvelopeField = Readonly<{
   label: string;
   values: readonly string[];
 }>;
+
+/** Renders this file's once-owned packet temporal semantics. */
+export function ConfidenceLedgerTemporalOwner({
+  packet,
+}: Readonly<{ packet: AvailableConfidenceLedgerRiskSpendPacket }>) {
+  return (
+    <div data-testid="confidence-ledger-conditional-time-semantics">
+      <TimeSemanticsLabel
+        epochSemantics={epochNonreceipt()}
+        freshness={packet.freshness}
+        payloadAsOf={packet.as_of}
+      />
+    </div>
+  );
+}
 
 /** Complete governed dialog projection of the packet-owned envelope. */
 export function confidenceLedgerEnvelopeFields(

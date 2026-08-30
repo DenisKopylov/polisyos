@@ -9,7 +9,10 @@ import {
   CONFIDENCE_LEDGER_LOCALITY_RIDER,
 } from "@/features/runs/domain/confidenceLedgerRiskSpend";
 
-import { ConditionalDeltaFigure } from "./ConditionalDeltaFigure";
+import {
+  ConditionalDeltaFigure,
+  ConfidenceLedgerTemporalOwner,
+} from "./ConditionalDeltaFigure";
 
 vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({
@@ -23,6 +26,9 @@ vi.mock("@/shared/i18n/LocaleProvider", () => ({
         "pages.cycleBoard.confidenceLedger.figure.dialogTitle":
           "Conditional envelope",
       })[key] ?? key,
+  }),
+  useOptionalI18n: () => ({
+    t: (key: string) => key,
   }),
 }));
 
@@ -64,6 +70,37 @@ function availablePacket(): AvailableConfidenceLedgerRiskSpendPacket {
 }
 
 describe("ConditionalDeltaFigure", () => {
+  it("renders its one temporal-owner label from admitted packet clocks", () => {
+    const packet = availablePacket();
+
+    render(<ConfidenceLedgerTemporalOwner packet={packet} />);
+
+    const temporalOwner = within(
+      screen.getByTestId("confidence-ledger-conditional-time-semantics"),
+    );
+    expect(temporalOwner.getByTestId("time-semantics-payload-as-of")).toHaveTextContent(
+      packet.as_of,
+    );
+    expect(temporalOwner.getByTestId("time-semantics-observed-at")).toHaveTextContent(
+      packet.freshness.observed_at,
+    );
+    expect(temporalOwner.getByTestId("time-semantics-source-as-of")).toHaveTextContent(
+      packet.freshness.source_as_of ?? "unknown",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-source-state")).toHaveTextContent(
+      packet.freshness.state,
+    );
+    expect(temporalOwner.getByTestId("time-semantics-epoch")).toHaveTextContent(
+      "epochChrome.notEstablished",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-validity")).toHaveTextContent(
+      "epochChrome.status.not_established",
+    );
+    expect(temporalOwner.getByTestId("time-semantics-revalidation")).toHaveTextContent(
+      "epochChrome.notRequired",
+    );
+  });
+
   it("renders exact rational accounting through one two-rider disclosure chip", () => {
     const packet = availablePacket();
     const amount = packet.payload.obligation_class_risk_spend[6].allocation;

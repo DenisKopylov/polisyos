@@ -122,5 +122,37 @@ only this orientation ledger to record the immutable content-commit SHA and read
 contain its own SHA; the final successor SHA is reported in the delivery hand-back.
 
 ```text
-content_commit_sha: appended by receipt-only successor
+content_commit_sha: aa842d6293dc91df68272fdf3863a173be4eb474
+content_tree_sha: 9c57724ab9536d8ef1836b95e33ba026235a503b
+content_directory_tree_sha: a4604e5a48bb6d89ba191b3a572bcc1ed49ee5c9
+content_directory_tree_truncated: false
 ```
+
+Connector observation — `GitHub.fetch` exact branch ref resolved the content head to
+`aa842d6293dc91df68272fdf3863a173be4eb474`. Connector observation —
+`GitHub.fetch` recursive directory tree
+`a4604e5a48bb6d89ba191b3a572bcc1ed49ee5c9` reported `truncated:false` and exactly
+two Markdown blobs:
+
+| artifact | blob SHA | bytes |
+|---|---|---:|
+| `int-r6-remediation-delta-verification.md` | `269d3b62b7bd190340a047385a460741d55cc031` | 8,400 |
+| `int-r6-delta-verification-orientation-ledger.md` | `5b52986f3c5e6b90243c8aebdccb4fb301354928` | 7,303 |
+
+Total content-head artifact size: **15,703 bytes**.
+
+Connector observations — `GitHub.compare_commits` at the content head:
+
+- remediation `eb9b135089d4a54b648973db02f0312b276ea2ea`: merge base same,
+  ahead `1`, behind `0`; exactly two added Markdown paths, 257 additions / 0 deletions;
+- verification `1accee3534befa8ce9bc656a1b35f8eaca7e9b74`: merge base same,
+  ahead `4`, behind `0`;
+- base `dc7bdf79a1eff91349351a2f11dc498fe1ad7b4f`: merge base same,
+  ahead `53`, behind `0`.
+
+Connector observations — `GitHub.fetch_file` at exact content SHA read back both artifacts with
+the blob identities above. Every content-head comparison had `merge_base_commit.sha` equal to the
+stated base and `behind_by=0`.
+
+This receipt-only successor changes only this orientation ledger. Its own SHA cannot be embedded
+without changing the Git object; the final branch-head SHA is reported in the delivery hand-back.

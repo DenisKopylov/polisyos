@@ -919,6 +919,7 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 
 ## Commits
 
+- `36dff74a6 feat(atlas): register DS17 risk-spend surface (C05)`
 - `4f6b0ae80 docs(ds17): record post-temporal root census`
 - `3586d88f6 fix(ds17): fail closed on retained risk packet`
 - `d1d30bcb7 feat(ds17): add per-file temporal labels`

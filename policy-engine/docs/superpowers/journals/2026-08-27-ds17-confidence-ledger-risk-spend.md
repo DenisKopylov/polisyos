@@ -3336,3 +3336,107 @@ is an input to the governing twenty-row route denominator, so its 13-moved /
 7-unchanged target table remains unchanged. No seed array, foreign DS18 row,
 peer block, scanner, inheritance map, generated file, Task 9 source, or
 route-denominator byte moved.
+
+## 2026-08-30 — Task 10 review correction: behavioral execution and connected root proof
+
+The exact predecessor is the complete 3,338-line / 203,816-byte journal with
+Git blob `b860f7742bf3fc6e0c5bc36ff78f2c1eb22e28c5` and SHA-256
+`0c62d8dac440c6c7c5a9efffdd93d250baea2340eb5be5b8822fd2969df5e8aa`.
+The correction starts from attached clean HEAD
+`36dff74a610e03ae98b1cac6f1bb237dd4fda60a`; the governing plan remains
+unchanged.
+
+### Review bucket and property
+
+The independent review's two witnesses are one HIGH P29/P38 proxy-proof class,
+not two repair classes. The old role predicate admitted a test file whenever a
+configured identifier occurred anywhere. The old panel-to-twin predicate admitted
+unlinked module co-occurrence. Neither predicate proved the property it signed:
+an imported role must execute or render on an actual `it`/`test` path, and the
+exact twin's `root` input must derive from DOM rendered by the registered panel.
+
+The smallest closing mechanism remains the existing inline TypeScript AST scan in
+`check_frontend_disposition_register.py`. No new scanner, helper path, schema field,
+register shape, runtime-dashboard source/test, inheritance rule, or nineteenth
+mechanism is introduced. This is an append-only correction to mechanism 18/18.
+
+### Red-first witnesses
+
+Before the mechanism changed, both new focused tests failed with `DID NOT RAISE`.
+The first in-memory override contained only the real
+`ConditionalDeltaFigure` import plus `void ConditionalDeltaFigure`; the old
+builder still returned six roles and five edges. The second contained the real
+panel/twin imports, an unrelated panel render, and a twin call with an unrelated
+root; the old builder again returned six roles and five edges.
+
+The final literal review witnesses were also replayed read-only against the
+committed `36dff74a6` checker loaded directly from Git: the identifier-only
+override and the same-test
+`evaluateConfidenceLedgerRiskSpendTwin("<div>forged</div>")` override each printed
+`BASE_WRONGLY_ADMITTED 6 5`. No base or runtime-dashboard byte was changed.
+
+### Generic AST execution and dataflow proof
+
+The AST scan now resolves one non-type import from the role's exact relative
+source module, retains its local alias, and rejects ambiguous or shadowed bindings.
+It identifies real `it`/`test` callbacks (including modifier factories), rejects
+`skip`, `todo`, and locally shadowed test runners, and traverses only direct test
+statements plus reachable module-local helpers. Imported functions count only on
+a call or construction path. Imported JSX roles count only when their JSX value
+flows into React Testing Library's imported `render` binding; identifier presence
+and unrendered JSX do not count. Static false branches, disabled tests, and paths
+after unconditional return/throw fail closed.
+
+For the exact-twin edge, a property-sensitive value flow carries the panel import
+alias through JSX -> `render` result -> `.container` -> `querySelector` root,
+through local variables, helper arguments/returns, and returned object properties.
+The edge is admitted only when that derived root reaches the `root` property of an
+invoked twin import on one reachable test execution. Same-module, same-test, or
+same-owner co-occurrence without this flow is insufficient. Unsupported or
+ambiguous flows produce no fact and therefore fail closed.
+
+The focused class now has 13 tests. It pins the two review falsifiers, named-import
+alias acceptance, import-shadow rejection, disabled/static-dead test rejection,
+one positive aliased connected root, all previous six-role/five-edge mutations,
+the exact 3 + 29 DS18 partition, seven-row preservation, historical replay, real
+validator execution, and the failure-atomic writer. Final result: 13/13 passed.
+
+### Writer and unchanged governed facts
+
+After the checker/test correction, the owner writer ran twice consecutively and
+returned 6 roles / 5 edges / 621 files / 759 roots both times. Register and report
+bytes were identical across the two runs. The register correctly remains
+byte-identical at SHA-256
+`bbb5998bda21a631231b847076e17c7e49fbf4207b068e3550ab2c7fe3ba2687`:
+the six runtime-dashboard behavioral receipts, seven production sources, role
+manifest, edge manifest, and DS18 facts did not change. The writer-owned report
+changed only by projecting the predecessor Task 10 commit and is now
+`e99a1dedd9785d0547ffd89b814623123be03d330cc34c2d4dc87b5bd6e324bc`.
+No synthetic register drift was manufactured to make an unchanged derived
+artifact appear changed.
+
+### Final verification and inherited disposition
+
+Fresh direct scanner output and the checker's scan are canonical-byte equal at
+621 production files / 759 roots. The three owned files remain 4 + 17 + 11 roots,
+with exactly one label-bearing root each and an exhaustive partition of 3
+`decision_bearing/direct_ds4` + 29 `inherits_admitted_dom`. The focused DS18
+checker reports 126/126 obligated roots covered. Strict register schema validation
+returns zero errors; changed-line Ruff returns zero diagnostics (the two legacy
+files retain 701 pre-existing diagnostics); `git diff --check` is clean.
+
+Post-correction generic `--check` and `--corruption-probes` each completed in about
+86 seconds and emitted exactly the previously established inherited/disjoint C13
+error for `AmbientTelemetryHud.tsx`, with no DS17 or DS18 error. Their exact final
+timings were `85.86/119.34/11.18` and `85.91/119.63/11.07`
+real/user/sys. The P41 base replay and zero-intersection denominator recorded in
+the predecessor remain valid because this correction touches only the DS17 checker,
+its checker test, its writer-owned report projection, and this append-only journal;
+none intersects the twenty-path C13 input denominator.
+
+Immediately before this append the branch was attached to
+`codex/ds17-confidence-ledger-risk-spend-landing`. The exact dirty set was checker,
+checker test, and writer-owned report; this journal is the fourth tracked path.
+No register/schema byte, DS18 row/header, seed, foreign row, generated file,
+Task 9 source/test, scanner, inheritance map, route denominator, or governing plan
+byte moved.

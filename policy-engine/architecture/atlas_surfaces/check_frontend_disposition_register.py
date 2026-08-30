@@ -15696,6 +15696,31 @@ function functionStaticValue(initializer) {
   if (returns.length !== 1 || !returns[0].expression) return undefined;
   return staticValue(returns[0].expression);
 }
+function bindingNames(name, names = []) {
+  if (ts.isIdentifier(name)) {
+    names.push(name.text);
+    return names;
+  }
+  for (const element of name.elements ?? []) {
+    if (!ts.isOmittedExpression(element)) bindingNames(element.name, names);
+  }
+  return names;
+}
+function testCallInfo(expression, modifiers = []) {
+  const node = unwrap(expression);
+  if (ts.isIdentifier(node)) {
+    if (node.text !== "it" && node.text !== "test") return null;
+    return {
+      disabled: modifiers.some((name) => name === "skip" || name === "todo"),
+      root: node.text,
+    };
+  }
+  if (ts.isPropertyAccessExpression(node)) {
+    return testCallInfo(node.expression, [...modifiers, node.name.text]);
+  }
+  if (ts.isCallExpression(node)) return testCallInfo(node.expression, modifiers);
+  return null;
+}
 function parseModule(relativePath) {
   const sourceOverridden = Object.hasOwn(request.sourceOverrides, relativePath);
   const source = sourceOverridden
@@ -15806,6 +15831,364 @@ function parseModule(relativePath) {
     ts.forEachChild(node, (child) => visit(child, nestedOwner));
   }
   visit(sourceFile);
+  const valueImports = new Map(
+    imports.filter((row) => !row.type_only).map((row) => [row.local, row]),
+  );
+  const nonImportBindings = new Set();
+  const moduleFunctions = new Map();
+  const testCallbacks = [];
+  function collectExecutionShape(node) {
+    if (ts.isVariableDeclaration(node)) {
+      for (const name of bindingNames(node.name)) nonImportBindings.add(name);
+      if (
+        ts.isVariableDeclarationList(node.parent) &&
+        ts.isVariableStatement(node.parent.parent) &&
+        node.parent.parent.parent === sourceFile &&
+        ts.isIdentifier(node.name) &&
+        node.initializer
+      ) {
+        const initializer = unwrap(node.initializer);
+        if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) {
+          moduleFunctions.set(node.name.text, initializer);
+        }
+      }
+    } else if (
+      ts.isFunctionDeclaration(node) ||
+      ts.isFunctionExpression(node)
+    ) {
+      if (node.name) nonImportBindings.add(node.name.text);
+      if (
+        ts.isFunctionDeclaration(node) &&
+        node.parent === sourceFile &&
+        node.name &&
+        node.body
+      ) {
+        moduleFunctions.set(node.name.text, node);
+      }
+    } else if (
+      ts.isParameter(node) ||
+      ts.isCatchClause(node) && node.variableDeclaration
+    ) {
+      const name = ts.isParameter(node)
+        ? node.name
+        : node.variableDeclaration.name;
+      for (const binding of bindingNames(name)) nonImportBindings.add(binding);
+    } else if (
+      (ts.isClassDeclaration(node) || ts.isEnumDeclaration(node)) &&
+      node.name
+    ) {
+      nonImportBindings.add(node.name.text);
+    }
+    if (ts.isCallExpression(node)) {
+      const testCall = testCallInfo(node.expression);
+      if (testCall === null || testCall.disabled) {
+        ts.forEachChild(node, collectExecutionShape);
+        return;
+      }
+      for (const argument of node.arguments) {
+        const candidate = unwrap(argument);
+        if (ts.isArrowFunction(candidate) || ts.isFunctionExpression(candidate)) {
+          testCallbacks.push({ callback: candidate, root: testCall.root });
+        }
+      }
+    }
+    ts.forEachChild(node, collectExecutionShape);
+  }
+  collectExecutionShape(sourceFile);
+  const shadowedImportLocals = new Set(
+    [...nonImportBindings].filter((name) => valueImports.has(name)),
+  );
+  const executedImportLocals = new Set();
+  const connectedRenderCalls = [];
+  function emptyValue() {
+    return { tags: new Set(), props: new Map() };
+  }
+  function mergeValues(...values) {
+    const merged = emptyValue();
+    for (const value of values) {
+      if (!value) continue;
+      for (const tag of value.tags) merged.tags.add(tag);
+      for (const [name, propertyValue] of value.props) {
+        merged.props.set(
+          name,
+          merged.props.has(name)
+            ? mergeValues(merged.props.get(name), propertyValue)
+            : propertyValue,
+        );
+      }
+    }
+    return merged;
+  }
+  function transformedValue(value, fromPrefix, toPrefix) {
+    const transformed = emptyValue();
+    for (const tag of value.tags) {
+      if (tag.startsWith(fromPrefix)) {
+        transformed.tags.add(`${toPrefix}${tag.slice(fromPrefix.length)}`);
+      }
+    }
+    return transformed;
+  }
+  function evaluateJsx(node) {
+    const value = emptyValue();
+    function collect(child) {
+      if (ts.isJsxOpeningElement(child) || ts.isJsxSelfClosingElement(child)) {
+        if (ts.isIdentifier(child.tagName)) {
+          const local = child.tagName.text;
+          if (valueImports.has(local) && !shadowedImportLocals.has(local)) {
+            value.tags.add(`jsx:${local}`);
+          }
+        }
+      }
+      if (ts.isJsxExpression(child) && child.expression) {
+        const nested = evaluateExpression(child.expression, new Map(), new Set());
+        for (const tag of nested.tags) value.tags.add(tag);
+      }
+      ts.forEachChild(child, collect);
+    }
+    collect(node);
+    return value;
+  }
+  function executeFunction(node, argumentsValues, stack, functionName) {
+    const stackKey = `function:${functionName ?? node.pos}`;
+    if (stack.has(stackKey)) return emptyValue();
+    const nextStack = new Set(stack);
+    nextStack.add(stackKey);
+    const environment = new Map();
+    node.parameters.forEach((parameter, index) => {
+      if (ts.isIdentifier(parameter.name)) {
+        environment.set(parameter.name.text, argumentsValues[index] ?? emptyValue());
+      }
+    });
+    if (!ts.isBlock(node.body)) {
+      return evaluateExpression(node.body, environment, nextStack);
+    }
+    return executeStatements(node.body.statements, environment, nextStack);
+  }
+  function executeStatements(statements, environment, stack) {
+    let returned = emptyValue();
+    for (const statement of statements) {
+      if (ts.isVariableStatement(statement)) {
+        for (const declaration of statement.declarationList.declarations) {
+          const value = declaration.initializer
+            ? evaluateExpression(declaration.initializer, environment, stack)
+            : emptyValue();
+          if (ts.isIdentifier(declaration.name)) {
+            environment.set(declaration.name.text, value);
+          }
+        }
+      } else if (ts.isExpressionStatement(statement)) {
+        evaluateExpression(statement.expression, environment, stack);
+      } else if (ts.isReturnStatement(statement)) {
+        if (statement.expression) {
+          returned = mergeValues(
+            returned,
+            evaluateExpression(statement.expression, environment, stack),
+          );
+        }
+        break;
+      } else if (ts.isIfStatement(statement)) {
+        evaluateExpression(statement.expression, environment, stack);
+        const condition = staticValue(statement.expression);
+        if (condition !== false) {
+          returned = mergeValues(
+            returned,
+            executeStatement(
+              statement.thenStatement, new Map(environment), stack
+            ),
+          );
+        }
+        if (condition !== true && statement.elseStatement) {
+          returned = mergeValues(
+            returned,
+            executeStatement(
+              statement.elseStatement, new Map(environment), stack
+            ),
+          );
+        }
+      } else if (ts.isThrowStatement(statement)) {
+        evaluateExpression(statement.expression, environment, stack);
+        break;
+      } else if (ts.isBlock(statement)) {
+        returned = mergeValues(
+          returned,
+          executeStatements(statement.statements, new Map(environment), stack),
+        );
+      }
+    }
+    return returned;
+  }
+  function executeStatement(statement, environment, stack) {
+    if (ts.isBlock(statement)) {
+      return executeStatements(statement.statements, environment, stack);
+    }
+    if (ts.isReturnStatement(statement) && statement.expression) {
+      return evaluateExpression(statement.expression, environment, stack);
+    }
+    if (ts.isExpressionStatement(statement)) {
+      evaluateExpression(statement.expression, environment, stack);
+    }
+    return emptyValue();
+  }
+  function evaluateCall(node, environment, stack) {
+    const expression = unwrap(node.expression);
+    const argumentValues = node.arguments.map((argument) =>
+      evaluateExpression(argument, environment, stack)
+    );
+    if (ts.isPropertyAccessExpression(expression)) {
+      const receiver = evaluateExpression(expression.expression, environment, stack);
+      if (expression.name.text === "querySelector") {
+        return transformedValue(receiver, "container:", "root:");
+      }
+      return emptyValue();
+    }
+    if (!ts.isIdentifier(expression)) return emptyValue();
+    const local = expression.text;
+    const imported = valueImports.get(local);
+    if (imported && !shadowedImportLocals.has(local)) {
+      executedImportLocals.add(local);
+      if (
+        imported.imported === "render" &&
+        imported.module === "@testing-library/react"
+      ) {
+        const rendered = transformedValue(
+          mergeValues(...argumentValues), "jsx:", "render:"
+        );
+        for (const tag of rendered.tags) {
+          executedImportLocals.add(tag.slice("render:".length));
+        }
+        return rendered;
+      }
+      for (const argumentValue of argumentValues) {
+        const root = argumentValue.props.get("root");
+        if (!root) continue;
+        for (const tag of root.tags) {
+          if (tag.startsWith("root:")) {
+            connectedRenderCalls.push({
+              called_import_local: local,
+              rendered_import_local: tag.slice("root:".length),
+            });
+          }
+        }
+      }
+      return emptyValue();
+    }
+    const localFunction = moduleFunctions.get(local);
+    if (localFunction) {
+      return executeFunction(localFunction, argumentValues, stack, local);
+    }
+    return emptyValue();
+  }
+  function evaluateExpression(expression, environment, stack) {
+    const node = unwrap(expression);
+    if (ts.isAwaitExpression(node)) {
+      return evaluateExpression(node.expression, environment, stack);
+    }
+    if (ts.isIdentifier(node)) {
+      return environment.get(node.text) ?? emptyValue();
+    }
+    if (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node)) {
+      return evaluateJsx(node);
+    }
+    if (ts.isCallExpression(node)) {
+      return evaluateCall(node, environment, stack);
+    }
+    if (ts.isNewExpression(node)) {
+      if (ts.isIdentifier(node.expression)) {
+        const local = node.expression.text;
+        if (valueImports.has(local) && !shadowedImportLocals.has(local)) {
+          executedImportLocals.add(local);
+        }
+      }
+      return mergeValues(
+        ...(node.arguments ?? []).map((argument) =>
+          evaluateExpression(argument, environment, stack)
+        ),
+      );
+    }
+    if (ts.isPropertyAccessExpression(node)) {
+      const receiver = evaluateExpression(node.expression, environment, stack);
+      if (receiver.props.has(node.name.text)) {
+        return receiver.props.get(node.name.text);
+      }
+      if (node.name.text === "container") {
+        return transformedValue(receiver, "render:", "container:");
+      }
+      return emptyValue();
+    }
+    if (ts.isObjectLiteralExpression(node)) {
+      const value = emptyValue();
+      for (const property of node.properties) {
+        if (ts.isPropertyAssignment(property)) {
+          const name = property.name;
+          if (ts.isIdentifier(name) || ts.isStringLiteral(name)) {
+            value.props.set(
+              name.text,
+              evaluateExpression(property.initializer, environment, stack),
+            );
+          }
+        } else if (ts.isShorthandPropertyAssignment(property)) {
+          value.props.set(
+            property.name.text,
+            evaluateExpression(property.name, environment, stack),
+          );
+        }
+      }
+      return value;
+    }
+    if (ts.isArrayLiteralExpression(node)) {
+      return mergeValues(
+        ...node.elements.map((element) =>
+          evaluateExpression(element, environment, stack)
+        ),
+      );
+    }
+    if (ts.isConditionalExpression(node)) {
+      evaluateExpression(node.condition, environment, stack);
+      const condition = staticValue(node.condition);
+      if (condition === true) {
+        return evaluateExpression(node.whenTrue, environment, stack);
+      }
+      if (condition === false) {
+        return evaluateExpression(node.whenFalse, environment, stack);
+      }
+      return mergeValues(
+        evaluateExpression(node.whenTrue, environment, stack),
+        evaluateExpression(node.whenFalse, environment, stack),
+      );
+    }
+    if (ts.isBinaryExpression(node)) {
+      const left = staticValue(node.left);
+      if (
+        node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken &&
+        left === false ||
+        node.operatorToken.kind === ts.SyntaxKind.BarBarToken && left === true
+      ) {
+        return evaluateExpression(node.left, environment, stack);
+      }
+      return mergeValues(
+        evaluateExpression(node.left, environment, stack),
+        evaluateExpression(node.right, environment, stack),
+      );
+    }
+    if (
+      ts.isPrefixUnaryExpression(node) ||
+      ts.isPostfixUnaryExpression(node) ||
+      ts.isTypeOfExpression(node) ||
+      ts.isVoidExpression(node)
+    ) {
+      return evaluateExpression(node.operand ?? node.expression, environment, stack);
+    }
+    return emptyValue();
+  }
+  for (const testCase of testCallbacks) {
+    if (nonImportBindings.has(testCase.root)) continue;
+    executeFunction(
+      testCase.callback,
+      [],
+      new Set(),
+      `test:${testCase.callback.pos}`,
+    );
+  }
   return {
     path: relativePath,
     source_sha256: sha256(source),
@@ -15816,6 +16199,13 @@ function parseModule(relativePath) {
     calls,
     jsx,
     identifiers: [...identifiers].sort(),
+    executed_import_locals: [...executedImportLocals].sort(),
+    shadowed_import_locals: [...shadowedImportLocals].sort(),
+    connected_render_calls: connectedRenderCalls
+      .map((row) => JSON.stringify(row))
+      .filter((row, index, rows) => rows.indexOf(row) === index)
+      .sort()
+      .map((row) => JSON.parse(row)),
     literal_bindings: Object.fromEntries(
       Object.entries(literalBindings).map(([key, values]) => [
         key,
@@ -15993,6 +16383,75 @@ def _ds17_imports(
     )
 
 
+def _ds17_import_binding(
+    module: Mapping[str, Any], symbol: str, module_ref: str
+) -> Mapping[str, Any] | None:
+    """Resolve one unshadowed runtime import, accepting a named alias."""
+    rows = [
+        row
+        for row in module.get("imports", [])
+        if isinstance(row, Mapping)
+        and row.get("module") == module_ref
+        and row.get("type_only") is False
+        and (
+            row.get("imported") == symbol
+            or (row.get("imported") == "default" and row.get("local") == symbol)
+        )
+    ]
+    if len(rows) != 1:
+        return None
+    local = rows[0].get("local")
+    if not isinstance(local, str) or local in module.get(
+        "shadowed_import_locals", []
+    ):
+        return None
+    return rows[0]
+
+
+def _ds17_relative_module_ref(test_path: str, source_path: str) -> str:
+    source_without_suffix = str(PurePosixPath(source_path).with_suffix(""))
+    relative = posixpath.relpath(
+        source_without_suffix,
+        start=str(PurePosixPath(test_path).parent),
+    )
+    return relative if relative.startswith(".") else f"./{relative}"
+
+
+def _ds17_test_executes_role_import(
+    module: Mapping[str, Any],
+    *,
+    symbol: str,
+    module_ref: str,
+) -> bool:
+    binding = _ds17_import_binding(module, symbol, module_ref)
+    return bool(
+        binding
+        and binding.get("local") in module.get("executed_import_locals", [])
+    )
+
+
+def _ds17_has_connected_render_call(
+    module: Mapping[str, Any],
+    *,
+    rendered_symbol: str,
+    rendered_module_ref: str,
+    called_symbol: str,
+    called_module_ref: str,
+) -> bool:
+    rendered = _ds17_import_binding(
+        module, rendered_symbol, rendered_module_ref
+    )
+    called = _ds17_import_binding(module, called_symbol, called_module_ref)
+    if rendered is None or called is None:
+        return False
+    return any(
+        isinstance(row, Mapping)
+        and row.get("rendered_import_local") == rendered.get("local")
+        and row.get("called_import_local") == called.get("local")
+        for row in module.get("connected_render_calls", [])
+    )
+
+
 def _ds17_jsx_reachable(
     module: Mapping[str, Any], source_symbol: str, target_symbol: str
 ) -> bool:
@@ -16068,9 +16527,13 @@ def _build_ds17_confidence_ledger_risk_spend_surface(
         test_module = _ds17_scan_module(scan, test_path)
         declaration = _ds17_declaration(source_module, symbol)
         test_symbol = str(spec["test_symbol"])
-        if test_symbol not in test_module.get("identifiers", []):
+        if not _ds17_test_executes_role_import(
+            test_module,
+            symbol=test_symbol,
+            module_ref=_ds17_relative_module_ref(test_path, source_path),
+        ):
             raise ValueError(
-                "DS17 confidence-ledger behavioral evidence symbol missing:"
+                "DS17 confidence-ledger behavioral evidence execution missing:"
                 f"{spec['role_id']}:{test_path}:{test_symbol}"
             )
         roles.append(
@@ -16174,23 +16637,14 @@ def _build_ds17_confidence_ledger_risk_spend_surface(
             "ConditionalDeltaFigure",
             "./ConditionalDeltaFigure",
         ),
-        "panel_to_exact_twin": _ds17_has_jsx(
-            twin_test, None, "ConfidenceLedgerRiskSpend"
-        )
-        and any(
-            isinstance(row, Mapping)
-            and row.get("callee") == "evaluateConfidenceLedgerRiskSpendTwin"
-            for row in twin_test.get("calls", [])
-        )
-        and _ds17_imports(
+        "panel_to_exact_twin": _ds17_has_connected_render_call(
             twin_test,
-            "ConfidenceLedgerRiskSpend",
-            "@/features/runs/components/ConfidenceLedgerRiskSpend",
-        )
-        and _ds17_imports(
-            twin_test,
-            "evaluateConfidenceLedgerRiskSpendTwin",
-            "./confidenceLedgerRiskSpendTwin",
+            rendered_symbol="ConfidenceLedgerRiskSpend",
+            rendered_module_ref=(
+                "@/features/runs/components/ConfidenceLedgerRiskSpend"
+            ),
+            called_symbol="evaluateConfidenceLedgerRiskSpendTwin",
+            called_module_ref="./confidenceLedgerRiskSpendTwin",
         )
         and _ds17_has_call(
             twin,

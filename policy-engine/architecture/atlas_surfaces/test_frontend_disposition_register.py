@@ -8768,6 +8768,172 @@ class Ds17ConfidenceLedgerRiskSpendRegistrationTests(unittest.TestCase):
                 source_overrides={path_ref: mutated}
             )
 
+    def test_behavioral_evidence_rejects_import_with_identifier_only_use(
+        self,
+    ) -> None:
+        """An imported role name outside a test execution is not evidence."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        scan = checker._ds17_typescript_surface_scan_uncached(
+            {
+                path_ref: """
+import { ConditionalDeltaFigure } from "./ConditionalDeltaFigure";
+void ConditionalDeltaFigure;
+"""
+            }
+        )
+
+        with (
+            mock.patch.object(
+                checker,
+                "_ds17_typescript_surface_scan",
+                return_value=scan,
+            ),
+            pytest.raises(ValueError, match="behavioral evidence"),
+        ):
+            checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_panel_to_exact_twin_rejects_unlinked_test_cooccurrence(
+        self,
+    ) -> None:
+        """Panel render and twin call must share one root-dataflow path."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/export/"
+            "confidenceLedgerRiskSpendTwin.test.tsx"
+        )
+        scan = checker._ds17_typescript_surface_scan_uncached(
+            {
+                path_ref: """
+import { render } from "@testing-library/react";
+import { ConfidenceLedgerRiskSpend } from "@/features/runs/components/ConfidenceLedgerRiskSpend";
+import { evaluateConfidenceLedgerRiskSpendTwin } from "./confidenceLedgerRiskSpendTwin";
+
+it("keeps the panel and twin inputs unrelated", () => {
+  render(<ConfidenceLedgerRiskSpend projection={null as never} />);
+  evaluateConfidenceLedgerRiskSpendTwin("<div>forged</div>" as never);
+});
+"""
+            }
+        )
+
+        with (
+            mock.patch.object(
+                checker,
+                "_ds17_typescript_surface_scan",
+                return_value=scan,
+            ),
+            pytest.raises(ValueError, match="panel_to_exact_twin"),
+        ):
+            checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_behavioral_evidence_resolves_alias_and_rejects_shadowing(
+        self,
+    ) -> None:
+        """Runtime aliases bind, while a shadowed alias fails closed."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        alias_source = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+
+it("renders the imported role alias", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+});
+"""
+        alias_scan = checker._ds17_typescript_surface_scan_uncached(
+            {path_ref: alias_source}
+        )
+        with mock.patch.object(
+            checker,
+            "_ds17_typescript_surface_scan",
+            return_value=alias_scan,
+        ):
+            checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+        shadowed_scan = checker._ds17_typescript_surface_scan_uncached(
+            {
+                path_ref: alias_source.replace(
+                    'render(<Figure packet={null as never} row={null as never} />);',
+                    "const Figure = () => null;\n  render(<Figure />);",
+                )
+            }
+        )
+        with (
+            mock.patch.object(
+                checker,
+                "_ds17_typescript_surface_scan",
+                return_value=shadowed_scan,
+            ),
+            pytest.raises(ValueError, match="behavioral evidence"),
+        ):
+            checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+        inactive_sources = {
+            "skipped": alias_source.replace(
+                'it("renders the imported role alias"',
+                'it.skip("renders the imported role alias"',
+            ),
+            "statically_dead": alias_source.replace(
+                "  render(<Figure packet={null as never} row={null as never} />);",
+                "  if (false) {\n"
+                "    render(<Figure packet={null as never} row={null as never} />);\n"
+                "  }",
+            ),
+        }
+        for label, inactive_source in inactive_sources.items():
+            with self.subTest(label=label):
+                inactive_scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: inactive_source}
+                )
+                with (
+                    mock.patch.object(
+                        checker,
+                        "_ds17_typescript_surface_scan",
+                        return_value=inactive_scan,
+                    ),
+                    pytest.raises(ValueError, match="behavioral evidence"),
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_panel_to_exact_twin_accepts_one_connected_aliased_root(
+        self,
+    ) -> None:
+        """Alias-aware dataflow joins the rendered panel root to the twin."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/export/"
+            "confidenceLedgerRiskSpendTwin.test.tsx"
+        )
+        scan = checker._ds17_typescript_surface_scan_uncached(
+            {
+                path_ref: """
+import { render as mount } from "@testing-library/react";
+import {
+  ConfidenceLedgerRiskSpend as Surface,
+} from "@/features/runs/components/ConfidenceLedgerRiskSpend";
+import {
+  evaluateConfidenceLedgerRiskSpendTwin as reconcile,
+} from "./confidenceLedgerRiskSpendTwin";
+
+it("passes the rendered panel root to the twin", () => {
+  const view = mount(<Surface projection={null as never} />);
+  const root = view.container.querySelector("[data-confidence-surface]");
+  if (root === null) throw new Error("missing rendered root");
+  reconcile({ root } as never);
+});
+"""
+            }
+        )
+        with mock.patch.object(
+            checker,
+            "_ds17_typescript_surface_scan",
+            return_value=scan,
+        ):
+            checker._build_ds17_confidence_ledger_risk_spend_surface()
+
     def test_real_ds18_builder_partitions_every_current_ds17_root(self) -> None:
         """The three owner roots admit every other current same-file root."""
         scan = checker._ds18_time_semantics_scan()

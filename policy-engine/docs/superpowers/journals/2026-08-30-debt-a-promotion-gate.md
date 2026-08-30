@@ -52,11 +52,17 @@ Relevant patterns: `P01`, `P02`, `P04`, `P05`, `P07`, `P10`, `P14`, `P17`,
 | Stage | Command/predicate | Direct exit | Decisive output |
 | --- | --- | ---: | --- |
 | branch preflight | `git status -sb && git symbolic-ref -q HEAD && git rev-parse HEAD && git merge-base main HEAD` | 0 | clean attached `codex/debt-a-promotion-gate`; HEAD and merge-base both `784d02014…` |
-| environment bind | pending | pending | pending |
-| red fixtures | pending | pending | pending |
+| environment bind | `uv sync --frozen --extra test` and `uv run python -c 'import sys, pytest; ...'` | 0 / 0 | bound `.venv/bin/python3`; pytest `9.0.2` |
+| red DTO predicates | `uv run python -m pytest 'tests/unit/runtime/quality/test_promotion_sequence.py::test_current_input_rejects_legacy_caller_gate_predicates' -q --tb=short` | 1 | both `admissibility=True` and `effective_independence=True` failed with `DID NOT RAISE` |
+| red context predicates | `uv run python -m pytest 'tests/unit/runtime/quality/test_promotion_sequence.py::test_promotion_context_cannot_supply_legacy_gate_predicate' -q --tb=short` | 1 | both legacy context keys failed with `DID NOT RAISE` |
+| red coupling | `uv run python -m pytest 'tests/unit/runtime/quality/test_promotion_sequence.py::test_coupling_without_bound_n5_projection_is_scope_insufficient' -q --tb=short` | 1 | both no blocker and actual `unsupported_coupling_class:feedback` emitted `satisfied`, not `scope_insufficient` |
+| red independence | `uv run python -m pytest 'tests/unit/runtime/quality/test_promotion_sequence.py::test_effective_independence_missing_is_explicit_decisive_nonreceipt' -q --tb=short` | 1 | no `#effective_independence` decisive row was emitted (`len(rows) == 0`) |
+| red receipt epoch/scope | `uv run python -m pytest '...::test_v4_v1_history_is_readable_but_cannot_be_current_authority' '...::test_v1_scope_rows_cannot_be_restamped_as_current_authority' -q --tb=short` | 1 | current receipt remained v4; a self-consistent v1 scope restamp returned no validation issue |
+| real admissibility owner control | `uv run python -m pytest 'tests/unit/runtime/quality/test_promotion_sequence.py::test_cg2_open_admissibility_obligation_keeps_promotion_red' -q --tb=short` | 0 | a content-bound CG2 certificate with open `admissibility_closed` produced `not_bind_decision`; IDENTIFICATION refused |
 | targeted green | pending | pending | pending |
 | debt ledger | pending | pending | pending |
-| docs lifecycle | pending | pending | pending |
+| debt ledger preflight | `PYTHONPATH=. uv run python tools/quality/validation/check_debt_ledger.py --check` before installing the test extra | 0, non-receipt | checker reported pytest unavailable and degraded runtime findings; this result is not closure evidence |
+| docs lifecycle baseline | `PYTHONPATH=. uv run python tools/quality/validation/check_docs_lifecycle.py` | 1 | exactly six known findings: two `LEDGER.md` front-matter findings and four stale `frontend/runtime-dashboard` references |
 
 ## Decision log
 

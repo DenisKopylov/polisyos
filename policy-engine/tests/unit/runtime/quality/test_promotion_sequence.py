@@ -26,12 +26,14 @@ from polisyos.pdc import (
     AuthorityDerivationTrace,
     GyComparisonAdmission,
     PromotionObligationClass,
+    PromotionObligationRecord,
     PromotionObligationStatus,
     PromotionRiskSpendRecord,
     SearchTerminalKind,
     build_gy_comparison_projection_plan,
     gy_content_hash,
     gy_recorded_content_hash,
+    promotion_obligation_instance_id,
 )
 from polisyos.pdc._impl.layer2_design_search import (
     Layer2S6BlindSpotPostureInput,
@@ -69,6 +71,7 @@ from polisyos.runtime.quality.grounding_bind import (
     GroundingBindGate,
     GroundingDecisionCertificate,
     recompute_grounding_decision_content_hash,
+    recompute_grounding_relation_content_hash,
 )
 from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
 from polisyos.runtime.quality.open_world_risk import (
@@ -89,6 +92,12 @@ from polisyos.runtime.quality.promotion_sequence import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+@pytest.mark.parametrize("legacy_field", ["admissibility", "effective_independence"])
+def test_current_input_rejects_legacy_caller_gate_predicates(legacy_field: str) -> None:
+    with pytest.raises(ValueError, match="Extra inputs are not permitted"):
+        _promotion_input(**{legacy_field: True})
 
 
 def test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow() -> None:
@@ -203,6 +212,32 @@ def test_legacy_v3_history_is_exactly_readable_but_not_current_authority() -> No
         promotion_sequence_module.parse_canonical_promotion_history_receipt(hybrid)
 
 
+def test_v4_v1_history_is_readable_but_cannot_be_current_authority() -> None:
+    receipt = _run(_promotion_input())
+
+    assert receipt.schema_version == "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
+    payload = _legacy_v4_history_payload(receipt)
+    parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
+
+    assert isinstance(parsed, promotion_sequence_module._LegacyCanonicalPromotionReceiptV4)
+    assert parsed.model_dump(mode="json") == payload
+    with pytest.raises(ValueError):
+        CanonicalPromotionReceipt.model_validate(payload)
+    assert validate_canonical_promotion_receipt(payload) == (
+        {"code": "legacy_obligation_scope_v1_authority_not_admitted"},
+    )
+
+
+def test_v1_scope_rows_cannot_be_restamped_as_current_authority() -> None:
+    receipt = _run(_promotion_input())
+    payload = _current_receipt_with_v1_scope_rows(receipt)
+    restamped = CanonicalPromotionReceipt.model_validate(payload)
+
+    assert {
+        issue["code"] for issue in validate_canonical_promotion_receipt(restamped)
+    } == {"obligation_instance_scope_mismatch"}
+
+
 def test_current_owner_projection_requires_the_physical_open_world_key() -> None:
     receipt = _run(_promotion_input())
     payload = receipt.owner_projection.model_dump(mode="json")
@@ -292,6 +327,10 @@ def test_n9_emits_additive_decisive_instances_with_deterministic_identity() -> N
     assert tuple(row.obligation_class for row in class_gate_rows) == tuple(PromotionObligationClass)
     assert [row.source_obligation_ref for row in decisive_rows] == [
         (
+            "polisyos.runtime.quality.promotion_sequence."
+            "run_canonical_promotion_sequence#effective_independence"
+        ),
+        (
             "polisyos.runtime.quality.generation_cycle.ValueGateReceipt#"
             "transport_wmr_hash_equals_receipt_wmr_hash"
         ),
@@ -301,13 +340,13 @@ def test_n9_emits_additive_decisive_instances_with_deterministic_identity() -> N
         ),
     ]
     assert len(slot_rows) == 3
-    assert len(receipt.obligations) == 17
-    assert len({row.obligation_instance_id for row in receipt.obligations}) == 17
+    assert len(receipt.obligations) == 18
+    assert len({row.obligation_instance_id for row in receipt.obligations}) == 18
     assert {row.identity_provenance for row in receipt.obligations} == {"recomputed"}
 
     expected_scope_hash = gy_content_hash(
         {
-            "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v1",
+            "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v2",
             "promotion_rule_version": promotion_input.schema_version,
             "design_problem_id": promotion_input.design_problem_binding.design_problem_id,
             "problem_content_hash": (promotion_input.design_problem_binding.problem_content_hash),
@@ -1120,6 +1159,45 @@ def test_no_cg2_owner_grant_stays_shadow() -> None:
     )
 
 
+def test_cg2_open_admissibility_obligation_keeps_promotion_red() -> None:
+    reference = _credal_reference()
+    engine = GroundingRelationEngine(reference)
+    cg1 = engine.certificate_for(
+        _pure_synonym_probe(engine),
+        proposal_id="n9-cg2-open-admissibility",
+    )
+    payload = cg1.model_dump(mode="json")
+    payload["proposal_signature"]["hypotheses"][0]["signature"][
+        "admissibility"
+    ] = "candidate_unverified"
+    provisional = cg1.__class__.model_validate(payload)
+    payload["content_hash"] = recompute_grounding_relation_content_hash(provisional)
+    payload["certificate_id"] = (
+        f"cg1_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
+    )
+    open_cg1 = cg1.__class__.model_validate(payload)
+    decision = GroundingBindGate.for_contract_testing(
+        reference,
+        calibration_seed_anchor=True,
+        disable_certificate_revalidation=True,
+    ).certificate_for(open_cg1)
+
+    receipt = _run(
+        _promotion_input(
+            grounding_decision_certificate=decision,
+            credal_reference=reference,
+        )
+    )
+
+    assert decision.decision == "abstain"
+    assert "admissibility_closed" in decision.open_obligations
+    assert receipt.promoted is False
+    identification = _obligation(receipt, PromotionObligationClass.IDENTIFICATION)
+    assert identification.status == PromotionObligationStatus.FAILED
+    assert "identification:single_obligation_fail" in receipt.refusal_reasons
+    assert "not_bind_decision" in identification.detail
+
+
 def test_contract_testing_bind_receipt_is_intrinsically_non_promotable() -> None:
     receipt = _run(_promotion_input())
 
@@ -1130,14 +1208,14 @@ def test_contract_testing_bind_receipt_is_intrinsically_non_promotable() -> None
 
 
 def test_scope_insufficient_obligation_does_not_vacuously_pass() -> None:
-    receipt = _run(_promotion_input())
+    receipt = _run(_promotion_input(g4_governed_promotion_ref=None))
 
     assert receipt.promoted is False
     assert receipt.consumer_promotable is False
-    effect = _obligation(receipt, PromotionObligationClass.EFFECT)
-    assert effect.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
-    assert effect.semantic_scope == "scope_insufficient"
-    vacuous_value = effect.model_copy(
+    param = _obligation(receipt, PromotionObligationClass.PARAM)
+    assert param.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+    assert param.semantic_scope == "scope_insufficient"
+    vacuous_value = param.model_copy(
         update={
             "status": PromotionObligationStatus.SATISFIED,
             "reason": None,
@@ -1145,7 +1223,10 @@ def test_scope_insufficient_obligation_does_not_vacuously_pass() -> None:
         }
     )
     obligations = tuple(
-        vacuous_value if item.obligation_class == PromotionObligationClass.EFFECT else item
+        vacuous_value
+        if item.obligation_role == "class_gate"
+        and item.obligation_class == PromotionObligationClass.PARAM
+        else item
         for item in receipt.obligations
     )
     gate_outcome_hash = _gate_outcome_hash(obligations)
@@ -1212,6 +1293,39 @@ def test_invented_measurement_marker_does_not_supply_authority() -> None:
     assert _obligation(receipt, PromotionObligationClass.MEASUREMENT).status == (
         PromotionObligationStatus.SCOPE_INSUFFICIENT
     )
+
+
+@pytest.mark.parametrize(
+    "value_blockers",
+    [(), ("unsupported_coupling_class:feedback",)],
+)
+def test_coupling_without_bound_n5_projection_is_scope_insufficient(
+    value_blockers: tuple[str, ...],
+) -> None:
+    receipt = _run(
+        _promotion_input(summary=_summary().model_copy(update={"value_blockers": value_blockers}))
+    )
+
+    coupling = _obligation(receipt, PromotionObligationClass.COUPLING)
+    assert coupling.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+    assert coupling.semantic_scope == "scope_insufficient"
+    assert "bridge_missing" in coupling.detail
+
+
+def test_effective_independence_missing_is_explicit_decisive_nonreceipt() -> None:
+    receipt = _run(_promotion_input())
+
+    rows = tuple(
+        row
+        for row in receipt.obligations
+        if row.obligation_role == "decisive_predicate"
+        and row.source_obligation_ref.endswith("#effective_independence")
+    )
+
+    assert len(rows) == 1
+    assert rows[0].status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+    assert rows[0].owner_ref == "absent/unallocated"
+    assert "producer_missing" in rows[0].detail
 
 
 def test_data_trust_typed_fields_fail_data_obligation() -> None:
@@ -1609,6 +1723,42 @@ def test_promotion_context_cannot_supply_open_world_gate(
         port(admitted_batch=admitted_batch, problem=problem)
 
 
+@pytest.mark.parametrize("legacy_field", ["admissibility", "effective_independence"])
+def test_promotion_context_cannot_supply_legacy_gate_predicate(
+    legacy_field: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
+
+    problem = _problem(f"legacy_gate_context_{legacy_field}_{uuid4().hex}")
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(_summary(),),
+    )
+    port = CanonicalN9PromotionPort(
+        context_provider=lambda summary, owner_problem: {
+            legacy_field: (summary, owner_problem)
+        },
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+        repo_root=REPO_ROOT,
+    )
+
+    with pytest.raises(ValueError, match="promotion_context_cannot_supply_gate_predicate"):
+        port(admitted_batch=admitted_batch, problem=problem)
+
+
 def test_absent_open_world_runtime_freezes_production_promotion(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1771,7 +1921,9 @@ def test_non_calibration_probabilistic_certificate_bypass_is_rejected() -> None:
 
 
 def test_rehashed_owner_outcome_relabel_is_rejected_by_owner_recomputation() -> None:
-    receipt = _run(_promotion_input())
+    receipt = _run(
+        _promotion_input(g4_governed_promotion_ref="pdc://forged/g4/not-resolved")
+    )
     obligations = tuple(
         obligation.model_copy(
             update={
@@ -1780,8 +1932,8 @@ def test_rehashed_owner_outcome_relabel_is_rejected_by_owner_recomputation() -> 
                 "semantic_scope": "real_semantics",
             }
         )
-        if obligation.obligation_class
-        in {PromotionObligationClass.EFFECT, PromotionObligationClass.MEASUREMENT}
+        if obligation.obligation_role == "class_gate"
+        and obligation.obligation_class == PromotionObligationClass.PARAM
         else obligation
         for obligation in receipt.obligations
     )
@@ -2466,6 +2618,143 @@ def _promotion_input(**overrides: object) -> CanonicalPromotionInput:
     }
     kwargs.update(overrides)
     return CanonicalPromotionInput(**kwargs)
+
+
+def _legacy_v4_history_payload(receipt: CanonicalPromotionReceipt) -> dict[str, object]:
+    """Project one current receipt into exact v4/v1 historical coordinates."""
+
+    payload = deepcopy(receipt.model_dump(mode="json"))
+    v4 = "policyos.policy_design_case.layer3_gy.n9_promotion.v4"
+    v5 = "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
+    payload["schema_version"] = v4
+    owner = payload["owner_projection"]
+    assert isinstance(owner, dict)
+    owner["schema_version"] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v2"
+    owner["effective_independence"] = True
+    owner["admissibility"] = True
+
+    boundaries = [payload["computed_authority_boundary"]]
+    for posture_name in ("s7_delegation_posture", "s8_value_posture"):
+        posture = owner.get(posture_name)
+        if isinstance(posture, dict) and isinstance(posture.get("authority_boundary"), dict):
+            boundaries.append(posture["authority_boundary"])
+    for boundary in boundaries:
+        assert isinstance(boundary, dict)
+        boundary["rule_version_refs"] = [
+            v4 if item == v5 else item for item in boundary["rule_version_refs"]
+        ]
+    owner["projection_hash"] = gy_content_hash(
+        {key: value for key, value in owner.items() if key != "projection_hash"}
+    )
+
+    binding = owner["design_problem_binding"]
+    summary = owner["candidate_summary"]
+    assert isinstance(binding, dict)
+    assert isinstance(summary, dict)
+    scope_hash = gy_content_hash(
+        {
+            "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v1",
+            "promotion_rule_version": v4,
+            "design_problem_id": binding["design_problem_id"],
+            "problem_content_hash": binding["problem_content_hash"],
+            "candidate_id": summary["candidate_id"],
+            "candidate_content_hash": summary["content_hash"],
+            "operation_invocation_id": owner["operation_invocation_id"],
+        }
+    )
+    obligations: list[PromotionObligationRecord] = []
+    for raw_row in payload["obligations"]:
+        assert isinstance(raw_row, dict)
+        row = PromotionObligationRecord.model_validate(raw_row)
+        instance_id = promotion_obligation_instance_id(
+            obligation_role=row.obligation_role,
+            obligation_class=row.obligation_class,
+            gate_id=row.gate_id,
+            source_obligation_ref=row.source_obligation_ref,
+            source_obligation_content_hash=row.source_obligation_content_hash,
+            instance_scope_content_hash=scope_hash,
+        )
+        obligations.append(
+            row.model_copy(
+                update={
+                    "instance_scope_content_hash": scope_hash,
+                    "obligation_instance_id": instance_id,
+                }
+            )
+        )
+    payload["obligations"] = [row.model_dump(mode="json") for row in obligations]
+    payload["gate_outcome_hash"] = _gate_outcome_hash(
+        obligations,
+        open_world_gate=receipt.owner_projection.open_world_gate,
+        epoch_validity_projection=receipt.owner_projection.epoch_validity_projection,
+    )
+
+    projection = payload["confidence_ledger_projection"]
+    assert isinstance(projection, dict)
+    risk_scope = projection["risk_scope"]
+    assert isinstance(risk_scope, dict)
+    risk_scope["rule_ref"] = v4
+    projection["projection_hash"] = confidence_ledger_module._content_hash(
+        {key: value for key, value in projection.items() if key != "projection_hash"}
+    )
+    semantic = payload.get("confidence_ledger_semantic_projection")
+    if isinstance(semantic, dict):
+        semantic_scope = semantic["risk_scope"]
+        assert isinstance(semantic_scope, dict)
+        semantic_scope["rule_ref"] = v4
+    return payload
+
+
+def _current_receipt_with_v1_scope_rows(
+    receipt: CanonicalPromotionReceipt,
+) -> dict[str, object]:
+    """Keep current outer bytes while restamping internally coherent v1 rows."""
+
+    payload = deepcopy(receipt.model_dump(mode="json"))
+    owner = payload["owner_projection"]
+    assert isinstance(owner, dict)
+    binding = owner["design_problem_binding"]
+    summary = owner["candidate_summary"]
+    assert isinstance(binding, dict)
+    assert isinstance(summary, dict)
+    scope_hash = gy_content_hash(
+        {
+            "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v1",
+            "promotion_rule_version": receipt.schema_version,
+            "design_problem_id": binding["design_problem_id"],
+            "problem_content_hash": binding["problem_content_hash"],
+            "candidate_id": summary["candidate_id"],
+            "candidate_content_hash": summary["content_hash"],
+            "operation_invocation_id": owner["operation_invocation_id"],
+        }
+    )
+    obligations: list[PromotionObligationRecord] = []
+    for raw_row in payload["obligations"]:
+        assert isinstance(raw_row, dict)
+        row = PromotionObligationRecord.model_validate(raw_row)
+        instance_id = promotion_obligation_instance_id(
+            obligation_role=row.obligation_role,
+            obligation_class=row.obligation_class,
+            gate_id=row.gate_id,
+            source_obligation_ref=row.source_obligation_ref,
+            source_obligation_content_hash=row.source_obligation_content_hash,
+            instance_scope_content_hash=scope_hash,
+        )
+        obligations.append(
+            row.model_copy(
+                update={
+                    "instance_scope_content_hash": scope_hash,
+                    "obligation_instance_id": instance_id,
+                }
+            )
+        )
+    payload["obligations"] = [row.model_dump(mode="json") for row in obligations]
+    payload["gate_outcome_hash"] = _gate_outcome_hash(
+        obligations,
+        open_world_gate=receipt.owner_projection.open_world_gate,
+        epoch_validity_projection=receipt.owner_projection.epoch_validity_projection,
+    )
+    return payload
 
 
 def _probabilistic_offer(

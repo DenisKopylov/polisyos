@@ -146,6 +146,24 @@ def test_lint_imports_resolves_parent_from_import_to_registered_submodule(
     assert payload["data"]["violation_count"] == 0
 
 
+@pytest.mark.parametrize(
+    "statement",
+    [
+        "from polisyos.data_forge import kernel",
+        "from polisyos.data_forge import read_api, kernel",
+    ],
+)
+def test_lint_imports_rejects_disallowed_names_from_narrowed_parent(
+    tmp_path: Path,
+    statement: str,
+) -> None:
+    exit_code, payload = _run_narrowed_import_case(tmp_path, statement)
+
+    assert exit_code == 1
+    assert payload["data"]["violation_count"] == 1
+    assert payload["messages"][0]["rule_id"] == "ARCH007"
+
+
 def test_lint_imports_rejects_sibling_of_registered_narrowing(tmp_path: Path) -> None:
     exit_code, payload = _run_narrowed_import_case(
         tmp_path,
@@ -200,6 +218,76 @@ def test_version_two_policy_fails_closed_on_nonexistent_direction_root(
     with pytest.raises(
         ValueError,
         match="direction matrix roots without directories: data_forge",
+    ):
+        lint_imports.read_policy(policy)
+
+
+def test_import_policy_fails_closed_on_unsupported_version(tmp_path: Path) -> None:
+    src_root = tmp_path / "src"
+    for root in ("fabric", "data_forge"):
+        package = src_root / "polisyos" / root
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_text("", encoding="utf-8")
+    policy = tmp_path / "policy.toml"
+    _write_narrowed_policy(policy, src_root)
+    policy.write_text(
+        policy.read_text(encoding="utf-8").replace('version = "2"', 'version = "2.0"'),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=r"unsupported import policy version '2\.0'; supported versions: 1\.0, 2",
+    ):
+        lint_imports.read_policy(policy)
+
+
+def test_version_two_policy_fails_closed_on_undeclared_source_package(
+    tmp_path: Path,
+) -> None:
+    src_root = tmp_path / "src"
+    for root in ("fabric", "data_forge", "rogue"):
+        package = src_root / "polisyos" / root
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_text("", encoding="utf-8")
+    policy = tmp_path / "policy.toml"
+    _write_narrowed_policy(policy, src_root)
+
+    with pytest.raises(
+        ValueError,
+        match="direction matrix missing source package roots: rogue",
+    ):
+        lint_imports.read_policy(policy)
+
+
+def test_version_two_policy_rejects_extra_exact_root_boundary(tmp_path: Path) -> None:
+    src_root = tmp_path / "src"
+    for root in ("fabric", "data_forge"):
+        package = src_root / "polisyos" / root
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_text("", encoding="utf-8")
+    policy = tmp_path / "policy.toml"
+    _write_narrowed_policy(policy, src_root)
+    boundaries = tmp_path / "boundaries.toml"
+    boundaries.write_text(
+        boundaries.read_text(encoding="utf-8")
+        + textwrap.dedent(
+            """
+
+            [[package]]
+            module = "polisyos.rogue"
+            owner = "team-rogue"
+            public_facade = "polisyos.rogue"
+            allowed_dependencies = []
+            forbidden_dependencies = []
+            """
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="package boundary root rogue is not in direction matrix",
     ):
         lint_imports.read_policy(policy)
 

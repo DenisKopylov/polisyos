@@ -7,6 +7,7 @@ import datetime
 import fnmatch
 import json
 import re
+import subprocess
 import sys
 import tomllib
 from collections.abc import Sequence
@@ -21,7 +22,6 @@ from tools.lib.cache import (
     default_cache_root,
     file_sha256,
     filter_paths_under_root,
-    git_changed_files,
     persist_baseline,
     read_json_cache,
     stable_json_hash,
@@ -40,6 +40,7 @@ DEFAULT_BASELINE_LABEL = "default"
 VIOLATION_RULE_RE = re.compile(r"\[(ARCH\d+)\]")
 DIRECTION_MATRIX_ROLE = "enforced_direction_matrix"
 OWNERSHIP_NARROWING_ROLE = "ownership_and_narrowing_register"
+SUPPORTED_POLICY_VERSIONS = frozenset({"1.0", "2"})
 
 
 @dataclass(frozen=True)
@@ -528,6 +529,18 @@ def _read_package_governance(
         raise ValueError(
             "direction matrix roots without directories: " + ", ".join(without_directories)
         )
+    package_root = src_root / internal_prefix
+    source_package_roots = {
+        path.name
+        for path in package_root.iterdir()
+        if path.is_dir() and (path / "__init__.py").is_file()
+    }
+    undeclared_source_roots = sorted(source_package_roots - known_roots)
+    if undeclared_source_roots:
+        raise ValueError(
+            "direction matrix missing source package roots: "
+            + ", ".join(undeclared_source_roots)
+        )
 
     data = tomllib.loads(boundary_path.read_text(encoding="utf-8"))
     contract = data.get("package_boundaries") or {}
@@ -548,6 +561,8 @@ def _read_package_governance(
         root = _exact_package_root(item.get("module"), internal_prefix)
         if root is None:
             continue
+        if root not in known_roots:
+            raise ValueError(f"package boundary root {root} is not in direction matrix")
         owner = item.get("owner")
         if not isinstance(owner, str) or not owner.startswith("team-"):
             raise ValueError(f"package boundary root {root} must name a team-* owner")
@@ -623,6 +638,11 @@ def read_policy(path: Path) -> PolicyConfig:
     internal_prefix = policy.get("internal_prefix")
     src_root_raw = policy.get("src_root")
     version = str(policy.get("version", "unknown"))
+    if version not in SUPPORTED_POLICY_VERSIONS:
+        supported = ", ".join(sorted(SUPPORTED_POLICY_VERSIONS))
+        raise ValueError(
+            f"unsupported import policy version {version!r}; supported versions: {supported}"
+        )
     if not internal_prefix or not src_root_raw:
         raise ValueError("policy.internal_prefix and policy.src_root are required")
 
@@ -1211,7 +1231,7 @@ def _changed_scan_scope(
     exceptions_path: Path,
     base_ref: str,
 ) -> tuple[set[Path], bool]:
-    changed_paths = git_changed_files(repo_root, base_ref=base_ref)
+    changed_paths = _git_changed_files_fail_closed(repo_root, base_ref=base_ref)
     if not changed_paths:
         return set(), False
 
@@ -1235,6 +1255,86 @@ def _changed_scan_scope(
         path.resolve() for path in changed_under_src if path.suffix == ".py" and path.exists()
     }
     return changed_python, False
+
+
+def _git_changed_files_fail_closed(repo_root: Path, *, base_ref: str) -> list[Path]:
+    """Return Git changes rooted at the worktree, rejecting indeterminate diffs."""
+
+    def _run_git(command: list[str]) -> subprocess.CompletedProcess[str]:
+        try:
+            return subprocess.run(
+                command,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+        except OSError as exc:
+            raise ValueError(f"changed-only Git command failed: {exc}") from exc
+
+    root_result = _run_git(
+        ["git", "-C", str(repo_root), "rev-parse", "--show-toplevel"]
+    )
+    if root_result.returncode != 0:
+        detail = root_result.stderr.strip() or root_result.stdout.strip() or "unknown Git error"
+        raise ValueError(f"changed-only Git worktree root is unavailable: {detail}")
+    git_root = Path(root_result.stdout.strip()).resolve()
+
+    base_result = _run_git(
+        [
+            "git",
+            "-C",
+            str(git_root),
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            f"{base_ref}^{{commit}}",
+        ]
+    )
+    if base_result.returncode != 0:
+        raise ValueError(f"changed-only Git base ref is not a commit: {base_ref}")
+
+    diff_result = _run_git(
+        [
+            "git",
+            "-C",
+            str(git_root),
+            "diff",
+            "--name-only",
+            "--diff-filter=ACMRD",
+            base_ref,
+            "--",
+        ],
+    )
+    if diff_result.returncode != 0:
+        detail = diff_result.stderr.strip() or diff_result.stdout.strip() or "unknown Git error"
+        raise ValueError(f"changed-only Git diff failed: {detail}")
+
+    untracked_result = _run_git(
+        [
+            "git",
+            "-C",
+            str(git_root),
+            "ls-files",
+            "--others",
+            "--exclude-standard",
+            "--",
+        ]
+    )
+    if untracked_result.returncode != 0:
+        detail = (
+            untracked_result.stderr.strip()
+            or untracked_result.stdout.strip()
+            or "unknown Git error"
+        )
+        raise ValueError(f"changed-only Git untracked-file census failed: {detail}")
+
+    relative_paths = {
+        line.strip()
+        for output in (diff_result.stdout, untracked_result.stdout)
+        for line in output.splitlines()
+        if line.strip()
+    }
+    return sorted((git_root / path).resolve() for path in relative_paths)
 
 
 def _build_fingerprint(
@@ -1370,13 +1470,24 @@ def main(argv: Sequence[str] | None = None) -> int:
     changed_files: set[Path] = set()
     scan_mode = "full"
     if args.changed_only:
-        changed_files, forced_full_scan = _changed_scan_scope(
-            repo_root=repo_root,
-            config=config,
-            policy_path=args.policy,
-            exceptions_path=args.exceptions,
-            base_ref=args.git_base_ref,
-        )
+        try:
+            changed_files, forced_full_scan = _changed_scan_scope(
+                repo_root=repo_root,
+                config=config,
+                policy_path=args.policy,
+                exceptions_path=args.exceptions,
+                base_ref=args.git_base_ref,
+            )
+        except ValueError as exc:
+            return _emit_tool_result(
+                ToolResult.failed(
+                    "lint.lint-imports",
+                    str(exc),
+                    exit_code=2,
+                ),
+                output_format=args.output_format,
+                output=args.output,
+            )
         if not changed_files:
             return _emit_tool_result(
                 ToolResult(

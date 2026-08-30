@@ -46,6 +46,12 @@ def test_every_direction_root_exists_and_has_package_governance_disposition() ->
     allow = internal["allow"]
     assert isinstance(allow, dict)
     matrix_roots = set(allow)
+    source_roots = {
+        path.name
+        for path in SOURCE_ROOT.iterdir()
+        if path.is_dir() and (path / "__init__.py").is_file()
+    }
+    assert matrix_roots == source_roots
     nonexistent = sorted(root for root in matrix_roots if not (SOURCE_ROOT / root).is_dir())
     assert nonexistent == []
 

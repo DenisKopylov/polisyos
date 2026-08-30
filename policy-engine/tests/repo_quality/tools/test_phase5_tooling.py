@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import textwrap
 from pathlib import Path
 
+import pytest
 from pydantic import BaseModel
 
 from polisyos.schemas.abi_models import ABIModelEntry, CompatMode, Lifecycle, Priority
@@ -61,6 +63,23 @@ def _write_valid_exceptions(path: Path) -> None:
         ).strip()
         + "\n",
         encoding="utf-8",
+    )
+
+
+def _commit_git_fixture(worktree_root: Path) -> None:
+    subprocess.run(["git", "init", "-q", str(worktree_root)], check=True)
+    subprocess.run(
+        ["git", "-C", str(worktree_root), "config", "user.email", "test@example.invalid"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(worktree_root), "config", "user.name", "PolicyOS Tests"],
+        check=True,
+    )
+    subprocess.run(["git", "-C", str(worktree_root), "add", "."], check=True)
+    subprocess.run(
+        ["git", "-C", str(worktree_root), "commit", "-qm", "fixture"],
+        check=True,
     )
 
 
@@ -126,7 +145,11 @@ def test_lint_imports_changed_only_skips_without_python_changes(
     policy = tmp_path / "import_policy.toml"
     _write_policy(policy, src_root)
     output = tmp_path / "report.json"
-    monkeypatch.setattr(lint_imports, "git_changed_files", lambda *args, **kwargs: [])
+    monkeypatch.setattr(
+        lint_imports,
+        "_git_changed_files_fail_closed",
+        lambda *args, **kwargs: [],
+    )
 
     exit_code = lint_imports.main(
         [
@@ -146,6 +169,176 @@ def test_lint_imports_changed_only_skips_without_python_changes(
     assert exit_code == 0
     assert payload["status"] == "skipped"
     assert payload["data"]["changed_file_count"] == 0
+
+
+def test_lint_imports_changed_only_resolves_nested_product_paths(tmp_path: Path) -> None:
+    worktree_root = tmp_path / "repo"
+    product_root = worktree_root / "policy-engine"
+    src_root = product_root / "src"
+    module_path = src_root / "polisyos" / "ir" / "sample.py"
+    module_path.parent.mkdir(parents=True)
+    module_path.write_text("import pandas\n", encoding="utf-8")
+
+    policy = product_root / "architecture" / "imports" / "policy.toml"
+    policy.parent.mkdir(parents=True)
+    _write_policy(policy, src_root)
+    _commit_git_fixture(worktree_root)
+    policy.write_text(policy.read_text(encoding="utf-8") + "# sentinel change\n", encoding="utf-8")
+
+    output = tmp_path / "report.json"
+    exit_code = lint_imports.main(
+        [
+            "--policy",
+            str(policy),
+            "--exceptions",
+            str(product_root / "architecture" / "imports" / "missing.toml"),
+            "--changed-only",
+            "--git-base-ref",
+            "HEAD",
+            "--cache-dir",
+            str(tmp_path / "cache"),
+            "--output-format",
+            "json",
+            "--output",
+            str(output),
+        ]
+    )
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert exit_code == 1
+    assert payload["data"]["scan_mode"] == "full"
+    assert payload["data"]["violation_count"] == 1
+
+
+def test_lint_imports_changed_only_normalizes_nested_source_path(tmp_path: Path) -> None:
+    worktree_root = tmp_path / "repo"
+    product_root = worktree_root / "policy-engine"
+    src_root = product_root / "src"
+    module_path = src_root / "polisyos" / "ir" / "sample.py"
+    module_path.parent.mkdir(parents=True)
+    module_path.write_text("from typing import TYPE_CHECKING\n", encoding="utf-8")
+
+    policy = product_root / "architecture" / "imports" / "policy.toml"
+    policy.parent.mkdir(parents=True)
+    _write_policy(policy, src_root)
+    _commit_git_fixture(worktree_root)
+    module_path.write_text("import pandas\n", encoding="utf-8")
+
+    output = tmp_path / "report.json"
+    exit_code = lint_imports.main(
+        [
+            "--policy",
+            str(policy),
+            "--exceptions",
+            str(product_root / "architecture" / "imports" / "missing.toml"),
+            "--changed-only",
+            "--git-base-ref",
+            "HEAD",
+            "--cache-dir",
+            str(tmp_path / "cache"),
+            "--output-format",
+            "json",
+            "--output",
+            str(output),
+        ]
+    )
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert exit_code == 1
+    assert payload["data"]["scan_mode"] == "changed-only"
+    assert payload["data"]["changed_file_count"] == 1
+    assert payload["data"]["violation_count"] == 1
+    assert payload["messages"][0]["message"].startswith(
+        "src/polisyos/ir/sample.py:1 [ARCH002]"
+    )
+
+
+def test_lint_imports_changed_only_rejects_unresolvable_base_ref(tmp_path: Path) -> None:
+    worktree_root = tmp_path / "repo"
+    src_root = worktree_root / "policy-engine" / "src"
+    module_path = src_root / "polisyos" / "ir" / "sample.py"
+    module_path.parent.mkdir(parents=True)
+    module_path.write_text("from typing import TYPE_CHECKING\n", encoding="utf-8")
+    policy = worktree_root / "policy-engine" / "import_policy.toml"
+    policy.parent.mkdir(parents=True, exist_ok=True)
+    _write_policy(policy, src_root)
+    subprocess.run(["git", "init", "-q", str(worktree_root)], check=True)
+
+    output = tmp_path / "report.json"
+    exit_code = lint_imports.main(
+        [
+            "--policy",
+            str(policy),
+            "--exceptions",
+            str(tmp_path / "missing.toml"),
+            "--changed-only",
+            "--git-base-ref",
+            "does-not-exist",
+            "--output-format",
+            "json",
+            "--output",
+            str(output),
+        ]
+    )
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert exit_code == 2
+    assert payload["status"] == "failed"
+    assert payload["summary"].endswith(
+        "changed-only Git base ref is not a commit: does-not-exist"
+    )
+
+
+def test_changed_only_converts_later_git_launch_error_to_gate_failure(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    def _run(args, **kwargs):
+        if "diff" in args:
+            raise OSError("synthetic launch failure")
+        if "--show-toplevel" in args:
+            return subprocess.CompletedProcess(args, 0, stdout=f"{tmp_path}\n", stderr="")
+        return subprocess.CompletedProcess(args, 0, stdout="fixture-commit\n", stderr="")
+
+    monkeypatch.setattr(lint_imports.subprocess, "run", _run)
+
+    with pytest.raises(
+        ValueError,
+        match="changed-only Git command failed: synthetic launch failure",
+    ):
+        lint_imports._git_changed_files_fail_closed(tmp_path, base_ref="HEAD")
+
+
+@pytest.mark.parametrize(
+    ("failing_command", "stderr", "expected"),
+    [
+        ("diff", "synthetic diff error", "changed-only Git diff failed: synthetic diff error"),
+        (
+            "ls-files",
+            "synthetic ls-files error",
+            "changed-only Git untracked-file census failed: synthetic ls-files error",
+        ),
+    ],
+)
+def test_changed_only_rejects_indeterminate_git_census(
+    tmp_path: Path,
+    monkeypatch,
+    failing_command: str,
+    stderr: str,
+    expected: str,
+) -> None:
+    def _run(args, **kwargs):
+        if "--show-toplevel" in args:
+            return subprocess.CompletedProcess(args, 0, stdout=f"{tmp_path}\n", stderr="")
+        if failing_command in args:
+            return subprocess.CompletedProcess(args, 1, stdout="", stderr=stderr)
+        return subprocess.CompletedProcess(args, 0, stdout="fixture-commit\n", stderr="")
+
+    monkeypatch.setattr(lint_imports.subprocess, "run", _run)
+
+    with pytest.raises(ValueError) as exc_info:
+        lint_imports._git_changed_files_fail_closed(tmp_path, base_ref="HEAD")
+    assert str(exc_info.value) == expected
 
 
 def test_lint_imports_fix_canonicalizes_exceptions_and_persists_baseline(tmp_path: Path) -> None:

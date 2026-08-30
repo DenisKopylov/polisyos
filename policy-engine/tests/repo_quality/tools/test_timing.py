@@ -318,67 +318,93 @@ def _historical_git_blob(revision: str, test_path: str) -> bytes:
     return completed.stdout
 
 
-def _historical_pytest_node_ids(test_path: str, source_bytes: bytes) -> tuple[str, ...]:
-    """Derive exact pytest IDs from a deliberately narrow historical source grammar."""
+def _historical_pytest_node_ids(
+    historical_sources: dict[str, bytes],
+    supporting_sources: dict[str, bytes] | None = None,
+) -> tuple[str, ...]:
+    """Collect exact pytest IDs from Git-bound test bytes in an isolated process."""
 
+    if not historical_sources:
+        raise ValueError("historical pytest collection requires at least one source")
+    supporting_sources = supporting_sources or {}
+    if historical_sources.keys() & supporting_sources.keys():
+        raise ValueError("historical pytest collection source paths overlap")
+    with tempfile.TemporaryDirectory() as temporary_directory:
+        collection_root = Path(temporary_directory)
+        for test_path, source_bytes in {**supporting_sources, **historical_sources}.items():
+            relative_path = PurePosixPath(test_path)
+            if relative_path.is_absolute() or ".." in relative_path.parts:
+                raise ValueError(f"invalid historical test path: {test_path}")
+            destination = collection_root / relative_path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(source_bytes)
+        (collection_root / "conftest.py").write_text(
+            "\n".join(
+                (
+                    "import json",
+                    "from pathlib import Path",
+                    f"_HISTORICAL_PATH_ORDER = {list(historical_sources)!r}",
+                    "def pytest_collection_finish(session):",
+                    "    root = Path(session.config.rootpath)",
+                    "    records = sorted(",
+                    "        (",
+                    "            _HISTORICAL_PATH_ORDER.index(",
+                    "                item.path.relative_to(root).as_posix(),",
+                    "            ),",
+                    "            item.location[1],",
+                    "            item.nodeid,",
+                    "        )",
+                    "        for item in session.items",
+                    "    )",
+                    "    print('__historical_node_ids__=' + json.dumps([record[2] for record in records]))",
+                )
+            ),
+            encoding="utf-8",
+        )
+        try:
+            completed = subprocess.run(  # noqa: S603 - fixed local interpreter and pytest module.
+                [
+                    sys.executable,
+                    "-m",
+                    "pytest",
+                    "--collect-only",
+                    "-q",
+                    "-s",
+                    *historical_sources,
+                ],
+                cwd=collection_root,
+                check=False,
+                capture_output=True,
+                timeout=_HISTORICAL_GIT_BLOB_TIMEOUT_SECONDS,
+            )
+        except subprocess.TimeoutExpired as error:
+            raise ValueError("historical pytest collection timed out") from error
+        except OSError as error:
+            raise ValueError("historical pytest collection could not start") from error
+        if completed.returncode != 0:
+            raise ValueError(f"historical pytest collection failed with exit {completed.returncode}")
+        try:
+            stdout = completed.stdout.decode("utf-8")
+        except UnicodeDecodeError as error:
+            raise ValueError("historical pytest collection returned non-UTF-8 output") from error
+    records = [
+        line.removeprefix("__historical_node_ids__=")
+        for line in stdout.splitlines()
+        if line.startswith("__historical_node_ids__=")
+    ]
+    if len(records) != 1:
+        raise ValueError("historical pytest collection did not emit one node map")
     try:
-        source = source_bytes.decode("utf-8")
-    except UnicodeDecodeError as error:
-        raise ValueError(f"historical test source is not UTF-8: {test_path}") from error
-    tree = ast.parse(source, filename=test_path)
-    if [
-        (imported.name, imported.asname)
-        for node in tree.body
-        if isinstance(node, ast.Import)
-        for imported in node.names
-        if imported.name == "unittest" and imported.asname is None
-    ] != [("unittest", None)]:
-        raise ValueError(f"unsupported unittest binding: {test_path}")
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            if node.name in {"__getattr__", "__getattribute__", "__dir__", "__init_subclass__"}:
-                raise ValueError(f"unsupported dynamic test hook: {node.name}")
-        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
-            if node.id.startswith("test_"):
-                raise ValueError(f"unsupported test-producing assignment: {node.id}")
-            if node.id in {"__getattr__", "__getattribute__", "__dir__", "unittest"}:
-                raise ValueError(f"unsupported dynamic test binding: {node.id}")
-        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
-            if node.func.id in {"exec", "eval", "globals", "locals", "setattr", "type", "vars"}:
-                raise ValueError(f"unsupported dynamic test producer: {node.func.id}")
-    node_ids: list[str] = []
-    test_node_types = (ast.FunctionDef, ast.AsyncFunctionDef)
-    for node in tree.body:
-        if isinstance(node, test_node_types) and node.name.startswith("test_"):
-            if node.decorator_list:
-                raise ValueError(f"unsupported decorated module test: {node.name}")
-            node_ids.append(f"{test_path}::{node.name}")
-            continue
-        if not isinstance(node, ast.ClassDef):
-            continue
-        if node.keywords:
-            raise ValueError(f"unsupported test class keyword: {node.name}")
-        if node.decorator_list:
-            raise ValueError(f"unsupported decorated test class: {node.name}")
-        if len(node.bases) != 1 or not (
-            isinstance(node.bases[0], ast.Attribute)
-            and isinstance(node.bases[0].value, ast.Name)
-            and node.bases[0].value.id == "unittest"
-            and node.bases[0].attr == "TestCase"
-        ):
-            raise ValueError(f"unsupported test class inheritance: {node.name}")
-        test_methods = [
-            member
-            for member in node.body
-            if isinstance(member, test_node_types) and member.name.startswith("test_")
-        ]
-        for method in test_methods:
-            if method.decorator_list:
-                raise ValueError(f"unsupported decorated test method: {node.name}.{method.name}")
-            node_ids.append(f"{test_path}::{node.name}::{method.name}")
+        node_ids = tuple(json.loads(records[0]))
+    except json.JSONDecodeError as error:
+        raise ValueError("historical pytest collection emitted an invalid node map") from error
+    if not all(isinstance(node_id, str) for node_id in node_ids):
+        raise ValueError("historical pytest collection emitted a non-string node ID")
     if len(node_ids) != len(set(node_ids)):
-        raise ValueError(f"ambiguous duplicate pytest node ID in {test_path}")
-    return tuple(node_ids)
+        raise ValueError("historical pytest collection returned duplicate node IDs")
+    if not node_ids:
+        raise ValueError("historical pytest collection returned no node IDs")
+    return node_ids
 
 
 def _preserved_tool_run_record_duration(
@@ -1646,21 +1672,16 @@ def test_atlas_python_governance_lane_names_one_exact_runnable_workload(
         "architecture/atlas_surfaces/test_frontend_disposition_register.py",
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
     ]
-    with pytest.raises(ValueError, match="unsupported test-producing assignment"):
-        _historical_pytest_node_ids(
-            "historical.py",
-            """
-import unittest
-
-def helper() -> None:
-    pass
-
-test_alias = helper
-""".encode(),
-        )
     publication_revision = "6bcc95bff32645189ff2ed65a719c7990e48c52a"
     historical_sources = {
         path: _historical_git_blob(publication_revision, path) for path in command_test_paths
+    }
+    historical_supporting_sources = {
+        path.replace("test_", "check_", 1): _historical_git_blob(
+            publication_revision,
+            path.replace("test_", "check_", 1),
+        )
+        for path in command_test_paths
     }
     assert {
         path: hashlib.sha256(source).hexdigest()
@@ -1697,78 +1718,23 @@ test_alias = helper
             _historical_git_blob(publication_revision, "historical.py")
     historical_node_ids = [
         node_id
-        for path, source in historical_sources.items()
-        for node_id in _historical_pytest_node_ids(path, source)
+        for node_id in _historical_pytest_node_ids(
+            historical_sources,
+            historical_supporting_sources,
+        )
     ]
     assert len(historical_node_ids) == 67
     assert len(historical_node_ids) == len(set(historical_node_ids))
     assert hashlib.sha256(
         json.dumps(historical_node_ids, separators=(",", ":")).encode("utf-8")
     ).hexdigest() == "9b08f0ed2e74bf888009820529e2901c6dd3bedb40bf55a679a362efaf12aea6"
-    with pytest.raises(ValueError, match="ambiguous duplicate pytest node ID"):
-        _historical_pytest_node_ids(
-            "historical.py",
-            """
-import unittest
-
-class DuplicateTests(unittest.TestCase):
-    def test_one(self) -> None:
-        pass
-
-class DuplicateTests(unittest.TestCase):
-    def test_one(self) -> None:
-        pass
-""".encode(),
-        )
-    with pytest.raises(ValueError, match="unsupported decorated module test"):
-        _historical_pytest_node_ids(
-            "historical.py",
-            """
-import unittest
-
-@pytest.mark.parametrize(("value",), [(1,), (2,)])
-def test_parameterized(value: int) -> None:
-    pass
-""".encode(),
-        )
-    with pytest.raises(ValueError, match="unsupported test class inheritance"):
-        _historical_pytest_node_ids(
-            "historical.py",
-            """
-import unittest
-
-class BaseTests(unittest.TestCase):
-    def test_inherited(self) -> None:
-        pass
-
-class InheritedTests(BaseTests):
-    pass
-""".encode(),
-        )
-    with pytest.raises(ValueError, match="unsupported test class keyword"):
-        _historical_pytest_node_ids(
-            "historical.py",
-            """
-import unittest
-
-class InjectedTests(unittest.TestCase, metaclass=type):
-    def test_injected(self) -> None:
-        pass
-""".encode(),
-        )
-    with pytest.raises(ValueError, match="unsupported dynamic test binding: unittest"):
-        _historical_pytest_node_ids(
-            "historical.py",
-            """
-import unittest
-
-unittest = object()
-
-class ShadowedTests(unittest.TestCase):
-    def test_shadowed(self) -> None:
-        pass
-""".encode(),
-        )
+    assert _historical_pytest_node_ids(
+        {
+            "architecture/atlas_surfaces/test_nested_collection.py": (
+                b"if True:\n    def test_hidden() -> None:\n        pass\n"
+            )
+        }
+    ) == ("architecture/atlas_surfaces/test_nested_collection.py::test_hidden",)
     receipt_count_match = re.search(r"`(?P<count>\d+)` tests passed", source_line)
     assert receipt_count_match is not None
     assert int(receipt_count_match.group("count")) == len(historical_node_ids)

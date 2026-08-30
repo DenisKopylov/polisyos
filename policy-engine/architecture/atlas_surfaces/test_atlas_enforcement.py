@@ -184,6 +184,41 @@ class AtlasEnforcementTests(unittest.TestCase):
 
         self.assertEqual([], errors)  # noqa: PT009
 
+    def test_slice_scope_obligation_manifest_cannot_replace_required_input(self) -> None:
+        """Reject a manifest and plan that agree only by dropping a ratified row."""
+        manifest = scope_obligation_manifest()
+        mutated_manifest = copy.deepcopy(manifest)
+        mutated_manifest["atlas_residual_inputs"] = [
+            "rogue-replacement-that-drops-global-case-index",
+            *manifest["atlas_residual_inputs"][1:],
+        ]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            errors = checker.validate_slice_scope_obligations(
+                manifest=mutated_manifest,
+                plan_paths=[
+                    write_slice_plan(
+                        Path(temp_dir) / "matching-rogue-manifest.md",
+                        {
+                            "type": "slice-plan",
+                            "slice": manifest["target_slices"][0],
+                            "atlas_residual_inputs": mutated_manifest[
+                                "atlas_residual_inputs"
+                            ],
+                        },
+                    )
+                ],
+            )
+
+        self.assertTrue(  # noqa: PT009
+            any(
+                error.startswith(
+                    "schema:slice-scope-obligations:atlas_residual_inputs.0:"
+                )
+                for error in errors
+            ),
+            errors,
+        )
+
     def test_slice_scope_obligations_reject_duplicate_target_plans(self) -> None:
         """Reject competing target plans even when both carry the required inputs."""
         manifest = scope_obligation_manifest()

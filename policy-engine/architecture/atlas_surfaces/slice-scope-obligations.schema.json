@@ -33,7 +33,13 @@
       "minItems": 3,
       "maxItems": 3,
       "uniqueItems": true,
-      "items": {"type": "string", "minLength": 1}
+      "items": {
+        "enum": [
+          "ds8-global-case-index",
+          "ds8-local-reviewer-note-persistence",
+          "ds8-signed-public-decision-surface"
+        ]
+      }
     }
   },
   "$defs": {

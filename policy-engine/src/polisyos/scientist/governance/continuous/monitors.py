@@ -292,35 +292,6 @@ def resolve_governance_monitor_event(
     )
 
 
-def persist_incident_monitor_event(
-    store: core_artifacts.ArtifactStore,
-    *,
-    incident_report_ref: ArtifactRef,
-    sequence: int = 0,
-) -> PersistedGovernanceMonitorEvent:
-    """Reuse the incident owner and bind its exact report into the strict event arm."""
-
-    from .incident import incident_monitor_event, load_incident_report
-
-    incident = load_incident_report(store, incident_report_ref)
-    event = incident_monitor_event(incident=incident, sequence=sequence)
-    bound = event.model_copy(
-        update={
-            "perturbation": IncidentPerturbation(
-                incident_report_ref=incident_report_ref,
-            ),
-            "advisory_posture": "review_required",
-        }
-    )
-    if (
-        bound.decision_packet_ref != incident.decision_packet_ref
-        or bound.reason != incident.reason
-        or bound.affected_claim_ids != incident.affected_claim_ids
-    ):
-        raise ValueError("incident monitor event owner binding mismatch")
-    return persist_governance_monitor_event(store, bound)
-
-
 class GovernanceMonitorRecommendation(BaseModel):
     """Action recommendation produced from a monitor event."""
 
@@ -1152,7 +1123,6 @@ __all__ = [
     "lifecycle_decision_id",
     "monitor_event_id",
     "persist_governance_monitor_event",
-    "persist_incident_monitor_event",
     "recommend_validity_action",
     "resolve_governance_monitor_event",
 ]

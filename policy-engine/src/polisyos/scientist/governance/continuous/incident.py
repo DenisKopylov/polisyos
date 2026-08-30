@@ -8,6 +8,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -15,7 +16,10 @@ from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from .monitors import (
     DecisionValidityStatus,
     GovernanceMonitorEvent,
+    IncidentPerturbation,
+    PersistedGovernanceMonitorEvent,
     monitor_event_id,
+    persist_governance_monitor_event,
 )
 
 INCIDENT_REPORT_KIND = "scientist.incident_report"
@@ -192,6 +196,33 @@ def load_incident_report(store: Any, ref: ArtifactRef) -> IncidentReport:
     return IncidentReport.model_validate(payload)
 
 
+def persist_incident_monitor_event(
+    store: core_artifacts.ArtifactStore,
+    *,
+    incident_report_ref: ArtifactRef,
+    sequence: int = 0,
+) -> PersistedGovernanceMonitorEvent:
+    """Bind an exact incident report into the strict monitor-event arm."""
+
+    incident = load_incident_report(store, incident_report_ref)
+    event = incident_monitor_event(incident=incident, sequence=sequence)
+    bound = event.model_copy(
+        update={
+            "perturbation": IncidentPerturbation(
+                incident_report_ref=incident_report_ref,
+            ),
+            "advisory_posture": "review_required",
+        }
+    )
+    if (
+        bound.decision_packet_ref != incident.decision_packet_ref
+        or bound.reason != incident.reason
+        or bound.affected_claim_ids != incident.affected_claim_ids
+    ):
+        raise ValueError("incident monitor event owner binding mismatch")
+    return persist_governance_monitor_event(store, bound)
+
+
 def persist_withdrawal_record(
     store: Any,
     record: WithdrawalRecord,
@@ -238,6 +269,7 @@ __all__ = [
     "load_incident_report",
     "load_withdrawal_record",
     "persist_incident_report",
+    "persist_incident_monitor_event",
     "persist_withdrawal_record",
     "withdrawal_record_inputs",
 ]

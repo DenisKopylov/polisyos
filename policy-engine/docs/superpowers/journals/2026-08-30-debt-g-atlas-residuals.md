@@ -1,8 +1,8 @@
 # Debt G — Atlas Residuals Execution Journal
 
-Date: 2026-08-30  
-Branch: `codex/debt-g-atlas-residuals`  
-Base: `784d02014`  
+Date: 2026-08-30
+Branch: `codex/debt-g-atlas-residuals`
+Base: `784d02014`
 Plan: `docs/superpowers/plans/2026-08-30-debt-g-atlas-residuals.md`
 
 ## Scope and preservation
@@ -329,3 +329,258 @@ here: the producer and adapter currently construct and normalize their rejection
 strings independently, with no common typed error packet or normalizer. Per P40,
 this third worked example triggers documentation of the limitation, not a third
 Python patch.
+
+## Register closure dossier
+
+Arithmetic is exact and does not merge unlike states:
+
+- core: `7 = 2 closed + 4 open + 1 blocked + 0 ambiguous`;
+- adjacent: `4 = 1 closed + 1 open + 2 blocked + 0 ambiguous`;
+- total: `11 = 3 closed + 5 open + 3 blocked + 0 ambiguous`.
+
+### `ds4-waist-decision-grade`
+
+**Verdict:** `open`.
+
+**Predicate and exit:** the complete generated-family census reads the two
+OpenAPI-derived families in `architecture/generated_artifacts.toml` and their six
+outputs, then runs `rg -n '\bDecisionGrade\b'` over those outputs and
+`schemas/runtime_api_v1.openapi.json`; it exits `1`, meaning zero named
+`DecisionGrade` occurrences. The owner `Literal` still resolves in
+`src/polisyos/pdc/_impl/layer2_readiness.py`, while the sole dashboard swap point
+continues to accept `unknown` and emit `unrecognized`.
+
+**Exact append-only register prose:**
+
+> **TASK G CLOSURE RE-CENSUS 2026-08-31 — `open`.** The next-regeneration swap has not occurred. The complete registered generated denominator is two OpenAPI-derived families / six outputs — five `runtime-api-client` outputs and one dashboard API-types output — plus their source `schemas/runtime_api_v1.openapi.json`; a direct named-symbol scan finds zero `DecisionGrade` occurrences across that complete set. The real four-value owner `Literal` still exists in `pdc/_impl/layer2_readiness.py`, while the sole dashboard swap point still accepts `unknown` and presents every value as `unrecognized`. Capability state remains `surface_missing`; no client regeneration or generated file was changed here.
+
+### `ds5-frontend-baseline-manifest-bindings-stale`
+
+**Verdict:** `closed`.
+
+**Predicate and exit:** a complete direct Python walk of
+`lint.resolution_content_bindings` exits `0` after asserting 46 binding rows over
+45 unique paths, a binding-row suffix denominator of 2 `.cjs` + 14 `.ts` + 30
+`.tsx`, zero current SHA-256 mismatches, and all six paths changed by ancestor
+`31f66448a` present and fresh. The same walk separately establishes that
+`lint.resolutions[].origin_identity.source_content_sha256` remains present in
+75/75 historical resolution rows.
+
+**Exact append-only register prose:**
+
+> **CLOSED 2026-08-31 — the stale-binding subject is absent on the canonical binding plane.** Ancestor `31f66448a` re-anchored the six named paths. A complete current walk of `lint.resolution_content_bindings`, the field consumed by `_resolution_content_binding_errors`, reports 46 binding rows over 45 unique paths — 2 `.cjs`, 14 `.ts`, and 30 `.tsx` binding rows — with zero SHA-256 mismatches; all six re-anchored paths are fresh. The older `lint.resolutions[].origin_identity.source_content_sha256` coordinate still exists in 75/75 resolution rows, but it is provenance for diagnostic origins, not the current content-binding field. This closes the stale-binding defect; it does not delete or reinterpret those 75 historical origin receipts.
+
+### `ds5-waist-successors-routed-to-unscoped-slices`
+
+**Verdict:** `blocked`.
+
+**Predicate and exit:** the complete parser for the direct-`Badge` debt table in
+`DS5-enforcement-waist.md` exits `0` after reproducing 27 groups / 58 sites and
+the historical successor subset of 6 groups / 11 sites. The closure predicate
+`planless_groups == 0 and planned_but_unabsorbed_groups == 0` exits `1`: DS12 and
+DS14 still account for 4 planless groups / 8 sites, while DS15 and DS18 account
+for 2 planned-but-unabsorbed groups / 3 sites.
+
+**Exact append-only register prose:**
+
+> **TASK G BASIS CORRECTION 2026-08-31 — `blocked`.** Re-parsing the complete DS5 direct-`Badge` debt table reproduces 27 groups / 58 sites. The six historical successor handoffs comprise 6 groups / 11 sites: DS12 has 3/7, DS14 1/1, DS15 1/1, and DS18 1/2. Exactly 4 groups / 8 sites remain routed to planless slices — DS12 3/7 and DS14 1/1 — not six groups. DS15's `promotion candidate status` 1/1 and DS18's `projection source freshness` 1/2 now target standalone plans, but neither exact group label is absorbed by its plan; they are planned-slice handoffs still unclaimed, not planless routes. Routing remains non-owning. Close only when DS12 and DS14 have standalone claiming plans and all six historical handoffs are explicitly absorbed into their respective slice scopes.
+
+### `ds6-atlas-evidence-primitive-adoption-projection-stale`
+
+**Verdict:** `closed` on the bounded predicate below.
+
+**Predicate and exit:** the fixed-environment command below exits `0` and reports
+621 production TypeScript files / 759 roots / 126 obligated roots / 126 covered
+roots at `independently_reconciled`:
+
+```bash
+env -i HOME=/var/empty LANG=C LC_ALL=C PATH=/usr/bin:/bin TZ=UTC \
+  POLISYOS_NODE_EXECUTABLE=/opt/homebrew/Cellar/node@22/22.22.2_1/bin/node \
+  .venv/bin/python -I \
+  architecture/atlas_surfaces/check_frontend_disposition_register.py \
+  --check-ds18-time-semantics-coverage
+```
+
+Direct Core CAS persistence exits `0` with measured 126/126. The finally-guarded
+real register corruption changing only
+`covered_root_count: 126 -> 0` exits `0` after the real producer and persistence
+store `unknown / not_established`, zero known facts, and limitation prefix
+`ds18_time_semantics_count_drift:covered_root_count`; it restores the exact
+register SHA-256
+`c2893870139f3eae5042e54ba23a1692c10680f1ec0dc404cd3d879efe01544f`
+and leaves no register diff. The exact readiness witness
+`corepack pnpm exec vitest run src/test/evidence/atlasSurfaceReadinessReconciliation.test.ts --testNamePattern='gates the zero-instance stable arm identically to implemented'`
+exits `0` with 1 passed / 32 skipped. From `apps/runtime-dashboard`, the final
+six-node health selector is:
+
+```bash
+corepack pnpm exec vitest run src/test/evidence/atlasHealthMetrics.test.ts \
+  --testNamePattern='records the six current measurements and the seventh protocol seam honestly|drops primitive adoption to not established when its moving denominator is red|keeps every metric on the closed instrument without claiming independence|persists the producer-observed report and snapshot through Core CAS|ignores a caller PATH node that emits a schema-valid forged report|does not inherit caller NODE_OPTIONS into the fixed producer'
+```
+
+It exits `1` with 1 failed + 5 passed + 17 skipped; its sole failure is the
+task-D-owned 94/94 expectation against live 126/126.
+
+**Exact append-only register prose:**
+
+> **CLOSED 2026-08-31 — the DS6 Python persistence edge consumes the live DS18 projection on its established bounded predicate.** The canonical replay establishes 621 production TypeScript files / 759 render-export roots / 126 obligated roots / 126 covered roots, and direct persistence admits measured 126/126 without storing a current count in Python. A finally-guarded real `covered_root_count: 126 -> 0` corruption made the canonical checker reject with ASCII `ds18_time_semantics_count_drift:covered_root_count`; the real producer plus persistence stored `unknown / not_established` with zero known facts, then restored the exact register bytes and SHA-256. Closure is deliberately no broader. Task D retains one bounded producer/error residual with three examples: output beyond its 8 MiB `spawnSync` buffer, zero-exit malformed output that can throw before Python admission, and Unicode `trim()` / `strip()` divergence on nonzero stderr. The smallest missing capability is one producer-owned typed and bounded error-normalization contract consumed identically by TypeScript and Python; no such shared contract exists here. Task D also retains the stale read-only expectation of 94/94 while the live producer emits 126/126. The dated 605/719/77/77 and 616/733/94/94 receipts remain historical freezes, not competing current totals.
+
+### `ds8-global-case-index`
+
+**Verdict:** `open`.
+
+**Predicate and exit:** the exact command below exits `0` at 6/6:
+
+```bash
+uv run python -m unittest \
+  architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_slice_scope_obligations_leave_unstarted_targets_open \
+  architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_slice_scope_obligations_require_the_exact_unique_input_set \
+  architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_slice_scope_obligations_accept_each_target_only_with_all_inputs \
+  architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_slice_scope_obligations_reject_duplicate_target_plans \
+  architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_slice_scope_obligations_read_tracked_slice_plans_without_filename_proxy \
+  architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_validate_enforcement_consumes_live_scope_obligation_errors
+```
+
+`rg --files docs/plans/active/atlas-slices | rg '/DS(12|13|14)-'` exits `1`:
+no standalone target plan exists. The manifest fixes acknowledgement at
+`candidate_only` with `closure_effect: none`.
+
+**Exact append-only register prose:**
+
+> **SCOPE-SETTING GATE ADDED 2026-08-31 — still `open`.** `architecture/atlas_surfaces/slice-scope-obligations.json` makes `ds8-global-case-index` one of exactly three mandatory `atlas_residual_inputs` for every future DS12, DS13, or DS14 `type: slice-plan`; the live Atlas checker requires the exact unique set and rejects omissions, additions, duplicates, marker-only input, duplicate target plans, and filename-proxy enumeration. Acknowledgement is explicitly `candidate_only` with `closure_effect: none`. No standalone target plan currently exists, so no slice has claimed this obligation and this Atlas-side row does not close. The separate task-C producer half, `ds10-global-case-index-producer-allocation`, still lacks on this branch a canonical global-index producer/provider bridge and its named behavioral test; producer completion cannot close this scope half, and this scope mechanism cannot close the producer half.
+
+### `ds8-local-reviewer-note-persistence`
+
+**Verdict:** `open`.
+
+**Predicate and exit:** the same six exact scope-obligation nodes exit `0` at
+6/6; the complete standalone DS12/DS13/DS14 plan enumeration exits `1` with no
+matches. The manifest carries this exact row ID and has no closure authority.
+
+**Exact append-only register prose:**
+
+> **SCOPE-SETTING GATE ADDED 2026-08-31 — still `open`.** `architecture/atlas_surfaces/slice-scope-obligations.json` makes `ds8-local-reviewer-note-persistence` one of exactly three mandatory `atlas_residual_inputs` for every future DS12, DS13, or DS14 `type: slice-plan`. The live checker enforces the exact unique input set generically; acknowledgement remains `candidate_only` and has `closure_effect: none`. No standalone DS12, DS13, or DS14 plan exists, so this lane has made the obligation unmissable without pretending to own or close it. Closure requires a named slice to take reviewer-note persistence into its actual scope.
+
+### `ds8-signed-public-decision-surface`
+
+**Verdict:** `open`.
+
+**Predicate and exit:** the same six exact scope-obligation nodes exit `0` at
+6/6; standalone target-plan enumeration exits `1`. On this branch `rg` for
+`test_public_decision_projection_is_custody_bound` exits `2` because the named
+`tests/unit/runtime/http/test_public_export.py` artifact is absent.
+
+**Exact append-only register prose:**
+
+> **SCOPE-SETTING GATE ADDED 2026-08-31 — still `open`.** `architecture/atlas_surfaces/slice-scope-obligations.json` makes `ds8-signed-public-decision-surface` one of exactly three mandatory `atlas_residual_inputs` for every future DS12, DS13, or DS14 `type: slice-plan`; exact-set enforcement is live, candidate-only, and explicitly non-closing. No standalone target plan currently exists, so this Atlas-side scope obligation remains `absent/unallocated`. The separate task-C half, `ds10-public-decision-rendering`, still lacks on this branch the custody-bound public producer/rendering chain and its named `test_public_decision_projection_is_custody_bound` artifact. Neither half closes the other.
+
+### `scenario-composer-dark-theme-visual-instability`
+
+**Verdict:** `open`.
+
+**Predicate and exit:** a complete byte walk over all 125 tracked
+`docs/plans/**/*.md` files finds four carried-prose hits and no explicit team
+assignment satisfying the row. The closure predicate `assigned team + declared
+reproduction ceiling + repair or bounded residual with falsifier` exits `1`.
+
+**Exact append-only register prose:**
+
+> **TASK G CLOSURE RE-CENSUS 2026-08-31 — `open`.** This is an ordinary frontend-team allocation, not an institutional appointment. The complete 125-file tracked plan-Markdown corpus contains four carried-prose hits but still no explicit team assignment for the scenario-composer dark-theme visual instability, and no declared-ceiling reproduction, repair, or bounded-residual falsifier has been supplied. Task G does not allocate it by naming a likely team. Close only after an ordinary owner assignment and the existing reproduce-then-repair-or-bound predicate is executed.
+
+### `atlas-python-governance-workload-identity-drift`
+
+**Verdict:** `closed`.
+
+**Predicate and exit:** `uv run --extra test --with 'jsonschema>=4.25' python -m
+pytest tests/repo_quality/tools/test_timing.py::test_atlas_python_governance_lane_names_one_exact_runnable_workload`
+exits `0`, selecting and passing 1/1 test. It runtime-collects the exact historical
+path-to-node mapping from publication revision
+`6bcc95bff32645189ff2ed65a719c7990e48c52a`.
+
+**Exact append-only register prose:**
+
+> **CLOSED 2026-08-31 — the receipt is bound to its exact historical runnable map, not a moving total.** At publication revision `6bcc95bff32645189ff2ed65a719c7990e48c52a`, isolated real pytest collection of the two catalog paths yields exactly 30 + 37 = 67 ordered node IDs. The raw test blobs bind to SHA-256 `841466263c618a3142a6d5327c72072ad0e95bf4d738516f6d240eb98601b685` and `7f5418b7e809b1f1bac0470ecc2a553c878b14d886ea39494362067908e7ca0f`; canonical compact JSON of the complete ordered map binds to `9b08f0ed2e74bf888009820529e2901c6dd3bedb40bf55a679a362efaf12aea6`. The exact selector passes because the published `67 tests passed` receipt matches that Git-bound path-to-node mapping. Recorded `181`, `190`, `210`, current helper-derived `191 + 41 = 232`, and current pytest-collected `194 + 41 = 235` remain distinct named derivations; none is selected as a replacement for the historical sample. This supersedes the earlier instruction to rewrite the receipt toward `210`, which was the same moving-count proxy defect.
+
+### `ds8-lex-clerk-authority-repair`
+
+**Verdict:** `blocked`.
+
+**Predicate and exit:** `test -f
+docs/plans/active/atlas-slices/DS10-capability-discovery.md` exits `0`; that plan
+explicitly splits Lex route/discovery from pipeline mutation. `rg --files
+docs/plans/active/atlas-slices | rg '/DS14-'` exits `1`. The master DS14 detail
+names `features/clerk` as a strangle target but is not a standalone claiming plan.
+
+**Exact append-only register prose:**
+
+> **TASK G ADJUDICATION 2026-08-31 — `blocked`.** The Atlas table's description of DS10 as Capability Discovery is correct. The wrong statement is DS8's unqualified `Lex → DS10` routing when read as a whole-authority transfer: the implemented DS10 plan keeps Lex route/chrome and legal-norm discovery integration with `team-design`/DS10, while Lex pipeline mutation remains a fixed authenticated operation owned by `team-lex`. Thus the discovery subset of the shorthand is valid, but the undifferentiated routing is not. Clerk remains blocked: the Atlas master gives DS14 a substantive bounded-agent scope and names `features/clerk` as its candidate strangle target, but no standalone DS14 slice plan has taken that obligation into scope. Architect edit required in the Atlas master: record the split as `Lex route/discovery → DS10/team-design; Lex pipeline mutation → team-lex; Clerk/features-clerk → DS14 only when a standalone DS14 plan claims it`. This lane does not make that architect-only edit.
+
+### `ds8-public-case-publication`
+
+**Verdict:** `blocked`.
+
+**Predicate and exit:** `rg --files docs/plans/active/atlas-slices | rg '/DS12-'`
+exits `1`. The master contains a substantive DS12 Public Publication Foundation
+roadmap section, but no standalone `type: slice-plan` claims this row. The new
+scope manifest's complete three-row input set does not contain this row ID.
+
+**Exact append-only register prose:**
+
+> **TASK G CLOSURE RE-CENSUS 2026-08-31 — `blocked`.** The Atlas master's substantive DS12 Public Publication Foundation section corrects the historical claim that DS12 was only a one-line idea: it defines the signing/verification chain, public record and certificate endpoints, typed-empty promoted-record slot, public MACHINE twin, and forged-packet negative. It is still an architect roadmap section, not a standalone claiming DS12 slice plan. Routing this row to DS12 therefore remains candidate routing, not ownership. The new three-row scope-obligation mechanism intentionally does not cover `ds8-public-case-publication`. Close this routing residual only when a standalone DS12 slice plan explicitly takes public case publication into scope and the obligation is superseded into that plan.
+
+### Cross-row mechanism, handoffs, and out-of-scope findings
+
+The scope-forcing mechanism covers exactly
+`ds8-global-case-index`, `ds8-local-reviewer-note-persistence`, and
+`ds8-signed-public-decision-surface`, independently for each future DS12, DS13,
+and DS14 standalone plan: three obligation rows by three target slices. It does
+not cover `ds8-public-case-publication`, appoint an owner, prove implementation,
+or close a row.
+
+Task C's global-case producer half still needs the canonical index/store producer,
+provider bridge, and
+`test_case_provider_is_backed_by_canonical_global_index`; the named test is absent
+on this branch. Its public-decision half still needs the custody-bound public
+producer/rendering chain and `test_public_decision_projection_is_custody_bound`;
+the named test artifact is absent on this branch. These producer halves neither
+close nor are closed by the Atlas scope halves.
+
+Task D retains the stale health-metric expectation of 94/94 against live 126/126
+and the single bounded producer/error residual recorded in the DS6 block. Task G
+did not edit TypeScript source or tests.
+
+The full live Atlas enforcement command, `uv run python
+architecture/atlas_surfaces/check_atlas_enforcement.py --check`, exits `1` on
+current authority, inventory, source-denominator, query-cache, status, and
+architecture-graph findings; it emits no `slice_scope_obligation_*` error. No
+exact pre-Task-G base replay establishes those findings as inherited, so their
+provenance remains `not_established`. Architecture guardrails, `uv run
+polisyos-tools architecture guardrails check`, also exit `1` on
+`trust-claim-posture-register` generated-probe validation; its provenance is
+likewise not established as inherited and it is outside this lane.
+
+The requested bound debt-ledger gate is not green. `PYTHONPATH=.:src
+.venv/bin/python tools/quality/validation/check_debt_ledger.py --check` exits
+`1`, reporting 151 register IDs, 18
+`closure_signal_identity_unresolvable` findings, and 18 matching
+`closure_signal_count_exit_disagreement` findings. P41 was applied to that
+specific class, not to the command's whole output: an exact replay from this
+slice's base `784d02014` in a detached shared clone, using the same bound
+interpreter and `PYTHONPATH=.:src`, also exits `1` with the same 151 / 18 / 18
+measure. A complete static walk derives those 18 identities from 15 target test
+paths; intersecting that full target-path set with all eight Task-G changed paths
+exits `0` at an empty intersection. The 18-identity red is therefore inherited
+and disjoint from Task G. The base replay also has additional historical
+topology/render findings, so no broader claim of byte-identical or wholly
+inherited debt-ledger output is made. The register already assigns this exact
+class to open row `debt-closure-signals-name-unwritten-tests`; repairing the
+architect-owned checker or register is outside this lane.
+
+The Atlas master overview and DAG still describe DS14 as gated on the Phase-6
+O-block, while the detailed DS14 section explicitly supersedes that as misnamed
+and states the real gate as GY-I plus DS9. Correcting that internal master-plan
+inconsistency is architect-only. DS15's `promotion candidate status` 1/1 and
+DS18's `projection source freshness` 1/2 remain planned-slice handoffs not
+absorbed by their plans. The known task-B 118-versus-117 denominator red and the
+missing-`rdflib` collection error were outside this lane's changed denominator and
+were not used as closure evidence.

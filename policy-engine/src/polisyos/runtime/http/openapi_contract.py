@@ -2,9 +2,15 @@
 
 from __future__ import annotations
 
+import os
+from collections.abc import Callable  # noqa: TC003 - public map type is introspected
 from copy import deepcopy
 from datetime import UTC, datetime
+from functools import lru_cache
+from pathlib import Path
 from typing import Any
+
+from pydantic import TypeAdapter
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core.contracts import (
@@ -30,6 +36,18 @@ from polisyos.runtime.http._openapi_contract_helpers import (
 )
 from polisyos.runtime.http.permissions import permissions_for_roles
 from polisyos.runtime.http.security import PolicyOSRole
+from polisyos.runtime.http.services.confidence_ledger_risk_spend_contracts import (
+    AvailableConfidenceLedgerRiskSpendPacket,
+    ConfidenceLedgerRiskSpendPacket,
+    packet_semantic_projection,
+)
+from polisyos.runtime.http.services.confidence_ledger_risk_spend_projection import (
+    ConfidenceLedgerRiskSpendProjectionService,
+)
+from polisyos.runtime.http.services.export_replay import (
+    build_export_replay_address,
+    hash_export_projection,
+)
 from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     HUMAN_DECISION_RECORD_V2,
     LAYER2_S7_DELEGATION_SCHEMA_VERSION,
@@ -1073,7 +1091,69 @@ _SUCCESS_EXAMPLE_SETS_BY_OPERATION = {
 }
 
 
-_SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
+@lru_cache(maxsize=1)
+def _confidence_ledger_risk_spend_example() -> dict[str, Any]:
+    """Project and strictly admit the real measured DS17 negative example."""
+
+    configured_root = os.getenv("POLISYOS_GOVERNED_ARTIFACT_ROOT")
+    repository_root = (
+        Path(configured_root) if configured_root else Path(__file__).resolve().parents[4]
+    )
+    packet = ConfidenceLedgerRiskSpendProjectionService(repository_root).get()
+    if not isinstance(packet, AvailableConfidenceLedgerRiskSpendPacket):
+        raise ValueError("DS17 OpenAPI source is not owner-admitted")
+
+    sample_time = datetime(2026, 2, 11, 12, tzinfo=UTC)
+    normalized = packet.model_copy(
+        update={
+            "as_of": sample_time,
+            "freshness": packet.freshness.model_copy(
+                update={
+                    "observed_at": sample_time,
+                    "source_as_of": sample_time,
+                }
+            ),
+            "replay_pins": packet.replay_pins.model_copy(update={"source_as_of": sample_time}),
+        }
+    )
+    projection_hash = hash_export_projection(packet_semantic_projection(normalized))
+    replay_pins = normalized.replay_pins.model_copy(update={"projection_hash": projection_hash})
+    normalized = normalized.model_copy(
+        update={
+            "replay_pins": replay_pins,
+            "projection_hash": projection_hash,
+            "replay_address": build_export_replay_address(
+                normalized.stable_address,
+                replay_pins.model_dump(mode="json"),
+            ),
+        }
+    )
+    admitted = TypeAdapter(ConfidenceLedgerRiskSpendPacket).validate_json(
+        normalized.model_dump_json(),
+        strict=True,
+    )
+    if not isinstance(admitted, AvailableConfidenceLedgerRiskSpendPacket):
+        raise ValueError("DS17 OpenAPI example changed transport arm")
+    payload = admitted.payload
+    measured_shape = (
+        len(payload.refusal_instance_refs),
+        len(payload.acquisition_instance_refs),
+        len(payload.obligation_class_risk_spend),
+        len(payload.instrument_definitions),
+        len(payload.positive_register.entries),
+        payload.total_spend.amount.fraction,
+        payload.coverage_assessment.value,
+        payload.status,
+    )
+    if measured_shape != (1, 2, 15, 13, 0, 0, "open_world_unresolved", "not_promoted"):
+        raise ValueError("DS17 OpenAPI measured negative shape drifted")
+    return admitted.model_dump(mode="json")
+
+
+_SUCCESS_EXAMPLES_BY_OPERATION: dict[
+    str,
+    dict[str, Any] | Callable[[], dict[str, Any]],
+] = {
     "admit_epoch_validity_batch": _epoch_validity_batch_example(),
     "list_run_acquisition_routes": {
         "run_id": "run-ds15",
@@ -1202,6 +1282,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
             }
         ],
     },
+    "get_confidence_ledger_risk_spend_projection": (_confidence_ledger_risk_spend_example),
     "get_governed_projection": {
         "packet_schema_version": "policyos.runtime.governed_projection_packet.v1",
         "export_replay_contract": "policyos.runtime.export_replay_binding.v1",
@@ -3936,10 +4017,11 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
             if examples is not None:
                 success_json["examples"] = deepcopy(examples)
             elif example is not None:
+                example_value = example() if callable(example) else example
                 success_json["examples"] = {
                     "default": {
                         "summary": f"{operation_id} response example",
-                        "value": example,
+                        "value": deepcopy(example_value),
                     }
                 }
         if isinstance(operation_id, str):

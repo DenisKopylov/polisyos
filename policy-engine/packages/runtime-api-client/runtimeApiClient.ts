@@ -222,6 +222,8 @@ export type ApiMeta = {
   source_kinds?: Array<string>;
 };
 
+export type AppointmentPosture = "institutional_authority_unappointed";
+
 export type ArtifactBatchRequest = {
   artifact_ids?: Array<string>;
 };
@@ -299,6 +301,32 @@ export type ArtifactManifestView = {
   producer_version?: string | null;
   schema_name?: string | null;
   schema_version?: string | null;
+};
+
+export type ArtifactMissingConfidenceLedgerRiskSpendPacket = {
+  absence_reason: string;
+  as_of: string;
+  authoritative_for?: Array<"conditionality_disclosure" | "declared_set_accounting" | "source_validation_posture">;
+  availability: string;
+  export_replay_contract?: string;
+  freshness: ProjectionFreshness;
+  intended_audience?: string;
+  intended_audiences?: Array<unknown>;
+  may_not_use_for?: Array<"promotion_authority" | "publication_authority" | "public_audience" | "bounded_completeness">;
+  packet_schema_version?: string;
+  projection_hash?: null;
+  projection_id?: string;
+  projection_rule_version?: string;
+  replay_address?: null;
+  replay_pins?: null;
+  source_artifact_content_hash?: null;
+  source_blocked_reason?: null;
+  source_dependency_hash?: null;
+  source_rule_version?: null;
+  source_schema_version?: null;
+  stable_address?: string;
+  worker_validation_receipt_hash?: null;
+  worker_validation_receipt_ref?: null;
 };
 
 export type ArtifactMissingGovernedProjectionPacket = {
@@ -570,6 +598,36 @@ export type AuthorityProfile = {
 export type AuthoritySurface = "readiness" | "scientific";
 
 export type AuthorityValueId = "readiness.composite_verdict" | "readiness.lens_projection" | "readiness.fairness_audit" | "readiness.harm_assessment" | "readiness.embargo_overlay" | "readiness.slow_review" | "readiness.revocation_ledger" | "scientific.identifiability_remedy" | "scientific.sensitivity_e_value" | "scientific.cohort_timeline" | "scientific.stress_ranking";
+
+export type AvailableConfidenceLedgerRiskSpendPacket = {
+  absence_reason?: null;
+  as_of: string;
+  authoritative_for?: Array<"conditionality_disclosure" | "declared_set_accounting" | "source_validation_posture">;
+  availability: string;
+  export_replay_contract?: string;
+  freshness: ProjectionFreshness;
+  frozen_semantic_projection_hash: string;
+  intended_audience?: string;
+  intended_audiences?: Array<unknown>;
+  may_not_use_for?: Array<"promotion_authority" | "publication_authority" | "public_audience" | "bounded_completeness">;
+  packet_schema_version?: string;
+  payload: ConfidenceLedgerRiskSpendProjection;
+  projection_hash: string;
+  projection_id?: string;
+  projection_rule_version?: string;
+  registry_content_hash: string;
+  registry_projection_hash: string;
+  replay_address: string;
+  replay_pins: ConfidenceLedgerRiskSpendReplayPins;
+  source: ProjectionSourceIdentity;
+  source_blocked_reason?: null;
+  source_dependency_hash: string;
+  source_rule_version: string | null;
+  source_schema_version: string | null;
+  stable_address?: string;
+  worker_validation_receipt_hash: string;
+  worker_validation_receipt_ref: string;
+};
 
 export type AvailableFact_CycleBoardAcquisitionEconomics_ = {
   availability?: string;
@@ -1118,6 +1176,40 @@ export type CausalFrontierSAEResponse = {
 };
 };
 
+export type CertificateClassRoute = {
+  certificate_class: string;
+  certificate_role: CertificateRole;
+  claim_polarity: ClaimPolarity;
+  instrument_id: string;
+  obligation_class: PromotionObligationClass;
+  owner_ref: string;
+  verifier_kernel_id: string;
+  verifier_ref: string;
+};
+
+export type CertificateRole = "promotion" | "promotion_conformance" | "refusal" | "acquisition" | "admission";
+
+export type CertificateRouteRow = {
+  anytime_valid: boolean;
+  blocker: InstrumentBlocker | null;
+  certificate_class: string;
+  certificate_role: "promotion" | "promotion_conformance" | "refusal" | "acquisition" | "admission";
+  claim_polarity: "false_accept" | "confident_wrong_refusal" | "confident_wrong_admission" | "conformance_only";
+  deterministic: boolean;
+  guarantee_kind: string;
+  instrument_family: string;
+  instrument_id: string;
+  obligation_class: PromotionObligationClass;
+  owner_ref: string;
+  permits_obligation_satisfaction: boolean;
+  proof_kernel_id: string;
+  proof_profile_id: string;
+  registry_content_hash: string;
+  route_binding_hash: string;
+  verifier_kernel_id: string;
+  verifier_ref: string;
+};
+
 export type CertifiedOperationEnvelope = {
   actor_scopes: Array<string>;
   certified_for: Array<string>;
@@ -1150,6 +1242,8 @@ export type ChannelRegistryResponse = {
   channels: Array<ChannelRegistryEntry>;
   schema_version?: string;
 };
+
+export type ClaimPolarity = "false_accept" | "confident_wrong_refusal" | "confident_wrong_admission" | "conformance_only";
 
 export type ClusterOwnershipPayload = {
   architecture_core: {
@@ -1233,7 +1327,186 @@ export type ComparisonFrame = {
   unit_policy?: "canonical" | "source" | "mixed";
 };
 
+export type CompletionOutcome = "prepared" | "started" | "supported" | "not_supported" | "preflight_refusal" | "cancelled" | "owner_refused" | "owner_error" | "recovered_crash" | "refused";
+
 export type ComponentId = string;
+
+export type ConditionalDeltaAmount = {
+  amount: RationalSpec;
+  amount_hash: string;
+  canonical_decimal: string;
+  coverage_envelope_hash: string;
+  coverage_envelope_ref: string;
+  declared_obligation_classes_hash: string;
+  declared_set_rider: string;
+  locality_rider: string;
+  maintained_assumptions: Array<"obligation_completeness" | "validator_soundness">;
+  obligation_class: PromotionObligationClass | null;
+  owner_scope_key: string;
+  rational_display: string;
+  rational_display_version: string;
+  scope_id: string;
+  semantic_role: string;
+};
+
+export type ConfidenceLedgerPolicy = {
+  conditionality_clause: string;
+  default_schedule_profile_id: string;
+  delta: RationalSpec;
+};
+
+export type ConfidenceLedgerRegistry = {
+  certificate_class_routes?: Array<CertificateClassRoute>;
+  instruments: Array<InstrumentDefinition>;
+  obligation_pools: Array<ObligationBudgetPool>;
+  policy: ConfidenceLedgerPolicy;
+  proof_profiles: Array<InstrumentProofProfile>;
+  schedule_profiles: Array<PredictableScheduleProfile>;
+  schema_version: string;
+};
+
+export type ConfidenceLedgerRiskSpendProjection = {
+  acquisition_instance_refs: Array<string>;
+  appointment_posture: AppointmentPosture;
+  budget_posture: "within_budget" | "over_spend";
+  certificate_route_denominator_count: number;
+  certificate_route_denominator_hash: string;
+  certificate_routes: Array<CertificateRouteRow>;
+  conformance_instance_refs: Array<string>;
+  coverage_assessment: CoverageAssessment;
+  coverage_envelope: ObligationCoverageEnvelope;
+  coverage_envelope_ref: string;
+  fixed_scope_disclosure: string;
+  good_event_posture: GoodEventPosture;
+  grouped_spend: Array<InstrumentClassSpend>;
+  instrument_blockers: Array<InstrumentBlocker>;
+  instrument_definitions: Array<InstrumentDefinitionRow>;
+  instrument_instances: Array<InstrumentInstanceRow>;
+  obligation_class_risk_spend: Array<ObligationClassRiskSpend>;
+  owner_scope_key: string;
+  positive_register: PositiveCertificateRegister;
+  projection_hash: string;
+  refusal_instance_refs: Array<string>;
+  registry_basis: ConfidenceLedgerRegistry;
+  registry_content_hash: string;
+  risk_scope: ConfidenceRiskBudgetScope;
+  rule_version: string;
+  schema_version: string;
+  scope_id: string;
+  scope_total_risk_spend: ScopeRiskSpend;
+  semantic_ledger_basis: ConfidenceLedgerSemanticReceiptProjection;
+  source_projection_hash: string;
+  source_provenance: Array<CoverageSourceIdentity>;
+  status: string;
+  total_spend: ConditionalDeltaAmount;
+};
+
+export type ConfidenceLedgerRiskSpendReplayPins = {
+  artifact_content_hash: string;
+  projection_hash: string;
+  projection_rule_version?: string;
+  source_as_of: string;
+  source_dependency_hash: string;
+};
+
+export type ConfidenceLedgerSemanticCheck = {
+  anytime_valid: boolean;
+  certificate_class?: string | null;
+  certificate_ref: string;
+  certificate_role: CertificateRole;
+  certificate_route_hash?: string | null;
+  check_projection_hash: string;
+  claim_execution_projection_hash: string;
+  claim_polarity: ClaimPolarity;
+  claim_ref: string;
+  claim_scope_ref: string;
+  data_window_ref: string;
+  deterministic_proof: boolean;
+  eligible_for_promotion: boolean;
+  execution_id?: string | null;
+  execution_ordinal?: number | null;
+  execution_status: ExecutionStatus;
+  filtration_projection_hash: string;
+  good_event_id?: string | null;
+  instrument_definition_hash?: string | null;
+  instrument_family: string;
+  instrument_id: string;
+  null_ref: string;
+  obligation_class: PromotionObligationClass;
+  outcome: CompletionOutcome;
+  owner_binding: ConfidenceLedgerSemanticOwnerBinding | null;
+  owner_invocation_claim_projection_hash?: string | null;
+  proof_detail: string;
+  proof_profile_hash?: string | null;
+  proof_profile_id: string;
+  refusal_code?: string | null;
+  registry_content_hash: string;
+  request_fingerprint: string;
+  request_key: string;
+  schedule_query_index?: number | null;
+  schema_version: string;
+  scope_id: string;
+  spend: RationalSpec;
+  spend_decimal: string;
+  supports_obligation: boolean;
+};
+
+export type ConfidenceLedgerSemanticEvent = {
+  check: ConfidenceLedgerSemanticCheck;
+  event_projection_hash: string;
+  event_type: "prepared" | "started" | "completed";
+  parent_event_projection_hash: string;
+  revision: number;
+};
+
+export type ConfidenceLedgerSemanticOwnerBinding = {
+  binding_projection_hash: string;
+  certificate_class: string;
+  certificate_ref: string;
+  certificate_route_hash: string;
+  owner_projection_hash: string;
+  owner_ref: string;
+  verifier_kernel_id: string;
+  verifier_ref: string;
+};
+
+export type ConfidenceLedgerSemanticReceiptProjection = {
+  authority_provenance: SessionAuthorityProvenance;
+  budget_delta: RationalSpec;
+  budget_delta_decimal: string;
+  checks: Array<ConfidenceLedgerSemanticCheck>;
+  conditionality_clause: string;
+  deployment_identity: string;
+  events: Array<ConfidenceLedgerSemanticEvent>;
+  good_event_clause: string;
+  head_event_projection_hash: string;
+  maintained_assumptions: Array<"obligation_completeness" | "validator_soundness">;
+  projection_hash: string;
+  projection_scope: "n11_real_accounting_append_lineage" | "n11_conformance_append_lineage";
+  registry_content_hash: string;
+  risk_scope: ConfidenceRiskBudgetScope;
+  root_projection_hash: string;
+  schedule_profile_hash: string;
+  schedule_profile_id: string;
+  schedule_projection_hash: string;
+  schema_version: string;
+  scope_anchor_ref: string;
+  scope_id: string;
+  total_spend: RationalSpec;
+  total_spend_decimal: string;
+  within_budget: boolean;
+};
+
+export type ConfidenceRiskBudgetScope = {
+  authority_purpose: string;
+  epoch_ref: string | null;
+  model_ref: string | null;
+  owner_projection_hash: string;
+  owner_scope_key: string;
+  rule_ref: string | null;
+  schema_ref: string | null;
+  scope_owner_ref: string;
+};
 
 export type ConnectorInfo = {
   available_profiles?: Array<string>;
@@ -1477,6 +1750,25 @@ export type CounterfactualMetricsResponse = {
   run_id: string;
   scenario: ScenarioManifest;
   temporal_scope?: TemporalScope | null;
+};
+
+export type CoverageAssessment = "known_incomplete" | "open_world_unresolved";
+
+export type CoverageReasonCode = "DS17-COVERAGE-OPEN-WORLD" | "DS17-COVERAGE-KNOWN-INCOMPLETE" | "DS17-COVERAGE-SEARCH-NOT-ESTABLISHED" | "DS17-COVERAGE-EXCLUSIONS-NOT-ESTABLISHED" | "DS17-COVERAGE-INDEPENDENCE-MISSING";
+
+export type CoverageSourceIdentity = {
+  admission_state: "canonical_registry_validated" | "worker_admission_not_established";
+  availability_state: string;
+  content_hash: string;
+  source_ref: string;
+  source_role: "canonical_registry" | "semantic_ledger";
+  verifier_ref: string;
+};
+
+export type CoverageUnknownRemainder = {
+  cardinality: string;
+  kind: string;
+  probability: string;
 };
 
 export type CursorPage = {
@@ -2424,6 +2716,8 @@ export type ExecPlanRefOutput = {
   media_type?: string;
 };
 
+export type ExecutionStatus = "prepared" | "started" | "executed" | "refused" | "unexecuted";
+
 export type FabricDecisionData = {
   access: AccessRef;
   gaps?: Array<TypedGap>;
@@ -2728,6 +3022,13 @@ export type GitInfo = {
   dirty?: boolean;
 };
 
+export type GoodEventPosture = {
+  composition_rule?: string;
+  executed_probabilistic_good_event_refs: Array<string>;
+  good_event_clause: string;
+  independence_claim?: boolean;
+};
+
 export type GovernanceDebugResponse = {
   debug: GovernanceDebugView;
   meta: ApiMeta;
@@ -2767,6 +3068,8 @@ export type GovernanceDebugView = {
 } | null;
   verdict?: string | null;
 };
+
+export type GuardedProjectionId = "confidence-ledger-risk-spend";
 
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
@@ -3131,6 +3434,90 @@ export type InstitutionalAuthorityAbsenceView = {
   role: "epoch_predicate_policy_signer" | "epoch_transition_signer";
   source_refs?: Array<ArtifactRefOutput>;
   title?: string;
+};
+
+export type InstrumentBlocker = "coverage_argument_missing" | "non_anytime_valid" | "owner_theorem_unavailable" | "other_runtime_refusal";
+
+export type InstrumentClassSpend = {
+  instrument_id: string;
+  obligation_class: PromotionObligationClass;
+  spend: ConditionalDeltaAmount;
+};
+
+export type InstrumentDefinition = {
+  certificate_roles: Array<CertificateRole>;
+  instrument_family: string;
+  instrument_id: string;
+  proof_profile_id: string;
+};
+
+export type InstrumentDefinitionRow = {
+  anytime_valid: boolean;
+  blocker: InstrumentBlocker | null;
+  certificate_roles: Array<"promotion" | "promotion_conformance" | "refusal" | "acquisition" | "admission">;
+  deterministic: boolean;
+  guarantee_kind: string;
+  instrument_family: string;
+  instrument_id: string;
+  permits_obligation_satisfaction: boolean;
+  proof_kernel_id: string;
+  proof_profile_id: string;
+};
+
+export type InstrumentInstanceRow = {
+  anytime_valid: boolean;
+  blocker: InstrumentBlocker | null;
+  certificate_class: string | null;
+  certificate_ref: string;
+  certificate_role: "promotion" | "promotion_conformance" | "refusal" | "acquisition" | "admission";
+  certificate_route_ref: string | null;
+  eligible_for_promotion: boolean;
+  execution_status: "prepared" | "started" | "executed" | "refused" | "unexecuted";
+  instance_ref: string;
+  instrument_family: string;
+  instrument_id: string;
+  obligation_class: PromotionObligationClass;
+  outcome: "prepared" | "started" | "supported" | "not_supported" | "preflight_refusal" | "cancelled" | "owner_refused" | "owner_error" | "recovered_crash" | "refused";
+  proof_profile_id: string;
+  raw_runtime_refusal_source: string | null;
+  spend: ConditionalDeltaAmount;
+  supports_obligation: boolean;
+};
+
+export type InstrumentProofProfile = {
+  anytime_valid: boolean;
+  deterministic: boolean;
+  guarantee_kind: string;
+  permits_obligation_satisfaction: boolean;
+  profile_id: string;
+  proof_kernel_id: string;
+  refusal_code?: string | null;
+};
+
+export type InvalidConfidenceLedgerRiskSpendPacket = {
+  absence_reason: string;
+  as_of: string;
+  authoritative_for?: Array<"conditionality_disclosure" | "declared_set_accounting" | "source_validation_posture">;
+  availability: string;
+  export_replay_contract?: string;
+  freshness: ProjectionFreshness;
+  intended_audience?: string;
+  intended_audiences?: Array<unknown>;
+  may_not_use_for?: Array<"promotion_authority" | "publication_authority" | "public_audience" | "bounded_completeness">;
+  packet_schema_version?: string;
+  projection_hash?: null;
+  projection_id?: string;
+  projection_rule_version?: string;
+  replay_address?: null;
+  replay_pins?: null;
+  source_artifact_content_hash?: string | null;
+  source_blocked_reason?: null;
+  source_dependency_hash?: null;
+  source_rule_version: string | null;
+  source_schema_version: string | null;
+  stable_address?: string;
+  worker_validation_receipt_hash?: string | null;
+  worker_validation_receipt_ref?: string | null;
 };
 
 export type InvalidGovernedProjectionPacket = {
@@ -3671,6 +4058,61 @@ export type NodeDebugView = {
   timeline_events?: Array<RunTimelineEvent>;
 };
 
+export type ObligationBudgetPool = {
+  obligation_classes: Array<PromotionObligationClass>;
+  pool_id: string;
+  weight: RationalSpec;
+};
+
+export type ObligationClassRiskSpend = {
+  allocation: ConditionalDeltaAmount;
+  check_refs: Array<string>;
+  good_event_refs: Array<string>;
+  instrument_refs: Array<string>;
+  obligation_class: PromotionObligationClass;
+  overspend_amount: ConditionalDeltaAmount;
+  remaining: ConditionalDeltaAmount;
+  spent: ConditionalDeltaAmount;
+};
+
+export type ObligationCoverageEnvelope = {
+  assessment: CoverageAssessment;
+  assessment_key: string;
+  authoritative_for: Array<"conditionality_disclosure" | "declared_set_accounting">;
+  authority_purpose: string;
+  authorized_audiences: Array<"reviewer" | "expert" | "machine">;
+  challenge_route_state: string;
+  declared_obligation_classes: Array<PromotionObligationClass>;
+  declared_scope: ConfidenceRiskBudgetScope;
+  declared_set_rider: string;
+  delta: RationalSpec;
+  envelope_hash: string;
+  envelope_ref: string;
+  exclusion_basis_state?: string;
+  exclusions?: Array<unknown>;
+  expiry_state: string;
+  locality_rider: string;
+  maintained_assumptions: Array<"obligation_completeness" | "validator_soundness">;
+  may_not_use_for: Array<"promotion_authority" | "publication_authority" | "bounded_completeness" | "world_completeness">;
+  obligation_language_version: string;
+  obligation_rule_ref: string;
+  obligation_schema_ref: string;
+  owner_scope_key: string;
+  protected_action_id: string;
+  reason_codes: Array<CoverageReasonCode>;
+  review_state: string;
+  rule_version: string;
+  schema_version: string;
+  scope_id: string;
+  search_basis_state?: string;
+  searched_sources?: Array<unknown>;
+  source_cutoff_state: string;
+  source_identities: Array<unknown>;
+  ttl_state: "not_issued_known_incomplete" | "not_issued_open_world_unresolved";
+  unknown_remainder: CoverageUnknownRemainder;
+  witness_refs: Array<string>;
+};
+
 export type OperatorDiagnostic = {
   authoritative_runtime_state: string;
   authority_refs?: {
@@ -3889,6 +4331,26 @@ export type PolicyFlags = {
   allow_mock_fallback?: boolean;
 };
 
+export type PositiveCertificateRegister = {
+  appointment_denominator_state?: string;
+  appointment_sufficiency_state?: string;
+  authority_posture?: AppointmentPosture;
+  blockers: Array<ReasonAlgebraRow>;
+  entries?: Array<unknown>;
+  population_count?: number;
+  population_state?: string;
+  verified_appointment_refs?: Array<unknown>;
+  would_populate_when: Array<PositiveRegisterPredicate>;
+};
+
+export type PositiveRegisterPredicate = "owner_validated_promotion_row" | "execution_completed_supported" | "registry_profile_anytime_valid" | "obligation_supported_and_eligible" | "total_and_class_spend_within_budget" | "coverage_supports_protected_use" | "institutional_authority_appointed";
+
+export type PredictableScheduleProfile = {
+  mass: RationalSpec;
+  profile_id: string;
+  proof_kernel_id: string;
+};
+
 export type PreflightDiagnosticView = {
   code: string;
   data?: {
@@ -4016,7 +4478,7 @@ export type ProjectionCatalogEntry = {
   may_not_use_for: Array<string>;
   owner_validator_id: string;
   owner_validator_version: string;
-  projection_id: ProjectionId;
+  projection_id: ProjectionId | GuardedProjectionId;
   source_policy: "required" | "presence_gated" | "fixture_identity_only";
   stable_address: string;
 };
@@ -4060,12 +4522,21 @@ export type ProjectionSourceValidation = {
   bound_artifact_content_hash: string;
   bound_dependency_aggregate_identity: string;
   bound_dependency_count: number;
+  frozen_semantic_projection_hash?: string | null;
   issue_codes?: Array<string>;
+  recomputed_total_spend_denominator?: number | null;
+  recomputed_total_spend_numerator?: number | null;
+  registry_content_hash?: string | null;
+  registry_delta_denominator?: number | null;
+  registry_delta_numerator?: number | null;
+  registry_projection_hash?: string | null;
   semantic_projection_hash?: string | null;
   semantic_projection_hash_rule_version?: string | null;
+  source_payload_equal?: boolean | null;
   status: "passed" | "failed" | "not_run";
   validator_id: string;
   validator_version: string;
+  worker_validation_receipt_hash?: string | null;
 };
 
 export type PromotionCandidate = {
@@ -4100,6 +4571,8 @@ export type PromotionDecisionResponse = {
   promotion_id: string;
   status: "approved" | "rejected";
 };
+
+export type PromotionObligationClass = "syntax" | "type" | "slot" | "param" | "coupling" | "effect" | "identification" | "calibration" | "measurement" | "data" | "implementation" | "equilibrium" | "normative" | "eval_safety" | "value";
 
 export type ProvingGroundFixtureIdentity = {
   authority_levels: Array<string>;
@@ -4216,6 +4689,16 @@ export type QuantityValueOutput = {
   time?: polisyos__core__contracts__runtime__TemporalRef | null;
   uncertainty?: QuantityUncertainty | null;
   unit: polisyos__core__contracts__runtime__UnitRef;
+};
+
+export type RationalSpec = {
+  denominator: number;
+  numerator: number;
+};
+
+export type ReasonAlgebraRow = {
+  slot: "coverage_assessment" | "instrument_blocker" | "appointment_posture";
+  value: string;
 };
 
 export type RefusedAuthorityValue = {
@@ -4981,6 +5464,13 @@ export type ScenarioRef = {
   temporal_scope?: TemporalScope | null;
 };
 
+export type ScopeRiskSpend = {
+  allocation: ConditionalDeltaAmount;
+  overspend_amount: ConditionalDeltaAmount;
+  remaining: ConditionalDeltaAmount;
+  spent: ConditionalDeltaAmount;
+};
+
 export type SearchCandidate = {
   authority_boundary?: {
   [key: string]: unknown;
@@ -5045,6 +5535,8 @@ export type SearchRequest = {
   schema_version?: string;
 };
 
+export type SessionAuthorityProvenance = "canonical_repo" | "verification";
+
 export type SimulationResultRefInput = {
   artifact_id: ArtifactID;
   kind?: string;
@@ -5055,6 +5547,32 @@ export type SimulationResultRefOutput = {
   artifact_id: string;
   kind?: string;
   media_type?: string;
+};
+
+export type SourceBlockedConfidenceLedgerRiskSpendPacket = {
+  absence_reason?: null;
+  as_of: string;
+  authoritative_for?: Array<"conditionality_disclosure" | "declared_set_accounting" | "source_validation_posture">;
+  availability: string;
+  export_replay_contract?: string;
+  freshness: ProjectionFreshness;
+  intended_audience?: string;
+  intended_audiences?: Array<unknown>;
+  may_not_use_for?: Array<"promotion_authority" | "publication_authority" | "public_audience" | "bounded_completeness">;
+  packet_schema_version?: string;
+  projection_hash: string;
+  projection_id?: string;
+  projection_rule_version?: string;
+  replay_address: string;
+  replay_pins: ConfidenceLedgerRiskSpendReplayPins;
+  source_artifact_content_hash: string;
+  source_blocked_reason: string;
+  source_dependency_hash: string;
+  source_rule_version: string | null;
+  source_schema_version: string | null;
+  stable_address?: string;
+  worker_validation_receipt_hash: string;
+  worker_validation_receipt_ref: string;
 };
 
 export type SourceContractRef = {
@@ -5764,6 +6282,24 @@ export class RuntimeApiClient {
     const path = `/api/v1/exports/governed-projections`;
     const query = undefined;
     return this.request<ProjectionCatalogResponse>("GET", path, query, undefined, undefined);
+  }
+
+  async getConfidenceLedgerRiskSpendProjection(params: {
+    artifact_content_hash?: string | null;
+    projection_hash?: string | null;
+    source_dependency_hash?: string | null;
+    source_as_of?: string | null;
+    projection_rule_version?: string | null;
+  }): Promise<AvailableConfidenceLedgerRiskSpendPacket | SourceBlockedConfidenceLedgerRiskSpendPacket | ArtifactMissingConfidenceLedgerRiskSpendPacket | InvalidConfidenceLedgerRiskSpendPacket> {
+    const path = `/api/v1/exports/governed-projections/confidence-ledger-risk-spend`;
+    const query = this.buildQuery({
+      artifact_content_hash: params.artifact_content_hash,
+      projection_hash: params.projection_hash,
+      source_dependency_hash: params.source_dependency_hash,
+      source_as_of: params.source_as_of,
+      projection_rule_version: params.projection_rule_version,
+    });
+    return this.request<AvailableConfidenceLedgerRiskSpendPacket | SourceBlockedConfidenceLedgerRiskSpendPacket | ArtifactMissingConfidenceLedgerRiskSpendPacket | InvalidConfidenceLedgerRiskSpendPacket>("GET", path, query, undefined, undefined);
   }
 
   async getDepthNCycleBoardProjection(params: {

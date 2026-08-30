@@ -59,6 +59,9 @@ export type AgentPipelineView =
 
 export type ApiMeta = RuntimeApiComponents["schemas"]["ApiMeta"];
 
+export type AppointmentPosture =
+  RuntimeApiComponents["schemas"]["AppointmentPosture"];
+
 export type ArtifactBatchRequest =
   RuntimeApiComponents["schemas"]["ArtifactBatchRequest"];
 
@@ -90,6 +93,9 @@ export type ArtifactManifestResponse =
 
 export type ArtifactManifestView =
   RuntimeApiComponents["schemas"]["ArtifactManifestView"];
+
+export type ArtifactMissingConfidenceLedgerRiskSpendPacket =
+  RuntimeApiComponents["schemas"]["ArtifactMissingConfidenceLedgerRiskSpendPacket"];
 
 export type ArtifactMissingGovernedProjectionPacket =
   RuntimeApiComponents["schemas"]["ArtifactMissingGovernedProjectionPacket"];
@@ -174,6 +180,9 @@ export type AuthoritySurface =
 
 export type AuthorityValueId =
   RuntimeApiComponents["schemas"]["AuthorityValueId"];
+
+export type AvailableConfidenceLedgerRiskSpendPacket =
+  RuntimeApiComponents["schemas"]["AvailableConfidenceLedgerRiskSpendPacket"];
 
 export type AvailableFact_CycleBoardAcquisitionEconomics_ =
   RuntimeApiComponents["schemas"]["AvailableFact_CycleBoardAcquisitionEconomics_"];
@@ -322,6 +331,15 @@ export type CausalFrontierSAERequest =
 export type CausalFrontierSAEResponse =
   RuntimeApiComponents["schemas"]["CausalFrontierSAEResponse"];
 
+export type CertificateClassRoute =
+  RuntimeApiComponents["schemas"]["CertificateClassRoute"];
+
+export type CertificateRole =
+  RuntimeApiComponents["schemas"]["CertificateRole"];
+
+export type CertificateRouteRow =
+  RuntimeApiComponents["schemas"]["CertificateRouteRow"];
+
 export type CertifiedOperationEnvelope =
   RuntimeApiComponents["schemas"]["CertifiedOperationEnvelope"];
 
@@ -330,6 +348,8 @@ export type ChannelRegistryEntry =
 
 export type ChannelRegistryResponse =
   RuntimeApiComponents["schemas"]["ChannelRegistryResponse"];
+
+export type ClaimPolarity = RuntimeApiComponents["schemas"]["ClaimPolarity"];
 
 export type ClusterOwnershipPayload =
   RuntimeApiComponents["schemas"]["ClusterOwnershipPayload"];
@@ -352,7 +372,40 @@ export type CompareRunResponse =
 export type ComparisonFrame =
   RuntimeApiComponents["schemas"]["ComparisonFrame"];
 
+export type CompletionOutcome =
+  RuntimeApiComponents["schemas"]["CompletionOutcome"];
+
 export type ComponentId = RuntimeApiComponents["schemas"]["ComponentId"];
+
+export type ConditionalDeltaAmount =
+  RuntimeApiComponents["schemas"]["ConditionalDeltaAmount"];
+
+export type ConfidenceLedgerPolicy =
+  RuntimeApiComponents["schemas"]["ConfidenceLedgerPolicy"];
+
+export type ConfidenceLedgerRegistry =
+  RuntimeApiComponents["schemas"]["ConfidenceLedgerRegistry"];
+
+export type ConfidenceLedgerRiskSpendProjection =
+  RuntimeApiComponents["schemas"]["ConfidenceLedgerRiskSpendProjection"];
+
+export type ConfidenceLedgerRiskSpendReplayPins =
+  RuntimeApiComponents["schemas"]["ConfidenceLedgerRiskSpendReplayPins"];
+
+export type ConfidenceLedgerSemanticCheck =
+  RuntimeApiComponents["schemas"]["ConfidenceLedgerSemanticCheck"];
+
+export type ConfidenceLedgerSemanticEvent =
+  RuntimeApiComponents["schemas"]["ConfidenceLedgerSemanticEvent"];
+
+export type ConfidenceLedgerSemanticOwnerBinding =
+  RuntimeApiComponents["schemas"]["ConfidenceLedgerSemanticOwnerBinding"];
+
+export type ConfidenceLedgerSemanticReceiptProjection =
+  RuntimeApiComponents["schemas"]["ConfidenceLedgerSemanticReceiptProjection"];
+
+export type ConfidenceRiskBudgetScope =
+  RuntimeApiComponents["schemas"]["ConfidenceRiskBudgetScope"];
 
 export type ConnectorInfo = RuntimeApiComponents["schemas"]["ConnectorInfo"];
 
@@ -412,6 +465,18 @@ export type CounterfactualMetric =
 
 export type CounterfactualMetricsResponse =
   RuntimeApiComponents["schemas"]["CounterfactualMetricsResponse"];
+
+export type CoverageAssessment =
+  RuntimeApiComponents["schemas"]["CoverageAssessment"];
+
+export type CoverageReasonCode =
+  RuntimeApiComponents["schemas"]["CoverageReasonCode"];
+
+export type CoverageSourceIdentity =
+  RuntimeApiComponents["schemas"]["CoverageSourceIdentity"];
+
+export type CoverageUnknownRemainder =
+  RuntimeApiComponents["schemas"]["CoverageUnknownRemainder"];
 
 export type CursorPage = RuntimeApiComponents["schemas"]["CursorPage"];
 
@@ -659,6 +724,9 @@ export type ExecPlanRefInput =
 export type ExecPlanRefOutput =
   RuntimeApiComponents["schemas"]["ExecPlanRef-Output"];
 
+export type ExecutionStatus =
+  RuntimeApiComponents["schemas"]["ExecutionStatus"];
+
 export type FabricDecisionData =
   RuntimeApiComponents["schemas"]["FabricDecisionData"];
 
@@ -733,11 +801,17 @@ export type GenerationCycleDispositionPayload =
 
 export type GitInfo = RuntimeApiComponents["schemas"]["GitInfo"];
 
+export type GoodEventPosture =
+  RuntimeApiComponents["schemas"]["GoodEventPosture"];
+
 export type GovernanceDebugResponse =
   RuntimeApiComponents["schemas"]["GovernanceDebugResponse"];
 
 export type GovernanceDebugView =
   RuntimeApiComponents["schemas"]["GovernanceDebugView"];
+
+export type GuardedProjectionId =
+  RuntimeApiComponents["schemas"]["GuardedProjectionId"];
 
 export type HTTPValidationError =
   RuntimeApiComponents["schemas"]["HTTPValidationError"];
@@ -812,6 +886,27 @@ export type InputRef = RuntimeApiComponents["schemas"]["InputRef"];
 
 export type InstitutionalAuthorityAbsenceView =
   RuntimeApiComponents["schemas"]["InstitutionalAuthorityAbsenceView"];
+
+export type InstrumentBlocker =
+  RuntimeApiComponents["schemas"]["InstrumentBlocker"];
+
+export type InstrumentClassSpend =
+  RuntimeApiComponents["schemas"]["InstrumentClassSpend"];
+
+export type InstrumentDefinition =
+  RuntimeApiComponents["schemas"]["InstrumentDefinition"];
+
+export type InstrumentDefinitionRow =
+  RuntimeApiComponents["schemas"]["InstrumentDefinitionRow"];
+
+export type InstrumentInstanceRow =
+  RuntimeApiComponents["schemas"]["InstrumentInstanceRow"];
+
+export type InstrumentProofProfile =
+  RuntimeApiComponents["schemas"]["InstrumentProofProfile"];
+
+export type InvalidConfidenceLedgerRiskSpendPacket =
+  RuntimeApiComponents["schemas"]["InvalidConfidenceLedgerRiskSpendPacket"];
 
 export type InvalidGovernedProjectionPacket =
   RuntimeApiComponents["schemas"]["InvalidGovernedProjectionPacket"];
@@ -945,6 +1040,15 @@ export type NodeDebugResponse =
 
 export type NodeDebugView = RuntimeApiComponents["schemas"]["NodeDebugView"];
 
+export type ObligationBudgetPool =
+  RuntimeApiComponents["schemas"]["ObligationBudgetPool"];
+
+export type ObligationClassRiskSpend =
+  RuntimeApiComponents["schemas"]["ObligationClassRiskSpend"];
+
+export type ObligationCoverageEnvelope =
+  RuntimeApiComponents["schemas"]["ObligationCoverageEnvelope"];
+
 export type OperatorDiagnostic =
   RuntimeApiComponents["schemas"]["OperatorDiagnostic"];
 
@@ -991,6 +1095,15 @@ export type PolicyDesignCaseRecoursePointer =
   RuntimeApiComponents["schemas"]["PolicyDesignCaseRecoursePointer"];
 
 export type PolicyFlags = RuntimeApiComponents["schemas"]["PolicyFlags"];
+
+export type PositiveCertificateRegister =
+  RuntimeApiComponents["schemas"]["PositiveCertificateRegister"];
+
+export type PositiveRegisterPredicate =
+  RuntimeApiComponents["schemas"]["PositiveRegisterPredicate"];
+
+export type PredictableScheduleProfile =
+  RuntimeApiComponents["schemas"]["PredictableScheduleProfile"];
 
 export type PreflightDiagnosticView =
   RuntimeApiComponents["schemas"]["PreflightDiagnosticView"];
@@ -1053,6 +1166,9 @@ export type PromotionDecisionRequest =
 export type PromotionDecisionResponse =
   RuntimeApiComponents["schemas"]["PromotionDecisionResponse"];
 
+export type PromotionObligationClass =
+  RuntimeApiComponents["schemas"]["PromotionObligationClass"];
+
 export type ProvingGroundFixtureIdentity =
   RuntimeApiComponents["schemas"]["ProvingGroundFixtureIdentity"];
 
@@ -1078,6 +1194,11 @@ export type QuantityValueInput =
 
 export type QuantityValueOutput =
   RuntimeApiComponents["schemas"]["QuantityValue-Output"];
+
+export type RationalSpec = RuntimeApiComponents["schemas"]["RationalSpec"];
+
+export type ReasonAlgebraRow =
+  RuntimeApiComponents["schemas"]["ReasonAlgebraRow"];
 
 export type RefusedAuthorityValue =
   RuntimeApiComponents["schemas"]["RefusedAuthorityValue"];
@@ -1294,6 +1415,8 @@ export type ScenarioManifestResponse =
 
 export type ScenarioRef = RuntimeApiComponents["schemas"]["ScenarioRef"];
 
+export type ScopeRiskSpend = RuntimeApiComponents["schemas"]["ScopeRiskSpend"];
+
 export type SearchCandidate =
   RuntimeApiComponents["schemas"]["SearchCandidate"];
 
@@ -1301,11 +1424,17 @@ export type SearchFrontier = RuntimeApiComponents["schemas"]["SearchFrontier"];
 
 export type SearchRequest = RuntimeApiComponents["schemas"]["SearchRequest"];
 
+export type SessionAuthorityProvenance =
+  RuntimeApiComponents["schemas"]["SessionAuthorityProvenance"];
+
 export type SimulationResultRefInput =
   RuntimeApiComponents["schemas"]["SimulationResultRef-Input"];
 
 export type SimulationResultRefOutput =
   RuntimeApiComponents["schemas"]["SimulationResultRef-Output"];
+
+export type SourceBlockedConfidenceLedgerRiskSpendPacket =
+  RuntimeApiComponents["schemas"]["SourceBlockedConfidenceLedgerRiskSpendPacket"];
 
 export type SourceContractRef =
   RuntimeApiComponents["schemas"]["SourceContractRef"];
@@ -2009,6 +2138,34 @@ export class RuntimeApiClient {
       undefined,
       undefined,
     );
+  }
+
+  async getConfidenceLedgerRiskSpendProjection(params: {
+    artifact_content_hash?: string | null;
+    projection_hash?: string | null;
+    source_dependency_hash?: string | null;
+    source_as_of?: string | null;
+    projection_rule_version?: string | null;
+  }): Promise<
+    | AvailableConfidenceLedgerRiskSpendPacket
+    | SourceBlockedConfidenceLedgerRiskSpendPacket
+    | ArtifactMissingConfidenceLedgerRiskSpendPacket
+    | InvalidConfidenceLedgerRiskSpendPacket
+  > {
+    const path = `/api/v1/exports/governed-projections/confidence-ledger-risk-spend`;
+    const query = this.buildQuery({
+      artifact_content_hash: params.artifact_content_hash,
+      projection_hash: params.projection_hash,
+      source_dependency_hash: params.source_dependency_hash,
+      source_as_of: params.source_as_of,
+      projection_rule_version: params.projection_rule_version,
+    });
+    return this.request<
+      | AvailableConfidenceLedgerRiskSpendPacket
+      | SourceBlockedConfidenceLedgerRiskSpendPacket
+      | ArtifactMissingConfidenceLedgerRiskSpendPacket
+      | InvalidConfidenceLedgerRiskSpendPacket
+    >("GET", path, query, undefined, undefined);
   }
 
   async getDepthNCycleBoardProjection(params: {

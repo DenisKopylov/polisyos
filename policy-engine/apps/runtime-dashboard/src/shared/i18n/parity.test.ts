@@ -37,6 +37,10 @@ const COUNT_MESSAGE_ALLOWLIST = new Map<string, string>([
     "Numeric NL-iteration cap value; it is not a noun-bearing quantity phrase.",
   ],
   [
+    "pages.cycleBoard.confidenceLedger.positiveEmpty.status",
+    "The count modifies the invariant issued-status predicate; no counted noun changes form in either active locale.",
+  ],
+  [
     "pages.runs.activeRunAnnouncement",
     "Count is the total denominator in “row … of”; it has no agreeing noun.",
   ],

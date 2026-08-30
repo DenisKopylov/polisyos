@@ -496,6 +496,8 @@
       "accessDeniedBody": "Cycle Board evidence is available only to reviewer and expert audiences.",
       "loadErrorTitle": "Cycle Board unavailable",
       "loadErrorBody": "The composed owner projection could not be loaded. No adjacent run state is used as a substitute.",
+      "boundaryTitle": "Cycle Board panel failed",
+      "boundaryBody": "The Cycle Board panel stopped rendering. The confidence-ledger panel remains independently available.",
       "coverageGap": "Known-row coverage gap",
       "movementGap": "Acquisition movement gap",
       "historicalDs4": "Historical DS4 component disposition",
@@ -505,6 +507,53 @@
       "stageTrace": "Stage trace",
       "openStageTrace": "Open owner stage trace",
       "globalCohortLink": "Open Cycle Board global cohort — not this run",
+      "confidenceLedger": {
+        "loadErrorTitle": "Confidence-ledger risk spend unavailable",
+        "loadErrorBody": "The protected owner projection could not be loaded. No board or run state is used as a substitute.",
+        "boundaryTitle": "Confidence-ledger panel failed",
+        "boundaryBody": "The confidence-ledger panel stopped rendering. The Cycle Board remains independently available.",
+        "instrumentDefinitions": "Instrument definitions",
+        "certificateRoutes": "Certificate routes",
+        "downloadMachine": "Download exact MACHINE packet",
+        "evaluationBlocked": {
+          "title": "Confidence-ledger evaluation not established",
+          "body": "The protected packet preflight did not produce an exact receipt. No packet values or download are exposed."
+        },
+        "positiveEmpty": {
+          "title": "Positive promotion certificates",
+          "status": "{count} issued · institutional authority unappointed in this PolicyOS runtime",
+          "body": "No promotion certificate is currently issuable. This is a governed empty state, not a load failure."
+        },
+        "sections": {
+          "actualRows": "Actual refusals, then acquisitions",
+          "riskAccounting": "Scope-local confidence-risk accounting",
+          "denominators": "Instrument and certificate-route denominators",
+          "positiveRegister": "Positive certificate register",
+          "goodEventSourceReplay": "Good event, source, and replay identities",
+          "machineExport": "MACHINE byte twin"
+        },
+        "accounting": {
+          "allocation": "Allocation",
+          "spent": "Spent",
+          "remaining": "Remaining",
+          "overspend": "Overspend",
+          "scopeTotal": "Exact confidence scope total"
+        },
+        "figure": {
+          "canonicalDecimal": "Canonical decimal",
+          "dialogTitle": "Conditional envelope",
+          "dialogDescription": "The complete producer-issued conditionality envelope for this amount."
+        },
+        "sourceBlocked": {
+          "title": "Source blocked before projection"
+        },
+        "artifact_missing": {
+          "title": "Confidence-ledger source is absent"
+        },
+        "invalid_source": {
+          "title": "Confidence-ledger source failed owner admission"
+        }
+      },
       "columns": {
         "searchTerminal": "Design-search terminal kind",
         "lifecycleTerminality": "Lifecycle terminality",

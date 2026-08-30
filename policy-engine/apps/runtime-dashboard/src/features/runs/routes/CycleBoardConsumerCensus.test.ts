@@ -63,6 +63,12 @@ type ConsumerCensus = {
   paperPresenterCalls: string[];
   paperRenderers: string[];
   renderers: string[];
+  riskClientCalls: string[];
+  riskDirectFetchCalls: string[];
+  riskEndpointCalls: string[];
+  riskHookCalls: string[];
+  riskMachineExportCalls: string[];
+  riskRenderers: string[];
 };
 
 function relativeSource(file: string): string {
@@ -127,6 +133,10 @@ type SymbolAliases = {
   paperPresenter: Set<ts.Symbol>;
   paperRenderer: Set<ts.Symbol>;
   renderer: Set<ts.Symbol>;
+  riskClient: Set<ts.Symbol>;
+  riskExport: Set<ts.Symbol>;
+  riskHook: Set<ts.Symbol>;
+  riskRenderer: Set<ts.Symbol>;
 };
 
 const canonicalSymbols = {
@@ -182,6 +192,22 @@ const canonicalSymbols = {
     exportName: "CycleBoard",
     sourceSuffix: "/features/runs/components/CycleBoard.tsx",
   },
+  riskClient: {
+    exportName: "getConfidenceLedgerRiskSpendProjection",
+    sourceSuffix: "/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+  },
+  riskExport: {
+    exportName: "exportCapturedResponseBytes",
+    sourceSuffix: "/shared/ui/dataExport.ts",
+  },
+  riskHook: {
+    exportName: "useConfidenceLedgerRiskSpend",
+    sourceSuffix: "/features/runs/api/useConfidenceLedgerRiskSpend.ts",
+  },
+  riskRenderer: {
+    exportName: "ConfidenceLedgerRiskSpend",
+    sourceSuffix: "/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+  },
 } as const;
 
 function matchesSymbol(
@@ -216,6 +242,10 @@ function collectLocalAliases(
     paperPresenter: new Set(),
     paperRenderer: new Set(),
     renderer: new Set(),
+    riskClient: new Set(),
+    riskExport: new Set(),
+    riskHook: new Set(),
+    riskRenderer: new Set(),
   };
   let changed = true;
   while (changed) {
@@ -367,6 +397,12 @@ function inspectConsumers(files: string[]): ConsumerCensus {
     paperPresenterCalls: [],
     paperRenderers: [],
     renderers: [],
+    riskClientCalls: [],
+    riskDirectFetchCalls: [],
+    riskEndpointCalls: [],
+    riskHookCalls: [],
+    riskMachineExportCalls: [],
+    riskRenderers: [],
   };
 
   for (const source of sources) {
@@ -395,6 +431,26 @@ function inspectConsumers(files: string[]): ConsumerCensus {
         }
         if (matchesSymbol(checker, node.expression, "client", aliases)) {
           census.directClientCalls.push(owner);
+        }
+        if (matchesSymbol(checker, node.expression, "riskClient", aliases)) {
+          census.riskClientCalls.push(owner);
+        }
+        if (matchesSymbol(checker, node.expression, "riskHook", aliases)) {
+          census.riskHookCalls.push(owner);
+        }
+        if (
+          matchesSymbol(checker, node.expression, "riskExport", aliases) &&
+          literalString(checker, node.arguments[0]) ===
+            "confidence-ledger-risk-spend.machine.json"
+        ) {
+          census.riskMachineExportCalls.push(owner);
+        }
+        if (
+          owner === "features/runs/api/useConfidenceLedgerRiskSpend.ts" &&
+          ts.isIdentifier(node.expression) &&
+          node.expression.text === "fetch"
+        ) {
+          census.riskDirectFetchCalls.push(owner);
         }
         if (matchesSymbol(checker, node.expression, "paperFetch", aliases)) {
           census.paperDirectFetchCalls.push(owner);
@@ -445,6 +501,12 @@ function inspectConsumers(files: string[]): ConsumerCensus {
           census.caseEndpointCalls.push(owner);
         }
         if (
+          literalString(checker, node.arguments[0]) ===
+          "/api/v1/exports/governed-projections/confidence-ledger-risk-spend"
+        ) {
+          census.riskEndpointCalls.push(owner);
+        }
+        if (
           matchesSymbol(checker, node.expression, "factory", aliases) &&
           node.arguments[0] &&
           matchesSymbol(checker, node.arguments[0], "renderer", aliases)
@@ -458,6 +520,13 @@ function inspectConsumers(files: string[]): ConsumerCensus {
         ) {
           census.paperRenderers.push(owner);
         }
+        if (
+          matchesSymbol(checker, node.expression, "factory", aliases) &&
+          node.arguments[0] &&
+          matchesSymbol(checker, node.arguments[0], "riskRenderer", aliases)
+        ) {
+          census.riskRenderers.push(owner);
+        }
       }
       if (
         (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
@@ -470,6 +539,12 @@ function inspectConsumers(files: string[]): ConsumerCensus {
         matchesSymbol(checker, node.tagName, "paperRenderer", aliases)
       ) {
         census.paperRenderers.push(owner);
+      }
+      if (
+        (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+        matchesSymbol(checker, node.tagName, "riskRenderer", aliases)
+      ) {
+        census.riskRenderers.push(owner);
       }
       if (
         ts.isJsxAttribute(node) &&
@@ -517,9 +592,13 @@ function inspectConsumers(files: string[]): ConsumerCensus {
 }
 
 describe("Cycle Board production consumer census", () => {
-  it("has one acquisition-growth intake and one Cycle Board hook consumer", () => {
-    const census = inspectConsumers(productionPopulation());
+  let census: ConsumerCensus;
 
+  beforeAll(() => {
+    census = inspectConsumers(productionPopulation());
+  }, 45_000);
+
+  it("has one acquisition-growth intake and one Cycle Board hook consumer", () => {
     expect(census.acquisitionClientCalls).toEqual([
       "features/runs/api/useAcquisitionRoutes.ts",
     ]);
@@ -529,8 +608,6 @@ describe("Cycle Board production consumer census", () => {
   }, 45_000);
 
   it("has one page that owns the sole resolved hook call and renderer", () => {
-    const census = inspectConsumers(productionPopulation());
-
     expect(census.hookCalls).toEqual([
       "features/runs/routes/CycleBoardPage.tsx",
     ]);
@@ -544,9 +621,28 @@ describe("Cycle Board production consumer census", () => {
     expect(census.legacyProps).toEqual([]);
   }, 45_000);
 
-  it("has one run-paper intake and one report-only emitter", () => {
-    const census = inspectConsumers(productionPopulation());
+  it("has one generated risk-spend intake, one page host, and one exact-byte exporter", () => {
+    expect(census.riskClientCalls).toEqual([
+      "features/runs/api/useConfidenceLedgerRiskSpend.ts",
+    ]);
+    expect(census.riskDirectFetchCalls).toEqual([]);
+    expect(census.riskEndpointCalls).toEqual([
+      // The one app literal is strict stable-address admission; request routing
+      // remains owned by the generated client operation above.
+      "features/runs/domain/confidenceLedgerRiskSpend.ts",
+    ]);
+    expect(census.riskHookCalls).toEqual([
+      "features/runs/routes/CycleBoardPage.tsx",
+    ]);
+    expect(census.riskRenderers).toEqual([
+      "features/runs/routes/CycleBoardPage.tsx",
+    ]);
+    expect(census.riskMachineExportCalls).toEqual([
+      "features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+    ]);
+  }, 45_000);
 
+  it("has one run-paper intake and one report-only emitter", () => {
     expect(census.paperEndpointCalls).toEqual([
       "features/runs/api/useRunPaper.ts",
     ]);
@@ -574,8 +670,6 @@ describe("Cycle Board production consumer census", () => {
   }, 45_000);
 
   it("has one case-inspection intake, workspace hook and exact-byte exporter", () => {
-    const census = inspectConsumers(productionPopulation());
-
     expect(census.caseEndpointCalls).toEqual([
       "features/runs/api/useCaseInspection.ts",
     ]);

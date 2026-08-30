@@ -8575,5 +8575,1032 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
         self.assertEqual("first", roots[2]["inherited_from"]["root_id"])  # noqa: PT009
 
 
+class Ds17ConfidenceLedgerRiskSpendRegistrationTests(unittest.TestCase):
+    """Bind the DS17 surface to executable sources, tests, and DS18 roots."""
+
+    OPENING_REVISION: ClassVar[str] = (
+        "4f6b0ae802bd2bde5ba63512250737bdb4a664f0"
+    )
+    DS17_PATHS: ClassVar[set[str]] = {
+        "apps/runtime-dashboard/src/api/queryKeys.ts",
+        "apps/runtime-dashboard/src/features/runs/api/"
+        "useConfidenceLedgerRiskSpend.ts",
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "ConditionalDeltaFigure.tsx",
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "ConfidenceLedgerRiskSpend.tsx",
+        "apps/runtime-dashboard/src/features/runs/domain/"
+        "confidenceLedgerRiskSpend.ts",
+        "apps/runtime-dashboard/src/features/runs/export/"
+        "confidenceLedgerRiskSpendTwin.ts",
+        "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+    }
+    DIRECT_PATHS: ClassVar[set[str]] = {
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "ConditionalDeltaFigure.tsx",
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "ConfidenceLedgerRiskSpend.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+    }
+
+    def test_live_builder_derives_six_roles_five_edges_and_governed_scope(
+        self,
+    ) -> None:
+        """Removing any real declaration/call/import must make construction fail."""
+        block = checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+        self.assertEqual("DS17", block["owner_slice"])  # noqa: PT009
+        self.assertEqual("recomputed", block["predicate_provenance"])  # noqa: PT009
+        self.assertEqual(6, block["role_count"])  # noqa: PT009
+        self.assertEqual(5, block["edge_count"])  # noqa: PT009
+        self.assertEqual(  # noqa: PT009
+            {
+                "conditional_figure",
+                "cycle_board_consumer",
+                "domain_validator",
+                "exact_twin",
+                "governed_projection",
+                "panel",
+            },
+            {row["role_id"] for row in block["roles"]},
+        )
+        self.assertEqual(  # noqa: PT009
+            {
+                "packet_schema_version": (
+                    "policyos.runtime.confidence_ledger_risk_spend_packet.v1"
+                ),
+                "projection_id": "confidence-ledger-risk-spend",
+                "projection_rule_version": (
+                    "policyos.runtime.confidence_ledger_risk_spend.v1"
+                ),
+                "protected_action": "protected-action://ds17/review-risk-spend",
+                "specialized_query_identity": [
+                    "runtime",
+                    "exports",
+                    "governed-projections",
+                    "confidence-ledger-risk-spend",
+                    {"representation": "specialized-v1"},
+                ],
+                "stable_address": (
+                    "/api/v1/exports/governed-projections/"
+                    "confidence-ledger-risk-spend"
+                ),
+            },
+            block["governed_scope"],
+        )
+        self.assertEqual(  # noqa: PT009
+            checker._canonical_sha256(block["role_manifest"]),
+            block["role_manifest_sha256"].removeprefix("sha256:"),
+        )
+        self.assertEqual(  # noqa: PT009
+            checker._canonical_sha256(block["edge_manifest"]),
+            block["edge_manifest_sha256"].removeprefix("sha256:"),
+        )
+        for role in block["roles"]:
+            self.assertTrue(role["behavioral_evidence"])  # noqa: PT009
+            self.assertTrue(  # noqa: PT009
+                (checker.REPO_ROOT / role["source"]["path"]).is_file()
+            )
+            self.assertTrue(  # noqa: PT009
+                all(
+                    (checker.REPO_ROOT / receipt["path"]).is_file()
+                    for receipt in role["behavioral_evidence"]
+                )
+            )
+
+    def test_validator_names_absence_scope_role_edge_and_manifest_drift(
+        self,
+    ) -> None:
+        """A plausible-looking DS17 block cannot self-attest its real graph."""
+        errors: list[str] = []
+        checker._validate_ds17_confidence_ledger_risk_spend_surface({}, errors)
+        self.assertEqual(  # noqa: PT009
+            ["ds17_confidence_ledger_risk_spend_surface_missing"], errors
+        )
+
+        block = checker._build_ds17_confidence_ledger_risk_spend_surface()
+        mutations = {
+            "scope": lambda value: value["governed_scope"].__setitem__(
+                "projection_id", "confidence-ledger-adjacent"
+            ),
+            "role_source": lambda value: value["roles"][0]["source"].__setitem__(
+                "sha256", "sha256:" + "0" * 64
+            ),
+            "edge": lambda value: value["edges"][0].__setitem__(
+                "to_role", "panel"
+            ),
+            "role_manifest": lambda value: value.__setitem__(
+                "role_manifest_sha256", "sha256:" + "0" * 64
+            ),
+            "edge_manifest": lambda value: value.__setitem__(
+                "edge_manifest_sha256", "sha256:" + "0" * 64
+            ),
+        }
+        expected_fragments = {
+            "scope": "scope_drift",
+            "role_source": "role_source_drift",
+            "edge": "edge_drift",
+            "role_manifest": "role_manifest_hash_drift",
+            "edge_manifest": "edge_manifest_hash_drift",
+        }
+        for label, mutate in mutations.items():
+            with self.subTest(label=label):
+                corrupted = copy.deepcopy(block)
+                mutate(corrupted)
+                candidate = {
+                    "ds17_confidence_ledger_risk_spend_surface": corrupted
+                }
+                mutation_errors: list[str] = []
+                checker._validate_ds17_confidence_ledger_risk_spend_surface(
+                    candidate,
+                    mutation_errors,
+                )
+                self.assertTrue(  # noqa: PT009
+                    any(
+                        expected_fragments[label] in error
+                        for error in mutation_errors
+                    ),
+                    mutation_errors,
+                )
+
+    def test_validator_rejects_each_non_optional_visual_role(self) -> None:
+        """The conditional figure and exact twin cannot disappear independently."""
+        block = checker._build_ds17_confidence_ledger_risk_spend_surface()
+        for role_id in ("conditional_figure", "exact_twin"):
+            with self.subTest(role_id=role_id):
+                corrupted = copy.deepcopy(block)
+                corrupted["roles"] = [
+                    row for row in corrupted["roles"] if row["role_id"] != role_id
+                ]
+                errors: list[str] = []
+                checker._validate_ds17_confidence_ledger_risk_spend_surface(
+                    {"ds17_confidence_ledger_risk_spend_surface": corrupted},
+                    errors,
+                )
+                self.assertTrue(  # noqa: PT009
+                    any(
+                        error == f"ds17_confidence_ledger_role_missing:{role_id}"
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_ast_builder_rejects_validation_bypass_with_identifier_retained(
+        self,
+    ) -> None:
+        """The governed projection must call the validator, not merely import it."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/api/"
+            "useConfidenceLedgerRiskSpend.ts"
+        )
+        source = (checker.REPO_ROOT / path_ref).read_text(encoding="utf-8")
+        original = "return evaluateConfidenceLedgerProtectedQuery({"
+        bypass = "return bypassConfidenceLedgerProtectedQuery({"
+        self.assertEqual(1, source.count(original))  # noqa: PT009
+        mutated = source.replace(original, bypass, 1)
+        self.assertIn("evaluateConfidenceLedgerProtectedQuery", mutated)  # noqa: PT009
+
+        with pytest.raises(
+            ValueError,
+            match="governed_projection_to_domain_validator",
+        ):
+            checker._build_ds17_confidence_ledger_risk_spend_surface(
+                source_overrides={path_ref: mutated}
+            )
+
+    def test_behavioral_evidence_rejects_import_with_identifier_only_use(
+        self,
+    ) -> None:
+        """An imported role name outside a test execution is not evidence."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        scan = checker._ds17_typescript_surface_scan_uncached(
+            {
+                path_ref: """
+import { ConditionalDeltaFigure } from "./ConditionalDeltaFigure";
+void ConditionalDeltaFigure;
+"""
+            }
+        )
+
+        with (
+            mock.patch.object(
+                checker,
+                "_ds17_typescript_surface_scan",
+                return_value=scan,
+            ),
+            pytest.raises(ValueError, match="behavioral evidence"),
+        ):
+            checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_panel_to_exact_twin_rejects_unlinked_test_cooccurrence(
+        self,
+    ) -> None:
+        """Panel render and twin call must share one root-dataflow path."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/export/"
+            "confidenceLedgerRiskSpendTwin.test.tsx"
+        )
+        scan = checker._ds17_typescript_surface_scan_uncached(
+            {
+                path_ref: """
+import { render } from "@testing-library/react";
+import { ConfidenceLedgerRiskSpend } from "@/features/runs/components/ConfidenceLedgerRiskSpend";
+import { evaluateConfidenceLedgerRiskSpendTwin } from "./confidenceLedgerRiskSpendTwin";
+
+it("keeps the panel and twin inputs unrelated", () => {
+  render(<ConfidenceLedgerRiskSpend projection={null as never} />);
+  evaluateConfidenceLedgerRiskSpendTwin("<div>forged</div>" as never);
+});
+"""
+            }
+        )
+
+        with (
+            mock.patch.object(
+                checker,
+                "_ds17_typescript_surface_scan",
+                return_value=scan,
+            ),
+            pytest.raises(ValueError, match="panel_to_exact_twin"),
+        ):
+            checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_behavioral_evidence_resolves_alias_and_rejects_shadowing(
+        self,
+    ) -> None:
+        """Runtime aliases bind, while a shadowed alias fails closed."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        alias_source = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+
+it("renders the imported role alias", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+});
+"""
+        alias_scan = checker._ds17_typescript_surface_scan_uncached(
+            {path_ref: alias_source}
+        )
+        with mock.patch.object(
+            checker,
+            "_ds17_typescript_surface_scan",
+            return_value=alias_scan,
+        ):
+            checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+        shadowed_scan = checker._ds17_typescript_surface_scan_uncached(
+            {
+                path_ref: alias_source.replace(
+                    'render(<Figure packet={null as never} row={null as never} />);',
+                    "const Figure = () => null;\n  render(<Figure />);",
+                )
+            }
+        )
+        with (
+            mock.patch.object(
+                checker,
+                "_ds17_typescript_surface_scan",
+                return_value=shadowed_scan,
+            ),
+            pytest.raises(ValueError, match="behavioral evidence"),
+        ):
+            checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+        inactive_sources = {
+            "skipped": alias_source.replace(
+                'it("renders the imported role alias"',
+                'it.skip("renders the imported role alias"',
+            ),
+            "statically_dead": alias_source.replace(
+                "  render(<Figure packet={null as never} row={null as never} />);",
+                "  if (false) {\n"
+                "    render(<Figure packet={null as never} row={null as never} />);\n"
+                "  }",
+            ),
+        }
+        for label, inactive_source in inactive_sources.items():
+            with self.subTest(label=label):
+                inactive_scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: inactive_source}
+                )
+                with (
+                    mock.patch.object(
+                        checker,
+                        "_ds17_typescript_surface_scan",
+                        return_value=inactive_scan,
+                    ),
+                    pytest.raises(ValueError, match="behavioral evidence"),
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_panel_to_exact_twin_accepts_one_connected_aliased_root(
+        self,
+    ) -> None:
+        """Alias-aware dataflow joins the rendered panel root to the twin."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/export/"
+            "confidenceLedgerRiskSpendTwin.test.tsx"
+        )
+        scan = checker._ds17_typescript_surface_scan_uncached(
+            {
+                path_ref: """
+import { render as mount } from "@testing-library/react";
+import {
+  ConfidenceLedgerRiskSpend as Surface,
+} from "@/features/runs/components/ConfidenceLedgerRiskSpend";
+import {
+  evaluateConfidenceLedgerRiskSpendTwin as reconcile,
+} from "./confidenceLedgerRiskSpendTwin";
+
+it("passes the rendered panel root to the twin", () => {
+  const view = mount(<Surface projection={null as never} />);
+  const root = view.container.querySelector("[data-confidence-surface]");
+  if (root === null) throw new Error("missing rendered root");
+  reconcile({ root } as never);
+});
+"""
+            }
+        )
+        with mock.patch.object(
+            checker,
+            "_ds17_typescript_surface_scan",
+            return_value=scan,
+        ):
+            checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_behavioral_evidence_rejects_unreachable_test_registration(
+        self,
+    ) -> None:
+        """Only tests registered by reachable active module code may execute."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        render_test = """
+it("renders the role", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+});
+"""
+        witnesses = {
+            "statically_dead_module_branch": (
+                f"{imports}\nif (false) {{{render_test}}}\n"
+            ),
+            "nested_under_skipped_test": (
+                f'{imports}\nit.skip("disabled parent", () => {{'
+                f"{render_test}}});\n"
+            ),
+            "nested_under_skipped_suite": (
+                f'{imports}\ndescribe.skip("disabled suite", () => {{'
+                f"{render_test}}});\n"
+            ),
+            "inside_uncalled_registration_function": (
+                f"{imports}\nfunction registerRoleTest() {{{render_test}}}\n"
+                "void registerRoleTest;\n"
+            ),
+        }
+
+        for label, source in witnesses.items():
+            with self.subTest(label=label):
+                scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: source}
+                )
+                with (
+                    mock.patch.object(
+                        checker,
+                        "_ds17_typescript_surface_scan",
+                        return_value=scan,
+                    ),
+                    pytest.raises(ValueError, match="behavioral evidence"),
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_behavioral_evidence_accepts_reachable_registration_paths(
+        self,
+    ) -> None:
+        """Reachable suites and called helpers register executable tests."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        render_test = """
+it("renders the role", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+});
+"""
+        sources = {
+            "reachable_suite": (
+                f'{imports}\ndescribe("active suite", () => {{{render_test}}});\n'
+            ),
+            "called_registration_helper": (
+                f"{imports}\nfunction registerRoleTest() {{{render_test}}}\n"
+                "registerRoleTest();\n"
+            ),
+        }
+
+        for label, source in sources.items():
+            with self.subTest(label=label):
+                scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: source}
+                )
+                with mock.patch.object(
+                    checker,
+                    "_ds17_typescript_surface_scan",
+                    return_value=scan,
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_behavioral_evidence_rejects_dead_js_control_flow_matrix(
+        self,
+    ) -> None:
+        """Only registration arms with statically proven reachability count."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        test_call = """it("renders the role", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+})"""
+        witnesses = {
+            "numeric_zero_if": f"if (0) {{ {test_call}; }}",
+            "empty_string_if": f'if ("") {{ {test_call}; }}',
+            "null_if": f"if (null) {{ {test_call}; }}",
+            "undefined_if": f"if (undefined) {{ {test_call}; }}",
+            "false_comparison_if": f"if (1 === 2) {{ {test_call}; }}",
+            "dead_else": f"if (1) {{ void 0; }} else {{ {test_call}; }}",
+            "short_circuited_and": f"0 && {test_call};",
+            "short_circuited_or": f"1 || {test_call};",
+            "dead_conditional_arm": f"0 ? {test_call} : 1;",
+            "const_bound_falsey": (
+                f"const enabled = 0;\nif (enabled) {{ {test_call}; }}"
+            ),
+            "unknown_dynamic_guard": (
+                "declare const enabled: boolean;\n"
+                f"if (enabled) {{ {test_call}; }}"
+            ),
+            "environment_comparison": (
+                "if (process.env.ENABLED === \"true\") { "
+                f"{test_call}; }}"
+            ),
+            "boolean_environment_binding": (
+                "const enabled = Boolean(process.env.ENABLED);\n"
+                f"if (enabled) {{ {test_call}; }}"
+            ),
+            "unknown_conditional": (
+                "declare const enabled: boolean;\n"
+                f"enabled ? {test_call} : 1;"
+            ),
+            "unknown_and": (
+                "declare const enabled: boolean;\n"
+                f"enabled && {test_call};"
+            ),
+        }
+
+        for label, body in witnesses.items():
+            with self.subTest(label=label):
+                scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: f"{imports}\n{body}\n"}
+                )
+                with (
+                    mock.patch.object(
+                        checker,
+                        "_ds17_typescript_surface_scan",
+                        return_value=scan,
+                    ),
+                    pytest.raises(ValueError, match="behavioral evidence"),
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_behavioral_evidence_accepts_proven_js_control_flow(
+        self,
+    ) -> None:
+        """Provably selected truthy and short-circuit arms still register."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        test_call = """it("renders the role", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+})"""
+        sources = {
+            "truthy_number": f"if (1) {{ {test_call}; }}",
+            "truthy_string": f'if ("enabled") {{ {test_call}; }}',
+            "true_comparison": f"if (1 === 1) {{ {test_call}; }}",
+            "reachable_and": f"1 && {test_call};",
+            "reachable_or": f"0 || {test_call};",
+            "reachable_conditional_arm": f"1 ? {test_call} : 0;",
+            "const_bound_truthy": (
+                f"const enabled = 1;\nif (enabled) {{ {test_call}; }}"
+            ),
+            "called_helper_static_argument": (
+                f"function registerRoleTest(enabled: boolean) {{\n"
+                f"  if (enabled) {{ {test_call}; }}\n"
+                "}\nregisterRoleTest(1 === 1);"
+            ),
+            "test_body_truthy": (
+                'it("guards the role", () => {\n'
+                '  if ("enabled") {\n'
+                "    render(\n"
+                "      <Figure packet={null as never} row={null as never} />,\n"
+                "    );\n"
+                "  }\n});"
+            ),
+        }
+
+        for label, body in sources.items():
+            with self.subTest(label=label):
+                scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: f"{imports}\n{body}\n"}
+                )
+                with mock.patch.object(
+                    checker,
+                    "_ds17_typescript_surface_scan",
+                    return_value=scan,
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_behavioral_evidence_rejects_dead_test_body_control_flow_matrix(
+        self,
+    ) -> None:
+        """The same reachability lattice governs an active test's body."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        role_call = (
+            "render(<Figure packet={null as never} row={null as never} />)"
+        )
+        witnesses = {
+            "numeric_zero_if": f"if (0) {{ {role_call}; }}",
+            "empty_string_if": f'if ("") {{ {role_call}; }}',
+            "null_if": f"if (null) {{ {role_call}; }}",
+            "undefined_if": f"if (undefined) {{ {role_call}; }}",
+            "false_comparison_if": f"if (1 === 2) {{ {role_call}; }}",
+            "dead_else": f"if (1) {{ void 0; }} else {{ {role_call}; }}",
+            "short_circuited_and": f"0 && {role_call};",
+            "short_circuited_or": f"1 || {role_call};",
+            "dead_conditional_arm": f"0 ? {role_call} : 1;",
+            "const_bound_falsey": (
+                f"const enabled = 0;\nif (enabled) {{ {role_call}; }}"
+            ),
+            "unknown_dynamic_guard": (
+                "declare const enabled: boolean;\n"
+                f"if (enabled) {{ {role_call}; }}"
+            ),
+            "environment_comparison": (
+                "if (process.env.ENABLED === \"true\") { "
+                f"{role_call}; }}"
+            ),
+            "boolean_environment_binding": (
+                "const enabled = Boolean(process.env.ENABLED);\n"
+                f"if (enabled) {{ {role_call}; }}"
+            ),
+            "unknown_conditional": (
+                "declare const enabled: boolean;\n"
+                f"enabled ? {role_call} : 1;"
+            ),
+            "unknown_and": (
+                "declare const enabled: boolean;\n"
+                f"enabled && {role_call};"
+            ),
+        }
+
+        for label, body in witnesses.items():
+            with self.subTest(label=label):
+                source = (
+                    f'{imports}\nit("guards the role", () => {{\n'
+                    f"{body}\n}});\n"
+                )
+                scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: source}
+                )
+                with (
+                    mock.patch.object(
+                        checker,
+                        "_ds17_typescript_surface_scan",
+                        return_value=scan,
+                    ),
+                    pytest.raises(ValueError, match="behavioral evidence"),
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_behavioral_evidence_rejects_reference_operator_coercion(
+        self,
+    ) -> None:
+        """Reference operands never borrow host-AST coercion in either phase."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        test_call = """it("renders the role", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+})"""
+        role_call = (
+            "render(<Figure packet={null as never} row={null as never} />)"
+        )
+        expressions = {
+            "empty_array_concatenation": "[] + []",
+            "empty_array_inequality": "[] != false",
+            "zero_array_inequality": "[0] != false",
+            "array_relational": "[] >= [1]",
+            "reference_loose_equality": "[] == false",
+            "reference_numeric_coercion": "[1] + 1",
+            "reference_bitwise_coercion": "[] | 1",
+            "distinct_object_strict_comparison": "({}) === ({})",
+        }
+
+        for phase in ("registration", "active_test"):
+            for expression_label, expression in expressions.items():
+                with self.subTest(phase=phase, expression=expression_label):
+                    if phase == "registration":
+                        body = f"if ({expression}) {{ {test_call}; }}"
+                    else:
+                        body = (
+                            'it("guards the role", () => {\n'
+                            f"  if ({expression}) {{ {role_call}; }}\n"
+                            "});"
+                        )
+                    scan = checker._ds17_typescript_surface_scan_uncached(
+                        {path_ref: f"{imports}\n{body}\n"}
+                    )
+                    with (
+                        mock.patch.object(
+                            checker,
+                            "_ds17_typescript_surface_scan",
+                            return_value=scan,
+                        ),
+                        pytest.raises(ValueError, match="behavioral evidence"),
+                    ):
+                        checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_behavioral_evidence_accepts_direct_reference_truthiness(
+        self,
+    ) -> None:
+        """Direct object truthiness stays provable without object coercion."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/components/"
+            "ConditionalDeltaFigure.test.tsx"
+        )
+        imports = """
+import { render } from "@testing-library/react";
+import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
+"""
+        test_call = """it("renders the role", () => {
+  render(<Figure packet={null as never} row={null as never} />);
+})"""
+        role_call = (
+            "render(<Figure packet={null as never} row={null as never} />)"
+        )
+        sources = {
+            "array_if": f"if ([]) {{ {test_call}; }}",
+            "object_if": f"if ({{}}) {{ {test_call}; }}",
+            "const_array_if": (
+                f"const enabled = [];\nif (enabled) {{ {test_call}; }}"
+            ),
+            "array_and": f"[] && {test_call};",
+            "object_conditional": f"({{}}) ? {test_call} : 0;",
+            "active_test_array_if": (
+                'it("guards the role", () => {\n'
+                f"  if ([]) {{ {role_call}; }}\n"
+                "});"
+            ),
+            "active_test_object_if": (
+                'it("guards the role", () => {\n'
+                f"  if ({{}}) {{ {role_call}; }}\n"
+                "});"
+            ),
+        }
+
+        for label, body in sources.items():
+            with self.subTest(label=label):
+                scan = checker._ds17_typescript_surface_scan_uncached(
+                    {path_ref: f"{imports}\n{body}\n"}
+                )
+                with mock.patch.object(
+                    checker,
+                    "_ds17_typescript_surface_scan",
+                    return_value=scan,
+                ):
+                    checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_panel_to_exact_twin_rejects_unknown_guarded_connection(
+        self,
+    ) -> None:
+        """An unproved runtime predicate cannot authorize the twin edge."""
+        path_ref = (
+            "apps/runtime-dashboard/src/features/runs/export/"
+            "confidenceLedgerRiskSpendTwin.test.tsx"
+        )
+        scan = checker._ds17_typescript_surface_scan_uncached(
+            {
+                path_ref: """
+import { render } from "@testing-library/react";
+import { ConfidenceLedgerRiskSpend } from "@/features/runs/components/ConfidenceLedgerRiskSpend";
+import { evaluateConfidenceLedgerRiskSpendTwin } from "./confidenceLedgerRiskSpendTwin";
+
+declare const enabled: boolean;
+it("guards the otherwise connected edge", () => {
+  evaluateConfidenceLedgerRiskSpendTwin({ root: "forged" } as never);
+  if (enabled) {
+    const view = render(
+      <ConfidenceLedgerRiskSpend projection={null as never} />,
+    );
+    const root = view.container.querySelector("[data-confidence-surface]");
+    evaluateConfidenceLedgerRiskSpendTwin({ root } as never);
+  }
+});
+"""
+            }
+        )
+        with (
+            mock.patch.object(
+                checker,
+                "_ds17_typescript_surface_scan",
+                return_value=scan,
+            ),
+            pytest.raises(ValueError, match="panel_to_exact_twin"),
+        ):
+            checker._build_ds17_confidence_ledger_risk_spend_surface()
+
+    def test_real_ds18_builder_partitions_every_current_ds17_root(self) -> None:
+        """The three owner roots admit every other current same-file root."""
+        scan = checker._ds18_time_semantics_scan()
+        coverage = checker._build_ds18_time_semantics_coverage(scan)
+        files = [
+            row for row in coverage["files"] if row["path"] in self.DIRECT_PATHS
+        ]
+        roots = [root for row in files for root in row["roots"]]
+        classes = Counter(
+            (
+                root["classification"],
+                root.get("temporal_binding"),
+            )
+            for root in roots
+        )
+
+        self.assertEqual(3, len(files))  # noqa: PT009
+        self.assertEqual(32, len(roots))  # noqa: PT009
+        self.assertEqual(3, classes[("decision_bearing", "direct_ds4")])  # noqa: PT009
+        self.assertEqual(  # noqa: PT009
+            len(roots) - 3,
+            classes[("inherits_admitted_dom", None)],
+        )
+        self.assertEqual(len(roots), sum(classes.values()))  # noqa: PT009
+
+    def test_candidate_surgically_updates_only_ds17_and_seven_ds18_rows(
+        self,
+    ) -> None:
+        """Any foreign row, seed, or peer-block movement is a writer failure."""
+        opening_text = _register_text_at(self.OPENING_REVISION)
+        candidate_text = checker._ds17_confidence_ledger_risk_spend_candidate_text(
+            opening_text
+        )
+        repeated = checker._ds17_confidence_ledger_risk_spend_candidate_text(
+            candidate_text
+        )
+        self.assertEqual(candidate_text, repeated)  # noqa: PT009
+
+        opening = json.loads(opening_text)
+        candidate = json.loads(candidate_text)
+        self.assertNotIn(  # noqa: PT009
+            "ds17_confidence_ledger_risk_spend_surface", opening
+        )
+        self.assertIn(  # noqa: PT009
+            "ds17_confidence_ledger_risk_spend_surface", candidate
+        )
+        peer_opening = {
+            key: value
+            for key, value in opening.items()
+            if key != "ds18_time_semantics_coverage"
+        }
+        peer_candidate = {
+            key: value
+            for key, value in candidate.items()
+            if key
+            not in {
+                "ds17_confidence_ledger_risk_spend_surface",
+                "ds18_time_semantics_coverage",
+            }
+        }
+        self.assertEqual(peer_opening, peer_candidate)  # noqa: PT009
+
+        before_coverage = opening["ds18_time_semantics_coverage"]
+        after_coverage = candidate["ds18_time_semantics_coverage"]
+        frozen_fields = {
+            "schema_id",
+            "owner_slice",
+            "predicate_provenance",
+            "source_root",
+            "exclusion_policy",
+            "scanner",
+            "frontend_freeze_commit",
+            "landing_slice_rule",
+            "landing_slice_checker",
+        }
+        for field in frozen_fields:
+            self.assertEqual(  # noqa: PT009
+                before_coverage[field], after_coverage[field], field
+            )
+        before_files = {row["path"]: row for row in before_coverage["files"]}
+        after_files = {row["path"]: row for row in after_coverage["files"]}
+        changed_paths = {
+            path_ref
+            for path_ref in set(before_files) | set(after_files)
+            if before_files.get(path_ref) != after_files.get(path_ref)
+        }
+        self.assertEqual(self.DS17_PATHS, changed_paths)  # noqa: PT009
+
+    def test_surgical_ds18_refresh_accepts_an_owned_row_subset(self) -> None:
+        """Later DS17 edits refresh exactly the owned receipts that moved."""
+        opening = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))[
+            "ds18_time_semantics_coverage"
+        ]
+        fresh = copy.deepcopy(opening)
+        target = next(
+            row
+            for row in fresh["files"]
+            if row["path"] == checker.DS17_CONFIDENCE_LEDGER_PANEL_PATH
+        )
+        target["source_sha256"] = "sha256:" + "0" * 64
+
+        candidate = checker._ds17_surgical_ds18_coverage(opening, fresh)
+
+        self.assertEqual(fresh, candidate)  # noqa: PT009
+
+        foreign = copy.deepcopy(opening)
+        foreign_target = next(
+            row
+            for row in foreign["files"]
+            if row["path"] not in checker.DS17_CONFIDENCE_LEDGER_DS18_PATHS
+        )
+        foreign_target["source_sha256"] = "sha256:" + "1" * 64
+        with self.assertRaisesRegex(ValueError, "DS17 DS18 foreign row drift"):
+            checker._ds17_surgical_ds18_coverage(opening, foreign)
+
+        missing = copy.deepcopy(opening)
+        missing["files"] = [
+            row
+            for row in missing["files"]
+            if row["path"] != checker.DS17_CONFIDENCE_LEDGER_PANEL_PATH
+        ]
+        with self.assertRaisesRegex(ValueError, "DS17 DS18 authorized row missing"):
+            checker._ds17_surgical_ds18_coverage(opening, missing)
+
+    def test_historical_ds18_validator_still_replays_the_opening_receipt(
+        self,
+    ) -> None:
+        """The landing writer must not change the historical replay mechanism."""
+        coverage = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))[
+            "ds18_time_semantics_coverage"
+        ]
+        scanner_fields = {
+            "column",
+            "component_identity",
+            "epoch_context_read_count",
+            "epoch_semantics_prop_count",
+            "epoch_semantics_provider_render_count",
+            "kind",
+            "line",
+            "root_id",
+            "root_source_sha256",
+            "time_semantics_label_render_count",
+        }
+        frozen_scan = {
+            "source_root": coverage["source_root"],
+            "exclusion_policy": coverage["exclusion_policy"],
+            "file_count": coverage["source_file_count"],
+            "root_count": coverage["root_count"],
+            "file_manifest_sha256": coverage["file_manifest_sha256"],
+            "root_manifest_sha256": coverage["root_manifest_sha256"],
+            "files": [
+                {
+                    "path": row["path"],
+                    "source_sha256": row["source_sha256"],
+                    "receipt_kind": row["receipt_kind"],
+                    "roots": [
+                        {
+                            key: value
+                            for key, value in root.items()
+                            if key in scanner_fields
+                        }
+                        for root in row["roots"]
+                    ],
+                }
+                for row in coverage["files"]
+            ],
+        }
+        errors: list[str] = []
+        checker._validate_ds18_historical_time_semantics_coverage(
+            coverage,
+            frozen_scan,
+            errors,
+        )
+        self.assertEqual([], errors)  # noqa: PT009
+
+    def test_validate_register_executes_ds17_validator(self) -> None:
+        """Removing the real validation call must turn this corruption green-red."""
+        candidate = json.loads(
+            checker._ds17_confidence_ledger_risk_spend_candidate_text(
+                REGISTER_PATH.read_text(encoding="utf-8")
+            )
+        )
+        candidate["ds17_confidence_ledger_risk_spend_surface"]["edges"][0][
+            "to_role"
+        ] = "panel"
+
+        with (
+            mock.patch.object(
+                checker, "_validate_producer_binding_debt_findings"
+            ),
+            mock.patch.object(checker, "_validate_integrate_contract_debt_findings"),
+            mock.patch.object(
+                checker, "_authority_presentation_errors", return_value=[]
+            ),
+            mock.patch.object(checker, "_supplemental_findings", return_value=[]),
+            mock.patch.object(checker, "_validate_ds6_register_transition_findings"),
+            mock.patch.object(
+                checker, "_validate_ds11_trust_presentation_transition_findings"
+            ),
+            mock.patch.object(
+                checker, "_schema_errors", return_value=["schema:test-stop"]
+            ),
+        ):
+            errors = checker.validate_register(
+                candidate,
+                live_probes=False,
+                schema=True,
+                report_parity=False,
+            )
+
+        self.assertTrue(  # noqa: PT009
+            any("ds17_confidence_ledger_edge_drift" in error for error in errors),
+            errors,
+        )
+
+    def test_writer_uses_one_atomic_register_report_candidate(self) -> None:
+        """The owner writer must promote the validated register/report pair once."""
+        captured: dict[Path, str] = {}
+
+        def capture(
+            candidates: dict[Path, str],
+            *,
+            validate_after: object,
+            pre_promote: object,
+        ) -> None:
+            del validate_after, pre_promote
+            captured.update(candidates)
+
+        with mock.patch.object(
+            checker,
+            "_failure_atomic_write_texts",
+            side_effect=capture,
+        ) as atomic_write:
+            summary = checker._write_ds17_confidence_ledger_risk_spend_family()
+
+        atomic_write.assert_called_once()
+        self.assertEqual(  # noqa: PT009
+            {checker.REGISTER_PATH, checker.REPORT_PATH}, set(captured)
+        )
+        candidate = json.loads(captured[checker.REGISTER_PATH])
+        self.assertEqual(  # noqa: PT009
+            checker.render_report(candidate), captured[checker.REPORT_PATH]
+        )
+        self.assertIn(  # noqa: PT009
+            "### DS17 confidence-ledger risk-spend surface",
+            captured[checker.REPORT_PATH],
+        )
+        self.assertEqual(6, summary["roles"])  # noqa: PT009
+        self.assertEqual(5, summary["edges"])  # noqa: PT009
+
+
 if __name__ == "__main__":
     unittest.main()

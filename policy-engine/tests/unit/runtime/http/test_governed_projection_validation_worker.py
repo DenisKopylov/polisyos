@@ -576,3 +576,36 @@ def test_normal_projection_import_does_not_import_owner_validators() -> None:
     }
 
     assert imported.isdisjoint(forbidden)
+
+
+def test_canonical_confidence_ledger_binds_owner_payload_and_arithmetic() -> None:
+    relative_path = (
+        "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
+    )
+    artifact = json.loads((REPO_ROOT / relative_path).read_text(encoding="utf-8"))
+
+    result = _run_worker(
+        projection_id="confidence-ledger-risk-spend",
+        repository_root=REPO_ROOT,
+        component_bindings={relative_path: _sha256(REPO_ROOT / relative_path)},
+        projection_payload=artifact["real_ledger_projection"],
+    )
+
+    assert result["status"] == "passed"
+    assert result["issue_codes"] == []
+    assert result["source_payload_equal"] is True
+    assert result["registry_content_hash"] == artifact["registry_projection"][
+        "registry_content_hash"
+    ]
+    assert result["registry_projection_hash"] == artifact["registry_projection"][
+        "projection_hash"
+    ]
+    assert result["frozen_semantic_projection_hash"] == artifact[
+        "real_ledger_projection"
+    ]["projection_hash"]
+    assert (result["recomputed_total_spend_numerator"], result["recomputed_total_spend_denominator"]) == (0, 1)
+    assert (result["registry_delta_numerator"], result["registry_delta_denominator"]) == (1, 100)
+    assert (
+        "tools/quality/validation/check_layer3_gy_confidence_ledger.py"
+        in result["dependency_bindings"]
+    )

@@ -23,6 +23,7 @@
     "supplemental_findings",
     "ds8_strangle_coverage",
     "ds8b_post_freeze_transition",
+    "ds17_confidence_ledger_risk_spend_surface",
     "ds18_time_semantics_coverage",
     "seeded_negative_lifecycle"
   ],
@@ -140,6 +141,9 @@
     },
     "ds8b_post_freeze_transition": {
       "$ref": "#/$defs/ds8bPostFreezeTransition"
+    },
+    "ds17_confidence_ledger_risk_spend_surface": {
+      "$ref": "#/$defs/ds17ConfidenceLedgerRiskSpendSurface"
     },
     "ds18_time_semantics_coverage": {
       "$ref": "#/$defs/ds18TimeSemanticsCoverage"
@@ -1960,6 +1964,313 @@
             "historical_217_map": { "const": "byte_preserved" },
             "historical_137_deferrals": { "const": "byte_preserved" },
             "live_tree_disposition": { "const": "outside_frozen_transition" }
+          }
+        }
+      }
+    },
+    "ds17SourceReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/pathRef" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "ds17DeclarationReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "column",
+        "declaration_sha256",
+        "exported",
+        "kind",
+        "line"
+      ],
+      "properties": {
+        "column": { "type": "integer", "minimum": 1 },
+        "declaration_sha256": { "$ref": "#/$defs/sha256" },
+        "exported": { "type": "boolean" },
+        "kind": { "$ref": "#/$defs/nonEmptyString" },
+        "line": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "ds17RoleId": {
+      "enum": [
+        "governed_projection",
+        "domain_validator",
+        "conditional_figure",
+        "panel",
+        "exact_twin",
+        "cycle_board_consumer"
+      ]
+    },
+    "ds17SurfaceRole": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role_id",
+        "symbol",
+        "source",
+        "declaration",
+        "behavioral_evidence"
+      ],
+      "properties": {
+        "role_id": { "$ref": "#/$defs/ds17RoleId" },
+        "symbol": { "$ref": "#/$defs/nonEmptyString" },
+        "source": { "$ref": "#/$defs/ds17SourceReceipt" },
+        "declaration": { "$ref": "#/$defs/ds17DeclarationReceipt" },
+        "behavioral_evidence": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds17SourceReceipt" }
+        }
+      }
+    },
+    "ds17RoleManifestRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "behavioral_evidence_sha256",
+        "declaration_sha256",
+        "role_id",
+        "source_path",
+        "source_sha256",
+        "symbol"
+      ],
+      "properties": {
+        "behavioral_evidence_sha256": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": { "$ref": "#/$defs/sha256" }
+        },
+        "declaration_sha256": { "$ref": "#/$defs/sha256" },
+        "role_id": { "$ref": "#/$defs/ds17RoleId" },
+        "source_path": { "$ref": "#/$defs/pathRef" },
+        "source_sha256": { "$ref": "#/$defs/sha256" },
+        "symbol": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "ds17SurfaceEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "edge_id",
+        "from_role",
+        "to_role",
+        "relation",
+        "symbol_path",
+        "wiring_evidence"
+      ],
+      "properties": {
+        "edge_id": {
+          "enum": [
+            "governed_projection_to_domain_validator",
+            "domain_validator_to_cycle_board_consumer",
+            "cycle_board_consumer_to_panel",
+            "panel_to_conditional_figure",
+            "panel_to_exact_twin"
+          ]
+        },
+        "from_role": { "$ref": "#/$defs/ds17RoleId" },
+        "to_role": { "$ref": "#/$defs/ds17RoleId" },
+        "relation": {
+          "enum": [
+            "direct_validator_call",
+            "governed_query_call_chain",
+            "direct_jsx_render",
+            "module_local_jsx_render_path",
+            "behavioral_dom_twin_execution"
+          ]
+        },
+        "symbol_path": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "wiring_evidence": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds17SourceReceipt" }
+        }
+      }
+    },
+    "ds17EdgeManifestRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "edge_id",
+        "from_role",
+        "relation",
+        "symbol_path",
+        "to_role",
+        "wiring_evidence_sha256"
+      ],
+      "properties": {
+        "edge_id": { "$ref": "#/$defs/nonEmptyString" },
+        "from_role": { "$ref": "#/$defs/ds17RoleId" },
+        "relation": { "$ref": "#/$defs/nonEmptyString" },
+        "symbol_path": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/nonEmptyString" }
+        },
+        "to_role": { "$ref": "#/$defs/ds17RoleId" },
+        "wiring_evidence_sha256": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/sha256" }
+        }
+      }
+    },
+    "ds17ConfidenceLedgerRiskSpendSurface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_id",
+        "owner_slice",
+        "predicate_provenance",
+        "governed_scope",
+        "scope_evidence",
+        "role_count",
+        "roles",
+        "role_manifest",
+        "role_manifest_sha256",
+        "edge_count",
+        "edges",
+        "edge_manifest",
+        "edge_manifest_sha256",
+        "bounded_closure",
+        "executor"
+      ],
+      "properties": {
+        "schema_id": {
+          "const": "polisyos.atlas.ds17-confidence-ledger-risk-spend-surface.v1"
+        },
+        "owner_slice": { "const": "DS17" },
+        "predicate_provenance": { "const": "recomputed" },
+        "governed_scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "packet_schema_version",
+            "projection_id",
+            "projection_rule_version",
+            "protected_action",
+            "specialized_query_identity",
+            "stable_address"
+          ],
+          "properties": {
+            "packet_schema_version": {
+              "const": "policyos.runtime.confidence_ledger_risk_spend_packet.v1"
+            },
+            "projection_id": { "const": "confidence-ledger-risk-spend" },
+            "projection_rule_version": {
+              "const": "policyos.runtime.confidence_ledger_risk_spend.v1"
+            },
+            "protected_action": {
+              "const": "protected-action://ds17/review-risk-spend"
+            },
+            "specialized_query_identity": {
+              "type": "array",
+              "prefixItems": [
+                { "const": "runtime" },
+                { "const": "exports" },
+                { "const": "governed-projections" },
+                { "const": "confidence-ledger-risk-spend" },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["representation"],
+                  "properties": {
+                    "representation": { "const": "specialized-v1" }
+                  }
+                }
+              ],
+              "items": false,
+              "minItems": 5,
+              "maxItems": 5
+            },
+            "stable_address": {
+              "const": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend"
+            }
+          }
+        },
+        "scope_evidence": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds17SourceReceipt" }
+        },
+        "role_count": { "const": 6 },
+        "roles": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds17SurfaceRole" }
+        },
+        "role_manifest": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds17RoleManifestRow" }
+        },
+        "role_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "edge_count": { "const": 5 },
+        "edges": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds17SurfaceEdge" }
+        },
+        "edge_manifest": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds17EdgeManifestRow" }
+        },
+        "edge_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "bounded_closure": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "scope",
+            "global_coverage_claim",
+            "family_or_sequence_claim",
+            "positive_promotion_claim",
+            "deployment_wide_index_claim"
+          ],
+          "properties": {
+            "scope": {
+              "const": "single governed confidence-ledger risk-spend projection"
+            },
+            "global_coverage_claim": { "const": false },
+            "family_or_sequence_claim": { "const": false },
+            "positive_promotion_claim": { "const": false },
+            "deployment_wide_index_claim": { "const": false }
+          }
+        },
+        "executor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "policyos_executes_protected_action",
+            "ownership",
+            "authority"
+          ],
+          "properties": {
+            "policyos_executes_protected_action": { "const": false },
+            "ownership": { "const": "out_of_scope" },
+            "authority": { "const": "reviewer_or_external_institution" }
           }
         }
       }

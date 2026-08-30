@@ -1,0 +1,92 @@
+import { RuntimeApiClient } from "@polisyos/runtime-api-client";
+
+import { confidenceLedgerRiskSpendQueryKey } from "@/api/queryKeys";
+import {
+  governedQueryOptions,
+  useGovernedQuery,
+} from "@/api/governedQueryPolicy";
+import { authAwareRuntimeFetch } from "@/app/auth/authSession";
+import {
+  CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+  evaluateConfidenceLedgerProtectedQuery,
+  type ConfidenceLedgerProtectedQueryEvaluation,
+} from "@/features/runs/domain/confidenceLedgerRiskSpend";
+import { API_BASE_URL } from "@/shared/lib/constants";
+
+type CapturedConfidenceLedgerRiskSpend = Readonly<{
+  packet: unknown;
+  rawPacketBytes: Uint8Array;
+}>;
+
+type ConfidenceLedgerRiskSpendClient = Readonly<{
+  getConfidenceLedgerRiskSpendProjection: (
+    params: Record<string, never>,
+  ) => Promise<CapturedConfidenceLedgerRiskSpend>;
+}>;
+
+export type ConfidenceLedgerRiskSpendProjection =
+  ConfidenceLedgerProtectedQueryEvaluation;
+
+function runtimeApiBaseUrl(): string {
+  const applicationOrigin =
+    typeof window === "undefined" ? "http://localhost" : window.location.origin;
+  return API_BASE_URL
+    ? new URL(API_BASE_URL, applicationOrigin).toString()
+    : applicationOrigin;
+}
+
+const confidenceLedgerRiskSpendClient: ConfidenceLedgerRiskSpendClient = {
+  async getConfidenceLedgerRiskSpendProjection(params) {
+    let rawPacketBytes: Uint8Array | null = null;
+    const client = new RuntimeApiClient({
+      baseUrl: runtimeApiBaseUrl(),
+      fetchImpl: async (input, init) => {
+        const response = await authAwareRuntimeFetch(new Request(input, init));
+        rawPacketBytes = new Uint8Array(await response.clone().arrayBuffer());
+        return response;
+      },
+    });
+    const packet = await client.getConfidenceLedgerRiskSpendProjection(params);
+    if (rawPacketBytes === null) {
+      throw new TypeError(
+        "contract_error: confidence-ledger response bytes were not captured",
+      );
+    }
+    return Object.freeze({ packet, rawPacketBytes });
+  },
+};
+
+/** Prepare the protected specialized projection query. */
+export function confidenceLedgerRiskSpendQueryOptions(
+  client: ConfidenceLedgerRiskSpendClient,
+) {
+  return {
+    queryKey: confidenceLedgerRiskSpendQueryKey(),
+    queryFn: async (): Promise<ConfidenceLedgerRiskSpendProjection> => {
+      const response = await client.getConfidenceLedgerRiskSpendProjection({});
+      return evaluateConfidenceLedgerProtectedQuery({
+        evaluationMode: "exact_finite_schema",
+        packetCandidate: response.packet,
+        rawPacketBytes: response.rawPacketBytes,
+        stepBudget: CONFIDENCE_LEDGER_LIVE_EVALUATION_BUDGET,
+      });
+    },
+  };
+}
+
+/** Authority-bearing risk spend is never retained between observations. */
+export function confidenceLedgerRiskSpendQueryPolicy() {
+  return { kind: "never_cache_authority" } as const;
+}
+
+/** Fetch the protected confidence-ledger projection after reviewer authorization. */
+export function useConfidenceLedgerRiskSpend(
+  client: ConfidenceLedgerRiskSpendClient = confidenceLedgerRiskSpendClient,
+) {
+  return useGovernedQuery(
+    governedQueryOptions(
+      confidenceLedgerRiskSpendQueryOptions(client),
+      confidenceLedgerRiskSpendQueryPolicy(),
+    ),
+  );
+}

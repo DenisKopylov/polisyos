@@ -252,3 +252,13 @@ export const queryKeys = {
   lexGraphStats: (outputDir: string) =>
     ["lex", "graph", "stats", outputDir] as const,
 };
+
+/** Distinct authority-query key kept outside the governed shared-key identity. */
+export const confidenceLedgerRiskSpendQueryKey = () =>
+  [
+    "runtime",
+    "exports",
+    "governed-projections",
+    "confidence-ledger-risk-spend",
+    { representation: "specialized-v1" },
+  ] as const;

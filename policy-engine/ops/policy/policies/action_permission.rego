@@ -113,6 +113,7 @@ action_contracts := {
 	"runs.review": {
 		"runtime.acquisition_route": {"tenant_collection"},
 		"runtime.case_inspection": {"tenant_collection"},
+		"runtime.governed_projection.confidence_ledger_risk_spend": {"tenant_collection"},
 		"runtime.governed_projection.depth_n_cycle_board": {"tenant_collection"},
 		"runtime.run.epoch_staleness": {"ownership_verified"},
 		"runtime.run.human_decision_evidence": {"ownership_verified"},

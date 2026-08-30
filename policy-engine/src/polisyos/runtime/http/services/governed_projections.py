@@ -13,7 +13,7 @@ from datetime import UTC, date, datetime
 from enum import StrEnum
 from pathlib import Path
 from threading import Lock
-from typing import Annotated, Any, Literal, Self
+from typing import TYPE_CHECKING, Annotated, Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, WithJsonSchema, model_validator
 
@@ -37,9 +37,27 @@ from polisyos.runtime.http.services.export_replay import (
 from polisyos.runtime.http.services.governed_projection_dependencies import (
     dependency_manifest_matches,
 )
+from polisyos.runtime.quality.confidence_ledger import (
+    ConfidenceLedgerSemanticReceiptProjection,
+)
 from polisyos.runtime.quality.design_problem import DesignProblem
 
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
 _PROJECTION_BASE_PATH = "/api/v1/exports/governed-projections"
+CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH = (
+    "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
+)
+CONFIDENCE_LEDGER_GUARDED_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1"
+)
+CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID = (
+    "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload"
+)
+CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION = (
+    "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1"
+)
 
 
 class AudienceClass(StrEnum):
@@ -77,6 +95,12 @@ class ProjectionId(StrEnum):
     SURFACE_READINESS = "surface-readiness"
 
 
+class GuardedProjectionId(StrEnum):
+    """Source-only governed IDs that have no generic dynamic HTTP emission."""
+
+    CONFIDENCE_LEDGER_RISK_SPEND = "confidence-ledger-risk-spend"
+
+
 class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -104,6 +128,15 @@ class ProjectionSourceValidation(_StrictModel):
     semantic_projection_hash: str | None = None
     semantic_projection_hash_rule_version: str | None = None
     issue_codes: tuple[str, ...] = ()
+    worker_validation_receipt_hash: str | None = None
+    source_payload_equal: bool | None = None
+    registry_content_hash: str | None = None
+    registry_projection_hash: str | None = None
+    frozen_semantic_projection_hash: str | None = None
+    recomputed_total_spend_numerator: int | None = None
+    recomputed_total_spend_denominator: int | None = None
+    registry_delta_numerator: int | None = None
+    registry_delta_denominator: int | None = None
 
     @model_validator(mode="after")
     def _passed_receipt_is_complete(self) -> Self:
@@ -140,7 +173,7 @@ class ProjectionFreshness(_StrictModel):
 class ProjectionCatalogEntry(_StrictModel):
     """Describe one stable projection without reading its source artifact."""
 
-    projection_id: ProjectionId
+    projection_id: ProjectionId | GuardedProjectionId
     expected_source_path: str
     source_policy: Literal["required", "presence_gated", "fixture_identity_only"]
     intended_audience: AudienceClass
@@ -586,7 +619,7 @@ class InvalidProjectionSourceError(ValueError):
 
 @dataclass(frozen=True, slots=True)
 class _ProjectionDefinition:
-    projection_id: ProjectionId
+    projection_id: ProjectionId | GuardedProjectionId
     source_path: str
     source_format: Literal["json", "toml", "proving_ground", "acquisition_growth"]
     source_policy: Literal["required", "presence_gated", "fixture_identity_only"]
@@ -618,11 +651,34 @@ class _LoadedSource:
     component_bindings: tuple[tuple[str, str], ...]
 
 
+@dataclass(frozen=True, slots=True)
+class GuardedProjectionSourceResolution:
+    """Typed source-only result consumed by one separately guarded projection."""
+
+    projection_id: GuardedProjectionId
+    availability: ProjectionAvailability
+    source: ProjectionSourceIdentity | None
+    source_dependency_hash: str | None
+    source_schema_version: str | None
+    source_rule_version: str | None
+    as_of: datetime
+    freshness: ProjectionFreshness
+    projection_payload: ConfidenceLedgerSemanticReceiptProjection | None
+    source_document: Mapping[str, Any] | None
+    validation: ProjectionSourceValidation | None
+
+    @property
+    def source_payload_equal(self) -> bool | None:
+        """Return the worker-frozen source/request equality predicate."""
+
+        return self.validation.source_payload_equal if self.validation is not None else None
+
+
 class _OwnerValidationWorkerResult(_StrictModel):
     """Strictly decode the isolated owner-validator worker result."""
 
     schema_version: Literal["policyos.runtime.governed_projection.owner_validation.v2"]
-    projection_id: ProjectionId
+    projection_id: ProjectionId | GuardedProjectionId
     validator_id: str
     validator_version: str
     status: Literal["passed", "failed"]
@@ -634,6 +690,14 @@ class _OwnerValidationWorkerResult(_StrictModel):
     dependency_aggregate_identity: str
     dependency_bindings: dict[str, str]
     issue_codes: tuple[str, ...]
+    source_payload_equal: bool | None = None
+    registry_content_hash: str | None = None
+    registry_projection_hash: str | None = None
+    frozen_semantic_projection_hash: str | None = None
+    recomputed_total_spend_numerator: int | None = None
+    recomputed_total_spend_denominator: int | None = None
+    registry_delta_numerator: int | None = None
+    registry_delta_denominator: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -849,6 +913,39 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
 
 _DEFINITION_BY_ID = {definition.projection_id: definition for definition in _DEFINITIONS}
 
+_GUARDED_DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
+    _ProjectionDefinition(
+        GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND,
+        CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH,
+        "json",
+        "required",
+        AudienceClass.REVIEWER,
+        (
+            "conditionality_disclosure",
+            "declared_set_accounting",
+            "source_validation_posture",
+        ),
+        (*_COMMON_NOT_PUBLIC, "promotion_authority", "bounded_completeness"),
+        CONFIDENCE_LEDGER_GUARDED_SCHEMA_VERSION,
+        None,
+        CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID,
+        CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION,
+    ),
+)
+
+_GUARDED_DEFINITION_BY_ID = {
+    definition.projection_id: definition for definition in _GUARDED_DEFINITIONS
+}
+
+_GUARDED_PAYLOAD_MODEL_BY_ID: dict[
+    GuardedProjectionId,
+    type[ConfidenceLedgerSemanticReceiptProjection],
+] = {
+    GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND: (
+        ConfidenceLedgerSemanticReceiptProjection
+    ),
+}
+
 _PAYLOAD_MODEL_BY_ID: dict[ProjectionId, type[_StrictModel]] = {
     ProjectionId.DEPTH_N_CYCLE_BOARD: DepthNCycleBoardPayload,
     ProjectionId.VALUE_GATE: ValueGatePayload,
@@ -867,7 +964,15 @@ _PAYLOAD_MODEL_BY_ID: dict[ProjectionId, type[_StrictModel]] = {
 }
 
 _OWNER_VALIDATION_CACHE: dict[
-    tuple[str, ProjectionId, str, tuple[tuple[str, str], ...], str],
+    tuple[
+        str,
+        ProjectionId | GuardedProjectionId,
+        str,
+        str,
+        str,
+        tuple[tuple[str, str], ...],
+        str,
+    ],
     _OwnerValidationCacheEntry,
 ] = {}
 _OWNER_VALIDATION_LOCK = Lock()
@@ -953,24 +1058,32 @@ def _run_owner_validation(
     cache_key = (
         str(resolved_root),
         definition.projection_id,
+        definition.owner_validator_id,
+        definition.owner_validator_version,
         loaded.content_hash,
         loaded.component_bindings,
         payload_hash,
     )
-    cached = _OWNER_VALIDATION_CACHE.get(cache_key)
-    if cached is not None and dependency_manifest_matches(
-        resolved_root,
-        dict(cached.dependency_bindings),
-    ):
-        return cached.validation
-    with _OWNER_VALIDATION_LOCK:
+    cache_enabled = (
+        definition.projection_id
+        is not GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND
+    )
+    if cache_enabled:
         cached = _OWNER_VALIDATION_CACHE.get(cache_key)
         if cached is not None and dependency_manifest_matches(
             resolved_root,
             dict(cached.dependency_bindings),
         ):
             return cached.validation
-        _OWNER_VALIDATION_CACHE.pop(cache_key, None)
+    with _OWNER_VALIDATION_LOCK:
+        if cache_enabled:
+            cached = _OWNER_VALIDATION_CACHE.get(cache_key)
+            if cached is not None and dependency_manifest_matches(
+                resolved_root,
+                dict(cached.dependency_bindings),
+            ):
+                return cached.validation
+            _OWNER_VALIDATION_CACHE.pop(cache_key, None)
         request = {
             "projection_id": definition.projection_id.value,
             "repository_root": str(resolved_root),
@@ -1046,8 +1159,23 @@ def _run_owner_validation(
                 result.semantic_projection_hash_rule_version
             ),
             issue_codes=result.issue_codes,
+            worker_validation_receipt_hash=hash_export_projection(
+                result.model_dump(mode="json")
+            ),
+            source_payload_equal=result.source_payload_equal,
+            registry_content_hash=result.registry_content_hash,
+            registry_projection_hash=result.registry_projection_hash,
+            frozen_semantic_projection_hash=result.frozen_semantic_projection_hash,
+            recomputed_total_spend_numerator=(
+                result.recomputed_total_spend_numerator
+            ),
+            recomputed_total_spend_denominator=(
+                result.recomputed_total_spend_denominator
+            ),
+            registry_delta_numerator=result.registry_delta_numerator,
+            registry_delta_denominator=result.registry_delta_denominator,
         )
-        if validation.status == "passed":
+        if validation.status == "passed" and cache_enabled:
             _OWNER_VALIDATION_CACHE[cache_key] = _OwnerValidationCacheEntry(
                 validation=validation,
                 dependency_bindings=tuple(sorted(result.dependency_bindings.items())),
@@ -1062,7 +1190,9 @@ class GovernedProjectionService:
         self._repository_root = repository_root
         self._path_cache: dict[Path, _FileObservation] = {}
         self._parsed_cache: dict[tuple[str, str], dict[str, Any]] = {}
-        self._projection_cache: dict[tuple[ProjectionId, str], bytes] = {}
+        self._projection_cache: dict[
+            tuple[ProjectionId | GuardedProjectionId, str], bytes
+        ] = {}
 
     def catalog(self) -> tuple[ProjectionCatalogEntry, ...]:
         """Return the full denominator without touching artifact bytes."""
@@ -1080,7 +1210,113 @@ class GovernedProjectionService:
                 owner_validator_version=definition.owner_validator_version,
                 stable_address=_stable_address(definition.projection_id),
             )
-            for definition in _DEFINITIONS
+            for definition in (*_DEFINITIONS, *_GUARDED_DEFINITIONS)
+        )
+
+    def resolve_guarded_source(
+        self,
+        projection_id: GuardedProjectionId | str,
+        *,
+        projection_payload: Mapping[str, Any] | None = None,
+    ) -> GuardedProjectionSourceResolution:
+        """Resolve source bytes and execute the fixed guarded owner validation."""
+
+        resolved_id = GuardedProjectionId(projection_id)
+        definition = _GUARDED_DEFINITION_BY_ID[resolved_id]
+        observed_at = datetime.now(UTC)
+        try:
+            loaded = self._load(definition)
+        except FileNotFoundError:
+            return GuardedProjectionSourceResolution(
+                projection_id=resolved_id,
+                availability=ProjectionAvailability.ARTIFACT_MISSING,
+                source=None,
+                source_dependency_hash=None,
+                source_schema_version=None,
+                source_rule_version=None,
+                as_of=observed_at,
+                freshness=ProjectionFreshness(
+                    state="artifact_missing",
+                    basis="request_observation",
+                    observed_at=observed_at,
+                ),
+                projection_payload=None,
+                source_document=None,
+                validation=None,
+            )
+        except _InvalidProjectionLoadError as exc:
+            validation = _not_run_source_validation(
+                exc.loaded,
+                "source_decode_or_composite_load_failed",
+            )
+            return self._guarded_invalid_resolution(
+                resolved_id=resolved_id,
+                loaded=exc.loaded,
+                observed_at=observed_at,
+                validation=validation,
+            )
+        try:
+            owner_payload = self._project_guarded(definition, loaded)
+            requested_payload = (
+                owner_payload
+                if projection_payload is None
+                else ConfidenceLedgerSemanticReceiptProjection.model_validate_json(
+                    json.dumps(
+                        projection_payload,
+                        separators=(",", ":"),
+                        sort_keys=True,
+                    ),
+                    strict=True,
+                )
+            )
+        except (InvalidProjectionSourceError, KeyError, TypeError, ValueError):
+            validation = _not_run_source_validation(
+                loaded,
+                "projection_contract_invalid",
+            )
+            return self._guarded_invalid_resolution(
+                resolved_id=resolved_id,
+                loaded=loaded,
+                observed_at=observed_at,
+                validation=validation,
+            )
+        validation = _run_owner_validation(
+            repository_root=self._repository_root,
+            definition=definition,
+            loaded=loaded,
+            payload=requested_payload,
+        )
+        as_of, basis = _resolve_as_of(loaded.parsed, loaded.modified_at)
+        source = ProjectionSourceIdentity(
+            relative_path=loaded.relative_path,
+            artifact_content_hash=loaded.content_hash,
+            declared_content_hash=loaded.declared_content_hash,
+            validation=validation,
+            related_artifact_bindings=(),
+        )
+        return GuardedProjectionSourceResolution(
+            projection_id=resolved_id,
+            availability=(
+                ProjectionAvailability.AVAILABLE
+                if validation.status == "passed"
+                else ProjectionAvailability.INVALID_SOURCE
+            ),
+            source=source,
+            source_dependency_hash=validation.bound_dependency_aggregate_identity,
+            source_schema_version=_source_schema_version(loaded.parsed),
+            source_rule_version=_optional_string(loaded.parsed.get("rule_version")),
+            as_of=as_of,
+            freshness=ProjectionFreshness(
+                state=(
+                    "observed" if validation.status == "passed" else "invalid_source"
+                ),
+                basis=basis,
+                observed_at=observed_at,
+                source_as_of=as_of,
+            ),
+            projection_payload=owner_payload,
+            source_document=loaded.parsed,
+            validation=validation,
         )
 
     def get(
@@ -1321,6 +1557,63 @@ class GovernedProjectionService:
             modified_at=observation.modified_at,
             declared_content_hash=_declared_content_hash(parsed),
             component_bindings=tuple(sorted(component_bindings)),
+        )
+
+    def _project_guarded(
+        self,
+        definition: _ProjectionDefinition,
+        loaded: _LoadedSource,
+    ) -> ConfidenceLedgerSemanticReceiptProjection:
+        resolved_id = GuardedProjectionId(definition.projection_id)
+        cache_key = (resolved_id, loaded.content_hash)
+        model = _GUARDED_PAYLOAD_MODEL_BY_ID[resolved_id]
+        cached = self._projection_cache.get(cache_key)
+        if cached is not None:
+            return model.model_validate_json(cached, strict=True)
+        raw_payload = _mapping(
+            _required_value(loaded.parsed, "real_ledger_projection"),
+            "real_ledger_projection",
+        )
+        payload = model.model_validate_json(
+            json.dumps(raw_payload, separators=(",", ":"), sort_keys=True),
+            strict=True,
+        )
+        encoded = payload.model_dump_json().encode("utf-8")
+        self._projection_cache[cache_key] = encoded
+        return model.model_validate_json(encoded, strict=True)
+
+    def _guarded_invalid_resolution(
+        self,
+        *,
+        resolved_id: GuardedProjectionId,
+        loaded: _LoadedSource,
+        observed_at: datetime,
+        validation: ProjectionSourceValidation,
+    ) -> GuardedProjectionSourceResolution:
+        as_of, basis = _resolve_as_of(loaded.parsed, loaded.modified_at)
+        return GuardedProjectionSourceResolution(
+            projection_id=resolved_id,
+            availability=ProjectionAvailability.INVALID_SOURCE,
+            source=ProjectionSourceIdentity(
+                relative_path=loaded.relative_path,
+                artifact_content_hash=loaded.content_hash,
+                declared_content_hash=loaded.declared_content_hash,
+                validation=validation,
+                related_artifact_bindings=(),
+            ),
+            source_dependency_hash=None,
+            source_schema_version=_source_schema_version(loaded.parsed),
+            source_rule_version=_optional_string(loaded.parsed.get("rule_version")),
+            as_of=as_of,
+            freshness=ProjectionFreshness(
+                state="invalid_source",
+                basis=basis,
+                observed_at=observed_at,
+                source_as_of=as_of,
+            ),
+            projection_payload=None,
+            source_document=loaded.parsed,
+            validation=validation,
         )
 
     def _read_file(self, relative_path: str) -> _FileObservation:
@@ -1958,6 +2251,7 @@ def _optional_string(value: object) -> str | None:
 
 def _declared_content_hash(source: dict[str, Any]) -> str | None:
     for field in (
+        "artifact_content_hash",
         "contract_content_hash",
         "content_hash",
         "census_digest",
@@ -2036,12 +2330,12 @@ def _sha256(raw: bytes) -> str:
     return f"sha256:{hashlib.sha256(raw).hexdigest()}"
 
 
-def _stable_address(projection_id: ProjectionId) -> str:
+def _stable_address(projection_id: ProjectionId | GuardedProjectionId) -> str:
     return f"{_PROJECTION_BASE_PATH}/{projection_id.value}"
 
 
 def _replay_address(
-    projection_id: ProjectionId,
+    projection_id: ProjectionId | GuardedProjectionId,
     *,
     artifact_content_hash: str,
     projection_hash: str,
@@ -2113,6 +2407,10 @@ def _replay_datetime(value: datetime) -> str:
 
 __all__ = [
     "CHANNEL_REGISTRY",
+    "CONFIDENCE_LEDGER_GUARDED_SCHEMA_VERSION",
+    "CONFIDENCE_LEDGER_GUARDED_SOURCE_PATH",
+    "CONFIDENCE_LEDGER_GUARDED_VALIDATOR_ID",
+    "CONFIDENCE_LEDGER_GUARDED_VALIDATOR_VERSION",
     "AudienceClass",
     "ChannelRegistryEntry",
     "ChannelRegistryResponse",
@@ -2122,9 +2420,13 @@ __all__ = [
     "DepthNDomainRunProjection",
     "GovernedProjectionPacket",
     "GovernedProjectionService",
+    "GuardedProjectionId",
+    "GuardedProjectionSourceResolution",
     "ProjectionAvailability",
     "ProjectionCatalogEntry",
     "ProjectionCatalogResponse",
     "ProjectionId",
+    "ProjectionSourceIdentity",
+    "ProjectionSourceValidation",
     "ReplayPinMismatchError",
 ]

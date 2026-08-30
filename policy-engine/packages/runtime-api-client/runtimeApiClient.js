@@ -309,6 +309,18 @@ export class RuntimeApiClient {
     return this.request('GET', path, query, undefined, undefined);
   }
 
+  async getConfidenceLedgerRiskSpendProjection(params) {
+    const path = `/api/v1/exports/governed-projections/confidence-ledger-risk-spend`;
+    const query = this.buildQuery({
+      artifact_content_hash: params?.artifact_content_hash,
+      projection_hash: params?.projection_hash,
+      source_dependency_hash: params?.source_dependency_hash,
+      source_as_of: params?.source_as_of,
+      projection_rule_version: params?.projection_rule_version,
+    });
+    return this.request('GET', path, query, undefined, undefined);
+  }
+
   async getDepthNCycleBoardProjection(params) {
     const path = `/api/v1/exports/governed-projections/depth-n-cycle-board`;
     const query = this.buildQuery({

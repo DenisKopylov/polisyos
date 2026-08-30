@@ -10713,6 +10713,406 @@
       "live_tree_disposition": "outside_frozen_transition"
     }
   },
+  "ds17_confidence_ledger_risk_spend_surface": {
+    "schema_id": "polisyos.atlas.ds17-confidence-ledger-risk-spend-surface.v1",
+    "owner_slice": "DS17",
+    "predicate_provenance": "recomputed",
+    "governed_scope": {
+      "packet_schema_version": "policyos.runtime.confidence_ledger_risk_spend_packet.v1",
+      "projection_id": "confidence-ledger-risk-spend",
+      "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
+      "protected_action": "protected-action://ds17/review-risk-spend",
+      "specialized_query_identity": [
+        "runtime",
+        "exports",
+        "governed-projections",
+        "confidence-ledger-risk-spend",
+        {
+          "representation": "specialized-v1"
+        }
+      ],
+      "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend"
+    },
+    "scope_evidence": [
+      {
+        "path": "apps/runtime-dashboard/src/api/queryKeys.ts",
+        "sha256": "sha256:7734fc0b33cf158c1ab6ab31319baad7f0be57915b6aa778f9b5baea5f89d840"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.ts",
+        "sha256": "sha256:4bf40697a819c63835802530c448c3b54190c41b790f50349277693080ae7250"
+      }
+    ],
+    "role_count": 6,
+    "roles": [
+      {
+        "role_id": "governed_projection",
+        "symbol": "confidenceLedgerRiskSpendQueryOptions",
+        "source": {
+          "path": "apps/runtime-dashboard/src/features/runs/api/useConfidenceLedgerRiskSpend.ts",
+          "sha256": "sha256:ecd09f3ee6f515208c8e4914b29a0f5ef93e4e0550bb5ee849827dddc83a83f4"
+        },
+        "declaration": {
+          "column": 1,
+          "declaration_sha256": "sha256:efe381f3aab5e214b4cbb059b638d503f31c24e12517d17d78d508152094b8c5",
+          "exported": true,
+          "kind": "FunctionDeclaration",
+          "line": 60
+        },
+        "behavioral_evidence": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/api/useConfidenceLedgerRiskSpend.test.tsx",
+            "sha256": "sha256:faa6209f2065e78a6c5a1763084e81e23ca38386a810840501e7924fd08631cb"
+          }
+        ]
+      },
+      {
+        "role_id": "domain_validator",
+        "symbol": "evaluateConfidenceLedgerProtectedQuery",
+        "source": {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.ts",
+          "sha256": "sha256:4bf40697a819c63835802530c448c3b54190c41b790f50349277693080ae7250"
+        },
+        "declaration": {
+          "column": 1,
+          "declaration_sha256": "sha256:7610bc29abf279a6d869a1717e262e11ca35f349c8d2a288ee6734ae6d770d76",
+          "exported": true,
+          "kind": "FunctionDeclaration",
+          "line": 2651
+        },
+        "behavioral_evidence": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.test.ts",
+            "sha256": "sha256:1783f1bc7ec568faebdc04a12c2f129fc5eb183b2faf7841f11ba408d752aaef"
+          }
+        ]
+      },
+      {
+        "role_id": "conditional_figure",
+        "symbol": "ConditionalDeltaFigure",
+        "source": {
+          "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+          "sha256": "sha256:2833d9ad5eabae6be9f5e1b57555ab2275ead765d3427819e82af08c58788972"
+        },
+        "declaration": {
+          "column": 1,
+          "declaration_sha256": "sha256:9b4788e0036808935a39f2bc2b13947fdb3fd8a9a8a5df1fb98561c4c5ac1503",
+          "exported": true,
+          "kind": "FunctionDeclaration",
+          "line": 139
+        },
+        "behavioral_evidence": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx",
+            "sha256": "sha256:19dc41a6f498f9725cd64c5c9524d8cc3a017a9f6f8b8bed773072d6b287cc3f"
+          }
+        ]
+      },
+      {
+        "role_id": "panel",
+        "symbol": "ConfidenceLedgerRiskSpend",
+        "source": {
+          "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+          "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+        },
+        "declaration": {
+          "column": 1,
+          "declaration_sha256": "sha256:60247a7ff0afb9578d73feb617e6002299bfeb7779e3d2eb22ad5243484db176",
+          "exported": true,
+          "kind": "FunctionDeclaration",
+          "line": 827
+        },
+        "behavioral_evidence": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+            "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f"
+          }
+        ]
+      },
+      {
+        "role_id": "exact_twin",
+        "symbol": "evaluateConfidenceLedgerRiskSpendTwin",
+        "source": {
+          "path": "apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.ts",
+          "sha256": "sha256:1c4298180d18575c956d3dadc7ee781dbf3566366a83ace936cebd93f2dbf896"
+        },
+        "declaration": {
+          "column": 1,
+          "declaration_sha256": "sha256:7ab2b445d6a58348d423cc285a3c1a234509f290c553fee0f7e4cfb4ac0268bc",
+          "exported": true,
+          "kind": "FunctionDeclaration",
+          "line": 2905
+        },
+        "behavioral_evidence": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.test.tsx",
+            "sha256": "sha256:0437bbabc6be314ee1cb76c2badf3d43317f87a0b62903eebde606a142c71f64"
+          }
+        ]
+      },
+      {
+        "role_id": "cycle_board_consumer",
+        "symbol": "ConfidenceLedgerRiskSpendQueryPanel",
+        "source": {
+          "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+          "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
+        },
+        "declaration": {
+          "column": 1,
+          "declaration_sha256": "sha256:32ada6f8b7be293d146477591838708bf9c7d253ddb59851f2f0b241ca66f5fd",
+          "exported": false,
+          "kind": "FunctionDeclaration",
+          "line": 38
+        },
+        "behavioral_evidence": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+            "sha256": "sha256:0a9d9611b90f91ee1d010ba9f608f5f4e7f35c0c973857dfcb5d843ea9008cb1"
+          }
+        ]
+      }
+    ],
+    "role_manifest": [
+      {
+        "behavioral_evidence_sha256": [
+          "sha256:faa6209f2065e78a6c5a1763084e81e23ca38386a810840501e7924fd08631cb"
+        ],
+        "declaration_sha256": "sha256:efe381f3aab5e214b4cbb059b638d503f31c24e12517d17d78d508152094b8c5",
+        "role_id": "governed_projection",
+        "source_path": "apps/runtime-dashboard/src/features/runs/api/useConfidenceLedgerRiskSpend.ts",
+        "source_sha256": "sha256:ecd09f3ee6f515208c8e4914b29a0f5ef93e4e0550bb5ee849827dddc83a83f4",
+        "symbol": "confidenceLedgerRiskSpendQueryOptions"
+      },
+      {
+        "behavioral_evidence_sha256": [
+          "sha256:1783f1bc7ec568faebdc04a12c2f129fc5eb183b2faf7841f11ba408d752aaef"
+        ],
+        "declaration_sha256": "sha256:7610bc29abf279a6d869a1717e262e11ca35f349c8d2a288ee6734ae6d770d76",
+        "role_id": "domain_validator",
+        "source_path": "apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.ts",
+        "source_sha256": "sha256:4bf40697a819c63835802530c448c3b54190c41b790f50349277693080ae7250",
+        "symbol": "evaluateConfidenceLedgerProtectedQuery"
+      },
+      {
+        "behavioral_evidence_sha256": [
+          "sha256:19dc41a6f498f9725cd64c5c9524d8cc3a017a9f6f8b8bed773072d6b287cc3f"
+        ],
+        "declaration_sha256": "sha256:9b4788e0036808935a39f2bc2b13947fdb3fd8a9a8a5df1fb98561c4c5ac1503",
+        "role_id": "conditional_figure",
+        "source_path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+        "source_sha256": "sha256:2833d9ad5eabae6be9f5e1b57555ab2275ead765d3427819e82af08c58788972",
+        "symbol": "ConditionalDeltaFigure"
+      },
+      {
+        "behavioral_evidence_sha256": [
+          "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f"
+        ],
+        "declaration_sha256": "sha256:60247a7ff0afb9578d73feb617e6002299bfeb7779e3d2eb22ad5243484db176",
+        "role_id": "panel",
+        "source_path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+        "source_sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e",
+        "symbol": "ConfidenceLedgerRiskSpend"
+      },
+      {
+        "behavioral_evidence_sha256": [
+          "sha256:0437bbabc6be314ee1cb76c2badf3d43317f87a0b62903eebde606a142c71f64"
+        ],
+        "declaration_sha256": "sha256:7ab2b445d6a58348d423cc285a3c1a234509f290c553fee0f7e4cfb4ac0268bc",
+        "role_id": "exact_twin",
+        "source_path": "apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.ts",
+        "source_sha256": "sha256:1c4298180d18575c956d3dadc7ee781dbf3566366a83ace936cebd93f2dbf896",
+        "symbol": "evaluateConfidenceLedgerRiskSpendTwin"
+      },
+      {
+        "behavioral_evidence_sha256": [
+          "sha256:0a9d9611b90f91ee1d010ba9f608f5f4e7f35c0c973857dfcb5d843ea9008cb1"
+        ],
+        "declaration_sha256": "sha256:32ada6f8b7be293d146477591838708bf9c7d253ddb59851f2f0b241ca66f5fd",
+        "role_id": "cycle_board_consumer",
+        "source_path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+        "source_sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c",
+        "symbol": "ConfidenceLedgerRiskSpendQueryPanel"
+      }
+    ],
+    "role_manifest_sha256": "sha256:60a10daa91d84a57a2f56a695e90b7955b93576404d49791388a4ee8ca7a5ad0",
+    "edge_count": 5,
+    "edges": [
+      {
+        "edge_id": "governed_projection_to_domain_validator",
+        "from_role": "governed_projection",
+        "to_role": "domain_validator",
+        "relation": "direct_validator_call",
+        "symbol_path": [
+          "confidenceLedgerRiskSpendQueryOptions",
+          "evaluateConfidenceLedgerProtectedQuery"
+        ],
+        "wiring_evidence": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/api/useConfidenceLedgerRiskSpend.ts",
+            "sha256": "sha256:ecd09f3ee6f515208c8e4914b29a0f5ef93e4e0550bb5ee849827dddc83a83f4"
+          }
+        ]
+      },
+      {
+        "edge_id": "domain_validator_to_cycle_board_consumer",
+        "from_role": "domain_validator",
+        "to_role": "cycle_board_consumer",
+        "relation": "governed_query_call_chain",
+        "symbol_path": [
+          "evaluateConfidenceLedgerProtectedQuery",
+          "confidenceLedgerRiskSpendQueryOptions",
+          "useConfidenceLedgerRiskSpend",
+          "ConfidenceLedgerRiskSpendQueryPanel"
+        ],
+        "wiring_evidence": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/api/useConfidenceLedgerRiskSpend.ts",
+            "sha256": "sha256:ecd09f3ee6f515208c8e4914b29a0f5ef93e4e0550bb5ee849827dddc83a83f4"
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+            "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
+          }
+        ]
+      },
+      {
+        "edge_id": "cycle_board_consumer_to_panel",
+        "from_role": "cycle_board_consumer",
+        "to_role": "panel",
+        "relation": "direct_jsx_render",
+        "symbol_path": [
+          "ConfidenceLedgerRiskSpendQueryPanel",
+          "ConfidenceLedgerRiskSpend"
+        ],
+        "wiring_evidence": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+            "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
+          }
+        ]
+      },
+      {
+        "edge_id": "panel_to_conditional_figure",
+        "from_role": "panel",
+        "to_role": "conditional_figure",
+        "relation": "module_local_jsx_render_path",
+        "symbol_path": [
+          "ConfidenceLedgerRiskSpend",
+          "ConditionalDeltaFigure"
+        ],
+        "wiring_evidence": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+            "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+          }
+        ]
+      },
+      {
+        "edge_id": "panel_to_exact_twin",
+        "from_role": "panel",
+        "to_role": "exact_twin",
+        "relation": "behavioral_dom_twin_execution",
+        "symbol_path": [
+          "ConfidenceLedgerRiskSpend",
+          "evaluateConfidenceLedgerRiskSpendTwin"
+        ],
+        "wiring_evidence": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.ts",
+            "sha256": "sha256:1c4298180d18575c956d3dadc7ee781dbf3566366a83ace936cebd93f2dbf896"
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.test.tsx",
+            "sha256": "sha256:0437bbabc6be314ee1cb76c2badf3d43317f87a0b62903eebde606a142c71f64"
+          }
+        ]
+      }
+    ],
+    "edge_manifest": [
+      {
+        "edge_id": "governed_projection_to_domain_validator",
+        "from_role": "governed_projection",
+        "relation": "direct_validator_call",
+        "symbol_path": [
+          "confidenceLedgerRiskSpendQueryOptions",
+          "evaluateConfidenceLedgerProtectedQuery"
+        ],
+        "to_role": "domain_validator",
+        "wiring_evidence_sha256": [
+          "sha256:ecd09f3ee6f515208c8e4914b29a0f5ef93e4e0550bb5ee849827dddc83a83f4"
+        ]
+      },
+      {
+        "edge_id": "domain_validator_to_cycle_board_consumer",
+        "from_role": "domain_validator",
+        "relation": "governed_query_call_chain",
+        "symbol_path": [
+          "evaluateConfidenceLedgerProtectedQuery",
+          "confidenceLedgerRiskSpendQueryOptions",
+          "useConfidenceLedgerRiskSpend",
+          "ConfidenceLedgerRiskSpendQueryPanel"
+        ],
+        "to_role": "cycle_board_consumer",
+        "wiring_evidence_sha256": [
+          "sha256:ecd09f3ee6f515208c8e4914b29a0f5ef93e4e0550bb5ee849827dddc83a83f4",
+          "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
+        ]
+      },
+      {
+        "edge_id": "cycle_board_consumer_to_panel",
+        "from_role": "cycle_board_consumer",
+        "relation": "direct_jsx_render",
+        "symbol_path": [
+          "ConfidenceLedgerRiskSpendQueryPanel",
+          "ConfidenceLedgerRiskSpend"
+        ],
+        "to_role": "panel",
+        "wiring_evidence_sha256": [
+          "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
+        ]
+      },
+      {
+        "edge_id": "panel_to_conditional_figure",
+        "from_role": "panel",
+        "relation": "module_local_jsx_render_path",
+        "symbol_path": [
+          "ConfidenceLedgerRiskSpend",
+          "ConditionalDeltaFigure"
+        ],
+        "to_role": "conditional_figure",
+        "wiring_evidence_sha256": [
+          "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+        ]
+      },
+      {
+        "edge_id": "panel_to_exact_twin",
+        "from_role": "panel",
+        "relation": "behavioral_dom_twin_execution",
+        "symbol_path": [
+          "ConfidenceLedgerRiskSpend",
+          "evaluateConfidenceLedgerRiskSpendTwin"
+        ],
+        "to_role": "exact_twin",
+        "wiring_evidence_sha256": [
+          "sha256:1c4298180d18575c956d3dadc7ee781dbf3566366a83ace936cebd93f2dbf896",
+          "sha256:0437bbabc6be314ee1cb76c2badf3d43317f87a0b62903eebde606a142c71f64"
+        ]
+      }
+    ],
+    "edge_manifest_sha256": "sha256:39f6a622d94310e21042fc02c930853550adaef90636a827feede5a9f0c24115",
+    "bounded_closure": {
+      "scope": "single governed confidence-ledger risk-spend projection",
+      "global_coverage_claim": false,
+      "family_or_sequence_claim": false,
+      "positive_promotion_claim": false,
+      "deployment_wide_index_claim": false
+    },
+    "executor": {
+      "policyos_executes_protected_action": false,
+      "ownership": "out_of_scope",
+      "authority": "reviewer_or_external_institution"
+    }
+  },
   "ds18_time_semantics_coverage": {
     "schema_id": "polisyos.atlas.ds18-time-semantics-coverage.v1",
     "owner_slice": "DS18",
@@ -10731,14 +11131,14 @@
       "path": "architecture/atlas_surfaces/decision_time_semantics_scan.mjs",
       "sha256": "sha256:590fcca298e489fa97a9b390fea383ec28fd365fdeab20f396fcf7c859e88eb4"
     },
-    "source_file_count": 616,
-    "root_count": 733,
-    "file_manifest_sha256": "sha256:d3db84a9ca48cf513d5ca6bdb73efc1c96cb9bf2b70b167120d3f81adb6aae60",
-    "root_manifest_sha256": "sha256:db3923c788f3fa7c39db50ff9afcf9e1d603f0647aa2e9679d634257c0d370c3",
-    "decision_bearing_root_count": 45,
-    "inherits_admitted_dom_root_count": 49,
-    "obligated_root_count": 94,
-    "covered_root_count": 94,
+    "source_file_count": 621,
+    "root_count": 759,
+    "file_manifest_sha256": "sha256:185d417044b9ae1d5f52d3bbea4be13834c0a84d9e4e26a9ba49672156ea8837",
+    "root_manifest_sha256": "sha256:59fd9a112ff72fe6e33552b30c0786f1dbaf10f40bfa559670479c20e9204cfa",
+    "decision_bearing_root_count": 48,
+    "inherits_admitted_dom_root_count": 78,
+    "obligated_root_count": 126,
+    "covered_root_count": 126,
     "frontend_freeze_commit": "3011c9584a0327661c8f5a9b695a1769ddb64385",
     "landing_slice_rule": "the slice landing a post-freeze production render/export root owns its fresh file/root receipt, independent classification, and behavioral proof",
     "landing_slice_checker": "architecture/atlas_surfaces/check_frontend_disposition_register.py --check",
@@ -11173,7 +11573,7 @@
         "receipt_kind": "no_render_root",
         "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
         "roots": [],
-        "source_sha256": "sha256:87916e9f740a6db3eeb915133c69b35ef544ccc96f6230130a49daa261359d00"
+        "source_sha256": "sha256:7734fc0b33cf158c1ab6ab31319baad7f0be57915b6aa778f9b5baea5f89d840"
       },
       {
         "path": "apps/runtime-dashboard/src/api/queryRetryPolicy.ts",
@@ -20657,6 +21057,14 @@
         "source_sha256": "sha256:b287124894bee1e5c2ca50733845e8fb5e5604b64b95568dbd2011bf9d25f8bc"
       },
       {
+        "path": "apps/runtime-dashboard/src/features/runs/api/useConfidenceLedgerRiskSpend.ts",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "no_render_root",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [],
+        "source_sha256": "sha256:ecd09f3ee6f515208c8e4914b29a0f5ef93e4e0550bb5ee849827dddc83a83f4"
+      },
+      {
         "path": "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
         "predicate_provenance": "independently_reconciled",
         "receipt_kind": "no_render_root",
@@ -21844,6 +22252,711 @@
           }
         ],
         "source_sha256": "sha256:0cb90244fb123d1070600ad5374c06133578d7bc2eede0504d417c61ea40b0ae"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "render_roots_complete",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [
+          {
+            "column": 5,
+            "component_identity": "ConfidenceLedgerTemporalOwner",
+            "kind": "jsx",
+            "line": 46,
+            "root_id": "ConfidenceLedgerTemporalOwner:jsx:46:5",
+            "root_source_sha256": "sha256:2039abec9729db2adfb1ab5941d539ba7c47777f93d0c96c3b502cb3d639fd03",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 1,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+                "sha256": "sha256:2833d9ad5eabae6be9f5e1b57555ab2275ead765d3427819e82af08c58788972"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx",
+                "sha256": "sha256:19dc41a6f498f9725cd64c5c9524d8cc3a017a9f6f8b8bed773072d6b287cc3f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "EnvelopeField",
+            "kind": "jsx",
+            "line": 92,
+            "root_id": "EnvelopeField:jsx:92:5",
+            "root_source_sha256": "sha256:1493c37a1f57680bf3b11dad8a839ae336827c49a5bd3c3737cd6760f6bd58f0",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+                "sha256": "sha256:2833d9ad5eabae6be9f5e1b57555ab2275ead765d3427819e82af08c58788972"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx",
+                "sha256": "sha256:19dc41a6f498f9725cd64c5c9524d8cc3a017a9f6f8b8bed773072d6b287cc3f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+              "root_id": "ConfidenceLedgerTemporalOwner:jsx:46:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "ConditionalEnvelopeDetails",
+            "kind": "jsx",
+            "line": 130,
+            "root_id": "ConditionalEnvelopeDetails:jsx:130:5",
+            "root_source_sha256": "sha256:754b7ad94fdf3a4c14c907d5290c49ad204e58cf6f2e285d6f6b7087db766fd5",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+                "sha256": "sha256:2833d9ad5eabae6be9f5e1b57555ab2275ead765d3427819e82af08c58788972"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx",
+                "sha256": "sha256:19dc41a6f498f9725cd64c5c9524d8cc3a017a9f6f8b8bed773072d6b287cc3f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+              "root_id": "ConfidenceLedgerTemporalOwner:jsx:46:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "ConditionalDeltaFigure",
+            "kind": "jsx",
+            "line": 151,
+            "root_id": "ConditionalDeltaFigure:jsx:151:5",
+            "root_source_sha256": "sha256:748718e147d4256b40dca61829be14f1b3689d40c2bbad6253864c4762c8c0b9",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+                "sha256": "sha256:2833d9ad5eabae6be9f5e1b57555ab2275ead765d3427819e82af08c58788972"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx",
+                "sha256": "sha256:19dc41a6f498f9725cd64c5c9524d8cc3a017a9f6f8b8bed773072d6b287cc3f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+              "root_id": "ConfidenceLedgerTemporalOwner:jsx:46:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          }
+        ],
+        "source_sha256": "sha256:2833d9ad5eabae6be9f5e1b57555ab2275ead765d3427819e82af08c58788972"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "render_roots_complete",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [
+          {
+            "column": 5,
+            "component_identity": "SemanticValue",
+            "kind": "jsx",
+            "line": 44,
+            "root_id": "SemanticValue:jsx:44:5",
+            "root_source_sha256": "sha256:e84f94d00c13e2b971d0c01a708f814e2614157ec0a2cd9914fecc3e1209c76d",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 12,
+            "component_identity": "SemanticList",
+            "kind": "jsx",
+            "line": 59,
+            "root_id": "SemanticList:jsx:59:12",
+            "root_source_sha256": "sha256:13169587c31967edd0208b4f102386f2623b9cbd9a93d902bdfd2e4c325abe66",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "SemanticList",
+            "kind": "jsx",
+            "line": 62,
+            "root_id": "SemanticList:jsx:62:5",
+            "root_source_sha256": "sha256:69cfe95a1938fe2c43fdc72e9b56db0012bdef6dd11fa880207f8da27cac6c2f",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "DetailRow",
+            "kind": "jsx",
+            "line": 81,
+            "root_id": "DetailRow:jsx:81:5",
+            "root_source_sha256": "sha256:f5884c37e62cec2ec5a282fd481b005b6d8ebad9be548a9c2dfb186497cc543c",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "SemanticSection",
+            "kind": "jsx",
+            "line": 99,
+            "root_id": "SemanticSection:jsx:99:5",
+            "root_source_sha256": "sha256:7cbf2bfe00ee858ed45c8bea759f608b692ab9c5f2b85bdd6d493296518ba871",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "AmountSet",
+            "kind": "jsx",
+            "line": 131,
+            "root_id": "AmountSet:jsx:131:5",
+            "root_source_sha256": "sha256:32427fce88978a7452005b8ba507af3a144ffe45f00be066222d4b3b2e3061e2",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "ActualRow",
+            "kind": "jsx",
+            "line": 165,
+            "root_id": "ActualRow:jsx:165:5",
+            "root_source_sha256": "sha256:f7e815ceabe72c780748b74081a564cad17c4fc76a43953226648c573eed0670",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "ClassSpendRow",
+            "kind": "jsx",
+            "line": 272,
+            "root_id": "ClassSpendRow:jsx:272:5",
+            "root_source_sha256": "sha256:6035a94b61cb71e340945a8a8d01b1c0becd8660fcea0985c3d489cff6388c9e",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "InstrumentDefinition",
+            "kind": "jsx",
+            "line": 312,
+            "root_id": "InstrumentDefinition:jsx:312:5",
+            "root_source_sha256": "sha256:a9903f252be3b0da4a3458daa6b52fa4ecd9cf5f0fa22a847fe8b09c8aa292ca",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "CertificateRoute",
+            "kind": "jsx",
+            "line": 381,
+            "root_id": "CertificateRoute:jsx:381:5",
+            "root_source_sha256": "sha256:c44a949405f17ea948911404cfc3e161e66b506c5f708a9ea86624173b07411c",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "AvailableRiskSpend",
+            "kind": "jsx",
+            "line": 411,
+            "root_id": "AvailableRiskSpend:jsx:411:5",
+            "root_source_sha256": "sha256:153b53494a02a5fd304078b059aad59d1c0c7a84c2e3e4738e1bddfb050c409a",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 7,
+            "component_identity": "NonAvailableRiskSpend",
+            "kind": "jsx",
+            "line": 757,
+            "root_id": "NonAvailableRiskSpend:jsx:757:7",
+            "root_source_sha256": "sha256:1fd474d9b4f2f2a8d044da416ac519042cf2b065d4857d3361790394bf904603",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "NonAvailableRiskSpend",
+            "kind": "jsx",
+            "line": 815,
+            "root_id": "NonAvailableRiskSpend:jsx:815:5",
+            "root_source_sha256": "sha256:5387f6b32138bdffaea1e6a62e21d7efc86d06c4de58634c323d9a1e76dce2c5",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 7,
+            "component_identity": "ConfidenceLedgerRiskSpend",
+            "kind": "jsx",
+            "line": 834,
+            "root_id": "ConfidenceLedgerRiskSpend:jsx:834:7",
+            "root_source_sha256": "sha256:3426600483839f6aa629a7a776489eac7b2a595aa2032ada6966a295d5bddd42",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 7,
+            "component_identity": "ConfidenceLedgerRiskSpend",
+            "kind": "jsx",
+            "line": 848,
+            "root_id": "ConfidenceLedgerRiskSpend:jsx:848:7",
+            "root_source_sha256": "sha256:738ea49cfd4a87a3cd551472b85309dd6cf090e917ea7159b19d9925e2c378c3",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 7,
+            "component_identity": "ConfidenceLedgerRiskSpend",
+            "kind": "jsx",
+            "line": 853,
+            "root_id": "ConfidenceLedgerRiskSpend:jsx:853:7",
+            "root_source_sha256": "sha256:734b39e126fd4ad684a11baf81f3c0822fffd184d75751257b73722b5cf6832c",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "ConfidenceLedgerRiskSpend",
+            "kind": "jsx",
+            "line": 856,
+            "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5",
+            "root_source_sha256": "sha256:3a79faf9de8ff067d1c5f2d1c458f6a48a3dbd61bd79ad4eddd018acff11275a",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 1,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+                "sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
+                "sha256": "sha256:d10a5a1237d64d6ae631c9b1541522ac2716ace26d32ea36b0fc050fde572f6f",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          }
+        ],
+        "source_sha256": "sha256:2cdfa31d7b68e4e05d72dcb791b5902a9d2f12841d71b4811f263f217a627c8e"
       },
       {
         "path": "apps/runtime-dashboard/src/features/runs/components/ConnectorAcquisitionScorecard.tsx",
@@ -23333,6 +24446,14 @@
         "source_sha256": "sha256:2da4e42de7aa2022068d1615994acabd8155f0ef800f4ac6ca4201a3aeaedf87"
       },
       {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.ts",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "no_render_root",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [],
+        "source_sha256": "sha256:4bf40697a819c63835802530c448c3b54190c41b790f50349277693080ae7250"
+      },
+      {
         "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
         "predicate_provenance": "independently_reconciled",
         "receipt_kind": "no_render_root",
@@ -23435,6 +24556,14 @@
         "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
         "roots": [],
         "source_sha256": "sha256:182e65de49745dfe5639efc72013d6327b14450911b77ab3c798dfd0c4b74620"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.ts",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "no_render_root",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [],
+        "source_sha256": "sha256:1c4298180d18575c956d3dadc7ee781dbf3566366a83ace936cebd93f2dbf896"
       },
       {
         "path": "apps/runtime-dashboard/src/features/runs/export/epochStalenessTwin.ts",
@@ -24069,12 +25198,12 @@
         "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
         "roots": [
           {
-            "column": 12,
-            "component_identity": "AuthorizedCycleBoardPage",
+            "column": 7,
+            "component_identity": "CycleBoardQueryPanel",
             "kind": "jsx",
-            "line": 12,
-            "root_id": "AuthorizedCycleBoardPage:jsx:12:12",
-            "root_source_sha256": "sha256:38d9abacc45979878af079b5bc08bbd4219a6ed5bf135094bad2fb13b9dde15d",
+            "line": 20,
+            "root_id": "CycleBoardQueryPanel:jsx:20:7",
+            "root_source_sha256": "sha256:0dbe11d0f7febe157ae764591cb2fafc0f8388fc86690ea27e445003875c28f1",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
             "epoch_semantics_provider_render_count": 0,
@@ -24082,21 +25211,31 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
-                "sha256": "sha256:70e09e61afbe0e28420a964d17db22af922e641a9037f50d4b7db2bc3a74edf5"
+                "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
               }
             ],
             "predicate_provenance": "independently_reconciled",
             "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
-            "classification": "non_decision_bearing",
-            "behavioral_evidence": [],
-            "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+                "sha256": "sha256:0a9d9611b90f91ee1d010ba9f608f5f4e7f35c0c973857dfcb5d843ea9008cb1",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:60:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
           },
           {
             "column": 7,
-            "component_identity": "AuthorizedCycleBoardPage",
+            "component_identity": "CycleBoardQueryPanel",
             "kind": "jsx",
-            "line": 16,
-            "root_id": "AuthorizedCycleBoardPage:jsx:16:7",
+            "line": 27,
+            "root_id": "CycleBoardQueryPanel:jsx:27:7",
             "root_source_sha256": "sha256:b4bbca2a453c2750701dde57273222a850c48ffe7d08c2770ffe8c6df9b45336",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -24105,21 +25244,31 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
-                "sha256": "sha256:70e09e61afbe0e28420a964d17db22af922e641a9037f50d4b7db2bc3a74edf5"
+                "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
               }
             ],
             "predicate_provenance": "independently_reconciled",
             "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
-            "classification": "non_decision_bearing",
-            "behavioral_evidence": [],
-            "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+                "sha256": "sha256:0a9d9611b90f91ee1d010ba9f608f5f4e7f35c0c973857dfcb5d843ea9008cb1",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:60:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
           },
           {
             "column": 10,
-            "component_identity": "AuthorizedCycleBoardPage",
+            "component_identity": "CycleBoardQueryPanel",
             "kind": "jsx",
-            "line": 24,
-            "root_id": "AuthorizedCycleBoardPage:jsx:24:10",
+            "line": 35,
+            "root_id": "CycleBoardQueryPanel:jsx:35:10",
             "root_source_sha256": "sha256:51feb6578f9889fdab1ff971809a9b7858782821a358e95b254badde2eb1a502",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -24128,21 +25277,193 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
-                "sha256": "sha256:70e09e61afbe0e28420a964d17db22af922e641a9037f50d4b7db2bc3a74edf5"
+                "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
               }
             ],
             "predicate_provenance": "independently_reconciled",
             "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
-            "classification": "non_decision_bearing",
-            "behavioral_evidence": [],
-            "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+                "sha256": "sha256:0a9d9611b90f91ee1d010ba9f608f5f4e7f35c0c973857dfcb5d843ea9008cb1",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:60:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "ConfidenceLedgerRiskSpendQueryPanel",
+            "kind": "jsx",
+            "line": 46,
+            "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:46:5",
+            "root_source_sha256": "sha256:db36311dcd325c17174df579f61909764b33cfb7a43c4e7e409ad6d3da4cd80f",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+                "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+                "sha256": "sha256:0a9d9611b90f91ee1d010ba9f608f5f4e7f35c0c973857dfcb5d843ea9008cb1",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:60:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "ConfidenceLedgerRiskSpendQueryPanel",
+            "kind": "jsx",
+            "line": 50,
+            "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:50:5",
+            "root_source_sha256": "sha256:cfafbaa014af6f266c125bc41f9709a9ed304f9cabf510cec86e9a0af6af351f",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+                "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+                "sha256": "sha256:0a9d9611b90f91ee1d010ba9f608f5f4e7f35c0c973857dfcb5d843ea9008cb1",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:60:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "ConfidenceLedgerRiskSpendQueryPanel",
+            "kind": "jsx",
+            "line": 57,
+            "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:57:5",
+            "root_source_sha256": "sha256:0e666c1e9362286bd95dea3bf53743c33b1024be693008c1265bae5eeca4a9ab",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+                "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+                "sha256": "sha256:0a9d9611b90f91ee1d010ba9f608f5f4e7f35c0c973857dfcb5d843ea9008cb1",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:60:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "ConfidenceLedgerRiskSpendQueryPanel",
+            "kind": "jsx",
+            "line": 60,
+            "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:60:5",
+            "root_source_sha256": "sha256:b35db63a6ddacd8a229c3285e13fa7df52e7e6ebb013c734ea6dbde8472dba8f",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 1,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 1,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+                "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "decision_bearing",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+                "sha256": "sha256:0a9d9611b90f91ee1d010ba9f608f5f4e7f35c0c973857dfcb5d843ea9008cb1",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "temporal_binding": "direct_ds4",
+            "temporal_obligation": "as_of_epoch_validity"
+          },
+          {
+            "column": 5,
+            "component_identity": "AuthorizedCycleBoardPage",
+            "kind": "jsx",
+            "line": 76,
+            "root_id": "AuthorizedCycleBoardPage:jsx:76:5",
+            "root_source_sha256": "sha256:704ae6abe7c788c389507e87f4198af436146c7c4d6101f4a6c5fdec2bb7738a",
+            "epoch_context_read_count": 0,
+            "epoch_semantics_prop_count": 0,
+            "epoch_semantics_provider_render_count": 0,
+            "time_semantics_label_render_count": 0,
+            "owner_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+                "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
+              }
+            ],
+            "predicate_provenance": "independently_reconciled",
+            "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+                "sha256": "sha256:0a9d9611b90f91ee1d010ba9f608f5f4e7f35c0c973857dfcb5d843ea9008cb1",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:60:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
           },
           {
             "column": 7,
             "component_identity": "CycleBoardPage",
             "kind": "jsx",
-            "line": 33,
-            "root_id": "CycleBoardPage:jsx:33:7",
+            "line": 104,
+            "root_id": "CycleBoardPage:jsx:104:7",
             "root_source_sha256": "sha256:8eb023b6e2192551175c612ddcde3a52cd36d0d77d64e5be78e66b9742da72ac",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -24151,21 +25472,31 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
-                "sha256": "sha256:70e09e61afbe0e28420a964d17db22af922e641a9037f50d4b7db2bc3a74edf5"
+                "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
               }
             ],
             "predicate_provenance": "independently_reconciled",
             "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
-            "classification": "non_decision_bearing",
-            "behavioral_evidence": [],
-            "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+                "sha256": "sha256:0a9d9611b90f91ee1d010ba9f608f5f4e7f35c0c973857dfcb5d843ea9008cb1",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:60:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
           },
           {
             "column": 7,
             "component_identity": "CycleBoardPage",
             "kind": "jsx",
-            "line": 44,
-            "root_id": "CycleBoardPage:jsx:44:7",
+            "line": 115,
+            "root_id": "CycleBoardPage:jsx:115:7",
             "root_source_sha256": "sha256:cca10e9a90afef590b8405fc538e2545812a24af0044babed79495ff72d1609e",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -24174,21 +25505,31 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
-                "sha256": "sha256:70e09e61afbe0e28420a964d17db22af922e641a9037f50d4b7db2bc3a74edf5"
+                "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
               }
             ],
             "predicate_provenance": "independently_reconciled",
             "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
-            "classification": "non_decision_bearing",
-            "behavioral_evidence": [],
-            "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+                "sha256": "sha256:0a9d9611b90f91ee1d010ba9f608f5f4e7f35c0c973857dfcb5d843ea9008cb1",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:60:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
           },
           {
             "column": 10,
             "component_identity": "CycleBoardPage",
             "kind": "jsx",
-            "line": 53,
-            "root_id": "CycleBoardPage:jsx:53:10",
+            "line": 124,
+            "root_id": "CycleBoardPage:jsx:124:10",
             "root_source_sha256": "sha256:d1e9477ee0e65428cfc82390c613852bfbeaeb64ff75d6be06a00d2effa2779b",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -24197,17 +25538,27 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
-                "sha256": "sha256:70e09e61afbe0e28420a964d17db22af922e641a9037f50d4b7db2bc3a74edf5"
+                "sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
               }
             ],
             "predicate_provenance": "independently_reconciled",
             "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
-            "classification": "non_decision_bearing",
-            "behavioral_evidence": [],
-            "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
+            "classification": "inherits_admitted_dom",
+            "behavioral_evidence": [
+              {
+                "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+                "sha256": "sha256:0a9d9611b90f91ee1d010ba9f608f5f4e7f35c0c973857dfcb5d843ea9008cb1",
+                "assertion_id": "state-mutation-keeps-shell-and-changes-time-semantics"
+              }
+            ],
+            "inherited_from": {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:60:5"
+            },
+            "temporal_obligation": "as_of_epoch_validity"
           }
         ],
-        "source_sha256": "sha256:70e09e61afbe0e28420a964d17db22af922e641a9037f50d4b7db2bc3a74edf5"
+        "source_sha256": "sha256:10f15871a7e30886c7b7c88b6d38262eda3eec629e3524d6979c6ba64235755c"
       },
       {
         "path": "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx",

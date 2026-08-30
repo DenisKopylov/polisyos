@@ -496,6 +496,8 @@
       "accessDeniedBody": "Evidence Cycle Board доступні лише аудиторіям reviewer та expert.",
       "loadErrorTitle": "Cycle Board недоступна",
       "loadErrorBody": "Composed owner projection не завантажилась. Суміжний стан run не використовується як заміна.",
+      "boundaryTitle": "Панель Cycle Board припинила роботу",
+      "boundaryBody": "Панель Cycle Board припинила рендеринг. Панель confidence ledger лишається незалежно доступною.",
       "coverageGap": "Прогалина покриття відомих рядків",
       "movementGap": "Прогалина руху acquisition",
       "historicalDs4": "Історичний disposition компонентів DS4",
@@ -505,6 +507,53 @@
       "stageTrace": "Stage trace",
       "openStageTrace": "Відкрити owner stage trace",
       "globalCohortLink": "Відкрити глобальний cohort Cycle Board — не цей run",
+      "confidenceLedger": {
+        "loadErrorTitle": "Confidence-ledger risk spend недоступний",
+        "loadErrorBody": "Protected owner projection не завантажилась. Стан board або run не використовується як заміна.",
+        "boundaryTitle": "Панель confidence ledger припинила роботу",
+        "boundaryBody": "Панель confidence ledger припинила рендеринг. Cycle Board лишається незалежно доступною.",
+        "instrumentDefinitions": "Визначення інструментів",
+        "certificateRoutes": "Маршрути сертифікатів",
+        "downloadMachine": "Завантажити точний MACHINE packet",
+        "evaluationBlocked": {
+          "title": "Оцінювання confidence ledger не встановлено",
+          "body": "Protected packet preflight не створив exact receipt. Значення packet і завантаження не показуються."
+        },
+        "positiveEmpty": {
+          "title": "Позитивні сертифікати промоції",
+          "status": "Видано {count} · інституційний орган не призначено в цьому середовищі виконання PolicyOS",
+          "body": "Жоден сертифікат промоції наразі не може бути виданий. Це керований порожній стан, а не помилка завантаження."
+        },
+        "sections": {
+          "actualRows": "Фактичні відмови, потім acquisition",
+          "riskAccounting": "Scope-local облік confidence risk",
+          "denominators": "Деномінатори інструментів і certificate routes",
+          "positiveRegister": "Реєстр позитивних сертифікатів",
+          "goodEventSourceReplay": "Good event, джерело та replay identities",
+          "machineExport": "MACHINE byte twin"
+        },
+        "accounting": {
+          "allocation": "Розподілено",
+          "spent": "Витрачено",
+          "remaining": "Залишок",
+          "overspend": "Перевитрата",
+          "scopeTotal": "Підсумок точного confidence scope"
+        },
+        "figure": {
+          "canonicalDecimal": "Канонічний десятковий запис",
+          "dialogTitle": "Conditional envelope",
+          "dialogDescription": "Повний producer-issued conditionality envelope для цієї величини."
+        },
+        "sourceBlocked": {
+          "title": "Джерело заблоковано до projection"
+        },
+        "artifact_missing": {
+          "title": "Джерело confidence ledger відсутнє"
+        },
+        "invalid_source": {
+          "title": "Джерело confidence ledger не пройшло owner admission"
+        }
+      },
       "columns": {
         "searchTerminal": "Terminal kind пошуку дизайну",
         "lifecycleTerminality": "Lifecycle terminality",

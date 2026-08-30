@@ -263,3 +263,235 @@ mechanism or test source has been edited at this point.
   surface required by the register signal. The existing `/trust` projection remains
   conservatively historical/blocked; the unowned posture compiler and generated posture
   are unchanged, so the audit receipt cannot silently become a broader public claim.
+
+## Entry 10 — Current page-a11y receipt admitted
+
+- After the source freeze, two separate no-writer invocations of
+  `corepack pnpm --filter @polisyos/runtime-dashboard run test:a11y:pages` with JSON
+  reporting, one worker, zero retries, and `--update-snapshots=none` each exited 0.
+  Each raw Playwright result measured the complete selected population as
+  `25 collected = 25 expected/pass + 0 skipped + 0 unexpected + 0 flaky`.
+- Run 1's result digest is
+  `c879a5f98efae623063b6f861eb17e6f21965f454e1031ecb22d6cbd0f26c92b`; run 2's is
+  `dcc0e333d8dab3fb9824f25c8a87ead79964fd4cb1d918a948475c6fd389b2f4`.
+  The 25 ordered identities in each complete run are byte-identical under canonical digest
+  `eb9e55ac5146b65f7261176a47b355cec93a78cfc92c47cdae5636958e48b390`.
+  Run 2 began only after run 1 finished.
+- The receipt's recomputing verifier walks the complete tracked denominator
+  `apps/runtime-dashboard/** + package.json + pnpm-lock.yaml + pnpm-workspace.yaml`:
+  `1,308 tracked paths`, bound to source commit `6af7be1fc` and source-set digest
+  `2345664d2fcfcdcf9730d8c2c8aa05076c5f538bf1647f54c66105baf342985e`.
+  It also reconciles the repository-bound Node `v22.22.2`, pnpm `10.33.2`, Playwright
+  `1.59.1`, the exact four executed spec files, Chromium-only execution, raw report
+  semantics, and both content hashes.
+- The named receipt test was written red first: before the receipt existed it exited 1 on
+  `FileNotFoundError`. Its first implementation was not admitted. Independent review
+  demonstrated that a freshly re-signed fake external issuer/grade, wrong scope/toolchain,
+  extra certification, and duplicate run could remain green. Per P40 this was the same
+  P32/P37/P38 class one level deeper and consumed the second round.
+- The verifier was widened structurally: exact schemas, fixed internal authority posture,
+  source/tool/scope recomputation, exact distinct paths and digests, temporal independence,
+  and unique identity/source populations. The corresponding falsifiers recompute the
+  receipt payload digest before attacking it. Post-commit
+  `PYTHONPATH=. .venv/bin/python -m pytest -q
+  tests/repo_quality/docs/test_accessibility_evidence.py` measured
+  `8 selected = 8 passed`, exit 0; targeted Ruff exited 0. Independent replay reached the
+  same result and issued GO.
+- `DS11-CURRENT-PAGE-A11Y` therefore closes only as
+  `current_scoped_page_conformance`. The receipt explicitly records
+  `human_behavior_status=not_established`,
+  `external_countersign_status=not_established`, and
+  `source_language_authority=not_conferred`, preserving W5-K02 and W5-K06.
+
+## Entry 11 — Final row census, overlaps, and out-of-scope findings
+
+- A bound-interpreter exact-node census covered all nine pytest-addressed rows. Two
+  existing nodes failed their substantive closure predicates and seven closure identities
+  remained unwritten at exit 4. The separate current-page predicate passed twice and its
+  receipt verifier passed all eight selected tests. No row was labelled ambiguous merely
+  because its closure test remains unwritten.
+- The lifecycle node exited 1 only after the real HTTP route, persisted monitor receipt,
+  same-store bridge, and immutable predecessor check succeeded; the persisted action was
+  `review_required`, not `superseded`. Task B still owns `GY-GAP8`'s separate
+  source-derived 118-member constructor denominator (currently pinned to 117) and its
+  three named green tests. Task D changed none of that denominator or production bridge.
+- The C13 conjunction node exited 1 at
+  `apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx`. The global
+  frontend disposition `--check` also exited 1 with that C13 current-byte failure and
+  DS18 time-semantics receipt/inventory drift involving `RunReportPage.tsx`,
+  `LocaleProvider.tsx`, and its three count fields. Task C still owes a reissue binding
+  every final Task D source byte, two independent no-writer captures, and the three
+  governed C13 test titles. The DS18 evidence family is outside Task D and was not edited.
+- The complete commit-history union under `apps/runtime-dashboard/**` contains 11 touched
+  paths. Nine differ from the supplied base and are inherited by the next frontend lane;
+  `RunReportPage.test.tsx` and `runDetailSurfaces.test.tsx` were transiently edited and
+  restored to base bytes. The inherited nine-path delta is:
+  `e2e/helpers/runtime-dashboard.ts`, `package.json`, `playwright.config.ts`,
+  `scripts/serve_fixture_runtime_api.py`,
+  `src/features/runs/routes/RunReportPage.tsx`,
+  `src/shared/i18n/LocaleProvider.tsx`,
+  `src/test/a11y/color-blind-simulation.spec.ts`,
+  `src/test/a11y/keyboard-journeys.spec.ts`, and
+  `src/test/a11y/screen-reader-snapshots.spec.ts`.
+- The architecture guardrail's trust-posture compiler exits 1 on
+  `ratified identity basis differs from the admitted closed receipt`. P41 remains
+  `not_established`: a base-local offline environment could not be provisioned because
+  the cached `jaxlib==0.8.2` wheel is absent, and the failing compiler's measured complete
+  input denominator is not disjoint. It opens 5,525 repository inputs
+  (`5,516 .py + 5 .json + 3 .md + 1 .toml`), intersecting Task D's 20-path branch delta
+  at exactly three changed test paths. It is therefore neither labelled inherited nor
+  exported as another lane's debt.
+- Targeted closeout is otherwise stable: Ruff over the four changed Python files exited
+  0; `git diff --check 784d02014...HEAD` exited 0; and
+  `PYTHONPATH=. .venv/bin/python tools/quality/validation/check_docs_lifecycle.py`
+  exited 1 with exactly the six predeclared findings. The bound-interpreter debt-ledger
+  check is recorded separately below because its registered unwritten-test defect remains
+  live; an unbound informational result is not used as evidence.
+
+## Entry 12 — Bound closeout gates and final review
+
+- `PYTHONPATH=. .venv/bin/python tools/quality/validation/check_debt_ledger.py --check`
+  exited 1 under the bound interpreter. Its complete current collection measured
+  `32 pytest selections`, with
+  `17 closure_signal_identity_unresolvable + 17 count/exit disagreements`; seven of the
+  unresolved identities are Task D rows left honestly open or blocked. This is the exact
+  behavior registered by the architect-owned open row
+  `debt-closure-signals-name-unwritten-tests`, whose closure is a checker distinction
+  between open and closed rows. Task D did not edit the forbidden checker or register and
+  did not use an unbound interpreter to turn the blocking findings informational.
+- A bound-interpreter replay from a fresh archive of supplied base `784d02014` also exited
+  1 and measured `18 identity-unresolvable + 18 count/exit disagreements`; eight were the
+  original Task D identities. The branch therefore reduces that measured unresolved
+  subset by the one real lifecycle node. The whole command is not labelled inherited:
+  the archive lacks Git history and consequently adds 50 archive-only
+  `closure_commit_not_on_main` findings, while Task D changes files inside the checker's
+  collection inputs. Strict P41 remains `not_established` for the aggregate gate.
+- The same base archive and current branch each make
+  `check_docs_lifecycle.py` exit 1 with the same measured six-finding set: two missing
+  `LEDGER.md` metadata fields, three Atlas legacy-dashboard stub references, and one PAO
+  audit stub reference. No seventh finding was introduced.
+- Final frontend blast-radius replay is green: dashboard typecheck exited 0; the two
+  affected component files measured `31 selected = 31 passed`, exit 0; and the opt-in
+  bound-paper fixture pair measured `2 selected = 2 passed`, exit 0. The source-binding
+  receipt proves no tracked dashboard/root tool byte changed after either full a11y run.
+- Independent review's final verdict is GO for `DS11-CURRENT-PAGE-A11Y` and NO-GO for
+  every broader authority projection. The P40 second-round receipt escape was closed by a
+  generic verifier and adversarial variants; the earlier scope and general-copy proxy
+  tests were forward-removed. The closeout pattern result is therefore one bounded closure,
+  seven explicit opens, two dependency-blocked rows, and no ambiguous row.
+
+## Register closure dossier
+
+Measured arithmetic: `10 register rows = 1 closed + 7 open + 2 blocked + 0 ambiguous`.
+The quoted paragraphs below are the exact append-only prose for architect transcription;
+Task D did not edit the register.
+
+### `DS11-PUBLISHED-SIGNATURE-WATCHER`
+
+- Verdict: `open` — `producer_missing`.
+- Exact command: `uv run pytest
+  tests/integration/runtime_quality/test_published_signature_custody.py::test_every_public_signature_is_watched_for_staleness
+  -q`; exit 4, file/identity unwritten.
+- Exact append prose:
+
+> **TASK D CLOSURE MEASUREMENT 2026-08-31 — `open` (`producer_missing`).** The exact closure identity remains unwritten and pytest exits 4, the correct state for this open debt. No autonomous producer currently enumerates a non-vacuous typed population of publicly standing PolicyOS signatures, recomputes staleness, persists a custody event, and drives an admitted consumer/surface. A watcher over an empty or caller-declared population would be a P29/P37 proxy and is not substituted.
+
+### `DS11-CLAIM-LIFECYCLE-ORCHESTRATION`
+
+- Verdict: `open` — `producer_missing + artifact_missing` for supersession authority;
+  the old bridge-missing basis has drifted.
+- Exact command: `uv run pytest
+  tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py::test_monitor_event_persists_claim_supersession_without_in_place_edit
+  -q`; exit 1, persisted action `review_required` rather than `superseded` after the
+  immutable-predecessor assertions passed.
+- Exact append prose:
+
+> **TASK D CLOSURE MEASUREMENT 2026-08-31 — `open` (`producer_missing + artifact_missing` for supersession authority).** The exact node now traverses the authenticated HTTP route, persisted monitor event, same-store `EpochClaimLifecycleBridgeService`, persisted bridge result, and immutable predecessor bytes. It exits 1 because production honestly persists `review_required`, not `superseded`. The missing capability is a persisted independently verified Claim-owner adjudication binding expected head, predecessor, content-bound successor, provenance, and evidence, followed by owner CAS advancement; caller metadata cannot supply that authority. This supersedes only the row's stale `bridge_missing` basis. The other overlap remains with task B: `GY-GAP8` still needs its source-derived constructor pin corrected from 117 to the measured 118-member denominator and green runs of `test_completed_epoch_batch_is_only_authority_input_to_claim_bridge`, `test_crash_after_dv_completion_keeps_claim_bridge_pending_public_freeze`, and `test_stale_caller_ledger_cannot_bypass_current_head_public_export`.
+
+### `DS11-PUBLIC-SIGNATURE-POPULATION`
+
+- Verdict: `blocked` — promotion-dependent `surface_missing`.
+- Exact command: `uv run pytest
+  tests/unit/runtime/http/test_public_export.py::test_first_governed_public_signature_is_custody_bound
+  -q`; exit 4, identity unwritten.
+- Exact append prose:
+
+> **TASK D DEPENDENCY RULING 2026-08-31 — `blocked` (`surface_missing`).** The exact closure identity remains unwritten and pytest exits 4. DS12's independent promotion gate cannot open this wave: task A cannot make first governed promotion reachable while the EFFECT investigation remains open. No empty, candidate, or presentation-derived population is substituted for a custody-bound first public signature.
+
+### `DS11-SCOPE-ADJUDICATION-RECORD`
+
+- Verdict: `open` — `absent/unallocated`.
+- Exact command: `uv run pytest
+  tests/unit/core/contracts/test_scope_adjudication.py::test_four_way_ruling_is_produced_consumed_and_plane_specific
+  -q`; exit 4, file/identity unwritten after forward correction.
+- Exact append prose:
+
+> **TASK D CLOSURE MEASUREMENT 2026-08-31 — `open` (`absent/unallocated`).** The exact node exits 4. A first green candidate was forward-removed after independent falsification showed that its fixture self-issued the outcomes it labelled `independently_reconciled`; it had no production resolver, orchestration bridge, or external consumer and therefore repeated P01/P02/P32/P37. Closure still requires an appointed predicate producer, typed one-plane artifact/nonreceipt, persistence and lineage, resolving/replaying bridge and consumer, audit/API surface, and negative end-to-end semantic test. The ratified prose remains a rule, not evidence that this capability exists.
+
+### `DS11-EXTERNAL-A11Y-COUNTERSIGN`
+
+- Verdict: `open` — `artifact_missing + verification_missing`.
+- Exact command: `uv run pytest
+  tests/repo_quality/docs/test_accessibility_evidence.py::test_external_countersign_is_content_bound_current_and_scope_exact
+  -q`; exit 4, identity unwritten.
+- Exact append prose:
+
+> **TASK D CLOSURE MEASUREMENT 2026-08-31 — `open` (`artifact_missing + verification_missing`).** The exact external-countersign identity remains unwritten and pytest exits 4. No current, content-bound, scope-exact independent accessibility countersign was found or admitted. The new page-conformance receipt is internally recomputed and explicitly records `external_countersign_status=not_established`; it is not a self-issued substitute for external evidence.
+
+### `DS11-CURRENT-PAGE-A11Y`
+
+- Verdict: `closed` — bounded to `current_scoped_page_conformance`.
+- Exact commands/predicate:
+  - `PLAYWRIGHT_JSON_OUTPUT_FILE=/Users/deniskopylov/polisyos/.worktrees/debt-d-ds11-trust-posture/policy-engine/_build/ds11-page-a11y-current/run-1/results.json corepack pnpm --filter @polisyos/runtime-dashboard run test:a11y:pages --reporter=json --workers=1 --retries=0 --update-snapshots=none`; exit 0, `25 selected = 25 passed`.
+  - `PLAYWRIGHT_JSON_OUTPUT_FILE=/Users/deniskopylov/polisyos/.worktrees/debt-d-ds11-trust-posture/policy-engine/_build/ds11-page-a11y-current/run-2/results.json corepack pnpm --filter @polisyos/runtime-dashboard run test:a11y:pages --reporter=json --workers=1 --retries=0 --update-snapshots=none`; exit 0, `25 selected = 25 passed`.
+  - `PYTHONPATH=. .venv/bin/python -m pytest -q
+    tests/repo_quality/docs/test_accessibility_evidence.py`; exit 0,
+    `8 selected = 8 passed`.
+- Exact append prose:
+
+> **TASK D CLOSURE RECEIPT 2026-08-31 — `closed`, bounded to `current_scoped_page_conformance`.** Two separate zero-retry, no-writer Chromium invocations each exit 0 with `25 collected = 25 expected/pass + 0 skipped + 0 unexpected + 0 flaky`; their complete ordered identity populations are identical and their raw result digests and sequential execution windows are distinct. `docs/plans/active/atlas-slices/receipts/ds11-page-a11y-current/receipt.json` content-binds both raw reports, the exact four spec files, Node/pnpm/Playwright semantics, and the complete 1,308-path tracked denominator `apps/runtime-dashboard/** + package.json + pnpm-lock.yaml + pnpm-workspace.yaml` at source commit `6af7be1fc`. Its recomputing verifier and authority/scope/toolchain/digest/duplicate-run falsifiers pass 8/8 and received independent GO. This receipt establishes only tested surface conformance: human behavior and external countersign remain `not_established`, and presentation confers no source-language authority under W5-K02/W5-K06.
+
+### `DS11-GENERAL-COPY-SEMANTICS`
+
+- Verdict: `open` — bounded residual with `semantic_test_missing`.
+- Exact command: `uv run pytest
+  tests/repo_quality/frontend/test_public_claim_copy_inventory.py::test_every_public_capability_assertion_resolves_to_claim_posture
+  -q`; exit 4, file/identity unwritten after forward correction.
+- Exact append prose:
+
+> **TASK D CLOSURE MEASUREMENT 2026-08-31 — `open` (bounded residual, `semantic_test_missing`).** The exact node exits 4. A first green candidate was forward-removed because it enumerated four selected witnesses rather than deriving the complete owned public-copy denominator; untagged frame, methodology, accessibility, and non-default-locale copy could change while the proxy stayed green. The existing `/trust` projection remains conservative, but closure needs a complete-by-construction ownership/claim-posture denominator and adversarial semantic test rather than an allowlist of current strings.
+
+### `DS11-GROUNDED-PERFORMANCE`
+
+- Verdict: `blocked` — intentionally outside DS11.
+- Exact command: `uv run pytest
+  tests/integration/runtime_quality/test_first_governed_promotion.py::test_promoted_design_supplies_content_bound_public_performance_evidence
+  -q`; exit 4, file/identity unwritten.
+- Exact append prose:
+
+> **TASK D DEPENDENCY RULING 2026-08-31 — `blocked`, intentionally outside DS11.** The exact closure identity remains unwritten and pytest exits 4. Task A cannot make the DS12 promotion gate reachable this wave because the EFFECT investigation remains open. The remaining chain is task A engineering evidence → EFFECT investigation resolution → first governed promotion → DS12 publication decision; DS11 neither closes the row nor weakens it into a performance claim the runtime cannot back.
+
+### `DS11-INHERITED-C13-PRINT-RECEIPT`
+
+- Verdict: `open` — `verification_missing` on task C's receipt half.
+- Exact commands:
+  - `uv run pytest
+    architecture/atlas_surfaces/test_frontend_disposition_register.py::DS6C13PrintTransitionTests::test_independent_receipt_binds_the_full_conjunction_and_current_bytes
+    -q`; exit 1 at stale binding
+    `apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx`.
+  - `PYTHONPATH=. .venv/bin/python
+    architecture/atlas_surfaces/check_frontend_disposition_register.py --check`; exit 1,
+    including `c13_print_receipt_invalid` plus separately out-of-scope DS18 drift.
+- Exact append prose:
+
+> **TASK D OVERLAP MEASUREMENT 2026-08-31 — `open` (`verification_missing`).** Task D's dashboard-source half is repaired and frozen, including task C's handed-back Node-22 locale-import change, but the exact conjunction node exits 1 on stale current-byte evidence and the global frontend disposition check remains red. Task C still must reissue the independent receipt against every final Task D source binding, run two separate zero-retry no-writer captures, retain the three governed titles `semantic DOM closes overview and report paper egress`, `PDF keeps every page A4 and admitted growth adds pages`, and `bounded identity A4 print`, then make both the exact conjunction node and global `--check` green. Task D does not close both overlap halves from one side.
+
+### `DS11-FULL-TRUST-CENTER-AND-DOCS-IA`
+
+- Verdict: `open` — `surface_out_of_scope`.
+- Exact command: `uv run pytest
+  tests/repo_quality/frontend/test_public_surface_claim_ownership.py::test_every_retained_trust_docs_route_has_an_approved_owner_and_evidence_contract
+  -q`; exit 4, file/identity unwritten.
+- Exact append prose:
+
+> **TASK D CLOSURE MEASUREMENT 2026-08-31 — `open` (`surface_out_of_scope`).** The exact ownership/evidence-contract node remains unwritten and pytest exits 4. Retained v7 trust-center/docs material is historical design input, not an admitted deployed route population or evidence-bearing consumer. No successor owner and evidence contract exists for the certifications, procurement, telemetry/status, forms, sandbox, calculator, and general-docs IA; Task D does not manufacture that sovereign surface or project archive material as current authority.

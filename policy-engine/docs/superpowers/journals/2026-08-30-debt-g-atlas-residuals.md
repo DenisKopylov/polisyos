@@ -204,3 +204,54 @@ presence; P37 fails closed unless the checker itself establishes the independent
 predicate; P38 measures the obligated-root relation rather than a stored count.
 The owned Python predicate is green. The remaining task-D literal expectation is
 the recorded P41 handoff, not a reason to substitute another frozen total.
+
+#### Task 3 independent-review correction
+
+Review found that commit `2d35c2e71` had changed the shared
+`_health_source_projection()` helper from its established no-argument two-tuple
+contract to a required-argument three-tuple. The exact readiness admission witness
+failed with `TypeError: _health_source_projection() missing 1 required positional
+argument: 'node_executable'`. Commit `5babf54d0` restores that interface exactly.
+Readiness again consumes only the canonical health-source projection and does not
+run DS18. The health path invokes DS18 separately and overlaps that independent
+replay with the fixed TypeScript producer; their reports are still compared before
+admission, so disagreement continues to reject rather than widen authority.
+
+The same repair replaces unbounded checker capture with a selector-driven process
+reader capped at 8 MiB independently for stdout and stderr, matching the producer's
+`maxBuffer`. More than 8 MiB on either stream kills the checker and yields a
+77-character bounded reason. Ordinary nonzero stderr is copied into a limitation
+only through a 2,048-byte excerpt; a 3,000-byte witness produced a 2,151-character
+reason with an explicit truncation suffix. Real-process witnesses for stdout
+overflow, stderr overflow, bounded ordinary failure, and a small ordinary failure
+all passed.
+
+The earlier journal wording that zero-exit malformed checker output was proven to
+persist as unknown is retracted. Python parses such output tolerantly at its helper
+boundary, but the canonical TypeScript producer currently performs `JSON.parse`
+and strict projection parsing without a tolerant catch; persistent zero-exit
+malformed output therefore terminates the producer before Python can admit a row.
+That behavior is task D's exact source handoff in
+`runDs18TimeSemanticsCoverageValidator`: if persisted unknown is required for this
+case, task D must convert JSON/schema parse rejection into the same bounded
+`kind: not_established` result. Task G did not fabricate a producer report or edit
+the task-D source.
+
+The actual nonzero checker path was exercised end to end by temporarily changing
+only the register's `covered_root_count` from 126 to 0, invoking the real producer
+and persistence operation, and restoring the exact original bytes in `finally`.
+Persistence exited 0 with `unknown / not_established`, zero known facts, and the
+bounded limitation prefix
+`ds18_time_semantics_count_drift:covered_root_count`. The restored register digest
+was `c2893870139f3eae5042e54ba23a1692c10680f1ec0dc404cd3d879efe01544f`, and the
+post-witness Git diff was empty for the register. The exact red-denominator Vitest
+node separately passed the unknown-row schema contract.
+
+Final focused receipts after the correction: the exact readiness witness passed
+(`1 passed | 32 skipped`, 13.44 s); exact persistence plus red-denominator nodes
+passed (`2 passed | 21 skipped`, 7.80 s); exact caller `PATH` and `NODE_OPTIONS`
+nodes passed under the default 15-second ceiling (`2 passed | 21 skipped`,
+12.96 s). The canonical checker remained 621 files / 759 roots / 126/126 at
+`independently_reconciled`; Ruff, byte compilation, and `git diff --check` passed.
+The separate task-D `94/94` current-measurement expectation remains the only known
+focused read-only red.

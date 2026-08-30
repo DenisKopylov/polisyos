@@ -110,7 +110,6 @@ The delivery-repair predecessor claims were separately reconciled by restore, re
 retraction in the predecessor→successor matrix in
 [`int-r6/01-repository-baseline.md`](int-r6/01-repository-baseline.md). Code-search misses are not
 used as repository-wide absence evidence.
-
 ## External evidence
 
 Five commissioned surveys were treated as external evidence only. They do not establish repository
@@ -166,7 +165,7 @@ unreadable, or readable but authority-changing. Separate results and provenance 
 Real regimes often rely on institutions that PolicyOS deliberately does not yet have. INT-R6 specifies
 role/process shape without inventing holders. In the target protocol, a required high-stakes decision
 with zero eligible holders would return a typed refusal limited to the governed purpose. This research
-does not claim that the current t repository already produces that refusal or implements the source,
+does not claim that the current repository already produces that refusal or implements the source,
 draft, glossary, and fixture surfaces described by the model.
 
 Full evidence synthesis and jurisdiction limits: [`int-r6/02-external-evidence.md`](int-r6/02-external-evidence.md).
@@ -204,14 +203,14 @@ Every finding, evidence basis, classification, and accountable-owner disposition
 ### Architecture
 
 ```text
-ui_locale ␀␀␀␀␀␀␀␀␀␀␀␀␀␀␀ selects PolicyOS-authored chrome
+ui_locale ─────────────── selects PolicyOS-authored chrome
 
 jurisdiction_id
   └─ authority_text_set ─ contains one or more authentic/versioned members
        └─ content_rendition ─ language, script, status, purpose, certificate
-            └─ presentation_variant ␀ parent proposition/rendition + transformation
+            └─ presentation_variant ─ parent proposition/rendition + transformation
 
-semantic_namespace + semantic_id ␀ drives logic, status, refusal, MACHINE, Lex
+semantic_namespace + semantic_id ─ drives logic, status, refusal, MACHINE, Lex
 ```
 
 No arrow runs from `ui_locale` to authority selection. `presentation_variant` cannot exist without
@@ -219,7 +218,7 @@ its parent proposition and, where it transforms a rendition, its parent renditio
 
 ### Claim placement
 
-- A PolicyOS refusal code is a `system_semantic_id`; to its evidence may cite a jurisdictional rule.
+- A PolicyOS refusal code is a `system_semantic_id`; its evidence may cite a jurisdictional rule.
 - A legal act type normally remains a `jurisdiction_concept_id` with explicit mappings.
 - A δ-bound is system-governed when it belongs to a PolicyOS model/certificate and
   jurisdiction-governed when imposed by law or competent decision.
@@ -269,7 +268,7 @@ certificates.
 
 1. classify object and transformation;
 2. bind designated source or co-authentic authority set;
-1. normalise the authority-semantic frame;
+3. normalise the authority-semantic frame;
 4. bind registered system IDs and jurisdiction concept IDs;
 5. select an immutable controlled-glossary release;
 6. render the whole proposition or typed message function;
@@ -313,7 +312,7 @@ Forbidden(s,c) = Forbidden(t,c)
 
 A single material target-only permission, lost prohibition, lost condition, actor switch, boundary
 change, or status upgrade refutes the candidate for that purpose. Absence of a counterexample within
-@C_test` does **not** prove unrestricted semantic equivalence outside `C_test`; the residual and
+`C_test` does **not** prove unrestricted semantic equivalence outside `C_test`; the residual and
 excluded context classes remain explicit certificate fields.
 
 ### Controlled glossary
@@ -508,7 +507,7 @@ Full pass: [`int-r6/06-findings-standing-and-pattern-pass.md`](int-r6/06-finding
 
 ### Principal external sources and durable spans
 
-- [Vienna Convention on the Law of Treaties, Article 33](https://legal.un.org/ilc/texts/instruments/english/conventions/1_1_1969.pdf) — Article 33(1)–4(4).
+- [Vienna Convention on the Law of Treaties, Article 33](https://legal.un.org/ilc/texts/instruments/english/conventions/1_1_1969.pdf) — Article 33(1)–(4).
 - [Council Regulation No 1 determining EEC language use](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31958R0001) — Articles 1–5.
 - [CJEU Case 283/81, CILFIT](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:61981CJ0283) — paragraph 18.
 - [CJEU Case C-161/06, Skoma-Lux](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:62006CJ0161) — paragraphs 37–51.

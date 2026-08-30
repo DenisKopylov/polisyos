@@ -93,8 +93,22 @@ errors in every wave that included it.
 
 The package author responds to every finding. One row per finding in
 `<task>/amendment-ledger.md`, with disposition ∈ `accepted` · `accepted_with_variation` ·
-`declined_with_reason`. A declined finding must give the reason and the evidence; declining is
-legitimate and has been correct at least once per wave.
+`declined_with_reason`. That is a **closed set; exactly these three values**, and no other token —
+not `routed_pending_principal`, not a verification verdict, not a routing state — may appear in a
+disposition cell. A declined finding must give the reason and the evidence; declining is legitimate
+and has been correct at least once per wave.
+
+Two adjacent vocabularies are frequently confused with this one and are recorded here so they are
+not borrowed into a disposition cell:
+
+- a **routing state** (`carry_and_route`, `closed_or_preserved`) is the consolidator's disposition of
+  a finding across both lines, written in the consolidation ledger, never in an amendment ledger;
+- a **verification result** (`satisfied`, `satisfied with gap`, `partially closed`, `not closed`) is
+  the verifier's, written in the verification report.
+
+In wave 5 two of five packages used a token from outside the closed set in an amendment ledger, and
+the consolidator had to normalize it — a normalization it then had to declare as its own act rather
+than as the verifier's mapping.
 
 **The dispositions must reconcile against the audit's finding total.** In wave 4 an architect summary
 reported dispositions that exceeded each package's own finding count — 46 against 39, 34 against 30,
@@ -117,6 +131,12 @@ Binding rules:
   environmental limit was graded blocking in one package and a material gap in another, and the
   difference was justified only in one of the two cases.
 - **A verdict is a vector, not a bit** (`PV-K01`). Report which dimension failed.
+- **Grade the delivery disclosure separately from the work**, as
+  `disclosure_accuracy ∈ matches_branch · inaccurate · not_established`. A hand-back message is a
+  claim about what landed and is checkable against the branch like any other. In wave 5 only two of
+  five terminal hand-backs were branch-assessable at all, and one of those two was inaccurate; the
+  other three were `not_established` because no hand-back body was committed. `not_established` is the
+  correct grade for an uncommitted disclosure — never infer `matches_branch` from a plausible summary.
 
 ### 3.5 Remediation and delta verification (conditional)
 
@@ -145,10 +165,31 @@ Deliverables — the set converged across waves, and divergence from it has cost
 <wave>-disposition-ledger.md           every finding, both lines, one row each
 <wave>-routing-map.md                  each surviving item to a named destination
 <wave>-ratification-candidates.md      propositions with evidence, falsifier, non-effect
+<wave>-withheld-propositions.md        every proposition deliberately NOT presented, typed
 <wave>-open-questions-and-next-research.md
 <wave>-orientation-audit-record.md     every divergence from the supplied pack, incl. "none found"
 <wave>-standing-statement.md           per package and for the wave
 ```
+
+**The withheld-propositions deliverable, and why it is now named.** A consolidation withholds
+propositions from ratification for good reasons — they would constrain computation or action, or they
+presuppose a capability or institution that does not exist. Those propositions are *researched,
+evidenced and valuable*; withholding is a decision about binding, never a judgement that the content
+is worthless. Through wave 5 this content had no named home: it survived only as a tail bullet list
+in the candidates file, naming classes without carrying the propositions, and it nearly went missing
+in exactly that form. Each withheld proposition now gets one row, routed to
+`docs/system-design-decisions/withheld-propositions-register.md` with a typed reason:
+
+| `withheld_as` | meaning |
+| --- | --- |
+| `constrains_computation` | would bind what the system may compute, not what it may claim |
+| `constrains_action` | would authorize or restrict action in the world |
+| `presupposes_absent_capability` | correct, but names a producer or artifact that does not exist |
+| `presupposes_absent_institution` | correct, but names a role nobody holds |
+
+The last two are build targets, not deferrals — per the identity decision §9 item 5, an institutional
+absence binds the claim and never the capability — so each such row names the task row that carries
+its engineering half.
 
 Two obligations that produced this wave's most valuable findings:
 
@@ -175,6 +216,19 @@ The architect prepares an act; the human principal accepts it. Form, stable acro
 
 Frontmatter carries `source_kernel` (the candidates file), `parent_lens`, every controlling head,
 `informs`, `authoritative_for` and `may_not_use_for`.
+
+**§9 must cite register IDs, not class names.** "What this does not ratify" is a negative scope
+statement; on its own it names a class and carries no content, which is how a researched proposition
+becomes unrecoverable. Every class §9 names must resolve to at least one `WP-` row in
+`docs/system-design-decisions/withheld-propositions-register.md`. An act whose §9 names a class with
+no register row is incomplete.
+
+**Every controlling head an act cites must be an ancestor of `main` before the act is written.**
+Citing evidence that lives only on a research branch makes the act unverifiable from a clone, and it
+degrades rather than closes the source-replay gaps such waves routinely carry. Landing is
+byte-identical: `S0-K08` applied to ourselves — standing changes by the appended ratification record,
+never by rewriting the artifact. Where a package's verifier head strictly contains its response head,
+landing the verifier head lands both lines.
 
 **A separate act requires a separate subject.** Four exist: custody of claims (Stage 0) · what a
 number may mean (INT) · what a public proof and projection may mean (PV) · what the deciding

@@ -191,3 +191,37 @@ mechanism or test source has been edited at this point.
   `_build/apps/runtime-dashboard/`: the fixture runtime JSON, `.last-run.json`, and one
   failure directory per identity containing context, screenshot, trace, and video. No
   dashboard source or snapshot was edited.
+
+## Entry 7 — Bounded public-copy closure node
+
+- `uv run --frozen pytest
+  tests/repo_quality/frontend/test_public_claim_copy_inventory.py::test_every_public_capability_assertion_resolves_to_claim_posture
+  -q` first exited 4 because the exact row-owned node did not exist.
+- The closure node executes four existing behavioral witnesses through the real frontend
+  toolchain: strict `/trust` loading/rendering, generic artifact-row free growth, exact
+  PUBLIC DOM-twin parity with negative mutations, and route composition with exactly one
+  neutral landing entry pointing to `/trust`.
+- The complete owned denominator is the rendered `/trust` feature plus that single
+  landing entry. The other `/welcome` content and the signed-decision viewer are outside
+  this row's declared bounded residual; this node makes no general website-copy claim.
+- The exact node then exited 0. No dashboard source was changed to obtain that result.
+- Provisional verdict for `DS11-GENERAL-COPY-SEMANTICS`: `closed` for its bounded
+  denominator. Arbitrary future public copy remains explicitly outside the predicate.
+
+## Entry 8 — C13 handoff and first a11y root cause
+
+- The exact C13 conjunction node exited 1 at the first stale current-byte binding,
+  `AmbientTelemetryHud.tsx`, consistent with task C's complete `5/11 current + 6/11
+  stale` receipt census. This is the receipt half of the declared overlap, not evidence
+  against the source behavior itself.
+- Task C handed the dashboard corridor owner one source repair: Node 22 could not collect
+  the governed print selection because the two static locale JSON imports lacked import
+  attributes. Both imports now use `with { type: "json" }`; the dashboard typecheck exits
+  0. The governed print selection and receipt reissue still remain to be run against the
+  final source bytes.
+- The first current page-a11y trace independently exposed a different setup defect. The
+  generic `core_run_id` is intentionally rejected by `GET /paper` with HTTP 409 because
+  its terminal manifest has no unique run-bound `DesignRecord`. The page correctly
+  renders an unavailable state, so extending the wait or weakening the endpoint would
+  test the wrong property. A real bound paper fixture is required before the three
+  substantive accessibility predicates can be measured.

@@ -222,7 +222,8 @@ def test_four_way_ruling_is_produced_consumed_and_plane_specific(
             expected_rule_version_ref=rule_version_ref,
             expected_authority_purpose=SCOPE_ADJUDICATION_AUTHORITY_PURPOSE,
             appointed_verifier_provenance_ref=verifier_provenance_ref,
-            at_time=_VALID_AT,
+            valid_at_time=_VALID_AT,
+            as_known_at=persisted.record.recorded_at,
         )
 
         assert persisted.record_content_hash == str(persisted.record_ref.artifact_id)
@@ -232,6 +233,24 @@ def test_four_way_ruling_is_produced_consumed_and_plane_specific(
         assert len(consumed.predicate_evidence_refs) == 3
         assert consumed.authority_boundary.authoritative_for == ("scope_adjudication",)
         assert "institutional_execution" in consumed.authority_boundary.may_not_use_for
+
+        with pytest.raises(
+            ValueError,
+            match="scope_adjudication_consumer_binding_mismatch",
+        ):
+            consume_scope_adjudication_record(
+                store,
+                persisted,
+                expected_candidate_function_id=candidate_function_id,
+                expected_target_ref=target_ref,
+                expected_target_content_hash=str(target_ref.artifact_id),
+                expected_plane=request.plane,
+                expected_rule_version_ref=rule_version_ref,
+                expected_authority_purpose=SCOPE_ADJUDICATION_AUTHORITY_PURPOSE,
+                appointed_verifier_provenance_ref=verifier_provenance_ref,
+                valid_at_time=_VALID_AT,
+                as_known_at=_VALID_AT,
+            )
 
 
 def test_scope_adjudication_rejects_mixed_planes_before_record_persistence(
@@ -374,5 +393,6 @@ def test_scope_adjudication_consumer_rejects_shaped_record_ref(
             expected_rule_version_ref=rule_ref,
             expected_authority_purpose=SCOPE_ADJUDICATION_AUTHORITY_PURPOSE,
             appointed_verifier_provenance_ref=verifier_ref,
-            at_time=_VALID_AT,
+            valid_at_time=_VALID_AT,
+            as_known_at=persisted.record.recorded_at,
         )

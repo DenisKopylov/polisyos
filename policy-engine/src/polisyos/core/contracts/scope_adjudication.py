@@ -738,7 +738,8 @@ def consume_scope_adjudication_record(
     expected_rule_version_ref: ArtifactRef,
     expected_authority_purpose: ScopeAdjudicationAuthorityPurpose,
     appointed_verifier_provenance_ref: ArtifactRef,
-    at_time: datetime,
+    valid_at_time: datetime,
+    as_known_at: datetime,
 ) -> ScopeAdjudicationRecord:
     """Re-resolve and replay an exact scope record before authority-grade use.
 
@@ -752,7 +753,8 @@ def consume_scope_adjudication_record(
         expected_rule_version_ref: Exact ratified rule artifact expected by the consumer.
         expected_authority_purpose: Purpose for which the ruling will be consumed.
         appointed_verifier_provenance_ref: Verifier appointment trusted by the consumer.
-        at_time: Semantic time at which the ruling must still be applicable.
+        valid_at_time: World-valid time at which the ruling must be applicable.
+        as_known_at: Knowledge cutoff by which the persisted ruling must have existed.
 
     Returns:
         The independently re-resolved record.
@@ -761,7 +763,8 @@ def consume_scope_adjudication_record(
         ValueError: If any profile, content, scope, rule, time, or replay binding differs.
     """
 
-    _require_aware(at_time, field="at_time")
+    _require_aware(valid_at_time, field="valid_at_time")
+    _require_aware(as_known_at, field="as_known_at")
     live = _load_scope_adjudication_record(store, persisted.record_ref)
     if live != persisted:
         raise ValueError("scope_adjudication_record_handle_mismatch")
@@ -775,7 +778,8 @@ def consume_scope_adjudication_record(
         or record.authority_purpose != expected_authority_purpose
         or record.appointed_verifier_provenance_ref
         != appointed_verifier_provenance_ref
-        or not (record.valid_at <= at_time < record.reconsider_on)
+        or not (record.valid_at <= valid_at_time < record.reconsider_on)
+        or record.recorded_at > as_known_at
     ):
         raise ValueError("scope_adjudication_consumer_binding_mismatch")
     _verify_bound_ref(store, record.target_ref, record.target_content_hash)

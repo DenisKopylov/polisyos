@@ -60,3 +60,40 @@ def test_dashboard_fixture_publishes_one_content_bound_s2_run_paper(
         BOUND_ARTIFACT_KINDS
     )
     assert all(linked_kinds.count(kind) == 1 for kind in BOUND_ARTIFACT_KINDS)
+
+
+def test_bound_run_paper_fixture_is_opt_in_and_preserves_default_run_population(
+    tmp_path: Path,
+) -> None:
+    """Keep the S2 report witness out of unrelated Playwright and visual suites."""
+    server = _load_fixture_server()
+    runtime_helper = importlib.import_module("_helpers.runtime_http")
+    default_env = server._build_dashboard_fixture_env(
+        tmp_path / "default",
+        include_run_paper_fixtures=False,
+        include_bound_run_paper_fixture=False,
+        include_test_client=True,
+    )
+    bound_env = server._build_dashboard_fixture_env(
+        tmp_path / "bound",
+        include_run_paper_fixtures=False,
+        include_bound_run_paper_fixture=True,
+        include_test_client=True,
+    )
+    try:
+        default_runs = default_env["client"].get("/api/v1/runs?limit=100").json()[
+            "runs"
+        ]
+        bound_runs = bound_env["client"].get("/api/v1/runs?limit=100").json()[
+            "runs"
+        ]
+    finally:
+        runtime_helper.close_runtime_api_env(default_env)
+        runtime_helper.close_runtime_api_env(bound_env)
+
+    bound_run_id = "R_run_paper_bound_001"
+    assert "run_paper_bound_run_id" not in default_env
+    assert all(row["run_id"] != bound_run_id for row in default_runs)
+    assert bound_env["run_paper_bound_run_id"] == bound_run_id
+    assert [row["run_id"] for row in bound_runs].count(bound_run_id) == 1
+    assert len(bound_runs) == len(default_runs) + 1

@@ -116,6 +116,25 @@ def _install_bound_run_paper_fixture(env: dict[str, object]) -> str:
     return run_id
 
 
+def _build_dashboard_fixture_env(
+    tmp_root: Path,
+    *,
+    include_run_paper_fixtures: bool,
+    include_bound_run_paper_fixture: bool,
+    include_test_client: bool,
+) -> dict[str, object]:
+    """Build the shared fixture and opt into the DS11-only bound report run."""
+    build_runtime_api_env = _load_fixture_builder()
+    env = build_runtime_api_env(
+        tmp_root,
+        include_run_paper_fixtures=include_run_paper_fixtures,
+        include_test_client=include_test_client,
+    )
+    if include_bound_run_paper_fixture:
+        env["run_paper_bound_run_id"] = _install_bound_run_paper_fixture(env)
+    return env
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Serve fixture-backed runtime API for frontend e2e."
@@ -124,16 +143,16 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--metadata-file", default=None)
     parser.add_argument("--include-run-paper-fixtures", action="store_true")
+    parser.add_argument("--include-bound-run-paper-fixture", action="store_true")
     args = parser.parse_args()
 
-    build_runtime_api_env = _load_fixture_builder()
     tmp_root = Path(tempfile.mkdtemp(prefix="runtime-dashboard-e2e-"))
-    env = build_runtime_api_env(
+    env = _build_dashboard_fixture_env(
         tmp_root,
         include_run_paper_fixtures=args.include_run_paper_fixtures,
+        include_bound_run_paper_fixture=args.include_bound_run_paper_fixture,
         include_test_client=False,
     )
-    env["run_paper_bound_run_id"] = _install_bound_run_paper_fixture(env)
     app = env["app"]
 
     if args.metadata_file:

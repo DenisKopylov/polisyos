@@ -72,6 +72,38 @@ Control disposition: the path denominator is **2,611, not 2,579 (+32)**. The sub
 | `ds10-adapter-registry-data-only-free-growth` | exact named node mutates governed contract data and runs real post-G0 admission |
 | `ds10-c13-print-receipt-reissue` | complete current 11-binding hash census plus two distinct zero-retry/no-writer outputs; no frontend source writes |
 
+## C13 currentness investigation
+
+The complete receipt-defined set is eleven paths. Its current-byte census completed exit 0 with **5/11 current and 6/11 stale**:
+
+```text
+stale  AmbientTelemetryHud.tsx    232392b0... -> a06e6a98...
+stale  OperatorCraftPanel.tsx     687a831d... -> 8d94ade6...
+stale  RunDetailLayout.tsx        514ddff6... -> f4533fee...
+stale  RunReportPage.tsx          4bb0bea6... -> 5f51a10e...
+stale  RunReportPage.test.tsx     d3b5819e... -> 30023d27...
+stale  runtime-dashboard.visual.spec.ts
+                                  c472f411... -> 3a69dd55...
+```
+
+The other five bindings match. `apps/runtime-dashboard/src/app/routes/routes.tsx` is not a member of the receipt's declared `source_bindings`. The supplied two-binding premise therefore disagrees both with the register's existing 6/11 subject sweep and with this fresh 6/11 census.
+
+The exact admission test:
+
+```text
+uv run --extra test pytest architecture/atlas_surfaces/test_frontend_disposition_register.py::DS6C13PrintTransitionTests::test_independent_receipt_binds_the_full_conjunction_and_current_bytes -q
+```
+
+completed exit 1 at the first stale whole-file binding. The authorized run-one browser command then used `CI=1`, `PLAYWRIGHT_RETRIES=0`, `--workers=1`, `--retries=0`, `--update-snapshots=none`, the exact `DS8 governed run paper` grep, and scratch-only JSON/output paths. It completed exit 1 before selecting a test:
+
+```text
+expected=0 skipped=0 unexpected=0 flaky=0
+TypeError: Module ".../src/shared/i18n/locales/en.json" needs an import attribute of "type: json"
+Error: No tests found
+```
+
+Before and after that no-writer attempt, the environment tuple digest was identically `867883c4c6ab6fb16d7b6c2a5e06599c0772df05593b08d4da1d549a9f998c23`; the governed snapshot remained SHA-256 `26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a`, 19,197 bytes; and `git diff --exit-code -- apps/runtime-dashboard` completed exit 0. A second expensive run cannot create an independent passing receipt after the first run selected zero tests, so the row stops as `blocked` under the frontend-corridor rule.
+
 ## Register closure dossier
 
 The final section will contain twelve append-only blocks after all measured adjudications. No architect-owned register file is edited in this branch.

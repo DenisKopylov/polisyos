@@ -3,8 +3,8 @@ title: PolicyOS Identity And The Custody Boundary
 status: ratified design decision — system identity and scope boundary
 owner: team-architecture
 created: 2026-07-20
-last_reviewed: 2026-07-20
-decision_status: accepted — ratified by the human principal (owner decision, 2026-07-20); this document is the human-principal acceptance record required by constitution §12 for the §1 amendment it introduces
+last_reviewed: 2026-08-30
+decision_status: accepted — ratified by the human principal (owner decision, 2026-07-20); this document is the human-principal acceptance record required by constitution §12 for the §1 amendment it introduces. Amended additively 2026-08-30 by a second principal ruling, recorded as §9 item 5 — an institutional absence binds the claim, never the capability. Nothing prior is rewritten.
 supersedes: nothing (sharpens the constitution's §1 Vision; the amendment is recorded there and points here)
 informs:
   - docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
@@ -12,6 +12,7 @@ informs:
   - docs/research/policy-operations-and-real-world-runtime-backlog.md
   - docs/plans/active/layer3-slices/GY-engine-subordination.md
   - docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
+  - docs/plans/active/DEBT-REGISTER.md
 related:
   - docs/research/deep-research-value-distillation.md
   - docs/reference/policy-design-case-failure-patterns.md
@@ -176,6 +177,26 @@ reconciliation require new sovereign machinery — decline them, integrate inste
    observe / out_of_scope`) is a mandatory field, adjudicated against this document.
 4. **For the constitution:** §1 Vision gains an additive amendment block naming this
    identity and pointing here (recorded per §12; this document is the acceptance record).
+5. **For every plan gate (added 2026-08-30, principal's ruling):** an institutional
+   absence binds the **claim**, never the **capability**. No unappointed institution may
+   defer, narrow, or leave unscoped any work. The refusal lands on the signed artifact,
+   the published promotion, the custody fact — never on the mechanism that demonstrates
+   the ability. The signature slot stays typed, empty and sharply visible.
+
+   **Why this follows from §8 rather than adding to it.** H3 is reached by institutional
+   *adoption* of the custodial core. Scientists, public organisations and above all state
+   bodies can only judge that core against a *fully functional* system, so usefulness must
+   be developed to its maximum and demonstration is the path to the very appointments that
+   are missing. An institutional absence that reduced built capability would invert that
+   causality: the appointment is downstream of the demonstration, never upstream of it.
+   A refusal that stops a demonstration has been placed one band too low and is a defect.
+
+   This is `S0-K06`'s band split given a purpose — fail-closed binds the authority band
+   while the candidate band may work under a *declared* unknown; this adds that the
+   candidate band must stay **fully built and demonstrable**. When reviewing any
+   `absent/unallocated` row, ask which band its refusal sits in. When sequencing, an
+   institutional dependency is never a scheduling blocker: build the whole mechanism and
+   leave the signature slot typed and empty.
 
 ## 10. Impact note (constitution §12 requirements)
 

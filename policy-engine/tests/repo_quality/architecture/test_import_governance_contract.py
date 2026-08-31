@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import ast
+import json
+import shutil
 import tomllib
 from pathlib import Path
+
+import pytest
 
 from tools.quality.lint import lint_imports
 
@@ -95,6 +99,67 @@ def test_five_remaining_narrowings_have_one_canonical_form() -> None:
         ("lex", "data_forge"): ("polisyos.data_forge.read_api",),
         ("scientist", "data_forge"): ("polisyos.data_forge.read_api",),
     }
+
+
+def test_runtime_corpus_edge_is_replaced_by_live_projection_denominator(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real projector rejects a short corpus before owner-worker validation."""
+
+    from polisyos.runtime.http.services import governed_projections
+
+    source = REPO_ROOT / "tests" / "fixtures" / "universal-corpus"
+    target = tmp_path / "tests" / "fixtures" / "universal-corpus"
+    target.parent.mkdir(parents=True)
+    shutil.copytree(source, target)
+    manifest_path = target / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["fixtures"] = manifest["fixtures"][:-1]
+    manifest_path.write_text(json.dumps(manifest, sort_keys=True), encoding="utf-8")
+
+    owner_validation_calls: list[object] = []
+
+    def fail_if_called(**kwargs: object) -> object:
+        owner_validation_calls.append(kwargs)
+        raise AssertionError("short source must fail before owner-worker validation")
+
+    monkeypatch.setattr(governed_projections, "_run_owner_validation", fail_if_called)
+    packet = governed_projections.GovernedProjectionService(tmp_path).get(
+        governed_projections.ProjectionId.LEGACY_PROVING_GROUND
+    )
+
+    assert packet.availability is governed_projections.ProjectionAvailability.INVALID_SOURCE
+    assert packet.source is not None
+    assert packet.source.validation.status == "not_run"
+    assert packet.source.validation.issue_codes == ("projection_contract_invalid",)
+    assert owner_validation_calls == []
+
+    corpus_rows: list[tuple[str, str]] = []
+    runtime_root = SOURCE_ROOT / "runtime"
+    for path in sorted(runtime_root.rglob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            targets: tuple[str, ...]
+            if isinstance(node, ast.Import):
+                targets = tuple(alias.name for alias in node.names)
+            elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                targets = (node.module,)
+            else:
+                continue
+            for target_module in targets:
+                if target_module == "polisyos.corpus" or target_module.startswith(
+                    "polisyos.corpus."
+                ):
+                    corpus_rows.append(
+                        (path.relative_to(SOURCE_ROOT).as_posix(), target_module)
+                    )
+    assert corpus_rows == []
+
+    worker = (
+        runtime_root / "http" / "services" / "governed_projection_validation_worker.py"
+    ).read_text(encoding="utf-8")
+    assert "tests/fixtures/universal-corpus" not in worker
 
 
 def test_scientist_runtime_residual_is_exact_eval_safety_owner_ruling() -> None:

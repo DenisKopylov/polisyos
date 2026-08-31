@@ -866,3 +866,23 @@ supersessions:
 No import exception, witness deletion, public-symbol laundering, gate weakening, task A
 file, or architect-owned register file is in scope. Round-3 work proceeds serially by
 row, with red-first behavioral tests and complete structural censuses.
+
+### Runtime / Corpus — live-path measurement and repair
+
+The denominator assertion is dead in the worker. A behavioral counterfactual copied the
+complete proving-ground source, removed one manifest row (12 fixture identities/cases),
+and trapped `_run_owner_validation`. The real `GovernedProjectionService` returned
+`availability=invalid_source`, validation `status=not_run`, issue
+`projection_contract_invalid`, and the trap recorded **zero owner-validator calls**. The
+canonical denominator predicate is therefore `_project_proving_ground` over the composite
+source's identity and record sequences; the worker's later Corpus re-load could never
+adjudicate a disagreement.
+
+Red-first node:
+`tests/repo_quality/architecture/test_import_governance_contract.py::test_runtime_corpus_edge_is_replaced_by_live_projection_denominator`
+failed on the sole Runtime -> Corpus AST row. After removing only the duplicate re-load,
+the same node exits 0, the canonical worker-source parameter cases exit 0 (two selected
+cases), and the full import gate exits 0 with zero lapsed covers, zero unadjudicated
+violations, and zero allowed exceptions. The worker continues to verify all component
+hashes before and after owner validation and content-binds the projected payload into its
+semantic receipt.

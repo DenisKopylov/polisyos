@@ -896,7 +896,7 @@ class N9PromotionEvidenceBridgeRepository:
         source = _read_model(
             store=self._store,
             ref=source_ref,
-            model=_EffectObligationProducerRecord,
+            model=_EffectObligationProducerRecord,  # type: ignore[arg-type]
             kind=_EFFECT_OBLIGATION_SOURCE_KIND,
         )
         if not isinstance(source, _EffectObligationProducerRecord):
@@ -1737,9 +1737,9 @@ class CanonicalPromotionReceipt(_StrictModel):
 class _LegacyCanonicalPromotionReceiptV5(CanonicalPromotionReceipt):
     """Exact v5/v2 obligation-scope receipt retained only for history reads."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v5"] = (
+    schema_version: Literal[  # type: ignore[assignment]
         "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
-    )
+    ] = "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
 
 
 class _LegacyCanonicalPromotionReceiptV4(_LegacyCanonicalPromotionReceiptV5):

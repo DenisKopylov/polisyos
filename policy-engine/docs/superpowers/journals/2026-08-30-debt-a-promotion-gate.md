@@ -1469,3 +1469,246 @@ owner replay, the six-case conjunct selector exits `0` with six passing
 cases. The additional production-port selector exits `0` with three passing
 cases: exact and bounded contract-lane satisfaction plus the production
 authority-boundary refusal. Ruff check and `git diff --check` both exit `0`.
+
+### Round 4 final freeze and governed receipt ruling
+
+The two rows close together under one governed epoch change:
+
+- promotion receipt `n9_promotion.v5 -> .v6`;
+- obligation scope `n9_obligation_scope.v2 -> .v3`;
+- evidence bridge `n9_evidence_bridge.v1 -> .v2`;
+- owner projection remains `n9_owner_projection.v3`.
+
+This is the stronger branch of the absence-kind row's closure signal. EFFECT
+does not remain `absent/unallocated`: it now resolves to the dotted producer
+`polisyos.runtime.quality.promotion_sequence.N9PromotionEvidenceBridgeRepository.persist_effect_obligation`.
+The red-first unconstructed state remains evidence of what the old system
+could represent, rather than being misreported as the current owner state.
+
+The receipt-level distinguishability witness exited `0` and printed:
+
+```text
+CURRENT_EPOCH policyos.policy_design_case.layer3_gy.n9_promotion.v6
+UNCONSTRUCTED unknown unknown real_semantics polisyos.runtime.quality.promotion_sequence.N9PromotionEvidenceBridgeRepository.persist_effect_obligation
+OUT_OF_SCOPE scope_insufficient scope_insufficient scope_insufficient absent/unallocated
+HISTORY_EPOCH policyos.policy_design_case.layer3_gy.n9_promotion.v5 policyos.policy_design_case.layer3_gy.n9_owner_projection.v3
+HISTORY_EFFECT scope_insufficient scope_insufficient scope_insufficient GY-K entailment witness owner
+HISTORY_BYTES 48568
+```
+
+Thus both current examples carry promotion v6, owner projection v3, and
+obligation scope v3, but a reader sees different obligation fields. An
+unconstructed real-semantics obligation is `status=unknown`,
+`reason_code=unknown`, `semantic_scope=real_semantics`, and names the dotted
+producer whose evidence was not established. A genuinely out-of-scope
+obligation is `status=scope_insufficient`,
+`reason_code=scope_insufficient`, `semantic_scope=scope_insufficient`, and
+has `owner_ref=absent/unallocated`. The authentic 48,568-byte v5 fixture has
+SHA-256
+`dba4a1ab7f374ea04044b171b0e163c6b0b1390089197fc64f96c2f0e86983c9`;
+it parses through its own v5/v2 history model and current-authority validation
+rejects it as `legacy_obligation_scope_v2_authority_not_admitted`.
+
+The EFFECT capability is now a complete governed chain at this boundary:
+
+- contract: `_EffectObligationWriterInput`, kept outside
+  `CanonicalPromotionInput` so a caller cannot assert the gate predicate;
+- producer: `N9PromotionEvidenceBridgeRepository.persist_effect_obligation`;
+- persisted artifacts: exact source record plus candidate/problem-bound bridge
+  record in CAS;
+- binding authority: the L6 owner
+  `polisyos.runtime.quality.intervention_substrate.resolve_intervention_lever`;
+- evaluator: `_effect_obligation_disposition`, which independently replays the
+  L6 owner, CG1 entailment computation, CG2 owner resolution, and all three
+  RACE §12.3 conjuncts;
+- consumer: `_effect_obligation`, which can satisfy, decisively refuse, or
+  report typed evidence non-establishment.
+
+The shadow boundary is structural. `GroundingRelationEngine` receives an
+already-owned L6 atom and computes a relation over it; it neither selects the
+atom nor performs a bind/admit/promote transition. A valid supplied CG1
+certificate alone leaves EFFECT at
+`effect_obligation_evidence_not_established`, and an atom traceable to the CG1
+or design-generation shadow path decisively refuses as
+`effect_atom_binding_shadow_only`. The no-engine alternative is insufficient
+because mutual consistency among declared epsilon, estimand, and mechanism
+cannot prove §12.3's third entailment-or-boundedness conjunct.
+
+The three conjunct falsifiers are independent:
+
+1. removing the epsilon-to-estimand mapping refuses as
+   `effect_estimand_mapping_missing`;
+2. removing the defined causal path/mechanism refuses as
+   `effect_causal_path_or_mechanism_missing`;
+3. making the relation explicitly ungrounded refuses as
+   `effect_claim_ungrounded`.
+
+The positive counterwitness covers both permitted semantics: an exact
+entailment satisfies as `effect_claim_entailed`, while a certified
+specialization satisfies as bounded. A production-path witness also proves
+that a contract-only CG2 certificate cannot cross the authority boundary; it
+refuses as `effect_binding_authority_not_established`.
+
+The final 31-node focused behavior selector exited `0` with 32 passing cases.
+It covered v4/v5 history, receipt identity, the former timeout knob, both lane
+settings, all three bridged obligations, all three production writers,
+foreign-verifier refusal, EvalSafety, N5 coupling emit/carry/consume,
+scheduling/rebinding, and comparison authority. The concise row-specific
+commands below are the deciding commands used by the Register closure dossier.
+
+### Freeze measurements and carried state
+
+The denominator command `rg --files src -g '*.py' | wc -l` exited `0` with
+`2611`. Against that complete source-Python denominator, this exact census:
+
+```bash
+git grep -n '\.persist_effect_obligation(' -- 'src/**/*.py'
+```
+
+exited `0` with exactly one non-test caller:
+
+```text
+src/polisyos/runtime/quality/promotion_sequence.py:1472:        repository.persist_effect_obligation(
+```
+
+The public owner/replay mechanism and its tests live in the same owned source
+and test files; none of the read-only producers was changed. This exact
+protected-file readback exited `0` with no output:
+
+```bash
+git diff --numstat 60bbb0531..HEAD -- \
+  src/polisyos/runtime/quality/generation_cycle.py \
+  src/polisyos/runtime/quality/evaluation_safety.py \
+  src/polisyos/runtime/http/dependencies.py \
+  src/polisyos/evidence/portfolio/effective_independence_graph.py \
+  src/polisyos/runtime/quality/data_forge_binding.py \
+  src/polisyos/runtime/quality/design_axes/coupling_composition.py
+```
+
+`_effect_obligation` changed from 948 bytes with SHA-256
+`2aa090d9694d8599d07f07df46476894a4a39287c324c08beeb8a90d7fd44a38`
+to 1,507 bytes with SHA-256
+`6e17d5f91d21f8ed80776af4078cc0d0ac3f897559a48d83ff953432300c7f20`
+under the established source-segment convention that includes its trailing
+line feed. The diff changes its input from the caller payload to the resolved
+producer disposition, deletes the test-knob timeout branch and unconditional
+`scope_insufficient`, and adds established/refused/unknown typed branches.
+The freeze command selected bytes from `def _effect_obligation(` through the
+single trailing line feed immediately before `def _identification_obligation(`
+and exited `0` with those exact byte-count and digest values.
+
+The governed comparison check was deliberately not regenerated. This exact
+command exited `1`:
+
+```bash
+JAX_PLATFORMS=cpu uv run --extra analytics --extra solvers --extra test \
+  python tools/quality/validation/check_layer3_gy_promotion_contract.py \
+  --check --output-format json
+```
+
+Decisive output: `ValueError: promotion_comparison_admission_manifest_drift`.
+The architecture guardrail command `uv run polisyos-tools architecture
+guardrails check` also exited `1`: all six generated-artifact freshness checks
+were clean, and the only failure was the carried trust-claim posture receipt
+whose ratified identity basis differs from its admitted closed receipt. No
+import-boundary finding was emitted.
+
+The exact bound baseline commands were:
+
+```bash
+PYTHONPATH=. uv run python tools/quality/validation/check_debt_ledger.py --check
+PYTHONPATH=. uv run python tools/quality/validation/check_docs_lifecycle.py
+```
+
+The debt checker exited `1` with exactly 18 inherited
+`closure_signal_identity_unresolvable` blockers: nine `ds10-*`, eight
+`DS11-*`, and `decision-validity-fixed-temp-concurrency`. The blocker set did
+not grow. The docs-lifecycle checker exited `1` with exactly six inherited
+findings: two ledger front-matter findings and four stale dashboard
+references. Ruff format check, Ruff check, and `git diff --check` each exited
+`0` at the source freeze.
+
+The only newly observed out-of-scope issue is CG1 certificate sensitivity to
+CredalReference edge insertion order despite equal public reference hashes.
+The local bridge preserves exact producer order, so this lane is sound. The
+architect ownership question is whether
+`src/polisyos/runtime/quality/grounding_relation.py` must canonicalize that
+order or explicitly declare it load-bearing; that producer was read-only here
+and neither row depends on changing it.
+
+## Register closure dossier — Round 4
+
+### `gy-n9-unmet-check-absence-kind-conflated`
+
+- verdict: `closed`
+- deciding command:
+
+  ```bash
+  uv run --extra test pytest -q \
+    tests/unit/runtime/quality/test_promotion_sequence.py::test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient \
+    tests/unit/runtime/quality/test_promotion_sequence.py::test_round1_v5_v2_receipt_round_trips_but_cannot_regain_current_authority
+  ```
+
+- exit code: `0`
+- decisive output: `.. [100%]`; the current v6/v3 receipt represents an
+  unconstructed real-semantics EFFECT as `unknown / unknown / real_semantics`
+  with a resolvable dotted owner, while genuine scope absence remains
+  `scope_insufficient / scope_insufficient / scope_insufficient` with
+  `absent/unallocated`; authentic v5 bytes read under v5/v2 and are rejected
+  as current authority.
+- exact append-only prose for the register:
+
+  > **CLOSED 2026-08-31 (`5c6b5f948`).** Supersession: the stronger
+  > owner-resolution branch of the closure signal now holds. MEASUREMENT and
+  > EFFECT resolve to real dotted producers; EVAL_SAFETY retains its honest
+  > missing-authority owner. Under `n9_promotion.v6` /
+  > `n9_obligation_scope.v3`, an unconstructed real-semantics obligation is
+  > receipt-distinct as `status=unknown`, `reason_code=unknown`,
+  > `semantic_scope=real_semantics`, while a genuinely out-of-scope
+  > obligation remains `scope_insufficient` in all three fields. The
+  > red-first pre-producer EFFECT witness remains pinned, and the authentic
+  > 48,568-byte v5/v2 receipt reads only under its historical epoch and is
+  > rejected as current authority by
+  > `legacy_obligation_scope_v2_authority_not_admitted`. Deciding command:
+  > `uv run --extra test pytest -q tests/unit/runtime/quality/test_promotion_sequence.py::test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient tests/unit/runtime/quality/test_promotion_sequence.py::test_round1_v5_v2_receipt_round_trips_but_cannot_regain_current_authority` (exit 0, two passed).
+
+### `gy-n9-effect-obligation-producer-and-evaluator-missing`
+
+- verdict: `closed`
+- deciding command:
+
+  ```bash
+  uv run --extra test pytest -q \
+    tests/unit/runtime/quality/test_promotion_sequence.py::test_valid_cg1_shadow_certificate_alone_cannot_satisfy_effect \
+    tests/unit/runtime/quality/test_promotion_sequence.py::test_cg1_derived_atom_cannot_satisfy_effect \
+    tests/unit/runtime/quality/test_promotion_sequence.py::test_effect_without_epsilon_to_estimand_mapping_fails_its_first_conjunct \
+    tests/unit/runtime/quality/test_promotion_sequence.py::test_effect_without_causal_path_or_mechanism_fails_its_second_conjunct \
+    tests/unit/runtime/quality/test_promotion_sequence.py::test_ungrounded_effect_claim_fails_its_entailment_conjunct \
+    tests/unit/runtime/quality/test_promotion_sequence.py::test_effect_exact_or_bounded_entailment_satisfies_without_minting \
+    tests/unit/runtime/quality/test_promotion_sequence.py::test_production_n9_port_persists_effect_but_refuses_contract_only_cg2
+  ```
+
+- exit code: `0`
+- decisive output: `........ [100%]`; eight cases passed, covering the CG1
+  shadow boundary, all three independent §12.3 conjunct falsifiers, exact and
+  bounded satisfaction, and the production CG2 authority refusal.
+- exact append-only prose for the register:
+
+  > **CLOSED 2026-08-31 (`5c6b5f948`).** RACE §12.3 EFFECT is now a complete
+  > resolve-and-bind capability: `_EffectObligationWriterInput` feeds
+  > `N9PromotionEvidenceBridgeRepository.persist_effect_obligation`, exact
+  > CAS records bind candidate/problem/content/verifier provenance, and
+  > `_effect_obligation_disposition` independently replays the authoritative
+  > L6 atom owner, CG1 entailment over that already-bound atom, the CG2 owner,
+  > and all three EFFECT conjuncts before `_effect_obligation` consumes the
+  > result. A supplied CG1 shadow certificate cannot satisfy EFFECT, a
+  > CG1-derived atom refuses as `effect_atom_binding_shadow_only`, missing
+  > estimand mapping and missing causal mechanism refuse for their respective
+  > reasons, and ungrounded entailment refuses as `effect_claim_ungrounded`.
+  > Exact entailment and certified specialization satisfy in the opposite
+  > direction; production contract-only CG2 authority refuses as
+  > `effect_binding_authority_not_established`. The 2,611-file source census
+  > finds exactly one non-test `.persist_effect_obligation(` caller. Deciding
+  > command: `uv run --extra test pytest -q tests/unit/runtime/quality/test_promotion_sequence.py::test_valid_cg1_shadow_certificate_alone_cannot_satisfy_effect tests/unit/runtime/quality/test_promotion_sequence.py::test_cg1_derived_atom_cannot_satisfy_effect tests/unit/runtime/quality/test_promotion_sequence.py::test_effect_without_epsilon_to_estimand_mapping_fails_its_first_conjunct tests/unit/runtime/quality/test_promotion_sequence.py::test_effect_without_causal_path_or_mechanism_fails_its_second_conjunct tests/unit/runtime/quality/test_promotion_sequence.py::test_ungrounded_effect_claim_fails_its_entailment_conjunct tests/unit/runtime/quality/test_promotion_sequence.py::test_effect_exact_or_bounded_entailment_satisfies_without_minting tests/unit/runtime/quality/test_promotion_sequence.py::test_production_n9_port_persists_effect_but_refuses_contract_only_cg2` (exit 0, eight passed).
+
+Round-4 arithmetic: **2 = 2 closed + 0 blocked**. No row remains open.

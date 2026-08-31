@@ -372,3 +372,25 @@ Relevant pattern controls are P32/P37 for content-bound recomputation and P38
 for the status-vector proxy error. The smallest correct future repair is one
 resolved `O_effect` evidence path, not a marker ref, caller Boolean, imported
 symbol, or reinterpretation of an adjacent obligation.
+
+### 9.5 Phase 2 writer orchestration boundary
+
+The production N9 batch constructs the exact candidate/problem-bound
+`CanonicalPromotionInput` before either writer runs. Its non-serialized owner
+context may supply one strict effective-independence producer-input record and
+one real `ArtifactEnvelope` emitted by `MeasurementRootProducer`. The batch
+validates those shapes, invokes the existing repository writers, and appends
+only their returned content-addressed refs to `producer_root_refs`. It never
+copies the source payload or a caller disposition into the canonical input.
+
+The same repository immediately resolves those refs through source-specific
+recomputation and fixed verifier provenance. A producer-negative independence
+result is decisive `failed`; an admitted measurement root is decisive
+`satisfied`. Missing, malformed, foreign, or unreadable writer input adds no
+ref and therefore remains the existing `evidence_not_established` refusal.
+Pre-existing same-kind refs are not replaced, so duplicate evidence still
+fails closed under the reader's exact-one rule.
+
+This is orchestration inside the current v5/v3/v2 epoch: it changes neither a
+receipt field nor a semantic rule. `generation_cycle.py` requires no Round-3
+change; its already-additive Round-2 dependency threading remains intact.

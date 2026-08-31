@@ -250,6 +250,24 @@ class N9PromotionEvidenceResolution(_StrictModel):
     predicate_class: Literal["independently_reconciled", "not_established"]
 
 
+class _EffectiveIndependenceWriterInput(_StrictModel):
+    """Producer inputs accepted only by the N9 evidence writer boundary."""
+
+    evidence_lines: tuple[dict[str, Any], ...]
+    portfolio_designs: tuple[dict[str, Any], ...]
+    graph_id: str = Field(min_length=1)
+    producer_execution_started_at: str | None = None
+    feature_flags: dict[str, bool] = Field(default_factory=dict)
+    graded_independence_config: dict[str, Any] | None = None
+    rare_domain_context: dict[str, Any] | None = None
+
+
+class _MeasurementRootWriterInput(_StrictModel):
+    """Real MeasurementRoot envelope accepted by the N9 writer boundary."""
+
+    envelope: ArtifactEnvelope
+
+
 class N9PromotionEvidenceBridgeRepository:
     """Persist and independently replay N9 producer bindings from exact CAS bytes."""
 
@@ -876,6 +894,60 @@ def _promotion_evidence_resolutions(
             predicate_class="not_established",
         )
     return resolutions
+
+
+def _bind_production_promotion_evidence(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    context: Mapping[str, Any],
+    repository: N9PromotionEvidenceBridgeRepository | None,
+) -> CanonicalPromotionInput:
+    """Persist real producer outputs and carry only their verified bridge refs."""
+
+    if repository is None:
+        return promotion_input
+    producer_root_refs = list(promotion_input.producer_root_refs)
+    raw_independence = context.get("effective_independence_writer_input")
+    if raw_independence is not None:
+        try:
+            independence_input = _EffectiveIndependenceWriterInput.model_validate(
+                raw_independence
+            )
+            producer_root_refs.append(
+                repository.persist_effective_independence(
+                    promotion_input=promotion_input,
+                    evidence_lines=independence_input.evidence_lines,
+                    portfolio_designs=independence_input.portfolio_designs,
+                    graph_id=independence_input.graph_id,
+                    producer_execution_started_at=(
+                        independence_input.producer_execution_started_at
+                    ),
+                    feature_flags=independence_input.feature_flags,
+                    graded_independence_config=(
+                        independence_input.graded_independence_config
+                    ),
+                    rare_domain_context=independence_input.rare_domain_context,
+                )
+            )
+        except (KeyError, OSError, TypeError, ValueError):
+            pass
+    raw_measurement = context.get("measurement_root_writer_input")
+    if raw_measurement is not None:
+        try:
+            measurement_input = _MeasurementRootWriterInput.model_validate(raw_measurement)
+            producer_root_refs.append(
+                repository.persist_measurement_root(
+                    promotion_input=promotion_input,
+                    envelope=measurement_input.envelope,
+                )
+            )
+        except (KeyError, OSError, TypeError, ValueError):
+            pass
+    if tuple(producer_root_refs) == promotion_input.producer_root_refs:
+        return promotion_input
+    return promotion_input.model_copy(
+        update={"producer_root_refs": tuple(producer_root_refs)}
+    )
 
 
 class _LegacyCanonicalPromotionOwnerProjectionV1(_StrictModel):
@@ -2082,6 +2154,11 @@ def _run_n9_promotion_port_batch(
                 "g4-promotion-record:g4-request:ua-msme-source-only-valid",
             ),
             force_proof_timeout=bool(context.get("force_proof_timeout", False)),
+        )
+        promotion_input = _bind_production_promotion_evidence(
+            promotion_input,
+            context=context,
+            repository=promotion_evidence_resolver,
         )
         runner = (
             _run_canonical_promotion_sequence_for_verification

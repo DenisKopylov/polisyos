@@ -1065,3 +1065,111 @@ signals—not partial mechanism completion—decide the verdicts.
   absent/unallocated semantics. A content-bound, candidate/problem/estimand/
   epoch-bound evaluator under `n9_obligation_scope.v3` must land before this
   row's absence kinds are truthfully represented end to end.
+
+## Round 3 — Phase 2: production writer orchestration
+
+Phase 2 began only after commit `e0239f3c9` recorded and froze the Phase-1
+ruling. The two source capabilities remained deliberately distinct:
+
+- effective independence entered as `bridge_missing +
+  implemented_but_not_orchestrated`. Its only non-N9 report-builder route is
+  guarded by `policy_design_case.graded_independence_weights`; the N9 writer
+  itself invokes the complete producer and does not treat that report route as
+  promotion evidence;
+- measurement entered as `bridge_missing` only. The real
+  `MeasurementRootProducer` is already constructed and invoked by
+  `workspace/loop.py`; N9 needed to bind its returned envelope, not build a
+  second producer.
+
+### Red-first boundary
+
+The two integration witnesses exercise `CanonicalN9PromotionPort` with a real
+container-owned `PromotionRuntime`, a sealed positive epoch admission, and the
+real producer inputs. Each validates the emitted receipt again through the
+owner resolvers. Before source changed, this exact command exited `1`:
+
+```bash
+uv run pytest -q --tb=short \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_production_n9_port_persists_and_consumes_dependent_independence_evidence \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_production_n9_port_persists_and_consumes_measurement_root_evidence
+```
+
+Decisive red output was two assertion failures: independence was
+`scope_insufficient` instead of `failed`, and MEASUREMENT was
+`scope_insufficient` instead of `satisfied`. These are the two absent writer
+calls, not fixture or collection errors.
+
+The minimal production repair is `_bind_production_promotion_evidence` inside
+the canonical N9 batch. It runs only after the exact candidate/problem input
+exists, strict-validates producer-specific context, invokes the existing
+repository writers, and carries only returned CAS refs. Invalid or absent
+source input is caught at that boundary and produces no ref, so the existing
+reader returns `evidence_not_established`; no exception or caller predicate can
+become a positive.
+
+The same two-node command was then rerun with an explicit exit capture. It
+exited `0` and printed two passing dots plus `writer_witness_exit=0`.
+Independence reached `failed` with `dependent_evidence_collapsed`; measurement
+reached `satisfied` and carried the real producer payload ref. Both complete
+receipts passed current owner replay with the same resolver.
+
+### Source caller census
+
+```bash
+git grep -n '\.persist_effective_independence(' -- src/
+git grep -n '\.persist_measurement_root(' -- src/
+```
+
+Both commands exit `0`. Each returns exactly one non-test caller, in
+`promotion_sequence.py` inside `_bind_production_promotion_evidence`. The
+repository method definitions are not counted by this call-pattern census.
+`generation_cycle.py`, both read-only producer modules, `evaluation_safety.py`,
+and `runtime/http/dependencies.py` have zero Round-3 Phase-2 lines changed.
+
+Ruff over the owned source and test files exits `0` with `All checks passed!`.
+
+## Register closure dossier — Round 3 Phase-2 writer rows
+
+### `gy-n9-independence-evidence-writer-unorchestrated`
+
+- Verdict: `closed`.
+- Deciding command: the two-node writer witness above plus
+  `git grep -n '\.persist_effective_independence(' -- src/`.
+- Direct exits and decisive output: pytest red `1` with
+  `scope_insufficient != failed`, then green `0`; the final receipt contains
+  one `N9EffectiveIndependenceBridge`, the independently recomputed obligation
+  is `failed` with `dependent_evidence_collapsed`, and full owner replay has no
+  issues. Grep exits `0` with the production caller in
+  `_bind_production_promotion_evidence`.
+- Exact append-only register prose: **Supersession 2026-08-31 — closed by the
+  production N9 writer path.** Effective independence remains distinct from
+  the feature-flagged report-builder route
+  `policy_design_case.graded_independence_weights`. The canonical production
+  batch now strict-validates producer inputs after candidate/problem binding,
+  invokes `persist_effective_independence`, carries only its CAS bridge ref,
+  and immediately resolves and recomputes the real graph under fixed verifier
+  provenance. A red-first dependent graph moved from
+  `evidence_not_established` to decisive `dependent_evidence_collapsed`; the
+  complete receipt replays cleanly, while absent or malformed evidence still
+  refuses.
+
+### `gy-n9-measurement-evidence-writer-unorchestrated`
+
+- Verdict: `closed`.
+- Deciding command: the two-node writer witness above plus
+  `git grep -n '\.persist_measurement_root(' -- src/`.
+- Direct exits and decisive output: pytest red `1` with
+  `scope_insufficient != satisfied`, then green `0`; the final receipt
+  contains one `N9MeasurementRootBridge`, MEASUREMENT is `satisfied`, the real
+  producer payload ref is evidence, and full owner replay has no issues. Grep
+  exits `0` with the production caller in
+  `_bind_production_promotion_evidence`.
+- Exact append-only register prose: **Supersession 2026-08-31 — closed by the
+  running MeasurementRoot-to-N9 writer path.** The production batch accepts
+  only the full real `MeasurementRootProducer` envelope, validates its source
+  and authority CAS chain through `persist_measurement_root`, binds it to the
+  exact candidate and design problem, carries only the returned bridge ref,
+  and independently replays it before MEASUREMENT can satisfy. The red-first
+  integration witness moved from `evidence_not_established` to a decisive
+  satisfied outcome and the current receipt replays cleanly. Missing,
+  malformed, or foreign evidence remains an honest refusal.

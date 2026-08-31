@@ -1767,6 +1767,124 @@ def test_real_measurement_root_resolves_and_binds_into_n9(tmp_path: Path) -> Non
         )
 
 
+def test_production_n9_port_persists_and_consumes_dependent_independence_evidence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem(f"n9_independence_writer_{uuid4().hex}")
+    summary = _summary()
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(summary,),
+    )
+    port = CanonicalN9PromotionPort(
+        context_provider=lambda _summary, _problem: {
+            "effective_independence_writer_input": {
+                "evidence_lines": (
+                    _independence_line("publication-1", primary_source="journal"),
+                    _independence_line("publication-2", primary_source="working-paper"),
+                ),
+                "portfolio_designs": (_independence_portfolio_design(),),
+                "graph_id": "effective-independence:n9-production-dependent",
+            }
+        },
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+        repo_root=REPO_ROOT,
+    )
+
+    observation = port(admitted_batch=admitted_batch, problem=problem)
+    receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
+    independence = next(
+        item
+        for item in receipt.obligations
+        if item.source_obligation_ref.endswith("#effective_independence")
+    )
+
+    assert independence.status == PromotionObligationStatus.FAILED
+    assert "dependent_evidence_collapsed" in independence.detail
+    assert any(
+        item.artifact_type == "N9EffectiveIndependenceBridge"
+        for item in receipt.owner_projection.producer_root_refs
+    )
+    assert validate_canonical_promotion_receipt(
+        receipt,
+        candidate_summary=summary,
+        design_problem=problem,
+        open_world_resolver=port.open_world_resolver,
+        epoch_validity_resolver=port.epoch_validity_resolver,
+        promotion_evidence_resolver=port.promotion_evidence_resolver,
+    ) == ()
+
+
+def test_production_n9_port_persists_and_consumes_measurement_root_evidence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    manifest = load_workspace_fixture_manifest("ua_msme_credit_worldbank_measurement")
+    envelope = MeasurementRootProducer(artifact_store=runtime.store).produce_from_catalog(
+        manifest,
+        build_slice0_fixture_catalog_graph(tmp_path),
+    )
+    problem = _problem(f"n9_measurement_writer_{uuid4().hex}")
+    summary = _summary()
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(summary,),
+    )
+    port = CanonicalN9PromotionPort(
+        context_provider=lambda _summary, _problem: {
+            "measurement_root_writer_input": {"envelope": envelope}
+        },
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+        repo_root=REPO_ROOT,
+    )
+
+    observation = port(admitted_batch=admitted_batch, problem=problem)
+    receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
+    measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)
+
+    assert measurement.status == PromotionObligationStatus.SATISFIED
+    assert envelope.payload_ref in measurement.evidence_refs
+    assert any(
+        item.artifact_type == "N9MeasurementRootBridge"
+        for item in receipt.owner_projection.producer_root_refs
+    )
+    assert validate_canonical_promotion_receipt(
+        receipt,
+        candidate_summary=summary,
+        design_problem=problem,
+        open_world_resolver=port.open_world_resolver,
+        epoch_validity_resolver=port.epoch_validity_resolver,
+        promotion_evidence_resolver=port.promotion_evidence_resolver,
+    ) == ()
+
+
 def test_foreign_candidate_and_wrong_verifier_provenance_fail_closed(
     tmp_path: Path,
 ) -> None:

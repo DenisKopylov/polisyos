@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -73,10 +74,16 @@ TENANT_ID = "tenant-acquisition"
 CELL_ID = "cell-acquisition"
 RUN_ID = "run-acquisition"
 JOB_ID = "job-acquisition"
-RESOURCE_DIGEST = "sha256:" + "a" * 64
+RESOURCE_DIGEST = "sha256:e6b1bafe016a6ac4f81781826ee5f7536b6f9ead7d96324cef847983a4457876"
 MANDATE_OWNER_REF = "principal://mandate-owner/acquisition"
 MANDATE_AUTHORITY_IDENTITY = "service://institutional-mandate-registry"
 ADMISSION_IDENTITY = "service://runtime/acquisition-admission"
+ACQUISITION_SELECTORS = (
+    ("idempotency_key", '"idempotency-acquisition"'),
+    ("planner_report_hash", '"sha256:' + "e" * 64 + '"'),
+    ("replay_pins", '["sha256:' + "f" * 64 + '"]'),
+    ("route_projection_hash", '"sha256:' + "d" * 64 + '"'),
+)
 
 
 def _boundary(*, authoritative_for: str, source: str) -> AuthorityBoundary:
@@ -127,12 +134,25 @@ def _invocation(operation: OperationContract) -> OperationInvocationRecord:
     )
 
 
-def _proof() -> BoundActionPermissionVerification:
+def _proof(*, resource_digest: str = RESOURCE_DIGEST) -> BoundActionPermissionVerification:
     requirement = RouteAuthorizationRequirement(
-        permission=RuntimePermission.KNOWLEDGE_SEARCH,
+        permission=RuntimePermission.EVIDENCE_ACQUIRE,
         resource_binding=ResourceBindingSpec(
-            source=ResourceBindingSource.TENANT_COLLECTION,
-            resource_kind="runtime.agent_action",
+            source=ResourceBindingSource.REQUEST_COMPOSITE,
+            resource_kind="runtime.evidence.acquisition",
+            selector_fields=(
+                "route_projection_hash",
+                "planner_report_hash",
+                "replay_pins",
+                "idempotency_key",
+                "human_decision_record_ref",
+            ),
+            required_selector_fields=(
+                "route_projection_hash",
+                "planner_report_hash",
+                "replay_pins",
+                "idempotency_key",
+            ),
         ),
     )
     verification = ActionPermissionVerification(
@@ -142,18 +162,18 @@ def _proof() -> BoundActionPermissionVerification:
         jwt_id="jwt-acquisition",
         roles=frozenset({PolicyOSRole.ANALYST}),
         authorization_source="runtime.jwt+opa",
-        granted_permissions=(RuntimePermission.KNOWLEDGE_SEARCH,),
+        granted_permissions=(RuntimePermission.EVIDENCE_ACQUIRE,),
     )
     resource = BoundAuthorizationResource(
         requirement=requirement,
-        tenant_id=TENANT_ID,
-        resource_kind="runtime.agent_action.tenant_collection",
-        resource_id=f"urn:polisyos:runtime-authorization-resource:v1:{RESOURCE_DIGEST}",
-        resource_digest=RESOURCE_DIGEST,
-        authority=BindingAuthority.TENANT_COLLECTION,
+        tenant_id=None,
+        resource_kind="runtime.evidence.acquisition.request_bound",
+        resource_id=f"urn:polisyos:runtime-authorization-resource:v1:{resource_digest}",
+        resource_digest=resource_digest,
+        authority=BindingAuthority.REQUEST_BOUND,
         body_sha256="sha256:" + "b" * 64,
         query_sha256="sha256:" + "c" * 64,
-        canonical_selectors=(("tenant_id", f'"{TENANT_ID}"'),),
+        canonical_selectors=ACQUISITION_SELECTORS,
     )
     return BoundActionPermissionVerification(
         verification=verification,
@@ -186,7 +206,7 @@ def _contract() -> DelegationContract:
         action_kind=ACQUISITION_ACTION_KIND,
         operation_id=ACQUISITION_ACTION_KIND,
         operation_version="v1",
-        required_permission=RuntimePermission.KNOWLEDGE_SEARCH,
+        required_permission=RuntimePermission.EVIDENCE_ACQUIRE,
         authorized_subject="user:acquisition-operator",
         authorized_runtime_roles=(PolicyOSRole.ANALYST,),
         required_tenant_id=TENANT_ID,
@@ -322,8 +342,8 @@ def _gateway(
     event_log: RuntimeDiagnosticEventLog,
     idempotency_store: RuntimeIdempotencyStore,
     verifier: Ed25519Verifier,
-    contract_ref: str,
-    admission_mapping: dict[str, str],
+    contract_ref: str | None,
+    admission_mapping: Mapping[str, str],
     binding: AgentActionEffectBinding,
 ) -> AgentActionAuthorityGateway:
     return AgentActionAuthorityGateway(
@@ -334,7 +354,9 @@ def _gateway(
         bound_permission=_proof(),
         admission_producer_identity=ADMISSION_IDENTITY,
         write_context=_write_context(),
-        contract_refs_by_resource_digest={RESOURCE_DIGEST: contract_ref},
+        contract_refs_by_resource_digest=(
+            {} if contract_ref is None else {RESOURCE_DIGEST: contract_ref}
+        ),
         mandate_authority_evidence_refs_by_owner_ref={},
         admission_refs_by_invocation_hash=admission_mapping,
         effect_bindings=(binding,),
@@ -420,6 +442,63 @@ def test_non_acquisition_tuple_is_rejected_before_authority_artifact_write(tmp_p
     assert event_log.list_events(limit=10) == before_events
 
 
+def test_mismatched_resource_digest_is_rejected_before_authority_artifact_write(
+    tmp_path: Path,
+) -> None:
+    store, event_log, _ = _harness(tmp_path)
+    owner_pair = KeyPair.generate()
+    admission_pair = KeyPair.generate()
+    verifier = Ed25519Verifier(strict_identity=True)
+    verifier.add_trusted_key(owner_pair.public_key, identity=MANDATE_OWNER_REF)
+    verifier.add_trusted_key(admission_pair.public_key, identity=ADMISSION_IDENTITY)
+    contract_ref = _persist_signed(
+        store=store,
+        event_log=event_log,
+        payload=_contract(),
+        kind=DELEGATION_CONTRACT_ARTIFACT_KIND,
+        schema_name="polisyos.runtime.DelegationContract",
+        schema_version=LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
+        signer=Ed25519Signer(owner_pair.private_key),
+        signer_identity=MANDATE_OWNER_REF,
+    )
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = AgentActionIntent(action_kind=ACQUISITION_ACTION_KIND)
+    binding = AgentActionEffectBinding(
+        binding_id="acquisition-effect",
+        action_kind=ACQUISITION_ACTION_KIND,
+        operation_id=operation.operation_id,
+        operation_version=operation.operation_version,
+        implementation_ref="adapter://acquisition/v1",
+        handler=lambda _invocation: "must-not-run",
+    )
+    producer = AcquisitionAdmissionBundleProducer(
+        artifact_store=store,
+        event_log=event_log,
+        signing_slot=AcquisitionAdmissionSigningSlot.configured(
+            signer=Ed25519Signer(admission_pair.private_key),
+            verifier=verifier,
+            signer_identity=ADMISSION_IDENTITY,
+        ),
+        write_context=_write_context(),
+    )
+    before_events = event_log.list_events(limit=10)
+
+    with pytest.raises(AcquisitionAdmissionBundleBlocked) as exc_info:
+        producer.admit(
+            delegation_contract_ref=contract_ref,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            bound_permission=_proof(resource_digest="sha256:" + "a" * 64),
+            effect_binding=binding,
+            admitted_at=NOW,
+        )
+
+    assert exc_info.value.code == "acquisition_resource_digest_mismatch"
+    assert event_log.list_events(limit=10) == before_events
+
+
 def test_ephemeral_signer_produces_reconciled_bundle_for_gateway(tmp_path: Path) -> None:
     store, event_log, idempotency_store = _harness(tmp_path)
     owner_pair = KeyPair.generate()
@@ -471,6 +550,7 @@ def test_ephemeral_signer_produces_reconciled_bundle_for_gateway(tmp_path: Path)
     )
 
     invocation_hash = agent_action_content_hash(invocation)
+    assert _proof().bound_resource.resource_digest == RESOURCE_DIGEST
     assert receipt.invocation_refs == {invocation_hash: receipt.artifact_ref}
     with pytest.raises(TypeError):
         receipt.invocation_refs[invocation_hash] = "sha256:" + "f" * 64
@@ -488,13 +568,41 @@ def test_ephemeral_signer_produces_reconciled_bundle_for_gateway(tmp_path: Path)
     )
     assert report.status == "pass"
     assert receipt.payload_sha256 == f"sha256:{receipt.artifact_ref.removeprefix('sha256:')}"
+    gateway_without_contract = _gateway(
+        store=store,
+        event_log=event_log,
+        idempotency_store=RuntimeIdempotencyStore(root=tmp_path / "idempotency-without-contract"),
+        verifier=verifier,
+        contract_ref=None,
+        admission_mapping=receipt.invocation_refs,
+        binding=binding,
+    )
+    assert gateway_without_contract.resolve_admission_bundle(invocation_hash) == (
+        receipt.bundle,
+        receipt.artifact_ref,
+    )
+    with agent_action_authority_scope(gateway_without_contract), pytest.raises(
+        AgentActionAuthorityRefused
+    ) as no_contract_exc_info:
+        dispatch_agent_external_action(
+            bound_permission=gateway_without_contract.bound_permission,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+        )
+    assert "delegation_contract_not_persisted" in no_contract_exc_info.value.decision.refusal_reasons
+    assert effects == []
+    assert gateway_without_contract.resolve_admission_bundle(invocation_hash) == (
+        receipt.bundle,
+        receipt.artifact_ref,
+    )
     gateway = _gateway(
         store=store,
         event_log=event_log,
         idempotency_store=idempotency_store,
         verifier=verifier,
         contract_ref=contract_ref,
-        admission_mapping=dict(receipt.invocation_refs),
+        admission_mapping=receipt.invocation_refs,
         binding=binding,
     )
 

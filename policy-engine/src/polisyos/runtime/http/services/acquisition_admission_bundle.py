@@ -27,6 +27,13 @@ from polisyos.core.artifacts.signing import (
 )
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.pdc import AuthorityBoundary, OperationContract, OperationInvocationRecord
+from polisyos.runtime.http.authorization import ResourceBindingSource
+from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.resource_binding import (
+    BindingAuthority,
+    BoundAuthorizationResource,
+    _digest_payload,
+)
 from polisyos.runtime.http.services.control.artifacts import write_runtime_authority_artifact
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
@@ -52,6 +59,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from polisyos.runtime.http.authorization import BoundActionPermissionVerification
+    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 
 _SIGNER_PURPOSE: Literal["acquisition_admission"] = "acquisition_admission"
 
@@ -150,7 +158,7 @@ class AcquisitionAdmissionBundleProducer:
     """Persist and sign deterministic admission bundles for acquisition-only tuples."""
 
     artifact_store: _AuthorityArtifactStore
-    event_log: object
+    event_log: RuntimeDiagnosticEventLog
     signing_slot: AcquisitionAdmissionSigningSlot
     write_context: AgentActionAuthorityWriteContext
 
@@ -183,13 +191,7 @@ class AcquisitionAdmissionBundleProducer:
             permission_hash = agent_action_permission_hash(bound_permission)
         except (TypeError, ValueError) as exc:
             raise AcquisitionAdmissionBundleBlocked("acquisition_permission_proof_invalid") from exc
-        resource_digest = getattr(
-            getattr(bound_permission, "bound_resource", None),
-            "resource_digest",
-            None,
-        )
-        if not isinstance(resource_digest, str):
-            raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
+        resource_digest = _recompute_resource_digest(bound_permission)
 
         bundle = AgentActionAdmissionBundle(
             bundle_id=f"acquisition-admission.{invocation_hash[7:31]}",
@@ -399,6 +401,42 @@ def _admission_boundary() -> AuthorityBoundary:
         posture="governed",
         rule_version_refs=[AGENT_ACTION_AUTHORITY_RULE_VERSION],
     )
+
+
+def _recompute_resource_digest(
+    bound_permission: BoundActionPermissionVerification,
+) -> str:
+    """Recompute the acquisition route's request-bound digest canonically."""
+
+    resource = bound_permission.bound_resource
+    requirement = bound_permission.verification.requirement
+    if (
+        type(resource) is not BoundAuthorizationResource
+        or resource.requirement is not requirement
+        or requirement.permission is not RuntimePermission.EVIDENCE_ACQUIRE
+        or requirement.resource_binding.source is not ResourceBindingSource.REQUEST_COMPOSITE
+        or requirement.resource_binding.resource_kind != "runtime.evidence.acquisition"
+        or resource.authority is not BindingAuthority.REQUEST_BOUND
+        or resource.tenant_id is not None
+        or resource.resolved_context is not None
+    ):
+        raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
+    digest = _digest_payload(
+        {
+            "binding_version": "runtime.authorization.resource.v1",
+            "permission": requirement.permission.value,
+            "resource_kind": requirement.resource_binding.resource_kind,
+            "authority": resource.authority.value,
+            "tenant_id": resource.tenant_id,
+            "body_sha256": resource.body_sha256,
+            "query_sha256": resource.query_sha256,
+            "selectors": resource.canonical_selectors,
+            "resolved_context_sha256": None,
+        }
+    )
+    if resource.resource_digest != digest:
+        raise AcquisitionAdmissionBundleBlocked("acquisition_resource_digest_mismatch")
+    return digest
 
 
 def _admission_write_options() -> ArtifactWriteOptions:

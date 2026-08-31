@@ -376,3 +376,20 @@ exception: it removes the remaining dependencies at their semantic owners.
 3. Re-read the failure register and append a three-block register supersession dossier,
    exact commands/exit codes, the forged-receipt falsifier, live/dead proving-ground
    result, observability shim census, and every Scientist/PDC path touched.
+
+### Round-3 execution result
+
+- Task 13 completed: the malformed 12-row proving-ground source is rejected before the
+  owner worker, the duplicate fixture assertion is removed, and Runtime has zero Corpus
+  imports across its complete 280-file Python denominator.
+- Task 14 completed: neutral EvalSafety vocabulary, marker, and pure verification live in
+  PDC; Runtime alone performs the explicit post-verification seal; Scientist has zero
+  Runtime imports across its complete 585-file Python denominator; the direction
+  permission is removed.
+- Task 15 completed: all eleven production truthfulness statements target the exact IR
+  facade, the closed-interface deep-row set is empty, and the remaining six-file Core
+  compatibility route is explicitly deprecated and bounded outside cross-package
+  production consumers.
+- Task 16 completed with one P32 correction found by independent closeout review: direct
+  marker construction no longer auto-seals a receipt. The strengthened falsifier and the
+  real Runtime minting path are both in the final targeted wave.

@@ -1013,3 +1013,116 @@ current-state verification finishes with no blockers. Both direct public-base an
 marker construction now return `False`; the real Runtime CAS-backed mint returns `True`.
 This append supersedes the earlier description of an auto-registering Runtime subtype;
 no gate, policy permission, exception, public facade contract, or appointment changed.
+
+### Round-3 lane-A gate overlay
+
+Task A advanced during closeout. The final measurement archives Task F source commit
+`8802caae0b3f8f080f90e03e5c03e471ce7262ad`, overlays all seven task-A changed paths from
+`60bbb0531787588ca93c31042483b4515e09a60a` (four Python files, two under `src/polisyos`),
+and runs the full import scan. Exit is 0: policy version 2 loads, the complete root
+coverage register loads, no A path emits ARCH007, the scan has zero lapsed covers and
+zero unadjudicated violations, and no exception is consumed. Therefore ARCH007,
+contract-v2 loading, and root coverage are all green for the measured A head.
+
+### Complete Scientist and PDC merge surface
+
+Task B's later merge must reconcile the complete base-to-final source-path set, not only
+the five files in the last EvalSafety residual.
+
+PDC paths (three):
+
+1. `src/polisyos/pdc/__init__.py`
+2. `src/polisyos/pdc/_impl/evaluation_safety.py`
+3. `src/polisyos/pdc/_impl/world_model_record.py`
+
+Scientist paths (20):
+
+1. `src/polisyos/scientist/api.py`
+2. `src/polisyos/scientist/artifacts/decision_compiler.py`
+3. `src/polisyos/scientist/governance/continuous/incident.py`
+4. `src/polisyos/scientist/governance/continuous/monitors.py`
+5. `src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py`
+6. `src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py`
+7. `src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py`
+8. `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`
+9. `src/polisyos/scientist/orchestration/engine/context.py`
+10. `src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py`
+11. `src/polisyos/scientist/orchestration/engine/runner/ray_runner.py`
+12. `src/polisyos/scientist/orchestration/engine/runner/temporal_runner.py`
+13. `src/polisyos/scientist/orchestration/llm/budget_enforcer.py`
+14. `src/polisyos/scientist/orchestration/workflows/builder.py`
+15. `src/polisyos/scientist/replay/AUTHORING.md`
+16. `src/polisyos/scientist/replay/README.md`
+17. `src/polisyos/scientist/replay/backend.py`
+18. `src/polisyos/scientist/replay/deterministic.py`
+19. `src/polisyos/scientist/replay/verification.py`
+20. `src/polisyos/scientist/validation/decision_artifact_quality.py`
+
+## Register closure dossier — round-3 supersession
+
+Arithmetic: **3 remaining rows = 3 closed + 0 blocked**. The complete Task F set is
+**7 rows = 7 closed + 0 blocked** (core: **5 = 5 closed + 0 blocked**; adjacent:
+**2 = 2 closed + 0 blocked**).
+
+### `scientist-runtime-declared-cycle` — closed
+
+- Verdict: `closed`.
+- Deciding command/predicate: the exact combined closure wave including
+  `test_scientist_runtime_declared_cycle_is_removed_after_eval_safety_split`,
+  `test_pdc_eval_safety_verifier_rejects_hand_constructed_receipt`, the real CAS-backed
+  Runtime mint, and both Scientist consumer cases exits 0 (14 selected cases in the
+  combined wave). A fresh complete AST walk exits 0 over 585 Scientist Python files with
+  zero Runtime statements, zero imported aliases, and zero importing files. The full
+  version-2 import scan exits 0 with no Runtime/Scientist SCC and no exception.
+- Exact append-only prose:
+  “2026-08-31 round-3 supersession — **closed**. Identity decision §9 item 6 leaves every
+  EvalSafety minting act under Runtime while neutral vocabulary, the produced marker,
+  verifier port, execution context, consumer challenge, and pure verification live in
+  PDC. Runtime resolves mode while constructing the context; Scientist reads the
+  deterministic `mode_resolution` projection. The complete 585-file Scientist AST canon
+  is zero Runtime statements / zero aliases / zero importing files, so the reverse
+  permission and declared cycle are gone. Hand construction of either the public receipt
+  or its private produced marker fails verification; the real Runtime-sealed receipt
+  passes. No appointment, exception, or witness was changed.”
+
+### `core-observability-canonical-interface-contract-drift` — closed
+
+- Verdict: `closed`.
+- Deciding command/predicate: the five selected exact facade/deferred-interface cases
+  exit 0; 78 focused truthfulness consumer cases exit 0; and
+  `uv run polisyos-tools architecture guardrails check --skip-generated-checks` exits 0.
+  The complete current `src/polisyos` AST denominator is 2,619 files (2,614 `.py` plus
+  five `.pyi`) with 238 exact Core-observability statements and zero cross-package deep
+  statements. The compatibility census over 5,712 tracked `.py` files is eight statements
+  / 22 aliases / six files, all explicitly bounded outside cross-package production use.
+- Exact append-only prose:
+  “2026-08-31 round-3 supersession — **closed**. The shim itself declares IR ownership,
+  and the existing `polisyos.ir.analytics` facade resolves all ten truthfulness names.
+  Eleven production statements in nine Foundry files now use that exact facade. The
+  complete closed-interface canon contains zero cross-package deep Core-observability
+  statements; `polisyos.core.observability` is no longer deferred and the exact Core and
+  IR facades are synchronized through package, aggregate contract, inventory, reference,
+  and deep-import baseline owners. The old Core truthfulness alias remains only as an
+  explicit deprecated compatibility route for eight statements / 22 aliases / six files:
+  one same-package Core consumer, one repository tool, and four test files. The Fabric
+  adapter was untouched; no exception was added or renewed.”
+
+### `import-policy-governance-runtime-corpus-dependency` — closed
+
+- Verdict: `closed`.
+- Deciding command/predicate:
+  `test_runtime_corpus_edge_is_replaced_by_live_projection_denominator` and both canonical
+  owner-source parameter cases are included in the 14-case exact wave, which exits 0. A
+  12-row copied source makes the real service return `invalid_source`, validation
+  `not_run`, issue `projection_contract_invalid`, and zero owner-worker calls. A fresh
+  complete Runtime AST walk exits 0 over 280 Python files with zero Corpus statements,
+  zero imported aliases, and zero importing files; the full import gate exits 0.
+- Exact append-only prose:
+  “2026-08-31 round-3 supersession — **closed**. The production projector already owns
+  the exact 13-identity/13-record proving-ground denominator: a 12-row source fails as
+  `projection_contract_invalid` before the owner worker runs, with zero worker calls.
+  The later `legacy_proving_ground_denominator_mismatch` fixture re-load was therefore
+  dead and has been removed without replacing it with a test-shaped production artifact.
+  The complete 280-file Runtime AST canon is zero Corpus statements / zero aliases / zero
+  importing files. Runtime remains forbidden from importing Corpus; no direction,
+  package-owner exception, or import exception was created.”

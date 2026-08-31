@@ -404,7 +404,11 @@ def test_round1_v5_v2_receipt_round_trips_but_cannot_regain_current_authority() 
         )
     }
     assert parsed.model_dump_json().encode("utf-8") == raw
-    assert validate_canonical_promotion_receipt(parsed)
+    issues = validate_canonical_promotion_receipt(parsed)
+    assert {item["code"] for item in issues} == {
+        "decisive_obligation_omitted",
+        "unexpected_decisive_obligation_instance",
+    }
 
 
 def test_v1_scope_rows_cannot_be_restamped_as_current_authority() -> None:

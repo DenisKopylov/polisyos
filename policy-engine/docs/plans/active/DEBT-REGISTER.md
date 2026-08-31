@@ -729,3 +729,42 @@ Closed rows are never reopened by a later reading; a regression is a **new** row
 | `ds8-local-reviewer-note-persistence` | DS8 names local reviewer-note persistence as an explicit non-closure. Measured 2026-08-22: **zero** occurrences of `reviewer note` / `reviewer-note` in the Atlas master plan. | `absent/unallocated` | `closed` | **no owner and no candidate.** Same recording reason **RE-TYPED 2026-08-27 — the blocker is slice scope, not an appointment.** This row's own signal already said so: *"no owner **and no candidate**… a named slice with a scope claims it"*. Nobody needs to be appointed; a future Atlas slice needs to take the obligation into its scope. It was recorded precisely so it would survive DS8's closure, and it is doing that job. **Required input to DS12/DS13/DS14 planning** — it must be seen when scope is set, not looked up afterwards. Grouping it with the institutional appointments was my error: one status was standing for five different blockers. **TASK G 2026-08-31 — `open` -> `closed`; moved to §G, and closed on measurement rather than on a build.** The row was recorded as an explicit DS8 non-closure with *no owner and no candidate*. The current census finds it is **already a real, scoped local producer, store and consumer** — the capability exists and is in scope; what was missing was anyone checking. Closed with the exact selector green. |
 | `scenario-composer-dark-theme-visual-instability` | visual-lane instability on the scenario composer dark theme, carried by DS6 as *"open under their own owners"* and named in the Atlas master plan (L1291) in prose only. **The owner is named nowhere.** | `absent/unallocated` — no owner is stated in any plan | `closed` | an owner is named, then the instability is reproduced under a declared ceiling and either repaired or typed as a bounded residual with its falsifier **RE-TYPED 2026-08-27 — a routine team assignment, not an institutional appointment.** A frontend visual-lane instability needs a team to own it, which is an ordinary allocation decision. It carries none of the standing or liability of a signing authority and should not sit in the same queue. **TASK G 2026-08-31 — `open` -> `closed`; moved to §G, on the row's own second branch, with the falsifier actually executed.** The row admits closure as *a bounded residual with its falsifier*. The first attempt was a **harness non-receipt, not a verdict**: Playwright's fixed 120-second web-server ceiling killed a fixture API that needed **119 seconds** to reach readiness. The lane diagnosed that from real startup output, started the exact fixed server once outside the wrapper, let it reach `/health`, and reran the unchanged case — rather than accepting a timeout as a result or substituting a screenshot proxy. Under the declared ceiling — Chromium only, one worker, zero retries, 90s case / 240s global, dark theme, snapshot writes disabled — it reproduces a **deterministic bounded** default-NL dark residual: committed 1094×3877 against live 1094×3683, 1,041,017 differing pixels. **No snapshot was rewritten.** |
 | `ds18-execution-outcome-python-consumer-missing` | **Task D built the shared mechanism; task G has not adopted it, and the residual is now named rather than implied.** The typed JS execution-outcome envelope landed with 8 MiB per-stream caps, fixed error codes and **raw-byte digests instead of whitespace normalization** — which removes the `trim()`-versus-`strip()` Unicode class rather than adding a third rung to the ladder task G correctly stopped climbing. The Python consumer lives in `apps/runtime-dashboard/scripts/persist_atlas_evidence.py`, which is task G's file, and D was told explicitly not to reach into it while G was editing. Neither lane forced a concurrent edit, which was the right call by both. | `team-design` / task G corridor — **unallocated** | `closed` | close when the Python admission side consumes the same typed envelope, and the falsifiers hold on both sides for oversized output, zero-exit malformed output, invalid UTF-8/JSON, and the U+001C versus U+FEFF divergence. Adopting the envelope is **not** a third normalization patch; it is the generalisation the P40 stop was calling for. **TASK G 2026-08-31 — `open` -> `closed`; moved to §G.** The Python admission side now consumes task D's shared typed execution-outcome envelope — raw-byte digests and fixed error codes — instead of independently spawning and normalising checker text. Adopting the envelope was the generalisation the P40 stop was calling for, not a third normalisation patch, and both lanes reached it without either forcing a concurrent edit. Live replay at 623 production TypeScript files / 759 roots / 126 obligated / 126 covered; the negative cases reject relational swaps and duplicate-key envelopes. **The lane audited its own coverage and found it short:** the producer already exercised oversized streams, zero-exit malformed output, invalid UTF-8/JSON and both Unicode whitespace sentinels, while the Python tests had pinned only duplicate-key JSON — so it added the raw invalid-UTF-8 and plain-malformed cases rather than claiming *both sides* by inference. Python 8/8, combined lineage/outcome 18/18, producer falsifiers 4/4. |
+
+
+### G.14 Task C — DS10 capability discovery — 2026-08-31
+
+Eight rows closed: `ds10-adapter-admission-capability-discovery-bridge`,
+`ds10-lex-pipeline-mutation-boundary`, `ds10-causal-method-index-provider-bridge`,
+`ds10-owner-signed-capability-purpose-binding`, `ds10-world-agent-capability-discovery-boundary`,
+`ds10-layer3-owner-ledger-rejection-richness`, `three-unavailable-governed-producers`, and
+`ds10-adapter-registry-data-only-free-growth` (the only `ambiguous` -> `closed` of the wave — its
+2026-08-26 census had recorded that writing the missing witness was owner work, and task C wrote it).
+The lane's nine-test closure wave was **re-run against the merged tree** and passed 9/9; it had been
+measured 19 commits behind, and `main` had changed six adjacent `runtime/quality` source files.
+
+**The open closure-signal set, measured under a bound interpreter after the merge.**
+`closure_signal_identity_unresolvable=10`. Under rule 4 as amended by
+`debt-closure-signals-name-unwritten-tests`, this is the **correct** state for an open debt — the
+named test is the artifact closing work must produce — so the number is a cost estimate, not a
+defect count. It splits by what closing each one actually requires:
+
+- **6 rows whose test module already exists** and need one test added:
+  `DS11-EXTERNAL-A11Y-COUNTERSIGN`, `DS11-SCOPE-ADJUDICATION-RECORD`,
+  `decision-validity-fixed-temp-concurrency`, `ds10-connector-acquisition-content`,
+  `ds10-global-case-index-producer-allocation`, `global-case-index-producer-missing`.
+- **4 rows needing a new test file**: `DS11-FULL-TRUST-CENTER-AND-DOCS-IA`,
+  `DS11-GROUNDED-PERFORMANCE`, `DS11-PUBLIC-SIGNATURE-POPULATION`, `ds10-public-decision-rendering`
+  — three files, because `test_public_export.py` carries two of them.
+
+Task C reported 9 on its own branch; the tenth is `global-case-index-producer-missing`, registered
+here after the merge. **It names the identical test identity as
+`ds10-global-case-index-producer-allocation`** — `test_case_provider_is_backed_by_canonical_global_index`
+— which is independent machine confirmation of what two lanes concluded separately in prose: the
+DS10 and DS8 halves are one object, and one test closes both.
+
+One caution for whoever reads a bound run next: this one raced a transcription in progress and
+emitted 13 `ledger_missing_id` / `ledger_status_mismatch` / `ledger_render_drift` findings that were
+artifacts of reading `LEDGER.md` mid-edit. The unbound check is exit 0 on the settled tree. **A
+twenty-minute checker must be run against a quiescent tree or its cross-document findings are
+noise** — the signal it uniquely provides is `closure_signal_identity_unresolvable`, which the
+unbound run degrades to informational.

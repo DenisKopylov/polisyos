@@ -843,3 +843,26 @@ Adjacent: **2 rows = 1 closed + 1 blocked**.
   Incident/Monitors tuple, adds none, and leaves the other three finding tuples
   byte-identical; the finding measure is three rather than four. No cycle predicate,
   registry, exception, or witness changed.”
+
+## 2026-08-31 — round 3 admission
+
+Starting state re-read from the attached branch: `codex/debt-f-architecture-imports` at
+`2e8105a28001ecabd561e023accfb6e9c17738e9`, clean and 14 commits ahead of the slice
+base. The architect accepted the four structural closures and supplied three
+supersessions:
+
+1. Identity decision §9 item 6 separates an appointment to perform an act from neutral
+   vocabulary describing it. The EvalSafety split can therefore keep every minting act
+   in Runtime while moving vocabulary, verifier shape, produced markers, and pure
+   verification into PDC.
+2. `core/observability/truthfulness.py` names itself as an IR-owned compatibility export,
+   while `ir/analytics/_truthfulness.py` is the implementation and the IR facade already
+   exports the complete family. The alleged ownership decision was present in the
+   artifact.
+3. The Runtime/Corpus edge repeats a legacy denominator against committed test fixtures.
+   Its executability turns on a behavioral measurement: whether the production projector
+   rejects a non-13 source before the owner worker runs.
+
+No import exception, witness deletion, public-symbol laundering, gate weakening, task A
+file, or architect-owned register file is in scope. Round-3 work proceeds serially by
+row, with red-first behavioral tests and complete structural censuses.

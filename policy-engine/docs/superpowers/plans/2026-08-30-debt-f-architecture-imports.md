@@ -282,3 +282,97 @@ consumers, and focused import/facade tests. Keep
    append a seven-block supersession dossier. Every verdict is `closed` or `blocked`;
    every block names its rerunnable predicate, exit code, measured canon, and exact
    register prose.
+
+## Round 3 — execute the three superseding rulings (2026-08-31)
+
+The architect has supplied the missing identity ruling and resolved the two apparent
+ownership questions from the artifacts themselves. This round changes no direction by
+exception: it removes the remaining dependencies at their semantic owners.
+
+### Pattern pass
+
+- Relevant register patterns: P05 authority boundary leak, P06 shim drift, P27 owner
+  bypass duplication, P28 un-strangled legacy, P29 behavioral proof, P31 instance
+  patching, P32 trust by form, P35 complete-denominator measurement, P37/P38 declared or
+  proxy gate predicates, and P41 red provenance.
+- Existing defects: neutral EvalSafety vocabulary and a pure verifier are coupled to the
+  Runtime minting owner; an explicitly IR-owned compatibility shim remains a deep-import
+  route; and a production validator re-reads committed test fixtures to repeat a
+  denominator already enforced by the real projection path.
+- Target pattern: PDC owns neutral vocabulary and verification shape while Runtime alone
+  mints producer-marked receipts; Foundry consumes the complete IR analytics facade;
+  the production projection owns its one denominator and the worker validates only the
+  already-projected artifact.
+- Acceptance signal: a complete Scientist AST walk reports zero Runtime imports and the
+  direction permission is absent; a hand-constructed receipt fails the relocated
+  produced-marker verifier; the observability deep-import residual is empty with the
+  compatibility shim absent or explicitly bounded; the Runtime AST walk reports zero
+  Corpus imports while a malformed proving-ground source still fails on the live real
+  path.
+
+### Task 13: Measure and remove the legacy proving-ground duplicate
+
+**Files:**
+- Modify: `src/polisyos/runtime/http/services/governed_projection_validation_worker.py`
+- Modify focused repository-quality tests only.
+
+1. Exercise the real `GovernedProjectionService` with a source whose complete fixture
+   denominator is not 13 and record whether rejection happens before owner-worker
+   validation.
+2. Write a failing behavioral test that preserves that rejection while forbidding the
+   worker from importing `polisyos.corpus` or reading the committed test-fixture tree.
+3. If the real projector already owns the predicate, remove only the redundant legacy
+   assertion and retain the worker's content-binding, component, and semantic-hash
+   checks. If it does not, replace the dependency with a governed production artifact.
+4. Require a complete Runtime AST census of zero Corpus imports and a green real-path
+   negative control.
+
+### Task 14: Relocate the neutral EvalSafety contract into PDC
+
+**Files:**
+- Add/modify the smallest PDC implementation and facade files.
+- Modify the five measured Scientist consumers and Runtime compatibility owner files,
+  excluding `promotion_sequence.py` and `generation_cycle.py`.
+- Modify `architecture/imports/policy.toml` and focused architecture tests.
+
+1. First pin the seven-statement structural residual and forged-receipt negative control
+   in red tests.
+2. Move the verifier port, execution context, admission challenge, consumer receipt,
+   produced-marker classes, and pure verification function to PDC. Runtime retains every
+   minting act and imports the neutral definitions; the challenge remains
+   consumer-minted.
+3. Keep `resolve_evaluation_mode` in Runtime. Make the context expose the already
+   resolved result without adding a Scientist Runtime call or editing task A's live
+   constructor path.
+4. Re-spell the five Scientist files to PDC, prove a hand-constructed receipt is rejected,
+   require a complete Scientist AST census of zero Runtime statements, then remove the
+   direction permission.
+
+### Task 15: Retire the IR-owned truthfulness compatibility route
+
+**Files:**
+- Modify the nine measured Foundry consumers.
+- Delete or explicitly deprecate `src/polisyos/core/observability/truthfulness.py` only
+  after a complete consumer census.
+- Modify the exact public-surface contract/inventory inputs and focused tests.
+
+1. Write the red residual test for zero cross-package deep imports and the exact Core
+   observability public facade.
+2. Re-spell all 11 statements to `polisyos.ir.analytics`, execute-import all ten names,
+   and census every remaining compatibility-shim consumer.
+3. Retire the shim if the complete census is empty; otherwise keep only a bounded,
+   explicitly deprecated alias and record its consumer.
+4. Remove the deferred marker, add exactly `polisyos.core.observability` to the supported
+   contract, reconcile generated inventory through its owner command, and require the
+   actual closed-interface predicate to be empty.
+
+### Task 16: Round-3 closeout
+
+1. Freeze source and run exact red-to-green nodes, direct importer blast radius, Ruff on
+   changed Python, complete AST censuses, import/public-surface guardrails, and the two
+   inherited baseline commands one heavy verifier at a time.
+2. Re-run this branch's tightened ARCH007/version-2/root-coverage overlay only against
+   lane A's current head and record the measured commit.
+3. Re-read the failure register and append a three-block register supersession dossier,
+   exact commands/exit codes, the forged-receipt falsifier, live/dead proving-ground
+   result, observability shim census, and every Scientist/PDC path touched.

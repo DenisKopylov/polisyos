@@ -54,6 +54,8 @@ from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
 )
 
+from .acquisition_action_service import AcquisitionRouteMutationRequest
+
 if TYPE_CHECKING:
     from collections.abc import Mapping
     from datetime import datetime
@@ -410,12 +412,24 @@ def _recompute_resource_digest(
 
     resource = bound_permission.bound_resource
     requirement = bound_permission.verification.requirement
+    binding = requirement.resource_binding
+    request_fields = tuple(AcquisitionRouteMutationRequest.model_fields)
+    required_request_fields = tuple(
+        field_name
+        for field_name, field in AcquisitionRouteMutationRequest.model_fields.items()
+        if field.is_required()
+    )
+    selector_names = tuple(name for name, _value in resource.canonical_selectors)
     if (
         type(resource) is not BoundAuthorizationResource
         or resource.requirement is not requirement
         or requirement.permission is not RuntimePermission.EVIDENCE_ACQUIRE
-        or requirement.resource_binding.source is not ResourceBindingSource.REQUEST_COMPOSITE
-        or requirement.resource_binding.resource_kind != "runtime.evidence.acquisition"
+        or binding.source is not ResourceBindingSource.REQUEST_COMPOSITE
+        or binding.resource_kind != "runtime.evidence.acquisition"
+        or binding.selector_fields != request_fields
+        or binding.required_selector_fields != required_request_fields
+        or binding.required_selector_alternatives
+        or selector_names != tuple(sorted(request_fields))
         or resource.authority is not BindingAuthority.REQUEST_BOUND
         or resource.tenant_id is not None
         or resource.resolved_context is not None
@@ -425,7 +439,7 @@ def _recompute_resource_digest(
         {
             "binding_version": "runtime.authorization.resource.v1",
             "permission": requirement.permission.value,
-            "resource_kind": requirement.resource_binding.resource_kind,
+            "resource_kind": binding.resource_kind,
             "authority": resource.authority.value,
             "tenant_id": resource.tenant_id,
             "body_sha256": resource.body_sha256,

@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
+from hashlib import sha256
 from pathlib import Path
 
 import pytest
@@ -37,6 +39,11 @@ from polisyos.runtime.http.resource_binding import (
     BindingAuthority,
     BoundAuthorizationResource,
 )
+from polisyos.runtime.http.routes.acquisitions import _MUTATION_AUTHZ
+from polisyos.runtime.http.services.acquisition_action_service import (
+    AcquisitionRouteMutationRequest,
+    AcquisitionRouteReplayPins,
+)
 from polisyos.runtime.http.services.acquisition_admission_bundle import (
     AcquisitionAdmissionBundleBlocked,
     AcquisitionAdmissionBundleProducer,
@@ -55,6 +62,7 @@ from polisyos.runtime.quality.agent_action_authority import (
     AgentActionIntent,
     agent_action_authority_scope,
     agent_action_content_hash,
+    agent_action_permission_hash,
     dispatch_agent_external_action,
 )
 from polisyos.runtime.quality.authority import GovernanceMetadata
@@ -74,16 +82,85 @@ TENANT_ID = "tenant-acquisition"
 CELL_ID = "cell-acquisition"
 RUN_ID = "run-acquisition"
 JOB_ID = "job-acquisition"
-RESOURCE_DIGEST = "sha256:e6b1bafe016a6ac4f81781826ee5f7536b6f9ead7d96324cef847983a4457876"
 MANDATE_OWNER_REF = "principal://mandate-owner/acquisition"
 MANDATE_AUTHORITY_IDENTITY = "service://institutional-mandate-registry"
 ADMISSION_IDENTITY = "service://runtime/acquisition-admission"
-ACQUISITION_SELECTORS = (
-    ("idempotency_key", '"idempotency-acquisition"'),
-    ("planner_report_hash", '"sha256:' + "e" * 64 + '"'),
-    ("replay_pins", '["sha256:' + "f" * 64 + '"]'),
-    ("route_projection_hash", '"sha256:' + "d" * 64 + '"'),
+ACQUISITION_ROUTE_REQUIREMENT = _MUTATION_AUTHZ.requirement
+ACQUISITION_SELECTOR_FIELDS = ACQUISITION_ROUTE_REQUIREMENT.resource_binding.selector_fields
+ACQUISITION_REQUIRED_SELECTOR_FIELDS = (
+    ACQUISITION_ROUTE_REQUIREMENT.resource_binding.required_selector_fields
 )
+ACQUISITION_REQUEST = AcquisitionRouteMutationRequest(
+    route_projection_hash="sha256:" + "d" * 64,
+    planner_report_hash="sha256:" + "e" * 64,
+    replay_pins=AcquisitionRouteReplayPins(
+        source_job_id="source-job-acquisition",
+        compiled_ref="sha256:" + "1" * 64,
+        compiled_content_hash="sha256:" + "2" * 64,
+        terminal_event_id="terminal-event-acquisition",
+        design_problem_ref="sha256:" + "3" * 64,
+        cost_basis_hash="sha256:" + "4" * 64,
+    ),
+    idempotency_key="idempotency-acquisition",
+    human_decision_record_ref=None,
+)
+
+
+def _canonical_selector(value: object) -> str:
+    """Independently canonicalize one DTO selector like the HTTP JSON contract."""
+
+    return json.dumps(
+        value,
+        ensure_ascii=True,
+        allow_nan=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+
+
+def _request_composite_selectors(
+    request: AcquisitionRouteMutationRequest,
+    *,
+    selector_fields: tuple[str, ...] = ACQUISITION_SELECTOR_FIELDS,
+) -> tuple[tuple[str, str], ...]:
+    """Derive frozen selectors from the production mutation DTO body."""
+
+    body = request.model_dump(mode="json")
+    return tuple(
+        sorted(
+            (
+                field,
+                '{"present":false}' if body[field] is None else _canonical_selector(body[field]),
+            )
+            for field in selector_fields
+        )
+    )
+
+
+REQUEST_BODY_BYTES = ACQUISITION_REQUEST.model_dump_json().encode("utf-8")
+REQUEST_BODY_SHA256 = f"sha256:{sha256(REQUEST_BODY_BYTES).hexdigest()}"
+EMPTY_QUERY_SHA256 = f"sha256:{sha256(b'').hexdigest()}"
+ACQUISITION_SELECTORS = _request_composite_selectors(ACQUISITION_REQUEST)
+
+
+def _independent_resource_digest(selectors: tuple[tuple[str, str], ...]) -> str:
+    """Return the hand-checked route binding digest without producer helpers."""
+
+    payload = {
+        "binding_version": "runtime.authorization.resource.v1",
+        "permission": RuntimePermission.EVIDENCE_ACQUIRE.value,
+        "resource_kind": "runtime.evidence.acquisition",
+        "authority": BindingAuthority.REQUEST_BOUND.value,
+        "tenant_id": None,
+        "body_sha256": REQUEST_BODY_SHA256,
+        "query_sha256": EMPTY_QUERY_SHA256,
+        "selectors": selectors,
+        "resolved_context_sha256": None,
+    }
+    return f"sha256:{sha256(_canonical_selector(payload).encode('utf-8')).hexdigest()}"
+
+
+RESOURCE_DIGEST = "sha256:9474372986dd62a9d754a235da9be00dcc68c344ce7935bf6f8a6a05fb8e77c0"
 
 
 def _boundary(*, authoritative_for: str, source: str) -> AuthorityBoundary:
@@ -134,27 +211,12 @@ def _invocation(operation: OperationContract) -> OperationInvocationRecord:
     )
 
 
-def _proof(*, resource_digest: str = RESOURCE_DIGEST) -> BoundActionPermissionVerification:
-    requirement = RouteAuthorizationRequirement(
-        permission=RuntimePermission.EVIDENCE_ACQUIRE,
-        resource_binding=ResourceBindingSpec(
-            source=ResourceBindingSource.REQUEST_COMPOSITE,
-            resource_kind="runtime.evidence.acquisition",
-            selector_fields=(
-                "route_projection_hash",
-                "planner_report_hash",
-                "replay_pins",
-                "idempotency_key",
-                "human_decision_record_ref",
-            ),
-            required_selector_fields=(
-                "route_projection_hash",
-                "planner_report_hash",
-                "replay_pins",
-                "idempotency_key",
-            ),
-        ),
-    )
+def _proof(
+    *,
+    resource_digest: str = RESOURCE_DIGEST,
+    requirement: RouteAuthorizationRequirement = ACQUISITION_ROUTE_REQUIREMENT,
+    canonical_selectors: tuple[tuple[str, str], ...] = ACQUISITION_SELECTORS,
+) -> BoundActionPermissionVerification:
     verification = ActionPermissionVerification(
         requirement=requirement,
         subject="user:acquisition-operator",
@@ -171,9 +233,9 @@ def _proof(*, resource_digest: str = RESOURCE_DIGEST) -> BoundActionPermissionVe
         resource_id=f"urn:polisyos:runtime-authorization-resource:v1:{resource_digest}",
         resource_digest=resource_digest,
         authority=BindingAuthority.REQUEST_BOUND,
-        body_sha256="sha256:" + "b" * 64,
-        query_sha256="sha256:" + "c" * 64,
-        canonical_selectors=ACQUISITION_SELECTORS,
+        body_sha256=REQUEST_BODY_SHA256,
+        query_sha256=EMPTY_QUERY_SHA256,
+        canonical_selectors=canonical_selectors,
     )
     return BoundActionPermissionVerification(
         verification=verification,
@@ -499,6 +561,81 @@ def test_mismatched_resource_digest_is_rejected_before_authority_artifact_write(
     assert event_log.list_events(limit=10) == before_events
 
 
+def test_incomplete_request_composite_denominator_is_rejected_before_write(
+    tmp_path: Path,
+) -> None:
+    store, event_log, _ = _harness(tmp_path)
+    owner_pair = KeyPair.generate()
+    admission_pair = KeyPair.generate()
+    verifier = Ed25519Verifier(strict_identity=True)
+    verifier.add_trusted_key(owner_pair.public_key, identity=MANDATE_OWNER_REF)
+    verifier.add_trusted_key(admission_pair.public_key, identity=ADMISSION_IDENTITY)
+    contract_ref = _persist_signed(
+        store=store,
+        event_log=event_log,
+        payload=_contract(),
+        kind=DELEGATION_CONTRACT_ARTIFACT_KIND,
+        schema_name="polisyos.runtime.DelegationContract",
+        schema_version=LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
+        signer=Ed25519Signer(owner_pair.private_key),
+        signer_identity=MANDATE_OWNER_REF,
+    )
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = AgentActionIntent(action_kind=ACQUISITION_ACTION_KIND)
+    binding = AgentActionEffectBinding(
+        binding_id="acquisition-effect",
+        action_kind=ACQUISITION_ACTION_KIND,
+        operation_id=operation.operation_id,
+        operation_version=operation.operation_version,
+        implementation_ref="adapter://acquisition/v1",
+        handler=lambda _invocation: "must-not-run",
+    )
+    producer = AcquisitionAdmissionBundleProducer(
+        artifact_store=store,
+        event_log=event_log,
+        signing_slot=AcquisitionAdmissionSigningSlot.configured(
+            signer=Ed25519Signer(admission_pair.private_key),
+            verifier=verifier,
+            signer_identity=ADMISSION_IDENTITY,
+        ),
+        write_context=_write_context(),
+    )
+    incomplete_selector_fields = ACQUISITION_SELECTOR_FIELDS[:-1]
+    incomplete_selectors = _request_composite_selectors(
+        ACQUISITION_REQUEST,
+        selector_fields=incomplete_selector_fields,
+    )
+    incomplete_requirement = RouteAuthorizationRequirement(
+        permission=RuntimePermission.EVIDENCE_ACQUIRE,
+        resource_binding=ResourceBindingSpec(
+            source=ResourceBindingSource.REQUEST_COMPOSITE,
+            resource_kind="runtime.evidence.acquisition",
+            selector_fields=incomplete_selector_fields,
+            required_selector_fields=ACQUISITION_REQUIRED_SELECTOR_FIELDS,
+        ),
+    )
+    before_events = event_log.list_events(limit=10)
+
+    with pytest.raises(AcquisitionAdmissionBundleBlocked) as exc_info:
+        producer.admit(
+            delegation_contract_ref=contract_ref,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            bound_permission=_proof(
+                resource_digest=_independent_resource_digest(incomplete_selectors),
+                requirement=incomplete_requirement,
+                canonical_selectors=incomplete_selectors,
+            ),
+            effect_binding=binding,
+            admitted_at=NOW,
+        )
+
+    assert exc_info.value.code == "acquisition_resource_binding_invalid"
+    assert event_log.list_events(limit=10) == before_events
+
+
 def test_ephemeral_signer_produces_reconciled_bundle_for_gateway(tmp_path: Path) -> None:
     store, event_log, idempotency_store = _harness(tmp_path)
     owner_pair = KeyPair.generate()
@@ -550,6 +687,24 @@ def test_ephemeral_signer_produces_reconciled_bundle_for_gateway(tmp_path: Path)
     )
 
     invocation_hash = agent_action_content_hash(invocation)
+    assert ACQUISITION_REQUEST.human_decision_record_ref is None
+    assert tuple(AcquisitionRouteMutationRequest.model_fields) == ACQUISITION_SELECTOR_FIELDS
+    assert tuple(
+        field_name
+        for field_name, field in AcquisitionRouteMutationRequest.model_fields.items()
+        if field.is_required()
+    ) == ACQUISITION_REQUIRED_SELECTOR_FIELDS
+    assert (
+        ("human_decision_record_ref", '{"present":false}'),
+        ("idempotency_key", '"idempotency-acquisition"'),
+        ("planner_report_hash", '"sha256:' + "e" * 64 + '"'),
+        (
+            "replay_pins",
+            _canonical_selector(ACQUISITION_REQUEST.replay_pins.model_dump(mode="json")),
+        ),
+        ("route_projection_hash", '"sha256:' + "d" * 64 + '"'),
+    ) == ACQUISITION_SELECTORS
+    assert _independent_resource_digest(ACQUISITION_SELECTORS) == RESOURCE_DIGEST
     assert _proof().bound_resource.resource_digest == RESOURCE_DIGEST
     assert receipt.invocation_refs == {invocation_hash: receipt.artifact_ref}
     with pytest.raises(TypeError):
@@ -557,6 +712,9 @@ def test_ephemeral_signer_produces_reconciled_bundle_for_gateway(tmp_path: Path)
     assert receipt.bundle.invocation_content_hash == invocation_hash
     assert receipt.bundle.operation_content_hash == agent_action_content_hash(operation)
     assert receipt.bundle.intent_content_hash == agent_action_content_hash(intent)
+    assert receipt.bundle.permission_proof_hash == agent_action_permission_hash(_proof())
+    assert receipt.bundle.bound_resource_digest == RESOURCE_DIGEST
+    assert receipt.bundle.effect_binding_digest == binding.binding_digest
     report = reconcile_authority_ref(
         artifact_store=store,
         event_log=event_log,

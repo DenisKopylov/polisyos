@@ -118,13 +118,21 @@ def resolve_control_registry_providers(
             gy_catalog_graph = gy_catalog_graph_factory()
         elif not registry_factory_overridden:
             gy_catalog_graph = _default_gy_catalog_graph()
+    resolved_discovery_providers = capability_discovery_providers
+    if not registry_factory_overridden and not any(
+        provider.resource_kind == "agent" for provider in resolved_discovery_providers
+    ):
+        resolved_discovery_providers = (
+            *resolved_discovery_providers,
+            _default_scientist_capability_discovery_provider(),
+        )
     return ControlRegistryProviders(
         connectors=connectors,
         source_profiles=source_profiles,
         binding_profiles=binding_profiles,
         model_profiles=model_profiles,
         gy_catalog_graph=gy_catalog_graph,
-        capability_discovery_providers=capability_discovery_providers,
+        capability_discovery_providers=resolved_discovery_providers,
         capability_live_operation_registry=capability_live_operation_registry,
         capability_conformance_verifier=capability_conformance_verifier,
     )
@@ -158,6 +166,41 @@ def _default_gy_catalog_graph() -> Any:
     from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
 
     return build_slice0_fixture_catalog_graph()
+
+
+def _default_scientist_capability_discovery_provider() -> CapabilityDiscoveryProvider:
+    """Install the lazy Scientist owner without executing either registry factory."""
+    from polisyos.runtime.quality.capability_discovery import (
+        ScientistRegistryCapabilityDiscoveryProvider,
+    )
+
+    return ScientistRegistryCapabilityDiscoveryProvider(
+        node_registry_factory=_default_scientist_node_registry,
+        tool_registry_factory=_default_scientist_tool_registry,
+        recall_measured=False,
+    )
+
+
+def _default_scientist_node_registry() -> object:
+    """Discover the public NodeRegistry only on the first agent query."""
+    from polisyos.scientist import discover_scientist_nodes
+
+    registry, report = discover_scientist_nodes(include_dev_scan=False)
+    reasons = tuple(
+        f"scientist_node_registry_discovery_error:{message}"
+        for message in (*report.discovery_errors, *report.errors)
+    )
+    return registry, reasons
+
+
+def _default_scientist_tool_registry() -> object:
+    """Build the public ToolRegistry only on the first agent query."""
+    from polisyos.scientist import KnowledgeToolkit
+    from polisyos.scientist.agent.tools.knowledge_tools_adapter import (
+        build_knowledge_tool_registry,
+    )
+
+    return build_knowledge_tool_registry(KnowledgeToolkit())
 
 
 __all__ = [

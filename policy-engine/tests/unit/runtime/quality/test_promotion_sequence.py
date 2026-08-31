@@ -404,6 +404,36 @@ def test_round1_v5_v2_receipt_round_trips_but_cannot_regain_current_authority() 
     )
 
 
+def test_round1_v5_authority_receipt_cannot_enter_historical_comparison() -> None:
+    raw = zlib.decompress(base64.b64decode(_ROUND1_V5_V2_RECEIPT_ZLIB_B64))
+    payload = json.loads(raw)
+    frozen_payload = deepcopy(payload)
+
+    owner = (
+        promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V5_HISTORY_OWNER_RULE
+    )
+    with pytest.raises(ValueError, match="promotion_comparison_requires_verification_receipt"):
+        owner.projector(payload)
+
+    assert owner.action == "project"
+    assert owner.predicate_provenance == "recomputed"
+    assert payload == frozen_payload
+
+
+def test_promotion_comparison_owner_registry_covers_every_receipt_epoch() -> None:
+    registry = (
+        promotion_sequence_module.canonical_promotion_verification_comparison_owner_rule_registry()
+    )
+
+    assert tuple(registry) == (
+        promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE,
+        promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE,
+        promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V4_HISTORY_RULE,
+        promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V5_HISTORY_RULE,
+        promotion_sequence_module.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
+    )
+
+
 def test_v1_scope_rows_cannot_be_restamped_as_current_authority() -> None:
     receipt = _run(_promotion_input())
     payload = _current_receipt_with_v1_scope_rows(receipt)
@@ -3081,8 +3111,28 @@ def test_failed_obligation_cannot_be_relabelled_into_decision_front() -> None:
     assert summaries[0].certified_by_n9 is False
 
 
-def test_promotion_history_rule_stays_v3_and_current_v6_requires_full_reissue() -> None:
+def test_promotion_history_remains_readable_after_exact_v3_to_v6_reissue() -> None:
     from tools.quality.validation import check_layer3_gy_promotion_contract as validator
+
+    historical_contract = json.loads(
+        (
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+    historical = historical_contract["generation_cycle_run"]["promotion_port"]["receipts"][0]
+    historical_receipt = promotion_sequence_module.parse_canonical_promotion_history_receipt(
+        historical
+    )
+    assert historical_receipt.schema_version == (
+        promotion_sequence_module.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION
+    )
+    with pytest.raises(ValueError, match="schema_version"):
+        CanonicalPromotionReceipt.model_validate(historical)
+    with pytest.raises(
+        ValueError,
+        match="legacy_open_world_gate_authority_not_admitted",
+    ):
+        promotion_sequence_module.canonical_promotion_receipt_semantic_projection(historical)
 
     frozen = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
     live, plan = validator._build_payload_with_comparison_plan(REPO_ROOT)
@@ -3092,30 +3142,7 @@ def test_promotion_history_rule_stays_v3_and_current_v6_requires_full_reissue() 
         "non_promotable_contract_stamp",
     )
     for key in receipt_keys:
-        frozen_receipt = promotion_sequence_module.parse_canonical_promotion_history_receipt(
-            frozen[key]
-        )
         live_receipt = CanonicalPromotionReceipt.model_validate(live[key])
-        assert frozen_receipt.schema_version == (
-            promotion_sequence_module.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION
-        )
-        with pytest.raises(ValueError, match="schema_version"):
-            CanonicalPromotionReceipt.model_validate(frozen[key])
-        with pytest.raises(
-            ValueError,
-            match="legacy_open_world_gate_authority_not_admitted",
-        ):
-            promotion_sequence_module.canonical_promotion_receipt_semantic_projection(frozen[key])
-        assert gy_recorded_content_hash(
-            frozen_receipt.model_dump(mode="json")
-        ) != gy_recorded_content_hash(live_receipt.model_dump(mode="json"))
-        historical_projection = (
-            promotion_sequence_module._canonical_promotion_receipt_v3_semantic_projection(
-                frozen[key]
-            )
-        )
-        assert historical_projection["schema_version"].endswith(".v3")
-        assert "open_world_gate" not in historical_projection["owner_projection"]
         live_projection = promotion_sequence_module.canonical_promotion_receipt_semantic_projection(
             live_receipt.model_dump(mode="json")
         )
@@ -3136,8 +3163,14 @@ def test_promotion_history_rule_stays_v3_and_current_v6_requires_full_reissue() 
     live.pop("capture_wall_time_seconds", None)
     validator._set_comparison_identity(live, plan)
     live["contract_content_hash"] = validator._contract_content_hash(live)
-    with pytest.raises(ValueError, match="promotion_comparison_admission_manifest_drift"):
-        validator._reconcile_frozen_contract(REPO_ROOT, live, plan)
+    reconciled = validator._reconcile_frozen_contract(REPO_ROOT, live, plan)
+
+    assert reconciled["comparison_admission_manifest"] == plan.manifest
+    assert validator._comparison_identity_issues(reconciled) == []
+    assert reconciled["contract_content_hash"] == validator._contract_content_hash(reconciled)
+    assert {reconciled[key]["schema_version"] for key in receipt_keys} == {
+        promotion_sequence_module.CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
+    }
 
 
 def test_self_rehashed_detached_n9_projection_cannot_mint_comparison_admission() -> None:

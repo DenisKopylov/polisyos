@@ -121,12 +121,7 @@ from polisyos.runtime.quality.intervention_substrate import (
     resolve_intervention_lever,
 )
 from polisyos.runtime.quality.promotion_sequence import (
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
+    canonical_promotion_verification_comparison_owner_rule_registry,
 )
 from polisyos.runtime.quality.substrate_registry import (
     DEFAULT_L2_SCHOLAR_KG_PATH,
@@ -7088,11 +7083,7 @@ def _frozen_cycle_trace_comparison_identity_admissible(
         legacy_plan = build_gy_comparison_projection_plan_from_manifest(
             frozen,
             manifest=manifest,
-            owner_rule_registry={
-                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE: (
-                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE
-                )
-            },
+            owner_rule_registry=(canonical_promotion_verification_comparison_owner_rule_registry()),
         )
     except ValueError:
         return False
@@ -7131,14 +7122,7 @@ def _cycle_trace_plan_from_manifest(
     return build_gy_comparison_projection_plan_from_manifest(
         payload,
         manifest=payload.get("comparison_admission_manifest"),
-        owner_rule_registry={
-            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE: (
-                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE
-            ),
-            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
-                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
-            ),
-        },
+        owner_rule_registry=(canonical_promotion_verification_comparison_owner_rule_registry()),
     )
 
 

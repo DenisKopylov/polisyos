@@ -86,12 +86,12 @@ from polisyos.pdc._impl.gy_waist import (  # noqa: E402
 )
 from polisyos.runtime.quality.promotion_sequence import (  # noqa: E402
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     CanonicalPromotionReceipt,
     canonical_promotion_comparison_admission_from_proof,
     canonical_promotion_receipt_semantic_projection,
+    canonical_promotion_verification_comparison_owner_rule_registry,
     parse_canonical_promotion_history_receipt,
     prove_canonical_promotion_receipt_for_comparison,
 )
@@ -8278,17 +8278,12 @@ def _depth_plan_from_manifest(
         payload,
         manifest=manifest,
         owner_rule_registry={
+            **canonical_promotion_verification_comparison_owner_rule_registry(),
             _DEPTH_CONTROLLED_RECORDING_COMPARISON_HISTORY_RULE: (
                 _DEPTH_CONTROLLED_RECORDING_COMPARISON_HISTORY_OWNER_RULE
             ),
             _DEPTH_CONTROLLED_RECORDING_COMPARISON_RULE: (
                 _DEPTH_CONTROLLED_RECORDING_COMPARISON_OWNER_RULE
-            ),
-            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
-                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
-            ),
-            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE: (
-                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE
             ),
             _DEPTH_PROMOTION_SUMMARY_COMPARISON_RULE: (
                 _DEPTH_PROMOTION_SUMMARY_COMPARISON_OWNER_RULE

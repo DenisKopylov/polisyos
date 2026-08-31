@@ -2139,6 +2139,26 @@ def _canonical_promotion_receipt_v4_semantic_projection(
     )
 
 
+def _canonical_promotion_receipt_v5_semantic_projection(
+    value: Mapping[str, object],
+) -> dict[str, Any]:
+    """Project exact historical v5/v3-owner bytes under their frozen v4 rule ID."""
+
+    receipt = _LegacyCanonicalPromotionReceiptV5.model_validate(value)
+    if receipt.confidence_ledger_semantic_projection is None:
+        raise ValueError("promotion_comparison_semantic_ledger_missing")
+    if not is_gy_declared_non_authority_block(
+        receipt.confidence_ledger_projection.model_dump(mode="json")
+    ):
+        raise ValueError("promotion_comparison_requires_verification_receipt")
+    return _project_promotion_receipt_payload(
+        receipt.model_dump(mode="json"),
+        model_type=_LegacyCanonicalPromotionReceiptV5,
+        owner_model_type=CanonicalPromotionOwnerProjection,
+        receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
+    )
+
+
 def _canonical_promotion_receipt_v3_semantic_projection(
     value: Mapping[str, object],
 ) -> dict[str, Any]:
@@ -2180,11 +2200,42 @@ CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V4_HISTORY_OWNER_RULE = GyComparison
 )
 
 
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V5_HISTORY_OWNER_RULE = GyComparisonOwnerRule(
+    projector=_canonical_promotion_receipt_v5_semantic_projection,
+    action="project",
+    predicate_provenance="recomputed",
+)
+
+
 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE = GyComparisonOwnerRule(
     projector=canonical_promotion_receipt_semantic_projection,
     action="project",
     predicate_provenance="recomputed",
 )
+
+
+def canonical_promotion_verification_comparison_owner_rule_registry() -> dict[
+    str, GyComparisonOwnerRule
+]:
+    """Return the complete owner registry for readable promotion epochs."""
+
+    return {
+        CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE: (
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE
+        ),
+        CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE: (
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE
+        ),
+        CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V4_HISTORY_RULE: (
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V4_HISTORY_OWNER_RULE
+        ),
+        CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V5_HISTORY_RULE: (
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V5_HISTORY_OWNER_RULE
+        ),
+        CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
+        ),
+    }
 
 
 class _CanonicalPromotionComparisonProof:

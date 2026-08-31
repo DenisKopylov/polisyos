@@ -1,14 +1,18 @@
 from __future__ import annotations
 
+import base64
+import hashlib
 import json
+import zlib
 from collections.abc import Callable
 from copy import deepcopy
 from datetime import UTC, datetime
+from functools import lru_cache
 from inspect import Parameter, signature
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
 from types import SimpleNamespace
-from typing import get_type_hints
+from typing import Any, get_type_hints
 from uuid import uuid4
 
 import pytest
@@ -20,18 +24,22 @@ from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.contracts.c4_persisted_profiles import c4_profile
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
+from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
 from polisyos.pdc import (
     ArtifactRef,
     AuthorityBoundary,
     AuthorityDerivationTrace,
     GyComparisonAdmission,
+    PromotionFailClosedReason,
     PromotionObligationClass,
+    PromotionObligationRecord,
     PromotionObligationStatus,
     PromotionRiskSpendRecord,
     SearchTerminalKind,
     build_gy_comparison_projection_plan,
     gy_content_hash,
     gy_recorded_content_hash,
+    promotion_obligation_instance_id,
 )
 from polisyos.pdc._impl.layer2_design_search import (
     Layer2S6BlindSpotPostureInput,
@@ -56,7 +64,9 @@ from polisyos.runtime.quality.credal_reference import (
     AdmissibleCompletion,
     CredalReference,
     CredalReferenceEdge,
+    replace_reference_edge,
 )
+from polisyos.runtime.quality.data_forge_binding import MeasurementRootProducer
 from polisyos.runtime.quality.generation_cycle import (
     CandidateSummary,
     PromotionPortObservation,
@@ -69,6 +79,7 @@ from polisyos.runtime.quality.grounding_bind import (
     GroundingBindGate,
     GroundingDecisionCertificate,
     recompute_grounding_decision_content_hash,
+    recompute_grounding_relation_content_hash,
 )
 from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
 from polisyos.runtime.quality.open_world_risk import (
@@ -87,8 +98,163 @@ from polisyos.runtime.quality.promotion_sequence import (
     run_canonical_promotion_sequence,
     validate_canonical_promotion_receipt,
 )
+from polisyos.runtime.quality.workspace.loop import load_workspace_fixture_manifest
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+
+_ROUND1_V5_V2_RECEIPT_ZLIB_B64 = (
+    "eNrtfXmPXMeR51d56PljbSy7mffRWgPj8XoE78iSIAn2zgrEQ57NGtbRroOHZX73jch8Z3VVsyWSsqhpYcbsei9fnnH8IjIy8oeL"
+    "XXieVq59mba7xWZ9cX1xu1kuwpvN7qr+0ca0W9ys2+B26Wrp3qQtb2/eXK1te7vdrDZ7+Ojqpbx4crF5tU5bfPhfKexLVT+8R+XH"
+    "tV295NBGVxwe+2VatX6xjov1DbZ09GYRoTGoJivtaXI5KZOFoNFxRnXyytnMtKAW6uw/CZv1Pq337XO3ew4f7547JtU1Z8FnzYgk"
+    "8I9KPCvJfaAsWi4Scd4bpkTwBkqZZCmJGooZkpwP3mqaoYHVJqZlu7tNod2mfHG9PiyXY7Pnp2h7WO8Xq3Q1H9rVPu32Vy/pxdsn"
+    "F8HB+KPbp3Z3WK3c9g3OxPiwTML4c42jPT1K9p7/YcVvwhKaXMf0+uKaPLm4SbCADpeuDc/dep2WuCKiLmyd9tdvYPSbbYLyV+zJ"
+    "xcvNooWxLVbQWXxEoZLt5lCWuN3t3f6ww/EctlscwEu3hPHNimwO25CwyE1u82KbXrnlclYiLna3m92iUieOPW5etR7fzivqO2Xl"
+    "k6P2rvfbQ4KuuuUhjX2qP7fJxTcX/cuYwgJXtL3Zuoi9er64eT68LYQw0Nh7/jfU6peb8AII6eL6+2fQ87TdL/Iixda/wcW/zm65"
+    "g87nLdAAtL5Nu+S2ATuFfWvLigylljA1w5QMT/92cFsHZLlOreu4/GK9WSeow0WkYbdduGWdrLr4wyStN3sY9t8OsDCxECKQd9qm"
+    "1251u0wjZ7wdpyikxe3+fjHS88iU2pAQr2odN0j3XUXIM0/ewR0JP6vVINfiEi1WhyW+36yXuLi7tASBBHO6Svvnm9jmv61LNYed"
+    "W14t1hlGtA7As4t4BSNfR7eN/4rtdsXr51j/fuuQWL9/57ewkosIFAhLGY6m9HazgJXsJ2xzgPmEFsqUbdMtru9677pVWuBsQ0Gg"
+    "99cXZXmBDa+/p1cEGjjc3k5+hc1mC6sOo0ZKuniVltkBQzygI24HgugW33U0OD4YC6fX0JM18CawPzS82e4rQQDN+G4NgQNvU135"
+    "8sfFYb3Yo8SDpXIwdYddGeR+gb2uL59clMegSm4vrmEc/W9Yvv3idllKlserBdDIBmjJ3aReGK/c6zvPBvXW5iVMCMoDEAfuAOu4"
+    "XezfdCyMHbosLV0/fdr38tVmu4xtlftAfTCbc4YX7/kfUurtJqAAZ4Qp+Dlf7om07GUAku5mCSNskV9af4g3CSZn14/21SLuob7v"
+    "CVDAW5w7t97h0szYsK81Ag8HnPITAy1s9Wq1rQx1osBpDfQBpmTa5x2sejfnw+N+gaYlhyH1lF1manzfSYFhwEcMkNY3IApHEuzl"
+    "W7t3W5xfpI7KCMvFatEtDnSrcMfbOc2fmuhb4B+oNoM+Aoi0bzuC3/gd8jLAgbav4Q4LzemOknH0hzVShQOOfdMOUqHvFDSGkr4F"
+    "Geq2bRHS8PwH6OsCWBmew4T0vf9Frf7H0asIISrHIKsU+YGjCw400kg8/rBY4sy+aOuIoRetT7mgiA84xGn1Lu8LKXyo2k8uZy8c"
+    "JgiqRzWdYAkFqz1IQ99bR6ecxweder5hpVTrVcjRSR0c5Vl4cxbJHhfMmUZrbUo+OhIzoS4HxQOl0kbOvFFaqhiMI0kTYmIqRkbt"
+    "Hy7sokDD+uRlgXi74UWbloubBTDhFBZs07LXuABtiswoALN1+82qHxSpv1wmiTkrFBgRLLICz29oe2IW6sOWGx6lDZ4qI2OKof/g"
+    "tOVyVJgKbYOlBibGeeJEsj5ElSTjJqRohYNZIp5Lq3Mkicau8vT6to7so7UC5FyRT9srtRfw6JoHzqJSiVDJTBJyVvKoE0dFdbKW"
+    "c6q0IkoS44MxCTqouI06UEegP9nmZBlYaZrbMKu6o2GUehdfsE62Xy7RxvmCDz9ROHyhxi4QCTQEFKesgXYiUSEYRaWmNrIkjVCa"
+    "U5kST46CfZid4k4YEhIaldJwrP2vf/6mrx5kDHLkDgzXtmoE/KsjoQLKzhPRswnIxaI/XDyM9E5QbgfP2gRgocdk38Ow2//48qt/"
+    "a7/6+o/f/P67r765vt4DfILPFyCXUBWVqall/vrVN1/87/bbL7767kypL/74f9s/ffndH7/5yx+//O5PX33Z/vn3X8+KFiFbSsP8"
+    "tF9/9cWf/vCfpcKx5G652V/fLDceYHT50g3lp+0fl3g2DrBK8lTX/J3Du0bZAwbmqijdhwz1zhcPHvb8yx83BXe/vW86pqWLum+n"
+    "Fl1nrg2UNViESJm9WTyIR5QVYN/sOzdOEaNvYb63G4+YfAdqYJn2WBQ/RCC03OxAxmw8iFTX2w9gUq4AdSz8YomAu5ZB7FucBCBT"
+    "q04pz5a8XSqUUbvFDsRUQFttvWkPa8CCiHtBfgFqB6G6bN3rBYIqoGYY92YLM36D3yBsW6aXxTnRwbdX8ElBWajzcYoLelrAAKCe"
+    "NLa2R1qC+tZHA8Cnswc/TH5XjjwzxBHA90+GuQW75HYDFmMz+7RZ7Joy2ZfjNL1EtBqKfp6V7YAlrvPbJ3e7dGp67+lPXxx7MPli"
+    "2npfBMdbjSyw4ZLbr1CfpJwRW5/syunJvrc7+MnT8gl2aPyqebXYP2/2z1OdpgbYoanL3HQrO+1xgcrXFwVLD/QAD+5KGaSmmdYH"
+    "CwCwKPbz5JDuIa17RtX1tCPmXbPfNK7p62j+isjtzwjcvim4rano69TAzo7kZGfv45F7ett/dtTfsZLmC9X09Ux7139YRjwXoSf7"
+    "d4rr7+nX//nuD583YbvZ7S4B5gILTb5Eavn2998ddaizmYc6a4nDeuf2LXoJ2wVA8fWbYhCd6uD9Iuierq43TV+66amrwc/g1wps"
+    "t10z1tvATL8EcXqH7043nXr/YP+oSuu4CIPceluE9WL3AlYbdP+2etiXe9fJhM5/gD4RQqFN+H7RgY2wWd1u1ql4GOsn33yH2H4H"
+    "4jGWDwhhHSgef46+28GehUmHfw+rwUGLi4XG6h6RePd9UUI48XebXW2Ahzfbo6bpvGn6UZpGK/Sf0iwuA1rz683LtPyndKFae/+M"
+    "pvdvbgEix9VHbhsYY7/Zu7KhM9Sq0YG2f75YD4xRAdGaonW26jcd5s7wV50nvBYC6FX4tuO4mUN84teZSsk2u9Vi+eaEsJzaMyh1"
+    "i0ipEn+C9MuUTeH+II6mTqV+al6kEy39o1b6j6GK6s0vaPHimpEfY90NVnbepvT3EWGOagUUd+zm57q4BnqYuUvwwq3D88LvM0/y"
+    "uCl0tnwFqd2eRRo2eWpztdTEHXGijuuTQzq2AjrEfd3P1az+09Z1oIr67GWkORslqcuWxCxZDsZlDoYtl9GTFGXggigtQmbGiJCc"
+    "UYlJ4atfrN+KqRNZkHVtezpRXT/GWUAP3zaNn99xTHbbOGO/53tkP6fjoLfZ25XbI43VHkBvl2ky6mfFT47bzHG0WOrve5wuUmTq"
+    "JNFMJh8Tqw33X50c2vEXQVsYTbZZWcJ9MNTghnKijiRjJIE5MC4q7xL1RDHvpy3c51i6W+ihln7f/fMI4IRLq8VNhk08hHH65g3f"
+    "fX+mgQeXbPeHujl4XBzl5wrxF4jCYtmA2Ng/d+s2g8QcrMpxs6bfRxq4F3fRcWOz7PNA1aW1uuWDkHoQPuGGw+qu4ybn0eTtR33v"
+    "/A3TtjnsQQekujP3/bB6w9bMJYYGgI29+Htd4H7vfPLg1kHZIrsn2qT8Ll26dPBjc1NMXlD8l6OVjlj1xRq4Hf2QZXc4oq3acTXy"
+    "+0M8tmi/X4Hw68MOQG/VLYPKfj/WAXz8fXX+/iLcgG7XbnK3rXZJ1CXwC/rhVAu4HmDv7hboDuZ/f9hWewWt2eVyfHRR902yWyxH"
+    "Yx6E0mFb7e6jFyCaDlvXGf/zHRt1/fRpfV+szJsb0OOVnsrinf5gUqzowVsXsGCGehZnW+mLlZ6uy2b4EjADmuzhZK9qoR4aQFEM"
+    "bIGpAch0ovhQCHu0PKAB2I6MGYE01rvpthgQ6naBDkfEYIcVQqHNq95kgUdQ3WKNLjtk/8Nt7+bEt/x0xcPn1VYffhaGQILsbPi+"
+    "/bJXd+I5rnK3Y4a7gFB1vLntujAN7dm9gUGu2vhmDfgs7Hr5MUY/jMjmBreWtqnurd15P9k0HAJ8Lr5VTSGyJoPZh36KphdqzdKt"
+    "09XFfAsPUKpbIu0BUEVS1i3A5Z6UJqQ8eToIyW4VNazi+HqyQ9JuFzfP90Xrbhevp8XrC4wsOQC5jFs+OESQvLOi9dGpslNSqp3o"
+    "dmYmXQhLgCJV590gOyKuuV1Ux8ewHbvdoEjvZNIQglSWsoax9Bu9tU34YtrULGpoKFHYcFrOvQTmLj4dF0YX5i0olZfF2Tx0uWsy"
+    "vU5beJKKW6wrBmtX9pnqvHb9XxUz54eLkT46/TYtC/I3vLi7efx20u7mdqaeQJVAzQM2nEamAX27ajv0tI9BWcURPNJk92aIhXqR"
+    "YB1Wt6jdrqvNVYTcq+foKwEeuIH3+HDbJheew6PNokTAIGPu9x1HBeSxrVvDUCh2soiVXnbhgt1UfX60Q94LrnullWr7Yn102FFE"
+    "2FFl1XaYTEJHqgXvDEpCXxLzHSHX5f/+35Q04yGVgnVa8XF8x6cwd5vtdC0wJm6YjXUqaGwCZ0dxV+a7iwDs/+6jIGvI4FBi/Kya"
+    "txn9bd9f9L7btgMbbe8zBoKeRWteFHJ40yIGO+yG7yc4KgLA3LxZdY7xbhqHvhaLfY+4bb0AEBbaDtyVqMBBkfbMjGx8WA4Qv1+N"
+    "nxim+mx0kLUvFsUj3SnZVfUs3wnbG7l2mI6Jl631oFmHIJqCtCqH9DESc5k0bhn3sPdehTYojkFlndYIuinCqOkbuyyNNX3XrwqG"
+    "MW3l1InMrw8qI7Zztkf2McA+pchlx6sD5fy9yj/ke5A78bCcfdM/Q56rMZa7ADVvF5sTHw37JCXQF8nxsB7Q+IkODQUrLE77TYtB"
+    "jHV3fihV3wxhIQjOE84k8DuiLxj/tHT/+kMLEuRcxBG9coGfMHHoKWqPJ3J3R9GMJXCkjIxtHQu/W8bOv+wWfZxLtCCWwH/rtOtD"
+    "Wm63i3VY3M7CgNAjBYy1n8KnslOT6sbQ7eQFdBxjz6YQrodWgybr3wAYwei/stQDHewQqsGjIh2qpP2v2tR6AyywKsGIIDon39Z9"
+    "8CJe0HhqXyVsqT2pvCbYZnxYJ6afZdcJrgF7VClTyGPQ8c9+JMP+cDGYjlBT2QE9zcCmGVe7KR1rOja9uniU8r90Kf+230wu2z7r"
+    "l5sw3QGyV2Pfdggg1qGLMlo6xKbj6pawQ5jnVQ/2KtY4HsoQnXgxRSR3huTiy8VuA/QxGdLb3t1RrCpY2YKea5jvmdV6dvzJhIMA"
+    "EeZF9VWXKvoHwDNrC3YlMC+6Ry6HYT+bx3gBZwzR6mX7vIag3ZT4gjrZxRcwmrzT4yVdbJpoRx07hOxWuX0jLodHl1WiX8OzbtKu"
+    "D+5ytVuly0q6lxjhfdkfK4BlqDpxk0v83+awH8yysRNHDgjHQjDOUhVyEPA/WuUYOIN/qMs+82wdU44nHokkytqYvRWMEZsyTyTL"
+    "+ZmOUwHqg3SvivWiD1OeGI11FYGzO3IZON75XYeyL+6NSyg0gU28We8dxorfDL25edO+covdbLNgB1/tusDZ3lVfl6b61etSIP/u"
+    "CiPHcIVmwvKqr+zq636Nvho6UfexC5vswapCGQkmJpi4X9pmsb497JsSp9gM7uq6vZ9eA3M00Jll3KF97BcRWOdqysoTNI/7m90u"
+    "Tme4pxUebgiDuxDGAxq1e7qbTVtvU1b786ZDBlUITkvNR987w/52cGjRjKKh7XkEi7QD67R3C/zL2OLTYYnuNnzaNe2ykNZZFQwT"
+    "WnBnPWFUmOxdZpYwQxLjzAkTrNQyCO+pUN7KKGgwSRXv22KNhxNCFxB2ph0vnOYSPjbUkeiCyopZH1ymRmlvaaCM8mCtopxr4IyY"
+    "nKfeaM8EtYH5IdS68nyn0jvzewXrX8htutve96rQaT9akgVxibIYNQbfWaYNVzpELpMniQJ3piAdYVpbBYMmVjvJrHIhKM+cvzja"
+    "0u85o+ybTfli3YHr9+CLY8q4c6LlL9jA59DkN12g+IQ5vjQdauiCyCd84XYN6KkGuxwHT9EpjvhgUdO/Dtbq1vihjBUlV0DnmjqZ"
+    "tdBJJkZ8Vhz4TUvLFVChjEEnZqIknBNgAGs1DTx7bTRlnxZjEU0t9Um46CIHjQfDDlxrogMhXDuajWbRZyKpzTBemrlSCWZDxCSZ"
+    "zvocY3UBSzPGmsKdfwpz/WXKWU+aoT/jI4x+w3iybskaXLLG3WxTuo/R3jtm/1eiw7rgtwcympCKUuE5iSy5LE20INWpdIoSq2LM"
+    "IcioqaKawEPQYoIFIDhttUhKCR0/LUbTOXJlo5KcWOeAmTJnyYBKtsbbRKOQhhFiaczQpogwL4HExBkJWmujzDlGA+vPrebQ7hSO"
+    "/vEsV3wxe0DHYGw9vWu0Pe2NNjED6wj2dlf/tetc+x3jfS66WM1aoBni3fbPAdPe1GjOW7QYd0XToWEByu2zBj4ECIxbOBjVBxZs"
+    "M7OFy84JAMnf4NjS78aOdDukvz3JtT/ZmPh1sGlPMQ/lU2oT58AjJGaWpfI0mWxy1sl7o6TKhidjolLGSc6BnrmQLANBBxs1gfef"
+    "Fp9KY5mXFtRfBlHjJaYDUBK4M3AeqafwCHBlopSCmccBZArCVIK+BdCIwZNzfBo2h9tljVOYKEXZTp6PDFpmCbp3yGBfL6qnYwie"
+    "Ovn2pynLb+uZaHjwNajBr3wXKbdZX008Vf1R9Ak/d/u6xRuxvrku7Ftx6ZeyOVtp04+16QIpep4ObrsFcQT24H5T6gKWHmi4Womf"
+    "NV0/LndgPkIVYAMjYQ9ioUEv6U+3D09P6i+Lcaek8kDetcyKkBVNBC1FGgT1kZpAnaHEi8Cl9M74QFQgRnCbolYSaJ4rGo2hjH9a"
+    "vMtlhu5zAKdGg4jSMNQcCGMmJ+2BT6PQJILhGAXReMrLpWy8BkvHexBhip3j3e5gw9x/8qLFQ9qL5eroIMN7Mu/n/3n5H81YM3pD"
+    "0L/f9Fvdo069ryCyxWFd4lI/a/7wOWsw8KfpWWOIPC/BqmvUw5Xv5oeim3Eqft2MNazvg21EoFkdJI1EWJYBtQGhR8aDcmAKMsa9"
+    "4lJzbzKjAvRhpCoRMKrQPyGcUOnTYqtsAaMbz8ASVAaAKvVSOUW448EDL4EVTHlKnGSAAkYChBUChhtsJl6JLPg5tppT24y9MD63"
+    "nMztA/nqcacPaDfOQ+I6QNqeONs86wFunrQnQg8HrvzD5//ezBLNFJMSObD/6hK/qvw4wODi8nSgyNaXY+RiA2Nd3Z5EsOdPU/86"
+    "IOodyngoY2pNMxNcZ0+Y884BZvOGOQOCHhg24/FdJWC+bA7SyqRoBpPSE5mizwFY7VNjTAcySIDaA7zKBFjJoOWZS9KFmAXJlkiv"
+    "gF2NpFyYIEAiUesFi6DZgT/P2pTTUwpHPpz5q4EbMRpyfuypngydrhiWeShSvXOK4qr3g548YHHH0zPpJqDLNSLE7oTwCCyvm7Gq"
+    "plYFHJkxhw+ew+rPYLrFqunSkzU4BDCHkVHxsFhJJ1E69llToraauEkVjxb+RpWKy4lzM1Gmgx4+zdtDpy5Lnde9GSZBlOJWVHYA"
+    "a5SllDkG5E2ZItp4EM2a55yJSIBwgk/JRgLwRlEBRA6C+Fg0PGDlpzt8J9KPIE1uDzWm7SIvXmO2FJyRyQr1WUmOK+ui+CbeiTLR"
+    "uHHthgBbDH10IaRuabtd1npGaDyz8+TufudmjPC+50jOx5vpt5+gyD1i7AfKWzAZstdBKOqcgpkATG2VZJGjF1lxbgwBwCOD9Yxh"
+    "EcVi8D4CCuJJuaw+LXlrRfbBmxiM8JElxT1XSlnFlJfEWgo0IoUNQDOaasJk5iwkpUDwwqTAZ+fk7Tyk4R2bUR/JN1DycQG6AbO+"
+    "k3ZXfx679c1ms/+6Cx646qII2gwEBfS1704s3Osd+MPvv730Dn1yzVG1TR+U0KTXwMG7J40/7JsvzShL0T3wBuDRsIP+tENYl10m"
+    "xQbDGSqaOnQuAzBovrSfNcXj/xWmU/s2TUT/gO4GS6iLjsMFaQYubdD39+s2feak91C2Nwj5Fdg+RAHSoMpq5ZXxADFoiAR3lAhw"
+    "KHd4JsMDJ2RmtHMODAcHLFHS3XxCbG/AwvNSO+uCDhodgYxamTMLOSSmYezeRtAXwijBnUsOEFmQIXEpqRLBnmP7klPsXfz+S0NW"
+    "2OmPAalq50FUbIAa28N6iMH/GaBV1Fwo4UHdCxkTVZRIC/QmlPMc1LyS0uWUNUmCESBix3wUmTmJyoB4px8ErbrVvoup7iYePIJW"
+    "3anWGpIV2xLMFFKJCf10QNV7z/GnCKq6NX8wmqIgM6PVJGPEgZMM1ilFl7IUJAD21C5IB1a+oYQEmMaIdl4kEaw6FbS1n1joQfA2"
+    "yJyCliBeKW4zOSMEVRH+UtGBghEcALe0QihA2EAaFoQsJZwJ6HY861bCqOjVkDB1KmBnx/8+SOhb2QVl/cZoTcN79UV5+K36N2zr"
+    "W2jq6xom+yfcyZiFwqk+OripPJnidXPn4OHp0IP5scIThwaPjwTeiX2fHen7lTiOjtf+oaznvfMxOG8BukuaJGU28AgoHtgvkRgY"
+    "EZEBkkmJMcM4UTyr4OEF5TYK8YmxXmRUQm0mMQOgXPBEFDPW+WSJMBIkT1Y5cbRxmMnZMcIxRAhYMUmNR/vPbpT87bBAM3JxWD1o"
+    "n/PHcR2m6bnq3ai7q6NcyVczrD+Lqds0LxebZQmim/QQEclA/5f9uddmTHSMmyhdMt5fb+DpfMkeyi4KGCAwJwKRStIskgC6cDSI"
+    "CIIbVFdOQhGumM7chhh5UCZqowMRlAG9m0+LXViiEnQR95ajHcDA0EmMW5o90/AKRo5MkoKTCrgneeAS+FcBygku+iDOsct6s125"
+    "7gTUREnp4VDS7KzuR1JWLbR37mzbVFXppuvV5ARxt9nY667jY2u1nrJxclqH3TmPPD9yfHSq+Pjk8Eyh/Tq4cUoRD+XF5IGnGLEC"
+    "cJOiTGhFjGQRt7yNQZ8bWOLEc00108pZDVgygTGrIwHOCvwT2+PXImiXvQe2A97DbQwio4jAkaCQszPJ6+CzYDIQnY22nGQTs/AC"
+    "FDeJTJ1VXZhtC1NgFqw0OyixIe387Sz5k7sFvRbKafHiQ+uuF/gJe5InaGfa8IQSjrRb4ban4ymupp5LR/2F57FXyJuf1Ri7Ie6t"
+    "pCoByxE1XCwG5BBKMwyohgXA42Ki4sD6+n66PhzmqD26RuKXphfnK/5AXgTbVTkenFDMWcc1nscAWKWBCU0w0iuCh4ccgEYFSDPJ"
+    "FCUDbmIRzGLq8icW0yojyBUqARFTD0zJaUzRgl7khHMVMFERB1M+cTBgmQEzNSlruIBvsoQBp7P+8N4JNtGJx2eeP6I6NDXkbdd2"
+    "p3yHmz7uPaeB2/zfdg8ve6Ouqke/wd39TkeeVoQnDmjfOYB9fGZ6fjz6+PjzsbVnjnTn4xGRCbMPXteHwl+mnZc5AuVLS5k2iZJI"
+    "jAMtI2RQlgJ3h+xFYNRwydETDqVAW+WsswyfGJtbQzxVTFlBs8sAIqhWCfQs98DVgWqtY05gTTIhnE3MU5OZ15k5DHqiIT/Y/42B"
+    "nezEucT32/IqkaL7pwe8qAYP9KbZacThSOywXYUJW/udpstyCvvJGJv+pOmPxl6OE9rUADJgy0u8NgtZoXjA+zj2ooj7xvuY9fEs"
+    "8cfeYBrSMQ6q/udisWFe2um8/Bh9SgG2ReA0FUHTgKrRRkVLI9CcBP2ilUgUCJ6A4vEqGC2oFzkbZzOF3zp9aqccqSUaLE2GrXjG"
+    "MgBXB1wHGFbnwJOzEf3kCmSKBAUqA6cJJErUCkCFp7/4w1hXAylO8jWPZDmLMf98qGxydqRO5XhyqyTdLhkrE3Zi1+9YDc8/qwAW"
+    "DEgAtIvd87TrNfZliU1ZH+WOPrfjO0j+HISgUujkUoZ1ssaHQGMEOU+AFolnhABZZpGdStZ7KMwCsYQkITQr1xT+4g6NfRj58M7F"
+    "/5eHr9qPUcXvvyCfUsQf9NxRaSXYsiq6ZIiwgDJADhBNNHSE2cjBGJYcBIUNTmnjuHe4O5+Fc+6/jYQY3MKFpvCepZ9JQLhkY4iO"
+    "CS4cpyC1ZcqOJ+Nz9ioSxY2WPCVhgg42cBJsBkvRG4rR4Tbp/84C4sGL9mPyJLz/enxKJ2AUUZnQxHkCMQemSCLGUqqM09qDecJj"
+    "lIYww5W0nHk8xw3WCldJOzBlfM1sNA9lqDnS55ECXYxAd/fg+IieyZ5eKutPh57LUvIYe/phYk8fo08+RvRJuYzrZSo5H7/+TenK"
+    "5IziPxoMI8SrGEuijuHu1N82/+t3TRled4dN7BI+N7PjVc00lVvzP5shq3OzQ/uzPP0N+m/Ra/s/ds3vRfM7UHHbBnMtNV8z+9ur"
+    "5o+Yjbqp/AP1l9lsFuvi9i1WbPMlpZP4rMsuPmvMgVTM1Onx6uIzhnHm5cbt4d02NZjZbuneXFY1+PbJxd2VqFLyznqgVLks7/pF"
+    "SZF5ETTYMJpYmQGtZIG7iJQaL0FyahqDFZlwLbglkfKkAkfEw6gDwUUuTrX+PLnu8spJ2wnT/F4PiJGYrJlkTEcDHcBTvpL7ZAEX"
+    "ah2FFCGKFBjVRjjQD/CHMNZS5q0MMYjzzc6vho3ecOlpMJjK2vGgYUxM6JCkIsYnTx2FcqCDLNQbBJGEGKqZMJrm4N3JZnpFeDzA"
+    "7iqFPmBRGS48iZEbxTReLCBADwVnElC95zrTnJjnIUFrzLsQE5iS2nkYITXayJNNP/Q++F7tnwg0pBezlFs9ApkmfZtdRzlNmDfT"
+    "iaPTYZtuN0WU9Hsfba9Fhz5d1rtdL8cy18NeUgbNF2myQiaY+6REtFI70KGZu2wUp1Y4AAIwhxlmMwuaUlAsC60T05jqperK2SXH"
+    "7U/d7HmXO2U+H4ft7WZ3PH2D66v2pN70UR3cfbD0NZTPAEloApGHZoGg0XEg8uSVs5lpUYyiWs3ZBGmcBZ/x8gPi8eJDnhWwEGCc"
+    "aLlIxHlvmBIgPPH4fLKURA3FDAHQE7wFAu8vPp6myO0vLB0ebMd0pD8tfeCTnk6PKukXo6ulm5mad7Fmxu9ca/FnkGG1qe7Wjvm1"
+    "txbsVIBqmRCdStYd72TIXDNllbKO48WnzgGU1V5gWFKiwoYEKBaAA7SHt+l1cgPz/Z0WGpf4rh8OF5kK6L3CU+IsR4CJmGTfKOUF"
+    "WNYxe2K5TAF0oiE56UCSBWEDSEUYZgQ5anE2Gi+iIACKqcY7QhgJ1IMxS6IVKQIKBqHMogYSgTIOBBaQIws6ggjVSfpIUO4WKVuE"
+    "+UcX8ZOmPrRY/7ll+VF7s+FIMHqY4i5FpDKgJQdWUUAejUy4GIOBBlMw1sgIwiHi+R1jgqWApVzk1Q2Al8Ft35xL82OEkGgJ2QBr"
+    "kKGZZIFsDBgpygWtMc2NNoYR6ozgnhKePEM3J2GROk86Ji7ZZc+KIyB+YrVF2orGMaezcprQUPYphLXROhsTARSdJLNSyOzB1IPV"
+    "ZzzbKNnF9Jb4IefrO42UESjXVXynITL5YLjy6QEmy1375z2hdwHHdyjvw1oieHFQCof5dVnlNEA1ZWsOkNLxlJcl5293VmD2KZiM"
+    "mARzSCM6vFiMPo3eVl3jLRP12sFiRKxrwmH8Td/2Zih6M1ZY4QXS1uwY53gxTD3ZsJvGXPTv+uiochZ8nPThnpky9WM3u4MORwSL"
+    "Z2IyHg6hnDgFosFE5pRAItacm4gXmTAO0pEnYyNwBrBLFlCKWgpCIL3DzjsmzHuMuFMkedbIO2syfnx6fG8T7pEe76HH7BUHpJaS"
+    "SUB2SSSQxhaktVJKgzpIGpU3CSUPoJNKuoiJEC1me4gIGS7uXKf3ztFPSh/NwdyvNKuIHldE8C6U6QfTuq4ImhwnXVI3m02v32GG"
+    "DgVJf7VKN64dzPWSEQUl8q6zjze5PMNPm/JpSU3b1LkFwx9xZEkUgV6LemxpV+OugEvg+2qGY2qWXZf0AYiucXhecbJrXBbsqtpg"
+    "vbugXincdfOX6H4oCff7LrSTLpQ76qZO2knO+un1VUNLXZ7q03qeKsw85jOxQQhvFRNZKA3Y1xEQB9ESIfHMLYAAq6QX2jOQngTQ"
+    "hxEZNFc647HofeIf3sad5kI/VcP5Y3kzq/hEDx9mTg8fjkf5HmpTP5q2j6bte5q2P69pkBfLblwxZXdY7jHbP0z7DgizhgweFz7q"
+    "TvZCKB5cShTIxwWweh1GOaWYmM1ae04Jk54xtMSk8mAIJ0kx8jqD7fizWSofWD0WS/1sf6MhmilFCHKF8R6ewd8xSyqtATMaWAuj"
+    "rnW2sH4AzTSwHfMezErnVPShbJWiqiwWVVW43W21vS6oRuTLGpqIQ8CgRrxPvhT+mD0br9r6qaL+Z2WmeuNalXxrW073jXcKTDN4"
+    "PF2bdmqLTm6HHZMojPbk0w4TPu19DoZ57okznGmuRE6Oe0UCcKqA5zlLIjQFDQvSkNLAMPSeRgDeFOOcA3GTzmaoNm3xWpr9ZE82"
+    "4uUJHgxMA7zDSEgcls1qF/AYgwLKBzbMIRHthAD0GQGS4q5sIHiBbDjaCP3ZTfN6l8RM4ExqBwA0Hp/5EVb8cCjo3Ut3x94C9Nkx"
+    "R9Uu72uNlfe1v3M6O0txl9P6sRPTz/H3rHBp4HK92U8S8fb3ddTGp5tIpY5xwS8/PLWWQwmvoNrNq1PLBOu879bgY0qjj68tJzQO"
+    "KnKxXpwYCMGEoEE6Tb2kBmQQV8okPM3mtXYwHq2lpglmjwSB3BhVlAQwEvUZtKS4wyBH1StkYi8Nh3UgUjABvaSSwCCE4Zg1CA+7"
+    "e0UzJxagvYJyJsfMCAAxU/TfxzDjB8UNYgtvYgJb7PV9Jv59G9RnTPj3cAq8h/nfjR1oqtwldCdz2bBck4jobt6ablavm1NfVRQ9"
+    "uSSpkyrHDNJd7jOa2+Mk1io6dh5k15G/4jzHWUqBDTg32iTjvGPKGoRV1GGoPUgElTTVRlHQqyQD/I8avfbRsEyBcwa30/kWiHNA"
+    "eUIysDsJofD/IgamvTMyR7zqW3tPQuZ4OpRKY5ME+0CYxBw3VJZEYO8CMQAoCVNR+azwtDU2aQg+ysFrMC+ENNFrDlYssJcAHqQy"
+    "cq0VI4yBaCt+wAegKvZgVPW+HfqVoSpUDQinioooTs/pZvWgF+/4RI8xlQZRKagBAcqjixJ0laTeglGZjCXWaqFBK+jowQogQkXM"
+    "LiSoYpJhHlVS5N69mAqG5YSjwhGZ4B/BE9OJgdaREaSphcXUgoDqsA50hwK7IwI5oy/Zcu/gg9OY6sO7k0+Ap7Opf36S93mCo+5f"
+    "s18KihoH9G4QNSn7QTHUB6DOuxjq1Eo9CEq9vwj6ZUApRYPOQgEs8jFIDY88TC6oDscZmP6C4NaPAbUkMXcywFhllTMBxpxATQn2"
+    "DijlYSFg9IRybiUJCrqHPlAXFAAqkQ2n2YNgDJiWOimXHKg+6VOEqlOKxD5CqfeCUveJrXdDqvu+/qdDK0poEICmtKZgNwFjGUBa"
+    "FqwbmU3kzkoJyjMEF2Q0iVKdc1TURcQ+uEvM3g2tDAUd7L1mJmSdJCOOZwpkb2N2KUeplMO9JU7xvIYFYyn5HFj0hCjHSJIPgFbA"
+    "u8BfIBkywAIwBrnIChACtwkVoQE5lw30gXGAjFACjEdgTLzAEVOba1djoesmTvFdPfqIHn1Ejz6iRx/Ro4/o0Uf06CN69BF9MB/R"
+    "o6Pk0VHy6Ch5dJQ8OkoeHSWPjpJHR8kHdpQ8mx1m+Xjukg8X//sYsPurCdhNMoN1JqxLiK+yBdSbQfFnDNY3udyDTZ2NeGsbUrMH"
+    "/RmI4FF4yzng6hqwW/MftJNLabFxt32DZNb/3SUusVcDaLiCH6uUpkGv5Vwziq1yEXS57Q/T3mKmLiBGF0sWMJRss2BMHOLK1ZSV"
+    "sKT99zV3WHehTH+4FBo7rG8ObosVh+dudTveIohC8tmQu2IYTolYPJLtJSkZCsgu4eH1RZ9c96KLHu2shSEByU+LI302SWXyYoGM"
+    "ezFN/DJcg3iDqQUxm1p8udhtYLbHuZpmQ/Fut9jhqgx51TC8sEtptkow4Dhex+FQS1wt1jltS5QwrNoVJrWA1Yz/Si/KkfvRtTUk"
+    "WhndLlgClhCmLr12SKe7LmU+tgeU82IN4r1dLlaL2oW30zDjCKi8XkyMqW4wBrpTEwg3O5V+RM1B+SCBdqnniLlQWAJuiYCKwLjM"
+    "QihPARl5jrhQuyCcB0sQkBZI7xyURtuhNHWEtrqQ4E5r1rQ63QwNw78+e+0Losdzb589qck0Tx/+e+/sj33t3cKOPtF3rOz0tN3S"
+    "rWvYwp1LNTHtDqqQdrwTc0wCMbmZs0RSd9kAu+c9W3anamsU+5Nyb+Z4TdRDv+qD1D9G3Pvb/w/Dkkb4"
+)
+
+
+@pytest.mark.parametrize("legacy_field", ["admissibility", "effective_independence"])
+def test_current_input_rejects_legacy_caller_gate_predicates(legacy_field: str) -> None:
+    with pytest.raises(ValueError, match="Extra inputs are not permitted"):
+        _promotion_input(**{legacy_field: True})
 
 
 def test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow() -> None:
@@ -203,6 +369,51 @@ def test_legacy_v3_history_is_exactly_readable_but_not_current_authority() -> No
         promotion_sequence_module.parse_canonical_promotion_history_receipt(hybrid)
 
 
+def test_v4_v1_history_is_readable_but_cannot_be_current_authority() -> None:
+    receipt = _run(_promotion_input())
+
+    assert receipt.schema_version == "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
+    payload = _legacy_v4_history_payload(receipt)
+    parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
+
+    assert isinstance(parsed, promotion_sequence_module._LegacyCanonicalPromotionReceiptV4)
+    assert parsed.model_dump(mode="json") == payload
+    with pytest.raises(ValueError):
+        CanonicalPromotionReceipt.model_validate(payload)
+    assert validate_canonical_promotion_receipt(payload) == (
+        {"code": "legacy_obligation_scope_v1_authority_not_admitted"},
+    )
+
+
+def test_round1_v5_v2_receipt_round_trips_but_cannot_regain_current_authority() -> None:
+    raw = zlib.decompress(base64.b64decode(_ROUND1_V5_V2_RECEIPT_ZLIB_B64))
+
+    assert len(raw) == 48_568
+    assert hashlib.sha256(raw).hexdigest() == (
+        "dba4a1ab7f374ea04044b171b0e163c6b0b1390089197fc64f96c2f0e86983c9"
+    )
+    payload = json.loads(raw)
+    parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
+
+    assert isinstance(parsed, promotion_sequence_module._LegacyCanonicalPromotionReceiptV5)
+    assert parsed.schema_version.endswith(".v5")
+    assert parsed.owner_projection.schema_version.endswith(".v3")
+    assert parsed.model_dump_json().encode("utf-8") == raw
+    assert validate_canonical_promotion_receipt(payload) == (
+        {"code": "legacy_obligation_scope_v2_authority_not_admitted"},
+    )
+
+
+def test_v1_scope_rows_cannot_be_restamped_as_current_authority() -> None:
+    receipt = _run(_promotion_input())
+    payload = _current_receipt_with_v1_scope_rows(receipt)
+    restamped = CanonicalPromotionReceipt.model_validate(payload)
+
+    assert {issue["code"] for issue in validate_canonical_promotion_receipt(restamped)} == {
+        "obligation_instance_scope_mismatch"
+    }
+
+
 def test_current_owner_projection_requires_the_physical_open_world_key() -> None:
     receipt = _run(_promotion_input())
     payload = receipt.owner_projection.model_dump(mode="json")
@@ -292,6 +503,10 @@ def test_n9_emits_additive_decisive_instances_with_deterministic_identity() -> N
     assert tuple(row.obligation_class for row in class_gate_rows) == tuple(PromotionObligationClass)
     assert [row.source_obligation_ref for row in decisive_rows] == [
         (
+            "polisyos.runtime.quality.promotion_sequence."
+            "run_canonical_promotion_sequence#effective_independence"
+        ),
+        (
             "polisyos.runtime.quality.generation_cycle.ValueGateReceipt#"
             "transport_wmr_hash_equals_receipt_wmr_hash"
         ),
@@ -301,13 +516,13 @@ def test_n9_emits_additive_decisive_instances_with_deterministic_identity() -> N
         ),
     ]
     assert len(slot_rows) == 3
-    assert len(receipt.obligations) == 17
-    assert len({row.obligation_instance_id for row in receipt.obligations}) == 17
+    assert len(receipt.obligations) == 18
+    assert len({row.obligation_instance_id for row in receipt.obligations}) == 18
     assert {row.identity_provenance for row in receipt.obligations} == {"recomputed"}
 
     expected_scope_hash = gy_content_hash(
         {
-            "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v1",
+            "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v3",
             "promotion_rule_version": promotion_input.schema_version,
             "design_problem_id": promotion_input.design_problem_binding.design_problem_id,
             "problem_content_hash": (promotion_input.design_problem_binding.problem_content_hash),
@@ -1047,14 +1262,16 @@ def test_untransportable_candidate_stays_shadow() -> None:
     assert "slot:single_obligation_fail" in receipt.refusal_reasons
 
 
-def test_timeout_unknown_never_promotes_or_fabricates_block() -> None:
+def test_timeout_knob_cannot_decide_effect_or_fabricate_block() -> None:
     receipt = _run(_promotion_input(force_proof_timeout=True))
 
     assert receipt.promoted is False
     assert receipt.status == "shadow"
     effect = _obligation(receipt, PromotionObligationClass.EFFECT)
     assert effect.status == PromotionObligationStatus.UNKNOWN
-    assert "effect:proof_timeout" in receipt.refusal_reasons
+    assert effect.reason == PromotionFailClosedReason.UNKNOWN
+    assert effect.semantic_scope == "real_semantics"
+    assert "effect:unknown" in receipt.refusal_reasons
 
 
 def test_lower_boundary_wins_over_optimistic_declared_transform() -> None:
@@ -1120,6 +1337,43 @@ def test_no_cg2_owner_grant_stays_shadow() -> None:
     )
 
 
+def test_cg2_open_admissibility_obligation_keeps_promotion_red() -> None:
+    reference = _credal_reference()
+    engine = GroundingRelationEngine(reference)
+    cg1 = engine.certificate_for(
+        _pure_synonym_probe(engine),
+        proposal_id="n9-cg2-open-admissibility",
+    )
+    payload = cg1.model_dump(mode="json")
+    payload["proposal_signature"]["hypotheses"][0]["signature"]["admissibility"] = (
+        "candidate_unverified"
+    )
+    provisional = cg1.__class__.model_validate(payload)
+    payload["content_hash"] = recompute_grounding_relation_content_hash(provisional)
+    payload["certificate_id"] = f"cg1_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
+    open_cg1 = cg1.__class__.model_validate(payload)
+    decision = GroundingBindGate.for_contract_testing(
+        reference,
+        calibration_seed_anchor=True,
+        disable_certificate_revalidation=True,
+    ).certificate_for(open_cg1)
+
+    receipt = _run(
+        _promotion_input(
+            grounding_decision_certificate=decision,
+            credal_reference=reference,
+        )
+    )
+
+    assert decision.decision == "abstain"
+    assert "admissibility_closed" in decision.open_obligations
+    assert receipt.promoted is False
+    identification = _obligation(receipt, PromotionObligationClass.IDENTIFICATION)
+    assert identification.status == PromotionObligationStatus.FAILED
+    assert "identification:single_obligation_fail" in receipt.refusal_reasons
+    assert "not_bind_decision" in identification.detail
+
+
 def test_contract_testing_bind_receipt_is_intrinsically_non_promotable() -> None:
     receipt = _run(_promotion_input())
 
@@ -1130,14 +1384,14 @@ def test_contract_testing_bind_receipt_is_intrinsically_non_promotable() -> None
 
 
 def test_scope_insufficient_obligation_does_not_vacuously_pass() -> None:
-    receipt = _run(_promotion_input())
+    receipt = _run(_promotion_input(g4_governed_promotion_ref=None))
 
     assert receipt.promoted is False
     assert receipt.consumer_promotable is False
-    effect = _obligation(receipt, PromotionObligationClass.EFFECT)
-    assert effect.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
-    assert effect.semantic_scope == "scope_insufficient"
-    vacuous_value = effect.model_copy(
+    param = _obligation(receipt, PromotionObligationClass.PARAM)
+    assert param.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+    assert param.semantic_scope == "scope_insufficient"
+    vacuous_value = param.model_copy(
         update={
             "status": PromotionObligationStatus.SATISFIED,
             "reason": None,
@@ -1145,7 +1399,10 @@ def test_scope_insufficient_obligation_does_not_vacuously_pass() -> None:
         }
     )
     obligations = tuple(
-        vacuous_value if item.obligation_class == PromotionObligationClass.EFFECT else item
+        vacuous_value
+        if item.obligation_role == "class_gate"
+        and item.obligation_class == PromotionObligationClass.PARAM
+        else item
         for item in receipt.obligations
     )
     gate_outcome_hash = _gate_outcome_hash(obligations)
@@ -1209,9 +1466,717 @@ def test_invented_measurement_marker_does_not_supply_authority() -> None:
     receipt = _run(
         _promotion_input(value_receipt=value.model_copy(update={"value_outer_set": marked_value}))
     )
-    assert _obligation(receipt, PromotionObligationClass.MEASUREMENT).status == (
-        PromotionObligationStatus.SCOPE_INSUFFICIENT
+    measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)
+    assert measurement.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+    assert measurement.owner_ref.endswith("MeasurementRootProducer.produce_from_catalog")
+    assert "evidence_not_established" in measurement.detail
+
+
+def _independence_portfolio_design() -> dict[str, object]:
+    return {
+        "schema_version": "policyos.runtime.policy_design_case.evidence_portfolio_design.v1",
+        "portfolio_id": "portfolio-n9-dependent",
+        "claim_ids": ["claim-n9"],
+        "predeclared": True,
+        "declared_at": "2026-08-30T08:00:00+00:00",
+        "declared_before_producer_execution": True,
+        "authority_level": "production",
+        "strands": [
+            {
+                "strand_id": "literature-strand",
+                "claim_id": "claim-n9",
+                "authority_level": "production",
+                "candidate_data_source_families": ["academic_evidence"],
+                "candidate_method_families": ["quasi_experimental_panel"],
+                "defensible_specification_space": {"primary_estimand": "ATT"},
+                "inclusion_rules": ["Include independently produced studies."],
+                "exclusion_rules": ["Exclude duplicate reports of one study."],
+                "disconfirming_lines": [{"line_id": "counter-required", "required": True}],
+                "synthesis_rules": {"strategy": "effective_independence"},
+                "stopping_rules": {"minimum_effective_independent_evidence_count": 2},
+                "cost_proportionality": {"budget_tier": "standard"},
+            }
+        ],
+        "candidate_data_source_families": ["academic_evidence"],
+        "candidate_method_families": ["quasi_experimental_panel"],
+        "inclusion_rules": ["Prefer production evidence."],
+        "exclusion_rules": ["Reject raw-count inflation."],
+        "disconfirming_lines": ["counter-required"],
+        "synthesis_rules": {"strategy": "effective_independence"},
+        "stopping_rules": {"minimum_effective_independent_evidence_count": 2},
+        "cost_proportionality": {"budget_tier": "standard"},
+        "cas_ref": _hash("a"),
+        "runtime_event_ref": _hash("b"),
+    }
+
+
+def _independence_line(line_id: str, *, primary_source: str) -> dict[str, Any]:
+    return {
+        "schema_version": "policyos.runtime.policy_design_case.evidence_line.v1",
+        "line_id": line_id,
+        "portfolio_id": "portfolio-n9-dependent",
+        "portfolio_strand_id": "literature-strand",
+        "claim_id": "claim-n9",
+        "evidence_strand": "literature",
+        "polarity": "support",
+        "quality_score": 1.0,
+        "source_refs": [f"source:{line_id}"],
+        "primary_source": primary_source,
+        "retrieval_path": f"scholar-search:{line_id}",
+        "source_lineage": {
+            "source_id": primary_source,
+            "source_ref": f"source:{line_id}",
+            "lineage_refs": [f"lineage:{line_id}"],
+            "corpus_id": "dataset-n9",
+            "corpus_ancestry": ["dataset-n9"],
+            "snapshot_id": "snapshot-n9",
+            "preprocessing": "prep-n9",
+            "transformation_lineage": ["transform:dataset-n9:prep-n9"],
+            "retrieval_path": f"scholar-search:{line_id}",
+        },
+        "underlying_study_id": "study-shared-n9",
+        "legal_authority": ["research-use-permit-2026"],
+        "author_ids": ["author:n9"],
+        "institution_ids": ["institution:n9"],
+        "sponsor_ids": ["sponsor:n9"],
+        "dataset_id": "dataset-n9",
+        "corpus_ancestry": ["dataset-n9"],
+        "snapshot_id": "snapshot-n9",
+        "subject_pool": "msme-credit-applicants",
+        "preprocessing_pipeline_id": "prep-n9",
+        "transformation_lineage": ["transform:dataset-n9:prep-n9"],
+        "method_id": f"foundry.did.{line_id}",
+        "method_family": "difference_in_differences",
+        "method_assumptions": ["parallel-trends", "no-anticipation"],
+        "identification_strategy_id": "did-identification",
+        "shared_failure_modes": ["selection-on-unobservables"],
+        "proof_reuse_status": "fresh_proof",
+        "llm_generation_path": {
+            "model": "none",
+            "prompt_ref": "deterministic-producer",
+            "retrieval_ref": f"scholar-search:{line_id}",
+        },
+        "simulation_dgp": {
+            "dgp_ref": "not_simulated",
+            "calibration_ref": "not_applicable",
+            "assumption_family": "not_applicable",
+        },
+        "participation_sample_frame": "not_participation_evidence",
+        "concept_spine_refs": ["concept-spine:msme-credit"],
+        "jurisdiction": "UA",
+        "time_roles": {
+            "publication_time": "2025-01-01",
+            "retrieval_time": "2026-08-30T09:00:00+00:00",
+            "legal_valid_time": "2026-01-01/2026-12-31",
+        },
+        "specification_id": f"spec:{line_id}",
+        "producer_identity": {
+            "component": "polisyos.scholar.evidence",
+            "version": "2026.08.30",
+            "owner": "team-science-quality",
+        },
+        "execution_context": {
+            "run_id": "run-n9",
+            "job_id": f"job:{line_id}",
+            "tenant_id": "tenant-prod",
+            "trace_id": f"trace:{line_id}",
+        },
+        "evidence_ref": _hash("c"),
+        "runtime_event_ref": _hash("d"),
+    }
+
+
+def test_real_dependent_independence_graph_refuses_legacy_true(
+    tmp_path: Path,
+) -> None:
+    with pytest.raises(ValueError, match="Extra inputs are not permitted"):
+        _promotion_input(effective_independence=True)
+
+    promotion_input = _promotion_input()
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=FileSystemCAS(tmp_path / "cas")
     )
+    bridge_ref = repository.persist_effective_independence(
+        promotion_input=promotion_input,
+        evidence_lines=(
+            _independence_line("publication-1", primary_source="journal"),
+            _independence_line("publication-2", primary_source="working-paper"),
+        ),
+        portfolio_designs=(_independence_portfolio_design(),),
+        graph_id="effective-independence:n9-dependent",
+    )
+    bridged_input = promotion_input.model_copy(update={"producer_root_refs": (bridge_ref,)})
+
+    receipt = run_canonical_promotion_sequence(
+        bridged_input,
+        confidence_ledger_session=_ledger_session(binding=bridged_input.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    rows = tuple(
+        row
+        for row in receipt.obligations
+        if row.source_obligation_ref.endswith("#effective_independence")
+    )
+
+    assert len(rows) == 1
+    assert rows[0].status == PromotionObligationStatus.FAILED
+    assert rows[0].owner_ref.endswith("build_effective_independence_graph")
+    assert "dependent_evidence_collapsed" in rows[0].detail
+    assert "data:single_obligation_fail" in promotion_sequence_module._refusal_reasons(
+        receipt.obligations,
+        risk_spend=receipt.risk_spend,
+    )
+
+
+def test_empty_independence_graph_cannot_establish_promotion_evidence(
+    tmp_path: Path,
+) -> None:
+    promotion_input = _promotion_input()
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=FileSystemCAS(tmp_path / "cas")
+    )
+    bridge_ref = repository.persist_effective_independence(
+        promotion_input=promotion_input,
+        evidence_lines=(),
+        portfolio_designs=(),
+        graph_id="effective-independence:n9-empty",
+    )
+    bridged_input = promotion_input.model_copy(update={"producer_root_refs": (bridge_ref,)})
+
+    receipt = run_canonical_promotion_sequence(
+        bridged_input,
+        confidence_ledger_session=_ledger_session(binding=bridged_input.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    row = next(
+        item
+        for item in receipt.obligations
+        if item.source_obligation_ref.endswith("#effective_independence")
+    )
+
+    assert row.status == PromotionObligationStatus.FAILED
+    assert "no_support_evidence" in row.detail
+
+
+def test_real_measurement_root_resolves_and_binds_into_n9(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    catalog = build_slice0_fixture_catalog_graph(tmp_path)
+    manifest = load_workspace_fixture_manifest("ua_msme_credit_worldbank_measurement")
+    envelope = MeasurementRootProducer(artifact_store=store).produce_from_catalog(
+        manifest,
+        catalog,
+    )
+    promotion_input = _promotion_input()
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(store=store)
+    bridge_ref = repository.persist_measurement_root(
+        promotion_input=promotion_input,
+        envelope=envelope,
+    )
+    independence_ref = repository.persist_effective_independence(
+        promotion_input=promotion_input,
+        evidence_lines=(_independence_line("publication-1", primary_source="journal"),),
+        portfolio_designs=(_independence_portfolio_design(),),
+        graph_id="effective-independence:n9-established",
+    )
+    bridged_input = promotion_input.model_copy(
+        update={"producer_root_refs": (bridge_ref, independence_ref)}
+    )
+
+    receipt = run_canonical_promotion_sequence(
+        bridged_input,
+        confidence_ledger_session=_ledger_session(binding=bridged_input.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+
+    measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)
+    assert measurement.status == PromotionObligationStatus.SATISFIED
+    assert measurement.owner_ref.endswith("MeasurementRootProducer.produce_from_catalog")
+    assert envelope.payload_ref in measurement.evidence_refs
+    independence = next(
+        item
+        for item in receipt.obligations
+        if item.source_obligation_ref.endswith("#effective_independence")
+    )
+    assert independence.status == PromotionObligationStatus.SATISFIED
+    assert independence.owner_ref.endswith("build_effective_independence_graph")
+
+    unresolved = _run(bridged_input)
+    unresolved_measurement = _obligation(unresolved, PromotionObligationClass.MEASUREMENT)
+    assert unresolved_measurement.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+    assert "evidence_not_established" in unresolved_measurement.detail
+    unresolved_independence = next(
+        item
+        for item in unresolved.obligations
+        if item.source_obligation_ref.endswith("#effective_independence")
+    )
+    assert unresolved_independence.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+
+    pilot_value = _value_receipt().model_copy(update={"evaluation_mode": "field_pilot"})
+    pilot_input = bridged_input.model_copy(update={"value_receipt": pilot_value})
+    pilot_receipt = run_canonical_promotion_sequence(
+        pilot_input,
+        confidence_ledger_session=_ledger_session(binding=pilot_input.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+
+    for design_class, current in (
+        ("data_only", receipt),
+        ("field_pilot", pilot_receipt),
+    ):
+        assert current.promoted is False
+        assert current.consumer_promotable is False
+        production = tuple(
+            promotion_sequence_module._refusal_reasons(
+                current.obligations,
+                risk_spend=current.risk_spend,
+            )
+        )
+        contract = tuple(
+            promotion_sequence_module._refusal_reasons(
+                current.obligations,
+                risk_spend=current.risk_spend,
+                allow_non_authoritative_contract_scope_gaps=True,
+            )
+        )
+        production_scope = tuple(
+            reason for reason in production if reason.endswith(":scope_insufficient")
+        )
+        contract_scope = tuple(
+            reason for reason in contract if reason.endswith(":scope_insufficient")
+        )
+        expected_production_scope = (
+            () if design_class == "data_only" else ("eval_safety:scope_insufficient",)
+        )
+        assert production_scope == expected_production_scope
+        assert len(production) == (3 if design_class == "data_only" else 4)
+        assert len(contract) == 3
+        assert contract_scope == ()
+        print(
+            f"AFTER CLASS={design_class} "
+            f"PRODUCTION={len(production)}/{len(production_scope)} "
+            f"CONTRACT={len(contract)}/{len(contract_scope)} "
+            f"PRODUCTION_REASONS={'|'.join(production)} "
+            f"CONTRACT_REASONS={'|'.join(contract)}"
+        )
+
+
+def test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient() -> None:
+    pilot_value = _value_receipt().model_copy(update={"evaluation_mode": "field_pilot"})
+    receipt = _run(_promotion_input(value_receipt=pilot_value))
+
+    effect = _obligation(receipt, PromotionObligationClass.EFFECT)
+    out_of_scope = _obligation(receipt, PromotionObligationClass.EVAL_SAFETY)
+
+    assert receipt.schema_version.endswith(".v6")
+    assert effect.status == PromotionObligationStatus.UNKNOWN
+    assert effect.reason.value == "unknown"
+    assert effect.semantic_scope == "real_semantics"
+    assert effect.owner_ref.endswith("persist_effect_obligation")
+    assert "effect_obligation_evidence_not_established" in effect.detail
+    assert out_of_scope.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+    assert out_of_scope.reason.value == "scope_insufficient"
+    assert out_of_scope.semantic_scope == "scope_insufficient"
+    assert effect.instance_scope_content_hash != _hash("0")
+
+
+def test_valid_cg1_shadow_certificate_alone_cannot_satisfy_effect(tmp_path: Path) -> None:
+    promotion_input = _promotion_input()
+    reference = promotion_input.credal_reference
+    assert reference is not None
+    engine = GroundingRelationEngine(reference)
+    cg1 = engine.certificate_for(
+        _pure_synonym_probe(engine),
+        proposal_id="effect-shadow-alone",
+    )
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=FileSystemCAS(tmp_path / "cas")
+    )
+
+    bound = promotion_sequence_module._bind_production_promotion_evidence(
+        promotion_input,
+        context={"effect_obligation_writer_input": {"grounding_relation_certificate": cg1}},
+        repository=repository,
+    )
+    receipt = run_canonical_promotion_sequence(
+        bound,
+        confidence_ledger_session=_ledger_session(binding=bound.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    effect = _obligation(receipt, PromotionObligationClass.EFFECT)
+
+    assert cg1.shadow_only is True
+    assert cg1.no_bind_admit_promote is True
+    assert not any(
+        ref.artifact_type == "N9EffectObligationBridge" for ref in bound.producer_root_refs
+    )
+    assert effect.status == PromotionObligationStatus.UNKNOWN
+    assert "effect_obligation_evidence_not_established" in effect.detail
+
+
+def test_cg1_derived_atom_cannot_satisfy_effect(tmp_path: Path) -> None:
+    row = _run_effect_case(tmp_path, atom_source="cg1_shadow")
+
+    assert row.status == PromotionObligationStatus.FAILED
+    assert "effect_atom_binding_shadow_only" in row.detail
+
+
+def test_effect_without_epsilon_to_estimand_mapping_fails_its_first_conjunct(
+    tmp_path: Path,
+) -> None:
+    row = _run_effect_case(tmp_path, declared_estimand=None)
+
+    assert row.status == PromotionObligationStatus.FAILED
+    assert "effect_estimand_mapping_missing" in row.detail
+
+
+def test_effect_without_causal_path_or_mechanism_fails_its_second_conjunct(
+    tmp_path: Path,
+) -> None:
+    row = _run_effect_case(tmp_path, causal_mechanism_ref=None, remove_effect_path=True)
+
+    assert row.status == PromotionObligationStatus.FAILED
+    assert "effect_causal_path_or_mechanism_missing" in row.detail
+
+
+def test_ungrounded_effect_claim_fails_its_entailment_conjunct(tmp_path: Path) -> None:
+    row = _run_effect_case(tmp_path, ungrounded=True)
+
+    assert row.status == PromotionObligationStatus.FAILED
+    assert "effect_claim_ungrounded" in row.detail
+
+
+@pytest.mark.parametrize(
+    ("bounded", "limitation_code"),
+    [(False, "effect_claim_entailed"), (True, "effect_claim_bounded")],
+)
+def test_effect_exact_or_bounded_entailment_satisfies_without_minting(
+    tmp_path: Path,
+    bounded: bool,
+    limitation_code: str,
+) -> None:
+    row = _run_effect_case(tmp_path, bounded=bounded)
+
+    assert row.status == PromotionObligationStatus.SATISFIED
+    assert limitation_code in row.detail
+    assert row.owner_ref.endswith("persist_effect_obligation")
+
+
+def test_production_n9_port_persists_and_consumes_dependent_independence_evidence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem(f"n9_independence_writer_{uuid4().hex}")
+    summary = _summary()
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(summary,),
+    )
+    port = CanonicalN9PromotionPort(
+        context_provider=lambda _summary, _problem: {
+            "effective_independence_writer_input": {
+                "evidence_lines": (
+                    _independence_line("publication-1", primary_source="journal"),
+                    _independence_line("publication-2", primary_source="working-paper"),
+                ),
+                "portfolio_designs": (_independence_portfolio_design(),),
+                "graph_id": "effective-independence:n9-production-dependent",
+            }
+        },
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+        repo_root=REPO_ROOT,
+    )
+
+    observation = port(admitted_batch=admitted_batch, problem=problem)
+    receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
+    independence = next(
+        item
+        for item in receipt.obligations
+        if item.source_obligation_ref.endswith("#effective_independence")
+    )
+
+    assert independence.status == PromotionObligationStatus.FAILED
+    assert "dependent_evidence_collapsed" in independence.detail
+    assert any(
+        item.artifact_type == "N9EffectiveIndependenceBridge"
+        for item in receipt.owner_projection.producer_root_refs
+    )
+    assert (
+        validate_canonical_promotion_receipt(
+            receipt,
+            candidate_summary=summary,
+            design_problem=problem,
+            open_world_resolver=port.open_world_resolver,
+            epoch_validity_resolver=port.epoch_validity_resolver,
+            promotion_evidence_resolver=port.promotion_evidence_resolver,
+        )
+        == ()
+    )
+
+
+def test_production_n9_port_persists_and_consumes_measurement_root_evidence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    manifest = load_workspace_fixture_manifest("ua_msme_credit_worldbank_measurement")
+    envelope = MeasurementRootProducer(artifact_store=runtime.store).produce_from_catalog(
+        manifest,
+        build_slice0_fixture_catalog_graph(tmp_path),
+    )
+    problem = _problem(f"n9_measurement_writer_{uuid4().hex}")
+    summary = _summary()
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(summary,),
+    )
+    port = CanonicalN9PromotionPort(
+        context_provider=lambda _summary, _problem: {
+            "measurement_root_writer_input": {"envelope": envelope}
+        },
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+        repo_root=REPO_ROOT,
+    )
+
+    observation = port(admitted_batch=admitted_batch, problem=problem)
+    receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
+    measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)
+
+    assert measurement.status == PromotionObligationStatus.SATISFIED
+    assert envelope.payload_ref in measurement.evidence_refs
+    assert any(
+        item.artifact_type == "N9MeasurementRootBridge"
+        for item in receipt.owner_projection.producer_root_refs
+    )
+    assert (
+        validate_canonical_promotion_receipt(
+            receipt,
+            candidate_summary=summary,
+            design_problem=problem,
+            open_world_resolver=port.open_world_resolver,
+            epoch_validity_resolver=port.epoch_validity_resolver,
+            promotion_evidence_resolver=port.promotion_evidence_resolver,
+        )
+        == ()
+    )
+
+
+def test_production_n9_port_persists_effect_but_refuses_contract_only_cg2(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem(f"n9_effect_writer_{uuid4().hex}")
+    summary = _summary()
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(summary,),
+    )
+    fixture_input = _promotion_input()
+    reference = fixture_input.credal_reference
+    decision = fixture_input.grounding_decision_certificate
+    assert reference is not None and decision is not None
+    port = CanonicalN9PromotionPort(
+        context_provider=lambda _summary, _problem: {
+            "credal_reference": reference,
+            "grounding_decision_certificate": decision,
+            "effect_obligation_writer_input": _effect_writer_input(fixture_input),
+        },
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+        repo_root=REPO_ROOT,
+    )
+
+    observation = port(admitted_batch=admitted_batch, problem=problem)
+    receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
+    effect = _obligation(receipt, PromotionObligationClass.EFFECT)
+
+    assert effect.status == PromotionObligationStatus.FAILED
+    assert "effect_binding_authority_not_established" in effect.detail
+    assert any(
+        item.artifact_type == "N9EffectObligationBridge"
+        for item in receipt.owner_projection.producer_root_refs
+    )
+    assert (
+        validate_canonical_promotion_receipt(
+            receipt,
+            candidate_summary=summary,
+            design_problem=problem,
+            open_world_resolver=port.open_world_resolver,
+            epoch_validity_resolver=port.epoch_validity_resolver,
+            promotion_evidence_resolver=port.promotion_evidence_resolver,
+        )
+        == ()
+    )
+
+
+def test_foreign_candidate_and_wrong_verifier_provenance_fail_closed(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    promotion_input = _promotion_input()
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(store=store)
+    bridge_ref = repository.persist_effective_independence(
+        promotion_input=promotion_input,
+        evidence_lines=(_independence_line("publication-1", primary_source="journal"),),
+        portfolio_designs=(_independence_portfolio_design(),),
+        graph_id="effective-independence:n9-binding",
+    )
+    foreign_summary = _summary().model_copy(
+        update={"candidate_id": "candidate_foreign", "content_hash": _hash("f")}
+    )
+    foreign_input = promotion_input.model_copy(
+        update={
+            "candidate_summary": foreign_summary,
+            "producer_root_refs": (bridge_ref,),
+        }
+    )
+    foreign_receipt = run_canonical_promotion_sequence(
+        foreign_input,
+        confidence_ledger_session=_ledger_session(binding=foreign_input.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    foreign_row = next(
+        item
+        for item in foreign_receipt.obligations
+        if item.source_obligation_ref.endswith("#effective_independence")
+    )
+    assert foreign_row.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+
+    raw_record = json.loads(store.get_bytes(core_artifacts.ArtifactID(bridge_ref.artifact_id)))
+    record = promotion_sequence_module.N9PromotionEvidenceBridgeRecord.model_validate(raw_record)
+    wrong_verifier = store.put_bytes(
+        b"attacker-selected verifier\n",
+        core_artifacts.ArtifactWriteOptions(
+            kind="polisyos.gy.n9_promotion_evidence_verifier",
+            media_type="text/plain",
+        ),
+    )
+    forged = record.model_copy(update={"verifier_provenance_ref": str(wrong_verifier.artifact_id)})
+    forged_core_ref, _semantic_hash, _raw = promotion_sequence_module._persist_model(
+        store=store,
+        value=forged,
+        kind="polisyos.gy.n9_promotion_evidence_bridge",
+    )
+    forged_ref = ArtifactRef(
+        artifact_id=str(forged_core_ref.artifact_id),
+        artifact_type=bridge_ref.artifact_type,
+        content_hash=gy_content_hash(forged.model_dump(mode="json")),
+        schema_ref=bridge_ref.schema_ref,
+        uri=f"cas://{forged_core_ref.artifact_id}",
+        version=bridge_ref.version,
+    )
+    forged_input = promotion_input.model_copy(update={"producer_root_refs": (forged_ref,)})
+    forged_receipt = run_canonical_promotion_sequence(
+        forged_input,
+        confidence_ledger_session=_ledger_session(binding=forged_input.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    forged_row = next(
+        item
+        for item in forged_receipt.obligations
+        if item.source_obligation_ref.endswith("#effective_independence")
+    )
+    assert forged_row.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+
+
+def test_eval_safety_names_the_missing_promotion_authority_without_reusing_o0() -> None:
+    data_only = _run(_promotion_input())
+    pilot_value = _value_receipt().model_copy(update={"evaluation_mode": "field_pilot"})
+    pilot = _run(_promotion_input(value_receipt=pilot_value))
+
+    data_only_gate = _obligation(data_only, PromotionObligationClass.EVAL_SAFETY)
+    pilot_gate = _obligation(pilot, PromotionObligationClass.EVAL_SAFETY)
+    assert data_only_gate.status == PromotionObligationStatus.NOT_APPLICABLE_DATA_ONLY
+    assert data_only_gate.owner_ref.endswith("_eval_safety_obligation")
+    assert pilot_gate.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+    assert pilot_gate.owner_ref == "absent/unallocated"
+    assert "producer_missing" in pilot_gate.detail
+    assert "forbids promotion use" in pilot_gate.detail
+
+
+def test_n5_coupling_blocker_refuses_coupling() -> None:
+    receipt = _run(
+        _promotion_input(
+            summary=_summary().model_copy(update={"value_blockers": ("n5_coupling_blocked",)})
+        )
+    )
+
+    coupling = _obligation(receipt, PromotionObligationClass.COUPLING)
+    assert coupling.status == PromotionObligationStatus.FAILED
+    assert coupling.owner_ref.endswith("SimulationPortObservation.authority_blockers")
+    assert "n5_coupling_blocked" in coupling.evidence_refs
+    production_reasons = promotion_sequence_module._refusal_reasons(
+        receipt.obligations,
+        risk_spend=receipt.risk_spend,
+    )
+    assert "coupling:single_obligation_fail" in production_reasons
+
+
+def test_supported_n5_coupling_path_satisfies_coupling() -> None:
+    receipt = _run(_promotion_input())
+
+    coupling = _obligation(receipt, PromotionObligationClass.COUPLING)
+
+    assert coupling.status == PromotionObligationStatus.SATISFIED
+    assert coupling.owner_ref.endswith("SimulationPortObservation.authority_blockers")
+
+
+def test_effective_independence_missing_is_explicit_decisive_nonreceipt() -> None:
+    receipt = _run(_promotion_input())
+
+    rows = tuple(
+        row
+        for row in receipt.obligations
+        if row.obligation_role == "decisive_predicate"
+        and row.source_obligation_ref.endswith("#effective_independence")
+    )
+
+    assert len(rows) == 1
+    assert rows[0].status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+    assert rows[0].owner_ref.endswith("build_effective_independence_graph")
+    assert "evidence_not_established" in rows[0].detail
+    assert "not production-orchestrated" in rows[0].detail
+    production_reasons = promotion_sequence_module._refusal_reasons(
+        receipt.obligations,
+        risk_spend=receipt.risk_spend,
+    )
+    assert "data:scope_insufficient" in production_reasons
 
 
 def test_data_trust_typed_fields_fail_data_obligation() -> None:
@@ -1609,6 +2574,40 @@ def test_promotion_context_cannot_supply_open_world_gate(
         port(admitted_batch=admitted_batch, problem=problem)
 
 
+@pytest.mark.parametrize("legacy_field", ["admissibility", "effective_independence"])
+def test_promotion_context_cannot_supply_legacy_gate_predicate(
+    legacy_field: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
+
+    problem = _problem(f"legacy_gate_context_{legacy_field}_{uuid4().hex}")
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(_summary(),),
+    )
+    port = CanonicalN9PromotionPort(
+        context_provider=lambda summary, owner_problem: {legacy_field: (summary, owner_problem)},
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+        repo_root=REPO_ROOT,
+    )
+
+    with pytest.raises(ValueError, match="promotion_context_cannot_supply_gate_predicate"):
+        port(admitted_batch=admitted_batch, problem=problem)
+
+
 def test_absent_open_world_runtime_freezes_production_promotion(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1771,7 +2770,7 @@ def test_non_calibration_probabilistic_certificate_bypass_is_rejected() -> None:
 
 
 def test_rehashed_owner_outcome_relabel_is_rejected_by_owner_recomputation() -> None:
-    receipt = _run(_promotion_input())
+    receipt = _run(_promotion_input(g4_governed_promotion_ref="pdc://forged/g4/not-resolved"))
     obligations = tuple(
         obligation.model_copy(
             update={
@@ -1780,8 +2779,8 @@ def test_rehashed_owner_outcome_relabel_is_rejected_by_owner_recomputation() -> 
                 "semantic_scope": "real_semantics",
             }
         )
-        if obligation.obligation_class
-        in {PromotionObligationClass.EFFECT, PromotionObligationClass.MEASUREMENT}
+        if obligation.obligation_role == "class_gate"
+        and obligation.obligation_class == PromotionObligationClass.PARAM
         else obligation
         for obligation in receipt.obligations
     )
@@ -1789,6 +2788,9 @@ def test_rehashed_owner_outcome_relabel_is_rejected_by_owner_recomputation() -> 
         update={
             "obligations": obligations,
             "gate_outcome_hash": _gate_outcome_hash(obligations),
+            "refusal_reasons": tuple(
+                reason for reason in receipt.refusal_reasons if not reason.startswith("param:")
+            ),
         }
     )
 
@@ -2079,7 +3081,7 @@ def test_failed_obligation_cannot_be_relabelled_into_decision_front() -> None:
     assert summaries[0].certified_by_n9 is False
 
 
-def test_promotion_history_rule_stays_v3_and_current_v4_requires_full_reissue() -> None:
+def test_promotion_history_rule_stays_v3_and_current_v6_requires_full_reissue() -> None:
     from tools.quality.validation import check_layer3_gy_promotion_contract as validator
 
     frozen = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
@@ -2295,8 +3297,8 @@ def test_runtime_admission_proxy_cannot_fabricate_second_deployment_lineage(
     assert baseline.confidence_ledger_semantic_projection is not None
 
 
-def test_promotion_comparison_repairs_current_v4_lineage_only_through_live_owner_proof() -> None:
-    """Current v4 custody gains semantic lineage only from the live owner."""
+def test_promotion_comparison_repairs_current_v6_lineage_only_through_live_owner_proof() -> None:
+    """Current v6 custody gains semantic lineage only from the live owner."""
 
     promotion_input = _promotion_input()
     session = _verification_ledger_session(binding=promotion_input.design_problem_binding)
@@ -2352,6 +3354,8 @@ def test_promotion_comparison_refuses_v2_without_open_world_owner_fact() -> None
     legacy_owner["schema_version"] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1"
     legacy_owner.pop("open_world_gate")
     legacy_owner.pop("epoch_validity_projection")
+    legacy_owner["effective_independence"] = True
+    legacy_owner["admissibility"] = True
     legacy_owner["projection_hash"] = gy_content_hash(
         {key: value for key, value in legacy_owner.items() if key != "projection_hash"}
     )
@@ -2466,6 +3470,139 @@ def _promotion_input(**overrides: object) -> CanonicalPromotionInput:
     }
     kwargs.update(overrides)
     return CanonicalPromotionInput(**kwargs)
+
+
+def _legacy_v4_history_payload(receipt: CanonicalPromotionReceipt) -> dict[str, object]:
+    """Project one current receipt into exact v4/v1 historical coordinates."""
+
+    payload = deepcopy(receipt.model_dump(mode="json"))
+    v4 = "policyos.policy_design_case.layer3_gy.n9_promotion.v4"
+    v6 = "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
+    payload["schema_version"] = v4
+    owner = payload["owner_projection"]
+    assert isinstance(owner, dict)
+    owner["schema_version"] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v2"
+    owner["effective_independence"] = True
+    owner["admissibility"] = True
+
+    boundaries = [payload["computed_authority_boundary"]]
+    for posture_name in ("s7_delegation_posture", "s8_value_posture"):
+        posture = owner.get(posture_name)
+        if isinstance(posture, dict) and isinstance(posture.get("authority_boundary"), dict):
+            boundaries.append(posture["authority_boundary"])
+    for boundary in boundaries:
+        assert isinstance(boundary, dict)
+        boundary["rule_version_refs"] = [
+            v4 if item == v6 else item for item in boundary["rule_version_refs"]
+        ]
+    owner["projection_hash"] = gy_content_hash(
+        {key: value for key, value in owner.items() if key != "projection_hash"}
+    )
+
+    binding = owner["design_problem_binding"]
+    summary = owner["candidate_summary"]
+    assert isinstance(binding, dict)
+    assert isinstance(summary, dict)
+    scope_hash = gy_content_hash(
+        {
+            "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v1",
+            "promotion_rule_version": v4,
+            "design_problem_id": binding["design_problem_id"],
+            "problem_content_hash": binding["problem_content_hash"],
+            "candidate_id": summary["candidate_id"],
+            "candidate_content_hash": summary["content_hash"],
+            "operation_invocation_id": owner["operation_invocation_id"],
+        }
+    )
+    obligations: list[PromotionObligationRecord] = []
+    for raw_row in payload["obligations"]:
+        assert isinstance(raw_row, dict)
+        row = PromotionObligationRecord.model_validate(raw_row)
+        instance_id = promotion_obligation_instance_id(
+            obligation_role=row.obligation_role,
+            obligation_class=row.obligation_class,
+            gate_id=row.gate_id,
+            source_obligation_ref=row.source_obligation_ref,
+            source_obligation_content_hash=row.source_obligation_content_hash,
+            instance_scope_content_hash=scope_hash,
+        )
+        obligations.append(
+            row.model_copy(
+                update={
+                    "instance_scope_content_hash": scope_hash,
+                    "obligation_instance_id": instance_id,
+                }
+            )
+        )
+    payload["obligations"] = [row.model_dump(mode="json") for row in obligations]
+    payload["gate_outcome_hash"] = _gate_outcome_hash(
+        obligations,
+        open_world_gate=receipt.owner_projection.open_world_gate,
+        epoch_validity_projection=receipt.owner_projection.epoch_validity_projection,
+    )
+
+    projection = payload["confidence_ledger_projection"]
+    assert isinstance(projection, dict)
+    risk_scope = projection["risk_scope"]
+    assert isinstance(risk_scope, dict)
+    risk_scope["rule_ref"] = v4
+    projection["projection_hash"] = confidence_ledger_module._content_hash(
+        {key: value for key, value in projection.items() if key != "projection_hash"}
+    )
+    payload["confidence_ledger_semantic_projection"] = None
+    return payload
+
+
+def _current_receipt_with_v1_scope_rows(
+    receipt: CanonicalPromotionReceipt,
+) -> dict[str, object]:
+    """Keep current outer bytes while restamping internally coherent v1 rows."""
+
+    payload = deepcopy(receipt.model_dump(mode="json"))
+    owner = payload["owner_projection"]
+    assert isinstance(owner, dict)
+    binding = owner["design_problem_binding"]
+    summary = owner["candidate_summary"]
+    assert isinstance(binding, dict)
+    assert isinstance(summary, dict)
+    scope_hash = gy_content_hash(
+        {
+            "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v1",
+            "promotion_rule_version": receipt.schema_version,
+            "design_problem_id": binding["design_problem_id"],
+            "problem_content_hash": binding["problem_content_hash"],
+            "candidate_id": summary["candidate_id"],
+            "candidate_content_hash": summary["content_hash"],
+            "operation_invocation_id": owner["operation_invocation_id"],
+        }
+    )
+    obligations: list[PromotionObligationRecord] = []
+    for raw_row in payload["obligations"]:
+        assert isinstance(raw_row, dict)
+        row = PromotionObligationRecord.model_validate(raw_row)
+        instance_id = promotion_obligation_instance_id(
+            obligation_role=row.obligation_role,
+            obligation_class=row.obligation_class,
+            gate_id=row.gate_id,
+            source_obligation_ref=row.source_obligation_ref,
+            source_obligation_content_hash=row.source_obligation_content_hash,
+            instance_scope_content_hash=scope_hash,
+        )
+        obligations.append(
+            row.model_copy(
+                update={
+                    "instance_scope_content_hash": scope_hash,
+                    "obligation_instance_id": instance_id,
+                }
+            )
+        )
+    payload["obligations"] = [row.model_dump(mode="json") for row in obligations]
+    payload["gate_outcome_hash"] = _gate_outcome_hash(
+        obligations,
+        open_world_gate=receipt.owner_projection.open_world_gate,
+        epoch_validity_projection=receipt.owner_projection.epoch_validity_projection,
+    )
+    return payload
 
 
 def _probabilistic_offer(
@@ -2791,26 +3928,15 @@ def _credal_reference() -> CredalReference:
         _policy_slot("transfer_slot", "household_cells.transfer_intensity"),
     ]
     edge_index = {edge.key: edge for edge in edges}
-    component_versions = {
-        "L2": "unit-l2",
-        "L3": "unit-l3",
-        "L6": _component_hash(edges, prefix="L6_"),
-        "WMR": "unit-wmr",
-    }
-    reference_hash = gy_content_hash(
-        {
-            "component_versions": component_versions,
-            "edges": [edge.to_payload() for edge in sorted(edges, key=lambda item: item.key)],
-        }
-    )
-    return CredalReference(
+    draft = CredalReference(
         schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
-        reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
-        reference_hash=reference_hash,
+        reference_epoch="kref:unbound-test-fixture",
+        reference_hash=_hash("0"),
         as_of="2026-06-29",
-        component_versions=component_versions,
+        component_versions={"WMR": "unit-wmr"},
         essential_edges=edge_index,
     )
+    return replace_reference_edge(draft, edges[0])
 
 
 def _operator_edge(
@@ -2909,16 +4035,6 @@ def _policy_slot(policy_slot: str, world_slot: str) -> CredalReferenceEdge:
     ).with_content_hash()
 
 
-def _component_hash(edges: list[CredalReferenceEdge], *, prefix: str) -> str:
-    return gy_content_hash(
-        [
-            edge.content_hash
-            for edge in sorted(edges, key=lambda item: item.key)
-            if edge.modality.startswith(prefix)
-        ]
-    )
-
-
 def _tax_atom(engine: GroundingRelationEngine) -> object:
     return next(
         item
@@ -2956,6 +4072,188 @@ def _pure_synonym_probe(engine: GroundingRelationEngine) -> dict[str, object]:
         "raw_text": "levy credit-rate alias for the exact same tax relief do-query.",
         "signature": signature,
     }
+
+
+@lru_cache(maxsize=1)
+def _effect_owner_fixture() -> tuple[object, object, object]:
+    """Return one real L6-owner atom plus the inputs that reproduce it."""
+
+    from polisyos.runtime.quality.generation_cycle import (
+        _build_boundary_world_model_record,
+    )
+    from polisyos.runtime.quality.intervention_substrate import (
+        INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+        InterventionSubstrateBundle,
+        _resolve_owner_atom_world_binding,
+        intervention_substrate_bundle_content_hash,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _lane0_registry,
+        _problem,
+    )
+
+    owner_manifest = json.loads(
+        (
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json"
+        ).read_text(encoding="utf-8")
+    )
+    knob = {
+        "tax_relief_rate": {
+            "default": 0.0,
+            "mechanism_id": "tax_relief_rate",
+            "max": 0.5,
+            "min": 0.0,
+            "param_path": "params.rate",
+            "type": "float",
+        }
+    }
+    slot_manifest = {
+        "schema_version": "1.0",
+        "families": {
+            "global": {
+                "entity_size_key": None,
+                "scope": "global",
+                "slots": ["global.tax_rate"],
+                "state_prefix": None,
+            }
+        },
+    }
+    bundle_fields = {
+        "schema_version": INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+        "knob_dictionary": knob,
+        "lex_intervention_map": {},
+        "observation_manifest": {},
+        "policy_scenario_templates": {},
+        "slot_family_manifest": slot_manifest,
+        "world_mechanism_manifest": {
+            "schema_version": "1.0",
+            "mechanisms": {
+                "tax_relief_rate": owner_manifest["world_mechanism_manifest"]["mechanisms"][
+                    "tax_relief_rate"
+                ]
+            },
+        },
+        "lex_authority_manifest": {},
+        "owner_authority_manifest": {},
+        "source_refs": {"intervention_knob_dictionary": "in_memory://effect-owner"},
+        "source_content_hashes": {"intervention_knob_dictionary": gy_content_hash(knob)},
+    }
+    bundle_fields["content_hash"] = intervention_substrate_bundle_content_hash(bundle_fields)
+    bundle = InterventionSubstrateBundle.model_validate(bundle_fields)
+    problem = _problem("effect_owner")
+    registry = _lane0_registry(
+        domain="effect_owner",
+        source_id="test://effect-owner",
+    )
+    world_model_record = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome="global.tax_rate",
+        policy_slot_ids=("global.tax_rate",),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(registry.entries[0].entry_content_hash,),
+    )
+    atom, _world_binding = _resolve_owner_atom_world_binding(
+        bundle=bundle,
+        operator_kind="tax_relief_rate",
+        raw_knob=knob["tax_relief_rate"],
+        parameter_value=0.1,
+        world_model_record=world_model_record,
+    )
+    return bundle, world_model_record, atom
+
+
+def _effect_writer_input(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    declared_estimand: str | None = "average_treatment_effect",
+    causal_mechanism_ref: str | None = "tax_relief_rate",
+    remove_effect_path: bool = False,
+    ungrounded: bool = False,
+    bounded: bool = False,
+    atom_source: str = "l6_owner",
+) -> dict[str, object]:
+    bundle, world_model_record, atom = _effect_owner_fixture()
+    reference = promotion_input.credal_reference
+    assert reference is not None
+    engine = GroundingRelationEngine(reference)
+    if bounded:
+        from tests.unit.runtime.quality.test_grounding_relation import (
+            _synonym_probe,
+        )
+
+        proposal = _synonym_probe()
+    elif ungrounded:
+        from tests.unit.runtime.quality.test_grounding_relation import (
+            _false_analog_probe,
+        )
+
+        proposal = _false_analog_probe()
+    else:
+        proposal = _pure_synonym_probe(engine)
+    if remove_effect_path:
+        proposal = deepcopy(proposal)
+        signature_payload = proposal["signature"]
+        assert isinstance(signature_payload, dict)
+        signature_payload["effect_path"] = []
+    if atom_source == "cg1_shadow":
+        cg1 = engine.certificate_for(
+            proposal,
+            proposal_id="effect-shadow-binding",
+        )
+        atom = atom.model_copy(
+            update={
+                "producer_ref": (
+                    "polisyos.runtime.quality.design_generation.generate_design_candidates_under_a"
+                ),
+                "provenance_refs": (cg1.content_hash,),
+                "status": "candidate_unverified",
+            }
+        )
+    return {
+        "intervention_atom": atom,
+        "intervention_substrate": bundle,
+        "world_model_record": world_model_record,
+        "operator_kind": "tax_relief_rate",
+        "parameter_value": 0.1,
+        "proposal": proposal,
+        "proposal_id": "effect-obligation-proposal",
+        "declared_estimand": declared_estimand,
+        "causal_mechanism_ref": causal_mechanism_ref,
+    }
+
+
+def _run_effect_case(
+    tmp_path: Path,
+    **overrides: object,
+) -> PromotionObligationRecord:
+    promotion_input = _promotion_input()
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=FileSystemCAS(tmp_path / "cas")
+    )
+    bound = promotion_sequence_module._bind_production_promotion_evidence(
+        promotion_input,
+        context={
+            "effect_obligation_writer_input": _effect_writer_input(
+                promotion_input,
+                **overrides,
+            )
+        },
+        repository=repository,
+    )
+    receipt = run_canonical_promotion_sequence(
+        bound,
+        confidence_ledger_session=_ledger_session(binding=bound.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    assert (
+        validate_canonical_promotion_receipt(
+            receipt,
+            promotion_evidence_resolver=repository,
+        )
+        == ()
+    )
+    return _obligation(receipt, PromotionObligationClass.EFFECT)
 
 
 def _hash(seed: str) -> str:

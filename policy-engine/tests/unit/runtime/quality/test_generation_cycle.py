@@ -76,6 +76,7 @@ from polisyos.runtime.quality.generation_cycle import (
     _disposition_candidates,
     _grounding_disposition_denominator,
     _joint_simulation_port_outcome,
+    _summary_with_value_observation,
     enforce_no_retry_without_new_grammar,
     generation_cycle_terminal_state,
     validate_generation_cycle_run,
@@ -1925,6 +1926,34 @@ def test_real_unsupported_n5_result_is_serialized_as_simulation_blocked() -> Non
     assert not result.trajectories
     assert status == "simulation_blocked", "unsupported_n5_result_must_block"
     assert "unsupported_coupling_class:feedback" in blockers
+    assert "n5_coupling_blocked" in blockers
+
+
+def test_n5_coupling_blocker_survives_selected_summary_projection() -> None:
+    """The typed N5 blocker reaches the exact summary N9 consumes."""
+
+    summary = _open_world_summary("candidate_n5_coupling_blocked")
+    simulation = SimulationPortObservation(
+        candidate_id=summary.candidate_id,
+        status="simulation_blocked",
+        authority_blockers=(
+            "unsupported_coupling_class:feedback",
+            "n5_coupling_blocked",
+        ),
+    )
+    value = ValuePortObservation(
+        candidate_id=summary.candidate_id,
+        authority_blockers=(),
+    )
+
+    projected = _summary_with_value_observation(
+        summary,
+        simulation=simulation,
+        value_port=value,
+        counterexample_ref="counterexample://n5/coupling",
+    )
+
+    assert projected.value_blockers == ("n5_coupling_blocked",)
 
 
 def test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr() -> None:

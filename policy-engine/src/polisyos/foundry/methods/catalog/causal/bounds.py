@@ -10,7 +10,7 @@ import numpy as np
 
 _logger = logging.getLogger(__name__)
 
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,

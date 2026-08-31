@@ -19,7 +19,7 @@ from polisyos.core.contracts.execution_plan import (
     MethodCatalogSnapshot,
     MethodCatalogSnapshotRef,
 )
-from polisyos.core.observability.determinism import (
+from polisyos.core.observability import (
     DeterminismTier,
     parse_determinism_tier,
 )

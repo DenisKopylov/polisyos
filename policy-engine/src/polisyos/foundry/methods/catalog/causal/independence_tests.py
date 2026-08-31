@@ -27,7 +27,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.calibration.dp_ci import (
     calibrate_discrete_ci,
     calibrate_kernel_ci,

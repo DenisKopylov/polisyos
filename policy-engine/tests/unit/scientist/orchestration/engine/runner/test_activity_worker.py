@@ -266,7 +266,7 @@ def test_restore_parent_trace_context_records_degraded_path_on_runtime_error(
     monkeypatch,
 ) -> None:
     pytest.importorskip("opentelemetry.context")
-    from polisyos.core.observability import propagation
+    import polisyos.core.observability as observability
 
     degraded: list[dict[str, object]] = []
 
@@ -279,7 +279,7 @@ def test_restore_parent_trace_context_records_degraded_path_on_runtime_error(
     def _boom(_carrier: dict[str, str]) -> object:
         raise RuntimeError("broken trace context")
 
-    monkeypatch.setattr(propagation, "extract_headers", _boom)
+    monkeypatch.setattr(observability, "extract_headers", _boom)
 
     token = _restore_parent_trace_context(
         {"traceparent": "00-" + "0" * 32 + "-" + "1" * 16 + "-01"},

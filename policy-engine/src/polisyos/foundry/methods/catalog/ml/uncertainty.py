@@ -8,7 +8,7 @@ from typing import Any, ClassVar
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.core.observability.truthfulness import (
     TruthfulnessReceipt,
     TruthfulnessScope,

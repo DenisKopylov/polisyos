@@ -5333,13 +5333,6 @@
       "source_module": "polisyos.foundry.calibration.calibrator",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/calibration/calibrator.py",
-      "target_module": "polisyos.core.observability.config",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.calibration.calibrator",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/calibration/calibrator.py",
       "target_module": "polisyos.ir.analytics.calibration",
       "target_root": "ir"
     },
@@ -6019,7 +6012,7 @@
       "source_module": "polisyos.foundry.execute._internal.posture",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/execute/_internal/posture/__init__.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6341,21 +6334,21 @@
       "source_module": "polisyos.foundry.methods.backends.bayesian_runner",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/backends/bayesian_runner.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.backends.chain_executor",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/backends/chain_executor.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.backends.checkpointing",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/backends/checkpointing.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6390,7 +6383,7 @@
       "source_module": "polisyos.foundry.methods.backends.jax_runner",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/backends/jax_runner.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6404,21 +6397,21 @@
       "source_module": "polisyos.foundry.methods.backends.numpy_runner",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/backends/numpy_runner.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.backends.protocol",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/backends/protocol.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.backends.ray_chain_executor",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/backends/ray_chain_executor.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6432,7 +6425,7 @@
       "source_module": "polisyos.foundry.methods.backends.runtime_fingerprint",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/backends/runtime_fingerprint.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6446,7 +6439,7 @@
       "source_module": "polisyos.foundry.methods.backends.solver_runner",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/backends/solver_runner.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6467,7 +6460,7 @@
       "source_module": "polisyos.foundry.methods.base",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/base.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6495,7 +6488,7 @@
       "source_module": "polisyos.foundry.methods.catalog.bayesian.advanced",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/bayesian/advanced.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6509,14 +6502,14 @@
       "source_module": "polisyos.foundry.methods.catalog.bayesian.frontier",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/bayesian/frontier.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.bayesian.gp",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/bayesian/gp.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6551,21 +6544,21 @@
       "source_module": "polisyos.foundry.methods.catalog.bayesian.regression",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/bayesian/regression.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.bayesian.timeseries",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/bayesian/timeseries.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.bayesian.variational",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/bayesian/variational.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6593,7 +6586,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal._common",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/_common.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6642,7 +6635,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.actual_causality",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/actual_causality.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6670,7 +6663,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.advanced_designs",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/advanced_designs.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6705,7 +6698,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.bounds",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/bounds.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6726,7 +6719,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.bounds_engine",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/bounds_engine.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6761,7 +6754,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.cate",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/cate.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -6782,7 +6775,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.causal_bcf",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/causal_bcf.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7055,7 +7048,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.causal_fairness",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/causal_fairness.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7083,7 +7076,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.causal_rl",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/causal_rl.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7139,7 +7132,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.constraint_discovery",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/constraint_discovery.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7160,21 +7153,21 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.continuous_treatment",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/continuous_treatment.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.causal.cross_fit",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/cross_fit.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.causal.cross_fit_schedule",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/cross_fit_schedule.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7265,7 +7258,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.dagma_discovery",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/dagma_discovery.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7286,7 +7279,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.data_fusion",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/data_fusion.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7328,14 +7321,14 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.density_ratio",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/density_ratio.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.causal.diagnostics",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/diagnostics.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7349,7 +7342,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.did",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/did.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7363,7 +7356,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.discovery_pipeline",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/discovery_pipeline.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7391,7 +7384,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.distributional_bounds",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/distributional_bounds.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7405,7 +7398,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.dml",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/dml.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7454,7 +7447,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7475,7 +7468,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.dowhy_refute",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/dowhy_refute.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7489,7 +7482,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.dtr",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/dtr.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7510,7 +7503,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.dynamic_graph_dscm",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/dynamic_graph_dscm.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7545,14 +7538,14 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.eif_bounds",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/eif_bounds.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.causal.endogenous_group_inequality",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/endogenous_group_inequality.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7615,7 +7608,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.fairness",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/fairness.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7629,7 +7622,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.forest_dr",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/forest_dr.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7650,7 +7643,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.frontier",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/frontier.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7685,7 +7678,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.g_computation",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/g_computation.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7706,7 +7699,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.g_estimation",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/g_estimation.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7727,7 +7720,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.gcm_fit",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7748,7 +7741,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.gcm_query",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7769,7 +7762,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.graph_reconciliation",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7874,14 +7867,14 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.independence_tests",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/independence_tests.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.causal.interference.api",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/interference/api.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7923,7 +7916,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.interference.estimation",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/interference/estimation.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -7965,7 +7958,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.interference.identification",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/interference/identification.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8007,7 +8000,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.invariance_tests",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/invariance_tests.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8070,7 +8063,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.kernel_methods",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/kernel_methods.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8091,7 +8084,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.literature_prior",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/literature_prior.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8147,7 +8140,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.measurement_error",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/measurement_error.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8175,14 +8168,14 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.mediation",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/mediation.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.causal.meta_learners",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/meta_learners.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8203,7 +8196,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.missing_data",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/missing_data.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8245,21 +8238,21 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.modern_did",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/modern_did.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.causal.multi_treatment",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/multi_treatment.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.causal.ncm_engine",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8280,7 +8273,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.nuisance_resolver",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/nuisance_resolver.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8294,7 +8287,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.operator_valued",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/operator_valued.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8315,7 +8308,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.optimal_design",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/optimal_design.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8350,14 +8343,14 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.parameter_transfer",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/parameter_transfer.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.causal.path_specific",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/path_specific.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8413,7 +8406,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.pcmci_discovery",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/pcmci_discovery.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8441,7 +8434,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.policy_learning",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/policy_learning.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8714,7 +8707,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.rdd",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/rdd.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8791,7 +8784,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.sensitivity_bounds",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/sensitivity_bounds.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8805,7 +8798,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.sensitivity_metrics",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/sensitivity_metrics.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8840,7 +8833,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.space_time_dscm",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/space_time_dscm.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8868,7 +8861,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.stochastic_policies",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/stochastic_policies.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8903,7 +8896,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.structural_time_series",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/structural_time_series.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8924,14 +8917,14 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.superlearner",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/superlearner.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.causal.symbolic_identify",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/symbolic_identify.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -8973,7 +8966,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.synthetic_control",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9008,7 +9001,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.transport_check",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/transport_check.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9092,7 +9085,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.treatment_effects",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9106,7 +9099,7 @@
       "source_module": "polisyos.foundry.methods.catalog.causal.twin_network_query",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9141,28 +9134,28 @@
       "source_module": "polisyos.foundry.methods.catalog.dependence.diagnostics",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/dependence/diagnostics.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.distributional.advanced",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/distributional/advanced.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.distributional.metrics",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/distributional/metrics.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.distributional.mobility",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/distributional/mobility.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9183,7 +9176,7 @@
       "source_module": "polisyos.foundry.methods.catalog.distributional.mobility_latent_adapter",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/distributional/mobility_latent_adapter.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9197,14 +9190,14 @@
       "source_module": "polisyos.foundry.methods.catalog.distributional.polarization",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/distributional/polarization.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.distributional.poverty_advanced",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/distributional/poverty_advanced.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9218,7 +9211,7 @@
       "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9232,14 +9225,14 @@
       "source_module": "polisyos.foundry.methods.catalog.econometrics.count_data",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/count_data.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.econometrics.diagnostics",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/diagnostics.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9253,7 +9246,7 @@
       "source_module": "polisyos.foundry.methods.catalog.econometrics.discrete_choice",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/discrete_choice.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9267,7 +9260,7 @@
       "source_module": "polisyos.foundry.methods.catalog.econometrics.dynamic_panel",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/dynamic_panel.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9281,14 +9274,14 @@
       "source_module": "polisyos.foundry.methods.catalog.econometrics.expansion",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/expansion.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.econometrics.factor_models",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/factor_models.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9302,14 +9295,14 @@
       "source_module": "polisyos.foundry.methods.catalog.econometrics.high_dimensional",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/high_dimensional.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.econometrics.high_dimensional_iv",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/high_dimensional_iv.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9323,14 +9316,14 @@
       "source_module": "polisyos.foundry.methods.catalog.econometrics.iv",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/iv.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.econometrics.mobility_latent",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/mobility_latent.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9351,7 +9344,7 @@
       "source_module": "polisyos.foundry.methods.catalog.econometrics.panel",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/panel.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9372,21 +9365,21 @@
       "source_module": "polisyos.foundry.methods.catalog.econometrics.selection",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/selection.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.econometrics.semiparametric",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/semiparametric.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.econometrics.thresholds",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/thresholds.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9421,21 +9414,21 @@
       "source_module": "polisyos.foundry.methods.catalog.econometrics.timeseries",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/econometrics/timeseries.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.forecasting.advanced",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/forecasting/advanced.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.forecasting.hybrid",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/forecasting/hybrid.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9470,7 +9463,7 @@
       "source_module": "polisyos.foundry.methods.catalog.forecasting.regime_shift",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/forecasting/regime_shift.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9547,7 +9540,7 @@
       "source_module": "polisyos.foundry.methods.catalog.forecasting.univariate",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/forecasting/univariate.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9561,14 +9554,14 @@
       "source_module": "polisyos.foundry.methods.catalog.mechanism.runtime",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/mechanism/runtime.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.microsim.advanced",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/microsim/advanced.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9589,7 +9582,7 @@
       "source_module": "polisyos.foundry.methods.catalog.microsim.calibration",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/microsim/calibration.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9610,7 +9603,7 @@
       "source_module": "polisyos.foundry.methods.catalog.microsim.inverse",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/microsim/inverse.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9624,7 +9617,7 @@
       "source_module": "polisyos.foundry.methods.catalog.microsim.mnar",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/microsim/mnar.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9652,7 +9645,7 @@
       "source_module": "polisyos.foundry.methods.catalog.microsim.static",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/microsim/static.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9673,7 +9666,7 @@
       "source_module": "polisyos.foundry.methods.catalog.ml.advanced",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/ml/advanced.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9687,21 +9680,21 @@
       "source_module": "polisyos.foundry.methods.catalog.ml.clustering",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/ml/clustering.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.ml.decomposition",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/ml/decomposition.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.ml.frontier",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/ml/frontier.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9736,14 +9729,14 @@
       "source_module": "polisyos.foundry.methods.catalog.ml.regression",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/ml/regression.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.ml.shift_diagnostics",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/ml/shift_diagnostics.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9757,21 +9750,21 @@
       "source_module": "polisyos.foundry.methods.catalog.ml.survival",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/ml/survival.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.ml.transformers",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/ml/transformers.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.ml.uncertainty",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/ml/uncertainty.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9785,7 +9778,7 @@
       "source_module": "polisyos.foundry.methods.catalog.network.analysis",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/network/analysis.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9799,7 +9792,7 @@
       "source_module": "polisyos.foundry.methods.catalog.network.ergm",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/network/ergm.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9813,21 +9806,21 @@
       "source_module": "polisyos.foundry.methods.catalog.network.sbm",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/network/sbm.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.network.strategic",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/network/strategic.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.optimization.advanced_stochastic",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/optimization/advanced_stochastic.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9841,7 +9834,7 @@
       "source_module": "polisyos.foundry.methods.catalog.optimization.combinatorial",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/optimization/combinatorial.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9855,7 +9848,7 @@
       "source_module": "polisyos.foundry.methods.catalog.optimization.game_theory",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/optimization/game_theory.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9911,7 +9904,7 @@
       "source_module": "polisyos.foundry.methods.catalog.policy.evaluation",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/policy/evaluation.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9925,7 +9918,7 @@
       "source_module": "polisyos.foundry.methods.catalog.policy.frontier",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/policy/frontier.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9939,7 +9932,7 @@
       "source_module": "polisyos.foundry.methods.catalog.policy.mcda",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/policy/mcda.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9953,7 +9946,7 @@
       "source_module": "polisyos.foundry.methods.catalog.policy.welfare",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/policy/welfare.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -9967,35 +9960,35 @@
       "source_module": "polisyos.foundry.methods.catalog.sensitivity.dependent_copula",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/sensitivity/dependent_copula.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.sensitivity.distributional",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/sensitivity/distributional.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.sensitivity.screening",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/sensitivity/screening.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.sensitivity.sobol",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/sensitivity/sobol.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.sensitivity.specification",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/sensitivity/specification.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10009,14 +10002,14 @@
       "source_module": "polisyos.foundry.methods.catalog.simulation.coupled",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/simulation/coupled.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.simulation.demography",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/simulation/demography.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10044,7 +10037,7 @@
       "source_module": "polisyos.foundry.methods.catalog.simulation.dynamics",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10065,7 +10058,7 @@
       "source_module": "polisyos.foundry.methods.catalog.simulation.inference",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/simulation/inference.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10100,7 +10093,7 @@
       "source_module": "polisyos.foundry.methods.catalog.snapshot",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/snapshot.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10121,7 +10114,7 @@
       "source_module": "polisyos.foundry.methods.catalog.spatial.advanced",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/spatial/advanced.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10135,7 +10128,7 @@
       "source_module": "polisyos.foundry.methods.catalog.spatial.analysis",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/spatial/analysis.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10170,14 +10163,14 @@
       "source_module": "polisyos.foundry.methods.catalog.survey.adaptive",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/survey/adaptive.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.survey.causal_frontier",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/survey/causal_frontier.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10212,21 +10205,21 @@
       "source_module": "polisyos.foundry.methods.catalog.survey.demographic_consistency",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/survey/demographic_consistency.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.survey.design",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/survey/design.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.survey.dr",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/survey/dr.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10247,7 +10240,7 @@
       "source_module": "polisyos.foundry.methods.catalog.survey.estimation",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/survey/estimation.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10282,7 +10275,7 @@
       "source_module": "polisyos.foundry.methods.catalog.survey.imputation",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/survey/imputation.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10303,14 +10296,14 @@
       "source_module": "polisyos.foundry.methods.catalog.survey.semiparametric",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/survey/semiparametric.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.survey.weighting",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/survey/weighting.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10324,7 +10317,7 @@
       "source_module": "polisyos.foundry.methods.catalog.validation.diagnostics",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/validation/diagnostics.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10345,7 +10338,7 @@
       "source_module": "polisyos.foundry.methods.catalog.validation.scoring",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/catalog/validation/scoring.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10429,7 +10422,7 @@
       "source_module": "polisyos.foundry.methods.equivalence.protocol",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/equivalence/protocol.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10520,7 +10513,7 @@
       "source_module": "polisyos.foundry.methods.selection.cache",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/selection/cache.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10566,13 +10559,6 @@
       "target_root": "core"
     },
     {
-      "source_module": "polisyos.foundry.runtime",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/runtime/__init__.py",
-      "target_module": "polisyos.core.observability.config",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.foundry.runtime.fingerprint",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/runtime/fingerprint.py",
@@ -10597,7 +10583,7 @@
       "source_module": "polisyos.foundry.runtime.fingerprint",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/runtime/fingerprint.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -10772,7 +10758,7 @@
       "source_module": "polisyos.foundry.validation.phase0_closure",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/validation/phase0_closure.py",
-      "target_module": "polisyos.core.observability.determinism",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -15841,13 +15827,6 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/api.py",
       "target_module": "polisyos.core.observability",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.api",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/api.py",
-      "target_module": "polisyos.core.observability.pricing",
       "target_root": "core"
     },
     {
@@ -23498,7 +23477,7 @@
       "source_module": "polisyos.scientist.orchestration.engine.runner._activity_worker",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
-      "target_module": "polisyos.core.observability.propagation",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -23540,7 +23519,7 @@
       "source_module": "polisyos.scientist.orchestration.engine.runner.ray_runner",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/engine/runner/ray_runner.py",
-      "target_module": "polisyos.core.observability.propagation",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -23561,7 +23540,7 @@
       "source_module": "polisyos.scientist.orchestration.engine.runner.temporal_runner",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/engine/runner/temporal_runner.py",
-      "target_module": "polisyos.core.observability.propagation",
+      "target_module": "polisyos.core.observability",
       "target_root": "core"
     },
     {
@@ -23653,13 +23632,6 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
       "target_module": "polisyos.core.observability",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.orchestration.llm.budget_enforcer",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
-      "target_module": "polisyos.core.observability.pricing",
       "target_root": "core"
     },
     {

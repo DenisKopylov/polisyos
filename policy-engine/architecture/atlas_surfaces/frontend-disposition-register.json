@@ -11131,10 +11131,10 @@
       "path": "architecture/atlas_surfaces/decision_time_semantics_scan.mjs",
       "sha256": "sha256:590fcca298e489fa97a9b390fea383ec28fd365fdeab20f396fcf7c859e88eb4"
     },
-    "source_file_count": 621,
+    "source_file_count": 623,
     "root_count": 759,
-    "file_manifest_sha256": "sha256:185d417044b9ae1d5f52d3bbea4be13834c0a84d9e4e26a9ba49672156ea8837",
-    "root_manifest_sha256": "sha256:59fd9a112ff72fe6e33552b30c0786f1dbaf10f40bfa559670479c20e9204cfa",
+    "file_manifest_sha256": "sha256:e453813f3a3b4ad3cd1fa9f8ce93841756a58827296f10b58cd1010277d8d15f",
+    "root_manifest_sha256": "sha256:95b8985aeb087c732579fea4c576ed7a55ca8555d6847f793306e977765beb21",
     "decision_bearing_root_count": 48,
     "inherits_admitted_dom_root_count": 78,
     "obligated_root_count": 126,
@@ -13689,7 +13689,7 @@
         "receipt_kind": "no_render_root",
         "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
         "roots": [],
-        "source_sha256": "sha256:b5cd959ead1a2574c9a18b1797e5a203c704cadb2dd25254c9cf967d18afe280"
+        "source_sha256": "sha256:c20f1f6cee1dfb5d2fa07fcbb838ff5658c1ad34b88c336ad74d9e196712b1bc"
       },
       {
         "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/epistemic-map.ts",
@@ -13923,7 +13923,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts",
-                "sha256": "sha256:21ecc4e7efdaabc1e3a7a48ad038edccc3d6271033893859f4b06f3ecbd1b74b"
+                "sha256": "sha256:b1c8b82758b1e7d187c5664226be87d39a89e02fa39c983a67abb2496022c90d"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -13953,7 +13953,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts",
-                "sha256": "sha256:21ecc4e7efdaabc1e3a7a48ad038edccc3d6271033893859f4b06f3ecbd1b74b"
+                "sha256": "sha256:b1c8b82758b1e7d187c5664226be87d39a89e02fa39c983a67abb2496022c90d"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -13983,7 +13983,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts",
-                "sha256": "sha256:21ecc4e7efdaabc1e3a7a48ad038edccc3d6271033893859f4b06f3ecbd1b74b"
+                "sha256": "sha256:b1c8b82758b1e7d187c5664226be87d39a89e02fa39c983a67abb2496022c90d"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -14000,7 +14000,7 @@
             "temporal_obligation": "as_of_epoch_validity"
           }
         ],
-        "source_sha256": "sha256:21ecc4e7efdaabc1e3a7a48ad038edccc3d6271033893859f4b06f3ecbd1b74b"
+        "source_sha256": "sha256:b1c8b82758b1e7d187c5664226be87d39a89e02fa39c983a67abb2496022c90d"
       },
       {
         "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-pdf.ts",
@@ -19761,7 +19761,7 @@
         "receipt_kind": "no_render_root",
         "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
         "roots": [],
-        "source_sha256": "sha256:e281006b54ddd3f0296241e362b2d49a0c444e9a9864aa74c594a5b2ec856e42"
+        "source_sha256": "sha256:24ee8a35596f03114a3ed67534166e309a8189b36adf82d7acb42d20bcdb9ab2"
       },
       {
         "path": "apps/runtime-dashboard/src/features/export/social/EmailSummary.tsx",
@@ -24499,7 +24499,7 @@
         "receipt_kind": "no_render_root",
         "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
         "roots": [],
-        "source_sha256": "sha256:16c3687f6d81a70e94a33d99c0c7ee83af670bebc857b34ac33ca3c11e0bd0d2"
+        "source_sha256": "sha256:a282264d0d3e0203b0f4c939e379d93d6bbc9b7af31c749d9131771449324cb9"
       },
       {
         "path": "apps/runtime-dashboard/src/features/runs/domain/runChoreography.ts",
@@ -26168,7 +26168,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-                "sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+                "sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -26206,7 +26206,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-                "sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+                "sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -26244,7 +26244,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-                "sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+                "sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -26282,7 +26282,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-                "sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+                "sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -26312,7 +26312,7 @@
             "kind": "jsx",
             "line": 322,
             "root_id": "RunPaperDocument:jsx:322:5",
-            "root_source_sha256": "sha256:0b8ea0a87c86b80226a7ac3b682f56f3ceeb185b8fb58eeacaf7f7bc71ecd7a4",
+            "root_source_sha256": "sha256:1319973a12980c7c2493fcb8bfd99487c236bec9ddeb44895c82f5d6dccc540f",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 1,
             "epoch_semantics_provider_render_count": 0,
@@ -26320,7 +26320,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-                "sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+                "sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -26345,8 +26345,8 @@
             "column": 31,
             "component_identity": "AuthorizedRunReportPage",
             "kind": "jsx",
-            "line": 590,
-            "root_id": "AuthorizedRunReportPage:jsx:590:31",
+            "line": 592,
+            "root_id": "AuthorizedRunReportPage:jsx:592:31",
             "root_source_sha256": "sha256:38d9abacc45979878af079b5bc08bbd4219a6ed5bf135094bad2fb13b9dde15d",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -26355,7 +26355,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-                "sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+                "sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -26383,8 +26383,8 @@
             "column": 7,
             "component_identity": "AuthorizedRunReportPage",
             "kind": "jsx",
-            "line": 593,
-            "root_id": "AuthorizedRunReportPage:jsx:593:7",
+            "line": 595,
+            "root_id": "AuthorizedRunReportPage:jsx:595:7",
             "root_source_sha256": "sha256:67ddb0403480c0b3f63a343690773ffe885c1d5e627b9fd232d85d69e59fdaaa",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -26393,7 +26393,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-                "sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+                "sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -26421,8 +26421,8 @@
             "column": 5,
             "component_identity": "AuthorizedRunReportPage",
             "kind": "jsx",
-            "line": 602,
-            "root_id": "AuthorizedRunReportPage:jsx:602:5",
+            "line": 604,
+            "root_id": "AuthorizedRunReportPage:jsx:604:5",
             "root_source_sha256": "sha256:5c41e50a8f75610652f82c7f97af93f60dde1530e32c1275771f1d9daeece78a",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 1,
@@ -26431,7 +26431,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-                "sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+                "sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -26459,8 +26459,8 @@
             "column": 64,
             "component_identity": "AuthorizedRunReportPage",
             "kind": "print_root",
-            "line": 613,
-            "root_id": "AuthorizedRunReportPage:print_root:613:64",
+            "line": 615,
+            "root_id": "AuthorizedRunReportPage:print_root:615:64",
             "root_source_sha256": "sha256:320b883d1eaa351f03dc1f9e0252be6c845365ef2ddf090e63807fe7a31ef455",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -26469,7 +26469,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-                "sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+                "sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -26497,8 +26497,8 @@
             "column": 7,
             "component_identity": "RunReportPage",
             "kind": "jsx",
-            "line": 633,
-            "root_id": "RunReportPage:jsx:633:7",
+            "line": 635,
+            "root_id": "RunReportPage:jsx:635:7",
             "root_source_sha256": "sha256:e4e88050d2ff8933d6b6250df3a1e19b6eddd4a8cb073014d9e7a8157f1f2d6f",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -26507,7 +26507,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-                "sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+                "sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -26535,8 +26535,8 @@
             "column": 7,
             "component_identity": "RunReportPage",
             "kind": "jsx",
-            "line": 643,
-            "root_id": "RunReportPage:jsx:643:7",
+            "line": 645,
+            "root_id": "RunReportPage:jsx:645:7",
             "root_source_sha256": "sha256:405bb3b3e16a204b9a841c459ddfad3c6367f21bac4cfa7554f4f291b889821e",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -26545,7 +26545,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-                "sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+                "sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -26573,8 +26573,8 @@
             "column": 7,
             "component_identity": "RunReportPage",
             "kind": "jsx",
-            "line": 653,
-            "root_id": "RunReportPage:jsx:653:7",
+            "line": 655,
+            "root_id": "RunReportPage:jsx:655:7",
             "root_source_sha256": "sha256:494f44813b4bfec5c0f2a369949b017ab1537748e218e9d1db9b348ad315df45",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -26583,7 +26583,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-                "sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+                "sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -26611,8 +26611,8 @@
             "column": 10,
             "component_identity": "RunReportPage",
             "kind": "jsx",
-            "line": 661,
-            "root_id": "RunReportPage:jsx:661:10",
+            "line": 663,
+            "root_id": "RunReportPage:jsx:663:10",
             "root_source_sha256": "sha256:689278c3eb89ace6c3796b5b1136e64c5cc3d6d89820b39732995f34365e18e9",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -26621,7 +26621,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-                "sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+                "sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -26646,7 +26646,7 @@
             "temporal_obligation": "as_of_epoch_validity"
           }
         ],
-        "source_sha256": "sha256:5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76"
+        "source_sha256": "sha256:bfd0a87a5e0941de7ff4d3f6746cc5e8d4dee52ad25e4b8aff39a5cd440333b7"
       },
       {
         "path": "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
@@ -27706,7 +27706,7 @@
             "kind": "jsx",
             "line": 13,
             "root_id": "AccessibilityEvidence:jsx:13:5",
-            "root_source_sha256": "sha256:9ceecb0da22e307f8ed076d2a1f5e92c630a9ec1aaaccadd9ccf77b93df4a1c5",
+            "root_source_sha256": "sha256:fc3923da1f4ba201bd2ba67a7d11a026323a72ccf0968a642ac1ac7ab3ac0cf4",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
             "epoch_semantics_provider_render_count": 0,
@@ -27714,7 +27714,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/trust/components/AccessibilityEvidence.tsx",
-                "sha256": "sha256:ad43043189416922d7149c11693b3c5207a9e8e2c1ea338f901b4bf1620bbfc0"
+                "sha256": "sha256:7197a4091cf81f3084e4d43f0651aba3ea2b0ff4990a633e41c2f3db9d20af53"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -27724,7 +27724,7 @@
             "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
           }
         ],
-        "source_sha256": "sha256:ad43043189416922d7149c11693b3c5207a9e8e2c1ea338f901b4bf1620bbfc0"
+        "source_sha256": "sha256:7197a4091cf81f3084e4d43f0651aba3ea2b0ff4990a633e41c2f3db9d20af53"
       },
       {
         "path": "apps/runtime-dashboard/src/features/trust/components/ClaimPostureRegister.tsx",
@@ -27738,7 +27738,7 @@
             "kind": "jsx",
             "line": 40,
             "root_id": "ClaimPostureRegister:jsx:40:5",
-            "root_source_sha256": "sha256:8df676018e8826593f8366e26a1659feb7a7447e965d564bfe78f5c530a804f0",
+            "root_source_sha256": "sha256:0f207cd336617871a852148e0be60e3aaafd2688a008dfdcf5297432d46aa942",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
             "epoch_semantics_provider_render_count": 0,
@@ -27746,7 +27746,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/trust/components/ClaimPostureRegister.tsx",
-                "sha256": "sha256:fa5b26d9d6702aeac033bf9237085c54cc1158da09b2b88399699b893a190d7d"
+                "sha256": "sha256:f4ea3ca36309f8e24265d7686a29b0b44e5df02abe9c63b47829fbeb223e6ab8"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -27756,7 +27756,7 @@
             "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
           }
         ],
-        "source_sha256": "sha256:fa5b26d9d6702aeac033bf9237085c54cc1158da09b2b88399699b893a190d7d"
+        "source_sha256": "sha256:f4ea3ca36309f8e24265d7686a29b0b44e5df02abe9c63b47829fbeb223e6ab8"
       },
       {
         "path": "apps/runtime-dashboard/src/features/trust/components/PostureMethodology.tsx",
@@ -27770,7 +27770,7 @@
             "kind": "jsx",
             "line": 19,
             "root_id": "PostureMethodology:jsx:19:5",
-            "root_source_sha256": "sha256:e3f57852be4a077505434b00330322263aeda4fce5af84593ab06257fa39ae24",
+            "root_source_sha256": "sha256:4585f1c5035aea3f7e850c318d681fa8afaec813eed458b9f162a74df063021f",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
             "epoch_semantics_provider_render_count": 0,
@@ -27778,7 +27778,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/trust/components/PostureMethodology.tsx",
-                "sha256": "sha256:3536642066cc05de42a3d6ef600180461a0044f15b34e8691a5171066da08034"
+                "sha256": "sha256:4b0436cc153c958bcac1b380debb58e94b06f9b7e020c77f77bc2a92bc870059"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -27788,7 +27788,15 @@
             "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
           }
         ],
-        "source_sha256": "sha256:3536642066cc05de42a3d6ef600180461a0044f15b34e8691a5171066da08034"
+        "source_sha256": "sha256:4b0436cc153c958bcac1b380debb58e94b06f9b7e020c77f77bc2a92bc870059"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/trust/copy/useTrustCopy.ts",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "no_render_root",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [],
+        "source_sha256": "sha256:308ee8a560e14340b024681e9c505c4b59e2c15c50d45c1ad4ccfdbd18407c3c"
       },
       {
         "path": "apps/runtime-dashboard/src/features/trust/domain/loadPosture.ts",
@@ -27866,7 +27874,7 @@
             "kind": "jsx",
             "line": 35,
             "root_id": "TrustPosturePage:jsx:35:5",
-            "root_source_sha256": "sha256:4d76d3eca6212a9ed8e84a71e7750f1ab52db3f4bda3e6301bc1aab6a9959258",
+            "root_source_sha256": "sha256:4a7ceb794550e70141a8eb66cd1b5fd601a53f9f7cbb5850ffe2d0ccda5ff109",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
             "epoch_semantics_provider_render_count": 0,
@@ -27874,7 +27882,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/features/trust/routes/TrustPosturePage.tsx",
-                "sha256": "sha256:e2d70138f0dcec513b65075a090ef8471b541974ff807fffbb5787b63b6fa29e"
+                "sha256": "sha256:e95320d4b3d9fbafacb0f0a160e29db4104326e82d91b9b08cb29dbf621c35fb"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -27884,7 +27892,7 @@
             "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
           }
         ],
-        "source_sha256": "sha256:e2d70138f0dcec513b65075a090ef8471b541974ff807fffbb5787b63b6fa29e"
+        "source_sha256": "sha256:e95320d4b3d9fbafacb0f0a160e29db4104326e82d91b9b08cb29dbf621c35fb"
       },
       {
         "path": "apps/runtime-dashboard/src/features/whatif/index.ts",
@@ -31011,8 +31019,8 @@
             "column": 5,
             "component_identity": "LocaleProvider",
             "kind": "jsx",
-            "line": 146,
-            "root_id": "LocaleProvider:jsx:146:5",
+            "line": 148,
+            "root_id": "LocaleProvider:jsx:148:5",
             "root_source_sha256": "sha256:5d1ba87048e80c0880023c4ef57d53007b3fda00542db6351fe89dd575d23396",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -31021,7 +31029,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/shared/i18n/LocaleProvider.tsx",
-                "sha256": "sha256:332bb10036fff051ff9d7da458eac48069f758fac534cceb8c4b603ac135480e"
+                "sha256": "sha256:47009f3537e0298e7ab44d048c12898dbd96cd33d8d222055c67892f805067b1"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -31031,7 +31039,7 @@
             "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
           }
         ],
-        "source_sha256": "sha256:332bb10036fff051ff9d7da458eac48069f758fac534cceb8c4b603ac135480e"
+        "source_sha256": "sha256:47009f3537e0298e7ab44d048c12898dbd96cd33d8d222055c67892f805067b1"
       },
       {
         "path": "apps/runtime-dashboard/src/shared/i18n/messages/icu-messages.ts",
@@ -31104,6 +31112,14 @@
         "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
         "roots": [],
         "source_sha256": "sha256:36db39bb884eda54123b878c5c8cd236257fa44c6de0d40f94938b631325000d"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/epochSemantics.ts",
+        "predicate_provenance": "independently_reconciled",
+        "receipt_kind": "no_render_root",
+        "reviewer_receipt": "DS18-C06-independent-root-reconciliation",
+        "roots": [],
+        "source_sha256": "sha256:705f07720f398258ccba37faefb4779ec13e3282576ce4c4a1b8c5520d9a2f8f"
       },
       {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/evidence.ts",
@@ -34495,8 +34511,8 @@
             "column": 5,
             "component_identity": "EpochSemanticsProvider",
             "kind": "jsx",
-            "line": 157,
-            "root_id": "EpochSemanticsProvider:jsx:157:5",
+            "line": 35,
+            "root_id": "EpochSemanticsProvider:jsx:35:5",
             "root_source_sha256": "sha256:fd9998e180440cf2fc4db4026241af2e2f93a83c24cb1c16cb190e2052562693",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -34505,7 +34521,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-                "sha256": "sha256:f00c2cbd7902b12a017e553f07cf5a6732701cde56687fc71b67e9e3d70c3fda"
+                "sha256": "sha256:fc139f0547b5abb383e99a4fdb0076a90c0de4c2551dfbb6279d2857a86857be"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -34518,8 +34534,8 @@
             "column": 5,
             "component_identity": "TimeSemanticsLabel",
             "kind": "jsx",
-            "line": 199,
-            "root_id": "TimeSemanticsLabel:jsx:199:5",
+            "line": 77,
+            "root_id": "TimeSemanticsLabel:jsx:77:5",
             "root_source_sha256": "sha256:f796c813b5bcafc6a2d871f77d40527c388ffb2cce396106c6f997fe22ff9374",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -34528,7 +34544,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-                "sha256": "sha256:f00c2cbd7902b12a017e553f07cf5a6732701cde56687fc71b67e9e3d70c3fda"
+                "sha256": "sha256:fc139f0547b5abb383e99a4fdb0076a90c0de4c2551dfbb6279d2857a86857be"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -34541,8 +34557,8 @@
             "column": 5,
             "component_identity": "TimeEntry",
             "kind": "jsx",
-            "line": 286,
-            "root_id": "TimeEntry:jsx:286:5",
+            "line": 164,
+            "root_id": "TimeEntry:jsx:164:5",
             "root_source_sha256": "sha256:5faabfdc7573670e35f32240a83c4964da737ac50554eb150ef7eb1a39a76e88",
             "epoch_context_read_count": 0,
             "epoch_semantics_prop_count": 0,
@@ -34551,7 +34567,7 @@
             "owner_evidence": [
               {
                 "path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-                "sha256": "sha256:f00c2cbd7902b12a017e553f07cf5a6732701cde56687fc71b67e9e3d70c3fda"
+                "sha256": "sha256:fc139f0547b5abb383e99a4fdb0076a90c0de4c2551dfbb6279d2857a86857be"
               }
             ],
             "predicate_provenance": "independently_reconciled",
@@ -34561,7 +34577,7 @@
             "non_decision_reason": "independently reviewed as layout, interaction, editor, diagnostic, or candidate-only rendering without an admissibility-changing recommendation/status/limitation/quantity"
           }
         ],
-        "source_sha256": "sha256:f00c2cbd7902b12a017e553f07cf5a6732701cde56687fc71b67e9e3d70c3fda"
+        "source_sha256": "sha256:fc139f0547b5abb383e99a4fdb0076a90c0de4c2551dfbb6279d2857a86857be"
       },
       {
         "path": "apps/runtime-dashboard/src/shared/ui/temporal/withTemporalCursor.tsx",
@@ -35115,7 +35131,648 @@
         "roots": [],
         "source_sha256": "sha256:733c6cc7e251bbddb9005722bb317dbfecb388cb33649dcbff03a19a13e3ea7c"
       }
-    ]
+    ],
+    "historical_lineage": {
+      "schema_id": "polisyos.atlas.ds18-time-semantics-lineage.v1",
+      "predicate_provenance": "recomputed",
+      "selector_identity": "path + component_identity + component-local occurrence, content-bound by root_id and root_source_sha256",
+      "composition_rule": "current obligations equal the immutable freeze mapping disjoint-unioned with each exact landing delta, then transformed only by exact source reconciliation rebindings; counts are derived summaries",
+      "freeze": {
+        "checkpoint_commit": "3011c9584a0327661c8f5a9b695a1769ddb64385",
+        "artifact_path": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json",
+        "artifact_sha256": "sha256:9c3f3c340a2a7f731be2bdce935117f76effd5cb8c0b083934fd64826b645c28",
+        "coverage_sha256": "sha256:d6e8fa50c72bd8b13d4ac1d79b78897a61367fcf0821e0fa09c3d5f0c31d521b",
+        "obligation_manifest_sha256": "sha256:1c45bca4c94568dbf1d7e965e8e3acc54406e3f5e7354d9b978d0d83ce70c2ec",
+        "obligation_count_summary": 77
+      },
+      "landings": [
+        {
+          "slice_id": "DS15",
+          "admission_commit": "8c20b6f74f224e9ee44eb5ffa04a33399b816142",
+          "checkpoint_commit": "8c20b6f74f224e9ee44eb5ffa04a33399b816142",
+          "artifact_path": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json",
+          "artifact_sha256": "sha256:97a402803c60d6e403c478ecb03203ecc95906468d6a9889dd391a69c45463c9",
+          "coverage_sha256": "sha256:877e1d2e475ab444be0a14ac04592fa425651679e64f12e0f0c382f20b183502",
+          "obligation_manifest_sha256": "sha256:0230dfa4fc18c6208698fb5caf69e35aa1faf7aa71f83fdcbbeaea09365befbd",
+          "checkpoint_obligation_count_summary": 94,
+          "delta_manifest_sha256": "sha256:3086117c96be03358f5acb335f2e1f739b02c9c21e8f2a0ea2e304ddff1c4e43",
+          "entered_root_count": 17,
+          "entrants": [
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.tsx",
+              "component_identity": "AcquisitionApprovalFlow",
+              "occurrence": 0,
+              "root_id": "AcquisitionApprovalFlow:jsx:275:5",
+              "root_source_sha256": "sha256:bf985a18cd992ecd33096bcd32b5970f30024465d2cfc29f81f1483018e64f61",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionExecutionTimeline.tsx",
+              "component_identity": "AcquisitionExecutionTimeline",
+              "occurrence": 0,
+              "root_id": "AcquisitionExecutionTimeline:jsx:165:5",
+              "root_source_sha256": "sha256:2e3a55451f2a9fe83d84e59b6de223b276539c0923cdbcca53a3f6cc401f1f62",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionGrowthBacklog.tsx",
+              "component_identity": "AcquisitionGrowthBacklog",
+              "occurrence": 0,
+              "root_id": "AcquisitionGrowthBacklog:jsx:32:5",
+              "root_source_sha256": "sha256:74efd164f8d65840ecc7a795be0c374b9e428e5d2aecbc890f2801d785e36aac",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionPassportPanel.tsx",
+              "component_identity": "AcquisitionPassportPanel",
+              "occurrence": 0,
+              "root_id": "AcquisitionPassportPanel:jsx:22:5",
+              "root_source_sha256": "sha256:c891d6c9dd6c73e65038f5be9ff2616817a303f9ce81934ffda9a700004eaff2",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionQuarantineLedger.tsx",
+              "component_identity": "AcquisitionQuarantineLedger",
+              "occurrence": 0,
+              "root_id": "AcquisitionQuarantineLedger:jsx:21:5",
+              "root_source_sha256": "sha256:69aa3e633dd69df6fa9823e2311222f180b6414f7ad77ec9fe19332f9d42b5ad",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx",
+              "component_identity": "AcquisitionRouteDetail",
+              "occurrence": 0,
+              "root_id": "AcquisitionRouteDetail:jsx:28:7",
+              "root_source_sha256": "sha256:677ab0b53b7b0be51278af00d898b27242370df84acfad277a7a65365518b0bf",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx",
+              "component_identity": "AcquisitionRouteDetail",
+              "occurrence": 1,
+              "root_id": "AcquisitionRouteDetail:jsx:81:5",
+              "root_source_sha256": "sha256:4bad58733f957422093da2738b3cc31e5be9e439d125500cbd35c9eb744830f9",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConnectorAcquisitionScorecard.tsx",
+              "component_identity": "ConnectorAcquisitionScorecard",
+              "occurrence": 0,
+              "root_id": "ConnectorAcquisitionScorecard:jsx:25:5",
+              "root_source_sha256": "sha256:0aecbb01871407cb5abea64a4a34db271d5dad436cd881fa66beb06cb0ac49b7",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+              "component_identity": "AcquisitionGrowthBoundary",
+              "occurrence": 0,
+              "root_id": "AcquisitionGrowthBoundary:jsx:361:5",
+              "root_source_sha256": "sha256:5a293c7aa700958316730ef3f14f70177a1d59e1a8dff7243416a55200b8de34",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_existing_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+              "component_identity": "AcquisitionGrowthSurface",
+              "occurrence": 0,
+              "root_id": "AcquisitionGrowthSurface:jsx:405:5",
+              "root_source_sha256": "sha256:50ca218a929ae89535f3da6f1a93d92ebec11c940f21970700a8c211b2709776",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_existing_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+              "component_identity": "AcquisitionGrowthSurface",
+              "occurrence": 1,
+              "root_id": "AcquisitionGrowthSurface:jsx:407:5",
+              "root_source_sha256": "sha256:325fc2a8f56a7d37f7530e2dbaf8ee3d236c19fbbc8ad38e3f26f93c0fa49471",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_existing_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+              "component_identity": "CycleBoard",
+              "occurrence": 0,
+              "root_id": "CycleBoard:jsx:422:5",
+              "root_source_sha256": "sha256:ce474a47d9b505617216b2081cffb389b304995b8fd2ef3b1a304d312324475b",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "reclassified"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+              "component_identity": "LoadedAcquisitionGrowth",
+              "occurrence": 0,
+              "root_id": "LoadedAcquisitionGrowth:jsx:266:5",
+              "root_source_sha256": "sha256:aaf2037830f66b58ed3edef33b14a6c797842b60875972c5911d36bf1b6b1b35",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_existing_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+              "component_identity": "QueriedAcquisitionGrowth",
+              "occurrence": 0,
+              "root_id": "QueriedAcquisitionGrowth:jsx:391:5",
+              "root_source_sha256": "sha256:7fc881226ab298dfee643a5e425d77146fde6af85d43230406e3257e29ad79d4",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_existing_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
+              "component_identity": "AuthorizedCaseWorkspace",
+              "occurrence": 2,
+              "root_id": "AuthorizedCaseWorkspace:jsx:473:5",
+              "root_source_sha256": "sha256:76be3f9893d401fb5a21df186e21ba2d39ca9f9058a2bae8207b7b7a54f18c16",
+              "classification": "decision_bearing",
+              "change_kind": "reclassified"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
+              "component_identity": "CaseWorkspacePage",
+              "occurrence": 3,
+              "root_id": "CaseWorkspacePage:jsx:542:5",
+              "root_source_sha256": "sha256:ab4d87d0bb35b966c4139b3f4ce7aaf8e623f14deea3721c4d6182fa1e07010c",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "reclassified"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
+              "component_identity": "HumanDecisionWorkspace",
+              "occurrence": 0,
+              "root_id": "HumanDecisionWorkspace:jsx:366:5",
+              "root_source_sha256": "sha256:5e20d2720b5b9fd4c9f4ce04fb4105adc2b2da0f6baae237b7610c38130a4efb",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_existing_file"
+            }
+          ]
+        },
+        {
+          "slice_id": "DS17",
+          "admission_commit": "36dff74a610e03ae98b1cac6f1bb237dd4fda60a",
+          "checkpoint_commit": "7161da3df6dc5f3a2578797539bc6714ea59ee2e",
+          "artifact_path": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json",
+          "artifact_sha256": "sha256:c2893870139f3eae5042e54ba23a1692c10680f1ec0dc404cd3d879efe01544f",
+          "coverage_sha256": "sha256:95e498ddcd0f31bf7d46bf85435e3539993e9dc3b86de7706bd322a00f71f89c",
+          "obligation_manifest_sha256": "sha256:a4faaeee71ce4ece142d71de486e63244eebd7981c63e36baf0c4cbec8a1076e",
+          "checkpoint_obligation_count_summary": 126,
+          "delta_manifest_sha256": "sha256:72de05d72277e5679ae126c8598a8ea7f8cdeb3c712e6971fb0df12b751d571d",
+          "entered_root_count": 32,
+          "entrants": [
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+              "component_identity": "ConditionalDeltaFigure",
+              "occurrence": 0,
+              "root_id": "ConditionalDeltaFigure:jsx:151:5",
+              "root_source_sha256": "sha256:748718e147d4256b40dca61829be14f1b3689d40c2bbad6253864c4762c8c0b9",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+              "component_identity": "ConditionalEnvelopeDetails",
+              "occurrence": 0,
+              "root_id": "ConditionalEnvelopeDetails:jsx:130:5",
+              "root_source_sha256": "sha256:754b7ad94fdf3a4c14c907d5290c49ad204e58cf6f2e285d6f6b7087db766fd5",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+              "component_identity": "ConfidenceLedgerTemporalOwner",
+              "occurrence": 0,
+              "root_id": "ConfidenceLedgerTemporalOwner:jsx:46:5",
+              "root_source_sha256": "sha256:2039abec9729db2adfb1ab5941d539ba7c47777f93d0c96c3b502cb3d639fd03",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+              "component_identity": "EnvelopeField",
+              "occurrence": 0,
+              "root_id": "EnvelopeField:jsx:92:5",
+              "root_source_sha256": "sha256:1493c37a1f57680bf3b11dad8a839ae336827c49a5bd3c3737cd6760f6bd58f0",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "ActualRow",
+              "occurrence": 0,
+              "root_id": "ActualRow:jsx:165:5",
+              "root_source_sha256": "sha256:f7e815ceabe72c780748b74081a564cad17c4fc76a43953226648c573eed0670",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "AmountSet",
+              "occurrence": 0,
+              "root_id": "AmountSet:jsx:131:5",
+              "root_source_sha256": "sha256:32427fce88978a7452005b8ba507af3a144ffe45f00be066222d4b3b2e3061e2",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "AvailableRiskSpend",
+              "occurrence": 0,
+              "root_id": "AvailableRiskSpend:jsx:411:5",
+              "root_source_sha256": "sha256:153b53494a02a5fd304078b059aad59d1c0c7a84c2e3e4738e1bddfb050c409a",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "CertificateRoute",
+              "occurrence": 0,
+              "root_id": "CertificateRoute:jsx:381:5",
+              "root_source_sha256": "sha256:c44a949405f17ea948911404cfc3e161e66b506c5f708a9ea86624173b07411c",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "ClassSpendRow",
+              "occurrence": 0,
+              "root_id": "ClassSpendRow:jsx:272:5",
+              "root_source_sha256": "sha256:6035a94b61cb71e340945a8a8d01b1c0becd8660fcea0985c3d489cff6388c9e",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "ConfidenceLedgerRiskSpend",
+              "occurrence": 0,
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:834:7",
+              "root_source_sha256": "sha256:3426600483839f6aa629a7a776489eac7b2a595aa2032ada6966a295d5bddd42",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "ConfidenceLedgerRiskSpend",
+              "occurrence": 1,
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:848:7",
+              "root_source_sha256": "sha256:738ea49cfd4a87a3cd551472b85309dd6cf090e917ea7159b19d9925e2c378c3",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "ConfidenceLedgerRiskSpend",
+              "occurrence": 2,
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:853:7",
+              "root_source_sha256": "sha256:734b39e126fd4ad684a11baf81f3c0822fffd184d75751257b73722b5cf6832c",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "ConfidenceLedgerRiskSpend",
+              "occurrence": 3,
+              "root_id": "ConfidenceLedgerRiskSpend:jsx:856:5",
+              "root_source_sha256": "sha256:3a79faf9de8ff067d1c5f2d1c458f6a48a3dbd61bd79ad4eddd018acff11275a",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "DetailRow",
+              "occurrence": 0,
+              "root_id": "DetailRow:jsx:81:5",
+              "root_source_sha256": "sha256:f5884c37e62cec2ec5a282fd481b005b6d8ebad9be548a9c2dfb186497cc543c",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "InstrumentDefinition",
+              "occurrence": 0,
+              "root_id": "InstrumentDefinition:jsx:312:5",
+              "root_source_sha256": "sha256:a9903f252be3b0da4a3458daa6b52fa4ecd9cf5f0fa22a847fe8b09c8aa292ca",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "NonAvailableRiskSpend",
+              "occurrence": 0,
+              "root_id": "NonAvailableRiskSpend:jsx:757:7",
+              "root_source_sha256": "sha256:1fd474d9b4f2f2a8d044da416ac519042cf2b065d4857d3361790394bf904603",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "NonAvailableRiskSpend",
+              "occurrence": 1,
+              "root_id": "NonAvailableRiskSpend:jsx:815:5",
+              "root_source_sha256": "sha256:5387f6b32138bdffaea1e6a62e21d7efc86d06c4de58634c323d9a1e76dce2c5",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "SemanticList",
+              "occurrence": 0,
+              "root_id": "SemanticList:jsx:59:12",
+              "root_source_sha256": "sha256:13169587c31967edd0208b4f102386f2623b9cbd9a93d902bdfd2e4c325abe66",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "SemanticList",
+              "occurrence": 1,
+              "root_id": "SemanticList:jsx:62:5",
+              "root_source_sha256": "sha256:69cfe95a1938fe2c43fdc72e9b56db0012bdef6dd11fa880207f8da27cac6c2f",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "SemanticSection",
+              "occurrence": 0,
+              "root_id": "SemanticSection:jsx:99:5",
+              "root_source_sha256": "sha256:7cbf2bfe00ee858ed45c8bea759f608b692ab9c5f2b85bdd6d493296518ba871",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+              "component_identity": "SemanticValue",
+              "occurrence": 0,
+              "root_id": "SemanticValue:jsx:44:5",
+              "root_source_sha256": "sha256:e84f94d00c13e2b971d0c01a708f814e2614157ec0a2cd9914fecc3e1209c76d",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_new_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "component_identity": "AuthorizedCycleBoardPage",
+              "occurrence": 0,
+              "root_id": "AuthorizedCycleBoardPage:jsx:76:5",
+              "root_source_sha256": "sha256:704ae6abe7c788c389507e87f4198af436146c7c4d6101f4a6c5fdec2bb7738a",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "reclassified"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "component_identity": "ConfidenceLedgerRiskSpendQueryPanel",
+              "occurrence": 0,
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:46:5",
+              "root_source_sha256": "sha256:db36311dcd325c17174df579f61909764b33cfb7a43c4e7e409ad6d3da4cd80f",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_existing_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "component_identity": "ConfidenceLedgerRiskSpendQueryPanel",
+              "occurrence": 1,
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:50:5",
+              "root_source_sha256": "sha256:cfafbaa014af6f266c125bc41f9709a9ed304f9cabf510cec86e9a0af6af351f",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_existing_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "component_identity": "ConfidenceLedgerRiskSpendQueryPanel",
+              "occurrence": 2,
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:57:5",
+              "root_source_sha256": "sha256:0e666c1e9362286bd95dea3bf53743c33b1024be693008c1265bae5eeca4a9ab",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_existing_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "component_identity": "ConfidenceLedgerRiskSpendQueryPanel",
+              "occurrence": 3,
+              "root_id": "ConfidenceLedgerRiskSpendQueryPanel:jsx:60:5",
+              "root_source_sha256": "sha256:b35db63a6ddacd8a229c3285e13fa7df52e7e6ebb013c734ea6dbde8472dba8f",
+              "classification": "decision_bearing",
+              "change_kind": "source_added_existing_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "component_identity": "CycleBoardPage",
+              "occurrence": 0,
+              "root_id": "CycleBoardPage:jsx:104:7",
+              "root_source_sha256": "sha256:8eb023b6e2192551175c612ddcde3a52cd36d0d77d64e5be78e66b9742da72ac",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "reclassified"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "component_identity": "CycleBoardPage",
+              "occurrence": 1,
+              "root_id": "CycleBoardPage:jsx:115:7",
+              "root_source_sha256": "sha256:cca10e9a90afef590b8405fc538e2545812a24af0044babed79495ff72d1609e",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "reclassified"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "component_identity": "CycleBoardPage",
+              "occurrence": 2,
+              "root_id": "CycleBoardPage:jsx:124:10",
+              "root_source_sha256": "sha256:d1e9477ee0e65428cfc82390c613852bfbeaeb64ff75d6be06a00d2effa2779b",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "reclassified"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "component_identity": "CycleBoardQueryPanel",
+              "occurrence": 0,
+              "root_id": "CycleBoardQueryPanel:jsx:20:7",
+              "root_source_sha256": "sha256:0dbe11d0f7febe157ae764591cb2fafc0f8388fc86690ea27e445003875c28f1",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_existing_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "component_identity": "CycleBoardQueryPanel",
+              "occurrence": 1,
+              "root_id": "CycleBoardQueryPanel:jsx:27:7",
+              "root_source_sha256": "sha256:b4bbca2a453c2750701dde57273222a850c48ffe7d08c2770ffe8c6df9b45336",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_existing_file"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+              "component_identity": "CycleBoardQueryPanel",
+              "occurrence": 2,
+              "root_id": "CycleBoardQueryPanel:jsx:35:10",
+              "root_source_sha256": "sha256:51feb6578f9889fdab1ff971809a9b7858782821a358e95b254badde2eb1a502",
+              "classification": "inherits_admitted_dom",
+              "change_kind": "source_added_existing_file"
+            }
+          ]
+        }
+      ],
+      "source_reconciliations": [
+        {
+          "landing_id": "Task-D-dashboard-freeze",
+          "source_checkpoint_commit": "03c5783609271c27d6f3d212b76dda7eddef2074",
+          "source_root": "apps/runtime-dashboard/src",
+          "generated_manifest_sha256": "sha256:b4635340f658e6253cc2c555af0fb3e72a3f6b15a3c0f26b32c1bf55a4deb2fb",
+          "scanner_sha256": "sha256:590fcca298e489fa97a9b390fea383ec28fd365fdeab20f396fcf7c859e88eb4",
+          "source_file_count_summary": 623,
+          "root_count_summary": 759,
+          "file_manifest_sha256": "sha256:e453813f3a3b4ad3cd1fa9f8ce93841756a58827296f10b58cd1010277d8d15f",
+          "root_manifest_sha256": "sha256:95b8985aeb087c732579fea4c576ed7a55ca8555d6847f793306e977765beb21",
+          "obligation_manifest_sha256": "sha256:296faa4e6569dae3b101a695245eeca2908d98fd923d89a70384170c4c04bc3f",
+          "obligation_count_summary": 126,
+          "entered_root_count": 0,
+          "exited_root_count": 0,
+          "rebound_root_count": 9,
+          "rebound_manifest_sha256": "sha256:5123b0fcacc4d50ea187d7d7646ed2a4c997b60f87dfaedc725a24cfe9c5cb57",
+          "rebindings": [
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+              "component_identity": "AuthorizedRunReportPage",
+              "occurrence": 0,
+              "before": {
+                "root_id": "AuthorizedRunReportPage:jsx:590:31",
+                "root_source_sha256": "sha256:38d9abacc45979878af079b5bc08bbd4219a6ed5bf135094bad2fb13b9dde15d",
+                "classification": "inherits_admitted_dom"
+              },
+              "after": {
+                "root_id": "AuthorizedRunReportPage:jsx:592:31",
+                "root_source_sha256": "sha256:38d9abacc45979878af079b5bc08bbd4219a6ed5bf135094bad2fb13b9dde15d",
+                "classification": "inherits_admitted_dom"
+              }
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+              "component_identity": "AuthorizedRunReportPage",
+              "occurrence": 1,
+              "before": {
+                "root_id": "AuthorizedRunReportPage:jsx:593:7",
+                "root_source_sha256": "sha256:67ddb0403480c0b3f63a343690773ffe885c1d5e627b9fd232d85d69e59fdaaa",
+                "classification": "inherits_admitted_dom"
+              },
+              "after": {
+                "root_id": "AuthorizedRunReportPage:jsx:595:7",
+                "root_source_sha256": "sha256:67ddb0403480c0b3f63a343690773ffe885c1d5e627b9fd232d85d69e59fdaaa",
+                "classification": "inherits_admitted_dom"
+              }
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+              "component_identity": "AuthorizedRunReportPage",
+              "occurrence": 2,
+              "before": {
+                "root_id": "AuthorizedRunReportPage:jsx:602:5",
+                "root_source_sha256": "sha256:5c41e50a8f75610652f82c7f97af93f60dde1530e32c1275771f1d9daeece78a",
+                "classification": "inherits_admitted_dom"
+              },
+              "after": {
+                "root_id": "AuthorizedRunReportPage:jsx:604:5",
+                "root_source_sha256": "sha256:5c41e50a8f75610652f82c7f97af93f60dde1530e32c1275771f1d9daeece78a",
+                "classification": "inherits_admitted_dom"
+              }
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+              "component_identity": "AuthorizedRunReportPage",
+              "occurrence": 3,
+              "before": {
+                "root_id": "AuthorizedRunReportPage:print_root:613:64",
+                "root_source_sha256": "sha256:320b883d1eaa351f03dc1f9e0252be6c845365ef2ddf090e63807fe7a31ef455",
+                "classification": "inherits_admitted_dom"
+              },
+              "after": {
+                "root_id": "AuthorizedRunReportPage:print_root:615:64",
+                "root_source_sha256": "sha256:320b883d1eaa351f03dc1f9e0252be6c845365ef2ddf090e63807fe7a31ef455",
+                "classification": "inherits_admitted_dom"
+              }
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+              "component_identity": "RunPaperDocument",
+              "occurrence": 0,
+              "before": {
+                "root_id": "RunPaperDocument:jsx:322:5",
+                "root_source_sha256": "sha256:0b8ea0a87c86b80226a7ac3b682f56f3ceeb185b8fb58eeacaf7f7bc71ecd7a4",
+                "classification": "decision_bearing"
+              },
+              "after": {
+                "root_id": "RunPaperDocument:jsx:322:5",
+                "root_source_sha256": "sha256:1319973a12980c7c2493fcb8bfd99487c236bec9ddeb44895c82f5d6dccc540f",
+                "classification": "decision_bearing"
+              }
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+              "component_identity": "RunReportPage",
+              "occurrence": 0,
+              "before": {
+                "root_id": "RunReportPage:jsx:633:7",
+                "root_source_sha256": "sha256:e4e88050d2ff8933d6b6250df3a1e19b6eddd4a8cb073014d9e7a8157f1f2d6f",
+                "classification": "inherits_admitted_dom"
+              },
+              "after": {
+                "root_id": "RunReportPage:jsx:635:7",
+                "root_source_sha256": "sha256:e4e88050d2ff8933d6b6250df3a1e19b6eddd4a8cb073014d9e7a8157f1f2d6f",
+                "classification": "inherits_admitted_dom"
+              }
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+              "component_identity": "RunReportPage",
+              "occurrence": 1,
+              "before": {
+                "root_id": "RunReportPage:jsx:643:7",
+                "root_source_sha256": "sha256:405bb3b3e16a204b9a841c459ddfad3c6367f21bac4cfa7554f4f291b889821e",
+                "classification": "inherits_admitted_dom"
+              },
+              "after": {
+                "root_id": "RunReportPage:jsx:645:7",
+                "root_source_sha256": "sha256:405bb3b3e16a204b9a841c459ddfad3c6367f21bac4cfa7554f4f291b889821e",
+                "classification": "inherits_admitted_dom"
+              }
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+              "component_identity": "RunReportPage",
+              "occurrence": 2,
+              "before": {
+                "root_id": "RunReportPage:jsx:653:7",
+                "root_source_sha256": "sha256:494f44813b4bfec5c0f2a369949b017ab1537748e218e9d1db9b348ad315df45",
+                "classification": "inherits_admitted_dom"
+              },
+              "after": {
+                "root_id": "RunReportPage:jsx:655:7",
+                "root_source_sha256": "sha256:494f44813b4bfec5c0f2a369949b017ab1537748e218e9d1db9b348ad315df45",
+                "classification": "inherits_admitted_dom"
+              }
+            },
+            {
+              "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+              "component_identity": "RunReportPage",
+              "occurrence": 3,
+              "before": {
+                "root_id": "RunReportPage:jsx:661:10",
+                "root_source_sha256": "sha256:689278c3eb89ace6c3796b5b1136e64c5cc3d6d89820b39732995f34365e18e9",
+                "classification": "inherits_admitted_dom"
+              },
+              "after": {
+                "root_id": "RunReportPage:jsx:663:10",
+                "root_source_sha256": "sha256:689278c3eb89ace6c3796b5b1136e64c5cc3d6d89820b39732995f34365e18e9",
+                "classification": "inherits_admitted_dom"
+              }
+            }
+          ]
+        }
+      ]
+    }
   },
   "seeded_negative_lifecycle": [
     {

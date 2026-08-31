@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import copy
 import dataclasses
+import hashlib
 import json
 import os
 import re
@@ -49,6 +50,7 @@ VALIDATION_ROOT = REPO_ROOT / "tools" / "quality" / "validation"
 TIMED_SUITE_RUNNER = REPO_ROOT / "tools" / "quality" / "testing" / "run_timed_suite.py"
 TIMING_BUDGET_CATALOG = REPO_ROOT / "tools" / "quality" / "timing_budgets.json"
 _TIMING_MARKER = "_TIMING_STARTED_AT"
+_HISTORICAL_GIT_BLOB_TIMEOUT_SECONDS = 10
 
 
 def _run_direct_guard(path: Path, *args: str, timing_log: Path) -> subprocess.CompletedProcess[str]:
@@ -290,6 +292,119 @@ def _source_derived_unittest_denominator(path: Path) -> int:
         for member in node.body
     )
     return module_tests + class_tests
+
+
+def _historical_git_blob(revision: str, test_path: str) -> bytes:
+    """Read one historical test blob as exact Git-emitted bytes."""
+
+    try:
+        completed = subprocess.run(  # noqa: S603 - fixed system Git executable.
+            ["git", "show", f"{revision}:policy-engine/{test_path}"],
+            cwd=REPO_ROOT,
+            check=False,
+            capture_output=True,
+            timeout=_HISTORICAL_GIT_BLOB_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired as error:
+        raise ValueError(f"historical Git blob lookup timed out: {test_path}") from error
+    except OSError as error:
+        raise ValueError(f"historical Git blob lookup could not start: {test_path}") from error
+    if completed.returncode != 0:
+        raise ValueError(
+            f"historical Git blob lookup failed with exit {completed.returncode}: {test_path}"
+        )
+    if not isinstance(completed.stdout, bytes):
+        raise ValueError(f"historical Git blob lookup did not return bytes: {test_path}")
+    return completed.stdout
+
+
+def _historical_pytest_node_ids(
+    historical_sources: dict[str, bytes],
+    supporting_sources: dict[str, bytes] | None = None,
+) -> tuple[str, ...]:
+    """Collect exact pytest IDs from Git-bound test bytes in an isolated process."""
+
+    if not historical_sources:
+        raise ValueError("historical pytest collection requires at least one source")
+    supporting_sources = supporting_sources or {}
+    if historical_sources.keys() & supporting_sources.keys():
+        raise ValueError("historical pytest collection source paths overlap")
+    with tempfile.TemporaryDirectory() as temporary_directory:
+        collection_root = Path(temporary_directory)
+        for test_path, source_bytes in {**supporting_sources, **historical_sources}.items():
+            relative_path = PurePosixPath(test_path)
+            if relative_path.is_absolute() or ".." in relative_path.parts:
+                raise ValueError(f"invalid historical test path: {test_path}")
+            destination = collection_root / relative_path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(source_bytes)
+        (collection_root / "conftest.py").write_text(
+            "\n".join(
+                (
+                    "import json",
+                    "from pathlib import Path",
+                    f"_HISTORICAL_PATH_ORDER = {list(historical_sources)!r}",
+                    "def pytest_collection_finish(session):",
+                    "    root = Path(session.config.rootpath)",
+                    "    records = sorted(",
+                    "        (",
+                    "            _HISTORICAL_PATH_ORDER.index(",
+                    "                item.path.relative_to(root).as_posix(),",
+                    "            ),",
+                    "            item.location[1],",
+                    "            item.nodeid,",
+                    "        )",
+                    "        for item in session.items",
+                    "    )",
+                    "    print('__historical_node_ids__=' + json.dumps([record[2] for record in records]))",
+                )
+            ),
+            encoding="utf-8",
+        )
+        try:
+            completed = subprocess.run(  # noqa: S603 - fixed local interpreter and pytest module.
+                [
+                    sys.executable,
+                    "-m",
+                    "pytest",
+                    "--collect-only",
+                    "-q",
+                    "-s",
+                    *historical_sources,
+                ],
+                cwd=collection_root,
+                check=False,
+                capture_output=True,
+                timeout=_HISTORICAL_GIT_BLOB_TIMEOUT_SECONDS,
+            )
+        except subprocess.TimeoutExpired as error:
+            raise ValueError("historical pytest collection timed out") from error
+        except OSError as error:
+            raise ValueError("historical pytest collection could not start") from error
+        if completed.returncode != 0:
+            raise ValueError(f"historical pytest collection failed with exit {completed.returncode}")
+        try:
+            stdout = completed.stdout.decode("utf-8")
+        except UnicodeDecodeError as error:
+            raise ValueError("historical pytest collection returned non-UTF-8 output") from error
+    records = [
+        line.removeprefix("__historical_node_ids__=")
+        for line in stdout.splitlines()
+        if line.startswith("__historical_node_ids__=")
+    ]
+    if len(records) != 1:
+        raise ValueError("historical pytest collection did not emit one node map")
+    try:
+        node_ids = tuple(json.loads(records[0]))
+    except json.JSONDecodeError as error:
+        raise ValueError("historical pytest collection emitted an invalid node map") from error
+    if not all(isinstance(node_id, str) for node_id in node_ids):
+        raise ValueError("historical pytest collection emitted a non-string node ID")
+    if len(node_ids) != len(set(node_ids)):
+        raise ValueError("historical pytest collection returned duplicate node IDs")
+    if not node_ids:
+        raise ValueError("historical pytest collection returned no node IDs")
+    return node_ids
 
 
 def _preserved_tool_run_record_duration(
@@ -1520,7 +1635,9 @@ def test_timing_budget_evidence_rejects_same_mode_cross_tool_swaps() -> None:
     assert any("confidence_ledger:check" in item for item in violations)
 
 
-def test_atlas_python_governance_lane_names_one_exact_runnable_workload() -> None:
+def test_atlas_python_governance_lane_names_one_exact_runnable_workload(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Catch a timing lane that combines samples from different Atlas governance suites."""
 
     payload = json.loads(TIMING_BUDGET_CATALOG.read_text(encoding="utf-8"))
@@ -1547,16 +1664,82 @@ def test_atlas_python_governance_lane_names_one_exact_runnable_workload() -> Non
         .splitlines()[47]
     )
     command_test_paths = [
-        REPO_ROOT / token
+        token
         for token in shlex.split(atlas["command"])
         if token.startswith("architecture/") and Path(token).name.startswith("test_")
     ]
-    source_denominator = sum(
-        _source_derived_unittest_denominator(path) for path in command_test_paths
+    assert command_test_paths == [
+        "architecture/atlas_surfaces/test_frontend_disposition_register.py",
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+    ]
+    publication_revision = "6bcc95bff32645189ff2ed65a719c7990e48c52a"
+    historical_sources = {
+        path: _historical_git_blob(publication_revision, path) for path in command_test_paths
+    }
+    historical_supporting_sources = {
+        path.replace("test_", "check_", 1): _historical_git_blob(
+            publication_revision,
+            path.replace("test_", "check_", 1),
+        )
+        for path in command_test_paths
+    }
+    assert {
+        path: hashlib.sha256(source).hexdigest()
+        for path, source in historical_sources.items()
+    } == {
+        "architecture/atlas_surfaces/test_frontend_disposition_register.py": (
+            "841466263c618a3142a6d5327c72072ad0e95bf4d738516f6d240eb98601b685"
+        ),
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py": (
+            "7f5418b7e809b1f1bac0470ecc2a553c878b14d886ea39494362067908e7ca0f"
+        ),
+    }
+    with monkeypatch.context() as patched:
+        patched.setattr(
+            subprocess,
+            "run",
+            lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 7, b"", b"failed"),
+        )
+        with pytest.raises(
+            ValueError,
+            match=re.escape("lookup failed with exit 7: historical.py"),
+        ):
+            _historical_git_blob(publication_revision, "historical.py")
+    with monkeypatch.context() as patched:
+        def timed_out(*args: object, **kwargs: object) -> subprocess.CompletedProcess[bytes]:
+            raise subprocess.TimeoutExpired(args[0], kwargs["timeout"])
+
+        patched.setattr(subprocess, "run", timed_out)
+        with pytest.raises(ValueError, match=re.escape("lookup timed out: historical.py")):
+            _historical_git_blob(publication_revision, "historical.py")
+    with monkeypatch.context() as patched:
+        def unavailable(*args: object, **kwargs: object) -> subprocess.CompletedProcess[bytes]:
+            raise OSError("missing git")
+
+        patched.setattr(subprocess, "run", unavailable)
+        with pytest.raises(ValueError, match=re.escape("lookup could not start: historical.py")):
+            _historical_git_blob(publication_revision, "historical.py")
+    historical_node_ids = list(
+        _historical_pytest_node_ids(
+            historical_sources,
+            historical_supporting_sources,
+        )
     )
+    assert len(historical_node_ids) == 67
+    assert len(historical_node_ids) == len(set(historical_node_ids))
+    assert hashlib.sha256(
+        json.dumps(historical_node_ids, separators=(",", ":")).encode("utf-8")
+    ).hexdigest() == "9b08f0ed2e74bf888009820529e2901c6dd3bedb40bf55a679a362efaf12aea6"
+    assert _historical_pytest_node_ids(
+        {
+            "architecture/atlas_surfaces/test_nested_collection.py": (
+                b"if True:\n    def test_hidden() -> None:\n        pass\n"
+            )
+        }
+    ) == ("architecture/atlas_surfaces/test_nested_collection.py::test_hidden",)
     receipt_count_match = re.search(r"`(?P<count>\d+)` tests passed", source_line)
     assert receipt_count_match is not None
-    assert int(receipt_count_match.group("count")) == source_denominator
+    assert int(receipt_count_match.group("count")) == len(historical_node_ids)
     assert all("<" not in lane["command"] for lane in lanes if isinstance(lane, dict))
     assert not any(
         isinstance(lane, dict) and lane.get("timing_key") == "atlas.status-governance:default"

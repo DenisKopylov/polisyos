@@ -2410,6 +2410,222 @@
         }
       }
     },
+    "ds18LineageEntrant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "component_identity",
+        "occurrence",
+        "root_id",
+        "root_source_sha256",
+        "classification",
+        "change_kind"
+      ],
+      "properties": {
+        "path": { "$ref": "#/$defs/pathRef" },
+        "component_identity": { "$ref": "#/$defs/nonEmptyString" },
+        "occurrence": { "type": "integer", "minimum": 0 },
+        "root_id": { "$ref": "#/$defs/nonEmptyString" },
+        "root_source_sha256": { "$ref": "#/$defs/sha256" },
+        "classification": {
+          "enum": ["decision_bearing", "inherits_admitted_dom"]
+        },
+        "change_kind": {
+          "enum": [
+            "source_added_new_file",
+            "source_added_existing_file",
+            "reclassified"
+          ]
+        }
+      }
+    },
+    "ds18LineageFreeze": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checkpoint_commit",
+        "artifact_path",
+        "artifact_sha256",
+        "coverage_sha256",
+        "obligation_manifest_sha256",
+        "obligation_count_summary"
+      ],
+      "properties": {
+        "checkpoint_commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "artifact_path": {
+          "const": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json"
+        },
+        "artifact_sha256": { "$ref": "#/$defs/sha256" },
+        "coverage_sha256": { "$ref": "#/$defs/sha256" },
+        "obligation_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "obligation_count_summary": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "ds18LineageLanding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slice_id",
+        "admission_commit",
+        "checkpoint_commit",
+        "artifact_path",
+        "artifact_sha256",
+        "coverage_sha256",
+        "obligation_manifest_sha256",
+        "checkpoint_obligation_count_summary",
+        "delta_manifest_sha256",
+        "entered_root_count",
+        "entrants"
+      ],
+      "properties": {
+        "slice_id": { "type": "string", "pattern": "^DS[0-9]+$" },
+        "admission_commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "checkpoint_commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "artifact_path": {
+          "const": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json"
+        },
+        "artifact_sha256": { "$ref": "#/$defs/sha256" },
+        "coverage_sha256": { "$ref": "#/$defs/sha256" },
+        "obligation_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "checkpoint_obligation_count_summary": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "delta_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "entered_root_count": { "type": "integer", "minimum": 1 },
+        "entrants": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds18LineageEntrant" }
+        }
+      }
+    },
+    "ds18LineageBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root_id", "root_source_sha256", "classification"],
+      "properties": {
+        "root_id": { "$ref": "#/$defs/nonEmptyString" },
+        "root_source_sha256": { "$ref": "#/$defs/sha256" },
+        "classification": {
+          "enum": ["decision_bearing", "inherits_admitted_dom"]
+        }
+      }
+    },
+    "ds18SourceRebinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "component_identity",
+        "occurrence",
+        "before",
+        "after"
+      ],
+      "properties": {
+        "path": { "$ref": "#/$defs/pathRef" },
+        "component_identity": { "$ref": "#/$defs/nonEmptyString" },
+        "occurrence": { "type": "integer", "minimum": 0 },
+        "before": { "$ref": "#/$defs/ds18LineageBinding" },
+        "after": { "$ref": "#/$defs/ds18LineageBinding" }
+      }
+    },
+    "ds18SourceReconciliation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "landing_id",
+        "source_checkpoint_commit",
+        "source_root",
+        "generated_manifest_sha256",
+        "scanner_sha256",
+        "source_file_count_summary",
+        "root_count_summary",
+        "file_manifest_sha256",
+        "root_manifest_sha256",
+        "obligation_manifest_sha256",
+        "obligation_count_summary",
+        "entered_root_count",
+        "exited_root_count",
+        "rebound_root_count",
+        "rebound_manifest_sha256",
+        "rebindings"
+      ],
+      "properties": {
+        "landing_id": { "const": "Task-D-dashboard-freeze" },
+        "source_checkpoint_commit": {
+          "const": "03c5783609271c27d6f3d212b76dda7eddef2074"
+        },
+        "source_root": { "const": "apps/runtime-dashboard/src" },
+        "generated_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "scanner_sha256": { "$ref": "#/$defs/sha256" },
+        "source_file_count_summary": { "type": "integer", "minimum": 1 },
+        "root_count_summary": { "type": "integer", "minimum": 1 },
+        "file_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "root_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "obligation_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "obligation_count_summary": { "type": "integer", "minimum": 1 },
+        "entered_root_count": { "const": 0 },
+        "exited_root_count": { "const": 0 },
+        "rebound_root_count": { "type": "integer", "minimum": 1 },
+        "rebound_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "rebindings": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds18SourceRebinding" }
+        }
+      }
+    },
+    "ds18TimeSemanticsLineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_id",
+        "predicate_provenance",
+        "selector_identity",
+        "composition_rule",
+        "freeze",
+        "landings",
+        "source_reconciliations"
+      ],
+      "properties": {
+        "schema_id": {
+          "const": "polisyos.atlas.ds18-time-semantics-lineage.v1"
+        },
+        "predicate_provenance": { "const": "recomputed" },
+        "selector_identity": {
+          "const": "path + component_identity + component-local occurrence, content-bound by root_id and root_source_sha256"
+        },
+        "composition_rule": {
+          "const": "current obligations equal the immutable freeze mapping disjoint-unioned with each exact landing delta, then transformed only by exact source reconciliation rebindings; counts are derived summaries"
+        },
+        "freeze": { "$ref": "#/$defs/ds18LineageFreeze" },
+        "landings": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds18LineageLanding" }
+        },
+        "source_reconciliations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": { "$ref": "#/$defs/ds18SourceReconciliation" }
+        }
+      }
+    },
     "ds18TimeSemanticsCoverage": {
       "type": "object",
       "additionalProperties": false,
@@ -2429,6 +2645,7 @@
         "obligated_root_count",
         "covered_root_count",
         "frontend_freeze_commit",
+        "historical_lineage",
         "landing_slice_rule",
         "landing_slice_checker",
         "files"
@@ -2475,6 +2692,9 @@
             { "type": "null" },
             { "type": "string", "pattern": "^[a-f0-9]{40}$" }
           ]
+        },
+        "historical_lineage": {
+          "$ref": "#/$defs/ds18TimeSemanticsLineage"
         },
         "landing_slice_rule": {
           "const": "the slice landing a post-freeze production render/export root owns its fresh file/root receipt, independent classification, and behavioral proof"

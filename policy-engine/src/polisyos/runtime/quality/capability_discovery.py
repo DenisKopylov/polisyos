@@ -374,6 +374,19 @@ class CapabilityDiscoveryProvider(Protocol):
         ...
 
 
+def project_layer3_owner_frontier(frontier: SearchFrontier) -> SearchFrontier:
+    """Validate and losslessly project a native Layer-3 owner frontier.
+
+    The owner must already have selected and rejected candidates, counters,
+    cutoff, and typed incompleteness. DS10 neither reconstructs nor augments
+    those facts.
+    """
+
+    if type(frontier) is not SearchFrontier:
+        raise TypeError("DS10 accepts only a native SearchFrontier owner artifact")
+    return SearchFrontier.model_validate(frontier.model_dump(mode="python"))
+
+
 class ScientistRegistryCapabilityDiscoveryProvider:
     """Lazily persist and search public Scientist NodeRegistry/ToolRegistry projections.
 
@@ -1902,6 +1915,7 @@ __all__ = [
     "load_capability_index_release",
     "load_default_capability_index_release",
     "main",
+    "project_layer3_owner_frontier",
 ]
 
 

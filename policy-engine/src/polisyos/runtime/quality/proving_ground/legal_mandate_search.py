@@ -15,9 +15,12 @@ from pathlib import Path
 from typing import Any, Literal
 
 import duckdb
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import load_layer3_gx_data_home
+from polisyos.core.contracts import SearchCandidate, SearchFrontier
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
+    load_layer3_gx_data_home,
+)
 
 LAYER3_GL_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
 LAYER3_GL_RULE_VERSION = "policyos.layer3.gl.legal_mandate_search.v1"
@@ -375,12 +378,35 @@ class Layer3GLLegalSearchLedger(_GLArtifact):
     sql_shapes: tuple[str, ...] = Field(default=())
     selected_row_refs: tuple[str, ...] = Field(default=())
     candidate_rows: tuple[dict[str, Any], ...] = Field(default=())
+    rejected_candidate_rows: tuple[dict[str, Any], ...] = Field(default=())
     no_hit_blockers: tuple[str, ...] = Field(default=())
     bounded_result_limit: int = Field(default=0, ge=0)
     used_full_table_scan: bool = False
     transition_input: bool = False
     index_schema_snapshot_ref: str | None = None
     issue_codes: tuple[str, ...] = Field(default=())
+    owner_frontier: SearchFrontier | None = None
+
+    @model_validator(mode="after")
+    def _owner_frontier_preserves_native_selection(self) -> Layer3GLLegalSearchLedger:
+        if self.owner_frontier is None:
+            return self
+        selected = tuple(candidate.candidate_ref for candidate in self.owner_frontier.candidates)
+        rejected = tuple(
+            candidate.candidate_ref for candidate in self.owner_frontier.rejected_candidates
+        )
+        native_rejected = tuple(
+            str(candidate.get("row_ref") or "") for candidate in self.rejected_candidate_rows
+        )
+        if selected != self.selected_row_refs:
+            raise ValueError("GL owner frontier must preserve selected_row_refs")
+        if rejected != native_rejected:
+            raise ValueError("GL owner frontier must preserve rejected_candidate_rows")
+        if self.owner_frontier.returned_count != len(self.candidate_rows):
+            raise ValueError("GL owner frontier returned_count must preserve candidate_rows")
+        if self.owner_frontier.requested_count != self.bounded_result_limit:
+            raise ValueError("GL owner frontier requested_count must preserve bounded_result_limit")
+        return self
 
 
 class Layer3GLSearchRecallFreshnessReport(_GLArtifact):
@@ -1351,15 +1377,28 @@ def build_gl_legal_query_traces(
             Layer3GLLegalQueryTrace(
                 trace_id=trace_id,
                 status="pass"
-                if ledger.status in {"complete_with_candidates", "complete_no_candidate"}
+                if ledger.status
+                in {
+                    "complete_with_candidates",
+                    "complete_no_candidate",
+                    "incomplete_budget_cutoff",
+                }
                 else "fail",
                 table_routes=ledger.table_routes,
                 sql_shape=ledger.sql_shapes[0] if ledger.sql_shapes else "SELECT 1 LIMIT 0",
                 filters=ledger.filters,
                 query_terms=ledger.normalized_terms,
                 bounded_result_limit=ledger.bounded_result_limit,
-                result_count=len(ledger.candidate_rows),
-                observed_row_count=len(ledger.candidate_rows),
+                result_count=(
+                    ledger.owner_frontier.evaluated_count
+                    if ledger.owner_frontier is not None
+                    else len(ledger.candidate_rows)
+                ),
+                observed_row_count=(
+                    ledger.owner_frontier.evaluated_count
+                    if ledger.owner_frontier is not None
+                    else len(ledger.candidate_rows)
+                ),
                 selected_row_refs=ledger.selected_row_refs,
                 no_hit_reasons=ledger.no_hit_blockers,
                 query_budget={
@@ -1367,6 +1406,11 @@ def build_gl_legal_query_traces(
                     "python_full_scan_allowed": False,
                     "full_corpus_scan_allowed": False,
                     "full_corpus_materialization_allowed": False,
+                    "completeness_status": (
+                        ledger.owner_frontier.completeness_status
+                        if ledger.owner_frontier is not None
+                        else "not_established"
+                    ),
                 },
                 legal_kg_snapshot_ref=ledger.legal_kg_snapshot_ref,
                 search_ledger_refs=(ledger.ledger_id,),
@@ -3976,7 +4020,7 @@ def _threshold_ledger(
         WHERE metric IS NOT NULL AND operator IS NOT NULL AND unit IS NOT NULL
         LIMIT ?
     """
-    rows = con.execute(sql, [limit]).fetchall()
+    rows = con.execute(sql, [limit + 1]).fetchall()
     candidates = tuple(
         {
             "row_ref": f"lex_rule_thresholds:{row[0]}",
@@ -3995,12 +4039,13 @@ def _threshold_ledger(
         }
         for row in rows
     )
-    selected_refs = tuple(str(candidate["row_ref"]) for candidate in candidates)
+    selected_candidates, rejected_candidates = _gl_bounded_candidates(candidates, limit=limit)
+    selected_refs = tuple(str(candidate["row_ref"]) for candidate in selected_candidates)
     ledger_id = f"gl-ledger:threshold:{_slug(request.request_id)}"
     trace_ref = f"gl-query-trace:threshold:{_stable_id(request.request_id)}"
     return Layer3GLLegalSearchLedger(
         ledger_id=ledger_id,
-        status="complete_with_candidates" if candidates else "complete_no_candidate",
+        status=_gl_native_search_status(selected_candidates, rejected_candidates),
         request_ref=request.request_id,
         claim_id=request.claim_id,
         requirement_ref=request.legal_requirement_ref,
@@ -4018,12 +4063,21 @@ def _threshold_ledger(
         },
         sql_shapes=(_normalize_sql(sql),),
         selected_row_refs=selected_refs,
-        candidate_rows=candidates,
-        no_hit_blockers=() if candidates else ("threshold_seed_no_hit",),
+        candidate_rows=selected_candidates,
+        rejected_candidate_rows=rejected_candidates,
+        no_hit_blockers=() if selected_candidates else ("threshold_seed_no_hit",),
         bounded_result_limit=limit,
         used_full_table_scan=False,
         transition_input=False,
         index_schema_snapshot_ref=coverage.db_identity.get("snapshot_ref"),
+        owner_frontier=_gl_owner_frontier(
+            request=request,
+            coverage=coverage,
+            table_routes=("lex_rule_thresholds", "lex_normative_ready_facts"),
+            selected_candidates=selected_candidates,
+            rejected_candidates=rejected_candidates,
+            limit=limit,
+        ),
     )
 
 
@@ -4050,7 +4104,7 @@ def _normative_fact_ledger(
         WHERE jurisdiction = ? AND fact_id IS NOT NULL AND doc_id IS NOT NULL
         LIMIT ?
     """
-    rows = con.execute(sql, [request.jurisdiction, limit]).fetchall()
+    rows = con.execute(sql, [request.jurisdiction, limit + 1]).fetchall()
     candidates = tuple(
         {
             "row_ref": f"lex_normative_ready_facts:{row[0]}",
@@ -4111,7 +4165,7 @@ def _amendment_lineage_ledger(
         WHERE amendment_id IS NOT NULL AND amended_doc_id IS NOT NULL
         LIMIT ?
     """
-    rows = con.execute(sql, [limit]).fetchall()
+    rows = con.execute(sql, [limit + 1]).fetchall()
     candidates = tuple(
         {
             "row_ref": f"lex_amendments:{row[0]}",
@@ -4170,7 +4224,7 @@ def _provision_source_bundle_ledger(
         WHERE v.version_row_id IS NOT NULL AND v.doc_id IS NOT NULL
         LIMIT ?
     """
-    rows = con.execute(sql, [limit]).fetchall()
+    rows = con.execute(sql, [limit + 1]).fetchall()
     candidates = tuple(
         {
             "row_ref": f"lex_doc_versions:{row[0]}",
@@ -4235,7 +4289,7 @@ def _reference_resolution_ledger(
         WHERE e.reference_edge_id IS NOT NULL
         LIMIT ?
     """
-    rows = con.execute(sql, [limit]).fetchall()
+    rows = con.execute(sql, [limit + 1]).fetchall()
     candidates = tuple(
         {
             "row_ref": f"lex_reference_edges:{row[0]}",
@@ -4295,7 +4349,7 @@ def _intervention_map_candidate_ledger(
         WHERE jurisdiction = ? AND (action_canon IS NOT NULL OR predicate IS NOT NULL)
         LIMIT ?
     """
-    rows = con.execute(sql, [request.jurisdiction, limit]).fetchall()
+    rows = con.execute(sql, [request.jurisdiction, limit + 1]).fetchall()
     candidates = tuple(
         {
             "row_ref": f"lex_normative_ready_facts:{row[0]}",
@@ -4349,9 +4403,10 @@ def _candidate_ledger(
     limit: int,
     no_hit_blocker: str,
 ) -> Layer3GLLegalSearchLedger:
+    selected_candidates, rejected_candidates = _gl_bounded_candidates(candidates, limit=limit)
     return Layer3GLLegalSearchLedger(
         ledger_id=ledger_id,
-        status="complete_with_candidates" if candidates else "complete_no_candidate",
+        status=_gl_native_search_status(selected_candidates, rejected_candidates),
         request_ref=request.request_id,
         claim_id=request.claim_id,
         requirement_ref=request.legal_requirement_ref,
@@ -4363,13 +4418,176 @@ def _candidate_ledger(
         normalized_terms=normalized_terms,
         filters=filters,
         sql_shapes=(_normalize_sql(sql),),
-        selected_row_refs=tuple(str(candidate["row_ref"]) for candidate in candidates),
-        candidate_rows=candidates,
-        no_hit_blockers=() if candidates else (no_hit_blocker,),
+        selected_row_refs=tuple(
+            str(candidate["row_ref"]) for candidate in selected_candidates
+        ),
+        candidate_rows=selected_candidates,
+        rejected_candidate_rows=rejected_candidates,
+        no_hit_blockers=() if selected_candidates else (no_hit_blocker,),
         bounded_result_limit=limit,
         used_full_table_scan=False,
         transition_input=False,
         index_schema_snapshot_ref=coverage.db_identity.get("snapshot_ref"),
+        owner_frontier=_gl_owner_frontier(
+            request=request,
+            coverage=coverage,
+            table_routes=table_routes,
+            selected_candidates=selected_candidates,
+            rejected_candidates=rejected_candidates,
+            limit=limit,
+        ),
+    )
+
+
+def _gl_bounded_candidates(
+    candidates: Sequence[dict[str, Any]],
+    *,
+    limit: int,
+) -> tuple[tuple[dict[str, Any], ...], tuple[dict[str, Any], ...]]:
+    evaluated = tuple(candidates)
+    return evaluated[:limit], evaluated[limit:]
+
+
+def _gl_native_search_status(
+    selected_candidates: Sequence[Mapping[str, Any]],
+    rejected_candidates: Sequence[Mapping[str, Any]],
+) -> str:
+    if rejected_candidates:
+        return "incomplete_budget_cutoff"
+    if selected_candidates:
+        return "complete_with_candidates"
+    return "complete_no_candidate"
+
+
+def _gl_owner_frontier(
+    *,
+    request: Layer3GLLegalMandateRequest,
+    coverage: Layer3GLL3LegalKgCoverageReport,
+    table_routes: Sequence[str],
+    selected_candidates: Sequence[Mapping[str, Any]],
+    rejected_candidates: Sequence[Mapping[str, Any]],
+    limit: int,
+    no_hit: bool = False,
+    completeness_status: str | None = None,
+    incompleteness_reasons: tuple[str, ...] | None = None,
+) -> SearchFrontier:
+    """Build the GL-owned typed frontier before DS10 consumes it."""
+
+    selected = tuple(
+        _gl_owner_candidate(candidate, snapshot_ref=_gl_snapshot_ref(coverage), rejected=False)
+        for candidate in selected_candidates
+    )
+    rejected = tuple(
+        _gl_owner_candidate(
+            candidate,
+            snapshot_ref=_gl_snapshot_ref(coverage),
+            rejected=True,
+        )
+        for candidate in rejected_candidates
+    )
+    status = completeness_status
+    reasons = incompleteness_reasons
+    if status is None:
+        if rejected and not no_hit:
+            status = "budget_cutoff"
+            reasons = ("owner_budget_cutoff",)
+        elif selected:
+            status = "complete"
+            reasons = ()
+        else:
+            status = "complete_no_match"
+            reasons = ()
+    if reasons is None:
+        reasons = ()
+    snapshot_ref = _gl_snapshot_ref(coverage)
+    snapshot_digest = snapshot_ref
+    snapshot_hex = snapshot_digest.removeprefix("sha256:")
+    if (
+        not snapshot_digest.startswith("sha256:")
+        or len(snapshot_hex) != 64
+        or any(char not in "0123456789abcdefABCDEF" for char in snapshot_hex)
+    ):
+        snapshot_digest = "sha256:" + hashlib.sha256(
+            snapshot_digest.encode("utf-8")
+        ).hexdigest()
+    replay_payload = {
+        "request_ref": request.request_id,
+        "snapshot_ref": snapshot_ref,
+        "table_routes": tuple(table_routes),
+        "selected": [candidate.model_dump(mode="json") for candidate in selected],
+        "rejected": [candidate.model_dump(mode="json") for candidate in rejected],
+        "requested_count": limit,
+        "completeness_status": status,
+        "incompleteness_reasons": reasons,
+    }
+    replay_digest = "sha256:" + hashlib.sha256(
+        json.dumps(
+            replay_payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    return SearchFrontier(
+        request_ref=request.request_id,
+        query_plan={
+            "jurisdiction": request.jurisdiction,
+            "legal_as_of": request.legal_as_of,
+            "table_routes": tuple(table_routes),
+        },
+        corpus_ref=snapshot_ref,
+        corpus_path=CANONICAL_L3_LEGAL_KG_PATH.as_posix(),
+        corpus_snapshot_hash=snapshot_digest,
+        corpus_kind="canonical",
+        indexes_used=("lex_knowledge_graph",),
+        index_version_refs=(snapshot_ref,),
+        index_freshness={"lex_knowledge_graph": {"state": "current"}},
+        candidates=selected,
+        rejected_candidates=rejected,
+        no_hit_frontier=() if selected else ("legal_norm",),
+        incompleteness={"status": status, "reason_codes": reasons},
+        replay_key=f"gl-owner-frontier:{replay_digest.removeprefix('sha256:')}",
+        replay_command="layer3-gl-owner-search",
+        replay_expected_output_hash=replay_digest,
+        requested_count=limit,
+        evaluated_count=len(selected) + len(rejected),
+        returned_count=len(selected),
+        actual_cutoff=limit if status == "budget_cutoff" else None,
+        completeness_status=status,
+        incompleteness_reasons=reasons,
+    )
+
+
+def _gl_snapshot_ref(coverage: Layer3GLL3LegalKgCoverageReport) -> str:
+    snapshot_ref = str(coverage.db_identity.get("snapshot_ref") or "").strip()
+    if snapshot_ref:
+        return snapshot_ref
+    payload = json.dumps(
+        coverage.model_dump(mode="json"),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def _gl_owner_candidate(
+    candidate: Mapping[str, Any],
+    *,
+    snapshot_ref: str,
+    rejected: bool,
+) -> SearchCandidate:
+    rejection_reason = str(candidate.get("rejection_reason") or "owner_budget_cutoff")
+    source_table = str(candidate.get("source_table") or "lex_knowledge_graph")
+    return SearchCandidate(
+        candidate_ref=str(candidate.get("row_ref") or ""),
+        source_layer="GL",
+        match_mode="relational",
+        score=0.0 if rejected and rejection_reason == "bounded_no_hit_probe" else 1.0,
+        evidence_refs=(snapshot_ref, f"lex-table:{source_table}"),
+        limitation_refs=(rejection_reason,) if rejected else (),
+        authority_boundary={"authoritative_for": []},
+        may_not_use_for=GL_MAY_NOT_USE_FOR,
     )
 
 
@@ -4387,6 +4605,26 @@ def _bounded_no_hit_ledger(
         LIMIT 1
     """
     rows = con.execute(sql, ["__policyos_gl_known_no_hit_seed__"]).fetchall()
+    selected_candidates = tuple(
+        {
+            "row_ref": f"lex_normative_ready_facts:{row[0]}",
+            "candidate_path": "bounded_no_hit_probe",
+            "source_table": "lex_normative_ready_facts",
+        }
+        for row in rows
+    )
+    rejected_candidates = (
+        ()
+        if rows
+        else (
+            {
+                "row_ref": "lex_normative_ready_facts:__policyos_gl_known_no_hit_seed__",
+                "candidate_path": "bounded_no_hit_probe",
+                "source_table": "lex_normative_ready_facts",
+                "rejection_reason": "bounded_no_hit_probe",
+            },
+        )
+    )
     ledger_id = f"gl-ledger:no-hit:{_slug(request.request_id)}"
     trace_ref = f"gl-query-trace:no-hit:{_stable_id(request.request_id)}"
     return Layer3GLLegalSearchLedger(
@@ -4403,13 +4641,25 @@ def _bounded_no_hit_ledger(
         normalized_terms=("__policyos_gl_known_no_hit_seed__",),
         filters={"known_no_hit_seed": "__policyos_gl_known_no_hit_seed__"},
         sql_shapes=(_normalize_sql(sql),),
-        selected_row_refs=tuple(f"lex_normative_ready_facts:{row[0]}" for row in rows),
-        candidate_rows=(),
+        selected_row_refs=tuple(
+            str(candidate["row_ref"]) for candidate in selected_candidates
+        ),
+        candidate_rows=selected_candidates,
+        rejected_candidate_rows=rejected_candidates,
         no_hit_blockers=("bounded_no_hit_probe",) if not rows else (),
         bounded_result_limit=1,
         used_full_table_scan=False,
         transition_input=False,
         index_schema_snapshot_ref=coverage.db_identity.get("snapshot_ref"),
+        owner_frontier=_gl_owner_frontier(
+            request=request,
+            coverage=coverage,
+            table_routes=("lex_normative_ready_facts",),
+            selected_candidates=selected_candidates,
+            rejected_candidates=rejected_candidates,
+            limit=1,
+            no_hit=True,
+        ),
     )
 
 
@@ -4434,6 +4684,17 @@ def _coverage_blocked_ledger(
         no_hit_blockers=coverage.issue_codes,
         bounded_result_limit=0,
         issue_codes=coverage.issue_codes,
+        owner_frontier=_gl_owner_frontier(
+            request=request,
+            coverage=coverage,
+            table_routes=tuple(REQUIRED_KG_COLUMNS),
+            selected_candidates=(),
+            rejected_candidates=(),
+            limit=0,
+            completeness_status="producer_unavailable",
+            incompleteness_reasons=coverage.issue_codes
+            or ("gl_owner_index_unavailable",),
+        ),
     )
 
 
@@ -5085,7 +5346,9 @@ def _validate_consumer_gates(
 
 
 def _adapter_admission_bundle() -> Layer3GLAdapterAdmissionBundle:
-    from polisyos.runtime.quality.proving_ground.pre_adapter_grounding_inventory import AdapterAdmissionRecord
+    from polisyos.runtime.quality.proving_ground.pre_adapter_grounding_inventory import (
+        AdapterAdmissionRecord,
+    )
 
     record = AdapterAdmissionRecord(
         adapter_id="layer3-gl-legal-mandate-search-adapter",

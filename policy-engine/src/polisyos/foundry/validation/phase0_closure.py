@@ -12,7 +12,7 @@ import numpy as np
 type Path = Any
 
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.agent_sim.world import (
     SyntheticWorldDGP,
     phase0_seed_benchmark_binding,

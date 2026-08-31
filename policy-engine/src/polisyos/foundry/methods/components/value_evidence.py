@@ -16,14 +16,14 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common import serialization
-from polisyos.core.observability.truthfulness import (
+from polisyos.foundry.methods.backends.protocol import MethodResult
+from polisyos.foundry.methods.base import MethodSignature, SlotSpec
+from polisyos.foundry.methods.components.consensus import EstimandSpec
+from polisyos.ir.analytics import (
     TruthfulnessReceipt,
     TruthfulnessTier,
     extract_truthfulness_receipt,
 )
-from polisyos.foundry.methods.backends.protocol import MethodResult
-from polisyos.foundry.methods.base import MethodSignature, SlotSpec
-from polisyos.foundry.methods.components.consensus import EstimandSpec
 from polisyos.ir.analytics.uncertainty import (
     NativeValueEstimandBinding,
     OutputContractCapability,

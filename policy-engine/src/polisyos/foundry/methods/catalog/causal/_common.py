@@ -6,7 +6,7 @@ from typing import Any
 
 import numpy as np
 
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,

@@ -69,6 +69,7 @@ reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = [
   "polisyos.core",
   "polisyos.core.contracts",
+  "polisyos.core.observability",
   "polisyos.core.security",
   "polisyos.core.trace",
 ]

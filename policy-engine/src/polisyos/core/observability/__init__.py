@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .config import OTelConfig, get_default_config
+from .config import OTelConfig, get_default_config, is_hpc_observability_enabled
+from .determinism import DeterminismTier, get_determinism_tier, parse_determinism_tier
 
 if TYPE_CHECKING:
     from .decorators import traced, traced_method
@@ -672,6 +673,7 @@ else:
 
 
 __all__ = [
+    "DeterminismTier",
     "MetricsRegistry",
     "OTelConfig",
     "PolicyOSTracer",
@@ -683,10 +685,13 @@ __all__ = [
     "extract_headers",
     "get_current_trace_context",
     "get_default_config",
+    "get_determinism_tier",
     "get_metrics",
     "get_trace_context_dict",
     "get_tracer",
     "inject_headers",
+    "is_hpc_observability_enabled",
+    "parse_determinism_tier",
     "pricing_table",
     "propagate_context",
     "traced",

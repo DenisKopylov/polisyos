@@ -238,7 +238,7 @@ async def test_ray_runner_executes_remote_checkpoint_merge_task(
 def test_ray_runner_inject_trace_carrier_records_degraded_path_on_runtime_error(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.core.observability import propagation
+    import polisyos.core.observability as observability
 
     degraded: list[dict[str, object]] = []
 
@@ -251,7 +251,7 @@ def test_ray_runner_inject_trace_carrier_records_degraded_path_on_runtime_error(
     def _boom(_carrier: dict[str, str]) -> None:
         raise RuntimeError("trace carrier failure")
 
-    monkeypatch.setattr(propagation, "inject_headers", _boom)
+    monkeypatch.setattr(observability, "inject_headers", _boom)
 
     carrier = ray_runner_module._inject_trace_carrier()
 

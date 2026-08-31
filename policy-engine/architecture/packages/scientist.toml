@@ -146,7 +146,11 @@ classification = "public_stable"
 facade_mode = "lazy_facade"
 registry_owner = "team-polisyos"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.scientist", "polisyos.scientist.methods.research_dag"]
+supported_entrypoints = [
+  "polisyos.scientist",
+  "polisyos.scientist.methods.research_dag",
+  "polisyos.scientist.replay",
+]
 major_subsystem = true
 notes = "Workflow orchestration facade for experiment execution and shared observability hooks."
 

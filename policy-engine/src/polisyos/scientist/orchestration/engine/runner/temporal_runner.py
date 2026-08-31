@@ -224,7 +224,9 @@ if _HAS_TEMPORAL:
                         )
                         checkpoint_meta = merge_result.get("checkpoint_hook_meta")
                     else:
-                        from polisyos.scientist.orchestration.engine.runner.state_merge import merge_tier_states
+                        from polisyos.scientist.orchestration.engine.runner.state_merge import (
+                            merge_tier_states,
+                        )
 
                         state_bytes = merge_tier_states(
                             tier_state_bytes,
@@ -463,7 +465,7 @@ class TemporalWorkflowRunner:
 def _inject_trace_carrier() -> dict[str, str]:
     carrier: dict[str, str] = {}
     try:
-        from polisyos.core.observability.propagation import inject_headers
+        from polisyos.core.observability import inject_headers
 
         inject_headers(carrier)
     except _TRACE_IMPORT_ERRORS:

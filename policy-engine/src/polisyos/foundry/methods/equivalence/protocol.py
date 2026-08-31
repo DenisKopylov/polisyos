@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from polisyos.core.observability.determinism import (
+from polisyos.core.observability import (
     DeterminismTier,
     parse_determinism_tier,
 )

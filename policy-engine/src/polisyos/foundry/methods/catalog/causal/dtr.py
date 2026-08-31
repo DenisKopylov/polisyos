@@ -34,7 +34,7 @@ except ImportError:  # pragma: no cover - keeps catalog reflection importable.
     LogisticRegression = None  # type: ignore[assignment]
     SVC = None  # type: ignore[assignment]
 
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,

@@ -633,3 +633,323 @@ The terminal target is evidence, not arithmetic. `10 = 5 closed + 5 blocked` is 
   returns zero matches. The broader `scope[_ -]adjudication` search resolves only to the new
   candidate contract and its facade export. The production resolver and claim-lifecycle
   consumer are unowned; neither belongs to task B.
+
+## Round-2 source freeze and terminal measurements — appended 2026-08-31
+
+```text
+dashboard freeze commit      03c5783609271c27d6f3d212b76dda7eddef2074
+complete changed-path list   every path under apps/runtime-dashboard, package.json,
+                             pnpm-lock.yaml, pnpm-workspace.yaml
+new source_set_digest        sha256:dbf87693dde8107b4672a9cf52e5877ddb1b6b779b5424672002c2922c829bb5   (1,314 paths)
+```
+
+`git diff --quiet 03c5783609271c27d6f3d212b76dda7eddef2074 --
+apps/runtime-dashboard package.json pnpm-lock.yaml pnpm-workspace.yaml` exits 0 after the
+receipt reissue. The complete changed-path set against slice base `784d02014` is the
+following 26 dashboard paths; `package.json`, `pnpm-lock.yaml`, and
+`pnpm-workspace.yaml` at the Policy Engine root are unchanged:
+
+1. `apps/runtime-dashboard/e2e/helpers/runtime-dashboard.ts`
+2. `apps/runtime-dashboard/package.json`
+3. `apps/runtime-dashboard/playwright.config.ts`
+4. `apps/runtime-dashboard/scripts/check-public-claim-copy.mjs`
+5. `apps/runtime-dashboard/scripts/run-ds18-time-semantics-outcome.mjs`
+6. `apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py`
+7. `apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/bureaucratic-document-ast.ts`
+8. `apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts`
+9. `apps/runtime-dashboard/src/features/export/social/email-fixtures.ts`
+10. `apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts`
+11. `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx`
+12. `apps/runtime-dashboard/src/features/trust/components/AccessibilityEvidence.tsx`
+13. `apps/runtime-dashboard/src/features/trust/components/ClaimPostureRegister.tsx`
+14. `apps/runtime-dashboard/src/features/trust/components/PostureMethodology.tsx`
+15. `apps/runtime-dashboard/src/features/trust/copy/useTrustCopy.ts`
+16. `apps/runtime-dashboard/src/features/trust/routes/TrustPosturePage.tsx`
+17. `apps/runtime-dashboard/src/shared/i18n/LocaleProvider.tsx`
+18. `apps/runtime-dashboard/src/shared/lib/domain/epochSemantics.ts`
+19. `apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx`
+20. `apps/runtime-dashboard/src/test/a11y/color-blind-simulation.spec.ts`
+21. `apps/runtime-dashboard/src/test/a11y/keyboard-journeys.spec.ts`
+22. `apps/runtime-dashboard/src/test/a11y/screen-reader-snapshots.spec.ts`
+23. `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.test.ts`
+24. `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts`
+25. `apps/runtime-dashboard/src/test/evidence/ds18-execution-outcome.schema.json`
+26. `apps/runtime-dashboard/src/test/evidence/ds18ExecutionOutcome.ts`
+
+### Reissued current-page a11y evidence
+
+- Run 1 used the registered no-writer command with `--workers=1 --retries=0
+  --update-snapshots=none`; it exited 0 with 25/25 passed. It started at
+  `2026-08-31T14:32:39.355Z`; raw result digest
+  `sha256:a627fcb01269bf29bdea156dc5730ec7de433374cf054d101195472686cbc12d`.
+- Run 2 was a separate invocation of the identical command and exited 0 with 25/25
+  passed. It started at `2026-08-31T14:34:50.216Z`; raw result digest
+  `sha256:5962d03b64d8afdeafe361f2872b7d13f69dc9e9fe4c264951795258b98bbc13`.
+- The complete ordered identity rows compare byte-equal: 25 unique identities with
+  canonical identity digest
+  `sha256:eb9e55ac5146b65f7261176a47b355cec93a78cfc92c47cdae5636958e48b390`.
+  The different raw-result digests and sequential start times prove two runs rather
+  than a duplicated receipt.
+- The reissued receipt was recorded at `2026-08-31T14:38:12Z`, has payload digest
+  `sha256:fbc31d62b30afeb0897170b4443e744c389982338d50f2d23c6f8440452f1554`,
+  and binds the 1,314-path source digest and freeze commit above. Its Node 22.22.2,
+  pnpm 10.33.2, and Playwright 1.59.1 toolchain is explicit.
+- `PYTHONPATH=. uv run pytest -q
+  tests/repo_quality/docs/test_accessibility_evidence.py` exits 0 with 8/8 passed.
+  The verifier's substituted-authority, substituted-scope, toolchain-drift,
+  content-drift, and duplicate-run falsifiers remain green. Human behavior and an
+  external countersign are `not_established`; rendered presentation does not confer
+  source-language authority.
+
+### The `94 -> 126` reconciliation
+
+The canonical DS18 transaction at `36dff74a6` moved the composition from
+`45 direct + 49 inherited = 94` to `48 direct + 78 inherited = 126`: exactly
+`+3 direct + 29 inherited`. The complete 32-root entrant set is:
+
+- `ConditionalDeltaFigure.tsx`: direct
+  `ConfidenceLedgerTemporalOwner:jsx:46:5`; inherited
+  `EnvelopeField:jsx:92:5`, `ConditionalEnvelopeDetails:jsx:130:5`, and
+  `ConditionalDeltaFigure:jsx:151:5`.
+- `ConfidenceLedgerRiskSpend.tsx`: inherited
+  `SemanticValue:jsx:44:5`, `SemanticList:jsx:59:12`, `SemanticList:jsx:62:5`,
+  `DetailRow:jsx:81:5`, `SemanticSection:jsx:99:5`, `AmountSet:jsx:131:5`,
+  `ActualRow:jsx:165:5`, `ClassSpendRow:jsx:272:5`,
+  `InstrumentDefinition:jsx:312:5`, `CertificateRoute:jsx:381:5`,
+  `AvailableRiskSpend:jsx:411:5`, `NonAvailableRiskSpend:jsx:752:7`,
+  `NonAvailableRiskSpend:jsx:810:5`, `ConfidenceLedgerRiskSpend:jsx:829:7`,
+  `ConfidenceLedgerRiskSpend:jsx:843:7`, and
+  `ConfidenceLedgerRiskSpend:jsx:848:7`; direct
+  `ConfidenceLedgerRiskSpend:jsx:851:5`.
+- `CycleBoardPage.tsx`: inherited
+  `CycleBoardQueryPanel:jsx:20:7`, `CycleBoardQueryPanel:jsx:27:7`,
+  `CycleBoardQueryPanel:jsx:35:10`,
+  `ConfidenceLedgerRiskSpendQueryPanel:jsx:48:7`,
+  `ConfidenceLedgerRiskSpendQueryPanel:jsx:52:7`,
+  `ConfidenceLedgerRiskSpendQueryPanel:jsx:59:7`,
+  `AuthorizedCycleBoardPage:jsx:78:5`, `CycleBoardPage:jsx:106:7`,
+  `CycleBoardPage:jsx:117:7`, and `CycleBoardPage:jsx:126:10`; direct
+  `ConfidenceLedgerRiskSpendQueryPanel:jsx:62:5`.
+
+The repaired dashboard assertion does not pin `126` as a free scalar. It imports the
+canonical checker outcome, requires exact report equality, derives the ratio from the
+reported composition, and exercises a synthetic `7 obligated / 9 covered` transform so
+the assertion fails if it stops consuming the composition. The focused Vitest command
+`corepack pnpm --filter @polisyos/runtime-dashboard exec vitest run
+src/test/evidence/atlasHealthMetrics.test.ts --reporter=dot` exits 0 with 28/28
+passed. Task G must reissue the DS6/DS18 projection against the freeze above; the global
+frontend-disposition check correctly refuses its older bytes.
+
+### DS9 collection and the shared execution-outcome envelope
+
+- The DS9 repair is commit `7a0a4afcc`. `publicationPacket.ts` now consumes the pure
+  `shared/lib/domain/epochSemantics.ts` formatter; the React/i18n leaf imports that owner
+  only for presentation. `PLAYWRIGHT_INCLUDE_RUN_PAPER_FIXTURES=1 corepack pnpm exec
+  playwright test --config=playwright.visual.config.ts --project=chromium --grep
+  "DS9 human decision gate" --list` exits 0 and collects exactly four identities under
+  Node 22. The repository boundary node exits 0 with 1/1, four focused Vitest files exit
+  0 with 27/27, and dashboard typecheck exits 0.
+- The wider non-closure DS9 execution exposed four fixture findings and was not used as
+  collection evidence: three CaseWorkspace visual fixtures render access denied even
+  though their intercepted payload carries `runs.review`; the public-decision visual
+  fixture lacks the required typed epoch nonreceipt. They are named out of scope and were
+  not changed after freeze.
+- The typed JS/checker artifact is
+  `src/test/evidence/ds18ExecutionOutcome.ts` plus
+  `src/test/evidence/ds18-execution-outcome.schema.json`, executed by
+  `scripts/run-ds18-time-semantics-outcome.mjs`. It caps stdout and stderr independently
+  at 8 MiB, carries fixed error codes and raw-byte SHA-256 digests, and has falsifiers for
+  oversized output, zero-exit malformed output, invalid UTF-8/JSON/packet, nonzero exit,
+  and the U+001C versus U+FEFF byte divergence. This removes whitespace normalization
+  from the contract instead of adding a third normalization layer.
+- Task G did not adopt the envelope before freeze. Complete exact-symbol search in
+  `apps/runtime-dashboard/scripts/persist_atlas_evidence.py` is zero and the file remains
+  unchanged from the slice base; its Python admission path still uses `strip()`. Named
+  finding: `ds18-execution-outcome-python-consumer-missing`. Closure is adoption of the
+  typed envelope by that file with the same oversized, malformed-zero-exit, invalid-byte,
+  and U+001C/U+FEFF falsifiers; Task D did not race task G's owned file.
+
+### Claim-lifecycle blocker objects and ownership
+
+The two claim-lifecycle-shaped blocks are two objects, not one wording for one absence:
+
+1. `DS11-CLAIM-LIFECYCLE-ORCHESTRATION` reaches a real monitor producer, persisted
+   monitor event, lifecycle bridge, Claim Ledger owner port, and persisted bridge result.
+   Its failing witness is `policy_context_drift` from a legal perturbation. What is absent
+   is an independently verified, content-bound Claim Ledger supersession owner-event plus
+   an appointed producer/resolver and the real repository CAS append implementation.
+2. `DS11-SCOPE-ADJUDICATION-RECORD` lacks a production predicate resolver and a consumer
+   that turns a four-way, one-plane scope ruling into an admitted claim-lifecycle input.
+   The candidate artifact intentionally has no authority or closure effect.
+
+They meet only at the downstream Claim Ledger append boundary. Their upstream authorities,
+artifacts, falsifiers, and consumers differ. The currently unowned scope consumer would have
+to land as an architecture-appointed `ScopeAdjudicationClaimLifecycleConsumer`, naturally at
+`src/polisyos/scientist/governance/continuous/scope_adjudication.py`, wired from
+`src/polisyos/runtime/http/services/control/run_lifecycle.py` and
+`src/polisyos/runtime/http/container.py`, together with an appointed
+`ScopePredicateEvidenceResolver`. Architect routing question: which future slice owns those
+objects and files? No active lane owns them now.
+
+### Closeout gate accounting
+
+- Bound debt checker:
+  `PYTHONPATH=. uv run python tools/quality/validation/check_debt_ledger.py --check`
+  exits 1 with 16 blocking `closure_signal_identity_unresolvable` findings. The base had
+  18. Three Task-D-owned identities became resolvable (watcher, lifecycle, general copy),
+  while one unrelated post-base identity
+  `runtime-authorization-denominator-reconciliation` entered; the blocker set attributable
+  to Task D did not grow. The remaining set is five DS11, nine DS10,
+  `decision-validity-fixed-temp-concurrency`, and the unrelated new identity.
+- `PYTHONPATH=. uv run python tools/quality/validation/check_docs_lifecycle.py` exits 1
+  with exactly the inherited six findings.
+- `uv run polisyos-tools architecture guardrails check` exits 1 only on the previously
+  recorded trust-claim-posture generator disagreement, `ratified identity basis differs
+  from admitted closed receipt`. Public-surface drift and Task D's deep-import findings
+  were regenerated/fixed; no `[ARCH001] scientist -> runtime` finding remains. Because
+  Task D's complete architecture denominator intersects the earlier cluster, P41
+  inheritance is `not_established`; this is reported, not relabelled green.
+- The C13 conjunction and global frontend-disposition checks exit 1 on stale receipts;
+  exact blockers and ownership appear in the dossier below.
+
+Out-of-scope findings were named and not acted on: the four DS9 execution fixtures above;
+the Python DS18 envelope consumer; the trust-claim-posture generator disagreement; task G's
+DS6/DS18 projection reissue; and task C's C13 receipt reissue.
+
+## Register closure dossier
+
+Measured terminal arithmetic: `10 register rows = 3 closed + 7 blocked`. No row is
+`open` or `ambiguous`. Each quoted paragraph is exact append-only prose for architect
+transcription; Task D did not edit the register.
+
+### `DS11-PUBLISHED-SIGNATURE-WATCHER`
+
+- Verdict: `closed` — watcher mechanism, not governed population.
+- Exact commands/predicate:
+  - `uv run pytest -q
+    tests/integration/runtime_quality/test_published_signature_custody.py::test_every_public_signature_is_watched_for_staleness`; exit 0, 1/1.
+  - `uv run pytest -q
+    tests/unit/runtime/http/test_control_worker_maintenance.py::test_control_worker_runs_maintenance_without_a_request_at_a_bounded_interval`; exit 0, 1/1.
+- Exact append prose:
+
+> **TASK D ROUND-2 CLOSURE RECEIPT 2026-08-31 — `closed`, bounded to the watcher mechanism.** The exact closure node exits 0. An autonomous bounded control-worker interval invokes the production custody service. For a non-empty persisted population whose provenance is explicitly `synthetic_test` but whose repository bindings are production-shaped, the service persists its scan, emits stale custody monitor events, traverses the real lifecycle bridge, and records durable outbox/event references. For an empty or unappointed population it persists `not_established`, emits no `all_clear`, and the test fails if absence ever becomes a pass. This synthetic mechanism proof does not establish `DS11-PUBLIC-SIGNATURE-POPULATION`; no fixture is promoted into authority.
+
+### `DS11-CLAIM-LIFECYCLE-ORCHESTRATION`
+
+- Verdict: `blocked` — `blocked_by` a Claim Ledger supersession owner-event authority
+  capability.
+- Exact command: `uv run pytest -q
+  tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py::test_monitor_event_persists_claim_supersession_without_in_place_edit`;
+  exit 1: immutable predecessor assertions pass, but production persists
+  `review_required`, not `superseded`.
+- Exact append prose:
+
+> **TASK D ROUND-2 TERMINAL RULING 2026-08-31 — `blocked`.** The exact node reaches the authenticated route, persisted monitor event, same-store `EpochClaimLifecycleBridgeService`, persisted bridge result, and immutable predecessor bytes, then exits 1 because production honestly persists `review_required`, not an authority-backed supersession. `blocked_by`: a content-bound, independently verified Claim Ledger supersession owner-event artifact; an appointed producer/resolver binding expected head, predecessor, successor, evidence and provenance; and a real CAS implementation of `_RepositoryClaimLedgerOwner.append_verified_owner_event` consumed by the lifecycle bridge. The 2,616-file Python census found the Claim owner and bridge but no such owner-event artifact or producer; existing owner-port implementations are typed nonreceipt stubs. Task B's `GY-GAP8` overlap is closed and merged, including removal of the 117/118 scalar pin and mapping the added construction to `f715bfdc4`; Task D leaves nothing for B. This blocker is distinct from the scope-adjudication consumer because this witness is legal `policy_context_drift`, not a four-way scope ruling.
+
+### `DS11-PUBLIC-SIGNATURE-POPULATION`
+
+- Verdict: `blocked` — promotion-dependent.
+- Exact command: `uv run pytest -q
+  tests/unit/runtime/http/test_public_export.py::test_first_governed_public_signature_is_custody_bound`;
+  exit 4, exact identity unwritten.
+- Exact append prose:
+
+> **TASK D ROUND-2 DEPENDENCY RULING 2026-08-31 — `blocked`.** The exact identity is unwritten and pytest exits 4. `blocked_by: gy-n9-effect-obligation-producer-and-evaluator-missing`, whose landable chain is the RACE section 12.2 `O_effect` producer/evaluator -> GY-PR1 -> first governed promotion -> DS12's independent promotion decision. The earlier `gy-n9-effect-class-has-no-referent` question is answered and closed. Neither the watcher's synthetic population nor an empty population is substituted for a custody-bound first public signature.
+
+### `DS11-SCOPE-ADJUDICATION-RECORD`
+
+- Verdict: `blocked` — `blocked_by` the unowned production resolver and consumer
+  appointment.
+- Exact commands/predicate:
+  - `uv run pytest -q tests/unit/core/contracts/test_scope_adjudication.py`;
+    exit 0, 8/8 candidate-artifact tests.
+  - `uv run pytest -q
+    tests/unit/core/contracts/test_scope_adjudication.py::test_four_way_ruling_is_produced_consumed_and_plane_specific`;
+    exit 4, production identity absent.
+  - Denominator: `rg --files src/polisyos -g '*.py' | wc -l`; 2,616 files.
+    Exact search: `rg -n
+    '(ScopePredicateEvidenceResolver|ScopeAdjudicationClaimLifecycleConsumer|produce_scope_adjudication|consume_scope_adjudication)'
+    src/polisyos --glob '*.py'`; exit 1 with zero matches.
+- Exact append prose:
+
+> **TASK D ROUND-2 TERMINAL RULING 2026-08-31 — `blocked`.** The new content-bound, one-plane artifact passes 8/8 and binds absence as a typed limitation; it remains `candidate_only` with `authority_effect=none` and `closure_effect=none`, so absence binds the claim rather than inventing capability. The production closure identity exits 4. A complete 2,616-file `src/polisyos/**/*.py` census returns zero for `ScopePredicateEvidenceResolver`, `ScopeAdjudicationClaimLifecycleConsumer`, `produce_scope_adjudication`, and `consume_scope_adjudication`. `blocked_by`: an architecture appointment and implementation for a production `ScopePredicateEvidenceResolver`, plus the currently unowned `ScopeAdjudicationClaimLifecycleConsumer` wired at `scientist/governance/continuous/scope_adjudication.py`, `runtime/http/services/control/run_lifecycle.py`, and `runtime/http/container.py`, with persistence, replay, audit surface, and negative semantic proof. Architect routing question: which successor slice owns this resolver/consumer appointment? Task B does not.
+
+### `DS11-EXTERNAL-A11Y-COUNTERSIGN`
+
+- Verdict: `blocked` — `blocked_by` an admissible independent external artifact.
+- Exact command: `uv run pytest -q
+  tests/repo_quality/docs/test_accessibility_evidence.py::test_external_countersign_is_content_bound_current_and_scope_exact`;
+  exit 4, exact identity unwritten.
+- Exact append prose:
+
+> **TASK D ROUND-2 DEPENDENCY RULING 2026-08-31 — `blocked`.** The exact identity is unwritten and pytest exits 4. `blocked_by`: an independently issued accessibility assessment artifact that binds dashboard commit `03c5783609271c27d6f3d212b76dda7eddef2074`, source digest `sha256:dbf87693dde8107b4672a9cf52e5877ddb1b6b779b5424672002c2922c829bb5`, the exact 25-test scope and raw run receipts, a current assessment date, an external issuer appointment/signature, and an admitting verifier. The internal receipt explicitly records `external_countersign_status=not_established`; Task D cannot manufacture the external signature or weaken it into self-attestation.
+
+### `DS11-CURRENT-PAGE-A11Y`
+
+- Verdict: `closed` — bounded to `current_scoped_page_conformance` at the new freeze.
+- Exact commands/predicate:
+  - `PLAYWRIGHT_JSON_OUTPUT_FILE=_build/ds11-page-a11y-round2/run-1/results.json corepack pnpm --filter @polisyos/runtime-dashboard run test:a11y:pages --reporter=json --workers=1 --retries=0 --update-snapshots=none`; exit 0, 25/25.
+  - The same command with `run-2/results.json`; exit 0, 25/25.
+  - Complete ordered identity rows compare byte-equal; 25 identities, digest
+    `sha256:eb9e55ac5146b65f7261176a47b355cec93a78cfc92c47cdae5636958e48b390`.
+  - `PYTHONPATH=. uv run pytest -q
+    tests/repo_quality/docs/test_accessibility_evidence.py`; exit 0, 8/8.
+- Exact append prose:
+
+> **TASK D ROUND-2 CLOSURE RECEIPT 2026-08-31 — `closed`, bounded to `current_scoped_page_conformance`.** At dashboard freeze `03c5783609271c27d6f3d212b76dda7eddef2074`, two separate zero-retry no-writer Chromium invocations each exit 0 with 25/25 passed. Their complete ordered identity sets are byte-equal with digest `sha256:eb9e55ac5146b65f7261176a47b355cec93a78cfc92c47cdae5636958e48b390`, while their start times and raw result digests differ. The reissued receipt content-binds both raw reports, exact spec scope, Node/pnpm/Playwright toolchain, and all 1,314 tracked dashboard/workspace paths at source digest `sha256:dbf87693dde8107b4672a9cf52e5877ddb1b6b779b5424672002c2922c829bb5`; its recomputing verifier and falsifiers pass 8/8. Human behavior and external countersign remain `not_established`, and presentation confers no source-language authority under W5-K02/W5-K06.
+
+### `DS11-GENERAL-COPY-SEMANTICS`
+
+- Verdict: `closed` — bounded to claim-posture ownership of current `/trust` render
+  copy.
+- Exact commands/predicate:
+  - `uv run pytest -q
+    tests/repo_quality/frontend/test_public_claim_copy_inventory.py::test_every_public_capability_assertion_resolves_to_claim_posture`;
+    exit 0, 1/1.
+  - `uv run pytest -q
+    tests/repo_quality/frontend/test_public_claim_copy_inventory.py::test_public_claim_copy_checker_rejects_claim_text_outside_posture`;
+    exit 0, 1/1; its unchanged checker exits 1 with `raw_claim_copy` after the
+    scratch injection.
+- Exact append prose:
+
+> **TASK D ROUND-2 CLOSURE RECEIPT 2026-08-31 — `closed`, bounded to owned current `/trust` copy semantics.** The checker derives the real runtime closure from `routes.public.tsx` by walking imports: 17 local paths (6 TSX, 9 TS, 2 JSON) plus four external runtime modules. An independent complete AST walk covers all 329 tracked production TSX files and finds exactly one literal `/trust` ingress, `LandingPage.tsx` using `landing.trustPosture`. Across active English and Ukrainian catalogs it enumerates 36 locale leaves, 110 visible expressions, and all 44 strict posture-artifact fields. It rejects raw authoritative JSX, foreign/dynamic translation keys, and claim-bearing copy outside the posture artifact; the adversarial scratch injection `PolicyOS guarantees approval.` makes the unchanged checker exit 1 with `raw_claim_copy`. The exact registered node and falsifier each exit 0. Translation truth and source-language authority remain `not_established`; the closure establishes copy ownership/posture, not linguistic authority.
+
+### `DS11-GROUNDED-PERFORMANCE`
+
+- Verdict: `blocked` — intentionally outside DS11 and promotion-dependent.
+- Exact command: `uv run pytest -q
+  tests/integration/runtime_quality/test_first_governed_promotion.py::test_promoted_design_supplies_content_bound_public_performance_evidence`;
+  exit 4, exact identity unwritten.
+- Exact append prose:
+
+> **TASK D ROUND-2 DEPENDENCY RULING 2026-08-31 — `blocked`, intentionally outside DS11.** The exact identity is unwritten and pytest exits 4. `blocked_by: gy-n9-effect-obligation-producer-and-evaluator-missing`, the landable RACE section 12.2 `O_effect` producer/evaluator required before GY-PR1, first governed promotion, and DS12's independent promotion decision. The former referent investigation is answered; the producer/evaluator capability is not. DS11 neither closes this row nor weakens it into a performance claim the runtime cannot back.
+
+### `DS11-INHERITED-C13-PRINT-RECEIPT`
+
+- Verdict: `blocked` — `blocked_by` task C's independent receipt reissue at Task D's
+  freeze.
+- Exact commands:
+  - `uv run pytest -q
+    architecture/atlas_surfaces/test_frontend_disposition_register.py::DS6C13PrintTransitionTests::test_independent_receipt_binds_the_full_conjunction_and_current_bytes`;
+    exit 1 on stale `AmbientTelemetryHud.tsx` binding.
+  - `PYTHONPATH=. uv run python
+    architecture/atlas_surfaces/check_frontend_disposition_register.py --check`;
+    exit 1 with `c13_print_receipt_invalid` and separately owned DS18 projection
+    drift.
+- Exact append prose:
+
+> **TASK D ROUND-2 OVERLAP RULING 2026-08-31 — `blocked`.** Task D's dashboard half is repaired and frozen at `03c5783609271c27d6f3d212b76dda7eddef2074`, but the C13 conjunction exits 1 on stale current-byte evidence and the global frontend-disposition check remains red. `blocked_by`: task C's DS6-C13 independent print receipt reissue at dashboard commit `03c5783609271c27d6f3d212b76dda7eddef2074`, after intersecting all eleven C13 source bindings with Task D's complete changed-path set, followed by green exact conjunction and global `--check`. Task D does not close task C's receipt half from the freeze alone and leaves task C exactly that reissue.
+
+### `DS11-FULL-TRUST-CENTER-AND-DOCS-IA`
+
+- Verdict: `blocked` — `surface_out_of_scope`, with landable successor slices.
+- Exact commands/predicate:
+  - `uv run pytest -q
+    tests/repo_quality/frontend/test_public_surface_claim_ownership.py::test_every_retained_trust_docs_route_has_an_approved_owner_and_evidence_contract`;
+    exit 4, exact identity unwritten.
+  - Exact plan census confirms scoped entries Phase 2.11 `Trust Center` and Phase
+    2.15 `Public Docs IA And Article View`, each with dependencies, scope,
+    acceptance, verification, and an ownership fence; exit 0.
+- Exact append prose:
+
+> **TASK D ROUND-2 DEPENDENCY RULING 2026-08-31 — `blocked` (`surface_out_of_scope`).** The exact identity is unwritten and pytest exits 4. `blocked_by`: the scoped and ownership-fenced Wave 2 Phase 2.11 Trust Center slice (`trust/legal/procurement`) and Phase 2.15 Public Docs IA And Article View slice (`docs/support`), including approved claim owners and evidence contracts. These landable entries live in `POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md`, a fourth planning document outside the three otherwise routing this programme. Architect routing question: which programme owner schedules and admits those two fourth-plan slices? Historical v7 material is not substituted for a deployed, evidence-bearing successor surface.

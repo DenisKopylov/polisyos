@@ -15,7 +15,7 @@ from typing import Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts as core_artifacts
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core import canon as core_canon
 from polisyos.scientist.governance.continuous.monitors import (
     GovernanceMonitorEvent,
     monitor_event_id,
@@ -27,7 +27,7 @@ PUBLIC_SIGNATURE_POPULATION_SCHEMA_NAME = "polisyos.scientist.PublicSignaturePop
 PUBLIC_SIGNATURE_CUSTODY_SCAN_KIND = "scientist.published_signature_custody_scan"
 PUBLIC_SIGNATURE_CUSTODY_SCAN_SCHEMA_NAME = "polisyos.scientist.PublishedSignatureCustodyScan"
 _SCHEMA_VERSION = "1.0"
-_CANON = CanonSpec(forbid_floats=False)
+_CANON = core_canon.CanonSpec(forbid_floats=False)
 
 
 class PublicSignaturePopulationMember(BaseModel):
@@ -260,7 +260,9 @@ def resolve_public_signature_population(
     raw = store.get_bytes(ref.artifact_id)
     report = store.verify(ref.artifact_id)
     manifest = store.get_manifest(ref.artifact_id)
-    snapshot = PublicSignaturePopulationSnapshot.model_validate(from_canonical_bytes(raw))
+    snapshot = PublicSignaturePopulationSnapshot.model_validate(
+        core_canon.from_canonical_bytes(raw)
+    )
     if (
         not report.ok
         or "sha256:" + hashlib.sha256(raw).hexdigest() != str(ref.artifact_id)
@@ -276,7 +278,7 @@ def resolve_public_signature_population(
         )
         or manifest.canon != core_artifacts.CanonInfo.from_spec(_CANON)
         or manifest.inputs != _population_inputs(snapshot)
-        or to_canonical_bytes(snapshot, _CANON) != raw
+        or core_canon.to_canonical_bytes(snapshot, _CANON) != raw
     ):
         raise ValueError("public_signature_population_artifact_binding_mismatch")
     for member in snapshot.members:
@@ -336,7 +338,9 @@ def persist_published_signature_custody_scan(
     raw = store.get_bytes(ref.artifact_id)
     report = store.verify(ref.artifact_id)
     manifest = store.get_manifest(ref.artifact_id)
-    persisted = PublishedSignatureCustodyScan.model_validate(from_canonical_bytes(raw))
+    persisted = PublishedSignatureCustodyScan.model_validate(
+        core_canon.from_canonical_bytes(raw)
+    )
     if (
         not report.ok
         or persisted != scan
@@ -350,7 +354,7 @@ def persist_published_signature_custody_scan(
         )
         or manifest.canon != core_artifacts.CanonInfo.from_spec(_CANON)
         or manifest.inputs != _scan_inputs(scan)
-        or to_canonical_bytes(persisted, _CANON) != raw
+        or core_canon.to_canonical_bytes(persisted, _CANON) != raw
     ):
         raise ValueError("published_signature_custody_scan_readback_mismatch")
     return PersistedPublishedSignatureCustodyScan(

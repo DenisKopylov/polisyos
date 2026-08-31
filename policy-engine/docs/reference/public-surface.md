@@ -196,7 +196,7 @@ timestamps
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 133 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 466 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 477 |
 | `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `eager_exports` | 25 |
 | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 102 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 5 |
@@ -353,7 +353,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (466)</summary>
+<details><summary>Entrypoint exports (477)</summary>
 
 ```text
 *_CHRONOLOGY_EXPORTS
@@ -366,6 +366,9 @@ PRODUCER_SPINE_CONSUMER_COMPONENTS
 PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION
 RECOURSE_POINTER_SCHEMA_VERSION
 REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION
+SCOPE_ADJUDICATION_AUTHORITY_PURPOSE
+SCOPE_ADJUDICATION_CANDIDATE_SCHEMA_VERSION
+SCOPE_ADJUDICATION_PROHIBITED_USES
 SERIOUS_SKIP_BLOCKER_PROFILES
 SKIP_BLOCKER_REQUIRED_FIELDS
 SKIP_BLOCKER_SURFACES
@@ -726,6 +729,11 @@ RuntimeApiError
 RuntimeApiProblem
 ScenarioFamilyConstructRow
 ScenarioFamilyConstructRows
+ScopeAdjudicationCandidate
+ScopeAdjudicationPlane
+ScopeAdjudicationPredicate
+ScopeAdjudicationRuling
+ScopePredicateObservation
 SearchCompletenessStatus
 SearchFrontier
 SensitivityAnalysisBundleRef
@@ -806,6 +814,7 @@ WarningsRef
 WorkflowRunRequest
 bounded_liveness_config_from_mapping
 build_producer_spine_binding_fields
+build_scope_adjudication_candidate
 build_skip_blocker_record
 c4_canonical_bytes
 c4_canonical_mapping
@@ -821,7 +830,9 @@ epoch_staleness_semantic_hash
 evaluate_skip_blocker_policy
 legacy_family_for_construct
 require_production_approval_currentness_receipt
+scope_adjudication_candidate_digest
 serialize_skip_blocker_record
+verify_scope_adjudication_candidate
 ```
 
 </details>
@@ -2367,7 +2378,7 @@ select_method_candidates_for_requirements
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 26 |
-| `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 58 |
+| `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 72 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
 | `polisyos.scientist.replay` | `src/polisyos/scientist/replay/__init__.py` | `lazy_facade` | 25 |
 
@@ -2416,7 +2427,7 @@ tool_contract_default_blockers
 - Facade: `lazy_facade`
 - Summary: Continuous governance and reissue loop for Scientist decision artifacts.
 
-<details><summary>Entrypoint exports (58)</summary>
+<details><summary>Entrypoint exports (72)</summary>
 
 ```text
 CONTINUOUS_GOVERNANCE_FLAG
@@ -2443,6 +2454,15 @@ LifecycleBridgeResult
 PartialPublicationState
 PolicyContextSignal
 PersistedGovernanceMonitorEvent
+PersistedPublicSignaturePopulation
+PersistedPublishedSignatureCustodyScan
+PublicSignaturePopulationMember
+PublicSignaturePopulationNonReceipt
+PublicSignaturePopulationProvider
+PublicSignaturePopulationSnapshot
+PublishedSignatureCustodyResult
+PublishedSignatureCustodyScan
+PublishedSignatureCustodyWatcher
 PublicRevisionDiff
 ReissuePacket
 RetractionPerturbation
@@ -2477,6 +2497,11 @@ persist_withdrawal_record
 recommend_validity_action
 reissue_scope_from_monitor_events
 resolve_governance_monitor_event
+resolve_public_signature_population
+StaticPublicSignaturePopulationProvider
+UnappointedPublicSignaturePopulationProvider
+persist_public_signature_population
+persist_published_signature_custody_scan
 ```
 
 </details>

@@ -335,3 +335,129 @@ missing bridge rather than calling this semantic absence.
 3. Independence and measurement resolve-and-bind implementation.
 4. Additive N5-to-N9 coupling transport.
 5. Targeted verification, independent review, and append-only dossier.
+
+## 8. Round 3 execution addendum (2026-08-31)
+
+Round 3 has two hard-separated phases. Phase 1 is specification archaeology
+and may change only this plan, its design specification, and the execution
+journal. No source edit may precede the committed Phase-1 ruling. Phase 2 then
+orchestrates the two already-built evidence writers; it does not reopen the
+EFFECT evaluator decision.
+
+The prompt names a Wave-2 Group-A row `GY-N9-EFFECT-REFERENT`. That identifier
+is not present in the phase-entry revision's governed sources: `git grep` over
+all 10,371 tracked files under `policy-engine/` exits 1, including the 1,133
+tracked Markdown files under `docs/`. The architect-owned
+row `gy-n9-effect-class-has-no-referent` is present and contains the same
+question, evidence exclusions, and three terminal outcomes. Phase 1 uses that
+visible contract and records the missing backlog alias as an ownership question
+for the architect; this lane does not create or edit the protected backlog.
+
+### 8.1 Phase 1 ruling: EFFECT is a distinct obligation
+
+The ruling is outcome 3: retain `PromotionObligationClass.EFFECT` and give it
+the RACE `O_effect` referent plus a real evaluator in a later governed slice.
+It is neither an early name for IDENTIFICATION nor a misnamed ADMISSIBILITY
+slot.
+
+The decisive evidence is specification history, not current code shape:
+
+1. Commit `584bd7b72` (2026-06-28) is the first repository occurrence of both
+   GY-N9's “entailment / grounding (GY-K)” clause and the adopted obligations
+   compiler. The parent contains neither. In that one commit, GY-N9 names
+   `effect` and `identification` as separate members of the typed `O(x)`
+   taxonomy.
+2. The RACE spec introduced in the same commit defines `O_effect(x)` and
+   `O_id(x)` as separate sets. Its effect obligations are exactly: bind the
+   declared epsilon to an estimand; establish a causal path or mechanism; and
+   establish that the effect claim is entailed, bounded, or explicitly
+   ungrounded. Identification instead requires a point/partial/proxy/blocked
+   result, explicit assumptions, a stored proof, and risk spend.
+3. The missing `z_effect` coordinate does not negate `O_effect`. Section 6.2
+   defines `z_ground` as the aggregate status of all active grounding
+   obligations, while §12.4 defines grounding as the intersection of those
+   obligations. Section 12.5 separately requires grounding obligations and
+   identification certificates. Treating the status vector as the obligation
+   denominator was a P38 proxy error.
+4. CGF was adopted later, in commit `115536dba` (2026-07-05), as the typed atom
+   grounding/linker layer. Its decision record makes GY-K a per-axis witness,
+   never the decider; CG0-CG6 establish relation, joint typing, bind/admit,
+   anti-proxy, acquisition, and benchmark behavior. Crediting current
+   IDENTIFICATION with that CGF/CG2 grounding still leaves RACE `O_effect`
+   unclaimed.
+5. The initial N9 implementation corroborates but does not decide the ruling:
+   it emitted separate EFFECT and IDENTIFICATION records. Its GY-K-ref-presence
+   pass was later removed as non-authoritative, leaving an honest refusal; that
+   implementation repair did not supersede the already-adopted taxonomy.
+
+The future EFFECT evaluator must resolve, content-bind, and independently
+recompute a candidate/problem/epoch-bound producer artifact. Its positive
+predicate is the conjunction supplied by the spec: declared effect threshold
+or claim bound to the estimand; current causal path/mechanism grounding; and an
+entailed or bounded effect disposition. Explicitly ungrounded is a decisive
+negative, and missing/malformed/foreign/self-attested evidence remains
+`evidence_not_established`. A GY-K witness alone cannot satisfy it.
+
+### 8.2 Governed version consequence
+
+The later EFFECT evaluator is a new semantic rule beyond the expressly
+EFFECT-excluding v2 design. It therefore requires:
+
+- `n9_obligation_scope.v2 -> .v3`;
+- `n9_promotion.v5 -> .v6`, with authentic v5/v3/v2 bytes retained as
+  structural history and rejected for current authority;
+- `n9_evidence_bridge.v1 -> .v2` if the shared strict bridge union is extended
+  with the effect evidence kind, with v1 retained for readback;
+- no owner-projection shape bump if the effect ref travels through the existing
+  `producer_root_refs`; `n9_owner_projection.v3` remains the exact shape. A new
+  top-level field would instead require v4 and is not the selected design.
+
+Round-3 Phase 2 does not implement that evaluator and does not advance any of
+these versions. Writer orchestration for the two existing v1 bridge kinds
+remains inside the current v5/v3/v2 authority epoch.
+
+### 8.3 Existing-row termination on the ruling
+
+- `gy-promotion-obligations-scope-insufficient` is `blocked`, not closed. The
+  MEASUREMENT mechanism is built, but its registered signal is the exact
+  production `consumer_promotable=True` GY-O0 receipt. That cannot execute
+  until the governed EFFECT evaluator lands; the field-pilot signal also
+  retains the separately named promotion-authority EvalSafety producer gap.
+- `GY-O0-NC-01` is `blocked` on the same EFFECT evaluator/rule epoch and on its
+  already-measured field-pilot promotion-authority EvalSafety producer. The
+  structural O0 safety closure stays untouched.
+- `gy-n9-unmet-check-absence-kind-conflated` is `blocked` until EFFECT resolves
+  through a dotted producer or an honest not-established resolution under the
+  v3 rule. The ruling removes ambiguity about the class but does not create the
+  missing evaluator.
+
+### 8.4 Phase 2 writer sequence
+
+1. Add one red integration witness for
+   `persist_effective_independence`: a real production generation path must
+   persist and carry the bridge ref, and N9 must reach a decisive producer
+   outcome rather than `evidence_not_established`.
+2. Add one red integration witness for `persist_measurement_root`: the running
+   `MeasurementRootProducer` envelope must be bound and carried by a production
+   path, and N9 must reach a decisive measurement outcome.
+3. Wire independence as `bridge_missing + implemented_but_not_orchestrated`;
+   retain the named `policy_design_case.graded_independence_weights` report
+   flag as a non-N9 caller, not as promotion orchestration.
+4. Wire measurement as `bridge_missing` only; reuse the already-running
+   workspace producer rather than invoking a second producer.
+5. Keep `generation_cycle.py` additive: carry existing refs/dependencies and
+   add writer calls without reordering or replacing existing control flow or
+   return shapes.
+6. Close each writer row only after a source grep finds a non-test caller and
+   its integration witness proves a resolved decisive obligation outcome.
+
+### 8.5 Round 3 commit boundaries
+
+1. Phase-1 plan/spec/journal ruling, EFFECT hash, and source-immutability
+   receipt.
+2. Independence writer red fixture, production orchestration, focused green,
+   and caller census.
+3. Measurement writer red fixture, production orchestration, focused green,
+   and caller census.
+4. Targeted blast-radius checks, protected baselines, five-row dossier, and
+   freeze receipts.

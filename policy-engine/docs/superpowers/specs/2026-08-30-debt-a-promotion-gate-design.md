@@ -295,3 +295,80 @@ round-trip succeeds, current owner replay refuses the stale result, and a
 fresh resolved-owner receipt rekeys the owner-derived hashes. This is history
 readability, not migration or current authority. EFFECT and the EvalSafety
 safety core are outside this mechanism and remain byte-identical.
+
+## 9. Round 3 EFFECT referent ruling
+
+Round 3 separates specification authority from implementation evidence. The
+current enum, input DTO, obligation function, and import graph may corroborate
+a reading, but none decides what GY-N9 was adopted to require. The governing
+source is the first revision that introduced GY-N9 and the adopted RACE
+obligation taxonomy together, read against its parent and the later CGF
+decision.
+
+### 9.1 Historical identity of the obligation
+
+Commit `584bd7b72` introduced both GY-N9's “entailment / grounding (GY-K)”
+clause and a typed `O(x)` compiler whose members include separate
+`O_effect(x)` and `O_id(x)` sets. `O_effect` binds the declared effect claim or
+epsilon to an estimand, requires a causal path or mechanism, and classifies the
+effect as entailed, bounded, or explicitly ungrounded. `O_id` instead records
+the identification result, assumptions, proof, and statistical risk spend.
+
+RACE's absence of a `z_effect` coordinate does not collapse those two sets.
+`z_ground` aggregates active grounding obligations, while the specification
+separately requires identification certificates. Reading the status vector as
+the obligation-class denominator is a proxy error. The later CGF decision
+assigns GY-K the role of a per-axis typed grounding witness, never an
+independent decider and never a substitute for the effect predicate.
+
+The binding outcome is therefore outcome 3: `EFFECT` remains a distinct
+obligation and must receive a referent and evaluator supplied by the adopted
+`O_effect` contract. It is neither an early spelling of `IDENTIFICATION` nor a
+misnamed `ADMISSIBILITY` slot.
+
+### 9.2 Future evaluator contract
+
+The future evaluator must resolve an immutable producer artifact, verify
+fixed N9-purpose provenance, bind candidate, problem, epoch, and estimand, and
+independently recompute all three `O_effect` predicates. A positive result
+requires:
+
+1. the declared effect threshold or claim is mapped to the governed estimand;
+2. the applicable causal path or mechanism is grounded for the same scope;
+3. the effect claim is entailed or bounded by that grounding.
+
+An explicitly ungrounded result is a decisive negative. Missing, malformed,
+foreign, stale, self-attested, or content-drifted evidence is
+`evidence_not_established`. A GY-K reference by itself is never sufficient.
+This specification does not appoint or implement the producer; that remains a
+separate governed slice.
+
+### 9.3 Version and compatibility rule
+
+The v2 scope design explicitly deferred EFFECT semantics. Landing the future
+evaluator therefore changes a hashed obligation rule and requires
+`n9_obligation_scope.v3` plus `n9_promotion.v6`. Existing v5/v3/v2 receipts
+remain structurally readable history and remain inadmissible as current
+authority. Extending the strict promotion-evidence union with an effect kind
+requires `n9_evidence_bridge.v2`; v1 remains readable. The existing
+`producer_root_refs` carrier is sufficient, so the selected design does not
+change the owner-projection shape and retains `n9_owner_projection.v3`.
+
+Phase 2's orchestration of the already-defined independence and measurement
+writers changes neither the rule epoch nor any receipt shape. It stays within
+v5/v3/v2.
+
+### 9.4 Capability and pattern ruling
+
+The EFFECT capability is `producer_missing + artifact_missing +
+bridge_missing + consumer_evaluator_missing`; the class and historical
+semantic contract exist, but the admitted evidence chain does not. The
+independence writer remains `bridge_missing +
+implemented_but_not_orchestrated`, while the measurement writer is
+`bridge_missing` against a producer already running in production. These
+absence kinds must remain separate.
+
+Relevant pattern controls are P32/P37 for content-bound recomputation and P38
+for the status-vector proxy error. The smallest correct future repair is one
+resolved `O_effect` evidence path, not a marker ref, caller Boolean, imported
+symbol, or reinterpretation of an adjacent obligation.

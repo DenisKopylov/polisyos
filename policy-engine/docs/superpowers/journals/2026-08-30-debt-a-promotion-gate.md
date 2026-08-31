@@ -835,3 +835,233 @@ does not authorize edits to the protected register in this lane.
   by ruling, so deciding its referent and any required status/class vocabulary
   must land through `gy-n9-effect-class-has-no-referent` before this row can
   close.
+
+## Round 3 — Phase 1: EFFECT specification archaeology (2026-08-31)
+
+Phase 1 is a reading-only boundary. At entry the branch was
+`codex/debt-a-promotion-gate` at `b53da2192`, clean and 12 commits ahead. No
+source file changed during the investigation. Phase 2 did not begin before
+this ruling, plan, specification, and journal were written.
+
+### Intake discrepancy and architect ownership question
+
+The prompt identifies a Wave-2 Group-A row named `GY-N9-EFFECT-REFERENT`.
+Against the exact entry revision, this complete census is decisive:
+
+```bash
+base=b53da21925c38d644d414a2419bff89a8162c05e
+git ls-tree -r --name-only "$base" | wc -l
+git ls-tree -r --name-only "$base" | awk '/^docs\/.*\.md$/ {n++} END {print n+0}'
+git grep -n 'GY-N9-EFFECT-REFERENT' "$base" -- .
+git grep -n 'gy-n9-effect-class-has-no-referent' "$base" -- \
+  docs/plans/active/DEBT-REGISTER.md
+```
+
+The denominator is 10,371 tracked files below `policy-engine/`, including
+1,133 tracked Markdown files below `policy-engine/docs/`. The exact alias
+search exits `1` with zero;
+the existing row search exits `0` at register line 314. The visible row carries
+the same question, evidence exclusions, and three outcomes, so it is the Phase
+1 authority available to this lane.
+
+**Ownership question to the architect:** land or identify the promised
+`GY-N9-EFFECT-REFERENT` Wave-2 Group-A alias in
+`docs/research/policy-operations-and-real-world-runtime-backlog.md`, binding it
+to the existing `gy-n9-effect-class-has-no-referent` investigation. This lane
+cannot create that architect-owned research row. The absent alias does not
+block the archaeology because the existing register row supplies the complete
+execution contract.
+
+### Historical separating evidence
+
+The first-revision search found one common introduction:
+
+```bash
+git log --all --reverse --format='%H %cs' \
+  -S'entailment / grounding (GY-K)' -- \
+  docs/plans/active/layer3-slices/GY-engine-subordination.md
+git grep -n -F 'entailment / grounding (GY-K)' 584bd7b72^ -- \
+  docs/plans/active/layer3-slices/GY-engine-subordination.md
+git grep -n -F 'Effect obligations:' 584bd7b72^ -- \
+  docs/reference/policy-design-search-RACE-HOG-PODS-v3.2-spec.md
+git grep -n -F 'entailment / grounding (GY-K)' 584bd7b72 -- \
+  docs/plans/active/layer3-slices/GY-engine-subordination.md
+git grep -n -F 'Effect obligations:' 584bd7b72 -- \
+  docs/reference/policy-design-search-RACE-HOG-PODS-v3.2-spec.md
+```
+
+Decisive output is commit
+`584bd7b72deb74694db87f4612176be0cb78724f`, dated 2026-06-28, with exits
+`parent_phrase=1`, `parent_effect=1`, `introduced_phrase=0`, and
+`introduced_effect=0`. That commit introduced all of the following together:
+
+- GY-N9 requires “producer roots, entailment / grounding (GY-K), calibration +
+  transport, effective independence, admissibility” and immediately defines
+  its full obligations compiler as including separate `effect` and
+  `identification` members.
+- RACE §12.2 enumerates distinct `O_effect(x)` and `O_id(x)`. Section 12.3 makes
+  EFFECT map the declared epsilon to the estimand, require a causal path or
+  mechanism, and require the effect claim to be entailed, bounded, or marked
+  ungrounded. IDENTIFICATION instead specifies point/partial/proxy/blocked
+  status, explicit assumptions, stored proof, and risk spend.
+- The PolicyOS adoption decision §4 binds GY-N9 to the full `O(x)` taxonomy.
+
+The status-vector counter-reading fails against the same specification. RACE
+§6.1 has `z_adm`, `z_ground`, and per-objective `z_id`, but §6.2 says
+`grounded` means every active grounding obligation is satisfied; §12.4 defines
+that state as the intersection over `O_ground(x)`; and §12.5 separately
+requires grounding obligations and identification certificates. The vector is
+an aggregate status projection, not the obligation denominator. Using the
+missing `z_effect` as the class test was a P38 proxy error.
+
+The CGF history sharpens, rather than collapses, this distinction:
+
+```bash
+git log --all --reverse --format='%H %cs %s' -- \
+  docs/system-design-decisions/policy-design-causal-grounding-firewall.md
+```
+
+Its first revision is `115536dbaa04470dcccdbb7badb2d0d532e5a65c`, dated
+2026-07-05—after the obligations taxonomy. The binding decision calls CGF the
+typed grounding/linker layer, says GY-K is a per-axis entailment witness “never
+the decider,” and defines CG0-CG6 as reference audit, typed relation/joint
+solver, conservative bind, free-grow admission, phrasing defense, active
+grounding, and benchmark. Crediting current IDENTIFICATION with CGF/CG2 thus
+does not consume the already-separate `O_effect` predicate.
+
+Current code history only corroborates the ruling: the first N9 implementation
+created distinct EFFECT and IDENTIFICATION rows, then the marker-only GY-K pass
+was removed while CG2 remained in IDENTIFICATION. Code shape did not decide the
+spec question.
+
+### Phase-1 ruling
+
+**Outcome 3: EFFECT was specified as a distinct seventh check.** It remains a
+class, and a later governed slice must give it the RACE `O_effect` referent and
+evaluator. It is not an early name absorbed by IDENTIFICATION and is not the
+missing ADMISSIBILITY enum slot.
+
+The evaluator must resolve and content-bind a fixed-provenance producer
+artifact to the candidate, problem, estimand, and rule epoch, then independently
+recompute: declared effect claim/epsilon maps to the estimand; the applicable
+causal path or mechanism is grounded; and the effect is entailed or bounded.
+Explicitly ungrounded is a decisive negative. Missing, malformed, foreign,
+stale, or self-attested evidence is `evidence_not_established`. GY-K is a
+witness input, never sufficient evidence on its own. No producer or evaluator
+is invented in this phase.
+
+### Governed version consequence
+
+The v2 design explicitly deferred EFFECT interpretation. Landing this new
+semantic evaluator therefore requires:
+
+- `n9_obligation_scope.v2 -> .v3`;
+- `n9_promotion.v5 -> .v6`, retaining v5/v3/v2 receipt bytes as readable,
+  non-current history;
+- `n9_evidence_bridge.v1 -> .v2` if its strict union gains an effect-evidence
+  kind, retaining v1 readback;
+- no owner-projection bump when using existing `producer_root_refs`, so
+  `n9_owner_projection.v3` remains the selected shape.
+
+Phase 2's two existing writer calls remain within v5/v3/v2 and do not enact
+this future version change.
+
+### Phase-1 integrity receipts
+
+```text
+EFFECT AST bytes: 948
+EFFECT SHA-256: 2aa090d9694d8599d07f07df46476894a4a39287c324c08beeb8a90d7fd44a38
+base-to-working-tree source diff: exit 0
+```
+
+The diff predicate covered `promotion_sequence.py`, `evaluation_safety.py`,
+`generation_cycle.py`, and `runtime/http/dependencies.py`. All were unchanged
+in Phase 1.
+
+The bound documentation lifecycle guard was also replayed before the Phase-1
+commit:
+
+```bash
+PYTHONPATH=. uv run python tools/quality/validation/check_docs_lifecycle.py
+```
+
+It exits `1` with exactly the six inherited findings: two `LEDGER.md`
+front-matter findings and four removed-stub-reference findings. The Phase-1
+documents add no seventh finding.
+
+## Register closure dossier — Round 3 Phase-1 supersession
+
+These three blocks supersede the retained Round-2 verdict text. The exact row
+signals—not partial mechanism completion—decide the verdicts.
+
+### `gy-promotion-obligations-scope-insufficient`
+
+- Verdict: `blocked`.
+- `blocked_by:` the governed RACE `O_effect` producer, evaluator, and
+  `n9_obligation_scope.v3` / `n9_promotion.v6` rule epoch specified by the
+  outcome-3 ruling. The field-pilot half additionally retains the separately
+  measured promotion-authority EvalSafety producer gap.
+- Deciding predicate: the accepted Round-2 four-cell production measurement
+  plus the Phase-1 historical ruling and EFFECT byte predicate.
+- Direct exits and decisive output: four-cell test exit `0`, with both real
+  production receipts `promoted=False`; history searches exit
+  `1,1,0,0` parent/introduced and prove separate `O_effect`/`O_id`; integrity
+  exit `0`, 948 bytes at the frozen hash. MEASUREMENT is built and resolves,
+  but the row's exact `consumer_promotable=True` signal is not met.
+- Exact append-only register prose: **Supersession 2026-08-31 — blocked with
+  the engineering mechanism built.** The measurement-rooted producer now
+  resolves through exact CAS evidence and can reach a decisive N9 outcome, but
+  this row's recorded closure signal is the exact real production
+  `consumer_promotable=True` GY-O0 receipt, not repair of one conjunct.
+  Specification history rules EFFECT a distinct RACE `O_effect` obligation:
+  declared effect-to-estimand binding, grounded causal path or mechanism, and
+  entailed/bounded/explicitly-ungrounded disposition. That producer/evaluator
+  and the governed v3/v6 epoch must land before the signal is executable; the
+  field-pilot witness also retains the promotion-authority EvalSafety producer
+  nonreceipt.
+
+### `GY-O0-NC-01`
+
+- Verdict: `blocked`.
+- `blocked_by:` the governed RACE `O_effect` producer/evaluator and v3/v6 rule
+  epoch established by this ruling; the field-pilot signal also requires the
+  already-named candidate/problem-bound promotion-authority EvalSafety
+  producer.
+- Deciding predicate: the accepted four-cell table shows no real production
+  promotable receipt; the historical parent/introduced comparison proves
+  EFFECT is an unimplemented distinct conjunct rather than an alias; EFFECT
+  remains byte-identical.
+- Direct exits and decisive output: four-cell test `0` with
+  `promoted=False` for data-only and field-pilot production; history comparison
+  `1,1,0,0`; integrity `0`, 948 bytes and the frozen SHA-256.
+- Exact append-only register prose: **Supersession 2026-08-31 — blocked by the
+  distinct RACE `O_effect` capability ruled from specification history.** The
+  first GY-N9/RACE adoption revision introduced separate effect and
+  identification obligations; the later CGF decision makes GY-K a per-axis
+  witness, never the decider. A real `O_effect` producer/evaluator and governed
+  v3/v6 rule epoch must land before any production `consumer_promotable=True`
+  receipt can exist. The field-pilot disagreement witness additionally retains
+  the promotion-authority EvalSafety producer nonreceipt. GY-O0's closed safety
+  core and hash remain untouched.
+
+### `gy-n9-unmet-check-absence-kind-conflated`
+
+- Verdict: `blocked`.
+- `blocked_by:` the same governed RACE `O_effect` producer/evaluator artifact
+  and v3/v6 rule epoch.
+- Deciding predicate: specification history now assigns EFFECT exact semantics
+  but the complete admitted chain remains absent; the byte-identical current
+  function still has no design-discriminating evidence input.
+- Direct exits and decisive output: history comparison `1,1,0,0` and visible
+  row search `0`; source-integrity predicate `0`, with unchanged 948-byte
+  EFFECT. The ruling terminates semantic ambiguity but does not fabricate a
+  producer.
+- Exact append-only register prose: **Supersession 2026-08-31 — the semantic
+  ambiguity is closed; execution remains blocked on the distinct `O_effect`
+  capability.** Specification history proves EFFECT and IDENTIFICATION were
+  separately adopted, and proves GY-K is only a grounding witness. EFFECT is
+  therefore `producer_missing + artifact_missing + bridge_missing +
+  consumer_evaluator_missing`, not `scope_insufficient` and not
+  absent/unallocated semantics. A content-bound, candidate/problem/estimand/
+  epoch-bound evaluator under `n9_obligation_scope.v3` must land before this
+  row's absence kinds are truthfully represented end to end.

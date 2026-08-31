@@ -222,3 +222,135 @@ and exact append-only prose for the architect. Add total arithmetic and core ver
 adjacent splits, task C/D handoffs, and named out-of-scope findings. Re-open the
 failure register before finalizing. Commit the dossier and verify it from the
 attached branch.
+
+## Round 2 execution amendment — 2026-08-31
+
+Round 1 remains the evidentiary base. This amendment executes the architect's
+adjudication: every one of the eleven rows must terminate as `closed` or `blocked`;
+`open` and argument-only closure are not permitted. A block names a concrete thing
+that must land. No architect-owned register, ledger, GY plan, Atlas master plan, or
+published-denominator pin is an output of this lane.
+
+Pattern pass: P35 requires complete denominators and exact mappings; P37/P38 require
+the DS6 gate to establish the frozen-root property rather than a moving total; P40
+treats all historical-lineage escapes as one class; P41 keeps collection and inherited
+gate failures distinct from product verdicts. The existing candidate-only scope gate
+continues to have `closure_effect: none` and cannot close a row.
+
+### Task 5: Bind DS6 primitive adoption to the 77-root freeze and landing composition
+
+**Files:**
+
+- Modify: `architecture/atlas_surfaces/frontend-disposition-register.json`
+- Modify: `architecture/atlas_surfaces/frontend-disposition-register.schema.json`
+- Modify: `architecture/atlas_surfaces/check_frontend_disposition_register.py`
+- Create: `architecture/atlas_surfaces/test_ds18_time_semantics_lineage.py`
+- Append evidence: `docs/superpowers/journals/2026-08-30-debt-g-atlas-residuals.md`
+- Read-only: `architecture/atlas_surfaces/test_frontend_disposition_register.py`
+- Read-only handoff: `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.test.ts`
+
+**Step 1: Preserve the scalar-proxy escape**
+
+Add a focused failing test that removes or changes one frozen obligation while adding
+an unrelated obligation so the scalar remains constant. The validator must reject the
+same-total swap. Add focused failures for an unassigned post-freeze entrant and a
+forged historical coordinate; these are examples of the single lineage-admission
+class, not separate mechanisms.
+
+**Step 2: Extend the existing DS18 owner artifact with lineage**
+
+Record the content-bound source freeze and the DS15/DS17 reconciliation checkpoints.
+Bind each checkpoint to its ordered obligation mapping digest, and bind the two
+landing deltas by exact stable selectors, current root identity/digest,
+classification, and change kind. Counts are derived summaries only. The asserted
+composition at this pin is
+`O(current) = O(3011c9584) disjoint-union Delta(DS15) disjoint-union Delta(DS17)`;
+it is not a permanent scalar promise.
+
+Extend the focused checker to resolve the pinned Git blobs, derive complete obligated
+sets, require full frozen-root equality, verify both exact landing deltas and their
+mapping digests, and reject any current member outside the disjoint union. Keep the
+existing current-source scanner and evidence checks intact.
+
+**Step 3: Verify the mapping and DS6 consumer**
+
+Run only the new lineage nodes, the focused DS18 checker, and the exact DS6
+persistence nodes already used in round 1. Confirm 77 frozen members, 17 DS15
+entrants, 32 DS17 entrants, zero exits, and current 126/126 as separately named
+measures. Record that the read-only task-D assertions at lines 125, 126, and 170 still
+pin 94 while the live composition derives 126; do not edit that file.
+
+### Task 6: Execute the dark-theme scenario probe under a finite ceiling
+
+**Files:**
+
+- Append evidence only: `docs/superpowers/journals/2026-08-30-debt-g-atlas-residuals.md`
+- Read-only: `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts`
+- Read-only: its committed dark-composer snapshot and dashboard harness
+
+**Step 1: Declare the bounded state**
+
+Assign the routine visual debt to the scoped dashboard E2E owner `team-frontend`.
+Use one Chromium desktop viewport at 1440x1200, dark `/compose`, default natural-
+language mode, initial render, zero retries, no post-navigation user action, 120
+seconds of server readiness plus the 60-second test ceiling, and the existing strict
+snapshot tolerance.
+
+**Step 2: Separate harness collection from the rendered property**
+
+Attempt the exact existing Playwright selector first. If its test-module import cannot
+collect under the repository Node runtime, record that as a harness non-receipt and
+continue with a behaviorally equivalent direct Chromium probe against the same Vite
+and fixture servers: identical viewport, fixed clock, local-storage state, reduced
+motion, route, heading, theme attribute, and `.workspace-frame` screenshot. Use the
+in-app Browser first for live page inspection, then a rerunnable direct browser command
+for the evidence receipt. Do not edit dashboard source or its visual baseline.
+
+**Step 3: Terminate on the measured bounded result**
+
+If the exact bounded state mismatches or is unstable, close on a bounded residual with
+the workflow-mode route as falsifier and hand repair to task D. If it is stable, close
+only as non-reproducing under the stated ceiling with that same workflow-mode
+falsifier. If no browser can launch after the servers are proven live, block only on
+the concrete task-D harness repair that must land.
+
+### Task 7: Supersede all eleven dossier blocks
+
+**Files:**
+
+- Append only: `docs/superpowers/journals/2026-08-30-debt-g-atlas-residuals.md`
+- Read-only: the eleven complete register rows and all slice-plan frontmatter
+
+**Step 1: Name the common slice-plan blocker once**
+
+Re-run the complete active-plan frontmatter census. All six allocation rows name the
+same landable object: the standalone DS12/DS13/DS14 `type: slice-plan` set with the
+row-specific claims absorbed. Cite the candidate-only scope manifest as the mechanism
+that forces the three DS8 inputs to be seen, and state again that it appoints nobody
+and closes nothing. Preserve task C's distinct producer halves.
+
+**Step 2: Settle DS4 by vocabulary, not regeneration theatre**
+
+Re-run the complete OpenAPI/generated-family census. Block on the missing
+producer-owned normalized `CgfDisposition` grammar and its owner-to-OpenAPI bridge;
+the current JSON payload is not that grammar. State that `DecisionGrade` exists as an
+owner `Literal` but remains inline rather than a named generated vocabulary, and that
+task D's regeneration cannot create the missing semantic bridge. State that `CacheAge`
+is retired and its freshness observation is not cache-age authority.
+
+**Step 3: Append the superseding dossier last**
+
+Append exactly eleven blocks, each `closed` or `blocked`, with a rerunnable command or
+predicate, exit code, concrete `blocked_by` where applicable, and exact append-only
+prose for the architect. Record total and core/adjacent arithmetic, the DS6 mapping,
+the scenario result, the task-C overlap remainder, and the exact task-D handoffs.
+
+### Task 8: Targeted closeout and independent review
+
+Run exact changed tests and checkers, Ruff on changed Python, `git diff --check`, docs
+lifecycle (expected exit 1 with exactly six findings), and the project-`uv` debt-ledger
+check (expected exit 1 with the same 18 unresolved identity blockers). Do not run a
+directory or full suite. Re-open the failure register, then request an independent
+whole-branch review of the round-2 delta. Correct blocking findings in one batched
+round, commit each coherent boundary after checking branch attachment, and read the
+delivered files back from `HEAD` before reporting completion.

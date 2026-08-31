@@ -1290,9 +1290,6 @@ website-copy semantics remain precisely non-closed.
 
 ## Explicit non-closure
 
-- `DS11-PUBLISHED-SIGNATURE-WATCHER` — `producer_missing`; `team-runtime`,
-  producer lane `runtime/quality`; closure signal:
-  `uv run pytest tests/integration/runtime_quality/test_published_signature_custody.py::test_every_public_signature_is_watched_for_staleness -q`.
 - `DS11-CLAIM-LIFECYCLE-ORCHESTRATION` —
   `implemented_but_not_orchestrated + bridge_missing`; `team-scientist` with
   runtime orchestration consumer; closure signal:
@@ -1307,21 +1304,6 @@ website-copy semantics remain precisely non-closed.
 - `DS11-EXTERNAL-A11Y-COUNTERSIGN` — `artifact_missing + verification_missing`;
   `team-design` accessibility evidence lane; closure signal:
   `uv run pytest tests/repo_quality/docs/test_accessibility_evidence.py::test_external_countersign_is_content_bound_current_and_scope_exact -q`.
-- `DS11-CURRENT-PAGE-A11Y` — base-proven `verification_missing`: the complete
-  page suite is 20/24, with
-  [DS11-A11Y-BASE-FAILURE-SET-4](#ds11-a11y-base-failure-set-4) in the run
-  paper. Two exact current-branch no-writer executions are 22/25 with three
-  members of that base set; missing `Open run` does not reproduce, while the
-  added `/trust passes axe` identity passes. This disagreement is recorded, not
-  promoted into a current-conformance reissue; `team-design` run-paper/a11y
-  lane; closure signal: two independent no-writer invocations of
-  `corepack pnpm --filter @polisyos/runtime-dashboard run test:a11y:pages` exit
-  zero with identical collected identities and reissue the content-bound
-  current-conformance receipt.
-- `DS11-GENERAL-COPY-SEMANTICS` — bounded residual: the structural checker owns
-  the `/trust` feature and landing entry, not arbitrary future public copy;
-  `team-design`; closure signal:
-  `uv run pytest tests/repo_quality/frontend/test_public_claim_copy_inventory.py::test_every_public_capability_assertion_resolves_to_claim_posture -q`.
 - `DS11-GROUNDED-PERFORMANCE` — intentionally blocked/out of DS11; runtime/GY
   evidence owner plus DS12 consumer; closure signal:
   `uv run pytest tests/integration/runtime_quality/test_first_governed_promotion.py::test_promoted_design_supplies_content_bound_public_performance_evidence -q` and DS12 still decides publication.
@@ -1338,6 +1320,45 @@ website-copy semantics remain precisely non-closed.
 An absent future test file is `artifact_missing`, never a green receipt. C00
 registers every declared non-closure; C06 reconciles each still-open or closed
 state in `DEBT-REGISTER.md` before claiming closure.
+
+
+## Closed since — superseded non-closures, retained as history
+
+Three entries below left the section above on 2026-08-31 when the task-D round-2 lane closed them. They are moved
+rather than deleted: the register's append rule keeps a standing visible, and `check_debt_ledger` requires the
+**live** non-closure list to hold only ids the ledger still carries, so a closed row must leave that list or the
+two documents contradict each other. Their prior standings are intact below.
+
+- `DS11-PUBLISHED-SIGNATURE-WATCHER` — **CLOSED 2026-08-31** by the task-D round-2 lane; retained here as history
+  under the register's append rule. Both branches are proved: a non-empty, explicitly `synthetic_test`
+  production-shaped population persists scan, lifecycle-bridge and outbox evidence through the real path, while an
+  empty or unappointed population persists `not_established` and never passes vacuously. Superseded standing:
+  `producer_missing`; `team-runtime`,
+  producer lane `runtime/quality`; closure signal:
+  `uv run pytest tests/integration/runtime_quality/test_published_signature_custody.py::test_every_public_signature_is_watched_for_staleness -q`.
+- `DS11-CURRENT-PAGE-A11Y` — **CLOSED 2026-08-31**, re-earned at the new dashboard freeze rather than carried:
+  commit `03c578360`, 1,314 denominator paths, digest `sha256:dbf87693…`, two fresh no-writer replays at 25/25
+  with byte-equal ordered identity sets and distinct raw report digests, and the 8/8 verifier and falsifier suite
+  green. Human behaviour, external countersignature and source-language authority stay `not_established`.
+  Superseded standing retained as history: base-proven `verification_missing`: the complete
+  page suite is 20/24, with
+  [DS11-A11Y-BASE-FAILURE-SET-4](#ds11-a11y-base-failure-set-4) in the run
+  paper. Two exact current-branch no-writer executions are 22/25 with three
+  members of that base set; missing `Open run` does not reproduce, while the
+  added `/trust passes axe` identity passes. This disagreement is recorded, not
+  promoted into a current-conformance reissue; `team-design` run-paper/a11y
+  lane; closure signal: two independent no-writer invocations of
+  `corepack pnpm --filter @polisyos/runtime-dashboard run test:a11y:pages` exit
+  zero with identical collected identities and reissue the content-bound
+  current-conformance receipt.
+- `DS11-GENERAL-COPY-SEMANTICS` — **CLOSED 2026-08-31** on a source-derived denominator, replacing the round-1
+  test that enumerated tests rather than the owned copy: a 17-path runtime-local import closure, 329 tracked
+  production TSX files inspected for inbound links, 36 active locale leaves, 110 visible expressions, 44 artifact
+  fields — with a mutation falsifier that makes the checker refuse. Superseded standing retained as history:
+  bounded residual: the structural checker owns
+  the `/trust` feature and landing entry, not arbitrary future public copy;
+  `team-design`; closure signal:
+  `uv run pytest tests/repo_quality/frontend/test_public_claim_copy_inventory.py::test_every_public_capability_assertion_resolves_to_claim_posture -q`.
 
 ## Commit sequence
 

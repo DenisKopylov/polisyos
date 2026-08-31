@@ -281,32 +281,28 @@ def test_real_projection_enumerates_the_complete_migration_denominator() -> None
     report = projection.build_report(REPO_ROOT)
 
     assert report["status"] == "blocked"
-    assert report["matrix_root_count"] == 30
+    assert report["matrix_root_count"] == 25
     assert report["primary_contract_file_count"] == 19
     assert report["primary_root_contract_count"] == 18
     assert report["missing_contract_roots"] == [
-        "academic",
-        "batch_common",
-        "batch_snapshot",
         "corpus",
         "data_requirement",
-        "datasets",
         "legal_requirement",
         "pdc",
         "policy_grammar",
         "schemas",
         "scholar_requirement",
-        "ukraine_data",
     ]
-    assert report["pair_difference_count"] == 21
-    assert report["live_pair_difference_count"] == 12
-    assert report["live_statement_count"] == 24
-    assert report["live_file_count"] == 23
+    assert report["pair_difference_count"] == 18
+    assert report["live_pair_difference_count"] == 11
+    assert report["live_statement_count"] == 31
+    assert report["live_file_count"] == 28
     assert any(
-        item["source_root"] == "foundry"
-        and item["target_root"] == "fabric"
-        and item["difference"] == "contract_only"
-        and item["live_statement_count"] == 2
+        item["source_root"] == "scientist"
+        and item["target_root"] == "runtime"
+        and item["difference"] == "policy_only"
+        and item["live_statement_count"] == 13
+        and item["live_file_count"] == 11
         for item in report["pair_differences"]
     )
     assert report["unrepresentable_dependency_rules"] == [

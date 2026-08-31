@@ -11,7 +11,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,

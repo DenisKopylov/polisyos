@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.llm.response import extract_llm_response_data
-from polisyos.core.observability.pricing import estimate_llm_cost_usd
+from polisyos.core.observability import estimate_llm_cost_usd
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetState
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.operational_monitoring import get_operational_monitor
@@ -22,7 +22,9 @@ _OBSERVABILITY_IMPORT_ERRORS = (ImportError, ModuleNotFoundError)
 
 if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
-    from polisyos.scientist.orchestration.engine.operational_monitoring import ScientistOperationalMonitor
+    from polisyos.scientist.orchestration.engine.operational_monitoring import (
+        ScientistOperationalMonitor,
+    )
 
 
 def _default_metrics() -> MetricsRegistry:

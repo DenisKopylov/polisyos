@@ -23,7 +23,7 @@ import duckdb
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 import polisyos.core as core
-from polisyos.pdc import gy_content_hash
+from polisyos.pdc import SubstrateLayer, gy_content_hash
 
 ArtifactID = core.artifacts.ArtifactID
 ArtifactRef = core.artifacts.ArtifactRef
@@ -63,17 +63,6 @@ class SubstrateRegistryError(ValueError):
     def __init__(self, code: str, message: str | None = None) -> None:
         self.code = code
         super().__init__(f"{code}: {message or code}")
-
-
-class SubstrateLayer(StrEnum):
-    """Production-data substrate layer labels."""
-
-    L1 = "L1"
-    L2 = "L2"
-    L3 = "L3"
-    L4 = "L4"
-    L5 = "L5"
-    L6 = "L6"
 
 
 class _StrictModel(BaseModel):

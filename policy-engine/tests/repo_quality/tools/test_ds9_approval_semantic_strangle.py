@@ -151,6 +151,7 @@ def _resolver_issuer_calls(source: str) -> tuple[tuple[str, int], ...]:
     found: list[tuple[str, int]] = []
     targets = {
         "ProductionApprovalPacketResolver",
+        "_issue_production_approval_currentness_receipt",
         "_issue_production_decision_packet_resolver",
         "_register_production_approval_resolver_installation",
         "_persist_production_decision_packet",
@@ -194,6 +195,10 @@ def test_production_packet_resolver_has_single_attested_issuer() -> None:
         (
             "src/polisyos/runtime/quality/approval.py",
             "ProductionApprovalPacketResolver",
+        ),
+        (
+            "src/polisyos/runtime/quality/approval.py",
+            "_issue_production_approval_currentness_receipt",
         ),
         (
             "src/polisyos/runtime/quality/approval.py",

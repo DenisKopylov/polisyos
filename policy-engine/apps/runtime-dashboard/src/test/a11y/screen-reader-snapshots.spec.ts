@@ -39,13 +39,13 @@ test.describe("runtime-dashboard screen reader snapshots", () => {
   }) => {
     const metadata = readFixtureMetadata();
 
-    await page.goto(`/runs/${metadata.core_run_id}/report`);
+    await page.goto(`/runs/${metadata.run_paper_bound_run_id}/report`);
     await waitForDashboardSurface(page, "run-report");
 
     const snapshot = await page.locator("body").ariaSnapshot();
 
     expect(collectNamelessInteractiveLines(snapshot)).toEqual([]);
-    expect(snapshot).toContain('button "Export JSON"');
+    expect(snapshot).toContain('button "Export MACHINE packet"');
     expect(snapshot).toContain("heading");
   });
 

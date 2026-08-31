@@ -32,6 +32,9 @@ from polisyos.scientist import (
     build_default_claim_ledger_owner,
     build_epoch_claim_lifecycle_bridge,
 )
+from polisyos.scientist.governance.continuous import (
+    UnappointedPublicSignaturePopulationProvider,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -299,6 +302,9 @@ class RuntimeServiceContainer:
                     decision_validity_service=self.decision_validity_service,
                     promotion_runtime=self.promotion_runtime,
                     epoch_claim_lifecycle_bridge=self.epoch_claim_lifecycle_bridge,
+                    published_signature_population_provider=(
+                        UnappointedPublicSignaturePopulationProvider()
+                    ),
                 )
                 self.control_service = control_service
             custody = self._resolve_human_decision_custody(app)

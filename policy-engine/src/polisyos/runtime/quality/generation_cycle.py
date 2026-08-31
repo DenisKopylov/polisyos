@@ -120,6 +120,9 @@ if TYPE_CHECKING:
         OpenWorldRiskArtifactResolver,
         PromotionRuntime,
     )
+    from polisyos.runtime.quality.promotion_sequence import (
+        N9PromotionEvidenceBridgeRepository,
+    )
 
 GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v1"
 GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
@@ -256,6 +259,8 @@ def _joint_simulation_port_outcome(
     blockers = list(result.promotion_ready_value_packet.get("authority_blockers", ()))
     if unsupported:
         blockers.extend(result.feedback_classification.support_blockers)
+        if result.feedback_classification.support_status == "unsupported":
+            blockers.append("n5_coupling_blocked")
         for decision in result.engine_decisions:
             blockers.extend(decision.blockers)
         if not blockers:
@@ -2456,6 +2461,11 @@ class GenerationCycleController:
             "open_world_resolver",
             None,
         )
+        self._promotion_evidence_resolver = getattr(
+            promotion_port,
+            "promotion_evidence_resolver",
+            None,
+        )
         self._revision_policy = revision_policy or CounterexampleDrivenRevisionPolicy()
         self._acquisition_owner_gateway = acquisition_owner_gateway
         self._voi_scheduler = voi_scheduler or SimpleVOIScheduler(
@@ -2579,6 +2589,7 @@ class GenerationCycleController:
             promotion,
             problem=problem,
             open_world_resolver=self._open_world_resolver,
+            promotion_evidence_resolver=self._promotion_evidence_resolver,
         )
         fronts = _derive_fronts(tuple(summaries))
         run = GenerationCycleRun(
@@ -3444,6 +3455,7 @@ class GenerationCycleController:
         summaries = tuple(
             _summary_with_value_observation(
                 summary,
+                simulation=state["simulation"],
                 value_port=state["value_port"],
                 counterexample_ref=counterexample.counterexample_ref,
             )
@@ -5654,15 +5666,21 @@ def _value_revision_issue(value_port: ValuePortObservation | None) -> str | None
 def _summary_with_value_observation(
     summary: CandidateSummary,
     *,
+    simulation: SimulationPortObservation,
     value_port: ValuePortObservation,
     counterexample_ref: str,
 ) -> CandidateSummary:
     value_issue = _value_revision_issue(value_port)
+    coupling_blockers = tuple(
+        blocker for blocker in simulation.authority_blockers if blocker == "n5_coupling_blocked"
+    )
     update: dict[str, Any] = {
         "value_status": value_port.status,
         "value_decision_grade": value_port.decision_grade,
         "value_ref": value_port.value_ref,
-        "value_blockers": tuple(value_port.authority_blockers),
+        "value_blockers": tuple(
+            dict.fromkeys((*value_port.authority_blockers, *coupling_blockers))
+        ),
         "value_receipt": value_port.value_receipt,
     }
     if value_issue:
@@ -6026,6 +6044,7 @@ def _apply_promotion_to_summaries(
     *,
     problem: DesignProblem | None = None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> list[CandidateSummary]:
     certified = set(promotion.certified_candidate_ids)
     result: list[CandidateSummary] = []
@@ -6038,6 +6057,7 @@ def _apply_promotion_to_summaries(
                 summary,
                 problem=problem,
                 open_world_resolver=open_world_resolver,
+                promotion_evidence_resolver=promotion_evidence_resolver,
             )
             and summary.current_valid
             and not _summary_value_blocks_promotion(summary)
@@ -6066,6 +6086,7 @@ def _promotion_receipt_allows_decision_front(
     *,
     problem: DesignProblem | None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> bool:
     from polisyos.runtime.quality.promotion_sequence import (
         promotion_receipt_allows_decision_front,
@@ -6076,6 +6097,7 @@ def _promotion_receipt_allows_decision_front(
         summary,
         design_problem=problem,
         open_world_resolver=open_world_resolver,
+        promotion_evidence_resolver=promotion_evidence_resolver,
     )
 
 

@@ -124,7 +124,7 @@ test.describe("runtime-dashboard color blind simulation", () => {
   }) => {
     const metadata = readFixtureMetadata();
 
-    await page.goto(`/runs/${metadata.core_run_id}/report`);
+    await page.goto(`/runs/${metadata.run_paper_bound_run_id}/report`);
     await waitForDashboardSurface(page, "run-report");
 
     const axeResults = await new AxePlaywrightBuilder({ page })

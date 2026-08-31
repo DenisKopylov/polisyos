@@ -1,12 +1,55 @@
 [package_boundaries]
 version = 2
 status = "draft"
+contract_role = "ownership_and_narrowing_register"
 description = """
-Canonical per-package dependency contract. Each [[package]] entry is the
-source of truth for the tools/quality/validation/package_boundaries.py guard.
-Legacy packages are marked with `legacy = true` and carry a `migration_target`
-plus `frozen = true`: no new code in-bound or out-bound.
+Canonical per-package ownership and dependency-narrowing register. Root-level
+directions are enforced by architecture/imports/policy.toml. This register is
+read fail-closed by tools/quality/lint/lint_imports.py and by
+tools/quality/validation/check_package_import_gates.py through
+tools/quality/validation/architecture_report_only_contracts.py. Legacy
+packages are marked with `legacy = true` and carry a `migration_target` plus
+`frozen = true`: no new code in-bound or out-bound.
 """
+
+# These real direction-matrix roots do not yet have ratified primary package
+# contracts. Naming the absence is deliberate; it is not an inferred owner.
+
+[[deliberately_ungoverned_root]]
+root = "corpus"
+owner_status = "unappointed"
+required_owner_role = "Corpus package owner"
+reason = "Evaluation-fixture loaders are not runtime authority; no Corpus package owner or primary/public package contract has been appointed."
+
+[[deliberately_ungoverned_root]]
+root = "data_requirement"
+owner_status = "unappointed"
+reason = "The requirement compiler has no ratified primary package contract or aggregate public-facade entry; keep it direction-matrix-only until those are appointed together."
+
+[[deliberately_ungoverned_root]]
+root = "legal_requirement"
+owner_status = "unappointed"
+reason = "The legal-requirement compiler has no ratified primary package contract or aggregate public-facade entry; do not infer an owner from its consumers."
+
+[[deliberately_ungoverned_root]]
+root = "pdc"
+owner_status = "documented_not_governed"
+reason = "Its README names team-policyos-runtime, but no primary package contract or aggregate public-facade mirror is ratified; this coverage repair does not fabricate them."
+
+[[deliberately_ungoverned_root]]
+root = "policy_grammar"
+owner_status = "unappointed"
+reason = "The grammar compiler has no ratified primary package contract or aggregate public-facade entry; keep package governance explicitly pending."
+
+[[deliberately_ungoverned_root]]
+root = "schemas"
+owner_status = "unappointed"
+reason = "The schema-support root has no package README, appointed package owner, or public facade; classification must precede package governance."
+
+[[deliberately_ungoverned_root]]
+root = "scholar_requirement"
+owner_status = "unappointed"
+reason = "The Scholar requirement compiler has no ratified primary package contract or aggregate public-facade entry; keep its package-governance slot explicit and empty."
 
 # ---------------------------------------------------------------------------
 # Active product layers.

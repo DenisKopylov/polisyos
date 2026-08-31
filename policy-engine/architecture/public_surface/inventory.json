@@ -198,6 +198,7 @@
       "supported_entrypoints": [
         "polisyos.core",
         "polisyos.core.contracts",
+        "polisyos.core.observability",
         "polisyos.core.security",
         "polisyos.core.trace"
       ],
@@ -491,7 +492,7 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 464,
+          "export_count": 477,
           "exports": [
             "*_CHRONOLOGY_EXPORTS",
             "BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION",
@@ -503,6 +504,9 @@
             "PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION",
             "RECOURSE_POINTER_SCHEMA_VERSION",
             "REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION",
+            "SCOPE_ADJUDICATION_AUTHORITY_PURPOSE",
+            "SCOPE_ADJUDICATION_CANDIDATE_SCHEMA_VERSION",
+            "SCOPE_ADJUDICATION_PROHIBITED_USES",
             "SERIOUS_SKIP_BLOCKER_PROFILES",
             "SKIP_BLOCKER_REQUIRED_FIELDS",
             "SKIP_BLOCKER_SURFACES",
@@ -821,6 +825,7 @@
             "ProblemFrameRef",
             "ProducerSpineBindingFields",
             "ProducerSpineReadContext",
+            "ProductionApprovalCurrentnessReceipt",
             "ProgramGraph",
             "ProgramGraphRef",
             "ProvenanceActivity",
@@ -862,6 +867,11 @@
             "RuntimeApiProblem",
             "ScenarioFamilyConstructRow",
             "ScenarioFamilyConstructRows",
+            "ScopeAdjudicationCandidate",
+            "ScopeAdjudicationPlane",
+            "ScopeAdjudicationPredicate",
+            "ScopeAdjudicationRuling",
+            "ScopePredicateObservation",
             "SearchCompletenessStatus",
             "SearchFrontier",
             "SensitivityAnalysisBundleRef",
@@ -942,6 +952,7 @@
             "WorkflowRunRequest",
             "bounded_liveness_config_from_mapping",
             "build_producer_spine_binding_fields",
+            "build_scope_adjudication_candidate",
             "build_skip_blocker_record",
             "c4_canonical_bytes",
             "c4_canonical_mapping",
@@ -956,12 +967,51 @@
             "epoch_staleness_semantic_hash",
             "evaluate_skip_blocker_policy",
             "legacy_family_for_construct",
-            "serialize_skip_blocker_record"
+            "require_production_approval_currentness_receipt",
+            "scope_adjudication_candidate_digest",
+            "serialize_skip_blocker_record",
+            "verify_scope_adjudication_candidate"
           ],
           "has___getattr__": true,
           "has___dir__": true,
           "source_file": "src/polisyos/core/contracts/__init__.py",
           "summary": "Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries."
+        },
+        {
+          "module": "polisyos.core.observability",
+          "facade_mode_observed": "eager_exports",
+          "export_count": 25,
+          "exports": [
+            "DeterminismTier",
+            "MetricsRegistry",
+            "OTelConfig",
+            "PolicyOSTracer",
+            "StructuredFormatter",
+            "TraceContextFilter",
+            "TracedExecutorWrapper",
+            "configure_otel_logging_handler",
+            "estimate_llm_cost_usd",
+            "extract_headers",
+            "get_current_trace_context",
+            "get_default_config",
+            "get_determinism_tier",
+            "get_metrics",
+            "get_trace_context_dict",
+            "get_tracer",
+            "inject_headers",
+            "is_hpc_observability_enabled",
+            "parse_determinism_tier",
+            "pricing_table",
+            "propagate_context",
+            "traced",
+            "traced_method",
+            "with_context_vars",
+            "with_trace_context"
+          ],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/core/observability/__init__.py",
+          "summary": "PolicyOS Observability Module \u2014 Production-grade telemetry."
         },
         {
           "module": "polisyos.core.security",
@@ -1104,6 +1154,7 @@
       "reference_doc": "docs/reference/public-surface.md",
       "supported_entrypoints": [
         "polisyos.ir",
+        "polisyos.ir.analytics",
         "polisyos.ir.api"
       ],
       "major_subsystem": true,
@@ -1682,6 +1733,16 @@
           "summary": "Expose the stable IR contract surface through a lazy package facade."
         },
         {
+          "module": "polisyos.ir.analytics",
+          "facade_mode_observed": "module_doc_only",
+          "export_count": 0,
+          "exports": [],
+          "has___getattr__": true,
+          "has___dir__": true,
+          "source_file": "src/polisyos/ir/analytics/__init__.py",
+          "summary": "Curated lazy facade for analytics IR contracts."
+        },
+        {
           "module": "polisyos.ir.api",
           "facade_mode_observed": "eager_exports",
           "export_count": 11,
@@ -2009,7 +2070,8 @@
       "reference_doc": "docs/reference/public-surface.md",
       "supported_entrypoints": [
         "polisyos.fabric",
-        "polisyos.fabric.api"
+        "polisyos.fabric.api",
+        "polisyos.fabric.world"
       ],
       "major_subsystem": true,
       "export_count": 39,
@@ -2119,6 +2181,58 @@
           "has___dir__": false,
           "source_file": "src/polisyos/fabric/api.py",
           "summary": "Explicit public Fabric API facade and connector bridge."
+        },
+        {
+          "module": "polisyos.fabric.world",
+          "facade_mode_observed": "eager_exports",
+          "export_count": 41,
+          "exports": [
+            "SEGMENTS_INDEX_NAME",
+            "WorldFactError",
+            "WorldIDError",
+            "WorldSegmentError",
+            "WorldSnapshotBackendUnavailable",
+            "WorldSnapshotFactWrite",
+            "WorldSnapshotNodeWrite",
+            "WorldSnapshotWriteRequest",
+            "WorldStoreError",
+            "WorldValidationError",
+            "append_world_segment_index",
+            "emit_attr_fact",
+            "emit_claim_facts",
+            "emit_doc_fragment_facts",
+            "emit_doc_meta_facts",
+            "emit_edge_fact",
+            "emit_world_event_facts",
+            "emit_world_node_facts",
+            "event_world_provenance_v1",
+            "load_world_fact_manifests",
+            "load_world_facts",
+            "persist_claim",
+            "persist_conflict_set",
+            "persist_doc_fragment",
+            "persist_doc_meta",
+            "persist_fact_segment_manifest",
+            "persist_quality_report",
+            "persist_trust_assessment",
+            "persist_world_event",
+            "stable_world_provenance_v1",
+            "validate_claim_id",
+            "validate_conflict_set_id",
+            "validate_doc_fragment_ids",
+            "validate_doc_meta_ids",
+            "validate_fact_is_world_abi",
+            "validate_quality_report_id",
+            "validate_trust_assessment_id",
+            "validate_world_event_id",
+            "validate_world_facts",
+            "write_world_fact_segment",
+            "write_world_snapshot"
+          ],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/fabric/world/__init__.py",
+          "summary": "Facade for emitting, validating, persisting, and materializing world facts."
         }
       ]
     },
@@ -2232,7 +2346,8 @@
       "supported_entrypoints": [
         "polisyos.scientist",
         "polisyos.scientist.governance.continuous",
-        "polisyos.scientist.methods.research_dag"
+        "polisyos.scientist.methods.research_dag",
+        "polisyos.scientist.replay"
       ],
       "major_subsystem": true,
       "export_count": 26,
@@ -2310,7 +2425,7 @@
         {
           "module": "polisyos.scientist.governance.continuous",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 58,
+          "export_count": 72,
           "exports": [
             "CONTINUOUS_GOVERNANCE_FLAG",
             "ENABLE_REISSUE_WORKFLOW_FLAG",
@@ -2336,6 +2451,15 @@
             "PartialPublicationState",
             "PolicyContextSignal",
             "PersistedGovernanceMonitorEvent",
+            "PersistedPublicSignaturePopulation",
+            "PersistedPublishedSignatureCustodyScan",
+            "PublicSignaturePopulationMember",
+            "PublicSignaturePopulationNonReceipt",
+            "PublicSignaturePopulationProvider",
+            "PublicSignaturePopulationSnapshot",
+            "PublishedSignatureCustodyResult",
+            "PublishedSignatureCustodyScan",
+            "PublishedSignatureCustodyWatcher",
             "PublicRevisionDiff",
             "ReissuePacket",
             "RetractionPerturbation",
@@ -2369,7 +2493,12 @@
             "persist_withdrawal_record",
             "recommend_validity_action",
             "reissue_scope_from_monitor_events",
-            "resolve_governance_monitor_event"
+            "resolve_governance_monitor_event",
+            "resolve_public_signature_population",
+            "StaticPublicSignaturePopulationProvider",
+            "UnappointedPublicSignaturePopulationProvider",
+            "persist_public_signature_population",
+            "persist_published_signature_custody_scan"
           ],
           "has___getattr__": true,
           "has___dir__": true,
@@ -2430,6 +2559,42 @@
           "has___dir__": false,
           "source_file": "src/polisyos/scientist/methods/research_dag/__init__.py",
           "summary": "Research DAG public API for Scientist best-in-class Phase 1.2."
+        },
+        {
+          "module": "polisyos.scientist.replay",
+          "facade_mode_observed": "lazy_facade",
+          "export_count": 25,
+          "exports": [
+            "ComparatorRegistry",
+            "DeadLetterCorruptedError",
+            "DeadLetterError",
+            "DeadLetterNotFoundError",
+            "DeadLetterRecord",
+            "DiffToleranceConfig",
+            "FieldDiff",
+            "REPLAY_VERIFICATION_REPORT_SCHEMA_NAME",
+            "ReplayBackendResult",
+            "ReplayDiffInputError",
+            "ReplayDiffResult",
+            "ReplayRegistry",
+            "ReplayRegistryEntry",
+            "ReplayRegistrySnapshot",
+            "ReplayVerificationReport",
+            "build_replay_verification_report",
+            "compute_replay_diff",
+            "list_dead_letters",
+            "load_dead_letter",
+            "load_replay_verification_report",
+            "persist_replay_verification_report",
+            "replay_dead_letter",
+            "replay_packet",
+            "save_diff_report",
+            "verify_and_persist_replay_bundle"
+          ],
+          "has___getattr__": true,
+          "has___dir__": true,
+          "source_file": "src/polisyos/scientist/replay/__init__.py",
+          "summary": "Scientist replay hub for dead-letter, diff, and verification helpers."
         }
       ]
     },
@@ -2571,7 +2736,7 @@
         "polisyos.runtime.quality"
       ],
       "major_subsystem": false,
-      "export_count": 965,
+      "export_count": 966,
       "exports": [
         "ACQUISITION_PLANNER_GATE_LAYER",
         "ACQUISITION_PLANNER_GATE_PHASE",
@@ -3463,6 +3628,7 @@
         "requirement_gaps_from_compiled_specs",
         "resolve_evaluation_mode",
         "resolve_expression",
+        "resolve_production_approval_currentness_receipt",
         "resolve_s12_resource_refs",
         "review_controls_for_pruning",
         "run_cost_budget_policy_from_performance_budget",
@@ -3548,7 +3714,7 @@
         {
           "module": "polisyos.runtime.quality",
           "facade_mode_observed": "eager_exports",
-          "export_count": 965,
+          "export_count": 966,
           "exports": [
             "ACQUISITION_PLANNER_GATE_LAYER",
             "ACQUISITION_PLANNER_GATE_PHASE",
@@ -4440,6 +4606,7 @@
             "requirement_gaps_from_compiled_specs",
             "resolve_evaluation_mode",
             "resolve_expression",
+            "resolve_production_approval_currentness_receipt",
             "resolve_s12_resource_refs",
             "review_controls_for_pruning",
             "run_cost_budget_policy_from_performance_budget",

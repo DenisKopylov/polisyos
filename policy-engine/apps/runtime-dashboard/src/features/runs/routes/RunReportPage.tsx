@@ -530,48 +530,50 @@ function RunPaperDocument({
         </dl>
       </section>
 
-      <footer className="print-provenance-summary space-y-2">
-        <PaperFact
-          field="source.manifest_schema"
-          label={t("pages.runs.report.paper.fields.manifestSchema")}
-          value={`${paper.source.manifest_schema_name}@${paper.source.manifest_schema_version}`}
-        />
-        <PaperFact
-          field="source.registry_bundle"
-          label={t("pages.runs.report.paper.fields.registryBundle")}
-          value={paper.source.registry_bundle.artifact_id}
-        />
-        {paper.source.producer ? (
+      <footer className="print-provenance-summary">
+        <dl className="space-y-2">
           <PaperFact
-            field="source.producer"
-            label={t("pages.runs.report.paper.fields.producer")}
-            value={`${paper.source.producer.component}@${paper.source.producer.version}`}
+            field="source.manifest_schema"
+            label={t("pages.runs.report.paper.fields.manifestSchema")}
+            value={`${paper.source.manifest_schema_name}@${paper.source.manifest_schema_version}`}
           />
-        ) : null}
-        {paper.source.environment ? (
-          <>
+          <PaperFact
+            field="source.registry_bundle"
+            label={t("pages.runs.report.paper.fields.registryBundle")}
+            value={paper.source.registry_bundle.artifact_id}
+          />
+          {paper.source.producer ? (
             <PaperFact
-              field="source.environment.python"
-              label={t("pages.runs.report.paper.fields.pythonEnvironment")}
-              value={paper.source.environment.python}
+              field="source.producer"
+              label={t("pages.runs.report.paper.fields.producer")}
+              value={`${paper.source.producer.component}@${paper.source.producer.version}`}
             />
-            <PaperFact
-              field="source.environment.platform"
-              label={t("pages.runs.report.paper.fields.platformEnvironment")}
-              value={paper.source.environment.platform}
-            />
-            <PaperFact
-              field="source.environment.deps_lock_hash"
-              label={t("pages.runs.report.paper.fields.dependenciesLock")}
-              value={paper.source.environment.deps_lock_hash}
-            />
-          </>
-        ) : null}
-        <PaperFact
-          field="packet.replay_address"
-          label={t("pages.runs.report.paper.fields.replayAddress")}
-          value={paper.replayAddress}
-        />
+          ) : null}
+          {paper.source.environment ? (
+            <>
+              <PaperFact
+                field="source.environment.python"
+                label={t("pages.runs.report.paper.fields.pythonEnvironment")}
+                value={paper.source.environment.python}
+              />
+              <PaperFact
+                field="source.environment.platform"
+                label={t("pages.runs.report.paper.fields.platformEnvironment")}
+                value={paper.source.environment.platform}
+              />
+              <PaperFact
+                field="source.environment.deps_lock_hash"
+                label={t("pages.runs.report.paper.fields.dependenciesLock")}
+                value={paper.source.environment.deps_lock_hash}
+              />
+            </>
+          ) : null}
+          <PaperFact
+            field="packet.replay_address"
+            label={t("pages.runs.report.paper.fields.replayAddress")}
+            value={paper.replayAddress}
+          />
+        </dl>
       </footer>
     </Card>
   );

@@ -9,7 +9,7 @@ from typing import Any, ClassVar
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,

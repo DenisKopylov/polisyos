@@ -7,12 +7,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
-from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.core.observability.truthfulness import (
-    TruthfulnessReceipt,
-    TruthfulnessScope,
-    TruthfulnessTier,
-)
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -24,6 +19,11 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
     foundry_method,
+)
+from polisyos.ir.analytics import (
+    TruthfulnessReceipt,
+    TruthfulnessScope,
+    TruthfulnessTier,
 )
 
 from .protocols import PredictionIntervalResult, PredictionResult, TabularData

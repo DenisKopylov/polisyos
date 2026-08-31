@@ -21,12 +21,14 @@ from weakref import WeakKeyDictionary
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core import contracts as core_contracts
 
 # The former TC001-suppressed posture DTOs remain eager for Pydantic runtime resolution.
 from polisyos.pdc import (
     GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
     PROMOTION_RISK_CONDITIONALITY_CAVEAT,
+    ArtifactEnvelope,
     ArtifactRef,
     AuthorityBoundary,
     AuthorityDerivationTrace,
@@ -73,8 +75,17 @@ from polisyos.runtime.quality.confidence_ledger import (
     recompute_confidence_owner_projection_hash,
     validate_confidence_ledger_receipt,
 )
-from polisyos.runtime.quality.credal_reference import CredalReference
+from polisyos.runtime.quality.credal_reference import (
+    AdmissibleCompletion,
+    CredalReference,
+    CredalReferenceEdge,
+    replace_reference_edge,
+)
 from polisyos.runtime.quality.epoch_validity_cascade import (
+    _persist_model,
+    _raw_hash,
+    _read_model,
+    _semantic_hash,
     promotion_candidate_summary_content_hash,
 )
 from polisyos.runtime.quality.generation_cycle import (
@@ -89,6 +100,18 @@ from polisyos.runtime.quality.grounding_bind import (
     resolve_grounding_decision_promotability,
     resolve_grounding_decision_promotability_for_contract_testing,
 )
+from polisyos.runtime.quality.grounding_relation import (
+    GroundingRelationCertificate,
+    GroundingRelationEngine,
+)
+from polisyos.runtime.quality.intervention_atom_binding import (
+    InterventionAtomBinding,  # noqa: TC001
+)
+from polisyos.runtime.quality.intervention_substrate import (
+    InterventionLeverResolution,
+    InterventionSubstrateBundle,
+    resolve_intervention_lever,
+)
 from polisyos.runtime.quality.open_world_risk import (
     OpenWorldRiskArtifactResolver,
     OpenWorldRiskPromotionGate,
@@ -98,21 +121,35 @@ from polisyos.runtime.quality.open_world_risk import (
 )
 from polisyos.runtime.quality.world_model_record import WorldModelRecord  # noqa: TC001
 
+_PromotionEvidenceKind = Literal[
+    "effective_independence",
+    "measurement_root",
+    "effect_obligation",
+]
+_PromotionEvidenceSourceKind = Literal[
+    "polisyos.gy.n9_effective_independence_producer_record",
+    "policyos.gy.measurement_root_payload",
+    "polisyos.gy.n9_effect_obligation_producer_record",
+]
+
 PROMOTION_SEQUENCE_REF = (
     "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence"
 )
 PROMOTION_STRANGLE_REF = (
     "polisyos.runtime.quality.promotion_sequence.LegacyPromotionStrangleReceipt"
 )
-CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION = (
-    "policyos.policy_design_case.layer3_gy.n9_promotion.v4"
-)
-CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION = (
-    "policyos.policy_design_case.layer3_gy.n9_owner_projection.v2"
-)
-_LEGACY_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION = (
+CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION: Literal[
+    "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
+] = "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
+CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION: Literal[
+    "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
+] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"
+_LEGACY_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION: Literal[
     "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1"
-)
+] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1"
+_LEGACY_PROMOTION_OWNER_PROJECTION_V2_SCHEMA_VERSION: Literal[
+    "policyos.policy_design_case.layer3_gy.n9_owner_projection.v2"
+] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v2"
 _SELF_PROMOTION_ROOTS = frozenset(
     {
         "llm_candidate",
@@ -133,11 +170,47 @@ _G4_PROMOTION_RECORDS_PATH = Path(
 )
 _VERIFICATION_NON_PROMOTABLE_REASON = "verification_only_replay"
 _PROMOTION_OBLIGATION_SCOPE_RULE_VERSION = (
-    "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v1"
+    "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v3"
 )
 _PROMOTION_CLASS_GATE_SOURCE_RULE_VERSION = (
     "polisyos.policy_design_case.layer3_gy.n9_class_gate_source.v1"
 )
+_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION: Literal[
+    "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2"
+] = "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2"
+_LEGACY_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION: Literal[
+    "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v1"
+] = "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v1"
+_PROMOTION_EVIDENCE_BRIDGE_KIND = "polisyos.gy.n9_promotion_evidence_bridge"
+_EFFECTIVE_INDEPENDENCE_SOURCE_KIND: Literal[
+    "polisyos.gy.n9_effective_independence_producer_record"
+] = "polisyos.gy.n9_effective_independence_producer_record"
+_MEASUREMENT_ROOT_SOURCE_KIND: Literal["policyos.gy.measurement_root_payload"] = (
+    "policyos.gy.measurement_root_payload"
+)
+_EFFECT_OBLIGATION_SOURCE_KIND: Literal["polisyos.gy.n9_effect_obligation_producer_record"] = (
+    "polisyos.gy.n9_effect_obligation_producer_record"
+)
+_EFFECT_OBLIGATION_SOURCE_SCHEMA_VERSION: Literal[
+    "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v1"
+] = "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v1"
+_MEASUREMENT_ROOT_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_loop.v1"
+_PROMOTION_EVIDENCE_VERIFIER_KIND = "polisyos.gy.n9_promotion_evidence_verifier"
+_PROMOTION_EVIDENCE_VERIFIER_BYTES = b"polisyos.n9-promotion-evidence.verifier.v2\n"
+_EFFECTIVE_INDEPENDENCE_BRIDGE_TYPE = "N9EffectiveIndependenceBridge"
+_MEASUREMENT_ROOT_BRIDGE_TYPE = "N9MeasurementRootBridge"
+_EFFECT_OBLIGATION_BRIDGE_TYPE = "N9EffectObligationBridge"
+_EFFECTIVE_INDEPENDENCE_OWNER_REF = (
+    "polisyos.evidence.portfolio.effective_independence_graph.build_effective_independence_graph"
+)
+_MEASUREMENT_ROOT_OWNER_REF = (
+    "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer.produce_from_catalog"
+)
+_EFFECT_OBLIGATION_OWNER_REF = (
+    "polisyos.runtime.quality.promotion_sequence."
+    "N9PromotionEvidenceBridgeRepository.persist_effect_obligation"
+)
+_INTERVENTION_ATOM_OWNER_REF = "runtime.quality.intervention_substrate"
 
 
 @dataclass(frozen=True)
@@ -151,6 +224,120 @@ class _StrictModel(BaseModel):
     """Strict immutable base for N9 runtime DTOs."""
 
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
+
+
+class _CredalCompletionReplayRecord(_StrictModel):
+    """JSON-safe replay shape for one admissible reference completion."""
+
+    completion_kind: Literal[
+        "fixed",
+        "alternative",
+        "may_exist",
+        "may_not_exist",
+        "partial",
+        "excluded",
+    ]
+    value: dict[str, Any] = Field(default_factory=dict)
+    reason: str = ""
+
+    @classmethod
+    def from_completion(cls, completion: AdmissibleCompletion) -> _CredalCompletionReplayRecord:
+        return cls.model_validate(completion.to_payload())
+
+    def to_completion(self) -> AdmissibleCompletion:
+        return AdmissibleCompletion(
+            completion_kind=self.completion_kind,
+            value=self.value,
+            reason=self.reason,
+        )
+
+
+class _CredalEdgeReplayRecord(_StrictModel):
+    """JSON-safe replay shape for one content-addressed reference edge."""
+
+    modality: str = Field(min_length=1)
+    edge_id: str = Field(min_length=1)
+    status: Literal["confirmed", "contested", "incomplete", "deprecated", "out_of_scope"]
+    admissible_completions: tuple[_CredalCompletionReplayRecord, ...]
+    provenance: dict[str, Any] = Field(default_factory=dict)
+    unit: str | None = None
+    scale: str | None = None
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @classmethod
+    def from_edge(cls, edge: CredalReferenceEdge) -> _CredalEdgeReplayRecord:
+        return cls(
+            modality=edge.modality,
+            edge_id=edge.edge_id,
+            status=edge.status,
+            admissible_completions=tuple(
+                _CredalCompletionReplayRecord.from_completion(item)
+                for item in edge.admissible_completions
+            ),
+            provenance=dict(edge.provenance),
+            unit=edge.unit,
+            scale=edge.scale,
+            content_hash=edge.content_hash,
+        )
+
+    def to_edge(self) -> CredalReferenceEdge:
+        edge = CredalReferenceEdge(
+            modality=self.modality,
+            edge_id=self.edge_id,
+            status=self.status,
+            admissible_completions=tuple(
+                item.to_completion() for item in self.admissible_completions
+            ),
+            provenance=self.provenance,
+            unit=self.unit,
+            scale=self.scale,
+            content_hash=self.content_hash,
+        )
+        if edge.with_content_hash().content_hash != edge.content_hash:
+            raise ValueError("effect_credal_reference_edge_hash_mismatch")
+        return edge
+
+
+class _CredalReferenceReplayRecord(_StrictModel):
+    """Exact, JSON-safe CredalReference inputs retained for CG1 replay."""
+
+    schema_version: str = Field(min_length=1)
+    reference_epoch: str = Field(min_length=1)
+    reference_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    as_of: str = Field(min_length=1)
+    component_versions: dict[str, str]
+    essential_edges: tuple[_CredalEdgeReplayRecord, ...]
+
+    @classmethod
+    def from_reference(cls, reference: CredalReference) -> _CredalReferenceReplayRecord:
+        return cls(
+            schema_version=reference.schema_version,
+            reference_epoch=reference.reference_epoch,
+            reference_hash=reference.reference_hash,
+            as_of=reference.as_of,
+            component_versions=dict(reference.component_versions),
+            essential_edges=tuple(
+                _CredalEdgeReplayRecord.from_edge(edge)
+                for edge in reference.essential_edges.values()
+            ),
+        )
+
+    def to_reference(self) -> CredalReference:
+        edges = tuple(item.to_edge() for item in self.essential_edges)
+        edge_index = {item.key: item for item in edges}
+        if not edges or len(edge_index) != len(edges):
+            raise ValueError("effect_credal_reference_edge_denominator_invalid")
+        reference = CredalReference(
+            schema_version=self.schema_version,
+            reference_epoch=self.reference_epoch,
+            reference_hash=self.reference_hash,
+            as_of=self.as_of,
+            component_versions=self.component_versions,
+            essential_edges=edge_index,
+        )
+        if replace_reference_edge(reference, edges[0]) != reference:
+            raise ValueError("effect_credal_reference_hash_mismatch")
+        return reference
 
 
 class N9DesignProblemBinding(_StrictModel):
@@ -173,6 +360,945 @@ class N9DesignProblemBinding(_StrictModel):
         )
 
 
+class _EffectiveIndependenceProducerRecord(_StrictModel):
+    """Persist the exact inputs and output of the real independence producer."""
+
+    schema_version: Literal[
+        "policyos.policy_design_case.layer3_gy.n9_effective_independence_source.v1"
+    ] = "policyos.policy_design_case.layer3_gy.n9_effective_independence_source.v1"
+    evidence_lines: tuple[dict[str, Any], ...]
+    portfolio_designs: tuple[dict[str, Any], ...]
+    graph_id: str = Field(min_length=1)
+    producer_execution_started_at: str | None = None
+    feature_flags: dict[str, bool] = Field(default_factory=dict)
+    graded_independence_config: dict[str, Any] | None = None
+    rare_domain_context: dict[str, Any] | None = None
+    graph: dict[str, Any]
+
+
+class _EffectObligationProducerRecord(_StrictModel):
+    """Exact replay inputs and outcome for the RACE O_effect producer."""
+
+    schema_version: Literal[
+        "policyos.policy_design_case.layer3_gy.n9_effect_obligation_source.v1"
+    ] = _EFFECT_OBLIGATION_SOURCE_SCHEMA_VERSION
+    intervention_atom: InterventionAtomBinding
+    intervention_substrate: InterventionSubstrateBundle
+    world_model_record: WorldModelRecord
+    operator_kind: str = Field(min_length=1)
+    parameter_value: float | int | str | bool
+    proposal: dict[str, Any]
+    proposal_id: str = Field(min_length=1)
+    declared_estimand: str | None = None
+    causal_mechanism_ref: str | None = None
+    credal_reference: _CredalReferenceReplayRecord
+    l6_resolution: InterventionLeverResolution
+    grounding_relation: GroundingRelationCertificate
+    disposition: Literal["established", "blocked"]
+    limitation_code: str = Field(min_length=1)
+
+
+class _LegacyN9PromotionEvidenceBridgeRecordV1(_StrictModel):
+    """Exact pre-EFFECT evidence bridge retained solely for history reads."""
+
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v1"] = (
+        _LEGACY_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION
+    )
+    evidence_kind: Literal["effective_independence", "measurement_root"]
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_binding: N9DesignProblemBinding
+    source_owner_ref: str = Field(min_length=1)
+    source_artifact_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_artifact_kind: Literal[
+        "polisyos.gy.n9_effective_independence_producer_record",
+        "policyos.gy.measurement_root_payload",
+    ]
+    source_semantic_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_schema_ref: str = Field(min_length=1)
+    source_root_ref: ArtifactRef | None = None
+    disposition: Literal["established", "blocked"]
+    limitation_code: str = Field(min_length=1)
+    verifier_provenance_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class N9PromotionEvidenceBridgeRecord(_StrictModel):
+    """Current candidate/problem binding from a real producer artifact into N9."""
+
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2"] = (
+        _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION
+    )
+    evidence_kind: _PromotionEvidenceKind
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_binding: N9DesignProblemBinding
+    source_owner_ref: str = Field(min_length=1)
+    source_artifact_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_artifact_kind: _PromotionEvidenceSourceKind
+    source_semantic_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_schema_ref: str = Field(min_length=1)
+    source_root_ref: ArtifactRef | None = None
+    disposition: Literal["established", "blocked"]
+    limitation_code: str = Field(min_length=1)
+    verifier_provenance_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class N9PromotionEvidenceResolution(_StrictModel):
+    """Independently resolved predicate result consumed by obligation owners."""
+
+    evidence_kind: _PromotionEvidenceKind
+    status: Literal["established", "refused", "not_established"]
+    owner_ref: str = Field(min_length=1)
+    limitation_code: str = Field(min_length=1)
+    evidence_refs: tuple[str, ...] = ()
+    predicate_class: Literal["independently_reconciled", "not_established"]
+
+
+class _EffectiveIndependenceWriterInput(_StrictModel):
+    """Producer inputs accepted only by the N9 evidence writer boundary."""
+
+    evidence_lines: tuple[dict[str, Any], ...]
+    portfolio_designs: tuple[dict[str, Any], ...]
+    graph_id: str = Field(min_length=1)
+    producer_execution_started_at: str | None = None
+    feature_flags: dict[str, bool] = Field(default_factory=dict)
+    graded_independence_config: dict[str, Any] | None = None
+    rare_domain_context: dict[str, Any] | None = None
+
+
+class _MeasurementRootWriterInput(_StrictModel):
+    """Real MeasurementRoot envelope accepted by the N9 writer boundary."""
+
+    envelope: ArtifactEnvelope
+
+
+class _EffectObligationWriterInput(_StrictModel):
+    """Owner inputs accepted only by the RACE O_effect producer boundary."""
+
+    intervention_atom: InterventionAtomBinding
+    intervention_substrate: InterventionSubstrateBundle
+    world_model_record: WorldModelRecord
+    operator_kind: str = Field(min_length=1)
+    parameter_value: float | int | str | bool
+    proposal: dict[str, Any]
+    proposal_id: str = Field(min_length=1)
+    declared_estimand: str | None = None
+    causal_mechanism_ref: str | None = None
+
+
+class N9PromotionEvidenceBridgeRepository:
+    """Persist and independently replay N9 producer bindings from exact CAS bytes."""
+
+    def __init__(self, *, store: core_artifacts.ArtifactStore) -> None:
+        self._store = store
+        self._verifier_provenance_ref = store.put_bytes(
+            _PROMOTION_EVIDENCE_VERIFIER_BYTES,
+            core_artifacts.ArtifactWriteOptions(
+                kind=_PROMOTION_EVIDENCE_VERIFIER_KIND,
+                media_type="text/plain",
+            ),
+        )
+
+    def persist_effective_independence(
+        self,
+        *,
+        promotion_input: CanonicalPromotionInput,
+        evidence_lines: Sequence[Mapping[str, Any]],
+        portfolio_designs: Sequence[Mapping[str, Any]],
+        graph_id: str,
+        producer_execution_started_at: str | None = None,
+        feature_flags: Mapping[str, bool] | None = None,
+        graded_independence_config: Mapping[str, Any] | None = None,
+        rare_domain_context: Mapping[str, Any] | None = None,
+    ) -> ArtifactRef:
+        """Invoke, persist, and candidate-bind the real independence calculus."""
+
+        from polisyos.evidence import build_effective_independence_graph
+
+        normalized_lines = tuple(dict(item) for item in evidence_lines)
+        normalized_designs = tuple(dict(item) for item in portfolio_designs)
+        normalized_flags = dict(feature_flags or {})
+        normalized_config = (
+            dict(graded_independence_config) if graded_independence_config is not None else None
+        )
+        normalized_scarcity = dict(rare_domain_context) if rare_domain_context is not None else None
+        graph = build_effective_independence_graph(
+            normalized_lines,
+            portfolio_designs=normalized_designs,
+            graph_id=graph_id,
+            producer_execution_started_at=producer_execution_started_at,
+            feature_flags=normalized_flags,
+            graded_independence_config=normalized_config,
+            rare_domain_context=normalized_scarcity,
+        )
+        producer_record = _EffectiveIndependenceProducerRecord(
+            evidence_lines=normalized_lines,
+            portfolio_designs=normalized_designs,
+            graph_id=graph_id,
+            producer_execution_started_at=producer_execution_started_at,
+            feature_flags=normalized_flags,
+            graded_independence_config=normalized_config,
+            rare_domain_context=normalized_scarcity,
+            graph=graph,
+        )
+        source_ref, source_semantic_hash, _raw = _persist_model(
+            store=self._store,
+            value=producer_record,
+            kind=_EFFECTIVE_INDEPENDENCE_SOURCE_KIND,
+        )
+        disposition, limitation = _effective_independence_disposition(graph)
+        return self._persist_bridge(
+            promotion_input=promotion_input,
+            evidence_kind="effective_independence",
+            source_owner_ref=_EFFECTIVE_INDEPENDENCE_OWNER_REF,
+            source_artifact_id=str(source_ref.artifact_id),
+            source_artifact_kind=_EFFECTIVE_INDEPENDENCE_SOURCE_KIND,
+            source_semantic_hash=source_semantic_hash,
+            source_schema_ref=str(graph["schema_version"]),
+            source_root_ref=None,
+            disposition=disposition,
+            limitation_code=limitation,
+        )
+
+    def persist_measurement_root(
+        self,
+        *,
+        promotion_input: CanonicalPromotionInput,
+        envelope: ArtifactEnvelope,
+    ) -> ArtifactRef:
+        """Resolve a real MeasurementRoot envelope before binding it to N9."""
+
+        payload, root = self._resolve_measurement_source(
+            source_artifact_id=envelope.payload_ref,
+            source_root_ref=next(
+                (
+                    item
+                    for item in envelope.producer_roots
+                    if item.artifact_type == "MeasurementRoot"
+                ),
+                None,
+            ),
+        )
+        if (
+            envelope.ref.artifact_type != "BaseDataset"
+            or envelope.ref.schema_ref != root.schema_ref
+            or envelope.payload_schema_ref != root.schema_ref
+            or envelope.created_by.get("component")
+            != "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"
+            or envelope.producer_operation.get("operation_id") != "slice0.bind.catalog"
+        ):
+            raise ValueError("measurement_root_envelope_binding_invalid")
+        return self._persist_bridge(
+            promotion_input=promotion_input,
+            evidence_kind="measurement_root",
+            source_owner_ref=_MEASUREMENT_ROOT_OWNER_REF,
+            source_artifact_id=envelope.payload_ref,
+            source_artifact_kind=_MEASUREMENT_ROOT_SOURCE_KIND,
+            source_semantic_hash=gy_content_hash(payload),
+            source_schema_ref=envelope.payload_schema_ref,
+            source_root_ref=root,
+            disposition="established",
+            limitation_code="measurement_root_established",
+        )
+
+    def persist_effect_obligation(
+        self,
+        *,
+        promotion_input: CanonicalPromotionInput,
+        intervention_atom: InterventionAtomBinding,
+        intervention_substrate: InterventionSubstrateBundle,
+        world_model_record: WorldModelRecord,
+        operator_kind: str,
+        parameter_value: float | int | str | bool,
+        proposal: Mapping[str, Any],
+        proposal_id: str,
+        declared_estimand: str | None,
+        causal_mechanism_ref: str | None,
+    ) -> ArtifactRef:
+        """Produce and bind a replayable RACE O_effect decision."""
+
+        reference = promotion_input.credal_reference
+        if reference is None:
+            raise ValueError("effect_credal_reference_missing")
+        normalized_proposal = json.loads(json.dumps(dict(proposal), sort_keys=True))
+        if not isinstance(normalized_proposal, dict):
+            raise TypeError("effect_proposal_payload_invalid")
+        l6_resolution = resolve_intervention_lever(
+            intervention_substrate,
+            operator_kind=operator_kind,
+            parameter_value=parameter_value,
+            world_model_record=world_model_record,
+        )
+        if not isinstance(l6_resolution, InterventionLeverResolution):
+            raise ValueError("effect_intervention_owner_binding_refused")
+        grounding_relation = GroundingRelationEngine(reference).certificate_for(
+            normalized_proposal,
+            proposal_id=proposal_id,
+        )
+        disposition, limitation = _effect_obligation_disposition(
+            intervention_atom=intervention_atom,
+            l6_resolution=l6_resolution,
+            grounding_relation=grounding_relation,
+            grounding_decision=promotion_input.grounding_decision_certificate,
+            cg2_attempt=_resolve_cg2_owner_promotability(promotion_input),
+            allow_contract_testing_bind=_effect_contract_lane(promotion_input),
+            proposal=normalized_proposal,
+            declared_estimand=declared_estimand,
+            causal_mechanism_ref=causal_mechanism_ref,
+        )
+        source = _EffectObligationProducerRecord(
+            intervention_atom=intervention_atom,
+            intervention_substrate=intervention_substrate,
+            world_model_record=world_model_record,
+            operator_kind=operator_kind,
+            parameter_value=parameter_value,
+            proposal=normalized_proposal,
+            proposal_id=proposal_id,
+            declared_estimand=declared_estimand,
+            causal_mechanism_ref=causal_mechanism_ref,
+            credal_reference=_CredalReferenceReplayRecord.from_reference(reference),
+            l6_resolution=l6_resolution,
+            grounding_relation=grounding_relation,
+            disposition=disposition,
+            limitation_code=limitation,
+        )
+        source_ref, source_semantic_hash, _raw = _persist_model(
+            store=self._store,
+            value=source,
+            kind=_EFFECT_OBLIGATION_SOURCE_KIND,
+        )
+        return self._persist_bridge(
+            promotion_input=promotion_input,
+            evidence_kind="effect_obligation",
+            source_owner_ref=_EFFECT_OBLIGATION_OWNER_REF,
+            source_artifact_id=str(source_ref.artifact_id),
+            source_artifact_kind=_EFFECT_OBLIGATION_SOURCE_KIND,
+            source_semantic_hash=source_semantic_hash,
+            source_schema_ref=source.schema_version,
+            source_root_ref=None,
+            disposition=disposition,
+            limitation_code=limitation,
+        )
+
+    def resolve(
+        self,
+        *,
+        bridge_ref: ArtifactRef,
+        promotion_input: CanonicalPromotionInput,
+        evidence_kind: _PromotionEvidenceKind,
+    ) -> N9PromotionEvidenceResolution:
+        """Read, verify, and bind one evidence bridge or return a typed nonreceipt."""
+
+        owner_ref = _promotion_evidence_owner_ref(evidence_kind)
+        try:
+            expected_type = _promotion_evidence_bridge_type(evidence_kind)
+            if (
+                bridge_ref.artifact_type != expected_type
+                or bridge_ref.schema_ref != _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION
+                or bridge_ref.version != "v2"
+                or bridge_ref.uri != f"cas://{bridge_ref.artifact_id}"
+            ):
+                raise ValueError("promotion_evidence_bridge_ref_invalid")
+            core_ref = core_artifacts.ArtifactRef(
+                artifact_id=core_artifacts.ArtifactID(bridge_ref.artifact_id),
+                kind=_PROMOTION_EVIDENCE_BRIDGE_KIND,
+                media_type="application/vnd.polisyos.chronology+json",
+            )
+            record = _read_model(
+                store=self._store,
+                ref=core_ref,
+                model=N9PromotionEvidenceBridgeRecord,
+                kind=_PROMOTION_EVIDENCE_BRIDGE_KIND,
+            )
+            if not isinstance(record, N9PromotionEvidenceBridgeRecord):
+                raise TypeError("promotion_evidence_bridge_model_invalid")
+            if (
+                bridge_ref.content_hash != gy_content_hash(record.model_dump(mode="json"))
+                or record.evidence_kind != evidence_kind
+                or record.candidate_id != promotion_input.candidate_summary.candidate_id
+                or record.candidate_content_hash != promotion_input.candidate_summary.content_hash
+                or record.design_problem_binding != promotion_input.design_problem_binding
+                or record.source_owner_ref != owner_ref
+                or record.verifier_provenance_ref != str(self._verifier_provenance_ref.artifact_id)
+                or not self._verifier_provenance_is_exact(record.verifier_provenance_ref)
+            ):
+                raise ValueError("promotion_evidence_bridge_binding_invalid")
+            if evidence_kind == "effective_independence":
+                disposition, limitation, source_refs = self._resolve_independence_record(record)
+            elif evidence_kind == "measurement_root":
+                disposition, limitation, source_refs = self._resolve_measurement_record(record)
+            else:
+                disposition, limitation, source_refs = self._resolve_effect_record(
+                    record,
+                    promotion_input=promotion_input,
+                )
+            if record.disposition != disposition or record.limitation_code != limitation:
+                raise ValueError("promotion_evidence_bridge_disposition_drift")
+            return N9PromotionEvidenceResolution(
+                evidence_kind=evidence_kind,
+                status="established" if disposition == "established" else "refused",
+                owner_ref=owner_ref,
+                limitation_code=limitation,
+                evidence_refs=tuple(dict.fromkeys((bridge_ref.artifact_id, *source_refs))),
+                predicate_class="independently_reconciled",
+            )
+        except (KeyError, OSError, TypeError, ValueError):
+            return N9PromotionEvidenceResolution(
+                evidence_kind=evidence_kind,
+                status="not_established",
+                owner_ref=owner_ref,
+                limitation_code=f"{evidence_kind}_evidence_not_established",
+                predicate_class="not_established",
+            )
+
+    def _persist_bridge(
+        self,
+        *,
+        promotion_input: CanonicalPromotionInput,
+        evidence_kind: _PromotionEvidenceKind,
+        source_owner_ref: str,
+        source_artifact_id: str,
+        source_artifact_kind: _PromotionEvidenceSourceKind,
+        source_semantic_hash: str,
+        source_schema_ref: str,
+        source_root_ref: ArtifactRef | None,
+        disposition: Literal["established", "blocked"],
+        limitation_code: str,
+    ) -> ArtifactRef:
+        record = N9PromotionEvidenceBridgeRecord(
+            evidence_kind=evidence_kind,
+            candidate_id=promotion_input.candidate_summary.candidate_id,
+            candidate_content_hash=promotion_input.candidate_summary.content_hash,
+            design_problem_binding=promotion_input.design_problem_binding,
+            source_owner_ref=source_owner_ref,
+            source_artifact_id=source_artifact_id,
+            source_artifact_kind=source_artifact_kind,
+            source_semantic_hash=source_semantic_hash,
+            source_schema_ref=source_schema_ref,
+            source_root_ref=source_root_ref,
+            disposition=disposition,
+            limitation_code=limitation_code,
+            verifier_provenance_ref=str(self._verifier_provenance_ref.artifact_id),
+        )
+        ref, _semantic, _raw = _persist_model(
+            store=self._store,
+            value=record,
+            kind=_PROMOTION_EVIDENCE_BRIDGE_KIND,
+        )
+        artifact_type = _promotion_evidence_bridge_type(evidence_kind)
+        return ArtifactRef(
+            artifact_id=str(ref.artifact_id),
+            artifact_type=artifact_type,
+            content_hash=gy_content_hash(record.model_dump(mode="json")),
+            schema_ref=_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION,
+            uri=f"cas://{ref.artifact_id}",
+            version="v2",
+        )
+
+    def _resolve_independence_record(
+        self,
+        record: N9PromotionEvidenceBridgeRecord,
+    ) -> tuple[Literal["established", "blocked"], str, tuple[str, ...]]:
+        from polisyos.evidence import (
+            build_effective_independence_graph,
+            validate_effective_independence_graph_record,
+        )
+
+        if (
+            record.source_artifact_kind != _EFFECTIVE_INDEPENDENCE_SOURCE_KIND
+            or record.source_root_ref is not None
+        ):
+            raise ValueError("effective_independence_bridge_source_invalid")
+        source_ref = core_artifacts.ArtifactRef(
+            artifact_id=core_artifacts.ArtifactID(record.source_artifact_id),
+            kind=_EFFECTIVE_INDEPENDENCE_SOURCE_KIND,
+            media_type="application/vnd.polisyos.chronology+json",
+        )
+        source = _read_model(
+            store=self._store,
+            ref=source_ref,
+            model=_EffectiveIndependenceProducerRecord,
+            kind=_EFFECTIVE_INDEPENDENCE_SOURCE_KIND,
+        )
+        if not isinstance(source, _EffectiveIndependenceProducerRecord):
+            raise TypeError("effective_independence_source_model_invalid")
+        if (
+            _semantic_hash(_EFFECTIVE_INDEPENDENCE_SOURCE_KIND, source)
+            != record.source_semantic_hash
+            or source.graph.get("schema_version") != record.source_schema_ref
+        ):
+            raise ValueError("effective_independence_source_binding_invalid")
+        recomputed = build_effective_independence_graph(
+            source.evidence_lines,
+            portfolio_designs=source.portfolio_designs,
+            graph_id=source.graph_id,
+            producer_execution_started_at=source.producer_execution_started_at,
+            feature_flags=source.feature_flags,
+            graded_independence_config=source.graded_independence_config,
+            rare_domain_context=source.rare_domain_context,
+        )
+        if validate_effective_independence_graph_record(source.graph) != recomputed:
+            raise ValueError("effective_independence_source_recomputation_mismatch")
+        disposition, limitation = _effective_independence_disposition(recomputed)
+        return (
+            disposition,
+            limitation,
+            (
+                record.source_artifact_id,
+                str(recomputed["graph_id"]),
+            ),
+        )
+
+    def _resolve_measurement_record(
+        self,
+        record: N9PromotionEvidenceBridgeRecord,
+    ) -> tuple[Literal["established", "blocked"], str, tuple[str, ...]]:
+        if (
+            record.source_artifact_kind != _MEASUREMENT_ROOT_SOURCE_KIND
+            or record.source_root_ref is None
+        ):
+            raise ValueError("measurement_root_bridge_source_invalid")
+        payload, root = self._resolve_measurement_source(
+            source_artifact_id=record.source_artifact_id,
+            source_root_ref=record.source_root_ref,
+        )
+        if (
+            gy_content_hash(payload) != record.source_semantic_hash
+            or root.schema_ref != record.source_schema_ref
+        ):
+            raise ValueError("measurement_root_source_binding_invalid")
+        return (
+            "established",
+            "measurement_root_established",
+            (
+                record.source_artifact_id,
+                root.content_hash,
+            ),
+        )
+
+    def _resolve_effect_record(
+        self,
+        record: N9PromotionEvidenceBridgeRecord,
+        *,
+        promotion_input: CanonicalPromotionInput,
+    ) -> tuple[Literal["established", "blocked"], str, tuple[str, ...]]:
+        if (
+            record.source_artifact_kind != _EFFECT_OBLIGATION_SOURCE_KIND
+            or record.source_root_ref is not None
+            or record.source_schema_ref != _EFFECT_OBLIGATION_SOURCE_SCHEMA_VERSION
+        ):
+            raise ValueError("effect_obligation_bridge_source_invalid")
+        source_ref = core_artifacts.ArtifactRef(
+            artifact_id=core_artifacts.ArtifactID(record.source_artifact_id),
+            kind=_EFFECT_OBLIGATION_SOURCE_KIND,
+            media_type="application/vnd.polisyos.chronology+json",
+        )
+        source = _read_model(
+            store=self._store,
+            ref=source_ref,
+            model=_EffectObligationProducerRecord,  # type: ignore[arg-type]
+            kind=_EFFECT_OBLIGATION_SOURCE_KIND,
+        )
+        if not isinstance(source, _EffectObligationProducerRecord):
+            raise TypeError("effect_obligation_source_model_invalid")
+        if _semantic_hash(_EFFECT_OBLIGATION_SOURCE_KIND, source) != record.source_semantic_hash:
+            raise ValueError("effect_obligation_source_binding_invalid")
+        promotion_reference = promotion_input.credal_reference
+        if promotion_reference is None:
+            raise ValueError("effect_credal_reference_missing")
+        reference = source.credal_reference.to_reference()
+        if (
+            reference.schema_version != promotion_reference.schema_version
+            or reference.reference_epoch != promotion_reference.reference_epoch
+            or reference.reference_hash != promotion_reference.reference_hash
+            or reference.as_of != promotion_reference.as_of
+        ):
+            raise ValueError("effect_credal_reference_binding_mismatch")
+        l6_resolution = resolve_intervention_lever(
+            source.intervention_substrate,
+            operator_kind=source.operator_kind,
+            parameter_value=source.parameter_value,
+            world_model_record=source.world_model_record,
+        )
+        if not isinstance(l6_resolution, InterventionLeverResolution):
+            raise ValueError("effect_intervention_owner_binding_refused")
+        grounding_relation = GroundingRelationEngine(reference).certificate_for(
+            source.proposal,
+            proposal_id=source.proposal_id,
+        )
+        if l6_resolution != source.l6_resolution or grounding_relation != source.grounding_relation:
+            raise ValueError("effect_obligation_source_recomputation_mismatch")
+        disposition, limitation = _effect_obligation_disposition(
+            intervention_atom=source.intervention_atom,
+            l6_resolution=l6_resolution,
+            grounding_relation=grounding_relation,
+            grounding_decision=promotion_input.grounding_decision_certificate,
+            cg2_attempt=_resolve_cg2_owner_promotability(
+                promotion_input.model_copy(update={"credal_reference": reference})
+            ),
+            allow_contract_testing_bind=_effect_contract_lane(promotion_input),
+            proposal=source.proposal,
+            declared_estimand=source.declared_estimand,
+            causal_mechanism_ref=source.causal_mechanism_ref,
+        )
+        return (
+            disposition,
+            limitation,
+            (
+                record.source_artifact_id,
+                source.intervention_atom.content_hash,
+                l6_resolution.content_hash,
+                grounding_relation.content_hash,
+            ),
+        )
+
+    def _resolve_measurement_source(
+        self,
+        *,
+        source_artifact_id: str,
+        source_root_ref: ArtifactRef | None,
+    ) -> tuple[dict[str, Any], ArtifactRef]:
+        if source_root_ref is None or source_root_ref.artifact_type != "MeasurementRoot":
+            raise ValueError("measurement_root_source_ref_missing")
+        artifact_id = core_artifacts.ArtifactID(source_artifact_id)
+        report = self._store.verify(artifact_id)
+        raw = self._store.get_bytes(artifact_id)
+        manifest = self._store.get_manifest(artifact_id)
+        producer = manifest.producer
+        schema = manifest.artifact_schema
+        canon = manifest.canon
+        tenant = manifest.tenant_context
+        closure = manifest.same_input_closure
+        authority = manifest.authority
+        if (
+            not report.ok
+            or _raw_hash(raw) != source_artifact_id
+            or manifest.artifact_id != artifact_id
+            or manifest.kind != _MEASUREMENT_ROOT_SOURCE_KIND
+            or manifest.media_type != "application/json"
+            or manifest.byte_size != len(raw)
+            or schema
+            != core_artifacts.SchemaInfo(
+                name=_MEASUREMENT_ROOT_SCHEMA_VERSION,
+                version="v1",
+            )
+            or canon != core_artifacts.CanonInfo(forbid_floats=False)
+            or manifest.inputs != []
+            or producer is None
+            or producer.component
+            != "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"
+            or producer.version != "1.0.0"
+            or producer.git is not None
+            or manifest.env is not None
+            or manifest.governance is not None
+            or tenant is None
+            or tenant.tenant_id != "policyos-system"
+            or tenant.cell_id is not None
+            or closure is None
+            or closure.status != "closed"
+            or closure.tenant_id != "policyos-system"
+            or closure.cell_id is not None
+            or closure.evidence_input_refs != ()
+            or authority is None
+            or authority.payload_sha256 != artifact_id.hex
+            or authority.manifest_ref != f"cas-manifest://{artifact_id}"
+            or manifest.integrity.sha256 != artifact_id.hex
+            or manifest.integrity.optional is not None
+            or manifest.warnings != []
+        ):
+            raise ValueError("measurement_root_source_manifest_invalid")
+        for linked_ref_value in (
+            authority.authority_envelope_ref,
+            authority.diagnostic_event_ref,
+        ):
+            linked_id = core_artifacts.ArtifactID(linked_ref_value)
+            linked_raw = self._store.get_bytes(linked_id)
+            linked_report = self._store.verify(linked_id)
+            linked_manifest = self._store.get_manifest(linked_id)
+            if (
+                not linked_report.ok
+                or _raw_hash(linked_raw) != linked_ref_value
+                or linked_manifest.artifact_id != linked_id
+                or linked_manifest.byte_size != len(linked_raw)
+                or linked_manifest.integrity.sha256 != linked_id.hex
+            ):
+                raise ValueError("measurement_root_authority_linkage_invalid")
+        payload = json.loads(raw)
+        if not isinstance(payload, dict):
+            raise TypeError("measurement_root_payload_invalid")
+        rows = payload.get("measurement_rows")
+        source_contract = payload.get("source_contract_admission")
+        bindings = payload.get("catalog_binding_refs")
+        catalog_result = payload.get("catalog_result")
+        distributions = payload.get("distributions")
+        applicability = payload.get("applicability_result")
+        fixture_id = payload.get("fixture_id")
+        if (
+            payload.get("producer_root_kind") != "measurement"
+            or not isinstance(rows, list)
+            or not rows
+            or any(
+                not isinstance(row, Mapping)
+                or not isinstance(row.get("row_id"), str)
+                or not row["row_id"]
+                for row in rows
+            )
+            or not isinstance(source_contract, Mapping)
+            or source_contract.get("status") != "applicable"
+            or not isinstance(applicability, Mapping)
+            or applicability.get("status") != "applicable"
+            or not isinstance(bindings, list)
+            or len(bindings) != 1
+            or not isinstance(bindings[0], str)
+            or not bindings[0]
+            or not isinstance(catalog_result, Mapping)
+            or catalog_result.get("id") != bindings[0]
+            or not isinstance(distributions, list)
+            or not isinstance(fixture_id, str)
+            or not fixture_id
+        ):
+            raise ValueError("measurement_root_source_contract_invalid")
+        catalog_connector_type = str(catalog_result.get("connector_type") or "").strip()
+        distribution_connector_type = (
+            str(distributions[0].get("connector_type") or "").strip()
+            if distributions and isinstance(distributions[0], Mapping)
+            else ""
+        )
+        connector_type = catalog_connector_type or distribution_connector_type
+        if not connector_type:
+            raise ValueError("measurement_root_connector_not_established")
+        artifact_slug = _measurement_root_slug(fixture_id)
+        expected_root = ArtifactRef.from_payload(
+            artifact_id=f"measurement-root-{artifact_slug}",
+            artifact_type="MeasurementRoot",
+            payload={
+                "dataset_id": bindings[0],
+                "connector_type": connector_type,
+                "producer_root_kind": payload["producer_root_kind"],
+                "measurement_row_count": len(rows),
+                "measurement_row_refs": [row["row_id"] for row in rows],
+            },
+            schema_ref=_MEASUREMENT_ROOT_SCHEMA_VERSION,
+            uri=f"gy://slice0/{fixture_id}/measurement-root",
+            version="v1",
+        )
+        if expected_root != source_root_ref:
+            raise ValueError("measurement_root_source_projection_mismatch")
+        return payload, source_root_ref
+
+    def _verifier_provenance_is_exact(self, artifact_id_value: str) -> bool:
+        try:
+            artifact_id = core_artifacts.ArtifactID(artifact_id_value)
+            report = self._store.verify(artifact_id)
+            raw = self._store.get_bytes(artifact_id)
+            manifest = self._store.get_manifest(artifact_id)
+            return bool(
+                report.ok
+                and raw == _PROMOTION_EVIDENCE_VERIFIER_BYTES
+                and manifest.artifact_id == artifact_id
+                and manifest.kind == _PROMOTION_EVIDENCE_VERIFIER_KIND
+                and manifest.media_type == "text/plain"
+                and manifest.byte_size == len(raw)
+                and manifest.artifact_schema is None
+                and manifest.canon is None
+                and manifest.inputs == []
+                and manifest.producer is None
+                and manifest.env is None
+                and manifest.governance is None
+                and manifest.tenant_context is None
+                and manifest.same_input_closure is None
+                and manifest.authority is None
+                and manifest.warnings == []
+                and manifest.integrity.sha256 == artifact_id.hex
+                and manifest.integrity.optional is None
+                and _raw_hash(raw) == str(artifact_id)
+            )
+        except (KeyError, OSError, TypeError, ValueError):
+            return False
+
+
+def _promotion_evidence_owner_ref(
+    evidence_kind: _PromotionEvidenceKind,
+) -> str:
+    if evidence_kind == "effective_independence":
+        return _EFFECTIVE_INDEPENDENCE_OWNER_REF
+    if evidence_kind == "measurement_root":
+        return _MEASUREMENT_ROOT_OWNER_REF
+    return _EFFECT_OBLIGATION_OWNER_REF
+
+
+def _promotion_evidence_bridge_type(
+    evidence_kind: _PromotionEvidenceKind,
+) -> str:
+    if evidence_kind == "effective_independence":
+        return _EFFECTIVE_INDEPENDENCE_BRIDGE_TYPE
+    if evidence_kind == "measurement_root":
+        return _MEASUREMENT_ROOT_BRIDGE_TYPE
+    return _EFFECT_OBLIGATION_BRIDGE_TYPE
+
+
+def _effect_obligation_disposition(
+    *,
+    intervention_atom: InterventionAtomBinding,
+    l6_resolution: InterventionLeverResolution,
+    grounding_relation: GroundingRelationCertificate,
+    grounding_decision: GroundingDecisionCertificate | None,
+    cg2_attempt: _CG2OwnerPromotabilityAttempt,
+    allow_contract_testing_bind: bool,
+    proposal: Mapping[str, Any],
+    declared_estimand: str | None,
+    causal_mechanism_ref: str | None,
+) -> tuple[Literal["established", "blocked"], str]:
+    """Recompute the three RACE §12.3 conjuncts after owner binding."""
+
+    owner_resolution = l6_resolution.owner_resolution
+    if (
+        intervention_atom.status != "grounded"
+        or intervention_atom.producer_ref != _INTERVENTION_ATOM_OWNER_REF
+        or owner_resolution.get("atom_id") != intervention_atom.atom_id
+        or owner_resolution.get("atom_content_hash") != intervention_atom.content_hash
+        or tuple(l6_resolution.target_world_slots) != intervention_atom.target_world_slots
+        or intervention_atom.operator_kind.trinity_kind
+        != intervention_atom.direct_effect_bundle.mechanism_id
+    ):
+        return "blocked", "effect_atom_binding_shadow_only"
+    shadow_tokens = (
+        *intervention_atom.provenance_refs,
+        *tuple(
+            str(item) for item in intervention_atom.causal_do_expr.context.get("assumptions", ())
+        ),
+    )
+    if any(
+        marker in value
+        for value in shadow_tokens
+        for marker in (
+            "llm_candidate_shadow_only",
+            "grounding_relation_certificate",
+            "grounding_decision_certificate",
+        )
+    ):
+        return "blocked", "effect_atom_binding_shadow_only"
+
+    signature = _effect_proposal_signature(grounding_relation)
+    proposal_estimand = str(signature.get("estimand") or "").strip()
+    mapped_estimand = str(declared_estimand or "").strip()
+    atom_estimand = str(intervention_atom.intended_downstream_estimand.functional or "").strip()
+    if not proposal_estimand or not mapped_estimand or not atom_estimand:
+        return "blocked", "effect_estimand_mapping_missing"
+    if not (
+        proposal_estimand == mapped_estimand == atom_estimand
+        and intervention_atom.intended_downstream_estimand.outcome_variables
+    ):
+        return "blocked", "effect_estimand_mapping_mismatch"
+
+    effect_path = tuple(str(item).strip() for item in signature.get("effect_path", ()))
+    effect_path = tuple(item for item in effect_path if item)
+    mechanism_ref = str(causal_mechanism_ref or "").strip()
+    if not effect_path and not mechanism_ref:
+        return "blocked", "effect_causal_path_or_mechanism_missing"
+    if mechanism_ref and mechanism_ref != intervention_atom.direct_effect_bundle.mechanism_id:
+        return "blocked", "effect_causal_path_or_mechanism_mismatch"
+
+    raw_grounding = str(
+        proposal.get("effect_grounding")
+        or signature.get("effect_grounding")
+        or signature.get("admissibility")
+        or ""
+    ).casefold()
+    if raw_grounding in {"ungrounded", "explicitly_ungrounded"}:
+        return "blocked", "effect_claim_ungrounded"
+    if grounding_relation.selected_relation not in {
+        "exact",
+        "certified-specialization",
+    }:
+        return "blocked", "effect_claim_ungrounded"
+    effect_axis_relations = {item.axis: item.relation for item in grounding_relation.axis_witnesses}
+    if any(
+        effect_axis_relations.get(axis) not in {"equivalent", "narrower"}
+        for axis in ("sign", "outcome", "effect_path", "estimand")
+    ):
+        return "blocked", "effect_claim_ungrounded"
+    eligible_atom_ids = {
+        str(item.get("atom_id") or "")
+        for item in grounding_relation.relation_set.get("candidate_results", ())
+        if isinstance(item, Mapping)
+        and item.get("selected_relation") == grounding_relation.selected_relation
+        and not str(item.get("atom_id") or "").startswith("cg1_counter_")
+    }
+    cg2_resolution = cg2_attempt.resolution
+    cg2_binding_established = bool(
+        cg2_attempt.error is None
+        and cg2_resolution is not None
+        and cg2_resolution.content_hash_valid
+        and cg2_resolution.reference_epoch_match
+        and (
+            _cg2_resolution_is_production_promotable(cg2_attempt)
+            or (
+                allow_contract_testing_bind
+                and _cg2_resolution_is_contract_lane_bind(cg2_resolution)
+            )
+        )
+    )
+    if not cg2_binding_established:
+        return "blocked", "effect_binding_authority_not_established"
+    if (
+        grounding_decision is None
+        or grounding_decision.decision != "bind"
+        or not grounding_decision.bound_atom_id
+        or grounding_decision.bound_atom_id not in eligible_atom_ids
+    ):
+        return "blocked", "effect_claim_ungrounded"
+    if grounding_relation.selected_relation == "certified-specialization":
+        return "established", "effect_claim_bounded"
+    return "established", "effect_claim_entailed"
+
+
+def _effect_contract_lane(promotion_input: CanonicalPromotionInput) -> bool:
+    return (
+        promotion_input.open_world_gate is None
+        and promotion_input.epoch_validity_projection is None
+    )
+
+
+def _effect_proposal_signature(
+    grounding_relation: GroundingRelationCertificate,
+) -> Mapping[str, Any]:
+    hypotheses = grounding_relation.proposal_signature.get("hypotheses")
+    if not isinstance(hypotheses, Sequence) or len(hypotheses) != 1:
+        return {}
+    hypothesis = hypotheses[0]
+    if not isinstance(hypothesis, Mapping):
+        return {}
+    signature = hypothesis.get("signature")
+    return signature if isinstance(signature, Mapping) else {}
+
+
+def _effective_independence_disposition(
+    graph: Mapping[str, Any],
+) -> tuple[Literal["established", "blocked"], str]:
+    raw_count = int(graph.get("raw_evidence_line_count") or 0)
+    effective_count = int(graph.get("hard_effective_line_count") or 0)
+    mass_report = graph.get("mass_report")
+    deficits = (
+        tuple(str(item) for item in mass_report.get("limiting_deficits", ()))
+        if isinstance(mass_report, Mapping)
+        else ()
+    )
+    if raw_count <= 0 or effective_count <= 0:
+        return "blocked", "no_support_evidence"
+    if deficits:
+        return "blocked", deficits[0]
+    if raw_count != effective_count:
+        return "blocked", "dependent_evidence_collapsed"
+    return "established", "effective_independence_established"
+
+
+def _measurement_root_slug(value: str) -> str:
+    normalized = "".join(char.lower() if char.isalnum() else "-" for char in value)
+    compact = "-".join(part for part in normalized.split("-") if part)
+    return compact or "item"
+
+
 class CredalReferencePromotabilityProjection(_StrictModel):
     """Narrow CG2 dependency used by the owner-store promotability resolver."""
 
@@ -185,7 +1311,7 @@ class CredalReferencePromotabilityProjection(_StrictModel):
 class CanonicalPromotionInput(_StrictModel):
     """Complete input to one canonical N9 promotion attempt."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v4"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v6"] = (
         CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
     )
     design_problem_binding: N9DesignProblemBinding
@@ -212,8 +1338,6 @@ class CanonicalPromotionInput(_StrictModel):
     g4_governed_promotion_ref: str | None = (
         "g4-promotion-record:g4-request:ua-msme-source-only-valid"
     )
-    effective_independence: bool = True
-    admissibility: bool = True
     force_proof_timeout: bool = False
 
     @model_validator(mode="after")
@@ -244,6 +1368,125 @@ class CanonicalPromotionInput(_StrictModel):
         ):
             raise ValueError("promotion_epoch_open_world_context_mismatch")
         return self
+
+
+def _promotion_evidence_resolutions(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    resolver: N9PromotionEvidenceBridgeRepository | None,
+) -> dict[str, N9PromotionEvidenceResolution]:
+    resolutions: dict[str, N9PromotionEvidenceResolution] = {}
+    evidence_specs: tuple[tuple[_PromotionEvidenceKind, str, str], ...] = (
+        (
+            "effective_independence",
+            _EFFECTIVE_INDEPENDENCE_BRIDGE_TYPE,
+            _EFFECTIVE_INDEPENDENCE_OWNER_REF,
+        ),
+        (
+            "measurement_root",
+            _MEASUREMENT_ROOT_BRIDGE_TYPE,
+            _MEASUREMENT_ROOT_OWNER_REF,
+        ),
+        (
+            "effect_obligation",
+            _EFFECT_OBLIGATION_BRIDGE_TYPE,
+            _EFFECT_OBLIGATION_OWNER_REF,
+        ),
+    )
+    for evidence_kind, artifact_type, owner_ref in evidence_specs:
+        refs = tuple(
+            item
+            for item in promotion_input.producer_root_refs
+            if item.artifact_type == artifact_type
+        )
+        if resolver is not None and len(refs) == 1:
+            resolutions[evidence_kind] = resolver.resolve(
+                bridge_ref=refs[0],
+                promotion_input=promotion_input,
+                evidence_kind=evidence_kind,
+            )
+            continue
+        limitation = (
+            f"{evidence_kind}_bridge_duplicate"
+            if len(refs) > 1
+            else f"{evidence_kind}_evidence_not_established"
+        )
+        resolutions[evidence_kind] = N9PromotionEvidenceResolution(
+            evidence_kind=evidence_kind,
+            status="not_established",
+            owner_ref=owner_ref,
+            limitation_code=limitation,
+            predicate_class="not_established",
+        )
+    return resolutions
+
+
+def _bind_production_promotion_evidence(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    context: Mapping[str, Any],
+    repository: N9PromotionEvidenceBridgeRepository | None,
+) -> CanonicalPromotionInput:
+    """Persist real producer outputs and carry only their verified bridge refs."""
+
+    if repository is None:
+        return promotion_input
+    producer_root_refs = list(promotion_input.producer_root_refs)
+    raw_independence = context.get("effective_independence_writer_input")
+    if raw_independence is not None:
+        try:
+            independence_input = _EffectiveIndependenceWriterInput.model_validate(raw_independence)
+            producer_root_refs.append(
+                repository.persist_effective_independence(
+                    promotion_input=promotion_input,
+                    evidence_lines=independence_input.evidence_lines,
+                    portfolio_designs=independence_input.portfolio_designs,
+                    graph_id=independence_input.graph_id,
+                    producer_execution_started_at=(
+                        independence_input.producer_execution_started_at
+                    ),
+                    feature_flags=independence_input.feature_flags,
+                    graded_independence_config=(independence_input.graded_independence_config),
+                    rare_domain_context=independence_input.rare_domain_context,
+                )
+            )
+        except (KeyError, OSError, TypeError, ValueError):
+            pass
+    raw_measurement = context.get("measurement_root_writer_input")
+    if raw_measurement is not None:
+        try:
+            measurement_input = _MeasurementRootWriterInput.model_validate(raw_measurement)
+            producer_root_refs.append(
+                repository.persist_measurement_root(
+                    promotion_input=promotion_input,
+                    envelope=measurement_input.envelope,
+                )
+            )
+        except (KeyError, OSError, TypeError, ValueError):
+            pass
+    raw_effect = context.get("effect_obligation_writer_input")
+    if raw_effect is not None:
+        try:
+            effect_input = _EffectObligationWriterInput.model_validate(raw_effect)
+            producer_root_refs.append(
+                repository.persist_effect_obligation(
+                    promotion_input=promotion_input,
+                    intervention_atom=effect_input.intervention_atom,
+                    intervention_substrate=effect_input.intervention_substrate,
+                    world_model_record=effect_input.world_model_record,
+                    operator_kind=effect_input.operator_kind,
+                    parameter_value=effect_input.parameter_value,
+                    proposal=effect_input.proposal,
+                    proposal_id=effect_input.proposal_id,
+                    declared_estimand=effect_input.declared_estimand,
+                    causal_mechanism_ref=effect_input.causal_mechanism_ref,
+                )
+            )
+        except (KeyError, OSError, TypeError, ValueError):
+            pass
+    if tuple(producer_root_refs) == promotion_input.producer_root_refs:
+        return promotion_input
+    return promotion_input.model_copy(update={"producer_root_refs": tuple(producer_root_refs)})
 
 
 class _LegacyCanonicalPromotionOwnerProjectionV1(_StrictModel):
@@ -296,20 +1539,68 @@ class _LegacyCanonicalPromotionOwnerProjectionV1(_StrictModel):
         return self
 
 
-class CanonicalPromotionOwnerProjection(_LegacyCanonicalPromotionOwnerProjectionV1):
-    """Current content-bound owner projection; the OWR key is physically present."""
+class _LegacyCanonicalPromotionOwnerProjectionV2(_LegacyCanonicalPromotionOwnerProjectionV1):
+    """Exact v4 owner bytes retained solely for history reads."""
 
     schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_owner_projection.v2"] = (
-        CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION
+        _LEGACY_PROMOTION_OWNER_PROJECTION_V2_SCHEMA_VERSION
     )
     open_world_gate: OpenWorldRiskPromotionGate | None
     epoch_validity_projection: core_contracts.EpochValidityN9Projection | None = None
 
 
+class CanonicalPromotionOwnerProjection(_StrictModel):
+    """Current owner projection without caller-asserted gate predicates."""
+
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_owner_projection.v3"] = (
+        CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION
+    )
+    design_problem_binding: N9DesignProblemBinding
+    candidate_summary: CandidateSummary
+    value_receipt: ValueGateReceipt | None = None
+    world_model_record: WorldModelRecord | None = None
+    grounding_decision_certificate: GroundingDecisionCertificate | None = None
+    credal_reference: CredalReferencePromotabilityProjection | None = None
+    s6_blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None
+    s7_delegation_posture: Layer2S7DelegationPostureInput | None = None
+    s8_value_posture: Layer2S8ValuePostureInput | None = None
+    operation_invocation_id: str = Field(..., min_length=1)
+    declared_authority_transform: dict[str, Any] = Field(default_factory=dict)
+    producer_root_classes: tuple[str, ...]
+    producer_root_refs: tuple[ArtifactRef, ...]
+    verifier_refs: tuple[str, ...]
+    certificate_offers: tuple[PromotionCertificateOffer, ...] = ()
+    open_world_gate: OpenWorldRiskPromotionGate | None
+    epoch_validity_projection: core_contracts.EpochValidityN9Projection | None = None
+    g4_governed_promotion_ref: str | None
+    force_proof_timeout: bool
+    projection_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @field_validator("value_receipt", mode="before")
+    @classmethod
+    def _load_persisted_value_receipt(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            return value
+        payload = dict(value)
+        value_outer_set = payload.get("value_outer_set")
+        if isinstance(value_outer_set, Mapping):
+            payload["value_outer_set"] = core_contracts.ValueOuterSet.from_persisted_payload(
+                value_outer_set
+            )
+        return ValueGateReceipt.model_validate(payload)
+
+    @model_validator(mode="after")
+    def _projection_hash_is_content_bound(self) -> CanonicalPromotionOwnerProjection:
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"projection_hash"}))
+        if self.projection_hash != expected:
+            raise ValueError("n9_owner_projection_hash_mismatch")
+        return self
+
+
 class CanonicalPromotionReceipt(_StrictModel):
     """Replay-visible result of the canonical N9 sequence."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v4"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v6"] = (
         CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION
     )
     owner_projection: CanonicalPromotionOwnerProjection
@@ -443,6 +1734,23 @@ class CanonicalPromotionReceipt(_StrictModel):
         return self
 
 
+class _LegacyCanonicalPromotionReceiptV5(CanonicalPromotionReceipt):
+    """Exact v5/v2 obligation-scope receipt retained only for history reads."""
+
+    schema_version: Literal[  # type: ignore[assignment]
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
+    ] = "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
+
+
+class _LegacyCanonicalPromotionReceiptV4(_LegacyCanonicalPromotionReceiptV5):
+    """Exact v4/v1 obligation-scope receipt retained only for history reads."""
+
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v4"] = (
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v4"
+    )
+    owner_projection: _LegacyCanonicalPromotionOwnerProjectionV2
+
+
 class _LegacyCanonicalPromotionReceiptV3(CanonicalPromotionReceipt):
     """Exact pre-OpenWorldRisk v3 receipt retained only for history reads."""
 
@@ -462,12 +1770,42 @@ class _LegacyCanonicalPromotionReceiptV2(_LegacyCanonicalPromotionReceiptV3):
 
 
 _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+_LEGACY_PROMOTION_SEQUENCE_V5_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
+)
+_LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer3_gy.n9_promotion.v4"
+)
+_HISTORICAL_PROMOTION_SEQUENCE_SCHEMA_VERSIONS = frozenset(
+    {
+        _LEGACY_PROMOTION_SEQUENCE_V5_SCHEMA_VERSION,
+        _LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION,
+        GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+        _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
+    }
+)
+
+
+def _historical_promotion_non_admission_code(
+    schema_version: object,
+) -> str | None:
+    """Return the typed current-authority refusal for one readable history epoch."""
+
+    if schema_version not in _HISTORICAL_PROMOTION_SEQUENCE_SCHEMA_VERSIONS:
+        return None
+    if schema_version == _LEGACY_PROMOTION_SEQUENCE_V5_SCHEMA_VERSION:
+        return "legacy_obligation_scope_v2_authority_not_admitted"
+    if schema_version == _LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION:
+        return "legacy_obligation_scope_v1_authority_not_admitted"
+    return "legacy_open_world_gate_authority_not_admitted"
 
 
 def parse_canonical_promotion_history_receipt(
     value: Mapping[str, object],
 ) -> (
     CanonicalPromotionReceipt
+    | _LegacyCanonicalPromotionReceiptV5
+    | _LegacyCanonicalPromotionReceiptV4
     | _LegacyCanonicalPromotionReceiptV3
     | _LegacyCanonicalPromotionReceiptV2
 ):
@@ -476,6 +1814,10 @@ def parse_canonical_promotion_history_receipt(
     schema_version = value.get("schema_version")
     if schema_version == CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION:
         return CanonicalPromotionReceipt.model_validate(value)
+    if schema_version == _LEGACY_PROMOTION_SEQUENCE_V5_SCHEMA_VERSION:
+        return _LegacyCanonicalPromotionReceiptV5.model_validate(value)
+    if schema_version == _LEGACY_PROMOTION_SEQUENCE_V4_SCHEMA_VERSION:
+        return _LegacyCanonicalPromotionReceiptV4.model_validate(value)
     if schema_version == GY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
         return _LegacyCanonicalPromotionReceiptV3.model_validate(value)
     if schema_version == _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
@@ -491,9 +1833,17 @@ CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE = (
     "polisyos.runtime.quality.promotion_sequence."
     "canonical_promotion_receipt_verification_projection.v2"
 )
-CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE = (
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V4_HISTORY_RULE = (
     "polisyos.runtime.quality.promotion_sequence."
     "canonical_promotion_receipt_verification_projection.v3"
+)
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V5_HISTORY_RULE = (
+    "polisyos.runtime.quality.promotion_sequence."
+    "canonical_promotion_receipt_verification_projection.v4"
+)
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE = (
+    "polisyos.runtime.quality.promotion_sequence."
+    "canonical_promotion_receipt_verification_projection.v5"
 )
 
 _PROMOTION_OWNER_PROJECTION_LINEAGE_FIELDS = frozenset({"projection_hash"})
@@ -740,19 +2090,17 @@ def _canonical_promotion_receipt_legacy_semantic_projection(
 def canonical_promotion_receipt_semantic_projection(
     value: Mapping[str, object],
 ) -> dict[str, Any]:
-    """Project a verified receipt onto its v4 producer-owned semantics.
+    """Project a verified receipt onto its v6 producer-owned semantics.
 
     The complete raw receipt remains the custody record. Physical ledger
     locators are non-decisive only when the confidence-ledger producer's full
     semantic event lineage is present and content-valid.
     """
 
-    if value.get("schema_version") in {
-        GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
-        _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
-    }:
+    history_code = _historical_promotion_non_admission_code(value.get("schema_version"))
+    if history_code is not None:
         parse_canonical_promotion_history_receipt(value)
-        raise ValueError("legacy_open_world_gate_authority_not_admitted")
+        raise ValueError(history_code)
     receipt = CanonicalPromotionReceipt.model_validate(value)
     if type(receipt) is not CanonicalPromotionReceipt:
         raise ValueError("legacy_open_world_gate_authority_not_admitted")
@@ -767,6 +2115,26 @@ def canonical_promotion_receipt_semantic_projection(
         receipt.model_dump(mode="json"),
         model_type=CanonicalPromotionReceipt,
         owner_model_type=CanonicalPromotionOwnerProjection,
+        receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
+    )
+
+
+def _canonical_promotion_receipt_v4_semantic_projection(
+    value: Mapping[str, object],
+) -> dict[str, Any]:
+    """Project exact historical v4/v2-owner bytes under their frozen v3 rule ID."""
+
+    receipt = _LegacyCanonicalPromotionReceiptV4.model_validate(value)
+    if receipt.confidence_ledger_semantic_projection is None:
+        raise ValueError("promotion_comparison_semantic_ledger_missing")
+    if not is_gy_declared_non_authority_block(
+        receipt.confidence_ledger_projection.model_dump(mode="json")
+    ):
+        raise ValueError("promotion_comparison_requires_verification_receipt")
+    return _project_promotion_receipt_payload(
+        receipt.model_dump(mode="json"),
+        model_type=_LegacyCanonicalPromotionReceiptV4,
+        owner_model_type=_LegacyCanonicalPromotionOwnerProjectionV2,
         receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
     )
 
@@ -800,6 +2168,13 @@ CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE = GyComparisonOwne
 
 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE = GyComparisonOwnerRule(
     projector=_canonical_promotion_receipt_v3_semantic_projection,
+    action="project",
+    predicate_provenance="recomputed",
+)
+
+
+CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V4_HISTORY_OWNER_RULE = GyComparisonOwnerRule(
+    projector=_canonical_promotion_receipt_v4_semantic_projection,
     action="project",
     predicate_provenance="recomputed",
 )
@@ -918,8 +2293,6 @@ def _owner_projection_from_input(
         "open_world_gate": promotion_input.open_world_gate,
         "epoch_validity_projection": promotion_input.epoch_validity_projection,
         "g4_governed_promotion_ref": promotion_input.g4_governed_promotion_ref,
-        "effective_independence": promotion_input.effective_independence,
-        "admissibility": promotion_input.admissibility,
         "force_proof_timeout": promotion_input.force_proof_timeout,
     }
     payload["projection_hash"] = gy_content_hash(
@@ -968,8 +2341,6 @@ def _input_from_owner_projection(
         open_world_gate=projection.open_world_gate,
         epoch_validity_projection=projection.epoch_validity_projection,
         g4_governed_promotion_ref=projection.g4_governed_promotion_ref,
-        effective_independence=projection.effective_independence,
-        admissibility=projection.admissibility,
         force_proof_timeout=projection.force_proof_timeout,
     )
 
@@ -1037,6 +2408,11 @@ class CanonicalN9PromotionPort:
             raise ValueError("epoch_n9_evidence_resolver_owner_mismatch")
         self._context_provider = context_provider
         self._promotion_runtime = promotion_runtime
+        self._promotion_evidence_resolver = (
+            N9PromotionEvidenceBridgeRepository(store=promotion_runtime.store)
+            if promotion_runtime is not None
+            else None
+        )
         self._epoch_n9_evidence_resolver = runtime_epoch_resolver
         self._repo_root = repo_root
         self._ledger_root = (repo_root or Path(__file__).resolve().parents[4]).resolve()
@@ -1046,6 +2422,14 @@ class CanonicalN9PromotionPort:
         """Return the independently constructed reader used by decision-front replay."""
 
         return self._promotion_runtime.resolver if self._promotion_runtime is not None else None
+
+    @property
+    def promotion_evidence_resolver(
+        self,
+    ) -> N9PromotionEvidenceBridgeRepository | None:
+        """Return the owner-store reader for N9 producer bridge artifacts."""
+
+        return self._promotion_evidence_resolver
 
     @property
     def epoch_validity_resolver(
@@ -1204,6 +2588,11 @@ def _run_n9_promotion_port_batch(
     if confidence_ledger_session.risk_scope != expected_scope:
         raise ValueError("confidence_ledger_scope_binding_mismatch")
     verification = confidence_ledger_session.authority_provenance == "verification"
+    promotion_evidence_resolver = (
+        N9PromotionEvidenceBridgeRepository(store=promotion_runtime.store)
+        if promotion_runtime is not None
+        else None
+    )
     epoch_projections: tuple[core_contracts.EpochValidityN9Projection | None, ...]
     open_world_gates: tuple[OpenWorldRiskPromotionGate | None, ...]
     if admitted_batch is not None:
@@ -1280,6 +2669,9 @@ def _run_n9_promotion_port_batch(
     )
     if any("open_world_gate" in context for context in contexts):
         raise ValueError("promotion_context_cannot_supply_open_world_gate")
+    legacy_gate_predicates = frozenset({"admissibility", "effective_independence"})
+    if any(legacy_gate_predicates.intersection(context) for context in contexts):
+        raise ValueError("promotion_context_cannot_supply_gate_predicate")
     receipts_with_inputs: list[tuple[CanonicalPromotionReceipt, CanonicalPromotionInput]] = []
     for summary, context, open_world_gate, epoch_projection in zip(
         summaries,
@@ -1321,9 +2713,12 @@ def _run_n9_promotion_port_batch(
                 "g4_governed_promotion_ref",
                 "g4-promotion-record:g4-request:ua-msme-source-only-valid",
             ),
-            effective_independence=bool(context.get("effective_independence", True)),
-            admissibility=bool(context.get("admissibility", True)),
             force_proof_timeout=bool(context.get("force_proof_timeout", False)),
+        )
+        promotion_input = _bind_production_promotion_evidence(
+            promotion_input,
+            context=context,
+            repository=promotion_evidence_resolver,
         )
         runner = (
             _run_canonical_promotion_sequence_for_verification
@@ -1335,6 +2730,7 @@ def _run_n9_promotion_port_batch(
                 runner(
                     promotion_input,
                     confidence_ledger_session=confidence_ledger_session,
+                    promotion_evidence_resolver=promotion_evidence_resolver,
                 ),
                 promotion_input,
             )
@@ -1356,6 +2752,7 @@ def _run_n9_promotion_port_batch(
             ledger_receipt=final_ledger_receipt,
             ledger_projection=final_ledger_projection,
             ledger_semantic_projection=final_ledger_semantic_projection,
+            promotion_evidence_resolver=promotion_evidence_resolver,
         )
         for receipt, promotion_input in receipts_with_inputs
     ]
@@ -1851,11 +3248,13 @@ def _build_promotion_receipt_from_owners(
     ledger_semantic_projection: N9PromotionSemanticLedgerProjection,
     cg2_attempt: _CG2OwnerPromotabilityAttempt | None = None,
     base_obligations: tuple[PromotionObligationDraft, ...] | None = None,
+    evidence_resolutions: Mapping[str, N9PromotionEvidenceResolution] | None = None,
 ) -> CanonicalPromotionReceipt:
     attempt = cg2_attempt or _resolve_cg2_owner_promotability(promotion_input)
     obligations = base_obligations or _compile_obligations(
         promotion_input,
         cg2_attempt=attempt,
+        evidence_resolutions=evidence_resolutions,
     )
     expected_checks = _resolve_expected_ledger_checks(
         ledger_receipt,
@@ -1872,7 +3271,11 @@ def _build_promotion_receipt_from_owners(
         expected_checks,
         risk_spend=risk_spend,
     )
-    obligations = _finalize_obligations(promotion_input, class_obligations)
+    obligations = _finalize_obligations(
+        promotion_input,
+        class_obligations,
+        evidence_resolutions=evidence_resolutions,
+    )
     promotion_lane = _promotion_lane(attempt)
     gate_hash = _gate_outcome_hash(
         obligations,
@@ -1963,6 +3366,7 @@ def run_canonical_promotion_sequence(
     promotion_input: CanonicalPromotionInput,
     *,
     confidence_ledger_session: ConfidenceLedgerSession,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> CanonicalPromotionReceipt:
     """Run the single canonical N9 sequence over the real owner contracts."""
 
@@ -1979,6 +3383,7 @@ def run_canonical_promotion_sequence(
     return _run_promotion_sequence_with_bound_session(
         promotion_input,
         confidence_ledger_session=confidence_ledger_session,
+        promotion_evidence_resolver=promotion_evidence_resolver,
     )
 
 
@@ -1986,6 +3391,7 @@ def _run_canonical_promotion_sequence_with_owner_gate(
     promotion_input: CanonicalPromotionInput,
     *,
     confidence_ledger_session: ConfidenceLedgerSession,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> CanonicalPromotionReceipt:
     """Private N9 owner entry after the runtime has independently derived OWR."""
 
@@ -1998,6 +3404,7 @@ def _run_canonical_promotion_sequence_with_owner_gate(
     return _run_promotion_sequence_with_bound_session(
         promotion_input,
         confidence_ledger_session=confidence_ledger_session,
+        promotion_evidence_resolver=promotion_evidence_resolver,
     )
 
 
@@ -2005,6 +3412,7 @@ def _run_canonical_promotion_sequence_for_verification(
     promotion_input: CanonicalPromotionInput,
     *,
     confidence_ledger_session: ConfidenceLedgerSession,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> CanonicalPromotionReceipt:
     """Replay N9 in an isolated namespace that can never authorize a consumer."""
 
@@ -2022,6 +3430,7 @@ def _run_canonical_promotion_sequence_for_verification(
     return _run_promotion_sequence_with_bound_session(
         promotion_input,
         confidence_ledger_session=confidence_ledger_session,
+        promotion_evidence_resolver=promotion_evidence_resolver,
     )
 
 
@@ -2058,6 +3467,7 @@ def _run_promotion_sequence_with_bound_session(
     promotion_input: CanonicalPromotionInput,
     *,
     confidence_ledger_session: ConfidenceLedgerSession,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> CanonicalPromotionReceipt:
     """Execute one sequence after its authority mode has been checked by a wrapper."""
 
@@ -2072,7 +3482,15 @@ def _run_promotion_sequence_with_bound_session(
         ),
     )
     cg2_attempt = _resolve_cg2_owner_promotability(promotion_input)
-    obligations = _compile_obligations(promotion_input, cg2_attempt=cg2_attempt)
+    evidence_resolutions = _promotion_evidence_resolutions(
+        promotion_input,
+        resolver=promotion_evidence_resolver,
+    )
+    obligations = _compile_obligations(
+        promotion_input,
+        cg2_attempt=cg2_attempt,
+        evidence_resolutions=evidence_resolutions,
+    )
     ledger_receipt = confidence_ledger_session.receipt()
     ledger_projection = project_n9_promotion_certificate(
         ledger_receipt,
@@ -2090,6 +3508,7 @@ def _run_promotion_sequence_with_bound_session(
         ledger_semantic_projection=ledger_semantic_projection,
         cg2_attempt=cg2_attempt,
         base_obligations=obligations,
+        evidence_resolutions=evidence_resolutions,
     )
 
 
@@ -2101,16 +3520,22 @@ def _rebind_promotion_receipt_to_ledger_head(
     ledger_receipt: ConfidenceLedgerReceipt,
     ledger_projection: N9PromotionCertificateProjection,
     ledger_semantic_projection: N9PromotionSemanticLedgerProjection,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> CanonicalPromotionReceipt:
     """Recompute one candidate decision against the batch's final ledger head."""
 
     del receipt
+    evidence_resolutions = _promotion_evidence_resolutions(
+        promotion_input,
+        resolver=promotion_evidence_resolver,
+    )
     return _build_promotion_receipt_from_owners(
         promotion_input,
         registry=registry,
         ledger_receipt=ledger_receipt,
         ledger_projection=ledger_projection,
         ledger_semantic_projection=ledger_semantic_projection,
+        evidence_resolutions=evidence_resolutions,
     )
 
 
@@ -2146,6 +3571,7 @@ def validate_canonical_promotion_receipt(
     value_receipt: ValueGateReceipt | None = None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
     epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> tuple[dict[str, Any], ...]:
     """Recompute an authority-bearing N9 receipt from the canonical deployment."""
 
@@ -2157,6 +3583,7 @@ def validate_canonical_promotion_receipt(
         value_receipt=value_receipt,
         open_world_resolver=open_world_resolver,
         epoch_validity_resolver=epoch_validity_resolver,
+        promotion_evidence_resolver=promotion_evidence_resolver,
         confidence_ledger_session=None,
         expected_authority_provenance="canonical_repo",
     )
@@ -2169,6 +3596,7 @@ def promotion_receipt_allows_decision_front(
     design_problem: DesignProblem | None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
     epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> bool:
     """Resolve and validate canonical N9 evidence before decision-front admission."""
 
@@ -2188,6 +3616,7 @@ def promotion_receipt_allows_decision_front(
             value_receipt=summary.value_receipt,
             open_world_resolver=open_world_resolver,
             epoch_validity_resolver=epoch_validity_resolver,
+            promotion_evidence_resolver=promotion_evidence_resolver,
         ):
             return False
         return bool(
@@ -2209,6 +3638,7 @@ def _validate_canonical_promotion_receipt_for_verification(
     value_receipt: ValueGateReceipt | None = None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
     epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> tuple[dict[str, Any], ...]:
     """Recompute a non-authority replay receipt against its isolated current head."""
 
@@ -2229,6 +3659,7 @@ def _validate_canonical_promotion_receipt_for_verification(
         value_receipt=value_receipt,
         open_world_resolver=open_world_resolver,
         epoch_validity_resolver=epoch_validity_resolver,
+        promotion_evidence_resolver=promotion_evidence_resolver,
         confidence_ledger_session=confidence_ledger_session,
         expected_authority_provenance="verification",
     )
@@ -2244,6 +3675,7 @@ def admit_canonical_promotion_receipt_for_comparison(
     value_receipt: ValueGateReceipt | None = None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
     epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> GyComparisonAdmission:
     """Return a comparison admission after full verification-owner replay.
 
@@ -2253,12 +3685,14 @@ def admit_canonical_promotion_receipt_for_comparison(
     self-computed projection hash.
     """
 
-    if isinstance(receipt, Mapping) and receipt.get("schema_version") in {
-        GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
-        _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
-    }:
+    history_code = (
+        _historical_promotion_non_admission_code(receipt.get("schema_version"))
+        if isinstance(receipt, Mapping)
+        else None
+    )
+    if history_code is not None:
         parse_canonical_promotion_history_receipt(receipt)
-        raise ValueError("legacy_open_world_gate_authority_not_admitted")
+        raise ValueError(history_code)
     parsed = (
         receipt
         if type(receipt) is CanonicalPromotionReceipt
@@ -2275,6 +3709,7 @@ def admit_canonical_promotion_receipt_for_comparison(
         value_receipt=value_receipt,
         open_world_resolver=open_world_resolver,
         epoch_validity_resolver=epoch_validity_resolver,
+        promotion_evidence_resolver=promotion_evidence_resolver,
     )
     if issues:
         raise ValueError(
@@ -2289,7 +3724,7 @@ def admit_canonical_promotion_receipt_for_comparison(
         previous: Mapping[str, object],
         current: Mapping[str, object],
     ) -> Mapping[str, object]:
-        """Admit same-version v4 lineage only; v2/v3 remain history, never authority."""
+        """Admit same-version v6 lineage only; v2/v3/v4/v5 stay history."""
 
         try:
             current_receipt = CanonicalPromotionReceipt.model_validate(current)
@@ -2316,10 +3751,13 @@ def admit_canonical_promotion_receipt_for_comparison(
                 ) != canonical_promotion_receipt_semantic_projection(current):
                     raise ValueError("migrated_semantic_projection_drift")
                 return migrated_payload
-            # v2/v3 lack the decisive OWR owner fact. They remain structurally
-            # readable history but cannot be migrated into v4 authority.
+            # Historical epochs remain structurally readable but cannot be
+            # migrated into current authority without a fresh owner replay.
             parse_canonical_promotion_history_receipt(previous)
-            raise ValueError("legacy_open_world_gate_authority_not_admitted")
+            raise ValueError(
+                _historical_promotion_non_admission_code(previous_schema)
+                or "promotion_history_schema_invalid"
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("promotion_legacy_comparison_semantic_mismatch") from exc
 
@@ -2345,6 +3783,7 @@ def prove_canonical_promotion_receipt_for_comparison(
     value_receipt: ValueGateReceipt | None = None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
     epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> object:
     """Issue an opaque proof after the canonical live comparison admission.
 
@@ -2362,6 +3801,7 @@ def prove_canonical_promotion_receipt_for_comparison(
         value_receipt=value_receipt,
         open_world_resolver=open_world_resolver,
         epoch_validity_resolver=epoch_validity_resolver,
+        promotion_evidence_resolver=promotion_evidence_resolver,
     )
     return _issue_canonical_promotion_comparison_proof(admission)
 
@@ -2403,20 +3843,23 @@ def _validate_promotion_receipt_with_bound_session(
     value_receipt: ValueGateReceipt | None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None,
     epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None,
     confidence_ledger_session: ConfidenceLedgerSession | None,
     expected_authority_provenance: Literal["canonical_repo", "verification"],
 ) -> tuple[dict[str, Any], ...]:
     """Recompute one receipt after its authority mode is fixed by a wrapper."""
 
-    if isinstance(receipt, Mapping) and receipt.get("schema_version") in {
-        GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
-        _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
-    }:
+    history_code = (
+        _historical_promotion_non_admission_code(receipt.get("schema_version"))
+        if isinstance(receipt, Mapping)
+        else None
+    )
+    if history_code is not None:
         try:
             parse_canonical_promotion_history_receipt(receipt)
         except ValueError as exc:
             return ({"code": "promotion_receipt_invalid", "error": str(exc)},)
-        return ({"code": "legacy_open_world_gate_authority_not_admitted"},)
+        return ({"code": history_code},)
     if type(receipt) is not CanonicalPromotionReceipt:
         try:
             receipt = CanonicalPromotionReceipt.model_validate(receipt)
@@ -2511,14 +3954,20 @@ def _validate_promotion_receipt_with_bound_session(
             elif resolved_epoch != epoch_projection:
                 issues.append({"code": "epoch_validity_projection_binding_mismatch"})
     replay_cg2_attempt = _resolve_cg2_owner_promotability(replay_input)
+    evidence_resolutions = _promotion_evidence_resolutions(
+        replay_input,
+        resolver=promotion_evidence_resolver,
+    )
     replay_base_obligations = _compile_obligations(
         replay_input,
         cg2_attempt=replay_cg2_attempt,
+        evidence_resolutions=evidence_resolutions,
     )
     issues.extend(
         _obligation_instance_issues(
             receipt.obligations,
             replay_input=replay_input,
+            evidence_resolutions=evidence_resolutions,
         )
     )
     expected_scope = confidence_risk_scope_for_problem(replay_input.design_problem_binding)
@@ -2864,6 +4313,7 @@ def _validate_promotion_receipt_with_bound_session(
                 ledger_semantic_projection=expected_semantic_projection,
                 cg2_attempt=replay_cg2_attempt,
                 base_obligations=replay_base_obligations,
+                evidence_resolutions=evidence_resolutions,
             )
         except ConfidenceLedgerError as exc:
             if exc.code in {
@@ -3011,6 +4461,7 @@ def _compile_obligations(
     promotion_input: CanonicalPromotionInput,
     *,
     cg2_attempt: _CG2OwnerPromotabilityAttempt,
+    evidence_resolutions: Mapping[str, N9PromotionEvidenceResolution] | None = None,
 ) -> tuple[PromotionObligationDraft, ...]:
     receipt = promotion_input.value_receipt
     summary = promotion_input.candidate_summary
@@ -3020,10 +4471,10 @@ def _compile_obligations(
         _slot_obligation(promotion_input),
         _param_obligation(promotion_input),
         _coupling_obligation(summary),
-        _effect_obligation(promotion_input),
+        _effect_obligation(_evidence_resolution(evidence_resolutions, "effect_obligation")),
         _identification_obligation(promotion_input, cg2_attempt=cg2_attempt),
         _calibration_obligation(receipt),
-        _measurement_obligation(receipt),
+        _measurement_obligation(_evidence_resolution(evidence_resolutions, "measurement_root")),
         _data_obligation(receipt),
         _implementation_obligation(promotion_input.s6_blind_spot_posture),
         _equilibrium_obligation(receipt),
@@ -3037,6 +4488,60 @@ def _compile_obligations(
     if tuple(item.obligation_class for item in obligations) != tuple(PromotionObligationClass):
         raise ValueError("promotion_obligation_denominator_not_total")
     return tuple(obligations)
+
+
+def _evidence_resolution(
+    evidence_resolutions: Mapping[str, N9PromotionEvidenceResolution] | None,
+    evidence_kind: _PromotionEvidenceKind,
+) -> N9PromotionEvidenceResolution:
+    if evidence_resolutions is not None:
+        resolved = evidence_resolutions.get(evidence_kind)
+        if isinstance(resolved, N9PromotionEvidenceResolution):
+            return resolved
+    owner_ref = _promotion_evidence_owner_ref(evidence_kind)
+    return N9PromotionEvidenceResolution(
+        evidence_kind=evidence_kind,
+        status="not_established",
+        owner_ref=owner_ref,
+        limitation_code=f"{evidence_kind}_evidence_not_established",
+        predicate_class="not_established",
+    )
+
+
+def _effective_independence_obligation(
+    resolution: N9PromotionEvidenceResolution,
+) -> PromotionObligationDraft:
+    if resolution.status == "established":
+        return _satisfied_obligation(
+            obligation_class=PromotionObligationClass.DATA,
+            gate_id=PromotionGateId.RING2_WAIST,
+            owner_ref=resolution.owner_ref,
+            detail=(
+                "The persisted effective-independence graph was recomputed and bound "
+                "to this candidate and design problem."
+            ),
+            evidence_refs=list(resolution.evidence_refs),
+        )
+    if resolution.status == "refused":
+        return _failed_obligation(
+            obligation_class=PromotionObligationClass.DATA,
+            gate_id=PromotionGateId.RING2_WAIST,
+            owner_ref=resolution.owner_ref,
+            detail=(
+                f"Effective-independence owner refused promotion: {resolution.limitation_code}."
+            ),
+            reason=PromotionFailClosedReason.SINGLE_OBLIGATION_FAIL,
+        ).model_copy(update={"evidence_refs": list(resolution.evidence_refs)})
+    return _scope_insufficient_obligation(
+        obligation_class=PromotionObligationClass.DATA,
+        gate_id=PromotionGateId.RING2_WAIST,
+        owner_ref=resolution.owner_ref,
+        detail=(
+            "evidence_not_established: the effective-independence calculus is "
+            "implemented but not production-orchestrated into N9; no resolved, "
+            "candidate/problem-bound bridge is present."
+        ),
+    )
 
 
 def _obligation_instance_scope_content_hash(
@@ -3077,11 +4582,35 @@ def _decisive_predicate_obligations(
     promotion_input: CanonicalPromotionInput,
     *,
     instance_scope_content_hash: str,
+    evidence_resolutions: Mapping[str, N9PromotionEvidenceResolution] | None = None,
 ) -> tuple[PromotionObligationRecord, ...]:
+    records: list[PromotionObligationRecord] = []
+    independence_source_ref = f"{PROMOTION_SEQUENCE_REF}#effective_independence"
+    independence_resolution = _evidence_resolution(
+        evidence_resolutions,
+        "effective_independence",
+    )
+    independence_draft = _effective_independence_obligation(independence_resolution)
+    records.append(
+        PromotionObligationRecord.from_draft(
+            independence_draft,
+            obligation_role="decisive_predicate",
+            source_obligation_ref=independence_source_ref,
+            source_obligation_content_hash=gy_content_hash(
+                {
+                    "rule_version": _PROMOTION_OBLIGATION_SCOPE_RULE_VERSION,
+                    "source_obligation_ref": independence_source_ref,
+                    "predicate_provenance": independence_resolution.predicate_class,
+                    "capability_state": independence_resolution.status,
+                    "owner_ref": independence_draft.owner_ref,
+                }
+            ),
+            instance_scope_content_hash=instance_scope_content_hash,
+        )
+    )
     receipt = promotion_input.value_receipt
     if receipt is None:
-        return ()
-    records: list[PromotionObligationRecord] = []
+        return tuple(records)
     for predicate in receipt.decisive_consistency_predicates():
         if not predicate.satisfied:
             raise ValueError("decisive_value_receipt_predicate_not_satisfied")
@@ -3125,6 +4654,8 @@ def _decisive_predicate_obligations(
 def _finalize_obligations(
     promotion_input: CanonicalPromotionInput,
     class_obligations: Sequence[PromotionObligationDraft],
+    *,
+    evidence_resolutions: Mapping[str, N9PromotionEvidenceResolution] | None = None,
 ) -> tuple[PromotionObligationRecord, ...]:
     """Add run-scoped identity only after all class-level owner mutations."""
 
@@ -3149,6 +4680,7 @@ def _finalize_obligations(
         _decisive_predicate_obligations(
             promotion_input,
             instance_scope_content_hash=scope_hash,
+            evidence_resolutions=evidence_resolutions,
         )
     )
     instance_ids = [item.obligation_instance_id for item in finalized]
@@ -3173,8 +4705,10 @@ def _obligation_instance_issues(
     obligations: Sequence[PromotionObligationRecord],
     *,
     replay_input: CanonicalPromotionInput,
+    evidence_resolutions: Mapping[str, N9PromotionEvidenceResolution] | None = None,
 ) -> tuple[dict[str, Any], ...]:
     issues: list[dict[str, Any]] = []
+    scope_hash = _obligation_instance_scope_content_hash(replay_input)
     ids = [item.obligation_instance_id for item in obligations]
     duplicate_ids = sorted({item for item in ids if ids.count(item) > 1})
     for instance_id in duplicate_ids:
@@ -3185,6 +4719,15 @@ def _obligation_instance_issues(
             }
         )
     for obligation in obligations:
+        if obligation.instance_scope_content_hash != scope_hash:
+            issues.append(
+                {
+                    "code": "obligation_instance_scope_mismatch",
+                    "obligation_instance_id": obligation.obligation_instance_id,
+                    "expected_scope_content_hash": scope_hash,
+                    "actual_scope_content_hash": obligation.instance_scope_content_hash,
+                }
+            )
         expected_id = promotion_obligation_instance_id(
             obligation_role=obligation.obligation_role,
             obligation_class=obligation.obligation_class,
@@ -3200,11 +4743,12 @@ def _obligation_instance_issues(
                     "obligation_instance_id": obligation.obligation_instance_id,
                 }
             )
-
-    scope_hash = _obligation_instance_scope_content_hash(replay_input)
+    if any(issue["code"] == "obligation_instance_scope_mismatch" for issue in issues):
+        return tuple(issues)
     expected_decisive = _decisive_predicate_obligations(
         replay_input,
         instance_scope_content_hash=scope_hash,
+        evidence_resolutions=evidence_resolutions,
     )
     expected_by_id = {item.obligation_instance_id: item for item in expected_decisive}
     actual_decisive = _decisive_obligations(obligations)
@@ -3345,43 +4889,65 @@ def _param_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObli
 
 
 def _coupling_obligation(summary: CandidateSummary) -> PromotionObligationDraft:
-    blockers = set(summary.value_blockers)
-    if "n5_coupling_blocked" in blockers or "joint_obligation_inconsistency" in blockers:
+    blocker = "n5_coupling_blocked"
+    if blocker in summary.value_blockers:
         return _failed_obligation(
             obligation_class=PromotionObligationClass.COUPLING,
             gate_id=PromotionGateId.N5_COUPLING,
-            owner_ref="polisyos.runtime.quality.joint_simulation_horizon",
-            detail="N5 coupling owner recorded a promotion blocker.",
-            reason=PromotionFailClosedReason.JOINT_OBLIGATION_INCONSISTENCY,
-        )
+            owner_ref=(
+                "polisyos.runtime.quality.generation_cycle."
+                "SimulationPortObservation.authority_blockers"
+            ),
+            detail=(
+                "N5 classified the selected design's joint-simulation coupling as "
+                "unsupported; COUPLING refuses."
+            ),
+        ).model_copy(update={"evidence_refs": [blocker]})
     return _satisfied_obligation(
         obligation_class=PromotionObligationClass.COUPLING,
         gate_id=PromotionGateId.N5_COUPLING,
-        owner_ref="polisyos.runtime.quality.joint_simulation_horizon",
-        detail="No N5 coupling blocker is present on the candidate summary.",
+        owner_ref=(
+            "polisyos.runtime.quality.generation_cycle.SimulationPortObservation.authority_blockers"
+        ),
+        detail=(
+            "The production N5 projection carries no unsupported coupling classification "
+            "for the selected design."
+        ),
     )
 
 
 def _effect_obligation(
-    promotion_input: CanonicalPromotionInput,
+    resolution: N9PromotionEvidenceResolution,
 ) -> PromotionObligationDraft:
-    if promotion_input.force_proof_timeout:
-        return PromotionObligationDraft(
+    if resolution.status == "established":
+        return _satisfied_obligation(
             obligation_class=PromotionObligationClass.EFFECT,
             gate_id=PromotionGateId.GYK_ENTAILMENT,
-            status=PromotionObligationStatus.UNKNOWN,
-            reason=PromotionFailClosedReason.PROOF_TIMEOUT,
-            owner_ref="GY-K entailment witness",
-            detail="Entailment proof timed out; N9 carries unknown and keeps the candidate shadow.",
+            owner_ref=resolution.owner_ref,
+            detail=(
+                "RACE O_effect resolved all three conjuncts through real owner "
+                f"evidence: {resolution.limitation_code}."
+            ),
+            evidence_refs=resolution.evidence_refs,
         )
-    return _scope_insufficient_obligation(
+    if resolution.status == "refused":
+        return _failed_obligation(
+            obligation_class=PromotionObligationClass.EFFECT,
+            gate_id=PromotionGateId.GYK_ENTAILMENT,
+            owner_ref=resolution.owner_ref,
+            detail=(f"RACE O_effect producer refused promotion: {resolution.limitation_code}."),
+        ).model_copy(update={"evidence_refs": list(resolution.evidence_refs)})
+    return PromotionObligationDraft(
         obligation_class=PromotionObligationClass.EFFECT,
         gate_id=PromotionGateId.GYK_ENTAILMENT,
-        owner_ref="GY-K entailment witness owner",
+        status=PromotionObligationStatus.UNKNOWN,
+        reason=PromotionFailClosedReason.UNKNOWN,
+        owner_ref=resolution.owner_ref,
         detail=(
-            "GY-K entailment witness owner is unwired; CG2 bind evidence remains confined "
-            "to the identification obligation."
+            "effect_obligation_evidence_not_established: RACE O_effect applies, "
+            "but no resolved candidate/problem-bound producer artifact exists."
         ),
+        semantic_scope="real_semantics",
     )
 
 
@@ -3470,15 +5036,34 @@ def _calibration_obligation(receipt: ValueGateReceipt | None) -> PromotionObliga
     )
 
 
-def _measurement_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationDraft:
-    del receipt
+def _measurement_obligation(
+    resolution: N9PromotionEvidenceResolution,
+) -> PromotionObligationDraft:
+    if resolution.status == "established":
+        return _satisfied_obligation(
+            obligation_class=PromotionObligationClass.MEASUREMENT,
+            gate_id=PromotionGateId.N8_VALUE,
+            owner_ref=resolution.owner_ref,
+            detail=(
+                "The CAS-backed MeasurementRoot was independently resolved and bound "
+                "to this candidate and design problem."
+            ),
+            evidence_refs=resolution.evidence_refs,
+        )
+    if resolution.status == "refused":
+        return _failed_obligation(
+            obligation_class=PromotionObligationClass.MEASUREMENT,
+            gate_id=PromotionGateId.N8_VALUE,
+            owner_ref=resolution.owner_ref,
+            detail=f"MeasurementRoot owner refused promotion: {resolution.limitation_code}.",
+        ).model_copy(update={"evidence_refs": list(resolution.evidence_refs)})
     return _scope_insufficient_obligation(
         obligation_class=PromotionObligationClass.MEASUREMENT,
         gate_id=PromotionGateId.N8_VALUE,
-        owner_ref="measurement-rooted producer owner",
+        owner_ref=resolution.owner_ref,
         detail=(
-            "Measurement-rooted producer owner is unwired; ValueOuterSet promotion_decision "
-            "remains value-class semantics only."
+            "evidence_not_established: the CAS-backed MeasurementRoot producer runs, but "
+            "no resolved, candidate/problem-bound bridge is present in N9."
         ),
     )
 
@@ -3561,17 +5146,21 @@ def _eval_safety_obligation(receipt: ValueGateReceipt | None) -> PromotionObliga
         return _scope_insufficient_obligation(
             obligation_class=PromotionObligationClass.EVAL_SAFETY,
             gate_id=PromotionGateId.GY_O0_EVAL_SAFETY,
-            owner_ref="GY-O0 eval-safety gate",
-            detail="GY-O0 eval-safety owner is not implemented for pilot/deployment promotion.",
+            owner_ref="absent/unallocated",
+            detail=(
+                "producer_missing: attempted-evaluation safety is implemented and "
+                "orchestrated, but its certificate expressly forbids promotion use; no "
+                "promotion-authoritative pilot/deployment predicate is allocated."
+            ),
         )
     return PromotionObligationDraft(
         obligation_class=PromotionObligationClass.EVAL_SAFETY,
         gate_id=PromotionGateId.GY_O0_EVAL_SAFETY,
         status=PromotionObligationStatus.NOT_APPLICABLE_DATA_ONLY,
-        owner_ref="GY-O0 eval-safety gate",
+        owner_ref="polisyos.runtime.quality.promotion_sequence._eval_safety_obligation",
         detail=(
-            "No pilot/deployment action is attempted; eval-safety remains scope_insufficient "
-            "for future pilot/deployment verticals."
+            "No pilot/deployment action is attempted; the promotion-specific predicate is "
+            "not applicable to this data-only attempt."
         ),
         semantic_scope="data_only_not_required",
     )
@@ -3912,6 +5501,9 @@ __all__ = [
     "CredalReferencePromotabilityProjection",
     "LegacyPromotionStrangleReceipt",
     "N9DesignProblemBinding",
+    "N9PromotionEvidenceBridgeRecord",
+    "N9PromotionEvidenceBridgeRepository",
+    "N9PromotionEvidenceResolution",
     "PromotionCertificateOffer",
     "canonical_promotion_comparison_admission_from_proof",
     "confidence_risk_scope_for_problem",

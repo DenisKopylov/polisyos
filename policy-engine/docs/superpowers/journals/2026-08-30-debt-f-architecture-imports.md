@@ -886,3 +886,63 @@ cases), and the full import gate exits 0 with zero lapsed covers, zero unadjudic
 violations, and zero allowed exceptions. The worker continues to verify all component
 hashes before and after owner validation and content-binds the projected payload into its
 semantic receipt.
+
+### Scientist / Runtime — §9 item 6 execution
+
+The seven residual statements were one contract but two kinds of thing. Five
+TYPE_CHECKING statements now import `EvalSafetyVerifierPort` and
+`EvaluationExecutionContext` from PDC. The two module-level consumers now import the
+consumer-minted `EvalSafetyAdmissionChallenge` and pure receipt verifier from PDC. Both
+removed their Runtime `resolve_evaluation_mode` call and read
+`context.mode_resolution`, a non-serialized deterministic projection of the already
+validated canonical `context.evaluation_mode`; the execution-context hash therefore did
+not change. Runtime still owns token parsing and every decision, certificate, revision,
+pack-admission, and consumer-receipt minting act.
+
+The first implementation attempt correctly failed the full import gate with exactly one
+new ARCH006 diagnostic:
+`src/polisyos/runtime/quality/evaluation_safety.py:38 [ARCH006] forbidden internal
+subpackage import: polisyos.runtime.quality.evaluation_safety ->
+polisyos.pdc._impl.evaluation_safety. Cross-root imports must go through public facades.`
+The gate was not weakened and no exception was added. The final seal has PDC own the
+private producer token and exact Runtime-subtype registry. Runtime defines the one
+private minting subtype through the public base contract; PDC fails closed until that
+exact type is registered and checks exact type, token, canonical fingerprint, status,
+context hash, challenge, consumer, intake, certificate, and revision head.
+
+Falsifier: a hand-constructed `EvalSafetyConsumerAdmissionReceipt` with `verified`
+status, no blockers, and every context/challenge/certificate/revision field made exact
+returns `False`. The real Runtime CAS-backed verifier test mints the registered subtype
+and returns `True`; replayed context and challenge variants still return `False`.
+
+Post-move canon is a complete `Path.rglob("*.py")` AST walk. Each structural row contains
+source-relative path, source module, exact target-module sequence, ordered
+`{name,asname}` aliases, and structural scope; rows sort by compact sorted-key JSON and
+the compact JSON array has no trailing newline. Line number is deliberately excluded.
+
+- Scientist -> Runtime: 585 Python files / **zero import statements / zero aliases /
+  zero importing files**, canonical two-byte `[]` SHA-256
+  `4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`.
+- Runtime -> Scientist: 280 Python files / 70 import statements / 110 aliases / 28
+  importing files; 34 module, zero class, 36 deferred; structural canonical SHA-256
+  `c57785431914251ffe2044ed7fa37bd3f1d939bd31aef53eab4a41e8706d10de` over
+  20,342 bytes.
+
+The `scientist` direction row no longer admits `runtime`; the full v2 import gate exits
+0 with zero violations and zero allowed exceptions, and its reported package-level SCC
+set no longer contains Runtime. Five focused closure/facade/Scientist consumer nodes and
+the real Runtime minting node exit 0. Neither `generation_cycle.py` nor
+`promotion_sequence.py` was touched.
+
+Scientist paths touched in this migration:
+
+1. `src/polisyos/scientist/api.py`
+2. `src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py`
+3. `src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py`
+4. `src/polisyos/scientist/orchestration/engine/context.py`
+5. `src/polisyos/scientist/orchestration/workflows/builder.py`
+
+PDC paths touched in this migration:
+
+1. `src/polisyos/pdc/__init__.py`
+2. `src/polisyos/pdc/_impl/evaluation_safety.py`

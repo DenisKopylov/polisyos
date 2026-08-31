@@ -4,6 +4,7 @@ import ast
 import json
 import shutil
 import tomllib
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -162,8 +163,8 @@ def test_runtime_corpus_edge_is_replaced_by_live_projection_denominator(
     assert "tests/fixtures/universal-corpus" not in worker
 
 
-def test_scientist_runtime_residual_is_exact_eval_safety_owner_ruling() -> None:
-    """Only the seven statements bound to the unresolved GY-O0 owner may remain."""
+def test_scientist_runtime_declared_cycle_is_removed_after_eval_safety_split() -> None:
+    """Scientist consumes neutral EvalSafety vocabulary only through PDC."""
 
     policy = _read_toml(POLICY_PATH)
     internal = policy["internal"]
@@ -175,7 +176,7 @@ def test_scientist_runtime_residual_is_exact_eval_safety_owner_ruling() -> None:
 
     pdc_allow = allow["pdc"]
     assert isinstance(pdc_allow, list)
-    assert "runtime" in scientist_allow
+    assert "runtime" not in scientist_allow
     assert "pdc" in scientist_allow
     assert "runtime" not in pdc_allow
     assert "scientist" not in pdc_allow
@@ -215,55 +216,66 @@ def test_scientist_runtime_residual_is_exact_eval_safety_owner_ruling() -> None:
                         )
                     )
 
-    quality = "polisyos.runtime.quality"
-    verifier_types = ("EvalSafetyVerifierPort", "EvaluationExecutionContext")
-    execution_choke = (
-        "EvalSafetyAdmissionChallenge",
-        "evaluation_safety_consumer_admission_is_verified",
-        "resolve_evaluation_mode",
+    assert runtime_rows == []
+
+
+def test_pdc_eval_safety_verifier_rejects_hand_constructed_receipt() -> None:
+    """A shape-correct base receipt cannot impersonate Runtime's minting act."""
+
+    from polisyos.core import components as core_components
+    from polisyos.pdc import (
+        ArtifactRef,
+        EvalSafetyAdmissionChallenge,
+        EvalSafetyConsumerAdmissionReceipt,
+        EvaluationExecutionContext,
+        evaluation_execution_context_hash,
+        evaluation_safety_consumer_admission_is_verified,
     )
-    assert sorted(runtime_rows) == sorted(
-        [
-            ("scientist/api.py", quality, verifier_types, "module"),
-            (
-                "scientist/nodes/builtins/decide/policy_runtime_support.py",
-                quality,
-                execution_choke,
-                "module",
-            ),
-            (
-                "scientist/nodes/builtins/decide/policy_runtime_support.py",
-                quality,
-                verifier_types,
-                "module",
-            ),
-            (
-                "scientist/nodes/builtins/simulate/run_causal_evaluation.py",
-                quality,
-                execution_choke,
-                "module",
-            ),
-            (
-                "scientist/nodes/builtins/simulate/run_causal_evaluation.py",
-                quality,
-                ("EvaluationExecutionContext",),
-                "module",
-            ),
-            (
-                "scientist/orchestration/engine/context.py",
-                quality,
-                verifier_types,
-                "module",
-            ),
-            (
-                "scientist/orchestration/workflows/builder.py",
-                quality,
-                verifier_types,
-                "module",
-            ),
-        ]
+
+    def ref(index: int, kind: str) -> ArtifactRef:
+        digest = f"sha256:{index:064x}"
+        return ArtifactRef(
+            artifact_id=digest,
+            artifact_type=f"test.{kind}",
+            content_hash=digest,
+            schema_ref=f"test.{kind}.v1",
+            uri=f"cas://sha256/{digest.removeprefix('sha256:')}",
+            version="1.0",
+        )
+
+    owner = core_components.ComponentId("polisyos.scientist.eval_safety@1.0.0")
+    context = EvaluationExecutionContext(
+        intake_ref=ref(1, "intake"),
+        evaluator_owner_id=owner,
+        design_problem_ref=f"sha256:{2:064x}",
+        evaluation_mode="field_pilot",
+        candidate_ref=ref(3, "candidate"),
+        world_model_record_ref=ref(4, "world-model"),
+        target_population_scope_ref=ref(5, "population"),
+        rule_version="policyos.runtime.eval-safety.v1",
+        intended_start_at=datetime(2026, 8, 31, tzinfo=UTC),
+        evaluation_input_refs=(),
+        evaluation_input_provenance=(),
+        eval_safety_certificate_ref=ref(6, "certificate"),
+        eval_safety_revision_head_ref=ref(7, "revision"),
     )
-    assert sum(len(row[2]) for row in runtime_rows) == 15
+    challenge = EvalSafetyAdmissionChallenge.fresh(consumer_component_id=owner)
+    forged = EvalSafetyConsumerAdmissionReceipt(
+        status="verified",
+        intake_ref=context.intake_ref,
+        certificate_ref=context.eval_safety_certificate_ref,
+        current_revision_head_ref=context.eval_safety_revision_head_ref,
+        execution_context_hash=evaluation_execution_context_hash(context),
+        challenge=challenge,
+        blocker_codes=(),
+        verified_at=datetime(2026, 8, 31, tzinfo=UTC),
+    )
+
+    assert not evaluation_safety_consumer_admission_is_verified(
+        forged,
+        context,
+        challenge,
+    )
 
 
 def test_observability_deep_import_residual_is_exact_truthfulness_adjudication() -> None:

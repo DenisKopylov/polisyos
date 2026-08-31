@@ -46,7 +46,7 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.governance.passes.base import ValidatorPass
-    from polisyos.runtime.quality import EvalSafetyVerifierPort, EvaluationExecutionContext
+    from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.governance.pipeline import ValidationPipeline
     from polisyos.scientist.orchestration.engine.metrics_protocol import EngineMetricsCollector
     from polisyos.scientist.orchestration.engine.registry import NodeBootstrapReport, NodeRegistry

@@ -275,3 +275,92 @@ at its exact name before removal.
   exit 1 under the known unwritten-test checker defect. The unbound exit-0 run remains a non-receipt.
 - Docs lifecycle remains the inherited **6 findings = 2 active-plan metadata + 4 removed-stub
   references**; architect-owned lifecycle documents were not changed.
+
+## Round-2 corrected preflight — 2026-08-31
+
+This is an append-only control record for round 2. It replays the deciding sets before any new
+producer is written. The four P38/W5-K01 refusals remain fixed: execution availability is not a
+method-owner row; admission/TOML membership is not capability evidence; L4 world lookup is not
+Scientist agent/tool discovery; and internal REVIEWER/EXPERT posture is not public authority.
+
+### Complete denominators and absence controls
+
+The tracked production denominator remains **2,611 `src/**/*.py` files**. The complete AST walk
+recorded above remains current because this branch's merge base has not moved; its exact command
+and output are **0 concrete `resolve_operation`/`verify_conformance` implementations / 2,611**, two
+Protocol declarations, and **61 admission rows = 8 admitted + 52 candidate-shadow-only + 1
+blocked**, with 0/61 DS10 capability kind, purpose, passport/evidence/currentness receipt, or
+provider fields. A replayed path census, `git ls-files -- 'src/**/*.py' | wc -l`, completed exit 0
+with 2,611.
+
+For the successor rows, complete tracked searches were run over the same 2,611-file source
+population. `git grep -n -i -E 'global.?case.?index|canonical.?case.?index' -- 'src/**/*.py'`
+completed exit 1 with zero matches; the corresponding public projection search for
+`PublicDecisionProjection|SignedPublicDecisionProjection` also completed exit 1 with zero matches.
+The narrower connector/runtime family contains **406 tracked Python files**; the full source
+search finds `SourceProfileOwnerReceipt` only as DS10's type/validator declaration and has no
+constructor, persisted paired connector/source-profile snapshot producer, or default source
+provider. These are censuses of a missing producer, not a license to promote list DTOs.
+
+The owner-signed capability-purpose row is in the producer-side-signing world, not an
+appointment-bound signing world. `src/polisyos/runtime/http/deployment_security.py:463-571` loads a
+deployment-owned `Ed25519Signer`, strict `Ed25519Verifier`, and producer identity; the replayed
+excerpt command completed exit 0. `src/polisyos/runtime/http/services/human_decisions.py:2112-2183`
+then persists bytes, signs them with that custody key, and independently verifies the resulting
+signature and identity (exit 0). The future DS10 binding must reuse that producer act and only
+then join DS9 currentness; verification alone remains an explicit non-substitute.
+
+### C13 binding intersection — a freeze gate, not a closure
+
+The canonical receipt parser completed exit 0 with **11/11 source bindings**:
+
+1. `apps/runtime-dashboard/src/styles/print.css`
+2. `apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx`
+3. `apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx`
+4. `apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx`
+5. `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx`
+6. `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.parity.test.tsx`
+7. `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx`
+8. `apps/runtime-dashboard/src/features/runs/route.tsx`
+9. `apps/runtime-dashboard/e2e/helpers/pdfGeometry.ts`
+10. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts`
+11. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/run-report-identity-a4-print-chromium-darwin.png`
+
+The reproduced command was a receipt JSON parse plus
+`git -C /Users/deniskopylov/polisyos/.worktrees/debt-d-ds11-trust-posture diff --name-only
+784d020148c56e9bfb3a3631909ba11232210a9f..HEAD`, followed by normalization that removes the
+repository `policy-engine/` prefix and exact set intersection. It completed exit 0 at Task D head
+`0fdd402f6259365f62cd1c62f58119317853cb6d`: **20 changed paths from base, 9 dashboard paths, and
+1/11 C13 intersection** —
+`apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx`. Task D's worktree was clean
+at measurement, but its round-2 journal expressly says that it will commit/read back one immutable
+dashboard freeze before this receipt is reissued. Therefore clean is not a freeze; C13's current
+gate is **Task D's round-2 dashboard freeze at its final head**, naming that intersecting path.
+No C13 capture or receipt bytes are claimed here.
+
+### Concrete successor objects
+
+- `ds10-connector-acquisition-content` is blocked by an **unowned paired
+  `ConnectorSourceProfileSnapshotProducer`**, which must persist matching connector and
+  source-profile snapshots and emit a content-bound `SourceProfileOwnerReceipt`, then supply the
+  default discovery provider. Task E's current round-2 plan has zero mentions of a connector/source
+  snapshot or `SourceProfileOwnerReceipt` (exit 0, zero results); it owns no such successor. The
+  blocker is deliberately not attributed to task E.
+- `ds10-public-decision-rendering` is blocked by **task A's EFFECT investigation resolution plus a
+  standalone DS12 promotion slice** that produces a current-signature, custody-bound public
+  decision artifact/projection. `rg --files docs/plans/active/atlas-slices | rg '/DS12[^/]*\\.md$'`
+  completed exit 0 with zero DS12 slice-plan files, so no existing plan is being treated as that
+  producer.
+- `ds10-global-case-index-producer-allocation` is blocked by **the first DS12/DS13/DS14
+  scope-setting plan that consumes `atlas-ds8-residual-scope-obligations` and appoints the canonical
+  global case-index/store producer**. Task G's
+  `architecture/atlas_surfaces/slice-scope-obligations.json` parses exit 0 as target slices
+  DS12/DS13/DS14, input `ds8-global-case-index`, `acknowledgement_status: candidate_only`, and
+  `closure_effect: none`. This is the same successor object as G's half, not a second DS10 index.
+
+### Focused documentation check
+
+After this append, `PYTHONPATH=. uv run python
+tools/quality/validation/check_docs_lifecycle.py` must remain exit 1 with exactly the inherited six
+findings; this journal intentionally contains only `apps/runtime-dashboard` paths and does not add
+the stale lifecycle path spelling.

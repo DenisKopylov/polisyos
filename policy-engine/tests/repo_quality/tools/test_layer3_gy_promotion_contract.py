@@ -11,6 +11,67 @@ from tools.quality.validation import check_layer3_gy_promotion_contract as check
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
 
 
+def test_n9_reissue_predicate_accepts_only_complete_v3_to_v6_transition() -> None:
+    receipt_keys = (
+        "contract_lane_anytime_refusal",
+        "production_honest_shadow",
+        "non_promotable_contract_stamp",
+    )
+
+    def manifest(owner_rule: str) -> list[dict[str, str]]:
+        return [
+            {
+                "action": "project",
+                "json_pointer": f"/{key}",
+                "owner_rule": owner_rule,
+                "predicate_provenance": "recomputed",
+            }
+            for key in receipt_keys
+        ]
+
+    frozen_manifest = manifest(checker.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE)
+    live_manifest = manifest(checker.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE)
+    comparison_identity = {
+        "comparison_projection_schema_version": checker.GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
+        "comparison_rule_version": checker.GY_VERIFICATION_COMPARISON_RULE_VERSION,
+    }
+    frozen = {
+        **comparison_identity,
+        "comparison_admission_manifest": frozen_manifest,
+        **{
+            key: {"schema_version": checker.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION}
+            for key in receipt_keys
+        },
+    }
+    live = {
+        **comparison_identity,
+        "comparison_admission_manifest": live_manifest,
+        **{
+            key: {"schema_version": checker.CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION}
+            for key in receipt_keys
+        },
+    }
+    assert checker._is_authorized_v3_to_v6_comparison_reissue(frozen, live, live_manifest)
+
+    mixed_epoch = copy.deepcopy(frozen)
+    mixed_epoch[receipt_keys[-1]]["schema_version"] = (
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
+    )
+    assert not checker._is_authorized_v3_to_v6_comparison_reissue(
+        mixed_epoch,
+        live,
+        live_manifest,
+    )
+
+    sibling_path = copy.deepcopy(frozen)
+    sibling_path["comparison_admission_manifest"][0]["json_pointer"] = "/unowned_receipt"
+    assert not checker._is_authorized_v3_to_v6_comparison_reissue(
+        sibling_path,
+        live,
+        live_manifest,
+    )
+
+
 def test_rederived_n9_contract_accounts_fixed_time_refusal_through_n11() -> None:
     payload = checker.build_payload(POLICY_ENGINE_ROOT)
 
@@ -30,14 +91,15 @@ def test_rederived_n9_contract_accounts_fixed_time_refusal_through_n11() -> None
         "obligation_completeness",
         "validator_soundness",
     ]
-    assert len(projection["promotion_rows"]) == 1
-    row = projection["promotion_rows"][0]
-    assert row["instrument_id"] == "fixed_time_confidence_interval"
-    assert row["outcome"] == "preflight_refusal"
-    assert row["anytime_valid"] is False
-    assert row["eligible_for_promotion"] is False
-    assert row["spend"] == {"denominator": 1, "numerator": 0}
-    assert calibration["risk_spend"]["n11_confidence_ledger_ref"] == row["check_id"]
+    rows = {row["obligation_class"]: row for row in projection["promotion_rows"]}
+    assert tuple(rows) == ("calibration", "data")
+    assert rows["calibration"]["instrument_id"] == "fixed_time_confidence_interval"
+    assert rows["data"]["instrument_id"] == "owner_verified_e_process"
+    assert all(row["outcome"] == "preflight_refusal" for row in rows.values())
+    assert all(row["anytime_valid"] is False for row in rows.values())
+    assert all(row["eligible_for_promotion"] is False for row in rows.values())
+    assert all(row["spend"] == {"denominator": 1, "numerator": 0} for row in rows.values())
+    assert calibration["risk_spend"]["n11_confidence_ledger_ref"] == rows["calibration"]["check_id"]
     assert checker.validate_payload(payload) == {"status": "pass", "issues": []}
 
 
@@ -132,6 +194,7 @@ def test_n9_contract_separates_full_record_from_verified_comparison_identity() -
     assert "scope_insufficient_promotion_policy_drift" in {
         item["code"] for item in governing_report["issues"]
     }
+
 
 def test_n9_source_flip_harness_targets_current_n11_guards_and_tests() -> None:
     cases = checker._source_flip_cases()

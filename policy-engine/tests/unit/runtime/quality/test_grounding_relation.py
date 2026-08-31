@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 
 from polisyos.pdc import gy_content_hash
@@ -134,6 +136,30 @@ def test_certificate_is_deterministic_for_same_reference_epoch() -> None:
 
     assert first.content_hash == second.content_hash
     assert first.certificate_id == second.certificate_id
+
+
+def test_certificate_identity_is_invariant_to_persisted_edge_mapping_order() -> None:
+    reference = _reference()
+    sorted_edges = dict(sorted(reference.essential_edges.items()))
+    assert tuple(reference.essential_edges) != tuple(sorted_edges)
+    reordered = replace(reference, essential_edges=sorted_edges)
+    assert reordered == reference
+    assert reordered.reference_hash == reference.reference_hash
+
+    original_engine = GroundingRelationEngine(reference)
+    proposal = _pure_synonym_probe(original_engine)
+    original = original_engine.certificate_for(
+        proposal,
+        proposal_id="unit-persisted-edge-order",
+    )
+    reordered_certificate = GroundingRelationEngine(reordered).certificate_for(
+        proposal,
+        proposal_id="unit-persisted-edge-order",
+    )
+
+    assert reordered_certificate.candidate_atom_ids == original.candidate_atom_ids
+    assert reordered_certificate.certificate_id == original.certificate_id
+    assert reordered_certificate.content_hash == original.content_hash
 
 
 def test_candidate_selection_is_invariant_to_content_id_readdressing() -> None:

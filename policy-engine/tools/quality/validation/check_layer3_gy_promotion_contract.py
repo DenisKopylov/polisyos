@@ -74,11 +74,8 @@ from polisyos.runtime.quality.grounding_bind import (
 )
 from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
 from polisyos.runtime.quality.promotion_sequence import (
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE,
+    CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     CanonicalPromotionInput,
     CanonicalPromotionReceipt,
@@ -88,6 +85,7 @@ from polisyos.runtime.quality.promotion_sequence import (
     _run_canonical_promotion_sequence_for_verification,
     _validate_canonical_promotion_receipt_for_verification,
     admit_canonical_promotion_receipt_for_comparison,
+    canonical_promotion_verification_comparison_owner_rule_registry,
     confidence_risk_scope_for_problem,
     parse_canonical_promotion_history_receipt,
 )
@@ -430,8 +428,8 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
             if obligation.status.value == "scope_insufficient"
         }
         expected_scope_gaps = {
-            PromotionObligationClass.EFFECT,
             PromotionObligationClass.MEASUREMENT,
+            PromotionObligationClass.DATA,
         }
         if scope_gaps != expected_scope_gaps:
             issues.append(
@@ -926,6 +924,10 @@ def _reconcile_frozen_contract(
         raise ValueError("promotion_legacy_contract_content_hash_drift")
     if not _frozen_comparison_identity_admissible(frozen, plan):
         raise ValueError("promotion_comparison_admission_manifest_drift")
+    if frozen.get("comparison_admission_manifest") not in (None, plan.manifest):
+        if not _is_authorized_v3_to_v6_comparison_reissue(frozen, live, plan.manifest):
+            raise ValueError("promotion_comparison_admission_manifest_drift")
+        return live
     identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
     frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
     live_body = {key: value for key, value in live.items() if key not in identity_fields}
@@ -941,32 +943,92 @@ def _frozen_comparison_identity_admissible(
     frozen: dict[str, Any],
     live_plan: GyComparisonProjectionPlan,
 ) -> bool:
-    """Accept only absent/current or exactly self-validating v1 comparison custody."""
+    """Accept only absent/current or self-validating registered comparison custody."""
 
     manifest = frozen.get("comparison_admission_manifest")
     if manifest in (None, live_plan.manifest):
         return True
-    if (
-        frozen.get("comparison_projection_schema_version")
-        != GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION
-        or frozen.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION
-    ):
+    comparison_identity = (
+        frozen.get("comparison_projection_schema_version"),
+        frozen.get("comparison_rule_version"),
+    )
+    if comparison_identity not in {
+        (
+            GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION,
+            GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION,
+        ),
+        (
+            GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
+            GY_VERIFICATION_COMPARISON_RULE_VERSION,
+        ),
+    }:
         return False
     try:
         legacy_plan = build_gy_comparison_projection_plan_from_manifest(
             frozen,
             manifest=manifest,
-            owner_rule_registry={
-                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE: (
-                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE
-                )
-            },
+            owner_rule_registry=(canonical_promotion_verification_comparison_owner_rule_registry()),
         )
     except ValueError:
         return False
     return frozen.get("comparison_content_hash") == _comparison_content_hash(
         frozen,
         legacy_plan,
+    )
+
+
+def _is_authorized_v3_to_v6_comparison_reissue(
+    frozen: dict[str, Any],
+    live: dict[str, Any],
+    live_plan_manifest: list[dict[str, str]],
+) -> bool:
+    """Recognize only the one frozen v3-receipt to live v6-receipt reissue."""
+
+    receipt_keys = (
+        "contract_lane_anytime_refusal",
+        "production_honest_shadow",
+        "non_promotable_contract_stamp",
+    )
+    expected_pointers = {f"/{key}" for key in receipt_keys}
+
+    def receipt_epochs(payload: dict[str, Any]) -> tuple[object, ...]:
+        return tuple(
+            payload.get(key, {}).get("schema_version")
+            if isinstance(payload.get(key), dict)
+            else None
+            for key in receipt_keys
+        )
+
+    frozen_manifest = frozen.get("comparison_admission_manifest")
+    live_manifest = live.get("comparison_admission_manifest")
+    if not isinstance(frozen_manifest, list) or not isinstance(live_manifest, list):
+        return False
+    if live_manifest != live_plan_manifest:
+        return False
+    if {row.get("json_pointer") for row in frozen_manifest if isinstance(row, dict)} != (
+        expected_pointers
+    ):
+        return False
+    if {row.get("json_pointer") for row in live_manifest if isinstance(row, dict)} != (
+        expected_pointers
+    ):
+        return False
+    return (
+        len(frozen_manifest) == len(receipt_keys)
+        and len(live_manifest) == len(receipt_keys)
+        and frozen.get("comparison_projection_schema_version")
+        == GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+        and frozen.get("comparison_rule_version") == GY_VERIFICATION_COMPARISON_RULE_VERSION
+        and live.get("comparison_projection_schema_version")
+        == GY_COMPARISON_PROJECTION_SCHEMA_VERSION
+        and live.get("comparison_rule_version") == GY_VERIFICATION_COMPARISON_RULE_VERSION
+        and receipt_epochs(frozen) == (GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,) * len(receipt_keys)
+        and receipt_epochs(live)
+        == (CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION,) * len(receipt_keys)
+        and {row.get("owner_rule") for row in frozen_manifest if isinstance(row, dict)}
+        == {CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE}
+        and {row.get("owner_rule") for row in live_manifest if isinstance(row, dict)}
+        == {CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE}
     )
 
 
@@ -994,14 +1056,7 @@ def _comparison_identity_issues(payload: dict[str, Any]) -> list[dict[str, Any]]
         plan = build_gy_comparison_projection_plan_from_manifest(
             payload,
             manifest=manifest,
-            owner_rule_registry={
-                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE: (
-                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE
-                ),
-                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
-                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
-                ),
-            },
+            owner_rule_registry=(canonical_promotion_verification_comparison_owner_rule_registry()),
         )
     except ValueError as exc:
         issues.append({"code": "comparison_admission_manifest_invalid", "error": str(exc)})

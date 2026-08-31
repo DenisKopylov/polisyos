@@ -72,17 +72,12 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.runtime.quality.promotion_sequence import (
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
-    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     CanonicalN9PromotionPort,
     CanonicalPromotionReceipt,
     N9DesignProblemBinding,
     admit_canonical_promotion_receipt_for_comparison,
     canonical_promotion_receipt_semantic_projection,
+    canonical_promotion_verification_comparison_owner_rule_registry,
     confidence_risk_scope_for_problem,
     parse_canonical_promotion_history_receipt,
 )
@@ -1195,11 +1190,7 @@ def _frozen_comparison_identity_admissible(
         legacy_plan = build_gy_comparison_projection_plan_from_manifest(
             frozen,
             manifest=manifest,
-            owner_rule_registry={
-                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE: (
-                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE
-                )
-            },
+            owner_rule_registry=(canonical_promotion_verification_comparison_owner_rule_registry()),
         )
     except ValueError:
         return False
@@ -1233,14 +1224,7 @@ def _comparison_identity_issues(payload: dict[str, Any]) -> list[dict[str, Any]]
         plan = build_gy_comparison_projection_plan_from_manifest(
             payload,
             manifest=manifest,
-            owner_rule_registry={
-                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE: (
-                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE
-                ),
-                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
-                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
-                ),
-            },
+            owner_rule_registry=(canonical_promotion_verification_comparison_owner_rule_registry()),
         )
     except ValueError as exc:
         issues.append({"code": "comparison_admission_manifest_invalid", "error": str(exc)})

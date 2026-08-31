@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "polisyos.atlas.ds18-execution-outcome.v1",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "projection"],
+      "properties": {
+        "kind": { "const": "established" },
+        "projection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "predicate_provenance",
+            "source_file_count",
+            "root_count",
+            "obligated_root_count",
+            "covered_root_count"
+          ],
+          "properties": {
+            "predicate_provenance": { "const": "independently_reconciled" },
+            "source_file_count": { "type": "integer", "minimum": 1 },
+            "root_count": { "type": "integer", "minimum": 1 },
+            "obligated_root_count": { "type": "integer", "minimum": 1 },
+            "covered_root_count": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "error_code",
+        "exit_code",
+        "stdout_byte_count",
+        "stdout_sha256",
+        "stderr_byte_count",
+        "stderr_sha256"
+      ],
+      "properties": {
+        "kind": { "const": "not_established" },
+        "error_code": {
+          "enum": [
+            "checker_exit_nonzero",
+            "stdout_too_large",
+            "stderr_too_large",
+            "stdout_invalid_utf8",
+            "stdout_invalid_json",
+            "stdout_invalid_packet"
+          ]
+        },
+        "exit_code": { "type": "integer", "minimum": 0 },
+        "stdout_byte_count": { "type": "integer", "minimum": 0, "maximum": 8388608 },
+        "stdout_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "stderr_byte_count": { "type": "integer", "minimum": 0, "maximum": 8388608 },
+        "stderr_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    }
+  ]
+}

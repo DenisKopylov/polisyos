@@ -368,6 +368,7 @@ class AcquisitionActionService:
             route_id=route_id,
             request=request,
         )
+        self._require_production_execution_bridge()
         provider = self._require_authority_provider()
         self._require_execution_port()
         operation, invocation, intent = self._action_tuple(closure, request)
@@ -575,12 +576,8 @@ class AcquisitionActionService:
             recommended_strategy=closure.planner_record.recommended_strategy.value,
             cost_basis=closure.cost_basis_record.model_dump(mode="json"),
             replay_pins=self._pins(closure),
-            authority_capability=(
-                "ready" if self._authority_provider is not None else "producer_missing"
-            ),
-            execution_capability=(
-                "ready" if self._execution_port is not None else "producer_missing"
-            ),
+            authority_capability="producer_missing",
+            execution_capability="producer_missing",
         )
 
     def _validated_mutation(
@@ -778,6 +775,12 @@ class AcquisitionActionService:
         if self._authority_provider is None:
             raise AcquisitionActionServiceError("acquisition_authority_producer_missing")
         return self._authority_provider
+
+    @staticmethod
+    def _require_production_execution_bridge() -> None:
+        """Refuse reservation while the only owner result contract is fixture-badged."""
+
+        raise AcquisitionActionServiceError("acquisition_execution_bridge_missing")
 
     def _require_execution_port(self) -> AcquisitionExecutionPort:
         if self._execution_port is None:

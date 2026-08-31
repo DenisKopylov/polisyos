@@ -169,6 +169,9 @@ ALL_ISSUE_CODES: tuple[str, ...] = (
     "layer3_g3_adapter_registry_summary_only",
     "layer3_g3_adapter_unknown_path",
     "layer3_g3_adapter_semantic_loss",
+    "layer3_g3_adapter_capability_admission_missing",
+    "layer3_g3_adapter_capability_admission_invalid",
+    "layer3_g3_adapter_currentness_invalid",
     "layer3_g3_adapter_touchpoint_unregistered",
     "layer3_g3_persisted_artifact_missing",
     "layer3_g3_manifest_runtime_drift",
@@ -3583,6 +3586,8 @@ def build_g3_adapter_contract_registry_status(
     try:
         from polisyos.runtime.quality.adapter_contracts import (
             AdapterSurfacePayload,
+            build_verified_adapter_admission,
+            execute_declared_adapter_operation,
             load_adapter_contract_registry,
             validate_adapter_preservation,
         )
@@ -3590,24 +3595,56 @@ def build_g3_adapter_contract_registry_status(
         registry = load_adapter_contract_registry(registry_path)
         if not registry.adapter_paths:
             raise ValueError("summary-only adapter registry")
-        before = _g3_adapter_surface_payload(
-            AdapterSurfacePayload,
-            surface="layer3.g3.certificate_resolution",
-        )
-        after = _g3_adapter_surface_payload(
-            AdapterSurfacePayload,
-            surface="layer3.g3.proof_record",
-        )
         preservation_issue_codes: list[str] = []
-        if "layer3_g3_certificate_resolution_to_proof_record" in registry.adapter_paths:
+        preserved_path_ids: list[str] = []
+        verified_records: list[dict[str, Any]] = []
+        for path_id, contract in sorted(registry.adapter_paths.items()):
+            before = _g3_adapter_surface_payload(
+                AdapterSurfacePayload,
+                surface=contract.source_surface,
+            )
+            after = (
+                execute_declared_adapter_operation(contract=contract, before=before)
+                if contract.capability_admission is not None
+                else _g3_adapter_surface_payload(
+                    AdapterSurfacePayload,
+                    surface=contract.target_surface,
+                )
+            )
             preservation = validate_adapter_preservation(
-                adapter_path="layer3_g3_certificate_resolution_to_proof_record",
+                adapter_path=path_id,
                 before=before,
                 after=after,
                 registry=registry,
             )
             if preservation.status != "pass":
                 preservation_issue_codes.append("layer3_g3_adapter_semantic_loss")
+                continue
+            preserved_path_ids.append(path_id)
+            if contract.capability_admission is None:
+                if path_id not in G3_ADAPTER_PATH_IDS:
+                    preservation_issue_codes.append(
+                        "layer3_g3_adapter_capability_admission_missing"
+                    )
+                continue
+            try:
+                admission = build_verified_adapter_admission(
+                    adapter_path=path_id,
+                    before=before,
+                    after=after,
+                    registry=registry,
+                )
+            except Exception as error:
+                code = str(getattr(error, "code", ""))
+                if code == "hds_adapter_capability_currentness_invalid":
+                    issue = "layer3_g3_adapter_currentness_invalid"
+                elif code == "hds_adapter_semantic_preservation_failed":
+                    issue = "layer3_g3_adapter_semantic_loss"
+                else:
+                    issue = "layer3_g3_adapter_capability_admission_invalid"
+                preservation_issue_codes.append(issue)
+            else:
+                verified_records.append(admission.model_dump(mode="json"))
     except Exception as error:
         code = getattr(error, "code", "")
         issue = (
@@ -3627,13 +3664,11 @@ def build_g3_adapter_contract_registry_status(
             issue_codes=(issue,),
         )
     path_ids = tuple(sorted(registry.adapter_paths))
-    unknown_path_ids = tuple(sorted(set(path_ids) - set(G3_ADAPTER_PATH_IDS)))
     missing_path_ids = tuple(sorted(set(G3_ADAPTER_PATH_IDS) - set(path_ids)))
     issue_codes = tuple(
         dict.fromkeys(
             [
                 *preservation_issue_codes,
-                *(("layer3_g3_adapter_unknown_path",) if unknown_path_ids else ()),
                 *(
                     ("layer3_g3_adapter_contract_registry_missing",)
                     if missing_path_ids
@@ -3642,7 +3677,18 @@ def build_g3_adapter_contract_registry_status(
             ]
         )
     )
-    records = _g3_adapter_admission_records(path_ids)
+    capability_path_ids = {
+        record["adapter_id"] for record in verified_records if record.get("adapter_id")
+    }
+    legacy_path_ids = tuple(
+        path_id
+        for path_id in G3_ADAPTER_PATH_IDS
+        if path_id in preserved_path_ids and path_id not in capability_path_ids
+    )
+    records = (
+        *_g3_adapter_admission_records(legacy_path_ids),
+        *verified_records,
+    )
     return Layer3G3AdapterContractRegistryStatus(
         status="pass" if not issue_codes else "fail",
         registry_ref=_path_label(G3_ADAPTER_CONTRACT_REGISTRY_PATH),
@@ -3744,6 +3790,9 @@ def build_g3_conformance_report(
         "layer3_g3_adapter_registry_summary_only",
         "layer3_g3_adapter_unknown_path",
         "layer3_g3_adapter_semantic_loss",
+        "layer3_g3_adapter_capability_admission_missing",
+        "layer3_g3_adapter_capability_admission_invalid",
+        "layer3_g3_adapter_currentness_invalid",
         "layer3_g3_adapter_touchpoint_unregistered",
     }
     artifact_codes = {

@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import tomllib
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Protocol, cast
+from typing import Any, Literal, Protocol, cast
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.pdc import ApplicabilityResult
 from polisyos.runtime.quality.source_truth import (
@@ -26,6 +30,206 @@ class AdapterContractError(ValueError):
         super().__init__(f"{code}: {message}")
 
 
+VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF = (
+    "runtime-quality:verified-adapter-admission-producer"
+)
+ADAPTER_CAPABILITY_DECLARATION_SCHEMA_VERSION = (
+    "policyos.adapter_capability_declaration.v1"
+)
+ADAPTER_ADMISSION_EVIDENCE_SCHEMA_VERSION = "policyos.adapter_admission_evidence.v1"
+ADAPTER_CURRENTNESS_RECEIPT_SCHEMA_VERSION = "policyos.adapter_currentness_receipt.v1"
+ADAPTER_CAPABILITY_PASSPORT_SCHEMA_VERSION = "policyos.adapter_capability_passport.v1"
+VERIFIED_ADAPTER_ADMISSION_SCHEMA_VERSION = "policyos.verified_adapter_admission.v1"
+
+AdapterCapabilityResourceKind = Literal["method", "dataset", "source"]
+AdapterOperationKind = Literal["semantic_identity_projection"]
+
+
+class _AdapterAdmissionModel(BaseModel):
+    """Strict immutable base for verified post-G0 admission artifacts."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+
+class AdapterCapabilityDeclaration(_AdapterAdmissionModel):
+    """Data-owned capability and operation semantics for one adapter contract row."""
+
+    schema_version: Literal[ADAPTER_CAPABILITY_DECLARATION_SCHEMA_VERSION] = (
+        ADAPTER_CAPABILITY_DECLARATION_SCHEMA_VERSION
+    )
+    capability_ref: str = Field(min_length=1)
+    resource_kind: AdapterCapabilityResourceKind
+    capability_purpose: str = Field(min_length=1)
+    label: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    construct_refs: tuple[str, ...] = Field(min_length=1)
+    operation_id: str = Field(min_length=1)
+    operation_kind: AdapterOperationKind
+    consumes_ports: tuple[str, ...] = Field(min_length=1)
+    produces_ports: tuple[str, ...] = Field(min_length=1)
+    producer_ref: Literal[VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF] = (
+        VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF
+    )
+    evidence_refs: tuple[str, ...] = Field(min_length=1)
+    valid_from: datetime
+    valid_until: datetime
+
+    @model_validator(mode="after")
+    def _validity_interval_is_ordered_and_aware(self) -> AdapterCapabilityDeclaration:
+        if self.valid_from.tzinfo is None or self.valid_until.tzinfo is None:
+            raise ValueError("adapter capability validity must be timezone-aware")
+        if self.valid_until <= self.valid_from:
+            raise ValueError("adapter capability valid_until must follow valid_from")
+        return self
+
+
+class AdapterAdmissionEvidence(_AdapterAdmissionModel):
+    """Producer-computed evidence that one operation preserves declared semantics."""
+
+    schema_version: Literal[ADAPTER_ADMISSION_EVIDENCE_SCHEMA_VERSION] = (
+        ADAPTER_ADMISSION_EVIDENCE_SCHEMA_VERSION
+    )
+    producer_ref: Literal[VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF] = (
+        VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF
+    )
+    adapter_id: str = Field(min_length=1)
+    operation_id: str = Field(min_length=1)
+    operation_kind: AdapterOperationKind
+    contract_registry_ref: str = Field(min_length=1)
+    contract_registry_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    adapter_contract_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_payload_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    target_payload_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    semantic_preservation_status: Literal["pass"] = "pass"
+    checked_field_families: tuple[str, ...] = Field(min_length=1)
+    evidence_refs: tuple[str, ...] = Field(min_length=1)
+    observed_at: datetime
+
+    @model_validator(mode="after")
+    def _observation_is_timezone_aware(self) -> AdapterAdmissionEvidence:
+        if self.observed_at.tzinfo is None:
+            raise ValueError("adapter evidence observation must be timezone-aware")
+        return self
+
+
+class AdapterCurrentnessReceipt(_AdapterAdmissionModel):
+    """Interval-checked receipt for the exact evidence and contract-registry bytes."""
+
+    schema_version: Literal[ADAPTER_CURRENTNESS_RECEIPT_SCHEMA_VERSION] = (
+        ADAPTER_CURRENTNESS_RECEIPT_SCHEMA_VERSION
+    )
+    producer_ref: Literal[VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF] = (
+        VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF
+    )
+    adapter_id: str = Field(min_length=1)
+    evidence_ref: str = Field(min_length=1)
+    contract_registry_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    observed_at: datetime
+    valid_from: datetime
+    valid_until: datetime
+    state: Literal["current"] = "current"
+
+    @model_validator(mode="after")
+    def _observation_is_inside_validity(self) -> AdapterCurrentnessReceipt:
+        if any(
+            value.tzinfo is None
+            for value in (self.observed_at, self.valid_from, self.valid_until)
+        ):
+            raise ValueError("adapter currentness times must be timezone-aware")
+        if not self.valid_from <= self.observed_at < self.valid_until:
+            raise ValueError("adapter evidence is not current at the observation time")
+        return self
+
+
+class AdapterCapabilityPassport(_AdapterAdmissionModel):
+    """Typed capability/operation identity emitted after evidence and currentness pass."""
+
+    schema_version: Literal[ADAPTER_CAPABILITY_PASSPORT_SCHEMA_VERSION] = (
+        ADAPTER_CAPABILITY_PASSPORT_SCHEMA_VERSION
+    )
+    producer_ref: Literal[VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF] = (
+        VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF
+    )
+    adapter_id: str = Field(min_length=1)
+    capability_ref: str = Field(min_length=1)
+    content_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    resource_kind: AdapterCapabilityResourceKind
+    capability_purpose: str = Field(min_length=1)
+    label: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    construct_refs: tuple[str, ...] = Field(min_length=1)
+    operation_id: str = Field(min_length=1)
+    operation_kind: AdapterOperationKind
+    consumes_ports: tuple[str, ...] = Field(min_length=1)
+    produces_ports: tuple[str, ...] = Field(min_length=1)
+    evidence_ref: str = Field(min_length=1)
+    currentness_ref: str = Field(min_length=1)
+    provenance_refs: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _receipts_are_carried_in_provenance(self) -> AdapterCapabilityPassport:
+        if not {self.evidence_ref, self.currentness_ref} <= set(self.provenance_refs):
+            raise ValueError("adapter passport must carry evidence and currentness receipts")
+        return self
+
+
+class VerifiedAdapterAdmission(_AdapterAdmissionModel):
+    """Post-G0 admission produced only after semantic and temporal verification."""
+
+    schema_version: Literal[VERIFIED_ADAPTER_ADMISSION_SCHEMA_VERSION] = (
+        VERIFIED_ADAPTER_ADMISSION_SCHEMA_VERSION
+    )
+    adapter_id: str = Field(min_length=1)
+    admission_state: Literal["admitted"] = "admitted"
+    admitted: Literal[True] = True
+    capability_ref: str = Field(min_length=1)
+    resource_kind: AdapterCapabilityResourceKind
+    capability_purpose: str = Field(min_length=1)
+    passport_ref: str = Field(min_length=1)
+    evidence_ref: str = Field(min_length=1)
+    currentness_ref: str = Field(min_length=1)
+    passport: AdapterCapabilityPassport
+    evidence: AdapterAdmissionEvidence
+    currentness: AdapterCurrentnessReceipt
+
+    @model_validator(mode="after")
+    def _artifacts_bind_one_adapter_capability(self) -> VerifiedAdapterAdmission:
+        if (
+            self.adapter_id,
+            self.capability_ref,
+            self.resource_kind,
+            self.capability_purpose,
+        ) != (
+            self.passport.adapter_id,
+            self.passport.capability_ref,
+            self.passport.resource_kind,
+            self.passport.capability_purpose,
+        ):
+            raise ValueError("verified admission and passport must bind one adapter capability")
+        if self.evidence.adapter_id != self.adapter_id:
+            raise ValueError("adapter evidence must bind admission adapter_id")
+        if self.currentness.adapter_id != self.adapter_id:
+            raise ValueError("adapter currentness must bind admission adapter_id")
+        if self.passport.evidence_ref != self.evidence_ref:
+            raise ValueError("adapter passport must bind admission evidence")
+        if self.passport.currentness_ref != self.currentness_ref:
+            raise ValueError("adapter passport must bind admission currentness")
+        if self.currentness.evidence_ref != self.evidence_ref:
+            raise ValueError("adapter currentness must bind admission evidence")
+        expected_refs = {
+            "passport": _artifact_ref("adapter-capability-passport", self.passport),
+            "evidence": _artifact_ref("adapter-admission-evidence", self.evidence),
+            "currentness": _artifact_ref("adapter-currentness", self.currentness),
+        }
+        if (
+            self.passport_ref != expected_refs["passport"]
+            or self.evidence_ref != expected_refs["evidence"]
+            or self.currentness_ref != expected_refs["currentness"]
+        ):
+            raise ValueError("verified admission receipt refs must bind exact artifact content")
+        return self
+
+
 @dataclass(frozen=True)
 class AdapterContract:
     """One declared adapter boundary that must preserve authority semantics."""
@@ -38,6 +242,7 @@ class AdapterContract:
     blocker_code: str
     owner: str
     next_diagnostic_command: str
+    capability_admission: AdapterCapabilityDeclaration | None = None
 
 
 @dataclass(frozen=True)
@@ -398,7 +603,12 @@ def _semantic_source_contract_value_issue(facet: str, value: object) -> str | No
             return "missing_semantic_source_contract_value"
         has_space = bool(coverage.get("countries") or coverage.get("regions"))
         has_time = bool(coverage.get("time_start") or coverage.get("time_end"))
-        if not value.get("jurisdiction") or not value.get("population") or not has_space or not has_time:
+        if (
+            not value.get("jurisdiction")
+            or not value.get("population")
+            or not has_space
+            or not has_time
+        ):
             return "missing_semantic_source_contract_value"
     if facet == "lineage":
         if not value.get("catalog_dataset_id") or not value.get("source_dataset_id"):
@@ -521,6 +731,7 @@ def load_adapter_contract_registry(
             blocker_code=_required_text(payload, "blocker_code"),
             owner=_required_text(payload, "owner"),
             next_diagnostic_command=_required_text(payload, "next_diagnostic_command"),
+            capability_admission=_adapter_capability_declaration(payload),
         )
         if contract.id in adapters:
             raise AdapterContractError(
@@ -630,6 +841,183 @@ def validate_adapter_preservation(
     )
 
 
+def build_verified_adapter_admission(
+    *,
+    adapter_path: str,
+    before: AdapterSurfacePayload,
+    after: AdapterSurfacePayload,
+    registry: AdapterContractRegistry,
+    observed_at: datetime | None = None,
+) -> VerifiedAdapterAdmission:
+    """Produce a capability-bearing admission from measured semantics and current bytes.
+
+    Registry membership selects the contract to evaluate; it never establishes
+    admission. The producer independently computes semantic preservation,
+    content digests, and validity at ``observed_at`` before emitting a passport.
+    """
+
+    try:
+        contract = registry.adapter_paths[adapter_path]
+    except KeyError as exc:
+        raise AdapterContractError(
+            "hds_adapter_path_unknown",
+            f"Unknown adapter path: {adapter_path}",
+        ) from exc
+    declaration = contract.capability_admission
+    if declaration is None:
+        raise AdapterContractError(
+            "hds_adapter_capability_admission_missing",
+            f"{adapter_path} has no typed capability_admission declaration",
+        )
+    if contract.source_surface not in declaration.consumes_ports:
+        raise AdapterContractError(
+            "hds_adapter_operation_source_unbound",
+            f"{adapter_path} operation does not consume {contract.source_surface}",
+        )
+    if contract.target_surface not in declaration.produces_ports:
+        raise AdapterContractError(
+            "hds_adapter_operation_target_unbound",
+            f"{adapter_path} operation does not produce {contract.target_surface}",
+        )
+
+    report = validate_adapter_preservation(
+        adapter_path=adapter_path,
+        before=before,
+        after=after,
+        registry=registry,
+    )
+    if report.status != "pass" or not report.checked_field_families:
+        raise AdapterContractError(
+            "hds_adapter_semantic_preservation_failed",
+            f"{adapter_path} did not produce a non-empty passing preservation report",
+        )
+
+    observation = observed_at or datetime.now(UTC)
+    if observation.tzinfo is None:
+        raise AdapterContractError(
+            "hds_adapter_observation_time_invalid",
+            "adapter admission observation must be timezone-aware",
+        )
+    registry_digest = _sha256_digest(registry.path.read_bytes())
+    contract_digest = _sha256_json(_adapter_contract_payload(contract))
+    evidence = AdapterAdmissionEvidence(
+        adapter_id=contract.id,
+        operation_id=declaration.operation_id,
+        operation_kind=declaration.operation_kind,
+        contract_registry_ref=registry.path.as_posix(),
+        contract_registry_digest=registry_digest,
+        adapter_contract_digest=contract_digest,
+        source_payload_digest=_sha256_json(_adapter_surface_payload(before)),
+        target_payload_digest=_sha256_json(_adapter_surface_payload(after)),
+        checked_field_families=report.checked_field_families,
+        evidence_refs=tuple(
+            dict.fromkeys(
+                (
+                    VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF,
+                    registry.path.as_posix(),
+                    *declaration.evidence_refs,
+                )
+            )
+        ),
+        observed_at=observation,
+    )
+    evidence_ref = _artifact_ref("adapter-admission-evidence", evidence)
+    try:
+        currentness = AdapterCurrentnessReceipt(
+            adapter_id=contract.id,
+            evidence_ref=evidence_ref,
+            contract_registry_digest=registry_digest,
+            observed_at=observation,
+            valid_from=declaration.valid_from,
+            valid_until=declaration.valid_until,
+        )
+    except ValueError as exc:
+        raise AdapterContractError(
+            "hds_adapter_capability_currentness_invalid",
+            f"{adapter_path} capability evidence is outside its validity interval",
+        ) from exc
+    currentness_ref = _artifact_ref("adapter-currentness", currentness)
+    content_digest = _sha256_json(
+        {
+            "adapter_id": contract.id,
+            "capability_ref": declaration.capability_ref,
+            "resource_kind": declaration.resource_kind,
+            "capability_purpose": declaration.capability_purpose,
+            "operation_id": declaration.operation_id,
+            "operation_kind": declaration.operation_kind,
+            "consumes_ports": declaration.consumes_ports,
+            "produces_ports": declaration.produces_ports,
+            "adapter_contract_digest": contract_digest,
+            "evidence_ref": evidence_ref,
+            "currentness_ref": currentness_ref,
+        }
+    )
+    passport = AdapterCapabilityPassport(
+        adapter_id=contract.id,
+        capability_ref=declaration.capability_ref,
+        content_digest=content_digest,
+        resource_kind=declaration.resource_kind,
+        capability_purpose=declaration.capability_purpose,
+        label=declaration.label,
+        description=declaration.description,
+        construct_refs=declaration.construct_refs,
+        operation_id=declaration.operation_id,
+        operation_kind=declaration.operation_kind,
+        consumes_ports=declaration.consumes_ports,
+        produces_ports=declaration.produces_ports,
+        evidence_ref=evidence_ref,
+        currentness_ref=currentness_ref,
+        provenance_refs=tuple(
+            dict.fromkeys((*evidence.evidence_refs, evidence_ref, currentness_ref))
+        ),
+    )
+    passport_ref = _artifact_ref("adapter-capability-passport", passport)
+    return VerifiedAdapterAdmission(
+        adapter_id=contract.id,
+        capability_ref=declaration.capability_ref,
+        resource_kind=declaration.resource_kind,
+        capability_purpose=declaration.capability_purpose,
+        passport_ref=passport_ref,
+        evidence_ref=evidence_ref,
+        currentness_ref=currentness_ref,
+        passport=passport,
+        evidence=evidence,
+        currentness=currentness,
+    )
+
+
+def execute_declared_adapter_operation(
+    *,
+    contract: AdapterContract,
+    before: AdapterSurfacePayload,
+) -> AdapterSurfacePayload:
+    """Execute the row-declared generic operation over a real source envelope."""
+
+    declaration = contract.capability_admission
+    if declaration is None:
+        raise AdapterContractError(
+            "hds_adapter_capability_admission_missing",
+            f"{contract.id} has no typed capability_admission declaration",
+        )
+    if before.surface != contract.source_surface:
+        raise AdapterContractError(
+            "hds_adapter_source_surface_mismatch",
+            f"{contract.id} expects source {contract.source_surface}, got {before.surface}",
+        )
+    if declaration.operation_kind == "semantic_identity_projection":
+        return AdapterSurfacePayload(
+            surface=contract.target_surface,
+            field_families={
+                family: dict(payload)
+                for family, payload in before.field_families.items()
+            },
+        )
+    raise AdapterContractError(
+        "hds_adapter_operation_kind_unsupported",
+        f"{contract.id} declares unsupported operation kind {declaration.operation_kind}",
+    )
+
+
 def _required_semantic_fields(
     contract: AdapterContract,
     family: Any,
@@ -642,6 +1030,92 @@ def _required_semantic_fields(
             ]
         )
     )
+
+
+def _adapter_capability_declaration(
+    payload: Mapping[str, Any],
+) -> AdapterCapabilityDeclaration | None:
+    raw = payload.get("capability_admission")
+    if raw is None:
+        return None
+    declaration = _mapping(raw, field="adapter_paths[].capability_admission")
+    try:
+        return AdapterCapabilityDeclaration(
+            capability_ref=_required_text(declaration, "capability_ref"),
+            resource_kind=_required_text(declaration, "resource_kind"),  # type: ignore[arg-type]
+            capability_purpose=_required_text(declaration, "capability_purpose"),
+            label=_required_text(declaration, "label"),
+            description=_required_text(declaration, "description"),
+            construct_refs=_text_tuple(
+                declaration.get("construct_refs"),
+                field="adapter_paths[].capability_admission.construct_refs",
+            ),
+            operation_id=_required_text(declaration, "operation_id"),
+            operation_kind=_required_text(declaration, "operation_kind"),  # type: ignore[arg-type]
+            consumes_ports=_text_tuple(
+                declaration.get("consumes_ports"),
+                field="adapter_paths[].capability_admission.consumes_ports",
+            ),
+            produces_ports=_text_tuple(
+                declaration.get("produces_ports"),
+                field="adapter_paths[].capability_admission.produces_ports",
+            ),
+            producer_ref=_required_text(declaration, "producer_ref"),  # type: ignore[arg-type]
+            evidence_refs=_text_tuple(
+                declaration.get("evidence_refs"),
+                field="adapter_paths[].capability_admission.evidence_refs",
+            ),
+            valid_from=_required_datetime(declaration, "valid_from"),
+            valid_until=_required_datetime(declaration, "valid_until"),
+        )
+    except ValueError as exc:
+        raise AdapterContractError(
+            "hds_adapter_capability_declaration_malformed",
+            f"Invalid capability_admission declaration: {exc}",
+        ) from exc
+
+
+def _adapter_contract_payload(contract: AdapterContract) -> dict[str, Any]:
+    return {
+        "id": contract.id,
+        "source_surface": contract.source_surface,
+        "target_surface": contract.target_surface,
+        "field_families": contract.field_families,
+        "required_semantic_fields": contract.required_semantic_fields,
+        "blocker_code": contract.blocker_code,
+        "owner": contract.owner,
+        "next_diagnostic_command": contract.next_diagnostic_command,
+        "capability_admission": (
+            contract.capability_admission.model_dump(mode="json")
+            if contract.capability_admission is not None
+            else None
+        ),
+    }
+
+
+def _adapter_surface_payload(payload: AdapterSurfacePayload) -> dict[str, Any]:
+    return {
+        "surface": payload.surface,
+        "field_families": payload.field_families,
+    }
+
+
+def _artifact_ref(kind: str, artifact: BaseModel) -> str:
+    return f"{kind}:{_sha256_json(artifact.model_dump(mode='json'))}"
+
+
+def _sha256_json(value: object) -> str:
+    encoded = json.dumps(
+        _json_safe(value),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode("utf-8")
+    return _sha256_digest(encoded)
+
+
+def _sha256_digest(value: bytes) -> str:
+    return "sha256:" + hashlib.sha256(value).hexdigest()
 
 
 def _semantic_difference(
@@ -759,6 +1233,27 @@ def _required_text(payload: Mapping[str, Any], key: str) -> str:
     return text
 
 
+def _required_datetime(payload: Mapping[str, Any], key: str) -> datetime:
+    value = payload.get(key)
+    if isinstance(value, datetime):
+        parsed = value
+    else:
+        text = _required_text(payload, key)
+        try:
+            parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise AdapterContractError(
+                "hds_adapter_datetime_malformed",
+                f"Adapter contract field {key} is not an ISO-8601 datetime",
+            ) from exc
+    if parsed.tzinfo is None:
+        raise AdapterContractError(
+            "hds_adapter_datetime_timezone_missing",
+            f"Adapter contract field {key} must be timezone-aware",
+        )
+    return parsed
+
+
 def _optional_text(value: object) -> str | None:
     if value is None:
         return None
@@ -797,12 +1292,23 @@ def _present(value: object) -> bool:
 
 
 __all__ = [
+    "ADAPTER_ADMISSION_EVIDENCE_SCHEMA_VERSION",
+    "ADAPTER_CAPABILITY_DECLARATION_SCHEMA_VERSION",
+    "ADAPTER_CAPABILITY_PASSPORT_SCHEMA_VERSION",
+    "ADAPTER_CURRENTNESS_RECEIPT_SCHEMA_VERSION",
+    "VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF",
+    "VERIFIED_ADAPTER_ADMISSION_SCHEMA_VERSION",
     "WORKSPACE_EXECUTION_READY_CONNECTORS",
     "WORKSPACE_FAIL_CLOSED_CONNECTORS",
     "WORKSPACE_SOURCE_CONTRACT_FACETS",
+    "AdapterAdmissionEvidence",
+    "AdapterCapabilityDeclaration",
+    "AdapterCapabilityPassport",
+    "AdapterCapabilityResourceKind",
     "AdapterContract",
     "AdapterContractError",
     "AdapterContractRegistry",
+    "AdapterCurrentnessReceipt",
     "AdapterLossBlocker",
     "AdapterPreservationReport",
     "AdapterSemanticDifference",
@@ -810,7 +1316,10 @@ __all__ = [
     "ConnectorAdmissionGate",
     "DataRequirementAdmissionGate",
     "FormalGate",
+    "VerifiedAdapterAdmission",
     "adapter_surface_payload_from_envelope",
+    "build_verified_adapter_admission",
+    "execute_declared_adapter_operation",
     "load_adapter_contract_registry",
     "validate_adapter_preservation",
 ]

@@ -1602,7 +1602,11 @@ def test_layer3_g3_task7_unknown_adapter_path_in_registry_fails_status(
     status = g3.build_g3_adapter_contract_registry_status(path=registry_path)
 
     assert status.status == "fail"
-    assert "layer3_g3_adapter_unknown_path" in status.issue_codes
+    assert "layer3_g3_adapter_capability_admission_missing" in status.issue_codes
+    assert all(
+        record.get("adapter_id") != "layer3_g3_unregistered_bridge_to_w12d_consumer_gate"
+        for record in status.adapter_admission_records
+    )
 
 
 def _task2_request(g3: Any, suffix: str) -> Any:

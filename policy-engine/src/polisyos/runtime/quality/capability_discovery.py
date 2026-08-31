@@ -33,6 +33,11 @@ from polisyos.core.contracts import (
     SearchFrontier,
     SearchLedger,
 )
+from polisyos.runtime.quality.adapter_contracts import (
+    VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF,
+    AdapterCapabilityResourceKind,
+    VerifiedAdapterAdmission,
+)
 from polisyos.runtime.quality.capability_index import (
     AcquisitionStrategy,
     CapabilityConflictRecord,
@@ -69,6 +74,7 @@ LEX_LEGAL_NORM_ADMISSION_VERIFIER_REF = (
     "runtime-quality:capability-index-compiler:legal-norm-owner-truth"
 )
 CAPABILITY_INDEX_PATH_ENV = "POLISYOS_CAPABILITY_INDEX_PATH"
+ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF = VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF
 
 _COMPLETENESS_PRIORITY: dict[SearchCompletenessStatus, int] = {
     "producer_missing": 0,
@@ -211,6 +217,39 @@ class ScientistRegistryOwnerReceipt(_CapabilityOwnerReceipt):
         return self
 
 
+class AdapterCapabilityOwnerReceipt(_CapabilityOwnerReceipt):
+    """Owner receipt for capability rows emitted by verified adapter admission."""
+
+    schema_version: Literal["policyos.adapter_capability_owner_receipt.v1"] = (
+        "policyos.adapter_capability_owner_receipt.v1"
+    )
+    owner_type: Literal["verified_adapter_admission"] = "verified_adapter_admission"
+    resource_kind: AdapterCapabilityResourceKind
+    admission_snapshot_ref: str = Field(min_length=1)
+    admission_snapshot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    capability_purposes: tuple[str, ...] = Field(min_length=1)
+    passport_refs: tuple[str, ...] = Field(min_length=1)
+    evidence_receipt_refs: tuple[str, ...] = Field(min_length=1)
+    currentness_receipt_refs: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _admission_artifacts_are_bound(self) -> AdapterCapabilityOwnerReceipt:
+        if (
+            self.admission_snapshot_ref != self.search_snapshot_ref
+            or self.admission_snapshot_digest != self.search_snapshot_digest
+        ):
+            raise ValueError("adapter owner receipt must bind the searched admission snapshot")
+        required = {
+            self.admission_snapshot_ref,
+            *self.passport_refs,
+            *self.evidence_receipt_refs,
+            *self.currentness_receipt_refs,
+        }
+        if not required <= set(self.provenance_refs):
+            raise ValueError("adapter owner receipt must carry every verified admission artifact")
+        return self
+
+
 class ScientistRegistryCapabilityRecord(BaseModel):
     """Strict handler-free projection of one public NodeSpec or ToolDefinition."""
 
@@ -269,6 +308,7 @@ type CapabilityOwnerReceipt = (
     | SourceProfileOwnerReceipt
     | LexOwnerReceipt
     | ScientistRegistryOwnerReceipt
+    | AdapterCapabilityOwnerReceipt
 )
 
 
@@ -298,16 +338,25 @@ class CapabilityProviderSearchResult(BaseModel):
             raise ValueError("provider rows must match the provider resource kind")
         if any(row.producer_ref != self.producer_ref for row in self.rows):
             raise ValueError("provider row producer_ref must match the owner result")
-        receipt_type = {
-            "method": CapabilityIndexOwnerReceipt,
-            "dataset": CapabilityIndexOwnerReceipt,
-            "source": SourceProfileOwnerReceipt,
-            "legal_norm": LexOwnerReceipt,
-            "agent": ScientistRegistryOwnerReceipt,
-        }.get(self.resource_kind)
-        if receipt_type is None or type(self.owner_receipt) is not receipt_type:
-            expected = receipt_type.__name__ if receipt_type is not None else "no owner receipt"
-            raise ValueError(f"{self.resource_kind} results require {expected}")
+        if type(self.owner_receipt) is AdapterCapabilityOwnerReceipt:
+            if self.resource_kind not in {"method", "dataset", "source"}:
+                raise ValueError("adapter admission cannot stand in for owner-truth resource kinds")
+            receipt_type: type[_CapabilityOwnerReceipt] | None = (
+                AdapterCapabilityOwnerReceipt
+            )
+        else:
+            receipt_type = {
+                "method": CapabilityIndexOwnerReceipt,
+                "dataset": CapabilityIndexOwnerReceipt,
+                "source": SourceProfileOwnerReceipt,
+                "legal_norm": LexOwnerReceipt,
+                "agent": ScientistRegistryOwnerReceipt,
+            }.get(self.resource_kind)
+            if receipt_type is None or type(self.owner_receipt) is not receipt_type:
+                expected = (
+                    receipt_type.__name__ if receipt_type is not None else "no owner receipt"
+                )
+                raise ValueError(f"{self.resource_kind} results require {expected}")
         if self.owner_receipt.owner_producer_ref != self.producer_ref:
             raise ValueError("owner receipt must bind producer_ref")
         if self.owner_receipt.resource_kind != self.resource_kind:
@@ -372,6 +421,249 @@ class CapabilityDiscoveryProvider(Protocol):
     ) -> CapabilityProviderSearchResult:
         """Return owner-selected rows and the real owner ledger."""
         ...
+
+
+class AdapterCapabilityDiscoveryProvider:
+    """Search capability rows emitted by the verified post-G0 admission producer."""
+
+    def __init__(self, *, admissions: Sequence[VerifiedAdapterAdmission]) -> None:
+        if not admissions:
+            raise ValueError("adapter capability discovery requires verified admissions")
+        if any(type(admission) is not VerifiedAdapterAdmission for admission in admissions):
+            raise TypeError("adapter capability discovery accepts only verified admissions")
+        kinds = {admission.resource_kind for admission in admissions}
+        if len(kinds) != 1:
+            raise ValueError("one adapter provider may own only one capability resource kind")
+        refs = [admission.capability_ref for admission in admissions]
+        if len(refs) != len(set(refs)):
+            raise ValueError("adapter capability refs must be unique within a provider")
+        self._admissions = tuple(sorted(admissions, key=lambda item: item.capability_ref))
+        self._resource_kind = self._admissions[0].resource_kind
+        snapshot_payload = [
+            admission.model_dump(mode="json") for admission in self._admissions
+        ]
+        self._snapshot_digest = "sha256:" + _digest(snapshot_payload)
+        self._snapshot_ref = (
+            "adapter-admission-snapshot:"
+            + self._snapshot_digest.removeprefix("sha256:")
+        )
+        self._rows = tuple(
+            self._discovery_row(admission) for admission in self._admissions
+        )
+
+    @property
+    def resource_kind(self) -> AdapterCapabilityResourceKind:
+        """Return the one explicitly declared kind in this admission snapshot."""
+
+        return self._resource_kind
+
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
+        """Return purpose-bound rows with all producer receipts content-bound."""
+
+        terms = _owner_search_terms(request)
+        purpose = request.search.authority_purpose
+        matches = [
+            row
+            for admission, row in zip(self._admissions, self._rows, strict=True)
+            if admission.capability_purpose == purpose
+            and (not terms or _row_match_count(row, terms))
+        ]
+        limit = _owner_search_limit(request, fallback=len(matches))
+        selected_rows = tuple(
+            sorted(
+                matches,
+                key=lambda row: (-_row_match_count(row, terms), row.capability_ref),
+            )[:limit]
+        )
+        selected_refs = {row.capability_ref for row in selected_rows}
+        matching_refs = {row.capability_ref for row in matches}
+        admission_by_ref = {
+            admission.capability_ref: admission for admission in self._admissions
+        }
+        selected = tuple(self._candidate(row, terms) for row in selected_rows)
+        rejected = tuple(
+            self._candidate(
+                row,
+                terms,
+                limitation=(
+                    "adapter_capability_purpose_mismatch"
+                    if admission_by_ref[row.capability_ref].capability_purpose != purpose
+                    else (
+                        "adapter_capability_budget_cutoff"
+                        if row.capability_ref in matching_refs
+                        else "adapter_capability_query_mismatch"
+                    )
+                ),
+            )
+            for row in self._rows
+            if row.capability_ref not in selected_refs
+        )
+        budget_cutoff = len(matches) > limit
+        completeness_status: SearchCompletenessStatus = (
+            "budget_cutoff"
+            if budget_cutoff
+            else ("complete" if selected_rows else "complete_no_match")
+        )
+        incompleteness_reasons = (
+            ("adapter_capability_budget_cutoff",) if budget_cutoff else ()
+        )
+        ledger = SearchLedger(
+            request_ref=request.search.request_id,
+            query_plan={
+                "match": "all_terms_over_verified_adapter_admissions",
+                "resource_kind": self.resource_kind,
+                "required_capability_purpose": purpose,
+                "membership_as_admission": "forbidden",
+                "admission_as_execution": "forbidden",
+            },
+            corpus_ref=self._snapshot_ref,
+            corpus_path="runtime/quality/adapter_contracts.py",
+            corpus_snapshot_hash=self._snapshot_digest,
+            corpus_kind="canonical",
+            indexes_used=("verified_adapter_admission_registry",),
+            index_version_refs=tuple(
+                admission.passport_ref for admission in self._admissions
+            ),
+            index_freshness={
+                "verified_adapter_admission_registry": {
+                    "state": "current",
+                    "currentness_receipt_refs": [
+                        admission.currentness_ref for admission in self._admissions
+                    ],
+                }
+            },
+            candidates=selected,
+            rejected_candidates=rejected,
+            no_hit_frontier=() if selected_rows else (self.resource_kind,),
+            incompleteness={
+                "status": completeness_status,
+                "reason_codes": list(incompleteness_reasons),
+            },
+            replay_key=(
+                "verified-adapter-admission:"
+                + self._snapshot_digest.removeprefix("sha256:")
+            ),
+            replay_command="capability-discovery:verified-adapter-admission",
+            replay_expected_output_hash=self._snapshot_digest,
+        )
+        payload = {
+            "resource_kind": self.resource_kind,
+            "producer_ref": ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF,
+            "rows": selected_rows,
+            "ledger": ledger,
+            "requested_count": limit,
+            "evaluated_count": len(self._rows),
+            "actual_cutoff": limit if budget_cutoff else None,
+            "completeness_status": completeness_status,
+            "incompleteness_reasons": incompleteness_reasons,
+        }
+        result_digest = "sha256:" + _digest(
+            {
+                **payload,
+                "rows": [row.model_dump(mode="json") for row in selected_rows],
+                "ledger": ledger.model_dump(mode="json"),
+            }
+        )
+        provenance_refs = tuple(
+            dict.fromkeys(
+                (
+                    ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF,
+                    self._snapshot_ref,
+                    *(
+                        ref
+                        for admission in self._admissions
+                        for ref in (
+                            admission.passport_ref,
+                            admission.evidence_ref,
+                            admission.currentness_ref,
+                            *admission.passport.provenance_refs,
+                        )
+                    ),
+                )
+            )
+        )
+        receipt = AdapterCapabilityOwnerReceipt(
+            owner_producer_ref=ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF,
+            search_snapshot_ref=self._snapshot_ref,
+            search_snapshot_digest=self._snapshot_digest,
+            result_digest=result_digest,
+            provenance_refs=provenance_refs,
+            resource_kind=self.resource_kind,
+            admission_snapshot_ref=self._snapshot_ref,
+            admission_snapshot_digest=self._snapshot_digest,
+            capability_purposes=tuple(
+                sorted({admission.capability_purpose for admission in self._admissions})
+            ),
+            passport_refs=tuple(
+                admission.passport_ref for admission in self._admissions
+            ),
+            evidence_receipt_refs=tuple(
+                admission.evidence_ref for admission in self._admissions
+            ),
+            currentness_receipt_refs=tuple(
+                admission.currentness_ref for admission in self._admissions
+            ),
+        )
+        return CapabilityProviderSearchResult(**payload, owner_receipt=receipt)
+
+    def _discovery_row(
+        self,
+        admission: VerifiedAdapterAdmission,
+    ) -> CapabilityIndexDiscoveryRow:
+        time = CapabilityTimeSemantics(
+            observed_at=admission.currentness.observed_at,
+            valid_from=admission.currentness.valid_from,
+            valid_until=admission.currentness.valid_until,
+            freshness="current",
+        )
+        return CapabilityIndexDiscoveryRow(
+            capability_ref=admission.capability_ref,
+            content_digest=admission.passport.content_digest,
+            resource_kind=admission.resource_kind,
+            construct_refs=admission.passport.construct_refs,
+            label=admission.passport.label,
+            description=admission.passport.description,
+            producer_ref=ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF,
+            snapshot_ref=self._snapshot_ref,
+            freshness_ref=admission.currentness_ref,
+            provenance_refs=tuple(
+                dict.fromkeys(
+                    (
+                        ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF,
+                        self._snapshot_ref,
+                        admission.passport_ref,
+                        admission.evidence_ref,
+                        admission.currentness_ref,
+                        *admission.passport.provenance_refs,
+                    )
+                )
+            ),
+            may_not_use_for=(
+                "adapter_admission_as_execution_authority",
+                "adapter_admission_as_publication_authority",
+                "registry_membership_as_capability_evidence",
+            ),
+            time=time,
+        )
+
+    @staticmethod
+    def _candidate(
+        row: CapabilityIndexDiscoveryRow,
+        terms: tuple[str, ...],
+        *,
+        limitation: str | None = None,
+    ) -> SearchCandidate:
+        match_count = _row_match_count(row, terms)
+        return SearchCandidate(
+            candidate_ref=row.capability_ref,
+            source_layer="Layer3AdapterAdmission",
+            match_mode="exact" if not terms else "lexical",
+            score=match_count / len(terms) if terms else 1.0,
+            evidence_refs=row.provenance_refs,
+            limitation_refs=(limitation,) if limitation is not None else (),
+            authority_boundary={"authoritative_for": []},
+            may_not_use_for=row.may_not_use_for,
+        )
 
 
 def project_layer3_owner_frontier(frontier: SearchFrontier) -> SearchFrontier:
@@ -1895,10 +2187,13 @@ def main(argv: list[str] | None = None) -> int:
 
 
 __all__ = [
+    "ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF",
     "CAPABILITY_DISCOVERY_RULE_VERSION",
     "CAPABILITY_INDEX_PATH_ENV",
     "CAPABILITY_PROVIDER_REGISTRY_INDEX_REF",
     "SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF",
+    "AdapterCapabilityDiscoveryProvider",
+    "AdapterCapabilityOwnerReceipt",
     "CapabilityDiscoveryComposer",
     "CapabilityDiscoveryProvider",
     "CapabilityIndexCapabilityDiscoveryProvider",

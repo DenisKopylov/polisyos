@@ -3586,8 +3586,7 @@ def build_g3_adapter_contract_registry_status(
     try:
         from polisyos.runtime.quality.adapter_contracts import (
             AdapterSurfacePayload,
-            build_verified_adapter_admission,
-            execute_declared_adapter_operation,
+            VerifiedAdapterAdmissionProducer,
             load_adapter_contract_registry,
             validate_adapter_preservation,
         )
@@ -3598,18 +3597,35 @@ def build_g3_adapter_contract_registry_status(
         preservation_issue_codes: list[str] = []
         preserved_path_ids: list[str] = []
         verified_records: list[dict[str, Any]] = []
+        admission_producer = VerifiedAdapterAdmissionProducer()
         for path_id, contract in sorted(registry.adapter_paths.items()):
             before = _g3_adapter_surface_payload(
                 AdapterSurfacePayload,
                 surface=contract.source_surface,
             )
-            after = (
-                execute_declared_adapter_operation(contract=contract, before=before)
-                if contract.capability_admission is not None
-                else _g3_adapter_surface_payload(
-                    AdapterSurfacePayload,
-                    surface=contract.target_surface,
-                )
+            if contract.capability_admission is not None:
+                try:
+                    admission = admission_producer.admit(
+                        contract=contract,
+                        before=before,
+                        registry=registry,
+                    )
+                except Exception as error:
+                    code = str(getattr(error, "code", ""))
+                    if code == "hds_adapter_capability_currentness_invalid":
+                        issue = "layer3_g3_adapter_currentness_invalid"
+                    elif code == "hds_adapter_semantic_preservation_failed":
+                        issue = "layer3_g3_adapter_semantic_loss"
+                    else:
+                        issue = "layer3_g3_adapter_capability_admission_invalid"
+                    preservation_issue_codes.append(issue)
+                else:
+                    preserved_path_ids.append(path_id)
+                    verified_records.append(admission.model_dump(mode="json"))
+                continue
+            after = _g3_adapter_surface_payload(
+                AdapterSurfacePayload,
+                surface=contract.target_surface,
             )
             preservation = validate_adapter_preservation(
                 adapter_path=path_id,
@@ -3627,24 +3643,6 @@ def build_g3_adapter_contract_registry_status(
                         "layer3_g3_adapter_capability_admission_missing"
                     )
                 continue
-            try:
-                admission = build_verified_adapter_admission(
-                    adapter_path=path_id,
-                    before=before,
-                    after=after,
-                    registry=registry,
-                )
-            except Exception as error:
-                code = str(getattr(error, "code", ""))
-                if code == "hds_adapter_capability_currentness_invalid":
-                    issue = "layer3_g3_adapter_currentness_invalid"
-                elif code == "hds_adapter_semantic_preservation_failed":
-                    issue = "layer3_g3_adapter_semantic_loss"
-                else:
-                    issue = "layer3_g3_adapter_capability_admission_invalid"
-                preservation_issue_codes.append(issue)
-            else:
-                verified_records.append(admission.model_dump(mode="json"))
     except Exception as error:
         code = getattr(error, "code", "")
         issue = (

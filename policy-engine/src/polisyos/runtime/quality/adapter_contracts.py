@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import tomllib
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -271,6 +271,71 @@ class AdapterSurfacePayload:
                 f"{field_family} payload on {self.surface} is not a mapping",
             )
         return payload
+
+
+class VerifiedAdapterAdmissionProducer:
+    """Resolve, execute, and verify row-declared adapter operations before admission."""
+
+    def resolve_operation(
+        self,
+        contract: AdapterContract,
+    ) -> Callable[[AdapterSurfacePayload], AdapterSurfacePayload]:
+        """Resolve the declared generic operation, never an adapter-ID switch."""
+
+        declaration = contract.capability_admission
+        if declaration is None:
+            raise AdapterContractError(
+                "hds_adapter_capability_admission_missing",
+                f"{contract.id} has no typed capability_admission declaration",
+            )
+        if declaration.operation_kind != "semantic_identity_projection":
+            raise AdapterContractError(
+                "hds_adapter_operation_kind_unsupported",
+                f"{contract.id} declares unsupported operation kind {declaration.operation_kind}",
+            )
+        return lambda before: execute_declared_adapter_operation(
+            contract=contract,
+            before=before,
+        )
+
+    def verify_conformance(
+        self,
+        *,
+        contract: AdapterContract,
+        before: AdapterSurfacePayload,
+        after: AdapterSurfacePayload,
+        registry: AdapterContractRegistry,
+        observed_at: datetime | None = None,
+    ) -> VerifiedAdapterAdmission:
+        """Verify actual operation output and emit the three bound artifacts."""
+
+        return build_verified_adapter_admission(
+            adapter_path=contract.id,
+            before=before,
+            after=after,
+            registry=registry,
+            observed_at=observed_at,
+        )
+
+    def admit(
+        self,
+        *,
+        contract: AdapterContract,
+        before: AdapterSurfacePayload,
+        registry: AdapterContractRegistry,
+        observed_at: datetime | None = None,
+    ) -> VerifiedAdapterAdmission:
+        """Execute the resolved operation and verify its output as one fail-closed act."""
+
+        operation = self.resolve_operation(contract)
+        after = operation(before)
+        return self.verify_conformance(
+            contract=contract,
+            before=before,
+            after=after,
+            registry=registry,
+            observed_at=observed_at,
+        )
 
 
 @dataclass(frozen=True)
@@ -1317,6 +1382,7 @@ __all__ = [
     "DataRequirementAdmissionGate",
     "FormalGate",
     "VerifiedAdapterAdmission",
+    "VerifiedAdapterAdmissionProducer",
     "adapter_surface_payload_from_envelope",
     "build_verified_adapter_admission",
     "execute_declared_adapter_operation",

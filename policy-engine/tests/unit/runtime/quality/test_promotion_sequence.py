@@ -1728,6 +1728,8 @@ def test_real_measurement_root_resolves_and_binds_into_n9(tmp_path: Path) -> Non
         ("data_only", receipt),
         ("field_pilot", pilot_receipt),
     ):
+        assert current.promoted is False
+        assert current.consumer_promotable is False
         production = tuple(
             promotion_sequence_module._refusal_reasons(
                 current.obligations,

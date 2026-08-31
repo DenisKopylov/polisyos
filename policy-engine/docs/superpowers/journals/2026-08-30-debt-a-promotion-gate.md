@@ -538,3 +538,300 @@ UTF-8 bytes, SHA-256
 compressed only for embedding in the owned unit test. Its red condition is
 exact structural round-trip followed by a non-empty live-owner validation
 issue set; before owner outcomes change, that final assertion is false.
+
+## Round 2 — final execution and superseding findings
+
+Round 2 terminates the five-row denominator as:
+
+`5 = 3 closed + 2 blocked`.
+
+No row is `open`. The three closures are measured producer/bridge properties;
+neither blocked row is being used as a difficulty or budget label.
+
+### Before/after refusal table and the GY-PR1 correction
+
+The same fixture was measured with full refusal reasons and with only
+`scope_insufficient` reasons. Counts are written `full / scope`; CALIBRATION
+and DATA are the two N11 fixture controls in every full set and are not counted
+as scope gaps.
+
+| Design class | Lane semantics | Before bridges: full / scope | After bridges: full / scope |
+| --- | --- | ---: | ---: |
+| data-only | production | `6 / 4` | `3 / 1` |
+| data-only | contract testing | `2 / 0` | `2 / 0` |
+| field-pilot | production | `7 / 5` | `4 / 2` |
+| field-pilot | contract testing | `2 / 0` | `2 / 0` |
+
+The exact after output was:
+
+```text
+AFTER CLASS=data_only PRODUCTION=3/1 CONTRACT=2/0 PRODUCTION_REASONS=effect:scope_insufficient|calibration:single_obligation_fail|data:single_obligation_fail CONTRACT_REASONS=calibration:single_obligation_fail|data:single_obligation_fail
+AFTER CLASS=field_pilot PRODUCTION=4/2 CONTRACT=2/0 PRODUCTION_REASONS=effect:scope_insufficient|calibration:single_obligation_fail|data:single_obligation_fail|eval_safety:scope_insufficient CONTRACT_REASONS=calibration:single_obligation_fail|data:single_obligation_fail
+```
+
+Named plan finding — **GY-PR1's Done-when is mis-specified**. Before the
+Round-1 minting repair, the data-only production scope count was two: EFFECT
+and MEASUREMENT. Removing the vacuous independence and coupling passes made the
+pre-Round-2 count four. That `2 -> 4` delta is the repair working: two lies
+became honest absence-of-evidence refusals. The text “repair the vacuous passes
+and only EFFECT remains” incorrectly combines minting repair with three
+separate producer handshakes. After those handshakes, data-only really does
+have only EFFECT left; field-pilot separately retains the promotion-authority
+EvalSafety nonreceipt. In the data-only denominator, EFFECT is the only one of
+the four pre-bridge gaps with no producer semantics at all.
+
+### Resolve-and-bind bridge results
+
+The shared bridge is a strict CAS record carried by existing
+`producer_root_refs`; the resolver is an orchestration dependency and never a
+serialized caller predicate. It verifies exact bridge bytes and manifest,
+fixed verifier provenance, candidate id and content hash, design-problem id,
+hash and rule version, and then source-specifically recomputes the producer
+result. Missing, duplicate, malformed, foreign-candidate, foreign-problem,
+wrong-provenance, or drifted evidence returns
+`evidence_not_established`. The adversarial test also proves an empty
+independence graph refuses as `no_support_evidence`.
+
+The two producer labels remain deliberately asymmetric:
+
+- Effective independence is `bridge_missing +
+  implemented_but_not_orchestrated`. The existing report caller is guarded by
+  `policy_design_case.graded_independence_weights`; its other caller is a
+  verification rebuild. Neither invokes the N9 bridge writer on the production
+  design path. The new bridge calls the public evidence facade, persists exact
+  graph inputs/output, reruns `build_effective_independence_graph`, and reruns
+  `validate_effective_independence_graph_record` before N9 can consume it.
+- Measurement is `bridge_missing`. `MeasurementRootProducer` is already
+  constructed by `workspace/loop.py`; the bridge resolves that producer's
+  authority-linked CAS payload, reconstructs its MeasurementRoot projection,
+  and candidate/problem-binds it. Production still must pass the running
+  producer's envelope through `persist_measurement_root` and carry the returned
+  ref.
+
+Absence-of-evidence finding: a normal production path that invokes neither
+bridge writer now refuses independence and measurement for lack of resolved
+evidence, not for lack of semantics. Independence needs the production design
+orchestrator to invoke its graph bridge; measurement needs the workspace loop's
+existing envelope passed to its binding bridge. This can keep production
+non-promotable, but it cannot mint. Field-pilot also refuses until a distinct
+promotion-authoritative EvalSafety producer exists; the attempted-evaluation
+certificate expressly cannot be reused for promotion.
+
+### Additive generation-cycle diff and exact consumers
+
+The Round-2 diff against `002da58cf` is additive in the approved sense:
+
+- lines 261-262 append `n5_coupling_blocked` only when the real N5
+  `feedback_classification.support_status` is `unsupported`; existing specific
+  blockers and control flow remain;
+- line 3457 passes the already-produced `SimulationPortObservation` to the
+  selected-summary projection; lines 5673-5682 union only that typed token into
+  existing `value_blockers` without changing the return shape;
+- lines 2463-2467 and 2591 carry the N9 owner-store resolver already exposed by
+  the promotion port into decision-front replay; lines 6046-6099 only thread
+  that dependency.
+
+A complete AST/text census over **2,611 `src/**/*.py` files** found:
+
+```text
+_joint_simulation_port_outcome: 1 definition + 1 production call
+_summary_with_value_observation: 1 definition + 1 production call
+_apply_promotion_to_summaries: 1 definition + 1 production call
+_promotion_receipt_allows_decision_front: 1 definition + 1 production call
+n5_coupling_blocked: 3 source occurrences (emit, carry, consume)
+```
+
+The exact consumers are therefore: `JointSimulationPort` reads the real N5
+classification and creates `SimulationPortObservation.authority_blockers`;
+`GenerationCycleController._revise_node` reads that observation and carries the
+one typed token into `CandidateSummary.value_blockers`; `_coupling_obligation`
+reads the token and refuses; controller decision-front replay reads the
+promotion port's owner-store resolver. There is no sibling source consumer of
+the token.
+
+The E- and D-adjacent blast command selected one behavioral node for each
+named consumer boundary:
+
+```bash
+uv run pytest -q --tb=short \
+  tests/unit/runtime/quality/test_acquisition_planner.py::test_generation_cycle_bootstrap_authority_is_strangled \
+  tests/unit/runtime/quality/test_acquisition_route_loop.py::test_route_closure_rejects_complete_before_terminal_then_ignores_newer_job \
+  tests/unit/runtime/http/test_governed_projection_service.py::test_acquisition_growth_is_one_content_bound_composite_projection \
+  tests/unit/runtime/http/test_workspace_loop_transition.py::test_workflow_transition_uses_injected_catalog_and_persists_measurement_payload
+```
+
+Direct exit `0`; decisive output: `4 passed`. The first two exercise E's
+generation/acquisition model consumers, the third exercises E's governed
+projection consumer, and the fourth exercises D-adjacent `run_lifecycle`
+through the real workspace measurement transition.
+
+Both producer modules are byte-unchanged relative to the slice base.
+`evaluation_safety.py` and `runtime/http/dependencies.py` are also unchanged;
+there are zero shared-container lines to hand back.
+
+### Receipt-version ruling and history proof
+
+The epoch remains `n9_promotion.v5 / n9_owner_projection.v3 /
+n9_obligation_scope.v2`. Owner resolution is exactly the semantic repair v2
+introduced on this still-unmerged branch; it rekeys hashed obligation rows and
+the gate receipt without changing owner-projection shape or the scope-hash
+algorithm. A `.v3` bump would incorrectly freeze a provisional intermediate
+state.
+
+The complete governed-artifact denominator is the 656 JSON/TOML/Markdown files
+under `architecture/`: zero contain a durable v5 receipt and four contain v3.
+The history test embeds authentic pre-Round-2 v5/v3/v2 bytes, requires exact
+48,568-byte readback and SHA-256
+`dba4a1ab7f374ea04044b171b0e163c6b0b1390089197fc64f96c2f0e86983c9`,
+round-trips the parsed model to identical bytes, and then proves current owner
+authority rejects it with exactly:
+
+```text
+decisive_obligation_omitted
+unexpected_decisive_obligation_instance
+```
+
+The targeted history/replay selector exited `0` with `7 passed`. This is
+structural history readability plus current-authority rejection, not a silent
+restamp.
+
+### Final command ledger
+
+| Evidence | Exact command/predicate | Exit | Decisive output |
+| --- | --- | ---: | --- |
+| closure selector | `uv run pytest -q --tb=short` over the current-input legacy predicate, CG2-open, real dependent independence, two real N5 transport, N9 coupling refusal, and supported coupling nodes | 0 | 8 parametrized cases passed |
+| post-bridge table | `uv run pytest -q -s --tb=short tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9` | 0 | data-only `3/1`, `2/0`; field-pilot `4/2`, `2/0` |
+| resolver adversaries | exact dependent, empty, and foreign-candidate/wrong-verifier nodes | 0 | 3 passed; producer negative refuses and malformed authority never establishes |
+| N9 replay/port blast | exact seven-node history, deterministic obligation, adaptive-port, comparison, and decision-front selector | 0 | 7 passed |
+| E/D adjacency | exact four-node command above | 0 | 4 passed |
+| Ruff | `uv run python -m ruff check` on the two owned source and two owned test files | 0 | `All checks passed!` |
+| EFFECT integrity | AST extracts `_effect_obligation` from slice base and current source, then compares bytes and SHA-256 | 0 | 948 / 948 bytes; both `2aa090d9694d8599d07f07df46476894a4a39287c324c08beeb8a90d7fd44a38`; identical |
+| excluded files | base-to-HEAD `git diff --exit-code` for EvalSafety, dependencies, and both read-only producer modules | 0 | no diff |
+| promotion generated companion | `JAX_PLATFORMS=cpu uv run --extra analytics --extra solvers --extra test python tools/quality/validation/check_layer3_gy_promotion_contract.py --check --output-format json` | 1 | carried `promotion_comparison_admission_manifest_drift`; not regenerated or silenced |
+| architecture guardrails | `uv run polisyos-tools architecture guardrails check` | 1 | API generated outputs clean; only the carried stale trust-claim posture receipt remains after the temporary deep-import finding was fixed through the public evidence facade |
+| debt checker | `PYTHONPATH=. uv run python tools/quality/validation/check_debt_ledger.py --check` | 1 | exactly 18 blocking `closure_signal_identity_unresolvable` findings |
+| docs lifecycle | `PYTHONPATH=. uv run python tools/quality/validation/check_docs_lifecycle.py` | 1 | exactly 6 baseline findings |
+
+### Patch/generalise ruling
+
+Round 2 ends on the **generalise** side for producer evidence. Independence and
+measurement were the second spelling of one property, so one resolve,
+content-bind, candidate/problem-bind, verifier-provenance mechanism serves
+both. Coupling stays a narrow typed-negative patch because it is a different
+property and has exactly one emitter, carrier, and consumer. No further owner
+string or token spelling was enumerated.
+
+## Register closure dossier — Round 2 supersession
+
+The prose below is append-only. It supersedes the retained Round-1 blocks and
+does not authorize edits to the protected register in this lane.
+
+### `gy-n9-caller-asserted-gate-predicates`
+
+- Verdict: `closed`.
+- Deciding command: the final closure selector in the command ledger, including
+  `test_current_input_rejects_legacy_caller_gate_predicates`,
+  `test_cg2_open_admissibility_obligation_keeps_promotion_red`, and
+  `test_real_dependent_independence_graph_refuses_legacy_true`.
+- Direct exit and decisive output: exit `0`; `8 passed` across the selector.
+  Direct legacy `True` is rejected, real open CG2 evidence refuses, and a real
+  dependent graph refuses through the resolved dotted producer despite the
+  former caller assertion.
+- Exact append-only register prose: **Supersession 2026-08-31 — closed by
+  resolved owner evidence.** Current v5 has no caller Boolean for admissibility
+  or effective independence. Admissibility is recomputed through the
+  content-bound CG2 resolver, and an open CG2 obligation refuses.
+  `N9PromotionEvidenceBridgeRepository` invokes the real effective-independence
+  graph producer, persists and exactly replays its inputs/output, binds
+  candidate and design problem plus fixed verifier provenance, and makes a
+  hard-collapse dependency fail N9 even against the rejected legacy
+  `effective_independence=True` shape. Missing or unresolvable bridge evidence
+  remains an honest `evidence_not_established` refusal.
+
+### `gy-n9-coupling-obligation-cannot-fail`
+
+- Verdict: `closed`.
+- Deciding command: the final closure selector's two N5 transport nodes plus
+  `test_n5_coupling_blocker_refuses_coupling` and
+  `test_supported_n5_coupling_path_satisfies_coupling`.
+- Direct exit and decisive output: exit `0`; the same `8 passed` selector proves
+  the real unsupported result emits `n5_coupling_blocked`, the selected summary
+  retains it, COUPLING is `failed`, and the adjacent real supported path is
+  `satisfied`.
+- Exact append-only register prose: **Supersession 2026-08-31 — closed by the
+  additive N5-to-N9 bridge.** The existing joint-simulation producer now
+  appends typed `n5_coupling_blocked` only when its content-bound support
+  classification is `unsupported`; it preserves all specific blockers and
+  existing control flow. The selected-summary projection carries only that
+  token into `value_blockers`, and N9 COUPLING refuses it. A red-first real N5
+  fixture and adjacent supported control both pass after the bridge; no token
+  was fabricated by a test or inferred from string absence—the bridge derives
+  it from the real producer classification.
+
+### `gy-promotion-obligations-scope-insufficient`
+
+- Verdict: `closed`.
+- Deciding command:
+  `uv run pytest -q -s --tb=short tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9`.
+- Direct exit and decisive output: exit `0`; the real authority-linked
+  MeasurementRoot is independently replayed and MEASUREMENT is `satisfied`.
+  After both producer bridges, data-only production is `3 / 1` full/scope and
+  contract testing is `2 / 0`; the one data-only scope refusal is EFFECT, which
+  is governed by the separately deferred investigation.
+- Exact append-only register prose: **Supersession 2026-08-31 — closed for the
+  executable scope; only the separately ruled EFFECT investigation remains.**
+  N9 now reads the exact CAS payload and authority links emitted by the running
+  `MeasurementRootProducer`, verifies its manifest, applicable source contract,
+  connector fallback, MeasurementRoot projection, candidate/problem binding,
+  and fixed verifier provenance before satisfying MEASUREMENT. Independence
+  and coupling likewise have real refusal paths. The production data-only
+  scope set falls from four honest pre-bridge gaps to EFFECT alone; no marker
+  or caller assertion passes. Field-pilot separately exposes the existing
+  promotion-authority EvalSafety nonreceipt.
+
+### `GY-O0-NC-01`
+
+- Verdict: `blocked`.
+- `blocked_by: gy-n9-effect-class-has-no-referent` under the principal's
+  ruling dated 2026-08-30.
+- Deciding command/predicate: the post-bridge four-cell test composed with the
+  EFFECT AST byte/hash predicate.
+- Direct exit and decisive output: both exit `0`; data-only has only
+  `effect:scope_insufficient`, field-pilot has EFFECT plus
+  `eval_safety:scope_insufficient`, and EFFECT remains exactly 948 bytes at
+  SHA-256
+  `2aa090d9694d8599d07f07df46476894a4a39287c324c08beeb8a90d7fd44a38`.
+  No `consumer_promotable=True` receipt exists.
+- Exact append-only register prose: **Supersession 2026-08-31 — blocked by
+  `gy-n9-effect-class-has-no-referent`, principal ruling 2026-08-30.** The
+  engineering bridges now reduce the data-only production scope set to the
+  byte-identical EFFECT conjunct, so a first governed promotable receipt cannot
+  execute until that scoped investigation terminates. The registered
+  field-pilot disagreement signal additionally requires an appointed,
+  candidate/problem-bound promotion-authority EvalSafety producer; the existing
+  attempted-evaluation certificate forbids promotion use. No forged or
+  contract-testing receipt is admissible closure evidence.
+
+### `gy-n9-unmet-check-absence-kind-conflated`
+
+- Verdict: `blocked`.
+- `blocked_by: gy-n9-effect-class-has-no-referent` and the governed
+  status/class decision that investigation may require.
+- Deciding command/predicate: the producer/caller census, post-bridge table, and
+  byte-identical EFFECT predicate.
+- Direct exit and decisive output: exits `0`; measurement is
+  `bridge_missing` against one running production constructor; independence is
+  `bridge_missing + implemented_but_not_orchestrated` under
+  `policy_design_case.graded_independence_weights`; both now use resolved dotted
+  owners and `evidence_not_established`. EFFECT alone retains its ruled prose
+  owner and unchanged bytes.
+- Exact append-only register prose: **Supersession 2026-08-31 — blocked only on
+  the ruled EFFECT absence-kind decision.** The shared resolver now
+  distinguishes the running MeasurementRoot producer's missing promotion
+  binding from the feature-flagged independence calculus that is implemented
+  but not production-orchestrated. Both resolve to dotted producer owners when
+  evidence exists and otherwise emit `evidence_not_established`; COUPLING now
+  resolves through its real N5 classification. EFFECT remains byte-identical
+  by ruling, so deciding its referent and any required status/class vocabulary
+  must land through `gy-n9-effect-class-has-no-referent` before this row can
+  close.

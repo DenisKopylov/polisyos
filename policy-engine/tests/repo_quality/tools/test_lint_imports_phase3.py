@@ -140,6 +140,87 @@ def _run_narrowed_import_case(tmp_path: Path, statement: str) -> tuple[int, dict
     return exit_code, json.loads(output.read_text(encoding="utf-8"))
 
 
+def _run_fabric_world_import_case(
+    tmp_path: Path,
+    statement: str,
+) -> tuple[int, dict[str, object]]:
+    src_root = tmp_path / "src"
+    runtime = src_root / "polisyos" / "runtime"
+    runtime.mkdir(parents=True)
+    (runtime / "sample.py").write_text(statement + "\n", encoding="utf-8")
+    fabric = src_root / "polisyos" / "fabric"
+    fabric.mkdir(parents=True)
+    (fabric / "__init__.py").write_text("", encoding="utf-8")
+
+    policy = tmp_path / "policy.toml"
+    policy.write_text(
+        textwrap.dedent(
+            f"""
+            [policy]
+            version = "2"
+            contract_role = "enforced_direction_matrix"
+            package_boundaries = "boundaries.toml"
+            internal_prefix = "polisyos"
+            src_root = "{src_root.as_posix()}"
+
+            [roots]
+            known = ["fabric", "runtime"]
+
+            [internal.allow]
+            fabric = ["fabric"]
+            runtime = ["fabric", "runtime"]
+
+            [external.allow]
+            fabric = []
+            runtime = []
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "boundaries.toml").write_text(
+        textwrap.dedent(
+            """
+            [package_boundaries]
+            version = 2
+            contract_role = "ownership_and_narrowing_register"
+
+            [[package]]
+            module = "polisyos.fabric"
+            owner = "team-fabric"
+            public_facade = "polisyos.fabric"
+            allowed_dependencies = []
+            forbidden_dependencies = []
+
+            [[package]]
+            module = "polisyos.runtime"
+            owner = "team-runtime"
+            public_facade = "polisyos.runtime"
+            allowed_dependencies = ["polisyos.fabric"]
+            forbidden_dependencies = []
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    output = tmp_path / "report.json"
+    exit_code = lint_imports.main(
+        [
+            "--policy",
+            str(policy),
+            "--exceptions",
+            str(tmp_path / "missing-exceptions.toml"),
+            "--cache-dir",
+            str(tmp_path / "cache"),
+            "--output-format",
+            "json",
+            "--output",
+            str(output),
+        ]
+    )
+    return exit_code, json.loads(output.read_text(encoding="utf-8"))
+
+
 def test_lint_imports_allows_only_the_registered_submodule_of_an_allowed_root(
     tmp_path: Path,
 ) -> None:
@@ -195,6 +276,29 @@ def test_lint_imports_rejects_sibling_of_registered_narrowing(tmp_path: Path) ->
         "[ARCH007] forbidden narrowed internal import: fabric -> data_forge "
         "via polisyos.data_forge.kernel "
         "(allowed_prefixes=polisyos.data_forge.read_api)"
+    )
+
+
+def test_arch004_admits_exact_fabric_world_facade_and_rejects_descendant(
+    tmp_path: Path,
+) -> None:
+    exact_exit, exact_payload = _run_fabric_world_import_case(
+        tmp_path / "exact",
+        "from polisyos.fabric.world import write_world_snapshot",
+    )
+    deep_exit, deep_payload = _run_fabric_world_import_case(
+        tmp_path / "deep",
+        "from polisyos.fabric.world.store import create_world_snapshot",
+    )
+
+    assert exact_exit == 0
+    assert exact_payload["data"]["violation_count"] == 0
+    assert deep_exit == 1
+    assert deep_payload["data"]["violation_count"] == 1
+    assert deep_payload["messages"][0]["rule_id"] == "ARCH004"
+    assert deep_payload["messages"][0]["message"].endswith(
+        "[ARCH004] forbidden deep import: polisyos.runtime.sample -> "
+        "polisyos.fabric.world.store. Use polisyos.fabric.world facade exports."
     )
 
 

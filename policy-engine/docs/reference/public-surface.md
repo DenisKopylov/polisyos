@@ -2021,7 +2021,7 @@ write_participation_requirement_bundle
 ## `polisyos.fabric`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.fabric`, `polisyos.fabric.api`
+- Supported entrypoints: `polisyos.fabric`, `polisyos.fabric.api`, `polisyos.fabric.world`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/fabric/README.md`
@@ -2035,6 +2035,7 @@ write_participation_requirement_bundle
 | --- | --- | --- | ---: |
 | `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `lazy_facade` | 39 |
 | `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `module_doc_only` | 0 |
+| `polisyos.fabric.world` | `src/polisyos/fabric/world/__init__.py` | `eager_exports` | 41 |
 
 #### `polisyos.fabric`
 
@@ -2093,6 +2094,60 @@ world
 - Source: `src/polisyos/fabric/api.py`
 - Facade: `module_doc_only`
 - Summary: Explicit public Fabric API facade and connector bridge.
+
+#### `polisyos.fabric.world`
+
+- Source: `src/polisyos/fabric/world/__init__.py`
+- Facade: `eager_exports`
+- Summary: Facade for emitting, validating, persisting, and materializing world facts.
+
+<details><summary>Entrypoint exports (41)</summary>
+
+```text
+SEGMENTS_INDEX_NAME
+WorldFactError
+WorldIDError
+WorldSegmentError
+WorldSnapshotBackendUnavailable
+WorldSnapshotFactWrite
+WorldSnapshotNodeWrite
+WorldSnapshotWriteRequest
+WorldStoreError
+WorldValidationError
+append_world_segment_index
+emit_attr_fact
+emit_claim_facts
+emit_doc_fragment_facts
+emit_doc_meta_facts
+emit_edge_fact
+emit_world_event_facts
+emit_world_node_facts
+event_world_provenance_v1
+load_world_fact_manifests
+load_world_facts
+persist_claim
+persist_conflict_set
+persist_doc_fragment
+persist_doc_meta
+persist_fact_segment_manifest
+persist_quality_report
+persist_trust_assessment
+persist_world_event
+stable_world_provenance_v1
+validate_claim_id
+validate_conflict_set_id
+validate_doc_fragment_ids
+validate_doc_meta_ids
+validate_fact_is_world_abi
+validate_quality_report_id
+validate_trust_assessment_id
+validate_world_event_id
+validate_world_facts
+write_world_fact_segment
+write_world_snapshot
+```
+
+</details>
 
 <details><summary>Supported exports (39)</summary>
 

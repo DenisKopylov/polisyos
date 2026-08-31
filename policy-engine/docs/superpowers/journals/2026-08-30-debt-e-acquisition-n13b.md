@@ -495,7 +495,26 @@ corepack pnpm install --frozen-lockfile
 ```
 
 Exit `0`, 1,215 workspace packages linked with no lockfile change. A clean-tree
-architecture rerun is recorded after the dossier commit.
+architecture rerun then established both generated corridors as fresh:
+
+```bash
+uv run polisyos-tools architecture guardrails check
+```
+
+Exit `1`: `runtime-api-client` was clean over five generator-observed outputs and
+`runtime-dashboard-api-types` was clean over one generator-observed output. The sole
+remaining failure was the trust-claim-posture register's
+`ratified identity basis differs from the admitted closed receipt` validation.
+
+That remaining failure was separately replayed with
+`PYTHONPATH=. uv run python tools/quality/validation/check_trust_claim_posture.py
+--repo-root . --check` at Task E HEAD and with base-first imports in the detached
+`784d02014` clone. Both exited `1` at the same identity-basis predicate. A complete diff
+of its three inputs — `posture.py`, `check_trust_claim_posture.py`, and the ratified
+identity document — exited `0` between the Task E base and HEAD. It is therefore an
+inherited architecture non-receipt outside this lane, not a reason to edit the identity
+constant, generated register, or another owner's source. Task E records it and leaves it
+unchanged.
 
 ```bash
 git diff --check

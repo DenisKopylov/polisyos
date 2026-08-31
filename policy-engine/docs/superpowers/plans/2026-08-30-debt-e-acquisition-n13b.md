@@ -270,7 +270,7 @@ PYTHONPATH=. uv run python tools/quality/validation/check_docs_lifecycle.py
 
 Expected: debt-ledger checker exit `0`; docs-lifecycle output contains exactly six findings. Record the actual second exit code rather than assuming it.
 
-- [ ] **Step 2: Run final targeted verification once on frozen source**
+- [x] **Step 2: Run final targeted verification once on frozen source**
 
 Run:
 
@@ -305,7 +305,7 @@ Record:
 
 Also record `git diff --name-only` evidence that no schema, generated client, dashboard, OpenAPI contract, debt register, ledger, active plan, or checker pin changed.
 
-- [ ] **Step 5: Commit and read the branch back**
+- [x] **Step 5: Commit and read the branch back**
 
 Run:
 

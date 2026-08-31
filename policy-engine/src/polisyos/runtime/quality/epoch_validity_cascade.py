@@ -28,8 +28,10 @@ from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import CandidateSummary  # noqa: TC001
 from polisyos.runtime.quality.semantic_epoch import (
+    EpochHistoryEntry,
     SemanticEpochHistoryRepository,
     SemanticEpochManifest,
+    SemanticEpochProductionReceipt,
     SemanticEpochService,
 )
 
@@ -879,6 +881,224 @@ class EpochTransitionHistoryRepository(SemanticEpochHistoryRepository, Protocol)
         current_epoch_receipt_ref: ArtifactRef,
         authority_purpose: str,
     ) -> tuple[SemanticEpochManifest, SemanticEpochManifest]: ...
+
+
+class FileSemanticEpochTransitionHistoryAdapter:
+    """Resolve one transition from the existing exact semantic-epoch history owner."""
+
+    def __init__(
+        self,
+        *,
+        artifacts: ArtifactStore,
+        history: SemanticEpochHistoryRepository,
+    ) -> None:
+        self._artifacts = artifacts
+        self._history = history
+
+    @staticmethod
+    def _sorted_inputs(
+        values: Sequence[artifacts.InputRef],
+    ) -> tuple[artifacts.InputRef, ...]:
+        return tuple(sorted(values, key=lambda item: (item.role, str(item.artifact_id))))
+
+    def _read_production_receipt(
+        self,
+        receipt_ref: ArtifactRef,
+    ) -> SemanticEpochProductionReceipt:
+        if (
+            receipt_ref.kind != "epoch.production_receipt"
+            or receipt_ref.media_type
+            != "application/vnd.polisyos.epoch-production-receipt+json"
+        ):
+            raise ValueError("epoch transition receipt artifact profile mismatch")
+        try:
+            report = self._artifacts.verify(receipt_ref.artifact_id)
+            raw = self._artifacts.get_bytes(receipt_ref.artifact_id)
+            manifest = self._artifacts.get_manifest(receipt_ref.artifact_id)
+            records = core_contracts.chronology._split_framed_records(raw)
+        except (KeyError, OSError, TypeError, ValueError) as exc:
+            raise ValueError("epoch transition receipt CAS readback failed") from exc
+        if (
+            not report.ok
+            or _raw_hash(raw) != str(receipt_ref.artifact_id)
+            or manifest.artifact_id != receipt_ref.artifact_id
+            or manifest.kind != receipt_ref.kind
+            or manifest.media_type != receipt_ref.media_type
+            or len(records) != 1
+        ):
+            raise ValueError("epoch transition receipt CAS readback failed")
+        try:
+            receipt = SemanticEpochProductionReceipt.model_validate(
+                canon.from_canonical_bytes(records[0])
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("epoch transition receipt CAS readback failed") from exc
+        expected_raw = core_contracts.chronology._frame_record(
+            core_contracts.epoch.canonical_epoch_bytes(receipt)
+        )
+        expected_inputs = self._sorted_inputs(
+            tuple(
+                artifacts.InputRef(
+                    artifact_id=ref.artifact_id,
+                    role="epoch_production_input",
+                )
+                for ref in (
+                    receipt.prepared_epoch_ref,
+                    receipt.admitted_boundary_evidence_ref,
+                    receipt.semantic_manifest_ref,
+                    receipt.history_append_receipt_ref,
+                    receipt.chronology_bundle_ref,
+                    receipt.chronology_verification_ref,
+                )
+                if ref is not None
+            )
+        )
+        if raw != expected_raw or self._sorted_inputs(manifest.inputs) != expected_inputs:
+            raise ValueError("epoch transition receipt CAS readback failed")
+        return receipt
+
+    def _read_semantic_manifest(
+        self,
+        manifest_ref: ArtifactRef,
+    ) -> SemanticEpochManifest:
+        if (
+            manifest_ref.kind != "epoch.semantic_manifest"
+            or manifest_ref.media_type != "application/vnd.polisyos.epoch+json"
+        ):
+            raise ValueError("epoch transition semantic manifest artifact profile mismatch")
+        try:
+            report = self._artifacts.verify(manifest_ref.artifact_id)
+            raw = self._artifacts.get_bytes(manifest_ref.artifact_id)
+            manifest_record = self._artifacts.get_manifest(manifest_ref.artifact_id)
+            records = core_contracts.chronology._split_framed_records(raw)
+        except (KeyError, OSError, TypeError, ValueError) as exc:
+            raise ValueError("epoch transition semantic manifest CAS readback failed") from exc
+        if (
+            not report.ok
+            or _raw_hash(raw) != str(manifest_ref.artifact_id)
+            or manifest_record.artifact_id != manifest_ref.artifact_id
+            or manifest_record.kind != manifest_ref.kind
+            or manifest_record.media_type != manifest_ref.media_type
+            or len(records) != 1
+        ):
+            raise ValueError("epoch transition semantic manifest CAS readback failed")
+        try:
+            manifest = SemanticEpochManifest.model_validate(
+                canon.from_canonical_bytes(records[0])
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("epoch transition semantic manifest CAS readback failed") from exc
+        expected_raw = core_contracts.chronology._frame_record(
+            core_contracts.epoch.canonical_epoch_bytes(manifest)
+        )
+        if raw != expected_raw:
+            raise ValueError("epoch transition semantic manifest CAS readback failed")
+        return manifest
+
+    def _validate_scope_history(
+        self,
+        *,
+        current: SemanticEpochManifest,
+        authority_purpose: str,
+    ) -> tuple[EpochHistoryEntry, ...]:
+        history = self._history.resolve_scope_history(
+            scope=current.scope_identity,
+            authority_purpose=authority_purpose,
+        )
+        statement = {
+            "schema_version": "polisyos.epoch.scope-history.v1",
+            "scope": history.scope.model_dump(mode="json"),
+            "authority_purpose": history.authority_purpose,
+            "entries": [row.model_dump(mode="json") for row in history.entries],
+            "head_refs": list(history.head_refs),
+        }
+        expected_raw = core_contracts.chronology._frame_record(
+            core_contracts.epoch.canonical_epoch_bytes(statement)
+        )
+        try:
+            report = self._artifacts.verify(history.history_snapshot_ref.artifact_id)
+            raw = self._artifacts.get_bytes(history.history_snapshot_ref.artifact_id)
+            manifest = self._artifacts.get_manifest(history.history_snapshot_ref.artifact_id)
+        except (KeyError, OSError, TypeError, ValueError) as exc:
+            raise ValueError("epoch transition scope history CAS readback failed") from exc
+        if (
+            history.predicate_class != "recomputed"
+            or history.scope != current.scope_identity
+            or history.authority_purpose != authority_purpose
+            or history.head_refs != (current.epoch_ref,)
+            or history.history_snapshot_ref.kind != "epoch.scope_history"
+            or history.history_snapshot_ref.media_type
+            != "application/vnd.polisyos.epoch+json"
+            or not report.ok
+            or manifest.artifact_id != history.history_snapshot_ref.artifact_id
+            or manifest.kind != history.history_snapshot_ref.kind
+            or manifest.media_type != history.history_snapshot_ref.media_type
+            or raw != expected_raw
+            or _raw_hash(raw) != str(history.history_snapshot_ref.artifact_id)
+            or history.history_snapshot_content_hash != _raw_hash(raw)
+        ):
+            if history.head_refs != (current.epoch_ref,):
+                raise ValueError("epoch transition current epoch is not the sole head")
+            raise ValueError("epoch transition scope history CAS readback failed")
+        return history.entries
+
+    def resolve_transition_manifests(
+        self,
+        *,
+        previous_epoch_ref: ArtifactRef,
+        current_epoch_receipt_ref: ArtifactRef,
+        authority_purpose: str,
+    ) -> tuple[SemanticEpochManifest, SemanticEpochManifest]:
+        """Return an exact direct predecessor and sole current owner head."""
+
+        if not authority_purpose.strip():
+            raise ValueError("epoch transition authority purpose is empty")
+        receipt = self._read_production_receipt(current_epoch_receipt_ref)
+        if receipt.status not in {"appended", "no_change"} or (
+            receipt.semantic_manifest_ref is None or receipt.epoch_ref is None
+        ):
+            raise ValueError("epoch transition current production receipt is not positive")
+        current = self._read_semantic_manifest(receipt.semantic_manifest_ref)
+        if (
+            receipt.epoch_ref != current.epoch_ref
+            or receipt.requested_query_context_ref != current.requested_query_context_ref
+        ):
+            raise ValueError("epoch transition receipt semantic manifest mismatch")
+        if current.authority_purpose != authority_purpose:
+            raise ValueError("epoch transition manifest purpose mismatch")
+        entries = self._validate_scope_history(
+            current=current,
+            authority_purpose=authority_purpose,
+        )
+        previous = self._read_semantic_manifest(previous_epoch_ref)
+        if previous.scope_identity != current.scope_identity:
+            raise ValueError("epoch transition manifest scope mismatch")
+        if previous.authority_purpose != current.authority_purpose:
+            raise ValueError("epoch transition manifest purpose mismatch")
+        if previous.epoch_ref not in current.predecessor_refs:
+            raise ValueError("epoch transition previous epoch is not declared")
+        if current.predecessor_refs != (previous.epoch_ref,):
+            raise ValueError("epoch transition previous epoch is ambiguous")
+
+        rows_by_epoch: dict[str, list[EpochHistoryEntry]] = {}
+        for row in entries:
+            rows_by_epoch.setdefault(row.epoch_ref, []).append(row)
+        current_rows = rows_by_epoch.get(current.epoch_ref, [])
+        previous_rows = rows_by_epoch.get(previous.epoch_ref, [])
+        if len(current_rows) != 1 or len(previous_rows) != 1:
+            raise ValueError("epoch transition declared predecessor is absent or ambiguous")
+        current_row = current_rows[0]
+        previous_row = previous_rows[0]
+        if (
+            current_row.manifest_ref != receipt.semantic_manifest_ref
+            or current_row.manifest_content_hash != current.manifest_content_hash
+            or current_row.predecessor_refs != current.predecessor_refs
+            or previous_row.manifest_ref != previous_epoch_ref
+            or previous_row.manifest_content_hash != previous.manifest_content_hash
+            or previous_row.predecessor_refs != previous.predecessor_refs
+        ):
+            raise ValueError("epoch transition owner history differs from exact manifests")
+        return previous, current
 
 
 class EpochValidityTransitionProducer:
@@ -2485,6 +2705,7 @@ __all__ = [
     "EpochTransitionSigningNonReceipt",
     "EpochValidityTransitionArtifact",
     "EpochValidityTransitionProducer",
+    "FileSemanticEpochTransitionHistoryAdapter",
     "OwnerAdjudicatedTargetDisposition",
     "PersistedBoundPromotionCandidateContext",
     "PersistedEpochValidityTransition",

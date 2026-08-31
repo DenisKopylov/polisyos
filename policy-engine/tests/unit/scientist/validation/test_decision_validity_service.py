@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import threading
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 
@@ -52,6 +53,76 @@ def _put_json(store: FileSystemCAS, payload, *, kind: str):
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+
+
+def test_concurrent_same_packet_persistence_has_no_fixed_temp_collision(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    state = _DecisionValidityStateStore(FileSystemCAS(tmp_path))
+    dedupe_key = "concurrent-packet-dedupe"
+    destination = state._dedupe_path(dedupe_key)
+    replace_barrier = threading.Barrier(2)
+    original_replace = Path.replace
+    errors: list[BaseException] = []
+
+    def synchronized_replace(source: Path, target: Path) -> Path:
+        if target == destination:
+            replace_barrier.wait(5)
+        return original_replace(source, target)
+
+    monkeypatch.setattr(Path, "replace", synchronized_replace)
+
+    def persist(event_id: str) -> None:
+        try:
+            state.save_dedupe_event_id(dedupe_key, event_id)
+        except BaseException as exc:  # pragma: no cover - asserted below
+            errors.append(exc)
+
+    event_ids = ("event-one", "event-two")
+    writers = [threading.Thread(target=persist, args=(event_id,)) for event_id in event_ids]
+    for writer in writers:
+        writer.start()
+    for writer in writers:
+        writer.join(5)
+
+    assert all(not writer.is_alive() for writer in writers)
+    assert errors == []
+    assert state.load_dedupe_event_id(dedupe_key) in event_ids
+    assert [item for item in destination.parent.iterdir() if item.suffix == ".tmp"] == []
+
+
+def test_atomic_dedupe_write_failure_cleans_only_owned_temp(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    state = _DecisionValidityStateStore(FileSystemCAS(tmp_path))
+    dedupe_key = "failed-packet-dedupe"
+    destination = state._dedupe_path(dedupe_key)
+    unrelated = destination.parent / ".unrelated.tmp"
+    unrelated_payload = b"unrelated-temp-contents"
+    unrelated.write_bytes(unrelated_payload)
+    failure = OSError("injected_atomic_replace_failure")
+    owned_temps: list[Path] = []
+    original_replace = Path.replace
+
+    def fail_destination_replace(source: Path, target: Path) -> Path:
+        if target == destination:
+            owned_temps.append(source)
+            raise failure
+        return original_replace(source, target)
+
+    monkeypatch.setattr(Path, "replace", fail_destination_replace)
+
+    with pytest.raises(OSError, match="injected_atomic_replace_failure") as caught:
+        state.save_dedupe_event_id(dedupe_key, "event-failed")
+
+    assert caught.value is failure
+    assert not destination.exists()
+    assert state.load_dedupe_event_id(dedupe_key) is None
+    assert len(owned_temps) == 1
+    assert owned_temps[0].parent == destination.parent
+    assert owned_temps[0].suffix == ".tmp"
+    assert not owned_temps[0].exists()
+    assert unrelated.read_bytes() == unrelated_payload
 
 
 def test_epoch_batch_rejects_fake_verifier_provenance_without_state(tmp_path) -> None:

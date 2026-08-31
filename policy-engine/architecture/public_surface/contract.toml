@@ -148,6 +148,7 @@ reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = [
   "polisyos.core",
   "polisyos.core.contracts",
+  "polisyos.core.observability",
   "polisyos.core.security",
   "polisyos.core.trace",
 ]
@@ -161,7 +162,7 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/ir/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.ir", "polisyos.ir.api"]
+supported_entrypoints = ["polisyos.ir", "polisyos.ir.analytics", "polisyos.ir.api"]
 major_subsystem = true
 notes = "Primary compatibility boundary for policy, governance, analytics, and observation contracts; api.py owns public-surface helper metadata."
 
@@ -216,7 +217,11 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/fabric/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.fabric", "polisyos.fabric.api"]
+supported_entrypoints = [
+  "polisyos.fabric",
+  "polisyos.fabric.api",
+  "polisyos.fabric.world",
+]
 major_subsystem = true
 notes = "Connector-backed ingestion, world queries, and catalog surfaces."
 
@@ -247,6 +252,7 @@ supported_entrypoints = [
   "polisyos.scientist",
   "polisyos.scientist.governance.continuous",
   "polisyos.scientist.methods.research_dag",
+  "polisyos.scientist.replay",
 ]
 major_subsystem = true
 notes = "Workflow orchestration facade for experiment execution and shared observability hooks."

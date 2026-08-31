@@ -18,10 +18,10 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.environment import EnvironmentManifest
 
 from polisyos.core.canon import truncated_hash
-from polisyos.core.observability.determinism import (
+from polisyos.core.observability import (
     DeterminismTier,
 )
-from polisyos.core.observability.determinism import (
+from polisyos.core.observability import (
     get_determinism_tier as _get_determinism_tier,
 )
 

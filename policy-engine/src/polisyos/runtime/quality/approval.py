@@ -18,10 +18,12 @@ from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon.canon_json import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.control import (
+    ProductionApprovalCurrentnessReceipt,
     ProductionApprovalEligibility,
     ProductionApprovalOverridePacket,
     ProductionApprovalOverrideRequest,
     ProductionApprovalPacket,
+    _issue_production_approval_currentness_receipt,
 )
 from polisyos.runtime.quality.human_review import evaluate_review_packet
 from polisyos.runtime.quality.invariants import load_production_invariant_registry
@@ -344,6 +346,59 @@ class ProductionApprovalPacketResolver:
             raise ProductionApprovalResolutionError("DS9-APPROVAL-RESOLVER-UNATTESTED") from exc
         if registered is not self:
             raise ProductionApprovalResolutionError("DS9-APPROVAL-RESOLVER-UNATTESTED")
+
+
+def resolve_production_approval_currentness_receipt(
+    *,
+    resolver: object,
+    packet_ref: str,
+    tenant_id: str,
+    run_id: str,
+    expected_consumer: str,
+    expected_audience: str,
+    evaluated_at: datetime | None = None,
+) -> ProductionApprovalCurrentnessReceipt:
+    """Resolve live Runtime authority into a consumer-bound neutral receipt."""
+
+    if type(resolver) is not ProductionApprovalPacketResolver:
+        raise ProductionApprovalResolutionError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+    exact_resolver = resolver
+    currentness = exact_resolver.require_currentness(
+        packet_ref=packet_ref,
+        tenant_id=tenant_id,
+        run_id=run_id,
+        expected_consumer=expected_consumer,
+        expected_audience=expected_audience,
+        evaluated_at=evaluated_at,
+    )
+    resolved = currentness.packet
+    packet = resolved.packet
+    inputs = resolved.inputs
+    if (
+        type(currentness) is not _ResolvedProductionApprovalCurrentness
+        or currentness._seal is not _RESOLVER_SEAL
+        or currentness.expected_consumer != expected_consumer
+        or currentness.expected_audience != expected_audience
+        or resolved.packet_ref != packet_ref
+        or packet.tenant_id != tenant_id
+        or packet.run_id != run_id
+        or packet.expected_consumer != expected_consumer
+        or packet.expected_audience != expected_audience
+        or packet.valid_until is None
+        or packet.verifier_epoch is None
+        or packet.verifier_epoch != inputs.verifier_epoch
+    ):
+        raise ProductionApprovalResolutionError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+    return _issue_production_approval_currentness_receipt(
+        packet_ref=packet_ref,
+        tenant_id=tenant_id,
+        run_id=run_id,
+        expected_consumer=expected_consumer,
+        expected_audience=expected_audience,
+        evaluated_at=currentness.evaluated_at,
+        valid_until=packet.valid_until,
+        verifier_epoch=packet.verifier_epoch,
+    )
 
 
 def _issue_production_decision_packet_resolver(
@@ -1149,4 +1204,5 @@ __all__ = [
     "build_production_approval_packet",
     "build_resolved_production_approval_packet",
     "persist_production_approval_packet",
+    "resolve_production_approval_currentness_receipt",
 ]

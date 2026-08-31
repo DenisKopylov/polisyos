@@ -47,7 +47,7 @@ import logging
 from collections.abc import Mapping, Sequence
 from typing import Any, ClassVar
 
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,

@@ -197,8 +197,10 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "IngestRequest",
         "IngestResponse",
         "NaturalLanguageRunRequest",
+        "ProductionApprovalCurrentnessReceipt",
         "RunLaunchResponse",
         "WorkflowRunRequest",
+        "require_production_approval_currentness_receipt",
     ),
     ".distributional": (
         "CausalAssumptionCardRef",
@@ -862,8 +864,10 @@ if TYPE_CHECKING:
         IngestRequest,
         IngestResponse,
         NaturalLanguageRunRequest,
+        ProductionApprovalCurrentnessReceipt,
         RunLaunchResponse,
         WorkflowRunRequest,
+        require_production_approval_currentness_receipt,
     )
     from .decision_validity import (
         DecisionBasisSection,
@@ -1649,6 +1653,7 @@ __all__ = [
     "ProblemFrameRef",
     "ProducerSpineBindingFields",
     "ProducerSpineReadContext",
+    "ProductionApprovalCurrentnessReceipt",
     "ProgramGraph",
     "ProgramGraphRef",
     "ProvenanceActivity",
@@ -1784,5 +1789,6 @@ __all__ = [
     "epoch_staleness_semantic_hash",
     "evaluate_skip_blocker_policy",
     "legacy_family_for_construct",
+    "require_production_approval_currentness_receipt",
     "serialize_skip_blocker_record",
 ]

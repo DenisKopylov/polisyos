@@ -106,21 +106,26 @@ def test_runtime_quality_inventory_contains_human_decision_record() -> None:
 def test_runtime_quality_eval_safety_facade_exports_canonical_objects() -> None:
     """The supported facade preserves each EvalSafety owner's exact object identity."""
     import polisyos.runtime.quality as facade
+    from polisyos import pdc
     from polisyos.runtime.quality import evaluation_modes, evaluation_safety, world_model_record
 
     expected = {
-        "EvalSafetyAdmissionChallenge": evaluation_safety.EvalSafetyAdmissionChallenge,
-        "EvalSafetyVerifierPort": evaluation_safety.EvalSafetyVerifierPort,
-        "EvaluationExecutionContext": evaluation_safety.EvaluationExecutionContext,
-        "WorldModelRecord": world_model_record.WorldModelRecord,
+        "EvalSafetyAdmissionChallenge": pdc.EvalSafetyAdmissionChallenge,
+        "EvalSafetyVerifierPort": pdc.EvalSafetyVerifierPort,
+        "EvaluationExecutionContext": pdc.EvaluationExecutionContext,
+        "WorldModelRecord": pdc.WorldModelRecord,
         "evaluation_safety_consumer_admission_is_verified": (
-            evaluation_safety.evaluation_safety_consumer_admission_is_verified
+            pdc.evaluation_safety_consumer_admission_is_verified
         ),
         "resolve_evaluation_mode": evaluation_modes.resolve_evaluation_mode,
-        "world_model_record_content_hash": world_model_record.world_model_record_content_hash,
+        "world_model_record_content_hash": pdc.world_model_record_content_hash,
     }
 
     assert {name: getattr(facade, name) for name in expected} == expected
+    assert evaluation_safety.EvalSafetyAdmissionChallenge is pdc.EvalSafetyAdmissionChallenge
+    assert evaluation_safety.EvalSafetyVerifierPort is pdc.EvalSafetyVerifierPort
+    assert evaluation_safety.EvaluationExecutionContext is pdc.EvaluationExecutionContext
+    assert world_model_record.WorldModelRecord is pdc.WorldModelRecord
     assert set(expected) <= set(facade.__all__)
 
 

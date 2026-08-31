@@ -8,6 +8,10 @@ import re
 from collections.abc import Mapping, Sequence
 from typing import Any, Literal
 
+from polisyos.core.contracts import (
+    ProductionApprovalCurrentnessReceipt,
+    require_production_approval_currentness_receipt,
+)
 from polisyos.evidence import normalize_runtime_claim_registry
 from polisyos.scientist.artifacts.decision_compiler import (
     DECISION_ARTIFACT_SCHEMA_VERSION,
@@ -121,7 +125,7 @@ def build_decision_artifact_quality_report(
     quality_scorecard_ref: str | None = None,
     conflict_check_ref: str | None = None,
     approval_packet_ref: str | None = None,
-    production_approval_resolver: object | None = None,
+    production_approval_currentness_receipt: object | None = None,
     production_approval_tenant_id: str | None = None,
     production_approval_audience: str = "polisyos-runtime",
     approval_authority_mode: Literal["operational", "draft_historical"] = "operational",
@@ -194,14 +198,16 @@ def build_decision_artifact_quality_report(
             require_approval_ready=approval_authority_mode == "operational",
         )
     )
+    verified_approval_currentness: ProductionApprovalCurrentnessReceipt | None = None
     if approval_authority_mode == "operational":
-        if not _resolve_production_approval_currentness(
-            resolver=production_approval_resolver,
+        verified_approval_currentness = _verify_production_approval_currentness_receipt(
+            receipt=production_approval_currentness_receipt,
             packet_ref=approval_packet_ref,
             tenant_id=production_approval_tenant_id,
             run_id=_text(artifact.get("run_id")),
             expected_audience=production_approval_audience,
-        ):
+        )
+        if verified_approval_currentness is None:
             issues.append(
                 _issue(
                     code="decision_artifact_approval_currentness_unresolved",
@@ -210,8 +216,8 @@ def build_decision_artifact_quality_report(
                         "Raw approval state and packet projections are not operational authority."
                     ),
                     next_action=(
-                        "Re-resolve a signed V2 packet with the deployment-issued concrete "
-                        "resolver."
+                        "Have Runtime re-resolve a signed V2 packet into a consumer-bound "
+                        "currentness receipt."
                     ),
                 )
             )
@@ -272,7 +278,9 @@ def build_decision_artifact_quality_report(
             "currentness": (
                 "producer_missing"
                 if approval_authority_mode == "draft_historical"
-                else "resolver_required"
+                else "runtime_receipt_verified"
+                if verified_approval_currentness is not None
+                else "runtime_receipt_required"
             ),
         },
     }
@@ -280,27 +288,21 @@ def build_decision_artifact_quality_report(
     return report
 
 
-def _resolve_production_approval_currentness(
+def _verify_production_approval_currentness_receipt(
     *,
-    resolver: object | None,
+    receipt: object | None,
     packet_ref: str | None,
     tenant_id: str | None,
     run_id: str,
     expected_audience: str,
-) -> bool:
-    """Exercise the concrete resolver; public projections are always refused."""
+) -> ProductionApprovalCurrentnessReceipt | None:
+    """Verify Runtime's sealed receipt without importing Runtime authority."""
 
-    from polisyos.runtime.quality import ProductionApprovalPacketResolver
-
-    if (
-        type(resolver) is not ProductionApprovalPacketResolver
-        or not packet_ref
-        or not tenant_id
-        or not run_id
-    ):
-        return False
+    if not packet_ref or not tenant_id or not run_id:
+        return None
     try:
-        resolver.require_currentness(
+        return require_production_approval_currentness_receipt(
+            receipt,
             packet_ref=packet_ref,
             tenant_id=tenant_id,
             run_id=run_id,
@@ -308,8 +310,7 @@ def _resolve_production_approval_currentness(
             expected_audience=expected_audience,
         )
     except ValueError:
-        return False
-    return True
+        return None
 
 
 def _draft_historical_approval_issues(

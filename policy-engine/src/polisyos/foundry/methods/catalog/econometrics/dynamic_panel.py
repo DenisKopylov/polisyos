@@ -18,7 +18,7 @@ except ImportError:  # pragma: no cover - keeps IR/schema reflection importable.
     student_t = None  # type: ignore[assignment]
 
 from polisyos.common.logger import get_logger
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,

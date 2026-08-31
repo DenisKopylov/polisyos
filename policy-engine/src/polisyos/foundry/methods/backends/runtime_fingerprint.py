@@ -11,7 +11,7 @@ from typing import Any
 
 from polisyos.common.config import build_process_bootstrap_config
 from polisyos.core.canon import truncated_hash
-from polisyos.core.observability.determinism import DeterminismTier, get_determinism_tier
+from polisyos.core.observability import DeterminismTier, get_determinism_tier
 from polisyos.foundry.methods.base import ComputeBackend
 
 _PACKAGE_ALIASES = {

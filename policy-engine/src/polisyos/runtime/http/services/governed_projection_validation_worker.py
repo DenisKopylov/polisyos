@@ -44,7 +44,6 @@ _N13A_SUBSTRATE_PATH = (
 _CAPABILITY_PATH = "architecture/policy_design_case/capability_reality_report.json"
 _CLUSTER_PATH = "architecture/policy_design_case/cluster_ownership_map.toml"
 _HEALTH_PATH = "architecture/policy_design_case/layer3_health_metric_ledgers.toml"
-_PROVING_ROOT = "tests/fixtures/universal-corpus"
 _CONFIDENCE_LEDGER_PATH = (
     "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
 )
@@ -557,16 +556,15 @@ def _validate_health(root: Path) -> list[str]:
 
 
 def _validate_proving_ground(root: Path) -> list[str]:
-    from polisyos.corpus import (
-        load_universal_corpus_fixtures,
-        load_universal_corpus_manifest,
-    )
+    """Defer the fixture denominator to the canonical source projector.
 
-    fixture_root = root / _PROVING_ROOT
-    manifest = load_universal_corpus_manifest(fixture_root)
-    fixtures = load_universal_corpus_fixtures(fixture_root)
-    if len(manifest.fixtures) != 13 or len(fixtures) != 13:
-        return ["legacy_proving_ground_denominator_mismatch"]
+    ``GovernedProjectionService._project_proving_ground`` rejects a source whose
+    identities or records do not contain exactly 13 rows before this worker can run.
+    The worker still verifies every component binding before and after this callback
+    and binds the already-projected payload into its semantic receipt.
+    """
+
+    del root
     return []
 
 

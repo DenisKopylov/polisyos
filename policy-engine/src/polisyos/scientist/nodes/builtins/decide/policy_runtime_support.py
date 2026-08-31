@@ -27,11 +27,13 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.distributional import DistributionalReport, load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.runtime.quality import (
+from polisyos.pdc import (
     EvalSafetyAdmissionChallenge,
+    EvalSafetyVerifierPort,
+    EvaluationExecutionContext,
+    WorldModelRecord,
     evaluation_safety_consumer_admission_is_verified,
     gy_content_hash,
-    resolve_evaluation_mode,
     world_model_record_content_hash,
 )
 from polisyos.scientist.governance.report import GovernanceReport
@@ -50,6 +52,15 @@ from polisyos.scientist.methods.discovery.priors import (
     PriorKnowledgeBundle,
     load_prior_knowledge_bundle,
 )
+from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.judge_stack import (
+    PolicyPromotionCoordinator,
+    PolicyPromotionResult,
+    to_search_uncertainty_envelope,
+)
+from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
+from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope, UncertaintyType
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
@@ -77,22 +88,6 @@ from polisyos.scientist.replay.verification import (
     load_replay_verification_report,
     verify_and_persist_replay_bundle,
 )
-
-if TYPE_CHECKING:
-    from polisyos.runtime.quality import (
-        EvalSafetyVerifierPort,
-        EvaluationExecutionContext,
-        WorldModelRecord,
-    )
-from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
-from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.methods.search.judge_stack import (
-    PolicyPromotionCoordinator,
-    PolicyPromotionResult,
-    to_search_uncertainty_envelope,
-)
-from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
-from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope, UncertaintyType
 
 _POLICY_RUNTIME_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
 _POLICY_RUNTIME_LOAD_ERRORS = (
@@ -215,7 +210,7 @@ def _production_policy_evaluation_safety_blockers(
     if context is None:
         return (_eval_safety_blocker("execution_context_missing"),)
 
-    mode_resolution = resolve_evaluation_mode(context.evaluation_mode)
+    mode_resolution = context.mode_resolution
     if mode_resolution.status != "accepted":
         return (mode_resolution.blocker_code or _eval_safety_blocker("evaluation_mode_unknown"),)
     if context.evaluator_owner_id != PRODUCTION_POLICY_EVALUATION_BACKEND_ID:

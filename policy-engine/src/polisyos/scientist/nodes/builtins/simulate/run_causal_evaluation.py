@@ -36,10 +36,10 @@ from polisyos.ir.analytics.hte import (
 )
 from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensitivity_result
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
-from polisyos.runtime.quality import (
+from polisyos.pdc import (
     EvalSafetyAdmissionChallenge,
+    EvaluationExecutionContext,
     evaluation_safety_consumer_admission_is_verified,
-    resolve_evaluation_mode,
 )
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
@@ -70,7 +70,6 @@ from polisyos.scientist.orchestration.engine.protocol import (
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 if TYPE_CHECKING:
-    from polisyos.runtime.quality import EvaluationExecutionContext
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.state import ExperimentState
 
@@ -182,7 +181,7 @@ def _causal_evaluation_safety_blockers(
     if context is None:
         return (_eval_safety_blocker("execution_context_missing"),)
 
-    mode_resolution = resolve_evaluation_mode(context.evaluation_mode)
+    mode_resolution = context.mode_resolution
     if mode_resolution.status != "accepted":
         return (mode_resolution.blocker_code or _eval_safety_blocker("evaluation_mode_unknown"),)
     if context.evaluator_owner_id != evaluator_owner_id:

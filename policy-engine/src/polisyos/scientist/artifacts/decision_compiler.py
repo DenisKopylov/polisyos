@@ -6,6 +6,10 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 from polisyos.core import contracts as core_contracts
+from polisyos.core.contracts import (
+    ProductionApprovalCurrentnessReceipt,
+    require_production_approval_currentness_receipt,
+)
 
 build_policy_design_case_projection_from_runtime_graph = (
     core_contracts.build_policy_design_case_projection_from_runtime_graph
@@ -469,7 +473,7 @@ def compile_publishable_decision_artifact(
     policy_design_case: Mapping[str, Any] | None = None,
     runtime_pdc_graph: Mapping[str, Any] | None = None,
     production_approval_packet_ref: str | None = None,
-    production_approval_resolver: object | None = None,
+    production_approval_currentness_receipt: object | None = None,
     production_approval_tenant_id: str | None = None,
     production_approval_audience: str = "polisyos-runtime",
 ) -> dict[str, Any]:
@@ -526,8 +530,8 @@ def compile_publishable_decision_artifact(
         conflict_check=conflict_check,
         approval_state=approval_state,
         assurance_refs=assurance_refs,
-        approval_currentness=_resolve_production_approval_currentness(
-            resolver=production_approval_resolver,
+        approval_currentness_receipt=_verify_production_approval_currentness_receipt(
+            receipt=production_approval_currentness_receipt,
             packet_ref=production_approval_packet_ref,
             tenant_id=production_approval_tenant_id,
             run_id=run_id,
@@ -1101,7 +1105,7 @@ def _publishable_gate_issues(
     conflict_check: Mapping[str, Any] | None,
     approval_state: Mapping[str, Any] | str | None,
     assurance_refs: Mapping[str, Any] | None,
-    approval_currentness: bool,
+    approval_currentness_receipt: ProductionApprovalCurrentnessReceipt | None,
 ) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     grounding_status = _report_status(policy_grounding_matrix).casefold()
@@ -1139,7 +1143,7 @@ def _publishable_gate_issues(
                 next_action="Complete approval or keep this output as a draft projection.",
             )
         )
-    if not approval_currentness:
+    if approval_currentness_receipt is None:
         issues.append(
             _compiler_issue(
                 code="publishable_artifact_approval_currentness_unresolved",
@@ -1150,7 +1154,8 @@ def _publishable_gate_issues(
                     "publishable artifact creation."
                 ),
                 next_action=(
-                    "Supply a signed V2 packet ref and the deployment-issued concrete resolver."
+                    "Have Runtime resolve a signed V2 packet into a consumer-bound "
+                    "currentness receipt."
                 ),
             )
         )
@@ -1760,23 +1765,22 @@ def _quality_layer_gate_issues(
     return issues
 
 
-def _resolve_production_approval_currentness(
+def _verify_production_approval_currentness_receipt(
     *,
-    resolver: object | None,
+    receipt: object | None,
     packet_ref: str | None,
     tenant_id: str | None,
     run_id: str,
     expected_consumer: str,
     expected_audience: str,
-) -> bool:
-    """Invoke the concrete resolver; mappings, DTOs, and callbacks fail closed."""
+) -> ProductionApprovalCurrentnessReceipt | None:
+    """Verify Runtime's sealed receipt without importing Runtime authority."""
 
-    from polisyos.runtime.quality import ProductionApprovalPacketResolver
-
-    if type(resolver) is not ProductionApprovalPacketResolver or not packet_ref or not tenant_id:
-        return False
+    if not packet_ref or not tenant_id:
+        return None
     try:
-        resolver.require_currentness(
+        return require_production_approval_currentness_receipt(
+            receipt,
             packet_ref=packet_ref,
             tenant_id=tenant_id,
             run_id=run_id,
@@ -1784,8 +1788,7 @@ def _resolve_production_approval_currentness(
             expected_audience=expected_audience,
         )
     except ValueError:
-        return False
-    return True
+        return None
 
 
 def _assurance_report(

@@ -319,3 +319,175 @@ git diff --name-status 784d020148c56e9bfb3a3631909ba11232210a9f..HEAD
 ```
 
 Expected: attached branch, clean tree, three Task E commits visible from the branch, and only the approved plan, journal, acquisition service, and acquisition integration test changed.
+
+---
+
+## Round 2 append-only execution plan — production port or exact landing blocker
+
+**Round-2 goal:** Re-adjudicate every Task E row as `closed` or `blocked`, without
+turning the fixture-badged owner contract into a production port. Build the
+deterministic acquisition admission-bundle producer and exact invocation-hash
+bridge around a typed-empty signing/mandate slot; preserve every external or
+institutional absence as a fail-closed input.
+
+**Round-2 architecture decision:** The complete strict-port census found an
+existing raw N13b executor but no safe input bridge. Its callable requires an
+authority entry, attempt identity, live constraints, a raw journal path and a
+raw CAS root; the verified route closure carries none of the first three, and
+the executor constructs its own unguarded filesystem CAS from the last two.
+The strict port must also return `AcquisitionOwnerExecutionResult`, whose badge
+is type-constrained to `behavioral_fixture_not_production`. A production
+adapter would therefore require both a current typed route-to-N13b execution
+binding and a production-capable result contract/guarded-store seam. Those
+objects do not exist in Task E's files, and adding them changes protected
+contracts or the N13b owner write path. The production-port row is blocked by
+those concrete landing objects; Task E will not wrap the raw-path executor or
+rename the test port.
+
+**Round-2 bundle decision:** `AgentActionAdmissionBundle` construction,
+detached signing, persistence and `{invocation_hash: cas_ref}` mapping currently
+exist only in a unit-test harness. The engineering mechanism is executable in
+this lane. Add one acquisition-owned deterministic producer which binds the
+exact operation, invocation, intent, permission proof, resource, delegation
+contract and effect adapter; persists through the existing authority writer;
+signs through a purpose-scoped typed slot; reads the artifact back; and returns
+the exact mapping consumed by `AgentActionAuthorityGateway`. The default slot
+stays empty. No human-decision custody, fake contract ref, signature marker or
+mandate appointment may be substituted.
+
+### Round-2 constraints and corrected baselines
+
+- No Task E verdict ends `open`: an executable row is completed; a blocked row
+  names the exact artifact, producer, contract, appointment or slice that must
+  land first.
+- A missing bridge is work, not a blocker. A missing producer is a blocker only
+  after a complete denominator and zero are recorded.
+- Preserve the public badge, all API models and generated clients unchanged.
+  Do not edit the OpenAPI contract owner or any dashboard file.
+- Preserve the 15 typed numeric-VoI refusals. No absent value, cost or authority
+  input is replaced by a number or a form-valid reference.
+- `GY-GAP6` remains a specification deliverable with its existing registered
+  blocked standing; Task E does not issue its verdict.
+- The bound debt-ledger checker is expected to exit `1` with exactly 18 blocking
+  `closure_signal_identity_unresolvable` findings at the slice base. Task E may
+  not grow that set. The docs-lifecycle checker is expected to exit `1` with
+  exactly six findings.
+- Run exact nodes only. A directory-wide or full-suite run remains forbidden.
+- Verify `codex/debt-e-acquisition-n13b` attachment before each commit. Append
+  evidence to the journal and never rewrite register history.
+
+### Round-2 pattern pass
+
+- `P01`/`P02`/`P12`: build the bundle's producer, persisted artifact and exact
+  consumer mapping as one chain; do not stop at a model constructor.
+- `P05`/`P15`: a bundle producer is deterministic engineering, while signing,
+  delegation and current mandate are separate authority inputs. Reusing an
+  unrelated custody role would dilute purpose-scoped authority.
+- `P31`/`P32`: expose one exact invocation-hash bridge and require a real
+  persisted delegation ref plus detached signature. A fake SHA-shaped ref or
+  signature marker is not evidence.
+- `P35`: every absence and every count is derived from the complete named roots
+  with path and file-type denominators.
+- `P37`: producer-derived hashes are `recomputed`; detached signature trust is
+  `independently_reconciled`; institutional mandate/currentness remains
+  `not_established` and can never make a positive.
+- `P38`: the bundle property is exact content/signature admission by the real
+  gateway, not construction success or field presence. The divergent probe is
+  a correctly shaped bundle with a missing/wrong detached signer.
+- `P40`: the accepted worker-harness escape is a declared residual, not another
+  repair round. Freeze its exact reachability and do not change it here.
+- `P41`: compare the final debt finding identities with the 18-finding slice
+  baseline rather than treating exit code `1` as new failure.
+
+### Task R2-1: Freeze the round-2 census and executability rulings
+
+**Files:**
+- Modify: `docs/superpowers/plans/2026-08-30-debt-e-acquisition-n13b.md`
+- Modify: `docs/superpowers/journals/2026-08-30-debt-e-acquisition-n13b.md`
+
+- [x] Re-read the round-1 dossier, failure register and Task E rows.
+- [x] Re-run/read back branch attachment and slice base.
+- [x] Enumerate the three strict-port methods, their production inputs, the
+  complete structural implementation denominator and every composition seam.
+- [x] Census the three numeric-VoI input families and the five fresh-route
+  conjuncts.
+- [x] Census the bundle constructor, persistence and invocation-mapping sites.
+- [ ] Append the commands, exit codes, denominators and exact landing blockers
+  to the round-2 journal.
+- [ ] Commit the round-2 planning boundary after branch-attachment verification.
+
+### Task R2-2: Prove the deterministic bundle mechanism red-first
+
+**Files:**
+- Create: `src/polisyos/runtime/http/services/acquisition_admission_bundle.py`
+- Create: `tests/integration/core_runtime/test_acquisition_admission_bundle.py`
+- Modify: `src/polisyos/runtime/http/services/README.md`
+
+- [ ] Add an exact-node test which imports the source producer and fails because
+  the source producer/bridge does not exist yet.
+- [ ] Add the institutional-boundary test: an empty purpose-scoped signer slot
+  fails before any artifact write and emits the exact typed blocker.
+- [ ] Add the positive engineering-mechanism test with an ephemeral trusted
+  deployment signer and a real persisted contract ref. Require one signed,
+  tenant/run/job-bound bundle artifact, exact content hashes, exact
+  `{invocation_hash: artifact_ref}` mapping, and successful resolution by the
+  existing `AgentActionAuthorityGateway` consumer.
+- [ ] Add a negative signer/binding variant proving a shaped but untrusted or
+  mismatched artifact is not admitted and no effect executes.
+- [ ] Run the exact new nodes and capture the pre-implementation red.
+
+### Task R2-3: Implement the bundle producer and bridge
+
+**Files:** same as Task R2-2.
+
+- [ ] Implement a strict typed signing slot whose production default is empty
+  and whose configured state requires signer, trusted verifier and
+  purpose-scoped identity together.
+- [ ] Implement the deterministic producer over the exact authority hashes and
+  acquisition effect binding; reject non-acquisition tuples, missing real
+  delegation refs and incomplete signer state before persistence.
+- [ ] Persist through the existing runtime authority writer, attach the detached
+  signature, reconcile tenant/cell/run/job identity, read back exact bytes and
+  return an immutable invocation mapping for the existing gateway.
+- [ ] Keep institutional delegation/current-mandate mappings empty. Demonstrate
+  that their absence can only refuse an authority decision; it cannot erase the
+  bundle receipt or allow an effect.
+- [ ] Run exact green nodes, Ruff for changed Python files, inspect the diff,
+  verify branch attachment and commit the coherent bundle slice.
+
+### Task R2-4: Freeze every remaining row predicate
+
+**Files:**
+- Modify: `docs/superpowers/journals/2026-08-30-debt-e-acquisition-n13b.md`
+
+- [ ] Re-run the strict-port AST census and raw-executor input census. Record the
+  precise blocked-by artifacts/contracts rather than `port missing`.
+- [ ] Re-run the 15-row numeric-VoI input census and name owner/ranking,
+  expected-value and expected-cost inputs separately.
+- [ ] Re-run the fresh-route negative witnesses; use exactly the N13b landing
+  blocker and semantic-epoch policy-authority appointment as `blocked_by`, and
+  state every conjunct's measured disposition.
+- [ ] Re-run the confirmed INT-R2 zero and the two independent GY measurements:
+  DS15 receipt production versus GY admission absence.
+- [ ] Freeze the accepted worker residual: a pre-existing acquisition job plus
+  future manual injection of both fixture collaborators can still reach
+  `handle_job`; the public route cannot create the job.
+- [ ] Preserve the delivered GY-GAP6 routing specification verbatim in
+  substance: GY-N13b producer, GY-N12 policy/admission chronology and Cycle
+  Board per-row consumer.
+
+### Task R2-5: Verify, dossier and read back the branch
+
+- [ ] Run only exact acquisition bundle, production-boundary, worker and receipt
+  nodes selected by the changed-path importer census.
+- [ ] Run Ruff over changed Python files and `git diff --check`.
+- [ ] Run the bound debt checker; assert exit `1` and compare the complete
+  blocking identity set with the 18-row baseline so it does not grow.
+- [ ] Run docs lifecycle; assert exit `1` with exactly six findings.
+- [ ] Confirm protected-path diff is empty.
+- [ ] Append seven dossier blocks. Six Task E-owned rows receive `closed` or
+  `blocked`; `GY-GAP6` carries its existing blocked standing plus specification.
+- [ ] State `7 = closed + blocked`, split four core versus three adjacent, with
+  the measure attached to every number.
+- [ ] Verify branch attachment, commit closeout, and read the committed branch
+  diff and log back before reporting delivery.

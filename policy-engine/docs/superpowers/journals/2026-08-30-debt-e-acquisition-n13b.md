@@ -664,3 +664,171 @@ For closure jurisdiction, Task E adjudicates six rows: four `open` and two `bloc
 The seventh, `GY-GAP6`, contributes its pre-existing registered `blocked` standing only
 to satisfy the requested seven-row equation; Task E supplies a specification and does
 not claim authority to change its verdict.
+
+---
+
+## Round 2 — production port or exact landing blocker
+
+### Round-2 authority and baseline
+
+The architect accepted the round-1 fixture/production boundary, the separate GY
+ownership split and the worker residual. Round 2 changes the verdict rule: no Task E
+row may remain `open`; a row is `blocked` only when a concrete artifact, producer,
+contract, appointment or slice must land first. Difficulty and a missing bridge are
+not blockers.
+
+Before the first round-2 edit, `git status -sb` exited `0` on attached branch
+`codex/debt-e-acquisition-n13b`, with clean HEAD
+`c41e7b413db3c14291f9a03bdf6ede31cf0cf3c8`. The slice base remains
+`784d020148c56e9bfb3a3631909ba11232210a9f`; no upstream merge moved the evidence
+denominator. I re-read the round-1 seven-block dossier, the relevant failure-register
+rows and all seven register rows before appending the round-2 plan.
+
+The corrected validator baseline now binds this round: the project-interpreter debt
+checker exits `1` with exactly 18 blocking
+`closure_signal_identity_unresolvable` identities at the slice base; the docs-lifecycle
+checker exits `1` with exactly six findings. Round 2 must preserve both finding sets and
+must not reinterpret their exit codes as new Task E failures.
+
+### Strict N13b protocol and complete implementation denominator
+
+This complete AST command was executed by Task E over every Python file under the four
+named roots; it exited `0`:
+
+```bash
+uv run python - <<'PY'
+import ast
+from pathlib import Path
+
+paths = sorted({
+    path
+    for root in map(Path, ("src", "tests", "schemas", "architecture"))
+    for path in root.rglob("*.py")
+})
+rows = []
+classes = 0
+errors = []
+for path in paths:
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    except Exception as exc:
+        errors.append((path, exc))
+        continue
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.ClassDef):
+            continue
+        classes += 1
+        methods = {
+            child.name
+            for child in node.body
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
+        if {"execute", "reenter", "resume_reentry"} <= methods:
+            rows.append((path, node.lineno, node.name))
+print(len(paths), classes, len(errors), rows)
+PY
+```
+
+Measured denominator: 5,092 Python files, 12,005 class definitions, zero parse errors
+and exactly two structural matches:
+
+1. source `AcquisitionExecutionPort`, the `Protocol`; and
+2. test `_Port`, manually bound only by `_worker_harness`.
+
+The protocol has exactly three methods and no properties:
+
+- `execute(closure) -> AcquisitionOwnerExecutionResult` needs current
+  tenant/cell/run/route closure, an N13b authority entry, attempt identity, live
+  constraints and a tenant-bound guarded journal/CAS owner.
+- `reenter(closure, result) -> str` needs the exact world-committed owner refs,
+  overlay receipt, post-epoch event and positive delta for the same case.
+- `resume_reentry(closure, owner_receipt_refs) -> str` needs the durable pending head
+  and an idempotent owner reconciliation of the prior world commit.
+
+The existing raw executor census is exact:
+
+```bash
+rg -n --glob '*.py' 'execute_live_catalog_acquisition\(' src tests tools
+```
+
+It exited `0` with five occurrences: one definition, two unit-test callers and two
+quality-validator callers; there is no runtime production caller. Its six required
+inputs are `authority`, `entry_id`, `attempt_id`, `constraints`, `journal_path` and
+`cas_root`. It constructs `FileSystemCAS(cas_root)` itself. The complete field walk of
+`VerifiedAcquisitionRouteClosure` and `AcquisitionActionRecord` finds no authority
+entry, attempt or `LiveCatalogExecutionConstraints` binding, and their existing refs
+do not authorize raw filesystem paths.
+
+There is a second, independent contract stop. The strict port must return
+`AcquisitionOwnerExecutionResult`, whose `authority_badge` type and value are both the
+single literal `behavioral_fixture_not_production`. A class returning that result
+cannot be called a production port without widening what the badge means. Making the
+distinction representable requires a production-capable strict result contract and
+the governed schema/client corridor; Task E is forbidden to change it.
+
+Therefore the port is not executable in this lane. Its concrete landing prerequisites
+are:
+
+1. a current, content-bound `AcquisitionExecutionBinding` (name descriptive, not a new
+   type minted here) mapping the verified route to N13b authority entry, attempt and
+   live constraints; and
+2. an N13b owner seam that consumes the runtime's tenant-bound guarded CAS/journal and
+   returns a production-distinguishable strict result without changing the meaning of
+   the fixture const.
+
+Task E will not wrap the raw paths, construct a second CAS/journal/passport/overlay
+writer, or relabel the test port.
+
+### Deterministic admission bundle — executable engineering seam
+
+The complete source/test Python denominator is 5,082 files: 2,611 under `src` and
+2,471 under `tests`. These commands all exited `0`:
+
+```bash
+rg -n -F 'AgentActionAdmissionBundle(' src tests -g '*.py'
+rg -n -F 'AgentActionAuthorityGateway(' src tests -g '*.py'
+rg -n -F 'admission_refs_by_invocation_hash' src tests -g '*.py'
+```
+
+The bundle definition and gateway consumer exist in source, but the only constructor,
+detached-signature persistence and `{invocation_hash: artifact_ref}` assembly are in
+`tests/unit/runtime/quality/test_agent_action_authority.py`. No source gateway
+constructor or mapping producer exists. Unlike the strict port, this missing producer
+and bridge are executable inside Task E.
+
+The round-2 target is one acquisition-owned deterministic producer which:
+
+- recomputes exact operation, invocation, intent and permission hashes;
+- binds the resource digest, a real persisted delegation-contract ref and the exact
+  acquisition effect-binding digest;
+- persists through the existing authority artifact/event writer;
+- signs through one purpose-scoped typed slot;
+- reconciles tenant/cell/run/job identity and reads the exact artifact back; and
+- returns the immutable invocation mapping already consumed by
+  `AgentActionAuthorityGateway`.
+
+The production signer/mandate slot remains typed and empty. Empty memory and authority
+influence payloads are valid; a fake delegation ref or unsigned artifact is not. The
+engineering mechanism will be proven with an ephemeral trusted signer, while the
+production verdict remains blocked on the dedicated signer/current mandate input
+rather than promoting that test key.
+
+### Numeric VoI input census
+
+Task E executed one complete JSON-row walk plus a complete Python AST call census;
+both exited `0`. The canonical artifact denominator is one file and its growth-backlog
+denominator is 15 rows with one common key set. All 15 rows carry
+`metric_residual_granularity_not_supported`, `ranking_only_not_voi`,
+`interim_binding_confidence_x_route_demand`, binding confidence `0.0` and ranking
+score `0.0`.
+
+Across the full 15-row denominator, occurrences are zero for each of
+`voi_ranking_ref`, `decision_owner_ref`, `decision_ref`, `ranking_ref`,
+`owner_decision`, `expected_value`, `expected_cost` and `cost_basis`. The complete
+5,082-file source/test AST denominator contains six calls to
+`plan_evidence_acquisition`: one internal source bridge and five unit-test calls. None
+maps the 15 N13a rows to the optional VoI input accepted by the generic planner.
+
+The row is therefore non-executable without three separately named landing inputs: a
+content-bound owner decision or ranking artifact, expected-value inputs and
+expected-cost inputs. The existing typed refusal remains the correct surface.

@@ -364,3 +364,67 @@ After this append, `PYTHONPATH=. uv run python
 tools/quality/validation/check_docs_lifecycle.py` must remain exit 1 with exactly the inherited six
 findings; this journal intentionally contains only `apps/runtime-dashboard` paths and does not add
 the stale lifecycle path spelling.
+
+### Task 7 review fix — complete D set and zero-safe successor census
+
+The C13 normalization is now fully auditable. At the same Task D head
+`0fdd402f6259365f62cd1c62f58119317853cb6d`, the complete base-to-current changed set from
+`git -C /Users/deniskopylov/polisyos/.worktrees/debt-d-ds11-trust-posture diff --name-only
+784d020148c56e9bfb3a3631909ba11232210a9f..HEAD | sort` completed exit 0 with these **20 paths**:
+
+1. `policy-engine/apps/runtime-dashboard/e2e/helpers/runtime-dashboard.ts`
+2. `policy-engine/apps/runtime-dashboard/package.json`
+3. `policy-engine/apps/runtime-dashboard/playwright.config.ts`
+4. `policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py`
+5. `policy-engine/apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx`
+6. `policy-engine/apps/runtime-dashboard/src/shared/i18n/LocaleProvider.tsx`
+7. `policy-engine/apps/runtime-dashboard/src/test/a11y/color-blind-simulation.spec.ts`
+8. `policy-engine/apps/runtime-dashboard/src/test/a11y/keyboard-journeys.spec.ts`
+9. `policy-engine/apps/runtime-dashboard/src/test/a11y/screen-reader-snapshots.spec.ts`
+10. `policy-engine/docs/plans/active/atlas-slices/DS11-trust-posture-debt-closure.md`
+11. `policy-engine/docs/plans/active/atlas-slices/receipts/ds11-page-a11y-current/receipt.json`
+12. `policy-engine/docs/plans/active/atlas-slices/receipts/ds11-page-a11y-current/run-1/last-run.json`
+13. `policy-engine/docs/plans/active/atlas-slices/receipts/ds11-page-a11y-current/run-1/results.json`
+14. `policy-engine/docs/plans/active/atlas-slices/receipts/ds11-page-a11y-current/run-2/last-run.json`
+15. `policy-engine/docs/plans/active/atlas-slices/receipts/ds11-page-a11y-current/run-2/results.json`
+16. `policy-engine/docs/superpowers/journals/2026-08-30-debt-d-ds11-trust-posture.md`
+17. `policy-engine/docs/superpowers/plans/2026-08-30-debt-d-ds11-trust-posture.md`
+18. `policy-engine/tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py`
+19. `policy-engine/tests/repo_quality/docs/test_accessibility_evidence.py`
+20. `policy-engine/tests/repo_quality/frontend/test_fixture_runtime_bound_paper.py`
+
+Removing exactly the leading `policy-engine/` component from each changed path produces the
+repository-relative set. Intersecting it with the ordered eleven receipt paths listed above has
+**cardinality 1/11** and exactly one member:
+`apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx`. The eight other dashboard
+changes and all eleven non-dashboard changes are retained in the denominator; none was silently
+dropped by normalization.
+
+The DS12 absence predicate has also been replayed without the false green semantics of an empty
+`rg` pipeline. `PYTHONPATH=. uv run python` ran
+`sorted(Path('docs/plans/active/atlas-slices').glob('DS12*.md'))`, printed
+`ds12_slice_plan_files=0`, asserted that the list was empty, and completed exit 0. That is the
+zero-safe evidence for the missing standalone DS12 slice plan.
+
+Finally, the connector producer census was rerun over the full **2,611 tracked `src/**/*.py`**
+population, not the 406-file connector/runtime subset. A `PYTHONPATH=. uv run python` complete
+line-walk read each tracked source file, distinguished `class SourceProfileOwnerReceipt` from call
+sites, and counted exact named producer signatures. It completed exit 0 with:
+
+```text
+full_tracked_src_python_denominator=2611
+source_profile_owner_receipt_constructor_calls=0
+paired_connector_source_profile_snapshot_producer_definitions=0
+concrete_source_capability_discovery_provider_definitions=0
+all_concrete_capability_provider_classes=1
+src/polisyos/runtime/quality/capability_discovery.py:306:class LexCapabilityDiscoveryProvider:
+```
+
+The paired-producer predicate requires one definition name containing `connector`, `snapshot`, and
+both `source` and `profile`; it is the exact future
+`ConnectorSourceProfileSnapshotProducer` object named in this handoff. The only
+`SourceProfileOwnerReceipt` occurrences remain its DS10 class, validator return/type union,
+resource-kind validator map, and export: no producer calls it. The only concrete provider class is
+Lex, so the default `capability_discovery_providers=()` in
+`runtime/http/services/control_registry_providers.py` has no source provider to install. This
+settles the block on the unowned producer while preserving connector list DTOs as a P38 negative.

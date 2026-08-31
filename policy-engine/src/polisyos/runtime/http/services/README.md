@@ -115,6 +115,11 @@ projections. Route handlers should stay thin and delegate behavior here.
   run-bound costed-route projection and deferred PA2/worker composition. It
   consumes the control-plane phase-head sink and strict owner port without
   becoming a passport, overlay, epoch, or world writer.
+- [`acquisition_admission_bundle.py`](acquisition_admission_bundle.py) owns the deterministic,
+  acquisition-only admission producer. Its production signer slot is intentionally empty; a
+  configured signer persists, signs, reconciles, reads back, and maps one bundle for the existing
+  agent-action gateway, while institutional delegation and current-mandate resolution remain
+  gateway-owned.
 - [`confidence_ledger_risk_spend_contracts.py`](confidence_ledger_risk_spend_contracts.py)
   owns the four-arm transport and replay binding;
   [`confidence_ledger_risk_spend_projection.py`](confidence_ledger_risk_spend_projection.py)

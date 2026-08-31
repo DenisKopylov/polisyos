@@ -7,6 +7,7 @@ import uuid
 from collections.abc import Callable
 from contextlib import suppress
 from datetime import UTC, datetime
+from time import monotonic
 
 from polisyos.common.logger import get_logger
 from polisyos.runtime.http.errors import (
@@ -25,6 +26,7 @@ from .control_plane_store import ControlJobRecord, ControlPlaneStore
 logger = get_logger(__name__)
 
 JobHandler = Callable[[ControlJobRecord], None]
+MaintenanceCallback = Callable[[], None]
 
 
 def _job_progress_details(job: ControlJobRecord) -> dict[str, object]:
@@ -92,6 +94,9 @@ class ControlWorker:
         poll_interval_s: float = 0.25,
         lease_seconds: int = 60,
         worker_id: str | None = None,
+        maintenance_callback: MaintenanceCallback | None = None,
+        maintenance_interval_s: float = 60.0,
+        monotonic_clock: Callable[[], float] = monotonic,
     ) -> None:
         self._store = store
         self._handler = handler
@@ -99,6 +104,10 @@ class ControlWorker:
         self._lease_seconds = max(lease_seconds, 1)
         self._heartbeat_interval_s = min(max(self._lease_seconds / 3.0, 0.1), 5.0)
         self._worker_id = worker_id or f"ctrl-worker-{uuid.uuid4().hex[:8]}"
+        self._maintenance_callback = maintenance_callback
+        self._maintenance_interval_s = max(maintenance_interval_s, self._poll_interval_s)
+        self._monotonic_clock = monotonic_clock
+        self._next_maintenance_at = 0.0
         self._thread: threading.Thread | None = None
         self._stop = threading.Event()
         self._wake = threading.Event()
@@ -154,10 +163,23 @@ class ControlWorker:
         self._run_with_lease_heartbeat(job)
         return True
 
+    def run_maintenance_once(self) -> bool:
+        """Run one due maintenance callback without requiring a queued control request."""
+
+        if self._maintenance_callback is None:
+            return False
+        now = self._monotonic_clock()
+        if now < self._next_maintenance_at:
+            return False
+        self._next_maintenance_at = now + self._maintenance_interval_s
+        self._maintenance_callback()
+        return True
+
     def _run_loop(self) -> None:
         while not self._stop.is_set():
             ran = False
             try:
+                self.run_maintenance_once()
                 ran = self.dispatch_once()
             except (RuntimeDependencyTimeoutError, RuntimeDependencyUnavailableError) as exc:
                 logger.warning("Control worker dependency unavailable: %s", exc)

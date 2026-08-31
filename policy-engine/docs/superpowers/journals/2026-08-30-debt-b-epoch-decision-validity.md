@@ -542,3 +542,72 @@ RED at exit `1`, the cleanup remove-the-property mutation RED at exit `1`, and t
 two-node GREEN at exit `0`.
 
 **Exact append prose:** **SUPERSESSION 2026-08-31 — `closed`:** TDD RED on `test_concurrent_same_packet_persistence_has_no_fixed_temp_collision` reproduced the shared fixed-temp race as `FileNotFoundError` at exit `1`; named GREEN followed extraction of the shared UUID-owned atomic byte-writer chokepoint, and the six-node closeout command now passes. The cleanup falsifier then removed only the exception-cleanup property while retaining the writer markers and went RED at exit `1` because the owned UUID temp survived; after byte-for-byte restoration, focused GREEN for `test_atomic_dedupe_write_failure_cleans_only_owned_temp` plus the named concurrency node passed `2/2` at exit `0`, proving cleanup removes only the writer-owned temp while preserving an unrelated sibling.
+
+## Round 2 execution journal
+
+### 2026-08-31 — source pin and adjudicated starting state
+
+- Attached branch: `codex/debt-b-epoch-decision-validity` at
+  `50722f7f3b547ff13988d39fa58f31762196235a`; slice base
+  `784d020148c56e9bfb3a3631909ba11232210a9f`.
+- The architect accepted `GY-GAP8` closed and held
+  `decision-validity-fixed-temp-concurrency` open pending the two unexecuted closure
+  conjuncts. Round 2 permits only `closed` or concrete `blocked` verdicts.
+- Read-only transition census uses `git ls-files`: 10,370 tracked repository paths,
+  including 2,821 tracked `src/` paths / 2,611 tracked source Python paths and 2,970
+  tracked `tests/` paths / 2,470 tracked test Python paths.
+
+### Fixed-temp missing conjunct attempt 1
+
+1. `corepack pnpm install --frozen-lockfile` exited `0`; the Playwright packages and
+   browser-facing workspace links are installed.
+2. The exact predecessor Task-4.4 nine-file Python command exited `2` after seven
+   assertion failures and an external `KeyboardInterrupt` on the OpenAPI-heavy path. A
+   focused replay of the eight initially reported selectors completed normally at B
+   HEAD: `7 failed, 1 passed`, exit `1`.
+3. The same eight selectors at clean slice base `784d02014` produced the identical
+   `7 failed, 1 passed`, exit `1`. None of B's post-base source paths intersects the two
+   HTTP test modules or the route/step-up implementation under test; every failing
+   request stops before the changed atomic persistence helper.
+4. The failures are seven stale or contradictory shared-test expectations: the
+   authorized epoch-batch and human-decision rows each contradict their own typed
+   refusal status; five production-approval/OpenAPI rows retain expectations from before
+   the current three-input gate, owner admission, or two live acquisition actions.
+5. Tasks A, C, D, and E each report zero owned diff in the two stale HTTP tests. Task D
+   identifies the concrete landable repair as one DS20/team-runtime current
+   authorization-denominator reconciliation receipt derived from the complete live
+   unsafe-method router and OpenAPI sets, updating both matrices together. No current
+   row or commit owns that receipt; the successor owner must be appointed by the
+   architect.
+6. The exact zero-retry DS9 visual no-writer command exited `1` on its first attempt:
+   `Timed out waiting 120000ms from config.webServer`. Debug logging localized the
+   nonreceipt to the fixture runtime API health check on port 8000; it never bound while
+   several sibling Python workers drove load above twenty. Standalone Storybook reached
+   its iframe health URL in about seven seconds, ports were initially free, and Chromium
+   was installed. This is not yet a visual pass or failure; the unchanged command must
+   be retried after contention clears.
+
+### Transition and recompute pre-implementation census
+
+- `EpochValidityTransitionProducer(`: zero constructions across the complete 2,611
+  source Python paths; `.produce_and_persist(`: zero production calls. The producer
+  exists and remains `implemented_but_not_orchestrated`.
+- `resolve_transition_manifests`: protocol declaration plus producer call, zero concrete
+  adapters. Correction to round 1: `FileSemanticEpochHistoryRepository` is already a
+  concrete exact history owner; only its transition adapter is absent.
+- `resolve_complete_epoch_dependencies`: protocol declaration plus producer call, zero
+  concrete providers. `resolve_complete_owner_adjudications`: the same zero. Owner target
+  dispositions have zero production constructions.
+- Concrete positive verifier intersection: among all 35 `def verify` rows in 27 source
+  files, only the protocol and `NoEpochTransitionVerifier` share the full transition
+  signature. `epoch_transition_verifier=` has zero production injections; all six
+  production `DecisionValidityService` constructions take the negative default.
+- Recompute is a real engineering split: `derived_observations.py` has the certified
+  derivation producer/reader but no epoch recompute receipt; the staleness projection
+  constructs every edge as `not_established`. Round 2 will build the completed-only
+  owner receipt and exact reader, then block on the named temporal read bridge outside
+  B's files.
+- Scientist carrier census: each required token `subject_ref`, `gate_evidence_ref`,
+  `epoch_validity_projection`, and `decision_packet_lineage_key_ref` occurs zero times in
+  the complete 584-file Scientist source-Python partition. The task-A post-N9 handoff
+  must land all four fields before B can build a production current-lineage reader.

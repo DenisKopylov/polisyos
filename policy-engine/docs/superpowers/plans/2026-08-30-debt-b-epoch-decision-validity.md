@@ -293,3 +293,163 @@ Verify attached branch, read every changed path from `HEAD`, verify forbidden pa
 ```bash
 git commit -m "docs(debt): record epoch validity closure dossier"
 ```
+
+## Round 2 — terminate every row as closed or concretely blocked
+
+Round 1 is the implementation base and remains append-only.  This round does not
+reopen `GY-GAP8`, whose three named tests, exact denominator composition, and Task-4.5
+ancestry were accepted by the architect.  It executes the two missing fixed-temp
+conjuncts, builds the locally executable transition/recompute mechanisms, and converts
+every unresolved row to a concrete `blocked_by` that names an artifact, producer,
+appointment, slice seam, or registered repair which must land.
+
+### Round-2 pattern pass and interface rulings
+
+- `P01`/`P02`/`P12`: an adapter, verifier port, or receipt alone is not positive
+  orchestration.  Each built half binds exact persisted inputs and its named downstream
+  consumer; the register carries the other half explicitly.
+- `P05`/`P32`/`P37`: signer provenance cannot substitute for producer identity, a
+  verifier cannot trust its own provenance artifact, and caller-provided lists cannot
+  establish either owner denominator.
+- `P07`/`P08`: recompute receipts bind the exact transition, old/head epochs, query
+  coordinate, purpose, dependency edge, certificate, and derived output.  An authentic
+  receipt for an old transition cannot answer a later head.
+- `P31`/`P38`: do not call the empty-byte signer probe orchestration and do not forward
+  the producer graph hash as Decision Validity's differently shaped packet denominator.
+- `P35`/`P41`: every zero and every inherited red reports its complete path denominator;
+  the Task-4.4 HTTP failures must reproduce at the slice base before they can become a
+  named external landing dependency.
+
+## Task 8: Execute and adjudicate the two missing fixed-temp conjuncts
+
+**Files:**
+
+- Append only: `docs/superpowers/journals/2026-08-30-debt-b-epoch-decision-validity.md`
+- No product or snapshot write is authorized by this task.
+
+### Step 1: Execute the full Task-4.4 Python suite
+
+Run exactly the nine files listed under predecessor Task 4.4 with the bound `uv`
+interpreter.  If any node is red, rerun the exact failing selectors at both
+`784d020148c56e9bfb3a3631909ba11232210a9f` and the round-2 source pin, enumerate the
+changed-path intersection, and identify the introducing commit for each divergent
+expectation.  A runnable-but-red suite is not a passed conjunct.
+
+### Step 2: Execute the exact zero-retry visual no-writer command
+
+Provision the Playwright toolchain with `corepack pnpm install --frozen-lockfile`, then
+run the DS9 command exactly as published, without `--update-snapshots`.  A readiness
+timeout is a tooling nonreceipt: diagnose which configured server did not bind, remove
+only Task-B-owned diagnostic processes, wait for contended sibling workers, and rerun the
+unchanged command once under a measured healthy load.
+
+### Step 3: Terminate the row
+
+`decision-validity-fixed-temp-concurrency` is `closed` only if the named concurrency
+node, all nine Task-4.4 files, and the exact visual command each exit zero.  Otherwise it
+is `blocked` by the exact test-repair or environment artifact that must land; the dossier
+must name every failing selector and the owning corridor, not merely say "inherited".
+
+## Task 9: Build the exact semantic-history transition adapter
+
+**Files:**
+
+- Modify: `src/polisyos/runtime/quality/epoch_validity_cascade.py`
+- Modify: `tests/unit/runtime/quality/test_epoch_validity_cascade.py`
+
+### Step 1: Write the adapter falsifiers first
+
+Create an exact semantic-epoch production receipt and history in a real CAS.  The first
+test must fail because no concrete `EpochTransitionHistoryRepository` adapter exists.
+Cover receipt substitution, wrong current manifest, wrong purpose/scope, missing or
+ambiguous previous epoch, non-head current epoch, and corrupt receipt/manifest bytes.
+
+### Step 2: Reuse the existing history owner
+
+Implement only the adapter from `current_epoch_receipt_ref` to
+`FileSemanticEpochHistoryRepository`.  Exact-reload the one framed production receipt,
+follow and validate its semantic manifest, resolve the matching complete scope history,
+and return previous/current manifests only when the requested current epoch is the sole
+verified head and the previous epoch is its declared predecessor in the same purpose and
+scope.  Do not create a second history repository.
+
+### Step 3: Verify and commit
+
+Run the exact new adapter nodes plus the existing producer nonreceipt node, Ruff the two
+changed Python paths, and commit the coherent adapter/test group.  Positive production
+remains `blocked` by the task-A trigger, complete dependency inventory producer, complete
+owner-adjudication producer, and signer/owner-held producer-identity appointment.
+
+## Task 10: Build the derived-observations recompute producer half
+
+**Files:**
+
+- Modify: `src/polisyos/runtime/quality/derived_observations.py`
+- Modify: `tests/unit/runtime/quality/test_derived_observations.py`
+
+### Step 1: Write red owner-receipt tests
+
+Materialize a real certified derivation, persist an exact positive epoch transition, and
+request one exact dependency edge.  Require one completed-only owner receipt whose
+manifest inputs and content hash bind transition ref/hash, previous/current epoch,
+query/purpose, producer denominator, source/target/relation, certificate binding, and
+the independently recomputed derived output.  Add substitution, authentic-old, corrupt
+bytes/manifest, wrong disposition, missing edge, and certificate/output drift
+falsifiers.
+
+### Step 2: Implement one completed-only producer and exact reader
+
+Reuse `consume_certified_derivation`, `_put_or_verify`, fixed schemas/producers, and CAS
+verification.  The producer may emit `completed` only after exact transition readback,
+edge/target-disposition membership, certificate-binding reconciliation, and full
+certified-derivation replay.  Do not invent pending/running/failed executor states.  The
+persisted handle carries only ref/hash; the reader revalidates bytes, profile, inputs,
+and referenced owner evidence.
+
+### Step 3: Verify and commit
+
+Run only the new owner-producer nodes and directly imported existing derivation nodes,
+then Ruff and `git diff --check`.  Do not edit the staleness projector, temporal service,
+or shared dependency composition: those are the named external read bridge for the
+blocked row.
+
+## Task 11: Re-census blockers and produce the round-2 dossier
+
+**Files:**
+
+- Append only: `docs/superpowers/journals/2026-08-30-debt-b-epoch-decision-validity.md`
+- Append only: this plan and the SDD progress ledger as execution receipts require.
+
+### Step 1: Re-run complete source censuses
+
+Use `git ls-files` to state repository/source/test/Python denominators.  Re-run the
+transition constructor/caller, provider, verifier-injection, positive-verifier,
+Decision-Validity service, and four-field Scientist carrier searches.  For every
+`producer_missing` block, report the exact signature intersection and zero over the full
+2,611-source-Python denominator (or the recomputed current denominator).
+
+### Step 2: Re-state the two denominator definitions
+
+Record that the transition producer hashes certificate bindings, dependency graph, and
+graph target refs, while Decision Validity hashes registered dependency keys with owner
+artifact, packet, and lineage membership.  Name the required persisted cross-owner
+mapping/reconciliation receipt and its trust appointment.  Do not forward one hash as
+the other.
+
+### Step 3: Run targeted controls and independent review
+
+Run only exact changed-module nodes and named row signals.  The debt checker is expected
+to exit `1`; compare its blocker identities to the round-2 preflight set and require no
+new blocker outside rows B owns.  The docs-lifecycle checker is expected to exit `1`
+with exactly six inherited findings.  Run Ruff, architecture guardrails if imports
+changed, and `git diff --check`.  Dispatch a whole-branch review after source freeze and
+fix only blocking findings in a bounded delta round.
+
+### Step 4: Append the eight-block dossier last
+
+The final journal section contains exactly eight blocks, each with verdict `closed` or
+`blocked`, `blocked_by` when applicable, exact deciding command/predicate and exit code,
+and append-only register prose.  Include `8 = closed + blocked`, the two fixed-temp
+conjunct receipts, every transition mechanism built or full-census blocker, the Lex
+production-row-set block, the task-A four-field lineage seam, empty institutional slots,
+task D's remaining `GY-GAP8` overlap, and every out-of-scope finding.

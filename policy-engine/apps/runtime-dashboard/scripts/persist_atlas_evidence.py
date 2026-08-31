@@ -10,13 +10,15 @@ import json
 import os
 import platform
 import re
-import selectors
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, NoReturn
+
+from jsonschema import Draft202012Validator
+from jsonschema.exceptions import SchemaError
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -84,26 +86,33 @@ DS18_TIME_SEMANTICS_CHECKER = (
 DS18_TIME_SEMANTICS_SCANNER = (
     "architecture/atlas_surfaces/decision_time_semantics_scan.mjs"
 )
-DS18_TIME_SEMANTICS_PACKET_FIELDS = {
-    "predicate_provenance",
-    "source_file_count",
-    "root_count",
-    "obligated_root_count",
-    "covered_root_count",
-}
-DS18_CHECKER_MAX_BUFFER_BYTES = 8 * 1024 * 1024
-DS18_CHECKER_READ_BYTES = 64 * 1024
+DS18_EXECUTION_OUTCOME_RUNNER = (
+    "apps/runtime-dashboard/scripts/run-ds18-time-semantics-outcome.mjs"
+)
+DS18_EXECUTION_OUTCOME_CONTRACT = (
+    "apps/runtime-dashboard/src/test/evidence/ds18ExecutionOutcome.ts"
+)
+DS18_EXECUTION_OUTCOME_SCHEMA = (
+    "apps/runtime-dashboard/src/test/evidence/ds18-execution-outcome.schema.json"
+)
 HEALTH_INSTRUMENT_COMPONENT = "polisyos.atlas.health_metric_instrument@1.0.0"
 HEALTH_ADMISSION_COMPONENT = "polisyos.atlas.health_metric_admission@1.0.0"
 HEALTH_IMPLEMENTATION_PATHS = (
     "apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts",
     HEALTH_PRODUCER_SCRIPT,
     HEALTH_SOURCE_VALIDATOR,
+    DS18_EXECUTION_OUTCOME_RUNNER,
+    DS18_EXECUTION_OUTCOME_CONTRACT,
+    DS18_EXECUTION_OUTCOME_SCHEMA,
     "apps/runtime-dashboard/scripts/persist_atlas_evidence.py",
     "pyproject.toml",
     "uv.lock",
 )
-HEALTH_INSTRUMENT_PATHS = HEALTH_IMPLEMENTATION_PATHS[:3]
+HEALTH_INSTRUMENT_PATHS = (
+    "apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts",
+    HEALTH_PRODUCER_SCRIPT,
+    HEALTH_SOURCE_VALIDATOR,
+)
 READINESS_REPORT_KIND = "atlas_surface_readiness_claim_report"
 READINESS_REPORT_SCHEMA = {
     "id": "polisyos.atlas.surface-readiness-claim-report",
@@ -802,149 +811,71 @@ def _health_source_ref(path: str, role: str) -> dict[str, str]:
     }
 
 
-def _run_ds18_time_semantics_checker(
-    node_executable: Path,
-) -> tuple[int, bytes, bytes, str | None]:
-    python_locator = _policy_engine_root() / ".venv/bin/python"
-    if not python_locator.is_file() or not os.access(python_locator, os.X_OK):
-        raise AtlasEvidencePersistenceError(
-            "DS18 time-semantics measurement requires the repository-managed "
-            "Python environment"
-        )
-    checker_path = _policy_engine_root() / DS18_TIME_SEMANTICS_CHECKER
-    process = subprocess.Popen(  # noqa: S603 - fixed interpreter and checker paths.
-        [
-            str(python_locator),
-            "-I",
-            str(checker_path),
-            "--check-ds18-time-semantics-coverage",
-        ],
-        cwd=_policy_engine_root(),
-        stdin=subprocess.DEVNULL,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        env={
-            **HEALTH_CHILD_ENV,
-            "POLISYOS_NODE_EXECUTABLE": str(node_executable),
-        },
-    )
-    if process.stdout is None or process.stderr is None:
-        process.kill()
-        process.wait()
-        raise AtlasEvidencePersistenceError("DS18 checker output pipes were not created")
-    streams = {
-        "stdout": process.stdout,
-        "stderr": process.stderr,
-    }
-    buffers = {
-        "stdout": bytearray(),
-        "stderr": bytearray(),
-    }
-    selector = selectors.DefaultSelector()
-    for name, stream in streams.items():
-        selector.register(stream, selectors.EVENT_READ, name)
-    exceeded: str | None = None
+def _validate_ds18_execution_outcome(value: object) -> dict[str, Any]:
+    schema_path = _policy_engine_root() / DS18_EXECUTION_OUTCOME_SCHEMA
     try:
-        while selector.get_map() and exceeded is None:
-            for key, _ in selector.select():
-                name = key.data
-                chunk = os.read(key.fileobj.fileno(), DS18_CHECKER_READ_BYTES)
-                if not chunk:
-                    selector.unregister(key.fileobj)
-                    continue
-                remaining = DS18_CHECKER_MAX_BUFFER_BYTES - len(buffers[name])
-                buffers[name].extend(chunk[:remaining])
-                if len(chunk) > remaining:
-                    exceeded = name
-                    process.kill()
-                    break
-    finally:
-        selector.close()
-        for stream in streams.values():
-            stream.close()
-        if process.poll() is None:
-            process.kill()
-        returncode = process.wait()
-    return returncode, bytes(buffers["stdout"]), bytes(buffers["stderr"]), exceeded
+        schema = json.loads(
+            schema_path.read_text(encoding="utf-8"),
+            object_pairs_hook=_reject_duplicate_keys,
+            parse_constant=_reject_non_json_constant,
+        )
+        Draft202012Validator.check_schema(schema)
+        errors = list(Draft202012Validator(schema).iter_errors(value))
+    except (
+        AtlasEvidencePersistenceError,
+        json.JSONDecodeError,
+        OSError,
+        SchemaError,
+    ) as exc:
+        raise AtlasEvidencePersistenceError(
+            "typed DS18 execution outcome schema is unavailable or invalid"
+        ) from exc
+    if errors or not isinstance(value, dict):
+        raise AtlasEvidencePersistenceError("typed DS18 execution outcome contract mismatch")
+    if value.get("kind") == "established":
+        projection = value["projection"]
+        if projection["obligated_root_count"] > projection["root_count"]:
+            raise AtlasEvidencePersistenceError("typed DS18 execution outcome contract mismatch")
+        if projection["covered_root_count"] > projection["obligated_root_count"]:
+            raise AtlasEvidencePersistenceError("typed DS18 execution outcome contract mismatch")
+    return value
 
 
 def _ds18_time_semantics_coverage_projection(
     node_executable: Path,
 ) -> dict[str, Any]:
-    returncode, stdout, stderr, exceeded = _run_ds18_time_semantics_checker(
-        node_executable
+    runner_path = _policy_engine_root() / DS18_EXECUTION_OUTCOME_RUNNER
+    result = subprocess.run(  # noqa: S603 - allowlisted Node and fixed runner paths.
+        [str(node_executable), str(runner_path)],
+        cwd=_policy_engine_root(),
+        check=False,
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        env=HEALTH_CHILD_ENV,
     )
-    if exceeded is not None:
-        return {
-            "kind": "not_established",
-            "reason": (
-                "DS18 time-semantics coverage validator "
-                f"exceeded the {DS18_CHECKER_MAX_BUFFER_BYTES}-byte {exceeded} limit"
-            ),
-        }
-    if returncode != 0:
-        stderr_text = stderr.decode("utf-8", errors="replace").strip()
-        return {
-            "kind": "not_established",
-            "reason": (
-                "DS18 time-semantics coverage validator rejected the current tree "
-                f"({returncode}): {stderr_text}"
-            ),
-        }
+    if result.returncode != 0:
+        raise AtlasEvidencePersistenceError(
+            f"typed DS18 execution-outcome runner failed ({result.returncode})"
+        )
     try:
-        projection = json.loads(
-            stdout.decode("utf-8"),
+        outcome = json.loads(
+            result.stdout.decode("utf-8"),
             object_pairs_hook=_reject_duplicate_keys,
             parse_constant=_reject_non_json_constant,
         )
-    except (UnicodeDecodeError, json.JSONDecodeError, AtlasEvidencePersistenceError):
-        return {
-            "kind": "not_established",
-            "reason": (
-                "DS18 time-semantics coverage validator emitted malformed output: "
-                "invalid or non-canonical UTF-8 JSON"
-            ),
-        }
-    if not isinstance(projection, dict) or set(projection) != DS18_TIME_SEMANTICS_PACKET_FIELDS:
-        return {
-            "kind": "not_established",
-            "reason": (
-                "DS18 time-semantics coverage validator emitted malformed output: "
-                "expected exactly the five-field coverage packet"
-            ),
-        }
-    if projection["predicate_provenance"] != "independently_reconciled":
-        return {
-            "kind": "not_established",
-            "reason": (
-                "DS18 time-semantics coverage validator emitted malformed output: "
-                "predicate_provenance is not independently_reconciled"
-            ),
-        }
-    for field in (
-        "source_file_count",
-        "root_count",
-        "obligated_root_count",
-        "covered_root_count",
-    ):
-        value = projection[field]
-        if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
-            return {
-                "kind": "not_established",
-                "reason": (
-                    "DS18 time-semantics coverage validator emitted malformed output: "
-                    f"{field} is not a positive integer"
-                ),
-            }
-    if projection["covered_root_count"] != projection["obligated_root_count"]:
-        return {
-            "kind": "not_established",
-            "reason": (
-                "DS18 time-semantics coverage validator emitted malformed output: "
-                "covered_root_count does not equal obligated_root_count"
-            ),
-        }
-    return {"kind": "established", "projection": projection}
+    except (
+        AtlasEvidencePersistenceError,
+        UnicodeDecodeError,
+        json.JSONDecodeError,
+    ) as exc:
+        raise AtlasEvidencePersistenceError(
+            "typed DS18 execution outcome is not canonical UTF-8 JSON"
+        ) from exc
+    return _validate_ds18_execution_outcome(outcome)
+
+
+def _ds18_outcome_limitation(outcome: Mapping[str, Any]) -> str:
+    return f"The DS18 execution outcome is not established ({outcome['error_code']})."
 
 
 def _health_basis(
@@ -1095,7 +1026,7 @@ def _expected_health_rows(
             },
             "basis": _health_basis(
                 ds18_source_refs,
-                ds18_coverage["reason"],
+                _ds18_outcome_limitation(ds18_coverage),
                 "not_established",
             ),
             "measurement": {
@@ -1435,6 +1366,30 @@ def _run_health_metric_producer() -> tuple[
         "script_sha256": hashlib.sha256(producer_script.read_bytes()).hexdigest(),
         "process_exit_code": result.returncode,
         "stdout_sha256": hashlib.sha256(raw_report).hexdigest(),
+        "ds18_execution_outcome": {
+            "kind": ds18_coverage["kind"],
+            "outcome_sha256": hashlib.sha256(
+                json.dumps(
+                    ds18_coverage,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                ).encode("utf-8")
+            ).hexdigest(),
+            "runner": _health_source_ref(
+                DS18_EXECUTION_OUTCOME_RUNNER,
+                "typed_execution_outcome_runner",
+            ),
+            "contract": _health_source_ref(
+                DS18_EXECUTION_OUTCOME_CONTRACT,
+                "typed_execution_outcome_contract",
+            ),
+            "schema": _health_source_ref(
+                DS18_EXECUTION_OUTCOME_SCHEMA,
+                "typed_execution_outcome_schema",
+            ),
+        },
         "environment": {
             "mode": "fixed_minimal_allowlist",
             "inherited_names": [],

@@ -11,11 +11,11 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
-from polisyos.runtime.replay import (
+from polisyos.scientist.methods.autotune.models import default_search_registry_root
+from polisyos.scientist.replay.deterministic import (
     CompletenessLevel,
     measure_replayable_audit_bundle,
 )
-from polisyos.scientist.methods.autotune.models import default_search_registry_root
 
 REPLAY_VERIFICATION_REPORT_SCHEMA_NAME = "polisyos.scientist.replay.ReplayVerificationReport"
 

@@ -11805,6 +11805,13 @@
       "target_root": "ir"
     },
     {
+      "source_module": "polisyos.pdc._impl.world_model_record",
+      "source_root": "pdc",
+      "source_file": "src/polisyos/pdc/_impl/world_model_record.py",
+      "target_module": "polisyos.ir.kernel",
+      "target_root": "ir"
+    },
+    {
       "source_module": "polisyos.runtime.api",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/api.py",
@@ -14295,97 +14302,6 @@
       "source_file": "src/polisyos/runtime/quality/world_model_record.py",
       "target_module": "polisyos.ir.kernel",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.runtime.replay",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/replay.py",
-      "target_module": "polisyos.common.logger",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.runtime.replay",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/replay.py",
-      "target_module": "polisyos.core.artifacts.environment",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.replay",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/replay.py",
-      "target_module": "polisyos.core.artifacts.graph",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.replay",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/replay.py",
-      "target_module": "polisyos.core.artifacts.ids",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.replay",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/replay.py",
-      "target_module": "polisyos.core.artifacts.manifest",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.replay",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/replay.py",
-      "target_module": "polisyos.core.artifacts.protocol",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.replay",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/replay.py",
-      "target_module": "polisyos.core.canon",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.replay",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/replay.py",
-      "target_module": "polisyos.core.contracts.foundry",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.replay",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/replay.py",
-      "target_module": "polisyos.scientist.nodes.builtins.state_keys",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.runtime.replay",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/replay.py",
-      "target_module": "polisyos.scientist.orchestration.engine.state",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.runtime.replay",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/replay.py",
-      "target_module": "polisyos.scientist.orchestration.workflows.builder",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.runtime.replay",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/replay.py",
-      "target_module": "polisyos.scientist.policy_design.output",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.runtime.replay",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/replay.py",
-      "target_module": "polisyos.scientist.replay.diff",
-      "target_root": "scientist"
     },
     {
       "source_module": "polisyos.scholar.api",
@@ -24230,11 +24146,11 @@
       "target_root": "core"
     },
     {
-      "source_module": "polisyos.scientist.replay.backend",
+      "source_module": "polisyos.scientist.replay.deterministic",
       "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/replay/backend.py",
-      "target_module": "polisyos.runtime.replay",
-      "target_root": "runtime"
+      "source_file": "src/polisyos/scientist/replay/deterministic.py",
+      "target_module": "polisyos.core.artifacts.environment",
+      "target_root": "core"
     },
     {
       "source_module": "polisyos.scientist.replay.diff",
@@ -24270,13 +24186,6 @@
       "source_file": "src/polisyos/scientist/replay/verification.py",
       "target_module": "polisyos.core.canon",
       "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.replay.verification",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/replay/verification.py",
-      "target_module": "polisyos.runtime.replay",
-      "target_root": "runtime"
     },
     {
       "source_module": "polisyos.scientist.validation.benchmarks",

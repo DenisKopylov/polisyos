@@ -24,7 +24,7 @@ from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.intervention_artifacts import LexPolicyBundleInput
 from polisyos.lex.interventions import HierarchicalPolicySearchPlan
-from polisyos.runtime.quality import WorldModelRecord
+from polisyos.pdc import WorldModelRecord
 from polisyos.scientist.methods.search.controller import (
     SearchIteration,
     SearchResult,

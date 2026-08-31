@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime
-from typing import Any, Literal, Self, cast
+import hashlib
+import json
+import re
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from typing import Any, Literal, Self, cast, final
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -1171,6 +1174,168 @@ class ControlApprovalProjection(BaseModel):
 
 ProductionApprovalDecision = Literal["approved", "approved_with_override", "blocked"]
 
+_PRODUCTION_APPROVAL_CURRENTNESS_RECEIPT_SCHEMA_VERSION = (
+    "policyos.production_approval_currentness_receipt.v1"
+)
+_PRODUCTION_APPROVAL_CURRENTNESS_RECEIPT_SEAL = object()
+_SHA256_REF_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
+
+
+def _currentness_receipt_datetime(value: datetime) -> datetime:
+    if value.tzinfo is None or value.utcoffset() is None:
+        raise ValueError("production approval currentness timestamps require a timezone")
+    return value.astimezone(UTC)
+
+
+def _currentness_receipt_digest(
+    *,
+    packet_ref: str,
+    tenant_id: str,
+    run_id: str,
+    expected_consumer: str,
+    expected_audience: str,
+    evaluated_at: datetime,
+    valid_until: datetime,
+    verifier_epoch: str,
+) -> str:
+    """Hash the compact sorted-JSON UTF-8 canonical receipt binding."""
+
+    payload = {
+        "evaluated_at": evaluated_at.isoformat(timespec="microseconds"),
+        "expected_audience": expected_audience,
+        "expected_consumer": expected_consumer,
+        "packet_ref": packet_ref,
+        "run_id": run_id,
+        "schema_version": _PRODUCTION_APPROVAL_CURRENTNESS_RECEIPT_SCHEMA_VERSION,
+        "tenant_id": tenant_id,
+        "valid_until": valid_until.isoformat(timespec="microseconds"),
+        "verifier_epoch": verifier_epoch,
+    }
+    canonical = json.dumps(
+        payload,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(canonical).hexdigest()
+
+
+@final
+@dataclass(frozen=True, slots=True)
+class ProductionApprovalCurrentnessReceipt:
+    """Content-bound proof that Runtime freshly resolved one approval packet."""
+
+    schema_version: Literal["policyos.production_approval_currentness_receipt.v1"]
+    packet_ref: str
+    tenant_id: str
+    run_id: str
+    expected_consumer: str
+    expected_audience: str
+    evaluated_at: datetime
+    valid_until: datetime
+    verifier_epoch: str
+    binding_digest: str
+    _seal: object = field(repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        if self._seal is not _PRODUCTION_APPROVAL_CURRENTNESS_RECEIPT_SEAL:
+            raise TypeError("production approval currentness receipt is runtime resolver only")
+
+
+def _issue_production_approval_currentness_receipt(
+    *,
+    packet_ref: str,
+    tenant_id: str,
+    run_id: str,
+    expected_consumer: str,
+    expected_audience: str,
+    evaluated_at: datetime,
+    valid_until: datetime,
+    verifier_epoch: str,
+) -> ProductionApprovalCurrentnessReceipt:
+    """Issue the neutral receipt after Runtime resolves sealed currentness."""
+
+    evaluated_at = _currentness_receipt_datetime(evaluated_at)
+    valid_until = _currentness_receipt_datetime(valid_until)
+    text_bindings = (
+        tenant_id,
+        run_id,
+        expected_consumer,
+        expected_audience,
+        verifier_epoch,
+    )
+    if (
+        _SHA256_REF_RE.fullmatch(packet_ref) is None
+        or any(not value.strip() for value in text_bindings)
+        or evaluated_at >= valid_until
+    ):
+        raise ValueError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+    digest = _currentness_receipt_digest(
+        packet_ref=packet_ref,
+        tenant_id=tenant_id,
+        run_id=run_id,
+        expected_consumer=expected_consumer,
+        expected_audience=expected_audience,
+        evaluated_at=evaluated_at,
+        valid_until=valid_until,
+        verifier_epoch=verifier_epoch,
+    )
+    return ProductionApprovalCurrentnessReceipt(
+        schema_version=_PRODUCTION_APPROVAL_CURRENTNESS_RECEIPT_SCHEMA_VERSION,
+        packet_ref=packet_ref,
+        tenant_id=tenant_id,
+        run_id=run_id,
+        expected_consumer=expected_consumer,
+        expected_audience=expected_audience,
+        evaluated_at=evaluated_at,
+        valid_until=valid_until,
+        verifier_epoch=verifier_epoch,
+        binding_digest=digest,
+        _seal=_PRODUCTION_APPROVAL_CURRENTNESS_RECEIPT_SEAL,
+    )
+
+
+def require_production_approval_currentness_receipt(
+    receipt: object,
+    *,
+    packet_ref: str,
+    tenant_id: str,
+    run_id: str,
+    expected_consumer: str,
+    expected_audience: str,
+) -> ProductionApprovalCurrentnessReceipt:
+    """Verify exact type, seal, live interval, and every consumer binding."""
+
+    if type(receipt) is not ProductionApprovalCurrentnessReceipt:
+        raise ValueError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+    exact_receipt = cast("ProductionApprovalCurrentnessReceipt", receipt)
+    now = datetime.now(UTC)
+    expected_digest = _currentness_receipt_digest(
+        packet_ref=exact_receipt.packet_ref,
+        tenant_id=exact_receipt.tenant_id,
+        run_id=exact_receipt.run_id,
+        expected_consumer=exact_receipt.expected_consumer,
+        expected_audience=exact_receipt.expected_audience,
+        evaluated_at=exact_receipt.evaluated_at,
+        valid_until=exact_receipt.valid_until,
+        verifier_epoch=exact_receipt.verifier_epoch,
+    )
+    if (
+        exact_receipt._seal is not _PRODUCTION_APPROVAL_CURRENTNESS_RECEIPT_SEAL
+        or exact_receipt.schema_version
+        != _PRODUCTION_APPROVAL_CURRENTNESS_RECEIPT_SCHEMA_VERSION
+        or exact_receipt.packet_ref != packet_ref
+        or exact_receipt.tenant_id != tenant_id
+        or exact_receipt.run_id != run_id
+        or exact_receipt.expected_consumer != expected_consumer
+        or exact_receipt.expected_audience != expected_audience
+        or exact_receipt.binding_digest != expected_digest
+        or exact_receipt.evaluated_at > now
+        or now >= exact_receipt.valid_until
+    ):
+        raise ValueError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+    return exact_receipt
+
 
 class ProductionApprovalOverrideRequest(BaseModel):
     """Reviewer-attributed override request for exceptional production approval."""
@@ -1680,6 +1845,7 @@ __all__ = [
     "PolicyFlags",
     "PolicyValidationProfile",
     "PreviewStatus",
+    "ProductionApprovalCurrentnessReceipt",
     "ProductionApprovalDecision",
     "ProductionApprovalEligibility",
     "ProductionApprovalOverridePacket",
@@ -1700,4 +1866,5 @@ __all__ = [
     "SourceProfilesListResponse",
     "WorkflowRunRequest",
     "policy_authority_profile_mapping",
+    "require_production_approval_currentness_receipt",
 ]

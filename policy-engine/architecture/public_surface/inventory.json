@@ -491,7 +491,7 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 464,
+          "export_count": 466,
           "exports": [
             "*_CHRONOLOGY_EXPORTS",
             "BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION",
@@ -821,6 +821,7 @@
             "ProblemFrameRef",
             "ProducerSpineBindingFields",
             "ProducerSpineReadContext",
+            "ProductionApprovalCurrentnessReceipt",
             "ProgramGraph",
             "ProgramGraphRef",
             "ProvenanceActivity",
@@ -956,6 +957,7 @@
             "epoch_staleness_semantic_hash",
             "evaluate_skip_blocker_policy",
             "legacy_family_for_construct",
+            "require_production_approval_currentness_receipt",
             "serialize_skip_blocker_record"
           ],
           "has___getattr__": true,
@@ -2285,7 +2287,8 @@
       "supported_entrypoints": [
         "polisyos.scientist",
         "polisyos.scientist.governance.continuous",
-        "polisyos.scientist.methods.research_dag"
+        "polisyos.scientist.methods.research_dag",
+        "polisyos.scientist.replay"
       ],
       "major_subsystem": true,
       "export_count": 26,
@@ -2483,6 +2486,42 @@
           "has___dir__": false,
           "source_file": "src/polisyos/scientist/methods/research_dag/__init__.py",
           "summary": "Research DAG public API for Scientist best-in-class Phase 1.2."
+        },
+        {
+          "module": "polisyos.scientist.replay",
+          "facade_mode_observed": "lazy_facade",
+          "export_count": 25,
+          "exports": [
+            "ComparatorRegistry",
+            "DeadLetterCorruptedError",
+            "DeadLetterError",
+            "DeadLetterNotFoundError",
+            "DeadLetterRecord",
+            "DiffToleranceConfig",
+            "FieldDiff",
+            "REPLAY_VERIFICATION_REPORT_SCHEMA_NAME",
+            "ReplayBackendResult",
+            "ReplayDiffInputError",
+            "ReplayDiffResult",
+            "ReplayRegistry",
+            "ReplayRegistryEntry",
+            "ReplayRegistrySnapshot",
+            "ReplayVerificationReport",
+            "build_replay_verification_report",
+            "compute_replay_diff",
+            "list_dead_letters",
+            "load_dead_letter",
+            "load_replay_verification_report",
+            "persist_replay_verification_report",
+            "replay_dead_letter",
+            "replay_packet",
+            "save_diff_report",
+            "verify_and_persist_replay_bundle"
+          ],
+          "has___getattr__": true,
+          "has___dir__": true,
+          "source_file": "src/polisyos/scientist/replay/__init__.py",
+          "summary": "Scientist replay hub for dead-letter, diff, and verification helpers."
         }
       ]
     },
@@ -2624,7 +2663,7 @@
         "polisyos.runtime.quality"
       ],
       "major_subsystem": false,
-      "export_count": 965,
+      "export_count": 966,
       "exports": [
         "ACQUISITION_PLANNER_GATE_LAYER",
         "ACQUISITION_PLANNER_GATE_PHASE",
@@ -3516,6 +3555,7 @@
         "requirement_gaps_from_compiled_specs",
         "resolve_evaluation_mode",
         "resolve_expression",
+        "resolve_production_approval_currentness_receipt",
         "resolve_s12_resource_refs",
         "review_controls_for_pruning",
         "run_cost_budget_policy_from_performance_budget",
@@ -3601,7 +3641,7 @@
         {
           "module": "polisyos.runtime.quality",
           "facade_mode_observed": "eager_exports",
-          "export_count": 965,
+          "export_count": 966,
           "exports": [
             "ACQUISITION_PLANNER_GATE_LAYER",
             "ACQUISITION_PLANNER_GATE_PHASE",
@@ -4493,6 +4533,7 @@
             "requirement_gaps_from_compiled_specs",
             "resolve_evaluation_mode",
             "resolve_expression",
+            "resolve_production_approval_currentness_receipt",
             "resolve_s12_resource_refs",
             "review_controls_for_pruning",
             "run_cost_budget_policy_from_performance_budget",

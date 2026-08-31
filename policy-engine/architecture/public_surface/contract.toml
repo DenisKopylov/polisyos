@@ -251,6 +251,7 @@ supported_entrypoints = [
   "polisyos.scientist",
   "polisyos.scientist.governance.continuous",
   "polisyos.scientist.methods.research_dag",
+  "polisyos.scientist.replay",
 ]
 major_subsystem = true
 notes = "Workflow orchestration facade for experiment execution and shared observability hooks."

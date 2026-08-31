@@ -97,6 +97,7 @@ scientist = [
   "method_requirement",
   "fabric",
   "data_forge",
+  "pdc",
   "runtime",
   "core",
   "ir",
@@ -107,7 +108,7 @@ corpus = ["corpus", "common"]
 runtime = ["runtime", "pdc", "evidence", "scholar_requirement", "scholar", "berl", "scientist", "lex", "data_requirement", "data_forge", "foundry", "method_requirement", "participation_requirement", "fabric", "core", "ir", "common"]
 obligation_graph = ["obligation_graph", "core", "ir", "common"]
 scholar_requirement = ["scholar_requirement", "core", "common"]
-pdc = ["pdc", "runtime", "scientist", "core", "ir", "common"]
+pdc = ["pdc", "core", "ir", "common"]
 scholar = ["scholar", "scholar_requirement", "fabric", "ir", "core", "common"]
 lex = ["lex", "legal_requirement", "data_forge", "fabric", "ir", "core", "common"]
 berl = ["berl", "core", "ir", "common"]

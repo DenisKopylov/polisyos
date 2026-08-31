@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
+
 from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
 from polisyos.scientist.artifacts.decision_compiler import (
     DecisionArtifactCompilationError,
@@ -154,6 +156,28 @@ def _complete_artifact(
     return artifact, final_claims
 
 
+def _approval_currentness_receipt(
+    *,
+    run_id: str = "run-quality-001",
+    packet_ref: str | None = None,
+):
+    from polisyos.core.contracts.control import (
+        _issue_production_approval_currentness_receipt,
+    )
+
+    now = datetime.now(UTC)
+    return _issue_production_approval_currentness_receipt(
+        packet_ref=packet_ref or _sha("8"),
+        tenant_id="tenant-quality",
+        run_id=run_id,
+        expected_consumer="polisyos.scientist.decision_artifact_quality",
+        expected_audience="polisyos-runtime",
+        evaluated_at=now,
+        valid_until=now + timedelta(minutes=5),
+        verifier_epoch="deployment-epoch-1",
+    )
+
+
 def test_quality_report_blocks_raw_approval_without_concrete_currentness() -> None:
     artifact, final_claims = _complete_artifact()
 
@@ -187,6 +211,46 @@ def test_quality_report_blocks_raw_approval_without_concrete_currentness() -> No
     assert "policy_grounding_matrix_ref" in report["input_refs"]
     assert "quality_scorecard_ref" in report["input_refs"]
     assert report["claim_evidence_contract"]["status"] == "blocked"
+
+
+def test_quality_report_accepts_only_content_bound_currentness_receipt() -> None:
+    artifact, final_claims = _complete_artifact()
+    packet_ref = _sha("8")
+
+    report = build_decision_artifact_quality_report(
+        compiled_artifact=artifact,
+        final_claims=final_claims,
+        profile="production",
+        approval_packet_ref=packet_ref,
+        production_approval_tenant_id="tenant-quality",
+        production_approval_currentness_receipt=(
+            _approval_currentness_receipt(packet_ref=packet_ref)
+        ),
+    )
+
+    assert "decision_artifact_approval_currentness_unresolved" not in {
+        issue["code"] for issue in report["issues"]
+    }
+    assert report["approval_authority"]["currentness"] == "runtime_receipt_verified"
+
+
+def test_quality_report_rejects_receipt_bound_to_another_packet() -> None:
+    artifact, final_claims = _complete_artifact()
+
+    report = build_decision_artifact_quality_report(
+        compiled_artifact=artifact,
+        final_claims=final_claims,
+        profile="production",
+        approval_packet_ref=_sha("8"),
+        production_approval_tenant_id="tenant-quality",
+        production_approval_currentness_receipt=(
+            _approval_currentness_receipt(packet_ref=_sha("9"))
+        ),
+    )
+
+    assert "decision_artifact_approval_currentness_unresolved" in {
+        issue["code"] for issue in report["issues"]
+    }
 
 
 def _historical_draft(*, final_claims: list[dict[str, object]] | None = None):
@@ -494,5 +558,4 @@ def test_quality_report_rejects_ownerless_serious_decision_artifact() -> None:
     assert "quality_scorecard_ref" in report["input_refs"]
     assert report["claim_evidence_contract"]["status"] == "blocked"
     assert "claim_ledger_owner_not_established" in {issue["code"] for issue in report["issues"]}
-
 

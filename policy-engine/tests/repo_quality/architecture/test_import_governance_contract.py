@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import tomllib
 from pathlib import Path
 
@@ -94,3 +95,214 @@ def test_five_remaining_narrowings_have_one_canonical_form() -> None:
         ("lex", "data_forge"): ("polisyos.data_forge.read_api",),
         ("scientist", "data_forge"): ("polisyos.data_forge.read_api",),
     }
+
+
+def test_scientist_runtime_residual_is_exact_eval_safety_owner_ruling() -> None:
+    """Only the seven statements bound to the unresolved GY-O0 owner may remain."""
+
+    policy = _read_toml(POLICY_PATH)
+    internal = policy["internal"]
+    assert isinstance(internal, dict)
+    allow = internal["allow"]
+    assert isinstance(allow, dict)
+    scientist_allow = allow["scientist"]
+    assert isinstance(scientist_allow, list)
+
+    pdc_allow = allow["pdc"]
+    assert isinstance(pdc_allow, list)
+    assert "runtime" in scientist_allow
+    assert "pdc" in scientist_allow
+    assert "runtime" not in pdc_allow
+    assert "scientist" not in pdc_allow
+
+    runtime_rows: list[tuple[str, str, tuple[str, ...], str]] = []
+    scientist_root = SOURCE_ROOT / "scientist"
+    for path in sorted(scientist_root.rglob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        parents = {
+            child: parent
+            for parent in ast.walk(tree)
+            for child in ast.iter_child_nodes(parent)
+        }
+        for node in ast.walk(tree):
+            targets: tuple[tuple[str, tuple[str, ...]], ...]
+            if isinstance(node, ast.Import):
+                targets = tuple((alias.name, (alias.name,)) for alias in node.names)
+            elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                targets = ((node.module, tuple(alias.name for alias in node.names)),)
+            else:
+                continue
+            parent = parents.get(node)
+            scope = "module"
+            while parent is not None:
+                if isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+                    scope = "deferred"
+                    break
+                parent = parents.get(parent)
+            for target, aliases in targets:
+                if target == "polisyos.runtime" or target.startswith("polisyos.runtime."):
+                    runtime_rows.append(
+                        (
+                            path.relative_to(SOURCE_ROOT).as_posix(),
+                            target,
+                            aliases,
+                            scope,
+                        )
+                    )
+
+    quality = "polisyos.runtime.quality"
+    verifier_types = ("EvalSafetyVerifierPort", "EvaluationExecutionContext")
+    execution_choke = (
+        "EvalSafetyAdmissionChallenge",
+        "evaluation_safety_consumer_admission_is_verified",
+        "resolve_evaluation_mode",
+    )
+    assert sorted(runtime_rows) == sorted(
+        [
+            ("scientist/api.py", quality, verifier_types, "module"),
+            (
+                "scientist/nodes/builtins/decide/policy_runtime_support.py",
+                quality,
+                execution_choke,
+                "module",
+            ),
+            (
+                "scientist/nodes/builtins/decide/policy_runtime_support.py",
+                quality,
+                verifier_types,
+                "module",
+            ),
+            (
+                "scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+                quality,
+                execution_choke,
+                "module",
+            ),
+            (
+                "scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+                quality,
+                ("EvaluationExecutionContext",),
+                "module",
+            ),
+            (
+                "scientist/orchestration/engine/context.py",
+                quality,
+                verifier_types,
+                "module",
+            ),
+            (
+                "scientist/orchestration/workflows/builder.py",
+                quality,
+                verifier_types,
+                "module",
+            ),
+        ]
+    )
+    assert sum(len(row[2]) for row in runtime_rows) == 15
+
+
+def test_observability_deep_import_residual_is_exact_truthfulness_adjudication() -> None:
+    """All ruled migrations leave only the eleven owner-dependent statements."""
+
+    rows: list[tuple[str, str, tuple[str, ...]]] = []
+    deep_prefix = "polisyos.core.observability."
+    for path in sorted(SOURCE_ROOT.rglob("*.py")):
+        relative = path.relative_to(SOURCE_ROOT)
+        if relative.parts[0] == "core":
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ImportFrom) or node.level != 0 or not node.module:
+                continue
+            if node.module.startswith(deep_prefix):
+                rows.append(
+                    (
+                        relative.as_posix(),
+                        node.module,
+                        tuple(sorted(alias.name for alias in node.names)),
+                    )
+                )
+
+    truthfulness = "polisyos.core.observability.truthfulness"
+    assert sorted(rows) == sorted(
+        [
+            (
+                "foundry/methods/backends/dispatch.py",
+                truthfulness,
+                ("extract_truthfulness_receipt",),
+            ),
+            (
+                "foundry/methods/base.py",
+                truthfulness,
+                ("parse_truthfulness_scope", "parse_truthfulness_tier"),
+            ),
+            (
+                "foundry/methods/catalog/bayesian/protocols.py",
+                truthfulness,
+                ("TruthfulnessReceipt", "validate_truthfulness_receipt"),
+            ),
+            (
+                "foundry/methods/catalog/bayesian/protocols.py",
+                truthfulness,
+                ("TruthfulnessTier",),
+            ),
+            (
+                "foundry/methods/catalog/bayesian/protocols.py",
+                truthfulness,
+                ("parse_truthfulness_tier",),
+            ),
+            (
+                "foundry/methods/catalog/ml/advanced.py",
+                truthfulness,
+                ("TruthfulnessReceipt", "TruthfulnessScope", "TruthfulnessTier"),
+            ),
+            (
+                "foundry/methods/catalog/ml/protocols.py",
+                truthfulness,
+                ("TruthfulnessReceipt", "validate_truthfulness_receipt"),
+            ),
+            (
+                "foundry/methods/catalog/ml/uncertainty.py",
+                truthfulness,
+                ("TruthfulnessReceipt", "TruthfulnessScope", "TruthfulnessTier"),
+            ),
+            (
+                "foundry/methods/catalog/snapshot.py",
+                truthfulness,
+                (
+                    "TruthfulnessStatus",
+                    "parse_truthfulness_scope",
+                    "parse_truthfulness_tier",
+                    "reconcile_truthfulness_tiers",
+                ),
+            ),
+            (
+                "foundry/methods/components/value_evidence.py",
+                truthfulness,
+                (
+                    "TruthfulnessReceipt",
+                    "TruthfulnessTier",
+                    "extract_truthfulness_receipt",
+                ),
+            ),
+            (
+                "foundry/methods/selection/advisor.py",
+                truthfulness,
+                (
+                    "parse_truthfulness_tier",
+                    "reconcile_truthfulness_tiers",
+                    "truthfulness_depth",
+                ),
+            ),
+        ]
+    )
+
+    stub = SOURCE_ROOT / "foundry" / "methods" / "base.pyi"
+    stub_tree = ast.parse(stub.read_text(encoding="utf-8"), filename=str(stub))
+    stub_modules = {
+        node.module
+        for node in ast.walk(stub_tree)
+        if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module
+    }
+    assert "polisyos.core.observability" in stub_modules
+    assert not any(module.startswith(deep_prefix) for module in stub_modules)

@@ -27,12 +27,11 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.distributional import DistributionalReport, load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+from polisyos.pdc import WorldModelRecord, gy_content_hash, world_model_record_content_hash
 from polisyos.runtime.quality import (
     EvalSafetyAdmissionChallenge,
     evaluation_safety_consumer_admission_is_verified,
-    gy_content_hash,
     resolve_evaluation_mode,
-    world_model_record_content_hash,
 )
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.autotune.models import (
@@ -82,7 +81,6 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality import (
         EvalSafetyVerifierPort,
         EvaluationExecutionContext,
-        WorldModelRecord,
     )
 from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome

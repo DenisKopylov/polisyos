@@ -994,3 +994,22 @@ basis differs from the admitted closed receipt; import and public-surface guardr
 already green. The full version-2 import scan exits 0 with zero lapsed covers, zero
 unadjudicated violations, and zero allowed exceptions. The Fabric observability adapter
 was not touched.
+
+### Closeout correction — direct marker construction
+
+The independent P32 closeout probe found one same-class escape after the first
+Scientist/Runtime commit: directly constructing Runtime's private produced-receipt
+subtype auto-sealed it in PDC's `model_post_init`, so the stronger marker-level forgery
+was accepted even though construction of the public base receipt was rejected. The new
+probe failed before repair with the exact assertion that both hand-constructed receipts
+must be rejected.
+
+The correction completes the relocation the ruling named. PDC now owns the private
+`_ProducedEvalSafetyConsumerAdmissionReceipt` marker, producer token, fingerprint check,
+and pure verifier. The marker is facade-bound only for Runtime's internal exact-facade
+import and remains absent from PDC's public `__all__`. Construction alone never seals a
+receipt. Runtime invokes the marker's private `_mark_produced()` only after its complete
+current-state verification finishes with no blockers. Both direct public-base and direct
+marker construction now return `False`; the real Runtime CAS-backed mint returns `True`.
+This append supersedes the earlier description of an auto-registering Runtime subtype;
+no gate, policy permission, exception, public facade contract, or appointment changed.

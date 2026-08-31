@@ -31,6 +31,9 @@ from ._impl.evaluation_safety import (
     evaluation_safety_consumer_admission_is_verified,
     recompute_attempt_class,
 )
+from ._impl.evaluation_safety import (
+    _ProducedEvalSafetyConsumerAdmissionReceipt as _ProducedEvalSafetyConsumerAdmissionReceipt,
+)
 from ._impl.gy_waist import (
     GY_ARTIFACT_ID_PATTERN,
     GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION,

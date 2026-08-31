@@ -54,7 +54,6 @@ NamespacedEvaluationModeBlocker = Annotated[
 ]
 
 _RECEIPT_PRODUCER_TOKEN = object()
-_RUNTIME_RECEIPT_TYPE: type[EvalSafetyConsumerAdmissionReceipt] | None = None
 
 
 class _FrozenModel(BaseModel):
@@ -194,31 +193,6 @@ class EvalSafetyConsumerAdmissionReceipt(_FrozenModel):
     challenge: EvalSafetyAdmissionChallenge
     blocker_codes: tuple[NamespacedEvalSafetyId, ...]
     verified_at: datetime
-    _producer_token: object | None = PrivateAttr(default=None)
-    _producer_fingerprint: str | None = PrivateAttr(default=None)
-
-    def __init_subclass__(cls, **kwargs: object) -> None:
-        """Register only Runtime's exact private minting subtype."""
-
-        super().__init_subclass__(**kwargs)
-        expected = (
-            "polisyos.runtime.quality.evaluation_safety",
-            "_ProducedEvalSafetyConsumerAdmissionReceipt",
-        )
-        if (cls.__module__, cls.__name__) != expected:
-            raise TypeError("eval_safety_receipt_subclass_forbidden")
-        global _RUNTIME_RECEIPT_TYPE
-        if _RUNTIME_RECEIPT_TYPE is not None and _RUNTIME_RECEIPT_TYPE is not cls:
-            raise TypeError("eval_safety_receipt_producer_already_registered")
-        _RUNTIME_RECEIPT_TYPE = cls
-
-    def model_post_init(self, __context: object) -> None:
-        """Seal only a verified receipt instantiated as Runtime's registered subtype."""
-
-        del __context
-        if type(self) is _RUNTIME_RECEIPT_TYPE and self.status == "verified":
-            self._producer_token = _RECEIPT_PRODUCER_TOKEN
-            self._producer_fingerprint = _content_hash(self)
 
     @model_validator(mode="after")
     def _verify_admission_shape(self) -> EvalSafetyConsumerAdmissionReceipt:
@@ -232,6 +206,21 @@ class EvalSafetyConsumerAdmissionReceipt(_FrozenModel):
         if (self.status == "verified") is not verified_shape:
             raise ValueError("eval_safety_consumer_admission_incoherent")
         return self
+
+
+class _ProducedEvalSafetyConsumerAdmissionReceipt(
+    EvalSafetyConsumerAdmissionReceipt
+):
+    """Neutral marker whose private seal is invoked only by Runtime's minting path."""
+
+    _producer_token: object | None = PrivateAttr(default=None)
+    _producer_fingerprint: str | None = PrivateAttr(default=None)
+
+    def _mark_produced(self) -> None:
+        """Seal the exact public bytes after Runtime completes current-state checks."""
+
+        self._producer_token = _RECEIPT_PRODUCER_TOKEN
+        self._producer_fingerprint = _content_hash(self)
 
 
 class EvalSafetyVerifierPort(Protocol):
@@ -253,8 +242,7 @@ def evaluation_safety_consumer_admission_is_verified(
     """Return whether Runtime minted a receipt for this exact context and challenge."""
 
     return bool(
-        _RUNTIME_RECEIPT_TYPE is not None
-        and type(receipt) is _RUNTIME_RECEIPT_TYPE
+        type(receipt) is _ProducedEvalSafetyConsumerAdmissionReceipt
         and receipt._producer_token is _RECEIPT_PRODUCER_TOKEN
         and receipt._producer_fingerprint == _content_hash(receipt)
         and receipt.status == "verified"

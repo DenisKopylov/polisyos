@@ -32,6 +32,7 @@ from polisyos.pdc import (
     EvaluationModeResolution,
     NamespacedEvalSafetyId,
     PredicateProvenance,
+    _ProducedEvalSafetyConsumerAdmissionReceipt,
     evaluation_execution_context_hash,
     evaluation_safety_consumer_admission_is_verified,
     recompute_attempt_class,
@@ -922,10 +923,6 @@ def reconcile_evaluation_safety_revisions(
         if not progressed:
             return ()
     return tuple(produced_by_hash[row.content_hash] for row in revisions)
-
-
-class _ProducedEvalSafetyConsumerAdmissionReceipt(EvalSafetyConsumerAdmissionReceipt):
-    """Runtime's sole registered minting subtype for consumer admission receipts."""
 
 
 class EvalSafetyCertificateRevisionNode(_FrozenModel):
@@ -2115,6 +2112,8 @@ def verify_evaluation_safety_consumer_admission(
         blocker_codes=tuple(sorted(set(blockers))),
         verified_at=verified_at,
     )
+    if not blockers:
+        result._mark_produced()
     return result
 
 

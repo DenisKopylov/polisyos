@@ -220,7 +220,7 @@ def test_scientist_runtime_declared_cycle_is_removed_after_eval_safety_split() -
 
 
 def test_pdc_eval_safety_verifier_rejects_hand_constructed_receipt() -> None:
-    """A shape-correct base receipt cannot impersonate Runtime's minting act."""
+    """Neither public shape nor direct marker construction can impersonate Runtime."""
 
     from polisyos.core import components as core_components
     from polisyos.pdc import (
@@ -230,6 +230,9 @@ def test_pdc_eval_safety_verifier_rejects_hand_constructed_receipt() -> None:
         EvaluationExecutionContext,
         evaluation_execution_context_hash,
         evaluation_safety_consumer_admission_is_verified,
+    )
+    from polisyos.runtime.quality.evaluation_safety import (
+        _ProducedEvalSafetyConsumerAdmissionReceipt,
     )
 
     def ref(index: int, kind: str) -> ArtifactRef:
@@ -260,21 +263,28 @@ def test_pdc_eval_safety_verifier_rejects_hand_constructed_receipt() -> None:
         eval_safety_revision_head_ref=ref(7, "revision"),
     )
     challenge = EvalSafetyAdmissionChallenge.fresh(consumer_component_id=owner)
-    forged = EvalSafetyConsumerAdmissionReceipt(
-        status="verified",
-        intake_ref=context.intake_ref,
-        certificate_ref=context.eval_safety_certificate_ref,
-        current_revision_head_ref=context.eval_safety_revision_head_ref,
-        execution_context_hash=evaluation_execution_context_hash(context),
-        challenge=challenge,
-        blocker_codes=(),
-        verified_at=datetime(2026, 8, 31, tzinfo=UTC),
+    receipt_fields = {
+        "status": "verified",
+        "intake_ref": context.intake_ref,
+        "certificate_ref": context.eval_safety_certificate_ref,
+        "current_revision_head_ref": context.eval_safety_revision_head_ref,
+        "execution_context_hash": evaluation_execution_context_hash(context),
+        "challenge": challenge,
+        "blocker_codes": (),
+        "verified_at": datetime(2026, 8, 31, tzinfo=UTC),
+    }
+    forged_receipts = (
+        EvalSafetyConsumerAdmissionReceipt(**receipt_fields),
+        _ProducedEvalSafetyConsumerAdmissionReceipt(**receipt_fields),
     )
 
-    assert not evaluation_safety_consumer_admission_is_verified(
-        forged,
-        context,
-        challenge,
+    assert all(
+        not evaluation_safety_consumer_admission_is_verified(
+            forged,
+            context,
+            challenge,
+        )
+        for forged in forged_receipts
     )
 
 

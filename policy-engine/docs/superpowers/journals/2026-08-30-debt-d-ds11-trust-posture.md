@@ -608,3 +608,28 @@ The terminal target is evidence, not arithmetic. `10 = 5 closed + 5 blocked` is 
 - Correction to the first DS9 bullet above: the import census is five total consumers,
   partitioned as four non-React consumers plus the React presentation module; it is not five
   non-React consumers.
+
+## Candidate-band scope artifact — appended 2026-08-31
+
+- `tests/unit/core/contracts/test_scope_adjudication.py` was written before the module and
+  first failed collection with `ModuleNotFoundError`, exit 2. The implemented artifact binds
+  one candidate function, one custody plane, subject/rule refs and digests, rule-effective,
+  valid, and known times, and all three ordered P37-classified predicate observations.
+- The proposed `own | integrate | observe | out_of_scope` value is explicitly
+  `candidate_only`; `authority_effect=none`, `closure_effect=none`, and the fixed
+  `may_not_use_for` denominator forbids scope ruling, claim-lifecycle transition, claim-head
+  advance, publication authorization, and institutional execution. Missing observations stay
+  typed limitations. Digest substitution and mixed planes fail validation.
+- `uv run pytest tests/unit/core/contracts/test_scope_adjudication.py -q` exits 0 with
+  8/8 cases passed. Ruff over the contract, facade, and tests; the direct lazy-facade import;
+  and `git diff --check` all exit 0.
+- The register's production closure identity remains deliberately absent:
+  `uv run pytest
+  tests/unit/core/contracts/test_scope_adjudication.py::test_four_way_ruling_is_produced_consumed_and_plane_specific
+  -q` exits 4 with no matching test. A candidate artifact cannot stand in for that chain.
+- Missing-production census: `rg --files src/polisyos -g '*.py'` enumerates 2,616 Python
+  files. Exact complete-tree search
+  `rg -n '(ScopePredicateEvidenceResolver|ScopeAdjudicationClaimLifecycleConsumer|produce_scope_adjudication|consume_scope_adjudication)' src/polisyos --glob '*.py'`
+  returns zero matches. The broader `scope[_ -]adjudication` search resolves only to the new
+  candidate contract and its facade export. The production resolver and claim-lifecycle
+  consumer are unowned; neither belongs to task B.

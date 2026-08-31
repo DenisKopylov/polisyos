@@ -198,6 +198,7 @@
       "supported_entrypoints": [
         "polisyos.core",
         "polisyos.core.contracts",
+        "polisyos.core.observability",
         "polisyos.core.security",
         "polisyos.core.trace"
       ],
@@ -966,6 +967,42 @@
           "summary": "Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries."
         },
         {
+          "module": "polisyos.core.observability",
+          "facade_mode_observed": "eager_exports",
+          "export_count": 25,
+          "exports": [
+            "DeterminismTier",
+            "MetricsRegistry",
+            "OTelConfig",
+            "PolicyOSTracer",
+            "StructuredFormatter",
+            "TraceContextFilter",
+            "TracedExecutorWrapper",
+            "configure_otel_logging_handler",
+            "estimate_llm_cost_usd",
+            "extract_headers",
+            "get_current_trace_context",
+            "get_default_config",
+            "get_determinism_tier",
+            "get_metrics",
+            "get_trace_context_dict",
+            "get_tracer",
+            "inject_headers",
+            "is_hpc_observability_enabled",
+            "parse_determinism_tier",
+            "pricing_table",
+            "propagate_context",
+            "traced",
+            "traced_method",
+            "with_context_vars",
+            "with_trace_context"
+          ],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/core/observability/__init__.py",
+          "summary": "PolicyOS Observability Module \u2014 Production-grade telemetry."
+        },
+        {
           "module": "polisyos.core.security",
           "facade_mode_observed": "lazy_facade",
           "export_count": 102,
@@ -1106,6 +1143,7 @@
       "reference_doc": "docs/reference/public-surface.md",
       "supported_entrypoints": [
         "polisyos.ir",
+        "polisyos.ir.analytics",
         "polisyos.ir.api"
       ],
       "major_subsystem": true,
@@ -1682,6 +1720,16 @@
           "has___dir__": true,
           "source_file": "src/polisyos/ir/__init__.py",
           "summary": "Expose the stable IR contract surface through a lazy package facade."
+        },
+        {
+          "module": "polisyos.ir.analytics",
+          "facade_mode_observed": "module_doc_only",
+          "export_count": 0,
+          "exports": [],
+          "has___getattr__": true,
+          "has___dir__": true,
+          "source_file": "src/polisyos/ir/analytics/__init__.py",
+          "summary": "Curated lazy facade for analytics IR contracts."
         },
         {
           "module": "polisyos.ir.api",

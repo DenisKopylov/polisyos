@@ -30,11 +30,11 @@ import numpy as np
 
 from polisyos.core.canon import content_hash
 from polisyos.core.observability import DeterminismTier
-from polisyos.core.observability.truthfulness import (
+from polisyos.foundry.methods.exceptions import LawViolationError, MethodDefinitionError
+from polisyos.ir.analytics import (
     parse_truthfulness_scope,
     parse_truthfulness_tier,
 )
-from polisyos.foundry.methods.exceptions import LawViolationError, MethodDefinitionError
 from polisyos.ir.analytics.uncertainty import (
     OutputContractCapability,
     OutputContractDeclaration,

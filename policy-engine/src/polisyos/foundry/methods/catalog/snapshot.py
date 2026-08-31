@@ -23,12 +23,6 @@ from polisyos.core.observability import (
     DeterminismTier,
     parse_determinism_tier,
 )
-from polisyos.core.observability.truthfulness import (
-    TruthfulnessStatus,
-    parse_truthfulness_scope,
-    parse_truthfulness_tier,
-    reconcile_truthfulness_tiers,
-)
 from polisyos.foundry.extensions.registry import (
     ComponentDiscoveryManifest,
     FoundryExtensionRegistryReport,
@@ -57,6 +51,12 @@ from polisyos.foundry.methods.components.value_evidence import (
     resolve_method_value_projection_capabilities,
 )
 from polisyos.foundry.methods.selection.registry import MethodRegistry
+from polisyos.ir.analytics import (
+    TruthfulnessStatus,
+    parse_truthfulness_scope,
+    parse_truthfulness_tier,
+    reconcile_truthfulness_tiers,
+)
 from polisyos.ir.analytics.causal_capabilities import (
     CausalCapabilityContract,
     CausalIdentificationFamily,

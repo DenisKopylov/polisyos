@@ -946,3 +946,51 @@ PDC paths touched in this migration:
 
 1. `src/polisyos/pdc/__init__.py`
 2. `src/polisyos/pdc/_impl/evaluation_safety.py`
+
+### Core observability — IR-owned truthfulness completion
+
+The alleged adjudication was already encoded in the artifact: the 29-line Core module
+calls itself a compatibility export for IR-owned truthfulness contracts, while
+`src/polisyos/ir/analytics/_truthfulness.py` owns the implementation and the lazy
+`polisyos.ir.analytics` facade resolves all ten names. The eleven production statements
+in nine Foundry files were therefore re-spelled onto that exact IR facade; no symbol was
+promoted merely to satisfy a linter.
+
+The red-first closure nodes first reported the exact eleven deep rows, the missing Core
+observability contract entry, and the same eleven rows when the deferred marker was
+removed. After the move, the five selected closure cases exit 0. Executing the four
+focused truthfulness consumer files adds 78 passing cases. A complete AST walk of the
+current `src/polisyos` tree examines 2,619 source files (2,614 `.py` plus five `.pyi`):
+the cross-package Core-observability corpus is 238 exact-facade statements / 280 imported
+aliases / 216 importing files and **zero deep statements / zero deep aliases / zero deep
+files**. The closure property is the empty deep-row canonical set, not a comparison of
+the old and new statement totals.
+
+The deprecated Core truthfulness alias remains because six consumers are outside this
+round's writable production set. A complete `git ls-files '*.py'` AST walk over 5,712
+tracked Python files measures eight alias imports / 22 imported aliases / six files:
+
+1. `src/polisyos/core/contracts/execution_plan.py` — one same-package statement, five aliases;
+2. `tools/quality/validation/check_layer3_gy_value_gate_contract.py` — one statement, three aliases;
+3. `tests/unit/foundry/methods/catalog/bayesian/test_methods.py` — two statements, three aliases;
+4. `tests/unit/foundry/methods/test_truthfulness_protocol.py` — two statements, five aliases;
+5. `tests/unit/foundry/methods/test_value_evidence.py` — one statement, three aliases; and
+6. `tests/unit/ir/analytics/test_simulation_proof_bridge.py` — one statement, three aliases.
+
+The alias now carries an explicit deprecation marker and warning directing new consumers
+to `polisyos.ir.analytics`; none of these bounded compatibility consumers is a
+cross-package production deep edge. `polisyos.core.observability` was removed from
+`DEFERRED_PUBLIC_CANONICAL_INTERFACES`, and only the two exact facades used by the final
+architecture (`polisyos.core.observability` and `polisyos.ir.analytics`) were added to
+their package and aggregate public-surface contracts.
+
+Owner synchronization removed 226 canonical deep-import baseline edges and added none:
+215 former exact Core-observability source-module edges, nine truthfulness source-module
+edges, and two pre-existing IR-analytics source-module edges are now supported-facade
+traffic. `uv run polisyos-tools architecture guardrails sync` exits 0, and the matching
+`guardrails check --skip-generated-checks` exits 0. The full generated-freshness variant
+exits 1 only at the unrelated trust-claim-posture probe because its ratified identity
+basis differs from the admitted closed receipt; import and public-surface guardrails are
+already green. The full version-2 import scan exits 0 with zero lapsed covers, zero
+unadjudicated violations, and zero allowed exceptions. The Fabric observability adapter
+was not touched.

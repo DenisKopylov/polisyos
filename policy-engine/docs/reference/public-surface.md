@@ -183,7 +183,7 @@ timestamps
 ## `polisyos.core`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.core`, `polisyos.core.contracts`, `polisyos.core.security`, `polisyos.core.trace`
+- Supported entrypoints: `polisyos.core`, `polisyos.core.contracts`, `polisyos.core.observability`, `polisyos.core.security`, `polisyos.core.trace`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/core/README.md`
@@ -197,6 +197,7 @@ timestamps
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 133 |
 | `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 466 |
+| `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `eager_exports` | 25 |
 | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 102 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 5 |
 
@@ -825,6 +826,44 @@ serialize_skip_blocker_record
 
 </details>
 
+#### `polisyos.core.observability`
+
+- Source: `src/polisyos/core/observability/__init__.py`
+- Facade: `eager_exports`
+- Summary: PolicyOS Observability Module — Production-grade telemetry.
+
+<details><summary>Entrypoint exports (25)</summary>
+
+```text
+DeterminismTier
+MetricsRegistry
+OTelConfig
+PolicyOSTracer
+StructuredFormatter
+TraceContextFilter
+TracedExecutorWrapper
+configure_otel_logging_handler
+estimate_llm_cost_usd
+extract_headers
+get_current_trace_context
+get_default_config
+get_determinism_tier
+get_metrics
+get_trace_context_dict
+get_tracer
+inject_headers
+is_hpc_observability_enabled
+parse_determinism_tier
+pricing_table
+propagate_context
+traced
+traced_method
+with_context_vars
+with_trace_context
+```
+
+</details>
+
 #### `polisyos.core.security`
 
 - Source: `src/polisyos/core/security/__init__.py`
@@ -1101,7 +1140,7 @@ security
 ## `polisyos.ir`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.ir`, `polisyos.ir.api`
+- Supported entrypoints: `polisyos.ir`, `polisyos.ir.analytics`, `polisyos.ir.api`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/ir/README.md`
@@ -1114,6 +1153,7 @@ security
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 277 |
+| `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `module_doc_only` | 0 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 11 |
 
 #### `polisyos.ir`
@@ -1405,6 +1445,12 @@ persist_dependent_sensitivity_result
 ```
 
 </details>
+
+#### `polisyos.ir.analytics`
+
+- Source: `src/polisyos/ir/analytics/__init__.py`
+- Facade: `module_doc_only`
+- Summary: Curated lazy facade for analytics IR contracts.
 
 #### `polisyos.ir.api`
 

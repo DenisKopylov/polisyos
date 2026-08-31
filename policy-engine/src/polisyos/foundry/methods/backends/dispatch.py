@@ -17,7 +17,6 @@ from typing import Any, Protocol, runtime_checkable
 from polisyos.core.backends import BackendDispatcher
 from polisyos.core.backends import BackendNotAvailableError as CoreBackendNotAvailableError
 from polisyos.core.observability import get_metrics, get_tracer
-from polisyos.core.observability.truthfulness import extract_truthfulness_receipt
 from polisyos.foundry.methods._internal.logging import _infer_n_obs, get_foundry_logger
 from polisyos.foundry.methods.backends.circuit_breaker import (
     BackendCircuitOpenError,
@@ -42,7 +41,10 @@ from polisyos.foundry.methods.equivalence import (
     get_default_equivalence_resolver,
 )
 from polisyos.foundry.methods.exceptions import FoundryMethodError
-from polisyos.foundry.methods.lifecycle.output_monitor import _emit_anomaly_metric, get_output_monitor
+from polisyos.foundry.methods.lifecycle.output_monitor import (
+    _emit_anomaly_metric,
+    get_output_monitor,
+)
 from polisyos.foundry.methods.selection.history import (
     AdvisorExecutionContext,
     MethodExecutionRecord,
@@ -52,6 +54,7 @@ from polisyos.foundry.methods.selection.history import (
     get_global_selection_history,
     split_advisor_execution_params,
 )
+from polisyos.ir.analytics import extract_truthfulness_receipt
 
 _log = get_foundry_logger("foundry.backends.dispatch")
 _USD_PER_MS = {

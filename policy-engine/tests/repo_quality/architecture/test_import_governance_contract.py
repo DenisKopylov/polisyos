@@ -278,8 +278,8 @@ def test_pdc_eval_safety_verifier_rejects_hand_constructed_receipt() -> None:
     )
 
 
-def test_observability_deep_import_residual_is_exact_truthfulness_adjudication() -> None:
-    """All ruled migrations leave only the eleven owner-dependent statements."""
+def test_observability_truthfulness_consumers_use_the_exact_ir_facade() -> None:
+    """The IR-owned family has no cross-package Core deep-import route."""
 
     rows: list[tuple[str, str, tuple[str, ...]]] = []
     deep_prefix = "polisyos.core.observability."
@@ -300,79 +300,25 @@ def test_observability_deep_import_residual_is_exact_truthfulness_adjudication()
                     )
                 )
 
-    truthfulness = "polisyos.core.observability.truthfulness"
-    assert sorted(rows) == sorted(
-        [
-            (
-                "foundry/methods/backends/dispatch.py",
-                truthfulness,
-                ("extract_truthfulness_receipt",),
-            ),
-            (
-                "foundry/methods/base.py",
-                truthfulness,
-                ("parse_truthfulness_scope", "parse_truthfulness_tier"),
-            ),
-            (
-                "foundry/methods/catalog/bayesian/protocols.py",
-                truthfulness,
-                ("TruthfulnessReceipt", "validate_truthfulness_receipt"),
-            ),
-            (
-                "foundry/methods/catalog/bayesian/protocols.py",
-                truthfulness,
-                ("TruthfulnessTier",),
-            ),
-            (
-                "foundry/methods/catalog/bayesian/protocols.py",
-                truthfulness,
-                ("parse_truthfulness_tier",),
-            ),
-            (
-                "foundry/methods/catalog/ml/advanced.py",
-                truthfulness,
-                ("TruthfulnessReceipt", "TruthfulnessScope", "TruthfulnessTier"),
-            ),
-            (
-                "foundry/methods/catalog/ml/protocols.py",
-                truthfulness,
-                ("TruthfulnessReceipt", "validate_truthfulness_receipt"),
-            ),
-            (
-                "foundry/methods/catalog/ml/uncertainty.py",
-                truthfulness,
-                ("TruthfulnessReceipt", "TruthfulnessScope", "TruthfulnessTier"),
-            ),
-            (
-                "foundry/methods/catalog/snapshot.py",
-                truthfulness,
-                (
-                    "TruthfulnessStatus",
-                    "parse_truthfulness_scope",
-                    "parse_truthfulness_tier",
-                    "reconcile_truthfulness_tiers",
-                ),
-            ),
-            (
-                "foundry/methods/components/value_evidence.py",
-                truthfulness,
-                (
-                    "TruthfulnessReceipt",
-                    "TruthfulnessTier",
-                    "extract_truthfulness_receipt",
-                ),
-            ),
-            (
-                "foundry/methods/selection/advisor.py",
-                truthfulness,
-                (
-                    "parse_truthfulness_tier",
-                    "reconcile_truthfulness_tiers",
-                    "truthfulness_depth",
-                ),
-            ),
-        ]
-    )
+    assert rows == []
+
+    from polisyos.ir import analytics
+    from polisyos.ir.api import ANALYTICS_FACADE_EXPORTS
+
+    truthfulness_names = {
+        "TruthfulnessReceipt",
+        "TruthfulnessScope",
+        "TruthfulnessStatus",
+        "TruthfulnessTier",
+        "extract_truthfulness_receipt",
+        "parse_truthfulness_scope",
+        "parse_truthfulness_tier",
+        "reconcile_truthfulness_tiers",
+        "truthfulness_depth",
+        "validate_truthfulness_receipt",
+    }
+    assert truthfulness_names <= set(ANALYTICS_FACADE_EXPORTS)
+    assert {name for name in truthfulness_names if getattr(analytics, name) is None} == set()
 
     stub = SOURCE_ROOT / "foundry" / "methods" / "base.pyi"
     stub_tree = ast.parse(stub.read_text(encoding="utf-8"), filename=str(stub))

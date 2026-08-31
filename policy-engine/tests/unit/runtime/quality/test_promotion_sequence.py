@@ -83,7 +83,6 @@ from polisyos.runtime.quality.open_world_risk import (
     OpenWorldRiskPromotionGate,
     PromotionRuntime,
 )
-from polisyos.runtime.quality.workspace.loop import load_workspace_fixture_manifest
 from polisyos.runtime.quality.promotion_sequence import (
     CanonicalN9PromotionPort,
     CanonicalPromotionInput,
@@ -96,6 +95,7 @@ from polisyos.runtime.quality.promotion_sequence import (
     run_canonical_promotion_sequence,
     validate_canonical_promotion_receipt,
 )
+from polisyos.runtime.quality.workspace.loop import load_workspace_fixture_manifest
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -395,9 +395,7 @@ def test_round1_v5_v2_receipt_round_trips_but_cannot_regain_current_authority() 
     assert isinstance(parsed, CanonicalPromotionReceipt)
     assert parsed.schema_version.endswith(".v5")
     assert parsed.owner_projection.schema_version.endswith(".v3")
-    assert {
-        row.instance_scope_content_hash for row in parsed.obligations
-    } == {
+    assert {row.instance_scope_content_hash for row in parsed.obligations} == {
         promotion_sequence_module._obligation_instance_scope_content_hash(
             promotion_sequence_module._input_from_owner_projection(
                 parsed.owner_projection,
@@ -1472,7 +1470,7 @@ def test_invented_measurement_marker_does_not_supply_authority() -> None:
     measurement = _obligation(receipt, PromotionObligationClass.MEASUREMENT)
     assert measurement.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
     assert measurement.owner_ref.endswith("MeasurementRootProducer.produce_from_catalog")
-    assert "bridge_missing" in measurement.detail
+    assert "evidence_not_established" in measurement.detail
 
 
 def _independence_portfolio_design() -> dict[str, object]:
@@ -1608,9 +1606,7 @@ def test_real_dependent_independence_graph_refuses_legacy_true(
         portfolio_designs=(_independence_portfolio_design(),),
         graph_id="effective-independence:n9-dependent",
     )
-    bridged_input = promotion_input.model_copy(
-        update={"producer_root_refs": (bridge_ref,)}
-    )
+    bridged_input = promotion_input.model_copy(update={"producer_root_refs": (bridge_ref,)})
 
     receipt = run_canonical_promotion_sequence(
         bridged_input,
@@ -1633,6 +1629,36 @@ def test_real_dependent_independence_graph_refuses_legacy_true(
     )
 
 
+def test_empty_independence_graph_cannot_establish_promotion_evidence(
+    tmp_path: Path,
+) -> None:
+    promotion_input = _promotion_input()
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=FileSystemCAS(tmp_path / "cas")
+    )
+    bridge_ref = repository.persist_effective_independence(
+        promotion_input=promotion_input,
+        evidence_lines=(),
+        portfolio_designs=(),
+        graph_id="effective-independence:n9-empty",
+    )
+    bridged_input = promotion_input.model_copy(update={"producer_root_refs": (bridge_ref,)})
+
+    receipt = run_canonical_promotion_sequence(
+        bridged_input,
+        confidence_ledger_session=_ledger_session(binding=bridged_input.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    row = next(
+        item
+        for item in receipt.obligations
+        if item.source_obligation_ref.endswith("#effective_independence")
+    )
+
+    assert row.status == PromotionObligationStatus.FAILED
+    assert "no_support_evidence" in row.detail
+
+
 def test_real_measurement_root_resolves_and_binds_into_n9(tmp_path: Path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     catalog = build_slice0_fixture_catalog_graph(tmp_path)
@@ -1647,8 +1673,14 @@ def test_real_measurement_root_resolves_and_binds_into_n9(tmp_path: Path) -> Non
         promotion_input=promotion_input,
         envelope=envelope,
     )
+    independence_ref = repository.persist_effective_independence(
+        promotion_input=promotion_input,
+        evidence_lines=(_independence_line("publication-1", primary_source="journal"),),
+        portfolio_designs=(_independence_portfolio_design(),),
+        graph_id="effective-independence:n9-established",
+    )
     bridged_input = promotion_input.model_copy(
-        update={"producer_root_refs": (bridge_ref,)}
+        update={"producer_root_refs": (bridge_ref, independence_ref)}
     )
 
     receipt = run_canonical_promotion_sequence(
@@ -1661,11 +1693,142 @@ def test_real_measurement_root_resolves_and_binds_into_n9(tmp_path: Path) -> Non
     assert measurement.status == PromotionObligationStatus.SATISFIED
     assert measurement.owner_ref.endswith("MeasurementRootProducer.produce_from_catalog")
     assert envelope.payload_ref in measurement.evidence_refs
+    independence = next(
+        item
+        for item in receipt.obligations
+        if item.source_obligation_ref.endswith("#effective_independence")
+    )
+    assert independence.status == PromotionObligationStatus.SATISFIED
+    assert independence.owner_ref.endswith("build_effective_independence_graph")
 
     unresolved = _run(bridged_input)
     unresolved_measurement = _obligation(unresolved, PromotionObligationClass.MEASUREMENT)
     assert unresolved_measurement.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
     assert "evidence_not_established" in unresolved_measurement.detail
+    unresolved_independence = next(
+        item
+        for item in unresolved.obligations
+        if item.source_obligation_ref.endswith("#effective_independence")
+    )
+    assert unresolved_independence.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+
+    pilot_value = _value_receipt().model_copy(update={"evaluation_mode": "field_pilot"})
+    pilot_input = bridged_input.model_copy(update={"value_receipt": pilot_value})
+    pilot_receipt = run_canonical_promotion_sequence(
+        pilot_input,
+        confidence_ledger_session=_ledger_session(binding=pilot_input.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+
+    for design_class, current in (
+        ("data_only", receipt),
+        ("field_pilot", pilot_receipt),
+    ):
+        production = tuple(
+            promotion_sequence_module._refusal_reasons(
+                current.obligations,
+                risk_spend=current.risk_spend,
+            )
+        )
+        contract = tuple(
+            promotion_sequence_module._refusal_reasons(
+                current.obligations,
+                risk_spend=current.risk_spend,
+                allow_non_authoritative_contract_scope_gaps=True,
+            )
+        )
+        production_scope = tuple(
+            reason for reason in production if reason.endswith(":scope_insufficient")
+        )
+        contract_scope = tuple(
+            reason for reason in contract if reason.endswith(":scope_insufficient")
+        )
+        expected_production_scope = (
+            ("effect:scope_insufficient",)
+            if design_class == "data_only"
+            else ("effect:scope_insufficient", "eval_safety:scope_insufficient")
+        )
+        assert production_scope == expected_production_scope
+        assert len(production) == (3 if design_class == "data_only" else 4)
+        assert len(contract) == 2
+        assert contract_scope == ()
+        print(
+            f"AFTER CLASS={design_class} "
+            f"PRODUCTION={len(production)}/{len(production_scope)} "
+            f"CONTRACT={len(contract)}/{len(contract_scope)} "
+            f"PRODUCTION_REASONS={'|'.join(production)} "
+            f"CONTRACT_REASONS={'|'.join(contract)}"
+        )
+
+
+def test_foreign_candidate_and_wrong_verifier_provenance_fail_closed(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    promotion_input = _promotion_input()
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(store=store)
+    bridge_ref = repository.persist_effective_independence(
+        promotion_input=promotion_input,
+        evidence_lines=(_independence_line("publication-1", primary_source="journal"),),
+        portfolio_designs=(_independence_portfolio_design(),),
+        graph_id="effective-independence:n9-binding",
+    )
+    foreign_summary = _summary().model_copy(
+        update={"candidate_id": "candidate_foreign", "content_hash": _hash("f")}
+    )
+    foreign_input = promotion_input.model_copy(
+        update={
+            "candidate_summary": foreign_summary,
+            "producer_root_refs": (bridge_ref,),
+        }
+    )
+    foreign_receipt = run_canonical_promotion_sequence(
+        foreign_input,
+        confidence_ledger_session=_ledger_session(binding=foreign_input.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    foreign_row = next(
+        item
+        for item in foreign_receipt.obligations
+        if item.source_obligation_ref.endswith("#effective_independence")
+    )
+    assert foreign_row.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+
+    raw_record = json.loads(store.get_bytes(core_artifacts.ArtifactID(bridge_ref.artifact_id)))
+    record = promotion_sequence_module.N9PromotionEvidenceBridgeRecord.model_validate(raw_record)
+    wrong_verifier = store.put_bytes(
+        b"attacker-selected verifier\n",
+        core_artifacts.ArtifactWriteOptions(
+            kind="polisyos.gy.n9_promotion_evidence_verifier",
+            media_type="text/plain",
+        ),
+    )
+    forged = record.model_copy(update={"verifier_provenance_ref": str(wrong_verifier.artifact_id)})
+    forged_core_ref, _semantic_hash, _raw = promotion_sequence_module._persist_model(
+        store=store,
+        value=forged,
+        kind="polisyos.gy.n9_promotion_evidence_bridge",
+    )
+    forged_ref = ArtifactRef(
+        artifact_id=str(forged_core_ref.artifact_id),
+        artifact_type=bridge_ref.artifact_type,
+        content_hash=gy_content_hash(forged.model_dump(mode="json")),
+        schema_ref=bridge_ref.schema_ref,
+        uri=f"cas://{forged_core_ref.artifact_id}",
+        version=bridge_ref.version,
+    )
+    forged_input = promotion_input.model_copy(update={"producer_root_refs": (forged_ref,)})
+    forged_receipt = run_canonical_promotion_sequence(
+        forged_input,
+        confidence_ledger_session=_ledger_session(binding=forged_input.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    forged_row = next(
+        item
+        for item in forged_receipt.obligations
+        if item.source_obligation_ref.endswith("#effective_independence")
+    )
+    assert forged_row.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
 
 
 def test_eval_safety_names_the_missing_promotion_authority_without_reusing_o0() -> None:
@@ -1686,9 +1849,7 @@ def test_eval_safety_names_the_missing_promotion_authority_without_reusing_o0() 
 def test_n5_coupling_blocker_refuses_coupling() -> None:
     receipt = _run(
         _promotion_input(
-            summary=_summary().model_copy(
-                update={"value_blockers": ("n5_coupling_blocked",)}
-            )
+            summary=_summary().model_copy(update={"value_blockers": ("n5_coupling_blocked",)})
         )
     )
 
@@ -1724,8 +1885,9 @@ def test_effective_independence_missing_is_explicit_decisive_nonreceipt() -> Non
 
     assert len(rows) == 1
     assert rows[0].status == PromotionObligationStatus.SCOPE_INSUFFICIENT
-    assert rows[0].owner_ref == "absent/unallocated"
-    assert "producer_missing" in rows[0].detail
+    assert rows[0].owner_ref.endswith("build_effective_independence_graph")
+    assert "evidence_not_established" in rows[0].detail
+    assert "not production-orchestrated" in rows[0].detail
     production_reasons = promotion_sequence_module._refusal_reasons(
         receipt.obligations,
         risk_spend=receipt.risk_spend,

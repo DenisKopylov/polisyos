@@ -474,3 +474,73 @@ or the Claim head CAS advance; sharing those authority objects would repeat P05/
 - [ ] End the journal with exactly ten `closed`/`blocked` blocks, measured arithmetic, root
   mapping, normalization adoption status, watcher provenance/branches, copy denominator and
   falsifier, C13 residue, and every dashboard path changed.
+
+## Numeric execution aliases for the SDD runner — appended 2026-08-31
+
+The repository's task-brief extractor accepts numeric task headings only. Tasks 8–13 are
+the executable aliases for R2.1–R2.6 above; they narrow neither the approved design nor its
+global constraints.
+
+## Task 8: DS18 composition and bounded execution outcome
+
+Modify only `atlasHealthMetrics.ts` and its test; create the strict outcome module, JSON
+schema, and dashboard JS runner named in R2.1. First make the exact Vitest file fail on the
+missing transform/decoder. Then implement a strict `established | not_established` envelope,
+8,388,608-byte per-stream bounds, fatal UTF-8, fixed error codes, raw-byte digests, and a
+pure `primitiveAdoptionFromDs18Coverage` transform. Preserve the canonical Python checker's
+legacy interface and do not edit task G's Python adapter or task C's disposition checker.
+Prove live checker equality, synthetic 7/9 derivation, malformed UTF-8/JSON, invalid packet,
+both stream limits, and U+001C/U+FEFF equivalence. Commit after the focused Vitest file,
+typecheck, and diff review pass.
+
+## Task 9: Published-signature custody watcher
+
+Create `published_signature_custody.py`, export it, and add the smallest periodic maintenance
+callback to `ControlWorker`, `ControlPlaneService`, and the runtime container. The population
+port defaults to unappointed/not-established. The exact closure test uses a persisted
+`synthetic_test` population and must prove the non-empty receipt/event/lifecycle/outbox path
+and the empty `not_established` path through production code. Synthetic provenance may prove
+the mechanism only. Write and run the exact node red before implementation; add a deterministic
+autonomous-worker interval test; run only focused watcher/worker/control tests; commit after
+branch attachment and self-review.
+
+## Task 10: Source-derived trust-copy closure
+
+Create the dashboard AST/import-graph checker and typed trust-copy namespace wrapper named in
+R2.3, plus the exact repository-quality closure test. Derive the route closure from the real
+`APP_ROUTES`/`trustRoute` graph and derive every literal `/trust` inbound link by walking all
+tracked production TSX files. Report path and file-type denominators. Admit only strict posture
+fields, MACHINE bytes, audited trust keys, the derived landing key, and the brand literal;
+reject raw/direct/foreign/unbounded copy. Run the absent exact node red, implement, then prove a
+scratch-tree injected authoritative string makes the real checker exit nonzero. Run focused
+trust render tests and typecheck; commit after self-review.
+
+## Task 11: Candidate-band scope-adjudication artifact
+
+Create the strict core contract, tests, facade export, and README entry named in R2.4. Bind one
+plane, subject/rule refs, time roles, ordered predicates, five P37 classes, candidate-only
+disposition, explicit prohibited authority uses, and a canonical digest. First run tests red;
+then prove ordered four-way candidate derivation, mixed-plane and digest-substitution rejection,
+and typed limitations for unestablished predicates. Do not create the register's exact closure
+node or a production consumer. Run focused unit tests, Ruff, and direct importer checks; commit.
+
+## Task 12: Immutable dashboard freeze and evidence reissue
+
+After Tasks 8–11 and every targeted source check, commit and read back the final dashboard tree.
+Compute the complete tracked path rows/digest over the four receipt roots and publish the freeze
+announcement. Make no later dashboard/workspace-manifest edit. Send task C the freeze. Run two
+fresh no-writer page-a11y executions with separate outputs, zero retries, one worker, and snapshot
+updates disabled; require identical complete identities. Reissue the raw runs and current receipt,
+then run all eight receipt verifier/falsifier tests. Close the DS11 C13 half only on task C's valid
+receipt and both required checks; otherwise block it on that receipt at the exact freeze commit.
+
+## Task 13: Targeted terminal verification and ten-row dossier
+
+Run the exact changed nodes and proportional lint/type/import checks only. Re-run the debt checker,
+compare its unresolved identity set to the measured 18-finding base, and require no growth. Run
+docs lifecycle and require exactly six findings. Obtain independent whole-diff review and repair
+blocking findings before the final evidence wave. Append the freeze announcement near the top of
+the hand-back and end the journal with exactly ten closed/blocked blocks, measured arithmetic, the
+94-to-126 root mapping, normalization adoption/finding, watcher population provenance and two
+branches, trust closure denominator/falsifier, two distinct claim-lifecycle blockers, fourth-plan
+Trust Center/Docs routing, C13 residue, and every dashboard/workspace path changed.

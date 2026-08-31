@@ -491,3 +491,26 @@ mandate appointment may be substituted.
   the measure attached to every number.
 - [ ] Verify branch attachment, commit closeout, and read the committed branch
   diff and log back before reporting delivery.
+
+---
+
+## Round-2 append-only completion record — 2026-08-31
+
+Tasks 6-10 executed at source freeze `00dea19a8`. The strict-port decision is blocked by
+the two architect-accepted landing objects: a current route-to-N13b
+authority/attempt/constraints binding, and a production-distinguishable strict result
+plus tenant-guarded store seam through the protected contract corridor. No harness was
+wrapped or relabelled.
+
+The deterministic admission-bundle supply side is implemented: producer, authority
+artifact writer/signature/readback, immutable invocation mapping and existing gateway
+consumer are exercised together. The selector rule is derived from the actual route
+requirement and complete mutation-request field denominator. Its production signing
+slot remains typed and empty, so the row is blocked by the purpose-scoped signer alone.
+
+The final dossier standing is seven registered/specification rows = zero `closed` plus
+seven `blocked`; core four = zero `closed` plus four `blocked`; adjacent three = zero
+`closed` plus three `blocked`. `GY-GAP6` remains specification-only under Task E and
+contributes its existing registered blocked standing. Exact commands, exits,
+denominators, append-only register prose and the worker residual are recorded in the
+round-2 journal dossier.

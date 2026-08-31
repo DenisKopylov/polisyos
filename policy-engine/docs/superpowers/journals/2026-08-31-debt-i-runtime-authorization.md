@@ -208,3 +208,28 @@ Arithmetic: **3 rows = 3 closed + 0 blocked + 0 open**.
   finds zero statements / zero aliases / zero files; normalized exact grep outputs zero, 78 focused
   consumer tests pass, and the repository validation helper executes through the canonical facade.
   The compatibility residual is fully strangled by commit `1bee71f93`.”
+
+## Append-only DS17 literal command receipt
+
+This expands the compact `<exact projection and example>` notation above into the two literal
+commands that were replayed after the dossier commit. It does not change either verdict.
+
+Configured-root command:
+
+```sh
+POLISYOS_GOVERNED_ARTIFACT_ROOT="$PWD" uv run python -c 'import os; from pathlib import Path; import polisyos.runtime.http.openapi_contract as contract; from polisyos.runtime.http.services.confidence_ledger_risk_spend_projection import ConfidenceLedgerRiskSpendProjectionService; configured = os.environ.get("POLISYOS_GOVERNED_ARTIFACT_ROOT"); root = Path(configured) if configured else Path(contract.__file__).resolve().parents[4]; packet = ConfidenceLedgerRiskSpendProjectionService(root).get(); example = contract._confidence_ledger_risk_spend_example(); print({"configured_root": configured, "resolved_root": str(root.resolve()), "packet_type": type(packet).__name__, "availability": str(packet.availability), "projection_id": example["projection_id"], "status": example["payload"]["status"]})'
+```
+
+Exit 0 with configured and resolved root both equal to the linked worktree product root,
+`packet_type='AvailableConfidenceLedgerRiskSpendPacket'`, `availability='available'`,
+`projection_id='confidence-ledger-risk-spend'`, and `status='not_promoted'`.
+
+Unset-root command:
+
+```sh
+env -u POLISYOS_GOVERNED_ARTIFACT_ROOT uv run python -c 'import os; from pathlib import Path; import polisyos.runtime.http.openapi_contract as contract; from polisyos.runtime.http.services.confidence_ledger_risk_spend_projection import ConfidenceLedgerRiskSpendProjectionService; configured = os.environ.get("POLISYOS_GOVERNED_ARTIFACT_ROOT"); root = Path(configured) if configured else Path(contract.__file__).resolve().parents[4]; packet = ConfidenceLedgerRiskSpendProjectionService(root).get(); example = contract._confidence_ledger_risk_spend_example(); print({"configured_root": configured, "resolved_root": str(root.resolve()), "packet_type": type(packet).__name__, "availability": str(packet.availability), "projection_id": example["projection_id"], "status": example["payload"]["status"]})'
+```
+
+Exit 0 with `configured_root=None`; the module-derived root resolves to the same linked worktree
+product root and the packet type, availability, projection id, and status are identical to the
+configured-root run.

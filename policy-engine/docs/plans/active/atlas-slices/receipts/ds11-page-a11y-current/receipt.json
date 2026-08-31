@@ -1,0 +1,80 @@
+{
+  "schema_version": "policyos.ds11.page_a11y_current_receipt.v1",
+  "authority_purpose": "current_scoped_page_conformance",
+  "status": "passed",
+  "recorded_at_utc": "2026-08-31T14:38:12Z",
+  "issuer": "policyos.repository_test_harness",
+  "evidence_grade": "internal_recomputed",
+  "command": "PLAYWRIGHT_JSON_OUTPUT_FILE=<receipt-relative-output> corepack pnpm --filter @polisyos/runtime-dashboard run test:a11y:pages --reporter=json --workers=1 --retries=0 --update-snapshots=none",
+  "scope": {
+    "package": "@polisyos/runtime-dashboard",
+    "script": "test:a11y:pages",
+    "browser_project": "chromium",
+    "source_denominator": [
+      "apps/runtime-dashboard",
+      "package.json",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml"
+    ]
+  },
+  "limitations": [
+    "page_suite_conformance_not_human_behavior",
+    "internal_receipt_not_external_countersignature",
+    "rendered_presentation_not_source_language_authority"
+  ],
+  "human_behavior_status": "not_established",
+  "external_countersign_status": "not_established",
+  "source_language_authority": "not_conferred",
+  "source_binding": {
+    "predicate_class": "recomputed",
+    "path_count": 1314,
+    "source_set_digest": "sha256:dbf87693dde8107b4672a9cf52e5877ddb1b6b779b5424672002c2922c829bb5",
+    "dashboard_source_commit": "03c5783609271c27d6f3d212b76dda7eddef2074"
+  },
+  "raw_receipts": [
+    {
+      "run": 1,
+      "started_at_utc": "2026-08-31T14:32:39.355Z",
+      "results_path": "run-1/results.json",
+      "last_run_path": "run-1/last-run.json",
+      "results_sha256": "sha256:a627fcb01269bf29bdea156dc5730ec7de433374cf054d101195472686cbc12d",
+      "last_run_sha256": "sha256:91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "summary": {
+        "collected": 25,
+        "expected": 25,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0,
+        "exit_code": 0
+      }
+    },
+    {
+      "run": 2,
+      "started_at_utc": "2026-08-31T14:34:50.216Z",
+      "results_path": "run-2/results.json",
+      "last_run_path": "run-2/last-run.json",
+      "results_sha256": "sha256:5962d03b64d8afdeafe361f2872b7d13f69dc9e9fe4c264951795258b98bbc13",
+      "last_run_sha256": "sha256:91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "summary": {
+        "collected": 25,
+        "expected": 25,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0,
+        "exit_code": 0
+      }
+    }
+  ],
+  "replay_agreement": {
+    "completed_replays": 2,
+    "predicate_class": "independently_reconciled",
+    "identity_count": 25,
+    "identity_digest": "sha256:eb9e55ac5146b65f7261176a47b355cec93a78cfc92c47cdae5636958e48b390"
+  },
+  "toolchain": {
+    "node": "v22.22.2",
+    "pnpm": "10.33.2",
+    "playwright": "1.59.1"
+  },
+  "payload_digest": "sha256:fbc31d62b30afeb0897170b4443e744c389982338d50f2d23c6f8440452f1554"
+}

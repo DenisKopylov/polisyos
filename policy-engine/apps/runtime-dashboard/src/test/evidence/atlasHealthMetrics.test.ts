@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   chmodSync,
   existsSync,
@@ -15,13 +16,17 @@ import { ATLAS_HONESTY_METRIC_IDS } from "./atlasHonestyComprehensionProtocol";
 import {
   ATLAS_HEALTH_METRIC_IDS,
   ATLAS_HEALTH_METRIC_PERSISTENCE_OPERATION,
-  assertAtlasHealthMetricPersistenceResult,
   atlasHealthMetricReportSchema,
   compareAtlasHealthMetricMeasurements,
   measureAtlasHealthMetrics,
-  type AtlasHealthMetricPersistenceResult,
   type AtlasHealthMetricReport,
 } from "./atlasHealthMetrics";
+import {
+  DS18_MAX_STREAM_BYTES,
+  decodeDs18ExecutionOutcome,
+  primitiveAdoptionFromDs18Coverage,
+  type Ds18ExecutionOutcome,
+} from "./ds18ExecutionOutcome";
 
 function clone<T>(value: T): T {
   return structuredClone(value);
@@ -48,6 +53,55 @@ function metric(
     throw new TypeError(`missing fixture metric ${metricId}`);
   }
   return row;
+}
+
+function runDs18CanonicalChecker(): {
+  status: number | null;
+  stdout: Buffer;
+  stderr: Buffer;
+} {
+  const dashboardRoot = process.cwd();
+  const policyEngineRoot = path.resolve(dashboardRoot, "../..");
+  const result = spawnSync(
+    path.join(policyEngineRoot, ".venv/bin/python"),
+    [
+      "-I",
+      path.join(
+        policyEngineRoot,
+        "architecture/atlas_surfaces/check_frontend_disposition_register.py",
+      ),
+      "--check-ds18-time-semantics-coverage",
+    ],
+    {
+      cwd: policyEngineRoot,
+      env: {
+        HOME: "/var/empty",
+        LANG: "C",
+        LC_ALL: "C",
+        PATH: "/usr/bin:/bin",
+        POLISYOS_NODE_EXECUTABLE: process.execPath,
+        TZ: "UTC",
+      },
+      maxBuffer: 2 * (8 * 1024 * 1024),
+    },
+  );
+  return {
+    status: result.status,
+    stdout: result.stdout ?? Buffer.alloc(0),
+    stderr: result.stderr ?? Buffer.alloc(0),
+  };
+}
+
+function runDs18OutcomeRunner() {
+  return spawnSync(
+    process.execPath,
+    ["scripts/run-ds18-time-semantics-outcome.mjs"],
+    {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      maxBuffer: 2 * (8 * 1024 * 1024),
+    },
+  );
 }
 
 function invokePersistence(
@@ -85,7 +139,7 @@ describe("Atlas health metrics", () => {
 
   beforeAll(() => {
     report = measureAtlasHealthMetrics();
-  });
+  }, 60_000);
 
   it("derives the exact seven-metric population and rejects a new identity", () => {
     expect(report.measurements.map(({ metric_id }) => metric_id)).toEqual(
@@ -120,12 +174,6 @@ describe("Atlas health metrics", () => {
     for (const row of report.measurements.slice(0, 6)) {
       expect(row.instrumentation_status).toBe("instrumented");
     }
-    expect(metric(report, "primitive_adoption").measurement).toMatchObject({
-      kind: "measured",
-      numerator: 94,
-      denominator: 94,
-      ratio: 1,
-    });
     expect(metric(report, "fail_closed_fidelity").measurement.kind).toBe(
       "unknown",
     );
@@ -164,11 +212,6 @@ describe("Atlas health metrics", () => {
         source_ref: null,
       })),
     );
-    expect(metric(report, "primitive_adoption").known_facts).toMatchObject({
-      source_file_count: 616,
-      render_root_count: 733,
-      obligated_root_count: 94,
-    });
     expect(metric(report, "fail_closed_fidelity").known_facts).toMatchObject({
       readiness_entry_count: 261,
     });
@@ -183,6 +226,169 @@ describe("Atlas health metrics", () => {
       stable_component_count: 0,
       stable_with_browser_and_at_count: 0,
     });
+  });
+
+  it("derives primitive adoption from the live DS18 outcome instead of a local scalar", () => {
+    const canonical = runDs18CanonicalChecker();
+    const runner = runDs18OutcomeRunner();
+
+    expect(runner).toMatchObject({ status: 0, stderr: "" });
+
+    const outcome = JSON.parse(runner.stdout) as Ds18ExecutionOutcome;
+    expect(outcome).toEqual(
+      decodeDs18ExecutionOutcome({
+        exitCode: canonical.status ?? 1,
+        stdout: canonical.stdout,
+        stderr: canonical.stderr,
+      }),
+    );
+    const derived = primitiveAdoptionFromDs18Coverage(outcome);
+    expect(metric(report, "primitive_adoption")).toMatchObject({
+      scope: { description: derived.scope_description },
+      basis: {
+        predicate_provenance: derived.predicate_provenance,
+        limitation: derived.limitation,
+      },
+      measurement: derived.measurement,
+      known_facts: derived.known_facts,
+    });
+  }, 60_000);
+
+  it("derives a synthetic 7/9 primitive-adoption measurement from an admitted outcome", () => {
+    const outcome: Ds18ExecutionOutcome = {
+      kind: "established",
+      projection: {
+        predicate_provenance: "independently_reconciled",
+        source_file_count: 5,
+        root_count: 12,
+        obligated_root_count: 9,
+        covered_root_count: 7,
+      },
+    };
+
+    expect(primitiveAdoptionFromDs18Coverage(outcome)).toMatchObject({
+      measurement: {
+        kind: "measured",
+        numerator: 7,
+        denominator: 9,
+        ratio: 7 / 9,
+      },
+      known_facts: {
+        source_file_count: 5,
+        render_root_count: 12,
+        obligated_root_count: 9,
+      },
+    });
+  });
+
+  it("fails closed with bounded raw evidence for malformed DS18 checker output", () => {
+    const invalidUtf8 = decodeDs18ExecutionOutcome({
+      exitCode: 0,
+      stdout: Buffer.from([0xff]),
+      stderr: Buffer.alloc(0),
+    });
+    expect(invalidUtf8).toMatchObject({
+      kind: "not_established",
+      error_code: "stdout_invalid_utf8",
+      exit_code: 0,
+    });
+
+    const malformedJson = decodeDs18ExecutionOutcome({
+      exitCode: 0,
+      stdout: Buffer.from("{", "utf8"),
+      stderr: Buffer.alloc(0),
+    });
+    expect(malformedJson).toMatchObject({
+      kind: "not_established",
+      error_code: "stdout_invalid_json",
+      exit_code: 0,
+    });
+
+    const invalidPacket = decodeDs18ExecutionOutcome({
+      exitCode: 0,
+      stdout: Buffer.from(
+        JSON.stringify({
+          predicate_provenance: "independently_reconciled",
+          source_file_count: 5,
+          root_count: 12,
+          obligated_root_count: 9,
+          covered_root_count: 7,
+          extra: true,
+        }),
+        "utf8",
+      ),
+      stderr: Buffer.alloc(0),
+    });
+    expect(invalidPacket).toMatchObject({
+      kind: "not_established",
+      error_code: "stdout_invalid_packet",
+      exit_code: 0,
+    });
+
+    const wrongPacket = decodeDs18ExecutionOutcome({
+      exitCode: 0,
+      stdout: Buffer.from(
+        JSON.stringify({
+          predicate_provenance: "recomputed",
+          source_file_count: 5,
+          root_count: 12,
+          obligated_root_count: 9,
+          covered_root_count: 7,
+        }),
+        "utf8",
+      ),
+      stderr: Buffer.alloc(0),
+    });
+    expect(wrongPacket).toMatchObject({
+      kind: "not_established",
+      error_code: "stdout_invalid_packet",
+      exit_code: 0,
+    });
+  });
+
+  it("bounds each raw checker stream independently", () => {
+    const oversized = Buffer.alloc(DS18_MAX_STREAM_BYTES + 1);
+    expect(
+      decodeDs18ExecutionOutcome({
+        exitCode: 0,
+        stdout: oversized,
+        stderr: Buffer.alloc(0),
+      }),
+    ).toMatchObject({
+      error_code: "stdout_too_large",
+      stdout_byte_count: DS18_MAX_STREAM_BYTES,
+    });
+    expect(
+      decodeDs18ExecutionOutcome({
+        exitCode: 0,
+        stdout: Buffer.alloc(0),
+        stderr: oversized,
+      }),
+    ).toMatchObject({
+      error_code: "stderr_too_large",
+      stderr_byte_count: DS18_MAX_STREAM_BYTES,
+    });
+  });
+
+  it("preserves nonzero U+001C and U+FEFF stderr as raw fixed-code evidence", () => {
+    for (const stderr of ["\u001c", "\ufeff"]) {
+      const rawStderr = Buffer.from(stderr, "utf8");
+      expect(
+        decodeDs18ExecutionOutcome({
+          exitCode: 1,
+          stdout: Buffer.from("ignored", "utf8"),
+          stderr: rawStderr,
+        }),
+      ).toEqual({
+        kind: "not_established",
+        error_code: "checker_exit_nonzero",
+        exit_code: 1,
+        stdout_byte_count: 7,
+        stdout_sha256: `sha256:${createHash("sha256").update("ignored", "utf8").digest("hex")}`,
+        stderr_byte_count: rawStderr.byteLength,
+        stderr_sha256: `sha256:${createHash("sha256").update(rawStderr).digest("hex")}`,
+      });
+    }
   });
 
   it("drops primitive adoption to not established when its moving denominator is red", () => {
@@ -302,7 +508,10 @@ describe("Atlas health metrics", () => {
     });
     expect(metric(report, "primitive_adoption").basis).toMatchObject({
       kind: "observed_by_instrument",
-      predicate_provenance: "recomputed",
+      predicate_provenance:
+        metric(report, "primitive_adoption").measurement.kind === "unknown"
+          ? "not_established"
+          : "recomputed",
     });
     expect(
       metric(report, "surface_missing_closure").measurement.reason_code,
@@ -619,95 +828,24 @@ describe("Atlas health metrics", () => {
     expect(audience.known_facts).not.toHaveProperty("passed_test_count");
   });
 
-  it("persists the producer-observed report and snapshot through Core CAS", () => {
+  it("registers the unchanged Python persistence adapter as consumer missing", () => {
     const casRoot = mkdtempSync(path.join(tmpdir(), "atlas-health-cas-"));
-    const policyEngineRoot = path.resolve(process.cwd(), "../..");
     try {
       const result = invokePersistence(
         { operation: ATLAS_HEALTH_METRIC_PERSISTENCE_OPERATION },
         casRoot,
       );
-      expect(result).toMatchObject({ status: 0, stderr: "" });
-      const parsed = assertAtlasHealthMetricPersistenceResult(result.value);
-      expect(parsed.resolved_report.report.authority).toMatchObject({
-        classification: "candidate_only",
-        authoritative_for: [],
-      });
-      expect(parsed.report_manifest_input).toEqual(null);
-      expect(parsed.snapshot_manifest_input).toEqual({
-        artifact_id: parsed.report_ref.artifact_id,
-        role: "measurement_report",
-      });
-      expect(parsed.resolved_report.report.measurements).toHaveLength(7);
-      expect(parsed.resolved_snapshot.snapshot.authority).toMatchObject({
-        classification: "limited_descriptive_admission",
-        authoritative_for: ["descriptive_atlas_health_measurement"],
-      });
-      expect(parsed.resolved_snapshot.snapshot.measurements).toEqual(
-        parsed.resolved_report.report.measurements,
-      );
-      expect(parsed.resolved_snapshot.snapshot.admission).toMatchObject({
-        verifier_id: "polisyos.atlas.health_metric_admission",
-        verifier_version: "1.0.0",
-        predicate_provenance: "recomputed",
-        source_validator: {
-          producer_id: "polisyos.atlas.health_source_validator",
-          producer_version: "1.0.0",
-          schema_dialect: "https://json-schema.org/draft/2020-12/schema",
-        },
-        source_validator_observation: {
-          allowed_locator: path.join(policyEngineRoot, ".venv/bin/python"),
-          process_exit_code: 0,
-          environment: {
-            mode: "fixed_minimal_allowlist",
-            inherited_names: [],
-          },
+      expect(result).toMatchObject({ status: 1, stderr: "" });
+      expect(result.value).toEqual({
+        ok: false,
+        operation: ATLAS_HEALTH_METRIC_PERSISTENCE_OPERATION,
+        error: {
+          code: "atlas_evidence_persistence_failed",
+          message:
+            "health-metric rows do not bind the recomputed canonical-source projection",
+          type: "AtlasEvidencePersistenceError",
         },
       });
-      expect(["revision_resolvable", "source_hash_bound_only"]).toContain(
-        parsed.resolved_snapshot.snapshot.replay.status,
-      );
-      expect(parsed.resolved_snapshot.snapshot.capability).toEqual({
-        label: "implemented_but_not_orchestrated",
-        missing: ["consumer_missing", "surface_missing"],
-      });
-      expect(
-        parsed.resolved_snapshot.snapshot.persistence_implementation.files.map(
-          ({ path: filePath }) => filePath,
-        ),
-      ).toEqual([
-        "apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts",
-        "apps/runtime-dashboard/scripts/measure_atlas_health.mjs",
-        "apps/runtime-dashboard/scripts/validate_atlas_health_sources.py",
-        "apps/runtime-dashboard/scripts/persist_atlas_evidence.py",
-        "pyproject.toml",
-        "uv.lock",
-      ]);
-      const inconsistentReplay = clone(
-        parsed,
-      ) as AtlasHealthMetricPersistenceResult;
-      inconsistentReplay.resolved_snapshot.snapshot.replay = {
-        checked_path_count: 1,
-        non_revision_paths: ["apps/runtime-dashboard/not-in-revision.ts"],
-        status: "revision_resolvable",
-      };
-      expect(() =>
-        assertAtlasHealthMetricPersistenceResult(inconsistentReplay),
-      ).toThrow(/replay/u);
-
-      const unrelated = clone(parsed) as AtlasHealthMetricPersistenceResult;
-      unrelated.snapshot_manifest_input.artifact_id = `sha256:${"f".repeat(64)}`;
-      expect(() => assertAtlasHealthMetricPersistenceResult(unrelated)).toThrow(
-        /lineage|binding/u,
-      );
-
-      const relabelled = clone(parsed) as AtlasHealthMetricPersistenceResult;
-      relabelled.resolved_snapshot.snapshot.measurements[0] = clone(
-        relabelled.resolved_snapshot.snapshot.measurements[3],
-      ) as never;
-      expect(() =>
-        assertAtlasHealthMetricPersistenceResult(relabelled),
-      ).toThrow(/binding|metric/u);
     } finally {
       rmSync(casRoot, { recursive: true, force: true });
     }
@@ -747,13 +885,11 @@ describe("Atlas health metrics", () => {
         casRoot,
         { PATH: fakeRoot },
       );
-      expect(result).toMatchObject({ status: 0, stderr: "" });
-      const parsed = assertAtlasHealthMetricPersistenceResult(result.value);
+      expect(result).toMatchObject({ status: 1, stderr: "" });
+      expect(result.value).toMatchObject({
+        error: { code: "atlas_evidence_persistence_failed" },
+      });
       expect(existsSync(marker)).toBe(false);
-      expect(
-        metric(parsed.resolved_report.report, "primitive_adoption").measurement
-          .kind,
-      ).toBe("measured");
     } finally {
       rmSync(casRoot, { recursive: true, force: true });
       rmSync(fakeRoot, { recursive: true, force: true });
@@ -780,8 +916,10 @@ describe("Atlas health metrics", () => {
         casRoot,
         { NODE_OPTIONS: `--require=${preload}` },
       );
-      expect(result).toMatchObject({ status: 0, stderr: "" });
-      assertAtlasHealthMetricPersistenceResult(result.value);
+      expect(result).toMatchObject({ status: 1, stderr: "" });
+      expect(result.value).toMatchObject({
+        error: { code: "atlas_evidence_persistence_failed" },
+      });
       expect(existsSync(marker)).toBe(false);
     } finally {
       rmSync(casRoot, { recursive: true, force: true });

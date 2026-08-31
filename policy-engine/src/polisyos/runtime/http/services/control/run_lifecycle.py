@@ -173,6 +173,9 @@ from polisyos.scientist import (
     build_epoch_claim_lifecycle_bridge,
 )
 from polisyos.scientist.governance.continuous import (
+    PublicSignaturePopulationProvider,
+    PublishedSignatureCustodyResult,
+    PublishedSignatureCustodyWatcher,
     resolve_governance_monitor_event,
 )
 from polisyos.scientist.orchestration.llm.provider_verification import run_provider_preflight
@@ -337,6 +340,23 @@ class _ControlEvaluationSafetyResult:
     @property
     def blocked(self) -> bool:
         return self.persisted.decision.safety.status == "blocked"
+
+
+@dataclass(frozen=True, slots=True)
+class PublishedSignatureCustodyLifecyclePublication:
+    """Narrow internal publication result for advisory signature-custody maintenance.
+
+    This deliberately does not reuse the HTTP monitor response because custody
+    staleness is not an epoch perturbation and therefore has no epoch-advisory
+    receipt to expose.
+    """
+
+    event_id: str
+    dedupe_key: str
+    affected_packets: list[str]
+    affected_statuses: dict[str, int]
+    monitor_event_ref: ArtifactRef
+    lifecycle_bridge_result_ref: ArtifactRef
 
 
 if TYPE_CHECKING:
@@ -1199,6 +1219,7 @@ class ControlPlaneService(
         promotion_runtime: PromotionRuntime | None = None,
         epoch_claim_lifecycle_bridge: EpochClaimLifecycleBridgeService | None = None,
         evaluation_safety_persistence_service: EvaluationSafetyPersistenceService | None = None,
+        published_signature_population_provider: PublicSignaturePopulationProvider | None = None,
     ) -> None:
         from polisyos.fabric.retrieval import RetrievalService
 
@@ -1337,6 +1358,12 @@ class ControlPlaneService(
                 raise ValueError("epoch_claim_lifecycle_bridge_owner_store_mismatch")
             self._epoch_claim_lifecycle_bridge = epoch_claim_lifecycle_bridge
 
+        self._published_signature_custody_watcher = PublishedSignatureCustodyWatcher(
+            store=self._artifact_store,
+            population_provider=published_signature_population_provider,
+            lifecycle_publisher=self.publish_published_signature_custody_event,
+        )
+
         self._retrieval = retrieval_service or RetrievalService(
             curated_dir=_resolve_curated_dir(),
             cas_root=cas_root,
@@ -1347,6 +1374,7 @@ class ControlPlaneService(
             self._worker = ControlWorker(
                 store=self._control_store,
                 handler=self._process_control_job,
+                maintenance_callback=self.run_published_signature_custody_maintenance,
             )
             self._worker.start()
 
@@ -1368,6 +1396,11 @@ class ControlPlaneService(
         return self._promotion_runtime.epoch_validity_gate.reconcile_before_n9(
             subject_ref=subject_ref
         )
+
+    def run_published_signature_custody_maintenance(self) -> PublishedSignatureCustodyResult:
+        """Run the container-composed published-signature watcher without an HTTP request."""
+
+        return self._published_signature_custody_watcher.scan_once()
 
     async def compile_and_run_recursive_generation_cycle(
         self,
@@ -2965,7 +2998,8 @@ class ControlPlaneService(
         monitor_event_ref: ArtifactRef,
         *,
         request_id: str | None,
-    ) -> DecisionValidityEventResponse:
+        published_signature_custody: bool = False,
+    ) -> DecisionValidityEventResponse | PublishedSignatureCustodyLifecyclePublication:
         """Content-bind the monitor arm before deriving any lifecycle consequence."""
 
         try:
@@ -2980,15 +3014,24 @@ class ControlPlaneService(
             ) from exc
         event = persisted.event
         perturbation = event.perturbation
-        if perturbation is None:
+        if perturbation is None and not published_signature_custody:
             raise unprocessable_entity(
                 "The monitor event does not carry a typed epoch perturbation.",
                 code="monitor_event_perturbation_missing",
             )
-        if event.observed_epoch_ref is None:
+        if event.observed_epoch_ref is None and not published_signature_custody:
             raise unprocessable_entity(
                 "The monitor event does not bind the epoch in which it was observed.",
                 code="monitor_event_epoch_binding_missing",
+            )
+        if published_signature_custody and (
+            perturbation is not None
+            or event.scope.get("custody_subject") != "published_signature"
+            or event.metadata.get("published_signature_custody") != "advisory"
+        ):
+            raise unprocessable_entity(
+                "The custody watcher event is not an advisory published-signature signal.",
+                code="published_signature_custody_event_invalid",
             )
 
         try:
@@ -3006,20 +3049,30 @@ class ControlPlaneService(
                 "The lifecycle bridge resolved different monitor bytes.",
                 code="monitor_event_lifecycle_bridge_rejected",
             )
-        try:
-            advisory_event_ref = persist_advisory_perturbation_event(
-                store=self._artifact_store,
-                persisted_monitor_event=persisted,
-            )
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
-            raise unprocessable_entity(
-                "The monitor event could not be bound to the epoch advisory stream.",
-                code="monitor_event_epoch_advisory_rejected",
-            ) from exc
+        advisory_event_ref: ArtifactRef | None = None
+        if not published_signature_custody:
+            try:
+                advisory_event_ref = persist_advisory_perturbation_event(
+                    store=self._artifact_store,
+                    persisted_monitor_event=persisted,
+                )
+            except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise unprocessable_entity(
+                    "The monitor event could not be bound to the epoch advisory stream.",
+                    code="monitor_event_epoch_advisory_rejected",
+                ) from exc
 
-        source_class = perturbation.source_class
+        source_class = (
+            "published_signature_custody"
+            if published_signature_custody
+            else perturbation.source_class
+        )
         trigger = DecisionTriggerRecord(
-            trigger_type=_MONITOR_TRIGGER_BY_SOURCE_CLASS[source_class],
+            trigger_type=(
+                DecisionTriggerType.POST_DEPLOYMENT_REFUTATION
+                if published_signature_custody
+                else _MONITOR_TRIGGER_BY_SOURCE_CLASS[source_class]
+            ),
             status=(
                 DecisionValidityStatus.WARNING
                 if event.advisory_posture == "annotation_only"
@@ -3031,7 +3084,11 @@ class ControlPlaneService(
                 "monitor_event_ref": monitor_event_ref.model_dump(mode="json"),
                 "source_class": source_class,
                 "observed_epoch_ref": event.observed_epoch_ref,
-                "advisory_event_ref": advisory_event_ref.model_dump(mode="json"),
+                "advisory_event_ref": (
+                    advisory_event_ref.model_dump(mode="json")
+                    if advisory_event_ref is not None
+                    else None
+                ),
             },
         )
         evaluation = self._decision_validity_service.mark_packet_trigger(
@@ -3042,19 +3099,36 @@ class ControlPlaneService(
         affected_packets = [str(event.decision_packet_ref.artifact_id)]
         affected_statuses = {evaluation.status.value: 1}
         self._control_store.enqueue_outbox_event(
-            topic="control.decision_validity.monitor_event_published",
+            topic=(
+                "control.decision_validity.published_signature_custody"
+                if published_signature_custody
+                else "control.decision_validity.monitor_event_published"
+            ),
             event_key=dedupe_key,
             payload={
                 "event_id": event.event_id,
                 "dedupe_key": dedupe_key,
                 "monitor_event_ref": monitor_event_ref.model_dump(mode="json"),
                 "lifecycle_bridge_result_ref": bridge.result_ref.model_dump(mode="json"),
-                "advisory_event_ref": advisory_event_ref.model_dump(mode="json"),
+                "advisory_event_ref": (
+                    advisory_event_ref.model_dump(mode="json")
+                    if advisory_event_ref is not None
+                    else None
+                ),
                 "source_class": source_class,
                 "affected_packets": affected_packets,
                 "affected_statuses": affected_statuses,
             },
         )
+        if published_signature_custody:
+            return PublishedSignatureCustodyLifecyclePublication(
+                event_id=event.event_id,
+                dedupe_key=dedupe_key,
+                affected_packets=affected_packets,
+                affected_statuses=affected_statuses,
+                monitor_event_ref=monitor_event_ref,
+                lifecycle_bridge_result_ref=bridge.result_ref,
+            )
         return DecisionValidityEventResponse(
             meta=_build_api_meta(request_id),
             event_id=event.event_id,
@@ -3069,6 +3143,21 @@ class ControlPlaneService(
                 "the claim lifecycle and epoch advisory stream."
             ),
         )
+
+    def publish_published_signature_custody_event(
+        self,
+        monitor_event_ref: ArtifactRef,
+    ) -> PublishedSignatureCustodyLifecyclePublication:
+        """Bridge one persisted advisory signature-custody event into lifecycle and outbox state."""
+
+        result = self._publish_monitor_decision_validity_event(
+            monitor_event_ref,
+            request_id=None,
+            published_signature_custody=True,
+        )
+        if not isinstance(result, PublishedSignatureCustodyLifecyclePublication):
+            raise RuntimeError("published_signature_custody_publication_type_mismatch")
+        return result
 
     def admit_epoch_validity_batch(
         self,

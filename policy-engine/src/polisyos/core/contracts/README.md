@@ -32,6 +32,11 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
   persisted gate evidence, complete pending/completed batch receipts, and the exact persisted
   completion evidence used by downstream owners. Request DTOs never carry status, targets,
   verifier identity, or owner denominators.
+- **Scope-adjudication candidates** - `scope_adjudication.py` content-binds one candidate,
+  one custody plane, the ratified rule, validity/knowledge times, and the three ordered four-way
+  predicate observations. Every artifact is `candidate_only`, has no authority or closure effect,
+  and names the unappointed predicate resolver and claim-lifecycle consumer. It is not a scope
+  ruling, publication authorization, or claim-head command.
 
 ## Public API
 
@@ -65,4 +70,6 @@ Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDe
 - The bounded-liveness contract family now carries governed deadline and retry ceilings for runtime producer waits.
 - The Policy Design Case projection contract is now a strict shared DTO for runtime/control
   responses, OpenAPI, and generated clients.
+- The scope-adjudication candidate contract preserves the absence of its production resolver and
+  consumer as typed limitations; no production orchestration or public/audit surface is appointed.
 - `core.contracts` still acts as the stable import surface for runtime/control payloads while analytics refs continue to be re-exported for compatibility.

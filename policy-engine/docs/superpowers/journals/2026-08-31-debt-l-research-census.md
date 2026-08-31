@@ -373,3 +373,47 @@ not claim the file exists or execute GY-VC1.
 The final focused tests, debt-ledger set reconciliation, documentation lifecycle replay, lint, syntax,
 branch attachment, commit, and branch readback are appended after source freeze. Corrections are
 append-only.
+
+### Append-only closeout receipt
+
+Source/research freeze commit: `2e8ca9520` (`test: close task l research censuses`).
+
+- Focused semantic command:
+  `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q -p no:cacheprovider tests/repo_quality/test_task_l_research_censuses.py`
+  — exit `0`; every Task L census, real persistence E2E, reconciliation and corrupt-field node is
+  green. The only output note is the pre-existing unknown `cache_dir` pytest configuration warning.
+- DS9 attempted/committed command, selecting the crash-reservation recovery node and the
+  microsecond-boundary commit node — exit `0`.
+- Quarantine command, selecting the concrete port binding and durable worker terminal nodes — exit
+  `0`.
+- The higher-level DS9 signed-orphan crash node exits `1` before its commit mutation because the
+  current fixture gate is `blocked`. It is excluded from positive evidence for a stated property,
+  not hidden or repaired.
+- Ruff check and Ruff format-check over all Task L Python/test files exit `0`; `node --check` for the
+  standalone parser exits `0`.
+- Repository-root Prettier is absent (`corepack pnpm exec prettier --check ...` exits `254`, command
+  not found). This is the documented tooling non-receipt, not a product/test failure; no substitute
+  formatter or generated rewrite was used.
+- Final debt-ledger replay at frozen commit `2e8ca9520` uses the same command as the entry replay and
+  exits `1`. The complete `closure_signal_identity_unresolvable` set is byte-for-byte the same set of
+  **15** IDs as at entry: `DS11-EXTERNAL-A11Y-COUNTERSIGN`,
+  `DS11-FULL-TRUST-CENTER-AND-DOCS-IA`, `DS11-GROUNDED-PERFORMANCE`,
+  `DS11-PUBLIC-SIGNATURE-POPULATION`, `DS11-SCOPE-ADJUDICATION-RECORD`,
+  `decision-validity-fixed-temp-concurrency`, `ds10-adapter-admission-capability-discovery-bridge`,
+  `ds10-adapter-registry-data-only-free-growth`, `ds10-causal-method-index-provider-bridge`,
+  `ds10-connector-acquisition-content`, `ds10-global-case-index-producer-allocation`,
+  `ds10-layer3-owner-ledger-rejection-richness`, `ds10-owner-signed-capability-purpose-binding`,
+  `ds10-public-decision-rendering`, and `ds10-world-agent-capability-discovery-boundary`. Head-minus-base
+  and base-minus-head are both empty; this lane did not grow the blocker set.
+- The only post-replay append is this journal receipt. `check_debt_ledger.py` declares its document
+  inputs as the architect-owned Register, GY plan, Atlas plan/surfaces, LEDGER, Atlas slice plans and
+  `docs/superpowers/plans`; `docs/superpowers/journals` is outside that complete input denominator.
+  The expensive replay is therefore not re-priced by recording its result.
+- Final docs-lifecycle replay exits `1` with exactly the entry set: the two LEDGER frontmatter findings
+  and four stale removed-root-token findings outside this lane. This journal creates no seventh
+  finding.
+- Both active-plan Markdown derivations remain **89/89** with equal paths and no Task L ID under an
+  explicit-non-closure section.
+- `git diff --name-only 83f69c3c0..2e8ca9520 -- src apps packages frontend ops schemas architecture`
+  is empty. The committed paths are research, journal and one repo-quality test only. No live-lane
+  source file or architect-owned register/plan was edited.

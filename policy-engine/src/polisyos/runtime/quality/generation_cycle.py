@@ -2016,7 +2016,9 @@ class FoundryValuePort:
             )
             admission = verifier.require_admission(context, challenge)
             if (
-                not evaluation_safety_consumer_admission_is_verified(admission, context, challenge)
+                not evaluation_safety_consumer_admission_is_verified(
+                    admission, context, challenge
+                )
                 or context.eval_safety_certificate_ref is None
                 or admission.certificate_ref is None
                 or admission.current_revision_head_ref is None
@@ -2024,7 +2026,8 @@ class FoundryValuePort:
                 or bool(admission.blocker_codes)
                 or admission.intake_ref != context.intake_ref
                 or admission.certificate_ref != context.eval_safety_certificate_ref
-                or admission.current_revision_head_ref != context.eval_safety_revision_head_ref
+                or admission.current_revision_head_ref
+                != context.eval_safety_revision_head_ref
             ):
                 return _blocked_value_observation(
                     code=(
@@ -2664,14 +2667,18 @@ class GenerationCycleController:
             raise GenerationCycleError("acquisition_reentry_overlay_binding_mismatch")
 
         try:
-            activation_metadata = data_forge_read_api.catalog.validate_overlay_admission_receipt(
-                overlay_receipt
+            activation_metadata = (
+                data_forge_read_api.catalog.validate_overlay_admission_receipt(overlay_receipt)
             )
         except data_forge_read_api.catalog.OverlayAdmissionError as exc:
-            raise GenerationCycleError("acquisition_reentry_activation_receipt_mismatch") from exc
+            raise GenerationCycleError(
+                "acquisition_reentry_activation_receipt_mismatch"
+            ) from exc
         if (
-            activation_metadata.receipt_ref != str(overlay_receipt.receipt_ref.artifact_id)
-            or activation_metadata.receipt_content_hash != overlay_receipt.receipt_content_hash
+            activation_metadata.receipt_ref
+            != str(overlay_receipt.receipt_ref.artifact_id)
+            or activation_metadata.receipt_content_hash
+            != overlay_receipt.receipt_content_hash
         ):
             raise GenerationCycleError("acquisition_reentry_activation_receipt_mismatch")
 

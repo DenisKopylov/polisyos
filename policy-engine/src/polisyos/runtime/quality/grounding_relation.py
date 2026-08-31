@@ -897,6 +897,7 @@ def _reference_atoms_from_cg0(reference: CredalReference) -> list[GroundingCandi
                 *(_edge_key_text(edge.key) for edge in lex_edges_by_knob.get(op_id, [])),
                 *(_edge_key_text(edge.key) for edge in wmr_edges),
             ]
+            edge_scope = sorted(set(edge_scope))
             scope_statuses = reference.reference_lift(edge_scope)
             all_confirmed = all(
                 item.get("status") == "confirmed" for item in scope_statuses.values()

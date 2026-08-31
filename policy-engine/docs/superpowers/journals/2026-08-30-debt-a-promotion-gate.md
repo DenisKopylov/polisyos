@@ -370,3 +370,140 @@ widen this lane across unowned generated companions.
 - `evaluation_safety.py` and the shared HTTP dependency container are both
   byte-unchanged relative to the slice base; there are no shared-container
   lines to hand back.
+
+## Round 2 — approved execution (2026-08-31)
+
+Round 1's dossier above is retained as historical evidence and is superseded,
+not rewritten. The architect approved resolve-and-bind orchestration through
+the existing `producer_root_refs` and `value_blockers` fields, granted an
+additive-only expansion to `generation_cycle.py`, and required every scoped row
+to finish `closed` or concretely `blocked`.
+
+### Initial branch and source freeze
+
+```text
+$ git status -sb
+## codex/debt-a-promotion-gate
+$ git rev-parse HEAD
+002da58cf5981bc6db5c029bc66c0f17e5c79b1e
+$ git merge-base HEAD main
+784d020148c56e9bfb3a3631909ba11232210a9f
+```
+
+The tree was clean and attached. No Round-2 source change preceded this plan,
+spec, and journal addendum.
+
+### Complete producer/caller census
+
+Command:
+
+```bash
+rg --files src -g '*.py' | wc -l
+rg -n --glob '*.py' \
+  'build_effective_independence_graph|annotate_pdc_graph_with_effective_independence|validate_effective_independence_graph_record' src
+rg -n --glob '*.py' 'build_evidence_independence_map\(' src
+rg -n --glob '*.py' 'MeasurementRootProducer\(' src
+rg -n --glob '*.py' 'class MeasurementRootProducer|MeasurementRootProducer\.produce_from_catalog' src
+rg -n --glob '*.py' 'n5_coupling_blocked' src
+```
+
+Direct exit: `0` for the positive searches; the final zero-match search exits
+`1`. Decisive output over **2,611 Python files**:
+
+- the independence graph symbols occur in their 1,668-line producer, two
+  facade re-exports, and one feature-flagged call at
+  `runtime/quality/evidence_independence.py:1054`;
+- the enclosing `build_evidence_independence_map` has one non-definition source
+  caller, a verification rebuild in `prompt_tool_ledger.py:1217`, and zero N9
+  or production design-orchestration callers;
+- `MeasurementRootProducer(` has one production caller at
+  `runtime/quality/workspace/loop.py:1983`; its class is at
+  `data_forge_binding.py:187`, and N9 already names its method;
+- `n5_coupling_blocked` has zero source occurrences before the repair.
+
+Finding labels: measurement is `bridge_missing`; independence is
+`bridge_missing + implemented_but_not_orchestrated`. The graph implementation
+is real, but a feature-flagged report construction and a verification rebuild
+are not production N9 orchestration.
+
+### Receipt-version ruling before code
+
+Round 2 keeps `n9_promotion.v5 / n9_owner_projection.v3 /
+n9_obligation_scope.v2`. The v2 epoch is provisional and was created for the
+owner-truthfulness repair now being completed. Owner resolution is hashed and
+will correctly rekey row, gate, and receipt identities; it does not change the
+scope algorithm or current DTO shape.
+
+The complete governed-artifact census found zero durable v5 receipts in 656
+JSON/TOML/Markdown files; four files still contain v3 receipts. No published v5
+authority is being silently changed. Before implementation, tests will pin
+authentic Round-1 v5 bytes, require exact structural readback, and require
+current owner replay to reject the stale receipt.
+
+### Pattern bucket and generalisation line
+
+Independence and measurement are two spellings of one newly measured property:
+producer output is not promotion evidence until it is resolved, content-bound,
+candidate/problem-bound, and verifier-provenance checked. P40 therefore moves
+this round to the **generalise** side and one typed CAS bridge repository will
+serve both. Coupling is a separate property—a typed negative classification
+lost during projection—and remains an additive narrow bridge.
+
+The absence-of-evidence residual is predeclared: a missing independence bridge
+will refuse until a production design orchestrator invokes the graph producer;
+a missing measurement bridge will refuse until the running workspace producer's
+envelope is bound and carried to N9. Those are honest permanent refusals in any
+path that omits orchestration, not a recurrence of caller minting.
+
+### Pre-change refusal census
+
+The executable four-cell output is appended immediately after the bound command
+finishes. It reports both the full refusal set and the scope-insufficient subset
+for data-only and field-pilot inputs under production and contract-testing
+composition. The after-census uses the same fixture with only real producer
+bridge refs added; together they decide whether GY-PR1's premise is restored or
+disproved.
+
+### Round 2 command ledger
+
+| Evidence | Command | Exit | Decisive output |
+| --- | --- | ---: | --- |
+| attached starting point | `git status -sb && git rev-parse HEAD && git merge-base HEAD main` | 0 | attached clean branch; HEAD and merge base above |
+| Python producer denominator | `rg --files src -g '*.py' \| wc -l` | 0 | 2,611 |
+| independence caller census | exact `rg` commands above | 0 | producer plus feature-flagged report call; zero N9/production design orchestrators |
+| measurement caller census | exact `rg` commands above | 0 | one production constructor in workspace loop |
+| coupling-token preimage | `rg -n --glob '*.py' 'n5_coupling_blocked' src` | 1 | zero matches |
+
+### Round 2 dossier staging
+
+The final append supplies five superseding blocks, `5 = closed + blocked`, the
+before/after refusal table, the two differently labelled bridges, the
+absence-of-evidence finding, exact touched-field consumers and E/D adjacent
+tests, the v5 history proof, EFFECT bytes/hash, and both carried-red states.
+
+### Pre-change four-cell result
+
+Command: a bound `.venv/bin/python` predicate loaded the committed Round-1
+promotion fixtures, ran data-only and field-pilot receipts once each, and
+composed the same obligations with
+`allow_non_authoritative_contract_scope_gaps=False/True`. Direct exit: `0`.
+
+| Design class | Production: full / scope refusals | Contract testing: full / scope refusals |
+| --- | --- | --- |
+| data-only | `6 / 4` — COUPLING, EFFECT, MEASUREMENT, and independence are the four scope gaps; CALIBRATION and DATA are separate ledger refusals | `2 / 0` — CALIBRATION and DATA only |
+| field-pilot | `7 / 5` — the data-only set plus EVAL_SAFETY | `2 / 0` — CALIBRATION and DATA only |
+
+Exact decisive output:
+
+```text
+CLASS=data_only
+  LANE=production COUNT=6 SCOPE_COUNT=4 REASONS=coupling:scope_insufficient|effect:scope_insufficient|calibration:single_obligation_fail|measurement:scope_insufficient|data:single_obligation_fail|data:scope_insufficient
+  LANE=contract_testing COUNT=2 SCOPE_COUNT=0 REASONS=calibration:single_obligation_fail|data:single_obligation_fail
+CLASS=field_pilot
+  LANE=production COUNT=7 SCOPE_COUNT=5 REASONS=coupling:scope_insufficient|effect:scope_insufficient|calibration:single_obligation_fail|measurement:scope_insufficient|data:single_obligation_fail|eval_safety:scope_insufficient|data:scope_insufficient
+  LANE=contract_testing COUNT=2 SCOPE_COUNT=0 REASONS=calibration:single_obligation_fail|data:single_obligation_fail
+```
+
+The after table will preserve both measures. The scope subset decides the
+plan correction; the full set prevents unrelated N11 fixture refusals from
+being silently laundered out of the measurement.

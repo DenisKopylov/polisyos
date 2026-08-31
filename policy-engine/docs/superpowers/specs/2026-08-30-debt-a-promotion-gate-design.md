@@ -197,3 +197,101 @@ either class discovered outside the five scoped rows. If triggered, the
 mechanism must derive owner resolvability and refusal reachability from source
 truth rather than enumerate another owner string or blocker token. Tests and
 mandatory plan/journal/generated companions do not consume a mechanism round.
+
+## 8. Round 2 resolve-and-bind design (approved 2026-08-31)
+
+Round 2 completes the producer handshakes discovered after the v5/v3/v2
+repair. The current DTO shape remains authoritative: `producer_root_refs`
+carries content-addressed bridge references and `CandidateSummary.value_blockers`
+carries N5's typed negative token. Neither field may carry an unverified payload
+or a caller assertion.
+
+### 8.1 Typed promotion-evidence bridge
+
+`promotion_sequence.py` owns one strict CAS bridge record with two evidence
+kinds: `effective_independence` and `measurement_root`. Each record binds:
+
+- the exact candidate id and candidate content hash;
+- the design-problem id, content hash, and rule version;
+- the dotted producer owner and immutable source artifact identity;
+- raw and semantic source hashes;
+- the independently recomputed predicate disposition and limitation code;
+- an N9-purpose verifier-provenance reference.
+
+The writer persists canonical bytes, reads them back, verifies the CAS manifest,
+and returns a PDC `ArtifactRef` whose `artifact_id` is the real CAS id and whose
+`content_hash` binds the bridge record. The reader starts only from a matching
+entry in `producer_root_refs`, re-reads exact bytes and verifier provenance,
+revalidates the producer-specific source, and checks the candidate/problem
+binding before returning an independently reconciled disposition. Missing,
+duplicate, malformed, foreign-candidate, foreign-problem, wrong-provenance, or
+content-drifted evidence produces a typed nonreceipt and never a positive.
+
+For effective independence, the bridge writer invokes the real
+`build_effective_independence_graph`; the reader invokes the real validator and
+recomputes the graph from its persisted inputs. A hard-collapse dependency is a
+negative disposition. This producer remains `implemented_but_not_orchestrated`
+until a production design path invokes the writer and supplies its ref.
+
+For measurement, the writer accepts the full `ArtifactEnvelope` returned by
+the real `MeasurementRootProducer`, resolves its existing CAS payload, verifies
+the authority manifest/producer/source-contract admission, reconstructs the
+MeasurementRoot projection, and binds that source to the candidate/problem.
+The production producer already runs; only this promotion binding is missing.
+
+### 8.2 Obligation composition
+
+`_measurement_obligation` and the effective-independence decisive predicate
+consume only resolver results. An established result uses the real dotted
+owner and source refs. A negative producer result is `failed`; missing or
+unresolvable evidence is `scope_insufficient` with
+`evidence_not_established`. The caller cannot choose any of those states.
+
+The resolver is an orchestration dependency, not a serialized input field. The
+N9 owner port constructs it from `PromotionRuntime.store`; direct contract
+runners and receipt validators accept it explicitly. Replay without the same
+owner store fails closed.
+
+### 8.3 Additive N5 coupling bridge
+
+`_joint_simulation_port_outcome` already consumes N5's content-bound
+`feedback_classification`. When its support status is `unsupported`, it appends
+exactly `n5_coupling_blocked` without replacing specific diagnostics or
+changing control flow. `_summary_with_value_observation` receives the existing
+simulation observation and unions only this typed token into the selected
+summary's `value_blockers`; its return type and all existing fields are
+unchanged.
+
+N9 refuses COUPLING when the token is present. On the production generation
+path, the summary is created only after N5, so token absence is the producer's
+supported outcome rather than an invented vocabulary match. Tests cover the
+real unsupported classifier, token transport, N9 refusal, and an adjacent
+supported N5 control.
+
+### 8.4 Refusal census and honest residual
+
+The measurement fixture reports the complete refusal-reason set and its
+`scope_insufficient` subset for four scenario cells: data-only/field-pilot by
+production/contract-testing semantics, before and after the bridges. Data-only
+and pilot must not be conflated because EvalSafety is not applicable to the
+former and promotion-authority evidence is required for the latter.
+
+An absent bridge after this design is absence of evidence, not absence of
+semantics. Effective independence needs a production design orchestrator to
+invoke the graph writer. Measurement needs the running workspace producer's
+envelope to be passed through the promotion binding writer. These honest
+nonreceipts are recorded even if the row's negative acceptance signal closes.
+
+### 8.5 Receipt epoch
+
+Round 2 keeps v5/v3/v2. The existing v2 epoch explicitly introduced truthful
+owner resolution and is still provisional on this unmerged branch. Resolving a
+different owner outcome changes the hashed obligation rows, gate hash, and
+receipt identity, as intended, while leaving the typed owner projection and
+instance-scope algorithm unchanged.
+
+The compatibility proof uses authentic pre-Round-2 v5 bytes: exact structural
+round-trip succeeds, current owner replay refuses the stale result, and a
+fresh resolved-owner receipt rekeys the owner-derived hashes. This is history
+readability, not migration or current authority. EFFECT and the EvalSafety
+safety core are outside this mechanism and remain byte-identical.

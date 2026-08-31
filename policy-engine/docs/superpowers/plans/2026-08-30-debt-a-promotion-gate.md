@@ -222,3 +222,116 @@ occurred and which finding caused it.
 Immediately before every commit run `git status -sb` and
 `git symbolic-ref -q HEAD`; both must name
 `codex/debt-a-promotion-gate` as an attached branch.
+
+## 7. Round 2 execution addendum (2026-08-31)
+
+Round 1 is the committed starting point. This addendum supersedes its open-row
+handoff without rewriting it. The approved repair is resolve-and-bind
+orchestration through the existing `producer_root_refs` and `value_blockers`
+coordinates. It does not restore caller Boolean predicates, copy producer
+payloads into `CanonicalPromotionInput`, modify either producer module, or
+touch EFFECT.
+
+### 7.1 Measured capability states
+
+The complete `src/**/*.py` denominator is 2,611 files.
+
+- `MeasurementRootProducer` is constructed once in production, by
+  `runtime/quality/workspace/loop.py`. Its N9 state is `bridge_missing`: the
+  producer runs and persists a CAS payload, but its envelope is not resolved
+  and candidate/problem-bound by promotion.
+- `build_effective_independence_graph` has one feature-flagged source call in
+  `runtime/quality/evidence_independence.py`; the enclosing map builder has no
+  promotion-path caller. Its N9 state is `bridge_missing` plus
+  `implemented_but_not_orchestrated`.
+- `n5_coupling_blocked` occurs zero times in the same source denominator.
+  N5 already emits a typed unsupported coupling classification; N6 drops that
+  classification before `CandidateSummary`, so the missing link is executable.
+
+These labels are deliberately asymmetric. Treating the first two producers as
+equally absent would repeat W5-K01 and the scoped absence-kind defect.
+
+### 7.2 Round 2 acceptance signals
+
+1. `gy-n9-caller-asserted-gate-predicates`: persist and independently resolve a
+   real effective-independence graph binding; a dependent graph makes the
+   decisive predicate refuse even when legacy caller `True` is attempted.
+2. `gy-n9-coupling-obligation-cannot-fail`: a real unsupported N5 result emits
+   `n5_coupling_blocked`, the selected summary carries it, and COUPLING refuses.
+3. `gy-promotion-obligations-scope-insufficient`: a real
+   `MeasurementRootProducer` envelope is CAS-resolved, content/provenance
+   checked, and candidate/problem-bound; the MEASUREMENT obligation then has a
+   real satisfied and a real refusal path.
+4. `GY-O0-NC-01`: record `blocked_by:
+   gy-n9-effect-class-has-no-referent` under the 2026-08-30 ruling. The
+   field-pilot census also decides whether an EvalSafety promotion-authority
+   producer must be named.
+5. `gy-n9-unmet-check-absence-kind-conflated`: retain `blocked`; EFFECT cannot
+   be retyped while its ruled investigation is outstanding.
+
+Every verdict is decided by a rerunnable command and is either `closed` or
+`blocked`. No row may end `open` in this round.
+
+### 7.3 Red-first and implementation order
+
+1. Commit this plan, the design addendum, and the initial journal before any
+   test or source edit.
+2. Pin authentic pre-Round-2 v5 receipt bytes and add red tests for structural
+   history readback, independence refusal, measurement resolution, N5 token
+   emission/carry, and N9 COUPLING refusal.
+3. Add one CAS-backed N9 evidence-bridge repository in
+   `promotion_sequence.py`. Both bridge kinds use exact readback, producer
+   content validation, candidate/problem binding, and verifier provenance;
+   their different orchestration states remain visible in diagnostics.
+4. Make the N5 projection change additive in `generation_cycle.py`: append the
+   typed token for the existing unsupported classification and union only that
+   token into the selected summary. Do not reorder control flow or change a
+   return model.
+5. Run the before/after refusal census for data-only and field-pilot classes at
+   both production and contract-testing lane semantics. This table, not the
+   Round-1 inference, decides the GY-PR1 plan correction.
+6. Freeze source, run only affected nodes plus the exact E-adjacent and
+   D-adjacent consumers identified by the touched-field census, then append the
+   five-block dossier.
+
+### 7.4 Receipt-version ruling to prove
+
+Keep current `n9_promotion.v5 / n9_owner_projection.v3 /
+n9_obligation_scope.v2`. V2 is an unmerged provisional epoch created for this
+owner-truthfulness repair; owner outcomes changing under that rule rekeys the
+receipt chain but does not change the input/projection shape or scope-hash
+algorithm. A `.v3` scope bump would require freezing/publishing v2 or changing
+that algorithm.
+
+The ruling is accepted only if authentic Round-1 v5/v2 bytes still parse and
+round-trip exactly as history, fail current owner-authority replay, and a newly
+resolved owner changes its obligation and gate hashes while retaining the v2
+instance-scope coordinate. The governed-artifact census is part of the
+receipt: no durable v5 receipt is currently published in the 656-file
+JSON/TOML/Markdown denominator, so no current artifact may be silently
+restamped.
+
+### 7.5 Pattern and patch/generalise ruling
+
+Relevant patterns are P01/P02/P12 (producer handshake), P14 (independence
+inflation), P31/P32 (class repair and resolve/content-bind/provenance), P37/P38
+(gate predicate versus proxy), and P40 (same-class widening). Round 2 crosses
+to the **generalise** side for producer evidence: independence and measurement
+are the second spelling of the same resolve-and-bind property, so one typed
+repository/resolver handles both. Coupling stays a narrow, separate typed
+negative bridge because it is a different property and already has a real
+producer classification.
+
+The expected honest residual is named before implementation: if a producer is
+not invoked or its bridge ref is not carried, its obligation refuses for
+`evidence_not_established`. This is safer than minting but can keep production
+non-promotable. The dossier must name the invocation that would supply each
+missing bridge rather than calling this semantic absence.
+
+### 7.6 Round 2 commit boundaries
+
+1. Approved plan/spec/journal addenda.
+2. Red-first bridge, history, and coupling fixtures.
+3. Independence and measurement resolve-and-bind implementation.
+4. Additive N5-to-N9 coupling transport.
+5. Targeted verification, independent review, and append-only dossier.

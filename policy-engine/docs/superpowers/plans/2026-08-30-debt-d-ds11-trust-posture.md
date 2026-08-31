@@ -544,3 +544,25 @@ the hand-back and end the journal with exactly ten closed/blocked blocks, measur
 94-to-126 root mapping, normalization adoption/finding, watcher population provenance and two
 branches, trust closure denominator/falsifier, two distinct claim-lifecycle blockers, fourth-plan
 Trust Center/Docs routing, C13 residue, and every dashboard/workspace path changed.
+
+## Task 14: DS9 Node collection boundary — appended on resume 2026-08-31
+
+Repair the inherited DS9 visual collection path before the immutable dashboard freeze. The
+complete dependency-cruiser closure rooted at
+`src/features/runs/domain/publicationPacket.ts` currently contains 25 modules and reaches
+`TimeSemanticsLabel.tsx -> LocaleProvider.tsx -> en.json + uk.json`; Node 22 collection must
+not load a React/i18n presentation leaf merely to validate epoch semantics.
+
+- Create `apps/runtime-dashboard/src/shared/lib/domain/epochSemantics.ts` as the pure owner
+  of `EpochSemantics`, `epochNonreceipt`, `isEpochSemantics`, and
+  `formatEpochSemanticsSummary`.
+- Keep `TimeSemanticsLabel.tsx` as the React/context/rendering consumer and compatibility
+  re-export; move non-React production consumers to the pure owner.
+- Add `tests/repo_quality/frontend/test_ds9_visual_collection_boundary.py`, executing the
+  real dependency-cruiser graph from `publicationPacket.ts`. The test must fail first on
+  the current `.tsx`/React/i18n/JSON closure and pass only when that closure is pure.
+- Re-run the exact DS9 zero-retry no-writer visual collection/comparison command, the
+  publication-packet and temporal focused tests, dependency-cruiser, and dashboard
+  typecheck. Do not touch `runtime/http/openapi_contract.py` or any peer-owned source.
+- Land this correction before Task 12. Any dashboard edit after Task 12 begins invalidates
+  the freeze and both a11y runs.

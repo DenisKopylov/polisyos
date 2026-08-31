@@ -539,3 +539,28 @@ The terminal target is evidence, not arithmetic. `10 = 5 closed + 5 blocked` is 
   `sha256:2345664d2fcfcdcf9730d8c2c8aa05076c5f538bf1647f54c66105baf342985e` and whose
   dashboard source commit is `6af7be1fc2a878f8a62507c784df36941d5a3212`.
 - No round-2 implementation file had changed before this append-only execution record.
+
+## Resume checkpoint — appended 2026-08-31
+
+- The intact seven-path watcher implementation was committed first at `7733a092a` on
+  `codex/debt-d-ds11-trust-posture`; no implementation was rebuilt.
+- Current `main` at `3be079774` was merged by ordinary merge commit `ac46064a0`. Task F's
+  new `scientist -> runtime` prohibition is therefore present. The watcher Scientist
+  module imports only Core and Scientist owners; the Runtime composition imports the
+  Scientist capability in the permitted direction.
+- The exact watcher closure node first completed red after persistence reached canonical
+  JSON: Python `timedelta` is not an admitted canonical value. A second red required the
+  explicit `staleness_after_seconds` field. The minimal production correction stores a
+  positive integer duration and reconstructs the deadline from that value.
+- `uv run pytest
+  tests/integration/runtime_quality/test_published_signature_custody.py::test_every_public_signature_is_watched_for_staleness
+  -q` then exited 0 with 1/1 passed. The earlier autonomous worker proof remains the
+  accepted 1/1 receipt; it was not rerun on resume. Ruff over the two corrected paths and
+  `git diff --check` both exited 0. The correction is commit `25bf4129e`.
+- The complete feature-domain path census contains 52 `.ts`/`.tsx` paths. Its exact
+  `rg -n '@/shared/ui/' apps/runtime-dashboard/src/features --glob
+  '**/domain/**/*.ts' --glob '**/domain/**/*.tsx'` result has one production temporal
+  UI edge: `publicationPacket.ts -> TimeSemanticsLabel.tsx`. Dependency-cruiser follows
+  that edge through `LocaleProvider.tsx` to both locale JSON catalogs; the rooted graph is
+  25 modules. Task 14 owns only this temporal collection boundary. Existing quantity UI
+  imports are a separate class and are not silently widened into this repair.

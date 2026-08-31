@@ -564,3 +564,47 @@ The terminal target is evidence, not arithmetic. `10 = 5 closed + 5 blocked` is 
   that edge through `LocaleProvider.tsx` to both locale JSON catalogs; the rooted graph is
   25 modules. Task 14 owns only this temporal collection boundary. Existing quantity UI
   imports are a separate class and are not silently widened into this repair.
+
+## DS9 Node-collection boundary — appended 2026-08-31
+
+- The red-first repository-quality node imported the real dependency-cruiser graph from
+  `publicationPacket.ts` and initially failed because no pure epoch-semantics owner existed.
+  The repair moved the value contract, validator, nonreceipt, and plain-text formatter to
+  `src/shared/lib/domain/epochSemantics.ts`; five non-React consumers now import that owner,
+  while `TimeSemanticsLabel.tsx` retains only context and presentation and compatibility
+  re-exports.
+- `uv run pytest
+  tests/repo_quality/frontend/test_ds9_visual_collection_boundary.py::test_publication_packet_collection_closure_excludes_react_and_locale_catalogs
+  -q` exited 0 with 1/1 passed. Four exact Vitest files exited 0 with 27/27 passed;
+  dashboard typecheck and targeted ESLint exited 0. The repair is commit `7a0a4afcc`.
+- The first exact DS9 visual invocation completed but its oversized terminal chunk was lost by
+  the harness, so its result is explicitly `not_established`; it is not counted as evidence.
+  One bounded-output replay of the same exact command remains required before the freeze.
+
+## Source-derived `/trust` copy closure — appended 2026-08-31
+
+- The registered exact node first exited 4 because its test file did not exist. After the
+  red-first test was written, it exited 1 because the real checker did not exist.
+- `check-public-claim-copy.mjs` now proves the `APP_ROUTES -> trustRoute` consumption and
+  walks runtime imports from `routes.public.tsx`. The complete current closure is
+  `17 local paths = 6 .tsx + 9 .ts + 2 .json`, plus four external runtime modules. This is
+  an import graph, not a directory glob; type-only imports are excluded because they do not
+  enter the rendered runtime closure.
+- An independent `git ls-files` denominator contains 329 tracked production TSX paths after
+  excluding test/spec/story sources. Their complete AST walk finds one literal `/trust`
+  ingress: `LandingPage.tsx`, using the exact `landing.trustPosture` leaf.
+- The typed `useTrustCopy` owner enumerates 36 leaves across the active `en` and `uk`
+  catalogs. The checker inventories 110 visible expressions and 44 strict posture-artifact
+  fields, rejects raw `t`/`rich`, foreign or dynamic keys, and claim-bearing literals outside
+  the posture artifact. It records translation truth and source-language authority as
+  `not_established`.
+- `uv run pytest tests/repo_quality/frontend/test_public_claim_copy_inventory.py -q`
+  exited 0 with 2/2 passed. Its scratch-tree falsifier injects
+  `PolicyOS guarantees approval.` into a derived renderer and asserts the unchanged checker
+  exits exactly 1 with `raw_claim_copy`; the worktree is never mutated by that probe.
+- Six focused trust files exited 0 with 43/43 Vitest tests passed. Dashboard typecheck,
+  targeted ESLint, targeted Prettier check, Ruff on the Python witness, and `git diff --check`
+  all exited 0.
+- Correction to the first DS9 bullet above: the import census is five total consumers,
+  partitioned as four non-React consumers plus the React presentation module; it is not five
+  non-React consumers.

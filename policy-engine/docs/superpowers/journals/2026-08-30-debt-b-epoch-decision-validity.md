@@ -631,3 +631,374 @@ two-node GREEN at exit `0`.
   freeze commit above and one DS20/team-runtime authorization-denominator reconciliation
   receipt that makes the seven Task-4.4 HTTP nodes agree with the complete live unsafe
   router and OpenAPI sets.
+
+## Round 2 resume after the prerequisite merges
+
+### Source preservation and ordinary main merge
+
+- The in-progress semantic-history adapter and its real-CAS fixture were preserved first
+  as commit `6137d7516`; the prior round's journal receipt was preserved separately as
+  `3a631d18c`. No uncommitted work was used as storage.
+- Local `main=3681f22fa2cf4161d49451ec3f12bce4f826d8ed` was then merged normally,
+  without rebase, producing `c6b3beb43`. The dashboard freeze present in that merge is
+  `03c5783609271c27d6f3d212b76dda7eddef2074`, with the architect-supplied
+  1,314-path digest receipt unchanged.
+- A post-merge diff proves zero Task-B changes in the shared container and task-A
+  corridors: `git diff --exit-code main...HEAD --
+  src/polisyos/runtime/http/dependencies.py
+  src/polisyos/runtime/quality/promotion_sequence.py
+  src/polisyos/runtime/quality/generation_cycle.py` exits `0`. In particular,
+  `dependencies.py:140` still injects `NoEpochTransitionSigningAuthority()`; no
+  factory-shaped refusal replaced it.
+
+### Fixed-temp conjunction re-run after both landings
+
+The local atomic-writer conjunct remains green:
+
+```bash
+uv run --frozen --extra test python -m pytest -q \
+  tests/unit/scientist/validation/test_decision_validity_service.py::test_concurrent_same_packet_persistence_has_no_fixed_temp_collision
+```
+
+Result: exit `0`, `1 passed`.
+
+The exact Task-4.4 nine-file suite was then run:
+
+```bash
+uv run --frozen --extra test python -m pytest -q \
+  tests/unit/scientist/validation/test_decision_validity_service.py \
+  tests/unit/runtime/http/test_decision_validity_api.py \
+  tests/unit/runtime/http/test_runtime_api_authz.py \
+  tests/unit/runtime/http/test_runtime_step_up_authz.py \
+  tests/unit/runtime/http/test_runs_api.py \
+  tests/unit/runtime/http/test_control_service_di.py \
+  tests/unit/runtime/quality/test_promotion_sequence.py \
+  tests/unit/runtime/quality/test_generation_cycle.py \
+  tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py
+```
+
+Result: exit `1`, `22 failed`. The complete failing-file partition is
+`22 = 1 test_runs_api + 5 test_promotion_sequence + 14 test_generation_cycle +
+2 test_recursive_generation_cycle_epoch_gate`. Both authz files now pass inside this
+same run, so task I's landing is real; the remaining failures are a current Task-4.4
+contract/fixture reconciliation in task-A and runtime-run corridors, not the old seven
+authz failures and not Task B's atomic writer.
+
+After `corepack pnpm install --frozen-lockfile` exited `0`, the exact zero-retry DS9
+no-writer command was run:
+
+```bash
+CI=1 PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_INCLUDE_RUN_PAPER_FIXTURES=1 \
+corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test \
+  --config=playwright.visual.config.ts --project=chromium \
+  --grep 'DS9 human decision gate' --workers=1 --timeout=90000 \
+  --global-timeout=240000
+```
+
+Result: exit `1`, all four identities collected and all four failed. Three fixtures did
+not render `case-workspace-page`; the fourth called `buildPublicDecisionPacket` without
+the now-required exact admitted epoch semantics or typed epoch-semantics nonreceipt.
+This agrees with task D's merged journal: D closed the Node-22 collection break, then
+explicitly recorded these same four fixture findings as outside its freeze. Collection
+success therefore does not satisfy the visual predicate. The fixed-temp row's three-part
+signal is `1 green + 2 red`, so it remains unclosed despite the atomic repair itself.
+
+### Exact semantic-history adapter
+
+Commit `6137d7516` adds `FileSemanticEpochTransitionHistoryAdapter`. It reuses the
+existing `FileSemanticEpochHistoryRepository`, exact-reads the one framed production
+receipt and both manifests, recomputes and verifies the complete scope-history snapshot,
+requires a sole current head and direct sole predecessor, and rejects purpose, scope,
+receipt, manifest, history, head, and predecessor drift. It does not create a second
+history store and does not appoint a signer.
+
+The named pre-implementation adapter node exited `1` because the adapter class did not
+exist. At final source freeze:
+
+```bash
+uv run --frozen --extra test python -m pytest -q \
+  tests/unit/runtime/quality/test_epoch_validity_cascade.py \
+  -k 'file_transition_history_adapter or unappointed_transition_signer_returns_typed_negative_before_owner_reads'
+```
+
+exits `0` with `10 passed`. The wave includes substituted receipt/manifest, wrong
+purpose/scope, missing/ambiguous predecessor, non-head current epoch, corrupt bytes, and
+the typed unappointed-signer refusal before owner reads.
+
+### Certified inheritance-recompute producer half
+
+Commit `f23d37487` adds a completed-only
+`EpochInheritanceRecomputeReceipt`, its ref-only persisted handle, an exact recipe
+artifact profile, a producer, and an exact reader in the named derived-observations
+owner. The receipt binds the transition ref and byte hash, old/current epoch, query and
+purpose, producer dependency denominator, exact graph edge, target disposition,
+certificate binding, recipe, certified-consumption identity, and recomputed derived
+output. Its authority is fixed to certified derived-series recomputation and explicitly
+excludes transition issuance, observation, publication, and source-observation claims.
+
+The first round-trip node exited `1` before implementation because
+`persist_derivation_recipe_artifact` was absent. Final targeted receipts are:
+
+```bash
+uv run --frozen --extra test python -m pytest -q \
+  tests/unit/runtime/quality/test_derived_observations.py \
+  -k 'epoch_inheritance_recompute'
+```
+
+Result: exit `0`, `12 passed`.
+
+```bash
+uv run --frozen --extra test python -m pytest -q \
+  tests/unit/runtime/quality/test_derived_observations.py::test_registered_families_share_recipe_cache_certificate_and_passport_boundary \
+  tests/unit/runtime/quality/test_derived_observations.py::test_same_source_artifact_can_fill_two_recipe_roles_and_replay \
+  tests/unit/runtime/quality/test_derived_observations.py::test_versioned_family_requires_exact_selection_and_replays_that_version \
+  tests/unit/runtime/quality/test_derived_observations.py::test_recomputed_unregistered_family_is_refused_at_consumption
+```
+
+Result: exit `0`, `5 passed` including the parametrized first node. The new wave covers
+round trip, substitution, authentic-old/head-advance expectation, corrupt bytes and
+manifest, wrong disposition, absent edge, certificate drift, recipe drift, and derived
+output drift. A complete AST census still finds zero production calls to the new
+producer/reader; that is expected because the named temporal consumer is the remaining
+registered bridge absence, not because the producer is missing.
+
+### Final complete censuses
+
+At final source freeze the tracked denominators are `10,410` repository paths,
+`2,826` source paths, `2,616` source Python paths, `584` Scientist source Python paths,
+`2,983` test paths, and `2,482` test Python paths.
+
+A complete AST walk first derives the 2,616-path denominator with `git ls-files
+'src/**/*.py'`, then parses every file selected by a complete token prefilter. It exits
+`0` with:
+
+```text
+EpochValidityTransitionProducer constructor calls     0
+produce_and_persist calls                              0
+concrete resolve_complete_epoch_dependencies classes  0
+concrete resolve_complete_owner_adjudications classes 0
+transition-verifier signature matches                 2
+  = EpochTransitionVerifier Protocol + NoEpochTransitionVerifier
+positive transition-verifier implementations          0
+DecisionValidityService production constructions      6
+constructions injecting epoch_transition_verifier      0
+```
+
+The three simpler exact source searches for `EpochValidityTransitionProducer(`,
+`.produce_and_persist(`, and `epoch_transition_verifier=` each exit `1`. A separate
+complete AST call census exits `0` with zero source calls to
+`FileSemanticEpochTransitionHistoryAdapter`,
+`produce_epoch_inheritance_recompute_receipt`, and
+`read_epoch_inheritance_recompute_receipt`.
+
+The lineage carrier census walks all 584 Scientist source Python files. Each exact token
+search for `subject_ref`, `gate_evidence_ref`, `epoch_validity_projection`, and
+`decision_packet_lineage_key_ref` exits `1`. Across all 2,616 source Python files there
+is one real Scientist `register_decision_packet` handoff, but it passes only
+`packet_ref`, `envelope`, `baseline`, and `monitoring_contract_ref`; it does not consume
+the four post-N9 fields.
+
+The denominator incompatibility is structural, not a naming mismatch:
+
+- `polisyos.epoch.dependency-denominator.v1` hashes exact certificate bindings, the
+  epoch dependency graph, and the graph's target `ArtifactRef` set.
+- `DecisionValidityService._resolve_epoch_target_denominator` hashes registered
+  Decision-Validity rows containing dependency key/kind, owner artifact ID, packet-ref
+  membership, and lineage-key membership, and separately derives
+  `(packet_ref, dependency_key, decision_lineage_key)` targets.
+- Strict intake requires the verifier receipt's single `dependency_denominator_ref` to
+  equal the second hash. Forwarding the producer's first hash therefore fails honestly.
+  Closure needs a persisted cross-owner denominator-reconciliation receipt that binds
+  both refs/hashes and their exact mapping, plus a reader and appointed verifier
+  provenance. None exists in the complete verifier/provider census.
+
+The current Lex re-measurement covers `7,040` tracked paths under
+`src/tests/tools/architecture`, `1,202` tracked JSON paths, and zero tracked
+`production_data/**` paths. Exact searches for `152,636`, `152636`, and `152_636` each
+exit `1`; `declared_amendment_count` over all 1,202 JSON paths exits `1`. The supported
+`156196` denominator still appears in tracked architecture owner artifacts. The missing
+production row set and current complete owner receipt are therefore concrete landable
+inputs, not a number to reconstruct.
+
+### Final controls and protected boundaries
+
+- The bound debt checker exits `1` with `14` blocking unresolved closure identities:
+  `5 DS11 + 9 ds10`. The literal slice-base replay recorded above had `18`; the current
+  set is smaller, and Task B added no identity. The checker is not reported green.
+- The bound docs-lifecycle checker exits `1` with exactly six inherited findings:
+  two active-plan metadata findings and four removed-stub-reference findings. This
+  journal adds no seventh finding.
+- Ruff over all seven changed Python paths exits `0`; `git diff --check main...HEAD`
+  exits `0`.
+- `uv run --frozen polisyos-tools architecture guardrails check` exits `1`. Both API
+  generated families are clean; the sole failure is the inherited
+  `trust-claim-posture-register` generator probe, which rejects the register's current
+  `DS11-CLAIM-LIFECYCLE-ORCHESTRATION` appointment/status combination. No import-policy
+  edge or exception is introduced by Task B.
+- No task-B row appears under an `Explicit non-closure` heading in the complete tracked
+  slice-plan Markdown scan. No architect-owned register, ledger, GY plan, Atlas master
+  plan, or published denominator was edited.
+
+### Institutional slots left typed and empty
+
+No person or body was appointed or proposed. The new history adapter supplies only the
+existing engineering history port, and the recompute producer consumes already signed
+evidence; neither mints an institutional act. The empty slots remain sharply visible:
+
+- `gy-n12-epoch-predicate-policy-authority-unappointed` /
+  `ds18-epoch-predicate-policy-signer-unappointed`: the runtime projection retains the
+  typed `policy_admission_missing` absence.
+- `gy-n12-epoch-transition-signing-authority-unappointed` /
+  `ds18-epoch-transition-signer-unappointed`: `dependencies.py:140` still supplies
+  `NoEpochTransitionSigningAuthority()`, producing
+  `epoch_transition_signer_not_established` without reading owner inputs.
+- `ds18-epoch-history-independent-holder-unappointed`: no holder is invented; the
+  adapter proves only exact repository history and sole-head/direct-predecessor facts.
+- The Decision-Validity verifier trust/provenance slot remains empty: all six production
+  constructions take `NoEpochTransitionVerifier`, and no positive verifier exists.
+- The owner-held transition producer-identity slot remains empty; exact signed bytes do
+  not self-appoint their producer.
+
+Task D's `GY-GAP8` overlap is now precise on merged `main`: Task B's denominator and
+three named tests are closed. `DS11-CLAIM-LIFECYCLE-ORCHESTRATION` separately blocks on
+the registered `claim-ledger-supersession-owner-event-producer-missing` row: production
+has the bridge and owner port, but `append_verified_owner_event` is a nonreceipt stub and
+the verified owner-event artifact/producer/resolver have not landed. Task B does not
+close that row.
+
+## Register closure dossier — resumed final
+
+Pattern closeout: P01/P02 separate built halves from live bridges; P05/P32 preserve
+institutional and verifier authority; P07/P08 bind exact chronology; P31/P38 reject
+empty-byte and cross-denominator proxies; P35 carries every zero with its complete
+denominator; P41 records the two red closure conjuncts and generated-freshness control
+without laundering them as Task-B regressions.
+
+`8 measured rows = 1 closed + 7 blocked`.
+
+### 1. `GY-DEF23`
+
+**Verdict:** `blocked`.
+
+**Blocked by:** `gy-n12-epoch-transition-signing-authority-unappointed`: the
+purpose-scoped transition signer and owner-held producer-identity appointments have not
+landed. The distinct engineering orchestration remainder is carried by the DS18
+production row, not bundled back into this narrowed institutional row.
+
+**Deciding command/predicate + exit:** the 2,616-file AST census exits `0` with zero
+production producer constructions/calls; the ten-node history/signer-negative wave
+exits `0`; `git grep -n -F 'NoEpochTransitionSigningAuthority()' --
+src/polisyos/runtime/http/dependencies.py` exits `0` at line 140. The strict intake is
+built and the empty signer fails before owner reads, but the named appointments are
+absent.
+
+**Exact append prose:** **RESUME SUPERSESSION 2026-08-31 — `blocked`; `blocked_by: gy-n12-epoch-transition-signing-authority-unappointed`.** Task B has now built and verified the exact semantic-history transition adapter around the empty slot: ten targeted cases pass, including sole-head/direct-predecessor readback and the typed no-signer refusal before owner reads. The complete 2,616-source-Python AST census still finds zero production `EpochValidityTransitionProducer` constructions/calls, which remains separately owned by `ds18-positive-transition-production-unorchestrated`; this narrowed row itself cannot close until the purpose-scoped transition signer and owner-held producer-identity roles are appointed. No appointment was made or proposed.
+
+### 2. `GY-GAP8`
+
+**Verdict:** `closed` for Task B's half, as accepted by the architect.
+
+**Deciding command/predicate + exit:** the exact four-node GY-GAP8 command recorded
+above exits `0` with `4 passed`; independent filesystem/Git and AST/token walks agree on
+`118 tests + 0 src + 0 other`; and
+`git merge-base --is-ancestor 552213d90599f392ec6c68871e5c5af12a74ed49
+HEAD` exits `0`. The sole mapped addition is the construction introduced by
+`f715bfdc4` in `test_builder_pinning.py`; the scalar total pin was deleted in favor of
+the composition invariant.
+
+**Exact append prose:** **RESUME CONFIRMATION 2026-08-31 — `closed` for Task B's half.** The accepted closure remains intact after the ordinary main merge: the Task-4.5 boundary is an ancestor, the complete Git-ignore-aware filesystem/Git candidate sets reconcile, independent AST/token scans agree on `118 tests + 0 src + 0 other`, and the denominator plus three named Claim-lifecycle/public-export nodes pass. The 118th construction is `tests/unit/scientist/orchestration/workflows/test_builder_pinning.py::test_eval_safety_context_fields_are_keyword_only`, introduced by `f715bfdc4`; no scalar total was repinned. The overlapping DS11 row is not closed here and now blocks separately on `claim-ledger-supersession-owner-event-producer-missing`.
+
+### 3. `gy-n12-epoch-current-decision-lineage-carrier-unallocated`
+
+**Verdict:** `blocked`.
+
+**Blocked by:** a task-A post-N9 canonical-receipt handoff that persists all four fields
+`subject_ref`, `gate_evidence_ref`, `epoch_validity_projection`, and
+`decision_packet_lineage_key_ref` into the Scientist DecisionPacket/Decision-Validity
+registration path.
+
+**Deciding command/predicate + exit:** four exact `git grep` searches over all 584
+tracked Scientist source Python files each exit `1`; the 2,616-file source AST census
+finds the one real `register_decision_packet` call but none of the four fields at that
+handoff. The protected task-A files have zero Task-B diff, exit `0`.
+
+**Exact append prose:** **RESUME SUPERSESSION 2026-08-31 — `blocked`; `blocked_by: task-A post-N9 canonical-receipt-to-Scientist-packet handoff`.** Across all 584 Scientist source Python files, each of `subject_ref`, `gate_evidence_ref`, `epoch_validity_projection`, and `decision_packet_lineage_key_ref` has zero occurrences; the sole real `register_decision_packet` handoff supplies only packet ref, envelope, baseline and monitoring-contract ref. The required landing is one content-bound task-A emission carrying all four fields into the persisted Scientist DecisionPacket path, after which direct, recursive, HTTP and offline readers can share the lineage-head carrier and run the authentic-old/head-advance/missing/substituted/denominator-drift falsifiers. Task B did not edit `promotion_sequence.py` or `generation_cycle.py`.
+
+### 4. `gy-n12-lex-amendment-valid-effect-carrier`
+
+**Verdict:** `blocked`.
+
+**Blocked by:** the production Lex amendment row set and a current complete
+owner-adjudication receipt covering every row; neither is tracked in this repository.
+
+**Deciding command/predicate + exit:** over 7,040 tracked
+`src/tests/tools/architecture` paths, the exact `152,636`, `152636`, and `152_636`
+searches each exit `1`; zero `production_data/**` paths are tracked; and
+`declared_amendment_count` over all 1,202 JSON paths exits `1`. The `156196` owner
+denominator search exits `0`.
+
+**Exact append prose:** **RESUME SUPERSESSION 2026-08-31 — `blocked`; `blocked_by: production Lex row set plus current complete owner receipt`.** Re-measurement is complete: all three encodings of the historical `152,636` value are absent from the 7,040 tracked source/test/tool/architecture paths, no production-data path is tracked, and no `declared_amendment_count` exists across 1,202 tracked JSON files, while the supported `156,196` denominator remains present in architecture owner artifacts. The repository therefore cannot evaluate whether every amendment now has a valid/effect coordinate. This is a landable data-and-owner-receipt block, not a standing ambiguity, and `152,636` is not reconstructed.
+
+### 5. `ds18-epoch-inheritance-recompute-projection-missing`
+
+**Verdict:** `blocked`.
+
+**Blocked by:** the temporal read bridge in
+`runtime/quality/epoch_staleness_projection.py` and
+`runtime/http/services/temporal.py` that must exact-read the new persisted receipt and
+project its status at the requested temporal coordinate.
+
+**Deciding command/predicate + exit:** the new 12-node recompute wave and five-case
+existing derivation blast radius exit `0`; a complete 2,616-file AST census exits `0`
+with zero production producer/reader calls; and an exact search for the new receipt/
+reader symbols in the two named consumer files exits `1`.
+
+**Exact append prose:** **RESUME SUPERSESSION 2026-08-31 — `blocked`; capability state narrowed from `producer_missing + bridge_missing` to `bridge_missing`.** Commit `f23d37487` builds the completed-only owner producer and exact reader: the receipt binds transition, old/current epoch, query/purpose, graph edge, disposition, certificate, recipe, certified replay and derived output; twelve adversarial owner cases and five imported derivation cases pass. The landable remainder is the temporal read bridge in `epoch_staleness_projection.py` and `runtime/http/services/temporal.py`; those consumers still have zero references to the new receipt/reader and therefore still project `not_established`. The producer is not an orphan because this registered consumer absence names its destination.
+
+### 6. `ds18-positive-transition-production-unorchestrated`
+
+**Verdict:** `blocked`.
+
+**Blocked by:** three concrete engineering landings plus the typed-empty authority slot:
+a real task-A pre-N9 trigger, a complete `EpochDependencyDenominatorProvider`, a complete
+`EpochPerturbationAdjudicationProvider`, and the purpose-scoped signer/owner-held producer
+identity appointment.
+
+**Deciding command/predicate + exit:** the complete 2,616-file AST census exits `0`
+with `0` producer constructions, `0` `.produce_and_persist` calls, and `0` concrete
+classes for either provider protocol. The ten-node exact-history/typed-negative wave
+exits `0`; the separate adapter source-call census exits `0` with zero production calls.
+
+**Exact append prose:** **RESUME SUPERSESSION 2026-08-31 — `blocked`; `blocked_by: task-A pre-N9 trigger + complete dependency-inventory producer + complete owner-adjudication producer + transition signer/producer-identity appointment`.** The producer was never missing, and Task B now supplies its exact semantic-history adapter; ten adapter/negative cases pass. A complete 2,616-source-Python AST census nevertheless finds zero production producer constructions/calls and zero concrete implementations of either complete owner provider. The provider contracts' positive `independently_reconciled` receipts cannot be replaced by empty denominators, and `dependencies.py:140` remains the typed no-signer slot rather than an empty-byte orchestration proxy. These named artifacts/appointments must land before a real run can persist a positive transition.
+
+### 7. `ds18-positive-transition-verification-producer-missing`
+
+**Verdict:** `blocked`.
+
+**Blocked by:** a persisted cross-owner
+`EpochTransitionDenominatorReconciliationReceipt` (or equivalently named admitted
+artifact) with a producer and exact reader, followed by an appointed verifier
+trust/provenance identity.
+
+**Deciding command/predicate + exit:** the complete 2,616-file AST census exits `0`
+with exactly two verifier-signature shapes—the Protocol and
+`NoEpochTransitionVerifier`—and zero positive implementations. It finds six production
+`DecisionValidityService` constructions and zero verifier injections. The two source
+hash definitions above are read directly and require equality at strict intake despite
+different member sets.
+
+**Exact append prose:** **RESUME SUPERSESSION 2026-08-31 — `blocked`; `blocked_by: persisted cross-owner denominator-reconciliation receipt/producer/reader plus appointed verifier provenance`.** The complete source census finds zero positive transition verifier implementations and zero verifier injections across all six production `DecisionValidityService` constructions. More importantly, the producer's `polisyos.epoch.dependency-denominator.v1` hashes certificate bindings, dependency graph and graph targets, while strict intake recomputes dependency key/kind, owner artifact, packet and lineage membership and requires that different hash in the same field. A verifier cannot honestly forward one as the other. A content-bound mapping receipt carrying both refs/hashes and exact membership reconciliation must land before the positive verifier can be built; the default remains `NoEpochTransitionVerifier`, and no trust appointment was fabricated.
+
+### 8. `decision-validity-fixed-temp-concurrency`
+
+**Verdict:** `blocked`.
+
+**Blocked by:** two exact external reconciliation landings: the current Task-4.4
+nine-file contract/fixture wave must return exit `0`, and the four DS9 visual fixtures
+must satisfy the unchanged zero-retry no-writer command at exit `0`.
+
+**Deciding command/predicate + exit:** the named concurrency node exits `0`; the exact
+Task-4.4 command exits `1` with `22 failed`; the exact DS9 command exits `1` with four
+identities collected and `4 failed`.
+
+**Exact append prose:** **RESUME SUPERSESSION 2026-08-31 — `blocked`; `blocked_by: current Task-4.4 suite reconciliation + DS9 four-fixture visual reconciliation`.** The UUID/O_EXCL/0600/fsync/atomic-replace writer remains green on its named concurrency node, but the row's conjunction is not met. After merging task I, the exact nine-file Task-4.4 suite exits `1` with `22 = 1 runs-API + 5 promotion-sequence + 14 generation-cycle + 2 recursive-gate` failures; the two authz files are green, so this is the current task-A/runtime contract-fixture remainder. After merging task D, the exact zero-retry no-writer command collects all four DS9 identities but exits `1`: three fixtures never render the case-workspace page and one omits the required typed epoch semantics/nonreceipt. Both external suites must land green; collection success and a locally correct atomic writer are not substitutes for the row's conjunction.

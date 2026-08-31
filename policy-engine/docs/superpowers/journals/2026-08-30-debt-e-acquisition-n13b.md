@@ -1,8 +1,8 @@
 # Task E — acquisition and N13b handshake journal
 
-Date opened: 2026-08-30  
-Continuation approved: 2026-08-31  
-Branch: `codex/debt-e-acquisition-n13b`  
+Date opened: 2026-08-30
+Continuation approved: 2026-08-31
+Branch: `codex/debt-e-acquisition-n13b`
 Base: `784d020148c56e9bfb3a3631909ba11232210a9f`
 
 ## Approved scope and corrections

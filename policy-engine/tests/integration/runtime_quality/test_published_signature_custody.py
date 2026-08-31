@@ -138,11 +138,12 @@ def test_every_public_signature_is_watched_for_staleness(tmp_path) -> None:
                     decision_packet_ref=packet_ref,
                     affected_claim_ids=(claim.claim_id,),
                     published_at=now - timedelta(days=2),
-                    staleness_after=timedelta(days=1),
+                    staleness_after_seconds=86_400,
                 ),
             ),
             captured_at=now - timedelta(days=2),
         )
+        assert population.snapshot.members[0].staleness_after_seconds == 86_400
         watcher = PublishedSignatureCustodyWatcher(
             store=service._artifact_store,
             population_provider=StaticPublicSignaturePopulationProvider(population),

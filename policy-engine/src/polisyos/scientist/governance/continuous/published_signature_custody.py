@@ -39,7 +39,7 @@ class PublicSignaturePopulationMember(BaseModel):
     decision_packet_ref: core_artifacts.ArtifactRef
     affected_claim_ids: tuple[str, ...] = Field(min_length=1)
     published_at: datetime
-    staleness_after: timedelta = Field(gt=timedelta(0))
+    staleness_after_seconds: int = Field(gt=0)
 
 
 class PublicSignaturePopulationSnapshot(BaseModel):
@@ -426,7 +426,9 @@ class PublishedSignatureCustodyWatcher:
             for member in population.snapshot.members:
                 _assert_exact_artifact(self._store, member.signature_ref)
                 _assert_exact_artifact(self._store, member.decision_packet_ref)
-                if scanned_at < member.published_at + member.staleness_after:
+                if scanned_at < member.published_at + timedelta(
+                    seconds=member.staleness_after_seconds
+                ):
                     continue
                 persisted_event = persist_governance_monitor_event(
                     self._store,

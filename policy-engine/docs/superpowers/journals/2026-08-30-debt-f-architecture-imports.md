@@ -459,3 +459,25 @@ Adjacent: **2 = 1 closed + 0 open + 1 blocked + 0 ambiguous**.
   removes exactly `(continuous.incident, continuous.monitors)` and adds no tuple; the
   report-only new-cycle finding measure returns from four to three. No cycle predicate,
   lazy-cycle registry, exception, or witness was changed.”
+
+## Round 2 evidence journal
+
+### 2026-08-31 — resumed execution basis
+
+- Resumed attached to `codex/debt-f-architecture-imports` at
+  `a82913599cee53573aa9e0527ee6e5b89a6f0faf`; the worktree was clean and the merge base
+  remained `784d020148c56e9bfb3a3631909ba11232210a9f`.
+- Re-read the round-1 dossier, contributor contract, and PDC failure/repair register
+  before appending the round-2 plan. The user accepted the three round-1 closures and
+  corrected denominators to 584 Scientist / 280 Runtime Python files and 251 current
+  cross-package observability statements.
+- Round-2 interpretation: “mechanical work done” covers every already-ruled observability
+  move — 166 determinism statements, two HPC-config statements, and five already-facaded
+  pricing/propagation statements. The only intended deep remainder is the separately
+  adjudicated truthfulness family.
+- P37 labels at admission: live AST/path censuses are `recomputed`; the direction and
+  exact-facade rulings are `institutionally_supplied` but ratified for execution; the
+  truthfulness destination decision and Corpus owner appointment are `not_established`
+  and cannot authorize closure. P38 property/proxy split: counts are observations only;
+  closure turns on canonical row-set emptiness or exact residual identity, never on a
+  count changing by the expected amount.

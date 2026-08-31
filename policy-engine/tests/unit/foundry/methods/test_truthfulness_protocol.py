@@ -2,18 +2,17 @@ from __future__ import annotations
 
 import pytest
 
-import polisyos.core.observability.truthfulness as core_truthfulness
 import polisyos.ir.analytics as analytics_truthfulness
 import polisyos.ir.analytics._truthfulness as ir_truthfulness
 from polisyos.core.contracts.execution_plan import MethodCatalogEntry
-from polisyos.core.observability.truthfulness import (
+from polisyos.foundry.methods.base import MethodMetadata
+from polisyos.foundry.methods.catalog.ml.protocols import PredictionIntervalResult
+from polisyos.ir.analytics import (
     TruthfulnessReceipt,
     TruthfulnessScope,
     TruthfulnessTier,
     reconcile_truthfulness_tiers,
 )
-from polisyos.foundry.methods.base import MethodMetadata
-from polisyos.foundry.methods.catalog.ml.protocols import PredictionIntervalResult
 from polisyos.ir.analytics.calibration_diagnostics import (
     CalibrationDiagnosticsReport,
     CalibrationMetrics,
@@ -34,13 +33,12 @@ _TRUTHFULNESS_SURFACE = (
 )
 
 
-def test_core_truthfulness_surface_is_exact_ir_identity() -> None:
+def test_truthfulness_facade_surface_is_exact_ir_identity() -> None:
     for name in _TRUTHFULNESS_SURFACE:
         private_identity = getattr(ir_truthfulness, name)
         assert getattr(analytics_truthfulness, name, None) is private_identity
-        assert getattr(core_truthfulness, name) is private_identity
 
-    schema = core_truthfulness.TruthfulnessReceipt.model_json_schema()
+    schema = analytics_truthfulness.TruthfulnessReceipt.model_json_schema()
     assert schema == ir_truthfulness.TruthfulnessReceipt.model_json_schema()
     assert schema["$defs"]["TruthfulnessTier"]["description"] == (
         "Normalized epistemic strength of a runtime or catalog truthfulness claim."

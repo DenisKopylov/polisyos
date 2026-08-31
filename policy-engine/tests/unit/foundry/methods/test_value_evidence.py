@@ -7,11 +7,6 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.core.observability.truthfulness import (
-    TruthfulnessReceipt,
-    TruthfulnessScope,
-    TruthfulnessTier,
-)
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodTiming,
@@ -38,6 +33,11 @@ from polisyos.foundry.methods.components.value_evidence import (
     MethodValueRefusal,
     project_method_value_evidence,
     resolve_method_value_projection_capabilities,
+)
+from polisyos.ir.analytics import (
+    TruthfulnessReceipt,
+    TruthfulnessScope,
+    TruthfulnessTier,
 )
 from polisyos.ir.analytics.distributional import (
     DistributionalBoundsBundle,

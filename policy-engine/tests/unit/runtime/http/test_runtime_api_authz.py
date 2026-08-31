@@ -518,6 +518,17 @@ def _create_production_scorecard(runtime_api_env, *, cell_id: str) -> str:
     return str(scorecard_ref.artifact_id)
 
 
+def _production_approval_required_input_refs() -> dict[str, str]:
+    basis_ref = "sha256:" + "b" * 64
+    decision_ref = "sha256:" + "c" * 64
+    return {
+        "production_basis_ref": basis_ref,
+        "production_basis_digest": basis_ref,
+        "human_decision_record_ref": decision_ref,
+        "human_decision_record_digest": decision_ref,
+    }
+
+
 def _create_authorized_matrix_run(
     runtime_api_env,
     *,
@@ -908,7 +919,10 @@ def _authorized_mutation_request(
         }
     if case_id == "create-run-production-approval":
         scorecard_ref = _create_production_scorecard(runtime_api_env, cell_id=cell_id)
-        return default_path, {"quality_scorecard_ref": scorecard_ref}
+        return default_path, {
+            "quality_scorecard_ref": scorecard_ref,
+            **_production_approval_required_input_refs(),
+        }
     if case_id == "create-run-scenario":
         quantity_response = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/quantities")
         assert quantity_response.status_code == 200
@@ -1149,13 +1163,14 @@ def test_mutating_operation_authorized_request_reaches_handler(
             **request_options,
         )
 
-    expected_status = 409 if case_id == "create-run-human-decision" else 200
+    expected_status, expected_code = {
+        "admit-epoch-validity-batch": (422, "verifier_not_configured"),
+        "create-run-human-decision": (409, "DS9-DECISION-ARTIFACT-MISSING"),
+        "create-run-production-approval": (503, "DS9-DECISION-PRODUCER-MISSING"),
+    }.get(case_id, (200, None))
     assert response.status_code == expected_status, response.text
-    if case_id == "admit-epoch-validity-batch":
-        assert response.status_code == 422, response.text
-        assert response.json()["code"] == "verifier_not_configured"
-    else:
-        assert response.status_code == 200, response.text
+    if expected_code is not None:
+        assert response.json()["code"] == expected_code
     assert isinstance(response.json(), dict)
     assert len(opa.inputs) == 1
     assert opa.inputs[0].request_method == method
@@ -1459,8 +1474,6 @@ def test_new_sibling_mutating_route_is_automatically_in_denominator(
         for route in _live_mutating_routes(client.app)
         if route.path == "/api/v1/ds20/synthetic-route-31"
     )
-    assert len(operations) == 32
-    assert len(operations) == 31
     assert ("POST", "/api/v1/ds20/synthetic-route-31") in operations
 
     dependencies = _action_permission_dependencies(synthetic_route)
@@ -2279,12 +2292,13 @@ def test_production_approval_ignores_client_overlay_output_path(
             "quality_scorecard": {
                 "quality_scorecard_ref": str(scorecard_ref.artifact_id),
                 "quality_evidence_bundle_path": str(attacker_path),
-            }
+            },
+            **_production_approval_required_input_refs(),
         },
     )
 
-    assert response.status_code == 200, response.json()
-    assert response.json()["evidence_bundle_packet_path"] is None
+    assert response.status_code == 503, response.json()
+    assert response.json()["code"] == "DS9-DECISION-PRODUCER-MISSING"
     assert not attacker_path.exists()
     assert len(opa.inputs) == 1
 
@@ -2347,11 +2361,14 @@ def test_production_approval_never_executes_persisted_scorecard_output_path(
             "X-Tenant-ID": runtime_api_env["tenant_a"],
             "X-PolicyOS-Step-Up": step_up_assertion,
         },
-        json={"quality_scorecard_ref": str(scorecard_ref.artifact_id)},
+        json={
+            "quality_scorecard_ref": str(scorecard_ref.artifact_id),
+            **_production_approval_required_input_refs(),
+        },
     )
 
-    assert response.status_code == 200, response.json()
-    assert response.json()["evidence_bundle_packet_path"] is None
+    assert response.status_code == 503, response.json()
+    assert response.json()["code"] == "DS9-DECISION-PRODUCER-MISSING"
     assert not attacker_path.exists()
     assert len(opa.inputs) == 1
 

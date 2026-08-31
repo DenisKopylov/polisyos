@@ -354,3 +354,67 @@ directory or full suite. Re-open the failure register, then request an independe
 whole-branch review of the round-2 delta. Correct blocking findings in one batched
 round, commit each coherent boundary after checking branch attachment, and read the
 delivered files back from `HEAD` before reporting completion.
+
+## Post-freeze resume amendment — 2026-08-31
+
+The pre-merge lineage gate is committed at `e5adb9fc5`; its 621-file / 759-root /
+126-obligation result is historical evidence only. Main through `83f69c3c0` is now
+merged by an ordinary merge. Task D changed the dashboard source denominator and
+landed both the DS9 collection repair and the typed DS18 execution-outcome
+envelope. Every measured predicate below is therefore replayed against the merged
+tree before it is used.
+
+Constraints added for this resume:
+
+- run one CPU-heavy verifier at a time and let it finish;
+- do not communicate with or inspect another lane; unresolved ownership becomes a
+  dossier question naming the exact artifact and landing file;
+- keep changes to `check_frontend_disposition_register.py` additive and report the
+  exact lines because task C has a concurrent narrow edit there;
+- do not edit dashboard source beyond the owned
+  `scripts/persist_atlas_evidence.py` consumer; and
+- retain the scope reminder's `closure_effect: none`: only architect-owned Atlas
+  inherited-obligation bullets can establish slice scope.
+
+Pattern pass: P35 forbids carrying the pre-freeze denominator forward; P37/P38
+require the lineage gate and Python consumer to validate recomputed producer
+artifacts rather than totals or marker fields; P40 requires adopting the typed
+execution envelope instead of extending the prior normalization ladder; P41
+requires base/current blocker-set comparison for the ledger and explicit carried
+programme reds.
+
+### Task 9: Reconcile DS6 lineage against the merged dashboard freeze
+
+Run the focused scanner/checker first and compare the complete stable-selector
+mapping with the committed 77 + 17 + 32 composition. If the merged tree contains
+new or changed obligations, add one exact content-bound landing checkpoint rather
+than changing a count. Extend the same-total, unassigned-entrant, forged-coordinate,
+and composition-identity tests as needed. Verify the focused lineage suite and
+focused DS18 checker before committing.
+
+### Task 10: Adopt the typed execution-outcome envelope in Python
+
+Read the TypeScript producer, strict schema, runner, and existing Python consumer
+end to end. Add focused Python-side tests first for a valid measured outcome and for
+both fail-closed sides: producer/checker failure and an invalid or tampered envelope.
+Then replace the legacy stdout/stderr interpretation with strict envelope admission,
+including per-stream cap evidence, fixed error-code handling, and raw-byte digests.
+Keep readiness behavior unchanged. Run only the exact persistence tests and their
+direct producer contract nodes; do not edit the frozen dashboard producer.
+
+### Task 11: Replay current row predicates and terminate the dossier
+
+Exercise the now-collecting zero-retry dark-composer Playwright identity under the
+declared ceiling. Re-walk all canonical frontend baseline bindings and re-parse the
+complete DS5 handoff table against current slice scope. Recheck the generated-client
+vocabularies, all five DS8 substantive closure artifacts, and the already-bound
+timing workload without replacing historical derivations with current totals.
+
+Append the journal evidence and then the final Register closure dossier as the last
+section: exactly eleven row blocks, each `closed` or concretely `blocked`, with
+commands, exit codes, append-only prose, arithmetic, post-merge DS6 comparison,
+scenario falsifier, Python-envelope evidence, exact checker line spans, and named
+architect questions. Run exact changed nodes, narrow checkers, diff checks, the
+current-base and branch debt-ledger checks, docs lifecycle, and the two carried
+programme-red measurements. Re-open the failure-pattern register before the final
+commit and read the result back from `HEAD`.

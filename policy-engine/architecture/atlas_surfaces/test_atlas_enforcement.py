@@ -8,16 +8,18 @@ import json
 import subprocess
 import tempfile
 import unittest
-from collections.abc import Mapping
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from pathlib import Path
 from textwrap import dedent
 from time import monotonic
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
 import yaml
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 ATLAS_DIR = Path(__file__).resolve().parent
 ENFORCEMENT_CHECKER_PATH = ATLAS_DIR / "check_atlas_enforcement.py"

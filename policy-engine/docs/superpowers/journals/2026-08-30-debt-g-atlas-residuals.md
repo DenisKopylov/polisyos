@@ -599,3 +599,392 @@ DS18's `projection source freshness` 1/2 remain planned-slice handoffs not
 absorbed by their plans. The known task-B 118-versus-117 denominator red and the
 missing-`rdflib` collection error were outside this lane's changed denominator and
 were not used as closure evidence.
+
+## Post-freeze resume — 2026-08-31
+
+The round-2 DS6 lineage mechanism was committed before integration, then local
+`main` at `83f69c3c0` was merged by ordinary merge commit `dae30b249`. The merge
+changed none of Task G's five then-owned files, but it changed the dashboard
+source denominator consumed by the DS18 scanner. The pre-merge measurement was
+621 production TypeScript/TSX source files / 759 render roots / 126 obligated
+roots / 126 covered roots. The post-freeze fixed-environment replay is 623 source
+files / 759 roots / 126 obligated / 126 covered at
+`independently_reconciled`. Thus the file denominator grew by two while the root
+and obligation sets stayed constant. No pre-freeze scalar was carried forward.
+
+### DS6: the 77 -> 126 lineage is a composition, not a total
+
+The immutable freeze is commit
+`3011c9584a0327661c8f5a9b695a1769ddb64385`, with 77 obligated roots and canonical
+mapping digest
+`sha256:1c45bca4c94568dbf1d7e965e8e3acc54406e3f5e7354d9b978d0d83ce70c2ec`.
+The live invariant is:
+
+```text
+O(current) = rebind(
+  O(freeze@3011c9584, 77)
+  disjoint-union delta(DS15@8c20b6f74, 17)
+  disjoint-union delta(DS17@7161da3df, 32)
+)
+```
+
+All displayed counts are derived summaries. The assertion pins the complete
+path + component identity + component-local occurrence mapping, content-bound by
+root ID and root-source SHA-256, plus exact landing/checkpoint commits and
+canonical mapping digests. It does not pin `126` as a scalar.
+
+DS15 entered 17 roots at admission/checkpoint
+`8c20b6f74f224e9ee44eb5ffa04a33399b816142`, taking the derived checkpoint to
+94. Its delta digest is
+`sha256:3086117c96be03358f5acb335f2e1f739b02c9c21e8f2a0ea2e304ddff1c4e43`
+and its checkpoint mapping digest is
+`sha256:0230dfa4fc18c6208698fb5caf69e35aa1faf7aa71f83fdcbbeaea09365befbd`.
+The exact entrants, grouped only for readability, are:
+
+- `AcquisitionApprovalFlow.tsx`: `AcquisitionApprovalFlow#0`.
+- `AcquisitionExecutionTimeline.tsx`: `AcquisitionExecutionTimeline#0`.
+- `AcquisitionGrowthBacklog.tsx`: `AcquisitionGrowthBacklog#0`.
+- `AcquisitionPassportPanel.tsx`: `AcquisitionPassportPanel#0`.
+- `AcquisitionQuarantineLedger.tsx`: `AcquisitionQuarantineLedger#0`.
+- `AcquisitionRouteDetail.tsx`: `AcquisitionRouteDetail#0`,
+  `AcquisitionRouteDetail#1`.
+- `ConnectorAcquisitionScorecard.tsx`: `ConnectorAcquisitionScorecard#0`.
+- `CycleBoard.tsx`: `AcquisitionGrowthBoundary#0`,
+  `AcquisitionGrowthSurface#0`, `AcquisitionGrowthSurface#1`, `CycleBoard#0`,
+  `LoadedAcquisitionGrowth#0`, `QueriedAcquisitionGrowth#0`.
+- `CaseWorkspacePage.tsx`: `AuthorizedCaseWorkspace#2`,
+  `CaseWorkspacePage#3`, `HumanDecisionWorkspace#0`.
+
+DS17 admitted 32 roots at
+`36dff74a610e03ae98b1cac6f1bb237dd4fda60a` and bound them at checkpoint
+`7161da3df6dc5f3a2578797539bc6714ea59ee2e`, taking the derived checkpoint to
+126. Its delta digest is
+`sha256:72de05d72277e5679ae126c8598a8ea7f8cdeb3c712e6971fb0df12b751d571d`
+and the pre-dashboard-freeze mapping digest is
+`sha256:a4faaeee71ce4ece142d71de486e63244eebd7981c63e36baf0c4cbec8a1076e`.
+The exact entrants are:
+
+- `ConditionalDeltaFigure.tsx`: `ConditionalDeltaFigure#0`,
+  `ConditionalEnvelopeDetails#0`, `ConfidenceLedgerTemporalOwner#0`,
+  `EnvelopeField#0`.
+- `ConfidenceLedgerRiskSpend.tsx`: `ActualRow#0`, `AmountSet#0`,
+  `AvailableRiskSpend#0`, `CertificateRoute#0`, `ClassSpendRow#0`,
+  `ConfidenceLedgerRiskSpend#0`, `#1`, `#2`, `#3`, `DetailRow#0`,
+  `InstrumentDefinition#0`, `NonAvailableRiskSpend#0`, `#1`,
+  `SemanticList#0`, `#1`, `SemanticSection#0`, `SemanticValue#0`.
+- `CycleBoardPage.tsx`: `AuthorizedCycleBoardPage#0`,
+  `ConfidenceLedgerRiskSpendQueryPanel#0`, `#1`, `#2`, `#3`,
+  `CycleBoardPage#0`, `#1`, `#2`, `CycleBoardQueryPanel#0`, `#1`, `#2`.
+
+The Task-D dashboard freeze at
+`03c5783609271c27d6f3d212b76dda7eddef2074` admitted zero roots, removed zero
+roots, and rebound nine existing roots. Eight are line-coordinate-only changes
+in `RunReportPage.tsx`; the ninth keeps `RunPaperDocument#0` at the same root ID
+and changes its root-source digest. The post-freeze obligation mapping digest is
+`sha256:296faa4e6569dae3b101a695245eeca2908d98fd923d89a70384170c4c04bc3f`,
+the rebound-manifest digest is
+`sha256:5123b0fcacc4d50ea187d7d7646ed2a4c997b60f87dfaedc725a24cfe9c5cb57`,
+and the complete 759-root digest is
+`sha256:95b8985aeb087c732579fea4c576ed7a55ca8555d6847f793306e977765beb21`.
+
+The fixed-environment focused checker exits `0` and prints 623 / 759 / 126 /
+126. The lineage and execution-outcome test files exit `0` at 18/18. Their
+same-total-swap, wrong landing label, wrong checkpoint, unassigned entrant,
+forged coordinate, malformed UTF-8/JSON, duplicate-key, and relational-invalid
+probes establish the mapping property rather than its count.
+
+### DS18 execution outcome: shared envelope adopted
+
+Commit `5c709c673` replaced Python-side process/error interpretation with the
+typed producer-owned runner
+`apps/runtime-dashboard/scripts/run-ds18-time-semantics-outcome.mjs`. The Python
+consumer validates the strict JSON Schema and TypeScript relational refinements,
+preserves fixed error codes plus raw-byte counts/digests, and never normalizes
+producer whitespace. The live admitted outcome is established at
+623 / 759 / 126 / 126. Its canonical outcome digest is
+`f0cb8b5efa2690cdb03f422749d18a29bcffba2bd6b97259783e6cb0d3f697fa`;
+runner, contract, and schema digests are respectively
+`782791fd777ed7ce3d065fe43763465070cf8d6f8bf0fd8baeda625697060766`,
+`31d7b4be37e2facb7a0b0ccce30ee6d466fcae07925085c4d286da1122bfa090`,
+and `7175d67e5ca8cb80151f3840d0200825641f9dc4b8151388543fd2729eceb64d`.
+
+Producer-side falsifiers exit `0` at 4/4: zero-exit malformed output, each
+8-MiB stream cap independently, and nonzero U+001C versus U+FEFF stderr retained
+as raw fixed-code evidence. Python-side falsifiers exit `0` within the 8/8
+consumer tests: malformed JSON, invalid UTF-8, duplicate keys, invalid relational
+counts, raw not-established evidence, and runner stderr non-disclosure. This is
+the P40 generalization; no third normalization patch exists.
+
+Task D's former `94` expectations are absent from the merged test file. The
+remaining read-only stale assertion is now
+`atlasHealthMetrics.test.ts:831-848`: it still says the Python adapter is
+unchanged and expects status 1 at line 838. Its exact selector exits `1` because
+the adopted adapter succeeds. Task G did not edit that file.
+
+### Current row measurements
+
+- The canonical DS5 binding walk reports 46 binding rows / 45 unique paths /
+  zero SHA-256 mismatches, partitioned as 2 `.cjs`, 14 `.ts`, and 30 `.tsx`
+  rows. All six `31f66448a` paths are present and fresh. The historical origin
+  coordinate remains populated in 75/75 resolution rows but is not the field
+  consumed by `_resolution_content_binding_errors`.
+- The complete DS5 table remains 27 groups / 58 sites. The six successor
+  handoffs are 6 groups / 11 sites: DS12 3/7, DS14 1/1, DS15 1/1, DS18 1/2.
+  DS12 and DS14 now have aggregate inherited-obligation scope, while DS15 and
+  DS18 have standalone plans. None of the six exact group labels occurs in its
+  target scope artifact, and none of the six executable signals has landed.
+- The two registered generated families contain six outputs plus one OpenAPI
+  source. All seven paths contain zero named occurrences of `DecisionGrade`,
+  `CgfDisposition`, or `CacheAge`, and zero paths changed between pre-merge
+  `e5adb9fc5` and current HEAD. No qualifying regeneration occurred.
+- The already-closed timing selector exits `0` at 1/1 and remains bound to the
+  historical 67-node map and digest
+  `9b08f0ed2e74bf888009820529e2901c6dd3bedb40bf55a679a362efaf12aea6`.
+  It is not reopened; the new DS18 Python-consumer row takes its denominator
+  slot in the resumed eleven.
+- A complete AST walk parses 2,616 tracked `src/**/*.py` files with zero errors.
+  It finds 12 literal `"case"` sites but zero `resource_kind = "case"`
+  assignments and zero `resource_kind="case"` call keywords. The one
+  `case_index` phrase is a forecasting loop counter; the one case/index-named
+  class is `Layer3G5W12DCaseBlockIndex`, not a canonical global index. The exact
+  fail-closed case-provider node exits `0` and asserts `producer_missing` plus
+  an incomplete frontier.
+- `public_export.py` is a real producer: the complete Python denominator has six
+  `build_public_export_bundle` occurrences. It has zero `/public/decisions`
+  routes, zero `public record` phrases, and zero `certificate endpoint` phrases.
+  The state is `bridge_missing`, not `producer_missing`.
+- The complete `features/clerk` denominator is 33 files and contains zero
+  `PromptToolParserAuthorityLedger`, `CompressionLossReceipt`, `agent_session`,
+  or `orchestration_audit` occurrences. The Atlas master calls the missing work
+  DS14 producer/bridge work over G6 contracts, schema/client regeneration, and a
+  `features/clerk` strangle.
+
+### Scenario-composer bounded residual
+
+The repaired DS9 collection path was exercised with the real Playwright fixture,
+Chromium, one worker, zero retries, a 90-second per-test ceiling, a 240-second
+global ceiling, and snapshot updates disabled. The exact named case reached
+`/compose`, found the Scenario Composer heading, and proved
+`html[data-theme=dark]`. It then reproduced the bounded default-NL residual:
+expected 1094 x 3877, actual 1094 x 3683, 1,041,017 differing pixels, ratio 0.25.
+The page identifies its mode as `Natural-language run`. Playwright exits `1`;
+the captured `.last-run` predicate exits `0` with status `failed`. The residual
+is bounded to that fixture/mode/theme/viewport, and the unchanged case is its
+falsifier. No app source or snapshot was rewritten.
+
+### Baselines and collision hand-back
+
+The bound debt-ledger checker was replayed on current HEAD and from immutable
+slice base `784d02014` in disposable shared clone
+`/tmp/polisyos-task-g-base.lhjfVM`, with the same bound interpreter. Base exits
+`1` with 151 register IDs and 18 unresolved closure-signal identities. Current
+exits `1` with 163 register IDs and 15. The current identity set is a strict
+subset; the three removed identities are `DS11-CLAIM-LIFECYCLE-ORCHESTRATION`,
+`DS11-GENERAL-COPY-SEMANTICS`, and `DS11-PUBLISHED-SIGNATURE-WATCHER`. Task G
+adds zero identities.
+
+`check_docs_lifecycle.py` exits `1` with exactly six findings: two generated
+ledger frontmatter findings and four pre-existing removed-stub references. This
+append introduces no seventh finding.
+
+The two programme-wide reds were measured and not repaired. The promotion
+contract checker exits `1` on exact code
+`promotion_comparison_admission_manifest_drift`. The supplied trust-posture
+baseline and current command now disagree in canonical form: the supplied
+baseline describes stale generated bytes over the all-`src/**/*.py` basis,
+while both the direct compiler and architecture guardrail wrapper currently
+exit `1` earlier because `DS11-CLAIM-LIFECYCLE-ORCHESTRATION` is no longer
+exactly appointed-and-open. The byte comparison is not reached; neither form is
+selected as a replacement for the other.
+
+Task G's additive hunks in the contended
+`check_frontend_disposition_register.py` are current lines 69-118, 17848-17855,
+18074-19092, 19098, 19112, 19142, 19147-19148, 19182-19185, 19292-19313,
+19389, 19394-19395, and 19467-19471. No refactor was performed. The full
+disposition checker exits `1` only on the concurrently owned C13 print receipt
+for `AmbientTelemetryHud.tsx`; the focused DS18 checker exits `0`.
+
+## Register closure dossier — post-freeze final
+
+Resumed denominator: **11 = 5 closed + 6 blocked**. Core seven:
+**7 = 3 closed + 4 blocked**. Adjacent resumed four:
+**4 = 2 closed + 2 blocked**. The already-closed Atlas timing row is separately
+reverified at 1/1 and is not reopened;
+`ds18-execution-outcome-python-consumer-missing` is the new adjacent row in this
+eleven-row denominator.
+
+### `ds4-waist-decision-grade`
+
+**Verdict:** `blocked`.
+
+**Deciding command and exit:** a complete walk of the two registered generated
+families, their six outputs, and shared OpenAPI source exits `1` for the closure
+predicate: all seven paths contain zero named `DecisionGrade` occurrences, and
+`git diff --name-only e5adb9fc5..HEAD` reports zero changed paths in that
+denominator.
+
+**blocked_by:** a contract-surface regeneration must land in
+`schemas/runtime_api_v1.openapi.json`, the five `packages/runtime-api-client`
+outputs, and dashboard generated types, then the presentation waist must consume
+the generated `DecisionGrade` vocabulary.
+
+**Exact append-only register prose:**
+
+> **POST-FREEZE TASK G VERDICT 2026-08-31 — `blocked`.** A complete current census of the two registered generated families covers one OpenAPI source plus six generated outputs and finds zero named `DecisionGrade` occurrences; none of those seven paths changed in the merges since Task G's pre-freeze head, so the qualifying regeneration did not occur. `blocked_by`: a runtime contract-surface regeneration that introduces and exports the owner `DecisionGrade` vocabulary, regenerates the five runtime-client outputs and dashboard API types, and swaps the DS4 presentation waist to that generated vocabulary. Of the row's three vocabularies, only `DecisionGrade` is this executable blocker; `CgfDisposition` remains a separate `producer_missing` capability and `CacheAge` is retired.
+
+### `ds5-frontend-baseline-manifest-bindings-stale`
+
+**Verdict:** `closed`.
+
+**Deciding command and exit:** the complete Python SHA-256 walk of
+`lint.resolution_content_bindings` exits `0` with 46 binding rows / 45 paths /
+zero mismatches and 6/6 named paths present and fresh; the canonical
+binding-error predicate returns an empty list.
+
+**Exact append-only register prose:**
+
+> **CLOSED POST-FREEZE 2026-08-31 — the canonical binding plane is fresh.** Merging the dashboard freeze temporarily moved the complete walk from zero to one mismatch at `apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts`; Task G re-anchored that one canonical binding in `4a5c5a81e`. The current complete `lint.resolution_content_bindings` walk reports 46 rows over 45 unique paths — 2 `.cjs`, 14 `.ts`, 30 `.tsx` rows — with zero SHA-256 mismatches, and all six paths re-anchored by ancestor `31f66448a` are present and fresh. The historical `lint.resolutions[].origin_identity.source_content_sha256` coordinate remains populated in 75/75 provenance rows but is not the content-binding plane consumed by `_resolution_content_binding_errors`. This supersedes the stale-subject observation and closes the row.
+
+### `ds5-waist-successors-routed-to-unscoped-slices`
+
+**Verdict:** `blocked`.
+
+**Deciding command and exit:** the complete Markdown-table parser exits `0` at
+27 groups / 58 sites and 6 historical handoffs / 11 sites. The implementation
+predicate exits `1`: all six exact group labels have zero occurrences in their
+four target scope artifacts and none of the six executable closure signals has
+landed.
+
+**blocked_by:** the six successor enforcement artifacts named by the DS5 table:
+DS12's generated packet authority/confidence/rights, verifier-private integrity,
+and branded anti-authority role; DS14's generated blocker decision/bool issuer;
+DS15's generated promotion union/private issuer; and DS18's generated
+`ProjectionFreshness.state` handling.
+
+**Exact append-only register prose:**
+
+> **POST-FREEZE TASK G VERDICT 2026-08-31 — `blocked`, no longer on scope.** The complete DS5 table still contains 27 groups / 58 sites; the six historical handoffs are 6 groups / 11 sites: DS12 3/7, DS14 1/1, DS15 1/1, DS18 1/2. DS12 and DS14 now claim their aggregate inherited obligations in the Atlas master, while DS15 and DS18 have standalone scopes, so the old planless-slice blocker is discharged. Routing/scope is not implementation: none of the six exact group labels appears in its target scope artifact and none of their table closure signals has landed. `blocked_by`: the DS12 generated packet authority/confidence/rights plus verifier-private integrity and branded refusal artifacts; the DS14 generated blocker decision/bool issuer; the DS15 generated promotion union/private issuer; and the DS18 generated `ProjectionFreshness.state` absence/novelty/no-cache-age-inference artifact, each with the table's named negative test. Architect allocation question: which owning build writes those exact generated contracts and tests; Task G owns none of their production corridors.
+
+### `ds6-atlas-evidence-primitive-adoption-projection-stale`
+
+**Verdict:** `closed`.
+
+**Deciding command and exit:** the fixed-environment DS18 checker exits `0` at
+623 source files / 759 roots / 126 obligated / 126 covered; the focused lineage
+and consumer suite exits `0` at 18/18.
+
+**Exact append-only register prose:**
+
+> **CLOSURE MAPPING SUPPLIED POST-FREEZE 2026-08-31 — remains `closed`.** The old 77/77 signal is now reproducibly mapped rather than replaced by a newer total. The invariant pins the immutable 77-root mapping at `3011c9584a` (digest `sha256:1c45bca4c94568dbf1d7e965e8e3acc54406e3f5e7354d9b978d0d83ce70c2ec`) disjoint-unioned with the exact DS15 17-root delta at `8c20b6f74` (delta digest `sha256:3086117c96be03358f5acb335f2e1f739b02c9c21e8f2a0ea2e304ddff1c4e43`) and exact DS17 32-root delta admitted at `36dff74a6` / checkpointed at `7161da3df` (delta digest `sha256:72de05d72277e5679ae126c8598a8ea7f8cdeb3c712e6971fb0df12b751d571d`). The Task-D freeze at `03c578360` adds zero roots, removes zero, and content-binds nine source rebindings, yielding current mapping digest `sha256:296faa4e6569dae3b101a695245eeca2908d98fd923d89a70384170c4c04bc3f`. Counts 77 + 17 + 32 = 126 are derived summaries; the assertion pins the composition and complete mapping, not 126. The post-freeze checker admits 623 production source files / 759 roots / 126 obligated / 126 covered at `independently_reconciled`, and the same-total-swap and unreconciled-root falsifiers fail closed.
+
+### `ds8-global-case-index`
+
+**Verdict:** `blocked`.
+
+**Deciding command and exit:** the complete AST census exits `0` after parsing
+2,616 tracked `src/**/*.py` files with zero parse errors and finding zero
+canonical `resource_kind="case"` producers. The exact current fail-closed provider
+test exits `0` and reports `producer_missing` with an incomplete frontier. The
+positive closure test named by the register remains unresolvable in the debt
+checker.
+
+**blocked_by:** a canonical global case-index producer plus capability-provider
+bridge and
+`tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index`
+must land.
+
+**Exact append-only register prose:**
+
+> **POST-SCOPE TASK G VERDICT 2026-08-31 — `blocked`.** The Atlas inherited-obligation reference plus Task G's exact manifest carries this row into DS12 scope; the manifest remains `candidate_only` with `closure_effect: none` and is not closure evidence. A complete AST census parses all 2,616 tracked `src/**/*.py` files with zero errors, finds 12 literal `case` sites but zero `resource_kind="case"` assignments and zero such call keywords. The only case/index-named class is a bounded W12.D per-case block record and the only `case_index` phrase is a forecasting loop counter, neither a global index. The current provider test passes precisely because it emits typed `producer_missing` and an incomplete frontier. `blocked_by`: a canonical global case-index producer, provider bridge, and `test_case_provider_is_backed_by_canonical_global_index` must land. This is the same object blocking producer-side row `ds10-global-case-index-producer-allocation`; neither row closes the other.
+
+### `ds8-local-reviewer-note-persistence`
+
+**Verdict:** `closed` on the bounded run/packet subject.
+
+**Deciding command and exit:** the exact three-node `operatorCraft.test.ts`
+selector exits `0` at 3/3, proving packet-snapshot binding, verified
+tenant/user/run partitioning, and no persistence when scope verification is
+absent.
+
+**Exact append-only register prose:**
+
+> **CLOSED ON THE BOUNDED SUBJECT 2026-08-31.** The Atlas inherited-obligation reference plus Task G's manifest takes the row into scope; implementation is not inferred from that routing. The existing `operatorCraft` producer persists reviewer annotations only in a verified tenant/user/run-scoped local-state envelope, binds each annotation to the exact publication-packet snapshot, emits `annotation.created` audit evidence, partitions every operator-craft family through the verified scope, and writes no bytes when scope verification is absent. The exact behavioral selector passes 3/3. This closes local, run-bound reviewer annotation persistence; it does not create generic case notes or CRM state. Architect-only plan repair is required before register transcription: `DS9-human-decision-integrity.md` still lists this exact row under `## Explicit non-closure` and calls generic notes declined. Move/reword that entry to preserve the generic-CRM exclusion while removing the exact closed row; leaving both is a blocking checker contradiction.
+
+### `ds8-signed-public-decision-surface`
+
+**Verdict:** `blocked`.
+
+**Deciding command and exit:** two current viewer tests exit `0`, demonstrating
+that a browser-computed salted hash can render `Verified` without API context and
+that malformed IDs alone are rejected. The complete 2,616-file Python census
+finds the real `public_export` producer but zero public-decision route, public
+record, or certificate-endpoint occurrences; the closure predicate exits `1`.
+
+**blocked_by:** DS12's server-backed public record and certificate endpoints,
+real signing/verification custody chain, client-route strangle, and
+`test_public_decision_projection_is_custody_bound` must land.
+
+**Exact append-only register prose:**
+
+> **POST-SCOPE TASK G VERDICT 2026-08-31 — `blocked`.** The Atlas inherited-obligation reference plus Task G's manifest carries this row into DS12 scope without closing it. `runtime/quality/public_export.py` is a real producer, with six `build_public_export_bundle` occurrences across the complete 2,616-file Python source denominator, so this is `bridge_missing`, not `producer_missing`. The same denominator has zero `/public/decisions` route, `public record`, or `certificate endpoint` occurrences. Two current frontend tests pass because the decorative browser-salted hash renders a decision as verified without API context; that is the defect, not custody evidence. `blocked_by`: DS12's server-backed public record/certificate endpoints, real signing and verification chain, citizen-verification projection, strangle of the client-computed token, and `test_public_decision_projection_is_custody_bound` must land. This is the same object blocking producer/rendering row `ds10-public-decision-rendering`; neither half closes the other.
+
+### `scenario-composer-dark-theme-visual-instability`
+
+**Verdict:** `closed` as a bounded residual with an exercised falsifier.
+
+**Deciding command and exit:** the exact Playwright case under Chromium, one
+worker, zero retries, 90-second test ceiling, 240-second global ceiling, and
+snapshot updates disabled exits `1` after reaching the screenshot assertion.
+`jq -e '.status == "failed"'` on its dedicated `.last-run.json` exits `0`.
+
+**Exact append-only register prose:**
+
+> **CLOSED AS A BOUNDED VISUAL RESIDUAL 2026-08-31.** Ordinary ownership is `team-frontend`; no institutional appointment is involved. After Task D repaired DS9 collection, the exact `scenario composer dark theme` Playwright case ran under Chromium with one worker, zero retries, a 90-second per-test ceiling, a 240-second global ceiling, fixtures enabled, and snapshot updates disabled. It reached `/compose`, found the Scenario Composer, proved `data-theme=dark`, then reproduced only the default `Natural-language run` snapshot residual: expected 1094 x 3877, actual 1094 x 3683, 1,041,017 differing pixels (ratio 0.25). The bounded residual is that exact fixture/mode/theme/viewport; the unchanged Playwright case is its falsifier and currently fires. No broader dark-theme or rendering claim is made, and no snapshot was rewritten.
+
+### `ds8-lex-clerk-authority-repair`
+
+**Verdict:** `blocked`.
+
+**Deciding command and exit:** the complete current `features/clerk` walk exits
+`0` after counting 33 files and zero occurrences of the four DS14 grounding
+contract names. The predicate that those producer/bridge artifacts exist exits
+`1`.
+
+**blocked_by:** DS14 agent-session and orchestration-audit endpoints over the G6
+contracts, schema/client regeneration, `CompressionLossReceipt` projection, and
+the re-grounded `features/clerk` strangle plus P15 negatives must land.
+
+**Exact append-only register prose:**
+
+> **POST-SCOPE TASK G VERDICT 2026-08-31 — `blocked`, Clerk-only.** The Lex finding is settled: DS10 being Capability Discovery is correct; the wrong statement is the unqualified `Lex -> DS10`. Lex route/discovery remains with `team-design`/DS10 while authenticated pipeline mutation remains with `team-lex`. DS14 now owns the Clerk obligation in scope and its real GY-I + DS9 gate is met, so no slice-plan or Phase-6 block remains. The complete current `features/clerk` denominator is 33 files and contains zero `PromptToolParserAuthorityLedger`, `CompressionLossReceipt`, `agent_session`, or `orchestration_audit` occurrences. `blocked_by`: DS14's agent-session and orchestration-audit endpoints over G6 contracts, schema/client regeneration, compression-loss/authority-delta projection, re-grounded Clerk strangle, and P15 negatives must land. The Atlas master already describes this exact build; the remaining question for the architect is allocation to an executing lane, not design or scope.
+
+### `ds8-public-case-publication`
+
+**Verdict:** `blocked`.
+
+**Deciding command and exit:** the complete Python source census exits `0` with
+the real `public_export` producer and exits `1` for the required public record /
+certificate route. The current register and frozen promotion artifacts still
+show no real `consumer_promotable=True` production receipt, so the one-public-case
+predicate exits `1`.
+
+**blocked_by:** a real `GY-O0-NC-01` governed promotion receipt, followed by
+DS12's server-backed public record/certificate endpoints and one citizen-verifiable
+published case, must land.
+
+**Exact append-only register prose:**
+
+> **POST-SCOPE TASK G VERDICT 2026-08-31 — `blocked`, no longer on routing.** DS12's inherited-obligation bullet explicitly owns this row, and the substantive Public Publication Foundation scope makes the capability buildable now. The complete 2,616-file Python census finds the real `public_export` producer but zero `/public/decisions` route, `public record`, or `certificate endpoint`, so the mechanism is `bridge_missing`. A real case cannot yet satisfy the row: `GY-O0-NC-01` is open and current frozen promotion receipts remain `consumer_promotable=false`. `blocked_by`: first a real canonical `consumer_promotable=True` governed-promotion receipt must land; then DS12's server-backed public record/certificate endpoints, signing/verification chain, and one citizen-verifiable published case must land. Scope and the candidate-only manifest close none of those capability gaps.
+
+### `ds18-execution-outcome-python-consumer-missing`
+
+**Verdict:** `closed`.
+
+**Deciding command and exit:** the focused Python lineage/outcome suite exits
+`0` at 18/18, including 8/8 consumer tests; the exact producer-side Vitest
+selector exits `0` at 4/4; the live focused checker exits `0` at
+623 / 759 / 126 / 126.
+
+**Exact append-only register prose:**
+
+> **CLOSED 2026-08-31 — Python consumes the producer-owned typed execution outcome.** `persist_atlas_evidence.py` now invokes the fixed DS18 outcome runner, validates the same strict envelope/schema and relational count rules as TypeScript, preserves fixed error codes plus raw-byte counts/digests, and admits the live independently reconciled 623-file / 759-root / 126-obligated / 126-covered projection. It no longer runs a second checker, selects a local buffer policy, or normalizes whitespace. Producer-side falsifiers pass 4/4 for zero-exit malformed output, independent 8-MiB stream caps, and nonzero U+001C/U+FEFF raw evidence; Python-side consumer tests pass 8/8 for malformed JSON, invalid UTF-8, duplicate keys, invalid count relations, not-established evidence preservation, and stderr opacity. This is the shared-envelope generalization required by P40, not a third normalization patch. The read-only TypeScript test at current lines 831-848 still asserts that the Python adapter is unchanged and consumer-missing; the architect/task-D corridor must retire that stale negative after this branch lands, while the former 94/94 scalar assertions are already absent.

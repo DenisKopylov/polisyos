@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Protocol, cast, runtime_checkable
 
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.backends.validated import ValidatedBound
 from polisyos.foundry.methods.base import ComputeBackend, MethodSignature
 

@@ -45,7 +45,7 @@ from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
 
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods._internal.logging import get_foundry_logger
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,

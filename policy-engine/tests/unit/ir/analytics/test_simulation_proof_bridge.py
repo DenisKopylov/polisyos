@@ -16,16 +16,16 @@ from polisyos.core.contracts.foundry import (
     SimulationResult,
     StateSnapshotRef,
 )
-from polisyos.core.observability.truthfulness import (
-    TruthfulnessReceipt,
-    TruthfulnessScope,
-    TruthfulnessTier,
-)
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import put_state_snapshot
+from polisyos.ir.analytics import (
+    TruthfulnessReceipt,
+    TruthfulnessScope,
+    TruthfulnessTier,
+)
 from polisyos.ir.analytics.causal import ProofBundle, load_proof_bundle, persist_proof_bundle
 from polisyos.ir.analytics.simulation_proof_bridge import (
     SimulationCalibrationReceipt,

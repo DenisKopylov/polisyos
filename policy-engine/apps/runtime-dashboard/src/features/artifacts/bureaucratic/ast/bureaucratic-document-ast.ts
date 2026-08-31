@@ -3,7 +3,7 @@ import {
   epochNonreceipt,
   isEpochSemantics,
   type EpochSemantics,
-} from "@/shared/ui/temporal/TimeSemanticsLabel";
+} from "@/shared/lib/domain/epochSemantics";
 
 export const BUREAUCRATIC_GENRES = [
   "postanova_kmu",

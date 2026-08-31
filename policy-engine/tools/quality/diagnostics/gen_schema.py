@@ -574,7 +574,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     scan_mode = "full"
     changed_sources: set[Path] = set()
     if args.changed_only:
-        changed_sources, forced_full_rebuild = _changed_source_scope(args.git_base_ref)
+        try:
+            changed_sources, forced_full_rebuild = _changed_source_scope(args.git_base_ref)
+        except ValueError as exc:
+            print(f"ABI schema snapshot generation failed: {exc}", file=sys.stderr)
+            return 2
         if not forced_full_rebuild:
             if not changed_sources:
                 print("ABI schema snapshot generation skipped: no changed ABI sources detected.")

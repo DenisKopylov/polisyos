@@ -474,7 +474,7 @@ def _signature_from_payload(payload: dict[str, Any]):
 
 
 def _metadata_from_payload(payload: dict[str, Any]):
-    from polisyos.core.observability.determinism import DeterminismTier
+    from polisyos.core.observability import DeterminismTier
     from polisyos.foundry.methods.base import MethodMetadata, SideEffectProfile
 
     determinism_tier = payload.get("determinism_tier")

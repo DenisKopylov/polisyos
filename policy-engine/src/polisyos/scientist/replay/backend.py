@@ -19,18 +19,6 @@ from polisyos.core.contracts.foundry import (
     FoundryInputBindingsRef,
 )
 from polisyos.foundry.execute import execute as execute_foundry
-from polisyos.runtime.replay import (
-    CompletenessLevel,
-    CompletenessReport,
-    ReplayStrategy,
-    VerificationConfig,
-    VerificationResult,
-    build_replay_plan,
-    compare_current_environment,
-    set_global_seeds,
-    try_parse_artifact_id,
-    verify_replay,
-)
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DECISION_PACKET_REF,
@@ -46,6 +34,18 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.workflows.builder import run_selected_workflow
+from polisyos.scientist.replay.deterministic import (
+    CompletenessLevel,
+    CompletenessReport,
+    ReplayStrategy,
+    VerificationConfig,
+    VerificationResult,
+    build_replay_plan,
+    compare_current_environment,
+    set_global_seeds,
+    try_parse_artifact_id,
+    verify_replay,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.ids import ArtifactID

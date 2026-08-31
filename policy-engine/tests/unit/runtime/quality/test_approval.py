@@ -8,10 +8,17 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.control import ProductionApprovalOverrideRequest
+from polisyos.core.contracts.control import (
+    ProductionApprovalOverrideRequest,
+    ProductionApprovalPacket,
+)
 from polisyos.runtime.quality.approval import (
+    ProductionApprovalCurrentnessProjection,
+    ProductionApprovalPacketResolver,
+    ProductionApprovalResolutionError,
     build_production_approval_packet,
     persist_production_approval_packet,
+    resolve_production_approval_currentness_receipt,
 )
 
 
@@ -56,6 +63,157 @@ def _scorecard(**overrides: object) -> dict[str, object]:
     }
     scorecard.update(overrides)
     return scorecard
+
+
+def _sealed_currentness_result(*, now: datetime, packet_ref: str):
+    from polisyos.runtime.http.services.human_decisions import (
+        ResolvedProductionApprovalInputs,
+        ResolvedProductionApprovalPacket,
+    )
+    from polisyos.runtime.quality import approval
+
+    valid_until = now + timedelta(minutes=5)
+    packet = ProductionApprovalPacket.model_construct(
+        schema_version="policyos.production_approval_packet.v2",
+        tenant_id="tenant-approval",
+        run_id="run-approval-currentness",
+        expected_consumer="polisyos.scientist.decision_compiler",
+        expected_audience="polisyos-runtime",
+        valid_from=now - timedelta(minutes=1),
+        valid_until=valid_until,
+        verifier_epoch="deployment-epoch-1",
+        decision="approved",
+    )
+    inputs = ResolvedProductionApprovalInputs(
+        scorecard={},
+        scorecard_ref=_sha("a"),
+        scorecard_digest=_sha("b"),
+        scorecard_signer_identity="scorecard-signer",
+        basis=object(),  # type: ignore[arg-type]
+        basis_ref=_sha("c"),
+        basis_signer_identity="basis-signer",
+        record=object(),  # type: ignore[arg-type]
+        record_ref=_sha("d"),
+        valid_from=now - timedelta(minutes=1),
+        valid_until=valid_until,
+        verifier_epoch="deployment-epoch-1",
+    )
+    resolved_packet = ResolvedProductionApprovalPacket(
+        packet=packet,
+        packet_ref=packet_ref,
+        inputs=inputs,
+    )
+    return approval._ResolvedProductionApprovalCurrentness(
+        packet=resolved_packet,
+        expected_consumer="polisyos.scientist.decision_compiler",
+        expected_audience="polisyos-runtime",
+        evaluated_at=now,
+        _seal=approval._RESOLVER_SEAL,
+    )
+
+
+def test_runtime_resolver_mints_content_bound_scientist_currentness_receipt(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core.contracts.control import (
+        ProductionApprovalCurrentnessReceipt,
+        require_production_approval_currentness_receipt,
+    )
+
+    packet_ref = _sha("8")
+    now = datetime.now(UTC)
+    resolved = _sealed_currentness_result(now=now, packet_ref=packet_ref)
+    resolver = object.__new__(ProductionApprovalPacketResolver)
+    captured: dict[str, object] = {}
+
+    def _require_currentness(_self, **bindings: object):
+        captured.update(bindings)
+        return resolved
+
+    monkeypatch.setattr(
+        ProductionApprovalPacketResolver,
+        "require_currentness",
+        _require_currentness,
+    )
+
+    receipt = resolve_production_approval_currentness_receipt(
+        resolver=resolver,
+        packet_ref=packet_ref,
+        tenant_id="tenant-approval",
+        run_id="run-approval-currentness",
+        expected_consumer="polisyos.scientist.decision_compiler",
+        expected_audience="polisyos-runtime",
+        evaluated_at=now,
+    )
+
+    assert type(receipt) is ProductionApprovalCurrentnessReceipt
+    assert captured == {
+        "packet_ref": packet_ref,
+        "tenant_id": "tenant-approval",
+        "run_id": "run-approval-currentness",
+        "expected_consumer": "polisyos.scientist.decision_compiler",
+        "expected_audience": "polisyos-runtime",
+        "evaluated_at": now,
+    }
+    assert (
+        require_production_approval_currentness_receipt(
+            receipt,
+            packet_ref=packet_ref,
+            tenant_id="tenant-approval",
+            run_id="run-approval-currentness",
+            expected_consumer="polisyos.scientist.decision_compiler",
+            expected_audience="polisyos-runtime",
+        )
+        is receipt
+    )
+
+
+@pytest.mark.parametrize(
+    "candidate",
+    [
+        {},
+        lambda **_kwargs: True,
+        ProductionApprovalCurrentnessProjection(
+            status="current",
+            packet_ref=_sha("8"),
+            checked_at=datetime(2026, 8, 30, tzinfo=UTC),
+            expected_consumer="polisyos.scientist.decision_compiler",
+            expected_audience="polisyos-runtime",
+        ),
+    ],
+)
+def test_runtime_currentness_receipt_rejects_non_exact_resolver(candidate: object) -> None:
+    with pytest.raises(ProductionApprovalResolutionError) as exc_info:
+        resolve_production_approval_currentness_receipt(
+            resolver=candidate,
+            packet_ref=_sha("8"),
+            tenant_id="tenant-approval",
+            run_id="run-approval-currentness",
+            expected_consumer="polisyos.scientist.decision_compiler",
+            expected_audience="polisyos-runtime",
+        )
+
+    assert exc_info.value.code == "DS9-RAW-APPROVAL-NOT-AUTHORITY"
+
+
+def test_currentness_receipt_cannot_be_constructed_with_a_forged_seal() -> None:
+    from polisyos.core.contracts.control import ProductionApprovalCurrentnessReceipt
+
+    now = datetime.now(UTC)
+    with pytest.raises(TypeError, match="runtime resolver only"):
+        ProductionApprovalCurrentnessReceipt(
+            schema_version="policyos.production_approval_currentness_receipt.v1",
+            packet_ref=_sha("8"),
+            tenant_id="tenant-approval",
+            run_id="run-approval-currentness",
+            expected_consumer="polisyos.scientist.decision_compiler",
+            expected_audience="polisyos-runtime",
+            evaluated_at=now,
+            valid_until=now + timedelta(minutes=5),
+            verifier_epoch="deployment-epoch-1",
+            binding_digest=_sha("9"),
+            _seal=object(),
+        )
 
 
 def test_clean_scorecard_builds_and_persists_approval_packet(tmp_path) -> None:

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from polisyos.core.contracts.foundry import ExecPlan, FoundryExecConfig
-from polisyos.core.observability.determinism import parse_determinism_tier
+from polisyos.core.observability import parse_determinism_tier
 from polisyos.foundry.runtime.fingerprint import EnvironmentFingerprint
 
 __all__ = [

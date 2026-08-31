@@ -3,8 +3,8 @@ title: PolicyOS Identity And The Custody Boundary
 status: ratified design decision — system identity and scope boundary
 owner: team-architecture
 created: 2026-07-20
-last_reviewed: 2026-08-30
-decision_status: accepted — ratified by the human principal (owner decision, 2026-07-20); this document is the human-principal acceptance record required by constitution §12 for the §1 amendment it introduces. Amended additively 2026-08-30 by a second principal ruling, recorded as §9 item 5 — an institutional absence binds the claim, never the capability. Nothing prior is rewritten.
+last_reviewed: 2026-08-31
+decision_status: accepted — ratified by the human principal (owner decision, 2026-07-20); this document is the human-principal acceptance record required by constitution §12 for the §1 amendment it introduces. Amended additively 2026-08-30 by a second principal ruling, recorded as §9 item 5 — an institutional absence binds the claim, never the capability. Nothing prior is rewritten. Amended additively again 2026-08-31 by a third principal ruling, recorded as §9 item 6 — an appointment binds the act it names, never the vocabulary that describes it; verifying a signature is not signing. Nothing prior is rewritten.
 supersedes: nothing (sharpens the constitution's §1 Vision; the amendment is recorded there and points here)
 informs:
   - docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
@@ -197,6 +197,42 @@ reconciliation require new sovereign machinery — decline them, integrate inste
    `absent/unallocated` row, ask which band its refusal sits in. When sequencing, an
    institutional dependency is never a scheduling blocker: build the whole mechanism and
    leave the signature slot typed and empty.
+
+6. **For every owner appointment (added 2026-08-31, principal's ruling):** an appointment binds
+   the **act it names**, never the **vocabulary that describes it**. Naming an owner for a
+   decision confers authority over *producing* the decision; it confers nothing over the types,
+   protocols and frozen contracts by which that decision is spoken about, nor over a pure
+   predicate that verifies an already-produced artifact is intact. Verifying a signature is not
+   signing. A Protocol declaring a verifier's shape decides nothing and may live wherever the
+   architecture needs it.
+
+   **Why this follows from `S0-K06`'s band split rather than adding to it.** The appointment
+   binds the **authority band** — who may mint. A shape declaration and a purity-checked
+   verification both sit in the **candidate band**: they carry no power to admit anything that
+   was not already admitted. Treating an appointment as though it also fenced the vocabulary
+   converts one kind of absence into another, which ratified `W5-K01` forbids — and it forbids
+   it in this direction too, including where the conflation is convenient for us. Holding a type
+   hostage to an appointment buys no safety and costs real capability, which is exactly the
+   inversion item 5 rejects.
+
+   **The line, and the falsifier that finds it.** Everything that *mints* — produces a receipt,
+   admits a pack, issues a certificate — stays with the appointed owner. Everything that only
+   *describes* or *checks* may move. The test is purity against live owner state: if the
+   predicate reads only the objects handed to it, it verifies; if it reaches a registry, store,
+   clock or I/O the owner controls, it mints and must stay. Any relocation must carry the
+   producer-owned marker that makes a hand-constructed artifact fail, and must be proved by
+   constructing one from the consumer side and showing it is rejected. A relocation that cannot
+   pass that falsifier has laundered authority, not moved a contract.
+
+   **Worked case (2026-08-31).** `scientist-runtime-declared-cycle` was posed as a binary — move
+   the whole `GY-O0` EvalSafety owner to Scientist, or move the whole execution choke into
+   Runtime — with re-ratification either way. The measurement dissolved the binary: of seven
+   `scientist -> runtime` statements, five are `TYPE_CHECKING`-only and need one Protocol and one
+   frozen DTO, while the two runtime statements need two DTOs, a pure 22-line verifier reading
+   only its three arguments, and a mode resolver that is a pure function of a field already on a
+   context both call sites receive. Under this rule the vocabulary and the verifier move, the
+   minting stays with `GY-O0`, the resolver disappears into the context Runtime already builds,
+   and no appointment is re-ratified.
 
 ## 10. Impact note (constitution §12 requirements)
 

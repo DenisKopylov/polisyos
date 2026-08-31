@@ -1327,11 +1327,6 @@ def _native_projector_contract_proofs() -> list[dict[str, Any]]:
 
 
 def _projector_refusal_proofs() -> list[dict[str, Any]]:
-    from polisyos.core.observability.truthfulness import (
-        TruthfulnessReceipt,
-        TruthfulnessScope,
-        TruthfulnessTier,
-    )
     from polisyos.foundry.methods.base import (
         ComplexityClass,
         FidelityLevel,
@@ -1347,6 +1342,11 @@ def _projector_refusal_proofs() -> list[dict[str, Any]]:
     from polisyos.foundry.methods.components.value_evidence import (
         MethodValueRefusal,
         project_method_value_evidence,
+    )
+    from polisyos.ir.analytics import (
+        TruthfulnessReceipt,
+        TruthfulnessScope,
+        TruthfulnessTier,
     )
 
     verified = _native_projection_cases()[0]

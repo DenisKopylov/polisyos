@@ -98,7 +98,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 26 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
-| `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 965 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
+| `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 966 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
 | `polisyos.lex` | `public_stable` | `lazy_facade` | 51 | `team-polisyos` | `src/polisyos/lex/README.md` |
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 25 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
@@ -183,7 +183,7 @@ timestamps
 ## `polisyos.core`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.core`, `polisyos.core.contracts`, `polisyos.core.security`, `polisyos.core.trace`
+- Supported entrypoints: `polisyos.core`, `polisyos.core.contracts`, `polisyos.core.observability`, `polisyos.core.security`, `polisyos.core.trace`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/core/README.md`
@@ -196,7 +196,8 @@ timestamps
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 133 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 464 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 477 |
+| `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `eager_exports` | 25 |
 | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 102 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 5 |
 
@@ -352,7 +353,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (464)</summary>
+<details><summary>Entrypoint exports (477)</summary>
 
 ```text
 *_CHRONOLOGY_EXPORTS
@@ -365,6 +366,9 @@ PRODUCER_SPINE_CONSUMER_COMPONENTS
 PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION
 RECOURSE_POINTER_SCHEMA_VERSION
 REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION
+SCOPE_ADJUDICATION_AUTHORITY_PURPOSE
+SCOPE_ADJUDICATION_CANDIDATE_SCHEMA_VERSION
+SCOPE_ADJUDICATION_PROHIBITED_USES
 SERIOUS_SKIP_BLOCKER_PROFILES
 SKIP_BLOCKER_REQUIRED_FIELDS
 SKIP_BLOCKER_SURFACES
@@ -683,6 +687,7 @@ PrivacyAwareTransportCertificateRef
 ProblemFrameRef
 ProducerSpineBindingFields
 ProducerSpineReadContext
+ProductionApprovalCurrentnessReceipt
 ProgramGraph
 ProgramGraphRef
 ProvenanceActivity
@@ -724,6 +729,11 @@ RuntimeApiError
 RuntimeApiProblem
 ScenarioFamilyConstructRow
 ScenarioFamilyConstructRows
+ScopeAdjudicationCandidate
+ScopeAdjudicationPlane
+ScopeAdjudicationPredicate
+ScopeAdjudicationRuling
+ScopePredicateObservation
 SearchCompletenessStatus
 SearchFrontier
 SensitivityAnalysisBundleRef
@@ -804,6 +814,7 @@ WarningsRef
 WorkflowRunRequest
 bounded_liveness_config_from_mapping
 build_producer_spine_binding_fields
+build_scope_adjudication_candidate
 build_skip_blocker_record
 c4_canonical_bytes
 c4_canonical_mapping
@@ -818,7 +829,48 @@ epoch
 epoch_staleness_semantic_hash
 evaluate_skip_blocker_policy
 legacy_family_for_construct
+require_production_approval_currentness_receipt
+scope_adjudication_candidate_digest
 serialize_skip_blocker_record
+verify_scope_adjudication_candidate
+```
+
+</details>
+
+#### `polisyos.core.observability`
+
+- Source: `src/polisyos/core/observability/__init__.py`
+- Facade: `eager_exports`
+- Summary: PolicyOS Observability Module — Production-grade telemetry.
+
+<details><summary>Entrypoint exports (25)</summary>
+
+```text
+DeterminismTier
+MetricsRegistry
+OTelConfig
+PolicyOSTracer
+StructuredFormatter
+TraceContextFilter
+TracedExecutorWrapper
+configure_otel_logging_handler
+estimate_llm_cost_usd
+extract_headers
+get_current_trace_context
+get_default_config
+get_determinism_tier
+get_metrics
+get_trace_context_dict
+get_tracer
+inject_headers
+is_hpc_observability_enabled
+parse_determinism_tier
+pricing_table
+propagate_context
+traced
+traced_method
+with_context_vars
+with_trace_context
 ```
 
 </details>
@@ -1099,7 +1151,7 @@ security
 ## `polisyos.ir`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.ir`, `polisyos.ir.api`
+- Supported entrypoints: `polisyos.ir`, `polisyos.ir.analytics`, `polisyos.ir.api`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/ir/README.md`
@@ -1112,6 +1164,7 @@ security
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 277 |
+| `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `module_doc_only` | 0 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 11 |
 
 #### `polisyos.ir`
@@ -1403,6 +1456,12 @@ persist_dependent_sensitivity_result
 ```
 
 </details>
+
+#### `polisyos.ir.analytics`
+
+- Source: `src/polisyos/ir/analytics/__init__.py`
+- Facade: `module_doc_only`
+- Summary: Curated lazy facade for analytics IR contracts.
 
 #### `polisyos.ir.api`
 
@@ -2021,7 +2080,7 @@ write_participation_requirement_bundle
 ## `polisyos.fabric`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.fabric`, `polisyos.fabric.api`
+- Supported entrypoints: `polisyos.fabric`, `polisyos.fabric.api`, `polisyos.fabric.world`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/fabric/README.md`
@@ -2035,6 +2094,7 @@ write_participation_requirement_bundle
 | --- | --- | --- | ---: |
 | `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `lazy_facade` | 39 |
 | `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `module_doc_only` | 0 |
+| `polisyos.fabric.world` | `src/polisyos/fabric/world/__init__.py` | `eager_exports` | 41 |
 
 #### `polisyos.fabric`
 
@@ -2093,6 +2153,60 @@ world
 - Source: `src/polisyos/fabric/api.py`
 - Facade: `module_doc_only`
 - Summary: Explicit public Fabric API facade and connector bridge.
+
+#### `polisyos.fabric.world`
+
+- Source: `src/polisyos/fabric/world/__init__.py`
+- Facade: `eager_exports`
+- Summary: Facade for emitting, validating, persisting, and materializing world facts.
+
+<details><summary>Entrypoint exports (41)</summary>
+
+```text
+SEGMENTS_INDEX_NAME
+WorldFactError
+WorldIDError
+WorldSegmentError
+WorldSnapshotBackendUnavailable
+WorldSnapshotFactWrite
+WorldSnapshotNodeWrite
+WorldSnapshotWriteRequest
+WorldStoreError
+WorldValidationError
+append_world_segment_index
+emit_attr_fact
+emit_claim_facts
+emit_doc_fragment_facts
+emit_doc_meta_facts
+emit_edge_fact
+emit_world_event_facts
+emit_world_node_facts
+event_world_provenance_v1
+load_world_fact_manifests
+load_world_facts
+persist_claim
+persist_conflict_set
+persist_doc_fragment
+persist_doc_meta
+persist_fact_segment_manifest
+persist_quality_report
+persist_trust_assessment
+persist_world_event
+stable_world_provenance_v1
+validate_claim_id
+validate_conflict_set_id
+validate_doc_fragment_ids
+validate_doc_meta_ids
+validate_fact_is_world_abi
+validate_quality_report_id
+validate_trust_assessment_id
+validate_world_event_id
+validate_world_facts
+write_world_fact_segment
+write_world_snapshot
+```
+
+</details>
 
 <details><summary>Supported exports (39)</summary>
 
@@ -2251,7 +2365,7 @@ select_method_candidates_for_requirements
 ## `polisyos.scientist`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.scientist`, `polisyos.scientist.governance.continuous`, `polisyos.scientist.methods.research_dag`
+- Supported entrypoints: `polisyos.scientist`, `polisyos.scientist.governance.continuous`, `polisyos.scientist.methods.research_dag`, `polisyos.scientist.replay`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/scientist/README.md`
@@ -2264,8 +2378,9 @@ select_method_candidates_for_requirements
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 26 |
-| `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 58 |
+| `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 72 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
+| `polisyos.scientist.replay` | `src/polisyos/scientist/replay/__init__.py` | `lazy_facade` | 25 |
 
 #### `polisyos.scientist`
 
@@ -2312,7 +2427,7 @@ tool_contract_default_blockers
 - Facade: `lazy_facade`
 - Summary: Continuous governance and reissue loop for Scientist decision artifacts.
 
-<details><summary>Entrypoint exports (58)</summary>
+<details><summary>Entrypoint exports (72)</summary>
 
 ```text
 CONTINUOUS_GOVERNANCE_FLAG
@@ -2339,6 +2454,15 @@ LifecycleBridgeResult
 PartialPublicationState
 PolicyContextSignal
 PersistedGovernanceMonitorEvent
+PersistedPublicSignaturePopulation
+PersistedPublishedSignatureCustodyScan
+PublicSignaturePopulationMember
+PublicSignaturePopulationNonReceipt
+PublicSignaturePopulationProvider
+PublicSignaturePopulationSnapshot
+PublishedSignatureCustodyResult
+PublishedSignatureCustodyScan
+PublishedSignatureCustodyWatcher
 PublicRevisionDiff
 ReissuePacket
 RetractionPerturbation
@@ -2373,6 +2497,11 @@ persist_withdrawal_record
 recommend_validity_action
 reissue_scope_from_monitor_events
 resolve_governance_monitor_event
+resolve_public_signature_population
+StaticPublicSignaturePopulationProvider
+UnappointedPublicSignaturePopulationProvider
+persist_public_signature_population
+persist_published_signature_custody_scan
 ```
 
 </details>
@@ -2430,6 +2559,44 @@ stable_fingerprint
 untrusted_content_summary
 validate_memory_influence_dag_attribution
 validate_source_invalidation_event
+```
+
+</details>
+
+#### `polisyos.scientist.replay`
+
+- Source: `src/polisyos/scientist/replay/__init__.py`
+- Facade: `lazy_facade`
+- Summary: Scientist replay hub for dead-letter, diff, and verification helpers.
+
+<details><summary>Entrypoint exports (25)</summary>
+
+```text
+ComparatorRegistry
+DeadLetterCorruptedError
+DeadLetterError
+DeadLetterNotFoundError
+DeadLetterRecord
+DiffToleranceConfig
+FieldDiff
+REPLAY_VERIFICATION_REPORT_SCHEMA_NAME
+ReplayBackendResult
+ReplayDiffInputError
+ReplayDiffResult
+ReplayRegistry
+ReplayRegistryEntry
+ReplayRegistrySnapshot
+ReplayVerificationReport
+build_replay_verification_report
+compute_replay_diff
+list_dead_letters
+load_dead_letter
+load_replay_verification_report
+persist_replay_verification_report
+replay_dead_letter
+replay_packet
+save_diff_report
+verify_and_persist_replay_bundle
 ```
 
 </details>
@@ -2614,7 +2781,7 @@ verify_replay
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.runtime.quality` | `src/polisyos/runtime/quality/__init__.py` | `eager_exports` | 965 |
+| `polisyos.runtime.quality` | `src/polisyos/runtime/quality/__init__.py` | `eager_exports` | 966 |
 
 #### `polisyos.runtime.quality`
 
@@ -2622,7 +2789,7 @@ verify_replay
 - Facade: `eager_exports`
 - Summary: Runtime quality evaluation helpers.
 
-<details><summary>Entrypoint exports (965)</summary>
+<details><summary>Entrypoint exports (966)</summary>
 
 ```text
 ACQUISITION_PLANNER_GATE_LAYER
@@ -3515,6 +3682,7 @@ replay_under_original_rules
 requirement_gaps_from_compiled_specs
 resolve_evaluation_mode
 resolve_expression
+resolve_production_approval_currentness_receipt
 resolve_s12_resource_refs
 review_controls_for_pruning
 run_cost_budget_policy_from_performance_budget
@@ -3594,7 +3762,7 @@ write_authority_envelope_json_schema
 
 </details>
 
-<details><summary>Supported exports (965)</summary>
+<details><summary>Supported exports (966)</summary>
 
 ```text
 ACQUISITION_PLANNER_GATE_LAYER
@@ -4487,6 +4655,7 @@ replay_under_original_rules
 requirement_gaps_from_compiled_specs
 resolve_evaluation_mode
 resolve_expression
+resolve_production_approval_currentness_receipt
 resolve_s12_resource_refs
 review_controls_for_pruning
 run_cost_budget_policy_from_performance_budget

@@ -108,6 +108,41 @@ def test_guardrails_detects_new_deep_import_creep(tmp_path: Path) -> None:
     assert "New deep-import creep detected" in violations[0].message
 
 
+def test_fabric_world_exact_facade_is_shared_by_release_deep_import_classifier(
+    current_deep_import_edges: tuple[guardrails.DeepImportEdge, ...],
+) -> None:
+    """The exact world facade is public while implementation descendants stay deep."""
+
+    policies = guardrails._parse_public_surface(
+        guardrails.REPO_ROOT / "architecture/public_surface/contract.toml"
+    )
+    fabric = next(policy for policy in policies if policy.module == "polisyos.fabric")
+    assert "polisyos.fabric.world" in fabric.supported_entrypoints
+    assert not any(
+        entrypoint.startswith("polisyos.fabric.world.")
+        for entrypoint in fabric.supported_entrypoints
+    )
+
+    edge_keys = {edge.key for edge in current_deep_import_edges}
+    assert (
+        "polisyos.runtime.quality.data_state_substrate->polisyos.fabric.world"
+        not in edge_keys
+    )
+
+    descendant_edges: dict[str, guardrails.DeepImportEdge] = {}
+    guardrails._maybe_add_deep_import(
+        edges=descendant_edges,
+        allowed_entrypoints={"fabric": set(fabric.supported_entrypoints)},
+        source_module="polisyos.runtime.consumer",
+        source_root="runtime",
+        source_file=guardrails.REPO_ROOT / "src/polisyos/runtime/consumer.py",
+        target_module="polisyos.fabric.world.store",
+    )
+    assert set(descendant_edges) == {
+        "polisyos.runtime.consumer->polisyos.fabric.world.store"
+    }
+
+
 @pytest.mark.parametrize(
     ("source_module", "private_target"),
     [

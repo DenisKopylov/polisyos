@@ -64,7 +64,7 @@ from uuid import UUID
 
 import numpy as np
 
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_chain_reproducibility_contract,

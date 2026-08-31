@@ -21,11 +21,6 @@ from polisyos.core.contracts.execution_plan import (
     MethodCatalogSnapshot,
     MethodDagNode,
 )
-from polisyos.core.observability.truthfulness import (
-    parse_truthfulness_tier,
-    reconcile_truthfulness_tiers,
-    truthfulness_depth,
-)
 from polisyos.foundry.methods.base import MethodSignature, parse_fqn
 from polisyos.foundry.methods.catalog.snapshot import (
     build_method_capability_matrix,
@@ -54,6 +49,11 @@ from polisyos.foundry.methods.selection.history import (
     get_global_selection_history,
 )
 from polisyos.foundry.methods.selection.registry import MethodRegistry
+from polisyos.ir.analytics import (
+    parse_truthfulness_tier,
+    reconcile_truthfulness_tiers,
+    truthfulness_depth,
+)
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 
 _FIDELITY_ORDER = {"low": 0, "medium": 1, "high": 2}

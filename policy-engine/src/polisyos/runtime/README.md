@@ -74,7 +74,9 @@ clients, dashboards, and operator tooling.
 
 ## Internal Layout
 
-- `__init__.py` and `replay.py` own the root replay facade.
+- `__init__.py` and `replay.py` preserve the root compatibility facade; the
+  canonical implementation is Scientist-owned in
+  `polisyos.scientist.replay.deterministic`.
 - [`quality/`](quality/) owns runtime quality contracts, including the W1.D
   closeout reader skeleton that reads module evidence without letting
   readiness, dashboard, packaging, or public-export projections mint closeout

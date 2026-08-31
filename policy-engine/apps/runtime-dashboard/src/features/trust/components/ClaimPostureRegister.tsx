@@ -4,7 +4,7 @@ import type {
   ClaimPostureAudience,
   ClaimPostureRegister as ClaimPostureRegisterArtifact,
 } from "../domain/posture";
-import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
+import { useOptionalTrustCopy } from "../copy/useTrustCopy";
 
 type ClaimPostureRegisterProps = Readonly<{
   audience: Exclude<ClaimPostureAudience, "MACHINE">;
@@ -20,7 +20,7 @@ export function ClaimPostureRegister({
   audience,
   register,
 }: ClaimPostureRegisterProps) {
-  const { t } = useOptionalI18n();
+  const { tTrust } = useOptionalTrustCopy();
   const groupsByClaim = useMemo(() => {
     const memberships = new Map<string, string[]>();
     for (const group of register.projection_groups) {
@@ -44,16 +44,16 @@ export function ClaimPostureRegister({
     >
       <div>
         <p className="text-xs font-semibold tracking-[0.18em] text-[var(--slate)] uppercase">
-          {t("trust.registerEyebrow")}
+          {tTrust("registerEyebrow")}
         </p>
         <h2
           id="trust-posture-register-title"
           className="mt-1 text-2xl font-bold text-[var(--ink)]"
         >
-          {t("trust.registerTitle")}
+          {tTrust("registerTitle")}
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-[var(--slate)]">
-          {t("trust.registerFrame")}
+          {tTrust("registerFrame")}
         </p>
       </div>
 
@@ -79,7 +79,7 @@ export function ClaimPostureRegister({
                     data-trust-subject
                     {...nullableMarker(row.subject)}
                   >
-                    {row.subject ?? t("trust.notEstablished")}
+                    {row.subject ?? tTrust("notEstablished")}
                   </h3>
                 </div>
                 <span
@@ -92,7 +92,7 @@ export function ClaimPostureRegister({
 
               <section className="mt-4">
                 <h4 className="text-xs font-bold tracking-wide text-[var(--ink)] uppercase">
-                  {t("trust.limitationsLabel")}
+                  {tTrust("limitationsLabel")}
                 </h4>
                 {row.limitations.length > 0 ? (
                   <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-[var(--slate)]">
@@ -107,14 +107,14 @@ export function ClaimPostureRegister({
                   </ul>
                 ) : (
                   <p className="mt-1 text-sm text-[var(--slate)]">
-                    {t("trust.noneDeclared")}
+                    {tTrust("noneDeclared")}
                   </p>
                 )}
               </section>
 
               <section className="mt-4">
                 <h4 className="text-xs font-bold tracking-wide text-[var(--ink)] uppercase">
-                  {t("trust.blockersLabel")}
+                  {tTrust("blockersLabel")}
                 </h4>
                 {row.blocker_codes.length > 0 ? (
                   <ul className="mt-1 flex flex-wrap gap-2">
@@ -130,40 +130,38 @@ export function ClaimPostureRegister({
                   </ul>
                 ) : (
                   <p className="mt-1 text-sm text-[var(--slate)]">
-                    {t("trust.noneDeclared")}
+                    {tTrust("noneDeclared")}
                   </p>
                 )}
               </section>
 
               <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-3">
                 <div>
-                  <dt className="font-semibold">{t("trust.reviewOnLabel")}</dt>
+                  <dt className="font-semibold">{tTrust("reviewOnLabel")}</dt>
                   <dd data-trust-review-on {...nullableMarker(row.review_on)}>
-                    {row.review_on ?? t("trust.notEstablished")}
+                    {row.review_on ?? tTrust("notEstablished")}
                   </dd>
                 </div>
                 <div>
-                  <dt className="font-semibold">{t("trust.reviewDueLabel")}</dt>
+                  <dt className="font-semibold">{tTrust("reviewDueLabel")}</dt>
                   <dd data-trust-review-due {...nullableMarker(row.review_due)}>
-                    {row.review_due ?? t("trust.notEstablished")}
+                    {row.review_due ?? tTrust("notEstablished")}
                   </dd>
                 </div>
                 <div>
-                  <dt className="font-semibold">
-                    {t("trust.sourceAsOfLabel")}
-                  </dt>
+                  <dt className="font-semibold">{tTrust("sourceAsOfLabel")}</dt>
                   <dd
                     data-trust-source-as-of
                     {...nullableMarker(row.source_as_of)}
                   >
-                    {row.source_as_of ?? t("trust.notEstablished")}
+                    {row.source_as_of ?? tTrust("notEstablished")}
                   </dd>
                 </div>
               </dl>
 
               <section className="mt-4">
                 <h4 className="text-xs font-bold tracking-wide text-[var(--ink)] uppercase">
-                  {t("trust.sourcesLabel")}
+                  {tTrust("sourcesLabel")}
                 </h4>
                 <ol className="mt-2 space-y-2">
                   {row.source_bindings.map((binding, index) => (
@@ -191,7 +189,7 @@ export function ClaimPostureRegister({
                           {...nullableMarker(binding.coordinate.symbol)}
                         >
                           {binding.coordinate.symbol ??
-                            t("trust.notEstablished")}
+                            tTrust("notEstablished")}
                         </span>{" "}
                         ·{" "}
                         <span data-trust-source-field>
@@ -215,21 +213,21 @@ export function ClaimPostureRegister({
                           data-trust-source-subject
                           {...nullableMarker(binding.subject)}
                         >
-                          {binding.subject ?? t("trust.notEstablished")}
+                          {binding.subject ?? tTrust("notEstablished")}
                         </span>{" "}
                         ·{" "}
                         <span
                           data-trust-source-review-on
                           {...nullableMarker(binding.review_on)}
                         >
-                          {binding.review_on ?? t("trust.notEstablished")}
+                          {binding.review_on ?? tTrust("notEstablished")}
                         </span>{" "}
                         ·{" "}
                         <span
                           data-trust-source-review-due
                           {...nullableMarker(binding.review_due)}
                         >
-                          {binding.review_due ?? t("trust.notEstablished")}
+                          {binding.review_due ?? tTrust("notEstablished")}
                         </span>
                       </p>
                     </li>
@@ -239,14 +237,14 @@ export function ClaimPostureRegister({
             </div>
 
             <p className="mt-3 text-xs text-[var(--slate)]">
-              {t("trust.groupsLabel")}:{" "}
+              {tTrust("groupsLabel")}:{" "}
               {groupsByClaim.get(row.claim_id)?.join(", ") ?? ""}
             </p>
 
             {audience !== "PUBLIC" ? (
               <details className="mt-4" data-trust-evidence-detail open>
                 <summary className="cursor-pointer text-sm font-semibold">
-                  {t("trust.evidenceDetailLabel")}
+                  {tTrust("evidenceDetailLabel")}
                 </summary>
                 <div
                   className="mt-2 space-y-2 text-xs break-all text-[var(--slate)]"

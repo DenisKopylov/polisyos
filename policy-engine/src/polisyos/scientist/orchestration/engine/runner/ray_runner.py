@@ -314,7 +314,7 @@ class RayWorkflowRunner:
 def _inject_trace_carrier() -> dict[str, str]:
     carrier: dict[str, str] = {}
     try:
-        from polisyos.core.observability.propagation import inject_headers
+        from polisyos.core.observability import inject_headers
 
         inject_headers(carrier)
     except _TRACE_IMPORT_ERRORS:

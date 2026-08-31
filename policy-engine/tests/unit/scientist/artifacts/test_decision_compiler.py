@@ -2,6 +2,7 @@ from __future__ import annotations
 
 # ruff: noqa: S101
 import json
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -134,6 +135,28 @@ def _publishable_inputs(**overrides: object) -> dict[str, object]:
     }
     payload.update(overrides)
     return payload
+
+
+def _approval_currentness_receipt(
+    *,
+    run_id: str = "run-msme-publishable",
+    packet_ref: str | None = None,
+):
+    from polisyos.core.contracts.control import (
+        _issue_production_approval_currentness_receipt,
+    )
+
+    now = datetime.now(UTC)
+    return _issue_production_approval_currentness_receipt(
+        packet_ref=packet_ref or _sha("8"),
+        tenant_id="tenant-msme",
+        run_id=run_id,
+        expected_consumer="polisyos.scientist.decision_compiler",
+        expected_audience="polisyos-runtime",
+        evaluated_at=now,
+        valid_until=now + timedelta(minutes=5),
+        verifier_epoch="deployment-epoch-1",
+    )
 
 
 def test_compiles_public_decision_artifact_from_final_refs() -> None:
@@ -338,6 +361,45 @@ def test_publishable_decision_artifact_mints_policy_design_case_claim_node() -> 
     ):
         assert node[required_ref_key] == major_claim[required_ref_key]
     assert artifact["policy_design_case_claim_nodes"] == contract["nodes"]
+
+
+def test_publishable_compiler_accepts_only_content_bound_currentness_receipt() -> None:
+    packet_ref = _sha("8")
+    receipt = _approval_currentness_receipt(packet_ref=packet_ref)
+
+    with pytest.raises(DecisionArtifactCompilationError) as exc_info:
+        compile_publishable_decision_artifact(
+            **_publishable_inputs(
+                production_approval_packet_ref=packet_ref,
+                production_approval_tenant_id="tenant-msme",
+                production_approval_currentness_receipt=receipt,
+            )
+        )
+
+    issue_codes = {issue["code"] for issue in exc_info.value.issues}
+    assert "publishable_artifact_approval_currentness_unresolved" not in issue_codes
+    assert "claim_ledger_owner_not_established" in issue_codes
+
+
+def test_publishable_compiler_rejects_receipt_bound_to_another_run() -> None:
+    packet_ref = _sha("8")
+    receipt = _approval_currentness_receipt(
+        packet_ref=packet_ref,
+        run_id="run-other",
+    )
+
+    with pytest.raises(DecisionArtifactCompilationError) as exc_info:
+        compile_publishable_decision_artifact(
+            **_publishable_inputs(
+                production_approval_packet_ref=packet_ref,
+                production_approval_tenant_id="tenant-msme",
+                production_approval_currentness_receipt=receipt,
+            )
+        )
+
+    assert "publishable_artifact_approval_currentness_unresolved" in {
+        issue["code"] for issue in exc_info.value.issues
+    }
 
 
 def test_publishable_decision_artifact_rejects_claim_registry_missing_producer_refs() -> None:

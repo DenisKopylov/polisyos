@@ -5,7 +5,7 @@ import {
   type BureaucraticDocumentAST,
   type BureaucraticEpistemicKind,
 } from "../ast/bureaucratic-document-ast";
-import { formatEpochSemanticsSummary } from "@/shared/ui/temporal/TimeSemanticsLabel";
+import { formatEpochSemanticsSummary } from "@/shared/lib/domain/epochSemantics";
 import { computeEpistemicSummary, epistemicLabel } from "../ast/epistemic-map";
 import { numberBureaucraticBlocks } from "../ast/numbering";
 

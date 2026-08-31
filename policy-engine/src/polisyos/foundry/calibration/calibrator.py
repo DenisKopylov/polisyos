@@ -23,8 +23,7 @@ import optax
 from jax.flatten_util import ravel_pytree
 
 from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
-from polisyos.core.observability import get_metrics, get_tracer
-from polisyos.core.observability.config import is_hpc_observability_enabled
+from polisyos.core.observability import get_metrics, get_tracer, is_hpc_observability_enabled
 from polisyos.foundry.calibration.auxiliary import AuxLossComponent
 from polisyos.foundry.calibration.bijectors import (
     from_unconstrained,

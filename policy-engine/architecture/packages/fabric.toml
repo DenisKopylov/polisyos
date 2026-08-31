@@ -76,7 +76,11 @@ classification = "public_stable"
 facade_mode = "lazy_facade"
 registry_owner = "team-polisyos"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.fabric", "polisyos.fabric.api"]
+supported_entrypoints = [
+  "polisyos.fabric",
+  "polisyos.fabric.api",
+  "polisyos.fabric.world",
+]
 major_subsystem = true
 notes = "Connector-backed ingestion, world queries, and catalog surfaces."
 

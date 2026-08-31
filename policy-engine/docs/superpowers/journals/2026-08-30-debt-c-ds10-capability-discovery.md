@@ -517,3 +517,221 @@ change. This is the exact architect routing question and the `blocked_by` object
 
 No C13 receipt or checker predicate was loosened. The exact diff to
 `architecture/atlas_surfaces/check_frontend_disposition_register.py` is **empty**.
+
+## Round-2 final Register closure dossier — appended 2026-08-31
+
+This section supersedes the round-1 verdicts above without rewriting them. No architect-owned
+register, ledger, master plan, published denominator, dashboard source, OpenAPI source, schema, or
+runtime client file was edited.
+
+The final targeted closure wave was:
+
+```text
+PYTHONPATH=. uv run --extra test pytest -q \
+tests/unit/runtime/quality/test_adapter_registry_capability_discovery.py::test_admitted_adapter_emits_typed_capability_kind_purpose_passport_evidence_and_currentness \
+tests/unit/runtime/quality/test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation \
+tests/unit/runtime/quality/test_capability_discovery.py::test_default_causal_method_index_provider_projects_owner_rows_without_execution_promotion \
+tests/unit/runtime/quality/test_capability_discovery.py::test_owner_signed_capability_purpose_binding_joins_ds9_currentness \
+tests/unit/runtime/quality/test_capability_discovery.py::test_all_layer3_providers_emit_real_rejections_and_incompleteness \
+tests/integration/runtime_quality/test_data_state_substrate.py::test_agent_registry_has_typed_discovery_surface \
+tests/unit/runtime/http/services/test_lex_pipeline.py
+```
+
+It completed exit **0** with **9/9 selected tests passed**. Every new pytest identity was written
+and observed red before its producer was implemented. The four controlling P38/W5-K01 negatives
+remain unchanged: execution availability is not an owner-indexed method row; registry membership or
+`admitted=True` is not capability evidence; L4 lookup is not Scientist agent/tool discovery; and
+internal REVIEWER/EXPERT posture is not public decision authority.
+
+The final complete AST census used `git ls-files -- 'src/**/*.py'`, parsed every returned file, and
+classified only non-Protocol/non-abstract bodies as implementations. It completed exit 0 as:
+
+```text
+tracked_src_python=2615
+named_definitions=4
+protocol_or_abstract_stubs=2
+concrete_implementations=2
+src/polisyos/runtime/quality/adapter_contracts.py:279:VerifiedAdapterAdmissionProducer.resolve_operation:concrete=true
+src/polisyos/runtime/quality/adapter_contracts.py:301:VerifiedAdapterAdmissionProducer.verify_conformance:concrete=true
+src/polisyos/runtime/quality/capability_resolver.py:162:CapabilityLiveOperationRegistry.resolve_operation:concrete=false
+src/polisyos/runtime/quality/capability_resolver.py:170:CapabilityConformanceVerifier.verify_conformance:concrete=false
+```
+
+This disagrees with the original 2,579 control by **+36 paths** and with Task C's pre-merge 2,611
+control by **+4 paths**. The required merge brought five tracked Python additions and F's deletion
+of `src/polisyos/core/observability/truthfulness.py`, a net +4. The substantive implementation
+measurement moved from **0/2,611** at Task C entry to **2/2,615** now; both concrete methods belong
+to the operation-bound adapter producer built here.
+
+A complete replay over the five tracked `layer3*_adapter_admission_registry.json` files completed
+exit 0 at **61 rows = 8 admitted + 52 candidate-shadow-only + 1 blocked**. The legacy rows still
+contain **0/61** instances of each named DS10 capability key/provider: `resource_kind`,
+`capability_purpose`, `passport_receipt`, `evidence_receipt`, `currentness_receipt`, and
+`capability_discovery_provider`. That unchanged historical population is not used as the new
+producer's evidence; generic data-only admission through a newly supplied verified row is the
+behavioral closure.
+
+### `ds10-adapter-admission-capability-discovery-bridge`
+
+- Verdict: `closed`.
+- Deciding command: `PYTHONPATH=. uv run --extra test pytest -q tests/unit/runtime/quality/test_adapter_registry_capability_discovery.py::test_admitted_adapter_emits_typed_capability_kind_purpose_passport_evidence_and_currentness` completed exit 0; it was replayed in the final 9/9 closure wave above.
+- Exact prose to append:
+
+> **TASK-C ROUND-2 CLOSURE 2026-08-31 — `closed`.** `VerifiedAdapterAdmissionProducer` now resolves the operation declared by a contract row, executes it, verifies operation-bound semantic preservation, verifies a current receipt, and emits a content-bound passport/evidence/currentness bundle. `AdapterCapabilityDiscoveryProvider` consumes only that verified admission and emits a typed `method` row plus `AdapterCapabilityOwnerReceipt` carrying capability purpose and all three receipt families; a purpose mismatch produces a typed rejection. A bare registry member, tuple membership, and `admitted=True` remain explicit failing negatives. The complete source census is 2 concrete operation/conformance implementations / 2,615 tracked Python files; the unchanged 61 legacy admission rows remain 0/61 for DS10 capability keys and were not relabelled as evidence.
+
+### `ds10-lex-pipeline-mutation-boundary`
+
+- Verdict: `closed` by the register's manual-resolution route.
+- Deciding command/predicate: `PYTHONPATH=. uv run python` read the complete 717-line page and 230-line test, asserted 947 total lines, and completed exit 0 with `capability_discovery_literals=0`, one `triggerMutation.mutate`, one `searchMutation.mutate`, one Launch binding, one Search-button binding, and one Enter binding. `PYTHONPATH=. uv run --extra test pytest -q tests/unit/runtime/http/services/test_lex_pipeline.py` completed exit 0 with 3/3 tests passed. Vitest title selection remains unsupported by the checker by design, so no zero-selection runner output is promoted into evidence.
+- Exact prose to append:
+
+> **TASK-C ROUND-2 MANUAL CLOSURE 2026-08-31 — `closed`.** The complete 947-line frontend population has zero capability-discovery imports, calls, or literals. Its only mutations are exactly one `handleTrigger -> triggerMutation.mutate` path bound to the Launch control and exactly one `handleSearch -> searchMutation.mutate` path bound independently to Enter and Search; the three backend Lex boundary tests pass. Because the row explicitly assigns unsupported Vitest selection to manual resolution, this complete call-graph measurement proves the boundary without inventing a runner receipt. No Lex or dashboard source changed.
+
+### `ds10-causal-method-index-provider-bridge`
+
+- Verdict: `closed`.
+- Deciding command: `PYTHONPATH=. uv run --extra test pytest -q tests/unit/runtime/quality/test_capability_discovery.py::test_default_causal_method_index_provider_projects_owner_rows_without_execution_promotion` completed exit 0 and was replayed in the final closure wave.
+- Exact prose to append:
+
+> **TASK-C ROUND-2 CLOSURE 2026-08-31 — `closed`.** The ordinary provider bootstrap now lazily reads persisted `CapabilityIndex` owner rows and emits a content-bound `CapabilityIndexOwnerReceipt`; replayed search rows exactly equal the owner's persisted method projection. Every result retains `execution=not_established`, `authority=bridge_missing`, and an empty authoritative-purpose set. No `project_capability_features` execution/backend boolean is converted into a discovery row, so the execution-to-discovery P38 boundary remains intact.
+
+### `ds10-owner-signed-capability-purpose-binding`
+
+- Verdict: `closed`; this repository is in the **producer-side signing world**, not the appointment world.
+- Deciding command: `PYTHONPATH=. uv run --extra test pytest -q tests/unit/runtime/quality/test_capability_discovery.py::test_owner_signed_capability_purpose_binding_joins_ds9_currentness` completed exit 0 and was replayed in the final closure wave.
+- Exact prose to append:
+
+> **TASK-C ROUND-2 CLOSURE 2026-08-31 — `closed`; producer-side signing world.** `CapabilityPurposeBindingProducer` canonicalizes and persists the ref/digest/purpose/audience/consumer binding in CAS and signs those bytes with a producer-held Ed25519 key. A separate trusted `CapabilityPurposeBindingVerifier` resolves the artifact, content-binds it, verifies signature and producer identity, and only then joins the DS9 approval-packet currentness resolver. Wrong identity, byte tamper, purpose mismatch, missing binding, and stale DS9 currentness all fail closed. The signature is therefore an actual producer act followed by independent verification; verification was not substituted for signing, and no institutional appointment is required.
+
+### `ds10-connector-acquisition-content`
+
+- Verdict: `blocked`.
+- `blocked_by`: the registered successor row `acquisition-route-to-n13b-authority-binding` landing a current content-bound route-to-authority-entry, attempt-identity, and `LiveCatalogExecutionConstraints` binding and exercising a tenant-bound N13b implementation outside the badged harness. A register parser found exactly one row with that ID and completed exit 0.
+- Complete producer census: `PYTHONPATH=. uv run python` parsed all **2,615 tracked `src/**/*.py` files** and completed exit 0 with one `SourceProfileOwnerReceipt` class definition, **0 constructor calls**, and **0 class/function definitions** matching the complete connector+source+profile+snapshot+producer identity.
+- Exact prose to append:
+
+> **TASK-C ROUND-2 TERMINAL VERDICT 2026-08-31 — `blocked`; `blocked_by: acquisition-route-to-n13b-authority-binding`.** DS15 must first land the registered content-bound route-to-authority-entry / attempt-identity / `LiveCatalogExecutionConstraints` binding and exercise a tenant-bound N13b implementation outside the badged harness. The current 2,615-file AST census still finds only the `SourceProfileOwnerReceipt` type, zero constructors, and zero paired connector/source-profile snapshot producers. The named unowned artifact remains `ConnectorSourceProfileSnapshotProducer`: it must persist matching connector and source-profile snapshots and emit a content-bound `SourceProfileOwnerReceipt`, then supply the default source discovery provider. The architect must make that producer an explicit conjunct or appointment of the registered DS15 successor; if the successor lands without it, this row remains blocked. Connector/profile list DTOs are still a P38 negative, never discovery evidence.
+
+### `ds10-public-decision-rendering`
+
+- Verdict: `blocked`.
+- `blocked_by`: registered row `gy-n9-effect-obligation-producer-and-evaluator-missing`, followed by a standalone DS12 promotion slice that consumes a current custody signature and persists the public decision projection. A register parser found exactly one row with that ID at exit 0; a zero-safe `Path.glob('DS12*.md')` census completed exit 0 with `ds12_slice_plan_files=0`.
+- Exact prose to append:
+
+> **TASK-C ROUND-2 TERMINAL VERDICT 2026-08-31 — `blocked`; `blocked_by: gy-n9-effect-obligation-producer-and-evaluator-missing` plus the standalone DS12 promotion slice that follows it.** The first object must land the effect-evidence contract field, producer, and evaluator required for a governed promotion; DS12 must then resolve a current custody signature into a persisted public decision artifact/projection. Internal REVIEWER/EXPERT discovery posture and MACHINE/compiler candidates remain non-authoritative and cannot close the row. The overlap `ds8-signed-public-decision-surface` still lacks this same DS12 custody-bound producer and public surface; Task C closes neither half by substitution.
+
+### `ds10-global-case-index-producer-allocation`
+
+- Verdict: `blocked`.
+- `blocked_by`: the first DS12/DS13/DS14 scope-setting plan that claims the `ds8-global-case-index` obligation carried by `architecture/atlas_surfaces/slice-scope-obligations.json` and appoints the canonical global index producer. On this merged branch, a zero-safe existence predicate completed exit 0 with `slice_scope_obligations_exists=False`; the manifest itself therefore must land before such a plan can consume it. No peer branch was read.
+- Exact prose to append:
+
+> **TASK-C ROUND-2 TERMINAL VERDICT 2026-08-31 — `blocked`; `blocked_by` the first DS12/DS13/DS14 scope-setting plan that consumes the `ds8-global-case-index` obligation from `architecture/atlas_surfaces/slice-scope-obligations.json` and appoints the canonical global case-index producer.** The supplied obligation has `closure_effect: none`, so carrying it is explicitly not closure; on the current merged branch the manifest path itself has not landed. The appointed producer must persist the canonical index/snapshot, emit a content-bound case-owner receipt, and install the provider. Run-bound records and human-decision `case_id` strings remain scoped identifiers, not a global index. The overlap `ds8-global-case-index` blocks on this exact same object, not a second DS10 store.
+
+### `ds10-world-agent-capability-discovery-boundary`
+
+- Verdict: `closed`.
+- Deciding command: `PYTHONPATH=. uv run --extra test pytest -q tests/integration/runtime_quality/test_data_state_substrate.py::test_agent_registry_has_typed_discovery_surface` completed exit 0 and was replayed in the final closure wave.
+- Exact prose to append:
+
+> **TASK-C ROUND-2 CLOSURE 2026-08-31 — `closed`.** The ordinary control-registry path now installs a lazy `ScientistRegistryCapabilityDiscoveryProvider`. On first search it reads real `NodeRegistry` and `ToolRegistry` instances, canonicalizes and persists their bytes separately, emits content-bound `ScientistCapabilityOwnerTruth` rows and a dual-snapshot `ScientistRegistryOwnerReceipt`, and returns them through the ordinary capability API. Request-scoped registries outside the snapshot are carried honestly as typed `recall_unmeasured`. The integration witness proves factories are lazy and persisted bytes resolve; L4 world-model entity/data lookup remains an exercised non-substitute and contributes no Scientist row.
+
+### `ds10-layer3-owner-ledger-rejection-richness`
+
+- Verdict: `closed`.
+- Deciding command: `PYTHONPATH=. uv run --extra test pytest -q tests/unit/runtime/quality/test_capability_discovery.py::test_all_layer3_providers_emit_real_rejections_and_incompleteness` completed exit 0 and was replayed in the final closure wave.
+- Exact prose to append:
+
+> **TASK-C ROUND-2 CLOSURE 2026-08-31 — `closed`.** The native G2, G3, and seven GL owner builders now emit their selected and rejected candidates, requested/evaluated/cutoff facts, and typed incompleteness before DS10 sees them. The aggregate witness reaches all nine owner ledgers and proves the DS10 projection is lossless across each family's native refs/reasons. DS10 no longer reconstructs missing rejection richness or infers completeness from an adjacent success flag.
+
+### `three-unavailable-governed-producers`
+
+- Verdict: `closed`, retaining the architect-accepted round-1 result; this row was not rebuilt in round 2.
+- Deciding predicate: the stable actual-root `GovernedProjectionService.get(...)` census over the inherited 13-ID population completed exit 0 as **13 projections = 7 available + 5 invalid_source + 1 artifact_missing**. The three named members were **0 available + 2 invalid_source + 1 artifact_missing**; cleanup of the temporary read-only data link completed exit 0.
+- Exact prose to append:
+
+> **TASK-C CLOSURE 2026-08-31 — `closed` as a reason-complete investigation.** The current enum has 14 IDs; the inherited 13-ID population excludes later available `acquisition-growth`. A stable actual-root census completed exit 0 as `13 projections = 7 available + 5 invalid_source + 1 artifact_missing`. The three named members are owner/reason-bound: `generation-cycle-disposition` is `invalid_source` because the declared validator reports missing `ortools.sat.python.cp_model`; `capability-reality` is `invalid_source` because its capability-repository anchor/file is missing and needs reissue; `surface-readiness` is `artifact_missing` because the live ledger is absent and its owner validator is unregistered. No solver, example ledger, or adjacent artifact was substituted. This closes the investigation with an exact remainder, not with 13/13 green.
+
+### `ds10-adapter-registry-data-only-free-growth`
+
+- Verdict: `closed`.
+- Deciding command: `PYTHONPATH=. uv run --extra test pytest -q tests/unit/runtime/quality/test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation` completed exit 0 and was replayed in the final closure wave.
+- Exact prose to append:
+
+> **TASK-C ROUND-2 CLOSURE 2026-08-31 — `closed`.** A temporary governed TOML mutation adds a previously unknown adapter identity with a declared semantic-identity operation, purpose, passport, producer evidence, and currentness; the generic G3 builder admits it without adding that identity to Python source. The same witness proves TOML membership without the capability declaration is rejected, semantic loss is rejected, and stale currentness is rejected. Growth is therefore data-only only after per-row semantic preservation and evidence/currentness verification; registry membership alone never admits.
+
+### `ds10-c13-print-receipt-reissue`
+
+- Verdict: `blocked` — `verification_missing`.
+- `blocked_by`: a dashboard-corridor source migration in `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts` and `apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py` (plus the runtime fixture helper only if required) that gives `core`, `empty`, and `growth` distinct run-bound DesignRecord fixtures and updates the three governed assertions to current `record_available_authority_abstaining` semantics without weakening the strict HTTP 409 contract.
+- Binding predicate: the ordered eleven paths are the same complete list above: `print.css`; `AmbientTelemetryHud.tsx`; `OperatorCraftPanel.tsx`; `RunDetailLayout.tsx`; `RunReportPage.tsx`; `RunReportPage.parity.test.tsx`; `RunReportPage.test.tsx`; `features/runs/route.tsx`; `e2e/helpers/pdfGeometry.ts`; `e2e/runtime-dashboard.visual.spec.ts`; and its governed Darwin PNG. Their final-byte census completed exit 0 as **11 bindings = 5 current + 6 stale**. D's complete **26-path** freeze delta is enumerated under `Final C13 binding intersection and current-byte census` above; exact normalized intersection completed exit 0 at **1/11**, `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx`.
+- Capture receipt 1: the registered Chromium/one-worker/zero-retry/`--update-snapshots=none` command selected all three governed titles and exited 1 at **0 expected + 3 unexpected**, with every retry index 0. Raw JSON is `ds6-c13-raw/run-3/results.json`, SHA-256 `c25f674d11a722d91c56e2f38baaed4c623ecffc34d2093c779a6114308d2809`.
+- Capture receipt 2: the same registered command with a distinct `run-4` output selected the same three titles and exited 1 at **0 expected + 3 unexpected**, with every retry index 0. Raw JSON SHA-256 is `4596542a9027c1c825a3d1b2fe4c52969032c658c2d3c94dbdfc70613bf9f9e2`; its screenshots, error contexts, videos, and traces are retained beside it. Both results record one worker, Chromium retries 0, and `updateSnapshots=none`. `git diff --exit-code main...HEAD -- apps/runtime-dashboard` completed exit 0.
+- Deciding gates: `PYTHONPATH=. uv run --extra test pytest -q architecture/atlas_surfaces/test_frontend_disposition_register.py::DS6C13PrintTransitionTests::test_independent_receipt_binds_the_full_conjunction_and_current_bytes` completed exit 1 at stale `AmbientTelemetryHud.tsx`. `PYTHONPATH=. uv run --extra test python architecture/atlas_surfaces/check_frontend_disposition_register.py --check` completed exit 1 with the same C13 failure plus out-of-scope DS18/C06 drift. The exact Task-C diff to that checker is empty: `git diff --exit-code main...HEAD -- architecture/atlas_surfaces/check_frontend_disposition_register.py` completed exit 0.
+- Exact prose to append:
+
+> **TASK-C ROUND-2 HANDOFF 2026-08-31 — `blocked`, `verification_missing`; `blocked_by` the dashboard-corridor run-paper fixture/spec migration.** Against D's final freeze, the eleven C13 bindings intersect D's 26 changed paths at exactly one member, `RunReportPage.tsx`, and the final-byte replay is `11 = 5 current + 6 stale`. Two distinct current zero-retry/no-writer captures each select all three governed titles but fail 0/3 before the governed property: the old `core`/`empty`/`growth` fixtures have no exact run-bound DesignRecord and production correctly returns `run_paper_source_invalid`/HTTP 409. Their JSON digests are `c25f674d...` and `4596542a...`; dashboard source and the governed snapshot remain unchanged. The exact conjunction and global disposition check both remain exit 1, so no stale receipt was reissued and no predicate was weakened. Land distinct run-bound fixtures and current `record_available_authority_abstaining` assertions in `runtime-dashboard.visual.spec.ts` and `serve_fixture_runtime_api.py`, then take two passing captures, bind all 11/11 current bytes, and replay both gates. `DS11-INHERITED-C13-PRINT-RECEIPT` remains blocked on that same migration plus this reissue and still needs its own append-only closure; Task C does not close D's half.
+
+## Round-2 dossier arithmetic
+
+- All rows: **12 measured rows = 8 closed + 4 blocked + 0 unfinished/open**.
+- Core limitations: **9 core rows = 6 closed + 3 blocked**.
+- Adjacent rows: **3 adjacent rows = 2 closed + 1 blocked**.
+- Closed core: adapter admission bridge, Lex mutation boundary, causal-method bridge,
+  owner-signed purpose binding, Scientist registry discovery, and Layer-3 owner richness.
+- Blocked core: connector acquisition content, public decision rendering, and global case index.
+- Closed adjacent: governed-producer investigation and adapter data-only growth.
+- Blocked adjacent: C13 receipt reissue.
+
+No row is `open`, `ambiguous`, or disguised as blocked because Task C ran out of budget.
+
+## Explicit-non-closure and overlap handoff
+
+The architect must move these **7 now-closed entries** out of
+`docs/plans/active/atlas-slices/DS10-capability-discovery.md`'s `## Explicit non-closure` table in
+the same register transcription:
+
+1. generic post-G0 registry data-only free growth;
+2. admitted-adapter capability-discovery bridge;
+3. owner-signed typed capability-purpose authority binding;
+4. default causal-method `CapabilityIndex` bridge;
+5. G2/G3/GL rejected/incompleteness richness;
+6. Lex pipeline mutation; and
+7. L4 world-agent lookup.
+
+The table's C13, connector/acquisition, public-decision, and global-case entries remain honest
+non-closures with the superseding blocker objects above.
+
+- `DS11-INHERITED-C13-PRINT-RECEIPT` still lacks the dashboard fixture/spec migration, two passing
+  current captures, 11/11 rebinding, green conjunction/global checks, and its own DS11 append. Task C
+  produced two honest failing capture receipts and did not close the other half.
+- `ds8-global-case-index` still lacks the same landed scope-obligation manifest, claiming
+  DS12/DS13/DS14 plan, appointed canonical producer, persisted index, and content-bound provider.
+- `ds8-signed-public-decision-surface` still lacks the same EFFECT producer/evaluator resolution and
+  DS12 custody-bound promotion/public projection.
+
+## Final checker delta and out-of-scope findings
+
+- The project-bound debt checker completed exit 1 after the final source commits with
+  `closure_signal_identity_unresolvable=9`, down from the corrected entry baseline of 18. All five
+  newly written core identities and the adjacent free-growth identity resolve. The only Task-C
+  Python identities still unresolved are the three intentional successor blocks: connector,
+  public decision, and global case. Lex remains an informational unsupported-runner manual route.
+  Task C added no blocker.
+- Focused Ruff over all 16 changed Python files completed exit 0 with `All checks passed!`.
+- Architecture guardrails completed exit 1 only at the inherited
+  `trust-claim-posture-register` generator probe (`DS11-CLAIM-LIFECYCLE-ORCHESTRATION` is not exactly
+  appointed and open); runtime API/client freshness remained clean. No Task-C import finding exists.
+- The focused G3 task-7 conformance red `layer3_g3_w12d_consumer_gate_missing` was replayed from
+  committed pre-adapter Task-C head `67ce44e5a` and reproduced unchanged, while adapter registry,
+  admission, and adapter checks passed. It is inherited and was not widened into this task.
+- The global frontend checker additionally reports DS18 time-semantics and C06 baseline-lint receipt
+  drift. Task C changed neither owner artifact nor checker predicate.
+- `architecture/atlas_surfaces/slice-scope-obligations.json` is absent from this merged branch even
+  though the supplied G handoff says that paused lane carries it. Per the no-peer rule, no other
+  branch was read; the architect must land that exact manifest before the global-index successor
+  plan can consume it.
+- After the complete dossier and both new C13 capture receipts were present,
+  `PYTHONPATH=. uv run python tools/quality/validation/check_docs_lifecycle.py` completed exit 1 with
+  exactly the inherited **6 findings = 2 `active_plan_metadata` findings on architect-owned
+  `LEDGER.md` + 4 `removed_stub_reference` findings**. This journal added no seventh finding.

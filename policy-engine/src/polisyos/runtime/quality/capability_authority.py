@@ -9,12 +9,14 @@ shape.
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+import polisyos.core as core
 from polisyos.core.contracts import (
     CapabilityAuthorityPostureResult,
     CapabilityDiscoveryAudience,
@@ -31,6 +33,17 @@ if TYPE_CHECKING:
 
 CAPABILITY_AUTHORITY_SCHEMA_VERSION = "policyos.capability_binding_result.v1"
 CAPABILITY_AUTHORITY_RULE_VERSION = "capability-authority-v1.0"
+CAPABILITY_PURPOSE_BINDING_SCHEMA_VERSION = "policyos.capability_purpose_binding.v1"
+CAPABILITY_PURPOSE_BINDING_SCHEMA_NAME = (
+    "polisyos.runtime.quality.OwnerSignedCapabilityPurposeBinding"
+)
+CAPABILITY_PURPOSE_BINDING_ARTIFACT_KIND = "capability.purpose_binding"
+CAPABILITY_PURPOSE_BINDING_PRODUCER_REF = (
+    "runtime-quality:capability-purpose-binding-producer"
+)
+CAPABILITY_PURPOSE_BINDING_VERIFIER_REF = (
+    "runtime-quality:capability-purpose-binding-verifier"
+)
 
 AuthorityPosture = Literal["research", "governed_pilot", "production"]
 AuthorityEnvelopeResult = Literal["admissible", "limited", "contested", "blocked"]
@@ -132,6 +145,346 @@ class CapabilityAuthorityError(ValueError):
     """Raised when capability authority composition cannot be evaluated."""
 
 
+class CapabilityPurposeBindingResolutionError(ValueError):
+    """Typed refusal from signed capability-purpose production or resolution."""
+
+    def __init__(self, code: str) -> None:
+        self.code = code
+        super().__init__(code)
+
+
+class CapabilityPurposeBindingArtifactStore(Protocol):
+    """CAS surface required for separately signed capability-purpose bindings."""
+
+    def put_json(
+        self,
+        obj: object,
+        opts: core.artifacts.ArtifactWriteOptions,
+    ) -> core.artifacts.ArtifactRef: ...
+
+    def get_bytes(self, artifact_id: core.artifacts.ArtifactID | str) -> bytes: ...
+
+    def get_manifest(
+        self,
+        artifact_id: core.artifacts.ArtifactID | str,
+    ) -> core.artifacts.ArtifactManifest: ...
+
+    def get_signature(
+        self,
+        artifact_id: core.artifacts.ArtifactID | str,
+    ) -> core.artifacts.DetachedSignature | None: ...
+
+    def sign_artifact(
+        self,
+        artifact_id: core.artifacts.ArtifactID,
+        signer: core.artifacts.Ed25519Signer,
+        *,
+        signer_identity: str | None = None,
+    ) -> core.artifacts.DetachedSignature: ...
+
+    def verify_signature(
+        self,
+        artifact_id: core.artifacts.ArtifactID,
+        verifier: core.artifacts.Ed25519Verifier,
+        *,
+        strict_identity: bool | None = None,
+    ) -> core.artifacts.SignatureVerificationResult: ...
+
+
+class OwnerSignedCapabilityPurposeBinding(BaseModel):
+    """Producer-owned canonical bytes joining one capability to one DS9 purpose."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["policyos.capability_purpose_binding.v1"] = (
+        CAPABILITY_PURPOSE_BINDING_SCHEMA_VERSION
+    )
+    producer_ref: Literal["runtime-quality:capability-purpose-binding-producer"] = (
+        CAPABILITY_PURPOSE_BINDING_PRODUCER_REF
+    )
+    capability_ref: str = Field(min_length=1)
+    content_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    authority_purpose: str = Field(min_length=1)
+    discovery_audience: CapabilityDiscoveryAudience
+    approval_packet_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    tenant_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    approval_consumer: str = Field(min_length=1)
+    approval_audience: str = Field(min_length=1)
+    issued_at: datetime
+    valid_until: datetime
+
+    @model_validator(mode="after")
+    def _binding_time_is_scoped_and_aware(self) -> OwnerSignedCapabilityPurposeBinding:
+        if self.issued_at.tzinfo is None or self.valid_until.tzinfo is None:
+            raise ValueError("capability-purpose binding times must be timezone-aware")
+        if self.valid_until <= self.issued_at:
+            raise ValueError("capability-purpose binding validity must follow issuance")
+        return self
+
+
+class CapabilityPurposeBindingProductionReceipt(BaseModel):
+    """Receipt proving that the producer persisted and signed exact binding bytes."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    binding: OwnerSignedCapabilityPurposeBinding
+    binding_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    signature_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    signer_identity: str = Field(min_length=1)
+    signing_key_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class CapabilityPurposeBindingVerification(BaseModel):
+    """Independent verifier output distinct from the producer's signature act."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    binding: OwnerSignedCapabilityPurposeBinding
+    binding_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    signature_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    signer_identity: str = Field(min_length=1)
+    signing_key_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    verifier_ref: Literal["runtime-quality:capability-purpose-binding-verifier"] = (
+        CAPABILITY_PURPOSE_BINDING_VERIFIER_REF
+    )
+    verified_at: datetime
+
+
+class CapabilityPurposeBindingProducer:
+    """Persist and sign producer-owned capability-purpose binding bytes."""
+
+    def __init__(
+        self,
+        *,
+        artifact_store: CapabilityPurposeBindingArtifactStore,
+        signer: core.artifacts.Ed25519Signer,
+        signer_identity: str,
+    ) -> None:
+        required = ("put_json", "sign_artifact", "get_signature")
+        if any(not callable(getattr(artifact_store, method, None)) for method in required):
+            raise TypeError("capability-purpose producer requires a signing artifact store")
+        if type(signer) is not core.artifacts.Ed25519Signer:
+            raise TypeError("capability-purpose producer requires Ed25519Signer")
+        if not signer_identity.strip():
+            raise ValueError("capability-purpose producer identity is required")
+        self._artifact_store = artifact_store
+        self._signer = signer
+        self._signer_identity = signer_identity
+
+    def issue(
+        self,
+        *,
+        capability_ref: str,
+        content_digest: str,
+        authority_purpose: str,
+        discovery_audience: CapabilityDiscoveryAudience,
+        approval_packet_ref: str,
+        tenant_id: str,
+        run_id: str,
+        approval_consumer: str,
+        approval_audience: str,
+        issued_at: datetime,
+        valid_until: datetime,
+    ) -> CapabilityPurposeBindingProductionReceipt:
+        """Persist exact bytes, perform the signing act, and read back its sidecar."""
+        binding = OwnerSignedCapabilityPurposeBinding(
+            capability_ref=capability_ref,
+            content_digest=content_digest,
+            authority_purpose=authority_purpose,
+            discovery_audience=discovery_audience,
+            approval_packet_ref=approval_packet_ref,
+            tenant_id=tenant_id,
+            run_id=run_id,
+            approval_consumer=approval_consumer,
+            approval_audience=approval_audience,
+            issued_at=issued_at,
+            valid_until=valid_until,
+        )
+        try:
+            artifact_ref = self._artifact_store.put_json(
+                binding.model_dump(mode="json"),
+                core.artifacts.PutOptions(
+                    kind=CAPABILITY_PURPOSE_BINDING_ARTIFACT_KIND,
+                    media_type="application/json",
+                    schema=core.artifacts.SchemaInfo(
+                        name=CAPABILITY_PURPOSE_BINDING_SCHEMA_NAME,
+                        version=binding.schema_version,
+                    ),
+                    producer=core.artifacts.ProducerInfo(
+                        component=CAPABILITY_PURPOSE_BINDING_PRODUCER_REF,
+                        version=binding.schema_version,
+                    ),
+                ),
+            )
+            signature = self._artifact_store.sign_artifact(
+                artifact_ref.artifact_id,
+                self._signer,
+                signer_identity=self._signer_identity,
+            )
+            persisted_signature = self._artifact_store.get_signature(artifact_ref.artifact_id)
+        except (OSError, TypeError, ValueError) as exc:
+            raise CapabilityPurposeBindingResolutionError(
+                "owner_binding_signature_production_failed"
+            ) from exc
+        if (
+            type(signature) is not core.artifacts.DetachedSignature
+            or persisted_signature != signature
+            or signature.artifact_id != str(artifact_ref.artifact_id)
+            or signature.key_id != self._signer.key_id
+            or signature.signer_identity != self._signer_identity
+        ):
+            raise CapabilityPurposeBindingResolutionError(
+                "owner_binding_signature_production_failed"
+            )
+        return CapabilityPurposeBindingProductionReceipt(
+            binding=binding,
+            binding_ref=str(artifact_ref.artifact_id),
+            signature_ref=_detached_signature_ref(signature),
+            signer_identity=self._signer_identity,
+            signing_key_id=self._signer.key_id,
+        )
+
+
+class CapabilityPurposeBindingVerifier:
+    """Independently verify signed binding bytes and all purpose coordinates."""
+
+    def __init__(
+        self,
+        *,
+        artifact_store: CapabilityPurposeBindingArtifactStore,
+        verifier: core.artifacts.Ed25519Verifier,
+        expected_signer_identity: str,
+    ) -> None:
+        required = ("get_bytes", "get_manifest", "get_signature", "verify_signature")
+        if any(not callable(getattr(artifact_store, method, None)) for method in required):
+            raise TypeError("capability-purpose verifier requires a signed artifact store")
+        if type(verifier) is not core.artifacts.Ed25519Verifier:
+            raise TypeError("capability-purpose verifier requires Ed25519Verifier")
+        if not expected_signer_identity.strip():
+            raise ValueError("capability-purpose signer identity is required")
+        self._artifact_store = artifact_store
+        self._verifier = verifier
+        self._expected_signer_identity = expected_signer_identity
+
+    def verify(
+        self,
+        binding_ref: str,
+        *,
+        capability_ref: str,
+        content_digest: str,
+        authority_purpose: str,
+        discovery_audience: CapabilityDiscoveryAudience,
+        approval_packet_ref: str,
+        tenant_id: str,
+        run_id: str,
+        approval_consumer: str,
+        approval_audience: str,
+        evaluated_at: datetime,
+    ) -> CapabilityPurposeBindingVerification:
+        """Verify detached signature, producer manifest, bytes, scope, and expiry."""
+        try:
+            artifact_id = core.artifacts.ArtifactID.model_validate(binding_ref)
+            signature = self._artifact_store.get_signature(artifact_id)
+        except (OSError, TypeError, ValueError) as exc:
+            raise CapabilityPurposeBindingResolutionError(
+                "owner_binding_artifact_invalid"
+            ) from exc
+        if signature is None:
+            raise CapabilityPurposeBindingResolutionError("owner_binding_unsigned")
+        if type(signature) is not core.artifacts.DetachedSignature:
+            raise CapabilityPurposeBindingResolutionError("owner_binding_signature_invalid")
+        if signature.signer_identity != self._expected_signer_identity:
+            raise CapabilityPurposeBindingResolutionError(
+                "owner_binding_signer_identity_mismatch"
+            )
+        try:
+            verification = self._artifact_store.verify_signature(
+                artifact_id,
+                self._verifier,
+                strict_identity=True,
+            )
+        except (OSError, TypeError, ValueError) as exc:
+            raise CapabilityPurposeBindingResolutionError(
+                "owner_binding_signature_invalid"
+            ) from exc
+        if (
+            not verification.ok
+            or verification.signer_identity != self._expected_signer_identity
+            or verification.key_id != signature.key_id
+        ):
+            raise CapabilityPurposeBindingResolutionError("owner_binding_signature_invalid")
+        try:
+            manifest = self._artifact_store.get_manifest(artifact_id)
+            if (
+                manifest.kind != CAPABILITY_PURPOSE_BINDING_ARTIFACT_KIND
+                or manifest.artifact_schema is None
+                or manifest.artifact_schema.name != CAPABILITY_PURPOSE_BINDING_SCHEMA_NAME
+                or manifest.artifact_schema.version != CAPABILITY_PURPOSE_BINDING_SCHEMA_VERSION
+                or manifest.producer is None
+                or str(manifest.producer.component) != CAPABILITY_PURPOSE_BINDING_PRODUCER_REF
+            ):
+                raise CapabilityPurposeBindingResolutionError(
+                    "owner_binding_manifest_invalid"
+                )
+            binding = OwnerSignedCapabilityPurposeBinding.model_validate_json(
+                self._artifact_store.get_bytes(artifact_id)
+            )
+        except CapabilityPurposeBindingResolutionError:
+            raise
+        except (OSError, TypeError, ValueError) as exc:
+            raise CapabilityPurposeBindingResolutionError(
+                "owner_binding_artifact_invalid"
+            ) from exc
+        comparisons = (
+            (binding.capability_ref, capability_ref, "owner_binding_resource_mismatch"),
+            (binding.content_digest, content_digest, "owner_binding_digest_mismatch"),
+            (binding.authority_purpose, authority_purpose, "owner_binding_purpose_mismatch"),
+            (
+                binding.discovery_audience,
+                discovery_audience,
+                "owner_binding_audience_mismatch",
+            ),
+            (
+                binding.approval_packet_ref,
+                approval_packet_ref,
+                "owner_binding_currentness_ref_mismatch",
+            ),
+            (binding.tenant_id, tenant_id, "owner_binding_tenant_mismatch"),
+            (binding.run_id, run_id, "owner_binding_run_mismatch"),
+            (
+                binding.approval_consumer,
+                approval_consumer,
+                "owner_binding_consumer_mismatch",
+            ),
+            (
+                binding.approval_audience,
+                approval_audience,
+                "owner_binding_approval_audience_mismatch",
+            ),
+        )
+        for actual, expected, code in comparisons:
+            if actual != expected:
+                raise CapabilityPurposeBindingResolutionError(code)
+        if evaluated_at.tzinfo is None:
+            raise CapabilityPurposeBindingResolutionError("owner_binding_evaluation_time_invalid")
+        if evaluated_at < binding.issued_at or evaluated_at >= binding.valid_until:
+            raise CapabilityPurposeBindingResolutionError("owner_binding_expired")
+        return CapabilityPurposeBindingVerification(
+            binding=binding,
+            binding_ref=binding_ref,
+            signature_ref=_detached_signature_ref(signature),
+            signer_identity=self._expected_signer_identity,
+            signing_key_id=signature.key_id,
+            verified_at=evaluated_at,
+        )
+
+
+def _detached_signature_ref(signature: core.artifacts.DetachedSignature) -> str:
+    payload = core.canon.to_canonical_bytes(signature.model_dump(mode="json"))
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
 class CapabilityAuthorityFactor(BaseModel):
     """One load-bearing factor in the authority minimum."""
 
@@ -207,11 +560,10 @@ class CapabilityBindingResult(BaseModel):
 
 
 class CapabilityAuthorityContext(BaseModel):
-    """DS9 currentness coordinates plus an untrusted owner-binding claim.
+    """DS9 coordinates plus a signed binding ref or an untrusted caller claim.
 
-    ``binding_claim`` is deliberately not proof. C02 carries it only so the
-    absent independent owner-binding integration can fail closed without
-    parsing an opaque governed-action key or trusting caller-shaped fields.
+    ``binding_claim`` remains a negative-only compatibility input. Only
+    ``binding_ref`` can enter the independent signature verifier.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
@@ -221,18 +573,30 @@ class CapabilityAuthorityContext(BaseModel):
     run_id: str = Field(min_length=1)
     expected_consumer: str = Field(min_length=1)
     expected_audience: CapabilityDiscoveryAudience
+    approval_audience: str = Field(default="polisyos-runtime", min_length=1)
+    binding_ref: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
     binding_claim: dict[str, str] | None = None
+
+    @model_validator(mode="after")
+    def _one_binding_input_only(self) -> CapabilityAuthorityContext:
+        if self.binding_ref is not None and self.binding_claim is not None:
+            raise ValueError(
+                "signed binding_ref and untrusted binding_claim are mutually exclusive"
+            )
+        return self
 
 
 class CapabilityDiscoveryAuthorityResolver:
-    """Compose DS9 currentness with the intentionally absent owner-binding port."""
+    """Join independently verified producer signing with sealed DS9 currentness."""
 
     def __init__(
         self,
         *,
         production_approval_resolver: ProductionApprovalPacketResolver | None,
+        binding_verifier: CapabilityPurposeBindingVerifier | None = None,
     ) -> None:
         self._production_approval_resolver = production_approval_resolver
+        self._binding_verifier = binding_verifier
 
     def resolve(
         self,
@@ -244,22 +608,60 @@ class CapabilityDiscoveryAuthorityResolver:
         context: CapabilityAuthorityContext | None = None,
         observed_at: datetime | None = None,
     ) -> CapabilityAuthorityPostureResult:
-        """Return the honest C02 authority negative.
-
-        No type in this module can construct a positive owner binding. A real
-        DS9 resolver may establish packet currentness, but currentness alone
-        still returns ``bridge_missing`` and ``not_established``.
-        """
-
+        """Admit only when both independent producer evidence streams resolve."""
         checked_at = observed_at or datetime.now(UTC)
-        reasons = ["not_established", "owner_binding_producer_missing"]
+        reasons: list[str] = []
         provenance_refs = [CAPABILITY_AUTHORITY_RULE_VERSION]
         currentness_ref: str | None = None
+        binding: CapabilityPurposeBindingVerification | None = None
         if context is None:
             reasons.append("production_approval_context_missing")
+            reasons.append("owner_binding_artifact_missing")
         else:
             if context.expected_audience != audience:
                 reasons.append("approval_audience_mismatch")
+            if context.binding_claim is not None:
+                reasons.append("owner_binding_not_independently_verified")
+                reasons.extend(
+                    _binding_claim_negative_reasons(
+                        context.binding_claim,
+                        capability_ref=capability_ref,
+                        content_digest=content_digest,
+                        authority_purpose=authority_purpose,
+                        expected_consumer=context.expected_consumer,
+                        expected_audience=audience,
+                        evaluated_at=checked_at,
+                    )
+                )
+            elif context.binding_ref is None:
+                reasons.append("owner_binding_artifact_missing")
+            elif self._binding_verifier is None:
+                reasons.append("owner_binding_verifier_missing")
+            else:
+                try:
+                    binding = self._binding_verifier.verify(
+                        context.binding_ref,
+                        capability_ref=capability_ref,
+                        content_digest=content_digest,
+                        authority_purpose=authority_purpose,
+                        discovery_audience=audience,
+                        approval_packet_ref=context.packet_ref,
+                        tenant_id=context.tenant_id,
+                        run_id=context.run_id,
+                        approval_consumer=context.expected_consumer,
+                        approval_audience=context.approval_audience,
+                        evaluated_at=checked_at,
+                    )
+                except CapabilityPurposeBindingResolutionError as exc:
+                    reasons.append(exc.code)
+                else:
+                    provenance_refs.extend(
+                        (
+                            binding.binding_ref,
+                            binding.signature_ref,
+                            binding.verifier_ref,
+                        )
+                    )
             resolver = self._production_approval_resolver
             if resolver is None:
                 reasons.append("production_approval_resolver_missing")
@@ -278,7 +680,7 @@ class CapabilityDiscoveryAuthorityResolver:
                             tenant_id=context.tenant_id,
                             run_id=context.run_id,
                             expected_consumer=context.expected_consumer,
-                            expected_audience=context.expected_audience,
+                            expected_audience=context.approval_audience,
                             evaluated_at=checked_at,
                         )
                     except ProductionApprovalResolutionError as exc:
@@ -286,29 +688,40 @@ class CapabilityDiscoveryAuthorityResolver:
                     else:
                         currentness_ref = context.packet_ref
                         provenance_refs.append(context.packet_ref)
-            if context.binding_claim is not None:
-                reasons.append("owner_binding_not_independently_verified")
-                reasons.extend(
-                    _binding_claim_negative_reasons(
-                        context.binding_claim,
-                        capability_ref=capability_ref,
-                        content_digest=content_digest,
-                        authority_purpose=authority_purpose,
-                        expected_consumer=context.expected_consumer,
-                        expected_audience=audience,
-                        evaluated_at=checked_at,
-                    )
-                )
+        if binding is not None and currentness_ref is not None and not reasons:
+            return CapabilityAuthorityPostureResult(
+                state="admitted_authority",
+                producer_ref=CAPABILITY_PURPOSE_BINDING_PRODUCER_REF,
+                authority_purpose=authority_purpose,
+                binding_ref=binding.binding_ref,
+                currentness_ref=currentness_ref,
+                reason_codes=(),
+                provenance_refs=tuple(dict.fromkeys(provenance_refs)),
+                time=CapabilityTimeSemantics(
+                    observed_at=checked_at,
+                    valid_from=binding.binding.issued_at,
+                    valid_until=binding.binding.valid_until,
+                    freshness="current",
+                ),
+            )
+        if not reasons:
+            reasons.append("not_established")
+        elif binding is None and "not_established" not in reasons:
+            reasons.insert(0, "not_established")
+        state: Literal["bridge_missing", "revalidation_required"] = (
+            "revalidation_required" if binding is not None else "bridge_missing"
+        )
         time = CapabilityTimeSemantics(
             observed_at=checked_at,
-            valid_from=checked_at,
-            valid_until=None,
-            freshness="current" if currentness_ref else "unknown",
+            valid_from=binding.binding.issued_at if binding is not None else checked_at,
+            valid_until=binding.binding.valid_until if binding is not None else None,
+            freshness="stale" if binding is not None else "unknown",
         )
         return CapabilityAuthorityPostureResult(
-            state="bridge_missing",
+            state=state,
             producer_ref="runtime-quality:capability-authority-composer",
             authority_purpose=authority_purpose,
+            binding_ref=binding.binding_ref if binding is not None else None,
             currentness_ref=currentness_ref,
             reason_codes=tuple(dict.fromkeys(reasons)),
             provenance_refs=tuple(provenance_refs),
@@ -1115,6 +1528,11 @@ __all__ = [
     "AUTHORITY_FACTOR_NAMES",
     "CAPABILITY_AUTHORITY_RULE_VERSION",
     "CAPABILITY_AUTHORITY_SCHEMA_VERSION",
+    "CAPABILITY_PURPOSE_BINDING_ARTIFACT_KIND",
+    "CAPABILITY_PURPOSE_BINDING_PRODUCER_REF",
+    "CAPABILITY_PURPOSE_BINDING_SCHEMA_NAME",
+    "CAPABILITY_PURPOSE_BINDING_SCHEMA_VERSION",
+    "CAPABILITY_PURPOSE_BINDING_VERIFIER_REF",
     "POSTURE_THRESHOLDS",
     "AuthorityEnvelopeResult",
     "AuthorityPosture",
@@ -1125,5 +1543,12 @@ __all__ = [
     "CapabilityBindingResult",
     "CapabilityBindingStatus",
     "CapabilityDiscoveryAuthorityResolver",
+    "CapabilityPurposeBindingArtifactStore",
+    "CapabilityPurposeBindingProducer",
+    "CapabilityPurposeBindingProductionReceipt",
+    "CapabilityPurposeBindingResolutionError",
+    "CapabilityPurposeBindingVerification",
+    "CapabilityPurposeBindingVerifier",
+    "OwnerSignedCapabilityPurposeBinding",
     "compose_capability_authority",
 ]

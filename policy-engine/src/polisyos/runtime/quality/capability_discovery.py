@@ -9,17 +9,18 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import sys
 import threading
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core import artifacts
-from polisyos.core.canon import CanonSpec
+import polisyos.core as core
 from polisyos.core.contracts import (
     CapabilityDiscoveryItem,
     CapabilityDiscoveryPostureResult,
@@ -33,18 +34,25 @@ from polisyos.core.contracts import (
     SearchLedger,
 )
 from polisyos.runtime.quality.capability_index import (
+    AcquisitionStrategy,
+    CapabilityConflictRecord,
     CapabilityIndex,
     CapabilityIndexDiscoveryRow,
+    EvidenceCapability,
+    FailureModeNode,
     LegalNormOwnerTruth,
     ScientistCapabilityOwnerTruth,
 )
-from polisyos.runtime.quality.capability_index_compiler import build_capability_discovery_snapshot
+from polisyos.runtime.quality.capability_index_compiler import (
+    CAPABILITY_INDEX_MANIFEST,
+    build_capability_discovery_snapshot,
+    compute_logical_duckdb_digest,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence
 
     from polisyos.core import contracts as core_contracts
-    from polisyos.core.artifacts import ArtifactStore
     from polisyos.runtime.quality.capability_authority import (
         CapabilityAuthorityContext,
         CapabilityDiscoveryAuthorityResolver,
@@ -60,6 +68,7 @@ SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF = (
 LEX_LEGAL_NORM_ADMISSION_VERIFIER_REF = (
     "runtime-quality:capability-index-compiler:legal-norm-owner-truth"
 )
+CAPABILITY_INDEX_PATH_ENV = "POLISYOS_CAPABILITY_INDEX_PATH"
 
 _COMPLETENESS_PRIORITY: dict[SearchCompletenessStatus, int] = {
     "producer_missing": 0,
@@ -389,7 +398,7 @@ class ScientistRegistryCapabilityDiscoveryProvider:
         self._tool_registry_factory = tool_registry_factory
         self._recall_measured = recall_measured
         self._observed_at = observed_at or (lambda: datetime.now(UTC))
-        self._artifact_store: ArtifactStore | None = None
+        self._artifact_store: core.artifacts.ArtifactStore | None = None
         self._snapshot: _ScientistDiscoverySnapshot | None = None
         self._snapshot_lock = threading.Lock()
 
@@ -398,7 +407,7 @@ class ScientistRegistryCapabilityDiscoveryProvider:
         """Return the single candidate-grade kind backed by Scientist registries."""
         return "agent"
 
-    def bind_artifact_store(self, store: ArtifactStore) -> None:
+    def bind_artifact_store(self, store: core.artifacts.ArtifactStore) -> None:
         """Bind the runtime-owned store exactly once without executing discovery."""
         required = ("put_json", "get_bytes", "get_manifest", "has")
         if any(not callable(getattr(store, method, None)) for method in required):
@@ -533,10 +542,10 @@ class ScientistRegistryCapabilityDiscoveryProvider:
         try:
             store.put_json(
                 receipt.model_dump(mode="json"),
-                artifacts.PutOptions(
+                core.artifacts.PutOptions(
                     kind="scientist.registry_owner_receipt",
                     media_type="application/json",
-                    schema=artifacts.SchemaInfo(
+                    schema=core.artifacts.SchemaInfo(
                         name="polisyos.runtime.quality.ScientistRegistryOwnerReceipt",
                         version=receipt.schema_version,
                     ),
@@ -574,6 +583,366 @@ class ScientistRegistryCapabilityDiscoveryProvider:
                 ) from exc
             self._snapshot = cached
             return cached
+
+
+class CapabilityIndexCapabilityDiscoveryProvider:
+    """Search one owner kind from a persisted release ``CapabilityIndex``.
+
+    The default bridge lazily loads already-compiled release bytes exactly
+    once. It never compiles an index in a request and never consults runtime
+    backend/family availability, so discovery remains independent of
+    execution.
+    """
+
+    def __init__(
+        self,
+        *,
+        resource_kind: Literal["method", "dataset"],
+        capability_index: CapabilityIndex | None = None,
+        capability_index_loader: Callable[[], CapabilityIndex] | None = None,
+    ) -> None:
+        if (capability_index is None) == (capability_index_loader is None):
+            raise ValueError(
+                "exactly one of capability_index or capability_index_loader is required"
+            )
+        self._resource_kind = resource_kind
+        self._capability_index = capability_index
+        self._capability_index_loader = capability_index_loader
+        self._index_lock = threading.Lock()
+
+    @property
+    def resource_kind(self) -> Literal["method", "dataset"]:
+        """Return the one release-index kind served by this provider."""
+        return self._resource_kind
+
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
+        """Return owner-indexed rows and a receipt bound to the persisted release."""
+        capability_index = self._resolve_capability_index()
+        rows = tuple(
+            row
+            for row in build_capability_discovery_snapshot(capability_index)
+            if row.resource_kind == self.resource_kind
+        )
+        snapshot_ref = _capability_index_snapshot_ref(capability_index, rows)
+        snapshot_digest = "sha256:" + _digest(
+            {
+                "release_ref": capability_index.release_ref,
+                "compiler_version": capability_index.compiler_version,
+                "resource_kind": self.resource_kind,
+                "rows": [row.model_dump(mode="json") for row in rows],
+            }
+        )
+        terms = _capability_index_search_terms(request)
+        matches = list(rows) if not terms else [row for row in rows if _row_match_count(row, terms)]
+        limit = _capability_index_search_limit(request, fallback=len(matches))
+        selected_rows = tuple(
+            sorted(
+                matches,
+                key=lambda row: (-_row_match_count(row, terms), row.capability_ref),
+            )[:limit]
+        )
+        selected_refs = {row.capability_ref for row in selected_rows}
+        matching_refs = {row.capability_ref for row in matches}
+        selected = tuple(
+            _capability_index_search_candidate(row, terms) for row in selected_rows
+        )
+        rejected = tuple(
+            _capability_index_search_candidate(
+                row,
+                terms,
+                limitation=(
+                    f"{self.resource_kind}_capability_index_budget_cutoff"
+                    if row.capability_ref in matching_refs
+                    else f"{self.resource_kind}_capability_index_query_mismatch"
+                ),
+            )
+            for row in rows
+            if row.capability_ref not in selected_refs
+        )
+        budget_cutoff = len(matches) > limit
+        stale = any(row.time.freshness == "stale" for row in rows)
+        completeness_status, incompleteness_reasons = _capability_index_completeness(
+            resource_kind=self.resource_kind,
+            has_selected=bool(selected_rows),
+            stale=stale,
+            budget_cutoff=budget_cutoff,
+        )
+        index_ref = f"capability_index:{self.resource_kind}"
+        ledger = SearchLedger(
+            request_ref=request.search.request_id,
+            query_plan={
+                "match": "all_terms_over_release_capability_index",
+                "resource_kind": self.resource_kind,
+                "execution_projection": "forbidden",
+            },
+            corpus_ref=capability_index.release_ref,
+            corpus_path=str(
+                capability_index.metadata.get(
+                    "persisted_release_path",
+                    "runtime/quality/capability_index_compiler.py",
+                )
+            ),
+            corpus_snapshot_hash=snapshot_digest,
+            corpus_kind="canonical",
+            indexes_used=(index_ref,),
+            index_version_refs=(snapshot_ref,),
+            index_freshness={
+                index_ref: {
+                    "state": "stale" if stale else "current",
+                    "snapshot_ref": snapshot_ref,
+                }
+            },
+            candidates=selected,
+            rejected_candidates=rejected,
+            no_hit_frontier=() if selected_rows else (self.resource_kind,),
+            incompleteness={
+                "status": completeness_status,
+                "reason_codes": list(incompleteness_reasons),
+            },
+            replay_key=(
+                f"capability-index-{self.resource_kind}:"
+                + snapshot_digest.removeprefix("sha256:")
+            ),
+            replay_command="capability-discovery:persisted-capability-index",
+            replay_expected_output_hash=snapshot_digest,
+        )
+        payload = {
+            "resource_kind": self.resource_kind,
+            "producer_ref": capability_index.release_ref,
+            "rows": selected_rows,
+            "ledger": ledger,
+            "requested_count": limit,
+            "evaluated_count": len(rows),
+            "actual_cutoff": limit if budget_cutoff else None,
+            "completeness_status": completeness_status,
+            "incompleteness_reasons": incompleteness_reasons,
+        }
+        result_digest = "sha256:" + _digest(
+            {
+                **payload,
+                "rows": [row.model_dump(mode="json") for row in selected_rows],
+                "ledger": ledger.model_dump(mode="json"),
+            }
+        )
+        provenance_refs = tuple(
+            dict.fromkeys(
+                (
+                    capability_index.release_ref,
+                    snapshot_ref,
+                    *(ref for row in rows for ref in row.provenance_refs),
+                )
+            )
+        )
+        receipt = CapabilityIndexOwnerReceipt(
+            resource_kind=self.resource_kind,
+            owner_producer_ref=capability_index.release_ref,
+            search_snapshot_ref=snapshot_ref,
+            search_snapshot_digest=snapshot_digest,
+            result_digest=result_digest,
+            provenance_refs=provenance_refs,
+            index_release_ref=capability_index.release_ref,
+        )
+        return CapabilityProviderSearchResult(**payload, owner_receipt=receipt)
+
+    def _resolve_capability_index(self) -> CapabilityIndex:
+        cached = self._capability_index
+        if cached is not None:
+            if type(cached) is not CapabilityIndex:
+                raise CapabilityProviderUnavailableError("capability_index_release_invalid")
+            return cached
+        with self._index_lock:
+            cached = self._capability_index
+            if cached is not None:
+                return cached
+            loader = self._capability_index_loader
+            if loader is None:  # pragma: no cover - constructor invariant
+                raise CapabilityProviderUnavailableError("capability_index_loader_missing")
+            try:
+                cached = loader()
+            except CapabilityProviderUnavailableError:
+                raise
+            except (OSError, TypeError, ValueError) as exc:
+                raise CapabilityProviderUnavailableError(
+                    "capability_index_release_invalid"
+                ) from exc
+            if type(cached) is not CapabilityIndex:
+                raise CapabilityProviderUnavailableError("capability_index_release_invalid")
+            self._capability_index = cached
+            return cached
+
+
+def load_default_capability_index_release() -> CapabilityIndex:
+    """Load the configured persisted CapabilityIndex without compiling it."""
+    configured = os.environ.get(CAPABILITY_INDEX_PATH_ENV)
+    if configured is None or not configured.strip():
+        raise CapabilityProviderUnavailableError("capability_index_release_path_unconfigured")
+    return load_capability_index_release(configured)
+
+
+def load_capability_index_release(path: str | Path) -> CapabilityIndex:
+    """Read and integrity-check a compiler-emitted CapabilityIndex release."""
+    release_path = Path(path).expanduser().resolve()
+    manifest_path = release_path.with_name(CAPABILITY_INDEX_MANIFEST)
+    if not release_path.is_file() or not manifest_path.is_file():
+        raise CapabilityProviderUnavailableError("capability_index_release_missing")
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if not isinstance(manifest, dict):
+            raise ValueError("CapabilityIndex manifest must be an object")
+        signature = manifest.get("signature")
+        outputs = manifest.get("outputs")
+        release_refs = manifest.get("release_refs")
+        if not all(isinstance(value, dict) for value in (signature, outputs, release_refs)):
+            raise ValueError("CapabilityIndex manifest bindings are malformed")
+        if outputs.get("primary_duckdb") != release_path.name:
+            raise ValueError("CapabilityIndex manifest does not bind the configured DuckDB")
+        logical_digest = compute_logical_duckdb_digest(release_path)
+        if signature.get("digest") != logical_digest:
+            raise ValueError("CapabilityIndex logical digest does not match its manifest")
+
+        import duckdb
+
+        with duckdb.connect(str(release_path), read_only=True) as connection:
+            capabilities = tuple(
+                EvidenceCapability.model_validate_json(row[0])
+                for row in connection.execute(
+                    "SELECT capability_json FROM capabilities ORDER BY capability_id"
+                ).fetchall()
+            )
+            failure_modes = tuple(
+                FailureModeNode.model_validate_json(row[0])
+                for row in connection.execute(
+                    "SELECT failure_json FROM failure_modes ORDER BY failure_id"
+                ).fetchall()
+            )
+            strategies = tuple(
+                AcquisitionStrategy.model_validate_json(row[0])
+                for row in connection.execute(
+                    "SELECT strategy_json FROM acquisition_strategies ORDER BY strategy_id"
+                ).fetchall()
+            )
+            conflicts = tuple(
+                CapabilityConflictRecord.model_validate_json(row[0])
+                for row in connection.execute(
+                    "SELECT conflict_json FROM conflicts ORDER BY conflict_id"
+                ).fetchall()
+            )
+            metadata = {
+                str(key): json.loads(str(value))
+                for key, value in connection.execute(
+                    "SELECT key, value_json FROM index_metadata ORDER BY key"
+                ).fetchall()
+            }
+        release_ref = str(metadata["release_ref"])
+        if release_refs.get("capability_index_ref") != release_ref:
+            raise ValueError("CapabilityIndex manifest and store release refs differ")
+        if manifest.get("compiler_version") != metadata.get("compiler_version"):
+            raise ValueError("CapabilityIndex manifest and store compiler versions differ")
+        if manifest.get("mode") != metadata.get("mode"):
+            raise ValueError("CapabilityIndex manifest and store modes differ")
+        return CapabilityIndex(
+            schema_version=metadata["schema_version"],
+            compiler_version=metadata["compiler_version"],
+            release_ref=release_ref,
+            mode=metadata["mode"],
+            capabilities=capabilities,
+            failure_modes=failure_modes,
+            acquisition_strategies=strategies,
+            conflicts=conflicts,
+            white_space=failure_modes,
+            generated_at=manifest["generated_at"],
+            metadata={
+                "persisted_release_path": str(release_path),
+                "manifest_ref": str(manifest_path),
+                "logical_duckdb_sha256": logical_digest,
+            },
+        )
+    except CapabilityProviderUnavailableError:
+        raise
+    except (KeyError, OSError, TypeError, ValueError) as exc:
+        raise CapabilityProviderUnavailableError("capability_index_release_invalid") from exc
+
+
+def _capability_index_snapshot_ref(
+    capability_index: CapabilityIndex,
+    rows: tuple[CapabilityIndexDiscoveryRow, ...],
+) -> str:
+    snapshot_refs = {row.snapshot_ref for row in rows}
+    expected = f"{capability_index.release_ref}@{capability_index.compiler_version}"
+    if not snapshot_refs:
+        return expected
+    if snapshot_refs != {expected}:
+        raise CapabilityProviderUnavailableError("capability_index_snapshot_ambiguous")
+    return expected
+
+
+def _capability_index_search_terms(request: CapabilityDiscoveryRequest) -> tuple[str, ...]:
+    match_all = request.search.budget.get("match_all", False)
+    if not isinstance(match_all, bool):
+        raise CapabilityProviderUnavailableError("capability_index_match_all_invalid")
+    if match_all:
+        return ()
+    terms = re.findall(
+        r"[\w]+",
+        " ".join((request.search.query_text, *request.search.construct_refs)).casefold(),
+    )
+    normalized = tuple(dict.fromkeys(term for term in terms if term))
+    if not normalized:
+        raise CapabilityProviderUnavailableError("capability_index_query_terms_missing")
+    return normalized
+
+
+def _capability_index_search_limit(
+    request: CapabilityDiscoveryRequest,
+    *,
+    fallback: int,
+) -> int:
+    raw_limit = request.search.budget.get("top_k", fallback)
+    if isinstance(raw_limit, bool) or not isinstance(raw_limit, int) or raw_limit < 0:
+        raise CapabilityProviderUnavailableError("capability_index_query_budget_invalid")
+    return raw_limit
+
+
+def _capability_index_search_candidate(
+    row: CapabilityIndexDiscoveryRow,
+    terms: tuple[str, ...],
+    *,
+    limitation: str | None = None,
+) -> SearchCandidate:
+    match_count = _row_match_count(row, terms)
+    query_text = " ".join(terms)
+    searchable = " ".join(
+        (row.capability_ref, *row.construct_refs, row.label, row.description)
+    ).casefold()
+    return SearchCandidate(
+        candidate_ref=row.capability_ref,
+        source_layer={"method": "L6", "dataset": "L1"}[row.resource_kind],
+        match_mode="exact" if query_text and query_text in searchable else "lexical",
+        score=match_count / len(terms) if terms else 1.0,
+        evidence_refs=row.provenance_refs,
+        limitation_refs=(limitation,) if limitation is not None else (),
+        authority_boundary={"authoritative_for": []},
+        may_not_use_for=row.may_not_use_for,
+    )
+
+
+def _capability_index_completeness(
+    *,
+    resource_kind: Literal["method", "dataset"],
+    has_selected: bool,
+    stale: bool,
+    budget_cutoff: bool,
+) -> tuple[SearchCompletenessStatus, tuple[str, ...]]:
+    if stale:
+        reasons = (f"{resource_kind}_capability_index_snapshot_stale",)
+        if budget_cutoff:
+            reasons += (f"{resource_kind}_capability_index_budget_cutoff",)
+        return "index_stale", reasons
+    if budget_cutoff:
+        return "budget_cutoff", (f"{resource_kind}_capability_index_budget_cutoff",)
+    if not has_selected:
+        return "complete_no_match", ()
+    return "complete", ()
 
 
 class LexCapabilityDiscoveryProvider:
@@ -803,19 +1172,18 @@ def _lex_completeness(
 
 
 def _build_scientist_discovery_snapshot(
-    store: ArtifactStore,
+    store: core.artifacts.ArtifactStore,
     *,
     node_registry_source: object,
     tool_registry_source: object,
     observed_at: datetime,
 ) -> _ScientistDiscoverySnapshot:
     """Project public registry contracts, persist them separately, and join owner rows."""
-    from polisyos.scientist.agent.tools.registry import ToolRegistry
-    from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+    from polisyos.scientist import ToolRegistry
 
     node_registry, node_reasons = _unpack_scientist_registry_source(node_registry_source)
     tool_registry, tool_reasons = _unpack_scientist_registry_source(tool_registry_source)
-    if not isinstance(node_registry, NodeRegistry):
+    if not callable(getattr(node_registry, "list", None)):
         raise CapabilityProviderUnavailableError("scientist_node_registry_invalid")
     if not isinstance(tool_registry, ToolRegistry):
         raise CapabilityProviderUnavailableError("scientist_tool_registry_invalid")
@@ -839,15 +1207,15 @@ def _build_scientist_discovery_snapshot(
         )
         ref = store.put_json(
             snapshot.model_dump(mode="json"),
-            artifacts.PutOptions(
+            core.artifacts.PutOptions(
                 kind=f"scientist.{registry_kind}_snapshot",
                 media_type="application/json",
-                schema=artifacts.SchemaInfo(
+                schema=core.artifacts.SchemaInfo(
                     name="polisyos.runtime.quality.ScientistRegistrySnapshot",
                     version=schema_version,
                 ),
             ),
-            canon_spec=CanonSpec(forbid_floats=False),
+            canon_spec=core.canon.CanonSpec(forbid_floats=False),
         )
         persisted[registry_kind] = (str(ref.artifact_id), str(ref.artifact_id))
     node_snapshot_ref, node_snapshot_digest = persisted["node_registry"]
@@ -1214,6 +1582,11 @@ class CapabilityDiscoveryComposer:
             context=authority_context,
             observed_at=observed_at,
         )
+        authoritative_for = (
+            (request.search.authority_purpose,)
+            if authority.state == "admitted_authority"
+            else ()
+        )
         return CapabilityDiscoveryItem(
             capability_ref=row.capability_ref,
             content_digest=row.content_digest,
@@ -1223,7 +1596,7 @@ class CapabilityDiscoveryComposer:
             discovery_result=discovery,
             execution_result=execution,
             authority_result=authority,
-            authoritative_for=(),
+            authoritative_for=authoritative_for,
             may_not_use_for=tuple(
                 dict.fromkeys(
                     (
@@ -1510,10 +1883,12 @@ def main(argv: list[str] | None = None) -> int:
 
 __all__ = [
     "CAPABILITY_DISCOVERY_RULE_VERSION",
+    "CAPABILITY_INDEX_PATH_ENV",
     "CAPABILITY_PROVIDER_REGISTRY_INDEX_REF",
     "SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF",
     "CapabilityDiscoveryComposer",
     "CapabilityDiscoveryProvider",
+    "CapabilityIndexCapabilityDiscoveryProvider",
     "CapabilityIndexOwnerReceipt",
     "CapabilityProviderSearchResult",
     "CapabilityProviderUnavailableError",
@@ -1524,6 +1899,8 @@ __all__ = [
     "ScientistRegistryOwnerReceipt",
     "ScientistRegistrySnapshot",
     "SourceProfileOwnerReceipt",
+    "load_capability_index_release",
+    "load_default_capability_index_release",
     "main",
 ]
 

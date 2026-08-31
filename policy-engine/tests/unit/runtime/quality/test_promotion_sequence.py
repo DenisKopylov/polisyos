@@ -30,6 +30,7 @@ from polisyos.pdc import (
     AuthorityBoundary,
     AuthorityDerivationTrace,
     GyComparisonAdmission,
+    PromotionFailClosedReason,
     PromotionObligationClass,
     PromotionObligationRecord,
     PromotionObligationStatus,
@@ -63,6 +64,7 @@ from polisyos.runtime.quality.credal_reference import (
     AdmissibleCompletion,
     CredalReference,
     CredalReferenceEdge,
+    replace_reference_edge,
 )
 from polisyos.runtime.quality.data_forge_binding import MeasurementRootProducer
 from polisyos.runtime.quality.generation_cycle import (
@@ -370,7 +372,7 @@ def test_legacy_v3_history_is_exactly_readable_but_not_current_authority() -> No
 def test_v4_v1_history_is_readable_but_cannot_be_current_authority() -> None:
     receipt = _run(_promotion_input())
 
-    assert receipt.schema_version == "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
+    assert receipt.schema_version == "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
     payload = _legacy_v4_history_payload(receipt)
     parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
 
@@ -520,7 +522,7 @@ def test_n9_emits_additive_decisive_instances_with_deterministic_identity() -> N
 
     expected_scope_hash = gy_content_hash(
         {
-            "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v2",
+            "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v3",
             "promotion_rule_version": promotion_input.schema_version,
             "design_problem_id": promotion_input.design_problem_binding.design_problem_id,
             "problem_content_hash": (promotion_input.design_problem_binding.problem_content_hash),
@@ -1260,14 +1262,16 @@ def test_untransportable_candidate_stays_shadow() -> None:
     assert "slot:single_obligation_fail" in receipt.refusal_reasons
 
 
-def test_timeout_unknown_never_promotes_or_fabricates_block() -> None:
+def test_timeout_knob_cannot_decide_effect_or_fabricate_block() -> None:
     receipt = _run(_promotion_input(force_proof_timeout=True))
 
     assert receipt.promoted is False
     assert receipt.status == "shadow"
     effect = _obligation(receipt, PromotionObligationClass.EFFECT)
     assert effect.status == PromotionObligationStatus.UNKNOWN
-    assert "effect:proof_timeout" in receipt.refusal_reasons
+    assert effect.reason == PromotionFailClosedReason.UNKNOWN
+    assert effect.semantic_scope == "real_semantics"
+    assert "effect:unknown" in receipt.refusal_reasons
 
 
 def test_lower_boundary_wins_over_optimistic_declared_transform() -> None:
@@ -1741,13 +1745,11 @@ def test_real_measurement_root_resolves_and_binds_into_n9(tmp_path: Path) -> Non
             reason for reason in contract if reason.endswith(":scope_insufficient")
         )
         expected_production_scope = (
-            ("effect:scope_insufficient",)
-            if design_class == "data_only"
-            else ("effect:scope_insufficient", "eval_safety:scope_insufficient")
+            () if design_class == "data_only" else ("eval_safety:scope_insufficient",)
         )
         assert production_scope == expected_production_scope
         assert len(production) == (3 if design_class == "data_only" else 4)
-        assert len(contract) == 2
+        assert len(contract) == 3
         assert contract_scope == ()
         print(
             f"AFTER CLASS={design_class} "
@@ -1805,8 +1807,7 @@ def test_valid_cg1_shadow_certificate_alone_cannot_satisfy_effect(tmp_path: Path
     assert cg1.shadow_only is True
     assert cg1.no_bind_admit_promote is True
     assert not any(
-        ref.artifact_type == "N9EffectObligationBridge"
-        for ref in bound.producer_root_refs
+        ref.artifact_type == "N9EffectObligationBridge" for ref in bound.producer_root_refs
     )
     assert effect.status == PromotionObligationStatus.UNKNOWN
     assert "effect_obligation_evidence_not_established" in effect.detail
@@ -1846,7 +1847,7 @@ def test_ungrounded_effect_claim_fails_its_entailment_conjunct(tmp_path: Path) -
 
 @pytest.mark.parametrize(
     ("bounded", "limitation_code"),
-    ((False, "effect_claim_entailed"), (True, "effect_claim_bounded")),
+    [(False, "effect_claim_entailed"), (True, "effect_claim_bounded")],
 )
 def test_effect_exact_or_bounded_entailment_satisfies_without_minting(
     tmp_path: Path,
@@ -1969,6 +1970,66 @@ def test_production_n9_port_persists_and_consumes_measurement_root_evidence(
     assert envelope.payload_ref in measurement.evidence_refs
     assert any(
         item.artifact_type == "N9MeasurementRootBridge"
+        for item in receipt.owner_projection.producer_root_refs
+    )
+    assert (
+        validate_canonical_promotion_receipt(
+            receipt,
+            candidate_summary=summary,
+            design_problem=problem,
+            open_world_resolver=port.open_world_resolver,
+            epoch_validity_resolver=port.epoch_validity_resolver,
+            promotion_evidence_resolver=port.promotion_evidence_resolver,
+        )
+        == ()
+    )
+
+
+def test_production_n9_port_persists_effect_but_refuses_contract_only_cg2(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem(f"n9_effect_writer_{uuid4().hex}")
+    summary = _summary()
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(summary,),
+    )
+    fixture_input = _promotion_input()
+    reference = fixture_input.credal_reference
+    decision = fixture_input.grounding_decision_certificate
+    assert reference is not None and decision is not None
+    port = CanonicalN9PromotionPort(
+        context_provider=lambda _summary, _problem: {
+            "credal_reference": reference,
+            "grounding_decision_certificate": decision,
+            "effect_obligation_writer_input": _effect_writer_input(fixture_input),
+        },
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+        repo_root=REPO_ROOT,
+    )
+
+    observation = port(admitted_batch=admitted_batch, problem=problem)
+    receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
+    effect = _obligation(receipt, PromotionObligationClass.EFFECT)
+
+    assert effect.status == PromotionObligationStatus.FAILED
+    assert "effect_binding_authority_not_established" in effect.detail
+    assert any(
+        item.artifact_type == "N9EffectObligationBridge"
         for item in receipt.owner_projection.producer_root_refs
     )
     assert (
@@ -3020,7 +3081,7 @@ def test_failed_obligation_cannot_be_relabelled_into_decision_front() -> None:
     assert summaries[0].certified_by_n9 is False
 
 
-def test_promotion_history_rule_stays_v3_and_current_v5_requires_full_reissue() -> None:
+def test_promotion_history_rule_stays_v3_and_current_v6_requires_full_reissue() -> None:
     from tools.quality.validation import check_layer3_gy_promotion_contract as validator
 
     frozen = json.loads((REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8"))
@@ -3236,8 +3297,8 @@ def test_runtime_admission_proxy_cannot_fabricate_second_deployment_lineage(
     assert baseline.confidence_ledger_semantic_projection is not None
 
 
-def test_promotion_comparison_repairs_current_v5_lineage_only_through_live_owner_proof() -> None:
-    """Current v5 custody gains semantic lineage only from the live owner."""
+def test_promotion_comparison_repairs_current_v6_lineage_only_through_live_owner_proof() -> None:
+    """Current v6 custody gains semantic lineage only from the live owner."""
 
     promotion_input = _promotion_input()
     session = _verification_ledger_session(binding=promotion_input.design_problem_binding)
@@ -3416,7 +3477,7 @@ def _legacy_v4_history_payload(receipt: CanonicalPromotionReceipt) -> dict[str, 
 
     payload = deepcopy(receipt.model_dump(mode="json"))
     v4 = "policyos.policy_design_case.layer3_gy.n9_promotion.v4"
-    v5 = "policyos.policy_design_case.layer3_gy.n9_promotion.v5"
+    v6 = "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
     payload["schema_version"] = v4
     owner = payload["owner_projection"]
     assert isinstance(owner, dict)
@@ -3432,7 +3493,7 @@ def _legacy_v4_history_payload(receipt: CanonicalPromotionReceipt) -> dict[str, 
     for boundary in boundaries:
         assert isinstance(boundary, dict)
         boundary["rule_version_refs"] = [
-            v4 if item == v5 else item for item in boundary["rule_version_refs"]
+            v4 if item == v6 else item for item in boundary["rule_version_refs"]
         ]
     owner["projection_hash"] = gy_content_hash(
         {key: value for key, value in owner.items() if key != "projection_hash"}
@@ -3867,26 +3928,15 @@ def _credal_reference() -> CredalReference:
         _policy_slot("transfer_slot", "household_cells.transfer_intensity"),
     ]
     edge_index = {edge.key: edge for edge in edges}
-    component_versions = {
-        "L2": "unit-l2",
-        "L3": "unit-l3",
-        "L6": _component_hash(edges, prefix="L6_"),
-        "WMR": "unit-wmr",
-    }
-    reference_hash = gy_content_hash(
-        {
-            "component_versions": component_versions,
-            "edges": [edge.to_payload() for edge in sorted(edges, key=lambda item: item.key)],
-        }
-    )
-    return CredalReference(
+    draft = CredalReference(
         schema_version=CREDAL_REFERENCE_SCHEMA_VERSION,
-        reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
-        reference_hash=reference_hash,
+        reference_epoch="kref:unbound-test-fixture",
+        reference_hash=_hash("0"),
         as_of="2026-06-29",
-        component_versions=component_versions,
+        component_versions={"WMR": "unit-wmr"},
         essential_edges=edge_index,
     )
+    return replace_reference_edge(draft, edges[0])
 
 
 def _operator_edge(
@@ -3985,16 +4035,6 @@ def _policy_slot(policy_slot: str, world_slot: str) -> CredalReferenceEdge:
     ).with_content_hash()
 
 
-def _component_hash(edges: list[CredalReferenceEdge], *, prefix: str) -> str:
-    return gy_content_hash(
-        [
-            edge.content_hash
-            for edge in sorted(edges, key=lambda item: item.key)
-            if edge.modality.startswith(prefix)
-        ]
-    )
-
-
 def _tax_atom(engine: GroundingRelationEngine) -> object:
     return next(
         item
@@ -4054,8 +4094,7 @@ def _effect_owner_fixture() -> tuple[object, object, object]:
 
     owner_manifest = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json"
         ).read_text(encoding="utf-8")
     )
     knob = {
@@ -4089,21 +4128,17 @@ def _effect_owner_fixture() -> tuple[object, object, object]:
         "world_mechanism_manifest": {
             "schema_version": "1.0",
             "mechanisms": {
-                "tax_relief_rate": owner_manifest["world_mechanism_manifest"][
-                    "mechanisms"
-                ]["tax_relief_rate"]
+                "tax_relief_rate": owner_manifest["world_mechanism_manifest"]["mechanisms"][
+                    "tax_relief_rate"
+                ]
             },
         },
         "lex_authority_manifest": {},
         "owner_authority_manifest": {},
         "source_refs": {"intervention_knob_dictionary": "in_memory://effect-owner"},
-        "source_content_hashes": {
-            "intervention_knob_dictionary": gy_content_hash(knob)
-        },
+        "source_content_hashes": {"intervention_knob_dictionary": gy_content_hash(knob)},
     }
-    bundle_fields["content_hash"] = intervention_substrate_bundle_content_hash(
-        bundle_fields
-    )
+    bundle_fields["content_hash"] = intervention_substrate_bundle_content_hash(bundle_fields)
     bundle = InterventionSubstrateBundle.model_validate(bundle_fields)
     problem = _problem("effect_owner")
     registry = _lane0_registry(
@@ -4169,8 +4204,7 @@ def _effect_writer_input(
         atom = atom.model_copy(
             update={
                 "producer_ref": (
-                    "polisyos.runtime.quality.design_generation."
-                    "generate_design_candidates_under_a"
+                    "polisyos.runtime.quality.design_generation.generate_design_candidates_under_a"
                 ),
                 "provenance_refs": (cg1.content_hash,),
                 "status": "candidate_unverified",
@@ -4211,6 +4245,13 @@ def _run_effect_case(
         bound,
         confidence_ledger_session=_ledger_session(binding=bound.design_problem_binding),
         promotion_evidence_resolver=repository,
+    )
+    assert (
+        validate_canonical_promotion_receipt(
+            receipt,
+            promotion_evidence_resolver=repository,
+        )
+        == ()
     )
     return _obligation(receipt, PromotionObligationClass.EFFECT)
 

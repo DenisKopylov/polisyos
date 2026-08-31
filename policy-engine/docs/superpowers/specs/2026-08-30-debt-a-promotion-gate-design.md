@@ -514,3 +514,21 @@ authentic 48,568-byte v5 fixture must round-trip byte for byte under v5, while
 current admission returns a typed legacy-epoch rejection. No history receipt
 is migrated or restamped into v6 authority; only fresh owner replay can issue
 v6.
+
+### 10.6 Replay refinement discovered during execution
+
+The producer record carries the complete CredalReference edge/completion
+denominator, not only the receipt's identity projection. It verifies each edge
+hash and the aggregate reference hash, then binds schema, epoch, hash, and
+`as_of` back to the receipt before replaying CG1. Edge insertion order is
+preserved because the current relation engine assigns atom IDs in that order;
+sorting a semantically equal mapping changes the certificate. This exact-order
+requirement is a bounded compatibility measure, not a claim that insertion
+order should be semantically governing.
+
+The already-owned CG2 certificate is resolved through the real owner before
+its bound atom can support EFFECT. A contract-testing bind may establish the
+predicate only in the intrinsically non-promotable contract lane. The same
+certificate in a production context yields
+`effect_binding_authority_not_established`; it cannot be laundered through a
+valid CG1 relation or a resolved L6 atom.

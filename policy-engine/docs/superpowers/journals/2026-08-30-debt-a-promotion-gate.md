@@ -1432,3 +1432,40 @@ This is a behavioral red, not collection or fixture failure. The common old
 result proves `_effect_obligation` is still the constant function measured in
 Round 3; the separate assertions pin the distinctions the implementation must
 now create.
+
+### Round 4 implementation boundary
+
+The shared evidence repository now produces a strict `effect_obligation`
+source record, persists it behind an `n9_evidence_bridge.v2` candidate/problem
+binding, and independently resolves it from exact CAS bytes. The producer
+replays the public L6 intervention-owner resolver before CG1. The resolver
+then replays both computations, resolves the CG2 certificate through its real
+owner, checks fixed verifier provenance, and recomputes all three RACE §12.3
+conjuncts. Contract-only CG2 authority is admitted only for the intrinsically
+non-promotable contract lane; the production-port witness refuses it as
+`effect_binding_authority_not_established`.
+
+The first replay-strengthening pass exposed two implementation defects before
+this boundary was committed. First, a receipt preserves only the
+CredalReference identity projection, so replay could not reconstruct CG1 from
+the receipt alone. The effect producer record now carries an exact JSON-safe
+edge/completion denominator, validates every edge content hash and the
+aggregate reference hash through the public reference owner, and binds its
+four identity fields back to the receipt projection. Second, CG1 atom IDs are
+insertion-order-sensitive: two dataclass-equal references with the same
+reference hash produced CG1 hashes
+`sha256:8234b48f53f6ecc806f2b337fc95dfcc9d40b99d6a2830f4dc6d946f2c024439`
+and
+`sha256:93db99bf6fe142f78884e6b5304e2489c2598392691fb749b6d79fe121458210`
+after the edge mapping was sorted. The bridge therefore persists and replays
+the producer's exact edge order. The broader order-sensitivity belongs to the
+read-only `grounding_relation.py` producer and is named here, not repaired in
+this lane.
+
+The original nine-case red selector now exits `0` with nine passing cases.
+The 26-case owner/bridge/history blast selector exits `0` with 26 passing
+cases. After strengthening every decisive EFFECT case to run full receipt
+owner replay, the six-case conjunct selector exits `0` with six passing
+cases. The additional production-port selector exits `0` with three passing
+cases: exact and bounded contract-lane satisfaction plus the production
+authority-boundary refusal. Ruff check and `git diff --check` both exit `0`.

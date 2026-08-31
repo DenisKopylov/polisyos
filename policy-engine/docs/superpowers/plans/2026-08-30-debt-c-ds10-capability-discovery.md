@@ -380,6 +380,8 @@ plainly as `open` rather than mis-typed as blocked.
 - Modify: `src/polisyos/runtime/quality/capability_discovery.py`
 - Modify as needed: `src/polisyos/runtime/quality/data_state_substrate.py`
 - Modify as needed: `src/polisyos/runtime/http/services/control_registry_providers.py`
+- Modify as needed: `src/polisyos/runtime/http/services/control/run_lifecycle.py` (bind the
+  already-owned control-service artifact store into the lazy provider; no second store)
 - Modify as an additive block only if required: `src/polisyos/runtime/http/dependencies.py`
 - Modify: `tests/integration/runtime_quality/test_data_state_substrate.py`
 - Read only: Scientist NodeRegistry/ToolRegistry and the two Lex frontend files

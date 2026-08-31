@@ -1501,6 +1501,10 @@ class ControlPlaneService(
         """Bind the sole container-composed discovery owner once."""
         if self._capability_discovery_service is not None:
             raise RuntimeError("capability discovery service is already bound")
+        for provider in self._registry_providers.capability_discovery_providers:
+            bind_artifact_store = getattr(provider, "bind_artifact_store", None)
+            if callable(bind_artifact_store):
+                bind_artifact_store(self._artifact_store)
         self._capability_discovery_service = service
 
     def close(self) -> None:

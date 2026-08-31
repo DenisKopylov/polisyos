@@ -9,31 +9,50 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import sys
+import threading
+from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+import polisyos.core as core
 from polisyos.core.contracts import (
     CapabilityDiscoveryItem,
     CapabilityDiscoveryPostureResult,
     CapabilityDiscoveryRequest,
     CapabilityDiscoveryResponse,
     CapabilityResourceKind,
+    CapabilityTimeSemantics,
     SearchCandidate,
     SearchCompletenessStatus,
     SearchFrontier,
     SearchLedger,
 )
+from polisyos.runtime.quality.adapter_contracts import (
+    VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF,
+    AdapterCapabilityResourceKind,
+    VerifiedAdapterAdmission,
+)
 from polisyos.runtime.quality.capability_index import (
+    AcquisitionStrategy,
+    CapabilityConflictRecord,
     CapabilityIndex,
     CapabilityIndexDiscoveryRow,
+    EvidenceCapability,
+    FailureModeNode,
     LegalNormOwnerTruth,
     ScientistCapabilityOwnerTruth,
 )
-from polisyos.runtime.quality.capability_index_compiler import build_capability_discovery_snapshot
+from polisyos.runtime.quality.capability_index_compiler import (
+    CAPABILITY_INDEX_MANIFEST,
+    build_capability_discovery_snapshot,
+    compute_logical_duckdb_digest,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence
@@ -48,9 +67,14 @@ if TYPE_CHECKING:
 CAPABILITY_DISCOVERY_RULE_VERSION = "policyos.ds10.discovery.v1"
 CAPABILITY_PROVIDER_REGISTRY_INDEX_REF = "runtime-quality:capability-provider-registry"
 LEX_CAPABILITY_DISCOVERY_PROVIDER_REF = "runtime-quality:lex-capability-discovery-provider"
+SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF = (
+    "runtime-quality:scientist-registry-capability-discovery-provider"
+)
 LEX_LEGAL_NORM_ADMISSION_VERIFIER_REF = (
     "runtime-quality:capability-index-compiler:legal-norm-owner-truth"
 )
+CAPABILITY_INDEX_PATH_ENV = "POLISYOS_CAPABILITY_INDEX_PATH"
+ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF = VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF
 
 _COMPLETENESS_PRIORITY: dict[SearchCompletenessStatus, int] = {
     "producer_missing": 0,
@@ -193,11 +217,98 @@ class ScientistRegistryOwnerReceipt(_CapabilityOwnerReceipt):
         return self
 
 
+class AdapterCapabilityOwnerReceipt(_CapabilityOwnerReceipt):
+    """Owner receipt for capability rows emitted by verified adapter admission."""
+
+    schema_version: Literal["policyos.adapter_capability_owner_receipt.v1"] = (
+        "policyos.adapter_capability_owner_receipt.v1"
+    )
+    owner_type: Literal["verified_adapter_admission"] = "verified_adapter_admission"
+    resource_kind: AdapterCapabilityResourceKind
+    admission_snapshot_ref: str = Field(min_length=1)
+    admission_snapshot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    capability_purposes: tuple[str, ...] = Field(min_length=1)
+    passport_refs: tuple[str, ...] = Field(min_length=1)
+    evidence_receipt_refs: tuple[str, ...] = Field(min_length=1)
+    currentness_receipt_refs: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _admission_artifacts_are_bound(self) -> AdapterCapabilityOwnerReceipt:
+        if (
+            self.admission_snapshot_ref != self.search_snapshot_ref
+            or self.admission_snapshot_digest != self.search_snapshot_digest
+        ):
+            raise ValueError("adapter owner receipt must bind the searched admission snapshot")
+        required = {
+            self.admission_snapshot_ref,
+            *self.passport_refs,
+            *self.evidence_receipt_refs,
+            *self.currentness_receipt_refs,
+        }
+        if not required <= set(self.provenance_refs):
+            raise ValueError("adapter owner receipt must carry every verified admission artifact")
+        return self
+
+
+class ScientistRegistryCapabilityRecord(BaseModel):
+    """Strict handler-free projection of one public NodeSpec or ToolDefinition."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    capability_ref: str = Field(min_length=1)
+    registry_kind: Literal["node_registry", "tool_registry"]
+    registry_entry_ref: str = Field(min_length=1)
+    display_name: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    construct_refs: tuple[str, ...] = Field(min_length=1)
+    definition: dict[str, object]
+
+
+class ScientistRegistrySnapshot(BaseModel):
+    """Canonical finite projection persisted separately for each Scientist registry."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["scientist.node_registry.v1", "scientist.tool_registry.v1"]
+    registry_kind: Literal["node_registry", "tool_registry"]
+    producer_ref: Literal[
+        "runtime-quality:scientist-registry-capability-discovery-provider"
+    ] = SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF
+    entries: tuple[ScientistRegistryCapabilityRecord, ...]
+
+    @model_validator(mode="after")
+    def _schema_and_entries_match_registry(self) -> ScientistRegistrySnapshot:
+        expected = {
+            "node_registry": "scientist.node_registry.v1",
+            "tool_registry": "scientist.tool_registry.v1",
+        }[self.registry_kind]
+        if self.schema_version != expected:
+            raise ValueError("Scientist registry snapshot schema does not match registry_kind")
+        if any(entry.registry_kind != self.registry_kind for entry in self.entries):
+            raise ValueError("Scientist registry snapshot entries do not match registry_kind")
+        return self
+
+
+@dataclass(frozen=True, slots=True)
+class _ScientistDiscoverySnapshot:
+    """Immutable cached join over the two separately persisted registry snapshots."""
+
+    node_registry_snapshot_ref: str
+    node_registry_snapshot_digest: str
+    tool_registry_snapshot_ref: str
+    tool_registry_snapshot_digest: str
+    search_snapshot_ref: str
+    search_snapshot_digest: str
+    rows: tuple[CapabilityIndexDiscoveryRow, ...]
+    incompleteness_reasons: tuple[str, ...]
+
+
 type CapabilityOwnerReceipt = (
     CapabilityIndexOwnerReceipt
     | SourceProfileOwnerReceipt
     | LexOwnerReceipt
     | ScientistRegistryOwnerReceipt
+    | AdapterCapabilityOwnerReceipt
 )
 
 
@@ -227,16 +338,25 @@ class CapabilityProviderSearchResult(BaseModel):
             raise ValueError("provider rows must match the provider resource kind")
         if any(row.producer_ref != self.producer_ref for row in self.rows):
             raise ValueError("provider row producer_ref must match the owner result")
-        receipt_type = {
-            "method": CapabilityIndexOwnerReceipt,
-            "dataset": CapabilityIndexOwnerReceipt,
-            "source": SourceProfileOwnerReceipt,
-            "legal_norm": LexOwnerReceipt,
-            "agent": ScientistRegistryOwnerReceipt,
-        }.get(self.resource_kind)
-        if receipt_type is None or type(self.owner_receipt) is not receipt_type:
-            expected = receipt_type.__name__ if receipt_type is not None else "no owner receipt"
-            raise ValueError(f"{self.resource_kind} results require {expected}")
+        if type(self.owner_receipt) is AdapterCapabilityOwnerReceipt:
+            if self.resource_kind not in {"method", "dataset", "source"}:
+                raise ValueError("adapter admission cannot stand in for owner-truth resource kinds")
+            receipt_type: type[_CapabilityOwnerReceipt] | None = (
+                AdapterCapabilityOwnerReceipt
+            )
+        else:
+            receipt_type = {
+                "method": CapabilityIndexOwnerReceipt,
+                "dataset": CapabilityIndexOwnerReceipt,
+                "source": SourceProfileOwnerReceipt,
+                "legal_norm": LexOwnerReceipt,
+                "agent": ScientistRegistryOwnerReceipt,
+            }.get(self.resource_kind)
+            if receipt_type is None or type(self.owner_receipt) is not receipt_type:
+                expected = (
+                    receipt_type.__name__ if receipt_type is not None else "no owner receipt"
+                )
+                raise ValueError(f"{self.resource_kind} results require {expected}")
         if self.owner_receipt.owner_producer_ref != self.producer_ref:
             raise ValueError("owner receipt must bind producer_ref")
         if self.owner_receipt.resource_kind != self.resource_kind:
@@ -301,6 +421,833 @@ class CapabilityDiscoveryProvider(Protocol):
     ) -> CapabilityProviderSearchResult:
         """Return owner-selected rows and the real owner ledger."""
         ...
+
+
+class AdapterCapabilityDiscoveryProvider:
+    """Search capability rows emitted by the verified post-G0 admission producer."""
+
+    def __init__(self, *, admissions: Sequence[VerifiedAdapterAdmission]) -> None:
+        if not admissions:
+            raise ValueError("adapter capability discovery requires verified admissions")
+        if any(type(admission) is not VerifiedAdapterAdmission for admission in admissions):
+            raise TypeError("adapter capability discovery accepts only verified admissions")
+        kinds = {admission.resource_kind for admission in admissions}
+        if len(kinds) != 1:
+            raise ValueError("one adapter provider may own only one capability resource kind")
+        refs = [admission.capability_ref for admission in admissions]
+        if len(refs) != len(set(refs)):
+            raise ValueError("adapter capability refs must be unique within a provider")
+        self._admissions = tuple(sorted(admissions, key=lambda item: item.capability_ref))
+        self._resource_kind = self._admissions[0].resource_kind
+        snapshot_payload = [
+            admission.model_dump(mode="json") for admission in self._admissions
+        ]
+        self._snapshot_digest = "sha256:" + _digest(snapshot_payload)
+        self._snapshot_ref = (
+            "adapter-admission-snapshot:"
+            + self._snapshot_digest.removeprefix("sha256:")
+        )
+        self._rows = tuple(
+            self._discovery_row(admission) for admission in self._admissions
+        )
+
+    @property
+    def resource_kind(self) -> AdapterCapabilityResourceKind:
+        """Return the one explicitly declared kind in this admission snapshot."""
+
+        return self._resource_kind
+
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
+        """Return purpose-bound rows with all producer receipts content-bound."""
+
+        terms = _owner_search_terms(request)
+        purpose = request.search.authority_purpose
+        matches = [
+            row
+            for admission, row in zip(self._admissions, self._rows, strict=True)
+            if admission.capability_purpose == purpose
+            and (not terms or _row_match_count(row, terms))
+        ]
+        limit = _owner_search_limit(request, fallback=len(matches))
+        selected_rows = tuple(
+            sorted(
+                matches,
+                key=lambda row: (-_row_match_count(row, terms), row.capability_ref),
+            )[:limit]
+        )
+        selected_refs = {row.capability_ref for row in selected_rows}
+        matching_refs = {row.capability_ref for row in matches}
+        admission_by_ref = {
+            admission.capability_ref: admission for admission in self._admissions
+        }
+        selected = tuple(self._candidate(row, terms) for row in selected_rows)
+        rejected = tuple(
+            self._candidate(
+                row,
+                terms,
+                limitation=(
+                    "adapter_capability_purpose_mismatch"
+                    if admission_by_ref[row.capability_ref].capability_purpose != purpose
+                    else (
+                        "adapter_capability_budget_cutoff"
+                        if row.capability_ref in matching_refs
+                        else "adapter_capability_query_mismatch"
+                    )
+                ),
+            )
+            for row in self._rows
+            if row.capability_ref not in selected_refs
+        )
+        budget_cutoff = len(matches) > limit
+        completeness_status: SearchCompletenessStatus = (
+            "budget_cutoff"
+            if budget_cutoff
+            else ("complete" if selected_rows else "complete_no_match")
+        )
+        incompleteness_reasons = (
+            ("adapter_capability_budget_cutoff",) if budget_cutoff else ()
+        )
+        ledger = SearchLedger(
+            request_ref=request.search.request_id,
+            query_plan={
+                "match": "all_terms_over_verified_adapter_admissions",
+                "resource_kind": self.resource_kind,
+                "required_capability_purpose": purpose,
+                "membership_as_admission": "forbidden",
+                "admission_as_execution": "forbidden",
+            },
+            corpus_ref=self._snapshot_ref,
+            corpus_path="runtime/quality/adapter_contracts.py",
+            corpus_snapshot_hash=self._snapshot_digest,
+            corpus_kind="canonical",
+            indexes_used=("verified_adapter_admission_registry",),
+            index_version_refs=tuple(
+                admission.passport_ref for admission in self._admissions
+            ),
+            index_freshness={
+                "verified_adapter_admission_registry": {
+                    "state": "current",
+                    "currentness_receipt_refs": [
+                        admission.currentness_ref for admission in self._admissions
+                    ],
+                }
+            },
+            candidates=selected,
+            rejected_candidates=rejected,
+            no_hit_frontier=() if selected_rows else (self.resource_kind,),
+            incompleteness={
+                "status": completeness_status,
+                "reason_codes": list(incompleteness_reasons),
+            },
+            replay_key=(
+                "verified-adapter-admission:"
+                + self._snapshot_digest.removeprefix("sha256:")
+            ),
+            replay_command="capability-discovery:verified-adapter-admission",
+            replay_expected_output_hash=self._snapshot_digest,
+        )
+        payload = {
+            "resource_kind": self.resource_kind,
+            "producer_ref": ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF,
+            "rows": selected_rows,
+            "ledger": ledger,
+            "requested_count": limit,
+            "evaluated_count": len(self._rows),
+            "actual_cutoff": limit if budget_cutoff else None,
+            "completeness_status": completeness_status,
+            "incompleteness_reasons": incompleteness_reasons,
+        }
+        result_digest = "sha256:" + _digest(
+            {
+                **payload,
+                "rows": [row.model_dump(mode="json") for row in selected_rows],
+                "ledger": ledger.model_dump(mode="json"),
+            }
+        )
+        provenance_refs = tuple(
+            dict.fromkeys(
+                (
+                    ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF,
+                    self._snapshot_ref,
+                    *(
+                        ref
+                        for admission in self._admissions
+                        for ref in (
+                            admission.passport_ref,
+                            admission.evidence_ref,
+                            admission.currentness_ref,
+                            *admission.passport.provenance_refs,
+                        )
+                    ),
+                )
+            )
+        )
+        receipt = AdapterCapabilityOwnerReceipt(
+            owner_producer_ref=ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF,
+            search_snapshot_ref=self._snapshot_ref,
+            search_snapshot_digest=self._snapshot_digest,
+            result_digest=result_digest,
+            provenance_refs=provenance_refs,
+            resource_kind=self.resource_kind,
+            admission_snapshot_ref=self._snapshot_ref,
+            admission_snapshot_digest=self._snapshot_digest,
+            capability_purposes=tuple(
+                sorted({admission.capability_purpose for admission in self._admissions})
+            ),
+            passport_refs=tuple(
+                admission.passport_ref for admission in self._admissions
+            ),
+            evidence_receipt_refs=tuple(
+                admission.evidence_ref for admission in self._admissions
+            ),
+            currentness_receipt_refs=tuple(
+                admission.currentness_ref for admission in self._admissions
+            ),
+        )
+        return CapabilityProviderSearchResult(**payload, owner_receipt=receipt)
+
+    def _discovery_row(
+        self,
+        admission: VerifiedAdapterAdmission,
+    ) -> CapabilityIndexDiscoveryRow:
+        time = CapabilityTimeSemantics(
+            observed_at=admission.currentness.observed_at,
+            valid_from=admission.currentness.valid_from,
+            valid_until=admission.currentness.valid_until,
+            freshness="current",
+        )
+        return CapabilityIndexDiscoveryRow(
+            capability_ref=admission.capability_ref,
+            content_digest=admission.passport.content_digest,
+            resource_kind=admission.resource_kind,
+            construct_refs=admission.passport.construct_refs,
+            label=admission.passport.label,
+            description=admission.passport.description,
+            producer_ref=ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF,
+            snapshot_ref=self._snapshot_ref,
+            freshness_ref=admission.currentness_ref,
+            provenance_refs=tuple(
+                dict.fromkeys(
+                    (
+                        ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF,
+                        self._snapshot_ref,
+                        admission.passport_ref,
+                        admission.evidence_ref,
+                        admission.currentness_ref,
+                        *admission.passport.provenance_refs,
+                    )
+                )
+            ),
+            may_not_use_for=(
+                "adapter_admission_as_execution_authority",
+                "adapter_admission_as_publication_authority",
+                "registry_membership_as_capability_evidence",
+            ),
+            time=time,
+        )
+
+    @staticmethod
+    def _candidate(
+        row: CapabilityIndexDiscoveryRow,
+        terms: tuple[str, ...],
+        *,
+        limitation: str | None = None,
+    ) -> SearchCandidate:
+        match_count = _row_match_count(row, terms)
+        return SearchCandidate(
+            candidate_ref=row.capability_ref,
+            source_layer="Layer3AdapterAdmission",
+            match_mode="exact" if not terms else "lexical",
+            score=match_count / len(terms) if terms else 1.0,
+            evidence_refs=row.provenance_refs,
+            limitation_refs=(limitation,) if limitation is not None else (),
+            authority_boundary={"authoritative_for": []},
+            may_not_use_for=row.may_not_use_for,
+        )
+
+
+def project_layer3_owner_frontier(frontier: SearchFrontier) -> SearchFrontier:
+    """Validate and losslessly project a native Layer-3 owner frontier.
+
+    The owner must already have selected and rejected candidates, counters,
+    cutoff, and typed incompleteness. DS10 neither reconstructs nor augments
+    those facts.
+    """
+
+    if type(frontier) is not SearchFrontier:
+        raise TypeError("DS10 accepts only a native SearchFrontier owner artifact")
+    return SearchFrontier.model_validate(frontier.model_dump(mode="python"))
+
+
+class ScientistRegistryCapabilityDiscoveryProvider:
+    """Lazily persist and search public Scientist NodeRegistry/ToolRegistry projections.
+
+    Registry factories are never invoked during provider construction or store
+    binding. The first agent query emits two separate immutable CAS artifacts,
+    joins them into typed owner rows, and caches that snapshot for every later
+    request. Custom, dynamic, and ordinary bootstrap registries all preserve
+    unmeasured recall because request-scoped Scientist tools remain outside it.
+    """
+
+    def __init__(
+        self,
+        *,
+        node_registry_factory: Callable[[], object],
+        tool_registry_factory: Callable[[], object],
+        recall_measured: bool = False,
+        observed_at: Callable[[], datetime] | None = None,
+    ) -> None:
+        if not callable(node_registry_factory) or not callable(tool_registry_factory):
+            raise TypeError("Scientist registry factories must be callable")
+        self._node_registry_factory = node_registry_factory
+        self._tool_registry_factory = tool_registry_factory
+        self._recall_measured = recall_measured
+        self._observed_at = observed_at or (lambda: datetime.now(UTC))
+        self._artifact_store: core.artifacts.ArtifactStore | None = None
+        self._snapshot: _ScientistDiscoverySnapshot | None = None
+        self._snapshot_lock = threading.Lock()
+
+    @property
+    def resource_kind(self) -> Literal["agent"]:
+        """Return the single candidate-grade kind backed by Scientist registries."""
+        return "agent"
+
+    def bind_artifact_store(self, store: core.artifacts.ArtifactStore) -> None:
+        """Bind the runtime-owned store exactly once without executing discovery."""
+        required = ("put_json", "get_bytes", "get_manifest", "has")
+        if any(not callable(getattr(store, method, None)) for method in required):
+            raise TypeError("Scientist discovery requires an ArtifactStore")
+        if self._artifact_store is not None and self._artifact_store is not store:
+            raise RuntimeError("Scientist discovery artifact store is already bound")
+        self._artifact_store = store
+
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
+        """Return a content-bound owner ledger over the cached registry snapshot."""
+        snapshot = self._resolve_snapshot()
+        terms = _scientist_search_terms(request)
+        matches = (
+            list(snapshot.rows)
+            if not terms
+            else [row for row in snapshot.rows if _row_match_count(row, terms)]
+        )
+        limit = _owner_search_limit(request, fallback=len(matches))
+        selected_rows = tuple(
+            sorted(
+                matches,
+                key=lambda row: (-_row_match_count(row, terms), row.capability_ref),
+            )[:limit]
+        )
+        selected_refs = {row.capability_ref for row in selected_rows}
+        matching_refs = {row.capability_ref for row in matches}
+        selected = tuple(_scientist_search_candidate(row, terms) for row in selected_rows)
+        rejected = tuple(
+            _scientist_search_candidate(
+                row,
+                terms,
+                limitation=(
+                    "scientist_registry_budget_cutoff"
+                    if row.capability_ref in matching_refs
+                    else "scientist_registry_query_mismatch"
+                ),
+            )
+            for row in snapshot.rows
+            if row.capability_ref not in selected_refs
+        )
+        budget_cutoff = len(matches) > limit
+        completeness_status, incompleteness_reasons = _scientist_completeness(
+            has_selected=bool(selected_rows),
+            recall_measured=self._recall_measured,
+            snapshot_reasons=snapshot.incompleteness_reasons,
+            budget_cutoff=budget_cutoff,
+        )
+        ledger = SearchLedger(
+            request_ref=request.search.request_id,
+            query_plan={
+                "match": "all_terms_over_scientist_registry_projection",
+                "resource_kind": self.resource_kind,
+                "handler_projection": "forbidden",
+            },
+            corpus_ref=snapshot.search_snapshot_ref,
+            corpus_path="runtime/quality/capability_discovery.py",
+            corpus_snapshot_hash=snapshot.search_snapshot_digest,
+            corpus_kind="canonical" if self._recall_measured else "bounded_surrogate",
+            indexes_used=("scientist_node_registry", "scientist_tool_registry"),
+            index_version_refs=(
+                snapshot.node_registry_snapshot_ref,
+                snapshot.tool_registry_snapshot_ref,
+            ),
+            index_freshness={
+                "scientist_node_registry": {
+                    "state": "current",
+                    "snapshot_ref": snapshot.node_registry_snapshot_ref,
+                },
+                "scientist_tool_registry": {
+                    "state": "current",
+                    "snapshot_ref": snapshot.tool_registry_snapshot_ref,
+                },
+            },
+            candidates=selected,
+            rejected_candidates=rejected,
+            no_hit_frontier=() if selected_rows else (self.resource_kind,),
+            incompleteness={
+                "status": completeness_status,
+                "reason_codes": list(incompleteness_reasons),
+            },
+            replay_key=(
+                "scientist-registry-capability-discovery:"
+                + snapshot.search_snapshot_digest.removeprefix("sha256:")
+            ),
+            replay_command="capability-discovery:scientist-registry-snapshot",
+            replay_expected_output_hash=snapshot.search_snapshot_digest,
+        )
+        payload = {
+            "resource_kind": self.resource_kind,
+            "producer_ref": SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF,
+            "rows": selected_rows,
+            "ledger": ledger,
+            "requested_count": limit,
+            "evaluated_count": len(snapshot.rows),
+            "actual_cutoff": limit if budget_cutoff else None,
+            "completeness_status": completeness_status,
+            "incompleteness_reasons": incompleteness_reasons,
+        }
+        result_digest = "sha256:" + _digest(
+            {
+                **payload,
+                "rows": [row.model_dump(mode="json") for row in selected_rows],
+                "ledger": ledger.model_dump(mode="json"),
+            }
+        )
+        provenance_refs = tuple(
+            dict.fromkeys(
+                (
+                    SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF,
+                    snapshot.search_snapshot_ref,
+                    snapshot.node_registry_snapshot_ref,
+                    snapshot.tool_registry_snapshot_ref,
+                    *(ref for row in snapshot.rows for ref in row.provenance_refs),
+                )
+            )
+        )
+        receipt = ScientistRegistryOwnerReceipt(
+            owner_producer_ref=SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF,
+            search_snapshot_ref=snapshot.search_snapshot_ref,
+            search_snapshot_digest=snapshot.search_snapshot_digest,
+            result_digest=result_digest,
+            provenance_refs=provenance_refs,
+            node_registry_snapshot_ref=snapshot.node_registry_snapshot_ref,
+            node_registry_snapshot_digest=snapshot.node_registry_snapshot_digest,
+            tool_registry_snapshot_ref=snapshot.tool_registry_snapshot_ref,
+            tool_registry_snapshot_digest=snapshot.tool_registry_snapshot_digest,
+        )
+        result = CapabilityProviderSearchResult(**payload, owner_receipt=receipt)
+        store = self._artifact_store
+        if store is None:  # pragma: no cover - guarded by _resolve_snapshot
+            raise CapabilityProviderUnavailableError("scientist_artifact_store_unbound")
+        try:
+            store.put_json(
+                receipt.model_dump(mode="json"),
+                core.artifacts.PutOptions(
+                    kind="scientist.registry_owner_receipt",
+                    media_type="application/json",
+                    schema=core.artifacts.SchemaInfo(
+                        name="polisyos.runtime.quality.ScientistRegistryOwnerReceipt",
+                        version=receipt.schema_version,
+                    ),
+                ),
+            )
+        except (OSError, TypeError, ValueError) as exc:
+            raise CapabilityProviderUnavailableError(
+                "scientist_owner_receipt_persistence_failed"
+            ) from exc
+        return result
+
+    def _resolve_snapshot(self) -> _ScientistDiscoverySnapshot:
+        cached = self._snapshot
+        if cached is not None:
+            return cached
+        with self._snapshot_lock:
+            cached = self._snapshot
+            if cached is not None:
+                return cached
+            store = self._artifact_store
+            if store is None:
+                raise CapabilityProviderUnavailableError("scientist_artifact_store_unbound")
+            try:
+                cached = _build_scientist_discovery_snapshot(
+                    store,
+                    node_registry_source=self._node_registry_factory(),
+                    tool_registry_source=self._tool_registry_factory(),
+                    observed_at=self._observed_at(),
+                )
+            except CapabilityProviderUnavailableError:
+                raise
+            except (AttributeError, OSError, TypeError, ValueError) as exc:
+                raise CapabilityProviderUnavailableError(
+                    "scientist_registry_snapshot_invalid"
+                ) from exc
+            self._snapshot = cached
+            return cached
+
+
+class CapabilityIndexCapabilityDiscoveryProvider:
+    """Search one owner kind from a persisted release ``CapabilityIndex``.
+
+    The default bridge lazily loads already-compiled release bytes exactly
+    once. It never compiles an index in a request and never consults runtime
+    backend/family availability, so discovery remains independent of
+    execution.
+    """
+
+    def __init__(
+        self,
+        *,
+        resource_kind: Literal["method", "dataset"],
+        capability_index: CapabilityIndex | None = None,
+        capability_index_loader: Callable[[], CapabilityIndex] | None = None,
+    ) -> None:
+        if (capability_index is None) == (capability_index_loader is None):
+            raise ValueError(
+                "exactly one of capability_index or capability_index_loader is required"
+            )
+        self._resource_kind = resource_kind
+        self._capability_index = capability_index
+        self._capability_index_loader = capability_index_loader
+        self._index_lock = threading.Lock()
+
+    @property
+    def resource_kind(self) -> Literal["method", "dataset"]:
+        """Return the one release-index kind served by this provider."""
+        return self._resource_kind
+
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
+        """Return owner-indexed rows and a receipt bound to the persisted release."""
+        capability_index = self._resolve_capability_index()
+        rows = tuple(
+            row
+            for row in build_capability_discovery_snapshot(capability_index)
+            if row.resource_kind == self.resource_kind
+        )
+        snapshot_ref = _capability_index_snapshot_ref(capability_index, rows)
+        snapshot_digest = "sha256:" + _digest(
+            {
+                "release_ref": capability_index.release_ref,
+                "compiler_version": capability_index.compiler_version,
+                "resource_kind": self.resource_kind,
+                "rows": [row.model_dump(mode="json") for row in rows],
+            }
+        )
+        terms = _capability_index_search_terms(request)
+        matches = list(rows) if not terms else [row for row in rows if _row_match_count(row, terms)]
+        limit = _capability_index_search_limit(request, fallback=len(matches))
+        selected_rows = tuple(
+            sorted(
+                matches,
+                key=lambda row: (-_row_match_count(row, terms), row.capability_ref),
+            )[:limit]
+        )
+        selected_refs = {row.capability_ref for row in selected_rows}
+        matching_refs = {row.capability_ref for row in matches}
+        selected = tuple(
+            _capability_index_search_candidate(row, terms) for row in selected_rows
+        )
+        rejected = tuple(
+            _capability_index_search_candidate(
+                row,
+                terms,
+                limitation=(
+                    f"{self.resource_kind}_capability_index_budget_cutoff"
+                    if row.capability_ref in matching_refs
+                    else f"{self.resource_kind}_capability_index_query_mismatch"
+                ),
+            )
+            for row in rows
+            if row.capability_ref not in selected_refs
+        )
+        budget_cutoff = len(matches) > limit
+        stale = any(row.time.freshness == "stale" for row in rows)
+        completeness_status, incompleteness_reasons = _capability_index_completeness(
+            resource_kind=self.resource_kind,
+            has_selected=bool(selected_rows),
+            stale=stale,
+            budget_cutoff=budget_cutoff,
+        )
+        index_ref = f"capability_index:{self.resource_kind}"
+        ledger = SearchLedger(
+            request_ref=request.search.request_id,
+            query_plan={
+                "match": "all_terms_over_release_capability_index",
+                "resource_kind": self.resource_kind,
+                "execution_projection": "forbidden",
+            },
+            corpus_ref=capability_index.release_ref,
+            corpus_path=str(
+                capability_index.metadata.get(
+                    "persisted_release_path",
+                    "runtime/quality/capability_index_compiler.py",
+                )
+            ),
+            corpus_snapshot_hash=snapshot_digest,
+            corpus_kind="canonical",
+            indexes_used=(index_ref,),
+            index_version_refs=(snapshot_ref,),
+            index_freshness={
+                index_ref: {
+                    "state": "stale" if stale else "current",
+                    "snapshot_ref": snapshot_ref,
+                }
+            },
+            candidates=selected,
+            rejected_candidates=rejected,
+            no_hit_frontier=() if selected_rows else (self.resource_kind,),
+            incompleteness={
+                "status": completeness_status,
+                "reason_codes": list(incompleteness_reasons),
+            },
+            replay_key=(
+                f"capability-index-{self.resource_kind}:"
+                + snapshot_digest.removeprefix("sha256:")
+            ),
+            replay_command="capability-discovery:persisted-capability-index",
+            replay_expected_output_hash=snapshot_digest,
+        )
+        payload = {
+            "resource_kind": self.resource_kind,
+            "producer_ref": capability_index.release_ref,
+            "rows": selected_rows,
+            "ledger": ledger,
+            "requested_count": limit,
+            "evaluated_count": len(rows),
+            "actual_cutoff": limit if budget_cutoff else None,
+            "completeness_status": completeness_status,
+            "incompleteness_reasons": incompleteness_reasons,
+        }
+        result_digest = "sha256:" + _digest(
+            {
+                **payload,
+                "rows": [row.model_dump(mode="json") for row in selected_rows],
+                "ledger": ledger.model_dump(mode="json"),
+            }
+        )
+        provenance_refs = tuple(
+            dict.fromkeys(
+                (
+                    capability_index.release_ref,
+                    snapshot_ref,
+                    *(ref for row in rows for ref in row.provenance_refs),
+                )
+            )
+        )
+        receipt = CapabilityIndexOwnerReceipt(
+            resource_kind=self.resource_kind,
+            owner_producer_ref=capability_index.release_ref,
+            search_snapshot_ref=snapshot_ref,
+            search_snapshot_digest=snapshot_digest,
+            result_digest=result_digest,
+            provenance_refs=provenance_refs,
+            index_release_ref=capability_index.release_ref,
+        )
+        return CapabilityProviderSearchResult(**payload, owner_receipt=receipt)
+
+    def _resolve_capability_index(self) -> CapabilityIndex:
+        cached = self._capability_index
+        if cached is not None:
+            if type(cached) is not CapabilityIndex:
+                raise CapabilityProviderUnavailableError("capability_index_release_invalid")
+            return cached
+        with self._index_lock:
+            cached = self._capability_index
+            if cached is not None:
+                return cached
+            loader = self._capability_index_loader
+            if loader is None:  # pragma: no cover - constructor invariant
+                raise CapabilityProviderUnavailableError("capability_index_loader_missing")
+            try:
+                cached = loader()
+            except CapabilityProviderUnavailableError:
+                raise
+            except (OSError, TypeError, ValueError) as exc:
+                raise CapabilityProviderUnavailableError(
+                    "capability_index_release_invalid"
+                ) from exc
+            if type(cached) is not CapabilityIndex:
+                raise CapabilityProviderUnavailableError("capability_index_release_invalid")
+            self._capability_index = cached
+            return cached
+
+
+def load_default_capability_index_release() -> CapabilityIndex:
+    """Load the configured persisted CapabilityIndex without compiling it."""
+    configured = os.environ.get(CAPABILITY_INDEX_PATH_ENV)
+    if configured is None or not configured.strip():
+        raise CapabilityProviderUnavailableError("capability_index_release_path_unconfigured")
+    return load_capability_index_release(configured)
+
+
+def load_capability_index_release(path: str | Path) -> CapabilityIndex:
+    """Read and integrity-check a compiler-emitted CapabilityIndex release."""
+    release_path = Path(path).expanduser().resolve()
+    manifest_path = release_path.with_name(CAPABILITY_INDEX_MANIFEST)
+    if not release_path.is_file() or not manifest_path.is_file():
+        raise CapabilityProviderUnavailableError("capability_index_release_missing")
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if not isinstance(manifest, dict):
+            raise ValueError("CapabilityIndex manifest must be an object")
+        signature = manifest.get("signature")
+        outputs = manifest.get("outputs")
+        release_refs = manifest.get("release_refs")
+        if not all(isinstance(value, dict) for value in (signature, outputs, release_refs)):
+            raise ValueError("CapabilityIndex manifest bindings are malformed")
+        if outputs.get("primary_duckdb") != release_path.name:
+            raise ValueError("CapabilityIndex manifest does not bind the configured DuckDB")
+        logical_digest = compute_logical_duckdb_digest(release_path)
+        if signature.get("digest") != logical_digest:
+            raise ValueError("CapabilityIndex logical digest does not match its manifest")
+
+        import duckdb
+
+        with duckdb.connect(str(release_path), read_only=True) as connection:
+            capabilities = tuple(
+                EvidenceCapability.model_validate_json(row[0])
+                for row in connection.execute(
+                    "SELECT capability_json FROM capabilities ORDER BY capability_id"
+                ).fetchall()
+            )
+            failure_modes = tuple(
+                FailureModeNode.model_validate_json(row[0])
+                for row in connection.execute(
+                    "SELECT failure_json FROM failure_modes ORDER BY failure_id"
+                ).fetchall()
+            )
+            strategies = tuple(
+                AcquisitionStrategy.model_validate_json(row[0])
+                for row in connection.execute(
+                    "SELECT strategy_json FROM acquisition_strategies ORDER BY strategy_id"
+                ).fetchall()
+            )
+            conflicts = tuple(
+                CapabilityConflictRecord.model_validate_json(row[0])
+                for row in connection.execute(
+                    "SELECT conflict_json FROM conflicts ORDER BY conflict_id"
+                ).fetchall()
+            )
+            metadata = {
+                str(key): json.loads(str(value))
+                for key, value in connection.execute(
+                    "SELECT key, value_json FROM index_metadata ORDER BY key"
+                ).fetchall()
+            }
+        release_ref = str(metadata["release_ref"])
+        if release_refs.get("capability_index_ref") != release_ref:
+            raise ValueError("CapabilityIndex manifest and store release refs differ")
+        if manifest.get("compiler_version") != metadata.get("compiler_version"):
+            raise ValueError("CapabilityIndex manifest and store compiler versions differ")
+        if manifest.get("mode") != metadata.get("mode"):
+            raise ValueError("CapabilityIndex manifest and store modes differ")
+        return CapabilityIndex(
+            schema_version=metadata["schema_version"],
+            compiler_version=metadata["compiler_version"],
+            release_ref=release_ref,
+            mode=metadata["mode"],
+            capabilities=capabilities,
+            failure_modes=failure_modes,
+            acquisition_strategies=strategies,
+            conflicts=conflicts,
+            white_space=failure_modes,
+            generated_at=manifest["generated_at"],
+            metadata={
+                "persisted_release_path": str(release_path),
+                "manifest_ref": str(manifest_path),
+                "logical_duckdb_sha256": logical_digest,
+            },
+        )
+    except CapabilityProviderUnavailableError:
+        raise
+    except (KeyError, OSError, TypeError, ValueError) as exc:
+        raise CapabilityProviderUnavailableError("capability_index_release_invalid") from exc
+
+
+def _capability_index_snapshot_ref(
+    capability_index: CapabilityIndex,
+    rows: tuple[CapabilityIndexDiscoveryRow, ...],
+) -> str:
+    snapshot_refs = {row.snapshot_ref for row in rows}
+    expected = f"{capability_index.release_ref}@{capability_index.compiler_version}"
+    if not snapshot_refs:
+        return expected
+    if snapshot_refs != {expected}:
+        raise CapabilityProviderUnavailableError("capability_index_snapshot_ambiguous")
+    return expected
+
+
+def _capability_index_search_terms(request: CapabilityDiscoveryRequest) -> tuple[str, ...]:
+    match_all = request.search.budget.get("match_all", False)
+    if not isinstance(match_all, bool):
+        raise CapabilityProviderUnavailableError("capability_index_match_all_invalid")
+    if match_all:
+        return ()
+    terms = re.findall(
+        r"[\w]+",
+        " ".join((request.search.query_text, *request.search.construct_refs)).casefold(),
+    )
+    normalized = tuple(dict.fromkeys(term for term in terms if term))
+    if not normalized:
+        raise CapabilityProviderUnavailableError("capability_index_query_terms_missing")
+    return normalized
+
+
+def _capability_index_search_limit(
+    request: CapabilityDiscoveryRequest,
+    *,
+    fallback: int,
+) -> int:
+    raw_limit = request.search.budget.get("top_k", fallback)
+    if isinstance(raw_limit, bool) or not isinstance(raw_limit, int) or raw_limit < 0:
+        raise CapabilityProviderUnavailableError("capability_index_query_budget_invalid")
+    return raw_limit
+
+
+def _capability_index_search_candidate(
+    row: CapabilityIndexDiscoveryRow,
+    terms: tuple[str, ...],
+    *,
+    limitation: str | None = None,
+) -> SearchCandidate:
+    match_count = _row_match_count(row, terms)
+    query_text = " ".join(terms)
+    searchable = " ".join(
+        (row.capability_ref, *row.construct_refs, row.label, row.description)
+    ).casefold()
+    return SearchCandidate(
+        candidate_ref=row.capability_ref,
+        source_layer={"method": "L6", "dataset": "L1"}[row.resource_kind],
+        match_mode="exact" if query_text and query_text in searchable else "lexical",
+        score=match_count / len(terms) if terms else 1.0,
+        evidence_refs=row.provenance_refs,
+        limitation_refs=(limitation,) if limitation is not None else (),
+        authority_boundary={"authoritative_for": []},
+        may_not_use_for=row.may_not_use_for,
+    )
+
+
+def _capability_index_completeness(
+    *,
+    resource_kind: Literal["method", "dataset"],
+    has_selected: bool,
+    stale: bool,
+    budget_cutoff: bool,
+) -> tuple[SearchCompletenessStatus, tuple[str, ...]]:
+    if stale:
+        reasons = (f"{resource_kind}_capability_index_snapshot_stale",)
+        if budget_cutoff:
+            reasons += (f"{resource_kind}_capability_index_budget_cutoff",)
+        return "index_stale", reasons
+    if budget_cutoff:
+        return "budget_cutoff", (f"{resource_kind}_capability_index_budget_cutoff",)
+    if not has_selected:
+        return "complete_no_match", ()
+    return "complete", ()
 
 
 class LexCapabilityDiscoveryProvider:
@@ -529,6 +1476,281 @@ def _lex_completeness(
     return "complete", ()
 
 
+def _build_scientist_discovery_snapshot(
+    store: core.artifacts.ArtifactStore,
+    *,
+    node_registry_source: object,
+    tool_registry_source: object,
+    observed_at: datetime,
+) -> _ScientistDiscoverySnapshot:
+    """Project public registry contracts, persist them separately, and join owner rows."""
+    from polisyos.scientist import ToolRegistry
+
+    node_registry, node_reasons = _unpack_scientist_registry_source(node_registry_source)
+    tool_registry, tool_reasons = _unpack_scientist_registry_source(tool_registry_source)
+    if not callable(getattr(node_registry, "list", None)):
+        raise CapabilityProviderUnavailableError("scientist_node_registry_invalid")
+    if not isinstance(tool_registry, ToolRegistry):
+        raise CapabilityProviderUnavailableError("scientist_tool_registry_invalid")
+    if observed_at.tzinfo is None:
+        raise CapabilityProviderUnavailableError("scientist_registry_observed_at_naive")
+    entries_by_kind = {
+        "node_registry": _scientist_node_records(node_registry),
+        "tool_registry": _scientist_tool_records(tool_registry),
+    }
+    schema_by_kind = {
+        "node_registry": "scientist.node_registry.v1",
+        "tool_registry": "scientist.tool_registry.v1",
+    }
+    persisted: dict[str, tuple[str, str]] = {}
+    for registry_kind in ("node_registry", "tool_registry"):
+        schema_version = schema_by_kind[registry_kind]
+        snapshot = ScientistRegistrySnapshot(
+            schema_version=schema_version,
+            registry_kind=registry_kind,
+            entries=entries_by_kind[registry_kind],
+        )
+        ref = store.put_json(
+            snapshot.model_dump(mode="json"),
+            core.artifacts.PutOptions(
+                kind=f"scientist.{registry_kind}_snapshot",
+                media_type="application/json",
+                schema=core.artifacts.SchemaInfo(
+                    name="polisyos.runtime.quality.ScientistRegistrySnapshot",
+                    version=schema_version,
+                ),
+            ),
+            canon_spec=core.canon.CanonSpec(forbid_floats=False),
+        )
+        persisted[registry_kind] = (str(ref.artifact_id), str(ref.artifact_id))
+    node_snapshot_ref, node_snapshot_digest = persisted["node_registry"]
+    tool_snapshot_ref, tool_snapshot_digest = persisted["tool_registry"]
+    combined = {
+        "node_registry_snapshot_ref": node_snapshot_ref,
+        "node_registry_snapshot_digest": node_snapshot_digest,
+        "tool_registry_snapshot_ref": tool_snapshot_ref,
+        "tool_registry_snapshot_digest": tool_snapshot_digest,
+    }
+    search_snapshot_digest = "sha256:" + _digest(combined)
+    search_snapshot_ref = (
+        "scientist-registry-snapshot:"
+        + search_snapshot_digest.removeprefix("sha256:")
+    )
+    time = CapabilityTimeSemantics(
+        observed_at=observed_at,
+        valid_from=observed_at,
+        valid_until=None,
+        freshness="current",
+    )
+    rows = tuple(
+        _scientist_registry_row(
+            entry,
+            registry_snapshot_ref=persisted[entry.registry_kind][0],
+            registry_snapshot_digest=persisted[entry.registry_kind][1],
+            search_snapshot_ref=search_snapshot_ref,
+            time=time,
+        )
+        for entry in sorted(
+            (*entries_by_kind["node_registry"], *entries_by_kind["tool_registry"]),
+            key=lambda item: item.capability_ref,
+        )
+    )
+    return _ScientistDiscoverySnapshot(
+        node_registry_snapshot_ref=node_snapshot_ref,
+        node_registry_snapshot_digest=node_snapshot_digest,
+        tool_registry_snapshot_ref=tool_snapshot_ref,
+        tool_registry_snapshot_digest=tool_snapshot_digest,
+        search_snapshot_ref=search_snapshot_ref,
+        search_snapshot_digest=search_snapshot_digest,
+        rows=rows,
+        incompleteness_reasons=tuple(
+            dict.fromkeys((*node_reasons, *tool_reasons))
+        ),
+    )
+
+
+def _unpack_scientist_registry_source(source: object) -> tuple[object, tuple[str, ...]]:
+    """Accept a registry or a registry plus typed discovery limitations."""
+    if not isinstance(source, tuple):
+        return source, ()
+    if len(source) != 2:
+        raise CapabilityProviderUnavailableError("scientist_registry_source_invalid")
+    registry, raw_reasons = source
+    if not isinstance(raw_reasons, (tuple, list)) or any(
+        not isinstance(reason, str) or not reason for reason in raw_reasons
+    ):
+        raise CapabilityProviderUnavailableError("scientist_registry_source_invalid")
+    return registry, tuple(raw_reasons)
+
+
+def _scientist_node_records(registry: object) -> tuple[ScientistRegistryCapabilityRecord, ...]:
+    """Canonical-sort public NodeSpec projections without retaining executable Nodes."""
+    records = []
+    for spec in registry.list():
+        entry_ref = str(spec.metadata.component_id)
+        records.append(
+            ScientistRegistryCapabilityRecord(
+                capability_ref=f"scientist-node:{entry_ref}",
+                registry_kind="node_registry",
+                registry_entry_ref=entry_ref,
+                display_name=spec.metadata.display_name or entry_ref,
+                description=spec.metadata.description or f"Scientist node {entry_ref}",
+                construct_refs=_sorted_text(
+                    (
+                        f"scientist-node:{entry_ref}",
+                        *spec.metadata.domains,
+                        *spec.metadata.tags,
+                        *spec.metadata.provides,
+                        *spec.state_reads,
+                        *spec.state_writes,
+                        *spec.produces,
+                    )
+                ),
+                definition=spec.model_dump(mode="json"),
+            )
+        )
+    return tuple(sorted(records, key=lambda entry: entry.capability_ref))
+
+
+def _scientist_tool_records(registry: object) -> tuple[ScientistRegistryCapabilityRecord, ...]:
+    """Canonical-sort public ToolDefinitions without reading registry handlers."""
+    records = []
+    for definition in registry.list_definitions():
+        parameters = definition.parameters.get("properties", {})
+        records.append(
+            ScientistRegistryCapabilityRecord(
+                capability_ref=f"scientist-tool:{definition.name}",
+                registry_kind="tool_registry",
+                registry_entry_ref=definition.name,
+                display_name=definition.name.replace("_", " "),
+                description=definition.description or f"Scientist tool {definition.name}",
+                construct_refs=_sorted_text(
+                    (
+                        f"scientist-tool:{definition.name}",
+                        definition.domain,
+                        *(parameters if isinstance(parameters, dict) else ()),
+                    )
+                ),
+                definition=definition.model_dump(mode="json"),
+            )
+        )
+    return tuple(sorted(records, key=lambda entry: entry.capability_ref))
+
+
+def _scientist_registry_row(
+    entry: ScientistRegistryCapabilityRecord,
+    *,
+    registry_snapshot_ref: str,
+    registry_snapshot_digest: str,
+    search_snapshot_ref: str,
+    time: CapabilityTimeSemantics,
+) -> CapabilityIndexDiscoveryRow:
+    """Construct the shared typed row and owner truth for one registry entry."""
+    truth_provenance = (
+        SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF,
+        registry_snapshot_ref,
+    )
+    owner_truth = ScientistCapabilityOwnerTruth(
+        capability_ref=entry.capability_ref,
+        registry_kind=entry.registry_kind,
+        registry_schema_ref={
+            "node_registry": "scientist.node_registry.v1",
+            "tool_registry": "scientist.tool_registry.v1",
+        }[entry.registry_kind],
+        registry_entry_ref=entry.registry_entry_ref,
+        registry_snapshot_ref=registry_snapshot_ref,
+        registry_snapshot_digest=registry_snapshot_digest,
+        provenance_refs=truth_provenance,
+    )
+    return CapabilityIndexDiscoveryRow(
+        capability_ref=entry.capability_ref,
+        content_digest="sha256:" + _digest(entry.model_dump(mode="json")),
+        resource_kind="agent",
+        construct_refs=entry.construct_refs,
+        label=entry.display_name,
+        description=entry.description,
+        producer_ref=SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF,
+        snapshot_ref=search_snapshot_ref,
+        freshness_ref=f"{registry_snapshot_ref}#current",
+        provenance_refs=(*truth_provenance, search_snapshot_ref),
+        owner_truth=owner_truth,
+        may_not_use_for=(
+            "authority_without_signed_capability_purpose_binding",
+            "execution_without_live_operation_registration",
+            "world_entity_or_data_lookup",
+        ),
+        time=time,
+    )
+
+
+def _scientist_search_terms(request: CapabilityDiscoveryRequest) -> tuple[str, ...]:
+    """Normalize a Scientist query while preserving a typed match-all control."""
+    match_all = request.search.budget.get("match_all", False)
+    if not isinstance(match_all, bool):
+        raise CapabilityProviderUnavailableError("scientist_registry_match_all_invalid")
+    if match_all:
+        return ()
+    terms = re.findall(
+        r"[\w]+",
+        " ".join((request.search.query_text, *request.search.construct_refs)).casefold(),
+    )
+    normalized = tuple(dict.fromkeys(term for term in terms if term))
+    if not normalized:
+        raise CapabilityProviderUnavailableError("scientist_registry_query_terms_missing")
+    return normalized
+
+
+def _scientist_search_candidate(
+    row: CapabilityIndexDiscoveryRow,
+    terms: tuple[str, ...],
+    *,
+    limitation: str | None = None,
+) -> SearchCandidate:
+    """Project one registry row into a scored, candidate-only ledger entry."""
+    match_count = _row_match_count(row, terms)
+    query_text = " ".join(terms)
+    searchable = " ".join(
+        (row.capability_ref, *row.construct_refs, row.label, row.description)
+    ).casefold()
+    return SearchCandidate(
+        candidate_ref=row.capability_ref,
+        source_layer="Scientist",
+        match_mode="exact" if query_text and query_text in searchable else "lexical",
+        score=match_count / len(terms) if terms else 1.0,
+        evidence_refs=row.provenance_refs,
+        limitation_refs=(limitation,) if limitation is not None else (),
+        authority_boundary={"authoritative_for": []},
+        may_not_use_for=row.may_not_use_for,
+    )
+
+
+def _scientist_completeness(
+    *,
+    has_selected: bool,
+    recall_measured: bool,
+    snapshot_reasons: tuple[str, ...],
+    budget_cutoff: bool,
+) -> tuple[SearchCompletenessStatus, tuple[str, ...]]:
+    """Keep non-default/dynamic registry recall explicitly unmeasured."""
+    reasons = list(snapshot_reasons)
+    if not recall_measured:
+        reasons.append("scientist_registry_recall_unmeasured")
+    if reasons:
+        if budget_cutoff:
+            reasons.append("scientist_registry_budget_cutoff")
+        return "recall_unmeasured", tuple(dict.fromkeys(reasons))
+    if budget_cutoff:
+        return "budget_cutoff", ("scientist_registry_budget_cutoff",)
+    if not has_selected:
+        return "complete_no_match", ()
+    return "complete", ()
+
+
+def _sorted_text(values: Sequence[object]) -> tuple[str, ...]:
+    """Return a canonical non-empty-aware text projection without inventing meaning."""
+    return tuple(sorted({str(value).strip() for value in values if str(value).strip()}))
+
+
 class CapabilityDiscoveryComposer:
     """Compose provider ledgers and independent posture resolvers into one packet."""
 
@@ -665,6 +1887,11 @@ class CapabilityDiscoveryComposer:
             context=authority_context,
             observed_at=observed_at,
         )
+        authoritative_for = (
+            (request.search.authority_purpose,)
+            if authority.state == "admitted_authority"
+            else ()
+        )
         return CapabilityDiscoveryItem(
             capability_ref=row.capability_ref,
             content_digest=row.content_digest,
@@ -674,7 +1901,7 @@ class CapabilityDiscoveryComposer:
             discovery_result=discovery,
             execution_result=execution,
             authority_result=authority,
-            authoritative_for=(),
+            authoritative_for=authoritative_for,
             may_not_use_for=tuple(
                 dict.fromkeys(
                     (
@@ -960,18 +2187,30 @@ def main(argv: list[str] | None = None) -> int:
 
 
 __all__ = [
+    "ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF",
     "CAPABILITY_DISCOVERY_RULE_VERSION",
+    "CAPABILITY_INDEX_PATH_ENV",
     "CAPABILITY_PROVIDER_REGISTRY_INDEX_REF",
+    "SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF",
+    "AdapterCapabilityDiscoveryProvider",
+    "AdapterCapabilityOwnerReceipt",
     "CapabilityDiscoveryComposer",
     "CapabilityDiscoveryProvider",
+    "CapabilityIndexCapabilityDiscoveryProvider",
     "CapabilityIndexOwnerReceipt",
     "CapabilityProviderSearchResult",
     "CapabilityProviderUnavailableError",
     "LexCapabilityDiscoveryProvider",
     "LexOwnerReceipt",
+    "ScientistRegistryCapabilityDiscoveryProvider",
+    "ScientistRegistryCapabilityRecord",
     "ScientistRegistryOwnerReceipt",
+    "ScientistRegistrySnapshot",
     "SourceProfileOwnerReceipt",
+    "load_capability_index_release",
+    "load_default_capability_index_release",
     "main",
+    "project_layer3_owner_frontier",
 ]
 
 

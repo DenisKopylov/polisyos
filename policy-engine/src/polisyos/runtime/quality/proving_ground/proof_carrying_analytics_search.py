@@ -17,9 +17,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import read_layer3_gx_pinned_case_id
+from polisyos.core.contracts import SearchCandidate, SearchFrontier
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
+    read_layer3_gx_pinned_case_id,
+)
 
 if TYPE_CHECKING:
     import duckdb
@@ -166,6 +169,9 @@ ALL_ISSUE_CODES: tuple[str, ...] = (
     "layer3_g3_adapter_registry_summary_only",
     "layer3_g3_adapter_unknown_path",
     "layer3_g3_adapter_semantic_loss",
+    "layer3_g3_adapter_capability_admission_missing",
+    "layer3_g3_adapter_capability_admission_invalid",
+    "layer3_g3_adapter_currentness_invalid",
     "layer3_g3_adapter_touchpoint_unregistered",
     "layer3_g3_persisted_artifact_missing",
     "layer3_g3_manifest_runtime_drift",
@@ -322,8 +328,27 @@ class Layer3G3IRCatalogSearchLedger(_G3Model):
     cutoff_limit: int = Field(default=0, ge=0)
     result_count: int = Field(default=0, ge=0)
     replay_key: str = Field(min_length=1)
+    owner_frontier: SearchFrontier | None = None
     authoritative_for: tuple[str, ...] = Field(default=G3_LEDGER_AUTHORITATIVE_FOR)
     may_not_use_for: tuple[str, ...] = Field(default=G3_MAY_NOT_USE_FOR)
+
+    @model_validator(mode="after")
+    def _owner_frontier_preserves_native_selection(self) -> Layer3G3IRCatalogSearchLedger:
+        if self.owner_frontier is None:
+            return self
+        selected = tuple(candidate.candidate_ref for candidate in self.owner_frontier.candidates)
+        rejected = tuple(
+            candidate.candidate_ref for candidate in self.owner_frontier.rejected_candidates
+        )
+        if selected != self.selected_candidate_refs:
+            raise ValueError("G3 owner frontier must preserve selected_candidate_refs")
+        if rejected != self.rejected_candidate_refs:
+            raise ValueError("G3 owner frontier must preserve rejected_candidate_refs")
+        if self.owner_frontier.returned_count != self.result_count:
+            raise ValueError("G3 owner frontier returned_count must preserve result_count")
+        if self.owner_frontier.requested_count != self.cutoff_limit:
+            raise ValueError("G3 owner frontier requested_count must preserve cutoff_limit")
+        return self
 
 
 class Layer3G3IRCatalogCoverageReport(_G3Model):
@@ -1095,11 +1120,13 @@ def search_ir_analytics_catalog(
         ORDER BY exported DESC, certificate_kinds_text DESC, entry_id
         LIMIT ?
         """
-    params = (query_text, f"%{query_text}%", request.limit)
+    params = (query_text, f"%{query_text}%", request.limit + 1)
     try:
-        selected = [str(row[0]) for row in con.execute(sql, params).fetchall()]
+        evaluated = [str(row[0]) for row in con.execute(sql, params).fetchall()]
     finally:
         con.close()
+    selected = evaluated[: request.limit]
+    rejected = evaluated[request.limit :]
     no_hit_reasons = () if selected else ("catalog_no_hit",)
     trace_id = (
         "g3-ir-catalog-query-trace:"
@@ -1115,8 +1142,9 @@ def search_ir_analytics_catalog(
         predicate_refs=predicate_refs,
         predicates=predicates,
         bounded_result_limit=request.limit,
-        result_count=len(selected),
+        result_count=len(evaluated),
         selected_candidate_refs=tuple(selected),
+        rejected_candidate_refs=tuple(rejected),
         no_hit_reasons=no_hit_reasons,
     )
     ledger = Layer3G3IRCatalogSearchLedger(
@@ -1128,6 +1156,7 @@ def search_ir_analytics_catalog(
         query_trace_refs=(trace_id,),
         query_predicates=predicates,
         selected_candidate_refs=tuple(selected),
+        rejected_candidate_refs=tuple(rejected),
         no_hit_reasons=no_hit_reasons,
         cutoff_limit=request.limit,
         result_count=len(selected),
@@ -1137,8 +1166,123 @@ def search_ir_analytics_catalog(
             coverage.catalog_snapshot_hash_ref,
             json.dumps(predicates, sort_keys=True, default=str),
         ),
+        owner_frontier=_g3_owner_frontier(
+            request=request,
+            coverage=coverage,
+            selected_refs=selected,
+            rejected_refs=rejected,
+        ),
     )
     return Layer3G3IRCatalogSearchResult(ledger=ledger, query_traces=(trace,))
+
+
+def _g3_owner_frontier(
+    *,
+    request: Layer3G3AnalyticsRequest,
+    coverage: Layer3G3IRCatalogCoverageReport,
+    selected_refs: Sequence[str],
+    rejected_refs: Sequence[str],
+) -> SearchFrontier:
+    """Build the G3-owned frontier from the bounded catalog evaluation."""
+
+    selected = tuple(
+        _g3_owner_candidate(
+            candidate_ref,
+            snapshot_ref=coverage.catalog_snapshot_hash_ref,
+            query_text=request.catalog_query_text,
+            rejected=False,
+        )
+        for candidate_ref in selected_refs
+    )
+    rejected = tuple(
+        _g3_owner_candidate(
+            candidate_ref,
+            snapshot_ref=coverage.catalog_snapshot_hash_ref,
+            query_text=request.catalog_query_text,
+            rejected=True,
+        )
+        for candidate_ref in rejected_refs
+    )
+    if rejected:
+        completeness_status = "budget_cutoff"
+        incompleteness_reasons = ("owner_budget_cutoff",)
+    elif selected:
+        completeness_status = "complete"
+        incompleteness_reasons = ()
+    else:
+        completeness_status = "complete_no_match"
+        incompleteness_reasons = ()
+    snapshot_digest = coverage.catalog_snapshot_hash_ref
+    if not snapshot_digest.startswith("sha256:"):
+        snapshot_digest = "sha256:" + hashlib.sha256(
+            snapshot_digest.encode("utf-8")
+        ).hexdigest()
+    replay_payload = {
+        "request_ref": request.request_id,
+        "snapshot_ref": coverage.catalog_snapshot_hash_ref,
+        "selected": [candidate.model_dump(mode="json") for candidate in selected],
+        "rejected": [candidate.model_dump(mode="json") for candidate in rejected],
+        "requested_count": request.limit,
+        "completeness_status": completeness_status,
+        "incompleteness_reasons": incompleteness_reasons,
+    }
+    replay_digest = "sha256:" + hashlib.sha256(
+        json.dumps(
+            replay_payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    return SearchFrontier(
+        request_ref=request.request_id,
+        query_plan={
+            "query_text": request.catalog_query_text or "",
+            "certificate_kinds": request.certificate_kinds,
+        },
+        corpus_ref=coverage.catalog_snapshot_hash_ref,
+        corpus_path=IR_CATALOG_ROUTE,
+        corpus_snapshot_hash=snapshot_digest,
+        corpus_kind="canonical",
+        indexes_used=(IR_CATALOG_SEARCH_BACKEND,),
+        index_version_refs=(coverage.catalog_snapshot_hash_ref,),
+        index_freshness={IR_CATALOG_SEARCH_BACKEND: {"state": "current"}},
+        candidates=selected,
+        rejected_candidates=rejected,
+        no_hit_frontier=() if selected else ("analytics",),
+        incompleteness={
+            "status": completeness_status,
+            "reason_codes": incompleteness_reasons,
+        },
+        replay_key=f"g3-owner-frontier:{replay_digest.removeprefix('sha256:')}",
+        replay_command="layer3-g3-owner-search",
+        replay_expected_output_hash=replay_digest,
+        requested_count=request.limit,
+        evaluated_count=len(selected) + len(rejected),
+        returned_count=len(selected),
+        actual_cutoff=request.limit if rejected else None,
+        completeness_status=completeness_status,
+        incompleteness_reasons=incompleteness_reasons,
+    )
+
+
+def _g3_owner_candidate(
+    candidate_ref: str,
+    *,
+    snapshot_ref: str,
+    query_text: str | None,
+    rejected: bool,
+) -> SearchCandidate:
+    return SearchCandidate(
+        candidate_ref=candidate_ref,
+        source_layer="G3",
+        match_mode="lexical" if query_text else "relational",
+        score=1.0,
+        evidence_refs=(snapshot_ref,),
+        limitation_refs=("owner_budget_cutoff",) if rejected else (),
+        authority_boundary={"authoritative_for": []},
+        may_not_use_for=G3_MAY_NOT_USE_FOR,
+    )
 
 
 def build_g3_search_engineering_quality_report(
@@ -3442,6 +3586,7 @@ def build_g3_adapter_contract_registry_status(
     try:
         from polisyos.runtime.quality.adapter_contracts import (
             AdapterSurfacePayload,
+            VerifiedAdapterAdmissionProducer,
             load_adapter_contract_registry,
             validate_adapter_preservation,
         )
@@ -3449,24 +3594,55 @@ def build_g3_adapter_contract_registry_status(
         registry = load_adapter_contract_registry(registry_path)
         if not registry.adapter_paths:
             raise ValueError("summary-only adapter registry")
-        before = _g3_adapter_surface_payload(
-            AdapterSurfacePayload,
-            surface="layer3.g3.certificate_resolution",
-        )
-        after = _g3_adapter_surface_payload(
-            AdapterSurfacePayload,
-            surface="layer3.g3.proof_record",
-        )
         preservation_issue_codes: list[str] = []
-        if "layer3_g3_certificate_resolution_to_proof_record" in registry.adapter_paths:
+        preserved_path_ids: list[str] = []
+        verified_records: list[dict[str, Any]] = []
+        admission_producer = VerifiedAdapterAdmissionProducer()
+        for path_id, contract in sorted(registry.adapter_paths.items()):
+            before = _g3_adapter_surface_payload(
+                AdapterSurfacePayload,
+                surface=contract.source_surface,
+            )
+            if contract.capability_admission is not None:
+                try:
+                    admission = admission_producer.admit(
+                        contract=contract,
+                        before=before,
+                        registry=registry,
+                    )
+                except Exception as error:
+                    code = str(getattr(error, "code", ""))
+                    if code == "hds_adapter_capability_currentness_invalid":
+                        issue = "layer3_g3_adapter_currentness_invalid"
+                    elif code == "hds_adapter_semantic_preservation_failed":
+                        issue = "layer3_g3_adapter_semantic_loss"
+                    else:
+                        issue = "layer3_g3_adapter_capability_admission_invalid"
+                    preservation_issue_codes.append(issue)
+                else:
+                    preserved_path_ids.append(path_id)
+                    verified_records.append(admission.model_dump(mode="json"))
+                continue
+            after = _g3_adapter_surface_payload(
+                AdapterSurfacePayload,
+                surface=contract.target_surface,
+            )
             preservation = validate_adapter_preservation(
-                adapter_path="layer3_g3_certificate_resolution_to_proof_record",
+                adapter_path=path_id,
                 before=before,
                 after=after,
                 registry=registry,
             )
             if preservation.status != "pass":
                 preservation_issue_codes.append("layer3_g3_adapter_semantic_loss")
+                continue
+            preserved_path_ids.append(path_id)
+            if contract.capability_admission is None:
+                if path_id not in G3_ADAPTER_PATH_IDS:
+                    preservation_issue_codes.append(
+                        "layer3_g3_adapter_capability_admission_missing"
+                    )
+                continue
     except Exception as error:
         code = getattr(error, "code", "")
         issue = (
@@ -3486,13 +3662,11 @@ def build_g3_adapter_contract_registry_status(
             issue_codes=(issue,),
         )
     path_ids = tuple(sorted(registry.adapter_paths))
-    unknown_path_ids = tuple(sorted(set(path_ids) - set(G3_ADAPTER_PATH_IDS)))
     missing_path_ids = tuple(sorted(set(G3_ADAPTER_PATH_IDS) - set(path_ids)))
     issue_codes = tuple(
         dict.fromkeys(
             [
                 *preservation_issue_codes,
-                *(("layer3_g3_adapter_unknown_path",) if unknown_path_ids else ()),
                 *(
                     ("layer3_g3_adapter_contract_registry_missing",)
                     if missing_path_ids
@@ -3501,7 +3675,18 @@ def build_g3_adapter_contract_registry_status(
             ]
         )
     )
-    records = _g3_adapter_admission_records(path_ids)
+    capability_path_ids = {
+        record["adapter_id"] for record in verified_records if record.get("adapter_id")
+    }
+    legacy_path_ids = tuple(
+        path_id
+        for path_id in G3_ADAPTER_PATH_IDS
+        if path_id in preserved_path_ids and path_id not in capability_path_ids
+    )
+    records = (
+        *_g3_adapter_admission_records(legacy_path_ids),
+        *verified_records,
+    )
     return Layer3G3AdapterContractRegistryStatus(
         status="pass" if not issue_codes else "fail",
         registry_ref=_path_label(G3_ADAPTER_CONTRACT_REGISTRY_PATH),
@@ -3603,6 +3788,9 @@ def build_g3_conformance_report(
         "layer3_g3_adapter_registry_summary_only",
         "layer3_g3_adapter_unknown_path",
         "layer3_g3_adapter_semantic_loss",
+        "layer3_g3_adapter_capability_admission_missing",
+        "layer3_g3_adapter_capability_admission_invalid",
+        "layer3_g3_adapter_currentness_invalid",
         "layer3_g3_adapter_touchpoint_unregistered",
     }
     artifact_codes = {
@@ -3893,7 +4081,10 @@ def _g3_module_load_heavy_import_refs() -> tuple[str, ...]:
     try:
         source_lines = Path(__file__).read_text(encoding="utf-8").splitlines()
     except OSError:
-        return ("polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search:source_unreadable",)
+        return (
+            "polisyos.runtime.quality.proving_ground."
+            "proof_carrying_analytics_search:source_unreadable",
+        )
     return tuple(
         line.strip()
         for line in source_lines

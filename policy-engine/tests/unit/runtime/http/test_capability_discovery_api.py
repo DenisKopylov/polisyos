@@ -35,7 +35,7 @@ def _search_body(*, resource_kinds: list[str] | None = None) -> dict[str, object
 
 
 def test_capability_search_returns_typed_missing_owner_frontier(runtime_api_env) -> None:
-    """Missing deployed owners must be visible, never an empty success."""
+    """Missing owners and an unconfigured release must remain distinct negatives."""
     with runtime_api_env["client"] as client:
         response = client.post(
             "/api/v1/control/capabilities/search",
@@ -47,9 +47,9 @@ def test_capability_search_returns_typed_missing_owner_frontier(runtime_api_env)
     assert packet.results == ()
     assert packet.frontier.completeness_status == "producer_missing"
     assert packet.frontier.incompleteness_reasons == (
-        "method:producer_missing",
         "dataset:producer_missing",
         "case:producer_missing",
+        "method:capability_index_release_path_unconfigured",
     )
 
 

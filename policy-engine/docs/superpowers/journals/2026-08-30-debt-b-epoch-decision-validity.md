@@ -611,3 +611,23 @@ two-node GREEN at exit `0`.
   `epoch_validity_projection`, and `decision_packet_lineage_key_ref` occurs zero times in
   the complete 584-file Scientist source-Python partition. The task-A post-N9 handoff
   must land all four fields before B can build a production current-lineage reader.
+
+### Fixed-temp missing conjunct attempt 2
+
+- The unchanged exact zero-retry DS9 visual no-writer command progressed through both
+  fixture servers but exited `1` before collection: Node rejected the transitive direct
+  JSON import reached through `publicationPacket.ts -> TimeSemanticsLabel.tsx ->
+  LocaleProvider.tsx -> en.json`, then Playwright reported no collected tests. The active
+  Node `v22.22.2` satisfies the workspace's declared `>=22 <23` engine, so this is not a
+  host-version mismatch.
+- `git blame` attributes the newly reachable chain to
+  `9ae4badd27a981a340007ca9f49713b4caa35425` (`feat(ds18): render universal epoch
+  staleness chrome`). The predecessor journal records the exact DS9 command green before
+  that source addition. Task D accepted ownership of the shared dashboard-domain repair:
+  its immutable source-freeze commit must restore a pure publication-domain import and
+  make this unchanged no-writer command collect and pass with retries fixed at zero.
+- Consequently the fixed-temp implementation is locally verified, but its three-part
+  register signal remains unmet on two concrete landing artifacts: the Task-D dashboard
+  freeze commit above and one DS20/team-runtime authorization-denominator reconciliation
+  receipt that makes the seven Task-4.4 HTTP nodes agree with the complete live unsafe
+  router and OpenAPI sets.

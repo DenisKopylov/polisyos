@@ -9,6 +9,7 @@ import pytest
 from pydantic import BaseModel
 
 from polisyos.schemas.abi_models import ABIModelEntry, CompatMode, Lifecycle, Priority
+from tools.lib import cache as tool_cache
 from tools.quality.diagnostics import abi_diff, gen_schema
 from tools.quality.lint import lint_foundry, lint_imports
 from tools.quality.lint.rules import iter_rules
@@ -101,6 +102,125 @@ def _commit_git_fixture(worktree_root: Path) -> None:
     )
 
 
+def test_shared_git_changed_files_resolves_nested_product_paths_once(tmp_path: Path) -> None:
+    worktree_root = tmp_path / "repo"
+    product_root = worktree_root / "policy-engine"
+    module_path = product_root / "src" / "polisyos" / "ir" / "sample.py"
+    module_path.parent.mkdir(parents=True)
+    module_path.write_text("VALUE = 1\n", encoding="utf-8")
+    _commit_git_fixture(worktree_root)
+    module_path.write_text("VALUE = 2\n", encoding="utf-8")
+
+    changed = tool_cache.git_changed_files(product_root, base_ref="HEAD")
+
+    assert changed == [module_path.resolve()]
+    assert all(path.exists() for path in changed)
+
+
+def test_shared_git_changed_files_scopes_pathspecs_from_nested_product_root(
+    tmp_path: Path,
+) -> None:
+    worktree_root = tmp_path / "repo"
+    product_root = worktree_root / "policy-engine"
+    tracked_product = product_root / "src" / "tracked.py"
+    tracked_sibling = worktree_root / "src" / "sibling.py"
+    for path in (tracked_product, tracked_sibling):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("VALUE = 1\n", encoding="utf-8")
+    _commit_git_fixture(worktree_root)
+    tracked_product.write_text("VALUE = 2\n", encoding="utf-8")
+    tracked_sibling.write_text("VALUE = 2\n", encoding="utf-8")
+    untracked_product = product_root / "src" / "untracked.py"
+    untracked_sibling = worktree_root / "src" / "untracked_sibling.py"
+    untracked_product.write_text("VALUE = 3\n", encoding="utf-8")
+    untracked_sibling.write_text("VALUE = 3\n", encoding="utf-8")
+
+    changed = tool_cache.git_changed_files(
+        product_root,
+        base_ref="HEAD",
+        pathspecs=["src"],
+    )
+
+    assert changed == sorted([tracked_product.resolve(), untracked_product.resolve()])
+
+
+def test_gen_schema_changed_scope_uses_shared_nested_git_root(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    worktree_root = tmp_path / "repo"
+    product_root = worktree_root / "policy-engine"
+    module_path = product_root / "src" / "polisyos" / "ir" / "demo.py"
+    module_path.parent.mkdir(parents=True)
+    module_path.write_text("VALUE = 1\n", encoding="utf-8")
+    _commit_git_fixture(worktree_root)
+    module_path.write_text("VALUE = 2\n", encoding="utf-8")
+    monkeypatch.setattr(gen_schema, "REPO_ROOT", product_root)
+    monkeypatch.setattr(gen_schema, "SRC_ROOT", product_root / "src")
+    monkeypatch.setattr(gen_schema, "FULL_REBUILD_SENTINELS", set())
+
+    changed, forced_full = gen_schema._changed_source_scope("HEAD")
+
+    assert changed == {module_path.resolve()}
+    assert forced_full is False
+
+
+def test_gen_schema_changed_only_reports_indeterminate_git_state(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    class DemoModel(BaseModel):
+        schema_version: str = "1.0"
+        value: int
+
+    source_path = tmp_path / "src" / "polisyos" / "ir" / "demo_model.py"
+    source_path.parent.mkdir(parents=True)
+    source_path.write_text("class DemoModel:\n    pass\n", encoding="utf-8")
+    entry = ABIModelEntry(
+        abi_key="demo_model",
+        fqn="demo.models.DemoModel",
+        module="ir",
+        schema_file="demo_model.schema.json",
+        priority=Priority.P1,
+        compat_mode=CompatMode.STRICT,
+        version_field="schema_version",
+        lifecycle=Lifecycle.ACTIVE,
+    )
+    resolved = gen_schema.ResolvedABIEntry(
+        entry=entry,
+        cls=DemoModel,
+        source_path=source_path,
+        source_hash=gen_schema.file_sha256(source_path),
+    )
+    monkeypatch.setattr(gen_schema, "select_abi_entries", lambda *args, **kwargs: [entry])
+    monkeypatch.setattr(gen_schema, "_resolve_entries", lambda entries: (resolved,))
+    monkeypatch.setattr(
+        gen_schema,
+        "git_changed_files",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            ValueError("changed-only Git base ref is not a commit: missing")
+        ),
+    )
+
+    exit_code = gen_schema.main(
+        [
+            "--output-dir",
+            str(tmp_path / "snapshots"),
+            "--changed-only",
+            "--git-base-ref",
+            "missing",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert captured.err.strip() == (
+        "ABI schema snapshot generation failed: "
+        "changed-only Git base ref is not a commit: missing"
+    )
+
+
 def test_lint_imports_reuses_parse_cache(tmp_path: Path) -> None:
     src_root = tmp_path / "src"
     module_path = src_root / "polisyos" / "ir" / "sample.py"
@@ -165,7 +285,7 @@ def test_lint_imports_changed_only_skips_without_python_changes(
     output = tmp_path / "report.json"
     monkeypatch.setattr(
         lint_imports,
-        "_git_changed_files_fail_closed",
+        "git_changed_files",
         lambda *args, **kwargs: [],
     )
 
@@ -326,13 +446,13 @@ def test_changed_only_converts_later_git_launch_error_to_gate_failure(
             return subprocess.CompletedProcess(args, 0, stdout=f"{tmp_path}\n", stderr="")
         return subprocess.CompletedProcess(args, 0, stdout="fixture-commit\n", stderr="")
 
-    monkeypatch.setattr(lint_imports.subprocess, "run", _run)
+    monkeypatch.setattr(tool_cache.subprocess, "run", _run)
 
     with pytest.raises(
         ValueError,
         match="changed-only Git command failed: synthetic launch failure",
     ):
-        lint_imports._git_changed_files_fail_closed(tmp_path, base_ref="HEAD")
+        tool_cache.git_changed_files(tmp_path, base_ref="HEAD")
 
 
 @pytest.mark.parametrize(
@@ -360,10 +480,10 @@ def test_changed_only_rejects_indeterminate_git_census(
             return subprocess.CompletedProcess(args, 1, stdout="", stderr=stderr)
         return subprocess.CompletedProcess(args, 0, stdout="fixture-commit\n", stderr="")
 
-    monkeypatch.setattr(lint_imports.subprocess, "run", _run)
+    monkeypatch.setattr(tool_cache.subprocess, "run", _run)
 
     with pytest.raises(ValueError) as exc_info:
-        lint_imports._git_changed_files_fail_closed(tmp_path, base_ref="HEAD")
+        tool_cache.git_changed_files(tmp_path, base_ref="HEAD")
     assert str(exc_info.value) == expected
 
 

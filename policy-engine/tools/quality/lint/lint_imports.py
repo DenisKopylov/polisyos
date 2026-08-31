@@ -7,7 +7,6 @@ import datetime
 import fnmatch
 import json
 import re
-import subprocess
 import sys
 import tomllib
 from collections.abc import Sequence
@@ -22,6 +21,7 @@ from tools.lib.cache import (
     default_cache_root,
     file_sha256,
     filter_paths_under_root,
+    git_changed_files,
     persist_baseline,
     read_json_cache,
     stable_json_hash,
@@ -1244,7 +1244,7 @@ def _changed_scan_scope(
     exceptions_path: Path,
     base_ref: str,
 ) -> tuple[set[Path], bool]:
-    changed_paths = _git_changed_files_fail_closed(repo_root, base_ref=base_ref)
+    changed_paths = git_changed_files(repo_root, base_ref=base_ref)
     if not changed_paths:
         return set(), False
 
@@ -1268,87 +1268,6 @@ def _changed_scan_scope(
         path.resolve() for path in changed_under_src if path.suffix == ".py" and path.exists()
     }
     return changed_python, False
-
-
-def _git_changed_files_fail_closed(repo_root: Path, *, base_ref: str) -> list[Path]:
-    """Return Git changes rooted at the worktree, rejecting indeterminate diffs."""
-
-    def _run_git(command: list[str]) -> subprocess.CompletedProcess[str]:
-        try:
-            return subprocess.run(
-                command,
-                check=False,
-                capture_output=True,
-                text=True,
-            )
-        except OSError as exc:
-            raise ValueError(f"changed-only Git command failed: {exc}") from exc
-
-    root_result = _run_git(
-        ["git", "-C", str(repo_root), "rev-parse", "--show-toplevel"]
-    )
-    if root_result.returncode != 0:
-        detail = root_result.stderr.strip() or root_result.stdout.strip() or "unknown Git error"
-        raise ValueError(f"changed-only Git worktree root is unavailable: {detail}")
-    git_root = Path(root_result.stdout.strip()).resolve()
-
-    base_result = _run_git(
-        [
-            "git",
-            "-C",
-            str(git_root),
-            "rev-parse",
-            "--verify",
-            "--quiet",
-            f"{base_ref}^{{commit}}",
-        ]
-    )
-    if base_result.returncode != 0:
-        raise ValueError(f"changed-only Git base ref is not a commit: {base_ref}")
-
-    diff_result = _run_git(
-        [
-            "git",
-            "-C",
-            str(git_root),
-            "diff",
-            "--name-only",
-            "--diff-filter=ACMRD",
-            base_ref,
-            "--",
-        ],
-    )
-    if diff_result.returncode != 0:
-        detail = diff_result.stderr.strip() or diff_result.stdout.strip() or "unknown Git error"
-        raise ValueError(f"changed-only Git diff failed: {detail}")
-
-    untracked_result = _run_git(
-        [
-            "git",
-            "-C",
-            str(git_root),
-            "ls-files",
-            "--others",
-            "--exclude-standard",
-            "--",
-        ]
-    )
-    if untracked_result.returncode != 0:
-        detail = (
-            untracked_result.stderr.strip()
-            or untracked_result.stdout.strip()
-            or "unknown Git error"
-        )
-        raise ValueError(f"changed-only Git untracked-file census failed: {detail}")
-
-    relative_paths = {
-        line.strip()
-        for output in (diff_result.stdout, untracked_result.stdout)
-        for line in output.splitlines()
-        if line.strip()
-    }
-    return sorted((git_root / path).resolve() for path in relative_paths)
-
 
 def _build_fingerprint(
     *,

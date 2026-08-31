@@ -90,14 +90,78 @@ def git_changed_files(
     include_untracked: bool = True,
     pathspecs: Sequence[str | Path] | None = None,
 ) -> list[Path]:
-    """Return changed files for the current worktree relative to ``base_ref``."""
+    """Return worktree-rooted changed paths, failing on indeterminate Git state.
 
-    repo_root = repo_root.resolve()
-    path_args = [str(spec) for spec in (pathspecs or ())]
+    ``repo_root`` may be the Git top level or a nested product root. Relative
+    pathspecs are interpreted from that supplied root, while returned paths are
+    resolved exactly once from the Git top level.
+
+    Raises:
+        ValueError: If Git cannot establish the worktree, base commit, diff, or
+            untracked-file census.
+    """
+
+    requested_root = repo_root.resolve()
+
+    def _run_git(command: list[str]) -> subprocess.CompletedProcess[str]:
+        try:
+            return subprocess.run(
+                command,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+        except OSError as exc:
+            raise ValueError(f"changed-only Git command failed: {exc}") from exc
+
+    root_result = _run_git(
+        ["git", "-C", str(requested_root), "rev-parse", "--show-toplevel"]
+    )
+    root_text = root_result.stdout.strip()
+    if root_result.returncode != 0 or not root_text:
+        detail = root_result.stderr.strip() or root_text or "unknown Git error"
+        raise ValueError(f"changed-only Git worktree root is unavailable: {detail}")
+    git_root = Path(root_text).resolve()
+    try:
+        product_prefix = requested_root.relative_to(git_root)
+    except ValueError as exc:
+        raise ValueError(
+            "changed-only Git worktree root is unavailable: "
+            f"{requested_root} is outside {git_root}"
+        ) from exc
+
+    path_args: list[str] = []
+    for spec in pathspecs or ():
+        raw = str(spec)
+        spec_path = Path(raw)
+        if spec_path.is_absolute():
+            try:
+                path_args.append(spec_path.resolve().relative_to(git_root).as_posix())
+            except ValueError as exc:
+                raise ValueError(
+                    f"changed-only Git pathspec is outside worktree: {raw}"
+                ) from exc
+        else:
+            path_args.append((product_prefix / spec_path).as_posix())
+
+    base_result = _run_git(
+        [
+            "git",
+            "-C",
+            str(git_root),
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            f"{base_ref}^{{commit}}",
+        ]
+    )
+    if base_result.returncode != 0:
+        raise ValueError(f"changed-only Git base ref is not a commit: {base_ref}")
+
     diff_command = [
         "git",
         "-C",
-        str(repo_root),
+        str(git_root),
         "diff",
         "--name-only",
         "--diff-filter=ACMRD",
@@ -107,42 +171,41 @@ def git_changed_files(
     ]
     changed: set[Path] = set()
 
-    diff_result = subprocess.run(
-        diff_command,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
+    diff_result = _run_git(diff_command)
     if diff_result.returncode != 0:
-        return []
+        detail = diff_result.stderr.strip() or diff_result.stdout.strip() or "unknown Git error"
+        raise ValueError(f"changed-only Git diff failed: {detail}")
     for line in diff_result.stdout.splitlines():
         rel_path = line.strip()
         if not rel_path:
             continue
-        changed.add((repo_root / rel_path).resolve())
+        changed.add((git_root / rel_path).resolve())
 
     if include_untracked:
-        untracked_result = subprocess.run(
+        untracked_result = _run_git(
             [
                 "git",
                 "-C",
-                str(repo_root),
+                str(git_root),
                 "ls-files",
                 "--others",
                 "--exclude-standard",
                 "--",
                 *path_args,
-            ],
-            check=False,
-            capture_output=True,
-            text=True,
+            ]
         )
-        if untracked_result.returncode == 0:
-            for line in untracked_result.stdout.splitlines():
-                rel_path = line.strip()
-                if not rel_path:
-                    continue
-                changed.add((repo_root / rel_path).resolve())
+        if untracked_result.returncode != 0:
+            detail = (
+                untracked_result.stderr.strip()
+                or untracked_result.stdout.strip()
+                or "unknown Git error"
+            )
+            raise ValueError(f"changed-only Git untracked-file census failed: {detail}")
+        for line in untracked_result.stdout.splitlines():
+            rel_path = line.strip()
+            if not rel_path:
+                continue
+            changed.add((git_root / rel_path).resolve())
 
     return sorted(changed)
 

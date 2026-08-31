@@ -399,7 +399,7 @@ mandate appointment may be substituted.
 - `P41`: compare the final debt finding identities with the 18-finding slice
   baseline rather than treating exit code `1` as new failure.
 
-### Task R2-1: Freeze the round-2 census and executability rulings
+### Task 6: Freeze the round-2 census and executability rulings
 
 **Files:**
 - Modify: `docs/superpowers/plans/2026-08-30-debt-e-acquisition-n13b.md`
@@ -416,7 +416,7 @@ mandate appointment may be substituted.
   to the round-2 journal.
 - [ ] Commit the round-2 planning boundary after branch-attachment verification.
 
-### Task R2-2: Prove the deterministic bundle mechanism red-first
+### Task 7: Prove the deterministic bundle mechanism red-first
 
 **Files:**
 - Create: `src/polisyos/runtime/http/services/acquisition_admission_bundle.py`
@@ -436,7 +436,7 @@ mandate appointment may be substituted.
   mismatched artifact is not admitted and no effect executes.
 - [ ] Run the exact new nodes and capture the pre-implementation red.
 
-### Task R2-3: Implement the bundle producer and bridge
+### Task 8: Implement the bundle producer and bridge
 
 **Files:** same as Task R2-2.
 
@@ -455,7 +455,7 @@ mandate appointment may be substituted.
 - [ ] Run exact green nodes, Ruff for changed Python files, inspect the diff,
   verify branch attachment and commit the coherent bundle slice.
 
-### Task R2-4: Freeze every remaining row predicate
+### Task 9: Freeze every remaining row predicate
 
 **Files:**
 - Modify: `docs/superpowers/journals/2026-08-30-debt-e-acquisition-n13b.md`
@@ -476,7 +476,7 @@ mandate appointment may be substituted.
   substance: GY-N13b producer, GY-N12 policy/admission chronology and Cycle
   Board per-row consumer.
 
-### Task R2-5: Verify, dossier and read back the branch
+### Task 10: Verify, dossier and read back the branch
 
 - [ ] Run only exact acquisition bundle, production-boundary, worker and receipt
   nodes selected by the changed-path importer census.

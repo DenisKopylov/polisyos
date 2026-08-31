@@ -461,3 +461,97 @@ remains inside the current v5/v3/v2 authority epoch.
    and caller census.
 4. Targeted blast-radius checks, protected baselines, five-row dossier, and
    freeze receipts.
+
+## 9. Round 4 execution addendum (2026-08-31)
+
+Round 4 implements the consequence of the accepted Round-3 ruling. It owns
+exactly two rows: `gy-n9-unmet-check-absence-kind-conflated` and
+`gy-n9-effect-obligation-producer-and-evaluator-missing`. The former closes
+when an unconstructed real-semantics obligation is receipt-distinct from a
+genuinely out-of-scope obligation. The latter closes only when the three RACE
+§12.3 conjuncts are evaluated symmetrically: a design that fails is refused
+and a design that meets them is not refused by EFFECT.
+
+The governed epoch advances once: promotion v5 to v6, obligation scope v2 to
+v3, and evidence bridge v1 to v2. Owner projection v3 remains current because
+the bridge ref travels through the existing `producer_root_refs` carrier.
+Authentic v5/v3/v2 bytes remain exact readable history and are rejected at
+every current-authority entry point.
+
+### 9.1 Authority boundary before red tests
+
+The admitted `InterventionAtomBinding` is produced by the L6 owner path
+`polisyos.runtime.quality.intervention_substrate.resolve_intervention_lever`,
+whose internal owner builder emits a `grounded` atom. The EFFECT writer must
+re-run that public owner resolver from the content-bound substrate, operator,
+parameter, and WMR inputs and match its atom id/hash, operator, slots, and
+world binding to the supplied atom. A `candidate_unverified` atom emitted by
+`polisyos.runtime.quality.design_generation`, an atom carrying CG1/CG2 shadow
+provenance as its binding authority, or an owner label without a matching
+resolver result is a decisive negative, never a positive.
+
+CG1 is crossed only to compute entailment after that independent atom binding
+has resolved. `GroundingRelationEngine` does not select or construct the
+binding. Its shadow certificate remains `shadow_only` and
+`no_bind_admit_promote`; supplying even a valid certificate without the owner
+binding and the N9 effect bridge leaves EFFECT `UNKNOWN` with
+`evidence_not_established`.
+
+The no-engine alternative is insufficient: checking only mutual consistency
+among declared epsilon, estimand, and mechanism cannot establish §12.3's
+third conjunct that the effect claim is entailed or bounded by the grounded
+reference.
+
+### 9.2 Red-first matrix
+
+Before runtime changes, add exact failing witnesses for:
+
+1. missing bridge evidence: EFFECT is `UNKNOWN`, has real semantic scope, and
+   is visibly not `SCOPE_INSUFFICIENT`;
+2. a valid supplied CG1 shadow certificate alone: it cannot satisfy EFFECT;
+3. a CG1-derived/candidate-unverified atom: it cannot satisfy EFFECT even when
+   its labels are well shaped;
+4. no epsilon-to-estimand mapping: decisive
+   `effect_estimand_mapping_missing`;
+5. no causal path or mechanism: decisive
+   `effect_causal_path_or_mechanism_missing`;
+6. contradicted, unresolved, or explicitly ungrounded entailment: decisive
+   `effect_claim_ungrounded`;
+7. exact entailment and certified specialization: EFFECT is satisfied (the
+   specialization case records the bounded disposition);
+8. authentic 48,568-byte v5 history: byte-exact round-trip under v5 and typed
+   rejection as current v6 authority.
+
+Each conjunct falsifier must reach its own limitation code rather than fall
+through a common evidence-missing path. The pass and fail fixtures use the
+same production writer/resolver/evaluator chain and differ only in the
+relevant RACE predicate.
+
+### 9.3 Implementation sequence
+
+1. Extend the strict evidence repository with an `effect_obligation` producer
+   record and v2 bridge. Persist exact source inputs and fixed verifier
+   provenance; read back exact CAS bytes and recompute the L6 owner binding,
+   CG1 relation, candidate/problem binding, and disposition.
+2. Invoke the writer from `_bind_production_promotion_evidence` only after the
+   canonical candidate/problem input exists. Carry only its returned ref.
+3. Make `_effect_obligation` consume only the resolved result. Missing evidence
+   is `UNKNOWN / unknown / real_semantics`; a real negative is `FAILED`; exact
+   or bounded entailment is `SATISFIED`. Remove the test-knob decision from
+   EFFECT without changing the safety core.
+4. Advance current receipt/scope/bridge versions and retain exact v5/v2 and
+   bridge-v1 history models. Prove old bytes read under their own epoch and
+   cannot regain current authority.
+5. Run only the new EFFECT nodes plus the existing owner-replay, bridge,
+   refusal-census, and generation-order blast nodes. Then freeze the new
+   `_effect_obligation` AST bytes/hash and measure both carried reds and the
+   two protected baseline checks without regenerating anything.
+
+### 9.4 Commit boundaries
+
+1. This approved Round-4 plan/spec/journal boundary, before tests or source.
+2. Red-first provenance, three-conjunct, distinction, and history witnesses.
+3. v6/v3/v2 producer/bridge/resolver/evaluator implementation and focused
+   green.
+4. Targeted blast radius, freeze measurements, and the two-block append-only
+   register dossier.

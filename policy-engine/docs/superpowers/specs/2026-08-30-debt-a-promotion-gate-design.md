@@ -394,3 +394,123 @@ fails closed under the reader's exact-one rule.
 This is orchestration inside the current v5/v3/v2 epoch: it changes neither a
 receipt field nor a semantic rule. `generation_cycle.py` requires no Round-3
 change; its already-additive Round-2 dependency threading remains intact.
+
+## 10. Round 4 EFFECT producer and evaluator design
+
+The accepted Round-3 ruling gives EFFECT the distinct RACE §12.2 `O_effect`
+referent. RACE §12.3 supplies the evaluator rather than leaving the runtime to
+invent one. Its three conjuncts are:
+
+1. the declared epsilon is mapped to an estimand;
+2. a causal path or mechanism is defined;
+3. the effect claim is entailed, bounded, or marked ungrounded.
+
+Exact entailment satisfies the third conjunct. Certified specialization is a
+bounded satisfaction because “bounded” is the specification's own admitted
+disposition. Contradiction, a missing critical axis, an unresolved relation,
+or explicit ungroundedness is a decisive negative. Forecast and calibration
+receipts are not substitutes: neither proves the first conjunct's declared
+epsilon-to-estimand mapping.
+
+### 10.1 Binding authority and the CG1 shadow boundary
+
+The source of the admitted `InterventionAtomBinding` is the L6 owner resolver
+`polisyos.runtime.quality.intervention_substrate.resolve_intervention_lever`.
+That public path constructs the atom through its owner registries and world
+binding and returns the exact owner atom id/hash in its content-addressed
+resolution. The EFFECT producer receives the atom together with the resolver's
+content-bound substrate/operator/parameter/WMR inputs, replays the public
+resolver, and requires exact correspondence. It also requires the atom's
+grounded lifecycle posture and owner provenance. A copied `producer_ref`, a
+well-shaped atom, or a caller-supplied disposition cannot replace the replay.
+
+The negative boundary is equally explicit. The N4 design-generation path
+emits `candidate_unverified` shadow atoms whose provenance includes CG1/CG2;
+those atoms cannot satisfy EFFECT. A binding traceable to a CG1 shadow
+certificate is rejected as `effect_atom_binding_shadow_only`, even if all
+field names and hashes are syntactically valid. This is the P32 falsifier for
+the binding boundary.
+
+Replaying `GroundingRelationEngine` after the L6 binding resolves is not
+`cg1_bind_transition_forbidden`. CG1 decides no atom identity, lifecycle
+transition, admission, or promotion; it computes the third-conjunct relation
+between the already-bound atom and the declared effect claim. Its
+`GroundingRelationCertificate` remains `shadow_only=True` and
+`no_bind_admit_promote=True` and is retained only inside the producer record
+as replay evidence. Supplying a valid CG1 certificate on its own cannot create
+the L6 atom, the candidate/problem binding, or the EFFECT bridge, and therefore
+cannot satisfy the obligation.
+
+The alternative that avoids the engine and checks only declared epsilon,
+estimand, and mechanism fields is insufficient because internal consistency
+cannot prove §12.3's third entailment-or-boundedness conjunct.
+
+### 10.2 Effect producer record and v2 bridge
+
+The existing repository gains one strict effect producer record and one
+`effect_obligation` branch in the evidence bridge. The producer record binds:
+
+- the exact `InterventionAtomBinding` and the recomputed L6 lever resolution;
+- the immutable substrate and WMR identities used by that resolver;
+- the proposal and proposal id replayed against the input `CredalReference`;
+- the exact CG1 relation output and the already-owned CG2 decision binding;
+- the candidate id/hash, design-problem id/hash/rule, and promotion epoch;
+- one result for each §12.3 conjunct, the aggregate disposition, a limitation
+  code, and fixed N9 verifier provenance.
+
+The writer never accepts a caller disposition or a supplied CG1 certificate.
+The resolver reads exact CAS bytes, verifies the manifest and provenance,
+replays the L6 resolver and CG1 engine from source inputs, checks CG2 and
+candidate/problem identities, then recomputes the three conjuncts. Only that
+resolved result reaches `_effect_obligation`.
+
+### 10.3 Three independent conjunct decisions
+
+The first conjunct compares the proposal's declared epsilon/effect axes with
+the atom's authoritative `intended_downstream_estimand`. Missing or mismatched
+mapping yields `effect_estimand_mapping_missing` or
+`effect_estimand_mapping_mismatch`.
+
+The second requires both an enabled direct mechanism and a non-empty causal
+path or identification plan for the same atom. Absence yields
+`effect_causal_path_or_mechanism_missing`; it does not collapse into the first
+or third failure.
+
+The third replays the relation engine over the already-bound atom. `exact`
+yields `effect_claim_entailed`; `certified-specialization` yields
+`effect_claim_bounded`. Contradiction, blocked/unknown/novel/generalization,
+missing critical effect axes, or explicit ungroundedness yields
+`effect_claim_ungrounded`. A valid CG1 artifact without the first two bindings
+still produces no EFFECT authority.
+
+### 10.4 Absence distinction in receipts
+
+An EFFECT bridge that does not resolve is an unconstructed real-semantics
+obligation. Its receipt row is `status=unknown`, `reason=unknown`,
+`semantic_scope=real_semantics`, owner
+`polisyos.runtime.quality.promotion_sequence.N9PromotionEvidenceBridgeRepository.persist_effect_obligation`,
+and detail/limitation `effect_obligation_evidence_not_established`. This means
+“the class applies, but its evidence chain was not constructed.”
+
+A genuinely out-of-scope obligation retains
+`status=scope_insufficient`, `reason=scope_insufficient`, and
+`semantic_scope=scope_insufficient`. A reader therefore distinguishes the two
+without interpreting prose. Once the effect producer resolves, EFFECT takes
+the stronger first branch of the registered signal: it names a real dotted
+producer rather than `absent/unallocated`. The honest pre-producer absence
+remains pinned by the red-first receipt witness.
+
+### 10.5 Governed epoch and history
+
+The semantic rule changes, so current authority becomes
+`n9_promotion.v6` with `n9_obligation_scope.v3` and
+`n9_evidence_bridge.v2`. The obligation record shape itself remains the PDC
+shape, while its semantics, owner, scope hash, and gate hash change. The
+existing `producer_root_refs` field carries the new bridge ref, so
+`n9_owner_projection.v3` remains current.
+
+Exact v5/v3/v2 receipt models and v1 bridge models remain history readers. The
+authentic 48,568-byte v5 fixture must round-trip byte for byte under v5, while
+current admission returns a typed legacy-epoch rejection. No history receipt
+is migrated or restamped into v6 authority; only fresh owner replay can issue
+v6.

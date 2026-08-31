@@ -1355,3 +1355,60 @@ check both exit `0` (`All checks passed!`; `2 files already formatted`), and
 `git diff --check` exits `0`. The final EFFECT predicate still exits `0` with
 948 identical bytes and SHA-256
 `2aa090d9694d8599d07f07df46476894a4a39287c324c08beeb8a90d7fd44a38`.
+
+## Round 4 — approved EFFECT build boundary (2026-08-31)
+
+Round 4 starts at clean commit `60bbb0531` on
+`codex/debt-a-promotion-gate`. The Round-3 specification ruling is accepted:
+RACE §12.2 makes EFFECT a distinct class and §12.3 supplies its three-part
+contract. The temporary byte-identity constraint on `_effect_obligation` has
+therefore terminated. Source remains unchanged while this entry, the plan,
+and the design are recorded.
+
+The two rows are deliberately one governed change. The absence-kind row first
+pins the pre-producer state as `UNKNOWN / unknown / real_semantics`, distinct
+from `SCOPE_INSUFFICIENT / scope_insufficient / scope_insufficient`. The
+producer/evaluator row then closes the stronger owner-resolution branch by
+making EFFECT resolve to a dotted producer. This is not sleight of hand: the
+unconstructed state remains a red-first historical witness, while a current
+successful receipt names and resolves the real producer.
+
+### Binding authority decision
+
+The accepted atom source is the L6 owner path
+`polisyos.runtime.quality.intervention_substrate.resolve_intervention_lever`,
+not `design_generation` and not CG1. The writer will persist the full inputs
+needed to re-run that public owner resolver and will require the returned atom
+id/hash, operator, slots, and WMR binding to match the supplied grounded atom.
+The distinct N4 producer emits `candidate_unverified` atoms with CG1/CG2 shadow
+provenance; that is the explicit negative case.
+
+CG1 is used only after the independent atom binding is fixed. Its relation
+engine computes entailment over that atom and cannot choose the atom or enact
+a bind/admit/promote transition. A valid supplied
+`GroundingRelationCertificate` alone is therefore non-authority and will be a
+red-first case. The no-engine alternative is rejected because declared-field
+consistency cannot prove RACE §12.3's third entailment-or-boundedness conjunct.
+
+### Planned red-first receipt predicates
+
+- no effect bridge: `UNKNOWN`, `real_semantics`,
+  `effect_obligation_evidence_not_established`;
+- valid CG1 certificate alone: still the same nonreceipt;
+- CG1-derived/candidate-unverified atom: decisive
+  `effect_atom_binding_shadow_only`;
+- absent epsilon-to-estimand mapping: decisive
+  `effect_estimand_mapping_missing`;
+- absent causal path/mechanism: decisive
+  `effect_causal_path_or_mechanism_missing`;
+- contradicted/unresolved/explicitly ungrounded relation: decisive
+  `effect_claim_ungrounded`;
+- exact relation and certified specialization: EFFECT satisfied, with the
+  latter recorded as bounded;
+- authentic v5 bytes: exact v5 readback and current-v6 rejection.
+
+The version ruling is v6/v3/v2 with owner projection v3 unchanged. The bridge
+shape extends to effect evidence, so bridge v1 is retained as history. The
+patch/generalise line remains on the generalised side: this is the third real
+producer using the single resolve/content-bind/fixed-provenance repository,
+not a new marker-shaped exception.

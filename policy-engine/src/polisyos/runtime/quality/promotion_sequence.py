@@ -277,9 +277,7 @@ class N9PromotionEvidenceBridgeRepository:
     ) -> ArtifactRef:
         """Invoke, persist, and candidate-bind the real independence calculus."""
 
-        from polisyos.evidence.portfolio.effective_independence_graph import (
-            build_effective_independence_graph,
-        )
+        from polisyos.evidence import build_effective_independence_graph
 
         normalized_lines = tuple(dict(item) for item in evidence_lines)
         normalized_designs = tuple(dict(item) for item in portfolio_designs)
@@ -496,7 +494,7 @@ class N9PromotionEvidenceBridgeRepository:
         self,
         record: N9PromotionEvidenceBridgeRecord,
     ) -> tuple[Literal["established", "blocked"], str, tuple[str, ...]]:
-        from polisyos.evidence.portfolio.effective_independence_graph import (
+        from polisyos.evidence import (
             build_effective_independence_graph,
             validate_effective_independence_graph_record,
         )

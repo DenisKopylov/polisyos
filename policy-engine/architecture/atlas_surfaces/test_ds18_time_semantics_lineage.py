@@ -25,6 +25,17 @@ def _register() -> dict[str, object]:
     return json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
 
 
+def _fresh_coverage() -> dict[str, object]:
+    stored = _register()["ds18_time_semantics_coverage"]
+    assert isinstance(stored, dict)  # noqa: S101 - governed fixture
+    fresh = checker._build_ds18_time_semantics_coverage(
+        checker._ds18_time_semantics_scan(),
+        frontend_freeze_commit=stored["frontend_freeze_commit"],
+    )
+    assert isinstance(fresh, dict)  # noqa: S101 - typed builder result
+    return fresh
+
+
 def _root(
     coverage: dict[str, object],
     *,
@@ -89,6 +100,13 @@ def test_complete_lineage_pins_the_77_plus_17_plus_32_composition() -> None:
         "current_obligated_root_count": 126,
         "freeze_obligated_root_count": 77,
         "landing_deltas": {"DS15": 17, "DS17": 32},
+        "source_reconciliations": {
+            "Task-D-dashboard-freeze": {
+                "entered": 0,
+                "exited": 0,
+                "rebound": 9,
+            }
+        },
     }
 
 
@@ -191,3 +209,115 @@ def test_landing_identity_is_bound_to_the_ratified_composition() -> None:
     checker._validate_ds18_time_semantics_lineage(coverage, errors)
 
     assert "ds18_time_semantics_lineage_composition_identity_drift" in errors  # noqa: S101
+
+
+def test_dashboard_source_freeze_reconciles_exact_mapping_rebindings() -> None:
+    fresh = _fresh_coverage()
+
+    lineage = checker._build_ds18_time_semantics_lineage(fresh)
+    reconciliations = lineage["source_reconciliations"]
+    assert isinstance(reconciliations, list)  # noqa: S101 - typed artifact
+    assert len(reconciliations) == 1  # noqa: S101 - one frozen source landing
+    reconciliation = reconciliations[0]
+    assert reconciliation["landing_id"] == "Task-D-dashboard-freeze"  # noqa: S101
+    assert reconciliation["source_checkpoint_commit"] == (  # noqa: S101
+        "03c5783609271c27d6f3d212b76dda7eddef2074"
+    )
+    assert reconciliation["source_file_count_summary"] == 623  # noqa: S101
+    assert reconciliation["root_count_summary"] == 759  # noqa: S101
+    assert reconciliation["obligation_count_summary"] == 126  # noqa: S101
+    assert reconciliation["entered_root_count"] == 0  # noqa: S101
+    assert reconciliation["exited_root_count"] == 0  # noqa: S101
+    assert reconciliation["rebound_root_count"] == 9  # noqa: S101
+    assert reconciliation["obligation_manifest_sha256"] == (  # noqa: S101
+        "sha256:296faa4e6569dae3b101a695245eeca2908d98fd923d89a70384170c4c04bc3f"
+    )
+
+    fresh["historical_lineage"] = lineage
+    errors: list[str] = []
+    summary = checker._validate_ds18_time_semantics_lineage(fresh, errors)
+
+    assert errors == []  # noqa: S101
+    assert summary == {  # noqa: S101
+        "current_obligated_root_count": 126,
+        "freeze_obligated_root_count": 77,
+        "landing_deltas": {"DS15": 17, "DS17": 32},
+        "source_reconciliations": {
+            "Task-D-dashboard-freeze": {
+                "entered": 0,
+                "exited": 0,
+                "rebound": 9,
+            }
+        },
+    }
+
+
+def test_source_reconciliation_cannot_substitute_a_different_source_root() -> None:
+    coverage = _register()["ds18_time_semantics_coverage"]
+    assert isinstance(coverage, dict)  # noqa: S101 - governed fixture
+    lineage = coverage["historical_lineage"]
+    assert isinstance(lineage, dict)  # noqa: S101 - governed fixture
+    reconciliations = lineage["source_reconciliations"]
+    assert isinstance(reconciliations, list)  # noqa: S101 - governed fixture
+    reconciliation = reconciliations[0]
+    assert isinstance(reconciliation, dict)  # noqa: S101 - governed fixture
+    reconciliation["source_root"] = "apps/runtime-dashboard/src/features"
+
+    errors: list[str] = []
+    checker._validate_ds18_time_semantics_lineage(coverage, errors)
+
+    assert (  # noqa: S101
+        "ds18_time_semantics_source_summary_drift:"
+        "Task-D-dashboard-freeze:source_root"
+    ) in errors
+
+
+def test_focused_validator_rejects_a_scalar_composition_rule() -> None:
+    coverage = _register()["ds18_time_semantics_coverage"]
+    assert isinstance(coverage, dict)  # noqa: S101 - governed fixture
+    lineage = coverage["historical_lineage"]
+    assert isinstance(lineage, dict)  # noqa: S101 - governed fixture
+    lineage["composition_rule"] = "current obligations equal 126"
+
+    errors: list[str] = []
+    checker._validate_ds18_time_semantics_lineage(coverage, errors)
+
+    assert "ds18_time_semantics_lineage_composition_rule_drift" in errors  # noqa: S101
+
+
+def test_focused_validator_rejects_a_selector_identity_proxy() -> None:
+    coverage = _register()["ds18_time_semantics_coverage"]
+    assert isinstance(coverage, dict)  # noqa: S101 - governed fixture
+    lineage = coverage["historical_lineage"]
+    assert isinstance(lineage, dict)  # noqa: S101 - governed fixture
+    lineage["selector_identity"] = "root count"
+
+    errors: list[str] = []
+    checker._validate_ds18_time_semantics_lineage(coverage, errors)
+
+    assert "ds18_time_semantics_lineage_selector_identity_drift" in errors  # noqa: S101
+
+
+def test_source_checkpoint_binds_current_scanner_and_manifest_bytes() -> None:
+    coverage = _register()["ds18_time_semantics_coverage"]
+    assert isinstance(coverage, dict)  # noqa: S101 - governed fixture
+    lineage = coverage["historical_lineage"]
+    assert isinstance(lineage, dict)  # noqa: S101 - governed fixture
+    reconciliations = lineage["source_reconciliations"]
+    assert isinstance(reconciliations, list)  # noqa: S101 - governed fixture
+    reconciliation = reconciliations[0]
+    assert isinstance(reconciliation, dict)  # noqa: S101 - governed fixture
+
+    try:
+        errors = checker._ds18_source_checkpoint_errors(
+            reconciliation,
+            coverage,
+            current_artifact_loader=lambda _path: b"synthetic drift",
+        )
+    except TypeError:  # missing injection seam is the pre-fix behavior
+        errors = []
+
+    assert any(  # noqa: S101
+        error.startswith("ds18_time_semantics_source_current_artifact_drift:")
+        for error in errors
+    )

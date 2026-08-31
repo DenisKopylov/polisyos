@@ -428,3 +428,92 @@ resource-kind validator map, and export: no producer calls it. The only concrete
 Lex, so the default `capability_discovery_providers=()` in
 `runtime/http/services/control_registry_providers.py` has no source provider to install. This
 settles the block on the unowned producer while preserving connector list DTOs as a P38 negative.
+
+## Round-2 resume after the dashboard freeze — appended 2026-08-31
+
+The Scientist registry producer was committed first at `f282f774a`, exactly as instructed. An
+ordinary no-ff merge of `main` followed at `11a3c9f60`; freeze commit
+`03c5783609271c27d6f3d212b76dda7eddef2074` is an ancestor. No evidence below reads task D's
+branch. The dashboard/workspace freeze has 1,314 tracked paths and independently supplied digest
+`sha256:dbf87693dde8107b4672a9cf52e5877ddb1b6b779b5424672002c2922c829bb5`.
+
+### Final C13 binding intersection and current-byte census
+
+The exact complete-set command was:
+
+```text
+git diff --name-only 784d020148c56e9bfb3a3631909ba11232210a9f..03c5783609271c27d6f3d212b76dda7eddef2074 -- apps/runtime-dashboard package.json pnpm-lock.yaml pnpm-workspace.yaml
+```
+
+It completed exit 0 with the following **26/26 changed dashboard paths**; the three Policy Engine
+workspace files named in the pathspec did not change:
+
+1. `apps/runtime-dashboard/e2e/helpers/runtime-dashboard.ts`
+2. `apps/runtime-dashboard/package.json`
+3. `apps/runtime-dashboard/playwright.config.ts`
+4. `apps/runtime-dashboard/scripts/check-public-claim-copy.mjs`
+5. `apps/runtime-dashboard/scripts/run-ds18-time-semantics-outcome.mjs`
+6. `apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py`
+7. `apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/bureaucratic-document-ast.ts`
+8. `apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts`
+9. `apps/runtime-dashboard/src/features/export/social/email-fixtures.ts`
+10. `apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts`
+11. `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx`
+12. `apps/runtime-dashboard/src/features/trust/components/AccessibilityEvidence.tsx`
+13. `apps/runtime-dashboard/src/features/trust/components/ClaimPostureRegister.tsx`
+14. `apps/runtime-dashboard/src/features/trust/components/PostureMethodology.tsx`
+15. `apps/runtime-dashboard/src/features/trust/copy/useTrustCopy.ts`
+16. `apps/runtime-dashboard/src/features/trust/routes/TrustPosturePage.tsx`
+17. `apps/runtime-dashboard/src/shared/i18n/LocaleProvider.tsx`
+18. `apps/runtime-dashboard/src/shared/lib/domain/epochSemantics.ts`
+19. `apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx`
+20. `apps/runtime-dashboard/src/test/a11y/color-blind-simulation.spec.ts`
+21. `apps/runtime-dashboard/src/test/a11y/keyboard-journeys.spec.ts`
+22. `apps/runtime-dashboard/src/test/a11y/screen-reader-snapshots.spec.ts`
+23. `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.test.ts`
+24. `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts`
+25. `apps/runtime-dashboard/src/test/evidence/ds18-execution-outcome.schema.json`
+26. `apps/runtime-dashboard/src/test/evidence/ds18ExecutionOutcome.ts`
+
+The canonical receipt JSON still enumerates the eleven C13 bindings listed in the earlier entry.
+Exact normalized set intersection completed exit 0 with **1/11 member**:
+`apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx`. A complete SHA-256 replay over
+all eleven final files completed exit 0 with **5/11 current and 6/11 stale**. The stale bindings are
+`AmbientTelemetryHud.tsx` (`a06e6a98...`), `OperatorCraftPanel.tsx` (`8d94ade6...`),
+`RunDetailLayout.tsx` (`f4533fee...`), `RunReportPage.tsx` (`bfd0a87a...`),
+`RunReportPage.test.tsx` (`30023d27...`), and `runtime-dashboard.visual.spec.ts`
+(`3a69dd55...`). This reproduces the register's six-row subject sweep against the final bytes.
+
+### C13 reissue attempt exposes a newer semantic incompatibility
+
+The exact conjunction node was run red-first after the merge and exited 1 at the first stale
+binding, `AmbientTelemetryHud.tsx`. The environment probe then exited 0 at capture commit
+`11a3c9f608ebc0df567f435ee21b4f775604cb60`, with tuple SHA-256
+`795cf39ca70376a5067917e51294c696013e6f63e645d864dc0f2badda92a27c`; the new raw probe is
+`environment-reissue-before.json`, leaving all three admitted historical probes byte-identical.
+
+Capture attempt 1 used the registered C13 command: Chromium, one worker, zero retries,
+`--update-snapshots=none`, JSON reporter, the exact `DS8 governed run paper` grep, and distinct
+`run-3` output. It exited **1** with **3 selected = 0 expected + 3 unexpected**, raw result SHA-256
+`c25f674d11a722d91c56e2f38baaed4c623ecffc34d2093c779a6114308d2809`. All three governed titles
+were selected, but each report request returned HTTP 409 before its substantive predicate. The
+body is `code=run_paper_source_invalid`, detail `terminal run manifest must name exactly one
+run-bound DesignRecord binding`.
+
+This is not a browser retry or the repaired JSON-loader break. Current production contract
+`tests/unit/runtime/http/test_run_paper_api.py::test_run_paper_rejects_terminal_run_without_exact_case_binding`
+was replayed and exited 0. The same test file also pins both old empty/growth fixture runs to 409.
+The three C13 tests still require those unbound `core`, `empty`, and `growth` runs to return 200,
+and the semantic title still asserts the superseded `artifact_missing` case record. A second
+identical heavy capture cannot become admissible evidence and was not run.
+
+The C13 row is therefore executable only after a landable dashboard test/fixture migration: the
+three governed titles in `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts` must exercise
+run-bound DesignRecord fixtures and assert the current `record_available_authority_abstaining`
+shape; the fixture producer in `apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py` (and
+its runtime helper if needed) must provide distinct bound empty/growth runs without weakening the
+strict 409 contract. Both files are in the frozen dashboard corridor, so Task C makes no source
+change. This is the exact architect routing question and the `blocked_by` object for C13.
+
+No C13 receipt or checker predicate was loosened. The exact diff to
+`architecture/atlas_surfaces/check_frontend_disposition_register.py` is **empty**.

@@ -495,3 +495,47 @@ Task D did not edit the register.
 - Exact append prose:
 
 > **TASK D CLOSURE MEASUREMENT 2026-08-31 — `open` (`surface_out_of_scope`).** The exact ownership/evidence-contract node remains unwritten and pytest exits 4. Retained v7 trust-center/docs material is historical design input, not an admitted deployed route population or evidence-bearing consumer. No successor owner and evidence contract exists for the certifications, procurement, telemetry/status, forms, sandbox, calculator, and general-docs IA; Task D does not manufacture that sovereign surface or project archive material as current authority.
+
+## Round-2 execution record — appended 2026-08-31
+
+The architect approved the round-2 design with a mandatory evidence-sequencing correction.
+The accepted current-page receipt binds the complete dashboard/workspace denominator, so every
+round-2 dashboard edit invalidates its source digest and commit binding. Task D will finish all
+source work, commit and read back one immutable dashboard freeze, then obtain task C's C13
+reissue and run two fresh page-a11y executions against those exact bytes. No dashboard edit is
+permitted after the freeze.
+
+The terminal target is evidence, not arithmetic. `10 = 5 closed + 5 blocked` is an ambition;
+`10 = 4 closed + 6 blocked` is preferable to closing the C13 half without task C's receipt.
+
+### Round-2 authority and ownership rulings
+
+- The watcher proof will state its population provenance explicitly. A persisted
+  `synthetic_test` population proves the production mechanism only; the absent governed
+  population remains blocked behind `gy-n9-effect-class-has-no-referent`. The empty branch
+  must persist `not_established`, never an all-clear.
+- Scope adjudication and supersession are two different blocker objects. Supersession has a
+  real bridge but needs the Claim Ledger Owner appointment plus a content-bound,
+  independently reconciled successor record and head-append implementation. Scope has no
+  production resolver, bridge, consumer, or surface; it needs an architecture-appointed
+  `ScopePredicateEvidenceResolver` and the currently unowned
+  `ScopeAdjudicationClaimLifecycleConsumer`. Task B owns none of this work.
+- Task C alone owns its round-2 C13 verifier/receipt files. Task D's half closes only after
+  C reissues against the final freeze and the conjunction/global checks pass; otherwise the
+  blocker is that exact receipt at the recorded freeze commit.
+- The error-normalization class is cut in Task D by a typed JS execution-outcome artifact
+  using fixed codes and raw-byte digests. Task G's Python adapter is not edited concurrently;
+  absent adoption is recorded as `consumer_missing` with the same falsifiers.
+- The trust/docs successor is Atlas Wave 2 Phase 2.11 plus Phase 2.15. Those are detailed,
+  scoped entries in `POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md`, not
+  headings in the three plans otherwise governing this programme; the final dossier will make
+  the fourth-plan routing question explicit.
+
+### Starting branch evidence
+
+- `git status -sb`: branch `codex/debt-d-ds11-trust-posture`, clean.
+- `git rev-parse HEAD`: `b8b24f5c182467f418ad12c52fa9ba87b15b119b`.
+- Round-2 work begins after the accepted 1,308-path receipt whose now-historical digest is
+  `sha256:2345664d2fcfcdcf9730d8c2c8aa05076c5f538bf1647f54c66105baf342985e` and whose
+  dashboard source commit is `6af7be1fc2a878f8a62507c784df36941d5a3212`.
+- No round-2 implementation file had changed before this append-only execution record.

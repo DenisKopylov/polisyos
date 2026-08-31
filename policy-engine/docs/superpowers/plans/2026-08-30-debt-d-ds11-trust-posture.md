@@ -278,3 +278,199 @@ no-writer executions plus a content-bound current-conformance receipt. For this 
 new receipt is the audit surface and `/trust` remains conservatively historical/blocked.
 No generated posture or posture-compiler bytes are changed. This append-only correction
 supersedes Task 4 step 6 while retaining its W5 limitations and corrupt-field proof.
+
+## Round-2 terminal execution plan — appended 2026-08-31
+
+Round 2 terminates every row as `closed` or `blocked`; a target count is not a gate. The
+measured evidence decides the final arithmetic. The corrected repository baselines are:
+
+- the bound `check_debt_ledger.py --check` invocation exits 1 at base with 18 blocking
+  unresolved closure identities; Task D may remove only identities owned by its rows and
+  must not grow the blocker set;
+- `check_docs_lifecycle.py` exits 1 with exactly six findings;
+- the accepted current-page receipt binds 1,308 tracked paths, so any dashboard edit
+  invalidates that receipt and requires a complete reissue.
+
+### Round-2 serialization rule
+
+The dashboard tree is one contended evidence denominator. Execution is strictly:
+
+1. Finish every dashboard/source edit: the DS18 composition repair, execution-outcome
+   envelope and JS runner, `/trust` copy wrapper/checker, and watcher wiring.
+2. Run targeted source checks, commit, read the branch back, and compute the complete
+   tracked source set over `apps/runtime-dashboard`, `package.json`, `pnpm-lock.yaml`, and
+   `pnpm-workspace.yaml`.
+3. Declare the dashboard freeze with its commit, complete changed-path list, path count,
+   and canonical source-set digest. No later dashboard edit is permitted.
+4. Ask task C to reissue its eleven-binding C13 receipt against that exact freeze. Task D
+   closes its half only if C's exact conjunction node and global disposition check pass.
+5. Run two new zero-retry/no-writer page-a11y executions at the freeze, byte-compare their
+   complete identity populations, append a new receipt, and run all eight receipt verifier
+   and falsifier nodes.
+
+### Task R2.1: Replace the DS18 scalar proxy and define one bounded outcome envelope
+
+**Files:**
+
+- Modify: `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.test.ts`
+- Modify: `apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts`
+- Create: `apps/runtime-dashboard/src/test/evidence/ds18ExecutionOutcome.ts`
+- Create: `apps/runtime-dashboard/src/test/evidence/ds18-execution-outcome.schema.json`
+- Create: `apps/runtime-dashboard/scripts/run-ds18-time-semantics-outcome.mjs`
+- Do not modify task G's `apps/runtime-dashboard/scripts/persist_atlas_evidence.py`.
+- Do not modify task C's round-2 frontend-disposition checker or its test.
+
+**Interfaces:**
+
+- `Ds18ExecutionOutcome` is a strict discriminated union. `established` carries the exact
+  independently reconciled five-field projection. `not_established` carries only a fixed
+  error code, exit code, bounded stream byte count, and `sha256:` byte digest; no decoded
+  stderr or whitespace-normalized text is admissible.
+- `DS18_MAX_STREAM_BYTES` is exactly 8,388,608 bytes per stdout/stderr stream.
+- `primitiveAdoptionFromDs18Coverage(outcome)` derives the metric row from an admitted
+  outcome; it never owns a denominator scalar.
+- The JS runner invokes the unchanged canonical Python checker, counts raw bytes, decodes
+  UTF-8 fatally, validates the five-field packet, and emits the typed envelope.
+
+- [ ] Add failing Vitest cases that replace the old `94/94` and `616/733/94` assertions
+  with a live checker-to-report equality and an independent synthetic `7/9` transform.
+- [ ] Add failing cases for invalid UTF-8, malformed JSON, extra/wrong fields, stdout and
+  stderr at 8 MiB + 1, nonzero U+001C/U+FEFF stderr, and fixed-code/digest equality.
+- [ ] Run the exact Vitest file and record the expected failures before implementation.
+- [ ] Implement the schema, runner, decoder, and pure transform with no Python-adapter edit.
+- [ ] Re-run the exact Vitest file and dashboard typecheck.
+- [ ] Record the independently measured historical mapping: DS15's 45 direct + 49
+  inherited roots became DS17's 48 direct + 78 inherited roots through the complete
+  +3 direct/+29 inherited root delta. The test pins composition and live checker equality,
+  not the scalar 126.
+- [ ] Register the Python adapter as `consumer_missing` with the same falsifiers unless
+  task G adopts the envelope before the final freeze.
+
+### Task R2.2: Build the public-signature watcher mechanism without inventing population authority
+
+**Files:**
+
+- Create: `src/polisyos/scientist/governance/continuous/published_signature_custody.py`
+- Modify: `src/polisyos/scientist/governance/continuous/__init__.py`
+- Modify: `src/polisyos/runtime/http/services/control_worker.py`
+- Modify: `src/polisyos/runtime/http/services/control/run_lifecycle.py`
+- Modify: `src/polisyos/runtime/http/container.py`
+- Create: `tests/integration/runtime_quality/test_published_signature_custody.py`
+
+**Interfaces:**
+
+- A `PublicSignaturePopulationProvider` returns either one resolved, content-bound snapshot
+  or a typed `not_established` nonreceipt. The production default is explicitly unappointed.
+- A persisted synthetic test snapshot sets `population_provenance="synthetic_test"`; it may
+  prove mechanism behavior but can never establish `DS11-PUBLIC-SIGNATURE-POPULATION`.
+- `PublishedSignatureCustodyWatcher.scan_once(now=...)` verifies the population and every
+  signature ref, emits a persisted scan receipt, turns stale members into persisted advisory
+  monitor events, invokes the real lifecycle bridge, and enqueues only persisted refs in the
+  durable control outbox.
+- `ControlWorker` receives a bounded periodic maintenance callback, so production startup
+  invokes the watcher without a human/API trigger. The callback records nonreceipt rather
+  than treating an empty population as an all-clear.
+
+- [ ] Write the exact closure node
+  `test_every_public_signature_is_watched_for_staleness` with both branches: a non-empty
+  persisted synthetic-but-production-shaped population produces persisted custody,
+  lifecycle, and outbox refs; an empty population produces `not_established` and the test
+  fails if a pass/all-clear is returned.
+- [ ] Add a deterministic worker test proving the production maintenance callback runs
+  without a request and is interval-bounded.
+- [ ] Run the exact node red and confirm the missing contract/wiring is the cause.
+- [ ] Implement the smallest periodic service, same-store validation, persistence, lifecycle
+  bridge, and outbox projection.
+- [ ] Re-run the exact node, the worker test, and directly affected control-service tests.
+
+### Task R2.3: Derive and enforce the real `/trust` claim-copy closure
+
+**Files:**
+
+- Create: `apps/runtime-dashboard/scripts/check-public-claim-copy.mjs`
+- Create: `apps/runtime-dashboard/src/features/trust/copy/useTrustCopy.ts`
+- Modify only as required by the checker: the three trust components and trust route.
+- Create: `tests/repo_quality/frontend/test_public_claim_copy_inventory.py`
+
+**Interfaces:**
+
+- The checker starts from the `APP_ROUTES` consumption of `trustRoute`, follows the real
+  static and lazy TypeScript import graph, and separately derives every production link
+  whose literal destination is `/trust`. It reports every local path and file type.
+- Visible expressions may come only from strict admitted posture fields, captured MACHINE
+  bytes, the typed `tTrust` namespace wrapper, or the literal `PolicyOS` brand. Raw `t(...)`,
+  direct claim-bearing JSX, foreign keys, and unbounded dynamic keys are rejected.
+- Active locale parity is derived over `SUPPORTED_LOCALES` (`en`, `uk`); legacy `ru` is not
+  presented as active source-language authority.
+
+- [ ] Write the exact closure node and first run it red because the checker is absent.
+- [ ] Implement import-graph derivation and AST-visible-expression classification.
+- [ ] Convert the trust render closure to the typed namespace wrapper without changing the
+  intended visible copy or claiming semantic translation authority.
+- [ ] Run the exact node green and record the complete path/file-type denominator.
+- [ ] In repository-local scratch, inject `PolicyOS guarantees approval.` as direct visible
+  JSX inside a derived renderer, run the real checker, and require nonzero exit.
+
+### Task R2.4: Build the candidate-band scope artifact and name the unowned consumer
+
+**Files:**
+
+- Create: `src/polisyos/core/contracts/scope_adjudication.py`
+- Modify: `src/polisyos/core/contracts/__init__.py`
+- Modify: `src/polisyos/core/contracts/README.md`
+- Create: `tests/unit/core/contracts/test_scope_adjudication.py`
+
+**Interfaces:**
+
+- `ScopeAdjudicationCandidate` binds one candidate function, one adjudication plane, the
+  identity-rule version, authority purpose, knowledge/validity times, subject and rule-basis
+  artifact refs, and the three ordered four-way predicates.
+- Each predicate freezes one of the five P37 classes. The artifact is always explicitly
+  `candidate_only`; it may compute a proposed four-way disposition but may not authorize a
+  scope ruling, claim transition, head advance, publication, or institutional execution.
+- Missing or unestablished predicates remain typed limitations rather than stopping the
+  candidate-band mechanism. Digest substitution and mixed planes fail validation.
+
+- [ ] Write unit tests red for one-plane enforcement, ordered four-way derivation, mixed
+  plane rejection, digest substitution, and fail-closed unestablished predicates.
+- [ ] Implement strict DTOs, canonical payload digest, builder, and verifier.
+- [ ] Run those unit tests, Ruff, and direct core-contract importer tests.
+- [ ] Keep the register's exact closure node absent/red because the unowned production
+  scope consumer and appointed predicate resolver do not exist.
+
+The scope and supersession rows are two different blocker objects. Supersession already
+has a production bridge but the default and repository Claim Ledger owners both leave
+`ClaimLedgerOwnerPort.append_verified_owner_event` unimplemented and no independently
+reconciled successor record exists. Scope has no production resolver, bridge, consumer,
+or surface at all. A scope ruling cannot authorize successor bytes, predecessor linkage,
+or the Claim head CAS advance; sharing those authority objects would repeat P05/P32.
+
+### Task R2.5: Freeze, coordinate, and reissue evidence
+
+- [ ] Complete all source work and targeted tests before the freeze.
+- [ ] Verify branch attachment, commit, and read back `HEAD` plus every changed dashboard and
+  workspace-manifest path relative to base.
+- [ ] Compute canonical tracked-path rows and their digest using the same algorithm as the
+  current receipt verifier; record count and digest.
+- [ ] Publish the freeze announcement near the top of the journal hand-back.
+- [ ] Send task C the freeze commit, complete changed-path set, and source digest. If C's
+  receipt is not available by closeout, block the DS11 half on that exact reissue object.
+- [ ] Run the page-a11y command twice with separate output directories, `--workers=1`,
+  `--retries=0`, `--update-snapshots=none`, and no writer command between them.
+- [ ] Byte-compare complete ordered identities, append new raw runs and receipt, then run all
+  eight receipt verifier/falsifier tests.
+- [ ] Do not alter dashboard or workspace-manifest bytes after the freeze.
+
+### Task R2.6: Terminal verification and dossier
+
+- [ ] Confirm the Trust Center and Docs IA blocker is landable: Atlas master-plan Phase 2.11
+  is scoped to trust/legal and Phase 2.15 to docs/support; record the fourth-plan routing.
+- [ ] Run every exact changed node plus proportional lint/type/import checks; no directory-wide
+  or full-suite run is allowed.
+- [ ] Run the debt checker and verify its blocker set did not grow; do not describe expected
+  exit 1 as green. Run docs lifecycle and require exactly six findings.
+- [ ] Dispatch independent delta review, classify findings by P40, and repair blocking issues
+  before the final evidence wave.
+- [ ] End the journal with exactly ten `closed`/`blocked` blocks, measured arithmetic, root
+  mapping, normalization adoption status, watcher provenance/branches, copy denominator and
+  falsifier, C13 residue, and every dashboard path changed.

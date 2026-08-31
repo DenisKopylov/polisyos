@@ -14,6 +14,7 @@ build a v2 registry-backed recipe instead of replaying v1 as generic authority.
 
 from __future__ import annotations
 
+import hashlib
 import tomllib
 from collections.abc import Iterable, Mapping
 from decimal import Decimal, DivisionByZero, InvalidOperation, localcontext
@@ -36,6 +37,10 @@ from polisyos.ir import api as ir_api
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from polisyos.runtime.quality.epoch_validity_cascade import (
+        EpochValidityTransitionArtifact,
+    )
+
 DERIVATION_SCHEMA_VERSION = "polisyos.runtime.derived_observations.v2"
 LEGACY_DERIVATION_SCHEMA_VERSION = "polisyos.runtime.derived_observations.v1"
 SOURCE_SERIES_KIND = "polisyos.runtime.derivation_source_series"
@@ -44,6 +49,11 @@ PRICE_INDEX_SERIES_KIND = "polisyos.runtime.price_index_series"
 TRANSFORM_FAMILY_REGISTRY_KIND = "polisyos.runtime.transform_family_registry"
 DERIVED_SERIES_KIND = "polisyos.runtime.derived_economic_series"
 DERIVATION_CERTIFICATE_KIND = "polisyos.runtime.derivation_certificate"
+DERIVATION_RECIPE_KIND = "polisyos.runtime.derivation_recipe"
+EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND = (
+    "polisyos.runtime.epoch_inheritance_recompute_receipt"
+)
+EPOCH_VALIDITY_TRANSITION_KIND = "polisyos.epoch.validity_transition"
 _SOURCE_SERIES_SCHEMA = artifacts.SchemaInfo(
     name="polisyos.runtime.derivation-source-series",
     version="2.0.0",
@@ -60,11 +70,22 @@ _CERTIFICATE_SCHEMA = artifacts.SchemaInfo(
     name="polisyos.runtime.derivation-certificate",
     version="2.0.0",
 )
+_DERIVATION_RECIPE_SCHEMA = artifacts.SchemaInfo(
+    name="polisyos.runtime.derivation-recipe",
+    version="2.0.0",
+)
+_EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_SCHEMA = artifacts.SchemaInfo(
+    name="polisyos.runtime.epoch-inheritance-recompute-receipt",
+    version="1.0.0",
+)
 _DERIVATION_PRODUCER = artifacts.ProducerInfo(
     component="polisyos.runtime.quality.derived_observations",
     version="2.0.0",
 )
 _SOURCE_SERIES_PRODUCER = _DERIVATION_PRODUCER
+_EPOCH_RECOMPUTE_CONSUMER_METHOD_ID = (
+    "polisyos.runtime.quality.epoch-inheritance-recompute@1.0.0"
+)
 _CANON_SPEC = canon.CanonSpec(exclude_none=False)
 _DEFAULT_UNITS_REGISTRY = ir_api.resolve_lazy_export(
     "DEFAULT_UNITS_REGISTRY",
@@ -97,6 +118,7 @@ class DerivationRefusalCode(StrEnum):
     INPUT_ARTIFACT_DRIFT = "input_artifact_drift"
     CACHE_ARTIFACT_DRIFT = "cache_artifact_drift"
     CERTIFICATE_DRIFT = "certificate_drift"
+    EPOCH_RECOMPUTE_DRIFT = "epoch_recompute_drift"
     LEGACY_SCHEMA_UNSUPPORTED = "legacy_schema_unsupported"
 
 
@@ -794,12 +816,129 @@ class CertifiedDerivationConsumption(_StrictModel):
         }
 
 
+EpochTargetDisposition = Literal[
+    "unchanged",
+    "annotation_only",
+    "invalidate",
+    "reissue",
+    "supersede",
+    "withdraw",
+    "contested",
+    "review_required",
+]
+
+
+class EpochInheritanceRecomputeReceipt(_StrictModel):
+    """Completed replay of one certified derivation across one transition edge.
+
+    This receipt proves only that the owner derivation was recomputed from its
+    exact certificate graph. It does not establish that the transition is the
+    current history head or that its disposition authorizes a lifecycle act.
+    """
+
+    schema_version: Literal[
+        "polisyos.runtime.epoch-inheritance-recompute-receipt.v1"
+    ] = "polisyos.runtime.epoch-inheritance-recompute-receipt.v1"
+    receipt_id: str = Field(pattern=r"^epoch-inheritance-recompute:sha256:[0-9a-f]{64}$")
+    state: Literal["completed"]
+    transition_artifact_ref: artifacts.ArtifactRef
+    transition_artifact_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    transition_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    previous_epoch_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    current_epoch_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    requested_query_context_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    authority_purpose: str = Field(min_length=1)
+    dependency_denominator_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_ref: artifacts.ArtifactRef
+    target_ref: artifacts.ArtifactRef
+    relation: str = Field(min_length=1)
+    target_disposition: EpochTargetDisposition
+    certificate_artifact_ref: artifacts.ArtifactRef
+    certificate_artifact_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    certificate_binding_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    recipe_artifact_ref: artifacts.ArtifactRef
+    recipe_artifact_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    derived_artifact_ref: artifacts.ArtifactRef
+    derived_output_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    certified_consumption_id: str = Field(
+        pattern=r"^derivation-consumption:sha256:[0-9a-f]{64}$"
+    )
+    predicate_class: Literal["recomputed"]
+    authoritative_for: Literal["certified_derived_series_recompute"]
+    may_not_use_for: tuple[
+        Literal[
+            "epoch_validity_transition",
+            "observed_series",
+            "publication",
+            "source_observation",
+        ],
+        ...,
+    ]
+
+    @model_validator(mode="after")
+    def _receipt_is_content_bound(self) -> Self:
+        artifact_hashes = (
+            (self.transition_artifact_ref, self.transition_artifact_content_hash),
+            (self.certificate_artifact_ref, self.certificate_artifact_content_hash),
+            (self.recipe_artifact_ref, self.recipe_artifact_content_hash),
+            (self.derived_artifact_ref, self.derived_output_content_hash),
+        )
+        if any(str(ref.artifact_id) != content_hash for ref, content_hash in artifact_hashes):
+            raise ValueError("epoch recompute artifact hash differs from exact CAS identity")
+        if self.may_not_use_for != (
+            "epoch_validity_transition",
+            "observed_series",
+            "publication",
+            "source_observation",
+        ):
+            raise ValueError("epoch recompute authority prohibitions are not fixed")
+        if self.receipt_id != _identity(
+            "epoch-inheritance-recompute",
+            self.identity_payload(),
+        ):
+            raise ValueError("epoch recompute receipt identity is not recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return every receipt field except its own identity."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="python").items()
+            if key != "receipt_id"
+        }
+
+
+class PersistedEpochInheritanceRecomputeReceipt(_StrictModel):
+    """Ref-only handle for an exact completed recompute receipt."""
+
+    receipt_artifact_ref: artifacts.ArtifactRef
+    receipt_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _bind_receipt_ref(self) -> Self:
+        if (
+            self.receipt_artifact_ref.kind != EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND
+            or self.receipt_artifact_ref.media_type != "application/json"
+            or self.receipt_content_hash != str(self.receipt_artifact_ref.artifact_id)
+        ):
+            raise ValueError("persisted epoch recompute receipt profile differs")
+        return self
+
+
 def _identity(prefix: str, payload: object) -> str:
     return f"{prefix}:{canon.fingerprint(payload, prefix=True, canon_spec=_CANON_SPEC)}"
 
 
 def _canonical_bytes(payload: object) -> bytes:
     return canon.to_canonical_bytes(payload, _CANON_SPEC)
+
+
+def _canonical_payload(raw: bytes) -> dict[str, object]:
+    value = canon.from_canonical_bytes(raw)
+    if not isinstance(value, Mapping):
+        raise ValueError("canonical artifact payload is not a mapping")
+    return dict(value)
 
 
 def _sorted_input_refs(refs: Sequence[artifacts.InputRef]) -> list[artifacts.InputRef]:
@@ -1718,6 +1857,354 @@ def consume_certified_derivation(
     return CertifiedDerivationConsumption.model_validate(receipt_payload)
 
 
+def _epoch_recompute_refusal(detail: str) -> DerivationRefusalError:
+    return DerivationRefusalError(DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT, detail)
+
+
+def persist_derivation_recipe_artifact(
+    store: artifacts.FileSystemCAS,
+    recipe: DerivationRecipe,
+) -> artifacts.ArtifactRef:
+    """Persist the exact recipe profile consumed by epoch certificate bindings."""
+
+    recipe = _revalidate_recipe(
+        recipe,
+        refusal_code=DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+    )
+    _resolve_recipe_family(
+        store,
+        recipe,
+        refusal_code=DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+    )
+    _load_recipe_sources(
+        store,
+        recipe,
+        refusal_code=DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+    )
+    ref, _ = _put_or_verify(
+        store,
+        payload=recipe,
+        kind=DERIVATION_RECIPE_KIND,
+        schema=_DERIVATION_RECIPE_SCHEMA,
+        inputs=_expected_output_inputs(recipe),
+        refusal_code=DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+    )
+    return ref
+
+
+def _read_derivation_recipe_artifact(
+    store: artifacts.FileSystemCAS,
+    recipe_ref: artifacts.ArtifactRef,
+) -> DerivationRecipe:
+    if recipe_ref.kind != DERIVATION_RECIPE_KIND or recipe_ref.media_type != "application/json":
+        raise _epoch_recompute_refusal("derivation recipe artifact profile mismatch")
+    try:
+        recipe = DerivationRecipe.model_validate(
+            _canonical_payload(store.get_bytes(recipe_ref.artifact_id))
+        )
+    except (OSError, TypeError, ValueError) as exc:
+        raise _epoch_recompute_refusal("derivation recipe artifact readback failed") from exc
+    _verify_cached_artifact(
+        store,
+        artifact_id=recipe_ref.artifact_id,
+        expected_bytes=_canonical_bytes(recipe),
+        kind=DERIVATION_RECIPE_KIND,
+        schema=_DERIVATION_RECIPE_SCHEMA,
+        producer=_DERIVATION_PRODUCER,
+        inputs=_expected_output_inputs(recipe),
+        refusal_code=DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+    )
+    return recipe
+
+
+def _read_epoch_validity_transition(
+    store: artifacts.FileSystemCAS,
+    transition_ref: artifacts.ArtifactRef,
+) -> EpochValidityTransitionArtifact:
+    from polisyos.runtime.quality import epoch_validity_cascade as epoch_cascade
+
+    if (
+        transition_ref.kind != EPOCH_VALIDITY_TRANSITION_KIND
+        or transition_ref.media_type != "application/vnd.polisyos.chronology+json"
+    ):
+        raise _epoch_recompute_refusal("epoch transition artifact profile mismatch")
+    try:
+        report = store.verify(transition_ref.artifact_id)
+        raw = store.get_bytes(transition_ref.artifact_id)
+        manifest = store.get_manifest(transition_ref.artifact_id)
+        transition = epoch_cascade.EpochValidityTransitionArtifact.model_validate(
+            _canonical_payload(raw)
+        )
+    except (OSError, TypeError, ValueError) as exc:
+        raise _epoch_recompute_refusal("epoch transition artifact readback failed") from exc
+    if (
+        not report.ok
+        or str(transition_ref.artifact_id) != f"sha256:{hashlib.sha256(raw).hexdigest()}"
+        or manifest.artifact_id != transition_ref.artifact_id
+        or manifest.kind != transition_ref.kind
+        or manifest.media_type != transition_ref.media_type
+        or raw != epoch_cascade._canonical_bytes(transition)
+    ):
+        raise _epoch_recompute_refusal("epoch transition artifact readback failed")
+    return transition
+
+
+def _epoch_recompute_inputs(
+    receipt: EpochInheritanceRecomputeReceipt,
+) -> list[artifacts.InputRef]:
+    return _sorted_input_refs(
+        [
+            artifacts.InputRef(
+                artifact_id=receipt.certificate_artifact_ref.artifact_id,
+                role="derivation_certificate",
+            ),
+            artifacts.InputRef(
+                artifact_id=receipt.recipe_artifact_ref.artifact_id,
+                role="derivation_recipe",
+            ),
+            artifacts.InputRef(
+                artifact_id=receipt.derived_artifact_ref.artifact_id,
+                role="derived_series",
+            ),
+            artifacts.InputRef(
+                artifact_id=receipt.transition_artifact_ref.artifact_id,
+                role="epoch_transition",
+            ),
+            artifacts.InputRef(
+                artifact_id=receipt.source_ref.artifact_id,
+                role="graph_edge_source",
+            ),
+            artifacts.InputRef(
+                artifact_id=receipt.target_ref.artifact_id,
+                role="graph_edge_target",
+            ),
+        ]
+    )
+
+
+def _build_epoch_inheritance_recompute_receipt(
+    store: artifacts.FileSystemCAS,
+    *,
+    transition_ref: artifacts.ArtifactRef,
+    expected_previous_epoch_ref: str,
+    expected_current_epoch_ref: str,
+    requested_query_context_ref: str,
+    authority_purpose: str,
+    source_ref: artifacts.ArtifactRef,
+    target_ref: artifacts.ArtifactRef,
+    relation: str,
+    expected_target_disposition: EpochTargetDisposition,
+    certificate_ref: artifacts.ArtifactRef,
+) -> EpochInheritanceRecomputeReceipt:
+    transition = _read_epoch_validity_transition(store, transition_ref)
+    if (
+        transition.previous_epoch_ref != expected_previous_epoch_ref
+        or transition.current_epoch_ref != expected_current_epoch_ref
+        or transition.requested_query_context_ref != requested_query_context_ref
+        or transition.authority_purpose != authority_purpose
+        or transition.dependency_denominator_ref
+        != transition.dependency_graph.denominator_ref
+    ):
+        raise _epoch_recompute_refusal("epoch transition coordinates or denominator differ")
+    matching_edges = tuple(
+        edge
+        for edge in transition.dependency_graph.edges
+        if edge.source_ref == source_ref
+        and edge.target_ref == target_ref
+        and edge.relation == relation
+        and edge.authority_purpose == authority_purpose
+    )
+    if len(matching_edges) != 1:
+        raise _epoch_recompute_refusal("epoch dependency edge is absent or ambiguous")
+    target_rows = tuple(
+        row for row in transition.target_vector.rows if row.target_ref == target_ref
+    )
+    if len(target_rows) != 1 or target_rows[0].disposition != expected_target_disposition:
+        raise _epoch_recompute_refusal("epoch target disposition differs from exact owner row")
+    if target_ref != certificate_ref:
+        raise _epoch_recompute_refusal("epoch target differs from derivation certificate")
+    bindings = tuple(
+        row for row in transition.certificate_bindings if row.certificate_ref == certificate_ref
+    )
+    if len(bindings) != 1:
+        raise _epoch_recompute_refusal("epoch certificate binding is absent or ambiguous")
+    binding = bindings[0]
+    if (
+        binding.epoch_ref != transition.previous_epoch_ref
+        or binding.authority_purpose != authority_purpose
+        or binding.certificate_content_hash != str(certificate_ref.artifact_id)
+    ):
+        raise _epoch_recompute_refusal("epoch certificate binding coordinates differ")
+
+    recipe = _read_derivation_recipe_artifact(store, binding.recipe.recipe_ref)
+    expected_roles = tuple(item.role for item in recipe.inputs)
+    if (
+        binding.recipe.recipe_content_hash != str(binding.recipe.recipe_ref.artifact_id)
+        or binding.recipe.input_roles != expected_roles
+    ):
+        raise _epoch_recompute_refusal("epoch recipe binding differs from exact recipe artifact")
+    consumption = consume_certified_derivation(
+        store,
+        certificate_ref=certificate_ref,
+        consumer_method_id=_EPOCH_RECOMPUTE_CONSUMER_METHOD_ID,
+    )
+    try:
+        certificate = DerivationCertificate.model_validate(
+            _canonical_payload(store.get_bytes(certificate_ref.artifact_id))
+        )
+    except (OSError, TypeError, ValueError) as exc:
+        raise _epoch_recompute_refusal("derivation certificate readback failed") from exc
+    if (
+        certificate.recipe != recipe
+        or consumption.certificate_artifact_id != certificate_ref.artifact_id
+        or consumption.derived_artifact_id != certificate.derived_artifact_id
+    ):
+        raise _epoch_recompute_refusal("certified derivation differs from epoch binding")
+    derived_ref = artifacts.ArtifactRef(
+        artifact_id=consumption.derived_artifact_id,
+        kind=DERIVED_SERIES_KIND,
+        media_type="application/json",
+    )
+    payload: dict[str, object] = {
+        "schema_version": "polisyos.runtime.epoch-inheritance-recompute-receipt.v1",
+        "state": "completed",
+        "transition_artifact_ref": transition_ref,
+        "transition_artifact_content_hash": str(transition_ref.artifact_id),
+        "transition_content_hash": transition.transition_content_hash,
+        "previous_epoch_ref": transition.previous_epoch_ref,
+        "current_epoch_ref": transition.current_epoch_ref,
+        "requested_query_context_ref": transition.requested_query_context_ref,
+        "authority_purpose": transition.authority_purpose,
+        "dependency_denominator_ref": transition.dependency_denominator_ref,
+        "source_ref": source_ref,
+        "target_ref": target_ref,
+        "relation": relation,
+        "target_disposition": target_rows[0].disposition,
+        "certificate_artifact_ref": certificate_ref,
+        "certificate_artifact_content_hash": str(certificate_ref.artifact_id),
+        "certificate_binding_content_hash": binding.binding_content_hash,
+        "recipe_artifact_ref": binding.recipe.recipe_ref,
+        "recipe_artifact_content_hash": str(binding.recipe.recipe_ref.artifact_id),
+        "derived_artifact_ref": derived_ref,
+        "derived_output_content_hash": str(derived_ref.artifact_id),
+        "certified_consumption_id": consumption.consumption_id,
+        "predicate_class": "recomputed",
+        "authoritative_for": "certified_derived_series_recompute",
+        "may_not_use_for": (
+            "epoch_validity_transition",
+            "observed_series",
+            "publication",
+            "source_observation",
+        ),
+    }
+    payload["receipt_id"] = _identity("epoch-inheritance-recompute", payload)
+    try:
+        return EpochInheritanceRecomputeReceipt.model_validate(payload)
+    except ValueError as exc:
+        raise _epoch_recompute_refusal("epoch recompute receipt construction failed") from exc
+
+
+def produce_epoch_inheritance_recompute_receipt(
+    store: artifacts.FileSystemCAS,
+    *,
+    transition_ref: artifacts.ArtifactRef,
+    expected_previous_epoch_ref: str,
+    expected_current_epoch_ref: str,
+    requested_query_context_ref: str,
+    authority_purpose: str,
+    source_ref: artifacts.ArtifactRef,
+    target_ref: artifacts.ArtifactRef,
+    relation: str,
+    expected_target_disposition: EpochTargetDisposition,
+    certificate_ref: artifacts.ArtifactRef,
+) -> PersistedEpochInheritanceRecomputeReceipt:
+    """Replay one certified derivation and persist a completed-only receipt."""
+
+    receipt = _build_epoch_inheritance_recompute_receipt(
+        store,
+        transition_ref=transition_ref,
+        expected_previous_epoch_ref=expected_previous_epoch_ref,
+        expected_current_epoch_ref=expected_current_epoch_ref,
+        requested_query_context_ref=requested_query_context_ref,
+        authority_purpose=authority_purpose,
+        source_ref=source_ref,
+        target_ref=target_ref,
+        relation=relation,
+        expected_target_disposition=expected_target_disposition,
+        certificate_ref=certificate_ref,
+    )
+    ref, _ = _put_or_verify(
+        store,
+        payload=receipt,
+        kind=EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND,
+        schema=_EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_SCHEMA,
+        inputs=_epoch_recompute_inputs(receipt),
+        refusal_code=DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+    )
+    return PersistedEpochInheritanceRecomputeReceipt(
+        receipt_artifact_ref=ref,
+        receipt_content_hash=str(ref.artifact_id),
+    )
+
+
+def read_epoch_inheritance_recompute_receipt(
+    store: artifacts.FileSystemCAS,
+    *,
+    receipt_ref: artifacts.ArtifactRef,
+    expected_previous_epoch_ref: str,
+    expected_current_epoch_ref: str,
+    requested_query_context_ref: str,
+    authority_purpose: str,
+    source_ref: artifacts.ArtifactRef,
+    target_ref: artifacts.ArtifactRef,
+    relation: str,
+    expected_target_disposition: EpochTargetDisposition,
+    certificate_ref: artifacts.ArtifactRef,
+) -> PersistedEpochInheritanceRecomputeReceipt:
+    """Exact-read a receipt and replay every referenced owner artifact."""
+
+    if (
+        receipt_ref.kind != EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND
+        or receipt_ref.media_type != "application/json"
+    ):
+        raise _epoch_recompute_refusal("epoch recompute receipt profile mismatch")
+    try:
+        receipt = EpochInheritanceRecomputeReceipt.model_validate(
+            _canonical_payload(store.get_bytes(receipt_ref.artifact_id))
+        )
+    except (OSError, TypeError, ValueError) as exc:
+        raise _epoch_recompute_refusal("epoch recompute receipt readback failed") from exc
+    _verify_cached_artifact(
+        store,
+        artifact_id=receipt_ref.artifact_id,
+        expected_bytes=_canonical_bytes(receipt),
+        kind=EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND,
+        schema=_EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_SCHEMA,
+        producer=_DERIVATION_PRODUCER,
+        inputs=_epoch_recompute_inputs(receipt),
+        refusal_code=DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT,
+    )
+    rebuilt = _build_epoch_inheritance_recompute_receipt(
+        store,
+        transition_ref=receipt.transition_artifact_ref,
+        expected_previous_epoch_ref=expected_previous_epoch_ref,
+        expected_current_epoch_ref=expected_current_epoch_ref,
+        requested_query_context_ref=requested_query_context_ref,
+        authority_purpose=authority_purpose,
+        source_ref=source_ref,
+        target_ref=target_ref,
+        relation=relation,
+        expected_target_disposition=expected_target_disposition,
+        certificate_ref=certificate_ref,
+    )
+    if rebuilt != receipt:
+        raise _epoch_recompute_refusal("epoch recompute receipt differs after owner replay")
+    return PersistedEpochInheritanceRecomputeReceipt(
+        receipt_artifact_ref=receipt_ref,
+        receipt_content_hash=str(receipt_ref.artifact_id),
+    )
+
+
 EconomicBasis = _UnsupportedLegacyV1Contract
 EconomicSeries = _UnsupportedLegacyV1Contract
 PriceIndexBasis = _UnsupportedLegacyV1Contract
@@ -1751,9 +2238,12 @@ def persist_price_index_series(*_args: object, **_kwargs: object) -> Never:
 
 __all__ = [
     "DERIVATION_CERTIFICATE_KIND",
+    "DERIVATION_RECIPE_KIND",
     "DERIVATION_SCHEMA_VERSION",
     "DERIVED_SERIES_KIND",
     "ECONOMIC_SERIES_KIND",
+    "EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND",
+    "EPOCH_VALIDITY_TRANSITION_KIND",
     "LEGACY_DERIVATION_SCHEMA_VERSION",
     "PRICE_INDEX_SERIES_KIND",
     "SOURCE_SERIES_KIND",
@@ -1779,7 +2269,10 @@ __all__ = [
     "DerivedSeries",
     "EconomicBasis",
     "EconomicSeries",
+    "EpochInheritanceRecomputeReceipt",
+    "EpochTargetDisposition",
     "ParameterRule",
+    "PersistedEpochInheritanceRecomputeReceipt",
     "PriceIndexBasis",
     "PriceIndexSeries",
     "RecipeInput",
@@ -1795,8 +2288,11 @@ __all__ = [
     "load_transform_family_registry",
     "materialize_cpi_real_terms",
     "materialize_derivation",
+    "persist_derivation_recipe_artifact",
     "persist_economic_series",
     "persist_price_index_series",
     "persist_source_series",
     "persist_transform_family_registry",
+    "produce_epoch_inheritance_recompute_receipt",
+    "read_epoch_inheritance_recompute_receipt",
 ]

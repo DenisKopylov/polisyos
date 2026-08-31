@@ -34,6 +34,14 @@ _HIGH_STAKES_OPERATIONS = {
     ("POST", "/api/v1/control/runs/{run_id}/reissue"): "revocation",
     (
         "POST",
+        "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request",
+    ): "acquisition_approval",
+    (
+        "POST",
+        "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute",
+    ): "acquisition_approval",
+    (
+        "POST",
         "/api/v1/runs/{run_id}/production-approval",
     ): "production_approval",
     ("POST", "/api/v1/runs/{run_id}/human-decisions"): "human_decision",
@@ -360,29 +368,53 @@ def _jwt_step_up_verifier(*, now: int):
     )
 
 
-def test_high_stakes_routes_have_exactly_one_distinct_step_up_dependency(
-    runtime_api_env,
-) -> None:
-    app = runtime_api_env["app"]
+def _router_high_stakes_operations(app: FastAPI) -> dict[tuple[str, str], str]:
     actual: dict[tuple[str, str], str] = {}
 
     for route in app.routes:
         if not isinstance(route, APIRoute):
             continue
+        step_up_calls = [
+            call
+            for call in _dependency_calls(route.dependant)
+            if getattr(call, "__polisyos_step_up__", None) is not None
+        ]
+        if not step_up_calls:
+            continue
         for method in set(route.methods) & {"POST", "PUT", "PATCH", "DELETE"}:
             key = (method, route.path)
-            if key not in _HIGH_STAKES_OPERATIONS:
-                continue
-            step_up_calls = [
-                call
-                for call in _dependency_calls(route.dependant)
-                if getattr(call, "__polisyos_step_up__", None) is not None
-            ]
             assert len(step_up_calls) == 1, key
             step_up_class = step_up_calls[0].__polisyos_step_up__.step_up_class
             actual[key] = step_up_class.value
 
-    assert actual == _HIGH_STAKES_OPERATIONS
+    return actual
+
+
+def _openapi_high_stakes_operations(app: FastAPI) -> dict[tuple[str, str], str]:
+    projected: dict[tuple[str, str], str] = {}
+
+    for path, path_item in app.openapi()["paths"].items():
+        for method in ("post", "put", "patch", "delete"):
+            operation = path_item.get(method)
+            if not isinstance(operation, dict):
+                continue
+            step_up_class = operation.get("x-polisyos-step-up-class")
+            if step_up_class is not None:
+                projected[(method.upper(), path)] = step_up_class
+
+    return projected
+
+
+def test_router_and_openapi_high_stakes_denominators_agree(runtime_api_env) -> None:
+    app = runtime_api_env["app"]
+
+    assert _router_high_stakes_operations(app) == _openapi_high_stakes_operations(app)
+
+
+def test_high_stakes_routes_have_exactly_one_distinct_step_up_dependency(
+    runtime_api_env,
+) -> None:
+    assert _router_high_stakes_operations(runtime_api_env["app"]) == _HIGH_STAKES_OPERATIONS
 
 
 def test_live_app_passes_high_stakes_step_up_contract(runtime_api_env) -> None:
@@ -486,19 +518,7 @@ def test_replaced_route_app_cannot_bypass_executable_step_up_dependency(
 
 
 def test_openapi_projects_exact_high_stakes_step_up_classes(runtime_api_env) -> None:
-    schema = runtime_api_env["app"].openapi()
-    projected: dict[tuple[str, str], str] = {}
-
-    for path, path_item in schema["paths"].items():
-        for method in ("post", "put", "patch", "delete"):
-            operation = path_item.get(method)
-            if not isinstance(operation, dict):
-                continue
-            step_up_class = operation.get("x-polisyos-step-up-class")
-            if step_up_class is not None:
-                projected[(method.upper(), path)] = step_up_class
-
-    assert projected == _HIGH_STAKES_OPERATIONS
+    assert _openapi_high_stakes_operations(runtime_api_env["app"]) == _HIGH_STAKES_OPERATIONS
 
 
 @pytest.mark.parametrize(

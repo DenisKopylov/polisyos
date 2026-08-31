@@ -14,7 +14,7 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.core.observability.truthfulness import (
+from polisyos.ir.analytics import (
     TruthfulnessReceipt,
     validate_truthfulness_receipt,
 )

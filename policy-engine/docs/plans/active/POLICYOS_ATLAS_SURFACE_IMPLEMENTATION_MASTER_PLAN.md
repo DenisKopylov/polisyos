@@ -1822,6 +1822,18 @@ Loosening the ratified posture is out of scope for every slice.
   - **One dependency is newly visible:** `PV-K07` prefix discipline is ratified but **not issuable**
     until `GY-GAP3` (controlled release-family transcript) closes. DS12 must not present a release
     history as governed while that owner is absent.
+- **Inherited obligations taken into scope (2026-08-31, architect).** Three residuals were routed
+  to DS12 by earlier slices and had no scope to land in; DS12's scope above now claims them, which
+  is what their register rows asked for and all any of them was waiting on. **This is a scope act,
+  not a closure** — each row moves `blocked` -> `open` and still owes its own work.
+  - `ds8-public-case-publication` — DS8's explicit non-closure. It is the "public record/certificate
+    endpoints" and "one promoted decision record, published end-to-end, verifiable by a citizen"
+    already in Goal and Producer & bridge work above; nothing new is added, the obligation is named.
+  - `ds5-waist-successors-routed-to-unscoped-slices`, DS12's **three** enforcement-waist groups of
+    the four that remained routed to planless slices.
+  - Task G's `architecture/atlas_surfaces/slice-scope-obligations.json` continues to force these into
+    view at scope-setting and keeps `closure_effect: none`; it is the reminder, this bullet is the
+    claim. The two are deliberately different acts.
 - **Not yet:** one record published well beats many published loosely;
   dispute/consultation/history surfaces arrive in DS13.
 
@@ -1882,6 +1894,18 @@ Loosening the ratified posture is out of scope for every slice.
   denied-uses / counterevidence; a summary that dropped a retained-limitation renders **blocked, not
   clean**. Add a **cross-projection disclosure budget**: repeated PUBLIC/REVIEWER/MACHINE reveals
   cannot let a hidden fact be reconstructed via diff / hash / ordering / timing.
+- **Inherited obligations taken into scope (2026-08-31, architect).** Same act as DS12's, for the
+  two residuals routed here. Both rows move `blocked` -> `open` and still owe their work.
+  - `ds8-lex-clerk-authority-repair`, **Clerk half.** DS8 routed Clerk to DS14 and DS14's
+    **Strangle target** above already names `features/clerk`, so the routing was honoured in scope
+    before the row was ever unblocked. The **Lex half is separately adjudicated**: DS10 has a
+    standalone Capability Discovery plan keeping Lex route/discovery with `team-design`/DS10 and Lex
+    pipeline mutation with `team-lex`, and the inconsistency the row records is the *unqualified*
+    "Lex -> DS10", not DS10's description.
+  - `ds5-waist-successors-routed-to-unscoped-slices`, DS14's **one** remaining enforcement-waist
+    group.
+  - **Neither inherits the superseded Phase-6 gate.** DS14's real gate is `GY-I` and DS9, both met,
+    so these obligations are executable now and nothing here waits on the O-block.
 - **Not yet:** no agent output on PUBLIC surfaces; agent surfaces stay
   REVIEWER/EXPERT until a separate, explicit decision.
 

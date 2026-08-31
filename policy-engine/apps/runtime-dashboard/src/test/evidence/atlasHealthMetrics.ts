@@ -9,6 +9,11 @@ import {
   ATLAS_HONESTY_COMPREHENSION_PROTOCOL,
   ATLAS_HONESTY_METRIC_IDS,
 } from "./atlasHonestyComprehensionProtocol";
+import {
+  DS18_MAX_STREAM_BYTES,
+  ds18ExecutionOutcomeSchema,
+  primitiveAdoptionFromDs18Coverage,
+} from "./ds18ExecutionOutcome";
 
 export const ATLAS_HEALTH_METRIC_REPORT_SCHEMA = {
   id: "polisyos.atlas.health-metric-report",
@@ -51,6 +56,8 @@ const DS18_TIME_SEMANTICS_CHECKER =
   "architecture/atlas_surfaces/check_frontend_disposition_register.py";
 const DS18_TIME_SEMANTICS_SCANNER =
   "architecture/atlas_surfaces/decision_time_semantics_scan.mjs";
+const DS18_TIME_SEMANTICS_OUTCOME_RUNNER =
+  "apps/runtime-dashboard/scripts/run-ds18-time-semantics-outcome.mjs";
 
 const nonEmptyString = z
   .string()
@@ -710,26 +717,6 @@ const healthSourceProjectionSchema = z
   })
   .strict();
 
-const ds18TimeSemanticsCoverageProjectionSchema = z
-  .object({
-    predicate_provenance: z.literal("independently_reconciled"),
-    source_file_count: z.number().int().positive(),
-    root_count: z.number().int().positive(),
-    obligated_root_count: z.number().int().positive(),
-    covered_root_count: z.number().int().positive(),
-  })
-  .strict()
-  .superRefine((projection, context) => {
-    if (projection.covered_root_count !== projection.obligated_root_count) {
-      context.addIssue({
-        code: "custom",
-        path: ["covered_root_count"],
-        message:
-          "DS18 primitive adoption requires complete obligated-root coverage",
-      });
-    }
-  });
-
 const HEALTH_CHILD_ENV = {
   HOME: "/var/empty",
   LANG: "C",
@@ -802,42 +789,23 @@ function runHealthSourceValidator(root: string) {
   return healthSourceProjectionSchema.parse(JSON.parse(result.stdout));
 }
 
-function runDs18TimeSemanticsCoverageValidator(root: string) {
-  const repositoryPython = path.join(root, ".venv/bin/python");
-  if (!existsSync(repositoryPython)) {
-    throw new TypeError(
-      "DS18 time-semantics measurement requires the repository-managed Python environment",
-    );
-  }
+function runDs18TimeSemanticsOutcome(root: string) {
   const result = spawnSync(
-    repositoryPython,
-    [
-      "-I",
-      path.join(root, DS18_TIME_SEMANTICS_CHECKER),
-      "--check-ds18-time-semantics-coverage",
-    ],
+    process.execPath,
+    [path.join(root, DS18_TIME_SEMANTICS_OUTCOME_RUNNER)],
     {
       cwd: root,
       encoding: "utf8",
-      env: {
-        ...HEALTH_CHILD_ENV,
-        POLISYOS_NODE_EXECUTABLE: process.execPath,
-      },
-      maxBuffer: 8 * 1024 * 1024,
+      env: HEALTH_CHILD_ENV,
+      maxBuffer: 2 * (DS18_MAX_STREAM_BYTES + 1),
     },
   );
   if (result.status !== 0) {
-    return {
-      kind: "not_established" as const,
-      reason: `DS18 time-semantics coverage validator rejected the current tree (${String(result.status)}): ${result.stderr.trim()}`,
-    };
+    throw new TypeError(
+      `DS18 time-semantics outcome runner failed (${String(result.status)}): ${result.stderr}`,
+    );
   }
-  return {
-    kind: "established" as const,
-    projection: ds18TimeSemanticsCoverageProjectionSchema.parse(
-      JSON.parse(result.stdout),
-    ),
-  };
+  return ds18ExecutionOutcomeSchema.parse(JSON.parse(result.stdout));
 }
 
 function directBasis(
@@ -895,7 +863,8 @@ export function measureAtlasHealthMetrics(): AtlasHealthMetricReport {
   const repositoryDirty =
     gitOutput(root, ["status", "--porcelain=v1"]).trim() !== "";
   const sources = runHealthSourceValidator(root);
-  const ds18Coverage = runDs18TimeSemanticsCoverageValidator(root);
+  const ds18Outcome = runDs18TimeSemanticsOutcome(root);
+  const primitiveAdoption = primitiveAdoptionFromDs18Coverage(ds18Outcome);
   const ds18EvidenceRefs = [
     hashSource(
       root,
@@ -914,61 +883,24 @@ export function measureAtlasHealthMetrics(): AtlasHealthMetricReport {
       "complete_typescript_ast_denominator",
     ),
   ];
-  const primitiveAdoptionRow =
-    ds18Coverage.kind === "established"
-      ? {
-          metric_id: "primitive_adoption",
-          instrumentation_status: "instrumented",
-          definition:
-            "Share of decision-bearing renders flowing through DS4 primitives.",
-          honest_direction: "Rising; 100% for authority slots.",
-          scope: {
-            scope_id: "ds18-decision-time-semantics-roots",
-            description: `All ${String(ds18Coverage.projection.obligated_root_count)} independently reconciled decision-bearing or inherited render/export roots in ${String(ds18Coverage.projection.source_file_count)} production TypeScript files.`,
-          },
-          basis: directBasis(
-            ds18EvidenceRefs,
-            "This measures complete DS18 composition at its source freeze; it does not grant policy or design authority.",
-          ),
-          measurement: observedRatio(
-            ds18Coverage.projection.covered_root_count,
-            ds18Coverage.projection.obligated_root_count,
-          ),
-          known_facts: {
-            source_file_count: ds18Coverage.projection.source_file_count,
-            render_root_count: ds18Coverage.projection.root_count,
-            obligated_root_count: ds18Coverage.projection.obligated_root_count,
-          },
-          thresholds: [],
-        }
-      : {
-          metric_id: "primitive_adoption",
-          instrumentation_status: "instrumented",
-          definition:
-            "Share of decision-bearing renders flowing through DS4 primitives.",
-          honest_direction: "Rising; 100% for authority slots.",
-          scope: {
-            scope_id: "ds18-decision-time-semantics-roots",
-            description:
-              "The current decision-bearing render-root denominator failed its recomputing DS18 coverage check.",
-          },
-          basis: directBasis(
-            ds18EvidenceRefs,
-            ds18Coverage.reason,
-            "not_established",
-          ),
-          measurement: {
-            kind: "unknown",
-            reason_code: "time_semantics_coverage_not_established",
-            predicate_provenance: "not_established",
-          },
-          known_facts: {
-            source_file_count: 0,
-            render_root_count: 0,
-            obligated_root_count: 0,
-          },
-          thresholds: [],
-        };
+  const primitiveAdoptionRow = {
+    metric_id: "primitive_adoption",
+    instrumentation_status: "instrumented",
+    definition: "Share of decision-bearing renders flowing through DS4 primitives.",
+    honest_direction: "Rising; 100% for authority slots.",
+    scope: {
+      scope_id: "ds18-decision-time-semantics-roots",
+      description: primitiveAdoption.scope_description,
+    },
+    basis: directBasis(
+      ds18EvidenceRefs,
+      primitiveAdoption.limitation,
+      primitiveAdoption.predicate_provenance,
+    ),
+    measurement: primitiveAdoption.measurement,
+    known_facts: primitiveAdoption.known_facts,
+    thresholds: [],
+  };
   const readinessEntryCount = sources.readiness.entry_count;
   const machineAudienceCount = sources.readiness.machine_audience_count;
   const implementedEntryCount = sources.readiness.implemented_entry_count;

@@ -33,7 +33,7 @@ from polisyos.ir.analytics.strategic import (
 )
 from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.registry.refs import ArtifactRefModel
-from polisyos.runtime.quality import WorldModelRecord
+from polisyos.pdc import WorldModelRecord
 from polisyos.scientist.evidence.sources import (
     build_path_source_status,
 )

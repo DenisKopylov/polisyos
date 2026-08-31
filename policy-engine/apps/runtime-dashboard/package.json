@@ -24,7 +24,7 @@
     "test:a11y": "corepack pnpm run a11y:contrast && corepack pnpm run a11y:motion && corepack pnpm run a11y:color-blind && corepack pnpm run test:a11y:components && corepack pnpm run test:a11y:pages",
     "test:components:a11y": "vitest run --config vitest.a11y.config.ts",
     "test:a11y:components": "vitest run --config vitest.a11y.config.ts",
-    "test:a11y:pages": "playwright test e2e/a11y --project=chromium",
+    "test:a11y:pages": "PLAYWRIGHT_INCLUDE_BOUND_RUN_PAPER_FIXTURE=1 playwright test e2e/a11y --project=chromium",
     "a11y:contrast": "node --experimental-strip-types ../../tools/design/check-contrast.ts",
     "a11y:contrast:write": "node --experimental-strip-types ../../tools/design/check-contrast.ts --write",
     "a11y:motion": "node --experimental-strip-types ../../tools/design/check-reduced-motion.ts",

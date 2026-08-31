@@ -39,6 +39,7 @@ from .approval import (
     build_production_approval_packet,
     build_resolved_production_approval_packet,
     persist_production_approval_packet,
+    resolve_production_approval_currentness_receipt,
 )
 from .argument_graph import (
     ARGUMENT_GRAPH_CONTRACT_ID,
@@ -2002,6 +2003,7 @@ __all__ = [
     "requirement_gaps_from_compiled_specs",
     "resolve_evaluation_mode",
     "resolve_expression",
+    "resolve_production_approval_currentness_receipt",
     "resolve_s12_resource_refs",
     "review_controls_for_pruning",
     "run_cost_budget_policy_from_performance_budget",

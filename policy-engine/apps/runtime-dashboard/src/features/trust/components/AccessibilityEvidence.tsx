@@ -1,11 +1,11 @@
 import type { ClaimPostureRegister } from "../domain/posture";
-import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { useTrustCopy } from "../copy/useTrustCopy";
 
 /** Render dated, bounded accessibility evidence without a conformance claim. */
 export function AccessibilityEvidence({
   register,
 }: Readonly<{ register: ClaimPostureRegister }>) {
-  const { t } = useI18n();
+  const { tTrust } = useTrustCopy();
   const document = register.accessibility_document;
   const receipt = register.page_a11y_receipt;
 
@@ -15,10 +15,10 @@ export function AccessibilityEvidence({
       className="rounded-[var(--radius-lg)] border border-[var(--line)] bg-[var(--paper)] p-5"
     >
       <h2 id="trust-accessibility-title" className="text-xl font-bold">
-        {t("trust.accessibilityTitle")}
+        {tTrust("accessibilityTitle")}
       </h2>
       <p className="mt-2 text-sm text-[var(--slate)]">
-        {t("trust.accessibilityFrame")}
+        {tTrust("accessibilityFrame")}
       </p>
       {document ? (
         <div className="mt-4 text-sm">
@@ -31,7 +31,7 @@ export function AccessibilityEvidence({
           </ul>
         </div>
       ) : (
-        <p className="mt-4 text-sm">{t("trust.notEstablished")}</p>
+        <p className="mt-4 text-sm">{tTrust("notEstablished")}</p>
       )}
       {receipt ? (
         <div className="mt-4 border-t border-[var(--line)] pt-4 text-sm">
@@ -49,7 +49,7 @@ export function AccessibilityEvidence({
           </ul>
         </div>
       ) : (
-        <p className="mt-4 text-sm">{t("trust.notEstablished")}</p>
+        <p className="mt-4 text-sm">{tTrust("notEstablished")}</p>
       )}
     </section>
   );

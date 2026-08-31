@@ -2,14 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.core.observability.determinism import DeterminismTier
-from polisyos.core.observability.truthfulness import (
-    TruthfulnessReceipt,
-    TruthfulnessScope,
-)
-from polisyos.core.observability.truthfulness import (
-    TruthfulnessTier as ReceiptTruthfulnessTier,
-)
 from polisyos.foundry.methods.backends.bayesian_runner import bayesian_backend_health
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.base import ComputeBackend
@@ -29,6 +23,13 @@ from polisyos.foundry.methods.catalog.bayesian.protocols import MultimodalitySta
 from polisyos.foundry.methods.catalog.econometrics.protocols import TimeSeriesData
 from polisyos.foundry.methods.ml import TabularData
 from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.ir.analytics import (
+    TruthfulnessReceipt,
+    TruthfulnessScope,
+)
+from polisyos.ir.analytics import (
+    TruthfulnessTier as ReceiptTruthfulnessTier,
+)
 
 
 @pytest.fixture(autouse=True)

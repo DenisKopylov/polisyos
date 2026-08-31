@@ -35,7 +35,7 @@ except ImportError:  # pragma: no cover - keeps catalog reflection importable.
     adjusted_rand_score = None  # type: ignore[assignment]
     normalized_mutual_info_score = None  # type: ignore[assignment]
 
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,

@@ -3,7 +3,7 @@ from _typeshed import Incomplete
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.ir.analytics.uncertainty import OutputContractCapability
 from typing import Any, ClassVar, Protocol, TypeVar
 

@@ -71,7 +71,7 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.security import AuditLog
-    from polisyos.runtime.quality import EvalSafetyVerifierPort, EvaluationExecutionContext
+    from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.orchestration.engine.context import (
         FabricPort,
         FoundryPort,

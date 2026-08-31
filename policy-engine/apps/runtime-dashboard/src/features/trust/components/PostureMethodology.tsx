@@ -2,7 +2,7 @@ import type {
   ClaimPostureAudience,
   ClaimPostureRegister,
 } from "../domain/posture";
-import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { useTrustCopy } from "../copy/useTrustCopy";
 
 type PostureMethodologyProps = Readonly<{
   audience: Exclude<ClaimPostureAudience, "MACHINE">;
@@ -14,28 +14,28 @@ export function PostureMethodology({
   audience,
   register,
 }: PostureMethodologyProps) {
-  const { t } = useI18n();
+  const { tTrust } = useTrustCopy();
   return (
     <section
       aria-labelledby="trust-methodology-title"
       className="rounded-[var(--radius-lg)] border border-[var(--line)] bg-[var(--paper)] p-5"
     >
       <h2 id="trust-methodology-title" className="text-xl font-bold">
-        {t("trust.methodologyTitle")}
+        {tTrust("methodologyTitle")}
       </h2>
       <p className="mt-2 text-sm text-[var(--slate)]">
-        {t("trust.methodologyFrame")}
+        {tTrust("methodologyFrame")}
       </p>
       <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--line)] bg-[var(--canvas)] p-4">
-        <h3 className="text-base font-semibold">{t("trust.identityTitle")}</h3>
+        <h3 className="text-base font-semibold">{tTrust("identityTitle")}</h3>
         <p
-          className="mt-2 whitespace-pre-line text-sm text-[var(--ink)]"
+          className="mt-2 text-sm whitespace-pre-line text-[var(--ink)]"
           data-testid="trust-identity-statement"
         >
           {register.identity_boundary.identity_statement}
         </p>
         <h4 className="mt-4 text-sm font-semibold">
-          {t("trust.antiRolesTitle")}
+          {tTrust("antiRolesTitle")}
         </h4>
         <ul className="mt-2 flex flex-wrap gap-2">
           {register.identity_boundary.anti_roles.map((antiRole) => (
@@ -49,30 +49,30 @@ export function PostureMethodology({
           ))}
         </ul>
         <p className="mt-3 font-mono text-xs break-all text-[var(--slate)]">
-          {t("trust.identitySourceLabel")}: {register.identity_boundary.path}:
+          {tTrust("identitySourceLabel")}: {register.identity_boundary.path}:
           {register.identity_boundary.identity_statement_start_line}
         </p>
       </div>
       <dl className="mt-4 grid gap-3 text-sm md:grid-cols-3">
         <div>
-          <dt className="font-semibold">{t("trust.schemaLabel")}</dt>
+          <dt className="font-semibold">{tTrust("schemaLabel")}</dt>
           <dd className="font-mono text-xs break-all">
             {register.schema_version}
           </dd>
         </div>
         <div>
-          <dt className="font-semibold">{t("trust.ruleLabel")}</dt>
+          <dt className="font-semibold">{tTrust("ruleLabel")}</dt>
           <dd className="font-mono text-xs break-all">
             {register.rule_version}
           </dd>
         </div>
         <div>
-          <dt className="font-semibold">{t("trust.asOfLabel")}</dt>
+          <dt className="font-semibold">{tTrust("asOfLabel")}</dt>
           <dd>{register.register_as_of}</dd>
         </div>
       </dl>
       <div className="mt-4">
-        <h3 className="text-sm font-semibold">{t("trust.groupsLabel")}</h3>
+        <h3 className="text-sm font-semibold">{tTrust("groupsLabel")}</h3>
         <ul className="mt-2 flex flex-wrap gap-2">
           {register.projection_groups.map((group) => (
             <li
@@ -87,10 +87,10 @@ export function PostureMethodology({
       {audience !== "PUBLIC" ? (
         <div className="mt-4 text-xs break-all text-[var(--slate)]">
           <p>
-            {t("trust.sourceSetLabel")}: {register.source_set_digest}
+            {tTrust("sourceSetLabel")}: {register.source_set_digest}
           </p>
           <p>
-            {t("trust.payloadLabel")}: {register.payload_digest}
+            {tTrust("payloadLabel")}: {register.payload_digest}
           </p>
           <ul className="mt-2 space-y-1">
             {register.admitted_verifiers.map((verifier) => (

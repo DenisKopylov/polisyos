@@ -32,9 +32,7 @@ REQUIRED_PHASE_1_5_CONCERNS = {
     "tracing",
     "calibration",
 }
-DEFERRED_PUBLIC_CANONICAL_INTERFACES = {
-    "polisyos.core.observability": "core-observability-canonical-interface-contract-drift",
-}
+DEFERRED_PUBLIC_CANONICAL_INTERFACES: dict[str, str] = {}
 ACTIVE_DEFERRED_DEBT_STATUSES = frozenset({"open", "open_unmerged", "blocked"})
 TOUCHED_PUBLIC_SURFACE_MODULES = frozenset({"polisyos.common", "polisyos.core"})
 
@@ -160,6 +158,15 @@ def test_phase1_5_terminal_debt_cannot_authorize_deferred_interface(
     monkeypatch.setattr(
         "tests.repo_quality.architecture.test_last_mile_cross_cutting_concerns.DEBT_REGISTER",
         register,
+    )
+    monkeypatch.setattr(
+        "tests.repo_quality.architecture.test_last_mile_cross_cutting_concerns."
+        "DEFERRED_PUBLIC_CANONICAL_INTERFACES",
+        {
+            "polisyos.core.observability": (
+                "core-observability-canonical-interface-contract-drift"
+            )
+        },
     )
 
     with pytest.raises(AssertionError):

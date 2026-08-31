@@ -29,6 +29,15 @@ __all__ = [
     "PartialPublicationState",
     "PolicyContextSignal",
     "PersistedGovernanceMonitorEvent",
+    "PersistedPublicSignaturePopulation",
+    "PersistedPublishedSignatureCustodyScan",
+    "PublicSignaturePopulationMember",
+    "PublicSignaturePopulationNonReceipt",
+    "PublicSignaturePopulationProvider",
+    "PublicSignaturePopulationSnapshot",
+    "PublishedSignatureCustodyResult",
+    "PublishedSignatureCustodyScan",
+    "PublishedSignatureCustodyWatcher",
     "PublicRevisionDiff",
     "ReissuePacket",
     "RetractionPerturbation",
@@ -63,6 +72,11 @@ __all__ = [
     "recommend_validity_action",
     "reissue_scope_from_monitor_events",
     "resolve_governance_monitor_event",
+    "resolve_public_signature_population",
+    "StaticPublicSignaturePopulationProvider",
+    "UnappointedPublicSignaturePopulationProvider",
+    "persist_public_signature_population",
+    "persist_published_signature_custody_scan",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -130,6 +144,42 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.scientist.governance.continuous.monitors",
         "PersistedGovernanceMonitorEvent",
     ),
+    "PersistedPublicSignaturePopulation": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "PersistedPublicSignaturePopulation",
+    ),
+    "PersistedPublishedSignatureCustodyScan": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "PersistedPublishedSignatureCustodyScan",
+    ),
+    "PublicSignaturePopulationMember": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "PublicSignaturePopulationMember",
+    ),
+    "PublicSignaturePopulationNonReceipt": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "PublicSignaturePopulationNonReceipt",
+    ),
+    "PublicSignaturePopulationProvider": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "PublicSignaturePopulationProvider",
+    ),
+    "PublicSignaturePopulationSnapshot": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "PublicSignaturePopulationSnapshot",
+    ),
+    "PublishedSignatureCustodyResult": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "PublishedSignatureCustodyResult",
+    ),
+    "PublishedSignatureCustodyScan": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "PublishedSignatureCustodyScan",
+    ),
+    "PublishedSignatureCustodyWatcher": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "PublishedSignatureCustodyWatcher",
+    ),
     "RetractionPerturbation": (
         "polisyos.scientist.governance.continuous.monitors",
         "RetractionPerturbation",
@@ -189,6 +239,26 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "resolve_governance_monitor_event": (
         "polisyos.scientist.governance.continuous.monitors",
         "resolve_governance_monitor_event",
+    ),
+    "resolve_public_signature_population": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "resolve_public_signature_population",
+    ),
+    "StaticPublicSignaturePopulationProvider": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "StaticPublicSignaturePopulationProvider",
+    ),
+    "UnappointedPublicSignaturePopulationProvider": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "UnappointedPublicSignaturePopulationProvider",
+    ),
+    "persist_public_signature_population": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "persist_public_signature_population",
+    ),
+    "persist_published_signature_custody_scan": (
+        "polisyos.scientist.governance.continuous.published_signature_custody",
+        "persist_published_signature_custody_scan",
     ),
     "IncidentReport": (
         "polisyos.scientist.governance.continuous.incident",

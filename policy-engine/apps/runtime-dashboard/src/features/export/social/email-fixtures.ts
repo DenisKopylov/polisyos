@@ -1,7 +1,7 @@
 import {
   epochNonreceipt,
   type EpochSemantics,
-} from "@/shared/ui/temporal/TimeSemanticsLabel";
+} from "@/shared/lib/domain/epochSemantics";
 
 export type ShareKind = "run" | "compare" | "scenario";
 export type ShareTrustStatus =

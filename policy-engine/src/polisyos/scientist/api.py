@@ -12,8 +12,7 @@ from collections.abc import Mapping
 from enum import Enum
 from typing import TYPE_CHECKING, Any, cast
 
-from polisyos.core.observability import get_metrics, get_tracer
-from polisyos.core.observability.pricing import estimate_llm_cost_usd
+from polisyos.core.observability import estimate_llm_cost_usd, get_metrics, get_tracer
 from polisyos.core.run.context import new_run_id
 
 Status: Any
@@ -47,7 +46,7 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.governance.passes.base import ValidatorPass
-    from polisyos.runtime.quality import EvalSafetyVerifierPort, EvaluationExecutionContext
+    from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
     from polisyos.scientist.governance.pipeline import ValidationPipeline
     from polisyos.scientist.orchestration.engine.metrics_protocol import EngineMetricsCollector
     from polisyos.scientist.orchestration.engine.registry import NodeBootstrapReport, NodeRegistry

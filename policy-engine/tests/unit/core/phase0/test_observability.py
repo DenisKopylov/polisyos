@@ -2,7 +2,22 @@
 
 from __future__ import annotations
 
+import polisyos.core.observability as observability
+import polisyos.core.observability.config as observability_config
+import polisyos.core.observability.determinism as determinism
 from polisyos.core.observability import get_metrics, get_tracer, traced
+
+
+def test_exact_observability_facade_preserves_determinism_and_hpc_identities() -> None:
+    """Promoted imports must be the owner objects, not compatibility copies."""
+
+    assert observability.DeterminismTier is determinism.DeterminismTier
+    assert observability.get_determinism_tier is determinism.get_determinism_tier
+    assert observability.parse_determinism_tier is determinism.parse_determinism_tier
+    assert (
+        observability.is_hpc_observability_enabled
+        is observability_config.is_hpc_observability_enabled
+    )
 
 
 class TestIntegrationScenarios:

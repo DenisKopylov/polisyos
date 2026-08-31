@@ -9,7 +9,7 @@ from typing import Any, ClassVar, TypedDict
 import numpy as np
 
 from polisyos.core.canon import CanonSpec, fingerprint
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,

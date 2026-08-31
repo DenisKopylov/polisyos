@@ -59,6 +59,18 @@ what PolicyOS may claim about evidence kinds is
    branch carries `status: open_unmerged` until that branch lands.
 6. **Supersessions append.** Never rewrite a recorded standing; add a dated line beneath it.
 7. **An unreadable cell is `ambiguous`, never a guess and never a zero.**
+8. **A `blocked` standing must be re-tested against its own artifact before it is trusted, and a
+   verdict that is not written here does not exist.** Added 2026-08-31 after both halves failed in
+   one week. Of 28 rows reading `blocked`, **twelve were not**: three waited on *"the slice has no
+   plan"* while the slice had scope, four named an allocation rather than an absent capability, and
+   **three dissolved on reading the artifact they blocked on** — a compatibility shim whose own
+   docstring named its owner; an assertion whose finding code said `legacy` and which turned out to
+   be dead behind an earlier gate; and a ratified taxonomy that separated two obligation classes the
+   blocker claimed were one. The rule is cheap: open the file the row points at before believing the
+   row. The second half is the keeper's own failure — `GY-GAP8` was verified closed, announced, and
+   left `open` here for three days because the edit never followed, and two carried-red rows were
+   promised in a task brief and never created, after which three lanes re-adjudicated them
+   independently and typed them three different ways.
 
 ### Task lifecycle
 
@@ -108,6 +120,7 @@ precisely because forcing fits loses information.
 | `closed_by_successor` | the closure signal is met, but by a **named later debt row**, not by this row's own work. `closed_by` would name a debt id rather than a commit | `GY-DEFC-1`'s cold axis (met by `GY-DEFC-6`), `GY-DEFC-8`'s (by `GY-DEFC-9`), `GY-DEFC-7`'s writer axis (by `GY-DEF15`). Recording these as plain `closed` credits the wrong row and hides that the objective travelled; recording them `open` is false |
 | `closed_per_axis` | the row is two-axis and its axes differ, with each axis carrying its own status and evidence | The `GY-DEFC` family header declares the split and `GY-DEF6` is the precedent, yet `status` is a single token. Rev 2 had to widen the table to two columns instead. Any single token here re-commits the original error — collapsing two axes so a table stays tidy is how `executed` came to read as `closed` |
 | `closed_unreproducible` | the closure signal was met and receipted at a named head, and is **not re-derivable at the current base** because a prerequisite environment or witness is broken — distinct from `ambiguous`, which never had a verdict | `GY-DEFC-9`'s cold axis: `status=pass, issue_count=0` at `69f3fa39a` with receipt `d53184b8…`, while a base `--check` reports drift and `canonical-venv-editable-target-deleted` blocks the canonical re-run. Rev 2 used `closed` plus a new section-A row, which the register's own rule permits — but that rule assumes a *regression*, and an unrunnable verifier is not a regression |
+| `unallocated` | the row is **executable and unowned** — no capability is missing, no institution is unappointed, and no artifact must land first; what is absent is an assignment. Distinct from `blocked`, which means *not executable*, and from `open`, which says nothing about ownership | The 2026-08-31 blocked-set audit: **four of twenty-eight** rows carried `blocked` on wordings like *"an executing owner for the INT-R5 runtime"*, *"an independently allocated second parser"*, *"each sub-question resolves to a named owner"* and a task row with status `not_started`. All four were executable the moment a lane was given them, and three closed within days of being re-typed. The register can say *not executable* and it can say *open*; it cannot say **nobody has been given this**, so unowned work hides inside `blocked` and stops being scheduled |
 
 ## Census provenance
 

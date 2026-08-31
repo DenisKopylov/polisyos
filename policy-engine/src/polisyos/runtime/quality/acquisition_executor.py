@@ -1096,6 +1096,15 @@ def _require_constraints_within_authority_scope(
         )
 
 
+def require_live_catalog_constraints_within_authority_scope(
+    entry: AcquisitionAuthorityEntry,
+    constraints: LiveCatalogExecutionConstraints,
+) -> None:
+    """Apply the executor's canonical owner-scope rule to supplied constraints."""
+
+    _require_constraints_within_authority_scope(entry, constraints)
+
+
 def _validate_live_result_scope(
     *,
     resolved: ResolvedAcquisitionAuthority,
@@ -2359,5 +2368,6 @@ __all__ = [
     "derive_observation_provenance_rejections",
     "measure_quarantined_sample",
     "persist_acquisition_quarantine",
+    "require_live_catalog_constraints_within_authority_scope",
     "revalidate_admission_passport",
 ]

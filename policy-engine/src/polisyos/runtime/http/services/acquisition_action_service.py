@@ -246,6 +246,16 @@ class AcquisitionActionService:
             raise TypeError("acquisition service requires the exact control service")
         if type(human_decision_service) is not HumanDecisionService:
             raise TypeError("acquisition service requires the exact DS9 service")
+        production_execution_port: AcquisitionExecutionPort | None = None
+        if execution_port is None:
+            from .acquisition_surface_execution import (
+                build_production_world_bank_wdi_execution_port,
+            )
+
+            execution_port = build_production_world_bank_wdi_execution_port(
+                control_service=control_service
+            )
+            production_execution_port = execution_port
         if authority_provider is not None and any(
             not callable(getattr(authority_provider, name, None))
             for name in ("for_request", "for_job")
@@ -260,6 +270,7 @@ class AcquisitionActionService:
         self.human_decision_service = human_decision_service
         self._authority_provider = authority_provider
         self._execution_port = execution_port
+        self._production_execution_port = production_execution_port
         control_service.bind_acquisition_job_handler(self.handle_job)
 
     def list_routes(
@@ -369,6 +380,7 @@ class AcquisitionActionService:
             request=request,
         )
         provider = self._require_authority_provider()
+        self._require_production_execution_bridge(closure)
         self._require_execution_port()
         operation, invocation, intent = self._action_tuple(closure, request)
         job_id = self._job_id(closure, request)
@@ -564,6 +576,8 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError(exc.code) from exc
 
     def _projection(self, closure: VerifiedAcquisitionRouteClosure) -> AcquisitionRouteProjection:
+        execution_bridge_installed = self._production_execution_bridge_installed()
+        execution_ready = self._production_execution_bridge_ready(closure)
         return AcquisitionRouteProjection(
             tenant_id=closure.tenant_id,
             cell_id=closure.cell_id,
@@ -576,10 +590,25 @@ class AcquisitionActionService:
             cost_basis=closure.cost_basis_record.model_dump(mode="json"),
             replay_pins=self._pins(closure),
             authority_capability=(
-                "ready" if self._authority_provider is not None else "producer_missing"
+                "ready"
+                if execution_ready and self._authority_provider is not None
+                else "producer_missing"
             ),
-            execution_capability=(
-                "ready" if self._execution_port is not None else "producer_missing"
+            execution_capability=("ready" if execution_ready else "producer_missing"),
+            external_nonclosures=(
+                "fresh_positive_production_route:absent/unallocated",
+                "current_mandate_owner:producer_missing",
+                "deterministic_admission_bundle:producer_missing",
+                "connector_families_except_worldbank.wdi:surface_out_of_scope",
+                *(
+                    ("non_fixture_n13b_owner_port:bridge_missing",)
+                    if not execution_bridge_installed
+                    else (
+                        ("worldbank.wdi_route_binding:producer_missing",)
+                        if not execution_ready
+                        else ()
+                    )
+                ),
             ),
         )
 
@@ -778,6 +807,50 @@ class AcquisitionActionService:
         if self._authority_provider is None:
             raise AcquisitionActionServiceError("acquisition_authority_producer_missing")
         return self._authority_provider
+
+    def _production_execution_bridge_installed(self) -> bool:
+        from .acquisition_surface_execution import WorldBankWDIAcquisitionExecutionPort
+
+        production_port = getattr(self, "_production_execution_port", None)
+        return (
+            type(production_port) is WorldBankWDIAcquisitionExecutionPort
+            and self._execution_port is production_port
+        )
+
+    def _production_execution_bridge_ready(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+    ) -> bool:
+        from polisyos.runtime.quality.acquisition_executor import (
+            LiveAcquisitionExecutionError,
+        )
+
+        production_port = getattr(self, "_production_execution_port", None)
+        if not self._production_execution_bridge_installed():
+            return False
+        try:
+            production_port.require_route_ready(closure)
+        except (LiveAcquisitionExecutionError, AcquisitionActionServiceError):
+            return False
+        return True
+
+    def _require_production_execution_bridge(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+    ) -> None:
+        """Refuse public reservation unless the exact route binding is executable."""
+
+        from polisyos.runtime.quality.acquisition_executor import (
+            LiveAcquisitionExecutionError,
+        )
+
+        production_port = getattr(self, "_production_execution_port", None)
+        if not self._production_execution_bridge_installed():
+            raise AcquisitionActionServiceError("acquisition_execution_bridge_missing")
+        try:
+            production_port.reserve_route_binding(closure)
+        except LiveAcquisitionExecutionError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
 
     def _require_execution_port(self) -> AcquisitionExecutionPort:
         if self._execution_port is None:

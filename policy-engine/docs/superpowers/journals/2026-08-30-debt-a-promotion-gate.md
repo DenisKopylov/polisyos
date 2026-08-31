@@ -507,3 +507,34 @@ CLASS=field_pilot
 The after table will preserve both measures. The scope subset decides the
 plan correction; the full set prevents unrelated N11 fixture refusals from
 being silently laundered out of the measurement.
+
+### Round 2 red-first receipt
+
+Exact selector:
+
+```bash
+uv run python -m pytest -q --tb=short \
+  tests/unit/runtime/quality/test_generation_cycle.py::test_real_unsupported_n5_result_is_serialized_as_simulation_blocked \
+  tests/unit/runtime/quality/test_generation_cycle.py::test_n5_coupling_blocker_survives_selected_summary_projection \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_real_dependent_independence_graph_refuses_legacy_true \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9 \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_n5_coupling_blocker_refuses_coupling \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_supported_n5_coupling_path_satisfies_coupling
+```
+
+Direct exit: `1`; decisive output: `6 failed`. Each failed on its intended
+missing property:
+
+- the real unsupported N5 result lacked `n5_coupling_blocked`;
+- `_summary_with_value_observation` rejected the new `simulation` bridge input;
+- the independence and measurement tests found no
+  `N9PromotionEvidenceBridgeRepository`;
+- N9 returned `scope_insufficient` instead of FAILED for the blocker and
+  instead of SATISFIED for the adjacent supported path.
+
+The history fixture separately pins authentic Round-1 v5/v3/v2 bytes: 48,568
+UTF-8 bytes, SHA-256
+`dba4a1ab7f374ea04044b171b0e163c6b0b1390089197fc64f96c2f0e86983c9`,
+compressed only for embedding in the owned unit test. Its red condition is
+exact structural round-trip followed by a non-empty live-owner validation
+issue set; before owner outcomes change, that final assertion is false.

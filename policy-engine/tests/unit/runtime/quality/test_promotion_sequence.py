@@ -1819,14 +1819,17 @@ def test_production_n9_port_persists_and_consumes_dependent_independence_evidenc
         item.artifact_type == "N9EffectiveIndependenceBridge"
         for item in receipt.owner_projection.producer_root_refs
     )
-    assert validate_canonical_promotion_receipt(
-        receipt,
-        candidate_summary=summary,
-        design_problem=problem,
-        open_world_resolver=port.open_world_resolver,
-        epoch_validity_resolver=port.epoch_validity_resolver,
-        promotion_evidence_resolver=port.promotion_evidence_resolver,
-    ) == ()
+    assert (
+        validate_canonical_promotion_receipt(
+            receipt,
+            candidate_summary=summary,
+            design_problem=problem,
+            open_world_resolver=port.open_world_resolver,
+            epoch_validity_resolver=port.epoch_validity_resolver,
+            promotion_evidence_resolver=port.promotion_evidence_resolver,
+        )
+        == ()
+    )
 
 
 def test_production_n9_port_persists_and_consumes_measurement_root_evidence(
@@ -1875,14 +1878,17 @@ def test_production_n9_port_persists_and_consumes_measurement_root_evidence(
         item.artifact_type == "N9MeasurementRootBridge"
         for item in receipt.owner_projection.producer_root_refs
     )
-    assert validate_canonical_promotion_receipt(
-        receipt,
-        candidate_summary=summary,
-        design_problem=problem,
-        open_world_resolver=port.open_world_resolver,
-        epoch_validity_resolver=port.epoch_validity_resolver,
-        promotion_evidence_resolver=port.promotion_evidence_resolver,
-    ) == ()
+    assert (
+        validate_canonical_promotion_receipt(
+            receipt,
+            candidate_summary=summary,
+            design_problem=problem,
+            open_world_resolver=port.open_world_resolver,
+            epoch_validity_resolver=port.epoch_validity_resolver,
+            promotion_evidence_resolver=port.promotion_evidence_resolver,
+        )
+        == ()
+    )
 
 
 def test_foreign_candidate_and_wrong_verifier_provenance_fail_closed(

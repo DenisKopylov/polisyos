@@ -1173,3 +1173,185 @@ Ruff over the owned source and test files exits `0` with `All checks passed!`.
   integration witness moved from `evidence_not_established` to a decisive
   satisfied outcome and the current receipt replays cleanly. Missing,
   malformed, or foreign evidence remains an honest refusal.
+
+## Round 3 final freeze and consolidated dossier
+
+The source freeze is commit `a11a91a7e9972933063354e84cf1e665ae9abba8`.
+Relative to the Round-3 entry `b53da2192`, only
+`promotion_sequence.py`, its owned unit test, and the three lane documents
+change. `generation_cycle.py` has zero Round-3 lines: the accepted Round-2
+additive emit/carry/consume path remains untouched. `evaluation_safety.py`,
+`runtime/http/dependencies.py`, and all three read-only producer modules also
+have zero Round-3 lines.
+
+### Targeted source verification
+
+The post-implementation blast selector was:
+
+```bash
+uv run pytest -q --tb=short \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_production_n9_port_persists_and_consumes_dependent_independence_evidence \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_production_n9_port_persists_and_consumes_measurement_root_evidence \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_real_dependent_independence_graph_refuses_legacy_true \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_empty_independence_graph_cannot_establish_promotion_evidence \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_foreign_candidate_and_wrong_verifier_provenance_fail_closed \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_real_measurement_root_resolves_and_binds_into_n9 \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_effective_independence_missing_is_explicit_decisive_nonreceipt \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_invented_measurement_marker_does_not_supply_authority \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_n9_port_rebinds_every_adaptive_receipt_to_one_final_ledger_head \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_promotion_context_cannot_supply_open_world_gate \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_promotion_context_cannot_supply_legacy_gate_predicate \
+  tests/unit/runtime/quality/test_promotion_sequence.py::test_round1_v5_v2_receipt_round_trips_but_cannot_regain_current_authority \
+  tests/unit/runtime/quality/test_generation_cycle.py::test_every_promotion_input_is_preceded_by_produce_persist_and_fresh_resolve
+```
+
+It exits `0`: fourteen cases pass, including the two parametrizations of the
+legacy-predicate test. This one selector covers both real producer outcomes,
+missing/malformed/foreign evidence, caller-predicate rejection, adaptive
+receipt replay, the generation-cycle ordering witness, and authentic v5
+history readback/current-authority rejection. The history case preserves the
+48,568-byte v5 receipt and its SHA-256
+`dba4a1ab7f374ea04044b171b0e163c6b0b1390089197fc64f96c2f0e86983c9`,
+then rejects current authority with exactly
+`decisive_obligation_omitted` and
+`unexpected_decisive_obligation_instance`. Round 3 therefore retains the
+v5/v3/v2 epoch; only the future EFFECT capability requires v6/v3 and possibly
+evidence-bridge v2.
+
+The complete source denominator is 2,611 Python files. The two required caller
+searches now each exit `0` with exactly one non-test call:
+
+```text
+src/polisyos/runtime/quality/promotion_sequence.py:917: repository.persist_effective_independence(
+src/polisyos/runtime/quality/promotion_sequence.py:939: repository.persist_measurement_root(
+```
+
+Independence closes the former `bridge_missing +
+implemented_but_not_orchestrated` state while retaining the distinct
+feature-flagged report route
+`policy_design_case.graded_independence_weights`. Measurement closes
+`bridge_missing` alone because `MeasurementRootProducer` already runs in the
+workspace loop. Neither absence kind is substituted for the other.
+
+Ruff over the owned source and test files exits `0` with
+`All checks passed!`. The base-to-HEAD exclusion predicate exits `0` for
+EvalSafety, generation-cycle, the shared HTTP container, and all three
+read-only producer modules.
+
+The final AST-byte predicate exits `0`:
+
+```text
+base_bytes=948
+current_bytes=948
+base_sha256=2aa090d9694d8599d07f07df46476894a4a39287c324c08beeb8a90d7fd44a38
+current_sha256=2aa090d9694d8599d07f07df46476894a4a39287c324c08beeb8a90d7fd44a38
+identical=True
+```
+
+### Governed and carried-red verification
+
+| Evidence | Exact command | Exit | Decisive output |
+| --- | --- | ---: | --- |
+| promotion contract | `JAX_PLATFORMS=cpu uv run --extra analytics --extra solvers --extra test python tools/quality/validation/check_layer3_gy_promotion_contract.py --check --output-format json` | 1 | uncaught `ValueError: promotion_comparison_admission_manifest_drift`; artifact not regenerated and check not silenced |
+| architecture guardrails | `uv run polisyos-tools architecture guardrails check` | 1 | both API generated-artifact probes clean; only the carried trust-claim posture receipt fails because its ratified identity basis differs from the admitted closed receipt |
+| debt ledger | `PYTHONPATH=. uv run python tools/quality/validation/check_debt_ledger.py --check` | 1 | exactly 18 blocking `closure_signal_identity_unresolvable` findings: nine `ds10-*`, eight `DS11-*`, and `decision-validity-fixed-temp-concurrency`; no growth |
+| documentation lifecycle | `PYTHONPATH=. uv run python tools/quality/validation/check_docs_lifecycle.py` | pending final replay | recorded append-only immediately below |
+
+The two known reds remain measured failures. No governed admission manifest or
+trust-claim posture receipt was regenerated, rewritten, or waived.
+
+### Final five-row dossier
+
+#### `gy-promotion-obligations-scope-insufficient`
+
+- Verdict: `blocked`.
+- `blocked_by:` the content-bound RACE `O_effect` producer/evaluator and its
+  governed `n9_obligation_scope.v3` / `n9_promotion.v6` epoch; the field-pilot
+  signal additionally requires the already-named promotion-authority
+  EvalSafety producer.
+- Deciding evidence: accepted four-cell witness exits `0` but both production
+  receipts remain `promoted=False`; Phase-1 history exits `1,1,0,0` and proves
+  EFFECT is a distinct obligation; the final EFFECT integrity predicate exits
+  `0`. The MEASUREMENT mechanism is built, but the row's exact real production
+  `consumer_promotable=True` closure signal is unmet.
+- Append-only prose: use the exact supersession under the Phase-1 block above;
+  it records the built measurement mechanism and the unlanded governed
+  `O_effect` capability without claiming partial closure.
+
+#### `GY-O0-NC-01`
+
+- Verdict: `blocked`.
+- `blocked_by:` the same RACE `O_effect` producer/evaluator and v3/v6 epoch;
+  the field-pilot disagreement witness also requires the candidate/problem-
+  bound promotion-authority EvalSafety producer.
+- Deciding evidence: the accepted four-cell test exits `0` with
+  `promoted=False` in both production classes, Phase-1 history proves separate
+  `O_effect` and `O_id`, and the safety core plus EFFECT bytes remain
+  unchanged.
+- Append-only prose: use the exact Phase-1 supersession above. It names both
+  artifacts that must land and preserves GY-O0's closed structural core.
+
+#### `gy-n9-unmet-check-absence-kind-conflated`
+
+- Verdict: `blocked`.
+- `blocked_by:` the RACE `O_effect` producer, persisted artifact,
+  content-bound evaluator/consumer, and governed v3/v6 epoch.
+- Deciding evidence: the historical comparison exits `1,1,0,0` and settles
+  the semantics, while the byte predicate exits `0` and proves the current
+  function still has no design evidence. The honest state is now
+  `producer_missing + artifact_missing + bridge_missing +
+  consumer_evaluator_missing`, not an unowned semantic class.
+- Append-only prose: use the exact Phase-1 supersession above; it closes the
+  semantic ambiguity but blocks execution on the named chain that must land.
+
+#### `gy-n9-independence-evidence-writer-unorchestrated`
+
+- Verdict: `closed`.
+- Deciding command: the red-first two-writer selector moves independence from
+  `scope_insufficient` to `failed`, then the final fourteen-case selector and
+  `git grep -n '\.persist_effective_independence(' -- src/` both exit `0`.
+- Decisive output: one production caller; a real dependent graph resolves to
+  `dependent_evidence_collapsed`; the complete receipt replays with zero
+  issues. Missing evidence remains `evidence_not_established`.
+- Append-only prose: use the exact Phase-2 supersession above, including the
+  named graded-independence feature flag and fixed verifier provenance.
+
+#### `gy-n9-measurement-evidence-writer-unorchestrated`
+
+- Verdict: `closed`.
+- Deciding command: the red-first two-writer selector moves MEASUREMENT from
+  `scope_insufficient` to `satisfied`, then the final fourteen-case selector
+  and `git grep -n '\.persist_measurement_root(' -- src/` both exit `0`.
+- Decisive output: one production caller; the real producer envelope and its
+  authority CAS chain bind to the candidate/problem, and the complete receipt
+  replays with zero issues. Missing or foreign evidence remains fail-closed.
+- Append-only prose: use the exact Phase-2 supersession above; it records the
+  already-running producer and the newly orchestrated N9 writer separately.
+
+**Arithmetic: `5 = 2 closed + 3 blocked`; zero rows are open.** The two closed
+rows each have one source caller in the 2,611-file Python denominator and a
+red-first integration witness reaching a decisive producer-derived outcome.
+The three blocked rows all name the same future `O_effect` capability/epoch
+that must land; the two field-pilot signals additionally retain the separately
+named EvalSafety producer requirement.
+
+### Post-dossier documentation replay
+
+`PYTHONPATH=. uv run python
+tools/quality/validation/check_docs_lifecycle.py` exits `1` with exactly six
+findings: the two inherited active-ledger front-matter findings and the four
+inherited removed-stub-reference findings. The Round-3 documents add no
+seventh finding.
+
+### Mechanical-format supersession
+
+The final formatter pass changed layout only in the two owned Python files.
+The production caller coordinates above are therefore superseded by line 915
+for `persist_effective_independence` and line 935 for
+`persist_measurement_root`; the 2,611-file denominator and one-call count for
+each are unchanged. After that formatting, the exact fourteen-case selector
+was rerun and exited `0` with fourteen passing dots. Ruff check and Ruff format
+check both exit `0` (`All checks passed!`; `2 files already formatted`), and
+`git diff --check` exits `0`. The final EFFECT predicate still exits `0` with
+948 identical bytes and SHA-256
+`2aa090d9694d8599d07f07df46476894a4a39287c324c08beeb8a90d7fd44a38`.

@@ -910,9 +910,7 @@ def _bind_production_promotion_evidence(
     raw_independence = context.get("effective_independence_writer_input")
     if raw_independence is not None:
         try:
-            independence_input = _EffectiveIndependenceWriterInput.model_validate(
-                raw_independence
-            )
+            independence_input = _EffectiveIndependenceWriterInput.model_validate(raw_independence)
             producer_root_refs.append(
                 repository.persist_effective_independence(
                     promotion_input=promotion_input,
@@ -923,9 +921,7 @@ def _bind_production_promotion_evidence(
                         independence_input.producer_execution_started_at
                     ),
                     feature_flags=independence_input.feature_flags,
-                    graded_independence_config=(
-                        independence_input.graded_independence_config
-                    ),
+                    graded_independence_config=(independence_input.graded_independence_config),
                     rare_domain_context=independence_input.rare_domain_context,
                 )
             )
@@ -945,9 +941,7 @@ def _bind_production_promotion_evidence(
             pass
     if tuple(producer_root_refs) == promotion_input.producer_root_refs:
         return promotion_input
-    return promotion_input.model_copy(
-        update={"producer_root_refs": tuple(producer_root_refs)}
-    )
+    return promotion_input.model_copy(update={"producer_root_refs": tuple(producer_root_refs)})
 
 
 class _LegacyCanonicalPromotionOwnerProjectionV1(_StrictModel):

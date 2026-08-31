@@ -66,6 +66,31 @@ DS18_TIME_SEMANTICS_LANDING_RULE = (
     "the slice landing a post-freeze production render/export root owns its "
     "fresh file/root receipt, independent classification, and behavioral proof"
 )
+DS18_TIME_SEMANTICS_LINEAGE_SCHEMA_ID = (
+    "polisyos.atlas.ds18-time-semantics-lineage.v1"
+)
+DS18_TIME_SEMANTICS_GIT_REGISTER_REF = (
+    "policy-engine/architecture/atlas_surfaces/"
+    "frontend-disposition-register.json"
+)
+DS18_TIME_SEMANTICS_OBLIGATION_CLASSES = frozenset(
+    {"decision_bearing", "inherits_admitted_dom"}
+)
+DS18_TIME_SEMANTICS_LINEAGE_FREEZE_COMMIT = (
+    "3011c9584a0327661c8f5a9b695a1769ddb64385"
+)
+DS18_TIME_SEMANTICS_LINEAGE_LANDINGS = (
+    (
+        "DS15",
+        "8c20b6f74f224e9ee44eb5ffa04a33399b816142",
+        "8c20b6f74f224e9ee44eb5ffa04a33399b816142",
+    ),
+    (
+        "DS17",
+        "36dff74a610e03ae98b1cac6f1bb237dd4fda60a",
+        "7161da3df6dc5f3a2578797539bc6714ea59ee2e",
+    ),
+)
 DS18_TIME_SEMANTICS_BEHAVIOR_TESTS = {
     "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx": [
         "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
@@ -17795,10 +17820,14 @@ def _refresh_ds18_time_semantics_coverage(
         frontend_freeze_commit, str
     ):
         raise ValueError("DS18 frontend freeze commit is invalid")
-    return _build_ds18_time_semantics_coverage(
+    refreshed = _build_ds18_time_semantics_coverage(
         _ds18_time_semantics_scan(),
         frontend_freeze_commit=frontend_freeze_commit,
     )
+    historical_lineage = existing.get("historical_lineage")
+    if historical_lineage is not None:
+        refreshed["historical_lineage"] = copy.deepcopy(historical_lineage)
+    return refreshed
 
 
 def _ds18_evidence_errors(
@@ -18017,12 +18046,606 @@ def _validate_ds18_time_semantics_coverage_core(
         errors.append("ds18_time_semantics_empty_obligation_denominator")
 
 
+def _ds18_coverage_root_index(
+    coverage: Mapping[str, Any],
+) -> dict[tuple[str, str, int], Mapping[str, Any]]:
+    """Index stored roots by the line-move-independent DS18 identity."""
+    files = coverage.get("files")
+    if not isinstance(files, list):
+        raise ValueError("DS18 lineage coverage files are invalid")
+    roots: dict[tuple[str, str, int], Mapping[str, Any]] = {}
+    for file_row in files:
+        if not isinstance(file_row, Mapping):
+            raise ValueError("DS18 lineage file receipt is invalid")
+        path_ref = file_row.get("path")
+        stored_roots = file_row.get("roots")
+        if not isinstance(path_ref, str) or not isinstance(stored_roots, list):
+            raise ValueError("DS18 lineage file identity is invalid")
+        occurrences: Counter[str] = Counter()
+        for root in stored_roots:
+            if not isinstance(root, Mapping):
+                raise ValueError("DS18 lineage root receipt is invalid")
+            component = root.get("component_identity")
+            if not isinstance(component, str) or not component:
+                raise ValueError("DS18 lineage root component is invalid")
+            occurrence = occurrences[component]
+            occurrences[component] += 1
+            selector = (path_ref, component, occurrence)
+            if selector in roots:
+                raise ValueError(f"DS18 lineage selector is ambiguous: {selector}")
+            roots[selector] = root
+    return roots
+
+
+def _ds18_obligated_roots(
+    roots: Mapping[tuple[str, str, int], Mapping[str, Any]],
+) -> dict[tuple[str, str, int], Mapping[str, Any]]:
+    """Return the complete direct-plus-inherited obligation mapping."""
+    return {
+        selector: root
+        for selector, root in roots.items()
+        if root.get("classification") in DS18_TIME_SEMANTICS_OBLIGATION_CLASSES
+    }
+
+
+def _ds18_selector_label(selector: tuple[str, str, int]) -> str:
+    """Render one stable selector for fail-closed diagnostics."""
+    return f"{selector[0]}:{selector[1]}:{selector[2]}"
+
+
+def _ds18_obligation_manifest_sha256(
+    roots: Mapping[tuple[str, str, int], Mapping[str, Any]],
+) -> str:
+    """Digest the exact stable-selector-to-root obligation mapping."""
+    manifest = "\n".join(
+        "\t".join(
+            (
+                selector[0],
+                selector[1],
+                str(selector[2]),
+                str(root.get("root_id", "")),
+                str(root.get("root_source_sha256", "")),
+                str(root.get("classification", "")),
+            )
+        )
+        for selector, root in sorted(roots.items())
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(manifest).hexdigest()
+
+
+def _ds18_lineage_entry_selector(
+    entry: Mapping[str, Any],
+) -> tuple[str, str, int]:
+    """Read and type-check one declared landing selector."""
+    path_ref = entry.get("path")
+    component = entry.get("component_identity")
+    occurrence = entry.get("occurrence")
+    if (
+        not isinstance(path_ref, str)
+        or not path_ref
+        or not isinstance(component, str)
+        or not component
+        or not isinstance(occurrence, int)
+        or isinstance(occurrence, bool)
+        or occurrence < 0
+    ):
+        raise ValueError("DS18 lineage entry selector is invalid")
+    return path_ref, component, occurrence
+
+
+def _ds18_delta_manifest_sha256(entries: Sequence[Mapping[str, Any]]) -> str:
+    """Digest one exact landing delta, including its change classification."""
+    indexed = sorted(
+        ((_ds18_lineage_entry_selector(entry), entry) for entry in entries),
+        key=lambda item: item[0],
+    )
+    manifest = "\n".join(
+        "\t".join(
+            (
+                selector[0],
+                selector[1],
+                str(selector[2]),
+                str(entry.get("root_id", "")),
+                str(entry.get("root_source_sha256", "")),
+                str(entry.get("classification", "")),
+                str(entry.get("change_kind", "")),
+            )
+        )
+        for selector, entry in indexed
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(manifest).hexdigest()
+
+
+def _ds18_git_blob(commit: str, path_ref: str) -> bytes:
+    """Resolve one content-addressed repository blob without a working-tree read."""
+    completed = subprocess.run(  # noqa: S603 - fixed Git command, typed ref
+        ["git", "show", f"{commit}:{path_ref}"],  # noqa: S607 - fixed Git tool
+        cwd=REPO_ROOT.parent,
+        check=False,
+        capture_output=True,
+    )
+    if completed.returncode != 0:
+        raise ValueError(f"Git coordinate is not resolvable: {commit}:{path_ref}")
+    return completed.stdout
+
+
+def _ds18_resolve_lineage_checkpoint(
+    checkpoint: object,
+    *,
+    label: str,
+    errors: list[str],
+    git_blob_loader: Callable[[str, str], bytes],
+) -> tuple[
+    Mapping[str, Any],
+    dict[tuple[str, str, int], Mapping[str, Any]],
+    dict[tuple[str, str, int], Mapping[str, Any]],
+] | None:
+    """Resolve and content-bind one historical DS18 checkpoint."""
+    if not isinstance(checkpoint, Mapping):
+        errors.append(f"ds18_time_semantics_lineage_checkpoint_invalid:{label}")
+        return None
+    commit = checkpoint.get("checkpoint_commit")
+    path_ref = checkpoint.get("artifact_path")
+    if (
+        not isinstance(commit, str)
+        or re.fullmatch(r"[a-f0-9]{40}", commit) is None
+        or path_ref != DS18_TIME_SEMANTICS_GIT_REGISTER_REF
+    ):
+        errors.append(f"ds18_time_semantics_lineage_coordinate_invalid:{label}")
+        return None
+    try:
+        artifact = git_blob_loader(commit, path_ref)
+    except (OSError, subprocess.SubprocessError, ValueError):
+        errors.append(
+            "ds18_time_semantics_lineage_coordinate_unresolvable:"
+            f"{label}:{commit}:{path_ref}"
+        )
+        return None
+    artifact_sha256 = "sha256:" + hashlib.sha256(artifact).hexdigest()
+    if checkpoint.get("artifact_sha256") != artifact_sha256:
+        errors.append(
+            f"ds18_time_semantics_lineage_artifact_drift:{label}:"
+            f"{artifact_sha256}"
+        )
+        return None
+    try:
+        historical = json.loads(artifact)
+        coverage = historical["ds18_time_semantics_coverage"]
+        if not isinstance(coverage, Mapping):
+            raise ValueError("historical coverage is not an object")
+        roots = _ds18_coverage_root_index(coverage)
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+        errors.append(
+            f"ds18_time_semantics_lineage_artifact_invalid:{label}:{exc}"
+        )
+        return None
+    coverage_sha256 = "sha256:" + _canonical_sha256(coverage)
+    if checkpoint.get("coverage_sha256") != coverage_sha256:
+        errors.append(
+            f"ds18_time_semantics_lineage_coverage_drift:{label}:"
+            f"{coverage_sha256}"
+        )
+    obligated = _ds18_obligated_roots(roots)
+    mapping_sha256 = _ds18_obligation_manifest_sha256(obligated)
+    if checkpoint.get("obligation_manifest_sha256") != mapping_sha256:
+        errors.append(
+            f"ds18_time_semantics_lineage_mapping_drift:{label}:"
+            f"{mapping_sha256}"
+        )
+    count_field = (
+        "obligation_count_summary"
+        if label == "freeze"
+        else "checkpoint_obligation_count_summary"
+    )
+    if checkpoint.get(count_field) != len(obligated):
+        errors.append(
+            f"ds18_time_semantics_lineage_count_drift:{label}:"
+            f"{len(obligated)}"
+        )
+    return coverage, roots, obligated
+
+
+def _ds18_obligated_roots_at_git_coordinate(
+    coordinate: str,
+    path_ref: str,
+    *,
+    git_blob_loader: Callable[[str, str], bytes],
+) -> dict[tuple[str, str, int], Mapping[str, Any]]:
+    """Resolve the obligation mapping at an admission commit or its parent."""
+    artifact = git_blob_loader(coordinate, path_ref)
+    historical = json.loads(artifact)
+    coverage = historical["ds18_time_semantics_coverage"]
+    if not isinstance(coverage, Mapping):
+        raise ValueError("historical coverage is not an object")
+    return _ds18_obligated_roots(_ds18_coverage_root_index(coverage))
+
+
+def _ds18_lineage_state_at_git_coordinate(
+    coordinate: str,
+) -> tuple[
+    bytes,
+    Mapping[str, Any],
+    dict[tuple[str, str, int], Mapping[str, Any]],
+    dict[tuple[str, str, int], Mapping[str, Any]],
+]:
+    """Load one pinned register blob and derive its complete obligation state."""
+    artifact = _ds18_git_blob(
+        coordinate,
+        DS18_TIME_SEMANTICS_GIT_REGISTER_REF,
+    )
+    historical = json.loads(artifact)
+    coverage = historical["ds18_time_semantics_coverage"]
+    if not isinstance(coverage, Mapping):
+        raise ValueError("historical coverage is not an object")
+    roots = _ds18_coverage_root_index(coverage)
+    return artifact, coverage, roots, _ds18_obligated_roots(roots)
+
+
+def _build_ds18_time_semantics_lineage(
+    current_coverage: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Build the pinned freeze-plus-landings composition from Git blobs."""
+    artifact, freeze_coverage, previous_roots, previous_obligated = (
+        _ds18_lineage_state_at_git_coordinate(
+            DS18_TIME_SEMANTICS_LINEAGE_FREEZE_COMMIT
+        )
+    )
+    freeze = {
+        "checkpoint_commit": DS18_TIME_SEMANTICS_LINEAGE_FREEZE_COMMIT,
+        "artifact_path": DS18_TIME_SEMANTICS_GIT_REGISTER_REF,
+        "artifact_sha256": "sha256:" + hashlib.sha256(artifact).hexdigest(),
+        "coverage_sha256": "sha256:" + _canonical_sha256(freeze_coverage),
+        "obligation_manifest_sha256": _ds18_obligation_manifest_sha256(
+            previous_obligated
+        ),
+        "obligation_count_summary": len(previous_obligated),
+    }
+    landings: list[dict[str, Any]] = []
+    for slice_id, admission_commit, checkpoint_commit in (
+        DS18_TIME_SEMANTICS_LINEAGE_LANDINGS
+    ):
+        artifact, checkpoint_coverage, checkpoint_roots, checkpoint_obligated = (
+            _ds18_lineage_state_at_git_coordinate(checkpoint_commit)
+        )
+        previous_paths = {selector[0] for selector in previous_roots}
+        entrants: list[dict[str, Any]] = []
+        for selector in sorted(set(checkpoint_obligated) - set(previous_obligated)):
+            root = checkpoint_obligated[selector]
+            change_kind = (
+                "reclassified"
+                if selector in previous_roots
+                else (
+                    "source_added_existing_file"
+                    if selector[0] in previous_paths
+                    else "source_added_new_file"
+                )
+            )
+            entrants.append(
+                {
+                    "path": selector[0],
+                    "component_identity": selector[1],
+                    "occurrence": selector[2],
+                    "root_id": root["root_id"],
+                    "root_source_sha256": root["root_source_sha256"],
+                    "classification": root["classification"],
+                    "change_kind": change_kind,
+                }
+            )
+        landings.append(
+            {
+                "slice_id": slice_id,
+                "admission_commit": admission_commit,
+                "checkpoint_commit": checkpoint_commit,
+                "artifact_path": DS18_TIME_SEMANTICS_GIT_REGISTER_REF,
+                "artifact_sha256": (
+                    "sha256:" + hashlib.sha256(artifact).hexdigest()
+                ),
+                "coverage_sha256": (
+                    "sha256:" + _canonical_sha256(checkpoint_coverage)
+                ),
+                "obligation_manifest_sha256": (
+                    _ds18_obligation_manifest_sha256(checkpoint_obligated)
+                ),
+                "checkpoint_obligation_count_summary": len(
+                    checkpoint_obligated
+                ),
+                "delta_manifest_sha256": _ds18_delta_manifest_sha256(entrants),
+                "entered_root_count": len(entrants),
+                "entrants": entrants,
+            }
+        )
+        previous_roots = checkpoint_roots
+        previous_obligated = checkpoint_obligated
+    current_obligated = _ds18_obligated_roots(
+        _ds18_coverage_root_index(current_coverage)
+    )
+    if current_obligated != previous_obligated:
+        raise ValueError(
+            "DS18 current obligations require a new exact landing checkpoint"
+        )
+    return {
+        "schema_id": DS18_TIME_SEMANTICS_LINEAGE_SCHEMA_ID,
+        "predicate_provenance": "recomputed",
+        "selector_identity": (
+            "path + component_identity + component-local occurrence, "
+            "content-bound by root_id and root_source_sha256"
+        ),
+        "composition_rule": (
+            "current obligations equal the immutable freeze mapping "
+            "disjoint-unioned with each exact landing delta; counts are derived "
+            "summaries"
+        ),
+        "freeze": freeze,
+        "landings": landings,
+    }
+
+
+def _validate_ds18_time_semantics_lineage(
+    coverage: object,
+    errors: list[str],
+    *,
+    git_blob_loader: Callable[[str, str], bytes] = _ds18_git_blob,
+) -> dict[str, Any] | None:
+    """Prove current obligations are the freeze plus exact disjoint landings."""
+    if not isinstance(coverage, Mapping):
+        errors.append("ds18_time_semantics_lineage_coverage_missing")
+        return None
+    lineage = coverage.get("historical_lineage")
+    if not isinstance(lineage, Mapping):
+        errors.append("ds18_time_semantics_historical_lineage_missing")
+        return None
+    if lineage.get("schema_id") != DS18_TIME_SEMANTICS_LINEAGE_SCHEMA_ID:
+        errors.append("ds18_time_semantics_lineage_schema_drift")
+    if lineage.get("predicate_provenance") != "recomputed":
+        errors.append("ds18_time_semantics_lineage_provenance_drift")
+
+    resolved_freeze = _ds18_resolve_lineage_checkpoint(
+        lineage.get("freeze"),
+        label="freeze",
+        errors=errors,
+        git_blob_loader=git_blob_loader,
+    )
+    if resolved_freeze is None:
+        return None
+    freeze_checkpoint = lineage["freeze"]
+    if not isinstance(freeze_checkpoint, Mapping):  # pragma: no cover - resolved
+        return None
+    if coverage.get("frontend_freeze_commit") != freeze_checkpoint.get(
+        "checkpoint_commit"
+    ):
+        errors.append("ds18_time_semantics_lineage_freeze_coordinate_drift")
+    _freeze_coverage, previous_roots, previous_obligated = resolved_freeze
+    freeze_obligated = dict(previous_obligated)
+    composed_obligated = dict(previous_obligated)
+
+    landings = lineage.get("landings")
+    if not isinstance(landings, list) or not landings:
+        errors.append("ds18_time_semantics_lineage_landings_invalid")
+        return None
+    declared_composition = tuple(
+        (
+            landing.get("slice_id"),
+            landing.get("admission_commit"),
+            landing.get("checkpoint_commit"),
+        )
+        if isinstance(landing, Mapping)
+        else (None, None, None)
+        for landing in landings
+    )
+    if declared_composition != DS18_TIME_SEMANTICS_LINEAGE_LANDINGS:
+        errors.append("ds18_time_semantics_lineage_composition_identity_drift")
+    landing_counts: dict[str, int] = {}
+    seen_slices: set[str] = set()
+    for index, landing in enumerate(landings):
+        if not isinstance(landing, Mapping):
+            errors.append(
+                f"ds18_time_semantics_lineage_landing_invalid:{index}"
+            )
+            continue
+        slice_id = landing.get("slice_id")
+        if not isinstance(slice_id, str) or not slice_id or slice_id in seen_slices:
+            errors.append(
+                f"ds18_time_semantics_lineage_slice_identity_invalid:{index}"
+            )
+            continue
+        seen_slices.add(slice_id)
+        resolved = _ds18_resolve_lineage_checkpoint(
+            landing,
+            label=slice_id,
+            errors=errors,
+            git_blob_loader=git_blob_loader,
+        )
+        if resolved is None:
+            continue
+        _checkpoint_coverage, checkpoint_roots, checkpoint_obligated = resolved
+        lost = set(previous_obligated) - set(checkpoint_obligated)
+        for selector in sorted(lost):
+            errors.append(
+                "ds18_time_semantics_lineage_prior_obligation_missing:"
+                f"{slice_id}:{_ds18_selector_label(selector)}"
+            )
+        for selector in sorted(set(previous_obligated) & set(checkpoint_obligated)):
+            if previous_obligated[selector] != checkpoint_obligated[selector]:
+                errors.append(
+                    "ds18_time_semantics_lineage_prior_obligation_changed:"
+                    f"{slice_id}:{_ds18_selector_label(selector)}"
+                )
+
+        delta_selectors = set(checkpoint_obligated) - set(previous_obligated)
+        entries = landing.get("entrants")
+        if not isinstance(entries, list):
+            errors.append(
+                f"ds18_time_semantics_lineage_entries_invalid:{slice_id}"
+            )
+            continue
+        declared: dict[tuple[str, str, int], Mapping[str, Any]] = {}
+        for entry in entries:
+            if not isinstance(entry, Mapping):
+                errors.append(
+                    f"ds18_time_semantics_lineage_entry_invalid:{slice_id}"
+                )
+                continue
+            try:
+                selector = _ds18_lineage_entry_selector(entry)
+            except ValueError:
+                errors.append(
+                    f"ds18_time_semantics_lineage_entry_invalid:{slice_id}"
+                )
+                continue
+            if selector in declared:
+                errors.append(
+                    "ds18_time_semantics_lineage_entry_duplicate:"
+                    f"{slice_id}:{_ds18_selector_label(selector)}"
+                )
+            declared[selector] = entry
+        for selector in sorted(delta_selectors - set(declared)):
+            errors.append(
+                "ds18_time_semantics_landing_delta_unrecorded:"
+                f"{slice_id}:{_ds18_selector_label(selector)}"
+            )
+        for selector in sorted(set(declared) - delta_selectors):
+            errors.append(
+                "ds18_time_semantics_landing_delta_not_in_checkpoint:"
+                f"{slice_id}:{_ds18_selector_label(selector)}"
+            )
+        previous_paths = {selector[0] for selector in previous_roots}
+        for selector in sorted(delta_selectors & set(declared)):
+            root = checkpoint_obligated[selector]
+            entry = declared[selector]
+            expected_change = (
+                "reclassified"
+                if selector in previous_roots
+                else (
+                    "source_added_existing_file"
+                    if selector[0] in previous_paths
+                    else "source_added_new_file"
+                )
+            )
+            expected_fields = {
+                "root_id": root.get("root_id"),
+                "root_source_sha256": root.get("root_source_sha256"),
+                "classification": root.get("classification"),
+                "change_kind": expected_change,
+            }
+            for field, expected in expected_fields.items():
+                if entry.get(field) != expected:
+                    errors.append(
+                        "ds18_time_semantics_landing_entry_drift:"
+                        f"{slice_id}:{_ds18_selector_label(selector)}:{field}"
+                    )
+        admission_commit = landing.get("admission_commit")
+        artifact_path = landing.get("artifact_path")
+        if (
+            not isinstance(admission_commit, str)
+            or re.fullmatch(r"[a-f0-9]{40}", admission_commit) is None
+            or artifact_path != DS18_TIME_SEMANTICS_GIT_REGISTER_REF
+        ):
+            errors.append(
+                f"ds18_time_semantics_landing_admission_invalid:{slice_id}"
+            )
+        else:
+            try:
+                before_admission = _ds18_obligated_roots_at_git_coordinate(
+                    admission_commit + "^",
+                    artifact_path,
+                    git_blob_loader=git_blob_loader,
+                )
+                at_admission = _ds18_obligated_roots_at_git_coordinate(
+                    admission_commit,
+                    artifact_path,
+                    git_blob_loader=git_blob_loader,
+                )
+            except (
+                OSError,
+                subprocess.SubprocessError,
+                json.JSONDecodeError,
+                KeyError,
+                TypeError,
+                ValueError,
+            ):
+                errors.append(
+                    "ds18_time_semantics_landing_admission_unresolvable:"
+                    f"{slice_id}:{admission_commit}"
+                )
+            else:
+                admission_delta = set(at_admission) - set(before_admission)
+                admission_losses = set(before_admission) - set(at_admission)
+                if admission_losses or admission_delta != set(declared):
+                    errors.append(
+                        "ds18_time_semantics_landing_admission_delta_drift:"
+                        f"{slice_id}"
+                    )
+        try:
+            delta_sha256 = _ds18_delta_manifest_sha256(entries)
+        except ValueError:
+            delta_sha256 = "invalid"
+        if landing.get("delta_manifest_sha256") != delta_sha256:
+            errors.append(
+                f"ds18_time_semantics_landing_delta_manifest_drift:{slice_id}"
+            )
+        if landing.get("entered_root_count") != len(delta_selectors):
+            errors.append(
+                f"ds18_time_semantics_landing_count_drift:{slice_id}:"
+                f"{len(delta_selectors)}"
+            )
+        overlap = set(composed_obligated) & delta_selectors
+        if overlap:  # pragma: no cover - follows from set difference, kept explicit
+            errors.append(
+                f"ds18_time_semantics_lineage_delta_overlap:{slice_id}"
+            )
+        composed_obligated.update(
+            {selector: checkpoint_obligated[selector] for selector in delta_selectors}
+        )
+        landing_counts[slice_id] = len(delta_selectors)
+        previous_roots = checkpoint_roots
+        previous_obligated = checkpoint_obligated
+
+    try:
+        current_roots = _ds18_coverage_root_index(coverage)
+    except ValueError as exc:
+        errors.append(f"ds18_time_semantics_lineage_current_invalid:{exc}")
+        return None
+    current_obligated = _ds18_obligated_roots(current_roots)
+    for selector in sorted(set(freeze_obligated) - set(current_obligated)):
+        errors.append(
+            "ds18_time_semantics_frozen_obligation_missing:"
+            f"{_ds18_selector_label(selector)}"
+        )
+    for selector in sorted(set(freeze_obligated) & set(current_obligated)):
+        if freeze_obligated[selector] != current_obligated[selector]:
+            errors.append(
+                "ds18_time_semantics_frozen_obligation_changed:"
+                f"{_ds18_selector_label(selector)}"
+            )
+    for selector in sorted(set(current_obligated) - set(composed_obligated)):
+        errors.append(
+            "ds18_time_semantics_unreconciled_current_obligation:"
+            f"{_ds18_selector_label(selector)}"
+        )
+    for selector in sorted(set(composed_obligated) - set(current_obligated)):
+        errors.append(
+            "ds18_time_semantics_declared_current_obligation_missing:"
+            f"{_ds18_selector_label(selector)}"
+        )
+    for selector in sorted(set(composed_obligated) & set(current_obligated)):
+        if composed_obligated[selector] != current_obligated[selector]:
+            errors.append(
+                "ds18_time_semantics_current_obligation_receipt_drift:"
+                f"{_ds18_selector_label(selector)}"
+            )
+    return {
+        "current_obligated_root_count": len(current_obligated),
+        "freeze_obligated_root_count": len(freeze_obligated),
+        "landing_deltas": landing_counts,
+    }
+
+
 def _validate_ds18_time_semantics_coverage(
     data: Mapping[str, Any],
     errors: list[str],
     *,
     scan: Mapping[str, Any] | None = None,
-) -> None:
+) -> dict[str, Any] | None:
     """Validate the current denominator; post-freeze growth is the landing red."""
     current_scan = scan if scan is not None else _ds18_time_semantics_scan()
     coverage = data.get("ds18_time_semantics_coverage")
@@ -18036,6 +18659,7 @@ def _validate_ds18_time_semantics_coverage(
         errors,
         post_freeze_is_landing_red=frozen,
     )
+    return _validate_ds18_time_semantics_lineage(coverage, errors)
 
 
 def _validate_ds18_historical_time_semantics_coverage(
@@ -18065,10 +18689,13 @@ def _ds17_surgical_ds18_coverage(
         "exclusion_policy",
         "scanner",
         "frontend_freeze_commit",
+        "historical_lineage",
         "landing_slice_rule",
         "landing_slice_checker",
     }
     for field in sorted(frozen_fields):
+        if field == "historical_lineage" and opening.get(field) is None:
+            continue
         if opening.get(field) != fresh.get(field):
             raise ValueError(f"DS17 DS18 frozen invariant drift:{field}")
     opening_files = opening.get("files")
@@ -18102,6 +18729,10 @@ def _ds17_surgical_ds18_coverage(
             "DS17 DS18 authorized row missing:" + repr(missing_fresh_paths)
         )
     candidate = copy.deepcopy(dict(opening))
+    if opening.get("historical_lineage") is None:
+        candidate["historical_lineage"] = copy.deepcopy(
+            fresh["historical_lineage"]
+        )
     for field, value in fresh.items():
         if field not in frozen_fields and field != "files":
             candidate[field] = copy.deepcopy(value)
@@ -18208,6 +18839,28 @@ def _ds17_ds18_transition_text(
     replacements: list[tuple[int, int, str]] = [
         (files_start, files_end, files_rendered)
     ]
+    if "historical_lineage" not in _opening:
+        freeze_start, freeze_end, _freeze = _json_field_value_span(
+            original_text,
+            field="frontend_freeze_commit",
+            within=(ds18_start, ds18_end),
+        )
+        del freeze_start, _freeze
+        lineage_lines = json.dumps(
+            coverage["historical_lineage"],
+            indent=2,
+            ensure_ascii=False,
+        ).splitlines()
+        lineage_rendered = "\n".join(
+            [lineage_lines[0], *("    " + line for line in lineage_lines[1:])]
+        )
+        replacements.append(
+            (
+                freeze_end,
+                freeze_end,
+                ',\n    "historical_lineage": ' + lineage_rendered,
+            )
+        )
     for field in mutable_header:
         start, end, _value = _json_field_value_span(
             original_text,
@@ -18283,10 +18936,13 @@ def _ds17_registration_preservation_errors(
         "exclusion_policy",
         "scanner",
         "frontend_freeze_commit",
+        "historical_lineage",
         "landing_slice_rule",
         "landing_slice_checker",
     }
     for field in sorted(frozen_fields):
+        if field == "historical_lineage" and opening_ds18.get(field) is None:
+            continue
         if opening_ds18.get(field) != candidate_ds18.get(field):
             errors.append(f"ds17_registration_ds18_frozen_drift:{field}")
     try:
@@ -18358,6 +19014,11 @@ def _ds17_confidence_ledger_risk_spend_candidate_text(
         current_scan,
         frontend_freeze_commit=opening_coverage.get("frontend_freeze_commit"),
     )
+    historical_lineage = opening_coverage.get("historical_lineage")
+    if historical_lineage is not None:
+        fresh["historical_lineage"] = copy.deepcopy(historical_lineage)
+    else:
+        fresh["historical_lineage"] = _build_ds18_time_semantics_lineage(fresh)
     coverage = _ds17_surgical_ds18_coverage(opening_coverage, fresh)
     block = _build_ds17_confidence_ledger_risk_spend_surface()
     transitioned = _ds17_ds18_transition_text(original_text, coverage)

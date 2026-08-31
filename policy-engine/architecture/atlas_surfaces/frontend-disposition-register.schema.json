@@ -2410,6 +2410,138 @@
         }
       }
     },
+    "ds18LineageEntrant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "component_identity",
+        "occurrence",
+        "root_id",
+        "root_source_sha256",
+        "classification",
+        "change_kind"
+      ],
+      "properties": {
+        "path": { "$ref": "#/$defs/pathRef" },
+        "component_identity": { "$ref": "#/$defs/nonEmptyString" },
+        "occurrence": { "type": "integer", "minimum": 0 },
+        "root_id": { "$ref": "#/$defs/nonEmptyString" },
+        "root_source_sha256": { "$ref": "#/$defs/sha256" },
+        "classification": {
+          "enum": ["decision_bearing", "inherits_admitted_dom"]
+        },
+        "change_kind": {
+          "enum": [
+            "source_added_new_file",
+            "source_added_existing_file",
+            "reclassified"
+          ]
+        }
+      }
+    },
+    "ds18LineageFreeze": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checkpoint_commit",
+        "artifact_path",
+        "artifact_sha256",
+        "coverage_sha256",
+        "obligation_manifest_sha256",
+        "obligation_count_summary"
+      ],
+      "properties": {
+        "checkpoint_commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "artifact_path": {
+          "const": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json"
+        },
+        "artifact_sha256": { "$ref": "#/$defs/sha256" },
+        "coverage_sha256": { "$ref": "#/$defs/sha256" },
+        "obligation_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "obligation_count_summary": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "ds18LineageLanding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slice_id",
+        "admission_commit",
+        "checkpoint_commit",
+        "artifact_path",
+        "artifact_sha256",
+        "coverage_sha256",
+        "obligation_manifest_sha256",
+        "checkpoint_obligation_count_summary",
+        "delta_manifest_sha256",
+        "entered_root_count",
+        "entrants"
+      ],
+      "properties": {
+        "slice_id": { "type": "string", "pattern": "^DS[0-9]+$" },
+        "admission_commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "checkpoint_commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "artifact_path": {
+          "const": "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json"
+        },
+        "artifact_sha256": { "$ref": "#/$defs/sha256" },
+        "coverage_sha256": { "$ref": "#/$defs/sha256" },
+        "obligation_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "checkpoint_obligation_count_summary": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "delta_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "entered_root_count": { "type": "integer", "minimum": 1 },
+        "entrants": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds18LineageEntrant" }
+        }
+      }
+    },
+    "ds18TimeSemanticsLineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_id",
+        "predicate_provenance",
+        "selector_identity",
+        "composition_rule",
+        "freeze",
+        "landings"
+      ],
+      "properties": {
+        "schema_id": {
+          "const": "polisyos.atlas.ds18-time-semantics-lineage.v1"
+        },
+        "predicate_provenance": { "const": "recomputed" },
+        "selector_identity": {
+          "const": "path + component_identity + component-local occurrence, content-bound by root_id and root_source_sha256"
+        },
+        "composition_rule": {
+          "const": "current obligations equal the immutable freeze mapping disjoint-unioned with each exact landing delta; counts are derived summaries"
+        },
+        "freeze": { "$ref": "#/$defs/ds18LineageFreeze" },
+        "landings": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ds18LineageLanding" }
+        }
+      }
+    },
     "ds18TimeSemanticsCoverage": {
       "type": "object",
       "additionalProperties": false,
@@ -2429,6 +2561,7 @@
         "obligated_root_count",
         "covered_root_count",
         "frontend_freeze_commit",
+        "historical_lineage",
         "landing_slice_rule",
         "landing_slice_checker",
         "files"
@@ -2475,6 +2608,9 @@
             { "type": "null" },
             { "type": "string", "pattern": "^[a-f0-9]{40}$" }
           ]
+        },
+        "historical_lineage": {
+          "$ref": "#/$defs/ds18TimeSemanticsLineage"
         },
         "landing_slice_rule": {
           "const": "the slice landing a post-freeze production render/export root owns its fresh file/root receipt, independent classification, and behavioral proof"

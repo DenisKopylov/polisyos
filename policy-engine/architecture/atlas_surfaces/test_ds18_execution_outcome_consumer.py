@@ -173,6 +173,25 @@ def test_python_consumer_rejects_duplicate_envelope_keys(
         adapter._ds18_time_semantics_coverage_projection(Path("/fixed/node"))
 
 
+@pytest.mark.parametrize("encoded", [b"{", b"\xff"])
+def test_python_consumer_rejects_malformed_utf8_json_envelopes(
+    monkeypatch: pytest.MonkeyPatch,
+    encoded: bytes,
+) -> None:
+    adapter = _load_adapter()
+    monkeypatch.setattr(
+        adapter.subprocess,
+        "run",
+        lambda *_args, **_kwargs: _completed(encoded),
+    )
+
+    with pytest.raises(
+        adapter.AtlasEvidencePersistenceError,
+        match="typed DS18 execution outcome is not canonical UTF-8 JSON",
+    ):
+        adapter._ds18_time_semantics_coverage_projection(Path("/fixed/node"))
+
+
 def test_python_consumer_does_not_echo_runner_stderr(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

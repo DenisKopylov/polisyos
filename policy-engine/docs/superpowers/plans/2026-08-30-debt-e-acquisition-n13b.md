@@ -67,7 +67,7 @@ uv run python -c "import pathlib, polisyos, pytest; print(pathlib.Path(polisyos.
 
 Expected: exit `0`; `polisyos` resolves under this worktree and pytest imports under `uv run`.
 
-- [ ] **Step 3: Commit the planning boundary**
+- [x] **Step 3: Commit the planning boundary**
 
 Run:
 
@@ -88,7 +88,7 @@ Expected: commit succeeds on `codex/debt-e-acquisition-n13b` with only the two m
 - Consumes: `AcquisitionActionService._projection`, `AcquisitionActionService.execute`, and the existing real control-service/route-closure test harness.
 - Produces: two regression witnesses over the service's consumer-visible projection and durable job boundary.
 
-- [ ] **Step 1: Write the projection regression test**
+- [x] **Step 1: Write the projection regression test**
 
 Add an async test that obtains the existing injected `_Provider` and `_Port` harness, projects its verified closure, and independently asserts these literals:
 
@@ -100,7 +100,7 @@ assert projection.execution_capability == "producer_missing"
 
 The production mutation this catches is deriving either capability's `ready` value from collaborator presence while the path remains fixture-badged.
 
-- [ ] **Step 2: Run the exact projection test and verify RED**
+- [x] **Step 2: Run the exact projection test and verify RED**
 
 Run:
 
@@ -110,7 +110,7 @@ uv run pytest tests/integration/core_runtime/test_acquisition_production_boundar
 
 Expected before implementation: exit `1`; assertion reports actual `ready` versus expected `producer_missing`.
 
-- [ ] **Step 3: Write the pre-reservation regression test**
+- [x] **Step 3: Write the pre-reservation regression test**
 
 Add an async test using a second idempotency key. Compute the would-be job ID before calling `execute()`, assert it is absent, then assert:
 
@@ -126,7 +126,7 @@ assert control._control_store.get_job(job_id) is None
 
 The production mutation this catches is removing the fixture/production boundary and allowing provider invocation, reservation persistence, or enqueueing.
 
-- [ ] **Step 4: Run the exact execution test and verify RED**
+- [x] **Step 4: Run the exact execution test and verify RED**
 
 Run:
 
@@ -146,7 +146,7 @@ Expected before implementation: exit `1`; the injected provider is reached inste
 - Consumes: the unchanged `AcquisitionRouteProjection` schema and fixture-badged `AcquisitionOwnerExecutionResult` contract.
 - Produces: fail-closed capability derivation and a pre-reservation production gate using the existing `acquisition_execution_bridge_missing` error vocabulary.
 
-- [ ] **Step 1: Change only the projection derivation**
+- [x] **Step 1: Change only the projection derivation**
 
 In `_projection()`, keep both public fields and their existing `Literal["ready", "producer_missing"]` types, but emit the hand-derived current truth:
 
@@ -157,7 +157,7 @@ execution_capability="producer_missing",
 
 Do not alter `authority_badge`, `external_nonclosures`, public models, schemas, or generated consumers.
 
-- [ ] **Step 2: Add the current production execution gate**
+- [x] **Step 2: Add the current production execution gate**
 
 Immediately after mutation revalidation and before resolving the provider, call a private helper whose complete current behavior is:
 
@@ -167,7 +167,7 @@ raise AcquisitionActionServiceError("acquisition_execution_bridge_missing")
 
 Name and document the helper so it states the property: the injection-only port returns the fixture-badged result contract and therefore cannot establish a production execution bridge. Keep decision-request behavior and the direct behavioral worker harness unchanged.
 
-- [ ] **Step 3: Run both regression nodes and verify GREEN**
+- [x] **Step 3: Run both regression nodes and verify GREEN**
 
 Run:
 
@@ -180,7 +180,7 @@ uv run pytest \
 
 Expected: exit `0`, `2 passed`.
 
-- [ ] **Step 4: Run the narrow acquisition blast radius**
+- [x] **Step 4: Run the narrow acquisition blast radius**
 
 Run:
 
@@ -197,7 +197,7 @@ uv run python -m ruff check \
 
 Expected: both commands exit `0`; the behavioral worker remains usable for its explicitly non-production semantic tests and the published API bridge remains unchanged.
 
-- [ ] **Step 5: Inspect and commit the coherent behavior slice**
+- [x] **Step 5: Inspect and commit the coherent behavior slice**
 
 Run:
 
@@ -220,7 +220,7 @@ Expected: only the acquisition service and one acquisition integration test ente
 - Consumes: complete source/test/schema/architecture censuses and executable targeted checks.
 - Produces: replayable commands, exit codes, denominators, port implementation enumeration, field construction-site enumeration, bidirectional `external_nonclosures` mapping, and the GY handoff specification.
 
-- [ ] **Step 1: Measure INT-R2's complete executable denominator**
+- [x] **Step 1: Measure INT-R2's complete executable denominator**
 
 Run:
 
@@ -230,25 +230,25 @@ rg -n 'GapAcquisitionCase|gap_acquisition_case' src tests schemas architecture
 
 Expected: exit `1`, zero occurrences across the four named roots; record both missing predicates: ratified producer and typed persisted artifact.
 
-- [ ] **Step 2: Enumerate capability construction sites**
+- [x] **Step 2: Enumerate capability construction sites**
 
 Run complete `.py`/`.json`/`.ts`/`.tsx` searches for `AcquisitionRouteProjection(`, `authority_capability`, and `execution_capability`, recording file-type denominators and classifying definitions, the sole backend constructor, generated schema/client mirrors, and consumers. The acceptance finding is based on the sole executable backend constructor, not on sampled references.
 
-- [ ] **Step 3: Enumerate every structural strict-port implementation**
+- [x] **Step 3: Enumerate every structural strict-port implementation**
 
 Run an AST census over every Python file under `src/`, `tests/`, `schemas/`, and `architecture/`. Report every class defining all three methods `execute`, `reenter`, and `resume_reentry`, distinguish the `AcquisitionExecutionPort` protocol from implementations, and state each implementation's binding.
 
-- [ ] **Step 4: Reconcile `external_nonclosures` in both directions**
+- [x] **Step 4: Reconcile `external_nonclosures` in both directions**
 
 Map each of the tuple's four entries to a register row and compare its exact capability label. Then map all seven Task E rows back to the tuple, explicitly naming omissions and the mandate sibling that appears in the tuple but not the seven-row denominator. Do not edit either source of truth.
 
-- [ ] **Step 5: Measure the complete numeric-VoI denominator**
+- [x] **Step 5: Measure the complete numeric-VoI denominator**
 
 Use the canonical N13a acquisition census/checker to enumerate all 15 growth-backlog rows and assert each reports `metric_residual_granularity_not_supported`; record the command, row measure, and exit code without producing a number.
 
-- [ ] **Step 6: Write the GY-GAP6 routable specification**
+- [x] **Step 6: Write the GY-GAP6 routable specification**
 
-Name the exact movement-family owner allocation, generic chronology protocol, qualification consumer, missing native adapter/policy/admission index, Cycle Board producer/consumer symbols, and the predicates that must resolve and content-bind. Recommend `GY-AQ1` as the owner because the missing work is the generic non-data admission/re-entry plane plus GY-owned movement projection; retain `GY-N13b` and `GY-N12` as producer/chronology sub-owners rather than appointing a new institutional role.
+Name the exact movement-family owner allocation, generic chronology protocol, qualification consumer, missing native adapter/policy/admission index, Cycle Board producer/consumer symbols, and the predicates that must resolve and content-bind. Rule on the owner from the measured plane: reject `GY-AQ1` because that row is explicitly non-data while GY-GAP6 is data-acquisition movement; retain `GY-GAP6` with its declared GY-N13b producer / GY-N12 chronology split and Cycle Board as consumer, without appointing a new institutional role.
 
 ### Task 5: Close the journal with fresh verification evidence
 
@@ -259,7 +259,7 @@ Name the exact movement-family owner allocation, generic chronology protocol, qu
 - Consumes: committed implementation, targeted test receipts, validators, censuses, and GY specification.
 - Produces: a seven-block Register closure dossier and final handoff arithmetic.
 
-- [ ] **Step 1: Run required repository validators through `uv run`**
+- [x] **Step 1: Run required repository validators through `uv run`**
 
 Run:
 
@@ -289,11 +289,11 @@ git diff --check
 
 Expected: every command exits `0`; if not, record the actual failure and classify it before changing any claim.
 
-- [ ] **Step 3: Complete the Register closure dossier**
+- [x] **Step 3: Complete the Register closure dossier**
 
 Write one block for each of the seven named rows. Each closure row block contains verdict, exact command/predicate and exit code, and exact supersession prose. `GY-GAP6` contains a routable specification and notes its registered `blocked` standing solely for the required arithmetic, not a Task E closure verdict.
 
-- [ ] **Step 4: State measured arithmetic and protected-path confirmation**
+- [x] **Step 4: State measured arithmetic and protected-path confirmation**
 
 Record:
 

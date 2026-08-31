@@ -1412,3 +1412,23 @@ shape extends to effect evidence, so bridge v1 is retained as history. The
 patch/generalise line remains on the generalised side: this is the third real
 producer using the single resolve/content-bind/fixed-provenance repository,
 not a new marker-shaped exception.
+
+### Round 4 red boundary
+
+The exact nine-case selector (the exact/bounded witness has two parameters)
+exited `1` before source changes. Its decisive output was nine failures:
+
+- the current receipt remained v5 rather than v6;
+- unconstructed EFFECT and valid-CG1-alone both remained
+  `scope_insufficient` rather than `unknown`;
+- the CG1-derived binding and each of the three RACE conjunct falsifiers all
+  remained the same unconditional `scope_insufficient` result rather than
+  reaching their own decisive reason;
+- both exact and bounded positive controls remained `scope_insufficient`
+  rather than `satisfied`;
+- `_LegacyCanonicalPromotionReceiptV5` did not yet exist.
+
+This is a behavioral red, not collection or fixture failure. The common old
+result proves `_effect_obligation` is still the constant function measured in
+Round 3; the separate assertions pin the distinctions the implementation must
+now create.

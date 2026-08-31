@@ -7,6 +7,7 @@ import zlib
 from collections.abc import Callable
 from copy import deepcopy
 from datetime import UTC, datetime
+from functools import lru_cache
 from inspect import Parameter, signature
 from pathlib import Path
 from tempfile import TemporaryDirectory, mkdtemp
@@ -392,23 +393,13 @@ def test_round1_v5_v2_receipt_round_trips_but_cannot_regain_current_authority() 
     payload = json.loads(raw)
     parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
 
-    assert isinstance(parsed, CanonicalPromotionReceipt)
+    assert isinstance(parsed, promotion_sequence_module._LegacyCanonicalPromotionReceiptV5)
     assert parsed.schema_version.endswith(".v5")
     assert parsed.owner_projection.schema_version.endswith(".v3")
-    assert {row.instance_scope_content_hash for row in parsed.obligations} == {
-        promotion_sequence_module._obligation_instance_scope_content_hash(
-            promotion_sequence_module._input_from_owner_projection(
-                parsed.owner_projection,
-                repo_root=REPO_ROOT,
-            )
-        )
-    }
     assert parsed.model_dump_json().encode("utf-8") == raw
-    issues = validate_canonical_promotion_receipt(parsed)
-    assert {item["code"] for item in issues} == {
-        "decisive_obligation_omitted",
-        "unexpected_decisive_obligation_instance",
-    }
+    assert validate_canonical_promotion_receipt(payload) == (
+        {"code": "legacy_obligation_scope_v2_authority_not_admitted"},
+    )
 
 
 def test_v1_scope_rows_cannot_be_restamped_as_current_authority() -> None:
@@ -1765,6 +1756,108 @@ def test_real_measurement_root_resolves_and_binds_into_n9(tmp_path: Path) -> Non
             f"PRODUCTION_REASONS={'|'.join(production)} "
             f"CONTRACT_REASONS={'|'.join(contract)}"
         )
+
+
+def test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient() -> None:
+    pilot_value = _value_receipt().model_copy(update={"evaluation_mode": "field_pilot"})
+    receipt = _run(_promotion_input(value_receipt=pilot_value))
+
+    effect = _obligation(receipt, PromotionObligationClass.EFFECT)
+    out_of_scope = _obligation(receipt, PromotionObligationClass.EVAL_SAFETY)
+
+    assert receipt.schema_version.endswith(".v6")
+    assert effect.status == PromotionObligationStatus.UNKNOWN
+    assert effect.reason.value == "unknown"
+    assert effect.semantic_scope == "real_semantics"
+    assert effect.owner_ref.endswith("persist_effect_obligation")
+    assert "effect_obligation_evidence_not_established" in effect.detail
+    assert out_of_scope.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+    assert out_of_scope.reason.value == "scope_insufficient"
+    assert out_of_scope.semantic_scope == "scope_insufficient"
+    assert effect.instance_scope_content_hash != _hash("0")
+
+
+def test_valid_cg1_shadow_certificate_alone_cannot_satisfy_effect(tmp_path: Path) -> None:
+    promotion_input = _promotion_input()
+    reference = promotion_input.credal_reference
+    assert reference is not None
+    engine = GroundingRelationEngine(reference)
+    cg1 = engine.certificate_for(
+        _pure_synonym_probe(engine),
+        proposal_id="effect-shadow-alone",
+    )
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=FileSystemCAS(tmp_path / "cas")
+    )
+
+    bound = promotion_sequence_module._bind_production_promotion_evidence(
+        promotion_input,
+        context={"effect_obligation_writer_input": {"grounding_relation_certificate": cg1}},
+        repository=repository,
+    )
+    receipt = run_canonical_promotion_sequence(
+        bound,
+        confidence_ledger_session=_ledger_session(binding=bound.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    effect = _obligation(receipt, PromotionObligationClass.EFFECT)
+
+    assert cg1.shadow_only is True
+    assert cg1.no_bind_admit_promote is True
+    assert not any(
+        ref.artifact_type == "N9EffectObligationBridge"
+        for ref in bound.producer_root_refs
+    )
+    assert effect.status == PromotionObligationStatus.UNKNOWN
+    assert "effect_obligation_evidence_not_established" in effect.detail
+
+
+def test_cg1_derived_atom_cannot_satisfy_effect(tmp_path: Path) -> None:
+    row = _run_effect_case(tmp_path, atom_source="cg1_shadow")
+
+    assert row.status == PromotionObligationStatus.FAILED
+    assert "effect_atom_binding_shadow_only" in row.detail
+
+
+def test_effect_without_epsilon_to_estimand_mapping_fails_its_first_conjunct(
+    tmp_path: Path,
+) -> None:
+    row = _run_effect_case(tmp_path, declared_estimand=None)
+
+    assert row.status == PromotionObligationStatus.FAILED
+    assert "effect_estimand_mapping_missing" in row.detail
+
+
+def test_effect_without_causal_path_or_mechanism_fails_its_second_conjunct(
+    tmp_path: Path,
+) -> None:
+    row = _run_effect_case(tmp_path, causal_mechanism_ref=None, remove_effect_path=True)
+
+    assert row.status == PromotionObligationStatus.FAILED
+    assert "effect_causal_path_or_mechanism_missing" in row.detail
+
+
+def test_ungrounded_effect_claim_fails_its_entailment_conjunct(tmp_path: Path) -> None:
+    row = _run_effect_case(tmp_path, ungrounded=True)
+
+    assert row.status == PromotionObligationStatus.FAILED
+    assert "effect_claim_ungrounded" in row.detail
+
+
+@pytest.mark.parametrize(
+    ("bounded", "limitation_code"),
+    ((False, "effect_claim_entailed"), (True, "effect_claim_bounded")),
+)
+def test_effect_exact_or_bounded_entailment_satisfies_without_minting(
+    tmp_path: Path,
+    bounded: bool,
+    limitation_code: str,
+) -> None:
+    row = _run_effect_case(tmp_path, bounded=bounded)
+
+    assert row.status == PromotionObligationStatus.SATISFIED
+    assert limitation_code in row.detail
+    assert row.owner_ref.endswith("persist_effect_obligation")
 
 
 def test_production_n9_port_persists_and_consumes_dependent_independence_evidence(
@@ -3939,6 +4032,187 @@ def _pure_synonym_probe(engine: GroundingRelationEngine) -> dict[str, object]:
         "raw_text": "levy credit-rate alias for the exact same tax relief do-query.",
         "signature": signature,
     }
+
+
+@lru_cache(maxsize=1)
+def _effect_owner_fixture() -> tuple[object, object, object]:
+    """Return one real L6-owner atom plus the inputs that reproduce it."""
+
+    from polisyos.runtime.quality.generation_cycle import (
+        _build_boundary_world_model_record,
+    )
+    from polisyos.runtime.quality.intervention_substrate import (
+        INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+        InterventionSubstrateBundle,
+        _resolve_owner_atom_world_binding,
+        intervention_substrate_bundle_content_hash,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _lane0_registry,
+        _problem,
+    )
+
+    owner_manifest = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json"
+        ).read_text(encoding="utf-8")
+    )
+    knob = {
+        "tax_relief_rate": {
+            "default": 0.0,
+            "mechanism_id": "tax_relief_rate",
+            "max": 0.5,
+            "min": 0.0,
+            "param_path": "params.rate",
+            "type": "float",
+        }
+    }
+    slot_manifest = {
+        "schema_version": "1.0",
+        "families": {
+            "global": {
+                "entity_size_key": None,
+                "scope": "global",
+                "slots": ["global.tax_rate"],
+                "state_prefix": None,
+            }
+        },
+    }
+    bundle_fields = {
+        "schema_version": INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+        "knob_dictionary": knob,
+        "lex_intervention_map": {},
+        "observation_manifest": {},
+        "policy_scenario_templates": {},
+        "slot_family_manifest": slot_manifest,
+        "world_mechanism_manifest": {
+            "schema_version": "1.0",
+            "mechanisms": {
+                "tax_relief_rate": owner_manifest["world_mechanism_manifest"][
+                    "mechanisms"
+                ]["tax_relief_rate"]
+            },
+        },
+        "lex_authority_manifest": {},
+        "owner_authority_manifest": {},
+        "source_refs": {"intervention_knob_dictionary": "in_memory://effect-owner"},
+        "source_content_hashes": {
+            "intervention_knob_dictionary": gy_content_hash(knob)
+        },
+    }
+    bundle_fields["content_hash"] = intervention_substrate_bundle_content_hash(
+        bundle_fields
+    )
+    bundle = InterventionSubstrateBundle.model_validate(bundle_fields)
+    problem = _problem("effect_owner")
+    registry = _lane0_registry(
+        domain="effect_owner",
+        source_id="test://effect-owner",
+    )
+    world_model_record = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome="global.tax_rate",
+        policy_slot_ids=("global.tax_rate",),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(registry.entries[0].entry_content_hash,),
+    )
+    atom, _world_binding = _resolve_owner_atom_world_binding(
+        bundle=bundle,
+        operator_kind="tax_relief_rate",
+        raw_knob=knob["tax_relief_rate"],
+        parameter_value=0.1,
+        world_model_record=world_model_record,
+    )
+    return bundle, world_model_record, atom
+
+
+def _effect_writer_input(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    declared_estimand: str | None = "average_treatment_effect",
+    causal_mechanism_ref: str | None = "tax_relief_rate",
+    remove_effect_path: bool = False,
+    ungrounded: bool = False,
+    bounded: bool = False,
+    atom_source: str = "l6_owner",
+) -> dict[str, object]:
+    bundle, world_model_record, atom = _effect_owner_fixture()
+    reference = promotion_input.credal_reference
+    assert reference is not None
+    engine = GroundingRelationEngine(reference)
+    if bounded:
+        from tests.unit.runtime.quality.test_grounding_relation import (
+            _synonym_probe,
+        )
+
+        proposal = _synonym_probe()
+    elif ungrounded:
+        from tests.unit.runtime.quality.test_grounding_relation import (
+            _false_analog_probe,
+        )
+
+        proposal = _false_analog_probe()
+    else:
+        proposal = _pure_synonym_probe(engine)
+    if remove_effect_path:
+        proposal = deepcopy(proposal)
+        signature_payload = proposal["signature"]
+        assert isinstance(signature_payload, dict)
+        signature_payload["effect_path"] = []
+    if atom_source == "cg1_shadow":
+        cg1 = engine.certificate_for(
+            proposal,
+            proposal_id="effect-shadow-binding",
+        )
+        atom = atom.model_copy(
+            update={
+                "producer_ref": (
+                    "polisyos.runtime.quality.design_generation."
+                    "generate_design_candidates_under_a"
+                ),
+                "provenance_refs": (cg1.content_hash,),
+                "status": "candidate_unverified",
+            }
+        )
+    return {
+        "intervention_atom": atom,
+        "intervention_substrate": bundle,
+        "world_model_record": world_model_record,
+        "operator_kind": "tax_relief_rate",
+        "parameter_value": 0.1,
+        "proposal": proposal,
+        "proposal_id": "effect-obligation-proposal",
+        "declared_estimand": declared_estimand,
+        "causal_mechanism_ref": causal_mechanism_ref,
+    }
+
+
+def _run_effect_case(
+    tmp_path: Path,
+    **overrides: object,
+) -> PromotionObligationRecord:
+    promotion_input = _promotion_input()
+    repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
+        store=FileSystemCAS(tmp_path / "cas")
+    )
+    bound = promotion_sequence_module._bind_production_promotion_evidence(
+        promotion_input,
+        context={
+            "effect_obligation_writer_input": _effect_writer_input(
+                promotion_input,
+                **overrides,
+            )
+        },
+        repository=repository,
+    )
+    receipt = run_canonical_promotion_sequence(
+        bound,
+        confidence_ledger_session=_ledger_session(binding=bound.design_problem_binding),
+        promotion_evidence_resolver=repository,
+    )
+    return _obligation(receipt, PromotionObligationClass.EFFECT)
 
 
 def _hash(seed: str) -> str:

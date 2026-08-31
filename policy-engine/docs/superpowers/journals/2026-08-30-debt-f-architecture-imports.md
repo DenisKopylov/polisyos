@@ -481,3 +481,365 @@ Adjacent: **2 = 1 closed + 0 open + 1 blocked + 0 ambiguous**.
   and cannot authorize closure. P38 property/proxy split: counts are observations only;
   closure turns on canonical row-set emptiness or exact residual identity, never on a
   count changing by the expected amount.
+
+## 2026-08-31 — round-2 execution and terminal measurement
+
+### Delivered implementation
+
+- `28501c5eb` consolidates changed-file discovery in the shared fail-closed Git-root
+  helper and wires both the import linter and ABI schema generator to it. Ten focused
+  cases cover nested invocation, caller-relative pathspecs, tracked and untracked product
+  files, the two consumers, and five indeterminate Git states.
+- `3637332e0` makes the import linter and release collector derive the Fabric-world
+  boundary from the same exact `polisyos.fabric.world` contract. The four Runtime-used
+  write identities were already curated facade exports. `create_world_snapshot` remains
+  private, the Phase-0 witness remains present, and external `.store` imports remain
+  forbidden. The synchronized deep-import baseline changed by exactly 12 deletions, all
+  former edges to the newly registered exact facade, and by zero additions.
+- `13384cf9e` executes every ruled observability migration: 173 Python import statements
+  across 172 files plus the previously uncounted `foundry/methods/base.pyi` companion.
+  The split is 166 determinism statements, two HPC-helper statements, two pricing
+  statements, and three propagation statements. The exact residual is now only the
+  truthfulness adjudication.
+- `70186047e` migrates every Scientist -> Runtime statement whose owner ruling was
+  settled. Replay now has a Scientist-owned deterministic implementation with Runtime
+  retaining an exact identity-preserving compatibility facade. `WorldModelRecord` and
+  its content-hash identities are PDC-owned while Runtime retains construction,
+  resolution, persistence, and compatibility identities. Production-approval
+  currentness is a sealed, content-bound Core receipt minted from live state by Runtime
+  and verified by Scientist without a Runtime import; raw mappings, callbacks, and
+  projection DTOs fail closed.
+- Zero import exceptions were added, renewed, or consumed. No witness was deleted, no
+  private factory was exported, and no predicate was loosened.
+
+### Scientist / Runtime census and the remaining owner decision
+
+The direction canon is a complete `Path.rglob("*.py")` AST walk. Each statement is one
+row containing source-relative path, source module, exact target-module sequence, ordered
+`{name, asname}` alias sequence, and structural scope (`module`, `class`, or `deferred`).
+Rows sort by `(path, line)` and serialize as compact sorted-key JSON encoded as UTF-8,
+with no wrapper or trailing newline. The residual guard deliberately drops line number
+from identity and compares source-relative path, exact target, alias sequence, and
+module/deferred scope, so harmless line drift cannot masquerade as an architecture
+change.
+
+At committed pre-migration head `13384cf9e`:
+
+- Scientist -> Runtime: 584 Python files / 13 import statements / 34 aliases / 11
+  importing files; 11 module-scope + 0 class-scope + 2 deferred statements; SHA-256
+  `442c9d20ea194850df7565077bf203e84f910deb18f584c0469b6d6a1136c8d0`.
+- Runtime -> Scientist: 280 Python files / 74 import statements / 115 aliases / 28
+  importing files; 33 module-scope + 0 class-scope + 41 deferred statements; SHA-256
+  `cd1a3ad5cdcc66dbdec98cf9d15e228c3d2b1c0c6ec0ad2b8c2f78a294389e3c`.
+- The direction weight is 74:13 statements, or 5.69:1. The 280-file denominator includes
+  all four Runtime root-level files; `runtime/replay.py` contributes five statements.
+
+At final head `70186047e`:
+
+- Scientist -> Runtime: 585 Python files / 7 import statements / 15 aliases / 5
+  importing files; all seven module-scope; SHA-256
+  `0b4b849b1db24f57675000f250568c7801d7ab9b7138a252eba9db6ec7dcb60e`.
+  The file denominator grew by the new canonical Scientist replay module.
+- Runtime -> Scientist: 280 Python files / 70 import statements / 110 aliases / 28
+  importing files; 34 module-scope + 0 class-scope + 36 deferred statements; SHA-256
+  `b9f4d687adb2ff88b447bdcd945a665c396f12d244ba65acd3512fcf92867294`.
+
+Six whole reverse statements moved: two replay statements moved to the Scientist replay
+owner; two standalone `WorldModelRecord` statements moved to the PDC owner; and two
+deferred approval-resolver statements became receipt verification through the exact Core
+contracts facade. In addition, two retained EvalSafety statements shed the three
+non-EvalSafety aliases (`WorldModelRecord`, `gy_content_hash`, and
+`world_model_record_content_hash`) to PDC. The exact seven-statement residual is:
+
+1. `scientist/api.py:49` -> `polisyos.runtime.quality`:
+   `EvalSafetyVerifierPort`, `EvaluationExecutionContext`.
+2. `scientist/nodes/builtins/decide/policy_runtime_support.py:31` ->
+   `polisyos.runtime.quality`: `EvalSafetyAdmissionChallenge`,
+   `evaluation_safety_consumer_admission_is_verified`, `resolve_evaluation_mode`.
+3. The same file at line 81: `EvalSafetyVerifierPort`,
+   `EvaluationExecutionContext`.
+4. `scientist/nodes/builtins/simulate/run_causal_evaluation.py:39`:
+   `EvalSafetyAdmissionChallenge`,
+   `evaluation_safety_consumer_admission_is_verified`, `resolve_evaluation_mode`.
+5. The same file at line 73: `EvaluationExecutionContext`.
+6. `scientist/orchestration/engine/context.py:11`: `EvalSafetyVerifierPort`,
+   `EvaluationExecutionContext`.
+7. `scientist/orchestration/workflows/builder.py:74`: `EvalSafetyVerifierPort`,
+   `EvaluationExecutionContext`.
+
+This is one contract: five unique EvalSafety names, seven statements, 15 aliases, five
+files. The authoritative GY task-standing table at
+`docs/plans/active/layer3-slices/GY-engine-subordination.md:1610` appoints executed task
+`GY-O0` to `runtime/quality`; the detailed task at line 5143 defines EvalSafety as the
+pre-execution attempted-evaluation safety gate. The architect must therefore ratify one
+of this binary before the permission can disappear:
+
+1. move the complete `GY-O0` EvalSafety owner to Scientist; or
+2. move the complete Scientist evaluation-execution choke into Runtime.
+
+Until that ruling lands, `scientist -> runtime` remains permitted only for the structurally
+pinned seven statements. PDC's stale reverse permissions to Runtime and Scientist were
+removed because PDC imports neither. No exception stands in for the ruling.
+
+### Observability terminal measurement
+
+The pre-migration complete-AST canon remains 2,611 Python files / 251 cross-package
+observability statements / 219 files / 304 imported-name occurrences, split 67 exact and
+184 deep, SHA-256
+`91d7c9d44fc066fc0b945edaa781d7eb45e2de22549f1b06259f06d7875336b6`.
+After the 173 ruled Python re-spellings and the `.pyi` companion, the exact residual is 11
+statements in nine files, 25 imported-name occurrences, and ten unique names:
+`TruthfulnessReceipt`, `TruthfulnessScope`, `TruthfulnessStatus`, `TruthfulnessTier`,
+`extract_truthfulness_receipt`, `parse_truthfulness_scope`,
+`parse_truthfulness_tier`, `reconcile_truthfulness_tiers`, `truthfulness_depth`, and
+`validate_truthfulness_receipt`.
+
+The closure counterfactual is decisive rather than numerical: treating
+`polisyos.core.observability` as closed makes
+`test_phase1_5_closed_public_canonical_interfaces_use_exact_facades` enumerate 11 deep
+imports, not the required empty canonical set. Therefore the deferred marker cannot be
+removed and the exact facade cannot be added to the public contract while the eleven
+remain. The row is blocked on the IR/Core/Foundry/Architecture owner adjudication of
+whether IR-owned truthfulness identities project through the Core observability facade
+or the nine Foundry consumers route through an admitted IR facade. The Fabric adapter
+was not touched.
+
+### Six-lane tightened-gate overlay
+
+Method: for each immutable reported head, archive the branch, overlay this lane's final
+`lint_imports.py`, `tools/lib/cache.py`, version-2 policy, exceptions file, and package
+register, then run a full source scan. Intersect ARCH007 results with the complete
+merge-base-to-head changed Python path set. A successful version-2/register load proves
+the version and root-coverage conjuncts. Each scan exited 1 only for the inherited
+Runtime -> Corpus ARCH001 statement at line 560; none of the changed paths contained that
+row and none emitted ARCH007. Therefore all three tightened rules are green for all six
+lanes at these exact heads:
+
+| Lane | Measured head | Changed paths / Python / source Python | ARCH007 | policy v2 | root coverage |
+| --- | --- | ---: | --- | --- | --- |
+| A | `16115c81f089b8796866e0cce52930ed263cde3e` | 7 / 4 / 2 | green | green | green |
+| B | `828d97977665e8bbbde7ea4a5402e0b9f0fb2efc` | 5 / 3 / 1 | green | green | green |
+| C | `c0d6f14156b8e64a9769fa4e218410e768874a5f` | 2 / 0 / 0 | green (not exercised) | green | green |
+| D | `fb4a672dcb58b1e193cb1a24984df7872361ee0c` | 25 / 4 / 0 | green (not exercised) | green | green |
+| E | `066e1978ac1c2bf82f790446dd23d8f607780122` | 7 / 4 / 2 | green | green | green |
+| G | `79dd433834eaa3f59e940aa69cec5509b5b93bed` | 8 / 4 / 0 | green (not exercised) | green | green |
+
+A and E were live; their heads advanced after the first overlay and were re-measured at
+the heads above. B, C, D, and G remained at their frozen heads. No cross-lane opinion or
+branch state was used to decide a Task F verdict.
+
+### Scientist paths changed since the slice base
+
+Task B's later merge must reconcile these 17 paths:
+
+1. `src/polisyos/scientist/api.py`
+2. `src/polisyos/scientist/artifacts/decision_compiler.py`
+3. `src/polisyos/scientist/governance/continuous/incident.py`
+4. `src/polisyos/scientist/governance/continuous/monitors.py`
+5. `src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py`
+6. `src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py`
+7. `src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py`
+8. `src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py`
+9. `src/polisyos/scientist/orchestration/engine/runner/ray_runner.py`
+10. `src/polisyos/scientist/orchestration/engine/runner/temporal_runner.py`
+11. `src/polisyos/scientist/orchestration/llm/budget_enforcer.py`
+12. `src/polisyos/scientist/replay/AUTHORING.md`
+13. `src/polisyos/scientist/replay/README.md`
+14. `src/polisyos/scientist/replay/backend.py`
+15. `src/polisyos/scientist/replay/deterministic.py`
+16. `src/polisyos/scientist/replay/verification.py`
+17. `src/polisyos/scientist/validation/decision_artifact_quality.py`
+
+### Final verification and inherited red
+
+- 29 exact migration/governance/replay/WMR/approval cases: exit 0, 29 passed.
+- Five exact Fabric/DS18 cases: exit 0, five passed.
+- `PYTHONPATH=. .venv/bin/python tools/devx/architecture/guardrails.py check
+  --skip-generated-checks`: exit 0.
+- `.venv/bin/python -m ruff check` over every changed migration Python path: exit 0.
+- `git diff --check`: exit 0 before the dossier-only append.
+- Full import scan with the final version-2 contract: exit 1 with exactly one violation,
+  the already recorded Runtime -> Corpus statement at line 560; zero allowed exceptions.
+- Bound `check_debt_ledger.py --check`: exit 1 with exactly 18 blocking
+  `closure_signal_identity_unresolvable` findings and 18 count/exit disagreements: nine
+  `ds10-*`, eight `DS11-*`, and one decision-validity row. The blocker set did not grow.
+- Bound `check_docs_lifecycle.py`: exit 1 with exactly six inherited findings. This
+  journal names none of the stale-path literals that would create a seventh.
+- One pre-existing approval-quality test remains red at `5 != 2`. The identical failure
+  was reproduced from committed pre-migration head `13384cf9e`; the new content-bound
+  approval receipt cases and issuer guard are green.
+
+### Gate changes that merge ahead of the other lanes
+
+The round-1 version-2, root-coverage, ARCH007, and changed-only diagnostics listed above
+remain exact. Round 2 adds or narrows these rules; no diagnostic was weakened:
+
+1. Fabric-world exact facade. External consumers may import exactly
+   `polisyos.fabric.world`; `.store` and `.materialize` descendants remain private. Exact
+   diagnostic:
+   `{path}:{line} [ARCH004] forbidden deep import: {source_module} -> {target_module}. Use polisyos.fabric.world facade exports.`
+   The behavioral witness is the concrete diagnostic
+   `[ARCH004] forbidden deep import: polisyos.runtime.sample -> polisyos.fabric.world.store. Use polisyos.fabric.world facade exports.`
+2. PDC direction tightening. PDC may import only `{common, core, ir, pdc}`; its former
+   Runtime and Scientist permissions are removed. Exact diagnostics are:
+   `{path}:{line} [ARCH001] forbidden internal import: pdc -> runtime via {target_module} (allowed={common, core, ir, pdc})`
+   and
+   `{path}:{line} [ARCH001] forbidden internal import: pdc -> scientist via {target_module} (allowed={common, core, ir, pdc})`.
+3. EvalSafety residual pin. The exact allowed Scientist -> Runtime structural row set is
+   the seven rows enumerated above, including alias order and scope, and the total alias
+   measure is exactly 15. This is a pytest structural assertion, not a new CLI rule; its
+   diagnostic identifier is
+   `test_scientist_runtime_residual_is_exact_eval_safety_owner_ruling`, followed by
+   pytest's exact row-set or `15` alias-count diff.
+4. Observability residual pin. The only permitted cross-package deep observability rows
+   are the eleven enumerated truthfulness statements, and the `.pyi` companion must use
+   the exact facade. This is a pytest structural assertion; its diagnostic identifier is
+   `test_observability_deep_import_residual_is_exact_truthfulness_adjudication`, followed
+   by pytest's exact row-set diff.
+5. DS18 canonical SCC pin. The gate compares the sorted tuple set itself: the
+   Incident/Monitors tuple must be absent, the other three finding tuples must be
+   byte-identical, and additions must be empty. This is a pytest structural assertion;
+   its diagnostic identifier is
+   `test_incident_monitor_bridge_removes_exactly_its_static_scc`, followed by the exact
+   missing/added tuple-set diff.
+
+The shared Git helper also makes both changed-only consumers fail closed with these exact
+new diagnostics:
+`changed-only Git command failed: {error}`;
+`changed-only Git worktree root is unavailable: {error}`;
+`changed-only Git base ref is not a commit: {base_ref}`;
+`changed-only Git diff failed: {error}`;
+`changed-only Git untracked-file census failed: {error}`; and the schema consumer wraps
+the same condition as `ABI schema snapshot generation failed: {exc}`.
+
+Bounded residual, not acted on: the shared helper consumes newline-delimited Git output,
+so a tracked filename containing a literal newline is not representable. The smallest
+closure is NUL-delimited `-z` parsing in the one owner, with both consumers retaining the
+same tests. No production path in this slice depended on that hostile-name case.
+
+## Register closure dossier — round-2 supersession
+
+Arithmetic: **7 rows = 4 closed + 3 blocked**.
+Core: **5 rows = 3 closed + 2 blocked**.
+Adjacent: **2 rows = 1 closed + 1 blocked**.
+
+### `import-authority-files-diverge` — closed
+
+- Verdict: `closed`.
+- Deciding command/predicate: the five exact contract/narrowing nodes under
+  `test_import_governance_contract.py` and `test_lint_imports_phase3.py`; exit 0. Canon is
+  the strict-root pair mapped to its sorted minimal allowed module-prefix set, not a
+  textual TOML diff. Five narrowed pairs remain and both version-2 contracts declare
+  their distinct ratified roles.
+- Exact append-only prose:
+  “2026-08-31 round-2 supersession — **closed**. The version-2 direction matrix and
+  ownership/narrowing register retain their ratified distinct roles, and the linter
+  enforces their single mapped canon. The five remaining strict-root narrowings are
+  recorded and green; zero exceptions were added, renewed, or consumed.”
+
+### `package-boundaries-coverage-gap` — closed
+
+- Verdict: `closed`.
+- Deciding command/predicate: the six exact governance-coverage and version-2 failure
+  nodes under `test_import_governance_contract.py` and `test_lint_imports_phase3.py`;
+  exit 0. Complete scanner-derived denominator: 25 real direction roots = 18 exact
+  `team-*`-owned package roots + seven reasoned deliberately-ungoverned roots; zero
+  nonexistent matrix roots and zero undisposed real roots.
+- Exact append-only prose:
+  “2026-08-31 round-2 supersession — **closed**. The strict-root directory census remains
+  zero nonexistent rows. All 25 real roots have exactly one governance disposition: 18
+  appointed `team-*` owners and seven explicit deliberately-ungoverned reasons. The
+  register names the real fail-closed readers, and the version-2/root-coverage overlay is
+  green on all six other lane heads.”
+
+### `scientist-runtime-declared-cycle` — blocked
+
+- Verdict: `blocked`.
+- `blocked_by`: architect re-ratification of the complete `GY-O0` EvalSafety ownership
+  boundary: either move the complete owner to Scientist or move the complete execution
+  choke to Runtime.
+- Deciding command/predicate:
+  `.venv/bin/python -m pytest -q tests/repo_quality/architecture/test_import_governance_contract.py::test_scientist_runtime_residual_is_exact_eval_safety_owner_ruling`
+  — exit 0. The independent full-AST canon at final head is 585 Scientist files / seven
+  statements / 15 aliases / five files, SHA-256
+  `0b4b849b1db24f57675000f250568c7801d7ab9b7138a252eba9db6ec7dcb60e`.
+- Exact append-only prose:
+  “2026-08-31 round-2 supersession — **blocked by an architect ruling that must land**.
+  Six of the 13 Scientist -> Runtime statements migrated without an exception: Replay to
+  Scientist, WorldModelRecord to PDC, and approval currentness to a sealed Core receipt
+  minted by Runtime and verified by Scientist. The exact residual is one EvalSafety
+  contract: seven statements, 15 aliases, five files, structurally pinned. GY-O0's
+  authoritative task row appoints `runtime/quality`; closure therefore requires
+  re-ratifying either the complete owner into Scientist or the complete execution choke
+  into Runtime. Scientist -> Runtime remains permitted only for this residual until that
+  decision lands. PDC's two stale reverse permissions are removed. Zero exceptions were
+  added or renewed.”
+
+### `fabric-world-facade-enforcement-conflict` — closed
+
+- Verdict: `closed`.
+- Deciding command/predicate:
+  `.venv/bin/python -m pytest -q tests/repo_quality/tools/test_lint_imports_phase3.py::test_arch004_admits_exact_fabric_world_facade_and_rejects_descendant tests/repo_quality/tools/test_architecture_phase3.py::test_fabric_world_exact_facade_is_shared_by_release_deep_import_classifier tests/repo_quality/architecture/test_fabric_world_write_waist.py::test_production_modules_use_the_fabric_world_write_waist`
+  — exit 0, three selected cases passed.
+- Exact append-only prose:
+  “2026-08-31 round-2 supersession — **closed**. ARCH004 and the release collector now
+  derive one definition: exactly `polisyos.fabric.world` is public and descendants remain
+  private. Both owner contracts expose only the four already curated Runtime-used write
+  identities. The synchronized baseline changed by exactly 12 deletions and zero
+  additions, all newly exact-facade edges. The Phase-0 witness is intact,
+  `create_world_snapshot` is not exported, `.store` remains rejected, and no exception
+  was added.”
+
+### `core-observability-canonical-interface-contract-drift` — blocked
+
+- Verdict: `blocked`.
+- `blocked_by`: IR/Core/Foundry/Architecture owner adjudication for the truthfulness
+  family: whether its ten IR-owned identities project through Core observability or the
+  nine Foundry consumers route through an admitted IR facade.
+- Deciding command/predicate:
+  `.venv/bin/python -m pytest -q tests/repo_quality/architecture/test_import_governance_contract.py::test_observability_deep_import_residual_is_exact_truthfulness_adjudication`
+  — exit 0; the closure counterfactual directly calls
+  `_cross_package_deep_imports({'polisyos.core.observability'})` and exits 0 only after
+  asserting the returned canonical list contains exactly 11 rows. Thus the actual
+  closed-interface predicate is nonempty and would fail.
+- Exact append-only prose:
+  “2026-08-31 round-2 supersession — **blocked by the truthfulness owner adjudication**.
+  Every ruled mechanical move is complete: 173 Python statements across 172 files plus
+  the `.pyi` companion. The exact remainder is 11 truthfulness statements in nine files,
+  25 name occurrences, and ten unique names. Removing the deferred marker now makes the
+  closed-interface exact-facade gate return those 11 rows rather than empty, so the marker
+  remains and no premature public contract entry was added. Closure awaits only the
+  named routing/ownership decision, after which those eleven move and contract/inventory
+  reconciliation can execute. The Fabric relocation-owned adapter was untouched.”
+
+### `import-policy-governance-runtime-corpus-dependency` — blocked
+
+- Verdict: `blocked`.
+- `blocked_by`: appointment of a Corpus package owner.
+- Deciding command/predicate:
+  `.venv/bin/python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml`
+  — exit 1 with exactly one violation:
+  `src/polisyos/runtime/http/services/governed_projection_validation_worker.py:560 [ARCH001] forbidden internal import: runtime -> corpus via polisyos.corpus (allowed={berl, common, core, data_forge, data_requirement, evidence, fabric, foundry, ir, lex, method_requirement, participation_requirement, pdc, runtime, scholar, scholar_requirement, scientist})`.
+  Canonical complete Runtime census remains one statement / one file / two symbols,
+  SHA-256 `63eef5900390a25b77e1c302c78ef72b14b70049c9ab42e9dbfa81430e130fcb`.
+- Exact append-only prose:
+  “2026-08-31 round-2 supersession — **blocked only by appointment of a Corpus package
+  owner; direction ruled**. Runtime -> Corpus remains forbidden. The complete dependency
+  is one deferred statement in one Runtime worker importing two fixture-loader symbols.
+  Under §9 item 5 the missing owner binds the claim, never the capability; no allowance
+  or exception was created.”
+
+### `ds18-continuous-incident-monitors-static-cycle` — closed
+
+- Verdict: `closed`.
+- Deciding command/predicate:
+  `.venv/bin/python -m pytest -q tests/repo_quality/architecture/test_continuous_incident_import_cycle.py::test_incident_monitor_bridge_removes_exactly_its_static_scc tests/repo_quality/architecture/test_continuous_incident_import_cycle.py::test_incident_owner_persists_content_bound_monitor_event`
+  — exit 0, two selected cases passed. The canonical sorted SCC set is 15 tuples versus
+  16 at base; subtraction is exactly the Incident/Monitors tuple, additions are empty,
+  and the other three finding tuples are byte-identical.
+- Exact append-only prose:
+  “2026-08-31 round-2 supersession — **closed**. The incident-specific persistence bridge
+  remains in the Incident owner. Canonical SCC set comparison removes exactly the
+  Incident/Monitors tuple, adds none, and leaves the other three finding tuples
+  byte-identical; the finding measure is three rather than four. No cycle predicate,
+  registry, exception, or witness changed.”

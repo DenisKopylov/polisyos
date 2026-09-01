@@ -10,6 +10,7 @@ import {
 
 import type { components } from "../src/api/types";
 import { buildSignedPublicDecisionPacket } from "../src/features/runs/domain/publicationPacket";
+import { epochNonreceipt } from "../src/shared/lib/domain/epochSemantics";
 import {
   availableHumanDecisionGate,
   humanDecisionReviewEffectivenessFixture,
@@ -248,6 +249,43 @@ function expectedRunPaperFields(packet: RunPaperPacket) {
       ["case.closure_signal", packet.case_record.closure_signal],
     );
   }
+  if (
+    packet.case_record.availability === "record_available_authority_abstaining"
+  ) {
+    const caseRecord = packet.case_record;
+    fields.push(
+      ["case.authority_projection", caseRecord.authority_projection],
+      ["case.case_id", caseRecord.case_id],
+      ["case.binding_id", caseRecord.design_record_binding.binding_id],
+      ["case.design_record_id", caseRecord.design_record.record_id],
+      [
+        "case.design_record_ref",
+        caseRecord.design_record_binding.design_record_ref.artifact_id,
+      ],
+      [
+        "case.search_ledger_ref",
+        caseRecord.design_record_binding.search_ledger_ref.artifact_id,
+      ],
+      ["case.binding_run_id", caseRecord.design_record_binding.run_id],
+      ["case.binding_tenant_id", caseRecord.design_record_binding.tenant_id],
+      [
+        "case.binding_cell_id",
+        caseRecord.design_record_binding.cell_id ?? "null",
+      ],
+    );
+    for (const [role, receipt] of [
+      ["grounding", caseRecord.grounding_nonreceipt],
+      ["admission", caseRecord.admission_nonreceipt],
+      ["promotion", caseRecord.promotion_nonreceipt],
+    ] as const) {
+      fields.push(
+        [`case.${role}.missing_authority`, receipt.missing_authority],
+        [`case.${role}.status`, receipt.status],
+        [`case.${role}.authority_state`, receipt.authority_state],
+        [`case.${role}.owner_route`, receipt.owner_route],
+      );
+    }
+  }
   if (packet.stage_trace.availability === "available") {
     fields.push([
       "stage_trace.artifact_id",
@@ -257,6 +295,48 @@ function expectedRunPaperFields(packet: RunPaperPacket) {
     fields.push(["stage_trace.reason", packet.stage_trace.reason]);
   }
   return fields;
+}
+
+function expectAuthorityAbstainingRunPaper(packet: RunPaperPacket) {
+  const caseRecord = packet.case_record;
+  expect(caseRecord.availability).toBe("record_available_authority_abstaining");
+  if (caseRecord.availability !== "record_available_authority_abstaining") {
+    throw new Error("governed fixture did not produce a verified case record");
+  }
+  expect(caseRecord.authority_projection).toBe("abstained");
+  expect(caseRecord.design_record_binding.run_id).toBe(packet.run.run_id);
+  expect(caseRecord.design_record_binding.tenant_id).toBe(packet.run.tenant_id);
+  expect(caseRecord.design_record_binding.cell_id).toBe(packet.run.cell_id);
+
+  const nonreceipts = [
+    caseRecord.grounding_nonreceipt,
+    caseRecord.admission_nonreceipt,
+    caseRecord.promotion_nonreceipt,
+  ];
+  expect(nonreceipts.map((receipt) => receipt.missing_authority)).toEqual([
+    "generation_cycle_grounding_authority",
+    "hypothesis_ledger_admission_authority",
+    "layer3_g4_promotion_authority",
+  ]);
+  for (const receipt of nonreceipts) {
+    expect(receipt.kind).toBe("run_paper_authority_nonreceipt");
+    expect(receipt.status).toBe("not_established");
+    expect(receipt.authority_state).toBe("absent/unallocated");
+    expect(receipt.denied_uses.length).toBeGreaterThan(0);
+  }
+
+  const artifactKinds = packet.artifact_links.map(
+    (link) => link.artifact_ref.kind,
+  );
+  for (const requiredKind of [
+    "policyos.layer2_s2.design_record_v0",
+    "policyos.layer2_s2.search_ledger",
+    "policyos.pdc.run_bound_design_record_binding",
+  ]) {
+    expect(artifactKinds.filter((kind) => kind === requiredKind)).toHaveLength(
+      1,
+    );
+  }
 }
 
 function expectEveryPdfPageToBeA4(
@@ -564,6 +644,12 @@ async function openHumanDecisionCase(
   await installHumanDecisionVisualFixture(page, runId, gate);
   await page.goto(humanDecisionCasePath(runId));
   await expect(page.getByTestId("case-workspace-page")).toBeVisible();
+  await expect(
+    page.getByTestId("case-inspection-authority-abstaining"),
+  ).toHaveAttribute(
+    "data-case-availability",
+    "record_available_authority_abstaining",
+  );
   const surface = page.getByTestId("human-decision-gate");
   await expect(surface).toBeVisible();
   await expect(
@@ -1144,6 +1230,15 @@ test.describe("runtime-dashboard visual baselines", () => {
     }) => {
       const browserLocalSentinel = "DS8-BROWSER-LOCAL-MUST-NOT-PRINT";
       let paperResponseCount = 0;
+      const epochSettlementPromise = page.waitForResponse((response) => {
+        const url = new URL(response.url());
+        return (
+          url.pathname ===
+            `/api/v1/temporal/runs/${encodeURIComponent(fixtureMetadata.core_run_id)}/epoch-staleness` &&
+          url.searchParams.has("valid_at") &&
+          url.searchParams.has("tx_at")
+        );
+      });
       page.on("response", (response) => {
         if (isRunPaperResponse(response.url(), fixtureMetadata.core_run_id)) {
           paperResponseCount += 1;
@@ -1154,6 +1249,9 @@ test.describe("runtime-dashboard visual baselines", () => {
         `/runs/${fixtureMetadata.core_run_id}/overview?trust=expanded`,
       );
       await expect(page.getByTestId("run-detail-page")).toBeVisible();
+      const epochSettlement = await epochSettlementPromise;
+      expect(await epochSettlement.finished()).toBeNull();
+      await waitForStableRender(page.getByTestId("run-decision-packet"));
       const annotationPanel = page.getByTestId("annotation-surface-panel");
       await expect(annotationPanel).toBeVisible();
       await annotationPanel.locator("textarea").fill(browserLocalSentinel);
@@ -1206,19 +1304,13 @@ test.describe("runtime-dashboard visual baselines", () => {
           expectedValue,
         );
       }
-      expect(packet.case_record.availability).toBe("artifact_missing");
-      if (packet.case_record.availability !== "artifact_missing") {
-        throw new Error(
-          "visual fixture unexpectedly produced an available case",
-        );
-      }
-      expect(packet.case_record.reason_code).toBe("case-record-not-run-bound");
-      expect(packet.case_record.owner_route).toBe("team-runtime");
-      expect(
-        await documentRoot
-          .locator("[data-run-paper-case-denied-use]")
-          .allTextContents(),
-      ).toEqual(packet.case_record.may_not_use_for);
+      expectAuthorityAbstainingRunPaper(packet);
+      await expect(
+        documentRoot.getByTestId("run-paper-case-authority-abstaining"),
+      ).toBeVisible();
+      await expect(
+        documentRoot.locator("[data-run-paper-authority-nonreceipt]"),
+      ).toHaveCount(3);
 
       const reportEgress = await censusVisiblePrintEgress(page);
       expect(reportEgress.controls).toEqual([]);
@@ -1259,14 +1351,19 @@ test.describe("runtime-dashboard visual baselines", () => {
         fixtureMetadata.run_paper_empty_run_id,
       );
       await waitForRunPaperPdfReady(page);
-      expect(empty.packet.artifact_links).toEqual([]);
+      expectAuthorityAbstainingRunPaper(empty.packet);
+      expect(empty.packet.artifact_links).toHaveLength(3);
       await expect(page.locator("[data-run-paper-artifact-link]")).toHaveCount(
-        0,
+        empty.packet.artifact_links.length,
       );
-      await expect(page.getByTestId("run-paper-document")).not.toContainText(
-        "/api/v1/artifacts/",
+      expect((await censusVisiblePrintEgress(page)).links).toEqual(
+        empty.packet.artifact_links.map((link) => ({
+          artifactId: link.artifact_ref.artifact_id,
+          href: link.href,
+          paperEligible: "true",
+          printedTarget: expect.stringContaining(link.href),
+        })),
       );
-      expect((await censusVisiblePrintEgress(page)).links).toEqual([]);
       const emptyPdf = await page.pdf({
         preferCSSPageSize: true,
         printBackground: true,
@@ -1287,7 +1384,15 @@ test.describe("runtime-dashboard visual baselines", () => {
         fixtureMetadata.run_paper_growth_run_id,
       );
       await waitForRunPaperPdfReady(page);
-      expect(growth.packet.artifact_links).toHaveLength(64);
+      expectAuthorityAbstainingRunPaper(growth.packet);
+      expect(growth.packet.artifact_links).toHaveLength(
+        empty.packet.artifact_links.length + 64,
+      );
+      expect(
+        growth.packet.artifact_links.filter(
+          (link) => link.artifact_ref.kind === "test.run_paper_growth_output",
+        ),
+      ).toHaveLength(64);
       expect((await censusVisiblePrintEgress(page)).links).toEqual(
         growth.packet.artifact_links.map((link) => ({
           artifactId: link.artifact_ref.artifact_id,
@@ -1539,12 +1644,24 @@ test.describe("runtime-dashboard visual baselines", () => {
         }
       });
       const packet = buildSignedPublicDecisionPacket({
+        epochSemantics: epochNonreceipt(),
         runId: fixtureMetadata.core_run_id,
       });
 
       await page.goto(packet.publicUrlPath);
       await expect(page.getByTestId("publication-packet-panel")).toBeVisible();
       await expect(page.getByTestId("signed-public-summary")).toBeVisible();
+      const signedEpoch = page
+        .getByTestId("signed-epoch-semantics")
+        .locator("[data-epoch-presentation]");
+      await expect(signedEpoch).toHaveAttribute(
+        "data-epoch-presentation",
+        "nonreceipt",
+      );
+      await expect(signedEpoch).toHaveAttribute(
+        "data-epoch-status",
+        "not_established",
+      );
       await expect(page.getByTestId("human-decision-gate")).toHaveCount(0);
       await expect(
         page.getByTestId("human-decision-machine-export"),

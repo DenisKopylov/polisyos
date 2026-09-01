@@ -139,6 +139,13 @@ describe("RunReportPage", () => {
 
     const documentRoot = screen.getByTestId("run-paper-document");
     expect(documentRoot).toHaveAttribute("data-print-document", "true");
+    const identity = within(documentRoot).getByTestId("run-paper-identity");
+    expect(identity.querySelector("[data-epoch-presentation]")).toBeNull();
+    expect(
+      within(documentRoot)
+        .getByTestId("run-paper-time-semantics")
+        .querySelector("[data-epoch-presentation]"),
+    ).not.toBeNull();
     expect(documentRoot).toHaveTextContent("artifact_missing");
     expect(documentRoot).toHaveTextContent("producer_missing");
     expect(documentRoot).toHaveTextContent("case-record-not-run-bound");

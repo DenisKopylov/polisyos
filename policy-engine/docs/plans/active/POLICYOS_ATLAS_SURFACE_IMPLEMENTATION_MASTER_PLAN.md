@@ -182,7 +182,7 @@ producers are thin projections of already-verified artifacts, never new logic.
 | Confidence ledger: δ-budget, risk-spend per obligation class × instrument, refusal/acquisition instruments as first-class rows | GY-N11 ledger artifact | **no — built in DS17** | DS17 | **pending GY-N11** |
 | Epochs: stale certificates, `revalidation_required`, revision triggers, OpenWorldRisk | GY-N12 artifacts | **no — built in DS18** | DS18 chrome; every time-bearing surface | **pending GY-N12** |
 | 13-case proving ground (legacy honest signal; still real) | proving-ground artifacts | **no — built in DS3** | DS7 legacy rows | live |
-| Bounded-agent contract + orchestration-choice audit ledger | Phase-6 O-block contracts | **no — built in DS14** | DS14 | **pending Phase 6** |
+| Bounded-agent contract + orchestration-choice audit ledger | Phase-6 O-block contracts | **no — built in DS14** | DS14 | **CORRECTED 2026-09-01 — this row conflated two subjects.** DS14's gate was re-adjudicated on 2026-08-30 to `GY-I`, not the O-block, and DS14 is explicitly not blocked on Phase 6. The bounded-agent contract half stays DS14's; **the Phase-6 learning loop is not DS14's and now has its own row in Revision 4 below, verdict `new` → DS21.** |
 | Updated cluster ownership map (`surface_missing` inventory) | `cluster_ownership_map.toml` | **no — built in DS3** | backlog generator #1; closure targets | live; refresh at N10 merge |
 
 The "no HTTP producer" column is the honest bridge debt this plan owns. Two
@@ -191,6 +191,45 @@ binding rules inherited from the GY plan apply to every producer built here:
 properties, never pinned terminal labels) and **§3.5.11 projection-scoped
 provenance** (a surface producer binds to the narrowest upstream projection
 hash, so GY artifact churn does not ripple through every endpoint).
+
+### Revision 4 (2026-09-01) — the live GY campaign, every task given a verdict
+
+The table above is Revision 2 and stops at 2026-07-16. Measured on 2026-09-01: **20 of the 25 live
+GY tasks are not mentioned anywhere in this plan.** Only `GY-PR1`, `GY-VC1`, `GY-AQ1`, `GY-CB1` and
+`GY-PA1` appear at all.
+
+Twenty silent tasks is not twenty missing surfaces — most of them genuinely need none. The defect is
+that **nobody decided**, and a plan cannot tell "we decided not to surface this" from "we never
+looked" unless the decision is written down. This revision writes them down. The verdict vocabulary
+is typed on purpose, the same way the debt register types an absence rather than leaving it silent:
+
+- `none` — no surface, and the reason is stated. This is a decision, not an omission.
+- `extends` — a named extension of work this plan already owns or has deferred. Small.
+- `deferred(trigger)` — deliberately not now, with the exact condition that reopens it.
+- `new` — genuinely needs its own Atlas item.
+
+| GY task | What it produces | Verdict | Where, or why not |
+| --- | --- | --- | --- |
+| `GY-PR1a` / `GY-PR1b` | first governed promotion: N8 receipt producer, N9 evidence wiring; PR1b the pilot-grade authority | `extends` | **DS12**, already the record half of its gate. PR1a needs no appointment and is what unblocks this slice; PR1b is the pilot-grade claim only. |
+| `GY-O1` · `GY-O2` · `GY-O3` | deployed-effect posterior updates typed to a cause class; anomaly candidates under FDR control; versioned `WorldModelRecord` branches | **`new`** | **No slice owns this, and the Revision-2 row that claimed one is wrong.** It reads *"Bounded-agent contract + orchestration-choice audit ledger → built in DS14"*, but DS14's gate was re-adjudicated on 2026-08-30 to `GY-I` and DS14 is **explicitly not blocked on Phase 6** — the two were decoupled and the surface consequence was never written. The learning loop is the north-star's product: *did the deployed policy do what we said, and if not, why*. Its cause-class typing (`prediction_error` / `implementation_failure` / `measurement_change` / `behavioral_response`) is exactly what a surface must not flatten — `W5-K04` forbids a protective action reading as causal confirmation — and O2's anomalies are `candidate_unverified` by construction, so the candidate→authority firewall is the whole rendering problem. **One Atlas item for all three, not three.** |
+| `GY-AS2` | sealed diagnosis holdout, risk–coverage metrics | `deferred(WP-09/WP-10 adopted)` | Risk–coverage is DS17-genre content and DS17 is closed, but **the numbers themselves are withheld propositions** — surfacing one now would publish a proposition this repository has explicitly not adopted. Reopens when `WP-09`/`WP-10` are adopted with measure, population, horizon, assumptions and authority source. |
+| `GY-AS1` · `GY-AS3` | 63-case acquisition assurance battery; 24-packet diagnosis corpus + O3 mutations | `none` | Verification machinery. Their output is a battery and an oracle, not an artifact a person reads. The *assurance level* they measure is a ceiling vocabulary and is carried by `GY-AQ1` below. |
+| `GY-AQ1` | non-data acquisition runtime; **eight ceiling algebras with fail-closed unknowns** | `extends` | **DS16's deferred grammar successor.** The eight ceiling fields — claim strength, estimand binding strength, legal/normative/write operations, capacity stages, assurance levels — are value-and-uncertainty grammar, which is DS16's declared subject: *sets/intervals with `unknown` and `incomparable` as designed states*. DS16's authority half landed 2026-08-21 and its grammar body was deferred to a successor gated on DS7, **which is closed** — so that successor is available now and this is where the ceilings land. Also binding on the surface: ratified `W5-K01` means a data-acquisition affordance must not be offered against a missing licence, mandate or authority — *more rows never establish a missing non-data object*, and a surface that suggests otherwise is the failure. |
+| `GY-VC1` | total versioned crosswalk; every loss classified tolerable or **blocking** | `extends` | Already named as a DS12 producer. One rendering obligation to add where statuses are consumed: **a blocking loss must refuse, never degrade** — a candidate vocabulary that cannot map into the canonical lattice renders as a refusal, not as a nearest-neighbour label. That is the surface half of `FM-OPS-17`'s fork condition. |
+| `GY-CB1` | operator-comprehension instrument, corpus, sealed partition, stop-rule | `extends` | Already a DS12 producer for the comprehension instrument. The other half is a **trust-claim row, not a slice**: `human_comprehension_established` stays `false` until population-, modality- and task-bound behavioural evidence exists, and `W5-K02` forbids projecting surface or instrument conformance as comprehension. It belongs in the posture register that DS11 built, as a claim whose honest state is `planned`. |
+| `GY-ML1` | MAEP machinery; equivalence certificates bounded to proposition set, purposes, holders, denominator | `extends` **+ open question** | The three falsifiers `INT-R6` names are **rendering failures**: `limited` shown as "confirmed with caveat", `may_not_use_for` shown as an optional recommendation, and `stale`/`superseded`/`withdrawn` collapsed into one state. Those belong in DS12 as negatives on the published record, alongside the `W5-K06` clause it already carries. **The open question is the Lex source-document half** — equivalence claims over source legal texts in `en`/`uk`/`ru`, which no slice owns: DS10 is capability discovery and DS14 is the agent surface. Recorded here rather than resolved, because scoping it needs a product decision this plan should not make silently. |
+| `GY-CR1` | durable transition state; `failed_safe` with the missing role named; conservative posture + escalation clock, never an approval | `extends` | The **custody state** is honest-refusal rendering of exactly the genre DS18 shipped for epochs — a typed state with a named missing role reads the same way `revalidation_required` does. The **action half is withheld**: the seven response families, the transition charter, the restart rule and the preauthorization model are `WP-04`–`WP-08`, so no surface may offer an action. Surface the custody state; offer nothing. |
+| `GY-CR2` | `E/X/V/C` constrained-product state engine | `none` | The GY task says it itself: *the projection into the Atlas lattice adds zero statuses*, and `E/X/V/C` travels through states without replacing the Atlas lifecycle status. The one-lattice law is untouched. **This row is the model for how a `none` verdict should read.** |
+| `GY-CR3` · `GY-CR4` | response corpus, oracles, evaluator; `dependency_denominator_ref` reconciliation | `none` | A test corpus with guardrail counters, and a cross-owner contract repair. Neither produces anything a person reads. |
+| `GY-V1`–`GY-V6` | coverage matrix, loop-execution proof, generalization battery, adversarial battery, replay audit, validator suite | `none` | Audit-grade verification. Each emits a committed artifact and a recomputing validator; the audience is the repository, not an operator. |
+| `GY-V7` | the constitution's five health signals: envelope-expansion-rate, adapter-semantic-loss, governance-throughput, demand-pull-vs-abstention, search-recall + index-staleness | `extends` | **The Cycle Board**, which already reports `useful_design_rate` as a runtime metric. V7 answers whether the system produces real grounded design or sits at a **domain ceiling** versus a repairable **search ceiling** — a board reading, not a new surface. **Naming hazard, recorded so it does not bite:** this plan's `T1`/`T6`/`T7` are its own tension ids (status-lattice churn, token drift, cache staleness) and are **unrelated** to the constitution's `T1`/`T6`/`T7` health signals. The Health Metrics table above measures *surface* health; these five measure *system* health. Two tables, two subjects, colliding ids. |
+| `GY-D1` · `GY-M2` | measurement-rooted producer catalog wiring; GX reducer case-parameterization | `none` | Producer wiring and validator parameterization. D1 repairs a producer root that DS16's value-gate projections already surface; M2 is a validator that must run on the tourism case as well as the pinned one. Both `ambiguous` in §8.5 and owed a re-measurement before anything else is claimed about them. |
+| `GY-PA1` | S8 authority-grade value schedule | `none` (as a task) | `not_executable` as scoped; its live engineering moved to `GY-PR1a`, which is mirrored by DS12. |
+
+**Standing obligation this table creates.** A GY task registered after this revision does not exist
+for surface purposes until it has a row here. `none` is a perfectly good row and most tasks will get
+one — the requirement is the verdict, not the surface. The failure this repairs is silence, which
+for six weeks was indistinguishable from a decision.
 
 ## Code-Grounded Technical State (Snapshot 2026-06-10; DS1 Recount 2026-07-16)
 
@@ -618,6 +657,7 @@ roughly chronological; the DAG, not the numbers, governs start order.
 | DS12 | Public publication foundation | **first governed promotion through the GY-N9 gate with N11 δ-accounting and N12 epoch validity live** AND DS11 | D |
 | DS13 | Accountability ledgers & transparency | DS12 | D |
 | DS14 | Bounded-agent surface | **Phase-6 bounded-agent contracts closed (O-block)** AND DS9 | D |
+| DS21 | **Deployed-effect & world-growth readout (NEW, Revision 4 — the Phase-6 mirror)** | `GY-O1` and `GY-O3` land; `GY-O2` may follow | D |
 
 ```text
 Phase A: CLOSED (DS0 ─▶ {DS1, DS2} — merged ed74537e8)
@@ -1980,6 +2020,38 @@ Loosening the ratified posture is out of scope for every slice.
     generated blocker-decision/bool issuer, alongside DS12's three.
   - `public-decision-verified-badge-is-client-computed` — shared with DS12, which owns the repair;
     DS14 must not reintroduce a client-computed verification indicator in the agent surface.
+
+#### DS21 — Deployed-Effect & World-Growth Readout (NEW, Revision 4)
+
+Registered 2026-09-01 by the Input Contract's Revision-4 audit, which found that Phase 6's learning
+loop had no surface consumer and that the Revision-2 row claiming DS14 owned it was wrong. **This
+entry deliberately stops short of a slice plan.** Writing one before `GY-O1` exists would be
+bureaucracy; what the plan owes now is the claim of ownership and the constraints the slice must
+inherit, so that Phase 6 designs its readout hooks against a named consumer rather than none.
+
+- **Gate:** `GY-O1` (confirmatory deployed-effect updater) and `GY-O3` (world-model write-back).
+  `GY-O2`'s anomaly candidates may follow; they are not a gate, because a surface that shows
+  candidates before it can show confirmations gets the authority bands backwards.
+- **Goal:** the honest answer to the question the north-star exists for — *did the deployed policy
+  do what we said it would, and if not, why* — plus a readable account of how the world model grew
+  because of it.
+- **Constraints inherited before any design work, and each is a rendering failure if broken:**
+  - The cause-class typing is the content, not a detail. A realized-vs-predicted delta types as
+    `prediction_error`, `implementation_failure`, `measurement_change` or `behavioral_response`, and
+    **only `prediction_error` may update the effect**. A surface that renders all four as "the
+    estimate changed" destroys precisely the distinction the updater exists to make.
+  - `W5-K04` binds: a protective response must never read as causal confirmation. `W5-K03` binds:
+    an unresolved or compound diagnosis renders as unresolved, never as a settled cause.
+  - `GY-O2`'s anomalies are `candidate_unverified` by construction and must render in the candidate
+    band. An anomaly that reads as a finding is the failure this slice is most likely to produce.
+  - Deployment updates and acquisitions are two provenance classes landing in **one** growing
+    world; the readout must not imply two worlds or a merge.
+  - Per the identity decision, observing deployed effects is OWN-core while executing the deployment
+    is not: realized metrics, implementation status and appeal outcomes enter as typed
+    integrate-evidence. The surface reports what was observed; it offers no operational action.
+- **Not yet:** no deployment control, no rollback affordance, no recommendation to change a policy.
+  Those are Phase-8 custody questions whose action-governing propositions are withheld as
+  `WP-04`–`WP-08`.
 
 #### DS15 — Acquisition Routes & Data-Pool Growth Surfaces
 

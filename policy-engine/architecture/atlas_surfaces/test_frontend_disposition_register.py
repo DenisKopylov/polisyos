@@ -268,14 +268,7 @@ def test_ds15_register_transition_binds_query_consumer_and_preserves_peers() -> 
         data,
         report_parity=False,
     ) == []
-    assert set(checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES) == {  # noqa: S101
-        "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
-        "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
-        "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
-        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-    }
+    assert checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES == {}  # noqa: S101
 
     missing_consumer = copy.deepcopy(data)
     mutated_entry = next(
@@ -371,73 +364,27 @@ def test_ds10_query_key_evidence_identity_binds_the_current_owner() -> None:
     ) == []
 
 
-def test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure() -> None:
-    """Keep DS10 frozen while DS15 admits only the complete current drift."""
-    exact = checker.DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES[0]
-    stale_expected = dict(checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES)
-    stale_expected.pop(next(iter(stale_expected)))
-    stale_admitted, stale_errors = checker._ds10_c13_external_nonclosure_admission(
-        [exact],
-        expected_mismatches=stale_expected,
-    )
-
-    assert stale_admitted == ()  # noqa: S101
-    assert stale_errors == [  # noqa: S101
-        "ds10_c13_external_source_binding_census_drift"
-    ]
-    admitted, admission_errors = checker._ds10_c13_external_nonclosure_admission(
-        [exact]
-    )
-    assert admission_errors == []  # noqa: S101
-    assert admitted == (exact,)  # noqa: S101
-    ds15_admitted, ds15_admission_errors = (
-        checker._ds10_c13_external_nonclosure_admission(
-        [exact],
-        expected_mismatches=checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
-        )
-    )
-    assert ds15_admission_errors == []  # noqa: S101
-    assert ds15_admitted == (exact,)  # noqa: S101
-    assert (  # noqa: S101
-        checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
-        == checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
-    )
-    assert set(checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES) == {  # noqa: S101
-        "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
-        "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
-        "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
-    }
-    assert checker._ds10_blocking_register_errors([]) == []  # noqa: S101
-    assert checker._ds10_blocking_register_errors(  # noqa: S101
-        [exact], admitted_external_errors=admitted
-    ) == []
-    assert checker._ds10_blocking_register_errors(  # noqa: S101
-        [exact, "c13_print_export_root_drift"],
-        admitted_external_errors=admitted,
-    ) == ["c13_print_export_root_drift"]
-    assert checker._ds10_blocking_register_errors(  # noqa: S101
-        [exact, exact], admitted_external_errors=admitted
-    ) == [exact, exact]
-    adjacent = exact + ":adjacent"
-    assert checker._ds10_blocking_register_errors(  # noqa: S101
-        [adjacent], admitted_external_errors=admitted
-    ) == [adjacent]
-
+def test_ds10_writer_requires_current_c13_receipt_and_retires_the_nonclosure() -> None:
+    """Close the exact residual while keeping its historical text non-admissible."""
+    retired = checker.DS10_RETIRED_EXTERNAL_REGISTER_NONCLOSURES[0]
+    assert checker.DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES == ()  # noqa: S101
+    assert checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES == {}  # noqa: S101
+    assert checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES == {}  # noqa: S101
     receipt = checker._c13_independent_print_receipt()
     source_bytes = {
         str(row["path"]): (checker.REPO_ROOT / str(row["path"])).read_bytes()
         for row in receipt["source_bindings"]
     }
-    unexposed, unexposed_errors = checker._ds10_c13_external_nonclosure_admission(
-        [], source_bytes=source_bytes
+    producer_bytes = {
+        str(row["path"]): (checker.REPO_ROOT / str(row["path"])).read_bytes()
+        for row in receipt["producer_bindings"]
+    }
+    admitted, admission_errors = checker._ds10_c13_external_nonclosure_admission(
+        [], source_bytes=source_bytes, producer_bytes=producer_bytes
     )
-    assert unexposed == ()  # noqa: S101
-    assert unexposed_errors == [  # noqa: S101
-        "ds10_c13_unexposed_current_evidence_drift"
-    ]
+    assert admitted == ()  # noqa: S101
+    assert admission_errors == []  # noqa: S101
+
     incomplete, incomplete_errors = (
         checker._ds10_c13_external_nonclosure_admission([], source_bytes={})
     )
@@ -445,45 +392,38 @@ def test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure() ->
     assert incomplete_errors == [  # noqa: S101
         "ds10_c13_external_source_binding_census_drift"
     ]
-
-    verified_bytes = {
-        path: checker._c03_git_bytes(
-            "show", f"{checker.C13_VERIFIED_REVISION}:policy-engine/{path}"
-        )
-        for path in checker.C13_SOURCE_REFS
-    }
-    future_fixed, future_fixed_errors = (
+    producer_ref = checker.C13_PRODUCER_REFS[0]
+    producer_bytes[producer_ref] += b"\nproducer drift"
+    producer_rejected, producer_errors = (
         checker._ds10_c13_external_nonclosure_admission(
-            [], source_bytes=verified_bytes
+            [],
+            source_bytes=source_bytes,
+            producer_bytes=producer_bytes,
         )
     )
-    assert future_fixed == ()  # noqa: S101
-    assert future_fixed_errors == []  # noqa: S101
-    stale_exposure, stale_exposure_errors = (
-        checker._ds10_c13_external_nonclosure_admission(
-            [exact], source_bytes=verified_bytes
-        )
-    )
-    assert stale_exposure == ()  # noqa: S101
-    assert stale_exposure_errors == [  # noqa: S101
-        "ds10_c13_external_source_binding_census_drift"
+    assert producer_rejected == ()  # noqa: S101
+    assert producer_errors == [  # noqa: S101
+        "ds10_c13_unexposed_current_evidence_drift"
     ]
-
-    unaffected = next(
-        path
-        for path in checker.C13_SOURCE_REFS
-        if path not in checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
-    )
-    source_bytes[unaffected] += b"\nthird mismatch"
+    source_bytes[checker.C13_SOURCE_REFS[0]] += b"\ncurrent drift"
     rejected, rejection_errors = checker._ds10_c13_external_nonclosure_admission(
-        [exact],
+        [],
         source_bytes=source_bytes,
-        expected_mismatches=checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
     )
     assert rejected == ()  # noqa: S101
     assert rejection_errors == [  # noqa: S101
-        "ds10_c13_external_source_binding_census_drift"
+        "ds10_c13_unexposed_current_evidence_drift"
     ]
+    retired_admitted, retired_errors = (
+        checker._ds10_c13_external_nonclosure_admission([retired])
+    )
+    assert retired_admitted == ()  # noqa: S101
+    assert retired_errors == []  # noqa: S101
+    assert checker._ds10_blocking_register_errors([retired]) == [retired]  # noqa: S101
+    with pytest.raises(ValueError, match="undeclared external register error"):
+        checker._ds10_blocking_register_errors(
+            [retired], admitted_external_errors=[retired]
+        )
 
 
 _SPEC = importlib.util.spec_from_file_location("frontend_disposition_checker", CHECKER_PATH)
@@ -609,9 +549,9 @@ def _c13_evidence_snapshot(
     historical_bytes = {
         checker.REPO_ROOT / str(row["path"]): checker._c03_git_bytes(
             "show",
-            f"{checker.C13_VERIFIED_REVISION}:policy-engine/{row['path']}",
+            f"{checker.C13_REISSUE_REVISION}:policy-engine/{row['path']}",
         )
-        for row in receipt["source_bindings"]
+        for row in [*receipt["source_bindings"], *receipt["producer_bindings"]]
     }
     producer = receipt["environment_probe_producer"]
     historical_bytes[checker.REPO_ROOT / str(producer["path"])] = (
@@ -3359,7 +3299,7 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
                 ]
                 for capture in receipt["captures"]
             ]
-            == [[5, 30], [5, 30]]
+            == [[16, 41], [16, 41]]
         )
         checker._c13_verify_current_print_evidence(receipt)
 
@@ -3374,6 +3314,7 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
             "growth": (("captures", 0, "pdfs", "grown_page_count"), 5),
             "second-growth": (("captures", 1, "pdfs", "grown_page_count"), 5),
             "environment": (("captures", 1, "environment_sha256"), "0" * 64),
+            "producer": (("producer_bindings", 0, "sha256"), "0" * 64),
         }
 
         for name, (coordinates, value) in mutations.items():
@@ -3423,11 +3364,51 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
         with pytest.raises(ValueError, match="C13 current evidence drift"):
             checker._c13_verify_current_print_evidence(receipt, evidence_bytes=evidence)
 
+    def test_current_producer_byte_drift_invalidates_the_receipt(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        producers = {
+            row["path"]: (checker.REPO_ROOT / row["path"]).read_bytes()
+            for row in receipt["producer_bindings"]
+        }
+        for producer_ref in checker.C13_PRODUCER_REFS:
+            mutation = dict(producers)
+            mutation[producer_ref] += b"\n# producer drift\n"
+            with (
+                self.subTest(producer_ref=producer_ref),
+                pytest.raises(
+                    ValueError,
+                    match="C13 current evidence drift:producer",
+                ),
+            ):
+                checker._c13_verify_current_print_evidence(
+                    receipt,
+                    producer_bytes=mutation,
+                )
+
+    def test_receipt_rejects_wrong_producer_population(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        populations = {
+            "missing": receipt["producer_bindings"][:-1],
+            "reordered": list(reversed(receipt["producer_bindings"])),
+            "extra": [
+                *receipt["producer_bindings"],
+                {"path": "unrelated.py", "sha256": "0" * 64},
+            ],
+        }
+        for name, producers in populations.items():
+            mutation = copy.deepcopy(receipt)
+            mutation["producer_bindings"] = producers
+            with self.subTest(name=name):
+                self._require(
+                    "producer_population"
+                    in checker._c13_receipt_shape_errors(mutation)
+                )
+
     def test_raw_playwright_and_environment_artifacts_are_the_receipt(self) -> None:
         receipt = checker._c13_independent_print_receipt()
         raw = checker._c13_raw_execution_receipt(receipt)
         self._require(raw["test_titles"] == receipt["test_titles"])
-        self._require(raw["page_counts"] == [[5, 30], [5, 30]])
+        self._require(raw["page_counts"] == [[16, 41], [16, 41]])
         self._require(raw["environment_tuple_count"] == 1)
 
         artifacts = {

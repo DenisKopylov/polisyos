@@ -1,0 +1,244 @@
+{
+  "config": {
+    "configFile": "/Users/deniskopylov/polisyos/.worktrees/debt-p-dashboard-evidence/policy-engine/apps/runtime-dashboard/playwright.visual.config.ts",
+    "rootDir": "/Users/deniskopylov/polisyos/.worktrees/debt-p-dashboard-evidence/policy-engine/apps/runtime-dashboard/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 240000,
+    "grep": {},
+    "grepInvert": {},
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/deniskopylov/polisyos/.worktrees/debt-p-dashboard-evidence/policy-engine/docs/superpowers/journals/receipts/2026-09-01-debt-p-dashboard-evidence/ds9-final/run-2/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/deniskopylov/polisyos/.worktrees/debt-p-dashboard-evidence/policy-engine/apps/runtime-dashboard/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/runtime-dashboard\\.visual\\.spec\\.ts/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/deniskopylov/polisyos/.worktrees/debt-p-dashboard-evidence/policy-engine/docs/superpowers/journals/receipts/2026-09-01-debt-p-dashboard-evidence/ds9-final/run-2/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-chromium",
+        "name": "mobile-chromium",
+        "testDir": "/Users/deniskopylov/polisyos/.worktrees/debt-p-dashboard-evidence/policy-engine/apps/runtime-dashboard/e2e",
+        "testIgnore": [
+          "/runtime-dashboard\\.visual\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "/runtime-dashboard\\.visual\\.spec\\.ts/"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "none",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "runtime-dashboard.visual.spec.ts",
+      "file": "runtime-dashboard.visual.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "runtime-dashboard visual baselines",
+          "file": "runtime-dashboard.visual.spec.ts",
+          "line": 820,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "DS9 human decision gate",
+              "file": "runtime-dashboard.visual.spec.ts",
+              "line": 1444,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "available pre-action gate retains readable hierarchy",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 90000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3209,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-09-01T19:52:38.930Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "a8aedd206cb9dfd9fb7a-37dbfa04d2433f33d938",
+                  "file": "runtime-dashboard.visual.spec.ts",
+                  "line": 1445,
+                  "column": 5
+                },
+                {
+                  "title": "blocked pre-action gate retains readable hierarchy with long reason TTL and provenance",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 90000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2970,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-09-01T19:52:42.435Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "a8aedd206cb9dfd9fb7a-294fdccf595a1afac3ac",
+                  "file": "runtime-dashboard.visual.spec.ts",
+                  "line": 1541,
+                  "column": 5
+                },
+                {
+                  "title": "reflows at 320px and 200% zoom and preserves keyboard contestability",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 90000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4176,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-09-01T19:52:45.412Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "a8aedd206cb9dfd9fb7a-64ae5f13523eab442760",
+                  "file": "runtime-dashboard.visual.spec.ts",
+                  "line": 1597,
+                  "column": 5
+                },
+                {
+                  "title": "remains absent from the public decision route",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 90000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 880,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-09-01T19:52:49.593Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "a8aedd206cb9dfd9fb7a-ac83a892ff0f12cf7184",
+                  "file": "runtime-dashboard.visual.spec.ts",
+                  "line": 1638,
+                  "column": 5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-01T19:52:06.473Z",
+    "duration": 44086.023,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

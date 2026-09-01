@@ -47,6 +47,7 @@ _DYNAMIC_TARGET_MARKERS: Final = frozenset(
         "build_default_recursive_generation_cycle_controller",
     }
 )
+_PROMOTION_PORT_TARGET: Final = "<promotion-port>"
 
 
 @dataclass(frozen=True)
@@ -75,17 +76,23 @@ def _attribute_name(
     bindings: dict[str, set[str]],
     shadowed: frozenset[str] = frozenset(),
 ) -> set[str]:
+    if (
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "getattr"
+        and "getattr" not in shadowed
+        and len(node.args) >= 2
+        and isinstance(node.args[1], ast.Constant)
+        and node.args[1].value == "_promotion_port"
+    ):
+        return {_PROMOTION_PORT_TARGET}
     if isinstance(node, ast.Name):
         if node.id in shadowed:
             return set()
         return set(bindings.get(node.id, ()))
     if isinstance(node, ast.Attribute):
-        if (
-            isinstance(node.value, ast.Name)
-            and node.value.id == "self"
-            and node.attr == "_promotion_port"
-        ):
-            return {"self._promotion_port"}
+        if node.attr == "_promotion_port":
+            return {_PROMOTION_PORT_TARGET}
         return {
             f"{prefix}.{node.attr}" for prefix in _attribute_name(node.value, bindings, shadowed)
         }
@@ -215,7 +222,7 @@ def _scan_python_source(
                     constructors.append(
                         _CallSite(**{**row.__dict__, "target": next(iter(matched))})
                     )
-            elif "self._promotion_port" in resolved:
+            elif _PROMOTION_PORT_TARGET in resolved:
                 promotion_calls.append(
                     _CallSite(**{**row.__dict__, "target": "self._promotion_port"})
                 )
@@ -1165,6 +1172,21 @@ class Probe:
     assert port_alias_ambiguity == ()
     assert len(aliased_ports) == 1
     assert aliased_ports[0].keyword_names == frozenset({"admitted_batch", "problem"})
+    _, dynamic_ports, dynamic_port_ambiguity = _scan_python_source(
+        source="""
+class Probe:
+    def promote(self):
+        return getattr(self, "_promotion_port")(
+            admitted_batch=batch,
+            problem=problem,
+        )
+""",
+        module="synthetic.dynamic_port_probe",
+        source_path="synthetic/dynamic_port_probe.py",
+    )
+    assert dynamic_port_ambiguity == ()
+    assert len(dynamic_ports) == 1
+    assert dynamic_ports[0].keyword_names == frozenset({"admitted_batch", "problem"})
 
     missing_runtime = tuple(
         replace(

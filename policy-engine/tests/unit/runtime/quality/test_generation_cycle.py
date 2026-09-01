@@ -3359,6 +3359,84 @@ class _OverlayDataGapValuePort:
         )
 
 
+def test_default_value_port_binds_the_actual_n5_context(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The lazy N8 wrapper binds and exercises the N5 observation from this call."""
+
+    problem, context, candidate = _canonical_strict_world_case()
+    world = context.world_model_record
+    simulation = SimulationPortObservation(
+        candidate_id=candidate.candidate_id,
+        status="joint_simulated",
+        simulation_ref="sha256:" + "9" * 64,
+        world_model_record=world,
+        k_world_ref_before=world.content_hash,
+        k_world_ref_after=world.content_hash,
+    )
+    owner_calls: list[tuple[object, ...]] = []
+
+    class ProbeOwnerGateway:
+        def load_value_data_profile(self, **kwargs: Any) -> Any:
+            owner_calls.append(
+                (kwargs["candidate"], kwargs["problem"], kwargs["world_record"])
+            )
+            raise generation_cycle_module.ValueOwnerAccessError("fresh_n5_owner_probe")
+
+        def produce_forecast_inputs(self, **kwargs: Any) -> Any:
+            del kwargs
+            raise AssertionError("forecast_called_after_owner_probe")
+
+        def build_transport_inputs(self, **kwargs: Any) -> Any:
+            del kwargs
+            raise AssertionError("transport_called_after_owner_probe")
+
+    owner_gateway = ProbeOwnerGateway()
+    captured_init: list[dict[str, Any]] = []
+    real_foundry_port = generation_cycle_module.FoundryValuePort
+
+    class CapturingFoundryValuePort:
+        def __init__(self, **kwargs: Any) -> None:
+            captured_init.append(kwargs)
+            self._delegate = real_foundry_port(**kwargs)
+
+        def __call__(self, **kwargs: Any) -> ValuePortObservation:
+            return self._delegate(**kwargs)
+
+    monkeypatch.setattr(
+        generation_cycle_module,
+        "FoundryValuePort",
+        CapturingFoundryValuePort,
+    )
+    wrapper = generation_cycle_module._DefaultSimulationBoundFoundryValuePort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+        owner_gateway=owner_gateway,
+    )
+
+    observation = wrapper(
+        candidate=candidate,
+        simulation=simulation,
+        problem=problem,
+        cycle_index=7,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == ("fresh_n5_owner_probe",)
+    assert owner_calls == [(candidate, problem, world)]
+    assert len(captured_init) == 1
+    captured = captured_init[0]
+    execution_context = captured["evaluation_context"]
+    assert captured["owner_gateway"] is owner_gateway
+    assert execution_context.evaluation_mode == "simulate_only"
+    assert execution_context.design_problem_ref == gy_content_hash(problem.model_dump(mode="json"))
+    assert execution_context.candidate_ref.artifact_id == candidate.candidate_id
+    assert execution_context.candidate_ref.content_hash == candidate.atom.content_hash
+    assert execution_context.world_model_record_ref.artifact_id == world.world_model_record_id
+    assert execution_context.world_model_record_ref.content_hash == world.content_hash
+    assert execution_context.evaluation_input_refs[0].content_hash == simulation.simulation_ref
+
+
 class _WorldKnowledgeGapValuePort:
     def __call__(self, **kwargs: Any) -> ValuePortObservation:
         del kwargs
@@ -3568,6 +3646,48 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     assert receipt.overlay_path == scenario.overlay.overlay_path.as_posix()
     assert receipt.new_cycle.cycle_index == source_cycle.cycle_index + 1
     assert source_run.cycles == (source_cycle,)
+
+    context_problem, context, context_candidate = _canonical_strict_world_case()
+    context_world = context.world_model_record
+    context_simulation = SimulationPortObservation(
+        candidate_id=context_candidate.candidate_id,
+        status="joint_simulated",
+        simulation_ref="sha256:" + "8" * 64,
+        world_model_record=context_world,
+        k_world_ref_before=context_world.content_hash,
+        k_world_ref_after=context_world.content_hash,
+    )
+    stale_context = generation_cycle_module.simulation_value_execution_context(
+        candidate=context_candidate,
+        simulation=context_simulation,
+        problem=context_problem,
+    ).model_copy(update={"evaluation_mode": "deployment"})
+
+    class ForbiddenOwnerGateway:
+        def __getattr__(self, name: str) -> Any:
+            raise AssertionError(f"stale_context_reached_owner:{name}")
+
+    stale_controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(target_world_slots=("cells.distress_score",)),
+        value_port=generation_cycle_module.FoundryValuePort(
+            evaluation_context=stale_context,
+            owner_gateway=ForbiddenOwnerGateway(),
+        ),
+    )
+    monkeypatch.setattr(stale_controller, "_run_cycle", forbidden)
+    with pytest.raises(
+        GenerationCycleError,
+        match="acquisition_reentry_evaluation_context_rebinding_required",
+    ):
+        await stale_controller.reenter_after_active_acquisition_overlay(
+            original_run=source_run,
+            source_cycle=source_cycle,
+            problem=problem,
+            overlay_receipt=activated,
+            baseline_path=scenario.authority.baseline_path,
+            overlay_path=scenario.overlay.overlay_path,
+            budget_state=_budget(),
+        )
 
 
 @pytest.mark.asyncio

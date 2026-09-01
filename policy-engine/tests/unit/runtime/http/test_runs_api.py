@@ -1570,10 +1570,11 @@ def test_reissue_endpoint_fails_closed_without_durable_control_plane(
         packet_state = validity_state.load_packet(packet_ref)
         return {f: getattr(packet_state, f, None) for f in _feedback_fields}
 
-    artifacts_before = _artifact_kinds()
-    feedback_state_before = _feedback_state()
-
     with client:
+        # Lifespan maintenance has its own admitted writes. Measure only the
+        # reissue request after startup has completed.
+        artifacts_before = _artifact_kinds()
+        feedback_state_before = _feedback_state()
         response = client.post(
             f"/api/v1/control/runs/{run_id}/reissue",
             headers={
@@ -1582,8 +1583,8 @@ def test_reissue_endpoint_fails_closed_without_durable_control_plane(
                 "X-PolicyOS-Step-Up": _install_bound_test_step_up(client),
             },
         )
-    assert _artifact_kinds() == artifacts_before
-    assert _feedback_state() == feedback_state_before
+        assert _artifact_kinds() == artifacts_before
+        assert _feedback_state() == feedback_state_before
     assert response.status_code == 422, response.text
 
     payload = response.json()

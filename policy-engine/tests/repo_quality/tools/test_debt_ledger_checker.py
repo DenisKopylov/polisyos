@@ -1370,14 +1370,14 @@ def test_real_census_replays_published_invariants() -> None:
     # These two collection-dependent pins are meaningful only under the repo's
     # lock-bound interpreter. Fail explicitly instead of pinning unbound zeros.
     assert checker._collection_environment_issue(REPO_ROOT) is None
-    # Group 1 and this group wrote two of the three new Task O identities; the
-    # quoted-evidence identity remains intentionally unwritten until group 3.
-    assert metrics["closure_signal_identity_unresolvable"] == 11
+    # Group 3 writes the quoted-evidence identity, reducing the Group-2
+    # source-derived set from eleven to ten without changing its 43 selectors.
+    assert metrics["closure_signal_identity_unresolvable"] == 10
     assert metrics["closure_signal_selects_nothing"] == 0
     assert metrics["closure_signal_collection_failed"] == 0
     assert metrics["closure_signal_collection_host_unknown"] == 0
     assert metrics["closure_signal_ast_collection_disagreements"] == 0
-    assert metrics["closure_signal_count_exit_disagreements"] == 11
+    assert metrics["closure_signal_count_exit_disagreements"] == 10
     # The Atlas mismatch this once pinned (published 13, observed 22) was the census
     # error itself and is repaired. Pin the exact live class set instead: any change —
     # a new class, or one of these resolving — must be acknowledged here, not absorbed.

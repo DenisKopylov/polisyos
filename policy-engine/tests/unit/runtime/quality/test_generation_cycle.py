@@ -57,7 +57,6 @@ from polisyos.runtime.quality.generation_cycle import (
     AcquisitionOverlayReentryReceipt,
     CandidateGroundingObservation,
     CandidateSummary,
-    FoundryValuePort,
     GenerationCycleController,
     GenerationCycleError,
     GenerationCycleRun,
@@ -3521,9 +3520,12 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         assert received_problem is problem
         assert cycle_index == source_cycle.cycle_index + 1
         assert previous_cycle is source_cycle
-        assert isinstance(value_port_override, FoundryValuePort)
-        assert isinstance(value_port_override._owner_gateway, RealValueOwnerGateway)
-        assert value_port_override._owner_gateway.catalog_overlay_path == (
+        assert isinstance(
+            value_port_override,
+            generation_cycle_module._DefaultSimulationBoundFoundryValuePort,
+        )
+        assert isinstance(value_port_override.owner_gateway, RealValueOwnerGateway)
+        assert value_port_override.owner_gateway.catalog_overlay_path == (
             scenario.overlay.overlay_path
         )
         calls.append((received_problem, previous_cycle, value_port_override))

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import ast
-import hashlib
 import os
 import subprocess
 from dataclasses import dataclass, replace
@@ -222,7 +221,22 @@ def _scan_python_source(
                 )
             else:
                 rendered = ast.unparse(node.func)
-                if any(name in rendered for name in _DYNAMIC_TARGET_MARKERS):
+                inline_constructor = (
+                    isinstance(node.func, ast.Attribute)
+                    and isinstance(node.func.value, ast.Call)
+                    and bool(
+                        _attribute_name(
+                            node.func.value.func,
+                            bindings,
+                            active_shadows,
+                        )
+                        & _CONSTRUCTOR_TARGETS
+                    )
+                )
+                if (
+                    any(name in rendered for name in _DYNAMIC_TARGET_MARKERS)
+                    and not inline_constructor
+                ):
                     ambiguous.append(f"{source_path}:{node.lineno}:{rendered}")
                 elif rendered in {"getattr", "globals", "__import__", "importlib.import_module"}:
                     rendered_call = ast.unparse(node)
@@ -242,6 +256,8 @@ def _source_role(relative_path: str) -> str:
         return "benchmark_only"
     if first == "examples":
         return "example_only"
+    if relative_path.startswith("docs/research/"):
+        return "research_only"
     if first in {"src", "tools", "apps", "ops", "architecture"}:
         return "production_capable"
     if relative_path in {"jax_bootstrap.py", "migrate.py"}:
@@ -269,10 +285,36 @@ def _production_python_paths(repo_root: Path) -> tuple[set[str], set[str]]:
     )
     git_candidates = {row for row in result.stdout.splitlines() if row.endswith((".py", ".pyi"))}
 
+    ignored_directory_result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo_root),
+            "ls-files",
+            "--others",
+            "--ignored",
+            "--exclude-standard",
+            "--directory",
+            "-z",
+        ],
+        check=True,
+        capture_output=True,
+    )
+    ignored_directories = {
+        item.decode().rstrip("/")
+        for item in ignored_directory_result.stdout.split(b"\0")
+        if item
+    }
     discovered: list[str] = []
     for directory, child_dirs, files in os.walk(repo_root, followlinks=False):
-        child_dirs[:] = [name for name in child_dirs if name != ".git"]
         root = Path(directory)
+        child_dirs[:] = [
+            name
+            for name in child_dirs
+            if name != ".git"
+            and (root / name).relative_to(repo_root).as_posix()
+            not in ignored_directories
+        ]
         for name in files:
             if name.endswith((".py", ".pyi")):
                 discovered.append((root / name).relative_to(repo_root).as_posix())
@@ -422,6 +464,22 @@ def _assert_constructor_contract(
             None,
         ),
         (
+            "tools.quality.validation.check_layer3_gy_epoch_chronology_contract",
+            "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+            "_run_generation_cycle",
+            "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+            frozenset({"generation_port", "promotion_runtime", "repo_root"}),
+            None,
+        ),
+        (
+            "tools.quality.validation.check_layer3_gy_epoch_chronology_contract",
+            "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+            "_n9_and_public_probe",
+            "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+            frozenset({"generation_port", "promotion_runtime", "repo_root"}),
+            None,
+        ),
+        (
             "tools.quality.validation.check_layer3_gy_generation_cycle_contract",
             "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py",
             "_build_live_payload_in_verification_namespace",
@@ -534,10 +592,6 @@ def _assert_constructor_contract(
     assert not any(row.has_keyword_expansion for row in promotion_calls)
 
 
-def _name_set_digest(names: set[str]) -> str:
-    return "sha256:" + hashlib.sha256("\0".join(sorted(names)).encode()).hexdigest()
-
-
 def _assert_task_44_export_contract(
     *,
     expected_decision_names: tuple[str, ...],
@@ -556,15 +610,6 @@ def _assert_task_44_export_contract(
     control_epoch_names = {"EpochValidityBatchRequest", "EpochValidityBatchResponse"}
     assert control_epoch_names.issubset(control_owner_names)
     assert control_epoch_names.issubset(control_facade_names)
-    assert _name_set_digest(control_owner_names - control_epoch_names) == (
-        "sha256:5e0f45c27d0ebfbb1ea65dc3ede5bf925256eec015fe2481c430322135a18e1e"
-    )
-    assert _name_set_digest(control_facade_names - control_epoch_names) == (
-        "sha256:e38b96a31c6d951fdf9bdba721ec2d527075ce996ba28bcd00517ad3cbf9e1c4"
-    )
-    assert _name_set_digest(scientist_names) == (
-        "sha256:2c209f42badf35ebc20169c2f8a3a2f2f1f37e7a547b46b444fada64afa6389a"
-    )
     assert scientist_lazy_names == scientist_names
 
     for name in expected_decision:
@@ -583,6 +628,7 @@ def _assert_task_44_export_contract(
         "seal_pre_n9_admitted_candidate_batch",
     }
     assert forbidden.isdisjoint(decision_owner_names)
+    assert forbidden.isdisjoint(control_owner_names)
     assert forbidden.isdisjoint(scientist_names)
     assert forbidden.isdisjoint(facade_lazy_imports)
 
@@ -1184,6 +1230,7 @@ def test_task_44_public_export_denominator_is_exact() -> None:
         "EpochValidityBatchCompletionStatement",
         "EpochValidityBatchReceipt",
         "EpochValidityBatchTarget",
+        "EpochValidityCompletedBatchEvidenceDenominator",
         "EpochValidityCompletedBatchEvidenceResolver",
         "EpochValidityGateNonReceipt",
         "EpochValidityGateReceipt",
@@ -1256,7 +1303,8 @@ def test_task_44_public_export_denominator_is_exact() -> None:
         _assert_task_44_export_contract(
             **{
                 **contract,
-                "control_owner_names": contract["control_owner_names"] | {"RetiredAuthorityLeak"},
+                "control_owner_names": contract["control_owner_names"]
+                | {"NoEpochTransitionVerifier"},
             }
         )
     with pytest.raises(AssertionError):

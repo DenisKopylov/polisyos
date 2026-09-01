@@ -3,6 +3,9 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
+import subprocess
+import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -190,6 +193,66 @@ def test_owner_catalog_prerequisite_is_declared_not_ambient(
     assert "production_data owner catalog" in issue
     assert "link" in issue
     assert "read-only" in issue
+
+
+def test_owner_catalog_prerequisite_skips_an_actual_node_when_catalog_is_absent(
+    tmp_path: Path,
+) -> None:
+    """Prove the real collection path reports nonreceipt instead of semantic failure."""
+
+    plugin_path = tmp_path / "missing_owner_catalog.py"
+    plugin_path.write_text(
+        """\
+import os
+from pathlib import Path
+
+from polisyos.runtime.quality import substrate_registry
+
+_real_paths = substrate_registry.default_substrate_catalog_paths
+_missing_root = Path(os.environ["POLISYOS_TEST_MISSING_OWNER_ROOT"])
+
+
+def _missing_paths(repo_root):
+    del repo_root
+    return _real_paths(_missing_root)
+
+
+substrate_registry.default_substrate_catalog_paths = _missing_paths
+""",
+        encoding="utf-8",
+    )
+    environment = os.environ.copy()
+    environment["POLISYOS_TEST_MISSING_OWNER_ROOT"] = str(tmp_path / "absent")
+    environment["PYTHONPATH"] = os.pathsep.join(
+        value
+        for value in (str(tmp_path), str(REPO_ROOT), environment.get("PYTHONPATH", ""))
+        if value
+    )
+    environment["PYTEST_PLUGINS"] = ",".join(
+        value
+        for value in (
+            environment.get("PYTEST_PLUGINS", ""),
+            "missing_owner_catalog",
+        )
+        if value
+    )
+    node_id = (
+        "tests/unit/runtime/quality/test_generation_cycle.py::"
+        "test_cycle_world_identity_rejects_shaped_atom_even_when_strings_match"
+    )
+    result = subprocess.run(  # noqa: S603 - lock-bound pytest with a local probe plugin.
+        [sys.executable, "-m", "pytest", node_id, "-q", "-rs"],
+        cwd=REPO_ROOT,
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.splitlines()[0].startswith("s")
+    assert "production_data owner catalog is unavailable" in result.stdout
+    assert "link the worktree's provisioned production_data owner tree read-only" in result.stdout
 
 
 @dataclass(frozen=True)

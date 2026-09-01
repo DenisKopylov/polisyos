@@ -4,6 +4,9 @@ import base64
 import hashlib
 import importlib
 import json
+import os
+import subprocess
+import sys
 import zlib
 from collections.abc import Callable
 from copy import deepcopy
@@ -168,6 +171,59 @@ def test_solver_prerequisite_is_declared_not_ambient(
     assert issue is not None
     assert "CP-SAT" in issue
     assert "--extra solvers" in issue
+
+
+def test_solver_prerequisite_skips_an_actual_node_when_extra_is_absent(
+    tmp_path: Path,
+) -> None:
+    """Prove the real collection path reports the missing solver extra."""
+
+    plugin_path = tmp_path / "missing_cp_sat.py"
+    plugin_path.write_text(
+        """\
+import importlib
+
+_real_import_module = importlib.import_module
+
+
+def _without_cp_sat(name, package=None):
+    if name == "ortools.sat.python.cp_model":
+        raise ModuleNotFoundError(name)
+    return _real_import_module(name, package)
+
+
+importlib.import_module = _without_cp_sat
+""",
+        encoding="utf-8",
+    )
+    environment = os.environ.copy()
+    environment["PYTHONPATH"] = os.pathsep.join(
+        value
+        for value in (str(tmp_path), str(REPO_ROOT), environment.get("PYTHONPATH", ""))
+        if value
+    )
+    environment["PYTEST_PLUGINS"] = ",".join(
+        value
+        for value in (environment.get("PYTEST_PLUGINS", ""), "missing_cp_sat")
+        if value
+    )
+    node_id = (
+        "tests/unit/runtime/quality/test_promotion_sequence.py::"
+        "test_production_n9_port_persists_effect_but_refuses_contract_only_cg2"
+    )
+    result = subprocess.run(  # noqa: S603 - lock-bound pytest with a local probe plugin.
+        [sys.executable, "-m", "pytest", node_id, "-q", "-rs"],
+        cwd=REPO_ROOT,
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.splitlines()[0].startswith("s")
+    assert "CP-SAT proof dependency is unavailable" in result.stdout
+    assert "--extra solvers" in result.stdout
 
 
 _ROUND1_V5_V2_RECEIPT_ZLIB_B64 = (

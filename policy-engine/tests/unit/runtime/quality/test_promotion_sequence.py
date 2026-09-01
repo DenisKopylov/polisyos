@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import importlib
 import json
 import zlib
 from collections.abc import Callable
@@ -101,6 +102,73 @@ from polisyos.runtime.quality.promotion_sequence import (
 from polisyos.runtime.quality.workspace.loop import load_workspace_fixture_manifest
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+
+_CP_SAT_GUIDANCE = (
+    "CP-SAT proof dependency is unavailable; install it with "
+    "`uv sync --frozen --extra test --extra solvers`"
+)
+
+
+def _cp_sat_prerequisite_issue() -> str | None:
+    """Return actionable setup guidance when OR-Tools CP-SAT is absent."""
+
+    try:
+        importlib.import_module("ortools.sat.python.cp_model")
+    except ImportError:
+        return _CP_SAT_GUIDANCE
+    return None
+
+
+_CP_SAT_PREREQUISITE_ISSUE = _cp_sat_prerequisite_issue()
+_requires_cp_sat = pytest.mark.skipif(
+    _CP_SAT_PREREQUISITE_ISSUE is not None,
+    reason=_CP_SAT_PREREQUISITE_ISSUE or _CP_SAT_GUIDANCE,
+)
+
+
+def test_solver_prerequisite_is_declared_not_ambient(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Every positive CP-SAT test names its optional proof dependency."""
+
+    expected_names = {
+        "test_effect_exact_or_bounded_entailment_satisfies_without_minting",
+        "test_production_n9_port_persists_effect_but_refuses_contract_only_cg2",
+        "test_promotion_history_remains_readable_after_exact_v3_to_v6_reissue",
+    }
+    declared_names = {
+        name
+        for name in expected_names
+        if any(
+            mark.name == "skipif"
+            and "--extra solvers" in str(mark.kwargs.get("reason", ""))
+            for mark in getattr(globals()[name], "pytestmark", ())
+        )
+    }
+
+    assert declared_names == expected_names
+    declared_node_count = 0
+    for name in declared_names:
+        parametrizations = tuple(
+            mark
+            for mark in getattr(globals()[name], "pytestmark", ())
+            if mark.name == "parametrize"
+        )
+        declared_node_count += len(parametrizations[0].args[1]) if parametrizations else 1
+    assert declared_node_count == 4
+
+    def _missing_cp_sat(name: str, package: str | None = None) -> object:
+        del package
+        if name == "ortools.sat.python.cp_model":
+            raise ModuleNotFoundError(name)
+        raise AssertionError(f"unexpected import: {name}")
+
+    monkeypatch.setattr("importlib.import_module", _missing_cp_sat)
+    issue = _cp_sat_prerequisite_issue()
+    assert issue is not None
+    assert "CP-SAT" in issue
+    assert "--extra solvers" in issue
+
 
 _ROUND1_V5_V2_RECEIPT_ZLIB_B64 = (
     "eNrtfXmPXMeR51d56PljbSy7mffRWgPj8XoE78iSIAn2zgrEQ57NGtbRroOHZX73jch8Z3VVsyWSsqhpYcbsei9fnnH8IjIy8oeL"
@@ -1882,6 +1950,7 @@ def test_ungrounded_effect_claim_fails_its_entailment_conjunct(tmp_path: Path) -
     ("bounded", "limitation_code"),
     [(False, "effect_claim_entailed"), (True, "effect_claim_bounded")],
 )
+@_requires_cp_sat
 def test_effect_exact_or_bounded_entailment_satisfies_without_minting(
     tmp_path: Path,
     bounded: bool,
@@ -2018,6 +2087,7 @@ def test_production_n9_port_persists_and_consumes_measurement_root_evidence(
     )
 
 
+@_requires_cp_sat
 def test_production_n9_port_persists_effect_but_refuses_contract_only_cg2(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -3114,6 +3184,7 @@ def test_failed_obligation_cannot_be_relabelled_into_decision_front() -> None:
     assert summaries[0].certified_by_n9 is False
 
 
+@_requires_cp_sat
 def test_promotion_history_remains_readable_after_exact_v3_to_v6_reissue() -> None:
     from tools.quality.validation import check_layer3_gy_promotion_contract as validator
 

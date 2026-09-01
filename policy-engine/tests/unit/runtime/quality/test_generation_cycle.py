@@ -101,6 +101,7 @@ from polisyos.runtime.quality.substrate_registry import (
     SubstrateTrustTier,
     build_substrate_registry,
     build_substrate_registry_entry,
+    default_substrate_catalog_paths,
 )
 from polisyos.runtime.quality.world_model_record import WorldModelRecordError
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
@@ -110,11 +111,85 @@ from tools.quality.validation import check_layer3_gy_generation_cycle_contract a
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
+def _owner_catalog_prerequisite_issue(repo_root: Path) -> str | None:
+    """Return actionable setup guidance when canonical owner catalogs are absent."""
+
+    paths = default_substrate_catalog_paths(repo_root)
+    required = (
+        paths.root_manifest_path,
+        paths.measurement_registry_path,
+        paths.identification_mode_registry_path,
+        paths.schema_regime_registry_path,
+        paths.l1_dcat_path,
+    )
+    missing = tuple(path for path in required if not path.exists())
+    if not missing:
+        return None
+    rendered = ", ".join(
+        path.relative_to(repo_root).as_posix() if path.is_relative_to(repo_root) else path.as_posix()
+        for path in missing
+    )
+    return (
+        f"production_data owner catalog is unavailable ({rendered}); "
+        "link the worktree's provisioned production_data owner tree read-only"
+    )
+
+
+_OWNER_CATALOG_GUIDANCE = (
+    "production_data owner catalog is unavailable; "
+    "link the worktree's provisioned production_data owner tree read-only"
+)
+_OWNER_CATALOG_PREREQUISITE_ISSUE = _owner_catalog_prerequisite_issue(REPO_ROOT)
+_requires_owner_catalog = pytest.mark.skipif(
+    _OWNER_CATALOG_PREREQUISITE_ISSUE is not None,
+    reason=_OWNER_CATALOG_PREREQUISITE_ISSUE or _OWNER_CATALOG_GUIDANCE,
+)
+
+
 def test_grounding_disposition_denominator_derives_from_canonical_type() -> None:
     denominator = tuple(str(item) for item in get_args(GroundingDispositionKind))
 
     assert _grounding_disposition_denominator() == denominator
     assert contract._denominators()["grounding_dispositions"] == sorted(denominator)
+
+
+def test_owner_catalog_prerequisite_is_declared_not_ambient(
+    tmp_path: Path,
+) -> None:
+    """Every owner-backed semantic test declares the catalog it needs."""
+
+    expected_names = {
+        "test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters",
+        "test_active_overlay_reentry_is_exact_direct_and_read_only",
+        "test_cycle_world_identity_rejects_atom_from_another_problem",
+        "test_cycle_world_identity_rejects_shaped_atom_even_when_strings_match",
+        "test_default_value_port_binds_the_actual_n5_context",
+        "test_explicit_joint_request_atom_refs_bind_before_injected_controller",
+        "test_explicit_joint_request_cannot_bypass_context_wmr",
+        "test_explicit_request_nested_atom_missing_slot_fails_world_identity",
+        "test_joint_port_accepts_label_drift_after_atom_world_resolution",
+        "test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr",
+        "test_joint_port_rejects_empty_atom_slots_as_unresolved_world_identity",
+        "test_joint_port_reuses_exact_cycle_context_wmr",
+        "test_joint_port_types_tampered_strict_atom_as_unresolved_world_identity",
+        "test_shaped_wmr_ref_without_resolved_object_is_rejected",
+    }
+    declared_names = {
+        name
+        for name in expected_names
+        if any(
+            mark.name == "skipif"
+            and "production_data owner catalog" in str(mark.kwargs.get("reason", ""))
+            for mark in getattr(globals()[name], "pytestmark", ())
+        )
+    }
+
+    assert declared_names == expected_names
+    issue = _owner_catalog_prerequisite_issue(tmp_path)
+    assert issue is not None
+    assert "production_data owner catalog" in issue
+    assert "link" in issue
+    assert "read-only" in issue
 
 
 @dataclass(frozen=True)
@@ -1864,6 +1939,7 @@ def _canonical_context_case_with_runtime_hints(
     return problem, context, candidate
 
 
+@_requires_owner_catalog
 def test_joint_port_reuses_exact_cycle_context_wmr() -> None:
     """N5 receives the exact WMR object bound into the cycle context."""
 
@@ -1884,6 +1960,7 @@ def test_joint_port_reuses_exact_cycle_context_wmr() -> None:
     assert observation.k_world_ref_after == context.world_model_record.content_hash
 
 
+@_requires_owner_catalog
 def test_joint_port_accepts_label_drift_after_atom_world_resolution() -> None:
     """World identity follows resolved slots/content, never producer label equality."""
 
@@ -1955,6 +2032,7 @@ def test_n5_coupling_blocker_survives_selected_summary_projection() -> None:
     assert projected.value_blockers == ("n5_coupling_blocked",)
 
 
+@_requires_owner_catalog
 def test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr() -> None:
     """A candidate's shaped WMR ref cannot override the resolved context world."""
 
@@ -1983,6 +2061,7 @@ def test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr() -> None:
     assert "world_identity_unresolved" in observation.authority_blockers
 
 
+@_requires_owner_catalog
 def test_cycle_world_identity_rejects_shaped_atom_even_when_strings_match() -> None:
     """Matching ref/slot strings are not a substitute for the strict atom owner."""
 
@@ -1998,6 +2077,7 @@ def test_cycle_world_identity_rejects_shaped_atom_even_when_strings_match() -> N
         resolve_cycle_substrate_world_identity(context, atom=shaped)
 
 
+@_requires_owner_catalog
 def test_cycle_world_identity_rejects_atom_from_another_problem() -> None:
     """A valid atom cannot cross a DesignProblem boundary within the same world."""
 
@@ -2015,6 +2095,7 @@ def test_cycle_world_identity_rejects_atom_from_another_problem() -> None:
         resolve_cycle_substrate_world_identity(context, atom=atom)
 
 
+@_requires_owner_catalog
 def test_joint_port_rejects_empty_atom_slots_as_unresolved_world_identity() -> None:
     """A world ref without at least one resolved slot is not world identity."""
 
@@ -2038,6 +2119,7 @@ def test_joint_port_rejects_empty_atom_slots_as_unresolved_world_identity() -> N
     assert "world_identity_unresolved" in observation.authority_blockers
 
 
+@_requires_owner_catalog
 def test_joint_port_types_tampered_strict_atom_as_unresolved_world_identity() -> None:
     """A model-constructed atom with a stale hash fails closed at the port."""
 
@@ -2054,6 +2136,7 @@ def test_joint_port_types_tampered_strict_atom_as_unresolved_world_identity() ->
     assert "world_identity_unresolved" in observation.authority_blockers
 
 
+@_requires_owner_catalog
 def test_explicit_joint_request_cannot_bypass_context_wmr() -> None:
     """An explicit N5 request with another concrete WMR is refused before simulation."""
 
@@ -2107,6 +2190,7 @@ def test_explicit_joint_request_cannot_bypass_context_wmr() -> None:
     assert calls == []
 
 
+@_requires_owner_catalog
 def test_explicit_joint_request_atom_refs_bind_before_injected_controller() -> None:
     """A valid nested atom for another world is refused at the single N5 intake."""
 
@@ -2173,6 +2257,7 @@ def test_explicit_joint_request_atom_refs_bind_before_injected_controller() -> N
     assert calls == []
 
 
+@_requires_owner_catalog
 def test_explicit_request_nested_atom_missing_slot_fails_world_identity() -> None:
     """Every nested request atom resolves before any N5 controller injection."""
 
@@ -2279,6 +2364,7 @@ def test_joint_port_revalidates_context_before_reusing_wmr() -> None:
         )
 
 
+@_requires_owner_catalog
 def test_shaped_wmr_ref_without_resolved_object_is_rejected() -> None:
     """A WMR-looking string cannot substitute for a resolved owner object."""
 
@@ -2827,6 +2913,7 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
 
 
 @pytest.mark.asyncio
+@_requires_owner_catalog
 async def test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters() -> None:
     compiled = compile_data_requirements_for_scenario(
         {
@@ -3359,6 +3446,7 @@ class _OverlayDataGapValuePort:
         )
 
 
+@_requires_owner_catalog
 def test_default_value_port_binds_the_actual_n5_context(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -3567,6 +3655,7 @@ async def test_canonical_n7_route_attaches_exact_owner_cost_basis() -> None:
 
 
 @pytest.mark.asyncio
+@_requires_owner_catalog
 async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

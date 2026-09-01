@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -12,7 +14,11 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.decision_validity import EpochValidityGateNonReceipt
 from polisyos.core.contracts.runtime import TemporalScope
 from polisyos.core.security.identity import PolicyOSRole
+from polisyos.runtime.http.errors import RuntimeHTTPError
+from polisyos.runtime.http.services import temporal as temporal_runtime
 from polisyos.runtime.http.services.temporal import TemporalService
+from polisyos.runtime.quality import derived_observations as derived_observations_runtime
+from polisyos.runtime.quality import epoch_validity_cascade as epoch_validity_runtime
 from polisyos.runtime.quality.epoch_staleness_projection import (
     compile_epoch_staleness_projection,
 )
@@ -31,6 +37,11 @@ from tests.unit.runtime.http.test_runtime_api_authz import (
     _build_secure_client,
     _claims,
     _fixture_bearer,
+)
+from tests.unit.runtime.quality.test_derived_observations import (
+    _epoch_recompute_fixture,
+    _EpochRecomputeFixture,
+    _produce_epoch_recompute,
 )
 
 
@@ -91,6 +102,91 @@ def _review_client(
         ),
     )
     return client, bearer, cell
+
+
+@dataclass(frozen=True)
+class _TemporalRecomputeSetup:
+    run: SimpleNamespace
+    scope: TemporalScope
+    requested_query_context_ref: str
+    fixture: _EpochRecomputeFixture
+    persisted: derived_observations_runtime.PersistedEpochInheritanceRecomputeReceipt
+    temporal: TemporalService
+
+
+def _temporal_recompute_setup(
+    tmp_path: Path,
+    *,
+    run_id: str,
+) -> _TemporalRecomputeSetup:
+    run = SimpleNamespace(run_id=run_id, decision_packet_ref=None)
+    scope = TemporalScope(valid_at=datetime(2026, 8, 30, tzinfo=UTC))
+    scope_payload = {
+        "run_id": run.run_id,
+        "decision_packet_ref": None,
+        "temporal_scope": scope.model_dump(mode="json"),
+    }
+    scope_ref = temporal_runtime._semantic_digest(
+        "polisyos.runtime.epoch-staleness.scope.v1",
+        scope_payload,
+    )
+    requested_cutoff_ref = temporal_runtime._semantic_digest(
+        "polisyos.runtime.epoch-staleness.run-cutoff.v1",
+        {"run_id": run.run_id},
+    )
+    requested_query_context_ref = temporal_runtime._semantic_digest(
+        "polisyos.runtime.epoch-staleness.query.v1",
+        {
+            **scope_payload,
+            "scope_ref": scope_ref,
+            "requested_cutoff_ref": requested_cutoff_ref,
+        },
+    )
+    fixture = _epoch_recompute_fixture(
+        tmp_path,
+        authority_purpose="decision_validity",
+    )
+    transition_payload = fixture.transition.model_dump(
+        mode="python",
+        exclude={"transition_content_hash"},
+    )
+    transition_payload["requested_query_context_ref"] = requested_query_context_ref
+    transition = epoch_validity_runtime.EpochValidityTransitionArtifact(
+        **transition_payload,
+        transition_content_hash=epoch_validity_runtime._semantic_hash(
+            "polisyos.epoch.validity-transition.v1",
+            transition_payload,
+        ),
+    )
+    transition_ref = fixture.store.put_bytes(
+        epoch_validity_runtime._canonical_bytes(transition),
+        ArtifactWriteOptions(
+            kind=derived_observations_runtime.EPOCH_VALIDITY_TRANSITION_KIND,
+            media_type="application/vnd.polisyos.chronology+json",
+        ),
+    )
+    rebound = replace(
+        fixture,
+        transition=transition,
+        transition_ref=transition_ref,
+        query_ref=requested_query_context_ref,
+    )
+    persisted = _produce_epoch_recompute(rebound)
+    temporal = TemporalService(
+        artifact_store=fixture.store,
+        semantic_epoch_service=SemanticEpochService.for_unallocated_policy_query(
+            artifact_store=fixture.store
+        ),
+        transition_signing_authority=NoEpochTransitionSigningAuthority(),
+    )
+    return _TemporalRecomputeSetup(
+        run=run,
+        scope=scope,
+        requested_query_context_ref=requested_query_context_ref,
+        fixture=rebound,
+        persisted=persisted,
+        temporal=temporal,
+    )
 
 
 def test_fabric_decision_data_route_wraps_decision_values_and_echoes_temporal_scope(
@@ -288,11 +384,115 @@ def test_epoch_staleness_route_renders_real_declared_absences_as_usable_state(
     }
     assert all(row["appointment_is_closure_precondition"] is False for row in institutional)
     assert all("MACHINE" in row["inspectable_capabilities"] for row in institutional)
-    assert [row["title"] for row in engineering] == ["Engineering capability not wired"]
-    assert engineering[0]["candidate_owner_module"] == (
-        "polisyos.runtime.quality.derived_observations"
+    assert engineering == []
+
+
+def test_temporal_service_exact_reads_completed_recompute_at_requested_coordinate(
+    tmp_path: Path,
+) -> None:
+    """A persisted owner receipt changes only its exact dependency recompute status."""
+
+    setup = _temporal_recompute_setup(tmp_path, run_id="run-exact-recompute")
+    projection = setup.temporal.build_epoch_staleness_projection(
+        run=setup.run,
+        scope=setup.scope,
+        observed_at=datetime(2026, 8, 30, 12, tzinfo=UTC),
     )
-    assert engineering[0]["institutional_dependency"] is False
+
+    assert projection.status == "not_established"
+    assert projection.current_epoch_ref is None
+    assert projection.decision_validity_status is None
+    assert projection.revalidation_required is False
+    assert projection.engineering_absences == ()
+    assert {row.refusal_code for row in projection.institutional_absences} == {
+        "policy_admission_missing",
+        "epoch_transition_signer_not_established",
+    }
+    assert len(projection.dependencies) == 1
+    dependency = projection.dependencies[0]
+    assert dependency.disposition == setup.fixture.disposition
+    assert dependency.source_classes == ()
+    assert dependency.advisory_event_refs == ()
+    assert dependency.owner_evidence_refs == ()
+    recompute = dependency.recompute
+    assert recompute.status == "completed"
+    assert recompute.predicate_provenance == "recomputed"
+    assert recompute.evidence_ref == setup.persisted.receipt_artifact_ref
+    assert recompute.evidence_content_hash == setup.persisted.receipt_content_hash
+    assert "derived_recompute_status_not_established" not in projection.limitations
+
+    other_coordinate = setup.temporal.build_epoch_staleness_projection(
+        run=setup.run,
+        scope=TemporalScope(valid_at=datetime(2026, 8, 31, tzinfo=UTC)),
+        observed_at=datetime(2026, 8, 31, 12, tzinfo=UTC),
+    )
+    assert other_coordinate.dependencies == ()
+    assert other_coordinate.current_epoch_ref is None
+    assert other_coordinate.decision_validity_status is None
+    assert other_coordinate.revalidation_required is False
+    assert "derived_recompute_status_not_established" in other_coordinate.limitations
+
+
+def test_temporal_service_rejects_corrupt_same_coordinate_recompute_receipt(
+    tmp_path: Path,
+) -> None:
+    setup = _temporal_recompute_setup(tmp_path, run_id="run-corrupt-recompute")
+    blob_path, _ = setup.fixture.store.get_paths(
+        setup.persisted.receipt_artifact_ref.artifact_id
+    )
+    blob_path.write_bytes(blob_path.read_bytes() + b"corrupt")
+
+    with pytest.raises(RuntimeHTTPError) as exc_info:
+        setup.temporal.build_epoch_staleness_projection(
+            run=setup.run,
+            scope=setup.scope,
+            observed_at=datetime(2026, 8, 30, 12, tzinfo=UTC),
+        )
+
+    assert exc_info.value.status_code == 422
+    assert exc_info.value.code == "epoch_staleness_recompute_receipt_invalid"
+
+
+def test_temporal_service_rejects_ambiguous_same_coordinate_recompute_receipts(
+    tmp_path: Path,
+) -> None:
+    setup = _temporal_recompute_setup(tmp_path, run_id="run-ambiguous-recompute")
+    transition_payload = setup.fixture.transition.model_dump(
+        mode="python",
+        exclude={"transition_content_hash"},
+    )
+    transition_payload["current_epoch_ref"] = _digest("ambiguous-current-epoch")
+    transition = epoch_validity_runtime.EpochValidityTransitionArtifact(
+        **transition_payload,
+        transition_content_hash=epoch_validity_runtime._semantic_hash(
+            "polisyos.epoch.validity-transition.v1",
+            transition_payload,
+        ),
+    )
+    transition_ref = setup.fixture.store.put_bytes(
+        epoch_validity_runtime._canonical_bytes(transition),
+        ArtifactWriteOptions(
+            kind=derived_observations_runtime.EPOCH_VALIDITY_TRANSITION_KIND,
+            media_type="application/vnd.polisyos.chronology+json",
+        ),
+    )
+    _produce_epoch_recompute(
+        replace(
+            setup.fixture,
+            transition=transition,
+            transition_ref=transition_ref,
+        )
+    )
+
+    with pytest.raises(RuntimeHTTPError) as exc_info:
+        setup.temporal.build_epoch_staleness_projection(
+            run=setup.run,
+            scope=setup.scope,
+            observed_at=datetime(2026, 8, 30, 12, tzinfo=UTC),
+        )
+
+    assert exc_info.value.status_code == 422
+    assert exc_info.value.code == "epoch_staleness_recompute_receipt_invalid"
 
 
 def test_epoch_staleness_route_requires_review_and_exact_run_tenant(

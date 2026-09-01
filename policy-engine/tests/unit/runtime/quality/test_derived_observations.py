@@ -1413,6 +1413,7 @@ def _epoch_recompute_fixture(
     tmp_path: Path,
     *,
     output_label: str = "primary",
+    authority_purpose: str = "decision_validity_epoch_transition",
 ) -> _EpochRecomputeFixture:
     store, refs, output_basis, _, _ = _case_inputs(
         tmp_path / "cas",
@@ -1429,7 +1430,7 @@ def _epoch_recompute_fixture(
     recipe_ref = derived_module.persist_derivation_recipe_artifact(store, recipe)
     previous = _epoch_manifest(label="previous", predecessors=())
     current = _epoch_manifest(label="current", predecessors=(previous.epoch_ref,))
-    purpose = "decision_validity_epoch_transition"
+    purpose = authority_purpose
     query_ref = _epoch_digest("recompute-query")
     source_ref = refs["amount"]
     target_ref = materialized.certificate_artifact_ref

@@ -229,6 +229,29 @@ def test_falsifier_status_flip_is_rejected(tmp_path: Path) -> None:
     assert "ledger_status_mismatch" in _codes(checker, repo)
 
 
+def test_row_status_comes_from_the_status_cell_not_from_prose() -> None:
+    checker = _checker()
+    register = r"""# PolicyOS Debt Register
+
+## A. Open and executable now
+
+| id | subject | status | owner | closure signal |
+| --- | --- | --- | --- | --- |
+| `closed-id` | mentions `blocked` and quotes ``^-\s+`([^`]+)` `` | `open` | team-runtime | predicate |
+| `blocked-without-status` | mentions `closed` | undecided | team-runtime | predicate |
+| `open-missing-status-cell` | mentions `closed` |
+"""
+
+    rows, irregular = checker._parse_register(register)
+
+    assert not irregular
+    assert [(row.debt_id, row.status) for row in rows] == [
+        ("closed-id", "open"),
+        ("blocked-without-status", "ambiguous"),
+        ("open-missing-status-cell", "ambiguous"),
+    ]
+
+
 def test_falsifier_nonancestor_closure_commit_is_rejected(tmp_path: Path) -> None:
     checker = _checker()
     repo = _fixture(tmp_path, a_rows="", ledger=_ledger())
@@ -1138,6 +1161,36 @@ def test_falsifier_declared_nonclosure_missing_from_ledger_is_rejected(
     )
 
     assert "explicit_nonclosure_missing" in _codes(checker, repo)
+
+
+def test_explicit_nonclosure_parser_reads_every_populated_section(tmp_path: Path) -> None:
+    checker = _checker()
+    bullet_path = tmp_path / "bullet.md"
+    bullet_path.write_text(
+        "# Bullet plan\n\n## Explicit non-closure\n\n- `bullet-gap` — remains open\n"
+    )
+    table_path = tmp_path / "table.md"
+    table_path.write_text(
+        "# Table plan\n\n## Explicit non-closure\n\n"
+        "| non-closure | owner |\n"
+        "| --- | --- |\n"
+        "| table gap | team-runtime |\n"
+    )
+
+    shaped = checker._explicit_nonclosures(tmp_path, [bullet_path, table_path])
+
+    assert [debt_id for debt_id, _, _ in shaped] == ["bullet-gap", "table-gap"]
+
+    _, _, plan_paths = checker._plan_inventory(REPO_ROOT)
+    real = checker._explicit_nonclosures(REPO_ROOT, plan_paths)
+
+    # The DS17 section has ten data rows; its eleventh pipe-shaped line is the header.
+    assert len(real) == 29
+    assert Counter(path for _, path, _ in real) == {
+        "docs/plans/active/atlas-slices/DS10-capability-discovery.md": 12,
+        "docs/plans/active/atlas-slices/DS11-trust-docs-posture.md": 7,
+        "docs/plans/active/atlas-slices/DS17-confidence-ledger-risk-spend.md": 10,
+    }
 
 
 def test_plan_search_includes_superpowers_directory(tmp_path: Path) -> None:

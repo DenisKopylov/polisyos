@@ -119,14 +119,22 @@ def _parse_register(text: str) -> tuple[list[_DebtRow], list[str]]:
     irregular: list[str] = []
     section = ""
     heading = ""
+    status_index: int | None = None
     for line_no, line in enumerate(text.splitlines(), 1):
         section_match = re.match(r"^## ([A-I])\.\s+(.+)$", line)
         if section_match:
             section = section_match.group(1)
             heading = f"{section}. {section_match.group(2)}"
+            status_index = None
             continue
         cells = _cells(line)
-        if section not in set("ABCDEFG") or not cells or cells[0].lower() in {"id", "debt"}:
+        if section not in set("ABCDEFG") or not cells:
+            continue
+        if cells[0].lower() in {"id", "debt"}:
+            status_index = next(
+                (index for index, cell in enumerate(cells) if _plain(cell).lower() == "status"),
+                None,
+            )
             continue
         debt_id = _inline_id(cells[0])
         if not debt_id:
@@ -141,7 +149,12 @@ def _parse_register(text: str) -> tuple[list[_DebtRow], list[str]]:
         elif section == "E":
             status = "folded"
         else:
-            status = _status_token(line) or "ambiguous"
+            status_cell = (
+                cells[status_index]
+                if status_index is not None and status_index < len(cells)
+                else ""
+            )
+            status = _status_token(status_cell) or "ambiguous"
         owner_index = {"A": 2, "B": 2, "C": 2, "D": 1}.get(section)
         owner = (
             _plain(cells[owner_index])
@@ -299,9 +312,12 @@ def _explicit_nonclosures(repo_root: Path, paths: list[Path]) -> list[tuple[str,
     rows: list[tuple[str, str, int]] = []
     for path in paths:
         active = False
-        for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        table_active = False
+        lines = path.read_text(encoding="utf-8").splitlines()
+        for line_no, line in enumerate(lines, 1):
             if line == "## Explicit non-closure":
                 active = True
+                table_active = False
                 continue
             if active and line.startswith("## "):
                 active = False
@@ -309,6 +325,21 @@ def _explicit_nonclosures(repo_root: Path, paths: list[Path]) -> list[tuple[str,
                 match = re.match(r"^-\s+`([^`]+)`(?:\s|$)", line)
                 if match:
                     rows.append((match.group(1), path.relative_to(repo_root).as_posix(), line_no))
+                    continue
+                cells = _cells(line)
+                if not cells:
+                    continue
+                next_line = lines[line_no] if line_no < len(lines) else ""
+                if next_line.startswith("|") and not _cells(next_line):
+                    table_active = True
+                    continue
+                if table_active:
+                    seed = _inline_id(cells[0]) or _plain(cells[0])
+                    debt_id = re.sub(r"[^a-z0-9]+", "-", seed.lower().replace("&", " and ")).strip(
+                        "-"
+                    )
+                    if debt_id:
+                        rows.append((debt_id, path.relative_to(repo_root).as_posix(), line_no))
     return rows
 
 

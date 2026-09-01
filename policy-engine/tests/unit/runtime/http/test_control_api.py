@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
@@ -12,7 +13,8 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.contracts.capability_discovery import CapabilityDiscoveryResponse
 from polisyos.core.contracts.control import NaturalLanguageRunRequest, WorkflowRunRequest
 from polisyos.core.contracts.decision_validity import (
     DecisionBasisSection,
@@ -28,9 +30,11 @@ from polisyos.core.security.identity import PolicyOSRole
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
+from polisyos.ir.connectors import ConnectorCapability, ConnectorMetadataSpec
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
+from polisyos.runtime.quality.capability_discovery import SourceProfileOwnerReceipt
 from polisyos.runtime.quality.evaluation_modes import resolve_evaluation_mode
 from polisyos.scientist.governance.continuous.monitors import (
     DecisionValidityStatus as ContinuousDecisionValidityStatus,
@@ -1619,6 +1623,129 @@ class TestConnectorsAvailableProfiles:
         for c in body["connectors"]:
             assert "available_profiles" in c
             assert isinstance(c["available_profiles"], list)
+
+
+def test_list_connectors_and_profiles_are_producer_backed(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """List DTOs stay non-evidence; canonical search consumes persisted owner snapshots."""
+
+    control = runtime_api_env["app"].state._control_service
+    store = control._artifact_store
+    secret = "must-not-enter-source-discovery-cas"  # noqa: S105 - leak sentinel.
+    metadata = ConnectorMetadataSpec(
+        connector_id="secret_fixture",
+        version="1.0.0",
+        namespace="worldbank",
+        source_name="Secret-bearing fixture connector",
+        source_organization="Fixture",
+        capabilities=ConnectorCapability.CATALOG_BROWSE.value,
+        resilience_config={"api_token": secret},
+    )
+    connector_entry = SimpleNamespace(
+        metadata=metadata,
+        capabilities=ConnectorCapability.CATALOG_BROWSE,
+        known_datasets=frozenset({"fixture.dataset"}),
+        loaded=False,
+        last_health_check=None,
+    )
+    monkeypatch.setattr(
+        control._registry_providers.connectors,
+        "query_entries",
+        lambda *args, **kwargs: (connector_entry,),
+    )
+
+    def artifacts_of_kind(kind: str) -> tuple[object, ...]:
+        return tuple(
+            artifact_id
+            for artifact_id in store.iter_artifact_ids()
+            if store.get_manifest(artifact_id).kind == kind
+        )
+
+    with runtime_api_env["client"] as client:
+        connectors = client.get("/api/v1/control/data/connectors")
+        profiles = client.get("/api/v1/control/data/profiles")
+
+        assert connectors.status_code == profiles.status_code == 200
+        assert isinstance(connectors.json()["connectors"], list)
+        assert profiles.json()["profiles"]
+        assert artifacts_of_kind("fabric.connector_registry_snapshot") == ()
+        assert artifacts_of_kind("fabric.source_profile_registry_snapshot") == ()
+        assert artifacts_of_kind("runtime.source_profile_owner_receipt") == ()
+
+        response = client.post(
+            "/api/v1/control/capabilities/search",
+            json={
+                "search": {
+                    "request_id": "search:source-profile-owner",
+                    "query_text": "source profile",
+                    "construct_refs": ["source-profile"],
+                    "intent": "capability_discovery",
+                    "required_layers": ["runtime_registry"],
+                    "authority_purpose": "review_capability_candidates",
+                    "allowed_modes": ["exact"],
+                    "budget": {"match_all": True, "top_k": 1000},
+                    "rule_version": "policyos.ds10.discovery.v1",
+                },
+                "resource_kinds": ["source"],
+                "audience": "REVIEWER",
+            },
+        )
+        packet = CapabilityDiscoveryResponse.model_validate(response.json())
+        connector_ids = artifacts_of_kind("fabric.connector_registry_snapshot")
+        profile_ids = artifacts_of_kind("fabric.source_profile_registry_snapshot")
+        receipt_ids = artifacts_of_kind("runtime.source_profile_owner_receipt")
+        assert len(connector_ids) == len(profile_ids) == len(receipt_ids) == 1
+        connector_id, profile_id, receipt_id = (
+            connector_ids[0],
+            profile_ids[0],
+            receipt_ids[0],
+        )
+        receipt = SourceProfileOwnerReceipt.model_validate_json(store.get_bytes(receipt_id))
+        receipt_manifest_inputs = tuple(
+            (row.role, str(row.artifact_id))
+            for row in store.get_manifest(receipt_id).inputs
+        )
+        connector_snapshot_bytes = store.get_bytes(connector_id)
+        connector_snapshot = from_canonical_bytes(connector_snapshot_bytes)
+        profile_snapshot = from_canonical_bytes(store.get_bytes(profile_id))
+
+    assert response.status_code == 200
+    assert packet.results
+    assert all(item.resource_kind == "source" for item in packet.results)
+    assert all(item.discovery_result.state == "discoverable" for item in packet.results)
+    assert all(item.execution_result.state == "not_established" for item in packet.results)
+    assert all(item.authority_result.state == "bridge_missing" for item in packet.results)
+    assert all(item.authoritative_for == () for item in packet.results)
+    assert "source:producer_missing" not in packet.frontier.incompleteness_reasons
+
+    assert receipt.connector_snapshot_ref == str(connector_id)
+    assert receipt.connector_snapshot_digest == str(connector_id)
+    assert receipt.profile_registry_snapshot_ref == str(profile_id)
+    assert receipt.profile_registry_snapshot_digest == str(profile_id)
+    assert receipt_manifest_inputs == (
+        ("connector_registry_snapshot", str(connector_id)),
+        ("source_profile_registry_snapshot", str(profile_id)),
+    )
+
+    assert secret.encode("utf-8") not in connector_snapshot_bytes
+    assert set(connector_snapshot["entries"][0]) == {
+        "connector_ref",
+        "declared_capabilities",
+        "known_datasets",
+        "namespace",
+        "version",
+    }
+    assert connector_snapshot["observed_at"] == profile_snapshot["observed_at"]
+    connector_namespaces = {row["namespace"] for row in connector_snapshot["entries"]}
+    assert {
+        row["profile_id"]: row["connector_available"]
+        for row in profile_snapshot["profiles"]
+    } == {
+        row["profile_id"]: row["connector_family"] in connector_namespaces
+        for row in profile_snapshot["profiles"]
+    }
 
 
 class TestSourceProfiles:

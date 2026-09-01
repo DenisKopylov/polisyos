@@ -134,6 +134,16 @@ def resolve_control_registry_providers(
                 *resolved_discovery_providers,
                 _default_scientist_capability_discovery_provider(),
             )
+        if not any(
+            provider.resource_kind == "source" for provider in resolved_discovery_providers
+        ):
+            resolved_discovery_providers = (
+                *resolved_discovery_providers,
+                _default_source_capability_discovery_provider(
+                    connectors=connectors,
+                    source_profiles=source_profiles,
+                ),
+            )
     return ControlRegistryProviders(
         connectors=connectors,
         source_profiles=source_profiles,
@@ -199,6 +209,22 @@ def _default_causal_method_capability_discovery_provider() -> CapabilityDiscover
     return CapabilityIndexCapabilityDiscoveryProvider(
         resource_kind="method",
         capability_index_loader=load_default_capability_index_release,
+    )
+
+
+def _default_source_capability_discovery_provider(
+    *,
+    connectors: ConnectorRegistryLike,
+    source_profiles: SourceProfileRegistryLike,
+) -> CapabilityDiscoveryProvider:
+    """Install the lazy, paired connector/source-profile snapshot producer."""
+    from polisyos.runtime.quality.capability_discovery import (
+        ConnectorSourceProfileSnapshotProducer,
+    )
+
+    return ConnectorSourceProfileSnapshotProducer(
+        connectors=connectors,
+        source_profiles=source_profiles,
     )
 
 

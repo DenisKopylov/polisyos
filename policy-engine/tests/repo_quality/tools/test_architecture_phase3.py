@@ -437,6 +437,79 @@ def test_standard_ci_always_reaches_plain_generated_freshness_gate() -> None:
     assert "uv run polisyos-tools architecture guardrails check" in commands
 
 
+@pytest.mark.parametrize(
+    "escape",
+    [
+        "marker_only",
+        "step_if_false",
+        "step_continue_on_error",
+        "job_if_false",
+        "job_continue_on_error",
+    ],
+)
+def test_architecture_guardrails_detect_non_gating_trust_posture_step(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    escape: str,
+) -> None:
+    """Keep the posture command executable and load-bearing in its named CI job."""
+
+    workflow_rel = Path("ops/ci/templates/workflows/arch.yml")
+    workflow_text = (guardrails.REPO_ROOT / workflow_rel).read_text(encoding="utf-8")
+    trust_step = (
+        "      - name: Verify trust claim posture\n"
+        "        run: uv run pytest tests/repo_quality/tools/"
+        "test_trust_claim_posture.py -q\n"
+    )
+    assert trust_step in workflow_text
+    marker_only = (
+        "      # run: uv run pytest tests/repo_quality/tools/"
+        "test_trust_claim_posture.py -q\n"
+    )
+    if escape == "marker_only":
+        mutated = workflow_text.replace(trust_step, marker_only, 1)
+    elif escape == "step_if_false":
+        mutated = workflow_text.replace(
+            trust_step,
+            trust_step.replace("        run:", "        if: false\n        run:", 1),
+            1,
+        )
+    elif escape == "step_continue_on_error":
+        mutated = workflow_text.replace(
+            trust_step,
+            trust_step.replace(
+                "        run:", "        continue-on-error: true\n        run:", 1
+            ),
+            1,
+        )
+    elif escape == "job_if_false":
+        mutated = workflow_text.replace(
+            "  import-gate:\n", "  import-gate:\n    if: false\n", 1
+        )
+    else:
+        mutated = workflow_text.replace(
+            "  import-gate:\n", "  import-gate:\n    continue-on-error: true\n", 1
+        )
+    workflow_path = tmp_path / workflow_rel
+    workflow_path.parent.mkdir(parents=True)
+    workflow_path.write_text(mutated, encoding="utf-8")
+    workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
+    import_gate = workflow["jobs"]["import-gate"]
+    trust_steps = [
+        step
+        for step in import_gate["steps"]
+        if isinstance(step, dict)
+        and step.get("run")
+        == "uv run pytest tests/repo_quality/tools/test_trust_claim_posture.py -q"
+    ]
+    assert escape == "marker_only" or len(trust_steps) == 1
+    monkeypatch.setattr(guardrails, "REPO_ROOT", tmp_path)
+
+    violations = guardrails._check_workflow_toolchain_guardrails()
+
+    assert "trust_claim_posture" in {violation.detail for violation in violations}
+
+
 def test_jobs_collecting_generator_entrypoint_test_install_node_toolchain() -> None:
     workflows = {
         "runtime-http": guardrails.REPO_ROOT.parent / ".github/workflows/ci.yml",

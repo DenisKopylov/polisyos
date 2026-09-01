@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import re
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
@@ -145,6 +146,10 @@ REFERENCE_SCAN_EXCLUDED_DIRS = frozenset(
         "production_data",
         "runs",
     )
+)
+JOURNAL_EVIDENCE_BLOCK_RE = re.compile(
+    r"(?ms)^<!-- docs-lifecycle-evidence:start -->[ \t]*\n"
+    r".*?^<!-- docs-lifecycle-evidence:end -->[ \t]*(?:\n|$)"
 )
 REFERENCE_SCAN_EXCLUDED_FILENAMES = frozenset(("package-lock.json", "pnpm-lock.yaml"))
 
@@ -528,6 +533,13 @@ def _iter_reference_scan_files(repo_root: Path) -> Iterable[Path]:
         yield path
 
 
+def _reference_scan_text(relative: Path, text: str) -> str:
+    journal_root = ("docs", "superpowers", "journals")
+    if relative.suffix.lower() != ".md" or relative.parts[:3] != journal_root:
+        return text
+    return JOURNAL_EVIDENCE_BLOCK_RE.sub("", text)
+
+
 def check_removed_stub_references(repo_root: Path) -> list[LifecycleFinding]:
     findings: list[LifecycleFinding] = []
     seen: set[tuple[str, str, str]] = set()
@@ -562,9 +574,11 @@ def check_removed_stub_references(repo_root: Path) -> list[LifecycleFinding]:
             text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
             continue
-        relative = _repo_path(repo_root, path)
+        relative_path = path.relative_to(repo_root)
+        relative = relative_path.as_posix()
+        scan_text = _reference_scan_text(relative_path, text)
         for token, target in STALE_DIRECT_REFERENCE_TARGETS.items():
-            if token in text:
+            if token in scan_text:
                 add_reference(relative, token, target)
 
     return findings

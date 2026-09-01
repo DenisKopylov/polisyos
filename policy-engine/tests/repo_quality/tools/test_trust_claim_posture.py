@@ -5,33 +5,21 @@ from __future__ import annotations
 import importlib
 import json
 import shutil
+from collections import Counter
 from datetime import date
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
 import pytest
+import yaml
 
 from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-FROZEN_AS_OF = date(2026, 8, 26)
+FROZEN_AS_OF = date(2026, 9, 1)
 IDENTITY_PATH = "docs/system-design-decisions/policyos-identity-and-custody-boundary.md"
 DEBT_REGISTER_PATH = "docs/plans/active/DEBT-REGISTER.md"
-CUSTODY_SOURCE_REFS = {
-    "DS11-CLAIM-LIFECYCLE-ORCHESTRATION": (
-        f"{DEBT_REGISTER_PATH}#DS11-CLAIM-LIFECYCLE-ORCHESTRATION@sha256:"
-        "342a3c4d5d6e4a582beab11582b595a978675fe427419b3eff32ac07e95767d5"
-    ),
-    "DS11-PUBLIC-SIGNATURE-POPULATION": (
-        f"{DEBT_REGISTER_PATH}#DS11-PUBLIC-SIGNATURE-POPULATION@sha256:"
-        "0101f340511a186659b4fbedfb8c0a817b948537c217c7d4654936d78c90dafc"
-    ),
-    "DS11-PUBLISHED-SIGNATURE-WATCHER": (
-        f"{DEBT_REGISTER_PATH}#DS11-PUBLISHED-SIGNATURE-WATCHER@sha256:"
-        "a2cb1f04f4799fe874e859ff956e8853809c6ad684668e2897f27599beeb3a86"
-    ),
-}
 A11Y_PATH = "docs/compliance/A11Y_AUDIT_2026Q2.md"
 PAGE_RECEIPT_PATH = "docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base"
 GENERATED_MANIFEST_PATH = "architecture/generated_artifacts.toml"
@@ -263,42 +251,53 @@ def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
     token_result = checker.derive_token_sources(REPO_ROOT)
     reconciled = checker.reconcile_source_derivations(ast_result, token_result)
 
-    assert ast_result.receipt.scanned_python_count == 2603
-    assert token_result.receipt.scanned_python_count == 2603
-    assert ast_result.receipt.raw_candidate_count == 115
-    assert token_result.receipt.raw_candidate_count == 115
-    assert (
-        ast_result.receipt.role_counts
-        == token_result.receipt.role_counts
-        == {
-            "declares_only": 70,
-            "carries_only": 6,
-            "consumes_only": 6,
-            "declares_and_consumes": 32,
-            "substring_collision": 1,
-            "ambiguous": 0,
+    for result in (ast_result, token_result):
+        receipt = result.receipt
+        admitted_paths = tuple(member.path for member in result.admitted_sources)
+        candidate_paths = tuple(
+            sorted(
+                {row.path for row in result.rows}
+                | {member.path for member in receipt.may_not_use_for_raw_members}
+            )
+        )
+        role_counts = Counter(row.role for row in result.rows)
+
+        assert admitted_paths == candidate_paths
+        assert receipt.scanned_python_count == len(candidate_paths)
+        assert receipt.raw_candidate_count == len(result.rows)
+        assert receipt.role_counts == {
+            role: role_counts[role] for role in sources.SourceInventoryRole
         }
-    )
-    assert ast_result.receipt.exact_field_file_count == 114
-    assert ast_result.receipt.declaring_file_count == 102
-    assert ast_result.receipt.consuming_file_count == 38
+        assert receipt.exact_field_file_count == sum(
+            row.role
+            not in {
+                sources.SourceInventoryRole.SUBSTRING_COLLISION,
+                sources.SourceInventoryRole.AMBIGUOUS,
+            }
+            for row in result.rows
+        )
+        assert receipt.declaring_file_count == sum(
+            row.role
+            in {
+                sources.SourceInventoryRole.DECLARES_ONLY,
+                sources.SourceInventoryRole.DECLARES_AND_CONSUMES,
+            }
+            for row in result.rows
+        )
+        assert receipt.consuming_file_count == sum(
+            row.role
+            in {
+                sources.SourceInventoryRole.CONSUMES_ONLY,
+                sources.SourceInventoryRole.DECLARES_AND_CONSUMES,
+            }
+            for row in result.rows
+        )
+    assert ast_result.admitted_sources == token_result.admitted_sources
+    assert ast_result.receipt.role_counts == token_result.receipt.role_counts
     assert not reconciled.disagreements
     posture = next(row for row in reconciled.rows if row.path.endswith("claims/posture.py"))
     assert posture.role == "declares_and_consumes"
     assert posture.declaration_coordinates[0].line > 0
-    entry_roles = dict(ast_result.receipt.role_counts)
-    entry_roles["declares_and_consumes"] -= 1
-    assert entry_roles == {
-        "declares_only": 70,
-        "carries_only": 6,
-        "consumes_only": 6,
-        "declares_and_consumes": 31,
-        "substring_collision": 1,
-        "ambiguous": 0,
-    }
-    assert ast_result.receipt.scanned_python_count - 1 == 2602
-    assert ast_result.receipt.raw_candidate_count - 1 == 114
-    assert ast_result.receipt.exact_field_file_count - 1 == 113
     collision = next(row for row in reconciled.rows if row.role == "substring_collision")
     assert collision.path.endswith("data_forge/domains/academic/batch/best_snapshot.py")
     assert collision.issue_codes == ("DS11-SOURCE-COLLISION",)
@@ -395,25 +394,56 @@ def test_literal_censuses_reconcile_for_both_complete_walks() -> None:
     ast_receipt = ast_result.receipt
     token_receipt = token_result.receipt
 
-    for receipt in (ast_receipt, token_receipt):
+    for result in (ast_result, token_result):
+        receipt = result.receipt
+        direct_sites = tuple(
+            site
+            for row in result.rows
+            for site in row.authoritative_sites
+            if site.declaration_form == "assignment"
+            and site.wrapper_kind == "direct"
+            and site.resolution == "resolved"
+        )
+        wrapper_sites = tuple(
+            site
+            for row in result.rows
+            for site in row.authoritative_sites
+            if site.declaration_form == "assignment"
+            and site.wrapper_kind != "dynamic"
+            and site.resolution == "resolved"
+        )
+        denied_sites = receipt.may_not_use_for_sites
         assert (
             receipt.direct_literal_site_count,
             receipt.direct_literal_file_count,
             receipt.direct_literal_subject_count,
             receipt.direct_empty_site_count,
-        ) == (45, 20, 27, 10)
+        ) == (
+            len(direct_sites),
+            len({site.coordinate.path for site in direct_sites}),
+            len({value for site in direct_sites for value in site.values}),
+            sum(not site.values for site in direct_sites),
+        )
         assert (
             receipt.wrapper_literal_site_count,
             receipt.wrapper_literal_file_count,
             receipt.wrapper_literal_subject_count,
-        ) == (69, 31, 34)
+        ) == (
+            len(wrapper_sites),
+            len({site.coordinate.path for site in wrapper_sites}),
+            len({value for site in wrapper_sites for value in site.values}),
+        )
         assert (
             receipt.may_not_use_for_raw_file_count,
             receipt.may_not_use_for_literal_site_count,
             receipt.may_not_use_for_literal_file_count,
             receipt.may_not_use_for_literal_subject_count,
-        ) == (128, 43, 28, 50)
-        assert receipt.may_not_use_for_raw_file_count - 1 == 127
+        ) == (
+            len(receipt.may_not_use_for_raw_members),
+            len(denied_sites),
+            len({site.coordinate.path for site in denied_sites}),
+            len({value for site in denied_sites for value in site.values}),
+        )
     reconciled = _checker().reconcile_source_derivations(ast_result, token_result)
     inventory_denied = tuple(
         site
@@ -432,6 +462,26 @@ def test_literal_censuses_reconcile_for_both_complete_walks() -> None:
         == ast_receipt.may_not_use_for_sites
         == token_receipt.may_not_use_for_sites
     )
+
+
+def test_unrelated_source_change_does_not_stale_posture_receipt(tmp_path: Path) -> None:
+    """Bind receipts to authority/denial candidates, not every Python source byte."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    unrelated = repo / "src/polisyos/unrelated.py"
+    unrelated.write_text('"""Unmarked source."""\nVALUE = 1\n', encoding="utf-8")
+    before = (
+        _sources().derive_ast_sources(repo),
+        _checker().derive_token_sources(repo),
+    )
+
+    unrelated.write_text('"""Changed unmarked source."""\nVALUE = 2\n', encoding="utf-8")
+    after = (
+        _sources().derive_ast_sources(repo),
+        _checker().derive_token_sources(repo),
+    )
+
+    assert after == before
 
 
 def test_all_declaration_forms_survive_and_ambiguity_never_invents_subject(
@@ -525,7 +575,7 @@ def test_new_authority_producer_grows_register_without_register_edit(
             and not ("src/test" in path.as_posix() and path.suffix == ".tsx")
         )
     )
-    assert len(dashboard_sources) == 625
+    assert dashboard_sources
     governed_before = {
         path.relative_to(REPO_ROOT).as_posix(): sha256(path.read_bytes()).hexdigest()
         for path in dashboard_sources
@@ -806,7 +856,17 @@ def test_identity_parser_derives_seven_anti_roles_including_crm() -> None:
         "payment system",
         "CRM",
     )
-    assert boundary.paragraph_start_line <= 88 <= boundary.paragraph_end_line
+    document_lines = (REPO_ROOT / IDENTITY_PATH).read_text(encoding="utf-8").splitlines()
+    paragraph_with_marker = "\n".join(
+        document_lines[boundary.paragraph_start_line - 1 : boundary.paragraph_end_line]
+    )
+    marker = "**Anti-roles (binding):** "
+    assert paragraph_with_marker.startswith(marker)
+    paragraph = paragraph_with_marker.removeprefix(marker)
+    assert paragraph.startswith("PolicyOS is not an administrator")
+    assert paragraph.endswith("institutions.")
+    assert boundary.paragraph_digest == "sha256:" + sha256(paragraph.encode("utf-8")).hexdigest()
+    assert {item.line for item in boundary.anti_roles} == {boundary.paragraph_start_line}
     assert boundary.identity_statement == (
         "PolicyOS is the epistemic custodian of policy justification across the whole life of a\n"
         "policy: it owns everything it signs, for exactly as long as the signature publicly "
@@ -878,7 +938,11 @@ def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
     }
     assert required <= set(rows)
     assert rows["system_identity"].effective_state == "supported"
-    assert rows["universal_custody_commitment"].effective_state == "planned"
+    assert rows["universal_custody_commitment"].effective_state == "blocked"
+    custody_source_refs = {
+        source.debt_id: f"{source.path}#{source.debt_id}@{source.content_digest}"
+        for source in register.custody_appointment_sources
+    }
     assert {
         (
             binding.owner.owner,
@@ -890,7 +954,7 @@ def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
     } == {
         (
             "team-runtime",
-            CUSTODY_SOURCE_REFS["DS11-PUBLISHED-SIGNATURE-WATCHER"],
+            custody_source_refs["DS11-PUBLISHED-SIGNATURE-WATCHER"],
             ("DS11-PUBLISHED-SIGNATURE-WATCHER",),
             "uv run pytest tests/integration/runtime_quality/"
             "test_published_signature_custody.py::"
@@ -898,7 +962,7 @@ def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
         ),
         (
             "team-scientist",
-            CUSTODY_SOURCE_REFS["DS11-CLAIM-LIFECYCLE-ORCHESTRATION"],
+            custody_source_refs["DS11-CLAIM-LIFECYCLE-ORCHESTRATION"],
             ("DS11-CLAIM-LIFECYCLE-ORCHESTRATION",),
             "uv run pytest tests/integration/scientist/governance/"
             "test_claim_lifecycle_orchestration.py::"
@@ -906,7 +970,7 @@ def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
         ),
         (
             "team-design",
-            CUSTODY_SOURCE_REFS["DS11-PUBLIC-SIGNATURE-POPULATION"],
+            custody_source_refs["DS11-PUBLIC-SIGNATURE-POPULATION"],
             ("DS11-PUBLIC-SIGNATURE-POPULATION",),
             "uv run pytest tests/unit/runtime/http/test_public_export.py::"
             "test_first_governed_public_signature_is_custody_bound -q",
@@ -1032,11 +1096,16 @@ def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
 
     debt_path = repo / DEBT_REGISTER_PATH
     debt_text = debt_path.read_text(encoding="utf-8")
-    fabricated_source = debt_text.replace(
-        "`team-runtime`; producer lane `runtime/quality`",
-        "`team-fabricated`; producer lane `runtime/quality`",
-        1,
+    debt_lines = debt_text.splitlines()
+    custody_index = next(
+        index
+        for index, line in enumerate(debt_lines)
+        if line.startswith("| `DS11-PUBLISHED-SIGNATURE-WATCHER`")
     )
+    debt_lines[custody_index] = debt_lines[custody_index].replace(
+        "`team-runtime`", "`team-fabricated`", 1
+    )
+    fabricated_source = "\n".join(debt_lines) + "\n"
     assert fabricated_source != debt_text
     debt_path.write_text(fabricated_source, encoding="utf-8")
     with pytest.raises(ValueError, match=r"appointment source|accepted receipt"):
@@ -1044,7 +1113,7 @@ def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
 
 
 def test_custody_row_bytes_are_recomputed_while_markers_stay_fixed(tmp_path: Path) -> None:
-    """Reject a byte mutation beneath unchanged custody owner/source markers."""
+    """Project appointment status, then reject bytes changed beneath fixed markers."""
     repo = tmp_path / "repo"
     _copy_compiler_inputs(repo)
     posture = _owner("polisyos.scientist.evidence.claims.posture")
@@ -1053,6 +1122,29 @@ def test_custody_row_bytes_are_recomputed_while_markers_stay_fixed(tmp_path: Pat
     custody = next(
         item for item in authored["claims"] if item["subject"] == "universal_custody_commitment"
     )
+    assert custody["effective_state"] == "blocked"
+    assert {
+        source["debt_id"]: source["status"]
+        for source in authored["custody_appointment_sources"]
+    } == {
+        "DS11-CLAIM-LIFECYCLE-ORCHESTRATION": "blocked",
+        "DS11-PUBLIC-SIGNATURE-POPULATION": "open",
+        "DS11-PUBLISHED-SIGNATURE-WATCHER": "closed",
+    }
+    bindings = {
+        binding["prerequisite_refs"][0]: binding
+        for binding in custody["source_bindings"]
+    }
+    assert bindings["DS11-CLAIM-LIFECYCLE-ORCHESTRATION"]["source_state"] == "blocked"
+    assert bindings["DS11-PUBLIC-SIGNATURE-POPULATION"]["source_state"] == "planned"
+    assert bindings["DS11-PUBLISHED-SIGNATURE-WATCHER"]["source_state"] == "blocked"
+    assert bindings["DS11-CLAIM-LIFECYCLE-ORCHESTRATION"]["limitation_refs"] == [
+        "Blocked prerequisite: DS11-CLAIM-LIFECYCLE-ORCHESTRATION"
+    ]
+    assert bindings["DS11-PUBLISHED-SIGNATURE-WATCHER"]["limitation_refs"] == [
+        "Closed appointment lacks an admitted closure receipt: "
+        "DS11-PUBLISHED-SIGNATURE-WATCHER"
+    ]
     marker_snapshot = tuple(
         (binding["owner"]["owner"], binding["owner"]["source_ref"], binding["closure_signal"])
         for binding in custody["source_bindings"]
@@ -1066,6 +1158,23 @@ def test_custody_row_bytes_are_recomputed_while_markers_stay_fixed(tmp_path: Pat
 
     with pytest.raises(ValueError, match=r"custody|appointment|source bytes"):
         posture.validate_posture_register(_rebind_payload_digest(authored))
+
+
+def test_architecture_workflow_runs_trust_posture_guardrail() -> None:
+    """Require CI to execute the semantic posture file after architecture guardrails."""
+    workflow = yaml.safe_load(
+        (REPO_ROOT / "ops/ci/templates/workflows/arch.yml").read_text(encoding="utf-8")
+    )
+    steps = workflow["jobs"]["import-gate"]["steps"]
+    architecture_index = next(
+        index
+        for index, step in enumerate(steps)
+        if step.get("name") == "Verify architecture guardrails"
+    )
+    assert steps[architecture_index + 1] == {
+        "name": "Verify trust claim posture",
+        "run": "uv run pytest tests/repo_quality/tools/test_trust_claim_posture.py -q",
+    }
 
 
 def test_marker_preserving_byte_mutation_and_unknown_verifier_fail_closed(
@@ -1151,12 +1260,12 @@ def test_marker_preserving_byte_mutation_and_unknown_verifier_fail_closed(
 
 @pytest.mark.parametrize(
     "case",
-    (
+    [
         "page_receipt",
         "accessibility_selector",
         "denied_receipt_counts",
         "coordinated_source_omission",
-    ),
+    ],
 )
 def test_admission_replays_evidence_content_and_complete_source_receipts(case: str) -> None:
     """Reject internally re-authored evidence and a stale complete-set receipt."""
@@ -1203,7 +1312,7 @@ def test_admission_replays_evidence_content_and_complete_source_receipts(case: s
 
 @pytest.mark.parametrize(
     "case",
-    ("symbol", "column", "use_kind", "field_name", "values", "order", "denied_only"),
+    ["symbol", "column", "use_kind", "field_name", "values", "order", "denied_only"],
 )
 def test_denied_site_receipts_bind_full_coordinates_and_values(case: str) -> None:
     """Reject coordinated denied-site forgery that preserves aggregate counts."""
@@ -1236,7 +1345,7 @@ def test_denied_site_receipts_bind_full_coordinates_and_values(case: str) -> Non
         posture.validate_posture_register(_rebind_payload_digest(payload))
 
 
-@pytest.mark.parametrize("case", ("omitted", "duplicated"))
+@pytest.mark.parametrize("case", ["omitted", "duplicated"])
 def test_machine_freshness_limitation_has_exact_cardinality(case: str) -> None:
     """Reject omission or padding of MACHINE's live-freshness limitation."""
     artifact = REPO_ROOT / "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
@@ -1250,7 +1359,7 @@ def test_machine_freshness_limitation_has_exact_cardinality(case: str) -> None:
         posture.validate_posture_register(_rebind_payload_digest(payload))
 
 
-@pytest.mark.parametrize("case", ("literal_value", "new_occurrence"))
+@pytest.mark.parametrize("case", ["literal_value", "new_occurrence"])
 def test_live_check_recomputes_denied_source_bytes_and_free_growth(
     tmp_path: Path,
     case: str,

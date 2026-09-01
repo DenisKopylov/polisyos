@@ -40,6 +40,7 @@ type MutableArtifact = Record<string, unknown> & {
   custody_appointment_sources: Array<{
     path: string;
     debt_id: string;
+    status: "open" | "blocked" | "closed";
     source_content: string;
     content_digest: string;
   }>;
@@ -418,62 +419,65 @@ describe("trust posture artifact admission", () => {
     "accessibility selector",
     "denied receipt counts",
     "coordinated source omission",
-  ])("replays carried content and complete source receipts for %s", async (caseName) => {
-    const candidate = structuredClone(artifactValue) as MutableArtifact & {
-      accessibility_document: {
-        bindings: Array<{ key: string; value: string }>;
+  ])(
+    "replays carried content and complete source receipts for %s",
+    async (caseName) => {
+      const candidate = structuredClone(artifactValue) as MutableArtifact & {
+        accessibility_document: {
+          bindings: Array<{ key: string; value: string }>;
+        };
+        page_a11y_receipt: MutableArtifact["page_a11y_receipt"] & {
+          passed: number;
+          failed: number;
+          failures: unknown[];
+        };
+        source_inventory: Array<{ path: string }>;
+        ast_derivation: { may_not_use_for_raw_file_count: number };
+        token_derivation: { may_not_use_for_raw_file_count: number };
       };
-      page_a11y_receipt: MutableArtifact["page_a11y_receipt"] & {
-        passed: number;
-        failed: number;
-        failures: unknown[];
-      };
-      source_inventory: Array<{ path: string }>;
-      ast_derivation: { may_not_use_for_raw_file_count: number };
-      token_derivation: { may_not_use_for_raw_file_count: number };
-    };
-    if (caseName === "page receipt") {
-      candidate.page_a11y_receipt.passed = 24;
-      candidate.page_a11y_receipt.failed = 0;
-      candidate.page_a11y_receipt.failures = [];
-    } else if (caseName === "accessibility selector") {
-      candidate.accessibility_document.bindings.find(
-        (binding) => binding.key === "audit_type",
-      )!.value = "external audit";
-    } else if (caseName === "denied receipt counts") {
-      candidate.ast_derivation.may_not_use_for_raw_file_count += 1;
-      candidate.token_derivation.may_not_use_for_raw_file_count += 1;
-    } else {
-      const omittedPath = "src/polisyos/core/contracts/rule_evolution.py";
-      const omittedIds = new Set(
-        candidate.claims
-          .filter((row) =>
-            row.source_bindings.some(
-              (binding) => binding.coordinate.path === omittedPath,
-            ),
-          )
-          .map((row) => row.claim_id),
-      );
-      expect(omittedIds.size).toBeGreaterThan(0);
-      candidate.source_inventory = candidate.source_inventory.filter(
-        (row) => row.path !== omittedPath,
-      );
-      candidate.admitted_sources = candidate.admitted_sources.filter(
-        (member) => member.path !== omittedPath,
-      );
-      candidate.claims = candidate.claims.filter(
-        (row) => !omittedIds.has(row.claim_id),
-      );
-      for (const group of candidate.projection_groups) {
-        group.claim_ids = group.claim_ids.filter(
-          (claimId) => !omittedIds.has(claimId),
+      if (caseName === "page receipt") {
+        candidate.page_a11y_receipt.passed = 24;
+        candidate.page_a11y_receipt.failed = 0;
+        candidate.page_a11y_receipt.failures = [];
+      } else if (caseName === "accessibility selector") {
+        candidate.accessibility_document.bindings.find(
+          (binding) => binding.key === "audit_type",
+        )!.value = "external audit";
+      } else if (caseName === "denied receipt counts") {
+        candidate.ast_derivation.may_not_use_for_raw_file_count += 1;
+        candidate.token_derivation.may_not_use_for_raw_file_count += 1;
+      } else {
+        const omittedPath = "src/polisyos/core/contracts/rule_evolution.py";
+        const omittedIds = new Set(
+          candidate.claims
+            .filter((row) =>
+              row.source_bindings.some(
+                (binding) => binding.coordinate.path === omittedPath,
+              ),
+            )
+            .map((row) => row.claim_id),
         );
+        expect(omittedIds.size).toBeGreaterThan(0);
+        candidate.source_inventory = candidate.source_inventory.filter(
+          (row) => row.path !== omittedPath,
+        );
+        candidate.admitted_sources = candidate.admitted_sources.filter(
+          (member) => member.path !== omittedPath,
+        );
+        candidate.claims = candidate.claims.filter(
+          (row) => !omittedIds.has(row.claim_id),
+        );
+        for (const group of candidate.projection_groups) {
+          group.claim_ids = group.claim_ids.filter(
+            (claimId) => !omittedIds.has(claimId),
+          );
+        }
       }
-    }
-    expect((await loadCandidate(recomputeDigests(candidate))).status).toBe(
-      "unavailable",
-    );
-  });
+      expect((await loadCandidate(recomputeDigests(candidate))).status).toBe(
+        "unavailable",
+      );
+    },
+  );
 
   it.each([
     "symbol",
@@ -500,15 +504,21 @@ describe("trust posture artifact admission", () => {
         ast_derivation: { may_not_use_for_sites: MutableDeniedSite[] };
         token_derivation: { may_not_use_for_sites: MutableDeniedSite[] };
       };
-      for (const receipt of [candidate.ast_derivation, candidate.token_derivation]) {
+      for (const receipt of [
+        candidate.ast_derivation,
+        candidate.token_derivation,
+      ]) {
         const sites = receipt.may_not_use_for_sites;
-        if (caseName === "symbol") sites[0]!.coordinate.symbol = "fabricated_symbol";
+        if (caseName === "symbol")
+          sites[0]!.coordinate.symbol = "fabricated_symbol";
         else if (caseName === "column") sites[0]!.coordinate.column += 17;
-        else if (caseName === "use_kind") sites[0]!.coordinate.use_kind = "consumer";
+        else if (caseName === "use_kind")
+          sites[0]!.coordinate.use_kind = "consumer";
         else if (caseName === "field_name")
           sites[0]!.coordinate.field_name = "authoritative_for";
         else if (caseName === "values") sites[0]!.values = ["claim_authority"];
-        else if (caseName === "order") [sites[0], sites[1]] = [sites[1], sites[0]];
+        else if (caseName === "order")
+          [sites[0], sites[1]] = [sites[1], sites[0]];
         else
           sites.find(
             (site) =>
@@ -527,7 +537,8 @@ describe("trust posture artifact admission", () => {
       const candidate = structuredClone(artifactValue) as MutableArtifact & {
         machine_admission_boundary: { limitation_refs: string[] };
       };
-      const limitation = candidate.machine_admission_boundary.limitation_refs[0]!;
+      const limitation =
+        candidate.machine_admission_boundary.limitation_refs[0]!;
       candidate.machine_admission_boundary.limitation_refs =
         caseName === "omitted" ? [] : [limitation, limitation];
       expect((await loadCandidate(recomputeDigests(candidate))).status).toBe(

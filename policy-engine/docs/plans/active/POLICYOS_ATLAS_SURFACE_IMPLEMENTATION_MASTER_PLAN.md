@@ -1705,6 +1705,54 @@ Loosening the ratified posture is out of scope for every slice.
   - **Gated on institutions, and never on a build.** The named signers and the independent holder
     stay `absent/unallocated`; they gate the *signature on a published record*, not the surface
     that would carry it. A refusal that stopped the surface would be placed one band too low.
+  - **Gate re-measured 2026-09-01, and the record half is now much shorter than the text above
+    says.** Two clauses are stale and are corrected here rather than left to mislead. (a) *"Three of
+    the fifteen obligations return `scope_insufficient` unconditionally"* is no longer true: task A
+    landed the EFFECT producer and evaluator, and task K's complete census found **exactly one**
+    obligation still on that path — `_eval_safety_obligation` at
+    `src/polisyos/runtime/quality/promotion_sequence.py:5197`, and only when the evaluation mode is
+    `sandbox_pilot`, `field_pilot` or `deployment`. The other three call sites are conditional on
+    real evidence and carry real dotted owners. (b) The `EFFECT` investigation named as a
+    predecessor **terminated and closed**; the chain `EFFECT investigation → GY-PR1 → first governed
+    promotion → DS12 record half` now starts at `GY-PR1`.
+  - **The consequence is a decision this slice should take deliberately: a first governed promotion
+    is reachable in the data-only lane with no appointment at all.** Task K's four-cell refusal
+    table measures data-only production at **3 refusals / 0 scope-insufficient**, against field-pilot
+    production at 4 / 1 — the single scope-insufficient cell being the EvalSafety authority. What
+    blocks data-only is therefore pure engineering, measured over all 2,617 tracked source files:
+    zero production `ValueGateReceipt` constructors, zero valid `value_ready` emissions, zero
+    production `CanonicalN9PromotionPort(context_provider=…)` callers. DS12 may take its record half
+    against a **data-only** promotion and keep the pilot-grade claim, which needs the appointment,
+    for later. `GY-O0-NC-01` is not that milestone — its signal is explicitly a field-pilot request
+    because its property is pilot protection and near-miss counting.
+
+- **Debt rows this slice must close (2026-09-01).** These are not new scope; they are the register
+  rows whose closure this slice's existing Goal and Producer & bridge work already implies. Naming
+  them here is the act the register rows have been waiting for — under the standing rule that a
+  planless slice may not be an owner, this listing is what makes DS12 their owner without writing a
+  separate slice plan first. Each still owes its own work and its own closure signal.
+  - `ds8-public-case-publication` — named in the bullet above; retained here so the set is complete.
+  - `ds8-signed-public-decision-surface` — `bridge_missing`, not `producer_missing`:
+    `runtime/quality/public_export.py` is a real producer with six occurrences, and what is absent
+    is the server-backed record/certificate route and the verification chain.
+  - `ds10-public-decision-rendering` — the DS10 half of the same object; neither closes the other.
+  - `public-decision-verified-badge-is-client-computed` — **live defect, not future work.** A
+    decorative browser-salted hash renders a decision as verified without API context on a
+    public-facing surface, and two current frontend tests pass on it. The forged-packet negative
+    named in Producer & bridge work is its red-first control.
+  - `global-case-index-producer-missing`, with `ds8-global-case-index` and
+    `ds10-global-case-index-producer-allocation` as its two dependent halves. **Allocation decided
+    2026-09-01: the producer is DS12's**, because a published record needs a stable canonical
+    identity before DS13 can make records browsable or contestable; DS13 consumes the index it
+    installs. The complete 2,616-file AST census that established the absence found zero
+    `resource_kind="case"` assignments, with the twelve literal `case` sites disambiguated.
+  - `DS11-PUBLIC-SIGNATURE-POPULATION` and `DS11-GROUNDED-PERFORMANCE` — DS11 carried both to this
+    slice by design; both wait on the record half above, not on DS11.
+  - `DS11-FULL-TRUST-CENTER-AND-DOCS-IA` — the successor allocation DS11 declared.
+  - `ds5-waist-successors-routed-to-unscoped-slices` — DS12's three enforcement-waist groups, as the
+    bullet above already states.
+  - `gy-promotion-obligations-scope-insufficient` — shared with `GY-PR1`; it closes on the GY side
+    and is listed here only so DS12 sees what its record half depends on.
 - **Research-input consumption (wave 5, routes `W5-R3-Q04`, `W5-R4-Q12`, `W5-O5-Q12`).** Ratified
   `W5-K02` forbids projecting surface, enforcement or instrument conformance as human
   comprehension, so no DS12 public copy may imply that a reader understood; `W5-K03`/`W5-K04`
@@ -1852,6 +1900,13 @@ Loosening the ratified posture is out of scope for every slice.
 - **Negative controls:** a closed public record cannot be mutated by new
   evidence — only superseded with visible lineage; P26 negatives on
   consultation-response accountability.
+- **Debt rows this slice must close (2026-09-01).** DS13 owns the *consumption* half of the case
+  index, not its producer. `global-case-index-producer-missing` is allocated to DS12 because a
+  published record needs a canonical identity before it can be browsed; DS13 must consume that index
+  rather than build a second store — the register rows say so in their own words, *not a second DS10
+  store*. What DS13 owes: the browse/contest/history surfaces over the installed index, and the
+  supersession lineage those rows assume. If DS12 lands the producer and DS13 does not consume it,
+  `ds8-global-case-index` stays open and its owner is DS13, not DS12.
 - **Not yet:** no automated dispute resolution; ledgers record and project,
   humans decide.
 
@@ -1910,6 +1965,21 @@ Loosening the ratified posture is out of scope for every slice.
   REVIEWER/EXPERT until a separate, explicit decision.
 
 ### New Slices (Revision 2 — the GY-N13/N11/N12 surface duals)
+
+- **Debt rows this slice must close (2026-09-01).** The gate adjudication above establishes that
+  DS14 is not blocked on Phase 6, so these are executable as soon as the slice is scheduled.
+  - `ds8-lex-clerk-authority-repair` — **Clerk only; the Lex half is settled** and route/discovery
+    stays with DS10. The complete current `features/clerk` denominator is 33 files with **zero**
+    `PromptToolParserAuthorityLedger`, `CompressionLossReceipt`, `agent_session` or
+    `orchestration_audit` occurrences, so what is owed is the agent-session and orchestration-audit
+    endpoints over the G6 contracts, schema/client regeneration, the compression-loss/authority-delta
+    projection, the re-grounded Clerk strangle, and the P15 negatives. This row's own dossier says
+    the remaining question was *allocation to an executing lane, not design or scope* — this bullet
+    is that allocation.
+  - `ds5-waist-successors-routed-to-unscoped-slices` — DS14's one enforcement-waist group, the
+    generated blocker-decision/bool issuer, alongside DS12's three.
+  - `public-decision-verified-badge-is-client-computed` — shared with DS12, which owns the repair;
+    DS14 must not reintroduce a client-computed verification indicator in the agent surface.
 
 #### DS15 — Acquisition Routes & Data-Pool Growth Surfaces
 

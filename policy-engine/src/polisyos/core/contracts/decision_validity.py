@@ -647,6 +647,7 @@ __all__ = [
     "EpochValidityBatchCompletionStatement",
     "EpochValidityBatchReceipt",
     "EpochValidityBatchTarget",
+    "EpochValidityCompletedBatchEvidenceDenominator",
     "EpochValidityCompletedBatchEvidenceResolver",
     "EpochValidityGateNonReceipt",
     "EpochValidityGateReceipt",

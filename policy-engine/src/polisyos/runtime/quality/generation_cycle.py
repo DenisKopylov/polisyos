@@ -2241,6 +2241,12 @@ class _DefaultSimulationBoundFoundryValuePort:
 
     repo_root: Path | None
     cycle_substrate_context: CycleSubstrateContext | None
+    owner_gateway: ValueOwnerGateway | None = None
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None
+    data_trust: DataTrust | None = None
+    requested_method_fqn: str | None = None
+    observation_to_contract_manifest: object | None = None
+    runtime_budget_ms: float | None = None
 
     def __call__(
         self,
@@ -2266,6 +2272,12 @@ class _DefaultSimulationBoundFoundryValuePort:
             )
         return FoundryValuePort(
             evaluation_context=context,
+            eval_safety_verifier=self.eval_safety_verifier,
+            owner_gateway=self.owner_gateway,
+            data_trust=self.data_trust,
+            requested_method_fqn=self.requested_method_fqn,
+            observation_to_contract_manifest=self.observation_to_contract_manifest,
+            runtime_budget_ms=self.runtime_budget_ms,
             repo_root=self.repo_root,
             cycle_substrate_context=self.cycle_substrate_context,
         )(
@@ -2733,8 +2745,12 @@ class GenerationCycleController:
         existing_port = self._value_port
         value_port_kwargs: dict[str, Any] = {}
         if isinstance(existing_port, FoundryValuePort):
+            if existing_port._evaluation_context.evaluation_mode != "simulate_only":
+                raise GenerationCycleError(
+                    "acquisition_reentry_evaluation_context_rebinding_required"
+                )
             value_port_kwargs = {
-                "evaluation_mode": existing_port._evaluation_mode,
+                "eval_safety_verifier": existing_port._eval_safety_verifier,
                 "data_trust": existing_port._data_trust,
                 "requested_method_fqn": existing_port._requested_method_fqn,
                 "observation_to_contract_manifest": (
@@ -2742,7 +2758,18 @@ class GenerationCycleController:
                 ),
                 "runtime_budget_ms": existing_port._runtime_budget_ms,
             }
-        reentry_value_port = FoundryValuePort(
+        elif isinstance(existing_port, _DefaultSimulationBoundFoundryValuePort):
+            value_port_kwargs = {
+                "eval_safety_verifier": existing_port.eval_safety_verifier,
+                "data_trust": existing_port.data_trust,
+                "requested_method_fqn": existing_port.requested_method_fqn,
+                "observation_to_contract_manifest": (
+                    existing_port.observation_to_contract_manifest
+                ),
+                "runtime_budget_ms": existing_port.runtime_budget_ms,
+            }
+        reentry_value_port = _DefaultSimulationBoundFoundryValuePort(
+            repo_root=self._repo_root,
             owner_gateway=RealValueOwnerGateway(
                 repo_root=self._repo_root,
                 cycle_substrate_context=self._cycle_substrate_context,

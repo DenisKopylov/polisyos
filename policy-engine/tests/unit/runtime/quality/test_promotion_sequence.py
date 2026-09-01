@@ -288,9 +288,10 @@ def test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow() -> None:
     assert check.spend_decimal == "0"
     assert receipt.confidence_ledger_receipt_id == session.receipt().receipt_id
     assert receipt.confidence_ledger_projection.ledger_receipt_id == session.receipt().receipt_id
-    assert _obligation(receipt, PromotionObligationClass.EFFECT).status == (
-        PromotionObligationStatus.SCOPE_INSUFFICIENT
-    )
+    effect = _obligation(receipt, PromotionObligationClass.EFFECT)
+    assert effect.status == PromotionObligationStatus.UNKNOWN
+    assert effect.reason.value == "unknown"
+    assert effect.semantic_scope == "real_semantics"
     assert _obligation(receipt, PromotionObligationClass.MEASUREMENT).status == (
         PromotionObligationStatus.SCOPE_INSUFFICIENT
     )
@@ -345,11 +346,12 @@ def test_owner_projection_round_trips_exact_open_world_vector_identity() -> None
 
 def test_legacy_v3_history_is_exactly_readable_but_not_current_authority() -> None:
     frozen = json.loads(
-        (REPO_ROOT / "architecture/policy_design_case/layer3_gy_promotion_contract.json").read_text(
-            encoding="utf-8"
-        )
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
+        ).read_text(encoding="utf-8")
     )
-    payload = frozen["contract_lane_anytime_refusal"]
+    payload = frozen["generation_cycle_run"]["promotion_port"]["receipts"][0]
     owner = payload["owner_projection"]
 
     parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
@@ -1138,6 +1140,7 @@ def test_supported_owner_bound_offer_round_trips_through_generic_validator() -> 
             value_receipt=None,
             open_world_resolver=None,
             epoch_validity_resolver=None,
+            promotion_evidence_resolver=None,
             confidence_ledger_session=session,
             expected_authority_provenance="verification",
         )

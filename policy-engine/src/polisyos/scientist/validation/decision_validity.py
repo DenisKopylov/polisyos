@@ -1077,6 +1077,8 @@ class DecisionValidityService:
                 snapshot_bytes=snapshot_bytes,
                 snapshot=snapshot,
             )
+        except KeyError as exc:
+            raise RuntimeError("decision_validity_epoch_impact_snapshot_unresolved") from exc
         except _DECISION_VALIDITY_ARTIFACT_LOAD_ERRORS as exc:
             raise RuntimeError("decision_validity_epoch_impact_snapshot_unresolved") from exc
 

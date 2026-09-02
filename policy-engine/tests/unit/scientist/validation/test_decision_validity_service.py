@@ -565,6 +565,34 @@ def test_epoch_impact_snapshot_persists_exact_manifest_and_readback(tmp_path) ->
             )
 
 
+def test_epoch_impact_snapshot_resolver_normalizes_backend_key_error(tmp_path) -> None:
+    """A backend lookup miss remains inside the snapshot resolver error boundary."""
+
+    from polisyos.core.contracts.decision_validity import (
+        DecisionValidityEpochImpactSnapshotHandle,
+    )
+
+    class _ManifestMissCAS(FileSystemCAS):
+        def get_manifest(self, artifact_id):
+            raise KeyError(str(artifact_id))
+
+    service = DecisionValidityService(_ManifestMissCAS(tmp_path / "cas"))
+    handle = DecisionValidityEpochImpactSnapshotHandle(
+        snapshot_ref=ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="scientist.decision_validity_epoch_impact_snapshot",
+            media_type="application/json",
+        ),
+        snapshot_content_hash="sha256:" + "b" * 64,
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="^decision_validity_epoch_impact_snapshot_unresolved$",
+    ):
+        service.resolve_epoch_impact_snapshot(handle=handle)
+
+
 def test_epoch_impact_snapshot_preserves_two_packets_in_one_lineage(tmp_path) -> None:
     """The owner keeps both packet targets while deduplicating their shared lineage."""
 
@@ -804,6 +832,74 @@ def test_epoch_reconciliation_admission_binding_supports_path_state_store(tmp_pa
         assert state.save_epoch_reconciliation_admission_binding(binding) == binding
 
     assert state.load_epoch_reconciliation_admission_binding(binding.batch_id) == binding
+
+
+def test_epoch_reconciliation_admission_binding_two_writers_keep_one_winner(
+    tmp_path,
+) -> None:
+    """Independent writers retain one durable binding without replacement or temp residue."""
+
+    state_a = _DecisionValidityStateStore(tmp_path)
+    state_b = _DecisionValidityStateStore(tmp_path)
+    binding_a = _valid_epoch_reconciliation_binding()
+    binding_b = _valid_epoch_reconciliation_binding(
+        transition_content_hash="sha256:" + "a" * 64
+    )
+    barrier = threading.Barrier(2)
+    result_lock = threading.Lock()
+    outcomes: list[tuple[object, object]] = []
+
+    def write_binding(
+        state: _DecisionValidityStateStore,
+        binding: object,
+    ) -> None:
+        try:
+            barrier.wait(5)
+            result = state.save_epoch_reconciliation_admission_binding(binding)
+        except BaseException as exc:
+            result = exc
+        with result_lock:
+            outcomes.append((binding, result))
+
+    writers = (
+        threading.Thread(target=write_binding, args=(state_a, binding_a)),
+        threading.Thread(target=write_binding, args=(state_b, binding_b)),
+    )
+    for writer in writers:
+        writer.start()
+    for writer in writers:
+        writer.join(10)
+    assert all(not writer.is_alive() for writer in writers)
+
+    successes = tuple(
+        (submitted, result)
+        for submitted, result in outcomes
+        if not isinstance(result, BaseException)
+    )
+    conflicts = tuple(
+        result for _, result in outcomes if isinstance(result, BaseException)
+    )
+    assert len(successes) == 1
+    assert successes[0][1] == successes[0][0]
+    assert len(conflicts) == 1
+    assert isinstance(conflicts[0], ValueError)
+    assert str(conflicts[0]) == "epoch_denominator_reconciliation_admission_conflict"
+
+    winner = successes[0][0]
+    loser = binding_b if winner == binding_a else binding_a
+    binding_path = state_a._epoch_reconciliation_admissions / (
+        f"{state_a.make_key(binding_a.batch_id)}.json"
+    )
+    winner_bytes = binding_path.read_bytes()
+    reopened = _DecisionValidityStateStore(tmp_path)
+    assert reopened.load_epoch_reconciliation_admission_binding(binding_a.batch_id) == winner
+    with pytest.raises(
+        ValueError,
+        match="^epoch_denominator_reconciliation_admission_conflict$",
+    ):
+        reopened.save_epoch_reconciliation_admission_binding(loser)
+    assert binding_path.read_bytes() == winner_bytes
+    assert tuple(binding_path.parent.glob(f".{binding_path.name}.*.tmp")) == ()
 
 
 @pytest.mark.parametrize(

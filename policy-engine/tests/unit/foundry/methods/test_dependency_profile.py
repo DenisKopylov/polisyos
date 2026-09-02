@@ -6790,6 +6790,19 @@ def _diagnostic_coordinate(result: object) -> str | None:
     return getattr(first_case, "coordinate", None)
 
 
+def _assert_dependency_diagnostic_failure(
+    discriminant: object,
+    observations: tuple[dict[str, str], ...],
+) -> object:
+    """Assert the public diagnostic detects one real dependency disagreement."""
+
+    result = _diagnose_dependency_environment(discriminant, observations)
+    assert getattr(result, "status", None) == "fail", (
+        "dependency disagreement was not detected"
+    )
+    return result
+
+
 def test_forged_ambient_source_and_artifact_mapping_is_not_established() -> None:
     declaration = _tracked_owner_declaration(
         profile_id="forged-ambient-source",
@@ -6938,6 +6951,7 @@ def test_public_diagnostic_distinguishes_unusable_evidence_from_zero_cases(
     )
 
     assert not hasattr(profile_module, "compare_dependency_distributions")
+    assert not hasattr(profile_module, "_compare_dependency_distributions")
     assert forged_result.status == "not_established"
     assert unresolved_result.status == "not_established"
     assert matching_result.status == "pass"
@@ -7197,17 +7211,36 @@ def test_p29_distribution_comparison_cannot_be_replaced_by_schema_markers(
     discriminant = _resolve_dependency_discriminant_from_owner_data(research)
     observations = list(_matching_dependency_observations(discriminant))
     next(row for row in observations if row["name"] == "torch")["version"] = "9999.0"
-    comparator = getattr(profile_module, "_compare_dependency_distributions", None)
-    assert callable(comparator), (
+    calculator = getattr(
+        profile_module,
+        "_calculate_dependency_distribution_cases",
+        None,
+    )
+    assert callable(calculator), (
         "missing behavior: diagnostic verification must execute generic distribution comparison"
     )
-    monkeypatch.setattr(profile_module, "_compare_dependency_distributions", lambda **_kwargs: ())
-
-    result = _diagnose_dependency_environment(discriminant, tuple(observations))
-
-    assert getattr(result, "status", None) == "fail", (
-        "missing behavior: removing distribution comparison cannot leave a marker-only pass"
+    baseline = _assert_dependency_diagnostic_failure(
+        discriminant,
+        tuple(observations),
     )
+    calls = 0
+
+    def property_removed(**_kwargs: object) -> tuple[()]:
+        nonlocal calls
+        calls += 1
+        return ()
+
+    monkeypatch.setattr(
+        profile_module,
+        "_calculate_dependency_distribution_cases",
+        property_removed,
+    )
+
+    with pytest.raises(AssertionError, match="dependency disagreement was not detected"):
+        _assert_dependency_diagnostic_failure(discriminant, tuple(observations))
+
+    assert getattr(baseline, "status", None) == "fail"
+    assert calls == 1, "public diagnostic must invoke one canonical case calculation"
 
 
 def test_p33_profile_labels_cannot_override_recomputed_closure_content(tmp_path: Path) -> None:

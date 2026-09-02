@@ -1083,47 +1083,6 @@ def _calculate_dependency_distribution_cases(
     )
 
 
-def _compare_dependency_distributions(
-    *,
-    discriminant: DependencyProfileDiscriminant,
-    observed_distributions: (
-        DependencyEnvironmentObservation
-        | Mapping[str, object]
-        | Sequence[Mapping[str, object]]
-    ),
-    environment_root: Path | None = None,
-    evidence: DependencyProfileEnvironmentEvidence | None = None,
-) -> tuple[DependencyEnvironmentDiagnosticCase, ...]:
-    """Return every generic disagreement in the v1 deterministic case order.
-
-    Args:
-        discriminant: Recomputed dependency-only expectation.
-        observed_distributions: Ephemeral installed coordinates. Rows outside
-            the resolved closure are deliberately non-decisive.
-        environment_root: Root whose retained marker resolves a receipt-backed
-            observation. Ambient observations do not use it.
-        evidence: Exact retained marker reader for a receipt-backed observation.
-
-    Returns:
-        All observable diagnostic cases in rule-defined order.
-    """
-
-    normalized = _normalize_distribution_observations(
-        discriminant=discriminant,
-        observed_distributions=observed_distributions,
-        environment_root=environment_root,
-        evidence=evidence,
-    )
-    if isinstance(normalized, DependencyEnvironmentDiagnosticNotEstablished):
-        return ()
-    observations, predicate_class = normalized
-    return _calculate_dependency_distribution_cases(
-        discriminant=discriminant,
-        observations=observations,
-        predicate_class=predicate_class,
-    )
-
-
 def diagnose_dependency_environment(
     *,
     discriminant: DependencyProfileDiscriminant,
@@ -1159,18 +1118,11 @@ def diagnose_dependency_environment(
     if isinstance(normalized, DependencyEnvironmentDiagnosticNotEstablished):
         return normalized
     observations, predicate_class = normalized
-    canonical_cases = _calculate_dependency_distribution_cases(
+    cases = _calculate_dependency_distribution_cases(
         discriminant=discriminant,
         observations=observations,
         predicate_class=predicate_class,
     )
-    reported_cases = _compare_dependency_distributions(
-        discriminant=discriminant,
-        observed_distributions=observed_distributions,
-        environment_root=environment_root,
-        evidence=evidence,
-    )
-    cases = reported_cases if reported_cases == canonical_cases else canonical_cases
     if cases:
         return DependencyEnvironmentDiagnosticFail(
             status="fail",

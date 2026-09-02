@@ -1997,15 +1997,22 @@ def _build_epoch_inheritance_recompute_receipt(
     certificate_ref: artifacts.ArtifactRef,
 ) -> EpochInheritanceRecomputeReceipt:
     transition = _read_epoch_validity_transition(store, transition_ref)
+    from polisyos.runtime.quality import epoch_validity_cascade as epoch_cascade
+
+    expected_outer_denominator_ref = epoch_cascade.epoch_dependency_outer_denominator_ref(
+        certificate_bindings=transition.certificate_bindings,
+        dependency_graph=transition.dependency_graph,
+    )
     if (
         transition.previous_epoch_ref != expected_previous_epoch_ref
         or transition.current_epoch_ref != expected_current_epoch_ref
         or transition.requested_query_context_ref != requested_query_context_ref
         or transition.authority_purpose != authority_purpose
-        or transition.dependency_denominator_ref
-        != transition.dependency_graph.denominator_ref
+        or transition.dependency_denominator_ref != expected_outer_denominator_ref
     ):
-        raise _epoch_recompute_refusal("epoch transition coordinates or denominator differ")
+        raise _epoch_recompute_refusal(
+            "epoch transition coordinates or outer denominator differ"
+        )
     matching_edges = tuple(
         edge
         for edge in transition.dependency_graph.edges

@@ -196,7 +196,7 @@ timestamps
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 133 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 477 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 488 |
 | `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `eager_exports` | 25 |
 | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 102 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 5 |
@@ -353,7 +353,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (477)</summary>
+<details><summary>Entrypoint exports (488)</summary>
 
 ```text
 *_CHRONOLOGY_EXPORTS
@@ -489,6 +489,10 @@ DecisionTriggerRecord
 DecisionTriggerSpec
 DecisionTriggerType
 DecisionValidityEnvelope
+DecisionValidityEpochImpactOwnerRow
+DecisionValidityEpochImpactSnapshot
+DecisionValidityEpochImpactSnapshotHandle
+DecisionValidityEpochImpactTarget
 DecisionValidityEvaluation
 DecisionValidityLifecycleSummary
 DecisionValidityPendingReview
@@ -512,6 +516,7 @@ EntityType
 EnvironmentManifestRef
 EpochBoundaryLineageView
 EpochCertificateStalenessView
+EpochDenominatorReconciliationAdmissionBinding
 EpochDependencyStalenessView
 EpochDerivedRecomputeView
 EpochOpenWorldRiskComponentView
@@ -521,6 +526,10 @@ EpochPerturbationView
 EpochProjectionDenominatorView
 EpochProjectionStatus
 EpochStalenessProjectionView
+EpochTransitionDenominatorMappingRow
+EpochTransitionDenominatorReconciliationHandle
+EpochTransitionDenominatorReconciliationReader
+EpochTransitionDenominatorReconciliationReceipt
 EpochTransitionVerificationReceipt
 EpochTransitionVerifier
 EpochValidityAuthorityGate
@@ -654,6 +663,8 @@ NormRule
 OrdinalPovertyReportRef
 PeriodicOrbitDiagnostics
 PeriodicOrbitDiagnosticsRef
+PersistedDecisionValidityEpochImpactSnapshot
+PersistedEpochTransitionDenominatorReconciliation
 PersistedEpochValidityBatchEvidence
 PersistedEpochValidityGateEvidence
 PersistedPreN9AdmittedCandidateBatch

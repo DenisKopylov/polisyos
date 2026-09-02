@@ -32,6 +32,9 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
   persisted gate evidence, complete pending/completed batch receipts, and the exact persisted
   completion evidence used by downstream owners. Request DTOs never carry status, targets,
   verifier identity, or owner denominators.
+- **Epoch-denominator reconciliation contracts** - `decision_validity.py` additively defines the
+  exact Scientist impact snapshot, cross-owner mapping receipt, write-once admission binding, and
+  Runtime-independent reader port. Existing epoch-validity v1 DTOs retain their bytes and meaning.
 - **Scope-adjudication candidates** - `scope_adjudication.py` content-binds one candidate,
   one custody plane, the ratified rule, validity/knowledge times, and the three ordered four-way
   predicate observations. Every artifact is `candidate_only`, has no authority or closure effect,
@@ -72,4 +75,8 @@ Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDe
   responses, OpenAPI, and generated clients.
 - The scope-adjudication candidate contract preserves the absence of its production resolver and
   consumer as typed limitations; no production orchestration or public/audit surface is appointed.
+- The epoch-impact snapshot and reconciliation sidecar contracts are public and content-bound, but
+  the Runtime producer/exact reader and Scientist admission consumer remain `producer_missing` and
+  `bridge_missing` until the separately scoped reconciliation task lands. No production reader is
+  appointed.
 - `core.contracts` still acts as the stable import surface for runtime/control payloads while analytics refs continue to be re-exported for compatibility.

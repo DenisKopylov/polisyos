@@ -1,16 +1,17 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import threading
 from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.decision_validity import (
     DecisionBasisSection,
     DecisionDependencyEvent,
@@ -26,13 +27,6 @@ from polisyos.core.contracts.decision_validity import (
     EpochValidityBatchTarget,
 )
 from polisyos.core.contracts.feedback import DecisionMonitoringContract
-from polisyos.scientist.validation.decision_validity import (
-    DecisionValidityService,
-    _DecisionLineageState,
-    _DecisionValidityStateStore,
-    _load_baseline,
-    _load_envelope,
-)
 from polisyos.runtime.quality import semantic_epoch as semantic_epoch_runtime
 from polisyos.runtime.quality.epoch_validity_cascade import (
     EpochDependencyDenominatorReceipt,
@@ -43,6 +37,13 @@ from polisyos.runtime.quality.epoch_validity_cascade import (
     _semantic_hash,
     build_epoch_validity_transition,
     resolve_owner_target_dispositions,
+)
+from polisyos.scientist.validation.decision_validity import (
+    DecisionValidityService,
+    _DecisionLineageState,
+    _DecisionValidityStateStore,
+    _load_baseline,
+    _load_envelope,
 )
 
 
@@ -330,12 +331,13 @@ def _register_reconciliation_packet(
     dependency_key: str,
     dependency_artifact_id: str,
     lineage_key: str,
+    policy_fingerprint: str | None = None,
 ) -> str:
     """Register one real semantic-epoch packet for reconciliation coverage."""
 
     envelope = DecisionValidityEnvelope(
         decision_lineage_key=lineage_key,
-        policy_fingerprint=f"policy_{lineage_key}",
+        policy_fingerprint=policy_fingerprint or f"policy_{lineage_key}",
         knowledge_basis=DecisionBasisSection(
             dependencies=[
                 DecisionDependencyRef(
@@ -409,6 +411,546 @@ def _semantic_epoch_manifest(
             manifest_content_hash.encode(),
         ),
     )
+
+
+def _valid_epoch_impact_snapshot_contract():
+    from polisyos.core.contracts.decision_validity import (
+        DecisionValidityEpochImpactOwnerRow,
+        DecisionValidityEpochImpactSnapshot,
+        DecisionValidityEpochImpactTarget,
+    )
+
+    owner_rows = (
+        DecisionValidityEpochImpactOwnerRow(
+            dependency_key="epoch::a",
+            dependency_kind=DecisionDependencyKind.SEMANTIC_EPOCH,
+            artifact_id="sha256:" + "a" * 64,
+            packet_refs=("packet-a",),
+            lineage_keys=("lineage-a",),
+        ),
+        DecisionValidityEpochImpactOwnerRow(
+            dependency_key="epoch::b",
+            dependency_kind=DecisionDependencyKind.SEMANTIC_EPOCH,
+            artifact_id="sha256:" + "b" * 64,
+            packet_refs=("packet-b",),
+            lineage_keys=("lineage-b",),
+        ),
+    )
+    targets = (
+        DecisionValidityEpochImpactTarget(
+            packet_ref="packet-a",
+            dependency_key="epoch::a",
+            decision_lineage_key="lineage-a",
+        ),
+        DecisionValidityEpochImpactTarget(
+            packet_ref="packet-b",
+            dependency_key="epoch::b",
+            decision_lineage_key="lineage-b",
+        ),
+    )
+    return DecisionValidityEpochImpactSnapshot.build(
+        requested_query_context_ref="sha256:" + "c" * 64,
+        requested_dependency_keys=("epoch::a", "epoch::b"),
+        owner_rows=owner_rows,
+        targets=targets,
+    )
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "requested-key-order",
+        "requested-key-duplicate",
+        "owner-row-order",
+        "owner-row-duplicate",
+        "packet-order",
+        "packet-duplicate",
+        "lineage-order",
+        "lineage-duplicate",
+        "target-order",
+        "target-duplicate",
+        "wrong-kind",
+        "self-hash",
+    ],
+)
+def test_epoch_impact_snapshot_contract_rejects_noncanonical_members(case: str) -> None:
+    """Canonical snapshot membership cannot be reordered, duplicated, or substituted."""
+
+    from pydantic import ValidationError
+
+    from polisyos.core.contracts.decision_validity import DecisionValidityEpochImpactSnapshot
+
+    valid = _valid_epoch_impact_snapshot_contract()
+    payload = valid.model_dump(mode="json")
+    if case == "requested-key-order":
+        payload["requested_dependency_keys"] = list(reversed(payload["requested_dependency_keys"]))
+    elif case == "requested-key-duplicate":
+        payload["requested_dependency_keys"] = ["epoch::a", "epoch::a"]
+    elif case == "owner-row-order":
+        payload["owner_rows"] = list(reversed(payload["owner_rows"]))
+    elif case == "owner-row-duplicate":
+        payload["owner_rows"] = [payload["owner_rows"][0], payload["owner_rows"][0]]
+    elif case == "packet-order":
+        payload["owner_rows"][0]["packet_refs"] = ["packet-z", "packet-a"]
+    elif case == "packet-duplicate":
+        payload["owner_rows"][0]["packet_refs"] = ["packet-a", "packet-a"]
+    elif case == "lineage-order":
+        payload["owner_rows"][0]["lineage_keys"] = ["lineage-z", "lineage-a"]
+    elif case == "lineage-duplicate":
+        payload["owner_rows"][0]["lineage_keys"] = ["lineage-a", "lineage-a"]
+    elif case == "target-order":
+        payload["targets"] = list(reversed(payload["targets"]))
+    elif case == "target-duplicate":
+        payload["targets"] = [payload["targets"][0], payload["targets"][0]]
+    elif case == "wrong-kind":
+        payload["owner_rows"][0]["dependency_kind"] = DecisionDependencyKind.DATASET.value
+    else:
+        payload["snapshot_content_hash"] = "sha256:" + "f" * 64
+
+    with pytest.raises(ValidationError):
+        DecisionValidityEpochImpactSnapshot.model_validate(payload)
+
+
+def test_epoch_impact_snapshot_persists_exact_manifest_and_readback(tmp_path) -> None:
+    """Snapshot authority is exact CAS bytes plus its fixed manifest profile."""
+
+    store = FileSystemCAS(tmp_path / "cas")
+    service = DecisionValidityService(store)
+    epoch_owner = _put_json(store, {"epoch": "owner"}, kind="runtime.epoch_target")
+    packet_ref = _register_reconciliation_packet(
+        service,
+        store,
+        dependency_key="epoch::snapshot",
+        dependency_artifact_id=str(epoch_owner.artifact_id),
+        lineage_key="lineage-snapshot",
+    )
+
+    persisted = service.persist_epoch_impact_snapshot(
+        dependency_keys=("epoch::snapshot",),
+        requested_query_context_ref="sha256:" + "c" * 64,
+    )
+    exact = service.resolve_epoch_impact_snapshot(handle=persisted.handle)
+    manifest = store.get_manifest(persisted.handle.snapshot_ref.artifact_id)
+
+    assert exact == persisted
+    assert exact.snapshot_bytes == store.get_bytes(persisted.handle.snapshot_ref.artifact_id)
+    assert exact.snapshot_bytes == to_canonical_bytes(
+        exact.snapshot.model_dump(mode="json"), CanonSpec()
+    )
+    assert exact.handle.snapshot_content_hash == exact.snapshot.snapshot_content_hash
+    assert exact.snapshot.targets[0].packet_ref == packet_ref
+    assert exact.handle.snapshot_ref.kind == "scientist.decision_validity_epoch_impact_snapshot"
+    assert exact.handle.snapshot_ref.media_type == "application/json"
+    assert manifest.kind == exact.handle.snapshot_ref.kind
+    assert manifest.media_type == exact.handle.snapshot_ref.media_type
+    assert manifest.artifact_schema == SchemaInfo(
+        name="polisyos.decision-validity.epoch-impact-snapshot.v1",
+        version="1.0",
+    )
+    assert manifest.canon == CanonInfo.from_spec(CanonSpec())
+    assert str(exact.handle.snapshot_ref.artifact_id) == (
+        "sha256:" + hashlib.sha256(exact.snapshot_bytes).hexdigest()
+    )
+
+    for bad_ref in (
+        exact.handle.snapshot_ref.model_copy(update={"kind": "wrong.kind"}),
+        exact.handle.snapshot_ref.model_copy(update={"media_type": "application/octet-stream"}),
+    ):
+        with pytest.raises(
+            RuntimeError,
+            match="decision_validity_epoch_impact_snapshot_unresolved",
+        ):
+            service.resolve_epoch_impact_snapshot(
+                handle=exact.handle.model_copy(update={"snapshot_ref": bad_ref})
+            )
+
+
+def test_epoch_impact_snapshot_preserves_two_packets_in_one_lineage(tmp_path) -> None:
+    """The owner keeps both packet targets while deduplicating their shared lineage."""
+
+    store = FileSystemCAS(tmp_path / "cas")
+    service = DecisionValidityService(store)
+    epoch_owner = _put_json(store, {"epoch": "owner"}, kind="runtime.epoch_target")
+    packet_refs = tuple(
+        sorted(
+            _register_reconciliation_packet(
+                service,
+                store,
+                dependency_key="epoch::shared-lineage",
+                dependency_artifact_id=str(epoch_owner.artifact_id),
+                lineage_key="lineage-shared",
+                policy_fingerprint=f"policy-shared-{version}",
+            )
+            for version in ("v1", "v2")
+        )
+    )
+    assert len(set(packet_refs)) == 2
+
+    persisted = service.persist_epoch_impact_snapshot(
+        dependency_keys=("epoch::shared-lineage",),
+        requested_query_context_ref="sha256:" + "c" * 64,
+    )
+
+    assert persisted.snapshot.owner_rows[0].packet_refs == packet_refs
+    assert persisted.snapshot.owner_rows[0].lineage_keys == ("lineage-shared",)
+    assert tuple(
+        (target.packet_ref, target.decision_lineage_key)
+        for target in persisted.snapshot.targets
+    ) == tuple((packet_ref, "lineage-shared") for packet_ref in packet_refs)
+
+
+@pytest.mark.parametrize("profile_failure", ["schema", "canon", "noncanonical-bytes"])
+def test_epoch_impact_snapshot_exact_reader_rejects_profile_or_byte_drift(
+    tmp_path,
+    profile_failure: str,
+) -> None:
+    """A shaped snapshot DTO cannot substitute for exact manifest and byte verification."""
+
+    from polisyos.core.contracts.decision_validity import DecisionValidityEpochImpactSnapshotHandle
+
+    snapshot = _valid_epoch_impact_snapshot_contract()
+    canonical = to_canonical_bytes(snapshot.model_dump(mode="json"), CanonSpec())
+    raw = canonical if profile_failure != "noncanonical-bytes" else b" " + canonical
+    schema = SchemaInfo(
+        name=(
+            "wrong.snapshot.schema"
+            if profile_failure == "schema"
+            else "polisyos.decision-validity.epoch-impact-snapshot.v1"
+        ),
+        version="1.0",
+    )
+    canon = CanonInfo.from_spec(
+        CanonSpec(forbid_floats=False) if profile_failure == "canon" else CanonSpec()
+    )
+    store = FileSystemCAS(tmp_path / profile_failure)
+    ref = store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind="scientist.decision_validity_epoch_impact_snapshot",
+            media_type="application/json",
+            schema=schema,
+            canon=canon,
+        ),
+    )
+    service = DecisionValidityService(store)
+
+    with pytest.raises(
+        RuntimeError,
+        match="decision_validity_epoch_impact_snapshot_unresolved",
+    ):
+        service.resolve_epoch_impact_snapshot(
+            handle=DecisionValidityEpochImpactSnapshotHandle(
+                snapshot_ref=ref,
+                snapshot_content_hash=snapshot.snapshot_content_hash,
+            )
+        )
+
+
+def test_strict_snapshot_refuses_nullable_owner_but_legacy_digest_is_unchanged(tmp_path) -> None:
+    """Strict persistence must not strengthen the nullable legacy owner resolver."""
+
+    store = FileSystemCAS(tmp_path / "cas")
+    service = DecisionValidityService(store)
+    packet_ref = _register_reconciliation_packet(
+        service,
+        store,
+        dependency_key="epoch::nullable",
+        dependency_artifact_id="sha256:" + "a" * 64,
+        lineage_key="lineage-nullable",
+    )
+    owner = service._state.load_dependency("epoch::nullable")
+    assert owner is not None
+    service._state.save_dependency(owner.model_copy(update={"artifact_id": None}))
+    expected_rows = [
+        {
+            "dependency_key": "epoch::nullable",
+            "dependency_kind": "semantic_epoch",
+            "artifact_id": None,
+            "packet_refs": [packet_ref],
+            "lineage_keys": ["lineage-nullable"],
+        }
+    ]
+    expected_digest = "sha256:" + hashlib.sha256(
+        json.dumps(expected_rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+
+    targets, digest = service._resolve_epoch_target_denominator(
+        dependency_keys=("epoch::nullable",)
+    )
+    assert targets == {(packet_ref, "epoch::nullable", "lineage-nullable")}
+    assert digest == expected_digest
+    before_ids = tuple(store.iter_artifact_ids())
+
+    with pytest.raises(ValueError, match="epoch_impact_snapshot_artifact_id_unresolved"):
+        service.persist_epoch_impact_snapshot(
+            dependency_keys=("epoch::nullable",),
+            requested_query_context_ref="sha256:" + "c" * 64,
+        )
+
+    assert tuple(store.iter_artifact_ids()) == before_ids
+
+
+def _valid_epoch_reconciliation_binding(*, batch_id: str = "batch-a", **updates):
+    from polisyos.core.contracts.decision_validity import (
+        EpochDenominatorReconciliationAdmissionBinding,
+    )
+
+    values = {
+        "batch_id": batch_id,
+        "transition_artifact_ref": ArtifactRef(
+            artifact_id="sha256:" + "1" * 64,
+            kind="polisyos.epoch.validity_transition",
+            media_type="application/vnd.polisyos.chronology+json",
+        ),
+        "transition_content_hash": "sha256:" + "2" * 64,
+        "requested_query_context_ref": "sha256:" + "3" * 64,
+        "decision_impact_denominator_ref": "sha256:" + "4" * 64,
+        "scientist_snapshot_ref": ArtifactRef(
+            artifact_id="sha256:" + "5" * 64,
+            kind="scientist.decision_validity_epoch_impact_snapshot",
+            media_type="application/json",
+        ),
+        "scientist_snapshot_content_hash": "sha256:" + "6" * 64,
+        "verifier_provenance_ref": ArtifactRef(
+            artifact_id="sha256:" + "7" * 64,
+            kind="chronology.epoch_transition_verifier",
+            media_type="application/json",
+        ),
+        "reconciliation_receipt_ref": ArtifactRef(
+            artifact_id="sha256:" + "8" * 64,
+            kind="polisyos.epoch.transition_denominator_reconciliation_receipt",
+            media_type="application/vnd.polisyos.chronology+json",
+        ),
+        "reconciliation_receipt_content_hash": "sha256:" + "9" * 64,
+    }
+    values.update(updates)
+    return EpochDenominatorReconciliationAdmissionBinding.build(**values)
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement"),
+    [
+        (
+            "transition_artifact_ref",
+            ArtifactRef(
+                artifact_id="sha256:" + "a" * 64,
+                kind="polisyos.epoch.validity_transition",
+                media_type="application/vnd.polisyos.chronology+json",
+            ),
+        ),
+        ("transition_content_hash", "sha256:" + "a" * 64),
+        ("requested_query_context_ref", "sha256:" + "a" * 64),
+        ("decision_impact_denominator_ref", "sha256:" + "a" * 64),
+        (
+            "scientist_snapshot_ref",
+            ArtifactRef(
+                artifact_id="sha256:" + "a" * 64,
+                kind="scientist.decision_validity_epoch_impact_snapshot",
+                media_type="application/json",
+            ),
+        ),
+        ("scientist_snapshot_content_hash", "sha256:" + "a" * 64),
+        (
+            "verifier_provenance_ref",
+            ArtifactRef(
+                artifact_id="sha256:" + "a" * 64,
+                kind="chronology.epoch_transition_verifier",
+                media_type="application/json",
+            ),
+        ),
+        (
+            "reconciliation_receipt_ref",
+            ArtifactRef(
+                artifact_id="sha256:" + "a" * 64,
+                kind="polisyos.epoch.transition_denominator_reconciliation_receipt",
+                media_type="application/vnd.polisyos.chronology+json",
+            ),
+        ),
+        ("reconciliation_receipt_content_hash", "sha256:" + "a" * 64),
+    ],
+)
+def test_epoch_reconciliation_admission_binding_is_idempotent_and_conflicts(
+    tmp_path,
+    field: str,
+    replacement: object,
+) -> None:
+    """The first valid binding wins; identical retries alone are idempotent."""
+
+    state = _DecisionValidityStateStore(FileSystemCAS(tmp_path / field))
+    binding = _valid_epoch_reconciliation_binding()
+    with state.owner_transaction(), state.epoch_batch_transaction():
+        assert state.save_epoch_reconciliation_admission_binding(binding) == binding
+        assert state.save_epoch_reconciliation_admission_binding(binding) == binding
+        with pytest.raises(
+            ValueError,
+            match="epoch_denominator_reconciliation_admission_conflict",
+        ):
+            state.save_epoch_reconciliation_admission_binding(
+                _valid_epoch_reconciliation_binding(**{field: replacement})
+            )
+    assert state.load_epoch_reconciliation_admission_binding(binding.batch_id) == binding
+    assert state.list_epoch_reconciliation_admission_bindings() == (binding,)
+    assert binding.handle.reconciliation_receipt_ref == binding.reconciliation_receipt_ref
+    assert "handle" not in binding.model_dump(mode="json")
+
+
+def test_epoch_reconciliation_admission_binding_supports_path_state_store(tmp_path) -> None:
+    """The write-once binding works with the state store's accepted Path constructor."""
+
+    state = _DecisionValidityStateStore(tmp_path)
+    binding = _valid_epoch_reconciliation_binding()
+
+    with state.owner_transaction(), state.epoch_batch_transaction():
+        assert state.save_epoch_reconciliation_admission_binding(binding) == binding
+
+    assert state.load_epoch_reconciliation_admission_binding(binding.batch_id) == binding
+
+
+@pytest.mark.parametrize(
+    "corruption", ["malformed", "noncanonical", "address", "self-hash"]
+)
+def test_epoch_reconciliation_admission_binding_rejects_corrupt_winner(
+    tmp_path,
+    corruption: str,
+) -> None:
+    """Malformed, noncanonical, or misaddressed winner state is owner corruption."""
+
+    state = _DecisionValidityStateStore(FileSystemCAS(tmp_path / corruption))
+    requested = _valid_epoch_reconciliation_binding(batch_id="batch-requested")
+    path = state._epoch_reconciliation_admissions / (
+        f"{state.make_key(requested.batch_id)}.json"
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if corruption == "malformed":
+        path.write_bytes(b"{not-json")
+    elif corruption == "noncanonical":
+        path.write_bytes(
+            json.dumps(requested.model_dump(mode="json"), indent=2).encode("utf-8")
+        )
+    else:
+        winner = _valid_epoch_reconciliation_binding(
+            batch_id=("batch-requested" if corruption == "self-hash" else "batch-other")
+        )
+        winner_payload = winner.model_dump(mode="json")
+        if corruption == "self-hash":
+            winner_payload["binding_content_hash"] = "sha256:" + "f" * 64
+        path.write_bytes(to_canonical_bytes(winner_payload, CanonSpec()))
+
+    with pytest.raises(RuntimeError, match="decision_validity_owner_state_corrupt"):
+        state.load_epoch_reconciliation_admission_binding(requested.batch_id)
+
+
+def test_no_reconciliation_reader_preserves_legacy_admission_and_lazy_state(tmp_path) -> None:
+    """A reader-unaware service retains legacy admission behavior and filesystem effects."""
+
+    store, service, _, transition, query_ref, packet_rows = _epoch_batch_fixture(
+        tmp_path,
+        packet_count=1,
+    )
+    binding_dir = tmp_path / "decision_validity" / "epoch_reconciliation_admissions"
+    assert not binding_dir.exists()
+    assert all(
+        store.get_manifest(artifact_id).kind
+        != "scientist.decision_validity_epoch_impact_snapshot"
+        for artifact_id in store.iter_artifact_ids()
+    )
+
+    receipt = service.admit_epoch_validity_batch(
+        transition_artifact_ref=transition,
+        requested_query_context_ref=query_ref,
+    )
+    restarted = DecisionValidityService(store)
+
+    assert receipt.schema_version == "polisyos.decision-validity.epoch-batch-receipt.v1"
+    assert receipt.dependency_denominator_ref == service._resolve_epoch_target_denominator(
+        dependency_keys=("epoch::owner-fixture",)
+    )[1]
+    assert service._state.list_epoch_pending() == ()
+    assert service._state.list_epoch_reconciliation_admission_bindings() == ()
+    assert not binding_dir.exists()
+    assert all(
+        store.get_manifest(artifact_id).kind
+        != "scientist.decision_validity_epoch_impact_snapshot"
+        for artifact_id in store.iter_artifact_ids()
+    )
+    assert (
+        service.read_current_projection(packet_rows[0][0]).status
+        == DecisionValidityStatus.STALE
+    )
+    with pytest.raises(ValueError, match="verifier_not_configured"):
+        restarted.admit_epoch_validity_batch(
+            transition_artifact_ref=transition,
+            requested_query_context_ref=query_ref,
+        )
+
+
+@pytest.mark.parametrize("runtime_membership", ["empty", "other"])
+def test_epoch_reconciliation_receipt_rejects_unmapped_zero_impact_owner(
+    runtime_membership: str,
+) -> None:
+    """Every Scientist owner artifact must join Runtime even without impact targets."""
+
+    from pydantic import ValidationError
+
+    from polisyos.core.contracts.decision_validity import (
+        DecisionValidityEpochImpactOwnerRow,
+        DecisionValidityEpochImpactSnapshot,
+        EpochTransitionDenominatorReconciliationReceipt,
+    )
+
+    owner = DecisionValidityEpochImpactOwnerRow(
+        dependency_key="epoch::zero-impact",
+        dependency_kind=DecisionDependencyKind.SEMANTIC_EPOCH,
+        artifact_id="sha256:" + "a" * 64,
+        packet_refs=(),
+        lineage_keys=(),
+    )
+    snapshot = DecisionValidityEpochImpactSnapshot.build(
+        requested_query_context_ref="sha256:" + "b" * 64,
+        requested_dependency_keys=(owner.dependency_key,),
+        owner_rows=(owner,),
+        targets=(),
+    )
+    runtime_target_refs = (
+        ()
+        if runtime_membership == "empty"
+        else (
+            ArtifactRef(
+                artifact_id="sha256:" + "c" * 64,
+                kind="runtime.epoch_dependency_target",
+                media_type="application/json",
+            ),
+        )
+    )
+
+    with pytest.raises(ValidationError, match="epoch_denominator_membership_mismatch"):
+        EpochTransitionDenominatorReconciliationReceipt.build(
+            requested_query_context_ref=snapshot.requested_query_context_ref,
+            verifier_provenance_ref=ArtifactRef(
+                artifact_id="sha256:" + "d" * 64,
+                kind="chronology.epoch_transition_verifier",
+                media_type="application/json",
+            ),
+            transition_artifact_ref=ArtifactRef(
+                artifact_id="sha256:" + "e" * 64,
+                kind="polisyos.epoch.validity_transition",
+                media_type="application/vnd.polisyos.chronology+json",
+            ),
+            transition_content_hash="sha256:" + "f" * 64,
+            epoch_dependency_denominator_ref="sha256:" + "1" * 64,
+            runtime_target_refs=runtime_target_refs,
+            scientist_snapshot_ref=ArtifactRef(
+                artifact_id="sha256:" + "2" * 64,
+                kind="scientist.decision_validity_epoch_impact_snapshot",
+                media_type="application/json",
+            ),
+            scientist_snapshot_content_hash=snapshot.snapshot_content_hash,
+            decision_impact_denominator_ref=snapshot.decision_impact_denominator_ref,
+            requested_dependency_keys=snapshot.requested_dependency_keys,
+            scientist_owner_rows=snapshot.owner_rows,
+            scientist_targets=snapshot.targets,
+            mapping_rows=(),
+        )
 
 
 def test_epoch_denominator_reconciliation_receipt_refuses_distinct_member_sets(

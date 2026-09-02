@@ -321,6 +321,52 @@ def _before_epoch_owner_state(
     )
 
 
+def _register_reconciliation_packet(
+    service: DecisionValidityService,
+    store: FileSystemCAS,
+    *,
+    dependency_key: str,
+    dependency_artifact_id: str,
+    lineage_key: str,
+) -> str:
+    """Register one real semantic-epoch packet for reconciliation coverage."""
+
+    envelope = DecisionValidityEnvelope(
+        decision_lineage_key=lineage_key,
+        policy_fingerprint=f"policy_{lineage_key}",
+        knowledge_basis=DecisionBasisSection(
+            dependencies=[
+                DecisionDependencyRef(
+                    kind=DecisionDependencyKind.SEMANTIC_EPOCH,
+                    key=dependency_key,
+                    artifact_id=dependency_artifact_id,
+                )
+            ]
+        ),
+    )
+    baseline = DecisionValidityEvaluation(
+        decision_lineage_key=lineage_key,
+        status=DecisionValidityStatus.ACTIVE,
+        dependency_keys=envelope.dependency_keys(),
+    )
+    packet = _put_json(
+        store,
+        {
+            "schema_version": "3.4",
+            "decision_validity_envelope": envelope.model_dump(mode="json"),
+            "decision_validity_baseline": baseline.model_dump(mode="json"),
+        },
+        kind="scientist.decision_packet",
+    )
+    packet_ref = str(packet.artifact_id)
+    service.register_decision_packet(
+        packet_ref=packet_ref,
+        envelope=envelope,
+        baseline=baseline,
+    )
+    return packet_ref
+
+
 def test_epoch_denominator_reconciliation_receipt_refuses_distinct_member_sets(
     tmp_path,
 ) -> None:
@@ -512,6 +558,309 @@ def test_epoch_denominator_reconciliation_receipt_refuses_distinct_member_sets(
     assert outcome.code == "epoch_denominator_membership_mismatch"
     assert outcome.reconciliation_handle is None
     assert _before_epoch_owner_state(service, (packet_ref,)) == before
+
+
+def test_epoch_denominator_reconciliation_receipt_bridges_both_owner_definitions(
+    tmp_path,
+) -> None:
+    """One Runtime target can reconcile to two frozen Scientist members."""
+
+    store = FileSystemCAS(tmp_path / "cas")
+    provenance = _put_json(
+        store,
+        {"verifier": "appointed"},
+        kind="chronology.epoch_transition_verifier",
+    )
+    verifier = _AppointedEpochVerifier(provenance)
+    service = DecisionValidityService(store, epoch_transition_verifier=verifier)
+    epoch_key = "epoch::reconciliation-owner"
+    query_ref = "sha256:" + "2" * 64
+    authority_purpose = "decision_validity_epoch_transition"
+    runtime_source = _put_json(
+        store,
+        {"runtime": "epoch-source"},
+        kind="runtime.epoch_dependency_source",
+    )
+    runtime_target = _put_json(
+        store,
+        {"runtime": "epoch-target"},
+        kind="runtime.epoch_dependency_target",
+    )
+    graph_edges = (
+        EpochDependencyEdge(
+            source_ref=runtime_source,
+            target_ref=runtime_target,
+            relation="invalidates",
+            authority_purpose=authority_purpose,
+        ),
+    )
+    graph = EpochDependencyGraph(
+        edges=graph_edges,
+        denominator_ref=_semantic_hash(
+            "polisyos.epoch.dependency-graph.v1",
+            {"edges": graph_edges},
+        ),
+    )
+    runtime_denominator_payload = {
+        "certificate_bindings": (),
+        "dependency_graph": graph,
+        "target_refs": (runtime_target,),
+    }
+    runtime_denominator = EpochDependencyDenominatorReceipt(
+        denominator_ref=_semantic_hash(
+            "polisyos.epoch.dependency-denominator.v1",
+            runtime_denominator_payload,
+        ),
+        **runtime_denominator_payload,
+        predicate_class="independently_reconciled",
+    )
+    transition_payload = {
+        "previous_epoch_ref": "sha256:" + "1" * 64,
+        "current_epoch_ref": "sha256:" + "3" * 64,
+        "certificate_bindings": (),
+        "dependency_graph": graph,
+        "target_vector": resolve_owner_target_dispositions(
+            advisory_events=(),
+            owner_dispositions=(),
+            dependency_graph=graph,
+        ),
+        "dependency_denominator_ref": runtime_denominator.denominator_ref,
+        "adjudication_denominator_ref": "sha256:" + "4" * 64,
+        "requested_query_context_ref": query_ref,
+        "authority_purpose": authority_purpose,
+    }
+    transition = EpochValidityTransitionArtifact(
+        **transition_payload,
+        transition_content_hash=_semantic_hash(
+            "polisyos.epoch.validity-transition.v1",
+            transition_payload,
+        ),
+    )
+    transition_ref = store.put_bytes(
+        _canonical_bytes(transition),
+        ArtifactWriteOptions(
+            kind="polisyos.epoch.validity_transition",
+            media_type="application/vnd.polisyos.chronology+json",
+        ),
+    )
+    transition_bytes = store.get_bytes(transition_ref.artifact_id)
+    transition_raw_hash = "sha256:" + hashlib.sha256(transition_bytes).hexdigest()
+    assert store.verify(transition_ref.artifact_id).ok
+    assert EpochValidityTransitionArtifact.model_validate_json(transition_bytes) == transition
+
+    packet_refs = tuple(
+        _register_reconciliation_packet(
+            service,
+            store,
+            dependency_key=epoch_key,
+            dependency_artifact_id=str(runtime_target.artifact_id),
+            lineage_key=f"epoch_lineage_reconciliation_{ordinal}",
+        )
+        for ordinal in range(2)
+    )
+    scientist_targets, scientist_digest = service._resolve_epoch_target_denominator(
+        dependency_keys=(epoch_key,)
+    )
+    assert scientist_targets == {
+        (packet_refs[0], epoch_key, "epoch_lineage_reconciliation_0"),
+        (packet_refs[1], epoch_key, "epoch_lineage_reconciliation_1"),
+    }
+    assert len(scientist_targets) == 2
+    assert len({target[0] for target in scientist_targets}) == 2
+    assert len({target[2] for target in scientist_targets}) == 2
+    assert runtime_denominator.denominator_ref != scientist_digest
+
+    from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        EpochTransitionDenominatorReconciliationHandle,
+        EpochTransitionDenominatorReconciliationProducer,
+        EpochTransitionDenominatorReconciliationReader,
+        PersistedEpochTransitionDenominatorReconciliation,
+    )
+
+    snapshot = service.persist_epoch_impact_snapshot(
+        dependency_keys=(epoch_key,),
+        requested_query_context_ref=query_ref,
+    )
+    assert snapshot.snapshot.decision_impact_denominator_ref == scientist_digest
+    assert {
+        (target.packet_ref, target.dependency_key, target.decision_lineage_key)
+        for target in snapshot.snapshot.targets
+    } == scientist_targets
+
+    verifier.receipt = EpochTransitionVerificationReceipt(
+        transition_artifact_ref=transition_ref,
+        transition_content_hash=transition_raw_hash,
+        requested_query_context_ref=query_ref,
+        authority_purpose=authority_purpose,
+        verifier_provenance_ref=provenance,
+        dependency_keys=(epoch_key,),
+        dependency_denominator_ref=snapshot.snapshot.decision_impact_denominator_ref,
+        adjudication_denominator_ref=transition.adjudication_denominator_ref,
+        targets=tuple(
+            EpochValidityBatchTarget(
+                packet_ref=target.packet_ref,
+                decision_lineage_key=target.decision_lineage_key,
+                dependency_key=target.dependency_key,
+                status=DecisionValidityStatus.STALE,
+                reason="epoch_advanced",
+            )
+            for target in snapshot.snapshot.targets
+        ),
+        predicate_class="independently_reconciled",
+    )
+    producer = EpochTransitionDenominatorReconciliationProducer(
+        store=store,
+        verifier_provenance_ref=provenance,
+    )
+    produced = producer.produce_and_persist(
+        transition_artifact_ref=transition_ref,
+        scientist_snapshot_handle=snapshot.handle,
+        requested_query_context_ref=query_ref,
+        authority_purpose=authority_purpose,
+    )
+    assert isinstance(produced, PersistedEpochTransitionDenominatorReconciliation)
+    first_handle = produced.handle
+    reader = EpochTransitionDenominatorReconciliationReader(
+        store=store,
+        verifier_provenance_ref=provenance,
+        candidate_handles=(first_handle,),
+    )
+
+    # The first sidecar is resolved from CAS, not reconstructed from a DTO.
+    first_exact = reader.resolve_exact(handle=first_handle)
+    first_receipt = first_exact.receipt
+    assert first_exact.receipt_bytes == store.get_bytes(
+        first_handle.reconciliation_receipt_ref.artifact_id
+    )
+    assert first_receipt.transition_artifact_ref == transition_ref
+    assert first_receipt.transition_content_hash == transition_raw_hash
+    assert first_receipt.scientist_snapshot_ref == snapshot.handle.snapshot_ref
+    assert first_receipt.scientist_snapshot_content_hash == snapshot.handle.snapshot_content_hash
+    assert first_receipt.epoch_dependency_denominator_ref == runtime_denominator.denominator_ref
+    assert first_receipt.decision_impact_denominator_ref == (
+        snapshot.snapshot.decision_impact_denominator_ref
+    )
+    assert (
+        first_receipt.epoch_dependency_denominator_ref
+        != first_receipt.decision_impact_denominator_ref
+    )
+    assert tuple(row.runtime_target_ref for row in first_receipt.mapping_rows) == (
+        runtime_target,
+        runtime_target,
+    )
+    assert {
+        (row.packet_ref, row.dependency_key, row.decision_lineage_key)
+        for row in first_receipt.mapping_rows
+    } == scientist_targets
+    assert {row.dependency_artifact_id for row in first_receipt.mapping_rows} == {
+        str(runtime_target.artifact_id)
+    }
+
+    service = DecisionValidityService(
+        store,
+        epoch_transition_verifier=verifier,
+        epoch_denominator_reconciliation_reader=reader,
+    )
+    receipt = service.admit_epoch_validity_batch(
+        transition_artifact_ref=transition_ref,
+        requested_query_context_ref=query_ref,
+    )
+    binding_rows = service._state.list_epoch_reconciliation_admission_bindings()
+    assert len(binding_rows) == 1
+    binding = binding_rows[0]
+    assert binding.batch_id == receipt.batch_id
+    assert binding.reconciliation_receipt_ref == first_handle.reconciliation_receipt_ref
+    assert binding.reconciliation_receipt_content_hash == (
+        first_handle.reconciliation_receipt_content_hash
+    )
+    assert binding.scientist_snapshot_ref == snapshot.handle.snapshot_ref
+    assert receipt.dependency_denominator_ref == snapshot.snapshot.decision_impact_denominator_ref
+    assert receipt.dependency_denominator_ref != first_receipt.epoch_dependency_denominator_ref
+    assert receipt.targets == tuple(
+        EpochValidityBatchTarget(
+            packet_ref=target.packet_ref,
+            decision_lineage_key=target.decision_lineage_key,
+            dependency_key=target.dependency_key,
+            status=DecisionValidityStatus.STALE,
+            reason="epoch_advanced",
+        )
+        for target in snapshot.snapshot.targets
+    )
+    assert all(
+        service.read_current_projection(packet_ref).status == DecisionValidityStatus.STALE
+        for packet_ref in packet_refs
+    )
+    assert service._state.list_epoch_pending() == ()
+    completed = service.enumerate_completed_epoch_batch_evidence()
+    assert len(completed) == 1
+    assert completed[0].receipt == receipt
+
+    late_packet_ref = _register_reconciliation_packet(
+        service,
+        store,
+        dependency_key=epoch_key,
+        dependency_artifact_id=str(runtime_target.artifact_id),
+        lineage_key="epoch_lineage_reconciliation_late_live",
+    )
+    assert service.read_current_projection(late_packet_ref).status == DecisionValidityStatus.ACTIVE
+    later_snapshot = service.persist_epoch_impact_snapshot(
+        dependency_keys=(epoch_key,),
+        requested_query_context_ref=query_ref,
+    )
+    assert len(later_snapshot.snapshot.targets) == 3
+    assert later_snapshot.snapshot.decision_impact_denominator_ref != scientist_digest
+    later = producer.produce_and_persist(
+        transition_artifact_ref=transition_ref,
+        scientist_snapshot_handle=later_snapshot.handle,
+        requested_query_context_ref=query_ref,
+        authority_purpose=authority_purpose,
+    )
+    assert isinstance(later, PersistedEpochTransitionDenominatorReconciliation)
+    assert later.handle != first_handle
+
+    restarted_reader = EpochTransitionDenominatorReconciliationReader(
+        store=store,
+        verifier_provenance_ref=provenance,
+        candidate_handles=(first_handle, later.handle),
+    )
+    restarted = DecisionValidityService(
+        store,
+        epoch_transition_verifier=verifier,
+        epoch_denominator_reconciliation_reader=restarted_reader,
+    )
+    before_replay = _before_epoch_owner_state(
+        restarted,
+        (*packet_refs, late_packet_ref),
+    )
+    repeated = restarted.admit_epoch_validity_batch(
+        transition_artifact_ref=transition_ref,
+        requested_query_context_ref=query_ref,
+    )
+    after_replay = _before_epoch_owner_state(
+        restarted,
+        (*packet_refs, late_packet_ref),
+    )
+
+    assert repeated == receipt
+    assert after_replay == before_replay
+    assert restarted._state.list_epoch_pending() == ()
+    assert restarted._state.list_epoch_reconciliation_admission_bindings() == (binding,)
+    assert restarted.enumerate_completed_epoch_batch_evidence()[0].receipt == receipt
+    assert (
+        restarted.read_current_projection(late_packet_ref).status
+        == DecisionValidityStatus.ACTIVE
+    )
+    replay_binding = restarted._state.list_epoch_reconciliation_admission_bindings()[0]
+    replay_exact = restarted_reader.resolve_exact(
+        handle=EpochTransitionDenominatorReconciliationHandle(
+            reconciliation_receipt_ref=replay_binding.reconciliation_receipt_ref,
+            reconciliation_receipt_content_hash=replay_binding.reconciliation_receipt_content_hash,
+        )
+    )
+    assert replay_exact.handle == first_handle
+    assert replay_exact.receipt_bytes == first_exact.receipt_bytes
+    assert replay_exact.receipt == first_exact.receipt
+    assert replay_binding.reconciliation_receipt_ref != later.handle.reconciliation_receipt_ref
 
 
 def test_epoch_batch_omitted_target_fails_closed(tmp_path) -> None:

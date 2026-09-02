@@ -33,6 +33,7 @@ from polisyos.scientist.validation.decision_validity import (
     _load_baseline,
     _load_envelope,
 )
+from polisyos.runtime.quality import semantic_epoch as semantic_epoch_runtime
 from polisyos.runtime.quality.epoch_validity_cascade import (
     EpochDependencyDenominatorReceipt,
     EpochDependencyEdge,
@@ -40,6 +41,7 @@ from polisyos.runtime.quality.epoch_validity_cascade import (
     EpochValidityTransitionArtifact,
     _canonical_bytes,
     _semantic_hash,
+    build_epoch_validity_transition,
     resolve_owner_target_dispositions,
 )
 
@@ -367,6 +369,48 @@ def _register_reconciliation_packet(
     return packet_ref
 
 
+def _semantic_epoch_manifest(
+    *,
+    scope: semantic_epoch_runtime.EpochScopeIdentity,
+    label: str,
+    requested_query_context_ref: str,
+    predecessor_refs: tuple[str, ...],
+) -> semantic_epoch_runtime.SemanticEpochManifest:
+    """Build one valid, self-bound manifest for a Runtime transition fixture."""
+
+    def digest(value: str) -> str:
+        return "sha256:" + hashlib.sha256(value.encode()).hexdigest()
+
+    values: dict[str, object] = {
+        "schema_version": "polisyos.epoch.semantic-manifest.v1",
+        "scope_identity": scope.model_dump(mode="json"),
+        "authority_purpose": "decision_validity_epoch_transition",
+        "valid_effect_coordinate_ref": digest("valid-effect"),
+        "visibility_knowledge_cutoff_ref": digest("knowledge-cutoff"),
+        "purpose_admission_cutoff_ref": digest("purpose-cutoff"),
+        "requested_query_context_ref": requested_query_context_ref,
+        "boundary_registry_content_hash": digest("boundary-registry"),
+        "facet_registry_content_hash": digest("facet-registry"),
+        "boundary_denominator_hash": digest(f"boundary:{label}"),
+        "facet_denominator_hash": digest("facet-denominator"),
+        "boundary_semantic_hashes": [digest(f"boundary-semantic:{label}")],
+        "facet_semantic_hashes": [digest("facet-semantic")],
+        "predecessor_refs": list(predecessor_refs),
+    }
+    manifest_content_hash = semantic_epoch_runtime._model_hash(
+        semantic_epoch_runtime._MANIFEST_PREFIX,
+        values,
+    )
+    return semantic_epoch_runtime.SemanticEpochManifest(
+        **values,
+        manifest_content_hash=manifest_content_hash,
+        epoch_ref=semantic_epoch_runtime._sha256(
+            semantic_epoch_runtime._EPOCH_PREFIX,
+            manifest_content_hash.encode(),
+        ),
+    )
+
+
 def test_epoch_denominator_reconciliation_receipt_refuses_distinct_member_sets(
     tmp_path,
 ) -> None:
@@ -614,27 +658,37 @@ def test_epoch_denominator_reconciliation_receipt_bridges_both_owner_definitions
         **runtime_denominator_payload,
         predicate_class="independently_reconciled",
     )
-    transition_payload = {
-        "previous_epoch_ref": "sha256:" + "1" * 64,
-        "current_epoch_ref": "sha256:" + "3" * 64,
-        "certificate_bindings": (),
-        "dependency_graph": graph,
-        "target_vector": resolve_owner_target_dispositions(
+    epoch_scope = semantic_epoch_runtime.build_epoch_scope_identity(
+        schema_profile="polisyos.epoch.decision-validity-test-scope.v1",
+        identity_bytes=b"epoch-denominator-reconciliation",
+    )
+    previous_epoch = _semantic_epoch_manifest(
+        scope=epoch_scope,
+        label="reconciliation-previous",
+        requested_query_context_ref=query_ref,
+        predecessor_refs=(),
+    )
+    current_epoch = _semantic_epoch_manifest(
+        scope=epoch_scope,
+        label="reconciliation-current",
+        requested_query_context_ref=query_ref,
+        predecessor_refs=(previous_epoch.epoch_ref,),
+    )
+    assert previous_epoch.epoch_ref != current_epoch.epoch_ref
+    transition = build_epoch_validity_transition(
+        previous_epoch=previous_epoch,
+        current_epoch=current_epoch,
+        certificates=(),
+        dependency_graph=graph,
+        target_vector=resolve_owner_target_dispositions(
             advisory_events=(),
             owner_dispositions=(),
             dependency_graph=graph,
         ),
-        "dependency_denominator_ref": runtime_denominator.denominator_ref,
-        "adjudication_denominator_ref": "sha256:" + "4" * 64,
-        "requested_query_context_ref": query_ref,
-        "authority_purpose": authority_purpose,
-    }
-    transition = EpochValidityTransitionArtifact(
-        **transition_payload,
-        transition_content_hash=_semantic_hash(
-            "polisyos.epoch.validity-transition.v1",
-            transition_payload,
-        ),
+        dependency_denominator_ref=runtime_denominator.denominator_ref,
+        adjudication_denominator_ref="sha256:" + "4" * 64,
+        requested_query_context_ref=query_ref,
+        authority_purpose=authority_purpose,
     )
     transition_ref = store.put_bytes(
         _canonical_bytes(transition),
@@ -723,7 +777,6 @@ def test_epoch_denominator_reconciliation_receipt_bridges_both_owner_definitions
     reader = EpochTransitionDenominatorReconciliationReader(
         store=store,
         verifier_provenance_ref=provenance,
-        candidate_handles=(first_handle,),
     )
 
     # The first sidecar is resolved from CAS, not reconstructed from a DTO.
@@ -817,11 +870,28 @@ def test_epoch_denominator_reconciliation_receipt_bridges_both_owner_definitions
     )
     assert isinstance(later, PersistedEpochTransitionDenominatorReconciliation)
     assert later.handle != first_handle
-
+    later_exact = reader.resolve_exact(handle=later.handle)
+    assert later_exact.handle == later.handle
+    assert later_exact.receipt_bytes == store.get_bytes(
+        later.handle.reconciliation_receipt_ref.artifact_id
+    )
+    assert later_exact.receipt.transition_artifact_ref == transition_ref
+    assert later_exact.receipt.transition_content_hash == transition_raw_hash
+    assert later_exact.receipt.scientist_snapshot_ref == later_snapshot.handle.snapshot_ref
+    assert later_exact.receipt.scientist_snapshot_content_hash == (
+        later_snapshot.handle.snapshot_content_hash
+    )
+    assert later_exact.receipt.verifier_provenance_ref == provenance
+    assert {
+        (row.packet_ref, row.dependency_key, row.decision_lineage_key)
+        for row in later_exact.receipt.mapping_rows
+    } == {
+        (target.packet_ref, target.dependency_key, target.decision_lineage_key)
+        for target in later_snapshot.snapshot.targets
+    }
     restarted_reader = EpochTransitionDenominatorReconciliationReader(
         store=store,
         verifier_provenance_ref=provenance,
-        candidate_handles=(first_handle, later.handle),
     )
     restarted = DecisionValidityService(
         store,

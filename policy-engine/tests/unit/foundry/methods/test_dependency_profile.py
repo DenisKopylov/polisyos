@@ -6816,6 +6816,7 @@ def test_cb_i02_research_profile_names_torch_as_first_generic_case() -> None:
     discriminant = _resolve_dependency_discriminant_from_owner_data(research)
     observations = list(_matching_dependency_observations(discriminant))
     torch = next(row for row in observations if row["name"] == "torch")
+    assert torch["version"] == "2.10.0"
     torch["source_kind"] = "installed-metadata"
     governing_without_diagnostic = _actual_consumer_governing_bytes(None)
 

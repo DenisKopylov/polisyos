@@ -97,3 +97,58 @@ def test_bound_run_paper_fixture_is_opt_in_and_preserves_default_run_population(
     assert bound_env["run_paper_bound_run_id"] == bound_run_id
     assert [row["run_id"] for row in bound_runs].count(bound_run_id) == 1
     assert len(bound_runs) == len(default_runs) + 1
+
+
+def test_visual_run_paper_fixtures_bind_three_distinct_s2_records(
+    tmp_path: Path,
+) -> None:
+    """Make each governed visual case reach the authority-abstaining arm."""
+    server = _load_fixture_server()
+    runtime_helper = importlib.import_module("_helpers.runtime_http")
+    env = server._build_dashboard_fixture_env(
+        tmp_path,
+        include_run_paper_fixtures=True,
+        include_bound_run_paper_fixture=False,
+        include_test_client=True,
+    )
+    try:
+        run_ids = [
+            env["run_paper_bound_run_id"],
+            env["run_paper_empty_run_id"],
+            env["run_paper_growth_run_id"],
+        ]
+        responses = [
+            env["client"].get(f"/api/v1/runs/{run_id}/paper")
+            for run_id in run_ids
+        ]
+    finally:
+        runtime_helper.close_runtime_api_env(env)
+
+    assert all(response.status_code == 200 for response in responses), [
+        response.text for response in responses
+    ]
+    packets = [response.json() for response in responses]
+    cases = [packet["case_record"] for packet in packets]
+    assert [packet["run"]["run_id"] for packet in packets] == run_ids
+    assert all(
+        case["availability"] == "record_available_authority_abstaining"
+        for case in cases
+    )
+    assert all(case["authority_projection"] == "abstained" for case in cases)
+    assert [case["design_record_binding"]["run_id"] for case in cases] == run_ids
+    assert len(
+        {
+            case["design_record_binding"]["design_record_content_digest"]
+            for case in cases
+        }
+    ) == 3
+    for packet in packets:
+        linked_kinds = [
+            link["artifact_ref"]["kind"] for link in packet["artifact_links"]
+        ]
+        assert all(linked_kinds.count(kind) == 1 for kind in BOUND_ARTIFACT_KINDS)
+    growth_kinds = [
+        link["artifact_ref"]["kind"] for link in packets[2]["artifact_links"]
+    ]
+    assert growth_kinds.count("test.run_paper_growth_output") == 64
+    assert len(packets[2]["artifact_links"]) == len(packets[1]["artifact_links"]) + 64

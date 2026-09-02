@@ -5,7 +5,7 @@ import sys
 from collections.abc import Mapping
 from contextlib import suppress
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 
 import pytest
 
@@ -15,7 +15,7 @@ except ModuleNotFoundError:  # pragma: no cover
     TestClient = None  # type: ignore[assignment]
 
 from _helpers.artifacts import put_json_artifact
-from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, InputRef
+from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.control import PromotionCandidate
 from polisyos.core.run.context import RunContext
@@ -33,6 +33,25 @@ sys.modules.setdefault("polisyos_tests_runtime_http_conftest", sys.modules[__nam
 
 _put_json_raw = put_json_artifact
 _RUNTIME_API_ENVS: list[dict[str, object]] = []
+_RUN_PAPER_BOUND_ARTIFACT_KINDS = (
+    "policyos.layer2_s2.design_record_v0",
+    "policyos.layer2_s2.search_ledger",
+    "policyos.pdc.run_bound_design_record_binding",
+)
+
+
+class _RunPaperBindingFactory(Protocol):
+    """Persist the exact S2 chain that one fixture run must name."""
+
+    def __call__(
+        self,
+        *,
+        store: FileSystemCAS,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+        fixture_role: str,
+    ) -> tuple[ArtifactRef, ArtifactRef, ArtifactRef]: ...
 
 
 @pytest.fixture(autouse=True)
@@ -103,6 +122,40 @@ def _record_fixture_owner(
             cell_id=cell_id,
             writer="tests.runtime_api_env",
         )
+
+
+def _attach_run_paper_binding(
+    run: RunContext,
+    *,
+    store: FileSystemCAS,
+    run_id: str,
+    tenant_id: str,
+    cell_id: str,
+    fixture_role: str,
+    binding_factory: _RunPaperBindingFactory,
+) -> None:
+    """Attach one producer-persisted S2 chain to a fixture's terminal manifest."""
+    refs = binding_factory(
+        store=store,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        fixture_role=fixture_role,
+    )
+    observed_kinds = tuple(ref.kind for ref in refs)
+    if observed_kinds != _RUN_PAPER_BOUND_ARTIFACT_KINDS:
+        raise ValueError(
+            "run paper binding factory returned an invalid artifact chain: "
+            f"{observed_kinds!r}"
+        )
+    _record_fixture_owner(
+        store,
+        *refs,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    for ref in refs:
+        run.add_output(ref)
 
 
 def _pin_run_fixture_times(
@@ -246,6 +299,7 @@ def build_runtime_api_env(
     *,
     include_test_client: bool = True,
     include_run_paper_fixtures: bool = False,
+    run_paper_binding_factory: _RunPaperBindingFactory | None = None,
     app_kwargs: dict[str, object] | None = None,
 ):
     tenant_a = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
@@ -1194,6 +1248,16 @@ def build_runtime_api_env(
     run.run_manifest.execution_profile = "governed"
     run.run_manifest.control_job_id = "job_ctrl_fixture_001"
     run.run_manifest.capability_manifest_ref = capability_manifest_ref
+    if include_run_paper_fixtures and run_paper_binding_factory is not None:
+        _attach_run_paper_binding(
+            run,
+            store=store,
+            run_id=core_run_id,
+            tenant_id=tenant_a,
+            cell_id=cell_a,
+            fixture_role="core",
+            binding_factory=run_paper_binding_factory,
+        )
     run.finalize(
         status="fail",
         errors=[{"code": "run.failed", "message": "workflow execution failed"}],
@@ -1249,6 +1313,16 @@ def build_runtime_api_env(
             started_at=paper_started_at,
             finished_at=paper_finished_at,
         )
+        if run_paper_binding_factory is not None:
+            _attach_run_paper_binding(
+                empty_run,
+                store=store,
+                run_id=run_paper_empty_run_id,
+                tenant_id=tenant_a,
+                cell_id=cell_a,
+                fixture_role="empty",
+                binding_factory=run_paper_binding_factory,
+            )
         empty_run.finalize(status="completed")
 
         growth_refs = [
@@ -1278,8 +1352,23 @@ def build_runtime_api_env(
             started_at=paper_started_at,
             finished_at=paper_finished_at,
         )
+        if run_paper_binding_factory is not None:
+            _attach_run_paper_binding(
+                growth_run,
+                store=store,
+                run_id=run_paper_growth_run_id,
+                tenant_id=tenant_a,
+                cell_id=cell_a,
+                fixture_role="growth",
+                binding_factory=run_paper_binding_factory,
+            )
         growth_run.finalize(status="completed")
         run_paper_metadata = {
+            **(
+                {"run_paper_bound_run_id": core_run_id}
+                if run_paper_binding_factory is not None
+                else {}
+            ),
             "run_paper_empty_run_id": run_paper_empty_run_id,
             "run_paper_growth_run_id": run_paper_growth_run_id,
         }

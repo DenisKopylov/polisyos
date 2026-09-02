@@ -173,6 +173,7 @@ _EXPECTED_DOMAINS_BY_PREIMAGE_KIND = {
         {
             DigestDomain.TOOLCHAIN_RUNTIME_BINDING,
             DigestDomain.INSTALLED_BINDING,
+            DigestDomain.DEPENDENCY_DISCRIMINANT,
             DigestDomain.DEPENDENCY_CLOSURE,
             DigestDomain.DERIVED_UV_ARGV,
             DigestDomain.SIGNED_RECORD_BINDING,
@@ -890,6 +891,14 @@ def test_missing_and_unreadable_manifest_share_public_typed_cause(
 
 
 def test_novel_profile_resolves_from_toml_without_code_change(tmp_path: Path) -> None:
+    pyproject_ref = domain_digest(
+        DigestDomain.PYPROJECT,
+        (_PRODUCT_ROOT / "pyproject.toml").read_bytes(),
+    )
+    lockfile_ref = domain_digest(
+        DigestDomain.UV_LOCK,
+        (_PRODUCT_ROOT / "uv.lock").read_bytes(),
+    )
     novel_registry = tmp_path / "profiles.toml"
     novel_registry.write_text(
         _PROFILE_REGISTRY.read_text(encoding="utf-8")
@@ -901,8 +910,8 @@ def test_novel_profile_resolves_from_toml_without_code_change(tmp_path: Path) ->
         + 'python_constraint = ">=3.14,<3.15"\n'
         + 'resolver_name = "uv"\n'
         + 'resolver_version = "0.9.21"\n'
-        + 'pyproject_sha256 = "sha256:57498f29ef1e6b6bf8f7edf3fbe03573686b64d2c0d72077eac9edc3b3223efb"\n'
-        + 'uv_lock_sha256 = "sha256:d3ca8737e0ce78b1deade715174576cb5449b443d96180e7029d9999d0584572"\n',
+        + f'pyproject_sha256 = "{pyproject_ref.value}"\n'
+        + f'uv_lock_sha256 = "{lockfile_ref.value}"\n',
         encoding="utf-8",
     )
 
@@ -2183,7 +2192,7 @@ def test_every_persisted_digest_domain_has_one_strict_statement_codec() -> None:
     }
 
     assert observed == _EXPECTED_DOMAINS_BY_PREIMAGE_KIND
-    assert sum(len(domains) for domains in observed.values()) == len(DigestDomain) == 59
+    assert sum(len(domains) for domains in observed.values()) == len(DigestDomain)
     for row in registry.statement.domains:
         assert row.derivation_rule
         assert row.derivation_evidence
@@ -6836,7 +6845,7 @@ def test_cb_i02a_label_and_shape_cannot_mask_two_data_generated_incompatibilitie
     baseline = _resolve_dependency_discriminant_from_owner_data(research)
     observations = _matching_dependency_observations(baseline)
     lockfile_bytes = (_PRODUCT_ROOT / "uv.lock").read_bytes()
-    target = next(row for row in getattr(baseline, "distributions") if row.name == "torch")
+    target = next(row for row in baseline.distributions if row.name == "torch")
     needle = f'name = "{target.name}"\nversion = "{target.version}"'.encode()
     assert lockfile_bytes.count(needle) == 1
     mutated_lock = lockfile_bytes.replace(
@@ -6871,7 +6880,7 @@ def test_cb_i02a_label_and_shape_cannot_mask_two_data_generated_incompatibilitie
     assert _diagnostic_coordinate(mutated_result) == f"distribution:{target.name}:version"
     second_names = {row["name"] for row in observations}
     second_missing = sorted(
-        row.name for row in getattr(second, "distributions") if row.name not in second_names
+        row.name for row in second.distributions if row.name not in second_names
     )
     assert second_missing
     assert _diagnostic_coordinate(second_result) == f"distribution:{second_missing[0]}:missing"

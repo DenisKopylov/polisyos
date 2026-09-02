@@ -193,6 +193,7 @@ class DigestDomain(StrEnum):
     DISTRIBUTION_SET = "distribution-set"
     CONTENT_SET_STABLE = "required-content-set-stable"
     CONTENT_SET_INSTANCE = "required-content-set-instance"
+    DEPENDENCY_DISCRIMINANT = "dependency-discriminant"
     DEPENDENCY_CLOSURE = "dependency-closure"
     DERIVED_UV_ARGV = "derived-uv-argv"
     ENVIRONMENT_INSTANCE = "environment-instance"

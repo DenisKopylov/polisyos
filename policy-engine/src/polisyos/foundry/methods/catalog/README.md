@@ -22,6 +22,10 @@ by domain family and registered into the shared `MethodRegistry`.
   production boundary currently returns the typed
   `owner_enforced_runtime_subtree_cutoff_not_established` refusal before any
   environment sync or candidate projection.
+- **Dependency discriminant** - `resolve_dependency_discriminant()` recomputes
+  the complete selected lock closure from tracked dependency bytes without
+  reading production data. `diagnose_dependency_environment()` compares
+  ephemeral installed coordinates generically and is ambient/non-decisive.
 
 ## Public API
 
@@ -41,8 +45,10 @@ by domain family and registered into the shared `MethodRegistry`.
 
 ## Current State
 
-- Last updated: 2026-08-22
-- GY-DEF22 remains `producer_missing`; Foundry correctness adjudication is owed.
+- Last updated: 2026-09-02
+- The Foundry dependency-only reducer and read-only diagnostic are implemented;
+  the shared persisted GY-DEF22 companion and its orchestration bridge remain
+  `producer_missing` until the N8 producer is wired.
 - Refusal persistence is `not_established` because the owner-resolved,
   request-bound receipt store is `absent/unallocated`.
 - Runtime-subtree cutoff authority is `absent/unallocated`; two matching walks

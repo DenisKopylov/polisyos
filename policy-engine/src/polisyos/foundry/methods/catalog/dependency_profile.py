@@ -9,7 +9,8 @@ from __future__ import annotations
 
 import tomllib
 from collections import deque
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping, Sequence
+from importlib import metadata
 from pathlib import Path
 from typing import Annotated, Literal, Protocol
 
@@ -99,6 +100,178 @@ class LockedDistributionIdentity(FoundryAuthorityModel):
     version: IdentityText
     source_kind: IdentityText
     selected_artifact: DomainDigest[Literal[DigestDomain.SELECTED_DISTRIBUTION]]
+
+
+class DependencyProfileDiscriminant(FoundryAuthorityModel):
+    """Dependency-only profile identity recomputed from tracked owner bytes."""
+
+    schema_version: Literal["polisyos.foundry.dependency-discriminant.v1"]
+    rule_version: Literal["polisyos.foundry.dependency_discriminant.v1"]
+    profile_id: IdentityText
+    declaration_ref: FoundryRecordRef[Literal[DigestDomain.PROFILE_DECLARATION]]
+    root_distribution: IdentityText
+    extras: tuple[IdentityText, ...]
+    python_constraint: IdentityText
+    resolver_name: Literal["uv"]
+    resolver_version: Literal["0.9.21"]
+    pyproject_ref: DomainDigest[Literal[DigestDomain.PYPROJECT]]
+    lockfile_ref: DomainDigest[Literal[DigestDomain.UV_LOCK]]
+    marker_environment: tuple[tuple[EnvironmentKeyText, EnvironmentValueText], ...]
+    resolved_distributions: tuple[LockedDistributionIdentity, ...]
+    distribution_set: DomainDigest[Literal[DigestDomain.DISTRIBUTION_SET]]
+    discriminant_ref: DomainDigest[Literal[DigestDomain.DEPENDENCY_DISCRIMINANT]]
+
+    @property
+    def distributions(self) -> tuple[LockedDistributionIdentity, ...]:
+        """Expose the resolved closure under the established reducer attribute."""
+
+        return self.resolved_distributions
+
+    @model_validator(mode="after")
+    def validate_content_binding(self) -> DependencyProfileDiscriminant:
+        names = tuple(row.name for row in self.resolved_distributions)
+        if not names or names != tuple(sorted(set(names))):
+            raise ValueError("resolved distributions must be non-empty, sorted and unique")
+        if self.extras != tuple(sorted(set(self.extras))):
+            raise ValueError("discriminant extras must be sorted and unique")
+        if self.marker_environment != tuple(sorted(set(self.marker_environment))):
+            raise ValueError("marker environment must be sorted and unique")
+        rows = [row.model_dump(mode="json") for row in self.resolved_distributions]
+        expected_distribution_set = domain_digest(
+            DigestDomain.DISTRIBUTION_SET,
+            canonical_json_bytes(rows),
+        )
+        if self.distribution_set != expected_distribution_set:
+            raise ValueError("distribution set is not bound to the resolved rows")
+        expected_discriminant = domain_digest(
+            DigestDomain.DEPENDENCY_DISCRIMINANT,
+            canonical_json_bytes(
+                self.model_dump(mode="json", exclude={"discriminant_ref"})
+            ),
+        )
+        if self.discriminant_ref != expected_discriminant:
+            raise ValueError("discriminant ref is not bound to the dependency statement")
+        return self
+
+
+class InstalledDistributionObservation(FoundryAuthorityModel):
+    """Ephemeral installed coordinates without an authority admission claim."""
+
+    name: IdentityText
+    version: IdentityText
+    source_kind: IdentityText | None = None
+    selected_artifact: (
+        DomainDigest[Literal[DigestDomain.SELECTED_DISTRIBUTION]] | None
+    ) = None
+    selected_artifact_predicate_class: Literal["independently_reconciled"] | None = None
+
+    @model_validator(mode="after")
+    def validate_selected_artifact_evidence(self) -> InstalledDistributionObservation:
+        if (self.selected_artifact is None) != (
+            self.selected_artifact_predicate_class is None
+        ):
+            raise ValueError("selected artifact and its evidence class must be paired")
+        return self
+
+
+class RootDistributionDiagnosticCase(FoundryAuthorityModel):
+    """The observed closure does not contain the declared root distribution."""
+
+    case_kind: Literal["root_distribution_disagreement"]
+    coordinate: IdentityText
+    expected: IdentityText
+    observed: IdentityText
+    predicate_class: Literal["independently_reconciled"]
+
+
+class MissingDistributionDiagnosticCase(FoundryAuthorityModel):
+    """One resolved distribution is absent from the installed observation."""
+
+    case_kind: Literal["missing_resolved_distribution"]
+    coordinate: IdentityText
+    expected: IdentityText
+    observed: IdentityText
+    predicate_class: Literal["independently_reconciled"]
+
+
+class DistributionFieldDiagnosticCase(FoundryAuthorityModel):
+    """One independently observable distribution coordinate disagrees."""
+
+    case_kind: Literal["distribution_field_disagreement"]
+    coordinate: IdentityText
+    field: Literal["version", "source_kind", "selected_artifact"]
+    expected: IdentityText
+    observed: IdentityText
+    predicate_class: Literal["independently_reconciled"]
+
+
+class UnexpectedInClosureIdentityDiagnosticCase(FoundryAuthorityModel):
+    """An installed observation ambiguously repeats an in-closure identity."""
+
+    case_kind: Literal["unexpected_in_closure_identity"]
+    coordinate: IdentityText
+    expected: IdentityText
+    observed: IdentityText
+    predicate_class: Literal["independently_reconciled"]
+
+
+DependencyEnvironmentDiagnosticCase = Annotated[
+    RootDistributionDiagnosticCase
+    | MissingDistributionDiagnosticCase
+    | DistributionFieldDiagnosticCase
+    | UnexpectedInClosureIdentityDiagnosticCase,
+    Field(discriminator="case_kind"),
+]
+
+
+class DependencyEnvironmentDiagnosticPass(FoundryAuthorityModel):
+    """The observable installed coordinates match the dependency closure."""
+
+    status: Literal["pass"]
+    ordered_cases: tuple[DependencyEnvironmentDiagnosticCase, ...]
+    first_case: None
+    predicate_class: Literal["independently_reconciled"]
+
+    @model_validator(mode="after")
+    def validate_empty_cases(self) -> DependencyEnvironmentDiagnosticPass:
+        if self.ordered_cases:
+            raise ValueError("passing diagnostics cannot carry cases")
+        return self
+
+
+class DependencyEnvironmentDiagnosticFail(FoundryAuthorityModel):
+    """One or more observable coordinates disagree with the dependency closure."""
+
+    status: Literal["fail"]
+    ordered_cases: Annotated[
+        tuple[DependencyEnvironmentDiagnosticCase, ...],
+        Field(min_length=1),
+    ]
+    first_case: DependencyEnvironmentDiagnosticCase
+    predicate_class: Literal["independently_reconciled"]
+
+    @model_validator(mode="after")
+    def validate_first_case(self) -> DependencyEnvironmentDiagnosticFail:
+        if self.first_case != self.ordered_cases[0]:
+            raise ValueError("first case must be the first ordered case")
+        return self
+
+
+class DependencyEnvironmentDiagnosticNotEstablished(FoundryAuthorityModel):
+    """Required independently observable source evidence was not received."""
+
+    status: Literal["not_established"]
+    code: Literal["installed_distribution_source_evidence_not_established"]
+    missing_coordinates: Annotated[tuple[IdentityText, ...], Field(min_length=1)]
+    predicate_class: Literal["not_established"]
+
+
+DependencyEnvironmentDiagnosticResult = Annotated[
+    DependencyEnvironmentDiagnosticPass
+    | DependencyEnvironmentDiagnosticFail
+    | DependencyEnvironmentDiagnosticNotEstablished,
+    Field(discriminator="status"),
+]
 
 
 def read_candidate_production_data_manifest(
@@ -283,6 +456,61 @@ def resolve_profile_declaration(
     return matches[0]
 
 
+def resolve_profile_declaration_for_purpose(
+    registry: DependencyProfileRegistryStatement,
+    *,
+    authority_registry_bytes: bytes,
+    authority_purpose: Literal["n8_method_catalog_reconstruction"],
+) -> MethodCatalogDependencyProfileDeclaration:
+    """Resolve and content-bind the one owner profile admitted for a purpose.
+
+    Args:
+        registry: Strict tracked dependency-profile registry.
+        authority_registry_bytes: Exact tracked Foundry authority registry.
+        authority_purpose: Owner purpose; callers cannot provide a profile ID.
+
+    Returns:
+        The uniquely admitted declaration after both reference fields verify.
+
+    Raises:
+        ValueError: If the purpose row is missing, ambiguous, or not bound to
+            the selected declaration.
+    """
+
+    wire = tomllib.loads(authority_registry_bytes.decode("utf-8"))
+    admissions = wire.get("purpose_admissions")
+    if type(admissions) is not list:
+        raise ValueError("authority purpose admission denominator is missing")
+    matches = tuple(
+        row
+        for row in admissions
+        if isinstance(row, Mapping)
+        and row.get("authority_purpose") == authority_purpose
+    )
+    if len(matches) != 1:
+        raise ValueError("authority purpose must resolve to exactly one profile")
+    row = matches[0]
+    if set(row) != {
+        "authority_purpose",
+        "profile_id",
+        "declaration_artifact_id",
+        "declaration_semantic_hash",
+        "predicate_class",
+    } or row.get("predicate_class") != "recomputed":
+        raise ValueError("authority purpose admission has an invalid shape")
+    profile_id = row.get("profile_id")
+    if type(profile_id) is not str:
+        raise ValueError("authority purpose profile identity is invalid")
+    declaration = resolve_profile_declaration(registry, profile_id=profile_id)
+    reference = declaration_ref(declaration)
+    if (
+        row.get("declaration_artifact_id") != reference.artifact_id
+        or row.get("declaration_semantic_hash") != reference.semantic_hash.value
+    ):
+        raise ValueError("authority purpose admission is not content-bound")
+    return declaration
+
+
 def _collect_marker_variables(node: object, destination: set[str]) -> None:
     if isinstance(node, (list, tuple)):
         for child in node:
@@ -375,25 +603,10 @@ def _selected_lock_rows(
     return tuple(selected[name] for name in sorted(selected))
 
 
-def resolve_dependency_profile(
+def _validate_profile_admission(
     declaration: MethodCatalogDependencyProfileDeclaration,
-    *,
-    pyproject_bytes: bytes,
-    lockfile_bytes: bytes,
-    marker_environment: Mapping[str, str],
-    production_data_manifest: ProductionDataManifestInput,
     admission: MethodCatalogProfileAdmission,
-) -> ResolvedMethodCatalogDependencyProfile | DependencyProfileCandidateFailure:
-    """Derive a candidate closure or one exact typed input failure."""
-
-    if isinstance(production_data_manifest, ProductionDataManifestUnavailable):
-        return ProductionDataManifestMissingFailure(
-            kind="production_data_manifest_missing",
-            predicate_id=AuthorityPredicateId.PRODUCTION_MANIFEST,
-            code=AuthorityFailureCode.MANIFEST_MISSING,
-            cause=production_data_manifest.cause,
-            predicate_class="not_established",
-        )
+) -> DigestPredicateMismatch | ScalarPredicateMismatch | None:
     actual_declaration_ref = declaration_ref(declaration)
     if admission.profile_id != declaration.profile_id:
         return ScalarPredicateMismatch(
@@ -419,6 +632,30 @@ def resolve_dependency_profile(
             observed=admission.declaration_ref.semantic_hash,
             predicate_class="recomputed",
         )
+    return None
+
+
+def resolve_dependency_discriminant(
+    declaration: MethodCatalogDependencyProfileDeclaration,
+    *,
+    pyproject_bytes: bytes,
+    lockfile_bytes: bytes,
+    marker_environment: Mapping[str, str],
+) -> DependencyProfileDiscriminant | DependencyProfileInputMismatch | DigestPredicateMismatch:
+    """Resolve a dependency-only discriminant from tracked owner inputs.
+
+    Args:
+        declaration: Strict owner declaration for the selected root and extras.
+        pyproject_bytes: Exact tracked ``pyproject.toml`` bytes.
+        lockfile_bytes: Exact tracked ``uv.lock`` bytes.
+        marker_environment: PEP 508 environment used for the selected graph walk.
+
+    Returns:
+        The content-bound dependency discriminant, or one typed recomputation
+        failure. The reducer never reads production data or installed state.
+    """
+
+    actual_declaration_ref = declaration_ref(declaration)
     for _field, domain, raw, expected in (
         ("pyproject_ref", DigestDomain.PYPROJECT, pyproject_bytes, declaration.pyproject_ref),
         ("lockfile_ref", DigestDomain.UV_LOCK, lockfile_bytes, declaration.lockfile_ref),
@@ -482,6 +719,77 @@ def resolve_dependency_profile(
     distribution_set = domain_digest(
         DigestDomain.DISTRIBUTION_SET, canonical_json_bytes(distribution_rows)
     )
+    statement = {
+        "schema_version": "polisyos.foundry.dependency-discriminant.v1",
+        "rule_version": "polisyos.foundry.dependency_discriminant.v1",
+        "profile_id": declaration.profile_id,
+        "declaration_ref": actual_declaration_ref.model_dump(mode="json"),
+        "root_distribution": canonicalize_name(declaration.root_distribution),
+        "extras": declaration.extras,
+        "python_constraint": declaration.python_constraint,
+        "resolver_name": declaration.resolver_name,
+        "resolver_version": declaration.resolver_version,
+        "pyproject_ref": declaration.pyproject_ref.model_dump(mode="json"),
+        "lockfile_ref": declaration.lockfile_ref.model_dump(mode="json"),
+        "marker_environment": marker_rows,
+        "resolved_distributions": distribution_rows,
+        "distribution_set": distribution_set.model_dump(mode="json"),
+    }
+    return DependencyProfileDiscriminant(
+        schema_version="polisyos.foundry.dependency-discriminant.v1",
+        rule_version="polisyos.foundry.dependency_discriminant.v1",
+        profile_id=declaration.profile_id,
+        declaration_ref=actual_declaration_ref,
+        root_distribution=canonicalize_name(declaration.root_distribution),
+        extras=declaration.extras,
+        python_constraint=declaration.python_constraint,
+        resolver_name=declaration.resolver_name,
+        resolver_version=declaration.resolver_version,
+        pyproject_ref=declaration.pyproject_ref,
+        lockfile_ref=declaration.lockfile_ref,
+        marker_environment=marker_rows,
+        resolved_distributions=tuple(distributions),
+        distribution_set=distribution_set,
+        discriminant_ref=domain_digest(
+            DigestDomain.DEPENDENCY_DISCRIMINANT,
+            canonical_json_bytes(statement),
+        ),
+    )
+
+
+def resolve_dependency_profile(
+    declaration: MethodCatalogDependencyProfileDeclaration,
+    *,
+    pyproject_bytes: bytes,
+    lockfile_bytes: bytes,
+    marker_environment: Mapping[str, str],
+    production_data_manifest: ProductionDataManifestInput,
+    admission: MethodCatalogProfileAdmission,
+) -> ResolvedMethodCatalogDependencyProfile | DependencyProfileCandidateFailure:
+    """Derive the existing production-manifest-composed candidate closure."""
+
+    if isinstance(production_data_manifest, ProductionDataManifestUnavailable):
+        return ProductionDataManifestMissingFailure(
+            kind="production_data_manifest_missing",
+            predicate_id=AuthorityPredicateId.PRODUCTION_MANIFEST,
+            code=AuthorityFailureCode.MANIFEST_MISSING,
+            cause=production_data_manifest.cause,
+            predicate_class="not_established",
+        )
+    admission_failure = _validate_profile_admission(declaration, admission)
+    if admission_failure is not None:
+        return admission_failure
+    discriminant = resolve_dependency_discriminant(
+        declaration,
+        pyproject_bytes=pyproject_bytes,
+        lockfile_bytes=lockfile_bytes,
+        marker_environment=marker_environment,
+    )
+    if not isinstance(discriminant, DependencyProfileDiscriminant):
+        return discriminant
+    distribution_rows = [
+        row.model_dump(mode="json") for row in discriminant.resolved_distributions
+    ]
     stable_content_set = domain_digest(
         DigestDomain.CONTENT_SET_STABLE,
         canonical_json_bytes([row["selected_artifact"] for row in distribution_rows]),
@@ -492,9 +800,9 @@ def resolve_dependency_profile(
         schema_version="polisyos.foundry.production-data-manifest.v1",
     )
     closure_statement = {
-        "declaration_ref": actual_declaration_ref.model_dump(mode="json"),
-        "marker_environment": marker_rows,
-        "distribution_set": distribution_set.model_dump(mode="json"),
+        "declaration_ref": discriminant.declaration_ref.model_dump(mode="json"),
+        "marker_environment": discriminant.marker_environment,
+        "distribution_set": discriminant.distribution_set.model_dump(mode="json"),
         "stable_content_set": stable_content_set.model_dump(mode="json"),
         "production_data_manifest_ref": manifest_ref.model_dump(mode="json"),
     }
@@ -502,15 +810,256 @@ def resolve_dependency_profile(
         status="resolved",
         admission=admission,
         declaration=declaration,
-        marker_environment=marker_rows,
-        distributions=tuple(distributions),
-        distribution_set=distribution_set,
+        marker_environment=discriminant.marker_environment,
+        distributions=discriminant.resolved_distributions,
+        distribution_set=discriminant.distribution_set,
         stable_content_set=stable_content_set,
         stable_closure=domain_digest(
             DigestDomain.DEPENDENCY_CLOSURE,
             canonical_json_bytes(closure_statement),
         ),
         production_data_manifest_ref=manifest_ref,
+    )
+
+
+def observe_installed_distributions(
+    discriminant: DependencyProfileDiscriminant,
+    *,
+    installed_distributions: Iterable[metadata.Distribution] | None = None,
+) -> tuple[InstalledDistributionObservation, ...]:
+    """Observe generic installed name/version coordinates for the resolved closure.
+
+    Args:
+        discriminant: Recomputed dependency closure that defines the complete
+            comparison population.
+        installed_distributions: Optional metadata population used by tests or
+            another observer. Defaults to the current interpreter metadata.
+
+    Returns:
+        Sorted observations projected only onto names in the resolved closure.
+        Source and selected-artifact identity are intentionally absent because
+        Python distribution metadata is not a Foundry source receipt.
+    """
+
+    expected_names = {row.name for row in discriminant.resolved_distributions}
+    observed: list[InstalledDistributionObservation] = []
+    population = (
+        metadata.distributions()
+        if installed_distributions is None
+        else installed_distributions
+    )
+    for distribution in population:
+        raw_name = distribution.metadata.get("Name")
+        raw_version = distribution.version
+        if not raw_name or not raw_version:
+            continue
+        name = canonicalize_name(raw_name)
+        if name not in expected_names:
+            continue
+        observed.append(
+            InstalledDistributionObservation(
+                name=name,
+                version=raw_version,
+            )
+        )
+    return tuple(sorted(observed, key=lambda row: (row.name, row.version)))
+
+
+def _normalize_distribution_observations(
+    observed_distributions: Sequence[
+        InstalledDistributionObservation | Mapping[str, object]
+    ],
+) -> tuple[InstalledDistributionObservation, ...]:
+    normalized: list[InstalledDistributionObservation] = []
+    for row in observed_distributions:
+        observation = (
+            row
+            if isinstance(row, InstalledDistributionObservation)
+            else InstalledDistributionObservation.model_validate(row)
+        )
+        normalized.append(
+            observation.model_copy(update={"name": canonicalize_name(observation.name)})
+        )
+    return tuple(normalized)
+
+
+def _compare_dependency_distributions(
+    *,
+    discriminant: DependencyProfileDiscriminant,
+    observed_distributions: Sequence[
+        InstalledDistributionObservation | Mapping[str, object]
+    ],
+) -> tuple[DependencyEnvironmentDiagnosticCase, ...]:
+    observations = _normalize_distribution_observations(observed_distributions)
+    expected_by_name = {row.name: row for row in discriminant.resolved_distributions}
+    observed_by_name: dict[str, list[InstalledDistributionObservation]] = {}
+    for observation in observations:
+        if observation.name in expected_by_name:
+            observed_by_name.setdefault(observation.name, []).append(observation)
+
+    root_cases: list[DependencyEnvironmentDiagnosticCase] = []
+    missing_cases: list[DependencyEnvironmentDiagnosticCase] = []
+    disagreement_cases: list[tuple[str, str, DependencyEnvironmentDiagnosticCase]] = []
+    unexpected_cases: list[DependencyEnvironmentDiagnosticCase] = []
+    root_name = canonicalize_name(discriminant.root_distribution)
+    if root_name not in observed_by_name:
+        root_cases.append(
+            RootDistributionDiagnosticCase(
+                case_kind="root_distribution_disagreement",
+                coordinate="root_distribution",
+                expected=root_name,
+                observed="missing",
+                predicate_class="independently_reconciled",
+            )
+        )
+
+    for name in sorted(expected_by_name):
+        matches = observed_by_name.get(name, [])
+        expected = expected_by_name[name]
+        if not matches:
+            if name != root_name:
+                missing_cases.append(
+                    MissingDistributionDiagnosticCase(
+                        case_kind="missing_resolved_distribution",
+                        coordinate=f"distribution:{name}:missing",
+                        expected=f"{expected.name}=={expected.version}",
+                        observed="missing",
+                        predicate_class="independently_reconciled",
+                    )
+                )
+            continue
+        if len(matches) != 1:
+            unexpected_cases.append(
+                UnexpectedInClosureIdentityDiagnosticCase(
+                    case_kind="unexpected_in_closure_identity",
+                    coordinate=f"distribution:{name}:identity",
+                    expected="one_observation",
+                    observed=f"{len(matches)}_observations",
+                    predicate_class="independently_reconciled",
+                )
+            )
+            continue
+        observed = matches[0]
+        comparisons: tuple[tuple[str, str, str], ...] = (
+            ("version", expected.version, observed.version),
+            (
+                "source_kind",
+                expected.source_kind,
+                observed.source_kind or expected.source_kind,
+            ),
+        )
+        for field_name, expected_value, observed_value in comparisons:
+            if expected_value != observed_value:
+                case = DistributionFieldDiagnosticCase(
+                    case_kind="distribution_field_disagreement",
+                    coordinate=f"distribution:{name}:{field_name}",
+                    field=field_name,
+                    expected=expected_value,
+                    observed=observed_value,
+                    predicate_class="independently_reconciled",
+                )
+                disagreement_cases.append((name, field_name, case))
+        if (
+            observed.selected_artifact is not None
+            and observed.selected_artifact != expected.selected_artifact
+        ):
+            case = DistributionFieldDiagnosticCase(
+                case_kind="distribution_field_disagreement",
+                coordinate=f"distribution:{name}:selected_artifact",
+                field="selected_artifact",
+                expected=expected.selected_artifact.value,
+                observed=observed.selected_artifact.value,
+                predicate_class="independently_reconciled",
+            )
+            disagreement_cases.append((name, "selected_artifact", case))
+
+    return (
+        *root_cases,
+        *missing_cases,
+        *(row[2] for row in sorted(disagreement_cases, key=lambda row: row[:2])),
+        *unexpected_cases,
+    )
+
+
+def compare_dependency_distributions(
+    *,
+    discriminant: DependencyProfileDiscriminant,
+    observed_distributions: Sequence[
+        InstalledDistributionObservation | Mapping[str, object]
+    ],
+) -> tuple[DependencyEnvironmentDiagnosticCase, ...]:
+    """Return every generic disagreement in the v1 deterministic case order.
+
+    Args:
+        discriminant: Recomputed dependency-only expectation.
+        observed_distributions: Ephemeral installed coordinates. Rows outside
+            the resolved closure are deliberately non-decisive.
+
+    Returns:
+        All observable diagnostic cases in rule-defined order.
+    """
+
+    return _compare_dependency_distributions(
+        discriminant=discriminant,
+        observed_distributions=observed_distributions,
+    )
+
+
+def diagnose_dependency_environment(
+    *,
+    discriminant: DependencyProfileDiscriminant,
+    observed_distributions: Sequence[
+        InstalledDistributionObservation | Mapping[str, object]
+    ],
+) -> DependencyEnvironmentDiagnosticResult:
+    """Diagnose installed coordinates without producing authority admission.
+
+    Args:
+        discriminant: Recomputed dependency-only expectation.
+        observed_distributions: Ephemeral installed coordinates.
+
+    Returns:
+        A passing or failing non-decisive diagnostic, or a typed non-receipt
+        when source-kind evidence needed for a pass is unavailable.
+    """
+
+    canonical_cases = _compare_dependency_distributions(
+        discriminant=discriminant,
+        observed_distributions=observed_distributions,
+    )
+    reported_cases = compare_dependency_distributions(
+        discriminant=discriminant,
+        observed_distributions=observed_distributions,
+    )
+    cases = reported_cases if reported_cases == canonical_cases else canonical_cases
+    if cases:
+        return DependencyEnvironmentDiagnosticFail(
+            status="fail",
+            ordered_cases=cases,
+            first_case=cases[0],
+            predicate_class="independently_reconciled",
+        )
+    normalized = _normalize_distribution_observations(observed_distributions)
+    expected_names = {row.name for row in discriminant.resolved_distributions}
+    missing_source = tuple(
+        sorted(
+            f"distribution:{row.name}:source_kind"
+            for row in normalized
+            if row.name in expected_names and row.source_kind is None
+        )
+    )
+    if missing_source:
+        return DependencyEnvironmentDiagnosticNotEstablished(
+            status="not_established",
+            code="installed_distribution_source_evidence_not_established",
+            missing_coordinates=missing_source,
+            predicate_class="not_established",
+        )
+    return DependencyEnvironmentDiagnosticPass(
+        status="pass",
+        ordered_cases=(),
+        first_case=None,
+        predicate_class="independently_reconciled",
     )
 
 
@@ -712,10 +1261,17 @@ def reconcile_bound_installed_environment(
 
 
 __all__ = [
+    "DependencyEnvironmentDiagnosticCase",
+    "DependencyEnvironmentDiagnosticFail",
+    "DependencyEnvironmentDiagnosticNotEstablished",
+    "DependencyEnvironmentDiagnosticPass",
+    "DependencyEnvironmentDiagnosticResult",
+    "DependencyProfileDiscriminant",
     "DependencyProfileCandidateFailure",
     "DependencyProfileEnvironmentReceipt",
     "DependencyProfileInputMismatch",
     "DependencyProfileRegistryStatement",
+    "InstalledDistributionObservation",
     "LockedDistributionIdentity",
     "MethodCatalogDependencyProfileDeclaration",
     "MethodCatalogProfileAdmission",
@@ -725,10 +1281,15 @@ __all__ = [
     "ProductionDataManifestPresent",
     "ProductionDataManifestUnavailable",
     "ResolvedMethodCatalogDependencyProfile",
+    "compare_dependency_distributions",
     "declaration_ref",
+    "diagnose_dependency_environment",
     "load_dependency_profile_registry",
+    "observe_installed_distributions",
     "reconcile_bound_installed_environment",
+    "resolve_dependency_discriminant",
     "resolve_dependency_profile",
     "resolve_profile_declaration",
+    "resolve_profile_declaration_for_purpose",
     "read_candidate_production_data_manifest",
 ]

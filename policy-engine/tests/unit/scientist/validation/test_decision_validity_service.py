@@ -437,12 +437,15 @@ def _runtime_reconciliation_fixture(
     *,
     runtime_target_count: int = 1,
     zero_impact_target_indices: tuple[int, ...] = (),
+    certificate_membership: str | None = None,
 ) -> _RuntimeReconciliationFixture:
     from polisyos.runtime.quality.epoch_denominator_reconciliation import (
         EpochTransitionDenominatorReconciliationProducer,
         EpochTransitionDenominatorReconciliationReader,
     )
     from polisyos.runtime.quality.epoch_validity_cascade import (
+        DerivationRecipeBinding,
+        bind_certificate_to_epoch,
         epoch_dependency_outer_denominator_ref,
     )
 
@@ -485,10 +488,6 @@ def _runtime_reconciliation_fixture(
             {"edges": graph_edges},
         ),
     )
-    outer_ref = epoch_dependency_outer_denominator_ref(
-        certificate_bindings=(),
-        dependency_graph=graph,
-    )
     epoch_scope = semantic_epoch_runtime.build_epoch_scope_identity(
         schema_profile="polisyos.epoch.decision-validity-test-scope.v1",
         identity_bytes=b"epoch-denominator-focused-falsifier",
@@ -505,10 +504,59 @@ def _runtime_reconciliation_fixture(
         requested_query_context_ref=query_ref,
         predecessor_refs=(previous_epoch.epoch_ref,),
     )
+    certificates = ()
+    if certificate_membership is not None:
+        recipe = DerivationRecipeBinding(
+            recipe_ref=_put_json(
+                store,
+                {"recipe": "reconciliation-certificate"},
+                kind="epoch.derivation_recipe",
+            ),
+            recipe_content_hash="sha256:" + "5" * 64,
+            recipe_schema_profile_ref="sha256:" + "6" * 64,
+            input_roles=("certificate",),
+        )
+        certificate_rows = tuple(
+            bind_certificate_to_epoch(
+                certificate_ref=_put_json(
+                    store,
+                    {"certificate": ordinal},
+                    kind="decision.certificate",
+                ),
+                certificate_content_hash="sha256:" + str(ordinal + 7) * 64,
+                epoch=previous_epoch,
+                input_certificate_refs=(),
+                recipe=recipe,
+                canonical_producer_ref="producer://decision-validity",
+                authority_purpose=authority_purpose,
+                native_coordinate_refs=("sha256:" + "a" * 64,),
+                rule_schema_profile_refs=("sha256:" + "b" * 64,),
+            )
+            for ordinal in range(2)
+        )
+        canonical_certificates = tuple(
+            sorted(
+                certificate_rows,
+                key=lambda row: (
+                    str(row.certificate_ref.artifact_id),
+                    row.certificate_ref.kind,
+                    row.certificate_ref.media_type,
+                ),
+            )
+        )
+        certificates = (
+            (canonical_certificates[0], canonical_certificates[0])
+            if certificate_membership == "duplicate"
+            else tuple(reversed(canonical_certificates))
+        )
+    outer_ref = epoch_dependency_outer_denominator_ref(
+        certificate_bindings=certificates,
+        dependency_graph=graph,
+    )
     transition = build_epoch_validity_transition(
         previous_epoch=previous_epoch,
         current_epoch=current_epoch,
-        certificates=(),
+        certificates=certificates,
         dependency_graph=graph,
         target_vector=resolve_owner_target_dispositions(
             advisory_events=(),
@@ -2024,6 +2072,59 @@ def test_epoch_reconciliation_refuses_wrong_source_coordinate(
             authority_purpose=authority_purpose,
             scientist_snapshot_handle=fixture.snapshot.handle,
         )
+
+
+@pytest.mark.parametrize("certificate_membership", ["duplicate", "out_of_order"])
+def test_epoch_reconciliation_exact_transition_rejects_noncanonical_certificates(
+    tmp_path: Path,
+    certificate_membership: str,
+) -> None:
+    from polisyos.runtime.quality.epoch_validity_cascade import (
+        EpochDependencyDenominatorReceipt,
+        _epoch_dependency_target_refs,
+    )
+
+    fixture = _runtime_reconciliation_fixture(
+        tmp_path,
+        certificate_membership=certificate_membership,
+    )
+    transition = EpochValidityTransitionArtifact.model_validate_json(
+        fixture.store.get_bytes(fixture.transition_ref.artifact_id)
+    )
+    assert fixture.store.verify(fixture.transition_ref.artifact_id).ok
+    with pytest.raises(
+        ValueError,
+        match="epoch_dependency_certificate_denominator_mismatch",
+    ):
+        EpochDependencyDenominatorReceipt(
+            denominator_ref=transition.dependency_denominator_ref,
+            certificate_bindings=transition.certificate_bindings,
+            dependency_graph=transition.dependency_graph,
+            target_refs=_epoch_dependency_target_refs(transition.dependency_graph),
+            predicate_class="independently_reconciled",
+        )
+    before_receipts = tuple(
+        artifact_id
+        for artifact_id in fixture.store.iter_artifact_ids()
+        if fixture.store.get_manifest(artifact_id).kind
+        == "polisyos.epoch.transition_denominator_reconciliation_receipt"
+    )
+    assert before_receipts == ()
+
+    with pytest.raises(ValueError, match="epoch_denominator_reconciliation_unresolved"):
+        fixture.producer.produce_and_persist(
+            transition_artifact_ref=fixture.transition_ref,
+            scientist_snapshot_handle=fixture.snapshot.handle,
+            requested_query_context_ref=fixture.query_ref,
+            authority_purpose="decision_validity_epoch_transition",
+        )
+    after_receipts = tuple(
+        artifact_id
+        for artifact_id in fixture.store.iter_artifact_ids()
+        if fixture.store.get_manifest(artifact_id).kind
+        == "polisyos.epoch.transition_denominator_reconciliation_receipt"
+    )
+    assert after_receipts == ()
 
 
 @pytest.mark.parametrize("drift", ["profile", "handle_hash"])

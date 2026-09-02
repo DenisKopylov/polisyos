@@ -23,6 +23,7 @@ from polisyos.core.contracts import (
     PersistedEpochTransitionDenominatorReconciliation,
 )
 from polisyos.runtime.quality.epoch_validity_cascade import (
+    EpochDependencyDenominatorReceipt,
     EpochValidityTransitionArtifact,
     _epoch_dependency_target_refs,
     epoch_dependency_outer_denominator_ref,
@@ -120,6 +121,13 @@ def _read_transition_exact(
         )
         if transition.dependency_denominator_ref != expected_outer:
             raise ValueError("transition outer denominator mismatch")
+        EpochDependencyDenominatorReceipt(
+            denominator_ref=transition.dependency_denominator_ref,
+            certificate_bindings=transition.certificate_bindings,
+            dependency_graph=transition.dependency_graph,
+            target_refs=_epoch_dependency_target_refs(transition.dependency_graph),
+            predicate_class="independently_reconciled",
+        )
         return transition, raw
     except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("epoch_denominator_reconciliation_unresolved") from exc

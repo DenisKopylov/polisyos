@@ -33,11 +33,28 @@ from decimal import Decimal
 from functools import cache
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, get_args
+from typing import Any, Literal, get_args
 
-from pydantic import ValidationError
+from packaging.markers import default_environment
+from pydantic import BaseModel, TypeAdapter, ValidationError, model_validator
 
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
+from polisyos.foundry.methods.catalog.dependency_evidence import (
+    DigestDomain,
+    FoundryAuthorityModel,
+    GitCommitId,
+    IdentityText,
+    decode_digest_domain_registry_toml,
+)
+from polisyos.foundry.methods.catalog.dependency_profile import (
+    DependencyEnvironmentDiagnosticResult,
+    DependencyProfileDiscriminant,
+    decode_dependency_profile_registry_toml,
+    diagnose_dependency_environment,
+    observe_installed_distributions,
+    resolve_dependency_discriminant,
+    resolve_profile_declaration_for_purpose,
+)
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
@@ -61,10 +78,39 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from tools.lib.timing import run_timed_entrypoint
 
-OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+OUTPUT_PATH: Literal[
+    "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+] = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+DEPENDENCY_DISCRIMINANT_OUTPUT_PATH = (
+    "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+)
 VALIDATOR_ID = "policyos.layer3.gy.n8.value-gate-contract"
-SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.value_gate_contract.v2"
-VALUE_GATE_RULE_VERSION = "policyos.layer3.gy.n8.value_gate.v2"
+SCHEMA_VERSION: Literal["policyos.policy_design_case.layer3_gy.value_gate_contract.v2"] = (
+    "policyos.policy_design_case.layer3_gy.value_gate_contract.v2"
+)
+VALUE_GATE_RULE_VERSION: Literal["policyos.layer3.gy.n8.value_gate.v2"] = (
+    "policyos.layer3.gy.n8.value_gate.v2"
+)
+DEPENDENCY_DISCRIMINANT_SCHEMA_VERSION = (
+    "polisyos.foundry.n8_dependency_discriminant.v1"
+)
+DEPENDENCY_DISCRIMINANT_RULE_VERSION = (
+    "polisyos.foundry.dependency_discriminant.v1"
+)
+DEPENDENCY_DISCRIMINANT_PRODUCER = (
+    "tools.quality.validation.check_layer3_gy_value_gate_contract"
+)
+DEPENDENCY_DISCRIMINANT_AUTHORITY_OWNER = "polisyos.foundry.methods.catalog"
+DEPENDENCY_DISCRIMINANT_AUTHORITY_PURPOSE: Literal[
+    "n8_method_catalog_reconstruction"
+] = "n8_method_catalog_reconstruction"
+DEPENDENCY_DISCRIMINANT_DENIED_USES = (
+    "n8_admission",
+    "n10a_stage_gap_closure",
+    "chronology_acceptance",
+    "policy_publication",
+    "policy_promotion",
+)
 CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"contract_content_hash"}
 LEGACY_POSITIVE_KEYS = frozenset({"frozen_positive_receipt", "frozen_value_receipts"})
 NATIVE_CONTRACT_FAMILIES = (
@@ -145,12 +191,111 @@ SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
 )
 
 
+def _dependency_discriminant_artifact_hash(payload: Mapping[str, Any]) -> str:
+    """Hash the canonical companion statement, excluding only its self hash."""
+
+    material = {
+        key: value for key, value in payload.items() if key != "artifact_content_hash"
+    }
+    encoded = json.dumps(
+        material,
+        ensure_ascii=True,
+        allow_nan=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+class N8DependencyContractRef(FoundryAuthorityModel):
+    """Exact raw-byte binding to the separately governed legacy N8 contract."""
+
+    path: Literal["architecture/policy_design_case/layer3_gy_value_gate_contract.json"]
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.value_gate_contract.v2"]
+    rule_version: Literal["policyos.layer3.gy.n8.value_gate.v2"]
+    content_hash: IdentityText
+
+
+class DependencyDiscriminantAuthorityBoundary(FoundryAuthorityModel):
+    """Closed non-decisive uses of the shared dependency discriminant."""
+
+    authoritative_for: tuple[Literal["dependency_environment_diagnosis"], ...]
+    may_not_use_for: tuple[
+        Literal[
+            "n8_admission",
+            "n10a_stage_gap_closure",
+            "chronology_acceptance",
+            "policy_publication",
+            "policy_promotion",
+        ],
+        ...,
+    ]
+
+    @model_validator(mode="after")
+    def validate_exact_boundary(self) -> DependencyDiscriminantAuthorityBoundary:
+        """Reject omissions, additions, and reordering in the authority boundary."""
+
+        if self.authoritative_for != ("dependency_environment_diagnosis",):
+            raise ValueError("dependency discriminant authoritative uses drifted")
+        if self.may_not_use_for != DEPENDENCY_DISCRIMINANT_DENIED_USES:
+            raise ValueError("dependency discriminant denied uses drifted")
+        return self
+
+
+class FoundryDependencyDiscriminantCompanion(FoundryAuthorityModel):
+    """Strict N8-produced carrier for one Foundry-owned discriminant."""
+
+    schema_version: Literal["polisyos.foundry.n8_dependency_discriminant.v1"]
+    rule_version: Literal["polisyos.foundry.dependency_discriminant.v1"]
+    produced_by: Literal[
+        "tools.quality.validation.check_layer3_gy_value_gate_contract"
+    ]
+    authority_owner: Literal["polisyos.foundry.methods.catalog"]
+    authority_purpose: Literal["n8_method_catalog_reconstruction"]
+    source_freeze: GitCommitId
+    n8_contract_ref: N8DependencyContractRef
+    profile_discriminant: DependencyProfileDiscriminant
+    predicate_class: Literal["recomputed"]
+    decision_role: Literal["ambient_non_decisive"]
+    authority_boundary: DependencyDiscriminantAuthorityBoundary
+    artifact_content_hash: IdentityText
+
+    @model_validator(mode="after")
+    def validate_self_hash(self) -> FoundryDependencyDiscriminantCompanion:
+        """Recompute the dedicated companion hash without trusting its claim."""
+
+        payload = self.model_dump(mode="json")
+        if self.artifact_content_hash != _dependency_discriminant_artifact_hash(payload):
+            raise ValueError("dependency discriminant companion self hash drifted")
+        return self
+
+    @property
+    def content_ref(self) -> str:
+        """Expose the byte-stable companion content identity to consumers."""
+
+        return self.artifact_content_hash
+
+
 @dataclass(frozen=True, slots=True)
 class ValueGateValidationResult:
     """Separate governed N8 failures from retained ambient diagnostics."""
 
     governing_issues: tuple[dict[str, Any], ...]
     ambient_findings: tuple[dict[str, Any], ...]
+    dependency_discriminant_content_ref: str | None = None
+    profile_discriminant: DependencyProfileDiscriminant | None = None
+
+    @property
+    def governing_result(self) -> tuple[dict[str, Any], ...]:
+        """Expose the legacy governing bytes independently from diagnostics."""
+
+        return self.governing_issues
+
+    @property
+    def content_ref(self) -> str | None:
+        """Expose a validated companion reference, or no received reference."""
+
+        return self.dependency_discriminant_content_ref
 
 
 FROZEN_MUTATION_PROOFS: dict[str, str] = {
@@ -268,7 +413,7 @@ class _AuditCandidate:
 def declared_outputs() -> list[str]:
     """Return generated artifacts owned by this validator."""
 
-    return [OUTPUT_PATH]
+    return [OUTPUT_PATH, DEPENDENCY_DISCRIMINANT_OUTPUT_PATH]
 
 
 def _repo_root() -> Path:
@@ -279,6 +424,257 @@ def _ensure_src_path(repo_root: Path) -> None:
     src = repo_root / "src"
     if str(src) not in sys.path:
         sys.path.insert(0, str(src))
+
+
+def _foundry_dependency_source_paths() -> tuple[Path, ...]:
+    """Return Task 2's complete, canonical discriminant source closure."""
+
+    from tools.devx.foundry import sync_dependency_profile
+
+    paths = tuple(sync_dependency_profile._DEPENDENCY_SOURCE_PATHS)  # noqa: SLF001
+    if (
+        not paths
+        or len(paths) != len(set(paths))
+        or any(path.is_absolute() or ".." in path.parts for path in paths)
+    ):
+        raise RuntimeError("Foundry dependency discriminant source closure drifted")
+    return paths
+
+
+def _run_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[bytes]:
+    """Run one bounded Git read against the appointed product root."""
+
+    try:
+        return subprocess.run(  # noqa: S603, S607
+            ["git", *args],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise ValueError("dependency discriminant Git evidence unavailable") from exc
+
+
+def _git_text(repo_root: Path, *args: str) -> str:
+    return _run_git(repo_root, *args).stdout.decode("utf-8").strip()
+
+
+@cache
+def _git_object_prefix(repo_root: Path) -> str:
+    return _git_text(repo_root, "rev-parse", "--show-prefix")
+
+
+@cache
+def _frozen_foundry_bytes(
+    repo_root: Path,
+    source_freeze: str,
+    relative_path: str,
+) -> bytes:
+    """Read exact owner bytes from the supplied Git commit."""
+
+    if re.fullmatch(r"[0-9a-f]{40}", source_freeze) is None:
+        raise ValueError("dependency discriminant source freeze is invalid")
+    allowed = {path.as_posix() for path in _foundry_dependency_source_paths()}
+    if relative_path not in allowed:
+        raise ValueError("dependency discriminant source path is outside its closure")
+    object_path = f"{_git_object_prefix(repo_root)}{relative_path}"
+    return _run_git(repo_root, "show", f"{source_freeze}:{object_path}").stdout
+
+
+def dependency_discriminant_source_freeze(repo_root: Path | None = None) -> str:
+    """Derive the latest commit owning the complete Foundry source closure.
+
+    Args:
+        repo_root: Product root. Defaults to this validator's product root.
+
+    Returns:
+        The 40-hex commit most recently touching any canonical owner source.
+
+    Raises:
+        ValueError: If Git cannot produce exactly one canonical commit identity.
+    """
+
+    root = (repo_root or _repo_root()).resolve()
+    source_freeze = _git_text(
+        root,
+        "log",
+        "-1",
+        "--format=%H",
+        "--",
+        *(path.as_posix() for path in _foundry_dependency_source_paths()),
+    )
+    if re.fullmatch(r"[0-9a-f]{40}", source_freeze) is None:
+        raise ValueError("Foundry dependency source freeze was not derived")
+    return source_freeze
+
+
+def _require_current_foundry_source_freeze(
+    repo_root: Path,
+    source_freeze: str,
+) -> None:
+    """Prove the supplied freeze owns every exact current Foundry source byte."""
+
+    if source_freeze != dependency_discriminant_source_freeze(repo_root):
+        raise ValueError("dependency discriminant source freeze mismatch")
+    _run_git(
+        repo_root,
+        "diff",
+        "--quiet",
+        source_freeze,
+        "--",
+        *(path.as_posix() for path in _foundry_dependency_source_paths()),
+    )
+
+
+def _owner_source_path(filename: str) -> str:
+    matches = tuple(
+        path.as_posix()
+        for path in _foundry_dependency_source_paths()
+        if path.name == filename
+    )
+    if len(matches) != 1:
+        raise RuntimeError(f"Foundry owner source is not unique: {filename}")
+    return matches[0]
+
+
+def _resolve_frozen_foundry_dependency_discriminant(
+    *,
+    repo_root: Path,
+    source_freeze: str,
+    marker_environment: Mapping[str, str],
+) -> DependencyProfileDiscriminant:
+    """Resolve through the Foundry owner using only supplied frozen bytes."""
+
+    _require_current_foundry_source_freeze(repo_root, source_freeze)
+    profile_bytes = _frozen_foundry_bytes(
+        repo_root,
+        source_freeze,
+        _owner_source_path("method_catalog_dependency_profiles.toml"),
+    )
+    authority_bytes = _frozen_foundry_bytes(
+        repo_root,
+        source_freeze,
+        _owner_source_path("method_catalog_dependency_authority.toml"),
+    )
+    digest_registry = decode_digest_domain_registry_toml(
+        _frozen_foundry_bytes(
+            repo_root,
+            source_freeze,
+            _owner_source_path("method_catalog_dependency_digest_domains.toml"),
+        )
+    )
+    registered = tuple(
+        row
+        for row in digest_registry.statement.domains
+        if row.domain_id is DigestDomain.DEPENDENCY_DISCRIMINANT
+    )
+    if len(registered) != 1 or registered[0].derivation_evidence != (
+        "DependencyProfileDiscriminant",
+    ):
+        raise ValueError("dependency discriminant digest domain is not registered")
+    declaration = resolve_profile_declaration_for_purpose(
+        decode_dependency_profile_registry_toml(profile_bytes),
+        authority_registry_bytes=authority_bytes,
+        authority_purpose=DEPENDENCY_DISCRIMINANT_AUTHORITY_PURPOSE,
+    )
+    resolved = resolve_dependency_discriminant(
+        declaration,
+        pyproject_bytes=_frozen_foundry_bytes(
+            repo_root,
+            source_freeze,
+            _owner_source_path("pyproject.toml"),
+        ),
+        lockfile_bytes=_frozen_foundry_bytes(
+            repo_root,
+            source_freeze,
+            _owner_source_path("uv.lock"),
+        ),
+        marker_environment=marker_environment,
+    )
+    if not isinstance(resolved, DependencyProfileDiscriminant):
+        raise ValueError(
+            "Foundry dependency discriminant resolution failed: "
+            f"{type(resolved).__name__}"
+        )
+    return resolved
+
+
+def _n8_contract_ref(repo_root: Path) -> N8DependencyContractRef:
+    """Bind the exact current legacy N8 bytes without interpreting environment state."""
+
+    raw = (repo_root / OUTPUT_PATH).read_bytes()
+    try:
+        wire = json.loads(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("legacy N8 contract bytes are invalid JSON") from exc
+    if not isinstance(wire, Mapping):
+        raise ValueError("legacy N8 contract is not a statement")
+    if (
+        wire.get("schema_version") != SCHEMA_VERSION
+        or wire.get("rule_version") != VALUE_GATE_RULE_VERSION
+    ):
+        raise ValueError("legacy N8 contract schema or rule drifted")
+    return N8DependencyContractRef(
+        path=OUTPUT_PATH,
+        schema_version=SCHEMA_VERSION,
+        rule_version=VALUE_GATE_RULE_VERSION,
+        content_hash="sha256:" + hashlib.sha256(raw).hexdigest(),
+    )
+
+
+def build_dependency_discriminant_companion(
+    *,
+    repo_root: Path | None = None,
+    source_freeze: str,
+) -> FoundryDependencyDiscriminantCompanion:
+    """Build the strict shared discriminant from frozen Foundry owner bytes.
+
+    Args:
+        repo_root: Product root. Defaults to this validator's product root.
+        source_freeze: Commit owning the complete current Foundry source closure.
+
+    Returns:
+        A strict content-bound companion with no installed-environment result.
+
+    Raises:
+        ValueError: If the owner freeze, registry, source bytes, or N8 binding fails.
+    """
+
+    root = (repo_root or _repo_root()).resolve()
+    marker_environment = {
+        key: str(value) for key, value in default_environment().items()
+    }
+    marker_environment["extra"] = ""
+    profile = _resolve_frozen_foundry_dependency_discriminant(
+        repo_root=root,
+        source_freeze=source_freeze,
+        marker_environment=marker_environment,
+    )
+    payload: dict[str, Any] = {
+        "schema_version": DEPENDENCY_DISCRIMINANT_SCHEMA_VERSION,
+        "rule_version": DEPENDENCY_DISCRIMINANT_RULE_VERSION,
+        "produced_by": DEPENDENCY_DISCRIMINANT_PRODUCER,
+        "authority_owner": DEPENDENCY_DISCRIMINANT_AUTHORITY_OWNER,
+        "authority_purpose": DEPENDENCY_DISCRIMINANT_AUTHORITY_PURPOSE,
+        "source_freeze": source_freeze,
+        "n8_contract_ref": _n8_contract_ref(root).model_dump(mode="json"),
+        "profile_discriminant": profile.model_dump(mode="json"),
+        "predicate_class": "recomputed",
+        "decision_role": "ambient_non_decisive",
+        "authority_boundary": {
+            "authoritative_for": ["dependency_environment_diagnosis"],
+            "may_not_use_for": list(DEPENDENCY_DISCRIMINANT_DENIED_USES),
+        },
+    }
+    payload["artifact_content_hash"] = _dependency_discriminant_artifact_hash(payload)
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=True,
+        allow_nan=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    return FoundryDependencyDiscriminantCompanion.model_validate_json(encoded)
 
 
 def _hash(char: str) -> str:
@@ -4883,6 +5279,308 @@ def check_result(
     )
 
 
+@cache
+def _cached_legacy_value_gate_result(
+    repo_root: Path,
+    source_freeze: str,
+    head: str,
+    n8_raw_hash: str,
+) -> ValueGateValidationResult:
+    """Run the real legacy path once for an immutable repository identity."""
+
+    del head, n8_raw_hash
+    return check_result(
+        repo_root,
+        expected_source_freeze=source_freeze,
+    )
+
+
+def _legacy_value_gate_result(
+    repo_root: Path,
+    *,
+    source_freeze: str,
+) -> ValueGateValidationResult:
+    """Capture governing and ambient legacy results before diagnostic handling."""
+
+    raw_hash = hashlib.sha256((repo_root / OUTPUT_PATH).read_bytes()).hexdigest()
+    return _cached_legacy_value_gate_result(
+        repo_root,
+        source_freeze,
+        _git_text(repo_root, "rev-parse", "HEAD"),
+        raw_hash,
+    )
+
+
+def _coerce_dependency_discriminant_companion(
+    companion: FoundryDependencyDiscriminantCompanion | Mapping[str, Any] | bytes,
+) -> FoundryDependencyDiscriminantCompanion:
+    if isinstance(companion, bytes):
+        encoded = companion
+    else:
+        payload = (
+            companion.model_dump(mode="json")
+            if isinstance(companion, FoundryDependencyDiscriminantCompanion)
+            else companion
+        )
+        encoded = json.dumps(
+            payload,
+            ensure_ascii=True,
+            allow_nan=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        ).encode("utf-8")
+    return FoundryDependencyDiscriminantCompanion.model_validate_json(encoded)
+
+
+def _replay_dependency_discriminant_companion(
+    repo_root: Path,
+    companion: FoundryDependencyDiscriminantCompanion,
+) -> None:
+    """Recompute every authority-bearing companion predicate from its owners."""
+
+    _require_current_foundry_source_freeze(repo_root, companion.source_freeze)
+    if companion.n8_contract_ref != _n8_contract_ref(repo_root):
+        raise ValueError("dependency discriminant N8 byte binding drifted")
+    replayed = _resolve_frozen_foundry_dependency_discriminant(
+        repo_root=repo_root,
+        source_freeze=companion.source_freeze,
+        marker_environment=dict(companion.profile_discriminant.marker_environment),
+    )
+    if replayed != companion.profile_discriminant:
+        raise ValueError("dependency discriminant owner replay drifted")
+
+
+_DEPENDENCY_DIAGNOSTIC_ADAPTER: TypeAdapter[DependencyEnvironmentDiagnosticResult] = TypeAdapter(
+    DependencyEnvironmentDiagnosticResult
+)
+
+
+def _coerce_dependency_environment_diagnostic(
+    value: object,
+) -> DependencyEnvironmentDiagnosticResult:
+    payload = value.model_dump(mode="json") if isinstance(value, BaseModel) else value
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=True,
+        allow_nan=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    return _DEPENDENCY_DIAGNOSTIC_ADAPTER.validate_json(encoded)
+
+
+def _current_dependency_environment_diagnostic(
+    profile: DependencyProfileDiscriminant,
+) -> DependencyEnvironmentDiagnosticResult:
+    """Observe and diagnose the current interpreter without persisting it."""
+
+    return diagnose_dependency_environment(
+        discriminant=profile,
+        observed_distributions=observe_installed_distributions(profile),
+    )
+
+
+def _dependency_environment_ambient_findings(
+    *,
+    profile: DependencyProfileDiscriminant,
+    diagnostic_verification: object | None,
+) -> tuple[dict[str, Any], ...]:
+    """Project strict diagnostics only into the non-decisive ambient channel."""
+
+    supplied = diagnostic_verification is not None
+    try:
+        diagnostic = (
+            _coerce_dependency_environment_diagnostic(diagnostic_verification)
+            if supplied
+            else _current_dependency_environment_diagnostic(profile)
+        )
+    except (TypeError, ValueError, ValidationError):
+        return (
+            {
+                "code": "dependency_environment_diagnostic_not_received",
+                "decision_role": "ambient_non_decisive",
+            },
+        )
+    if diagnostic.status == "pass":
+        if supplied:
+            try:
+                current = _current_dependency_environment_diagnostic(profile)
+            except (TypeError, ValueError, ValidationError):
+                return (
+                    {
+                        "code": "dependency_environment_diagnostic_not_received",
+                        "decision_role": "ambient_non_decisive",
+                    },
+                )
+            if current != diagnostic:
+                return (
+                    {
+                        "code": "dependency_environment_diagnostic_pass_not_reconciled",
+                        "decision_role": "ambient_non_decisive",
+                        "diagnostic": diagnostic.model_dump(mode="json"),
+                        "current_diagnostic": current.model_dump(mode="json"),
+                    },
+                )
+        return ()
+    code = (
+        "dependency_environment_diagnostic_failed"
+        if diagnostic.status == "fail"
+        else "dependency_environment_diagnostic_not_established"
+    )
+    return (
+        {
+            "code": code,
+            "decision_role": "ambient_non_decisive",
+            "diagnostic": diagnostic.model_dump(mode="json"),
+        },
+    )
+
+
+def validate_foundry_dependency_discriminant(
+    *,
+    repo_root: Path,
+    companion: FoundryDependencyDiscriminantCompanion | Mapping[str, Any] | bytes,
+    diagnostic_verification: object | None,
+    expected_source_freeze: str | None = None,
+) -> ValueGateValidationResult:
+    """Validate the companion while keeping diagnostics out of governing bytes.
+
+    Args:
+        repo_root: Appointed product root.
+        companion: Strict object, JSON mapping, or exact JSON bytes to replay.
+        diagnostic_verification: Optional strict ambient diagnostic observation.
+        expected_source_freeze: Optional caller claim that must equal both the
+            current owner freeze and the companion's recorded freeze.
+
+    Returns:
+        The unchanged legacy governing result plus a separately typed ambient
+        diagnostic channel. Invalid companion evidence receives no content ref.
+    """
+
+    root = repo_root.resolve()
+    source_freeze = dependency_discriminant_source_freeze(root)
+    legacy = _legacy_value_gate_result(root, source_freeze=source_freeze)
+    ambient = list(legacy.ambient_findings)
+    try:
+        received = _coerce_dependency_discriminant_companion(companion)
+        if expected_source_freeze is not None and (
+            expected_source_freeze != source_freeze
+            or received.source_freeze != expected_source_freeze
+        ):
+            raise ValueError("dependency discriminant expected source freeze mismatch")
+        _replay_dependency_discriminant_companion(root, received)
+    except (OSError, RuntimeError, TypeError, ValueError, ValidationError) as exc:
+        ambient.append(
+            {
+                "code": "dependency_discriminant_diagnostic_not_received",
+                "decision_role": "ambient_non_decisive",
+                "reason": str(exc),
+            }
+        )
+        return ValueGateValidationResult(
+            governing_issues=legacy.governing_issues,
+            ambient_findings=_deduplicate_findings(ambient),
+        )
+    ambient.extend(
+        _dependency_environment_ambient_findings(
+            profile=received.profile_discriminant,
+            diagnostic_verification=diagnostic_verification,
+        )
+    )
+    return ValueGateValidationResult(
+        governing_issues=legacy.governing_issues,
+        ambient_findings=_deduplicate_findings(ambient),
+        dependency_discriminant_content_ref=received.content_ref,
+        profile_discriminant=received.profile_discriminant,
+    )
+
+
+def check_dependency_discriminant_companion(
+    repo_root: Path,
+    *,
+    companion_path: Path,
+    diagnostic_verification: object | None = None,
+    expected_source_freeze: str | None = None,
+) -> ValueGateValidationResult:
+    """Read and validate one companion path without rewriting any bytes.
+
+    Args:
+        repo_root: Appointed product root.
+        companion_path: Exact candidate or governed companion path.
+        diagnostic_verification: Optional strict ambient diagnostic observation.
+        expected_source_freeze: Optional caller source-freeze claim to verify.
+
+    Returns:
+        The separated legacy governing and companion diagnostic result.
+    """
+
+    try:
+        raw = companion_path.read_bytes()
+    except OSError:
+        raw = b""
+    return validate_foundry_dependency_discriminant(
+        repo_root=repo_root,
+        companion=raw,
+        diagnostic_verification=diagnostic_verification,
+        expected_source_freeze=expected_source_freeze,
+    )
+
+
+def _path_has_symlink_component(path: Path) -> bool:
+    absolute = path.absolute()
+    return any(component.is_symlink() for component in (absolute, *absolute.parents))
+
+
+def write_dependency_discriminant_companion(
+    repo_root: Path,
+    *,
+    companion_path: Path,
+    source_freeze: str,
+    allow_repository_write: bool,
+) -> FoundryDependencyDiscriminantCompanion:
+    """Write a companion only under an explicit path-scoped posture.
+
+    Args:
+        repo_root: Appointed product root.
+        companion_path: Requested destination.
+        source_freeze: Commit owning the Foundry source closure.
+        allow_repository_write: Explicit ``--write`` authorization for the
+            exact governed companion destination.
+
+    Returns:
+        The exact strict companion written to disk.
+
+    Raises:
+        ValueError: If a scratch destination is unsafe or an in-repository
+            write is not the exact explicitly authorized governed companion.
+    """
+
+    root = repo_root.resolve()
+    destination = companion_path.absolute()
+    governed = (root / DEPENDENCY_DISCRIMINANT_OUTPUT_PATH).absolute()
+    if _path_has_symlink_component(companion_path):
+        raise ValueError("dependency discriminant destination cannot be a symlink")
+    if destination.is_relative_to(root):
+        if destination != governed:
+            raise ValueError("dependency discriminant candidates must be outside the repository")
+        if not allow_repository_write:
+            raise ValueError("repository dependency discriminant write requires --write")
+    elif destination.exists():
+        raise ValueError("dependency discriminant candidate already exists")
+    companion = build_dependency_discriminant_companion(
+        repo_root=root,
+        source_freeze=source_freeze,
+    )
+    payload = companion.model_dump(mode="json")
+    if destination == governed:
+        _write_json(destination, payload)
+    else:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        with destination.open("x", encoding="utf-8") as handle:
+            handle.write(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    return companion
+
+
 def corrupt_field_drift_results(
     repo_root: Path,
     *,
@@ -4984,26 +5682,31 @@ def corrupt_field_drift_check(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    modes = parser.add_mutually_exclusive_group(required=True)
+    modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--check", action="store_true")
     modes.add_argument("--check-catalog-provenance", action="store_true")
-    modes.add_argument("--write", action="store_true")
     modes.add_argument("--reissue-catalog-provenance", action="store_true")
     modes.add_argument("--candidate-reissue-catalog-provenance", type=Path)
     modes.add_argument("--corrupt-field-drift-check", action="store_true")
     modes.add_argument("--rederive-audit", action="store_true")
     modes.add_argument("--source-flip-mutations", action="store_true")
+    modes.add_argument("--write-dependency-discriminant", type=Path)
+    modes.add_argument("--check-dependency-discriminant", type=Path)
+    parser.add_argument(
+        "--write",
+        action="store_true",
+        help="legacy write mode or explicit authorization for an in-repository companion write",
+    )
     parser.add_argument("--expected-source-freeze", required=True)
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
     repo_root = _repo_root()
     _ensure_src_path(repo_root)
-    mode = next(
+    selected_modes = [
         name
         for name, selected in (
             ("check", args.check),
             ("check-catalog-provenance", args.check_catalog_provenance),
-            ("write", args.write),
             ("reissue-catalog-provenance", args.reissue_catalog_provenance),
             (
                 "candidate-reissue-catalog-provenance",
@@ -5012,11 +5715,62 @@ def main(argv: list[str] | None = None) -> int:
             ("corrupt-field-drift-check", args.corrupt_field_drift_check),
             ("rederive-audit", args.rederive_audit),
             ("source-flip-mutations", args.source_flip_mutations),
+            (
+                "write-dependency-discriminant",
+                args.write_dependency_discriminant is not None,
+            ),
+            (
+                "check-dependency-discriminant",
+                args.check_dependency_discriminant is not None,
+            ),
         )
         if selected
-    )
+    ]
+    if args.write and args.write_dependency_discriminant is None:
+        selected_modes.append("write")
+    if len(selected_modes) != 1:
+        parser.error("select exactly one operation")
+    mode = selected_modes[0]
     try:
-        if args.candidate_reissue_catalog_provenance is not None:
+        if args.write_dependency_discriminant is not None:
+            companion = write_dependency_discriminant_companion(
+                repo_root,
+                companion_path=args.write_dependency_discriminant,
+                source_freeze=args.expected_source_freeze,
+                allow_repository_write=args.write,
+            )
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass",
+                issues=(),
+                path=str(args.write_dependency_discriminant),
+                content_ref=companion.content_ref,
+            )
+            exit_code = 0
+        elif args.check_dependency_discriminant is not None:
+            result = check_dependency_discriminant_companion(
+                repo_root,
+                companion_path=args.check_dependency_discriminant,
+                expected_source_freeze=args.expected_source_freeze,
+            )
+            received = result.content_ref is not None
+            companion_issues = tuple(
+                finding
+                for finding in result.ambient_findings
+                if finding.get("code")
+                == "dependency_discriminant_diagnostic_not_received"
+            )
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass" if received else "fail",
+                issues=() if received else companion_issues,
+                governing_issues=list(result.governing_issues),
+                ambient_findings=list(result.ambient_findings),
+                path=str(args.check_dependency_discriminant),
+                content_ref=result.content_ref,
+            )
+            exit_code = 0 if received else 1
+        elif args.candidate_reissue_catalog_provenance is not None:
             report = write_candidate_catalog_provenance(
                 repo_root,
                 candidate_path=args.candidate_reissue_catalog_provenance,

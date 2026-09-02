@@ -7,11 +7,13 @@ import subprocess
 import sys
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from functools import cache
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, ClassVar
 
 import pytest
+from packaging.markers import default_environment
 
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
 from polisyos.core.observability.determinism import DeterminismTier
@@ -29,9 +31,15 @@ from polisyos.foundry.methods.base import (
     SlotType,
     Unit,
 )
+from polisyos.foundry.methods.catalog import dependency_profile as dependency_profile_module
 from polisyos.foundry.methods.catalog.bayesian.protocols import PosteriorResult
 from polisyos.foundry.methods.catalog.bayesian.regression import (
     BayesianLinearRegressionEstimator,
+)
+from polisyos.foundry.methods.catalog.dependency_evidence import (
+    DigestDomain,
+    canonical_json_bytes,
+    domain_digest,
 )
 from polisyos.foundry.methods.catalog.econometrics.protocols import (
     EconometricDiagnosticResult,
@@ -3874,4 +3882,563 @@ def test_candidate_problem_selection_uses_registry_denominator() -> None:
     assert selection["selected_method_fqn"] == receipt.selected_method_fqn
     assert tuple(selection["score_trace"]) == tuple(
         row.method_fqn for row in receipt.ranked_alternatives
+    )
+
+
+def _n8_dependency_source_freeze() -> str:
+    resolver = getattr(value_contract, "dependency_discriminant_source_freeze", None)
+    assert callable(resolver), (
+        "missing behavior: N8 must derive the complete Foundry source freeze"
+    )
+    return resolver(value_contract._repo_root())
+
+
+def _build_n8_dependency_companion() -> object:
+    builder = getattr(value_contract, "build_dependency_discriminant_companion", None)
+    assert callable(builder), (
+        "missing behavior: N8 must produce the shared Foundry dependency discriminant"
+    )
+    return builder(
+        repo_root=value_contract._repo_root(),
+        source_freeze=_n8_dependency_source_freeze(),
+    )
+
+
+@cache
+def _legacy_n8_governing_issues() -> tuple[dict[str, Any], ...]:
+    """Capture the unmodified N8 governing path independently of diagnostics."""
+
+    return value_contract._legacy_value_gate_result(
+        value_contract._repo_root(),
+        source_freeze=_n8_dependency_source_freeze(),
+    ).governing_issues
+
+
+def _independent_n8_dependency_companion_hash(payload: dict[str, Any]) -> str:
+    material = {key: value for key, value in payload.items() if key != "artifact_content_hash"}
+    encoded = json.dumps(
+        material,
+        ensure_ascii=True,
+        allow_nan=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def _rebind_corrupt_dependency_discriminant(payload: dict[str, Any]) -> None:
+    profile = payload["profile_discriminant"]
+    rows = profile["resolved_distributions"]
+    profile["distribution_set"] = domain_digest(
+        DigestDomain.DISTRIBUTION_SET,
+        canonical_json_bytes(rows),
+    ).model_dump(mode="json")
+    statement = {key: value for key, value in profile.items() if key != "discriminant_ref"}
+    profile["discriminant_ref"] = domain_digest(
+        DigestDomain.DEPENDENCY_DISCRIMINANT,
+        canonical_json_bytes(statement),
+    ).model_dump(mode="json")
+
+
+def _seal_corrupt_n8_dependency_companion(payload: dict[str, Any]) -> None:
+    payload["artifact_content_hash"] = _independent_n8_dependency_companion_hash(payload)
+
+
+def _research_torch_diagnostic(companion: object) -> object:
+    companion_profile = companion.profile_discriminant  # type: ignore[attr-defined]
+    declaration = dependency_profile_module.MethodCatalogDependencyProfileDeclaration(
+        schema_version="polisyos.foundry.dependency-profile.v1",
+        profile_id="research-diagnostic",
+        root_distribution=companion_profile.root_distribution,
+        extras=("research",),
+        python_constraint=companion_profile.python_constraint,
+        resolver_name=companion_profile.resolver_name,
+        resolver_version=companion_profile.resolver_version,
+        pyproject_ref=companion_profile.pyproject_ref,
+        lockfile_ref=companion_profile.lockfile_ref,
+    )
+    marker_environment = default_environment()
+    marker_environment["extra"] = ""
+    profile = dependency_profile_module.resolve_dependency_discriminant(
+        declaration,
+        pyproject_bytes=(value_contract._repo_root() / "pyproject.toml").read_bytes(),
+        lockfile_bytes=(value_contract._repo_root() / "uv.lock").read_bytes(),
+        marker_environment=marker_environment,
+    )
+    assert isinstance(profile, dependency_profile_module.DependencyProfileDiscriminant)
+    assert any(row.name == "torch" for row in profile.resolved_distributions)
+    observations = dependency_profile_module.AmbientDependencyEnvironmentObservation(
+        observation_kind="ambient",
+        distributions=tuple(
+            dependency_profile_module.InstalledDistributionObservation(
+                name=row.name,
+                version=(
+                    "incompatible-version" if row.name == "torch" else row.version
+                ),
+            )
+            for row in profile.resolved_distributions
+        ),
+    )
+    result = dependency_profile_module.diagnose_dependency_environment(
+        discriminant=profile,
+        observed_distributions=observations,
+    )
+    assert result.status == "fail"
+    assert result.first_case.coordinate == "distribution:torch:version"
+    return result
+
+
+def test_n8_dependency_discriminant_companion_binds_owner_source_and_exact_n8_bytes() -> None:
+    """The producer binds frozen owner data and raw N8 bytes, not labels or ambient state."""
+
+    companion = _build_n8_dependency_companion()
+    payload = companion.model_dump(mode="json")
+    root = value_contract._repo_root()
+    n8_bytes = (root / value_contract.OUTPUT_PATH).read_bytes()
+
+    assert value_contract.declared_outputs() == [
+        value_contract.OUTPUT_PATH,
+        value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH,
+    ]
+    assert set(payload) == {
+        "schema_version",
+        "rule_version",
+        "produced_by",
+        "authority_owner",
+        "authority_purpose",
+        "source_freeze",
+        "n8_contract_ref",
+        "profile_discriminant",
+        "predicate_class",
+        "decision_role",
+        "authority_boundary",
+        "artifact_content_hash",
+    }
+    assert payload["source_freeze"] == _n8_dependency_source_freeze()
+    assert payload["n8_contract_ref"] == {
+        "path": value_contract.OUTPUT_PATH,
+        "schema_version": value_contract.SCHEMA_VERSION,
+        "rule_version": value_contract.VALUE_GATE_RULE_VERSION,
+        "content_hash": "sha256:" + hashlib.sha256(n8_bytes).hexdigest(),
+    }
+    assert payload["predicate_class"] == "recomputed"
+    assert payload["decision_role"] == "ambient_non_decisive"
+    assert payload["authority_boundary"]["may_not_use_for"] == [
+        "n8_admission",
+        "n10a_stage_gap_closure",
+        "chronology_acceptance",
+        "policy_publication",
+        "policy_promotion",
+    ]
+    assert payload["profile_discriminant"]["resolved_distributions"]
+    assert payload["artifact_content_hash"] == _independent_n8_dependency_companion_hash(
+        payload
+    )
+    assert not {
+        "diagnostic",
+        "interpreter_path",
+        "hostname",
+        "machine_identity",
+        "installed_environment_path",
+        "production_data_ref",
+    } & set(payload)
+
+
+def test_n8_dependency_discriminant_write_and_check_modes_are_explicit_and_read_only(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Scratch writes are explicit, governed writes need --write, and checks do not mutate."""
+
+    _build_n8_dependency_companion()
+    source_freeze = _n8_dependency_source_freeze()
+    candidate = tmp_path / "n8-dependency-discriminant.json"
+
+    assert value_contract.main(
+        [
+            "--write-dependency-discriminant",
+            str(candidate),
+            "--expected-source-freeze",
+            source_freeze,
+            "--output-format",
+            "json",
+        ]
+    ) == 0
+    write_report = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert write_report["status"] == "pass"
+    candidate_bytes = candidate.read_bytes()
+
+    assert value_contract.main(
+        [
+            "--write-dependency-discriminant",
+            str(candidate),
+            "--expected-source-freeze",
+            source_freeze,
+            "--output-format",
+            "json",
+        ]
+    ) == 1
+    overwrite_refused = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert overwrite_refused["status"] == "fail"
+    assert candidate.read_bytes() == candidate_bytes
+
+    symlink_target = tmp_path / "n8-dependency-discriminant-target.json"
+    symlink_target.write_bytes(b"candidate-target-sentinel")
+    symlink_candidate = tmp_path / "n8-dependency-discriminant-symlink.json"
+    symlink_candidate.symlink_to(symlink_target)
+    assert value_contract.main(
+        [
+            "--write-dependency-discriminant",
+            str(symlink_candidate),
+            "--expected-source-freeze",
+            source_freeze,
+            "--output-format",
+            "json",
+        ]
+    ) == 1
+    symlink_refused = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert symlink_refused["status"] == "fail"
+    assert symlink_candidate.is_symlink()
+    assert symlink_target.read_bytes() == b"candidate-target-sentinel"
+
+    symlink_parent_target = tmp_path / "n8-symlink-parent-target"
+    symlink_parent_target.mkdir()
+    symlink_parent = tmp_path / "n8-symlink-parent"
+    symlink_parent.symlink_to(symlink_parent_target, target_is_directory=True)
+    symlink_nested_candidate = symlink_parent / "nested-candidate.json"
+    assert value_contract.main(
+        [
+            "--write-dependency-discriminant",
+            str(symlink_nested_candidate),
+            "--expected-source-freeze",
+            source_freeze,
+            "--output-format",
+            "json",
+        ]
+    ) == 1
+    symlink_parent_refused = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert symlink_parent_refused["status"] == "fail"
+    assert not (symlink_parent_target / "nested-candidate.json").exists()
+
+    assert value_contract.main(
+        [
+            "--check-dependency-discriminant",
+            str(candidate),
+            "--expected-source-freeze",
+            source_freeze,
+            "--output-format",
+            "json",
+        ]
+    ) == 0
+    check_report = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert check_report["status"] == "pass"
+    assert candidate.read_bytes() == candidate_bytes
+
+    assert value_contract.main(
+        [
+            "--check-dependency-discriminant",
+            str(candidate),
+            "--expected-source-freeze",
+            "0" * 40,
+            "--output-format",
+            "json",
+        ]
+    ) == 1
+    wrong_freeze = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert wrong_freeze["status"] == "fail"
+    assert wrong_freeze["governing_issues"] == list(_legacy_n8_governing_issues())
+    assert candidate.read_bytes() == candidate_bytes
+
+    in_repo_candidate = (
+        value_contract._repo_root()
+        / f".n8-dependency-discriminant-{tmp_path.name}.json"
+    )
+    assert not in_repo_candidate.exists()
+    assert value_contract.main(
+        [
+            "--write-dependency-discriminant",
+            str(in_repo_candidate),
+            "--expected-source-freeze",
+            source_freeze,
+            "--output-format",
+            "json",
+        ]
+    ) == 1
+    in_repo_refused = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert in_repo_refused["status"] == "fail"
+    assert not in_repo_candidate.exists()
+
+    governed = (
+        value_contract._repo_root() / value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH
+    )
+    governed_before = governed.read_bytes()
+    assert value_contract.main(
+        [
+            "--write-dependency-discriminant",
+            str(governed),
+            "--expected-source-freeze",
+            source_freeze,
+            "--output-format",
+            "json",
+        ]
+    ) == 1
+    refused = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert refused["status"] == "fail"
+    assert governed.read_bytes() == governed_before
+
+    assert value_contract.main(
+        [
+            "--write-dependency-discriminant",
+            str(governed),
+            "--write",
+            "--expected-source-freeze",
+            source_freeze,
+            "--output-format",
+            "json",
+        ]
+    ) == 0
+    governed_written = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert governed_written["status"] == "pass"
+    assert governed.read_bytes() == governed_before
+
+    assert value_contract.main(
+        [
+            "--write",
+            "--expected-source-freeze",
+            source_freeze,
+            "--output-format",
+            "json",
+        ]
+    ) == 1
+    legacy_refused = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert legacy_refused["status"] == "not_established"
+    assert governed.read_bytes() == governed_before
+
+
+def test_n8_dependency_discriminant_research_warning_is_ambient_non_decisive(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An admitted pass and a generic research mismatch retain identical governing bytes."""
+
+    companion = _build_n8_dependency_companion()
+    admitted = dependency_profile_module.DependencyEnvironmentDiagnosticPass(
+        status="pass",
+        ordered_cases=(),
+        first_case=None,
+        predicate_class="recomputed",
+    )
+    research = _research_torch_diagnostic(companion)
+    monkeypatch.setattr(
+        value_contract,
+        "_current_dependency_environment_diagnostic",
+        lambda _profile: admitted,
+    )
+
+    admitted_result = value_contract.validate_foundry_dependency_discriminant(
+        repo_root=value_contract._repo_root(),
+        companion=companion,
+        diagnostic_verification=admitted,
+    )
+    research_result = value_contract.validate_foundry_dependency_discriminant(
+        repo_root=value_contract._repo_root(),
+        companion=companion,
+        diagnostic_verification=research,
+    )
+
+    expected_governing = _legacy_n8_governing_issues()
+    assert admitted_result.governing_issues == research_result.governing_issues
+    assert admitted_result.governing_issues == expected_governing
+    assert canonical_json_bytes(admitted_result.governing_issues) == canonical_json_bytes(
+        research_result.governing_result
+    )
+    assert not any(
+        finding.get("code") == "dependency_environment_diagnostic_failed"
+        for finding in admitted_result.ambient_findings
+    )
+    warning = next(
+        finding
+        for finding in research_result.ambient_findings
+        if finding.get("code") == "dependency_environment_diagnostic_failed"
+    )
+    assert warning["decision_role"] == "ambient_non_decisive"
+    assert warning["diagnostic"]["first_case"]["coordinate"] == (
+        "distribution:torch:version"
+    )
+    assert warning["diagnostic"]["ordered_cases"][0] == warning["diagnostic"]["first_case"]
+
+
+def test_n8_dependency_discriminant_supplied_pass_requires_current_recomputation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A supplied pass that disagrees with current observation becomes a diagnostic non-receipt."""
+
+    companion = _build_n8_dependency_companion()
+    supplied = dependency_profile_module.DependencyEnvironmentDiagnosticPass(
+        status="pass",
+        ordered_cases=(),
+        first_case=None,
+        predicate_class="recomputed",
+    )
+    current = _research_torch_diagnostic(companion)
+    monkeypatch.setattr(
+        value_contract,
+        "_current_dependency_environment_diagnostic",
+        lambda _profile: current,
+    )
+
+    result = value_contract.validate_foundry_dependency_discriminant(
+        repo_root=value_contract._repo_root(),
+        companion=companion,
+        diagnostic_verification=supplied,
+    )
+
+    assert result.governing_issues == _legacy_n8_governing_issues()
+    assert any(
+        finding.get("code") == "dependency_environment_diagnostic_pass_not_reconciled"
+        for finding in result.ambient_findings
+    )
+
+
+@pytest.mark.parametrize(
+    "case_id",
+    [
+        "root",
+        "selected_distribution",
+        "source_freeze",
+        "n8_content_ref",
+        "decision_role",
+        "digest_domain",
+        "strict_shape",
+        "may_not_use_for:n8_admission",
+        "may_not_use_for:n10a_stage_gap_closure",
+        "may_not_use_for:chronology_acceptance",
+        "may_not_use_for:policy_publication",
+        "may_not_use_for:policy_promotion",
+    ],
+)
+def test_n8_dependency_discriminant_corruption_is_diagnostic_nonreceipt(
+    case_id: str,
+    tmp_path: Path,
+) -> None:
+    """Self-consistent corruptions fail owner replay without changing legacy governing status."""
+
+    companion = _build_n8_dependency_companion()
+    payload = copy.deepcopy(companion.model_dump(mode="json"))
+    if case_id == "root":
+        payload["profile_discriminant"]["root_distribution"] = "forged-root"
+        _rebind_corrupt_dependency_discriminant(payload)
+    elif case_id == "selected_distribution":
+        payload["profile_discriminant"]["resolved_distributions"][0][
+            "selected_artifact"
+        ]["value"] = "sha256:" + "0" * 64
+        _rebind_corrupt_dependency_discriminant(payload)
+    elif case_id == "source_freeze":
+        payload["source_freeze"] = "0" * 40
+    elif case_id == "n8_content_ref":
+        payload["n8_contract_ref"]["content_hash"] = "sha256:" + "0" * 64
+    elif case_id == "decision_role":
+        payload["decision_role"] = "governing"
+    elif case_id == "digest_domain":
+        payload["profile_discriminant"]["discriminant_ref"]["domain"] = "dependency-closure"
+    elif case_id == "strict_shape":
+        payload["undeclared_field"] = True
+    else:
+        denied_use = case_id.partition(":")[2]
+        payload["authority_boundary"]["may_not_use_for"].remove(denied_use)
+    _seal_corrupt_n8_dependency_companion(payload)
+    scratch = tmp_path / f"{case_id.replace(':', '-')}.json"
+    scratch.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+    scratch_before = scratch.read_bytes()
+
+    result = value_contract.check_dependency_discriminant_companion(
+        value_contract._repo_root(),
+        companion_path=scratch,
+    )
+
+    assert result.governing_issues == _legacy_n8_governing_issues()
+    assert any(
+        finding.get("code") == "dependency_discriminant_diagnostic_not_received"
+        for finding in result.ambient_findings
+    )
+    assert scratch.read_bytes() == scratch_before
+
+
+@pytest.mark.parametrize(
+    "forgery_kind",
+    ["mapping", "model_copy", "model_construct"],
+)
+def test_n8_dependency_discriminant_forged_pass_with_mismatching_rows_is_nonreceipt(
+    forgery_kind: str,
+) -> None:
+    """A pass-shaped diagnostic cannot retain mismatch cases behind strict typing."""
+
+    companion = _build_n8_dependency_companion()
+    failed = _research_torch_diagnostic(companion)
+    if forgery_kind == "mapping":
+        forged: object = {
+            "status": "pass",
+            "ordered_cases": [failed.first_case.model_dump(mode="json")],
+            "first_case": None,
+            "predicate_class": "recomputed",
+        }
+    else:
+        valid_pass = dependency_profile_module.DependencyEnvironmentDiagnosticPass(
+            status="pass",
+            ordered_cases=(),
+            first_case=None,
+            predicate_class="recomputed",
+        )
+        if forgery_kind == "model_copy":
+            forged = valid_pass.model_copy(
+                update={"ordered_cases": (failed.first_case,)}
+            )
+        else:
+            forged = valid_pass.__class__.model_construct(
+                status="pass",
+                ordered_cases=(failed.first_case,),
+                first_case=None,
+                predicate_class="recomputed",
+            )
+
+    result = value_contract.validate_foundry_dependency_discriminant(
+        repo_root=value_contract._repo_root(),
+        companion=companion,
+        diagnostic_verification=forged,
+    )
+
+    assert result.governing_issues == _legacy_n8_governing_issues()
+    assert any(
+        finding.get("code") == "dependency_environment_diagnostic_not_received"
+        for finding in result.ambient_findings
+    )
+
+
+@pytest.mark.parametrize("bypass_kind", ["model_copy", "model_construct"])
+def test_n8_dependency_discriminant_model_bypass_is_revalidated(
+    bypass_kind: str,
+) -> None:
+    """Trusted-looking model instances must re-enter strict transport validation."""
+
+    companion = _build_n8_dependency_companion()
+    if bypass_kind == "model_copy":
+        bypassed = companion.model_copy(update={"decision_role": "governing"})
+    else:
+        values = {
+            name: getattr(companion, name)
+            for name in companion.__class__.model_fields
+        }
+        values["decision_role"] = "governing"
+        bypassed = companion.__class__.model_construct(**values)
+
+    result = value_contract.validate_foundry_dependency_discriminant(
+        repo_root=value_contract._repo_root(),
+        companion=bypassed,
+        diagnostic_verification=None,
+    )
+
+    assert result.governing_issues == _legacy_n8_governing_issues()
+    assert result.content_ref is None
+    assert any(
+        finding.get("code") == "dependency_discriminant_diagnostic_not_received"
+        for finding in result.ambient_findings
     )

@@ -15,20 +15,23 @@ an institutional appointment.
 **Architecture:** Keep the existing N7 unsatisfied gap immutable. Add a
 separately versioned, CAS-backed positive admission for the
 `certified_skg_identity_bridge` disjunct, verified by the Academic SKG owner and
-CG2. Re-enter N8 through an isolated Foundry extension registry, dispatch the
-verified certificate as the method's exact output contract, produce the
-already-supported S10 `transported_limited` posture, persist the unchanged
+CG2. CG2 consumes only a CAS-backed, behaviorally verified production corpus
+derived from pre-existing independently adjudicated observations. Re-enter N8
+through an isolated Foundry extension registry, dispatch the verified
+certificate as the method's exact output contract, produce the already-
+supported S10 `transported_limited` posture, persist the unchanged
 `ValueGateReceipt`, and supply the existing N9 writers from an owner-derived
 production context provider. S8 remains unranked; the appointment-dependent
 pilot path remains PR1b.
 
-**Tech Stack:** Python 3.13, Pydantic v2 strict/frozen DTOs, the existing core
+**Tech Stack:** Python 3.14, Pydantic v2 strict/frozen DTOs, the existing core
 `ArtifactStore`, Academic SKG/Data Forge, CG1/CG2, Foundry method selection and
 dispatch, S10 forecast support, the N8 generation cycle, and canonical N9
 promotion.
 
-**Spec:** This document is the proposed contract design and implementation
-plan. The architect must ratify Section 2 before any Phase-2 production edit.
+**Spec:** This document is the ratified contract design, INT-R9
+pre-registration, and implementation plan. The N7 and CG2 additive families
+are authorized; no other governed contract is.
 
 ## Global Constraints
 
@@ -42,10 +45,18 @@ plan. The architect must ratify Section 2 before any Phase-2 production edit.
   branch attachment.
 - No `checkout`, `switch`, `stash`, rebase, reset, force push, other worktree,
   or other lane is permitted.
-- Phase 2 may add the N7 contract family designed here only after explicit
-  architect ratification. Every other governed contract remains read-only.
-  Existing predicates may be reused or made harder to bypass; none may be
-  weakened.
+- Phase 2 may add the explicitly ratified N7 contract family designed here.
+  Every other governed contract remains read-only except the separately
+  ratified CG2 family below. Existing predicates may be reused or made harder
+  to bypass; none may be weakened.
+- The architect ratified that N7 family and, separately, the additive CG2
+  production-calibration family specified below. Those are the only two
+  governed contract families this task may add or change. A third governed
+  contract change is a stop.
+- The first result-bearing row inspection is governed by `INT-R9` Option B.
+  The pre-registration in Section 0 is immutable after its commit except by a
+  new prospective amendment committed before any replacement case is opened.
+  No sequence-level number or statistical-family claim is available.
 - A direct `ValueGateReceipt(...)` or a caller-provided truth value for
   admissibility/effective independence is a stop, not a test technique.
 - Targeted Phase-2 verification uses exact node IDs with `-x --lf`; each red follows a
@@ -53,6 +64,247 @@ plan. The architect must ratify Section 2 before any Phase-2 production edit.
   of its group. Do not run a directory-wide or repository-wide suite.
 - Transport proof nodes run with `--extra solvers`. A skip naming the missing
   extra is a non-receipt and never a pass.
+
+---
+
+## 0. INT-R9 Option-B Pre-registration — Sealed Before Row Inspection
+
+This section is the prospective record required before the first Academic SKG,
+calibration, numeric-evidence, or production-data row is inspected in Phase 2.
+The registration revision is the first branch commit whose plan blob contains
+this section; its exact commit hash and commit time must be appended to the
+task journal before the feasibility scan starts. The pre-registration base is
+`3de7a3f26`.
+
+### Claim boundary
+
+`INT-R9` resolved to Option B: result-informed repair remains possible, so all
+sequence-level probability was withdrawn. This run may preserve a falsifiable
+custody record of prospectivity, firstness, substitutions, chronology,
+adjudication, deviations, negative terminals, publication, correction, and
+whether a prohibited substitution occurred. It may not be projected as
+statistical family control, population performance, compliance, competence,
+production readiness, or any other probabilistic claim.
+
+The Git commit establishes repository-visible commit chronology. It does
+**not** by itself establish prospectivity or firstness for a public `INT-K06`
+claim, independently witnessed transaction
+visibility, sealed holdout custody, or named-human adjudication that DS12 would
+need to issue a public `INT-K06` claim. Those fields remain explicitly
+`not_established` unless an independent owner receipt already exists; this task
+does not create that third governance capability. The internal canonical
+promotion receipt may be produced, but the journal is an input to later DS12
+custody rather than a public custody attestation.
+
+### Registered population and production-calibration source
+
+The sole source universe is the Runtime-pinned production Academic SKG at:
+
+```text
+production_data/policyos_academic_runtime_slim_20260411T112032Z/
+academic/graph/scholar_knowledge.duckdb
+```
+
+The scan pins `MAX(ac_skg_versions.version_id)`, the database byte hash, and the
+owner snapshot reference returned by `SKGQuery.skg_snapshot_ref`. The sole
+selector implementation is the content-bound source text recorded in the
+pre-inspection journal before its first database query. It implements the
+following query contract exactly; the one positional parameter is exactly the
+UTF-8 string `duckdb://` followed by the resolved absolute database path.
+
+<!-- GY_PR1A_SELECTOR_SQL_V1_BEGIN -->
+```sql
+WITH pinned_version AS (
+    SELECT MAX(version_id) AS version_id
+    FROM ac_skg_versions
+)
+SELECT
+    CAST(? AS VARCHAR) || '#v' || CAST(v.version_id AS VARCHAR)
+        AS skg_snapshot_ref,
+    TRIM(p.numeric_id) AS numeric_id,
+    TRIM(e.edge_id) AS edge_id,
+    TRIM(p.openalex_id) AS openalex_id,
+    TRIM(c.claim_id) AS claim_id,
+    TRIM(e.src) AS edge_src,
+    TRIM(e.dst) AS edge_dst,
+    TRIM(t.target_context_id) AS target_context_id,
+    TRIM(p.estimate_type) AS estimate_type
+FROM pinned_version AS v
+CROSS JOIN ac_skg_simulation_parameters AS p
+CROSS JOIN LATERAL json_each(
+    CASE
+        WHEN json_valid(p.linked_claim_ids_json)
+        THEN p.linked_claim_ids_json
+        ELSE '[]'
+    END
+) AS claim_ref
+JOIN ac_skg_span_grounded_claims AS c
+  ON c.claim_id = json_extract_string(claim_ref.value, '$')
+ AND c.openalex_id = p.openalex_id
+JOIN ac_skg_edge_evidence AS ee
+  ON ee.claim_id = c.claim_id
+ AND ee.openalex_id = c.openalex_id
+JOIN ac_skg_edges AS e
+  ON e.edge_id = ee.edge_id
+ AND e.src = ee.src
+ AND e.dst = ee.dst
+ AND e.direction = ee.direction
+JOIN ac_skg_articles AS a
+  ON a.openalex_id = p.openalex_id
+JOIN ac_skg_transport_scores AS t
+  ON t.edge_id = e.edge_id
+WHERE v.version_id IS NOT NULL
+  AND claim_ref.type = 'VARCHAR'
+  AND TRIM(p.numeric_id) <> ''
+  AND TRIM(p.openalex_id) <> ''
+  AND TRIM(p.estimate_type) <> ''
+  AND isfinite(p.point_estimate)
+  AND TRIM(c.claim_id) <> ''
+  AND TRIM(e.edge_id) <> ''
+  AND TRIM(e.src) <> ''
+  AND TRIM(e.dst) <> ''
+  AND TRIM(t.target_context_id) <> ''
+  AND a.retracted = FALSE
+  AND a.skg_version <= v.version_id
+  AND c.skg_version <= v.version_id
+  AND ee.skg_version <= v.version_id
+  AND t.skg_version <= v.version_id
+  AND c.cause = ee.src
+  AND c.effect = ee.dst
+  AND c.direction = ee.direction
+```
+<!-- GY_PR1A_SELECTOR_SQL_V1_END -->
+
+The selector-query SHA-256 is
+`a69f142d098b4e6f3feb382f9ba0427a399415421bc918813eeb7300a2d770c6`;
+it is the digest of the exact
+UTF-8 SQL bytes after the fenced-code newline through and including the newline
+immediately before the closing fence. The required tables are named above; a missing table,
+column, version, or unreadable database is an empty structural population and
+a terminal, not permission to use an ambient view or alternative join.
+
+“Latest version” means the pinned `MAX(version_id)` plus the current
+primary-key-materialized rows whose recorded versions are no later than that
+pin. “Exact numeric” means the nonempty exact IDs and estimate type, finite
+stored point estimate, exact JSON-string claim link, exact work identity, exact
+claim/evidence/edge source-destination-direction identity, non-retracted work,
+and nonempty exact transport-context identity expressed by the SQL. It does
+not inspect interval adequacy, calibration labels, CG2, N7, N8, or promotion
+success.
+
+After the SQL returns, the selector permits only this deterministic
+normalization: reject a row unless all nine projected fields are strings;
+collapse duplicate rows by equality of the complete nine-field tuple; sort the
+complete population by the concatenation of each field's UTF-8 bytes preceded
+by its unsigned eight-byte big-endian length; and hash that ordered encoding as
+the structural-population digest. No locale collation, database result order,
+ambient view, interactive filter, alternate join, or later query is permitted.
+That complete structural denominator is the selection frame; it is not
+narrowed to rows already known to qualify.
+
+The separate **calibration population** is the complete join from the selected
+stratum to pre-existing independently adjudicated relation-outcome evidence. A
+materialized adjudication counts only when its authority-bearing
+`scientist.claim_adjudication.admitted_batch` CAS artifact, producer, raw input,
+candidate, evaluation, and source lineage can all be read and content-bound.
+An SKG assertion, CG1/CG2 decision, LLM label, code literal, test fixture, CG6
+anchor, or contract seed can never supply the outcome label it is meant to
+calibrate.
+
+One distinct observation is keyed by:
+
+```text
+result_artifact_id | claim_id | openalex_id | numeric_id | edge_id |
+target_context_id | reference_epoch
+```
+
+Duplicates collapse to one observation. The stratum is derived, never filled:
+
+```text
+operator_family = the exact registered L6 operator resolved from edge.src
+reference_region = the nonempty owner target_context_id
+relation_type = exact
+```
+
+Missing context is disqualifying; it must not fall back to `global`. A genuine
+production source is therefore a content-addressed Runtime projection over
+this pinned, independently labelled population, with per-observation refs and
+hashes plus derived stratum anchors. It is not an inline
+`CalibrationStratumRecord(sample_count=20)`.
+
+### Fixed case, stratum, and candidate/estimand binding rule
+
+Selection is non-discretionary and fixed before the scan. The selection seed
+is the literal `GY-PR1A-INT-R9-PRIMARY-2026-09-02-V1`:
+
+1. Execute the content-bound selector once and enumerate the complete
+   structural case population above. Do not require or inspect calibration,
+   native interval adequacy, transport score, CG2, N7, N8, or promotion status
+   while selecting; the exact nonempty transport-context identity is only a
+   structural join key fixed by the query contract.
+2. For every structural row compute
+   `sha256(seed | skg_snapshot_ref | numeric_id | edge_id | openalex_id |
+   claim_id)` and select the bytewise smallest `(digest, numeric_id, edge_id,
+   openalex_id, claim_id, target_context_id)` using the length-prefixed UTF-8
+   ordering above. An empty structural population is a zero result and stops
+   the task. No second row is tried if the selected row later refuses.
+3. Derive exactly one stratum from that row using the mapping above. Missing or
+   ambiguous operator/context makes this selected case a negative terminal; it
+   does not cause selection of the next digest.
+4. Bind the candidate mechanically as follows:
+   `candidate_id = "gy-pr1a-primary:" + sha256(snapshot_ref | stratum_key |
+   selection_digest | numeric_id | edge_id | openalex_id | claim_id)`;
+   treatment/operator is the exact registered edge source;
+   outcome/target is the exact writable WMR edge destination; estimand is the
+   row's nonempty normalized `estimate_type`; population/region is the exact
+   `target_context_id`; point estimate, unit, native interval, confidence level,
+   and standard error are copied from the same numeric row without synthesis.
+
+5. Only after the selection receipt and resolved binding have been appended to
+   the journal, enumerate the independent calibration population for **that
+   exact stratum**. Require at least 20 distinct observations. Counts in every
+   other stratum are reported for denominator completeness but can neither
+   replace nor rescue the selected stratum.
+
+This algorithm fixes which case, stratum, and binding are evaluated before any
+result-bearing predicate is read. Its resolved identifiers are appended before
+the calibration feasibility result and before any CG2 or N7 implementation.
+
+### Prospective disqualifiers and chronology
+
+The selected observation is disqualified by any missing/tampered CAS lineage,
+wrong SKG version, non-exact join, non-native interval, missing registered
+operator or writable target, missing/ambiguous context or transport row,
+missing independent adjudicated outcome, duplicate-only sample inflation,
+fewer than 20 observations in its stratum, stale reference epoch, or inability
+to resolve genuine S5/S6/S8 inputs. A disqualification is a negative terminal.
+It cannot be repaired by changing the case, row, stratum, estimand, criteria,
+threshold, order, or exclusion after inspection.
+
+Generic implementation repair after a failure is allowed and recorded as
+adaptive continuation, but it neither re-runs nor re-scores the first attempt.
+“Intrinsically unsuitable” means only a pre-registered disqualifier in this
+section, evidenced in the append-only record; it never means a refusal, failure
+to promote, adverse calibration count, inconvenient estimate, or an outcome
+that would leave the acceptance predicate red. Such a terminal remains this
+attempt's first result-bearing terminal. A replacement requires an explicitly
+new prospective registration, new immutable selection receipt, affirmative
+no-access proof for the replacement before its first row inspection, and an
+append-only explanation of why the old terminal cannot be rescored or erased.
+It is never a retry, rescue, or silent continuation of this selected case.
+
+Before inspection, create the append-only journal with these fields:
+
+- registration base/head/time and environment/`sys.prefix`;
+- protocol, implementation, rule, schema, dependency, evaluator, and model
+  versions (model is `not_applicable_no_llm` for this deterministic scan);
+- population, source-root/version/hash, selection/order/stopping rules,
+  disqualifiers, protected action, and no-substitution rule;
+- first-inspection time, first result-bearing run, every terminal, repair,
+  substitution request/disposition, deviation, incident, adjudication/dissent,
+  publication, challenge, correction, and current head; and
+- `prohibited_substitution_found`, initially `false` and changed only by an
+  appended event—never by rewriting history.
 
 ---
 
@@ -80,11 +332,12 @@ There are two different gaps:
    The nearby CG6 anchor set is explicitly typed `wired_into_cg2=False`, is too
    small, uses different strata, and has an unaccepted provenance.
 
-The first is the additive contract design authorized for this Phase-1 plan.
-The second is an unowned engineering prerequisite outside the narrowed
-contract permission. Phase 2 must not begin until a named owner has landed and
-verified the CG2 production-calibration capability, or until the architect
-explicitly revises this plan and its scope.
+The first is the additive N7 contract design ratified after Phase 1. The second
+was an unowned engineering prerequisite at `3de7a3f26`; the architect has now
+allocated it to GY-PR1a and ratified it as the task's second additive governed
+family. Phase 2 begins with a feasibility census rather than construction: if
+the pre-existing owner population contains no qualifying >=20-observation
+stratum, engineering cannot manufacture one and the task stops.
 
 Capability labels at entry are:
 
@@ -92,7 +345,7 @@ Capability labels at entry are:
 | --- | --- | --- |
 | N7 positive bridge representation | `artifact_missing` | Both represented alternatives are forced unsatisfied. |
 | Academic SKG exact-identity certificate producer | `producer_missing` | No positive certificate/admission symbol exists in the complete Python census. |
-| CG2 production calibration population | `producer_missing` | Production-owned store returns `records=()`. |
+| CG2 production calibration population | `producer_missing`, allocated here subject to Task-0 feasibility | Production-owned store returns `records=()`; no source may be synthesized. |
 | CG6 to CG2 calibration path | `bridge_missing` + `implemented_but_not_orchestrated` | `wired_into_cg2` is `Literal[False]`; dimensions and provenance do not match CG2. |
 | N7-to-N8 positive re-entry | `bridge_missing` | N8 stops at `treatment_assignment_not_owner_derived`. |
 | N7/N8 to the existing CG2 production-promotability consumer | `bridge_missing` | The N9 consumer exists, but N7/N8 never supplies a positively admitted candidate to it. |
@@ -230,10 +483,11 @@ CG2 population or for changing the production provenance admission:
 /opt/homebrew/bin/git -C /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine grep -n -e 'cg2_production_calibration_empty' -e 'none_wired_production_freezes' -e 'owned_calibration_anchor_missing' -e 'wired_into_cg2' -- docs/plans docs/superpowers/plans docs/superpowers/journals
 ```
 
-The ownership result is therefore `unowned engineering gap`, not “a named task
-will fill it.” This plan cannot treat the contract-test seed as an owner
-population: production resolution explicitly returns
-`non_production_anchor_scope` for that store.
+The historical ownership result at the Phase-1 commit is therefore `unowned
+engineering gap`; this revision records the architect's later allocation to
+GY-PR1a. Allocation does not create observations. This plan cannot treat the
+contract-test seed as an owner population: production resolution explicitly
+returns `non_production_anchor_scope` for that store.
 
 CG6 is also a closed door, not an implicit future owner. Recorded commands:
 
@@ -272,17 +526,17 @@ CG6-to-CG2 bridge. Phase-2 gate G0 therefore also requires a semantic test that
 `wired_into_cg2=false` cannot make a production certificate promotable; there
 is no such direct node now.
 
-Phase-2 gate G0 therefore requires a separately ratified engineering owner to
-land a genuine production calibration source and its behavioral verifier. If
-that work is folded into GY-PR1a, this plan must be revised and re-ratified
-because the current task-specific permission does not authorize a second
-governed-contract change.
+Phase-2 gate G0 is now the pre-registered feasibility census in Section 0. A
+nonzero qualifying source authorizes Task 1 to implement its Runtime-owned
+producer and behavioral verifier under the architect's second explicit
+authorization. Zero is a completed capability finding and stops all source
+work.
 
 ## 2. Versioned Positive N7 Admission Contract Design
 
 ### Additive family; no v1 reinterpretation
 
-The architect is asked to ratify this three-artifact family as one N7 design:
+The architect has ratified this three-artifact family as one N7 design:
 
 | Artifact | Proposed schema | Role |
 | --- | --- | --- |
@@ -430,6 +684,52 @@ resolved. Absence or invalidity of v2 leaves the v1 gap and blocker byte-for-
 byte equivalent. A regression test must round-trip pre-change v1 bytes after
 the positive path passes and prove they still route to
 `treatment_assignment_not_owner_derived`.
+
+### Second ratified family: production CG2 calibration
+
+The architect has separately authorized one additive CG2 family. It does not
+widen `CalibrationStratumRecord`, reinterpret the contract seed, or accept a
+caller ledger. It adds:
+
+| Artifact | Proposed schema | Role |
+| --- | --- | --- |
+| Production observation | `policyos.runtime.cg2.production_calibration_observation.v1` | One independently adjudicated, source/claim/edge/numeric/context-bound outcome, with owner CAS lineage and reference epoch. |
+| Production corpus | `policyos.runtime.cg2.production_calibration_corpus.v1` | Complete eligible calibration population for the frozen selected stratum, with the complete structural/grouped denominators retained as audit metadata, plus exclusions, owner-root hash, and observation refs. |
+| Production resolution | `policyos.runtime.cg2.production_calibration_resolution.v1` | CAS replay result for one exact stratum: `calibrated`, `cold_start`, `drift`, or `refused`, with recomputed reasons and verifier provenance. |
+
+`ProductionCG2CalibrationSource` belongs in
+`src/polisyos/runtime/quality/production_grounding_calibration.py`. It opens the
+Runtime-pinned Academic SKG through the public Data Forge read API, validates
+the database/version and every admitted adjudication artifact, preserves the
+complete structural/grouped census as audit metadata, projects every eligible
+calibration observation for the one frozen selected stratum, persists those
+observation and corpus bytes to CAS, reads them back, and only then derives the
+existing aggregate `CalibrationStratumRecord` consumed by CG2. It does not
+attempt to infer labels for every SKG row. Data Forge exports evidence; it does
+not import Runtime or decide calibration.
+
+The only new production provenance admitted is
+`cg2_production_academic_skg_adjudication_v1`. Adding that string to the owner
+allow-list is insufficient by itself: the CG2 production resolver must also
+resolve the corpus, match the exact stratum/epoch/anchor/content/evidence
+hashes, re-count distinct observation refs, verify every source lineage, and
+require at least 20. The old `cg2_contract_seed_anchor` remains
+`authority_scope="contract_testing"`, retains its current bytes, and still
+resolves non-promotable. CG6 remains `wired_into_cg2=False`.
+
+The behavioral verifier extends `check_grounding_bind_contract.py` and its
+owned `grounding_bind_contract.json` artifact under this second authorization.
+Its remove-the-property controls delete or duplicate an observation, forge an
+adjudication/source hash, swap epoch/stratum, lower the distinct count, replace
+the production corpus with the contract seed or CG6, and assert production
+promotability turns red. Existing artifacts must continue to verify.
+
+The five currently misdirected CG2 controls are repaired without changing
+alias semantics: their shared setup uses a canonical exact-relation
+certificate and first asserts it reached the intended stratum before checking
+the calibration terminal. The `tax_credit_rate` synonym remains covered by a
+separate alias test. A calibration negative that terminates at relation
+canonicalization is not accepted as CG2 evidence.
 
 ## 3. Re-Derived Chain Census
 
@@ -709,6 +1009,11 @@ objects must block and the task stops rather than silently expanding scope.
 A receipt satisfies GY-PR1a only when **all** of the following hold in one
 production run:
 
+The run is also the first result-bearing execution under the immutable Section
+0 selection record. Its complete Option-B chronology is append-only and
+nonnumeric. This custody condition governs which run may satisfy the predicate;
+it does not add a caller field to the receipt or authorize a DS12 public claim.
+
 1. A canonical `GenerationCycleController` run starts from a content-bound
    `DesignProblem`, produces its candidate and N5/WMR observations, and reaches
    N7/N8/N9. The test does not directly construct a `ValueGateReceipt`, N7
@@ -763,47 +1068,97 @@ boundary and observes the resulting artifacts.
 
 ### Task 0 — Hard preconditions; no source edits
 
-**Files:** none.
+**Files:** create, then append only,
+`docs/superpowers/journals/2026-09-02-gy-pr1a-data-only-promotion.md`.
+The census implementation lives only in this plan's ignored SDD workspace:
+`/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/.superpowers/sdd/2026-09-02-gy-pr1a-data-only-promotion/task-0-feasibility.py`.
 
-- [ ] Obtain architect ratification of the exact Section-2 N7 contract family.
-- [ ] Obtain a named owner and landed, separately ratified CG2 production-
-      calibration capability. Do not use the contract-test seed or CG6
-      scoreboard as production evidence.
-- [ ] Repair or establish provenance for the currently red CG2 negative
-      controls before treating them as controls. On this base, the five nodes
-      below are `not_established`: they currently fail for the unrelated
-      `tax_credit_rate` alias/relation path rather than reaching their asserted
-      calibration boundary.
-- [ ] Require the CG2 recomputing checker to pass and its corrupt-field probe to
-      fail.
-- [ ] Prove at least one actual owner SKG row can satisfy exact numeric identity,
-      native interval, candidate/estimand binding, transport inputs, real S5/S6/S8
-      prerequisites, and production CG2. Zero qualifying rows stops the task.
-- [ ] Record the global N8 method count and artifact hash; require 55 and freeze
-      it as a no-change control.
+- [ ] Verify that the first commit containing Section 0 is attached to
+      `codex/gy-pr1a-data-only-promotion`; append its hash/time and the already
+      confirmed bound `sys.prefix` to the journal before any row read.
+- [ ] Append the complete initial `INT-K06` custody record: population,
+      selection/firstness/order/stopping/no-substitution rules, disqualifiers,
+      versions, claim boundary, and every currently `not_established` external
+      custody field.
+- [ ] Before its first owner-data query, append the selector source text,
+      SHA-256, interpreter version, exact command, declared output schema, and
+      the committed selector-query SHA-256 to the journal. The selector is
+      single-invocation for selection; a changed script/hash, rerun after any
+      selected-row result, or interactive row filtering is a deviation and
+      stops this registered attempt.
+- [ ] Execute the fixed hash selector over the complete structural denominator,
+      append its database hash/version, denominator, selection digest, exact
+      row identity, derived stratum, and candidate/estimand binding, and freeze
+      that receipt before reading calibration or promotion outcomes. Do not
+      print or choose rows interactively.
+- [ ] As the **first result-bearing Phase-2 act**, run the read-only complete
+      calibration census for that exact selected stratum. Capture the command,
+      table/file denominators, exclusion counts and reasons, grouped distinct-
+      observation counts, selected-stratum count, and every other stratum count
+      as nonselecting context.
+- [ ] If the structural denominator is empty, the selected case is disqualified,
+      or its independently adjudicated calibration count is below 20, append
+      the negative terminal `producer_missing: pre-registered CG2 stratum lacks
+      >=20 distinct independently adjudicated production observations`, record
+      `prohibited_substitution_found=false`, commit the journal, and stop. Do
+      not create a calibration population or any source/test file.
+- [ ] If the selected count is >=20, record the global N8 method count/hash and
+      require the frozen value 55 before Task 1.
 
-Existing CG2 nodes:
+The feasibility census is measurement, not a fixture or producer. It may read
+the owner data and CAS but may not create, label, duplicate, repair, or persist
+an observation. Zero is a valid governed result.
+
+Commit group: prospective custody record + feasibility result. If zero, this
+is the terminal implementation commit for the task.
+
+### Task 1 — Production CG2 calibration and repaired controls
+
+**Files:**
+
+- Create
+  `src/polisyos/runtime/quality/production_grounding_calibration.py`.
+- Modify `src/polisyos/runtime/quality/grounding_bind.py`.
+- Modify
+  `tools/quality/validation/check_grounding_bind_contract.py` and its owned
+  `architecture/policy_design_case/grounding_bind_contract.json` artifact.
+- Create
+  `tests/unit/runtime/quality/test_production_grounding_calibration.py`.
+- Modify `tests/unit/runtime/quality/test_grounding_bind.py`.
+
+**Positive control first:**
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/.venv/bin/python -m pytest /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/tests/unit/runtime/quality/test_grounding_bind.py::test_contract_testing_bind_resolves_non_promotable -q -x --lf
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/.venv/bin/python -m pytest /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/tests/unit/runtime/quality/test_grounding_bind.py::test_cold_start_exact_freezes_bind /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/tests/unit/runtime/quality/test_grounding_bind.py::test_fabricated_caller_calibration_is_rejected_and_freezes_bind /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/tests/unit/runtime/quality/test_grounding_bind.py::test_spoofed_caller_calibration_still_freezes_bind /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/tests/unit/runtime/quality/test_grounding_bind.py::test_bind_decision_certificate_rejects_caller_supplied_calibration_source /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/tests/unit/runtime/quality/test_grounding_bind.py::test_forged_promotable_production_certificate_resolves_non_promotable -q -x --lf
 ```
 
-The first node is the required positive control and must reach the intended
-contract-test resolution before the five negative controls are interpreted.
+- [ ] Add
+      `test_production_calibration_source_rejects_rows_without_independent_adjudication`.
+      **Expected red:** production source/resolver type is absent.
+- [ ] Add
+      `test_production_calibration_corpus_persists_and_resolves_exact_stratum`.
+      **Expected red:** `_owned_calibration_store` still returns the typed empty
+      production ledger.
+- [ ] Add missing/tampered source root, duplicate observation, under-20,
+      wrong-epoch/stratum, unapproved provenance, self-labelled CG2 outcome,
+      seed, and CG6 negatives. **Expected red:** no behavioral corpus verifier
+      exists.
+- [ ] Repair the five existing CG2 controls so their canonical exact-relation
+      setup first proves the intended stratum, then reaches its calibration
+      boundary. Preserve a separate `tax_credit_rate` alias behavior test; do
+      not change alias semantics.
+- [ ] Implement the second ratified artifact family, CAS persistence/replay,
+      production source loading, exact owner resolution, and additive
+      provenance. Leave the contract-testing source and scope unchanged.
+- [ ] Make the generic checker recompute the corpus and add corrupt-field
+      mutations; regenerate only its owned CG2 artifact.
+- [ ] Run exact red/green nodes, then both affected whole test files and the
+      checker/corruption probe once for this group.
 
-CG2 checker and mutation:
+Commit group: production CG2 source + artifact/resolver + five repaired
+calibration controls + behavioral verifier.
 
-```bash
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/tools/quality/validation/check_grounding_bind_contract.py --check --output-format json
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/tools/quality/validation/check_grounding_bind_contract.py --corrupt-field-drift-check --output-format json
-```
-
-Expected result before any PR1a source edit: the real production route remains
-blocked until the external CG2 prerequisite is present. If any precondition is
-unmet, stop; do not build a partial N7/N8 chain.
-
-### Task 1 — Academic SKG certificate producer
+### Task 2 — Academic SKG certificate producer
 
 **Files:**
 
@@ -833,7 +1188,7 @@ PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-o
 
 Commit group: certificate contract + producer + tests.
 
-### Task 2 — Additive N7 admission, persistence, and replay
+### Task 3 — Additive N7 admission, persistence, and replay
 
 **Files:**
 
@@ -868,7 +1223,7 @@ PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-o
 
 Commit group: N7 positive admission family + CAS resolver + re-entry tests.
 
-### Task 3 — Isolated Foundry adapter and exact selection/dispatch
+### Task 4 — Isolated Foundry adapter and exact selection/dispatch
 
 **Files:**
 
@@ -911,7 +1266,7 @@ PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-o
 
 Commit group: scoped adapter + controlled selection + real dispatch.
 
-### Task 4 — S10 transported owner bridge and persisted N8 receipt
+### Task 5 — S10 transported owner bridge and persisted N8 receipt
 
 **Files:**
 
@@ -954,7 +1309,7 @@ PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-o
 
 Commit group: transported S10 producer + N8 persistence + valid observation.
 
-### Task 5 — Owner-derived unranked S8 and production N9 context
+### Task 6 — Owner-derived unranked S8 and production N9 context
 
 **Files:**
 
@@ -1000,13 +1355,13 @@ PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-o
 
 Commit group: unranked S8 producer/replay + production N9 context bridge.
 
-### Task 6 — New production capstone; do not repair the old harness
+### Task 7 — New production capstone, journal completion, and focused closeout
 
 **Files:**
 
 - Create
   `tests/integration/runtime_quality/test_first_governed_promotion.py`.
-- Create, then append only,
+- Append only to
   `docs/superpowers/journals/2026-09-02-gy-pr1a-data-only-promotion.md`.
 
 **Positive control first:**
@@ -1017,7 +1372,7 @@ PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-o
 
 - [ ] Add
       `test_production_data_only_cycle_emits_real_consumer_promotable_receipt`.
-      **Expected red before Tasks 1-5:** the cycle terminates at the owner N7 gap
+      **Expected red before Tasks 2-6:** the cycle terminates at the owner N7 gap
       and no receipt exists.
 - [ ] Start at the canonical problem/cycle boundary and assert every acceptance
       conjunct in Section 7 by reading persisted artifacts back. Never call a
@@ -1034,24 +1389,30 @@ Commit group: capstone + append-only journal. If a source/test fix is required
 after this group starts, commit that coherent delta before the journal's final
 evidence append; do not rewrite prior journal prose.
 
-### Task 7 — Focused closeout and branch readback
-
 - [ ] Freeze source before final review.
 - [ ] Run ruff only over changed Python files.
 - [ ] Run architecture guardrails and the directly affected checkers, including
       the CG2 checker/corruption probe, CG1 census, frozen N8 catalog, and docs
       checks.
 - [ ] Run each affected whole test file once per group; no wider suite.
-- [ ] Run the bound debt checker once, on a quiescent tree.
-- [ ] Verify the tracked `src/**/*.py` delta. The PR1a-owned design adds exactly
-      five source files:
+- [ ] Run the bound debt checker once, on a quiescent tree, with both streams
+      captured at
+      `/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/.superpowers/sdd/2026-09-02-gy-pr1a-data-only-promotion/bound-check.txt`;
+      append `EXIT=$?` to that same file, then read the file instead of trusting
+      terminal transport.
+- [ ] Verify the tracked `src/**/*.py` delta. The ratified design adds exactly
+      six source files:
+      `production_grounding_calibration.py`,
       `skg_identity_bridge.py`,
       `value_input_world_knowledge_bridge.py`,
       `academic_skg_native_estimate.py`, `value_gate_store.py`, and
       `data_only_promotion_context.py`. Against this Phase-1 base the forecast is
-      **2,617 -> 2,622 (+5)**. Modifications do not change the count. The external
-      CG2 prerequisite is outside this count and must report its own delta; if it
-      is folded into this lane, revise/re-ratify the plan before coding.
+      **2,617 -> 2,623 (+6)**. Modifications do not change the count.
+- [ ] Execute the bound checker exactly once using:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine /opt/homebrew/bin/uv run --directory /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine --frozen --extra test python /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/tools/quality/validation/check_debt_ledger.py --check > /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/.superpowers/sdd/2026-09-02-gy-pr1a-data-only-promotion/bound-check.txt 2>&1; /bin/echo "EXIT=$?" >> /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/.superpowers/sdd/2026-09-02-gy-pr1a-data-only-promotion/bound-check.txt
+```
 - [ ] Before each commit, require:
 
 ```bash
@@ -1076,20 +1437,26 @@ evidence append; do not rewrite prior journal prose.
   preferences, or turn absence of a schedule into equal weights.
 - It will not rewrite or widen the v1 unsatisfied N7 gap.
 - It will not alter `ValueGateReceipt`, S10, N9 promotion/obligation epochs,
-  OpenAPI, generated clients, schemas, or the frozen global N8 catalog.
+  OpenAPI, generated clients, the frozen global N8 catalog, or any schema
+  outside the separately ratified N7 and CG2 additive families.
 - It will not treat CG1, CG6, caller calibration, a contract-test seed, a
   fixture certificate, or a caller truth value as production evidence.
 - It will not repair
   `test_real_measurement_root_resolves_and_binds_into_n9` in place and call that
   a promotion. That test remains a bridge witness with an incomplete fixture.
 - It will not edit `docs/plans/active/`; the architect transcribes journal prose.
+- It will not issue the DS12 public `INT-K06` claim, claim independent sealing
+  or named-human adjudication that was not observed, or attach any probability
+  or readiness meaning to this first run.
 
 ## 10. Known Risks and Firing Observations
 
 | Risk | Observation that it fired | Required response |
 | --- | --- | --- |
-| CG2 prerequisite remains unowned/empty | `owned_calibration_anchor_missing`, `cg2_production_calibration_empty`, seed provenance, or sample count <20 | Stop before Task 1; report the named missing engineering owner. |
-| CG2 controls are red for the wrong reason | Negative node terminates at `relation_not_bind_eligible` or fails to reach calibration resolution | Mark control `not_established`; repair externally before PR1a red/green claims. |
+| Pre-registered stratum lacks a genuine production calibration population | Complete Section-0 census finds fewer than 20 distinct independently adjudicated observations in the selected exact stratum, regardless of other strata | Commit the negative INT-R9 terminal and stop before Task 1; allocation cannot manufacture or substitute evidence. |
+| INT-R9 selection drift | A different stratum/row/case/estimand is used after first inspection, or a deviation is discovered without an earlier append | Stop; retain the first terminal and require a new prospective committed registration before any replacement inspection. |
+| CG2 calibration self-labels | A count is derived from CG1/CG2 decisions, LLM output, code literals, CG6, seed, duplicate rows, or materialized rows without CAS adjudication lineage | Refuse the observation; it is not production calibration evidence. |
+| CG2 controls are red for the wrong reason | Negative node terminates at `relation_not_bind_eligible` or fails to reach calibration resolution | Mark control `not_established`; repair it in Task 1 before PR1a red/green claims. |
 | No real SKG row satisfies the certificate | Complete producer run yields zero native-interval, exact-join, transportable, production-CG2 rows | Stop; do not manufacture an example. |
 | Source authenticity remains unknown | Owner snapshot/root cannot be resolved or provenance is `not_established` | Refuse N7 admission and stop acceptance. |
 | v1 weakening | Old serialized gap parses as satisfied or no longer yields the exact blocker | Revert the design delta; do not commit. |
@@ -1105,7 +1472,8 @@ evidence append; do not rewrite prior journal prose.
 | G4 default masks substitution | A nonempty but wrong ref passes, or provider relies on the current default string | Keep red; require exact candidate-bound owner resolution. |
 | EvalSafety enters data-only | Data-only obligation is satisfied, omitted, or scope-insufficient instead of `not_applicable_data_only` | Stop under task rule 4. |
 | Ranked behavior enters PR1a | Scalar recommendation/rank appears without authorization chain | Stop and route to the ranked PA1 successor. |
-| Source count differs from +5 | New mechanism file is added or one of the five is omitted without an explicit reason | Reconcile against mechanism boundaries before commit; revise plan if scope changed. |
+| Source count differs from +6 | New mechanism file is added or one of the six is omitted without an explicit reason | Reconcile against mechanism boundaries before commit; revise plan if scope changed. |
+| Bound-check transport truncates | Terminal output is absent from the captured file or the appended `EXIT=` line is missing | Treat closeout as `not_established`; do not rerun the one permitted invocation. |
 
 ## 11. Pattern Pass
 
@@ -1122,13 +1490,16 @@ authority), `P37`/`P38` (predicate provenance and proxy divergence), and `P41`
 The existing anti-pattern is a chain of real downstream contracts and guards
 whose positive upstream representation and production orchestration do not
 exist. A fixture can satisfy the shapes and still skip the property. The
-smallest correct pattern is one additive versioned N7 admission, one owner CAS
-intake, one isolated real method dispatch, reuse of existing transported S10
-and value/N9 contracts, and one end-to-end production readback.
+smallest correct pattern is one behaviorally derived production CG2 corpus,
+one additive versioned N7 admission, one owner CAS intake, one isolated real
+method dispatch, reuse of existing transported S10 and value/N9 contracts, and
+one end-to-end production readback.
 
 The target capability state is:
 
 ```text
+pre-existing independently adjudicated calibration observations
++ persisted production CG2 corpus/resolution
 typed N7 certificate/admission
 + owner producer
 + persisted artifact
@@ -1146,7 +1517,7 @@ Any missing term keeps the capability labelled precisely (`producer_missing`,
 `verification_missing`, `implemented_but_not_orchestrated`, or
 `semantic_test_missing`) rather than being summarized as “promotion works.”
 
-## 12. Phase-1 Verification and Commit Boundary
+## 12. Phase-1 Historical Verification and Commit Boundary
 
 Before the Phase-1 plan commit:
 
@@ -1177,5 +1548,35 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/deniskopylov/polisyos/.worktrees/gy-
 /opt/homebrew/bin/git -C /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine show HEAD:docs/superpowers/plans/2026-09-02-gy-pr1a-data-only-promotion.md
 ```
 
-After that commit, stop and hand the design back for architect review. Do not
-start Task 0 or any Phase-2 work in the same approval cycle.
+That boundary was delivered at `3de7a3f26`; its Section-2 N7 family and Section
+7 acceptance predicate are now ratified.
+
+## 13. Ratified Revision and Pre-inspection Commit Boundary
+
+Before any Phase-2 source-data row is inspected:
+
+- [ ] Confirm the working tree changed only this plan; ignored SDD bookkeeping
+      is permitted but carries no product authority.
+- [ ] Confirm tracked `src/**/*.py` remains 2,617.
+- [ ] Confirm this revision names the CG2 production source, the full
+      feasibility denominator, deterministic case/stratum/estimand binding,
+      disqualifiers, no-substitution rule, Option-B claim boundary, and
+      captured bound-check path.
+- [ ] Run the docs lifecycle checker and require exactly the six carried
+      findings with no finding caused by this plan.
+- [ ] Do **not** rerun the debt-ledger checker here; its one closeout execution
+      belongs to Task 7 and will be captured to a file.
+- [ ] Stage only this plan, run `git diff --cached --check`, verify attachment
+      to `codex/gy-pr1a-data-only-promotion`, and commit the revision alone.
+- [ ] Read the committed plan back from the branch, then create the append-only
+      journal registration event before running Task 0's census.
+
+Commit message:
+
+```bash
+/opt/homebrew/bin/git -C /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine commit -m 'docs(gy): preregister first-promotion execution'
+```
+
+After this revision commit, execute Tasks 0 through 7 continuously. Stop only
+on the explicit feasibility/contract/predicate/substitution rules in this plan
+and the task authorization.

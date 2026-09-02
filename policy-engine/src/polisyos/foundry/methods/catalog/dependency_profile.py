@@ -10,13 +10,14 @@ from __future__ import annotations
 import tomllib
 from collections import deque
 from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass
 from importlib import metadata
 from pathlib import Path
 from typing import Annotated, Literal, Protocol
 
 from packaging.markers import Marker
 from packaging.utils import canonicalize_name
-from pydantic import Field, model_validator
+from pydantic import Field, TypeAdapter, ValidationError, model_validator
 
 from polisyos.foundry.methods.catalog.dependency_evidence import (
     AuthorityFailureCode,
@@ -155,23 +156,10 @@ class DependencyProfileDiscriminant(FoundryAuthorityModel):
 
 
 class InstalledDistributionObservation(FoundryAuthorityModel):
-    """Ephemeral installed coordinates without an authority admission claim."""
+    """Ambient installed coordinates without source or artifact authority."""
 
     name: IdentityText
     version: IdentityText
-    source_kind: IdentityText | None = None
-    selected_artifact: (
-        DomainDigest[Literal[DigestDomain.SELECTED_DISTRIBUTION]] | None
-    ) = None
-    selected_artifact_predicate_class: Literal["independently_reconciled"] | None = None
-
-    @model_validator(mode="after")
-    def validate_selected_artifact_evidence(self) -> InstalledDistributionObservation:
-        if (self.selected_artifact is None) != (
-            self.selected_artifact_predicate_class is None
-        ):
-            raise ValueError("selected artifact and its evidence class must be paired")
-        return self
 
 
 class RootDistributionDiagnosticCase(FoundryAuthorityModel):
@@ -181,7 +169,7 @@ class RootDistributionDiagnosticCase(FoundryAuthorityModel):
     coordinate: IdentityText
     expected: IdentityText
     observed: IdentityText
-    predicate_class: Literal["independently_reconciled"]
+    predicate_class: Literal["independently_reconciled", "recomputed"]
 
 
 class MissingDistributionDiagnosticCase(FoundryAuthorityModel):
@@ -191,7 +179,7 @@ class MissingDistributionDiagnosticCase(FoundryAuthorityModel):
     coordinate: IdentityText
     expected: IdentityText
     observed: IdentityText
-    predicate_class: Literal["independently_reconciled"]
+    predicate_class: Literal["independently_reconciled", "recomputed"]
 
 
 class DistributionFieldDiagnosticCase(FoundryAuthorityModel):
@@ -202,7 +190,7 @@ class DistributionFieldDiagnosticCase(FoundryAuthorityModel):
     field: Literal["version", "source_kind", "selected_artifact"]
     expected: IdentityText
     observed: IdentityText
-    predicate_class: Literal["independently_reconciled"]
+    predicate_class: Literal["independently_reconciled", "recomputed"]
 
 
 class UnexpectedInClosureIdentityDiagnosticCase(FoundryAuthorityModel):
@@ -212,7 +200,7 @@ class UnexpectedInClosureIdentityDiagnosticCase(FoundryAuthorityModel):
     coordinate: IdentityText
     expected: IdentityText
     observed: IdentityText
-    predicate_class: Literal["independently_reconciled"]
+    predicate_class: Literal["independently_reconciled", "recomputed"]
 
 
 DependencyEnvironmentDiagnosticCase = Annotated[
@@ -230,7 +218,7 @@ class DependencyEnvironmentDiagnosticPass(FoundryAuthorityModel):
     status: Literal["pass"]
     ordered_cases: tuple[DependencyEnvironmentDiagnosticCase, ...]
     first_case: None
-    predicate_class: Literal["independently_reconciled"]
+    predicate_class: Literal["recomputed"]
 
     @model_validator(mode="after")
     def validate_empty_cases(self) -> DependencyEnvironmentDiagnosticPass:
@@ -248,7 +236,7 @@ class DependencyEnvironmentDiagnosticFail(FoundryAuthorityModel):
         Field(min_length=1),
     ]
     first_case: DependencyEnvironmentDiagnosticCase
-    predicate_class: Literal["independently_reconciled"]
+    predicate_class: Literal["independently_reconciled", "recomputed"]
 
     @model_validator(mode="after")
     def validate_first_case(self) -> DependencyEnvironmentDiagnosticFail:
@@ -356,6 +344,43 @@ class DependencyProfileEnvironmentReceipt(FoundryAuthorityModel):
         if self.receipt_ref != expected:
             raise ValueError("environment receipt is not content-bound")
         return self
+
+
+class AmbientDependencyEnvironmentObservation(FoundryAuthorityModel):
+    """Ambient name/version observations with no source-identity claim."""
+
+    observation_kind: Literal["ambient"]
+    distributions: tuple[InstalledDistributionObservation, ...]
+
+
+class ReceiptBackedDependencyEnvironmentObservation(FoundryAuthorityModel):
+    """Candidate distribution evidence carried by a Foundry environment receipt."""
+
+    observation_kind: Literal["foundry_environment_receipt"]
+    environment_receipt: DependencyProfileEnvironmentReceipt
+
+
+DependencyEnvironmentObservation = Annotated[
+    AmbientDependencyEnvironmentObservation
+    | ReceiptBackedDependencyEnvironmentObservation,
+    Field(discriminator="observation_kind"),
+]
+
+
+_DEPENDENCY_ENVIRONMENT_OBSERVATION_ADAPTER = TypeAdapter(
+    DependencyEnvironmentObservation
+)
+
+
+@dataclass(frozen=True, slots=True)
+class _ComparableInstalledDistribution:
+    """Internal coordinates after the observation variant has been resolved."""
+
+    name: str
+    version: str
+    selected_artifact: (
+        DomainDigest[Literal[DigestDomain.SELECTED_DISTRIBUTION]] | None
+    )
 
 
 class DependencyProfileReconciliationPass(FoundryAuthorityModel):
@@ -826,7 +851,7 @@ def observe_installed_distributions(
     discriminant: DependencyProfileDiscriminant,
     *,
     installed_distributions: Iterable[metadata.Distribution] | None = None,
-) -> tuple[InstalledDistributionObservation, ...]:
+) -> AmbientDependencyEnvironmentObservation:
     """Observe generic installed name/version coordinates for the resolved closure.
 
     Args:
@@ -836,9 +861,9 @@ def observe_installed_distributions(
             another observer. Defaults to the current interpreter metadata.
 
     Returns:
-        Sorted observations projected only onto names in the resolved closure.
-        Source and selected-artifact identity are intentionally absent because
-        Python distribution metadata is not a Foundry source receipt.
+        One explicit ambient observation containing sorted rows projected only
+        onto names in the resolved closure. Source and selected-artifact
+        identity are absent because Python metadata is not a Foundry receipt.
     """
 
     expected_names = {row.name for row in discriminant.resolved_distributions}
@@ -862,37 +887,119 @@ def observe_installed_distributions(
                 version=raw_version,
             )
         )
-    return tuple(sorted(observed, key=lambda row: (row.name, row.version)))
+    return AmbientDependencyEnvironmentObservation(
+        observation_kind="ambient",
+        distributions=tuple(sorted(observed, key=lambda row: (row.name, row.version))),
+    )
+
+
+def _source_evidence_not_established(
+    discriminant: DependencyProfileDiscriminant,
+) -> DependencyEnvironmentDiagnosticNotEstablished:
+    return DependencyEnvironmentDiagnosticNotEstablished(
+        status="not_established",
+        code="installed_distribution_source_evidence_not_established",
+        missing_coordinates=tuple(
+            f"distribution:{row.name}:source_kind"
+            for row in discriminant.resolved_distributions
+        ),
+        predicate_class="not_established",
+    )
+
+
+def _resolve_receipt_backed_distributions(
+    *,
+    discriminant: DependencyProfileDiscriminant,
+    observation: ReceiptBackedDependencyEnvironmentObservation,
+    environment_root: Path | None,
+    evidence: DependencyProfileEnvironmentEvidence | None,
+) -> (
+    tuple[_ComparableInstalledDistribution, ...]
+    | DependencyEnvironmentDiagnosticNotEstablished
+):
+    if environment_root is None or evidence is None:
+        return _source_evidence_not_established(discriminant)
+    statement = _reopen_reconciled_environment_statement(
+        environment_root=environment_root,
+        environment_receipt=observation.environment_receipt,
+        evidence=evidence,
+    )
+    if not isinstance(statement, DependencyProfileEnvironmentStatement):
+        return _source_evidence_not_established(discriminant)
+    return tuple(
+        _ComparableInstalledDistribution(
+            name=canonicalize_name(row.normalized_name),
+            version=row.version,
+            selected_artifact=row.selected_artifact_ref.semantic_hash,
+        )
+        for row in statement.observed_distributions
+    )
 
 
 def _normalize_distribution_observations(
-    observed_distributions: Sequence[
-        InstalledDistributionObservation | Mapping[str, object]
-    ],
-) -> tuple[InstalledDistributionObservation, ...]:
-    normalized: list[InstalledDistributionObservation] = []
-    for row in observed_distributions:
+    *,
+    discriminant: DependencyProfileDiscriminant,
+    observed_distributions: (
+        DependencyEnvironmentObservation
+        | Mapping[str, object]
+        | Sequence[Mapping[str, object]]
+    ),
+    environment_root: Path | None,
+    evidence: DependencyProfileEnvironmentEvidence | None,
+) -> (
+    tuple[
+        tuple[_ComparableInstalledDistribution, ...],
+        Literal["independently_reconciled", "recomputed"],
+    ]
+    | DependencyEnvironmentDiagnosticNotEstablished
+):
+    try:
         observation = (
-            row
-            if isinstance(row, InstalledDistributionObservation)
-            else InstalledDistributionObservation.model_validate(row)
+            observed_distributions
+            if isinstance(
+                observed_distributions,
+                (
+                    AmbientDependencyEnvironmentObservation,
+                    ReceiptBackedDependencyEnvironmentObservation,
+                ),
+            )
+            else _DEPENDENCY_ENVIRONMENT_OBSERVATION_ADAPTER.validate_python(
+                observed_distributions
+            )
         )
-        normalized.append(
-            observation.model_copy(update={"name": canonicalize_name(observation.name)})
+    except ValidationError:
+        return _source_evidence_not_established(discriminant)
+    if isinstance(observation, AmbientDependencyEnvironmentObservation):
+        return (
+            tuple(
+                _ComparableInstalledDistribution(
+                    name=canonicalize_name(row.name),
+                    version=row.version,
+                    selected_artifact=None,
+                )
+                for row in observation.distributions
+            ),
+            "independently_reconciled",
         )
-    return tuple(normalized)
+    resolved = _resolve_receipt_backed_distributions(
+        discriminant=discriminant,
+        observation=observation,
+        environment_root=environment_root,
+        evidence=evidence,
+    )
+    if isinstance(resolved, DependencyEnvironmentDiagnosticNotEstablished):
+        return resolved
+    return resolved, "recomputed"
 
 
 def _compare_dependency_distributions(
     *,
     discriminant: DependencyProfileDiscriminant,
-    observed_distributions: Sequence[
-        InstalledDistributionObservation | Mapping[str, object]
-    ],
+    observations: tuple[_ComparableInstalledDistribution, ...],
+    predicate_class: Literal["independently_reconciled", "recomputed"],
 ) -> tuple[DependencyEnvironmentDiagnosticCase, ...]:
-    observations = _normalize_distribution_observations(observed_distributions)
     expected_by_name = {row.name: row for row in discriminant.resolved_distributions}
-    observed_by_name: dict[str, list[InstalledDistributionObservation]] = {}
+    observed_by_name: dict[str, list[_ComparableInstalledDistribution]] = {}
     for observation in observations:
         if observation.name in expected_by_name:
             observed_by_name.setdefault(observation.name, []).append(observation)
@@ -909,7 +1016,7 @@ def _compare_dependency_distributions(
                 coordinate="root_distribution",
                 expected=root_name,
                 observed="missing",
-                predicate_class="independently_reconciled",
+                predicate_class=predicate_class,
             )
         )
 
@@ -924,7 +1031,7 @@ def _compare_dependency_distributions(
                         coordinate=f"distribution:{name}:missing",
                         expected=f"{expected.name}=={expected.version}",
                         observed="missing",
-                        predicate_class="independently_reconciled",
+                        predicate_class=predicate_class,
                     )
                 )
             continue
@@ -935,18 +1042,13 @@ def _compare_dependency_distributions(
                     coordinate=f"distribution:{name}:identity",
                     expected="one_observation",
                     observed=f"{len(matches)}_observations",
-                    predicate_class="independently_reconciled",
+                    predicate_class=predicate_class,
                 )
             )
             continue
         observed = matches[0]
         comparisons: tuple[tuple[str, str, str], ...] = (
             ("version", expected.version, observed.version),
-            (
-                "source_kind",
-                expected.source_kind,
-                observed.source_kind or expected.source_kind,
-            ),
         )
         for field_name, expected_value, observed_value in comparisons:
             if expected_value != observed_value:
@@ -956,7 +1058,7 @@ def _compare_dependency_distributions(
                     field=field_name,
                     expected=expected_value,
                     observed=observed_value,
-                    predicate_class="independently_reconciled",
+                    predicate_class=predicate_class,
                 )
                 disagreement_cases.append((name, field_name, case))
         if (
@@ -969,7 +1071,7 @@ def _compare_dependency_distributions(
                 field="selected_artifact",
                 expected=expected.selected_artifact.value,
                 observed=observed.selected_artifact.value,
-                predicate_class="independently_reconciled",
+                predicate_class=predicate_class,
             )
             disagreement_cases.append((name, "selected_artifact", case))
 
@@ -984,9 +1086,13 @@ def _compare_dependency_distributions(
 def compare_dependency_distributions(
     *,
     discriminant: DependencyProfileDiscriminant,
-    observed_distributions: Sequence[
-        InstalledDistributionObservation | Mapping[str, object]
-    ],
+    observed_distributions: (
+        DependencyEnvironmentObservation
+        | Mapping[str, object]
+        | Sequence[Mapping[str, object]]
+    ),
+    environment_root: Path | None = None,
+    evidence: DependencyProfileEnvironmentEvidence | None = None,
 ) -> tuple[DependencyEnvironmentDiagnosticCase, ...]:
     """Return every generic disagreement in the v1 deterministic case order.
 
@@ -994,42 +1100,75 @@ def compare_dependency_distributions(
         discriminant: Recomputed dependency-only expectation.
         observed_distributions: Ephemeral installed coordinates. Rows outside
             the resolved closure are deliberately non-decisive.
+        environment_root: Root whose retained marker resolves a receipt-backed
+            observation. Ambient observations do not use it.
+        evidence: Exact retained marker reader for a receipt-backed observation.
 
     Returns:
         All observable diagnostic cases in rule-defined order.
     """
 
-    return _compare_dependency_distributions(
+    normalized = _normalize_distribution_observations(
         discriminant=discriminant,
         observed_distributions=observed_distributions,
+        environment_root=environment_root,
+        evidence=evidence,
+    )
+    if isinstance(normalized, DependencyEnvironmentDiagnosticNotEstablished):
+        return ()
+    observations, predicate_class = normalized
+    return _compare_dependency_distributions(
+        discriminant=discriminant,
+        observations=observations,
+        predicate_class=predicate_class,
     )
 
 
 def diagnose_dependency_environment(
     *,
     discriminant: DependencyProfileDiscriminant,
-    observed_distributions: Sequence[
-        InstalledDistributionObservation | Mapping[str, object]
-    ],
+    observed_distributions: (
+        DependencyEnvironmentObservation
+        | Mapping[str, object]
+        | Sequence[Mapping[str, object]]
+    ),
+    environment_root: Path | None = None,
+    evidence: DependencyProfileEnvironmentEvidence | None = None,
 ) -> DependencyEnvironmentDiagnosticResult:
     """Diagnose installed coordinates without producing authority admission.
 
     Args:
         discriminant: Recomputed dependency-only expectation.
-        observed_distributions: Ephemeral installed coordinates.
+        observed_distributions: Explicit ambient or Foundry-receipt-backed
+            observation. Legacy row sequences are unusable evidence.
+        environment_root: Root whose retained marker resolves a receipt-backed
+            observation. Ambient observations do not use it.
+        evidence: Exact retained marker reader for a receipt-backed observation.
 
     Returns:
         A passing or failing non-decisive diagnostic, or a typed non-receipt
         when source-kind evidence needed for a pass is unavailable.
     """
 
-    canonical_cases = _compare_dependency_distributions(
+    normalized = _normalize_distribution_observations(
         discriminant=discriminant,
         observed_distributions=observed_distributions,
+        environment_root=environment_root,
+        evidence=evidence,
+    )
+    if isinstance(normalized, DependencyEnvironmentDiagnosticNotEstablished):
+        return normalized
+    observations, predicate_class = normalized
+    canonical_cases = _compare_dependency_distributions(
+        discriminant=discriminant,
+        observations=observations,
+        predicate_class=predicate_class,
     )
     reported_cases = compare_dependency_distributions(
         discriminant=discriminant,
         observed_distributions=observed_distributions,
+        environment_root=environment_root,
+        evidence=evidence,
     )
     cases = reported_cases if reported_cases == canonical_cases else canonical_cases
     if cases:
@@ -1037,29 +1176,15 @@ def diagnose_dependency_environment(
             status="fail",
             ordered_cases=cases,
             first_case=cases[0],
-            predicate_class="independently_reconciled",
+            predicate_class=predicate_class,
         )
-    normalized = _normalize_distribution_observations(observed_distributions)
-    expected_names = {row.name for row in discriminant.resolved_distributions}
-    missing_source = tuple(
-        sorted(
-            f"distribution:{row.name}:source_kind"
-            for row in normalized
-            if row.name in expected_names and row.source_kind is None
-        )
-    )
-    if missing_source:
-        return DependencyEnvironmentDiagnosticNotEstablished(
-            status="not_established",
-            code="installed_distribution_source_evidence_not_established",
-            missing_coordinates=missing_source,
-            predicate_class="not_established",
-        )
+    if predicate_class == "independently_reconciled":
+        return _source_evidence_not_established(discriminant)
     return DependencyEnvironmentDiagnosticPass(
         status="pass",
         ordered_cases=(),
         first_case=None,
-        predicate_class="independently_reconciled",
+        predicate_class="recomputed",
     )
 
 
@@ -1131,6 +1256,51 @@ def _reopen_bound_environment_marker(
         return _missing_environment_marker()
 
 
+def _reopen_reconciled_environment_statement(
+    *,
+    environment_root: Path,
+    environment_receipt: DependencyProfileEnvironmentReceipt,
+    evidence: DependencyProfileEnvironmentEvidence,
+) -> DependencyProfileEnvironmentStatement | AuthorityPredicateFailure:
+    """Resolve one content-bound candidate receipt against retained marker bytes."""
+
+    statement = environment_receipt.statement
+    reopened_marker = _reopen_bound_environment_marker(
+        environment_root=environment_root,
+        expected_marker_ref=statement.marker_ref,
+        evidence=evidence,
+    )
+    if not isinstance(reopened_marker, DependencyEnvironmentMarkerStatement):
+        return reopened_marker
+    observed_statement = statement.model_copy(
+        update={
+            "stable_closure": reopened_marker.stable_closure,
+            "python_runtime_installation_ref": (
+                reopened_marker.python_runtime_installation_ref
+            ),
+            "python_runtime_verification_ref": (
+                reopened_marker.python_runtime_verification_ref
+            ),
+            "instance_content_set": reopened_marker.instance_content_set,
+        }
+    )
+    if observed_statement == statement:
+        return statement
+    observed_receipt_ref = record_ref(
+        DigestDomain.ENVIRONMENT_RECEIPT,
+        canonical_json_bytes(observed_statement.model_dump(mode="json")),
+        schema_version=observed_statement.schema_version,
+    )
+    return DigestPredicateMismatch(
+        kind="digest_mismatch",
+        predicate_id=AuthorityPredicateId.ENVIRONMENT_RECEIPT,
+        code=AuthorityFailureCode.ENVIRONMENT_MISMATCH,
+        expected=environment_receipt.receipt_ref.semantic_hash,
+        observed=observed_receipt_ref.semantic_hash,
+        predicate_class="independently_reconciled",
+    )
+
+
 def reconcile_bound_installed_environment(
     profile: ResolvedMethodCatalogDependencyProfile,
     *,
@@ -1169,42 +1339,17 @@ def reconcile_bound_installed_environment(
             )
         )
 
-    reopened_marker = _reopen_bound_environment_marker(
+    reopened_statement = _reopen_reconciled_environment_statement(
         environment_root=environment_root,
-        expected_marker_ref=statement.marker_ref,
+        environment_receipt=environment_receipt,
         evidence=evidence,
     )
-    if not isinstance(reopened_marker, DependencyEnvironmentMarkerStatement):
-        failures.append(reopened_marker)
+    if not isinstance(reopened_statement, DependencyProfileEnvironmentStatement):
+        failures.append(reopened_statement)
         return DependencyProfileReconciliationFail(
             status="fail",
             profile_id=profile.declaration.profile_id,
             failures=tuple(failures),
-        )
-    marker = reopened_marker
-    observed_statement = statement.model_copy(
-        update={
-            "stable_closure": marker.stable_closure,
-            "python_runtime_installation_ref": marker.python_runtime_installation_ref,
-            "python_runtime_verification_ref": marker.python_runtime_verification_ref,
-            "instance_content_set": marker.instance_content_set,
-        }
-    )
-    if observed_statement != statement:
-        observed_receipt_ref = record_ref(
-            DigestDomain.ENVIRONMENT_RECEIPT,
-            canonical_json_bytes(observed_statement.model_dump(mode="json")),
-            schema_version=observed_statement.schema_version,
-        )
-        failures.append(
-            DigestPredicateMismatch(
-                kind="digest_mismatch",
-                predicate_id=AuthorityPredicateId.ENVIRONMENT_RECEIPT,
-                code=AuthorityFailureCode.ENVIRONMENT_MISMATCH,
-                expected=environment_receipt.receipt_ref.semantic_hash,
-                observed=observed_receipt_ref.semantic_hash,
-                predicate_class="independently_reconciled",
-            )
         )
 
     if observed != expected or statement.stable_content_set != profile.stable_content_set:
@@ -1261,11 +1406,13 @@ def reconcile_bound_installed_environment(
 
 
 __all__ = [
+    "AmbientDependencyEnvironmentObservation",
     "DependencyEnvironmentDiagnosticCase",
     "DependencyEnvironmentDiagnosticFail",
     "DependencyEnvironmentDiagnosticNotEstablished",
     "DependencyEnvironmentDiagnosticPass",
     "DependencyEnvironmentDiagnosticResult",
+    "DependencyEnvironmentObservation",
     "DependencyProfileDiscriminant",
     "DependencyProfileCandidateFailure",
     "DependencyProfileEnvironmentReceipt",
@@ -1280,6 +1427,7 @@ __all__ = [
     "ProductionDataManifestMissingFailure",
     "ProductionDataManifestPresent",
     "ProductionDataManifestUnavailable",
+    "ReceiptBackedDependencyEnvironmentObservation",
     "ResolvedMethodCatalogDependencyProfile",
     "compare_dependency_distributions",
     "declaration_ref",

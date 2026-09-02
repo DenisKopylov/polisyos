@@ -25,7 +25,11 @@ by domain family and registered into the shared `MethodRegistry`.
 - **Dependency discriminant** - `resolve_dependency_discriminant()` recomputes
   the complete selected lock closure from tracked dependency bytes without
   reading production data. `diagnose_dependency_environment()` compares
-  ephemeral installed coordinates generically and is ambient/non-decisive.
+  ephemeral installed coordinates generically and is non-decisive. Ambient
+  observations carry name/version only and cannot establish source identity;
+  selected-artifact comparison requires a content-bound Foundry environment
+  receipt reconciled against its retained marker bytes and remains candidate
+  evidence.
 
 ## Public API
 

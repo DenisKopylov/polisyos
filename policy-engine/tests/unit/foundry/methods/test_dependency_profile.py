@@ -6707,6 +6707,28 @@ def _resolve_dependency_discriminant_from_owner_data(
     )
 
 
+def _resolve_dependency_profile_from_owner_data(
+    declaration: MethodCatalogDependencyProfileDeclaration,
+    *,
+    lockfile_bytes: bytes | None = None,
+) -> ResolvedMethodCatalogDependencyProfile:
+    """Resolve a candidate profile solely to produce an existing receipt fixture."""
+
+    result = resolve_dependency_profile(
+        declaration,
+        pyproject_bytes=(_PRODUCT_ROOT / "pyproject.toml").read_bytes(),
+        lockfile_bytes=lockfile_bytes or (_PRODUCT_ROOT / "uv.lock").read_bytes(),
+        marker_environment=_marker_environment(),
+        production_data_manifest=ProductionDataManifestPresent(
+            kind="present",
+            exact_bytes=b"{}",
+        ),
+        admission=_admission(declaration),
+    )
+    assert isinstance(result, ResolvedMethodCatalogDependencyProfile)
+    return result
+
+
 def _matching_dependency_observations(discriminant: object) -> tuple[dict[str, str], ...]:
     """Project only the resolved closure into generic installed coordinates."""
 
@@ -6718,7 +6740,6 @@ def _matching_dependency_observations(discriminant: object) -> tuple[dict[str, s
         {
             "name": row.name,
             "version": row.version,
-            "source_kind": row.source_kind,
         }
         for row in rows
     )
@@ -6734,7 +6755,32 @@ def _diagnose_dependency_environment(
     assert callable(diagnoser), (
         "missing behavior: Foundry must diagnose installed coordinates against the discriminant"
     )
-    return diagnoser(discriminant=discriminant, observed_distributions=observations)
+    return diagnoser(
+        discriminant=discriminant,
+        observed_distributions={
+            "observation_kind": "ambient",
+            "distributions": observations,
+        },
+    )
+
+
+def _diagnose_receipt_backed_dependency_environment(
+    discriminant: object,
+    fixture: _CandidateEnvironmentFixture,
+) -> object:
+    """Resolve a candidate Foundry receipt before comparing source identity."""
+
+    diagnoser = getattr(profile_module, "diagnose_dependency_environment", None)
+    assert callable(diagnoser)
+    return diagnoser(
+        discriminant=discriminant,
+        observed_distributions={
+            "observation_kind": "foundry_environment_receipt",
+            "environment_receipt": fixture.receipt,
+        },
+        environment_root=fixture.root,
+        evidence=fixture.evidence,
+    )
 
 
 def _diagnostic_coordinate(result: object) -> str | None:
@@ -6742,6 +6788,116 @@ def _diagnostic_coordinate(result: object) -> str | None:
 
     first_case = getattr(result, "first_case", None)
     return getattr(first_case, "coordinate", None)
+
+
+def test_forged_ambient_source_and_artifact_mapping_is_not_established() -> None:
+    declaration = _tracked_owner_declaration(
+        profile_id="forged-ambient-source",
+        extras=("research",),
+    )
+    discriminant = _resolve_dependency_discriminant_from_owner_data(declaration)
+    forged = tuple(
+        {
+            "name": row.name,
+            "version": row.version,
+            "source_kind": row.source_kind,
+            "selected_artifact": row.selected_artifact,
+            "selected_artifact_predicate_class": "independently_reconciled",
+        }
+        for row in discriminant.distributions
+    )
+
+    legacy_result = profile_module.diagnose_dependency_environment(
+        discriminant=discriminant,
+        observed_distributions=forged,
+    )
+    discriminated_result = profile_module.diagnose_dependency_environment(
+        discriminant=discriminant,
+        observed_distributions={
+            "observation_kind": "ambient",
+            "distributions": forged,
+        },
+    )
+
+    assert legacy_result.status == "not_established"
+    assert legacy_result.predicate_class == "not_established"
+    assert discriminated_result.status == "not_established"
+    assert discriminated_result.predicate_class == "not_established"
+
+
+def test_source_and_artifact_diagnostic_requires_reconciled_foundry_receipt(
+    tmp_path: Path,
+) -> None:
+    profile = _resolve_tracked_profile()
+    discriminant = _resolve_dependency_discriminant_from_owner_data(profile.declaration)
+    fixture = _candidate_environment_fixture(
+        tmp_path,
+        profile,
+        label="receipt-backed-diagnostic",
+    )
+    target = profile.distributions[0]
+    mismatch_fixture = _candidate_environment_fixture(
+        tmp_path,
+        profile,
+        label="receipt-backed-source-mismatch",
+        selected_overrides={
+            target.name: (
+                target.version,
+                domain_digest(
+                    DigestDomain.SELECTED_DISTRIBUTION,
+                    b"receipt-backed-selected-artifact-mismatch",
+                ),
+            )
+        },
+    )
+
+    unresolved = profile_module.diagnose_dependency_environment(
+        discriminant=discriminant,
+        observed_distributions={
+            "observation_kind": "foundry_environment_receipt",
+            "environment_receipt": fixture.receipt,
+        },
+    )
+    result = profile_module.diagnose_dependency_environment(
+        discriminant=discriminant,
+        observed_distributions={
+            "observation_kind": "foundry_environment_receipt",
+            "environment_receipt": fixture.receipt,
+        },
+        environment_root=fixture.root,
+        evidence=fixture.evidence,
+    )
+    mismatch = _diagnose_receipt_backed_dependency_environment(
+        discriminant,
+        mismatch_fixture,
+    )
+    marker_path = (
+        fixture.root
+        / ".polisyos-foundry-authority-v1"
+        / "environment-marker.json"
+    )
+    marker_path.write_bytes(b"corrupt retained marker")
+    corrupt = profile_module.diagnose_dependency_environment(
+        discriminant=discriminant,
+        observed_distributions={
+            "observation_kind": "foundry_environment_receipt",
+            "environment_receipt": fixture.receipt,
+        },
+        environment_root=fixture.root,
+        evidence=fixture.evidence,
+    )
+
+    assert unresolved.status == "not_established"
+    assert unresolved.predicate_class == "not_established"
+    assert result.status == "pass"
+    assert result.predicate_class == "recomputed"
+    assert mismatch.status == "fail"
+    assert mismatch.predicate_class == "recomputed"
+    assert mismatch.first_case.coordinate == (
+        f"distribution:{target.name}:selected_artifact"
+    )
+    assert corrupt.status == "not_established"
+    assert corrupt.predicate_class == "not_established"
 
 
 def _actual_consumer_governing_bytes(diagnostic_verification: object | None) -> tuple[bytes, ...]:
@@ -6820,21 +6976,36 @@ def _scratch_profile_registry(
     return registry
 
 
-def test_cb_i02_research_profile_names_torch_as_first_generic_case() -> None:
+def test_cb_i02_research_profile_names_torch_as_first_generic_case(
+    tmp_path: Path,
+) -> None:
     research = _tracked_owner_declaration(profile_id="research", extras=("research",))
     discriminant = _resolve_dependency_discriminant_from_owner_data(research)
-    observations = list(_matching_dependency_observations(discriminant))
-    torch = next(row for row in observations if row["name"] == "torch")
-    assert torch["version"] == "2.10.0"
-    torch["source_kind"] = "installed-metadata"
-    governing_without_diagnostic = _actual_consumer_governing_bytes(None)
+    profile = _resolve_dependency_profile_from_owner_data(research)
+    torch = next(row for row in discriminant.distributions if row.name == "torch")
+    assert torch.version == "2.10.0"
+    fixture = _candidate_environment_fixture(
+        tmp_path,
+        profile,
+        label="research-source-mismatch",
+        selected_overrides={
+            "torch": (
+                torch.version,
+                domain_digest(
+                    DigestDomain.SELECTED_DISTRIBUTION,
+                    b"different-receipt-backed-torch-source",
+                ),
+            )
+        },
+    )
 
-    result = _diagnose_dependency_environment(discriminant, tuple(observations))
-    governing_with_diagnostic = _actual_consumer_governing_bytes(result)
+    result = _diagnose_receipt_backed_dependency_environment(discriminant, fixture)
 
     assert getattr(result, "status", None) == "fail"
     assert _diagnostic_coordinate(result) is not None
     assert _diagnostic_coordinate(result).startswith("distribution:torch:")
+    governing_without_diagnostic = _actual_consumer_governing_bytes(None)
+    governing_with_diagnostic = _actual_consumer_governing_bytes(result)
     assert governing_with_diagnostic == governing_without_diagnostic
 
 
@@ -6843,7 +7014,12 @@ def test_cb_i02a_label_and_shape_cannot_mask_two_data_generated_incompatibilitie
 ) -> None:
     research = _tracked_owner_declaration(profile_id="same-label", extras=("research",))
     baseline = _resolve_dependency_discriminant_from_owner_data(research)
-    observations = _matching_dependency_observations(baseline)
+    baseline_profile = _resolve_dependency_profile_from_owner_data(research)
+    fixture = _candidate_environment_fixture(
+        tmp_path,
+        baseline_profile,
+        label="same-label-baseline",
+    )
     lockfile_bytes = (_PRODUCT_ROOT / "uv.lock").read_bytes()
     target = next(row for row in baseline.distributions if row.name == "torch")
     needle = f'name = "{target.name}"\nversion = "{target.version}"'.encode()
@@ -6860,8 +7036,7 @@ def test_cb_i02a_label_and_shape_cannot_mask_two_data_generated_incompatibilitie
         same_label,
         lockfile_bytes=mutated_lock,
     )
-    governing_without_diagnostic = _actual_consumer_governing_bytes(None)
-    mutated_result = _diagnose_dependency_environment(mutated, observations)
+    mutated_result = _diagnose_receipt_backed_dependency_environment(mutated, fixture)
 
     registry = _scratch_profile_registry(
         tmp_path,
@@ -6873,36 +7048,72 @@ def test_cb_i02a_label_and_shape_cannot_mask_two_data_generated_incompatibilitie
         profile_id="zz-second-data-generated-profile",
     )
     second = _resolve_dependency_discriminant_from_owner_data(second_profile)
-    second_result = _diagnose_dependency_environment(second, observations)
+    second_result = _diagnose_receipt_backed_dependency_environment(second, fixture)
 
     assert getattr(mutated_result, "status", None) == "fail"
     assert getattr(second_result, "status", None) == "fail"
-    assert _diagnostic_coordinate(mutated_result) == f"distribution:{target.name}:version"
-    second_names = {row["name"] for row in observations}
+    assert (
+        _diagnostic_coordinate(mutated_result)
+        == f"distribution:{target.name}:selected_artifact"
+    )
+    second_names = {row.name for row in baseline.distributions}
     second_missing = sorted(
         row.name for row in second.distributions if row.name not in second_names
     )
     assert second_missing
     assert _diagnostic_coordinate(second_result) == f"distribution:{second_missing[0]}:missing"
+    governing_without_diagnostic = _actual_consumer_governing_bytes(None)
     assert _actual_consumer_governing_bytes(mutated_result) == governing_without_diagnostic
     assert _actual_consumer_governing_bytes(second_result) == governing_without_diagnostic
     assert research.profile_id == same_label.profile_id
 
 
-def test_cb_i03_outside_closure_difference_is_diagnostic_irrelevant() -> None:
+def test_cb_i03_outside_closure_difference_is_diagnostic_irrelevant(
+    tmp_path: Path,
+) -> None:
     declaration = _tracked_owner_declaration(profile_id="irrelevant-extra", extras=("research",))
     discriminant = _resolve_dependency_discriminant_from_owner_data(declaration)
-    matching = _matching_dependency_observations(discriminant)
-    with_irrelevant = matching + (
-        {
-            "name": "outside-selected-closure",
-            "version": "1.0.0",
-            "source_kind": "installed-metadata",
-        },
+    profile = _resolve_dependency_profile_from_owner_data(declaration)
+    baseline_fixture = _candidate_environment_fixture(
+        tmp_path,
+        profile,
+        label="inside-selected-closure",
+    )
+    outside = authority_module.evidence_module.InstalledDistributionIdentity(
+        normalized_name="outside-selected-closure",
+        version="1.0.0",
+        selected_artifact_ref=_c1_ref(
+            DigestDomain.SELECTED_DISTRIBUTION,
+            "outside:selected",
+        ),
+        observed_stable_manifest_ref=_c1_ref(
+            DigestDomain.INSTALLED_STABLE,
+            "outside:stable",
+        ),
+        observed_instance_manifest_ref=_c1_ref(
+            DigestDomain.INSTALLED_INSTANCE,
+            "outside:instance",
+        ),
+        observed_source_binding_ref=_c1_ref(
+            DigestDomain.INSTALLED_BINDING,
+            "outside:binding",
+        ),
+    )
+    extra_fixture = _candidate_environment_fixture(
+        tmp_path,
+        profile,
+        label="outside-selected-closure",
+        extra_distributions=(outside,),
     )
 
-    baseline = _diagnose_dependency_environment(discriminant, matching)
-    observed = _diagnose_dependency_environment(discriminant, with_irrelevant)
+    baseline = _diagnose_receipt_backed_dependency_environment(
+        discriminant,
+        baseline_fixture,
+    )
+    observed = _diagnose_receipt_backed_dependency_environment(
+        discriminant,
+        extra_fixture,
+    )
 
     assert getattr(baseline, "status", None) == getattr(observed, "status", None) == "pass"
     assert _diagnostic_coordinate(baseline) == _diagnostic_coordinate(observed) is None
@@ -6919,10 +7130,16 @@ def test_cb_i03a_novel_admitted_profile_verifies_from_owner_data(tmp_path: Path)
         profile_id="zz-novel-admitted-profile",
     )
     discriminant = _resolve_dependency_discriminant_from_owner_data(declaration)
+    profile = _resolve_dependency_profile_from_owner_data(declaration)
+    fixture = _candidate_environment_fixture(
+        tmp_path,
+        profile,
+        label="novel-admitted-profile",
+    )
 
-    result = _diagnose_dependency_environment(
+    result = _diagnose_receipt_backed_dependency_environment(
         discriminant,
-        _matching_dependency_observations(discriminant),
+        fixture,
     )
 
     assert getattr(result, "status", None) == "pass"
@@ -6953,10 +7170,15 @@ def test_p33_profile_labels_cannot_override_recomputed_closure_content(tmp_path:
     first = _tracked_owner_declaration(profile_id="label-one", extras=("research",))
     renamed = _tracked_owner_declaration(profile_id="label-two", extras=("research",))
     first_discriminant = _resolve_dependency_discriminant_from_owner_data(first)
-    observations = _matching_dependency_observations(first_discriminant)
-    renamed_result = _diagnose_dependency_environment(
+    first_profile = _resolve_dependency_profile_from_owner_data(first)
+    fixture = _candidate_environment_fixture(
+        tmp_path,
+        first_profile,
+        label="label-independent-receipt",
+    )
+    renamed_result = _diagnose_receipt_backed_dependency_environment(
         _resolve_dependency_discriminant_from_owner_data(renamed),
-        observations,
+        fixture,
     )
     registry = _scratch_profile_registry(
         tmp_path,
@@ -6967,9 +7189,9 @@ def test_p33_profile_labels_cannot_override_recomputed_closure_content(tmp_path:
         load_dependency_profile_registry(registry),
         profile_id="zz-label-independent-profile",
     )
-    second_result = _diagnose_dependency_environment(
+    second_result = _diagnose_receipt_backed_dependency_environment(
         _resolve_dependency_discriminant_from_owner_data(second),
-        observations,
+        fixture,
     )
 
     assert getattr(renamed_result, "status", None) == "pass"

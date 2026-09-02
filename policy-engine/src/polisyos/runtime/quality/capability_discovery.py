@@ -70,6 +70,9 @@ LEX_CAPABILITY_DISCOVERY_PROVIDER_REF = "runtime-quality:lex-capability-discover
 SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF = (
     "runtime-quality:scientist-registry-capability-discovery-provider"
 )
+CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF = (
+    "runtime-quality:connector-source-profile-snapshot-producer"
+)
 LEX_LEGAL_NORM_ADMISSION_VERIFIER_REF = (
     "runtime-quality:capability-index-compiler:legal-norm-owner-truth"
 )
@@ -287,6 +290,104 @@ class ScientistRegistrySnapshot(BaseModel):
         if any(entry.registry_kind != self.registry_kind for entry in self.entries):
             raise ValueError("Scientist registry snapshot entries do not match registry_kind")
         return self
+
+
+class ConnectorRegistryCapabilityRecord(BaseModel):
+    """Secret-free discovery projection of one registered connector."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    connector_ref: str = Field(min_length=1)
+    namespace: str = Field(min_length=1)
+    version: str = Field(min_length=1)
+    declared_capabilities: int = Field(ge=0)
+    known_datasets: tuple[str, ...]
+
+
+class SourceProfileRegistryCapabilityRecord(BaseModel):
+    """Immutable source-profile content plus its matched connector membership."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    profile_id: str = Field(min_length=1)
+    display_name: str = Field(min_length=1)
+    description: str
+    connector_family: str = Field(min_length=1)
+    connector_available: bool
+    definition: dict[str, object]
+
+    @model_validator(mode="after")
+    def _identity_matches_definition(self) -> SourceProfileRegistryCapabilityRecord:
+        expected = {
+            "profile_id": self.profile_id,
+            "display_name": self.display_name,
+            "description": self.description,
+            "connector_family": self.connector_family,
+        }
+        if any(self.definition.get(key) != value for key, value in expected.items()):
+            raise ValueError("source-profile snapshot fields differ from definition")
+        return self
+
+
+class ConnectorRegistryCapabilitySnapshot(BaseModel):
+    """Canonical connector half of one paired source-discovery snapshot."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["fabric.connector_registry.v1"] = (
+        "fabric.connector_registry.v1"
+    )
+    producer_ref: Literal[
+        "runtime-quality:connector-source-profile-snapshot-producer"
+    ] = CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF
+    observed_at: datetime
+    entries: tuple[ConnectorRegistryCapabilityRecord, ...]
+
+    @model_validator(mode="after")
+    def _entries_are_unique_and_ordered(self) -> ConnectorRegistryCapabilitySnapshot:
+        if self.observed_at.tzinfo is None:
+            raise ValueError("connector snapshot observed_at must be timezone-aware")
+        refs = tuple(entry.connector_ref for entry in self.entries)
+        if refs != tuple(sorted(refs)) or len(refs) != len(set(refs)):
+            raise ValueError("connector snapshot entries must be unique and ordered")
+        return self
+
+
+class SourceProfileRegistryCapabilitySnapshot(BaseModel):
+    """Canonical source-profile half of one paired source-discovery snapshot."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["fabric.source_profile_registry.v1"] = (
+        "fabric.source_profile_registry.v1"
+    )
+    producer_ref: Literal[
+        "runtime-quality:connector-source-profile-snapshot-producer"
+    ] = CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF
+    observed_at: datetime
+    profiles: tuple[SourceProfileRegistryCapabilityRecord, ...]
+
+    @model_validator(mode="after")
+    def _profiles_are_unique_and_ordered(self) -> SourceProfileRegistryCapabilitySnapshot:
+        if self.observed_at.tzinfo is None:
+            raise ValueError("source-profile snapshot observed_at must be timezone-aware")
+        ids = tuple(profile.profile_id for profile in self.profiles)
+        if ids != tuple(sorted(ids)) or len(ids) != len(set(ids)):
+            raise ValueError("source-profile snapshot entries must be unique and ordered")
+        return self
+
+
+@dataclass(frozen=True, slots=True)
+class _SourceProfileDiscoverySnapshot:
+    """Cached join over paired, content-bound connector/profile snapshots."""
+
+    connector_snapshot_ref: str
+    connector_snapshot_digest: str
+    profile_snapshot_ref: str
+    profile_snapshot_digest: str
+    search_snapshot_ref: str
+    search_snapshot_digest: str
+    rows: tuple[CapabilityIndexDiscoveryRow, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -677,6 +778,213 @@ def project_layer3_owner_frontier(frontier: SearchFrontier) -> SearchFrontier:
     if type(frontier) is not SearchFrontier:
         raise TypeError("DS10 accepts only a native SearchFrontier owner artifact")
     return SearchFrontier.model_validate(frontier.model_dump(mode="python"))
+
+
+class ConnectorSourceProfileSnapshotProducer:
+    """Persist paired registries and serve candidate-grade source discovery."""
+
+    def __init__(
+        self,
+        *,
+        connectors: object,
+        source_profiles: object,
+        observed_at: Callable[[], datetime] | None = None,
+    ) -> None:
+        self._connectors = connectors
+        self._source_profiles = source_profiles
+        self._observed_at = observed_at or (lambda: datetime.now(UTC))
+        self._artifact_store: core.artifacts.ArtifactStore | None = None
+        self._snapshot: _SourceProfileDiscoverySnapshot | None = None
+        self._snapshot_lock = threading.Lock()
+
+    @property
+    def resource_kind(self) -> Literal["source"]:
+        """Return the source kind owned by the paired registries."""
+        return "source"
+
+    def bind_artifact_store(self, store: core.artifacts.ArtifactStore) -> None:
+        """Bind the runtime CAS exactly once without reading either registry."""
+        required = ("put_json", "get_bytes", "get_manifest", "has")
+        if any(not callable(getattr(store, method, None)) for method in required):
+            raise TypeError("source-profile discovery requires an ArtifactStore")
+        if self._artifact_store is not None and self._artifact_store is not store:
+            raise RuntimeError("source-profile discovery artifact store is already bound")
+        self._artifact_store = store
+
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
+        """Return a content-bound ledger over the persisted paired snapshot."""
+        snapshot = self._resolve_snapshot()
+        terms = _owner_search_terms(request)
+        matches = (
+            list(snapshot.rows)
+            if not terms
+            else [row for row in snapshot.rows if _row_match_count(row, terms)]
+        )
+        limit = _owner_search_limit(request, fallback=len(matches))
+        selected_rows = tuple(
+            sorted(
+                matches,
+                key=lambda row: (-_row_match_count(row, terms), row.capability_ref),
+            )[:limit]
+        )
+        selected_refs = {row.capability_ref for row in selected_rows}
+        matching_refs = {row.capability_ref for row in matches}
+        selected = tuple(_source_profile_search_candidate(row, terms) for row in selected_rows)
+        rejected = tuple(
+            _source_profile_search_candidate(
+                row,
+                terms,
+                limitation=(
+                    "source_profile_registry_budget_cutoff"
+                    if row.capability_ref in matching_refs
+                    else "source_profile_registry_query_mismatch"
+                ),
+            )
+            for row in snapshot.rows
+            if row.capability_ref not in selected_refs
+        )
+        budget_cutoff = len(matches) > limit
+        completeness_status, incompleteness_reasons = _source_profile_completeness(
+            has_selected=bool(selected_rows),
+            budget_cutoff=budget_cutoff,
+        )
+        ledger = SearchLedger(
+            request_ref=request.search.request_id,
+            query_plan={
+                "match": "all_terms_over_content_bound_source_profiles",
+                "resource_kind": self.resource_kind,
+                "list_dto_as_discovery_evidence": "forbidden",
+                "registry_membership_as_execution_evidence": "forbidden",
+            },
+            corpus_ref=snapshot.search_snapshot_ref,
+            corpus_path="runtime/quality/capability_discovery.py",
+            corpus_snapshot_hash=snapshot.search_snapshot_digest,
+            corpus_kind="canonical",
+            indexes_used=("source_profile_registry", "connector_registry"),
+            index_version_refs=(
+                snapshot.profile_snapshot_ref,
+                snapshot.connector_snapshot_ref,
+            ),
+            index_freshness={
+                "source_profile_registry": {
+                    "state": "current",
+                    "snapshot_ref": snapshot.profile_snapshot_ref,
+                },
+                "connector_registry": {
+                    "state": "current",
+                    "snapshot_ref": snapshot.connector_snapshot_ref,
+                },
+            },
+            candidates=selected,
+            rejected_candidates=rejected,
+            no_hit_frontier=() if selected_rows else (self.resource_kind,),
+            incompleteness={
+                "status": completeness_status,
+                "reason_codes": list(incompleteness_reasons),
+            },
+            replay_key=(
+                "connector-source-profile-snapshot:"
+                + snapshot.search_snapshot_digest.removeprefix("sha256:")
+            ),
+            replay_command="capability-discovery:connector-source-profile-snapshot",
+            replay_expected_output_hash=snapshot.search_snapshot_digest,
+        )
+        payload = {
+            "resource_kind": self.resource_kind,
+            "producer_ref": CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF,
+            "rows": selected_rows,
+            "ledger": ledger,
+            "requested_count": limit,
+            "evaluated_count": len(snapshot.rows),
+            "actual_cutoff": limit if budget_cutoff else None,
+            "completeness_status": completeness_status,
+            "incompleteness_reasons": incompleteness_reasons,
+        }
+        result_digest = "sha256:" + _digest(
+            {
+                **payload,
+                "rows": [row.model_dump(mode="json") for row in selected_rows],
+                "ledger": ledger.model_dump(mode="json"),
+            }
+        )
+        provenance_refs = (
+            CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF,
+            snapshot.search_snapshot_ref,
+            snapshot.connector_snapshot_ref,
+            snapshot.profile_snapshot_ref,
+        )
+        receipt = SourceProfileOwnerReceipt(
+            owner_producer_ref=CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF,
+            search_snapshot_ref=snapshot.search_snapshot_ref,
+            search_snapshot_digest=snapshot.search_snapshot_digest,
+            result_digest=result_digest,
+            provenance_refs=provenance_refs,
+            profile_registry_snapshot_ref=snapshot.profile_snapshot_ref,
+            profile_registry_snapshot_digest=snapshot.profile_snapshot_digest,
+            connector_snapshot_ref=snapshot.connector_snapshot_ref,
+            connector_snapshot_digest=snapshot.connector_snapshot_digest,
+        )
+        result = CapabilityProviderSearchResult(**payload, owner_receipt=receipt)
+        store = self._artifact_store
+        if store is None:  # pragma: no cover - guarded by _resolve_snapshot
+            raise CapabilityProviderUnavailableError("source_profile_artifact_store_unbound")
+        try:
+            store.put_json(
+                receipt.model_dump(mode="json"),
+                core.artifacts.PutOptions(
+                    kind="runtime.source_profile_owner_receipt",
+                    media_type="application/json",
+                    schema=core.artifacts.SchemaInfo(
+                        name="polisyos.runtime.quality.SourceProfileOwnerReceipt",
+                        version=receipt.schema_version,
+                    ),
+                    inputs=[
+                        core.artifacts.InputRef(
+                            artifact_id=snapshot.connector_snapshot_ref,
+                            role="connector_registry_snapshot",
+                        ),
+                        core.artifacts.InputRef(
+                            artifact_id=snapshot.profile_snapshot_ref,
+                            role="source_profile_registry_snapshot",
+                        ),
+                    ],
+                ),
+                canon_spec=core.canon.CanonSpec(forbid_floats=False),
+            )
+        except (OSError, TypeError, ValueError) as exc:
+            raise CapabilityProviderUnavailableError(
+                "source_profile_owner_receipt_persistence_failed"
+            ) from exc
+        return result
+
+    def _resolve_snapshot(self) -> _SourceProfileDiscoverySnapshot:
+        cached = self._snapshot
+        if cached is not None:
+            return cached
+        with self._snapshot_lock:
+            cached = self._snapshot
+            if cached is not None:
+                return cached
+            store = self._artifact_store
+            if store is None:
+                raise CapabilityProviderUnavailableError(
+                    "source_profile_artifact_store_unbound"
+                )
+            try:
+                cached = _build_source_profile_discovery_snapshot(
+                    store,
+                    connector_registry=self._connectors,
+                    source_profile_registry=self._source_profiles,
+                    observed_at=self._observed_at(),
+                )
+            except CapabilityProviderUnavailableError:
+                raise
+            except (AttributeError, OSError, TypeError, ValueError) as exc:
+                raise CapabilityProviderUnavailableError(
+                    "source_profile_registry_snapshot_invalid"
+                ) from exc
+            self._snapshot = cached
+            return cached
 
 
 class ScientistRegistryCapabilityDiscoveryProvider:
@@ -1476,6 +1784,248 @@ def _lex_completeness(
     return "complete", ()
 
 
+def _build_source_profile_discovery_snapshot(
+    store: core.artifacts.ArtifactStore,
+    *,
+    connector_registry: object,
+    source_profile_registry: object,
+    observed_at: datetime,
+) -> _SourceProfileDiscoverySnapshot:
+    """Persist matching connector/profile projections from the owner registries."""
+    query_entries = getattr(connector_registry, "query_entries", None)
+    list_profiles = getattr(source_profile_registry, "list_all", None)
+    if not callable(query_entries) or not callable(list_profiles):
+        raise CapabilityProviderUnavailableError("source_profile_registry_invalid")
+    if observed_at.tzinfo is None:
+        raise CapabilityProviderUnavailableError("source_profile_observed_at_naive")
+
+    connector_records = tuple(
+        sorted(
+            (_connector_registry_capability_record(entry) for entry in query_entries()),
+            key=lambda entry: entry.connector_ref,
+        )
+    )
+    connector_namespaces = {entry.namespace for entry in connector_records}
+    profile_records = tuple(
+        sorted(
+            (
+                _source_profile_registry_capability_record(
+                    profile,
+                    connector_namespaces=connector_namespaces,
+                )
+                for profile in list_profiles()
+            ),
+            key=lambda profile: profile.profile_id,
+        )
+    )
+    connector_snapshot = ConnectorRegistryCapabilitySnapshot(
+        observed_at=observed_at,
+        entries=connector_records,
+    )
+    profile_snapshot = SourceProfileRegistryCapabilitySnapshot(
+        observed_at=observed_at,
+        profiles=profile_records,
+    )
+    canon_spec = core.canon.CanonSpec(forbid_floats=False)
+    connector_ref = store.put_json(
+        connector_snapshot.model_dump(mode="json"),
+        core.artifacts.PutOptions(
+            kind="fabric.connector_registry_snapshot",
+            media_type="application/json",
+            schema=core.artifacts.SchemaInfo(
+                name="polisyos.runtime.quality.ConnectorRegistryCapabilitySnapshot",
+                version=connector_snapshot.schema_version,
+            ),
+        ),
+        canon_spec=canon_spec,
+    )
+    profile_ref = store.put_json(
+        profile_snapshot.model_dump(mode="json"),
+        core.artifacts.PutOptions(
+            kind="fabric.source_profile_registry_snapshot",
+            media_type="application/json",
+            schema=core.artifacts.SchemaInfo(
+                name="polisyos.runtime.quality.SourceProfileRegistryCapabilitySnapshot",
+                version=profile_snapshot.schema_version,
+            ),
+        ),
+        canon_spec=canon_spec,
+    )
+    connector_snapshot_ref = str(connector_ref.artifact_id)
+    profile_snapshot_ref = str(profile_ref.artifact_id)
+    combined = {
+        "profile_registry_snapshot_ref": profile_snapshot_ref,
+        "profile_registry_snapshot_digest": profile_snapshot_ref,
+        "connector_snapshot_ref": connector_snapshot_ref,
+        "connector_snapshot_digest": connector_snapshot_ref,
+    }
+    search_snapshot_digest = "sha256:" + _digest(combined)
+    search_snapshot_ref = (
+        "connector-source-profile-snapshot:"
+        + search_snapshot_digest.removeprefix("sha256:")
+    )
+    time = CapabilityTimeSemantics(
+        observed_at=observed_at,
+        valid_from=observed_at,
+        valid_until=None,
+        freshness="current",
+    )
+    provenance_refs = (
+        CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF,
+        search_snapshot_ref,
+        connector_snapshot_ref,
+        profile_snapshot_ref,
+    )
+    rows = tuple(
+        _source_profile_discovery_row(
+            profile,
+            search_snapshot_ref=search_snapshot_ref,
+            profile_snapshot_ref=profile_snapshot_ref,
+            provenance_refs=provenance_refs,
+            time=time,
+        )
+        for profile in profile_records
+    )
+    return _SourceProfileDiscoverySnapshot(
+        connector_snapshot_ref=connector_snapshot_ref,
+        connector_snapshot_digest=connector_snapshot_ref,
+        profile_snapshot_ref=profile_snapshot_ref,
+        profile_snapshot_digest=profile_snapshot_ref,
+        search_snapshot_ref=search_snapshot_ref,
+        search_snapshot_digest=search_snapshot_digest,
+        rows=rows,
+    )
+
+
+def _connector_registry_capability_record(
+    entry: object,
+) -> ConnectorRegistryCapabilityRecord:
+    """Strip executable connector state while retaining declared owner content."""
+    metadata = getattr(entry, "metadata", None)
+    if metadata is None:
+        raise CapabilityProviderUnavailableError("connector_registry_entry_invalid")
+    capabilities = getattr(entry, "capabilities", None)
+    declared_capabilities = getattr(capabilities, "value", capabilities)
+    if (
+        isinstance(declared_capabilities, bool)
+        or not isinstance(declared_capabilities, int)
+        or declared_capabilities < 0
+    ):
+        raise CapabilityProviderUnavailableError("connector_registry_entry_invalid")
+    known_datasets = getattr(entry, "known_datasets", None)
+    if not isinstance(known_datasets, (set, frozenset, tuple, list)):
+        raise CapabilityProviderUnavailableError("connector_registry_entry_invalid")
+    metadata_capabilities = getattr(metadata, "capabilities", declared_capabilities)
+    if metadata_capabilities != declared_capabilities:
+        raise CapabilityProviderUnavailableError("connector_registry_entry_invalid")
+    return ConnectorRegistryCapabilityRecord(
+        connector_ref=str(metadata.fully_qualified_id),
+        namespace=str(metadata.namespace),
+        version=str(metadata.version),
+        declared_capabilities=declared_capabilities,
+        known_datasets=_sorted_text(known_datasets),
+    )
+
+
+def _source_profile_registry_capability_record(
+    profile: object,
+    *,
+    connector_namespaces: set[str],
+) -> SourceProfileRegistryCapabilityRecord:
+    """Project one profile without persisting raw authentication header values."""
+    model_dump = getattr(profile, "model_dump", None)
+    if not callable(model_dump):
+        raise CapabilityProviderUnavailableError("source_profile_registry_entry_invalid")
+    definition = model_dump(mode="json")
+    headers = definition.pop("headers", None)
+    if not isinstance(headers, dict):
+        raise CapabilityProviderUnavailableError("source_profile_registry_entry_invalid")
+    definition["header_names"] = sorted(str(name) for name in headers)
+    definition["headers_digest"] = "sha256:" + _digest(headers)
+    connector_family = str(profile.connector_family)
+    return SourceProfileRegistryCapabilityRecord(
+        profile_id=str(profile.profile_id),
+        display_name=str(profile.display_name),
+        description=str(profile.description),
+        connector_family=connector_family,
+        connector_available=connector_family in connector_namespaces,
+        definition=definition,
+    )
+
+
+def _source_profile_discovery_row(
+    profile: SourceProfileRegistryCapabilityRecord,
+    *,
+    search_snapshot_ref: str,
+    profile_snapshot_ref: str,
+    provenance_refs: tuple[str, ...],
+    time: CapabilityTimeSemantics,
+) -> CapabilityIndexDiscoveryRow:
+    """Create one candidate-only source row from persisted profile content."""
+    tags = profile.definition.get("tags", [])
+    hints = profile.definition.get("dataset_discovery_hints", [])
+    organization = profile.definition.get("source_organization", "")
+    return CapabilityIndexDiscoveryRow(
+        capability_ref=f"source-profile:{profile.profile_id}",
+        content_digest="sha256:" + _digest(profile.model_dump(mode="json")),
+        resource_kind="source",
+        construct_refs=_sorted_text(
+            (
+                f"source-profile:{profile.profile_id}",
+                f"connector-family:{profile.connector_family}",
+                organization,
+                *(tags if isinstance(tags, list) else ()),
+                *(hints if isinstance(hints, list) else ()),
+            )
+        ),
+        label=profile.display_name,
+        description=profile.description or f"Source profile {profile.profile_id}",
+        producer_ref=CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF,
+        snapshot_ref=search_snapshot_ref,
+        freshness_ref=profile_snapshot_ref,
+        provenance_refs=provenance_refs,
+        may_not_use_for=(
+            "source_profile_discovery_as_connector_execution_evidence",
+            "registry_membership_as_live_source_availability",
+            "source_profile_discovery_as_observed_source_content",
+        ),
+        time=time,
+    )
+
+
+def _source_profile_search_candidate(
+    row: CapabilityIndexDiscoveryRow,
+    terms: tuple[str, ...],
+    *,
+    limitation: str | None = None,
+) -> SearchCandidate:
+    """Project one profile row into the owner search ledger."""
+    match_count = _row_match_count(row, terms)
+    return SearchCandidate(
+        candidate_ref=row.capability_ref,
+        source_layer="SourceProfileRegistry",
+        match_mode="exact" if not terms else "lexical",
+        score=match_count / len(terms) if terms else 1.0,
+        evidence_refs=row.provenance_refs,
+        limitation_refs=(limitation,) if limitation is not None else (),
+        authority_boundary={"authoritative_for": []},
+        may_not_use_for=row.may_not_use_for,
+    )
+
+
+def _source_profile_completeness(
+    *,
+    has_selected: bool,
+    budget_cutoff: bool,
+) -> tuple[SearchCompletenessStatus, tuple[str, ...]]:
+    """Report completeness over the exact finite SourceProfileRegistry snapshot."""
+    if budget_cutoff:
+        return "budget_cutoff", ("source_profile_registry_budget_cutoff",)
+    if not has_selected:
+        return "complete_no_match", ()
+    return "complete", ()
+
+
 def _build_scientist_discovery_snapshot(
     store: core.artifacts.ArtifactStore,
     *,
@@ -2191,6 +2741,7 @@ __all__ = [
     "CAPABILITY_DISCOVERY_RULE_VERSION",
     "CAPABILITY_INDEX_PATH_ENV",
     "CAPABILITY_PROVIDER_REGISTRY_INDEX_REF",
+    "CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF",
     "SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF",
     "AdapterCapabilityDiscoveryProvider",
     "AdapterCapabilityOwnerReceipt",
@@ -2200,6 +2751,7 @@ __all__ = [
     "CapabilityIndexOwnerReceipt",
     "CapabilityProviderSearchResult",
     "CapabilityProviderUnavailableError",
+    "ConnectorSourceProfileSnapshotProducer",
     "LexCapabilityDiscoveryProvider",
     "LexOwnerReceipt",
     "ScientistRegistryCapabilityDiscoveryProvider",

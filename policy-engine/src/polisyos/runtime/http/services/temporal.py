@@ -32,7 +32,9 @@ from polisyos.runtime.quality.authority import (
     TimeSourceConsistencyDisposition,
     resolve_time_source_consistency_disposition,
 )
+from polisyos.runtime.quality.derived_observations import DerivationRefusalError
 from polisyos.runtime.quality.epoch_staleness_projection import (
+    EpochInheritanceRecomputeProjectionReader,
     compile_epoch_staleness_projection,
 )
 from polisyos.runtime.quality.epoch_validity_cascade import (
@@ -154,6 +156,11 @@ class TemporalService:
         self._artifact_store = artifact_store
         self._semantic_epoch_service = semantic_epoch_service
         self._transition_signing_authority = transition_signing_authority
+        self._epoch_recompute_reader = (
+            EpochInheritanceRecomputeProjectionReader(artifact_store=artifact_store)
+            if artifact_store is not None
+            else None
+        )
 
     def resolve_scope(
         self,
@@ -453,18 +460,26 @@ class TemporalService:
                 "A signed transition exists but its exact projection reader is not composed.",
                 code="epoch_staleness_transition_reader_not_established",
             )
-        return compile_epoch_staleness_projection(
-            run_id=run.run_id,
-            decision_packet_ref=run.decision_packet_ref,
-            temporal_scope=scope,
-            requested_query_context_ref=requested_query_context_ref,
-            owner_as_of=None,
-            observed_at=observed_at,
-            epoch_gate=epoch_gate,
-            transition=transition,
-            monitor_events=self._monitor_events_for_packet(run.decision_packet_ref),
-            fixture_only=False,
-        )
+        try:
+            return compile_epoch_staleness_projection(
+                run_id=run.run_id,
+                decision_packet_ref=run.decision_packet_ref,
+                temporal_scope=scope,
+                requested_query_context_ref=requested_query_context_ref,
+                owner_as_of=None,
+                observed_at=observed_at,
+                epoch_gate=epoch_gate,
+                transition=transition,
+                monitor_events=self._monitor_events_for_packet(run.decision_packet_ref),
+                recompute_reader=self._epoch_recompute_reader,
+                recompute_authority_purpose=query.domain.authority_purpose,
+                fixture_only=False,
+            )
+        except (DerivationRefusalError, OSError, TypeError, ValueError) as exc:
+            raise unprocessable_entity(
+                "An epoch recompute receipt cannot be admitted by its exact owner reader.",
+                code="epoch_staleness_recompute_receipt_invalid",
+            ) from exc
 
     def _monitor_events_for_packet(
         self,

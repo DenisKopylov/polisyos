@@ -2,25 +2,159 @@ import fs from "node:fs";
 import path from "node:path";
 import * as ts from "typescript";
 
+import type { components as DashboardApiComponents } from "@/api/types";
+import type { DecisionGrade } from "@polisyos/runtime-api-client";
 import * as decisionGradePresentation from "./decisionGradePresentation";
+import type { DecisionGradePresentation } from "./decisionGradePresentation";
 
 const dashboardSourceRoot = path.resolve(import.meta.dirname, "../../..");
+const runtimeOpenApiPath = path.resolve(
+  dashboardSourceRoot,
+  "../../../schemas/runtime_api_v1.openapi.json",
+);
 
-function productionSources(directory: string): string[] {
+function allTypeScriptSources(directory: string): string[] {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const absolutePath = path.join(directory, entry.name);
     if (entry.isDirectory()) {
-      return productionSources(absolutePath);
+      return allTypeScriptSources(absolutePath);
     }
-    if (
-      !entry.isFile() ||
-      !/\.tsx?$/u.test(entry.name) ||
-      /(?:\.test|\.a11y\.test|\.stories)\.tsx?$/u.test(entry.name)
-    ) {
-      return [];
-    }
-    return [absolutePath];
+    return entry.isFile() && /\.tsx?$/u.test(entry.name) ? [absolutePath] : [];
   });
+}
+
+function productionSources(directory: string): string[] {
+  return allTypeScriptSources(directory).filter(
+    (filename) =>
+      !/(?:\.test|\.a11y\.test|\.stories)\.tsx?$/u.test(filename),
+  );
+}
+
+function ownerDecisionGradeValues(): string[] {
+  const schema = JSON.parse(fs.readFileSync(runtimeOpenApiPath, "utf8")) as {
+    components?: { schemas?: { DecisionGrade?: { enum?: unknown[] } } };
+  };
+  const values = schema.components?.schemas?.DecisionGrade?.enum;
+  if (!Array.isArray(values) || values.some((value) => typeof value !== "string")) {
+    throw new Error("generated OpenAPI DecisionGrade enum is missing or malformed");
+  }
+  return values as string[];
+}
+
+function decisionGradeVocabularyCopiesAcrossSources(
+  sources: Readonly<Record<string, string>>,
+  ownerValues: readonly string[],
+): { authorizedRecordCount: number; findings: string[] } {
+  const ownerSet = new Set(ownerValues);
+  const authorizedFilename =
+    "shared/ui/compounds/decisionGradePresentation.ts";
+  const authorizedName = "decisionGradePresentationByOwnerGrade";
+  const findings: string[] = [];
+  let authorizedRecordCount = 0;
+
+  const containsCompleteVocabulary = (
+    node: ts.Node,
+    variableInitializers: ReadonlyMap<string, ts.Expression>,
+  ): boolean => {
+    const observed = new Set<string>();
+    const resolvedVariables = new Set<string>();
+    const visit = (candidate: ts.Node) => {
+      if (ts.isStringLiteralLike(candidate) && ownerSet.has(candidate.text)) {
+        observed.add(candidate.text);
+      }
+      if (
+        (ts.isPropertyAssignment(candidate) ||
+          ts.isShorthandPropertyAssignment(candidate)) &&
+        ts.isIdentifier(candidate.name) &&
+        ownerSet.has(candidate.name.text)
+      ) {
+        observed.add(candidate.name.text);
+      }
+      if (
+        ts.isIdentifier(candidate) &&
+        !resolvedVariables.has(candidate.text)
+      ) {
+        const initializer = variableInitializers.get(candidate.text);
+        if (initializer) {
+          resolvedVariables.add(candidate.text);
+          visit(initializer);
+        }
+      }
+      candidate.forEachChild(visit);
+    };
+    visit(node);
+    return ownerValues.every((value) => observed.has(value));
+  };
+
+  for (const [filename, source] of Object.entries(sources)) {
+    const sourceFile = ts.createSourceFile(
+      filename,
+      source,
+      ts.ScriptTarget.Latest,
+      true,
+      filename.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+    );
+    const variableInitializers = new Map<string, ts.Expression>();
+    const collectVariableInitializers = (node: ts.Node) => {
+      if (
+        ts.isVariableDeclaration(node) &&
+        ts.isIdentifier(node.name) &&
+        node.initializer
+      ) {
+        variableInitializers.set(node.name.text, node.initializer);
+      }
+      node.forEachChild(collectVariableInitializers);
+    };
+    collectVariableInitializers(sourceFile);
+    const addFinding = (node: ts.Node, kind: string) => {
+      const line =
+        sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile))
+          .line + 1;
+      findings.push(`${filename}:${line}:${kind}`);
+    };
+    const inspect = (node: ts.Node) => {
+      if (
+        ts.isUnionTypeNode(node) &&
+        containsCompleteVocabulary(node, variableInitializers)
+      ) {
+        addFinding(node, "hand-written DecisionGrade union");
+      }
+      if (ts.isVariableStatement(node)) {
+        const exported = Boolean(
+          node.modifiers?.some(
+            (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword,
+          ),
+        );
+        for (const declaration of node.declarationList.declarations) {
+          if (
+            !declaration.initializer ||
+            !containsCompleteVocabulary(
+              declaration.initializer,
+              variableInitializers,
+            )
+          ) {
+            continue;
+          }
+          const name = ts.isIdentifier(declaration.name)
+            ? declaration.name.text
+            : "<binding>";
+          if (
+            filename === authorizedFilename &&
+            name === authorizedName &&
+            !exported
+          ) {
+            authorizedRecordCount += 1;
+          } else {
+            addFinding(declaration, "hand-written DecisionGrade constant");
+          }
+        }
+      }
+      node.forEachChild(inspect);
+    };
+    inspect(sourceFile);
+  }
+
+  return { authorizedRecordCount, findings };
 }
 
 function dashboardModuleCandidates(
@@ -517,7 +651,26 @@ function decisionGradeBypassesAcrossSources(
   return findings;
 }
 
+type RecognizedDecisionGradePresentation = Extract<
+  DecisionGradePresentation,
+  { classification: "recognized" }
+>;
+type DashboardDecisionGrade =
+  DashboardApiComponents["schemas"]["DecisionGrade"];
+
 describe("decision-grade presentation", () => {
+  it("binds recognized presentation to both generated DecisionGrade surfaces", () => {
+    expectTypeOf<RecognizedDecisionGradePresentation["ownerLabel"]>()
+      .toEqualTypeOf<DecisionGrade>();
+    expectTypeOf<DecisionGrade>().toEqualTypeOf<DashboardDecisionGrade>();
+    expect(
+      decisionGradePresentation.presentDecisionGradeLabel("unsupported"),
+    ).toEqual({
+      classification: "recognized",
+      ownerLabel: "unsupported",
+    });
+  });
+
   it("renders a novel owner label as explicit unrecognized presentation", () => {
     expect(
       decisionGradePresentation.presentDecisionGradeLabel("future-owner-grade"),
@@ -531,6 +684,58 @@ describe("decision-grade presentation", () => {
     expect(Object.keys(decisionGradePresentation)).toEqual([
       "presentDecisionGradeLabel",
     ]);
+  });
+
+  it("permits one private exhaustive record and forbids a second vocabulary copy", () => {
+    const sources = Object.fromEntries(
+      allTypeScriptSources(dashboardSourceRoot)
+        .filter(
+          (file) => path.relative(dashboardSourceRoot, file) !== "api/types.ts",
+        )
+        .map((file) => [
+          path.relative(dashboardSourceRoot, file),
+          fs.readFileSync(file, "utf8"),
+        ]),
+    );
+
+    expect(
+      decisionGradeVocabularyCopiesAcrossSources(
+        sources,
+        ownerDecisionGradeValues(),
+      ),
+    ).toEqual({ authorizedRecordCount: 1, findings: [] });
+  });
+
+  it("catches hand-written unions and exported vocabulary constants", () => {
+    const ownerValues = ownerDecisionGradeValues();
+    const union = ownerValues.map((value) => JSON.stringify(value)).join(" | ");
+    const tuple = ownerValues.map((value) => JSON.stringify(value)).join(", ");
+
+    expect(
+      decisionGradeVocabularyCopiesAcrossSources(
+        {
+          "union.ts": `type CopiedDecisionGrade = ${union};`,
+          "parameter.ts": `function consumeCopiedDecisionGrade(value: ${union}): void { void value; }`,
+          "constant.ts": `export const copiedDecisionGrades = [${tuple}] as const;`,
+          "spread.ts": `const lowerDecisionGrades = [${ownerValues
+            .slice(0, 2)
+            .map((value) => JSON.stringify(value))
+            .join(", ")}] as const;\nconst upperDecisionGrades = [${ownerValues
+            .slice(2)
+            .map((value) => JSON.stringify(value))
+            .join(", ")}] as const;\nexport const spreadDecisionGrades = [...lowerDecisionGrades, ...upperDecisionGrades] as const;`,
+        },
+        ownerValues,
+      ),
+    ).toEqual({
+      authorizedRecordCount: 0,
+      findings: [
+        "union.ts:1:hand-written DecisionGrade union",
+        "parameter.ts:1:hand-written DecisionGrade union",
+        "constant.ts:1:hand-written DecisionGrade constant",
+        "spread.ts:3:hand-written DecisionGrade constant",
+      ],
+    });
   });
 
   it(

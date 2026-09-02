@@ -7,6 +7,7 @@ import subprocess
 import sys
 from importlib.util import find_spec
 from pathlib import Path
+from typing import get_args
 
 import pytest
 
@@ -16,7 +17,7 @@ if find_spec("fastapi") is None:  # pragma: no cover - optional dependency guard
 from polisyos.core.contracts.capability_discovery import CapabilityDiscoveryResponse
 from polisyos.core.contracts.control import EpochValidityBatchResponse
 from polisyos.core.contracts.runtime import EpochStalenessProjectionResponse
-from polisyos.pdc import RunBoundDesignRecordBinding
+from polisyos.pdc import DecisionGrade, RunBoundDesignRecordBinding
 from polisyos.runtime.http.app import export_runtime_openapi_schema
 from polisyos.runtime.http.openapi_contract import validate_runtime_openapi_contract
 from polisyos.runtime.http.permissions import RuntimePermission
@@ -943,6 +944,41 @@ def test_generated_client_permission_union_matches_server_openapi_enum() -> None
     generated_permissions = re.findall(r'"([^"]+)"', match.group(1))
     assert openapi_permissions == server_permissions
     assert generated_permissions == server_permissions
+
+
+def test_openapi_names_the_owner_decision_grade_at_its_only_property() -> None:
+    schema = export_runtime_openapi_schema()
+    components = schema["components"]["schemas"]
+    owner_alias = getattr(DecisionGrade, "__value__", DecisionGrade)
+    owner_values = list(get_args(owner_alias))
+    decision_grade_ref = "#/components/schemas/DecisionGrade"
+    reference_paths: list[tuple[str | int, ...]] = []
+
+    def collect_reference_paths(value: object, path: tuple[str | int, ...] = ()) -> None:
+        if isinstance(value, dict):
+            if value.get("$ref") == decision_grade_ref:
+                reference_paths.append((*path, "$ref"))
+            for key, child in value.items():
+                collect_reference_paths(child, (*path, key))
+        elif isinstance(value, list):
+            for index, child in enumerate(value):
+                collect_reference_paths(child, (*path, index))
+
+    collect_reference_paths(schema)
+
+    assert components["DecisionGrade"]["enum"] == owner_values
+    assert reference_paths == [
+        (
+            "components",
+            "schemas",
+            "AuthorityBoundary",
+            "properties",
+            "decision_grade",
+            "anyOf",
+            0,
+            "$ref",
+        )
+    ]
 
 
 def test_schema_and_clients_regenerate_byte_identically_twice(tmp_path: Path) -> None:

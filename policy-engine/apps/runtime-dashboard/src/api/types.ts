@@ -3216,15 +3216,7 @@ export interface components {
       authoritative_for: string[];
       /** Boundary Id */
       boundary_id?: string | null;
-      /** Decision Grade */
-      decision_grade?:
-        | (
-            | "unsupported"
-            | "descriptive_only"
-            | "advisory_admissible"
-            | "decision_admissible"
-          )
-        | null;
+      decision_grade?: components["schemas"]["DecisionGrade"] | null;
       evidence_basis?: components["schemas"]["EvidenceBasis"] | null;
       /** Evidence Kind */
       evidence_kind?:
@@ -6714,6 +6706,12 @@ export interface components {
       status: components["schemas"]["DecisionValidityStatus"];
       trigger_type: components["schemas"]["DecisionTriggerType"];
     };
+    /** @enum {string} */
+    DecisionGrade:
+      | "unsupported"
+      | "descriptive_only"
+      | "advisory_admissible"
+      | "decision_admissible";
     /**
      * DecisionLifecycleJob
      * @description Describe a scheduled or completed control-plane follow-up job.

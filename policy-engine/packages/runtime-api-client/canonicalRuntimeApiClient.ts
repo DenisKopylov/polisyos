@@ -529,6 +529,8 @@ export type DecisionCompareReport =
 export type DecisionDependencyEvent =
   RuntimeApiComponents["schemas"]["DecisionDependencyEvent"];
 
+export type DecisionGrade = RuntimeApiComponents["schemas"]["DecisionGrade"];
+
 export type DecisionLifecycleJob =
   RuntimeApiComponents["schemas"]["DecisionLifecycleJob"];
 

@@ -2001,3 +2001,234 @@ witness/spec distinction, P35's complete denominator, P37 predicate provenance, 
 property/proxy distinction. In particular, `structural_denominator=0` proves the fixed selector had
 no executable structural population; it does not prove that zero candidates would be eligible or
 that a hypothetical selected stratum would contain fewer than 20 observations.
+
+## Event 3 — 2026-09-02 substrate measurement continuation
+
+Recorded at `2026-09-02T13:06:29Z`. This continuation is a substrate measurement only. It does not
+re-run or re-arm the consumed selector, inspect a replacement table, select a row, bind an
+estimand, admit calibration evidence, edit N7, or attempt promotion. The immutable Event-1 terminal
+remains the first and only prospective-selection result.
+
+### Step 0 — required main merge and DS4 preservation
+
+Before measurement, the clean attached branch was four commits ahead of and eight commits behind
+`main`. The required non-rebase merge was:
+
+```text
+/usr/bin/git -C /Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine merge --no-edit main
+```
+
+It produced merge commit `3e4ab3d25b4cd7f8afc5e0dbb7ede3976a8cbaef`, with parents
+`326138df817131504c6d36e2800ca67bc01ceef8` and
+`ca509ce0d4a1ff3a7dbce33acc83a101728f2033`. A parsed read-back of
+`schemas/runtime_api_v1.openapi.json` confirmed that DS4's `DecisionGrade` component survived as a
+string enum with the four members `unsupported`, `descriptive_only`, `advisory_admissible`, and
+`decision_admissible`. This lane did not regenerate or edit that schema.
+
+### Reframed capability finding
+
+The architect-supplied substrate chronology changes the earlier terminal's interpretation without
+changing its bytes:
+
+- the pinned production snapshot was built on 2026-04-11;
+- `ac_skg_span_grounded_claims` entered `skg_store.py` on 2026-06-28 in commit `584bd7b72`;
+- `ensure_skg_schema` creates the table with `IF NOT EXISTS`, so current code materializes the
+  absent table empty rather than recovering its evidence;
+- the snapshot otherwise contains 310,829 works with abstracts, 137,589 raw causal-claim rows,
+  67,791 adjudications, and 310,829 paid article-extraction rows; and
+- this is the only registered Academic SKG database, with no newer snapshot available.
+
+Those dates and inventory counts are architect measurements, not a reinterpretation of the
+consumed selector. The selector remains exactly `selector_required_table_missing`, with candidate
+eligibility and the `>=20` predicate `not_established`.
+
+The primary finding is therefore not deletion and not an eligible-population zero. The registered
+production substrate predates the schema that its governed consumer requires by about two and a
+half months; the producer was not replayed, and no migration or drift detector identifies the
+code/schema/snapshot divergence. The capability states must be kept separate: the broad OpenAlex
+span-grounded ingest component is `implemented_but_not_orchestrated`; snapshot-specific
+materialization/replay is `producer_missing` plus `bridge_missing`; and substrate-currency/drift
+detection is `absent/unallocated`. No production producer exists that can replay the retained
+extraction evidence into positive span-grounded authority without performing new semantic
+verification.
+
+### Step 1 — stored-claim compatibility and span-support determination
+
+The production database was opened only with
+`duckdb.connect(path, read_only=True)`. A complete, aggregate scan—not a sample—walked every
+`ac_article_extractions.extraction_json` row and every member of its `causal_claims` array. It made
+no network or model call and returned:
+
+```text
+ac_article_extractions rows                 310829
+valid JSON rows                             310829
+rows carrying a causal_claims array         310829
+stored causal-claim objects                 137714
+
+key                                        occurrence count
+cause                                      137714
+effect                                     137714
+strength                                   137714
+mechanism                                  137714
+cause_variable                                  0
+effect_variable                                 0
+evidence_strength                               0
+counterevidence_notes                           0
+magnitude_qualitative                           0
+identification_strategy                         0
+uncertainty_budget                              0
+```
+
+This settles the denominator rather than generalizing from the current writer. Every stored claim
+uses the legacy `cause`/`effect`/`strength`/`mechanism` shape. Current `CausalClaim` is strict
+(`extra="forbid"`) and expects `cause_variable`, `effect_variable`, `evidence_strength`, and
+`counterevidence_notes`. Its compatibility normalizer maps and removes only `cause` and `effect`;
+it neither maps nor removes `strength` and `mechanism`. A no-data synthetic shape probe through the
+real constructor returned:
+
+```text
+[{'type': 'extra_forbidden', 'loc': ['strength']},
+ {'type': 'extra_forbidden', 'loc': ['mechanism']}]
+```
+
+Consequently the stored objects cannot be passed unchanged through `CausalClaim.from_payload` into
+`ingest_openalex_span_grounded_claims`; the actual constructor blockers are the two unmapped,
+unremoved legacy extras `strength` and `mechanism`. Adding a map-and-remove adapter would be a new
+migration. The retained shape also has no payload-level schema version and does not retain optional
+current fields including `magnitude_qualitative`, `identification_strategy`, and
+`uncertainty_budget`. Their absence is not a validation error because the current contract
+defaults them, but those defaults would be newly inferred values rather than replayed evidence, so
+an adapter could not claim exact historical serialization.
+
+That shape incompatibility is not the only terminal. `ingest_openalex_span_grounded_claims`
+unconditionally sends every supplied claim through `validate_causal_claim_span_grounding` and
+persists only status `validated_supporting`. For that path, it writes
+`ac_skg_edges.candidate_layer=design_tier_authority` and writes the grounding result's
+`design_tier_l2` into `ac_skg_span_grounded_claims.authority_tier`. The validator first resolves the
+exact span and source hash, then asks `evaluate_span_claim_entailment` for semantic support.
+
+`span_support_client=None` does **not** skip or stub that step. It asks
+`_create_default_span_support_client()` for the real gateway client. If no real client is
+available, the evaluator returns the fail-closed reason `entailment_verifier_unavailable`; the
+claim is rejected and cannot enter `ac_skg_span_grounded_claims`. On the default/`None` path, a
+positive result therefore requires usable gateway credentials, network reachability, and a live
+tool-calling model. The stored `ac_article_extractions` payload contains no persisted positive
+entailment judgment or content-bound verifier receipt that could be replayed instead.
+
+An explicitly injected client is accepted through an `Any`-typed test seam without production
+provenance verification. The existing ingest unit test injects a deterministic local client and
+thereby obtains L2 rows. That is a valid test double, but it is not production evidence; using it
+for this materialization would launder a test assertion into authority. The following exact,
+no-network behavioral controls passed after the source review:
+
+```text
+test_span_claim_support_default_path_constructs_gateway_client                 1 passed
+test_span_claim_support_fails_closed_without_real_agent                        1 passed
+test_ingest_accepts_validated_spans_and_rejects_non_supporting_spans            1 passed
+```
+
+The first proves that the `None` path constructs the default client, the second proves that its
+absence fails closed, and the third exposes the deterministic injection seam. These results do not
+prove production provenance for an injected client.
+
+**Step-1 verdict: stop.** The retained extraction objects cannot enter the current `CausalClaim`
+contract unchanged. Honest positive span grounding independently requires either a
+provenance-verified live gateway judgment or an already persisted, content-bound verifier receipt;
+the snapshot contains neither. An arbitrary injected object with a `generate()` method is not an
+honest substitute and must fail closed at any authority-bearing production surface. The user's
+explicit live-client stop condition has fired. No fresh verification campaign was run.
+
+### Step 2 — isolated-copy materialization receipt
+
+```text
+status: not_run_due_step_1_terminal
+copy_created: false
+ingest_invoked: false
+production_writer_invoked: false
+materialized_span_grounded_rows: not_established
+```
+
+There is deliberately no copy-side ingest receipt. Producing one after the Step-1 verdict would
+route around the stop by either inventing an adapter, accepting an unproven injected client, or
+performing a fresh model campaign.
+
+### Step 3 — stratum distribution
+
+```text
+status: not_run_due_step_1_terminal
+operator_family|reference_region|relation_type strata: not_established
+strata reaching >=20: not_established
+largest strata: not_established
+```
+
+No distribution query ran because no isolated span-grounded population was honestly materialized.
+These values are not zero. The earlier `structural_denominator=0` and the present `not_established`
+distribution answer different questions and must not be conflated.
+
+### Source custody and closeout
+
+The production database SHA-256 was read before and after the read-only shape census and remained:
+
+```text
+583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967
+```
+
+No database copy was created, no model request was made, and no source-side writer was invoked.
+Tracked `src/**/*.py` remains `2,617`, delta `0` from the carried baseline. This continuation
+changes only this append-only journal; it changes no production source, test, schema, generated
+client, frozen receipt epoch, or active-plan file.
+
+The bound debt checker was invoked exactly once after the terminal determination with both streams
+redirected to:
+
+```text
+/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/.superpowers/sdd/2026-09-02-gy-pr1a-data-only-promotion/bound-check.txt
+```
+
+The captured file is 59 lines / 9,186 bytes, SHA-256
+`74fe5a363d3319fd4e61425e1560884e7337570b324546847393ddca6c6f72c3`, and ends with
+`EXIT=0`. It reports ten count/exit disagreements and ten unresolvable closure-signal identities
+under the explicit heading `Informational findings (do not block)`; there are no blocking
+findings. The checker was not rerun.
+
+The focused documentation lifecycle checker exited `1` with seven findings. Six are the carried
+baseline. The seventh identifies this journal because line 1993 in already committed Event 2
+quotes the legacy dashboard path that the checker rejects; `git blame` binds that line to terminal
+commit `326138df81`, while the present append's diff contains zero occurrences of the rejected
+token. This is an inherited journal-history finding for this continuation, not a new Event-3
+reference. Append-only custody forbids rewriting that committed line, and no active-plan file was
+edited to conceal the result.
+
+### Terms for any separately authorized second attempt
+
+Under INT-R9 Option B, a second attempt would be an `adaptive_continuation`, never a first
+prospective selection. It must preserve the first terminal, use a new pre-registration under a new
+name, record all deviations and substitutions prospectively, and may not re-arm the consumed
+selector. If its population is materialized from this snapshot, DS12's custody claim must say
+that the evidence was **derived by a declared deterministic pipeline from pinned production
+material**; it must not say that adjudicated span-grounded claims pre-existed in the snapshot. That
+weaker custody claim carries no probability or claim of family control, population performance,
+compliance, competence, or production readiness. Whether it suffices for a first governed
+promotion remains an architect ruling made against a future measured Step-3 distribution.
+Any such continuation must also classify and ratify the span-support authority-boundary repair:
+an unproven injected client cannot be allowed to mint production `validated_supporting` status.
+This measurement does not authorize that additional governed change.
+
+### Transcriber-ready substrate-staleness row
+
+Identifier and owner allocation remain architect-owned; exact prose:
+
+> **BLOCKED 2026-09-02 — REGISTERED ACADEMIC SKG SUBSTRATE PREDATES ITS REQUIRED
+> SPAN-GROUNDED SCHEMA.** The only registered production snapshot was built 2026-04-11;
+> `ac_skg_span_grounded_claims` entered the schema on 2026-06-28 (`584bd7b72`). Current
+> `ensure_skg_schema` can create the absent table only as empty. No production orchestration
+> replays the retained extraction population, and no currency verifier detects divergence between
+> the pinned snapshot and the code/schema required by its governed consumer. A complete read-only
+> census found 310,829 valid extraction payloads and 137,714 stored causal-claim objects, all in a
+> legacy shape that the current strict `CausalClaim` cannot accept unchanged; the payloads also
+> retain no positive, content-bound span-entailment receipt. Honest materialization therefore
+> requires a separately governed migration plus provenance-verified live semantic verification or
+> a pre-existing verifier receipt; neither exists in this snapshot. Capability states: broad ingest
+> component `implemented_but_not_orchestrated`; snapshot replay `producer_missing` plus
+> `bridge_missing`; currency/drift detection `absent/unallocated`. Status `blocked` on engineering,
+> not an institutional appointment.

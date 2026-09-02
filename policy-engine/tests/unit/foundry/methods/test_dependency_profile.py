@@ -81,6 +81,9 @@ from polisyos.foundry.methods.catalog.dependency_profile import (
     resolve_dependency_profile,
     resolve_profile_declaration,
 )
+from tools.quality.validation import check_layer3_gy_epoch_chronology_contract as chronology
+from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
+from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
 
 _PRODUCT_ROOT = Path(__file__).resolve().parents[4]
 _PROFILE_REGISTRY = (
@@ -6732,6 +6735,53 @@ def _diagnostic_coordinate(result: object) -> str | None:
     return getattr(first_case, "coordinate", None)
 
 
+def _actual_consumer_governing_bytes(diagnostic_verification: object | None) -> tuple[bytes, ...]:
+    """Run N8, N10a, and chronology against one companion and retain only governing bytes."""
+
+    producer = getattr(n8, "build_dependency_discriminant_companion", None)
+    n8_consumer = getattr(n8, "validate_foundry_dependency_discriminant", None)
+    n10a_consumer = getattr(n10a, "read_foundry_dependency_discriminant", None)
+    chronology_consumer = getattr(chronology, "read_foundry_dependency_discriminant", None)
+    assert callable(producer), (
+        "missing behavior: N8 must produce the shared Foundry dependency discriminant"
+    )
+    assert callable(n8_consumer), (
+        "missing behavior: N8 must consume the shared Foundry dependency discriminant"
+    )
+    assert callable(n10a_consumer), (
+        "missing behavior: N10a must consume the shared Foundry dependency discriminant"
+    )
+    assert callable(chronology_consumer), (
+        "missing behavior: chronology must consume the shared Foundry dependency discriminant"
+    )
+    repo_root = n8._repo_root()
+    source_freeze = _git_at(repo_root, "log", "-1", "--format=%H", "--", n8.OUTPUT_PATH)
+    assert len(source_freeze) == 40
+    companion = producer(repo_root=repo_root, source_freeze=source_freeze)
+    results = (
+        n8_consumer(
+            repo_root=repo_root,
+            companion=companion,
+            diagnostic_verification=diagnostic_verification,
+        ),
+        n10a_consumer(
+            repo_root=repo_root,
+            companion=companion,
+            diagnostic_verification=diagnostic_verification,
+        ),
+        chronology_consumer(
+            repo_root=repo_root,
+            companion=companion,
+            diagnostic_verification=diagnostic_verification,
+        ),
+    )
+    governing = tuple(getattr(result, "governing_result", None) for result in results)
+    assert all(value is not None for value in governing), (
+        "missing behavior: each consumer must expose governing output separately"
+    )
+    return tuple(canonical_json_bytes(value) for value in governing)
+
+
 def _scratch_profile_registry(
     tmp_path: Path,
     *,
@@ -6766,14 +6816,16 @@ def test_cb_i02_research_profile_names_torch_as_first_generic_case() -> None:
     discriminant = _resolve_dependency_discriminant_from_owner_data(research)
     observations = list(_matching_dependency_observations(discriminant))
     torch = next(row for row in observations if row["name"] == "torch")
-    assert torch["version"] == "2.10.0"
     torch["source_kind"] = "installed-metadata"
+    governing_without_diagnostic = _actual_consumer_governing_bytes(None)
 
     result = _diagnose_dependency_environment(discriminant, tuple(observations))
+    governing_with_diagnostic = _actual_consumer_governing_bytes(result)
 
     assert getattr(result, "status", None) == "fail"
     assert _diagnostic_coordinate(result) is not None
     assert _diagnostic_coordinate(result).startswith("distribution:torch:")
+    assert governing_with_diagnostic == governing_without_diagnostic
 
 
 def test_cb_i02a_label_and_shape_cannot_mask_two_data_generated_incompatibilities(
@@ -6798,6 +6850,7 @@ def test_cb_i02a_label_and_shape_cannot_mask_two_data_generated_incompatibilitie
         same_label,
         lockfile_bytes=mutated_lock,
     )
+    governing_without_diagnostic = _actual_consumer_governing_bytes(None)
     mutated_result = _diagnose_dependency_environment(mutated, observations)
 
     registry = _scratch_profile_registry(
@@ -6814,6 +6867,15 @@ def test_cb_i02a_label_and_shape_cannot_mask_two_data_generated_incompatibilitie
 
     assert getattr(mutated_result, "status", None) == "fail"
     assert getattr(second_result, "status", None) == "fail"
+    assert _diagnostic_coordinate(mutated_result) == f"distribution:{target.name}:version"
+    second_names = {row["name"] for row in observations}
+    second_missing = sorted(
+        row.name for row in getattr(second, "distributions") if row.name not in second_names
+    )
+    assert second_missing
+    assert _diagnostic_coordinate(second_result) == f"distribution:{second_missing[0]}:missing"
+    assert _actual_consumer_governing_bytes(mutated_result) == governing_without_diagnostic
+    assert _actual_consumer_governing_bytes(second_result) == governing_without_diagnostic
     assert research.profile_id == same_label.profile_id
 
 

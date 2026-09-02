@@ -1787,3 +1787,217 @@ if __name__ == "__main__":
 - public publication: `not_established`;
 - correction: none;
 - prohibited substitution found: `false`.
+
+## Event 1 — first inspection and immutable negative terminal
+
+- Appended at: `2026-09-02T12:43:40+03:00`.
+- First owner-data inspection / first result-bearing run:
+  `2026-09-02T09:41:00.167533+00:00`.
+- Preceding custody commit: `16c1d28e7f1ff673927f0886a9741c0fbe4e5b6b`.
+- Exact registered selection command: executed once.
+- Process exit: `0`; the instrument represents an honest terminal in its receipt rather than as a
+  process crash.
+- Receipt status: `negative_terminal`.
+- Terminal code: `selector_required_table_missing`.
+- Capability disposition: `not_established`; no selected stratum or calibration-count predicate
+  was reached.
+- Structural denominator: `0`.
+- Required-table denominator/present: `7 / 6`.
+- Missing required table: `ac_skg_span_grounded_claims`.
+- Terminal detail: `the exact committed query contract cannot execute`.
+- No structural row was returned or inspected; no candidate, estimand, stratum, or calibration
+  outcome was selected.
+- The invoked provisioned worktree path canonicalized to
+  `/Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb`.
+  The recorded database SHA-256 is
+  `583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`.
+
+The plan says a missing required table is an empty structural population and a terminal, expressly
+denying permission to use an ambient view or alternate join. It also says an empty structural
+population is a zero result that stops the task. Phase-2 stop rule 1 therefore fires before binding,
+calibration measurement, CG2 implementation, N7 source edits, or any promotion attempt. The nearby
+table names visible in the catalog are not substitutes and were not queried. This terminal is not
+rerun, repaired, rescored, or replaced.
+
+### Selection custody seal
+
+selection_receipt_sha256: 4127d689edabf279e0fc473c1f1f779448e935a644a8c355481e35f458e8ef5b
+selection_lock_sha256: b982b3841bedecfe2e0ddc5e033892af8e2c8cb7a6878c3fee06ed3091479eae
+selection_script_sha256: 3a7b23508d1947a1f8733a246080d1c2fb8fe2056771c29e1836c3afe8d7b627
+selection_plan_commit: 7781da8e9a47f13d39a035dc3bc2f6810d9fa0e8
+selection_plan_blob: b5d50b8f397733e99afa84f9634d4dfcf40c4d43
+
+The fixed one-shot lock is `selection_invocation_consumed`; it was claimed at
+`2026-09-02T09:40:58.738032+00:00`. No binding or measurement receipt exists. The seal records the
+failed first attempt without converting it into evidence for a later attempt.
+
+### Exact selection receipt
+
+```json
+{
+  "database_exists": true,
+  "database_inventory": {
+    "missing_required_tables": [
+      "ac_skg_span_grounded_claims"
+    ],
+    "required_table_denominator": 7,
+    "required_tables_present": 6,
+    "table_denominator": 27,
+    "table_names": [
+      "ac_article_extractions",
+      "ac_boundary_conditions",
+      "ac_causal_claims",
+      "ac_causal_claims_raw",
+      "ac_claim_adjudications",
+      "ac_ingest_errors",
+      "ac_parameter_estimates",
+      "ac_runs",
+      "ac_skg_articles",
+      "ac_skg_canonization_cache",
+      "ac_skg_contested_edges",
+      "ac_skg_context_attributes",
+      "ac_skg_context_profiles",
+      "ac_skg_edge_evidence",
+      "ac_skg_edges",
+      "ac_skg_family_edges",
+      "ac_skg_moderation_edges",
+      "ac_skg_parameters",
+      "ac_skg_simulation_parameters",
+      "ac_skg_transport_scores",
+      "ac_skg_variable_synonyms",
+      "ac_skg_variables",
+      "ac_skg_versions",
+      "ac_topic_selections",
+      "ac_topics",
+      "ac_work_concepts",
+      "ac_works"
+    ]
+  },
+  "database_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+  "database_sha256": "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967",
+  "mode": "select",
+  "recorded_at": "2026-09-02T09:41:00.167533+00:00",
+  "schema_version": "gy-pr1a-task0-feasibility.v1",
+  "script": {
+    "binding_query_sha256": "d355339a2675bd74523aa9cde2ab2bbe65cf799588a252ea9127622bc06afcfd",
+    "calibration_query_sha256": "37188eb2fd5af23b102146ba401b3af82831ee1db9a3b97366a7af27493b8d3c",
+    "path": "/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/.superpowers/sdd/2026-09-02-gy-pr1a-data-only-promotion/task-0-feasibility.py",
+    "plan_blob": "b5d50b8f397733e99afa84f9634d4dfcf40c4d43",
+    "plan_commit": "7781da8e9a47f13d39a035dc3bc2f6810d9fa0e8",
+    "python_executable": "/Users/deniskopylov/polisyos/.worktrees/gy-pr1a-data-only-promotion/policy-engine/.venv/bin/python",
+    "python_version": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "selector_query_sha256": "a69f142d098b4e6f3feb382f9ba0427a399415421bc918813eeb7300a2d770c6",
+    "sha256": "3a7b23508d1947a1f8733a246080d1c2fb8fe2056771c29e1836c3afe8d7b627"
+  },
+  "status": "negative_terminal",
+  "structural_denominator": 0,
+  "terminal_code": "selector_required_table_missing",
+  "terminal_detail": "the exact committed query contract cannot execute"
+}
+```
+
+### INT-K06 custody chronology after the terminal
+
+- prospectivity: `not_established` as a public claim; repository evidence shows the plan and
+  complete instrument committed before this first inspection;
+- firstness: `not_established` as a public claim; this lane records one invocation and the one-shot
+  lock is consumed;
+- substitutions: none;
+- chronology: preregistration commit `16c1d28e7f1ff673927f0886a9741c0fbe4e5b6b` precedes the
+  `2026-09-02T09:41:00.167533+00:00` terminal receipt;
+- adjudication: the plan's predeclared missing-table rule applies; no discretionary adjudication;
+- deviations: none; the executor followed the registered query and stopped on its registered
+  terminal instead of substituting a table;
+- negative terminals: one — `selector_required_table_missing`, structural denominator `0`;
+- capability disposition: `not_established`; the fixed structural selector could not execute
+  because its required table is absent. No candidate, selected stratum, or `>=20` calibration
+  measurement exists;
+- publication: `not_established`; nothing here is projected as a governed promotion or statistical
+  claim;
+- correction: none;
+- prohibited substitution found: `false`.
+
+### Capability finding
+
+The data-only no-appointment ruling remains intact. The fixed structural selector could not execute
+because its required table is absent, so availability of the preregistered genuine
+production-owned CG2 population is `not_established`; no candidate, selected stratum, or `>=20`
+calibration measurement exists. This nevertheless stops GY-PR1a under the preregistered
+fixed-source terminal. It does not authorize a substitute source, synthesized population, source
+edit, or weakening of the selector. Candidate eligibility and the eleven-clause acceptance
+predicate are `not_established`; zero clauses are claimed satisfied because execution terminated
+before a candidate existed. No truth-bearing object was constructed directly.
+
+### Exact append-only prose for architect transcription
+
+For `first-promotion-candidate-with-complete-evidence`:
+
+> **BLOCKED 2026-09-02 — FIXED TASK-0 SELECTOR TERMINAL.** The committed selector could not
+> execute because required table `ac_skg_span_grounded_claims` is missing (`6/7` required tables
+> present); receipt status is `negative_terminal`, terminal code
+> `selector_required_table_missing`, and `structural_denominator=0`. This is not an
+> eligible-candidate count of zero: the candidate predicate is `not_established`, so the plan
+> requires stopping before candidate construction, injection, or promotion. The row remains
+> blocked on the engineering producer chain: N8 persisted bound `ValueGateReceipt` plus valid
+> `value_ready`, and production N9 context wiring. No institutional appointment is required for
+> PR1a.
+
+For `gy-promotion-obligations-scope-insufficient`:
+
+> **BLOCKED 2026-09-02 — SHARED FIELD-PILOT CLOSURE SIGNAL.** The unconditional
+> `scope_insufficient` defect is repaired. The fixed Task-0 selector nevertheless terminated
+> before candidate selection because `ac_skg_span_grounded_claims` is missing and
+> `structural_denominator=0`; no candidate or receipt may be constructed from this run. The prior
+> complete census remains authoritative: data-only production `3 full / 0 scope-only`;
+> field-pilot production `4 full / 1 scope-only`, with the sole scope-only path
+> `_eval_safety_obligation` at `promotion_sequence.py:5197`. Closure still requires the
+> producer-issued persisted canonical field-pilot receipt for `GY-O0-NC-01`. The data-only PR1a
+> path requires no appointment.
+
+For the GY plan's `GY-PR1` / PR1a row:
+
+> **GY-PR1 / PR1a — `not_started`; Task-0 attempt terminal.** PR1a remains the
+> engineering-only data path: produce and persist the bound N8 `ValueGateReceipt`/`value_ready`,
+> wire production N9's existing writer-input keys, and reach a real canonical data-only
+> `consumer_promotable=True` receipt. The fixed selector receipt is negative-terminal
+> (`selector_required_table_missing`; `structural_denominator=0`), so the plan's prerequisite gate
+> stops before Task 1 and cannot treat zero as a successful empty candidate set. PR1b remains
+> separate pilot-grade work and is the only half requiring an institutional EvalSafety
+> appointment.
+
+No existing CG2 debt row is changed by this attempt: the authorized CG2 implementation never
+began. The capability finding above is the input for an architect-owned new row or a future
+supersession of the first-promotion candidate row; this journal does not silently invent an active
+register identifier.
+
+## Event 2 — terminal closeout verification
+
+- Recorded at: `2026-09-02T12:57:03+03:00`.
+- `git diff --check`: exit `0`.
+- Complete tracked `src/**/*.py` denominator: `2,617`; delta from the carried baseline: `0`.
+- Changed tracked path denominator: one, this append-only journal; no production source, test,
+  frozen receipt epoch, OpenAPI source, generated client, schema, or active-plan file changed.
+- Selection lock SHA-256 remains
+  `b982b3841bedecfe2e0ddc5e033892af8e2c8cb7a6878c3fee06ed3091479eae`.
+- Selection receipt SHA-256 remains
+  `4127d689edabf279e0fc473c1f1f779448e935a644a8c355481e35f458e8ef5b`.
+- Binding receipt: absent, as the terminal requires.
+- Calibration-feasibility receipt: absent, as the terminal requires.
+- No test was added or run after the production terminal: stop rule 1 forbids the source/test work
+  that would create a red-first group.
+- `EVAL_SAFETY` was not evaluated because no candidate existed; no result from this run is described
+  as satisfied, omitted, exempted, `scope_insufficient`, or `NOT_APPLICABLE_DATA_ONLY`.
+
+`check_docs_lifecycle.py` exited `1` with exactly the six carried findings and no journal finding:
+two missing `status`/`owner` fields in `docs/plans/active/LEDGER.md`, plus four stale
+`frontend/runtime-dashboard` references in the Atlas adoption ledger, Atlas archive map, frontend
+Atlas adjudication, and PAO-R0 audit. The bound debt checker was not invoked: the plan reserves its
+single captured invocation for Task 7, and this attempt terminated at Task 0. Its closeout status in
+this stopped attempt is therefore `not_established`, not inferred from terminal transport or a
+carried baseline.
+
+Pattern closeout: the stop preserves P01/P02 capability honesty, P32 resolve-bind-verify, P33's
+witness/spec distinction, P35's complete denominator, P37 predicate provenance, and P38's
+property/proxy distinction. In particular, `structural_denominator=0` proves the fixed selector had
+no executable structural population; it does not prove that zero candidates would be eligible or
+that a hypothetical selected stratum would contain fewer than 20 observations.

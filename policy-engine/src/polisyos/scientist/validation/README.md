@@ -36,8 +36,10 @@ Scientist can also persist and exact-read a strict semantic-epoch impact snapsho
 nullable owner walk used by the legacy denominator resolver. Strict materialization refuses a
 missing or non-CAS owner artifact id without changing legacy resolver behavior. A lazy write-once
 owner index is available for reconciliation admission bindings and creates no directory until a
-sidecar-aware admission writes its first binding. The Runtime reconciliation producer/reader and
-the admission branch that consumes this state remain out of scope here.
+sidecar-aware admission writes its first binding. When an explicit Runtime reader is configured,
+first admission validates the exact sidecar and freezes its handle before the unchanged v1 pending
+batch; restart replay resolves only that frozen handle and never consults the live owner index.
+The literal `None` default preserves legacy admission, and no production reader is appointed yet.
 
 ## Common Commands
 

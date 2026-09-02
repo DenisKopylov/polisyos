@@ -75,8 +75,8 @@ Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDe
   responses, OpenAPI, and generated clients.
 - The scope-adjudication candidate contract preserves the absence of its production resolver and
   consumer as typed limitations; no production orchestration or public/audit surface is appointed.
-- The epoch-impact snapshot and reconciliation sidecar contracts are public and content-bound, but
-  the Runtime producer/exact reader and Scientist admission consumer remain `producer_missing` and
-  `bridge_missing` until the separately scoped reconciliation task lands. No production reader is
-  appointed.
+- The epoch-impact snapshot and reconciliation sidecar contracts are public and content-bound.
+  Runtime now produces and exact-reads the relation, and Scientist consumes it through an explicit
+  write-once admission port. The capability remains `implemented_but_not_orchestrated`: no
+  production verifier, provider, or reconciliation reader is appointed.
 - `core.contracts` still acts as the stable import surface for runtime/control payloads while analytics refs continue to be re-exported for compatibility.

@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import threading
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -40,8 +41,10 @@ from polisyos.runtime.quality.epoch_validity_cascade import (
 )
 from polisyos.scientist.validation.decision_validity import (
     DecisionValidityService,
+    _DecisionDependencyIndex,
     _DecisionLineageState,
     _DecisionValidityStateStore,
+    _epoch_batch_id,
     _load_baseline,
     _load_envelope,
 )
@@ -410,6 +413,191 @@ def _semantic_epoch_manifest(
             semantic_epoch_runtime._EPOCH_PREFIX,
             manifest_content_hash.encode(),
         ),
+    )
+
+
+@dataclass(frozen=True)
+class _RuntimeReconciliationFixture:
+    store: FileSystemCAS
+    provenance: ArtifactRef
+    verifier: _AppointedEpochVerifier
+    service: DecisionValidityService
+    transition_ref: ArtifactRef
+    transition_raw_hash: str
+    query_ref: str
+    snapshot: object
+    reader: object
+    producer: object
+    runtime_targets: tuple[ArtifactRef, ...]
+    packet_refs: tuple[str, ...]
+
+
+def _runtime_reconciliation_fixture(
+    tmp_path: Path,
+    *,
+    runtime_target_count: int = 1,
+    zero_impact_target_indices: tuple[int, ...] = (),
+) -> _RuntimeReconciliationFixture:
+    from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        EpochTransitionDenominatorReconciliationProducer,
+        EpochTransitionDenominatorReconciliationReader,
+    )
+    from polisyos.runtime.quality.epoch_validity_cascade import (
+        epoch_dependency_outer_denominator_ref,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    provenance = _put_json(
+        store,
+        {"verifier": "appointed"},
+        kind="chronology.epoch_transition_verifier",
+    )
+    verifier = _AppointedEpochVerifier(provenance)
+    service = DecisionValidityService(store, epoch_transition_verifier=verifier)
+    query_ref = "sha256:" + "2" * 64
+    authority_purpose = "decision_validity_epoch_transition"
+    runtime_source = _put_json(
+        store,
+        {"runtime": "epoch-source"},
+        kind="runtime.epoch_dependency_source",
+    )
+    runtime_targets = tuple(
+        _put_json(
+            store,
+            {"runtime": f"epoch-target-{ordinal}"},
+            kind="runtime.epoch_dependency_target",
+        )
+        for ordinal in range(runtime_target_count)
+    )
+    graph_edges = tuple(
+        EpochDependencyEdge(
+            source_ref=runtime_source,
+            target_ref=target,
+            relation="invalidates",
+            authority_purpose=authority_purpose,
+        )
+        for target in runtime_targets
+    )
+    graph = EpochDependencyGraph(
+        edges=graph_edges,
+        denominator_ref=_semantic_hash(
+            "polisyos.epoch.dependency-graph.v1",
+            {"edges": graph_edges},
+        ),
+    )
+    outer_ref = epoch_dependency_outer_denominator_ref(
+        certificate_bindings=(),
+        dependency_graph=graph,
+    )
+    epoch_scope = semantic_epoch_runtime.build_epoch_scope_identity(
+        schema_profile="polisyos.epoch.decision-validity-test-scope.v1",
+        identity_bytes=b"epoch-denominator-focused-falsifier",
+    )
+    previous_epoch = _semantic_epoch_manifest(
+        scope=epoch_scope,
+        label="focused-previous",
+        requested_query_context_ref=query_ref,
+        predecessor_refs=(),
+    )
+    current_epoch = _semantic_epoch_manifest(
+        scope=epoch_scope,
+        label="focused-current",
+        requested_query_context_ref=query_ref,
+        predecessor_refs=(previous_epoch.epoch_ref,),
+    )
+    transition = build_epoch_validity_transition(
+        previous_epoch=previous_epoch,
+        current_epoch=current_epoch,
+        certificates=(),
+        dependency_graph=graph,
+        target_vector=resolve_owner_target_dispositions(
+            advisory_events=(),
+            owner_dispositions=(),
+            dependency_graph=graph,
+        ),
+        dependency_denominator_ref=outer_ref,
+        adjudication_denominator_ref="sha256:" + "4" * 64,
+        requested_query_context_ref=query_ref,
+        authority_purpose=authority_purpose,
+    )
+    transition_ref = store.put_bytes(
+        _canonical_bytes(transition),
+        ArtifactWriteOptions(
+            kind="polisyos.epoch.validity_transition",
+            media_type="application/vnd.polisyos.chronology+json",
+        ),
+    )
+    transition_raw_hash = (
+        "sha256:" + hashlib.sha256(store.get_bytes(transition_ref.artifact_id)).hexdigest()
+    )
+
+    dependency_key = "epoch::focused-owner"
+    packet_ref = _register_reconciliation_packet(
+        service,
+        store,
+        dependency_key=dependency_key,
+        dependency_artifact_id=str(runtime_targets[0].artifact_id),
+        lineage_key="epoch_lineage_focused_owner",
+    )
+    dependency_keys = [dependency_key]
+    for target_index in zero_impact_target_indices:
+        zero_key = f"epoch::zero-impact-{target_index}"
+        service._state.save_dependency(
+            _DecisionDependencyIndex(
+                dependency_key=zero_key,
+                dependency_kind=DecisionDependencyKind.SEMANTIC_EPOCH,
+                artifact_id=str(runtime_targets[target_index].artifact_id),
+                packet_refs=[],
+                lineage_keys=[],
+            )
+        )
+        dependency_keys.append(zero_key)
+    sorted_dependency_keys = tuple(sorted(dependency_keys))
+    snapshot = service.persist_epoch_impact_snapshot(
+        dependency_keys=sorted_dependency_keys,
+        requested_query_context_ref=query_ref,
+    )
+    verifier.receipt = EpochTransitionVerificationReceipt(
+        transition_artifact_ref=transition_ref,
+        transition_content_hash=transition_raw_hash,
+        requested_query_context_ref=query_ref,
+        authority_purpose=authority_purpose,
+        verifier_provenance_ref=provenance,
+        dependency_keys=sorted_dependency_keys,
+        dependency_denominator_ref=snapshot.snapshot.decision_impact_denominator_ref,
+        adjudication_denominator_ref=transition.adjudication_denominator_ref,
+        targets=(
+            EpochValidityBatchTarget(
+                packet_ref=packet_ref,
+                decision_lineage_key="epoch_lineage_focused_owner",
+                dependency_key=dependency_key,
+                status=DecisionValidityStatus.STALE,
+                reason="epoch_advanced",
+            ),
+        ),
+        predicate_class="independently_reconciled",
+    )
+    reader = EpochTransitionDenominatorReconciliationReader(
+        store=store,
+        verifier_provenance_ref=provenance,
+    )
+    producer = EpochTransitionDenominatorReconciliationProducer(
+        store=store,
+        verifier_provenance_ref=provenance,
+    )
+    return _RuntimeReconciliationFixture(
+        store=store,
+        provenance=provenance,
+        verifier=verifier,
+        service=service,
+        transition_ref=transition_ref,
+        transition_raw_hash=transition_raw_hash,
+        query_ref=query_ref,
+        snapshot=snapshot,
+        reader=reader,
+        producer=producer,
+        runtime_targets=runtime_targets,
+        packet_refs=(packet_ref,),
     )
 
 
@@ -1191,6 +1379,7 @@ def test_epoch_denominator_reconciliation_receipt_refuses_distinct_member_sets(
     from polisyos.runtime.quality.epoch_denominator_reconciliation import (
         EpochDenominatorReconciliationNonReceipt,
         EpochTransitionDenominatorReconciliationProducer,
+        EpochTransitionDenominatorReconciliationReader,
     )
 
     snapshot = service.persist_epoch_impact_snapshot(
@@ -1240,6 +1429,39 @@ def test_epoch_denominator_reconciliation_receipt_refuses_distinct_member_sets(
     assert outcome.code == "epoch_denominator_membership_mismatch"
     assert outcome.reconciliation_handle is None
     assert _before_epoch_owner_state(service, (packet_ref,)) == before
+    assert all(
+        store.get_manifest(artifact_id).kind
+        != "polisyos.epoch.transition_denominator_reconciliation_receipt"
+        for artifact_id in store.iter_artifact_ids()
+    )
+
+    configured = DecisionValidityService(
+        store,
+        epoch_transition_verifier=verifier,
+        epoch_denominator_reconciliation_reader=(
+            EpochTransitionDenominatorReconciliationReader(
+                store=store,
+                verifier_provenance_ref=provenance,
+            )
+        ),
+    )
+    configured_before = _before_epoch_owner_state(configured, (packet_ref,))
+    with pytest.raises(
+        ValueError,
+        match="^epoch_denominator_membership_mismatch$",
+    ):
+        configured.admit_epoch_validity_batch(
+            transition_artifact_ref=transition_ref,
+            requested_query_context_ref=query_ref,
+        )
+    assert _before_epoch_owner_state(configured, (packet_ref,)) == configured_before
+    assert configured._state.list_epoch_pending() == ()
+    assert configured.enumerate_completed_epoch_batch_evidence() == ()
+    assert all(
+        store.get_manifest(artifact_id).kind
+        != "polisyos.epoch.transition_denominator_reconciliation_receipt"
+        for artifact_id in store.iter_artifact_ids()
+    )
 
 
 def test_epoch_denominator_reconciliation_receipt_bridges_both_owner_definitions(
@@ -1569,6 +1791,668 @@ def test_epoch_denominator_reconciliation_receipt_bridges_both_owner_definitions
     assert replay_exact.receipt_bytes == first_exact.receipt_bytes
     assert replay_exact.receipt == first_exact.receipt
     assert replay_binding.reconciliation_receipt_ref != later.handle.reconciliation_receipt_ref
+
+
+def test_epoch_reconciliation_fresh_scan_retains_unmapped_runtime_target(
+    tmp_path: Path,
+) -> None:
+    """A reader created before publication scans fresh and preserves Runtime surplus."""
+
+    from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        PersistedEpochTransitionDenominatorReconciliation,
+    )
+
+    fixture = _runtime_reconciliation_fixture(tmp_path, runtime_target_count=2)
+    produced = fixture.producer.produce_and_persist(
+        transition_artifact_ref=fixture.transition_ref,
+        scientist_snapshot_handle=fixture.snapshot.handle,
+        requested_query_context_ref=fixture.query_ref,
+        authority_purpose="decision_validity_epoch_transition",
+    )
+    assert isinstance(produced, PersistedEpochTransitionDenominatorReconciliation)
+
+    resolved = fixture.reader.resolve_for_first_admission(
+        transition_artifact_ref=fixture.transition_ref,
+        transition_content_hash=fixture.transition_raw_hash,
+        requested_query_context_ref=fixture.query_ref,
+        authority_purpose="decision_validity_epoch_transition",
+        scientist_snapshot_handle=fixture.snapshot.handle,
+    )
+
+    assert resolved.handle == produced.handle
+    assert resolved.receipt.runtime_target_refs == tuple(
+        sorted(
+            fixture.runtime_targets,
+            key=lambda ref: (str(ref.artifact_id), ref.kind, ref.media_type),
+        )
+    )
+    assert tuple(row.runtime_target_ref for row in resolved.receipt.mapping_rows) == (
+        fixture.runtime_targets[0],
+    )
+
+
+def test_epoch_reconciliation_maps_zero_impact_owner_without_coercion(
+    tmp_path: Path,
+) -> None:
+    """Every owner row joins exactly once even when it contributes no packet target."""
+
+    from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        PersistedEpochTransitionDenominatorReconciliation,
+    )
+
+    fixture = _runtime_reconciliation_fixture(
+        tmp_path,
+        runtime_target_count=2,
+        zero_impact_target_indices=(1,),
+    )
+    produced = fixture.producer.produce_and_persist(
+        transition_artifact_ref=fixture.transition_ref,
+        scientist_snapshot_handle=fixture.snapshot.handle,
+        requested_query_context_ref=fixture.query_ref,
+        authority_purpose="decision_validity_epoch_transition",
+    )
+
+    assert isinstance(produced, PersistedEpochTransitionDenominatorReconciliation)
+    assert len(produced.receipt.scientist_owner_rows) == 2
+    assert len(produced.receipt.scientist_targets) == 1
+    assert len(produced.receipt.mapping_rows) == 1
+    assert produced.receipt.runtime_target_refs == tuple(
+        sorted(
+            fixture.runtime_targets,
+            key=lambda ref: (str(ref.artifact_id), ref.kind, ref.media_type),
+        )
+    )
+
+
+def test_epoch_reconciliation_fresh_scan_zero_candidate_is_unavailable(
+    tmp_path: Path,
+) -> None:
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+
+    with pytest.raises(ValueError, match="epoch_denominator_reconciliation_unavailable"):
+        fixture.reader.resolve_for_first_admission(
+            transition_artifact_ref=fixture.transition_ref,
+            transition_content_hash=fixture.transition_raw_hash,
+            requested_query_context_ref=fixture.query_ref,
+            authority_purpose="decision_validity_epoch_transition",
+            scientist_snapshot_handle=fixture.snapshot.handle,
+        )
+
+
+def test_epoch_reconciliation_fresh_scan_duplicate_candidate_is_ambiguous(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        EpochTransitionDenominatorReconciliationReader,
+        PersistedEpochTransitionDenominatorReconciliation,
+    )
+
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+    produced = fixture.producer.produce_and_persist(
+        transition_artifact_ref=fixture.transition_ref,
+        scientist_snapshot_handle=fixture.snapshot.handle,
+        requested_query_context_ref=fixture.query_ref,
+        authority_purpose="decision_validity_epoch_transition",
+    )
+    assert isinstance(produced, PersistedEpochTransitionDenominatorReconciliation)
+
+    class _DuplicateEnumerationStore:
+        root = fixture.store.root
+
+        def __getattr__(self, name: str):
+            return getattr(fixture.store, name)
+
+        def iter_artifact_ids(self):
+            return [
+                *fixture.store.iter_artifact_ids(),
+                produced.handle.reconciliation_receipt_ref.artifact_id,
+            ]
+
+    reader = EpochTransitionDenominatorReconciliationReader(
+        store=_DuplicateEnumerationStore(),
+        verifier_provenance_ref=fixture.provenance,
+    )
+    with pytest.raises(ValueError, match="epoch_denominator_reconciliation_ambiguous"):
+        reader.resolve_for_first_admission(
+            transition_artifact_ref=fixture.transition_ref,
+            transition_content_hash=fixture.transition_raw_hash,
+            requested_query_context_ref=fixture.query_ref,
+            authority_purpose="decision_validity_epoch_transition",
+            scientist_snapshot_handle=fixture.snapshot.handle,
+        )
+
+
+def test_epoch_reconciliation_fresh_scan_malformed_same_kind_is_unresolved(
+    tmp_path: Path,
+) -> None:
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+    fixture.store.put_bytes(
+        b"{}",
+        ArtifactWriteOptions(
+            kind="polisyos.epoch.transition_denominator_reconciliation_receipt",
+            media_type="application/vnd.polisyos.chronology+json",
+            schema=SchemaInfo(
+                name="polisyos.epoch-transition-denominator-reconciliation.v1",
+                version="1.0",
+            ),
+            canon=CanonInfo.from_spec(CanonSpec()),
+        ),
+    )
+
+    with pytest.raises(ValueError, match="epoch_denominator_reconciliation_unresolved"):
+        fixture.reader.resolve_for_first_admission(
+            transition_artifact_ref=fixture.transition_ref,
+            transition_content_hash=fixture.transition_raw_hash,
+            requested_query_context_ref=fixture.query_ref,
+            authority_purpose="decision_validity_epoch_transition",
+            scientist_snapshot_handle=fixture.snapshot.handle,
+        )
+
+
+def test_epoch_reconciliation_refuses_wrong_transition_profile_and_provenance(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        EpochTransitionDenominatorReconciliationProducer,
+        EpochTransitionDenominatorReconciliationReader,
+        PersistedEpochTransitionDenominatorReconciliation,
+    )
+
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+    wrong_transition_ref = fixture.transition_ref.model_copy(
+        update={"kind": "polisyos.epoch.not-a-validity-transition"}
+    )
+    with pytest.raises(ValueError, match="epoch_denominator_reconciliation_unresolved"):
+        fixture.producer.produce_and_persist(
+            transition_artifact_ref=wrong_transition_ref,
+            scientist_snapshot_handle=fixture.snapshot.handle,
+            requested_query_context_ref=fixture.query_ref,
+            authority_purpose="decision_validity_epoch_transition",
+        )
+
+    produced = fixture.producer.produce_and_persist(
+        transition_artifact_ref=fixture.transition_ref,
+        scientist_snapshot_handle=fixture.snapshot.handle,
+        requested_query_context_ref=fixture.query_ref,
+        authority_purpose="decision_validity_epoch_transition",
+    )
+    assert isinstance(produced, PersistedEpochTransitionDenominatorReconciliation)
+    other_provenance = _put_json(
+        fixture.store,
+        {"verifier": "other-appointed"},
+        kind="chronology.epoch_transition_verifier",
+    )
+    wrong_reader = EpochTransitionDenominatorReconciliationReader(
+        store=fixture.store,
+        verifier_provenance_ref=other_provenance,
+    )
+    with pytest.raises(ValueError, match="epoch_denominator_reconciliation_unresolved"):
+        wrong_reader.resolve_exact(handle=produced.handle)
+    with pytest.raises(ValueError, match="epoch_denominator_reconciliation_unavailable"):
+        EpochTransitionDenominatorReconciliationProducer(
+            store=fixture.store,
+            verifier_provenance_ref=None,
+        ).produce_and_persist(
+            transition_artifact_ref=fixture.transition_ref,
+            scientist_snapshot_handle=fixture.snapshot.handle,
+            requested_query_context_ref=fixture.query_ref,
+            authority_purpose="decision_validity_epoch_transition",
+        )
+
+
+@pytest.mark.parametrize("coordinate", ["transition_hash", "query", "purpose"])
+def test_epoch_reconciliation_refuses_wrong_source_coordinate(
+    tmp_path: Path,
+    coordinate: str,
+) -> None:
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+    transition_hash = fixture.transition_raw_hash
+    query_ref = fixture.query_ref
+    authority_purpose = "decision_validity_epoch_transition"
+    if coordinate == "transition_hash":
+        transition_hash = "sha256:" + "7" * 64
+    elif coordinate == "query":
+        query_ref = "sha256:" + "8" * 64
+    else:
+        authority_purpose = "wrong_authority_purpose"
+
+    with pytest.raises(ValueError, match="epoch_denominator_reconciliation_unresolved"):
+        fixture.reader.resolve_for_first_admission(
+            transition_artifact_ref=fixture.transition_ref,
+            transition_content_hash=transition_hash,
+            requested_query_context_ref=query_ref,
+            authority_purpose=authority_purpose,
+            scientist_snapshot_handle=fixture.snapshot.handle,
+        )
+
+
+@pytest.mark.parametrize("drift", ["profile", "handle_hash"])
+def test_epoch_reconciliation_refuses_snapshot_profile_or_handle_hash(
+    tmp_path: Path,
+    drift: str,
+) -> None:
+    from polisyos.core.contracts.decision_validity import (
+        DecisionValidityEpochImpactSnapshotHandle,
+    )
+
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+    if drift == "profile":
+        alternate_snapshot = fixture.snapshot.snapshot.model_copy(
+            update={"requested_query_context_ref": "sha256:" + "8" * 64}
+        )
+        alternate_raw = to_canonical_bytes(
+            alternate_snapshot.model_dump(mode="json"),
+            CanonSpec(),
+        )
+        alternate_ref = fixture.store.put_bytes(
+            alternate_raw,
+            ArtifactWriteOptions(
+                kind="scientist.decision_validity_epoch_impact_snapshot",
+                media_type="application/json",
+                schema=SchemaInfo(name="wrong.snapshot.schema", version="1.0"),
+                canon=CanonInfo.from_spec(CanonSpec()),
+            ),
+        )
+        alternate_handle = DecisionValidityEpochImpactSnapshotHandle(
+            snapshot_ref=alternate_ref,
+            snapshot_content_hash=alternate_snapshot.snapshot_content_hash,
+        )
+    else:
+        alternate_handle = DecisionValidityEpochImpactSnapshotHandle(
+            snapshot_ref=fixture.snapshot.handle.snapshot_ref,
+            snapshot_content_hash="sha256:" + "9" * 64,
+        )
+
+    with pytest.raises(ValueError, match="epoch_denominator_reconciliation_unresolved"):
+        fixture.producer.produce_and_persist(
+            transition_artifact_ref=fixture.transition_ref,
+            scientist_snapshot_handle=alternate_handle,
+            requested_query_context_ref=fixture.query_ref,
+            authority_purpose="decision_validity_epoch_transition",
+        )
+
+
+@pytest.mark.parametrize(
+    "drift",
+    [
+        "receipt_schema",
+        "receipt_media",
+        "receipt_canon",
+        "receipt_inputs",
+        "receipt_bytes",
+        "transition_bytes",
+        "snapshot_bytes",
+    ],
+)
+def test_epoch_reconciliation_exact_reader_refuses_profile_or_source_drift(
+    tmp_path: Path,
+    drift: str,
+) -> None:
+    from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        PersistedEpochTransitionDenominatorReconciliation,
+    )
+
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+    produced = fixture.producer.produce_and_persist(
+        transition_artifact_ref=fixture.transition_ref,
+        scientist_snapshot_handle=fixture.snapshot.handle,
+        requested_query_context_ref=fixture.query_ref,
+        authority_purpose="decision_validity_epoch_transition",
+    )
+    assert isinstance(produced, PersistedEpochTransitionDenominatorReconciliation)
+    if drift.startswith("receipt_") and drift != "receipt_bytes":
+        _, manifest_path = fixture.store._paths(
+            produced.handle.reconciliation_receipt_ref.artifact_id
+        )
+        payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if drift == "receipt_schema":
+            payload["schema"]["name"] = "wrong.reconciliation.schema"
+        elif drift == "receipt_media":
+            payload["media_type"] = "application/json"
+        elif drift == "receipt_canon":
+            payload["canon"]["version"] = "9.9.9"
+        else:
+            payload["inputs"] = []
+        manifest_path.write_text(
+            json.dumps(payload, sort_keys=True, separators=(",", ":")),
+            encoding="utf-8",
+        )
+    elif drift == "receipt_bytes":
+        receipt_path, _ = fixture.store._paths(
+            produced.handle.reconciliation_receipt_ref.artifact_id
+        )
+        receipt_path.write_bytes(b" " + produced.receipt_bytes)
+    elif drift == "transition_bytes":
+        transition_path, _ = fixture.store._paths(fixture.transition_ref.artifact_id)
+        transition_path.write_bytes(b"corrupt-transition-source")
+    else:
+        snapshot_path, _ = fixture.store._paths(
+            fixture.snapshot.handle.snapshot_ref.artifact_id
+        )
+        snapshot_path.write_bytes(b"corrupt-scientist-snapshot")
+
+    with pytest.raises(ValueError, match="epoch_denominator_reconciliation_unresolved"):
+        fixture.reader.resolve_exact(handle=produced.handle)
+
+
+@pytest.mark.parametrize("mapping_drift", ["omitted", "extra", "duplicate"])
+def test_epoch_reconciliation_contract_refuses_mapping_denominator_drift(
+    tmp_path: Path,
+    mapping_drift: str,
+) -> None:
+    from pydantic import ValidationError
+
+    from polisyos.core.contracts.decision_validity import (
+        EpochTransitionDenominatorReconciliationReceipt,
+    )
+    from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        PersistedEpochTransitionDenominatorReconciliation,
+    )
+
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+    produced = fixture.producer.produce_and_persist(
+        transition_artifact_ref=fixture.transition_ref,
+        scientist_snapshot_handle=fixture.snapshot.handle,
+        requested_query_context_ref=fixture.query_ref,
+        authority_purpose="decision_validity_epoch_transition",
+    )
+    assert isinstance(produced, PersistedEpochTransitionDenominatorReconciliation)
+    payload = produced.receipt.model_dump(mode="json")
+    mapping_rows = list(payload["mapping_rows"])
+    if mapping_drift == "omitted":
+        mapping_rows = []
+    elif mapping_drift == "duplicate":
+        mapping_rows.append(dict(mapping_rows[0]))
+    else:
+        extra = dict(mapping_rows[0])
+        extra["packet_ref"] = "sha256:" + "6" * 64
+        extra["decision_lineage_key"] = "epoch_lineage_extra"
+        mapping_rows.append(extra)
+    payload["mapping_rows"] = mapping_rows
+
+    with pytest.raises(
+        ValidationError,
+        match="epoch_reconciliation_mapping_denominator_mismatch",
+    ):
+        EpochTransitionDenominatorReconciliationReceipt.model_validate(payload)
+
+
+def test_epoch_reconciliation_binding_only_crash_restarts_exact(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        PersistedEpochTransitionDenominatorReconciliation,
+    )
+
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+    produced = fixture.producer.produce_and_persist(
+        transition_artifact_ref=fixture.transition_ref,
+        scientist_snapshot_handle=fixture.snapshot.handle,
+        requested_query_context_ref=fixture.query_ref,
+        authority_purpose="decision_validity_epoch_transition",
+    )
+    assert isinstance(produced, PersistedEpochTransitionDenominatorReconciliation)
+    service = DecisionValidityService(
+        fixture.store,
+        epoch_transition_verifier=fixture.verifier,
+        epoch_denominator_reconciliation_reader=fixture.reader,
+    )
+    original_save_pending = service._state.save_epoch_pending
+
+    def crash_before_pending(_pending):
+        raise RuntimeError("injected_crash_after_binding")
+
+    monkeypatch.setattr(service._state, "save_epoch_pending", crash_before_pending)
+    with pytest.raises(RuntimeError, match="injected_crash_after_binding"):
+        service.admit_epoch_validity_batch(
+            transition_artifact_ref=fixture.transition_ref,
+            requested_query_context_ref=fixture.query_ref,
+        )
+    assert len(service._state.list_epoch_reconciliation_admission_bindings()) == 1
+    assert service._state.list_epoch_pending() == ()
+
+    monkeypatch.setattr(service._state, "save_epoch_pending", original_save_pending)
+    restarted = DecisionValidityService(
+        fixture.store,
+        epoch_transition_verifier=fixture.verifier,
+        epoch_denominator_reconciliation_reader=fixture.reader,
+    )
+
+    def forbid_fresh_lookup(**_kwargs):
+        raise AssertionError("binding replay consulted fresh candidate enumeration")
+
+    def forbid_live_snapshot(**_kwargs):
+        raise AssertionError("binding replay consulted live Scientist owner state")
+
+    monkeypatch.setattr(
+        fixture.reader,
+        "resolve_for_first_admission",
+        forbid_fresh_lookup,
+    )
+    monkeypatch.setattr(
+        restarted,
+        "persist_epoch_impact_snapshot",
+        forbid_live_snapshot,
+    )
+    receipt = restarted.admit_epoch_validity_batch(
+        transition_artifact_ref=fixture.transition_ref,
+        requested_query_context_ref=fixture.query_ref,
+    )
+    assert receipt.state == "completed"
+    assert restarted._state.list_epoch_pending() == ()
+
+
+@pytest.mark.parametrize("existing_state", ["pending", "completed"])
+def test_epoch_reconciliation_configured_replay_refuses_missing_binding(
+    tmp_path: Path,
+    existing_state: str,
+) -> None:
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+    assert fixture.verifier.receipt is not None
+    if existing_state == "pending":
+        fixture.service._state.save_epoch_pending(
+            fixture.service._epoch_pending_from_verification(
+                batch_id=_epoch_batch_id(
+                    transition_artifact_ref=fixture.transition_ref,
+                    requested_query_context_ref=fixture.query_ref,
+                ),
+                receipt=fixture.verifier.receipt,
+            )
+        )
+    else:
+        fixture.service.admit_epoch_validity_batch(
+            transition_artifact_ref=fixture.transition_ref,
+            requested_query_context_ref=fixture.query_ref,
+        )
+
+    configured = DecisionValidityService(
+        fixture.store,
+        epoch_transition_verifier=fixture.verifier,
+        epoch_denominator_reconciliation_reader=fixture.reader,
+    )
+    with pytest.raises(ValueError, match="epoch_denominator_reconciliation_unavailable"):
+        configured.admit_epoch_validity_batch(
+            transition_artifact_ref=fixture.transition_ref,
+            requested_query_context_ref=fixture.query_ref,
+        )
+
+
+def test_epoch_reconciliation_conflicting_bound_coordinates_refuse_without_mutation(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        PersistedEpochTransitionDenominatorReconciliation,
+    )
+
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+    produced = fixture.producer.produce_and_persist(
+        transition_artifact_ref=fixture.transition_ref,
+        scientist_snapshot_handle=fixture.snapshot.handle,
+        requested_query_context_ref=fixture.query_ref,
+        authority_purpose="decision_validity_epoch_transition",
+    )
+    assert isinstance(produced, PersistedEpochTransitionDenominatorReconciliation)
+    service = DecisionValidityService(
+        fixture.store,
+        epoch_transition_verifier=fixture.verifier,
+        epoch_denominator_reconciliation_reader=fixture.reader,
+    )
+    service.admit_epoch_validity_batch(
+        transition_artifact_ref=fixture.transition_ref,
+        requested_query_context_ref=fixture.query_ref,
+    )
+    before = _before_epoch_owner_state(service, fixture.packet_refs)
+    assert fixture.verifier.receipt is not None
+    fixture.verifier.receipt = fixture.verifier.receipt.model_copy(
+        update={"dependency_denominator_ref": "sha256:" + "9" * 64}
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="epoch_denominator_reconciliation_admission_conflict",
+    ):
+        service.admit_epoch_validity_batch(
+            transition_artifact_ref=fixture.transition_ref,
+            requested_query_context_ref=fixture.query_ref,
+        )
+    assert _before_epoch_owner_state(service, fixture.packet_refs) == before
+
+
+def test_epoch_reconciliation_bound_provenance_conflicts_before_exact_read(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        EpochTransitionDenominatorReconciliationReader,
+        PersistedEpochTransitionDenominatorReconciliation,
+    )
+
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+    produced = fixture.producer.produce_and_persist(
+        transition_artifact_ref=fixture.transition_ref,
+        scientist_snapshot_handle=fixture.snapshot.handle,
+        requested_query_context_ref=fixture.query_ref,
+        authority_purpose="decision_validity_epoch_transition",
+    )
+    assert isinstance(produced, PersistedEpochTransitionDenominatorReconciliation)
+    admitted = DecisionValidityService(
+        fixture.store,
+        epoch_transition_verifier=fixture.verifier,
+        epoch_denominator_reconciliation_reader=fixture.reader,
+    )
+    admitted.admit_epoch_validity_batch(
+        transition_artifact_ref=fixture.transition_ref,
+        requested_query_context_ref=fixture.query_ref,
+    )
+    before = _before_epoch_owner_state(admitted, fixture.packet_refs)
+    other_provenance = _put_json(
+        fixture.store,
+        {"verifier": "other-appointed-reader"},
+        kind="chronology.epoch_transition_verifier",
+    )
+    conflicting_reader = EpochTransitionDenominatorReconciliationReader(
+        store=fixture.store,
+        verifier_provenance_ref=other_provenance,
+    )
+    restarted = DecisionValidityService(
+        fixture.store,
+        epoch_transition_verifier=fixture.verifier,
+        epoch_denominator_reconciliation_reader=conflicting_reader,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="^epoch_denominator_reconciliation_admission_conflict$",
+    ):
+        restarted.admit_epoch_validity_batch(
+            transition_artifact_ref=fixture.transition_ref,
+            requested_query_context_ref=fixture.query_ref,
+        )
+    assert _before_epoch_owner_state(restarted, fixture.packet_refs) == before
+
+
+def test_epoch_reconciliation_valid_alternative_sidecar_conflicts_with_frozen_binding(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        PersistedEpochTransitionDenominatorReconciliation,
+    )
+
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+    first = fixture.producer.produce_and_persist(
+        transition_artifact_ref=fixture.transition_ref,
+        scientist_snapshot_handle=fixture.snapshot.handle,
+        requested_query_context_ref=fixture.query_ref,
+        authority_purpose="decision_validity_epoch_transition",
+    )
+    assert isinstance(first, PersistedEpochTransitionDenominatorReconciliation)
+    service = DecisionValidityService(
+        fixture.store,
+        epoch_transition_verifier=fixture.verifier,
+        epoch_denominator_reconciliation_reader=fixture.reader,
+    )
+    service.admit_epoch_validity_batch(
+        transition_artifact_ref=fixture.transition_ref,
+        requested_query_context_ref=fixture.query_ref,
+    )
+    assert fixture.verifier.receipt is not None
+    dependency_key = fixture.verifier.receipt.dependency_keys[0]
+    late_packet_ref = _register_reconciliation_packet(
+        service,
+        fixture.store,
+        dependency_key=dependency_key,
+        dependency_artifact_id=str(fixture.runtime_targets[0].artifact_id),
+        lineage_key="epoch_lineage_valid_alternative",
+    )
+    later_snapshot = service.persist_epoch_impact_snapshot(
+        dependency_keys=(dependency_key,),
+        requested_query_context_ref=fixture.query_ref,
+    )
+    later = fixture.producer.produce_and_persist(
+        transition_artifact_ref=fixture.transition_ref,
+        scientist_snapshot_handle=later_snapshot.handle,
+        requested_query_context_ref=fixture.query_ref,
+        authority_purpose="decision_validity_epoch_transition",
+    )
+    assert isinstance(later, PersistedEpochTransitionDenominatorReconciliation)
+    assert later.handle != first.handle
+    fixture.verifier.receipt = fixture.verifier.receipt.model_copy(
+        update={
+            "dependency_denominator_ref": (
+                later_snapshot.snapshot.decision_impact_denominator_ref
+            ),
+            "targets": (
+                *fixture.verifier.receipt.targets,
+                EpochValidityBatchTarget(
+                    packet_ref=late_packet_ref,
+                    decision_lineage_key="epoch_lineage_valid_alternative",
+                    dependency_key=dependency_key,
+                    status=DecisionValidityStatus.STALE,
+                    reason="epoch_advanced",
+                ),
+            ),
+        }
+    )
+    before = _before_epoch_owner_state(
+        service,
+        (*fixture.packet_refs, late_packet_ref),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="^epoch_denominator_reconciliation_admission_conflict$",
+    ):
+        service.admit_epoch_validity_batch(
+            transition_artifact_ref=fixture.transition_ref,
+            requested_query_context_ref=fixture.query_ref,
+        )
+    assert (
+        _before_epoch_owner_state(service, (*fixture.packet_refs, late_packet_ref))
+        == before
+    )
+    assert service._state.list_epoch_reconciliation_admission_bindings()[0].handle == (
+        first.handle
+    )
 
 
 def test_epoch_batch_omitted_target_fails_closed(tmp_path) -> None:

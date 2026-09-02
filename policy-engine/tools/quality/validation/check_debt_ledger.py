@@ -28,7 +28,7 @@ DISPOSITION_PATH = Path("architecture/atlas_surfaces/frontend-disposition-regist
 LEDGER_PATH = Path("docs/plans/active/LEDGER.md")
 PLAN_ROOTS = (Path("docs/plans/active/atlas-slices"), Path("docs/superpowers/plans"))
 PUBLISHED_DENOMINATORS = {
-    "register": 178,
+    "register": 179,
     "gy": 38,
     "atlas": 22,
     "frontend_disposition_entries": 261,

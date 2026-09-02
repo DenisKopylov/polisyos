@@ -363,6 +363,26 @@ def test_runtime_openapi_client_cannot_escape_default_check_by_removing_flag(
     )
 
 
+def test_runtime_openapi_snapshot_is_a_default_freshness_probe() -> None:
+    families = {
+        family.family_id: family
+        for family in guardrails._parse_generated_artifacts(
+            guardrails.DEFAULT_GENERATED_MANIFEST
+        )
+    }
+
+    family = families["runtime-openapi-snapshot"]
+
+    assert family.default_freshness_check is True
+    assert family.output_probe_command is not None
+    assert "tools/ops_runners/runtime/export_runtime_openapi.py" in family.output_probe_command
+    assert (
+        "{output_root}/schemas/runtime_api_v1.openapi.json"
+        in family.output_probe_command
+    )
+    assert "consulted dependency basis" in family.freshness_rule
+
+
 def test_guardrails_rejects_probe_that_rewrites_oracle_and_worktree(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

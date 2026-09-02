@@ -623,17 +623,19 @@ uv run python tools/ci/check_fabric_schema_registry.py --update
 
 - Family id: `runtime-openapi-snapshot`
 - Lifecycle: `generated_committed`
-- Source of truth: src/polisyos/runtime/http/** FastAPI app factory and DTO contracts
+- Source of truth: src/polisyos/runtime/http/** FastAPI app factory and DTO contracts, including the owner-validator consulted dependency basis embedded in governed projection examples
 - Generator: canonical generator declared in regenerate_commands
 - Verifier: verifier declared by check_command, drift_gate, workflow, or manual review policy
 - Promotion target: registered committed outputs listed in outputs
 - Commit policy: `committed`
-- Freshness rule: Regenerate and commit whenever runtime routes, request/response DTOs, or OpenAPI examples change.
+- Freshness rule: Regenerate and commit whenever runtime routes, request/response DTOs, OpenAPI examples, or an owner-validator consulted dependency basis changes.
 - Stale output behavior: `fail`
 - Drift gate: `automated`
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
 - Related workflow/config: `ops/ci/templates/workflows/arch.yml`
+- Required in default freshness check: `true`
+- Generator-observed output probe: `env PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONHASHSEED=0 JAX_PLATFORMS=cpu PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output '{output_root}/schemas/runtime_api_v1.openapi.json'`
 - Outputs:
   - `schemas/runtime_api_v1.openapi.json`
 

@@ -30,6 +30,8 @@ from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     next_skg_version,
     normalize_strength,
     parent_canonical_name,
+    skg_materialized_schema_identity,
+    skg_schema_generation_basis,
     strongest_strength,
 )
 from polisyos.data_forge.domains.academic.knowledge.types import WorkRecord
@@ -1876,6 +1878,10 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
             "skg_parameters": stats.skg_parameters,
             "skg_simulation_parameters": stats.skg_simulation_parameters,
             "skg_versions": stats.skg_versions,
+            "schema_generation": skg_schema_generation_basis().to_dict(),
+            "materialized_schema_identity": skg_materialized_schema_identity(
+                config.db_path
+            ),
             "json_validation_failures": stats.json_validation_failures,
         },
         artifacts=[config.db_path],

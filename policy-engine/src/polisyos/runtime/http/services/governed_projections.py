@@ -613,6 +613,23 @@ class ReplayPinMismatchError(ValueError):
         super().__init__(f"{field} replay pin {expected!r} does not match {actual!r}")
 
 
+class OwnerValidationTimeoutError(TimeoutError):
+    """Report an operational owner-worker timeout without minting a source verdict."""
+
+    def __init__(
+        self,
+        projection_id: ProjectionId | GuardedProjectionId,
+        *,
+        timeout_seconds: float,
+    ) -> None:
+        self.projection_id = projection_id
+        self.timeout_seconds = timeout_seconds
+        super().__init__(
+            f"owner validation for {projection_id.value!r} timed out after "
+            f"{timeout_seconds:g} seconds"
+        )
+
+
 class InvalidProjectionSourceError(ValueError):
     """Report a missing owner-recorded field without deriving a replacement."""
 
@@ -976,7 +993,11 @@ _OWNER_VALIDATION_CACHE: dict[
     _OwnerValidationCacheEntry,
 ] = {}
 _OWNER_VALIDATION_LOCK = Lock()
-_OWNER_VALIDATION_TIMEOUT_SECONDS = 120
+# Compiled from the measured ``owner-validator:default`` catalog lane. The focused
+# contract test binds this runtime value back to the catalog's two-times ceiling,
+# so updating the measurement without regenerating the executable budget is red.
+_OWNER_VALIDATION_MEASURED_MAX_SECONDS = 92.0
+_OWNER_VALIDATION_TIMEOUT_SECONDS = 2 * _OWNER_VALIDATION_MEASURED_MAX_SECONDS
 
 
 def _source_schema_version(source: dict[str, Any]) -> str | None:
@@ -1109,7 +1130,12 @@ def _run_owner_validation(
                 text=True,
                 timeout=_OWNER_VALIDATION_TIMEOUT_SECONDS,
             )
-        except (OSError, subprocess.TimeoutExpired) as exc:
+        except subprocess.TimeoutExpired as exc:
+            raise OwnerValidationTimeoutError(
+                definition.projection_id,
+                timeout_seconds=_OWNER_VALIDATION_TIMEOUT_SECONDS,
+            ) from exc
+        except OSError as exc:
             return _owner_bridge_failure(
                 loaded,
                 f"owner_validator_{type(exc).__name__}",
@@ -2422,6 +2448,7 @@ __all__ = [
     "GovernedProjectionService",
     "GuardedProjectionId",
     "GuardedProjectionSourceResolution",
+    "OwnerValidationTimeoutError",
     "ProjectionAvailability",
     "ProjectionCatalogEntry",
     "ProjectionCatalogResponse",

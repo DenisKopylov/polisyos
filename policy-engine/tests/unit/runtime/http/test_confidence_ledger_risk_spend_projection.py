@@ -216,6 +216,33 @@ def test_real_owner_artifact_reaches_available_domain_projection(
     assert len(packet.payload.refusal_instance_refs) == 1
 
 
+def test_openapi_owner_timeout_stays_operational_not_an_admission_refusal(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http import openapi_contract
+
+    timeout_seconds = governed_sources._OWNER_VALIDATION_TIMEOUT_SECONDS
+
+    def timed_out(
+        _service: ConfidenceLedgerRiskSpendProjectionService,
+        **_kwargs: object,
+    ) -> None:
+        raise governed_sources.OwnerValidationTimeoutError(
+            GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND,
+            timeout_seconds=timeout_seconds,
+        )
+
+    openapi_contract._confidence_ledger_risk_spend_example.cache_clear()
+    monkeypatch.setattr(ConfidenceLedgerRiskSpendProjectionService, "get", timed_out)
+
+    with pytest.raises(governed_sources.OwnerValidationTimeoutError) as caught:
+        openapi_contract._confidence_ledger_risk_spend_example()
+
+    assert caught.value.timeout_seconds == timeout_seconds
+    assert "timed out" in str(caught.value)
+    assert "owner-admitted" not in str(caught.value)
+
+
 def test_coherent_owner_over_spend_reaches_detail_free_source_blocker(
     tmp_path: Path,
 ) -> None:

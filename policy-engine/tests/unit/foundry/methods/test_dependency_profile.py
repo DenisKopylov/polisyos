@@ -10,6 +10,7 @@ import json
 import os
 import shutil
 import subprocess
+import tomllib
 import weakref
 from contextlib import contextmanager
 from dataclasses import dataclass, replace
@@ -28,6 +29,7 @@ from polisyos.core.artifacts import (
     PutOptions,
 )
 from polisyos.foundry.methods.catalog import dependency_authority as authority_module
+from polisyos.foundry.methods.catalog import dependency_profile as profile_module
 from polisyos.foundry.methods.catalog.dependency_authority import (
     AbsoluteRequestPath,
     AuthorityFailureCode,
@@ -6642,3 +6644,261 @@ def test_two_fake_parameters_map_to_distinct_predicates_and_typed_outcomes(
             authority_module._SIGNED_RECORD_SPEC,
         )
         _release_candidate_source(source)
+
+
+def _tracked_owner_declaration(
+    *,
+    profile_id: str,
+    extras: tuple[str, ...],
+) -> MethodCatalogDependencyProfileDeclaration:
+    """Build one scratch owner row from the current tracked TOML and lock bytes."""
+
+    registry_wire = tomllib.loads(_PROFILE_REGISTRY.read_text(encoding="utf-8"))
+    pyproject_bytes = (_PRODUCT_ROOT / "pyproject.toml").read_bytes()
+    lockfile_bytes = (_PRODUCT_ROOT / "uv.lock").read_bytes()
+    pyproject_wire = tomllib.loads(pyproject_bytes.decode("utf-8"))
+    lock_wire = tomllib.loads(lockfile_bytes.decode("utf-8"))
+    owner_row = registry_wire["declarations"][0]
+
+    assert tuple(sorted(extras)) == extras
+    assert set(extras).issubset(pyproject_wire["project"]["optional-dependencies"])
+    assert any(row["name"] == owner_row["root_distribution"] for row in lock_wire["package"])
+    return MethodCatalogDependencyProfileDeclaration(
+        schema_version=owner_row["schema_version"],
+        profile_id=profile_id,
+        root_distribution=owner_row["root_distribution"],
+        extras=extras,
+        python_constraint=owner_row["python_constraint"],
+        resolver_name=owner_row["resolver_name"],
+        resolver_version=owner_row["resolver_version"],
+        pyproject_ref=domain_digest(DigestDomain.PYPROJECT, pyproject_bytes),
+        lockfile_ref=domain_digest(DigestDomain.UV_LOCK, lockfile_bytes),
+    )
+
+
+def _resolve_dependency_discriminant_from_owner_data(
+    declaration: MethodCatalogDependencyProfileDeclaration,
+    *,
+    lockfile_bytes: bytes | None = None,
+) -> object:
+    """Resolve the dependency-only candidate through the required Foundry seam."""
+
+    resolver = getattr(profile_module, "resolve_dependency_discriminant", None)
+    assert callable(resolver), (
+        "missing behavior: Foundry must resolve a dependency-only discriminant from owner data"
+    )
+    return resolver(
+        declaration,
+        pyproject_bytes=(_PRODUCT_ROOT / "pyproject.toml").read_bytes(),
+        lockfile_bytes=lockfile_bytes or (_PRODUCT_ROOT / "uv.lock").read_bytes(),
+        marker_environment=_marker_environment(),
+    )
+
+
+def _matching_dependency_observations(discriminant: object) -> tuple[dict[str, str], ...]:
+    """Project only the resolved closure into generic installed coordinates."""
+
+    rows = getattr(discriminant, "distributions", None)
+    assert isinstance(rows, tuple) and rows, (
+        "missing behavior: dependency discriminant must retain the resolved distribution closure"
+    )
+    return tuple(
+        {
+            "name": row.name,
+            "version": row.version,
+            "source_kind": row.source_kind,
+        }
+        for row in rows
+    )
+
+
+def _diagnose_dependency_environment(
+    discriminant: object,
+    observations: tuple[dict[str, str], ...],
+) -> object:
+    """Run the non-authoritative generic comparison required by GY-DEF22."""
+
+    diagnoser = getattr(profile_module, "diagnose_dependency_environment", None)
+    assert callable(diagnoser), (
+        "missing behavior: Foundry must diagnose installed coordinates against the discriminant"
+    )
+    return diagnoser(discriminant=discriminant, observed_distributions=observations)
+
+
+def _diagnostic_coordinate(result: object) -> str | None:
+    """Read the first ordered diagnostic coordinate without assuming its DTO class."""
+
+    first_case = getattr(result, "first_case", None)
+    return getattr(first_case, "coordinate", None)
+
+
+def _scratch_profile_registry(
+    tmp_path: Path,
+    *,
+    profile_id: str,
+    extras: tuple[str, ...],
+) -> Path:
+    """Append one owner-owned declaration whose digests come from tracked bytes."""
+
+    declaration = _tracked_owner_declaration(profile_id=profile_id, extras=extras)
+    registry = tmp_path / "method_catalog_dependency_profiles.toml"
+    registry.write_text(
+        _PROFILE_REGISTRY.read_text(encoding="utf-8")
+        + "\n[[declarations]]\n"
+        + f'schema_version = "{declaration.schema_version}"\n'
+        + f'profile_id = "{declaration.profile_id}"\n'
+        + f'root_distribution = "{declaration.root_distribution}"\n'
+        + "extras = ["
+        + ", ".join(f'\"{extra}\"' for extra in declaration.extras)
+        + "]\n"
+        + f'python_constraint = "{declaration.python_constraint}"\n'
+        + f'resolver_name = "{declaration.resolver_name}"\n'
+        + f'resolver_version = "{declaration.resolver_version}"\n'
+        + f'pyproject_sha256 = "{declaration.pyproject_ref.value}"\n'
+        + f'uv_lock_sha256 = "{declaration.lockfile_ref.value}"\n',
+        encoding="utf-8",
+    )
+    return registry
+
+
+def test_cb_i02_research_profile_names_torch_as_first_generic_case() -> None:
+    research = _tracked_owner_declaration(profile_id="research", extras=("research",))
+    discriminant = _resolve_dependency_discriminant_from_owner_data(research)
+    observations = list(_matching_dependency_observations(discriminant))
+    torch = next(row for row in observations if row["name"] == "torch")
+    assert torch["version"] == "2.10.0"
+    torch["source_kind"] = "installed-metadata"
+
+    result = _diagnose_dependency_environment(discriminant, tuple(observations))
+
+    assert getattr(result, "status", None) == "fail"
+    assert _diagnostic_coordinate(result) is not None
+    assert _diagnostic_coordinate(result).startswith("distribution:torch:")
+
+
+def test_cb_i02a_label_and_shape_cannot_mask_two_data_generated_incompatibilities(
+    tmp_path: Path,
+) -> None:
+    research = _tracked_owner_declaration(profile_id="same-label", extras=("research",))
+    baseline = _resolve_dependency_discriminant_from_owner_data(research)
+    observations = _matching_dependency_observations(baseline)
+    lockfile_bytes = (_PRODUCT_ROOT / "uv.lock").read_bytes()
+    target = next(row for row in getattr(baseline, "distributions") if row.name == "torch")
+    needle = f'name = "{target.name}"\nversion = "{target.version}"'.encode()
+    assert lockfile_bytes.count(needle) == 1
+    mutated_lock = lockfile_bytes.replace(
+        needle,
+        f'name = "{target.name}"\nversion = "9999.0"'.encode(),
+        1,
+    )
+    same_label = research.model_copy(
+        update={"lockfile_ref": domain_digest(DigestDomain.UV_LOCK, mutated_lock)}
+    )
+    mutated = _resolve_dependency_discriminant_from_owner_data(
+        same_label,
+        lockfile_bytes=mutated_lock,
+    )
+    mutated_result = _diagnose_dependency_environment(mutated, observations)
+
+    registry = _scratch_profile_registry(
+        tmp_path,
+        profile_id="zz-second-data-generated-profile",
+        extras=("test",),
+    )
+    second_profile = resolve_profile_declaration(
+        load_dependency_profile_registry(registry),
+        profile_id="zz-second-data-generated-profile",
+    )
+    second = _resolve_dependency_discriminant_from_owner_data(second_profile)
+    second_result = _diagnose_dependency_environment(second, observations)
+
+    assert getattr(mutated_result, "status", None) == "fail"
+    assert getattr(second_result, "status", None) == "fail"
+    assert research.profile_id == same_label.profile_id
+
+
+def test_cb_i03_outside_closure_difference_is_diagnostic_irrelevant() -> None:
+    declaration = _tracked_owner_declaration(profile_id="irrelevant-extra", extras=("research",))
+    discriminant = _resolve_dependency_discriminant_from_owner_data(declaration)
+    matching = _matching_dependency_observations(discriminant)
+    with_irrelevant = matching + (
+        {
+            "name": "outside-selected-closure",
+            "version": "1.0.0",
+            "source_kind": "installed-metadata",
+        },
+    )
+
+    baseline = _diagnose_dependency_environment(discriminant, matching)
+    observed = _diagnose_dependency_environment(discriminant, with_irrelevant)
+
+    assert getattr(baseline, "status", None) == getattr(observed, "status", None) == "pass"
+    assert _diagnostic_coordinate(baseline) == _diagnostic_coordinate(observed) is None
+
+
+def test_cb_i03a_novel_admitted_profile_verifies_from_owner_data(tmp_path: Path) -> None:
+    registry = _scratch_profile_registry(
+        tmp_path,
+        profile_id="zz-novel-admitted-profile",
+        extras=("test",),
+    )
+    declaration = resolve_profile_declaration(
+        load_dependency_profile_registry(registry),
+        profile_id="zz-novel-admitted-profile",
+    )
+    discriminant = _resolve_dependency_discriminant_from_owner_data(declaration)
+
+    result = _diagnose_dependency_environment(
+        discriminant,
+        _matching_dependency_observations(discriminant),
+    )
+
+    assert getattr(result, "status", None) == "pass"
+    assert _diagnostic_coordinate(result) is None
+
+
+def test_p29_distribution_comparison_cannot_be_replaced_by_schema_markers(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    research = _tracked_owner_declaration(profile_id="p29-research", extras=("research",))
+    discriminant = _resolve_dependency_discriminant_from_owner_data(research)
+    observations = list(_matching_dependency_observations(discriminant))
+    next(row for row in observations if row["name"] == "torch")["version"] = "9999.0"
+    comparator = getattr(profile_module, "compare_dependency_distributions", None)
+    assert callable(comparator), (
+        "missing behavior: diagnostic verification must execute generic distribution comparison"
+    )
+    monkeypatch.setattr(profile_module, "compare_dependency_distributions", lambda **_kwargs: ())
+
+    result = _diagnose_dependency_environment(discriminant, tuple(observations))
+
+    assert getattr(result, "status", None) == "fail", (
+        "missing behavior: removing distribution comparison cannot leave a marker-only pass"
+    )
+
+
+def test_p33_profile_labels_cannot_override_recomputed_closure_content(tmp_path: Path) -> None:
+    first = _tracked_owner_declaration(profile_id="label-one", extras=("research",))
+    renamed = _tracked_owner_declaration(profile_id="label-two", extras=("research",))
+    first_discriminant = _resolve_dependency_discriminant_from_owner_data(first)
+    observations = _matching_dependency_observations(first_discriminant)
+    renamed_result = _diagnose_dependency_environment(
+        _resolve_dependency_discriminant_from_owner_data(renamed),
+        observations,
+    )
+    registry = _scratch_profile_registry(
+        tmp_path,
+        profile_id="zz-label-independent-profile",
+        extras=("test",),
+    )
+    second = resolve_profile_declaration(
+        load_dependency_profile_registry(registry),
+        profile_id="zz-label-independent-profile",
+    )
+    second_result = _diagnose_dependency_environment(
+        _resolve_dependency_discriminant_from_owner_data(second),
+        observations,
+    )
+
+    assert getattr(renamed_result, "status", None) == "pass"
+    assert getattr(second_result, "status", None) == "fail"

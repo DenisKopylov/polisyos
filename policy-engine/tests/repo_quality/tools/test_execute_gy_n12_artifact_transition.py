@@ -2128,3 +2128,71 @@ def test_n10a_candidate_cli_converts_oserror_to_one_typed_failure_envelope(
     assert payload["status"] == "fail"
     assert payload["issues"][0]["code"] == "second_domain_pack_execution_failed"
     assert transition.verify_receipt(payload)
+
+
+def test_cb_i01_n8_n10a_and_chronology_share_one_foundry_discriminant() -> None:
+    """Require all three consumers to reopen one content-bound Foundry artifact."""
+
+    producer = getattr(n8, "build_dependency_discriminant_companion", None)
+    assert callable(producer), (
+        "missing behavior: N8 must produce the shared Foundry dependency discriminant"
+    )
+    n10a_reader = getattr(n10a, "read_foundry_dependency_discriminant", None)
+    chronology_reader = getattr(
+        __import__(
+            "tools.quality.validation.check_layer3_gy_epoch_chronology_contract",
+            fromlist=["read_foundry_dependency_discriminant"],
+        ),
+        "read_foundry_dependency_discriminant",
+        None,
+    )
+    assert callable(n10a_reader), (
+        "missing behavior: N10a must independently read the shared discriminant"
+    )
+    assert callable(chronology_reader), (
+        "missing behavior: chronology must independently read the shared discriminant"
+    )
+
+    repo_root = n8._repo_root()
+    companion = producer(
+        repo_root=repo_root,
+        source_freeze=_git(repo_root, "rev-parse", "HEAD"),
+    )
+    n10a_result = n10a_reader(repo_root=repo_root, companion=companion)
+    chronology_result = chronology_reader(repo_root=repo_root, companion=companion)
+    profile = companion.profile_discriminant
+
+    assert n10a_result.content_ref == chronology_result.content_ref == companion.content_ref
+    assert n10a_result.profile_discriminant == chronology_result.profile_discriminant == profile
+    assert n10a_result.profile_discriminant.root_distribution == profile.root_distribution
+    assert n10a_result.profile_discriminant.resolved_distributions == profile.resolved_distributions
+
+
+def test_p38_ambient_diagnostic_cannot_govern_shared_consumer_results() -> None:
+    """Reject a valid companion whenever an ambient failure changes governing outcomes."""
+
+    verifier = getattr(transition, "verify_dependency_discriminant_authority_boundary", None)
+    assert callable(verifier), (
+        "missing behavior: shared consumers must verify the ambient diagnostic authority boundary"
+    )
+    governing = {
+        "n8": {"status": "pass", "issues": []},
+        "n10a": {"status": "pass", "issues": []},
+        "chronology": {"status": "pass", "issues": []},
+    }
+    diagnostic_governed = {
+        **governing,
+        "n8": {"status": "fail", "issues": [{"code": "ambient_diagnostic_fail"}]},
+    }
+
+    issues = verifier(
+        companion_valid=True,
+        diagnostic_verification={
+            "status": "fail",
+            "first_case": {"coordinate": "distribution:torch:version"},
+        },
+        governing_before=governing,
+        governing_after=diagnostic_governed,
+    )
+
+    assert issues == ("ambient_diagnostic_governed_result",)

@@ -441,8 +441,17 @@ def _foundry_dependency_source_paths() -> tuple[Path, ...]:
     return paths
 
 
-def _run_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[bytes]:
-    """Run one bounded Git read against the appointed product root."""
+@dataclass(frozen=True, slots=True)
+class _GitProductRootAppointment:
+    """Exact checkout coordinates appointed to dependency replay."""
+
+    product_root: Path
+    git_toplevel: Path
+    object_prefix: str
+
+
+def _invoke_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[bytes]:
+    """Invoke Git as the narrow bootstrap primitive for root appointment."""
 
     try:
         return subprocess.run(  # noqa: S603, S607
@@ -455,13 +464,51 @@ def _run_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[bytes]:
         raise ValueError("dependency discriminant Git evidence unavailable") from exc
 
 
+@cache
+def _appoint_git_product_root(repo_root: Path) -> _GitProductRootAppointment:
+    """Bind one supplied product root to this running checkout's Git coordinates."""
+
+    canonical_root = _repo_root().resolve()
+    supplied_root = repo_root.resolve()
+    if supplied_root != canonical_root:
+        raise ValueError(
+            "dependency discriminant product root is not the appointed product root"
+        )
+    coordinates = _invoke_git(
+        supplied_root,
+        "rev-parse",
+        "--show-toplevel",
+        "--show-prefix",
+    ).stdout.decode("utf-8").splitlines()
+    if len(coordinates) != 2:
+        raise ValueError("dependency discriminant Git appointment is incomplete")
+    git_toplevel = Path(coordinates[0]).resolve()
+    object_prefix = coordinates[1]
+    expected_toplevel = canonical_root.parent
+    expected_prefix = canonical_root.relative_to(expected_toplevel).as_posix() + "/"
+    if git_toplevel != expected_toplevel or object_prefix != expected_prefix:
+        raise ValueError("dependency discriminant Git appointment coordinates drifted")
+    return _GitProductRootAppointment(
+        product_root=canonical_root,
+        git_toplevel=git_toplevel,
+        object_prefix=object_prefix,
+    )
+
+
+def _run_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[bytes]:
+    """Run one bounded Git read after appointing the canonical product root."""
+
+    appointment = _appoint_git_product_root(repo_root)
+    return _invoke_git(appointment.product_root, *args)
+
+
 def _git_text(repo_root: Path, *args: str) -> str:
     return _run_git(repo_root, *args).stdout.decode("utf-8").strip()
 
 
 @cache
 def _git_object_prefix(repo_root: Path) -> str:
-    return _git_text(repo_root, "rev-parse", "--show-prefix")
+    return _appoint_git_product_root(repo_root).object_prefix
 
 
 @cache
@@ -494,7 +541,7 @@ def dependency_discriminant_source_freeze(repo_root: Path | None = None) -> str:
         ValueError: If Git cannot produce exactly one canonical commit identity.
     """
 
-    root = (repo_root or _repo_root()).resolve()
+    root = _appoint_git_product_root((repo_root or _repo_root()).resolve()).product_root
     source_freeze = _git_text(
         root,
         "log",
@@ -640,7 +687,7 @@ def build_dependency_discriminant_companion(
         ValueError: If the owner freeze, registry, source bytes, or N8 binding fails.
     """
 
-    root = (repo_root or _repo_root()).resolve()
+    root = _appoint_git_product_root((repo_root or _repo_root()).resolve()).product_root
     marker_environment = {
         key: str(value) for key, value in default_environment().items()
     }
@@ -5388,39 +5435,36 @@ def _dependency_environment_ambient_findings(
     """Project strict diagnostics only into the non-decisive ambient channel."""
 
     supplied = diagnostic_verification is not None
+    if supplied:
+        try:
+            claimed = _coerce_dependency_environment_diagnostic(diagnostic_verification)
+        except (TypeError, ValueError, ValidationError):
+            return (
+                {
+                    "code": "dependency_environment_diagnostic_not_received",
+                    "decision_role": "ambient_non_decisive",
+                },
+            )
     try:
-        diagnostic = (
-            _coerce_dependency_environment_diagnostic(diagnostic_verification)
-            if supplied
-            else _current_dependency_environment_diagnostic(profile)
-        )
-    except (TypeError, ValueError, ValidationError):
+        current = _current_dependency_environment_diagnostic(profile)
+    except Exception:
         return (
             {
                 "code": "dependency_environment_diagnostic_not_received",
                 "decision_role": "ambient_non_decisive",
             },
         )
+    if supplied and claimed != current:
+        return (
+            {
+                "code": "dependency_environment_diagnostic_not_reconciled",
+                "decision_role": "ambient_non_decisive",
+                "unaccepted_diagnostic_claim": claimed.model_dump(mode="json"),
+                "current_diagnostic": current.model_dump(mode="json"),
+            },
+        )
+    diagnostic = current
     if diagnostic.status == "pass":
-        if supplied:
-            try:
-                current = _current_dependency_environment_diagnostic(profile)
-            except (TypeError, ValueError, ValidationError):
-                return (
-                    {
-                        "code": "dependency_environment_diagnostic_not_received",
-                        "decision_role": "ambient_non_decisive",
-                    },
-                )
-            if current != diagnostic:
-                return (
-                    {
-                        "code": "dependency_environment_diagnostic_pass_not_reconciled",
-                        "decision_role": "ambient_non_decisive",
-                        "diagnostic": diagnostic.model_dump(mode="json"),
-                        "current_diagnostic": current.model_dump(mode="json"),
-                    },
-                )
         return ()
     code = (
         "dependency_environment_diagnostic_failed"
@@ -5457,7 +5501,7 @@ def validate_foundry_dependency_discriminant(
         diagnostic channel. Invalid companion evidence receives no content ref.
     """
 
-    root = repo_root.resolve()
+    root = _appoint_git_product_root(repo_root.resolve()).product_root
     source_freeze = dependency_discriminant_source_freeze(root)
     legacy = _legacy_value_gate_result(root, source_freeze=source_freeze)
     ambient = list(legacy.ambient_findings)
@@ -5514,12 +5558,13 @@ def check_dependency_discriminant_companion(
         The separated legacy governing and companion diagnostic result.
     """
 
+    root = _appoint_git_product_root(repo_root.resolve()).product_root
     try:
         raw = companion_path.read_bytes()
     except OSError:
         raw = b""
     return validate_foundry_dependency_discriminant(
-        repo_root=repo_root,
+        repo_root=root,
         companion=raw,
         diagnostic_verification=diagnostic_verification,
         expected_source_freeze=expected_source_freeze,
@@ -5555,12 +5600,13 @@ def write_dependency_discriminant_companion(
             write is not the exact explicitly authorized governed companion.
     """
 
-    root = repo_root.resolve()
-    destination = companion_path.absolute()
-    governed = (root / DEPENDENCY_DISCRIMINANT_OUTPUT_PATH).absolute()
+    appointment = _appoint_git_product_root(repo_root.resolve())
+    root = appointment.product_root
     if _path_has_symlink_component(companion_path):
         raise ValueError("dependency discriminant destination cannot be a symlink")
-    if destination.is_relative_to(root):
+    destination = Path(os.path.abspath(companion_path))
+    governed = Path(os.path.abspath(root / DEPENDENCY_DISCRIMINANT_OUTPUT_PATH))
+    if destination.is_relative_to(appointment.git_toplevel):
         if destination != governed:
             raise ValueError("dependency discriminant candidates must be outside the repository")
         if not allow_repository_write:

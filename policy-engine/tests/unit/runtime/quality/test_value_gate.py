@@ -4168,6 +4168,74 @@ def test_n8_dependency_discriminant_write_and_check_modes_are_explicit_and_read_
     assert in_repo_refused["status"] == "fail"
     assert not in_repo_candidate.exists()
 
+    git_toplevel = Path(
+        subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=value_contract._repo_root(),
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+    )
+    whole_repo_candidate = (
+        git_toplevel / ".github" / f"n8-dependency-discriminant-{tmp_path.name}.json"
+    )
+    assert not whole_repo_candidate.exists()
+    try:
+        whole_repo_exit = value_contract.main(
+            [
+                "--write-dependency-discriminant",
+                str(whole_repo_candidate),
+                "--expected-source-freeze",
+                source_freeze,
+                "--output-format",
+                "json",
+            ]
+        )
+        whole_repo_refused = json.loads(capsys.readouterr().out.splitlines()[-1])
+        whole_repo_created = whole_repo_candidate.exists()
+    finally:
+        whole_repo_candidate.unlink(missing_ok=True)
+    assert whole_repo_exit == 1
+    assert whole_repo_refused["status"] == "fail"
+    assert not whole_repo_created
+
+    aliased_target = (
+        git_toplevel
+        / ".github"
+        / f"n8-dependency-discriminant-aliased-{tmp_path.name}.json"
+    )
+    aliased_candidate = (
+        git_toplevel.parent.parent
+        / ".git"
+        / ".."
+        / git_toplevel.parent.name
+        / git_toplevel.name
+        / ".github"
+        / aliased_target.name
+    )
+    assert aliased_candidate != aliased_target
+    assert aliased_candidate.resolve() == aliased_target
+    assert not aliased_target.exists()
+    try:
+        aliased_exit = value_contract.main(
+            [
+                "--write-dependency-discriminant",
+                str(aliased_candidate),
+                "--expected-source-freeze",
+                source_freeze,
+                "--output-format",
+                "json",
+            ]
+        )
+        aliased_refused = json.loads(capsys.readouterr().out.splitlines()[-1])
+        aliased_created = aliased_target.exists()
+    finally:
+        aliased_target.unlink(missing_ok=True)
+    assert aliased_exit == 1
+    assert aliased_refused["status"] == "fail"
+    assert not aliased_created
+
     governed = (
         value_contract._repo_root() / value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH
     )
@@ -4218,7 +4286,7 @@ def test_n8_dependency_discriminant_write_and_check_modes_are_explicit_and_read_
 def test_n8_dependency_discriminant_research_warning_is_ambient_non_decisive(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """An admitted pass and a generic research mismatch retain identical governing bytes."""
+    """A cross-profile research claim is unaccepted and cannot change governing bytes."""
 
     companion = _build_n8_dependency_companion()
     admitted = dependency_profile_module.DependencyEnvironmentDiagnosticPass(
@@ -4255,16 +4323,25 @@ def test_n8_dependency_discriminant_research_warning_is_ambient_non_decisive(
         finding.get("code") == "dependency_environment_diagnostic_failed"
         for finding in admitted_result.ambient_findings
     )
+    research_codes = {
+        finding.get("code") for finding in research_result.ambient_findings
+    }
+    assert "dependency_environment_diagnostic_failed" not in research_codes
+    assert "dependency_environment_diagnostic_not_reconciled" in research_codes
     warning = next(
         finding
         for finding in research_result.ambient_findings
-        if finding.get("code") == "dependency_environment_diagnostic_failed"
+        if finding.get("code") == "dependency_environment_diagnostic_not_reconciled"
     )
     assert warning["decision_role"] == "ambient_non_decisive"
-    assert warning["diagnostic"]["first_case"]["coordinate"] == (
+    assert "diagnostic" not in warning
+    assert warning["unaccepted_diagnostic_claim"]["first_case"]["coordinate"] == (
         "distribution:torch:version"
     )
-    assert warning["diagnostic"]["ordered_cases"][0] == warning["diagnostic"]["first_case"]
+    assert warning["unaccepted_diagnostic_claim"]["ordered_cases"][0] == (
+        warning["unaccepted_diagnostic_claim"]["first_case"]
+    )
+    assert warning["current_diagnostic"]["status"] == "pass"
 
 
 def test_n8_dependency_discriminant_supplied_pass_requires_current_recomputation(
@@ -4293,10 +4370,198 @@ def test_n8_dependency_discriminant_supplied_pass_requires_current_recomputation
     )
 
     assert result.governing_issues == _legacy_n8_governing_issues()
-    assert any(
-        finding.get("code") == "dependency_environment_diagnostic_pass_not_reconciled"
+    warning = next(
+        finding
+        for finding in result.ambient_findings
+        if finding.get("code") == "dependency_environment_diagnostic_not_reconciled"
+    )
+    assert warning["unaccepted_diagnostic_claim"]["status"] == "pass"
+    assert warning["current_diagnostic"]["status"] == "fail"
+
+
+def test_n8_dependency_discriminant_supplied_not_established_must_reconcile(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A not-established claim for another observation is an ambient non-receipt."""
+
+    companion = _build_n8_dependency_companion()
+    current = dependency_profile_module.DependencyEnvironmentDiagnosticPass(
+        status="pass",
+        ordered_cases=(),
+        first_case=None,
+        predicate_class="recomputed",
+    )
+    supplied = dependency_profile_module.DependencyEnvironmentDiagnosticNotEstablished(
+        status="not_established",
+        code="installed_distribution_source_evidence_not_established",
+        missing_coordinates=("distribution:torch:source_kind",),
+        predicate_class="not_established",
+    )
+    monkeypatch.setattr(
+        value_contract,
+        "_current_dependency_environment_diagnostic",
+        lambda _profile: current,
+    )
+
+    result = value_contract.validate_foundry_dependency_discriminant(
+        repo_root=value_contract._repo_root(),
+        companion=companion,
+        diagnostic_verification=supplied,
+    )
+
+    assert result.content_ref == companion.content_ref
+    assert result.governing_issues == _legacy_n8_governing_issues()
+    warning = next(
+        finding
+        for finding in result.ambient_findings
+        if finding.get("code") == "dependency_environment_diagnostic_not_reconciled"
+    )
+    assert "diagnostic" not in warning
+    assert warning["unaccepted_diagnostic_claim"]["status"] == "not_established"
+    assert warning["current_diagnostic"]["status"] == "pass"
+
+
+def test_n8_dependency_discriminant_matching_supplied_fail_is_ambient_only(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An exactly reconciled fail remains a self-describing ambient warning."""
+
+    companion = _build_n8_dependency_companion()
+    matching_fail = _research_torch_diagnostic(companion)
+    monkeypatch.setattr(
+        value_contract,
+        "_current_dependency_environment_diagnostic",
+        lambda _profile: matching_fail,
+    )
+
+    result = value_contract.validate_foundry_dependency_discriminant(
+        repo_root=value_contract._repo_root(),
+        companion=companion,
+        diagnostic_verification=matching_fail,
+    )
+
+    assert result.content_ref == companion.content_ref
+    assert result.governing_issues == _legacy_n8_governing_issues()
+    warning = next(
+        finding
+        for finding in result.ambient_findings
+        if finding.get("code") == "dependency_environment_diagnostic_failed"
+    )
+    assert warning["diagnostic"] == matching_fail.model_dump(mode="json")
+    assert not any(
+        finding.get("code") == "dependency_environment_diagnostic_not_reconciled"
         for finding in result.ambient_findings
     )
+
+
+@pytest.mark.parametrize("exception_type", [OSError, RuntimeError])
+def test_n8_dependency_discriminant_observer_failure_is_ambient_nonreceipt(
+    exception_type: type[Exception],
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Ordinary observer failures cannot invalidate a received companion or CLI check."""
+
+    companion = _build_n8_dependency_companion()
+    source_freeze = _n8_dependency_source_freeze()
+
+    def unavailable_observer(_profile: object) -> object:
+        raise exception_type("ambient dependency observer unavailable")
+
+    monkeypatch.setattr(
+        value_contract,
+        "_current_dependency_environment_diagnostic",
+        unavailable_observer,
+    )
+
+    direct = value_contract.validate_foundry_dependency_discriminant(
+        repo_root=value_contract._repo_root(),
+        companion=companion,
+        diagnostic_verification=None,
+    )
+
+    assert direct.content_ref == companion.content_ref
+    assert direct.governing_issues == _legacy_n8_governing_issues()
+    assert any(
+        finding.get("code") == "dependency_environment_diagnostic_not_received"
+        for finding in direct.ambient_findings
+    )
+
+    governed = (
+        value_contract._repo_root() / value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH
+    )
+    governed_before = governed.read_bytes()
+    assert value_contract.main(
+        [
+            "--check-dependency-discriminant",
+            str(governed),
+            "--expected-source-freeze",
+            source_freeze,
+            "--output-format",
+            "json",
+        ]
+    ) == 0
+    report = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert report["status"] == "pass"
+    assert report["content_ref"] == companion.content_ref
+    assert report["governing_issues"] == list(_legacy_n8_governing_issues())
+    assert any(
+        finding.get("code") == "dependency_environment_diagnostic_not_received"
+        for finding in report["ambient_findings"]
+    )
+    assert governed.read_bytes() == governed_before
+
+
+def test_n8_dependency_discriminant_rejects_unappointed_isomorphic_git_checkout(
+    tmp_path: Path,
+) -> None:
+    """An alternate Git checkout cannot appoint itself by copying paths and commits."""
+
+    canonical_root = value_contract._repo_root()
+    canonical_toplevel = Path(
+        subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=canonical_root,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+    )
+    alternate_toplevel = tmp_path / "alternate-checkout"
+    subprocess.run(
+        [
+            "git",
+            "clone",
+            "--shared",
+            "--no-checkout",
+            str(canonical_toplevel),
+            str(alternate_toplevel),
+        ],
+        check=True,
+        capture_output=True,
+    )
+    alternate_root = alternate_toplevel / canonical_root.name
+    alternate_root.mkdir()
+    tracked_paths = subprocess.run(
+        ["git", "ls-tree", "-r", "--name-only", "HEAD"],
+        cwd=alternate_toplevel,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.splitlines()
+    assert all(
+        f"{canonical_root.name}/{path.as_posix()}" in tracked_paths
+        for path in value_contract._foundry_dependency_source_paths()
+    )
+    assert subprocess.run(
+        ["git", "cat-file", "-e", f"{_n8_dependency_source_freeze()}^{{commit}}"],
+        cwd=alternate_toplevel,
+        check=False,
+        capture_output=True,
+    ).returncode == 0
+
+    with pytest.raises(ValueError, match="not the appointed product root"):
+        value_contract.dependency_discriminant_source_freeze(alternate_root)
 
 
 @pytest.mark.parametrize(

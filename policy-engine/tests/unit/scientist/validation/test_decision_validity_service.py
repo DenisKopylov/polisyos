@@ -447,8 +447,21 @@ def test_epoch_denominator_reconciliation_receipt_refuses_distinct_member_sets(
         envelope=envelope,
         baseline=baseline,
     )
+    scientist_targets, scientist_digest = service._resolve_epoch_target_denominator(
+        dependency_keys=("epoch::distinct-member-set",),
+    )
+    assert scientist_targets == {
+        (
+            packet_ref,
+            "epoch::distinct-member-set",
+            "epoch_lineage_distinct_member_set",
+        )
+    }
+    assert {str(runtime_target.artifact_id)} != {str(distinct_scientist_owner.artifact_id)}
+    assert runtime_denominator.denominator_ref != scientist_digest
 
     from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        EpochDenominatorReconciliationNonReceipt,
         EpochTransitionDenominatorReconciliationProducer,
     )
 
@@ -456,7 +469,11 @@ def test_epoch_denominator_reconciliation_receipt_refuses_distinct_member_sets(
         dependency_keys=("epoch::distinct-member-set",),
         requested_query_context_ref=query_ref,
     )
-    assert runtime_denominator.denominator_ref != snapshot.snapshot.decision_impact_denominator_ref
+    assert snapshot.snapshot.decision_impact_denominator_ref == scientist_digest
+    assert {
+        (target.packet_ref, target.dependency_key, target.decision_lineage_key)
+        for target in snapshot.snapshot.targets
+    } == scientist_targets
     verifier.receipt = EpochTransitionVerificationReceipt(
         transition_artifact_ref=transition_ref,
         transition_content_hash="sha256:" + hashlib.sha256(transition_bytes).hexdigest(),
@@ -490,6 +507,7 @@ def test_epoch_denominator_reconciliation_receipt_refuses_distinct_member_sets(
         authority_purpose=authority_purpose,
     )
 
+    assert isinstance(outcome, EpochDenominatorReconciliationNonReceipt)
     assert outcome.status == "rejected"
     assert outcome.code == "epoch_denominator_membership_mismatch"
     assert outcome.reconciliation_handle is None

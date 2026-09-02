@@ -97,6 +97,13 @@ Boundary notes:
   evidence remains `producer_missing`, its institutional owner remains
   `absent/unallocated`, and public export exposes only the limitation status,
   code, and vector ref—never numeric risk or raw evidence.
+- `epoch_denominator_reconciliation.py` exact-reads Runtime transition inputs,
+  Scientist impact snapshots, and appointed verifier provenance, recomputes
+  both owner denominators, and persists a sidecar only when every Scientist
+  owner row maps to exactly one Runtime target. First admission scans the
+  complete live CAS artifact denominator; replay accepts only the exact
+  write-once handle frozen by Scientist. No production reader appointment is
+  installed here.
 - `epoch_staleness_projection.py` is the read-only temporal-surface compiler.
   It preserves the real `policy_admission_missing` and
   `epoch_transition_signer_not_established` institutional nonreceipts, while

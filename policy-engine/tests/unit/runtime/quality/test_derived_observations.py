@@ -1414,6 +1414,7 @@ def _epoch_recompute_fixture(
     *,
     output_label: str = "primary",
     authority_purpose: str = "decision_validity_epoch_transition",
+    use_graph_digest_as_outer: bool = False,
 ) -> _EpochRecomputeFixture:
     store, refs, output_basis, _, _ = _case_inputs(
         tmp_path / "cas",
@@ -1478,7 +1479,14 @@ def _epoch_recompute_fixture(
         certificates=(certificate_binding,),
         dependency_graph=graph,
         target_vector=vector,
-        dependency_denominator_ref=graph.denominator_ref,
+        dependency_denominator_ref=(
+            graph.denominator_ref
+            if use_graph_digest_as_outer
+            else epoch_cascade.epoch_dependency_outer_denominator_ref(
+                certificate_bindings=(certificate_binding,),
+                dependency_graph=graph,
+            )
+        ),
         adjudication_denominator_ref=_epoch_digest("adjudication-denominator"),
         requested_query_context_ref=query_ref,
         authority_purpose=purpose,
@@ -1557,6 +1565,15 @@ def test_epoch_inheritance_recompute_receipt_round_trips_exact_owner_graph(
     tmp_path: Path,
 ) -> None:
     fixture = _epoch_recompute_fixture(tmp_path)
+    expected_outer_denominator_ref = epoch_cascade.epoch_dependency_outer_denominator_ref(
+        certificate_bindings=fixture.transition.certificate_bindings,
+        dependency_graph=fixture.transition.dependency_graph,
+    )
+    assert fixture.transition.dependency_denominator_ref == expected_outer_denominator_ref
+    assert (
+        fixture.transition.dependency_denominator_ref
+        != fixture.transition.dependency_graph.denominator_ref
+    )
 
     persisted = _produce_epoch_recompute(fixture)
     reread = _read_epoch_recompute(fixture, persisted.receipt_artifact_ref)
@@ -1568,6 +1585,7 @@ def test_epoch_inheritance_recompute_receipt_round_trips_exact_owner_graph(
     assert persisted.receipt_content_hash == str(persisted.receipt_artifact_ref.artifact_id)
     assert payload["state"] == "completed"
     assert payload["predicate_class"] == "recomputed"
+    assert payload["dependency_denominator_ref"] == expected_outer_denominator_ref
     assert payload["derived_artifact_ref"] == fixture.derived_ref.model_dump(mode="json")
     assert "series" not in payload
     assert tuple((row.role, str(row.artifact_id)) for row in manifest.inputs) == (
@@ -1578,6 +1596,48 @@ def test_epoch_inheritance_recompute_receipt_round_trips_exact_owner_graph(
         ("graph_edge_source", str(fixture.source_ref.artifact_id)),
         ("graph_edge_target", str(fixture.target_ref.artifact_id)),
     )
+
+
+def test_epoch_inheritance_recompute_rejects_graph_digest_substituted_for_outer_denominator(
+    tmp_path: Path,
+) -> None:
+    """Certified recomputation refuses a content-valid legacy graph-only transition."""
+
+    fixture = _epoch_recompute_fixture(tmp_path, use_graph_digest_as_outer=True)
+    expected_outer = epoch_cascade._semantic_hash(
+        "polisyos.epoch.dependency-denominator.v1",
+        {
+            "certificate_bindings": fixture.transition.certificate_bindings,
+            "dependency_graph": fixture.transition.dependency_graph,
+            "target_refs": (fixture.target_ref,),
+        },
+    )
+    assert fixture.transition.dependency_denominator_ref == (
+        fixture.transition.dependency_graph.denominator_ref
+    )
+    assert fixture.transition.dependency_denominator_ref != expected_outer
+    assert (
+        derived_module._read_epoch_validity_transition(fixture.store, fixture.transition_ref)
+        == fixture.transition
+    )
+    before_receipts = tuple(
+        artifact_id
+        for artifact_id in fixture.store.iter_artifact_ids()
+        if fixture.store.get_manifest(artifact_id).kind
+        == derived_module.EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND
+    )
+
+    with pytest.raises(DerivationRefusalError) as raised:
+        _produce_epoch_recompute(fixture)
+
+    assert raised.value.code is DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT
+    after_receipts = tuple(
+        artifact_id
+        for artifact_id in fixture.store.iter_artifact_ids()
+        if fixture.store.get_manifest(artifact_id).kind
+        == derived_module.EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND
+    )
+    assert after_receipts == before_receipts == ()
 
 
 @pytest.mark.parametrize(

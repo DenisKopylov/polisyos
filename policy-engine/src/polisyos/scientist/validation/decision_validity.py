@@ -10,6 +10,7 @@ import threading
 import uuid
 from collections.abc import Callable
 from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
@@ -19,9 +20,9 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.timestamps import to_iso_utc, utc_now
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import content_hash, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.decision_validity import (
     DecisionDependencyEvent,
     DecisionDependencyKind,
@@ -29,15 +30,23 @@ from polisyos.core.contracts.decision_validity import (
     DecisionTriggerRecord,
     DecisionTriggerType,
     DecisionValidityEnvelope,
+    DecisionValidityEpochImpactOwnerRow,
+    DecisionValidityEpochImpactSnapshot,
+    DecisionValidityEpochImpactSnapshotHandle,
+    DecisionValidityEpochImpactTarget,
     DecisionValidityEvaluation,
     DecisionValidityStatus,
     DecisionValidityTransition,
+    EpochDenominatorReconciliationAdmissionBinding,
+    EpochTransitionDenominatorReconciliationReader,
     EpochTransitionVerificationReceipt,
     EpochTransitionVerifier,
     EpochValidityBatchCompletionStatement,
     EpochValidityBatchReceipt,
     EpochValidityBatchTarget,
     EpochValidityPendingBatch,
+    PersistedDecisionValidityEpochImpactSnapshot,
+    PersistedEpochTransitionDenominatorReconciliation,
     PersistedEpochValidityBatchEvidence,
 )
 from polisyos.core.contracts.feedback import DecisionMonitoringContract
@@ -57,6 +66,10 @@ _DECISION_VALIDITY_ARTIFACT_LOAD_ERRORS = (
     ValueError,
     ValidationError,
 )
+_EPOCH_IMPACT_SNAPSHOT_KIND = "scientist.decision_validity_epoch_impact_snapshot"
+_EPOCH_IMPACT_SNAPSHOT_MEDIA_TYPE = "application/json"
+_EPOCH_IMPACT_SNAPSHOT_SCHEMA = "polisyos.decision-validity.epoch-impact-snapshot.v1"
+_EPOCH_IMPACT_SNAPSHOT_CANON = CanonSpec()
 
 
 def _serialize_datetime(value: datetime | None) -> str | None:
@@ -118,11 +131,20 @@ class _PersistedEpochBatchReceiptState(BaseModel):
     receipt_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
+@dataclass(frozen=True)
+class _EpochImpactProjection:
+    """Private nullable projection shared by legacy and strict owner reads."""
+
+    owner_rows: tuple[dict[str, object], ...]
+    targets: tuple[tuple[str, str, str], ...]
+    decision_impact_denominator_ref: str
+
+
 class _DecisionValidityStateStore:
     """Persist decision validity packets, lineage heads, dependencies, and dedupe state."""
 
     def __init__(self, cas: ArtifactStore | Path) -> None:
-        root_value = getattr(cas, "root", cas)
+        root_value = cas if isinstance(cas, Path) else getattr(cas, "root", cas)
         if isinstance(root_value, str):
             root_path = Path(root_value)
         elif isinstance(root_value, Path):
@@ -136,6 +158,7 @@ class _DecisionValidityStateStore:
         self._dedupes = self._base / "dedupes"
         self._epoch_pending = self._base / "epoch_pending"
         self._epoch_receipts = self._base / "epoch_receipts"
+        self._epoch_reconciliation_admissions = self._base / "epoch_reconciliation_admissions"
         self._epoch_lock_path = self._base / "epoch_batch.lock"
         self._owner_process_lock = threading.RLock()
         self._owner_transaction_state = threading.local()
@@ -269,6 +292,68 @@ class _DecisionValidityStateStore:
             ),
         )
 
+    def load_epoch_reconciliation_admission_binding(
+        self,
+        batch_id: str,
+    ) -> EpochDenominatorReconciliationAdmissionBinding | None:
+        """Load one exact write-once reconciliation binding by batch address."""
+
+        path = self._epoch_reconciliation_admissions / f"{self.make_key(batch_id)}.json"
+        if not path.exists():
+            return None
+        return self._load_epoch_reconciliation_admission_binding_path(path)
+
+    def save_epoch_reconciliation_admission_binding(
+        self,
+        binding: EpochDenominatorReconciliationAdmissionBinding,
+    ) -> EpochDenominatorReconciliationAdmissionBinding:
+        """Write once and strictly reread the winning admission binding."""
+
+        path = self._epoch_reconciliation_admissions / (
+            f"{self.make_key(binding.batch_id)}.json"
+        )
+        candidate_bytes = to_canonical_bytes(
+            binding.model_dump(mode="json"),
+            _EPOCH_IMPACT_SNAPSHOT_CANON,
+        )
+        self._write_bytes_once(path, candidate_bytes)
+        winner = self._load_epoch_reconciliation_admission_binding_path(path)
+        if winner == binding:
+            return winner
+        raise ValueError("epoch_denominator_reconciliation_admission_conflict")
+
+    def list_epoch_reconciliation_admission_bindings(
+        self,
+    ) -> tuple[EpochDenominatorReconciliationAdmissionBinding, ...]:
+        """Enumerate every exact binding without creating its lazy directory."""
+
+        if not self._epoch_reconciliation_admissions.exists():
+            return ()
+        return tuple(
+            self._load_epoch_reconciliation_admission_binding_path(item)
+            for item in sorted(self._epoch_reconciliation_admissions.glob("*.json"))
+        )
+
+    def _load_epoch_reconciliation_admission_binding_path(
+        self,
+        path: Path,
+    ) -> EpochDenominatorReconciliationAdmissionBinding:
+        try:
+            raw = path.read_bytes()
+            binding = EpochDenominatorReconciliationAdmissionBinding.model_validate(
+                from_canonical_bytes(raw)
+            )
+            if raw != to_canonical_bytes(
+                binding.model_dump(mode="json"),
+                _EPOCH_IMPACT_SNAPSHOT_CANON,
+            ):
+                raise ValueError("binding_bytes_noncanonical")
+            if path.name != f"{self.make_key(binding.batch_id)}.json":
+                raise ValueError("binding_address_mismatch")
+            return binding
+        except (OSError, TypeError, ValueError, ValidationError) as exc:
+            raise RuntimeError("decision_validity_owner_state_corrupt") from exc
+
     @contextmanager
     def owner_transaction(self):
         """Serialize every mutation that can change an owner denominator.
@@ -304,7 +389,12 @@ class _DecisionValidityStateStore:
         """Content-bind every file that can change the owner validity projection."""
 
         digest = hashlib.sha256()
-        roots = (self._packets, self._epoch_pending, self._epoch_receipts)
+        roots = (
+            self._packets,
+            self._epoch_pending,
+            self._epoch_receipts,
+            self._epoch_reconciliation_admissions,
+        )
         for root in roots:
             for item in sorted(root.glob("*.json")):
                 relative = item.relative_to(self._base).as_posix().encode("utf-8")
@@ -368,6 +458,31 @@ class _DecisionValidityStateStore:
                 os.close(descriptor)
 
     @staticmethod
+    def _write_bytes_once(path: Path, payload: bytes) -> bool:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temp = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+        descriptor = os.open(temp, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+        try:
+            with os.fdopen(descriptor, "wb") as stream:
+                descriptor = -1
+                stream.write(payload)
+                stream.flush()
+                os.fsync(stream.fileno())
+            try:
+                os.link(temp, path)
+            except FileExistsError:
+                return False
+            _DecisionValidityStateStore._fsync_directory(path.parent)
+            return True
+        finally:
+            if descriptor >= 0:
+                os.close(descriptor)
+            try:
+                temp.unlink()
+            except FileNotFoundError:
+                pass
+
+    @staticmethod
     def _fsync_directory(directory: Path) -> None:
         descriptor = os.open(directory, os.O_RDONLY)
         try:
@@ -414,11 +529,14 @@ class DecisionValidityService:
         *,
         reevaluate_ttl_seconds: int = 300,
         epoch_transition_verifier: EpochTransitionVerifier | None = None,
+        epoch_denominator_reconciliation_reader: EpochTransitionDenominatorReconciliationReader
+        | None = None,
     ) -> None:
         self._store = store
         self._state = _DecisionValidityStateStore(store)
         self._ttl = max(0, int(reevaluate_ttl_seconds))
         self._epoch_transition_verifier = epoch_transition_verifier or NoEpochTransitionVerifier()
+        self._epoch_denominator_reconciliation_reader = epoch_denominator_reconciliation_reader
 
     def state_generation(self) -> int:
         """Return the number of persisted owner-projection records (test diagnostic)."""
@@ -429,6 +547,7 @@ class DecisionValidityService:
                 self._state._packets,
                 self._state._epoch_pending,
                 self._state._epoch_receipts,
+                self._state._epoch_reconciliation_admissions,
             )
             for _ in root.glob("*.json")
         )
@@ -437,6 +556,108 @@ class DecisionValidityService:
         """Return the content-bound cache identity for all current validity facts."""
 
         return self._state.current_projection_generation_ref()
+
+    @staticmethod
+    def _epoch_verification_target_coordinates(
+        receipt: EpochTransitionVerificationReceipt,
+    ) -> tuple[tuple[str, str, str], ...]:
+        return tuple(
+            sorted(
+                (
+                    row.packet_ref,
+                    row.dependency_key,
+                    row.decision_lineage_key,
+                )
+                for row in receipt.targets
+            )
+        )
+
+    @staticmethod
+    def _epoch_reconciliation_target_coordinates(
+        persisted: PersistedEpochTransitionDenominatorReconciliation,
+    ) -> tuple[tuple[str, str, str], ...]:
+        return tuple(
+            sorted(
+                (
+                    row.packet_ref,
+                    row.dependency_key,
+                    row.decision_lineage_key,
+                )
+                for row in persisted.receipt.scientist_targets
+            )
+        )
+
+    @classmethod
+    def _require_reconciliation_matches_verification(
+        cls,
+        *,
+        persisted: PersistedEpochTransitionDenominatorReconciliation,
+        receipt: EpochTransitionVerificationReceipt,
+        mismatch_code: str,
+    ) -> None:
+        sidecar = persisted.receipt
+        if (
+            sidecar.transition_artifact_ref != receipt.transition_artifact_ref
+            or sidecar.transition_content_hash != receipt.transition_content_hash
+            or sidecar.requested_query_context_ref != receipt.requested_query_context_ref
+            or sidecar.authority_purpose != receipt.authority_purpose
+            or sidecar.verifier_provenance_ref != receipt.verifier_provenance_ref
+            or sidecar.decision_impact_denominator_ref != receipt.dependency_denominator_ref
+            or sidecar.requested_dependency_keys != tuple(sorted(receipt.dependency_keys))
+            or cls._epoch_reconciliation_target_coordinates(persisted)
+            != cls._epoch_verification_target_coordinates(receipt)
+        ):
+            raise ValueError(mismatch_code)
+
+    @classmethod
+    def _require_binding_matches_reconciliation(
+        cls,
+        *,
+        binding: EpochDenominatorReconciliationAdmissionBinding,
+        persisted: PersistedEpochTransitionDenominatorReconciliation,
+        receipt: EpochTransitionVerificationReceipt,
+        batch_id: str,
+    ) -> None:
+        sidecar = persisted.receipt
+        if (
+            binding.batch_id != batch_id
+            or binding.transition_artifact_ref != receipt.transition_artifact_ref
+            or binding.transition_content_hash != receipt.transition_content_hash
+            or binding.requested_query_context_ref != receipt.requested_query_context_ref
+            or binding.authority_purpose != receipt.authority_purpose
+            or binding.decision_impact_denominator_ref != receipt.dependency_denominator_ref
+            or binding.scientist_snapshot_ref != sidecar.scientist_snapshot_ref
+            or binding.scientist_snapshot_content_hash != sidecar.scientist_snapshot_content_hash
+            or binding.verifier_provenance_ref != receipt.verifier_provenance_ref
+            or binding.reconciliation_receipt_ref != persisted.handle.reconciliation_receipt_ref
+            or binding.reconciliation_receipt_content_hash
+            != persisted.handle.reconciliation_receipt_content_hash
+            or binding.reconciliation_rule_version != sidecar.reconciliation_rule_version
+            or binding.canonicalization_profile != sidecar.canonicalization_profile
+        ):
+            raise ValueError("epoch_denominator_reconciliation_admission_conflict")
+        cls._require_reconciliation_matches_verification(
+            persisted=persisted,
+            receipt=receipt,
+            mismatch_code="epoch_denominator_reconciliation_admission_conflict",
+        )
+
+    @staticmethod
+    def _epoch_pending_from_verification(
+        *,
+        batch_id: str,
+        receipt: EpochTransitionVerificationReceipt,
+    ) -> EpochValidityPendingBatch:
+        return EpochValidityPendingBatch(
+            batch_id=batch_id,
+            transition_artifact_ref=receipt.transition_artifact_ref,
+            transition_content_hash=receipt.transition_content_hash,
+            requested_query_context_ref=receipt.requested_query_context_ref,
+            verifier_provenance_ref=receipt.verifier_provenance_ref,
+            dependency_denominator_ref=receipt.dependency_denominator_ref,
+            adjudication_denominator_ref=receipt.adjudication_denominator_ref,
+            targets=receipt.targets,
+        )
 
     @_owner_transactional
     def admit_epoch_validity_batch(
@@ -465,53 +686,157 @@ class DecisionValidityService:
         with self._state.epoch_batch_transaction():
             completed = self._load_completed_epoch_receipt(batch_id)
             pending = self._state.load_epoch_pending(batch_id)
-            if completed is not None:
-                self._require_completed_matches_verification(
-                    completed=completed,
-                    receipt=receipt,
-                )
-                if pending is not None:
+            reconciliation_reader = self._epoch_denominator_reconciliation_reader
+            if reconciliation_reader is None:
+                if completed is not None:
+                    self._require_completed_matches_verification(
+                        completed=completed,
+                        receipt=receipt,
+                    )
+                    if pending is not None:
+                        self._require_pending_matches_verification(
+                            pending=pending,
+                            receipt=receipt,
+                        )
+                        self._state.clear_epoch_pending(batch_id)
+                    return completed
+
+                if pending is None:
+                    active = self._state.list_epoch_pending()
+                    if active:
+                        raise ValueError("batch_pending")
+                    expected_targets, expected_denominator = self._resolve_epoch_target_denominator(
+                        dependency_keys=receipt.dependency_keys
+                    )
+                    observed_targets = {
+                        (row.packet_ref, row.dependency_key, row.decision_lineage_key)
+                        for row in receipt.targets
+                    }
+                    if observed_targets != expected_targets:
+                        raise ValueError("target_denominator_mismatch")
+                    if receipt.dependency_denominator_ref != expected_denominator:
+                        raise ValueError("dependency_denominator_unresolved")
+                    pending = EpochValidityPendingBatch(
+                        batch_id=batch_id,
+                        transition_artifact_ref=receipt.transition_artifact_ref,
+                        transition_content_hash=receipt.transition_content_hash,
+                        requested_query_context_ref=receipt.requested_query_context_ref,
+                        verifier_provenance_ref=receipt.verifier_provenance_ref,
+                        dependency_denominator_ref=receipt.dependency_denominator_ref,
+                        adjudication_denominator_ref=receipt.adjudication_denominator_ref,
+                        targets=receipt.targets,
+                    )
+                    # Phase one is the authoritative freeze and precedes every packet write.
+                    self._state.save_epoch_pending(pending)
+                else:
+                    # Resume the exact frozen denominator; later owner-index changes do
+                    # not rewrite a batch that was already admitted.
                     self._require_pending_matches_verification(
                         pending=pending,
                         receipt=receipt,
                     )
-                    self._state.clear_epoch_pending(batch_id)
-                return completed
-
-            if pending is None:
-                active = self._state.list_epoch_pending()
-                if active:
-                    raise ValueError("batch_pending")
-                expected_targets, expected_denominator = self._resolve_epoch_target_denominator(
-                    dependency_keys=receipt.dependency_keys
-                )
-                observed_targets = {
-                    (row.packet_ref, row.dependency_key, row.decision_lineage_key)
-                    for row in receipt.targets
-                }
-                if observed_targets != expected_targets:
-                    raise ValueError("target_denominator_mismatch")
-                if receipt.dependency_denominator_ref != expected_denominator:
-                    raise ValueError("dependency_denominator_unresolved")
-                pending = EpochValidityPendingBatch(
-                    batch_id=batch_id,
-                    transition_artifact_ref=receipt.transition_artifact_ref,
-                    transition_content_hash=receipt.transition_content_hash,
-                    requested_query_context_ref=receipt.requested_query_context_ref,
-                    verifier_provenance_ref=receipt.verifier_provenance_ref,
-                    dependency_denominator_ref=receipt.dependency_denominator_ref,
-                    adjudication_denominator_ref=receipt.adjudication_denominator_ref,
-                    targets=receipt.targets,
-                )
-                # Phase one is the authoritative freeze and precedes every packet write.
-                self._state.save_epoch_pending(pending)
             else:
-                # Resume the exact frozen denominator; later owner-index changes do
-                # not rewrite a batch that was already admitted.
-                self._require_pending_matches_verification(
-                    pending=pending,
-                    receipt=receipt,
-                )
+                binding = self._state.load_epoch_reconciliation_admission_binding(batch_id)
+                if binding is not None:
+                    if (
+                        reconciliation_reader.verifier_provenance_ref
+                        != binding.verifier_provenance_ref
+                    ):
+                        raise ValueError(
+                            "epoch_denominator_reconciliation_admission_conflict"
+                        )
+                    persisted_reconciliation = reconciliation_reader.resolve_exact(
+                        handle=binding.handle
+                    )
+                    self._require_binding_matches_reconciliation(
+                        binding=binding,
+                        persisted=persisted_reconciliation,
+                        receipt=receipt,
+                        batch_id=batch_id,
+                    )
+                    if completed is not None:
+                        self._require_completed_matches_verification(
+                            completed=completed,
+                            receipt=receipt,
+                        )
+                        if pending is not None:
+                            self._require_pending_matches_verification(
+                                pending=pending,
+                                receipt=receipt,
+                            )
+                            self._state.clear_epoch_pending(batch_id)
+                        return completed
+                    if pending is None:
+                        pending = self._epoch_pending_from_verification(
+                            batch_id=batch_id,
+                            receipt=receipt,
+                        )
+                        self._state.save_epoch_pending(pending)
+                    else:
+                        self._require_pending_matches_verification(
+                            pending=pending,
+                            receipt=receipt,
+                        )
+                else:
+                    if completed is not None or pending is not None:
+                        raise ValueError("epoch_denominator_reconciliation_unavailable")
+                    active = self._state.list_epoch_pending()
+                    if active:
+                        raise ValueError("batch_pending")
+                    snapshot = self.persist_epoch_impact_snapshot(
+                        dependency_keys=tuple(sorted(receipt.dependency_keys)),
+                        requested_query_context_ref=requested_query_context_ref,
+                    )
+                    observed_targets = {
+                        (row.packet_ref, row.dependency_key, row.decision_lineage_key)
+                        for row in receipt.targets
+                    }
+                    snapshot_targets = {
+                        (row.packet_ref, row.dependency_key, row.decision_lineage_key)
+                        for row in snapshot.snapshot.targets
+                    }
+                    if observed_targets != snapshot_targets:
+                        raise ValueError("target_denominator_mismatch")
+                    if (
+                        receipt.dependency_denominator_ref
+                        != snapshot.snapshot.decision_impact_denominator_ref
+                    ):
+                        raise ValueError("dependency_denominator_unresolved")
+                    persisted_reconciliation = reconciliation_reader.resolve_for_first_admission(
+                        transition_artifact_ref=transition_artifact_ref,
+                        transition_content_hash=receipt.transition_content_hash,
+                        requested_query_context_ref=requested_query_context_ref,
+                        authority_purpose="decision_validity_epoch_transition",
+                        scientist_snapshot_handle=snapshot.handle,
+                    )
+                    self._require_reconciliation_matches_verification(
+                        persisted=persisted_reconciliation,
+                        receipt=receipt,
+                        mismatch_code="epoch_denominator_reconciliation_unresolved",
+                    )
+                    sidecar = persisted_reconciliation.receipt
+                    binding = EpochDenominatorReconciliationAdmissionBinding.build(
+                        batch_id=batch_id,
+                        transition_artifact_ref=receipt.transition_artifact_ref,
+                        transition_content_hash=receipt.transition_content_hash,
+                        requested_query_context_ref=receipt.requested_query_context_ref,
+                        decision_impact_denominator_ref=receipt.dependency_denominator_ref,
+                        scientist_snapshot_ref=sidecar.scientist_snapshot_ref,
+                        scientist_snapshot_content_hash=(sidecar.scientist_snapshot_content_hash),
+                        verifier_provenance_ref=receipt.verifier_provenance_ref,
+                        reconciliation_receipt_ref=(
+                            persisted_reconciliation.handle.reconciliation_receipt_ref
+                        ),
+                        reconciliation_receipt_content_hash=(
+                            persisted_reconciliation.handle.reconciliation_receipt_content_hash
+                        ),
+                    )
+                    self._state.save_epoch_reconciliation_admission_binding(binding)
+                    pending = self._epoch_pending_from_verification(
+                        batch_id=batch_id,
+                        receipt=receipt,
+                    )
+                    self._state.save_epoch_pending(pending)
 
             applied = list(pending.applied_packet_refs)
             targets_by_packet: dict[str, list[EpochValidityBatchTarget]] = {}
@@ -820,11 +1145,13 @@ class DecisionValidityService:
         if not report.ok or receipt.transition_content_hash != observed_hash:
             raise ValueError("content_hash_mismatch")
 
-    def _resolve_epoch_target_denominator(
+    def _resolve_epoch_impact_projection(
         self,
         *,
         dependency_keys: tuple[str, ...],
-    ) -> tuple[set[tuple[str, str, str]], str]:
+    ) -> _EpochImpactProjection:
+        """Walk the nullable owner projection once without strengthening legacy behavior."""
+
         rows: list[dict[str, object]] = []
         targets: set[tuple[str, str, str]] = set()
         for key in sorted(dependency_keys):
@@ -846,7 +1173,125 @@ class DecisionValidityService:
                     raise ValueError("dependency_denominator_unresolved")
                 targets.add((packet_ref, key, packet.decision_lineage_key))
         raw = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
-        return targets, "sha256:" + hashlib.sha256(raw).hexdigest()
+        return _EpochImpactProjection(
+            owner_rows=tuple(rows),
+            targets=tuple(sorted(targets, key=lambda row: (row[1], row[0], row[2]))),
+            decision_impact_denominator_ref="sha256:" + hashlib.sha256(raw).hexdigest(),
+        )
+
+    def _resolve_epoch_target_denominator(
+        self,
+        *,
+        dependency_keys: tuple[str, ...],
+    ) -> tuple[set[tuple[str, str, str]], str]:
+        projection = self._resolve_epoch_impact_projection(dependency_keys=dependency_keys)
+        return set(projection.targets), projection.decision_impact_denominator_ref
+
+    @_owner_transactional
+    def persist_epoch_impact_snapshot(
+        self,
+        *,
+        dependency_keys: tuple[str, ...],
+        requested_query_context_ref: str,
+    ) -> PersistedDecisionValidityEpochImpactSnapshot:
+        """Persist the exact strict Scientist projection for a reconciliation candidate."""
+
+        projection = self._resolve_epoch_impact_projection(dependency_keys=dependency_keys)
+        strict_rows: list[DecisionValidityEpochImpactOwnerRow] = []
+        try:
+            for row in projection.owner_rows:
+                artifact_id = row["artifact_id"]
+                if not isinstance(artifact_id, str):
+                    raise ValueError("owner artifact id is null")
+                ArtifactID.model_validate(artifact_id)
+                strict_rows.append(DecisionValidityEpochImpactOwnerRow.model_validate(row))
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise ValueError("epoch_impact_snapshot_artifact_id_unresolved") from exc
+        snapshot = DecisionValidityEpochImpactSnapshot.build(
+            requested_query_context_ref=requested_query_context_ref,
+            requested_dependency_keys=dependency_keys,
+            owner_rows=tuple(strict_rows),
+            targets=tuple(
+                DecisionValidityEpochImpactTarget(
+                    packet_ref=packet_ref,
+                    dependency_key=dependency_key,
+                    decision_lineage_key=lineage_key,
+                )
+                for packet_ref, dependency_key, lineage_key in projection.targets
+            ),
+        )
+        if snapshot.decision_impact_denominator_ref != projection.decision_impact_denominator_ref:
+            raise RuntimeError("decision_validity_epoch_impact_snapshot_unresolved")
+        snapshot_bytes = to_canonical_bytes(
+            snapshot.model_dump(mode="json"),
+            _EPOCH_IMPACT_SNAPSHOT_CANON,
+        )
+        snapshot_ref = self._store.put_bytes(
+            snapshot_bytes,
+            ArtifactWriteOptions(
+                kind=_EPOCH_IMPACT_SNAPSHOT_KIND,
+                media_type=_EPOCH_IMPACT_SNAPSHOT_MEDIA_TYPE,
+                schema=SchemaInfo(name=_EPOCH_IMPACT_SNAPSHOT_SCHEMA, version="1.0"),
+                canon=CanonInfo.from_spec(_EPOCH_IMPACT_SNAPSHOT_CANON),
+            ),
+        )
+        return self.resolve_epoch_impact_snapshot(
+            handle=DecisionValidityEpochImpactSnapshotHandle(
+                snapshot_ref=snapshot_ref,
+                snapshot_content_hash=snapshot.snapshot_content_hash,
+            )
+        )
+
+    def resolve_epoch_impact_snapshot(
+        self,
+        *,
+        handle: DecisionValidityEpochImpactSnapshotHandle,
+    ) -> PersistedDecisionValidityEpochImpactSnapshot:
+        """Resolve one snapshot with exact CAS, manifest, canonical-byte, and model checks."""
+
+        try:
+            snapshot_ref = handle.snapshot_ref
+            if (
+                snapshot_ref.kind != _EPOCH_IMPACT_SNAPSHOT_KIND
+                or snapshot_ref.media_type != _EPOCH_IMPACT_SNAPSHOT_MEDIA_TYPE
+            ):
+                raise ValueError("snapshot ref profile mismatch")
+            report = self._store.verify(snapshot_ref.artifact_id)
+            manifest = self._store.get_manifest(snapshot_ref.artifact_id)
+            snapshot_bytes = self._store.get_bytes(snapshot_ref.artifact_id)
+            if (
+                not report.ok
+                or str(manifest.artifact_id) != str(snapshot_ref.artifact_id)
+                or manifest.kind != _EPOCH_IMPACT_SNAPSHOT_KIND
+                or manifest.media_type != _EPOCH_IMPACT_SNAPSHOT_MEDIA_TYPE
+                or manifest.artifact_schema
+                != SchemaInfo(name=_EPOCH_IMPACT_SNAPSHOT_SCHEMA, version="1.0")
+                or manifest.canon != CanonInfo.from_spec(_EPOCH_IMPACT_SNAPSHOT_CANON)
+                or "sha256:" + hashlib.sha256(snapshot_bytes).hexdigest()
+                != str(snapshot_ref.artifact_id)
+            ):
+                raise ValueError("snapshot manifest mismatch")
+            snapshot = DecisionValidityEpochImpactSnapshot.model_validate(
+                from_canonical_bytes(snapshot_bytes)
+            )
+            if (
+                to_canonical_bytes(
+                    snapshot.model_dump(mode="json"),
+                    _EPOCH_IMPACT_SNAPSHOT_CANON,
+                )
+                != snapshot_bytes
+                or handle.snapshot_content_hash != snapshot.snapshot_content_hash
+            ):
+                raise ValueError("snapshot bytes mismatch")
+            return PersistedDecisionValidityEpochImpactSnapshot(
+                handle=handle,
+                snapshot_bytes=snapshot_bytes,
+                snapshot=snapshot,
+            )
+        except KeyError as exc:
+            raise RuntimeError("decision_validity_epoch_impact_snapshot_unresolved") from exc
+        except _DECISION_VALIDITY_ARTIFACT_LOAD_ERRORS as exc:
+            raise RuntimeError("decision_validity_epoch_impact_snapshot_unresolved") from exc
 
     @_owner_transactional
     def register_decision_packet(

@@ -1406,6 +1406,55 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             errors,
         )
 
+    def test_decision_grade_presentation_is_a_content_bound_non_status_taxonomy(
+        self,
+    ) -> None:
+        """Admit the owner-derived map without treating it as frontend authority."""
+        inventory, _debt = _artifacts()
+        scan = checker._scan()
+        finding = (
+            "unregistered_semantic_definition:"
+            "decisionGradePresentationByOwnerGrade"
+        )
+
+        self.assertNotIn(  # noqa: PT009
+            finding, checker._validate_semantic_candidates(inventory, scan)
+        )
+        row = next(
+            candidate
+            for candidate in inventory["semantic_exemptions"]
+            if candidate["candidate_id"]
+            == "semantic-decision-grade-presentation"
+        )
+        self.assertEqual("non_status_taxonomy", row["disposition"])  # noqa: PT009
+        self.assertTrue(row["does_not_change_ds1_denominator"])  # noqa: PT009
+
+        missing = copy.deepcopy(inventory)
+        missing["semantic_exemptions"].remove(
+            next(
+                candidate
+                for candidate in missing["semantic_exemptions"]
+                if candidate["candidate_id"]
+                == "semantic-decision-grade-presentation"
+            )
+        )
+        self.assertIn(  # noqa: PT009
+            finding, checker._validate_semantic_candidates(missing, scan)
+        )
+
+        drifted = copy.deepcopy(inventory)
+        drifted_row = next(
+            candidate
+            for candidate in drifted["semantic_exemptions"]
+            if candidate["candidate_id"]
+            == "semantic-decision-grade-presentation"
+        )
+        drifted_row["literal_members"] = ["unsupported"]
+        self.assertIn(  # noqa: PT009
+            "semantic_literal_members_drift:semantic-decision-grade-presentation",
+            checker._validate_semantic_candidates(drifted, scan),
+        )
+
     def test_scan_routes_authority_like_confidence_and_severity_unions_to_semantic_candidates(
         self,
     ) -> None:

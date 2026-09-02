@@ -68,6 +68,34 @@ def _identity_payload(reference: str) -> dict[str, object]:
 class GeneratedClientReceiptCensusTests(unittest.TestCase):
     """Prove receipt discovery is derived from the full structured population."""
 
+    def test_non_anchor_source_records_do_not_claim_client_bindings(self) -> None:
+        """Neutral DS18/DS17 source facts stay visible without becoming anchors."""
+        census = _load_census()
+        artifact_path = (
+            "architecture/atlas_surfaces/frontend-disposition-register.json"
+        )
+        document = json.loads((REPO_ROOT / artifact_path).read_text(encoding="utf-8"))
+        roots = [
+            root
+            for row in document["ds18_time_semantics_coverage"]["files"]
+            for root in row["roots"]
+        ]
+
+        result = census._document_anchor_census(
+            document,
+            artifact_path=artifact_path,
+            target_paths=census.DEFAULT_TARGET_PATHS,
+        )
+
+        pointer_prefix = "/ds18_time_semantics_coverage/files/"
+        assert len(roots) == 759
+        assert not any(
+            binding["pointer"].startswith(pointer_prefix)
+            for binding in result.independent.values()
+        )
+        assert not any(pointer_prefix in error for error in result.errors)
+        assert result.errors == []
+
     def test_discovers_unlisted_artifacts_and_reconciles_independent_counts(
         self,
     ) -> None:
@@ -865,12 +893,12 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             == "architecture/atlas_surfaces/ds4-waist-debt-register.json"
         ]
         assert len(waist) == 3
-        assert sum(len(binding["line_bindings"]) for binding in waist) == 4
-        assert sum(len(binding["identity_bindings"]) for binding in waist) == 4
-        assert sum(len(binding["absence_bindings"]) for binding in waist) == 2
+        assert sum(len(binding["line_bindings"]) for binding in waist) == 6
+        assert sum(len(binding["identity_bindings"]) for binding in waist) == 6
+        assert sum(len(binding["absence_bindings"]) for binding in waist) == 0
         assert [binding["binding_mode"] for binding in waist] == [
             "identity",
-            "recomputed_absence",
+            "identity",
             "identity",
         ]
         before = census._document_anchor_census(
@@ -913,11 +941,11 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         assert waist_before.absence_predicates == 0
         assert waist_before.legacy_line_bindings == 8
         assert report["summary"]["primary_anchor_records"] == 18
-        assert report["summary"]["identity_bindings"] == 34
-        assert report["summary"]["absence_predicates"] == 2
+        assert report["summary"]["identity_bindings"] == 36
+        assert report["summary"]["absence_predicates"] == 0
         assert report["summary"]["semantic_bindings"] == 36
         assert report["summary"]["legacy_line_bindings"] == 0
-        assert report["summary"]["navigation_line_hints"] == 34
+        assert report["summary"]["navigation_line_hints"] == 36
         candidate_population = report["candidate_population"]
         assert candidate_population["total"] == sum(
             candidate_population["by_suffix"].values()

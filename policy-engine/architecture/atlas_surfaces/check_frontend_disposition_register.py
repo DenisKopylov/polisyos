@@ -8043,6 +8043,156 @@ def _json_field_value_span(
     return start, end, value
 
 
+def _non_anchor_source_fields_candidate_text(
+    original_text: str,
+) -> tuple[str, dict[str, int]]:
+    """Neutralize non-anchor source facts while preserving every peer byte."""
+    opening = json.loads(original_text)
+    coverage_start, coverage_end, _coverage = _json_top_level_object_span(
+        original_text, "ds18_time_semantics_coverage"
+    )
+    files_start, files_end, files = _json_field_value_span(
+        original_text,
+        field="files",
+        within=(coverage_start, coverage_end),
+    )
+    if not isinstance(files, list):
+        raise ValueError("DS18 component migration files are invalid")
+    expected = copy.deepcopy(opening)
+    expected_files = expected["ds18_time_semantics_coverage"]["files"]
+    legacy_component_count = 0
+    current_component_count = 0
+    legacy_line_count = 0
+    current_source_row_count = 0
+    for file_index, row in enumerate(files):
+        if not isinstance(row, Mapping) or not isinstance(row.get("roots"), list):
+            raise ValueError("DS18 component migration file roots are invalid")
+        for root_index, root in enumerate(row["roots"]):
+            if not isinstance(root, Mapping):
+                raise ValueError("DS18 component migration root is invalid")
+            has_legacy = "component_identity" in root
+            has_current = "component_name" in root
+            if has_legacy and has_current:
+                raise ValueError("DS18 root component label is ambiguous")
+            if not has_legacy and not has_current:
+                raise ValueError("DS18 root component label is missing")
+            field = "component_identity" if has_legacy else "component_name"
+            component_name = root[field]
+            if not isinstance(component_name, str) or not component_name:
+                raise ValueError("DS18 root component label is invalid")
+            has_legacy_line = "line" in root
+            has_source_row = "source_row" in root
+            if has_legacy_line and has_source_row:
+                raise ValueError("DS18 root source location is ambiguous")
+            if not has_legacy_line and not has_source_row:
+                raise ValueError("DS18 root source location is missing")
+            source_row_field = "line" if has_legacy_line else "source_row"
+            source_row = root[source_row_field]
+            if (
+                not isinstance(source_row, int)
+                or isinstance(source_row, bool)
+                or source_row < 1
+            ):
+                raise ValueError("DS18 root source location is invalid")
+            if has_legacy:
+                legacy_component_count += 1
+            else:
+                current_component_count += 1
+            if has_legacy_line:
+                legacy_line_count += 1
+            else:
+                current_source_row_count += 1
+            replacements = {
+                "component_identity": "component_name",
+                "line": "source_row",
+            }
+            expected_files[file_index]["roots"][root_index] = {
+                replacements.get(key, key): value for key, value in root.items()
+            }
+
+    legacy_component_marker = '"component_identity":'
+    current_component_marker = '"component_name":'
+    legacy_line_marker = '"line":'
+    current_source_row_marker = '"source_row":'
+    files_text = original_text[files_start:files_end]
+    if files_text.count(legacy_component_marker) != legacy_component_count:
+        raise ValueError("DS18 legacy component label token coverage drift")
+    if files_text.count(current_component_marker) != current_component_count:
+        raise ValueError("DS18 current component label token coverage drift")
+    if files_text.count(legacy_line_marker) != legacy_line_count:
+        raise ValueError("DS18 legacy source-line token coverage drift")
+    if files_text.count(current_source_row_marker) != current_source_row_count:
+        raise ValueError("DS18 current source-row token coverage drift")
+    candidate_files_text = files_text.replace(
+        legacy_component_marker, current_component_marker
+    ).replace(legacy_line_marker, current_source_row_marker)
+    candidate = (
+        original_text[:files_start]
+        + candidate_files_text
+        + original_text[files_end:]
+    )
+
+    surface_start, surface_end, _surface = _json_top_level_object_span(
+        candidate, DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+    )
+    roles_start, roles_end, roles = _json_field_value_span(
+        candidate,
+        field="roles",
+        within=(surface_start, surface_end),
+    )
+    if not isinstance(roles, list):
+        raise ValueError("DS17 non-anchor migration roles are invalid")
+    expected_roles = expected[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]["roles"]
+    legacy_declaration_line_count = 0
+    current_declaration_row_count = 0
+    for role_index, role in enumerate(roles):
+        declaration = role.get("declaration") if isinstance(role, Mapping) else None
+        if not isinstance(declaration, Mapping):
+            raise ValueError("DS17 non-anchor declaration is invalid")
+        has_legacy_line = "line" in declaration
+        has_source_row = "source_row" in declaration
+        if has_legacy_line and has_source_row:
+            raise ValueError("DS17 declaration source location is ambiguous")
+        if not has_legacy_line and not has_source_row:
+            raise ValueError("DS17 declaration source location is missing")
+        source_row_field = "line" if has_legacy_line else "source_row"
+        source_row = declaration[source_row_field]
+        if (
+            not isinstance(source_row, int)
+            or isinstance(source_row, bool)
+            or source_row < 1
+        ):
+            raise ValueError("DS17 declaration source location is invalid")
+        if has_legacy_line:
+            legacy_declaration_line_count += 1
+        else:
+            current_declaration_row_count += 1
+        expected_roles[role_index]["declaration"] = {
+            ("source_row" if key == "line" else key): value
+            for key, value in declaration.items()
+        }
+    roles_text = candidate[roles_start:roles_end]
+    if roles_text.count(legacy_line_marker) != legacy_declaration_line_count:
+        raise ValueError("DS17 legacy source-line token coverage drift")
+    if roles_text.count(current_source_row_marker) != current_declaration_row_count:
+        raise ValueError("DS17 current source-row token coverage drift")
+    candidate_roles_text = roles_text.replace(
+        legacy_line_marker, current_source_row_marker
+    )
+    candidate = (
+        candidate[:roles_start]
+        + candidate_roles_text
+        + candidate[roles_end:]
+    )
+    if json.loads(candidate) != expected:
+        raise ValueError("non-anchor source-field migration changed an unrelated value")
+    return candidate, {
+        "ds18_component_labels": legacy_component_count,
+        "ds18_source_lines": legacy_line_count,
+        "ds17_source_lines": legacy_declaration_line_count,
+    }
+
+
 def _ds9_c07_storage_target_spans(
     text: str,
 ) -> list[tuple[str, int, int, Any]]:
@@ -17122,7 +17272,7 @@ def _build_ds17_confidence_ledger_risk_spend_surface(
                     "declaration_sha256": declaration["declaration_sha256"],
                     "exported": declaration["exported"],
                     "kind": declaration["kind"],
-                    "line": declaration["line"],
+                    "source_row": declaration["line"],
                 },
                 "behavioral_evidence": [
                     _ds17_source_receipt(test_path, test_module)
@@ -17757,6 +17907,14 @@ def _build_ds18_time_semantics_coverage(
         roots: list[dict[str, Any]] = []
         for scanned_root in scan_file.get("roots", []):
             root = dict(scanned_root)
+            component_name = root.pop("component_identity", None)
+            if not isinstance(component_name, str) or not component_name:
+                raise ValueError(f"DS18 scanner root lacks a component name: {path_ref}")
+            root["component_name"] = component_name
+            if "source_row" in root:
+                raise ValueError(f"DS18 scanner root preclaims a source row: {path_ref}")
+            if "line" in root:
+                root["source_row"] = root.pop("line")
             root.update(
                 {
                     "owner_evidence": [_ds18_source_receipt(path_ref)],
@@ -18013,21 +18171,26 @@ def _validate_ds18_time_semantics_coverage_core(
             if scanned_root is None:
                 continue
             scanner_fields = {
-                "column",
-                "component_identity",
-                "epoch_context_read_count",
-                "epoch_semantics_prop_count",
-                "epoch_semantics_provider_render_count",
-                "kind",
-                "line",
-                "root_id",
-                "root_source_sha256",
-                "time_semantics_label_render_count",
+                "column": "column",
+                "component_name": "component_identity",
+                "epoch_context_read_count": "epoch_context_read_count",
+                "epoch_semantics_prop_count": "epoch_semantics_prop_count",
+                "epoch_semantics_provider_render_count": (
+                    "epoch_semantics_provider_render_count"
+                ),
+                "kind": "kind",
+                "source_row": "line",
+                "root_id": "root_id",
+                "root_source_sha256": "root_source_sha256",
+                "time_semantics_label_render_count": (
+                    "time_semantics_label_render_count"
+                ),
             }
-            for field in scanner_fields:
-                if root.get(field) != scanned_root.get(field):
+            for stored_field, scanner_field in scanner_fields.items():
+                if root.get(stored_field) != scanned_root.get(scanner_field):
                     errors.append(
-                        f"ds18_time_semantics_root_receipt_drift:{label}:{field}"
+                        "ds18_time_semantics_root_receipt_drift:"
+                        f"{label}:{stored_field}"
                     )
             if root.get("predicate_provenance") != "independently_reconciled":
                 errors.append(f"ds18_time_semantics_root_provenance_drift:{label}")
@@ -18109,7 +18272,15 @@ def _ds18_coverage_root_index(
         for root in stored_roots:
             if not isinstance(root, Mapping):
                 raise ValueError("DS18 lineage root receipt is invalid")
-            component = root.get("component_identity")
+            component_name = root.get("component_name")
+            legacy_component_identity = root.get("component_identity")
+            if component_name is not None and legacy_component_identity is not None:
+                raise ValueError("DS18 lineage root has two component labels")
+            component = (
+                component_name
+                if component_name is not None
+                else legacy_component_identity
+            )
             if not isinstance(component, str) or not component:
                 raise ValueError("DS18 lineage root component is invalid")
             occurrence = occurrences[component]
@@ -21565,6 +21736,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="recompute only the DS18 file/root denominator and semantic receipts",
     )
     parser.add_argument(
+        "--migrate-non-anchor-source-fields",
+        action="store_true",
+        help="surgically neutralize DS17/DS18 non-anchor source field names",
+    )
+    parser.add_argument(
         "--write-ds15-acquisition-routes",
         action="store_true",
         help="atomically admit the bounded DS15 query/disposition transition",
@@ -21617,6 +21793,61 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="compare custom architecture JSON against the active debt set",
     )
     args = parser.parse_args(argv)
+
+    if args.migrate_non_anchor_source_fields:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {"migrate_non_anchor_source_fields"}:
+            sys.stderr.write(
+                "Non-anchor source-field migration requires only "
+                "--migrate-non-anchor-source-fields\n"
+            )
+            return 1
+        try:
+            original_text = REGISTER_PATH.read_text(encoding="utf-8")
+            candidate_text, renamed_fields = (
+                _non_anchor_source_fields_candidate_text(original_text)
+            )
+            candidate = json.loads(candidate_text)
+            candidate_errors = _schema_errors(candidate, SCHEMA_PATH)
+        except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
+            sys.stderr.write(f"Non-anchor source-field migration rejected: {exc}\n")
+            return 1
+        if candidate_errors:
+            for error in candidate_errors:
+                sys.stderr.write(
+                    f"Non-anchor source-field migration rejected: {error}\n"
+                )
+            return 1
+        REGISTER_PATH.write_text(candidate_text, encoding="utf-8")
+        roots = [
+            root
+            for row in candidate["ds18_time_semantics_coverage"]["files"]
+            for root in row["roots"]
+        ]
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "current_roots": len(roots),
+                    "renamed_ds18_component_labels": renamed_fields[
+                        "ds18_component_labels"
+                    ],
+                    "renamed_ds18_source_lines": renamed_fields[
+                        "ds18_source_lines"
+                    ],
+                    "renamed_ds17_source_lines": renamed_fields[
+                        "ds17_source_lines"
+                    ],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        )
+        return 0
 
     if args.write_ds17_confidence_ledger_risk_spend:
         selected = {

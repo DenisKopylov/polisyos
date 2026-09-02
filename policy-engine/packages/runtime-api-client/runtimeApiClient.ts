@@ -578,7 +578,7 @@ export type AuthorityAbstainingRunPaperCase = {
 export type AuthorityBoundary = {
   authoritative_for: Array<string>;
   boundary_id?: string | null;
-  decision_grade?: "unsupported" | "descriptive_only" | "advisory_admissible" | "decision_admissible" | null;
+  decision_grade?: DecisionGrade | null;
   evidence_basis?: EvidenceBasis | null;
   evidence_kind?: "measurement" | "derivation" | "proxy" | "transport" | "bounds" | "simulation" | "elicitation" | "incomparable_meet" | null;
   known_limits?: Array<string>;
@@ -1966,6 +1966,8 @@ export type DecisionDependencyEvent = {
   status: DecisionValidityStatus;
   trigger_type: DecisionTriggerType;
 };
+
+export type DecisionGrade = "unsupported" | "descriptive_only" | "advisory_admissible" | "decision_admissible";
 
 export type DecisionLifecycleJob = {
   completed_at?: string | null;

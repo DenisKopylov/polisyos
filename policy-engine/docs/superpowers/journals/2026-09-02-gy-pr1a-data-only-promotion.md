@@ -2232,3 +2232,88 @@ Identifier and owner allocation remain architect-owned; exact prose:
 > component `implemented_but_not_orchestrated`; snapshot replay `producer_missing` plus
 > `bridge_missing`; currency/drift detection `absent/unallocated`. Status `blocked` on engineering,
 > not an institutional appointment.
+
+## Event 4 — measured data-only route closeout
+
+The required non-rebase merge completed without conflict as commit
+`e88964ff2ce7e649016b7d8cbca1fd69f4575749`, with parents
+`719659e2fc69069abd358f44d0c46166184dbdba` and
+`071cf3c5feab54e57f21f1f931984f4319852536`. The existing GY-PR1a journal was byte-unchanged by
+that merge.
+
+The measured data-only route is closed on three independently sufficient layers, not on a failed
+implementation:
+
+1. Snapshot/schema drift: the pinned snapshot is 2026-04-11, while the required
+   `ac_skg_span_grounded_claims` schema arrived 2026-06-28; nothing replays the producer or
+   detects the divergence.
+2. Payload/contract vocabulary drift: every stored claim has the legacy keys, and `strength` mixes
+   a confidence scale with design and fallback labels. A name-based mapping affects 87,611 claims.
+3. Verification drift: no persisted positive, content-bound span-entailment receipt exists; offline
+   span grounding is unreachable, the default path needs a live judge, and an injected deterministic
+   test client is not production authority.
+
+No contract repair reaches the third layer. Steps 2–3 remain `not_run_due_step_1_terminal`, and
+their materialized population and stratum results remain `not_established`, never zero. The first
+INT-R9 negative terminal remains preserved; although a future adaptive-continuation option exists,
+no second attempt was registered or consumed.
+
+### Complete stored-vocabulary measurement
+
+Root independently replayed the architect's aggregate as a complete read-only group-by over all
+137,714 stored claims. The source database SHA-256 was unchanged before and after:
+`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`.
+
+| stored `strength` | count |
+| --- | ---: |
+| `moderate` | 69,923 |
+| `observational` | 41,521 |
+| `theoretical` | 17,688 |
+| `meta_analysis` | 3,499 |
+| `quasi_natural` | 2,109 |
+| `unknown` | 1,813 |
+| `rct` | 899 |
+| `panel_fe` | 255 |
+| `cross_sectional` | 7 |
+| **total** | **137,714** |
+
+The complete distribution reconciles the seven `cross_sectional` rows absent from the supplied
+excerpt; it is not an unexplained 137,707 subtotal. The substantive study-design vocabulary is
+`rct`, `quasi_natural`, `quasi_natural_event`, `meta_analysis`, `panel_fe`, `structural`,
+`observational`, and `cross_sectional`. Current `EvidenceStrength` also types `theoretical` and
+`unknown` as enum-accepted non-design fallback/sentinel values, not as study designs. `moderate`
+is not an enum member. Thus `moderate + theoretical = 87,611`, and `87,611 / 137,714 = 63.6181%`,
+reported as 63.6%. A name-based alias would reject the 69,923 `moderate` rows under strict
+validation and would semantically admit or misclassify the 17,688 `theoretical` rows into a field
+being consumed as study-design evidence. This does not claim that all 87,611 are literal enum
+non-members.
+
+`mechanism` is empty on 130,101 / 137,714 claims (94.4719%) and non-empty on 7,613. `CausalClaim`
+uses `ConfigDict(extra="forbid", frozen=True)`. `_normalize_causal_claim_payload` conditionally
+maps `cause -> cause_variable` and `effect -> effect_variable`, then pops both legacy keys. It
+neither maps nor removes `strength` or `mechanism`, so both reach strict validation as forbidden
+extras. A two-line alias is neither proposed nor implemented: key-name similarity does not
+establish vocabulary identity.
+
+### Required closeout language
+
+> **GY plan `GY-PR1a`:** route closed on a measured production-substrate capability finding, not a
+> promotion. Reopening requires a current/replayed production snapshot, a versioned semantic
+> migration that separates confidence from design vocabulary, and persisted verifier-grade
+> span-entailment evidence or provenance-enforced live verification, followed by a new
+> preregistered adaptive continuation. The original terminal remains.
+
+> **Substrate-drift row:** registered snapshot predates required schema; no producer replay or
+> drift detector exists.
+
+> **Lasting vocabulary row:** the stored `strength` key mixes measures across 137,714 claims. A
+> name-based consumer cannot soundly map it: 69,923 `moderate` rows fail the enum and 17,688
+> `theoretical` rows are enum-accepted but not a study design, 87,611 / 63.6% affected. This row
+> outlives PR1a.
+
+### One-line findings
+
+- **N7:** the ratified positive contract family is engineering authority, not institutional; the no-appointment verdict remains established even though this data route closes.
+- **CG6:** proven closed door — `wired_into_cg2=False`, ten anchors, incompatible threshold, dimensions, and provenance; it cannot substitute for the missing population.
+- **S10:** an honest `transported_limited` forecast is permitted without a target-panel calibration record; that avoids invented panel evidence but cannot repair the substrate.
+- **INT-R9:** the protocol executed end to end for this attempt; the preregistered selector was consumed once, its negative terminal is preserved, and the separately governed adaptive-continuation option remains unregistered and unconsumed.

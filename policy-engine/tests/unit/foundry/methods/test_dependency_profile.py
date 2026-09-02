@@ -19,6 +19,7 @@ from threading import Barrier, RLock, Thread
 from typing import Annotated, Literal, cast
 
 import pytest
+from packaging import markers as packaging_markers
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import (
@@ -81,6 +82,7 @@ from polisyos.foundry.methods.catalog.dependency_profile import (
     resolve_dependency_profile,
     resolve_profile_declaration,
 )
+from tools.devx.foundry import sync_dependency_profile as dependency_profile_tool
 from tools.quality.validation import check_layer3_gy_epoch_chronology_contract as chronology
 from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
 from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
@@ -223,6 +225,62 @@ def _git_at(repo_root: Path, *args: str) -> str:
         capture_output=True,
         text=True,
     ).stdout.strip()
+
+
+_DIAGNOSE_PRODUCER_RELATIVE_PATHS = (
+    Path("src/polisyos/foundry/methods/catalog/dependency_profile.py"),
+    Path("src/polisyos/foundry/methods/catalog/dependency_evidence.py"),
+    Path("tools/devx/foundry/sync_dependency_profile.py"),
+)
+
+
+def _install_dependency_source_freeze_fixture(tmp_path: Path) -> tuple[Path, str]:
+    """Create a scratch Git source closure for diagnose freeze tests."""
+
+    repo_root = tmp_path / "diagnose-source-freeze"
+    source_paths = (
+        Path("architecture/production_quality/method_catalog_dependency_profiles.toml"),
+        Path("architecture/production_quality/method_catalog_dependency_authority.toml"),
+        Path("architecture/production_quality/method_catalog_dependency_digest_domains.toml"),
+        Path("pyproject.toml"),
+        Path("uv.lock"),
+        *_DIAGNOSE_PRODUCER_RELATIVE_PATHS,
+        Path("docs/unrelated.md"),
+    )
+    for index, relative_path in enumerate(source_paths):
+        target = repo_root / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(f"fixture-{index}\n", encoding="utf-8")
+    _git_at(repo_root, "init", "-b", "fixture")
+    _git_at(repo_root, "config", "user.name", "Dependency freeze test")
+    _git_at(repo_root, "config", "user.email", "dependency-freeze@example.invalid")
+    _git_at(repo_root, "add", "--", ".")
+    _git_at(repo_root, "commit", "-m", "fixture source closure")
+    return repo_root, _git_at(repo_root, "rev-parse", "HEAD")
+
+
+@pytest.mark.parametrize(
+    "dirty_relative_path",
+    _DIAGNOSE_PRODUCER_RELATIVE_PATHS,
+    ids=("reducer", "digest", "tool"),
+)
+def test_diagnose_source_freeze_rejects_dirty_producer_path(
+    dirty_relative_path: Path,
+    tmp_path: Path,
+) -> None:
+    repo_root, source_freeze = _install_dependency_source_freeze_fixture(tmp_path)
+    target = repo_root / dirty_relative_path
+    target.write_text(target.read_text(encoding="utf-8") + "dirty\n", encoding="utf-8")
+
+    assert not dependency_profile_tool._source_freeze_matches(repo_root, source_freeze)
+
+
+def test_diagnose_source_freeze_ignores_unrelated_tracked_path(tmp_path: Path) -> None:
+    repo_root, source_freeze = _install_dependency_source_freeze_fixture(tmp_path)
+    unrelated = repo_root / "docs/unrelated.md"
+    unrelated.write_text("changed outside producer closure\n", encoding="utf-8")
+
+    assert dependency_profile_tool._source_freeze_matches(repo_root, source_freeze)
 
 
 def _install_clean_source_fixture(
@@ -575,6 +633,7 @@ def _candidate_environment_fixture(
     *,
     label: str,
     selected_overrides: dict[str, tuple[str, DomainDigest[DigestDomain]]] | None = None,
+    source_kind_overrides: dict[str, str] | None = None,
     extra_distributions: tuple[
         authority_module.evidence_module.InstalledDistributionIdentity, ...
     ] = (),
@@ -605,6 +664,7 @@ def _candidate_environment_fixture(
     | None = None,
 ) -> _CandidateEnvironmentFixture:
     overrides = selected_overrides or {}
+    source_kinds = source_kind_overrides or {}
     observed = []
     for row in profile.distributions:
         version, selected = overrides.get(
@@ -618,6 +678,7 @@ def _candidate_environment_fixture(
             authority_module.evidence_module.InstalledDistributionIdentity(
                 normalized_name=row.name,
                 version=version,
+                source_kind=source_kinds.get(row.name, row.source_kind),
                 selected_artifact_ref=selected_ref,
                 observed_stable_manifest_ref=_c1_ref(
                     DigestDomain.INSTALLED_STABLE,
@@ -1066,6 +1127,7 @@ def test_out_of_closure_distribution_is_non_decisive(tmp_path: Path) -> None:
     extra = authority_module.evidence_module.InstalledDistributionIdentity(
         normalized_name="unrelated-observation",
         version="1.0",
+        source_kind="registry",
         selected_artifact_ref=record_ref(
             DigestDomain.SELECTED_DISTRIBUTION,
             b"unrelated-observation",
@@ -6688,6 +6750,118 @@ def _tracked_owner_declaration(
     )
 
 
+def _data_generated_marker_replay_inputs(
+) -> tuple[MethodCatalogDependencyProfileDeclaration, bytes, bytes]:
+    """Build a tiny lock graph with nested and right-hand marker variables."""
+
+    pyproject_bytes = b'''[project]
+name = "marker-root"
+version = "1.0.0"
+'''
+    lockfile_bytes = b'''version = 1
+requires-python = ">=3.14"
+
+[[package]]
+name = "marker-root"
+version = "1.0.0"
+source = { editable = "." }
+
+[package.optional-dependencies]
+probe = [
+  { name = "marker-child", marker = "(sys_platform == 'darwin' and 'cpython' == implementation_name) or os_name == 'nt'" },
+]
+
+[[package]]
+name = "marker-child"
+version = "1.0.0"
+source = { registry = "https://example.invalid" }
+'''
+    declaration = MethodCatalogDependencyProfileDeclaration(
+        schema_version="polisyos.foundry.dependency-profile.v1",
+        profile_id="marker-replay-profile",
+        root_distribution="marker-root",
+        extras=("probe",),
+        python_constraint=">=3.14,<3.15",
+        resolver_name="uv",
+        resolver_version="0.9.21",
+        pyproject_ref=domain_digest(DigestDomain.PYPROJECT, pyproject_bytes),
+        lockfile_ref=domain_digest(DigestDomain.UV_LOCK, lockfile_bytes),
+    )
+    return declaration, pyproject_bytes, lockfile_bytes
+
+
+def test_marker_replay_rejects_missing_nested_rhs_variable_before_host_evaluation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    declaration, pyproject_bytes, lockfile_bytes = _data_generated_marker_replay_inputs()
+    original_evaluate = profile_module.Marker.evaluate
+    evaluation_calls = 0
+
+    def counted_evaluate(
+        marker: object,
+        *args: object,
+        **kwargs: object,
+    ) -> bool:
+        nonlocal evaluation_calls
+        evaluation_calls += 1
+        return original_evaluate(marker, *args, **kwargs)
+
+    monkeypatch.setattr(profile_module.Marker, "evaluate", counted_evaluate)
+    results = []
+    for host_implementation in ("cpython", "pypy"):
+        host_environment = _marker_environment()
+        host_environment["implementation_name"] = host_implementation
+        monkeypatch.setattr(
+            packaging_markers,
+            "default_environment",
+            lambda value=host_environment: dict(value),
+        )
+        results.append(
+            profile_module.resolve_dependency_discriminant(
+                declaration,
+                pyproject_bytes=pyproject_bytes,
+                lockfile_bytes=lockfile_bytes,
+                marker_environment={
+                    "os_name": "posix",
+                    "sys_platform": "darwin",
+                },
+            )
+        )
+
+    assert all(
+        isinstance(result, profile_module.DependencyProfileInputMismatch)
+        for result in results
+    ), "a partial marker declaration was completed from host defaults"
+    assert evaluation_calls == 0, "missing replay inputs must fail before marker evaluation"
+
+
+def test_marker_replay_preserves_complete_used_key_projection() -> None:
+    declaration, pyproject_bytes, lockfile_bytes = _data_generated_marker_replay_inputs()
+
+    result = profile_module.resolve_dependency_discriminant(
+        declaration,
+        pyproject_bytes=pyproject_bytes,
+        lockfile_bytes=lockfile_bytes,
+        marker_environment={
+            "candidate_only_noise": "ignored",
+            "implementation_name": "cpython",
+            "os_name": "posix",
+            "sys_platform": "darwin",
+        },
+    )
+
+    assert isinstance(result, profile_module.DependencyProfileDiscriminant)
+    assert result.marker_environment == (
+        ("implementation_name", "cpython"),
+        ("os_name", "posix"),
+        ("sys_platform", "darwin"),
+    )
+    assert tuple(row.name for row in result.resolved_distributions) == (
+        "marker-child",
+        "marker-root",
+    )
+
+
 def _resolve_dependency_discriminant_from_owner_data(
     declaration: MethodCatalogDependencyProfileDeclaration,
     *,
@@ -6911,6 +7085,127 @@ def test_source_and_artifact_diagnostic_requires_reconciled_foundry_receipt(
     )
     assert corrupt.status == "not_established"
     assert corrupt.predicate_class == "not_established"
+
+
+def test_receipt_source_kind_only_disagreement_reports_observed_value(
+    tmp_path: Path,
+) -> None:
+    profile = _resolve_tracked_profile()
+    discriminant = _resolve_dependency_discriminant_from_owner_data(profile.declaration)
+    target = profile.distributions[0]
+    observed_source_kind = "substituted-source"
+    fixture = _candidate_environment_fixture(
+        tmp_path,
+        profile,
+        label="source-kind-only",
+        source_kind_overrides={target.name: observed_source_kind},
+    )
+
+    result = _diagnose_receipt_backed_dependency_environment(discriminant, fixture)
+
+    assert result.status == "fail"
+    assert tuple(case.field for case in result.ordered_cases) == ("source_kind",)
+    assert result.first_case.expected == target.source_kind
+    assert result.first_case.observed == observed_source_kind
+
+
+def test_receipt_source_kind_disagreement_is_distinct_and_lexically_ordered(
+    tmp_path: Path,
+) -> None:
+    profile = _resolve_tracked_profile()
+    discriminant = _resolve_dependency_discriminant_from_owner_data(profile.declaration)
+    target = profile.distributions[0]
+    observed_source_kind = "substituted-source"
+    observed_selected_artifact = domain_digest(
+        DigestDomain.SELECTED_DISTRIBUTION,
+        b"source-kind-ordering-selected-artifact",
+    )
+    fixture = _candidate_environment_fixture(
+        tmp_path,
+        profile,
+        label="source-kind-ordering",
+        selected_overrides={
+            target.name: ("9999.0", observed_selected_artifact),
+        },
+        source_kind_overrides={target.name: observed_source_kind},
+    )
+
+    result = _diagnose_receipt_backed_dependency_environment(discriminant, fixture)
+
+    assert result.status == "fail"
+    target_cases = tuple(
+        case
+        for case in result.ordered_cases
+        if case.coordinate.startswith(f"distribution:{target.name}:")
+    )
+    assert tuple(case.field for case in target_cases) == (
+        "selected_artifact",
+        "source_kind",
+        "version",
+    )
+    assert tuple(case.observed for case in target_cases) == (
+        observed_selected_artifact.value,
+        observed_source_kind,
+        "9999.0",
+    )
+    assert target_cases[1].expected == target.source_kind
+
+
+@pytest.mark.parametrize("bypass_kind", ("model_copy", "model_construct"))
+def test_stale_environment_receipt_ref_fails_closed_at_shared_use_chokepoint(
+    bypass_kind: Literal["model_copy", "model_construct"],
+    tmp_path: Path,
+) -> None:
+    profile = _resolve_tracked_profile()
+    discriminant = _resolve_dependency_discriminant_from_owner_data(profile.declaration)
+    fixture = _candidate_environment_fixture(
+        tmp_path,
+        profile,
+        label=f"stale-receipt-{bypass_kind}",
+    )
+    mutated_statement = fixture.receipt.statement.model_copy(
+        update={
+            "appointment_ref": _c1_ref(
+                DigestDomain.PRODUCTION_APPOINTMENT,
+                f"stale-receipt-{bypass_kind}:mutated-appointment",
+            )
+        }
+    )
+    if bypass_kind == "model_copy":
+        stale_receipt = fixture.receipt.model_copy(
+            update={"statement": mutated_statement}
+        )
+    else:
+        stale_receipt = DependencyProfileEnvironmentReceipt.model_construct(
+            receipt_ref=fixture.receipt.receipt_ref,
+            statement=mutated_statement,
+            predicate_class="recomputed",
+        )
+    stale_fixture = replace(fixture, receipt=stale_receipt)
+    stale_observation = profile_module.ReceiptBackedDependencyEnvironmentObservation.model_construct(
+        observation_kind="foundry_environment_receipt",
+        environment_receipt=stale_receipt,
+    )
+
+    diagnostic = profile_module.diagnose_dependency_environment(
+        discriminant=discriminant,
+        observed_distributions=stale_observation,
+        environment_root=stale_fixture.root,
+        evidence=stale_fixture.evidence,
+    )
+    reconciliation = reconcile_bound_installed_environment(
+        profile,
+        environment_root=stale_fixture.root,
+        environment_receipt=stale_fixture.receipt,
+        evidence=stale_fixture.evidence,
+    )
+
+    assert diagnostic.status == "not_established"
+    assert diagnostic.predicate_class == "not_established"
+    assert reconciliation.status == "fail"
+    assert tuple(failure.code for failure in reconciliation.failures) == (
+        AuthorityFailureCode.ENVIRONMENT_MISMATCH,
+    )
 
 
 def test_public_diagnostic_distinguishes_unusable_evidence_from_zero_cases(
@@ -7140,6 +7435,7 @@ def test_cb_i03_outside_closure_difference_is_diagnostic_irrelevant(
     outside = authority_module.evidence_module.InstalledDistributionIdentity(
         normalized_name="outside-selected-closure",
         version="1.0.0",
+        source_kind="registry",
         selected_artifact_ref=_c1_ref(
             DigestDomain.SELECTED_DISTRIBUTION,
             "outside:selected",

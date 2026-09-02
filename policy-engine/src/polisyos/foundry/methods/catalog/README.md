@@ -27,9 +27,12 @@ by domain family and registered into the shared `MethodRegistry`.
   reading production data. `diagnose_dependency_environment()` compares
   ephemeral installed coordinates generically and is non-decisive. Ambient
   observations carry name/version only and cannot establish source identity;
-  selected-artifact comparison requires a content-bound Foundry environment
-  receipt reconciled against its retained marker bytes and remains candidate
-  evidence.
+  source-kind and selected-artifact comparison require a Foundry environment
+  receipt whose whole-statement ref is recomputed at every use and whose
+  retained marker bytes reconcile. The receipt remains candidate evidence.
+  Marker replay fails closed when any variable used by a selected lock
+  expression is absent from the supplied mapping, and diagnose binds both its
+  tracked data and reducer/digest/tool producer paths to the source freeze.
 
 ## Public API
 

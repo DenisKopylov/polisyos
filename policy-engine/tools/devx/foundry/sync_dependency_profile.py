@@ -54,6 +54,9 @@ _DEPENDENCY_SOURCE_PATHS = (
     _QUALITY_RELATIVE / "method_catalog_dependency_digest_domains.toml",
     Path("pyproject.toml"),
     Path("uv.lock"),
+    Path("src/polisyos/foundry/methods/catalog/dependency_profile.py"),
+    Path("src/polisyos/foundry/methods/catalog/dependency_evidence.py"),
+    Path("tools/devx/foundry/sync_dependency_profile.py"),
 )
 
 

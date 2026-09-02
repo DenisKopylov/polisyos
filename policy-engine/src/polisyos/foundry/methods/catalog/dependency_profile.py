@@ -327,6 +327,16 @@ class ObservedInstalledDistribution(FoundryAuthorityModel):
     selected_artifact: DomainDigest[Literal[DigestDomain.SELECTED_DISTRIBUTION]]
 
 
+def _environment_receipt_ref(
+    statement: DependencyProfileEnvironmentStatement,
+) -> FoundryRecordRef[Literal[DigestDomain.ENVIRONMENT_RECEIPT]]:
+    return record_ref(
+        DigestDomain.ENVIRONMENT_RECEIPT,
+        canonical_json_bytes(statement.model_dump(mode="json")),
+        schema_version=statement.schema_version,
+    )
+
+
 class DependencyProfileEnvironmentReceipt(FoundryAuthorityModel):
     """Candidate instance evidence; it is not writer-independent custody."""
 
@@ -336,11 +346,7 @@ class DependencyProfileEnvironmentReceipt(FoundryAuthorityModel):
 
     @model_validator(mode="after")
     def validate_content_binding(self) -> DependencyProfileEnvironmentReceipt:
-        expected = record_ref(
-            DigestDomain.ENVIRONMENT_RECEIPT,
-            canonical_json_bytes(self.statement.model_dump(mode="json")),
-            schema_version=self.statement.schema_version,
-        )
+        expected = _environment_receipt_ref(self.statement)
         if self.receipt_ref != expected:
             raise ValueError("environment receipt is not content-bound")
         return self
@@ -378,6 +384,7 @@ class _ComparableInstalledDistribution:
 
     name: str
     version: str
+    source_kind: str | None
     selected_artifact: (
         DomainDigest[Literal[DigestDomain.SELECTED_DISTRIBUTION]] | None
     )
@@ -559,7 +566,15 @@ def _marker_selected(
     if type(marker) is not str:
         raise ValueError("lock marker must be an exact string")
     parsed = Marker(marker)
-    _collect_marker_variables(parsed._markers, used_marker_keys)
+    marker_keys: set[str] = set()
+    _collect_marker_variables(parsed._markers, marker_keys)
+    used_marker_keys.update(marker_keys)
+    missing_marker_keys = marker_keys.difference(marker_environment)
+    if missing_marker_keys:
+        raise ValueError(
+            "marker environment is missing used keys: "
+            + ",".join(sorted(missing_marker_keys))
+        )
     return parsed.evaluate(environment=dict(marker_environment))
 
 
@@ -737,7 +752,6 @@ def resolve_dependency_discriminant(
         sorted(
             (key, str(marker_environment[key]))
             for key in used_marker_keys
-            if key in marker_environment
         )
     )
     distribution_rows = [row.model_dump(mode="json") for row in distributions]
@@ -930,6 +944,7 @@ def _resolve_receipt_backed_distributions(
         _ComparableInstalledDistribution(
             name=canonicalize_name(row.normalized_name),
             version=row.version,
+            source_kind=row.source_kind,
             selected_artifact=row.selected_artifact_ref.semantic_hash,
         )
         for row in statement.observed_distributions
@@ -975,6 +990,7 @@ def _normalize_distribution_observations(
                 _ComparableInstalledDistribution(
                     name=canonicalize_name(row.name),
                     version=row.version,
+                    source_kind=None,
                     selected_artifact=None,
                 )
                 for row in observation.distributions
@@ -1050,6 +1066,11 @@ def _calculate_dependency_distribution_cases(
         comparisons: tuple[tuple[str, str, str], ...] = (
             ("version", expected.version, observed.version),
         )
+        if observed.source_kind is not None:
+            comparisons = (
+                *comparisons,
+                ("source_kind", expected.source_kind, observed.source_kind),
+            )
         for field_name, expected_value, observed_value in comparisons:
             if expected_value != observed_value:
                 case = DistributionFieldDiagnosticCase(
@@ -1217,6 +1238,16 @@ def _reopen_reconciled_environment_statement(
     """Resolve one content-bound candidate receipt against retained marker bytes."""
 
     statement = environment_receipt.statement
+    observed_receipt_ref = _environment_receipt_ref(statement)
+    if observed_receipt_ref != environment_receipt.receipt_ref:
+        return DigestPredicateMismatch(
+            kind="digest_mismatch",
+            predicate_id=AuthorityPredicateId.ENVIRONMENT_RECEIPT,
+            code=AuthorityFailureCode.ENVIRONMENT_MISMATCH,
+            expected=environment_receipt.receipt_ref.semantic_hash,
+            observed=observed_receipt_ref.semantic_hash,
+            predicate_class="recomputed",
+        )
     reopened_marker = _reopen_bound_environment_marker(
         environment_root=environment_root,
         expected_marker_ref=statement.marker_ref,
@@ -1262,7 +1293,18 @@ def reconcile_bound_installed_environment(
 ) -> DependencyProfileReconciliation:
     """Reopen the target marker and reconcile only the selected closure."""
 
-    statement = environment_receipt.statement
+    reopened_statement = _reopen_reconciled_environment_statement(
+        environment_root=environment_root,
+        environment_receipt=environment_receipt,
+        evidence=evidence,
+    )
+    if not isinstance(reopened_statement, DependencyProfileEnvironmentStatement):
+        return DependencyProfileReconciliationFail(
+            status="fail",
+            profile_id=profile.declaration.profile_id,
+            failures=(reopened_statement,),
+        )
+    statement = reopened_statement
     expected_names = {row.name for row in profile.distributions}
     expected = {
         (row.name, row.version, row.selected_artifact.value)
@@ -1289,19 +1331,6 @@ def reconcile_bound_installed_environment(
                 observed=statement.admission_ref.semantic_hash,
                 predicate_class="independently_reconciled",
             )
-        )
-
-    reopened_statement = _reopen_reconciled_environment_statement(
-        environment_root=environment_root,
-        environment_receipt=environment_receipt,
-        evidence=evidence,
-    )
-    if not isinstance(reopened_statement, DependencyProfileEnvironmentStatement):
-        failures.append(reopened_statement)
-        return DependencyProfileReconciliationFail(
-            status="fail",
-            profile_id=profile.declaration.profile_id,
-            failures=tuple(failures),
         )
 
     if observed != expected or statement.stable_content_set != profile.stable_content_set:

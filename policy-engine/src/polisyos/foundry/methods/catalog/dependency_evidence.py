@@ -1088,6 +1088,7 @@ class BuildProfileStatement(FoundryAuthorityModel):
 class InstalledDistributionIdentity(FoundryAuthorityModel):
     normalized_name: IdentityText
     version: VersionText
+    source_kind: IdentityText
     selected_artifact_ref: FoundryRecordRef[
         Literal[DigestDomain.SELECTED_DISTRIBUTION]
     ]

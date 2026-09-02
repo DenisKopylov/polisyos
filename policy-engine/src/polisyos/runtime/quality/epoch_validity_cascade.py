@@ -531,6 +531,32 @@ def _artifact_ref_identity(ref: ArtifactRef) -> tuple[str, str, str]:
     return str(ref.artifact_id), ref.kind, ref.media_type
 
 
+def _epoch_dependency_target_refs(
+    dependency_graph: EpochDependencyGraph,
+) -> tuple[ArtifactRef, ...]:
+    targets_by_identity = {
+        _artifact_ref_identity(edge.target_ref): edge.target_ref for edge in dependency_graph.edges
+    }
+    return tuple(targets_by_identity[key] for key in sorted(targets_by_identity))
+
+
+def epoch_dependency_outer_denominator_ref(
+    *,
+    certificate_bindings: Sequence[EpochCertificateBinding],
+    dependency_graph: EpochDependencyGraph,
+) -> Digest:
+    """Recompute the v1 complete Runtime epoch-input denominator."""
+
+    return _semantic_hash(
+        "polisyos.epoch.dependency-denominator.v1",
+        {
+            "certificate_bindings": tuple(certificate_bindings),
+            "dependency_graph": dependency_graph,
+            "target_refs": _epoch_dependency_target_refs(dependency_graph),
+        },
+    )
+
+
 def resolve_owner_target_dispositions(
     *,
     advisory_events: Sequence[AdvisoryPerturbationEvent],
@@ -728,13 +754,7 @@ class EpochDependencyDenominatorReceipt(_StrictModel):
 
     @model_validator(mode="after")
     def _bind_complete_denominator(self) -> Self:
-        expected_targets_by_key = {
-            _artifact_ref_identity(edge.target_ref): edge.target_ref
-            for edge in self.dependency_graph.edges
-        }
-        expected_targets = tuple(
-            expected_targets_by_key[key] for key in sorted(expected_targets_by_key)
-        )
+        expected_targets = _epoch_dependency_target_refs(self.dependency_graph)
         if self.target_refs != expected_targets:
             raise ValueError("epoch_dependency_target_denominator_mismatch")
         certificate_keys = tuple(
@@ -744,13 +764,9 @@ class EpochDependencyDenominatorReceipt(_StrictModel):
             set(certificate_keys)
         ):
             raise ValueError("epoch_dependency_certificate_denominator_mismatch")
-        expected = _semantic_hash(
-            "polisyos.epoch.dependency-denominator.v1",
-            {
-                "certificate_bindings": self.certificate_bindings,
-                "dependency_graph": self.dependency_graph,
-                "target_refs": self.target_refs,
-            },
+        expected = epoch_dependency_outer_denominator_ref(
+            certificate_bindings=self.certificate_bindings,
+            dependency_graph=self.dependency_graph,
         )
         if self.denominator_ref != expected:
             raise ValueError("epoch_dependency_denominator_content_mismatch")
@@ -2725,6 +2741,7 @@ __all__ = [
     "advisory_perturbation_from_monitor_event",
     "bind_certificate_to_epoch",
     "build_epoch_validity_transition",
+    "epoch_dependency_outer_denominator_ref",
     "persist_advisory_perturbation_event",
     "promotion_candidate_summary_content_hash",
     "promotion_epoch_query",

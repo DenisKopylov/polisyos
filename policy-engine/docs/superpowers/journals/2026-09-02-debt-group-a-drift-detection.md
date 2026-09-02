@@ -141,3 +141,40 @@ retroactively blessed. They now report `recorded_generation=unrecorded` and
 `schema_generation_current=false`, so the data requirement moves from `absent` to
 `present_stale`; reissuing through the repaired producer is the named action that
 moves the snapshot itself to current.
+
+## Seam 4 — live TypeScript identity emission for the DS4 waist
+
+Positive control before RED: the existing identity-mode behavioral test passed and
+proved the census consumes DS5 owner-qualified TypeScript identities while treating
+numeric lines as navigation only. Accepted RED: the new emitter test failed because
+the census exposed no identity-emission API.
+
+The census now has a surgical `--emit-present-projection-anchor ARTIFACT --record-id
+ID` mode. It reads the declared canonical path, types path, and symbol from the
+selected JSON record; reads both live TypeScript files; asks the already-loaded DS5
+engine to resolve and mint an `exported_declaration` and the corresponding
+`type_property`; takes each navigation line from that same AST match; and replaces
+only the selected anchor object after a parsed-document equality guard. It contains
+no TypeScript parser and no identity encoder.
+
+The writer moved `ds4-waist-decision-grade` from `missing_export` to
+`present_projection`, with live navigation lines 532 and 6,406. No identity was
+typed, pasted, edited, decoded, or reconstructed by hand. A second invocation on
+unchanged source left the complete governed artifact byte-identical: SHA-256
+`ff36f7891031174fb44667f4f0ecf93359cf8b4a155433bcef291f1b13de0905` before and
+after. The behavioral sensitivity control changed both referenced declarations and
+observed both engine-minted identities change. The live waist replay independently
+resolved and validated the two stored identities and passed.
+
+Identically provisioned repository censuses before and after the write both produced
+valid JSON and neither contained a traceback. Set comparison, not count comparison,
+showed no additions and exactly these removals:
+
+```text
+anchor_absence_unexpected_presence:architecture/atlas_surfaces/ds4-waist-debt-register.json:/entries/1/generated_client_anchor:canonical:DecisionGrade
+anchor_absence_unexpected_presence:architecture/atlas_surfaces/ds4-waist-debt-register.json:/entries/1/generated_client_anchor:schema:DecisionGrade
+```
+
+The raw counts moved 2,288 to 2,286 only as a checksum on that set result. The
+remaining errors are preserved for the status-retirement inventory seam; the emitter
+did not narrow the census or suppress an inherited entry.

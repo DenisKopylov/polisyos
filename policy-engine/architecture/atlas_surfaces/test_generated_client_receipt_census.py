@@ -524,6 +524,105 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             assert direct.returncode == 0, direct.stderr
             assert json.loads(direct.stdout)["summary"]["identity_bindings"] == 2
 
+    def test_identity_emitter_writes_reproducible_source_sensitive_anchor(
+        self,
+    ) -> None:
+        """The census writes only identities minted from the live declarations."""
+        census = _load_census()
+        canonical = "generated/canonical.ts"
+        types = "generated/types.ts"
+        canonical_source = 'export type DecisionGrade = "a" | "b";\n'
+        types_source = (
+            "export interface components {\n"
+            "  schemas: {\n"
+            '    DecisionGrade: "a" | "b";\n'
+            "  };\n"
+            "}\n"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / canonical).parent.mkdir(parents=True)
+            (root / canonical).write_text(canonical_source, encoding="utf-8")
+            (root / types).write_text(types_source, encoding="utf-8")
+            artifact = Path("architecture/waist.json")
+            artifact_path = root / artifact
+            artifact_path.parent.mkdir(parents=True)
+            artifact_path.write_text(
+                json.dumps(
+                    {
+                        "register_id": "test-waist",
+                        "entries": [
+                            {
+                                "debt_id": "decision-grade",
+                                "generated_client_anchor": {
+                                    "anchor_kind": "missing_export",
+                                    "absence_scope": (
+                                        "canonical_module_exports_and_schema_owners"
+                                    ),
+                                    "canonical_path": canonical,
+                                    "types_path": types,
+                                    "symbol": "DecisionGrade",
+                                },
+                                "untouched": "surrounding bytes",
+                            }
+                        ],
+                    },
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            first = census.emit_present_projection_anchor(
+                repo_root=root,
+                artifact_path=artifact,
+                record_id="decision-grade",
+            )
+            first_bytes = artifact_path.read_bytes()
+            repeated = census.emit_present_projection_anchor(
+                repo_root=root,
+                artifact_path=artifact,
+                record_id="decision-grade",
+            )
+
+            assert repeated == first
+            assert artifact_path.read_bytes() == first_bytes
+            assert set(first) == {
+                "anchor_kind",
+                "canonical_path",
+                "canonical_line",
+                "canonical_identity",
+                "types_path",
+                "schema_line",
+                "schema_identity",
+                "symbol",
+            }
+            assert first["canonical_line"] == 1
+            assert first["schema_line"] == 3
+            assert artifact_path.read_text(encoding="utf-8").endswith(
+                '"untouched": "surrounding bytes"\n    }\n  ]\n}\n'
+            )
+
+            (root / canonical).write_text(
+                canonical_source.replace('"b"', '"b" | "c"'),
+                encoding="utf-8",
+            )
+            (root / types).write_text(
+                types_source.replace('"b"', '"b" | "c"'),
+                encoding="utf-8",
+            )
+            changed = census.emit_present_projection_anchor(
+                repo_root=root,
+                artifact_path=artifact,
+                record_id="decision-grade",
+            )
+
+            assert changed["canonical_identity"] != first["canonical_identity"]
+            assert changed["schema_identity"] != first["schema_identity"]
+            assert json.loads(artifact_path.read_text(encoding="utf-8"))["entries"][0][
+                "generated_client_anchor"
+            ] == changed
+
     def test_missing_export_recomputes_ast_absence_without_a_construct_identity(
         self,
     ) -> None:
@@ -842,27 +941,44 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             if row["generated_client_anchor"]["anchor_kind"]
             == "present_projection"
         ]
-        missing = next(
-            row["generated_client_anchor"]
-            for row in waist["entries"]
-            if row["generated_client_anchor"]["anchor_kind"] == "missing_export"
-        )
+        historical_present = [
+            anchor for anchor in present if anchor["symbol"] != "DecisionGrade"
+        ]
         references = [
             anchor[key]
-            for anchor in present
+            for anchor in historical_present
             for key in ("canonical_identity", "schema_identity")
         ]
         payloads = [_identity_payload(reference) for reference in references]
 
-        assert len(present) == 2
+        assert len(present) == 3
         assert len(references) == 4
-        assert missing == {
-            "anchor_kind": "missing_export",
-            "absence_scope": "canonical_module_exports_and_schema_owners",
-            "canonical_path": canonical_path,
-            "types_path": types_path,
-            "symbol": "DecisionGrade",
+        assert all(anchor["anchor_kind"] == "present_projection" for anchor in present)
+
+        current_sources = {
+            canonical_path: (REPO_ROOT / canonical_path).read_text(encoding="utf-8"),
+            types_path: (REPO_ROOT / types_path).read_text(encoding="utf-8"),
         }
+        decision_grade = next(
+            anchor for anchor in present if anchor["symbol"] == "DecisionGrade"
+        )
+        for slot, role, discriminator in (
+            ("canonical", "exported_declaration", "DecisionGrade"),
+            ("schema", "type_property", "components.DecisionGrade"),
+        ):
+            identity = decision_grade[f"{slot}_identity"]
+            facts = identity_checker._typescript_reference_construct_facts(
+                current_sources,
+                source_path=(canonical_path if slot == "canonical" else types_path),
+                role=role,
+                discriminator=discriminator,
+            )
+            assert len(facts["matches"]) == 1
+            assert decision_grade[f"{slot}_line"] == facts["matches"][0]["startLine"]
+            assert identity_checker._validate_typescript_reference_identity(
+                {"encoded_identity": identity},
+                current_sources,
+            ) == []
 
         def sources_at(revision: str) -> dict[str, str]:
             return {

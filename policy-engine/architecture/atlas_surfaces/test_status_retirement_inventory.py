@@ -1305,7 +1305,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         self.assertIn(sentinel, errors)
         waist_validator.assert_called_once_with(debt)
 
-    def test_waist_anchors_bind_constructs_and_recompute_missing_exports(self) -> None:
+    def test_waist_anchors_bind_each_present_generated_construct(self) -> None:
         """The status consumer ignores navigation but fails on semantic drift."""
         _inventory, debt = _artifacts()
         canonical_path = "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
@@ -1360,29 +1360,30 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 )
             )
 
-            comment_only = canonical_source + "\n// DecisionGrade remains absent.\n"
+            comment_only = canonical_source + "\n// DecisionGrade stays owner-generated.\n"
             self.assertEqual([], waist_errors(canonical=comment_only))
 
-            present_export = canonical_source + "\nexport type DecisionGrade = string;\n"
-            self.assertTrue(
-                any(
-                    "anchor_absence_unexpected_presence" in error
-                    and ":canonical:DecisionGrade" in error
-                    for error in waist_errors(canonical=present_export)
-                )
-            )
-
-            present_schema = types_source.replace(
-                "export interface components {\n    schemas: {",
-                "export interface components {\n    schemas: {\n"
-                "        DecisionGrade: string;",
+            renamed_decision_grade = canonical_source.replace(
+                "export type DecisionGrade =",
+                "export type RenamedDecisionGrade =",
                 1,
             )
             self.assertTrue(
                 any(
-                    "anchor_absence_unexpected_presence" in error
-                    and ":schema:DecisionGrade" in error
-                    for error in waist_errors(types=present_schema)
+                    "typescript_reference_binding_missing_or_renamed" in error
+                    for error in waist_errors(canonical=renamed_decision_grade)
+                )
+            )
+
+            decision_grade_drift = types_source.replace(
+                '"advisory_admissible" | "decision_admissible";',
+                '"advisory_admissible" | "decision_admissible" | "review_required";',
+                1,
+            )
+            self.assertTrue(
+                any(
+                    "typescript_reference_content_drift" in error
+                    for error in waist_errors(types=decision_grade_drift)
                 )
             )
 

@@ -992,7 +992,7 @@ def _normalize_distribution_observations(
     return resolved, "recomputed"
 
 
-def _compare_dependency_distributions(
+def _calculate_dependency_distribution_cases(
     *,
     discriminant: DependencyProfileDiscriminant,
     observations: tuple[_ComparableInstalledDistribution, ...],
@@ -1083,7 +1083,7 @@ def _compare_dependency_distributions(
     )
 
 
-def compare_dependency_distributions(
+def _compare_dependency_distributions(
     *,
     discriminant: DependencyProfileDiscriminant,
     observed_distributions: (
@@ -1117,7 +1117,7 @@ def compare_dependency_distributions(
     if isinstance(normalized, DependencyEnvironmentDiagnosticNotEstablished):
         return ()
     observations, predicate_class = normalized
-    return _compare_dependency_distributions(
+    return _calculate_dependency_distribution_cases(
         discriminant=discriminant,
         observations=observations,
         predicate_class=predicate_class,
@@ -1159,12 +1159,12 @@ def diagnose_dependency_environment(
     if isinstance(normalized, DependencyEnvironmentDiagnosticNotEstablished):
         return normalized
     observations, predicate_class = normalized
-    canonical_cases = _compare_dependency_distributions(
+    canonical_cases = _calculate_dependency_distribution_cases(
         discriminant=discriminant,
         observations=observations,
         predicate_class=predicate_class,
     )
-    reported_cases = compare_dependency_distributions(
+    reported_cases = _compare_dependency_distributions(
         discriminant=discriminant,
         observed_distributions=observed_distributions,
         environment_root=environment_root,
@@ -1429,7 +1429,6 @@ __all__ = [
     "ProductionDataManifestUnavailable",
     "ReceiptBackedDependencyEnvironmentObservation",
     "ResolvedMethodCatalogDependencyProfile",
-    "compare_dependency_distributions",
     "declaration_ref",
     "diagnose_dependency_environment",
     "load_dependency_profile_registry",

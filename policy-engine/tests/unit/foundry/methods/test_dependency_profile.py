@@ -6900,6 +6900,50 @@ def test_source_and_artifact_diagnostic_requires_reconciled_foundry_receipt(
     assert corrupt.predicate_class == "not_established"
 
 
+def test_public_diagnostic_distinguishes_unusable_evidence_from_zero_cases(
+    tmp_path: Path,
+) -> None:
+    profile = _resolve_tracked_profile()
+    discriminant = _resolve_dependency_discriminant_from_owner_data(profile.declaration)
+    fixture = _candidate_environment_fixture(
+        tmp_path,
+        profile,
+        label="public-diagnostic-outcome",
+    )
+    forged = tuple(
+        {
+            "name": row.name,
+            "version": row.version,
+            "source_kind": row.source_kind,
+            "selected_artifact": row.selected_artifact,
+            "selected_artifact_predicate_class": "independently_reconciled",
+        }
+        for row in discriminant.distributions
+    )
+
+    forged_result = profile_module.diagnose_dependency_environment(
+        discriminant=discriminant,
+        observed_distributions=forged,
+    )
+    unresolved_result = profile_module.diagnose_dependency_environment(
+        discriminant=discriminant,
+        observed_distributions={
+            "observation_kind": "foundry_environment_receipt",
+            "environment_receipt": fixture.receipt,
+        },
+    )
+    matching_result = _diagnose_receipt_backed_dependency_environment(
+        discriminant,
+        fixture,
+    )
+
+    assert not hasattr(profile_module, "compare_dependency_distributions")
+    assert forged_result.status == "not_established"
+    assert unresolved_result.status == "not_established"
+    assert matching_result.status == "pass"
+    assert matching_result.ordered_cases == ()
+
+
 def _actual_consumer_governing_bytes(diagnostic_verification: object | None) -> tuple[bytes, ...]:
     """Run N8, N10a, and chronology against one companion and retain only governing bytes."""
 
@@ -7153,11 +7197,11 @@ def test_p29_distribution_comparison_cannot_be_replaced_by_schema_markers(
     discriminant = _resolve_dependency_discriminant_from_owner_data(research)
     observations = list(_matching_dependency_observations(discriminant))
     next(row for row in observations if row["name"] == "torch")["version"] = "9999.0"
-    comparator = getattr(profile_module, "compare_dependency_distributions", None)
+    comparator = getattr(profile_module, "_compare_dependency_distributions", None)
     assert callable(comparator), (
         "missing behavior: diagnostic verification must execute generic distribution comparison"
     )
-    monkeypatch.setattr(profile_module, "compare_dependency_distributions", lambda **_kwargs: ())
+    monkeypatch.setattr(profile_module, "_compare_dependency_distributions", lambda **_kwargs: ())
 
     result = _diagnose_dependency_environment(discriminant, tuple(observations))
 

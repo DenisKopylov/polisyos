@@ -426,10 +426,25 @@ def declaration_ref(
     )
 
 
-def load_dependency_profile_registry(path: Path) -> DependencyProfileRegistryStatement:
-    """Decode the strict tracked profile registry without implicit defaults."""
+def decode_dependency_profile_registry_toml(
+    raw_toml_bytes: bytes,
+) -> DependencyProfileRegistryStatement:
+    """Decode exact dependency-profile registry bytes without implicit defaults.
 
-    wire = tomllib.loads(path.read_text(encoding="utf-8"))
+    Args:
+        raw_toml_bytes: Exact TOML bytes from a tracked or frozen owner source.
+
+    Returns:
+        The strict, immutable profile registry statement.
+
+    Raises:
+        ValueError: If the bytes are not UTF-8 TOML with the exact registry shape.
+    """
+
+    try:
+        wire = tomllib.loads(raw_toml_bytes.decode("utf-8"))
+    except (UnicodeDecodeError, tomllib.TOMLDecodeError) as exc:
+        raise ValueError("dependency profile registry bytes are invalid") from exc
     if set(wire) != {"schema_version", "declarations"}:
         raise ValueError("profile registry has unknown or missing top-level fields")
     declarations: list[MethodCatalogDependencyProfileDeclaration] = []
@@ -473,6 +488,12 @@ def load_dependency_profile_registry(path: Path) -> DependencyProfileRegistrySta
         schema_version=wire["schema_version"],
         declarations=tuple(declarations),
     )
+
+
+def load_dependency_profile_registry(path: Path) -> DependencyProfileRegistryStatement:
+    """Read and decode the strict tracked profile registry."""
+
+    return decode_dependency_profile_registry_toml(path.read_bytes())
 
 
 def resolve_profile_declaration(
@@ -1410,6 +1431,7 @@ __all__ = [
     "ProductionDataManifestUnavailable",
     "ReceiptBackedDependencyEnvironmentObservation",
     "ResolvedMethodCatalogDependencyProfile",
+    "decode_dependency_profile_registry_toml",
     "declaration_ref",
     "diagnose_dependency_environment",
     "load_dependency_profile_registry",

@@ -581,6 +581,20 @@ def _resolve_tracked_profile() -> ResolvedMethodCatalogDependencyProfile:
     return result
 
 
+def test_dependency_profile_registry_decodes_exact_frozen_bytes() -> None:
+    """The Foundry owner exposes one strict bytes decoder for frozen Git blobs."""
+
+    decoder = getattr(profile_module, "decode_dependency_profile_registry_toml", None)
+    assert callable(decoder), "missing behavior: Foundry must decode frozen registry bytes"
+    raw = _PROFILE_REGISTRY.read_bytes()
+
+    decoded = decoder(raw)
+
+    assert decoded == load_dependency_profile_registry(_PROFILE_REGISTRY)
+    with pytest.raises(ValueError, match="unknown or missing"):
+        decoder(raw + b"\nunknown = true\n")
+
+
 @dataclass(frozen=True, slots=True)
 class _ExactEnvironmentEvidence:
     blobs: dict[str, bytes]
@@ -7273,7 +7287,7 @@ def _actual_consumer_governing_bytes(diagnostic_verification: object | None) -> 
         "missing behavior: chronology must consume the shared Foundry dependency discriminant"
     )
     repo_root = n8._repo_root()
-    source_freeze = _git_at(repo_root, "log", "-1", "--format=%H", "--", n8.OUTPUT_PATH)
+    source_freeze = n8.dependency_discriminant_source_freeze(repo_root)
     assert len(source_freeze) == 40
     companion = producer(repo_root=repo_root, source_freeze=source_freeze)
     results = (

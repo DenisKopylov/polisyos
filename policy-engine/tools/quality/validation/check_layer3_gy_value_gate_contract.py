@@ -448,15 +448,12 @@ class _GitProductRootAppointment:
     product_root: Path
     product_root_identity: tuple[int, int]
     git_toplevel: Path
-    git_toplevel_identity: tuple[int, int]
     object_prefix: str
     git_dir: Path
-    git_dir_identity: tuple[int, int]
     git_common_dir: Path
-    git_common_dir_identity: tuple[int, int]
     object_directory: Path
-    object_directory_identity: tuple[int, int]
     index_file: Path
+    repository_owned_roots: tuple[tuple[Path, tuple[int, int]], ...]
 
 
 def _filesystem_identity(path: Path) -> tuple[int, int]:
@@ -467,6 +464,21 @@ def _filesystem_identity(path: Path) -> tuple[int, int]:
     except OSError as exc:
         raise ValueError("dependency discriminant filesystem identity unavailable") from exc
     return stat_result.st_dev, stat_result.st_ino
+
+
+def _repository_owned_roots(
+    *paths: Path,
+) -> tuple[tuple[Path, tuple[int, int]], ...]:
+    """Bind the complete, identity-distinct storage roots owned by one repository."""
+
+    roots: list[tuple[Path, tuple[int, int]]] = []
+    seen: set[tuple[int, int]] = set()
+    for path in paths:
+        identity = _filesystem_identity(path)
+        if identity not in seen:
+            roots.append((path, identity))
+            seen.add(identity)
+    return tuple(roots)
 
 
 def _git_environment_without_redirects() -> dict[str, str]:
@@ -480,7 +492,7 @@ def _invoke_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[byte
 
     try:
         return subprocess.run(  # noqa: S603, S607
-            ["git", *args],
+            ["git", "--no-replace-objects", *args],
             cwd=repo_root,
             env=_git_environment_without_redirects(),
             check=True,
@@ -528,15 +540,18 @@ def _appoint_git_product_root(repo_root: Path) -> _GitProductRootAppointment:
         product_root=canonical_root,
         product_root_identity=_filesystem_identity(canonical_root),
         git_toplevel=git_toplevel,
-        git_toplevel_identity=_filesystem_identity(git_toplevel),
         object_prefix=object_prefix,
         git_dir=git_dir,
-        git_dir_identity=_filesystem_identity(git_dir),
         git_common_dir=git_common_dir,
-        git_common_dir_identity=_filesystem_identity(git_common_dir),
         object_directory=object_directory,
-        object_directory_identity=_filesystem_identity(object_directory),
         index_file=index_file,
+        repository_owned_roots=_repository_owned_roots(
+            git_toplevel,
+            git_dir,
+            git_common_dir,
+            object_directory,
+            index_file.parent,
+        ),
     )
 
 
@@ -545,10 +560,7 @@ def _require_appointed_git_identity(appointment: _GitProductRootAppointment) -> 
 
     identities = (
         (appointment.product_root, appointment.product_root_identity),
-        (appointment.git_toplevel, appointment.git_toplevel_identity),
-        (appointment.git_dir, appointment.git_dir_identity),
-        (appointment.git_common_dir, appointment.git_common_dir_identity),
-        (appointment.object_directory, appointment.object_directory_identity),
+        *appointment.repository_owned_roots,
     )
     if any(_filesystem_identity(path) != expected for path, expected in identities):
         raise ValueError("dependency discriminant appointed Git identity changed")
@@ -583,6 +595,7 @@ def _run_git(
         completed = subprocess.run(  # noqa: S603, S607
             [
                 "git",
+                "--no-replace-objects",
                 f"--git-dir={appointment.git_dir}",
                 f"--work-tree={appointment.git_toplevel}",
                 *args,
@@ -660,19 +673,25 @@ def dependency_discriminant_source_freeze(repo_root: Path | None = None) -> str:
 def _require_current_foundry_source_freeze(
     appointment: _GitProductRootAppointment,
     source_freeze: str,
-) -> None:
+) -> dict[str, bytes]:
     """Prove the supplied freeze owns every exact current Foundry source byte."""
 
     if source_freeze != _dependency_discriminant_source_freeze(appointment):
         raise ValueError("dependency discriminant source freeze mismatch")
-    _run_git(
-        appointment,
-        "diff",
-        "--quiet",
-        source_freeze,
-        "--",
-        *(path.as_posix() for path in _foundry_dependency_source_paths()),
-    )
+    frozen_sources: dict[str, bytes] = {}
+    for relative_path in _foundry_dependency_source_paths():
+        source_path = relative_path.as_posix()
+        frozen = _frozen_foundry_bytes(appointment, source_freeze, source_path)
+        try:
+            current = (appointment.product_root / relative_path).read_bytes()
+        except OSError as exc:
+            raise ValueError(
+                "dependency discriminant source freeze bytes unavailable"
+            ) from exc
+        if current != frozen:
+            raise ValueError("dependency discriminant source freeze bytes mismatch")
+        frozen_sources[source_path] = frozen
+    return frozen_sources
 
 
 def _owner_source_path(filename: str) -> str:
@@ -694,23 +713,13 @@ def _resolve_frozen_foundry_dependency_discriminant(
 ) -> DependencyProfileDiscriminant:
     """Resolve through the Foundry owner using only supplied frozen bytes."""
 
-    _require_current_foundry_source_freeze(appointment, source_freeze)
-    profile_bytes = _frozen_foundry_bytes(
-        appointment,
-        source_freeze,
-        _owner_source_path("method_catalog_dependency_profiles.toml"),
-    )
-    authority_bytes = _frozen_foundry_bytes(
-        appointment,
-        source_freeze,
-        _owner_source_path("method_catalog_dependency_authority.toml"),
-    )
+    frozen_sources = _require_current_foundry_source_freeze(appointment, source_freeze)
+    profile_bytes = frozen_sources[_owner_source_path("method_catalog_dependency_profiles.toml")]
+    authority_bytes = frozen_sources[
+        _owner_source_path("method_catalog_dependency_authority.toml")
+    ]
     digest_registry = decode_digest_domain_registry_toml(
-        _frozen_foundry_bytes(
-            appointment,
-            source_freeze,
-            _owner_source_path("method_catalog_dependency_digest_domains.toml"),
-        )
+        frozen_sources[_owner_source_path("method_catalog_dependency_digest_domains.toml")]
     )
     registered = tuple(
         row
@@ -728,16 +737,8 @@ def _resolve_frozen_foundry_dependency_discriminant(
     )
     resolved = resolve_dependency_discriminant(
         declaration,
-        pyproject_bytes=_frozen_foundry_bytes(
-            appointment,
-            source_freeze,
-            _owner_source_path("pyproject.toml"),
-        ),
-        lockfile_bytes=_frozen_foundry_bytes(
-            appointment,
-            source_freeze,
-            _owner_source_path("uv.lock"),
-        ),
+        pyproject_bytes=frozen_sources[_owner_source_path("pyproject.toml")],
+        lockfile_bytes=frozen_sources[_owner_source_path("uv.lock")],
         marker_environment=marker_environment,
     )
     if not isinstance(resolved, DependencyProfileDiscriminant):
@@ -5443,19 +5444,37 @@ def check_result(
 
 
 @cache
-def _cached_legacy_value_gate_result(
+def _cached_legacy_value_gate_transport(
     repo_root: Path,
     source_freeze: str,
     head: str,
     n8_raw_hash: str,
-) -> ValueGateValidationResult:
-    """Run the real legacy path once for an immutable repository identity."""
+) -> bytes:
+    """Cache immutable legacy-result bytes for one repository identity."""
 
     del head, n8_raw_hash
-    return check_result(
+    result = check_result(
         repo_root,
         expected_source_freeze=source_freeze,
     )
+    return json.dumps(
+        {
+            "ambient_findings": result.ambient_findings,
+            "governing_issues": result.governing_issues,
+        },
+        ensure_ascii=True,
+        allow_nan=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+
+
+def _decode_legacy_findings(value: object) -> tuple[dict[str, Any], ...]:
+    """Decode one fresh list of legacy findings from immutable transport bytes."""
+
+    if not isinstance(value, list) or any(not isinstance(row, dict) for row in value):
+        raise RuntimeError("cached legacy value-gate transport is invalid")
+    return tuple(value)
 
 
 def _legacy_value_gate_result(
@@ -5467,11 +5486,21 @@ def _legacy_value_gate_result(
 
     repo_root = appointment.product_root
     raw_hash = hashlib.sha256((repo_root / OUTPUT_PATH).read_bytes()).hexdigest()
-    return _cached_legacy_value_gate_result(
+    encoded = _cached_legacy_value_gate_transport(
         repo_root,
         source_freeze,
         _git_text(appointment, "rev-parse", "HEAD"),
         raw_hash,
+    )
+    wire = json.loads(encoded)
+    if not isinstance(wire, dict) or set(wire) != {
+        "ambient_findings",
+        "governing_issues",
+    }:
+        raise RuntimeError("cached legacy value-gate transport is invalid")
+    return ValueGateValidationResult(
+        governing_issues=_decode_legacy_findings(wire["governing_issues"]),
+        ambient_findings=_decode_legacy_findings(wire["ambient_findings"]),
     )
 
 
@@ -5502,7 +5531,6 @@ def _replay_dependency_discriminant_companion(
 ) -> None:
     """Recompute every authority-bearing companion predicate from its owners."""
 
-    _require_current_foundry_source_freeze(appointment, companion.source_freeze)
     if companion.n8_contract_ref != _n8_contract_ref(appointment.product_root):
         raise ValueError("dependency discriminant N8 byte binding drifted")
     replayed = _resolve_frozen_foundry_dependency_discriminant(
@@ -5732,15 +5760,15 @@ def _nearest_existing_ancestor(path: Path) -> Path:
         return candidate
 
 
-def _path_has_ancestor_identity(
+def _path_has_appointed_ancestor_identity(
     path: Path,
-    expected_identity: tuple[int, int],
+    expected_identities: frozenset[tuple[int, int]],
 ) -> bool:
-    """Classify an absent destination through existing filesystem identities."""
+    """Classify an absent destination through all appointed storage identities."""
 
     candidate = _nearest_existing_ancestor(path)
     while True:
-        if _filesystem_identity(candidate) == expected_identity:
+        if _filesystem_identity(candidate) in expected_identities:
             return True
         parent = candidate.parent
         if parent == candidate:
@@ -5778,7 +5806,10 @@ def write_dependency_discriminant_companion(
         raise ValueError("dependency discriminant destination cannot be a symlink")
     destination = Path(os.path.abspath(companion_path))
     governed = Path(os.path.abspath(root / DEPENDENCY_DISCRIMINANT_OUTPUT_PATH))
-    if _path_has_ancestor_identity(destination, appointment.git_toplevel_identity):
+    repository_owned_identities = frozenset(
+        identity for _, identity in appointment.repository_owned_roots
+    )
+    if _path_has_appointed_ancestor_identity(destination, repository_owned_identities):
         if destination != governed:
             raise ValueError("dependency discriminant candidates must be outside the repository")
         if not allow_repository_write:

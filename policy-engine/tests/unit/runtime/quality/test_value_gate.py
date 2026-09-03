@@ -8,7 +8,6 @@ import subprocess
 import sys
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
-from functools import cache
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, ClassVar, cast
@@ -3905,7 +3904,6 @@ def _build_n8_dependency_companion() -> object:
     )
 
 
-@cache
 def _legacy_n8_governing_issues() -> tuple[dict[str, Any], ...]:
     """Capture the unmodified N8 governing path independently of diagnostics."""
 
@@ -4411,6 +4409,82 @@ def test_n8_dependency_discriminant_case_alias_inside_repository_is_refused(
     assert not created
 
 
+def test_n8_dependency_discriminant_rejects_every_appointed_repository_owned_root(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Candidate writes cannot enter any storage root owned by the appointment."""
+
+    canonical_root = value_contract._repo_root()
+    governed = canonical_root / value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH
+    recorded = value_contract.FoundryDependencyDiscriminantCompanion.model_validate_json(
+        governed.read_bytes()
+    )
+    main_toplevel = tmp_path / "main-repository"
+    linked_toplevel = tmp_path / "linked-worktree"
+    _initialize_git_test_repository(
+        main_toplevel,
+        relative_path=Path("product/owner-source.txt"),
+        content="appointed source\n",
+    )
+    _run_git_test_command(
+        main_toplevel,
+        "worktree",
+        "add",
+        "--quiet",
+        "--detach",
+        str(linked_toplevel),
+        "HEAD",
+    )
+    product = linked_toplevel / "product"
+    monkeypatch.setattr(value_contract, "_repo_root", lambda: product)
+
+    def reuse_recorded_companion(
+        *,
+        appointment: object,
+        source_freeze: str,
+    ) -> value_contract.FoundryDependencyDiscriminantCompanion:
+        del appointment, source_freeze
+        return recorded
+
+    monkeypatch.setattr(
+        value_contract,
+        "_build_dependency_discriminant_companion",
+        reuse_recorded_companion,
+    )
+    appointment = value_contract._appoint_git_product_root(product)
+    owned_roots = {
+        "git-dir": appointment.git_dir,
+        "common-dir": appointment.git_common_dir,
+        "object-directory": appointment.object_directory,
+        "index-parent": appointment.index_file.parent,
+    }
+    accepted: list[str] = []
+    created: list[str] = []
+
+    for label, owned_root in owned_roots.items():
+        candidate = owned_root / f"n8-dependency-discriminant-{label}-{tmp_path.name}.json"
+        assert not candidate.exists()
+        try:
+            try:
+                value_contract.write_dependency_discriminant_companion(
+                    product,
+                    companion_path=candidate,
+                    source_freeze="0" * 40,
+                    allow_repository_write=False,
+                )
+            except ValueError:
+                if candidate.exists():
+                    created.append(label)
+            else:
+                accepted.append(label)
+        finally:
+            candidate.unlink(missing_ok=True)
+
+    assert not accepted, f"repository-owned roots accepted candidate writes: {accepted}"
+    assert not created, f"repository-owned roots received candidate files: {created}"
+
+
 def test_n8_dependency_discriminant_owner_reads_ignore_git_redirects_after_appointment(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -4479,6 +4553,184 @@ def test_n8_dependency_discriminant_git_appointment_is_stable_or_fails_closed(
         _run_git_test_command(toplevel, "init", "--quiet")
         with pytest.raises(ValueError, match="appointed Git identity changed"):
             value_contract._run_git(appointment, "rev-parse", "HEAD")
+
+
+def test_n8_dependency_discriminant_git_reads_disable_replacement_objects(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Frozen owner bytes cannot be substituted through repository replacement refs."""
+
+    toplevel = tmp_path / "appointed-repository"
+    product = toplevel / "product"
+    relative_path = Path("product/owner-source.txt")
+    original_head = _initialize_git_test_repository(
+        toplevel,
+        relative_path=relative_path,
+        content="original owner source\n",
+    )
+    monkeypatch.setattr(value_contract, "_repo_root", lambda: product)
+    monkeypatch.setattr(
+        value_contract,
+        "_foundry_dependency_source_paths",
+        lambda: (Path("owner-source.txt"),),
+    )
+    appointment = value_contract._appoint_git_product_root(product)
+    (toplevel / relative_path).write_text("replacement owner source\n", encoding="utf-8")
+    _run_git_test_command(toplevel, "add", "--", relative_path.as_posix())
+    _run_git_test_command(
+        toplevel,
+        "-c",
+        "user.name=PolicyOS Test",
+        "-c",
+        "user.email=policyos-test@example.invalid",
+        "commit",
+        "--quiet",
+        "-m",
+        "replacement fixture",
+    )
+    replacement_head = _run_git_test_command(
+        toplevel,
+        "rev-parse",
+        "HEAD",
+        text=True,
+    ).stdout.strip()
+    _run_git_test_command(toplevel, "replace", original_head, replacement_head)
+
+    unprotected = _run_git_test_command(
+        toplevel,
+        "show",
+        f"{original_head}:{relative_path.as_posix()}",
+    ).stdout
+    protected = value_contract._frozen_foundry_bytes(
+        appointment,
+        original_head,
+        "owner-source.txt",
+    )
+
+    assert unprotected == b"replacement owner source\n"
+    assert protected == b"original owner source\n"
+
+
+@pytest.mark.parametrize("hidden_by", ["eol_normalization", "assume_unchanged"])
+def test_n8_dependency_discriminant_source_freeze_compares_raw_filesystem_bytes(
+    hidden_by: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Raw owner-byte drift fails even when Git's index/attribute proxy reports clean."""
+
+    toplevel = tmp_path / "appointed-repository"
+    product = toplevel / "product"
+    relative_path = Path("product/owner-source.txt")
+    source_freeze = _initialize_git_test_repository(
+        toplevel,
+        relative_path=relative_path,
+        content="original owner source\n",
+    )
+    (toplevel / ".gitattributes").write_text("*.txt text eol=lf\n", encoding="utf-8")
+    _run_git_test_command(toplevel, "add", "--", ".gitattributes")
+    _run_git_test_command(
+        toplevel,
+        "-c",
+        "user.name=PolicyOS Test",
+        "-c",
+        "user.email=policyos-test@example.invalid",
+        "commit",
+        "--quiet",
+        "-m",
+        "attribute fixture",
+    )
+    monkeypatch.setattr(value_contract, "_repo_root", lambda: product)
+    monkeypatch.setattr(
+        value_contract,
+        "_foundry_dependency_source_paths",
+        lambda: (Path("owner-source.txt"),),
+    )
+    appointment = value_contract._appoint_git_product_root(product)
+    target = toplevel / relative_path
+    if hidden_by == "eol_normalization":
+        target.write_bytes(b"original owner source\r\n")
+    else:
+        _run_git_test_command(
+            toplevel,
+            "update-index",
+            "--assume-unchanged",
+            "--",
+            relative_path.as_posix(),
+        )
+        target.write_bytes(b"different owner source\n")
+    proxy = subprocess.run(
+        ["git", "diff", "--quiet", source_freeze, "--", relative_path.as_posix()],
+        cwd=toplevel,
+        env=_git_test_environment(),
+        check=False,
+        capture_output=True,
+    )
+
+    assert proxy.returncode == 0
+    with pytest.raises(ValueError, match=r"source freeze.*bytes"):
+        value_contract._require_current_foundry_source_freeze(
+            appointment,
+            source_freeze,
+        )
+
+
+def test_n8_dependency_discriminant_cached_governing_result_cannot_be_poisoned(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Mutating one result cannot alter later direct, oracle, or CLI governing evidence."""
+
+    companion = cast(
+        "value_contract.FoundryDependencyDiscriminantCompanion",
+        _build_n8_dependency_companion(),
+    )
+    source_freeze = _n8_dependency_source_freeze()
+    diagnostic = _research_torch_diagnostic(companion)
+    first = value_contract.validate_foundry_dependency_discriminant(
+        repo_root=value_contract._repo_root(),
+        companion=companion,
+        diagnostic_verification=diagnostic,
+    )
+    baseline = canonical_json_bytes(first.governing_issues)
+    ambient_baseline = canonical_json_bytes(first.ambient_findings)
+    assert first.governing_issues
+    assert first.ambient_findings
+    first.governing_issues[0]["cache_poison"] = {"nested": ["direct"]}
+    for finding in first.ambient_findings:
+        finding["cache_poison"] = {"nested": ["ambient"]}
+
+    second = value_contract.validate_foundry_dependency_discriminant(
+        repo_root=value_contract._repo_root(),
+        companion=companion,
+        diagnostic_verification=diagnostic,
+    )
+    oracle_first = _legacy_n8_governing_issues()
+    oracle_first[0]["cache_poison"] = {"nested": ["oracle"]}
+    oracle_second = _legacy_n8_governing_issues()
+    governed = (
+        value_contract._repo_root() / value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH
+    )
+    governed_before = governed.read_bytes()
+    exit_code = value_contract.main(
+        [
+            "--check-dependency-discriminant",
+            str(governed),
+            "--expected-source-freeze",
+            source_freeze,
+            "--output-format",
+            "json",
+        ]
+    )
+    report = json.loads(capsys.readouterr().out.splitlines()[-1])
+
+    assert exit_code == 0
+    assert canonical_json_bytes(second.governing_issues) == baseline
+    assert canonical_json_bytes(second.ambient_findings) == ambient_baseline
+    assert canonical_json_bytes(oracle_second) == baseline
+    assert canonical_json_bytes(report["governing_issues"]) == baseline
+    assert not any("cache_poison" in finding for finding in second.ambient_findings)
+    assert governed.read_bytes() == governed_before
 
 
 def test_n8_dependency_discriminant_research_warning_is_ambient_non_decisive(

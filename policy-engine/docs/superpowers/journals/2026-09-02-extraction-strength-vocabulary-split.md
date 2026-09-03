@@ -59,3 +59,51 @@ No changes were made to lineage, adjudication authority types, Runtime,
 producers, stores, graph code, `docs/plans/active/`, or `production_data`.
 No production-data read, hash, migration, producer run, or bound debt-checker
 run occurred.
+
+## Task 1 review-fix — strict legacy input and sidecar semantics
+
+### Decision
+
+The v2 envelope is explicitly a vocabulary sidecar, not a general occurrence
+transport. Task 2 must embed it beside the original occurrence in a lossless
+composite transport. The absence adapter now validates a frozen, strict exact
+legacy contract with only `cause`, `effect`, `direction`, `strength`, and
+`mechanism`; missing, unexpected, and rich fields fail rather than being
+manufactured or silently dropped.
+
+### RED evidence
+
+From `policy-engine/`:
+
+```text
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD/src" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/data_forge/domains/academic/batch/test_claim_vocabulary_contract.py tests/unit/ir/test_literature_contract.py -q
+```
+
+Result: collection failed with the expected `ImportError` for the absent
+`LegacyFiveFieldClaimOccurrence` input contract. This was the intended
+missing-contract failure, not environment or syntax noise.
+
+### GREEN evidence
+
+From `policy-engine/`:
+
+```text
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD/src" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/data_forge/domains/academic/batch/test_claim_vocabulary_contract.py tests/unit/ir/test_literature_contract.py -q
+```
+
+Result: `18 passed`.
+
+```text
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD/src" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/ir/analytics/literature.py tests/unit/data_forge/domains/academic/batch/test_claim_vocabulary_contract.py tests/unit/ir/test_literature_contract.py
+```
+
+Result: `All checks passed!`; `git diff --check` also passed.
+
+### Review-fix coverage
+
+- The adapter rejects missing legacy fields, arbitrary extra fields, and rich
+  claim fields, and validates no manufactured empty required input.
+- A deliberately disagreeing design/evidence pair and all four candidate axes
+  survive JSON round trip; changing any one axis leaves the other three stable.
+- `WorkRecord.causal_claims` rejects a v2 envelope, while exact legacy JSON and
+  `WorkRecord` JSON remain v1-shaped with no implicit adapter.

@@ -151,22 +151,33 @@ class CausalCredibility(str, Enum):
     UNCLEAR = "unclear"
 
 
-class VersionedClaimVocabularyEnvelope(BaseModel):
-    """Strict v2 vocabulary for one causal-claim occurrence.
+class LegacyFiveFieldClaimOccurrence(BaseModel):
+    """Exact five-field legacy occurrence accepted by the absence adapter."""
 
-    This additive contract is intentionally inactive: callers must opt into it
-    directly, and legacy occurrences enter only through the explicit absence
-    adapter below.
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    cause: str
+    effect: str
+    direction: str
+    strength: str
+    mechanism: str
+
+
+class VersionedClaimVocabularyEnvelope(BaseModel):
+    """Strict v2 vocabulary sidecar for one causal-claim occurrence.
+
+    This additive contract is intentionally inactive and is not an occurrence
+    transport. Task 2 must embed it beside the original occurrence in a
+    lossless composite transport. Legacy occurrences enter only through the
+    explicit absence adapter below.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal["2.0"] = "2.0"
-    claim_id: str = ""
     cause: str
     effect: str
     direction: str = ""
-    claim_text: str = ""
     mechanism: str = ""
 
     design_family_hint: DesignFamily | None = None
@@ -221,14 +232,13 @@ def adapt_legacy_claim_occurrence_as_v2_absence(
     parent-paper design, record confidence, source basis, or trust metadata.
     """
 
+    legacy = LegacyFiveFieldClaimOccurrence.model_validate(occurrence)
     return VersionedClaimVocabularyEnvelope(
-        claim_id=occurrence.get("claim_id", ""),
-        cause=occurrence.get("cause", ""),
-        effect=occurrence.get("effect", ""),
-        direction=occurrence.get("direction", ""),
-        claim_text=occurrence.get("claim_text", ""),
-        mechanism=occurrence.get("mechanism", ""),
-        legacy_strength_label=occurrence.get("strength"),
+        cause=legacy.cause,
+        effect=legacy.effect,
+        direction=legacy.direction,
+        mechanism=legacy.mechanism,
+        legacy_strength_label=legacy.strength,
         record_extraction_mode=record_extraction_mode,
     )
 
@@ -1832,6 +1842,7 @@ __all__ = [
     "ExtractorAccuracyReport",
     "HeterogeneityResult",
     "IdentificationStrategy",
+    "LegacyFiveFieldClaimOccurrence",
     "LiteratureCausalPrior",
     "LiteratureEdgePrior",
     "Mechanism",

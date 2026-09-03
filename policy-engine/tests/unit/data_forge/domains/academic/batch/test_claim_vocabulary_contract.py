@@ -11,6 +11,7 @@ from polisyos.data_forge.domains.academic.knowledge.types import WorkRecord
 from polisyos.ir.analytics.literature import (
     CausalClaim,
     ClaimVocabularyAxisStatus,
+    LegacyFiveFieldClaimOccurrence,
     VersionedClaimVocabularyEnvelope,
     adapt_legacy_claim_occurrence_as_v2_absence,
 )
@@ -87,14 +88,37 @@ def test_legacy_adapter_ignores_parent_design_and_record_confidence() -> None:
         )
 
 
+def test_legacy_adapter_rejects_missing_or_rich_occurrence_fields() -> None:
+    """Reject malformed and richer inputs instead of silently truncating them."""
+
+    missing_cause = _legacy_occurrence()
+    del missing_cause["cause"]
+    extra_occurrence = {**_legacy_occurrence(), "unexpected": "value"}
+    rich_occurrence = {**_legacy_occurrence(), "claim_type": "causal_claim"}
+
+    with pytest.raises(ValidationError, match="cause"):
+        adapt_legacy_claim_occurrence_as_v2_absence(missing_cause)
+    with pytest.raises(ValidationError, match="unexpected"):
+        adapt_legacy_claim_occurrence_as_v2_absence(extra_occurrence)
+    with pytest.raises(ValidationError, match="claim_type"):
+        adapt_legacy_claim_occurrence_as_v2_absence(rich_occurrence)
+
+
 def test_existing_v1_work_record_and_causal_claim_paths_are_not_activated() -> None:
     """Keep the legacy transport and v1 normalizer independent from the envelope."""
 
     legacy = _legacy_occurrence()
     record = WorkRecord(id="W1", title="Legacy record", causal_claims=[legacy])
     claim = CausalClaim.from_payload({"cause": "tax rate", "effect": "employment"})
+    envelope = adapt_legacy_claim_occurrence_as_v2_absence(legacy)
+    legacy_json = LegacyFiveFieldClaimOccurrence.model_validate(legacy).model_dump_json()
 
     assert record.causal_claims == [legacy]
+    assert json.loads(record.model_dump_json())["causal_claims"] == [legacy]
+    assert json.loads(legacy_json) == legacy
+    assert "schema_version" not in json.loads(legacy_json)
+    with pytest.raises(ValidationError):
+        WorkRecord(id="W1", title="Envelope record", causal_claims=[envelope])
     assert claim.cause_variable == "tax rate"
     assert claim.effect_variable == "employment"
     assert claim.evidence_strength.value == "unknown"

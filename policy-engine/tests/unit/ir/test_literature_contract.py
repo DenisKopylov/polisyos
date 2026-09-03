@@ -192,23 +192,42 @@ def test_causal_claim_is_frozen_report_contract() -> None:
 def test_design_family_does_not_implicitly_derive_evidence_strength() -> None:
     """Keep the two v2 classification axes independently supplied."""
 
-    rct_design = VersionedClaimVocabularyEnvelope(
+    disagreement = VersionedClaimVocabularyEnvelope(
         cause="tax_rate",
         effect="employment",
-        design_family_hint=DesignFamily.RCT,
+        design_family_hint=DesignFamily.OLS,
         design_family_hint_status=ClaimVocabularyAxisStatus.CANDIDATE,
-    )
-    panel_evidence = VersionedClaimVocabularyEnvelope(
-        cause="tax_rate",
-        effect="employment",
-        evidence_strength=EvidenceStrength.PANEL_FE,
+        evidence_strength=EvidenceStrength.RCT,
         evidence_strength_status=ClaimVocabularyAxisStatus.CANDIDATE,
+        claim_extraction_confidence=0.23,
+        claim_extraction_confidence_status=ClaimVocabularyAxisStatus.CANDIDATE,
+        source_basis=SourceBasis.FULLTEXT,
+        source_basis_status=ClaimVocabularyAxisStatus.CANDIDATE,
     )
 
-    assert rct_design.evidence_strength is None
-    assert rct_design.evidence_strength_status is ClaimVocabularyAxisStatus.NOT_ESTABLISHED
-    assert panel_evidence.design_family_hint is None
-    assert panel_evidence.design_family_hint_status is ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    assert VersionedClaimVocabularyEnvelope.model_validate_json(
+        disagreement.model_dump_json()
+    ) == disagreement
+    assert disagreement.design_family_hint is DesignFamily.OLS
+    assert disagreement.evidence_strength is EvidenceStrength.RCT
+
+    axis_variants = {
+        "design_family_hint": DesignFamily.RCT,
+        "evidence_strength": EvidenceStrength.PANEL_FE,
+        "claim_extraction_confidence": 0.77,
+        "source_basis": SourceBasis.ABSTRACT_ONLY,
+    }
+    axis_values = tuple(axis_variants)
+    baseline = disagreement.model_dump(mode="json")
+    for changed_axis, replacement in axis_variants.items():
+        variant_payload = dict(baseline)
+        variant_payload[changed_axis] = replacement
+        variant = VersionedClaimVocabularyEnvelope.model_validate(variant_payload)
+
+        assert getattr(variant, changed_axis) == replacement
+        for stable_axis in axis_values:
+            if stable_axis != changed_axis:
+                assert getattr(variant, stable_axis) == getattr(disagreement, stable_axis)
 
     with pytest.raises(ValidationError, match="strength"):
         VersionedClaimVocabularyEnvelope.model_validate(

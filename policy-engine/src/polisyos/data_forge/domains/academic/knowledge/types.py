@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
-from polisyos.ir.analytics.literature import VersionedClaimVocabularyEnvelope  # noqa: TC001
+from polisyos.ir.analytics.literature import VersionedClaimVocabularyEnvelope
 
 _OCCURRENCE_IDENTITY_FIELDS = ("cause", "effect", "direction", "mechanism")
 CLAIM_VOCABULARY_DISCRIMINATOR_COLUMN = "claim_vocabulary_schema_version"
@@ -21,9 +21,8 @@ CLAIM_VOCABULARY_STORE_COLUMNS = (
     "legacy_strength_label",
     "record_extraction_mode",
 )
-_VOCABULARY_KEYS = frozenset(
+_ROOT_VOCABULARY_KEYS = frozenset(
     {
-        "strength",
         "design_family_hint",
         "evidence_strength",
         "claim_extraction_confidence",
@@ -44,7 +43,7 @@ def _forbidden_vocabulary_key_path(value: JsonValue, *, path: str = "occurrence"
     if isinstance(value, dict):
         for key, nested_value in value.items():
             key_path = f"{path}.{key}"
-            if key in _VOCABULARY_KEYS:
+            if key == "strength" or (path == "occurrence" and key in _ROOT_VOCABULARY_KEYS):
                 return key_path
             found = _forbidden_vocabulary_key_path(nested_value, path=key_path)
             if found is not None:
@@ -57,6 +56,16 @@ def _forbidden_vocabulary_key_path(value: JsonValue, *, path: str = "occurrence"
     return None
 
 
+def _complete_model_state(model: BaseModel) -> dict[str, object]:
+    """Return all model state, including post-init forged keys."""
+
+    state = dict(vars(model))
+    extra = getattr(model, "__pydantic_extra__", None)
+    if isinstance(extra, dict):
+        state.update(extra)
+    return state
+
+
 class ClaimOccurrenceVocabularyTransport(BaseModel):
     """Frozen, lossless inactive transport pairing one occurrence with its vocabulary sidecar."""
 
@@ -67,7 +76,7 @@ class ClaimOccurrenceVocabularyTransport(BaseModel):
 
     @model_validator(mode="after")
     def _validate_occurrence_binding(self) -> ClaimOccurrenceVocabularyTransport:
-        """Require exact claim identity binding and one owner for every vocabulary key."""
+        """Require exact identity binding and reserve vocabulary keys at their owner."""
 
         forbidden_path = _forbidden_vocabulary_key_path(self.occurrence)
         if forbidden_path is not None:
@@ -90,9 +99,11 @@ def admit_candidate_claim_vocabulary(
     publication conclusion, or ranking result.
     """
 
-    return ClaimOccurrenceVocabularyTransport.model_validate(
-        {"occurrence": transport.occurrence, "vocabulary": transport.vocabulary}
-    )
+    transport_state = _complete_model_state(transport)
+    vocabulary = transport_state.get("vocabulary")
+    if isinstance(vocabulary, VersionedClaimVocabularyEnvelope):
+        transport_state["vocabulary"] = _complete_model_state(vocabulary)
+    return ClaimOccurrenceVocabularyTransport.model_validate(transport_state)
 
 
 def candidate_claim_vocabulary_store_values(
@@ -106,7 +117,7 @@ def candidate_claim_vocabulary_store_values(
 
     vocabulary = admit_candidate_claim_vocabulary(transport).vocabulary
     return {
-        CLAIM_VOCABULARY_DISCRIMINATOR_COLUMN: CLAIM_VOCABULARY_DISCRIMINATOR_VALUE,
+        CLAIM_VOCABULARY_DISCRIMINATOR_COLUMN: vocabulary.schema_version,
         "design_family_hint": (
             vocabulary.design_family_hint.value
             if vocabulary.design_family_hint is not None

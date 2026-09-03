@@ -189,3 +189,38 @@ with runtime boundary falsifiers rather than source-marker tests.
 No authority, receipt, publication, ranking, evaluator, Runtime, Foundry
 catalogue, `docs/plans/active/`, or `production_data` path changed. The bound
 debt checker was not run.
+
+## Task 2 review fixes — strict admission state and nested metadata
+
+### Pattern pass
+
+This fixes the reviewed P29/P33/P38 gap at the canonical common boundary. The
+previous admission path re-used a nested Pydantic instance and a selected-key
+outer reconstruction, so `model_copy(update=...)` forged state was not
+revalidated; its recursive duplicate-key check also treated an opaque nested
+`source_basis` as a second occurrence vocabulary owner. The target pattern is
+one complete-state reconstruction for both transport and sidecar, typed
+duplicate reservation at the occurrence root, and recursive reservation only
+for generic `strength`. P01/P02 remain intentionally
+`implemented_but_not_orchestrated` until the Task-3 atomic bridge.
+
+### RED evidence
+
+From `policy-engine/` at Task-2 head `2aa63f5fb` after adding behavioral
+review-fix tests:
+
+```text
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/data_forge/domains/academic/knowledge/test_claim_occurrence_vocabulary_transport.py::test_admission_revalidates_complete_nested_sidecar_instance_state tests/unit/data_forge/domains/academic/knowledge/test_claim_occurrence_vocabulary_transport.py::test_admission_revalidates_complete_outer_transport_instance_state tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py::test_all_inactive_writer_aliases_reject_forged_nested_sidecar_state -q
+```
+
+Result: `5 failed, 2 passed`; failures were the intended missing strict
+nested/outer revalidation and recursive nested `source_basis` rejection.
+
+### GREEN evidence
+
+The focused Task-2 set collected 94 tests and passed after the minimal owner
+fix. The transport boundary, all writer/snapshot aliases, producer serializers,
+and existing inactive-path sentinels were exercised. Ruff passed on changed
+source/tests and `git diff --check` passed. No producer, writer, snapshot
+assembly, architecture guardrail, bound debt checker, or `production_data`
+path was run.

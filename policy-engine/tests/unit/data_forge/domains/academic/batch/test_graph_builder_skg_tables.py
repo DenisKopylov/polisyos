@@ -8,7 +8,7 @@ import duckdb
 import pytest
 from pydantic import ValidationError
 
-from polisyos.data_forge.domains.academic.batch import graph_builder
+from polisyos.data_forge.domains.academic.batch import best_snapshot, graph_builder
 from polisyos.data_forge.domains.academic.batch.graph_builder import build_graph, load_graph
 from polisyos.data_forge.domains.academic.knowledge import skg_store
 from polisyos.data_forge.domains.academic.knowledge.types import (
@@ -52,6 +52,26 @@ def test_graph_writer_inactive_preflight_uses_the_shared_vocabulary_admission_ca
     bad = transport.model_copy(update={"occurrence": {**transport.occurrence, "strength": "moderate"}})
     with pytest.raises(ValidationError, match="strength"):
         graph_builder.preflight_candidate_claim_vocabulary(bad)
+
+
+def test_all_inactive_writer_aliases_reject_forged_nested_sidecar_state() -> None:
+    """Exercise the shared boundary through batch, span, and snapshot seams."""
+
+    transport = _candidate_transport()
+    forged = transport.model_copy(
+        update={
+            "vocabulary": transport.vocabulary.model_copy(update={"schema_version": "9.9"}),
+            "forged_outer_key": "must reject",
+        }
+    )
+
+    for preflight in (
+        graph_builder.preflight_candidate_claim_vocabulary,
+        skg_store.preflight_candidate_claim_vocabulary,
+        best_snapshot.preflight_claim_occurrence_vocabulary_copy,
+    ):
+        with pytest.raises(ValidationError):
+            preflight(forged)
 
 
 def test_build_graph_creates_skg_tables() -> None:

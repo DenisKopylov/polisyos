@@ -56,6 +56,7 @@ def _rich_occurrence() -> dict[str, object]:
         "extraction_warnings": ["candidate_only"],
         "publish_blockers": ["needs_review"],
         "future_additive_json": {"nested": ["retained", 7]},
+        "raw_llm_detail": {"source_basis": "quoted text"},
     }
 
 
@@ -70,6 +71,10 @@ def test_composite_retains_non_vocabulary_occurrence_content_without_aliasing() 
     assert transport.vocabulary.evidence_strength is EvidenceStrength.RCT
     assert transport.vocabulary.claim_extraction_confidence == pytest.approx(0.23)
     assert admit_candidate_claim_vocabulary(transport) == transport
+    round_tripped = ClaimOccurrenceVocabularyTransport.model_validate_json(
+        transport.model_dump_json()
+    )
+    assert round_tripped.occurrence["raw_llm_detail"] == {"source_basis": "quoted text"}
 
 
 @pytest.mark.parametrize(
@@ -110,6 +115,16 @@ def test_composite_rejects_missing_or_mismatched_identity_fields() -> None:
         ClaimOccurrenceVocabularyTransport(occurrence=missing_cause, vocabulary=_sidecar())
     with pytest.raises(ValidationError, match="effect"):
         ClaimOccurrenceVocabularyTransport(occurrence=mismatched_effect, vocabulary=_sidecar())
+
+
+def test_composite_rejects_generic_strength_inside_opaque_nested_metadata() -> None:
+    """Keep generic strength reserved even when nested under retained metadata."""
+
+    occurrence = _rich_occurrence()
+    occurrence["raw_llm_detail"] = {"strength": "moderate"}
+
+    with pytest.raises(ValidationError, match=r"raw_llm_detail\.strength"):
+        ClaimOccurrenceVocabularyTransport(occurrence=occurrence, vocabulary=_sidecar())
 
 
 def test_legacy_adapter_sidecar_pairs_with_a_legacy_occurrence_only_after_strength_is_removed() -> None:
@@ -167,3 +182,44 @@ def test_inactive_store_values_revalidate_and_preserve_each_candidate_axis() -> 
         "legacy_strength_label": "moderate",
         "record_extraction_mode": None,
     }
+
+
+@pytest.mark.parametrize(
+    "update",
+    [
+        {"strength": "moderate"},
+        {"schema_version": "9.9"},
+        {"evidence_strength": "not-a-strength"},
+        {"evidence_strength_status": "not-a-status"},
+        {"evidence_strength": None},
+    ],
+)
+def test_admission_revalidates_complete_nested_sidecar_instance_state(
+    update: dict[str, object],
+) -> None:
+    """Reject forged nested sidecar fields before store projection can stamp v2."""
+
+    forged_vocabulary = _sidecar().model_copy(update=update)
+    valid_occurrence = _rich_occurrence()
+    valid_occurrence.pop("raw_llm_detail")
+    valid_transport = ClaimOccurrenceVocabularyTransport(
+        occurrence=valid_occurrence, vocabulary=_sidecar()
+    )
+    transport = valid_transport.model_copy(update={"vocabulary": forged_vocabulary})
+
+    with pytest.raises(ValidationError):
+        admit_candidate_claim_vocabulary(transport)
+    with pytest.raises(ValidationError):
+        candidate_claim_vocabulary_store_values(transport)
+
+
+def test_admission_revalidates_complete_outer_transport_instance_state() -> None:
+    """Reject unknown outer state injected after construction."""
+
+    occurrence = _rich_occurrence()
+    occurrence.pop("raw_llm_detail")
+    transport = ClaimOccurrenceVocabularyTransport(occurrence=occurrence, vocabulary=_sidecar())
+    forged = transport.model_copy(update={"forged_outer_key": "must reject"})
+
+    with pytest.raises(ValidationError, match="forged_outer_key"):
+        admit_candidate_claim_vocabulary(forged)

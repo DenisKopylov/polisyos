@@ -5,13 +5,53 @@ import tempfile
 from pathlib import Path
 
 import duckdb
+import pytest
+from pydantic import ValidationError
 
+from polisyos.data_forge.domains.academic.batch import graph_builder
 from polisyos.data_forge.domains.academic.batch.graph_builder import build_graph, load_graph
+from polisyos.data_forge.domains.academic.knowledge import skg_store
 from polisyos.data_forge.domains.academic.knowledge.types import (
+    ClaimOccurrenceVocabularyTransport,
     EstimateCandidate,
     SourceTopicRef,
     WorkRecord,
+    admit_candidate_claim_vocabulary,
 )
+from polisyos.ir.analytics.literature import VersionedClaimVocabularyEnvelope
+
+
+def _candidate_transport() -> ClaimOccurrenceVocabularyTransport:
+    """Return a transport suitable for inactive writer preflight."""
+
+    return ClaimOccurrenceVocabularyTransport(
+        occurrence={
+            "cause": "tax rate",
+            "effect": "employment",
+            "direction": "negative",
+            "mechanism": "labour cost",
+            "claim_type": "causal_claim",
+        },
+        vocabulary=VersionedClaimVocabularyEnvelope(
+            cause="tax rate",
+            effect="employment",
+            direction="negative",
+            mechanism="labour cost",
+        ),
+    )
+
+
+def test_graph_writer_inactive_preflight_uses_the_shared_vocabulary_admission_callable() -> None:
+    """Catch a graph seam that bypasses or replaces the common boundary."""
+
+    transport = _candidate_transport()
+    assert graph_builder.preflight_candidate_claim_vocabulary is admit_candidate_claim_vocabulary
+    assert skg_store.preflight_candidate_claim_vocabulary is admit_candidate_claim_vocabulary
+    assert graph_builder.preflight_candidate_claim_vocabulary(transport) == transport
+
+    bad = transport.model_copy(update={"occurrence": {**transport.occurrence, "strength": "moderate"}})
+    with pytest.raises(ValidationError, match="strength"):
+        graph_builder.preflight_candidate_claim_vocabulary(bad)
 
 
 def test_build_graph_creates_skg_tables() -> None:

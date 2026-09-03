@@ -107,3 +107,85 @@ Result: `All checks passed!`; `git diff --check` also passed.
   survive JSON round trip; changing any one axis leaves the other three stable.
 - `WorkRecord.causal_claims` rejects a v2 envelope, while exact legacy JSON and
   `WorkRecord` JSON remain v1-shaped with no implicit adapter.
+
+## Task 2 — inactive composite, serializers, and store preparation
+
+### Capability state
+
+This is `implemented_but_not_orchestrated` preparation. The frozen
+`ClaimOccurrenceVocabularyTransport` retains the complete non-vocabulary
+occurrence beside Task 1's strict `VersionedClaimVocabularyEnvelope`; no v2
+artifact is emitted by a producer or persisted by a live writer.
+
+### RED evidence
+
+From `policy-engine/`:
+
+```text
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD/src" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/data_forge/domains/academic/knowledge/test_claim_occurrence_vocabulary_transport.py tests/unit/data_forge/domains/academic/batch/test_parser.py tests/unit/data_forge/mirror_contracts/test_llm_extractor.py tests/unit/data_forge/domains/academic/batch/test_article_extractor_stage.py tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py tests/unit/data_forge/domains/academic/knowledge/test_openalex_skg_ingest.py tests/unit/data_forge/domains/academic/batch/test_best_snapshot.py -q
+```
+
+Result: collection reported the expected missing transport and serializer
+imports. Follow-up boundary tests failed for the intended reasons: the future
+deterministic serializer silently accepted generic `strength`; the rich
+serializer promoted omitted Pydantic defaults; the snapshot helper accepted
+only an artificial legacy mapping; and the exact persistence constants/projector
+did not exist. These were product-contract REDs, not environment failures.
+
+### GREEN evidence
+
+From `policy-engine/`:
+
+```text
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$PWD/src" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/data_forge/domains/academic/knowledge/test_claim_occurrence_vocabulary_transport.py tests/unit/data_forge/domains/academic/batch/test_parser.py::test_future_deterministic_claim_serializer_keeps_abstract_basis_without_legacy_label tests/unit/data_forge/domains/academic/batch/test_parser.py::test_future_deterministic_claim_serializer_rejects_a_generic_strength_label tests/unit/data_forge/mirror_contracts/test_llm_extractor.py::test_future_llm_claim_serializer_keeps_named_candidate_axes_separate tests/unit/data_forge/domains/academic/batch/test_article_extractor_stage.py::test_rich_claim_serializer_preserves_metadata_and_does_not_borrow_record_confidence tests/unit/data_forge/domains/academic/batch/test_article_extractor_stage.py::test_rich_claim_serializer_keeps_omitted_pydantic_defaults_absent tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py::test_graph_writer_inactive_preflight_uses_the_shared_vocabulary_admission_callable tests/unit/data_forge/domains/academic/knowledge/test_openalex_skg_ingest.py::test_span_writer_inactive_preflight_reuses_the_graph_vocabulary_boundary tests/unit/data_forge/domains/academic/batch/test_best_snapshot.py::test_snapshot_copy_preflight_splits_only_exact_legacy_claim_occurrences tests/unit/data_forge/domains/academic/batch/test_best_snapshot.py::test_snapshot_copy_preflight_revalidates_an_actual_future_composite tests/unit/data_forge/domains/academic/batch/test_best_snapshot.py::test_snapshot_copy_preflight_rejects_rich_generic_strength_before_copy tests/unit/data_forge/domains/academic/batch/test_best_snapshot.py::test_snapshot_copy_preflight_rejects_a_duplicated_typed_vocabulary_key tests/unit/data_forge/domains/academic/batch/test_claim_vocabulary_contract.py::test_existing_v1_work_record_and_causal_claim_paths_are_not_activated -q
+```
+
+Result: `27 passed`.
+
+```text
+PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check [Task-2 source and test paths]
+git diff --check
+```
+
+Result: both passed. `uv run polisyos-tools architecture guardrails check` was
+started but did not complete after several minutes and was terminated; it is
+not pass/fail evidence.
+
+### Task 3 activation handshake
+
+- Shared frozen transport and mechanical re-admission owner:
+  `ClaimOccurrenceVocabularyTransport` and
+  `admit_candidate_claim_vocabulary` in `knowledge/types.py`.
+- Future-only serializers: `serialize_deterministic_claim_occurrence_vocabulary`,
+  `serialize_llm_claim_occurrence_vocabulary`, and
+  `serialize_rich_claim_occurrence_vocabulary`.
+- Both writer seams are the exact same callable:
+  `graph_builder.preflight_candidate_claim_vocabulary` and
+  `skg_store.preflight_candidate_claim_vocabulary` alias
+  `admit_candidate_claim_vocabulary`. Snapshot copy preflight is
+  `preflight_claim_occurrence_vocabulary_copy`; it re-admits a future composite
+  and only adapts an exact legacy five-field occurrence.
+- Exact inactive persistence layout: discriminator
+  `claim_vocabulary_schema_version="2.0"`; ordered sidecar columns are
+  `design_family_hint`, `design_family_hint_status`, `evidence_strength`,
+  `evidence_strength_status`, `claim_extraction_confidence`,
+  `claim_extraction_confidence_status`, `source_basis`, `source_basis_status`,
+  `legacy_strength_label`, and `record_extraction_mode`. The pure
+  `candidate_claim_vocabulary_store_values` re-admits before returning only
+  those values and never returns generic `strength`.
+- No-activation proof: `WorkRecord.causal_claims`, legacy parser/LLM append and
+  JSONL, `_to_work_record` v1 output, graph DDL/batches/inserts,
+  `_infer_edge_strength`, direct span ingest loop, and snapshot assembly/copy
+  calls were not changed; the preflight tests call only inactive helpers.
+
+### Pattern pass and exclusions
+
+P01/P02 remain intentionally open until the atomic bridge and consumers land.
+P04/P10/P15 are addressed locally by typed absence, independent candidate
+axes, and no generic-label laundering. P27 is avoided by consuming Task 1's
+sidecar rather than introducing another vocabulary DTO; P29/P33/P38 are covered
+with runtime boundary falsifiers rather than source-marker tests.
+
+No authority, receipt, publication, ranking, evaluator, Runtime, Foundry
+catalogue, `docs/plans/active/`, or `production_data` path changed. The bound
+debt checker was not run.

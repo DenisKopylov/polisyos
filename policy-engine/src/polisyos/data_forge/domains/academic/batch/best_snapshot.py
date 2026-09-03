@@ -8,7 +8,7 @@ import shutil
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 
@@ -27,12 +27,52 @@ from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     finalize_skg_version,
     next_skg_version,
 )
+from polisyos.data_forge.domains.academic.knowledge.types import (
+    CLAIM_VOCABULARY_STORE_COLUMNS,
+    ClaimOccurrenceVocabularyTransport,
+    admit_candidate_claim_vocabulary,
+)
 from polisyos.data_forge.kernel.io import sha256_file
 from polisyos.ir.analytics.cross_graph import AcademicBenchmarkSuite, load_benchmark_suite
+from polisyos.ir.analytics.literature import adapt_legacy_claim_occurrence_as_v2_absence
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 logger = get_logger(__name__)
 
 _TIMESTAMP_FMT = "%Y%m%dT%H%M%SZ"
+
+
+def preflight_claim_occurrence_vocabulary_copy(
+    occurrence: ClaimOccurrenceVocabularyTransport | Mapping[str, Any],
+) -> ClaimOccurrenceVocabularyTransport:
+    """Build and mechanically validate an inactive copy-preflight composite.
+
+    Only an exact historical five-field occurrence may retain a generic label,
+    and then only by relocating it to the sidecar's audit-only legacy field.
+    This helper is intentionally uncalled by snapshot assembly in B-1.
+    """
+
+    if isinstance(occurrence, ClaimOccurrenceVocabularyTransport):
+        return admit_candidate_claim_vocabulary(occurrence)
+    raw_occurrence = dict(occurrence)
+    duplicated_keys = sorted(set(raw_occurrence) & set(CLAIM_VOCABULARY_STORE_COLUMNS))
+    if duplicated_keys:
+        raise ValueError(
+            "duplicated typed vocabulary key is not allowed in copy preflight: "
+            + ", ".join(duplicated_keys)
+        )
+    legacy_keys = {"cause", "effect", "direction", "strength", "mechanism"}
+    if set(raw_occurrence) != legacy_keys:
+        if "strength" in raw_occurrence:
+            raise ValueError("generic strength is not allowed in a rich v2 occurrence")
+        raise ValueError("copy preflight requires an exact legacy five-field occurrence")
+    vocabulary = adapt_legacy_claim_occurrence_as_v2_absence(raw_occurrence)
+    raw_occurrence.pop("strength")
+    return admit_candidate_claim_vocabulary(
+        ClaimOccurrenceVocabularyTransport(occurrence=raw_occurrence, vocabulary=vocabulary)
+    )
 
 _REQUIRED_RUNTIME_FILES = (
     "graph/scholar_knowledge.duckdb",

@@ -11,6 +11,9 @@ from typing import TYPE_CHECKING, Any
 
 import duckdb
 
+from polisyos.data_forge.domains.academic.knowledge.types import (
+    admit_candidate_claim_vocabulary,
+)
 from polisyos.data_forge.kernel.io.generation_basis import (
     GenerationBasis,
     build_generation_basis,
@@ -21,6 +24,10 @@ from polisyos.ir.analytics.literature import (
     OpenAlexWorkText,
     validate_causal_claim_span_grounding,
 )
+
+# Inactive B-1 seam.  It is intentionally not invoked by the direct span
+# writer until the atomic v2 reader/writer activation.
+preflight_candidate_claim_vocabulary = admit_candidate_claim_vocabulary
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

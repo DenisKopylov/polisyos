@@ -8,14 +8,21 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from polisyos.data_forge.domains.academic.knowledge.types import (
+    ClaimOccurrenceVocabularyTransport,
     EstimateCandidate,
     SourceTopicRef,
     WorkRecord,
 )
 from polisyos.data_forge.domains.academic.trust import compute_trust_score
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
+from polisyos.ir.analytics.literature import (
+    ClaimVocabularyAxisStatus,
+    SourceBasis,
+    VersionedClaimVocabularyEnvelope,
+)
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from pathlib import Path
 
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
@@ -398,6 +405,46 @@ def extract_causal_claims(abstract: str) -> list[dict]:
                 }
             )
     return claims
+
+
+def serialize_deterministic_claim_occurrence_vocabulary(
+    occurrence: Mapping[str, Any],
+) -> ClaimOccurrenceVocabularyTransport:
+    """Build an inactive v2 composite for one future deterministic claim.
+
+    The existing deterministic producer remains v1. This future path rejects
+    generic historical labels rather than silently discarding, retyping, or
+    retaining them: it has only the abstract as candidate source basis.
+    """
+
+    retained = dict(occurrence)
+    if "strength" in retained:
+        raise ValueError("deterministic vocabulary input must not contain generic strength")
+    for key in (
+        "design_family_hint",
+        "evidence_strength",
+        "claim_extraction_confidence",
+        "source_basis",
+        "design_family_hint_status",
+        "evidence_strength_status",
+        "claim_extraction_confidence_status",
+        "source_basis_status",
+        "legacy_strength_label",
+        "record_extraction_mode",
+    ):
+        if key in retained:
+            raise ValueError(f"deterministic occurrence must not provide vocabulary key: {key}")
+    return ClaimOccurrenceVocabularyTransport(
+        occurrence=retained,
+        vocabulary=VersionedClaimVocabularyEnvelope(
+            cause=str(retained.get("cause", "")),
+            effect=str(retained.get("effect", "")),
+            direction=str(retained.get("direction", "")),
+            mechanism=str(retained.get("mechanism", "")),
+            source_basis=SourceBasis.ABSTRACT_ONLY,
+            source_basis_status=ClaimVocabularyAxisStatus.CANDIDATE,
+        ),
+    )
 
 
 def extract_boundary_conditions(abstract: str) -> list[dict]:

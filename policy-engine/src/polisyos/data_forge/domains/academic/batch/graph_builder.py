@@ -34,7 +34,10 @@ from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     skg_schema_generation_basis,
     strongest_strength,
 )
-from polisyos.data_forge.domains.academic.knowledge.types import WorkRecord
+from polisyos.data_forge.domains.academic.knowledge.types import (
+    WorkRecord,
+    admit_candidate_claim_vocabulary,
+)
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 
 if TYPE_CHECKING:
@@ -44,6 +47,10 @@ if TYPE_CHECKING:
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 
 logger = get_logger(__name__)
+
+# Inactive B-1 seam.  Task 3 alone may connect this shared boundary to the
+# legacy writer after compatible readers/projectors exist.
+preflight_candidate_claim_vocabulary = admit_candidate_claim_vocabulary
 
 _DESIGN_TIER_BY_FAMILY: dict[str, int | None] = {
     "rct": 1,

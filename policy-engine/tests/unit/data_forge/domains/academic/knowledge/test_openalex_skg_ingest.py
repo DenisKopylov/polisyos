@@ -7,21 +7,53 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import duckdb
+import pytest
+from pydantic import ValidationError
 
+from polisyos.data_forge.domains.academic.knowledge import skg_store
 from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     ensure_skg_schema,
     ingest_openalex_no_hit_frontier,
     ingest_openalex_span_grounded_claims,
 )
+from polisyos.data_forge.domains.academic.knowledge.types import ClaimOccurrenceVocabularyTransport
 from polisyos.ir.analytics.literature import (
     EvidenceSpan,
     OpenAlexWorkText,
+    VersionedClaimVocabularyEnvelope,
     extract_span_grounded_claims_from_openalex_work,
 )
 from polisyos.scholar.search.models import SearchQueryTrace
 
 REPO_ROOT = Path(__file__).resolve().parents[6]
 FIXTURE_DIR = REPO_ROOT / "tests" / "fixtures" / "scholar" / "openalex"
+
+
+def test_span_writer_inactive_preflight_reuses_the_graph_vocabulary_boundary() -> None:
+    """Catch a direct writer seam that admits a duplicate vocabulary key."""
+
+    transport = ClaimOccurrenceVocabularyTransport(
+        occurrence={
+            "cause": "tax rate",
+            "effect": "employment",
+            "direction": "negative",
+            "mechanism": "labour cost",
+            "supporting_span_ids": ["span-1"],
+        },
+        vocabulary=VersionedClaimVocabularyEnvelope(
+            cause="tax rate",
+            effect="employment",
+            direction="negative",
+            mechanism="labour cost",
+        ),
+    )
+
+    assert skg_store.preflight_candidate_claim_vocabulary(transport) == transport
+    bad = transport.model_copy(
+        update={"occurrence": {**transport.occurrence, "evidence_strength": "rct"}}
+    )
+    with pytest.raises(ValidationError, match="evidence_strength"):
+        skg_store.preflight_candidate_claim_vocabulary(bad)
 
 
 class _DeterministicSpanSupportClient:

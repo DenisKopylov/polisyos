@@ -13,13 +13,85 @@ from typing import TYPE_CHECKING, Any
 import aiohttp
 
 from polisyos.common.logger import get_logger
-from polisyos.data_forge.domains.academic.knowledge.types import EstimateCandidate, WorkRecord
+from polisyos.data_forge.domains.academic.knowledge.types import (
+    ClaimOccurrenceVocabularyTransport,
+    EstimateCandidate,
+    WorkRecord,
+)
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
+from polisyos.ir.analytics.literature import (
+    ClaimVocabularyAxisStatus,
+    SourceBasis,
+    VersionedClaimVocabularyEnvelope,
+)
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 
 logger = get_logger(__name__)
+
+
+def _candidate_status(value: object) -> ClaimVocabularyAxisStatus:
+    """Return the only status available for a future extractor observation."""
+
+    if value is None:
+        return ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    return ClaimVocabularyAxisStatus.CANDIDATE
+
+
+def serialize_llm_claim_occurrence_vocabulary(
+    occurrence: Mapping[str, Any],
+    *,
+    record_extraction_mode: str | None = "llm_enriched",
+) -> ClaimOccurrenceVocabularyTransport:
+    """Build an inactive v2 composite from separately named LLM candidate axes.
+
+    This serializer deliberately accepts no generic ``strength`` mapping.  A
+    replayed five-field occurrence must use the explicit historical adapter,
+    while the LLM's named candidate values remain independent observations.
+    """
+
+    retained = dict(occurrence)
+    if "strength" in retained:
+        raise ValueError("LLM vocabulary input must not contain generic strength")
+    values = {
+        "design_family_hint": retained.pop("design_family_hint", None),
+        "evidence_strength": retained.pop("evidence_strength", None),
+        "claim_extraction_confidence": retained.pop("claim_extraction_confidence", None),
+    }
+    for key in (
+        "source_basis",
+        "design_family_hint_status",
+        "evidence_strength_status",
+        "claim_extraction_confidence_status",
+        "source_basis_status",
+        "legacy_strength_label",
+        "record_extraction_mode",
+    ):
+        if key in retained:
+            raise ValueError(f"LLM vocabulary input must not contain {key}")
+    return ClaimOccurrenceVocabularyTransport(
+        occurrence=retained,
+        vocabulary=VersionedClaimVocabularyEnvelope(
+            cause=str(retained.get("cause", "")),
+            effect=str(retained.get("effect", "")),
+            direction=str(retained.get("direction", "")),
+            mechanism=str(retained.get("mechanism", "")),
+            design_family_hint=values["design_family_hint"],
+            design_family_hint_status=_candidate_status(values["design_family_hint"]),
+            evidence_strength=values["evidence_strength"],
+            evidence_strength_status=_candidate_status(values["evidence_strength"]),
+            claim_extraction_confidence=values["claim_extraction_confidence"],
+            claim_extraction_confidence_status=_candidate_status(
+                values["claim_extraction_confidence"]
+            ),
+            source_basis=SourceBasis.ABSTRACT_ONLY,
+            source_basis_status=ClaimVocabularyAxisStatus.CANDIDATE,
+            record_extraction_mode=record_extraction_mode,
+        ),
+    )
 
 EXTRACTION_PROMPT = """Extract causal and quantitative evidence from this abstract.
 

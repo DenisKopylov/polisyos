@@ -29,6 +29,7 @@ from polisyos.data_forge.domains.academic.batch.prompts import (
     SCREENING_PROMPT,
 )
 from polisyos.data_forge.domains.academic.knowledge.types import (
+    ClaimOccurrenceVocabularyTransport,
     EstimateCandidate,
     SourceTopicRef,
     WorkRecord,
@@ -41,6 +42,7 @@ from polisyos.ir.analytics.literature import (
     CausalClaim,
     ClaimExplicitness,
     ClaimType,
+    ClaimVocabularyAxisStatus,
     ContextAttribute,
     DesignFamily,
     EvidenceParameter,
@@ -53,6 +55,7 @@ from polisyos.ir.analytics.literature import (
     ParameterType,
     SourceBasis,
     TextQuality,
+    VersionedClaimVocabularyEnvelope,
 )
 
 if TYPE_CHECKING:
@@ -1893,6 +1896,70 @@ def _safe_float(value: float | None) -> float | None:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def serialize_rich_claim_occurrence_vocabulary(
+    claim: CausalClaim,
+    *,
+    record_extraction_mode: str | None,
+    record_extraction_confidence: float | None = None,
+) -> ClaimOccurrenceVocabularyTransport:
+    """Build an inactive lossless v2 composite from one rich extracted claim.
+
+    The record confidence is deliberately accepted only to make its exclusion
+    explicit: missing claim confidence remains absent rather than borrowing a
+    paper-level observation.  This helper is uncalled while ``WorkRecord``
+    continues to emit its legacy v1 claim dictionaries.
+    """
+
+    del record_extraction_confidence
+    fields_set = claim.model_fields_set
+
+    def _candidate_axis(field_name: str, value: Any) -> tuple[Any | None, ClaimVocabularyAxisStatus]:
+        if field_name not in fields_set:
+            return None, ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+        return value, ClaimVocabularyAxisStatus.CANDIDATE
+
+    design_family_hint, design_family_hint_status = _candidate_axis(
+        "design_family_hint", claim.design_family_hint
+    )
+    evidence_strength, evidence_strength_status = _candidate_axis(
+        "evidence_strength", claim.evidence_strength
+    )
+    source_basis, source_basis_status = _candidate_axis("source_basis", claim.source_basis)
+    retained = claim.model_dump(mode="json")
+    retained.pop("cause_variable")
+    retained.pop("effect_variable")
+    retained.pop("design_family_hint")
+    retained.pop("evidence_strength")
+    retained.pop("claim_extraction_confidence")
+    retained.pop("source_basis")
+    retained["cause"] = claim.cause_variable
+    retained["effect"] = claim.effect_variable
+    retained["direction"] = claim.direction.value
+    retained["mechanism"] = claim.counterevidence_notes
+    return ClaimOccurrenceVocabularyTransport(
+        occurrence=retained,
+        vocabulary=VersionedClaimVocabularyEnvelope(
+            cause=claim.cause_variable,
+            effect=claim.effect_variable,
+            direction=claim.direction.value,
+            mechanism=claim.counterevidence_notes,
+            design_family_hint=design_family_hint,
+            design_family_hint_status=design_family_hint_status,
+            evidence_strength=evidence_strength,
+            evidence_strength_status=evidence_strength_status,
+            claim_extraction_confidence=claim.claim_extraction_confidence,
+            claim_extraction_confidence_status=(
+                ClaimVocabularyAxisStatus.CANDIDATE
+                if claim.claim_extraction_confidence is not None
+                else ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+            ),
+            source_basis=source_basis,
+            source_basis_status=source_basis_status,
+            record_extraction_mode=record_extraction_mode,
+        ),
+    )
 
 
 def _to_work_record(

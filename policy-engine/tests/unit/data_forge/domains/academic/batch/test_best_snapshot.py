@@ -6,15 +6,94 @@ from types import SimpleNamespace
 
 import duckdb
 import numpy as np
+import pytest
+
 from polisyos.data_forge.domains.academic.batch import best_snapshot, cli
 from polisyos.data_forge.domains.academic.batch.benchmark import BenchmarkOutcome
 from polisyos.data_forge.domains.academic.knowledge.search import ScholarKnowledgeGraph
 from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
 from polisyos.data_forge.domains.academic.knowledge.skg_store import ensure_skg_schema
+from polisyos.data_forge.domains.academic.knowledge.types import ClaimOccurrenceVocabularyTransport
 from polisyos.data_forge.kernel.pipeline.manifests import (
     write_publish_manifest,
     write_stage_manifest,
 )
+from polisyos.ir.analytics.literature import VersionedClaimVocabularyEnvelope
+
+
+def test_snapshot_copy_preflight_splits_only_exact_legacy_claim_occurrences() -> None:
+    """Catch a preflight that carries generic strength into a v2 occurrence."""
+
+    transport = best_snapshot.preflight_claim_occurrence_vocabulary_copy(
+        {
+            "cause": "tax rate",
+            "effect": "employment",
+            "direction": "negative",
+            "strength": "moderate",
+            "mechanism": "labour cost",
+        }
+    )
+
+    assert transport.occurrence == {
+        "cause": "tax rate",
+        "effect": "employment",
+        "direction": "negative",
+        "mechanism": "labour cost",
+    }
+    assert transport.vocabulary.legacy_strength_label == "moderate"
+
+
+def test_snapshot_copy_preflight_revalidates_an_actual_future_composite() -> None:
+    """Catch a snapshot seam that only handles its synthetic legacy fixture."""
+
+    future = ClaimOccurrenceVocabularyTransport(
+        occurrence={
+            "cause": "tax rate",
+            "effect": "employment",
+            "direction": "negative",
+            "mechanism": "labour cost",
+            "claim_type": "causal_claim",
+        },
+        vocabulary=VersionedClaimVocabularyEnvelope(
+            cause="tax rate",
+            effect="employment",
+            direction="negative",
+            mechanism="labour cost",
+        ),
+    )
+
+    assert best_snapshot.preflight_claim_occurrence_vocabulary_copy(future) == future
+
+
+def test_snapshot_copy_preflight_rejects_rich_generic_strength_before_copy() -> None:
+    """Catch a copy preflight that mistakes a rich v1 row for a legacy projection."""
+
+    with pytest.raises(ValueError, match="strength"):
+        best_snapshot.preflight_claim_occurrence_vocabulary_copy(
+            {
+                "cause": "tax rate",
+                "effect": "employment",
+                "direction": "negative",
+                "strength": "moderate",
+                "mechanism": "labour cost",
+                "claim_type": "causal_claim",
+            }
+        )
+
+
+def test_snapshot_copy_preflight_rejects_a_duplicated_typed_vocabulary_key() -> None:
+    """Catch a snapshot seam that accepts a second typed vocabulary owner."""
+
+    with pytest.raises(ValueError, match="evidence_strength"):
+        best_snapshot.preflight_claim_occurrence_vocabulary_copy(
+            {
+                "cause": "tax rate",
+                "effect": "employment",
+                "direction": "negative",
+                "mechanism": "labour cost",
+                "evidence_strength": "rct",
+            }
+        )
 
 
 def _write_json(path: Path, payload: dict) -> None:

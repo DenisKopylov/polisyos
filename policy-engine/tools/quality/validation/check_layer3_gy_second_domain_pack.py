@@ -41,9 +41,10 @@ from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import duckdb
+from pydantic import TypeAdapter
 
 from tools.lib.timing import run_timed_entrypoint
 
@@ -56,6 +57,15 @@ from polisyos.data_requirement import (
     DataRequirementScope,
     DataRequirementSpec,
 )
+from polisyos.foundry.methods.catalog.dependency_profile import (
+    DependencyEnvironmentDiagnosticCase,
+    DependencyEnvironmentDiagnosticResult,
+    DependencyProfileDiscriminant,
+)
+
+if TYPE_CHECKING:
+    from polisyos.foundry.methods.catalog.dependency_evidence import DigestDomain, DomainDigest
+
 from polisyos.pdc import (
     GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION,
     GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
@@ -332,6 +342,151 @@ class HistoricalL2QueryEvidence:
     query_content_hash: str
     response_content_hash: str
     owner_query_source_ref: str
+
+
+@dataclass(frozen=True, slots=True)
+class DependencyDiscriminantReadResult:
+    """N10a view of the shared Foundry discriminant and legacy N8 result."""
+
+    governing_issues: tuple[dict[str, Any], ...]
+    ambient_findings: tuple[dict[str, Any], ...]
+    dependency_discriminant_content_ref: str | None
+    profile_discriminant: DependencyProfileDiscriminant | None
+    diagnostic_status: Literal["pass", "fail", "not_established"]
+    diagnostic_first_case: DependencyEnvironmentDiagnosticCase | None
+
+    @property
+    def governing_result(self) -> tuple[dict[str, Any], ...]:
+        """Return only the unchanged N8 governing bytes."""
+
+        return self.governing_issues
+
+    @property
+    def content_ref(self) -> str | None:
+        """Return the validated companion content reference, if received."""
+
+        return self.dependency_discriminant_content_ref
+
+    @property
+    def discriminant_ref(
+        self,
+    ) -> DomainDigest[Literal[DigestDomain.DEPENDENCY_DISCRIMINANT]] | None:
+        """Return the Foundry discriminant reference, if received."""
+
+        if self.profile_discriminant is None:
+            return None
+        return self.profile_discriminant.discriminant_ref
+
+    @property
+    def status(self) -> Literal["pass", "fail", "not_established"]:
+        """Return the ambient diagnostic status."""
+
+        return self.diagnostic_status
+
+    @property
+    def first_case(self) -> DependencyEnvironmentDiagnosticCase | None:
+        """Return the first ambient diagnostic case, if any."""
+
+        return self.diagnostic_first_case
+
+
+_DEPENDENCY_DIAGNOSTIC_RESULT_ADAPTER = TypeAdapter(DependencyEnvironmentDiagnosticResult)
+
+
+def _dependency_diagnostic_status_and_case(
+    *,
+    content_ref: str | None,
+    ambient_findings: Sequence[Mapping[str, Any]],
+) -> tuple[
+    Literal["pass", "fail", "not_established"],
+    DependencyEnvironmentDiagnosticCase | None,
+]:
+    """Project the owner-validated ambient diagnostic without deciding N10a."""
+
+    for finding in reversed(tuple(ambient_findings)):
+        diagnostic = finding.get("diagnostic") or finding.get("current_diagnostic")
+        if not isinstance(diagnostic, Mapping):
+            continue
+        parsed = _DEPENDENCY_DIAGNOSTIC_RESULT_ADAPTER.validate_json(
+            json.dumps(diagnostic, sort_keys=True, separators=(",", ":"))
+        )
+        return parsed.status, getattr(parsed, "first_case", None)
+    if content_ref is None or any(
+        str(finding.get("code") or "").startswith("dependency_discriminant_diagnostic_")
+        or str(finding.get("code") or "").startswith("dependency_environment_diagnostic_")
+        for finding in ambient_findings
+    ):
+        return "not_established", None
+    return "pass", None
+
+
+def read_foundry_dependency_discriminant(
+    *,
+    repo_root: Path,
+    companion: object | None = None,
+    diagnostic_verification: object | None = None,
+) -> DependencyDiscriminantReadResult:
+    """Reopen the shared companion through the Foundry/N8 owner API.
+
+    Args:
+        repo_root: Appointed product root.
+        companion: Exact companion object, mapping, or bytes. When omitted,
+            the governed companion path is read once by this consumer.
+        diagnostic_verification: Optional ambient diagnostic to reconcile.
+
+    Returns:
+        The exact legacy N8 governing result plus non-decisive diagnostic data.
+    """
+
+    from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+    received = companion
+    if received is None:
+        try:
+            received = (repo_root / n8.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH).read_bytes()
+        except OSError:
+            received = b""
+    owner_result = n8.validate_foundry_dependency_discriminant(
+        repo_root=repo_root,
+        companion=received,
+        diagnostic_verification=diagnostic_verification,
+    )
+    status, first_case = _dependency_diagnostic_status_and_case(
+        content_ref=owner_result.content_ref,
+        ambient_findings=owner_result.ambient_findings,
+    )
+    return DependencyDiscriminantReadResult(
+        governing_issues=owner_result.governing_issues,
+        ambient_findings=owner_result.ambient_findings,
+        dependency_discriminant_content_ref=owner_result.content_ref,
+        profile_discriminant=owner_result.profile_discriminant,
+        diagnostic_status=status,
+        diagnostic_first_case=first_case,
+    )
+
+
+def dependency_environment_diagnostic_projection(
+    result: DependencyDiscriminantReadResult,
+) -> dict[str, Any]:
+    """Render the ambient consumer result without changing governing fields."""
+
+    discriminant_ref = result.discriminant_ref
+    first_case = result.first_case
+    return {
+        "decision_role": "ambient_non_decisive",
+        "content_ref": result.content_ref,
+        "discriminant_ref": (
+            discriminant_ref.model_dump(mode="json")
+            if hasattr(discriminant_ref, "model_dump")
+            else discriminant_ref
+        ),
+        "status": result.status,
+        "first_case": (
+            first_case.model_dump(mode="json")
+            if hasattr(first_case, "model_dump")
+            else first_case
+        ),
+    }
 
 
 GAP_WITNESS_SPECS: dict[str, GapWitnessSpec] = {
@@ -7467,6 +7622,21 @@ def main(argv: list[str] | None = None) -> int:
             "status": "fail",
             "issues": [{"code": "second_domain_pack_execution_failed", "error": str(exc)}],
         }
+    try:
+        dependency_result = read_foundry_dependency_discriminant(repo_root=root)
+        dependency_projection = dependency_environment_diagnostic_projection(dependency_result)
+    except Exception:
+        dependency_projection = {
+            "decision_role": "ambient_non_decisive",
+            "content_ref": None,
+            "discriminant_ref": None,
+            "status": "not_established",
+            "first_case": None,
+        }
+    report = {
+        **report,
+        "dependency_environment_diagnostic": dependency_projection,
+    }
     if args.corrupt_field_drift_check:
         exit_code = 1 if report.get("status") == "fail" else 2
     else:

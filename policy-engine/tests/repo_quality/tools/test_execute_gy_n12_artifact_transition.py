@@ -10,6 +10,7 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.foundry.methods.catalog import dependency_profile as profile_module
 from polisyos.foundry.methods.catalog.dependency_evidence import (
     DependencyEnvironmentMarkerStatement,
     DependencyProfileEnvironmentStatement,
@@ -21,7 +22,6 @@ from polisyos.foundry.methods.catalog.dependency_evidence import (
 from polisyos.foundry.methods.catalog.dependency_profile import (
     DependencyProfileEnvironmentReceipt,
 )
-from polisyos.foundry.methods.catalog import dependency_profile as profile_module
 from tools.quality.validation import check_layer3_gy_epoch_chronology_contract as chronology
 from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
 from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
@@ -210,6 +210,42 @@ def test_measure_uses_complete_changed_set_and_exact_deployment_intersection(
     assert report["source_freeze"] == freeze
     assert report["source_tree"] == _git(tmp_path, "rev-parse", f"{freeze}^{{tree}}")
     assert transition.verify_receipt(report)
+
+
+def test_measurement_receipt_carries_the_non_decisive_discriminant_binding(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Measurement retains exact companion identity without changing owner predicates."""
+
+    base, freeze = _init_repo(tmp_path)
+    measured = {
+        "decision_role": "ambient_non_decisive",
+        "content_ref": "sha256:" + "c" * 64,
+        "discriminant_ref": {
+            "domain": "dependency-discriminant",
+            "value": "sha256:" + "d" * 64,
+        },
+        "status": "fail",
+        "first_case": {"coordinate": "distribution:fixture:version"},
+    }
+    monkeypatch.setattr(transition, "_measure_dependency_discriminant", lambda _root: measured)
+
+    report = transition.build_measurement(
+        repo_root=tmp_path,
+        implementation_base=base,
+        source_freeze=freeze,
+        deployment_paths=(),
+        tool_sources=(),
+        potential_targets=(),
+    )
+
+    assert report["dependency_discriminant_measurement"] == measured
+    assert report["owner_predicates"] == {
+        "foundry_adjudication": "not_established",
+        "owner_enforced_runtime_subtree_cutoff": "not_established",
+        "writer_authority": "not_established",
+    }
 
 
 def test_measure_rejects_wrong_head_dirty_tree_and_non_ancestor(tmp_path: Path) -> None:
@@ -1157,8 +1193,22 @@ def test_readback_binds_final_to_declaration_parent_and_exact_target_map(
         }
     )
 
-    def accepted_consumer(**_kwargs: object) -> tuple[dict[str, str], ...]:
-        return ({"target_path": "artifact.json", "consumer": "fixture", "status": "pass"},)
+    discriminant_ref = {"domain": "dependency-discriminant", "value": "sha256:" + "d" * 64}
+
+    def accepted_consumer(**_kwargs: object) -> tuple[dict[str, object], ...]:
+        return (
+            {
+                "target_path": "artifact.json",
+                "consumer": "fixture",
+                "status": "pass",
+                "dependency_discriminant_content_ref": "sha256:" + "c" * 64,
+                "dependency_discriminant_ref": discriminant_ref,
+                "dependency_environment_status": "fail",
+                "dependency_environment_first_case": {
+                    "coordinate": "distribution:fixture:version"
+                },
+            },
+        )
 
     report = transition.build_readback(
         repo_root=tmp_path,
@@ -1169,9 +1219,18 @@ def test_readback_binds_final_to_declaration_parent_and_exact_target_map(
         consumer_probe=accepted_consumer,
     )
     assert report["artifact_parent"] == declaration_head
-    assert report["consumer_results"] == [
-        {"target_path": "artifact.json", "consumer": "fixture", "status": "pass"}
-    ]
+    assert report["consumer_results"] == list(accepted_consumer())
+    assert report["dependency_discriminant_readback"] == {
+        "decision_role": "ambient_non_decisive",
+        "content_ref": "sha256:" + "c" * 64,
+        "discriminant_ref": discriminant_ref,
+        "ambient_cases": [
+            {
+                "status": "fail",
+                "first_case": {"coordinate": "distribution:fixture:version"},
+            }
+        ],
+    }
 
     with pytest.raises(ValueError, match="readback_consumer_rejected"):
         transition.build_readback(
@@ -1721,6 +1780,40 @@ def test_n8_environment_refuses_a_rebound_receipt_with_a_different_marker_join(
         )
 
 
+def test_n8_environment_revalidates_a_copied_receipt_before_using_its_statement(
+    tmp_path: Path,
+) -> None:
+    """A stale receipt ref copied around a new statement fails at intake."""
+
+    environment = tmp_path / "n8"
+    interpreter = environment / "bin/python"
+    interpreter.parent.mkdir(parents=True)
+    interpreter.write_bytes(b"python")
+    tooling_site = tmp_path / "tooling/lib/python3.14/site-packages"
+    tooling_site.mkdir(parents=True)
+    receipt = _write_n8_environment_receipt(environment)
+    copied = receipt.model_copy(
+        update={
+            "statement": receipt.statement.model_copy(
+                update={
+                    "stable_closure": domain_digest(
+                        DigestDomain.DEPENDENCY_CLOSURE,
+                        b"copied-stale-closure",
+                    )
+                }
+            )
+        }
+    )
+
+    with pytest.raises(ValueError, match="n8_environment_receipt_not_established"):
+        transition.validate_n8_environment(
+            n8_python=interpreter,
+            environment_receipt=copied,
+            tooling_site=tooling_site,
+            origin_probe=lambda **_kwargs: {},
+        )
+
+
 @pytest.mark.parametrize(
     ("probe_update", "diagnostic"),
     [
@@ -2135,7 +2228,7 @@ def test_n10a_candidate_cli_converts_oserror_to_one_typed_failure_envelope(
 def _owner_recorded_n8_source_freeze(repo_root: Path) -> str:
     """Read the committing source identity of the tracked N8 owner artifact."""
 
-    source_freeze = _git(repo_root, "log", "-1", "--format=%H", "--", n8.OUTPUT_PATH)
+    source_freeze = n8.dependency_discriminant_source_freeze(repo_root)
     assert len(source_freeze) == 40
     return source_freeze
 
@@ -2201,14 +2294,19 @@ def _failed_discriminant_diagnostic(companion: object) -> object:
     assert isinstance(rows, tuple) and rows, (
         "missing behavior: companion must retain its resolved distribution rows"
     )
-    observations = [
-        {"name": row.name, "version": row.version, "source_kind": row.source_kind}
-        for row in rows
-    ]
-    observations[0]["version"] = "incompatible-version"
+    observations = tuple(
+        profile_module.InstalledDistributionObservation(
+            name=row.name,
+            version="incompatible-version" if index == 0 else row.version,
+        )
+        for index, row in enumerate(rows)
+    )
     result = diagnoser(
         discriminant=discriminant,
-        observed_distributions=tuple(observations),
+        observed_distributions=profile_module.AmbientDependencyEnvironmentObservation(
+            observation_kind="ambient",
+            distributions=observations,
+        ),
     )
     assert getattr(result, "status", None) == "fail"
     return result
@@ -2267,3 +2365,63 @@ def test_p38_ambient_diagnostic_cannot_govern_shared_consumer_results() -> None:
     )
 
     assert with_diagnostic == without_diagnostic
+
+
+def test_invalid_and_removed_diagnostics_cannot_govern_shared_consumer_results() -> None:
+    """Invalid and removed diagnostics preserve every consumer's governing bytes."""
+
+    repo_root = n8._repo_root()
+    companion = n8.build_dependency_discriminant_companion(
+        repo_root=repo_root,
+        source_freeze=_owner_recorded_n8_source_freeze(repo_root),
+    )
+    removed_results = _shared_foundry_discriminant_consumers(
+        repo_root=repo_root,
+        companion=companion,
+        diagnostic_verification=None,
+    )
+    invalid_results = _shared_foundry_discriminant_consumers(
+        repo_root=repo_root,
+        companion=companion,
+        diagnostic_verification={"status": "fail", "ordered_cases": []},
+    )
+
+    assert _governing_consumer_bytes(invalid_results) == _governing_consumer_bytes(
+        removed_results
+    )
+    assert getattr(invalid_results[1], "status", None) == "not_established"
+    assert getattr(invalid_results[2], "status", None) == "not_established"
+
+
+def test_readback_rejects_consumers_bound_to_different_discriminant_copies() -> None:
+    """A missing or different companion binding cannot reconcile as shared bytes."""
+
+    repo_root = n8._repo_root()
+    companion = n8.build_dependency_discriminant_companion(
+        repo_root=repo_root,
+        source_freeze=_owner_recorded_n8_source_freeze(repo_root),
+    )
+    n8_result = n8.validate_foundry_dependency_discriminant(
+        repo_root=repo_root,
+        companion=companion.model_copy(deep=True),
+        diagnostic_verification=None,
+    )
+    n10a_reader = getattr(n10a, "read_foundry_dependency_discriminant", None)
+    chronology_reader = getattr(chronology, "read_foundry_dependency_discriminant", None)
+    reconcile = getattr(transition, "reconcile_dependency_discriminant_consumers", None)
+    assert callable(n10a_reader), "missing behavior: N10a discriminant reader"
+    assert callable(chronology_reader), "missing behavior: chronology discriminant reader"
+    assert callable(reconcile), "missing behavior: transition discriminant reconciliation"
+    n10a_result = n10a_reader(
+        repo_root=repo_root,
+        companion=companion.model_dump(mode="json"),
+        diagnostic_verification=None,
+    )
+    chronology_result = chronology_reader(
+        repo_root=repo_root,
+        companion=b"{}",
+        diagnostic_verification=None,
+    )
+
+    with pytest.raises(ValueError, match="readback_dependency_discriminant_binding_mismatch"):
+        reconcile((n8_result, n10a_result, chronology_result))

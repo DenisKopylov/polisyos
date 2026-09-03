@@ -82,6 +82,83 @@ def verify_receipt(payload: Mapping[str, Any]) -> bool:
     return isinstance(observed, str) and observed == with_receipt_hash(payload)["receipt_sha256"]
 
 
+def _json_transport(value: object) -> object:
+    """Convert a strict model value to its JSON transport shape."""
+
+    if hasattr(value, "model_dump"):
+        return value.model_dump(mode="json")
+    return value
+
+
+def _dependency_result_field(result: object, field: str) -> object:
+    if isinstance(result, Mapping):
+        aliases = {
+            "content_ref": "dependency_discriminant_content_ref",
+            "discriminant_ref": "dependency_discriminant_ref",
+            "status": "dependency_environment_status",
+            "first_case": "dependency_environment_first_case",
+        }
+        return result.get(aliases[field], result.get(field))
+    return getattr(result, field, None)
+
+
+def dependency_discriminant_consumer_fields(result: object) -> dict[str, Any]:
+    """Project one consumer's content binding and non-decisive ambient case."""
+
+    return {
+        "dependency_discriminant_content_ref": _dependency_result_field(
+            result, "content_ref"
+        ),
+        "dependency_discriminant_ref": _json_transport(
+            _dependency_result_field(result, "discriminant_ref")
+        ),
+        "dependency_environment_status": _dependency_result_field(result, "status"),
+        "dependency_environment_first_case": _json_transport(
+            _dependency_result_field(result, "first_case")
+        ),
+    }
+
+
+def reconcile_dependency_discriminant_consumers(
+    results: Sequence[object],
+) -> dict[str, Any]:
+    """Require every consumer to bind the same non-null companion bytes."""
+
+    projected = tuple(dependency_discriminant_consumer_fields(result) for result in results)
+    if not projected:
+        raise ValueError("readback_dependency_discriminant_binding_mismatch")
+    bindings = {
+        _canonical_bytes(
+            {
+                "content_ref": row["dependency_discriminant_content_ref"],
+                "discriminant_ref": row["dependency_discriminant_ref"],
+            }
+        )
+        for row in projected
+        if row["dependency_discriminant_content_ref"] is not None
+        and row["dependency_discriminant_ref"] is not None
+    }
+    if len(bindings) != 1 or len(projected) != sum(
+        row["dependency_discriminant_content_ref"] is not None
+        and row["dependency_discriminant_ref"] is not None
+        for row in projected
+    ):
+        raise ValueError("readback_dependency_discriminant_binding_mismatch")
+    first = projected[0]
+    return {
+        "decision_role": "ambient_non_decisive",
+        "content_ref": first["dependency_discriminant_content_ref"],
+        "discriminant_ref": first["dependency_discriminant_ref"],
+        "ambient_cases": [
+            {
+                "status": row["dependency_environment_status"],
+                "first_case": row["dependency_environment_first_case"],
+            }
+            for row in projected
+        ],
+    }
+
+
 def _read_receipt(path: Path, *, schema: str | None = None) -> dict[str, Any]:
     try:
         value = json.loads(path.read_bytes())
@@ -376,6 +453,31 @@ def _affected_families(changed: set[str], intersection: Sequence[str]) -> list[s
     return sorted(families)
 
 
+def _measure_dependency_discriminant(repo_root: Path) -> dict[str, Any]:
+    """Measure the shared companion without granting its diagnostic authority."""
+
+    try:
+        from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
+
+        result = n10a.read_foundry_dependency_discriminant(repo_root=repo_root)
+    except Exception:
+        return {
+            "decision_role": "ambient_non_decisive",
+            "content_ref": None,
+            "discriminant_ref": None,
+            "status": "not_established",
+            "first_case": None,
+        }
+    fields = dependency_discriminant_consumer_fields(result)
+    return {
+        "decision_role": "ambient_non_decisive",
+        "content_ref": fields["dependency_discriminant_content_ref"],
+        "discriminant_ref": fields["dependency_discriminant_ref"],
+        "status": fields["dependency_environment_status"],
+        "first_case": fields["dependency_environment_first_case"],
+    }
+
+
 def build_measurement(
     *,
     repo_root: Path,
@@ -433,6 +535,7 @@ def build_measurement(
         "deployment_closure_sha256": denominator_hash(deployment_states),
         "deployment_intersection": intersection,
         "affected_families": _affected_families(changed, intersection),
+        "dependency_discriminant_measurement": _measure_dependency_discriminant(root),
         "owner_predicates": {
             "foundry_adjudication": "not_established",
             "owner_enforced_runtime_subtree_cutoff": "not_established",
@@ -663,6 +766,12 @@ def validate_n8_environment(
 
     if not isinstance(environment_receipt, DependencyProfileEnvironmentReceipt):
         raise ValueError("n8_environment_receipt_not_established")
+    try:
+        reopened_receipt = DependencyProfileEnvironmentReceipt.model_validate_json(
+            environment_receipt.model_dump_json()
+        )
+    except (TypeError, ValueError) as exc:
+        raise ValueError("n8_environment_receipt_not_established") from exc
     interpreter_entry = n8_python.expanduser().absolute()
     environment_root = interpreter_entry.parent.parent.resolve()
     if not interpreter_entry.is_file() or interpreter_entry.parent.name != "bin":
@@ -678,7 +787,7 @@ def validate_n8_environment(
         marker_raw,
         schema_version=marker.schema_version,
     )
-    statement = environment_receipt.statement
+    statement = reopened_receipt.statement
     if observed_marker_ref != statement.marker_ref:
         raise ValueError("n8_environment_marker_mismatch")
     if (
@@ -737,7 +846,7 @@ def validate_n8_environment(
         "distribution_count": count,
         "distribution_origins": origins,
         "escaped_distribution_origins": [],
-        "environment_receipt_ref": environment_receipt.receipt_ref.model_dump(mode="json"),
+        "environment_receipt_ref": reopened_receipt.receipt_ref.model_dump(mode="json"),
         "environment_marker_ref": statement.marker_ref.model_dump(mode="json"),
     }
 
@@ -1291,6 +1400,14 @@ def _run_readback_consumers(
     if unknown:
         raise ValueError("readback_consumer_unregistered:" + ",".join(unknown))
     results: list[dict[str, Any]] = []
+    try:
+        companion_raw: bytes | None = _git_blob(
+            repo_root,
+            expected_head,
+            n8.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH,
+        )
+    except ValueError:
+        companion_raw = None
 
     if EPOCH_TARGET in targets:
         from tools.quality.validation import check_layer3_gy_epoch_chronology_contract as epoch
@@ -1306,14 +1423,23 @@ def _run_readback_consumers(
             repo_root=repo_root,
             expected_source_freeze=source_freeze,
         )
-        results.append(
-            {
-                "target_path": EPOCH_TARGET,
-                "consumer": "layer3_gy_epoch_chronology_contract.validate_payload",
-                "status": "pass" if not issues else "fail",
-                "issue_codes": sorted(str(row.get("code")) for row in issues),
-            }
-        )
+        row = {
+            "target_path": EPOCH_TARGET,
+            "consumer": "layer3_gy_epoch_chronology_contract.validate_payload",
+            "status": "pass" if not issues else "fail",
+            "issue_codes": sorted(str(issue.get("code")) for issue in issues),
+        }
+        if companion_raw is not None:
+            row.update(
+                dependency_discriminant_consumer_fields(
+                    epoch.read_foundry_dependency_discriminant(
+                        repo_root=repo_root,
+                        companion=companion_raw,
+                        diagnostic_verification=None,
+                    )
+                )
+            )
+        results.append(row)
 
     if n8.OUTPUT_PATH in targets:
         try:
@@ -1323,15 +1449,24 @@ def _run_readback_consumers(
         if not isinstance(payload, Mapping):
             raise ValueError("readback_n8_payload_unreadable")
         result = n8.validate_payload_result(payload, expected_source_freeze=source_freeze)
-        results.append(
-            {
-                "target_path": n8.OUTPUT_PATH,
-                "consumer": "layer3_gy_value_gate_contract.validate_payload_result",
-                "status": "pass" if not result.governing_issues else "fail",
-                "issue_codes": sorted(str(row.get("code")) for row in result.governing_issues),
-                "ambient_finding_count": len(result.ambient_findings),
-            }
-        )
+        row = {
+            "target_path": n8.OUTPUT_PATH,
+            "consumer": "layer3_gy_value_gate_contract.validate_payload_result",
+            "status": "pass" if not result.governing_issues else "fail",
+            "issue_codes": sorted(str(issue.get("code")) for issue in result.governing_issues),
+            "ambient_finding_count": len(result.ambient_findings),
+        }
+        if companion_raw is not None:
+            row.update(
+                dependency_discriminant_consumer_fields(
+                    n8.validate_foundry_dependency_discriminant(
+                        repo_root=repo_root,
+                        companion=companion_raw,
+                        diagnostic_verification=None,
+                    )
+                )
+            )
+        results.append(row)
 
     n10_targets = set(n10a.ARTIFACT_OUTPUTS)
     present_n10 = targets & n10_targets
@@ -1352,13 +1487,23 @@ def _run_readback_consumers(
             repo_root,
             expected_source_freeze=source_freeze,
         )
+        discriminant_fields: dict[str, Any] = {}
+        if companion_raw is not None:
+            discriminant_fields = dependency_discriminant_consumer_fields(
+                n10a.read_foundry_dependency_discriminant(
+                    repo_root=repo_root,
+                    companion=companion_raw,
+                    diagnostic_verification=None,
+                )
+            )
         for relative in n10a.ARTIFACT_OUTPUTS:
             results.append(
                 {
                     "target_path": relative,
                     "consumer": "layer3_gy_second_domain_pack.validate_bundle_payloads",
                     "status": "pass" if not issues else "fail",
-                    "issue_codes": sorted(str(row.get("code")) for row in issues),
+                    "issue_codes": sorted(str(issue.get("code")) for issue in issues),
+                    **discriminant_fields,
                 }
             )
 
@@ -1481,6 +1626,23 @@ def build_readback(
         raise ValueError("readback_consumer_denominator_mismatch")
     if any(row.get("status") != "pass" for row in consumer_results):
         raise ValueError("readback_consumer_rejected")
+    discriminant_consumers = tuple(
+        row
+        for row in consumer_results
+        if "dependency_discriminant_content_ref" in row
+        or "dependency_discriminant_ref" in row
+    )
+    if discriminant_consumers:
+        discriminant_readback = reconcile_dependency_discriminant_consumers(
+            discriminant_consumers
+        )
+    else:
+        discriminant_readback = {
+            "decision_role": "ambient_non_decisive",
+            "content_ref": None,
+            "discriminant_ref": None,
+            "ambient_cases": [],
+        }
     return with_receipt_hash(
         {
             "schema_version": READBACK_SCHEMA,
@@ -1492,6 +1654,7 @@ def build_readback(
             "artifact_tree": _git(root, "rev-parse", f"{expected_head}^{{tree}}"),
             "target_sha256": hashes,
             "consumer_results": list(consumer_results),
+            "dependency_discriminant_readback": discriminant_readback,
         }
     )
 

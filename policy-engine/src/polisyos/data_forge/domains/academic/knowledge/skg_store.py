@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -9,6 +11,10 @@ from typing import TYPE_CHECKING, Any
 
 import duckdb
 
+from polisyos.data_forge.kernel.io.generation_basis import (
+    GenerationBasis,
+    build_generation_basis,
+)
 from polisyos.ir.analytics.literature import (
     CausalClaim,
     EvidenceStrength,
@@ -18,6 +24,7 @@ from polisyos.ir.analytics.literature import (
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from pathlib import Path
 
     from polisyos.data_forge.domains.academic.knowledge.variable_canonizer import (
         VariableCanonizer,
@@ -309,6 +316,20 @@ CREATE INDEX IF NOT EXISTS idx_ac_skg_transport_edge ON ac_skg_transport_scores(
 CREATE INDEX IF NOT EXISTS idx_ac_skg_transport_target ON ac_skg_transport_scores(target_context_id);
 """
 
+SKG_SCHEMA_GENERATION_RULE_VERSION = "policyos.academic.skg_schema_generation.v1"
+_SKG_SCHEMA_COMPATIBILITY_ALTERS = (
+    ("ac_skg_contested_edges", "positive_weight", "DOUBLE DEFAULT 0.0"),
+    ("ac_skg_contested_edges", "negative_weight", "DOUBLE DEFAULT 0.0"),
+    ("ac_skg_contested_edges", "mixed_weight", "DOUBLE DEFAULT 0.0"),
+    (
+        "ac_skg_contested_edges",
+        "dominant_direction_agreement",
+        "DOUBLE DEFAULT 0.0",
+    ),
+    ("ac_skg_contested_edges", "strongest_dissent_strength", "VARCHAR DEFAULT ''"),
+    ("ac_skg_contested_edges", "strongest_dissent_year", "INTEGER"),
+)
+
 
 EVIDENCE_WEIGHTS: dict[str, float] = {
     EvidenceStrength.RCT.value: 1.0,
@@ -578,14 +599,7 @@ def ensure_skg_schema(con: duckdb.DuckDBPyConnection) -> None:
         sql = stmt.strip()
         if sql:
             con.execute(sql)
-    for table_name, column_name, column_sql in (
-        ("ac_skg_contested_edges", "positive_weight", "DOUBLE DEFAULT 0.0"),
-        ("ac_skg_contested_edges", "negative_weight", "DOUBLE DEFAULT 0.0"),
-        ("ac_skg_contested_edges", "mixed_weight", "DOUBLE DEFAULT 0.0"),
-        ("ac_skg_contested_edges", "dominant_direction_agreement", "DOUBLE DEFAULT 0.0"),
-        ("ac_skg_contested_edges", "strongest_dissent_strength", "VARCHAR DEFAULT ''"),
-        ("ac_skg_contested_edges", "strongest_dissent_year", "INTEGER"),
-    ):
+    for table_name, column_name, column_sql in _SKG_SCHEMA_COMPATIBILITY_ALTERS:
         try:
             exists = con.execute(
                 """
@@ -600,6 +614,48 @@ def ensure_skg_schema(con: duckdb.DuckDBPyConnection) -> None:
             exists = None
         if not exists:
             con.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_sql}")
+
+
+def skg_schema_generation_basis() -> GenerationBasis:
+    """Return the complete current basis used to generate the Academic SKG schema."""
+    compatibility_alters = json.dumps(
+        _SKG_SCHEMA_COMPATIBILITY_ALTERS,
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return build_generation_basis(
+        basis_kind="academic_skg_duckdb_schema",
+        generator_rule_version=SKG_SCHEMA_GENERATION_RULE_VERSION,
+        members=(
+            ("skg_ddl", SKG_DDL.encode("utf-8")),
+            ("compatibility_alters", compatibility_alters),
+        ),
+    )
+
+
+def skg_materialized_schema_identity(db_path: Path) -> str:
+    """Hash the materialized Academic SKG table and column schema read-only."""
+    with duckdb.connect(str(db_path), read_only=True) as connection:
+        rows = connection.execute(
+            """
+            SELECT
+                table_name,
+                column_name,
+                ordinal_position,
+                data_type,
+                is_nullable,
+                column_default
+            FROM information_schema.columns
+            WHERE table_schema = 'main' AND table_name LIKE 'ac_skg_%'
+            ORDER BY table_name, ordinal_position, column_name
+            """
+        ).fetchall()
+    encoded = json.dumps(
+        rows,
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return f"sha256:{hashlib.sha256(encoded).hexdigest()}"
 
 
 def next_skg_version(con: duckdb.DuckDBPyConnection, *, description: str = "") -> int:
@@ -1111,6 +1167,8 @@ __all__ = [
     "next_skg_version",
     "normalize_strength",
     "parent_canonical_name",
+    "skg_materialized_schema_identity",
+    "skg_schema_generation_basis",
     "strongest_strength",
     "weighted_direction_summary",
 ]

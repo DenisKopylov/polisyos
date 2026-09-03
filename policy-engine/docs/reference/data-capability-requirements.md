@@ -55,7 +55,7 @@ encounter.
 | `causal-claim-current-contract-vocabulary` | `CausalClaim` / academic SKG ingest | `present_wrong_vocabulary` |
 | `extraction-strength-mixes-confidence-and-design` | any consumer of `extraction_json` | `present_wrong_vocabulary` |
 | `cg2-calibration-observations-per-stratum` | CG2 grounding calibration | `absent` |
-| `snapshot-schema-generation-discriminator` | every consumer of a pinned snapshot | `absent` |
+| `snapshot-schema-generation-discriminator` | Academic shadow consumer of a pinned snapshot | `present_stale` |
 | `lex-amendment-effective-from` | Lex chronology valid-effect carrier | `present_insufficient` |
 
 ---
@@ -166,15 +166,26 @@ expensive thing measured this week.
 **What is required.** A snapshot must record the schema generation it was built under, so a
 consumer can detect drift **as drift** instead of encountering it as a missing table.
 
-**Status `absent`.** Measured 2026-09-02: the pinned Academic SKG snapshot was built 2026-04-11; the
+**Historical status `absent`.** Measured 2026-09-02: the pinned Academic SKG snapshot was built 2026-04-11; the
 table a consumer required entered the schema on 2026-06-28, two and a half months later. Because
 `ensure_skg_schema` creates tables `IF NOT EXISTS`, the absence was indistinguishable from a
 deletion, and nothing anywhere detected the divergence. A related instance is registered separately
 as `trust-claim-posture-receipt-stale-on-any-src-change`.
 
-**What would satisfy it.** A recorded schema generation per snapshot, and a consumer-side check that
-compares it rather than discovering the mismatch through a failing query. This is cheap to add and
-would have converted a stopped task into a one-line diagnosis.
+**Status `present_stale`; discriminator capability implemented for the Academic shadow boundary
+(2026-09-02).** Graph load now persists, in the same run that materializes the schema, a canonical
+content-bound generation basis over `SKG_DDL` and its compatibility alters. Publish carries that
+receipt unchanged and refuses to mint one when the graph-stage receipt is absent. The graph receipt
+also binds the materialized `ac_skg_%` table/column structure; publish and the shadow consumer each
+recompute that live structural identity before accepting readiness. Missing, malformed, changed, or
+structurally mismatched bases set
+`schema_generation_current=false`, make `consumer_ready=false`, and name both the recorded and
+current generation and rule version. The historical pinned fixture is deliberately not
+retroactively blessed: it now reports
+`recorded_generation=unrecorded` rather than failing later as a missing table. Reissuing the
+read-only production snapshot through the repaired producer would move this data requirement to
+`satisfied`; other snapshot families must adopt the same producer/consumer discipline for their own
+boundary.
 
 ---
 

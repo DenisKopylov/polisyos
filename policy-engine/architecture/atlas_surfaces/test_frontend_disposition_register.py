@@ -8104,6 +8104,214 @@ class DS9C07AdjudicationTests(unittest.TestCase):
 class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
     """Reject a moving or marker-only DS18 render denominator."""
 
+    @staticmethod
+    def _legacy_non_anchor_source_fields(current: str) -> str:
+        """Build a legacy-key fixture without changing any stored values."""
+        coverage_start, coverage_end, _coverage = (
+            checker._json_top_level_object_span(
+                current, "ds18_time_semantics_coverage"
+            )
+        )
+        files_start, files_end, _files = checker._json_field_value_span(
+            current,
+            field="files",
+            within=(coverage_start, coverage_end),
+        )
+        surface_start, surface_end, _surface = (
+            checker._json_top_level_object_span(
+                current, checker.DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+            )
+        )
+        roles_start, roles_end, _roles = checker._json_field_value_span(
+            current,
+            field="roles",
+            within=(surface_start, surface_end),
+        )
+        replacements = [
+            (
+                files_start,
+                files_end,
+                current[files_start:files_end]
+                .replace('"component_name":', '"component_identity":')
+                .replace('"source_row":', '"line":'),
+            ),
+            (
+                roles_start,
+                roles_end,
+                current[roles_start:roles_end].replace(
+                    '"source_row":', '"line":'
+                ),
+            ),
+        ]
+        legacy = current
+        for start, end, replacement in sorted(replacements, reverse=True):
+            legacy = legacy[:start] + replacement + legacy[end:]
+        return legacy
+
+    def test_persisted_roots_use_neutral_label_and_coordinate_names(self) -> None:
+        """Scanner labels and coordinates cannot masquerade as client bindings."""
+        scan = checker._ds18_time_semantics_scan()
+
+        coverage = checker._build_ds18_time_semantics_coverage(scan)
+        roots = [root for row in coverage["files"] for root in row["roots"]]
+
+        self.assertTrue(roots)  # noqa: PT009
+        self.assertTrue(  # noqa: PT009
+            all("component_name" in root for root in roots)
+        )
+        self.assertTrue(  # noqa: PT009
+            all("component_identity" not in root for root in roots)
+        )
+        self.assertTrue(all("source_row" in root for root in roots))  # noqa: PT009
+        self.assertTrue(all("line" not in root for root in roots))  # noqa: PT009
+
+    def test_non_anchor_source_field_migration_is_surgical_and_idempotent(
+        self,
+    ) -> None:
+        """Rename false binding keys without rewriting peer or lineage bytes."""
+        current = REGISTER_PATH.read_text(encoding="utf-8")
+        original = self._legacy_non_anchor_source_fields(current)
+        coverage_start, coverage_end, opening_coverage = (
+            checker._json_top_level_object_span(
+                original, "ds18_time_semantics_coverage"
+            )
+        )
+        _files_start, _files_end, opening_files = checker._json_field_value_span(
+            original,
+            field="files",
+            within=(coverage_start, coverage_end),
+        )
+        expected_renamed = sum(
+            "component_identity" in root
+            for row in opening_files
+            for root in row["roots"]
+        )
+        expected_source_lines = sum(
+            "line" in root for row in opening_files for root in row["roots"]
+        )
+        opening_roles = json.loads(original)[
+            checker.DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+        ]["roles"]
+        expected_ds17_source_lines = sum(
+            "line" in role["declaration"] for role in opening_roles
+        )
+        self.assertGreater(expected_renamed, 0)  # noqa: PT009
+        self.assertEqual(expected_renamed, expected_source_lines)  # noqa: PT009
+        self.assertEqual(6, expected_ds17_source_lines)  # noqa: PT009
+
+        candidate, renamed = checker._non_anchor_source_fields_candidate_text(
+            original
+        )
+
+        candidate_coverage_start, candidate_coverage_end, candidate_coverage = (
+            checker._json_top_level_object_span(
+                candidate, "ds18_time_semantics_coverage"
+            )
+        )
+        _candidate_files_start, _candidate_files_end, candidate_files = (
+            checker._json_field_value_span(
+                candidate,
+                field="files",
+                within=(candidate_coverage_start, candidate_coverage_end),
+            )
+        )
+        self.assertEqual(  # noqa: PT009
+            {
+                "ds18_component_labels": expected_renamed,
+                "ds18_source_lines": expected_source_lines,
+                "ds17_source_lines": expected_ds17_source_lines,
+            },
+            renamed,
+        )
+        self.assertEqual(  # noqa: PT009
+            opening_coverage["historical_lineage"],
+            candidate_coverage["historical_lineage"],
+        )
+        self.assertTrue(  # noqa: PT009
+            all(
+                "component_name" in root
+                and "component_identity" not in root
+                and "source_row" in root
+                and "line" not in root
+                for row in candidate_files
+                for root in row["roots"]
+            )
+        )
+        self.assertTrue(  # noqa: PT009
+            all(
+                "source_row" in role["declaration"]
+                and "line" not in role["declaration"]
+                for role in json.loads(candidate)[
+                    checker.DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+                ]["roles"]
+            )
+        )
+        repeated, repeated_renamed = (
+            checker._non_anchor_source_fields_candidate_text(candidate)
+        )
+        self.assertEqual(candidate, repeated)  # noqa: PT009
+        self.assertEqual(  # noqa: PT009
+            {
+                "ds18_component_labels": 0,
+                "ds18_source_lines": 0,
+                "ds17_source_lines": 0,
+            },
+            repeated_renamed,
+        )
+
+    def test_non_anchor_source_field_migration_rejects_ambiguous_root_label(
+        self,
+    ) -> None:
+        """A root may carry the legacy or current label key, never both."""
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+        ambiguous = original.replace(
+            '"component_name": "App",',
+            '"component_identity": "App",\n              "component_name": "App",',
+            1,
+        )
+        self.assertNotEqual(original, ambiguous)  # noqa: PT009
+
+        with self.assertRaisesRegex(  # noqa: PT027
+            ValueError, "DS18 root component label is ambiguous"
+        ):
+            checker._non_anchor_source_fields_candidate_text(ambiguous)
+
+    def test_non_anchor_source_field_migration_cli_is_exclusive_and_idempotent(
+        self,
+    ) -> None:
+        """The operator path schema-validates one bounded, repeatable write."""
+        current = REGISTER_PATH.read_text(encoding="utf-8")
+        original = self._legacy_non_anchor_source_fields(current)
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp) / REGISTER_PATH.name
+            target.write_text(original, encoding="utf-8")
+            with mock.patch.object(checker, "REGISTER_PATH", target):
+                self.assertEqual(  # noqa: PT009
+                    0,
+                    checker.main(["--migrate-non-anchor-source-fields"]),
+                )
+                migrated = target.read_text(encoding="utf-8")
+                self.assertNotEqual(original, migrated)  # noqa: PT009
+                self.assertEqual(  # noqa: PT009
+                    [], checker._schema_errors(json.loads(migrated), checker.SCHEMA_PATH)
+                )
+                self.assertEqual(  # noqa: PT009
+                    0,
+                    checker.main(["--migrate-non-anchor-source-fields"]),
+                )
+                self.assertEqual(  # noqa: PT009
+                    migrated, target.read_text(encoding="utf-8")
+                )
+                self.assertEqual(  # noqa: PT009
+                    1,
+                    checker.main(
+                        ["--migrate-non-anchor-source-fields", "--check"]
+                    ),
+                )
+                self.assertEqual(  # noqa: PT009
+                    migrated, target.read_text(encoding="utf-8")
+                )
+
     def test_complete_current_register_is_admitted(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         errors: list[str] = []
@@ -9464,16 +9672,20 @@ it("guards the otherwise connected edge", () => {
             "ds18_time_semantics_coverage"
         ]
         scanner_fields = {
-            "column",
-            "component_identity",
-            "epoch_context_read_count",
-            "epoch_semantics_prop_count",
-            "epoch_semantics_provider_render_count",
-            "kind",
-            "line",
-            "root_id",
-            "root_source_sha256",
-            "time_semantics_label_render_count",
+            "column": "column",
+            "component_name": "component_identity",
+            "epoch_context_read_count": "epoch_context_read_count",
+            "epoch_semantics_prop_count": "epoch_semantics_prop_count",
+            "epoch_semantics_provider_render_count": (
+                "epoch_semantics_provider_render_count"
+            ),
+            "kind": "kind",
+            "source_row": "line",
+            "root_id": "root_id",
+            "root_source_sha256": "root_source_sha256",
+            "time_semantics_label_render_count": (
+                "time_semantics_label_render_count"
+            ),
         }
         frozen_scan = {
             "source_root": coverage["source_root"],
@@ -9489,9 +9701,8 @@ it("guards the otherwise connected edge", () => {
                     "receipt_kind": row["receipt_kind"],
                     "roots": [
                         {
-                            key: value
-                            for key, value in root.items()
-                            if key in scanner_fields
+                            scanner_key: root[stored_key]
+                            for stored_key, scanner_key in scanner_fields.items()
                         }
                         for root in row["roots"]
                     ],

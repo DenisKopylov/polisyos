@@ -36,6 +36,12 @@ DEFAULT_EXCEPTION_FILE = REPO_ROOT / "architecture" / "exceptions" / "guardrails
 DEFAULT_EXCEPTION_REGISTRY = REPO_ROOT / "architecture" / "guardrail_exceptions_registry.md"
 DEFAULT_MODULE_SIZE_BUDGET = REPO_ROOT / "architecture" / "module_size_budget.toml"
 DEFAULT_MAX_EXPIRY_DAYS = 90
+STATUS_RETIREMENT_STANDALONE_NOTICE = (
+    "Standalone Atlas gate: "
+    "architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by "
+    "`uv run polisyos-tools architecture guardrails check`; run it explicitly or "
+    "through architecture/atlas_surfaces/check_atlas_enforcement.py."
+)
 RUNTIME_OPENAPI_CLIENT_SOURCE = "schemas/runtime_api_v1.openapi.json"
 FRESHNESS_PATTERNS = (
     re.compile(r"^- Last updated:\s+\d{4}-\d{2}-\d{2}$", flags=re.MULTILINE),
@@ -2073,6 +2079,7 @@ def run_check(args: argparse.Namespace) -> int:
             )
         )
 
+    print(STATUS_RETIREMENT_STANDALONE_NOTICE)
     if violations:
         print("Architecture guardrail check FAILED:")
         for violation in violations:

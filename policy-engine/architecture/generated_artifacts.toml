@@ -684,13 +684,13 @@ generator = "canonical generator declared in regenerate_commands"
 verifier = "verifier declared by check_command, drift_gate, workflow, or manual review policy"
 promotion_target = "registered committed outputs listed in outputs"
 stale_output_behavior = "fail"
-source_of_truth = "src/polisyos/runtime/http/** FastAPI app factory and DTO contracts"
+source_of_truth = "src/polisyos/runtime/http/** FastAPI app factory and DTO contracts, including the owner-validator consulted dependency basis embedded in governed projection examples"
 outputs = ["schemas/runtime_api_v1.openapi.json"]
 regenerate_commands = [
   "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json",
 ]
 commit_policy = "committed"
-freshness_rule = "Regenerate and commit whenever runtime routes, request/response DTOs, or OpenAPI examples change."
+freshness_rule = "Regenerate and commit whenever runtime routes, request/response DTOs, OpenAPI examples, or an owner-validator consulted dependency basis changes."
 compatibility_class = "schema-openapi-abi"
 version_owner = "team-runtime"
 deprecation_window = "2 minor releases"
@@ -709,6 +709,25 @@ check_command = [
   "python",
   "tools/ops_runners/runtime/check_runtime_api_contract.py",
   "--skip-client-drift",
+]
+default_freshness_check = true
+output_probe_command = [
+  "env",
+  "PYTHONDONTWRITEBYTECODE=1",
+  "PYTHONNOUSERSITE=1",
+  "PYTHONHASHSEED=0",
+  "JAX_PLATFORMS=cpu",
+  "PYTHONPATH=src:.",
+  "uv",
+  "run",
+  "--extra",
+  "runtime",
+  "--extra",
+  "ml",
+  "python",
+  "tools/ops_runners/runtime/export_runtime_openapi.py",
+  "--output",
+  "{output_root}/schemas/runtime_api_v1.openapi.json",
 ]
 
 [[family]]

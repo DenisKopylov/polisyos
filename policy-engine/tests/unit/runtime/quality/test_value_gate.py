@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import subprocess
 import sys
 from dataclasses import dataclass, replace
@@ -10,7 +11,7 @@ from datetime import UTC, datetime
 from functools import cache
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, ClassVar
+from typing import Any, ClassVar, cast
 
 import pytest
 from packaging.markers import default_environment
@@ -3908,8 +3909,9 @@ def _build_n8_dependency_companion() -> object:
 def _legacy_n8_governing_issues() -> tuple[dict[str, Any], ...]:
     """Capture the unmodified N8 governing path independently of diagnostics."""
 
+    root = value_contract._repo_root()
     return value_contract._legacy_value_gate_result(
-        value_contract._repo_root(),
+        value_contract._appoint_git_product_root(root),
         source_freeze=_n8_dependency_source_freeze(),
     ).governing_issues
 
@@ -3942,6 +3944,74 @@ def _rebind_corrupt_dependency_discriminant(payload: dict[str, Any]) -> None:
 
 def _seal_corrupt_n8_dependency_companion(payload: dict[str, Any]) -> None:
     payload["artifact_content_hash"] = _independent_n8_dependency_companion_hash(payload)
+
+
+def _identity_equal_case_alias(path: Path) -> Path | None:
+    """Return a differently cased spelling for one existing path when supported."""
+
+    absolute = path.absolute()
+    parts = list(absolute.parts)
+    for index, part in enumerate(parts):
+        swapped = part.swapcase()
+        if swapped == part:
+            continue
+        candidate = Path(*parts[:index], swapped, *parts[index + 1 :])
+        try:
+            if candidate != absolute and os.path.samefile(candidate, absolute):
+                return candidate
+        except OSError:
+            continue
+    return None
+
+
+def _git_test_environment() -> dict[str, str]:
+    """Return a deterministic environment without ambient Git repository redirects."""
+
+    return {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+
+
+def _run_git_test_command(
+    toplevel: Path,
+    *args: str,
+    text: bool = False,
+) -> subprocess.CompletedProcess[Any]:
+    """Run one real scratch Git command without ambient repository redirects."""
+
+    return subprocess.run(
+        ["git", *args],
+        cwd=toplevel,
+        env=_git_test_environment(),
+        check=True,
+        capture_output=True,
+        text=text,
+    )
+
+
+def _initialize_git_test_repository(
+    toplevel: Path,
+    *,
+    relative_path: Path,
+    content: str,
+) -> str:
+    """Create one real scratch repository and return its derived head."""
+
+    target = toplevel / relative_path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(content, encoding="utf-8")
+    _run_git_test_command(toplevel, "init", "--quiet")
+    _run_git_test_command(toplevel, "add", "--", relative_path.as_posix())
+    _run_git_test_command(
+        toplevel,
+        "-c",
+        "user.name=PolicyOS Test",
+        "-c",
+        "user.email=policyos-test@example.invalid",
+        "commit",
+        "--quiet",
+        "-m",
+        "test fixture",
+    )
+    return _run_git_test_command(toplevel, "rev-parse", "HEAD", text=True).stdout.strip()
 
 
 def _research_torch_diagnostic(companion: object) -> object:
@@ -4283,6 +4353,134 @@ def test_n8_dependency_discriminant_write_and_check_modes_are_explicit_and_read_
     assert governed.read_bytes() == governed_before
 
 
+def test_n8_dependency_discriminant_case_alias_inside_repository_is_refused(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """An absent destination is classified by filesystem identity, not path spelling."""
+
+    root = value_contract._repo_root()
+    git_toplevel = Path(
+        _run_git_test_command(root, "rev-parse", "--show-toplevel", text=True).stdout.strip()
+    )
+    aliased_toplevel = _identity_equal_case_alias(git_toplevel)
+    if aliased_toplevel is None:
+        pytest.skip("filesystem has no identity-equal differently cased path alias")
+    canonical_existing_ancestor = root / "architecture"
+    canonical_target = (
+        root
+        / "architecture"
+        / f"n8-dependency-discriminant-case-alias-{tmp_path.name}"
+        / "absent-parent"
+        / "candidate.json"
+    )
+    aliased_target = (
+        aliased_toplevel
+        / root.relative_to(git_toplevel)
+        / canonical_target.relative_to(root)
+    )
+    assert aliased_target != canonical_target
+    assert os.path.samefile(
+        aliased_toplevel / root.relative_to(git_toplevel) / "architecture",
+        canonical_existing_ancestor,
+    )
+    assert not canonical_target.parent.exists()
+    assert not canonical_target.exists()
+
+    try:
+        exit_code = value_contract.main(
+            [
+                "--write-dependency-discriminant",
+                str(aliased_target),
+                "--expected-source-freeze",
+                _n8_dependency_source_freeze(),
+                "--output-format",
+                "json",
+            ]
+        )
+        report = json.loads(capsys.readouterr().out.splitlines()[-1])
+        created = canonical_target.exists()
+    finally:
+        canonical_target.unlink(missing_ok=True)
+        for directory in (canonical_target.parent, canonical_target.parent.parent):
+            if directory.exists():
+                directory.rmdir()
+
+    assert exit_code == 1
+    assert report["status"] == "fail"
+    assert not created
+
+
+def test_n8_dependency_discriminant_owner_reads_ignore_git_redirects_after_appointment(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """All owner-object reads remain pinned after ambient Git redirects mutate."""
+
+    root = value_contract._repo_root()
+    source_freeze = _n8_dependency_source_freeze()
+    governed = root / value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH
+    recorded = value_contract.FoundryDependencyDiscriminantCompanion.model_validate_json(
+        governed.read_bytes()
+    )
+    alternate = tmp_path / "redirect-repository"
+    alternate.mkdir()
+    _run_git_test_command(alternate, "init", "--quiet")
+    appointment = value_contract._appoint_git_product_root(root)
+    monkeypatch.setenv("GIT_DIR", str(alternate / ".git"))
+    monkeypatch.setenv("GIT_WORK_TREE", str(alternate))
+    monkeypatch.setenv("GIT_COMMON_DIR", str(alternate / ".git"))
+    monkeypatch.setenv(
+        "GIT_OBJECT_DIRECTORY",
+        str(alternate / ".git" / "objects"),
+    )
+    monkeypatch.setenv(
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+        str(alternate / ".git" / "objects"),
+    )
+    monkeypatch.setenv("GIT_INDEX_FILE", str(alternate / ".git" / "index"))
+
+    rebuilt = value_contract._build_dependency_discriminant_companion(
+        appointment=appointment,
+        source_freeze=source_freeze,
+    )
+
+    assert rebuilt.content_ref == recorded.content_ref
+    assert rebuilt.profile_discriminant == recorded.profile_discriminant
+
+
+@pytest.mark.parametrize("mutation", ["nested_git", "replaced_git_dir"])
+def test_n8_dependency_discriminant_git_appointment_is_stable_or_fails_closed(
+    mutation: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Later repository discovery cannot redirect or silently replace an appointment."""
+
+    toplevel = tmp_path / "appointed-repository"
+    product = toplevel / "product"
+    head = _initialize_git_test_repository(
+        toplevel,
+        relative_path=Path("product/owner-source.txt"),
+        content="appointed source\n",
+    )
+    monkeypatch.setattr(value_contract, "_repo_root", lambda: product)
+    monkeypatch.setattr(
+        value_contract,
+        "_foundry_dependency_source_paths",
+        lambda: (Path("owner-source.txt"),),
+    )
+    appointment = value_contract._appoint_git_product_root(product)
+    if mutation == "nested_git":
+        _run_git_test_command(product, "init", "--quiet")
+        assert value_contract._dependency_discriminant_source_freeze(appointment) == head
+    else:
+        (toplevel / ".git").rename(toplevel / ".git-appointed")
+        _run_git_test_command(toplevel, "init", "--quiet")
+        with pytest.raises(ValueError, match="appointed Git identity changed"):
+            value_contract._run_git(appointment, "rev-parse", "HEAD")
+
+
 def test_n8_dependency_discriminant_research_warning_is_ambient_non_decisive(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -4510,6 +4708,80 @@ def test_n8_dependency_discriminant_observer_failure_is_ambient_nonreceipt(
         for finding in report["ambient_findings"]
     )
     assert governed.read_bytes() == governed_before
+
+
+@pytest.mark.parametrize("exception_type", [OSError, RuntimeError])
+def test_n8_dependency_discriminant_supplied_protocol_failure_is_ambient_nonreceipt(
+    exception_type: type[Exception],
+) -> None:
+    """Every ordinary supplied-object protocol failure remains ambient-only."""
+
+    companion = cast(
+        "value_contract.FoundryDependencyDiscriminantCompanion",
+        _build_n8_dependency_companion(),
+    )
+
+    class ExplodingDiagnostic(
+        dependency_profile_module.DependencyEnvironmentDiagnosticPass
+    ):
+        def model_dump(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+            del args, kwargs
+            raise exception_type("supplied diagnostic transport unavailable")
+
+    supplied = ExplodingDiagnostic(
+        status="pass",
+        ordered_cases=(),
+        first_case=None,
+        predicate_class="recomputed",
+    )
+
+    result = value_contract.validate_foundry_dependency_discriminant(
+        repo_root=value_contract._repo_root(),
+        companion=companion,
+        diagnostic_verification=supplied,
+    )
+
+    assert result.content_ref == companion.content_ref
+    assert result.governing_issues == _legacy_n8_governing_issues()
+    finding = next(
+        finding
+        for finding in result.ambient_findings
+        if finding.get("code") == "dependency_environment_diagnostic_not_received"
+    )
+    assert finding == {
+        "code": "dependency_environment_diagnostic_not_received",
+        "decision_role": "ambient_non_decisive",
+    }
+
+
+def test_n8_dependency_discriminant_supplied_protocol_base_exception_escapes() -> None:
+    """Process-control BaseException remains outside the ambient intake boundary."""
+
+    companion = cast(
+        "value_contract.FoundryDependencyDiscriminantCompanion",
+        _build_n8_dependency_companion(),
+    )
+
+    class InterruptingDiagnostic(
+        dependency_profile_module.DependencyEnvironmentDiagnosticPass
+    ):
+        def model_dump(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+            del args, kwargs
+            raise KeyboardInterrupt("process-control interrupt")
+
+    supplied = InterruptingDiagnostic(
+        status="pass",
+        ordered_cases=(),
+        first_case=None,
+        predicate_class="recomputed",
+    )
+
+    with pytest.raises(KeyboardInterrupt, match="process-control interrupt"):
+        value_contract.validate_foundry_dependency_discriminant(
+            repo_root=value_contract._repo_root(),
+            companion=companion,
+            diagnostic_verification=supplied,
+        )
 
 
 def test_n8_dependency_discriminant_rejects_unappointed_isomorphic_git_checkout(

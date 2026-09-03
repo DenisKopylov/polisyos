@@ -446,8 +446,33 @@ class _GitProductRootAppointment:
     """Exact checkout coordinates appointed to dependency replay."""
 
     product_root: Path
+    product_root_identity: tuple[int, int]
     git_toplevel: Path
+    git_toplevel_identity: tuple[int, int]
     object_prefix: str
+    git_dir: Path
+    git_dir_identity: tuple[int, int]
+    git_common_dir: Path
+    git_common_dir_identity: tuple[int, int]
+    object_directory: Path
+    object_directory_identity: tuple[int, int]
+    index_file: Path
+
+
+def _filesystem_identity(path: Path) -> tuple[int, int]:
+    """Return the stable device/inode identity of one existing filesystem object."""
+
+    try:
+        stat_result = path.stat()
+    except OSError as exc:
+        raise ValueError("dependency discriminant filesystem identity unavailable") from exc
+    return stat_result.st_dev, stat_result.st_ino
+
+
+def _git_environment_without_redirects() -> dict[str, str]:
+    """Remove every ambient Git input before repository discovery or replay."""
+
+    return {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
 
 
 def _invoke_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[bytes]:
@@ -457,6 +482,7 @@ def _invoke_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[byte
         return subprocess.run(  # noqa: S603, S607
             ["git", *args],
             cwd=repo_root,
+            env=_git_environment_without_redirects(),
             check=True,
             capture_output=True,
         )
@@ -464,7 +490,6 @@ def _invoke_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[byte
         raise ValueError("dependency discriminant Git evidence unavailable") from exc
 
 
-@cache
 def _appoint_git_product_root(repo_root: Path) -> _GitProductRootAppointment:
     """Bind one supplied product root to this running checkout's Git coordinates."""
 
@@ -477,43 +502,112 @@ def _appoint_git_product_root(repo_root: Path) -> _GitProductRootAppointment:
     coordinates = _invoke_git(
         supplied_root,
         "rev-parse",
+        "--path-format=absolute",
         "--show-toplevel",
         "--show-prefix",
+        "--absolute-git-dir",
+        "--git-common-dir",
+        "--git-path",
+        "objects",
+        "--git-path",
+        "index",
     ).stdout.decode("utf-8").splitlines()
-    if len(coordinates) != 2:
+    if len(coordinates) != 6:
         raise ValueError("dependency discriminant Git appointment is incomplete")
     git_toplevel = Path(coordinates[0]).resolve()
     object_prefix = coordinates[1]
+    git_dir = Path(coordinates[2]).resolve()
+    git_common_dir = Path(coordinates[3]).resolve()
+    object_directory = Path(coordinates[4]).resolve()
+    index_file = Path(coordinates[5]).resolve()
     expected_toplevel = canonical_root.parent
     expected_prefix = canonical_root.relative_to(expected_toplevel).as_posix() + "/"
     if git_toplevel != expected_toplevel or object_prefix != expected_prefix:
         raise ValueError("dependency discriminant Git appointment coordinates drifted")
     return _GitProductRootAppointment(
         product_root=canonical_root,
+        product_root_identity=_filesystem_identity(canonical_root),
         git_toplevel=git_toplevel,
+        git_toplevel_identity=_filesystem_identity(git_toplevel),
         object_prefix=object_prefix,
+        git_dir=git_dir,
+        git_dir_identity=_filesystem_identity(git_dir),
+        git_common_dir=git_common_dir,
+        git_common_dir_identity=_filesystem_identity(git_common_dir),
+        object_directory=object_directory,
+        object_directory_identity=_filesystem_identity(object_directory),
+        index_file=index_file,
     )
 
 
-def _run_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[bytes]:
-    """Run one bounded Git read after appointing the canonical product root."""
+def _require_appointed_git_identity(appointment: _GitProductRootAppointment) -> None:
+    """Fail closed if any load-bearing appointed filesystem identity changed."""
 
-    appointment = _appoint_git_product_root(repo_root)
-    return _invoke_git(appointment.product_root, *args)
-
-
-def _git_text(repo_root: Path, *args: str) -> str:
-    return _run_git(repo_root, *args).stdout.decode("utf-8").strip()
-
-
-@cache
-def _git_object_prefix(repo_root: Path) -> str:
-    return _appoint_git_product_root(repo_root).object_prefix
+    identities = (
+        (appointment.product_root, appointment.product_root_identity),
+        (appointment.git_toplevel, appointment.git_toplevel_identity),
+        (appointment.git_dir, appointment.git_dir_identity),
+        (appointment.git_common_dir, appointment.git_common_dir_identity),
+        (appointment.object_directory, appointment.object_directory_identity),
+    )
+    if any(_filesystem_identity(path) != expected for path, expected in identities):
+        raise ValueError("dependency discriminant appointed Git identity changed")
 
 
-@cache
+def _appointed_git_environment(
+    appointment: _GitProductRootAppointment,
+) -> dict[str, str]:
+    """Pin repository inputs while excluding every ambient Git override."""
+
+    environment = _git_environment_without_redirects()
+    environment.update(
+        {
+            "GIT_DIR": str(appointment.git_dir),
+            "GIT_WORK_TREE": str(appointment.git_toplevel),
+            "GIT_COMMON_DIR": str(appointment.git_common_dir),
+            "GIT_OBJECT_DIRECTORY": str(appointment.object_directory),
+            "GIT_INDEX_FILE": str(appointment.index_file),
+        }
+    )
+    return environment
+
+
+def _run_git(
+    appointment: _GitProductRootAppointment,
+    *args: str,
+) -> subprocess.CompletedProcess[bytes]:
+    """Run one bounded Git read against one immutable appointment."""
+
+    _require_appointed_git_identity(appointment)
+    try:
+        completed = subprocess.run(  # noqa: S603, S607
+            [
+                "git",
+                f"--git-dir={appointment.git_dir}",
+                f"--work-tree={appointment.git_toplevel}",
+                *args,
+            ],
+            cwd=appointment.product_root,
+            env=_appointed_git_environment(appointment),
+            check=True,
+            capture_output=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise ValueError("dependency discriminant Git evidence unavailable") from exc
+    _require_appointed_git_identity(appointment)
+    return completed
+
+
+def _git_text(appointment: _GitProductRootAppointment, *args: str) -> str:
+    return _run_git(appointment, *args).stdout.decode("utf-8").strip()
+
+
+def _git_object_prefix(appointment: _GitProductRootAppointment) -> str:
+    return appointment.object_prefix
+
+
 def _frozen_foundry_bytes(
-    repo_root: Path,
+    appointment: _GitProductRootAppointment,
     source_freeze: str,
     relative_path: str,
 ) -> bytes:
@@ -524,8 +618,26 @@ def _frozen_foundry_bytes(
     allowed = {path.as_posix() for path in _foundry_dependency_source_paths()}
     if relative_path not in allowed:
         raise ValueError("dependency discriminant source path is outside its closure")
-    object_path = f"{_git_object_prefix(repo_root)}{relative_path}"
-    return _run_git(repo_root, "show", f"{source_freeze}:{object_path}").stdout
+    object_path = f"{_git_object_prefix(appointment)}{relative_path}"
+    return _run_git(appointment, "show", f"{source_freeze}:{object_path}").stdout
+
+
+def _dependency_discriminant_source_freeze(
+    appointment: _GitProductRootAppointment,
+) -> str:
+    """Derive the owner freeze through one already-established appointment."""
+
+    source_freeze = _git_text(
+        appointment,
+        "log",
+        "-1",
+        "--format=%H",
+        "--",
+        *(path.as_posix() for path in _foundry_dependency_source_paths()),
+    )
+    if re.fullmatch(r"[0-9a-f]{40}", source_freeze) is None:
+        raise ValueError("Foundry dependency source freeze was not derived")
+    return source_freeze
 
 
 def dependency_discriminant_source_freeze(repo_root: Path | None = None) -> str:
@@ -541,30 +653,20 @@ def dependency_discriminant_source_freeze(repo_root: Path | None = None) -> str:
         ValueError: If Git cannot produce exactly one canonical commit identity.
     """
 
-    root = _appoint_git_product_root((repo_root or _repo_root()).resolve()).product_root
-    source_freeze = _git_text(
-        root,
-        "log",
-        "-1",
-        "--format=%H",
-        "--",
-        *(path.as_posix() for path in _foundry_dependency_source_paths()),
-    )
-    if re.fullmatch(r"[0-9a-f]{40}", source_freeze) is None:
-        raise ValueError("Foundry dependency source freeze was not derived")
-    return source_freeze
+    appointment = _appoint_git_product_root((repo_root or _repo_root()).resolve())
+    return _dependency_discriminant_source_freeze(appointment)
 
 
 def _require_current_foundry_source_freeze(
-    repo_root: Path,
+    appointment: _GitProductRootAppointment,
     source_freeze: str,
 ) -> None:
     """Prove the supplied freeze owns every exact current Foundry source byte."""
 
-    if source_freeze != dependency_discriminant_source_freeze(repo_root):
+    if source_freeze != _dependency_discriminant_source_freeze(appointment):
         raise ValueError("dependency discriminant source freeze mismatch")
     _run_git(
-        repo_root,
+        appointment,
         "diff",
         "--quiet",
         source_freeze,
@@ -586,26 +688,26 @@ def _owner_source_path(filename: str) -> str:
 
 def _resolve_frozen_foundry_dependency_discriminant(
     *,
-    repo_root: Path,
+    appointment: _GitProductRootAppointment,
     source_freeze: str,
     marker_environment: Mapping[str, str],
 ) -> DependencyProfileDiscriminant:
     """Resolve through the Foundry owner using only supplied frozen bytes."""
 
-    _require_current_foundry_source_freeze(repo_root, source_freeze)
+    _require_current_foundry_source_freeze(appointment, source_freeze)
     profile_bytes = _frozen_foundry_bytes(
-        repo_root,
+        appointment,
         source_freeze,
         _owner_source_path("method_catalog_dependency_profiles.toml"),
     )
     authority_bytes = _frozen_foundry_bytes(
-        repo_root,
+        appointment,
         source_freeze,
         _owner_source_path("method_catalog_dependency_authority.toml"),
     )
     digest_registry = decode_digest_domain_registry_toml(
         _frozen_foundry_bytes(
-            repo_root,
+            appointment,
             source_freeze,
             _owner_source_path("method_catalog_dependency_digest_domains.toml"),
         )
@@ -627,12 +729,12 @@ def _resolve_frozen_foundry_dependency_discriminant(
     resolved = resolve_dependency_discriminant(
         declaration,
         pyproject_bytes=_frozen_foundry_bytes(
-            repo_root,
+            appointment,
             source_freeze,
             _owner_source_path("pyproject.toml"),
         ),
         lockfile_bytes=_frozen_foundry_bytes(
-            repo_root,
+            appointment,
             source_freeze,
             _owner_source_path("uv.lock"),
         ),
@@ -669,31 +771,20 @@ def _n8_contract_ref(repo_root: Path) -> N8DependencyContractRef:
     )
 
 
-def build_dependency_discriminant_companion(
+def _build_dependency_discriminant_companion(
     *,
-    repo_root: Path | None = None,
+    appointment: _GitProductRootAppointment,
     source_freeze: str,
 ) -> FoundryDependencyDiscriminantCompanion:
-    """Build the strict shared discriminant from frozen Foundry owner bytes.
+    """Build the strict shared discriminant through one Git appointment."""
 
-    Args:
-        repo_root: Product root. Defaults to this validator's product root.
-        source_freeze: Commit owning the complete current Foundry source closure.
-
-    Returns:
-        A strict content-bound companion with no installed-environment result.
-
-    Raises:
-        ValueError: If the owner freeze, registry, source bytes, or N8 binding fails.
-    """
-
-    root = _appoint_git_product_root((repo_root or _repo_root()).resolve()).product_root
+    root = appointment.product_root
     marker_environment = {
         key: str(value) for key, value in default_environment().items()
     }
     marker_environment["extra"] = ""
     profile = _resolve_frozen_foundry_dependency_discriminant(
-        repo_root=root,
+        appointment=appointment,
         source_freeze=source_freeze,
         marker_environment=marker_environment,
     )
@@ -722,6 +813,31 @@ def build_dependency_discriminant_companion(
         sort_keys=True,
     )
     return FoundryDependencyDiscriminantCompanion.model_validate_json(encoded)
+
+
+def build_dependency_discriminant_companion(
+    *,
+    repo_root: Path | None = None,
+    source_freeze: str,
+) -> FoundryDependencyDiscriminantCompanion:
+    """Build the strict shared discriminant from frozen Foundry owner bytes.
+
+    Args:
+        repo_root: Product root. Defaults to this validator's product root.
+        source_freeze: Commit owning the complete current Foundry source closure.
+
+    Returns:
+        A strict content-bound companion with no installed-environment result.
+
+    Raises:
+        ValueError: If the owner freeze, registry, source bytes, or N8 binding fails.
+    """
+
+    appointment = _appoint_git_product_root((repo_root or _repo_root()).resolve())
+    return _build_dependency_discriminant_companion(
+        appointment=appointment,
+        source_freeze=source_freeze,
+    )
 
 
 def _hash(char: str) -> str:
@@ -5343,17 +5459,18 @@ def _cached_legacy_value_gate_result(
 
 
 def _legacy_value_gate_result(
-    repo_root: Path,
+    appointment: _GitProductRootAppointment,
     *,
     source_freeze: str,
 ) -> ValueGateValidationResult:
     """Capture governing and ambient legacy results before diagnostic handling."""
 
+    repo_root = appointment.product_root
     raw_hash = hashlib.sha256((repo_root / OUTPUT_PATH).read_bytes()).hexdigest()
     return _cached_legacy_value_gate_result(
         repo_root,
         source_freeze,
-        _git_text(repo_root, "rev-parse", "HEAD"),
+        _git_text(appointment, "rev-parse", "HEAD"),
         raw_hash,
     )
 
@@ -5380,16 +5497,16 @@ def _coerce_dependency_discriminant_companion(
 
 
 def _replay_dependency_discriminant_companion(
-    repo_root: Path,
+    appointment: _GitProductRootAppointment,
     companion: FoundryDependencyDiscriminantCompanion,
 ) -> None:
     """Recompute every authority-bearing companion predicate from its owners."""
 
-    _require_current_foundry_source_freeze(repo_root, companion.source_freeze)
-    if companion.n8_contract_ref != _n8_contract_ref(repo_root):
+    _require_current_foundry_source_freeze(appointment, companion.source_freeze)
+    if companion.n8_contract_ref != _n8_contract_ref(appointment.product_root):
         raise ValueError("dependency discriminant N8 byte binding drifted")
     replayed = _resolve_frozen_foundry_dependency_discriminant(
-        repo_root=repo_root,
+        appointment=appointment,
         source_freeze=companion.source_freeze,
         marker_environment=dict(companion.profile_discriminant.marker_environment),
     )
@@ -5438,7 +5555,7 @@ def _dependency_environment_ambient_findings(
     if supplied:
         try:
             claimed = _coerce_dependency_environment_diagnostic(diagnostic_verification)
-        except (TypeError, ValueError, ValidationError):
+        except Exception:
             return (
                 {
                     "code": "dependency_environment_diagnostic_not_received",
@@ -5480,30 +5597,17 @@ def _dependency_environment_ambient_findings(
     )
 
 
-def validate_foundry_dependency_discriminant(
+def _validate_foundry_dependency_discriminant(
     *,
-    repo_root: Path,
+    appointment: _GitProductRootAppointment,
     companion: FoundryDependencyDiscriminantCompanion | Mapping[str, Any] | bytes,
     diagnostic_verification: object | None,
     expected_source_freeze: str | None = None,
 ) -> ValueGateValidationResult:
-    """Validate the companion while keeping diagnostics out of governing bytes.
+    """Validate one companion through an already-established Git appointment."""
 
-    Args:
-        repo_root: Appointed product root.
-        companion: Strict object, JSON mapping, or exact JSON bytes to replay.
-        diagnostic_verification: Optional strict ambient diagnostic observation.
-        expected_source_freeze: Optional caller claim that must equal both the
-            current owner freeze and the companion's recorded freeze.
-
-    Returns:
-        The unchanged legacy governing result plus a separately typed ambient
-        diagnostic channel. Invalid companion evidence receives no content ref.
-    """
-
-    root = _appoint_git_product_root(repo_root.resolve()).product_root
-    source_freeze = dependency_discriminant_source_freeze(root)
-    legacy = _legacy_value_gate_result(root, source_freeze=source_freeze)
+    source_freeze = _dependency_discriminant_source_freeze(appointment)
+    legacy = _legacy_value_gate_result(appointment, source_freeze=source_freeze)
     ambient = list(legacy.ambient_findings)
     try:
         received = _coerce_dependency_discriminant_companion(companion)
@@ -5512,7 +5616,7 @@ def validate_foundry_dependency_discriminant(
             or received.source_freeze != expected_source_freeze
         ):
             raise ValueError("dependency discriminant expected source freeze mismatch")
-        _replay_dependency_discriminant_companion(root, received)
+        _replay_dependency_discriminant_companion(appointment, received)
     except (OSError, RuntimeError, TypeError, ValueError, ValidationError) as exc:
         ambient.append(
             {
@@ -5539,6 +5643,36 @@ def validate_foundry_dependency_discriminant(
     )
 
 
+def validate_foundry_dependency_discriminant(
+    *,
+    repo_root: Path,
+    companion: FoundryDependencyDiscriminantCompanion | Mapping[str, Any] | bytes,
+    diagnostic_verification: object | None,
+    expected_source_freeze: str | None = None,
+) -> ValueGateValidationResult:
+    """Validate the companion while keeping diagnostics out of governing bytes.
+
+    Args:
+        repo_root: Appointed product root.
+        companion: Strict object, JSON mapping, or exact JSON bytes to replay.
+        diagnostic_verification: Optional strict ambient diagnostic observation.
+        expected_source_freeze: Optional caller claim that must equal both the
+            current owner freeze and the companion's recorded freeze.
+
+    Returns:
+        The unchanged legacy governing result plus a separately typed ambient
+        diagnostic channel. Invalid companion evidence receives no content ref.
+    """
+
+    appointment = _appoint_git_product_root(repo_root.resolve())
+    return _validate_foundry_dependency_discriminant(
+        appointment=appointment,
+        companion=companion,
+        diagnostic_verification=diagnostic_verification,
+        expected_source_freeze=expected_source_freeze,
+    )
+
+
 def check_dependency_discriminant_companion(
     repo_root: Path,
     *,
@@ -5558,13 +5692,13 @@ def check_dependency_discriminant_companion(
         The separated legacy governing and companion diagnostic result.
     """
 
-    root = _appoint_git_product_root(repo_root.resolve()).product_root
+    appointment = _appoint_git_product_root(repo_root.resolve())
     try:
         raw = companion_path.read_bytes()
     except OSError:
         raw = b""
-    return validate_foundry_dependency_discriminant(
-        repo_root=root,
+    return _validate_foundry_dependency_discriminant(
+        appointment=appointment,
         companion=raw,
         diagnostic_verification=diagnostic_verification,
         expected_source_freeze=expected_source_freeze,
@@ -5574,6 +5708,44 @@ def check_dependency_discriminant_companion(
 def _path_has_symlink_component(path: Path) -> bool:
     absolute = path.absolute()
     return any(component.is_symlink() for component in (absolute, *absolute.parents))
+
+
+def _nearest_existing_ancestor(path: Path) -> Path:
+    """Return the first existing path at or above an absent destination."""
+
+    candidate = path
+    while True:
+        try:
+            candidate.stat()
+        except FileNotFoundError:
+            parent = candidate.parent
+            if parent == candidate:
+                raise ValueError(
+                    "dependency discriminant destination ancestry is unavailable"
+                ) from None
+            candidate = parent
+            continue
+        except OSError as exc:
+            raise ValueError(
+                "dependency discriminant destination ancestry is unavailable"
+            ) from exc
+        return candidate
+
+
+def _path_has_ancestor_identity(
+    path: Path,
+    expected_identity: tuple[int, int],
+) -> bool:
+    """Classify an absent destination through existing filesystem identities."""
+
+    candidate = _nearest_existing_ancestor(path)
+    while True:
+        if _filesystem_identity(candidate) == expected_identity:
+            return True
+        parent = candidate.parent
+        if parent == candidate:
+            return False
+        candidate = parent
 
 
 def write_dependency_discriminant_companion(
@@ -5606,15 +5778,15 @@ def write_dependency_discriminant_companion(
         raise ValueError("dependency discriminant destination cannot be a symlink")
     destination = Path(os.path.abspath(companion_path))
     governed = Path(os.path.abspath(root / DEPENDENCY_DISCRIMINANT_OUTPUT_PATH))
-    if destination.is_relative_to(appointment.git_toplevel):
+    if _path_has_ancestor_identity(destination, appointment.git_toplevel_identity):
         if destination != governed:
             raise ValueError("dependency discriminant candidates must be outside the repository")
         if not allow_repository_write:
             raise ValueError("repository dependency discriminant write requires --write")
     elif destination.exists():
         raise ValueError("dependency discriminant candidate already exists")
-    companion = build_dependency_discriminant_companion(
-        repo_root=root,
+    companion = _build_dependency_discriminant_companion(
+        appointment=appointment,
         source_freeze=source_freeze,
     )
     payload = companion.model_dump(mode="json")

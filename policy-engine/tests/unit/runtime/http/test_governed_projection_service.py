@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import subprocess
 import sys
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
@@ -282,6 +283,60 @@ def test_owner_validation_receipt_rejects_forged_aggregate_binding(
 
     assert validation.status == "failed"
     assert validation.issue_codes == ("owner_validator_receipt_mismatch",)
+
+
+def test_owner_validation_timeout_is_operational_not_an_admission_verdict(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    relative_path = (
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json"
+    )
+    _copy_governed_source(tmp_path, relative_path)
+    definition = MODULE._DEFINITION_BY_ID[ProjectionId.ENGINE_CENSUS]
+    service = GovernedProjectionService(tmp_path)
+    loaded = service._load(definition)
+    payload = service._project(definition, loaded)
+
+    def timed_out_worker(*_args: object, **_kwargs: object) -> SimpleNamespace:
+        raise subprocess.TimeoutExpired(
+            cmd=("python", "governed_projection_validation_worker.py"),
+            timeout=MODULE._OWNER_VALIDATION_TIMEOUT_SECONDS,
+        )
+
+    monkeypatch.setattr(MODULE.subprocess, "run", timed_out_worker)
+
+    with pytest.raises(MODULE.OwnerValidationTimeoutError) as caught:
+        MODULE._run_owner_validation(
+            repository_root=tmp_path,
+            definition=definition,
+            loaded=loaded,
+            payload=payload,
+        )
+
+    assert caught.value.projection_id is ProjectionId.ENGINE_CENSUS
+    assert caught.value.timeout_seconds == MODULE._OWNER_VALIDATION_TIMEOUT_SECONDS
+    assert "timed out" in str(caught.value)
+    assert "admission" not in str(caught.value)
+
+
+def test_owner_validation_timeout_budget_is_derived_from_measured_catalog() -> None:
+    catalog = json.loads(
+        (REPO_ROOT / "tools/quality/timing_budgets.json").read_text(encoding="utf-8")
+    )
+    lane = next(
+        item
+        for item in catalog["lanes"]
+        if item["timing_key"] == "owner-validator:default"
+    )
+
+    assert lane["regime"] == "serialized"
+    assert lane["samples_ms"]
+    assert lane["measured_p95_ms"] == max(lane["samples_ms"])
+    assert lane["recommended_timeout_ms"] == 2 * lane["measured_p95_ms"]
+    assert lane["recommended_timeout_ms"] / 1000 == (
+        MODULE._OWNER_VALIDATION_TIMEOUT_SECONDS
+    )
 
 
 def test_projection_packets_require_identity_as_of_and_freshness(

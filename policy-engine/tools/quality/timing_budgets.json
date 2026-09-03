@@ -1,6 +1,18 @@
 {
   "lanes": [
     {
+      "timing_key": "owner-validator:default",
+      "tool": "owner-validator",
+      "mode": "default",
+      "command": ".venv/bin/python src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+      "samples_ms": [92000.0],
+      "measured_p95_ms": 92000.0,
+      "recommended_timeout_ms": 184000.0,
+      "source_refs": ["docs/plans/active/DEBT-REGISTER.md:324"],
+      "sample_admission_predicate": "manual_journal_excerpt:v1",
+      "regime": "serialized"
+    },
+    {
       "timing_key": "atlas.disposition-governance:default",
       "tool": "atlas.disposition-governance",
       "mode": "default",

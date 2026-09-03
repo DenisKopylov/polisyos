@@ -363,6 +363,53 @@ def test_runtime_openapi_client_cannot_escape_default_check_by_removing_flag(
     )
 
 
+def test_runtime_openapi_snapshot_is_a_default_freshness_probe() -> None:
+    families = {
+        family.family_id: family
+        for family in guardrails._parse_generated_artifacts(
+            guardrails.DEFAULT_GENERATED_MANIFEST
+        )
+    }
+
+    family = families["runtime-openapi-snapshot"]
+
+    assert family.default_freshness_check is True
+    assert family.output_probe_command is not None
+    assert "tools/ops_runners/runtime/export_runtime_openapi.py" in family.output_probe_command
+    assert (
+        "{output_root}/schemas/runtime_api_v1.openapi.json"
+        in family.output_probe_command
+    )
+    assert "consulted dependency basis" in family.freshness_rule
+
+
+def test_guardrails_check_discloses_the_standalone_status_gate(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A passing aggregate cannot imply that it ran the Atlas status gate."""
+    args = argparse.Namespace(
+        public_manifest=guardrails.DEFAULT_PUBLIC_MANIFEST,
+        public_json=guardrails.DEFAULT_PUBLIC_JSON,
+        public_md=guardrails.DEFAULT_PUBLIC_MD,
+        generated_manifest=guardrails.DEFAULT_GENERATED_MANIFEST,
+        generated_md=guardrails.DEFAULT_GENERATED_MD,
+        deep_import_baseline=guardrails.DEFAULT_DEEP_IMPORT_BASELINE,
+        exceptions=guardrails.DEFAULT_EXCEPTION_FILE,
+        exceptions_registry=guardrails.DEFAULT_EXCEPTION_REGISTRY,
+        max_expiry_days=guardrails.DEFAULT_MAX_EXPIRY_DAYS,
+        skip_generated_checks=True,
+        all_generated_checks=False,
+        generated_expected_root=guardrails.REPO_ROOT,
+    )
+
+    guardrails.run_check(args)
+
+    assert (
+        guardrails.STATUS_RETIREMENT_STANDALONE_NOTICE
+        in capsys.readouterr().out.splitlines()
+    )
+
+
 def test_guardrails_rejects_probe_that_rewrites_oracle_and_worktree(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

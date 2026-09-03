@@ -6,7 +6,14 @@ import json
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+import duckdb
+
 from polisyos.data_forge.domains.academic.batch.benchmark import READINESS_THRESHOLDS
+from polisyos.data_forge.domains.academic.knowledge.skg_store import (
+    skg_materialized_schema_identity,
+    skg_schema_generation_basis,
+)
+from polisyos.data_forge.kernel.io.generation_basis import compare_generation_basis
 from polisyos.data_forge.kernel.pipeline.manifests import (
     write_publish_manifest,
     write_stage_manifest,
@@ -42,6 +49,7 @@ def _write_pipeline_readiness_manifest(config: AcademicBatchConfig) -> tuple[Pat
         else {}
     )
     resolve_metrics = _stage_metrics(config.manifests_dir / "resolve_extract.json")
+    graph_metrics = _stage_metrics(config.manifests_dir / "graph_load.json")
 
     provider_timeouts = int(resolve_metrics.get("provider_timeout_count", 0) or 0)
     watchdog_timeouts = int(resolve_metrics.get("watchdog_timeout_count", 0) or 0)
@@ -50,6 +58,21 @@ def _write_pipeline_readiness_manifest(config: AcademicBatchConfig) -> tuple[Pat
         ((provider_timeouts + watchdog_timeouts) / max(1, resolve_records)) * 100.0
         if resolve_records
         else 0.0
+    )
+    recorded_schema_generation = graph_metrics.get("schema_generation")
+    schema_generation = compare_generation_basis(
+        recorded_schema_generation,
+        current=skg_schema_generation_basis(),
+    )
+    recorded_schema_identity = graph_metrics.get("materialized_schema_identity")
+    try:
+        current_schema_identity = skg_materialized_schema_identity(config.db_path)
+    except (duckdb.Error, OSError):
+        current_schema_identity = None
+    schema_generation_current = (
+        schema_generation.is_current
+        and isinstance(recorded_schema_identity, str)
+        and recorded_schema_identity == current_schema_identity
     )
 
     readiness = {
@@ -78,6 +101,7 @@ def _write_pipeline_readiness_manifest(config: AcademicBatchConfig) -> tuple[Pat
         )
         >= READINESS_THRESHOLDS["scholar_query_coverage_ratio"],
         "operational_stability_ready": timeout_share_pct <= 25.0,
+        "schema_generation_current": schema_generation_current,
     }
     readiness["consumer_ready"] = all(readiness.values())
 
@@ -130,6 +154,10 @@ def _write_pipeline_readiness_manifest(config: AcademicBatchConfig) -> tuple[Pat
             else "",
         },
     }
+    if isinstance(recorded_schema_generation, dict):
+        payload["schema_generation"] = recorded_schema_generation
+    if isinstance(recorded_schema_identity, str):
+        payload["materialized_schema_identity"] = recorded_schema_identity
     config.readiness_report_path.parent.mkdir(parents=True, exist_ok=True)
     with open(config.readiness_report_path, "w", encoding="utf-8") as fh:
         json.dump(payload, fh, ensure_ascii=False, indent=2)

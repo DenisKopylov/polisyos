@@ -4612,6 +4612,78 @@ def test_n8_dependency_discriminant_git_reads_disable_replacement_objects(
     assert protected == b"original owner source\n"
 
 
+@pytest.mark.parametrize(
+    ("mechanism", "relative_git_path"),
+    [
+        ("alternates", "objects/info/alternates"),
+        ("grafts", "info/grafts"),
+        ("shallow", "shallow"),
+    ],
+)
+def test_n8_dependency_discriminant_rejects_unsupported_git_semantics(
+    mechanism: str,
+    relative_git_path: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Alternates, grafts, and shallow history fail before replay or writing."""
+
+    toplevel = tmp_path / f"appointed-{mechanism}"
+    product = toplevel / "product"
+    head = _initialize_git_test_repository(
+        toplevel,
+        relative_path=Path("product/owner-source.txt"),
+        content="appointed source\n",
+    )
+    monkeypatch.setattr(value_contract, "_repo_root", lambda: product)
+    monkeypatch.setattr(
+        value_contract,
+        "_foundry_dependency_source_paths",
+        lambda: (Path("owner-source.txt"),),
+    )
+    appointment = value_contract._appoint_git_product_root(product)
+    semantic_path = Path(
+        _run_git_test_command(
+            toplevel,
+            "rev-parse",
+            "--path-format=absolute",
+            "--git-path",
+            relative_git_path,
+            text=True,
+        ).stdout.strip()
+    )
+    semantic_path.parent.mkdir(parents=True, exist_ok=True)
+    if mechanism == "alternates":
+        external = tmp_path / "external-object-store"
+        external.mkdir()
+        _run_git_test_command(external, "init", "--bare", "--quiet")
+        external_objects = external / "objects"
+        semantic_path.write_text(str(external_objects) + "\n", encoding="utf-8")
+    elif mechanism == "grafts":
+        semantic_path.write_text(f"{head} {head}\n", encoding="utf-8")
+    else:
+        semantic_path.write_text(head + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="unsupported Git repository semantics"):
+        value_contract._run_git(appointment, "rev-parse", "HEAD")
+    with pytest.raises(ValueError, match="unsupported Git repository semantics"):
+        value_contract._appoint_git_product_root(product)
+    with pytest.raises(ValueError, match="unsupported Git repository semantics"):
+        value_contract.dependency_discriminant_source_freeze(product)
+
+    if mechanism == "alternates":
+        candidate = external_objects / "n8-candidate.json"
+        assert not candidate.exists()
+        with pytest.raises(ValueError, match="unsupported Git repository semantics"):
+            value_contract.write_dependency_discriminant_companion(
+                product,
+                companion_path=candidate,
+                source_freeze=head,
+                allow_repository_write=False,
+            )
+        assert not candidate.exists()
+
+
 @pytest.mark.parametrize("hidden_by", ["eol_normalization", "assume_unchanged"])
 def test_n8_dependency_discriminant_source_freeze_compares_raw_filesystem_bytes(
     hidden_by: str,
@@ -4676,6 +4748,308 @@ def test_n8_dependency_discriminant_source_freeze_compares_raw_filesystem_bytes(
         )
 
 
+@pytest.mark.parametrize("node_kind", ["symlink", "fifo"])
+def test_n8_dependency_discriminant_state_token_rejects_nonregular_owner_source(
+    node_kind: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The cache token and live freeze both consume the descriptor source gate."""
+
+    from polisyos.foundry.methods.catalog import dependency_authority
+
+    toplevel = tmp_path / "appointed-repository"
+    product = toplevel / "product"
+    relative_path = Path("product/owner-source.txt")
+    source_freeze = _initialize_git_test_repository(
+        toplevel,
+        relative_path=relative_path,
+        content="owner source\n",
+    )
+    monkeypatch.setattr(value_contract, "_repo_root", lambda: product)
+    monkeypatch.setattr(
+        value_contract,
+        "_foundry_dependency_source_paths",
+        lambda: (Path("owner-source.txt"),),
+    )
+    monkeypatch.setattr(
+        dependency_authority,
+        "_AUTHORITY_SOURCE_PATHS",
+        (relative_path.as_posix(),),
+    )
+    appointment = value_contract._appoint_git_product_root(product)
+    source = toplevel / relative_path
+    source.unlink()
+    if node_kind == "symlink":
+        backing = tmp_path / "matching-backing-source.txt"
+        backing.write_bytes(b"owner source\n")
+        source.symlink_to(backing)
+    else:
+        os.mkfifo(source)
+
+    with pytest.raises(ValueError, match="regular no-follow source"):
+        value_contract._foundry_authority_state_token(appointment)
+    with pytest.raises(ValueError, match="regular no-follow source"):
+        value_contract._require_current_foundry_source_freeze(
+            appointment,
+            source_freeze,
+        )
+
+
+def test_n8_dependency_discriminant_real_legacy_call_uses_appointed_git_environment(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The unchanged real governing call ignores hostile Git inputs and replacements."""
+
+    root = value_contract._repo_root()
+    appointment = value_contract._appoint_git_product_root(root)
+    source_freeze = value_contract._dependency_discriminant_source_freeze(appointment)
+    canonical_toplevel = appointment.git_toplevel
+    alternate = tmp_path / "hostile-repository"
+    _run_git_test_command(
+        canonical_toplevel,
+        "clone",
+        "--quiet",
+        "--no-hardlinks",
+        "--no-checkout",
+        str(canonical_toplevel),
+        str(alternate),
+    )
+    original_head = value_contract._git_text(appointment, "rev-parse", "HEAD")
+    _run_git_test_command(alternate, "checkout", "--quiet", "--detach", original_head)
+    replacement_source = (
+        alternate
+        / "policy-engine"
+        / "src"
+        / "polisyos"
+        / "foundry"
+        / "methods"
+        / "catalog"
+        / "dependency_authority.py"
+    )
+    replacement_source.write_bytes(
+        replacement_source.read_bytes() + b"\n# hostile replacement\n"
+    )
+    _run_git_test_command(
+        alternate,
+        "add",
+        "--",
+        replacement_source.relative_to(alternate).as_posix(),
+    )
+    _run_git_test_command(
+        alternate,
+        "-c",
+        "user.name=PolicyOS Test",
+        "-c",
+        "user.email=policyos-test@example.invalid",
+        "commit",
+        "--quiet",
+        "-m",
+        "replacement fixture",
+    )
+    replacement_head = _run_git_test_command(
+        alternate,
+        "rev-parse",
+        "HEAD",
+        text=True,
+    ).stdout.strip()
+    _run_git_test_command(alternate, "update-ref", "HEAD", original_head)
+    _run_git_test_command(alternate, "replace", original_head, replacement_head)
+    assert b"hostile replacement" in _run_git_test_command(
+        alternate,
+        "show",
+        f"{original_head}:{replacement_source.relative_to(alternate).as_posix()}",
+    ).stdout
+
+    real_check_result = value_contract.check_result
+    observed_git_environments: list[dict[str, str]] = []
+
+    def recording_real_check_result(
+        repo_root: Path,
+        *,
+        expected_source_freeze: str | None = None,
+    ) -> object:
+        observed_git_environments.append(
+            {key: value for key, value in os.environ.items() if key.startswith("GIT_")}
+        )
+        return real_check_result(
+            repo_root,
+            expected_source_freeze=expected_source_freeze,
+        )
+
+    monkeypatch.setattr(value_contract, "check_result", recording_real_check_result)
+    value_contract._catalog_denominator_evidence_cached.cache_clear()
+    value_contract._cached_legacy_value_gate_transport.cache_clear()
+    clean = value_contract._legacy_value_gate_result(
+        appointment,
+        source_freeze=source_freeze,
+    )
+
+    hostile = {
+        "GIT_DIR": str(alternate / ".git"),
+        "GIT_WORK_TREE": str(alternate),
+        "GIT_COMMON_DIR": str(alternate / ".git"),
+        "GIT_OBJECT_DIRECTORY": str(alternate / ".git" / "objects"),
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": str(alternate / ".git" / "objects"),
+        "GIT_INDEX_FILE": str(alternate / ".git" / "index"),
+        "GIT_NO_REPLACE_OBJECTS": "0",
+    }
+    for key, value in hostile.items():
+        monkeypatch.setenv(key, value)
+    hostile_snapshot = dict(os.environ)
+    value_contract._catalog_denominator_evidence_cached.cache_clear()
+    value_contract._cached_legacy_value_gate_transport.cache_clear()
+    redirected = value_contract._legacy_value_gate_result(
+        appointment,
+        source_freeze=source_freeze,
+    )
+
+    expected_git_environment = {
+        key: value
+        for key, value in value_contract._appointed_git_environment(appointment).items()
+        if key.startswith("GIT_")
+    }
+    assert canonical_json_bytes(redirected.governing_issues) == canonical_json_bytes(
+        clean.governing_issues
+    )
+    assert observed_git_environments == [expected_git_environment, expected_git_environment]
+    assert expected_git_environment["GIT_NO_REPLACE_OBJECTS"] == "1"
+    assert dict(os.environ) == hostile_snapshot
+
+
+@pytest.mark.parametrize("exception_type", [RuntimeError, KeyboardInterrupt])
+def test_n8_dependency_discriminant_governing_exception_escapes_and_restores_environment(
+    exception_type: type[BaseException],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The appointed process scope restores Git inputs without absorbing failures."""
+
+    appointment = value_contract._appoint_git_product_root(value_contract._repo_root())
+    alternate = tmp_path / "redirect"
+    monkeypatch.setenv("GIT_DIR", str(alternate / ".git"))
+    monkeypatch.setenv("GIT_WORK_TREE", str(alternate))
+    before = dict(os.environ)
+    expected = value_contract._appointed_git_environment(appointment)
+
+    def explode(
+        _repo_root: Path,
+        *,
+        expected_source_freeze: str | None = None,
+    ) -> object:
+        del expected_source_freeze
+        assert {
+            key: value for key, value in os.environ.items() if key.startswith("GIT_")
+        } == {key: value for key, value in expected.items() if key.startswith("GIT_")}
+        raise exception_type("governing replay failed")
+
+    monkeypatch.setattr(value_contract, "check_result", explode)
+    value_contract._cached_legacy_value_gate_transport.cache_clear()
+    with pytest.raises(exception_type, match="governing replay failed"):
+        value_contract._legacy_value_gate_result(
+            appointment,
+            source_freeze=value_contract._dependency_discriminant_source_freeze(
+                appointment
+            ),
+        )
+    assert dict(os.environ) == before
+
+
+def test_n8_dependency_discriminant_authority_state_misses_both_caches(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Same-HEAD authority byte drift invalidates inner and outer memoization."""
+
+    from polisyos.foundry.methods.catalog import dependency_authority
+    from polisyos.foundry.methods.catalog import snapshot as catalog_snapshot
+
+    toplevel = tmp_path / "appointed-repository"
+    product = toplevel / "product"
+    authority_source = product / "owner-source.txt"
+    source_freeze = _initialize_git_test_repository(
+        toplevel,
+        relative_path=Path("product/owner-source.txt"),
+        content="authority source one\n",
+    )
+    output = product / value_contract.OUTPUT_PATH
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text("{}\n", encoding="utf-8")
+    monkeypatch.setattr(value_contract, "_repo_root", lambda: product)
+    monkeypatch.setattr(
+        value_contract,
+        "_foundry_dependency_source_paths",
+        lambda: (Path("owner-source.txt"),),
+    )
+    monkeypatch.setattr(
+        dependency_authority,
+        "_AUTHORITY_SOURCE_PATHS",
+        ("product/owner-source.txt",),
+    )
+    generations: list[int] = []
+
+    @dataclass(frozen=True)
+    class FakeAuthorityResult:
+        generation: int
+
+        def model_dump(self, *, mode: str) -> dict[str, object]:
+            assert mode == "json"
+            return {"generation": self.generation}
+
+    def fake_authority_builder(*args: object, **kwargs: object) -> FakeAuthorityResult:
+        del args, kwargs
+        generation = len(generations) // 2
+        generations.append(generation)
+        return FakeAuthorityResult(generation)
+
+    monkeypatch.setattr(
+        catalog_snapshot,
+        "build_method_catalog_runtime_identity",
+        fake_authority_builder,
+    )
+    monkeypatch.setattr(
+        catalog_snapshot,
+        "build_method_catalog_provenance_manifest",
+        fake_authority_builder,
+    )
+    value_contract._catalog_denominator_evidence_cached.cache_clear()
+    first_inner = value_contract._catalog_denominators(source_freeze, product)
+    authority_source.write_text("authority source two\n", encoding="utf-8")
+    second_inner = value_contract._catalog_denominators(source_freeze, product)
+    assert first_inner != second_inner
+    assert generations == [0, 0, 1, 1]
+
+    appointment = value_contract._appoint_git_product_root(product)
+    governing_calls: list[int] = []
+
+    def fake_governing_result(
+        _repo_root: Path,
+        *,
+        expected_source_freeze: str | None = None,
+    ) -> value_contract.ValueGateValidationResult:
+        del expected_source_freeze
+        governing_calls.append(len(governing_calls) + 1)
+        return value_contract.ValueGateValidationResult(
+            governing_issues=({"code": f"generation_{governing_calls[-1]}"},),
+            ambient_findings=(),
+        )
+
+    monkeypatch.setattr(value_contract, "check_result", fake_governing_result)
+    value_contract._cached_legacy_value_gate_transport.cache_clear()
+    first_outer = value_contract._legacy_value_gate_result(
+        appointment,
+        source_freeze=source_freeze,
+    )
+    authority_source.write_text("authority source three\n", encoding="utf-8")
+    second_outer = value_contract._legacy_value_gate_result(
+        appointment,
+        source_freeze=source_freeze,
+    )
+    assert first_outer.governing_issues != second_outer.governing_issues
+    assert governing_calls == [1, 2]
+
+
 def test_n8_dependency_discriminant_cached_governing_result_cannot_be_poisoned(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
@@ -4686,6 +5060,43 @@ def test_n8_dependency_discriminant_cached_governing_result_cannot_be_poisoned(
         _build_n8_dependency_companion(),
     )
     source_freeze = _n8_dependency_source_freeze()
+    appointment = value_contract._appoint_git_product_root(value_contract._repo_root())
+    value_contract._catalog_denominator_evidence_cached.cache_clear()
+    value_contract._cached_legacy_value_gate_transport.cache_clear()
+    authority_state_token = value_contract._foundry_authority_state_token(appointment)
+    inner_transport = value_contract._catalog_denominator_evidence_cached(
+        source_freeze,
+        appointment.product_root,
+        authority_state_token,
+    )
+    assert isinstance(inner_transport, bytes)
+    inner_wire = json.loads(inner_transport)
+    inner_transport_baseline = canonical_json_bytes(inner_wire)
+    inner_wire["denominators"]["catalog_dependency_authority"]["cache_poison"] = {
+        "nested": ["transport"]
+    }
+    assert canonical_json_bytes(
+        json.loads(
+            value_contract._catalog_denominator_evidence_cached(
+                source_freeze,
+                appointment.product_root,
+                authority_state_token,
+            )
+        )
+    ) == inner_transport_baseline
+    inner_first = value_contract._catalog_denominator_evidence(
+        source_freeze,
+        appointment.product_root,
+    )
+    inner_baseline = canonical_json_bytes(inner_first)
+    inner_first[0]["catalog_dependency_authority"]["cache_poison"] = {
+        "nested": ["inner"]
+    }
+    inner_second = value_contract._catalog_denominator_evidence(
+        source_freeze,
+        appointment.product_root,
+    )
+    assert canonical_json_bytes(inner_second) == inner_baseline
     diagnostic = _research_torch_diagnostic(companion)
     first = value_contract.validate_foundry_dependency_discriminant(
         repo_root=value_contract._repo_root(),

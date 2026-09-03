@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.literature import (
@@ -11,6 +13,7 @@ from polisyos.ir.analytics.literature import (
     ClaimAdjudicationResult,
     ClaimExplicitness,
     ClaimType,
+    ClaimVocabularyAxisStatus,
     DesignFamily,
     EnvironmentAuditReport,
     EvidenceParameter,
@@ -24,12 +27,12 @@ from polisyos.ir.analytics.literature import (
     SourceBasis,
     SupportStatus,
     TextQuality,
+    VersionedClaimVocabularyEnvelope,
     load_article_extraction_result,
     load_literature_causal_prior,
     persist_article_extraction_result,
     persist_literature_causal_prior,
 )
-from pydantic import ValidationError
 
 
 def _minimal_parameter() -> EvidenceParameter:
@@ -184,6 +187,38 @@ def test_causal_claim_is_frozen_report_contract() -> None:
 
     with pytest.raises(ValidationError, match="frozen"):
         claim.claim_text = "mutated"
+
+
+def test_design_family_does_not_implicitly_derive_evidence_strength() -> None:
+    """Keep the two v2 classification axes independently supplied."""
+
+    rct_design = VersionedClaimVocabularyEnvelope(
+        cause="tax_rate",
+        effect="employment",
+        design_family_hint=DesignFamily.RCT,
+        design_family_hint_status=ClaimVocabularyAxisStatus.CANDIDATE,
+    )
+    panel_evidence = VersionedClaimVocabularyEnvelope(
+        cause="tax_rate",
+        effect="employment",
+        evidence_strength=EvidenceStrength.PANEL_FE,
+        evidence_strength_status=ClaimVocabularyAxisStatus.CANDIDATE,
+    )
+
+    assert rct_design.evidence_strength is None
+    assert rct_design.evidence_strength_status is ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    assert panel_evidence.design_family_hint is None
+    assert panel_evidence.design_family_hint_status is ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+
+    with pytest.raises(ValidationError, match="strength"):
+        VersionedClaimVocabularyEnvelope.model_validate(
+            {
+                "schema_version": "2.0",
+                "cause": "tax_rate",
+                "effect": "employment",
+                "strength": "rct",
+            }
+        )
 
 
 def test_article_extraction_result_normalizes_year_aliases_consistently() -> None:

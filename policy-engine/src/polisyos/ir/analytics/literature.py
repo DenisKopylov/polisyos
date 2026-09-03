@@ -6,7 +6,7 @@ import hashlib
 import importlib
 import json
 import re
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
@@ -77,6 +77,13 @@ class SourceBasis(str, Enum):
     ABSTRACT_ONLY = "abstract_only"
 
 
+class ClaimVocabularyAxisStatus(str, Enum):
+    """Establishment status for one typed claim-vocabulary axis."""
+
+    NOT_ESTABLISHED = "not_established"
+    CANDIDATE = "candidate"
+
+
 class TextQuality(str, Enum):
     """Text quality public type."""
 
@@ -142,6 +149,88 @@ class CausalCredibility(str, Enum):
     WEAK = "weak"
     NOT_CAUSAL = "not_causal"
     UNCLEAR = "unclear"
+
+
+class VersionedClaimVocabularyEnvelope(BaseModel):
+    """Strict v2 vocabulary for one causal-claim occurrence.
+
+    This additive contract is intentionally inactive: callers must opt into it
+    directly, and legacy occurrences enter only through the explicit absence
+    adapter below.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["2.0"] = "2.0"
+    claim_id: str = ""
+    cause: str
+    effect: str
+    direction: str = ""
+    claim_text: str = ""
+    mechanism: str = ""
+
+    design_family_hint: DesignFamily | None = None
+    design_family_hint_status: ClaimVocabularyAxisStatus = (
+        ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    )
+    evidence_strength: EvidenceStrength | None = None
+    evidence_strength_status: ClaimVocabularyAxisStatus = (
+        ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    )
+    claim_extraction_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    claim_extraction_confidence_status: ClaimVocabularyAxisStatus = (
+        ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    )
+    source_basis: SourceBasis | None = None
+    source_basis_status: ClaimVocabularyAxisStatus = ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+
+    legacy_strength_label: str | None = None
+    record_extraction_mode: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_axis_statuses(self) -> VersionedClaimVocabularyEnvelope:
+        """Require each typed axis to declare whether its value is established."""
+
+        axes = (
+            ("design_family_hint", self.design_family_hint, self.design_family_hint_status),
+            ("evidence_strength", self.evidence_strength, self.evidence_strength_status),
+            (
+                "claim_extraction_confidence",
+                self.claim_extraction_confidence,
+                self.claim_extraction_confidence_status,
+            ),
+            ("source_basis", self.source_basis, self.source_basis_status),
+        )
+        for name, value, status in axes:
+            if value is None and status is not ClaimVocabularyAxisStatus.NOT_ESTABLISHED:
+                raise ValueError(f"{name} must be absent when its status is not_established")
+            if value is not None and status is not ClaimVocabularyAxisStatus.CANDIDATE:
+                raise ValueError(f"{name} requires candidate status when present")
+        return self
+
+
+def adapt_legacy_claim_occurrence_as_v2_absence(
+    occurrence: Mapping[str, object],
+    *,
+    record_extraction_mode: str | None = None,
+) -> VersionedClaimVocabularyEnvelope:
+    """Retain a legacy occurrence without inferring any typed v2 axis.
+
+    The adapter is intentionally one-way and only observes occurrence fields
+    plus an optional record extraction-mode observation. It cannot receive
+    parent-paper design, record confidence, source basis, or trust metadata.
+    """
+
+    return VersionedClaimVocabularyEnvelope(
+        claim_id=occurrence.get("claim_id", ""),
+        cause=occurrence.get("cause", ""),
+        effect=occurrence.get("effect", ""),
+        direction=occurrence.get("direction", ""),
+        claim_text=occurrence.get("claim_text", ""),
+        mechanism=occurrence.get("mechanism", ""),
+        legacy_strength_label=occurrence.get("strength"),
+        record_extraction_mode=record_extraction_mode,
+    )
 
 
 class RiskOfBias(str, Enum):
@@ -1733,6 +1822,7 @@ __all__ = [
     "ClaimSpanGoldRecord",
     "ClaimSpanGoldSet",
     "ClaimType",
+    "ClaimVocabularyAxisStatus",
     "ContextAttribute",
     "DesignFamily",
     "EnvironmentAuditReport",
@@ -1756,6 +1846,8 @@ __all__ = [
     "SupportStatus",
     "TextQuality",
     "UncertaintyBudget",
+    "VersionedClaimVocabularyEnvelope",
+    "adapt_legacy_claim_occurrence_as_v2_absence",
     "evaluate_openalex_claim_extractor_accuracy",
     "extract_span_grounded_claims_from_openalex_work",
     "load_article_extraction_result",

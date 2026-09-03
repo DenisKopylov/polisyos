@@ -687,12 +687,13 @@ def _appointed_git_process_environment(
                     )
             return
         caller_environment = dict(os.environ)
+        appointed_environment = _appointed_git_environment(appointment)
         token = _ACTIVE_APPOINTED_GIT_STATE.set(
             (appointment, authority_state_token)
         )
         try:
             os.environ.clear()
-            os.environ.update(_appointed_git_environment(appointment))
+            os.environ.update(appointed_environment)
             if _foundry_authority_state_token(appointment) != authority_state_token:
                 raise ValueError("dependency discriminant authority state changed before replay")
             try:

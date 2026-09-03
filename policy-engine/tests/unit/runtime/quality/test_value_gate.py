@@ -4796,6 +4796,35 @@ def test_n8_dependency_discriminant_state_token_rejects_nonregular_owner_source(
         )
 
 
+def test_n8_dependency_discriminant_appointed_scope_preserves_caller_environment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The appointed process scope preserves non-Git inputs and restores its caller."""
+
+    appointment = value_contract._appoint_git_product_root(value_contract._repo_root())
+    caller_path = f"{os.environ['PATH']}{os.pathsep}/n8-caller-path-sentinel"
+    caller_sentinel = "n8-caller-environment-sentinel"
+    monkeypatch.setenv("PATH", caller_path)
+    monkeypatch.setenv("POLISYOS_N8_CALLER_SENTINEL", caller_sentinel)
+    monkeypatch.setenv("GIT_DIR", "hostile-git-directory")
+    monkeypatch.setenv("GIT_WORK_TREE", "hostile-git-worktree")
+    monkeypatch.setenv("GIT_ALTERNATE_OBJECT_DIRECTORIES", "hostile-object-store")
+    caller_environment = dict(os.environ)
+    authority_state_token = value_contract._foundry_authority_state_token(appointment)
+
+    with value_contract._appointed_git_process_environment(
+        appointment,
+        authority_state_token=authority_state_token,
+    ):
+        assert os.environ["PATH"] == caller_path
+        assert os.environ["POLISYOS_N8_CALLER_SENTINEL"] == caller_sentinel
+        assert os.environ["GIT_DIR"] == str(appointment.git_dir)
+        assert os.environ["GIT_WORK_TREE"] == str(appointment.git_toplevel)
+        assert "GIT_ALTERNATE_OBJECT_DIRECTORIES" not in os.environ
+
+    assert dict(os.environ) == caller_environment
+
+
 def test_n8_dependency_discriminant_real_legacy_call_uses_appointed_git_environment(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

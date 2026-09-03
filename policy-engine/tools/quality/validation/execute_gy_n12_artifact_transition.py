@@ -52,6 +52,12 @@ _UNIT_TEST_WRITER_AUTHORITY: Final = object()
 # state requires the Foundry owner path, never a chronology-local convention.
 _N8_ENVIRONMENT_RECEIPT_ADMISSION_STATE: Final = "not_established"
 
+_DEPENDENCY_DISCRIMINANT_CONSUMER_IDENTITIES: Final = (
+    "layer3_gy_value_gate_contract.validate_foundry_dependency_discriminant",
+    "layer3_gy_second_domain_pack.read_foundry_dependency_discriminant",
+    "layer3_gy_epoch_chronology_contract.read_foundry_dependency_discriminant",
+)
+
 
 def _canonical_bytes(value: object) -> bytes:
     return json.dumps(
@@ -99,7 +105,10 @@ def _dependency_result_field(result: object, field: str) -> object:
             "first_case": "dependency_environment_first_case",
         }
         return result.get(aliases[field], result.get(field))
-    return getattr(result, field, None)
+    value = getattr(result, field, None)
+    if value is None and field == "discriminant_ref":
+        value = getattr(getattr(result, "profile_discriminant", None), field, None)
+    return value
 
 
 def dependency_discriminant_consumer_fields(result: object) -> dict[str, Any]:
@@ -120,13 +129,24 @@ def dependency_discriminant_consumer_fields(result: object) -> dict[str, Any]:
 
 
 def reconcile_dependency_discriminant_consumers(
-    results: Sequence[object],
+    results: Sequence[Mapping[str, Any]],
 ) -> dict[str, Any]:
-    """Require every consumer to bind the same non-null companion bytes."""
+    """Require the exact three consumers to bind the same non-null companion bytes."""
 
-    projected = tuple(dependency_discriminant_consumer_fields(result) for result in results)
-    if not projected:
+    if len(results) != len(_DEPENDENCY_DISCRIMINANT_CONSUMER_IDENTITIES):
         raise ValueError("readback_dependency_discriminant_binding_mismatch")
+    by_identity = {str(result.get("consumer") or ""): result for result in results}
+    if len(by_identity) != len(results) or set(by_identity) != set(
+        _DEPENDENCY_DISCRIMINANT_CONSUMER_IDENTITIES
+    ):
+        raise ValueError("readback_dependency_discriminant_binding_mismatch")
+    projected = tuple(
+        {
+            "consumer": identity,
+            **dependency_discriminant_consumer_fields(by_identity[identity]),
+        }
+        for identity in _DEPENDENCY_DISCRIMINANT_CONSUMER_IDENTITIES
+    )
     bindings = {
         _canonical_bytes(
             {
@@ -151,6 +171,7 @@ def reconcile_dependency_discriminant_consumers(
         "discriminant_ref": first["dependency_discriminant_ref"],
         "ambient_cases": [
             {
+                "consumer": row["consumer"],
                 "status": row["dependency_environment_status"],
                 "first_case": row["dependency_environment_first_case"],
             }
@@ -1372,6 +1393,60 @@ def apply_declaration(
     return final
 
 
+def _run_dependency_discriminant_consumers(
+    *,
+    repo_root: Path,
+    expected_head: str,
+) -> tuple[dict[str, Any], ...]:
+    """Independently bind N8, N10a, and chronology to one committed companion."""
+
+    from tools.quality.validation import check_layer3_gy_epoch_chronology_contract as epoch
+    from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
+    from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+    try:
+        companion_raw = _git_blob(
+            repo_root,
+            expected_head,
+            n8.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH,
+        )
+    except ValueError as exc:
+        raise ValueError("readback_dependency_discriminant_binding_mismatch") from exc
+    consumer_results = (
+        (
+            _DEPENDENCY_DISCRIMINANT_CONSUMER_IDENTITIES[0],
+            n8.validate_foundry_dependency_discriminant(
+                repo_root=repo_root,
+                companion=companion_raw,
+                diagnostic_verification=None,
+            ),
+        ),
+        (
+            _DEPENDENCY_DISCRIMINANT_CONSUMER_IDENTITIES[1],
+            n10a.read_foundry_dependency_discriminant(
+                repo_root=repo_root,
+                companion=companion_raw,
+                diagnostic_verification=None,
+            ),
+        ),
+        (
+            _DEPENDENCY_DISCRIMINANT_CONSUMER_IDENTITIES[2],
+            epoch.read_foundry_dependency_discriminant(
+                repo_root=repo_root,
+                companion=companion_raw,
+                diagnostic_verification=None,
+            ),
+        ),
+    )
+    return tuple(
+        {
+            "consumer": identity,
+            **dependency_discriminant_consumer_fields(result),
+        }
+        for identity, result in consumer_results
+    )
+
+
 def _run_readback_consumers(
     *,
     repo_root: Path,
@@ -1400,15 +1475,6 @@ def _run_readback_consumers(
     if unknown:
         raise ValueError("readback_consumer_unregistered:" + ",".join(unknown))
     results: list[dict[str, Any]] = []
-    try:
-        companion_raw: bytes | None = _git_blob(
-            repo_root,
-            expected_head,
-            n8.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH,
-        )
-    except ValueError:
-        companion_raw = None
-
     if EPOCH_TARGET in targets:
         from tools.quality.validation import check_layer3_gy_epoch_chronology_contract as epoch
 
@@ -1429,16 +1495,6 @@ def _run_readback_consumers(
             "status": "pass" if not issues else "fail",
             "issue_codes": sorted(str(issue.get("code")) for issue in issues),
         }
-        if companion_raw is not None:
-            row.update(
-                dependency_discriminant_consumer_fields(
-                    epoch.read_foundry_dependency_discriminant(
-                        repo_root=repo_root,
-                        companion=companion_raw,
-                        diagnostic_verification=None,
-                    )
-                )
-            )
         results.append(row)
 
     if n8.OUTPUT_PATH in targets:
@@ -1456,16 +1512,6 @@ def _run_readback_consumers(
             "issue_codes": sorted(str(issue.get("code")) for issue in result.governing_issues),
             "ambient_finding_count": len(result.ambient_findings),
         }
-        if companion_raw is not None:
-            row.update(
-                dependency_discriminant_consumer_fields(
-                    n8.validate_foundry_dependency_discriminant(
-                        repo_root=repo_root,
-                        companion=companion_raw,
-                        diagnostic_verification=None,
-                    )
-                )
-            )
         results.append(row)
 
     n10_targets = set(n10a.ARTIFACT_OUTPUTS)
@@ -1487,15 +1533,6 @@ def _run_readback_consumers(
             repo_root,
             expected_source_freeze=source_freeze,
         )
-        discriminant_fields: dict[str, Any] = {}
-        if companion_raw is not None:
-            discriminant_fields = dependency_discriminant_consumer_fields(
-                n10a.read_foundry_dependency_discriminant(
-                    repo_root=repo_root,
-                    companion=companion_raw,
-                    diagnostic_verification=None,
-                )
-            )
         for relative in n10a.ARTIFACT_OUTPUTS:
             results.append(
                 {
@@ -1503,7 +1540,6 @@ def _run_readback_consumers(
                     "consumer": "layer3_gy_second_domain_pack.validate_bundle_payloads",
                     "status": "pass" if not issues else "fail",
                     "issue_codes": sorted(str(issue.get("code")) for issue in issues),
-                    **discriminant_fields,
                 }
             )
 
@@ -1558,6 +1594,7 @@ def build_readback(
     expected_branch: str,
     expected_head: str,
     consumer_probe: Callable[..., Sequence[Mapping[str, Any]]] | None = None,
+    dependency_consumer_probe: Callable[..., Sequence[Mapping[str, Any]]] | None = None,
 ) -> dict[str, Any]:
     """Bind the artifact commit to the exact declared candidate byte set."""
 
@@ -1626,23 +1663,16 @@ def build_readback(
         raise ValueError("readback_consumer_denominator_mismatch")
     if any(row.get("status") != "pass" for row in consumer_results):
         raise ValueError("readback_consumer_rejected")
-    discriminant_consumers = tuple(
-        row
-        for row in consumer_results
-        if "dependency_discriminant_content_ref" in row
-        or "dependency_discriminant_ref" in row
-    )
-    if discriminant_consumers:
-        discriminant_readback = reconcile_dependency_discriminant_consumers(
-            discriminant_consumers
+    dependency_consumer_results = tuple(
+        dict(row)
+        for row in (dependency_consumer_probe or _run_dependency_discriminant_consumers)(
+            repo_root=root,
+            expected_head=expected_head,
         )
-    else:
-        discriminant_readback = {
-            "decision_role": "ambient_non_decisive",
-            "content_ref": None,
-            "discriminant_ref": None,
-            "ambient_cases": [],
-        }
+    )
+    discriminant_readback = reconcile_dependency_discriminant_consumers(
+        dependency_consumer_results
+    )
     return with_receipt_hash(
         {
             "schema_version": READBACK_SCHEMA,

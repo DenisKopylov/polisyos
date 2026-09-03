@@ -1165,6 +1165,32 @@ def test_apply_cli_refuses_same_journal_path_with_noncanonical_bytes(
     assert payload["issues"][0]["code"] == "apply_declaration_record_content_mismatch"
 
 
+def _accepted_dependency_consumers(**_kwargs: object) -> tuple[dict[str, object], ...]:
+    """Return the complete literal three-consumer dependency evidence family."""
+
+    content_ref = "sha256:" + "c" * 64
+    discriminant_ref = {
+        "domain": "dependency-discriminant",
+        "value": "sha256:" + "d" * 64,
+    }
+    return tuple(
+        {
+            "consumer": identity,
+            "dependency_discriminant_content_ref": content_ref,
+            "dependency_discriminant_ref": discriminant_ref,
+            "dependency_environment_status": "fail",
+            "dependency_environment_first_case": {
+                "coordinate": "distribution:fixture:version"
+            },
+        }
+        for identity in (
+            "layer3_gy_value_gate_contract.validate_foundry_dependency_discriminant",
+            "layer3_gy_second_domain_pack.read_foundry_dependency_discriminant",
+            "layer3_gy_epoch_chronology_contract.read_foundry_dependency_discriminant",
+        )
+    )
+
+
 def test_readback_binds_final_to_declaration_parent_and_exact_target_map(
     tmp_path: Path,
 ) -> None:
@@ -1193,20 +1219,12 @@ def test_readback_binds_final_to_declaration_parent_and_exact_target_map(
         }
     )
 
-    discriminant_ref = {"domain": "dependency-discriminant", "value": "sha256:" + "d" * 64}
-
     def accepted_consumer(**_kwargs: object) -> tuple[dict[str, object], ...]:
         return (
             {
                 "target_path": "artifact.json",
                 "consumer": "fixture",
                 "status": "pass",
-                "dependency_discriminant_content_ref": "sha256:" + "c" * 64,
-                "dependency_discriminant_ref": discriminant_ref,
-                "dependency_environment_status": "fail",
-                "dependency_environment_first_case": {
-                    "coordinate": "distribution:fixture:version"
-                },
             },
         )
 
@@ -1217,15 +1235,30 @@ def test_readback_binds_final_to_declaration_parent_and_exact_target_map(
         expected_branch="codex/fixture",
         expected_head=artifact_head,
         consumer_probe=accepted_consumer,
+        dependency_consumer_probe=_accepted_dependency_consumers,
     )
     assert report["artifact_parent"] == declaration_head
     assert report["consumer_results"] == list(accepted_consumer())
     assert report["dependency_discriminant_readback"] == {
         "decision_role": "ambient_non_decisive",
         "content_ref": "sha256:" + "c" * 64,
-        "discriminant_ref": discriminant_ref,
+        "discriminant_ref": {
+            "domain": "dependency-discriminant",
+            "value": "sha256:" + "d" * 64,
+        },
         "ambient_cases": [
             {
+                "consumer": "layer3_gy_value_gate_contract.validate_foundry_dependency_discriminant",
+                "status": "fail",
+                "first_case": {"coordinate": "distribution:fixture:version"},
+            },
+            {
+                "consumer": "layer3_gy_second_domain_pack.read_foundry_dependency_discriminant",
+                "status": "fail",
+                "first_case": {"coordinate": "distribution:fixture:version"},
+            },
+            {
+                "consumer": "layer3_gy_epoch_chronology_contract.read_foundry_dependency_discriminant",
                 "status": "fail",
                 "first_case": {"coordinate": "distribution:fixture:version"},
             }
@@ -1288,6 +1321,141 @@ def test_readback_binds_final_to_declaration_parent_and_exact_target_map(
             expected_branch="codex/fixture",
             expected_head=artifact_head,
             consumer_probe=accepted_consumer,
+        )
+
+
+def _single_target_readback_fixture(
+    tmp_path: Path,
+) -> tuple[dict[str, object], dict[str, object], str]:
+    """Create one committed artifact and its valid transition receipts."""
+
+    _base, declaration_head = _init_repo(tmp_path)
+    target = tmp_path / "artifact.json"
+    target.write_text("candidate\n")
+    subprocess.run(["git", "add", "artifact.json"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "commit", "-qm", "artifact"], cwd=tmp_path, check=True)
+    artifact_head = _git(tmp_path, "rev-parse", "HEAD")
+    target_sha256 = _sha(target)
+    declaration = transition.with_receipt_hash(
+        {
+            "schema_version": transition.DECLARATION_SCHEMA,
+            "expected_branch": "codex/fixture",
+            "targets": [{"path": "artifact.json", "candidate_sha256": target_sha256}],
+            "protected_denominator_sha256": "sha256:" + "a" * 64,
+        }
+    )
+    final = transition.with_receipt_hash(
+        {
+            "schema_version": transition.FINAL_SCHEMA,
+            "status": "final",
+            "declaration_sha256": declaration["receipt_sha256"],
+            "declaration_head": declaration_head,
+            "target_sha256": {"artifact.json": target_sha256},
+            "protected_denominator_sha256": declaration["protected_denominator_sha256"],
+        }
+    )
+    return declaration, final, artifact_head
+
+
+def test_readback_rejects_missing_three_consumer_dependency_evidence(tmp_path: Path) -> None:
+    """A passing artifact consumer cannot replace the dependency evidence family."""
+
+    declaration, final, artifact_head = _single_target_readback_fixture(tmp_path)
+
+    with pytest.raises(ValueError, match="readback_dependency_discriminant_binding_mismatch"):
+        transition.build_readback(
+            repo_root=tmp_path,
+            declaration=declaration,
+            final=final,
+            expected_branch="codex/fixture",
+            expected_head=artifact_head,
+            consumer_probe=lambda **_kwargs: (
+                {"target_path": "artifact.json", "consumer": "fixture", "status": "pass"},
+            ),
+        )
+
+
+def test_readback_rejects_singleton_dependency_consumer_evidence(tmp_path: Path) -> None:
+    """One content-bound consumer cannot stand in for the required three identities."""
+
+    declaration, final, artifact_head = _single_target_readback_fixture(tmp_path)
+
+    with pytest.raises(ValueError, match="readback_dependency_discriminant_binding_mismatch"):
+        transition.build_readback(
+            repo_root=tmp_path,
+            declaration=declaration,
+            final=final,
+            expected_branch="codex/fixture",
+            expected_head=artifact_head,
+            consumer_probe=lambda **_kwargs: (
+                {"target_path": "artifact.json", "consumer": "fixture", "status": "pass"},
+            ),
+            dependency_consumer_probe=lambda **_kwargs: _accepted_dependency_consumers()[:1],
+        )
+
+
+def test_readback_rejects_zero_dependency_consumer_evidence(tmp_path: Path) -> None:
+    """An explicit empty dependency evidence family fails closed."""
+
+    declaration, final, artifact_head = _single_target_readback_fixture(tmp_path)
+
+    with pytest.raises(ValueError, match="readback_dependency_discriminant_binding_mismatch"):
+        transition.build_readback(
+            repo_root=tmp_path,
+            declaration=declaration,
+            final=final,
+            expected_branch="codex/fixture",
+            expected_head=artifact_head,
+            consumer_probe=lambda **_kwargs: (
+                {"target_path": "artifact.json", "consumer": "fixture", "status": "pass"},
+            ),
+            dependency_consumer_probe=lambda **_kwargs: (),
+        )
+
+
+def test_readback_rejects_dependency_consumer_with_missing_binding_fields(
+    tmp_path: Path,
+) -> None:
+    """Three named consumers still fail when one omits binding evidence."""
+
+    declaration, final, artifact_head = _single_target_readback_fixture(tmp_path)
+    incomplete = [dict(row) for row in _accepted_dependency_consumers()]
+    incomplete[2].pop("dependency_discriminant_ref")
+
+    with pytest.raises(ValueError, match="readback_dependency_discriminant_binding_mismatch"):
+        transition.build_readback(
+            repo_root=tmp_path,
+            declaration=declaration,
+            final=final,
+            expected_branch="codex/fixture",
+            expected_head=artifact_head,
+            consumer_probe=lambda **_kwargs: (
+                {"target_path": "artifact.json", "consumer": "fixture", "status": "pass"},
+            ),
+            dependency_consumer_probe=lambda **_kwargs: tuple(incomplete),
+        )
+
+
+def test_readback_rejects_three_dependency_rows_with_a_wrong_consumer_identity(
+    tmp_path: Path,
+) -> None:
+    """Cardinality cannot hide an omitted appointed consumer identity."""
+
+    declaration, final, artifact_head = _single_target_readback_fixture(tmp_path)
+    wrong_identity = [dict(row) for row in _accepted_dependency_consumers()]
+    wrong_identity[2]["consumer"] = "fixture.unappointed_dependency_consumer"
+
+    with pytest.raises(ValueError, match="readback_dependency_discriminant_binding_mismatch"):
+        transition.build_readback(
+            repo_root=tmp_path,
+            declaration=declaration,
+            final=final,
+            expected_branch="codex/fixture",
+            expected_head=artifact_head,
+            consumer_probe=lambda **_kwargs: (
+                {"target_path": "artifact.json", "consumer": "fixture", "status": "pass"},
+            ),
+            dependency_consumer_probe=lambda **_kwargs: tuple(wrong_identity),
         )
 
 
@@ -1413,6 +1581,7 @@ drift_gate = "automated"
         final=final,
         expected_branch="codex/fixture",
         expected_head=artifact_head,
+        dependency_consumer_probe=_accepted_dependency_consumers,
     )
 
     assert [(row["target_path"], row["status"]) for row in report["consumer_results"]] == [
@@ -1435,6 +1604,7 @@ drift_gate = "automated"
         final=final,
         expected_branch="codex/fixture",
         expected_head=artifact_head,
+        dependency_consumer_probe=_accepted_dependency_consumers,
     )
     assert all(row["status"] == "pass" for row in hidden_report["consumer_results"])
     registry.write_bytes(committed_registry)
@@ -2422,6 +2592,47 @@ def test_readback_rejects_consumers_bound_to_different_discriminant_copies() -> 
         companion=b"{}",
         diagnostic_verification=None,
     )
+    consumer_results = (
+        {
+            "consumer": "layer3_gy_value_gate_contract.validate_foundry_dependency_discriminant",
+            **transition.dependency_discriminant_consumer_fields(n8_result),
+        },
+        {
+            "consumer": "layer3_gy_second_domain_pack.read_foundry_dependency_discriminant",
+            **transition.dependency_discriminant_consumer_fields(n10a_result),
+        },
+        {
+            "consumer": "layer3_gy_epoch_chronology_contract.read_foundry_dependency_discriminant",
+            **transition.dependency_discriminant_consumer_fields(chronology_result),
+        },
+    )
 
     with pytest.raises(ValueError, match="readback_dependency_discriminant_binding_mismatch"):
-        reconcile((n8_result, n10a_result, chronology_result))
+        reconcile(consumer_results)
+
+
+def test_default_dependency_readback_probe_runs_the_exact_three_consumers() -> None:
+    """The default dependency probe executes each appointed owner-backed reader once."""
+
+    repo_root = n8._repo_root()
+    expected_head = _git(repo_root, "rev-parse", "HEAD")
+    companion = n8.build_dependency_discriminant_companion(
+        repo_root=repo_root,
+        source_freeze=_owner_recorded_n8_source_freeze(repo_root),
+    )
+
+    results = transition._run_dependency_discriminant_consumers(
+        repo_root=repo_root,
+        expected_head=expected_head,
+    )
+    receipt = transition.reconcile_dependency_discriminant_consumers(results)
+
+    assert tuple(row["consumer"] for row in results) == (
+        "layer3_gy_value_gate_contract.validate_foundry_dependency_discriminant",
+        "layer3_gy_second_domain_pack.read_foundry_dependency_discriminant",
+        "layer3_gy_epoch_chronology_contract.read_foundry_dependency_discriminant",
+    )
+    assert receipt["content_ref"] == companion.content_ref
+    assert receipt["discriminant_ref"] == companion.profile_discriminant.discriminant_ref.model_dump(
+        mode="json"
+    )

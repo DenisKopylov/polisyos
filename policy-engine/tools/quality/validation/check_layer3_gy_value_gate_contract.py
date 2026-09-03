@@ -414,9 +414,13 @@ class _AuditCandidate:
 
 
 def declared_outputs() -> list[str]:
-    """Return generated artifacts owned by this validator."""
+    """Return the companion this validator can regenerate.
 
-    return [OUTPUT_PATH, DEPENDENCY_DISCRIMINANT_OUTPUT_PATH]
+    The frozen N8 value-gate contract is an input to this producer, not an
+    output of the explicit companion writer.
+    """
+
+    return [DEPENDENCY_DISCRIMINANT_OUTPUT_PATH]
 
 
 def _repo_root() -> Path:

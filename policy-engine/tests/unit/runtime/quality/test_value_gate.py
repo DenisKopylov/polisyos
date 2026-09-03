@@ -4065,7 +4065,6 @@ def test_n8_dependency_discriminant_companion_binds_owner_source_and_exact_n8_by
     n8_bytes = (root / value_contract.OUTPUT_PATH).read_bytes()
 
     assert value_contract.declared_outputs() == [
-        value_contract.OUTPUT_PATH,
         value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH,
     ]
     assert set(payload) == {

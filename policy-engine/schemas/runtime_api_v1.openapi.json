@@ -13138,6 +13138,426 @@
         "title": "DeltaQuantity",
         "type": "object"
       },
+      "DependencyDigestProjection": {
+        "additionalProperties": false,
+        "description": "Carry one owner-computed digest without recomputing it in Runtime.",
+        "properties": {
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "domain",
+          "value"
+        ],
+        "title": "DependencyDigestProjection",
+        "type": "object"
+      },
+      "DependencyDiscriminantAuthorityBoundary": {
+        "additionalProperties": false,
+        "description": "Declare the only diagnostic use and the explicitly denied authority uses.",
+        "properties": {
+          "authoritative_for": {
+            "items": {
+              "const": "dependency_environment_diagnosis",
+              "type": "string"
+            },
+            "title": "Authoritative For",
+            "type": "array"
+          },
+          "may_not_use_for": {
+            "items": {
+              "enum": [
+                "n8_admission",
+                "n10a_stage_gap_closure",
+                "chronology_acceptance",
+                "policy_publication",
+                "policy_promotion"
+              ],
+              "type": "string"
+            },
+            "title": "May Not Use For",
+            "type": "array"
+          }
+        },
+        "required": [
+          "authoritative_for",
+          "may_not_use_for"
+        ],
+        "title": "DependencyDiscriminantAuthorityBoundary",
+        "type": "object"
+      },
+      "DependencyDiscriminantOwnerBinding": {
+        "additionalProperties": false,
+        "description": "Carry the received or non-received Foundry diagnostic companion.",
+        "properties": {
+          "binding_name": {
+            "const": "foundry_dependency_discriminant",
+            "title": "Binding Name",
+            "type": "string"
+          },
+          "dependency_environment": {
+            "$ref": "#/components/schemas/DependencyEnvironmentDiagnosticProjection"
+          },
+          "owner_semantic_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Semantic Hash"
+          },
+          "relation": {
+            "const": "semantic_projection",
+            "default": "semantic_projection",
+            "title": "Relation",
+            "type": "string"
+          },
+          "relative_path": {
+            "const": "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json",
+            "title": "Relative Path",
+            "type": "string"
+          },
+          "resolved_artifact_content_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved Artifact Content Hash"
+          },
+          "semantic_hash_rule_version": {
+            "const": "polisyos.foundry.dependency_discriminant.v1",
+            "title": "Semantic Hash Rule Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "binding_name",
+          "relative_path",
+          "owner_semantic_hash",
+          "semantic_hash_rule_version",
+          "resolved_artifact_content_hash",
+          "dependency_environment"
+        ],
+        "title": "DependencyDiscriminantOwnerBinding",
+        "type": "object"
+      },
+      "DependencyDistributionProjection": {
+        "additionalProperties": false,
+        "description": "Carry one member of the owner-resolved deployment closure.",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "selected_artifact": {
+            "$ref": "#/components/schemas/DependencyDigestProjection"
+          },
+          "source_kind": {
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "source_kind",
+          "selected_artifact"
+        ],
+        "title": "DependencyDistributionProjection",
+        "type": "object"
+      },
+      "DependencyEnvironmentDiagnosticCaseProjection": {
+        "additionalProperties": false,
+        "description": "Transport the owner-ordered first incompatible closure coordinate.",
+        "properties": {
+          "case_kind": {
+            "enum": [
+              "root_distribution_disagreement",
+              "missing_resolved_distribution",
+              "distribution_field_disagreement",
+              "unexpected_in_closure_identity"
+            ],
+            "title": "Case Kind",
+            "type": "string"
+          },
+          "coordinate": {
+            "title": "Coordinate",
+            "type": "string"
+          },
+          "expected": {
+            "title": "Expected",
+            "type": "string"
+          },
+          "field": {
+            "anyOf": [
+              {
+                "enum": [
+                  "version",
+                  "source_kind",
+                  "selected_artifact"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field"
+          },
+          "observed": {
+            "title": "Observed",
+            "type": "string"
+          },
+          "predicate_class": {
+            "enum": [
+              "independently_reconciled",
+              "recomputed"
+            ],
+            "title": "Predicate Class",
+            "type": "string"
+          }
+        },
+        "required": [
+          "case_kind",
+          "coordinate",
+          "expected",
+          "observed",
+          "predicate_class"
+        ],
+        "title": "DependencyEnvironmentDiagnosticCaseProjection",
+        "type": "object"
+      },
+      "DependencyEnvironmentDiagnosticProjection": {
+        "additionalProperties": false,
+        "description": "Typed non-decisive diagnostic emitted by the Foundry/N8 owner bridge.",
+        "properties": {
+          "artifact_content_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Content Ref"
+          },
+          "authority_boundary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DependencyDiscriminantAuthorityBoundary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_role": {
+            "const": "ambient_non_decisive",
+            "title": "Decision Role",
+            "type": "string"
+          },
+          "first_case": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DependencyEnvironmentDiagnosticCaseProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "predicate_class": {
+            "anyOf": [
+              {
+                "const": "recomputed",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Predicate Class"
+          },
+          "profile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DependencyProfileDiscriminantProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receipt_state": {
+            "enum": [
+              "received",
+              "not_received"
+            ],
+            "title": "Receipt State",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "fail",
+              "not_established"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "decision_role",
+          "receipt_state",
+          "status"
+        ],
+        "title": "DependencyEnvironmentDiagnosticProjection",
+        "type": "object"
+      },
+      "DependencyProfileDiscriminantProjection": {
+        "additionalProperties": false,
+        "description": "Transport the complete Foundry-owned dependency discriminant unchanged.",
+        "properties": {
+          "declaration_ref": {
+            "$ref": "#/components/schemas/DependencyRecordRefProjection"
+          },
+          "discriminant_ref": {
+            "$ref": "#/components/schemas/DependencyDigestProjection"
+          },
+          "distribution_set": {
+            "$ref": "#/components/schemas/DependencyDigestProjection"
+          },
+          "extras": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Extras",
+            "type": "array"
+          },
+          "lockfile_ref": {
+            "$ref": "#/components/schemas/DependencyDigestProjection"
+          },
+          "marker_environment": {
+            "items": {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "type": "array"
+            },
+            "title": "Marker Environment",
+            "type": "array"
+          },
+          "profile_id": {
+            "title": "Profile Id",
+            "type": "string"
+          },
+          "pyproject_ref": {
+            "$ref": "#/components/schemas/DependencyDigestProjection"
+          },
+          "python_constraint": {
+            "title": "Python Constraint",
+            "type": "string"
+          },
+          "resolved_distributions": {
+            "items": {
+              "$ref": "#/components/schemas/DependencyDistributionProjection"
+            },
+            "title": "Resolved Distributions",
+            "type": "array"
+          },
+          "resolver_name": {
+            "const": "uv",
+            "title": "Resolver Name",
+            "type": "string"
+          },
+          "resolver_version": {
+            "title": "Resolver Version",
+            "type": "string"
+          },
+          "root_distribution": {
+            "title": "Root Distribution",
+            "type": "string"
+          },
+          "rule_version": {
+            "const": "polisyos.foundry.dependency_discriminant.v1",
+            "title": "Rule Version",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "polisyos.foundry.dependency-discriminant.v1",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "rule_version",
+          "profile_id",
+          "declaration_ref",
+          "root_distribution",
+          "extras",
+          "python_constraint",
+          "resolver_name",
+          "resolver_version",
+          "pyproject_ref",
+          "lockfile_ref",
+          "marker_environment",
+          "resolved_distributions",
+          "distribution_set",
+          "discriminant_ref"
+        ],
+        "title": "DependencyProfileDiscriminantProjection",
+        "type": "object"
+      },
+      "DependencyRecordRefProjection": {
+        "additionalProperties": false,
+        "description": "Carry the owner record reference used by the discriminant.",
+        "properties": {
+          "artifact_id": {
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "semantic_hash": {
+            "$ref": "#/components/schemas/DependencyDigestProjection"
+          }
+        },
+        "required": [
+          "schema_version",
+          "semantic_hash",
+          "artifact_id"
+        ],
+        "title": "DependencyRecordRefProjection",
+        "type": "object"
+      },
       "DepthNAcquisitionEconomicsProjection": {
         "additionalProperties": false,
         "description": "Hash-resolved N7 planner economics, separate from its route reference.",
@@ -26525,6 +26945,7 @@
         "description": "Resolve an owner-declared semantic hash without calling it byte identity.",
         "properties": {
           "binding_name": {
+            "const": "live_probe_journal_content_sha256",
             "title": "Binding Name",
             "type": "string"
           },
@@ -26583,7 +27004,7 @@
           "related_artifact_bindings": {
             "default": [],
             "items": {
-              "$ref": "#/components/schemas/ProjectionOwnerBinding"
+              "$ref": "#/components/schemas/RelatedArtifactBinding"
             },
             "title": "Related Artifact Bindings",
             "type": "array"
@@ -27721,6 +28142,23 @@
         ],
         "title": "RefusedAuthorityValue",
         "type": "object"
+      },
+      "RelatedArtifactBinding": {
+        "discriminator": {
+          "mapping": {
+            "foundry_dependency_discriminant": "#/components/schemas/DependencyDiscriminantOwnerBinding",
+            "live_probe_journal_content_sha256": "#/components/schemas/ProjectionOwnerBinding"
+          },
+          "propertyName": "binding_name"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ProjectionOwnerBinding"
+          },
+          {
+            "$ref": "#/components/schemas/DependencyDiscriminantOwnerBinding"
+          }
+        ]
       },
       "ReplayRef": {
         "additionalProperties": false,
@@ -54625,18 +55063,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:3466af3985c670e98766d85ca032b63fe8e5c95a8f8ff1a43108049217163c2b",
+                      "projection_hash": "sha256:90a2b3c1ff360564a7c2f4c3b4490ab52a8dbe54cffb91b718c8003e87599da0",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A3466af3985c670e98766d85ca032b63fe8e5c95a8f8ff1a43108049217163c2b&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Aa6a63c551ac2e6c4372e427949fc8a12c4dd46627c714d6b00b09cc56e0ba01a",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A90a2b3c1ff360564a7c2f4c3b4490ab52a8dbe54cffb91b718c8003e87599da0&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A5c24d312c7a36e9836712df69e5bef16ef2d6cef8f96e8d6ee49c6d655a4f4ba",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:3466af3985c670e98766d85ca032b63fe8e5c95a8f8ff1a43108049217163c2b",
+                        "projection_hash": "sha256:90a2b3c1ff360564a7c2f4c3b4490ab52a8dbe54cffb91b718c8003e87599da0",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:a6a63c551ac2e6c4372e427949fc8a12c4dd46627c714d6b00b09cc56e0ba01a"
+                        "source_dependency_hash": "sha256:5c24d312c7a36e9836712df69e5bef16ef2d6cef8f96e8d6ee49c6d655a4f4ba"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -54645,8 +55083,8 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:a6a63c551ac2e6c4372e427949fc8a12c4dd46627c714d6b00b09cc56e0ba01a",
-                          "bound_dependency_count": 6276,
+                          "bound_dependency_aggregate_identity": "sha256:5c24d312c7a36e9836712df69e5bef16ef2d6cef8f96e8d6ee49c6d655a4f4ba",
+                          "bound_dependency_count": 6290,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
                           "recomputed_total_spend_denominator": 1,
@@ -54661,16 +55099,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:09027a7ab212dfaa8d7fbd5194ad582a0333aece81095e6b775fcceea3693234"
+                          "worker_validation_receipt_hash": "sha256:aded30ee6475dd5b127a58440280356e0e0bc7950b28c1b963482a14f3cbd3e1"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:a6a63c551ac2e6c4372e427949fc8a12c4dd46627c714d6b00b09cc56e0ba01a",
+                      "source_dependency_hash": "sha256:5c24d312c7a36e9836712df69e5bef16ef2d6cef8f96e8d6ee49c6d655a4f4ba",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:09027a7ab212dfaa8d7fbd5194ad582a0333aece81095e6b775fcceea3693234",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:09027a7ab212dfaa8d7fbd5194ad582a0333aece81095e6b775fcceea3693234"
+                      "worker_validation_receipt_hash": "sha256:aded30ee6475dd5b127a58440280356e0e0bc7950b28c1b963482a14f3cbd3e1",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:aded30ee6475dd5b127a58440280356e0e0bc7950b28c1b963482a14f3cbd3e1"
                     }
                   }
                 },

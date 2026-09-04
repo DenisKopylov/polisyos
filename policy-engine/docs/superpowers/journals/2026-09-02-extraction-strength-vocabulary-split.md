@@ -388,3 +388,31 @@ the complete-set requirement for Task 4; P37 labels descriptive provenance as
 non-authoritative; P38 records the keyset cursor's bounded currentness
 limitation. Authority, graph fallback, publication, evaluator, ranking,
 currentness/reissue/cache, and the promoted debt rows remain unclaimed.
+
+### Task 3 review fix — operational identity and relation-wide uniqueness
+
+Independent review found that non-exact SKG claim projections dropped the
+pre-split operational `work_id`. RED tests for family, contested, and hybrid
+support modes each observed an empty value despite nonempty `article_refs`.
+`SKGQuery.query_claims` now passes the first supporting reference through the
+Store projector, restoring the prior behavior without changing vocabulary or
+source-binding semantics.
+
+The review also exposed a real P38 risk in the audit fallback: when a legacy
+table lacks a declared identity constraint, uniqueness had been reconciled only
+inside the requested status filter. A read-only check of the pinned raw relation
+settled the required compatibility: it declares **no constraints**, but has
+`137,589` rows, `137,589` distinct `(id, work_id)` pairs, and zero null
+identities. Requiring a constraint would therefore make the pinned snapshot
+unreadable and contradict the no-data close. The repair instead reconciles the
+complete physical relation before applying any status filter, then computes the
+filtered total. A RED fixture with duplicate unconstrained legacy identities and
+the otherwise-empty `candidate` filter previously returned an empty page; it now
+fails with `ClaimLineageCursorError`. Explicit-v2's existing canonical identity
+constraint remains mandatory—an attempted intermediate removal was rejected as
+a forbidden predicate weakening and was not committed.
+
+Independent root replay after the correction: the complete Store/SKG focused
+pair reported **58 passed in 8.39s**; Ruff over both modules and both tests
+passed, and `git diff --check` passed. The declared between-call mutation
+limitation remains unchanged.

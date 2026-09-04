@@ -218,6 +218,7 @@ class SKGQuery:
                 domain=self._edge_domain(row.src, row.dst),
                 trust_score=row.confidence,
                 work_title=f"{row.n_unique_works} work(s) synthesized",
+                work_id=row.article_refs[0] if row.article_refs else "",
             )
             for row in rows
         ]

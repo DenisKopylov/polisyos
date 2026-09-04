@@ -320,6 +320,27 @@ def test_raw_claim_audit_reconciles_unique_unconstrained_legacy_identities(
     assert second.next_cursor is None
 
 
+def test_filtered_legacy_audit_rejects_duplicate_full_relation_before_empty_candidate_page(
+    tmp_path,
+):
+    path = tmp_path / "unconstrained-duplicate-legacy.duckdb"
+    con = duckdb.connect(str(path))
+    con.execute(
+        "CREATE TABLE ac_causal_claims_raw ("
+        "id VARCHAR, work_id VARCHAR, cause VARCHAR, effect VARCHAR, "
+        "direction VARCHAR, strength VARCHAR, mechanism VARCHAR, trust_score FLOAT)"
+    )
+    con.execute(
+        "INSERT INTO ac_causal_claims_raw VALUES "
+        "('duplicate', 'w1', 'a', 'b', 'positive', 'moderate', '', 0.5), "
+        "('duplicate', 'w1', 'a', 'b', 'positive', 'moderate', '', 0.5)"
+    )
+    con.close()
+
+    with pytest.raises(ClaimLineageCursorError, match="duplicate or null identities"):
+        ScholarKnowledgeStore(path, tmp_path).audit_claim_lineage(status="candidate")
+
+
 def test_partial_or_future_claim_table_schema_fails_typed(tmp_path):
     path = _make_v1_db(tmp_path)
     con = duckdb.connect(str(path))

@@ -586,6 +586,7 @@ class ScholarKnowledgeStore:
         domain: str,
         trust_score: float,
         work_title: str,
+        work_id: str = "",
         source_bindings: tuple[ClaimVocabularySourceRowBinding, ...] | None = None,
     ) -> CausalClaimResultV2:
         """Project an exact/family/contested edge summary without cross-axis inference."""
@@ -668,7 +669,7 @@ class ScholarKnowledgeStore:
         )
         return CausalClaimResultV2(
             id=source_identity,
-            work_id="",
+            work_id=work_id,
             cause=cause,
             effect=effect,
             direction=direction,
@@ -936,26 +937,32 @@ class ScholarKnowledgeStore:
                     f"(SELECT count(*) FROM {table} invalid_row WHERE "
                     f"{self._explicit_v2_invalid_predicate('invalid_row')})"
                 )
-            count_row = self._con.execute(
+            relation_count_row = self._con.execute(
                 f"SELECT count(*), count(DISTINCT (c.id, c.work_id)), "
                 f"count(*) FILTER (WHERE c.id IS NULL OR c.work_id IS NULL) "
                 f", {invalid_count_sql} "
-                f"FROM {table} c WHERE ({status_predicate})"
+                f"FROM {table} c"
             ).fetchone()
-            if count_row is None:
+            if relation_count_row is None:
                 raise ClaimLineageCursorError("claim identity reconciliation returned no result")
-            total, distinct_identities, null_identities, invalid_rows = (
-                int(value) for value in count_row
+            relation_total, distinct_identities, null_identities, invalid_rows = (
+                int(value) for value in relation_count_row
             )
             if invalid_rows:
                 raise ClaimTableSchemaError(
                     f"invalid explicit_v2 row in {table}; count={invalid_rows}"
                 )
-            if total != distinct_identities or null_identities:
+            if relation_total != distinct_identities or null_identities:
                 raise ClaimLineageCursorError(
                     "raw claim identity uniqueness constraint is absent or inconsistent; "
                     "reconciliation found duplicate or null identities"
                 )
+            filtered_count_row = self._con.execute(
+                f"SELECT count(*) FROM {table} c WHERE ({status_predicate})"
+            ).fetchone()
+            if filtered_count_row is None:
+                raise ClaimLineageCursorError("claim lineage filtered count returned no result")
+            total = int(filtered_count_row[0])
         keyset = ""
         params: list[object] = []
         if cursor is not None:

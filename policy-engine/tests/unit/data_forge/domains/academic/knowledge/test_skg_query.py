@@ -764,6 +764,7 @@ def test_query_claims_supports_contested_summary_mode(tmp_path) -> None:
     assert rows[0].projection_binding.source_rows[0].source_table == (
         "ac_skg_contested_edges"
     )
+    assert rows[0].work_id == "W8"
     assert "strength" not in rows[0].model_dump()
 
 
@@ -822,6 +823,7 @@ def test_query_claims_family_summary_establishes_only_explicit_evidence(tmp_path
     assert rows[0].projection_binding.source_rows[0].source_table == (
         "ac_skg_family_edges"
     )
+    assert rows[0].work_id == "W1"
 
 
 def test_query_claims_hybrid_preserves_tied_explicit_theoretical_evidence(
@@ -858,6 +860,7 @@ def test_query_claims_hybrid_preserves_tied_explicit_theoretical_evidence(
     assert rows[0].evidence_strength is not None
     assert rows[0].evidence_strength.value == "theoretical"
     assert len(rows[0].projection_binding.source_rows) == 2
+    assert rows[0].work_id == "W1"
 
 
 def test_query_claims_edge_summary_types_sql_null_as_not_established(tmp_path) -> None:

@@ -1,0 +1,20 @@
+id = "2026-09-03-gy-def22-foundry-dependency-discriminant-surface"
+title = "Surface the Foundry-owned N8 dependency discriminant as an ambient value-gate binding"
+type = "changed"
+component = "runtime"
+owner = "team-runtime-quality"
+summary = "The governed value-gate projection now carries a content-bound Foundry dependency-environment diagnostic with its explicit non-decisive authority boundary."
+evidence = [
+  "tests/unit/runtime/http/test_governed_projection_service.py",
+  "tests/unit/runtime/http/test_governed_projection_validation_worker.py",
+]
+compatibility = "The governed-projection source identity adds an optional related owner binding; existing value-gate authority and availability semantics are unchanged."
+change_class = "runtime-api"
+surface_classification = "public_experimental: runtime governed projections"
+migration = "Consumers may display the related dependency diagnostic for audit, but must not use it for N8 admission, stage-gap closure, chronology acceptance, publication, or promotion."
+api = "Adds typed decision role, predicate class, authority boundary, profile/root/distribution references, artifact content reference, receipt state, and ambient status to the value-gate related owner binding."
+limitations = "The diagnostic is ambient_non_decisive: a valid fail remains available, and a corrupt or absent companion is a typed non-receipt rather than source invalidity."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.foundry.methods.catalog import dependency_profile as dependency_profile_module
 from polisyos.pdc import gy_content_hash, reconcile_gy_operational_leaves
 from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerSession
 from polisyos.runtime.quality.design_problem import DesignProblem
@@ -24,6 +25,7 @@ from polisyos.runtime.quality.substrate_registry import (
     build_substrate_registry,
 )
 from tools.quality.validation import check_layer3_gy_second_domain_pack as second_domain_pack
+from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 N10A_BASE_COMMIT = "26cc7cc03efc9da44362dc2914a5bde8ac8f7e73"
@@ -48,6 +50,26 @@ def _source_freeze() -> str:
         capture_output=True,
         text=True,
     ).stdout.strip()
+
+
+def _failed_dependency_diagnostic(companion: object) -> object:
+    profile = companion.profile_discriminant
+    observations = tuple(
+        dependency_profile_module.InstalledDistributionObservation(
+            name=row.name,
+            version="incompatible-version" if index == 0 else row.version,
+        )
+        for index, row in enumerate(profile.resolved_distributions)
+    )
+    result = dependency_profile_module.diagnose_dependency_environment(
+        discriminant=profile,
+        observed_distributions=dependency_profile_module.AmbientDependencyEnvironmentObservation(
+            observation_kind="ambient",
+            distributions=observations,
+        ),
+    )
+    assert result.status == "fail"
+    return result
 
 
 _PLUGIN_POSTURE_WITNESS_SCRIPT = r"""
@@ -714,6 +736,92 @@ def test_n8_transport_gap_closes_from_pack_and_unseen_behavioral_proofs() -> Non
     ]
     assert evidence["unseen_covariates"] == ["watershed_slope"]
     assert str(evidence["receipt_ref"]).startswith("sha256:")
+
+
+def test_dependency_discriminant_diagnostic_is_ambient_to_n10a_governing_result(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A real generic mismatch stays outside the N10a governing result."""
+
+    companion = n8.build_dependency_discriminant_companion(
+        repo_root=REPO_ROOT,
+        source_freeze=n8.dependency_discriminant_source_freeze(REPO_ROOT),
+    )
+    reader = getattr(second_domain_pack, "read_foundry_dependency_discriminant", None)
+    assert callable(reader), "missing behavior: N10a discriminant reader"
+
+    diagnostic = _failed_dependency_diagnostic(companion)
+    baseline = reader(
+        repo_root=REPO_ROOT,
+        companion=companion,
+        diagnostic_verification=None,
+    )
+    monkeypatch.setattr(n8, "_current_dependency_environment_diagnostic", lambda _profile: diagnostic)
+    failed = reader(
+        repo_root=REPO_ROOT,
+        companion=companion,
+        diagnostic_verification=diagnostic,
+    )
+
+    assert failed.governing_result == baseline.governing_result
+    assert failed.content_ref == companion.content_ref
+    assert failed.discriminant_ref == companion.profile_discriminant.discriminant_ref
+    assert failed.status == "fail"
+    assert failed.first_case.coordinate.startswith("distribution:")
+
+
+def test_cli_names_dependency_case_before_generic_stage_gap_without_reclosing_n8(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """The ambient case is projected first without changing closure or issues."""
+
+    companion = n8.build_dependency_discriminant_companion(
+        repo_root=REPO_ROOT,
+        source_freeze=n8.dependency_discriminant_source_freeze(REPO_ROOT),
+    )
+    reader = getattr(second_domain_pack, "read_foundry_dependency_discriminant", None)
+    assert callable(reader), "missing behavior: N10a discriminant reader"
+    diagnostic = _failed_dependency_diagnostic(companion)
+    monkeypatch.setattr(n8, "_current_dependency_environment_diagnostic", lambda _profile: diagnostic)
+    ambient = reader(
+        repo_root=REPO_ROOT,
+        companion=companion,
+        diagnostic_verification=diagnostic,
+    )
+    governing = {
+        "status": "fail",
+        "issues": [{"code": "downstream_generic_symptom"}],
+        "n8_transport_tuple_hardcode": {"closed": True, "receipt_ref": "sha256:fixed"},
+    }
+    monkeypatch.setattr(second_domain_pack, "validate", lambda *_args, **_kwargs: governing)
+    monkeypatch.setattr(
+        second_domain_pack,
+        "read_foundry_dependency_discriminant",
+        lambda **_kwargs: ambient,
+        raising=False,
+    )
+
+    exit_code = second_domain_pack.main(
+        [
+            "--repo-root",
+            str(REPO_ROOT),
+            "--expected-source-freeze",
+            "0" * 40,
+            "--check",
+            "--output-format",
+            "json",
+        ]
+    )
+
+    raw = capsys.readouterr().out.strip()
+    report = json.loads(raw)
+    assert exit_code == 1
+    assert report["issues"] == governing["issues"]
+    assert all(issue["code"] != "stage_gap_triage_drift" for issue in report["issues"])
+    assert report["n8_transport_tuple_hardcode"] == governing["n8_transport_tuple_hardcode"]
+    assert report["dependency_environment_diagnostic"]["status"] == "fail"
+    assert raw.index("distribution:") < raw.index("downstream_generic_symptom")
 
 
 def test_n8_transport_gap_consumes_the_typed_governing_subset(

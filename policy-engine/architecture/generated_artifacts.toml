@@ -2048,6 +2048,40 @@ check_command = [
 ]
 
 [[family]]
+id = "policy-design-case-layer3-gy-n8-dependency-discriminant"
+label = "Policy Design Case Layer 3 GY-N8 Foundry dependency discriminant"
+owner = "team-foundry"
+approval_owner = "team-foundry"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "GY-N8 value-gate validator companion writer over the Foundry catalog/discovery dependency discriminant"
+verifier = "GY-N8 companion checker replays the Foundry-owned profile, source-freeze, N8 bytes, and ambient authority boundary"
+promotion_target = "machine and audit dependency-environment diagnosis only; never N8 admission, stage-gap closure, chronology acceptance, publication, or promotion"
+stale_output_behavior = "fail"
+source_of_truth = "Foundry catalog/discovery dependency profile and digest owners, the exact N8 value-gate contract bytes, and tools/quality/validation/check_layer3_gy_value_gate_contract.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json",
+]
+regenerate_commands = [
+  "uv run python tools/quality/validation/check_layer3_gy_value_gate_contract.py --write-dependency-discriminant architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json --write --expected-source-freeze 3ffb6ad5ed95d316656bc19946018a4eec52bc3b",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever the Foundry dependency profile/distribution closure, its frozen source bytes, or the exact N8 value-gate contract bytes change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_value_gate_contract.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+  "--check-dependency-discriminant",
+  "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json",
+  "--expected-source-freeze",
+  "3ffb6ad5ed95d316656bc19946018a4eec52bc3b",
+]
+
+[[family]]
 id = "policy-design-case-layer3-gy-n11-confidence-ledger"
 label = "Policy Design Case Layer 3 GY-N11 anytime-valid confidence ledger"
 owner = "team-runtime-quality"

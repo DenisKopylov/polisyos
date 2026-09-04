@@ -2227,6 +2227,77 @@ export type DeltaQuantity = {
   significance?: "improved" | "worsened" | "mixed" | "uncertain" | "not_comparable";
 };
 
+export type DependencyDigestProjection = {
+  domain: string;
+  value: string;
+};
+
+export type DependencyDiscriminantAuthorityBoundary = {
+  authoritative_for: Array<string>;
+  may_not_use_for: Array<"n8_admission" | "n10a_stage_gap_closure" | "chronology_acceptance" | "policy_publication" | "policy_promotion">;
+};
+
+export type DependencyDiscriminantOwnerBinding = {
+  binding_name: string;
+  dependency_environment: DependencyEnvironmentDiagnosticProjection;
+  owner_semantic_hash: string | null;
+  relation?: string;
+  relative_path: string;
+  resolved_artifact_content_hash: string | null;
+  semantic_hash_rule_version: string;
+};
+
+export type DependencyDistributionProjection = {
+  name: string;
+  selected_artifact: DependencyDigestProjection;
+  source_kind: string;
+  version: string;
+};
+
+export type DependencyEnvironmentDiagnosticCaseProjection = {
+  case_kind: "root_distribution_disagreement" | "missing_resolved_distribution" | "distribution_field_disagreement" | "unexpected_in_closure_identity";
+  coordinate: string;
+  expected: string;
+  field?: "version" | "source_kind" | "selected_artifact" | null;
+  observed: string;
+  predicate_class: "independently_reconciled" | "recomputed";
+};
+
+export type DependencyEnvironmentDiagnosticProjection = {
+  artifact_content_ref?: string | null;
+  authority_boundary?: DependencyDiscriminantAuthorityBoundary | null;
+  decision_role: string;
+  first_case?: DependencyEnvironmentDiagnosticCaseProjection | null;
+  predicate_class?: string | null;
+  profile?: DependencyProfileDiscriminantProjection | null;
+  receipt_state: "received" | "not_received";
+  status: "pass" | "fail" | "not_established";
+};
+
+export type DependencyProfileDiscriminantProjection = {
+  declaration_ref: DependencyRecordRefProjection;
+  discriminant_ref: DependencyDigestProjection;
+  distribution_set: DependencyDigestProjection;
+  extras: Array<string>;
+  lockfile_ref: DependencyDigestProjection;
+  marker_environment: Array<Array<unknown>>;
+  profile_id: string;
+  pyproject_ref: DependencyDigestProjection;
+  python_constraint: string;
+  resolved_distributions: Array<DependencyDistributionProjection>;
+  resolver_name: string;
+  resolver_version: string;
+  root_distribution: string;
+  rule_version: string;
+  schema_version: string;
+};
+
+export type DependencyRecordRefProjection = {
+  artifact_id: string;
+  schema_version: string;
+  semantic_hash: DependencyDigestProjection;
+};
+
 export type DepthNAcquisitionEconomicsProjection = {
   decision_owner_ref: string;
   expected_cost: number | null;
@@ -4515,7 +4586,7 @@ export type ProjectionOwnerBinding = {
 export type ProjectionSourceIdentity = {
   artifact_content_hash: string;
   declared_content_hash?: string | null;
-  related_artifact_bindings?: Array<ProjectionOwnerBinding>;
+  related_artifact_bindings?: Array<RelatedArtifactBinding>;
   relative_path: string;
   validation: ProjectionSourceValidation;
 };
@@ -4712,6 +4783,8 @@ export type RefusedAuthorityValue = {
   surface: AuthoritySurface;
   value_id: AuthorityValueId;
 };
+
+export type RelatedArtifactBinding = ProjectionOwnerBinding | DependencyDiscriminantOwnerBinding;
 
 export type ReplayRef = {
   manifest_ref?: string | null;

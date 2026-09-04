@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
@@ -141,6 +142,17 @@ def _copy_governed_source(root: Path, relative_path: str) -> Path:
     return destination
 
 
+def _committed_dependency_profile() -> Any:
+    companion_path = (
+        REPO_ROOT
+        / "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+    )
+    companion = json.loads(companion_path.read_text(encoding="utf-8"))
+    return MODULE.DependencyProfileDiscriminantProjection.model_validate_json(
+        json.dumps(companion["profile_discriminant"])
+    )
+
+
 def _copy_proving_ground(root: Path) -> None:
     source_root = REPO_ROOT / "tests/fixtures/universal-corpus"
     destination_root = root / "tests/fixtures/universal-corpus"
@@ -180,7 +192,27 @@ def owner_validator_pass(monkeypatch: pytest.MonkeyPatch) -> None:
         dependency_bindings = {
             path: f"file:{content_hash}" for path, content_hash in loaded.component_bindings
         }
-        return MODULE.ProjectionSourceValidation(
+        related_dependency_diagnostic = None
+        if definition.projection_id is ProjectionId.VALUE_GATE:
+            related_dependency_diagnostic = MODULE.DependencyEnvironmentDiagnosticProjection(
+                decision_role="ambient_non_decisive",
+                predicate_class="recomputed",
+                authority_boundary=MODULE.DependencyDiscriminantAuthorityBoundary(
+                    authoritative_for=("dependency_environment_diagnosis",),
+                    may_not_use_for=(
+                        "n8_admission",
+                        "n10a_stage_gap_closure",
+                        "chronology_acceptance",
+                        "policy_publication",
+                        "policy_promotion",
+                    ),
+                ),
+                artifact_content_ref="sha256:foundry-discriminant",
+                profile=_committed_dependency_profile(),
+                receipt_state="received",
+                status="pass",
+            )
+        validation = MODULE.ProjectionSourceValidation(
             validator_id=definition.owner_validator_id,
             validator_version=definition.owner_validator_version,
             status="passed",
@@ -190,6 +222,8 @@ def owner_validator_pass(monkeypatch: pytest.MonkeyPatch) -> None:
             semantic_projection_hash=projection_hash,
             semantic_projection_hash_rule_version=hash_rule,
         )
+        validation._related_dependency_diagnostic = related_dependency_diagnostic
+        return validation
 
     monkeypatch.setattr(MODULE, "_run_owner_validation", pass_validation)
 
@@ -283,6 +317,73 @@ def test_owner_validation_receipt_rejects_forged_aggregate_binding(
 
     assert validation.status == "failed"
     assert validation.issue_codes == ("owner_validator_receipt_mismatch",)
+
+
+@pytest.mark.parametrize("diagnostic_state", ["missing", "malformed"])
+def test_value_gate_owner_bridge_quarantines_unusable_diagnostic_receipts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    diagnostic_state: str,
+) -> None:
+    """Diagnostic transport failure cannot invalidate a valid governing receipt."""
+
+    value_path = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+    companion_path = "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+    _copy_governed_source(tmp_path, value_path)
+    _copy_governed_source(tmp_path, companion_path)
+    definition = MODULE._DEFINITION_BY_ID[ProjectionId.VALUE_GATE]
+    service = GovernedProjectionService(tmp_path)
+    loaded = service._load(definition)
+    payload = service._project(definition, loaded)
+    payload_data = payload.model_dump(mode="json")
+    dependency_bindings = {
+        path: f"file:{content_hash}" for path, content_hash in loaded.component_bindings
+    }
+    receipt: dict[str, Any] = {
+        "schema_version": "policyos.runtime.governed_projection.owner_validation.v2",
+        "projection_id": ProjectionId.VALUE_GATE.value,
+        "validator_id": definition.owner_validator_id,
+        "validator_version": definition.owner_validator_version,
+        "status": "passed",
+        "bound_aggregate_identity": hash_export_projection(
+            dict(loaded.component_bindings)
+        ),
+        "bound_source_identities": dict(loaded.component_bindings),
+        "bound_projection_payload_hash": hash_export_projection(payload_data),
+        "semantic_projection_hash": hash_export_projection(payload_data),
+        "semantic_projection_hash_rule_version": "polisyos.pdc.gy_content_hash.v1",
+        "dependency_aggregate_identity": hash_export_projection(dependency_bindings),
+        "dependency_bindings": dependency_bindings,
+        "issue_codes": [],
+    }
+    if diagnostic_state == "malformed":
+        receipt["related_dependency_diagnostic"] = {
+            "decision_role": "ambient_non_decisive",
+            "receipt_state": "received",
+            "status": "pass",
+        }
+
+    monkeypatch.setattr(
+        MODULE.subprocess,
+        "run",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            returncode=0,
+            stdout=json.dumps(receipt),
+        ),
+    )
+
+    validation = MODULE._run_owner_validation(
+        repository_root=tmp_path,
+        definition=definition,
+        loaded=loaded,
+        payload=payload,
+    )
+
+    assert validation.status == "passed"
+    diagnostic = validation._related_dependency_diagnostic
+    assert diagnostic is not None
+    assert diagnostic.receipt_state == "not_received"
+    assert diagnostic.status == "not_established"
 
 
 def test_owner_validation_timeout_is_operational_not_an_admission_verdict(
@@ -411,6 +512,188 @@ def test_available_projection_payloads_are_source_specific_strict_models(
     assert all(isinstance(packet.payload, BaseModel) for packet in packets)
     assert len({type(packet.payload) for packet in packets}) == len(available_ids)
     assert all(packet.projection_rule_version for packet in packets)
+
+
+def test_value_gate_projects_foundry_dependency_discriminant_as_related_owner_binding(
+    owner_validator_pass: None,
+) -> None:
+    """Expose the Foundry-owned diagnostic without making it a value-gate verdict."""
+
+    packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.VALUE_GATE)
+
+    assert packet.availability is ProjectionAvailability.AVAILABLE
+    assert packet.source is not None
+    (binding,) = packet.source.related_artifact_bindings
+    assert binding.binding_name == "foundry_dependency_discriminant"
+    assert binding.relative_path == (
+        "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+    )
+    assert binding.dependency_environment is not None
+    diagnostic = binding.dependency_environment
+    assert diagnostic.decision_role == "ambient_non_decisive"
+    assert diagnostic.predicate_class == "recomputed"
+    assert diagnostic.authority_boundary.authoritative_for == (
+        "dependency_environment_diagnosis",
+    )
+    assert "n8_admission" in diagnostic.authority_boundary.may_not_use_for
+    assert diagnostic.profile is not None
+    assert diagnostic.profile.profile_id == (
+        "n8-method-catalog-reconstruction-py314-uv0921-v1"
+    )
+    assert diagnostic.profile.root_distribution == "policy-engine"
+    assert diagnostic.profile.resolved_distributions
+    assert diagnostic.profile.discriminant_ref.domain == (
+        "dependency-discriminant"
+    )
+    assert diagnostic.profile.distribution_set.domain == "distribution-set"
+    assert diagnostic.artifact_content_ref.startswith("sha256:")
+    assert "/Users/" not in json.dumps(diagnostic.model_dump(mode="json"))
+
+
+@pytest.mark.parametrize("companion_state", ["corrupt", "missing"])
+def test_value_gate_keeps_an_unusable_related_companion_as_typed_nonreceipt(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    companion_state: str,
+) -> None:
+    """A corrupt or absent diagnostic cannot invalidate the governed N8 source."""
+
+    value_path = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+    companion_path = "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+    _copy_governed_source(tmp_path, value_path)
+    companion = tmp_path / companion_path
+    if companion_state == "corrupt":
+        companion = _copy_governed_source(tmp_path, companion_path)
+        companion.write_text("{not-json", encoding="utf-8")
+    definition = MODULE._DEFINITION_BY_ID[ProjectionId.VALUE_GATE]
+
+    def validated_nonreceipt(**kwargs: object) -> MODULE.ProjectionSourceValidation:
+        loaded = kwargs["loaded"]
+        assert isinstance(loaded, MODULE._LoadedSource)
+        validation = MODULE.ProjectionSourceValidation(
+            validator_id=definition.owner_validator_id,
+            validator_version=definition.owner_validator_version,
+            status="passed",
+            bound_artifact_content_hash=loaded.content_hash,
+            bound_dependency_aggregate_identity="sha256:dependency",
+            bound_dependency_count=len(loaded.component_bindings),
+            semantic_projection_hash="sha256:projection",
+            semantic_projection_hash_rule_version="polisyos.pdc.gy_content_hash.v1",
+        )
+        validation._related_dependency_diagnostic = (
+            MODULE.DependencyEnvironmentDiagnosticProjection(
+                decision_role="ambient_non_decisive",
+                receipt_state="not_received",
+                status="not_established",
+            )
+        )
+        return validation
+
+    monkeypatch.setattr(MODULE, "_run_owner_validation", validated_nonreceipt)
+    packet = GovernedProjectionService(tmp_path).get(ProjectionId.VALUE_GATE)
+
+    assert packet.availability is ProjectionAvailability.AVAILABLE
+    assert packet.source is not None
+    (binding,) = packet.source.related_artifact_bindings
+    expected_resolved_hash = (
+        f"sha256:{hashlib.sha256(companion.read_bytes()).hexdigest()}"
+        if companion_state == "corrupt"
+        else None
+    )
+    assert binding.resolved_artifact_content_hash == expected_resolved_hash
+    assert binding.dependency_environment is not None
+    assert binding.dependency_environment.receipt_state == "not_received"
+    assert binding.dependency_environment.status == "not_established"
+    assert binding.dependency_environment.artifact_content_ref is None
+
+
+def test_value_gate_keeps_a_valid_research_mismatch_available_and_nondecisive(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A received research mismatch is an ambient fail rather than source invalidity."""
+
+    value_path = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+    companion_path = "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+    _copy_governed_source(tmp_path, value_path)
+    _copy_governed_source(tmp_path, companion_path)
+    definition = MODULE._DEFINITION_BY_ID[ProjectionId.VALUE_GATE]
+
+    def validated_research_fail(**kwargs: object) -> MODULE.ProjectionSourceValidation:
+        loaded = kwargs["loaded"]
+        assert isinstance(loaded, MODULE._LoadedSource)
+        validation = MODULE.ProjectionSourceValidation(
+            validator_id=definition.owner_validator_id,
+            validator_version=definition.owner_validator_version,
+            status="passed",
+            bound_artifact_content_hash=loaded.content_hash,
+            bound_dependency_aggregate_identity="sha256:dependency",
+            bound_dependency_count=2,
+            semantic_projection_hash="sha256:projection",
+            semantic_projection_hash_rule_version="polisyos.pdc.gy_content_hash.v1",
+        )
+        validation._related_dependency_diagnostic = (
+            MODULE.DependencyEnvironmentDiagnosticProjection(
+                decision_role="ambient_non_decisive",
+                predicate_class="recomputed",
+                authority_boundary=MODULE.DependencyDiscriminantAuthorityBoundary(
+                    authoritative_for=("dependency_environment_diagnosis",),
+                    may_not_use_for=(
+                        "n8_admission",
+                        "n10a_stage_gap_closure",
+                        "chronology_acceptance",
+                        "policy_publication",
+                        "policy_promotion",
+                    ),
+                ),
+                artifact_content_ref="sha256:received",
+                profile=_committed_dependency_profile(),
+                receipt_state="received",
+                status="fail",
+                first_case={
+                    "case_kind": "distribution_field_disagreement",
+                    "coordinate": "distribution:torch:version",
+                    "field": "version",
+                    "expected": "2.10.0",
+                    "observed": "2.9.0",
+                    "predicate_class": "recomputed",
+                },
+            )
+        )
+        return validation
+
+    monkeypatch.setattr(MODULE, "_run_owner_validation", validated_research_fail)
+    packet = GovernedProjectionService(tmp_path).get(ProjectionId.VALUE_GATE)
+
+    assert packet.availability is ProjectionAvailability.AVAILABLE
+    assert packet.source is not None
+    (binding,) = packet.source.related_artifact_bindings
+    assert binding.dependency_environment is not None
+    assert binding.dependency_environment.decision_role == "ambient_non_decisive"
+    assert binding.dependency_environment.status == "fail"
+    assert binding.dependency_environment.first_case is not None
+    assert binding.dependency_environment.first_case.coordinate == (
+        "distribution:torch:version"
+    )
+
+
+def test_dependency_diagnostic_surface_rejects_an_incomplete_authority_boundary() -> None:
+    with pytest.raises(ValidationError, match="denied uses drifted"):
+        MODULE.DependencyDiscriminantAuthorityBoundary(
+            authoritative_for=("dependency_environment_diagnosis",),
+            may_not_use_for=("n8_admission",),
+        )
+
+
+def test_related_owner_binding_does_not_make_other_semantic_hashes_optional() -> None:
+    with pytest.raises(ValidationError, match="valid string"):
+        MODULE.ProjectionOwnerBinding(
+            binding_name="live_probe_journal_content_sha256",
+            relative_path="architecture/example.json",
+            owner_semantic_hash=None,
+            semantic_hash_rule_version="example.v1",
+            resolved_artifact_content_hash="sha256:resolved",
+        )
 
 
 def test_available_packet_rejects_payload_for_a_different_projection(
@@ -600,6 +883,118 @@ def test_owner_validation_cache_revalidates_when_semantic_hasher_bytes_drift(
         first.source.validation.bound_dependency_aggregate_identity
         != third.source.validation.bound_dependency_aggregate_identity
     )
+
+
+def test_value_gate_owner_validation_does_not_cache_an_unbound_ambient_diagnostic(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A child-visible package drift must produce a fresh diagnostic receipt."""
+
+    value_path = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+    companion_path = "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+    _copy_governed_source(tmp_path, value_path)
+    _copy_governed_source(tmp_path, companion_path)
+    definition = MODULE._DEFINITION_BY_ID[ProjectionId.VALUE_GATE]
+    service = GovernedProjectionService(tmp_path)
+    loaded = service._load(definition)
+    payload = service._project(definition, loaded)
+    payload_data = payload.model_dump(mode="json")
+    dependency_bindings = {
+        path: f"file:{content_hash}" for path, content_hash in loaded.component_bindings
+    }
+    calls = 0
+
+    def ambient_worker(*_args: object, **kwargs: object) -> SimpleNamespace:
+        nonlocal calls
+        calls += 1
+        environment = kwargs["env"]
+        assert isinstance(environment, dict)
+        ambient_version = environment["POLISYOS_TEST_AMBIENT_PACKAGE_VERSION"]
+        diagnostic: dict[str, Any] = {
+            "decision_role": "ambient_non_decisive",
+            "predicate_class": "recomputed",
+            "authority_boundary": {
+                "authoritative_for": ["dependency_environment_diagnosis"],
+                "may_not_use_for": [
+                    "n8_admission",
+                    "n10a_stage_gap_closure",
+                    "chronology_acceptance",
+                    "policy_publication",
+                    "policy_promotion",
+                ],
+            },
+            "artifact_content_ref": "sha256:received",
+            "profile": _committed_dependency_profile().model_dump(mode="json"),
+            "receipt_state": "received",
+            "status": "pass" if ambient_version == "1.0" else "fail",
+            "first_case": None,
+        }
+        if ambient_version != "1.0":
+            diagnostic["first_case"] = {
+                "case_kind": "distribution_field_disagreement",
+                "coordinate": "distribution:data-generated:version",
+                "field": "version",
+                "expected": "1.0",
+                "observed": ambient_version,
+                "predicate_class": "recomputed",
+            }
+        return SimpleNamespace(
+            returncode=0,
+            stdout=json.dumps(
+                {
+                    "schema_version": (
+                        "policyos.runtime.governed_projection.owner_validation.v2"
+                    ),
+                    "projection_id": ProjectionId.VALUE_GATE.value,
+                    "validator_id": definition.owner_validator_id,
+                    "validator_version": definition.owner_validator_version,
+                    "status": "passed",
+                    "bound_aggregate_identity": hash_export_projection(
+                        dict(loaded.component_bindings)
+                    ),
+                    "bound_source_identities": dict(loaded.component_bindings),
+                    "bound_projection_payload_hash": hash_export_projection(payload_data),
+                    "semantic_projection_hash": hash_export_projection(payload_data),
+                    "semantic_projection_hash_rule_version": (
+                        "polisyos.pdc.gy_content_hash.v1"
+                    ),
+                    "dependency_aggregate_identity": hash_export_projection(
+                        dependency_bindings
+                    ),
+                    "dependency_bindings": dependency_bindings,
+                    "issue_codes": [],
+                    "related_dependency_diagnostic": diagnostic,
+                }
+            ),
+        )
+
+    monkeypatch.setattr(MODULE.subprocess, "run", ambient_worker)
+    monkeypatch.setenv("POLISYOS_TEST_AMBIENT_PACKAGE_VERSION", "1.0")
+    first = MODULE._run_owner_validation(
+        repository_root=tmp_path,
+        definition=definition,
+        loaded=loaded,
+        payload=payload,
+    )
+    monkeypatch.setenv("POLISYOS_TEST_AMBIENT_PACKAGE_VERSION", "2.0")
+    second = MODULE._run_owner_validation(
+        repository_root=tmp_path,
+        definition=definition,
+        loaded=loaded,
+        payload=payload,
+    )
+
+    assert first.status == second.status == "passed"
+    assert first._related_dependency_diagnostic is not None
+    assert first._related_dependency_diagnostic.status == "pass"
+    assert second._related_dependency_diagnostic is not None
+    assert second._related_dependency_diagnostic.status == "fail"
+    assert second._related_dependency_diagnostic.first_case is not None
+    assert second._related_dependency_diagnostic.first_case.coordinate == (
+        "distribution:data-generated:version"
+    )
+    assert calls == 2
 
 
 def test_owner_validation_cache_binds_exact_projected_payload(

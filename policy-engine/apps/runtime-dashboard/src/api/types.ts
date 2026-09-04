@@ -7294,6 +7294,190 @@ export interface components {
         | "not_comparable";
     };
     /**
+     * DependencyDigestProjection
+     * @description Carry one owner-computed digest without recomputing it in Runtime.
+     */
+    DependencyDigestProjection: {
+      /** Domain */
+      domain: string;
+      /** Value */
+      value: string;
+    };
+    /**
+     * DependencyDiscriminantAuthorityBoundary
+     * @description Declare the only diagnostic use and the explicitly denied authority uses.
+     */
+    DependencyDiscriminantAuthorityBoundary: {
+      /** Authoritative For */
+      authoritative_for: "dependency_environment_diagnosis"[];
+      /** May Not Use For */
+      may_not_use_for: (
+        | "n8_admission"
+        | "n10a_stage_gap_closure"
+        | "chronology_acceptance"
+        | "policy_publication"
+        | "policy_promotion"
+      )[];
+    };
+    /**
+     * DependencyDiscriminantOwnerBinding
+     * @description Carry the received or non-received Foundry diagnostic companion.
+     */
+    DependencyDiscriminantOwnerBinding: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      binding_name: "foundry_dependency_discriminant";
+      dependency_environment: components["schemas"]["DependencyEnvironmentDiagnosticProjection"];
+      /** Owner Semantic Hash */
+      owner_semantic_hash: string | null;
+      /**
+       * Relation
+       * @default semantic_projection
+       * @constant
+       */
+      relation: "semantic_projection";
+      /**
+       * Relative Path
+       * @constant
+       */
+      relative_path: "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json";
+      /** Resolved Artifact Content Hash */
+      resolved_artifact_content_hash: string | null;
+      /**
+       * Semantic Hash Rule Version
+       * @constant
+       */
+      semantic_hash_rule_version: "polisyos.foundry.dependency_discriminant.v1";
+    };
+    /**
+     * DependencyDistributionProjection
+     * @description Carry one member of the owner-resolved deployment closure.
+     */
+    DependencyDistributionProjection: {
+      /** Name */
+      name: string;
+      selected_artifact: components["schemas"]["DependencyDigestProjection"];
+      /** Source Kind */
+      source_kind: string;
+      /** Version */
+      version: string;
+    };
+    /**
+     * DependencyEnvironmentDiagnosticCaseProjection
+     * @description Transport the owner-ordered first incompatible closure coordinate.
+     */
+    DependencyEnvironmentDiagnosticCaseProjection: {
+      /**
+       * Case Kind
+       * @enum {string}
+       */
+      case_kind:
+        | "root_distribution_disagreement"
+        | "missing_resolved_distribution"
+        | "distribution_field_disagreement"
+        | "unexpected_in_closure_identity";
+      /** Coordinate */
+      coordinate: string;
+      /** Expected */
+      expected: string;
+      /** Field */
+      field?: ("version" | "source_kind" | "selected_artifact") | null;
+      /** Observed */
+      observed: string;
+      /**
+       * Predicate Class
+       * @enum {string}
+       */
+      predicate_class: "independently_reconciled" | "recomputed";
+    };
+    /**
+     * DependencyEnvironmentDiagnosticProjection
+     * @description Typed non-decisive diagnostic emitted by the Foundry/N8 owner bridge.
+     */
+    DependencyEnvironmentDiagnosticProjection: {
+      /** Artifact Content Ref */
+      artifact_content_ref?: string | null;
+      authority_boundary?:
+        | components["schemas"]["DependencyDiscriminantAuthorityBoundary"]
+        | null;
+      /**
+       * Decision Role
+       * @constant
+       */
+      decision_role: "ambient_non_decisive";
+      first_case?:
+        | components["schemas"]["DependencyEnvironmentDiagnosticCaseProjection"]
+        | null;
+      /** Predicate Class */
+      predicate_class?: "recomputed" | null;
+      profile?:
+        | components["schemas"]["DependencyProfileDiscriminantProjection"]
+        | null;
+      /**
+       * Receipt State
+       * @enum {string}
+       */
+      receipt_state: "received" | "not_received";
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "pass" | "fail" | "not_established";
+    };
+    /**
+     * DependencyProfileDiscriminantProjection
+     * @description Transport the complete Foundry-owned dependency discriminant unchanged.
+     */
+    DependencyProfileDiscriminantProjection: {
+      declaration_ref: components["schemas"]["DependencyRecordRefProjection"];
+      discriminant_ref: components["schemas"]["DependencyDigestProjection"];
+      distribution_set: components["schemas"]["DependencyDigestProjection"];
+      /** Extras */
+      extras: string[];
+      lockfile_ref: components["schemas"]["DependencyDigestProjection"];
+      /** Marker Environment */
+      marker_environment: [string, string][];
+      /** Profile Id */
+      profile_id: string;
+      pyproject_ref: components["schemas"]["DependencyDigestProjection"];
+      /** Python Constraint */
+      python_constraint: string;
+      /** Resolved Distributions */
+      resolved_distributions: components["schemas"]["DependencyDistributionProjection"][];
+      /**
+       * Resolver Name
+       * @constant
+       */
+      resolver_name: "uv";
+      /** Resolver Version */
+      resolver_version: string;
+      /** Root Distribution */
+      root_distribution: string;
+      /**
+       * Rule Version
+       * @constant
+       */
+      rule_version: "polisyos.foundry.dependency_discriminant.v1";
+      /**
+       * Schema Version
+       * @constant
+       */
+      schema_version: "polisyos.foundry.dependency-discriminant.v1";
+    };
+    /**
+     * DependencyRecordRefProjection
+     * @description Carry the owner record reference used by the discriminant.
+     */
+    DependencyRecordRefProjection: {
+      /** Artifact Id */
+      artifact_id: string;
+      /** Schema Version */
+      schema_version: string;
+      semantic_hash: components["schemas"]["DependencyDigestProjection"];
+    };
+    /**
      * DepthNAcquisitionEconomicsProjection
      * @description Hash-resolved N7 planner economics, separate from its route reference.
      */
@@ -13387,8 +13571,11 @@ export interface components {
      * @description Resolve an owner-declared semantic hash without calling it byte identity.
      */
     ProjectionOwnerBinding: {
-      /** Binding Name */
-      binding_name: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      binding_name: "live_probe_journal_content_sha256";
       /** Owner Semantic Hash */
       owner_semantic_hash: string;
       /**
@@ -13417,7 +13604,7 @@ export interface components {
        * Related Artifact Bindings
        * @default []
        */
-      related_artifact_bindings: components["schemas"]["ProjectionOwnerBinding"][];
+      related_artifact_bindings: components["schemas"]["RelatedArtifactBinding"][];
       /** Relative Path */
       relative_path: string;
       validation: components["schemas"]["ProjectionSourceValidation"];
@@ -13873,6 +14060,9 @@ export interface components {
       surface: components["schemas"]["AuthoritySurface"];
       value_id: components["schemas"]["AuthorityValueId"];
     };
+    RelatedArtifactBinding:
+      | components["schemas"]["ProjectionOwnerBinding"]
+      | components["schemas"]["DependencyDiscriminantOwnerBinding"];
     /**
      * ReplayRef
      * @description Replay or retention alternative reference for the value.

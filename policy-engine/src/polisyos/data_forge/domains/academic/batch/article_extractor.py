@@ -1904,12 +1904,11 @@ def serialize_rich_claim_occurrence_vocabulary(
     record_extraction_mode: str | None,
     record_extraction_confidence: float | None = None,
 ) -> ClaimOccurrenceVocabularyTransport:
-    """Build an inactive lossless v2 composite from one rich extracted claim.
+    """Build the lossless v2 composite emitted for one rich extracted claim.
 
     The record confidence is deliberately accepted only to make its exclusion
     explicit: missing claim confidence remains absent rather than borrowing a
-    paper-level observation.  This helper is uncalled while ``WorkRecord``
-    continues to emit its legacy v1 claim dictionaries.
+    paper-level observation.
     """
 
     del record_extraction_confidence
@@ -2008,35 +2007,11 @@ def _to_work_record(
         )
 
     causal_claims = [
-        {
-            "claim_id": claim.claim_id,
-            "claim_text": claim.claim_text,
-            "claim_type": claim.claim_type.value,
-            "cause": claim.cause_variable,
-            "effect": claim.effect_variable,
-            "direction": claim.direction.value,
-            "strength": claim.evidence_strength.value,
-            "claim_explicitness": claim.claim_explicitness.value,
-            "design_family_hint": claim.design_family_hint.value,
-            "mechanism": claim.counterevidence_notes,
-            "effect_size": claim.effect_size,
-            "supporting_span_ids": list(claim.supporting_span_ids),
-            "method_span_ids": list(claim.method_span_ids),
-            "supporting_spans": [span.model_dump(mode="json") for span in claim.supporting_spans],
-            "method_spans": [span.model_dump(mode="json") for span in claim.method_spans],
-            "source_basis": claim.source_basis.value,
-            "claim_extraction_confidence": (
-                float(claim.claim_extraction_confidence)
-                if claim.claim_extraction_confidence is not None
-                else float(result.extraction_confidence)
-            ),
-            "extraction_warnings": list(claim.extraction_warnings),
-            "strong_design_evidence": bool(claim.strong_design_evidence),
-            "publish_to_graph": bool(claim.publish_to_graph),
-            "publish_blockers": list(claim.publish_blockers),
-            "design_quality_tier": claim.design_quality_tier,
-            "span_contamination_detected": bool(claim.span_contamination_detected),
-        }
+        serialize_rich_claim_occurrence_vocabulary(
+            claim,
+            record_extraction_mode="resolve_extract",
+            record_extraction_confidence=result.extraction_confidence,
+        )
         for claim in result.causal_claims
     ]
 

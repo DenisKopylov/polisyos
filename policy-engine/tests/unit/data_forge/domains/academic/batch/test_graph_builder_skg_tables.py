@@ -18,7 +18,10 @@ from polisyos.data_forge.domains.academic.knowledge.types import (
     WorkRecord,
     admit_candidate_claim_vocabulary,
 )
-from polisyos.ir.analytics.literature import VersionedClaimVocabularyEnvelope
+from polisyos.ir.analytics.literature import (
+    ClaimVocabularyAxisStatus,
+    VersionedClaimVocabularyEnvelope,
+)
 
 
 def _candidate_transport() -> ClaimOccurrenceVocabularyTransport:
@@ -37,6 +40,63 @@ def _candidate_transport() -> ClaimOccurrenceVocabularyTransport:
             effect="employment",
             direction="negative",
             mechanism="labour cost",
+        ),
+    )
+
+
+def _typed_claim_transport(
+    *,
+    claim_id: str,
+    cause: str,
+    effect: str,
+    direction: str = "",
+    mechanism: str = "",
+    design_family_hint: str | None = None,
+    evidence_strength: str | None = None,
+    claim_extraction_confidence: float | None = None,
+    source_basis: str | None = None,
+    **operational: object,
+) -> ClaimOccurrenceVocabularyTransport:
+    occurrence = {
+        "claim_id": claim_id,
+        "cause": cause,
+        "effect": effect,
+        "direction": direction,
+        "mechanism": mechanism,
+        **operational,
+    }
+    return ClaimOccurrenceVocabularyTransport(
+        occurrence=occurrence,
+        vocabulary=VersionedClaimVocabularyEnvelope(
+            cause=cause,
+            effect=effect,
+            direction=direction,
+            mechanism=mechanism,
+            design_family_hint=design_family_hint,
+            design_family_hint_status=(
+                ClaimVocabularyAxisStatus.CANDIDATE
+                if design_family_hint is not None
+                else ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+            ),
+            evidence_strength=evidence_strength,
+            evidence_strength_status=(
+                ClaimVocabularyAxisStatus.CANDIDATE
+                if evidence_strength is not None
+                else ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+            ),
+            claim_extraction_confidence=claim_extraction_confidence,
+            claim_extraction_confidence_status=(
+                ClaimVocabularyAxisStatus.CANDIDATE
+                if claim_extraction_confidence is not None
+                else ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+            ),
+            source_basis=source_basis,
+            source_basis_status=(
+                ClaimVocabularyAxisStatus.CANDIDATE
+                if source_basis is not None
+                else ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+            ),
+            record_extraction_mode="test_fixture",
         ),
     )
 
@@ -139,46 +199,49 @@ def test_build_graph_rejects_producer_publish_flag_without_admitted_receipt() ->
             study_design="did",
             trust_score=0.7,
             causal_claims=[
-                {
-                    "claim_id": "c-1",
-                    "cause": "tax_rate",
-                    "effect": "employment",
-                    "direction": "negative",
-                    "strength": "quasi_natural",
-                    "claim_text": "Higher tax rates reduce employment",
-                    "claim_type": "causal_claim",
-                    "design_family_hint": "did",
-                    "source_basis": "fulltext",
-                    "claim_extraction_confidence": 0.82,
-                    "publish_to_graph": True,
-                    "strong_design_evidence": True,
-                    "supporting_spans": [
+                _typed_claim_transport(
+                    claim_id="c-1",
+                    cause="tax_rate",
+                    effect="employment",
+                    direction="negative",
+                    evidence_strength="quasi_natural",
+                    design_family_hint="did",
+                    source_basis="fulltext",
+                    claim_extraction_confidence=0.82,
+                    claim_text="Higher tax rates reduce employment",
+                    claim_type="causal_claim",
+                    publish_to_graph=True,
+                    strong_design_evidence=True,
+                    supporting_spans=[
                         {"section": "results", "text": "Higher tax rates reduce employment."}
                     ],
-                    "supporting_span_ids": ["r_01"],
-                    "method_span_ids": ["m_01"],
-                    "method_spans": [
+                    supporting_span_ids=["r_01"],
+                    method_span_ids=["m_01"],
+                    method_spans=[
                         {"section": "methods", "text": "We use a difference-in-differences design."}
                     ],
-                },
-                {
-                    "claim_id": "c-2",
-                    "cause": "tax_rate",
-                    "effect": "informality",
-                    "direction": "positive",
-                    "strength": "observational",
-                    "claim_text": "Higher tax rates may increase informality",
-                    "claim_type": "associative",
-                    "design_family_hint": "ols",
-                    "source_basis": "abstract_only",
-                    "claim_extraction_confidence": 0.22,
-                    "publish_to_graph": False,
-                    "publish_blockers": ["source_basis_not_fulltext", "design_not_publishable"],
-                    "supporting_spans": [
+                ),
+                _typed_claim_transport(
+                    claim_id="c-2",
+                    cause="tax_rate",
+                    effect="informality",
+                    direction="positive",
+                    evidence_strength="observational",
+                    design_family_hint="ols",
+                    source_basis="abstract_only",
+                    claim_extraction_confidence=0.22,
+                    claim_text="Higher tax rates may increase informality",
+                    claim_type="associative",
+                    publish_to_graph=False,
+                    publish_blockers=[
+                        "source_basis_not_fulltext",
+                        "design_not_publishable",
+                    ],
+                    supporting_spans=[
                         {"section": "results", "text": "Higher tax rates may increase informality."}
                     ],
-                    "supporting_span_ids": ["r_02"],
-                },
+                    supporting_span_ids=["r_02"],
+                ),
             ],
             context_profile={"context_id": "US"},
         )
@@ -196,9 +259,21 @@ def test_build_graph_rejects_producer_publish_flag_without_admitted_receipt() ->
             ).fetchone()[0]
             published_count = con.execute("SELECT COUNT(*) FROM ac_causal_claims").fetchone()[0]
             raw_claim = con.execute(
-                "SELECT design_quality_tier, strong_design_evidence, publish_to_graph, publish_blockers "
+                "SELECT claim_vocabulary_schema_version, design_family_hint, "
+                "design_family_hint_status, evidence_strength, evidence_strength_status, "
+                "claim_extraction_confidence, claim_extraction_confidence_status, "
+                "source_basis, source_basis_status, legacy_strength_label, "
+                "record_extraction_mode, design_quality_tier, strong_design_evidence, "
+                "publish_to_graph, publish_blockers "
                 "FROM ac_causal_claims_raw WHERE id = 'c-1'"
             ).fetchone()
+            raw_columns = {
+                row[0]
+                for row in con.execute(
+                    "SELECT column_name FROM information_schema.columns "
+                    "WHERE table_name = 'ac_causal_claims_raw'"
+                ).fetchall()
+            }
             edge_row = con.execute(
                 "SELECT candidate_layer, quality_signals_json FROM ac_skg_edges WHERE src = 'tax_rate' AND dst = 'employment'"
             ).fetchone()
@@ -208,7 +283,24 @@ def test_build_graph_rejects_producer_publish_flag_without_admitted_receipt() ->
         assert raw_count == 2
         assert adjudicated_count == 0
         assert published_count == 0
-        assert raw_claim == (None, True, True, "")
+        assert raw_claim == (
+            "2.0",
+            "did",
+            "candidate",
+            "quasi_natural",
+            "candidate",
+            pytest.approx(0.82),
+            "candidate",
+            "fulltext",
+            "candidate",
+            None,
+            "test_fixture",
+            None,
+            True,
+            True,
+            "",
+        )
+        assert "strength" not in raw_columns
         assert edge_row is None
 
 
@@ -222,12 +314,12 @@ def test_build_graph_aggregates_moderation_edges_and_preserves_canonical_name() 
                 title="Institutional study 1",
                 year=2020,
                 causal_claims=[
-                    {
-                        "claim_id": "c-1",
-                        "cause": "fiscal.public_spending",
-                        "effect": "economic.output_growth",
-                        "publish_to_graph": False,
-                    }
+                    _typed_claim_transport(
+                        claim_id="c-1",
+                        cause="fiscal.public_spending",
+                        effect="economic.output_growth",
+                        publish_to_graph=False,
+                    )
                 ],
                 metadata={
                     "context_attributes": [
@@ -256,12 +348,12 @@ def test_build_graph_aggregates_moderation_edges_and_preserves_canonical_name() 
                 title="Institutional study 2",
                 year=2021,
                 causal_claims=[
-                    {
-                        "claim_id": "c-2",
-                        "cause": "fiscal.public_spending",
-                        "effect": "economic.output_growth",
-                        "publish_to_graph": False,
-                    }
+                    _typed_claim_transport(
+                        claim_id="c-2",
+                        cause="fiscal.public_spending",
+                        effect="economic.output_growth",
+                        publish_to_graph=False,
+                    )
                 ],
                 metadata={
                     "context_attributes": [
@@ -338,19 +430,19 @@ def test_build_graph_materializes_normalized_and_approved_variable_resolution() 
             extraction_mode="llm_enriched",
             extraction_confidence=0.84,
             causal_claims=[
-                {
-                    "claim_id": "c-approved",
-                    "cause": "institutional_quality.rule_of_law",
-                    "effect": "teacher_coaching_program",
-                    "direction": "positive",
-                    "strength": "quasi_natural",
-                    "claim_text": "Rule of law improves teacher coaching programs",
-                    "design_family_hint": "did",
-                    "source_basis": "fulltext",
-                    "claim_extraction_confidence": 0.84,
-                    "publish_to_graph": True,
-                    "strong_design_evidence": True,
-                }
+                _typed_claim_transport(
+                    claim_id="c-approved",
+                    cause="institutional_quality.rule_of_law",
+                    effect="teacher_coaching_program",
+                    direction="positive",
+                    evidence_strength="quasi_natural",
+                    design_family_hint="did",
+                    source_basis="fulltext",
+                    claim_extraction_confidence=0.84,
+                    claim_text="Rule of law improves teacher coaching programs",
+                    publish_to_graph=True,
+                    strong_design_evidence=True,
+                )
             ],
         )
 
@@ -414,13 +506,13 @@ def test_build_graph_filters_retracted_work_from_runtime_skg() -> None:
             is_retracted=True,
             estimates=[EstimateCandidate(value=0.2, pattern_name="x", variable_hint="tax.revenue")],
             causal_claims=[
-                {
-                    "claim_id": "c-ret",
-                    "cause": "tax.revenue",
-                    "effect": "economic.gdp_growth",
-                    "direction": "positive",
-                    "publish_to_graph": True,
-                }
+                _typed_claim_transport(
+                    claim_id="c-ret",
+                    cause="tax.revenue",
+                    effect="economic.gdp_growth",
+                    direction="positive",
+                    publish_to_graph=True,
+                )
             ],
         )
 

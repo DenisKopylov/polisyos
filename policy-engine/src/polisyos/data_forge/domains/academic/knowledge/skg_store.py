@@ -25,8 +25,6 @@ from polisyos.ir.analytics.literature import (
     validate_causal_claim_span_grounding,
 )
 
-# Inactive B-1 seam.  It is intentionally not invoked by the direct span
-# writer until the atomic v2 reader/writer activation.
 preflight_candidate_claim_vocabulary = admit_candidate_claim_vocabulary
 
 if TYPE_CHECKING:
@@ -711,6 +709,20 @@ def ingest_openalex_span_grounded_claims(
 ) -> OpenAlexSKGIngestReport:
     """Persist validated OpenAlex claims into SKG query, claim, edge, and evidence tables."""
 
+    claim_rows = list(claims)
+    from polisyos.data_forge.domains.academic.batch.article_extractor import (
+        serialize_rich_claim_occurrence_vocabulary,
+    )
+
+    claim_transports = [
+        preflight_candidate_claim_vocabulary(
+            serialize_rich_claim_occurrence_vocabulary(
+                claim,
+                record_extraction_mode="openalex_span_grounded",
+            )
+        )
+        for claim in claim_rows
+    ]
     ensure_skg_schema(con)
     version_id = next_skg_version(con, description="OpenAlex span-grounded L2 ingest")
     trace_payload = _trace_payload(query_trace)
@@ -753,7 +765,6 @@ def ingest_openalex_span_grounded_claims(
             ],
         )
 
-    claim_rows = list(claims)
     con.execute(
         """
         INSERT OR REPLACE INTO ac_skg_articles(
@@ -770,7 +781,9 @@ def ingest_openalex_span_grounded_claims(
             _json_dumps(
                 {
                     "source": "openalex",
-                    "claims": [claim.model_dump(mode="json") for claim in claim_rows],
+                    "claims": [
+                        transport.model_dump(mode="json") for transport in claim_transports
+                    ],
                     "source_content_sha256": work.content_sha256,
                 }
             ),
@@ -785,6 +798,7 @@ def ingest_openalex_span_grounded_claims(
     variable_names: set[str] = set()
     edge_ids: set[str] = set()
     canonizer = variable_canonizer or _default_variable_canonizer()
+
     for claim in claim_rows:
         grounding = validate_causal_claim_span_grounding(
             work,

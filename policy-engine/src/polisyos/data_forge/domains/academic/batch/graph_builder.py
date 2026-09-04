@@ -35,8 +35,11 @@ from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     strongest_strength,
 )
 from polisyos.data_forge.domains.academic.knowledge.types import (
+    ClaimOccurrenceVocabularyTransport,
     WorkRecord,
+    adapt_jsonl_work_record_claims,
     admit_candidate_claim_vocabulary,
+    candidate_claim_vocabulary_store_values,
 )
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 
@@ -134,12 +137,19 @@ CREATE TABLE IF NOT EXISTS ac_causal_claims_raw (
     cause                     VARCHAR NOT NULL,
     effect                    VARCHAR NOT NULL,
     direction                 VARCHAR,
-    strength                  VARCHAR,
+    claim_vocabulary_schema_version VARCHAR NOT NULL DEFAULT '2.0',
+    design_family_hint        VARCHAR,
+    design_family_hint_status VARCHAR NOT NULL DEFAULT 'not_established',
+    evidence_strength         VARCHAR,
+    evidence_strength_status  VARCHAR NOT NULL DEFAULT 'not_established',
+    claim_extraction_confidence FLOAT,
+    claim_extraction_confidence_status VARCHAR NOT NULL DEFAULT 'not_established',
+    source_basis              VARCHAR,
+    source_basis_status       VARCHAR NOT NULL DEFAULT 'not_established',
+    legacy_strength_label     VARCHAR,
+    record_extraction_mode    VARCHAR,
     claim_text                VARCHAR,
     claim_explicitness        VARCHAR,
-    design_family_hint        VARCHAR,
-    source_basis              VARCHAR,
-    claim_extraction_confidence FLOAT DEFAULT 0.0,
     strong_design_evidence    BOOLEAN DEFAULT FALSE,
     design_quality_tier       INTEGER,
     publish_to_graph          BOOLEAN DEFAULT FALSE,
@@ -184,9 +194,17 @@ CREATE TABLE IF NOT EXISTS ac_causal_claims (
     cause           VARCHAR NOT NULL,
     effect          VARCHAR NOT NULL,
     direction       VARCHAR,
-    strength        VARCHAR,
+    claim_vocabulary_schema_version VARCHAR NOT NULL DEFAULT '2.0',
     design_family_hint VARCHAR,
-    claim_extraction_confidence FLOAT DEFAULT 0.0,
+    design_family_hint_status VARCHAR NOT NULL DEFAULT 'not_established',
+    evidence_strength VARCHAR,
+    evidence_strength_status VARCHAR NOT NULL DEFAULT 'not_established',
+    claim_extraction_confidence FLOAT,
+    claim_extraction_confidence_status VARCHAR NOT NULL DEFAULT 'not_established',
+    source_basis VARCHAR,
+    source_basis_status VARCHAR NOT NULL DEFAULT 'not_established',
+    legacy_strength_label VARCHAR,
+    record_extraction_mode VARCHAR,
     strong_design_evidence BOOLEAN DEFAULT FALSE,
     design_quality_tier INTEGER,
     publish_blockers VARCHAR DEFAULT '',
@@ -344,6 +362,18 @@ def _claim_id(record_id: str, claim: dict) -> str:
             claim_text=str(claim.get("claim_text") or ""),
         ),
     )
+
+
+def _admitted_claim_parts(
+    claim: ClaimOccurrenceVocabularyTransport,
+) -> tuple[ClaimOccurrenceVocabularyTransport, dict[str, Any], dict[str, Any]]:
+    """Flatten one strictly admitted composite for operational graph handling."""
+
+    admitted = admit_candidate_claim_vocabulary(claim)
+    vocabulary_values = candidate_claim_vocabulary_store_values(admitted)
+    operational = dict(admitted.occurrence)
+    operational.update(vocabulary_values)
+    return admitted, operational, vocabulary_values
 
 
 def _load_claim_adjudications(
@@ -551,12 +581,16 @@ def _flush_all(
         con.executemany(
             "INSERT OR REPLACE INTO ac_causal_claims_raw "
             "("
-            "id, work_id, cause, effect, direction, strength, claim_text, claim_explicitness, "
-            "design_family_hint, source_basis, claim_extraction_confidence, strong_design_evidence, "
+            "id, work_id, cause, effect, direction, claim_vocabulary_schema_version, "
+            "design_family_hint, design_family_hint_status, "
+            "evidence_strength, evidence_strength_status, claim_extraction_confidence, "
+            "claim_extraction_confidence_status, source_basis, source_basis_status, "
+            "legacy_strength_label, record_extraction_mode, claim_text, claim_explicitness, "
+            "strong_design_evidence, "
             "design_quality_tier, publish_to_graph, publish_blockers, span_contamination_detected, "
             "mechanism, domain, trust_score"
             ") "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             raw_claim_batch,
         )
         stats.raw_claims += len(raw_claim_batch)
@@ -583,11 +617,13 @@ def _flush_all(
         con.executemany(
             "INSERT OR REPLACE INTO ac_causal_claims "
             "("
-            "id, work_id, cause, effect, direction, strength, design_family_hint, "
-            "claim_extraction_confidence, strong_design_evidence, design_quality_tier, "
+            "id, work_id, cause, effect, direction, claim_vocabulary_schema_version, "
+            "design_family_hint, design_family_hint_status, evidence_strength, evidence_strength_status, "
+            "claim_extraction_confidence, claim_extraction_confidence_status, source_basis, source_basis_status, "
+            "legacy_strength_label, record_extraction_mode, strong_design_evidence, design_quality_tier, "
             "publish_blockers, candidate_layer, mechanism, domain, trust_score"
             ") "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             claim_batch,
         )
         stats.claims += len(claim_batch)
@@ -1132,6 +1168,10 @@ def load_graph(
         moderation_edge_accumulator: dict[tuple[str, str, str], dict[str, object]] = {}
 
         for record in records:
+            admitted_claims = [
+                _admitted_claim_parts(claim_transport)
+                for claim_transport in record.causal_claims
+            ]
             work_batch.append(
                 (
                     record.id,
@@ -1198,136 +1238,136 @@ def load_graph(
                     )
                 )
 
-            for i, claim in enumerate(record.causal_claims):
-                if isinstance(claim, dict):
-                    if bool(record.is_retracted):
-                        continue
-                    cid = _claim_id(record.id, claim)
-                    design_tier = (
-                        int(claim.get("design_quality_tier"))
-                        if claim.get("design_quality_tier") is not None
-                        else None
+            for _, claim, vocabulary_values in admitted_claims:
+                if bool(record.is_retracted):
+                    continue
+                cid = _claim_id(record.id, claim)
+                design_tier = (
+                    int(claim.get("design_quality_tier"))
+                    if claim.get("design_quality_tier") is not None
+                    else None
+                )
+                raw_claim_batch.append(
+                    (
+                        cid,
+                        record.id,
+                        claim.get("cause", ""),
+                        claim.get("effect", ""),
+                        claim.get("direction", ""),
+                        vocabulary_values["claim_vocabulary_schema_version"],
+                        vocabulary_values["design_family_hint"],
+                        vocabulary_values["design_family_hint_status"],
+                        vocabulary_values["evidence_strength"],
+                        vocabulary_values["evidence_strength_status"],
+                        vocabulary_values["claim_extraction_confidence"],
+                        vocabulary_values["claim_extraction_confidence_status"],
+                        vocabulary_values["source_basis"],
+                        vocabulary_values["source_basis_status"],
+                        vocabulary_values["legacy_strength_label"],
+                        vocabulary_values["record_extraction_mode"],
+                        claim.get("claim_text", ""),
+                        claim.get("claim_explicitness", ""),
+                        bool(claim.get("strong_design_evidence") or False),
+                        design_tier,
+                        bool(claim.get("publish_to_graph") or False),
+                        "; ".join(
+                            str(v)
+                            for v in (claim.get("publish_blockers") or [])
+                            if str(v).strip()
+                        ),
+                        bool(claim.get("span_contamination_detected") or False),
+                        claim.get("mechanism", ""),
+                        claim.get("domain", ""),
+                        record.trust_score,
                     )
-                    raw_claim_batch.append(
+                )
+                adjudication = claim_adjudications.get(cid)
+                publishable = False
+                published_trust = float(record.trust_score)
+                if adjudication:
+                    adjudicated_design_family = str(
+                        adjudication.get("design_family") or ""
+                    ).strip()
+                    recalculated_tier = _design_quality_tier_from_family(
+                        adjudicated_design_family
+                    )
+                    if recalculated_tier is not None:
+                        design_tier = recalculated_tier
+                    claim_adjudication_batch.append(
+                        (
+                            cid,
+                            record.id,
+                            claim.get("cause", ""),
+                            claim.get("effect", ""),
+                            str(adjudication.get("claim_type") or ""),
+                            str(adjudication.get("design_family") or ""),
+                            str(adjudication.get("causal_credibility") or ""),
+                            str(adjudication.get("risk_of_bias") or ""),
+                            str(adjudication.get("support_status") or ""),
+                            str(adjudication.get("source_basis") or ""),
+                            float(adjudication.get("paper_asserts_causality_score") or 0.0),
+                            float(adjudication.get("claim_validity_score") or 0.0),
+                            float(adjudication.get("adjudication_confidence") or 0.0),
+                            float(vocabulary_values["claim_extraction_confidence"] or 0.0),
+                            bool(adjudication.get("publishable_edge") or False),
+                            bool(claim.get("strong_design_evidence") or False),
+                            design_tier,
+                            "; ".join(
+                                str(v)
+                                for v in (claim.get("publish_blockers") or [])
+                                if str(v).strip()
+                            ),
+                            int(adjudication.get("consensus_passes") or 1),
+                            float(adjudication.get("consensus_stability") or 0.0),
+                            float(adjudication.get("claim_type_confidence"))
+                            if adjudication.get("claim_type_confidence") is not None
+                            else None,
+                            float(adjudication.get("design_family_confidence"))
+                            if adjudication.get("design_family_confidence") is not None
+                            else None,
+                            float(adjudication.get("direction_confidence"))
+                            if adjudication.get("direction_confidence") is not None
+                            else None,
+                            bool(adjudication.get("intra_paper_contradiction") or False),
+                            str(adjudication.get("adjudication_notes") or ""),
+                        )
+                    )
+                    publishable = bool(adjudication.get("publishable_edge") or False)
+                    published_trust = float(
+                        adjudication.get("claim_validity_score") or published_trust
+                    )
+                if publishable:
+                    claim_batch.append(
                         (
                             cid,
                             record.id,
                             claim.get("cause", ""),
                             claim.get("effect", ""),
                             claim.get("direction", ""),
-                            claim.get("strength", ""),
-                            claim.get("claim_text", ""),
-                            claim.get("claim_explicitness", ""),
-                            claim.get("design_family_hint", ""),
-                            claim.get("source_basis", ""),
-                            float(
-                                claim.get("claim_extraction_confidence")
-                                or record.extraction_confidence
-                                or 0.0
-                            ),
+                            vocabulary_values["claim_vocabulary_schema_version"],
+                            vocabulary_values["design_family_hint"],
+                            vocabulary_values["design_family_hint_status"],
+                            vocabulary_values["evidence_strength"],
+                            vocabulary_values["evidence_strength_status"],
+                            vocabulary_values["claim_extraction_confidence"],
+                            vocabulary_values["claim_extraction_confidence_status"],
+                            vocabulary_values["source_basis"],
+                            vocabulary_values["source_basis_status"],
+                            vocabulary_values["legacy_strength_label"],
+                            vocabulary_values["record_extraction_mode"],
                             bool(claim.get("strong_design_evidence") or False),
                             design_tier,
-                            bool(claim.get("publish_to_graph") or False),
                             "; ".join(
                                 str(v)
                                 for v in (claim.get("publish_blockers") or [])
                                 if str(v).strip()
                             ),
-                            bool(claim.get("span_contamination_detected") or False),
+                            "candidate",
                             claim.get("mechanism", ""),
                             claim.get("domain", ""),
-                            record.trust_score,
+                            published_trust,
                         )
                     )
-                    adjudication = claim_adjudications.get(cid)
-                    publishable = False
-                    published_strength = str(claim.get("strength") or "")
-                    published_trust = float(record.trust_score)
-                    if adjudication:
-                        adjudicated_design_family = str(
-                            adjudication.get("design_family") or ""
-                        ).strip()
-                        recalculated_tier = _design_quality_tier_from_family(
-                            adjudicated_design_family
-                        )
-                        if recalculated_tier is not None:
-                            design_tier = recalculated_tier
-                        claim_adjudication_batch.append(
-                            (
-                                cid,
-                                record.id,
-                                claim.get("cause", ""),
-                                claim.get("effect", ""),
-                                str(adjudication.get("claim_type") or ""),
-                                str(adjudication.get("design_family") or ""),
-                                str(adjudication.get("causal_credibility") or ""),
-                                str(adjudication.get("risk_of_bias") or ""),
-                                str(adjudication.get("support_status") or ""),
-                                str(adjudication.get("source_basis") or ""),
-                                float(adjudication.get("paper_asserts_causality_score") or 0.0),
-                                float(adjudication.get("claim_validity_score") or 0.0),
-                                float(adjudication.get("adjudication_confidence") or 0.0),
-                                float(
-                                    claim.get("claim_extraction_confidence")
-                                    or record.extraction_confidence
-                                    or 0.0
-                                ),
-                                bool(adjudication.get("publishable_edge") or False),
-                                bool(claim.get("strong_design_evidence") or False),
-                                design_tier,
-                                "; ".join(
-                                    str(v)
-                                    for v in (claim.get("publish_blockers") or [])
-                                    if str(v).strip()
-                                ),
-                                int(adjudication.get("consensus_passes") or 1),
-                                float(adjudication.get("consensus_stability") or 0.0),
-                                float(adjudication.get("claim_type_confidence"))
-                                if adjudication.get("claim_type_confidence") is not None
-                                else None,
-                                float(adjudication.get("design_family_confidence"))
-                                if adjudication.get("design_family_confidence") is not None
-                                else None,
-                                float(adjudication.get("direction_confidence"))
-                                if adjudication.get("direction_confidence") is not None
-                                else None,
-                                bool(adjudication.get("intra_paper_contradiction") or False),
-                                str(adjudication.get("adjudication_notes") or ""),
-                            )
-                        )
-                        publishable = bool(adjudication.get("publishable_edge") or False)
-                        published_strength = _legacy_strength_from_adjudication(adjudication)
-                        published_trust = float(
-                            adjudication.get("claim_validity_score") or published_trust
-                        )
-                    if publishable:
-                        claim_batch.append(
-                            (
-                                cid,
-                                record.id,
-                                claim.get("cause", ""),
-                                claim.get("effect", ""),
-                                claim.get("direction", ""),
-                                published_strength,
-                                str(claim.get("design_family_hint") or ""),
-                                float(
-                                    claim.get("claim_extraction_confidence")
-                                    or record.extraction_confidence
-                                    or 0.0
-                                ),
-                                bool(claim.get("strong_design_evidence") or False),
-                                design_tier,
-                                "; ".join(
-                                    str(v)
-                                    for v in (claim.get("publish_blockers") or [])
-                                    if str(v).strip()
-                                ),
-                                "candidate",
-                                claim.get("mechanism", ""),
-                                claim.get("domain", ""),
-                                published_trust,
-                            )
-                        )
 
             for i, bnd in enumerate(record.boundary_conditions):
                 if not isinstance(bnd, dict):
@@ -1348,7 +1388,10 @@ def load_graph(
             extraction_id = _stable_hash(record.id, record.extraction_mode, run_id)
             extraction_payload = {
                 "estimates": [e.model_dump(mode="json") for e in record.estimates],
-                "causal_claims": record.causal_claims,
+                "causal_claims": [
+                    claim_transport.model_dump(mode="json")
+                    for claim_transport, _, _ in admitted_claims
+                ],
                 "boundary_conditions": record.boundary_conditions,
                 "study_design": record.study_design,
                 "method_signal_score": record.method_signal_score,
@@ -1489,9 +1532,7 @@ def load_graph(
                 )
 
             claim_lookup: dict[str, tuple[str, str]] = {}
-            for claim_raw in record.causal_claims or []:
-                if not isinstance(claim_raw, dict):
-                    continue
+            for _, claim_raw, _ in admitted_claims:
                 claim_id = str(claim_raw.get("claim_id") or "").strip()
                 cause = str(claim_raw.get("cause") or "").strip()
                 effect = str(claim_raw.get("effect") or "").strip()
@@ -1599,9 +1640,7 @@ def load_graph(
                     ingest_error_batch,
                 )
 
-            for claim in record.causal_claims:
-                if not isinstance(claim, dict):
-                    continue
+            for _, claim, vocabulary_values in admitted_claims:
                 if bool(record.is_retracted):
                     continue
                 cid = _claim_id(record.id, claim)
@@ -1653,7 +1692,7 @@ def load_graph(
                         confidence_value,
                         record.year,
                         sample_size,
-                        str(claim.get("source_basis") or "fulltext"),
+                        str(vocabulary_values["source_basis"] or "fulltext"),
                         bool(record.is_retracted),
                         record.fwci,
                     )
@@ -1663,14 +1702,12 @@ def load_graph(
                 payload["claim_ids"].append(cid)  # type: ignore[index]
                 if claim.get("design_quality_tier") is not None:
                     payload["design_tiers"].append(int(claim.get("design_quality_tier")))  # type: ignore[index]
-                design_hint = str(claim.get("design_family_hint") or "").strip()
+                design_hint = str(vocabulary_values["design_family_hint"] or "").strip()
                 if design_hint:
                     payload["design_family_hints"].append(design_hint)  # type: ignore[index]
                 payload["claim_confidences"].append(
                     float(
-                        claim.get("claim_extraction_confidence")
-                        or record.extraction_confidence
-                        or 0.0
+                        vocabulary_values["claim_extraction_confidence"] or 0.0
                     )
                 )  # type: ignore[index]
                 payload["publish_blockers"].extend(claim.get("publish_blockers") or [])  # type: ignore[index]
@@ -1691,7 +1728,7 @@ def load_graph(
                             else _infer_edge_strength(claim)
                         ),
                         confidence_value,
-                        str(claim.get("design_family_hint") or ""),
+                        str(vocabulary_values["design_family_hint"] or ""),
                         int(claim.get("design_quality_tier"))
                         if claim.get("design_quality_tier") is not None
                         else None,
@@ -1819,7 +1856,8 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
             for line in fh:
                 line = line.strip()
                 if line:
-                    yield WorkRecord.model_validate_json(line)
+                    payload = json.loads(line)
+                    yield adapt_jsonl_work_record_claims(payload, provenance="legacy_jsonl")
 
     cfg_json = json.dumps(
         {

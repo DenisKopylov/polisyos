@@ -7,7 +7,10 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from polisyos.data_forge.domains.academic.knowledge.types import WorkRecord
+from polisyos.data_forge.domains.academic.knowledge.types import (
+    WorkRecord,
+    adapt_jsonl_work_record_claims,
+)
 from polisyos.ir.analytics.literature import (
     CausalClaim,
     ClaimVocabularyAxisStatus,
@@ -104,21 +107,115 @@ def test_legacy_adapter_rejects_missing_or_rich_occurrence_fields() -> None:
         adapt_legacy_claim_occurrence_as_v2_absence(rich_occurrence)
 
 
-def test_existing_v1_work_record_and_causal_claim_paths_are_not_activated() -> None:
-    """Keep the legacy transport and v1 normalizer independent from the envelope."""
+def test_persisted_v1_work_record_is_adapted_before_strict_work_record_admission() -> None:
+    """Require the explicit reader adapter at the v1/v2 WorkRecord boundary."""
 
     legacy = _legacy_occurrence()
-    record = WorkRecord(id="W1", title="Legacy record", causal_claims=[legacy])
+    with pytest.raises(ValueError):
+        WorkRecord(id="W1", title="Legacy record", causal_claims=[legacy])
+    record = adapt_jsonl_work_record_claims(
+        {"id": "W1", "title": "Legacy record", "causal_claims": [legacy]},
+        provenance="legacy_jsonl",
+    )
     claim = CausalClaim.from_payload({"cause": "tax rate", "effect": "employment"})
-    envelope = adapt_legacy_claim_occurrence_as_v2_absence(legacy)
     legacy_json = LegacyFiveFieldClaimOccurrence.model_validate(legacy).model_dump_json()
 
-    assert record.causal_claims == [legacy]
-    assert json.loads(record.model_dump_json())["causal_claims"] == [legacy]
+    assert record.causal_claims[0].vocabulary.legacy_strength_label == "moderate"
+    assert json.loads(record.model_dump_json())["causal_claims"][0]["occurrence"] == {
+        key: value for key, value in legacy.items() if key != "strength"
+    }
     assert json.loads(legacy_json) == legacy
     assert "schema_version" not in json.loads(legacy_json)
-    with pytest.raises(ValidationError):
-        WorkRecord(id="W1", title="Envelope record", causal_claims=[envelope])
+    with pytest.raises(ValueError):
+        adapt_jsonl_work_record_claims(
+            {"id": "W1", "title": "Envelope record", "causal_claims": [legacy | {"schema_version": "2.0"}]},
+            provenance="legacy_jsonl",
+        )
     assert claim.cause_variable == "tax rate"
     assert claim.effect_variable == "employment"
     assert claim.evidence_strength.value == "unknown"
+
+
+def test_rich_persisted_v1_occurrence_preserves_metadata_but_declares_vocabulary_absent() -> None:
+    """Replay historical rich occurrences without laundering vocabulary lookalikes."""
+
+    rich_legacy = {
+        **_legacy_occurrence(),
+        "claim_text": "Tax rises reduce employment.",
+        "claim_explicitness": "explicit",
+        "supporting_span_ids": ["span-1"],
+        "publish_to_graph": True,
+        "design_family_hint": "rct",
+        "design_family_hint_status": "candidate",
+        "evidence_strength": "rct",
+        "evidence_strength_status": "candidate",
+        "claim_extraction_confidence": 0.97,
+        "claim_extraction_confidence_status": "candidate",
+        "source_basis": "fulltext",
+        "source_basis_status": "candidate",
+        "legacy_strength_label": "forged",
+        "record_extraction_mode": "forged",
+    }
+    record = adapt_jsonl_work_record_claims(
+        {
+            "id": "W1",
+            "title": "Legacy rich record",
+            "extraction_mode": "llm_enriched",
+            "causal_claims": [rich_legacy],
+        },
+        provenance="legacy_jsonl",
+    )
+
+    transport = record.causal_claims[0]
+    assert transport.occurrence == {
+        "cause": "tax rate",
+        "effect": "employment",
+        "direction": "negative",
+        "mechanism": "",
+        "claim_text": "Tax rises reduce employment.",
+        "claim_explicitness": "explicit",
+        "supporting_span_ids": ["span-1"],
+        "publish_to_graph": True,
+    }
+    assert transport.vocabulary.legacy_strength_label == "moderate"
+    assert transport.vocabulary.record_extraction_mode == "llm_enriched"
+    for value_name in (
+        "design_family_hint",
+        "evidence_strength",
+        "claim_extraction_confidence",
+        "source_basis",
+    ):
+        assert getattr(transport.vocabulary, value_name) is None
+        assert getattr(transport.vocabulary, f"{value_name}_status").value == "not_established"
+
+
+@pytest.mark.parametrize(
+    "claim",
+    [
+        {"cause": "a", "effect": "b", "direction": "positive", "strength": "moderate"},
+        {
+            **_legacy_occurrence(),
+            "claim_vocabulary_schema_version": "2.0",
+        },
+        {
+            **_legacy_occurrence(),
+            "vocabulary": {"schema_version": "2.0"},
+        },
+    ],
+)
+def test_rich_legacy_replay_rejects_missing_discriminator_or_mixed_transport(claim) -> None:
+    """Fail closed on malformed legacy and mixed nested/flat transport shapes."""
+
+    with pytest.raises(ValueError):
+        adapt_jsonl_work_record_claims(
+            {"id": "W1", "title": "Bad replay", "causal_claims": [claim]},
+            provenance="legacy_jsonl",
+        )
+
+
+def test_legacy_replay_adapter_rejects_unrecognized_provenance() -> None:
+    with pytest.raises(ValueError, match="legacy provenance"):
+        adapt_jsonl_work_record_claims(
+            {"id": "W1", "title": "Bad provenance", "causal_claims": [_legacy_occurrence()]},
+            provenance="live",  # type: ignore[arg-type]
+        )

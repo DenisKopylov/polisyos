@@ -17,9 +17,10 @@ from polisyos.data_forge.domains.academic.knowledge.types import (
     ClaimOccurrenceVocabularyTransport,
     EstimateCandidate,
     WorkRecord,
+    adapt_jsonl_work_record_claims,
 )
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
-from polisyos.ir.analytics.literature import (
+from polisyos.ir.analytics import (
     ClaimVocabularyAxisStatus,
     SourceBasis,
     VersionedClaimVocabularyEnvelope,
@@ -46,7 +47,7 @@ def serialize_llm_claim_occurrence_vocabulary(
     *,
     record_extraction_mode: str | None = "llm_enriched",
 ) -> ClaimOccurrenceVocabularyTransport:
-    """Build an inactive v2 composite from separately named LLM candidate axes.
+    """Build the v2 composite from separately named LLM candidate axes.
 
     This serializer deliberately accepts no generic ``strength`` mapping.  A
     replayed five-field occurrence must use the explicit historical adapter,
@@ -115,7 +116,14 @@ Return strict JSON object with fields:
       "cause": "<concept>",
       "effect": "<concept>",
       "direction": "positive|negative|null|mixed",
-      "strength": "strong|moderate|weak",
+      "design_family_hint": "one design family (rct, iv, did, rdd, synthetic_control, event_study,
+        quasi_experimental_other, quasi_experimental_did, quasi_experimental_rdd, panel_fe, ols,
+        ols_cross_sectional, meta_analysis, review, review_narrative, review_meta_analysis,
+        theoretical, structural_model, time_series_cointegration, unclear) or null",
+      "evidence_strength": "one evidence class (rct, quasi_natural, quasi_natural_event,
+        meta_analysis, panel_fe, structural, observational, cross_sectional, theoretical,
+        unknown) or null",
+      "claim_extraction_confidence": <number from 0 to 1 or null>,
       "mechanism": "<short text>"
     }
   ],
@@ -426,7 +434,9 @@ def _parse_json_object(raw_content: str) -> dict[str, Any] | None:
     return None
 
 
-def parse_llm_result(result: dict) -> tuple[list[EstimateCandidate], list[dict], list[dict]]:
+def parse_llm_result(
+    result: dict,
+) -> tuple[list[EstimateCandidate], list[ClaimOccurrenceVocabularyTransport], list[dict]]:
     """Parse LLM extraction result into typed objects."""
     estimates: list[EstimateCandidate] = []
     for est in result.get("estimates", []):
@@ -450,9 +460,14 @@ def parse_llm_result(result: dict) -> tuple[list[EstimateCandidate], list[dict],
             )
         )
 
-    causal_claims = result.get("causal_claims", [])
-    if not isinstance(causal_claims, list):
-        causal_claims = []
+    causal_claim_payloads = result.get("causal_claims", [])
+    if not isinstance(causal_claim_payloads, list):
+        causal_claim_payloads = []
+    causal_claims = [
+        serialize_llm_claim_occurrence_vocabulary(claim)
+        for claim in causal_claim_payloads
+        if isinstance(claim, dict)
+    ]
 
     boundary_conditions = result.get("boundary_conditions", [])
     if not isinstance(boundary_conditions, list):
@@ -548,7 +563,9 @@ async def run_extract_llm(config: AcademicBatchConfig) -> dict[str, float | int]
                     line = line.strip()
                     if not line:
                         continue
-                    rec = WorkRecord.model_validate_json(line)
+                    rec = adapt_jsonl_work_record_claims(
+                        json.loads(line), provenance="legacy_jsonl"
+                    )
                     stats["records"] = int(stats["records"]) + 1
 
                     features = build_gate_features(rec)

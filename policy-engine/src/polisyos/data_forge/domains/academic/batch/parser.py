@@ -15,7 +15,7 @@ from polisyos.data_forge.domains.academic.knowledge.types import (
 )
 from polisyos.data_forge.domains.academic.trust import compute_trust_score
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
-from polisyos.ir.analytics.literature import (
+from polisyos.ir.analytics import (
     ClaimVocabularyAxisStatus,
     SourceBasis,
     VersionedClaimVocabularyEnvelope,
@@ -400,7 +400,6 @@ def extract_causal_claims(abstract: str) -> list[dict]:
                     "cause": cause,
                     "effect": effect,
                     "direction": direction,
-                    "strength": "moderate",
                     "mechanism": "",
                 }
             )
@@ -410,11 +409,10 @@ def extract_causal_claims(abstract: str) -> list[dict]:
 def serialize_deterministic_claim_occurrence_vocabulary(
     occurrence: Mapping[str, Any],
 ) -> ClaimOccurrenceVocabularyTransport:
-    """Build an inactive v2 composite for one future deterministic claim.
+    """Build the v2 composite emitted for one deterministic claim.
 
-    The existing deterministic producer remains v1. This future path rejects
-    generic historical labels rather than silently discarding, retyping, or
-    retaining them: it has only the abstract as candidate source basis.
+    Generic historical labels are rejected rather than silently discarded,
+    retyped, or retained; the abstract is the only candidate source basis.
     """
 
     retained = dict(occurrence)
@@ -443,6 +441,7 @@ def serialize_deterministic_claim_occurrence_vocabulary(
             mechanism=str(retained.get("mechanism", "")),
             source_basis=SourceBasis.ABSTRACT_ONLY,
             source_basis_status=ClaimVocabularyAxisStatus.CANDIDATE,
+            record_extraction_mode="deterministic",
         ),
     )
 
@@ -571,7 +570,9 @@ def _build_source_topic(row: dict[str, Any]) -> SourceTopicRef | None:
 
 
 def _method_signal_score(
-    study_design: str, estimates: list[EstimateCandidate], causal_claims: list[dict]
+    study_design: str,
+    estimates: list[EstimateCandidate],
+    causal_claims: list[ClaimOccurrenceVocabularyTransport],
 ) -> float:
     base = {
         "meta-analysis": 1.0,
@@ -595,7 +596,7 @@ def _extraction_confidence(
     study_design: str,
     estimates: list[EstimateCandidate],
     context_profile: dict,
-    causal_claims: list[dict],
+    causal_claims: list[ClaimOccurrenceVocabularyTransport],
 ) -> float:
     score = 0.0
     if study_design:
@@ -642,7 +643,10 @@ def parse_raw_sources(config: AcademicBatchConfig) -> dict[str, int]:
                     abstract, [source_topic.topic_display_name] if source_topic else None
                 )
                 sample_size = extract_sample_size(abstract)
-                causal_claims = extract_causal_claims(abstract)
+                causal_claims = [
+                    serialize_deterministic_claim_occurrence_vocabulary(claim)
+                    for claim in extract_causal_claims(abstract)
+                ]
                 boundary_conditions = extract_boundary_conditions(abstract)
                 context_profile = infer_context_profile(work, abstract)
                 trust = compute_trust_score(

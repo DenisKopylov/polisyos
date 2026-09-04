@@ -28,13 +28,16 @@ from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     next_skg_version,
 )
 from polisyos.data_forge.domains.academic.knowledge.types import (
+    CLAIM_VOCABULARY_COLUMN_CONTRACT,
+    CLAIM_VOCABULARY_DISCRIMINATOR_COLUMN,
     CLAIM_VOCABULARY_STORE_COLUMNS,
     ClaimOccurrenceVocabularyTransport,
+    adapt_legacy_claim_occurrence_transport,
     admit_candidate_claim_vocabulary,
 )
 from polisyos.data_forge.kernel.io import sha256_file
+from polisyos.ir.analytics import VersionedClaimVocabularyEnvelope
 from polisyos.ir.analytics.cross_graph import AcademicBenchmarkSuite, load_benchmark_suite
-from polisyos.ir.analytics.literature import adapt_legacy_claim_occurrence_as_v2_absence
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -47,7 +50,7 @@ _TIMESTAMP_FMT = "%Y%m%dT%H%M%SZ"
 def preflight_claim_occurrence_vocabulary_copy(
     occurrence: ClaimOccurrenceVocabularyTransport | Mapping[str, Any],
 ) -> ClaimOccurrenceVocabularyTransport:
-    """Build and mechanically validate an inactive copy-preflight composite.
+    """Build and mechanically validate a copy-preflight composite.
 
     Only an exact historical five-field occurrence may retain a generic label,
     and then only by relocating it to the sidecar's audit-only legacy field.
@@ -68,10 +71,9 @@ def preflight_claim_occurrence_vocabulary_copy(
         if "strength" in raw_occurrence:
             raise ValueError("generic strength is not allowed in a rich v2 occurrence")
         raise ValueError("copy preflight requires an exact legacy five-field occurrence")
-    vocabulary = adapt_legacy_claim_occurrence_as_v2_absence(raw_occurrence)
-    raw_occurrence.pop("strength")
-    return admit_candidate_claim_vocabulary(
-        ClaimOccurrenceVocabularyTransport(occurrence=raw_occurrence, vocabulary=vocabulary)
+    return adapt_legacy_claim_occurrence_transport(
+        raw_occurrence,
+        provenance="legacy_snapshot",
     )
 
 _REQUIRED_RUNTIME_FILES = (
@@ -767,8 +769,157 @@ def _clone_non_skg_table(
 ) -> None:
     if not _table_exists(con, f"{source_alias}.{table_name}"):
         raise FileNotFoundError(f"Missing source table: {source_alias}.{table_name}")
+    if table_name not in {"ac_causal_claims_raw", "ac_causal_claims"}:
+        con.execute(f'DROP TABLE IF EXISTS "{table_name}"')
+        con.execute(
+            f'CREATE TABLE "{table_name}" AS '
+            f'SELECT * FROM {source_alias}."{table_name}"'
+        )
+        return
+
+    claim_schema_version = _validate_claim_snapshot_copy_schema(
+        con,
+        qualified_table=f'{source_alias}."{table_name}"',
+    )
+    if claim_schema_version == "explicit_v2":
+        _validate_explicit_v2_claim_vocabulary_rows(
+            con,
+            qualified_table=f'{source_alias}."{table_name}"',
+        )
+    source_sql_row = con.execute(
+        "SELECT sql FROM duckdb_tables() WHERE database_name = ? "
+        "AND schema_name = 'main' AND table_name = ?",
+        [source_alias, table_name],
+    ).fetchone()
+    if not source_sql_row or not source_sql_row[0]:
+        raise ValueError(f"Missing source CREATE TABLE statement: {source_alias}.{table_name}")
+    source_sql = str(source_sql_row[0])
+    open_paren = source_sql.find("(")
+    if open_paren < 0:
+        raise ValueError(f"Unsupported source table definition: {source_alias}.{table_name}")
+    create_sql = f'CREATE TABLE "{table_name}"{source_sql[open_paren:]}'
     con.execute(f'DROP TABLE IF EXISTS "{table_name}"')
-    con.execute(f'CREATE TABLE "{table_name}" AS SELECT * FROM {source_alias}."{table_name}"')
+    con.execute(create_sql)
+    columns = _table_columns(con, f'{source_alias}."{table_name}"')
+    quoted_columns = ", ".join(f'"{column}"' for column in columns)
+    con.execute(
+        f'INSERT INTO "{table_name}" ({quoted_columns}) '
+        f'SELECT {quoted_columns} FROM {source_alias}."{table_name}"'
+    )
+    _validate_claim_snapshot_copy_schema(con, qualified_table=f'"{table_name}"')
+
+
+def _validate_claim_snapshot_copy_schema(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    qualified_table: str,
+) -> str:
+    """Discriminate a legacy/v2 claim table without relabeling copied rows."""
+
+    qualified_parts = qualified_table.split(".")
+    table = qualified_parts[-1].strip('"')
+    database = (
+        qualified_parts[0].strip('"')
+        if len(qualified_parts) > 1
+        else str(con.execute("SELECT current_database()").fetchone()[0])
+    )
+    descriptor_query = (
+        "SELECT column_name, data_type, is_nullable, column_default "
+        "FROM duckdb_columns() WHERE table_name = ?"
+    )
+    descriptor_params: list[object] = [table]
+    descriptor_query += " AND database_name = ?"
+    descriptor_params.append(database)
+    descriptor_query += " ORDER BY column_index"
+    descriptor = con.execute(descriptor_query, descriptor_params).fetchall()
+    columns = {str(row[0]) for row in descriptor}
+    discriminator = CLAIM_VOCABULARY_DISCRIMINATOR_COLUMN
+    v2_only = set(CLAIM_VOCABULARY_STORE_COLUMNS) - {
+        "design_family_hint",
+        "evidence_strength",
+        "claim_extraction_confidence",
+        "source_basis",
+    }
+    if discriminator not in columns:
+        unexpected = sorted(columns & v2_only)
+        if unexpected:
+            raise ValueError(f"partial v2 snapshot claim schema: {unexpected}")
+        return "legacy_v1"
+    required = {discriminator, *CLAIM_VOCABULARY_STORE_COLUMNS}
+    missing = sorted(required - columns)
+    if missing or "strength" in columns:
+        raise ValueError(
+            "invalid explicit v2 snapshot claim schema: "
+            + (f"missing {missing}" if missing else "generic strength present")
+        )
+    def _nullable_label(value: object) -> str:
+        if isinstance(value, bool):
+            return "YES" if value else "NO"
+        normalized = str(value).strip().upper()
+        if normalized in {"YES", "TRUE", "1"}:
+            return "YES"
+        if normalized in {"NO", "FALSE", "0"}:
+            return "NO"
+        return normalized
+
+    actual_contract = {
+        str(name): (str(data_type), _nullable_label(nullable), default)
+        for name, data_type, nullable, default in descriptor
+        if str(name) in CLAIM_VOCABULARY_COLUMN_CONTRACT
+    }
+    if actual_contract != CLAIM_VOCABULARY_COLUMN_CONTRACT:
+        raise ValueError(f"invalid explicit v2 snapshot claim column contract: {table}")
+    constraints_query = (
+        "SELECT constraint_type, constraint_column_names FROM duckdb_constraints() "
+        "WHERE table_name = ?"
+    )
+    constraints_params: list[object] = [table]
+    constraints_query += " AND database_name = ?"
+    constraints_params.append(database)
+    constraints = con.execute(constraints_query, constraints_params).fetchall()
+    if not any(
+        str(kind) in {"PRIMARY KEY", "UNIQUE"}
+        and list(columns_for_constraint or []) in (["id"], ["id", "work_id"])
+        for kind, columns_for_constraint in constraints
+    ):
+        raise ValueError(f"explicit v2 snapshot claim identity constraint is missing: {table}")
+    invalid = int(
+        con.execute(
+            f"SELECT count(*) FROM {qualified_table} "
+            f"WHERE {discriminator} IS DISTINCT FROM '2.0'"
+        ).fetchone()[0]
+    )
+    if invalid:
+        raise ValueError("snapshot claim schema has null, mixed, or future discriminator rows")
+    return "explicit_v2"
+
+
+def _validate_explicit_v2_claim_vocabulary_rows(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    qualified_table: str,
+) -> None:
+    """Validate every explicit-v2 source row before replacing its destination table."""
+
+    columns = (
+        "cause",
+        "effect",
+        "direction",
+        "mechanism",
+        *CLAIM_VOCABULARY_STORE_COLUMNS,
+    )
+    quoted_columns = ", ".join(f'"{column}"' for column in columns)
+    cursor = con.execute(f"SELECT {quoted_columns} FROM {qualified_table}")
+    while rows := cursor.fetchmany(1_000):
+        for row in rows:
+            try:
+                VersionedClaimVocabularyEnvelope.model_validate(
+                    dict(zip(columns, row, strict=True))
+                )
+            except ValueError as exc:
+                raise ValueError(
+                    f"invalid explicit v2 claim vocabulary row in {qualified_table}"
+                ) from exc
 
 
 def _replace_table_contents(

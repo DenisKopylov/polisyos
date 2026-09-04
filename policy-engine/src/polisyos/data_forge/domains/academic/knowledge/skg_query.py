@@ -25,6 +25,8 @@ from polisyos.data_forge.domains.academic.knowledge.store import ScholarKnowledg
 from polisyos.data_forge.domains.academic.knowledge.types import (
     BoundaryConditionResult,
     CausalClaimResult,
+    CausalClaimResultV1,
+    ClaimVocabularySourceRowBinding,
     ParameterEstimateResult,
     ParameterPrior,
 )
@@ -73,7 +75,7 @@ class EdgeSupportRecord:
     dst: str
     direction: str
     confidence: float
-    evidence_strength: str
+    evidence_strength: str | None
     n_unique_works: int
     n_claims: int = 0
     article_refs: tuple[str, ...] = ()
@@ -88,6 +90,7 @@ class EdgeSupportRecord:
     strongest_dissent_strength: str = ""
     strongest_dissent_year: int | None = None
     resolution_status: str = ""
+    source_bindings: tuple[ClaimVocabularySourceRowBinding, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -196,23 +199,38 @@ class SKGQuery:
             limit=limit,
         )
         return [
-            CausalClaimResult(
-                id=row.edge_id,
-                work_id=row.article_refs[0] if row.article_refs else "",
+            self._store.project_edge_summary(
+                source_table={
+                    "exact": "ac_skg_edges",
+                    "family": "ac_skg_family_edges",
+                    "contested": "ac_skg_contested_edges",
+                    "hybrid": "ac_skg_edges",
+                }.get(row.source_layer, "ac_skg_edges"),
+                source_identity=row.edge_id,
+                source_bindings=row.source_bindings or None,
                 cause=row.src,
                 effect=row.dst,
                 direction=row.direction,
-                strength=row.evidence_strength,
+                evidence_strength=row.evidence_strength,
                 mechanism=(
                     "contested_summary" if mode == "contested" else f"{row.source_layer}_support"
                 ),
                 domain=self._edge_domain(row.src, row.dst),
                 trust_score=row.confidence,
                 work_title=f"{row.n_unique_works} work(s) synthesized",
-                work_year=None,
             )
             for row in rows
         ]
+
+    def query_claims_v1_audit(
+        self,
+        *,
+        cause: str,
+        effect: str,
+        min_trust: float = 0.5,
+    ) -> list[CausalClaimResultV1]:
+        """Deprecated audit-only claim view; never used by semantic consumers."""
+        return self._store.get_causal_claims_v1_audit(cause, effect, min_trust=min_trust)
 
     def query_boundary_conditions(self, *, work_id: str) -> list[BoundaryConditionResult]:
         return self._store.get_boundary_conditions_for_work(work_id)
@@ -1034,6 +1052,9 @@ class SKGQuery:
             article_refs = tuple(sorted({*existing.article_refs, *row.article_refs}))
             claim_refs = tuple(sorted({*existing.claim_refs, *row.claim_refs}))
             quality_flags = tuple(sorted({*existing.quality_flags, *row.quality_flags}))
+            source_bindings = tuple(
+                dict.fromkeys((*existing.source_bindings, *row.source_bindings))
+            )
             merged[key] = EdgeSupportRecord(
                 edge_id=existing.edge_id if existing.source_layer == "exact" else row.edge_id,
                 src=row.src,
@@ -1062,6 +1083,7 @@ class SKGQuery:
                 strongest_dissent_year=existing.strongest_dissent_year
                 or row.strongest_dissent_year,
                 resolution_status=existing.resolution_status or row.resolution_status,
+                source_bindings=source_bindings,
             )
         return sorted(merged.values(), key=lambda item: item.confidence, reverse=True)[:limit]
 
@@ -1095,10 +1117,13 @@ class SKGQuery:
                     dst=str(row[2]),
                     direction=str(row[3]),
                     confidence=float(row[7]),
-                    evidence_strength=str(row[6]),
+                    evidence_strength=(
+                        str(row[6]).strip() if row[6] is not None and str(row[6]).strip() else None
+                    ),
                     n_unique_works=int(row[4] or len(article_refs)),
                     article_refs=article_refs,
                     source_layer="exact",
+                    source_bindings=(self._store.source_row_binding_for_edge("ac_skg_edges", str(row[0])),),
                 )
             )
         return out
@@ -1145,7 +1170,11 @@ class SKGQuery:
                     dst=str(row[2]),
                     direction=str(row[7] or "mixed"),
                     confidence=float(row[11]),
-                    evidence_strength=str(row[10]),
+                    evidence_strength=(
+                        str(row[10]).strip()
+                        if row[10] is not None and str(row[10]).strip()
+                        else None
+                    ),
                     n_unique_works=int(row[3] or len(article_refs)),
                     n_claims=int(row[4] or len(claim_refs)),
                     article_refs=article_refs,
@@ -1160,6 +1189,7 @@ class SKGQuery:
                     strongest_dissent_strength=str(row[16] or ""),
                     strongest_dissent_year=int(row[17]) if row[17] is not None else None,
                     resolution_status=resolution_status,
+                    source_bindings=(self._store.source_row_binding_for_edge("ac_skg_contested_edges", str(row[0])),),
                 )
             )
         return out
@@ -1200,7 +1230,9 @@ class SKGQuery:
                     dst=str(row[2]),
                     direction=str(row[3]),
                     confidence=float(row[9]),
-                    evidence_strength=str(row[8]),
+                    evidence_strength=(
+                        str(row[8]).strip() if row[8] is not None and str(row[8]).strip() else None
+                    ),
                     n_unique_works=int(row[4] or len(article_refs)),
                     n_claims=int(row[5] or len(claim_refs)),
                     article_refs=article_refs,
@@ -1214,6 +1246,7 @@ class SKGQuery:
                     resolution_status="moderated"
                     if bool(quality_signals.get("moderated_conflict"))
                     else "",
+                    source_bindings=(self._store.source_row_binding_for_edge("ac_skg_family_edges", str(row[0])),),
                 )
             )
         return out
@@ -1607,10 +1640,15 @@ class SKGQuery:
         )
 
     @staticmethod
-    def _strongest_strength(*values: str) -> str:
-        best = EvidenceStrength.UNKNOWN.value
-        best_score = EVIDENCE_WEIGHTS[best]
-        for value in values:
+    def _strongest_strength(*values: str | None) -> str | None:
+        present = [str(value).strip() for value in values if str(value or "").strip()]
+        if not present:
+            return None
+        best = present[0]
+        best_score = EVIDENCE_WEIGHTS.get(
+            best, EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value]
+        )
+        for value in present[1:]:
             score = EVIDENCE_WEIGHTS.get(
                 str(value), EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value]
             )

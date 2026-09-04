@@ -250,6 +250,10 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "CausalEdge": ("polisyos.ir.analytics.causal_graph", "CausalEdge"),
     "CausalEffectReport": ("polisyos.ir.analytics.causal", "CausalEffectReport"),
     "CausalGraphModel": ("polisyos.ir.analytics.causal_graph", "CausalGraphModel"),
+    "ClaimVocabularyAxisStatus": (
+        "polisyos.ir.analytics.literature",
+        "ClaimVocabularyAxisStatus",
+    ),
     "CausalInterventionSpec": (
         "polisyos.ir.analytics.causal_queries",
         "CausalInterventionSpec",
@@ -273,6 +277,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "DataFilter": ("polisyos.ir.analytics.data_views", "DataFilter"),
     "DataViewRequest": ("polisyos.ir.analytics.data_views", "DataViewRequest"),
     "DataViewType": ("polisyos.ir.analytics.data_views", "DataViewType"),
+    "DesignFamily": ("polisyos.ir.analytics.literature", "DesignFamily"),
     "DiagnosticTest": ("polisyos.ir.analytics.causal", "DiagnosticTest"),
     "DetectorResult": (
         "polisyos.ir.analytics.shift_diagnostics",
@@ -311,6 +316,7 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.ir.analytics.sensitivity",
         "SensitivityAnalysisIndex",
     ),
+    "SourceBasis": ("polisyos.ir.analytics.literature", "SourceBasis"),
     "load_dependent_sensitivity_result": (
         "polisyos.ir.analytics.dependent_sensitivity",
         "load_dependent_sensitivity_result",
@@ -322,6 +328,15 @@ ANALYTICS_FACADE_EXPORTS: dict[str, tuple[str, str]] = {
     "DistributionalReport": (
         "polisyos.ir.analytics.distributional",
         "DistributionalReport",
+    ),
+    "EvidenceStrength": ("polisyos.ir.analytics.literature", "EvidenceStrength"),
+    "VersionedClaimVocabularyEnvelope": (
+        "polisyos.ir.analytics.literature",
+        "VersionedClaimVocabularyEnvelope",
+    ),
+    "adapt_legacy_claim_occurrence_as_v2_absence": (
+        "polisyos.ir.analytics.literature",
+        "adapt_legacy_claim_occurrence_as_v2_absence",
     ),
     "CounterfactualLawEstimate": (
         "polisyos.ir.analytics.endogenous_inequality",

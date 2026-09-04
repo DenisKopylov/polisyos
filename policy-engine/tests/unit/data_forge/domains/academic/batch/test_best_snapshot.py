@@ -8,7 +8,7 @@ import duckdb
 import numpy as np
 import pytest
 
-from polisyos.data_forge.domains.academic.batch import best_snapshot, cli
+from polisyos.data_forge.domains.academic.batch import best_snapshot, cli, graph_builder
 from polisyos.data_forge.domains.academic.batch.benchmark import BenchmarkOutcome
 from polisyos.data_forge.domains.academic.knowledge.search import ScholarKnowledgeGraph
 from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
@@ -94,6 +94,114 @@ def test_snapshot_copy_preflight_rejects_a_duplicated_typed_vocabulary_key() -> 
                 "evidence_strength": "rct",
             }
         )
+
+
+def test_snapshot_clone_preserves_claim_constraints_and_defaults(tmp_path: Path) -> None:
+    source_path = tmp_path / "source.duckdb"
+    target_path = tmp_path / "target.duckdb"
+    source = duckdb.connect(str(source_path))
+    source.execute(graph_builder._DDL)
+    source.execute(
+        "INSERT INTO ac_causal_claims (id, work_id, cause, effect, direction, mechanism) "
+        "VALUES ('c1', 'w1', 'x', 'y', 'positive', '')"
+    )
+    source.close()
+    target = duckdb.connect(str(target_path))
+    target.execute(f"ATTACH '{source_path}' AS source_src")
+    best_snapshot._clone_non_skg_table(
+        target, source_alias="source_src", table_name="ac_causal_claims"
+    )
+    columns = target.execute(
+        "SELECT column_name, is_nullable, column_default FROM duckdb_columns() "
+        "WHERE database_name = current_database() AND table_name = 'ac_causal_claims' "
+        "ORDER BY column_index"
+    ).fetchall()
+    by_name = {row[0]: row[1:] for row in columns}
+    assert by_name["id"] == (False, None)
+    assert by_name["claim_vocabulary_schema_version"] == (False, "'2.0'")
+    assert target.execute("SELECT count(*) FROM ac_causal_claims").fetchone()[0] == 1
+    target.close()
+
+
+def test_snapshot_v2_schema_validation_rejects_wrong_type(tmp_path: Path) -> None:
+    path = tmp_path / "invalid.duckdb"
+    con = duckdb.connect(str(path))
+    con.execute(
+        "CREATE TABLE ac_causal_claims ("
+        "id VARCHAR PRIMARY KEY, claim_vocabulary_schema_version VARCHAR NOT NULL DEFAULT '2.0', "
+        "design_family_hint VARCHAR, design_family_hint_status VARCHAR NOT NULL DEFAULT 'not_established', "
+        "evidence_strength INTEGER, evidence_strength_status VARCHAR NOT NULL DEFAULT 'not_established', "
+        "claim_extraction_confidence FLOAT, claim_extraction_confidence_status VARCHAR NOT NULL DEFAULT 'not_established', "
+        "source_basis VARCHAR, source_basis_status VARCHAR NOT NULL DEFAULT 'not_established', "
+        "legacy_strength_label VARCHAR, record_extraction_mode VARCHAR)"
+    )
+    with pytest.raises(ValueError, match="column contract"):
+        best_snapshot._validate_claim_snapshot_copy_schema(con, qualified_table="ac_causal_claims")
+    con.close()
+
+
+@pytest.mark.parametrize(
+    ("evidence_strength", "evidence_status"),
+    [("moderate", "candidate"), ("rct", "not_established")],
+)
+def test_snapshot_clone_rejects_invalid_v2_axes_before_replacing_destination(
+    tmp_path: Path,
+    evidence_strength: str,
+    evidence_status: str,
+) -> None:
+    """A valid schema cannot launder invalid vocabulary through snapshot copy."""
+
+    source_path = tmp_path / "source.duckdb"
+    source = duckdb.connect(str(source_path))
+    source.execute(graph_builder._DDL)
+    source.execute(
+        "INSERT INTO ac_causal_claims "
+        "(id, work_id, cause, effect, direction, mechanism, evidence_strength, "
+        "evidence_strength_status) VALUES ('c1', 'w1', 'x', 'y', 'positive', '', ?, ?)",
+        [evidence_strength, evidence_status],
+    )
+    source.close()
+    target = duckdb.connect(str(tmp_path / "target.duckdb"))
+    try:
+        target.execute("CREATE TABLE ac_causal_claims (id VARCHAR PRIMARY KEY)")
+        target.execute("INSERT INTO ac_causal_claims VALUES ('keep-existing')")
+        target.execute(f"ATTACH '{source_path}' AS source_src (READ_ONLY)")
+
+        with pytest.raises(ValueError, match="vocabulary"):
+            best_snapshot._clone_non_skg_table(
+                target, source_alias="source_src", table_name="ac_causal_claims"
+            )
+
+        assert target.execute("SELECT * FROM ac_causal_claims").fetchall() == [
+            ("keep-existing",)
+        ]
+    finally:
+        target.close()
+
+
+def test_snapshot_legacy_schema_allows_discriminator_free_evidence_lookalike(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "legacy-lookalike.duckdb"
+    con = duckdb.connect(str(path))
+    con.execute(
+        "CREATE TABLE ac_causal_claims ("
+        "id VARCHAR PRIMARY KEY, work_id VARCHAR NOT NULL, strength VARCHAR, "
+        "design_family_hint VARCHAR, evidence_strength VARCHAR, "
+        "claim_extraction_confidence FLOAT, source_basis VARCHAR)"
+    )
+    con.execute(
+        "INSERT INTO ac_causal_claims VALUES "
+        "('c1', 'w1', 'moderate', 'rct', 'rct', 0.9, 'fulltext')"
+    )
+
+    assert (
+        best_snapshot._validate_claim_snapshot_copy_schema(
+            con, qualified_table="ac_causal_claims"
+        )
+        == "legacy_v1"
+    )
+    con.close()
 
 
 def _write_json(path: Path, payload: dict) -> None:

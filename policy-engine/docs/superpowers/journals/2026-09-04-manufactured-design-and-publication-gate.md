@@ -1216,3 +1216,63 @@ the measured provisioned-environment runs above are the executed checks.
 
 The bound debt-checker receipt and final snapshot/readback receipt follow in the next append-only
 event after the single end-of-task invocation.
+
+## Event 7 — final debt-checker and custody receipt, 2026-09-04
+
+### Bound debt checker — single Phase-3 closeout invocation
+
+```sh
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python tools/quality/validation/check_debt_ledger.py --check > .tmp_b2_check.fMs01p/final-bound-debt-check.txt 2>&1
+```
+
+**Exit 0**, measured wall time **569.49 seconds** (`user 534.91`, `sys 27.23`). The complete
+59-line output remained redirected throughout. Log SHA-256:
+`122c1576fe6e9abe2828ce254aa290a4fb8adc00ecba33a38fa4bf0a8dee7b62`.
+
+Selected exact metrics:
+
+```text
+register_ids=189
+gy_ids=38
+atlas_debt_rows=22
+frontend_disposition_entries=261
+frontend_ds8_assignment_rows=217
+explicit_nonclosure_entries=29
+explicit_nonclosure_identified=18
+explicit_nonclosure_typed_not_a_debt=11
+explicit_nonclosure_resolved_history=8
+explicit_nonclosure_unidentified=0
+closure_signal_pytest_selections=44
+closure_signal_unsupported_runners=1
+closure_signal_identities_without_commands=4
+closure_signal_identity_unresolvable=9
+closure_signal_input_unresolvable=0
+closure_signal_selects_nothing=0
+closure_signal_collection_failed=0
+closure_signal_collection_host_unknown=0
+closure_signal_ast_collection_disagreements=0
+closure_signal_count_exit_disagreements=9
+```
+
+The retained unsupported Vitest selector, nine unresolved identities/count-exit disagreements,
+and register/source-standing notes are explicitly informational in the checker's output. They
+are not presented as successful test runs and are unchanged by B-2. No second Phase-3 debt-checker
+invocation was made.
+
+### Final custody/readback
+
+After the checker returned, read-only verification produced:
+
+```text
+production snapshot sha256 = 583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967
+branch = refs/heads/codex/debt-b2-manufactured-design
+implementation = dec7beccb
+architecture facade correction = 9ade77cbd
+Phase-3 journal = 367aa8433 plus this final append
+active-plan diff = empty
+```
+
+The snapshot digest exactly matches the task's pinned value. `production_data` was never handed
+to a writer, chmodded, regenerated, or otherwise mutated. No source under
+`src/polisyos/runtime/quality/` changed. The only post-checker repository write is this append-only
+receipt; it changes neither a checker input predicate nor implementation behavior.

@@ -484,31 +484,109 @@ def _scope_has_claim_semantics(tree: ast.AST, scopes: dict[int, str]) -> set[str
     return semantic_scopes
 
 
-def _scope_has_graph_evidence_semantics(tree: ast.AST, scopes: dict[int, str]) -> set[str]:
-    """Construct graph-evidence context from types, edge tables, and edge vocabulary."""
+def _bound_names(node: ast.AST) -> set[str]:
+    """Return names assigned by one AST target without guessing their meaning."""
 
-    graph_scopes: set[str] = set()
+    if isinstance(node, ast.Name):
+        return {node.id}
+    if isinstance(node, (ast.Tuple, ast.List)):
+        return set().union(*(_bound_names(item) for item in node.elts))
+    return set()
+
+
+def _graph_evidence_marker(node: ast.AST) -> bool:
+    """Recognize local graph-evidence producers, types, and physical tables."""
+
+    for child in ast.walk(node):
+        text = ""
+        if isinstance(child, ast.Name):
+            text = child.id
+        elif isinstance(child, ast.Attribute):
+            text = child.attr
+        elif isinstance(child, ast.Constant) and isinstance(child.value, str):
+            text = child.value
+        if not text:
+            continue
+        normalized = text.lower()
+        if (
+            "articleevidence" in normalized
+            or "article_evidence" in normalized
+            or "ac_skg_" in normalized
+            or normalized in {"edge_strength_rank", "strongest_strength", "evidence_samples"}
+        ):
+            return True
+    return False
+
+
+def _graph_evidence_bindings(tree: ast.AST, scopes: dict[int, str]) -> dict[str, set[str]]:
+    """Trace graph-evidence values to local receivers and bindings within each scope."""
+
+    bindings: dict[str, set[str]] = {}
     for node in ast.walk(tree):
         scope = scopes.get(id(node), "<module>")
-        if scope == "<module>":
-            continue
-        text = ""
-        if isinstance(node, ast.Constant) and isinstance(node.value, str):
-            text = node.value
-        elif isinstance(node, ast.Name):
-            text = node.id
-        elif isinstance(node, ast.Attribute):
-            text = node.attr
-        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-            text = node.name
-        if (
-            "ArticleEvidence" in scope
-            or text == "ArticleEvidence"
-            or "ac_skg_edge" in text.lower()
-            or text in {"evidence_strength", "edge_strength_rank", "strongest_strength"}
-        ):
-            graph_scopes.add(scope)
-    return graph_scopes
+        bindings.setdefault(scope, set())
+        if isinstance(node, ast.arg) and node.annotation and _graph_evidence_marker(node.annotation):
+            bindings[scope].add(node.arg)
+
+    def expression_is_graph_evidence(node: ast.AST, names: set[str]) -> bool:
+        return _graph_evidence_marker(node) or any(
+            isinstance(child, ast.Name) and child.id in names for child in ast.walk(node)
+        )
+
+    changed = True
+    while changed:
+        changed = False
+        for node in ast.walk(tree):
+            scope = scopes.get(id(node), "<module>")
+            names = bindings.setdefault(scope, set())
+            targets: set[str] = set()
+            value: ast.AST | None = None
+            if isinstance(node, ast.Assign):
+                targets = set().union(*(_bound_names(target) for target in node.targets))
+                value = node.value
+            elif isinstance(node, (ast.AnnAssign, ast.NamedExpr)):
+                targets = _bound_names(node.target)
+                value = node.value
+            elif isinstance(node, (ast.For, ast.AsyncFor)):
+                targets = _bound_names(node.target)
+                value = node.iter
+            elif (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "isinstance"
+                and len(node.args) >= 2
+                and _graph_evidence_marker(node.args[1])
+            ):
+                targets = _bound_names(node.args[0])
+                value = node.args[1]
+            if value is not None and expression_is_graph_evidence(value, names):
+                newly_bound = targets - names
+                if newly_bound:
+                    names.update(newly_bound)
+                    changed = True
+    return bindings
+
+
+def _is_graph_evidence_strength_node(
+    node: ast.AST,
+    *,
+    symbol: str,
+    graph_evidence_bindings: dict[str, set[str]],
+) -> bool:
+    """Admit generic strength only when this node's receiver is graph evidence."""
+
+    names = graph_evidence_bindings.get(symbol, set())
+    if (isinstance(node, ast.Attribute) and node.attr == "strength") or (
+        isinstance(node, ast.Subscript) and _is_strength_node(node)
+    ):
+        receiver = node.value
+    elif isinstance(node, ast.Name) and node.id == "strength":
+        return node.id in names
+    else:
+        return False
+    return _graph_evidence_marker(receiver) or any(
+        isinstance(child, ast.Name) and child.id in names for child in ast.walk(receiver)
+    )
 
 
 def _disposition(
@@ -518,7 +596,7 @@ def _disposition(
     text: str,
     is_test: bool,
     has_claim_context: bool,
-    has_graph_evidence_context: bool,
+    is_graph_evidence_strength: bool,
 ) -> str:
     """Classify by AST operation and enclosing owner, never by a path allowlist."""
 
@@ -539,7 +617,7 @@ def _disposition(
         or "edge_strength" in symbol_lower
     ):
         return "explicit_graph_edge_evidence_strength"
-    if is_generic_strength and has_graph_evidence_context:
+    if is_generic_strength and is_graph_evidence_strength:
         return "explicit_graph_edge_evidence_strength"
     if any(
         adapter in symbol
@@ -639,7 +717,7 @@ def _claim_census(paths: tuple[Path, ...]) -> tuple[list[_CensusHit], list[str]]
             continue
         scopes = _scope_for_node(tree)
         semantic_scopes = _scope_has_claim_semantics(tree, scopes)
-        graph_evidence_scopes = _scope_has_graph_evidence_semantics(tree, scopes)
+        graph_evidence_bindings = _graph_evidence_bindings(tree, scopes)
         parents = {
             id(child): parent
             for parent in ast.walk(tree)
@@ -675,6 +753,11 @@ def _claim_census(paths: tuple[Path, ...]) -> tuple[list[_CensusHit], list[str]]
                 continue
             operation = _operation(node, parent)
             symbol = scopes.get(id(node), "<module>")
+            is_graph_evidence_strength = _is_graph_evidence_strength_node(
+                node,
+                symbol=symbol,
+                graph_evidence_bindings=graph_evidence_bindings,
+            )
             key = (getattr(node, "lineno", 0), symbol, operation, text)
             if key in seen:
                 continue
@@ -691,9 +774,9 @@ def _claim_census(paths: tuple[Path, ...]) -> tuple[list[_CensusHit], list[str]]
                         text=text,
                         is_test=relative.startswith("tests/"),
                         has_claim_context=symbol in semantic_scopes,
-                        has_graph_evidence_context=symbol in graph_evidence_scopes,
+                        is_graph_evidence_strength=is_graph_evidence_strength,
                     ),
-                    graph_evidence_context=symbol in graph_evidence_scopes,
+                    graph_evidence_context=is_graph_evidence_strength,
                 )
             )
     return hits, parse_failures
@@ -1246,6 +1329,57 @@ def test_complete_claim_vocabulary_consumer_census_has_no_unprojected_reader(
     capsys: pytest.CaptureFixture[str],
     record_property: Any,
 ) -> None:
+    # A Runtime consumer may legitimately process ArticleEvidence and causal claims
+    # in one symbol.  The graph admission must follow the individual receiver, not
+    # the enclosing symbol: these claim reads are intentionally the RED falsifier.
+    mixed_tree = ast.parse(
+        """
+def mixed_causal_claim_and_edge(
+    claim_result: CausalClaimResult,
+    edge_evidence: ArticleEvidence,
+) -> None:
+    edge_evidence.strength
+    claim_result.strength
+    claim_result["strength"]
+"""
+    )
+    mixed_scopes = _scope_for_node(mixed_tree)
+    mixed_claim_scopes = _scope_has_claim_semantics(mixed_tree, mixed_scopes)
+    mixed_graph_bindings = _graph_evidence_bindings(mixed_tree, mixed_scopes)
+    mixed_parents = {
+        id(child): parent
+        for parent in ast.walk(mixed_tree)
+        for child in ast.iter_child_nodes(parent)
+    }
+    mixed_dispositions: dict[str, str] = {}
+    for node in ast.walk(mixed_tree):
+        parent = mixed_parents.get(id(node))
+        label: str | None = None
+        if isinstance(node, ast.Attribute) and node.attr == "strength":
+            assert isinstance(node.value, ast.Name)
+            label = node.value.id
+        elif isinstance(node, ast.Subscript) and _is_strength_node(node):
+            assert isinstance(node.value, ast.Name)
+            label = f"{node.value.id}_key"
+        if label is None:
+            continue
+        symbol = mixed_scopes[id(node)]
+        mixed_dispositions[label] = _disposition(
+            symbol=symbol,
+            operation=_operation(node, parent),
+            text="strength",
+            is_test=False,
+            has_claim_context=symbol in mixed_claim_scopes,
+            is_graph_evidence_strength=_is_graph_evidence_strength_node(
+                node,
+                symbol=symbol,
+                graph_evidence_bindings=mixed_graph_bindings,
+            ),
+        )
+    assert mixed_dispositions["edge_evidence"] == "explicit_graph_edge_evidence_strength"
+    assert mixed_dispositions["claim_result"] == "UNPROJECTED_READER"
+    assert mixed_dispositions["claim_result_key"] == "UNPROJECTED_READER"
+
     source_paths = _tracked_python_paths(REPO_ROOT, "src/**/*.py")
     test_paths = _tracked_python_paths(REPO_ROOT, "tests/**/*.py")
     hits, parse_failures = _claim_census((*source_paths, *test_paths))
@@ -1280,28 +1414,9 @@ def test_complete_claim_vocabulary_consumer_census_has_no_unprojected_reader(
     graph_evidence_hits = [hit for hit in source_hits if hit.graph_evidence_context]
     assert graph_evidence_hits
     assert all(
-        hit.disposition not in {"unrelated_strength", "UNPROJECTED_READER"}
-        for hit in graph_evidence_hits
-    ), "graph-evidence contexts must not fall through: " + repr(graph_evidence_hits)
-    article_evidence_hits = [
-        hit
-        for hit in graph_evidence_hits
-        if any(
-            marker in hit.symbol
-            for marker in (
-                "run_edge_synthesize",
-                "_coerce_article_evidence",
-                "_effective_evidence_weight",
-                "weighted_direction_summary",
-                "handle_retraction",
-            )
-        )
-    ]
-    assert article_evidence_hits
-    assert all(
         hit.disposition == "explicit_graph_edge_evidence_strength"
-        for hit in article_evidence_hits
-    )
+        for hit in graph_evidence_hits
+    ), "graph-evidence receivers must not fall through: " + repr(graph_evidence_hits)
     rejection_boundary_hits = [
         hit for hit in source_hits if "_forbidden_vocabulary_key_path" in hit.symbol
     ]

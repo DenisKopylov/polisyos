@@ -525,3 +525,39 @@ Closure signal for transcription: the bounded capability is complete only as
 Store-owned source-bound projection -> default/v1 public consumers and Runtime
 claim consumer -> no-data/pinned/census semantic proof`. It makes no authority,
 publication, currentness, or occurrence-completeness claim beyond that chain.
+
+### Task 4 census correction — node/receiver graph provenance (fix round 2)
+
+The previous `366`-hit/`203`-test-hit inventory is superseded for the current
+Task-4 test revision. The retained census now uses local AST receiver/binding
+provenance for graph evidence instead of admitting every generic `strength`
+operation in an enclosing graph-bearing symbol. A self-contained mixed
+`CausalClaimResult`/`ArticleEvidence` AST falsifier proves that
+`edge_evidence.strength` is explicit graph evidence while
+`claim_result.strength` and `claim_result["strength"]` are
+`UNPROJECTED_READER`; a real indirect claim read in such a mixed Runtime symbol
+therefore fails closed. The typed `_forbidden_vocabulary_key_path` boundary and
+the existing producer/snapshot dispositions remain ahead of graph admission.
+
+The final complete tracked-set measurement is `2619` source Python files plus
+`2496` test Python files; the retained inventory is `371` hits across `63`
+paths: `163` source hits across `43` source paths and `208` test hits across
+`20` test paths. It has zero parse failures, zero unprojected hits, and zero
+unclassified hits. The source graph-receiver set contains `9` receiver-proven
+hits; all are `explicit_graph_edge_evidence_strength`. The complete source
+disposition distribution is: activated typed writer `7`, catalog out of scope
+`1`, count-only `1`, currentness/search table reference `3`, explicit graph
+edge evidence `13`, frozen edge producer `4`, producer vocabulary rejection
+`2`, provenance-bound JSONL adapter `6`, Runtime public typed loader `1`,
+snapshot schema copy/validation `5`, Store physical legacy projection `13`,
+typed non-vocabulary SQL `3`, typed reader/public carrier `67`, typed
+vocabulary rejection boundary `1`, and unrelated strength `36`.
+
+The mixed-scope RED selector exited `1` in `1.06s`, with the decisive result
+`claim_result.strength == explicit_graph_edge_evidence_strength` under the
+old scope-wide classifier. After the receiver repair, the selector exited `0`
+in `87.12s`; the complete four-test file exited `0` in `106.91s` wall time.
+The inventory extraction exited `0` in `52.21s`. This correction changes only
+the census test and this append-only receipt; it does not alter the pinned
+read-only database measurement, source/data scope, exclusions, or the
+root-controller-only pending bound debt checker.

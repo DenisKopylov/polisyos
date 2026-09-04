@@ -521,6 +521,11 @@ def _graph_evidence_marker(node: ast.AST) -> bool:
 def _graph_evidence_bindings(tree: ast.AST, scopes: dict[int, str]) -> dict[str, set[str]]:
     """Trace graph-evidence values to local receivers and bindings within each scope."""
 
+    parents = {
+        id(child): parent
+        for parent in ast.walk(tree)
+        for child in ast.iter_child_nodes(parent)
+    }
     bindings: dict[str, set[str]] = {}
     for node in ast.walk(tree):
         scope = scopes.get(id(node), "<module>")
@@ -547,9 +552,29 @@ def _graph_evidence_bindings(tree: ast.AST, scopes: dict[int, str]) -> dict[str,
             elif isinstance(node, (ast.AnnAssign, ast.NamedExpr)):
                 targets = _bound_names(node.target)
                 value = node.value
-            elif isinstance(node, (ast.For, ast.AsyncFor)):
+            elif isinstance(node, (ast.For, ast.AsyncFor, ast.comprehension)):
                 targets = _bound_names(node.target)
                 value = node.iter
+            elif isinstance(node, ast.Lambda):
+                parent = parents.get(id(node))
+                keyword_name: str | None = None
+                if isinstance(parent, ast.keyword):
+                    keyword_name = parent.arg
+                    parent = parents.get(id(parent))
+                callable_name = (
+                    parent.func.id
+                    if isinstance(parent, ast.Call) and isinstance(parent.func, ast.Name)
+                    else None
+                )
+                if (
+                    isinstance(parent, ast.Call)
+                    and keyword_name == "key"
+                    and callable_name in {"max", "min", "sorted"}
+                    and parent.args
+                    and expression_is_graph_evidence(parent.args[0], names)
+                ):
+                    targets = {argument.arg for argument in node.args.args}
+                    value = parent.args[0]
             elif (
                 isinstance(node, ast.Call)
                 and isinstance(node.func, ast.Name)
@@ -1379,6 +1404,45 @@ def mixed_causal_claim_and_edge(
     assert mixed_dispositions["edge_evidence"] == "explicit_graph_edge_evidence_strength"
     assert mixed_dispositions["claim_result"] == "UNPROJECTED_READER"
     assert mixed_dispositions["claim_result_key"] == "UNPROJECTED_READER"
+
+    graph_binding_tree = ast.parse(
+        """
+def graph_binding_forms(evidence_samples: list[ArticleEvidence]) -> None:
+    [sample.strength for sample in evidence_samples]
+    [another_sample.strength for another_sample in evidence_samples]
+    max(evidence_samples, key=lambda row: row.strength)
+    custom(evidence_samples, handler=lambda causal_claim_result: causal_claim_result.strength)
+"""
+    )
+    graph_binding_scopes = _scope_for_node(graph_binding_tree)
+    graph_binding_claim_scopes = _scope_has_claim_semantics(
+        graph_binding_tree, graph_binding_scopes
+    )
+    graph_binding_bindings = _graph_evidence_bindings(graph_binding_tree, graph_binding_scopes)
+    graph_binding_dispositions: dict[str, str] = {}
+    for node in ast.walk(graph_binding_tree):
+        if not isinstance(node, ast.Attribute) or node.attr != "strength":
+            continue
+        assert isinstance(node.value, ast.Name)
+        symbol = graph_binding_scopes[id(node)]
+        graph_binding_dispositions[node.value.id] = _disposition(
+            symbol=symbol,
+            operation=_operation(node, None),
+            text="strength",
+            is_test=False,
+            has_claim_context=symbol in graph_binding_claim_scopes,
+            is_graph_evidence_strength=_is_graph_evidence_strength_node(
+                node,
+                symbol=symbol,
+                graph_evidence_bindings=graph_binding_bindings,
+            ),
+        )
+    assert graph_binding_dispositions == {
+        "sample": "explicit_graph_edge_evidence_strength",
+        "another_sample": "explicit_graph_edge_evidence_strength",
+        "causal_claim_result": "UNPROJECTED_READER",
+        "row": "explicit_graph_edge_evidence_strength",
+    }
 
     source_paths = _tracked_python_paths(REPO_ROOT, "src/**/*.py")
     test_paths = _tracked_python_paths(REPO_ROOT, "tests/**/*.py")

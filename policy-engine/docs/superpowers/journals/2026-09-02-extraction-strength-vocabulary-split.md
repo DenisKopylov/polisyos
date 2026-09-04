@@ -561,3 +561,56 @@ The inventory extraction exited `0` in `52.21s`. This correction changes only
 the census test and this append-only receipt; it does not alter the pinned
 read-only database measurement, source/data scope, exclusions, or the
 root-controller-only pending bound debt checker.
+
+### Task 4 census correction — comprehension and lambda bindings (fix round 2 continuation)
+
+This supersedes the immediately preceding `371`-hit/`208`-test-hit census
+receipt for the current test revision. The P40 node/receiver mechanism now
+also binds an `ast.comprehension` target when its iterable is graph evidence
+and binds an `ast.Lambda` parameter when its enclosing call passes a
+graph-evidence argument. The paired self-contained controls prove two
+`sample.strength` comprehension receivers and the `row.strength` lambda
+receiver are explicit graph evidence, while the retained mixed
+`claim_result.strength` and `claim_result["strength"]` controls remain
+`UNPROJECTED_READER`. This is local receiver/binding provenance, not a path or
+enclosing-symbol allowlist.
+
+The final complete tracked-set measurement remains `2619` source Python files
+plus `2496` test Python files. The retained inventory is now `373` hits across
+`63` paths: `163` source hits across `43` source paths and `210` test hits
+across `20` test paths. It has zero parse failures, zero unprojected hits, and
+zero unclassified hits. The source receiver-proven graph set is `13`, and all
+thirteen are `explicit_graph_edge_evidence_strength`. The complete source
+disposition distribution is: activated typed writer `7`, catalog out of scope
+`1`, count-only `1`, currentness/search table reference `3`, explicit graph
+edge evidence `16`, frozen edge producer `4`, producer vocabulary rejection
+`2`, provenance-bound JSONL adapter `6`, Runtime public typed loader `1`,
+snapshot schema copy/validation `5`, Store physical legacy projection `13`,
+typed non-vocabulary SQL `3`, typed reader/public carrier `67`, typed
+vocabulary rejection boundary `1`, and unrelated strength `33`.
+
+Against `56c9660f4`, the focused selector RED exited `1` in `1.62s`: all three
+new controls were `unrelated_strength`. After the grammar repair, the same
+selector exited `0` in `157.46s`; the full four-test file exited `0` in
+`120.04s` wall time; and final inventory extraction exited `0` in `60.00s`.
+This continuation changes only the Task-4 census test and this append-only
+receipt. It does not alter any production source/data, prior pinned read-only
+measurement, exclusions, or the root-controller-only pending bound debt
+checker.
+
+### Task 4 census correction — bounded lambda semantics (root self-review)
+
+Root self-review added the paired negative callback form
+`custom(evidence_samples, handler=lambda causal_claim_result: causal_claim_result.strength)`.
+The first run exited `1` in `0.10s` because the broad lambda rule incorrectly
+classified that claim receiver as graph evidence. Lambda propagation is now
+limited to the defined element-binding semantics of built-in `max`, `min`, and
+`sorted` `key=` callbacks whose first argument is already graph evidence; an
+unrelated callback in the same call remains `UNPROJECTED_READER`.
+
+After that narrowing, the complete census selector passed (`1 passed in
+98.82s`) and the full Task-4 file passed (`4 passed in 124.90s`; 128.27s
+wall). Ruff and `git diff --check` passed. The final retained inventory remains
+the immediately preceding `373` hits/`63` paths, `163` source/`210` test,
+with zero unprojected and zero unclassified current-tree hits; no measured
+production-data or source disposition changed.

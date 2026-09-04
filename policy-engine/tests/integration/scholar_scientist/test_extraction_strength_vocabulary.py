@@ -78,6 +78,7 @@ class _CensusHit:
     symbol: str
     operation: str
     disposition: str
+    graph_evidence_context: bool = False
 
 
 def _sha256(path: Path) -> str:
@@ -483,6 +484,33 @@ def _scope_has_claim_semantics(tree: ast.AST, scopes: dict[int, str]) -> set[str
     return semantic_scopes
 
 
+def _scope_has_graph_evidence_semantics(tree: ast.AST, scopes: dict[int, str]) -> set[str]:
+    """Construct graph-evidence context from types, edge tables, and edge vocabulary."""
+
+    graph_scopes: set[str] = set()
+    for node in ast.walk(tree):
+        scope = scopes.get(id(node), "<module>")
+        if scope == "<module>":
+            continue
+        text = ""
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            text = node.value
+        elif isinstance(node, ast.Name):
+            text = node.id
+        elif isinstance(node, ast.Attribute):
+            text = node.attr
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            text = node.name
+        if (
+            "ArticleEvidence" in scope
+            or text == "ArticleEvidence"
+            or "ac_skg_edge" in text.lower()
+            or text in {"evidence_strength", "edge_strength_rank", "strongest_strength"}
+        ):
+            graph_scopes.add(scope)
+    return graph_scopes
+
+
 def _disposition(
     *,
     symbol: str,
@@ -490,6 +518,7 @@ def _disposition(
     text: str,
     is_test: bool,
     has_claim_context: bool,
+    has_graph_evidence_context: bool,
 ) -> str:
     """Classify by AST operation and enclosing owner, never by a path allowlist."""
 
@@ -498,6 +527,8 @@ def _disposition(
     symbol_lower = symbol.lower()
     text_lower = " ".join(text.lower().split())
     is_generic_strength = text == "strength" or operation.startswith("strength_")
+    if is_generic_strength and "_forbidden_vocabulary_key_path" in symbol:
+        return "typed_vocabulary_rejection_boundary"
     if is_generic_strength and "_project_claim_row" in symbol:
         return "store_owned_physical_legacy_projection"
     if is_generic_strength and "_infer_edge_strength" in symbol:
@@ -507,6 +538,8 @@ def _disposition(
         or "edge_evidence" in symbol_lower
         or "edge_strength" in symbol_lower
     ):
+        return "explicit_graph_edge_evidence_strength"
+    if is_generic_strength and has_graph_evidence_context:
         return "explicit_graph_edge_evidence_strength"
     if any(
         adapter in symbol
@@ -606,6 +639,7 @@ def _claim_census(paths: tuple[Path, ...]) -> tuple[list[_CensusHit], list[str]]
             continue
         scopes = _scope_for_node(tree)
         semantic_scopes = _scope_has_claim_semantics(tree, scopes)
+        graph_evidence_scopes = _scope_has_graph_evidence_semantics(tree, scopes)
         parents = {
             id(child): parent
             for parent in ast.walk(tree)
@@ -657,7 +691,9 @@ def _claim_census(paths: tuple[Path, ...]) -> tuple[list[_CensusHit], list[str]]
                         text=text,
                         is_test=relative.startswith("tests/"),
                         has_claim_context=symbol in semantic_scopes,
+                        has_graph_evidence_context=symbol in graph_evidence_scopes,
                     ),
+                    graph_evidence_context=symbol in graph_evidence_scopes,
                 )
             )
     return hits, parse_failures
@@ -1230,6 +1266,7 @@ def test_complete_claim_vocabulary_consumer_census_has_no_unprojected_reader(
         "store_owned_physical_legacy_projection",
         "frozen_edge_producer_over_admitted_v2",
         "explicit_graph_edge_evidence_strength",
+        "typed_vocabulary_rejection_boundary",
         "count_only_out_of_scope",
         "catalog_path_out_of_scope",
         "currentness_search_table_ref_out_of_scope",
@@ -1239,6 +1276,39 @@ def test_complete_claim_vocabulary_consumer_census_has_no_unprojected_reader(
     assert required_dispositions <= dispositions.keys(), (
         "missing semantic dispositions: "
         f"{sorted(required_dispositions - dispositions.keys())}"
+    )
+    graph_evidence_hits = [hit for hit in source_hits if hit.graph_evidence_context]
+    assert graph_evidence_hits
+    assert all(
+        hit.disposition not in {"unrelated_strength", "UNPROJECTED_READER"}
+        for hit in graph_evidence_hits
+    ), "graph-evidence contexts must not fall through: " + repr(graph_evidence_hits)
+    article_evidence_hits = [
+        hit
+        for hit in graph_evidence_hits
+        if any(
+            marker in hit.symbol
+            for marker in (
+                "run_edge_synthesize",
+                "_coerce_article_evidence",
+                "_effective_evidence_weight",
+                "weighted_direction_summary",
+                "handle_retraction",
+            )
+        )
+    ]
+    assert article_evidence_hits
+    assert all(
+        hit.disposition == "explicit_graph_edge_evidence_strength"
+        for hit in article_evidence_hits
+    )
+    rejection_boundary_hits = [
+        hit for hit in source_hits if "_forbidden_vocabulary_key_path" in hit.symbol
+    ]
+    assert rejection_boundary_hits
+    assert all(
+        hit.disposition == "typed_vocabulary_rejection_boundary"
+        for hit in rejection_boundary_hits
     )
 
     direct_generic_claim_sql: list[_CensusHit] = []

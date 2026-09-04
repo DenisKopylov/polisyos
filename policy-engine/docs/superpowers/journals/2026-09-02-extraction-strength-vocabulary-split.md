@@ -456,3 +456,72 @@ one known non-Task-4 CP-SAT/OR-Tools availability red, reproduced at the same
 slice base; it is recorded in the Task-4 implementer report rather than
 suppressed or described as a whole-gate green. The bound debt checker was not
 run.
+
+### Task 4 closure addendum — measured transcriber receipt (fix round 1)
+
+This addendum is the transcriber-ready closure record for the narrowly scoped
+vocabulary/no-data property. It supersedes none of the preceding append-only
+history. The exact pinned read-only input was
+`production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb`.
+SHA-256 was
+`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967` both
+before opening and after all readers closed. The file was opened only as
+`duckdb.connect(str(path), read_only=True)` and was never passed to a writer,
+copier, migration, chmod, producer, or extractor.
+
+The pinned-source SQL identity measurement was:
+
+```sql
+SELECT COUNT(DISTINCT (id, work_id)) AS placeholder_identities
+FROM ac_causal_claims_raw
+WHERE NULLIF(TRIM(design_family_hint), '') IS NULL
+  AND LOWER(TRIM(strength)) = 'moderate';
+```
+
+The complete aggregate measured `137589` rows, `137589` distinct
+`(id, work_id)` identities, zero null identities, zero duplicates, and exactly
+`69798` blank-hint/lower-trimmed-`moderate` cohort identities. The public
+`audit_academic_claim_lineage(status="all", limit=500)` traversal visited all
+`137589` identities exactly once. This is an **identity-level** receipt, not an
+occurrence-completeness or between-page-currentness claim. For every measured
+cohort identity, all four typed values were null, all four axis statuses were
+exactly `not_established`, and the audit-only `legacy_strength_label` was
+`moderate`; no literal was mapped to a typed axis.
+
+The frozen tracked AST denominator was `2619` source Python files plus `2496`
+test Python files. The retained inventory contains `366` hits across `63`
+paths: `163` source hits across `43` source paths and `203` test hits across
+`20` test paths; it has zero unprojected and zero unclassified hits. The census
+constructs dispositions from AST operation and enclosing semantic context, not
+a path allowlist. Its current explicit graph-evidence disposition covers
+`ArticleEvidence` construction/coercion/weighting, edge synthesis, and SKG
+retraction; the generic-key reservation helper
+`_forbidden_vocabulary_key_path` is the typed vocabulary-rejection boundary.
+
+Current focused Task-4 verification reported **4 passed in 94.93s**
+(98.25s wall). The four tests cover activated temporary graph and span writers,
+copy/replay, default and v1 readers including public mechanism forwarding,
+read-only pinned audit, and the complete census. Runtime's authorized claim
+path changed from a local direct generic-strength row projection to the public
+`academic.iter_causal_claim_results_v2(connection)` projection with four named
+value/status pairs; its generic label is retained only under provenance as
+`legacy_strength_label`. Task 3's forbidden Runtime edge/family receipt remains
+`protected_segments=4`; the exact-edge payload oracle is
+`sha256:5b340aa61431fab375278ccf3e0d833b99c2515ae9ec5e565b04080e8c3ee84b`
+and the family payload oracle is
+`sha256:0149a83f050a1f565189c4af228bd731739de1c57fdabeade484f4b6d14213fa`.
+
+Exclusions remain binding: no Tasks 5–7, authority/receipt/evaluator/champion,
+publication/ranking/currentness/reissue/cache, graph-edge inference change,
+Foundry catalog change, producer/adjudication/re-extraction run, or
+`production_data` mutation is claimed. Ruff and `git diff --check` are required
+closeout receipts. The known CP-SAT/OR-Tools availability residual is still a
+non-Task-4 broad-prerequisite red reproduced at the slice base; it is not
+suppressed or called whole-gate green. The bound debt checker remains **pending**
+its one root-controller-only final run and was not run here.
+
+Closure signal for transcription: the bounded capability is complete only as
+`typed producer admission -> persisted explicit-v2 or physically legacy row ->
+Store-owned source-bound projection -> default/v1 public consumers and Runtime
+claim consumer -> no-data/pinned/census semantic proof`. It makes no authority,
+publication, currentness, or occurrence-completeness claim beyond that chain.

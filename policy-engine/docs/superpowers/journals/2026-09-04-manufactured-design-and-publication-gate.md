@@ -1014,3 +1014,205 @@ sed -n '330,365p' src/polisyos/foundry/methods/catalog/causal/graph_reconciliati
 The merge was a fast-forward from `861898cf7` through the architect's ratification commits to
 `fca52ea2b`; no rebase occurred. The source/test tree and `production_data` remained unchanged
 through this design checkpoint.
+
+## Event 6 — Phase-3 implementation and verification, 2026-09-04
+
+### Delivered behavior
+
+Commit `dec7beccb` implements the ratified seam; `9ade77cbd` is the mechanical
+architecture-facade correction found by the guardrail census.
+
+- `encode_edge_evidence_strength` is the single write-boundary resolver. It accepts an exact
+  `EvidenceStrength` candidate or the paired absence, rejects contradictory/unsupported input,
+  and encodes absence as `not_established` for the existing `VARCHAR NOT NULL` columns.
+  `decode_edge_evidence_strength` reverses that into `None` plus
+  `ClaimVocabularyAxisStatus.NOT_ESTABLISHED`.
+- `_infer_edge_strength` now consults only `evidence_strength` and its status.
+  `_legacy_strength_from_adjudication` can no longer project design or credibility and returns
+  declared absence. The published batch loop uses the admitted vocabulary values for both the
+  accumulator and evidence row, so the legacy helper is no longer its live source.
+- Aggregation excludes declared absence from weights, confidence floors, replication bonus and
+  directional dissent. Ranking preserves an all-absence result and selects an established class
+  from mixed input. `unknown` remains a distinct enum member with its existing weight.
+- Exact/family/contested query records now carry an optional value plus status. The V2 store,
+  prior query, IR literature prior, Foundry build/reconciliation and Scientist prior support all
+  preserve that shape; no typed consumer sees the storage token. Row/confidence/coverage and
+  content-binding predicates are unchanged.
+- The span writer still preflights the complete batch before its first database operation, then
+  requires `claim.publish_to_graph is True` before grounding/canonization/emission. False,
+  missing and forged truthy values are rejected. Published rows use `candidate_layer='candidate'`
+  and NULL `design_family`; the actual hint remains in the article's admitted candidate envelope.
+  The independent `authority_tier` produced by span grounding is unchanged.
+
+No schema migration, snapshot/data write, extractor run, adjudication run, authority producer,
+receipt, evaluator, or checker weakening was introduced. The pinned snapshot's 342 affected
+historical evidence rows remain recorded history and are the explicit target population for a
+future authorized re-derivation.
+
+### Red evidence
+
+All red runs used the provisioned main virtualenv with the worktree first on `PYTHONPATH`; all
+output was redirected. They ran before their corresponding source changes.
+
+1. Resolver/aggregation red — exit 1, **28 failed and one characterization passed**. The passing
+   case pins the existing `unknown` contribution; the failures show four free-key placeholders,
+   all 20 design-family values without evidence, the explicit-class override, the
+   theoretical/moderate fallback, absence-only confidence and absence replication.
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q \
+  tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py::test_edge_strength_without_explicit_evidence_is_declared_absent \
+  tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py::test_edge_strength_preserves_explicit_evidence_despite_divergent_design \
+  tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py::test_legacy_theoretical_moderate_resolves_absence_not_observational \
+  tests/unit/data_forge/domains/academic/batch/test_skg_confidence.py::test_declared_absence_contributes_zero_edge_confidence \
+  tests/unit/data_forge/domains/academic/batch/test_skg_confidence.py::test_declared_absence_does_not_change_established_edge_confidence \
+  tests/unit/data_forge/domains/academic/batch/test_skg_confidence.py::test_unknown_retains_its_existing_nonzero_edge_confidence \
+  > .tmp/b2-red/resolver-aggregation-red.txt 2>&1
+```
+
+2. Publication/candidate projection red — exit 1, **six failed**: all four denied values were
+   ingested, the layer was `design_tier_authority`, and both mixed claims were published.
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q \
+  tests/unit/data_forge/domains/academic/knowledge/test_openalex_skg_ingest.py::test_span_writer_publication_gate_requires_literal_true \
+  tests/unit/data_forge/domains/academic/knowledge/test_openalex_skg_ingest.py::test_span_writer_persists_candidate_projection_without_design_authority \
+  tests/unit/data_forge/domains/academic/knowledge/test_openalex_skg_ingest.py::test_span_writer_mixed_batch_publishes_only_allowed_claim \
+  > .tmp_b2_check.fMs01p/phase3-gate-red.txt 2>&1
+```
+
+3. Consumer red — exit 1, **five failed**. The store rejected the token, Foundry tried to construct
+   an enum from it, the IR rejected optional value/status, and Scientist defaulted absence to
+   `unknown`.
+
+```sh
+PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q \
+  tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py::test_query_claims_decodes_persisted_declared_absence \
+  tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py::test_query_claims_hybrid_ignores_declared_absence_when_evidence_exists \
+  tests/unit/foundry/methods/catalog/causal/test_literature_prior.py::test_build_literature_prior_decodes_persisted_declared_absence \
+  tests/unit/ir/test_literature_contract.py::test_literature_prior_roundtrips_declared_absence_without_value_token \
+  tests/unit/scientist/discovery/test_prior_miner.py::test_prior_miner_preserves_declared_absence_without_value_token \
+  > .pytest_cache/b2-red-consumers.log 2>&1
+```
+
+4. Typed edge-support status red — exit 1, **one failed** because `EdgeSupportRecord` had no status
+   field. The matching green was one passed test after adding the paired status.
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q \
+  tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py::test_query_edge_support_pairs_declared_absence_with_status \
+  > .tmp_b2_check.fMs01p/phase3-edge-support-status-red.txt 2>&1
+```
+
+### Green and blast-radius evidence
+
+The matching focused greens were **29 passed**, **six passed**, **five passed**, and **one passed**
+respectively, recorded in `phase3-resolver-green.txt`, `phase3-gate-green.txt`,
+`phase3-consumers-green.txt`, and `phase3-edge-support-status-green.txt` under the ignored scratch
+paths above.
+
+After source freeze, three targeted file/node waves ran in parallel and exited 0:
+
+```sh
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q \
+  tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py \
+  tests/unit/data_forge/domains/academic/batch/test_skg_confidence.py \
+  tests/unit/data_forge/domains/academic/batch/test_skg_versioning.py \
+  > .tmp_b2_check.fMs01p/final-targeted-batch.txt 2>&1
+
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q \
+  tests/unit/data_forge/domains/academic/knowledge/test_openalex_skg_ingest.py \
+  tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py \
+  tests/unit/data_forge/domains/academic/knowledge/test_store.py \
+  > .tmp_b2_check.fMs01p/final-targeted-knowledge.txt 2>&1
+
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q \
+  tests/unit/foundry/methods/catalog/causal/test_literature_prior.py \
+  tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py \
+  tests/unit/ir/test_literature_contract.py \
+  tests/unit/scientist/discovery/test_prior_miner.py \
+  tests/integration/scholar_scientist/test_extraction_strength_vocabulary.py::test_claim_axes_round_trip_through_activated_writer_and_all_public_readers \
+  > .tmp_b2_check.fMs01p/final-targeted-downstream.txt 2>&1
+```
+
+Results: **44 passed in 4.57s**, **71 passed in 43.82s**, and **47 passed in 53.60s**. The knowledge
+wave's two warnings are the intentional Pydantic serializer warnings from forged non-boolean
+publication values; those values remain negative controls and are rejected by the writer.
+Changed-path Ruff exited 0 (`All checks passed!`, 0.04s). A focused post-facade Scientist rerun
+also exited 0 with four passed tests.
+
+### Review and architecture disposition
+
+The bounded read-only Phase-3 review over `1664a6d8a..dec7beccb` returned no Critical or Important
+findings, no second same-class defect, and no stop trigger. Its verdict was ready for closeout.
+
+The first provisioned architecture run correctly found one B-2-owned deep import from Scientist
+to the defining IR module. Commit `9ade77cbd` routes that import through the existing stable
+`polisyos.ir.analytics` facade. The post-fix architecture census no longer lists any B-2 path,
+but the command still exits 1 on three `runtime.http.services.acquisition_admission_bundle` deep
+imports, an OpenAPI output mismatch, and generator non-receipts caused by absent frontend modules
+and `python` on their isolated PATH.
+
+Under P41, the exact command was replayed at slice base `fca52ea2b` in a disposable detached
+worktree. It exited 1 with the **same three runtime imports and same generator classes**; worktree
+creation/removal both exited 0. The current B-2 diff does not touch any reported residual input.
+The residual is therefore inherited, not a B-2 failure, and no baseline, generated artifact,
+checker predicate, or unrelated Runtime source was changed. The initial `uv run --offline`
+attempt did not execute the guardrail because uncached `jaxlib==0.8.2` could not be resolved;
+the measured provisioned-environment runs above are the executed checks.
+
+### Transcriber-ready row prose
+
+#### `academic-graph-manufactures-design-from-a-placeholder`
+
+> **TASK B-2 2026-09-04 — `open` -> `closed`; architect-ratified relocated remit delivered.**
+> Edge evidence now comes only from the admitted `evidence_strength` axis. The callable free-key
+> fallback is gone; design hints, adjudicated design, generic `strength`, and causal credibility
+> can no longer manufacture an evidence class. `_legacy_strength_from_adjudication` resolves to
+> declared absence, and the live published loop resolves its admitted vocabulary sidecar through
+> the same strict encoder. A missing value survives the existing `VARCHAR NOT NULL` tables as the
+> reserved storage encoding `not_established`, which is not an `EvidenceStrength` member and is
+> decoded at every typed boundary to `None` plus status `not_established`. Ranking/aggregation
+> exclude it; mixed rows retain the established class; genuine `unknown` remains distinct. The
+> negative matrix covers all 20 `DesignFamily` members plus four placeholder labels and proves none
+> can yield any design/evidence member without explicit evidence. The measured divergent witness,
+> theoretical design plus moderate credibility, now resolves to absence rather than
+> `observational`; an explicitly supplied cross-sectional class survives an RCT hint unchanged.
+> Exact/family/contested, V2 store, Foundry/IR/reconciliation and Scientist prior consumers all
+> preserve the optional value/status without storage-token leakage. The pinned snapshot is not
+> rewritten: its 342 historical live-fallback rows retain the recorded misstatement and are the
+> named cohort for any future authorized re-derivation. No data was produced.
+
+#### `span-grounded-writer-ignores-the-publication-gate`
+
+> **TASK B-2 2026-09-04 — `open` -> `closed`; live code defect repaired with zero historical data
+> footprint.** `ingest_openalex_span_grounded_claims` retains whole-batch vocabulary preflight and
+> now requires the literal predicate `publish_to_graph is True` before grounding, canonization or
+> graph emission. False, default/missing, `None`, string `"false"`, and integer `1` controls write
+> zero rows to `ac_skg_edges`, `ac_skg_edge_evidence`, and `ac_skg_span_grounded_claims`; a mixed
+> batch publishes only the allowed claim, and a denied same-edge replay leaves the existing edge
+> and evidence unchanged. A true, source-bound positive control still publishes. The writer now
+> consumes the admitted evidence sidecar, writes `candidate_layer='candidate'`, and writes NULL to
+> both SQL `design_family` fields while retaining the actual `design_family_hint` under its
+> candidate name/status in the article envelope. The separate span-grounding `authority_tier` is
+> unchanged and is not conflated with candidate-layer naming. The April snapshot still has no
+> span-grounded table; this was a live capability defect with zero materialized footprint, not a
+> harmless row-count result.
+
+#### New row: `academic-unknown-evidence-contributes-nonzero-weight`
+
+> **TASK B-2 REPORT 2026-09-04 — new, `open`, unallocated; unfounded contribution is not the closed
+> substitution class.** `EvidenceStrength.UNKNOWN` has base weight **0.15**, equal to theoretical
+> evidence. The Phase-1 pure witness produced confidence `0.08925000000000005` under the ordinary
+> missing-sample/current-year factors, while the Phase-3 ideal-factor characterization produces
+> `0.15`; both prove nonzero contribution. The reconciled 7,868-row pinned exact-evidence
+> distribution contains zero `unknown` rows, so no current exact-table footprint is asserted, but
+> the behavior is live for future/other rows and feeds noisy-OR confidence, replication and
+> downstream rank-derived consumers. B-2 deliberately preserves and pins it. Closure requires a
+> complete exact/family/contested/transport/prior/credal footprint measurement and either a
+> provenance rule that licenses `unknown` as contributing evidence or a zero-contribution/declared-
+> limitation repair, with before/after confidence and mixed-outcome negative tests. Do not close
+> this row by relabeling `unknown` as `not_established`; they are now structurally distinct.
+
+The bound debt-checker receipt and final snapshot/readback receipt follow in the next append-only
+event after the single end-of-task invocation.

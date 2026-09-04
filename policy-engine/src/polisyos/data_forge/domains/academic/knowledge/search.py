@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -14,11 +15,15 @@ from polisyos.data_forge.domains.academic.knowledge.store import ScholarKnowledg
 from polisyos.data_forge.domains.academic.knowledge.types import (
     BoundaryConditionResult,
     CausalClaimResult,
+    CausalClaimResultV1,
     ParameterPrior,
     WorkSearchResult,
 )
 
 logger = get_logger(__name__)
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.knowledge.types import ClaimLineageAuditPage
 
 
 class ScholarKnowledgeGraph:
@@ -250,6 +255,34 @@ class ScholarKnowledgeGraph:
             top_k=top_k,
             min_trust=min_trust,
         )
+
+    def find_causal_evidence_v1_audit(
+        self,
+        cause: str,
+        effect: str,
+        *,
+        min_trust: float = 0.5,
+    ) -> list[CausalClaimResultV1]:
+        """Deprecated v1 audit route for exact claim rows."""
+        return self._store.get_causal_claims_v1_audit(cause, effect, min_trust=min_trust)
+
+    def get_mechanism_evidence_v1_audit(
+        self, mechanism_name: str, *, top_k: int = 20, min_trust: float = 0.3
+    ) -> list[CausalClaimResultV1]:
+        """Deprecated v1 audit route; generic strength remains absent."""
+        return self._store.search_causal_claims_v1_audit(
+            mechanism_name, top_k=top_k, min_trust=min_trust
+        )
+
+    def audit_claim_lineage(
+        self,
+        *,
+        status: str = "all",
+        cursor: str | None = None,
+        limit: int = 100,
+    ) -> ClaimLineageAuditPage:
+        """Forward the raw lineage audit page without reconstruction."""
+        return self._store.audit_claim_lineage(status=status, cursor=cursor, limit=limit)
 
     def find_works_for_topic(
         self,

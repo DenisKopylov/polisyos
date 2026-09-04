@@ -38,6 +38,7 @@ from polisyos.runtime.quality.substrate_registry import (
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from polisyos.data_forge.read_api import academic
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
 
 CREDAL_REFERENCE_SCHEMA_VERSION = "policyos.runtime.grounding_credal_reference.v1"
@@ -879,17 +880,11 @@ def _iter_l2_edges(repo_root: Path) -> Iterable[CredalReferenceEdge]:
                 variable_names=variable_names,
             )
 
-        for row in con.execute(
-            """
-            SELECT id, cause, effect, direction, strength, design_family_hint,
-                   claim_extraction_confidence, strong_design_evidence,
-                   design_quality_tier, publish_blockers, candidate_layer, trust_score
-            FROM ac_causal_claims
-            ORDER BY id
-            """
-        ).fetchall():
+        from polisyos.data_forge.read_api import academic
+
+        for claim_result in academic.iter_causal_claim_results_v2(con):
             yield _derive_l2_causal_claim(
-                row,
+                claim_result,
                 version=version,
                 variable_names=variable_names,
                 contested_claims=contested_claims,
@@ -1385,52 +1380,80 @@ def _derive_l2_moderation_edge(
 
 
 def _derive_l2_causal_claim(
-    row: Sequence[Any],
+    claim_result: academic.CausalClaimResultV2,
     *,
     version: str,
     variable_names: set[str],
     contested_claims: set[str],
 ) -> CredalReferenceEdge:
-    (
-        claim_id,
-        cause,
-        effect,
-        direction,
-        strength,
-        design_family,
-        extraction_confidence,
-        strong_design,
-        design_tier,
-        blockers,
-        layer,
-        trust_score,
-    ) = row
-    claim = str(claim_id or "").strip()
-    cause_text = str(cause or "").strip()
-    effect_text = str(effect or "").strip()
-    blocker_list = _split_blockers(blockers)
-    trust = _float(trust_score)
-    tier = int(design_tier or 99)
+    claim = str(claim_result.id or "").strip()
+    cause_text = str(claim_result.cause or "").strip()
+    effect_text = str(claim_result.effect or "").strip()
+    blocker_list = list(claim_result.publish_blockers)
+    trust = _float(claim_result.trust_score)
+    tier = int(claim_result.design_quality_tier or 99)
     provenance = {
         "owner": "L2",
         "source": "ac_causal_claims",
         "version": version,
         "signals": {
-            "candidate_layer": str(layer or ""),
+            "candidate_layer": str(claim_result.candidate_layer or ""),
             "claim_in_contested_membership": claim in contested_claims,
-            "design_family_hint": str(design_family or ""),
             "design_quality_tier": tier,
-            "extraction_confidence": _float(extraction_confidence),
             "publish_blockers": blocker_list,
-            "strong_design_evidence": bool(strong_design),
+            "strong_design_evidence": bool(claim_result.strong_design_evidence),
             "trust_score": trust,
+            "claim_vocabulary": {
+                "design_family_hint": (
+                    claim_result.design_family_hint.value
+                    if claim_result.design_family_hint is not None
+                    else None
+                ),
+                "design_family_hint_status": claim_result.design_family_hint_status.value,
+                "evidence_strength": (
+                    claim_result.evidence_strength.value
+                    if claim_result.evidence_strength is not None
+                    else None
+                ),
+                "evidence_strength_status": claim_result.evidence_strength_status.value,
+                "claim_extraction_confidence": claim_result.claim_extraction_confidence,
+                "claim_extraction_confidence_status": (
+                    claim_result.claim_extraction_confidence_status.value
+                ),
+                "source_basis": (
+                    claim_result.source_basis.value
+                    if claim_result.source_basis is not None
+                    else None
+                ),
+                "source_basis_status": claim_result.source_basis_status.value,
+                "legacy_strength_label": claim_result.legacy_strength_label,
+                "limitations": [item.value for item in claim_result.limitations],
+                "projection_binding": claim_result.projection_binding.model_dump(mode="json"),
+            },
         },
     }
     value = {
         "cause": cause_text,
-        "direction": str(direction or ""),
+        "direction": str(claim_result.direction or ""),
         "effect": effect_text,
-        "strength": str(strength or ""),
+        "design_family_hint": (
+            claim_result.design_family_hint.value
+            if claim_result.design_family_hint is not None
+            else None
+        ),
+        "design_family_hint_status": claim_result.design_family_hint_status.value,
+        "evidence_strength": (
+            claim_result.evidence_strength.value
+            if claim_result.evidence_strength is not None
+            else None
+        ),
+        "evidence_strength_status": claim_result.evidence_strength_status.value,
+        "claim_extraction_confidence": claim_result.claim_extraction_confidence,
+        "claim_extraction_confidence_status": claim_result.claim_extraction_confidence_status.value,
+        "source_basis": (
+            claim_result.source_basis.value if claim_result.source_basis is not None else None
+        ),
+        "source_basis_status": claim_result.source_basis_status.value,
     }
     if claim in contested_claims:
         return _edge(
@@ -1467,7 +1490,7 @@ def _derive_l2_causal_claim(
             _incomplete_completions("causal_claim_low_trust"),
             provenance,
         )
-    if blocker_list or trust < 0.65 or tier > 3 or not bool(strong_design):
+    if blocker_list or trust < 0.65 or tier > 3 or not bool(claim_result.strong_design_evidence):
         return _edge(
             "L2_CAUSAL_CLAIM",
             claim,

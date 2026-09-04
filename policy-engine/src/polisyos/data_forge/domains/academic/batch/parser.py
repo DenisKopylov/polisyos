@@ -8,14 +8,21 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from polisyos.data_forge.domains.academic.knowledge.types import (
+    ClaimOccurrenceVocabularyTransport,
     EstimateCandidate,
     SourceTopicRef,
     WorkRecord,
 )
 from polisyos.data_forge.domains.academic.trust import compute_trust_score
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
+from polisyos.ir.analytics import (
+    ClaimVocabularyAxisStatus,
+    SourceBasis,
+    VersionedClaimVocabularyEnvelope,
+)
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from pathlib import Path
 
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
@@ -393,11 +400,50 @@ def extract_causal_claims(abstract: str) -> list[dict]:
                     "cause": cause,
                     "effect": effect,
                     "direction": direction,
-                    "strength": "moderate",
                     "mechanism": "",
                 }
             )
     return claims
+
+
+def serialize_deterministic_claim_occurrence_vocabulary(
+    occurrence: Mapping[str, Any],
+) -> ClaimOccurrenceVocabularyTransport:
+    """Build the v2 composite emitted for one deterministic claim.
+
+    Generic historical labels are rejected rather than silently discarded,
+    retyped, or retained; the abstract is the only candidate source basis.
+    """
+
+    retained = dict(occurrence)
+    if "strength" in retained:
+        raise ValueError("deterministic vocabulary input must not contain generic strength")
+    for key in (
+        "design_family_hint",
+        "evidence_strength",
+        "claim_extraction_confidence",
+        "source_basis",
+        "design_family_hint_status",
+        "evidence_strength_status",
+        "claim_extraction_confidence_status",
+        "source_basis_status",
+        "legacy_strength_label",
+        "record_extraction_mode",
+    ):
+        if key in retained:
+            raise ValueError(f"deterministic occurrence must not provide vocabulary key: {key}")
+    return ClaimOccurrenceVocabularyTransport(
+        occurrence=retained,
+        vocabulary=VersionedClaimVocabularyEnvelope(
+            cause=str(retained.get("cause", "")),
+            effect=str(retained.get("effect", "")),
+            direction=str(retained.get("direction", "")),
+            mechanism=str(retained.get("mechanism", "")),
+            source_basis=SourceBasis.ABSTRACT_ONLY,
+            source_basis_status=ClaimVocabularyAxisStatus.CANDIDATE,
+            record_extraction_mode="deterministic",
+        ),
+    )
 
 
 def extract_boundary_conditions(abstract: str) -> list[dict]:
@@ -524,7 +570,9 @@ def _build_source_topic(row: dict[str, Any]) -> SourceTopicRef | None:
 
 
 def _method_signal_score(
-    study_design: str, estimates: list[EstimateCandidate], causal_claims: list[dict]
+    study_design: str,
+    estimates: list[EstimateCandidate],
+    causal_claims: list[ClaimOccurrenceVocabularyTransport],
 ) -> float:
     base = {
         "meta-analysis": 1.0,
@@ -548,7 +596,7 @@ def _extraction_confidence(
     study_design: str,
     estimates: list[EstimateCandidate],
     context_profile: dict,
-    causal_claims: list[dict],
+    causal_claims: list[ClaimOccurrenceVocabularyTransport],
 ) -> float:
     score = 0.0
     if study_design:
@@ -595,7 +643,10 @@ def parse_raw_sources(config: AcademicBatchConfig) -> dict[str, int]:
                     abstract, [source_topic.topic_display_name] if source_topic else None
                 )
                 sample_size = extract_sample_size(abstract)
-                causal_claims = extract_causal_claims(abstract)
+                causal_claims = [
+                    serialize_deterministic_claim_occurrence_vocabulary(claim)
+                    for claim in extract_causal_claims(abstract)
+                ]
                 boundary_conditions = extract_boundary_conditions(abstract)
                 context_profile = infer_context_profile(work, abstract)
                 trust = compute_trust_score(

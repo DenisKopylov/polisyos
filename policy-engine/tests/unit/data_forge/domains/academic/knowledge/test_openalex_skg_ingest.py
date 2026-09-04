@@ -7,21 +7,87 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import duckdb
+import pytest
+from pydantic import ValidationError
 
+from polisyos.data_forge.domains.academic.knowledge import skg_store
 from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     ensure_skg_schema,
     ingest_openalex_no_hit_frontier,
     ingest_openalex_span_grounded_claims,
 )
+from polisyos.data_forge.domains.academic.knowledge.types import ClaimOccurrenceVocabularyTransport
 from polisyos.ir.analytics.literature import (
+    CausalClaim,
     EvidenceSpan,
     OpenAlexWorkText,
+    VersionedClaimVocabularyEnvelope,
     extract_span_grounded_claims_from_openalex_work,
 )
 from polisyos.scholar.search.models import SearchQueryTrace
 
 REPO_ROOT = Path(__file__).resolve().parents[6]
 FIXTURE_DIR = REPO_ROOT / "tests" / "fixtures" / "scholar" / "openalex"
+
+
+def test_span_writer_inactive_preflight_reuses_the_graph_vocabulary_boundary() -> None:
+    """Catch a direct writer seam that admits a duplicate vocabulary key."""
+
+    transport = ClaimOccurrenceVocabularyTransport(
+        occurrence={
+            "cause": "tax rate",
+            "effect": "employment",
+            "direction": "negative",
+            "mechanism": "labour cost",
+            "supporting_span_ids": ["span-1"],
+        },
+        vocabulary=VersionedClaimVocabularyEnvelope(
+            cause="tax rate",
+            effect="employment",
+            direction="negative",
+            mechanism="labour cost",
+        ),
+    )
+
+    assert skg_store.preflight_candidate_claim_vocabulary(transport) == transport
+    bad = transport.model_copy(
+        update={"occurrence": {**transport.occurrence, "evidence_strength": "rct"}}
+    )
+    with pytest.raises(ValidationError, match="evidence_strength"):
+        skg_store.preflight_candidate_claim_vocabulary(bad)
+
+
+def test_span_writer_admits_every_claim_before_first_database_write() -> None:
+    """A forged vocabulary candidate cannot leave a partial writer footprint."""
+
+    con = duckdb.connect(":memory:")
+    forged = CausalClaim(
+        claim_id="claim-forged",
+        cause_variable="tax rate",
+        effect_variable="employment",
+    ).model_copy(update={"evidence_strength": "moderate"})
+
+    with (
+        pytest.warns(UserWarning, match="Pydantic serializer warnings"),
+        pytest.raises(ValidationError, match="evidence_strength"),
+    ):
+        ingest_openalex_span_grounded_claims(
+            con,
+            work=_work(),
+            claims=[forged],
+            query_trace=SearchQueryTrace(
+                query_node_id="q-forged",
+                query="tax rate employment",
+                perspective="root",
+                provider="openalex",
+                hit_count=1,
+            ),
+        )
+
+    assert con.execute(
+        "SELECT table_name FROM information_schema.tables ORDER BY table_name"
+    ).fetchall() == []
+    con.close()
 
 
 class _DeterministicSpanSupportClient:
@@ -135,6 +201,10 @@ def test_ingest_accepts_validated_spans_and_rejects_non_supporting_spans(tmp_pat
         "SELECT COUNT(*) FROM ac_skg_span_grounded_claims "
         "WHERE authority_tier = 'design_tier_l2' AND support_status = 'validated_supporting'"
     ).fetchone()[0]
+    extraction_json = con.execute(
+        "SELECT extraction_json FROM ac_skg_articles WHERE openalex_id = ?",
+        [work.openalex_id],
+    ).fetchone()[0]
     con.close()
 
     assert edge_count >= 1
@@ -147,6 +217,11 @@ def test_ingest_accepts_validated_spans_and_rejects_non_supporting_spans(tmp_pat
         assert quality["source_effect_variable"]
     assert trace_count == 1
     assert authority_count >= 1
+    persisted_claims = json.loads(extraction_json)["claims"]
+    assert persisted_claims
+    assert all(set(item) == {"occurrence", "vocabulary"} for item in persisted_claims)
+    assert all("strength" not in item["occurrence"] for item in persisted_claims)
+    assert all(item["vocabulary"]["schema_version"] == "2.0" for item in persisted_claims)
 
 
 def test_no_hit_query_trace_persists_queryable_skg_frontier(tmp_path: Path) -> None:

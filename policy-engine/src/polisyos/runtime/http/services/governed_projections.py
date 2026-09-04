@@ -1300,10 +1300,10 @@ def _run_owner_validation(
         loaded.component_bindings,
         payload_hash,
     )
-    cache_enabled = (
-        definition.projection_id
-        is not GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND
-    )
+    cache_enabled = definition.projection_id not in {
+        GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND,
+        ProjectionId.VALUE_GATE,
+    }
     if cache_enabled:
         cached = _OWNER_VALIDATION_CACHE.get(cache_key)
         if cached is not None and dependency_manifest_matches(

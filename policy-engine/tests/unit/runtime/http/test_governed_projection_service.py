@@ -885,6 +885,118 @@ def test_owner_validation_cache_revalidates_when_semantic_hasher_bytes_drift(
     )
 
 
+def test_value_gate_owner_validation_does_not_cache_an_unbound_ambient_diagnostic(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A child-visible package drift must produce a fresh diagnostic receipt."""
+
+    value_path = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+    companion_path = "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+    _copy_governed_source(tmp_path, value_path)
+    _copy_governed_source(tmp_path, companion_path)
+    definition = MODULE._DEFINITION_BY_ID[ProjectionId.VALUE_GATE]
+    service = GovernedProjectionService(tmp_path)
+    loaded = service._load(definition)
+    payload = service._project(definition, loaded)
+    payload_data = payload.model_dump(mode="json")
+    dependency_bindings = {
+        path: f"file:{content_hash}" for path, content_hash in loaded.component_bindings
+    }
+    calls = 0
+
+    def ambient_worker(*_args: object, **kwargs: object) -> SimpleNamespace:
+        nonlocal calls
+        calls += 1
+        environment = kwargs["env"]
+        assert isinstance(environment, dict)
+        ambient_version = environment["POLISYOS_TEST_AMBIENT_PACKAGE_VERSION"]
+        diagnostic: dict[str, Any] = {
+            "decision_role": "ambient_non_decisive",
+            "predicate_class": "recomputed",
+            "authority_boundary": {
+                "authoritative_for": ["dependency_environment_diagnosis"],
+                "may_not_use_for": [
+                    "n8_admission",
+                    "n10a_stage_gap_closure",
+                    "chronology_acceptance",
+                    "policy_publication",
+                    "policy_promotion",
+                ],
+            },
+            "artifact_content_ref": "sha256:received",
+            "profile": _committed_dependency_profile().model_dump(mode="json"),
+            "receipt_state": "received",
+            "status": "pass" if ambient_version == "1.0" else "fail",
+            "first_case": None,
+        }
+        if ambient_version != "1.0":
+            diagnostic["first_case"] = {
+                "case_kind": "distribution_field_disagreement",
+                "coordinate": "distribution:data-generated:version",
+                "field": "version",
+                "expected": "1.0",
+                "observed": ambient_version,
+                "predicate_class": "recomputed",
+            }
+        return SimpleNamespace(
+            returncode=0,
+            stdout=json.dumps(
+                {
+                    "schema_version": (
+                        "policyos.runtime.governed_projection.owner_validation.v2"
+                    ),
+                    "projection_id": ProjectionId.VALUE_GATE.value,
+                    "validator_id": definition.owner_validator_id,
+                    "validator_version": definition.owner_validator_version,
+                    "status": "passed",
+                    "bound_aggregate_identity": hash_export_projection(
+                        dict(loaded.component_bindings)
+                    ),
+                    "bound_source_identities": dict(loaded.component_bindings),
+                    "bound_projection_payload_hash": hash_export_projection(payload_data),
+                    "semantic_projection_hash": hash_export_projection(payload_data),
+                    "semantic_projection_hash_rule_version": (
+                        "polisyos.pdc.gy_content_hash.v1"
+                    ),
+                    "dependency_aggregate_identity": hash_export_projection(
+                        dependency_bindings
+                    ),
+                    "dependency_bindings": dependency_bindings,
+                    "issue_codes": [],
+                    "related_dependency_diagnostic": diagnostic,
+                }
+            ),
+        )
+
+    monkeypatch.setattr(MODULE.subprocess, "run", ambient_worker)
+    monkeypatch.setenv("POLISYOS_TEST_AMBIENT_PACKAGE_VERSION", "1.0")
+    first = MODULE._run_owner_validation(
+        repository_root=tmp_path,
+        definition=definition,
+        loaded=loaded,
+        payload=payload,
+    )
+    monkeypatch.setenv("POLISYOS_TEST_AMBIENT_PACKAGE_VERSION", "2.0")
+    second = MODULE._run_owner_validation(
+        repository_root=tmp_path,
+        definition=definition,
+        loaded=loaded,
+        payload=payload,
+    )
+
+    assert first.status == second.status == "passed"
+    assert first._related_dependency_diagnostic is not None
+    assert first._related_dependency_diagnostic.status == "pass"
+    assert second._related_dependency_diagnostic is not None
+    assert second._related_dependency_diagnostic.status == "fail"
+    assert second._related_dependency_diagnostic.first_case is not None
+    assert second._related_dependency_diagnostic.first_case.coordinate == (
+        "distribution:data-generated:version"
+    )
+    assert calls == 2
+
+
 def test_owner_validation_cache_binds_exact_projected_payload(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

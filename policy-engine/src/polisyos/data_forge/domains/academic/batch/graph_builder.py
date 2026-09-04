@@ -21,6 +21,7 @@ from polisyos.data_forge.domains.academic.knowledge.canonical_resolver import (
 )
 from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     aggregate_edge_confidence,
+    encode_edge_evidence_strength,
     ensure_skg_schema,
     finalize_skg_version,
     hash_context_attr_id,
@@ -28,7 +29,6 @@ from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     hash_moderation_edge_id,
     hash_param_id,
     next_skg_version,
-    normalize_strength,
     parent_canonical_name,
     skg_materialized_schema_identity,
     skg_schema_generation_basis,
@@ -406,32 +406,8 @@ def _load_rows_grouped_by_openalex_id(path: Path | None) -> dict[str, list[dict[
 
 
 def _legacy_strength_from_adjudication(adjudication: dict) -> str:
-    design = str(adjudication.get("design_family") or "").strip().lower()
-    credibility = str(adjudication.get("causal_credibility") or "").strip().lower()
-    if design == "rct":
-        return "rct"
-    if design in {"iv", "did", "rdd", "synthetic_control"}:
-        return "quasi_natural"
-    if design in {
-        "event_study",
-        "quasi_experimental_other",
-        "quasi_experimental_did",
-        "quasi_experimental_rdd",
-    }:
-        return "quasi_natural_event"
-    if design == "meta_analysis":
-        return "meta_analysis"
-    if design in {"panel_fe", "system_gmm", "gmm"}:
-        return "panel_fe"
-    if design in {"structural_model", "time_series_cointegration"}:
-        return "structural"
-    if design == "ols":
-        return "observational"
-    if design == "ols_cross_sectional":
-        return "cross_sectional"
-    if credibility in {"strong", "moderate", "weak"}:
-        return "theoretical" if credibility == "weak" else "observational"
-    return "unknown"
+    del adjudication
+    return encode_edge_evidence_strength(None)
 
 
 @dataclass
@@ -681,39 +657,10 @@ def _flush_all(
 
 
 def _infer_edge_strength(claim: dict) -> str:
-    design = str(claim.get("design_family_hint") or "").strip().lower()
-    if design == "rct":
-        return "rct"
-    if design in {"iv", "did", "rdd", "synthetic_control"}:
-        return "quasi_natural"
-    if design in {
-        "event_study",
-        "quasi_experimental_other",
-        "quasi_experimental_did",
-        "quasi_experimental_rdd",
-    }:
-        return "quasi_natural_event"
-    if design in {"panel_fe", "system_gmm", "gmm"}:
-        return "panel_fe"
-    if design in {"structural_model", "time_series_cointegration"}:
-        return "structural"
-    if design == "ols":
-        return "observational"
-    if design == "ols_cross_sectional":
-        return "cross_sectional"
-    if design in {"theoretical", "review", "review_narrative", "review_meta_analysis"}:
-        return "theoretical"
-    explicit = str(claim.get("evidence_strength") or "").strip().lower()
-    if explicit:
-        return normalize_strength(explicit)
-    strength = str(claim.get("strength") or "").strip().lower()
-    if strength in {"strong", "very_strong"}:
-        return "quasi_natural"
-    if strength in {"moderate"}:
-        return "observational"
-    if strength in {"weak"}:
-        return "theoretical"
-    return "unknown"
+    return encode_edge_evidence_strength(
+        claim.get("evidence_strength"),
+        status=claim.get("evidence_strength_status"),
+    )
 
 
 def _choose_moderation_representative(
@@ -1684,11 +1631,10 @@ def load_graph(
                     if record.metadata.get("sample_size") not in (None, "")
                     else None
                 )
+                evidence_strength = _infer_edge_strength(vocabulary_values)
                 payload["evidence_samples"].append(  # type: ignore[index]
                     (
-                        _legacy_strength_from_adjudication(adjudication)
-                        if adjudication is not None
-                        else _infer_edge_strength(claim),
+                        evidence_strength,
                         confidence_value,
                         record.year,
                         sample_size,
@@ -1722,11 +1668,7 @@ def load_graph(
                         src,
                         dst,
                         direction,
-                        (
-                            _legacy_strength_from_adjudication(adjudication)
-                            if adjudication is not None
-                            else _infer_edge_strength(claim)
-                        ),
+                        evidence_strength,
                         confidence_value,
                         str(vocabulary_values["design_family_hint"] or ""),
                         int(claim.get("design_quality_tier"))

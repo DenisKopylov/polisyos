@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     ArticleEvidence,
     aggregate_edge_confidence,
 )
+from polisyos.ir.analytics.literature import ClaimVocabularyAxisStatus
 
 
 def test_aggregate_edge_confidence_golden_rct_vs_many_observational() -> None:
@@ -53,3 +55,50 @@ def test_aggregate_edge_confidence_penalizes_abstract_only() -> None:
     )
 
     assert abstract_only < fulltext
+
+
+def test_declared_absence_contributes_zero_edge_confidence() -> None:
+    """Catch a persisted absence token falling through to the unknown weight."""
+
+    absent = ArticleEvidence(
+        ClaimVocabularyAxisStatus.NOT_ESTABLISHED.value,
+        1.0,
+        publication_year=9999,
+        sample_size=5000,
+    )
+
+    assert aggregate_edge_confidence([absent]) == 0.0
+
+
+def test_declared_absence_does_not_change_established_edge_confidence() -> None:
+    """Catch absence adding either noisy-OR weight or a replication bonus."""
+
+    established = ArticleEvidence(
+        "observational",
+        0.8,
+        publication_year=9999,
+        sample_size=5000,
+    )
+    absent = ArticleEvidence(
+        ClaimVocabularyAxisStatus.NOT_ESTABLISHED.value,
+        1.0,
+        publication_year=9999,
+        sample_size=5000,
+    )
+
+    assert aggregate_edge_confidence([established, absent]) == aggregate_edge_confidence(
+        [established]
+    )
+
+
+def test_unknown_retains_its_existing_nonzero_edge_confidence() -> None:
+    """Pin unknown as an evidence class distinct from declared absence."""
+
+    unknown = ArticleEvidence(
+        "unknown",
+        1.0,
+        publication_year=9999,
+        sample_size=5000,
+    )
+
+    assert aggregate_edge_confidence([unknown]) == pytest.approx(0.15)

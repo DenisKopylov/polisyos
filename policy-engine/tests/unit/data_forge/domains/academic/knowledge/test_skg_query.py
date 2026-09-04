@@ -890,6 +890,102 @@ def test_query_claims_edge_summary_types_sql_null_as_not_established(tmp_path) -
     assert rows[0].evidence_strength_status.value == "not_established"
 
 
+def test_query_claims_decodes_persisted_declared_absence(tmp_path) -> None:
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_tables(db_path)
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute(
+            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' "
+            "WHERE edge_id = 'e1'"
+        )
+    finally:
+        con.close()
+
+    query = SKGQuery(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        rows = query.query_claims(
+            cause="macro.tax",
+            effect="macro.employment",
+            support_mode="hybrid",
+            min_trust=0.25,
+        )
+    finally:
+        query.close()
+
+    assert len(rows) == 1
+    assert rows[0].evidence_strength is None
+    assert rows[0].evidence_strength_status.value == "not_established"
+    assert rows[0].model_dump(mode="json")["evidence_strength"] is None
+
+
+def test_query_edge_support_pairs_declared_absence_with_status(tmp_path) -> None:
+    """The typed edge-support boundary must not expose a bare storage token."""
+
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_tables(db_path)
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute(
+            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' "
+            "WHERE edge_id = 'e1'"
+        )
+    finally:
+        con.close()
+
+    query = SKGQuery(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        rows = query.query_edge_support(
+            cause="macro.tax",
+            effect="macro.employment",
+            support_mode="exact",
+            min_confidence=0.25,
+        )
+    finally:
+        query.close()
+
+    assert len(rows) == 1
+    assert rows[0].evidence_strength is None
+    assert rows[0].evidence_strength_status.value == "not_established"
+
+
+def test_query_claims_hybrid_ignores_declared_absence_when_evidence_exists(
+    tmp_path,
+) -> None:
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_tables(db_path)
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute(
+            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' "
+            "WHERE edge_id = 'e1'"
+        )
+        con.execute(
+            "INSERT INTO ac_skg_family_edges VALUES "
+            "('fe-established', 'macro.tax', 'macro.employment', 'positive', 2, 2, "
+            "'[\"W1\",\"W2\"]', '[\"c1\",\"c2\"]', 'rct', 0.8, '{}')"
+        )
+    finally:
+        con.close()
+
+    query = SKGQuery(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        rows = query.query_claims(
+            cause="macro.tax",
+            effect="macro.employment",
+            support_mode="hybrid",
+            min_trust=0.25,
+        )
+    finally:
+        query.close()
+
+    assert len(rows) == 1
+    assert rows[0].evidence_strength is not None
+    assert rows[0].evidence_strength.value == "rct"
+    assert rows[0].evidence_strength_status.value == "candidate"
+    assert len(rows[0].projection_binding.source_rows) == 2
+
+
 def test_query_edge_transport_reads_target_context_scores(tmp_path) -> None:
     db_path = tmp_path / "skg.duckdb"
     _seed_skg_tables(db_path)

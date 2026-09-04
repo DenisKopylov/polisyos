@@ -1033,6 +1033,7 @@ def test_claim_axes_round_trip_through_activated_writer_and_all_public_readers(
         source_basis=SourceBasis.ABSTRACT_ONLY,
         supporting_spans=[support_span],
         supporting_span_ids=["task4-local-span"],
+        publish_to_graph=True,
     )
     span_absence = CausalClaim(
         claim_id="task4-span-absence",
@@ -1041,6 +1042,7 @@ def test_claim_axes_round_trip_through_activated_writer_and_all_public_readers(
         claim_text=span_text,
         supporting_spans=[support_span],
         supporting_span_ids=["task4-local-span"],
+        publish_to_graph=True,
     )
     original_span_admission = skg_store.preflight_candidate_claim_vocabulary
     span_admissions: list[Any] = []

@@ -14,6 +14,9 @@ import duckdb
 import numpy as np
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.academic.knowledge.skg_store import (
+    decode_edge_evidence_strength,
+)
 from polisyos.data_forge.domains.academic.knowledge.types import (
     CLAIM_VOCABULARY_COLUMN_CONTRACT,
     CLAIM_VOCABULARY_DISCRIMINATOR_COLUMN,
@@ -630,9 +633,7 @@ class ScholarKnowledgeStore:
         physical_evidence = [semantics[3] for semantics in semantic_rows]
         evidence = self._strongest_physical_evidence(physical_evidence)
         try:
-            supplied_evidence = (
-                EvidenceStrength(str(evidence_strength)) if evidence_strength else None
-            )
+            supplied_evidence, _ = decode_edge_evidence_strength(evidence_strength)
         except ValueError as exc:
             raise ClaimTableSchemaError(
                 f"invalid evidence_strength in {source_table}/{source_identity}"
@@ -736,10 +737,8 @@ class ScholarKnowledgeStore:
             raise ClaimTableSchemaError(
                 f"edge source table {source_table} is missing semantic columns {missing}"
             )
-        raw_evidence = row.get("evidence_strength")
-        clean_evidence = str(raw_evidence).strip() if raw_evidence is not None else ""
         try:
-            evidence = EvidenceStrength(clean_evidence) if clean_evidence else None
+            evidence, _ = decode_edge_evidence_strength(row.get("evidence_strength"))
         except ValueError as exc:
             raise ClaimTableSchemaError(
                 f"invalid evidence_strength in {source_table}"

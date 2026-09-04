@@ -872,3 +872,145 @@ weakened. The Phase-1 findings were independently reviewed, but **neither debt r
 implementation remain unstarted pending the explicitly widened edge-projection/absence
 scope ruling. The publication-gate row is still independently executable and has no
 technical blocker of its own.
+
+## Event 5 — Phase-2 design, 2026-09-04
+
+The architect ratified Phase 1 and ruled that the repair is **relocated, not widened**. The
+live credibility fallback, both design-first coarsenings, the callable free-key fallback,
+and the missing edge-absence representation are one substitution seam. This event is the
+design checkpoint committed before any Phase-3 source or test change.
+
+### D01 — one edge-evidence resolver, two compatibility entry points
+
+An edge's evidence class comes only from the admitted `evidence_strength` axis. A present
+candidate enum value is preserved exactly. An absent axis resolves to declared absence.
+Neither `design_family_hint`, adjudicated `design_family`, generic `strength`, nor
+`causal_credibility` is evidence for that axis.
+
+`_infer_edge_strength` and `_legacy_strength_from_adjudication` remain separate private entry
+points only so their callable contracts and negative regressions stay visible. Both delegate
+to one resolver. `_infer_edge_strength` passes the explicit value/status from the claim
+sidecar. The legacy adjudication object has no evidence-strength axis, so its wrapper resolves
+to absence; the published loop will resolve from the admitted vocabulary sidecar rather than
+from adjudication. This removes both mappings without inventing a replacement rule.
+
+The required divergent witness is structural: a `theoretical` design plus `moderate`
+credibility has no supplied evidence class and therefore resolves to absence, never
+`observational`. A separately supplied evidence class remains itself regardless of any design.
+
+### D02 — declared absence across `VARCHAR NOT NULL`
+
+The edge tables retain their existing `VARCHAR NOT NULL` value columns. At that persistence
+boundary the existing status literal `not_established` is a reserved storage encoding for an
+absent evidence value. It is **not** added to `EvidenceStrength`, is ranked below no evidence
+class, and must never reach a typed consumer as a class.
+
+The status therefore replaces the missing value only in the legacy relational slot; a
+parallel status column is not added. At typed boundaries the encoding is decoded to the B-1
+shape: `evidence_strength=None` beside
+`evidence_strength_status=ClaimVocabularyAxisStatus.NOT_ESTABLISHED`. A present enum is paired
+with `CANDIDATE`. Contradictory value/status pairs and arbitrary nonempty tokens still fail.
+This is the edge layer's equivalent of B-1's declared-absence vocabulary without a four-table
+schema migration or historical rewrite.
+
+### D03 — consumer disposition
+
+The B2-F03 consumers divide into three groups:
+
+| Consumer | Declared-absence behavior after repair |
+| --- | --- |
+| `skg_store.py` aggregation/ranking, `edge_synthesize.py`, `skg_versioning.py` | Preserve the storage token but exclude absent articles from strength weights, floors, replication bonuses, strongest-class choice, and directional dissent. Absence-only input has zero strength contribution. Mixed input uses established classes. Genuine `unknown` retains its measured nonzero behavior. Shared helpers carry this through synthesis/retraction, so those two callers need no independent inference rule. |
+| `skg_query.py` and `knowledge/store.py` | Decode before comparison or enum construction. Exact/family/contested and prior rows expose `None` plus `not_established`; all-absent strongest selection is absent, while mixed selection chooses an established class. Existing confidence, coverage, physical-row binding, and malformed-token rejection remain intact. |
+| Foundry `literature_prior.py`, IR `LiteratureEdgePrior`, `graph_reconciliation.py`, Scientist `prior_miner.py`/`PriorKnowledgeSupport` | These are the consumers that currently reject or stringify a new marker. Their typed contracts accept the explicit optional value with the companion status and never expose the storage token. Graph metadata carries both fields. Inclusion, reconciliation, readiness, and resolved-edge coverage remain confidence/row based. Omitted legacy constructor fields keep their existing `unknown` default; an explicitly decoded absence cannot collapse to that default. |
+
+`transport_score.py`, the cross-graph compiler, search/proving-ground paths, benchmarks/QC,
+`credal_reference.py`, and `capability_index_compiler.py` do not interpret the label directly.
+They retain their existing row/confidence predicates. No runtime-quality source change is
+needed; those are consumers already identified in Phase 1, not an authority seam to redesign.
+Opaque copy/hash consumers preserve whichever recorded value they receive.
+
+### D04 — publication gate and candidate projection
+
+`ingest_openalex_span_grounded_claims` keeps whole-batch vocabulary re-admission before the
+first schema/write operation. After that preflight, each claim must satisfy
+`publish_to_graph is True` before canonization or any edge, evidence, or span row is emitted.
+Span support remains an independent unchanged predicate. An unpublished candidate is counted
+as rejected and may remain in the article/query/version audit intake, but it reaches none of
+the three graph-publication tables. A mixed batch publishes only admitted claims, and a denied
+claim targeting an existing edge cannot mutate it.
+
+The writer will consume the admitted vocabulary sidecar rather than DTO defaults. It writes
+`candidate_layer='candidate'`, not the authority-suggesting `design_tier_authority`, and writes
+SQL `design_family=NULL`; the actual `design_family_hint` remains losslessly retained under its
+candidate name/status in the article vocabulary envelope. The separate span
+`authority_tier` field and its producer are untouched. This repair removes a misleading
+projection; it does not invent design or authority.
+
+### D05 — history and generated witnesses
+
+The pinned 7,868-row snapshot remains recorded history. In particular, its 342 live-fallback
+evidence rows carry the measured axis misstatement and are the cohort a future authorized
+re-derivation must identify. This task performs no re-extraction, re-adjudication, snapshot
+rewrite, or producer run.
+
+The committed OpenAlex ingest witness was generated from extractor claims whose publication
+flag is false, so a truthful recomputation would change its positive graph rows to rejections.
+Under the no-data ruling it is not regenerated here, and the checker predicate is not weakened
+or narrowed to hide that fact. Phase 3 uses authored in-memory positive/negative controls; the
+old artifact remains historical evidence of the defect rather than evidence for the repair.
+
+### D06 — explicit non-goal: `unknown` weight
+
+`EvidenceStrength.UNKNOWN` keeps its current nonzero contribution. That is an unfounded-
+contribution question, not the substitution repaired here. Phase 3 pins the distinction:
+declared absence contributes zero, while `unknown` retains existing behavior. Exact
+transcriber-ready prose for the new row will report the measurement and request a separate
+scope/impact investigation without claiming closure.
+
+### D07 — red/green acceptance plan
+
+Targeted tests will be added before each implementation slice:
+
+1. resolver negatives prove placeholders, design hints, and credibility cannot emit any
+   design-vocabulary member; explicit evidence survives unchanged; the theoretical/moderate
+   witness is absent rather than observational;
+2. codec/aggregation tests prove the `NOT NULL` encoding round-trips to typed absence, contributes
+   zero, composes with established classes, and does not change genuine `unknown`;
+3. query/IR/Foundry/Scientist tests prove the representation survives the real rejecting and
+   normalizing consumers without token leakage or changed row/coverage predicates;
+4. span-ingest tests prove false/default/truthy-forged publication values cannot write graph rows,
+   mixed and existing-edge cases are safe, candidate naming is honest, and the vocabulary
+   preflight still precedes all database writes.
+
+Each claim gets a recorded failing invocation before its implementation and a matching green
+invocation afterward. Tests are selected by file/node only; no directory-wide suite or data
+producer is permitted. After source freeze, changed-path lint/architecture checks and the
+bound debt checker run; the debt checker is invoked exactly once, with all output redirected.
+
+### Pattern and capability pass
+
+Relevant patterns are P04 (status lattice), P05/P15 (candidate versus authority), P10
+(semantic adequacy), P14 (evidence-strength truthfulness), P31 (class-level repair), P37/P38
+(real publication predicate/property), and P40 (one bounded fix round per row). The pre-repair
+edge-absence chain is `consumer_missing` + `semantic_test_missing`; the span gate is
+`semantic_test_missing`. The target pattern is one admitted-axis resolver, one reversible
+storage encoding, exhaustive typed consumption, and one publication guard before every graph
+emission. Acceptance is the two registered closure signals plus the named divergent and
+end-to-end negative witnesses. Authority/receipt/champion work remains explicitly out of scope.
+
+Phase-2 read-only commands used to confirm the ratified design inputs:
+
+```sh
+git merge --ff-only main
+sed -n '170,215p' src/polisyos/data_forge/domains/academic/knowledge/types.py
+sed -n '300,365p' src/polisyos/data_forge/domains/academic/knowledge/types.py
+sed -n '1901,1970p' src/polisyos/data_forge/domains/academic/batch/article_extractor.py
+sed -n '45,90p' src/polisyos/scientist/methods/discovery/priors.py
+sed -n '125,170p' src/polisyos/scientist/methods/discovery/prior_miner.py
+sed -n '215,270p' src/polisyos/foundry/methods/catalog/causal/literature_prior.py
+sed -n '330,365p' src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py
+```
+
+The merge was a fast-forward from `861898cf7` through the architect's ratification commits to
+`fca52ea2b`; no rebase occurred. The source/test tree and `production_data` remained unchanged
+through this design checkpoint.

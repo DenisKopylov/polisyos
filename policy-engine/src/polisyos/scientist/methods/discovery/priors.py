@@ -10,8 +10,8 @@ from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.scientist import GraphPriorBundleRef, PriorKnowledgeBundleRef
+from polisyos.ir.analytics import ClaimVocabularyAxisStatus
 from polisyos.ir.analytics.cross_graph import EvidenceSourceStatus
-from polisyos.ir.analytics.literature import ClaimVocabularyAxisStatus
 from polisyos.scientist.methods.discovery.aggregator import (
     EdgeConfidenceEntry,
     EdgeConfidenceMatrix,

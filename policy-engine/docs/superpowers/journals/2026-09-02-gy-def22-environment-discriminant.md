@@ -415,3 +415,152 @@ register_supplies_missing_standing: GY:GY-DEF22: register=open, source=ambiguous
 
 No second checker invocation was made. This successful ledger check does not mint
 the missing Foundry adjudication receipt or change GY-DEF22's open standing.
+
+## Final Foundry adjudication receipt — 2026-09-04 continuation
+
+Receipt reference: `GY-DEF22-FOUNDRY-ADJUDICATION-2026-09-04-01`.
+
+The independent Foundry catalog/discovery reviewer
+`/root/foundry_adjudication_final` resumed successfully and returned the explicit
+verdict **ACCEPT — Task 7's six bounded Foundry claims**. This new receipt supersedes
+the earlier adjudication non-receipt; the earlier record remains intact as history.
+It is a reviewer acceptance, not an implementer self-countersign.
+
+The acceptance is bound to these exact identities:
+
+- technical source `09293c195939f9df73fa49091066b726bf57f33b`;
+- registered generated-output tree `a255bdf011183a69f456fe3ceef86df7e2e20b1e`;
+- reviewed clean journal HEAD `953a3a066d496cf72a6913f3d10cd815983fdb64`;
+- companion
+  `architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json`;
+- companion semantic content hash
+  `sha256:4dcf46b4810471ba8ecfe2931757e7c628fd5339e8044df7a246fe987cde84ec`;
+- companion exact-file SHA-256
+  `sha256:5a39c79778ad6878af03516e848b4b10942e3eca5bc6dcec083378675489867a`;
+  and
+- Foundry dependency source freeze
+  `3ffb6ad5ed95d316656bc19946018a4eec52bc3b`.
+
+The reviewer accepted each of the six ratified claims without asking for a changed
+adjudication scope:
+
+1. Purpose-to-profile selection remains in Foundry's content-bound registry
+   resolver; the N8 producer does not accept caller-selected profile identity.
+2. The dependency-only preimage and separate digest domain exclude production data
+   and machine identity. Local replay appointment/cache coordinates are not part of
+   the persisted preimage.
+3. Closure traversal and first-case ordering are generic over owner registry, lock
+   rows, and explicit marker inputs.
+4. N8 is the registered producer; N8, N10a, chronology, and HTTP use the owner
+   verifier. Transition readback requires all three named consumers and one shared
+   binding.
+5. The diagnostic remains `ambient_non_decisive`, with independently calculated
+   governing results. The final `VALUE_GATE` change bypasses both cache reads and
+   insertion, so ordinary environment drift cannot retain an old diagnostic.
+6. The authority-grade chain remains `producer_missing`; all four separately named
+   prerequisites remain `absent/unallocated`.
+
+The authority boundary accepted by this receipt is exactly
+`authoritative_for = [dependency_environment_diagnosis]`. It excludes N8 admission,
+N10a stage-gap closure, chronology acceptance, policy publication, and policy
+promotion. The three declared local-attacker residuals remain outside the acceptance
+scope. No new in-scope recurrence was established and no further source repair was
+made.
+
+### Independent targeted verification
+
+The reviewer ran one serial, nine-node wave against the frozen source:
+
+```bash
+PYTHONPATH=.:src .venv/bin/python -m pytest -q \
+  tests/repo_quality/tools/test_execute_gy_n12_artifact_transition.py::test_cb_i01_n8_n10a_and_chronology_share_one_foundry_discriminant \
+  tests/unit/foundry/methods/test_dependency_profile.py::test_cb_i02_research_profile_names_torch_as_first_generic_case \
+  tests/unit/foundry/methods/test_dependency_profile.py::test_cb_i02a_label_and_shape_cannot_mask_two_data_generated_incompatibilities \
+  tests/unit/foundry/methods/test_dependency_profile.py::test_cb_i03_outside_closure_difference_is_diagnostic_irrelevant \
+  tests/unit/foundry/methods/test_dependency_profile.py::test_cb_i03a_novel_admitted_profile_verifies_from_owner_data \
+  tests/unit/runtime/http/test_governed_projection_service.py::test_value_gate_owner_validation_does_not_cache_an_unbound_ambient_diagnostic \
+  tests/repo_quality/tools/test_execute_gy_n12_artifact_transition.py::test_p38_ambient_diagnostic_cannot_govern_shared_consumer_results \
+  tests/repo_quality/tools/test_execute_gy_n12_artifact_transition.py::test_invalid_and_removed_diagnostics_cannot_govern_shared_consumer_results \
+  tests/repo_quality/tools/test_execute_gy_n12_artifact_transition.py::test_readback_rejects_consumers_bound_to_different_discriminant_copies
+```
+
+Result: nine passes, zero failure/skip markers, `[100%]`, exit `0`, execution session
+`92814`. The invocation did not retain an exact wall-time measurement: the extra
+`-q` combined with repository configuration suppressed pytest's summary. No output
+receipt file was created. Neither a duration nor a file receipt is invented here,
+and the wave was not repeated merely to obtain them.
+
+The reviewer also rebuilt the companion through its real owner and confirmed
+equality with the exact committed bytes. A wrong resolved-distribution version with
+all internal hashes recomputed passed strict parsing but failed owner replay with
+`dependency discriminant owner replay drifted`. The comparison/replay segment took
+`0.860` seconds, excluding imports, and its probe exited `0`; this is not the
+nine-test wave's duration.
+
+**CB-I02 witness calibration:** the accepted fixture retains `torch==2.10.0` in the
+data-derived research closure and changes its receipt-backed selected source. The
+generic diagnostic names `distribution:torch:*` first and fails, while the actual
+N8/N10a/chronology governing tuple remains byte-identical to the diagnostic-free
+tuple. This is the already-ratified generic incompatibility witness, not a claim that
+the version is intrinsically forbidden, a version-only ambient failure, or a fresh
+execution of the historical cold-environment replay. CB-I02A independently covers
+both the same-label in-closure substitution and the second data-generated
+incompatible profile, with the same governing byte-equivalence requirement.
+
+Root read back the frozen branch and exact-file hash, confirmed that only the
+registered trust-posture output and journal differ from the final source commit,
+and compared all five journal clause quotations to the spec with zero differences.
+This continuation changes only the append-only journal. The six-claim acceptance
+does not turn the separately documented architecture-guardrail failures into a
+whole-repository green. The bound debt check remains the single recorded invocation
+above, `EXIT=0`; it was not rerun.
+
+## Final architect transcription — supersedes the earlier open-standing prose
+
+These are the final transcription paragraphs. The implementer has not changed the
+active register or GY plan; the architect applies these transitions at merge.
+
+### `GY-DEF22` final close
+
+**GY-DEF22 CLOSED 2026-09-04 — explicit `ambient_non_decisive` close, Foundry
+adjudication received.** Receipt
+`GY-DEF22-FOUNDRY-ADJUDICATION-2026-09-04-01` accepts the six ratified claims against
+technical source `09293c195939f9df73fa49091066b726bf57f33b` and registered
+generated-output tree `a255bdf011183a69f456fe3ceef86df7e2e20b1e`. Foundry owns
+purpose-to-profile resolution and derives the complete dependency-only discriminant;
+N8 produces the registered companion, and N8, N10a, chronology, and the governed
+machine surface verify one semantic content ref,
+`sha256:4dcf46b4810471ba8ecfe2931757e7c628fd5339e8044df7a246fe987cde84ec`.
+CB-I01–CB-I03A are discharged with zero skips. CB-I02's research fixture retains
+`torch==2.10.0` and detects a receipt-backed selected-source mismatch as the first
+generic distribution case; it does not forbid that version by name. CB-I02A detects
+both data-generated incompatibilities without a code edit or allowlist. Both clauses
+prove diagnostic `fail` together with byte-identical actual N8/N10a/chronology
+governing results when the diagnostic is removed. Outside-closure differences remain
+irrelevant and a novel admitted profile verifies from owner data. The diagnostic is
+authoritative only for dependency-environment diagnosis and cannot decide admission,
+closure, chronology acceptance, publication, or promotion. The diagnostic capability
+chain is implemented; the separate admitted-environment authority chain remains
+`producer_missing`, with `owner_enforced_runtime_subtree_cutoff`,
+`owner_resolved_resolution_receipt_store`, `platform_toolchain_admission`, and
+`production_data_trust_policy` still `absent/unallocated`. The bounded threat model,
+three accepted residuals, eight earlier repair rounds, final diff size, exact tests,
+byte-equivalence evidence, and adjudication are recorded in the implementation
+journal. No authority-grade capability is claimed by this close.
+
+### GY plan `GY-N12` task row final append
+
+**GY-N12 TASK-STANDING APPEND 2026-09-04 — status remains `executed`; deferred
+GY-DEF22 mechanism and Foundry correctness receipt are now delivered.** Existing
+Cluster 1 execution and ownership are unchanged. The follow-on supplies the
+Foundry-owned dependency discriminant, N8 producer, one-ref N10a/chronology bridges,
+governed machine surface, and CB-I01–CB-I03A semantic witnesses. Independent receipt
+`GY-DEF22-FOUNDRY-ADJUDICATION-2026-09-04-01` accepts the six defined claims against
+source `09293c195939f9df73fa49091066b726bf57f33b`, generated-output tree
+`a255bdf011183a69f456fe3ceef86df7e2e20b1e`, and the exact companion identity recorded
+in the implementation journal. Diagnostic failure, absence, corruption, and ambient
+cache refresh do not change governing N8/N10a/chronology bytes or acquire admission,
+closure, acceptance, publication, or promotion authority. The GY-DEF22 follow-on is
+closed by the explicit non-decisive route. The positive authority capability and N12
+boundaries 6–7 remain unchanged; no new epoch or admitted-environment authority is
+claimed. The active task row itself is left for architect transcription at merge.

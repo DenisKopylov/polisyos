@@ -416,3 +416,43 @@ Independent root replay after the correction: the complete Store/SKG focused
 pair reported **58 passed in 8.39s**; Ruff over both modules and both tests
 passed, and `git diff --check` passed. The declared between-call mutation
 limitation remains unchanged.
+
+### Task 4 — no-data vocabulary closure receipt
+
+Task 4 adds the one required integration proof at
+`tests/integration/scholar_scientist/test_extraction_strength_vocabulary.py`.
+It has exactly four behavioral tests and changes no production source, schema,
+release fragment, register, or `production_data` bytes. All writable fixtures
+use temporary DuckDB paths. The pinned snapshot is opened only read-only and
+its required SHA-256 is asserted before and after the complete bounded public
+audit traversal.
+
+The proof exercises both activated temporary writers, snapshot copy, Store,
+SKGQuery/Search, the lazy academic facade, Scholar/Toolkit/registry, the
+Runtime causal-claim path, a temporary physical legacy snapshot/JSONL replay,
+and public legacy mechanism forwarding. Four independent axes preserve their
+own value/status pairs; a legacy literal remains audit-only, with v2 null plus
+`not_established` and explicit v1 `strength=None` plus
+`ambiguous_legacy_vocabulary` (a generic registry serializer may omit a null
+field).
+
+The complete tracked AST census now discovers bare generic `strength` before
+narrowing and constructs disposition from the operation and enclosing symbol.
+It rejects every semantic unprojected reader, including `SELECT *` followed by
+a key read and indirect Runtime variants; it does not rely on a file allowlist.
+The complete `{path,line,symbol,operation,disposition}` inventory is retained
+as a pytest property and emitted with the census receipt. The named permitted
+cases remain the provenance-bound adapter, Store physical legacy projection,
+frozen admitted edge producer, explicit edge evidence, and explicit
+administrative/out-of-scope paths.
+
+Against an isolated `7a985c070` archive/source overlay, each individual test
+failed behaviorally: missing active graph admission (41.53s), missing public
+lineage surface (3.06s), missing JSONL legacy adapter (4.43s), and nine direct
+unprojected generic-strength hits including the Runtime query/emission (51.78s).
+On the current branch the four-test integration file passed **4 passed in
+97.98s**; Ruff and `git diff --check` passed. The broader prerequisite wave has
+one known non-Task-4 CP-SAT/OR-Tools availability red, reproduced at the same
+slice base; it is recorded in the Task-4 implementer report rather than
+suppressed or described as a whole-gate green. The bound debt checker was not
+run.

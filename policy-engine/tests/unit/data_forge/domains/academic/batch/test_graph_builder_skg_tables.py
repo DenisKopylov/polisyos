@@ -20,6 +20,8 @@ from polisyos.data_forge.domains.academic.knowledge.types import (
 )
 from polisyos.ir.analytics.literature import (
     ClaimVocabularyAxisStatus,
+    DesignFamily,
+    EvidenceStrength,
     VersionedClaimVocabularyEnvelope,
 )
 
@@ -132,6 +134,61 @@ def test_all_inactive_writer_aliases_reject_forged_nested_sidecar_state() -> Non
     ):
         with pytest.raises(ValidationError):
             preflight(forged)
+
+
+@pytest.mark.parametrize(
+    "claim",
+    [
+        {"strength": placeholder}
+        for placeholder in ("strong", "very_strong", "moderate", "weak")
+    ]
+    + [
+        {
+            "design_family_hint": design.value,
+            "evidence_strength": None,
+            "evidence_strength_status": ClaimVocabularyAxisStatus.NOT_ESTABLISHED.value,
+        }
+        for design in DesignFamily
+    ],
+)
+def test_edge_strength_without_explicit_evidence_is_declared_absent(
+    claim: dict[str, object],
+) -> None:
+    """Catch either placeholder or design vocabulary being projected as evidence."""
+
+    resolved = graph_builder._infer_edge_strength(claim)
+
+    assert resolved == ClaimVocabularyAxisStatus.NOT_ESTABLISHED.value
+    assert resolved not in {member.value for member in DesignFamily}
+    assert resolved not in {member.value for member in EvidenceStrength}
+
+
+def test_edge_strength_preserves_explicit_evidence_despite_divergent_design() -> None:
+    """Catch design-first projection overriding an independently supplied evidence class."""
+
+    resolved = graph_builder._infer_edge_strength(
+        {
+            "design_family_hint": DesignFamily.RCT.value,
+            "evidence_strength": EvidenceStrength.CROSS_SECTIONAL.value,
+            "evidence_strength_status": ClaimVocabularyAxisStatus.CANDIDATE.value,
+        }
+    )
+
+    assert resolved == EvidenceStrength.CROSS_SECTIONAL.value
+
+
+def test_legacy_theoretical_moderate_resolves_absence_not_observational() -> None:
+    """Catch credibility being substituted for an evidence-strength observation."""
+
+    resolved = graph_builder._legacy_strength_from_adjudication(
+        {
+            "design_family": DesignFamily.THEORETICAL.value,
+            "causal_credibility": "moderate",
+        }
+    )
+
+    assert resolved == ClaimVocabularyAxisStatus.NOT_ESTABLISHED.value
+    assert resolved != EvidenceStrength.OBSERVATIONAL.value
 
 
 def test_build_graph_creates_skg_tables() -> None:

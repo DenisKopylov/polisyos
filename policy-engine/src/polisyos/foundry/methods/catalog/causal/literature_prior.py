@@ -234,7 +234,10 @@ class BuildLiteraturePrior:
                     dst=str(row["dst"]),
                     confidence=float(row["confidence"]),
                     n_articles=int(row["n_articles"]),
-                    evidence_strength=str(row["evidence_strength"]),
+                    evidence_strength=row.get("evidence_strength"),
+                    evidence_strength_status=row.get(
+                        "evidence_strength_status", "candidate"
+                    ),
                     article_refs=[str(item) for item in row.get("article_refs", [])],
                     scope_conditions=[str(item) for item in row.get("scope_conditions", [])],
                     direction=str(row.get("direction", "mixed") or "mixed"),

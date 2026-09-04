@@ -326,6 +326,33 @@ def test_literature_prior_artifact_persist_load_roundtrip(tmp_path) -> None:
     assert loaded.metadata["topic"] == "labor"
 
 
+def test_literature_prior_roundtrips_declared_absence_without_value_token(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    prior = LiteratureCausalPrior(
+        edges=[
+            LiteratureEdgePrior(
+                src="x",
+                dst="y",
+                confidence=0.66,
+                evidence_strength=None,
+                evidence_strength_status=ClaimVocabularyAxisStatus.NOT_ESTABLISHED,
+                article_refs=["W42"],
+            )
+        ]
+    )
+
+    ref = persist_literature_causal_prior(store, prior)
+    loaded = load_literature_causal_prior(store, ref)
+    graph = loaded.to_causal_graph_model(nodes=["x", "y"])
+
+    edge = loaded.edges[0]
+    assert edge.evidence_strength is None
+    assert edge.evidence_strength_status is ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    assert edge.model_dump(mode="json")["evidence_strength"] is None
+    assert graph.edges[0].metadata.get("evidence_strength") is None
+    assert graph.edges[0].metadata["evidence_strength_status"] == "not_established"
+
+
 def test_literature_prior_roundtrips_environment_audit(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     prior = LiteratureCausalPrior(

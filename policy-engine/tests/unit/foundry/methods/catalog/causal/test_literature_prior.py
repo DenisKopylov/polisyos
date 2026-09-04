@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import duckdb
+
 from polisyos.foundry.methods.catalog.causal.literature_prior import BuildLiteraturePrior
 from polisyos.foundry.methods.catalog.causal.protocols import LiteraturePriorBuildData
-from polisyos.ir.analytics.literature import EnvironmentAuditReport
+from polisyos.ir.analytics.literature import (
+    ClaimVocabularyAxisStatus,
+    EnvironmentAuditReport,
+)
 
 
 def _seed_skg_db(path) -> None:
@@ -81,6 +85,35 @@ def test_build_literature_prior_builds_prior_and_graph(tmp_path) -> None:
     assert graph.skg_version_id == 9
     assert len(graph.edges) == 1
     assert result["warnings"] == []
+
+
+def test_build_literature_prior_decodes_persisted_declared_absence(tmp_path) -> None:
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_db(db_path)
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute(
+            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' "
+            "WHERE edge_id = 'e1'"
+        )
+    finally:
+        con.close()
+    payload = LiteraturePriorBuildData(
+        variables=["tax", "employment"],
+        skg_db_path=str(db_path),
+        skg_index_dir=str(tmp_path / "idx"),
+        min_confidence=0.5,
+    )
+
+    result = BuildLiteraturePrior.pure_step(payload, params={})
+
+    edge = result["literature_prior"].edges[0]
+    assert edge.evidence_strength is None
+    assert edge.evidence_strength_status is ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    assert edge.model_dump(mode="json")["evidence_strength"] is None
+    graph_edge = result["literature_prior_graph"].edges[0]
+    assert graph_edge.metadata.get("evidence_strength") is None
+    assert graph_edge.metadata["evidence_strength_status"] == "not_established"
 
 
 def test_build_literature_prior_preserves_typed_environment_audit_when_attached(tmp_path) -> None:

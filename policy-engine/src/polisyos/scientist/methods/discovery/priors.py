@@ -11,6 +11,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.scientist import GraphPriorBundleRef, PriorKnowledgeBundleRef
 from polisyos.ir.analytics.cross_graph import EvidenceSourceStatus
+from polisyos.ir.analytics.literature import ClaimVocabularyAxisStatus
 from polisyos.scientist.methods.discovery.aggregator import (
     EdgeConfidenceEntry,
     EdgeConfidenceMatrix,
@@ -67,11 +68,23 @@ class PriorKnowledgeSupport(BaseModel):
     direction: str = Field(min_length=1)
     confidence: float = Field(ge=0.0, le=1.0)
     n_articles: int = Field(default=0, ge=0)
-    evidence_strength: str = Field(default="unknown", min_length=1)
+    evidence_strength: str | None = Field(default="unknown", min_length=1)
+    evidence_strength_status: ClaimVocabularyAxisStatus = ClaimVocabularyAxisStatus.CANDIDATE
     candidate_layer: str = Field(default="hybrid", min_length=1)
     article_refs: list[str] = Field(default_factory=list)
     quality_signals: dict[str, Any] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_evidence_strength_status(self) -> PriorKnowledgeSupport:
+        if self.evidence_strength is None:
+            if self.evidence_strength_status is not ClaimVocabularyAxisStatus.NOT_ESTABLISHED:
+                raise ValueError(
+                    "evidence_strength must be absent when its status is not_established"
+                )
+        elif self.evidence_strength_status is not ClaimVocabularyAxisStatus.CANDIDATE:
+            raise ValueError("evidence_strength requires candidate status when present")
+        return self
 
 
 class GraphPriorBundle(ArtifactMinimalityMixin):

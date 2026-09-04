@@ -900,12 +900,24 @@ class LiteratureEdgePrior(BaseModel):
     dst: str
     confidence: float = Field(ge=0.0, le=1.0)
     n_articles: int = Field(default=0, ge=0)
-    evidence_strength: EvidenceStrength = EvidenceStrength.UNKNOWN
+    evidence_strength: EvidenceStrength | None = EvidenceStrength.UNKNOWN
+    evidence_strength_status: ClaimVocabularyAxisStatus = ClaimVocabularyAxisStatus.CANDIDATE
     article_refs: list[str] = Field(default_factory=list)
     scope_conditions: list[str] = Field(default_factory=list)
     direction: CausalDirection = CausalDirection.MIXED
     meta_effect_size: float | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_evidence_strength_status(self) -> LiteratureEdgePrior:
+        if self.evidence_strength is None:
+            if self.evidence_strength_status is not ClaimVocabularyAxisStatus.NOT_ESTABLISHED:
+                raise ValueError(
+                    "evidence_strength must be absent when its status is not_established"
+                )
+        elif self.evidence_strength_status is not ClaimVocabularyAxisStatus.CANDIDATE:
+            raise ValueError("evidence_strength requires candidate status when present")
+        return self
 
 
 class ReconciliationDiagnostics(BaseModel):
@@ -977,7 +989,13 @@ class LiteratureCausalPrior(BaseModel):
             node_set.add(edge.src)
             node_set.add(edge.dst)
             edge_metadata = dict(edge.metadata)
-            edge_metadata.setdefault("evidence_strength", edge.evidence_strength.value)
+            edge_metadata.setdefault(
+                "evidence_strength",
+                edge.evidence_strength.value if edge.evidence_strength is not None else None,
+            )
+            edge_metadata.setdefault(
+                "evidence_strength_status", edge.evidence_strength_status.value
+            )
             edge_metadata.setdefault("scope_conditions", list(edge.scope_conditions))
             edge_metadata.setdefault("direction", edge.direction.value)
             if edge.meta_effect_size is not None:

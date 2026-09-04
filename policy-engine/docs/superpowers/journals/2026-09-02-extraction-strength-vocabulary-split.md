@@ -614,3 +614,128 @@ wall). Ruff and `git diff --check` passed. The final retained inventory remains
 the immediately preceding `373` hits/`63` paths, `163` source/`210` test,
 with zero unprojected and zero unclassified current-tree hits; no measured
 production-data or source disposition changed.
+
+### Task 4 — narrowed vocabulary/no-data close — 2026-09-04 — final transcriber row
+
+Capability state is `complete` for the B-1 vocabulary property only. The
+executable mechanism and behavioral proof froze at `325e9db78` over slice base
+`c7becd3a71bb67307229c7c8f23acb60d58f4289`; the subsequent closeout delta is
+non-behavioral record material: this append-only receipt, the active public
+contract docstring, and its generated IR reference catalog. Tasks 1–4 are
+atomically active: all three live extraction variants enter the strict
+transport and common vocabulary admission; both write routes and exact
+legacy/v2 snapshot copy re-admit there; the physical result is an explicit-v2
+or physically legacy row; and Store's source-bound projection feeds the
+default/v1 public readers and Runtime causal-claim consumer. Legacy labels
+remain audit-only and never establish a typed axis.
+
+Runtime's causal-claim path previously selected bare `strength` from
+`ac_causal_claims`, unpacked the tuple locally, and emitted
+`"strength": str(strength or "")`. It now iterates
+`academic.iter_causal_claim_results_v2(connection)` and emits the four named
+value/status pairs `design_family_hint`/`design_family_hint_status`,
+`evidence_strength`/`evidence_strength_status`,
+`claim_extraction_confidence`/`claim_extraction_confidence_status`, and
+`source_basis`/`source_basis_status`. `legacy_strength_label` survives only in
+the nested provenance-bearing `claim_vocabulary` audit object. The protected
+edge/family paths are byte-identical across four guarded source segments;
+their exact and family payload SHA-256 values remain respectively
+`5b340aa61431fab375278ccf3e0d833b99c2515ae9ec5e565b04080e8c3ee84b` and
+`0149a83f050a1f565189c4af228bd731739de1c57fdabeade484f4b6d14213fa`.
+
+The complete tracked AST census walked `2619` `src/**/*.py` plus `2496`
+`tests/**/*.py` files and retained `373` hits across `63` paths: `163` source
+hits / `43` source paths and `210` test hits / `20` test paths, with zero parse
+failures, zero unprojected hits, and zero unclassified hits. The source
+distribution is: activated typed writer `7`, catalog out of scope `1`,
+count-only `1`, currentness/search table reference `3`, explicit graph edge
+evidence `16`, frozen edge producer `4`, producer vocabulary rejection `2`,
+provenance-bound JSONL adapter `6`, Runtime public typed loader `1`, snapshot
+schema copy/validation `5`, Store physical legacy projection `13`, typed
+non-vocabulary SQL `3`, typed reader/public carrier `67`, typed vocabulary
+rejection boundary `1`, and unrelated strength `33`. All `13` receiver-proven
+source graph reads are explicit; the complete
+`{path,line,symbol,operation,disposition}` inventory is retained without a path
+allowlist.
+
+The pinned read-only snapshot was
+`production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb`.
+Its SHA-256 before and after the measured traversal was
+`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`.
+The complete relation had `137589` rows, `137589` distinct `(id, work_id)`
+identities, zero null identities, and zero duplicates. The SQL predicate
+`NULLIF(TRIM(design_family_hint), '') IS NULL AND LOWER(TRIM(strength)) =
+'moderate'` returned `69798` distinct identities. Bounded public audit traversal
+with `status="all"` and `limit=500` visited all `137589` identities exactly
+once; every cohort row had four null values, four exact `not_established`
+statuses, and `legacy_strength_label='moderate'`. This is identity-level
+declared absence, not occurrence completeness, zero, a guess, or
+reclassification.
+
+The four named Task-4 behavioral tests
+`test_claim_axes_round_trip_through_activated_writer_and_all_public_readers`,
+`test_legacy_snapshot_reads_as_declared_absence_without_data_write`,
+`test_snapshot_copy_replay_remains_legacy_until_projected`, and
+`test_complete_claim_vocabulary_consumer_census_has_no_unprojected_reader`
+passed together (`4 passed in 124.90s`; `128.27s` wall); the final census
+selector passed separately (`1 passed in 98.82s`). The final closeout waves
+then passed `54` producer/admission/persistence tests in `2.28s` (`4.10s`
+wall), `78` Store/consumer/Runtime/integration tests in `244.63s` (`248.32s`
+wall), and `3` public/lazy-facade tests in `0.63s` (`1.96s` wall). Invalid,
+partial, mixed, future, and inconsistent value/status layouts fail typed; v2
+has no generic `strength`, while explicit v1 has `strength=None` plus
+`ambiguous_legacy_vocabulary`. Changed-Python Ruff, `git diff --check`, the
+four-segment Runtime guard, and the generated IR catalog check all passed. The
+canonical schema step reports `101` models and is green after regenerating only
+`docs/reference/ir/schema-catalog.md`; no ABI snapshot changed.
+
+The unmodified canonical docs command
+`uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref
+c7becd3a71bb67307229c7c8f23acb60d58f4289` exited `1` after its ABI/schema
+step passed. Its remaining repository-wide freshness baseline expired and
+expected zero findings while the live accuracy checker reported seven broken
+publication links: two ADR-048 links, four `ATLAS_SOURCE_OF_TRUTH.md` links,
+and one `policy-operations-research-pipeline.md` link. All seven subject paths
+and `architecture/exceptions/docs_freshness.toml` are untouched by B-1. The
+whole docs gate is nevertheless not called inherited because its complete
+input set includes B-1 documentation.
+
+After `corepack pnpm install --frozen-lockfile`, the unmodified canonical
+`uv run polisyos-tools architecture guardrails check` exited `1`; the
+`runtime-api-client` five-output and `runtime-dashboard-api-types` one-output
+freshness probes were green. The residuals are reported, not suppressed: three
+deep imports in untouched
+`runtime.http.services.acquisition_admission_bundle` already exist at the exact
+slice base; the Runtime OpenAPI probe escapes its assigned output root and its
+committed snapshot is stale; and the trust-claim-posture generated output is
+stale. Exact slice-base OpenAPI replay proves the committed SHA-256
+`8030f2c3584e1f989299074052661dfc60994e1193d92032630e691f457222f7`
+already differed from the base-generated
+`21dfa9f90aeeae2997854926eb6c933f6a71c68eb28d94bf93e1a0efb1dbecac`
+(`6276` embedded dependencies versus `6282`). The current generated SHA-256 is
+`0ccac48a8733c9e11b43933dfddbdcd6e5761965f7a1f4bd9abc281fe7546672`
+with `6286` dependencies, so B-1 intersects that generator's consulted basis
+and the whole artifact is not called inherited. Reissuing authority receipts,
+changing Runtime HTTP/generated-client surfaces, or repairing the trust
+posture family is outside B-1; no whole-architecture green is claimed.
+
+No producer, extractor, adjudication, re-extraction, migration, or writer was
+run against `production_data`, and no `production_data` byte was changed.
+Tasks 5–7 remain unclaimed. Authority/verification receipts,
+evaluator/champion/promotion, publication, graph fallback/inference,
+currentness/reissue/cache, ranking, and data production remain unclaimed. The
+split-out debts `academic-graph-manufactures-design-from-a-placeholder`,
+`span-grounded-writer-ignores-the-publication-gate`, and
+`adjudication-and-champion-chain-is-forgeable` are not discharged by this
+close. The bound debt checker remains reserved for the root controller's one
+final, redirected run after the tracked closeout commit.
+
+#### Exact register transcription
+
+For the row `extraction-strength-mixes-confidence-and-design`, apply exactly
+these two mutations and no other row edit:
+
+1. Change its status cell from `` `open` `` to `` `closed` ``.
+2. Append the following paragraph verbatim to its closure-signal cell:
+
+> **TASK B-1 CLOSURE 2026-09-04 — `open` -> `closed` for the vocabulary/substitution debt only.** The executable mechanism and behavioral proof froze at `325e9db78`. Tasks 1–4 enforce the split at the common claim serialization/store-admission boundary: all three live extraction variants, both write routes, and exact legacy/v2 snapshot copy pass strict admission; Store owns the sole source-bound legacy projection; and default/v1 public readers plus Runtime's causal-claim consumer receive named typed axes, never a bare generic `strength`. The complete `2619`-source/`2496`-test Python census retained `373` semantic hits across `63` paths with zero parse failures, zero unprojected hits, and zero unclassified hits. In the unchanged read-only snapshot, all `69798` blank-hint/`moderate` identities project to four null values with four exact `not_established` statuses; `moderate` remains audit provenance only. The four no-data integration claims pass together, and the snapshot remains SHA-256 `583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`. This closes neither Tasks 5–7 nor authority/evaluator/champion, publication, graph-fallback, currentness/reissue/cache, ranking, or data-production work; the separately registered `academic-graph-manufactures-design-from-a-placeholder`, `span-grounded-writer-ignores-the-publication-gate`, and `adjudication-and-champion-chain-is-forgeable` debts are not discharged here.

@@ -166,10 +166,10 @@ class LegacyFiveFieldClaimOccurrence(BaseModel):
 class VersionedClaimVocabularyEnvelope(BaseModel):
     """Strict v2 vocabulary sidecar for one causal-claim occurrence.
 
-    This additive contract is intentionally inactive and is not an occurrence
-    transport. Task 2 must embed it beside the original occurrence in a
-    lossless composite transport. Legacy occurrences enter only through the
-    explicit absence adapter below.
+    The sidecar travels beside the original occurrence in the lossless claim
+    transport and is revalidated at the common serialization/store boundary.
+    It records candidate or absent vocabulary values; it confers no authority.
+    Legacy occurrences enter only through the explicit absence adapter below.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)

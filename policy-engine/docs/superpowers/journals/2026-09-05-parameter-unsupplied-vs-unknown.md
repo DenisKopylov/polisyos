@@ -805,3 +805,189 @@ rule 2.** `PU-G01` is the bounded purpose answer; `PU-G02` is the measured scope
 stop. The missing generated companion is `schemas/snapshots/ir/_manifest.json`.
 This append records closeout evidence and does not select a representation or
 claim the whole-chain closure negative has been written.
+
+## 2026-09-05 — final ruling: measurement lane closes; no repair
+
+Entry: `cd02d79a4`, attached to `codex/debt-parameter-unsupplied-vs-unknown`,
+clean; main was already merged. The principal ratified both stops and ended the
+repair authorization. **This lane closes with its measurements delivered; the
+existing debt stays `open`.** Presence preservation is a real integrity
+improvement, but the principal sequences it under value-provenance work, which
+subsumes it. Neither a presence repair nor a provenance design is undertaken here.
+
+This ruling supersedes the earlier scope-stop disposition without rewriting the
+journal. The previous two-schema wording omitted the generated receipt. For a
+future authorized schema change, **`schemas/snapshots/ir/_manifest.json` is in
+scope with its schemas, always**: refreshing their full and semantic hashes and
+the aggregate `content_hash` is the mechanical consequence of that change, not
+a second governed act. The final reason for doing no repair is sequencing, not
+scope. This instruction does not authorize a schema change in this closeout.
+
+### Re-check of the corrected facts
+
+All four facts reproduced on unchanged task-branch source, exit **0**. The
+read-only probe imported the task worktree's actual owners with
+`PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src` and the existing shared interpreter;
+the constructor owner path was checked with `inspect.getfile`. It used in-memory
+controlled payloads and schema copies. The earlier real-payload witness remains
+`PU-G01`; no historical payload was queried or re-derived in this closeout.
+
+| Fact | Fresh result |
+| --- | --- |
+| Construction versus serialization (`PU-F03`) | Omitted construction lacks the field in `model_fields_set`; explicit unknown includes it. One ordinary `model_dump()` → `model_validate()` round-trip turns omitted into supplied unknown. Normal SKG intake still preserves omission. |
+| Purpose and convergent origins (`PU-G01`) | The extractor and SKG fallback each emit identical values and identical field-presence sets for controlled omitted versus explicit-unknown inputs. Suppliedness cannot establish a judged cohort. |
+| ABI addition (`PU-F01`, `PU-G02`) | The complete authorized schema denominator is the two named `.schema.json` files. Both embed the field and neither requires it. Adding one optional property and then removing only that property exactly restores each original schema. |
+| Manifest consequence (`PU-G02`) | Both current full and semantic hashes match the manifest; the unchanged owner comparator returns no errors. The optional-only addition changes those hashes and aggregate content hash; the same comparator reports `snapshot out of date: schemas/snapshots/ir/_manifest.json`. |
+
+The ABI witness used the same canonical `_schema_hash`, `_strip_metadata`, and
+`_assert_manifest_equals` functions documented in `PU-G02`; no generator or
+checker was changed. No corrected fact failed to reproduce. The provenance
+paragraph below states the observed gap and an outcome-based closure signal;
+it selects no representation, encoding, storage layout, or implementation.
+
+### Transcriber-ready paragraph 1 — existing row, retain `open`
+
+The first two sentences below replace the row's mechanism and purpose sentences.
+
+> **`parameter-contract-cannot-distinguish-unsupplied-from-unknown` — `open`.**
+> `EvidenceParameter.evidence_strength` remains distinguishable as omitted versus
+> supplied at construction through `model_fields_set`; a single ordinary
+> `model_dump` → `model_validate` round-trip destroys that distinction by
+> materializing the `UNKNOWN` default, while normalizers can manufacture an
+> explicitly supplied value. Presence preservation would prevent serialization
+> from giving an omitted value the appearance of having been supplied; it would
+> not separate extractor judgments from manufactured values, establish the
+> judged-unknown cohort, or unblock calibration. Both
+> `schemas/snapshots/ir/article_extraction_result.schema.json` and
+> `schemas/snapshots/ir/context_adaptive_parameter_bundle.schema.json` embed the
+> field and neither lists it as required; adding a new optional sibling property
+> is additive while existing properties, types, and requiredness remain unchanged.
+> The generated `schemas/snapshots/ir/_manifest.json` receipt moves with those
+> schemas and is in scope with them, always; updating its schema hashes and
+> aggregate `content_hash` is the mechanical consequence of an authorized change.
+> The measurement lane is closed without repair, and this row remains open:
+> the principal sequences presence preservation under value provenance, which
+> subsumes it. Historical payloads are not re-derived or retrospectively classified.
+> Evidence: this journal, `PU-F03`, `PU-G01`, and `PU-G02`; final ruling 2026-09-05.
+
+### Transcriber-ready paragraph 2 — new value-provenance row for the architect
+
+The architect assigns the new row's ID and owner. This paragraph supplies no design.
+
+> **Value provenance of parameter `evidence_strength` — proposed status `open`.**
+> A stored parameter strength does not establish whether it was judged by an
+> extractor or manufactured by a normalizer. The convergent origins measured
+> are an explicitly supplied extraction candidate (including parsed LLM numeric
+> rescue), an `UNKNOWN` manufactured for missing or unrecognized input by
+> `_normalize_evidence_strength` in
+> `src/polisyos/data_forge/domains/academic/batch/article_extractor.py:396`
+> and inserted into the parameter at `:875`, and the SKG validation-failure
+> fallback assigning `EvidenceStrength.UNKNOWN` at
+> `src/polisyos/data_forge/domains/academic/knowledge/skg_query.py:1821`
+> before explicitly supplying it at `:1836`. Deterministic numeric rescue also
+> supplies a strength copied from another parameter, a linked claim, or article
+> methodology in
+> `src/polisyos/data_forge/domains/academic/batch/_resolve_extract_transformers.py:1486`;
+> raw-JSON and simulation-table reads can carry these values onward without
+> establishing their origin. For omitted versus supplied-unknown inputs, the
+> extractor and SKG fallback produce identical values and presence markers.
+> Consequently, neither stored `unknown` nor a preserved presence flag identifies
+> the extractor's judged “cannot tell” cohort; this missing value provenance is
+> the calibration blocker, and establishing it does not itself build calibration.
+> **Closure signal:** a future lane first re-measures the complete producing,
+> normalizing, persistence/round-trip, and consuming paths, then demonstrates on
+> those real paths that known extractor judgments, non-supply, and manufactured
+> values remain distinguishable at the consuming boundary after persistence.
+> A negative must prove that omitted, fallback-produced, inherited, or
+> historically unmarked values cannot be counted as extractor judgments solely
+> from their value or suppliedness; a corresponding positive must trace an
+> actual recorded unknown judgment to its producer and preserve that distinction
+> through the same round-trip. Unestablished historical origins remain unresolved;
+> no cohort is retroactively assigned from presence alone. Evidence: this journal,
+> `PU-G01`, its path map, and the final re-check; representation and implementation
+> require the future lane's own measurement and design.
+
+### Closeout boundary and checker cost
+
+The failure/repair register was reopened: P35/P38 explain the corrected census
+and purpose; P15 keeps supplied candidate values from becoming judgment evidence;
+P07 covers the generated receipt; P39 explains why a future schema authorization
+includes that mandatory companion. The existing register already covers these
+classes and was not changed. The acceptance signal here is the two accurate
+transcriber-ready paragraphs and preserved measurements, not a repaired capability.
+
+The original row and proposed provenance row are not registered or edited here;
+the architect owns transcription. Only this journal is changed. The final debt
+checker is run once with output redirected; its result, the lane's cumulative
+three-run cost, and the final read-only snapshot hash will be appended before
+the single closeout commit.
+
+### Final verification and the three-run cost record
+
+The third and final lane invocation completed with **exit 0**. It ran under an
+explicit 1,197.12-second ceiling, twice the preceding 598.56-second measurement;
+the ceiling was not reached. The command, with all output redirected, was:
+
+```sh
+python3 - <<'PY' > _build/parameter-unsupplied-vs-unknown/final-closeout-bound-debt-check.txt 2>&1
+import os, subprocess
+measured_seconds = 598.56
+ceiling_seconds = 2 * measured_seconds
+print(f'closeout_timeout_seconds={ceiling_seconds:.2f}', flush=True)
+command = ['/usr/bin/time', '-p', '/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python', 'tools/quality/validation/check_debt_ledger.py', '--check']
+child_env = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1', 'PYTHONPATH': '.:src'}
+try:
+    result = subprocess.run(command, env=child_env, timeout=ceiling_seconds, check=False)
+except subprocess.TimeoutExpired:
+    print('closeout_timeout_exceeded', flush=True)
+    raise SystemExit(124)
+raise SystemExit(result.returncode)
+PY
+```
+
+**This lane has now consumed three bound debt-checker runs across its
+continuations.** The complete run-log denominator is the three `.txt` files in
+`_build/parameter-unsupplied-vs-unknown/`, listed below; their recorded `real`
+durations were parsed and summed, not estimated from elapsed conversation time.
+All three command receipts exited 0.
+
+| Run | Captured log in that directory | Real seconds |
+| --- | --- | ---: |
+| 1 | `bound-debt-check.txt` | 592.33 |
+| 2 | `continuation-bound-debt-check.txt` | 598.56 |
+| 3 | `final-closeout-bound-debt-check.txt` | 595.04 |
+
+Total: **1,785.93 seconds (29 minutes 45.93 seconds)**. This is recorded as a
+cost of the stop-and-resume shape, not hidden as free verification. The final
+run reports 556.18 seconds user and 27.13 system. No fourth run, write mode,
+report-only flag, reduced checker selection, or checker change was used. The
+checker collected registered test identities; no test suite ran.
+
+Final log: 8,387 bytes, 60 lines, SHA-256
+`f9265449a533370ac22524af78d0764d456570f26b139932c1e2bb9d6ab15765`.
+All 26 integer metrics match the two earlier logs. The complete
+informational-finding denominator remains 29: nine
+`closure_signal_count_exit_disagreement`, nine
+`closure_signal_identity_unresolvable`, one `closure_signal_runner_unsupported`,
+and ten `register_supplies_missing_standing`. There are no blocking findings.
+These findings remain in the captured output; a green checker does not imply
+their unresolvable identities exist.
+
+Final read-only check:
+
+```sh
+shasum -a 256 production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb
+```
+
+Result: **`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`**,
+unchanged from the task's initial hash. `git diff --check` passed. The journal's
+prefix at `cd02d79a4` remains byte-preserved; the attached branch and journal-only
+changed-path set were checked before the single closeout commit. Source
+locators in both transcriber paragraphs were read back from the unchanged files.
+
+**Final disposition: measurement lane closed without repair; existing debt
+`open`; proposed value-provenance row handed to the architect for registration.**
+No source, schema, manifest, tests, active-plan files, or production data changed.
+No representation or provenance implementation was designed. The superseding
+manifest ruling and sequencing decision are recorded above, and both requested
+transcriber-ready paragraphs are the deliverable.

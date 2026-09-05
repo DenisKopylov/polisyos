@@ -676,3 +676,77 @@ Every listed run completed with exit 0. These hashes identify diagnostic logs; t
 ## Event 3 — pre-checker freeze, 2026-09-05
 
 The Phase-1 stop and transcriber paragraphs are frozen. No product or test source changed. The only delivered change is this journal. The user's 2026-09-05 checker rule is applied literally: committing this requested journal **does change tracked files**, so the bound debt checker will run once at the end. The no-tracked-change skip receipt is inapplicable; claiming an unchanged tree would be false. The final checker and custody receipts will be appended without changing the measured result.
+
+## Event 4 — final checker, custody, and delivery receipts, 2026-09-05
+
+The measurement journal was committed as `f7e22ef74` on the attached
+`codex/debt-historical-cohorts` branch before the checker. Reading it back from that commit
+reproduced SHA-256 `a487fd85b6ed716d997a8e5b8804b60d81810c65aa27d8e3677cf513be1aa484`.
+All five embedded programs were extracted from the committed journal, parsed with AST, and
+compared byte-for-byte with the executed scratch programs: all five matched. This checks
+reproducibility of the delivered record, not a new product behavior.
+
+### Exactly one bound debt checker
+
+```sh
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python tools/quality/validation/check_debt_ledger.py --check > _build/historical-cohorts/bound-debt-check.log 2>&1
+```
+
+**Exit 0.** `real 952.71`, `user 906.41`, `sys 43.14` seconds (15m 52.71s wall time).
+The checker completed without a restart or timeout. Its log SHA-256 is
+`8a71034508196e14339b04d1b1af6e12931f5f33ffdfb533b2357ee8b2bb651d`.
+
+Selected receipts from the complete checker output:
+
+```text
+register_ids=193
+gy_ids=38
+atlas_debt_rows=22
+frontend_disposition_entries=261
+frontend_ds8_assignment_rows=217
+closure_signal_pytest_selections=44
+closure_signal_identity_unresolvable=9
+closure_signal_input_unresolvable=0
+closure_signal_selects_nothing=0
+closure_signal_collection_failed=0
+closure_signal_collection_host_unknown=0
+closure_signal_ast_collection_disagreements=0
+closure_signal_count_exit_disagreements=9
+```
+
+The checker labels its reported findings **informational (do not block)**: the nine
+unresolvable test identities and paired count/exit disagreements, one unsupported Vitest
+runner, and register-supplied standing notices. Exit 0 is the debt-reconciliation result;
+it does not mean all referenced tests exist or that 44 tests were executed and passed.
+No second base replay was run, so these notices are not relabelled as independently proven
+inherited failures. No checker, register, ledger, plan, or test was edited to obtain this
+result.
+
+### Final production-data and branch receipt
+
+After the checker completed:
+
+```sh
+shasum -a 256 production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb
+git diff --name-only a2954f328..HEAD
+git status -sb
+```
+
+Observed snapshot SHA-256:
+`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967` — identical to entry.
+The exact changed-path receipt was:
+
+```text
+policy-engine/docs/superpowers/journals/2026-09-05-historical-cohorts.md
+```
+
+`git status -sb` showed the attached branch with a clean tree before this final append.
+This final append changes only the same journal and is committed separately; the final
+branch file is read back after that commit. No source/test/active-plan/data changes,
+rebase, stash, force-push, merge, live-lane work, or data re-derivation occurred.
+
+The failure/repair register was re-read before closeout. P35/P37/P38 are handled by the
+explicit subset/full-population distinction and the refusal to treat exact output agreement
+as historical execution provenance. HC-T01 and HC-T02 remain the transcription paragraphs.
+The terminal result is the Phase-1 framing stop; the open historical-confidence debt remains
+open, and the forward substitution repair remains closed.

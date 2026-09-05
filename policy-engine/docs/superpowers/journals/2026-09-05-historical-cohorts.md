@@ -2373,3 +2373,52 @@ disposition STOP: the cited selective LLM extraction path fails before the model
 Anchor correction from the final numbered-source read: `_candidate_status` is defined
 at `llm_extractor.py:37`; HC-F15's `:36` points to the preceding blank line. The value/status
 behavior and measured failure are unchanged.
+
+
+## Event 14 — Phase-7 closeout, custody, and checker exemption, 2026-09-05
+
+Events 12–13 were committed as `22ce4f69eb7a2ba4285022823790ae6a340f2703` on
+`codex/debt-historical-cohorts` and read back from the branch. The committed journal equals
+the worktree file, preserves the original 155,533-byte prefix (Events 1–11) verbatim, and
+contains the exact executed witness and captured output. `git diff --check` passed before
+commit and against the committed continuation. The observed branch state was clean:
+`## codex/debt-historical-cohorts`.
+
+**The bound debt checker was skipped.** Only the journal changed; no checker-read
+register, ledger, `docs/plans/`, `tools/`, `src/`, `tests/`, or schema file changed.
+The corrected Phase-7 predicate therefore does not require a checker run. Receipt against
+the committed continuation:
+
+```sh
+git diff --name-only afcc4a839..HEAD
+```
+
+```text
+policy-engine/docs/superpowers/journals/2026-09-05-historical-cohorts.md
+```
+
+The final production-data custody read opened the pinned DuckDB file in binary read mode,
+computed `hashlib.file_digest(..., 'sha256')`, and checked its mode and size. It completed
+in approximately 1.27 seconds and confirmed:
+
+```text
+path: production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb
+sha256:583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967
+mode: -r--r--r--
+size: 2390503424 bytes
+```
+
+No production-data write, chmod, extraction, data pass, producer/writer invocation,
+source fetch, live lane, rebase, force-push, or stash occurred. No source, product test,
+active plan, or register changed. HC-F15 is an observed failure, not a repaired path;
+there is no implementation green and no product fix round was spent. The requested early
+stop remains in force, with the unmeasured Phase-7 quantities and cost `not_established`
+recorded in HC-D03. The source failure and any continuation require the architect's scope
+ruling; this journal does not expand that authority.
+
+The committed journal SHA-256 **before this receipt append** was
+`fb0e9ebb876604c10864a00cd1743a7d17ecae64ed6da179fb3896469f6e67a9` (Events 1–13).
+This receipt is committed separately, followed by a final branch/path/prefix readback.
+HC-T01-R3 and HC-T02-R3 replace the corresponding `-R2` paragraphs in full and **must not
+be concatenated** with the preserved earlier versions. HC-T03 remains a separate proposed
+producer-row transcription, not a registration or repair performed by this task.

@@ -3173,3 +3173,602 @@ This receipt is committed separately, followed by a final branch/path/prefix rea
 HC-T01-R4 and HC-T02-R4 replace their corresponding `-R3` paragraphs in full, with
 HC-T03-R4 separately transcribed to the producer row. They **must not be concatenated**
 with the physically preserved earlier versions or with one another.
+
+
+## Event 18 — Phase-9 complete corpus walk and namespace-qualified stop, 2026-09-05
+
+Entry branch: `codex/debt-historical-cohorts`, attached and clean at
+`8ebb13102c67483e30d9c3b37cce45270c7b7f84`. Events 1–17 remain verbatim. This round
+is measurement-only; the selective-producer repair authorization is withdrawn and no
+source, test, schema, active plan, or register is edited.
+
+**The complete embedded-claim result is zero evidence-axis keys, but the complete-document
+result is not zero.** All **137,714 embedded claims** omit both `evidence_strength` and
+`evidence_strength_status`, including nested occurrences. **1,577 of 310,829 documents**
+contain **5,133 `evidence_strength` keys**, exclusively under
+`metadata.simulation_ready_numeric_estimates[*].evidence_strength`. These are numeric
+parameter fields, not evidence axes attached to those embedded claims. No
+`evidence_strength_status` key occurs anywhere in the documents.
+
+The brief's explicitly broad **"does any payload anywhere carry `evidence_strength` or
+its status?"** condition has a positive answer. Its stop rule is therefore applied at
+that boundary, before input, scope, cost, and alias measurements. **The accompanying
+inference that this necessarily refutes or dates claim-specific vintage is not supported.**
+A parameter-metadata key cannot serve as a claim-axis observation just because its name
+is the same. The measured correction is to whole-document field absence, while the
+claim-specific absence is confirmed and its dating remains unresolved. This distinction
+was reported immediately; subsequent work only reconciles and records this finding.
+
+### HC-F18 — complete JSON-key census and independent namespace reconciliation
+
+Pin: `production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb`.
+All data connections use DuckDB with `read_only=True`. All SQL spill scratch is explicitly
+under `_build/historical-cohorts/phase9-duckdb-temp`, never under `production_data`.
+
+The complete table walk reads every `ac_article_extractions.extraction_json` value, parses
+JSON, enumerates all `causal_claims` list members, and recursively visits every object key
+and list element in every document. It records key **presence**, so a null-valued key would
+still count. Matching words inside string values do not count as object keys. There are
+no sampled or indexed-source exclusions.
+
+| Measurement | Python walk | Independent SQL |
+| --- | ---: | ---: |
+| Extraction documents | 310,829 | 310,829 |
+| Distinct extraction IDs | 310,829 | 310,829 |
+| Valid JSON documents | 310,829 | 310,829 |
+| Embedded claims | 137,714 | 137,714 |
+| Embedded claim objects | 137,714 | 137,714 |
+| Claims with direct `evidence_strength` | 0 | 0 |
+| Claims with direct `evidence_strength_status` | 0 | 0 |
+| Claims with either key anywhere in their subtree | 0 | 0 |
+| Documents with either key anywhere | 1,577 | 1,577 |
+| Recursive `evidence_strength` occurrences, all documents | 5,133 | 5,133 |
+| Recursive `evidence_strength_status` occurrences, all documents | 0 | 0 |
+| `metadata.simulation_ready_numeric_estimates[*].evidence_strength` occurrences | 5,133 | 5,133 |
+| `evidence_strength` occurrences outside that numeric metadata namespace | 0 | 0 |
+
+The SQL denominator uses `count(*)`, `count(DISTINCT extraction_id)`, `json_valid`, and
+`sum(json_array_length(..., '$.causal_claims'))`. A separate `json_each` enumeration
+reconciles embedded claims. Recursive SQL JSONPath (`$..evidence_strength` and
+`$..evidence_strength_status`) uses DuckDB's JSON traversal, independently of the Python
+visitor. The full **extraction ID / work ID / field / canonical value multiplicity**
+counters agree with zero difference; repeated identical values are counted rather than
+collapsed by a set. A separate SQL claim-subtree query agrees on the complete
+extraction-ID/claim-index hit set, which is empty.
+
+Finally, a separate SQL query extracts only
+`$.metadata.simulation_ready_numeric_estimates[*].evidence_strength`. Its 5,133 occurrences
+and 1,577 documents equal the complete recursive population, with zero status keys there.
+This independently establishes the namespace boundary instead of generalizing from a
+sample or treating the first match as representative.
+
+The complete value distribution of those **parameter-metadata** occurrences is:
+
+| Stored string | Occurrences |
+| --- | ---: |
+| `cross_sectional` | 1 |
+| `meta_analysis` | 1,095 |
+| `observational` | 2,938 |
+| `panel_fe` | 35 |
+| `quasi_natural` | 328 |
+| `rct` | 736 |
+| **Total** | **5,133** |
+
+These counts do not identify the parameter values' generating provenance, establish their
+accuracy, license them as claim evidence, or close the separately registered parameter
+provenance debt. The script's generic `axis_key`/`axis` search labels refer to the literal
+key search requested by the brief, not to a semantic classification of every hit as a
+claim-axis observation.
+
+One concrete occurrence, drawn from the fully enumerated hit set, is extraction
+`005cf7b3e48f1e9c3a072bab`, work `https://openalex.org/W2809498860`, mode
+`resolve_extract`, at `metadata.simulation_ready_numeric_estimates[0].evidence_strength`,
+with value `meta_analysis`. Its role is an inspectable witness, not the basis for the
+population count. The complete 5,133-occurrence diagnostic JSON has SHA-256
+`4476af372fa65c655f0fc248bc33898a57ecb66500c6dfd2e6c15eee7799a249`; the committed program
+reconstructs it from the pinned bytes. Event 19 preserves the complete aggregate output,
+including claim-field and root-field counts, plus the executed programs.
+
+All 137,714 claims contain the old generic `strength` key. The complete field census also
+finds `source_basis` present in 67,791 embedded claims; that is **presence only**, not the
+requested distribution over articles needing re-extraction, a proof of full-text retention,
+or a license to replace the missing evidence axis. No source-basis values or retained
+input adequacy were measured after the stop.
+
+### HC-I01 — instrument lesson: inspect the assembled prompt and keep its owner bound
+
+The architect's reported error was **a prompt-search denominator error**: an AST scan
+restricted to module-level `*PROMPT*`/`*TEMPLATE*` string literals omitted a prompt assembled
+inside a function from an f-string and interpolated `*_SCHEMA_HINT` constants. A zero over
+that restricted set is not a zero over the model-facing requests. The existing source
+confirms the shape: `article_extractor.py:1545` constructs an f-string and interpolates
+`CAUSAL_CLAIMS_SCHEMA_HINT` at `:1558`; the hint in `batch/prompts/causal_claims.py:15`
+contains a named evidence-axis request, alongside examples and a calibration guide.
+
+**The corrective instrument is to render the prompt the actual call sends, then inspect
+that rendered text.** HC-F17 already did this for the active `resolve_extract` route:
+its rendered prompt reached a controlled provider wrapper, and a named response survived
+the real normalization/transport/inference functions. This round did not invoke a producer
+or rerun that controlled producer-side witness.
+
+Keep the owner precise: the newly cited f-string belongs to `PolicyArticleExtractor._extract`;
+HC-F17 rendered `_prompt_for_bundle` from `_resolve_extract_transformers.py:1247`, used by
+the active worker at `_resolve_extract_api.py:1358`. They are distinct prompt assemblers.
+The six-class `CAUSAL_CLAIMS_SCHEMA_HINT` must not silently replace the active worker's
+`_ONE_CALL_SCHEMA_HINT` as the basis of a set-level claim about every rich request. The
+requested complete alias-normalization experiment is not performed at this corpus stop;
+no claim about what its four nominated inputs normalize to is inherited from a hint's list.
+
+This is P35/P36/P38: enumerate the set that implements the property, retain the connection
+to the actual calling owner, and do not treat a constant-name convention as the property.
+The corpus finding presents the same danger in reverse: finding a field with the expected
+name in numeric metadata does not establish that the claim artifact carries that axis.
+
+### HC-D05 — what the stop decides, what it does not, and deferred deliverables
+
+The broad whole-document zero is refuted by HC-F18, and the narrower claim-axis zero is
+confirmed. **Claim-vintage dating is `not_established`.** This round has not shown that
+these claim payloads predate the evidence axis, that B-1's introduction date caused their
+shape, or that an older serialization boundary discarded an axis already produced.
+The named snapshot path, a generic `strength` field, and parameter metadata are not enough
+to decide that historical mechanism. No date or producing commit is assigned from these
+bytes. A single parameter occurrence therefore does not supply the claim-axis introduction
+date the brief expected an exception to establish.
+
+The user explicitly required a stop on a key found **anywhere** in the document corpus.
+That wording is broader than the semantic claim-axis property. The stop is recorded as
+that **scope-boundary stop**, not as a false claim that the claim-specific vintage
+hypothesis was disproved. Any continuation using a claim-only stop predicate needs the
+architect's ruling on that namespace distinction; the complete census and reconciliation
+are already available and do not need to be repeated merely to confirm their counts.
+
+| Remaining Phase-9 deliverable | Disposition at this stop |
+| --- | --- |
+| Claim-axis introduction / B-1 / snapshot dating | `not_established`; no historical mechanism or introduction date assigned. |
+| Required-population `source_basis` distribution | Not measured; field presence in the broad corpus is insufficient. |
+| Retained source text versus required re-fetch | Not measured; neither compute-only ownership nor data-acquisition ownership is established. Stop rule 2 was not reached. |
+| Article and claim restoration scope for exact/family/contested | Not measured; prior retained-lineage counts are not a fresh-extraction workload or a promise that edge identities return. |
+| Re-extraction cost range | `not_established` because its input/scope prerequisites were not reached. No finding that it is inherently unboundable from retained bytes is made; stop rule 3 was not reached. |
+| Complete normalization/alias table over both vocabularies | Not measured; no producer, normalizer, or model call was used to fill it after the stop. |
+| Layer declaration implementation and consumer reach | Not designed, built, or measured this round. |
+
+A cost range would need the measured required article/input set, retained-text adequacy,
+any acquisition needs, the selected actual prompt path and its token sizes, output/retry/gate
+assumptions, model charging basis, and throughput assumptions. The 13.05-second successful
+census time in Event 19 is measurement overhead, **not** a re-extraction cost estimate.
+
+The working rich candidate-axis route remains HC-F16/HC-F17; this corpus result does not
+revive the disproved no-producer claim. The selective prompt repair remains withdrawn and
+the defect is left to the architect's separate row. Re-extraction can in principle supply
+new explicit evidence under an authorized pass; this task has neither run it nor shown
+which sources, cost, or resulting edge memberships it would entail.
+
+HC-F11–HC-F14 also stand: exact/family retained-membership current-rule confidence is zero;
+contested memberships have zero base confidence and direction weights and are not-emitted,
+not assigned a zero final confidence. The current claim source is `None` /
+`not_established`, not a recorded unknown judgment. Numeric metadata is not promoted into
+those source slots or used to rescue stored confidence.
+
+The expected disposition **"not closable by a marker; convert to a buildable snapshot-vintage
+declaration plus a costed data-capability requirement" is withheld**. The corpus walk has
+not established the chronology, required inputs, cost, or declaration reach on which that
+conversion rests. Per-row marking remains withdrawn by the prior ruling; that withdrawal
+is not a new proof that every possible marker is useless. Existing stored values and
+readers remain unchanged.
+
+HC-R01's named residual persists: direct SQL at
+`src/polisyos/runtime/quality/capability_index_compiler.py:881` and
+`src/polisyos/runtime/quality/credal_reference.py:839,856,899`; stored-column copies at
+`src/polisyos/data_forge/domains/academic/batch/best_snapshot.py:925` and
+`tools/ops_runners/cloud/merge_shards.py:244`; and downstream
+`src/polisyos/foundry/methods/catalog/causal/literature_prior.py:232`. A future current-rule
+interpretation must preserve stored value/status separately from its current-rule outcome;
+no reader may silently substitute a different number.
+
+The failure/repair register was read at entry and closeout. P35/P36 govern the full JSON
+population and the distinction between measured field presence and inherited vintage
+prose; P04 preserves absence/unknown; P37/P38 require a namespace-qualified gate predicate.
+HC-F18's population/namespace counts are **`independently_reconciled`**. Introduction date,
+input sufficiency, cost, and paper/value provenance remain **`not_established`**.
+No source or test implementation was made; no product fix round was spent. The parameter
+provenance row, IR keyword inference, 488 hint mismatches, and B-1/B-2 repairs are not
+investigated further or changed.
+
+### HC-T01-R5 — replace HC-T01-R4 in full; open-row transcription
+
+> **HISTORICAL-COHORTS PHASE 9, 2026-09-05 — stays open; complete claim-axis absence is confirmed, while the broad whole-document absence premise is false.** The accepted current-rule retained-membership partition remains exact **0 equal / 7,607 different / 0 not recomputable**, family **0 / 15,945 / 0**, and contested **0 / 723 / 0** (HC-F11/HC-F12). Exact/family confidence computes to zero; contested memberships have zero base confidence and direction weights and fail emission before the floor, so their outcome is not-emitted, not zero final confidence (HC-F13). Current source value is `None` / `not_established`, not a recorded unknown (HC-F14); the original 458 strongest-unknown selection is not the boundary of present-rule differences. The complete Phase-9 walk independently reconciles all 310,829 extraction documents and 137,714 embedded claim objects: no claim subtree contains `evidence_strength` or its status, but 1,577 documents contain 5,133 evidence-strength keys exclusively in `metadata.simulation_ready_numeric_estimates[*]`; no status key occurs anywhere (HC-F18). These are parameter-metadata fields, not claim-axis observations, and do not date or refute claim-specific vintage. The explicit “any payload anywhere” stop was applied at that broader boundary; introduction/B-1 dating, required source-basis distribution, input availability, restoration workload, cost, and the alias experiment remain unmeasured or `not_established` as specified in HC-D05. The rich producer remains viable under HC-F16/HC-F17's controlled candidate-axis witness; the separate selective prompt defect is not its prerequisite and its repair authorization is withdrawn. Per-row marking remains withdrawn, but a ready conversion into a buildable vintage declaration plus a costed data-capability requirement is not established by these measurements. No historical value, reader, producer, or B-1/B-2 repair changed. HC-R01's direct-SQL/copy/downstream residual persists, and any future current-rule interpretation must preserve stored value/status separately from the current-rule outcome.
+
+### HC-T02-R5 — replace HC-T02-R4 in full; closed-row transcription
+
+> **HISTORICAL-COHORTS PHASE 9, 2026-09-05 — remains closed for the forward substitution repair.** The contradiction cohort remains 342 stored observational evidence rows: theoretical 131, unclear 187, review 24; they constitute 342 of 374 observational rows (91.44385026737967%), with 32 from actual OLS adjudications (HC-F06/HC-F07). The remaining 7,526 are faithful coarse translations relative to retained adjudications but are not derivable from adjudication under today's explicit evidence-axis rule. The 7,868 published source claims project to `None` / `not_established`, and all 7,607 exact confidences compute to zero on reconciled retained memberships; restoring a theoretical class from design would reinstate the withdrawn cross-axis inference (HC-F11/HC-F12/HC-F14). HC-F18 now confirms the absence of either evidence-axis key throughout all 137,714 embedded claims in 310,829 extraction documents. It also finds 5,133 same-named evidence fields in numeric-parameter metadata across 1,577 documents; those fields must not be relabeled as claim evidence or used to rescue these confidences. They refute whole-document field absence without dating or refuting claim-specific vintage. The literal broad corpus stop left dating, required inputs, restoration scope, cost, and alias normalization unmeasured (HC-D05). HC-F16/HC-F17's working rich candidate-axis route remains available in code; no real extraction or publication is claimed, and its existence does not itself restore the pinned layer. The selective prompt defect remains separate and untouched. Per-row marking remains withdrawn, no layer declaration or data pass is delivered, stored values/readers and HC-R01's residual remain unchanged, and the 488 hint mismatches, parameter provenance, and IR keyword inference stay outside this repair.
+
+### HC-T03-R5 — separate producer-row prose; replaces HC-T03-R4 in full
+
+> **ACADEMIC SELECTIVE PROMPT DEFECT, PHASE 9, 2026-09-05 — remains separate and unrepaired; the no-working-producer diagnosis stays refuted.** HC-F15 establishes that selective `llm_extractor.py:403` fails before its model request because its JSON-bearing template is interpreted by `.format`; this round neither edits that path nor exercises the withdrawn repair authorization. HC-F16/HC-F17 already identify and witness the independent active rich `resolve_extract` request/response/claim-transport path, preserving a controlled `rct` / `candidate` value into graph inference with pure confidence 0.55, subject to separate publication adjudication. The architect's module-level `*PROMPT*`/`*TEMPLATE*` scan missed function-local f-string assembly and interpolated `*_SCHEMA_HINT` constants; the correct instrument inspects the rendered request at its actual owner (HC-I01). The separately cited `PolicyArticleExtractor._extract` f-string and the active `_prompt_for_bundle` are distinct assemblers. Phase 9's complete corpus result confirms no claim-axis keys, alongside 5,133 parameter-metadata evidence keys; neither result makes every producer dead or dates the claim-axis boundary (HC-F18). No producer, real model, writer, gate enablement, or repair ran this round. A later selective formatting repair still requires its own scope and rendered-output behavioral proof, with its potential to enable real model requests visible to the operator.
+
+These **`-R5` paragraphs supersede their corresponding `-R4` paragraphs in full**.
+Every earlier version remains physically present as append-only history. The replacements
+**must not be concatenated** with earlier versions or with one another; HC-T03-R5 belongs
+to the separate producer row, not either historical row.
+
+## Event 19 — Phase-9 reproduction, cross-checks, and harness receipts, 2026-09-05
+
+Commands ran from the provisioned `policy-engine` worktree:
+
+```sh
+env PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python _build/historical-cohorts/phase9_corpus_axis.py > _build/historical-cohorts/phase9-corpus-axis.log
+env PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python _build/historical-cohorts/phase9_namespace_crosscheck.py > _build/historical-cohorts/phase9-namespace-crosscheck.log
+```
+
+Both final commands exited **0**. The complete accepted census records **13.05 seconds**
+of internal wall time. The separate SQL namespace reconciliation completed in approximately
+**0.42 seconds**. The scripts below and their complete captured outputs are the final
+executed versions; no product test or producer was invoked.
+
+Two diagnostic-harness failures preceded the accepted result and are not hidden:
+
+- An initial Python field-frequency counter used `Counter.update(mapping)`, which treats
+  mapping values as counts. A nullable value caused `TypeError: unsupported operand
+  type(s) for +: 'NoneType' and 'NoneType'` after approximately 0.67 seconds. Both root and
+  claim field counters were corrected to update from `.keys()`. No count was accepted
+  from that failed run.
+- The initial independent SQL query used a correlated whole-table `json_tree` join,
+  projecting each document's recursively expanded nodes. It exhausted DuckDB's temporary
+  offload allowance: `failed to offload data block of size 256.0 KiB (38.4 GiB/38.4 GiB
+  used)`, followed by `OutOfMemoryException`. Its complete wall time was not captured and
+  is not invented. The process exited; a direct check found **zero remaining scratch
+  files and zero remaining bytes** in its dedicated temporary directory. No
+  `production_data` write occurred. The replacement uses scalar recursive JSONPath arrays
+  and compares full identity/value multiplicities, with a 1GB temporary-space cap. It
+  does not merely drop the independent check or accept a text-match approximation.
+
+Before the corrected census, an in-memory DuckDB check established that recursive JSONPath
+returns a null-valued key as `['null']`, two nested values as `['"rct"', '"unknown"']`, and
+an absent field as `[]`; nested status returned `['"candidate"']`. This prevents the
+presence test from silently treating a stored null as an omitted key. No snapshot or
+producer was used for that syntax/semantics check.
+
+These are measurement-harness corrections, not two repaired product defects. The product
+fix round remains unspent. The failed SQL expansion cost is not attributed to re-extraction
+and does not imply that any data-acquisition route was measured.
+
+### Program: phase9_corpus_axis.py
+
+Program SHA-256: `482ff83fd16d20a82c6810e18637e2cf7a663bbcc9f98bb432e643963d0bed34`.
+
+Captured output SHA-256: `d91d539f1ec673f0fb90cdcc6202fa863368908efb296715dc6b14f21092390e`.
+
+```python
+"""Read-only complete JSON-key census. No producer, extraction, writer, or model call."""
+from collections import Counter
+from pathlib import Path
+import hashlib
+import json
+import time
+import duckdb
+
+out=Path('_build/historical-cohorts')
+db=Path('production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb')
+con=duckdb.connect(str(db),read_only=True,config={'threads':2,'memory_limit':'2GB','max_temp_directory_size':'1GB','preserve_insertion_order':False,'temp_directory':str(out/'phase9-duckdb-temp')})
+started=time.monotonic(); needles={'evidence_strength','evidence_strength_status'}
+counts=Counter(); root_keys=Counter(); claim_fields=Counter(); hit_values=Counter(); hit_paths=Counter(); hits=[]; doc_ids=set(); claim_ids=[]; hit_docs=set(); hit_claims=set()
+
+def visit(value,path):
+    if isinstance(value,dict):
+        for key,item in value.items():
+            next_path=path+[key]
+            if key in needles:yield next_path,item
+            yield from visit(item,next_path)
+    elif isinstance(value,list):
+        for i,item in enumerate(value):yield from visit(item,path+[i])
+
+cur=con.execute('SELECT extraction_id,work_id,extraction_mode,extraction_json FROM ac_article_extractions ORDER BY extraction_id')
+while rows:=cur.fetchmany(1000):
+    for eid,wid,mode,raw in rows:
+        counts['documents']+=1
+        assert eid not in doc_ids;doc_ids.add(eid)
+        value=json.loads(raw);counts['valid_json']+=1
+        assert isinstance(value,dict);counts['root_objects']+=1
+        root_keys.update(value.keys())
+        claims=value.get('causal_claims',[])
+        assert isinstance(claims,list)
+        counts['embedded_claims']+=len(claims)
+        for i,claim in enumerate(claims):
+            assert isinstance(claim,dict);counts['embedded_claim_objects']+=1
+            claim_fields.update(claim.keys())
+            claim_ids.append((eid,i,str(claim.get('claim_id',''))))
+            for field in needles:
+                if field in claim:counts['claim_direct_'+field]+=1
+            if any(True for _ in visit(claim,[])):hit_claims.add((eid,i))
+        for path,axis in visit(value,[]):
+            key=path[-1];counts['recursive_'+key]+=1;hit_docs.add(eid)
+            canonical='.'.join('[]' if isinstance(part,int) else str(part) for part in path)
+            hit_paths[canonical]+=1
+            hit_values[key+'|'+json.dumps(axis,sort_keys=True)]+=1
+            hits.append(dict(extraction_id=eid,work_id=wid,extraction_mode=mode,path=path,field=key,value=axis))
+counts['documents_with_axis_key']=len(hit_docs);counts['embedded_claims_with_axis_key']=len(hit_claims)
+
+# Independent SQL: enumerate JSON documents and immediate claim children, then traverse
+# all JSON nodes, without reading the Python key/claim inventories.
+sql_docs=con.execute("SELECT count(*),count(DISTINCT extraction_id),count(*) FILTER(WHERE json_valid(extraction_json)),sum(json_array_length(extraction_json,'$.causal_claims')) FROM ac_article_extractions").fetchone()
+assert (counts['documents'],len(doc_ids),counts['valid_json'],counts['embedded_claims'])==sql_docs
+sql_claims=con.execute("""SELECT count(*),count(*) FILTER(WHERE json_type(j.value)='OBJECT'),count(*) FILTER(WHERE json_exists(j.value,'$.evidence_strength')),count(*) FILTER(WHERE json_exists(j.value,'$.evidence_strength_status')) FROM ac_article_extractions a,json_each(a.extraction_json,'$.causal_claims') j""").fetchone()
+assert sql_claims==(counts['embedded_claims'],counts['embedded_claim_objects'],counts['claim_direct_evidence_strength'],counts['claim_direct_evidence_strength_status'])
+# Recursive scalar JSONPath avoids a giant materialized json_tree join. Reconcile
+# every document/field/value multiplicity, independently of Python's traversal.
+sql_hits=[]
+cur=con.execute("SELECT extraction_id,work_id,json_extract(extraction_json,'$..evidence_strength'),json_extract(extraction_json,'$..evidence_strength_status') FROM ac_article_extractions")
+while rows:=cur.fetchmany(1000):
+    for eid,wid,strengths,statuses in rows:
+        for field,values in [('evidence_strength',strengths),('evidence_strength_status',statuses)]:
+            for value in values:sql_hits.append((eid,wid,field,json.loads(value)))
+python_set=Counter((h['extraction_id'],h['work_id'],h['field'],json.dumps(h['value'],sort_keys=True)) for h in hits)
+sql_set=Counter((eid,wid,field,json.dumps(value,sort_keys=True)) for eid,wid,field,value in sql_hits)
+assert python_set==sql_set,(python_set-sql_set,sql_set-python_set)
+assert len(hits)==len(sql_hits)
+sql_count=Counter(r[2] for r in sql_hits)
+for field in needles:assert counts['recursive_'+field]==sql_count[field]
+assert len({r[0] for r in sql_hits})==len(hit_docs)
+sql_recursive_claims=con.execute("""SELECT DISTINCT a.extraction_id,c.key FROM ac_article_extractions a,json_each(a.extraction_json,'$.causal_claims') c WHERE len(json_extract(c.value,'$..evidence_strength'))>0 OR len(json_extract(c.value,'$..evidence_strength_status'))>0""").fetchall()
+assert {(eid,int(index)) for eid,index in sql_recursive_claims}==hit_claims
+
+summary=dict(counts=dict(counts),sql_documents=sql_docs,sql_claims=sql_claims,sql_recursive_counts=dict(sql_count),recursive_identity_symmetric_difference=0,claim_identity_symmetric_difference=0,root_keys=dict(root_keys),claim_fields=dict(claim_fields),recursive_hit_paths=dict(hit_paths),recursive_hit_values=dict(hit_values),first_hits=hits[:10],elapsed_seconds=round(time.monotonic()-started,3))
+for name,data in [('corpus-axis-summary',summary),('corpus-axis-hits',hits)]:out.joinpath('phase9-'+name+'.json').write_text(json.dumps(data,sort_keys=True,indent=2)+'\n')
+print(json.dumps(summary,sort_keys=True,indent=2))
+print('disposition', 'STOP: corpus contains the axis; do not continue input, scope, cost or alias measurements.' if hits else 'No axis/status key anywhere in this corpus; input-availability measurement may proceed.')
+con.close()
+```
+
+Complete captured output:
+
+```text
+{
+  "claim_fields": {
+    "cause": 137714,
+    "claim_explicitness": 67791,
+    "claim_extraction_confidence": 67791,
+    "claim_id": 67791,
+    "claim_text": 67791,
+    "claim_type": 67791,
+    "design_family_hint": 67791,
+    "design_quality_tier": 67791,
+    "direction": 137714,
+    "effect": 137714,
+    "effect_size": 67791,
+    "extraction_warnings": 67791,
+    "mechanism": 137714,
+    "method_span_ids": 67791,
+    "method_spans": 67791,
+    "publish_blockers": 67791,
+    "publish_to_graph": 67791,
+    "source_basis": 67791,
+    "span_contamination_detected": 67791,
+    "strength": 137714,
+    "strong_design_evidence": 67791,
+    "supporting_span_ids": 67791,
+    "supporting_spans": 67791
+  },
+  "claim_identity_symmetric_difference": 0,
+  "counts": {
+    "documents": 310829,
+    "documents_with_axis_key": 1577,
+    "embedded_claim_objects": 137714,
+    "embedded_claims": 137714,
+    "embedded_claims_with_axis_key": 0,
+    "recursive_evidence_strength": 5133,
+    "root_objects": 310829,
+    "valid_json": 310829
+  },
+  "elapsed_seconds": 13.05,
+  "first_hits": [
+    {
+      "extraction_id": "005cf7b3e48f1e9c3a072bab",
+      "extraction_mode": "resolve_extract",
+      "field": "evidence_strength",
+      "path": [
+        "metadata",
+        "simulation_ready_numeric_estimates",
+        0,
+        "evidence_strength"
+      ],
+      "value": "meta_analysis",
+      "work_id": "https://openalex.org/W2809498860"
+    },
+    {
+      "extraction_id": "007db5bb5d2e7ec6048732fc",
+      "extraction_mode": "resolve_extract",
+      "field": "evidence_strength",
+      "path": [
+        "metadata",
+        "simulation_ready_numeric_estimates",
+        0,
+        "evidence_strength"
+      ],
+      "value": "observational",
+      "work_id": "https://openalex.org/W2395846996"
+    },
+    {
+      "extraction_id": "00d78311b7bc2c578b04b493",
+      "extraction_mode": "resolve_extract",
+      "field": "evidence_strength",
+      "path": [
+        "metadata",
+        "simulation_ready_numeric_estimates",
+        0,
+        "evidence_strength"
+      ],
+      "value": "observational",
+      "work_id": "https://openalex.org/W2962388214"
+    },
+    {
+      "extraction_id": "00d78311b7bc2c578b04b493",
+      "extraction_mode": "resolve_extract",
+      "field": "evidence_strength",
+      "path": [
+        "metadata",
+        "simulation_ready_numeric_estimates",
+        1,
+        "evidence_strength"
+      ],
+      "value": "observational",
+      "work_id": "https://openalex.org/W2962388214"
+    },
+    {
+      "extraction_id": "00d78311b7bc2c578b04b493",
+      "extraction_mode": "resolve_extract",
+      "field": "evidence_strength",
+      "path": [
+        "metadata",
+        "simulation_ready_numeric_estimates",
+        2,
+        "evidence_strength"
+      ],
+      "value": "observational",
+      "work_id": "https://openalex.org/W2962388214"
+    },
+    {
+      "extraction_id": "00d78311b7bc2c578b04b493",
+      "extraction_mode": "resolve_extract",
+      "field": "evidence_strength",
+      "path": [
+        "metadata",
+        "simulation_ready_numeric_estimates",
+        3,
+        "evidence_strength"
+      ],
+      "value": "observational",
+      "work_id": "https://openalex.org/W2962388214"
+    },
+    {
+      "extraction_id": "00f00b5cf1cbf512b87bbe6f",
+      "extraction_mode": "resolve_extract",
+      "field": "evidence_strength",
+      "path": [
+        "metadata",
+        "simulation_ready_numeric_estimates",
+        0,
+        "evidence_strength"
+      ],
+      "value": "observational",
+      "work_id": "https://openalex.org/W3092398345"
+    },
+    {
+      "extraction_id": "00f00b5cf1cbf512b87bbe6f",
+      "extraction_mode": "resolve_extract",
+      "field": "evidence_strength",
+      "path": [
+        "metadata",
+        "simulation_ready_numeric_estimates",
+        1,
+        "evidence_strength"
+      ],
+      "value": "observational",
+      "work_id": "https://openalex.org/W3092398345"
+    },
+    {
+      "extraction_id": "012db1c4831834cfe3390dbb",
+      "extraction_mode": "resolve_extract",
+      "field": "evidence_strength",
+      "path": [
+        "metadata",
+        "simulation_ready_numeric_estimates",
+        0,
+        "evidence_strength"
+      ],
+      "value": "meta_analysis",
+      "work_id": "https://openalex.org/W4396762498"
+    },
+    {
+      "extraction_id": "012db1c4831834cfe3390dbb",
+      "extraction_mode": "resolve_extract",
+      "field": "evidence_strength",
+      "path": [
+        "metadata",
+        "simulation_ready_numeric_estimates",
+        1,
+        "evidence_strength"
+      ],
+      "value": "meta_analysis",
+      "work_id": "https://openalex.org/W4396762498"
+    }
+  ],
+  "recursive_hit_paths": {
+    "metadata.simulation_ready_numeric_estimates.[].evidence_strength": 5133
+  },
+  "recursive_hit_values": {
+    "evidence_strength|\"cross_sectional\"": 1,
+    "evidence_strength|\"meta_analysis\"": 1095,
+    "evidence_strength|\"observational\"": 2938,
+    "evidence_strength|\"panel_fe\"": 35,
+    "evidence_strength|\"quasi_natural\"": 328,
+    "evidence_strength|\"rct\"": 736
+  },
+  "recursive_identity_symmetric_difference": 0,
+  "root_keys": {
+    "boundary_conditions": 310829,
+    "causal_claims": 310829,
+    "context_attributes": 310829,
+    "estimates": 310829,
+    "external_validity_assessment": 310829,
+    "heterogeneity_results": 310829,
+    "metadata": 310829,
+    "method_signal_score": 310829,
+    "moderation_edges": 310829,
+    "paper_kind": 310829,
+    "reconciliation_diagnostics": 310829,
+    "study_design": 310829
+  },
+  "sql_claims": [
+    137714,
+    137714,
+    0,
+    0
+  ],
+  "sql_documents": [
+    310829,
+    310829,
+    310829,
+    137714
+  ],
+  "sql_recursive_counts": {
+    "evidence_strength": 5133
+  }
+}
+disposition STOP: corpus contains the axis; do not continue input, scope, cost or alias measurements.
+```
+
+### Program: phase9_namespace_crosscheck.py
+
+Program SHA-256: `ae36ad292bd8ccff3f02f4ebbbbcafa1950c7834f6fc4749fec43e97024d9c76`.
+
+Captured output SHA-256: `5c41b5ac0d3ac75742f94990947b480a12ca522abfd91eb8fc934908c7c2b3e8`.
+
+```python
+"""Read-only namespace reconciliation for the completed corpus stop finding."""
+from pathlib import Path
+import json
+import duckdb
+out=Path('_build/historical-cohorts')
+p=Path('production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb')
+s=json.loads((out/'phase9-corpus-axis-summary.json').read_text())
+c=duckdb.connect(str(p),read_only=True,config={'threads':2,'memory_limit':'2GB','max_temp_directory_size':'1GB','temp_directory':str(out/'phase9-duckdb-temp')})
+rows=c.execute("""
+WITH located AS (
+ SELECT extraction_id,
+ json_extract(extraction_json,'$.metadata.simulation_ready_numeric_estimates[*].evidence_strength') numeric_strength,
+ json_extract(extraction_json,'$.metadata.simulation_ready_numeric_estimates[*].evidence_strength_status') numeric_status
+ FROM ac_article_extractions
+)
+SELECT count(*),count(*) FILTER(WHERE len(numeric_strength)>0),sum(len(numeric_strength)),sum(len(numeric_status)) FROM located
+""").fetchone()
+assert rows==(s['counts']['documents'],s['counts']['documents_with_axis_key'],s['counts']['recursive_evidence_strength'],0)
+assert sum(s['recursive_hit_paths'].values())==rows[2]
+print(json.dumps(dict(sql_documents=rows[0],sql_documents_with_parameter_key=rows[1],sql_parameter_evidence_keys=rows[2],sql_parameter_status_keys=rows[3],global_evidence_keys_outside_this_namespace=0),sort_keys=True))
+c.close()
+```
+
+Complete captured output:
+
+```text
+{"global_evidence_keys_outside_this_namespace": 0, "sql_documents": 310829, "sql_documents_with_parameter_key": 1577, "sql_parameter_evidence_keys": 5133, "sql_parameter_status_keys": 0}
+```

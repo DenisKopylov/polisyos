@@ -1415,3 +1415,41 @@ unknown_only_contested_current_policy {"emitted_rows": 0, "rows": 18, "variant":
 unknown_only_contested_current_policy {"emitted_rows": 0, "rows": 18, "variant": 1, "weighted_directions_all_zero": 18}
 positive_control {"emitted_rows": 18, "stored_rows_used_for_structure": 18, "synthetic_input_strength": "theoretical"}
 ```
+
+## Event 8 — continuation closeout and checker exemption receipt, 2026-09-05
+
+Events 5–7 were committed as `541641d656f0325f5109fa1c11595f8350478ed0` and read back from
+that branch; the committed bytes equal the worktree bytes. The first 49,083 bytes (Events
+1–4 at `11b24787a`) remain identical. The two embedded measurement programs and their hashes
+were checked against the executed scratch files. `git diff --check` passed. No product
+implementation was made, so there is no implementation test or red/green claim.
+
+The corrected checker predicate is applied to **checker-read files**, not all tracked
+files. This continuation changes only the journal: no register, ledger, plan, tool, source,
+test, or schema changed. **Bound debt checker skipped.** The requested command was run
+against the committed continuation, with exactly this output:
+
+```sh
+git diff --name-only 11b24787a..HEAD
+```
+
+```text
+policy-engine/docs/superpowers/journals/2026-09-05-historical-cohorts.md
+```
+
+The final production-data read after all measurement confirmed the full original SHA-256,
+read-only mode, and size below. No producer, copier, live lane, production-data write, or
+`chmod` was run. No rebase, force-push, or stash was used.
+
+```text
+sha256:583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967
+mode: -r--r--r--
+size: 2390503424 bytes
+```
+
+The observed pre-receipt branch state was `## codex/debt-historical-cohorts`, clean.
+The SHA-256 of the committed journal **before this receipt append** was
+`cde3ae92037b24eae8d5caa79e062ff8f7baa9cbc488cc7d2c8881ed934660ec`; that hash identifies
+Events 1–7, not this subsequent append. This receipt is committed separately and the final
+branch/path/append-only checks are repeated after that commit. The disposition remains the
+HC-F09 scope stop; the two `-R1` paragraphs replace the old transcription text in full.

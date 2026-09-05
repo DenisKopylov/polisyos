@@ -757,3 +757,51 @@ Append the continuation result:
 > this measured stop, not certify that no other prerequisite exists. The row stays
 > open, with the original negative and complete producer/consumer/round-trip
 > closure still required. Evidence: this journal, `PU-G01` and `PU-G02`.
+
+
+## 2026-09-05 — continuation closeout verification append
+
+The origin gate and manifest stop were committed as
+`7dea62f716729bb07fc3738423af516804af646e` and read back from the named branch;
+the branch bytes matched the local journal exactly. The changed-path set from
+continuation entry `1cddd7774` contained only this journal. Its append-only prefix
+was verified, and all eight embedded Python reproduction snippets parsed.
+The failure register was reopened for closeout, including P39 and P40: this is
+an explicit generated-surface scope stop, not a mechanism-path budget overrun.
+
+### One continuation bound debt-checker invocation
+
+```sh
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python tools/quality/validation/check_debt_ledger.py --check > _build/parameter-unsupplied-vs-unknown/continuation-bound-debt-check.txt 2>&1
+```
+
+**Exit 0**, 598.56 seconds real / 559.24 user / 27.59 system. This is the single
+checker invocation for the ratified continuation, distinct from the first
+Phase-1 closeout run. The user's subsequent “continue” resumed the pending
+closeout and did not cause a second run or a scope override. No write mode,
+report-only flag, reduced selection, checker edit, or baseline replay was used.
+The checker's registered-selector pytest collection did not execute test suites.
+
+The ignored local log contains 8354 bytes and 59 lines; SHA-256
+`5ebc5a4910a06d8e19d0e2ebbd7f4f56ac6be82f87b7382dfd22d4d37fea473c`. The complete 26-metric sequence exactly matches the
+previous Phase-1 log: 192 register IDs, 44 pytest selections, zero collection
+failures, zero unknown hosts, and zero AST/collection disagreements. No blocking
+findings. The complete informational-finding denominator is 29:
+9 `closure_signal_count_exit_disagreement`; 9 `closure_signal_identity_unresolvable`; 1 `closure_signal_runner_unsupported`; 10 `register_supplies_missing_standing`. The findings remain recorded; exit 0 is not a claim that those missing
+identities exist or that this debt is closed.
+
+### Final custody and disposition
+
+After checker completion, the read-only snapshot hash command returned
+`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967` again.
+The snapshot is unchanged from the initial task and continuation checks.
+`git status -sb` confirmed the expected attached branch at `7dea62f71` with a
+clean tree before this append. Only the journal changed during the continuation;
+no source, tests, schemas, generated manifest, active-plan file, weight, edge
+encoding, or production data was written. No implementation fix round occurred.
+
+**Debt remains open; design and implementation remain unstarted under stop
+rule 2.** `PU-G01` is the bounded purpose answer; `PU-G02` is the measured scope
+stop. The missing generated companion is `schemas/snapshots/ir/_manifest.json`.
+This append records closeout evidence and does not select a representation or
+claim the whole-chain closure negative has been written.

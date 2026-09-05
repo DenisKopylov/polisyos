@@ -2132,3 +2132,244 @@ This receipt is committed separately, followed by a final branch/path/prefix rea
 that later journal hash is not claimed to equal the pre-receipt hash. HC-T01-R2 and
 HC-T02-R2 are the sole replacement transcription paragraphs from this round and must not
 be concatenated with the preserved earlier versions.
+
+
+## Event 12 — Phase-7 producer verification and mandatory early stop, 2026-09-05
+
+Entry branch: `codex/debt-historical-cohorts`, attached and clean at
+`afcc4a839c07a0c37ce479dcbda843aa7deb20ae`. Events 1–11 are preserved verbatim.
+The Phase-7 instruction requires a working current extractor that can carry the named
+axis end-to-end before the corpus/input/cost measurements. Its first stop rule applies:
+**the cited selective LLM extraction path fails during prompt preparation, before its
+model request.** This was reported immediately; subsequent work only records the stop.
+
+### HC-F15 — the named axis exists in source, but the cited producer cannot request it
+
+The code read in the brief is partly supported. At
+`src/polisyos/data_forge/domains/academic/batch/llm_extractor.py:123`, the prompt asks for a
+separately named `evidence_strength` class or null. The LLM serializer retains that named
+value at `:62` and constructs its value/status at `:85–86`; a present value is candidate,
+while `None` has status `not_established` (`_candidate_status`, `:36`).
+`parse_llm_result` calls that serializer for dictionary causal claims at `:466–469`.
+These are static transport facts, not evidence of a successful producer invocation.
+
+The actual request path fails earlier. `EXTRACTION_PROMPT`, defined at `:97`, contains
+literal, unescaped JSON object braces starting at `:100`. The assignment in
+`extract_with_llm` at `:403` executes:
+
+```python
+prompt = EXTRACTION_PROMPT.format(topic=topic, abstract=abstract[:4000])
+```
+
+The formatter reads the outer JSON object as a replacement field named
+`\n  "estimates"` (shown escaped here). That is not either supplied keyword. Evaluating
+**only this original source expression**, against the imported current module's unchanged
+constant, raises `KeyError: '\n  "estimates"'` for empty, 37-character, and 5,000-character
+abstracts. The constant and keyword mismatch cause the failure before abstract content
+can matter. The assignment is before and outside the `try` at `:404`, and thus before
+`client.chat_completion` at `:405`; the handler at `:411` does not catch this failure.
+The selective stage's `llm`/`audit_llm` branch at `:588` awaits this function at `:599`
+before `parse_llm_result` at `:605`. No model request or parsed axis is reachable through
+that invocation with the checked source constant.
+
+**Independent cross-check and denominator.** The witness reads the complete
+`src/polisyos/data_forge/domains/academic/batch/llm_extractor.py` file: one `.py` file,
+one top-level `EXTRACTION_PROMPT` definition, the complete `extract_with_llm` AST, and
+the complete `run_extract_llm` AST. It asserts that the imported module is this worktree's
+file and its runtime constant equals the independently parsed AST literal. A separate
+`string.Formatter().parse` observation returns the exact two fields
+`["\n  \"estimates\"", "abstract"]`; evaluating the original assignment expression yields
+the same missing-key exception in all three input cases. The complete program and output
+are in Event 13. This is a negative behavioral witness of prompt preparation, not a
+repository-wide producer census or a positive end-to-end extraction test. No extractor,
+stage, serializer, client, or writer was invoked. The witness imports the module and
+executes only the pure string expression from the request path.
+
+**A second correction to the cited reading:**
+`src/polisyos/data_forge/domains/academic/batch/parser.py:423,427` are members of the
+forbidden-key list in `serialize_deterministic_claim_occurrence_vocabulary` (`:409`).
+That function rejects occurrence input containing `evidence_strength` or its status
+at `:433–434`; it supplies `source_basis=ABSTRACT_ONLY` with candidate status at
+`:442–443`, without supplying an evidence axis. Those lines do not carry the evidence
+axis through the deterministic path. This observation does not reopen or repair the
+intentional B-1/B-2 absence boundary.
+
+**What is refuted:** the cited current selective LLM route supplies a working
+end-to-end producer on which the proposed re-extraction requirement can presently rely.
+**What is not established:** the date the axis was introduced, complete-corpus absence,
+the viability of every other producer, or the claim that the whole academic pipeline
+cannot produce confidence. Snapshot age itself is not disproven by the prompt failure;
+the stronger operational inference that this is merely an old snapshot with a verified
+working replacement producer is not supported. In particular, the separately identified
+IR keyword inference is not a substitute receipt for this route.
+
+### HC-D03 — stop disposition; vintage, input scope, and cost remain unmeasured
+
+The user required an immediate stop if the extractor did not populate the axis end-to-end.
+HC-F15 meets that stop before any Phase-7 database census or re-extraction/input probe.
+The remaining requested quantities are recorded as follows, not filled from the brief:
+
+| Phase-7 question | Result at this stop |
+| --- | --- |
+| Complete `ac_article_extractions` axis/status presence | **Not measured.** The earlier 310,829 documents / 137,714 embedded claims are census denominators, not a complete axis-presence result. HC-F03 established absence in the 7,868 published payloads; this round does not extend it to every document. |
+| `source_basis` distribution over the needed re-extraction population | **Not measured.** A source-code `ABSTRACT_ONLY` assignment is not a distribution over retained documents. |
+| Retained text sufficient versus sources requiring re-fetch | **Not measured.** Neither compute-only work nor a data-acquisition requirement is established. The source-availability stop was not reached. |
+| Article and claim workload needed to restore exact/family/contested layers | **Not measured.** HC-F11's 7,868 exact source claims, 16,658 family claim references and 965 contested claim references are retained lineage counts, not a measured article workload or a guarantee of restoring those edge identities after fresh extraction. |
+| Re-extraction token, money, or elapsed-time range | **`not_established`.** No cost range is asserted. |
+| Layer-vintage declaration propagation to direct SQL and copiers | **Not measured.** No declaration was designed or implemented; layer scope alone is not a consumer-reach proof. |
+
+A bounded cost would require a verified working producer, the measured article/input
+set and retained text availability, any acquisition work, actual prompt and token sizes,
+a selected model's input/output charging basis, and declared output/retry/gating and
+throughput assumptions. No extraction, producer invocation, source fetch, or paid call was
+performed to obtain those inputs. Those are prerequisites for a later measurement, not an
+authorized pass or a promise about its price. The introduction date and complete-corpus
+walk would also be needed before declaring that the artifact predates the axis everywhere.
+
+HC-F11–HC-F14 remain the accepted retained-membership result: **7,607 exact and 15,945
+family current-rule confidences are zero; all 723 contested memberships have zero base
+confidence/direction weights and fail the confidence-based emission predicate.** The
+latter outcome is not-emitted, not a zero final confidence. Their projected source value
+is `None` / `not_established`, not a recorded unknown. Those measurements establish no
+positive-confidence restoration by recomputation from these retained source projections;
+they do not establish that current or future producers cannot supply explicit evidence.
+
+The Phase-7 ruling withdrawing per-row marking stands. No (a), (b), (c), read-time value
+replacement, or layer declaration is selected or built here. The proposed conclusion
+**"this row is not closable by code; convert it into a buildable layer-vintage declaration
+plus a measured re-extraction requirement in the data-capability register" is withheld**:
+its producer, complete vintage, input availability, cost, and declaration-reach premises
+were not established before the stop. HC-F15 identifies a concrete code failure for a
+separate scope ruling; repairing that failure would not itself restore this snapshot.
+
+HC-R01's named residual remains unchanged: direct SQL at
+`src/polisyos/runtime/quality/capability_index_compiler.py:881` and
+`src/polisyos/runtime/quality/credal_reference.py:839,856,899`; stored-column copies at
+`src/polisyos/data_forge/domains/academic/batch/best_snapshot.py:925` and
+`tools/ops_runners/cloud/merge_shards.py:244`; and the downstream prior DTO at
+`src/polisyos/foundry/methods/catalog/causal/literature_prior.py:232`. This is the inherited
+measured residual from HC-R01, not a new propagation measurement. Any future current-rule
+interpretation must keep stored value/status and separately identified current-rule
+outcome distinguishable; a direct reader must never silently disagree with stored bytes.
+
+The failure/repair register was read at entry and before closeout. Pattern pass:
+P01/P12 distinguish a field-bearing contract from a functioning producer; P29/P38 reject
+field-name presence as proof of a working path (the divergence is the real prompt-expression
+failure while every named field remains present); P35/P36 prevent promoting the published
+payload census or the brief into a whole-corpus fact; P04 preserves absence/unknown and
+zero/not-emitted; P37 labels the pure prompt failure **`recomputed`**, while successful
+end-to-end production and the later cost/vintage conclusions remain **`not_established`**.
+A working end-to-end capability has **`verification_missing`**; the measured request
+preparation is blocked. The negative witness is not a positive capability verification.
+
+HC-F15 is a **new producer execution class**, distinct from the historical substitution
+and unknown-weight findings. No repair was attempted, so the one fix round remains
+unspent; there is no second repair round or new product test. Neither `literature.py`, the
+488 hint mismatches, nor `parameter-evidence-strength-has-no-value-provenance` is repaired
+or investigated further. The architect's separately named IR issue remains separate.
+No active plan or register is edited; proposed transcriptions below are journal-only.
+
+### HC-T03 — proposed separate producer-row prose; not registered by this task
+
+> **ACADEMIC LLM PROMPT PREPARATION BLOCKS EXTRACTION — new scope ruling required (HC-F15).** At the Phase-7 entry source, `src/polisyos/data_forge/domains/academic/batch/llm_extractor.py:97` defines a JSON-bearing prompt with unescaped literal braces. The original `.format(topic=topic, abstract=abstract[:4000])` expression at `:403` raises `KeyError: '\n  "estimates"'` before the `try` at `:404` and before the model request at `:405`. The selective `llm`/`audit_llm` stage calls that function at `:599` before parsing at `:605`, so the cited route cannot produce an evidence-axis payload. An AST/runtime-constant reconciliation and pure execution of the exact expression witness the failure without calling a producer or client. This does not establish that every academic producer is broken, nor date the introduction of the failure. Follow-up needs a separately authorized repair and a behavioral receipt that the actual request path can prepare its prompt, reach a controlled client, and carry returned named candidate evidence through the real downstream boundary. No repair or data pass occurred here; this is not a reopening of B-1/B-2 or a fix for the separately registered IR keyword inference.
+
+### HC-T01-R3 — replace HC-T01-R2 in full; open-row transcription
+
+> **HISTORICAL-COHORTS PHASE 7, 2026-09-05 — stays open; the vintage/re-extraction ruling stops at producer verification.** The accepted complete retained-membership partition remains exact **0 equal / 7,607 different / 0 not recomputable**, family **0 / 15,945 / 0**, and contested **0 / 723 / 0**, independently reconciled by Python/pure-function and SQL bucket identities (HC-F11/HC-F12). Every exact/family confidence computes to zero from the current source projection; all 723 contested memberships have zero base confidence and direction weights and fail the current confidence-based emission predicate before the 0.15 floor, so their outcome is not-emitted, not zero final confidence (HC-F13). Source value is `None` / `not_established`, not a recorded unknown (HC-F14). The historical 458 strongest-unknown count is not the boundary of current-rule differences; this does not make all historical values factual misstatements. Per-row marking is withdrawn by the Phase-7 ruling. The proposed replacement with a whole-snapshot vintage declaration and measured re-extraction requirement is not yet established: the cited LLM prompt asks for `evidence_strength`, but its original `.format(...)` at `src/polisyos/data_forge/domains/academic/batch/llm_extractor.py:403` raises `KeyError: '\n  "estimates"'` from unescaped JSON braces before the model request; the cited deterministic parser lines reject, rather than carry, the axis (HC-F15). Phase 7 therefore stopped before the complete-corpus axis walk, source-basis/input-availability census, article workload, cost range, and declaration-reach measurement (HC-D03). Re-extraction cost and compute-versus-acquisition ownership are `not_established`; the conclusion that this row is not closable by code and ready to convert into a costed data-capability requirement is withheld. The measured producer failure needs a separate scope ruling (HC-T03); it neither disproves the snapshot's age nor establishes that every current producer is broken. Any future current-rule interpretation must preserve stored value/status beside the separate current-rule outcome, retain HC-R01's named direct-SQL/copy/downstream residual, and prove declaration reach before claiming it. No route, reader, historical byte, or B-1/B-2 repair changed.
+
+### HC-T02-R3 — replace HC-T02-R2 in full; closed-row transcription
+
+> **HISTORICAL-COHORTS PHASE 7, 2026-09-05 — remains closed for the forward repair; contradiction, present-rule reproducibility, and producer viability are separate.** The 342 manufactured empirical-design rows remain the contradiction cohort: theoretical 131, unclear 187, review 24, all stored observational. HC-F06/HC-F07 independently established that they constitute 342 of 374 observational evidence rows (91.44385026737967%); the other 32 come from actual OLS adjudications. The other 7,526 published rows are faithful coarse translations relative to retained adjudications, but that does not make them derivable under today's explicit evidence-axis rule. `data_forge/domains/academic/batch/graph_builder.py:408` discards adjudication and `_infer_edge_strength` at `:659` reads the explicit axis; all 7,868 published source claims project to `None` / `not_established`, and all 7,607 exact confidences compute to zero on reconciled retained memberships (HC-F11/HC-F12/HC-F14). The proposed theoretical-design rescue would restore the removed cross-axis inference. Phase 7 additionally found that the cited selective LLM producer fails in prompt formatting at `src/polisyos/data_forge/domains/academic/batch/llm_extractor.py:403` before its request (HC-F15); this is a separate producer issue, not evidence reopening the forward substitution repair or proving that the entire pipeline cannot produce confidence. The whole-corpus vintage, retained input availability, restoration workload, and re-extraction cost remain unmeasured because the required early stop preceded them (HC-D03). Per-row marking is withdrawn; no replacement layer declaration or data-capability conversion is claimed. Stored values and readers remain unchanged, HC-R01's named residual persists, and the broader route decision remains with the architect. The 488 hint mismatches, parameter-value provenance, and separately registered IR keyword inference remain outside this task.
+
+These two **`-R3` paragraphs supersede HC-T01-R2 and HC-T02-R2 in full**. The original,
+`-R1`, and `-R2` paragraphs remain physically present as append-only history. The
+replacements **must not be concatenated** with any earlier version when transcribing.
+HC-T03 is separate proposed producer-row prose; it is not an extra clause to concatenate
+onto either historical row.
+
+## Event 13 — Phase-7 pure failure witness and commands, 2026-09-05
+
+The witness below is retained verbatim from the executed ignored scratch file
+`_build/historical-cohorts/phase7_vintage_stop.py`; the journal is the committed record.
+Its SHA-256 is `b964b9eb993e945baef566ee3a8c72f4d18c474053441d5214f0055b1cded1d1`.
+The captured output SHA-256 is
+`421fc94f8e9ee9c1ce3ab0b2d1876e3c4476b40ce74c5458db3fdea0e928af12`.
+The measured source `.py` file SHA-256 is
+`5ad13f22b7bc6aac2cae1be9397391e04374d888aabd21c168cf681d0387f6b4`.
+
+Command, from the provisioned `policy-engine` worktree:
+
+```sh
+env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python _build/historical-cohorts/phase7_vintage_stop.py > _build/historical-cohorts/phase7_vintage_stop.log
+```
+
+The command exited **0** in approximately **1.54 seconds** because every expected
+prompt-formatting failure was observed and asserted. Exit 0 is **not** a successful
+extraction, a green producer test, or a positive end-to-end capability receipt. There is
+no red/green repair sequence: this round is measurement-only and stops on the negative
+witness. No product test or broad suite was run. The source was not patched even in scratch;
+the original expression and original constant were used.
+
+```python
+"""Pure prompt-preparation witness: no extraction, client, producer, or writer call."""
+from pathlib import Path
+import ast
+import hashlib
+import json
+import string
+
+from polisyos.data_forge.domains.academic.batch import llm_extractor as current
+
+path=Path('src/polisyos/data_forge/domains/academic/batch/llm_extractor.py')
+assert Path(current.__file__).resolve()==path.resolve()
+source=path.read_text()
+tree=ast.parse(source)
+definitions=[n for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='EXTRACTION_PROMPT' for t in n.targets)]
+assert len(definitions)==1
+literal=ast.literal_eval(definitions[0].value)
+assert literal==current.EXTRACTION_PROMPT
+fn=next(n for n in tree.body if isinstance(n,ast.AsyncFunctionDef) and n.name=='extract_with_llm')
+assignment=next(n for n in fn.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='prompt' for t in n.targets))
+guard=next(n for n in fn.body if isinstance(n,ast.Try))
+assert fn.body.index(assignment)<fn.body.index(guard)
+assert not any(n is assignment for n in ast.walk(guard))
+requests=[n for n in ast.walk(guard) if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute) and n.func.attr=='chat_completion']
+assert len(requests)==1
+fields=[field for _,field,_,_ in string.Formatter().parse(literal) if field is not None]
+print('source',json.dumps(dict(path=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),prompt_line=definitions[0].lineno,format_line=assignment.lineno,try_line=guard.lineno,request_line=requests[0].lineno,format_outside_try=True,module_literal_equals_ast_literal=True),sort_keys=True))
+print('format_fields',json.dumps(fields))
+assert fields==['\n  "estimates"','abstract']
+
+# Evaluate only the exact prompt assignment expression extracted from current source.
+# The extractor coroutine, stage, client and serializers are not invoked.
+expression=compile(ast.Expression(body=assignment.value),str(path),'eval')
+for label,abstract in [('empty',''),('short','Read-only prompt-preparation witness.'),('long','A'*5000)]:
+    try:
+        eval(expression,{'EXTRACTION_PROMPT':current.EXTRACTION_PROMPT,'topic':'measurement','abstract':abstract})
+    except KeyError as exc:
+        assert exc.args==('\n  "estimates"',)
+        print('format_failure',json.dumps(dict(input_case=label,input_chars=len(abstract),exception=type(exc).__name__,missing_key=exc.args[0],request_invoked=False),sort_keys=True))
+    else:
+        raise AssertionError('Unexpected successful prompt preparation; stop finding refuted')
+
+stage=next(n for n in tree.body if isinstance(n,ast.AsyncFunctionDef) and n.name=='run_extract_llm')
+calls=[n for n in ast.walk(stage) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id in {'extract_with_llm','parse_llm_result'}]
+print('stage_call_sites',json.dumps(sorted((n.func.id,n.lineno) for n in calls)))
+print('disposition','STOP: the cited selective LLM extraction path fails before the model request; end-to-end working-producer premise refuted for that path only.')
+```
+
+Complete captured output:
+
+```text
+source {"format_line": 403, "format_outside_try": true, "module_literal_equals_ast_literal": true, "path": "src/polisyos/data_forge/domains/academic/batch/llm_extractor.py", "prompt_line": 97, "request_line": 405, "sha256": "5ad13f22b7bc6aac2cae1be9397391e04374d888aabd21c168cf681d0387f6b4", "try_line": 404}
+format_fields ["\n  \"estimates\"", "abstract"]
+format_failure {"exception": "KeyError", "input_case": "empty", "input_chars": 0, "missing_key": "\n  \"estimates\"", "request_invoked": false}
+format_failure {"exception": "KeyError", "input_case": "short", "input_chars": 37, "missing_key": "\n  \"estimates\"", "request_invoked": false}
+format_failure {"exception": "KeyError", "input_case": "long", "input_chars": 5000, "missing_key": "\n  \"estimates\"", "request_invoked": false}
+stage_call_sites [["extract_with_llm", 599], ["parse_llm_result", 605]]
+disposition STOP: the cited selective LLM extraction path fails before the model request; end-to-end working-producer premise refuted for that path only.
+```
+
+Anchor correction from the final numbered-source read: `_candidate_status` is defined
+at `llm_extractor.py:37`; HC-F15's `:36` points to the preceding blank line. The value/status
+behavior and measured failure are unchanged.

@@ -713,3 +713,123 @@ for text,name in zip(blocks,expected,strict=True):
 print('journal_programs=4 syntax_errors=0 scratch_drift=0')
 PY
 ```
+
+## Event 4 — numeric-path B-2 frequency qualification, 2026-09-05
+
+UW-F06's published-cohort and enum-input replay does not imply that the large numeric
+parameter footprint was introduced by B-2. A direct AST comparison from the same pre-B-2
+ref `1664a6d8a` to task base `2a26fa610` found all seven of the reader/contract/scorer
+objects below identical. The `EvidenceStrength` enum and academic `EVIDENCE_WEIGHTS`
+assignment are also AST-identical. Thus, for the same pinned payloads and environment,
+the direct raw-parameter decode remains 51,883 accepted unknown + 25 rejected before and
+after, with **zero B-2 frequency change** on that default path. This is an identity-based
+deduction from the complete current payload replay and unchanged reader/contract, not a
+second producer run or a claim about future extraction prevalence.
+
+Both commands exited 0; each printed `AST_identical True` for every named object.
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python - <<'PY'
+import ast,subprocess
+checks={
+ 'src/polisyos/data_forge/domains/academic/knowledge/skg_query.py':('query_parameters','_to_evidence_parameter','_normalize_evidence_parameter_payload','_candidate_priority'),
+ 'src/polisyos/ir/analytics/literature.py':('EvidenceParameter',),
+ 'src/polisyos/data_forge/domains/academic/knowledge/search.py':('get_parameter_prior',),
+ 'src/polisyos/data_forge/domains/academic/batch/benchmark.py':('_quality_weighted_parameter_score',),
+}
+for path,names in checks.items():
+ trees=[ast.parse(subprocess.check_output(['git','show',f'{ref}:policy-engine/{path}'],text=True)) for ref in ('1664a6d8a','2a26fa610')]
+ for name in names:
+  nodes=[[n for n in ast.walk(tree) if isinstance(n,(ast.FunctionDef,ast.ClassDef)) and n.name==name] for tree in trees]
+  assert all(len(ns)==1 for ns in nodes),(path,name)
+  same=ast.dump(nodes[0][0],include_attributes=False)==ast.dump(nodes[1][0],include_attributes=False)
+  print(path,name,'AST_identical',same)
+  assert same
+PY
+PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python - <<'PY'
+import ast,subprocess
+for path,name in [('src/polisyos/ir/analytics/literature.py','EvidenceStrength'),('src/polisyos/data_forge/domains/academic/knowledge/skg_store.py','EVIDENCE_WEIGHTS')]:
+ nodes=[]
+ for ref in ('1664a6d8a','2a26fa610'):
+  tree=ast.parse(subprocess.check_output(['git','show',f'{ref}:policy-engine/{path}'],text=True))
+  found=[n for n in tree.body if (isinstance(n,ast.ClassDef) and n.name==name) or (isinstance(n,ast.AnnAssign) and isinstance(n.target,ast.Name) and n.target.id==name)]
+  assert len(found)==1
+  nodes.append(found[0])
+ same=ast.dump(nodes[0],include_attributes=False)==ast.dump(nodes[1],include_attributes=False)
+ print(name,'AST_identical',same)
+ assert same
+PY
+```
+
+Transcription addendum to UW-F07: the current raw-parameter unknown default predates B-2;
+its complete same-input decode frequency is unchanged. Retain the existing nonclosure
+and scope-stop wording; this qualification is not a repair or a change to the closure signal.
+
+## Event 5 — final verification receipt and handoff, 2026-09-05
+
+### Bound debt checker — one invocation, redirected throughout
+
+```sh
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python tools/quality/validation/check_debt_ledger.py --check > .tmp_unknown_measure.sJ3Bou/bound-debt-check.txt 2>&1
+```
+
+**Exit 0**, measured wall time **865.31 seconds**, user 818.10, system 41.91. The checker
+ran once; no `--write`, report-only override, narrowed selection, or predicate change was
+used. Its 59-line output is retained at
+`/Users/deniskopylov/polisyos/.worktrees/debt-unknown-evidence-weight/policy-engine/.tmp_unknown_measure.sJ3Bou/bound-debt-check.txt`.
+Log SHA-256: `dce590754cf0da5a6092a09bbabbed21043962bd413585cb6c0f6f1b7728bf37`.
+
+Selected exact metrics:
+
+```text
+register_ids=190
+gy_ids=38
+atlas_debt_rows=22
+frontend_disposition_entries=261
+frontend_ds8_assignment_rows=217
+closure_signal_pytest_selections=44
+closure_signal_unsupported_runners=1
+closure_signal_identities_without_commands=4
+closure_signal_identity_unresolvable=9
+closure_signal_input_unresolvable=0
+closure_signal_selects_nothing=0
+closure_signal_collection_failed=0
+closure_signal_collection_host_unknown=0
+closure_signal_ast_collection_disagreements=0
+closure_signal_count_exit_disagreements=9
+```
+
+There are no blocking findings. Informational findings remain visible in the log: nine
+unresolvable closure identities and their count/exit reports, the unsupported Vitest
+selection, and register/source-standing reports. They are not suppressed, repaired, or
+represented as proof that every named closure exists. The ledger checker exit is not a
+semantic closure of this still-open weighting row. No inherited-red attribution is needed
+or claimed: the single required checker command itself exited 0.
+
+### Custody, branch readback, and standing boundary
+
+The final database SHA-256, taken after the checker, is unchanged:
+`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`.
+There were no production-data writes or writer/producer invocations. The failure/repair
+register was revisited before closeout; UW-F01's existing-pattern disposition still applies.
+
+The first Phase-1 journal commit is `bdfd666c9946278258649f06382af098e561fedd`.
+Readback from that attached branch confirmed its full 715-line blob equals the worktree
+file, SHA-256 `e8c8df16ce8d16c2bd84ff88a840cf8d5700f142ece59c69903b651199a0aa95`.
+Events 4–5 append the numeric-frequency qualification and this verification receipt;
+they do not revise or delete earlier journal entries.
+
+```sh
+git status -sb
+git diff --check
+git diff --numstat
+git diff --exit-code 2a26fa610 HEAD -- src tests tools docs/plans/active
+shasum -a256 .tmp_unknown_measure.sJ3Bou/bound-debt-check.txt
+shasum -a256 production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb
+```
+
+Handoff state: Phase-1 finding and commands recorded, 35 targeted inherited-characterization
+cases passed, bound checker exit 0, snapshot unchanged. Independent reviewer verdict remains
+unavailable as recorded in Event 3. **No Phase-2 choice or Phase-3 repair/red-green claim.**
+The architect's UW-F07 scope ruling is the next required input; no rule, predicate, checker
+denominator, or absence contract was weakened to avoid it.

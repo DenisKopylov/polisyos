@@ -3119,3 +3119,57 @@ was investigated after the stop. All 3,052 Python files reached the AST parser a
 recorded parse-error set is empty. The final numbered-source read also confirmed the
 transport, flattening, JSONL, active prompt replacement, and provider-wrapper anchors
 used in HC-F16/HC-F17.
+
+
+## Event 17 — Phase-8 closeout, custody, and checker disposition, 2026-09-05
+
+Events 15–16 were committed as `56c7f14999796f4f7b3e312b7fb02653171bf222` on
+`codex/debt-historical-cohorts` and read back from that branch. The committed journal
+equals the worktree file, preserves the original 179,996-byte prefix (Events 1–14)
+verbatim, and contains all three executed programs and their captured outputs verbatim.
+`git diff --check` passed before commit and against the committed continuation. The
+observed branch was attached and clean: `## codex/debt-historical-cohorts`.
+
+### Single checker disposition receipt — skipped after the prerequisite stop
+
+The Phase-8 brief anticipated source/test work and therefore a checker run. Stop rule 1
+prevented that work: **no checker-read file changed**. The explicitly unchanged predicate
+is based on actual changes to the register, ledger, `docs/plans/`, `tools/`, `src/`,
+`tests/`, or schemas; authorization to change them is not a change. This continuation is
+journal-only, so **zero bound checker invocations** occurred. Receipt against its
+committed changes:
+
+```sh
+git diff --name-only b97969a3f..HEAD
+```
+
+```text
+policy-engine/docs/superpowers/journals/2026-09-05-historical-cohorts.md
+```
+
+### Final production-data custody
+
+The closing custody read opened the pinned DuckDB file in binary read mode, computed
+`hashlib.file_digest(..., 'sha256')`, and checked its mode and size. It completed in
+approximately 1.41 seconds and confirmed:
+
+```text
+path: production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb
+sha256:583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967
+mode: -r--r--r--
+size: 2390503424 bytes
+```
+
+No production-data write, chmod, real model/network request, extraction stage, batch,
+graph writer, adjudicator invocation, route enablement, live lane, rebase, force-push,
+or stash occurred. The controlled response witness called the real provider wrapper
+with an in-memory pool and exercised pure normalization, gate, transport, and inference
+functions; it did not generate or persist research data. No product implementation or
+handler repair was made. The one fix round remains unspent.
+
+The committed journal SHA-256 **before this receipt append** was
+`2f1a787cfff44ee8cd65fb0c8a8a84c09f8be6d66371292695a1f74b788df03d` (Events 1–16).
+This receipt is committed separately, followed by a final branch/path/prefix readback.
+HC-T01-R4 and HC-T02-R4 replace their corresponding `-R3` paragraphs in full, with
+HC-T03-R4 separately transcribed to the producer row. They **must not be concatenated**
+with the physically preserved earlier versions or with one another.

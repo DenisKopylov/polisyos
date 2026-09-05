@@ -481,3 +481,279 @@ The full consumer/round-trip closure census, Phase-2 representation choice, and
 Phase-3 red/green repair are unperformed under the explicit stop rules. The
 transcription above is ready for the architect; it does not authorize a wider
 ABI repair. This final journal append is the closeout commit, not a design phase.
+
+## 2026-09-05 — ratified Phase-1 continuation: gate evidence first
+
+The principal ratified `PU-F01`–`PU-F03` and authorized an additive optional
+property in exactly the two existing ABI schemas, while explicitly forbidding
+any third generated surface. Continuation entry: `1cddd7774`. `git status -sb`
+confirmed the requested attached branch and clean tree. The requested
+`git merge main` returned **Already up to date**: the local `main` ref was
+`92c08804a72aadb4d698a26b0af1fba0823c0da9`, already an ancestor. No rebase, branch
+switch, or history rewrite was used.
+
+### PU-G01 — gate answer: presence preserves two observable buckets, not three origins
+
+**A presence-only repair can retain “omitted at this intake” versus “supplied at
+this intake” on the ordinary SKG path. It cannot identify whether a supplied
+`unknown` was judged or manufactured upstream.** It therefore does not, by
+itself, supply a calibration cohort of recorded unknown judgments. At the
+extractor/fallback output, even the distinction between those input origins has
+already been erased. This is a bounded two-bucket answer, not a claim that an
+origin-aware future producer could never distinguish the three states.
+
+The gate was checked on **one real omitted numeric payload**, selected read-only
+from the pinned snapshot, plus explicitly controlled counterfactuals over that
+same payload. This is a witness, not a historical census. The selected raw JSON
+had SHA-256 `eabf99048ea5972275f84686986d6bd7a221c8625611e443a9661545370a8bc0`.
+No payload was saved, re-derived, or exported, and no cohort count was computed.
+The snapshot's initial continuation hash was again
+`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`.
+
+| Measured path | Omitted input | Explicit-unknown counterfactual | Gate consequence |
+| --- | --- | --- | --- |
+| `SKGQuery._normalize_evidence_parameter_payload` → normal `model_validate` | Preserves missing key and false field-presence bit | Preserves supplied key | Suppliedness survives intake, not judgment provenance |
+| Ordinary `model_dump()` → `model_validate()` | Materializes `unknown`; presence becomes true | Presence is already true | Existing round-trip loses omission |
+| `_normalize_empirical_parameter` | Inserts normalized `unknown` | Emits `unknown` | Entire serialized values and `model_fields_set` are identical |
+| SKG validation-failure fallback | Constructs explicit `UNKNOWN` | Constructs explicit `UNKNOWN` | Serialized outputs are identical; both mark the field supplied |
+
+The final two comparisons deliberately changed origin while holding the
+normalizer's observable output equal. A downstream presence classifier cannot
+recover the distinction from that output. An unmarked legacy record is not
+promoted to “judged” by discovering that its key exists.
+
+The source map also prevents treating every normalizer caller as a fresh
+extractor judgment. A full walk of **3,052 `.py` files in `src/` and `tools/`
+(2,619 + 433)**, followed by AST classification of calls to the two named intake
+functions, found:
+
+| Intake | Named call sites | Input origin |
+| --- | --- | --- |
+| `_normalize_empirical_parameter` | `batch/article_extractor.py:1147`; `batch/_resolve_extract_api.py:1600`; `batch/_resolve_extract_transformers.py:1467` | Main parsed extraction; parsed LLM numeric rescue; deterministic rescue that copies strength from another parameter, a claim, or article methodology |
+| `_to_evidence_parameter` | `knowledge/skg_query.py:405`; `knowledge/skg_query.py:467`; `tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py:419` | Simulation-table projection; raw parameter JSON; relation-census consumer |
+
+`batch/` and `knowledge/` above are under
+`src/polisyos/data_forge/domains/academic/`. These are three named calls to each
+intake, not a complete dynamic or transitive consumer count. Ordinary SKG
+normalization preserves the input suppliedness it receives; the simulation
+reader already supplies `str(row[7] or "")`. Deterministic rescue also supplies a
+strength without recording an independent parameter-level judgment. Thus a flag
+derived at the common validator cannot label every present value “judged”.
+
+The useful prospective distinction is conditional: an instrumented producer
+could record the branch that supplied or manufactured a value before it erases
+the input state. **No three-state producer contract was implemented or certified
+here.** The separate ABI stop below was encountered before representation design.
+The historical 51,883 omissions and 342/458 cohorts remain untouched; neither
+presence retention nor a newly added status retroactively supplies their missing
+judgment provenance.
+
+Real-payload probe, exit **0**; all assertions passed against unchanged source:
+
+```sh
+env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python - <<'PY'
+import hashlib, json
+from pathlib import Path
+import duckdb
+from polisyos.ir.analytics.literature import EvidenceParameter
+from polisyos.data_forge.domains.academic.batch.article_extractor import _normalize_empirical_parameter
+from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
+p = Path('production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb')
+with duckdb.connect(str(p), read_only=True) as con:
+    row = con.execute("SELECT canonical_name, parameter_json FROM ac_skg_parameters WHERE NOT json_exists(parameter_json, '$.evidence_strength') AND try_cast(json_extract_string(parameter_json, '$.value') AS DOUBLE) IS NOT NULL LIMIT 1").fetchone()
+assert row is not None
+name, raw_json = row
+raw = json.loads(raw_json)
+assert 'evidence_strength' not in raw
+print('ONE_READ_ONLY_WITNESS_SHA256', hashlib.sha256(raw_json.encode()).hexdigest())
+normal = SKGQuery._to_evidence_parameter(name, raw)
+assert normal is not None
+assert 'evidence_strength' not in normal.model_fields_set
+full = EvidenceParameter.model_validate(normal.model_dump())
+assert 'evidence_strength' in full.model_fields_set
+fresh_unknown = {**raw, 'evidence_strength': 'unknown'}
+manufactured = _normalize_empirical_parameter(raw)
+supplied = _normalize_empirical_parameter(fresh_unknown)
+assert manufactured is not None and supplied is not None
+assert manufactured.model_dump(mode='json') == supplied.model_dump(mode='json')
+assert manufactured.model_fields_set == supplied.model_fields_set
+for label, payload in [('omitted', raw), ('supplied_unknown', fresh_unknown)]:
+    diagnostics = []
+    fallback = SKGQuery._to_evidence_parameter(name, {**payload, 'parameter_type': 'malformed'}, diagnostics=diagnostics)
+    assert fallback is not None
+    assert 'evidence_strength' in fallback.model_fields_set
+    print('SKG_FALLBACK', label, fallback.evidence_strength.value, diagnostics)
+    if label == 'omitted':
+        fallback_first = fallback
+    else:
+        assert fallback.model_dump() == fallback_first.model_dump()
+print('EXTRACTOR_AND_FALLBACK_ORIGIN_COLLISIONS_CONFIRMED', True)
+PY
+```
+
+The controlled supplied-unknown input is not represented as a historical judgment.
+The malformed parameter type selects the existing fallback and is not a product
+predicate change. The exact call-census command was:
+
+```sh
+python3 - <<'PY'
+import ast
+from collections import Counter
+from pathlib import Path
+files = sorted(p for root in ('src', 'tools') for p in Path(root).rglob('*.py') if p.is_file())
+print('PYTHON_DENOMINATOR', len(files), dict(Counter(p.parts[0] for p in files)))
+counts = Counter()
+for p in files:
+    text = p.read_text()
+    if not any(symbol in text for symbol in ('_normalize_empirical_parameter', '_to_evidence_parameter')):
+        continue
+    for node in ast.walk(ast.parse(text)):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        name = func.id if isinstance(func, ast.Name) else func.attr if isinstance(func, ast.Attribute) else ''
+        if name in ('_normalize_empirical_parameter', '_to_evidence_parameter'):
+            counts[name] += 1
+            print('CALL', p, node.lineno, ast.unparse(func))
+print('NAMED_CALLS', dict(counts))
+PY
+```
+
+### PU-G02 — optional addition is additive, but the two-file governed scope cannot verify
+
+The principal's **schema-level observation is confirmed**: both embedded
+`EvidenceParameter` definitions have `required = ["name"]`, so
+`evidence_strength` is not required. The witness added only a new optional string
+property, removed it in a comparison copy, and asserted exact equality with the
+original schema. It changed no existing requiredness, type, default, or property.
+
+**The governed output denominator is nevertheless at least three files.**
+`schemas/snapshots/ir/_manifest.json` records `sha256_full` and `sha256_semantic`
+for both schemas, plus a `content_hash` over its model entries. The same
+`abi-schema-snapshots` generated family owns this file under `schemas/snapshots/ir/`;
+`schemas/snapshots/ir/AUTHORING.md` explicitly identifies the manifest as generated
+snapshot metadata. The canonical generator `gen_schema.py` recomputes the schema
+hashes in `_load_or_generate_entry_payload`, builds the manifest in `_build_manifest`,
+and `_process_module` checks it with `_assert_manifest_equals`.
+
+Measured, using those **unchanged owner functions**:
+
+- Both current schema hashes match their recorded manifest entries.
+- The unchanged manifest passes the owner comparator: `CONTROL_ERRORS=[]`.
+- A pure optional-property addition changes both full and semantic hashes.
+- With the recomputed hashes and manifest content hash, the owner comparator
+  rejects the still-committed manifest:
+  `snapshot out of date: schemas/snapshots/ir/_manifest.json`.
+
+The manifest content hash moved from
+`043a4935b5da12dc4357d88513d05999f08a27771b670a19877282e6b24b1d71` to
+`a307807b28561ead0bed552dc7f721e86c43add7f4802254ac52a6955ec479a4` for the
+disposable in-memory witness. No schema or manifest file was written. This is
+not a full generator run or an assertion that the whole ABI check is green;
+it directly exercises the existing manifest predicate that the allowed change
+would invalidate.
+
+**Stop rule 2 applies.** The required third generated artifact is explicitly
+outside the continuation's scope. Keeping stale hashes or omitting the manifest
+comparison would conflict with stop rule 3 as well. No checker was weakened or
+narrowed. This is not a claim that optional properties are intrinsically breaking:
+the addition is additive, and its generated receipt still has to change.
+
+Bucket: the same generated-denominator class as `PU-F01`, one level deeper
+(schema owner → generated manifest). No implementation/fix round was attempted.
+P39's distinction between mechanism paths and mandatory companions does not
+override an explicit prohibition on **any other generated surface**.
+
+Read-only additive witness, exit **0**, with expected comparator rejection asserted:
+
+```sh
+env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python - <<'PY'
+from copy import deepcopy
+import json
+from pathlib import Path
+from tools.quality.diagnostics import gen_schema as owner
+manifest_path = Path('schemas/snapshots/ir/_manifest.json')
+manifest = json.loads(manifest_path.read_text())
+control_errors = []
+owner._assert_manifest_equals(manifest_path, manifest, control_errors)
+assert not control_errors
+changed = deepcopy(manifest)
+for key in ('article_extraction_result', 'context_adaptive_parameter_bundle'):
+    schema_path = Path('schemas/snapshots/ir') / manifest['models'][key]['schema_file']
+    schema = json.loads(schema_path.read_text())
+    recorded = manifest['models'][key]
+    assert owner._schema_hash(schema) == recorded['sha256_full']
+    assert owner._schema_hash(owner._strip_metadata(schema)) == recorded['sha256_semantic']
+    candidate = deepcopy(schema)
+    param = candidate['$defs']['EvidenceParameter']
+    assert 'evidence_strength' not in param['required']
+    assert 'optional_probe_status' not in param['properties']
+    param['properties']['optional_probe_status'] = {'type': 'string'}
+    restored = deepcopy(candidate)
+    del restored['$defs']['EvidenceParameter']['properties']['optional_probe_status']
+    assert restored == schema
+    assert param['required'] == schema['$defs']['EvidenceParameter']['required']
+    full = owner._schema_hash(candidate)
+    semantic = owner._schema_hash(owner._strip_metadata(candidate))
+    assert full != recorded['sha256_full'] and semantic != recorded['sha256_semantic']
+    changed['models'][key]['sha256_full'] = full
+    changed['models'][key]['sha256_semantic'] = semantic
+changed['content_hash'] = owner._schema_hash(changed['models'])
+assert changed['content_hash'] != manifest['content_hash']
+probe_errors = []
+owner._assert_manifest_equals(manifest_path, changed, probe_errors)
+assert probe_errors == [f'snapshot out of date: {manifest_path}']
+print('CONTROL_ERRORS', control_errors)
+print('CANONICAL_CHECKER_ERRORS', probe_errors)
+print('WRITTEN_FILES', [])
+PY
+```
+
+### Design and implementation disposition
+
+The gate answer above was recorded before any representation decision. The
+optional-property witness is a falsifier for governed scope, not a proposed
+status vocabulary. No Phase-2 design was selected or committed and no Phase-3
+implementation or red/green cycle was started, in accordance with the stop.
+B-1's exact nullable-value/absence invariant is not silently claimed to transfer
+to the currently non-nullable field; resolving that design question remains work
+for the admitted scope. The task's closure negative remains `semantic_test_missing`.
+
+The failure register was reopened before this investigation. Relevant existing
+patterns: P35 (complete generated output denominator), P38 (presence is not
+judgment provenance), P31 (intake/normalizer/emission class), P07 (content-bound
+generated receipt), P29/P33 (real owner comparator and counterfactual probes),
+P15 (candidate value does not acquire authority from a field-presence bit).
+No new register rule is needed for this repeated class.
+
+### Exact continuation transcriber-ready prose
+
+Replace the incorrect mechanism sentence; keep the row **open**:
+
+> `EvidenceParameter.evidence_strength` defaults to `UNKNOWN`; omission and
+> explicit unknown have equal field values but remain distinguishable in
+> Pydantic's `model_fields_set` at construction and on the ordinary SKG validation
+> path. An ordinary `model_dump` → `model_validate` round-trip erases that presence
+> distinction. The extractor normalizer and SKG fallback also manufacture explicit
+> `UNKNOWN` before constructing the parameter, so preserving presence alone
+> distinguishes omitted versus supplied at an intake, not judged versus
+> manufactured unknown. It does not establish a historical or forward calibration
+> cohort of recorded unknown judgments without producer-origin evidence.
+
+Append the continuation result:
+
+> **2026-09-05 ratified Phase-1 continuation — stopped before design.** `PU-G01`
+> exercised one real omitted payload read-only and controlled counterfactuals:
+> ordinary SKG intake preserves omission, ordinary round-trip loses it, and the
+> extractor/fallback emit identical values and presence for omitted versus
+> explicitly supplied unknown inputs. No historical cohort was re-derived.
+> `PU-G02` confirms that a new optional property is additive in both ABI schemas,
+> but refutes the sufficiency of the two-file generated scope: the generated IR
+> `_manifest.json` content-binds both schemas. An in-memory optional-only addition
+> changed both schema hashes and made the unchanged canonical manifest checker
+> reject the old manifest. Stop rule 2 therefore applies; no source, schema,
+> manifest, weight, edge encoding, or production data changed. The missing scope
+> companion is `schemas/snapshots/ir/_manifest.json`; admitting it would remove
+> this measured stop, not certify that no other prerequisite exists. The row stays
+> open, with the original negative and complete producer/consumer/round-trip
+> closure still required. Evidence: this journal, `PU-G01` and `PU-G02`.

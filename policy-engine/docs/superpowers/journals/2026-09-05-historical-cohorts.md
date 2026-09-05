@@ -1453,3 +1453,641 @@ The SHA-256 of the committed journal **before this receipt append** was
 Events 1–7, not this subsequent append. This receipt is committed separately and the final
 branch/path/append-only checks are repeated after that commit. The disposition remains the
 HC-F09 scope stop; the two `-R1` paragraphs replace the old transcription text in full.
+
+## Event 9 — Phase-6 partition at the current-source boundary, 2026-09-05
+
+Continuation base: `424e8b2ee3a362b6ba18045767d931ad72acfaed`, attached to
+`codex/debt-historical-cohorts`, clean on arrival. Events 1–8 remain verbatim. The user
+admitted route (c) for consideration, confirmed HC-F09, and reserved the route decision
+until this measurement. **No route is chosen and no implementation is made in this round.**
+
+**The exact-layer collapse hypothesis is confirmed, and bucket 2 also covers the complete
+family and contested populations.** At the current **source-projection** boundary, all
+7,607 exact and 15,945 family confidences compute to zero. All 723 contested rows have
+zero current base confidence and zero direction weights, so they fail the current
+confidence-based emission predicate. Their current result is **not emitted**, not a
+replacement final confidence of zero. The table below distinguishes those results.
+
+HC-F09 held the stored evidence classes fixed and measured the selected 458. This round
+instead follows each stored aggregate's retained claim membership through the current B-1
+source projection and B-2 evidence-axis encoding before applying the current confidence
+functions. That change of boundary explains the larger result; it is not a new assertion
+that every historical class was manufactured by the credibility fallback or every stored
+confidence contained an `unknown` contribution.
+
+### HC-F11 — retained membership, source projection, and independent cross-check
+
+Two programs in ignored `_build/historical-cohorts/` perform the measurement against the
+one pinned `scholar_knowledge.duckdb` file, using `duckdb.connect(..., read_only=True)`.
+Complete executable programs and complete successful outputs follow in Event 10.
+
+`phase6_exact.py` first walks all **7,607** `ac_skg_edges` and all **7,868**
+`ac_skg_edge_evidence` rows, cross-checking both against SQL `count(*)`. It joins all
+evidence claim IDs to raw claims and adjudications: **7,868 unique rows in each join**, no
+duplicates, missing raw rows, or projection errors. There are exactly 7,607 distinct
+evidence edge IDs, none absent from the exact table. Every exact edge has evidence members.
+For every edge, the evidence claim-ID set equals `quality_signals_json.claim_ids`, the
+evidence work-ID set equals `article_refs`, and evidence source/destination/direction equals
+the edge's identity fields. The full walk checks all 7,868 evidence memberships, not a
+sample or a count inferred from metadata.
+
+The real read-only owner `ScholarKnowledgeStore._project_claim_row`
+(`src/polisyos/data_forge/domains/academic/knowledge/store.py:488`) projects all those raw
+rows to **`evidence_strength=None`, status `not_established`**. The actual pure
+`_infer_edge_strength` at `batch/graph_builder.py:659` encodes all of them as the reserved
+`not_established` storage value. Every exact edge is then evaluated by the real
+`aggregate_edge_confidence` using `(encoded strength, projected extraction confidence)`
+tuples; coercion of those tuples belongs to that function. No historical numeric input is
+invented, and the absence exclusion makes the missing multiplicative factors irrelevant.
+
+A second computation uses SQL `json_each`, relational `EXCEPT` in both directions for
+the claim/article memberships, source-row joins, identity comparisons, and the sign of
+stored confidence. It consumes **no Python projected results**. Its rule premise is the
+separately inspected legacy source schema and current absence adapter, not a producer
+provenance declaration. The Python and SQL **identity sets match for all three buckets**.
+Only after that exact-layer result was confirmed did the family/contested program run.
+
+`phase6_aggregates.py` walks all **15,945** family rows and all **723** contested rows,
+again cross-checking SQL table counts. Their retained claim references resolve to
+**16,658 unique raw rows** in the combined source join, with no duplicates or projection
+errors. Family rows reference 16,658 distinct claims; contested rows reference 965. Every
+row has a nonempty claim set whose size equals its stored `n_claims`. The real source
+owner projects all 16,658 selected raw rows to `None` / `not_established`; the pure encoder
+returns the absence encoding for all 16,658. A second SQL reference walk independently
+counts unique references, checks their resolution and `n_claims`, and derives the three
+bucket identity sets without reading the Python projection outputs. They match exactly.
+
+All 723 contested rows also retain every referenced family ID, and in every case the union
+of those family claim references equals the contested claim set. This additional full-set
+retention check agrees with the contested row's own source membership.
+
+The source table is physically `legacy_v1`, not a v2 table with a supplied evidence axis.
+The relevant adapter at `src/polisyos/ir/analytics/literature.py:223` retains occurrence
+fields and the legacy audit label without inferring any v2 axis. This is a computation
+from the current stored source/schema and current rule; it does not validate the underlying
+papers or retrospectively identify an extractor judgment.
+
+**Scope of “recomputable”:** these results concern the current confidence rule on the
+complete **retained membership of each existing aggregate**, after current source
+projection. They do not regenerate canonical variables, rerun adjudication/publication
+gates, rebuild a graph, or predict that a complete data pass would finish successfully.
+No producer or writer is invoked. The stored summary classes, confidences and memberships
+remain unchanged. In particular, the raw source projection is executed; the old rich
+extraction payload is not presented to a full graph writer as if its admission had passed.
+
+### HC-F12 — complete three-bucket partition
+
+Bucket 1 means a determinate current-rule result equal to stored. Bucket 2 means a
+determinate different result; for contested rows that includes determinate failure of the
+emission predicate. Bucket 3 means that retained bytes do not determine the result. A
+determinate **not-emitted** result is not bucket 3 and must not be assigned a fictitious
+numeric confidence merely to subtract it from the stored value.
+
+| Layer | Complete denominator | Bucket 1: equal, Python / SQL | Bucket 2: different, Python / SQL | Bucket 3: not recomputable, Python / SQL | Bucket-2 numerical confidences going to zero | Other determinate change |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Exact | 7,607 | 0 / 0 | **7,607 / 7,607** | 0 / 0 | **7,607** | None |
+| Family | 15,945 | 0 / 0 | **15,945 / 15,945** | 0 / 0 | **15,945** | None |
+| Contested | 723 | 0 / 0 | **723 / 723** | 0 / 0 | **0 final confidence replacements** | **723 not emitted; 723 base confidences zero** |
+
+The three buckets sum exactly to each independently counted table denominator. Every
+stored exact/family confidence is positive; equality is tested exactly, without a tolerance
+that could hide a small change. Every current exact/family result is exactly `0.0`.
+No row falls in bucket 3. The scripts explicitly account for missing/empty membership,
+count/membership disagreement, unresolved or invalid source projection, and a positive
+source axis requiring additional numeric inputs; none is encountered in these populations.
+
+The missing historical per-evidence inputs identified in HC-F08 remain missing. They do
+not put these rows in bucket 3 because **absence is excluded before those inputs matter**.
+The broader source projection removes positive-base evidence from every group, not only
+the previously selected strongest-unknown groups. HC-F08's inability to reconstruct the
+old inputs and HC-F12's determinate current zero result are different statements.
+
+For contested rows the real `weighted_direction_summary` computes every direction weight
+as zero. The unchanged admission predicate at
+`src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py:530` requires either
+contested positive-and-negative support or positive mixed support. Both are false for all
+723 rows, so the `continue` at `:537` precedes the confidence floor at `:543`. This round
+runs the pure confidence/direction functions and evaluates that inspected predicate; it
+does **not** invoke the producer, an AST-extracted producer loop, canonicalization, or any
+persistence routine. A current final contested confidence is consequently unavailable
+because no row qualifies, while that disposition is fully determinate.
+
+For reproducible identity reconciliation, bucket-2 IDs are sorted, newline-joined, and
+SHA-256 hashed. Python and SQL identity symmetric differences are zero:
+
+| Layer | Bucket-2 identity digest |
+| --- | --- |
+| Exact | `cbf1ae75f084685addc6dee86bf1785b87b96846b7be9b53ac0370f1f7fdb152` |
+| Family | `ab4adfd0b0a81b19b54e1fb80ee0ab3cbc8df54324e3e2f4ce70164d3447654f` |
+| Contested | `e78058eb9ccf3f98a1e8e639ba69b27940617bd252810f6ae51728cfee67739b` |
+
+### HC-F13 — difference distribution, including the contested nonnumeric outcome
+
+For exact and family rows, `delta = current confidence - stored confidence`. Every delta
+is negative. The complete Python statistics and separate SQL aggregates agree up to
+ordinary floating-point accumulation order; bucket identities/equality and histogram counts
+agree exactly. Full precision is retained in Event 10's output.
+
+| Layer | Changed numerical rows | Minimum delta | Maximum delta | Mean delta |
+| --- | ---: | ---: | ---: | ---: |
+| Exact | 7,607 | -0.9975408332428939 | -0.03149999999999997 | -0.45332494080630115 |
+| Family | 15,945 | -0.9992589346255975 | -0.009811871841035491 | -0.2480690902801303 |
+
+The bins below are **decrease magnitudes**, `stored - current`, for exact/family. The
+contested column instead describes the **stored confidence of rows now not emitted**;
+it is not a numeric current-minus-stored difference. Every cell has a matching independent
+SQL count.
+
+| Interval, lower exclusive / upper inclusive | Exact decrease | Family decrease | Stored contested confidence, all now not emitted |
+| --- | ---: | ---: | ---: |
+| (0, 0.05] | 15 | 492 | 0 |
+| (0.05, 0.10] | 84 | 2,594 | 0 |
+| (0.10, 0.25] | 265 | 5,789 | 427 |
+| (0.25, 0.50] | 5,147 | 6,013 | 237 |
+| (0.50, 0.75] | 2,043 | 964 | 55 |
+| (0.75, 1.00] | 53 | 93 | 4 |
+| **Complete denominator** | **7,607** | **15,945** | **723** |
+
+The 723 stored contested confidences range from **0.15** to **0.8155864680301657**, mean
+**0.26226157357899144**. All transition from a stored row to failure of the current
+confidence-based emission predicate. A numeric final-confidence delta is not defined for
+any of those 723 rows. Their current base confidences are zero; their direction-weight
+differences are numerical and independently cross-checked:
+
+| Stored direction-weight field | Nonzero stored cells going to zero | Minimum current-minus-stored | Maximum current-minus-stored |
+| --- | ---: | ---: | ---: |
+| `positive_weight` | 131 / 723 | -1.311582 | 0.0 |
+| `negative_weight` | 119 / 723 | -2.321379 | 0.0 |
+| `mixed_weight` | 632 / 723 | -1.206897 | 0.0 |
+
+These are per-field counts, not disjoint sets of contested rows. The stored confidence
+remains its actual stored value in the diagnostic results. It is never overwritten by the
+base confidence or by a zero chosen for a non-emitted row.
+
+### HC-F14 — the within-axis rescue is disallowed, and absence is not unknown
+
+The code supports the reading that adjudication cannot supply the missing evidence axis:
+
+1. `src/polisyos/data_forge/domains/academic/batch/graph_builder.py:408` defines
+   `_legacy_strength_from_adjudication`; at `:409` it literally discards the adjudication
+   and at `:410` returns `encode_edge_evidence_strength(None)`.
+2. The current `_infer_edge_strength` at `:659` takes only the explicit
+   `evidence_strength` and `evidence_strength_status` fields. It has no design fallback.
+3. `src/polisyos/data_forge/domains/academic/knowledge/skg_store.py:1170` encodes an absent
+   axis as `not_established`; `decode_edge_evidence_strength` at `:1200` returns
+   **`None`, `ClaimVocabularyAxisStatus.NOT_ESTABLISHED`** for that encoding. A supplied
+   `EvidenceStrength.UNKNOWN` is a separate candidate value.
+4. `aggregate_edge_confidence` excludes declared absence at `:530` and nonpositive-base
+   evidence at `:531`, returning zero for the empty valid set at `:533`–`:534`, before
+   noisy-OR and the replication bonus.
+
+The pure adjudication helper was executed on **all 7,868 retained published adjudications**;
+every result is the absence encoding. The complete manufactured-class subset has these
+current decoded outcomes:
+
+| Retained adjudicated design | Rows | Current evidence value | Current evidence status |
+| --- | ---: | --- | --- |
+| `theoretical` | 131 | `None` | `not_established` |
+| `unclear` | 187 | `None` | `not_established` |
+| `review` | 24 | `None` | `not_established` |
+| **Total** | **342** | | |
+
+Consequently, adding `theoretical` to a design map would restore the cross-axis inference
+B-2 removed. Sharing the spelling `theoretical` across two enums does not make an
+adjudicated design an explicit evidence-axis value. **The brief's proposed correction to
+`unknown` also needs correction:** the current evidence value is absence, not an unknown
+judgment. The two states contribute the same zero but remain semantically distinct.
+
+HC-F06's **severity** distinction survives: the 342 contradict or outrun their retained
+adjudicated design, while the other 7,526 are faithful coarse translations relative to
+that adjudication. Its possible implication that the 7,526 are **fine under today's
+evidence rule** does not survive. Every one lacks the explicit current evidence axis and
+contributes no positive support in this current-source computation. Contradiction and
+failure to reproduce the stored value under current rules are different dimensions; both
+are now measured rather than inferred from mapper membership.
+
+### HC-D02 — stop at the measured partition; no route decision
+
+**Bucket 2 swallows each complete layer.** The selected 458 is a valid count of stored
+strongest-unknown family/contested summaries, but not the boundary of values differing
+from a computation under today's source/evidence rules. Even the exact layer alone has
+7,607 changed values. On this retained-membership calculation, re-derivation under the
+current evidence rules has a zero-confidence target across the exact/family layers, not
+a localized correction of 458 rows; a marker limited to those 458 would omit more than an
+order of magnitude of the measured current-rule differences. This is not a claim that all
+these rows were factually misclassified, generated by the same withdrawn branch, or
+previously weighted as unknown.
+
+The route choice remains the architect's. This round does not build a marker, a new
+contract, a read-time substitution, or a data pass. A future delivery must keep the stored
+value, its own status, and any determinate current-rule result distinguishable in the
+value-beside-status form the user required. In particular, current-rule zero must not
+silently replace stored confidence, and not-emitted must not masquerade as a zero final
+confidence. Existing readers still return their existing stored values.
+
+**HC-R01 remains registered without narrowing.** Direct SQL at
+`src/polisyos/runtime/quality/capability_index_compiler.py:881` and
+`src/polisyos/runtime/quality/credal_reference.py:839,856,899`, stored-column copy paths at
+`src/polisyos/data_forge/domains/academic/batch/best_snapshot.py:925` and
+`tools/ops_runners/cloud/merge_shards.py:244`, and the downstream prior DTO at
+`src/polisyos/foundry/methods/catalog/causal/literature_prior.py:232` remain outside automatic
+propagation of a query-only signal. Their source bytes are unchanged; no new after-change
+reach claim is made.
+
+The source projection and confidence calculations are `recomputed`; the membership/bucket
+counts are `independently_reconciled` by a second computation on the same pinned bytes.
+Original generating invocations, missing historical numeric inputs, and underlying paper
+truth are not established by this measurement. The failure/repair register was read at
+entry and closeout: P35/P36 prohibit substituting an inherited row count for this census;
+P37/P38 require distinguishing the present-source predicate from the stored-label proxy;
+P04 preserves absence versus unknown and computed values versus unavailable rows.
+
+The 488 hint/adjudication mismatches and the parameter-value-provenance debt are not
+investigated or changed. B-1/B-2 are not reopened. No product fix round was spent. There
+was one scratch SQL parser error, documented in Event 10, and no product-code finding or
+repair. The authorized work stops when this partition is recorded; implementation remains
+out of scope regardless of the result.
+
+### HC-T01-R2 — replace HC-T01-R1 in full; open-row transcription
+
+> **HISTORICAL-COHORTS PHASE 6, 2026-09-05 — stays open; the current-rule cohort is the complete measured layers, with the route decision reserved to the architect.** Independent Python/pure-function and SQL computations on the pinned snapshot partition exact rows as **0 equal / 7,607 different / 0 not recomputable**, family as **0 / 15,945 / 0**, and contested as **0 / 723 / 0**, with identical bucket identities (HC-F11/HC-F12). Every exact/family confidence computes to zero after the current source projection: all 7,868 published source claims and all 16,658 family/contested source claims project to `None` / `not_established`, so no positive-base evidence survives. All 723 contested rows have zero base confidence and direction weights and fail the current confidence-based emission predicate before the 0.15 floor; their result is not-emitted, not a zero final confidence (HC-F13). These are determinate current-rule results on retained aggregate memberships, not a full graph/data-pass replay or recovered historical source inputs. The 458 strongest-unknown selection therefore understates current-rule differences by more than an order of magnitude; a current-rule re-derivation would not be a localized repair of those rows. This does not classify all historical values as factual misstatements or attribute all of them to the unknown-weight rule. The 342 adjudication-contradicting substitutions remain a distinct severity subset; the other 7,526 faithful design translations are equally unsupported by today's explicit evidence-axis requirement (HC-F14). No route or implementation is chosen. Any later delivery must preserve stored value/status beside a separately identified current-rule outcome, never silently substitute it, and must retain HC-R01's direct-SQL, copy, and downstream-projection residual. The snapshot and all product/read paths are unchanged.
+
+### HC-T02-R2 — replace HC-T02-R1 in full; closed-row transcription
+
+> **HISTORICAL-COHORTS PHASE 6, 2026-09-05 — remains closed for the forward repair; historical severity and present-rule reproducibility are separate.** The 342 manufactured empirical-design rows remain the correct contradiction cohort: theoretical 131, unclear 187, review 24, all stored observational; the previously checked 342/374 observational concentration remains 91.44385026737967%. The other 7,526 are faithful coarse translations relative to retained adjudications (HC-F06/HC-F07), but that does not make them derivable under today's evidence rule. The pure helper at `data_forge/domains/academic/batch/graph_builder.py:408` discards adjudication, and `_infer_edge_strength` at `:659` reads only the explicit evidence axis. All 7,868 published source claims now project to `None` / `not_established`; all 7,607 exact-edge confidences recompute to zero on their completely reconciled retained memberships (HC-F11/HC-F12). The proposed theoretical-design rescue would restore the removed cross-axis inference; the replacement is absence, not a recorded unknown judgment (HC-F14). No historical class/confidence, B-1/B-2 repair, or reader is changed. The broader confidence/currentness decision remains with the architect, and any future envelope must preserve stored values and HC-R01's named consumer residual. The 488 hint mismatches and parameter-value provenance remain outside this task.
+
+These two **`-R2` paragraphs supersede the corresponding `-R1` paragraphs in full**.
+The original and `-R1` paragraphs remain physically present as append-only history.
+Replacements **must not be concatenated** with either earlier version when transcribing.
+
+## Event 10 — Phase-6 reproduction and execution evidence, 2026-09-05
+
+The complete programs below are diagnostic report producers only: production-data access
+is read-only, and no data-producing/writing entry point is invoked. Per-row diagnostic
+JSON is written only to ignored `_build/historical-cohorts/`, alongside stdout logs. The
+retired mapper is not rerun. The exact program finishes by asserting the collapse
+hypothesis before allowing the remaining-layer program to proceed.
+
+```sh
+cd /Users/deniskopylov/polisyos/.worktrees/debt-historical-cohorts/policy-engine
+env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python _build/historical-cohorts/phase6_exact.py > _build/historical-cohorts/phase6_exact.log
+env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python _build/historical-cohorts/phase6_aggregates.py > _build/historical-cohorts/phase6_aggregates.log
+```
+
+The exact command exited 0 in 2.44 seconds. The first aggregate attempt stopped at its SQL
+cross-check because the scratch CTE was named the reserved word `references`
+(`ParserException: syntax error at or near "references"`); it had not produced a verified
+partition. The CTE was renamed `claim_references`, and that command then exited 0 in
+2.72 seconds. This was a scratch-query syntax correction, not a product repair, a second
+semantic finding, or a red/green implementation claim. No test suite or bound debt checker
+is run for a journal-only measurement. The programs and successful outputs below are the
+final executed versions.
+
+### Program: phase6_exact.py
+
+SHA-256: `d44059c5f0ea1858e2b6508af5dac74c5fb92f714934bd756b84a66b6b75a010`.
+
+```python
+"""Read-only current-source confidence partition; no producer invocation."""
+from collections import Counter, defaultdict
+from pathlib import Path
+import hashlib
+import json
+import math
+
+import duckdb
+from polisyos.data_forge.domains.academic.batch.graph_builder import (
+    _infer_edge_strength, _legacy_strength_from_adjudication,
+)
+from polisyos.data_forge.domains.academic.knowledge.store import ScholarKnowledgeStore
+from polisyos.data_forge.domains.academic.knowledge import skg_store as owner
+
+DB=Path('production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb')
+OUT=Path('_build/historical-cohorts')
+con=duckdb.connect(str(DB),read_only=True)
+store=ScholarKnowledgeStore._from_connection(con)
+
+def emit(name,data):
+    print(name,json.dumps(data,sort_keys=True,default=str),flush=True)
+
+def fetch(sql):
+    cur=con.execute(sql)
+    names=[c[0] for c in cur.description]
+    return [dict(zip(names,r)) for r in cur.fetchall()]
+
+def table(name):
+    data=fetch('SELECT * FROM '+name)
+    assert len(data)==con.execute('SELECT count(*) FROM '+name).fetchone()[0]
+    return data
+
+def digest(ids):
+    return hashlib.sha256('\n'.join(sorted(ids)).encode()).hexdigest()
+
+def stats(values):
+    if not values:return None
+    return dict(n=len(values),minimum=min(values),maximum=max(values),sum=math.fsum(values),mean=math.fsum(values)/len(values))
+
+X=table('ac_skg_edges'); E=table('ac_skg_edge_evidence')
+Rrows=fetch('SELECT r.* FROM ac_causal_claims_raw r JOIN ac_skg_edge_evidence e ON e.claim_id=r.id')
+R={r['id']:r for r in Rrows}
+assert len(Rrows)==len(R)  # neither duplicated source IDs nor duplicated evidence claims
+Arows=fetch('SELECT a.* FROM ac_claim_adjudications a JOIN ac_skg_edge_evidence e ON e.claim_id=a.claim_id')
+A={r['claim_id']:r for r in Arows}
+assert len(A)==len(Arows)
+schema=store._claim_table_schema('ac_causal_claims_raw')
+assert schema=='legacy_v1'
+cols={r[0] for r in con.execute('DESCRIBE ac_causal_claims_raw').fetchall()}
+assert 'evidence_strength' not in cols and 'claim_vocabulary_schema_version' not in cols
+P={}; encodings={}; projection_errors={}
+for cid,r in R.items():
+    try:
+        p=store._project_claim_row(r,source_table='ac_causal_claims_raw')
+        P[cid]=p
+        encodings[cid]=_infer_edge_strength(p.model_dump(mode='json'))
+    except Exception as exc:
+        projection_errors[cid]=type(exc).__name__+': '+str(exc)
+emit('source_projection',dict(evidence_rows=len(E),raw_rows=len(R),adjudications=len(A),schema=schema,errors=dict(Counter(projection_errors.values())),value_status=dict(Counter(str(p.evidence_strength)+'|'+p.evidence_strength_status.value for p in P.values())),encodings=dict(Counter(encodings.values()))))
+
+by_edge=defaultdict(list)
+for e in E: by_edge[e['edge_id']].append(e)
+result=[]; membership=Counter()
+for x in X:
+    ee=by_edge[x['edge_id']]
+    ids={e['claim_id'] for e in ee}
+    quality=json.loads(x['quality_signals_json'])
+    quality_ids=set(quality.get('claim_ids',[]))
+    article_ids=set(json.loads(x['article_refs']))
+    why=[]
+    if not ee:why.append('no_evidence_members')
+    if not ids <= R.keys():why.append('missing_raw_claim')
+    if not ids <= P.keys():why.append('source_projection_unavailable')
+    if ids!=quality_ids:why.append('quality_claim_membership_disagrees')
+    if {e['openalex_id'] for e in ee}!=article_ids:why.append('article_membership_disagrees')
+    if any((e['src'],e['dst'],e['direction'])!=(x['src'],x['dst'],x['direction']) for e in ee):why.append('evidence_edge_identity_disagrees')
+    if any(encodings.get(cid)!=owner.EDGE_EVIDENCE_NOT_ESTABLISHED for cid in ids):why.append('positive_or_other_axis_requires_remaining_inputs')
+    if why:
+        result.append(dict(id=x['edge_id'],bucket=3,reasons=why,current=None,stored=x['confidence']))
+        continue
+    # Each tuple contains two values from the real current source projection.
+    # The public aggregator owns tuple coercion; no historical nuisance input is invented.
+    samples=[(encodings[e['claim_id']],P[e['claim_id']].claim_extraction_confidence) for e in ee]
+    current=owner.aggregate_edge_confidence(samples)
+    assert math.isfinite(current) and math.isfinite(x['confidence'])
+    result.append(dict(id=x['edge_id'],bucket=1 if current==x['confidence'] else 2,current=current,stored=x['confidence'],delta=current-x['confidence'],stored_class=x['evidence_strength']))
+    membership['checked_edges']+=1;membership['checked_evidence_members']+=len(ee)
+
+# Independent SQL membership and confidence-sign partition, using the independently
+# inspected legacy schema/absence-adapter rule; no Python projected outputs feed SQL.
+sql=con.execute("""
+WITH q AS (
+ SELECT x.edge_id, json_extract_string(j.value,'$') claim_id
+ FROM ac_skg_edges x, json_each(x.quality_signals_json,'$.claim_ids') j
+), a AS (
+ SELECT x.edge_id,json_extract_string(j.value,'$') openalex_id
+ FROM ac_skg_edges x,json_each(x.article_refs) j
+), eligible AS (
+ SELECT x.edge_id,x.confidence,
+ EXISTS(SELECT 1 FROM ac_skg_edge_evidence e WHERE e.edge_id=x.edge_id)
+ AND NOT EXISTS(SELECT 1 FROM ac_skg_edge_evidence e LEFT JOIN ac_causal_claims_raw r ON r.id=e.claim_id
+   WHERE e.edge_id=x.edge_id AND (r.id IS NULL OR e.src<>x.src OR e.dst<>x.dst OR e.direction<>x.direction))
+ AND NOT EXISTS(SELECT claim_id FROM q WHERE q.edge_id=x.edge_id EXCEPT SELECT claim_id FROM ac_skg_edge_evidence e WHERE e.edge_id=x.edge_id)
+ AND NOT EXISTS(SELECT claim_id FROM ac_skg_edge_evidence e WHERE e.edge_id=x.edge_id EXCEPT SELECT claim_id FROM q WHERE q.edge_id=x.edge_id)
+ AND NOT EXISTS(SELECT openalex_id FROM a WHERE a.edge_id=x.edge_id EXCEPT SELECT openalex_id FROM ac_skg_edge_evidence e WHERE e.edge_id=x.edge_id)
+ AND NOT EXISTS(SELECT openalex_id FROM ac_skg_edge_evidence e WHERE e.edge_id=x.edge_id EXCEPT SELECT openalex_id FROM a WHERE a.edge_id=x.edge_id)
+ AS recomputable FROM ac_skg_edges x
+)
+SELECT edge_id,CASE WHEN NOT recomputable THEN 3 WHEN confidence=0 THEN 1 ELSE 2 END bucket FROM eligible
+""").fetchall()
+for bucket in (1,2,3):
+    pids={r['id'] for r in result if r['bucket']==bucket}
+    sids={rid for rid,b in sql if b==bucket}
+    assert pids==sids
+    emit('exact_bucket',dict(bucket=bucket,python=len(pids),sql=len(sids),identity_symmetric_difference=0,ids_sha256=digest(pids)))
+emit('exact_completeness',dict(exact_rows=len(X),evidence_rows=len(E),distinct_evidence_edges=len(by_edge),evidence_without_exact=len(set(by_edge)-{r['edge_id'] for r in X}),counts=dict(membership),unrecomputable_reasons=dict(Counter(reason for r in result for reason in r.get('reasons',[])))))
+
+diff=[r for r in result if r['bucket']==2]
+emit('exact_difference',dict(current_minus_stored=stats([r['delta'] for r in diff]),go_to_zero=sum(r['current']==0 for r in diff),by_stored_class={s:dict(n=sum(r['stored_class']==s for r in diff),deltas=stats([r['delta'] for r in diff if r['stored_class']==s])) for s in sorted({r['stored_class'] for r in diff})}))
+bounds=[0,0.05,0.1,0.25,0.5,0.75,1]
+for low,high in zip(bounds,bounds[1:]):
+    py=sum(low < -r['delta'] <= high for r in diff)
+    sqln=con.execute('SELECT count(*) FROM ac_skg_edges WHERE confidence>? AND confidence<=?',[low,high]).fetchone()[0]
+    assert py==sqln
+    emit('exact_decrease_bin',dict(lower_exclusive=low,upper_inclusive=high,python=py,sql=sqln))
+sqlstats=con.execute('SELECT count(*),min(-confidence),max(-confidence),sum(-confidence),avg(-confidence) FROM ac_skg_edges WHERE confidence<>0').fetchone()
+assert len(diff)==sqlstats[0]
+for got,expected in zip([min(r['delta'] for r in diff),max(r['delta'] for r in diff),math.fsum(r['delta'] for r in diff),math.fsum(r['delta'] for r in diff)/len(diff)],sqlstats[1:]):assert math.isclose(got,expected,abs_tol=1e-10,rel_tol=1e-12)
+emit('exact_difference_sql',dict(n=sqlstats[0],minimum=sqlstats[1],maximum=sqlstats[2],sum=sqlstats[3],mean=sqlstats[4]))
+
+rescue=Counter()
+for cid,a in A.items():
+    encoded=_legacy_strength_from_adjudication(a)
+    assert encoded==owner.EDGE_EVIDENCE_NOT_ESTABLISHED
+    if a['design_family'] in {'unclear','theoretical','review'}:
+        decoded,status=owner.decode_edge_evidence_strength(encoded)
+        rescue[a['design_family'],str(decoded),status.value]+=1
+emit('within_axis_rescue',dict(adjudications_tested=len(A),outcomes=[dict(design=d,current_value=v,current_status=s,n=n) for (d,v,s),n in sorted(rescue.items())],legacy_adjudication_helper_encoding=owner.EDGE_EVIDENCE_NOT_ESTABLISHED))
+OUT.joinpath('phase6-exact-results.json').write_text(json.dumps(result,sort_keys=True)+'\n')
+con.close()
+assert all(r['bucket'] in (1,2) and r['current']==0.0 for r in result), 'STOP: exact collapse hypothesis refuted or not established'
+emit('exact_hypothesis','CONFIRMED: every exact current-rule confidence is zero; proceed to the remaining layers only')
+```
+
+Complete successful output:
+
+```text
+source_projection {"adjudications": 7868, "encodings": {"not_established": 7868}, "errors": {}, "evidence_rows": 7868, "raw_rows": 7868, "schema": "legacy_v1", "value_status": {"None|not_established": 7868}}
+exact_bucket {"bucket": 1, "identity_symmetric_difference": 0, "ids_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "python": 0, "sql": 0}
+exact_bucket {"bucket": 2, "identity_symmetric_difference": 0, "ids_sha256": "cbf1ae75f084685addc6dee86bf1785b87b96846b7be9b53ac0370f1f7fdb152", "python": 7607, "sql": 7607}
+exact_bucket {"bucket": 3, "identity_symmetric_difference": 0, "ids_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "python": 0, "sql": 0}
+exact_completeness {"counts": {"checked_edges": 7607, "checked_evidence_members": 7868}, "distinct_evidence_edges": 7607, "evidence_rows": 7868, "evidence_without_exact": 0, "exact_rows": 7607, "unrecomputable_reasons": {}}
+exact_difference {"by_stored_class": {"meta_analysis": {"deltas": {"maximum": -0.55, "mean": -0.5579266702098638, "minimum": -0.9397110769339542, "n": 1047, "sum": -584.1492237097274}, "n": 1047}, "observational": {"deltas": {"maximum": -0.03149999999999997, "mean": -0.11686576157015377, "minimum": -0.2534438603443461, "n": 365, "sum": -42.656002973106126}, "n": 365}, "panel_fe": {"deltas": {"maximum": -0.35, "mean": -0.35218924413840264, "minimum": -0.5608933224125778, "n": 765, "sum": -269.424771765878}, "n": 765}, "quasi_natural": {"deltas": {"maximum": -0.45, "mean": -0.45423483355380645, "minimum": -0.8718574099427912, "n": 4019, "sum": -1825.5697960527482}, "n": 4019}, "quasi_natural_event": {"deltas": {"maximum": -0.4, "mean": -0.4024384168790645, "minimum": -0.6817407274009959, "n": 499, "sum": -200.8167700226532}, "n": 499}, "rct": {"deltas": {"maximum": -0.55, "mean": -0.5774766338717493, "minimum": -0.9975408332428939, "n": 909, "sum": -524.9262601894201}, "n": 909}, "structural": {"deltas": {"maximum": -0.3, "mean": -0.3, "minimum": -0.3, "n": 3, "sum": -0.8999999999999999}, "n": 3}}, "current_minus_stored": {"maximum": -0.03149999999999997, "mean": -0.45332494080630115, "minimum": -0.9975408332428939, "n": 7607, "sum": -3448.442824713533}, "go_to_zero": 7607}
+exact_decrease_bin {"lower_exclusive": 0, "python": 15, "sql": 15, "upper_inclusive": 0.05}
+exact_decrease_bin {"lower_exclusive": 0.05, "python": 84, "sql": 84, "upper_inclusive": 0.1}
+exact_decrease_bin {"lower_exclusive": 0.1, "python": 265, "sql": 265, "upper_inclusive": 0.25}
+exact_decrease_bin {"lower_exclusive": 0.25, "python": 5147, "sql": 5147, "upper_inclusive": 0.5}
+exact_decrease_bin {"lower_exclusive": 0.5, "python": 2043, "sql": 2043, "upper_inclusive": 0.75}
+exact_decrease_bin {"lower_exclusive": 0.75, "python": 53, "sql": 53, "upper_inclusive": 1}
+exact_difference_sql {"maximum": -0.03149999999999997, "mean": -0.45332494080627816, "minimum": -0.9975408332428939, "n": 7607, "sum": -3448.442824713358}
+within_axis_rescue {"adjudications_tested": 7868, "legacy_adjudication_helper_encoding": "not_established", "outcomes": [{"current_status": "not_established", "current_value": "None", "design": "review", "n": 24}, {"current_status": "not_established", "current_value": "None", "design": "theoretical", "n": 131}, {"current_status": "not_established", "current_value": "None", "design": "unclear", "n": 187}]}
+exact_hypothesis "CONFIRMED: every exact current-rule confidence is zero; proceed to the remaining layers only"
+```
+
+### Program: phase6_aggregates.py
+
+SHA-256: `a42a1d28028b61291fda90a6f129ac600c755e83939002f59b643986add34c00`.
+
+```python
+"""Read-only source-projected family/contested partition; never run a producer."""
+from collections import Counter, defaultdict
+from pathlib import Path
+import hashlib
+import json
+import math
+
+import duckdb
+from polisyos.data_forge.domains.academic.batch.graph_builder import _infer_edge_strength
+from polisyos.data_forge.domains.academic.knowledge.store import ScholarKnowledgeStore
+from polisyos.data_forge.domains.academic.knowledge import skg_store as owner
+
+DB=Path('production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb')
+OUT=Path('_build/historical-cohorts')
+prior=json.loads(OUT.joinpath('phase6-exact-results.json').read_text())
+assert prior and all(r['bucket'] in (1,2) and r['current']==0 for r in prior)
+con=duckdb.connect(str(DB),read_only=True)
+store=ScholarKnowledgeStore._from_connection(con)
+
+def emit(name,data):
+    print(name,json.dumps(data,sort_keys=True,default=str),flush=True)
+
+def fetch(sql):
+    cur=con.execute(sql);names=[c[0] for c in cur.description]
+    return [dict(zip(names,r)) for r in cur.fetchall()]
+
+def table(name):
+    data=fetch('SELECT * FROM '+name)
+    assert len(data)==con.execute('SELECT count(*) FROM '+name).fetchone()[0]
+    return data
+
+def refs(r):return set(json.loads(r['claim_refs']))
+
+def digest(ids):return hashlib.sha256('\n'.join(sorted(ids)).encode()).hexdigest()
+
+def stats(values):
+    if not values:return None
+    return dict(n=len(values),minimum=min(values),maximum=max(values),sum=math.fsum(values),mean=math.fsum(values)/len(values))
+
+F=table('ac_skg_family_edges'); C=table('ac_skg_contested_edges')
+Rrows=fetch("""
+WITH needed AS (
+ SELECT json_extract_string(j.value,'$') id FROM ac_skg_family_edges f,json_each(f.claim_refs) j
+ UNION
+ SELECT json_extract_string(j.value,'$') id FROM ac_skg_contested_edges c,json_each(c.claim_refs) j
+) SELECT r.* FROM ac_causal_claims_raw r JOIN needed n ON n.id=r.id
+""")
+R={r['id']:r for r in Rrows};assert len(R)==len(Rrows)
+assert store._claim_table_schema('ac_causal_claims_raw')=='legacy_v1'
+P={};encoded={};errors={}
+for cid,r in R.items():
+    try:
+        p=store._project_claim_row(r,source_table='ac_causal_claims_raw')
+        P[cid]=p;encoded[cid]=_infer_edge_strength(p.model_dump(mode='json'))
+    except Exception as exc:
+        errors[cid]=type(exc).__name__+': '+str(exc)
+emit('aggregate_source_projection',dict(raw_rows=len(R),family_rows=len(F),contested_rows=len(C),family_distinct_claim_refs=len(set().union(*(refs(r) for r in F))),contested_distinct_claim_refs=len(set().union(*(refs(r) for r in C))),errors=dict(Counter(errors.values())),value_status=dict(Counter(str(p.evidence_strength)+'|'+p.evidence_strength_status.value for p in P.values())),encodings=dict(Counter(encoded.values()))))
+
+def calculate(row,key,layer):
+    rr=refs(row);why=[]
+    if not rr:why.append('empty_claim_membership')
+    if row['n_claims']!=len(rr):why.append('claim_count_disagrees')
+    if not rr<=R.keys():why.append('missing_raw_claim')
+    if not rr<=P.keys():why.append('source_projection_unavailable')
+    if any(encoded.get(cid)!=owner.EDGE_EVIDENCE_NOT_ESTABLISHED for cid in rr):why.append('positive_or_other_axis_requires_remaining_inputs')
+    if why:return dict(id=row[key],bucket=3,reasons=why,current=None,stored=row['confidence'])
+    samples=[(encoded[cid],P[cid].claim_extraction_confidence) for cid in sorted(rr)]
+    base=owner.aggregate_edge_confidence(samples)
+    assert base==0.0
+    if layer=='family':
+        return dict(id=row[key],bucket=1 if base==row['confidence'] else 2,stored=row['confidence'],current=base,delta=base-row['confidence'],stored_class=row['evidence_strength'])
+    direction_samples=defaultdict(list)
+    for cid in sorted(rr):
+        direction_samples[P[cid].direction].append((encoded[cid],P[cid].claim_extraction_confidence))
+    summary=owner.weighted_direction_summary(dict(direction_samples))
+    assert all(v==0.0 for v in summary.direction_weights.values())
+    positive=summary.direction_weights.get('positive',0.0)
+    negative=summary.direction_weights.get('negative',0.0)
+    mixed=sum(summary.direction_weights.get(k,0.0) for k in ('mixed','ambiguous','non_linear'))
+    # Observe the unchanged producer's admission predicate at edge_synthesize.py:530-537.
+    # No producer function or row-building loop is invoked in this round.
+    emits=(summary.is_contested and positive>0.0 and negative>0.0) or mixed>0.0
+    assert not emits
+    return dict(id=row[key],bucket=2,stored=row['confidence'],current=None,current_status='not_emitted',base_confidence=base,delta=None,stored_class=row['evidence_strength'],direction_weight_deltas={k:-float(row[k] or 0.0) for k in ('positive_weight','negative_weight','mixed_weight')})
+
+results={}
+for layer,data,tname,key in [('family',F,'ac_skg_family_edges','family_edge_id'),('contested',C,'ac_skg_contested_edges','contested_edge_id')]:
+    out=[calculate(r,key,layer) for r in data];results[layer]=out
+    # Independent SQL reference completeness and stored-value comparison. It consumes
+    # no Python projection outputs and uses the separately established legacy schema.
+    sql=con.execute('''
+WITH claim_references AS (
+ SELECT t.'''+key+''' id,json_extract_string(j.value,'$') claim_id
+ FROM '''+tname+''' t,json_each(t.claim_refs) j
+), coverage AS (
+ SELECT rr.id,count(*) n_refs,count(DISTINCT rr.claim_id) unique_refs,
+ count(r.id) resolved
+ FROM claim_references rr LEFT JOIN ac_causal_claims_raw r ON r.id=rr.claim_id GROUP BY rr.id
+)
+SELECT t.'''+key+''',CASE
+ WHEN coalesce(v.unique_refs,0)=0 OR v.unique_refs<>t.n_claims OR v.resolved<>v.n_refs THEN 3
+ '''+('WHEN t.confidence=0 THEN 1' if layer=='family' else '')+'''
+ ELSE 2 END bucket
+FROM '''+tname+''' t LEFT JOIN coverage v ON v.id=t.'''+key).fetchall()
+    for bucket in (1,2,3):
+        pids={r['id'] for r in out if r['bucket']==bucket};sids={rid for rid,b in sql if b==bucket}
+        assert pids==sids
+        emit(layer+'_bucket',dict(bucket=bucket,python=len(pids),sql=len(sids),identity_symmetric_difference=0,ids_sha256=digest(pids)))
+    emit(layer+'_partition_detail',dict(total=len(data),reasons=dict(Counter(w for r in out for w in r.get('reasons',[]))),current_value_status=dict(Counter(str(r['current'])+'|'+r.get('current_status','numeric') for r in out)),go_to_numeric_zero=sum(r['bucket']==2 and r['current']==0 for r in out),base_confidence_zero=sum(r.get('base_confidence')==0 for r in out),by_stored_class=dict(Counter(r['stored_class'] for r in out if r['bucket']==2))))
+
+    diff=[r for r in out if r['bucket']==2]
+    values=[r['delta'] for r in diff] if layer=='family' else [r['stored'] for r in diff]
+    sign=-1 if layer=='family' else 1
+    sqlstats=con.execute('SELECT count(*),min('+str(sign)+'*confidence),max('+str(sign)+'*confidence),sum('+str(sign)+'*confidence),avg('+str(sign)+'*confidence) FROM '+tname).fetchone()
+    ps=stats(values)
+    assert len(values)==sqlstats[0]
+    for got,expected in zip([ps['minimum'],ps['maximum'],ps['sum'],ps['mean']],sqlstats[1:]):assert math.isclose(got,expected,abs_tol=1e-9,rel_tol=1e-12)
+    emit(layer+'_difference',dict(measure='current_minus_stored' if layer=='family' else 'stored_confidence_of_rows_now_not_emitted',python=ps,sql=dict(n=sqlstats[0],minimum=sqlstats[1],maximum=sqlstats[2],sum=sqlstats[3],mean=sqlstats[4]),numeric_delta_unavailable=len(diff) if layer=='contested' else 0))
+    for low,high in zip([0,.05,.1,.25,.5,.75],[.05,.1,.25,.5,.75,1]):
+        py=sum(low<r['stored']<=high for r in diff)
+        sqln=con.execute('SELECT count(*) FROM '+tname+' WHERE confidence>? AND confidence<=?',[low,high]).fetchone()[0]
+        assert py==sqln
+        emit(layer+'_distribution_bin',dict(measure='confidence_decrease' if layer=='family' else 'stored_confidence_of_not_emitted_rows',lower_exclusive=low,upper_inclusive=high,python=py,sql=sqln))
+    if layer=='contested':
+        for field in ('positive_weight','negative_weight','mixed_weight'):
+            vals=[r['direction_weight_deltas'][field] for r in diff]
+            s=con.execute('SELECT min(-'+field+'),max(-'+field+'),sum(-'+field+'),count(*) FILTER(WHERE '+field+'<>0) FROM '+tname).fetchone()
+            assert math.isclose(math.fsum(vals),s[2],abs_tol=1e-9)
+            assert sum(v!=0 for v in vals)==s[3]
+            emit('contested_direction_weight_difference',dict(field=field,python=stats(vals),go_to_zero=s[3],sql_minimum=s[0],sql_maximum=s[1],sql_sum=s[2]))
+
+# Independent retention audit; not a premise for recovering original nuisance values.
+FM={r['family_edge_id']:r for r in F};links=Counter()
+for row in C:
+    fids=set(json.loads(row['quality_signals_json'])['family_edge_ids'])
+    links['all_family_ids_present']+=fids<=FM.keys()
+    if fids<=FM.keys():
+        links['family_claim_union_equals_contested']+=set().union(*(refs(FM[k]) for k in fids))==refs(row)
+emit('contested_family_retention',dict(contested_rows=len(C),counts=dict(links)))
+OUT.joinpath('phase6-aggregate-results.json').write_text(json.dumps(results,sort_keys=True)+'\n')
+con.close()
+```
+
+Complete successful output:
+
+```text
+aggregate_source_projection {"contested_distinct_claim_refs": 965, "contested_rows": 723, "encodings": {"not_established": 16658}, "errors": {}, "family_distinct_claim_refs": 16658, "family_rows": 15945, "raw_rows": 16658, "value_status": {"None|not_established": 16658}}
+family_bucket {"bucket": 1, "identity_symmetric_difference": 0, "ids_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "python": 0, "sql": 0}
+family_bucket {"bucket": 2, "identity_symmetric_difference": 0, "ids_sha256": "ab4adfd0b0a81b19b54e1fb80ee0ab3cbc8df54324e3e2f4ce70164d3447654f", "python": 15945, "sql": 15945}
+family_bucket {"bucket": 3, "identity_symmetric_difference": 0, "ids_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "python": 0, "sql": 0}
+family_partition_detail {"base_confidence_zero": 0, "by_stored_class": {"cross_sectional": 2, "meta_analysis": 2306, "observational": 6421, "panel_fe": 859, "quasi_natural": 4307, "quasi_natural_event": 495, "rct": 951, "structural": 3, "theoretical": 161, "unknown": 440}, "current_value_status": {"0.0|numeric": 15945}, "go_to_numeric_zero": 15945, "reasons": {}, "total": 15945}
+family_difference {"measure": "current_minus_stored", "numeric_delta_unavailable": 0, "python": {"maximum": -0.009811871841035491, "mean": -0.2480690902801303, "minimum": -0.9992589346255975, "n": 15945, "sum": -3955.4616445166776}, "sql": {"maximum": -0.009811871841035491, "mean": -0.24806909028013174, "minimum": -0.9992589346255975, "n": 15945, "sum": -3955.4616445167007}}
+family_distribution_bin {"lower_exclusive": 0, "measure": "confidence_decrease", "python": 492, "sql": 492, "upper_inclusive": 0.05}
+family_distribution_bin {"lower_exclusive": 0.05, "measure": "confidence_decrease", "python": 2594, "sql": 2594, "upper_inclusive": 0.1}
+family_distribution_bin {"lower_exclusive": 0.1, "measure": "confidence_decrease", "python": 5789, "sql": 5789, "upper_inclusive": 0.25}
+family_distribution_bin {"lower_exclusive": 0.25, "measure": "confidence_decrease", "python": 6013, "sql": 6013, "upper_inclusive": 0.5}
+family_distribution_bin {"lower_exclusive": 0.5, "measure": "confidence_decrease", "python": 964, "sql": 964, "upper_inclusive": 0.75}
+family_distribution_bin {"lower_exclusive": 0.75, "measure": "confidence_decrease", "python": 93, "sql": 93, "upper_inclusive": 1}
+contested_bucket {"bucket": 1, "identity_symmetric_difference": 0, "ids_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "python": 0, "sql": 0}
+contested_bucket {"bucket": 2, "identity_symmetric_difference": 0, "ids_sha256": "e78058eb9ccf3f98a1e8e639ba69b27940617bd252810f6ae51728cfee67739b", "python": 723, "sql": 723}
+contested_bucket {"bucket": 3, "identity_symmetric_difference": 0, "ids_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "python": 0, "sql": 0}
+contested_partition_detail {"base_confidence_zero": 723, "by_stored_class": {"meta_analysis": 133, "observational": 298, "panel_fe": 41, "quasi_natural": 176, "quasi_natural_event": 23, "rct": 31, "theoretical": 3, "unknown": 18}, "current_value_status": {"None|not_emitted": 723}, "go_to_numeric_zero": 0, "reasons": {}, "total": 723}
+contested_difference {"measure": "stored_confidence_of_rows_now_not_emitted", "numeric_delta_unavailable": 723, "python": {"maximum": 0.8155864680301657, "mean": 0.26226157357899144, "minimum": 0.15, "n": 723, "sum": 189.6151176976108}, "sql": {"maximum": 0.8155864680301657, "mean": 0.26226157357899266, "minimum": 0.15, "n": 723, "sum": 189.61511769761168}}
+contested_distribution_bin {"lower_exclusive": 0, "measure": "stored_confidence_of_not_emitted_rows", "python": 0, "sql": 0, "upper_inclusive": 0.05}
+contested_distribution_bin {"lower_exclusive": 0.05, "measure": "stored_confidence_of_not_emitted_rows", "python": 0, "sql": 0, "upper_inclusive": 0.1}
+contested_distribution_bin {"lower_exclusive": 0.1, "measure": "stored_confidence_of_not_emitted_rows", "python": 427, "sql": 427, "upper_inclusive": 0.25}
+contested_distribution_bin {"lower_exclusive": 0.25, "measure": "stored_confidence_of_not_emitted_rows", "python": 237, "sql": 237, "upper_inclusive": 0.5}
+contested_distribution_bin {"lower_exclusive": 0.5, "measure": "stored_confidence_of_not_emitted_rows", "python": 55, "sql": 55, "upper_inclusive": 0.75}
+contested_distribution_bin {"lower_exclusive": 0.75, "measure": "stored_confidence_of_not_emitted_rows", "python": 4, "sql": 4, "upper_inclusive": 1}
+contested_direction_weight_difference {"field": "positive_weight", "go_to_zero": 131, "python": {"maximum": -0.0, "mean": -0.05498906500691563, "minimum": -1.311582, "n": 723, "sum": -39.757094}, "sql_maximum": -0.0, "sql_minimum": -1.311582, "sql_sum": -39.757093999999974}
+contested_direction_weight_difference {"field": "negative_weight", "go_to_zero": 119, "python": {"maximum": -0.0, "mean": -0.05499171645919779, "minimum": -2.321379, "n": 723, "sum": -39.759011}, "sql_maximum": -0.0, "sql_minimum": -2.321379, "sql_sum": -39.75901099999999}
+contested_direction_weight_difference {"field": "mixed_weight", "go_to_zero": 632, "python": {"maximum": -0.0, "mean": -0.19969940525587826, "minimum": -1.206897, "n": 723, "sum": -144.38267}, "sql_maximum": -0.0, "sql_minimum": -1.206897, "sql_sum": -144.38267000000013}
+contested_family_retention {"contested_rows": 723, "counts": {"all_family_ids_present": 723, "family_claim_union_equals_contested": 723}}
+```

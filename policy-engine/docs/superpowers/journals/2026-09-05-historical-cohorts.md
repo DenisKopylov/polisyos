@@ -2091,3 +2091,44 @@ contested_direction_weight_difference {"field": "negative_weight", "go_to_zero":
 contested_direction_weight_difference {"field": "mixed_weight", "go_to_zero": 632, "python": {"maximum": -0.0, "mean": -0.19969940525587826, "minimum": -1.206897, "n": 723, "sum": -144.38267}, "sql_maximum": -0.0, "sql_minimum": -1.206897, "sql_sum": -144.38267000000013}
 contested_family_retention {"contested_rows": 723, "counts": {"all_family_ids_present": 723, "family_claim_union_equals_contested": 723}}
 ```
+
+## Event 11 — Phase-6 closeout, custody, and checker exemption, 2026-09-05
+
+Events 9–10 were committed as `1a4efd43e075fe7330a9724a050fe3b4881eaf38` on
+`codex/debt-historical-cohorts` and read back from the branch. The committed journal equals
+the worktree file, preserves the original 104,271-byte prefix (Events 1–8) verbatim, and
+contains the exact executed measurement programs and their SHA-256 hashes. `git diff
+--check` passed. The observed branch state after the measurement commit was clean:
+`## codex/debt-historical-cohorts`.
+
+Only the journal changed. No checker-read register, ledger, plan, tool, source, test, or
+schema file changed, so **the bound debt checker was skipped** under the corrected rule.
+The receipt was run against the committed continuation:
+
+```sh
+git diff --name-only 424e8b2ee..HEAD
+```
+
+```text
+policy-engine/docs/superpowers/journals/2026-09-05-historical-cohorts.md
+```
+
+The final production-data hash read after all measurements confirmed:
+
+```text
+sha256:583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967
+mode: -r--r--r--
+size: 2390503424 bytes
+```
+
+No production-data write, chmod, producer/writer invocation, live lane, rebase, force-push,
+or stash occurred. Only read-only/pure recomputation into the diagnostic report was done.
+No product implementation or route decision was made. The user-required stop is Phase-6
+partition completion; the architect now owns the route ruling on HC-F11–HC-F14.
+
+The committed journal SHA-256 **before this receipt append** was
+`5d23c6efc2165983a18923c9e9b4d00f3aaab12260625ecd5f132cab5389dfab` (Events 1–10).
+This receipt is committed separately, followed by a final branch/path/prefix readback;
+that later journal hash is not claimed to equal the pre-receipt hash. HC-T01-R2 and
+HC-T02-R2 are the sole replacement transcription paragraphs from this round and must not
+be concatenated with the preserved earlier versions.

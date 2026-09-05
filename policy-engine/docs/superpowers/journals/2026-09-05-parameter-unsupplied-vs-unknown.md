@@ -406,3 +406,78 @@ journal. Reopened the failure/repair register for closeout (P07, P15, P31,
 P35, P38, P41). No repair round, source edit, or active-plan edit occurred.
 The bound debt checker will be run once after this measurement commit, with
 all output redirected to a local scratch file; its result will be appended.
+
+
+## 2026-09-05 — final checker, custody, and delivery append
+
+Measurement commit `e73e43297a8c2ddaf932fe320f4149fb2f9c9318` was read back from
+`codex/debt-parameter-unsupplied-vs-unknown`, byte-compared with the local journal,
+and checked against the task base. Its only changed path is this journal. The
+commit hook printed that no lefthook configuration was found at the worktree root;
+the commit succeeded. No hook configuration was changed.
+
+### One bound debt-checker run
+
+```sh
+mkdir -p _build/parameter-unsupplied-vs-unknown
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python tools/quality/validation/check_debt_ledger.py --check > _build/parameter-unsupplied-vs-unknown/bound-debt-check.txt 2>&1
+```
+
+**Exit 0**, 592.33 seconds real, 558.50 user, 28.22 system. Exactly one invocation;
+no write mode, report-only flag, reduced input set, retry, or baseline replay.
+The checker performs pytest collection to resolve registered selectors; this
+was not test execution. No directory-wide test run was made.
+
+Log: `_build/parameter-unsupplied-vs-unknown/bound-debt-check.txt`, ignored scratch
+in the task worktree. The complete captured log has 8354 bytes and 59 lines;
+SHA-256 `8b8f462e92808acaa1e508d33f54f4fbb8fecbf20c8de271c32dbe224362a55c`. All 26 integer metrics, copied from the complete log:
+
+```text
+register_ids=192
+gy_ids=38
+atlas_debt_rows=22
+frontend_disposition_entries=261
+frontend_ds8_assignment_rows=217
+gy_history_blocks=6
+gy_absent_from_register=15
+gy_absent_from_register_closed=15
+ds5_nonclosure_rows=27
+ds5_planless_routes=4
+irregular_section_e_branch_rows=1
+explicit_nonclosure_entries=29
+explicit_nonclosure_identified=18
+explicit_nonclosure_typed_not_a_debt=11
+explicit_nonclosure_resolved_history=8
+explicit_nonclosure_unidentified=0
+closure_signal_pytest_selections=44
+closure_signal_unsupported_runners=1
+closure_signal_identities_without_commands=4
+closure_signal_identity_unresolvable=9
+closure_signal_input_unresolvable=0
+closure_signal_selects_nothing=0
+closure_signal_collection_failed=0
+closure_signal_collection_host_unknown=0
+closure_signal_ast_collection_disagreements=0
+closure_signal_count_exit_disagreements=9
+```
+
+The complete finding-line denominator is 29 informational findings:
+9 `closure_signal_count_exit_disagreement`; 9 `closure_signal_identity_unresolvable`; 1 `closure_signal_runner_unsupported`; 10 `register_supplies_missing_standing`. There are no blocking findings. The green command does not
+prove the unresolvable identities exist, does not close this task's row, and
+is not an inherited-red attribution. Findings were preserved without remediation
+outside the task scope.
+
+### Final custody and scope check
+
+After the checker finished, the same read-only `shasum -a 256` command again
+returned `583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`.
+`git status -sb` showed the attached task branch and a clean tree before this
+append. The five embedded Python reproduction snippets also parsed successfully.
+No implementation, generated schema, active plan, weight, edge encoding, or
+production data changed. No push, rebase, force-push, stash, or branch switch ran.
+
+**Final disposition: Phase-1 stop with corrected basis; debt remains open.**
+The full consumer/round-trip closure census, Phase-2 representation choice, and
+Phase-3 red/green repair are unperformed under the explicit stop rules. The
+transcription above is ready for the architect; it does not authorize a wider
+ABI repair. This final journal append is the closeout commit, not a design phase.

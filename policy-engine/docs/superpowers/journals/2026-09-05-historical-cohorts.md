@@ -3772,3 +3772,54 @@ Complete captured output:
 ```text
 {"global_evidence_keys_outside_this_namespace": 0, "sql_documents": 310829, "sql_documents_with_parameter_key": 1577, "sql_parameter_evidence_keys": 5133, "sql_parameter_status_keys": 0}
 ```
+
+
+## Event 20 — Phase-9 branch, checker exemption, and snapshot custody receipts, 2026-09-05
+
+Events 18–19 were committed as `17219faff517f8536b75ae4ee160c007c844db90` on
+`codex/debt-historical-cohorts` and read back from that branch with `git show`.
+The committed journal exactly matched the worktree, retained all **244,387 bytes** of the
+Phase-9 entry journal, and contained both complete census programs and both successful
+aggregate logs. The journal SHA-256 **before this receipt was appended** was
+`f68086144dc5a941b3da743824d9e24297a69dae4c767d7b5e0cac2b89390647`.
+`git status -sb` returned `## codex/debt-historical-cohorts` with no changes, and
+`git diff --check 8ebb13102..HEAD` passed.
+
+The bound debt checker was **skipped** under the corrected input predicate: this round
+changed only the journal, which the checker does not read. The receipt, taken from the
+committed branch after Events 18–19, is:
+
+```console
+$ git diff --name-only 8ebb13102..HEAD
+policy-engine/docs/superpowers/journals/2026-09-05-historical-cohorts.md
+```
+
+No register, ledger, plan, tool, source, test, or schema file changed. No product test suite
+was run for this measurement-only round; the successful Python/SQL reconciliations and
+`git diff --check` are the applicable verification. This receipt adds only journal text.
+
+Final snapshot custody was verified by opening the pinned DuckDB file in binary read mode,
+calling `hashlib.file_digest(file, "sha256")`, and reading its file stat. The result was:
+
+```json
+{
+  "snapshot": "/Users/deniskopylov/polisyos/.worktrees/debt-historical-cohorts/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+  "resolved_snapshot": "/Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+  "sha256": "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967",
+  "bytes": 2390503424,
+  "mode": "-r--r--r--",
+  "read_mode": "rb",
+  "wall_seconds": 1.28
+}
+```
+
+The final hash matches the required pin exactly. The snapshot was not written, permission
+bits were not changed, and all census connections used DuckDB `read_only=True`. No producer,
+model, writer, extraction stage, data-production pass, route enablement, source/test edit,
+or product fix round was invoked.
+
+The stop remains the namespace-qualified HC-D05 stop: same-named fields exist in parameter
+metadata, while every claim subtree lacks the evidence axis. This does **not** date or
+refute claim-specific vintage. Input availability, restoration workload, cost, and the
+bounded alias experiment remain deferred. HC-T01-R5, HC-T02-R5, and HC-T03-R5 replace their
+respective earlier paragraphs in full; the transcriber must not concatenate versions.

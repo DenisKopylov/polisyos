@@ -72,6 +72,25 @@ what PolicyOS may claim about evidence kinds is
    promised in a task brief and never created, after which three lanes re-adjudicated them
    independently and typed them three different ways.
 
+9. **A row whose mechanism was read rather than measured must say so, with `mechanism_unmeasured`.**
+   Added 2026-09-05 by the keeper against the keeper, after **four consecutive lanes refuted a
+   mechanism sentence I had written from reading code.** `academic-graph-manufactures-design-from-a-placeholder`
+   named a fallback that a complete AST census showed was **unreachable in the published path**,
+   producing **0 of 7,868** rows. The unknown-weight merge claimed a declared absence was *silently
+   re-weighted at 0.25*; `EvidenceParameter.evidence_strength` is not optional, so the value could
+   not arrive. The basis-grade hypothesis said carriers cannot express standing; one carrier types
+   it `Literal["independently_reconciled"]` — a single-value literal that cannot express the
+   unfavourable grade. And `parameter-contract-cannot-distinguish-unsupplied-from-unknown` was wrong
+   **twice in one row**: the distinction survives construction and dies at serialization, and
+   presence would not unblock calibration at all.
+   The failure is always the same shape and it is not carelessness — it is asserting **reachability
+   or causation from adjacency in a file** without checking whether the input can arrive. Every one
+   of the four cost a lane a phase, and every refutation was worth more than the repair it
+   interrupted, so the marker is not an apology: it tells the lane *this is the hypothesis to test
+   first*, which is where the value has actually been. A row carrying it is still fully actionable;
+   the marker binds the **basis of its mechanism sentence**, never its status or its priority. Drop
+   it when a lane measures the mechanism and the row records what was measured.
+
 ### Task lifecycle
 
 `named → planned → unblocked → in-flight → handed-back → verified → merged → closed`

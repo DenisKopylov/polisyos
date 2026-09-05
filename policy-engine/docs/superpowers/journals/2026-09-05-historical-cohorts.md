@@ -2422,3 +2422,700 @@ This receipt is committed separately, followed by a final branch/path/prefix rea
 HC-T01-R3 and HC-T02-R3 replace the corresponding `-R2` paragraphs in full and **must not
 be concatenated** with the preserved earlier versions. HC-T03 remains a separate proposed
 producer-row transcription, not a registration or repair performed by this task.
+
+
+## Event 15 — Phase-8 complete source census and producer-premise stop, 2026-09-05
+
+Entry branch: `codex/debt-historical-cohorts`, attached and clean at
+`b97969a3f41e177a72b1f42bfcca129d3f9114bf`. Events 1–14 remain verbatim. The Phase-8
+source/test repair grant is conditional on finding no working alternative producer.
+**That prerequisite is refuted:** the active rich `resolve_extract` route has a working
+prompt/provider-response/claim-transport chain. A controlled response reaches graph
+inference as `rct` / `candidate` and has a positive pure aggregate confidence, without
+using the broken `extract_with_llm` function. The finding was reported immediately and
+**stop rule 1 was applied before any repair**. Later work only reconciles and records
+this census, its witness, and custody.
+
+### HC-F16 — complete producer-candidate census, denominator, and independent reconciliation
+
+The path denominator is the complete physical `src/` + `tools/` tree at entry, including
+hidden/ignored paths; `Path.rglob` and `rg --files --hidden --no-ignore` agree on every
+path. All 3,355 paths are also tracked. There are **3,052 Python files**, all parsed with
+zero syntax errors, and **303 other files**, which were included in the text census.
+File-type denominator:
+
+| Type | Files |
+| --- | ---: |
+| `.py` | 3,052 |
+| `.md` | 200 |
+| `.sh` | 27 |
+| `.json` | 18 |
+| `.csv` | 15 |
+| `.ts` | 12 |
+| `.yaml` | 11 |
+| `.tmpl` | 7 |
+| `.pyi` | 5 |
+| `.cypher`, `.toml`, `.typed` | 2 each |
+| `.sql`, `.txt` | 1 each |
+| **Total** | **3,355** |
+
+The complete source-text scan finds **301 lines in 47 files** containing
+`evidence_strength` (including `evidence_strength_status`). All matching files are `.py`.
+Python byte/text scanning, `rg --json --hidden --no-ignore`, and independently enumerated
+`git grep -n evidence_strength b97969a3f -- src tools` agree on the **complete path/line
+identity set**, not just its size: **zero symmetric difference**. The sorted path
+inventory hash is `8c76b3fd7ece7b17f9e055a61e71df69fddc17ef1c52a94e6886cefbea65df79`.
+The Git comparison is against committed entry bytes, not a scratch or edited source tree.
+
+The AST scan records **64 syntactic field-write candidates in 19 files**: keyword
+arguments, dictionary construction, attribute/subscript assignments, or `setattr` with a
+literal target field. This is a search denominator, **not 64 producers**: query filters,
+contract declarations, and downstream projections also use the keyword/dictionary
+syntax. SQL strings, templates, reads, annotations, and copies are retained in the wider
+301-line set and checked against the typed transport boundary rather than lost by limiting
+the census to assignment syntax. The program and complete candidate/call-site output are
+preserved in Event 16.
+
+A second view starts at the actual `ClaimOccurrenceVocabularyTransport` constructors.
+The complete AST call set finds **four local builder functions**. An independent
+source-declaration scan finds the same four identities. **Two** explicitly supply the
+named evidence value/status; the deterministic and historical-adapter builders supply
+absence. The writer/transport inventory is:
+
+| Writer or transport owner | Value source and reach to `graph_builder._infer_edge_strength` |
+| --- | --- |
+| `batch/article_extractor.py:953` `_normalize_causal_claim` (field at `:973`) | Normalizes a named claim field from a parsed rich response and validates `CausalClaim` at `:996`. The active `resolve_extract` worker calls the enclosing payload normalizer at `_resolve_extract_api.py:1517`. This is an additional producer route; its explicit `rct` input, subsequent gate, serialization, and inference were exercised in HC-F17. This witness does not establish historical provenance or calibrate the normalized field. |
+| `batch/article_extractor.py:1901` `serialize_rich_claim_occurrence_vocabulary` | Emits the separately named value/status at `:1949–1950`, using the typed claim's supplied fields. Called by `_to_work_record` at `:2010`; active resolve extraction and finalize call `_to_work_record` at `_resolve_extract_api.py:1757` and `resolve_finalize.py:937`. The resulting nested transport survives the actual JSONL adapter and `_admitted_claim_parts` before inference. Its separate OpenAlex-ingest caller is `knowledge/skg_store.py:729`; that caller uses its own SQL-ingest path, not the batch `_infer_edge_strength` call. |
+| `batch/llm_extractor.py:45` `serialize_llm_claim_occurrence_vocabulary` | Emits the named value/status at `:85–86`, called by `parse_llm_result` at `:467`. The codec can accept a supplied model response, but its selective producer call remains blocked by HC-F15's prompt-format failure at `:403`, before request and parse. It is not the rich producer above. |
+| `batch/parser.py:409` `serialize_deterministic_claim_occurrence_vocabulary` | A real transport builder called by `parse_raw_sources` at `:647`, but rejects occurrence-supplied evidence value/status at `:421–434`. It does not produce a named evidence judgment; the evidence axis remains absent. |
+| `knowledge/types.py:220` `adapt_legacy_claim_occurrence_transport` | The fourth transport builder, used for explicitly identified historical inputs; adapts old vocabulary to absence. It is not a new extraction producer. |
+| `knowledge/types.py:187` `candidate_claim_vocabulary_store_values` | Re-admits and flattens an existing transport, carrying value/status at `:205–208`. It is a persistence-layout copier, not an independent observation. `_admitted_claim_parts` at `batch/graph_builder.py:367` uses it. |
+| `knowledge/types.py:545` `adapt_jsonl_work_record_claims` | Generic persisted-v2 ingress preserves nested `occurrence`/`vocabulary`; legacy inputs take the absence adapter. `run_graph_load` uses it at `batch/graph_builder.py:1802`. Externally supplied valid v2 records can carry an axis; admission does not establish who originally observed it. |
+
+Paths in that table are relative to `src/polisyos/data_forge/domains/academic/`.
+The four builder identities are the rich serializer, selective-LLM serializer,
+deterministic serializer, and legacy adapter. The normalizer, flattening copier, and
+JSONL reader are separately named so their roles are not counted as extra independent
+extractors. `load_graph` has **one** `_infer_edge_strength` call at `:1634` in the complete
+AST set. It consumes the vocabulary of records admitted at `:1117–1120` and is gated by a
+separately admitted `publishable_edge` adjudication at `:1594–1600` and nonempty endpoints.
+An axis reaching that function is not, by itself, permission to publish an edge.
+
+The remaining syntactic candidates are accounted for below. This table names each file's
+complete candidate count and plane; the exact containing function and line for **every**
+site are in Event 16. A candidate count does not assert the absence of generic forwarding
+or prove an unrelated runtime route was executed.
+
+| File (under `src/polisyos/` unless `tools/` is shown) | Sites | Disposition relative to claim production for this batch boundary |
+| --- | ---: | --- |
+| `data_forge/domains/academic/batch/_resolve_extract_transformers.py` | 3 | Numeric-parameter rescue, merge, and prompt projection; not a new claim evidence-axis writer. |
+| `data_forge/domains/academic/batch/article_extractor.py` | 4 | Three claim normalizer/serializer sites above; one empirical-parameter normalizer, outside this claim boundary. |
+| `data_forge/domains/academic/batch/llm_extractor.py` | 3 | Selective-LLM serializer value dictionary and two envelope fields, above. |
+| `data_forge/domains/academic/batch/numeric_extract.py` | 1 | Raw numeric-parameter projection. |
+| `data_forge/domains/academic/batch/resolve_finalize.py` | 3 | Parameter merging, curated numeric rows, and simulation-ready parameters; its rich claim bridge is separately listed above. |
+| `data_forge/domains/academic/batch/table_extractor.py` | 1 | Table-to-parameter construction. |
+| `data_forge/domains/academic/knowledge/skg_query.py` | 14 | Query filters, edge/prior projections, and parameter conversion; downstream of stored evidence, not the rich response producer. |
+| `data_forge/domains/academic/knowledge/store.py` | 11 | Claim/edge projection, audit, and a validation predicate; returns stored or adapted vocabulary. |
+| `data_forge/domains/academic/knowledge/types.py` | 2 | Column-type map and admitted persistence layout; not observations. |
+| `foundry/analysis/attractors.py` | 3 | Attractor/certificate contracts, a different evidence-bearing result type. |
+| `foundry/methods/catalog/bayesian/pmd_hmc.py` | 1 | Multimodality assessment contract. |
+| `foundry/methods/catalog/causal/literature_prior.py` | 2 | Downstream literature-prior DTO. |
+| `ir/analytics/literature.py` | 2 | The gold-record and OpenAlex span-grounded `CausalClaim` constructor sites; included in the required complete source census. No IR producer was invoked or changed. The separately registered keyword mechanism is not investigated or repaired here; the observed OpenAlex storage caller uses the separate SKG ingest path above. |
+| `runtime/http/openapi_contract.py` | 2 | OpenAPI contract fields. |
+| `runtime/quality/credal_reference.py` | 4 | Stored edge/family/claim projections. |
+| `scientist/cross_graph/gatherers/academic.py` | 1 | Literature-prior baseline projection. |
+| `scientist/methods/discovery/prior_miner.py` | 2 | Mined-prior DTO value/status. |
+| `tools/ops_runners/experiments/run_msme_final_fresg_suite.py` | 1 | Experimental policy-score result. |
+| `tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py` | 4 | Validation census/projection rows. |
+| **Total** | **64** | Complete syntactic candidate set; semantic producer count is not inferred from this total. |
+
+No competing source mechanism needs to be repaired to deliver this result. The rich path
+alone is a counterexample to the Phase-8 premise; the literal/source set and local builder
+reconciliation are complete, while live operation, production credentials, historical
+invocations, and every downstream scheduler/ingest outcome are not claimed to have been
+executed or certified.
+
+### HC-F17 — active rich route: rendered prompt, controlled response, persisted shape, inference
+
+The active route is visible in the actual orchestration: `batch/pipeline.py:125` invokes
+`run_resolve_extract`, and the explicit claim lane invokes the same stage at `:140`.
+The facade in `batch/resolve_extract.py:92` delegates to `_resolve_extract_api`. Its
+`llm_worker` uses `_prompt_for_bundle` at `_resolve_extract_api.py:1358`, then awaits
+`_await_provider_json` at `:1364`. It does not call selective `extract_with_llm`.
+
+The prompt owner is `_resolve_extract_transformers.py:1247`. It already uses a readable
+literal schema and targeted replacement of `{canonical_names_block}` at `:1258`; JSON
+braces are never passed through `str.format`. The actual claim schema includes the
+separate evidence axis (`_resolve_extract_api.py:549`; shared via the facade globals).
+A controlled witness calls the active facade's real prompt function and provider wrapper
+with an in-memory pool, then follows the worker's response-to-record functions:
+
+```text
+_prompt_for_bundle
+  -> _await_provider_json (controlled pool, no network)
+  -> _normalize_extraction_payload -> ArticleExtractionResult.model_validate
+  -> _apply_publish_gate
+  -> _to_work_record -> serialize_rich_claim_occurrence_vocabulary
+  -> WorkRecord.model_dump_json -> json.loads
+  -> adapt_jsonl_work_record_claims
+  -> graph_builder._admitted_claim_parts
+  -> graph_builder._infer_edge_strength
+```
+
+The fixture deliberately supplies synthetic sentence spans and a named `rct` response.
+The measured result is **one controlled provider call, zero real model calls, one
+normalized claim, `publish_to_graph=True` with no claim-level blockers, one claim after
+JSON round-trip, evidence `rct` / `candidate`, and inferred edge strength `rct`**. The
+current pure aggregation function returns **0.55** for the resulting single-claim sample.
+This is a code-path witness with synthetic inputs, not measured paper evidence or a
+confidence calibration result.
+
+The **rendered** 9,183-character prompt contains the claim JSON block with single braces;
+the controlled pool checks the rendered block before returning its response. Its SHA-256
+is `1727fc4f0806f0783fe62ab735f0a2de5153c3580e7f6c6ef3aa2879843366e1`.
+That positive receipt belongs to the existing rich path. The selective LLM template was
+not edited, escaped, substituted, or otherwise repaired. Its known formatting failure
+remains HC-F15; this witness never routes through it.
+
+**Reachability limit:** the scheduler, extraction stage/coroutine, artifact writers,
+graph loader, and adjudicator were not invoked. The real graph loop additionally requires
+a separately admitted publishable adjudication, and this task did not manufacture one.
+The witness exercises the real prompt/provider-wrapper/normalizer/gate/serialization/
+admission/inference functions, while the orchestration connections and adjudication gate
+are read from their source. It establishes a working candidate-axis path under a
+controlled response; it does not establish real-provider availability, past successful
+runs, paper truth, or an authorized published result. The zero real-model-call and no-stage
+counts describe this harness, not the repository's history.
+
+This suffices to refute **"the LLM path [meaning selective `extract_with_llm`] is its only
+producer"**, **"the axis has no working producer at all"**, and the consequent claim
+**"fresh data must again produce zero because the only producer is broken"**. Fresh
+explicit evidence can reach current inference; whether a particular fresh source yields
+it remains a data question. HC-F11–HC-F14's universal-zero result for the pinned retained
+source projections remains intact. It is not a universal theorem about future rich
+extractions.
+
+### HC-D04 — mandatory stop, unspent repair, and deferred measurements
+
+The Phase-8 instruction says **"Stop if the census finds a working producer — the
+diagnosis is then wrong."** HC-F17 triggers that rule before task 2. The explicit scope
+grant to repair the selective prompt is conditional and is not exercised after its
+premise fails. No repair design or source/test implementation is committed. The one fix
+round remains unspent; no red-first test for the proposed repair or implementation green
+is claimed. The positive controlled-response witness is verification of existing code.
+
+Task 2's swallowing/sibling investigation was not reached. HC-F15 still locates the known
+format error before the selective function's `try`, but this round makes no new claim
+about what other failures its broad handler hides and performs no handler repair. The
+architect's supplied first-commit/B-1 history was not replayed before this stop; the
+separate selective failure is established at the task's source, without attributing every
+past extraction attempt or every producer to that one function.
+
+No LLM gate was enabled or changed. A future repair of the selective prompt would allow
+its existing model-call branch to make real requests when its route is enabled; that
+operational consequence still matters, but **this round did not activate it**. The rich
+route already has its own model-request path, subject to its configuration and gates.
+
+Task 3 remains conditional on tasks 1–2 completing without a stop, so the complete-corpus
+axis/status walk, source-basis/input-availability census, article/claim restoration scope,
+and re-extraction cost range remain **unmeasured**. Cost remains **`not_established`**,
+with the bounding prerequisites in HC-D03. Neither compute-only work nor a source
+acquisition requirement is established. The introduction date and complete 310,829-document /
+137,714-embedded-claim axis population are not inferred from the existence of this rich
+path or from the earlier 7,868-published-payload result.
+
+The Phase-7 withdrawal of per-row marking and HC-R01's residual stand. No layer-vintage
+declaration, read-time numeric substitution, or data-capability conversion is implemented.
+Existing residual anchors remain direct SQL at
+`src/polisyos/runtime/quality/capability_index_compiler.py:881` and
+`src/polisyos/runtime/quality/credal_reference.py:839,856,899`; stored-column copies at
+`src/polisyos/data_forge/domains/academic/batch/best_snapshot.py:925` and
+`tools/ops_runners/cloud/merge_shards.py:244`; and downstream
+`src/polisyos/foundry/methods/catalog/causal/literature_prior.py:232`.
+A current-rule interpretation must still keep stored value/status separate from its
+current-rule outcome; a read path must never silently replace stored bytes.
+
+Pattern pass (failure/repair register read at entry and closeout): P35/P36 require the
+complete source denominator and separate the architect's supplied history from the
+measured finding; P29/P38 require a rendered/consumed signal instead of a template substring;
+P01/P02 distinguish the actual active rich bridge from the selected broken sibling;
+P04/P05 preserve candidate authority and absence versus unknown. The source census is
+**`independently_reconciled`**; the synthetic response-to-inference result is
+**`recomputed`**. Historical invocation provenance, real-provider operation, restoration
+cost, and production publication are **`not_established`** by this witness. It is not a
+claim to close every capability link or lift a candidate into authority.
+
+The 488 hint mismatches, parameter-value provenance, B-1/B-2 repairs, and IR keyword issue
+are not repaired or further investigated. No active plan, register, source, test, schema,
+or release fragment is changed. The only tracked deliverable is this appended journal.
+The Phase-8 prediction that the checker would apply anticipated source/test work; that
+work did not occur. Under the explicitly unchanged checker predicate (actual changes to
+files it reads), the checker is **skipped**, with the committed diff receipt in Event 17.
+
+### HC-T01-R4 — replace HC-T01-R3 in full; open-row transcription
+
+> **HISTORICAL-COHORTS PHASE 8, 2026-09-05 — stays open; a working rich producer refutes the proposed universal producer absence.** The accepted retained-membership partition remains exact **0 equal / 7,607 different / 0 not recomputable**, family **0 / 15,945 / 0**, and contested **0 / 723 / 0**, independently reconciled in HC-F11/HC-F12. Exact/family current-rule confidences are zero; all 723 contested memberships have zero base confidence and direction weights and fail the current emission predicate before its floor, so their outcome is not-emitted, not zero final confidence (HC-F13). Source value is `None` / `not_established`, not a recorded unknown (HC-F14); the 458 strongest-unknown rows are not the current-rule difference boundary. Per-row marking remains withdrawn. The complete Phase-8 census covers 3,355 `src/`/`tools/` files, including 3,052 Python files with zero parse errors; independent scans reconcile all 301 matching lines in 47 files and all four local claim-transport builders (HC-F16). The active rich `resolve_extract` route uses a separate working prompt and `_normalize_causal_claim` -> rich serializer -> `WorkRecord` bridge. A controlled response survives the real publication gate, JSON round-trip, admission, and `_infer_edge_strength` as `rct` / `candidate`, with a positive 0.55 pure confidence result (HC-F17). No real model, extraction stage, writer, or adjudicator ran; actual publication still requires an admitted publishable adjudication. The broken selective `extract_with_llm` prompt remains a separate defect, not the only producer. Consequently the claim that re-extraction must again yield zero because the axis has no producer is refuted. Stop rule 1 prevented the proposed formatting repair and all deferred corpus/input/workload/cost measurements (HC-D04); their cost and compute-versus-acquisition ownership remain `not_established`. Neither whole-corpus vintage nor a ready layer-declaration/data-capability conversion is established, and the claim that this row is not closable by code remains withheld. No route or historical/read-path value changed; HC-R01's named direct-SQL/copy/downstream residual persists, and any future current-rule interpretation must preserve stored value/status separately.
+
+### HC-T02-R4 — replace HC-T02-R3 in full; closed-row transcription
+
+> **HISTORICAL-COHORTS PHASE 8, 2026-09-05 — remains closed for the forward substitution repair.** The contradiction cohort remains 342 stored observational evidence rows: theoretical 131, unclear 187, review 24; they are 342 of 374 observational rows (91.44385026737967%), with the other 32 from actual OLS adjudications (HC-F06/HC-F07). The remaining 7,526 are faithful coarse translations relative to retained adjudications, but are not derivable from adjudication under today's explicit evidence-axis rule. All 7,868 published source claims project to `None` / `not_established` and all 7,607 exact confidences compute to zero on reconciled retained memberships; the proposed theoretical-design rescue would reinstate the removed cross-axis inference (HC-F11/HC-F12/HC-F14). Phase 8 refutes the inference that this makes every future extraction zero: the complete source census identifies the separate active rich `resolve_extract` producer, and its controlled response-to-claim/JSONL/admission path preserves `rct` / `candidate` into `_infer_edge_strength` with a positive pure confidence result (HC-F16/HC-F17). This is a synthetic code-path witness, not paper evidence, a real model run, or an authorized publication; the graph still requires an admitted publishable adjudication. The selective LLM prompt failure remains a separate unrepaired defect and no longer supports a claim that the entire axis has no producer. The mandatory census stop left whole-corpus vintage, retained-input availability, restoration workload, and cost unmeasured (HC-D04). Per-row marking remains withdrawn; no layer declaration, read-time replacement, data pass, or reader changed. HC-R01 persists, and the broader route decision remains with the architect. The 488 hint mismatches, parameter-value provenance, and IR keyword inference remain outside this repair.
+
+### HC-T03-R4 — separate producer-row correction; replaces the proposed HC-T03 wording
+
+> **ACADEMIC EVIDENCE-AXIS PRODUCER CENSUS, 2026-09-05 — the proposed “no working producer” diagnosis is refuted; the selective prompt defect remains open and unrepaired.** HC-F16 enumerates the complete 3,355-file `src/`/`tools/` tree and reconciles 301 matching lines in 47 files plus four claim-transport builders. The rich `resolve_extract` producer is separate from selective `extract_with_llm`: `_resolve_extract_api.py:1358` calls `_prompt_for_bundle`, whose owner at `_resolve_extract_transformers.py:1247` keeps literal JSON intact, and the response reaches `_normalize_extraction_payload` at `_resolve_extract_api.py:1517` and `_to_work_record` at `:1757`. The existing rich normalizer/serializer and real JSONL/admission/inference functions carry a controlled named `rct` response as `rct` / `candidate`; pure confidence is 0.55 (HC-F17). The stage, real model, writers, and adjudicator were not invoked, so live-provider operation and publication are not certified. Separately, `llm_extractor.py:403` still fails before its request because the selective template's unescaped JSON braces are interpreted by `.format` (HC-F15). That bounded execution defect, not absence of every evidence-axis producer, is the accurate remaining code debt. Phase-8 stop rule 1 prevented its conditional repair; no red/green repair or handler-sibling investigation was performed. A future separately scoped formatting fix must exercise the real selective request path against a controlled client and prove that rendered model-facing text retains single JSON braces. When that route is enabled, unblocking prompt preparation permits real model calls; this task enabled nothing. Do not merge this producer-row correction with either historical-confidence row.
+
+**HC-T01-R4 and HC-T02-R4 supersede their corresponding `-R3` paragraphs in full.**
+HC-T03-R4 is separate producer-row prose and supersedes the earlier proposed HC-T03 for
+that purpose. Every earlier paragraph remains physically present as append-only history.
+The replacements **must not be concatenated** with any earlier version or with one
+another when transcribing the different rows.
+
+## Event 16 — Phase-8 reproducible census and controlled witness, 2026-09-05
+
+All programs below are ignored diagnostic scratch, copied verbatim into this journal.
+No tracked test or source file was added. Commands ran from the provisioned `policy-engine`
+worktree with the shared venv and bytecode writes disabled:
+
+```sh
+env PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python _build/historical-cohorts/phase8_producer_census.py > _build/historical-cohorts/phase8-producer-census.log
+env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python _build/historical-cohorts/phase8_rich_axis_witness.py > _build/historical-cohorts/phase8-rich-axis-witness.log
+env PYTHONDONTWRITEBYTECODE=1 /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python _build/historical-cohorts/phase8_census_crosscheck.py > _build/historical-cohorts/phase8-census-crosscheck.log
+```
+
+All three final commands exited **0**. The census outlasted its initial 10-second tool
+yield and completed on the same process without a restart; its total wall time was not
+captured. The controlled witness completed in approximately **1.95 seconds** and the
+successful reconciliation in approximately **0.04 seconds**. One initial reconciliation
+scratch error assumed Git's paths would include `policy-engine/`; the command actually
+returns `src/`/`tools/` paths relative to this working directory. That assertion failed
+before any count was accepted. A direct Git observation confirmed the path form; the
+scratch reader was corrected and the full identity comparison then passed. This was a
+census-harness path assumption, not a producer defect or a spent product repair round.
+
+The controlled witness's exit 0 means the declared synthetic value reached the actual
+inference boundary. It does not certify a live data pass or an implementation fix.
+The programs write only diagnostic JSON/log output under `_build/historical-cohorts/`;
+they do not invoke extraction stages, graph writers, or database operations.
+
+### Program: phase8_producer_census.py
+
+Program SHA-256: `3736c8d1f5fdc2946984c7bddd76053d3768bc087a17a0bde939a1910a4610f6`.
+
+Captured output SHA-256: `3ec2e1a0fdf8251e209d4301a2cf687ee048a4768602c91343dda964cb68d1f9`.
+
+```python
+"""Read-only source census; no producer, writer, database or network invocation."""
+from pathlib import Path
+from collections import Counter
+import ast
+import hashlib
+import json
+import subprocess
+
+out=Path('_build/historical-cohorts')
+roots=[Path('src'),Path('tools')]
+paths=sorted(str(p) for root in roots for p in root.rglob('*') if p.is_file())
+rg_paths=sorted(subprocess.check_output(['rg','--files','--hidden','--no-ignore','src','tools'],text=True).splitlines())
+assert paths==rg_paths, (set(paths)-set(rg_paths),set(rg_paths)-set(paths))
+tracked=set(subprocess.check_output(['git','ls-files','src','tools'],text=True).splitlines())
+needles=('evidence_strength','evidence_strength_status')
+text_hits=[];py_hits=[];parse_errors=[];writes=[];symbols=[]
+for name in paths:
+    p=Path(name)
+    if p.suffix=='.pyc': continue
+    raw=p.read_bytes()
+    try: content=raw.decode('utf-8')
+    except UnicodeDecodeError: continue
+    for i,line in enumerate(content.splitlines(),1):
+        if 'evidence_strength' in line:
+            text_hits.append(dict(path=name,line=i,text=line))
+    if p.suffix!='.py':continue
+    try: tree=ast.parse(content,filename=name)
+    except SyntaxError as e:
+        parse_errors.append(dict(path=name,error=str(e)));continue
+    parent={c:n for n in ast.walk(tree) for c in ast.iter_child_nodes(n)}
+    def scope(n):
+        names=[]
+        while n in parent:
+            n=parent[n]
+            if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):names.append(n.name)
+        return '.'.join(reversed(names)) or '<module>'
+    for n in ast.walk(tree):
+        if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)):
+            symbols.append(dict(path=name,line=n.lineno,name=n.name,scope=scope(n)))
+        keys=[];kind=None
+        if isinstance(n,ast.keyword) and n.arg in needles:
+            keys=[n.arg];kind='keyword'
+        elif isinstance(n,ast.Dict):
+            keys=[k.value for k in n.keys if isinstance(k,ast.Constant) and k.value in needles]
+            kind='dict'
+        elif isinstance(n,ast.Attribute) and isinstance(n.ctx,ast.Store) and n.attr in needles:
+            keys=[n.attr];kind='attribute_assignment'
+        elif isinstance(n,ast.Subscript) and isinstance(n.ctx,ast.Store) and isinstance(n.slice,ast.Constant) and n.slice.value in needles:
+            keys=[n.slice.value];kind='subscript_assignment'
+        elif isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id=='setattr' and len(n.args)>1 and isinstance(n.args[1],ast.Constant) and n.args[1].value in needles:
+            keys=[n.args[1].value];kind='setattr'
+        if keys:
+            writes.append(dict(path=name,line=n.lineno,scope=scope(n),kind=kind,keys=keys))
+        if isinstance(n,ast.Call):
+            func=ast.unparse(n.func)
+            if any(s in func for s in ['CausalClaim','ClaimOccurrenceVocabularyTransport','VersionedClaimVocabularyEnvelope','WorkRecord','_infer_edge_strength','serialize_rich_claim','serialize_llm_claim','serialize_deterministic_claim','_to_work_record']):
+                py_hits.append(dict(path=name,line=n.lineno,scope=scope(n),call=func))
+rg=subprocess.run(['rg','--json','--hidden','--no-ignore','--glob','!*.pyc','evidence_strength','src','tools'],capture_output=True,text=True,check=True)
+rg_hits=[json.loads(line)['data'] for line in rg.stdout.splitlines() if json.loads(line)['type']=='match']
+rg_set={(r['path']['text'],r['line_number']) for r in rg_hits}
+py_set={(r['path'],r['line']) for r in text_hits}
+assert py_set==rg_set,(py_set-rg_set,rg_set-py_set)
+summary=dict(file_count=len(paths),rg_file_count=len(rg_paths),file_types=dict(Counter(Path(n).suffix or '<none>' for n in paths)),tracked_count=len(tracked),tracked_not_physical=sorted(tracked-set(paths)),python_files=sum(Path(n).suffix=='.py' for n in paths),parse_errors=parse_errors,text_hit_files=len({r['path'] for r in text_hits}),text_hit_lines=len(text_hits),rg_hit_files=len({r['path']['text'] for r in rg_hits}),rg_hit_lines=len(rg_hits),write_syntax_sites=len(writes),write_syntax_files=len({r['path'] for r in writes}),inventory_sha256=hashlib.sha256(('\n'.join(paths)+'\n').encode()).hexdigest())
+for name,data in [('inventory',paths),('text-hits',text_hits),('write-sites',writes),('boundary-calls',py_hits),('symbols',symbols),('summary',summary)]:
+    out.joinpath('phase8-'+name+'.json').write_text(json.dumps(data,sort_keys=True,indent=2)+'\n')
+print(json.dumps(summary,sort_keys=True,indent=2))
+print('WRITE_SYNTAX_SITES (candidates, not all claim producers)')
+for w in writes: print(json.dumps(w,sort_keys=True))
+print('BOUNDARY_CALLS')
+for row in py_hits:print(json.dumps(row,sort_keys=True))
+```
+
+Complete captured output:
+
+```text
+{
+  "file_count": 3355,
+  "file_types": {
+    ".csv": 15,
+    ".cypher": 2,
+    ".json": 18,
+    ".md": 200,
+    ".py": 3052,
+    ".pyi": 5,
+    ".sh": 27,
+    ".sql": 1,
+    ".tmpl": 7,
+    ".toml": 2,
+    ".ts": 12,
+    ".txt": 1,
+    ".typed": 2,
+    ".yaml": 11
+  },
+  "inventory_sha256": "8c76b3fd7ece7b17f9e055a61e71df69fddc17ef1c52a94e6886cefbea65df79",
+  "parse_errors": [],
+  "python_files": 3052,
+  "rg_file_count": 3355,
+  "rg_hit_files": 47,
+  "rg_hit_lines": 301,
+  "text_hit_files": 47,
+  "text_hit_lines": 301,
+  "tracked_count": 3355,
+  "tracked_not_physical": [],
+  "write_syntax_files": 19,
+  "write_syntax_sites": 64
+}
+WRITE_SYNTAX_SITES (candidates, not all claim producers)
+{"keys": ["evidence_strength"], "kind": "dict", "line": 1646, "path": "src/polisyos/data_forge/domains/academic/batch/_resolve_extract_transformers.py", "scope": "_build_numeric_rescue_prompt"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 1533, "path": "src/polisyos/data_forge/domains/academic/batch/_resolve_extract_transformers.py", "scope": "_merge_numeric_parameter_lists"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 1468, "path": "src/polisyos/data_forge/domains/academic/batch/_resolve_extract_transformers.py", "scope": "_deterministic_numeric_rescue_parameters"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 863, "path": "src/polisyos/data_forge/domains/academic/batch/article_extractor.py", "scope": "_normalize_empirical_parameter"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 953, "path": "src/polisyos/data_forge/domains/academic/batch/article_extractor.py", "scope": "_normalize_causal_claim"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 1949, "path": "src/polisyos/data_forge/domains/academic/batch/article_extractor.py", "scope": "serialize_rich_claim_occurrence_vocabulary"}
+{"keys": ["evidence_strength_status"], "kind": "keyword", "line": 1950, "path": "src/polisyos/data_forge/domains/academic/batch/article_extractor.py", "scope": "serialize_rich_claim_occurrence_vocabulary"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 60, "path": "src/polisyos/data_forge/domains/academic/batch/llm_extractor.py", "scope": "serialize_llm_claim_occurrence_vocabulary"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 85, "path": "src/polisyos/data_forge/domains/academic/batch/llm_extractor.py", "scope": "serialize_llm_claim_occurrence_vocabulary"}
+{"keys": ["evidence_strength_status"], "kind": "keyword", "line": 86, "path": "src/polisyos/data_forge/domains/academic/batch/llm_extractor.py", "scope": "serialize_llm_claim_occurrence_vocabulary"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 66, "path": "src/polisyos/data_forge/domains/academic/batch/numeric_extract.py", "scope": "_raw_numeric_rows"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 710, "path": "src/polisyos/data_forge/domains/academic/batch/resolve_finalize.py", "scope": "_curated_numeric_rows"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 864, "path": "src/polisyos/data_forge/domains/academic/batch/resolve_finalize.py", "scope": "_simulation_ready_parameters"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 263, "path": "src/polisyos/data_forge/domains/academic/batch/resolve_finalize.py", "scope": "_merge_parameters"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 154, "path": "src/polisyos/data_forge/domains/academic/batch/table_extractor.py", "scope": "tables_to_parameters"}
+{"keys": ["evidence_strength", "evidence_strength_status"], "kind": "dict", "line": 2589, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery.query_prior_for_variables"}
+{"keys": ["evidence_strength", "evidence_strength_status"], "kind": "dict", "line": 2654, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery._query_prior_rows_from_exact"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 217, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery.query_claims"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 407, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery._query_simulation_parameter_candidates"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 1072, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery._query_edge_support_for_names"}
+{"keys": ["evidence_strength_status"], "kind": "keyword", "line": 1074, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery._query_edge_support_for_names"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 1836, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery._to_evidence_parameter"}
+{"keys": ["evidence_strength", "evidence_strength_status"], "kind": "dict", "line": 2717, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery._query_prior_rows_from_family"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 1130, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery._query_exact_edge_support"}
+{"keys": ["evidence_strength_status"], "kind": "keyword", "line": 1132, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery._query_exact_edge_support"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 1182, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery._query_contested_edge_support"}
+{"keys": ["evidence_strength_status"], "kind": "keyword", "line": 1184, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery._query_contested_edge_support"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 1239, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery._query_family_edge_support"}
+{"keys": ["evidence_strength_status"], "kind": "keyword", "line": 1241, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py", "scope": "SKGQuery._query_family_edge_support"}
+{"keys": ["evidence_strength", "evidence_strength_status"], "kind": "dict", "line": 528, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore._project_claim_row"}
+{"keys": ["evidence_strength", "evidence_strength_status"], "kind": "dict", "line": 658, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore.project_edge_summary"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 850, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore._explicit_v2_invalid_predicate"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 560, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore._project_claim_row"}
+{"keys": ["evidence_strength_status"], "kind": "keyword", "line": 561, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore._project_claim_row"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 651, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore.project_edge_summary"}
+{"keys": ["evidence_strength_status"], "kind": "keyword", "line": 652, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore.project_edge_summary"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 681, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore.project_edge_summary"}
+{"keys": ["evidence_strength_status"], "kind": "keyword", "line": 682, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore.project_edge_summary"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 997, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore.audit_claim_lineage"}
+{"keys": ["evidence_strength_status"], "kind": "keyword", "line": 998, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore.audit_claim_lineage"}
+{"keys": ["evidence_strength", "evidence_strength_status"], "kind": "dict", "line": 35, "path": "src/polisyos/data_forge/domains/academic/knowledge/types.py", "scope": "<module>"}
+{"keys": ["evidence_strength", "evidence_strength_status"], "kind": "dict", "line": 197, "path": "src/polisyos/data_forge/domains/academic/knowledge/types.py", "scope": "candidate_claim_vocabulary_store_values"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 1033, "path": "src/polisyos/foundry/analysis/attractors.py", "scope": "_certificate_for_regime"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 1017, "path": "src/polisyos/foundry/analysis/attractors.py", "scope": "_certificate_for_regime"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 1078, "path": "src/polisyos/foundry/analysis/attractors.py", "scope": "_fixed_point_attractor_from_state"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 1087, "path": "src/polisyos/foundry/methods/catalog/bayesian/pmd_hmc.py", "scope": "assess_pmd_hmc_multimodality"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 237, "path": "src/polisyos/foundry/methods/catalog/causal/literature_prior.py", "scope": "BuildLiteraturePrior.pure_step"}
+{"keys": ["evidence_strength_status"], "kind": "keyword", "line": 238, "path": "src/polisyos/foundry/methods/catalog/causal/literature_prior.py", "scope": "BuildLiteraturePrior.pure_step"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 1362, "path": "src/polisyos/ir/analytics/literature.py", "scope": "_gold_record_to_causal_claim"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 1097, "path": "src/polisyos/ir/analytics/literature.py", "scope": "extract_span_grounded_claims_from_openalex_work"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 2039, "path": "src/polisyos/runtime/http/openapi_contract.py", "scope": "<module>"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 2125, "path": "src/polisyos/runtime/http/openapi_contract.py", "scope": "<module>"}
+{"keys": ["evidence_strength", "evidence_strength_status"], "kind": "dict", "line": 1435, "path": "src/polisyos/runtime/quality/credal_reference.py", "scope": "_derive_l2_causal_claim"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 1115, "path": "src/polisyos/runtime/quality/credal_reference.py", "scope": "_derive_l2_causal_edge"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 1211, "path": "src/polisyos/runtime/quality/credal_reference.py", "scope": "_derive_l2_family_edge"}
+{"keys": ["evidence_strength", "evidence_strength_status"], "kind": "dict", "line": 1406, "path": "src/polisyos/runtime/quality/credal_reference.py", "scope": "_derive_l2_causal_claim"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 226, "path": "src/polisyos/scientist/cross_graph/gatherers/academic.py", "scope": "_assess_literature_prior_baseline"}
+{"keys": ["evidence_strength"], "kind": "keyword", "line": 149, "path": "src/polisyos/scientist/methods/discovery/prior_miner.py", "scope": "PriorMiner.mine"}
+{"keys": ["evidence_strength_status"], "kind": "keyword", "line": 154, "path": "src/polisyos/scientist/methods/discovery/prior_miner.py", "scope": "PriorMiner.mine"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 935, "path": "tools/ops_runners/experiments/run_msme_final_fresg_suite.py", "scope": "policy_world_score"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 325, "path": "tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py", "scope": "main"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 346, "path": "tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py", "scope": "main"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 399, "path": "tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py", "scope": "main"}
+{"keys": ["evidence_strength"], "kind": "dict", "line": 421, "path": "tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py", "scope": "main"}
+BOUNDARY_CALLS
+{"call": "_to_work_record", "line": 1757, "path": "src/polisyos/data_forge/domains/academic/batch/_resolve_extract_api.py", "scope": "_run_resolve_extract_pass.llm_worker"}
+{"call": "ClaimOccurrenceVocabularyTransport", "line": 1940, "path": "src/polisyos/data_forge/domains/academic/batch/article_extractor.py", "scope": "serialize_rich_claim_occurrence_vocabulary"}
+{"call": "WorkRecord", "line": 2052, "path": "src/polisyos/data_forge/domains/academic/batch/article_extractor.py", "scope": "_to_work_record"}
+{"call": "CausalClaim.model_validate", "line": 996, "path": "src/polisyos/data_forge/domains/academic/batch/article_extractor.py", "scope": "_normalize_causal_claim"}
+{"call": "serialize_rich_claim_occurrence_vocabulary", "line": 2010, "path": "src/polisyos/data_forge/domains/academic/batch/article_extractor.py", "scope": "_to_work_record"}
+{"call": "VersionedClaimVocabularyEnvelope", "line": 1942, "path": "src/polisyos/data_forge/domains/academic/batch/article_extractor.py", "scope": "serialize_rich_claim_occurrence_vocabulary"}
+{"call": "VersionedClaimVocabularyEnvelope.model_validate", "line": 916, "path": "src/polisyos/data_forge/domains/academic/batch/best_snapshot.py", "scope": "_validate_explicit_v2_claim_vocabulary_rows"}
+{"call": "_infer_edge_strength", "line": 1634, "path": "src/polisyos/data_forge/domains/academic/batch/graph_builder.py", "scope": "load_graph"}
+{"call": "ClaimOccurrenceVocabularyTransport", "line": 76, "path": "src/polisyos/data_forge/domains/academic/batch/llm_extractor.py", "scope": "serialize_llm_claim_occurrence_vocabulary"}
+{"call": "serialize_llm_claim_occurrence_vocabulary", "line": 467, "path": "src/polisyos/data_forge/domains/academic/batch/llm_extractor.py", "scope": "parse_llm_result"}
+{"call": "VersionedClaimVocabularyEnvelope", "line": 78, "path": "src/polisyos/data_forge/domains/academic/batch/llm_extractor.py", "scope": "serialize_llm_claim_occurrence_vocabulary"}
+{"call": "ClaimOccurrenceVocabularyTransport", "line": 435, "path": "src/polisyos/data_forge/domains/academic/batch/parser.py", "scope": "serialize_deterministic_claim_occurrence_vocabulary"}
+{"call": "VersionedClaimVocabularyEnvelope", "line": 437, "path": "src/polisyos/data_forge/domains/academic/batch/parser.py", "scope": "serialize_deterministic_claim_occurrence_vocabulary"}
+{"call": "serialize_deterministic_claim_occurrence_vocabulary", "line": 647, "path": "src/polisyos/data_forge/domains/academic/batch/parser.py", "scope": "parse_raw_sources"}
+{"call": "WorkRecord", "line": 693, "path": "src/polisyos/data_forge/domains/academic/batch/parser.py", "scope": "parse_raw_sources"}
+{"call": "_to_work_record", "line": 937, "path": "src/polisyos/data_forge/domains/academic/batch/resolve_finalize.py", "scope": "run_resolve_finalize"}
+{"call": "serialize_rich_claim_occurrence_vocabulary", "line": 729, "path": "src/polisyos/data_forge/domains/academic/knowledge/skg_store.py", "scope": "ingest_openalex_span_grounded_claims"}
+{"call": "CausalClaimResultV2", "line": 546, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore._project_claim_row"}
+{"call": "VersionedClaimVocabularyEnvelope", "line": 646, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore.project_edge_summary"}
+{"call": "CausalClaimResultV2", "line": 671, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore.project_edge_summary"}
+{"call": "CausalClaimResultV1", "line": 783, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore._as_v1_audit"}
+{"call": "VersionedClaimVocabularyEnvelope.model_validate", "line": 503, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore._project_claim_row"}
+{"call": "VersionedClaimVocabularyEnvelope", "line": 990, "path": "src/polisyos/data_forge/domains/academic/knowledge/store.py", "scope": "ScholarKnowledgeStore.audit_claim_lineage"}
+{"call": "ClaimOccurrenceVocabularyTransport.model_validate", "line": 184, "path": "src/polisyos/data_forge/domains/academic/knowledge/types.py", "scope": "admit_candidate_claim_vocabulary"}
+{"call": "WorkRecord.model_validate", "line": 585, "path": "src/polisyos/data_forge/domains/academic/knowledge/types.py", "scope": "adapt_jsonl_work_record_claims"}
+{"call": "ClaimOccurrenceVocabularyTransport", "line": 258, "path": "src/polisyos/data_forge/domains/academic/knowledge/types.py", "scope": "adapt_legacy_claim_occurrence_transport"}
+{"call": "WorkRecord.model_validate", "line": 560, "path": "src/polisyos/data_forge/domains/academic/knowledge/types.py", "scope": "adapt_jsonl_work_record_claims"}
+{"call": "VersionedClaimVocabularyEnvelope", "line": 236, "path": "src/polisyos/ir/analytics/literature.py", "scope": "adapt_legacy_claim_occurrence_as_v2_absence"}
+{"call": "CausalClaim", "line": 1353, "path": "src/polisyos/ir/analytics/literature.py", "scope": "_gold_record_to_causal_claim"}
+{"call": "CausalClaim", "line": 1088, "path": "src/polisyos/ir/analytics/literature.py", "scope": "extract_span_grounded_claims_from_openalex_work"}
+```
+
+### Program: phase8_census_crosscheck.py
+
+Program SHA-256: `4efd9c6a3ff486726c5974ffa3feb91a48aab85ff3d9c154b3a7c311af432693`.
+
+Captured output SHA-256: `0d56290875c838bf2781ccad0aeedea5ae331e6ff509f54788d8781174fa4097`.
+
+```python
+"""Independent census reconciliation against the committed Git tree and declaration scan."""
+from pathlib import Path
+from collections import Counter
+import json
+import re
+import subprocess
+out=Path('_build/historical-cohorts')
+base='b97969a3f'
+assert subprocess.check_output(['git','rev-parse','--short=9','HEAD'],text=True).strip()==base
+raw=subprocess.check_output(['git','grep','-n','evidence_strength',base,'--','src','tools'],text=True)
+git_hits=set()
+for line in raw.splitlines():
+    _,path,number,_=line.split(':',3)
+    assert path.startswith(('src/','tools/'))
+    git_hits.add((path,int(number)))
+hits=json.loads(out.joinpath('phase8-text-hits.json').read_text())
+assert git_hits=={(h['path'],h['line']) for h in hits}
+call_rows=json.loads(out.joinpath('phase8-boundary-calls.json').read_text())
+constructors={(r['path'],r['scope']) for r in call_rows if r['call']=='ClaimOccurrenceVocabularyTransport'}
+scan=subprocess.check_output(['rg','-n',r'^def (serialize_.*claim_occurrence_vocabulary|adapt_legacy_claim_occurrence_transport)','src','tools'],text=True)
+declarations=set()
+for line in scan.splitlines():
+    path,number,source=line.split(':',2)
+    declarations.add((path,re.match(r'def (\w+)',source).group(1)))
+assert declarations==constructors
+writes=json.loads(out.joinpath('phase8-write-sites.json').read_text())
+emitting_owners={key for key in constructors if any((w['path'],w['scope'])==key and set(w['keys']) & {'evidence_strength','evidence_strength_status'} for w in writes)}
+summary=dict(git_ref=base,git_hit_lines=len(git_hits),git_hit_files=len({p for p,l in git_hits}),line_identity_symmetric_difference=0,transport_constructor_owners=len(constructors),independent_declaration_owners=len(declarations),owner_identity_symmetric_difference=0,named_axis_transport_owners=len(emitting_owners),transport_owners=sorted(constructors),named_axis_owners=sorted(emitting_owners),syntax_candidate_count_by_file=dict(Counter(w['path'] for w in writes)))
+out.joinpath('phase8-crosscheck.json').write_text(json.dumps(summary,sort_keys=True,indent=2)+'\n')
+print(json.dumps(summary,sort_keys=True,indent=2))
+```
+
+Complete captured output:
+
+```text
+{
+  "git_hit_files": 47,
+  "git_hit_lines": 301,
+  "git_ref": "b97969a3f",
+  "independent_declaration_owners": 4,
+  "line_identity_symmetric_difference": 0,
+  "named_axis_owners": [
+    [
+      "src/polisyos/data_forge/domains/academic/batch/article_extractor.py",
+      "serialize_rich_claim_occurrence_vocabulary"
+    ],
+    [
+      "src/polisyos/data_forge/domains/academic/batch/llm_extractor.py",
+      "serialize_llm_claim_occurrence_vocabulary"
+    ]
+  ],
+  "named_axis_transport_owners": 2,
+  "owner_identity_symmetric_difference": 0,
+  "syntax_candidate_count_by_file": {
+    "src/polisyos/data_forge/domains/academic/batch/_resolve_extract_transformers.py": 3,
+    "src/polisyos/data_forge/domains/academic/batch/article_extractor.py": 4,
+    "src/polisyos/data_forge/domains/academic/batch/llm_extractor.py": 3,
+    "src/polisyos/data_forge/domains/academic/batch/numeric_extract.py": 1,
+    "src/polisyos/data_forge/domains/academic/batch/resolve_finalize.py": 3,
+    "src/polisyos/data_forge/domains/academic/batch/table_extractor.py": 1,
+    "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py": 14,
+    "src/polisyos/data_forge/domains/academic/knowledge/store.py": 11,
+    "src/polisyos/data_forge/domains/academic/knowledge/types.py": 2,
+    "src/polisyos/foundry/analysis/attractors.py": 3,
+    "src/polisyos/foundry/methods/catalog/bayesian/pmd_hmc.py": 1,
+    "src/polisyos/foundry/methods/catalog/causal/literature_prior.py": 2,
+    "src/polisyos/ir/analytics/literature.py": 2,
+    "src/polisyos/runtime/http/openapi_contract.py": 2,
+    "src/polisyos/runtime/quality/credal_reference.py": 4,
+    "src/polisyos/scientist/cross_graph/gatherers/academic.py": 1,
+    "src/polisyos/scientist/methods/discovery/prior_miner.py": 2,
+    "tools/ops_runners/experiments/run_msme_final_fresg_suite.py": 1,
+    "tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py": 4
+  },
+  "transport_constructor_owners": 4,
+  "transport_owners": [
+    [
+      "src/polisyos/data_forge/domains/academic/batch/article_extractor.py",
+      "serialize_rich_claim_occurrence_vocabulary"
+    ],
+    [
+      "src/polisyos/data_forge/domains/academic/batch/llm_extractor.py",
+      "serialize_llm_claim_occurrence_vocabulary"
+    ],
+    [
+      "src/polisyos/data_forge/domains/academic/batch/parser.py",
+      "serialize_deterministic_claim_occurrence_vocabulary"
+    ],
+    [
+      "src/polisyos/data_forge/domains/academic/knowledge/types.py",
+      "adapt_legacy_claim_occurrence_transport"
+    ]
+  ]
+}
+```
+
+### Program: phase8_rich_axis_witness.py
+
+Program SHA-256: `297c281078507e573d94585e286898cd79a55471cfe1213f2566e6009b32f65d`.
+
+Captured output SHA-256: `5e62ccde2bf53c6f787f89817dd40e93a6ed9f5f30d5b8d17cc21376cce47468`.
+
+```python
+"""Synthetic response/transport witness. No extraction stage, data pass, writer or network."""
+import asyncio
+import hashlib
+import json
+from pathlib import Path
+
+from polisyos.data_forge.domains.academic.batch import resolve_extract as active
+from polisyos.data_forge.domains.academic.batch.graph_builder import _admitted_claim_parts, _infer_edge_strength
+from polisyos.data_forge.domains.academic.knowledge.types import adapt_jsonl_work_record_claims
+from polisyos.data_forge.domains.academic.knowledge.skg_store import aggregate_edge_confidence
+
+# Deliberately synthetic inputs, supplied to normalizers only. No paper is extracted.
+work={'id':'https://openalex.org/PHASE8_SYNTHETIC','title':'Synthetic transfer experiment','publication_year':2024,'cited_by_count':20,'type':'article'}
+method={'span_id':'m_01','section':'methods','text':'We randomly assigned cash transfers to households in a randomized controlled trial.','sentence_index':0,'score':0.9}
+support={'span_id':'r_01','section':'results','text':'The cash transfer increased household income by 12 percent relative to the control group.','sentence_index':1,'score':0.9}
+bundle={'source_kind':'fulltext_html','source_basis':'fulltext','text_quality':'extracted_fulltext','method_sentences':[method],'result_sentences':[support],'claim_sentences':[support],'abstract_sentences':[]}
+parsed={'causal_claims':[{'claim_text':support['text'],'claim_type':'causal_claim','cause_variable':'fiscal.cash_transfer','effect_variable':'economic.household_income','direction':'positive','claim_explicitness':'explicit','design_family_hint':'rct','evidence_strength':'rct','claim_extraction_confidence':0.8,'source_basis':'fulltext','supporting_span_ids':['r_01'],'method_span_ids':['m_01']}],'empirical_parameters':[],'mechanisms':[],'boundary_conditions':[],'methodology':'randomized controlled trial','methodology_enum':'rct','extraction_confidence':0.8,'sample_size':100}
+
+class ControlledPool:
+    def __init__(self):self.calls=[]
+    async def chat_json(self,*,model,prompt,temperature):
+        assert model=='phase8-controlled-response'
+        assert temperature==0.0
+        assert 'Each causal_claim object must use sentence IDs' in prompt
+        assert '\n{\n  "claim_text"' in prompt
+        assert '\n{{\n' not in prompt
+        self.calls.append((model,prompt,temperature))
+        return active.ProviderResponse(parsed=parsed,usage={},http_status=200,finish_reason='stop',latency_ms=0,retry_count=0,limiter_wait_ms=0,backoff_sleep_ms=0,parse_status='ok',error_class='',raw_content=json.dumps(parsed),truncated_output=False)
+
+prompt=active._prompt_for_bundle(bundle,topic_display_names=[])
+assert '"evidence_strength"' in prompt
+pool=ControlledPool()
+response=asyncio.run(active._await_provider_json(pool,model='phase8-controlled-response',prompt=prompt,temperature=0.0,watchdog_seconds=None))
+assert len(pool.calls)==1
+payload=active._normalize_extraction_payload(work,response.parsed,'phase8-controlled-response',response.usage,evidence_bundle=bundle,source_kind='fulltext_html')
+result=active.ArticleExtractionResult.model_validate(payload)
+assert len(result.causal_claims)==1
+result=active._apply_publish_gate(result)
+claim=result.causal_claims[0]
+assert claim.publish_to_graph and claim.publish_blockers==[]
+assert claim.evidence_strength.value=='rct'
+record=active._to_work_record(result=result,raw_work=work,topic_ids=[],topic_display_names=[],run_id='phase8-synthetic-witness',pass_name='diagnostic')
+wire=record.model_dump_json()
+reloaded=adapt_jsonl_work_record_claims(json.loads(wire),provenance='legacy_jsonl')
+assert len(reloaded.causal_claims)==1
+transport,operational,values=_admitted_claim_parts(reloaded.causal_claims[0])
+assert values['evidence_strength']=='rct'
+assert values['evidence_strength_status']=='candidate'
+encoded=_infer_edge_strength(values)
+assert encoded=='rct'
+confidence=aggregate_edge_confidence([(encoded,0.8)])
+assert confidence>0.0
+print(json.dumps(dict(controlled_provider_calls=len(pool.calls),real_model_calls=0,extraction_stages_run=0,database_writes=0,rendered_prompt_sha256=hashlib.sha256(prompt.encode()).hexdigest(),rendered_prompt_chars=len(prompt),normalized_claims=len(result.causal_claims),claim_publish_to_graph=claim.publish_to_graph,claim_publish_blockers=claim.publish_blockers,roundtrip_claims=len(reloaded.causal_claims),source_evidence=values['evidence_strength'],source_evidence_status=values['evidence_strength_status'],inferred_edge_strength=encoded,pure_single_claim_confidence=confidence),sort_keys=True))
+print('scope: active prompt/provider-wrapper/response-normalizer/publish-gate/WorkRecord/JSONL/admission/inference functions executed with synthetic bytes. The scheduler, extractor coroutine, artifact writers, graph loader and adjudicator were not run; actual publication still requires a separately admitted publishable adjudication.')
+print('STOP: the active rich resolve_extract route can carry a non-absent candidate evidence axis to graph inference; the exclusive-dead-producer diagnosis is refuted.')
+```
+
+Complete captured output:
+
+```text
+{"claim_publish_blockers": [], "claim_publish_to_graph": true, "controlled_provider_calls": 1, "database_writes": 0, "extraction_stages_run": 0, "inferred_edge_strength": "rct", "normalized_claims": 1, "pure_single_claim_confidence": 0.55, "real_model_calls": 0, "rendered_prompt_chars": 9183, "rendered_prompt_sha256": "1727fc4f0806f0783fe62ab735f0a2de5153c3580e7f6c6ef3aa2879843366e1", "roundtrip_claims": 1, "source_evidence": "rct", "source_evidence_status": "candidate"}
+scope: active prompt/provider-wrapper/response-normalizer/publish-gate/WorkRecord/JSONL/admission/inference functions executed with synthetic bytes. The scheduler, extractor coroutine, artifact writers, graph loader and adjudicator were not run; actual publication still requires a separately admitted publishable adjudication.
+STOP: the active rich resolve_extract route can carry a non-absent candidate evidence axis to graph inference; the exclusive-dead-producer diagnosis is refuted.
+```
+
+### Census decoding completeness receipt
+
+A final reconciliation checked every path in the recorded inventory for UTF-8 decoding,
+so the census's guarded decode branch cannot have silently excluded a source file:
+
+```python
+from pathlib import Path
+from collections import Counter
+import json
+paths = json.loads(Path('_build/historical-cohorts/phase8-inventory.json').read_text())
+text = Counter()
+bad = []
+for name in paths:
+    try:
+        Path(name).read_bytes().decode('utf-8')
+    except UnicodeDecodeError:
+        bad.append(name)
+    else:
+        text[Path(name).suffix] += 1
+assert not bad
+assert text['.py'] == 3052
+print(json.dumps(dict(utf8_decoded_files=sum(text.values()),
+                      utf8_python_files=text['.py'], decode_failures=bad), sort_keys=True))
+```
+
+Observed exit 0 and output:
+
+```text
+{"decode_failures": [], "utf8_decoded_files": 3355, "utf8_python_files": 3052}
+```
+
+This reconciles the already measured source denominator; no new producer or data path
+was investigated after the stop. All 3,052 Python files reached the AST parser and the
+recorded parse-error set is empty. The final numbered-source read also confirmed the
+transport, flattening, JSONL, active prompt replacement, and provider-wrapper anchors
+used in HC-F16/HC-F17.

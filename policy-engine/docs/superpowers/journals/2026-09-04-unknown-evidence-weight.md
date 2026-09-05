@@ -833,3 +833,155 @@ cases passed, bound checker exit 0, snapshot unchanged. Independent reviewer ver
 unavailable as recorded in Event 3. **No Phase-2 choice or Phase-3 repair/red-green claim.**
 The architect's UW-F07 scope ruling is the next required input; no rule, predicate, checker
 denominator, or absence contract was weakened to avoid it.
+
+## Event 6 — ratified scope and Phase-2 design, 2026-09-05
+
+The architect ratified UW-F01–UW-F07 and authorized the cross-package repair. The user
+subsequently **approved this design** in response to the design question. This entry is
+committed before implementation or new test code. At the supplied attached HEAD
+`fc4e376ead8b6dd98422f18b328ee5bb3d425ff8`, `git merge main` reported
+`Already up to date.` (`main` is `2a26fa6108034105bba2e276184d2d6bc77f9832`).
+`git status -sb` was clean; the existing linked worktree is retained.
+
+### UW-D01 — zero contribution, not a vocabulary migration
+
+Choose close **(b), zero contribution**. A recorded `UNKNOWN` remains that judgment;
+declared edge absence retains B-2's encoding/value-status pair. Neither is relabeled as
+the other. Unrecognized input earns no evidence contribution. Established classes retain
+their current, package-specific weights and existing confidence factors.
+
+The four authorized mechanism items occupy four source files:
+
+1. Academic `knowledge/skg_store.py`: set the explicit unknown base to zero. Missing or
+   unrecognized keys resolve directly to zero, not via the unknown entry. Aggregation
+   retains its existing retraction/absence exclusions and admits only positive-base
+   evidence to noisy-OR, strength floors, and replication counts. This is a **base-weight**
+   condition, not an effective-weight condition: existing established-class floors and
+   bonuses remain even when extraction or another factor makes the effective weight zero.
+   Direction/dissent arithmetic consumes the same zero base. No noisy-OR redesign.
+2. Academic `batch/benchmark.py`: replace the 0.15 default with zero and remove the
+   NULL/blank-to-unknown coercion. Recognized unknown is looked up as itself; missing,
+   reserved-absence, and unrecognized keys do not inherit its weight. Existing CI/SE
+   factors and candidate-presence metrics are unchanged.
+3. Scientist `cross_graph/compiler.py`: retain the separate established-class map, set its
+   explicit unknown weight to zero, and use zero for unrecognized labels. Preserve a
+   genuine `None` (or missing enum value) rather than manufacturing the string `unknown`.
+   Expose the existing map as a private module constant so a counterfactual test can
+   distinguish missing from unknown even if a future unknown policy becomes positive.
+   Candidates remain in the ranking population with score zero; existing assessment
+   thresholds make an all-zero population `insufficient`, not `supported` or `mixed`.
+   Transport factors, review flags, and profile aggregation are not redesigned.
+4. The two insufficiency paths: replication counts in item 1 cannot restore unknown's
+   contribution; academic `knowledge/search.py` restricts the preferred numeric prior to
+   positive-base candidates **before every statistic** (mean, std, quantiles, study count,
+   best class). Numeric candidates but no contributors returns `None`, with neither the
+   equal-weight rescue nor a fall-through into the legacy prior. If there are no numeric
+   candidates at all, the existing separate trust-weighted legacy path remains unchanged.
+
+No new DTO, enum, storage encoding, calibration pipeline, or runtime-quality source is
+needed. The existing `ParameterPrior | None` return represents absence of a justified
+numerical prior; it does **not** erase the source's recorded unknown judgment.
+
+### UW-D02 — callable absence defect versus established arrival path
+
+The architect's `getattr(..., "unknown")` witness reproduces: ideal candidates with
+`evidence_strength=None` and `EvidenceStrength.UNKNOWN` each score 0.25 before repair.
+However, `ir/analytics/literature.py` declares the current `EvidenceParameter` strength
+nonoptional; validation rejects `None`. `SKGQuery.query_parameters` returns that parameter
+contract, whereas B-2's decoded edge absence lives on the separate `EdgeSupportRecord`.
+Thus the scorer's callable None defect is established; a current validated bridge from
+the B-2 edge decoder to that parameter slot is **not established**. The repair and its
+negative test cover the callable boundary without redesigning the parameter contract or
+claiming such a bridge exists. Invalid raw parameter labels still follow the previously
+measured parameter-reader default; its resulting typed unknown now contributes zero.
+
+The pure probe (no database or producer) was:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python - <<'PY'
+from types import SimpleNamespace
+from pydantic import ValidationError
+from polisyos.ir.analytics.literature import EvidenceParameter, EvidenceStrength
+from polisyos.data_forge.domains.academic.knowledge.skg_query import ParameterCandidate
+from polisyos.scientist.cross_graph.compiler import _parameter_candidate_score
+try:
+ EvidenceParameter(name='x', value=1, evidence_strength=None)
+except ValidationError as exc:
+ print('validated_parameter_none', exc.errors()[0]['type'])
+for strength in (None, EvidenceStrength.UNKNOWN, EvidenceStrength.THEORETICAL, EvidenceStrength.RCT):
+ parameter=SimpleNamespace(name='x', value=1, evidence_strength=strength, confidence_interval=(0,2), std_error=None)
+ candidate=ParameterCandidate(parameter=parameter, source_context=None, source_layer='simulation_ready')
+ print('callable_score', repr(strength), _parameter_candidate_score(candidate))
+PY
+```
+
+Exit 0: validation `enum`; scores in order `0.25, 0.25, 0.15, 1.0`.
+
+### UW-D03 — forward numbers, recorded history, and calibration reopening
+
+Fresh academic confidence, benchmark quality, Scientist parameter scores, and preferred
+numeric priors follow UW-D01. Original candidate judgments remain inspectable; scores do
+not carry a new limitation DTO field. The chosen close removes the contribution instead
+of preserving a positive score with a new warning. Existing assessment status and source
+provenance continue to travel on their existing surfaces.
+
+The April snapshot is recorded history, **not** silently repaired at read time. Its 440
+unknown family and 18 unknown contested confidence values retain the measured misstatement;
+UW-F02's mixed-lineage attribution limitation remains. Credal/prior consumers that forward
+those stored numbers can still expose them. This journal records that limitation; it is
+not a runtime quarantine or a claim that every historical confidence now excludes unknown.
+No extraction, writer, re-derivation, or production-data mutation is authorized. The 342
+historical B-2 rows and 69,798 placeholders remain outside this task.
+
+As already measured in UW-F03, the parameter selector's eligibility is transport-based:
+zeroing its shared evidence ranking component does not remove candidate existence or
+guarantee nonselection. Transport confidence and independent legacy trust scores are not
+evidence-strength contributions. Changing those predicates would be a fifth mechanism,
+not part of this approved forward-scoring repair. No claim of universal parameter
+ineligibility or authority gating is made.
+
+Close (a) could reopen only with a **recorded, content-bound calibration rule** linking
+the unknown judgment's extractor/version and corpus provenance to the outcomes and
+held-out validation that justify its numerical contribution, with defined score semantics
+and applicability. An identifiable validated artifact and consumer binding would have to
+license the academic and Scientist rules; a comment, label count, or stored candidate
+assertion is insufficient. Missing/unrecognized/absent inputs would remain distinct even
+then. UW-F05 establishes no such calibration here (`not_established`); producing it is
+out of scope, not permanently impossible.
+
+### UW-D04 — red-first acceptance and bounded execution plan
+
+Tests exercise real scoring, synthetic-table reads, and prior/assessment consumers, not
+source markers. Before source changes, run the new/changed targeted tests and retain their
+actual failures. Then implement the four files, rerun the same selection plus affected
+importer tests, inspect the delta, and retry independent review. One fix round is available;
+review findings must be bucketed before repair. A second same-class in-scope finding stops
+repair and is reported. Findings outside UW-D01 are recorded against the scope ruling.
+
+| Claim / test target | Before → required after |
+| --- | --- |
+| Unknown edge, ideal / ordinary missing factors (`test_skg_confidence.py`) | 0.15 / 0.08925 → 0 / 0; label still unknown. |
+| Unknown replication and mixed theory/unknown/absence | Two ideal unknowns 0.2775 → 0; theory plus unknown/absence 0.2775 → 0.15; no 0.06 rescue. |
+| Established-only floors and replication | RCT low-effective-weight floor/bonus and established weights unchanged. |
+| Directional dissent | Unknown adds no direction weight or contest; established direction remains. |
+| Benchmark mixed stored keys (`test_benchmark.py`) | RCT 1, theory 0.15 unchanged; unknown/NULL/blank/absence/alien 0.15 → 0. Counterfactual positive unknown must not lift missing/alien. |
+| Scientist mixed candidates (focused `test_compiler.py`) | RCT 1, theory 0.15 unchanged; unknown/None/alien 0.25 → 0. Separate None-versus-unknown counterfactual and real assessment prove the boundary. |
+| Preferred prior (focused `test_search.py`) | All noncontributing numeric input → no prior, including under a zero-map mutation; mixed established/unknown/absence affects none of the established-only statistics. |
+| B-2 nonregression | Reuse its 20-design + four-placeholder matrix and encode/decode tests; no storage/status change. |
+
+The mixed-candidate None fixtures are deliberately boundary/adaptor negatives, not a
+claim that the validated parameter DTO accepts None. The old B-2 nonzero-unknown test is a
+mandatory changed-constant companion; binding-key search found its node only in that test
+and dated journal commands, not a live register binding. Historical commands remain intact.
+
+Pattern pass: UW-F01's P04/P14/P31/P35/P36/P37/P38/P40 dispositions apply. The positive-base
+population closes the measured bonus/equal-weight escapes; direct defaults prevent axis
+collapse. Reuse existing contracts/consumers; semantic verification is pending until red
+and green receipts exist. A new calibration capability is `producer_missing` and
+`artifact_missing`; new audit/API surfaces are `surface_out_of_scope` for this repair.
+The independent review retry is a code-review receipt, never owner adjudication.
+
+Verification budget: targeted tests only, focused Ruff and relevant architecture checks;
+freeze source before the final bound debt checker, invoked once with redirected output.
+The snapshot SHA-256 was rechecked before design and remains
+`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`; recheck at closeout.

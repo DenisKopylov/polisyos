@@ -750,3 +750,668 @@ explicit subset/full-population distinction and the refusal to treat exact outpu
 as historical execution provenance. HC-T01 and HC-T02 remain the transcription paragraphs.
 The terminal result is the Phase-1 framing stop; the open historical-confidence debt remains
 open, and the forward substitution repair remains closed.
+
+## Event 5 — Phase-5 severity, recoverability, and histogram measurement, 2026-09-05
+
+Continuation base: `11b24787a97695cc77533f7171d1de0b2558ca5e`, attached to
+`codex/debt-historical-cohorts`, clean on arrival. Events 1–4 are preserved verbatim.
+The architect accepted HC-F03 and supplied an independent reconciliation; this continuation
+does **not** execute the retired mapper or repeat that reconciliation. The new measurement
+asks whether membership in its two branches describes the same defect. It does not.
+
+**342 is the right cohort for the manufactured empirical-design defect.** The additional
+7,526 are recoverable, lossy-but-faithful translations relative to their retained
+adjudications. HC-F03's rule-membership count stands; HC-T01/HC-T02's implication that it
+requires enlarging this defect cohort is superseded by the replacement paragraphs below.
+
+The histogram investigation also exposes a narrower current-rule calculation that must be
+distinguished from full historical replay: with the recorded `unknown` classes held fixed,
+the current confidence rule yields zero for the 440 family rows, and the current contested
+producer would emit none of the 18 rows. Missing historical numeric inputs do not obstruct
+that zero-weight boundary. This result is recorded for the scope ruling reserved in the
+continuation, before any marker or read-time correction is implemented.
+
+### HC-F06 — design-branch severity and recovery
+
+`_build/historical-cohorts/phase5.py` reads the one pinned DuckDB file through
+`duckdb.connect(..., read_only=True)`. It walks all rows of each of the following tables;
+each Python fetched-row count equals a separate SQL `count(*)`:
+
+| Table | Complete row denominator |
+| --- | ---: |
+| `ac_skg_edge_evidence` | 7,868 |
+| `ac_claim_adjudications` | 67,791 |
+| `ac_causal_claims_raw` | 137,589 |
+| `ac_skg_edges` | 7,607 |
+| `ac_skg_family_edges` | 15,945 |
+| `ac_skg_contested_edges` | 723 |
+
+The accepted credibility-branch predicate selects the complement for the severity walk;
+there is no new execution or comparison of the withdrawn mapper. All 7,526 design-branch
+claims have a unique retained adjudication and a nonempty adjudicated design. The full
+design-to-stored-class distribution is:
+
+| Retained adjudicated design | Stored evidence class | Rows |
+| --- | --- | ---: |
+| `iv` | `quasi_natural` | 3,751 |
+| `did` | `quasi_natural` | 325 |
+| `rdd` | `quasi_natural` | 21 |
+| `synthetic_control` | `quasi_natural` | 25 |
+| `event_study` | `quasi_natural_event` | 28 |
+| `quasi_experimental_other` | `quasi_natural_event` | 498 |
+| `meta_analysis` | `meta_analysis` | 1,095 |
+| `panel_fe` | `panel_fe` | 793 |
+| `rct` | `rct` | 954 |
+| `structural_model` | `structural` | 4 |
+| `ols` | `observational` | 32 |
+| **Total** | | **7,526** |
+
+The coarser class alone cannot recover which of four designs supplied `quasi_natural`,
+or which of two supplied `quasi_natural_event`. Joining `claim_id` to the retained
+adjudication recovers the source design for every member. The existing normalization
+owner explicitly groups `event_study`/`quasi_experimental_other` and the structural aliases
+at `src/polisyos/data_forge/domains/academic/knowledge/skg_store.py:1215`; the `_event`
+class name is not a new finding that every member asserted a specific event-study design.
+No `gmm` or `system_gmm` member occurs in this measured branch, so their presence in the
+retired rule is not reported as a measured loss in this snapshot.
+
+These are faithful translations **relative to the retained adjudicated design**, not an
+independent validation of the underlying papers or evidence quality. They do not convert
+an adjudication of unclear, theoretical, or review into an empirical class. B-1's separate
+evidence-axis requirement and B-2's forward repair remain intact; this finding does not
+reinstate design substitution for future data.
+
+One recovery trap is material: **488/7,526** `ac_skg_edge_evidence.design_family` cells
+differ from their retained adjudications. All 7,526 equal the raw `design_family_hint`
+instead. The writer stores the hint in that column
+(`src/polisyos/data_forge/domains/academic/batch/graph_builder.py:1673`), while the accepted
+HC-F03 reconciliation concerns the stored **evidence class** and the adjudication. Recovery
+must use the adjudication join, not reinterpret the evidence row's hint as the adjudicated
+design. This does not demonstrate an additional manufactured evidence class in the design
+branch, nor does this task repair the hint column.
+
+### HC-F07 — independently checked observational concentration
+
+The complete Python join over 7,868 evidence rows selects 374 stored `observational`
+rows. A separate SQL grouped join reproduces this partition:
+
+```sql
+SELECT a.design_family, a.causal_credibility, count(*)
+FROM ac_skg_edge_evidence e
+JOIN ac_claim_adjudications a ON a.claim_id=e.claim_id
+WHERE e.evidence_strength='observational'
+GROUP BY 1,2 ORDER BY 1,2;
+```
+
+| Adjudication | Credibility | Rows |
+| --- | --- | ---: |
+| `ols` | `moderate` | 32 |
+| `review` | `moderate` | 24 |
+| `theoretical` | `moderate` | 127 |
+| `theoretical` | `strong` | 4 |
+| `unclear` | `moderate` | 163 |
+| `unclear` | `strong` | 24 |
+| **Total** | | **374** |
+
+Thus `342 / 374 * 100 = 91.44385026737967%` of this evidence class comes from the
+credibility fallback, and 32 from an actual `ols` adjudication. Within the 342, 131 invert
+the retained theoretical adjudication; 187 supply an empirical design where adjudication
+is unclear; 24 substitute it for review. The empirical class is not supported by those
+adjudications. This is the measured severity distinction from HC-F06. The 374 denominator
+is evidence rows, not the 365 exact-edge summaries bearing the same label.
+
+### HC-F08 — what the family histograms retain, and what they do not
+
+The complete 15,945-row family walk parses both histogram columns as JSON objects with
+positive integer counts. A second SQL `json_each` aggregation agrees with every one of
+the 74 `(stored evidence class, design bin)` groups and all **16,658** design memberships:
+
+```sql
+SELECT f.evidence_strength, j.key, sum(CAST(j.value AS BIGINT))
+FROM ac_skg_family_edges f, json_each(f.design_family_histogram_json) j
+GROUP BY 1,2 ORDER BY 1,2;
+```
+
+Every family design histogram sums to its `n_claims`, and the sum of `n_claims` equals
+16,658 distinct claim references. All those references resolve to both raw rows and
+adjudications. Design-histogram counts agree with the retained adjudications in
+15,395/15,945 rows; 550 disagree. Tier histograms sum to `n_claims` in 15,656/15,945 rows
+and match retained adjudication tiers in 7,834/15,945. These columns cannot be treated as
+universally current adjudication receipts.
+
+For the nominated **440** family rows, the design histograms do retain exactly the designs
+of all **444** referenced adjudications, with zero count disagreements. There are 436
+single-claim rows and four two-claim rows. Their complete design membership distribution is:
+
+| Design bin | Claim memberships |
+| --- | ---: |
+| `iv` | 3 |
+| `meta_analysis` | 11 |
+| `ols` | 46 |
+| `rct` | 3 |
+| `review` | 328 |
+| `structural_model` | 53 |
+| **Total** | **444** |
+
+All 440 tier histograms also sum correctly, but only 62 match the retained adjudication
+tiers. No design histogram has an `unknown` bin in the entire 15,945-row table. An
+`unknown` **evidence class** must not be counted by searching for an `unknown` **design**
+bin. All 444 raw generic labels are `unknown`; this does not establish that they were
+extractor judgments, and it is not used to close the parameter-provenance debt.
+
+Histograms are marginal counts, not a per-claim confidence-input record. The actual family
+producer (`src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py:432`) constructs
+each `ArticleEvidence` from evidence strength, evidence-row confidence, publication year,
+sample size, source basis, retraction, and FWCI. It increments design/tier histograms
+separately at `:443`–`:446`; neither histogram enters `aggregate_edge_confidence` at `:495`.
+All 444 nominated claim IDs are absent from the current exact-evidence table. Across the
+whole family population, 8,790 of 16,658 claim references are absent there. In particular,
+the original per-evidence confidence and its association with historical input classes
+cannot simply be fetched from that table. Raw/adjudication values are not silently
+substituted for the missing evidence inputs.
+
+The complete walk finds 255 groups of family rows with identical design/tier histograms,
+claim/article counts, direction, and strongest class but different stored confidences;
+14 such groups occur within the 440. For example, unknown family rows
+`e80d649297149c686d5de851` and `582514eb35cbc03876dc7439` both have one review claim,
+tier 4, one article, and positive direction, but stored confidence is respectively
+`0.017749079741729012` and `0.09986303023899068`. This falsifies reconstruction of the
+**old numeric confidence from those histogram fields alone**. It does not falsify a
+current-rule zero result; HC-F09 explicitly checks that boundary.
+
+The contested table has no design/tier histograms of its own. For all **18/18** nominated
+contested rows, every `quality_signals_json.family_edge_ids` reference resolves, all
+referenced family strongest classes are `unknown`, and the union of family claim IDs equals
+the contested claim IDs exactly. Thus the family layer supplies the retained membership
+structure for the entire nominated contested cohort.
+
+### HC-F09 — missing replay inputs do not prevent the unknown-only zero result
+
+`_build/historical-cohorts/phase5_zero_boundary.py` imports and runs the real pure
+`aggregate_edge_confidence`, `weighted_direction_summary`, `strongest_strength`, and
+ranking/weight owners from this worktree. It never invokes a data pass. The complete
+10-member weight catalogue establishes that every positive-base class outranks `unknown`;
+an input with any such class cannot produce a strongest-class summary of `unknown` under
+the retained selection rule. Unknown now has base weight zero. This is a property of the
+actual strength-selection and confidence functions, not a histogram-column-name inference.
+
+For a **current-policy interpretation that holds the stored `unknown` classifications
+fixed**, all admissible unknown-only input sets therefore have empty positive-base support.
+The current aggregator filters noncontributors *before* both noisy-OR and the replication
+bonus and returns zero (`skg_store.py:514`–`:556`). The missing extraction-confidence,
+publication-year, sample-size, source-basis, retraction, and FWCI inputs cannot change this
+result. This does not recover those inputs or establish the truth of the class judgment.
+
+The probe exercises all 440 family row structures twice with deliberately different
+synthetic nuisance inputs, explicitly not attributed to the missing historical evidence:
+zero confidence/old publication/missing sample/abstract/retracted/zero FWCI, then confidence
+one/current-year/large sample/full text/not retracted/large FWCI. Both produce **440 zeros**.
+The current function's early exclusion explains invariance beyond these two examples.
+
+For the contested half, the probe extracts and executes the actual pure row-building loop
+of `run_edge_synthesize` at `edge_synthesize.py:517`–`:581` using AST. It asserts that the
+selected loop contains no `con`, `config`, or `resolver` references. Schema setup,
+canonicalization, the writer entry point, and all persistence statements remain unexecuted.
+Using the complete retained family membership for each of the 18 contested rows, both
+nuisance variants produce zero direction weights and **zero emitted contested rows**.
+The result is removal from the current contested projection, not a numeric replacement of
+stored 0.15 with zero: the emission predicate at `:530`–`:537` fails before the 0.15 floor
+at `:543` can be evaluated. A separate synthetic positive-base theoretical control through
+the same loop emits all 18 row structures, proving this is not an empty or skipped loop.
+No stored unknown is reclassified as theoretical by that control.
+
+**Sufficiency answer:** the design/tier histograms are not a general replay basis, and do
+not make the original inputs recoverable. Nevertheless, the retained strongest classes
+plus the reconciled family membership are sufficient for this bounded current-rule
+interpretation: **440 family confidences become zero; 18 contested rows cease to qualify**.
+The result does not need the design histograms to license new evidence classes. It neither
+recomputes mixed aggregates nor claims a full historical data-pass replay. No new numeric
+dataset, source evidence, judgment, snapshot, or product projection has been produced.
+
+This reaches the **property** behind the requested recomputability scope stop, although the
+decisive reason is the zero-contribution rule rather than histogram richness. Stopping only
+when a particular histogram supplied the answer would turn that rule into a P38 proxy.
+The architect should rule on whether a read-time current-rule interpretation, retaining
+stored values for audit, belongs beside the proposed withdrawal marker. No implementation
+is admitted before that ruling.
+
+### HC-F10 — one bounded wider-family measurement
+
+The same complete walk confirms **6,421/15,945** family rows with strongest class
+`observational`, versus **365/7,607** exact rows. The family observational rows refer to
+6,594 distinct claims, of which 6,231 are absent from the current exact-evidence table;
+only 361 of those family rows reference any current exact evidence. Therefore the family
+population is wider than published exact evidence; neither 374 nor 365 is its denominator.
+
+Across all family rows, a Python claim-reference walk and an independent SQL `json_each`
+join agree on **1,030** rows with at least one raw generic `unknown` reference:
+440 strongest-unknown, 461 quasi-natural, 60 observational, 35 RCT, 20 quasi-natural-event,
+12 meta-analysis, one panel-FE, and one structural. The eight counts sum to 1,030; 590
+are outside the nominated 440. HC-F02's separately measured 48 contested rows with such
+lineage, including 30 outside the nominated 18, remains inherited evidence, not a new
+census performed here.
+
+This is **lineage exposure**, not an independently established count of numeric unknown
+contributions in mixed aggregates. The raw generic label is not the missing historical
+per-evidence value, design histograms do not record that value, and strongest-label
+selection hides weaker inputs. No 590/30 rows are added to the repair cohort on that
+proxy, and the existing claim-lineage disjointness result is unchanged. Their contribution
+amounts and an exhaustive mixed-aggregate affected denominator remain `not_established`.
+
+## Event 6 — fork argument, named residual, and scope stop, 2026-09-05
+
+### HC-D01 — argument at the corrected boundary
+
+For the manufactured-class **342**, **(b-derived) is feasible and justified**. I agree with
+the architect's GY-CR5 distinction. A marker can be derived from the stored evidence class
+and the joined adjudication under the accepted HC-F03 reconciliation; its basis is the
+observed contradiction and the retired credibility-fallback relation. It need not rely on
+the producer declaring its own provenance, nor establish the hash of a historical generator
+invocation to identify this byte-level condition. It should claim that condition, not an
+unrecorded invocation or independent validation of the underlying paper. The 7,526 faithful
+translations should not receive the manufactured-design marker merely for matching the
+other branch of the retired mapper.
+
+For the **458** selected summaries, a withdrawal marker is also a bounded, read-derived
+description of positive historical confidence under a recorded unknown-only summary. But
+HC-F09 now demonstrates more than marking: a current-rule interpretation of those retained
+classes is numerically determinate for family rows and changes contested membership. This
+is the new choice the user reserved for a ruling before building. The joint decision cannot
+be frozen as “histograms insufficient, therefore marker only”: that would be false precisely
+at the zero-weight boundary. **The continuation stops here.** There is no Phase-6 marker
+design commit, no Phase-7 code, and no red/green implementation claim.
+
+**(a)** remains necessary for recovering/replacing missing source judgments or undertaking
+a full authorized data pass; none is run or selected here. **(b-stored)** would place a
+marker in persisted rows so SQL and byte-copy paths can carry it, but writing the pinned
+snapshot is unauthorized; none is run or selected here. Neither is required merely to
+compute the byte-derived marker or the limited current-policy interpretation above.
+
+The existing `generation_basis.py` comparison is useful in purpose but is not an existing
+historical inference mechanism. HC-F05 established that its current SKG receipt binds
+schema/ALTER bytes, not these value-generation rules. It must not be retrospectively
+stamped as a recorded generation receipt. B-1's value-beside-status separation is compatible
+with a future separate withdrawal signal; B-2's `not_established` storage encoding is not
+an encoding for a value that was computed under a withdrawn rule. Stored values and their
+computed status must remain distinguishable from never-established evidence.
+
+Nothing here supplies per-parameter value origins, changes parameter serialization, or
+distinguishes a parameter extractor judgment from normalization or rescue. The proposed
+edge-summary inference would **not** close
+`parameter-evidence-strength-has-no-value-provenance`; no scope expansion into that row is
+proposed. In particular, the 444 raw generic `unknown` labels are not promoted into a
+judged-unknown cohort.
+
+### HC-R01 — exact consumer boundary of the proposed partial marking
+
+HC-F04's executed reach measurement stands. A marker added to the SKG query projection
+could travel beside the stored class/confidence through edge support and prior results.
+That would let a consumer of the enriched result identify the withdrawn rule without a
+journal. It would not automatically reach every downstream number. The following residual
+paths were re-read at this continuation's unchanged source revision:
+
+| Consumer or copy path | Concrete residual for a query-only marker |
+| --- | --- |
+| `src/polisyos/runtime/quality/capability_index_compiler.py:881` | Opens DuckDB directly and selects exact confidence/class plus transport/contested joins; never calls the SKG query projection. |
+| `src/polisyos/runtime/quality/credal_reference.py:839` | Direct SQL exact reader; family reader at `:856` and contested reader at `:899` likewise bypass the projection and forward confidence/weight data into derivations. |
+| `src/polisyos/data_forge/domains/academic/batch/best_snapshot.py:925` | `_replace_table_contents` copies shared stored columns, without any query-derived annotation. |
+| `tools/ops_runners/cloud/merge_shards.py:244` | Attaches shard DBs read-only, then copies table rows; an annotation that exists only in a query result is absent from copied bytes. |
+| `src/polisyos/foundry/methods/catalog/causal/literature_prior.py:232` | Constructs `LiteratureEdgePrior` from selected values/status/confidence and article references; an extra query quality signal is not automatically copied into that DTO. Default threshold 0.2 excludes the 440, but configurable lower thresholds matter (HC-F04). |
+
+The Scientist prior miner at
+`src/polisyos/scientist/methods/discovery/prior_miner.py:103` carries query quality signals
+in its support record, but no after-marker propagation has been implemented or tested.
+These anchors name the residual; they are not a claim of universal terminal-consumer
+coverage. HC-F04's complete source census also enumerates benchmark, transport, retraction,
+inventory, and forecast references, and does not equate a literal hit with execution.
+
+The practical value of partial marking is honest detection at the SKG result boundary.
+The practical limit is that direct SQL, copied databases, and a downstream DTO which drops
+the signal can still forward the value without it. A future partial repair must keep that
+residual registered in the open row. No current reader changed in this continuation.
+
+### HC-P01 — pattern and stop-rule pass
+
+- **P35/P36:** counts are full walks of the six named DuckDB tables with SQL count and
+  grouped-JSON cross-checks. Accepted HC-F03 is cited, not re-derived. HC-F06 corrects the
+  inference from its membership count to defect severity.
+- **P37/GY-CR5:** branch contradiction and join coverage are `recomputed`/`independently_reconciled`
+  from stored bytes; the current-rule zero boundary is `recomputed` from the real function.
+  Original missing per-evidence inputs and exact generator invocation remain
+  `not_established`. The inference does not confer authority on those missing facts.
+- **P38:** neither mapper membership nor presence of histogram columns decides the defect
+  or recomputability. Identical histograms can have different old confidence, yet all
+  unknown-only inputs have the same current zero result. The stop is keyed to that measured
+  property, not to which named column made it visible.
+- **P07/P31:** no claim of a complete historical replay or universal marker is made.
+  Query-only marking would leave the named SQL/copy/projection residual. As of this stop,
+  withdrawal marking remains `producer_missing` and its consumer/surface chain is not built.
+- **P40:** no product implementation or fix round occurred. This is a pre-design measurement
+  result, not a second same-class implementation escape. The one-fix-round limit is unspent.
+
+The failure/repair register was opened for the continuation and again at closeout. No
+register, ledger, plan, source, tool, test, or schema file is edited. The active-plan
+transcription remains the architect's work.
+
+### HC-T01-R1 — replace HC-T01 in full; open-row transcription
+
+> **HISTORICAL-COHORTS CONTINUATION 2026-09-05 — stays open; measured scope ruling before implementation.** The manufactured-design cohort is 342 credibility-fallback evidence rows; the additional 7,526 retired-mapper matches are recoverable, lossy-but-faithful translations of retained adjudications and do not enlarge that defect cohort (HC-F06/HC-F07). The separate confidence selection remains 440/15,945 family and 18/723 contested rows. Family design histograms retain all 444 nominated claim designs, but do not retain general confidence-replay inputs; those claims' exact-evidence rows are absent. Nevertheless, holding the stored `unknown` classes fixed makes the current-rule result determinate: all 440 family confidences are zero, and all 18 contested rows fail the current producer's emission predicate before its 0.15 floor (HC-F08/HC-F09). This is a bounded current-policy interpretation, not recovery of missing source inputs or proof that the unknowns were extractor judgments. The architect must rule on that read-time interpretation before a marker-only design is frozen. No repair or data write occurred. Query-derived marking is defensible from joined bytes, but leaves direct SQL at `runtime/quality/capability_index_compiler.py:881` and `runtime/quality/credal_reference.py:839,856,899`, stored-column copiers at `data_forge/domains/academic/batch/best_snapshot.py:925` and `tools/ops_runners/cloud/merge_shards.py:244`, and the downstream prior DTO at `foundry/methods/catalog/causal/literature_prior.py:232` outside its automatic reach (HC-R01). The wider raw-unknown lineage is not a measured census of numeric contributions in mixed aggregates (HC-F10). Preserve that residual and the distinction from `not_established`; do not transcribe a universal marker or historical re-derivation as completed.
+
+### HC-T02-R1 — replace HC-T02 in full; closed-row transcription
+
+> **HISTORICAL-COHORTS CONTINUATION 2026-09-05 — remains closed for the forward repair; historical severity boundary corrected.** 342 is the correct manufactured empirical-design cohort: the retained adjudications are unclear (187), theoretical (131), or review (24), while the stored evidence class is observational. An independent Python/SQL concentration check over all 7,868 evidence rows finds 374 observational rows: 342 credibility fallbacks (91.44385026737967%) and 32 actual `ols` adjudications (HC-F07). The other 7,526 rows also match the retired mapper, but their class translations are lossy and faithful relative to retained adjudications; every fine source design is recoverable through the unique claim-to-adjudication join (HC-F06). Mapper membership is not a defect class, so those 7,526 do not enlarge this debt's historical cohort. Do not recover adjudicated design from the evidence row's `design_family` hint: 488 design-branch hint cells differ from adjudication. The 342 still reach 341 exact-edge summaries and remain unmarked; a marker derived from the joined contradiction survives the self-declaration objection, with the SQL/copy/downstream residual explicitly named in HC-R01. This continuation delivered measurement only and stopped for the confidence cohort's read-time interpretation ruling in HC-F09; it did not reopen or change the substitution repair, reclassify historical data, or implement a marker.
+
+The two `-R1` paragraphs are the **sole replacement transcription text** from this
+continuation. Event 1's HC-T01 and HC-T02 remain physically present as append-only history
+and must not be concatenated with these replacements in the register.
+
+## Event 7 — reproducible Phase-5 programs and observations, 2026-09-05
+
+Only ignored `_build/historical-cohorts/` scratch files were used for measurement. The
+complete programs below make the journal independently reproducible without relying on
+uncommitted scratch. All production-data connections are explicitly read-only. No data
+producer entry point is invoked. The two commands completed successfully; these are
+measurement probes, not red/green evidence for a product implementation.
+
+```sh
+cd /Users/deniskopylov/polisyos/.worktrees/debt-historical-cohorts/policy-engine
+env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python _build/historical-cohorts/phase5.py > _build/historical-cohorts/phase5.log
+env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python _build/historical-cohorts/phase5_zero_boundary.py > _build/historical-cohorts/phase5_zero_boundary.log
+```
+
+### Program: phase5.py
+
+SHA-256: `775d6149eb0ce4104c5ae4ca07acf58fa1a138ae7a8bce2f7a6fd4b09bb329c6`.
+
+```python
+"""Phase 5: read-only severity/recoverability census, not a data pass."""
+from collections import Counter, defaultdict
+from pathlib import Path
+import json
+import duckdb
+
+DB = Path('production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb')
+OUT = Path('_build/historical-cohorts')
+con = duckdb.connect(str(DB), read_only=True)
+
+def emit(name, value):
+    print(name, json.dumps(value, sort_keys=True, default=str), flush=True)
+
+def rows(table):
+    cursor = con.execute('SELECT * FROM ' + table)
+    names = [col[0] for col in cursor.description]
+    data = [dict(zip(names, row)) for row in cursor.fetchall()]
+    assert len(data) == con.execute('SELECT count(*) FROM ' + table).fetchone()[0]
+    return data
+
+def hist(row, key):
+    data = json.loads(row[key] or '{}')
+    assert isinstance(data, dict)
+    assert all(isinstance(k, str) and type(v) is int and v > 0 for k, v in data.items())
+    return Counter(data)
+
+def refs(row):
+    return set(json.loads(row['claim_refs']))
+
+E = rows('ac_skg_edge_evidence')
+A_rows = rows('ac_claim_adjudications')
+A = {r['claim_id']: r for r in A_rows}
+assert len(A) == len(A_rows)
+R_rows = rows('ac_causal_claims_raw')
+R = {r['id']: r for r in R_rows}
+assert len(R) == len(R_rows)
+F = rows('ac_skg_family_edges')
+C = rows('ac_skg_contested_edges')
+X = rows('ac_skg_edges')
+# Select the ACCEPTED credibility branch for the new severity census. Do not
+# execute or re-reconcile the retired mapper (HC-F03 is already accepted).
+fallback_ids = {r['claim_id'] for r in E if
+    A[r['claim_id']]['design_family'] in {'unclear','theoretical','review'}
+    and A[r['claim_id']]['causal_credibility'] in {'strong','moderate'}}
+branch = [r for r in E if r['claim_id'] not in fallback_ids]
+fallback = [r for r in E if r['claim_id'] in fallback_ids]
+emit('denominator', {name: len(data) for name, data in [('evidence',E),('adjudications',A_rows),('raw',R_rows),('exact',X),('family',F),('contested',C)]})
+
+groups = Counter((A[r['claim_id']]['design_family'], r['evidence_strength']) for r in branch)
+by_class = defaultdict(set)
+for design, strength in groups:
+    by_class[strength].add(design)
+emit('design_branch_recoverability', dict(
+    rows=len(branch), unique_claim_ids=len({r['claim_id'] for r in branch}),
+    missing_adjudications=sum(r['claim_id'] not in A for r in branch),
+    source_design_missing=sum(not A[r['claim_id']]['design_family'] for r in branch),
+    evidence_design_disagrees_with_adjudication=sum(r['design_family'] != A[r['claim_id']]['design_family'] for r in branch),
+    evidence_design_disagrees_with_raw_hint=sum(r['design_family'] != R[r['claim_id']]['design_family_hint'] for r in branch),
+    source_design_by_stored_class=[dict(design_family=k[0], stored_class=k[1], n=v) for k,v in sorted(groups.items())],
+    multiple_source_designs_per_stored_class={k:sorted(v) for k,v in by_class.items() if len(v)>1},
+    credibility_distribution=dict(Counter(A[r['claim_id']]['causal_credibility'] for r in branch)),
+))
+observational = [r for r in E if r['evidence_strength'] == 'observational']
+concentration = Counter((A[r['claim_id']]['design_family'], A[r['claim_id']]['causal_credibility']) for r in observational)
+sql_concentration = con.execute("""
+SELECT a.design_family, a.causal_credibility, count(*)
+FROM ac_skg_edge_evidence e JOIN ac_claim_adjudications a ON a.claim_id=e.claim_id
+WHERE e.evidence_strength='observational' GROUP BY 1,2 ORDER BY 1,2
+""").fetchall()
+assert concentration == Counter({(d,c):n for d,c,n in sql_concentration})
+emit('observational_concentration', dict(
+    denominator=len(E), observational=len(observational),
+    fallback=sum(r['claim_id'] in fallback_ids for r in observational),
+    actual_ols=sum(A[r['claim_id']]['design_family']=='ols' for r in observational),
+    fallback_percent=100*sum(r['claim_id'] in fallback_ids for r in observational)/len(observational),
+    sql_cross_check=sql_concentration,
+    theoretical_inversions=sum(A[r['claim_id']]['design_family']=='theoretical' for r in fallback),
+))
+
+evidence_ids = {r['claim_id'] for r in E}
+family_by_id = {r['family_edge_id']:r for r in F}
+for label, data in [('all',F),('strongest_unknown',[r for r in F if r['evidence_strength']=='unknown']),('strongest_observational',[r for r in F if r['evidence_strength']=='observational'])]:
+    designs = Counter()
+    tiers = Counter()
+    all_refs = set()
+    cov = Counter()
+    collisions = defaultdict(list)
+    for row in data:
+        dh,th = hist(row,'design_family_histogram_json'),hist(row,'design_tier_histogram_json')
+        rr = refs(row)
+        assert len(rr) == row['n_claims']
+        designs.update(dh); tiers.update(th); all_refs.update(rr)
+        cov['design_counts_equal_n_claims'] += sum(dh.values()) == row['n_claims']
+        cov['tier_counts_equal_n_claims'] += sum(th.values()) == row['n_claims']
+        cov['has_unknown_design_bin'] += dh['unknown'] > 0
+        cov['has_unclear_design_bin'] += dh['unclear'] > 0
+        cov['has_retained_raw_unknown'] += any(R[x]['strength']=='unknown' for x in rr)
+        cov['all_refs_have_adjudication'] += rr <= A.keys()
+        cov['all_refs_have_exact_evidence'] += rr <= evidence_ids
+        cov['any_ref_has_exact_evidence'] += bool(rr & evidence_ids)
+        cov['has_accepted_342_lineage'] += bool(rr & fallback_ids)
+        if rr <= A.keys():
+            ad = Counter(A[x]['design_family'] for x in rr if A[x]['design_family'])
+            at = Counter(str(A[x]['design_quality_tier']) for x in rr if A[x]['design_quality_tier'] is not None)
+            cov['design_hist_matches_retained_adjudications'] += dh == ad
+            cov['tier_hist_matches_retained_adjudications'] += th == at
+        key = (tuple(sorted(dh.items())),tuple(sorted(th.items())),row['n_claims'],row['n_articles'],row['direction'],row['evidence_strength'])
+        collisions[key].append(row)
+    distinct = [v for v in collisions.values() if len({r['confidence'] for r in v})>1]
+    witness = []
+    if distinct:
+        vv = sorted(distinct,key=lambda v:len(v),reverse=True)[0]
+        witness = [min(vv,key=lambda r:r['confidence']),max(vv,key=lambda r:r['confidence'])]
+    emit('family_histograms_'+label, dict(
+        rows=len(data), n_claims_sum=sum(r['n_claims'] for r in data),distinct_claim_refs=len(all_refs),
+        n_claims_distribution=dict(Counter(r['n_claims'] for r in data)),
+        design_bins=dict(designs), tier_bins=dict(tiers),row_measures=dict(cov),
+        refs_missing_raw=len(all_refs-R.keys()), refs_missing_adjudication=len(all_refs-A.keys()),refs_missing_exact_evidence=len(all_refs-evidence_ids),
+        exact_evidence_confidence_cannot_be_looked_up_for=len(all_refs-evidence_ids),
+        retained_raw_strengths=dict(Counter(R[x]['strength'] for x in all_refs)),
+        retained_adjudicated_designs=dict(Counter(A[x]['design_family'] for x in all_refs if x in A)),
+        identical_histograms_counts_direction_strength_but_different_confidence_groups=len(distinct),
+        witness=[{k:r[k] for k in ['family_edge_id','n_claims','n_articles','direction','evidence_strength','confidence','design_family_histogram_json','design_tier_histogram_json','claim_refs']} for r in witness],
+    ))
+
+sql_hist = con.execute("""
+SELECT f.evidence_strength, j.key, sum(CAST(j.value AS BIGINT))
+FROM ac_skg_family_edges f, json_each(f.design_family_histogram_json) j
+GROUP BY 1,2 ORDER BY 1,2
+""").fetchall()
+py_hist = Counter()
+for r in F:
+    for k,v in hist(r,'design_family_histogram_json').items():
+        py_hist[r['evidence_strength'],k] += v
+assert py_hist == Counter({(s,k):v for s,k,v in sql_hist})
+emit('histogram_sql_cross_check',dict(groups=len(sql_hist), design_memberships=sum(v for _,_,v in sql_hist), identity_disagreements=0))
+
+unknown_C = [r for r in C if r['evidence_strength']=='unknown']
+cov = Counter()
+for row in unknown_C:
+    source_ids=set(json.loads(row['quality_signals_json'])['family_edge_ids'])
+    source_rows=[family_by_id[x] for x in source_ids if x in family_by_id]
+    cov['all_family_ids_present'] += source_ids <= family_by_id.keys()
+    cov['source_family_labels_all_unknown'] += bool(source_rows) and all(r['evidence_strength']=='unknown' for r in source_rows)
+    cov['family_claim_refs_cover_contested_exactly'] += (set().union(*(refs(r) for r in source_rows)) if source_rows else set()) == refs(row)
+emit('contested_histogram_reach',dict(rows=len(unknown_C),own_design_histogram_column='design_family_histogram_json' in C[0],measures=dict(cov)))
+
+sql_wider = con.execute("""
+SELECT f.evidence_strength, count(DISTINCT f.family_edge_id)
+FROM ac_skg_family_edges f, json_each(f.claim_refs) j
+JOIN ac_causal_claims_raw r ON r.id=json_extract_string(j.value,'$')
+WHERE r.strength='unknown' GROUP BY 1 ORDER BY 1
+""").fetchall()
+py_wider=Counter(r['evidence_strength'] for r in F if any(R[x]['strength']=='unknown' for x in refs(r)))
+assert dict(sql_wider)==py_wider
+emit('wider_family_population',dict(
+    family_rows=len(F),exact_rows=len(X),
+    family_observational=sum(r['evidence_strength']=='observational' for r in F),
+    exact_observational=sum(r['evidence_strength']=='observational' for r in X),
+    raw_unknown_lineage_by_family_strongest_class=dict(py_wider),
+    total_family_claim_memberships=sum(r['n_claims'] for r in F),
+    family_distinct_refs=len(set().union(*(refs(r) for r in F))),
+))
+con.close()
+```
+
+Complete successful output:
+
+```text
+denominator {"adjudications": 67791, "contested": 723, "evidence": 7868, "exact": 7607, "family": 15945, "raw": 137589}
+design_branch_recoverability {"credibility_distribution": {"moderate": 6994, "strong": 532}, "evidence_design_disagrees_with_adjudication": 488, "evidence_design_disagrees_with_raw_hint": 0, "missing_adjudications": 0, "multiple_source_designs_per_stored_class": {"quasi_natural": ["did", "iv", "rdd", "synthetic_control"], "quasi_natural_event": ["event_study", "quasi_experimental_other"]}, "rows": 7526, "source_design_by_stored_class": [{"design_family": "did", "n": 325, "stored_class": "quasi_natural"}, {"design_family": "event_study", "n": 28, "stored_class": "quasi_natural_event"}, {"design_family": "iv", "n": 3751, "stored_class": "quasi_natural"}, {"design_family": "meta_analysis", "n": 1095, "stored_class": "meta_analysis"}, {"design_family": "ols", "n": 32, "stored_class": "observational"}, {"design_family": "panel_fe", "n": 793, "stored_class": "panel_fe"}, {"design_family": "quasi_experimental_other", "n": 498, "stored_class": "quasi_natural_event"}, {"design_family": "rct", "n": 954, "stored_class": "rct"}, {"design_family": "rdd", "n": 21, "stored_class": "quasi_natural"}, {"design_family": "structural_model", "n": 4, "stored_class": "structural"}, {"design_family": "synthetic_control", "n": 25, "stored_class": "quasi_natural"}], "source_design_missing": 0, "unique_claim_ids": 7526}
+observational_concentration {"actual_ols": 32, "denominator": 7868, "fallback": 342, "fallback_percent": 91.44385026737967, "observational": 374, "sql_cross_check": [["ols", "moderate", 32], ["review", "moderate", 24], ["theoretical", "moderate", 127], ["theoretical", "strong", 4], ["unclear", "moderate", 163], ["unclear", "strong", 24]], "theoretical_inversions": 131}
+family_histograms_all {"design_bins": {"did": 245, "event_study": 34, "iv": 3831, "meta_analysis": 2094, "ols": 4441, "panel_fe": 1268, "quasi_experimental_other": 700, "rct": 874, "rdd": 19, "review": 2356, "structural_model": 236, "synthetic_control": 10, "theoretical": 79, "unclear": 471}, "distinct_claim_refs": 16658, "exact_evidence_confidence_cannot_be_looked_up_for": 8790, "identical_histograms_counts_direction_strength_but_different_confidence_groups": 255, "n_claims_distribution": {"1": 15449, "2": 384, "3": 67, "4": 26, "5": 9, "6": 3, "7": 2, "8": 2, "10": 1, "12": 1, "21": 1}, "n_claims_sum": 16658, "refs_missing_adjudication": 0, "refs_missing_exact_evidence": 8790, "refs_missing_raw": 0, "retained_adjudicated_designs": {"did": 344, "event_study": 32, "iv": 3802, "meta_analysis": 2180, "ols": 4465, "panel_fe": 1295, "quasi_experimental_other": 559, "rct": 1021, "rdd": 21, "review": 2372, "structural_model": 220, "synthetic_control": 29, "theoretical": 131, "unclear": 187}, "retained_raw_strengths": {"cross_sectional": 2, "meta_analysis": 3418, "observational": 9021, "panel_fe": 251, "quasi_natural": 1476, "rct": 880, "theoretical": 564, "unknown": 1046}, "row_measures": {"all_refs_have_adjudication": 15945, "all_refs_have_exact_evidence": 7436, "any_ref_has_exact_evidence": 7592, "design_counts_equal_n_claims": 15945, "design_hist_matches_retained_adjudications": 15395, "has_accepted_342_lineage": 341, "has_retained_raw_unknown": 1030, "has_unclear_design_bin": 465, "has_unknown_design_bin": 0, "tier_counts_equal_n_claims": 15656, "tier_hist_matches_retained_adjudications": 7834}, "rows": 15945, "tier_bins": {"1": 5988, "2": 1236, "3": 5435, "4": 3709}, "witness": [{"claim_refs": "[\"f420df98b564cb11a05f97f6\"]", "confidence": 0.011471045816805248, "design_family_histogram_json": "{\"ols\": 1}", "design_tier_histogram_json": "{\"3\": 1}", "direction": "positive", "evidence_strength": "observational", "family_edge_id": "d0690e206a23bc454ee2c706", "n_articles": 1, "n_claims": 1}, {"claim_refs": "[\"74e8d104dc45099868346811\"]", "confidence": 0.2736119324427766, "design_family_histogram_json": "{\"ols\": 1}", "design_tier_histogram_json": "{\"3\": 1}", "direction": "positive", "evidence_strength": "observational", "family_edge_id": "2568c66e0759d98c41adf689", "n_articles": 1, "n_claims": 1}]}
+family_histograms_strongest_unknown {"design_bins": {"iv": 3, "meta_analysis": 11, "ols": 46, "rct": 3, "review": 328, "structural_model": 53}, "distinct_claim_refs": 444, "exact_evidence_confidence_cannot_be_looked_up_for": 444, "identical_histograms_counts_direction_strength_but_different_confidence_groups": 14, "n_claims_distribution": {"1": 436, "2": 4}, "n_claims_sum": 444, "refs_missing_adjudication": 0, "refs_missing_exact_evidence": 444, "refs_missing_raw": 0, "retained_adjudicated_designs": {"iv": 3, "meta_analysis": 11, "ols": 46, "rct": 3, "review": 328, "structural_model": 53}, "retained_raw_strengths": {"unknown": 444}, "row_measures": {"all_refs_have_adjudication": 440, "all_refs_have_exact_evidence": 0, "any_ref_has_exact_evidence": 0, "design_counts_equal_n_claims": 440, "design_hist_matches_retained_adjudications": 440, "has_accepted_342_lineage": 0, "has_retained_raw_unknown": 440, "has_unclear_design_bin": 0, "has_unknown_design_bin": 0, "tier_counts_equal_n_claims": 440, "tier_hist_matches_retained_adjudications": 62}, "rows": 440, "tier_bins": {"1": 6, "3": 99, "4": 339}, "witness": [{"claim_refs": "[\"e88dd94a57c16915cd64d0fb\"]", "confidence": 0.017749079741729012, "design_family_histogram_json": "{\"review\": 1}", "design_tier_histogram_json": "{\"4\": 1}", "direction": "positive", "evidence_strength": "unknown", "family_edge_id": "e80d649297149c686d5de851", "n_articles": 1, "n_claims": 1}, {"claim_refs": "[\"331e7bf16e526d5cb32aceed\"]", "confidence": 0.09986303023899068, "design_family_histogram_json": "{\"review\": 1}", "design_tier_histogram_json": "{\"4\": 1}", "direction": "positive", "evidence_strength": "unknown", "family_edge_id": "582514eb35cbc03876dc7439", "n_articles": 1, "n_claims": 1}]}
+family_histograms_strongest_observational {"design_bins": {"did": 7, "event_study": 3, "iv": 45, "meta_analysis": 116, "ols": 4170, "panel_fe": 262, "quasi_experimental_other": 14, "rct": 16, "review": 1473, "structural_model": 169, "synthetic_control": 1, "theoretical": 71, "unclear": 247}, "distinct_claim_refs": 6594, "exact_evidence_confidence_cannot_be_looked_up_for": 6231, "identical_histograms_counts_direction_strength_but_different_confidence_groups": 63, "n_claims_distribution": {"1": 6291, "2": 108, "3": 11, "4": 5, "5": 4, "7": 2}, "n_claims_sum": 6594, "refs_missing_adjudication": 0, "refs_missing_exact_evidence": 6231, "refs_missing_raw": 0, "retained_adjudicated_designs": {"did": 3, "event_study": 3, "iv": 36, "meta_analysis": 116, "ols": 4197, "panel_fe": 261, "quasi_experimental_other": 7, "rct": 15, "review": 1488, "structural_model": 157, "synthetic_control": 1, "theoretical": 128, "unclear": 182}, "retained_raw_strengths": {"meta_analysis": 2, "observational": 6386, "panel_fe": 1, "quasi_natural": 64, "rct": 2, "theoretical": 79, "unknown": 60}, "row_measures": {"all_refs_have_adjudication": 6421, "all_refs_have_exact_evidence": 358, "any_ref_has_exact_evidence": 361, "design_counts_equal_n_claims": 6421, "design_hist_matches_retained_adjudications": 6319, "has_accepted_342_lineage": 331, "has_retained_raw_unknown": 60, "has_unclear_design_bin": 246, "has_unknown_design_bin": 0, "tier_counts_equal_n_claims": 6209, "tier_hist_matches_retained_adjudications": 918}, "rows": 6421, "tier_bins": {"1": 69, "2": 278, "3": 4336, "4": 1699}, "witness": [{"claim_refs": "[\"f420df98b564cb11a05f97f6\"]", "confidence": 0.011471045816805248, "design_family_histogram_json": "{\"ols\": 1}", "design_tier_histogram_json": "{\"3\": 1}", "direction": "positive", "evidence_strength": "observational", "family_edge_id": "d0690e206a23bc454ee2c706", "n_articles": 1, "n_claims": 1}, {"claim_refs": "[\"74e8d104dc45099868346811\"]", "confidence": 0.2736119324427766, "design_family_histogram_json": "{\"ols\": 1}", "design_tier_histogram_json": "{\"3\": 1}", "direction": "positive", "evidence_strength": "observational", "family_edge_id": "2568c66e0759d98c41adf689", "n_articles": 1, "n_claims": 1}]}
+histogram_sql_cross_check {"design_memberships": 16658, "groups": 74, "identity_disagreements": 0}
+contested_histogram_reach {"measures": {"all_family_ids_present": 18, "family_claim_refs_cover_contested_exactly": 18, "source_family_labels_all_unknown": 18}, "own_design_histogram_column": false, "rows": 18}
+wider_family_population {"exact_observational": 365, "exact_rows": 7607, "family_distinct_refs": 16658, "family_observational": 6421, "family_rows": 15945, "raw_unknown_lineage_by_family_strongest_class": {"meta_analysis": 12, "observational": 60, "panel_fe": 1, "quasi_natural": 461, "quasi_natural_event": 20, "rct": 35, "structural": 1, "unknown": 440}, "total_family_claim_memberships": 16658}
+```
+
+### Program: phase5_zero_boundary.py
+
+SHA-256: `bb77890450b14c03b62a231d3d0ff4d3fca3c3bc3afb72cb971fdedd0940769e`.
+
+```python
+"""Pure current-rule counterfactual; no writer or production-data mutation."""
+from collections import Counter, defaultdict
+from dataclasses import asdict
+from pathlib import Path
+import ast
+import hashlib
+import json
+import duckdb
+
+from polisyos.data_forge.domains.academic.knowledge import skg_store as owner
+
+DB = Path('production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb')
+PRODUCER = Path('src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py')
+con = duckdb.connect(str(DB), read_only=True)
+
+def emit(name, value):
+    print(name, json.dumps(value, sort_keys=True, default=str), flush=True)
+
+def rows(table):
+    cur = con.execute('SELECT * FROM '+table)
+    cols = [c[0] for c in cur.description]
+    data = [dict(zip(cols,r)) for r in cur.fetchall()]
+    assert len(data) == con.execute('SELECT count(*) FROM '+table).fetchone()[0]
+    return data
+
+F = rows('ac_skg_family_edges')
+C = rows('ac_skg_contested_edges')
+FU = [r for r in F if r['evidence_strength']=='unknown']
+CU = [r for r in C if r['evidence_strength']=='unknown']
+FM = {r['family_edge_id']:r for r in F}
+
+# The confidence-relevant vocabulary is derived from the real weight owner.
+# Every positive-base value would outrank a stored strongest class of unknown.
+catalogue = [(s,w,owner.strongest_strength(['unknown',s]),owner.edge_strength_rank(s)) for s,w in owner.EVIDENCE_WEIGHTS.items()]
+assert all(best != 'unknown' and rank > 0 for s,w,best,rank in catalogue if w>0)
+assert owner.EVIDENCE_WEIGHTS['unknown']==0.0
+emit('positive_weight_strongest_boundary',dict(catalogue=catalogue,owner_path=owner.__file__,owner_sha256=hashlib.sha256(Path(owner.__file__).read_bytes()).hexdigest()))
+
+# Paired arbitrary nuisance inputs, explicitly NOT recovered source values.
+# They are irrelevant once the retained evidence strength is unknown.
+variants = [
+    dict(extraction_confidence=0.0, publication_year=1900, sample_size=None,source_basis='abstract_only',retracted=True,fwci=0.0),
+    dict(extraction_confidence=1.0, publication_year=2026, sample_size=100000,source_basis='fulltext',retracted=False,fwci=100.0),
+]
+family_summary = []
+for nuisance in variants:
+    outputs = [owner.aggregate_edge_confidence([owner.ArticleEvidence(strength='unknown',**nuisance) for _ in range(r['n_claims'])]) for r in FU]
+    assert set(outputs)=={0.0}
+    family_summary.append(dict(nuisance=nuisance,rows=len(outputs),outputs=dict(Counter(outputs))))
+emit('unknown_only_family_current_policy',dict(rows=len(FU),distinct_claim_refs=len(set().union(*(set(json.loads(r['claim_refs'])) for r in FU))),variants=family_summary))
+
+# Execute the CURRENT producer's real, unedited contested-row loop only.
+# AST extraction is restricted to the pure loop before the first DELETE;
+# run_edge_synthesize, schema setup, canonicalization and persistence never run.
+source=PRODUCER.read_text()
+fn=next(n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef) and n.name=='run_edge_synthesize')
+loops=[n for n in ast.walk(fn) if isinstance(n,ast.For) and isinstance(n.iter,ast.Call) and isinstance(n.iter.func,ast.Name) and n.iter.func.id=='sorted' and any(isinstance(x,ast.Name) and x.id=='pair_totals' for x in ast.walk(n.iter))]
+assert len(loops)==1
+loop=loops[0]
+assert not any(isinstance(n,ast.Name) and n.id in {'con','config','resolver'} for n in ast.walk(loop))
+module=ast.fix_missing_locations(ast.Module(body=[loop],type_ignores=[]))
+compiled=compile(module,str(PRODUCER),'exec')
+emit('pure_contested_loop',dict(path=str(PRODUCER),start=loop.lineno,end=loop.end_lineno,source_sha256=hashlib.sha256(PRODUCER.read_bytes()).hexdigest()))
+
+def pair_payload(row,nuisance,*,strength_override=None):
+    quality=json.loads(row['quality_signals_json'])
+    fs=[FM[k] for k in quality['family_edge_ids']]
+    assert fs and all(f['evidence_strength']=='unknown' for f in fs)
+    assert set().union(*(set(json.loads(f['claim_refs'])) for f in fs))==set(json.loads(row['claim_refs']))
+    direction_evidence=defaultdict(list)
+    for f in fs:
+        direction_evidence[f['direction']].extend(owner.ArticleEvidence(strength=strength_override or f['evidence_strength'],**nuisance) for _ in json.loads(f['claim_refs']))
+    samples=[s for ss in direction_evidence.values() for s in ss]
+    return dict(direction_histogram=json.loads(row['direction_histogram_json']),article_refs=json.loads(row['article_refs']),claim_refs=json.loads(row['claim_refs']),evidence_samples=samples,strengths=[s.strength for s in samples],direction_evidence=direction_evidence,exact_edge_ids=quality['exact_edge_ids'],family_edge_ids=quality['family_edge_ids'])
+
+for i,nuisance in enumerate(variants):
+    pairs={(r['src_family'],r['dst_family']):pair_payload(r,nuisance) for r in CU}
+    assert len(pairs)==len(CU)
+    env=dict(pair_totals=pairs,contested_rows=[],json=json,weighted_direction_summary=owner.weighted_direction_summary,aggregate_edge_confidence=owner.aggregate_edge_confidence,hash_contested_edge_id=owner.hash_contested_edge_id,strongest_strength=owner.strongest_strength)
+    summaries=[owner.weighted_direction_summary(p['direction_evidence']) for p in pairs.values()]
+    assert all(not s.is_contested and all(w==0 for w in s.direction_weights.values()) for s in summaries)
+    exec(compiled,env)
+    assert env['contested_rows']==[]
+    emit('unknown_only_contested_current_policy',dict(variant=i,rows=len(CU),weighted_directions_all_zero=len(summaries),emitted_rows=len(env['contested_rows'])))
+
+# Counterfactual positive contribution through the same extracted producer loop:
+# theoretical is deliberately used as a distinct positive-base input, never
+# retroactively assigned to any stored unknown claim.
+pairs={(r['src_family'],r['dst_family']):pair_payload(r,variants[1],strength_override='theoretical') for r in CU}
+env=dict(pair_totals=pairs,contested_rows=[],json=json,weighted_direction_summary=owner.weighted_direction_summary,aggregate_edge_confidence=owner.aggregate_edge_confidence,hash_contested_edge_id=owner.hash_contested_edge_id,strongest_strength=owner.strongest_strength)
+exec(compiled,env)
+assert len(env['contested_rows'])==len(CU)
+emit('positive_control',dict(synthetic_input_strength='theoretical',stored_rows_used_for_structure=len(CU),emitted_rows=len(env['contested_rows'])))
+con.close()
+```
+
+Complete successful output:
+
+```text
+positive_weight_strongest_boundary {"catalogue": [["rct", 1.0, "rct", 8], ["meta_analysis", 0.95, "meta_analysis", 7], ["quasi_natural", 0.7, "quasi_natural", 6], ["quasi_natural_event", 0.6, "quasi_natural_event", 5], ["panel_fe", 0.5, "panel_fe", 4], ["structural", 0.45, "structural", 3], ["observational", 0.3, "observational", 2], ["cross_sectional", 0.2, "cross_sectional", 1], ["theoretical", 0.15, "theoretical", 1], ["unknown", 0.0, "unknown", 0]], "owner_path": "/Users/deniskopylov/polisyos/.worktrees/debt-historical-cohorts/policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_store.py", "owner_sha256": "aa0edb272ee322025c3334b259c40ce44628c9cf5988e4f885847cc575088de5"}
+unknown_only_family_current_policy {"distinct_claim_refs": 444, "rows": 440, "variants": [{"nuisance": {"extraction_confidence": 0.0, "fwci": 0.0, "publication_year": 1900, "retracted": true, "sample_size": null, "source_basis": "abstract_only"}, "outputs": {"0.0": 440}, "rows": 440}, {"nuisance": {"extraction_confidence": 1.0, "fwci": 100.0, "publication_year": 2026, "retracted": false, "sample_size": 100000, "source_basis": "fulltext"}, "outputs": {"0.0": 440}, "rows": 440}]}
+pure_contested_loop {"end": 581, "path": "src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py", "source_sha256": "117f3467a7d021aa0aac36e09aab1711f6137ad1a77269754baf576562d1e955", "start": 517}
+unknown_only_contested_current_policy {"emitted_rows": 0, "rows": 18, "variant": 0, "weighted_directions_all_zero": 18}
+unknown_only_contested_current_policy {"emitted_rows": 0, "rows": 18, "variant": 1, "weighted_directions_all_zero": 18}
+positive_control {"emitted_rows": 18, "stored_rows_used_for_structure": 18, "synthetic_input_strength": "theoretical"}
+```

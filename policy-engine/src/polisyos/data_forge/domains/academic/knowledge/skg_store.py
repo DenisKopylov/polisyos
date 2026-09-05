@@ -348,7 +348,7 @@ EVIDENCE_WEIGHTS: dict[str, float] = {
     EvidenceStrength.OBSERVATIONAL.value: 0.30,
     EvidenceStrength.CROSS_SECTIONAL.value: 0.20,
     EvidenceStrength.THEORETICAL.value: 0.15,
-    EvidenceStrength.UNKNOWN.value: 0.15,
+    EvidenceStrength.UNKNOWN.value: 0.0,
 }
 
 EDGE_EVIDENCE_NOT_ESTABLISHED = ClaimVocabularyAxisStatus.NOT_ESTABLISHED.value
@@ -490,9 +490,7 @@ def _citation_factor(fwci: float | None) -> float:
 def _effective_evidence_weight(evidence: ArticleEvidence) -> float:
     if evidence.retracted or normalize_strength(evidence.strength) == EDGE_EVIDENCE_NOT_ESTABLISHED:
         return 0.0
-    base = EVIDENCE_WEIGHTS.get(
-        str(evidence.strength), EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value]
-    )
+    base = EVIDENCE_WEIGHTS.get(str(evidence.strength), 0.0)
     weight = (
         base
         * _temporal_weight(evidence.publication_year)
@@ -521,6 +519,8 @@ def aggregate_edge_confidence(articles: Iterable[ArticleEvidence | tuple[Any, ..
     missing sample size, fallback extraction confidence).  We apply a minimum
     floor based on the strongest evidence type present so that, e.g., a single
     RCT never scores below 0.55 regardless of penalty stacking.
+    Only positive-base evidence contributes, including to replication counts;
+    recorded unknown and declared absence retain their distinct source meanings.
     """
     rows = [_coerce_article_evidence(row) for row in articles]
     valid = [
@@ -528,6 +528,7 @@ def aggregate_edge_confidence(articles: Iterable[ArticleEvidence | tuple[Any, ..
         for row in rows
         if not row.retracted
         and normalize_strength(row.strength) != EDGE_EVIDENCE_NOT_ESTABLISHED
+        and EVIDENCE_WEIGHTS.get(str(row.strength), 0.0) > 0.0
     ]
     if not valid:
         return 0.0

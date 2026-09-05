@@ -148,24 +148,28 @@ class ScholarKnowledgeGraph:
             finally:
                 query.close()
             if candidates:
-                usable_candidates = [
+                numeric_candidates = [
                     candidate for candidate in candidates if candidate.parameter.value is not None
                 ]
-                values = np.array(
-                    [float(candidate.parameter.value) for candidate in usable_candidates]
-                )
-                if len(values) > 0:
-                    weights = np.array(
-                        [
-                            EVIDENCE_WEIGHTS.get(
-                                candidate.parameter.evidence_strength.value,
-                                EVIDENCE_WEIGHTS["unknown"],
+                if numeric_candidates:
+                    contributing_candidates = [
+                        (candidate, base_weight)
+                        for candidate in numeric_candidates
+                        if (
+                            base_weight := EVIDENCE_WEIGHTS.get(
+                                getattr(candidate.parameter.evidence_strength, "value", None),
+                                0.0,
                             )
-                            for candidate in usable_candidates
-                        ]
+                        )
+                        > 0.0
+                    ]
+                    if not contributing_candidates:
+                        return None
+                    usable_candidates, base_weights = zip(*contributing_candidates, strict=True)
+                    values = np.array(
+                        [float(candidate.parameter.value) for candidate in usable_candidates]
                     )
-                    if weights.sum() == 0:
-                        weights = np.ones_like(weights)
+                    weights = np.array(base_weights)
                     weights = weights / weights.sum()
                     weighted_mean = float(np.average(values, weights=weights))
                     weighted_std = float(

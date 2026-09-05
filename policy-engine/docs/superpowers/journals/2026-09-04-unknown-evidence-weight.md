@@ -1157,3 +1157,62 @@ current validated `EvidenceParameter` rejects None and uses a different contract
 the callable defect and the formerly overbroad guarantee are established. This qualifies
 B-2's closure wording without reopening its substitution repair or changing its stored
 absence encoding. Its 342 historical misstatements remain recorded history, unchanged.
+
+## Event 8 — final checker, custody, and delivery receipt, 2026-09-05
+
+Implementation commit: `419d5932a`, following the standalone approved design commit
+`266db5da9`. All **ten** changed files were read back in full from the attached branch
+after committing and matched their worktree bytes. The 1,159-line implementation journal
+readback SHA-256 is `7da04f0b7ae247c67d5fa5da6b933781931947366418bd24ec711bd06b203bb0`;
+its full bytes retain the Phase-1 journal as a prefix. This final event is documentation
+only; reviewed/tested source stays at `419d5932a`.
+
+### One final bound debt-checker invocation
+
+```sh
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python tools/quality/validation/check_debt_ledger.py --check > .tmp_unknown_measure.sJ3Bou/phase3-bound-debt-check.txt 2>&1
+```
+
+**Exit 0**, **547.31s** real / 507.27s user / 27.01s system. Output was redirected throughout
+to the 59-line log; SHA-256
+`dc023e0cbe2f6aaf7e649956d3df1617ea21a69e51abfd7cb5651fdc4f6756ef`.
+No repeat, write mode, predicate change, or reduced checker selection was used.
+The complete 26 integer metrics match Event 5's checker run: 190 register IDs, 44 pytest
+selections, nine unresolvable identities and nine corresponding count/exit disagreements,
+one unsupported runner, zero collection failures/unknown hosts/AST disagreements, and
+the remaining inventory metrics unchanged. The informational identity/standing findings
+are retained, not suppressed or represented as proofs that their closure signals exist.
+The command is green; no inherited-red attribution or exception is claimed.
+
+### Final focused checks and data custody
+
+Ruff checked all four source and four test files, exit 0 (`All checks passed!`):
+
+```sh
+/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/data_forge/domains/academic/knowledge/skg_store.py src/polisyos/data_forge/domains/academic/batch/benchmark.py src/polisyos/scientist/cross_graph/compiler.py src/polisyos/data_forge/domains/academic/knowledge/search.py tests/unit/data_forge/domains/academic/batch/test_skg_confidence.py tests/unit/data_forge/domains/academic/batch/test_benchmark.py tests/unit/scientist/cross_graph/test_compiler.py tests/unit/data_forge/domains/academic/knowledge/test_search.py > .tmp_unknown_measure.sJ3Bou/phase3-ruff.txt 2>&1
+git diff --check
+git diff --exit-code fc4e376ea HEAD -- docs/plans/active src/polisyos/ir/analytics/literature.py src/polisyos/data_forge/domains/academic/knowledge/types.py src/polisyos/data_forge/domains/academic/knowledge/skg_query.py src/polisyos/data_forge/domains/academic/batch/graph_builder.py tools
+shasum -a256 production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb
+```
+
+The difference check exited 0: no active-plan, IR/edge contract, parameter-reader,
+graph-builder, or tool/checker changes. Complete AST import lists for the four modified
+source files equal `fc4e376ea`; the encode/decode pair and span-grounded ingest function
+are also AST-identical to that base. Release-fragment TOML parses, and all four evidence
+paths and its journal reference resolve. The focused architecture gate log SHA-256 is
+`8b48140fef4ca1872c23361f5e50a8d1969c7d7df01725cea1128423b82ed0e7`; Ruff log SHA-256 is
+`82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18`.
+
+The database hash taken **after** the final checker is unchanged:
+`583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`.
+No production-data write, permission change, re-extraction, adjudication, or data producer
+invocation occurred. SQL fixture writes were confined to authored in-memory/temporary test
+databases; the real replay only used inspected read-only readers. In UW-V02, “unknown” is
+the **typed candidate label** retained by the reader, not a claim that the omitted raw
+parameter field contained a recorded extractor judgment (UW-F02 measured that distinction).
+
+Final semantic evidence: **114 targeted implementation/importer/B-2 cases + one complete
+Python import-policy gate test passed**, independent review returned no actionable finding,
+and UW-T01/UW-T02 are ready for architect transcription. Historical confidence and
+transport-selection limitations remain explicit under UW-D03. The supplied branch and
+worktree are preserved; no push, rebase, stash, or integration into main was performed.

@@ -985,3 +985,175 @@ Verification budget: targeted tests only, focused Ruff and relevant architecture
 freeze source before the final bound debt checker, invoked once with redirected output.
 The snapshot SHA-256 was rechecked before design and remains
 `583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967`; recheck at closeout.
+
+## Event 7 — Phase-3 implementation and semantic receipts, 2026-09-05
+
+### UW-V01 — red before source, then green on the same claims
+
+Phase-2 commit: `266db5da9`. Full branch readback matched the worktree's 987-line journal,
+SHA-256 `78d7af084a904f059e2a7f127f53ec6c1f6ce5429372bc50328011c714d84d6c`;
+its bytes begin with the entire preceding journal. New tests were written **after** this
+commit. `git diff --exit-code -- src` returned 0 immediately before the red run.
+
+The first four-file red run exited **1** in **23.36s**: **15 failed, 14 passed**, no collection
+error. Each failure was inspected. Failures were the intended contribution/default/bonus/
+prior behavior; the boundary prior also demonstrated the existing `None.value` error.
+Unchanged established-only/floor/legacy controls passed, not falsely reported as red tests.
+A Ruff parameterization-style diagnostic was corrected (string to tuple of argument names);
+it was not a behavioral failure or a predicate change.
+
+| Claim | Regression node(s), relative to the four test files below | Observed red → green |
+| --- | --- | --- |
+| Unknown contributes zero and keeps its judgment | `test_unknown_contributes_zero_without_relabeling` (two cases) | 0.15000000000000002 / 0.08925000000000005 → 0; decode remains UNKNOWN + candidate. |
+| Zero base cannot be rescued by replication | `test_zero_base_unknown_cannot_earn_replication_bonus` | With the base already zero, 0.06 → 0. |
+| Mixed edge population excludes only noncontributors | `test_mixed_edge_batch_counts_only_contributing_evidence` | `[0.15, 0.2775, 0, 0.2775]` → `[0.15, 0, 0, 0.15]`; B-2 absence pair unchanged. |
+| Unknown cannot manufacture contest | `test_unknown_dissent_does_not_create_contest` | Unknown negative weight 0.30 → 0; established positive 0.15 preserved. |
+| Alien edge labels cannot borrow unknown's weight | `test_unrecognized_edge_label_does_not_inherit_unknown_weight` | Counterfactual positive unknown: alien direction weight 0.15 → 0 and no bonus. |
+| Benchmark distinguishes missing, absence, alien, unknown | `test_parameter_quality_mixed_labels_do_not_alias_unknown` (two cases) | Real eight-row SQL batch fails before repair in six/default or five/counterfactual slots; after, only RCT/theory and an explicitly counterfactually weighted unknown contribute. Stored labels unchanged. |
+| Scientist retains established classes, zeroes noncontributors | `test_parameter_candidate_mixed_batch_preserves_classes_without_contribution` | Complete ten-enum + None/alien/bare-string batch: four 0.25 outputs → 0; nine established weights unchanged. |
+| None is not unknown | `test_none_candidate_is_not_scored_as_unknown` | With explicit unknown still weighted 0.25 in the counterfactual, None 0.25 → 0; alien also 0. |
+| Assessment consumes zero rather than restoring a weight | `test_academic_assessment_consumes_mixed_and_noncontributing_batches` | `[0.25, 1]` → `[0, 1]`; all-noncontributing insufficient, mixed with RCT supported. |
+| All-unknown numeric prior has no equal-weight or legacy rescue | `test_all_unknown_numeric_prior_is_not_rescued_by_equal_weights_or_legacy` (two cases) | Before and base-zero mutation both return prior mean 15/std 5/n=2 → None. A real legacy prior mean 777 remains separately available but cannot rescue this population. |
+| Unknown outliers affect no prior statistic | `test_mixed_numeric_prior_excludes_unknown_from_every_statistic` | Mean 257.5, n=4, low -697, best unknown → mean 15/std 5/low 11/high 19/n=2/best theoretical. |
+| None/alien boundary does not enter a mixed prior | `test_numeric_prior_mixed_boundary_preserves_unknown_and_absent_inputs` | Existing None attribute error → one contributing study, mean/low/high 10, std floor 0.01; source judgments unchanged. |
+
+Three additional preservation controls cover established RCT floor/replication at zero
+effective weight (0.55/0.61), benchmark theoretical without uncertainty (0.105), and
+Scientist's existing stacked RCT factors (0.205632). The no-numeric-candidate legacy control
+retains mean 777. They intentionally pass before and after.
+
+The same four-file green run exited **0** in **22.00s**, **29 passed**, zero failures,
+errors, or skips. After a type-explicit but behavior-identical benchmark None branch and
+restoration of three unrelated formatter-only hunks, the expanded targeted run exited
+**0** in **26.19s**: **114 passed**, zero failures/errors/skips. Its complete XML testcase
+denominator is: confidence 14 + benchmark 6 + compiler 4 + search 5 + SKGQuery 22 + parameter
+selector 4 + cross-graph evidence 16 + academic gatherer 6 + Foundry prior 4 + causal
+parameter resolver 7 + B-2 graph-builder selection 26 = **114**. The last 26 include the
+20-design/four-placeholder matrix and both divergent-evidence regressions.
+
+Exact test commands (product worktree; interpreter is the provisioned shared venv):
+
+```sh
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/data_forge/domains/academic/batch/test_skg_confidence.py tests/unit/data_forge/domains/academic/batch/test_benchmark.py tests/unit/scientist/cross_graph/test_compiler.py tests/unit/data_forge/domains/academic/knowledge/test_search.py > .tmp_unknown_measure.sJ3Bou/phase3-red.txt 2>&1
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/data_forge/domains/academic/batch/test_skg_confidence.py tests/unit/data_forge/domains/academic/batch/test_benchmark.py tests/unit/scientist/cross_graph/test_compiler.py tests/unit/data_forge/domains/academic/knowledge/test_search.py --junitxml=.tmp_unknown_measure.sJ3Bou/phase3-green.xml > .tmp_unknown_measure.sJ3Bou/phase3-green.txt 2>&1
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/data_forge/domains/academic/batch/test_skg_confidence.py tests/unit/data_forge/domains/academic/batch/test_benchmark.py tests/unit/scientist/cross_graph/test_compiler.py tests/unit/data_forge/domains/academic/knowledge/test_search.py tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py tests/unit/data_forge/domains/academic/knowledge/test_parameter_selector.py tests/unit/scientist/cross_graph/test_cross_graph_evidence.py tests/unit/scientist/cross_graph/test_gatherers.py::TestAcademicGatherer tests/unit/foundry/methods/catalog/causal/test_literature_prior.py tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py::test_edge_strength_without_explicit_evidence_is_declared_absent tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py::test_edge_strength_preserves_explicit_evidence_despite_divergent_design tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py::test_legacy_theoretical_moderate_resolves_absence_not_observational --junitxml=.tmp_unknown_measure.sJ3Bou/phase3-importers.xml > .tmp_unknown_measure.sJ3Bou/phase3-importers.txt 2>&1
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/repo_quality/architecture/test_arch_import_gate.py --junitxml=.tmp_unknown_measure.sJ3Bou/phase3-architecture.xml > .tmp_unknown_measure.sJ3Bou/phase3-architecture.txt 2>&1
+```
+
+The last command runs the complete existing Python import-policy gate via its targeted
+test: **1 passed**, exit 0, **10.02s**. This is the relevant architecture guardrail, not a
+claim that the broader generated OpenAPI/client/trust-posture freshness suite was run.
+No `--skip-generated-checks`, reduced denominator, exception, or changed checker was used.
+The failure/repair register was reopened before closeout; UW-D04's pattern pass still
+applies. No new pattern or authority mechanism was introduced.
+
+### UW-V02 — the measured real numeric example after repair
+
+Read-only replay of the **same** `demographic.female_share` input from UW-F03/F04 returns
+36 candidates, **all still unknown**, with scores **all 0** (before: each 0.0722925).
+The assessment remains `insufficient` but its score is now **0**; the separate transport
+confidence remains **0.9**. The preferred prior is **None** (before: mean 61.960777778,
+std 22.454180236, n=36, best unknown). Thus source judgment, evidence score, transport, and
+prior availability are demonstrably different coordinates, not renamed versions of one
+another. The historical exact/family/contested unknown counts remain **0/440/18**.
+
+Command exited 0 in **28.12s**; constructors were inspected to confirm read-only DuckDB
+connections before passing the production path. No writer or producer was invoked.
+
+```sh
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python - <<'PY' > .tmp_unknown_measure.sJ3Bou/phase3-readonly-replay.txt 2>&1
+from collections import Counter
+from pathlib import Path
+from polisyos.data_forge.domains.academic.knowledge.search import ScholarKnowledgeGraph
+from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
+from polisyos.ir.analytics.cross_graph import EvidenceNeed, EvidenceNeedType
+from polisyos.scientist.cross_graph.compiler import _assess_academic_need, _parameter_candidate_score
+root=Path('production_data/policyos_academic_runtime_slim_20260411T112032Z/academic')
+db=root/'graph/scholar_knowledge.duckdb'
+variable='demographic.female_share'
+query=SKGQuery(db_path=db,index_dir=root/'index')
+graph=ScholarKnowledgeGraph(db,root/'index')
+try:
+ candidates=query.query_parameters(variable,layer='auto',require_simulation_ready=True)
+ print('variable',variable,'candidates',len(candidates))
+ print('labels',dict(Counter(c.parameter.evidence_strength.value for c in candidates)))
+ print('scores',dict(Counter(_parameter_candidate_score(c) for c in candidates)))
+ result=_assess_academic_need(EvidenceNeed(need_id='unknown-weight-readonly',need_type=EvidenceNeedType.PARAMETER_NEED,parameter_name=variable),concepts=[],academic_query=query,target_context=None)
+ print('assessment',result.status.value,result.confidence,'transport',result.transport_confidence)
+ print('preferred_prior',graph.get_parameter_prior(variable))
+ for table in ('ac_skg_edge_evidence','ac_skg_family_edges','ac_skg_contested_edges'):
+  print('recorded_unknown',table,query._con.execute(f"SELECT count(*) FROM {table} WHERE evidence_strength = 'unknown'").fetchone()[0])
+finally:
+ graph.close()
+ query.close()
+PY
+```
+
+| Scratch log (commands above reproduce it) | SHA-256 |
+| --- | --- |
+| `phase3-red.txt` | `86fc35cc624db32a8085cdb9e596a80eb1c4c157cdbdf252157b2401fd244bed` |
+| `phase3-green.txt` | `d9b72401aef731a2556fae4e1f2f6a4c4474ef6edc27e6e2c07d606ecf84eeb2` |
+| `phase3-importers.txt` | `52ba08beb6eeb0f4629bb8963f8383df4b0285fab0ca8b0f7a55311ab700a909` |
+| `phase3-readonly-replay.txt` | `b891372666d68529b6bde1ea3da140bedfac69ffdaa9350308f71b6b2b50f84f` |
+
+### UW-V03 — review retry, scope, and freeze
+
+Independent agent `/root/unknown_weight_code_review_retry` (gpt-5.6-sol, high) reviewed
+the implementation delta from the committed design, including both new test files, and
+ran a pure mixed/counterfactual probe. Verdict: **no blocking or actionable findings**;
+UW-D01–D04 matched. The reviewer explicitly treated historical family/contested confidence
+and transport-selector eligibility as declared out-of-scope limitations. No reviewer
+files changed and no producer or broad checker was run. This discharges the missing
+**code-review** receipt in Event 3; it is not a substitute for owner adjudication (which
+the user supplied separately). No post-review repair round was needed.
+
+Four mechanism files only, with four mirrored test companions and this append-only
+journal. `CONTRIBUTING.md` also requires an operator/compatibility release note; the
+companion `release-fragments/unreleased/2026-09-05-unknown-evidence-weight.toml` records
+the changed optional prior/score behavior and historical limitation, not a fifth mechanism
+(P39). Public signatures, facade exports, and parameter/edge contracts are unchanged.
+All source is frozen before the final bound debt checker. Final Ruff, custody, branch
+readback, and the one new checker receipt will be appended after verification, without
+rewriting Events 1–7 or editing the active register.
+
+### UW-T01 — exact transcriber-ready prose: unknown-weight row
+
+**TASK unknown-evidence weight, 2026-09-05 — `open` → `closed` by measured zero-contribution
+repair (close b).** Complete pinned footprint is journal UW-F02/F03: exact evidence
+0/7,868 unknown, family 440/15,945, contested 18/723, transport 0/7,607, simulation numeric
+0/5,124; raw parameter decode accepts 51,883 unknown of 51,908 payloads and rejects 25.
+Prior and credal terminals and mixed-lineage attribution limits are recorded, including
+zero unknown contested CI envelopes. B-2 did not increase published-cohort unknown
+frequency (0 before/0 after), and the raw numeric decode path is unchanged; explicit
+unknown preservation in the enum grid rose 2→20 without manufacturing unknown from absence.
+No content-bound calibration licenses unknown's weight today. Fresh academic confidence
+and benchmark quality now assign it zero, as does Scientist's independent parameter
+scorer. Missing and unrecognized values resolve directly to zero, not through an unknown
+fallback. Replication counts cannot restore a contribution; preferred numeric priors
+exclude noncontributors before every statistic and return None when none contribute,
+without equal-weight or legacy rescue. Unknown and declared absence remain distinct,
+proved with mixed outcomes and counterfactual positive-unknown negatives. Before/after:
+ideal/ordinary unknown edge 0.15/0.08925→0; constant-zero replication escape 0.06→0;
+Scientist ideal unknown/None 0.25→0. The same real 36-candidate example keeps all unknown
+labels while scores change 0.0722925→0 and its mean-61.960777778 prior becomes unavailable;
+transport remains 0.9. UW-V01/V02 contain red/green commands (114 targeted cases), and
+UW-V03 records independent review without actionable findings. **Forward repair only:**
+historical family/contested confidence stays recorded and can still be forwarded; no
+runtime quarantine, re-derivation, or universal candidate-exclusion claim is made.
+Transport-based eligibility and separate trust weighting are unchanged. UW-D03 states
+the content-bound calibration/validation prerequisites that could reopen close (a).
+
+### UW-T02 — separate paragraph for the closed manufactured-design row
+
+**2026-09-05 exclusion-scope correction (unknown-weight lane):** B-2's sentence “ranking
+and aggregation exclude it” was verified for the reserved `not_established` encoding at
+the **edge layer**, not for every parameter consumer. Before the unknown-weight repair,
+Scientist `_parameter_candidate_score` converted a callable `evidence_strength=None`
+into the string `unknown` and score 0.25; that separate parameter consumer was not covered
+by B-2's exclusion proof. The unknown-weight lane now returns zero without that collapse,
+with a regression distinguishing None from a counterfactually positive unknown. The
+current validated `EvidenceParameter` rejects None and uses a different contract from
+`EdgeSupportRecord`, so a current B-2 edge-decoder→parameter arrival bridge is not established;
+the callable defect and the formerly overbroad guarantee are established. This qualifies
+B-2's closure wording without reopening its substitution repair or changing its stored
+absence encoding. Its 342 historical misstatements remain recorded history, unchanged.

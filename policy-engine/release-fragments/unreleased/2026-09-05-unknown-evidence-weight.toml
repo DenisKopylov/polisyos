@@ -1,0 +1,22 @@
+id = "2026-09-05-unknown-evidence-weight"
+title = "Remove uncalibrated unknown-evidence contribution"
+type = "fixed"
+component = "academic-evidence"
+owner = "team-data-forge"
+summary = "Fresh academic confidence, benchmark quality and Scientist parameter scores give recorded unknown evidence zero contribution; replication and preferred numeric priors cannot restore it through equal weighting."
+evidence = [
+  "tests/unit/data_forge/domains/academic/batch/test_skg_confidence.py",
+  "tests/unit/data_forge/domains/academic/batch/test_benchmark.py",
+  "tests/unit/data_forge/domains/academic/knowledge/test_search.py",
+  "tests/unit/scientist/cross_graph/test_compiler.py",
+]
+compatibility = "Established evidence weights and source labels are unchanged. Unknown-only preferred numeric priors now return None; mixed priors exclude noncontributing inputs from every statistic. Missing and unrecognized values no longer inherit unknown's score."
+change_class = "internal"
+surface_classification = "internal: academic evidence scoring; internal: Scientist cross-graph parameter scoring"
+migration = "Callers must handle the existing optional prior result when numeric candidates have no contributing evidence. No schema or storage migration is required."
+api = "No public signature, DTO, enum, or not_established encoding change."
+limitations = "Historical stored family/contested confidence is not re-derived or quarantined. Transport-based selection eligibility and independent trust scores are unchanged; zero evidence contribution does not imply universal candidate exclusion."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/superpowers/journals/2026-09-04-unknown-evidence-weight.md"]
+runbook_docs = []

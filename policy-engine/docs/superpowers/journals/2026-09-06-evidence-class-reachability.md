@@ -910,3 +910,24 @@ journal use `LEFTHOOK=0`; no applicable backend test or debt check is represente
 as having run. The task's measurement-only checker exemption governs the explicit
 receipt below. Source/tests/tools/plans/schemas and the excluded selective file
 and test remain untouched.
+
+## EC-C01 — bound-checker exemption, data custody and branch receipt
+
+The required command was executed **after committing and reading back the journal from the named branch**:
+
+```text
+git diff --name-only 8ad8d2095..HEAD
+policy-engine/docs/superpowers/journals/2026-09-06-evidence-class-reachability.md
+```
+
+The only delivered path is this journal. No change under `src/`, `tests/`, `tools/`, `docs/plans/` or schemas: **bound debt checker skipped under the explicit task exemption; zero invocations**. No synthetic checker failure or pass is claimed, and no 16-minute run was spent on a journal. `git diff --cached --check` was clean before the measurement commit.
+
+Measurement commit read back from `codex/debt-evidence-class-vocabulary-reachability`: `ded1cdc73be64e31064e874c4b1fd73002a1dcf3`. Its entire journal blob was byte-compared with the worktree file, with SHA-256 `371da77ec469a7747f41a20ed8aafc5f71b5a233bdc38c0ad7afb216ed27742e`; equal. The tree was clean after that commit. This final receipt is an append-only follow-up to the measured blob.
+
+Closeout binary read at `2026-09-06T06:53:12.897051+00:00` verified **2,390,503,424 bytes** at `/Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb`:
+
+```text
+sha256:583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967
+```
+
+This equals the supplied pin and the entry measurement. No production-data write, chmod, extraction/model call, producer invocation or historical reprocessing occurred. The failure/repair register was reopened before closeout: EC-F01 closes the sampled-denominator/proxy-measurement risks (`P35`/`P38`); EC-F02/EC-F04 keep candidate, orchestration and publication claims separate (`P02`/`P15`); EC-D01 applies the independent stops and leaves the normalization finding as a candidate (`P40`). Neither active debt-register row was edited.

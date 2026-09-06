@@ -617,6 +617,10 @@
           "$ref": "#/$defs/EvidenceStrength",
           "default": "unknown"
         },
+        "evidence_strength_origin": {
+          "$ref": "#/$defs/EvidenceStrengthOrigin",
+          "default": "not_supplied"
+        },
         "geographic_scope": {
           "default": "",
           "title": "Geographic Scope",
@@ -838,6 +842,20 @@
         "unknown"
       ],
       "title": "EvidenceStrength",
+      "type": "string"
+    },
+    "EvidenceStrengthOrigin": {
+      "description": "How a parameter strength was produced, without conferring authority.\n\nUnmarked stored values are unresolved. Only a producer that observed its\ninput can record supplied or declared_unknown; intake must not infer them.",
+      "enum": [
+        "not_supplied",
+        "supplied",
+        "declared_unknown",
+        "normalizer_fallback",
+        "intake_fallback",
+        "inherited",
+        "unresolved"
+      ],
+      "title": "EvidenceStrengthOrigin",
       "type": "string"
     },
     "HeterogeneityResult": {

@@ -1,6 +1,18 @@
 {
   "lanes": [
     {
+      "timing_key": "owner-validator:default",
+      "tool": "owner-validator",
+      "mode": "default",
+      "command": ".venv/bin/python src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+      "samples_ms": [92000.0],
+      "measured_p95_ms": 92000.0,
+      "recommended_timeout_ms": 184000.0,
+      "source_refs": ["docs/plans/active/DEBT-REGISTER.md:324"],
+      "sample_admission_predicate": "manual_journal_excerpt:v1",
+      "regime": "serialized"
+    },
+    {
       "timing_key": "atlas.disposition-governance:default",
       "tool": "atlas.disposition-governance",
       "mode": "default",
@@ -16,12 +28,28 @@
       "timing_key": "atlas.python-governance:default",
       "tool": "atlas.python-governance",
       "mode": "default",
-      "command": "uv run --extra test --with 'jsonschema>=4.25' python -m pytest architecture/atlas_surfaces/test_frontend_disposition_register.py architecture/atlas_surfaces/test_status_retirement_inventory.py -q",
-      "samples_ms": [160233.242],
-      "measured_p95_ms": 160233.242,
-      "recommended_timeout_ms": 320466.484,
-      "source_refs": ["docs/superpowers/journals/2026-08-02-gy-infra-2-verification-economics.md:48"],
-      "sample_admission_predicate": "manual_journal_excerpt:v1",
+      "command": "uv run --frozen --extra test --with 'jsonschema>=4.25' python -m pytest architecture/atlas_surfaces/test_frontend_disposition_register.py architecture/atlas_surfaces/test_status_retirement_inventory.py -q",
+      "samples_ms": [],
+      "measured_p95_ms": null,
+      "recommended_timeout_ms": null,
+      "source_refs": ["docs/superpowers/timing-evidence/2026-09-01-atlas-python-governance.jsonl:1"],
+      "workload_identity": {
+        "schema_version": "policyos.timing.pytest_workload.v1",
+        "predicate_provenance": "recomputed",
+        "test_paths": [
+          "architecture/atlas_surfaces/test_frontend_disposition_register.py",
+          "architecture/atlas_surfaces/test_status_retirement_inventory.py"
+        ],
+        "source_digests": {
+          "architecture/atlas_surfaces/test_frontend_disposition_register.py": "sha256:9873eeff8e5b81a722762e8a9663129616548957470acf7750b9ac060b038bbb",
+          "architecture/atlas_surfaces/test_status_retirement_inventory.py": "sha256:e54e92d8ffc9856dda1e896894cbf869496b9d3d63f05a713bd5b2c98a1bd0ba"
+        },
+        "pytest_version": "9.0.2",
+        "config_path": "pytest.ini",
+        "config_digest": "sha256:61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "node_map_digest": "sha256:3023346d42a16fa2f21ab2a0dc161f840b122747c47cec75c491ccdde0be1ac7"
+      },
+      "sample_admission_predicate": "declared_healthy_terminal:v1",
       "regime": "serialized"
     },
     {

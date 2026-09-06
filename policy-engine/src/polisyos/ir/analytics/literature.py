@@ -6,7 +6,7 @@ import hashlib
 import importlib
 import json
 import re
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
@@ -59,6 +59,22 @@ class EvidenceStrength(str, Enum):
     UNKNOWN = "unknown"
 
 
+class EvidenceStrengthOrigin(str, Enum):
+    """How a parameter strength was produced, without conferring authority.
+
+    Unmarked stored values are unresolved. Only a producer that observed its
+    input can record supplied or declared_unknown; intake must not infer them.
+    """
+
+    NOT_SUPPLIED = "not_supplied"
+    SUPPLIED = "supplied"
+    DECLARED_UNKNOWN = "declared_unknown"
+    NORMALIZER_FALLBACK = "normalizer_fallback"
+    INTAKE_FALLBACK = "intake_fallback"
+    INHERITED = "inherited"
+    UNRESOLVED = "unresolved"
+
+
 class CausalDirection(str, Enum):
     """Causal direction public type."""
 
@@ -75,6 +91,13 @@ class SourceBasis(str, Enum):
 
     FULLTEXT = "fulltext"
     ABSTRACT_ONLY = "abstract_only"
+
+
+class ClaimVocabularyAxisStatus(str, Enum):
+    """Establishment status for one typed claim-vocabulary axis."""
+
+    NOT_ESTABLISHED = "not_established"
+    CANDIDATE = "candidate"
 
 
 class TextQuality(str, Enum):
@@ -142,6 +165,98 @@ class CausalCredibility(str, Enum):
     WEAK = "weak"
     NOT_CAUSAL = "not_causal"
     UNCLEAR = "unclear"
+
+
+class LegacyFiveFieldClaimOccurrence(BaseModel):
+    """Exact five-field legacy occurrence accepted by the absence adapter."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    cause: str
+    effect: str
+    direction: str
+    strength: str
+    mechanism: str
+
+
+class VersionedClaimVocabularyEnvelope(BaseModel):
+    """Strict v2 vocabulary sidecar for one causal-claim occurrence.
+
+    The sidecar travels beside the original occurrence in the lossless claim
+    transport and is revalidated at the common serialization/store boundary.
+    It records candidate or absent vocabulary values; it confers no authority.
+    Legacy occurrences enter only through the explicit absence adapter below.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["2.0"] = "2.0"
+    cause: str
+    effect: str
+    direction: str = ""
+    mechanism: str = ""
+
+    design_family_hint: DesignFamily | None = None
+    design_family_hint_status: ClaimVocabularyAxisStatus = (
+        ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    )
+    evidence_strength: EvidenceStrength | None = None
+    evidence_strength_status: ClaimVocabularyAxisStatus = (
+        ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    )
+    claim_extraction_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    claim_extraction_confidence_status: ClaimVocabularyAxisStatus = (
+        ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    )
+    source_basis: SourceBasis | None = None
+    source_basis_status: ClaimVocabularyAxisStatus = ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+
+    legacy_strength_label: str | None = None
+    record_extraction_mode: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_axis_statuses(self) -> VersionedClaimVocabularyEnvelope:
+        """Require each typed axis to declare whether its value is established."""
+
+        axes = (
+            ("design_family_hint", self.design_family_hint, self.design_family_hint_status),
+            ("evidence_strength", self.evidence_strength, self.evidence_strength_status),
+            (
+                "claim_extraction_confidence",
+                self.claim_extraction_confidence,
+                self.claim_extraction_confidence_status,
+            ),
+            ("source_basis", self.source_basis, self.source_basis_status),
+        )
+        for name, value, status in axes:
+            if value is None and status is not ClaimVocabularyAxisStatus.NOT_ESTABLISHED:
+                raise ValueError(f"{name} must be absent when its status is not_established")
+            if value is not None and status is not ClaimVocabularyAxisStatus.CANDIDATE:
+                raise ValueError(f"{name} requires candidate status when present")
+        return self
+
+
+def adapt_legacy_claim_occurrence_as_v2_absence(
+    occurrence: Mapping[str, object],
+    *,
+    record_extraction_mode: str | None = None,
+) -> VersionedClaimVocabularyEnvelope:
+    """Retain a legacy occurrence without inferring any typed v2 axis.
+
+    The adapter is intentionally one-way and only observes occurrence fields
+    plus an optional record extraction-mode observation. It cannot receive
+    parent-paper design, record confidence, source basis, or trust metadata.
+    """
+
+    legacy = LegacyFiveFieldClaimOccurrence.model_validate(occurrence)
+    return VersionedClaimVocabularyEnvelope(
+        cause=legacy.cause,
+        effect=legacy.effect,
+        direction=legacy.direction,
+        mechanism=legacy.mechanism,
+        legacy_strength_label=legacy.strength,
+        record_extraction_mode=record_extraction_mode,
+    )
 
 
 class RiskOfBias(str, Enum):
@@ -403,6 +518,7 @@ class EvidenceParameter(BaseModel):
     unit: str | None = None
 
     evidence_strength: EvidenceStrength = EvidenceStrength.UNKNOWN
+    evidence_strength_origin: EvidenceStrengthOrigin = EvidenceStrengthOrigin.NOT_SUPPLIED
     geographic_scope: str = ""
     time_period: str = ""
     aggregation_level: str = ""
@@ -412,8 +528,39 @@ class EvidenceParameter(BaseModel):
     heterogeneity_note: str | None = None
     subgroup_estimates: dict[str, float] = Field(default_factory=dict)
 
+    @model_validator(mode="before")
+    @classmethod
+    def _retain_unresolved_strength_origin(cls, value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+        if "evidence_strength_origin" not in value and "evidence_strength" in value:
+            return {**value, "evidence_strength_origin": EvidenceStrengthOrigin.UNRESOLVED}
+        if "evidence_strength" not in value and value.get("evidence_strength_origin") not in {
+            None,
+            EvidenceStrengthOrigin.NOT_SUPPLIED,
+            EvidenceStrengthOrigin.UNRESOLVED,
+        }:
+            raise ValueError("A strength origin cannot record a value that was not supplied")
+        return value
+
     @model_validator(mode="after")
     def _validate_value_present(self) -> EvidenceParameter:
+        unknown_only = {
+            EvidenceStrengthOrigin.NOT_SUPPLIED,
+            EvidenceStrengthOrigin.DECLARED_UNKNOWN,
+            EvidenceStrengthOrigin.NORMALIZER_FALLBACK,
+            EvidenceStrengthOrigin.INTAKE_FALLBACK,
+        }
+        if (
+            self.evidence_strength_origin in unknown_only
+            and self.evidence_strength != EvidenceStrength.UNKNOWN
+        ):
+            raise ValueError("This strength origin requires an unknown value")
+        if (
+            self.evidence_strength_origin == EvidenceStrengthOrigin.SUPPLIED
+            and self.evidence_strength == EvidenceStrength.UNKNOWN
+        ):
+            raise ValueError("An explicit unknown judgment requires declared_unknown origin")
         if self.value is None and self.value_range is None and self.value_qualitative is None:
             raise ValueError("At least one of value, value_range, value_qualitative is required")
         if self.value is not None:
@@ -801,12 +948,24 @@ class LiteratureEdgePrior(BaseModel):
     dst: str
     confidence: float = Field(ge=0.0, le=1.0)
     n_articles: int = Field(default=0, ge=0)
-    evidence_strength: EvidenceStrength = EvidenceStrength.UNKNOWN
+    evidence_strength: EvidenceStrength | None = EvidenceStrength.UNKNOWN
+    evidence_strength_status: ClaimVocabularyAxisStatus = ClaimVocabularyAxisStatus.CANDIDATE
     article_refs: list[str] = Field(default_factory=list)
     scope_conditions: list[str] = Field(default_factory=list)
     direction: CausalDirection = CausalDirection.MIXED
     meta_effect_size: float | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_evidence_strength_status(self) -> LiteratureEdgePrior:
+        if self.evidence_strength is None:
+            if self.evidence_strength_status is not ClaimVocabularyAxisStatus.NOT_ESTABLISHED:
+                raise ValueError(
+                    "evidence_strength must be absent when its status is not_established"
+                )
+        elif self.evidence_strength_status is not ClaimVocabularyAxisStatus.CANDIDATE:
+            raise ValueError("evidence_strength requires candidate status when present")
+        return self
 
 
 class ReconciliationDiagnostics(BaseModel):
@@ -878,7 +1037,13 @@ class LiteratureCausalPrior(BaseModel):
             node_set.add(edge.src)
             node_set.add(edge.dst)
             edge_metadata = dict(edge.metadata)
-            edge_metadata.setdefault("evidence_strength", edge.evidence_strength.value)
+            edge_metadata.setdefault(
+                "evidence_strength",
+                edge.evidence_strength.value if edge.evidence_strength is not None else None,
+            )
+            edge_metadata.setdefault(
+                "evidence_strength_status", edge.evidence_strength_status.value
+            )
             edge_metadata.setdefault("scope_conditions", list(edge.scope_conditions))
             edge_metadata.setdefault("direction", edge.direction.value)
             if edge.meta_effect_size is not None:
@@ -1733,15 +1898,18 @@ __all__ = [
     "ClaimSpanGoldRecord",
     "ClaimSpanGoldSet",
     "ClaimType",
+    "ClaimVocabularyAxisStatus",
     "ContextAttribute",
     "DesignFamily",
     "EnvironmentAuditReport",
     "EvidenceParameter",
     "EvidenceSpan",
     "EvidenceStrength",
+    "EvidenceStrengthOrigin",
     "ExtractorAccuracyReport",
     "HeterogeneityResult",
     "IdentificationStrategy",
+    "LegacyFiveFieldClaimOccurrence",
     "LiteratureCausalPrior",
     "LiteratureEdgePrior",
     "Mechanism",
@@ -1756,6 +1924,8 @@ __all__ = [
     "SupportStatus",
     "TextQuality",
     "UncertaintyBudget",
+    "VersionedClaimVocabularyEnvelope",
+    "adapt_legacy_claim_occurrence_as_v2_absence",
     "evaluate_openalex_claim_extractor_accuracy",
     "extract_span_grounded_claims_from_openalex_work",
     "load_article_extraction_result",

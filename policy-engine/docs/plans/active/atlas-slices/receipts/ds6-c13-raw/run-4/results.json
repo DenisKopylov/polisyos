@@ -1,0 +1,356 @@
+{
+  "config": {
+    "configFile": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/playwright.visual.config.ts",
+    "rootDir": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 240000,
+    "grep": {},
+    "grepInvert": {},
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/runtime-dashboard\\.visual\\.spec\\.ts/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-chromium",
+        "name": "mobile-chromium",
+        "testDir": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e",
+        "testIgnore": [
+          "/runtime-dashboard\\.visual\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "/runtime-dashboard\\.visual\\.spec\\.ts/"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "none",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "runtime-dashboard.visual.spec.ts",
+      "file": "runtime-dashboard.visual.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "runtime-dashboard visual baselines",
+          "file": "runtime-dashboard.visual.spec.ts",
+          "line": 734,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "DS8 governed run paper",
+              "file": "runtime-dashboard.visual.spec.ts",
+              "line": 1141,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "semantic DOM closes overview and report paper egress",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 90000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 24039,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('run-report-page')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('run-report-page')\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('run-report-page')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('run-report-page')\u001b[22m\n\n    at openRunPaper (/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:126:53)\n    at /Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:1177:36",
+                            "location": {
+                              "file": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+                              "column": 53,
+                              "line": 126
+                            },
+                            "snippet": "  124 |   );\n  125 |   await page.goto(`/runs/${encodeURIComponent(runId)}/report`);\n> 126 |   await expect(page.getByTestId(\"run-report-page\")).toBeVisible();\n      |                                                     ^\n  127 |   const response = await responsePromise;\n  128 |   const rawBytes = await response.body();\n  129 |   const packet = (await response.json()) as RunPaperPacket;"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+                                "column": 53,
+                                "line": 126
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('run-report-page')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('run-report-page')\u001b[22m\n\n\n  124 |   );\n  125 |   await page.goto(`/runs/${encodeURIComponent(runId)}/report`);\n> 126 |   await expect(page.getByTestId(\"run-report-page\")).toBeVisible();\n      |                                                     ^\n  127 |   const response = await responsePromise;\n  128 |   const rawBytes = await response.body();\n  129 |   const packet = (await response.json()) as RunPaperPacket;\n    at openRunPaper (/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:126:53)\n    at /Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:1177:36"
+                            },
+                            {
+                              "location": {
+                                "file": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+                                "column": 32,
+                                "line": 121
+                              },
+                              "message": "Error: page.waitForResponse: Test ended.\n\n  119 |\n  120 | async function openRunPaper(page: Page, runId: string) {\n> 121 |   const responsePromise = page.waitForResponse(\n      |                                ^\n  122 |     (response) =>\n  123 |       isRunPaperResponse(response.url(), runId) && response.status() === 200,\n  124 |   );\n    at openRunPaper (/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:121:32)\n    at /Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:1177:42"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-31T18:55:28.853Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-6953b-iew-and-report-paper-egress-chromium/test-failed-1.png"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-6953b-iew-and-report-paper-egress-chromium/error-context.md"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-6953b-iew-and-report-paper-egress-chromium/trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+                            "column": 53,
+                            "line": 126
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "a8aedd206cb9dfd9fb7a-4679646e3cf11cab0002",
+                  "file": "runtime-dashboard.visual.spec.ts",
+                  "line": 1142,
+                  "column": 5
+                },
+                {
+                  "title": "PDF keeps every page A4 and admitted growth adds pages",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 90000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 8391,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('run-report-page')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('run-report-page')\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('run-report-page')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('run-report-page')\u001b[22m\n\n    at openRunPaper (/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:126:53)\n    at /Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:1257:21",
+                            "location": {
+                              "file": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+                              "column": 53,
+                              "line": 126
+                            },
+                            "snippet": "  124 |   );\n  125 |   await page.goto(`/runs/${encodeURIComponent(runId)}/report`);\n> 126 |   await expect(page.getByTestId(\"run-report-page\")).toBeVisible();\n      |                                                     ^\n  127 |   const response = await responsePromise;\n  128 |   const rawBytes = await response.body();\n  129 |   const packet = (await response.json()) as RunPaperPacket;"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+                                "column": 53,
+                                "line": 126
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('run-report-page')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('run-report-page')\u001b[22m\n\n\n  124 |   );\n  125 |   await page.goto(`/runs/${encodeURIComponent(runId)}/report`);\n> 126 |   await expect(page.getByTestId(\"run-report-page\")).toBeVisible();\n      |                                                     ^\n  127 |   const response = await responsePromise;\n  128 |   const rawBytes = await response.body();\n  129 |   const packet = (await response.json()) as RunPaperPacket;\n    at openRunPaper (/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:126:53)\n    at /Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:1257:21"
+                            },
+                            {
+                              "location": {
+                                "file": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+                                "column": 32,
+                                "line": 121
+                              },
+                              "message": "Error: page.waitForResponse: Test ended.\n\n  119 |\n  120 | async function openRunPaper(page: Page, runId: string) {\n> 121 |   const responsePromise = page.waitForResponse(\n      |                                ^\n  122 |     (response) =>\n  123 |       isRunPaperResponse(response.url(), runId) && response.status() === 200,\n  124 |   );\n    at openRunPaper (/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:121:32)\n    at /Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:1257:27"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-31T18:55:55.739Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-3e479--admitted-growth-adds-pages-chromium/test-failed-1.png"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-3e479--admitted-growth-adds-pages-chromium/error-context.md"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-3e479--admitted-growth-adds-pages-chromium/video.webm"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-3e479--admitted-growth-adds-pages-chromium/trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+                            "column": 53,
+                            "line": 126
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "a8aedd206cb9dfd9fb7a-d5c592269850db89a911",
+                  "file": "runtime-dashboard.visual.spec.ts",
+                  "line": 1253,
+                  "column": 5
+                },
+                {
+                  "title": "bounded identity A4 print",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 90000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 2,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 9040,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('run-report-page')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('run-report-page')\u001b[22m\n",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('run-report-page')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('run-report-page')\u001b[22m\n\n    at openPrintSurface (/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:722:47)\n    at /Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:1317:24",
+                            "location": {
+                              "file": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+                              "column": 47,
+                              "line": 722
+                            },
+                            "snippet": "  720 |   await page.emulateMedia({ media: \"print\" });\n  721 |   await page.goto(path);\n> 722 |   await expect(page.getByTestId(readyTestId)).toBeVisible();\n      |                                               ^\n  723 |   await expect(page.locator(selector)).toBeVisible();\n  724 |   if (readySelector) {\n  725 |     await expect(page.locator(readySelector)).toBeVisible();"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+                                "column": 47,
+                                "line": 722
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('run-report-page')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('run-report-page')\u001b[22m\n\n\n  720 |   await page.emulateMedia({ media: \"print\" });\n  721 |   await page.goto(path);\n> 722 |   await expect(page.getByTestId(readyTestId)).toBeVisible();\n      |                                               ^\n  723 |   await expect(page.locator(selector)).toBeVisible();\n  724 |   if (readySelector) {\n  725 |     await expect(page.locator(readySelector)).toBeVisible();\n    at openPrintSurface (/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:722:47)\n    at /Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts:1317:24"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-08-31T18:56:06.390Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-9b382-r-bounded-identity-A4-print-chromium/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-9b382-r-bounded-identity-A4-print-chromium/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-9b382-r-bounded-identity-A4-print-chromium/error-context.md"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-4/runtime-dashboard.visual-r-9b382-r-bounded-identity-A4-print-chromium/trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/Users/deniskopylov/polisyos/.worktrees/debt-c-ds10-capability-discovery/policy-engine/apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+                            "column": 47,
+                            "line": 722
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "a8aedd206cb9dfd9fb7a-3e6b4a1ad16997baadb4",
+                  "file": "runtime-dashboard.visual.spec.ts",
+                  "line": 1316,
+                  "column": 5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-31T18:53:04.402Z",
+    "duration": 191806.49,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

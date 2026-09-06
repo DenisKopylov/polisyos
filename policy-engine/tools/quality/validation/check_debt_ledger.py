@@ -27,8 +27,25 @@ ATLAS_PATH = Path("docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTE
 DISPOSITION_PATH = Path("architecture/atlas_surfaces/frontend-disposition-register.json")
 LEDGER_PATH = Path("docs/plans/active/LEDGER.md")
 PLAN_ROOTS = (Path("docs/plans/active/atlas-slices"), Path("docs/superpowers/plans"))
+# register 193 -> 197 on 2026-09-06: the historical-cohorts lane closed for transcription and
+# spun off four rows it was forbidden to open — the dead selective extraction prompt
+# (`academic-selective-extraction-prompt-never-rendered`), the sentence-keyword evidence class in
+# `ir/analytics` (`literature-infers-evidence-class-from-a-sentence`), the six-of-ten ask vocabulary
+# (`extraction-ask-offers-six-of-ten-evidence-classes`), and the 488 divergent hint cells
+# (`evidence-row-design-hint-differs-from-adjudication`). No row was closed by that lane; the two
+# historical rows were superseded in place and keep their statuses.
+# register 197 -> 198 on 2026-09-06: the evidence-class reachability census refuted both rows it was
+# commissioned under — `extraction-ask-offers-six-of-ten-evidence-classes` and
+# `literature-infers-evidence-class-from-a-sentence` both `open` -> `folded`, each with the
+# measurement its closure signal required — and located the live defect neither named, added as
+# `evidence-class-normalizer-zeroes-two-canonical-classes`. Two folds and one addition: +1.
+# register 198 -> 199 on 2026-09-06: the producer-repairs lane closed both rows it carried
+# (`evidence-class-normalizer-zeroes-two-canonical-classes`,
+# `academic-selective-extraction-prompt-never-rendered`) and surfaced one new class under its
+# report-only rule, added as `design-normalization-matches-a-substring-before-identity`. Two
+# closures and one addition: +1.
 PUBLISHED_DENOMINATORS = {
-    "register": 151,
+    "register": 209,
     "gy": 38,
     "atlas": 22,
     "frontend_disposition_entries": 261,
@@ -40,6 +57,7 @@ INFORMATIONAL_FINDING_CODES = frozenset(
         "closure_signal_collection_host_unknown",
         "closure_signal_count_exit_disagreement",
         "closure_signal_runner_unsupported",
+        "explicit_nonclosure_unidentified",
         "register_supplies_missing_standing",
         "register_withholds_source_standing",
     }
@@ -47,6 +65,7 @@ INFORMATIONAL_FINDING_CODES = frozenset(
 REGISTER_STATUSES = frozenset(
     {"open", "open_unmerged", "blocked", "folded", "closed", "ambiguous", "foreign"}
 )
+TERMINAL_REGISTER_STATUSES = frozenset({"closed", "folded"})
 GY_STATUSES = frozenset({"blocked_on_product_decision", "prose_only"})
 CAPABILITY_STATES = (
     "absent/unallocated",
@@ -67,11 +86,14 @@ ANY_GY_HEADING_RE = re.compile(r"^- \*\*(GY-(?:DEF\d+|DEFC-\d+|GAP\d+|DI\d+|PA\d
 FILE_LINE_RE = re.compile(r"(?<![\w/])([A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*):(\d+)\b")
 UNBLOCKED_PLANLESS = frozenset({"DS9", "DS10", "DS12", "DS14", "DS15", "DS17"})
 
-Finding = namedtuple("Finding", "code detail")
+Finding = namedtuple("Finding", "code detail informational", defaults=(False,))
 _DebtRow = namedtuple("_DebtRow", "debt_id status owner section heading raw branch")
 _StandingBlock = namedtuple("_StandingBlock", "debt_id status line hit_count heading raw")
 _AtlasDebt = namedtuple("_AtlasDebt", "debt_id status owner line heading raw")
 _WorkRow = namedtuple("_WorkRow", "slice_id stage basis heading branch")
+_ExplicitNonclosure = namedtuple(
+    "_ExplicitNonclosure", "debt_id typed_not_a_debt resolved_history path line"
+)
 _Snapshot = namedtuple(
     "_Snapshot",
     "debts gy atlas_debts work plan_ids explicit_nonclosures frontend_entries frontend_entry_statuses frontend_ds8_assignments frontend_ds8_statuses ds5_rows ds5_planless irregular_branches carried_closed branch_states",
@@ -98,6 +120,23 @@ def _inline_id(cell: str) -> str | None:
     return match.group(1).strip() if (match := re.search(r"`([^`]+)`", cell)) else None
 
 
+def _exact_inline_id(cell: str) -> str | None:
+    return match.group(1) if (match := re.fullmatch(r"`([^`]+)`", cell)) else None
+
+
+def _nonclosure_table_identity(cell: str) -> tuple[str | None, bool, bool]:
+    debt_id = (
+        match.group(1)
+        if (match := re.match(r"^`([^`]+)`(?:\s*(?:—|-|:)\s*|$)", cell))
+        else None
+    )
+    typed_not_a_debt = bool(
+        re.match(r"^\*\*not-a-debt\*\*(?:\s*(?:—|-|:)\s*|$)", cell)
+    )
+    resolved_history = "**resolved-history**" in cell
+    return debt_id, typed_not_a_debt, resolved_history
+
+
 def _plain(value: str) -> str:
     value = re.sub(r"\[([^]]+)]\([^)]+\)", r"\1", value)
     return value.replace("`", "").replace("**", "").replace("~~", "").strip()
@@ -119,14 +158,22 @@ def _parse_register(text: str) -> tuple[list[_DebtRow], list[str]]:
     irregular: list[str] = []
     section = ""
     heading = ""
+    status_index: int | None = None
     for line_no, line in enumerate(text.splitlines(), 1):
         section_match = re.match(r"^## ([A-I])\.\s+(.+)$", line)
         if section_match:
             section = section_match.group(1)
             heading = f"{section}. {section_match.group(2)}"
+            status_index = None
             continue
         cells = _cells(line)
-        if section not in set("ABCDEFG") or not cells or cells[0].lower() in {"id", "debt"}:
+        if section not in set("ABCDEFG") or not cells:
+            continue
+        if cells[0].lower() in {"id", "debt"}:
+            status_index = next(
+                (index for index, cell in enumerate(cells) if _plain(cell).lower() == "status"),
+                None,
+            )
             continue
         debt_id = _inline_id(cells[0])
         if not debt_id:
@@ -141,7 +188,12 @@ def _parse_register(text: str) -> tuple[list[_DebtRow], list[str]]:
         elif section == "E":
             status = "folded"
         else:
-            status = _status_token(line) or "ambiguous"
+            status_cell = (
+                cells[status_index]
+                if status_index is not None and status_index < len(cells)
+                else ""
+            )
+            status = _status_token(status_cell) or "ambiguous"
         owner_index = {"A": 2, "B": 2, "C": 2, "D": 1}.get(section)
         owner = (
             _plain(cells[owner_index])
@@ -295,20 +347,49 @@ def _plan_inventory(repo_root: Path) -> tuple[set[str], dict[str, str], list[Pat
     return ids, branches, paths
 
 
-def _explicit_nonclosures(repo_root: Path, paths: list[Path]) -> list[tuple[str, str, int]]:
-    rows: list[tuple[str, str, int]] = []
+def _explicit_nonclosures(repo_root: Path, paths: list[Path]) -> list[_ExplicitNonclosure]:
+    rows: list[_ExplicitNonclosure] = []
     for path in paths:
         active = False
-        for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        table_active = False
+        lines = path.read_text(encoding="utf-8").splitlines()
+        relative_path = path.relative_to(repo_root).as_posix()
+        for line_no, line in enumerate(lines, 1):
             if line == "## Explicit non-closure":
                 active = True
+                table_active = False
                 continue
             if active and line.startswith("## "):
                 active = False
             if active:
                 match = re.match(r"^-\s+`([^`]+)`(?:\s|$)", line)
                 if match:
-                    rows.append((match.group(1), path.relative_to(repo_root).as_posix(), line_no))
+                    rows.append(
+                        _ExplicitNonclosure(
+                            match.group(1), False, False, relative_path, line_no
+                        )
+                    )
+                    continue
+                cells = _cells(line)
+                if not cells:
+                    continue
+                next_line = lines[line_no] if line_no < len(lines) else ""
+                if next_line.startswith("|") and not _cells(next_line):
+                    table_active = True
+                    continue
+                if table_active:
+                    debt_id, typed_not_a_debt, resolved_history = (
+                        _nonclosure_table_identity(cells[0])
+                    )
+                    rows.append(
+                        _ExplicitNonclosure(
+                            debt_id,
+                            typed_not_a_debt,
+                            resolved_history,
+                            relative_path,
+                            line_no,
+                        )
+                    )
     return rows
 
 
@@ -1085,6 +1166,7 @@ def _closure_signal_findings(
                         "closure_signal_identity_unresolvable",
                         f"{row.debt_id}: {selection.selector}; ast={ast_receipt.detail}; "
                         "collected=not-run; exit=not-run",
+                        informational=row.status not in TERMINAL_REGISTER_STATUSES,
                     )
                 )
                 continue
@@ -1147,7 +1229,16 @@ def _closure_signal_findings(
                     if not ast_receipt.path_exists or ast_receipt.found is False
                     else "closure_signal_selects_nothing"
                 )
-                findings.append(Finding(code, f"{base}; {receipt.detail}"))
+                findings.append(
+                    Finding(
+                        code,
+                        f"{base}; {receipt.detail}",
+                        informational=(
+                            code == "closure_signal_identity_unresolvable"
+                            and row.status not in TERMINAL_REGISTER_STATUSES
+                        ),
+                    )
+                )
     metrics.update(finding.code for finding in findings)
     return findings, metrics
 
@@ -1290,8 +1381,26 @@ def audit_repository(
         source_is_open = status != "closed" and authority_status != "closed"
         if source_is_open and key not in ledger_keys:
             findings.append(Finding("ledger_missing_source_id", f"{source}:{debt_id}"))
-    for debt_id, path, line in snapshot.explicit_nonclosures:
-        if debt_id not in ledger_debts:
+    register_statuses: dict[str, set[str]] = {}
+    for row in snapshot.debts:
+        register_statuses.setdefault(row.debt_id, set()).add(row.status)
+    for debt_id, typed_not_a_debt, resolved_history, path, line in (
+        snapshot.explicit_nonclosures
+    ):
+        if typed_not_a_debt and (debt_id is not None or resolved_history):
+            findings.append(Finding("explicit_nonclosure_identity_conflict", f"{path}:{line}"))
+        if debt_id is None and not typed_not_a_debt:
+            findings.append(Finding("explicit_nonclosure_unidentified", f"{path}:{line}"))
+        elif debt_id is not None and resolved_history:
+            statuses = register_statuses.get(debt_id, set())
+            if not statuses or not statuses <= TERMINAL_REGISTER_STATUSES:
+                findings.append(
+                    Finding(
+                        "explicit_nonclosure_resolution_mismatch",
+                        f"{debt_id}: register={sorted(statuses)}; {path}:{line}",
+                    )
+                )
+        elif debt_id is not None and debt_id not in ledger_debts:
             findings.append(Finding("explicit_nonclosure_missing", f"{debt_id}: {path}:{line}"))
     for path, line in FILE_LINE_RE.findall(ledger_text):
         if not (repo_root / path).is_file():
@@ -1315,6 +1424,22 @@ def audit_repository(
         "ds5_nonclosure_rows": snapshot.ds5_rows,
         "ds5_planless_routes": snapshot.ds5_planless,
         "irregular_section_e_branch_rows": len(snapshot.irregular_branches),
+        "explicit_nonclosure_entries": len(snapshot.explicit_nonclosures),
+        "explicit_nonclosure_identified": sum(
+            debt_id is not None for debt_id, _, _, _, _ in snapshot.explicit_nonclosures
+        ),
+        "explicit_nonclosure_typed_not_a_debt": sum(
+            typed_not_a_debt
+            for _, typed_not_a_debt, _, _, _ in snapshot.explicit_nonclosures
+        ),
+        "explicit_nonclosure_resolved_history": sum(
+            resolved_history
+            for _, _, resolved_history, _, _ in snapshot.explicit_nonclosures
+        ),
+        "explicit_nonclosure_unidentified": sum(
+            debt_id is None and not typed_not_a_debt
+            for debt_id, typed_not_a_debt, _, _, _ in snapshot.explicit_nonclosures
+        ),
         "closure_signal_pytest_selections": closure_metrics["runner_pytest"],
         "closure_signal_unsupported_runners": closure_metrics["runner_vitest"]
         + closure_metrics["runner_unknown"],
@@ -1339,10 +1464,14 @@ def audit_repository(
     }
     ordered_findings = tuple(sorted(findings, key=lambda item: (item.code, item.detail)))
     informational = tuple(
-        finding for finding in ordered_findings if finding.code in INFORMATIONAL_FINDING_CODES
+        finding
+        for finding in ordered_findings
+        if finding.informational or finding.code in INFORMATIONAL_FINDING_CODES
     )
     blocking = tuple(
-        finding for finding in ordered_findings if finding.code not in INFORMATIONAL_FINDING_CODES
+        finding
+        for finding in ordered_findings
+        if not finding.informational and finding.code not in INFORMATIONAL_FINDING_CODES
     )
     return AuditReport(ordered_findings, blocking, informational, metrics, expected_text)
 

@@ -7,21 +7,87 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import duckdb
+import pytest
+from pydantic import ValidationError
 
+from polisyos.data_forge.domains.academic.knowledge import skg_store
 from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     ensure_skg_schema,
     ingest_openalex_no_hit_frontier,
     ingest_openalex_span_grounded_claims,
 )
+from polisyos.data_forge.domains.academic.knowledge.types import ClaimOccurrenceVocabularyTransport
 from polisyos.ir.analytics.literature import (
+    CausalClaim,
     EvidenceSpan,
     OpenAlexWorkText,
+    VersionedClaimVocabularyEnvelope,
     extract_span_grounded_claims_from_openalex_work,
 )
 from polisyos.scholar.search.models import SearchQueryTrace
 
 REPO_ROOT = Path(__file__).resolve().parents[6]
 FIXTURE_DIR = REPO_ROOT / "tests" / "fixtures" / "scholar" / "openalex"
+
+
+def test_span_writer_inactive_preflight_reuses_the_graph_vocabulary_boundary() -> None:
+    """Catch a direct writer seam that admits a duplicate vocabulary key."""
+
+    transport = ClaimOccurrenceVocabularyTransport(
+        occurrence={
+            "cause": "tax rate",
+            "effect": "employment",
+            "direction": "negative",
+            "mechanism": "labour cost",
+            "supporting_span_ids": ["span-1"],
+        },
+        vocabulary=VersionedClaimVocabularyEnvelope(
+            cause="tax rate",
+            effect="employment",
+            direction="negative",
+            mechanism="labour cost",
+        ),
+    )
+
+    assert skg_store.preflight_candidate_claim_vocabulary(transport) == transport
+    bad = transport.model_copy(
+        update={"occurrence": {**transport.occurrence, "evidence_strength": "rct"}}
+    )
+    with pytest.raises(ValidationError, match="evidence_strength"):
+        skg_store.preflight_candidate_claim_vocabulary(bad)
+
+
+def test_span_writer_admits_every_claim_before_first_database_write() -> None:
+    """A forged vocabulary candidate cannot leave a partial writer footprint."""
+
+    con = duckdb.connect(":memory:")
+    forged = CausalClaim(
+        claim_id="claim-forged",
+        cause_variable="tax rate",
+        effect_variable="employment",
+    ).model_copy(update={"evidence_strength": "moderate"})
+
+    with (
+        pytest.warns(UserWarning, match="Pydantic serializer warnings"),
+        pytest.raises(ValidationError, match="evidence_strength"),
+    ):
+        ingest_openalex_span_grounded_claims(
+            con,
+            work=_work(),
+            claims=[forged],
+            query_trace=SearchQueryTrace(
+                query_node_id="q-forged",
+                query="tax rate employment",
+                perspective="root",
+                provider="openalex",
+                hit_count=1,
+            ),
+        )
+
+    assert con.execute(
+        "SELECT table_name FROM information_schema.tables ORDER BY table_name"
+    ).fetchall() == []
+    con.close()
 
 
 class _DeterministicSpanSupportClient:
@@ -70,6 +136,7 @@ def test_ingest_accepts_validated_spans_and_rejects_non_supporting_spans(tmp_pat
         span_support_client=client,
     )
     assert claims
+    claims = [claim.model_copy(update={"publish_to_graph": True}) for claim in claims]
     poisoned_claim = claims[0].model_copy(
         update={
             "claim_id": f"{claims[0].claim_id}.poisoned",
@@ -135,6 +202,10 @@ def test_ingest_accepts_validated_spans_and_rejects_non_supporting_spans(tmp_pat
         "SELECT COUNT(*) FROM ac_skg_span_grounded_claims "
         "WHERE authority_tier = 'design_tier_l2' AND support_status = 'validated_supporting'"
     ).fetchone()[0]
+    extraction_json = con.execute(
+        "SELECT extraction_json FROM ac_skg_articles WHERE openalex_id = ?",
+        [work.openalex_id],
+    ).fetchone()[0]
     con.close()
 
     assert edge_count >= 1
@@ -147,6 +218,159 @@ def test_ingest_accepts_validated_spans_and_rejects_non_supporting_spans(tmp_pat
         assert quality["source_effect_variable"]
     assert trace_count == 1
     assert authority_count >= 1
+    persisted_claims = json.loads(extraction_json)["claims"]
+    assert persisted_claims
+    assert all(set(item) == {"occurrence", "vocabulary"} for item in persisted_claims)
+    assert all("strength" not in item["occurrence"] for item in persisted_claims)
+    assert all(item["vocabulary"]["schema_version"] == "2.0" for item in persisted_claims)
+
+
+@pytest.mark.parametrize("publish_value", [False, None, "false", 1])
+def test_span_writer_publication_gate_requires_literal_true(publish_value: object) -> None:
+    """Only the literal publication decision may create graph rows."""
+
+    con = duckdb.connect(":memory:")
+    work = _work()
+    client = _DeterministicSpanSupportClient()
+    claims = extract_span_grounded_claims_from_openalex_work(
+        work,
+        query="loan guarantees SMEs firm survival impact evaluation",
+        span_support_client=client,
+    )
+    assert claims
+    claim = claims[0].model_copy(update={"publish_to_graph": publish_value})
+
+    report = ingest_openalex_span_grounded_claims(
+        con,
+        work=work,
+        claims=[claim],
+        query_trace=SearchQueryTrace(
+            query_node_id="q-publication-negative",
+            query="loan guarantees SMEs firm survival impact evaluation",
+            perspective="root",
+            provider="openalex",
+            hit_count=1,
+        ),
+        span_support_client=client,
+    )
+
+    assert report.ingested_claim_count == 0
+    assert report.rejected_claim_ids == (claim.claim_id,)
+    assert report.authority_tier == "candidate_unverified"
+    assert con.execute("SELECT COUNT(*) FROM ac_skg_edges").fetchone()[0] == 0
+    assert con.execute("SELECT COUNT(*) FROM ac_skg_edge_evidence").fetchone()[0] == 0
+    assert con.execute("SELECT COUNT(*) FROM ac_skg_span_grounded_claims").fetchone()[0] == 0
+    con.close()
+
+
+def test_span_writer_persists_candidate_projection_without_design_authority() -> None:
+    """A publishable candidate keeps its hint only in the vocabulary envelope."""
+
+    con = duckdb.connect(":memory:")
+    work = _work()
+    client = _DeterministicSpanSupportClient()
+    claims = extract_span_grounded_claims_from_openalex_work(
+        work,
+        query="loan guarantees SMEs firm survival impact evaluation",
+        span_support_client=client,
+    )
+    assert claims
+    claim = claims[0].model_copy(update={"publish_to_graph": True})
+
+    report = ingest_openalex_span_grounded_claims(
+        con,
+        work=work,
+        claims=[claim],
+        query_trace=SearchQueryTrace(
+            query_node_id="q-candidate-projection",
+            query="loan guarantees SMEs firm survival impact evaluation",
+            perspective="root",
+            provider="openalex",
+            hit_count=1,
+        ),
+        span_support_client=client,
+    )
+
+    assert report.ingested_claim_count == 1
+    assert con.execute("SELECT candidate_layer FROM ac_skg_edges").fetchone() == ("candidate",)
+    assert con.execute("SELECT design_family FROM ac_skg_edge_evidence").fetchone() == (None,)
+    assert con.execute("SELECT design_family FROM ac_skg_span_grounded_claims").fetchone() == (
+        None,
+    )
+    extraction_json = con.execute(
+        "SELECT extraction_json FROM ac_skg_articles WHERE openalex_id = ?",
+        [work.openalex_id],
+    ).fetchone()[0]
+    vocabulary = json.loads(extraction_json)["claims"][0]["vocabulary"]
+    assert vocabulary["design_family_hint"] == claim.design_family_hint.value
+    assert vocabulary["design_family_hint_status"] == "candidate"
+    con.close()
+
+
+def test_span_writer_mixed_batch_publishes_only_allowed_claim() -> None:
+    """A denied same-edge claim cannot add evidence or replace the allowed edge."""
+
+    con = duckdb.connect(":memory:")
+    work = _work()
+    client = _DeterministicSpanSupportClient()
+    claims = extract_span_grounded_claims_from_openalex_work(
+        work,
+        query="loan guarantees SMEs firm survival impact evaluation",
+        span_support_client=client,
+    )
+    assert claims
+    allowed = claims[0].model_copy(
+        update={"claim_id": f"{claims[0].claim_id}.allowed", "publish_to_graph": True}
+    )
+    denied = claims[0].model_copy(
+        update={"claim_id": f"{claims[0].claim_id}.denied", "publish_to_graph": False}
+    )
+
+    report = ingest_openalex_span_grounded_claims(
+        con,
+        work=work,
+        claims=[allowed, denied],
+        query_trace=SearchQueryTrace(
+            query_node_id="q-publication-mixed",
+            query="loan guarantees SMEs firm survival impact evaluation",
+            perspective="root",
+            provider="openalex",
+            hit_count=2,
+        ),
+        span_support_client=client,
+    )
+
+    assert report.ingested_claim_count == 1
+    assert report.rejected_claim_ids == (denied.claim_id,)
+    assert con.execute("SELECT claim_id FROM ac_skg_edge_evidence").fetchall() == [
+        (allowed.claim_id,)
+    ]
+    edge_before = con.execute(
+        "SELECT edge_id, article_refs, candidate_layer, quality_signals_json FROM ac_skg_edges"
+    ).fetchall()
+
+    denied_report = ingest_openalex_span_grounded_claims(
+        con,
+        work=work,
+        claims=[denied],
+        query_trace=SearchQueryTrace(
+            query_node_id="q-publication-denied-replay",
+            query="loan guarantees SMEs firm survival impact evaluation",
+            perspective="root",
+            provider="openalex",
+            hit_count=1,
+        ),
+        span_support_client=client,
+    )
+
+    assert denied_report.ingested_claim_count == 0
+    assert con.execute(
+        "SELECT edge_id, article_refs, candidate_layer, quality_signals_json FROM ac_skg_edges"
+    ).fetchall() == edge_before
+    assert con.execute("SELECT claim_id FROM ac_skg_edge_evidence").fetchall() == [
+        (allowed.claim_id,)
+    ]
+    con.close()
 
 
 def test_no_hit_query_trace_persists_queryable_skg_frontier(tmp_path: Path) -> None:

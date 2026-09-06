@@ -22,8 +22,8 @@ import {
   PRIMARY_LOCALE,
   resolveLocale,
 } from "./locale";
-import en from "./locales/en.json";
-import uk from "./locales/uk.json";
+import en from "./locales/en.json" with { type: "json" };
+import uk from "./locales/uk.json" with { type: "json" };
 import {
   applyLocaleTypography,
   applyTypographyToReactNode,
@@ -124,7 +124,9 @@ function createI18nContextValue(
 }
 
 export function LocaleProvider({ children }: PropsWithChildren) {
-  const [locale, setLocaleState] = useState<ProductLocale>(() => resolveLocale());
+  const [locale, setLocaleState] = useState<ProductLocale>(() =>
+    resolveLocale(),
+  );
 
   const setLocale = useCallback((nextLocale: ProductLocale) => {
     if (isProductLocale(nextLocale)) {

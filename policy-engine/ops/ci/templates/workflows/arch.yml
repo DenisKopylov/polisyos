@@ -56,6 +56,8 @@ jobs:
         run: uv run --extra ml python tools/quality/diagnostics/gen_schema.py --check
       - name: Verify architecture guardrails
         run: uv run polisyos-tools architecture guardrails check
+      - name: Verify trust claim posture
+        run: uv run pytest tests/repo_quality/tools/test_trust_claim_posture.py -q
       - name: Verify tool config split
         run: uv run polisyos-tools workspace tool-configs --check
       - name: Verify Runtime API contract drift

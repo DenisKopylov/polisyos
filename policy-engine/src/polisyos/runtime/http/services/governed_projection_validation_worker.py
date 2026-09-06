@@ -44,9 +44,11 @@ _N13A_SUBSTRATE_PATH = (
 _CAPABILITY_PATH = "architecture/policy_design_case/capability_reality_report.json"
 _CLUSTER_PATH = "architecture/policy_design_case/cluster_ownership_map.toml"
 _HEALTH_PATH = "architecture/policy_design_case/layer3_health_metric_ledgers.toml"
-_PROVING_ROOT = "tests/fixtures/universal-corpus"
 _CONFIDENCE_LEDGER_PATH = (
     "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
+)
+_VALUE_DEPENDENCY_DISCRIMINANT_PATH = (
+    "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
 )
 
 _VALIDATOR_METADATA: dict[str, tuple[str, str]] = {
@@ -244,6 +246,81 @@ def _validate_value(root: Path) -> list[str]:
 
     issues.extend(_extract_issue_codes(validate_payload(payload)))
     return issues
+
+
+def _dependency_diagnostic_nonreceipt() -> dict[str, Any]:
+    """Return the only result an unavailable ambient diagnostic may contribute."""
+
+    return {
+        "decision_role": "ambient_non_decisive",
+        "predicate_class": None,
+        "authority_boundary": None,
+        "artifact_content_ref": None,
+        "profile": None,
+        "receipt_state": "not_received",
+        "status": "not_established",
+        "first_case": None,
+    }
+
+
+def _value_dependency_diagnostic(root: Path) -> dict[str, Any]:
+    """Project N8's validated ambient diagnostic without reimplementing Foundry ownership."""
+
+    from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+    diagnostic = _dependency_diagnostic_nonreceipt()
+    try:
+        raw = (root / _VALUE_DEPENDENCY_DISCRIMINANT_PATH).read_bytes()
+    except OSError:
+        return diagnostic
+    owner_result = n8.validate_foundry_dependency_discriminant(
+        repo_root=root,
+        companion=raw,
+        diagnostic_verification=None,
+    )
+    if owner_result.content_ref is None or owner_result.profile_discriminant is None:
+        return diagnostic
+    try:
+        companion = json.loads(raw)
+        if not isinstance(companion, Mapping):
+            return diagnostic
+        profile = owner_result.profile_discriminant
+        diagnostic.update(
+            {
+                "predicate_class": companion["predicate_class"],
+                "authority_boundary": companion["authority_boundary"],
+                "artifact_content_ref": owner_result.content_ref,
+                "profile": profile.model_dump(mode="json"),
+                "receipt_state": "received",
+            }
+        )
+    except (KeyError, TypeError, ValueError):
+        return {
+            **diagnostic,
+            "artifact_content_ref": None,
+            "profile": None,
+        }
+    for finding in owner_result.ambient_findings:
+        code = finding.get("code")
+        if code == "dependency_environment_diagnostic_failed":
+            diagnostic["status"] = "fail"
+            value = finding.get("diagnostic")
+            if isinstance(value, Mapping):
+                first_case = value.get("first_case")
+                diagnostic["first_case"] = (
+                    dict(first_case) if isinstance(first_case, Mapping) else None
+                )
+            break
+        if code in {
+            "dependency_environment_diagnostic_not_established",
+            "dependency_environment_diagnostic_not_received",
+            "dependency_environment_diagnostic_not_reconciled",
+        }:
+            diagnostic["status"] = "not_established"
+            break
+    else:
+        diagnostic["status"] = "pass"
+    return diagnostic
 
 
 def _validate_disposition(root: Path) -> list[str]:
@@ -557,16 +634,15 @@ def _validate_health(root: Path) -> list[str]:
 
 
 def _validate_proving_ground(root: Path) -> list[str]:
-    from polisyos.corpus import (
-        load_universal_corpus_fixtures,
-        load_universal_corpus_manifest,
-    )
+    """Defer the fixture denominator to the canonical source projector.
 
-    fixture_root = root / _PROVING_ROOT
-    manifest = load_universal_corpus_manifest(fixture_root)
-    fixtures = load_universal_corpus_fixtures(fixture_root)
-    if len(manifest.fixtures) != 13 or len(fixtures) != 13:
-        return ["legacy_proving_ground_denominator_mismatch"]
+    ``GovernedProjectionService._project_proving_ground`` rejects a source whose
+    identities or records do not contain exactly 13 rows before this worker can run.
+    The worker still verifies every component binding before and after this callback
+    and binds the already-projected payload into its semantic receipt.
+    """
+
+    del root
     return []
 
 
@@ -803,6 +879,12 @@ def _validate_request(request: Mapping[str, Any]) -> dict[str, Any]:
                     io.StringIO()
                 ):
                     issues.extend(validator(root))
+                    if projection_id == "value-gate" and not issues:
+                        try:
+                            diagnostic = _value_dependency_diagnostic(root)
+                        except Exception:
+                            diagnostic = _dependency_diagnostic_nonreceipt()
+                        result["related_dependency_diagnostic"] = diagnostic
                     if projection_id == "acquisition-growth" and not issues:
                         issues.extend(
                             _validate_acquisition_growth_projection(
@@ -877,6 +959,7 @@ def main() -> int:
             "recomputed_total_spend_denominator": None,
             "registry_delta_numerator": None,
             "registry_delta_denominator": None,
+            "related_dependency_diagnostic": None,
         }
     sys.stdout.write(json.dumps(result, separators=(",", ":"), sort_keys=True) + "\n")
     return 0

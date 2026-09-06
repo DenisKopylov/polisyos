@@ -30,13 +30,16 @@ from .sql import (
     validate_sql_identifier,
 )
 from .timing import (
+    PytestWorkloadIdentity,
     ToolRunRecord,
     append_timing_record,
     make_timing_record,
+    pytest_node_map_digest,
     run_timed_entrypoint,
     run_timed_operation,
     timed_tool_run,
     timing_log_from_env,
+    verify_pytest_workload_identity,
 )
 
 __all__ = [
@@ -44,6 +47,7 @@ __all__ = [
     "PreflightIssue",
     "PreflightResult",
     "PreflightStatus",
+    "PytestWorkloadIdentity",
     "ToolExecutionError",
     "ToolMessage",
     "ToolResult",
@@ -63,6 +67,7 @@ __all__ = [
     "make_timing_record",
     "normalize_filesystem_path",
     "parse_trusted_command",
+    "pytest_node_map_digest",
     "quote_sql_string_literal",
     "render_command",
     "render_qualified_identifier",
@@ -76,6 +81,7 @@ __all__ = [
     "validate_command_prefix",
     "validate_qualified_sql_identifier",
     "validate_sql_identifier",
+    "verify_pytest_workload_identity",
     "write_json_exclusive",
     "write_text_exclusive",
     "write_tool_result",

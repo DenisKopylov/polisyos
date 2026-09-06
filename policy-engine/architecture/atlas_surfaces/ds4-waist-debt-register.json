@@ -41,15 +41,18 @@
       "owner_slice": "DS5",
       "capability_states": ["bridge_missing", "surface_missing"],
       "generated_client_anchor": {
-        "anchor_kind": "missing_export",
-        "absence_scope": "canonical_module_exports_and_schema_owners",
+        "anchor_kind": "present_projection",
         "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "canonical_line": 532,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6RGVjaXNpb25HcmFkZSIsInN5bWJvbDpEZWNpc2lvbkdyYWRlIiwicmVzb2x2ZWQ6RGVjaXNpb25HcmFkZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJEZWNpc2lvbkdyYWRlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiYWE1ZWE3OGJkMGRjZmU5MDhkYWMyZWQyYjg1NWEzNmE3YzcyNjc4MzZjYTFkN2I2MTE1ZTgwYTUzOTNmZGJhYSIsInJvbGUiOiJleHBvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L2Nhbm9uaWNhbFJ1bnRpbWVBcGlDbGllbnQudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
         "types_path": "packages/runtime-api-client/types.ts",
+        "schema_line": 6406,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuRGVjaXNpb25HcmFkZSIsInN5bWJvbDpEZWNpc2lvbkdyYWRlIiwicmVzb2x2ZWQ6RGVjaXNpb25HcmFkZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5EZWNpc2lvbkdyYWRlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNWZiYjAwOWFiYzlkOGE1Y2YwMzk0Mzc1ZWNmM2E2YTUwNjRhZWQxMWFhZWE1OTMxM2E2MDU4MGRjNDFlNTE4YyIsInJvbGUiOiJ0eXBlX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiUHJvcGVydHlTaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZToxNzkiXSwidmVyc2lvbiI6MX0",
         "symbol": "DecisionGrade"
       },
       "swap_module": "apps/runtime-dashboard/src/shared/ui/compounds/decisionGradePresentation.ts",
       "target_cluster": "C14",
-      "closure_truth": "Every owner label is opaque and presents as unrecognized until a future generated DecisionGrade union replaces the single C14 swap point.",
+      "closure_truth": "The generated DecisionGrade owner union is present; C14's private exhaustive record handles every owner grade at the single presentation swap point, while runtime-invalid labels remain unrecognized.",
       "master_inherited_debt_action": "flag_for_architect_insertion_at_c20",
       "estate_denominator_effect": "none"
     },

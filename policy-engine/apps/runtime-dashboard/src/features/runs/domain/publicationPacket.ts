@@ -17,7 +17,7 @@ import {
 import {
   isEpochSemantics,
   type EpochSemantics,
-} from "@/shared/ui/temporal/TimeSemanticsLabel";
+} from "@/shared/lib/domain/epochSemantics";
 
 export type ToulminNodeKind =
   | "backing"

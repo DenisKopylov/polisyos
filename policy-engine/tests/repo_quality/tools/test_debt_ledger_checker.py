@@ -229,6 +229,29 @@ def test_falsifier_status_flip_is_rejected(tmp_path: Path) -> None:
     assert "ledger_status_mismatch" in _codes(checker, repo)
 
 
+def test_row_status_comes_from_the_status_cell_not_from_prose() -> None:
+    checker = _checker()
+    register = r"""# PolicyOS Debt Register
+
+## A. Open and executable now
+
+| id | subject | status | owner | closure signal |
+| --- | --- | --- | --- | --- |
+| `closed-id` | mentions `blocked` and quotes ``^-\s+`([^`]+)` `` | `open` | team-runtime | predicate |
+| `blocked-without-status` | mentions `closed` | undecided | team-runtime | predicate |
+| `open-missing-status-cell` | mentions `closed` |
+"""
+
+    rows, irregular = checker._parse_register(register)
+
+    assert not irregular
+    assert [(row.debt_id, row.status) for row in rows] == [
+        ("closed-id", "open"),
+        ("blocked-without-status", "ambiguous"),
+        ("open-missing-status-cell", "ambiguous"),
+    ]
+
+
 def test_falsifier_nonancestor_closure_commit_is_rejected(tmp_path: Path) -> None:
     checker = _checker()
     repo = _fixture(tmp_path, a_rows="", ledger=_ledger())
@@ -343,7 +366,8 @@ def test_falsifier_missing_pytest_identity_is_blocking(tmp_path: Path) -> None:
     repo = _fixture(
         tmp_path,
         a_rows=_signal_row(
-            "close when `uv run pytest tests/test_signal.py::test_missing -q` passes"
+            "close when `uv run pytest tests/test_signal.py::test_missing -q` passes",
+            status="closed",
         ),
         plans={"tests/test_signal.py": "def test_real() -> None:\n    pass\n"},
     )
@@ -357,6 +381,31 @@ def test_falsifier_missing_pytest_identity_is_blocking(tmp_path: Path) -> None:
     assert signal_findings == {"closure_signal_identity_unresolvable"}
 
 
+def test_unwritten_closure_identity_is_informational_until_terminal(
+    tmp_path: Path,
+) -> None:
+    checker = _checker()
+
+    for status in ("open", "blocked"):
+        repo = _fixture(
+            tmp_path / status,
+            a_rows=_signal_row(
+                "close when `uv run pytest tests/test_signal.py::test_missing -q` passes",
+                status=status,
+            ),
+            ledger=_ledger(row=_debt_row(status=status)),
+            plans={"tests/test_signal.py": "def test_real() -> None:\n    pass\n"},
+        )
+        report = checker.audit_repository(repo)
+
+        assert "closure_signal_identity_unresolvable" in {
+            finding.code for finding in report.informational_findings
+        }
+        assert "closure_signal_identity_unresolvable" not in {
+            finding.code for finding in report.blocking_findings
+        }
+
+
 def test_falsifier_missing_pytest_file_keeps_ast_count_and_exit_receipts(
     tmp_path: Path,
 ) -> None:
@@ -364,7 +413,8 @@ def test_falsifier_missing_pytest_file_keeps_ast_count_and_exit_receipts(
     repo = _fixture(
         tmp_path,
         a_rows=_signal_row(
-            "close when `uv run pytest tests/test_absent.py::test_missing -q` passes"
+            "close when `uv run pytest tests/test_absent.py::test_missing -q` passes",
+            status="closed",
         ),
     )
 
@@ -385,7 +435,10 @@ def test_falsifier_missing_bare_identity_is_blocking(tmp_path: Path) -> None:
     checker = _checker()
     repo = _fixture(
         tmp_path,
-        a_rows=_signal_row("close when `tests/test_signal.py::test_missing` passes"),
+        a_rows=_signal_row(
+            "close when `tests/test_signal.py::test_missing` passes",
+            status="closed",
+        ),
         plans={"tests/test_signal.py": "def test_real() -> None:\n    pass\n"},
     )
 
@@ -914,7 +967,8 @@ def test_absent_ast_identity_stays_arm_one_when_exit_disagrees(
     repo = _fixture(
         tmp_path,
         a_rows=_signal_row(
-            "close when `uv run pytest tests/test_signal.py::test_missing -q` passes"
+            "close when `uv run pytest tests/test_signal.py::test_missing -q` passes",
+            status="closed",
         ),
         plans={"tests/test_signal.py": "def test_real() -> None:\n    pass\n"},
     )
@@ -989,7 +1043,10 @@ def test_pytest_selector_outside_supported_test_roots_is_never_imported(
     sentinel = tmp_path / "source-module-imported"
     repo = _fixture(
         tmp_path,
-        a_rows=_signal_row("close when `uv run pytest src/side_effect.py::test_signal -q` passes"),
+        a_rows=_signal_row(
+            "close when `uv run pytest src/side_effect.py::test_signal -q` passes",
+            status="closed",
+        ),
         plans={
             "src/side_effect.py": (
                 "from pathlib import Path\n"
@@ -1140,6 +1197,108 @@ def test_falsifier_declared_nonclosure_missing_from_ledger_is_rejected(
     assert "explicit_nonclosure_missing" in _codes(checker, repo)
 
 
+def test_explicit_nonclosure_parser_reads_every_populated_section(tmp_path: Path) -> None:
+    checker = _checker()
+    bullet_path = tmp_path / "bullet.md"
+    bullet_path.write_text(
+        "# Bullet plan\n\n## Explicit non-closure\n\n- `bullet-gap` — remains open\n"
+    )
+    table_path = tmp_path / "table.md"
+    table_path.write_text(
+        "# Table plan\n\n## Explicit non-closure\n\n"
+        "| non-closure | owner |\n"
+        "| --- | --- |\n"
+        "| table gap | team-runtime |\n"
+        "| `table-identified-gap` — identified | team-runtime |\n"
+        "| **not-a-debt** — scoped omission | team-runtime |\n"
+        "| `table-resolved-gap` — **resolved-history** — retained | team-runtime |\n"
+    )
+
+    shaped = checker._explicit_nonclosures(tmp_path, [bullet_path, table_path])
+
+    assert shaped == [
+        ("bullet-gap", False, False, "bullet.md", 5),
+        (None, False, False, "table.md", 7),
+        ("table-identified-gap", False, False, "table.md", 8),
+        (None, True, False, "table.md", 9),
+        ("table-resolved-gap", False, True, "table.md", 10),
+    ]
+
+    repo = _fixture(
+        tmp_path,
+        g_rows="| `table-resolved-gap` | `closed` | CLOSED by `HEAD` |",
+        plans={
+            "docs/plans/active/atlas-slices/DS8-example.md": (
+                "# DS8\n\n## Explicit non-closure\n\n"
+                "- `bullet-gap` — remains open\n\n"
+                "| non-closure | owner |\n"
+                "| --- | --- |\n"
+                "| table gap | team-runtime |\n"
+                "| `table-identified-gap` — identified | team-runtime |\n"
+                "| **not-a-debt** — scoped omission | team-runtime |\n"
+                "| `table-resolved-gap` — **resolved-history** — retained | team-runtime |\n"
+            )
+        },
+    )
+    report = checker.audit_repository(repo)
+
+    assert report.metrics["explicit_nonclosure_entries"] == 5
+    assert report.metrics["explicit_nonclosure_identified"] == 3
+    assert report.metrics["explicit_nonclosure_typed_not_a_debt"] == 1
+    assert report.metrics["explicit_nonclosure_resolved_history"] == 1
+    assert report.metrics["explicit_nonclosure_unidentified"] == 1
+    assert [
+        finding.detail
+        for finding in report.informational_findings
+        if finding.code == "explicit_nonclosure_unidentified"
+    ] == ["docs/plans/active/atlas-slices/DS8-example.md:9"]
+    assert {
+        finding.detail
+        for finding in report.blocking_findings
+        if finding.code == "explicit_nonclosure_missing"
+    } == {
+        "bullet-gap: docs/plans/active/atlas-slices/DS8-example.md:5",
+        "table-identified-gap: docs/plans/active/atlas-slices/DS8-example.md:10",
+    }
+
+    _, _, plan_paths = checker._plan_inventory(REPO_ROOT)
+    real = checker._explicit_nonclosures(REPO_ROOT, plan_paths)
+
+    # The DS17 section has ten data rows; its eleventh pipe-shaped line is the header.
+    assert len(real) == 29
+    assert sum(debt_id is not None for debt_id, _, _, _, _ in real) == 18
+    assert sum(typed_not_a_debt for _, typed_not_a_debt, _, _, _ in real) == 11
+    assert sum(resolved for _, _, resolved, _, _ in real) == 7
+    assert sum(
+        debt_id is None and not typed_not_a_debt
+        for debt_id, typed_not_a_debt, _, _, _ in real
+    ) == 0
+    assert Counter(path for _, _, _, path, _ in real) == {
+        "docs/plans/active/atlas-slices/DS10-capability-discovery.md": 12,
+        "docs/plans/active/atlas-slices/DS11-trust-docs-posture.md": 7,
+        "docs/plans/active/atlas-slices/DS17-confidence-ledger-risk-spend.md": 10,
+    }
+    for debt_id, _, _, path, line in real:
+        if debt_id is not None:
+            source_line = (REPO_ROOT / path).read_text(encoding="utf-8").splitlines()[line - 1]
+            assert f"`{debt_id}`" in source_line
+
+
+def test_every_nonclosure_entry_is_identified_or_typed_not_a_debt() -> None:
+    checker = _checker()
+    _, _, plan_paths = checker._plan_inventory(REPO_ROOT)
+    rows = checker._explicit_nonclosures(REPO_ROOT, plan_paths)
+
+    assert len(rows) == 29
+    assert [
+        f"{path}:{line}"
+        for debt_id, typed_not_a_debt, _, path, line in rows
+        if debt_id is None and not typed_not_a_debt
+    ] == []
+    assert sum(debt_id is not None for debt_id, _, _, _, _ in rows) == 18
+    assert sum(typed_not_a_debt for _, typed_not_a_debt, _, _, _ in rows) == 11
+
+
 def test_plan_search_includes_superpowers_directory(tmp_path: Path) -> None:
     checker = _checker()
     source_row = "| `open-debt` | subject | DS7 | `open` | predicate |"
@@ -1184,7 +1343,9 @@ def test_real_census_replays_published_invariants() -> None:
     report = checker.audit_repository(REPO_ROOT)
     metrics = report.metrics
 
-    assert metrics["register_ids"] == 120
+    # Task O registered three new instrument-integrity rows after c5ad29cc7:
+    # corridor prerequisites, non-closure identity, and quoted docs evidence.
+    assert metrics["register_ids"] == 178
     assert metrics["gy_ids"] == 38
     assert metrics["atlas_debt_rows"] == 22
     assert metrics["frontend_disposition_entries"] == 261
@@ -1193,18 +1354,30 @@ def test_real_census_replays_published_invariants() -> None:
     assert metrics["gy_absent_from_register"] == 15
     assert metrics["gy_absent_from_register_closed"] == 15
     assert metrics["ds5_nonclosure_rows"] == 27
-    assert metrics["ds5_planless_routes"] == 6
+    assert metrics["ds5_planless_routes"] == 4
     assert metrics["irregular_section_e_branch_rows"] == 1
-    assert metrics["closure_signal_pytest_selections"] == 32
+    assert metrics["explicit_nonclosure_entries"] == 29
+    assert metrics["explicit_nonclosure_identified"] == 18
+    assert metrics["explicit_nonclosure_typed_not_a_debt"] == 11
+    assert metrics["explicit_nonclosure_resolved_history"] == 7
+    assert metrics["explicit_nonclosure_unidentified"] == 0
+    # The same three Task O rows added selectors while closing the table-parser
+    # row removed its selector: 41 + 3 - 1 = 43.
+    assert metrics["closure_signal_pytest_selections"] == 43
     assert metrics["closure_signal_unsupported_runners"] == 1
-    assert metrics["closure_signal_identities_without_commands"] == 1
+    assert metrics["closure_signal_identities_without_commands"] == 4
     assert metrics["closure_signal_input_unresolvable"] == 0
-    assert metrics["closure_signal_identity_unresolvable"] == 18
+    # These two collection-dependent pins are meaningful only under the repo's
+    # lock-bound interpreter. Fail explicitly instead of pinning unbound zeros.
+    assert checker._collection_environment_issue(REPO_ROOT) is None
+    # Group 3 writes the quoted-evidence identity, reducing the Group-2
+    # source-derived set from eleven to ten without changing its 43 selectors.
+    assert metrics["closure_signal_identity_unresolvable"] == 10
     assert metrics["closure_signal_selects_nothing"] == 0
     assert metrics["closure_signal_collection_failed"] == 0
     assert metrics["closure_signal_collection_host_unknown"] == 0
     assert metrics["closure_signal_ast_collection_disagreements"] == 0
-    assert metrics["closure_signal_count_exit_disagreements"] == 18
+    assert metrics["closure_signal_count_exit_disagreements"] == 10
     # The Atlas mismatch this once pinned (published 13, observed 22) was the census
     # error itself and is repaired. Pin the exact live class set instead: any change —
     # a new class, or one of these resolving — must be acknowledged here, not absorbed.
@@ -1243,20 +1416,14 @@ def test_ds10_debt_projection_exposes_every_unresolvable_signal() -> None:
     assert ds10_ids <= registered_ids
     unresolved_ds10 = {
         finding.detail.split(":", 1)[0]
-        for finding in report.blocking_findings
+        for finding in report.informational_findings
         if finding.code == "closure_signal_identity_unresolvable"
         and finding.detail.startswith("ds10-")
     }
     assert unresolved_ds10 == {
-        "ds10-adapter-registry-data-only-free-growth",
-        "ds10-adapter-admission-capability-discovery-bridge",
-        "ds10-owner-signed-capability-purpose-binding",
         "ds10-global-case-index-producer-allocation",
-        "ds10-causal-method-index-provider-bridge",
         "ds10-connector-acquisition-content",
-        "ds10-layer3-owner-ledger-rejection-richness",
         "ds10-public-decision-rendering",
-        "ds10-world-agent-capability-discovery-boundary",
     }
 
 
@@ -1356,14 +1523,17 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
         row = next(line for line in rendered.splitlines() if f"[`{debt_id}`]" in line)
         assert f"`{state}`" in row
     gap3 = next(line for line in rendered.splitlines() if "[`GY-GAP3`]" in line)
-    gap8 = next(line for line in rendered.splitlines() if "[`GY-GAP8`]" in line)
     assert "contract_only" not in gap3
-    assert "`open`" in gap8
-    assert "implemented_but_not_orchestrated" not in gap8
-    assert "bridge_missing" not in gap8
+    # GY-GAP8 closed in 83f69c3c00 and therefore stays out of the open ledger.
+    assert "[`GY-GAP8`]" not in rendered
+    # Since c5ad29cc7, three Task O rows were added as open while task N
+    # (0ca890eab) closed the table-parser and status-parser rows and task M
+    # (e31ff9dc5) closed the false corridor-red row. Open therefore stays 27
+    # while closed grows by three.
     assert (
-        "| `DEBT-REGISTER.md` | 120 | 120 | 66 | "
-        "ambiguous=12, blocked=11, closed=54, folded=2, foreign=6, open=35 |" in rendered
+        "| `DEBT-REGISTER.md` | 178 | 178 | 75 | "
+        "ambiguous=1, blocked=39, closed=103, folded=2, foreign=6, open=27 |"
+        in rendered
     )
     assert "| Atlas master debt table | 22 | 22 | 7 |" in rendered
     assert (
@@ -1409,9 +1579,6 @@ def test_capability_states_require_evidence_scoped_to_the_debt_subject() -> None
     decision = next(
         line for line in rendered.splitlines() if "[`ds4-waist-decision-grade`]" in line
     )
-    unavailable = next(
-        line for line in rendered.splitlines() if "[`three-unavailable-governed-producers`]" in line
-    )
     atlas = next(
         line
         for line in rendered.splitlines()
@@ -1419,7 +1586,9 @@ def test_capability_states_require_evidence_scoped_to_the_debt_subject() -> None
     )
 
     assert "`not_established`" in decision and "producer_missing" not in decision
-    assert "`not_established`" in unavailable and "artifact_missing" not in unavailable
+    # Task C closed the reason-complete three-producer investigation; closed rows
+    # must not be projected back into the open ledger.
+    assert "[`three-unavailable-governed-producers`]" not in rendered
     assert "`not_established`" in atlas and "producer_missing" not in atlas
     assert "#per-slice-detail" in atlas
 
@@ -1440,7 +1609,11 @@ def test_open_work_records_property_posture_and_branch_relevance() -> None:
     # GY-N12 merged 2026-08-27 (`c6fbfa388`), closing Phase 5; it leaves too.
     assert not [line for line in rendered.splitlines() if "| `GY-N12` |" in line]
 
-    for slice_id in ("DS12", "DS14", "DS15", "DS17"):
+    # DS15 and DS17 subsequently closed on their own slice merges.
+    for slice_id in ("DS15", "DS17"):
+        assert not [line for line in rendered.splitlines() if f"| `{slice_id}` |" in line]
+
+    for slice_id in ("DS12", "DS14"):
         row = next(line for line in rendered.splitlines() if f"| `{slice_id}` |" in line)
         assert "unblocking property `not_established`" in row
         assert "measured 2026-08-22" in row
@@ -1449,7 +1622,7 @@ def test_open_work_records_property_posture_and_branch_relevance() -> None:
     assert '"a surface exists that renders values rather than refusals"' in ds16
     assert "codex/atlas-ds16-value-grammar" not in ds16
     landed = next(line for line in rendered.splitlines() if "[`GY-DEF23`]" in line)
-    assert "| `open` |" in landed
+    assert "| `blocked` |" in landed
 
 
 def test_ds9_claims_and_splits_only_approved_debt_scope() -> None:
@@ -1462,13 +1635,13 @@ def test_ds9_claims_and_splits_only_approved_debt_scope() -> None:
     assert approval.owner == "DS9"
 
     notes = rows["ds8-local-reviewer-note-persistence"]
-    assert notes.section == "B"
-    assert notes.status == "open"
-    assert notes.owner == "absent/unallocated"
+    assert notes.section == "G"
+    assert notes.status == "closed"
+    assert notes.owner == "—"
 
     public = rows["ds8-signed-public-decision-surface"]
     assert public.section == "B"
-    assert public.status == "open"
+    assert public.status == "blocked"
     assert public.owner == "absent/unallocated"
 
     assert "DS20-B scorecard producer provenance" not in rows
@@ -1482,8 +1655,8 @@ def test_ds9_claims_and_splits_only_approved_debt_scope() -> None:
     assert trust.owner == "ops config"
 
     concurrency = rows["decision-validity-fixed-temp-concurrency"]
-    assert concurrency.section == "C"
-    assert concurrency.status == "ambiguous"
+    assert concurrency.section == "A"
+    assert concurrency.status == "blocked"
     assert concurrency.owner == "Scientist Decision Validity / GY-N12 Cluster 4 Task 4.4"
 
     dashboard_import = rows["case-workspace-route-bypasses-feature-barrel"]
@@ -1539,21 +1712,23 @@ def test_declared_informational_signal_findings_stay_out_of_blocking(
                 "closure_signal_collection_host_unknown",
                 "closure_signal_count_exit_disagreement",
                 "closure_signal_runner_unsupported",
+                "explicit_nonclosure_unidentified",
             }
         )
         == checker.INFORMATIONAL_FINDING_CODES
     )
-    assert report.blocking_findings
+    assert not report.blocking_findings
     assert report.informational_findings
     assert not (
         {item.code for item in report.informational_findings}
         & {item.code for item in report.blocking_findings}
     )
-    assert checker.main(["--check", "--repo-root", str(REPO_ROOT)]) == 1
+    assert checker.main(["--check", "--repo-root", str(REPO_ROOT)]) == 0
     output = capsys.readouterr().out
-    assert "Blocking findings:" in output
+    assert "Blocking findings:" not in output
     assert "Informational findings (do not block):" in output
     assert "register_supplies_missing_standing:" in output
+    assert "closure_signal_identity_unresolvable:" in output
 
 
 def test_blocking_finding_alongside_informational_relations_still_exits_one(

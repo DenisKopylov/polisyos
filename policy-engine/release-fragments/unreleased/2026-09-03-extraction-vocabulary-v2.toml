@@ -1,0 +1,48 @@
+id = "2026-09-03-extraction-vocabulary-v2"
+title = "Split academic claim vocabulary projections"
+type = "changed"
+component = "academic-data-forge"
+owner = "team-polisyos"
+summary = "Default academic causal-claim reads now expose independent typed vocabulary axes with declared legacy absence, while an explicit v1 audit route preserves strength=None and a lineage audit pages raw identities by keyset."
+evidence = [
+  "tests/unit/data_forge/domains/academic/knowledge/test_store.py",
+  "tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py",
+]
+compatibility = "Breaking Python read-surface change for CausalClaimResult and KnowledgeToolkit causal-claim methods; callers must migrate to explicit v2 axes or the deprecated v1 audit route."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.data_forge.read_api.academic; public_stable: polisyos.scientist KnowledgeToolkit"
+migration = "Use the independently named evidence_strength, design_family_hint, claim_extraction_confidence, and source_basis fields and their statuses on the v2 result. Legacy strength labels are audit-only; use the explicitly named v1 audit methods when a compatibility-shaped view is required."
+api = "Adds CausalClaimResultV1/V2, ClaimLineageAuditPage, audit_academic_claim_lineage, and a streaming v2 claim loader; Runtime consumes the same projection."
+limitations = "Lineage pagination is read-only keyset traversal; mutation between calls is not established and no currentness or authority claim is made. Generated clients/OpenAPI are not applicable because no HTTP surface changed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "academic-claim-vocabulary-v2"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_experimental: polisyos.data_forge.read_api.academic"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "v1 audit route retained"
+release_note = "Academic causal-claim reads now use independent typed vocabulary axes and visibly declared legacy absence."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "knowledge-toolkit-claim-vocabulary-v2"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.scientist KnowledgeToolkit"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "v1 audit route retained"
+release_note = "KnowledgeToolkit causal-claim methods forward the safe v2 result; the raw audit is explicitly named and allowlisted."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

@@ -12,9 +12,13 @@ import platform
 import re
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, NoReturn
+
+from jsonschema import Draft202012Validator
+from jsonschema.exceptions import SchemaError
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -70,17 +74,45 @@ HEALTH_PRODUCER_SCRIPT = "apps/runtime-dashboard/scripts/measure_atlas_health.mj
 HEALTH_SOURCE_VALIDATOR = (
     "apps/runtime-dashboard/scripts/validate_atlas_health_sources.py"
 )
+DS18_TIME_SEMANTICS_REGISTER = (
+    "architecture/atlas_surfaces/frontend-disposition-register.json"
+)
+DS18_TIME_SEMANTICS_SCHEMA = (
+    "architecture/atlas_surfaces/frontend-disposition-register.schema.json"
+)
+DS18_TIME_SEMANTICS_CHECKER = (
+    "architecture/atlas_surfaces/check_frontend_disposition_register.py"
+)
+DS18_TIME_SEMANTICS_SCANNER = (
+    "architecture/atlas_surfaces/decision_time_semantics_scan.mjs"
+)
+DS18_EXECUTION_OUTCOME_RUNNER = (
+    "apps/runtime-dashboard/scripts/run-ds18-time-semantics-outcome.mjs"
+)
+DS18_EXECUTION_OUTCOME_CONTRACT = (
+    "apps/runtime-dashboard/src/test/evidence/ds18ExecutionOutcome.ts"
+)
+DS18_EXECUTION_OUTCOME_SCHEMA = (
+    "apps/runtime-dashboard/src/test/evidence/ds18-execution-outcome.schema.json"
+)
 HEALTH_INSTRUMENT_COMPONENT = "polisyos.atlas.health_metric_instrument@1.0.0"
 HEALTH_ADMISSION_COMPONENT = "polisyos.atlas.health_metric_admission@1.0.0"
 HEALTH_IMPLEMENTATION_PATHS = (
     "apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts",
     HEALTH_PRODUCER_SCRIPT,
     HEALTH_SOURCE_VALIDATOR,
+    DS18_EXECUTION_OUTCOME_RUNNER,
+    DS18_EXECUTION_OUTCOME_CONTRACT,
+    DS18_EXECUTION_OUTCOME_SCHEMA,
     "apps/runtime-dashboard/scripts/persist_atlas_evidence.py",
     "pyproject.toml",
     "uv.lock",
 )
-HEALTH_INSTRUMENT_PATHS = HEALTH_IMPLEMENTATION_PATHS[:3]
+HEALTH_INSTRUMENT_PATHS = (
+    "apps/runtime-dashboard/src/test/evidence/atlasHealthMetrics.ts",
+    HEALTH_PRODUCER_SCRIPT,
+    HEALTH_SOURCE_VALIDATOR,
+)
 READINESS_REPORT_KIND = "atlas_surface_readiness_claim_report"
 READINESS_REPORT_SCHEMA = {
     "id": "polisyos.atlas.surface-readiness-claim-report",
@@ -779,6 +811,73 @@ def _health_source_ref(path: str, role: str) -> dict[str, str]:
     }
 
 
+def _validate_ds18_execution_outcome(value: object) -> dict[str, Any]:
+    schema_path = _policy_engine_root() / DS18_EXECUTION_OUTCOME_SCHEMA
+    try:
+        schema = json.loads(
+            schema_path.read_text(encoding="utf-8"),
+            object_pairs_hook=_reject_duplicate_keys,
+            parse_constant=_reject_non_json_constant,
+        )
+        Draft202012Validator.check_schema(schema)
+        errors = list(Draft202012Validator(schema).iter_errors(value))
+    except (
+        AtlasEvidencePersistenceError,
+        json.JSONDecodeError,
+        OSError,
+        SchemaError,
+    ) as exc:
+        raise AtlasEvidencePersistenceError(
+            "typed DS18 execution outcome schema is unavailable or invalid"
+        ) from exc
+    if errors or not isinstance(value, dict):
+        raise AtlasEvidencePersistenceError("typed DS18 execution outcome contract mismatch")
+    if value.get("kind") == "established":
+        projection = value["projection"]
+        if projection["obligated_root_count"] > projection["root_count"]:
+            raise AtlasEvidencePersistenceError("typed DS18 execution outcome contract mismatch")
+        if projection["covered_root_count"] > projection["obligated_root_count"]:
+            raise AtlasEvidencePersistenceError("typed DS18 execution outcome contract mismatch")
+    return value
+
+
+def _ds18_time_semantics_coverage_projection(
+    node_executable: Path,
+) -> dict[str, Any]:
+    runner_path = _policy_engine_root() / DS18_EXECUTION_OUTCOME_RUNNER
+    result = subprocess.run(  # noqa: S603 - allowlisted Node and fixed runner paths.
+        [str(node_executable), str(runner_path)],
+        cwd=_policy_engine_root(),
+        check=False,
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        env=HEALTH_CHILD_ENV,
+    )
+    if result.returncode != 0:
+        raise AtlasEvidencePersistenceError(
+            f"typed DS18 execution-outcome runner failed ({result.returncode})"
+        )
+    try:
+        outcome = json.loads(
+            result.stdout.decode("utf-8"),
+            object_pairs_hook=_reject_duplicate_keys,
+            parse_constant=_reject_non_json_constant,
+        )
+    except (
+        AtlasEvidencePersistenceError,
+        UnicodeDecodeError,
+        json.JSONDecodeError,
+    ) as exc:
+        raise AtlasEvidencePersistenceError(
+            "typed DS18 execution outcome is not canonical UTF-8 JSON"
+        ) from exc
+    return _validate_ds18_execution_outcome(outcome)
+
+
+def _ds18_outcome_limitation(outcome: Mapping[str, Any]) -> str:
+    return f"The DS18 execution outcome is not established ({outcome['error_code']})."
+
+
 def _health_basis(
     source_refs: list[dict[str, str]],
     limitation: str | None,
@@ -816,7 +915,10 @@ def _health_ratio(numerator: int, denominator: int) -> dict[str, Any]:
     }
 
 
-def _expected_health_rows(source: Mapping[str, Any]) -> list[dict[str, Any]]:
+def _expected_health_rows(
+    source: Mapping[str, Any],
+    ds18_coverage: Mapping[str, Any],
+) -> list[dict[str, Any]]:
     readiness = source["readiness"]
     audience = source["audience"]
     cluster = source["cluster"]
@@ -859,29 +961,88 @@ def _expected_health_rows(source: Mapping[str, Any]) -> list[dict[str, Any]]:
             "confidence_vs_correctness",
         )
     ]
-    return [
-        {
+    ds18_source_refs = [
+        _health_source_ref(
+            DS18_TIME_SEMANTICS_REGISTER,
+            "complete_ds18_file_root_reconciliation",
+        ),
+        _health_source_ref(
+            DS18_TIME_SEMANTICS_SCHEMA,
+            "strict_ds18_coverage_schema",
+        ),
+        _health_source_ref(
+            DS18_TIME_SEMANTICS_CHECKER,
+            "recomputing_ds18_coverage_validator",
+        ),
+        _health_source_ref(
+            DS18_TIME_SEMANTICS_SCANNER,
+            "complete_typescript_ast_denominator",
+        ),
+    ]
+    if ds18_coverage.get("kind") == "established":
+        projection = ds18_coverage["projection"]
+        primitive_adoption = {
             "metric_id": "primitive_adoption",
             "instrumentation_status": "instrumented",
             "definition": "Share of decision-bearing renders flowing through DS4 primitives.",
             "honest_direction": "Rising; 100% for authority slots.",
             "scope": {
-                "scope_id": "ds1-live-readiness-rows",
-                "description": f"All {readiness_count} DS1 readiness rows at {readiness['as_of']}.",
+                "scope_id": "ds18-decision-time-semantics-roots",
+                "description": (
+                    f"All {projection['obligated_root_count']} independently reconciled "
+                    "decision-bearing or inherited render/export roots in "
+                    f"{projection['source_file_count']} production TypeScript files."
+                ),
             },
             "basis": _health_basis(
-                readiness["source_refs"],
-                "The owner has no exhaustive decision-bearing-render to DS4-primitive relation.",
+                ds18_source_refs,
+                "This measures complete DS18 composition at its source freeze; it does "
+                "not grant policy or design authority.",
+                "recomputed",
+            ),
+            "measurement": _health_ratio(
+                projection["covered_root_count"],
+                projection["obligated_root_count"],
+            ),
+            "known_facts": {
+                "source_file_count": projection["source_file_count"],
+                "render_root_count": projection["root_count"],
+                "obligated_root_count": projection["obligated_root_count"],
+            },
+            "thresholds": [],
+        }
+    else:
+        primitive_adoption = {
+            "metric_id": "primitive_adoption",
+            "instrumentation_status": "instrumented",
+            "definition": "Share of decision-bearing renders flowing through DS4 primitives.",
+            "honest_direction": "Rising; 100% for authority slots.",
+            "scope": {
+                "scope_id": "ds18-decision-time-semantics-roots",
+                "description": (
+                    "The current decision-bearing render-root denominator failed its "
+                    "recomputing DS18 coverage check."
+                ),
+            },
+            "basis": _health_basis(
+                ds18_source_refs,
+                _ds18_outcome_limitation(ds18_coverage),
                 "not_established",
             ),
             "measurement": {
                 "kind": "unknown",
-                "reason_code": "primitive_relation_not_established",
+                "reason_code": "time_semantics_coverage_not_established",
                 "predicate_provenance": "not_established",
             },
-            "known_facts": {"readiness_entry_count": readiness_count},
+            "known_facts": {
+                "source_file_count": 0,
+                "render_root_count": 0,
+                "obligated_root_count": 0,
+            },
             "thresholds": [],
-        },
+        }
+    return [
+        primitive_adoption,
         {
             "metric_id": "fail_closed_fidelity",
             "instrumentation_status": "instrumented",
@@ -921,7 +1082,7 @@ def _expected_health_rows(source: Mapping[str, Any]) -> list[dict[str, Any]]:
             },
             "basis": _health_basis(
                 audience["source_refs"],
-                "Six source proxies are neither a complete endpoint denominator nor a "
+                "Seven source proxies are neither a complete endpoint denominator nor a "
                 "test-run receipt.",
                 "not_established",
             ),
@@ -1057,6 +1218,7 @@ def _expected_health_rows(source: Mapping[str, Any]) -> list[dict[str, Any]]:
 def _require_health_report(
     value: object,
     source_projection: Mapping[str, Any],
+    ds18_coverage: Mapping[str, Any],
 ) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise AtlasEvidencePersistenceError("health-metric producer must emit one JSON object")
@@ -1107,7 +1269,7 @@ def _require_health_report(
     except ValueError as exc:
         raise AtlasEvidencePersistenceError("health-metric observation time is invalid") from exc
 
-    expected_rows = _expected_health_rows(source_projection)
+    expected_rows = _expected_health_rows(source_projection, ds18_coverage)
     if value.get("measurements") != expected_rows:
         raise AtlasEvidencePersistenceError(
             "health-metric rows do not bind the recomputed canonical-source projection"
@@ -1150,19 +1312,31 @@ def _trusted_node() -> tuple[Path, Path, str]:
     )
 
 
-def _run_health_metric_producer(
-) -> tuple[bytes, dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
+def _run_health_metric_producer() -> tuple[
+    bytes,
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+    dict[str, Any],
+]:
     dashboard_root = _policy_engine_root() / "apps/runtime-dashboard"
     producer_script = _policy_engine_root() / HEALTH_PRODUCER_SCRIPT
     node_locator, node_executable, node_version = _trusted_node()
-    result = subprocess.run(  # noqa: S603 - allowlisted realpath and fixed script.
-        [str(node_executable), str(producer_script)],
-        cwd=dashboard_root,
-        check=False,
-        stdin=subprocess.DEVNULL,
-        capture_output=True,
-        env=HEALTH_CHILD_ENV,
-    )
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        ds18_future = executor.submit(
+            _ds18_time_semantics_coverage_projection,
+            node_executable,
+        )
+        result = subprocess.run(  # noqa: S603 - allowlisted realpath and fixed script.
+            [str(node_executable), str(producer_script)],
+            cwd=dashboard_root,
+            check=False,
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            env=HEALTH_CHILD_ENV,
+        )
+    ds18_coverage = ds18_future.result()
     if result.returncode != 0:
         stderr = result.stderr.decode("utf-8", errors="replace").strip()
         raise AtlasEvidencePersistenceError(
@@ -1182,7 +1356,7 @@ def _run_health_metric_producer(
             "fixed health-metric producer emitted invalid UTF-8 JSON"
         ) from exc
     source_projection, source_validator_observation = _health_source_projection()
-    report = _require_health_report(decoded, source_projection)
+    report = _require_health_report(decoded, source_projection, ds18_coverage)
     observation = {
         "executable": str(node_executable),
         "allowed_locator": str(node_locator),
@@ -1192,6 +1366,30 @@ def _run_health_metric_producer(
         "script_sha256": hashlib.sha256(producer_script.read_bytes()).hexdigest(),
         "process_exit_code": result.returncode,
         "stdout_sha256": hashlib.sha256(raw_report).hexdigest(),
+        "ds18_execution_outcome": {
+            "kind": ds18_coverage["kind"],
+            "outcome_sha256": hashlib.sha256(
+                json.dumps(
+                    ds18_coverage,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                ).encode("utf-8")
+            ).hexdigest(),
+            "runner": _health_source_ref(
+                DS18_EXECUTION_OUTCOME_RUNNER,
+                "typed_execution_outcome_runner",
+            ),
+            "contract": _health_source_ref(
+                DS18_EXECUTION_OUTCOME_CONTRACT,
+                "typed_execution_outcome_contract",
+            ),
+            "schema": _health_source_ref(
+                DS18_EXECUTION_OUTCOME_SCHEMA,
+                "typed_execution_outcome_schema",
+            ),
+        },
         "environment": {
             "mode": "fixed_minimal_allowlist",
             "inherited_names": [],
@@ -1205,6 +1403,7 @@ def _run_health_metric_producer(
         observation,
         source_projection,
         source_validator_observation,
+        ds18_coverage,
     )
 
 
@@ -1991,6 +2190,7 @@ def persist_atlas_health_metrics() -> dict[str, Any]:
         observation,
         source_projection,
         source_validator_observation,
+        ds18_coverage,
     ) = _run_health_metric_producer()
     instrument_provenance = _capture_paths_provenance(HEALTH_INSTRUMENT_PATHS)
     implementation_provenance = _capture_health_implementation_provenance()
@@ -2044,6 +2244,7 @@ def persist_atlas_health_metrics() -> dict[str, Any]:
             parse_constant=_reject_non_json_constant,
         ),
         source_projection,
+        ds18_coverage,
     )
     if resolved_report != report:
         raise AtlasEvidencePersistenceError("resolved health report changed after admission")

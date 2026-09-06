@@ -21,6 +21,8 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any, Literal, NamedTuple
 
+import yaml
+
 ATLAS_DIR = Path(__file__).resolve().parent
 STATUS_CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
 DISPOSITION_CHECKER_PATH = ATLAS_DIR / "check_frontend_disposition_register.py"
@@ -28,6 +30,8 @@ AUTHORITY_SEMANTIC_COPY_REGISTRY_PATH = ATLAS_DIR / "authority-semantic-copy-reg
 AUTHORITY_SEMANTIC_COPY_SCHEMA_PATH = ATLAS_DIR / "authority-semantic-copy-registry.schema.json"
 QUERY_CACHE_POLICY_REGISTER_PATH = ATLAS_DIR / "query-cache-policy-register.json"
 QUERY_CACHE_POLICY_SCHEMA_PATH = ATLAS_DIR / "query-cache-policy-register.schema.json"
+SLICE_SCOPE_OBLIGATIONS_PATH = ATLAS_DIR / "slice-scope-obligations.json"
+SLICE_SCOPE_OBLIGATIONS_SCHEMA_PATH = ATLAS_DIR / "slice-scope-obligations.schema.json"
 AUTHORITY_SEMANTIC_COPY_PATH = (
     "apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.ts"
 )
@@ -3264,6 +3268,97 @@ def _authority_local_state_runtime_errors() -> list[str]:
     return []
 
 
+def _tracked_atlas_plan_paths() -> tuple[Path, ...]:
+    """Return every tracked Markdown plan, without using plan filenames as identity."""
+    completed = subprocess.run(
+        ["git", "ls-files", "-z", "--", "docs/plans"],  # noqa: S607
+        cwd=status_checker.REPO_ROOT,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError("slice_scope_obligation_plan_enumeration_failed")
+    return tuple(
+        status_checker.REPO_ROOT / path
+        for path in completed.stdout.decode("utf-8").split("\0")
+        if path.endswith(".md")
+    )
+
+
+def _yaml_frontmatter(path: Path) -> Mapping[str, Any] | None:
+    """Parse one complete YAML frontmatter block, if the Markdown document has one."""
+    source = path.read_text(encoding="utf-8")
+    match = re.match(
+        r"\A---[ \t]*\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|\Z)", source, re.DOTALL
+    )
+    if match is None:
+        return None
+    parsed = yaml.safe_load(match.group(1))
+    return parsed if isinstance(parsed, Mapping) else None
+
+
+def validate_slice_scope_obligations(
+    *,
+    manifest: Mapping[str, Any] | None = None,
+    plan_paths: Sequence[Path] | None = None,
+) -> list[str]:
+    """Require target slice plans to declare the manifest-owned DS8 residual inputs.
+
+    A plan acknowledgement is candidate-only: this validator records scope-setting
+    only and never treats the declaration as closure or implementation evidence.
+    """
+    actual_manifest = dict(
+        manifest or status_checker._load_json(SLICE_SCOPE_OBLIGATIONS_PATH)
+    )
+    errors = status_checker._schema_errors(
+        actual_manifest,
+        SLICE_SCOPE_OBLIGATIONS_SCHEMA_PATH,
+        "slice-scope-obligations",
+    )
+    if errors:
+        return errors
+    required_inputs = actual_manifest["atlas_residual_inputs"]
+    target_slices = actual_manifest["target_slices"]
+    target_plans: dict[str, list[tuple[Path, Mapping[str, Any]]]] = {
+        slice_id: [] for slice_id in target_slices
+    }
+    for path in plan_paths if plan_paths is not None else _tracked_atlas_plan_paths():
+        try:
+            frontmatter = _yaml_frontmatter(path)
+        except (OSError, yaml.YAMLError):
+            # A malformed non-slice document cannot establish that one of the
+            # target plans exists; target absence deliberately remains open.
+            continue
+        if frontmatter is None or frontmatter.get("type") != "slice-plan":
+            continue
+        slice_id = frontmatter.get("slice")
+        if slice_id in target_plans:
+            target_plans[slice_id].append((path, frontmatter))
+
+    required_set = set(required_inputs)
+    for slice_id, plans in target_plans.items():
+        if len(plans) > 1:
+            errors.append(f"slice_scope_obligation_target_duplicate:{slice_id}")
+            continue
+        if not plans:
+            continue
+        path, frontmatter = plans[0]
+        inputs = frontmatter.get("atlas_residual_inputs")
+        if not isinstance(inputs, list):
+            errors.append(f"slice_scope_obligation_inputs_missing:{slice_id}:{path}")
+            continue
+        if not all(isinstance(input_id, str) for input_id in inputs):
+            errors.append(f"slice_scope_obligation_inputs_not_exact:{slice_id}:{path}")
+            continue
+        if (
+            len(inputs) != len(required_set)
+            or len(set(inputs)) != len(inputs)
+            or set(inputs) != required_set
+        ):
+            errors.append(f"slice_scope_obligation_inputs_not_exact:{slice_id}:{path}")
+    return sorted(set(errors))
+
+
 def validate_enforcement(
     *,
     source_overrides: Mapping[str, str] | None = None,
@@ -3316,6 +3411,9 @@ def validate_enforcement(
         )
     )
     if source_overrides is None:
+        scope_obligation_errors = validate_slice_scope_obligations()
+        scan["sliceScopeObligationErrors"] = scope_obligation_errors
+        errors.extend(scope_obligation_errors)
         errors.extend(_authz_default_allow_errors(scan))
         errors.extend(_query_cache_policy_errors(scan, enforce_denominator=True))
         errors.extend(_offline_queue_errors(scan, enforce_denominator=True))

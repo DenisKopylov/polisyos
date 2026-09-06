@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -9,15 +11,27 @@ from typing import TYPE_CHECKING, Any
 
 import duckdb
 
+from polisyos.data_forge.domains.academic.knowledge.types import (
+    admit_candidate_claim_vocabulary,
+    candidate_claim_vocabulary_store_values,
+)
+from polisyos.data_forge.kernel.io.generation_basis import (
+    GenerationBasis,
+    build_generation_basis,
+)
 from polisyos.ir.analytics.literature import (
     CausalClaim,
+    ClaimVocabularyAxisStatus,
     EvidenceStrength,
     OpenAlexWorkText,
     validate_causal_claim_span_grounding,
 )
 
+preflight_candidate_claim_vocabulary = admit_candidate_claim_vocabulary
+
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from pathlib import Path
 
     from polisyos.data_forge.domains.academic.knowledge.variable_canonizer import (
         VariableCanonizer,
@@ -149,7 +163,8 @@ CREATE TABLE IF NOT EXISTS ac_skg_simulation_parameters (
     context_json            VARCHAR,
     source_layer            VARCHAR DEFAULT 'simulation_ready',
     uncertainty_source      VARCHAR DEFAULT '',
-    quality_flags_json      VARCHAR DEFAULT '[]'
+    quality_flags_json      VARCHAR DEFAULT '[]',
+    evidence_strength_origin VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS ac_skg_canonization_cache (
@@ -309,6 +324,21 @@ CREATE INDEX IF NOT EXISTS idx_ac_skg_transport_edge ON ac_skg_transport_scores(
 CREATE INDEX IF NOT EXISTS idx_ac_skg_transport_target ON ac_skg_transport_scores(target_context_id);
 """
 
+SKG_SCHEMA_GENERATION_RULE_VERSION = "policyos.academic.skg_schema_generation.v1"
+_SKG_SCHEMA_COMPATIBILITY_ALTERS = (
+    ("ac_skg_simulation_parameters", "evidence_strength_origin", "VARCHAR"),
+    ("ac_skg_contested_edges", "positive_weight", "DOUBLE DEFAULT 0.0"),
+    ("ac_skg_contested_edges", "negative_weight", "DOUBLE DEFAULT 0.0"),
+    ("ac_skg_contested_edges", "mixed_weight", "DOUBLE DEFAULT 0.0"),
+    (
+        "ac_skg_contested_edges",
+        "dominant_direction_agreement",
+        "DOUBLE DEFAULT 0.0",
+    ),
+    ("ac_skg_contested_edges", "strongest_dissent_strength", "VARCHAR DEFAULT ''"),
+    ("ac_skg_contested_edges", "strongest_dissent_year", "INTEGER"),
+)
+
 
 EVIDENCE_WEIGHTS: dict[str, float] = {
     EvidenceStrength.RCT.value: 1.0,
@@ -320,8 +350,10 @@ EVIDENCE_WEIGHTS: dict[str, float] = {
     EvidenceStrength.OBSERVATIONAL.value: 0.30,
     EvidenceStrength.CROSS_SECTIONAL.value: 0.20,
     EvidenceStrength.THEORETICAL.value: 0.15,
-    EvidenceStrength.UNKNOWN.value: 0.15,
+    EvidenceStrength.UNKNOWN.value: 0.0,
 }
+
+EDGE_EVIDENCE_NOT_ESTABLISHED = ClaimVocabularyAxisStatus.NOT_ESTABLISHED.value
 
 # Minimum confidence floor for aggregate_edge_confidence, keyed by
 # the strongest evidence type present among the evidence items.
@@ -458,11 +490,9 @@ def _citation_factor(fwci: float | None) -> float:
 
 
 def _effective_evidence_weight(evidence: ArticleEvidence) -> float:
-    if evidence.retracted:
+    if evidence.retracted or normalize_strength(evidence.strength) == EDGE_EVIDENCE_NOT_ESTABLISHED:
         return 0.0
-    base = EVIDENCE_WEIGHTS.get(
-        str(evidence.strength), EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value]
-    )
+    base = EVIDENCE_WEIGHTS.get(str(evidence.strength), 0.0)
     weight = (
         base
         * _temporal_weight(evidence.publication_year)
@@ -491,9 +521,17 @@ def aggregate_edge_confidence(articles: Iterable[ArticleEvidence | tuple[Any, ..
     missing sample size, fallback extraction confidence).  We apply a minimum
     floor based on the strongest evidence type present so that, e.g., a single
     RCT never scores below 0.55 regardless of penalty stacking.
+    Only positive-base evidence contributes, including to replication counts;
+    recorded unknown and declared absence retain their distinct source meanings.
     """
     rows = [_coerce_article_evidence(row) for row in articles]
-    valid = [row for row in rows if not row.retracted]
+    valid = [
+        row
+        for row in rows
+        if not row.retracted
+        and normalize_strength(row.strength) != EDGE_EVIDENCE_NOT_ESTABLISHED
+        and EVIDENCE_WEIGHTS.get(str(row.strength), 0.0) > 0.0
+    ]
     if not valid:
         return 0.0
 
@@ -578,14 +616,7 @@ def ensure_skg_schema(con: duckdb.DuckDBPyConnection) -> None:
         sql = stmt.strip()
         if sql:
             con.execute(sql)
-    for table_name, column_name, column_sql in (
-        ("ac_skg_contested_edges", "positive_weight", "DOUBLE DEFAULT 0.0"),
-        ("ac_skg_contested_edges", "negative_weight", "DOUBLE DEFAULT 0.0"),
-        ("ac_skg_contested_edges", "mixed_weight", "DOUBLE DEFAULT 0.0"),
-        ("ac_skg_contested_edges", "dominant_direction_agreement", "DOUBLE DEFAULT 0.0"),
-        ("ac_skg_contested_edges", "strongest_dissent_strength", "VARCHAR DEFAULT ''"),
-        ("ac_skg_contested_edges", "strongest_dissent_year", "INTEGER"),
-    ):
+    for table_name, column_name, column_sql in _SKG_SCHEMA_COMPATIBILITY_ALTERS:
         try:
             exists = con.execute(
                 """
@@ -600,6 +631,48 @@ def ensure_skg_schema(con: duckdb.DuckDBPyConnection) -> None:
             exists = None
         if not exists:
             con.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_sql}")
+
+
+def skg_schema_generation_basis() -> GenerationBasis:
+    """Return the complete current basis used to generate the Academic SKG schema."""
+    compatibility_alters = json.dumps(
+        _SKG_SCHEMA_COMPATIBILITY_ALTERS,
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return build_generation_basis(
+        basis_kind="academic_skg_duckdb_schema",
+        generator_rule_version=SKG_SCHEMA_GENERATION_RULE_VERSION,
+        members=(
+            ("skg_ddl", SKG_DDL.encode("utf-8")),
+            ("compatibility_alters", compatibility_alters),
+        ),
+    )
+
+
+def skg_materialized_schema_identity(db_path: Path) -> str:
+    """Hash the materialized Academic SKG table and column schema read-only."""
+    with duckdb.connect(str(db_path), read_only=True) as connection:
+        rows = connection.execute(
+            """
+            SELECT
+                table_name,
+                column_name,
+                ordinal_position,
+                data_type,
+                is_nullable,
+                column_default
+            FROM information_schema.columns
+            WHERE table_schema = 'main' AND table_name LIKE 'ac_skg_%'
+            ORDER BY table_name, ordinal_position, column_name
+            """
+        ).fetchall()
+    encoded = json.dumps(
+        rows,
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return f"sha256:{hashlib.sha256(encoded).hexdigest()}"
 
 
 def next_skg_version(con: duckdb.DuckDBPyConnection, *, description: str = "") -> int:
@@ -648,6 +721,20 @@ def ingest_openalex_span_grounded_claims(
 ) -> OpenAlexSKGIngestReport:
     """Persist validated OpenAlex claims into SKG query, claim, edge, and evidence tables."""
 
+    claim_rows = list(claims)
+    from polisyos.data_forge.domains.academic.batch.article_extractor import (
+        serialize_rich_claim_occurrence_vocabulary,
+    )
+
+    claim_transports = [
+        preflight_candidate_claim_vocabulary(
+            serialize_rich_claim_occurrence_vocabulary(
+                claim,
+                record_extraction_mode="openalex_span_grounded",
+            )
+        )
+        for claim in claim_rows
+    ]
     ensure_skg_schema(con)
     version_id = next_skg_version(con, description="OpenAlex span-grounded L2 ingest")
     trace_payload = _trace_payload(query_trace)
@@ -690,7 +777,6 @@ def ingest_openalex_span_grounded_claims(
             ],
         )
 
-    claim_rows = list(claims)
     con.execute(
         """
         INSERT OR REPLACE INTO ac_skg_articles(
@@ -707,7 +793,9 @@ def ingest_openalex_span_grounded_claims(
             _json_dumps(
                 {
                     "source": "openalex",
-                    "claims": [claim.model_dump(mode="json") for claim in claim_rows],
+                    "claims": [
+                        transport.model_dump(mode="json") for transport in claim_transports
+                    ],
                     "source_content_sha256": work.content_sha256,
                 }
             ),
@@ -722,7 +810,11 @@ def ingest_openalex_span_grounded_claims(
     variable_names: set[str] = set()
     edge_ids: set[str] = set()
     canonizer = variable_canonizer or _default_variable_canonizer()
-    for claim in claim_rows:
+
+    for claim, transport in zip(claim_rows, claim_transports, strict=True):
+        if claim.publish_to_graph is not True:
+            rejected_ids.append(claim.claim_id)
+            continue
         grounding = validate_causal_claim_span_grounding(
             work,
             claim,
@@ -733,7 +825,11 @@ def ingest_openalex_span_grounded_claims(
             continue
         span = claim.supporting_spans[0]
         direction = claim.direction.value
-        evidence_strength = normalize_strength(claim.evidence_strength.value)
+        vocabulary_values = candidate_claim_vocabulary_store_values(transport)
+        evidence_strength = encode_edge_evidence_strength(
+            vocabulary_values["evidence_strength"],
+            status=vocabulary_values["evidence_strength_status"],
+        )
         confidence = float(claim.claim_extraction_confidence or 0.5)
         src_variable, src_is_new = canonizer.canonize(claim.cause_variable)
         dst_variable, dst_is_new = canonizer.canonize(claim.effect_variable)
@@ -769,7 +865,7 @@ def ingest_openalex_span_grounded_claims(
                 confidence,
                 _json_dumps(list(claim.scope_conditions)),
                 claim.effect_size,
-                "design_tier_authority",
+                "candidate",
                 _json_dumps(quality_signals),
             ],
         )
@@ -789,7 +885,7 @@ def ingest_openalex_span_grounded_claims(
                 direction,
                 evidence_strength,
                 confidence,
-                claim.design_family_hint.value,
+                None,
                 claim.design_quality_tier,
                 version_id,
             ],
@@ -818,7 +914,7 @@ def ingest_openalex_span_grounded_claims(
                 grounding.authority_tier,
                 grounding.grounding_ref,
                 trace_id,
-                claim.design_family_hint.value,
+                None,
                 claim.design_quality_tier,
                 evidence_strength,
                 confidence,
@@ -1053,24 +1149,74 @@ def edge_strength_rank(strength: str) -> int:
         EvidenceStrength.THEORETICAL.value: 1,
         EvidenceStrength.UNKNOWN.value: 0,
     }
+    if strength == EDGE_EVIDENCE_NOT_ESTABLISHED:
+        return -1
     return ranking.get(strength, 0)
 
 
 def strongest_strength(values: Iterable[str]) -> str:
     """Strongest strength helper."""
     best = EvidenceStrength.UNKNOWN.value
-    best_rank = -1
+    best_rank = -2
+    saw_value = False
     for value in values:
-        rank = edge_strength_rank(str(value))
+        saw_value = True
+        normalized = normalize_strength(value)
+        rank = edge_strength_rank(normalized)
         if rank > best_rank:
             best_rank = rank
-            best = str(value)
-    return best
+            best = normalized
+    return best if saw_value else EvidenceStrength.UNKNOWN.value
+
+
+def encode_edge_evidence_strength(
+    value: object,
+    *,
+    status: ClaimVocabularyAxisStatus | str | None = None,
+) -> str:
+    """Encode one typed evidence-strength axis for a non-null edge column."""
+
+    text = str(value.value if isinstance(value, EvidenceStrength) else value or "").strip()
+    resolved_status = (
+        ClaimVocabularyAxisStatus(status)
+        if status is not None
+        else (
+            ClaimVocabularyAxisStatus.CANDIDATE
+            if text
+            else ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+        )
+    )
+    if not text:
+        if resolved_status is not ClaimVocabularyAxisStatus.NOT_ESTABLISHED:
+            raise ValueError("evidence_strength must be absent when its status is not_established")
+        return EDGE_EVIDENCE_NOT_ESTABLISHED
+    if resolved_status is not ClaimVocabularyAxisStatus.CANDIDATE:
+        raise ValueError("evidence_strength requires candidate status when present")
+    try:
+        return EvidenceStrength(text).value
+    except ValueError as exc:
+        raise ValueError(f"unsupported evidence_strength: {text!r}") from exc
+
+
+def decode_edge_evidence_strength(
+    value: object,
+) -> tuple[EvidenceStrength | None, ClaimVocabularyAxisStatus]:
+    """Decode an edge-column value without exposing its absence encoding as a class."""
+
+    text = str(value or "").strip().lower()
+    if not text or text == EDGE_EVIDENCE_NOT_ESTABLISHED:
+        return None, ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    try:
+        return EvidenceStrength(text), ClaimVocabularyAxisStatus.CANDIDATE
+    except ValueError as exc:
+        raise ValueError(f"unsupported persisted evidence_strength: {text!r}") from exc
 
 
 def normalize_strength(value: Any) -> str:
     """Normalize strength helper."""
     text = str(value or "").strip().lower()
+    if text == EDGE_EVIDENCE_NOT_ESTABLISHED:
+        return EDGE_EVIDENCE_NOT_ESTABLISHED
     if text in EVIDENCE_WEIGHTS:
         return text
     if text == "rct":
@@ -1092,12 +1238,15 @@ def normalize_strength(value: Any) -> str:
 
 __all__ = [
     "ABSTRACT_ONLY_PENALTY",
+    "EDGE_EVIDENCE_NOT_ESTABLISHED",
     "EVIDENCE_WEIGHTS",
     "SKG_DDL",
     "ArticleEvidence",
     "OpenAlexSKGIngestReport",
     "WeightedDirectionSummary",
     "aggregate_edge_confidence",
+    "decode_edge_evidence_strength",
+    "encode_edge_evidence_strength",
     "ensure_skg_schema",
     "finalize_skg_version",
     "hash_context_attr_id",
@@ -1111,6 +1260,8 @@ __all__ = [
     "next_skg_version",
     "normalize_strength",
     "parent_canonical_name",
+    "skg_materialized_schema_identity",
+    "skg_schema_generation_basis",
     "strongest_strength",
     "weighted_direction_summary",
 ]

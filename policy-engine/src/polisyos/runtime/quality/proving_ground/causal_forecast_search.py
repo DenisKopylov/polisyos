@@ -13,11 +13,12 @@ from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, get_args
+from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args
 
 import duckdb
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.contracts import SearchCandidate, SearchFrontier
 from polisyos.method_requirement import MethodValidityRequirementSpec
 from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
     build_g2_request_dict_from_data_home,
@@ -277,6 +278,16 @@ class _G2Model(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class _G2EdgeSupportRecord(Protocol):
+    """Fields G2 consumes from the public academic SKG query result."""
+
+    edge_id: str
+    confidence: float
+    source_layer: str
+    article_refs: tuple[str, ...]
+    claim_refs: tuple[str, ...]
+
+
 class Layer3G2ValidationIssue(_G2Model):
     """One fail-closed G2 validation issue."""
 
@@ -362,8 +373,27 @@ class Layer3G2SearchLedger(_G2Model):
     query_vector_producer_ref: str | None = None
     hnsw_candidate_refs: tuple[str, ...] = Field(default=())
     duckdb_validated_candidate_refs: tuple[str, ...] = Field(default=())
+    owner_frontier: SearchFrontier | None = None
     authoritative_for: tuple[str, ...] = Field(default=G2_LEDGER_AUTHORITATIVE_FOR)
     may_not_use_for: tuple[str, ...] = Field(default=G2_MAY_NOT_USE_FOR)
+
+    @model_validator(mode="after")
+    def _owner_frontier_preserves_native_selection(self) -> Layer3G2SearchLedger:
+        if self.owner_frontier is None:
+            return self
+        selected = tuple(candidate.candidate_ref for candidate in self.owner_frontier.candidates)
+        rejected = tuple(
+            candidate.candidate_ref for candidate in self.owner_frontier.rejected_candidates
+        )
+        if selected != self.selected_candidate_refs:
+            raise ValueError("G2 owner frontier must preserve selected_candidate_refs")
+        if rejected != self.rejected_candidate_refs:
+            raise ValueError("G2 owner frontier must preserve rejected_candidate_refs")
+        if self.owner_frontier.returned_count != self.result_count:
+            raise ValueError("G2 owner frontier returned_count must preserve result_count")
+        if self.owner_frontier.requested_count != self.cutoff_limit:
+            raise ValueError("G2 owner frontier requested_count must preserve cutoff_limit")
+        return self
 
 
 class Layer3G2L2SkgIndexCoverageReport(_G2Model):
@@ -1128,14 +1158,19 @@ def search_l2_skg_for_forecast_candidates(
     query = SKGQuery(db_path=db_path, index_dir=index_dir)
     version_id = query.latest_skg_version_id()
     snapshot_ref = query.skg_snapshot_ref(version_id=version_id)
-    edge_records = query.query_edge_support(
+    evaluated_edge_records = query.query_edge_support(
         cause=request.cause,
         effect=request.effect,
         min_confidence=request.min_confidence,
         support_mode=request.support_mode,
-        limit=request.limit,
+        limit=request.limit + 1,
     )
+    edge_records = evaluated_edge_records[: request.limit]
+    rejected_edge_records = evaluated_edge_records[request.limit :]
     selected_refs = tuple(f"skg-edge://{record.edge_id}" for record in edge_records)
+    rejected_refs = tuple(
+        f"skg-edge://{record.edge_id}" for record in rejected_edge_records
+    )
     trace_refs: list[str] = []
     traces: list[Layer3G2SkgQueryTrace] = []
 
@@ -1152,9 +1187,10 @@ def search_l2_skg_for_forecast_candidates(
                 "support_mode": request.support_mode,
             },
             limit=request.limit,
-            result_count=len(edge_records),
-            row_refs=selected_refs,
+            result_count=len(evaluated_edge_records),
+            row_refs=(*selected_refs, *rejected_refs),
             selected_candidate_refs=selected_refs,
+            rejected_candidate_refs=rejected_refs,
             skg_version_id=version_id,
             skg_snapshot_ref=snapshot_ref,
             quality_flags=tuple(
@@ -1223,6 +1259,7 @@ def search_l2_skg_for_forecast_candidates(
             "ac_skg_transport_scores",
         ),
         selected_candidate_refs=selected_refs,
+        rejected_candidate_refs=rejected_refs,
         cutoff_limit=request.limit,
         result_count=len(selected_refs),
         replay_key=_stable_id(
@@ -1236,8 +1273,119 @@ def search_l2_skg_for_forecast_candidates(
         semantic_retrieval_required=request.semantic_retrieval_required,
         query_vector_producer_ref=request.query_vector_producer_ref,
         duckdb_validated_candidate_refs=selected_refs,
+        owner_frontier=_g2_owner_frontier(
+            request=request,
+            snapshot_ref=snapshot_ref,
+            selected_records=edge_records,
+            rejected_records=rejected_edge_records,
+        ),
     )
     return Layer3G2SkgSearchResult(ledger=ledger, query_traces=tuple(traces))
+
+
+def _g2_owner_frontier(
+    *,
+    request: Layer3G2CausalForecastRequest,
+    snapshot_ref: str,
+    selected_records: Sequence[_G2EdgeSupportRecord],
+    rejected_records: Sequence[_G2EdgeSupportRecord],
+) -> SearchFrontier:
+    """Build the G2-owned typed frontier from rows the SKG query evaluated."""
+
+    selected = tuple(
+        _g2_owner_candidate(record, snapshot_ref=snapshot_ref, rejected=False)
+        for record in selected_records
+    )
+    rejected = tuple(
+        _g2_owner_candidate(record, snapshot_ref=snapshot_ref, rejected=True)
+        for record in rejected_records
+    )
+    if rejected:
+        completeness_status = "budget_cutoff"
+        incompleteness_reasons = ("owner_budget_cutoff",)
+    elif selected:
+        completeness_status = "complete"
+        incompleteness_reasons = ()
+    else:
+        completeness_status = "complete_no_match"
+        incompleteness_reasons = ()
+    snapshot_digest = "sha256:" + hashlib.sha256(snapshot_ref.encode("utf-8")).hexdigest()
+    replay_payload = {
+        "request_ref": request.request_id,
+        "snapshot_ref": snapshot_ref,
+        "selected": [candidate.model_dump(mode="json") for candidate in selected],
+        "rejected": [candidate.model_dump(mode="json") for candidate in rejected],
+        "requested_count": request.limit,
+        "completeness_status": completeness_status,
+        "incompleteness_reasons": incompleteness_reasons,
+    }
+    replay_digest = "sha256:" + hashlib.sha256(
+        json.dumps(
+            replay_payload,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    return SearchFrontier(
+        request_ref=request.request_id,
+        query_plan={
+            "cause": request.cause,
+            "effect": request.effect,
+            "support_mode": request.support_mode,
+            "min_confidence": request.min_confidence,
+        },
+        corpus_ref=snapshot_ref,
+        corpus_path=CANONICAL_L2_ROUTE,
+        corpus_snapshot_hash=snapshot_digest,
+        corpus_kind="canonical",
+        indexes_used=("academic_skg_duckdb",),
+        index_version_refs=(snapshot_ref,),
+        index_freshness={"academic_skg_duckdb": {"state": "current"}},
+        candidates=selected,
+        rejected_candidates=rejected,
+        no_hit_frontier=() if selected else ("causal_edge",),
+        incompleteness={
+            "status": completeness_status,
+            "reason_codes": incompleteness_reasons,
+        },
+        replay_key=f"g2-owner-frontier:{replay_digest.removeprefix('sha256:')}",
+        replay_command="layer3-g2-owner-search",
+        replay_expected_output_hash=replay_digest,
+        requested_count=request.limit,
+        evaluated_count=len(selected) + len(rejected),
+        returned_count=len(selected),
+        actual_cutoff=request.limit if rejected else None,
+        completeness_status=completeness_status,
+        incompleteness_reasons=incompleteness_reasons,
+    )
+
+
+def _g2_owner_candidate(
+    record: _G2EdgeSupportRecord,
+    *,
+    snapshot_ref: str,
+    rejected: bool,
+) -> SearchCandidate:
+    evidence_refs = tuple(
+        dict.fromkeys(
+            (
+                snapshot_ref,
+                *(str(ref) for ref in record.article_refs),
+                *(str(ref) for ref in record.claim_refs),
+            )
+        )
+    )
+    return SearchCandidate(
+        candidate_ref=f"skg-edge://{record.edge_id}",
+        source_layer="G2",
+        match_mode="exact" if record.source_layer == "exact" else "relational",
+        score=float(record.confidence),
+        evidence_refs=evidence_refs,
+        limitation_refs=("owner_budget_cutoff",) if rejected else (),
+        authority_boundary={"authoritative_for": []},
+        may_not_use_for=G2_MAY_NOT_USE_FOR,
+    )
 
 
 def build_g2_search_recall_freshness(

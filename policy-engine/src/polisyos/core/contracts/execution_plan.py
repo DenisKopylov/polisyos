@@ -11,7 +11,7 @@ from polisyos.common.timestamps import ensure_utc, utc_now
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import fingerprint
 from polisyos.core.canon.canon_json import CanonSpec
-from polisyos.core.observability.truthfulness import (
+from polisyos.ir.analytics import (
     TruthfulnessTier,
     parse_truthfulness_scope,
     parse_truthfulness_status,

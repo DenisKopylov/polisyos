@@ -120,6 +120,9 @@ if TYPE_CHECKING:
         OpenWorldRiskArtifactResolver,
         PromotionRuntime,
     )
+    from polisyos.runtime.quality.promotion_sequence import (
+        N9PromotionEvidenceBridgeRepository,
+    )
 
 GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v1"
 GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
@@ -256,6 +259,8 @@ def _joint_simulation_port_outcome(
     blockers = list(result.promotion_ready_value_packet.get("authority_blockers", ()))
     if unsupported:
         blockers.extend(result.feedback_classification.support_blockers)
+        if result.feedback_classification.support_status == "unsupported":
+            blockers.append("n5_coupling_blocked")
         for decision in result.engine_decisions:
             blockers.extend(decision.blockers)
         if not blockers:
@@ -2236,6 +2241,12 @@ class _DefaultSimulationBoundFoundryValuePort:
 
     repo_root: Path | None
     cycle_substrate_context: CycleSubstrateContext | None
+    owner_gateway: ValueOwnerGateway | None = None
+    eval_safety_verifier: EvalSafetyVerifierPort | None = None
+    data_trust: DataTrust | None = None
+    requested_method_fqn: str | None = None
+    observation_to_contract_manifest: object | None = None
+    runtime_budget_ms: float | None = None
 
     def __call__(
         self,
@@ -2261,6 +2272,12 @@ class _DefaultSimulationBoundFoundryValuePort:
             )
         return FoundryValuePort(
             evaluation_context=context,
+            eval_safety_verifier=self.eval_safety_verifier,
+            owner_gateway=self.owner_gateway,
+            data_trust=self.data_trust,
+            requested_method_fqn=self.requested_method_fqn,
+            observation_to_contract_manifest=self.observation_to_contract_manifest,
+            runtime_budget_ms=self.runtime_budget_ms,
             repo_root=self.repo_root,
             cycle_substrate_context=self.cycle_substrate_context,
         )(
@@ -2456,6 +2473,11 @@ class GenerationCycleController:
             "open_world_resolver",
             None,
         )
+        self._promotion_evidence_resolver = getattr(
+            promotion_port,
+            "promotion_evidence_resolver",
+            None,
+        )
         self._revision_policy = revision_policy or CounterexampleDrivenRevisionPolicy()
         self._acquisition_owner_gateway = acquisition_owner_gateway
         self._voi_scheduler = voi_scheduler or SimpleVOIScheduler(
@@ -2579,6 +2601,7 @@ class GenerationCycleController:
             promotion,
             problem=problem,
             open_world_resolver=self._open_world_resolver,
+            promotion_evidence_resolver=self._promotion_evidence_resolver,
         )
         fronts = _derive_fronts(tuple(summaries))
         run = GenerationCycleRun(
@@ -2722,8 +2745,12 @@ class GenerationCycleController:
         existing_port = self._value_port
         value_port_kwargs: dict[str, Any] = {}
         if isinstance(existing_port, FoundryValuePort):
+            if existing_port._evaluation_context.evaluation_mode != "simulate_only":
+                raise GenerationCycleError(
+                    "acquisition_reentry_evaluation_context_rebinding_required"
+                )
             value_port_kwargs = {
-                "evaluation_mode": existing_port._evaluation_mode,
+                "eval_safety_verifier": existing_port._eval_safety_verifier,
                 "data_trust": existing_port._data_trust,
                 "requested_method_fqn": existing_port._requested_method_fqn,
                 "observation_to_contract_manifest": (
@@ -2731,7 +2758,18 @@ class GenerationCycleController:
                 ),
                 "runtime_budget_ms": existing_port._runtime_budget_ms,
             }
-        reentry_value_port = FoundryValuePort(
+        elif isinstance(existing_port, _DefaultSimulationBoundFoundryValuePort):
+            value_port_kwargs = {
+                "eval_safety_verifier": existing_port.eval_safety_verifier,
+                "data_trust": existing_port.data_trust,
+                "requested_method_fqn": existing_port.requested_method_fqn,
+                "observation_to_contract_manifest": (
+                    existing_port.observation_to_contract_manifest
+                ),
+                "runtime_budget_ms": existing_port.runtime_budget_ms,
+            }
+        reentry_value_port = _DefaultSimulationBoundFoundryValuePort(
+            repo_root=self._repo_root,
             owner_gateway=RealValueOwnerGateway(
                 repo_root=self._repo_root,
                 cycle_substrate_context=self._cycle_substrate_context,
@@ -3444,6 +3482,7 @@ class GenerationCycleController:
         summaries = tuple(
             _summary_with_value_observation(
                 summary,
+                simulation=state["simulation"],
                 value_port=state["value_port"],
                 counterexample_ref=counterexample.counterexample_ref,
             )
@@ -5654,15 +5693,21 @@ def _value_revision_issue(value_port: ValuePortObservation | None) -> str | None
 def _summary_with_value_observation(
     summary: CandidateSummary,
     *,
+    simulation: SimulationPortObservation,
     value_port: ValuePortObservation,
     counterexample_ref: str,
 ) -> CandidateSummary:
     value_issue = _value_revision_issue(value_port)
+    coupling_blockers = tuple(
+        blocker for blocker in simulation.authority_blockers if blocker == "n5_coupling_blocked"
+    )
     update: dict[str, Any] = {
         "value_status": value_port.status,
         "value_decision_grade": value_port.decision_grade,
         "value_ref": value_port.value_ref,
-        "value_blockers": tuple(value_port.authority_blockers),
+        "value_blockers": tuple(
+            dict.fromkeys((*value_port.authority_blockers, *coupling_blockers))
+        ),
         "value_receipt": value_port.value_receipt,
     }
     if value_issue:
@@ -6026,6 +6071,7 @@ def _apply_promotion_to_summaries(
     *,
     problem: DesignProblem | None = None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> list[CandidateSummary]:
     certified = set(promotion.certified_candidate_ids)
     result: list[CandidateSummary] = []
@@ -6038,6 +6084,7 @@ def _apply_promotion_to_summaries(
                 summary,
                 problem=problem,
                 open_world_resolver=open_world_resolver,
+                promotion_evidence_resolver=promotion_evidence_resolver,
             )
             and summary.current_valid
             and not _summary_value_blocks_promotion(summary)
@@ -6066,6 +6113,7 @@ def _promotion_receipt_allows_decision_front(
     *,
     problem: DesignProblem | None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
+    promotion_evidence_resolver: N9PromotionEvidenceBridgeRepository | None = None,
 ) -> bool:
     from polisyos.runtime.quality.promotion_sequence import (
         promotion_receipt_allows_decision_front,
@@ -6076,6 +6124,7 @@ def _promotion_receipt_allows_decision_front(
         summary,
         design_problem=problem,
         open_world_resolver=open_world_resolver,
+        promotion_evidence_resolver=promotion_evidence_resolver,
     )
 
 

@@ -12,15 +12,15 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1582`.
-- Public/root-or-package facade types: `430`.
+- Total IR types: `1586`.
+- Public/root-or-package facade types: `435`.
 - ABI snapshot-backed types: `95`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
 | `polisyos.ir` | 280 |
-| `polisyos.ir.analytics` | 260 |
+| `polisyos.ir.analytics` | 266 |
 | `polisyos.ir.kernel` | 52 |
 | `polisyos.ir.world` | 54 |
 
@@ -28,7 +28,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 972 | 239 | 37 |
+| `analytics` | 976 | 244 | 37 |
 | `artifacts` | 25 | 0 | 0 |
 | `governance` | 99 | 21 | 8 |
 | `kernel` | 47 | 38 | 0 |
@@ -12376,6 +12376,22 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `unclear` |
 | `not_applicable` |
 
+### `polisyos.ir.analytics.literature.ClaimVocabularyAxisStatus` { #polisyos-ir-analytics-literature-claimvocabularyaxisstatus }
+
+- Kind: `enum`
+- Public status: `package_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:ClaimVocabularyAxisStatus`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Establishment status for one typed claim-vocabulary axis.
+
+| Enum values |
+| ----------- |
+| `not_established` |
+| `candidate` |
+
 ### `polisyos.ir.analytics.literature.ContextAttribute` { #polisyos-ir-analytics-literature-contextattribute }
 
 - Kind: `pydantic_model`
@@ -12403,9 +12419,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.literature.DesignFamily` { #polisyos-ir-analytics-literature-designfamily }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:DesignFamily`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -12469,7 +12485,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.literature.EvidenceStrength`, `polisyos.ir.analytics.literature.ParameterType`
+- References: `polisyos.ir.analytics.literature.EvidenceStrength`, `polisyos.ir.analytics.literature.EvidenceStrengthOrigin`, `polisyos.ir.analytics.literature.ParameterType`
 - Summary: Evidence parameter public type.
 
 | Field | Type | Required | Default | IR refs |
@@ -12478,6 +12494,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `confidence_interval` | `tuple[float, float] \| NoneType` | `no` | `—` | — |
 | `display_name` | `str` | `no` | `''` | — |
 | `evidence_strength` | `polisyos.ir.analytics.literature.EvidenceStrength` | `no` | `<EvidenceStrength.UNKNOWN: 'unknown'>` | `polisyos.ir.analytics.literature.EvidenceStrength` |
+| `evidence_strength_origin` | `polisyos.ir.analytics.literature.EvidenceStrengthOrigin` | `no` | `<EvidenceStrengthOrigin.NOT_SUPPLIED: 'not_supplied'>` | `polisyos.ir.analytics.literature.EvidenceStrengthOrigin` |
 | `geographic_scope` | `str` | `no` | `''` | — |
 | `heterogeneity_note` | `str \| NoneType` | `no` | `—` | — |
 | `name` | `str` | `yes` | `—` | — |
@@ -12518,9 +12535,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.literature.EvidenceStrength` { #polisyos-ir-analytics-literature-evidencestrength }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:EvidenceStrength`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -12538,6 +12555,27 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `cross_sectional` |
 | `theoretical` |
 | `unknown` |
+
+### `polisyos.ir.analytics.literature.EvidenceStrengthOrigin` { #polisyos-ir-analytics-literature-evidencestrengthorigin }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: How a parameter strength was produced, without conferring authority.
+
+| Enum values |
+| ----------- |
+| `not_supplied` |
+| `supplied` |
+| `declared_unknown` |
+| `normalizer_fallback` |
+| `intake_fallback` |
+| `inherited` |
+| `unresolved` |
 
 ### `polisyos.ir.analytics.literature.ExtractorAccuracyReport` { #polisyos-ir-analytics-literature-extractoraccuracyreport }
 
@@ -12604,6 +12642,25 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `identification_method` | `str` | `no` | `''` | — |
 | `instrument` | `str` | `no` | `''` | — |
 
+### `polisyos.ir.analytics.literature.LegacyFiveFieldClaimOccurrence` { #polisyos-ir-analytics-literature-legacyfivefieldclaimoccurrence }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Exact five-field legacy occurrence accepted by the absence adapter.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `cause` | `str` | `yes` | `—` | — |
+| `direction` | `str` | `yes` | `—` | — |
+| `effect` | `str` | `yes` | `—` | — |
+| `mechanism` | `str` | `yes` | `—` | — |
+| `strength` | `str` | `yes` | `—` | — |
+
 ### `polisyos.ir.analytics.literature.LiteratureCausalPrior` { #polisyos-ir-analytics-literature-literaturecausalprior }
 
 - Kind: `pydantic_model`
@@ -12632,7 +12689,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.literature.CausalDirection`, `polisyos.ir.analytics.literature.EvidenceStrength`
+- References: `polisyos.ir.analytics.literature.CausalDirection`, `polisyos.ir.analytics.literature.ClaimVocabularyAxisStatus`, `polisyos.ir.analytics.literature.EvidenceStrength`
 - Summary: Literature edge prior public type.
 
 | Field | Type | Required | Default | IR refs |
@@ -12641,7 +12698,8 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `confidence` | `float` | `yes` | `—` | — |
 | `direction` | `polisyos.ir.analytics.literature.CausalDirection` | `no` | `<CausalDirection.MIXED: 'mixed'>` | `polisyos.ir.analytics.literature.CausalDirection` |
 | `dst` | `str` | `yes` | `—` | — |
-| `evidence_strength` | `polisyos.ir.analytics.literature.EvidenceStrength` | `no` | `<EvidenceStrength.UNKNOWN: 'unknown'>` | `polisyos.ir.analytics.literature.EvidenceStrength` |
+| `evidence_strength` | `polisyos.ir.analytics.literature.EvidenceStrength \| NoneType` | `no` | `<EvidenceStrength.UNKNOWN: 'unknown'>` | `polisyos.ir.analytics.literature.EvidenceStrength` |
+| `evidence_strength_status` | `polisyos.ir.analytics.literature.ClaimVocabularyAxisStatus` | `no` | `<ClaimVocabularyAxisStatus.CANDIDATE: 'candidate'>` | `polisyos.ir.analytics.literature.ClaimVocabularyAxisStatus` |
 | `meta_effect_size` | `float \| NoneType` | `no` | `—` | — |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
 | `n_articles` | `int` | `no` | `0` | — |
@@ -12807,9 +12865,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.literature.SourceBasis` { #polisyos-ir-analytics-literature-sourcebasis }
 
 - Kind: `enum`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:SourceBasis`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
@@ -12898,6 +12956,35 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `conflict_residual` | `float` | `no` | `0.0` | — |
 | `graph_uncertainty` | `float` | `no` | `0.0` | — |
 | `sampling_uncertainty` | `float` | `no` | `0.0` | — |
+
+### `polisyos.ir.analytics.literature.VersionedClaimVocabularyEnvelope` { #polisyos-ir-analytics-literature-versionedclaimvocabularyenvelope }
+
+- Kind: `pydantic_model`
+- Public status: `package_facade`
+- Current version: `2.0`
+- Exported from: `polisyos.ir.analytics:VersionedClaimVocabularyEnvelope`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.literature.ClaimVocabularyAxisStatus`, `polisyos.ir.analytics.literature.DesignFamily`, `polisyos.ir.analytics.literature.EvidenceStrength`, `polisyos.ir.analytics.literature.SourceBasis`
+- Summary: Strict v2 vocabulary sidecar for one causal-claim occurrence.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `cause` | `str` | `yes` | `—` | — |
+| `claim_extraction_confidence` | `float \| NoneType` | `no` | `—` | — |
+| `claim_extraction_confidence_status` | `polisyos.ir.analytics.literature.ClaimVocabularyAxisStatus` | `no` | `<ClaimVocabularyAxisStatus.NOT_ESTABLISHED: 'not_established'>` | `polisyos.ir.analytics.literature.ClaimVocabularyAxisStatus` |
+| `design_family_hint` | `polisyos.ir.analytics.literature.DesignFamily \| NoneType` | `no` | `—` | `polisyos.ir.analytics.literature.DesignFamily` |
+| `design_family_hint_status` | `polisyos.ir.analytics.literature.ClaimVocabularyAxisStatus` | `no` | `<ClaimVocabularyAxisStatus.NOT_ESTABLISHED: 'not_established'>` | `polisyos.ir.analytics.literature.ClaimVocabularyAxisStatus` |
+| `direction` | `str` | `no` | `''` | — |
+| `effect` | `str` | `yes` | `—` | — |
+| `evidence_strength` | `polisyos.ir.analytics.literature.EvidenceStrength \| NoneType` | `no` | `—` | `polisyos.ir.analytics.literature.EvidenceStrength` |
+| `evidence_strength_status` | `polisyos.ir.analytics.literature.ClaimVocabularyAxisStatus` | `no` | `<ClaimVocabularyAxisStatus.NOT_ESTABLISHED: 'not_established'>` | `polisyos.ir.analytics.literature.ClaimVocabularyAxisStatus` |
+| `legacy_strength_label` | `str \| NoneType` | `no` | `—` | — |
+| `mechanism` | `str` | `no` | `''` | — |
+| `record_extraction_mode` | `str \| NoneType` | `no` | `—` | — |
+| `schema_version` | `Literal[2.0]` | `no` | `'2.0'` | — |
+| `source_basis` | `polisyos.ir.analytics.literature.SourceBasis \| NoneType` | `no` | `—` | `polisyos.ir.analytics.literature.SourceBasis` |
+| `source_basis_status` | `polisyos.ir.analytics.literature.ClaimVocabularyAxisStatus` | `no` | `<ClaimVocabularyAxisStatus.NOT_ESTABLISHED: 'not_established'>` | `polisyos.ir.analytics.literature.ClaimVocabularyAxisStatus` |
 
 ### `polisyos.ir.analytics.local_independence.CensoringInterventionSpec` { #polisyos-ir-analytics-local-independence-censoringinterventionspec }
 

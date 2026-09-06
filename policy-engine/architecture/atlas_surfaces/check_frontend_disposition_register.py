@@ -66,6 +66,56 @@ DS18_TIME_SEMANTICS_LANDING_RULE = (
     "the slice landing a post-freeze production render/export root owns its "
     "fresh file/root receipt, independent classification, and behavioral proof"
 )
+DS18_TIME_SEMANTICS_LINEAGE_SCHEMA_ID = (
+    "polisyos.atlas.ds18-time-semantics-lineage.v1"
+)
+DS18_TIME_SEMANTICS_LINEAGE_SELECTOR_IDENTITY = (
+    "path + component_identity + component-local occurrence, content-bound by "
+    "root_id and root_source_sha256"
+)
+DS18_TIME_SEMANTICS_LINEAGE_COMPOSITION_RULE = (
+    "current obligations equal the immutable freeze mapping disjoint-unioned "
+    "with each exact landing delta, then transformed only by exact source "
+    "reconciliation rebindings; counts are derived summaries"
+)
+DS18_TIME_SEMANTICS_GIT_REGISTER_REF = (
+    "policy-engine/architecture/atlas_surfaces/"
+    "frontend-disposition-register.json"
+)
+DS18_TIME_SEMANTICS_OBLIGATION_CLASSES = frozenset(
+    {"decision_bearing", "inherits_admitted_dom"}
+)
+DS18_TIME_SEMANTICS_LINEAGE_FREEZE_COMMIT = (
+    "3011c9584a0327661c8f5a9b695a1769ddb64385"
+)
+DS18_TIME_SEMANTICS_LINEAGE_LANDINGS = (
+    (
+        "DS15",
+        "8c20b6f74f224e9ee44eb5ffa04a33399b816142",
+        "8c20b6f74f224e9ee44eb5ffa04a33399b816142",
+    ),
+    (
+        "DS17",
+        "36dff74a610e03ae98b1cac6f1bb237dd4fda60a",
+        "7161da3df6dc5f3a2578797539bc6714ea59ee2e",
+    ),
+)
+DS18_TIME_SEMANTICS_SOURCE_RECONCILIATIONS = (
+    (
+        "Task-D-dashboard-freeze",
+        "03c5783609271c27d6f3d212b76dda7eddef2074",
+    ),
+)
+DS18_TIME_SEMANTICS_GENERATED_MANIFEST_GIT_REF = (
+    "policy-engine/architecture/generated_artifacts.toml"
+)
+DS18_TIME_SEMANTICS_SCANNER_GIT_REF = (
+    "policy-engine/architecture/atlas_surfaces/"
+    "decision_time_semantics_scan.mjs"
+)
+DS18_TIME_SEMANTICS_SOURCE_GIT_ROOT = (
+    "policy-engine/apps/runtime-dashboard/src"
+)
 DS18_TIME_SEMANTICS_BEHAVIOR_TESTS = {
     "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx": [
         "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
@@ -648,12 +698,20 @@ C06_CONTRAST_CURRENT_EVIDENCE_SHA256 = {
 C06_RENDERED_CONTRAST_FINDING_ID = (
     "baseline-test-a11y-rendered-contrast-incomplete-debt"
 )
-C13_RECEIPT_START = "<!-- DS6-C13-INDEPENDENT-PRINT-RECEIPT:START -->"
-C13_RECEIPT_END = "<!-- DS6-C13-INDEPENDENT-PRINT-RECEIPT:END -->"
+C13_RECEIPT_START = "<!-- TASK-P-C13-PRINT-RECEIPT-REISSUE:START -->"
+C13_RECEIPT_END = "<!-- TASK-P-C13-PRINT-RECEIPT-REISSUE:END -->"
 C13_VERIFIED_REVISION = "0440f0a8d6b64c254c37b64144461e5091e2b1db"
 C13_REPAIR_COMMIT = "69aca1e25921e145fecdf57eac5a73f638f11db4"
-C13_EVIDENCE_REVISION = "5255eaf4ef683d964b0a73a277751f8b9873ab41"
-C13_RECEIPT_SHA256 = "bae570619054115e08d81fa04044869e19b06f4281249d3ec5b677addd6cc854"
+C13_REISSUE_REVISION = "39b5e0d9ceb453eb8afd4c5429cbef4ebeca50c2"
+C13_EVIDENCE_REVISION = "cfaf2cac071082be7505e44503a8c6759d7d37c2"
+C13_RECEIPT_SHA256 = "dd61ccd579fdf860a648ff580a139244e7351fb0eca063f55e6747287a529006"
+C13_RECEIPT_REF = (
+    "docs/superpowers/journals/2026-09-01-debt-p-dashboard-evidence.md"
+)
+C13_RAW_ROOT = (
+    "docs/superpowers/journals/receipts/"
+    "2026-09-01-debt-p-dashboard-evidence/c13-final-v2"
+)
 C13_PRINT_ROOT_ID = "adjacent-print-export"
 C13_PRINT_SUCCESSOR_ID = "run-report-paper-projection"
 C13_TEST_TITLES = [
@@ -674,6 +732,11 @@ C13_SOURCE_REFS = [
     "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
     "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/"
     "run-report-identity-a4-print-chromium-darwin.png",
+]
+C13_PRODUCER_REFS = [
+    "apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+    "tests/_helpers/runtime_http.py",
+    "tests/repo_quality/frontend/test_fixture_runtime_bound_paper.py",
 ]
 C13_ENVIRONMENT_PRODUCER_REF = (
     "architecture/atlas_surfaces/capture_c13_execution_environment.mjs"
@@ -7980,6 +8043,156 @@ def _json_field_value_span(
     return start, end, value
 
 
+def _non_anchor_source_fields_candidate_text(
+    original_text: str,
+) -> tuple[str, dict[str, int]]:
+    """Neutralize non-anchor source facts while preserving every peer byte."""
+    opening = json.loads(original_text)
+    coverage_start, coverage_end, _coverage = _json_top_level_object_span(
+        original_text, "ds18_time_semantics_coverage"
+    )
+    files_start, files_end, files = _json_field_value_span(
+        original_text,
+        field="files",
+        within=(coverage_start, coverage_end),
+    )
+    if not isinstance(files, list):
+        raise ValueError("DS18 component migration files are invalid")
+    expected = copy.deepcopy(opening)
+    expected_files = expected["ds18_time_semantics_coverage"]["files"]
+    legacy_component_count = 0
+    current_component_count = 0
+    legacy_line_count = 0
+    current_source_row_count = 0
+    for file_index, row in enumerate(files):
+        if not isinstance(row, Mapping) or not isinstance(row.get("roots"), list):
+            raise ValueError("DS18 component migration file roots are invalid")
+        for root_index, root in enumerate(row["roots"]):
+            if not isinstance(root, Mapping):
+                raise ValueError("DS18 component migration root is invalid")
+            has_legacy = "component_identity" in root
+            has_current = "component_name" in root
+            if has_legacy and has_current:
+                raise ValueError("DS18 root component label is ambiguous")
+            if not has_legacy and not has_current:
+                raise ValueError("DS18 root component label is missing")
+            field = "component_identity" if has_legacy else "component_name"
+            component_name = root[field]
+            if not isinstance(component_name, str) or not component_name:
+                raise ValueError("DS18 root component label is invalid")
+            has_legacy_line = "line" in root
+            has_source_row = "source_row" in root
+            if has_legacy_line and has_source_row:
+                raise ValueError("DS18 root source location is ambiguous")
+            if not has_legacy_line and not has_source_row:
+                raise ValueError("DS18 root source location is missing")
+            source_row_field = "line" if has_legacy_line else "source_row"
+            source_row = root[source_row_field]
+            if (
+                not isinstance(source_row, int)
+                or isinstance(source_row, bool)
+                or source_row < 1
+            ):
+                raise ValueError("DS18 root source location is invalid")
+            if has_legacy:
+                legacy_component_count += 1
+            else:
+                current_component_count += 1
+            if has_legacy_line:
+                legacy_line_count += 1
+            else:
+                current_source_row_count += 1
+            replacements = {
+                "component_identity": "component_name",
+                "line": "source_row",
+            }
+            expected_files[file_index]["roots"][root_index] = {
+                replacements.get(key, key): value for key, value in root.items()
+            }
+
+    legacy_component_marker = '"component_identity":'
+    current_component_marker = '"component_name":'
+    legacy_line_marker = '"line":'
+    current_source_row_marker = '"source_row":'
+    files_text = original_text[files_start:files_end]
+    if files_text.count(legacy_component_marker) != legacy_component_count:
+        raise ValueError("DS18 legacy component label token coverage drift")
+    if files_text.count(current_component_marker) != current_component_count:
+        raise ValueError("DS18 current component label token coverage drift")
+    if files_text.count(legacy_line_marker) != legacy_line_count:
+        raise ValueError("DS18 legacy source-line token coverage drift")
+    if files_text.count(current_source_row_marker) != current_source_row_count:
+        raise ValueError("DS18 current source-row token coverage drift")
+    candidate_files_text = files_text.replace(
+        legacy_component_marker, current_component_marker
+    ).replace(legacy_line_marker, current_source_row_marker)
+    candidate = (
+        original_text[:files_start]
+        + candidate_files_text
+        + original_text[files_end:]
+    )
+
+    surface_start, surface_end, _surface = _json_top_level_object_span(
+        candidate, DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+    )
+    roles_start, roles_end, roles = _json_field_value_span(
+        candidate,
+        field="roles",
+        within=(surface_start, surface_end),
+    )
+    if not isinstance(roles, list):
+        raise ValueError("DS17 non-anchor migration roles are invalid")
+    expected_roles = expected[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]["roles"]
+    legacy_declaration_line_count = 0
+    current_declaration_row_count = 0
+    for role_index, role in enumerate(roles):
+        declaration = role.get("declaration") if isinstance(role, Mapping) else None
+        if not isinstance(declaration, Mapping):
+            raise ValueError("DS17 non-anchor declaration is invalid")
+        has_legacy_line = "line" in declaration
+        has_source_row = "source_row" in declaration
+        if has_legacy_line and has_source_row:
+            raise ValueError("DS17 declaration source location is ambiguous")
+        if not has_legacy_line and not has_source_row:
+            raise ValueError("DS17 declaration source location is missing")
+        source_row_field = "line" if has_legacy_line else "source_row"
+        source_row = declaration[source_row_field]
+        if (
+            not isinstance(source_row, int)
+            or isinstance(source_row, bool)
+            or source_row < 1
+        ):
+            raise ValueError("DS17 declaration source location is invalid")
+        if has_legacy_line:
+            legacy_declaration_line_count += 1
+        else:
+            current_declaration_row_count += 1
+        expected_roles[role_index]["declaration"] = {
+            ("source_row" if key == "line" else key): value
+            for key, value in declaration.items()
+        }
+    roles_text = candidate[roles_start:roles_end]
+    if roles_text.count(legacy_line_marker) != legacy_declaration_line_count:
+        raise ValueError("DS17 legacy source-line token coverage drift")
+    if roles_text.count(current_source_row_marker) != current_declaration_row_count:
+        raise ValueError("DS17 current source-row token coverage drift")
+    candidate_roles_text = roles_text.replace(
+        legacy_line_marker, current_source_row_marker
+    )
+    candidate = (
+        candidate[:roles_start]
+        + candidate_roles_text
+        + candidate[roles_end:]
+    )
+    if json.loads(candidate) != expected:
+        raise ValueError("non-anchor source-field migration changed an unrelated value")
+    return candidate, {
+        "ds18_component_labels": legacy_component_count,
+        "ds18_source_lines": legacy_line_count,
+        "ds17_source_lines": legacy_declaration_line_count,
+    }
+
+
 def _ds9_c07_storage_target_spans(
     text: str,
 ) -> list[tuple[str, int, int, Any]]:
@@ -8246,10 +8459,11 @@ def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
     """Evaluate every independently observed C13 conjunct without collapsing it."""
     errors: list[str] = []
     if (
-        receipt.get("receipt_id") != "ds6-c13-independent-run-paper-closure"
-        or receipt.get("schema_version") != "1.0"
+        receipt.get("receipt_id") != "task-p-c13-run-paper-reissue"
+        or receipt.get("schema_version") != "2.0"
         or receipt.get("predicate_provenance") != "recomputed"
         or receipt.get("verified_revision") != C13_VERIFIED_REVISION
+        or receipt.get("reissue_revision") != C13_REISSUE_REVISION
         or receipt.get("evidence_revision") != C13_EVIDENCE_REVISION
         or receipt.get("repair_commit") != C13_REPAIR_COMMIT
     ):
@@ -8277,18 +8491,18 @@ def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
         return [*errors, "capture_cardinality"]
     outputs = [capture.get("output") for capture in captures]
     expected_outputs = [
-        "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-1",
-        "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-2",
+        f"{C13_RAW_ROOT}/run-1/artifacts",
+        f"{C13_RAW_ROOT}/run-2/artifacts",
     ]
     if outputs != expected_outputs or [
         capture.get("capture_id") for capture in captures
-    ] != ["ds6-c13-verification-1", "ds6-c13-verification-2"]:
+    ] != ["task-p-c13-verification-1", "task-p-c13-verification-2"]:
         errors.append("capture_output_not_distinct")
     environment = receipt.get("environment")
     environment_sha256 = _canonical_sha256(environment)
     if (
         not isinstance(environment, Mapping)
-        or environment.get("commit") != C13_VERIFIED_REVISION
+        or environment.get("commit") != C13_REISSUE_REVISION
         or receipt.get("environment_sha256_receipts")
         != [environment_sha256] * 3
     ):
@@ -8324,7 +8538,8 @@ def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
         if (
             type(base_count) is not int
             or type(grown_count) is not int
-            or (base_count, grown_count) != (5, 30)
+            or base_count <= 0
+            or grown_count <= base_count
         ):
             errors.append(f"capture_{index}_growth_not_admitted")
         for field in ("max_width_delta_pt", "max_height_delta_pt"):
@@ -8389,6 +8604,23 @@ def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
         )
     ):
         errors.append("source_population")
+    producer_bindings = receipt.get("producer_bindings")
+    if (
+        not isinstance(producer_bindings, list)
+        or [
+            row.get("path")
+            for row in producer_bindings
+            if isinstance(row, Mapping)
+        ]
+        != C13_PRODUCER_REFS
+        or any(
+            not isinstance(row, Mapping)
+            or not isinstance(row.get("path"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", str(row.get("sha256", "")))
+            for row in producer_bindings
+        )
+    ):
+        errors.append("producer_population")
     observed = hashlib.sha256(
         json.dumps(receipt, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
@@ -8402,10 +8634,7 @@ def _c13_independent_print_receipt(
 ) -> dict[str, Any]:
     """Admit exactly the independently recomputed two-run journal receipt."""
     if source_text is None:
-        source_text = (
-            REPO_ROOT
-            / "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
-        ).read_text(encoding="utf-8")
+        source_text = (REPO_ROOT / C13_RECEIPT_REF).read_text(encoding="utf-8")
     if (
         source_text.count(C13_RECEIPT_START) != 1
         or source_text.count(C13_RECEIPT_END) != 1
@@ -8503,12 +8732,12 @@ def _c13_raw_execution_receipt(
     artifacts: Mapping[str, bytes] | None = None,
 ) -> dict[str, Any]:
     """Resolve the two raw Playwright results and three environment probes."""
-    root = "docs/plans/active/atlas-slices/receipts/ds6-c13-raw"
+    root = C13_RAW_ROOT
     expected_paths = [
         f"{root}/run-1/results.json",
-        f"{root}/run-1/.last-run.json",
+        f"{root}/run-1/artifacts/.last-run.json",
         f"{root}/run-2/results.json",
-        f"{root}/run-2/.last-run.json",
+        f"{root}/run-2/artifacts/.last-run.json",
         f"{root}/environment-before.json",
         f"{root}/environment-between.json",
         f"{root}/environment-after.json",
@@ -8550,7 +8779,7 @@ def _c13_raw_execution_receipt(
     capture_receipts: list[dict[str, Any]] = []
     for index in (1, 2):
         result_path = f"{root}/run-{index}/results.json"
-        last_path = f"{root}/run-{index}/.last-run.json"
+        last_path = f"{root}/run-{index}/artifacts/.last-run.json"
         result = json.loads(artifacts[result_path])
         last_run = json.loads(artifacts[last_path])
         config = result.get("config", {})
@@ -8564,7 +8793,7 @@ def _c13_raw_execution_receipt(
             ),
             {},
         )
-        output_suffix = f"/{root}/run-{index}"
+        output_suffix = f"/{root}/run-{index}/artifacts"
         if (
             result.get("errors") != []
             or last_run != {"status": "passed", "failedTests": []}
@@ -8629,15 +8858,27 @@ def _c13_raw_execution_receipt(
             name: base64.b64decode(str(attachment["body"]), validate=True)
             for name, attachment in attachments.items()
         }
+        recorded_pdfs = receipt["captures"][index - 1].get("pdfs", {})
+        expected_base_pages = recorded_pdfs.get("base_page_count")
+        expected_grown_pages = recorded_pdfs.get("grown_page_count")
+        if (
+            type(expected_base_pages) is not int
+            or type(expected_grown_pages) is not int
+            or expected_base_pages <= 0
+            or expected_grown_pages <= expected_base_pages
+        ):
+            raise ValueError(
+                f"C13 raw execution rejected:run {index} page-count receipt"
+            )
         empty = _c13_pdf_geometry(
             decoded["run-paper-empty.pdf"],
             decoded["run-paper-empty-geometry.json"],
-            expected_pages=5,
+            expected_pages=expected_base_pages,
         )
         grown = _c13_pdf_geometry(
             decoded["run-paper-growth.pdf"],
             decoded["run-paper-growth-geometry.json"],
-            expected_pages=30,
+            expected_pages=expected_grown_pages,
         )
         capture_receipts.append(
             {
@@ -8672,6 +8913,7 @@ def _c13_verify_current_print_evidence(
     receipt: Mapping[str, Any],
     *,
     evidence_bytes: Mapping[str, bytes] | None = None,
+    producer_bytes: Mapping[str, bytes] | None = None,
 ) -> None:
     """Content-bind the admitted execution to the exact current property owners."""
     if _c13_receipt_shape_errors(receipt):
@@ -8706,21 +8948,51 @@ def _c13_verify_current_print_evidence(
             raise ValueError(f"C13 current evidence drift:{source_ref}")
         verified_bytes = _c03_git_bytes(
             "show",
-            f"{C13_VERIFIED_REVISION}:policy-engine/{source_ref}",
+            f"{C13_REISSUE_REVISION}:policy-engine/{source_ref}",
         )
         if hashlib.sha256(verified_bytes).hexdigest() != expected_sha256:
             raise ValueError(f"C13 current evidence drift:history:{source_ref}")
 
-    producer = receipt["environment_probe_producer"]
-    producer_ref = str(producer["path"])
-    producer_bytes = (REPO_ROOT / producer_ref).read_bytes()
-    if hashlib.sha256(producer_bytes).hexdigest() != producer["sha256"]:
+    producer_bindings = {
+        str(row["path"]): str(row["sha256"])
+        for row in receipt["producer_bindings"]
+    }
+    if producer_bytes is None:
+        producer_bytes = {
+            producer_ref: (REPO_ROOT / producer_ref).read_bytes()
+            for producer_ref in producer_bindings
+        }
+    if set(producer_bytes) != set(producer_bindings):
+        raise ValueError("C13 current evidence drift:producer population")
+    for producer_ref, expected_sha256 in producer_bindings.items():
+        observed_sha256 = hashlib.sha256(producer_bytes[producer_ref]).hexdigest()
+        if observed_sha256 != expected_sha256:
+            raise ValueError(f"C13 current evidence drift:producer:{producer_ref}")
+        reissue_bytes = _c03_git_bytes(
+            "show",
+            f"{C13_REISSUE_REVISION}:policy-engine/{producer_ref}",
+        )
+        if hashlib.sha256(reissue_bytes).hexdigest() != expected_sha256:
+            raise ValueError(
+                f"C13 current evidence drift:producer history:{producer_ref}"
+            )
+
+    environment_producer = receipt["environment_probe_producer"]
+    producer_ref = str(environment_producer["path"])
+    environment_producer_bytes = (REPO_ROOT / producer_ref).read_bytes()
+    if (
+        hashlib.sha256(environment_producer_bytes).hexdigest()
+        != environment_producer["sha256"]
+    ):
         raise ValueError("C13 current evidence drift:environment producer")
     committed_producer = _c03_git_bytes(
         "show",
         f"{C13_EVIDENCE_REVISION}:policy-engine/{producer_ref}",
     )
-    if hashlib.sha256(committed_producer).hexdigest() != producer["sha256"]:
+    if (
+        hashlib.sha256(committed_producer).hexdigest()
+        != environment_producer["sha256"]
+    ):
         raise ValueError("C13 current evidence drift:environment producer history")
 
     snapshot = receipt["snapshot"]
@@ -8744,7 +9016,8 @@ def _c13_verify_current_print_evidence(
 
     for ancestor, descendant, label in (
         (C13_REPAIR_COMMIT, C13_VERIFIED_REVISION, "repair"),
-        (C13_VERIFIED_REVISION, C13_EVIDENCE_REVISION, "evidence"),
+        (C13_VERIFIED_REVISION, C13_REISSUE_REVISION, "reissue"),
+        (C13_REISSUE_REVISION, C13_EVIDENCE_REVISION, "evidence"),
         (C13_EVIDENCE_REVISION, "HEAD", "evidence revision"),
     ):
         ancestry = subprocess.run(  # noqa: S603 - fixed Git command
@@ -9207,45 +9480,12 @@ DS10_RETIRED_CAPABILITY_DISCOVERY_SUCCESSORS = {
         ],
     }
 }
-DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES = (
+DS10_RETIRED_EXTERNAL_REGISTER_NONCLOSURES = (
     "c13_print_receipt_invalid:C13 current evidence drift:"
     "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
 )
-DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = {
-    (
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "AmbientTelemetryHud.tsx"
-    ): (
-        "232392b06df5bbaca4380a20fd669554d9ddd0f132396c8f290dea5804faf740",
-        "a06e6a98fc766b48b569d7215ee3e6f390abe8a3022ffe2bb98116ace23093cd",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "OperatorCraftPanel.tsx"
-    ): (
-        "687a831dce4165393622ed37d60e4269f61b3dd424589b62fb3ae924b1196b66",
-        "8d94ade694f63613d913042cf36f612e62327b843e01781cd3b9872d365702ef",
-    ),
-    "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx": (
-        "514ddff6df513859ec99e2b429e50b7e6bf5c6417b320f416c2a576a744777df",
-        "f4533fee648a8e2de5fb7ca6bedc56ac1e908b02351019950bae11b21cf25d66",
-    ),
-    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx": (
-        "4bb0bea6d71ad045d3d129dc9455cb0f4786d723199d77d95a372de2c22542bb",
-        "5f51a10ea5f5142ce8e0000d055c2bf96ff36f7d5dd3c5c3d1ee25740aaa0f76",
-    ),
-    (
-        "apps/runtime-dashboard/src/features/runs/routes/"
-        "RunReportPage.test.tsx"
-    ): (
-        "d3b5819eb8e3a0390d4c7bc4f261457ddf2583d504424feaad2584c04ad5b6dd",
-        "30023d274e3a48235cc72a1dbbe1ee39d8276a5299b9c2c8ab12cbd46c96d1a9",
-    ),
-    "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts": (
-        "c472f411f4ee512a9e1a54057b8c5a3a64130d6df8a6d79a6c09a4e5efeca8d9",
-        "3a69dd559452400e50eec543fdf365c03cf5b3d358b6fc04adcb1b8953ce9ab8",
-    ),
-}
+DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES: tuple[str, ...] = ()
+DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES: dict[str, tuple[str, str]] = {}
 DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = dict(
     DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
 )
@@ -9459,19 +9699,12 @@ def _ds10_protected_signing_census_candidate_text(original_text: str) -> str:
 
 
 def _ds10_c13_external_nonclosure_admission(
-    errors: Sequence[str],
+    _errors: Sequence[str],
     *,
     source_bytes: Mapping[str, bytes] | None = None,
-    expected_mismatches: Mapping[str, tuple[str, str]] | None = None,
+    producer_bytes: Mapping[str, bytes] | None = None,
 ) -> tuple[tuple[str, ...], list[str]]:
-    """Admit the exact fail-fast C13 error only after a complete binding census."""
-    if expected_mismatches is None:
-        expected_mismatches = DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
-    declared = DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES[0]
-    cardinality = errors.count(declared)
-    if cardinality > 1:
-        return (), ["ds10_c13_external_error_cardinality_drift"]
-
+    """Require current C13 evidence; no historical C13 residual is admissible."""
     receipt = _c13_independent_print_receipt()
     bindings = {
         str(row["path"]): str(row["sha256"])
@@ -9484,35 +9717,26 @@ def _ds10_c13_external_nonclosure_admission(
         }
     if set(source_bytes) != set(bindings):
         return (), ["ds10_c13_external_source_binding_census_drift"]
-    if cardinality == 0:
-        try:
-            _c13_verify_current_print_evidence(receipt, evidence_bytes=source_bytes)
-        except ValueError:
-            return (), ["ds10_c13_unexposed_current_evidence_drift"]
-        return (), []
-
-    observed_mismatches = {
-        source_ref: (
-            expected_sha256,
-            hashlib.sha256(source_bytes[source_ref]).hexdigest(),
-        )
-        for source_ref, expected_sha256 in bindings.items()
-        if hashlib.sha256(source_bytes[source_ref]).hexdigest() != expected_sha256
+    producer_bindings = {
+        str(row["path"]): str(row["sha256"])
+        for row in receipt["producer_bindings"]
     }
-    if observed_mismatches != expected_mismatches:
-        return (), ["ds10_c13_external_source_binding_census_drift"]
-
-    replay_bytes = dict(source_bytes)
-    for source_ref in observed_mismatches:
-        replay_bytes[source_ref] = _c03_git_bytes(
-            "show",
-            f"{C13_VERIFIED_REVISION}:policy-engine/{source_ref}",
-        )
+    if producer_bytes is None:
+        producer_bytes = {
+            producer_ref: (REPO_ROOT / producer_ref).read_bytes()
+            for producer_ref in producer_bindings
+        }
+    if set(producer_bytes) != set(producer_bindings):
+        return (), ["ds10_c13_external_producer_binding_census_drift"]
     try:
-        _c13_verify_current_print_evidence(receipt, evidence_bytes=replay_bytes)
+        _c13_verify_current_print_evidence(
+            receipt,
+            evidence_bytes=source_bytes,
+            producer_bytes=producer_bytes,
+        )
     except ValueError:
-        return (), ["ds10_c13_external_receipt_replay_drift"]
-    return DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES, []
+        return (), ["ds10_c13_unexposed_current_evidence_drift"]
+    return (), []
 
 
 def _ds10_blocking_register_errors(
@@ -11275,14 +11499,12 @@ def _write_ds9_human_decision_integrity_family() -> dict[str, int]:
 def _write_c13_print_family() -> dict[str, Any]:
     """Atomically transition the print root, report, and induced status anchor."""
     _c13_writer_fence()
-    journal_path = (
-        REPO_ROOT
-        / "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
-    )
+    journal_path = REPO_ROOT / C13_RECEIPT_REF
     original_journal = journal_path.read_text(encoding="utf-8")
     receipt = _c13_independent_print_receipt(original_journal)
     evidence_paths = {
         *(str(row["path"]) for row in receipt["source_bindings"]),
+        *(str(row["path"]) for row in receipt["producer_bindings"]),
         *(str(row["path"]) for row in receipt["raw_artifacts"]),
         str(receipt["environment_probe_producer"]["path"]),
     }
@@ -13094,16 +13316,13 @@ def _ds15_acquisition_routes_candidate_errors(
     *,
     report_parity: bool,
 ) -> list[str]:
-    """Permit only the independently admitted C13 source drift in DS15's family."""
+    """Require current C13 evidence while validating DS15's governed family."""
     errors = validate_register(
         data,
         live_probes=False,
         report_parity=report_parity,
     )
-    admitted, admission_errors = _ds10_c13_external_nonclosure_admission(
-        errors,
-        expected_mismatches=DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
-    )
+    admitted, admission_errors = _ds10_c13_external_nonclosure_admission(errors)
     return [
         *admission_errors,
         *_ds10_blocking_register_errors(
@@ -17053,7 +17272,7 @@ def _build_ds17_confidence_ledger_risk_spend_surface(
                     "declaration_sha256": declaration["declaration_sha256"],
                     "exported": declaration["exported"],
                     "kind": declaration["kind"],
-                    "line": declaration["line"],
+                    "source_row": declaration["line"],
                 },
                 "behavioral_evidence": [
                     _ds17_source_receipt(test_path, test_module)
@@ -17688,6 +17907,14 @@ def _build_ds18_time_semantics_coverage(
         roots: list[dict[str, Any]] = []
         for scanned_root in scan_file.get("roots", []):
             root = dict(scanned_root)
+            component_name = root.pop("component_identity", None)
+            if not isinstance(component_name, str) or not component_name:
+                raise ValueError(f"DS18 scanner root lacks a component name: {path_ref}")
+            root["component_name"] = component_name
+            if "source_row" in root:
+                raise ValueError(f"DS18 scanner root preclaims a source row: {path_ref}")
+            if "line" in root:
+                root["source_row"] = root.pop("line")
             root.update(
                 {
                     "owner_evidence": [_ds18_source_receipt(path_ref)],
@@ -17795,10 +18022,14 @@ def _refresh_ds18_time_semantics_coverage(
         frontend_freeze_commit, str
     ):
         raise ValueError("DS18 frontend freeze commit is invalid")
-    return _build_ds18_time_semantics_coverage(
+    refreshed = _build_ds18_time_semantics_coverage(
         _ds18_time_semantics_scan(),
         frontend_freeze_commit=frontend_freeze_commit,
     )
+    refreshed["historical_lineage"] = _build_ds18_time_semantics_lineage(
+        refreshed
+    )
+    return refreshed
 
 
 def _ds18_evidence_errors(
@@ -17940,21 +18171,26 @@ def _validate_ds18_time_semantics_coverage_core(
             if scanned_root is None:
                 continue
             scanner_fields = {
-                "column",
-                "component_identity",
-                "epoch_context_read_count",
-                "epoch_semantics_prop_count",
-                "epoch_semantics_provider_render_count",
-                "kind",
-                "line",
-                "root_id",
-                "root_source_sha256",
-                "time_semantics_label_render_count",
+                "column": "column",
+                "component_name": "component_identity",
+                "epoch_context_read_count": "epoch_context_read_count",
+                "epoch_semantics_prop_count": "epoch_semantics_prop_count",
+                "epoch_semantics_provider_render_count": (
+                    "epoch_semantics_provider_render_count"
+                ),
+                "kind": "kind",
+                "source_row": "line",
+                "root_id": "root_id",
+                "root_source_sha256": "root_source_sha256",
+                "time_semantics_label_render_count": (
+                    "time_semantics_label_render_count"
+                ),
             }
-            for field in scanner_fields:
-                if root.get(field) != scanned_root.get(field):
+            for stored_field, scanner_field in scanner_fields.items():
+                if root.get(stored_field) != scanned_root.get(scanner_field):
                     errors.append(
-                        f"ds18_time_semantics_root_receipt_drift:{label}:{field}"
+                        "ds18_time_semantics_root_receipt_drift:"
+                        f"{label}:{stored_field}"
                     )
             if root.get("predicate_provenance") != "independently_reconciled":
                 errors.append(f"ds18_time_semantics_root_provenance_drift:{label}")
@@ -18017,12 +18253,1039 @@ def _validate_ds18_time_semantics_coverage_core(
         errors.append("ds18_time_semantics_empty_obligation_denominator")
 
 
+def _ds18_coverage_root_index(
+    coverage: Mapping[str, Any],
+) -> dict[tuple[str, str, int], Mapping[str, Any]]:
+    """Index stored roots by the line-move-independent DS18 identity."""
+    files = coverage.get("files")
+    if not isinstance(files, list):
+        raise ValueError("DS18 lineage coverage files are invalid")
+    roots: dict[tuple[str, str, int], Mapping[str, Any]] = {}
+    for file_row in files:
+        if not isinstance(file_row, Mapping):
+            raise ValueError("DS18 lineage file receipt is invalid")
+        path_ref = file_row.get("path")
+        stored_roots = file_row.get("roots")
+        if not isinstance(path_ref, str) or not isinstance(stored_roots, list):
+            raise ValueError("DS18 lineage file identity is invalid")
+        occurrences: Counter[str] = Counter()
+        for root in stored_roots:
+            if not isinstance(root, Mapping):
+                raise ValueError("DS18 lineage root receipt is invalid")
+            component_name = root.get("component_name")
+            legacy_component_identity = root.get("component_identity")
+            if component_name is not None and legacy_component_identity is not None:
+                raise ValueError("DS18 lineage root has two component labels")
+            component = (
+                component_name
+                if component_name is not None
+                else legacy_component_identity
+            )
+            if not isinstance(component, str) or not component:
+                raise ValueError("DS18 lineage root component is invalid")
+            occurrence = occurrences[component]
+            occurrences[component] += 1
+            selector = (path_ref, component, occurrence)
+            if selector in roots:
+                raise ValueError(f"DS18 lineage selector is ambiguous: {selector}")
+            roots[selector] = root
+    return roots
+
+
+def _ds18_obligated_roots(
+    roots: Mapping[tuple[str, str, int], Mapping[str, Any]],
+) -> dict[tuple[str, str, int], Mapping[str, Any]]:
+    """Return the complete direct-plus-inherited obligation mapping."""
+    return {
+        selector: root
+        for selector, root in roots.items()
+        if root.get("classification") in DS18_TIME_SEMANTICS_OBLIGATION_CLASSES
+    }
+
+
+def _ds18_selector_label(selector: tuple[str, str, int]) -> str:
+    """Render one stable selector for fail-closed diagnostics."""
+    return f"{selector[0]}:{selector[1]}:{selector[2]}"
+
+
+def _ds18_obligation_manifest_sha256(
+    roots: Mapping[tuple[str, str, int], Mapping[str, Any]],
+) -> str:
+    """Digest the exact stable-selector-to-root obligation mapping."""
+    manifest = "\n".join(
+        "\t".join(
+            (
+                selector[0],
+                selector[1],
+                str(selector[2]),
+                str(root.get("root_id", "")),
+                str(root.get("root_source_sha256", "")),
+                str(root.get("classification", "")),
+            )
+        )
+        for selector, root in sorted(roots.items())
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(manifest).hexdigest()
+
+
+def _ds18_obligation_binding(root: Mapping[str, Any]) -> dict[str, str]:
+    """Project one root to the fields that define lineage-map identity."""
+    return {
+        "root_id": str(root.get("root_id", "")),
+        "root_source_sha256": str(root.get("root_source_sha256", "")),
+        "classification": str(root.get("classification", "")),
+    }
+
+
+def _ds18_rebinding_manifest_sha256(
+    entries: Sequence[Mapping[str, Any]],
+) -> str:
+    """Digest exact before/after bindings for one source reconciliation."""
+    indexed = sorted(
+        ((_ds18_lineage_entry_selector(entry), entry) for entry in entries),
+        key=lambda item: item[0],
+    )
+    manifest_rows: list[str] = []
+    for selector, entry in indexed:
+        before = entry.get("before")
+        after = entry.get("after")
+        if not isinstance(before, Mapping) or not isinstance(after, Mapping):
+            raise ValueError("DS18 source-rebinding entry is invalid")
+        manifest_rows.append(
+            "\t".join(
+                (
+                    selector[0],
+                    selector[1],
+                    str(selector[2]),
+                    str(before.get("root_id", "")),
+                    str(before.get("root_source_sha256", "")),
+                    str(before.get("classification", "")),
+                    str(after.get("root_id", "")),
+                    str(after.get("root_source_sha256", "")),
+                    str(after.get("classification", "")),
+                )
+            )
+        )
+    return "sha256:" + hashlib.sha256(
+        "\n".join(manifest_rows).encode("utf-8")
+    ).hexdigest()
+
+
+def _ds18_generated_output_paths(manifest: bytes) -> set[str]:
+    """Mirror the scanner's generated-output path extraction."""
+    text = manifest.decode("utf-8")
+    return {
+        quoted.group(1)
+        for array in re.finditer(
+            r"\boutputs\s*=\s*\[([\s\S]*?)\]",
+            text,
+        )
+        for quoted in re.finditer(r'"([^"]+)"', array.group(1))
+    }
+
+
+def _ds18_checkpoint_source_paths(
+    commit: str,
+    *,
+    generated_outputs: Collection[str],
+) -> set[str]:
+    """Derive the scanner's complete production TS/TSX path set at a commit."""
+    completed = subprocess.run(  # noqa: S603 - fixed Git command
+        [  # noqa: S607 - fixed Git tool
+            "git",
+            "ls-tree",
+            "-r",
+            "-z",
+            "--name-only",
+            commit,
+            "--",
+            DS18_TIME_SEMANTICS_SOURCE_GIT_ROOT,
+        ],
+        cwd=REPO_ROOT.parent,
+        check=False,
+        capture_output=True,
+    )
+    if completed.returncode != 0:
+        raise ValueError(f"DS18 source checkpoint is unresolvable: {commit}")
+    prefix = "policy-engine/"
+    paths: set[str] = set()
+    for raw_path in completed.stdout.split(b"\0"):
+        if not raw_path:
+            continue
+        git_path = raw_path.decode("utf-8")
+        if not git_path.startswith(prefix):
+            raise ValueError(f"DS18 source checkpoint path escaped: {git_path}")
+        path_ref = git_path[len(prefix) :]
+        if not path_ref.endswith((".ts", ".tsx")):
+            continue
+        source_relative = path_ref.removeprefix(
+            "apps/runtime-dashboard/src/"
+        )
+        parts = source_relative.split("/")
+        basename = parts[-1]
+        if any(
+            part in {"__tests__", "test", "tests"}
+            for part in parts[:-1]
+        ):
+            continue
+        if re.search(r"\.(?:test|spec)\.(?:ts|tsx)$", basename):
+            continue
+        if re.search(r"\.stories\.(?:ts|tsx)$", basename):
+            continue
+        if path_ref in generated_outputs:
+            continue
+        paths.add(path_ref)
+    return paths
+
+
+def _ds18_source_checkpoint_errors(
+    reconciliation: Mapping[str, Any],
+    coverage: Mapping[str, Any],
+    *,
+    current_artifact_loader: Callable[[str], bytes] | None = None,
+) -> list[str]:
+    """Bind a source reconciliation to the complete frozen scanner universe."""
+    errors: list[str] = []
+    landing_id = str(reconciliation.get("landing_id", "invalid"))
+    commit = reconciliation.get("source_checkpoint_commit")
+    if not isinstance(commit, str) or re.fullmatch(r"[a-f0-9]{40}", commit) is None:
+        return [
+            f"ds18_time_semantics_source_coordinate_invalid:{landing_id}"
+        ]
+    if current_artifact_loader is None:
+        def load_current_artifact(path_ref: str) -> bytes:
+            prefix = "policy-engine/"
+            if not path_ref.startswith(prefix):
+                raise ValueError(f"DS18 current artifact path escaped: {path_ref}")
+            return (REPO_ROOT / path_ref[len(prefix) :]).read_bytes()
+    else:
+        load_current_artifact = current_artifact_loader
+    try:
+        generated_manifest = _ds18_git_blob(
+            commit,
+            DS18_TIME_SEMANTICS_GENERATED_MANIFEST_GIT_REF,
+        )
+        scanner = _ds18_git_blob(
+            commit,
+            DS18_TIME_SEMANTICS_SCANNER_GIT_REF,
+        )
+        current_generated_manifest = load_current_artifact(
+            DS18_TIME_SEMANTICS_GENERATED_MANIFEST_GIT_REF
+        )
+        current_scanner = load_current_artifact(
+            DS18_TIME_SEMANTICS_SCANNER_GIT_REF
+        )
+        checkpoint_paths = _ds18_checkpoint_source_paths(
+            commit,
+            generated_outputs=_ds18_generated_output_paths(
+                generated_manifest
+            ),
+        )
+    except (OSError, subprocess.SubprocessError, UnicodeDecodeError, ValueError):
+        return [
+            f"ds18_time_semantics_source_coordinate_unresolvable:{landing_id}:"
+            f"{commit}"
+        ]
+    expected_digests = {
+        "generated_manifest_sha256": (
+            "sha256:" + hashlib.sha256(generated_manifest).hexdigest()
+        ),
+        "scanner_sha256": "sha256:" + hashlib.sha256(scanner).hexdigest(),
+    }
+    current_digests = {
+        "generated_manifest_sha256": (
+            "sha256:" + hashlib.sha256(current_generated_manifest).hexdigest()
+        ),
+        "scanner_sha256": (
+            "sha256:" + hashlib.sha256(current_scanner).hexdigest()
+        ),
+    }
+    for field, expected in expected_digests.items():
+        if reconciliation.get(field) != expected:
+            errors.append(
+                f"ds18_time_semantics_source_artifact_drift:{landing_id}:"
+                f"{field}"
+            )
+        if current_digests[field] != expected:
+            errors.append(
+                f"ds18_time_semantics_source_current_artifact_drift:"
+                f"{landing_id}:{field}"
+            )
+    files = coverage.get("files")
+    if not isinstance(files, list):
+        errors.append(
+            f"ds18_time_semantics_source_files_invalid:{landing_id}"
+        )
+        return errors
+    current_paths = {
+        str(file_row.get("path"))
+        for file_row in files
+        if isinstance(file_row, Mapping)
+    }
+    if checkpoint_paths != current_paths:
+        errors.append(
+            f"ds18_time_semantics_source_path_drift:{landing_id}:"
+            f"checkpoint_only={sorted(checkpoint_paths - current_paths)}:"
+            f"current_only={sorted(current_paths - checkpoint_paths)}"
+        )
+        return errors
+    completed = subprocess.run(  # noqa: S603 - fixed Git command
+        [  # noqa: S607 - fixed Git tool
+            "git",
+            "diff",
+            "--quiet",
+            "--no-ext-diff",
+            commit,
+            "--",
+            *(f"policy-engine/{path_ref}" for path_ref in sorted(current_paths)),
+        ],
+        cwd=REPO_ROOT.parent,
+        check=False,
+        capture_output=True,
+    )
+    if completed.returncode != 0:
+        errors.append(
+            f"ds18_time_semantics_source_bytes_drift:{landing_id}:"
+            f"exit={completed.returncode}"
+        )
+    return errors
+
+
+def _ds18_lineage_entry_selector(
+    entry: Mapping[str, Any],
+) -> tuple[str, str, int]:
+    """Read and type-check one declared landing selector."""
+    path_ref = entry.get("path")
+    component = entry.get("component_identity")
+    occurrence = entry.get("occurrence")
+    if (
+        not isinstance(path_ref, str)
+        or not path_ref
+        or not isinstance(component, str)
+        or not component
+        or not isinstance(occurrence, int)
+        or isinstance(occurrence, bool)
+        or occurrence < 0
+    ):
+        raise ValueError("DS18 lineage entry selector is invalid")
+    return path_ref, component, occurrence
+
+
+def _ds18_delta_manifest_sha256(entries: Sequence[Mapping[str, Any]]) -> str:
+    """Digest one exact landing delta, including its change classification."""
+    indexed = sorted(
+        ((_ds18_lineage_entry_selector(entry), entry) for entry in entries),
+        key=lambda item: item[0],
+    )
+    manifest = "\n".join(
+        "\t".join(
+            (
+                selector[0],
+                selector[1],
+                str(selector[2]),
+                str(entry.get("root_id", "")),
+                str(entry.get("root_source_sha256", "")),
+                str(entry.get("classification", "")),
+                str(entry.get("change_kind", "")),
+            )
+        )
+        for selector, entry in indexed
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(manifest).hexdigest()
+
+
+def _ds18_git_blob(commit: str, path_ref: str) -> bytes:
+    """Resolve one content-addressed repository blob without a working-tree read."""
+    completed = subprocess.run(  # noqa: S603 - fixed Git command, typed ref
+        ["git", "show", f"{commit}:{path_ref}"],  # noqa: S607 - fixed Git tool
+        cwd=REPO_ROOT.parent,
+        check=False,
+        capture_output=True,
+    )
+    if completed.returncode != 0:
+        raise ValueError(f"Git coordinate is not resolvable: {commit}:{path_ref}")
+    return completed.stdout
+
+
+def _ds18_resolve_lineage_checkpoint(
+    checkpoint: object,
+    *,
+    label: str,
+    errors: list[str],
+    git_blob_loader: Callable[[str, str], bytes],
+) -> tuple[
+    Mapping[str, Any],
+    dict[tuple[str, str, int], Mapping[str, Any]],
+    dict[tuple[str, str, int], Mapping[str, Any]],
+] | None:
+    """Resolve and content-bind one historical DS18 checkpoint."""
+    if not isinstance(checkpoint, Mapping):
+        errors.append(f"ds18_time_semantics_lineage_checkpoint_invalid:{label}")
+        return None
+    commit = checkpoint.get("checkpoint_commit")
+    path_ref = checkpoint.get("artifact_path")
+    if (
+        not isinstance(commit, str)
+        or re.fullmatch(r"[a-f0-9]{40}", commit) is None
+        or path_ref != DS18_TIME_SEMANTICS_GIT_REGISTER_REF
+    ):
+        errors.append(f"ds18_time_semantics_lineage_coordinate_invalid:{label}")
+        return None
+    try:
+        artifact = git_blob_loader(commit, path_ref)
+    except (OSError, subprocess.SubprocessError, ValueError):
+        errors.append(
+            "ds18_time_semantics_lineage_coordinate_unresolvable:"
+            f"{label}:{commit}:{path_ref}"
+        )
+        return None
+    artifact_sha256 = "sha256:" + hashlib.sha256(artifact).hexdigest()
+    if checkpoint.get("artifact_sha256") != artifact_sha256:
+        errors.append(
+            f"ds18_time_semantics_lineage_artifact_drift:{label}:"
+            f"{artifact_sha256}"
+        )
+        return None
+    try:
+        historical = json.loads(artifact)
+        coverage = historical["ds18_time_semantics_coverage"]
+        if not isinstance(coverage, Mapping):
+            raise ValueError("historical coverage is not an object")
+        roots = _ds18_coverage_root_index(coverage)
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+        errors.append(
+            f"ds18_time_semantics_lineage_artifact_invalid:{label}:{exc}"
+        )
+        return None
+    coverage_sha256 = "sha256:" + _canonical_sha256(coverage)
+    if checkpoint.get("coverage_sha256") != coverage_sha256:
+        errors.append(
+            f"ds18_time_semantics_lineage_coverage_drift:{label}:"
+            f"{coverage_sha256}"
+        )
+    obligated = _ds18_obligated_roots(roots)
+    mapping_sha256 = _ds18_obligation_manifest_sha256(obligated)
+    if checkpoint.get("obligation_manifest_sha256") != mapping_sha256:
+        errors.append(
+            f"ds18_time_semantics_lineage_mapping_drift:{label}:"
+            f"{mapping_sha256}"
+        )
+    count_field = (
+        "obligation_count_summary"
+        if label == "freeze"
+        else "checkpoint_obligation_count_summary"
+    )
+    if checkpoint.get(count_field) != len(obligated):
+        errors.append(
+            f"ds18_time_semantics_lineage_count_drift:{label}:"
+            f"{len(obligated)}"
+        )
+    return coverage, roots, obligated
+
+
+def _ds18_obligated_roots_at_git_coordinate(
+    coordinate: str,
+    path_ref: str,
+    *,
+    git_blob_loader: Callable[[str, str], bytes],
+) -> dict[tuple[str, str, int], Mapping[str, Any]]:
+    """Resolve the obligation mapping at an admission commit or its parent."""
+    artifact = git_blob_loader(coordinate, path_ref)
+    historical = json.loads(artifact)
+    coverage = historical["ds18_time_semantics_coverage"]
+    if not isinstance(coverage, Mapping):
+        raise ValueError("historical coverage is not an object")
+    return _ds18_obligated_roots(_ds18_coverage_root_index(coverage))
+
+
+def _ds18_lineage_state_at_git_coordinate(
+    coordinate: str,
+) -> tuple[
+    bytes,
+    Mapping[str, Any],
+    dict[tuple[str, str, int], Mapping[str, Any]],
+    dict[tuple[str, str, int], Mapping[str, Any]],
+]:
+    """Load one pinned register blob and derive its complete obligation state."""
+    artifact = _ds18_git_blob(
+        coordinate,
+        DS18_TIME_SEMANTICS_GIT_REGISTER_REF,
+    )
+    historical = json.loads(artifact)
+    coverage = historical["ds18_time_semantics_coverage"]
+    if not isinstance(coverage, Mapping):
+        raise ValueError("historical coverage is not an object")
+    roots = _ds18_coverage_root_index(coverage)
+    return artifact, coverage, roots, _ds18_obligated_roots(roots)
+
+
+def _build_ds18_time_semantics_lineage(
+    current_coverage: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Build the pinned freeze-plus-landings composition from Git blobs."""
+    artifact, freeze_coverage, previous_roots, previous_obligated = (
+        _ds18_lineage_state_at_git_coordinate(
+            DS18_TIME_SEMANTICS_LINEAGE_FREEZE_COMMIT
+        )
+    )
+    freeze = {
+        "checkpoint_commit": DS18_TIME_SEMANTICS_LINEAGE_FREEZE_COMMIT,
+        "artifact_path": DS18_TIME_SEMANTICS_GIT_REGISTER_REF,
+        "artifact_sha256": "sha256:" + hashlib.sha256(artifact).hexdigest(),
+        "coverage_sha256": "sha256:" + _canonical_sha256(freeze_coverage),
+        "obligation_manifest_sha256": _ds18_obligation_manifest_sha256(
+            previous_obligated
+        ),
+        "obligation_count_summary": len(previous_obligated),
+    }
+    landings: list[dict[str, Any]] = []
+    for slice_id, admission_commit, checkpoint_commit in (
+        DS18_TIME_SEMANTICS_LINEAGE_LANDINGS
+    ):
+        artifact, checkpoint_coverage, checkpoint_roots, checkpoint_obligated = (
+            _ds18_lineage_state_at_git_coordinate(checkpoint_commit)
+        )
+        previous_paths = {selector[0] for selector in previous_roots}
+        entrants: list[dict[str, Any]] = []
+        for selector in sorted(set(checkpoint_obligated) - set(previous_obligated)):
+            root = checkpoint_obligated[selector]
+            change_kind = (
+                "reclassified"
+                if selector in previous_roots
+                else (
+                    "source_added_existing_file"
+                    if selector[0] in previous_paths
+                    else "source_added_new_file"
+                )
+            )
+            entrants.append(
+                {
+                    "path": selector[0],
+                    "component_identity": selector[1],
+                    "occurrence": selector[2],
+                    "root_id": root["root_id"],
+                    "root_source_sha256": root["root_source_sha256"],
+                    "classification": root["classification"],
+                    "change_kind": change_kind,
+                }
+            )
+        landings.append(
+            {
+                "slice_id": slice_id,
+                "admission_commit": admission_commit,
+                "checkpoint_commit": checkpoint_commit,
+                "artifact_path": DS18_TIME_SEMANTICS_GIT_REGISTER_REF,
+                "artifact_sha256": (
+                    "sha256:" + hashlib.sha256(artifact).hexdigest()
+                ),
+                "coverage_sha256": (
+                    "sha256:" + _canonical_sha256(checkpoint_coverage)
+                ),
+                "obligation_manifest_sha256": (
+                    _ds18_obligation_manifest_sha256(checkpoint_obligated)
+                ),
+                "checkpoint_obligation_count_summary": len(
+                    checkpoint_obligated
+                ),
+                "delta_manifest_sha256": _ds18_delta_manifest_sha256(entrants),
+                "entered_root_count": len(entrants),
+                "entrants": entrants,
+            }
+        )
+        previous_roots = checkpoint_roots
+        previous_obligated = checkpoint_obligated
+    current_obligated = _ds18_obligated_roots(
+        _ds18_coverage_root_index(current_coverage)
+    )
+    entered = set(current_obligated) - set(previous_obligated)
+    exited = set(previous_obligated) - set(current_obligated)
+    if entered or exited:
+        raise ValueError(
+            "DS18 current obligation membership requires a new slice landing:"
+            f"entered={sorted(entered)}:exited={sorted(exited)}"
+        )
+    source_reconciliations: list[dict[str, Any]] = []
+    for landing_id, source_checkpoint_commit in (
+        DS18_TIME_SEMANTICS_SOURCE_RECONCILIATIONS
+    ):
+        rebindings = [
+            {
+                "path": selector[0],
+                "component_identity": selector[1],
+                "occurrence": selector[2],
+                "before": _ds18_obligation_binding(previous_obligated[selector]),
+                "after": _ds18_obligation_binding(current_obligated[selector]),
+            }
+            for selector in sorted(current_obligated)
+            if _ds18_obligation_binding(previous_obligated[selector])
+            != _ds18_obligation_binding(current_obligated[selector])
+        ]
+        generated_manifest = _ds18_git_blob(
+            source_checkpoint_commit,
+            DS18_TIME_SEMANTICS_GENERATED_MANIFEST_GIT_REF,
+        )
+        scanner = _ds18_git_blob(
+            source_checkpoint_commit,
+            DS18_TIME_SEMANTICS_SCANNER_GIT_REF,
+        )
+        reconciliation = {
+            "landing_id": landing_id,
+            "source_checkpoint_commit": source_checkpoint_commit,
+            "source_root": current_coverage["source_root"],
+            "generated_manifest_sha256": (
+                "sha256:" + hashlib.sha256(generated_manifest).hexdigest()
+            ),
+            "scanner_sha256": "sha256:" + hashlib.sha256(scanner).hexdigest(),
+            "source_file_count_summary": current_coverage["source_file_count"],
+            "root_count_summary": current_coverage["root_count"],
+            "file_manifest_sha256": current_coverage[
+                "file_manifest_sha256"
+            ],
+            "root_manifest_sha256": current_coverage[
+                "root_manifest_sha256"
+            ],
+            "obligation_manifest_sha256": (
+                _ds18_obligation_manifest_sha256(current_obligated)
+            ),
+            "obligation_count_summary": len(current_obligated),
+            "entered_root_count": 0,
+            "exited_root_count": 0,
+            "rebound_root_count": len(rebindings),
+            "rebound_manifest_sha256": (
+                _ds18_rebinding_manifest_sha256(rebindings)
+            ),
+            "rebindings": rebindings,
+        }
+        checkpoint_errors = _ds18_source_checkpoint_errors(
+            reconciliation,
+            current_coverage,
+        )
+        if checkpoint_errors:
+            raise ValueError(";".join(checkpoint_errors))
+        source_reconciliations.append(reconciliation)
+        previous_obligated = current_obligated
+    return {
+        "schema_id": DS18_TIME_SEMANTICS_LINEAGE_SCHEMA_ID,
+        "predicate_provenance": "recomputed",
+        "selector_identity": DS18_TIME_SEMANTICS_LINEAGE_SELECTOR_IDENTITY,
+        "composition_rule": DS18_TIME_SEMANTICS_LINEAGE_COMPOSITION_RULE,
+        "freeze": freeze,
+        "landings": landings,
+        "source_reconciliations": source_reconciliations,
+    }
+
+
+def _validate_ds18_time_semantics_lineage(
+    coverage: object,
+    errors: list[str],
+    *,
+    git_blob_loader: Callable[[str, str], bytes] = _ds18_git_blob,
+) -> dict[str, Any] | None:
+    """Prove current obligations are the freeze plus exact disjoint landings."""
+    if not isinstance(coverage, Mapping):
+        errors.append("ds18_time_semantics_lineage_coverage_missing")
+        return None
+    lineage = coverage.get("historical_lineage")
+    if not isinstance(lineage, Mapping):
+        errors.append("ds18_time_semantics_historical_lineage_missing")
+        return None
+    if lineage.get("schema_id") != DS18_TIME_SEMANTICS_LINEAGE_SCHEMA_ID:
+        errors.append("ds18_time_semantics_lineage_schema_drift")
+    if lineage.get("predicate_provenance") != "recomputed":
+        errors.append("ds18_time_semantics_lineage_provenance_drift")
+    if (
+        lineage.get("selector_identity")
+        != DS18_TIME_SEMANTICS_LINEAGE_SELECTOR_IDENTITY
+    ):
+        errors.append("ds18_time_semantics_lineage_selector_identity_drift")
+    if (
+        lineage.get("composition_rule")
+        != DS18_TIME_SEMANTICS_LINEAGE_COMPOSITION_RULE
+    ):
+        errors.append("ds18_time_semantics_lineage_composition_rule_drift")
+
+    resolved_freeze = _ds18_resolve_lineage_checkpoint(
+        lineage.get("freeze"),
+        label="freeze",
+        errors=errors,
+        git_blob_loader=git_blob_loader,
+    )
+    if resolved_freeze is None:
+        return None
+    freeze_checkpoint = lineage["freeze"]
+    if not isinstance(freeze_checkpoint, Mapping):  # pragma: no cover - resolved
+        return None
+    if coverage.get("frontend_freeze_commit") != freeze_checkpoint.get(
+        "checkpoint_commit"
+    ):
+        errors.append("ds18_time_semantics_lineage_freeze_coordinate_drift")
+    _freeze_coverage, previous_roots, previous_obligated = resolved_freeze
+    freeze_obligated = dict(previous_obligated)
+    composed_obligated = dict(previous_obligated)
+
+    landings = lineage.get("landings")
+    if not isinstance(landings, list) or not landings:
+        errors.append("ds18_time_semantics_lineage_landings_invalid")
+        return None
+    declared_composition = tuple(
+        (
+            landing.get("slice_id"),
+            landing.get("admission_commit"),
+            landing.get("checkpoint_commit"),
+        )
+        if isinstance(landing, Mapping)
+        else (None, None, None)
+        for landing in landings
+    )
+    if declared_composition != DS18_TIME_SEMANTICS_LINEAGE_LANDINGS:
+        errors.append("ds18_time_semantics_lineage_composition_identity_drift")
+    landing_counts: dict[str, int] = {}
+    seen_slices: set[str] = set()
+    for index, landing in enumerate(landings):
+        if not isinstance(landing, Mapping):
+            errors.append(
+                f"ds18_time_semantics_lineage_landing_invalid:{index}"
+            )
+            continue
+        slice_id = landing.get("slice_id")
+        if not isinstance(slice_id, str) or not slice_id or slice_id in seen_slices:
+            errors.append(
+                f"ds18_time_semantics_lineage_slice_identity_invalid:{index}"
+            )
+            continue
+        seen_slices.add(slice_id)
+        resolved = _ds18_resolve_lineage_checkpoint(
+            landing,
+            label=slice_id,
+            errors=errors,
+            git_blob_loader=git_blob_loader,
+        )
+        if resolved is None:
+            continue
+        _checkpoint_coverage, checkpoint_roots, checkpoint_obligated = resolved
+        lost = set(previous_obligated) - set(checkpoint_obligated)
+        for selector in sorted(lost):
+            errors.append(
+                "ds18_time_semantics_lineage_prior_obligation_missing:"
+                f"{slice_id}:{_ds18_selector_label(selector)}"
+            )
+        for selector in sorted(set(previous_obligated) & set(checkpoint_obligated)):
+            if _ds18_obligation_binding(
+                previous_obligated[selector]
+            ) != _ds18_obligation_binding(checkpoint_obligated[selector]):
+                errors.append(
+                    "ds18_time_semantics_lineage_prior_obligation_changed:"
+                    f"{slice_id}:{_ds18_selector_label(selector)}"
+                )
+
+        delta_selectors = set(checkpoint_obligated) - set(previous_obligated)
+        entries = landing.get("entrants")
+        if not isinstance(entries, list):
+            errors.append(
+                f"ds18_time_semantics_lineage_entries_invalid:{slice_id}"
+            )
+            continue
+        declared: dict[tuple[str, str, int], Mapping[str, Any]] = {}
+        for entry in entries:
+            if not isinstance(entry, Mapping):
+                errors.append(
+                    f"ds18_time_semantics_lineage_entry_invalid:{slice_id}"
+                )
+                continue
+            try:
+                selector = _ds18_lineage_entry_selector(entry)
+            except ValueError:
+                errors.append(
+                    f"ds18_time_semantics_lineage_entry_invalid:{slice_id}"
+                )
+                continue
+            if selector in declared:
+                errors.append(
+                    "ds18_time_semantics_lineage_entry_duplicate:"
+                    f"{slice_id}:{_ds18_selector_label(selector)}"
+                )
+            declared[selector] = entry
+        for selector in sorted(delta_selectors - set(declared)):
+            errors.append(
+                "ds18_time_semantics_landing_delta_unrecorded:"
+                f"{slice_id}:{_ds18_selector_label(selector)}"
+            )
+        for selector in sorted(set(declared) - delta_selectors):
+            errors.append(
+                "ds18_time_semantics_landing_delta_not_in_checkpoint:"
+                f"{slice_id}:{_ds18_selector_label(selector)}"
+            )
+        previous_paths = {selector[0] for selector in previous_roots}
+        for selector in sorted(delta_selectors & set(declared)):
+            root = checkpoint_obligated[selector]
+            entry = declared[selector]
+            expected_change = (
+                "reclassified"
+                if selector in previous_roots
+                else (
+                    "source_added_existing_file"
+                    if selector[0] in previous_paths
+                    else "source_added_new_file"
+                )
+            )
+            expected_fields = {
+                "root_id": root.get("root_id"),
+                "root_source_sha256": root.get("root_source_sha256"),
+                "classification": root.get("classification"),
+                "change_kind": expected_change,
+            }
+            for field, expected in expected_fields.items():
+                if entry.get(field) != expected:
+                    errors.append(
+                        "ds18_time_semantics_landing_entry_drift:"
+                        f"{slice_id}:{_ds18_selector_label(selector)}:{field}"
+                    )
+        admission_commit = landing.get("admission_commit")
+        artifact_path = landing.get("artifact_path")
+        if (
+            not isinstance(admission_commit, str)
+            or re.fullmatch(r"[a-f0-9]{40}", admission_commit) is None
+            or artifact_path != DS18_TIME_SEMANTICS_GIT_REGISTER_REF
+        ):
+            errors.append(
+                f"ds18_time_semantics_landing_admission_invalid:{slice_id}"
+            )
+        else:
+            try:
+                before_admission = _ds18_obligated_roots_at_git_coordinate(
+                    admission_commit + "^",
+                    artifact_path,
+                    git_blob_loader=git_blob_loader,
+                )
+                at_admission = _ds18_obligated_roots_at_git_coordinate(
+                    admission_commit,
+                    artifact_path,
+                    git_blob_loader=git_blob_loader,
+                )
+            except (
+                OSError,
+                subprocess.SubprocessError,
+                json.JSONDecodeError,
+                KeyError,
+                TypeError,
+                ValueError,
+            ):
+                errors.append(
+                    "ds18_time_semantics_landing_admission_unresolvable:"
+                    f"{slice_id}:{admission_commit}"
+                )
+            else:
+                admission_delta = set(at_admission) - set(before_admission)
+                admission_losses = set(before_admission) - set(at_admission)
+                if admission_losses or admission_delta != set(declared):
+                    errors.append(
+                        "ds18_time_semantics_landing_admission_delta_drift:"
+                        f"{slice_id}"
+                    )
+        try:
+            delta_sha256 = _ds18_delta_manifest_sha256(entries)
+        except ValueError:
+            delta_sha256 = "invalid"
+        if landing.get("delta_manifest_sha256") != delta_sha256:
+            errors.append(
+                f"ds18_time_semantics_landing_delta_manifest_drift:{slice_id}"
+            )
+        if landing.get("entered_root_count") != len(delta_selectors):
+            errors.append(
+                f"ds18_time_semantics_landing_count_drift:{slice_id}:"
+                f"{len(delta_selectors)}"
+            )
+        overlap = set(composed_obligated) & delta_selectors
+        if overlap:  # pragma: no cover - follows from set difference, kept explicit
+            errors.append(
+                f"ds18_time_semantics_lineage_delta_overlap:{slice_id}"
+            )
+        composed_obligated.update(
+            {selector: checkpoint_obligated[selector] for selector in delta_selectors}
+        )
+        landing_counts[slice_id] = len(delta_selectors)
+        previous_roots = checkpoint_roots
+        previous_obligated = checkpoint_obligated
+
+    try:
+        current_roots = _ds18_coverage_root_index(coverage)
+    except ValueError as exc:
+        errors.append(f"ds18_time_semantics_lineage_current_invalid:{exc}")
+        return None
+    current_obligated = _ds18_obligated_roots(current_roots)
+    source_reconciliations = lineage.get("source_reconciliations")
+    if not isinstance(source_reconciliations, list) or not source_reconciliations:
+        errors.append("ds18_time_semantics_source_reconciliations_invalid")
+        source_reconciliations = []
+    declared_source_composition = tuple(
+        (
+            reconciliation.get("landing_id"),
+            reconciliation.get("source_checkpoint_commit"),
+        )
+        if isinstance(reconciliation, Mapping)
+        else (None, None)
+        for reconciliation in source_reconciliations
+    )
+    if (
+        declared_source_composition
+        != DS18_TIME_SEMANTICS_SOURCE_RECONCILIATIONS
+    ):
+        errors.append(
+            "ds18_time_semantics_source_composition_identity_drift"
+        )
+    source_counts: dict[str, dict[str, int]] = {}
+    for index, reconciliation in enumerate(source_reconciliations):
+        if not isinstance(reconciliation, Mapping):
+            errors.append(
+                f"ds18_time_semantics_source_reconciliation_invalid:{index}"
+            )
+            continue
+        landing_id = reconciliation.get("landing_id")
+        if not isinstance(landing_id, str) or not landing_id:
+            errors.append(
+                f"ds18_time_semantics_source_identity_invalid:{index}"
+            )
+            continue
+        errors.extend(
+            _ds18_source_checkpoint_errors(reconciliation, coverage)
+        )
+        entered_selectors = set(current_obligated) - set(composed_obligated)
+        exited_selectors = set(composed_obligated) - set(current_obligated)
+        rebound_selectors = {
+            selector
+            for selector in set(composed_obligated) & set(current_obligated)
+            if _ds18_obligation_binding(composed_obligated[selector])
+            != _ds18_obligation_binding(current_obligated[selector])
+        }
+        expected_summaries = {
+            "source_root": coverage.get("source_root"),
+            "source_file_count_summary": coverage.get("source_file_count"),
+            "root_count_summary": coverage.get("root_count"),
+            "file_manifest_sha256": coverage.get("file_manifest_sha256"),
+            "root_manifest_sha256": coverage.get("root_manifest_sha256"),
+            "obligation_manifest_sha256": (
+                _ds18_obligation_manifest_sha256(current_obligated)
+            ),
+            "obligation_count_summary": len(current_obligated),
+            "entered_root_count": len(entered_selectors),
+            "exited_root_count": len(exited_selectors),
+            "rebound_root_count": len(rebound_selectors),
+        }
+        for field, expected in expected_summaries.items():
+            if reconciliation.get(field) != expected:
+                errors.append(
+                    f"ds18_time_semantics_source_summary_drift:"
+                    f"{landing_id}:{field}"
+                )
+        entries = reconciliation.get("rebindings")
+        if not isinstance(entries, list):
+            errors.append(
+                f"ds18_time_semantics_source_rebindings_invalid:{landing_id}"
+            )
+            continue
+        declared: dict[tuple[str, str, int], Mapping[str, Any]] = {}
+        for entry in entries:
+            if not isinstance(entry, Mapping):
+                errors.append(
+                    f"ds18_time_semantics_source_rebinding_invalid:{landing_id}"
+                )
+                continue
+            try:
+                selector = _ds18_lineage_entry_selector(entry)
+            except ValueError:
+                errors.append(
+                    f"ds18_time_semantics_source_rebinding_invalid:{landing_id}"
+                )
+                continue
+            if selector in declared:
+                errors.append(
+                    "ds18_time_semantics_source_rebinding_duplicate:"
+                    f"{landing_id}:{_ds18_selector_label(selector)}"
+                )
+            declared[selector] = entry
+        for selector in sorted(rebound_selectors - set(declared)):
+            errors.append(
+                "ds18_time_semantics_source_rebinding_unrecorded:"
+                f"{landing_id}:{_ds18_selector_label(selector)}"
+            )
+        for selector in sorted(set(declared) - rebound_selectors):
+            errors.append(
+                "ds18_time_semantics_source_rebinding_not_in_mapping:"
+                f"{landing_id}:{_ds18_selector_label(selector)}"
+            )
+        for selector in sorted(rebound_selectors & set(declared)):
+            entry = declared[selector]
+            if entry.get("before") != _ds18_obligation_binding(
+                composed_obligated[selector]
+            ):
+                errors.append(
+                    "ds18_time_semantics_source_rebinding_before_drift:"
+                    f"{landing_id}:{_ds18_selector_label(selector)}"
+                )
+            if entry.get("after") != _ds18_obligation_binding(
+                current_obligated[selector]
+            ):
+                errors.append(
+                    "ds18_time_semantics_source_rebinding_after_drift:"
+                    f"{landing_id}:{_ds18_selector_label(selector)}"
+                )
+        try:
+            rebound_sha256 = _ds18_rebinding_manifest_sha256(entries)
+        except ValueError:
+            rebound_sha256 = "invalid"
+        if reconciliation.get("rebound_manifest_sha256") != rebound_sha256:
+            errors.append(
+                f"ds18_time_semantics_source_rebinding_manifest_drift:"
+                f"{landing_id}"
+            )
+        composed_obligated.update(
+            {
+                selector: current_obligated[selector]
+                for selector in rebound_selectors
+            }
+        )
+        source_counts[landing_id] = {
+            "entered": len(entered_selectors),
+            "exited": len(exited_selectors),
+            "rebound": len(rebound_selectors),
+        }
+    for selector in sorted(set(freeze_obligated) - set(current_obligated)):
+        errors.append(
+            "ds18_time_semantics_frozen_obligation_missing:"
+            f"{_ds18_selector_label(selector)}"
+        )
+    for selector in sorted(set(current_obligated) - set(composed_obligated)):
+        errors.append(
+            "ds18_time_semantics_unreconciled_current_obligation:"
+            f"{_ds18_selector_label(selector)}"
+        )
+    for selector in sorted(set(composed_obligated) - set(current_obligated)):
+        errors.append(
+            "ds18_time_semantics_declared_current_obligation_missing:"
+            f"{_ds18_selector_label(selector)}"
+        )
+    for selector in sorted(set(composed_obligated) & set(current_obligated)):
+        if _ds18_obligation_binding(
+            composed_obligated[selector]
+        ) != _ds18_obligation_binding(current_obligated[selector]):
+            errors.append(
+                "ds18_time_semantics_current_obligation_receipt_drift:"
+                f"{_ds18_selector_label(selector)}"
+            )
+    return {
+        "current_obligated_root_count": len(current_obligated),
+        "freeze_obligated_root_count": len(freeze_obligated),
+        "landing_deltas": landing_counts,
+        "source_reconciliations": source_counts,
+    }
+
+
 def _validate_ds18_time_semantics_coverage(
     data: Mapping[str, Any],
     errors: list[str],
     *,
     scan: Mapping[str, Any] | None = None,
-) -> None:
+) -> dict[str, Any] | None:
     """Validate the current denominator; post-freeze growth is the landing red."""
     current_scan = scan if scan is not None else _ds18_time_semantics_scan()
     coverage = data.get("ds18_time_semantics_coverage")
@@ -18036,6 +19299,7 @@ def _validate_ds18_time_semantics_coverage(
         errors,
         post_freeze_is_landing_red=frozen,
     )
+    return _validate_ds18_time_semantics_lineage(coverage, errors)
 
 
 def _validate_ds18_historical_time_semantics_coverage(
@@ -18065,10 +19329,13 @@ def _ds17_surgical_ds18_coverage(
         "exclusion_policy",
         "scanner",
         "frontend_freeze_commit",
+        "historical_lineage",
         "landing_slice_rule",
         "landing_slice_checker",
     }
     for field in sorted(frozen_fields):
+        if field == "historical_lineage" and opening.get(field) is None:
+            continue
         if opening.get(field) != fresh.get(field):
             raise ValueError(f"DS17 DS18 frozen invariant drift:{field}")
     opening_files = opening.get("files")
@@ -18102,6 +19369,10 @@ def _ds17_surgical_ds18_coverage(
             "DS17 DS18 authorized row missing:" + repr(missing_fresh_paths)
         )
     candidate = copy.deepcopy(dict(opening))
+    if opening.get("historical_lineage") is None:
+        candidate["historical_lineage"] = copy.deepcopy(
+            fresh["historical_lineage"]
+        )
     for field, value in fresh.items():
         if field not in frozen_fields and field != "files":
             candidate[field] = copy.deepcopy(value)
@@ -18208,6 +19479,28 @@ def _ds17_ds18_transition_text(
     replacements: list[tuple[int, int, str]] = [
         (files_start, files_end, files_rendered)
     ]
+    if "historical_lineage" not in _opening:
+        freeze_start, freeze_end, _freeze = _json_field_value_span(
+            original_text,
+            field="frontend_freeze_commit",
+            within=(ds18_start, ds18_end),
+        )
+        del freeze_start, _freeze
+        lineage_lines = json.dumps(
+            coverage["historical_lineage"],
+            indent=2,
+            ensure_ascii=False,
+        ).splitlines()
+        lineage_rendered = "\n".join(
+            [lineage_lines[0], *("    " + line for line in lineage_lines[1:])]
+        )
+        replacements.append(
+            (
+                freeze_end,
+                freeze_end,
+                ',\n    "historical_lineage": ' + lineage_rendered,
+            )
+        )
     for field in mutable_header:
         start, end, _value = _json_field_value_span(
             original_text,
@@ -18283,10 +19576,13 @@ def _ds17_registration_preservation_errors(
         "exclusion_policy",
         "scanner",
         "frontend_freeze_commit",
+        "historical_lineage",
         "landing_slice_rule",
         "landing_slice_checker",
     }
     for field in sorted(frozen_fields):
+        if field == "historical_lineage" and opening_ds18.get(field) is None:
+            continue
         if opening_ds18.get(field) != candidate_ds18.get(field):
             errors.append(f"ds17_registration_ds18_frozen_drift:{field}")
     try:
@@ -18358,6 +19654,11 @@ def _ds17_confidence_ledger_risk_spend_candidate_text(
         current_scan,
         frontend_freeze_commit=opening_coverage.get("frontend_freeze_commit"),
     )
+    historical_lineage = opening_coverage.get("historical_lineage")
+    if historical_lineage is not None:
+        fresh["historical_lineage"] = copy.deepcopy(historical_lineage)
+    else:
+        fresh["historical_lineage"] = _build_ds18_time_semantics_lineage(fresh)
     coverage = _ds17_surgical_ds18_coverage(opening_coverage, fresh)
     block = _build_ds17_confidence_ledger_risk_spend_surface()
     transitioned = _ds17_ds18_transition_text(original_text, coverage)
@@ -20435,6 +21736,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="recompute only the DS18 file/root denominator and semantic receipts",
     )
     parser.add_argument(
+        "--migrate-non-anchor-source-fields",
+        action="store_true",
+        help="surgically neutralize DS17/DS18 non-anchor source field names",
+    )
+    parser.add_argument(
         "--write-ds15-acquisition-routes",
         action="store_true",
         help="atomically admit the bounded DS15 query/disposition transition",
@@ -20487,6 +21793,61 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="compare custom architecture JSON against the active debt set",
     )
     args = parser.parse_args(argv)
+
+    if args.migrate_non_anchor_source_fields:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {"migrate_non_anchor_source_fields"}:
+            sys.stderr.write(
+                "Non-anchor source-field migration requires only "
+                "--migrate-non-anchor-source-fields\n"
+            )
+            return 1
+        try:
+            original_text = REGISTER_PATH.read_text(encoding="utf-8")
+            candidate_text, renamed_fields = (
+                _non_anchor_source_fields_candidate_text(original_text)
+            )
+            candidate = json.loads(candidate_text)
+            candidate_errors = _schema_errors(candidate, SCHEMA_PATH)
+        except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
+            sys.stderr.write(f"Non-anchor source-field migration rejected: {exc}\n")
+            return 1
+        if candidate_errors:
+            for error in candidate_errors:
+                sys.stderr.write(
+                    f"Non-anchor source-field migration rejected: {error}\n"
+                )
+            return 1
+        REGISTER_PATH.write_text(candidate_text, encoding="utf-8")
+        roots = [
+            root
+            for row in candidate["ds18_time_semantics_coverage"]["files"]
+            for root in row["roots"]
+        ]
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "current_roots": len(roots),
+                    "renamed_ds18_component_labels": renamed_fields[
+                        "ds18_component_labels"
+                    ],
+                    "renamed_ds18_source_lines": renamed_fields[
+                        "ds18_source_lines"
+                    ],
+                    "renamed_ds17_source_lines": renamed_fields[
+                        "ds17_source_lines"
+                    ],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        )
+        return 0
 
     if args.write_ds17_confidence_ledger_risk_spend:
         selected = {

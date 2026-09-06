@@ -22,10 +22,13 @@ import io
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
+import threading
 import time
 from collections.abc import Callable, Mapping, Sequence
+from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
@@ -33,11 +36,28 @@ from decimal import Decimal
 from functools import cache
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, get_args
+from typing import Any, Literal, get_args
 
-from pydantic import ValidationError
+from packaging.markers import default_environment
+from pydantic import BaseModel, TypeAdapter, ValidationError, model_validator
 
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
+from polisyos.foundry.methods.catalog.dependency_evidence import (
+    DigestDomain,
+    FoundryAuthorityModel,
+    GitCommitId,
+    IdentityText,
+    decode_digest_domain_registry_toml,
+)
+from polisyos.foundry.methods.catalog.dependency_profile import (
+    DependencyEnvironmentDiagnosticResult,
+    DependencyProfileDiscriminant,
+    decode_dependency_profile_registry_toml,
+    diagnose_dependency_environment,
+    observe_installed_distributions,
+    resolve_dependency_discriminant,
+    resolve_profile_declaration_for_purpose,
+)
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
@@ -61,10 +81,39 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from tools.lib.timing import run_timed_entrypoint
 
-OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+OUTPUT_PATH: Literal[
+    "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+] = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+DEPENDENCY_DISCRIMINANT_OUTPUT_PATH = (
+    "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+)
 VALIDATOR_ID = "policyos.layer3.gy.n8.value-gate-contract"
-SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.value_gate_contract.v2"
-VALUE_GATE_RULE_VERSION = "policyos.layer3.gy.n8.value_gate.v2"
+SCHEMA_VERSION: Literal["policyos.policy_design_case.layer3_gy.value_gate_contract.v2"] = (
+    "policyos.policy_design_case.layer3_gy.value_gate_contract.v2"
+)
+VALUE_GATE_RULE_VERSION: Literal["policyos.layer3.gy.n8.value_gate.v2"] = (
+    "policyos.layer3.gy.n8.value_gate.v2"
+)
+DEPENDENCY_DISCRIMINANT_SCHEMA_VERSION = (
+    "polisyos.foundry.n8_dependency_discriminant.v1"
+)
+DEPENDENCY_DISCRIMINANT_RULE_VERSION = (
+    "polisyos.foundry.dependency_discriminant.v1"
+)
+DEPENDENCY_DISCRIMINANT_PRODUCER = (
+    "tools.quality.validation.check_layer3_gy_value_gate_contract"
+)
+DEPENDENCY_DISCRIMINANT_AUTHORITY_OWNER = "polisyos.foundry.methods.catalog"
+DEPENDENCY_DISCRIMINANT_AUTHORITY_PURPOSE: Literal[
+    "n8_method_catalog_reconstruction"
+] = "n8_method_catalog_reconstruction"
+DEPENDENCY_DISCRIMINANT_DENIED_USES = (
+    "n8_admission",
+    "n10a_stage_gap_closure",
+    "chronology_acceptance",
+    "policy_publication",
+    "policy_promotion",
+)
 CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"contract_content_hash"}
 LEGACY_POSITIVE_KEYS = frozenset({"frozen_positive_receipt", "frozen_value_receipts"})
 NATIVE_CONTRACT_FAMILIES = (
@@ -145,12 +194,111 @@ SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
 )
 
 
+def _dependency_discriminant_artifact_hash(payload: Mapping[str, Any]) -> str:
+    """Hash the canonical companion statement, excluding only its self hash."""
+
+    material = {
+        key: value for key, value in payload.items() if key != "artifact_content_hash"
+    }
+    encoded = json.dumps(
+        material,
+        ensure_ascii=True,
+        allow_nan=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+class N8DependencyContractRef(FoundryAuthorityModel):
+    """Exact raw-byte binding to the separately governed legacy N8 contract."""
+
+    path: Literal["architecture/policy_design_case/layer3_gy_value_gate_contract.json"]
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.value_gate_contract.v2"]
+    rule_version: Literal["policyos.layer3.gy.n8.value_gate.v2"]
+    content_hash: IdentityText
+
+
+class DependencyDiscriminantAuthorityBoundary(FoundryAuthorityModel):
+    """Closed non-decisive uses of the shared dependency discriminant."""
+
+    authoritative_for: tuple[Literal["dependency_environment_diagnosis"], ...]
+    may_not_use_for: tuple[
+        Literal[
+            "n8_admission",
+            "n10a_stage_gap_closure",
+            "chronology_acceptance",
+            "policy_publication",
+            "policy_promotion",
+        ],
+        ...,
+    ]
+
+    @model_validator(mode="after")
+    def validate_exact_boundary(self) -> DependencyDiscriminantAuthorityBoundary:
+        """Reject omissions, additions, and reordering in the authority boundary."""
+
+        if self.authoritative_for != ("dependency_environment_diagnosis",):
+            raise ValueError("dependency discriminant authoritative uses drifted")
+        if self.may_not_use_for != DEPENDENCY_DISCRIMINANT_DENIED_USES:
+            raise ValueError("dependency discriminant denied uses drifted")
+        return self
+
+
+class FoundryDependencyDiscriminantCompanion(FoundryAuthorityModel):
+    """Strict N8-produced carrier for one Foundry-owned discriminant."""
+
+    schema_version: Literal["polisyos.foundry.n8_dependency_discriminant.v1"]
+    rule_version: Literal["polisyos.foundry.dependency_discriminant.v1"]
+    produced_by: Literal[
+        "tools.quality.validation.check_layer3_gy_value_gate_contract"
+    ]
+    authority_owner: Literal["polisyos.foundry.methods.catalog"]
+    authority_purpose: Literal["n8_method_catalog_reconstruction"]
+    source_freeze: GitCommitId
+    n8_contract_ref: N8DependencyContractRef
+    profile_discriminant: DependencyProfileDiscriminant
+    predicate_class: Literal["recomputed"]
+    decision_role: Literal["ambient_non_decisive"]
+    authority_boundary: DependencyDiscriminantAuthorityBoundary
+    artifact_content_hash: IdentityText
+
+    @model_validator(mode="after")
+    def validate_self_hash(self) -> FoundryDependencyDiscriminantCompanion:
+        """Recompute the dedicated companion hash without trusting its claim."""
+
+        payload = self.model_dump(mode="json")
+        if self.artifact_content_hash != _dependency_discriminant_artifact_hash(payload):
+            raise ValueError("dependency discriminant companion self hash drifted")
+        return self
+
+    @property
+    def content_ref(self) -> str:
+        """Expose the byte-stable companion content identity to consumers."""
+
+        return self.artifact_content_hash
+
+
 @dataclass(frozen=True, slots=True)
 class ValueGateValidationResult:
     """Separate governed N8 failures from retained ambient diagnostics."""
 
     governing_issues: tuple[dict[str, Any], ...]
     ambient_findings: tuple[dict[str, Any], ...]
+    dependency_discriminant_content_ref: str | None = None
+    profile_discriminant: DependencyProfileDiscriminant | None = None
+
+    @property
+    def governing_result(self) -> tuple[dict[str, Any], ...]:
+        """Expose the legacy governing bytes independently from diagnostics."""
+
+        return self.governing_issues
+
+    @property
+    def content_ref(self) -> str | None:
+        """Expose a validated companion reference, or no received reference."""
+
+        return self.dependency_discriminant_content_ref
 
 
 FROZEN_MUTATION_PROOFS: dict[str, str] = {
@@ -266,9 +414,13 @@ class _AuditCandidate:
 
 
 def declared_outputs() -> list[str]:
-    """Return generated artifacts owned by this validator."""
+    """Return the companion this validator can regenerate.
 
-    return [OUTPUT_PATH]
+    The frozen N8 value-gate contract is an input to this producer, not an
+    output of the explicit companion writer.
+    """
+
+    return [DEPENDENCY_DISCRIMINANT_OUTPUT_PATH]
 
 
 def _repo_root() -> Path:
@@ -279,6 +431,651 @@ def _ensure_src_path(repo_root: Path) -> None:
     src = repo_root / "src"
     if str(src) not in sys.path:
         sys.path.insert(0, str(src))
+
+
+def _foundry_dependency_source_paths() -> tuple[Path, ...]:
+    """Return Task 2's complete, canonical discriminant source closure."""
+
+    from tools.devx.foundry import sync_dependency_profile
+
+    paths = tuple(sync_dependency_profile._DEPENDENCY_SOURCE_PATHS)  # noqa: SLF001
+    if (
+        not paths
+        or len(paths) != len(set(paths))
+        or any(path.is_absolute() or ".." in path.parts for path in paths)
+    ):
+        raise RuntimeError("Foundry dependency discriminant source closure drifted")
+    return paths
+
+
+@dataclass(frozen=True, slots=True)
+class _GitProductRootAppointment:
+    """Exact checkout coordinates appointed to dependency replay."""
+
+    product_root: Path
+    product_root_identity: tuple[int, int]
+    git_toplevel: Path
+    object_prefix: str
+    git_dir: Path
+    git_common_dir: Path
+    object_directory: Path
+    index_file: Path
+    repository_owned_roots: tuple[tuple[Path, tuple[int, int]], ...]
+    unsupported_semantic_paths: tuple[tuple[str, Path], ...]
+    git_semantic_posture: tuple[tuple[str, Literal["absent"]], ...]
+
+
+_APPOINTED_GIT_ENVIRONMENT_LOCK = threading.RLock()
+_ACTIVE_APPOINTED_GIT_STATE: ContextVar[
+    tuple[_GitProductRootAppointment, str] | None
+] = ContextVar("active_n8_appointed_git_state", default=None)
+
+
+def _filesystem_identity(path: Path) -> tuple[int, int]:
+    """Return the stable device/inode identity of one existing filesystem object."""
+
+    try:
+        stat_result = path.stat()
+    except OSError as exc:
+        raise ValueError("dependency discriminant filesystem identity unavailable") from exc
+    return stat_result.st_dev, stat_result.st_ino
+
+
+def _read_regular_file_bytes(path: Path) -> bytes:
+    """Read one source node from a no-follow, nonblocking regular descriptor."""
+
+    no_follow = getattr(os, "O_NOFOLLOW", None)
+    nonblocking = getattr(os, "O_NONBLOCK", None)
+    if no_follow is None or nonblocking is None:
+        raise ValueError("regular no-follow source reads are unavailable")
+    try:
+        descriptor = os.open(path, os.O_RDONLY | no_follow | nonblocking)
+    except OSError as exc:
+        raise ValueError("regular no-follow source is unavailable") from exc
+    try:
+        try:
+            metadata = os.fstat(descriptor)
+        except OSError as exc:
+            raise ValueError("regular no-follow source metadata is unavailable") from exc
+        if not stat.S_ISREG(metadata.st_mode):
+            raise ValueError("regular no-follow source node is required")
+        chunks: list[bytes] = []
+        while True:
+            try:
+                chunk = os.read(descriptor, 1024 * 1024)
+            except OSError as exc:
+                raise ValueError("regular no-follow source bytes are unavailable") from exc
+            if not chunk:
+                return b"".join(chunks)
+            chunks.append(chunk)
+    finally:
+        os.close(descriptor)
+
+
+def _repository_owned_roots(
+    *paths: Path,
+) -> tuple[tuple[Path, tuple[int, int]], ...]:
+    """Bind the complete, identity-distinct storage roots owned by one repository."""
+
+    roots: list[tuple[Path, tuple[int, int]]] = []
+    seen: set[tuple[int, int]] = set()
+    for path in paths:
+        identity = _filesystem_identity(path)
+        if identity not in seen:
+            roots.append((path, identity))
+            seen.add(identity)
+    return tuple(roots)
+
+
+def _git_environment_without_redirects() -> dict[str, str]:
+    """Remove every ambient Git input before repository discovery or replay."""
+
+    return {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+
+
+def _invoke_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[bytes]:
+    """Invoke Git as the narrow bootstrap primitive for root appointment."""
+
+    try:
+        return subprocess.run(  # noqa: S603, S607
+            ["git", "--no-replace-objects", *args],
+            cwd=repo_root,
+            env=_git_environment_without_redirects(),
+            check=True,
+            capture_output=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise ValueError("dependency discriminant Git evidence unavailable") from exc
+
+
+def _require_absent_git_semantics(
+    semantic_paths: tuple[tuple[str, Path], ...],
+) -> None:
+    """Reject repository mechanisms outside the admitted replay model."""
+
+    for _mechanism, path in semantic_paths:
+        try:
+            os.lstat(path)
+        except FileNotFoundError:
+            continue
+        except OSError as exc:
+            raise ValueError(
+                "dependency discriminant Git semantic posture unavailable"
+            ) from exc
+        raise ValueError("dependency discriminant unsupported Git repository semantics")
+
+
+def _appoint_git_product_root(repo_root: Path) -> _GitProductRootAppointment:
+    """Bind one supplied product root to this running checkout's Git coordinates."""
+
+    canonical_root = _repo_root().resolve()
+    supplied_root = repo_root.resolve()
+    if supplied_root != canonical_root:
+        raise ValueError(
+            "dependency discriminant product root is not the appointed product root"
+        )
+    coordinates = _invoke_git(
+        supplied_root,
+        "rev-parse",
+        "--path-format=absolute",
+        "--show-toplevel",
+        "--show-prefix",
+        "--absolute-git-dir",
+        "--git-common-dir",
+        "--git-path",
+        "objects",
+        "--git-path",
+        "index",
+        "--git-path",
+        "objects/info/alternates",
+        "--git-path",
+        "info/grafts",
+        "--git-path",
+        "shallow",
+    ).stdout.decode("utf-8").splitlines()
+    if len(coordinates) != 9:
+        raise ValueError("dependency discriminant Git appointment is incomplete")
+    git_toplevel = Path(coordinates[0]).resolve()
+    object_prefix = coordinates[1]
+    git_dir = Path(coordinates[2]).resolve()
+    git_common_dir = Path(coordinates[3]).resolve()
+    object_directory = Path(coordinates[4]).resolve()
+    index_file = Path(coordinates[5]).resolve()
+    unsupported_semantic_paths = (
+        ("alternates", Path(coordinates[6])),
+        ("grafts", Path(coordinates[7])),
+        ("shallow", Path(coordinates[8])),
+    )
+    if any(not path.is_absolute() for _, path in unsupported_semantic_paths):
+        raise ValueError("dependency discriminant Git appointment is incomplete")
+    _require_absent_git_semantics(unsupported_semantic_paths)
+    expected_toplevel = canonical_root.parent
+    expected_prefix = canonical_root.relative_to(expected_toplevel).as_posix() + "/"
+    if git_toplevel != expected_toplevel or object_prefix != expected_prefix:
+        raise ValueError("dependency discriminant Git appointment coordinates drifted")
+    return _GitProductRootAppointment(
+        product_root=canonical_root,
+        product_root_identity=_filesystem_identity(canonical_root),
+        git_toplevel=git_toplevel,
+        object_prefix=object_prefix,
+        git_dir=git_dir,
+        git_common_dir=git_common_dir,
+        object_directory=object_directory,
+        index_file=index_file,
+        repository_owned_roots=_repository_owned_roots(
+            git_toplevel,
+            git_dir,
+            git_common_dir,
+            object_directory,
+            index_file.parent,
+        ),
+        unsupported_semantic_paths=unsupported_semantic_paths,
+        git_semantic_posture=tuple(
+            (mechanism, "absent") for mechanism, _ in unsupported_semantic_paths
+        ),
+    )
+
+
+def _require_appointed_git_identity(appointment: _GitProductRootAppointment) -> None:
+    """Fail closed if any load-bearing appointed filesystem identity changed."""
+
+    identities = (
+        (appointment.product_root, appointment.product_root_identity),
+        *appointment.repository_owned_roots,
+    )
+    if any(_filesystem_identity(path) != expected for path, expected in identities):
+        raise ValueError("dependency discriminant appointed Git identity changed")
+    _require_absent_git_semantics(appointment.unsupported_semantic_paths)
+
+
+def _appointed_git_environment(
+    appointment: _GitProductRootAppointment,
+) -> dict[str, str]:
+    """Pin repository inputs while excluding every ambient Git override."""
+
+    environment = _git_environment_without_redirects()
+    environment.update(
+        {
+            "GIT_DIR": str(appointment.git_dir),
+            "GIT_WORK_TREE": str(appointment.git_toplevel),
+            "GIT_COMMON_DIR": str(appointment.git_common_dir),
+            "GIT_OBJECT_DIRECTORY": str(appointment.object_directory),
+            "GIT_INDEX_FILE": str(appointment.index_file),
+            "GIT_NO_REPLACE_OBJECTS": "1",
+        }
+    )
+    return environment
+
+
+@contextlib.contextmanager
+def _appointed_git_process_environment(
+    appointment: _GitProductRootAppointment,
+    *,
+    authority_state_token: str,
+) -> Any:
+    """Serialize one owner call under exact appointed process Git inputs."""
+
+    with _APPOINTED_GIT_ENVIRONMENT_LOCK:
+        active = _ACTIVE_APPOINTED_GIT_STATE.get()
+        if active is not None:
+            if active != (appointment, authority_state_token):
+                raise ValueError("dependency discriminant nested Git appointment drifted")
+            if _foundry_authority_state_token(appointment) != authority_state_token:
+                raise ValueError("dependency discriminant authority state changed before replay")
+            try:
+                yield
+            finally:
+                if _foundry_authority_state_token(appointment) != authority_state_token:
+                    raise ValueError(
+                        "dependency discriminant authority state changed during replay"
+                    )
+            return
+        caller_environment = dict(os.environ)
+        appointed_environment = _appointed_git_environment(appointment)
+        token = _ACTIVE_APPOINTED_GIT_STATE.set(
+            (appointment, authority_state_token)
+        )
+        try:
+            os.environ.clear()
+            os.environ.update(appointed_environment)
+            if _foundry_authority_state_token(appointment) != authority_state_token:
+                raise ValueError("dependency discriminant authority state changed before replay")
+            try:
+                yield
+            finally:
+                if _foundry_authority_state_token(appointment) != authority_state_token:
+                    raise ValueError(
+                        "dependency discriminant authority state changed during replay"
+                    )
+        finally:
+            os.environ.clear()
+            os.environ.update(caller_environment)
+            _ACTIVE_APPOINTED_GIT_STATE.reset(token)
+
+
+def _run_git(
+    appointment: _GitProductRootAppointment,
+    *args: str,
+) -> subprocess.CompletedProcess[bytes]:
+    """Run one bounded Git read against one immutable appointment."""
+
+    _require_appointed_git_identity(appointment)
+    try:
+        completed = subprocess.run(  # noqa: S603, S607
+            [
+                "git",
+                "--no-replace-objects",
+                f"--git-dir={appointment.git_dir}",
+                f"--work-tree={appointment.git_toplevel}",
+                *args,
+            ],
+            cwd=appointment.product_root,
+            env=_appointed_git_environment(appointment),
+            check=True,
+            capture_output=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise ValueError("dependency discriminant Git evidence unavailable") from exc
+    _require_appointed_git_identity(appointment)
+    return completed
+
+
+def _git_text(appointment: _GitProductRootAppointment, *args: str) -> str:
+    return _run_git(appointment, *args).stdout.decode("utf-8").strip()
+
+
+def _foundry_authority_source_paths() -> tuple[Path, ...]:
+    """Return the complete source denominator declared by the Foundry owner."""
+
+    from polisyos.foundry.methods.catalog import dependency_authority
+
+    raw_paths = tuple(dependency_authority._AUTHORITY_SOURCE_PATHS)  # noqa: SLF001
+    if not raw_paths or any(type(value) is not str for value in raw_paths):
+        raise RuntimeError("Foundry dependency authority source closure drifted")
+    paths = tuple(Path(value) for value in raw_paths)
+    if (
+        len(paths) != len(set(paths))
+        or any(
+            path.is_absolute()
+            or ".." in path.parts
+            or path.as_posix() != raw
+            for path, raw in zip(paths, raw_paths, strict=True)
+        )
+    ):
+        raise RuntimeError("Foundry dependency authority source closure drifted")
+    return paths
+
+
+def _bind_state_token_member(digest: Any, label: str, value: bytes) -> None:
+    """Bind one length-delimited member into an authority-state digest."""
+
+    label_bytes = label.encode("utf-8")
+    digest.update(len(label_bytes).to_bytes(8, "big"))
+    digest.update(label_bytes)
+    digest.update(len(value).to_bytes(8, "big"))
+    digest.update(value)
+
+
+def _foundry_authority_state_token(
+    appointment: _GitProductRootAppointment,
+) -> str:
+    """Bind every current input that can affect Foundry dependency authority."""
+
+    _require_appointed_git_identity(appointment)
+    owner_paths = _foundry_authority_source_paths()
+    git_pathspecs = tuple(f":(top,literal){path.as_posix()}" for path in owner_paths)
+    head = _git_text(appointment, "rev-parse", "HEAD")
+    tree = _git_text(appointment, "rev-parse", "HEAD^{tree}")
+    symbolic_head = _git_text(
+        appointment,
+        "rev-parse",
+        "--symbolic-full-name",
+        "HEAD",
+    )
+    owner_status = _run_git(
+        appointment,
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all",
+        "--",
+        *git_pathspecs,
+    ).stdout
+    owner_index = _run_git(
+        appointment,
+        "ls-files",
+        "--stage",
+        "--",
+        *git_pathspecs,
+    ).stdout
+    digest = hashlib.sha256()
+    _bind_state_token_member(digest, "token_schema", b"n8-foundry-authority-state-v1")
+    for label, value in (
+        ("product_root", str(appointment.product_root)),
+        ("git_toplevel", str(appointment.git_toplevel)),
+        ("object_prefix", appointment.object_prefix),
+        ("git_dir", str(appointment.git_dir)),
+        ("git_common_dir", str(appointment.git_common_dir)),
+        ("object_directory", str(appointment.object_directory)),
+        ("index_file", str(appointment.index_file)),
+        ("head", head),
+        ("tree", tree),
+        ("symbolic_head", symbolic_head),
+    ):
+        _bind_state_token_member(digest, label, value.encode("utf-8"))
+    _bind_state_token_member(
+        digest,
+        "product_root_identity",
+        f"{appointment.product_root_identity[0]}:{appointment.product_root_identity[1]}".encode(),
+    )
+    for index, (path, identity) in enumerate(appointment.repository_owned_roots):
+        _bind_state_token_member(
+            digest,
+            f"repository_owned_root:{index}",
+            f"{path}\0{identity[0]}:{identity[1]}".encode(),
+        )
+    for (mechanism, path), (posture_mechanism, posture) in zip(
+        appointment.unsupported_semantic_paths,
+        appointment.git_semantic_posture,
+        strict=True,
+    ):
+        if mechanism != posture_mechanism:
+            raise RuntimeError("dependency discriminant Git semantic posture drifted")
+        _bind_state_token_member(
+            digest,
+            f"git_semantic_posture:{mechanism}",
+            f"{path}\0{posture}".encode(),
+        )
+    _bind_state_token_member(digest, "owner_status", owner_status)
+    _bind_state_token_member(digest, "owner_index", owner_index)
+    for relative_path in owner_paths:
+        _bind_state_token_member(
+            digest,
+            f"authority_source:{relative_path.as_posix()}",
+            _read_regular_file_bytes(appointment.git_toplevel / relative_path),
+        )
+    _require_appointed_git_identity(appointment)
+    return "sha256:" + digest.hexdigest()
+
+
+def _git_object_prefix(appointment: _GitProductRootAppointment) -> str:
+    return appointment.object_prefix
+
+
+def _frozen_foundry_bytes(
+    appointment: _GitProductRootAppointment,
+    source_freeze: str,
+    relative_path: str,
+) -> bytes:
+    """Read exact owner bytes from the supplied Git commit."""
+
+    if re.fullmatch(r"[0-9a-f]{40}", source_freeze) is None:
+        raise ValueError("dependency discriminant source freeze is invalid")
+    allowed = {path.as_posix() for path in _foundry_dependency_source_paths()}
+    if relative_path not in allowed:
+        raise ValueError("dependency discriminant source path is outside its closure")
+    object_path = f"{_git_object_prefix(appointment)}{relative_path}"
+    return _run_git(appointment, "show", f"{source_freeze}:{object_path}").stdout
+
+
+def _dependency_discriminant_source_freeze(
+    appointment: _GitProductRootAppointment,
+) -> str:
+    """Derive the owner freeze through one already-established appointment."""
+
+    source_freeze = _git_text(
+        appointment,
+        "log",
+        "-1",
+        "--format=%H",
+        "--",
+        *(path.as_posix() for path in _foundry_dependency_source_paths()),
+    )
+    if re.fullmatch(r"[0-9a-f]{40}", source_freeze) is None:
+        raise ValueError("Foundry dependency source freeze was not derived")
+    return source_freeze
+
+
+def dependency_discriminant_source_freeze(repo_root: Path | None = None) -> str:
+    """Derive the latest commit owning the complete Foundry source closure.
+
+    Args:
+        repo_root: Product root. Defaults to this validator's product root.
+
+    Returns:
+        The 40-hex commit most recently touching any canonical owner source.
+
+    Raises:
+        ValueError: If Git cannot produce exactly one canonical commit identity.
+    """
+
+    appointment = _appoint_git_product_root((repo_root or _repo_root()).resolve())
+    return _dependency_discriminant_source_freeze(appointment)
+
+
+def _require_current_foundry_source_freeze(
+    appointment: _GitProductRootAppointment,
+    source_freeze: str,
+) -> dict[str, bytes]:
+    """Prove the supplied freeze owns every exact current Foundry source byte."""
+
+    if source_freeze != _dependency_discriminant_source_freeze(appointment):
+        raise ValueError("dependency discriminant source freeze mismatch")
+    frozen_sources: dict[str, bytes] = {}
+    for relative_path in _foundry_dependency_source_paths():
+        source_path = relative_path.as_posix()
+        frozen = _frozen_foundry_bytes(appointment, source_freeze, source_path)
+        current = _read_regular_file_bytes(appointment.product_root / relative_path)
+        if current != frozen:
+            raise ValueError("dependency discriminant source freeze bytes mismatch")
+        frozen_sources[source_path] = frozen
+    return frozen_sources
+
+
+def _owner_source_path(filename: str) -> str:
+    matches = tuple(
+        path.as_posix()
+        for path in _foundry_dependency_source_paths()
+        if path.name == filename
+    )
+    if len(matches) != 1:
+        raise RuntimeError(f"Foundry owner source is not unique: {filename}")
+    return matches[0]
+
+
+def _resolve_frozen_foundry_dependency_discriminant(
+    *,
+    appointment: _GitProductRootAppointment,
+    source_freeze: str,
+    marker_environment: Mapping[str, str],
+) -> DependencyProfileDiscriminant:
+    """Resolve through the Foundry owner using only supplied frozen bytes."""
+
+    frozen_sources = _require_current_foundry_source_freeze(appointment, source_freeze)
+    profile_bytes = frozen_sources[_owner_source_path("method_catalog_dependency_profiles.toml")]
+    authority_bytes = frozen_sources[
+        _owner_source_path("method_catalog_dependency_authority.toml")
+    ]
+    digest_registry = decode_digest_domain_registry_toml(
+        frozen_sources[_owner_source_path("method_catalog_dependency_digest_domains.toml")]
+    )
+    registered = tuple(
+        row
+        for row in digest_registry.statement.domains
+        if row.domain_id is DigestDomain.DEPENDENCY_DISCRIMINANT
+    )
+    if len(registered) != 1 or registered[0].derivation_evidence != (
+        "DependencyProfileDiscriminant",
+    ):
+        raise ValueError("dependency discriminant digest domain is not registered")
+    declaration = resolve_profile_declaration_for_purpose(
+        decode_dependency_profile_registry_toml(profile_bytes),
+        authority_registry_bytes=authority_bytes,
+        authority_purpose=DEPENDENCY_DISCRIMINANT_AUTHORITY_PURPOSE,
+    )
+    resolved = resolve_dependency_discriminant(
+        declaration,
+        pyproject_bytes=frozen_sources[_owner_source_path("pyproject.toml")],
+        lockfile_bytes=frozen_sources[_owner_source_path("uv.lock")],
+        marker_environment=marker_environment,
+    )
+    if not isinstance(resolved, DependencyProfileDiscriminant):
+        raise ValueError(
+            "Foundry dependency discriminant resolution failed: "
+            f"{type(resolved).__name__}"
+        )
+    return resolved
+
+
+def _n8_contract_ref(repo_root: Path) -> N8DependencyContractRef:
+    """Bind the exact current legacy N8 bytes without interpreting environment state."""
+
+    raw = (repo_root / OUTPUT_PATH).read_bytes()
+    try:
+        wire = json.loads(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("legacy N8 contract bytes are invalid JSON") from exc
+    if not isinstance(wire, Mapping):
+        raise ValueError("legacy N8 contract is not a statement")
+    if (
+        wire.get("schema_version") != SCHEMA_VERSION
+        or wire.get("rule_version") != VALUE_GATE_RULE_VERSION
+    ):
+        raise ValueError("legacy N8 contract schema or rule drifted")
+    return N8DependencyContractRef(
+        path=OUTPUT_PATH,
+        schema_version=SCHEMA_VERSION,
+        rule_version=VALUE_GATE_RULE_VERSION,
+        content_hash="sha256:" + hashlib.sha256(raw).hexdigest(),
+    )
+
+
+def _build_dependency_discriminant_companion(
+    *,
+    appointment: _GitProductRootAppointment,
+    source_freeze: str,
+) -> FoundryDependencyDiscriminantCompanion:
+    """Build the strict shared discriminant through one Git appointment."""
+
+    root = appointment.product_root
+    marker_environment = {
+        key: str(value) for key, value in default_environment().items()
+    }
+    marker_environment["extra"] = ""
+    profile = _resolve_frozen_foundry_dependency_discriminant(
+        appointment=appointment,
+        source_freeze=source_freeze,
+        marker_environment=marker_environment,
+    )
+    payload: dict[str, Any] = {
+        "schema_version": DEPENDENCY_DISCRIMINANT_SCHEMA_VERSION,
+        "rule_version": DEPENDENCY_DISCRIMINANT_RULE_VERSION,
+        "produced_by": DEPENDENCY_DISCRIMINANT_PRODUCER,
+        "authority_owner": DEPENDENCY_DISCRIMINANT_AUTHORITY_OWNER,
+        "authority_purpose": DEPENDENCY_DISCRIMINANT_AUTHORITY_PURPOSE,
+        "source_freeze": source_freeze,
+        "n8_contract_ref": _n8_contract_ref(root).model_dump(mode="json"),
+        "profile_discriminant": profile.model_dump(mode="json"),
+        "predicate_class": "recomputed",
+        "decision_role": "ambient_non_decisive",
+        "authority_boundary": {
+            "authoritative_for": ["dependency_environment_diagnosis"],
+            "may_not_use_for": list(DEPENDENCY_DISCRIMINANT_DENIED_USES),
+        },
+    }
+    payload["artifact_content_hash"] = _dependency_discriminant_artifact_hash(payload)
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=True,
+        allow_nan=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    return FoundryDependencyDiscriminantCompanion.model_validate_json(encoded)
+
+
+def build_dependency_discriminant_companion(
+    *,
+    repo_root: Path | None = None,
+    source_freeze: str,
+) -> FoundryDependencyDiscriminantCompanion:
+    """Build the strict shared discriminant from frozen Foundry owner bytes.
+
+    Args:
+        repo_root: Product root. Defaults to this validator's product root.
+        source_freeze: Commit owning the complete current Foundry source closure.
+
+    Returns:
+        A strict content-bound companion with no installed-environment result.
+
+    Raises:
+        ValueError: If the owner freeze, registry, source bytes, or N8 binding fails.
+    """
+
+    appointment = _appoint_git_product_root((repo_root or _repo_root()).resolve())
+    return _build_dependency_discriminant_companion(
+        appointment=appointment,
+        source_freeze=source_freeze,
+    )
 
 
 def _hash(char: str) -> str:
@@ -766,12 +1563,11 @@ def _candidate_catalog_denominators() -> dict[str, Any]:
     return json.loads(json.dumps(_candidate_catalog_denominators_cached(), sort_keys=True))
 
 
-@cache
-def _catalog_denominator_evidence_cached(
+def _build_catalog_denominator_evidence_transport(
     expected_source_freeze: str,
     repo_root: Path,
-) -> tuple[dict[str, Any], dict[str, object]]:
-    """Resolve the Foundry owner and stop at its exact typed non-receipt."""
+) -> bytes:
+    """Build immutable Foundry-owner evidence inside an appointed environment."""
 
     from polisyos.foundry.methods.catalog.dependency_authority import (
         AbsoluteRequestPath,
@@ -802,27 +1598,103 @@ def _catalog_denominator_evidence_cached(
     )
     if runtime_result != provenance_result:
         raise RuntimeError("catalog_dependency_authority_builder_disagreement")
-    return (
+    return json.dumps(
         {
-            "catalog_dependency_authority": runtime_result.model_dump(mode="json"),
+            "denominators": {
+                "catalog_dependency_authority": runtime_result.model_dump(mode="json"),
+            },
+            "ambient_manifest": {},
         },
-        {},
+        ensure_ascii=True,
+        allow_nan=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+
+
+@cache
+def _catalog_denominator_evidence_cached(
+    expected_source_freeze: str,
+    repo_root: Path,
+    authority_state_token: str,
+) -> bytes:
+    """Cache immutable Foundry-owner evidence for one complete authority state."""
+
+    resolved_root = repo_root.resolve()
+    active = _ACTIVE_APPOINTED_GIT_STATE.get()
+    if active is not None:
+        appointment, active_state_token = active
+        if (
+            appointment.product_root != resolved_root
+            or active_state_token != authority_state_token
+        ):
+            raise ValueError("catalog dependency authority left its appointed state")
+        return _build_catalog_denominator_evidence_transport(
+            expected_source_freeze,
+            resolved_root,
+        )
+    appointment = _appoint_git_product_root(resolved_root)
+    with _appointed_git_process_environment(
+        appointment,
+        authority_state_token=authority_state_token,
+    ):
+        return _build_catalog_denominator_evidence_transport(
+            expected_source_freeze,
+            resolved_root,
+        )
+
+
+def _decode_catalog_denominator_evidence(
+    encoded: bytes,
+) -> tuple[dict[str, Any], dict[str, object]]:
+    """Decode fresh nested owner evidence from immutable transport bytes."""
+
+    wire = json.loads(encoded)
+    if (
+        not isinstance(wire, dict)
+        or set(wire) != {"ambient_manifest", "denominators"}
+        or not isinstance(wire["denominators"], dict)
+        or not isinstance(wire["ambient_manifest"], dict)
+    ):
+        raise RuntimeError("cached catalog denominator transport is invalid")
+    return wire["denominators"], wire["ambient_manifest"]
+
+
+def _catalog_denominator_evidence(
+    expected_source_freeze: str,
+    repo_root: Path,
+) -> tuple[dict[str, Any], dict[str, object]]:
+    """Resolve one fresh owner result under the complete appointed state."""
+
+    resolved_root = repo_root.resolve()
+    active = _ACTIVE_APPOINTED_GIT_STATE.get()
+    if active is None:
+        appointment = _appoint_git_product_root(resolved_root)
+        authority_state_token = _foundry_authority_state_token(appointment)
+        with _appointed_git_process_environment(
+            appointment,
+            authority_state_token=authority_state_token,
+        ):
+            return _catalog_denominator_evidence(
+                expected_source_freeze,
+                resolved_root,
+            )
+    appointment, authority_state_token = active
+    if resolved_root != appointment.product_root:
+        raise ValueError("catalog dependency authority root left its appointment")
+    encoded = _catalog_denominator_evidence_cached(
+        expected_source_freeze,
+        resolved_root,
+        authority_state_token,
     )
+    return _decode_catalog_denominator_evidence(encoded)
 
 
 def _catalog_denominators(
     expected_source_freeze: str,
     repo_root: Path,
 ) -> dict[str, Any]:
-    return json.loads(
-        json.dumps(
-            _catalog_denominator_evidence_cached(
-                expected_source_freeze,
-                repo_root,
-            )[0],
-            sort_keys=True,
-        )
-    )
+    return _catalog_denominator_evidence(expected_source_freeze, repo_root)[0]
 
 
 def _reachable_value_methods() -> tuple[str, ...]:
@@ -1327,11 +2199,6 @@ def _native_projector_contract_proofs() -> list[dict[str, Any]]:
 
 
 def _projector_refusal_proofs() -> list[dict[str, Any]]:
-    from polisyos.core.observability.truthfulness import (
-        TruthfulnessReceipt,
-        TruthfulnessScope,
-        TruthfulnessTier,
-    )
     from polisyos.foundry.methods.base import (
         ComplexityClass,
         FidelityLevel,
@@ -1347,6 +2214,11 @@ def _projector_refusal_proofs() -> list[dict[str, Any]]:
     from polisyos.foundry.methods.components.value_evidence import (
         MethodValueRefusal,
         project_method_value_evidence,
+    )
+    from polisyos.ir.analytics import (
+        TruthfulnessReceipt,
+        TruthfulnessScope,
+        TruthfulnessTier,
     )
 
     verified = _native_projection_cases()[0]
@@ -4883,6 +5755,402 @@ def check_result(
     )
 
 
+@cache
+def _cached_legacy_value_gate_transport(
+    appointment: _GitProductRootAppointment,
+    source_freeze: str,
+    n8_raw_hash: str,
+    authority_state_token: str,
+) -> bytes:
+    """Cache immutable legacy bytes for one complete appointed owner state."""
+
+    n8_path = appointment.product_root / OUTPUT_PATH
+    if hashlib.sha256(n8_path.read_bytes()).hexdigest() != n8_raw_hash:
+        raise ValueError("legacy N8 cache input changed before replay")
+    with _appointed_git_process_environment(
+        appointment,
+        authority_state_token=authority_state_token,
+    ):
+        result = check_result(
+            appointment.product_root,
+            expected_source_freeze=source_freeze,
+        )
+        if hashlib.sha256(n8_path.read_bytes()).hexdigest() != n8_raw_hash:
+            raise ValueError("legacy N8 cache input changed during replay")
+    return json.dumps(
+        {
+            "ambient_findings": result.ambient_findings,
+            "governing_issues": result.governing_issues,
+        },
+        ensure_ascii=True,
+        allow_nan=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+
+
+def _decode_legacy_findings(value: object) -> tuple[dict[str, Any], ...]:
+    """Decode one fresh list of legacy findings from immutable transport bytes."""
+
+    if not isinstance(value, list) or any(not isinstance(row, dict) for row in value):
+        raise RuntimeError("cached legacy value-gate transport is invalid")
+    return tuple(value)
+
+
+def _legacy_value_gate_result(
+    appointment: _GitProductRootAppointment,
+    *,
+    source_freeze: str,
+) -> ValueGateValidationResult:
+    """Capture governing and ambient legacy results before diagnostic handling."""
+
+    repo_root = appointment.product_root
+    raw_hash = hashlib.sha256((repo_root / OUTPUT_PATH).read_bytes()).hexdigest()
+    authority_state_token = _foundry_authority_state_token(appointment)
+    encoded = _cached_legacy_value_gate_transport(
+        appointment,
+        source_freeze,
+        raw_hash,
+        authority_state_token,
+    )
+    wire = json.loads(encoded)
+    if not isinstance(wire, dict) or set(wire) != {
+        "ambient_findings",
+        "governing_issues",
+    }:
+        raise RuntimeError("cached legacy value-gate transport is invalid")
+    return ValueGateValidationResult(
+        governing_issues=_decode_legacy_findings(wire["governing_issues"]),
+        ambient_findings=_decode_legacy_findings(wire["ambient_findings"]),
+    )
+
+
+def _coerce_dependency_discriminant_companion(
+    companion: FoundryDependencyDiscriminantCompanion | Mapping[str, Any] | bytes,
+) -> FoundryDependencyDiscriminantCompanion:
+    if isinstance(companion, bytes):
+        encoded = companion
+    else:
+        payload = (
+            companion.model_dump(mode="json")
+            if isinstance(companion, FoundryDependencyDiscriminantCompanion)
+            else companion
+        )
+        encoded = json.dumps(
+            payload,
+            ensure_ascii=True,
+            allow_nan=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        ).encode("utf-8")
+    return FoundryDependencyDiscriminantCompanion.model_validate_json(encoded)
+
+
+def _replay_dependency_discriminant_companion(
+    appointment: _GitProductRootAppointment,
+    companion: FoundryDependencyDiscriminantCompanion,
+) -> None:
+    """Recompute every authority-bearing companion predicate from its owners."""
+
+    if companion.n8_contract_ref != _n8_contract_ref(appointment.product_root):
+        raise ValueError("dependency discriminant N8 byte binding drifted")
+    replayed = _resolve_frozen_foundry_dependency_discriminant(
+        appointment=appointment,
+        source_freeze=companion.source_freeze,
+        marker_environment=dict(companion.profile_discriminant.marker_environment),
+    )
+    if replayed != companion.profile_discriminant:
+        raise ValueError("dependency discriminant owner replay drifted")
+
+
+_DEPENDENCY_DIAGNOSTIC_ADAPTER: TypeAdapter[DependencyEnvironmentDiagnosticResult] = TypeAdapter(
+    DependencyEnvironmentDiagnosticResult
+)
+
+
+def _coerce_dependency_environment_diagnostic(
+    value: object,
+) -> DependencyEnvironmentDiagnosticResult:
+    payload = value.model_dump(mode="json") if isinstance(value, BaseModel) else value
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=True,
+        allow_nan=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    return _DEPENDENCY_DIAGNOSTIC_ADAPTER.validate_json(encoded)
+
+
+def _current_dependency_environment_diagnostic(
+    profile: DependencyProfileDiscriminant,
+) -> DependencyEnvironmentDiagnosticResult:
+    """Observe and diagnose the current interpreter without persisting it."""
+
+    return diagnose_dependency_environment(
+        discriminant=profile,
+        observed_distributions=observe_installed_distributions(profile),
+    )
+
+
+def _dependency_environment_ambient_findings(
+    *,
+    profile: DependencyProfileDiscriminant,
+    diagnostic_verification: object | None,
+) -> tuple[dict[str, Any], ...]:
+    """Project strict diagnostics only into the non-decisive ambient channel."""
+
+    supplied = diagnostic_verification is not None
+    if supplied:
+        try:
+            claimed = _coerce_dependency_environment_diagnostic(diagnostic_verification)
+        except Exception:
+            return (
+                {
+                    "code": "dependency_environment_diagnostic_not_received",
+                    "decision_role": "ambient_non_decisive",
+                },
+            )
+    try:
+        current = _current_dependency_environment_diagnostic(profile)
+    except Exception:
+        return (
+            {
+                "code": "dependency_environment_diagnostic_not_received",
+                "decision_role": "ambient_non_decisive",
+            },
+        )
+    if supplied and claimed != current:
+        return (
+            {
+                "code": "dependency_environment_diagnostic_not_reconciled",
+                "decision_role": "ambient_non_decisive",
+                "unaccepted_diagnostic_claim": claimed.model_dump(mode="json"),
+                "current_diagnostic": current.model_dump(mode="json"),
+            },
+        )
+    diagnostic = current
+    if diagnostic.status == "pass":
+        return ()
+    code = (
+        "dependency_environment_diagnostic_failed"
+        if diagnostic.status == "fail"
+        else "dependency_environment_diagnostic_not_established"
+    )
+    return (
+        {
+            "code": code,
+            "decision_role": "ambient_non_decisive",
+            "diagnostic": diagnostic.model_dump(mode="json"),
+        },
+    )
+
+
+def _validate_foundry_dependency_discriminant(
+    *,
+    appointment: _GitProductRootAppointment,
+    companion: FoundryDependencyDiscriminantCompanion | Mapping[str, Any] | bytes,
+    diagnostic_verification: object | None,
+    expected_source_freeze: str | None = None,
+) -> ValueGateValidationResult:
+    """Validate one companion through an already-established Git appointment."""
+
+    source_freeze = _dependency_discriminant_source_freeze(appointment)
+    legacy = _legacy_value_gate_result(appointment, source_freeze=source_freeze)
+    ambient = list(legacy.ambient_findings)
+    try:
+        received = _coerce_dependency_discriminant_companion(companion)
+        if expected_source_freeze is not None and (
+            expected_source_freeze != source_freeze
+            or received.source_freeze != expected_source_freeze
+        ):
+            raise ValueError("dependency discriminant expected source freeze mismatch")
+        _replay_dependency_discriminant_companion(appointment, received)
+    except (OSError, RuntimeError, TypeError, ValueError, ValidationError) as exc:
+        ambient.append(
+            {
+                "code": "dependency_discriminant_diagnostic_not_received",
+                "decision_role": "ambient_non_decisive",
+                "reason": str(exc),
+            }
+        )
+        return ValueGateValidationResult(
+            governing_issues=legacy.governing_issues,
+            ambient_findings=_deduplicate_findings(ambient),
+        )
+    ambient.extend(
+        _dependency_environment_ambient_findings(
+            profile=received.profile_discriminant,
+            diagnostic_verification=diagnostic_verification,
+        )
+    )
+    return ValueGateValidationResult(
+        governing_issues=legacy.governing_issues,
+        ambient_findings=_deduplicate_findings(ambient),
+        dependency_discriminant_content_ref=received.content_ref,
+        profile_discriminant=received.profile_discriminant,
+    )
+
+
+def validate_foundry_dependency_discriminant(
+    *,
+    repo_root: Path,
+    companion: FoundryDependencyDiscriminantCompanion | Mapping[str, Any] | bytes,
+    diagnostic_verification: object | None,
+    expected_source_freeze: str | None = None,
+) -> ValueGateValidationResult:
+    """Validate the companion while keeping diagnostics out of governing bytes.
+
+    Args:
+        repo_root: Appointed product root.
+        companion: Strict object, JSON mapping, or exact JSON bytes to replay.
+        diagnostic_verification: Optional strict ambient diagnostic observation.
+        expected_source_freeze: Optional caller claim that must equal both the
+            current owner freeze and the companion's recorded freeze.
+
+    Returns:
+        The unchanged legacy governing result plus a separately typed ambient
+        diagnostic channel. Invalid companion evidence receives no content ref.
+    """
+
+    appointment = _appoint_git_product_root(repo_root.resolve())
+    return _validate_foundry_dependency_discriminant(
+        appointment=appointment,
+        companion=companion,
+        diagnostic_verification=diagnostic_verification,
+        expected_source_freeze=expected_source_freeze,
+    )
+
+
+def check_dependency_discriminant_companion(
+    repo_root: Path,
+    *,
+    companion_path: Path,
+    diagnostic_verification: object | None = None,
+    expected_source_freeze: str | None = None,
+) -> ValueGateValidationResult:
+    """Read and validate one companion path without rewriting any bytes.
+
+    Args:
+        repo_root: Appointed product root.
+        companion_path: Exact candidate or governed companion path.
+        diagnostic_verification: Optional strict ambient diagnostic observation.
+        expected_source_freeze: Optional caller source-freeze claim to verify.
+
+    Returns:
+        The separated legacy governing and companion diagnostic result.
+    """
+
+    appointment = _appoint_git_product_root(repo_root.resolve())
+    try:
+        raw = companion_path.read_bytes()
+    except OSError:
+        raw = b""
+    return _validate_foundry_dependency_discriminant(
+        appointment=appointment,
+        companion=raw,
+        diagnostic_verification=diagnostic_verification,
+        expected_source_freeze=expected_source_freeze,
+    )
+
+
+def _path_has_symlink_component(path: Path) -> bool:
+    absolute = path.absolute()
+    return any(component.is_symlink() for component in (absolute, *absolute.parents))
+
+
+def _nearest_existing_ancestor(path: Path) -> Path:
+    """Return the first existing path at or above an absent destination."""
+
+    candidate = path
+    while True:
+        try:
+            candidate.stat()
+        except FileNotFoundError:
+            parent = candidate.parent
+            if parent == candidate:
+                raise ValueError(
+                    "dependency discriminant destination ancestry is unavailable"
+                ) from None
+            candidate = parent
+            continue
+        except OSError as exc:
+            raise ValueError(
+                "dependency discriminant destination ancestry is unavailable"
+            ) from exc
+        return candidate
+
+
+def _path_has_appointed_ancestor_identity(
+    path: Path,
+    expected_identities: frozenset[tuple[int, int]],
+) -> bool:
+    """Classify an absent destination through all appointed storage identities."""
+
+    candidate = _nearest_existing_ancestor(path)
+    while True:
+        if _filesystem_identity(candidate) in expected_identities:
+            return True
+        parent = candidate.parent
+        if parent == candidate:
+            return False
+        candidate = parent
+
+
+def write_dependency_discriminant_companion(
+    repo_root: Path,
+    *,
+    companion_path: Path,
+    source_freeze: str,
+    allow_repository_write: bool,
+) -> FoundryDependencyDiscriminantCompanion:
+    """Write a companion only under an explicit path-scoped posture.
+
+    Args:
+        repo_root: Appointed product root.
+        companion_path: Requested destination.
+        source_freeze: Commit owning the Foundry source closure.
+        allow_repository_write: Explicit ``--write`` authorization for the
+            exact governed companion destination.
+
+    Returns:
+        The exact strict companion written to disk.
+
+    Raises:
+        ValueError: If a scratch destination is unsafe or an in-repository
+            write is not the exact explicitly authorized governed companion.
+    """
+
+    appointment = _appoint_git_product_root(repo_root.resolve())
+    root = appointment.product_root
+    if _path_has_symlink_component(companion_path):
+        raise ValueError("dependency discriminant destination cannot be a symlink")
+    destination = Path(os.path.abspath(companion_path))
+    governed = Path(os.path.abspath(root / DEPENDENCY_DISCRIMINANT_OUTPUT_PATH))
+    repository_owned_identities = frozenset(
+        identity for _, identity in appointment.repository_owned_roots
+    )
+    if _path_has_appointed_ancestor_identity(destination, repository_owned_identities):
+        if destination != governed:
+            raise ValueError("dependency discriminant candidates must be outside the repository")
+        if not allow_repository_write:
+            raise ValueError("repository dependency discriminant write requires --write")
+    elif destination.exists():
+        raise ValueError("dependency discriminant candidate already exists")
+    companion = _build_dependency_discriminant_companion(
+        appointment=appointment,
+        source_freeze=source_freeze,
+    )
+    payload = companion.model_dump(mode="json")
+    if destination == governed:
+        _write_json(destination, payload)
+    else:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        with destination.open("x", encoding="utf-8") as handle:
+            handle.write(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    return companion
+
+
 def corrupt_field_drift_results(
     repo_root: Path,
     *,
@@ -4984,26 +6252,31 @@ def corrupt_field_drift_check(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    modes = parser.add_mutually_exclusive_group(required=True)
+    modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--check", action="store_true")
     modes.add_argument("--check-catalog-provenance", action="store_true")
-    modes.add_argument("--write", action="store_true")
     modes.add_argument("--reissue-catalog-provenance", action="store_true")
     modes.add_argument("--candidate-reissue-catalog-provenance", type=Path)
     modes.add_argument("--corrupt-field-drift-check", action="store_true")
     modes.add_argument("--rederive-audit", action="store_true")
     modes.add_argument("--source-flip-mutations", action="store_true")
+    modes.add_argument("--write-dependency-discriminant", type=Path)
+    modes.add_argument("--check-dependency-discriminant", type=Path)
+    parser.add_argument(
+        "--write",
+        action="store_true",
+        help="legacy write mode or explicit authorization for an in-repository companion write",
+    )
     parser.add_argument("--expected-source-freeze", required=True)
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
     repo_root = _repo_root()
     _ensure_src_path(repo_root)
-    mode = next(
+    selected_modes = [
         name
         for name, selected in (
             ("check", args.check),
             ("check-catalog-provenance", args.check_catalog_provenance),
-            ("write", args.write),
             ("reissue-catalog-provenance", args.reissue_catalog_provenance),
             (
                 "candidate-reissue-catalog-provenance",
@@ -5012,11 +6285,62 @@ def main(argv: list[str] | None = None) -> int:
             ("corrupt-field-drift-check", args.corrupt_field_drift_check),
             ("rederive-audit", args.rederive_audit),
             ("source-flip-mutations", args.source_flip_mutations),
+            (
+                "write-dependency-discriminant",
+                args.write_dependency_discriminant is not None,
+            ),
+            (
+                "check-dependency-discriminant",
+                args.check_dependency_discriminant is not None,
+            ),
         )
         if selected
-    )
+    ]
+    if args.write and args.write_dependency_discriminant is None:
+        selected_modes.append("write")
+    if len(selected_modes) != 1:
+        parser.error("select exactly one operation")
+    mode = selected_modes[0]
     try:
-        if args.candidate_reissue_catalog_provenance is not None:
+        if args.write_dependency_discriminant is not None:
+            companion = write_dependency_discriminant_companion(
+                repo_root,
+                companion_path=args.write_dependency_discriminant,
+                source_freeze=args.expected_source_freeze,
+                allow_repository_write=args.write,
+            )
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass",
+                issues=(),
+                path=str(args.write_dependency_discriminant),
+                content_ref=companion.content_ref,
+            )
+            exit_code = 0
+        elif args.check_dependency_discriminant is not None:
+            result = check_dependency_discriminant_companion(
+                repo_root,
+                companion_path=args.check_dependency_discriminant,
+                expected_source_freeze=args.expected_source_freeze,
+            )
+            received = result.content_ref is not None
+            companion_issues = tuple(
+                finding
+                for finding in result.ambient_findings
+                if finding.get("code")
+                == "dependency_discriminant_diagnostic_not_received"
+            )
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass" if received else "fail",
+                issues=() if received else companion_issues,
+                governing_issues=list(result.governing_issues),
+                ambient_findings=list(result.ambient_findings),
+                path=str(args.check_dependency_discriminant),
+                content_ref=result.content_ref,
+            )
+            exit_code = 0 if received else 1
+        elif args.candidate_reissue_catalog_provenance is not None:
             report = write_candidate_catalog_provenance(
                 repo_root,
                 candidate_path=args.candidate_reissue_catalog_provenance,

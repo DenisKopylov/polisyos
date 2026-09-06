@@ -375,7 +375,7 @@ def _restore_parent_trace_context(
     try:
         from opentelemetry import context as otel_context
 
-        from polisyos.core.observability.propagation import extract_headers
+        from polisyos.core.observability import extract_headers
 
         parent_ctx = extract_headers(trace_carrier)
         return cast("object", otel_context.attach(parent_ctx))

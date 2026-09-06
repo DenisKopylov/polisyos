@@ -3,6 +3,9 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
+import subprocess
+import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -57,7 +60,6 @@ from polisyos.runtime.quality.generation_cycle import (
     AcquisitionOverlayReentryReceipt,
     CandidateGroundingObservation,
     CandidateSummary,
-    FoundryValuePort,
     GenerationCycleController,
     GenerationCycleError,
     GenerationCycleRun,
@@ -76,6 +78,7 @@ from polisyos.runtime.quality.generation_cycle import (
     _disposition_candidates,
     _grounding_disposition_denominator,
     _joint_simulation_port_outcome,
+    _summary_with_value_observation,
     enforce_no_retry_without_new_grammar,
     generation_cycle_terminal_state,
     validate_generation_cycle_run,
@@ -101,6 +104,7 @@ from polisyos.runtime.quality.substrate_registry import (
     SubstrateTrustTier,
     build_substrate_registry,
     build_substrate_registry_entry,
+    default_substrate_catalog_paths,
 )
 from polisyos.runtime.quality.world_model_record import WorldModelRecordError
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
@@ -110,11 +114,145 @@ from tools.quality.validation import check_layer3_gy_generation_cycle_contract a
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
+def _owner_catalog_prerequisite_issue(repo_root: Path) -> str | None:
+    """Return actionable setup guidance when canonical owner catalogs are absent."""
+
+    paths = default_substrate_catalog_paths(repo_root)
+    required = (
+        paths.root_manifest_path,
+        paths.measurement_registry_path,
+        paths.identification_mode_registry_path,
+        paths.schema_regime_registry_path,
+        paths.l1_dcat_path,
+    )
+    missing = tuple(path for path in required if not path.exists())
+    if not missing:
+        return None
+    rendered = ", ".join(
+        path.relative_to(repo_root).as_posix() if path.is_relative_to(repo_root) else path.as_posix()
+        for path in missing
+    )
+    return (
+        f"production_data owner catalog is unavailable ({rendered}); "
+        "link the worktree's provisioned production_data owner tree read-only"
+    )
+
+
+_OWNER_CATALOG_GUIDANCE = (
+    "production_data owner catalog is unavailable; "
+    "link the worktree's provisioned production_data owner tree read-only"
+)
+_OWNER_CATALOG_PREREQUISITE_ISSUE = _owner_catalog_prerequisite_issue(REPO_ROOT)
+_requires_owner_catalog = pytest.mark.skipif(
+    _OWNER_CATALOG_PREREQUISITE_ISSUE is not None,
+    reason=_OWNER_CATALOG_PREREQUISITE_ISSUE or _OWNER_CATALOG_GUIDANCE,
+)
+
+
 def test_grounding_disposition_denominator_derives_from_canonical_type() -> None:
     denominator = tuple(str(item) for item in get_args(GroundingDispositionKind))
 
     assert _grounding_disposition_denominator() == denominator
     assert contract._denominators()["grounding_dispositions"] == sorted(denominator)
+
+
+def test_owner_catalog_prerequisite_is_declared_not_ambient(
+    tmp_path: Path,
+) -> None:
+    """Every owner-backed semantic test declares the catalog it needs."""
+
+    expected_names = {
+        "test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters",
+        "test_active_overlay_reentry_is_exact_direct_and_read_only",
+        "test_cycle_world_identity_rejects_atom_from_another_problem",
+        "test_cycle_world_identity_rejects_shaped_atom_even_when_strings_match",
+        "test_default_value_port_binds_the_actual_n5_context",
+        "test_explicit_joint_request_atom_refs_bind_before_injected_controller",
+        "test_explicit_joint_request_cannot_bypass_context_wmr",
+        "test_explicit_request_nested_atom_missing_slot_fails_world_identity",
+        "test_joint_port_accepts_label_drift_after_atom_world_resolution",
+        "test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr",
+        "test_joint_port_rejects_empty_atom_slots_as_unresolved_world_identity",
+        "test_joint_port_reuses_exact_cycle_context_wmr",
+        "test_joint_port_types_tampered_strict_atom_as_unresolved_world_identity",
+        "test_shaped_wmr_ref_without_resolved_object_is_rejected",
+    }
+    declared_names = {
+        name
+        for name in expected_names
+        if any(
+            mark.name == "skipif"
+            and "production_data owner catalog" in str(mark.kwargs.get("reason", ""))
+            for mark in getattr(globals()[name], "pytestmark", ())
+        )
+    }
+
+    assert declared_names == expected_names
+    issue = _owner_catalog_prerequisite_issue(tmp_path)
+    assert issue is not None
+    assert "production_data owner catalog" in issue
+    assert "link" in issue
+    assert "read-only" in issue
+
+
+def test_owner_catalog_prerequisite_skips_an_actual_node_when_catalog_is_absent(
+    tmp_path: Path,
+) -> None:
+    """Prove the real collection path reports nonreceipt instead of semantic failure."""
+
+    plugin_path = tmp_path / "missing_owner_catalog.py"
+    plugin_path.write_text(
+        """\
+import os
+from pathlib import Path
+
+from polisyos.runtime.quality import substrate_registry
+
+_real_paths = substrate_registry.default_substrate_catalog_paths
+_missing_root = Path(os.environ["POLISYOS_TEST_MISSING_OWNER_ROOT"])
+
+
+def _missing_paths(repo_root):
+    del repo_root
+    return _real_paths(_missing_root)
+
+
+substrate_registry.default_substrate_catalog_paths = _missing_paths
+""",
+        encoding="utf-8",
+    )
+    environment = os.environ.copy()
+    environment["POLISYOS_TEST_MISSING_OWNER_ROOT"] = str(tmp_path / "absent")
+    environment["PYTHONPATH"] = os.pathsep.join(
+        value
+        for value in (str(tmp_path), str(REPO_ROOT), environment.get("PYTHONPATH", ""))
+        if value
+    )
+    environment["PYTEST_PLUGINS"] = ",".join(
+        value
+        for value in (
+            environment.get("PYTEST_PLUGINS", ""),
+            "missing_owner_catalog",
+        )
+        if value
+    )
+    node_id = (
+        "tests/unit/runtime/quality/test_generation_cycle.py::"
+        "test_cycle_world_identity_rejects_shaped_atom_even_when_strings_match"
+    )
+    result = subprocess.run(  # noqa: S603 - lock-bound pytest with a local probe plugin.
+        [sys.executable, "-m", "pytest", node_id, "-q", "-rs"],
+        cwd=REPO_ROOT,
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.splitlines()[0].startswith("s")
+    assert "production_data owner catalog is unavailable" in result.stdout
+    assert "link the worktree's provisioned production_data owner tree read-only" in result.stdout
 
 
 @dataclass(frozen=True)
@@ -1864,6 +2002,7 @@ def _canonical_context_case_with_runtime_hints(
     return problem, context, candidate
 
 
+@_requires_owner_catalog
 def test_joint_port_reuses_exact_cycle_context_wmr() -> None:
     """N5 receives the exact WMR object bound into the cycle context."""
 
@@ -1884,6 +2023,7 @@ def test_joint_port_reuses_exact_cycle_context_wmr() -> None:
     assert observation.k_world_ref_after == context.world_model_record.content_hash
 
 
+@_requires_owner_catalog
 def test_joint_port_accepts_label_drift_after_atom_world_resolution() -> None:
     """World identity follows resolved slots/content, never producer label equality."""
 
@@ -1925,8 +2065,37 @@ def test_real_unsupported_n5_result_is_serialized_as_simulation_blocked() -> Non
     assert not result.trajectories
     assert status == "simulation_blocked", "unsupported_n5_result_must_block"
     assert "unsupported_coupling_class:feedback" in blockers
+    assert "n5_coupling_blocked" in blockers
 
 
+def test_n5_coupling_blocker_survives_selected_summary_projection() -> None:
+    """The typed N5 blocker reaches the exact summary N9 consumes."""
+
+    summary = _open_world_summary("candidate_n5_coupling_blocked")
+    simulation = SimulationPortObservation(
+        candidate_id=summary.candidate_id,
+        status="simulation_blocked",
+        authority_blockers=(
+            "unsupported_coupling_class:feedback",
+            "n5_coupling_blocked",
+        ),
+    )
+    value = ValuePortObservation(
+        candidate_id=summary.candidate_id,
+        authority_blockers=(),
+    )
+
+    projected = _summary_with_value_observation(
+        summary,
+        simulation=simulation,
+        value_port=value,
+        counterexample_ref="counterexample://n5/coupling",
+    )
+
+    assert projected.value_blockers == ("n5_coupling_blocked",)
+
+
+@_requires_owner_catalog
 def test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr() -> None:
     """A candidate's shaped WMR ref cannot override the resolved context world."""
 
@@ -1955,6 +2124,7 @@ def test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr() -> None:
     assert "world_identity_unresolved" in observation.authority_blockers
 
 
+@_requires_owner_catalog
 def test_cycle_world_identity_rejects_shaped_atom_even_when_strings_match() -> None:
     """Matching ref/slot strings are not a substitute for the strict atom owner."""
 
@@ -1970,6 +2140,7 @@ def test_cycle_world_identity_rejects_shaped_atom_even_when_strings_match() -> N
         resolve_cycle_substrate_world_identity(context, atom=shaped)
 
 
+@_requires_owner_catalog
 def test_cycle_world_identity_rejects_atom_from_another_problem() -> None:
     """A valid atom cannot cross a DesignProblem boundary within the same world."""
 
@@ -1987,6 +2158,7 @@ def test_cycle_world_identity_rejects_atom_from_another_problem() -> None:
         resolve_cycle_substrate_world_identity(context, atom=atom)
 
 
+@_requires_owner_catalog
 def test_joint_port_rejects_empty_atom_slots_as_unresolved_world_identity() -> None:
     """A world ref without at least one resolved slot is not world identity."""
 
@@ -2010,6 +2182,7 @@ def test_joint_port_rejects_empty_atom_slots_as_unresolved_world_identity() -> N
     assert "world_identity_unresolved" in observation.authority_blockers
 
 
+@_requires_owner_catalog
 def test_joint_port_types_tampered_strict_atom_as_unresolved_world_identity() -> None:
     """A model-constructed atom with a stale hash fails closed at the port."""
 
@@ -2026,6 +2199,7 @@ def test_joint_port_types_tampered_strict_atom_as_unresolved_world_identity() ->
     assert "world_identity_unresolved" in observation.authority_blockers
 
 
+@_requires_owner_catalog
 def test_explicit_joint_request_cannot_bypass_context_wmr() -> None:
     """An explicit N5 request with another concrete WMR is refused before simulation."""
 
@@ -2079,6 +2253,7 @@ def test_explicit_joint_request_cannot_bypass_context_wmr() -> None:
     assert calls == []
 
 
+@_requires_owner_catalog
 def test_explicit_joint_request_atom_refs_bind_before_injected_controller() -> None:
     """A valid nested atom for another world is refused at the single N5 intake."""
 
@@ -2145,6 +2320,7 @@ def test_explicit_joint_request_atom_refs_bind_before_injected_controller() -> N
     assert calls == []
 
 
+@_requires_owner_catalog
 def test_explicit_request_nested_atom_missing_slot_fails_world_identity() -> None:
     """Every nested request atom resolves before any N5 controller injection."""
 
@@ -2251,6 +2427,7 @@ def test_joint_port_revalidates_context_before_reusing_wmr() -> None:
         )
 
 
+@_requires_owner_catalog
 def test_shaped_wmr_ref_without_resolved_object_is_rejected() -> None:
     """A WMR-looking string cannot substitute for a resolved owner object."""
 
@@ -2799,6 +2976,7 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
 
 
 @pytest.mark.asyncio
+@_requires_owner_catalog
 async def test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters() -> None:
     compiled = compile_data_requirements_for_scenario(
         {
@@ -3331,6 +3509,85 @@ class _OverlayDataGapValuePort:
         )
 
 
+@_requires_owner_catalog
+def test_default_value_port_binds_the_actual_n5_context(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The lazy N8 wrapper binds and exercises the N5 observation from this call."""
+
+    problem, context, candidate = _canonical_strict_world_case()
+    world = context.world_model_record
+    simulation = SimulationPortObservation(
+        candidate_id=candidate.candidate_id,
+        status="joint_simulated",
+        simulation_ref="sha256:" + "9" * 64,
+        world_model_record=world,
+        k_world_ref_before=world.content_hash,
+        k_world_ref_after=world.content_hash,
+    )
+    owner_calls: list[tuple[object, ...]] = []
+
+    class ProbeOwnerGateway:
+        def load_value_data_profile(self, **kwargs: Any) -> Any:
+            owner_calls.append(
+                (kwargs["candidate"], kwargs["problem"], kwargs["world_record"])
+            )
+            raise generation_cycle_module.ValueOwnerAccessError("fresh_n5_owner_probe")
+
+        def produce_forecast_inputs(self, **kwargs: Any) -> Any:
+            del kwargs
+            raise AssertionError("forecast_called_after_owner_probe")
+
+        def build_transport_inputs(self, **kwargs: Any) -> Any:
+            del kwargs
+            raise AssertionError("transport_called_after_owner_probe")
+
+    owner_gateway = ProbeOwnerGateway()
+    captured_init: list[dict[str, Any]] = []
+    real_foundry_port = generation_cycle_module.FoundryValuePort
+
+    class CapturingFoundryValuePort:
+        def __init__(self, **kwargs: Any) -> None:
+            captured_init.append(kwargs)
+            self._delegate = real_foundry_port(**kwargs)
+
+        def __call__(self, **kwargs: Any) -> ValuePortObservation:
+            return self._delegate(**kwargs)
+
+    monkeypatch.setattr(
+        generation_cycle_module,
+        "FoundryValuePort",
+        CapturingFoundryValuePort,
+    )
+    wrapper = generation_cycle_module._DefaultSimulationBoundFoundryValuePort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+        owner_gateway=owner_gateway,
+    )
+
+    observation = wrapper(
+        candidate=candidate,
+        simulation=simulation,
+        problem=problem,
+        cycle_index=7,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == ("fresh_n5_owner_probe",)
+    assert owner_calls == [(candidate, problem, world)]
+    assert len(captured_init) == 1
+    captured = captured_init[0]
+    execution_context = captured["evaluation_context"]
+    assert captured["owner_gateway"] is owner_gateway
+    assert execution_context.evaluation_mode == "simulate_only"
+    assert execution_context.design_problem_ref == gy_content_hash(problem.model_dump(mode="json"))
+    assert execution_context.candidate_ref.artifact_id == candidate.candidate_id
+    assert execution_context.candidate_ref.content_hash == candidate.atom.content_hash
+    assert execution_context.world_model_record_ref.artifact_id == world.world_model_record_id
+    assert execution_context.world_model_record_ref.content_hash == world.content_hash
+    assert execution_context.evaluation_input_refs[0].content_hash == simulation.simulation_ref
+
+
 class _WorldKnowledgeGapValuePort:
     def __call__(self, **kwargs: Any) -> ValuePortObservation:
         del kwargs
@@ -3461,6 +3718,7 @@ async def test_canonical_n7_route_attaches_exact_owner_cost_basis() -> None:
 
 
 @pytest.mark.asyncio
+@_requires_owner_catalog
 async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -3492,9 +3750,12 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         assert received_problem is problem
         assert cycle_index == source_cycle.cycle_index + 1
         assert previous_cycle is source_cycle
-        assert isinstance(value_port_override, FoundryValuePort)
-        assert isinstance(value_port_override._owner_gateway, RealValueOwnerGateway)
-        assert value_port_override._owner_gateway.catalog_overlay_path == (
+        assert isinstance(
+            value_port_override,
+            generation_cycle_module._DefaultSimulationBoundFoundryValuePort,
+        )
+        assert isinstance(value_port_override.owner_gateway, RealValueOwnerGateway)
+        assert value_port_override.owner_gateway.catalog_overlay_path == (
             scenario.overlay.overlay_path
         )
         calls.append((received_problem, previous_cycle, value_port_override))
@@ -3537,6 +3798,48 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     assert receipt.overlay_path == scenario.overlay.overlay_path.as_posix()
     assert receipt.new_cycle.cycle_index == source_cycle.cycle_index + 1
     assert source_run.cycles == (source_cycle,)
+
+    context_problem, context, context_candidate = _canonical_strict_world_case()
+    context_world = context.world_model_record
+    context_simulation = SimulationPortObservation(
+        candidate_id=context_candidate.candidate_id,
+        status="joint_simulated",
+        simulation_ref="sha256:" + "8" * 64,
+        world_model_record=context_world,
+        k_world_ref_before=context_world.content_hash,
+        k_world_ref_after=context_world.content_hash,
+    )
+    stale_context = generation_cycle_module.simulation_value_execution_context(
+        candidate=context_candidate,
+        simulation=context_simulation,
+        problem=context_problem,
+    ).model_copy(update={"evaluation_mode": "deployment"})
+
+    class ForbiddenOwnerGateway:
+        def __getattr__(self, name: str) -> Any:
+            raise AssertionError(f"stale_context_reached_owner:{name}")
+
+    stale_controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(target_world_slots=("cells.distress_score",)),
+        value_port=generation_cycle_module.FoundryValuePort(
+            evaluation_context=stale_context,
+            owner_gateway=ForbiddenOwnerGateway(),
+        ),
+    )
+    monkeypatch.setattr(stale_controller, "_run_cycle", forbidden)
+    with pytest.raises(
+        GenerationCycleError,
+        match="acquisition_reentry_evaluation_context_rebinding_required",
+    ):
+        await stale_controller.reenter_after_active_acquisition_overlay(
+            original_run=source_run,
+            source_cycle=source_cycle,
+            problem=problem,
+            overlay_receipt=activated,
+            baseline_path=scenario.authority.baseline_path,
+            overlay_path=scenario.overlay.overlay_path,
+            budget_state=_budget(),
+        )
 
 
 @pytest.mark.asyncio

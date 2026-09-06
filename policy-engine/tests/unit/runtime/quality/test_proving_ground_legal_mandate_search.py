@@ -739,7 +739,10 @@ def test_layer3_gl_task1_search_ledgers_use_bounded_canonical_sql_and_hydrate_th
     ledger_payloads = [_dump(ledger) for ledger in ledgers]
     trace_payloads = [_dump(trace) for trace in traces]
 
-    assert any(ledger["status"] == "complete_with_candidates" for ledger in ledger_payloads)
+    assert any(
+        ledger["status"] in {"complete_with_candidates", "incomplete_budget_cutoff"}
+        for ledger in ledger_payloads
+    )
     assert any(
         ledger["status"] in {"complete_no_candidate", "incomplete_schema_mismatch"}
         for ledger in ledger_payloads

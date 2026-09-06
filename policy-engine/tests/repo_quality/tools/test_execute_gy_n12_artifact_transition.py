@@ -10,6 +10,7 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.foundry.methods.catalog import dependency_profile as profile_module
 from polisyos.foundry.methods.catalog.dependency_evidence import (
     DependencyEnvironmentMarkerStatement,
     DependencyProfileEnvironmentStatement,
@@ -21,6 +22,7 @@ from polisyos.foundry.methods.catalog.dependency_evidence import (
 from polisyos.foundry.methods.catalog.dependency_profile import (
     DependencyProfileEnvironmentReceipt,
 )
+from tools.quality.validation import check_layer3_gy_epoch_chronology_contract as chronology
 from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
 from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
 from tools.quality.validation import execute_gy_n12_artifact_transition as transition
@@ -208,6 +210,42 @@ def test_measure_uses_complete_changed_set_and_exact_deployment_intersection(
     assert report["source_freeze"] == freeze
     assert report["source_tree"] == _git(tmp_path, "rev-parse", f"{freeze}^{{tree}}")
     assert transition.verify_receipt(report)
+
+
+def test_measurement_receipt_carries_the_non_decisive_discriminant_binding(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Measurement retains exact companion identity without changing owner predicates."""
+
+    base, freeze = _init_repo(tmp_path)
+    measured = {
+        "decision_role": "ambient_non_decisive",
+        "content_ref": "sha256:" + "c" * 64,
+        "discriminant_ref": {
+            "domain": "dependency-discriminant",
+            "value": "sha256:" + "d" * 64,
+        },
+        "status": "fail",
+        "first_case": {"coordinate": "distribution:fixture:version"},
+    }
+    monkeypatch.setattr(transition, "_measure_dependency_discriminant", lambda _root: measured)
+
+    report = transition.build_measurement(
+        repo_root=tmp_path,
+        implementation_base=base,
+        source_freeze=freeze,
+        deployment_paths=(),
+        tool_sources=(),
+        potential_targets=(),
+    )
+
+    assert report["dependency_discriminant_measurement"] == measured
+    assert report["owner_predicates"] == {
+        "foundry_adjudication": "not_established",
+        "owner_enforced_runtime_subtree_cutoff": "not_established",
+        "writer_authority": "not_established",
+    }
 
 
 def test_measure_rejects_wrong_head_dirty_tree_and_non_ancestor(tmp_path: Path) -> None:
@@ -1127,6 +1165,32 @@ def test_apply_cli_refuses_same_journal_path_with_noncanonical_bytes(
     assert payload["issues"][0]["code"] == "apply_declaration_record_content_mismatch"
 
 
+def _accepted_dependency_consumers(**_kwargs: object) -> tuple[dict[str, object], ...]:
+    """Return the complete literal three-consumer dependency evidence family."""
+
+    content_ref = "sha256:" + "c" * 64
+    discriminant_ref = {
+        "domain": "dependency-discriminant",
+        "value": "sha256:" + "d" * 64,
+    }
+    return tuple(
+        {
+            "consumer": identity,
+            "dependency_discriminant_content_ref": content_ref,
+            "dependency_discriminant_ref": discriminant_ref,
+            "dependency_environment_status": "fail",
+            "dependency_environment_first_case": {
+                "coordinate": "distribution:fixture:version"
+            },
+        }
+        for identity in (
+            "layer3_gy_value_gate_contract.validate_foundry_dependency_discriminant",
+            "layer3_gy_second_domain_pack.read_foundry_dependency_discriminant",
+            "layer3_gy_epoch_chronology_contract.read_foundry_dependency_discriminant",
+        )
+    )
+
+
 def test_readback_binds_final_to_declaration_parent_and_exact_target_map(
     tmp_path: Path,
 ) -> None:
@@ -1155,8 +1219,14 @@ def test_readback_binds_final_to_declaration_parent_and_exact_target_map(
         }
     )
 
-    def accepted_consumer(**_kwargs: object) -> tuple[dict[str, str], ...]:
-        return ({"target_path": "artifact.json", "consumer": "fixture", "status": "pass"},)
+    def accepted_consumer(**_kwargs: object) -> tuple[dict[str, object], ...]:
+        return (
+            {
+                "target_path": "artifact.json",
+                "consumer": "fixture",
+                "status": "pass",
+            },
+        )
 
     report = transition.build_readback(
         repo_root=tmp_path,
@@ -1165,11 +1235,35 @@ def test_readback_binds_final_to_declaration_parent_and_exact_target_map(
         expected_branch="codex/fixture",
         expected_head=artifact_head,
         consumer_probe=accepted_consumer,
+        dependency_consumer_probe=_accepted_dependency_consumers,
     )
     assert report["artifact_parent"] == declaration_head
-    assert report["consumer_results"] == [
-        {"target_path": "artifact.json", "consumer": "fixture", "status": "pass"}
-    ]
+    assert report["consumer_results"] == list(accepted_consumer())
+    assert report["dependency_discriminant_readback"] == {
+        "decision_role": "ambient_non_decisive",
+        "content_ref": "sha256:" + "c" * 64,
+        "discriminant_ref": {
+            "domain": "dependency-discriminant",
+            "value": "sha256:" + "d" * 64,
+        },
+        "ambient_cases": [
+            {
+                "consumer": "layer3_gy_value_gate_contract.validate_foundry_dependency_discriminant",
+                "status": "fail",
+                "first_case": {"coordinate": "distribution:fixture:version"},
+            },
+            {
+                "consumer": "layer3_gy_second_domain_pack.read_foundry_dependency_discriminant",
+                "status": "fail",
+                "first_case": {"coordinate": "distribution:fixture:version"},
+            },
+            {
+                "consumer": "layer3_gy_epoch_chronology_contract.read_foundry_dependency_discriminant",
+                "status": "fail",
+                "first_case": {"coordinate": "distribution:fixture:version"},
+            }
+        ],
+    }
 
     with pytest.raises(ValueError, match="readback_consumer_rejected"):
         transition.build_readback(
@@ -1227,6 +1321,141 @@ def test_readback_binds_final_to_declaration_parent_and_exact_target_map(
             expected_branch="codex/fixture",
             expected_head=artifact_head,
             consumer_probe=accepted_consumer,
+        )
+
+
+def _single_target_readback_fixture(
+    tmp_path: Path,
+) -> tuple[dict[str, object], dict[str, object], str]:
+    """Create one committed artifact and its valid transition receipts."""
+
+    _base, declaration_head = _init_repo(tmp_path)
+    target = tmp_path / "artifact.json"
+    target.write_text("candidate\n")
+    subprocess.run(["git", "add", "artifact.json"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "commit", "-qm", "artifact"], cwd=tmp_path, check=True)
+    artifact_head = _git(tmp_path, "rev-parse", "HEAD")
+    target_sha256 = _sha(target)
+    declaration = transition.with_receipt_hash(
+        {
+            "schema_version": transition.DECLARATION_SCHEMA,
+            "expected_branch": "codex/fixture",
+            "targets": [{"path": "artifact.json", "candidate_sha256": target_sha256}],
+            "protected_denominator_sha256": "sha256:" + "a" * 64,
+        }
+    )
+    final = transition.with_receipt_hash(
+        {
+            "schema_version": transition.FINAL_SCHEMA,
+            "status": "final",
+            "declaration_sha256": declaration["receipt_sha256"],
+            "declaration_head": declaration_head,
+            "target_sha256": {"artifact.json": target_sha256},
+            "protected_denominator_sha256": declaration["protected_denominator_sha256"],
+        }
+    )
+    return declaration, final, artifact_head
+
+
+def test_readback_rejects_missing_three_consumer_dependency_evidence(tmp_path: Path) -> None:
+    """A passing artifact consumer cannot replace the dependency evidence family."""
+
+    declaration, final, artifact_head = _single_target_readback_fixture(tmp_path)
+
+    with pytest.raises(ValueError, match="readback_dependency_discriminant_binding_mismatch"):
+        transition.build_readback(
+            repo_root=tmp_path,
+            declaration=declaration,
+            final=final,
+            expected_branch="codex/fixture",
+            expected_head=artifact_head,
+            consumer_probe=lambda **_kwargs: (
+                {"target_path": "artifact.json", "consumer": "fixture", "status": "pass"},
+            ),
+        )
+
+
+def test_readback_rejects_singleton_dependency_consumer_evidence(tmp_path: Path) -> None:
+    """One content-bound consumer cannot stand in for the required three identities."""
+
+    declaration, final, artifact_head = _single_target_readback_fixture(tmp_path)
+
+    with pytest.raises(ValueError, match="readback_dependency_discriminant_binding_mismatch"):
+        transition.build_readback(
+            repo_root=tmp_path,
+            declaration=declaration,
+            final=final,
+            expected_branch="codex/fixture",
+            expected_head=artifact_head,
+            consumer_probe=lambda **_kwargs: (
+                {"target_path": "artifact.json", "consumer": "fixture", "status": "pass"},
+            ),
+            dependency_consumer_probe=lambda **_kwargs: _accepted_dependency_consumers()[:1],
+        )
+
+
+def test_readback_rejects_zero_dependency_consumer_evidence(tmp_path: Path) -> None:
+    """An explicit empty dependency evidence family fails closed."""
+
+    declaration, final, artifact_head = _single_target_readback_fixture(tmp_path)
+
+    with pytest.raises(ValueError, match="readback_dependency_discriminant_binding_mismatch"):
+        transition.build_readback(
+            repo_root=tmp_path,
+            declaration=declaration,
+            final=final,
+            expected_branch="codex/fixture",
+            expected_head=artifact_head,
+            consumer_probe=lambda **_kwargs: (
+                {"target_path": "artifact.json", "consumer": "fixture", "status": "pass"},
+            ),
+            dependency_consumer_probe=lambda **_kwargs: (),
+        )
+
+
+def test_readback_rejects_dependency_consumer_with_missing_binding_fields(
+    tmp_path: Path,
+) -> None:
+    """Three named consumers still fail when one omits binding evidence."""
+
+    declaration, final, artifact_head = _single_target_readback_fixture(tmp_path)
+    incomplete = [dict(row) for row in _accepted_dependency_consumers()]
+    incomplete[2].pop("dependency_discriminant_ref")
+
+    with pytest.raises(ValueError, match="readback_dependency_discriminant_binding_mismatch"):
+        transition.build_readback(
+            repo_root=tmp_path,
+            declaration=declaration,
+            final=final,
+            expected_branch="codex/fixture",
+            expected_head=artifact_head,
+            consumer_probe=lambda **_kwargs: (
+                {"target_path": "artifact.json", "consumer": "fixture", "status": "pass"},
+            ),
+            dependency_consumer_probe=lambda **_kwargs: tuple(incomplete),
+        )
+
+
+def test_readback_rejects_three_dependency_rows_with_a_wrong_consumer_identity(
+    tmp_path: Path,
+) -> None:
+    """Cardinality cannot hide an omitted appointed consumer identity."""
+
+    declaration, final, artifact_head = _single_target_readback_fixture(tmp_path)
+    wrong_identity = [dict(row) for row in _accepted_dependency_consumers()]
+    wrong_identity[2]["consumer"] = "fixture.unappointed_dependency_consumer"
+
+    with pytest.raises(ValueError, match="readback_dependency_discriminant_binding_mismatch"):
+        transition.build_readback(
+            repo_root=tmp_path,
+            declaration=declaration,
+            final=final,
+            expected_branch="codex/fixture",
+            expected_head=artifact_head,
+            consumer_probe=lambda **_kwargs: (
+                {"target_path": "artifact.json", "consumer": "fixture", "status": "pass"},
+            ),
+            dependency_consumer_probe=lambda **_kwargs: tuple(wrong_identity),
         )
 
 
@@ -1352,6 +1581,7 @@ drift_gate = "automated"
         final=final,
         expected_branch="codex/fixture",
         expected_head=artifact_head,
+        dependency_consumer_probe=_accepted_dependency_consumers,
     )
 
     assert [(row["target_path"], row["status"]) for row in report["consumer_results"]] == [
@@ -1374,6 +1604,7 @@ drift_gate = "automated"
         final=final,
         expected_branch="codex/fixture",
         expected_head=artifact_head,
+        dependency_consumer_probe=_accepted_dependency_consumers,
     )
     assert all(row["status"] == "pass" for row in hidden_report["consumer_results"])
     registry.write_bytes(committed_registry)
@@ -1714,6 +1945,40 @@ def test_n8_environment_refuses_a_rebound_receipt_with_a_different_marker_join(
         transition.validate_n8_environment(
             n8_python=interpreter,
             environment_receipt=substituted_receipt,
+            tooling_site=tooling_site,
+            origin_probe=lambda **_kwargs: {},
+        )
+
+
+def test_n8_environment_revalidates_a_copied_receipt_before_using_its_statement(
+    tmp_path: Path,
+) -> None:
+    """A stale receipt ref copied around a new statement fails at intake."""
+
+    environment = tmp_path / "n8"
+    interpreter = environment / "bin/python"
+    interpreter.parent.mkdir(parents=True)
+    interpreter.write_bytes(b"python")
+    tooling_site = tmp_path / "tooling/lib/python3.14/site-packages"
+    tooling_site.mkdir(parents=True)
+    receipt = _write_n8_environment_receipt(environment)
+    copied = receipt.model_copy(
+        update={
+            "statement": receipt.statement.model_copy(
+                update={
+                    "stable_closure": domain_digest(
+                        DigestDomain.DEPENDENCY_CLOSURE,
+                        b"copied-stale-closure",
+                    )
+                }
+            )
+        }
+    )
+
+    with pytest.raises(ValueError, match="n8_environment_receipt_not_established"):
+        transition.validate_n8_environment(
+            n8_python=interpreter,
+            environment_receipt=copied,
             tooling_site=tooling_site,
             origin_probe=lambda **_kwargs: {},
         )
@@ -2128,3 +2393,246 @@ def test_n10a_candidate_cli_converts_oserror_to_one_typed_failure_envelope(
     assert payload["status"] == "fail"
     assert payload["issues"][0]["code"] == "second_domain_pack_execution_failed"
     assert transition.verify_receipt(payload)
+
+
+def _owner_recorded_n8_source_freeze(repo_root: Path) -> str:
+    """Read the committing source identity of the tracked N8 owner artifact."""
+
+    source_freeze = n8.dependency_discriminant_source_freeze(repo_root)
+    assert len(source_freeze) == 40
+    return source_freeze
+
+
+def _shared_foundry_discriminant_consumers(
+    *,
+    repo_root: Path,
+    companion: object,
+    diagnostic_verification: object | None,
+) -> tuple[object, object, object]:
+    """Invoke the actual N8, N10a, and chronology discriminant consumer seams."""
+
+    n8_consumer = getattr(n8, "validate_foundry_dependency_discriminant", None)
+    n10a_consumer = getattr(n10a, "read_foundry_dependency_discriminant", None)
+    chronology_consumer = getattr(chronology, "read_foundry_dependency_discriminant", None)
+    assert callable(n8_consumer), (
+        "missing behavior: N8 must validate the shared Foundry dependency discriminant"
+    )
+    assert callable(n10a_consumer), (
+        "missing behavior: N10a must independently read the shared discriminant"
+    )
+    assert callable(chronology_consumer), (
+        "missing behavior: chronology must independently read the shared discriminant"
+    )
+    return (
+        n8_consumer(
+            repo_root=repo_root,
+            companion=companion,
+            diagnostic_verification=diagnostic_verification,
+        ),
+        n10a_consumer(
+            repo_root=repo_root,
+            companion=companion,
+            diagnostic_verification=diagnostic_verification,
+        ),
+        chronology_consumer(
+            repo_root=repo_root,
+            companion=companion,
+            diagnostic_verification=diagnostic_verification,
+        ),
+    )
+
+
+def _governing_consumer_bytes(results: tuple[object, object, object]) -> tuple[bytes, ...]:
+    """Serialize only the actual governing output from each shared consumer."""
+
+    governing = tuple(getattr(result, "governing_result", None) for result in results)
+    assert all(value is not None for value in governing), (
+        "missing behavior: each consumer must expose its governing result separately"
+    )
+    return tuple(canonical_json_bytes(value) for value in governing)
+
+
+def _failed_discriminant_diagnostic(companion: object) -> object:
+    """Derive one generic incompatible observation from the companion's own rows."""
+
+    diagnoser = getattr(profile_module, "diagnose_dependency_environment", None)
+    assert callable(diagnoser), (
+        "missing behavior: Foundry must diagnose the companion's installed coordinates"
+    )
+    discriminant = getattr(companion, "profile_discriminant", None)
+    rows = getattr(discriminant, "resolved_distributions", None)
+    assert isinstance(rows, tuple) and rows, (
+        "missing behavior: companion must retain its resolved distribution rows"
+    )
+    observations = tuple(
+        profile_module.InstalledDistributionObservation(
+            name=row.name,
+            version="incompatible-version" if index == 0 else row.version,
+        )
+        for index, row in enumerate(rows)
+    )
+    result = diagnoser(
+        discriminant=discriminant,
+        observed_distributions=profile_module.AmbientDependencyEnvironmentObservation(
+            observation_kind="ambient",
+            distributions=observations,
+        ),
+    )
+    assert getattr(result, "status", None) == "fail"
+    return result
+
+
+def test_cb_i01_n8_n10a_and_chronology_share_one_foundry_discriminant() -> None:
+    """Require all three consumers to reopen one content-bound Foundry artifact."""
+
+    producer = getattr(n8, "build_dependency_discriminant_companion", None)
+    assert callable(producer), (
+        "missing behavior: N8 must produce the shared Foundry dependency discriminant"
+    )
+    repo_root = n8._repo_root()
+    companion = producer(
+        repo_root=repo_root,
+        source_freeze=_owner_recorded_n8_source_freeze(repo_root),
+    )
+    _n8_result, n10a_result, chronology_result = _shared_foundry_discriminant_consumers(
+        repo_root=repo_root,
+        companion=companion,
+        diagnostic_verification=None,
+    )
+    profile = companion.profile_discriminant
+
+    assert n10a_result.content_ref == chronology_result.content_ref == companion.content_ref
+    assert n10a_result.profile_discriminant == chronology_result.profile_discriminant == profile
+    assert n10a_result.profile_discriminant.root_distribution == profile.root_distribution
+    assert n10a_result.profile_discriminant.resolved_distributions == profile.resolved_distributions
+
+
+def test_p38_ambient_diagnostic_cannot_govern_shared_consumer_results() -> None:
+    """Run all consumer seams with one ambient failure and compare governing bytes."""
+
+    producer = getattr(n8, "build_dependency_discriminant_companion", None)
+    assert callable(producer), (
+        "missing behavior: N8 must produce the shared Foundry dependency discriminant"
+    )
+    repo_root = n8._repo_root()
+    companion = producer(
+        repo_root=repo_root,
+        source_freeze=_owner_recorded_n8_source_freeze(repo_root),
+    )
+    without_diagnostic = _governing_consumer_bytes(
+        _shared_foundry_discriminant_consumers(
+            repo_root=repo_root,
+            companion=companion,
+            diagnostic_verification=None,
+        )
+    )
+    with_diagnostic = _governing_consumer_bytes(
+        _shared_foundry_discriminant_consumers(
+            repo_root=repo_root,
+            companion=companion,
+            diagnostic_verification=_failed_discriminant_diagnostic(companion),
+        )
+    )
+
+    assert with_diagnostic == without_diagnostic
+
+
+def test_invalid_and_removed_diagnostics_cannot_govern_shared_consumer_results() -> None:
+    """Invalid and removed diagnostics preserve every consumer's governing bytes."""
+
+    repo_root = n8._repo_root()
+    companion = n8.build_dependency_discriminant_companion(
+        repo_root=repo_root,
+        source_freeze=_owner_recorded_n8_source_freeze(repo_root),
+    )
+    removed_results = _shared_foundry_discriminant_consumers(
+        repo_root=repo_root,
+        companion=companion,
+        diagnostic_verification=None,
+    )
+    invalid_results = _shared_foundry_discriminant_consumers(
+        repo_root=repo_root,
+        companion=companion,
+        diagnostic_verification={"status": "fail", "ordered_cases": []},
+    )
+
+    assert _governing_consumer_bytes(invalid_results) == _governing_consumer_bytes(
+        removed_results
+    )
+    assert getattr(invalid_results[1], "status", None) == "not_established"
+    assert getattr(invalid_results[2], "status", None) == "not_established"
+
+
+def test_readback_rejects_consumers_bound_to_different_discriminant_copies() -> None:
+    """A missing or different companion binding cannot reconcile as shared bytes."""
+
+    repo_root = n8._repo_root()
+    companion = n8.build_dependency_discriminant_companion(
+        repo_root=repo_root,
+        source_freeze=_owner_recorded_n8_source_freeze(repo_root),
+    )
+    n8_result = n8.validate_foundry_dependency_discriminant(
+        repo_root=repo_root,
+        companion=companion.model_copy(deep=True),
+        diagnostic_verification=None,
+    )
+    n10a_reader = getattr(n10a, "read_foundry_dependency_discriminant", None)
+    chronology_reader = getattr(chronology, "read_foundry_dependency_discriminant", None)
+    reconcile = getattr(transition, "reconcile_dependency_discriminant_consumers", None)
+    assert callable(n10a_reader), "missing behavior: N10a discriminant reader"
+    assert callable(chronology_reader), "missing behavior: chronology discriminant reader"
+    assert callable(reconcile), "missing behavior: transition discriminant reconciliation"
+    n10a_result = n10a_reader(
+        repo_root=repo_root,
+        companion=companion.model_dump(mode="json"),
+        diagnostic_verification=None,
+    )
+    chronology_result = chronology_reader(
+        repo_root=repo_root,
+        companion=b"{}",
+        diagnostic_verification=None,
+    )
+    consumer_results = (
+        {
+            "consumer": "layer3_gy_value_gate_contract.validate_foundry_dependency_discriminant",
+            **transition.dependency_discriminant_consumer_fields(n8_result),
+        },
+        {
+            "consumer": "layer3_gy_second_domain_pack.read_foundry_dependency_discriminant",
+            **transition.dependency_discriminant_consumer_fields(n10a_result),
+        },
+        {
+            "consumer": "layer3_gy_epoch_chronology_contract.read_foundry_dependency_discriminant",
+            **transition.dependency_discriminant_consumer_fields(chronology_result),
+        },
+    )
+
+    with pytest.raises(ValueError, match="readback_dependency_discriminant_binding_mismatch"):
+        reconcile(consumer_results)
+
+
+def test_default_dependency_readback_probe_runs_the_exact_three_consumers() -> None:
+    """The default dependency probe executes each appointed owner-backed reader once."""
+
+    repo_root = n8._repo_root()
+    expected_head = _git(repo_root, "rev-parse", "HEAD")
+    companion = n8.build_dependency_discriminant_companion(
+        repo_root=repo_root,
+        source_freeze=_owner_recorded_n8_source_freeze(repo_root),
+    )
+
+    results = transition._run_dependency_discriminant_consumers(
+        repo_root=repo_root,
+        expected_head=expected_head,
+    )
+    receipt = transition.reconcile_dependency_discriminant_consumers(results)
+
+    assert tuple(row["consumer"] for row in results) == (
+        "layer3_gy_value_gate_contract.validate_foundry_dependency_discriminant",
+        "layer3_gy_second_domain_pack.read_foundry_dependency_discriminant",
+        "layer3_gy_epoch_chronology_contract.read_foundry_dependency_discriminant",
+    )
+    assert receipt["content_ref"] == companion.content_ref
+    assert receipt["discriminant_ref"] == companion.profile_discriminant.discriminant_ref.model_dump(
+        mode="json"
+    )

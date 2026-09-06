@@ -94,6 +94,24 @@ def test_analytics_facade_exports_privacy_transportability_contracts() -> None:
     )
 
 
+def test_analytics_facade_exports_claim_vocabulary_contracts() -> None:
+    """Keep Data Forge claim-vocabulary consumers on the supported facade."""
+    from polisyos.ir.analytics import literature
+
+    vocabulary_exports = {
+        "ClaimVocabularyAxisStatus",
+        "DesignFamily",
+        "EvidenceStrength",
+        "SourceBasis",
+        "VersionedClaimVocabularyEnvelope",
+        "adapt_legacy_claim_occurrence_as_v2_absence",
+    }
+
+    assert vocabulary_exports <= set(analytics.__all__)
+    for export_name in vocabulary_exports:
+        assert getattr(analytics, export_name) is getattr(literature, export_name)
+
+
 def test_interference_and_maup_contracts_are_exported_from_ir_surfaces() -> None:
     analytics_exports = {
         "ExposureMappingType",

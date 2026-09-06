@@ -5,6 +5,16 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+
+from polisyos.data_forge.domains.academic.knowledge.types import (
+    CLAIM_VOCABULARY_PROJECTION_RULE_VERSION,
+    ClaimLineageAuditPage,
+    ClaimLineageAuditRecord,
+    ClaimVocabularyLimitation,
+    ClaimVocabularyProjectionBinding,
+    ClaimVocabularySourceRowBinding,
+)
+from polisyos.ir.analytics.literature import VersionedClaimVocabularyEnvelope
 from polisyos.scientist.agent.tools.knowledge_tools_adapter import (
     build_knowledge_tool_registry,
 )
@@ -29,6 +39,52 @@ class MockKnowledgeToolkit:
     def get_parameter_prior(self, parameter: str) -> dict[str, Any]:
         """Get prior distribution for a parameter."""
         return {"parameter": parameter, "mean": 0.0}
+
+    def audit_academic_claim_lineage(
+        self,
+        *,
+        status: str = "all",
+        cursor: str | None = None,
+        limit: int = 100,
+    ) -> ClaimLineageAuditPage:
+        """Audit typed academic claim lineage without reconstruction."""
+        del cursor, limit
+        source = ClaimVocabularySourceRowBinding(
+            source_table="ac_causal_claims_raw",
+            source_schema_version="legacy_v1",
+            source_identity="claim-1|work-1",
+            source_row_sha256="a" * 64,
+        )
+        binding = ClaimVocabularyProjectionBinding(
+            projection_rule_version=CLAIM_VOCABULARY_PROJECTION_RULE_VERSION,
+            subject_kind="claim_row",
+            source_rows=(source,),
+            projected_vocabulary_sha256="b" * 64,
+        )
+        return ClaimLineageAuditPage(
+            items=(
+                ClaimLineageAuditRecord(
+                    id="claim-1",
+                    work_id="work-1",
+                    cause="x",
+                    effect="y",
+                    legacy_strength_label="moderate",
+                    vocabulary=VersionedClaimVocabularyEnvelope(
+                        cause="x",
+                        effect="y",
+                        legacy_strength_label="moderate",
+                    ),
+                    projection_binding=binding,
+                    limitations=(
+                        ClaimVocabularyLimitation.AMBIGUOUS_LEGACY_VOCABULARY,
+                    ),
+                ),
+            ),
+            total_identities=69_798,
+            next_cursor="opaque-cursor",
+            status_filter=status,
+            projection_rule_version=CLAIM_VOCABULARY_PROJECTION_RULE_VERSION,
+        )
 
     def search_legal_provisions(self, query: str) -> list[dict[str, Any]]:
         """Search for legal provisions."""
@@ -77,6 +133,7 @@ class TestBuildKnowledgeToolRegistry:
         assert "find_datasets_for_metric" in names
         assert "search_evidence" in names
         assert "get_parameter_prior" in names
+        assert "audit_academic_claim_lineage" in names
         assert "search_legal_provisions" in names
 
     def test_private_methods_excluded(self):
@@ -126,6 +183,29 @@ class TestBuildKnowledgeToolRegistry:
         assert defn2.domain == "academic"
         defn3, _ = registry.get("search_legal_provisions")
         assert defn3.domain == "legal"
+        audit_defn, _ = registry.get("audit_academic_claim_lineage")
+        assert audit_defn.domain == "academic"
+
+    def test_claim_lineage_audit_serializes_typed_absence_and_binding(self):
+        registry = build_knowledge_tool_registry(MockKnowledgeToolkit())
+
+        result = registry.execute(
+            "audit_academic_claim_lineage",
+            {"status": "not_established", "limit": 1},
+        )
+
+        assert result.error is None
+        assert result.result["total_identities"] == 69_798
+        assert result.result["next_cursor"] == "opaque-cursor"
+        item = result.result["items"][0]
+        assert item["vocabulary"]["design_family_hint_status"] == "not_established"
+        assert item["vocabulary"]["evidence_strength_status"] == "not_established"
+        assert item["limitations"] == ["ambiguous_legacy_vocabulary"]
+        assert item["projection_binding"]["source_rows"][0]["source_identity"] == (
+            "claim-1|work-1"
+        )
+        assert "strength" not in item
+        assert "strength" not in item["vocabulary"]
 
     def test_openai_tools_format(self):
         toolkit = MockKnowledgeToolkit()

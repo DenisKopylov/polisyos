@@ -182,7 +182,7 @@ producers are thin projections of already-verified artifacts, never new logic.
 | Confidence ledger: δ-budget, risk-spend per obligation class × instrument, refusal/acquisition instruments as first-class rows | GY-N11 ledger artifact | **no — built in DS17** | DS17 | **pending GY-N11** |
 | Epochs: stale certificates, `revalidation_required`, revision triggers, OpenWorldRisk | GY-N12 artifacts | **no — built in DS18** | DS18 chrome; every time-bearing surface | **pending GY-N12** |
 | 13-case proving ground (legacy honest signal; still real) | proving-ground artifacts | **no — built in DS3** | DS7 legacy rows | live |
-| Bounded-agent contract + orchestration-choice audit ledger | Phase-6 O-block contracts | **no — built in DS14** | DS14 | **pending Phase 6** |
+| Bounded-agent contract + orchestration-choice audit ledger | Phase-6 O-block contracts | **no — built in DS14** | DS14 | **CORRECTED 2026-09-01 — this row conflated two subjects.** DS14's gate was re-adjudicated on 2026-08-30 to `GY-I`, not the O-block, and DS14 is explicitly not blocked on Phase 6. The bounded-agent contract half stays DS14's; **the Phase-6 learning loop is not DS14's and now has its own row in Revision 4 below, verdict `new` → DS21.** |
 | Updated cluster ownership map (`surface_missing` inventory) | `cluster_ownership_map.toml` | **no — built in DS3** | backlog generator #1; closure targets | live; refresh at N10 merge |
 
 The "no HTTP producer" column is the honest bridge debt this plan owns. Two
@@ -191,6 +191,45 @@ binding rules inherited from the GY plan apply to every producer built here:
 properties, never pinned terminal labels) and **§3.5.11 projection-scoped
 provenance** (a surface producer binds to the narrowest upstream projection
 hash, so GY artifact churn does not ripple through every endpoint).
+
+### Revision 4 (2026-09-01) — the live GY campaign, every task given a verdict
+
+The table above is Revision 2 and stops at 2026-07-16. Measured on 2026-09-01: **20 of the 25 live
+GY tasks are not mentioned anywhere in this plan.** Only `GY-PR1`, `GY-VC1`, `GY-AQ1`, `GY-CB1` and
+`GY-PA1` appear at all.
+
+Twenty silent tasks is not twenty missing surfaces — most of them genuinely need none. The defect is
+that **nobody decided**, and a plan cannot tell "we decided not to surface this" from "we never
+looked" unless the decision is written down. This revision writes them down. The verdict vocabulary
+is typed on purpose, the same way the debt register types an absence rather than leaving it silent:
+
+- `none` — no surface, and the reason is stated. This is a decision, not an omission.
+- `extends` — a named extension of work this plan already owns or has deferred. Small.
+- `deferred(trigger)` — deliberately not now, with the exact condition that reopens it.
+- `new` — genuinely needs its own Atlas item.
+
+| GY task | What it produces | Verdict | Where, or why not |
+| --- | --- | --- | --- |
+| `GY-PR1a` / `GY-PR1b` | first governed promotion: N8 receipt producer, N9 evidence wiring; PR1b the pilot-grade authority | `extends` | **DS12**, already the record half of its gate. PR1a needs no appointment and is what unblocks this slice; PR1b is the pilot-grade claim only. |
+| `GY-O1` · `GY-O2` · `GY-O3` | deployed-effect posterior updates typed to a cause class; anomaly candidates under FDR control; versioned `WorldModelRecord` branches | **`new`** | **No slice owns this, and the Revision-2 row that claimed one is wrong.** It reads *"Bounded-agent contract + orchestration-choice audit ledger → built in DS14"*, but DS14's gate was re-adjudicated on 2026-08-30 to `GY-I` and DS14 is **explicitly not blocked on Phase 6** — the two were decoupled and the surface consequence was never written. The learning loop is the north-star's product: *did the deployed policy do what we said, and if not, why*. Its cause-class typing (`prediction_error` / `implementation_failure` / `measurement_change` / `behavioral_response`) is exactly what a surface must not flatten — `W5-K04` forbids a protective action reading as causal confirmation — and O2's anomalies are `candidate_unverified` by construction, so the candidate→authority firewall is the whole rendering problem. **One Atlas item for all three, not three.** |
+| `GY-AS2` | sealed diagnosis holdout, risk–coverage metrics | `deferred(WP-09/WP-10 adopted)` | Risk–coverage is DS17-genre content and DS17 is closed, but **the numbers themselves are withheld propositions** — surfacing one now would publish a proposition this repository has explicitly not adopted. Reopens when `WP-09`/`WP-10` are adopted with measure, population, horizon, assumptions and authority source. |
+| `GY-AS1` · `GY-AS3` | 63-case acquisition assurance battery; 24-packet diagnosis corpus + O3 mutations | `none` | Verification machinery. Their output is a battery and an oracle, not an artifact a person reads. The *assurance level* they measure is a ceiling vocabulary and is carried by `GY-AQ1` below. |
+| `GY-AQ1` | non-data acquisition runtime; **eight ceiling algebras with fail-closed unknowns** | `extends` | **DS16's deferred grammar successor.** The eight ceiling fields — claim strength, estimand binding strength, legal/normative/write operations, capacity stages, assurance levels — are value-and-uncertainty grammar, which is DS16's declared subject: *sets/intervals with `unknown` and `incomparable` as designed states*. DS16's authority half landed 2026-08-21 and its grammar body was deferred to a successor gated on DS7, **which is closed** — so that successor is available now and this is where the ceilings land. Also binding on the surface: ratified `W5-K01` means a data-acquisition affordance must not be offered against a missing licence, mandate or authority — *more rows never establish a missing non-data object*, and a surface that suggests otherwise is the failure. |
+| `GY-VC1` | total versioned crosswalk; every loss classified tolerable or **blocking** | `extends` | Already named as a DS12 producer. One rendering obligation to add where statuses are consumed: **a blocking loss must refuse, never degrade** — a candidate vocabulary that cannot map into the canonical lattice renders as a refusal, not as a nearest-neighbour label. That is the surface half of `FM-OPS-17`'s fork condition. |
+| `GY-CB1` | operator-comprehension instrument, corpus, sealed partition, stop-rule | `extends` | Already a DS12 producer for the comprehension instrument. The other half is a **trust-claim row, not a slice**: `human_comprehension_established` stays `false` until population-, modality- and task-bound behavioural evidence exists, and `W5-K02` forbids projecting surface or instrument conformance as comprehension. It belongs in the posture register that DS11 built, as a claim whose honest state is `planned`. |
+| `GY-ML1` | MAEP machinery; equivalence certificates bounded to proposition set, purposes, holders, denominator | `extends` **+ open question** | The three falsifiers `INT-R6` names are **rendering failures**: `limited` shown as "confirmed with caveat", `may_not_use_for` shown as an optional recommendation, and `stale`/`superseded`/`withdrawn` collapsed into one state. Those belong in DS12 as negatives on the published record, alongside the `W5-K06` clause it already carries. **The open question is the Lex source-document half** — equivalence claims over source legal texts in `en`/`uk`/`ru`, which no slice owns: DS10 is capability discovery and DS14 is the agent surface. Recorded here rather than resolved, because scoping it needs a product decision this plan should not make silently. |
+| `GY-CR1` | durable transition state; `failed_safe` with the missing role named; conservative posture + escalation clock, never an approval | `extends` | The **custody state** is honest-refusal rendering of exactly the genre DS18 shipped for epochs — a typed state with a named missing role reads the same way `revalidation_required` does. The **action half is withheld**: the seven response families, the transition charter, the restart rule and the preauthorization model are `WP-04`–`WP-08`, so no surface may offer an action. Surface the custody state; offer nothing. |
+| `GY-CR2` | `E/X/V/C` constrained-product state engine | `none` | The GY task says it itself: *the projection into the Atlas lattice adds zero statuses*, and `E/X/V/C` travels through states without replacing the Atlas lifecycle status. The one-lattice law is untouched. **This row is the model for how a `none` verdict should read.** |
+| `GY-CR3` · `GY-CR4` | response corpus, oracles, evaluator; `dependency_denominator_ref` reconciliation | `none` | A test corpus with guardrail counters, and a cross-owner contract repair. Neither produces anything a person reads. |
+| `GY-V1`–`GY-V6` | coverage matrix, loop-execution proof, generalization battery, adversarial battery, replay audit, validator suite | `none` | Audit-grade verification. Each emits a committed artifact and a recomputing validator; the audience is the repository, not an operator. |
+| `GY-V7` | the constitution's five health signals: envelope-expansion-rate, adapter-semantic-loss, governance-throughput, demand-pull-vs-abstention, search-recall + index-staleness | `extends` | **The Cycle Board**, which already reports `useful_design_rate` as a runtime metric. V7 answers whether the system produces real grounded design or sits at a **domain ceiling** versus a repairable **search ceiling** — a board reading, not a new surface. **Naming hazard, recorded so it does not bite:** this plan's `T1`/`T6`/`T7` are its own tension ids (status-lattice churn, token drift, cache staleness) and are **unrelated** to the constitution's `T1`/`T6`/`T7` health signals. The Health Metrics table above measures *surface* health; these five measure *system* health. Two tables, two subjects, colliding ids. |
+| `GY-D1` · `GY-M2` | measurement-rooted producer catalog wiring; GX reducer case-parameterization | `none` | Producer wiring and validator parameterization. D1 repairs a producer root that DS16's value-gate projections already surface; M2 is a validator that must run on the tourism case as well as the pinned one. Both `ambiguous` in §8.5 and owed a re-measurement before anything else is claimed about them. |
+| `GY-PA1` | S8 authority-grade value schedule | `none` (as a task) | `not_executable` as scoped; its live engineering moved to `GY-PR1a`, which is mirrored by DS12. |
+
+**Standing obligation this table creates.** A GY task registered after this revision does not exist
+for surface purposes until it has a row here. `none` is a perfectly good row and most tasks will get
+one — the requirement is the verdict, not the surface. The failure this repairs is silence, which
+for six weeks was indistinguishable from a decision.
 
 ## Code-Grounded Technical State (Snapshot 2026-06-10; DS1 Recount 2026-07-16)
 
@@ -618,6 +657,7 @@ roughly chronological; the DAG, not the numbers, governs start order.
 | DS12 | Public publication foundation | **first governed promotion through the GY-N9 gate with N11 δ-accounting and N12 epoch validity live** AND DS11 | D |
 | DS13 | Accountability ledgers & transparency | DS12 | D |
 | DS14 | Bounded-agent surface | **Phase-6 bounded-agent contracts closed (O-block)** AND DS9 | D |
+| DS21 | **Deployed-effect & world-growth readout (NEW, Revision 4 — the Phase-6 mirror)** | `GY-O1` and `GY-O3` land; `GY-O2` may follow | D |
 
 ```text
 Phase A: CLOSED (DS0 ─▶ {DS1, DS2} — merged ed74537e8)
@@ -692,7 +732,7 @@ doctrine bullet); only the owning slice closes and re-manifests a debt:
 | DS20-B scorecard producer provenance | the production-approval path binds a persisted scorecard before OPA and refuses cross-run/absent `run_id`, but the authoritative scorecard *producer's* provenance is configured outside the DS20 fence | **DS9** (decision integrity) / ops config | DS9 binds the scorecard producer's declared provenance into the approval decision |
 | DS20-B Helm policy mirror | the Helm chart carries a separate stale copy of the OPA policy; the canonical `ops/policy/policies/**` Rego is DS20-current, the Helm mirror was outside the extended fence | **ops / deploy lane** | the deploy lane regenerates the Helm mirror from the canonical Rego (or removes the duplicate in favor of the canonical source) |
 | aiohttp Fabric connector cleanup | two unclosed `aiohttp` session/connector diagnostics surface from the authorized `discover_data_sources`/`resolve_data_needs` handler witnesses opening Fabric connector pools (not a test failure; DS20 added no HTTP bypass) | **GY / fabric lane** (connector lifecycle owner) | the fabric lane closes the connector-pool lifecycle; not an Atlas surface debt |
-| **DS4 three canonical-waist vocabularies** (registered 2026-08-01; the register rows carry `master_inherited_debt_action = flag_for_architect_insertion_at_c20`, i.e. this insertion) | three vocabularies the generated client does not project, each already reduced to **one** presentation-only swap module that renders novel owner labels as explicit `unrecognized` and exports no value-level constants: **CGF disposition** (`canonicalRuntimeApiClient.ts:516`; `types.ts:5850-5879` `GenerationCycleDispositionPayload`) → `shared/ui/compounds/cgfDispositionPresentation.ts`; **decision grade** (missing `DecisionGrade` export; client export block `333-394`) → `shared/ui/compounds/decisionGradePresentation.ts`; **cache-age lattice** (`canonicalRuntimeApiClient.ts:737`; `types.ts:8164-8182` `ProjectionFreshness`) → `shared/ui/temporal/cacheAgePresentation.ts`. Authority: `architecture/atlas_surfaces/ds4-waist-debt-register.json`; estate denominator effect **none** | **DS5** (waist) — **RE-OWNED to the Group A executor (2026-08-20)**; DS5 is closed and merged. | DS5 supplies each closed union through the generated client and swaps it in at the single named module; **the two negatives per module survive** (novel label → explicit `unrecognized`; module exports no vocabulary constants). Terminal kinds and evidence classes stay opaque extensions end to end — DS5 does not close or order them **THE ROW SPLITS INTO THREE DIFFERENT STATES (measured 2026-08-20). All three names return zero occurrences in the generated package client and zero components among all 351 OpenAPI schemas, but the reason differs per vocabulary and the single closure signal is not executable as written.** (1) **`DecisionGrade` — EXECUTABLE.** A real canonical union exists: `Literal["unsupported", "descriptive_only", "advisory_admissible", "decision_admissible"]` in `pdc/_impl/layer2_readiness.py`. It rides the next regeneration through a real DTO/producer bridge and must not be bound to an unrelated evaluator or closeout verdict. (2) **`CgfDisposition` — re-typed `producer_missing`.** There is no public typed server owner. A private validator carries `USE_AS_IS` / `REWORK_TO_FIT` / `DELETE` while the generation-cycle disposition payload's owners field stays opaque JSON; copying that private set into a public contract would **invent authority**. The canonical generation-cycle owner must declare the public contract first — a producer decision, not a presentation bridge. (3) **`CacheAge` — RETIRED AS SUPERSEDED by architect decision.** No server owner exists and none should: **cache age is client-local by construction** — the server cannot know how long a given browser has held a copy. `ProjectionFreshness` is a different time role and says so in its own docstring, *"Separate source time from the time the HTTP producer observed it"*; equating the two would conflate source observation with cache staleness. `DS6-C11a`/`C11b` already answered this correctly a different way, making the branded dashboard `CacheObservation` the QueryObserver-lifecycle owner of the live/cached posture. This is a debt solved better by a later slice, not an abandoned one; the executor confirms the two negatives still hold under that answer and records the retirement. |
+| **DS4 three canonical-waist vocabularies** (registered 2026-08-01; the register rows carry `master_inherited_debt_action = flag_for_architect_insertion_at_c20`, i.e. this insertion) | three vocabularies the generated client does not project, each already reduced to **one** presentation-only swap module that renders novel owner labels as explicit `unrecognized` and exports no value-level constants: **CGF disposition** (`canonicalRuntimeApiClient.ts:516`; `types.ts:5850-5879` `GenerationCycleDispositionPayload`) → `shared/ui/compounds/cgfDispositionPresentation.ts`; **decision grade** (missing `DecisionGrade` export; client export block `333-394`) → `shared/ui/compounds/decisionGradePresentation.ts`; **cache-age lattice** (`canonicalRuntimeApiClient.ts:737`; `types.ts:8164-8182` `ProjectionFreshness`) → `shared/ui/temporal/cacheAgePresentation.ts`. Authority: `architecture/atlas_surfaces/ds4-waist-debt-register.json`; estate denominator effect **none** | **DS5** (waist) — **RE-OWNED to the Group A executor (2026-08-20)**; DS5 is closed and merged. | DS5 supplies each closed union through the generated client and swaps it in at the single named module; **the two negatives per module survive** (novel label → explicit `unrecognized`; module exports no vocabulary constants). Terminal kinds and evidence classes stay opaque extensions end to end — DS5 does not close or order them **THE ROW SPLITS INTO THREE DIFFERENT STATES (measured 2026-08-20). All three names return zero occurrences in the generated package client and zero components among all 351 OpenAPI schemas, but the reason differs per vocabulary and the single closure signal is not executable as written.** (1) **`DecisionGrade` — EXECUTABLE.** A real canonical union exists: `Literal["unsupported", "descriptive_only", "advisory_admissible", "decision_admissible"]` in `pdc/_impl/layer2_readiness.py`. It rides the next regeneration through a real DTO/producer bridge and must not be bound to an unrelated evaluator or closeout verdict. (2) **`CgfDisposition` — re-typed `producer_missing`.** There is no public typed server owner. A private validator carries `USE_AS_IS` / `REWORK_TO_FIT` / `DELETE` while the generation-cycle disposition payload's owners field stays opaque JSON; copying that private set into a public contract would **invent authority**. The canonical generation-cycle owner must declare the public contract first — a producer decision, not a presentation bridge. (3) **`CacheAge` — RETIRED AS SUPERSEDED by architect decision.** No server owner exists and none should: **cache age is client-local by construction** — the server cannot know how long a given browser has held a copy. `ProjectionFreshness` is a different time role and says so in its own docstring, *"Separate source time from the time the HTTP producer observed it"*; equating the two would conflate source observation with cache staleness. `DS6-C11a`/`C11b` already answered this correctly a different way, making the branded dashboard `CacheObservation` the QueryObserver-lifecycle owner of the live/cached posture. This is a debt solved better by a later slice, not an abandoned one; the executor confirms the two negatives still hold under that answer and records the retirement. **CORRECTED 2026-09-02 — one of the three is closed.** DS4 merged at `61ce304dde33b85afb56d5d28614dd3e05bacfab`: `DecisionGrade` is now a named OpenAPI component and a generated-client export, and `decisionGradePresentation.ts` binds it with compile-time exhaustiveness plus runtime fail-open. The register row `ds4-waist-decision-grade` is `closed`. `CgfDisposition` and `CacheAge` are untouched and this row survives for them. The authority artifact named in the previous cell has **not** been updated and now declares an absence for a present symbol — registered as `ds4-waist-anchor-declares-absence-of-a-present-symbol`. |
 | ~~**`run-lifecycle-terminal-fact`** — producer-signed run terminality~~ **CLOSED 2026-08-22** | `GY-GAP4` now supplies producer-owned lifecycle terminality through the core run/trace contracts, governed event contracts, `RunSummary`, OpenAPI, and both generated clients. Lifecycle terminality remains distinct from design-search `terminal_kind`. The DS7 hero consumer and its absent-not-false and no-proxy semantic negatives have not landed yet. Anchors: `runtime/http/services/adapters/core_run.py`, `canonicalRuntimeApiClient.ts:865`, `types.ts:9240/9259/9286`, `docs/superpowers/journals/2026-08-16-gy-gap4-run-terminality.md` | **DS7** — receiving first consumer and current closure owner. The runtime / GY producer route is complete through `GY-GAP4`; DS7 projects the signed fact and never owns or re-derives temporal truth | DS7 renders `RunSummary.run_terminality` without status/timestamp derivation, renders an unbound lifecycle fact as absent rather than false, and keeps the C22 semantic negatives plus DS5 ownership lint green. Novel status labels remain opaque  **NOT DISCHARGED BY DS7, AND RE-OWNED (architect, 2026-08-21 while surveying what DS7's closure closed).** Measured on `main`: `run_terminality` occurs in the dashboard **only** inside generated `src/api/types.ts` — **zero production consumers**. DS7 built the Cycle Board, which renders `lifecycleTerminality` from its own composed-v2 payload; that is a **different fact on a different surface** from `RunSummary.run_terminality`, which this row names. DS7's pass-through and absent-not-false negatives are real and green, but they discharge the board's fact, not this binding. **The distinction is the finding:** naming a slice the *receiving first consumer* of a producer fact does not make whatever that slice ships into a consumer of it — the closure signal must be re-checked against the named field, not against the slice's completion. DS7 is closed, so under Revision 3.22's debt-row execution rule this row needs a new executor; ownership of **correctness** stays with the surface that will render `RunSummary.run_terminality`, and the row is executable independently of any slice's ladder position. | **CLOSURE:** the DS7 hero consumer landed — terminality is rendered at `RunsListPage.tsx:186` by direct member access, with no proxy. Struck in the debt register 2026-08-22 at `0440f0a8d`; this plan row was left unstruck and the generated ledger caught it.
 | ~~**Readiness / scientific-depth producer binding**~~ | `PublicSectorReadinessPanel` and `ScientificDepthPanel` had dashboard-local synthesis minting unsigned readiness and scientific-composition values; DS4-C23 physically deleted both synthesis graphs and renders the panels constant `unavailable` / no-input. States: `producer_missing`, `artifact_missing`, `bridge_missing`, `semantic_test_missing`. **Re-typed 2026-08-02: this is a breach of ratified `S0-K07` — projection cannot mint authority** (`docs/system-design-decisions/stage0-custody-kernel-ratification.md`); dashboard-local synthesis of an unsigned readiness value is the prohibited case exactly, and DS4-C23 **contained** it without closing it | **DS16** (already carried in the DS16 section, Rev 3.5) | every named value resolves to a generated field or a registered typed refusal, and the C23 containment negatives (two no-input panels, exactly three prop-less mounts, zero reachability to the deleted graphs, six AST corruption witnesses) remain green  **CLOSED 2026-08-21, merged at `1f03d2cda`** (DS16 authority half, reconciled at `40bbafa18`). Both conjuncts of the closure signal are met. **Every named value now resolves through a generated field or a registered typed refusal**: `GET /api/v1/runs/{run_id}/authority-values` returns the complete `RunAuthorityProjection` for the retired DS4-C23 inventory through OpenAPI and both generated client families, and the release record states the honest limitation — **all 11 inventory members are typed refusals today because no runtime producer supplies them**. That is the point: the `S0-K07` breach was projection *minting* authority, and a typed refusal mints nothing. **The C23 containment negatives remain green** — the successor suite and the authority-value MACHINE twin pass 15/15, architect-run on the merged bytes. DS16's own record declares the one residual: the successor covers 10 of 11 ancestor corruptions, with the arbitrary-i18n-key gap declared rather than papered over. The value-**grammar** body remains deferred to its successor slice and is not part of this closure. |
 | ~~**`adjacent-print-export` — run-detail A4 print regression**~~ | **Institutionally supplied provenance, independently verified closure:** the committed 724×2,113 PNG was a bulk-publish placeholder never derived against this surface. DS8-A replaced that proxy with the composed semantic/PDF gate and first-derived `run-report-identity-a4-print-chromium-darwin.png` under a new name. | **DS8** repaired (`69aca1e25`); **DS6-C13** independently verified and closed | **CLOSED 2026-08-22 by DS6's independent verification.** Two separate zero-retry, no-writer Chromium runs at the same committed revision and host/browser/font tuple passed 3/3 each; the 746×84 expectation remained SHA-256 `26cca8a75e61cfcf…` before, between, and after. The independently parsed PDFs were 5 and 30 pages, all MediaBox/CropBox dimensions were portrait A4 within 0.5 pt, admitted growth increased page count, and the complete semantic egress predicate passed. The canonical row is now `rebind_pending` / `strangled` with successor `run-report-paper-projection`: this closes the run-detail predecessor only. Broad print/PNG/CSV/JSON/server readiness remains DS8-owned `rebind_pending`. |
@@ -769,6 +809,8 @@ Two corollaries, both from measurement rather than principle:
    `packages/runtime-api-client/types.ts`, so the generated client does not project
    them. Neither row has an executor. The architect registered `GY-DEF21` against
    DS5 *after* DS5 had closed; that is the same error stated from the other side.
+
+   **Corrected 2026-09-02, DS4 merged.** The *zero occurrences* measurement above no longer holds for `DecisionGrade`: it is now exported by the generated client and referenced by exactly one schema property, `AuthorityBoundary.decision_grade`. It still holds for `CgfDisposition` and `CacheAge`, and only for those two. The wider point of this item is unaffected — the row was executed by a re-owned executor, which is the corollary working, not an exception to it.
 2. **A co-owned row may be executed by whichever owner can act.** The
    `adjacent-print-export` row already names **DS8** for the product repair and
    **DS6** for independent visual and semantic verification. DS8 is unentered and
@@ -1705,6 +1747,54 @@ Loosening the ratified posture is out of scope for every slice.
   - **Gated on institutions, and never on a build.** The named signers and the independent holder
     stay `absent/unallocated`; they gate the *signature on a published record*, not the surface
     that would carry it. A refusal that stopped the surface would be placed one band too low.
+  - **Gate re-measured 2026-09-01, and the record half is now much shorter than the text above
+    says.** Two clauses are stale and are corrected here rather than left to mislead. (a) *"Three of
+    the fifteen obligations return `scope_insufficient` unconditionally"* is no longer true: task A
+    landed the EFFECT producer and evaluator, and task K's complete census found **exactly one**
+    obligation still on that path — `_eval_safety_obligation` at
+    `src/polisyos/runtime/quality/promotion_sequence.py:5197`, and only when the evaluation mode is
+    `sandbox_pilot`, `field_pilot` or `deployment`. The other three call sites are conditional on
+    real evidence and carry real dotted owners. (b) The `EFFECT` investigation named as a
+    predecessor **terminated and closed**; the chain `EFFECT investigation → GY-PR1 → first governed
+    promotion → DS12 record half` now starts at `GY-PR1`.
+  - **The consequence is a decision this slice should take deliberately: a first governed promotion
+    is reachable in the data-only lane with no appointment at all.** Task K's four-cell refusal
+    table measures data-only production at **3 refusals / 0 scope-insufficient**, against field-pilot
+    production at 4 / 1 — the single scope-insufficient cell being the EvalSafety authority. What
+    blocks data-only is therefore pure engineering, measured over all 2,617 tracked source files:
+    zero production `ValueGateReceipt` constructors, zero valid `value_ready` emissions, zero
+    production `CanonicalN9PromotionPort(context_provider=…)` callers. DS12 may take its record half
+    against a **data-only** promotion and keep the pilot-grade claim, which needs the appointment,
+    for later. `GY-O0-NC-01` is not that milestone — its signal is explicitly a field-pilot request
+    because its property is pilot protection and near-miss counting.
+
+- **Debt rows this slice must close (2026-09-01).** These are not new scope; they are the register
+  rows whose closure this slice's existing Goal and Producer & bridge work already implies. Naming
+  them here is the act the register rows have been waiting for — under the standing rule that a
+  planless slice may not be an owner, this listing is what makes DS12 their owner without writing a
+  separate slice plan first. Each still owes its own work and its own closure signal.
+  - `ds8-public-case-publication` — named in the bullet above; retained here so the set is complete.
+  - `ds8-signed-public-decision-surface` — `bridge_missing`, not `producer_missing`:
+    `runtime/quality/public_export.py` is a real producer with six occurrences, and what is absent
+    is the server-backed record/certificate route and the verification chain.
+  - `ds10-public-decision-rendering` — the DS10 half of the same object; neither closes the other.
+  - `public-decision-verified-badge-is-client-computed` — **live defect, not future work.** A
+    decorative browser-salted hash renders a decision as verified without API context on a
+    public-facing surface, and two current frontend tests pass on it. The forged-packet negative
+    named in Producer & bridge work is its red-first control.
+  - `global-case-index-producer-missing`, with `ds8-global-case-index` and
+    `ds10-global-case-index-producer-allocation` as its two dependent halves. **Allocation decided
+    2026-09-01: the producer is DS12's**, because a published record needs a stable canonical
+    identity before DS13 can make records browsable or contestable; DS13 consumes the index it
+    installs. The complete 2,616-file AST census that established the absence found zero
+    `resource_kind="case"` assignments, with the twelve literal `case` sites disambiguated.
+  - `DS11-PUBLIC-SIGNATURE-POPULATION` and `DS11-GROUNDED-PERFORMANCE` — DS11 carried both to this
+    slice by design; both wait on the record half above, not on DS11.
+  - `DS11-FULL-TRUST-CENTER-AND-DOCS-IA` — the successor allocation DS11 declared.
+  - `ds5-waist-successors-routed-to-unscoped-slices` — DS12's three enforcement-waist groups, as the
+    bullet above already states.
+  - `gy-promotion-obligations-scope-insufficient` — shared with `GY-PR1`; it closes on the GY side
+    and is listed here only so DS12 sees what its record half depends on.
 - **Research-input consumption (wave 5, routes `W5-R3-Q04`, `W5-R4-Q12`, `W5-O5-Q12`).** Ratified
   `W5-K02` forbids projecting surface, enforcement or instrument conformance as human
   comprehension, so no DS12 public copy may imply that a reader understood; `W5-K03`/`W5-K04`
@@ -1822,6 +1912,18 @@ Loosening the ratified posture is out of scope for every slice.
   - **One dependency is newly visible:** `PV-K07` prefix discipline is ratified but **not issuable**
     until `GY-GAP3` (controlled release-family transcript) closes. DS12 must not present a release
     history as governed while that owner is absent.
+- **Inherited obligations taken into scope (2026-08-31, architect).** Three residuals were routed
+  to DS12 by earlier slices and had no scope to land in; DS12's scope above now claims them, which
+  is what their register rows asked for and all any of them was waiting on. **This is a scope act,
+  not a closure** — each row moves `blocked` -> `open` and still owes its own work.
+  - `ds8-public-case-publication` — DS8's explicit non-closure. It is the "public record/certificate
+    endpoints" and "one promoted decision record, published end-to-end, verifiable by a citizen"
+    already in Goal and Producer & bridge work above; nothing new is added, the obligation is named.
+  - `ds5-waist-successors-routed-to-unscoped-slices`, DS12's **three** enforcement-waist groups of
+    the four that remained routed to planless slices.
+  - Task G's `architecture/atlas_surfaces/slice-scope-obligations.json` continues to force these into
+    view at scope-setting and keeps `closure_effect: none`; it is the reminder, this bullet is the
+    claim. The two are deliberately different acts.
 - **Not yet:** one record published well beats many published loosely;
   dispute/consultation/history surfaces arrive in DS13.
 
@@ -1840,6 +1942,13 @@ Loosening the ratified posture is out of scope for every slice.
 - **Negative controls:** a closed public record cannot be mutated by new
   evidence — only superseded with visible lineage; P26 negatives on
   consultation-response accountability.
+- **Debt rows this slice must close (2026-09-01).** DS13 owns the *consumption* half of the case
+  index, not its producer. `global-case-index-producer-missing` is allocated to DS12 because a
+  published record needs a canonical identity before it can be browsed; DS13 must consume that index
+  rather than build a second store — the register rows say so in their own words, *not a second DS10
+  store*. What DS13 owes: the browse/contest/history surfaces over the installed index, and the
+  supersession lineage those rows assume. If DS12 lands the producer and DS13 does not consume it,
+  `ds8-global-case-index` stays open and its owner is DS13, not DS12.
 - **Not yet:** no automated dispute resolution; ledgers record and project,
   humans decide.
 
@@ -1882,10 +1991,69 @@ Loosening the ratified posture is out of scope for every slice.
   denied-uses / counterevidence; a summary that dropped a retained-limitation renders **blocked, not
   clean**. Add a **cross-projection disclosure budget**: repeated PUBLIC/REVIEWER/MACHINE reveals
   cannot let a hidden fact be reconstructed via diff / hash / ordering / timing.
+- **Inherited obligations taken into scope (2026-08-31, architect).** Same act as DS12's, for the
+  two residuals routed here. Both rows move `blocked` -> `open` and still owe their work.
+  - `ds8-lex-clerk-authority-repair`, **Clerk half.** DS8 routed Clerk to DS14 and DS14's
+    **Strangle target** above already names `features/clerk`, so the routing was honoured in scope
+    before the row was ever unblocked. The **Lex half is separately adjudicated**: DS10 has a
+    standalone Capability Discovery plan keeping Lex route/discovery with `team-design`/DS10 and Lex
+    pipeline mutation with `team-lex`, and the inconsistency the row records is the *unqualified*
+    "Lex -> DS10", not DS10's description.
+  - `ds5-waist-successors-routed-to-unscoped-slices`, DS14's **one** remaining enforcement-waist
+    group.
+  - **Neither inherits the superseded Phase-6 gate.** DS14's real gate is `GY-I` and DS9, both met,
+    so these obligations are executable now and nothing here waits on the O-block.
 - **Not yet:** no agent output on PUBLIC surfaces; agent surfaces stay
   REVIEWER/EXPERT until a separate, explicit decision.
 
 ### New Slices (Revision 2 — the GY-N13/N11/N12 surface duals)
+
+- **Debt rows this slice must close (2026-09-01).** The gate adjudication above establishes that
+  DS14 is not blocked on Phase 6, so these are executable as soon as the slice is scheduled.
+  - `ds8-lex-clerk-authority-repair` — **Clerk only; the Lex half is settled** and route/discovery
+    stays with DS10. The complete current `features/clerk` denominator is 33 files with **zero**
+    `PromptToolParserAuthorityLedger`, `CompressionLossReceipt`, `agent_session` or
+    `orchestration_audit` occurrences, so what is owed is the agent-session and orchestration-audit
+    endpoints over the G6 contracts, schema/client regeneration, the compression-loss/authority-delta
+    projection, the re-grounded Clerk strangle, and the P15 negatives. This row's own dossier says
+    the remaining question was *allocation to an executing lane, not design or scope* — this bullet
+    is that allocation.
+  - `ds5-waist-successors-routed-to-unscoped-slices` — DS14's one enforcement-waist group, the
+    generated blocker-decision/bool issuer, alongside DS12's three.
+  - `public-decision-verified-badge-is-client-computed` — shared with DS12, which owns the repair;
+    DS14 must not reintroduce a client-computed verification indicator in the agent surface.
+
+#### DS21 — Deployed-Effect & World-Growth Readout (NEW, Revision 4)
+
+Registered 2026-09-01 by the Input Contract's Revision-4 audit, which found that Phase 6's learning
+loop had no surface consumer and that the Revision-2 row claiming DS14 owned it was wrong. **This
+entry deliberately stops short of a slice plan.** Writing one before `GY-O1` exists would be
+bureaucracy; what the plan owes now is the claim of ownership and the constraints the slice must
+inherit, so that Phase 6 designs its readout hooks against a named consumer rather than none.
+
+- **Gate:** `GY-O1` (confirmatory deployed-effect updater) and `GY-O3` (world-model write-back).
+  `GY-O2`'s anomaly candidates may follow; they are not a gate, because a surface that shows
+  candidates before it can show confirmations gets the authority bands backwards.
+- **Goal:** the honest answer to the question the north-star exists for — *did the deployed policy
+  do what we said it would, and if not, why* — plus a readable account of how the world model grew
+  because of it.
+- **Constraints inherited before any design work, and each is a rendering failure if broken:**
+  - The cause-class typing is the content, not a detail. A realized-vs-predicted delta types as
+    `prediction_error`, `implementation_failure`, `measurement_change` or `behavioral_response`, and
+    **only `prediction_error` may update the effect**. A surface that renders all four as "the
+    estimate changed" destroys precisely the distinction the updater exists to make.
+  - `W5-K04` binds: a protective response must never read as causal confirmation. `W5-K03` binds:
+    an unresolved or compound diagnosis renders as unresolved, never as a settled cause.
+  - `GY-O2`'s anomalies are `candidate_unverified` by construction and must render in the candidate
+    band. An anomaly that reads as a finding is the failure this slice is most likely to produce.
+  - Deployment updates and acquisitions are two provenance classes landing in **one** growing
+    world; the readout must not imply two worlds or a merge.
+  - Per the identity decision, observing deployed effects is OWN-core while executing the deployment
+    is not: realized metrics, implementation status and appeal outcomes enter as typed
+    integrate-evidence. The surface reports what was observed; it offers no operational action.
+- **Not yet:** no deployment control, no rollback affordance, no recommendation to change a policy.
+  Those are Phase-8 custody questions whose action-governing propositions are withheld as
+  `WP-04`–`WP-08`.
 
 #### DS15 — Acquisition Routes & Data-Pool Growth Surfaces
 

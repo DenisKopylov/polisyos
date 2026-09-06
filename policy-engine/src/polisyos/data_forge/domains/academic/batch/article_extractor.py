@@ -29,6 +29,7 @@ from polisyos.data_forge.domains.academic.batch.prompts import (
     SCREENING_PROMPT,
 )
 from polisyos.data_forge.domains.academic.knowledge.types import (
+    ClaimOccurrenceVocabularyTransport,
     EstimateCandidate,
     SourceTopicRef,
     WorkRecord,
@@ -41,11 +42,13 @@ from polisyos.ir.analytics.literature import (
     CausalClaim,
     ClaimExplicitness,
     ClaimType,
+    ClaimVocabularyAxisStatus,
     ContextAttribute,
     DesignFamily,
     EvidenceParameter,
     EvidenceSpan,
     EvidenceStrength,
+    EvidenceStrengthOrigin,
     HeterogeneityResult,
     IdentificationStrategy,
     Mechanism,
@@ -53,6 +56,7 @@ from polisyos.ir.analytics.literature import (
     ParameterType,
     SourceBasis,
     TextQuality,
+    VersionedClaimVocabularyEnvelope,
 )
 
 if TYPE_CHECKING:
@@ -158,6 +162,8 @@ _EVIDENCE_STRENGTH_ALIASES = {
     "ols_cross_sectional": EvidenceStrength.CROSS_SECTIONAL.value,
     "theoretical": EvidenceStrength.THEORETICAL.value,
     "unknown": EvidenceStrength.UNKNOWN.value,
+    # Canonical names always alias to themselves, including future enum members.
+    **{strength.value: strength.value for strength in EvidenceStrength},
 }
 _PARAMETER_TYPE_ALIASES = {
     "quantitative": ParameterType.QUANTITATIVE.value,
@@ -391,6 +397,7 @@ def _coerce_subgroup_estimates(value: Any) -> dict[str, float]:
 
 
 def _normalize_evidence_strength(value: Any) -> str:
+    """Accept canonical names and explicit aliases; unrecognized input stays unknown."""
     normalized = _normalized_text(value).lower().replace(" ", "_")
     if not normalized:
         return EvidenceStrength.UNKNOWN.value
@@ -433,13 +440,16 @@ def _normalize_claim_type(value: Any) -> str:
 
 
 def _normalize_design_family(value: Any) -> str:
+    """Resolve exact design identities before substring aliases; unmatched stays unclear."""
     normalized = _normalized_text(value).lower().replace(" ", "_")
     if not normalized:
         return DesignFamily.UNCLEAR.value
+    if normalized in _DESIGN_FAMILY_ALIASES:
+        return _DESIGN_FAMILY_ALIASES[normalized]
     for key, mapped in _DESIGN_FAMILY_ALIASES.items():
         if key in normalized:
             return mapped
-    return _DESIGN_FAMILY_ALIASES.get(normalized, DesignFamily.UNCLEAR.value)
+    return DesignFamily.UNCLEAR.value
 
 
 def _normalize_source_basis(value: Any) -> str:
@@ -779,6 +789,7 @@ def _normalize_empirical_parameter(
     payload: Any,
     *,
     diagnostics: list[str] | None = None,
+    strength_origin: EvidenceStrengthOrigin | None = None,
 ) -> EvidenceParameter | None:
     if not isinstance(payload, dict):
         if diagnostics is not None:
@@ -857,6 +868,17 @@ def _normalize_empirical_parameter(
         elif _normalized_text(payload.get("source")):
             diagnostics.append("mapped:source->heterogeneity_note")
 
+    strength = _normalize_evidence_strength(payload.get("evidence_strength"))
+    if strength_origin is None:
+        if "evidence_strength" not in payload:
+            strength_origin = EvidenceStrengthOrigin.NOT_SUPPLIED
+        elif strength != EvidenceStrength.UNKNOWN.value:
+            strength_origin = EvidenceStrengthOrigin.SUPPLIED
+        elif _normalized_text(payload["evidence_strength"]).lower() == "unknown":
+            strength_origin = EvidenceStrengthOrigin.DECLARED_UNKNOWN
+        else:
+            strength_origin = EvidenceStrengthOrigin.NORMALIZER_FALLBACK
+
     candidate = {
         "name": name,
         "display_name": _normalized_text(payload.get("display_name")) or name,
@@ -869,7 +891,8 @@ def _normalize_empirical_parameter(
         "confidence_interval": confidence_interval,
         "std_error": _coerce_float(payload.get("std_error")),
         "unit": _normalize_parameter_unit(payload.get("unit")),
-        "evidence_strength": _normalize_evidence_strength(payload.get("evidence_strength")),
+        "evidence_strength": strength,
+        "evidence_strength_origin": strength_origin,
         "geographic_scope": _normalized_text(payload.get("geographic_scope")),
         "time_period": _normalized_text(payload.get("time_period")),
         "aggregation_level": _normalized_text(payload.get("aggregation_level")),
@@ -1895,6 +1918,69 @@ def _safe_float(value: float | None) -> float | None:
         return None
 
 
+def serialize_rich_claim_occurrence_vocabulary(
+    claim: CausalClaim,
+    *,
+    record_extraction_mode: str | None,
+    record_extraction_confidence: float | None = None,
+) -> ClaimOccurrenceVocabularyTransport:
+    """Build the lossless v2 composite emitted for one rich extracted claim.
+
+    The record confidence is deliberately accepted only to make its exclusion
+    explicit: missing claim confidence remains absent rather than borrowing a
+    paper-level observation.
+    """
+
+    del record_extraction_confidence
+    fields_set = claim.model_fields_set
+
+    def _candidate_axis(field_name: str, value: Any) -> tuple[Any | None, ClaimVocabularyAxisStatus]:
+        if field_name not in fields_set:
+            return None, ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+        return value, ClaimVocabularyAxisStatus.CANDIDATE
+
+    design_family_hint, design_family_hint_status = _candidate_axis(
+        "design_family_hint", claim.design_family_hint
+    )
+    evidence_strength, evidence_strength_status = _candidate_axis(
+        "evidence_strength", claim.evidence_strength
+    )
+    source_basis, source_basis_status = _candidate_axis("source_basis", claim.source_basis)
+    retained = claim.model_dump(mode="json")
+    retained.pop("cause_variable")
+    retained.pop("effect_variable")
+    retained.pop("design_family_hint")
+    retained.pop("evidence_strength")
+    retained.pop("claim_extraction_confidence")
+    retained.pop("source_basis")
+    retained["cause"] = claim.cause_variable
+    retained["effect"] = claim.effect_variable
+    retained["direction"] = claim.direction.value
+    retained["mechanism"] = claim.counterevidence_notes
+    return ClaimOccurrenceVocabularyTransport(
+        occurrence=retained,
+        vocabulary=VersionedClaimVocabularyEnvelope(
+            cause=claim.cause_variable,
+            effect=claim.effect_variable,
+            direction=claim.direction.value,
+            mechanism=claim.counterevidence_notes,
+            design_family_hint=design_family_hint,
+            design_family_hint_status=design_family_hint_status,
+            evidence_strength=evidence_strength,
+            evidence_strength_status=evidence_strength_status,
+            claim_extraction_confidence=claim.claim_extraction_confidence,
+            claim_extraction_confidence_status=(
+                ClaimVocabularyAxisStatus.CANDIDATE
+                if claim.claim_extraction_confidence is not None
+                else ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+            ),
+            source_basis=source_basis,
+            source_basis_status=source_basis_status,
+            record_extraction_mode=record_extraction_mode,
+        ),
+    )
+
+
 def _to_work_record(
     *,
     result: ArticleExtractionResult,
@@ -1911,6 +1997,7 @@ def _to_work_record(
         sample_size=result.sample_size,
     )
     estimates: list[EstimateCandidate] = []
+    parameter_payloads: list[dict[str, Any]] = []
     for parameter in result.empirical_parameters:
         value = parameter.value
         if value is None and parameter.value_range is not None:
@@ -1918,6 +2005,7 @@ def _to_work_record(
             value = (float(lo) + float(hi)) / 2.0
         if value is None:
             continue
+        parameter_payloads.append({**parameter.model_dump(mode="json"), "value": float(value)})
         estimates.append(
             EstimateCandidate(
                 value=float(value),
@@ -1941,35 +2029,11 @@ def _to_work_record(
         )
 
     causal_claims = [
-        {
-            "claim_id": claim.claim_id,
-            "claim_text": claim.claim_text,
-            "claim_type": claim.claim_type.value,
-            "cause": claim.cause_variable,
-            "effect": claim.effect_variable,
-            "direction": claim.direction.value,
-            "strength": claim.evidence_strength.value,
-            "claim_explicitness": claim.claim_explicitness.value,
-            "design_family_hint": claim.design_family_hint.value,
-            "mechanism": claim.counterevidence_notes,
-            "effect_size": claim.effect_size,
-            "supporting_span_ids": list(claim.supporting_span_ids),
-            "method_span_ids": list(claim.method_span_ids),
-            "supporting_spans": [span.model_dump(mode="json") for span in claim.supporting_spans],
-            "method_spans": [span.model_dump(mode="json") for span in claim.method_spans],
-            "source_basis": claim.source_basis.value,
-            "claim_extraction_confidence": (
-                float(claim.claim_extraction_confidence)
-                if claim.claim_extraction_confidence is not None
-                else float(result.extraction_confidence)
-            ),
-            "extraction_warnings": list(claim.extraction_warnings),
-            "strong_design_evidence": bool(claim.strong_design_evidence),
-            "publish_to_graph": bool(claim.publish_to_graph),
-            "publish_blockers": list(claim.publish_blockers),
-            "design_quality_tier": claim.design_quality_tier,
-            "span_contamination_detected": bool(claim.span_contamination_detected),
-        }
+        serialize_rich_claim_occurrence_vocabulary(
+            claim,
+            record_extraction_mode="resolve_extract",
+            record_extraction_confidence=result.extraction_confidence,
+        )
         for claim in result.causal_claims
     ]
 
@@ -2058,6 +2122,7 @@ def _to_work_record(
         screening_cost_usd=float(result.screening_cost_usd),
         extraction_cost_usd=float(result.extraction_cost_usd),
         metadata={
+            "empirical_parameters": parameter_payloads,
             "sample_size": result.sample_size,
             "run_id": run_id,
             "pass_name": pass_name,

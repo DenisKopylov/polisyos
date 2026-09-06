@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import importlib
 import json
 import shlex
 import subprocess
 from datetime import UTC, date, datetime, timedelta
 
+import duckdb
 import pytest
 
+from polisyos.core import artifacts
 from polisyos.core.contracts.capability_discovery import (
     CapabilityDiscoveryRequest,
     CapabilityTimeSemantics,
@@ -18,10 +21,25 @@ from polisyos.core.contracts.capability_discovery import (
 from polisyos.core.contracts.runtime import ApiMeta
 from polisyos.core.contracts.search import SearchCandidate, SearchLedger, SearchRequest
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
-from polisyos.runtime.quality.capability_authority import CapabilityDiscoveryAuthorityResolver
+from polisyos.runtime.http.services.control_registry_providers import (
+    resolve_control_registry_providers,
+)
+from polisyos.runtime.quality.approval import (
+    ProductionApprovalPacketResolver,
+    ProductionApprovalResolutionError,
+)
+from polisyos.runtime.quality.capability_authority import (
+    CAPABILITY_PURPOSE_BINDING_ARTIFACT_KIND,
+    CAPABILITY_PURPOSE_BINDING_SCHEMA_NAME,
+    CapabilityAuthorityContext,
+    CapabilityDiscoveryAuthorityResolver,
+    CapabilityPurposeBindingProducer,
+    CapabilityPurposeBindingVerifier,
+)
 from polisyos.runtime.quality.capability_discovery import (
     CapabilityDiscoveryComposer,
     CapabilityDiscoveryProvider,
+    CapabilityIndexCapabilityDiscoveryProvider,
     CapabilityIndexOwnerReceipt,
     CapabilityProviderSearchResult,
     CapabilityProviderUnavailableError,
@@ -86,6 +104,416 @@ def test_capability_discovery_postures_use_three_independent_producers() -> None
     assert item.authority_result.state == "bridge_missing"
     assert "not_established" in item.authority_result.reason_codes
     assert item.authoritative_for == ()
+
+
+def test_default_causal_method_index_provider_projects_owner_rows_without_execution_promotion(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    """The default method bridge consumes persisted owner rows, not execution booleans."""
+    build = _fixture_capability_index_build(tmp_path)
+    capability_index = build.capability_index
+    assert capability_index is not None
+    monkeypatch.setenv("POLISYOS_CAPABILITY_INDEX_PATH", str(build.primary_duckdb_path))
+    expected = tuple(
+        row
+        for row in build_capability_discovery_snapshot(capability_index)
+        if row.resource_kind == "method"
+    )
+    assert expected
+    request = _request(("method",)).model_copy(
+        update={
+            "search": _request(("method",)).search.model_copy(
+                update={
+                    "query_text": "*",
+                    "construct_refs": ("*",),
+                    "budget": {"match_all": True, "top_k": len(expected)},
+                }
+            )
+        }
+    )
+    registries = resolve_control_registry_providers(
+        connectors=object(),  # type: ignore[arg-type]
+        source_profiles=object(),  # type: ignore[arg-type]
+        binding_profiles=object(),  # type: ignore[arg-type]
+        model_profiles=object(),  # type: ignore[arg-type]
+        gy_catalog_graph=object(),
+    )
+    provider = next(
+        candidate
+        for candidate in registries.capability_discovery_providers
+        if candidate.resource_kind == "method"
+    )
+
+    result = provider.search(request)
+    response = _composer(providers=(provider,)).search(
+        request,
+        meta=ApiMeta(request_id="http:method-owner"),
+    )
+
+    assert isinstance(provider, CapabilityIndexCapabilityDiscoveryProvider)
+    assert result.rows == expected
+    assert result.owner_receipt.index_release_ref == capability_index.release_ref
+    assert result.owner_receipt.search_snapshot_digest == result.ledger.corpus_snapshot_hash
+    assert result.owner_receipt.result_digest.startswith("sha256:")
+    assert tuple(item.capability_ref for item in response.results) == tuple(
+        row.capability_ref for row in expected
+    )
+    assert {item.execution_result.state for item in response.results} == {"not_established"}
+    assert {item.authority_result.state for item in response.results} == {"bridge_missing"}
+    assert all(item.authoritative_for == () for item in response.results)
+
+
+def test_owner_signed_capability_purpose_binding_joins_ds9_currentness(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    """Authority needs producer signing, independent verification, and DS9 currentness."""
+    capability_ref = "capability:method:owner-signed"
+    content_digest = "sha256:" + "2" * 64
+    authority_purpose = "review_capability_candidates"
+    producer_identity = "deployment:capability-purpose-owner"
+    now = datetime(2026, 8, 31, 12, tzinfo=UTC)
+    packet_ref = "sha256:" + "8" * 64
+    pair = artifacts.KeyPair.generate()
+    signer = artifacts.Ed25519Signer(pair.private_key)
+    verifier = artifacts.Ed25519Verifier(strict_identity=True)
+    verifier.add_trusted_key(pair.public_key, identity=producer_identity)
+    store = artifacts.FileSystemCAS(tmp_path / "binding-cas")
+    producer = CapabilityPurposeBindingProducer(
+        artifact_store=store,
+        signer=signer,
+        signer_identity=producer_identity,
+    )
+    production = producer.issue(
+        capability_ref=capability_ref,
+        content_digest=content_digest,
+        authority_purpose=authority_purpose,
+        discovery_audience="REVIEWER",
+        approval_packet_ref=packet_ref,
+        tenant_id="tenant-a",
+        run_id="run-a",
+        approval_consumer="polisyos.runtime.capability_discovery",
+        approval_audience="polisyos-runtime",
+        issued_at=now,
+        valid_until=now + timedelta(hours=1),
+    )
+    binding_verifier = CapabilityPurposeBindingVerifier(
+        artifact_store=store,
+        verifier=verifier,
+        expected_signer_identity=producer_identity,
+    )
+    ds9 = object.__new__(ProductionApprovalPacketResolver)
+    currentness_error: list[str] = []
+    currentness_calls: list[dict[str, object]] = []
+
+    def _require_currentness(_self, **bindings: object):
+        currentness_calls.append(bindings)
+        if currentness_error:
+            raise ProductionApprovalResolutionError(currentness_error[-1])
+        return object()
+
+    monkeypatch.setattr(
+        ProductionApprovalPacketResolver,
+        "require_currentness",
+        _require_currentness,
+    )
+    resolver = CapabilityDiscoveryAuthorityResolver(
+        production_approval_resolver=ds9,
+        binding_verifier=binding_verifier,
+    )
+    context = CapabilityAuthorityContext(
+        packet_ref=packet_ref,
+        tenant_id="tenant-a",
+        run_id="run-a",
+        expected_consumer="polisyos.runtime.capability_discovery",
+        expected_audience="REVIEWER",
+        approval_audience="polisyos-runtime",
+        binding_ref=production.binding_ref,
+    )
+
+    admitted = resolver.resolve(
+        capability_ref=capability_ref,
+        content_digest=content_digest,
+        authority_purpose=authority_purpose,
+        audience="REVIEWER",
+        context=context,
+        observed_at=now + timedelta(minutes=1),
+    )
+
+    assert admitted.state == "admitted_authority"
+    assert admitted.binding_ref == production.binding_ref
+    assert admitted.currentness_ref == packet_ref
+    assert admitted.reason_codes == ()
+    assert production.signature_ref in admitted.provenance_refs
+    assert currentness_calls[-1] == {
+        "packet_ref": packet_ref,
+        "tenant_id": "tenant-a",
+        "run_id": "run-a",
+        "expected_consumer": "polisyos.runtime.capability_discovery",
+        "expected_audience": "polisyos-runtime",
+        "evaluated_at": now + timedelta(minutes=1),
+    }
+
+    unsigned = production.binding.model_copy(
+        update={"capability_ref": "capability:method:unsigned"}
+    )
+    unsigned_ref = store.put_json(
+        unsigned.model_dump(mode="json"),
+        artifacts.PutOptions(
+            kind=CAPABILITY_PURPOSE_BINDING_ARTIFACT_KIND,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=CAPABILITY_PURPOSE_BINDING_SCHEMA_NAME,
+                version=unsigned.schema_version,
+            ),
+            producer=artifacts.ProducerInfo(
+                component=unsigned.producer_ref,
+                version=unsigned.schema_version,
+            ),
+        ),
+    )
+    unsigned_result = resolver.resolve(
+        capability_ref=unsigned.capability_ref,
+        content_digest=content_digest,
+        authority_purpose=authority_purpose,
+        audience="REVIEWER",
+        context=context.model_copy(update={"binding_ref": str(unsigned_ref.artifact_id)}),
+        observed_at=now + timedelta(minutes=1),
+    )
+    assert unsigned_result.state == "bridge_missing"
+    assert "owner_binding_unsigned" in unsigned_result.reason_codes
+
+    wrong_identity = CapabilityDiscoveryAuthorityResolver(
+        production_approval_resolver=ds9,
+        binding_verifier=CapabilityPurposeBindingVerifier(
+            artifact_store=store,
+            verifier=verifier,
+            expected_signer_identity="deployment:wrong-owner",
+        ),
+    ).resolve(
+        capability_ref=capability_ref,
+        content_digest=content_digest,
+        authority_purpose=authority_purpose,
+        audience="REVIEWER",
+        context=context,
+        observed_at=now + timedelta(minutes=1),
+    )
+    assert wrong_identity.state == "bridge_missing"
+    assert "owner_binding_signer_identity_mismatch" in wrong_identity.reason_codes
+
+    purpose_mismatch = resolver.resolve(
+        capability_ref=capability_ref,
+        content_digest=content_digest,
+        authority_purpose="publish_capability",
+        audience="REVIEWER",
+        context=context,
+        observed_at=now + timedelta(minutes=1),
+    )
+    assert purpose_mismatch.state == "bridge_missing"
+    assert "owner_binding_purpose_mismatch" in purpose_mismatch.reason_codes
+
+    tampered = producer.issue(
+        capability_ref="capability:method:tampered",
+        content_digest=content_digest,
+        authority_purpose=authority_purpose,
+        discovery_audience="REVIEWER",
+        approval_packet_ref=packet_ref,
+        tenant_id="tenant-a",
+        run_id="run-a",
+        approval_consumer="polisyos.runtime.capability_discovery",
+        approval_audience="polisyos-runtime",
+        issued_at=now,
+        valid_until=now + timedelta(hours=1),
+    )
+    blob_path, _ = store._paths(  # noqa: SLF001
+        artifacts.ArtifactID.model_validate(tampered.binding_ref)
+    )
+    blob_path.write_bytes(blob_path.read_bytes() + b" ")
+    tampered_result = resolver.resolve(
+        capability_ref=tampered.binding.capability_ref,
+        content_digest=content_digest,
+        authority_purpose=authority_purpose,
+        audience="REVIEWER",
+        context=context.model_copy(update={"binding_ref": tampered.binding_ref}),
+        observed_at=now + timedelta(minutes=1),
+    )
+    assert tampered_result.state == "bridge_missing"
+    assert "owner_binding_signature_invalid" in tampered_result.reason_codes
+
+    currentness_error.append("DS9-APPROVAL-EXPIRED")
+    stale = resolver.resolve(
+        capability_ref=capability_ref,
+        content_digest=content_digest,
+        authority_purpose=authority_purpose,
+        audience="REVIEWER",
+        context=context,
+        observed_at=now + timedelta(minutes=2),
+    )
+    assert stale.state == "revalidation_required"
+    assert stale.binding_ref == production.binding_ref
+    assert stale.currentness_ref is None
+    assert "DS9-APPROVAL-EXPIRED" in stale.reason_codes
+
+
+def test_all_layer3_providers_emit_real_rejections_and_incompleteness(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    """G2, G3, and all seven GL ledgers own their complete search frontiers."""
+    from tests.unit.runtime.quality.test_proving_ground_causal_forecast_search import (
+        _create_minimal_skg_fixture,
+        _patch_skg_paths,
+    )
+    from tests.unit.runtime.quality.test_proving_ground_legal_mandate_search import (
+        _write_minimal_legal_kg,
+    )
+
+    g2 = importlib.import_module(
+        "polisyos.runtime.quality.proving_ground.causal_forecast_search"
+    )
+    g2_db_path, academic_root = _create_minimal_skg_fixture(tmp_path)
+    with duckdb.connect(str(g2_db_path)) as con:
+        con.execute(
+            """
+            INSERT INTO ac_skg_edges VALUES
+            ('edge-2', 'policy.credit_access', 'firm.survival', 'positive', 1,
+             '["work-2"]', 'panel_fe', 0.69, now())
+            """
+        )
+    _patch_skg_paths(monkeypatch, g2, tmp_path, g2_db_path, academic_root)
+    g2_request = g2.Layer3G2CausalForecastRequest(
+        request_id="g2-request:owner-frontier",
+        case_id="case:g2:owner-frontier",
+        cause="policy.credit_access",
+        effect="firm.survival",
+        support_mode="exact",
+        limit=1,
+    )
+    g2_ledger = g2.search_l2_skg_for_forecast_candidates(g2_request, tmp_path).ledger
+
+    g3 = importlib.import_module(
+        "polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search"
+    )
+    g3_coverage = g3.build_g3_ir_catalog_coverage(tmp_path)
+    g3_request = g3.Layer3G3AnalyticsRequest(
+        request_id="g3-request:owner-frontier",
+        claim_id="claim:g3:owner-frontier",
+        case_id="case:g3:owner-frontier",
+        cause="policy.credit_access",
+        effect="firm.survival",
+        limit=1,
+    )
+    g3_ledger = g3.search_ir_analytics_catalog(g3_request, g3_coverage).ledger
+
+    gl_root = tmp_path / "gl"
+    _write_minimal_legal_kg(gl_root)
+    gl_db_path = gl_root / "production_data/test_lex/finalize/lex_knowledge_graph.duckdb"
+    with duckdb.connect(str(gl_db_path)) as con:
+        con.execute(
+            """
+            INSERT INTO lex_rule_thresholds VALUES
+            ('threshold-owner-frontier-2', 'fact-owner-frontier-2', 'credit_gap',
+             '<=', '0.09', NULL, 'ratio', 'msme_credit_program')
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_normative_ready_facts VALUES
+            ('fact-owner-frontier-2', 'Second grounded rule.', 'UA', 'economic_policy',
+             '2022-03-01', '2022-12-31', 'resolved', 'legal_kg_candidate',
+             'grounded', 'canonicalized', 'resolved', 'doc-owner-frontier-2', 'section-2',
+             'subsidized_credit', 'threshold', 'second_credit_support_threshold')
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_amendments VALUES
+            ('amendment-owner-frontier-2', 'doc-owner-frontier-amending-2',
+             'doc-owner-frontier-2', '2022-06-01', 'section-2', 'update', 0.88,
+             'owner_frontier_fixture')
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_doc_versions VALUES
+            ('version-owner-frontier-2', 'doc-owner-frontier-2', 'family-owner-frontier-2',
+             'v2', 'owner-002', 'resolution', 'active')
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_doc_temporal VALUES
+            ('doc-owner-frontier-2', '2022-03-01', 'resolved', 'effective',
+             '2022-03-01', '2022-12-31')
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_reference_edges VALUES
+            ('ref-owner-frontier-2', 'doc-owner-frontier-2', 'doc-owner-target-2',
+             'resolved', 'section-2', 'section-3', 'references', 0.89)
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_reference_resolution_audit VALUES
+            ('ref-owner-frontier-2', 'doc-owner-frontier-2', 'resolved',
+             'doc-owner-target-2', 'owner_frontier_fixture', 2)
+            """
+        )
+
+    gl = importlib.import_module(
+        "polisyos.runtime.quality.proving_ground.legal_mandate_search"
+    )
+    monkeypatch.setattr(
+        gl,
+        "CANONICAL_L3_LEGAL_KG_PATH",
+        gl_db_path.relative_to(gl_root),
+    )
+    gl._cached_coverage.cache_clear()  # noqa: SLF001
+    gl_request = gl.Layer3GLLegalMandateRequest(
+        request_id="gl-request:owner-frontier",
+        claim_id="claim:gl:owner-frontier",
+        case_id="case:gl:owner-frontier",
+        legal_requirement_ref="legal-requirement://owner-frontier",
+        jurisdiction="UA",
+        policy_domain="economic_policy",
+        legal_as_of="2022-03-01",
+        intervention_family="subsidized_credit",
+        query_terms=("credit", "threshold"),
+        limit=1,
+    )
+    gl_ledgers = gl.build_gl_legal_search_ledgers(gl_root, (gl_request,))
+
+    native_ledgers = (g2_ledger, g3_ledger, *gl_ledgers)
+    assert len(native_ledgers) == 9
+    owner_frontiers = tuple(getattr(ledger, "owner_frontier", None) for ledger in native_ledgers)
+    assert all(frontier is not None for frontier in owner_frontiers)
+    assert all(frontier.requested_count == 1 for frontier in owner_frontiers)
+    assert all(frontier.rejected_candidates for frontier in owner_frontiers)
+    assert all(
+        frontier.evaluated_count
+        == len(frontier.candidates) + len(frontier.rejected_candidates)
+        for frontier in owner_frontiers
+    )
+    assert sum(frontier.completeness_status == "budget_cutoff" for frontier in owner_frontiers) == 8
+    assert sum(
+        frontier.completeness_status == "complete_no_match" for frontier in owner_frontiers
+    ) == 1
+    assert all(
+        frontier.incompleteness_reasons == ("owner_budget_cutoff",)
+        for frontier in owner_frontiers
+        if frontier.completeness_status == "budget_cutoff"
+    )
+
+    discovery = importlib.import_module("polisyos.runtime.quality.capability_discovery")
+    project = getattr(discovery, "project_layer3_owner_frontier", None)
+    assert callable(project)
+    assert all(
+        project(frontier).model_dump(mode="json") == frontier.model_dump(mode="json")
+        for frontier in owner_frontiers
+    )
 
 
 @pytest.mark.parametrize(
@@ -600,8 +1028,15 @@ def _composer(*, providers: tuple[CapabilityDiscoveryProvider, ...]) -> Capabili
 
 def _fixture_capability_index(tmp_path):
     """Build the real fixture owner index used by Lex-provider tests."""
+    result = _fixture_capability_index_build(tmp_path)
+    assert result.capability_index is not None
+    return result.capability_index
+
+
+def _fixture_capability_index_build(tmp_path):
+    """Build the persisted fixture release used by default-provider tests."""
     input_root = create_capability_index_fixture_inputs(tmp_path / "production_data")
-    result = compile_capability_index(
+    return compile_capability_index(
         CapabilityIndexCompilerConfig(
             production_data_root=input_root,
             output_dir=tmp_path / "capability-index",
@@ -609,8 +1044,6 @@ def _fixture_capability_index(tmp_path):
             generated_at="2026-05-25T00:00:00Z",
         )
     )
-    assert result.capability_index is not None
-    return result.capability_index
 
 
 def _request(resource_kinds: tuple[str, ...]) -> CapabilityDiscoveryRequest:

@@ -8,7 +8,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from polisyos.core.canon import CanonSpec, to_canonical_bytes, truncated_hash
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodRunner,

@@ -23,6 +23,7 @@ from polisyos.ir.analytics.literature import (
     EvidenceParameter,
     EvidenceSpan,
     EvidenceStrength,
+    EvidenceStrengthOrigin,
     ModerationEdge,
     ParameterType,
     SourceBasis,
@@ -271,6 +272,12 @@ def _merge_parameters(rows: list[ArticleExtractionResult]) -> list[EvidenceParam
                         existing.evidence_strength
                         if existing.evidence_strength.value != "unknown"
                         else parameter.evidence_strength
+                    ),
+                    "evidence_strength_origin": (
+                        EvidenceStrengthOrigin.INHERITED
+                        if existing.evidence_strength == EvidenceStrength.UNKNOWN
+                        and parameter.evidence_strength != EvidenceStrength.UNKNOWN
+                        else existing.evidence_strength_origin
                     ),
                     "geographic_scope": existing.geographic_scope or parameter.geographic_scope,
                     "time_period": existing.time_period or parameter.time_period,
@@ -594,18 +601,18 @@ def _effective_parameter_strength(
     *,
     result: ArticleExtractionResult,
     linked_claims: list[CausalClaim],
-) -> str:
+) -> tuple[str, EvidenceStrengthOrigin]:
     if parameter.evidence_strength.value not in {
         EvidenceStrength.UNKNOWN.value,
         EvidenceStrength.THEORETICAL.value,
     }:
-        return parameter.evidence_strength.value
+        return parameter.evidence_strength.value, parameter.evidence_strength_origin
     claim_strength = _best_strength([claim.evidence_strength.value for claim in linked_claims])
     if claim_strength != EvidenceStrength.UNKNOWN.value:
-        return claim_strength
+        return claim_strength, EvidenceStrengthOrigin.INHERITED
     if result.methodology_enum.value != EvidenceStrength.UNKNOWN.value:
-        return result.methodology_enum.value
-    return parameter.evidence_strength.value
+        return result.methodology_enum.value, EvidenceStrengthOrigin.INHERITED
+    return parameter.evidence_strength.value, parameter.evidence_strength_origin
 
 
 def _effective_parameter_unit(
@@ -682,7 +689,7 @@ def _curated_numeric_rows(
             claim_lookup[claim_id] for claim_id in linked_claim_ids if claim_id in claim_lookup
         ]
         effective_unit = _effective_parameter_unit(parameter, linked_claims=linked_claims)
-        effective_strength = _effective_parameter_strength(
+        effective_strength, strength_origin = _effective_parameter_strength(
             parameter,
             result=result,
             linked_claims=linked_claims,
@@ -728,6 +735,7 @@ def _curated_numeric_rows(
                 "std_error": parameter.std_error,
                 "unit": effective_unit,
                 "evidence_strength": effective_strength,
+                "evidence_strength_origin": strength_origin.value,
                 "source_basis": result.source_basis.value,
                 "geographic_scope": parameter.geographic_scope,
                 "time_period": parameter.time_period,
@@ -836,7 +844,7 @@ def _simulation_ready_parameters(
             claim_lookup[claim_id] for claim_id in linked_claim_ids if claim_id in claim_lookup
         ]
         effective_unit = _effective_parameter_unit(parameter, linked_claims=linked_claims)
-        effective_strength = _effective_parameter_strength(
+        effective_strength, strength_origin = _effective_parameter_strength(
             parameter,
             result=result,
             linked_claims=linked_claims,
@@ -882,6 +890,7 @@ def _simulation_ready_parameters(
                 "std_error": parameter.std_error,
                 "unit": effective_unit,
                 "evidence_strength": effective_strength,
+                "evidence_strength_origin": strength_origin.value,
                 "source_basis": result.source_basis.value,
                 "geographic_scope": parameter.geographic_scope,
                 "time_period": parameter.time_period,

@@ -146,7 +146,20 @@ class PriorMiner:
                     direction=_row_string(row, "direction", default="mixed"),
                     confidence=_row_float(row, "confidence"),
                     n_articles=_row_int(row, "n_articles"),
-                    evidence_strength=_row_string(row, "evidence_strength", default="unknown"),
+                    evidence_strength=(
+                        _row_string(row, "evidence_strength")
+                        if row.get("evidence_strength") is not None
+                        else None
+                    ),
+                    evidence_strength_status=_row_string(
+                        row,
+                        "evidence_strength_status",
+                        default=(
+                            "candidate"
+                            if row.get("evidence_strength") is not None
+                            else "not_established"
+                        ),
+                    ),
                     candidate_layer=_row_string(
                         row,
                         "candidate_layer",

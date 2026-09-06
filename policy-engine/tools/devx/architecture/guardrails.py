@@ -20,6 +20,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 from tools.lib.imports import repo_root_from
 
 REPO_ROOT = repo_root_from(__file__)
@@ -34,6 +36,12 @@ DEFAULT_EXCEPTION_FILE = REPO_ROOT / "architecture" / "exceptions" / "guardrails
 DEFAULT_EXCEPTION_REGISTRY = REPO_ROOT / "architecture" / "guardrail_exceptions_registry.md"
 DEFAULT_MODULE_SIZE_BUDGET = REPO_ROOT / "architecture" / "module_size_budget.toml"
 DEFAULT_MAX_EXPIRY_DAYS = 90
+STATUS_RETIREMENT_STANDALONE_NOTICE = (
+    "Standalone Atlas gate: "
+    "architecture/atlas_surfaces/check_status_retirement_inventory.py is not run by "
+    "`uv run polisyos-tools architecture guardrails check`; run it explicitly or "
+    "through architecture/atlas_surfaces/check_atlas_enforcement.py."
+)
 RUNTIME_OPENAPI_CLIENT_SOURCE = "schemas/runtime_api_v1.openapi.json"
 FRESHNESS_PATTERNS = (
     re.compile(r"^- Last updated:\s+\d{4}-\d{2}-\d{2}$", flags=re.MULTILINE),
@@ -69,6 +77,16 @@ WORKFLOW_BASELINE_REQUIREMENTS: dict[str, tuple[tuple[str, str, str], ...]] = {
             "uv_guardrails",
             "uv run polisyos-tools architecture guardrails check",
             "Architecture workflow must run the architecture guardrails inside the synced `uv` environment.",
+        ),
+    ),
+}
+WORKFLOW_RUN_REQUIREMENTS: dict[str, tuple[tuple[str, str, str, str], ...]] = {
+    "ops/ci/templates/workflows/arch.yml": (
+        (
+            "trust_claim_posture",
+            "import-gate",
+            "uv run pytest tests/repo_quality/tools/test_trust_claim_posture.py -q",
+            "Architecture workflow must run the trust-claim posture semantic guardrail.",
         ),
     ),
 }
@@ -1690,7 +1708,12 @@ def _run_required_generated_artifact_checks(
 
 def _check_workflow_toolchain_guardrails() -> list[GuardrailViolation]:
     violations: list[GuardrailViolation] = []
-    for workflow_rel, rules in WORKFLOW_BASELINE_REQUIREMENTS.items():
+    workflow_paths = sorted(
+        set(WORKFLOW_BASELINE_REQUIREMENTS)
+        | set(WORKFLOW_RUN_REQUIREMENTS)
+        | set(WORKFLOW_BASELINE_FORBIDDEN)
+    )
+    for workflow_rel in workflow_paths:
         workflow_path = REPO_ROOT / workflow_rel
         if not workflow_path.exists():
             violations.append(
@@ -1703,7 +1726,9 @@ def _check_workflow_toolchain_guardrails() -> list[GuardrailViolation]:
             )
             continue
         text = workflow_path.read_text(encoding="utf-8")
-        for detail, snippet, message in rules:
+        for detail, snippet, message in WORKFLOW_BASELINE_REQUIREMENTS.get(
+            workflow_rel, ()
+        ):
             if snippet not in text:
                 violations.append(
                     GuardrailViolation(
@@ -1713,12 +1738,51 @@ def _check_workflow_toolchain_guardrails() -> list[GuardrailViolation]:
                         message=f"{message} Expected snippet: `{snippet}`",
                     )
                 )
-    for workflow_rel, rules in WORKFLOW_BASELINE_FORBIDDEN.items():
-        workflow_path = REPO_ROOT / workflow_rel
-        if not workflow_path.exists():
-            continue
-        text = workflow_path.read_text(encoding="utf-8")
-        for detail, snippet, message in rules:
+        run_requirements = WORKFLOW_RUN_REQUIREMENTS.get(workflow_rel, ())
+        if run_requirements:
+            try:
+                payload = yaml.safe_load(text)
+            except yaml.YAMLError as exc:
+                violations.append(
+                    GuardrailViolation(
+                        check="workflow_config",
+                        subject=workflow_rel,
+                        detail="invalid_yaml",
+                        message=f"Workflow/config YAML is invalid: {exc}",
+                    )
+                )
+                payload = None
+            jobs = payload.get("jobs") if isinstance(payload, dict) else None
+            for detail, job_id, command, message in run_requirements:
+                job = jobs.get(job_id) if isinstance(jobs, dict) else None
+                job_gates = (
+                    isinstance(job, dict)
+                    and "if" not in job
+                    and job.get("continue-on-error", False) is False
+                )
+                steps = job.get("steps", ()) if isinstance(job, dict) else ()
+                command_gates = any(
+                    isinstance(step, dict)
+                    and step.get("run") == command
+                    and "if" not in step
+                    and step.get("continue-on-error", False) is False
+                    for step in steps
+                )
+                if not job_gates or not command_gates:
+                    violations.append(
+                        GuardrailViolation(
+                            check="workflow_config",
+                            subject=workflow_rel,
+                            detail=detail,
+                            message=(
+                                f"{message} Expected unconditional gating run command in job "
+                                f"`{job_id}`: `{command}`"
+                            ),
+                        )
+                    )
+        for detail, snippet, message in WORKFLOW_BASELINE_FORBIDDEN.get(
+            workflow_rel, ()
+        ):
             if snippet in text:
                 violations.append(
                     GuardrailViolation(
@@ -2015,6 +2079,7 @@ def run_check(args: argparse.Namespace) -> int:
             )
         )
 
+    print(STATUS_RETIREMENT_STANDALONE_NOTICE)
     if violations:
         print("Architecture guardrail check FAILED:")
         for violation in violations:

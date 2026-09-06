@@ -8,6 +8,7 @@ import socket
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, ClassVar
 
 import pandas as pd
@@ -39,8 +40,12 @@ from polisyos.ir.connectors import (
     QualityTier,
     VersionStrategy,
 )
+from polisyos.runtime.http.services import (
+    acquisition_surface_execution as acquisition_surface_execution_module,
+)
 from polisyos.runtime.quality import acquisition_executor as acquisition_executor_module
 from polisyos.runtime.quality.acquisition_executor import (
+    LiveAcquisitionExecutionError,
     LiveCatalogExecutionConstraints,
     execute_live_catalog_acquisition,
 )
@@ -104,6 +109,34 @@ def _constraints() -> LiveCatalogExecutionConstraints:
         max_decompressed_bytes=65_536,
         timeout_cap_seconds=15.0,
         heartbeat_cap_seconds=5.0,
+    )
+
+
+def _route_closure(
+    *,
+    variable_id: str = "government.balance",
+    region: str = _COUNTRY_CODE,
+    data_time: str = "2024",
+) -> object:
+    """Return the exact route projection consumed by the live binding resolver."""
+
+    return SimpleNamespace(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        run_id="run-acquisition",
+        route_id="sha256:" + "1" * 64,
+        design_problem=SimpleNamespace(
+            jurisdiction_time=SimpleNamespace(region=region, data_time=data_time)
+        ),
+        planner_record=SimpleNamespace(
+            gap_type="data_snapshot_release",
+            requirement_family="data_requirement",
+            requirement_schema_version=("policyos.runtime.l1_variable_availability_gap.v1"),
+            missing_requirement_fields=(
+                f"canonical_variable_observations:{variable_id}",
+            ),
+            recommended_strategy="production_snapshot_build",
+        ),
     )
 
 
@@ -497,6 +530,309 @@ def _entry_with_temporal_scope(
     return catalog_read_api.build_authority_entry(**values)
 
 
+def _sibling_entry_with_same_target() -> object:
+    values = _entry().model_dump(mode="python", exclude={"entry_id"})
+    values["schema_columns"] = tuple(
+        catalog_read_api.AuthoritySchemaColumn.model_validate(column)
+        for column in values["schema_columns"]
+    )
+    values.update(
+        {
+            "landing_dataset_id": "acquisition.worldbank.government_balance.sibling",
+            "landing_distribution_id": (
+                "acquisition.worldbank.government_balance.sibling.json"
+            ),
+            "title": "Sibling government balance authority",
+        }
+    )
+    return catalog_read_api.build_authority_entry(**values)
+
+
+def test_route_binding_resolves_one_content_bound_world_bank_attempt(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    entry = _entry()
+    receipt_provision = _write_family_receipt(
+        repo_root,
+        entry_id=entry.entry_id,
+        attempt_id=_ATTEMPT_ID,
+        receipt=_family_receipt(),
+    )
+    authority, entry = _resolver(
+        repo_root,
+        authority_entry=entry,
+        live_harness_receipts=(receipt_provision,),
+    )
+    registry = catalog_read_api.AcquisitionAuthorityRegistry.model_validate_json(
+        authority.registry_path.read_bytes()
+    )
+
+    bindings = (
+        acquisition_surface_execution_module.resolve_world_bank_wdi_route_execution_bindings(
+            closure=_route_closure(),
+            authority=authority,
+            registry=registry,
+            provision=authority.provision,
+            provision_content_sha256=authority.provision_content_sha256,
+        )
+    )
+
+    assert len(bindings) == 1
+    binding = bindings[0]
+    assert binding.authority_entry_id == entry.entry_id
+    assert binding.authority_provision_id == authority.provision.provision_id
+    assert binding.authority_registry_content_sha256 == registry.content_sha256
+    assert binding.target_variable == "government.balance"
+    assert binding.connector_id == "worldbank.wdi"
+    assert binding.attempt_id == _ATTEMPT_ID
+    assert binding.constraints == LiveCatalogExecutionConstraints(
+        country_code="UKR",
+        start_year=2024,
+        end_year=2024,
+        page_size=1000,
+        max_response_bytes=65_536,
+        max_decompressed_bytes=65_536,
+        timeout_cap_seconds=15.0,
+        heartbeat_cap_seconds=5.0,
+    )
+
+
+@pytest.mark.parametrize(
+    ("route", "expected_code"),
+    [
+        (
+            SimpleNamespace(
+                **{
+                    **vars(_route_closure()),
+                    "planner_record": SimpleNamespace(
+                        **{
+                            **vars(_route_closure().planner_record),
+                            "gap_type": "legal_corpus_coverage",
+                        }
+                    ),
+                }
+            ),
+            "live_route_requirement_shape_invalid",
+        ),
+        (
+            SimpleNamespace(
+                **{
+                    **vars(_route_closure()),
+                    "planner_record": SimpleNamespace(
+                        **{
+                            **vars(_route_closure().planner_record),
+                            "missing_requirement_fields": (),
+                        }
+                    ),
+                }
+            ),
+            "live_route_variable_requirement_invalid",
+        ),
+        (
+            SimpleNamespace(
+                **{
+                    **vars(_route_closure()),
+                    "planner_record": SimpleNamespace(
+                        **{
+                            **vars(_route_closure().planner_record),
+                            "missing_requirement_fields": (
+                                "canonical_variable_observations:government.balance",
+                                "canonical_variable_observations:inflation",
+                            ),
+                        }
+                    ),
+                }
+            ),
+            "live_route_variable_requirement_invalid",
+        ),
+    ],
+)
+def test_route_binding_rejects_bad_route_shape_before_authority_resolution(
+    route: object,
+    expected_code: str,
+) -> None:
+    class _AuthorityMustNotResolve:
+        def resolve(self, entry_id: str) -> object:
+            pytest.fail(f"authority resolved for rejected route: {entry_id}")
+
+    with pytest.raises(LiveAcquisitionExecutionError) as exc_info:
+        acquisition_surface_execution_module.resolve_world_bank_wdi_route_execution_bindings(
+            closure=route,
+            authority=_AuthorityMustNotResolve(),
+            registry=SimpleNamespace(entries=()),
+            provision=SimpleNamespace(),
+            provision_content_sha256="sha256:" + "0" * 64,
+        )
+
+    assert exc_info.value.code == expected_code
+
+
+def test_route_binding_rejects_missing_and_out_of_scope_authority(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    entry = _entry()
+    receipt_provision = _write_family_receipt(
+        repo_root,
+        entry_id=entry.entry_id,
+        attempt_id=_ATTEMPT_ID,
+        receipt=_family_receipt(),
+    )
+    authority, _ = _resolver(
+        repo_root,
+        authority_entry=entry,
+        live_harness_receipts=(receipt_provision,),
+    )
+    registry = catalog_read_api.AcquisitionAuthorityRegistry.model_validate_json(
+        authority.registry_path.read_bytes()
+    )
+    common = {
+        "authority": authority,
+        "registry": registry,
+        "provision": authority.provision,
+        "provision_content_sha256": authority.provision_content_sha256,
+    }
+
+    cases = (
+        (_route_closure(variable_id="inflation"), "live_route_authority_entry_missing"),
+        (_route_closure(region="POL"), "live_request_outside_authority_countries"),
+        (_route_closure(data_time="2025"), "live_request_outside_authority_period"),
+        (_route_closure(data_time="2024-Q1"), "live_route_data_time_invalid"),
+    )
+    for route, expected_code in cases:
+        with pytest.raises(LiveAcquisitionExecutionError) as exc_info:
+            acquisition_surface_execution_module.resolve_world_bank_wdi_route_execution_bindings(
+                closure=route,
+                **common,
+            )
+        assert exc_info.value.code == expected_code
+
+
+def test_route_binding_requires_a_reopenable_provisioned_attempt(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    authority, _ = _resolver(repo_root, authority_entry=_entry())
+    registry = catalog_read_api.AcquisitionAuthorityRegistry.model_validate_json(
+        authority.registry_path.read_bytes()
+    )
+
+    with pytest.raises(LiveAcquisitionExecutionError) as exc_info:
+        acquisition_surface_execution_module.resolve_world_bank_wdi_route_execution_bindings(
+            closure=_route_closure(),
+            authority=authority,
+            registry=registry,
+            provision=authority.provision,
+            provision_content_sha256=authority.provision_content_sha256,
+        )
+
+    assert exc_info.value.code == "live_route_authority_attempt_missing"
+
+
+def test_route_binding_rejects_ambiguous_entry_and_owner_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    entry = _entry()
+    receipt_provision = _write_family_receipt(
+        repo_root,
+        entry_id=entry.entry_id,
+        attempt_id=_ATTEMPT_ID,
+        receipt=_family_receipt(),
+    )
+    authority, _ = _resolver(
+        repo_root,
+        authority_entry=entry,
+        live_harness_receipts=(receipt_provision,),
+    )
+    registry = catalog_read_api.AcquisitionAuthorityRegistry.model_validate_json(
+        authority.registry_path.read_bytes()
+    )
+    common = {
+        "closure": _route_closure(),
+        "authority": authority,
+        "provision": authority.provision,
+        "provision_content_sha256": authority.provision_content_sha256,
+    }
+
+    ambiguous = catalog_read_api.build_authority_registry(
+        baseline_content_sha256=registry.baseline_content_sha256,
+        l5_measurement_registry_sha256=registry.l5_measurement_registry_sha256,
+        entries=(entry, _sibling_entry_with_same_target()),
+    )
+    with pytest.raises(LiveAcquisitionExecutionError) as ambiguous_error:
+        acquisition_surface_execution_module.resolve_world_bank_wdi_route_execution_bindings(
+            registry=ambiguous,
+            **common,
+        )
+    assert ambiguous_error.value.code == "live_route_authority_entry_ambiguous"
+
+    with pytest.raises(LiveAcquisitionExecutionError) as registry_drift:
+        acquisition_surface_execution_module.resolve_world_bank_wdi_route_execution_bindings(
+            registry=registry.model_copy(
+                update={"content_sha256": "sha256:" + "0" * 64}
+            ),
+            **common,
+        )
+    assert registry_drift.value.code == "live_route_authority_registry_drift"
+
+    with pytest.raises(LiveAcquisitionExecutionError) as provision_drift:
+        acquisition_surface_execution_module.resolve_world_bank_wdi_route_execution_bindings(
+            registry=registry,
+            **{
+                **common,
+                "provision_content_sha256": "sha256:" + "0" * 64,
+            },
+        )
+    assert provision_drift.value.code == "live_route_authority_provision_drift"
+
+    receipt_path = repo_root / receipt_provision["receipt_owner_ref"].removeprefix("repo://")
+    receipt_path.write_text("{}", encoding="utf-8")
+    with pytest.raises(LiveAcquisitionExecutionError) as receipt_drift:
+        acquisition_surface_execution_module.resolve_world_bank_wdi_route_execution_bindings(
+            registry=registry,
+            **common,
+        )
+    assert receipt_drift.value.code == "live_route_authority_attempt_unresolved"
+
+
+def test_route_binding_rejects_non_world_bank_connector_before_attempt_resolution(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    entry = _entry()
+    authority, _ = _resolver(repo_root, authority_entry=entry)
+    registry = catalog_read_api.AcquisitionAuthorityRegistry.model_validate_json(
+        authority.registry_path.read_bytes()
+    )
+    resolved = authority.resolve(entry.entry_id)
+    drifted = resolved.model_copy(
+        update={
+            "registration": resolved.registration.model_copy(
+                update={"connector_id": "another.connector"}
+            )
+        }
+    )
+    authority_view = SimpleNamespace(
+        resolve=lambda _entry_id: drifted,
+        resolve_live_harness_receipt=lambda *_args: pytest.fail(
+            "out-of-scope connector reached attempt resolution"
+        ),
+    )
+
+    with pytest.raises(LiveAcquisitionExecutionError) as exc_info:
+        acquisition_surface_execution_module.resolve_world_bank_wdi_route_execution_bindings(
+            closure=_route_closure(),
+            authority=authority_view,
+            registry=registry,
+            provision=authority.provision,
+            provision_content_sha256=authority.provision_content_sha256,
+        )
+
+    assert exc_info.value.code == "live_route_connector_family_out_of_scope"
+
+
 def test_live_executor_uses_orchestration_and_returns_reopenable_one_call_evidence(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -543,6 +879,8 @@ def test_live_executor_uses_orchestration_and_returns_reopenable_one_call_eviden
         "heartbeat",
         "heartbeat",
         "raw_response",
+        "classification",
+        "live_attempt_terminal",
     ]
     assert stub.cas_root is not None
     entry_id = resolve_journal_event_ref(evidence.request_ref)["request"]["authority_entry_id"]

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -12,6 +14,8 @@ from pydantic import ValidationError
 
 from polisyos.core import artifacts, canon
 from polisyos.runtime.quality import derived_observations as derived_module
+from polisyos.runtime.quality import epoch_validity_cascade as epoch_cascade
+from polisyos.runtime.quality import semantic_epoch as semantic_epoch_runtime
 from polisyos.runtime.quality.derived_observations import (
     ArithmeticExpression,
     AuthorityProjection,
@@ -1344,3 +1348,364 @@ def test_persisted_v1_certificate_is_recognized_and_typed_refused(tmp_path: Path
         )
 
     assert raised.value.code.value == "legacy_schema_unsupported"
+
+
+def _epoch_digest(label: str) -> str:
+    return f"sha256:{hashlib.sha256(label.encode()).hexdigest()}"
+
+
+def _epoch_manifest(
+    *,
+    label: str,
+    predecessors: tuple[str, ...],
+) -> semantic_epoch_runtime.SemanticEpochManifest:
+    scope = semantic_epoch_runtime.build_epoch_scope_identity(
+        schema_profile="polisyos.epoch.recompute-test-scope.v1",
+        identity_bytes=b"derived-observations-recompute",
+    )
+    values: dict[str, object] = {
+        "schema_version": "polisyos.epoch.semantic-manifest.v1",
+        "scope_identity": scope.model_dump(mode="json"),
+        "authority_purpose": "decision_validity_epoch_transition",
+        "valid_effect_coordinate_ref": _epoch_digest("valid-effect"),
+        "visibility_knowledge_cutoff_ref": _epoch_digest("knowledge-cutoff"),
+        "purpose_admission_cutoff_ref": _epoch_digest("purpose-cutoff"),
+        "requested_query_context_ref": _epoch_digest(f"manifest-query:{label}"),
+        "boundary_registry_content_hash": _epoch_digest("boundary-registry"),
+        "facet_registry_content_hash": _epoch_digest("facet-registry"),
+        "boundary_denominator_hash": _epoch_digest(f"boundary:{label}"),
+        "facet_denominator_hash": _epoch_digest("facet-denominator"),
+        "boundary_semantic_hashes": [_epoch_digest(f"boundary-semantic:{label}")],
+        "facet_semantic_hashes": [_epoch_digest("facet-semantic")],
+        "predecessor_refs": list(predecessors),
+    }
+    manifest_hash = semantic_epoch_runtime._model_hash(
+        semantic_epoch_runtime._MANIFEST_PREFIX,
+        values,
+    )
+    return semantic_epoch_runtime.SemanticEpochManifest(
+        **values,
+        manifest_content_hash=manifest_hash,
+        epoch_ref=semantic_epoch_runtime._sha256(
+            semantic_epoch_runtime._EPOCH_PREFIX,
+            manifest_hash.encode(),
+        ),
+    )
+
+
+@dataclass(frozen=True)
+class _EpochRecomputeFixture:
+    store: artifacts.FileSystemCAS
+    transition_ref: artifacts.ArtifactRef
+    transition: epoch_cascade.EpochValidityTransitionArtifact
+    source_ref: artifacts.ArtifactRef
+    target_ref: artifacts.ArtifactRef
+    certificate_ref: artifacts.ArtifactRef
+    recipe_ref: artifacts.ArtifactRef
+    derived_ref: artifacts.ArtifactRef
+    relation: str
+    disposition: str
+    query_ref: str
+    purpose: str
+
+
+def _epoch_recompute_fixture(
+    tmp_path: Path,
+    *,
+    output_label: str = "primary",
+    authority_purpose: str = "decision_validity_epoch_transition",
+    use_graph_digest_as_outer: bool = False,
+) -> _EpochRecomputeFixture:
+    store, refs, output_basis, _, _ = _case_inputs(
+        tmp_path / "cas",
+        "price_level_rebase",
+    )
+    recipe = build_derivation_recipe(
+        store,
+        registry=_registry(),
+        input_refs=refs,
+        output_variable_id=f"test.epoch.recomputed.{output_label}",
+        output_basis=output_basis,
+    )
+    materialized = materialize_derivation(store, recipe)
+    recipe_ref = derived_module.persist_derivation_recipe_artifact(store, recipe)
+    previous = _epoch_manifest(label="previous", predecessors=())
+    current = _epoch_manifest(label="current", predecessors=(previous.epoch_ref,))
+    purpose = authority_purpose
+    query_ref = _epoch_digest("recompute-query")
+    source_ref = refs["amount"]
+    target_ref = materialized.certificate_artifact_ref
+    relation = "derived_output_inherits_epoch"
+    recipe_binding = epoch_cascade.DerivationRecipeBinding(
+        recipe_ref=recipe_ref,
+        recipe_content_hash=str(recipe_ref.artifact_id),
+        recipe_schema_profile_ref=_epoch_digest("derivation-recipe-profile"),
+        input_roles=tuple(sorted(refs)),
+    )
+    certificate_binding = epoch_cascade.bind_certificate_to_epoch(
+        certificate_ref=materialized.certificate_artifact_ref,
+        certificate_content_hash=str(materialized.certificate_artifact_ref.artifact_id),
+        epoch=previous,
+        input_certificate_refs=tuple(refs[key] for key in sorted(refs)),
+        recipe=recipe_binding,
+        canonical_producer_ref="polisyos.runtime.quality.derived_observations@2.0.0",
+        authority_purpose=purpose,
+        native_coordinate_refs=(),
+        rule_schema_profile_refs=(_epoch_digest("derivation-rule-profile"),),
+    )
+    edges = (
+        epoch_cascade.EpochDependencyEdge(
+            source_ref=source_ref,
+            target_ref=target_ref,
+            relation=relation,
+            authority_purpose=purpose,
+        ),
+    )
+    graph = epoch_cascade.EpochDependencyGraph(
+        edges=edges,
+        denominator_ref=epoch_cascade._semantic_hash(
+            "polisyos.epoch.dependency-graph.v1",
+            {"edges": edges},
+        ),
+    )
+    vector = epoch_cascade.resolve_owner_target_dispositions(
+        advisory_events=(),
+        owner_dispositions=(),
+        dependency_graph=graph,
+    )
+    transition = epoch_cascade.build_epoch_validity_transition(
+        previous_epoch=previous,
+        current_epoch=current,
+        certificates=(certificate_binding,),
+        dependency_graph=graph,
+        target_vector=vector,
+        dependency_denominator_ref=(
+            graph.denominator_ref
+            if use_graph_digest_as_outer
+            else epoch_cascade.epoch_dependency_outer_denominator_ref(
+                certificate_bindings=(certificate_binding,),
+                dependency_graph=graph,
+            )
+        ),
+        adjudication_denominator_ref=_epoch_digest("adjudication-denominator"),
+        requested_query_context_ref=query_ref,
+        authority_purpose=purpose,
+    )
+    transition_ref = store.put_bytes(
+        epoch_cascade._canonical_bytes(transition),
+        artifacts.ArtifactWriteOptions(
+            kind="polisyos.epoch.validity_transition",
+            media_type="application/vnd.polisyos.chronology+json",
+        ),
+    )
+    return _EpochRecomputeFixture(
+        store=store,
+        transition_ref=transition_ref,
+        transition=transition,
+        source_ref=source_ref,
+        target_ref=target_ref,
+        certificate_ref=materialized.certificate_artifact_ref,
+        recipe_ref=recipe_ref,
+        derived_ref=materialized.derived_artifact_ref,
+        relation=relation,
+        disposition="unchanged",
+        query_ref=query_ref,
+        purpose=purpose,
+    )
+
+
+def _produce_epoch_recompute(
+    fixture: _EpochRecomputeFixture,
+    **changes: object,
+):
+    values: dict[str, object] = {
+        "transition_ref": fixture.transition_ref,
+        "expected_previous_epoch_ref": fixture.transition.previous_epoch_ref,
+        "expected_current_epoch_ref": fixture.transition.current_epoch_ref,
+        "requested_query_context_ref": fixture.query_ref,
+        "authority_purpose": fixture.purpose,
+        "source_ref": fixture.source_ref,
+        "target_ref": fixture.target_ref,
+        "relation": fixture.relation,
+        "expected_target_disposition": fixture.disposition,
+        "certificate_ref": fixture.certificate_ref,
+    }
+    values.update(changes)
+    return derived_module.produce_epoch_inheritance_recompute_receipt(
+        fixture.store,
+        **values,
+    )
+
+
+def _read_epoch_recompute(
+    fixture: _EpochRecomputeFixture,
+    receipt_ref: artifacts.ArtifactRef,
+    **changes: object,
+):
+    values: dict[str, object] = {
+        "receipt_ref": receipt_ref,
+        "expected_previous_epoch_ref": fixture.transition.previous_epoch_ref,
+        "expected_current_epoch_ref": fixture.transition.current_epoch_ref,
+        "requested_query_context_ref": fixture.query_ref,
+        "authority_purpose": fixture.purpose,
+        "source_ref": fixture.source_ref,
+        "target_ref": fixture.target_ref,
+        "relation": fixture.relation,
+        "expected_target_disposition": fixture.disposition,
+        "certificate_ref": fixture.certificate_ref,
+    }
+    values.update(changes)
+    return derived_module.read_epoch_inheritance_recompute_receipt(
+        fixture.store,
+        **values,
+    )
+
+
+def test_epoch_inheritance_recompute_receipt_round_trips_exact_owner_graph(
+    tmp_path: Path,
+) -> None:
+    fixture = _epoch_recompute_fixture(tmp_path)
+    expected_outer_denominator_ref = epoch_cascade.epoch_dependency_outer_denominator_ref(
+        certificate_bindings=fixture.transition.certificate_bindings,
+        dependency_graph=fixture.transition.dependency_graph,
+    )
+    assert fixture.transition.dependency_denominator_ref == expected_outer_denominator_ref
+    assert (
+        fixture.transition.dependency_denominator_ref
+        != fixture.transition.dependency_graph.denominator_ref
+    )
+
+    persisted = _produce_epoch_recompute(fixture)
+    reread = _read_epoch_recompute(fixture, persisted.receipt_artifact_ref)
+    raw = fixture.store.get_bytes(persisted.receipt_artifact_ref.artifact_id)
+    manifest = fixture.store.get_manifest(persisted.receipt_artifact_ref.artifact_id)
+    payload = derived_module._canonical_payload(raw)
+
+    assert reread == persisted
+    assert persisted.receipt_content_hash == str(persisted.receipt_artifact_ref.artifact_id)
+    assert payload["state"] == "completed"
+    assert payload["predicate_class"] == "recomputed"
+    assert payload["dependency_denominator_ref"] == expected_outer_denominator_ref
+    assert payload["derived_artifact_ref"] == fixture.derived_ref.model_dump(mode="json")
+    assert "series" not in payload
+    assert tuple((row.role, str(row.artifact_id)) for row in manifest.inputs) == (
+        ("derivation_certificate", str(fixture.certificate_ref.artifact_id)),
+        ("derivation_recipe", str(fixture.recipe_ref.artifact_id)),
+        ("derived_series", str(fixture.derived_ref.artifact_id)),
+        ("epoch_transition", str(fixture.transition_ref.artifact_id)),
+        ("graph_edge_source", str(fixture.source_ref.artifact_id)),
+        ("graph_edge_target", str(fixture.target_ref.artifact_id)),
+    )
+
+
+def test_epoch_inheritance_recompute_rejects_graph_digest_substituted_for_outer_denominator(
+    tmp_path: Path,
+) -> None:
+    """Certified recomputation refuses a content-valid legacy graph-only transition."""
+
+    fixture = _epoch_recompute_fixture(tmp_path, use_graph_digest_as_outer=True)
+    expected_outer = epoch_cascade._semantic_hash(
+        "polisyos.epoch.dependency-denominator.v1",
+        {
+            "certificate_bindings": fixture.transition.certificate_bindings,
+            "dependency_graph": fixture.transition.dependency_graph,
+            "target_refs": (fixture.target_ref,),
+        },
+    )
+    assert fixture.transition.dependency_denominator_ref == (
+        fixture.transition.dependency_graph.denominator_ref
+    )
+    assert fixture.transition.dependency_denominator_ref != expected_outer
+    assert (
+        derived_module._read_epoch_validity_transition(fixture.store, fixture.transition_ref)
+        == fixture.transition
+    )
+    before_receipts = tuple(
+        artifact_id
+        for artifact_id in fixture.store.iter_artifact_ids()
+        if fixture.store.get_manifest(artifact_id).kind
+        == derived_module.EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND
+    )
+
+    with pytest.raises(DerivationRefusalError) as raised:
+        _produce_epoch_recompute(fixture)
+
+    assert raised.value.code is DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT
+    after_receipts = tuple(
+        artifact_id
+        for artifact_id in fixture.store.iter_artifact_ids()
+        if fixture.store.get_manifest(artifact_id).kind
+        == derived_module.EPOCH_INHERITANCE_RECOMPUTE_RECEIPT_KIND
+    )
+    assert after_receipts == before_receipts == ()
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement"),
+    [
+        ("expected_current_epoch_ref", _epoch_digest("authentic-old-current")),
+        ("requested_query_context_ref", _epoch_digest("substituted-query")),
+        ("authority_purpose", "substituted_purpose"),
+        ("relation", "sibling_relation"),
+        ("expected_target_disposition", "reissue"),
+    ],
+)
+def test_epoch_inheritance_recompute_rejects_coordinate_or_edge_substitution(
+    tmp_path: Path,
+    field: str,
+    replacement: str,
+) -> None:
+    fixture = _epoch_recompute_fixture(tmp_path)
+
+    with pytest.raises(DerivationRefusalError) as raised:
+        _produce_epoch_recompute(fixture, **{field: replacement})
+
+    assert raised.value.code is DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT
+
+
+def test_epoch_inheritance_recompute_rejects_authentic_certificate_substitution(
+    tmp_path: Path,
+) -> None:
+    fixture = _epoch_recompute_fixture(tmp_path / "first")
+    other = _epoch_recompute_fixture(tmp_path / "other", output_label="substituted")
+
+    with pytest.raises(DerivationRefusalError) as raised:
+        _produce_epoch_recompute(fixture, certificate_ref=other.certificate_ref)
+
+    assert raised.value.code is DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT
+
+
+@pytest.mark.parametrize("artifact", ["receipt", "transition", "certificate", "derived"])
+def test_epoch_inheritance_recompute_reader_rejects_owner_artifact_drift(
+    tmp_path: Path,
+    artifact: str,
+) -> None:
+    fixture = _epoch_recompute_fixture(tmp_path)
+    persisted = _produce_epoch_recompute(fixture)
+    ref = {
+        "receipt": persisted.receipt_artifact_ref,
+        "transition": fixture.transition_ref,
+        "certificate": fixture.certificate_ref,
+        "derived": fixture.derived_ref,
+    }[artifact]
+    blob_path, _ = fixture.store.get_paths(ref.artifact_id)
+    blob_path.write_bytes(blob_path.read_bytes() + b"corrupt")
+
+    with pytest.raises(DerivationRefusalError):
+        _read_epoch_recompute(fixture, persisted.receipt_artifact_ref)
+
+
+def test_epoch_inheritance_recompute_reader_rejects_receipt_manifest_input_drift(
+    tmp_path: Path,
+) -> None:
+    fixture = _epoch_recompute_fixture(tmp_path)
+    persisted = _produce_epoch_recompute(fixture)
+    _, manifest_path = fixture.store.get_paths(persisted.receipt_artifact_ref.artifact_id)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["inputs"] = []
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(DerivationRefusalError) as raised:
+        _read_epoch_recompute(fixture, persisted.receipt_artifact_ref)
+
+    assert raised.value.code is DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT

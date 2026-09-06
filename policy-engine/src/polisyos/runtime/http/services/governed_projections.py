@@ -15,7 +15,7 @@ from pathlib import Path
 from threading import Lock
 from typing import TYPE_CHECKING, Annotated, Any, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, WithJsonSchema, model_validator
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, WithJsonSchema, model_validator
 
 from polisyos.common import serialization
 from polisyos.pdc import gy_content_hash
@@ -105,15 +105,208 @@ class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class DependencyDiscriminantAuthorityBoundary(_StrictModel):
+    """Declare the only diagnostic use and the explicitly denied authority uses."""
+
+    authoritative_for: tuple[Literal["dependency_environment_diagnosis"], ...]
+    may_not_use_for: tuple[
+        Literal[
+            "n8_admission",
+            "n10a_stage_gap_closure",
+            "chronology_acceptance",
+            "policy_publication",
+            "policy_promotion",
+        ],
+        ...,
+    ]
+
+    @model_validator(mode="after")
+    def _boundary_is_exact(self) -> Self:
+        if self.authoritative_for != ("dependency_environment_diagnosis",):
+            raise ValueError("dependency diagnostic authoritative uses drifted")
+        if self.may_not_use_for != (
+            "n8_admission",
+            "n10a_stage_gap_closure",
+            "chronology_acceptance",
+            "policy_publication",
+            "policy_promotion",
+        ):
+            raise ValueError("dependency diagnostic denied uses drifted")
+        return self
+
+
+class DependencyDigestProjection(_StrictModel):
+    """Carry one owner-computed digest without recomputing it in Runtime."""
+
+    domain: str
+    value: str
+
+
+class DependencyRecordRefProjection(_StrictModel):
+    """Carry the owner record reference used by the discriminant."""
+
+    schema_version: str
+    semantic_hash: DependencyDigestProjection
+    artifact_id: str
+
+
+class DependencyDistributionProjection(_StrictModel):
+    """Carry one member of the owner-resolved deployment closure."""
+
+    name: str
+    version: str
+    source_kind: str
+    selected_artifact: DependencyDigestProjection
+
+
+class DependencyProfileDiscriminantProjection(_StrictModel):
+    """Transport the complete Foundry-owned dependency discriminant unchanged."""
+
+    schema_version: Literal["polisyos.foundry.dependency-discriminant.v1"]
+    rule_version: Literal["polisyos.foundry.dependency_discriminant.v1"]
+    profile_id: str
+    declaration_ref: DependencyRecordRefProjection
+    root_distribution: str
+    extras: tuple[str, ...]
+    python_constraint: str
+    resolver_name: Literal["uv"]
+    resolver_version: str
+    pyproject_ref: DependencyDigestProjection
+    lockfile_ref: DependencyDigestProjection
+    marker_environment: tuple[tuple[str, str], ...]
+    resolved_distributions: tuple[DependencyDistributionProjection, ...]
+    distribution_set: DependencyDigestProjection
+    discriminant_ref: DependencyDigestProjection
+
+    @model_validator(mode="after")
+    def _digest_domains_are_owner_coordinates(self) -> Self:
+        expected = {
+            "declaration_ref": (
+                self.declaration_ref.semantic_hash.domain,
+                "dependency-profile-declaration",
+            ),
+            "pyproject_ref": (self.pyproject_ref.domain, "pyproject-blob"),
+            "lockfile_ref": (self.lockfile_ref.domain, "uv-lock-blob"),
+            "distribution_set": (self.distribution_set.domain, "distribution-set"),
+            "discriminant_ref": (
+                self.discriminant_ref.domain,
+                "dependency-discriminant",
+            ),
+        }
+        if any(actual != wanted for actual, wanted in expected.values()):
+            raise ValueError("dependency discriminant digest domain drifted")
+        if not self.resolved_distributions:
+            raise ValueError("dependency discriminant closure is empty")
+        if any(
+            row.selected_artifact.domain != "selected-distribution-artifact"
+            for row in self.resolved_distributions
+        ):
+            raise ValueError("dependency distribution digest domain drifted")
+        return self
+
+
+class DependencyEnvironmentDiagnosticCaseProjection(_StrictModel):
+    """Transport the owner-ordered first incompatible closure coordinate."""
+
+    case_kind: Literal[
+        "root_distribution_disagreement",
+        "missing_resolved_distribution",
+        "distribution_field_disagreement",
+        "unexpected_in_closure_identity",
+    ]
+    coordinate: str
+    expected: str
+    observed: str
+    predicate_class: Literal["independently_reconciled", "recomputed"]
+    field: Literal["version", "source_kind", "selected_artifact"] | None = None
+
+    @model_validator(mode="after")
+    def _field_matches_case_kind(self) -> Self:
+        if (self.case_kind == "distribution_field_disagreement") != (
+            self.field is not None
+        ):
+            raise ValueError("dependency diagnostic field/case kind drifted")
+        return self
+
+
+class DependencyEnvironmentDiagnosticProjection(_StrictModel):
+    """Typed non-decisive diagnostic emitted by the Foundry/N8 owner bridge."""
+
+    decision_role: Literal["ambient_non_decisive"]
+    predicate_class: Literal["recomputed"] | None = None
+    authority_boundary: DependencyDiscriminantAuthorityBoundary | None = None
+    artifact_content_ref: str | None = None
+    profile: DependencyProfileDiscriminantProjection | None = None
+    receipt_state: Literal["received", "not_received"]
+    status: Literal["pass", "fail", "not_established"]
+    first_case: DependencyEnvironmentDiagnosticCaseProjection | None = None
+
+    @model_validator(mode="after")
+    def _receipt_is_internally_consistent(self) -> Self:
+        received_fields = (
+            self.predicate_class,
+            self.authority_boundary,
+            self.artifact_content_ref,
+            self.profile,
+        )
+        if self.receipt_state == "received":
+            if any(value is None for value in received_fields):
+                raise ValueError(
+                    "received dependency diagnostic requires its complete owner binding"
+                )
+        elif any(value is not None for value in received_fields):
+            raise ValueError(
+                "dependency diagnostic non-receipt cannot carry owner evidence"
+            )
+        if self.receipt_state == "not_received" and self.status != "not_established":
+            raise ValueError("dependency diagnostic non-receipt is not established")
+        if (self.status == "fail") != (self.first_case is not None):
+            raise ValueError("only a failing dependency diagnostic carries a first case")
+        return self
+
+
 class ProjectionOwnerBinding(_StrictModel):
     """Resolve an owner-declared semantic hash without calling it byte identity."""
 
-    binding_name: str
+    binding_name: Literal["live_probe_journal_content_sha256"]
     relation: Literal["semantic_projection"] = "semantic_projection"
     relative_path: str
     owner_semantic_hash: str
     semantic_hash_rule_version: str
     resolved_artifact_content_hash: str
+
+
+class DependencyDiscriminantOwnerBinding(_StrictModel):
+    """Carry the received or non-received Foundry diagnostic companion."""
+
+    binding_name: Literal["foundry_dependency_discriminant"]
+    relation: Literal["semantic_projection"] = "semantic_projection"
+    relative_path: Literal[
+        "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+    ]
+    owner_semantic_hash: str | None
+    semantic_hash_rule_version: Literal[
+        "polisyos.foundry.dependency_discriminant.v1"
+    ]
+    resolved_artifact_content_hash: str | None
+    dependency_environment: DependencyEnvironmentDiagnosticProjection
+
+    @model_validator(mode="after")
+    def _semantic_hash_matches_receipt(self) -> Self:
+        if self.owner_semantic_hash != self.dependency_environment.artifact_content_ref:
+            raise ValueError("dependency discriminant owner semantic hash drifted")
+        if (
+            self.dependency_environment.receipt_state == "received"
+            and self.resolved_artifact_content_hash is None
+        ):
+            raise ValueError("received dependency discriminant requires resolved bytes")
+        return self
+
+
+type RelatedArtifactBinding = Annotated[
+    ProjectionOwnerBinding | DependencyDiscriminantOwnerBinding,
+    Field(discriminator="binding_name"),
+]
 
 
 class ProjectionSourceValidation(_StrictModel):
@@ -137,6 +330,9 @@ class ProjectionSourceValidation(_StrictModel):
     recomputed_total_spend_denominator: int | None = None
     registry_delta_numerator: int | None = None
     registry_delta_denominator: int | None = None
+    _related_dependency_diagnostic: DependencyEnvironmentDiagnosticProjection | None = (
+        PrivateAttr(default=None)
+    )
 
     @model_validator(mode="after")
     def _passed_receipt_is_complete(self) -> Self:
@@ -158,7 +354,7 @@ class ProjectionSourceIdentity(_StrictModel):
     artifact_content_hash: str
     declared_content_hash: str | None = None
     validation: ProjectionSourceValidation
-    related_artifact_bindings: tuple[ProjectionOwnerBinding, ...] = ()
+    related_artifact_bindings: tuple[RelatedArtifactBinding, ...] = ()
 
 
 class ProjectionFreshness(_StrictModel):
@@ -613,6 +809,23 @@ class ReplayPinMismatchError(ValueError):
         super().__init__(f"{field} replay pin {expected!r} does not match {actual!r}")
 
 
+class OwnerValidationTimeoutError(TimeoutError):
+    """Report an operational owner-worker timeout without minting a source verdict."""
+
+    def __init__(
+        self,
+        projection_id: ProjectionId | GuardedProjectionId,
+        *,
+        timeout_seconds: float,
+    ) -> None:
+        self.projection_id = projection_id
+        self.timeout_seconds = timeout_seconds
+        super().__init__(
+            f"owner validation for {projection_id.value!r} timed out after "
+            f"{timeout_seconds:g} seconds"
+        )
+
+
 class InvalidProjectionSourceError(ValueError):
     """Report a missing owner-recorded field without deriving a replacement."""
 
@@ -698,6 +911,25 @@ class _OwnerValidationWorkerResult(_StrictModel):
     recomputed_total_spend_denominator: int | None = None
     registry_delta_numerator: int | None = None
     registry_delta_denominator: int | None = None
+    related_dependency_diagnostic: Any | None = None
+
+
+def _dependency_diagnostic_from_worker(
+    projection_id: ProjectionId | GuardedProjectionId,
+    value: object,
+) -> DependencyEnvironmentDiagnosticProjection | None:
+    """Quarantine optional diagnostic transport from governing receipt validity."""
+
+    if projection_id is not ProjectionId.VALUE_GATE:
+        return None
+    try:
+        return DependencyEnvironmentDiagnosticProjection.model_validate(value)
+    except (TypeError, ValueError):
+        return DependencyEnvironmentDiagnosticProjection(
+            decision_role="ambient_non_decisive",
+            receipt_state="not_received",
+            status="not_established",
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -976,7 +1208,11 @@ _OWNER_VALIDATION_CACHE: dict[
     _OwnerValidationCacheEntry,
 ] = {}
 _OWNER_VALIDATION_LOCK = Lock()
-_OWNER_VALIDATION_TIMEOUT_SECONDS = 120
+# Compiled from the measured ``owner-validator:default`` catalog lane. The focused
+# contract test binds this runtime value back to the catalog's two-times ceiling,
+# so updating the measurement without regenerating the executable budget is red.
+_OWNER_VALIDATION_MEASURED_MAX_SECONDS = 92.0
+_OWNER_VALIDATION_TIMEOUT_SECONDS = 2 * _OWNER_VALIDATION_MEASURED_MAX_SECONDS
 
 
 def _source_schema_version(source: dict[str, Any]) -> str | None:
@@ -1064,10 +1300,10 @@ def _run_owner_validation(
         loaded.component_bindings,
         payload_hash,
     )
-    cache_enabled = (
-        definition.projection_id
-        is not GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND
-    )
+    cache_enabled = definition.projection_id not in {
+        GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND,
+        ProjectionId.VALUE_GATE,
+    }
     if cache_enabled:
         cached = _OWNER_VALIDATION_CACHE.get(cache_key)
         if cached is not None and dependency_manifest_matches(
@@ -1109,7 +1345,12 @@ def _run_owner_validation(
                 text=True,
                 timeout=_OWNER_VALIDATION_TIMEOUT_SECONDS,
             )
-        except (OSError, subprocess.TimeoutExpired) as exc:
+        except subprocess.TimeoutExpired as exc:
+            raise OwnerValidationTimeoutError(
+                definition.projection_id,
+                timeout_seconds=_OWNER_VALIDATION_TIMEOUT_SECONDS,
+            ) from exc
+        except OSError as exc:
             return _owner_bridge_failure(
                 loaded,
                 f"owner_validator_{type(exc).__name__}",
@@ -1147,6 +1388,9 @@ def _run_owner_validation(
                 loaded,
                 "owner_validator_receipt_mismatch",
             )
+        worker_receipt = result.model_dump(mode="json")
+        if result.related_dependency_diagnostic is None:
+            worker_receipt.pop("related_dependency_diagnostic")
         validation = ProjectionSourceValidation(
             validator_id=result.validator_id,
             validator_version=result.validator_version,
@@ -1159,9 +1403,7 @@ def _run_owner_validation(
                 result.semantic_projection_hash_rule_version
             ),
             issue_codes=result.issue_codes,
-            worker_validation_receipt_hash=hash_export_projection(
-                result.model_dump(mode="json")
-            ),
+            worker_validation_receipt_hash=hash_export_projection(worker_receipt),
             source_payload_equal=result.source_payload_equal,
             registry_content_hash=result.registry_content_hash,
             registry_projection_hash=result.registry_projection_hash,
@@ -1174,6 +1416,10 @@ def _run_owner_validation(
             ),
             registry_delta_numerator=result.registry_delta_numerator,
             registry_delta_denominator=result.registry_delta_denominator,
+        )
+        validation._related_dependency_diagnostic = _dependency_diagnostic_from_worker(
+            result.projection_id,
+            result.related_dependency_diagnostic,
         )
         if validation.status == "passed" and cache_enabled:
             _OWNER_VALIDATION_CACHE[cache_key] = _OwnerValidationCacheEntry(
@@ -1393,6 +1639,7 @@ class GovernedProjectionService:
                         related_artifact_bindings=_related_artifact_bindings(
                             resolved_id,
                             loaded,
+                            validation,
                         ),
                     )
                     packet = AvailableGovernedProjectionPacket(
@@ -1550,6 +1797,15 @@ class GovernedProjectionService:
                 pass
             else:
                 component_bindings.append((journal.relative_path, journal.content_hash))
+        if definition.projection_id is ProjectionId.VALUE_GATE:
+            try:
+                companion = self._read_file(
+                    "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+                )
+            except FileNotFoundError:
+                pass
+            else:
+                component_bindings.append((companion.relative_path, companion.content_hash))
         return _LoadedSource(
             relative_path=definition.source_path,
             content_hash=observation.content_hash,
@@ -2265,7 +2521,24 @@ def _declared_content_hash(source: dict[str, Any]) -> str | None:
 def _related_artifact_bindings(
     projection_id: ProjectionId,
     loaded: _LoadedSource,
-) -> tuple[ProjectionOwnerBinding, ...]:
+    validation: ProjectionSourceValidation,
+) -> tuple[RelatedArtifactBinding, ...]:
+    if projection_id is ProjectionId.VALUE_GATE:
+        companion_path = "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+        resolved_content_hash = dict(loaded.component_bindings).get(companion_path)
+        diagnostic = validation._related_dependency_diagnostic
+        if diagnostic is None:
+            return ()
+        return (
+            DependencyDiscriminantOwnerBinding(
+                binding_name="foundry_dependency_discriminant",
+                relative_path=companion_path,
+                owner_semantic_hash=diagnostic.artifact_content_ref,
+                semantic_hash_rule_version="polisyos.foundry.dependency_discriminant.v1",
+                resolved_artifact_content_hash=resolved_content_hash,
+                dependency_environment=diagnostic,
+            ),
+        )
     if projection_id is not ProjectionId.N13A_ACQUISITION_CENSUS:
         return ()
     journal_semantic_hash = _optional_string(loaded.parsed.get("journal_content_sha256"))
@@ -2422,6 +2695,7 @@ __all__ = [
     "GovernedProjectionService",
     "GuardedProjectionId",
     "GuardedProjectionSourceResolution",
+    "OwnerValidationTimeoutError",
     "ProjectionAvailability",
     "ProjectionCatalogEntry",
     "ProjectionCatalogResponse",

@@ -1,6 +1,8 @@
 # Replay Authoring
 
 - Put execution and dead-letter behavior in `backend.py`.
+- Put deterministic replay planning, completeness, and verification contracts in
+  `deterministic.py`.
 - Put structural and semantic comparisons in `diff.py` and comparator helpers
   in `comparators.py`.
 - Put replay report persistence and registry behavior in `verification.py`.

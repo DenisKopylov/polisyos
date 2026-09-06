@@ -108,6 +108,41 @@ def test_guardrails_detects_new_deep_import_creep(tmp_path: Path) -> None:
     assert "New deep-import creep detected" in violations[0].message
 
 
+def test_fabric_world_exact_facade_is_shared_by_release_deep_import_classifier(
+    current_deep_import_edges: tuple[guardrails.DeepImportEdge, ...],
+) -> None:
+    """The exact world facade is public while implementation descendants stay deep."""
+
+    policies = guardrails._parse_public_surface(
+        guardrails.REPO_ROOT / "architecture/public_surface/contract.toml"
+    )
+    fabric = next(policy for policy in policies if policy.module == "polisyos.fabric")
+    assert "polisyos.fabric.world" in fabric.supported_entrypoints
+    assert not any(
+        entrypoint.startswith("polisyos.fabric.world.")
+        for entrypoint in fabric.supported_entrypoints
+    )
+
+    edge_keys = {edge.key for edge in current_deep_import_edges}
+    assert (
+        "polisyos.runtime.quality.data_state_substrate->polisyos.fabric.world"
+        not in edge_keys
+    )
+
+    descendant_edges: dict[str, guardrails.DeepImportEdge] = {}
+    guardrails._maybe_add_deep_import(
+        edges=descendant_edges,
+        allowed_entrypoints={"fabric": set(fabric.supported_entrypoints)},
+        source_module="polisyos.runtime.consumer",
+        source_root="runtime",
+        source_file=guardrails.REPO_ROOT / "src/polisyos/runtime/consumer.py",
+        target_module="polisyos.fabric.world.store",
+    )
+    assert set(descendant_edges) == {
+        "polisyos.runtime.consumer->polisyos.fabric.world.store"
+    }
+
+
 @pytest.mark.parametrize(
     ("source_module", "private_target"),
     [
@@ -328,6 +363,53 @@ def test_runtime_openapi_client_cannot_escape_default_check_by_removing_flag(
     )
 
 
+def test_runtime_openapi_snapshot_is_a_default_freshness_probe() -> None:
+    families = {
+        family.family_id: family
+        for family in guardrails._parse_generated_artifacts(
+            guardrails.DEFAULT_GENERATED_MANIFEST
+        )
+    }
+
+    family = families["runtime-openapi-snapshot"]
+
+    assert family.default_freshness_check is True
+    assert family.output_probe_command is not None
+    assert "tools/ops_runners/runtime/export_runtime_openapi.py" in family.output_probe_command
+    assert (
+        "{output_root}/schemas/runtime_api_v1.openapi.json"
+        in family.output_probe_command
+    )
+    assert "consulted dependency basis" in family.freshness_rule
+
+
+def test_guardrails_check_discloses_the_standalone_status_gate(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A passing aggregate cannot imply that it ran the Atlas status gate."""
+    args = argparse.Namespace(
+        public_manifest=guardrails.DEFAULT_PUBLIC_MANIFEST,
+        public_json=guardrails.DEFAULT_PUBLIC_JSON,
+        public_md=guardrails.DEFAULT_PUBLIC_MD,
+        generated_manifest=guardrails.DEFAULT_GENERATED_MANIFEST,
+        generated_md=guardrails.DEFAULT_GENERATED_MD,
+        deep_import_baseline=guardrails.DEFAULT_DEEP_IMPORT_BASELINE,
+        exceptions=guardrails.DEFAULT_EXCEPTION_FILE,
+        exceptions_registry=guardrails.DEFAULT_EXCEPTION_REGISTRY,
+        max_expiry_days=guardrails.DEFAULT_MAX_EXPIRY_DAYS,
+        skip_generated_checks=True,
+        all_generated_checks=False,
+        generated_expected_root=guardrails.REPO_ROOT,
+    )
+
+    guardrails.run_check(args)
+
+    assert (
+        guardrails.STATUS_RETIREMENT_STANDALONE_NOTICE
+        in capsys.readouterr().out.splitlines()
+    )
+
+
 def test_guardrails_rejects_probe_that_rewrites_oracle_and_worktree(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -400,6 +482,79 @@ def test_standard_ci_always_reaches_plain_generated_freshness_gate() -> None:
         if isinstance(step, dict)
     ]
     assert "uv run polisyos-tools architecture guardrails check" in commands
+
+
+@pytest.mark.parametrize(
+    "escape",
+    [
+        "marker_only",
+        "step_if_false",
+        "step_continue_on_error",
+        "job_if_false",
+        "job_continue_on_error",
+    ],
+)
+def test_architecture_guardrails_detect_non_gating_trust_posture_step(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    escape: str,
+) -> None:
+    """Keep the posture command executable and load-bearing in its named CI job."""
+
+    workflow_rel = Path("ops/ci/templates/workflows/arch.yml")
+    workflow_text = (guardrails.REPO_ROOT / workflow_rel).read_text(encoding="utf-8")
+    trust_step = (
+        "      - name: Verify trust claim posture\n"
+        "        run: uv run pytest tests/repo_quality/tools/"
+        "test_trust_claim_posture.py -q\n"
+    )
+    assert trust_step in workflow_text
+    marker_only = (
+        "      # run: uv run pytest tests/repo_quality/tools/"
+        "test_trust_claim_posture.py -q\n"
+    )
+    if escape == "marker_only":
+        mutated = workflow_text.replace(trust_step, marker_only, 1)
+    elif escape == "step_if_false":
+        mutated = workflow_text.replace(
+            trust_step,
+            trust_step.replace("        run:", "        if: false\n        run:", 1),
+            1,
+        )
+    elif escape == "step_continue_on_error":
+        mutated = workflow_text.replace(
+            trust_step,
+            trust_step.replace(
+                "        run:", "        continue-on-error: true\n        run:", 1
+            ),
+            1,
+        )
+    elif escape == "job_if_false":
+        mutated = workflow_text.replace(
+            "  import-gate:\n", "  import-gate:\n    if: false\n", 1
+        )
+    else:
+        mutated = workflow_text.replace(
+            "  import-gate:\n", "  import-gate:\n    continue-on-error: true\n", 1
+        )
+    workflow_path = tmp_path / workflow_rel
+    workflow_path.parent.mkdir(parents=True)
+    workflow_path.write_text(mutated, encoding="utf-8")
+    workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
+    import_gate = workflow["jobs"]["import-gate"]
+    trust_steps = [
+        step
+        for step in import_gate["steps"]
+        if isinstance(step, dict)
+        and step.get("run")
+        == "uv run pytest tests/repo_quality/tools/test_trust_claim_posture.py -q"
+    ]
+    assert escape == "marker_only" or len(trust_steps) == 1
+    monkeypatch.setattr(guardrails, "REPO_ROOT", tmp_path)
+
+    violations = guardrails._check_workflow_toolchain_guardrails()
+
+    assert "trust_claim_posture" in {violation.detail for violation in violations}
 
 
 def test_jobs_collecting_generator_entrypoint_test_install_node_toolchain() -> None:

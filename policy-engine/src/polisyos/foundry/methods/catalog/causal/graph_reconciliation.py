@@ -10,7 +10,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,
@@ -347,7 +347,13 @@ def _add_literature_edges(
             _clamp_probability(edge.confidence),
         )
         current.evidence_refs.update(edge.article_refs)
-        current.metadata.setdefault("evidence_strength", edge.evidence_strength.value)
+        current.metadata.setdefault(
+            "evidence_strength",
+            edge.evidence_strength.value if edge.evidence_strength is not None else None,
+        )
+        current.metadata.setdefault(
+            "evidence_strength_status", edge.evidence_strength_status.value
+        )
         current.metadata.setdefault("scope_conditions", list(edge.scope_conditions))
         current.metadata.setdefault("direction", edge.direction.value)
         if edge.meta_effect_size is not None:

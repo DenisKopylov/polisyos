@@ -13,13 +13,86 @@ from typing import TYPE_CHECKING, Any
 import aiohttp
 
 from polisyos.common.logger import get_logger
-from polisyos.data_forge.domains.academic.knowledge.types import EstimateCandidate, WorkRecord
+from polisyos.data_forge.domains.academic.knowledge.types import (
+    ClaimOccurrenceVocabularyTransport,
+    EstimateCandidate,
+    WorkRecord,
+    adapt_jsonl_work_record_claims,
+)
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
+from polisyos.ir.analytics import (
+    ClaimVocabularyAxisStatus,
+    SourceBasis,
+    VersionedClaimVocabularyEnvelope,
+)
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 
 logger = get_logger(__name__)
+
+
+def _candidate_status(value: object) -> ClaimVocabularyAxisStatus:
+    """Return the only status available for a future extractor observation."""
+
+    if value is None:
+        return ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+    return ClaimVocabularyAxisStatus.CANDIDATE
+
+
+def serialize_llm_claim_occurrence_vocabulary(
+    occurrence: Mapping[str, Any],
+    *,
+    record_extraction_mode: str | None = "llm_enriched",
+) -> ClaimOccurrenceVocabularyTransport:
+    """Build the v2 composite from separately named LLM candidate axes.
+
+    This serializer deliberately accepts no generic ``strength`` mapping.  A
+    replayed five-field occurrence must use the explicit historical adapter,
+    while the LLM's named candidate values remain independent observations.
+    """
+
+    retained = dict(occurrence)
+    if "strength" in retained:
+        raise ValueError("LLM vocabulary input must not contain generic strength")
+    values = {
+        "design_family_hint": retained.pop("design_family_hint", None),
+        "evidence_strength": retained.pop("evidence_strength", None),
+        "claim_extraction_confidence": retained.pop("claim_extraction_confidence", None),
+    }
+    for key in (
+        "source_basis",
+        "design_family_hint_status",
+        "evidence_strength_status",
+        "claim_extraction_confidence_status",
+        "source_basis_status",
+        "legacy_strength_label",
+        "record_extraction_mode",
+    ):
+        if key in retained:
+            raise ValueError(f"LLM vocabulary input must not contain {key}")
+    return ClaimOccurrenceVocabularyTransport(
+        occurrence=retained,
+        vocabulary=VersionedClaimVocabularyEnvelope(
+            cause=str(retained.get("cause", "")),
+            effect=str(retained.get("effect", "")),
+            direction=str(retained.get("direction", "")),
+            mechanism=str(retained.get("mechanism", "")),
+            design_family_hint=values["design_family_hint"],
+            design_family_hint_status=_candidate_status(values["design_family_hint"]),
+            evidence_strength=values["evidence_strength"],
+            evidence_strength_status=_candidate_status(values["evidence_strength"]),
+            claim_extraction_confidence=values["claim_extraction_confidence"],
+            claim_extraction_confidence_status=_candidate_status(
+                values["claim_extraction_confidence"]
+            ),
+            source_basis=SourceBasis.ABSTRACT_ONLY,
+            source_basis_status=ClaimVocabularyAxisStatus.CANDIDATE,
+            record_extraction_mode=record_extraction_mode,
+        ),
+    )
 
 EXTRACTION_PROMPT = """Extract causal and quantitative evidence from this abstract.
 
@@ -43,7 +116,14 @@ Return strict JSON object with fields:
       "cause": "<concept>",
       "effect": "<concept>",
       "direction": "positive|negative|null|mixed",
-      "strength": "strong|moderate|weak",
+      "design_family_hint": "one design family (rct, iv, did, rdd, synthetic_control, event_study,
+        quasi_experimental_other, quasi_experimental_did, quasi_experimental_rdd, panel_fe, ols,
+        ols_cross_sectional, meta_analysis, review, review_narrative, review_meta_analysis,
+        theoretical, structural_model, time_series_cointegration, unclear) or null",
+      "evidence_strength": "one evidence class (rct, quasi_natural, quasi_natural_event,
+        meta_analysis, panel_fe, structural, observational, cross_sectional, theoretical,
+        unknown) or null",
+      "claim_extraction_confidence": <number from 0 to 1 or null>,
       "mechanism": "<short text>"
     }
   ],
@@ -320,7 +400,8 @@ async def extract_with_llm(
     *, abstract: str, topic: str, work_id: str, client: AcademicLLMClient
 ) -> dict:
     """Run LLM extraction on a single abstract."""
-    prompt = EXTRACTION_PROMPT.format(topic=topic, abstract=abstract[:4000])
+    # Substitute only the input slot, leaving the JSON literal and abstract braces intact.
+    prompt = EXTRACTION_PROMPT.replace("{abstract}", abstract[:4000])
     try:
         response = await client.chat_completion(messages=[{"role": "user", "content": prompt}])
         content = str(response.get("content", ""))
@@ -354,7 +435,9 @@ def _parse_json_object(raw_content: str) -> dict[str, Any] | None:
     return None
 
 
-def parse_llm_result(result: dict) -> tuple[list[EstimateCandidate], list[dict], list[dict]]:
+def parse_llm_result(
+    result: dict,
+) -> tuple[list[EstimateCandidate], list[ClaimOccurrenceVocabularyTransport], list[dict]]:
     """Parse LLM extraction result into typed objects."""
     estimates: list[EstimateCandidate] = []
     for est in result.get("estimates", []):
@@ -378,9 +461,14 @@ def parse_llm_result(result: dict) -> tuple[list[EstimateCandidate], list[dict],
             )
         )
 
-    causal_claims = result.get("causal_claims", [])
-    if not isinstance(causal_claims, list):
-        causal_claims = []
+    causal_claim_payloads = result.get("causal_claims", [])
+    if not isinstance(causal_claim_payloads, list):
+        causal_claim_payloads = []
+    causal_claims = [
+        serialize_llm_claim_occurrence_vocabulary(claim)
+        for claim in causal_claim_payloads
+        if isinstance(claim, dict)
+    ]
 
     boundary_conditions = result.get("boundary_conditions", [])
     if not isinstance(boundary_conditions, list):
@@ -476,7 +564,9 @@ async def run_extract_llm(config: AcademicBatchConfig) -> dict[str, float | int]
                     line = line.strip()
                     if not line:
                         continue
-                    rec = WorkRecord.model_validate_json(line)
+                    rec = adapt_jsonl_work_record_claims(
+                        json.loads(line), provenance="legacy_jsonl"
+                    )
                     stats["records"] = int(stats["records"]) + 1
 
                     features = build_gate_features(rec)

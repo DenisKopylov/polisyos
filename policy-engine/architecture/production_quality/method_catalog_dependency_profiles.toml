@@ -8,5 +8,5 @@ extras = ["analytics", "bayesian", "ml", "optimization-advanced", "solvers"]
 python_constraint = ">=3.14,<3.15"
 resolver_name = "uv"
 resolver_version = "0.9.21"
-pyproject_sha256 = "sha256:57498f29ef1e6b6bf8f7edf3fbe03573686b64d2c0d72077eac9edc3b3223efb"
+pyproject_sha256 = "sha256:803cbfb79c7727807db1c98d07413e8ef2f1b2a08929bd99bc2f8e638ee5142d"
 uv_lock_sha256 = "sha256:d3ca8737e0ce78b1deade715174576cb5449b443d96180e7029d9999d0584572"

@@ -118,13 +118,39 @@ def resolve_control_registry_providers(
             gy_catalog_graph = gy_catalog_graph_factory()
         elif not registry_factory_overridden:
             gy_catalog_graph = _default_gy_catalog_graph()
+    resolved_discovery_providers = capability_discovery_providers
+    if not registry_factory_overridden:
+        if not any(
+            provider.resource_kind == "method" for provider in resolved_discovery_providers
+        ):
+            resolved_discovery_providers = (
+                *resolved_discovery_providers,
+                _default_causal_method_capability_discovery_provider(),
+            )
+        if not any(
+            provider.resource_kind == "agent" for provider in resolved_discovery_providers
+        ):
+            resolved_discovery_providers = (
+                *resolved_discovery_providers,
+                _default_scientist_capability_discovery_provider(),
+            )
+        if not any(
+            provider.resource_kind == "source" for provider in resolved_discovery_providers
+        ):
+            resolved_discovery_providers = (
+                *resolved_discovery_providers,
+                _default_source_capability_discovery_provider(
+                    connectors=connectors,
+                    source_profiles=source_profiles,
+                ),
+            )
     return ControlRegistryProviders(
         connectors=connectors,
         source_profiles=source_profiles,
         binding_profiles=binding_profiles,
         model_profiles=model_profiles,
         gy_catalog_graph=gy_catalog_graph,
-        capability_discovery_providers=capability_discovery_providers,
+        capability_discovery_providers=resolved_discovery_providers,
         capability_live_operation_registry=capability_live_operation_registry,
         capability_conformance_verifier=capability_conformance_verifier,
     )
@@ -158,6 +184,70 @@ def _default_gy_catalog_graph() -> Any:
     from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
 
     return build_slice0_fixture_catalog_graph()
+
+
+def _default_scientist_capability_discovery_provider() -> CapabilityDiscoveryProvider:
+    """Install the lazy Scientist owner without executing either registry factory."""
+    from polisyos.runtime.quality.capability_discovery import (
+        ScientistRegistryCapabilityDiscoveryProvider,
+    )
+
+    return ScientistRegistryCapabilityDiscoveryProvider(
+        node_registry_factory=_default_scientist_node_registry,
+        tool_registry_factory=_default_scientist_tool_registry,
+        recall_measured=False,
+    )
+
+
+def _default_causal_method_capability_discovery_provider() -> CapabilityDiscoveryProvider:
+    """Install the persisted release-index bridge without compiling on a request."""
+    from polisyos.runtime.quality.capability_discovery import (
+        CapabilityIndexCapabilityDiscoveryProvider,
+        load_default_capability_index_release,
+    )
+
+    return CapabilityIndexCapabilityDiscoveryProvider(
+        resource_kind="method",
+        capability_index_loader=load_default_capability_index_release,
+    )
+
+
+def _default_source_capability_discovery_provider(
+    *,
+    connectors: ConnectorRegistryLike,
+    source_profiles: SourceProfileRegistryLike,
+) -> CapabilityDiscoveryProvider:
+    """Install the lazy, paired connector/source-profile snapshot producer."""
+    from polisyos.runtime.quality.capability_discovery import (
+        ConnectorSourceProfileSnapshotProducer,
+    )
+
+    return ConnectorSourceProfileSnapshotProducer(
+        connectors=connectors,
+        source_profiles=source_profiles,
+    )
+
+
+def _default_scientist_node_registry() -> object:
+    """Discover the public NodeRegistry only on the first agent query."""
+    from polisyos.scientist import discover_scientist_nodes
+
+    registry, report = discover_scientist_nodes(include_dev_scan=False)
+    reasons = tuple(
+        f"scientist_node_registry_discovery_error:{message}"
+        for message in (*report.discovery_errors, *report.errors)
+    )
+    return registry, reasons
+
+
+def _default_scientist_tool_registry() -> object:
+    """Build the public ToolRegistry only on the first agent query."""
+    from polisyos.scientist import (
+        KnowledgeToolkit,
+        build_knowledge_tool_registry,
+    )
+
+    return build_knowledge_tool_registry(KnowledgeToolkit())
 
 
 __all__ = [

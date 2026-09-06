@@ -1,17 +1,31 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
+from types import SimpleNamespace
+from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
 import pytest
+from _helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
 
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
+from polisyos.core.components import (
+    Capability,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+)
+from polisyos.core.contracts import CapabilityDiscoveryRequest, CapabilityDiscoveryResponse
 from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.execute.api import execute as execute_foundry
@@ -21,6 +35,12 @@ from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.runtime.http.container import RuntimeContainerOverrides
+from polisyos.runtime.http.services import control_registry_providers
+from polisyos.runtime.http.services.control_registry_providers import (
+    resolve_control_registry_providers,
+)
+from polisyos.runtime.quality.capability_index import ScientistCapabilityOwnerTruth
 from polisyos.runtime.quality.data_state_substrate import (
     DataStateSubstrateError,
     build_l5_family_binding_profile,
@@ -32,6 +52,10 @@ from polisyos.runtime.quality.substrate_registry import (
     default_substrate_catalog_paths,
     load_l5_catalog_authority,
 )
+from polisyos.scientist.agent.tools.registry import ToolRegistry
+from polisyos.scientist.agent.tools.schema import ToolDefinition
+from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 _CANONICAL_DATA_ROOT = (
@@ -42,6 +66,40 @@ _L5_D3_DIR = _CANONICAL_DATA_ROOT / "runtime_calibration_internals/calibration/d
 _NORMALIZED_CORPUS_DIR = _CANONICAL_DATA_ROOT / "normalized_corpus"
 _L1_DCAT_DIR = Path("production_data/datasets_full_phase3full_20260327_183054")
 _ACADEMIC_RUNTIME_DIR = Path("production_data/policyos_academic_runtime_slim_20260411T112032Z")
+
+
+@dataclass(frozen=True)
+class _DiscoveryFixtureNode:
+    """Lightweight real NodeRegistry member that must never execute during discovery."""
+
+    spec: NodeSpec
+
+    def execute(self, ctx: Any, state: Any) -> NodeOutcome:
+        del ctx, state
+        raise AssertionError("capability discovery must serialize NodeSpec, never execute handlers")
+
+
+def _scientist_discovery_search_body(
+    *,
+    request_id: str,
+    query_text: str,
+    match_all: bool = False,
+) -> dict[str, object]:
+    return {
+        "search": {
+            "request_id": request_id,
+            "query_text": query_text,
+            "construct_refs": ["fixture"],
+            "intent": "capability_discovery",
+            "required_layers": ["scientist_registry"],
+            "authority_purpose": "review_capability_candidates",
+            "allowed_modes": ["exact", "lexical"],
+            "budget": {"top_k": 10, "match_all": match_all},
+            "rule_version": "policyos.ds10.discovery.v1",
+        },
+        "resource_kinds": ["agent"],
+        "audience": "REVIEWER",
+    }
 
 
 def _compile_smoke_plan(store: FileSystemCAS, model_spec: object, registry_bundle_ref: object):
@@ -134,6 +192,211 @@ def _repo_with_household_identification_mode(
     )
     calibration_root.mkdir(parents=True, exist_ok=True)
     return temp_root
+
+
+def test_agent_registry_has_typed_discovery_surface(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Default agent discovery must persist real Scientist registry projections lazily."""
+    factory_calls = {"nodes": 0, "tools": 0}
+
+    def _node_registry_factory() -> NodeRegistry:
+        factory_calls["nodes"] += 1
+        registry = NodeRegistry()
+        metadata = ComponentMetadata(
+            component_id=ComponentId.parse("scientist.fixture_policy_designer@1.0.0"),
+            kind=ComponentKind.SCIENTIST_NODE,
+            abi_targets={"world_abi": "1.x"},
+            domains=["policy_design"],
+            jurisdictions=[],
+            tags=["fixture", "policy"],
+            capabilities=Capability.SCIENTIST_NODE,
+            deps=[],
+            display_name="Fixture policy designer",
+            description="Fixture policy designer node",
+            provides=["fixture_policy_design"],
+        )
+        registry.register(
+            _DiscoveryFixtureNode(
+                NodeSpec(
+                    metadata=metadata,
+                    state_reads=["fixture_input"],
+                    state_writes=["fixture_output"],
+                    produces=["fixture_design"],
+                )
+            )
+        )
+        return registry
+
+    def _tool_registry_factory() -> ToolRegistry:
+        factory_calls["tools"] += 1
+        registry = ToolRegistry()
+        registry.register(
+            ToolDefinition(
+                name="fixture_policy_search",
+                description="Fixture policy search tool",
+                parameters={
+                    "type": "object",
+                    "properties": {"query": {"type": "string"}},
+                    "required": ["query"],
+                    "additionalProperties": False,
+                },
+                domain="policy_design",
+            ),
+            lambda *, query: {"query": query},
+        )
+        return registry
+
+    monkeypatch.setattr(
+        control_registry_providers,
+        "_default_scientist_node_registry",
+        _node_registry_factory,
+        raising=False,
+    )
+    monkeypatch.setattr(
+        control_registry_providers,
+        "_default_scientist_tool_registry",
+        _tool_registry_factory,
+        raising=False,
+    )
+    empty = SimpleNamespace(
+        query_entries=lambda *args, **kwargs: (),
+        get=lambda *args, **kwargs: None,
+        list_all=lambda: [],
+        list_by_family=lambda *args, **kwargs: [],
+    )
+    providers = resolve_control_registry_providers(
+        connectors=empty,
+        source_profiles=empty,
+        binding_profiles=empty,
+        model_profiles=empty,
+        gy_catalog_graph=SimpleNamespace(),
+    )
+    agent_provider = next(
+        provider
+        for provider in providers.capability_discovery_providers
+        if provider.resource_kind == "agent"
+    )
+    assert factory_calls == {"nodes": 0, "tools": 0}
+
+    env = build_runtime_api_env(
+        tmp_path,
+        include_test_client=True,
+        app_kwargs={
+            "container_overrides": RuntimeContainerOverrides(
+                control_registry_providers=providers
+            )
+        },
+    )
+    try:
+        client = env["client"]
+        assert client is not None
+        with client:
+            assert factory_calls == {"nodes": 0, "tools": 0}
+            body = _scientist_discovery_search_body(
+                request_id="search:scientist-registries",
+                query_text="fixture policy",
+            )
+            response = client.post("/api/v1/control/capabilities/search", json=body)
+            assert response.status_code == 200
+            packet = CapabilityDiscoveryResponse.model_validate(response.json())
+            assert factory_calls == {"nodes": 1, "tools": 1}
+            assert {item.capability_ref for item in packet.results} == {
+                "scientist-node:scientist.fixture_policy_designer@1.0.0",
+                "scientist-tool:fixture_policy_search",
+            }
+            assert {item.resource_kind for item in packet.results} == {"agent"}
+            assert {item.discovery_result.state for item in packet.results} == {
+                "recall_unmeasured"
+            }
+            assert packet.frontier.completeness_status == "recall_unmeasured"
+            assert packet.frontier.incompleteness_reasons == (
+                "scientist_registry_recall_unmeasured",
+            )
+            assert all(
+                item.execution_result.state != "executable"
+                and item.authority_result.state != "admitted_authority"
+                for item in packet.results
+            )
+
+            request = CapabilityDiscoveryRequest.model_validate(body)
+            owner_result = agent_provider.search(request)
+            receipt = owner_result.owner_receipt
+            assert receipt.resource_kind == "agent"
+            assert owner_result.completeness_status == "recall_unmeasured"
+            assert receipt.node_registry_snapshot_ref != receipt.tool_registry_snapshot_ref
+            assert factory_calls == {"nodes": 1, "tools": 1}
+            assert {
+                type(row.owner_truth) for row in owner_result.rows
+            } == {ScientistCapabilityOwnerTruth}
+            assert all(
+                set(row.provenance_refs) <= set(receipt.provenance_refs)
+                and set(row.owner_truth.provenance_refs) <= set(receipt.provenance_refs)
+                for row in owner_result.rows
+                if row.owner_truth is not None
+            )
+
+            control = env["app"].state._control_service
+            store = control._artifact_store
+            node_id = ArtifactID.model_validate(receipt.node_registry_snapshot_ref)
+            tool_id = ArtifactID.model_validate(receipt.tool_registry_snapshot_ref)
+            node_bytes = store.get_bytes(node_id)
+            tool_bytes = store.get_bytes(tool_id)
+            assert "sha256:" + hashlib.sha256(node_bytes).hexdigest() == (
+                receipt.node_registry_snapshot_digest
+            )
+            assert "sha256:" + hashlib.sha256(tool_bytes).hexdigest() == (
+                receipt.tool_registry_snapshot_digest
+            )
+            node_snapshot = from_canonical_bytes(node_bytes)
+            tool_snapshot = from_canonical_bytes(tool_bytes)
+            assert node_snapshot["schema_version"] == "scientist.node_registry.v1"
+            assert tool_snapshot["schema_version"] == "scientist.tool_registry.v1"
+            assert [entry["capability_ref"] for entry in node_snapshot["entries"]] == sorted(
+                entry["capability_ref"] for entry in node_snapshot["entries"]
+            )
+            assert [entry["capability_ref"] for entry in tool_snapshot["entries"]] == sorted(
+                entry["capability_ref"] for entry in tool_snapshot["entries"]
+            )
+            assert "handler" not in json.dumps(tool_snapshot, sort_keys=True)
+            receipt_id = ArtifactID.model_validate(
+                "sha256:"
+                + hashlib.sha256(
+                    to_canonical_bytes(receipt.model_dump(mode="json"))
+                ).hexdigest()
+            )
+            assert store.get_manifest(receipt_id).kind == "scientist.registry_owner_receipt"
+            assert from_canonical_bytes(store.get_bytes(receipt_id)) == receipt.model_dump(
+                mode="json"
+            )
+
+            negative_body = _scientist_discovery_search_body(
+                request_id="search:l4-is-not-scientist-registry",
+                query_text="agent_registry_full L4 world-model entity data lookup",
+                match_all=True,
+            )
+            negative_response = client.post(
+                "/api/v1/control/capabilities/search",
+                json=negative_body,
+            )
+            assert negative_response.status_code == 200
+            negative_packet = CapabilityDiscoveryResponse.model_validate(
+                negative_response.json()
+            )
+            assert {item.capability_ref for item in negative_packet.results} == {
+                item.capability_ref for item in packet.results
+            }
+            assert all(
+                item.discovery_result.snapshot_ref == receipt.search_snapshot_ref
+                and item.execution_result.state != "executable"
+                and item.authority_result.state != "admitted_authority"
+                and all("agent_registry_full" not in ref for ref in item.provenance_refs)
+                for item in negative_packet.results
+            )
+            assert factory_calls == {"nodes": 1, "tools": 1}
+    finally:
+        close_runtime_api_env(env)
 
 
 def test_real_l4_data_state_builds_populated_world_model_record_and_executes_sim(

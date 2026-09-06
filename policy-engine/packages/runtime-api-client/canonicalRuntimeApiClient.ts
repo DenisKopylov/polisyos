@@ -529,6 +529,8 @@ export type DecisionCompareReport =
 export type DecisionDependencyEvent =
   RuntimeApiComponents["schemas"]["DecisionDependencyEvent"];
 
+export type DecisionGrade = RuntimeApiComponents["schemas"]["DecisionGrade"];
+
 export type DecisionLifecycleJob =
   RuntimeApiComponents["schemas"]["DecisionLifecycleJob"];
 
@@ -590,6 +592,30 @@ export type DeltaDistribution =
   RuntimeApiComponents["schemas"]["DeltaDistribution"];
 
 export type DeltaQuantity = RuntimeApiComponents["schemas"]["DeltaQuantity"];
+
+export type DependencyDigestProjection =
+  RuntimeApiComponents["schemas"]["DependencyDigestProjection"];
+
+export type DependencyDiscriminantAuthorityBoundary =
+  RuntimeApiComponents["schemas"]["DependencyDiscriminantAuthorityBoundary"];
+
+export type DependencyDiscriminantOwnerBinding =
+  RuntimeApiComponents["schemas"]["DependencyDiscriminantOwnerBinding"];
+
+export type DependencyDistributionProjection =
+  RuntimeApiComponents["schemas"]["DependencyDistributionProjection"];
+
+export type DependencyEnvironmentDiagnosticCaseProjection =
+  RuntimeApiComponents["schemas"]["DependencyEnvironmentDiagnosticCaseProjection"];
+
+export type DependencyEnvironmentDiagnosticProjection =
+  RuntimeApiComponents["schemas"]["DependencyEnvironmentDiagnosticProjection"];
+
+export type DependencyProfileDiscriminantProjection =
+  RuntimeApiComponents["schemas"]["DependencyProfileDiscriminantProjection"];
+
+export type DependencyRecordRefProjection =
+  RuntimeApiComponents["schemas"]["DependencyRecordRefProjection"];
 
 export type DepthNAcquisitionEconomicsProjection =
   RuntimeApiComponents["schemas"]["DepthNAcquisitionEconomicsProjection"];
@@ -1202,6 +1228,9 @@ export type ReasonAlgebraRow =
 
 export type RefusedAuthorityValue =
   RuntimeApiComponents["schemas"]["RefusedAuthorityValue"];
+
+export type RelatedArtifactBinding =
+  RuntimeApiComponents["schemas"]["RelatedArtifactBinding"];
 
 export type ReplayRef = RuntimeApiComponents["schemas"]["ReplayRef"];
 

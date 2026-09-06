@@ -6,8 +6,8 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-ir"
   },
-  "content_hash": "043a4935b5da12dc4357d88513d05999f08a27771b670a19877282e6b24b1d71",
-  "generated_at": "2026-08-28T00:17:53+00:00",
+  "content_hash": "769b61ae5b244f09cd3eaa69d27ba2fa83998a69f99b5e9e587605fe56f08cd0",
+  "generated_at": "2026-09-06T10:18:11+00:00",
   "generator_version": "1.0.0",
   "models": {
     "abm_alignment_report": {
@@ -42,8 +42,8 @@
       "priority": "p2",
       "schema_file": "article_extraction_result.schema.json",
       "schema_version": "1.5",
-      "sha256_full": "fded0a00b9f9bb11cd99930b84320465c272ae2b0860422e5b1dc2cc83495c3d",
-      "sha256_semantic": "e7173eb3493abd3aab8eeab7762eec5ba14d04a4cd613a9544c1aa4591b1597a",
+      "sha256_full": "efcbbace8786a54ef8b1c0b49f8e317eb40d6f90e202d74191d2486f9a32fe7d",
+      "sha256_semantic": "a1cccabc7685a827c14d471abc779801995e1bf200c9bd8e5adf2a2e8920cd3f",
       "version_field": "schema_version"
     },
     "backtest_plan_bundle": {
@@ -270,8 +270,8 @@
       "priority": "p2",
       "schema_file": "context_adaptive_parameter_bundle.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "337d957a126146c874b31e78d5bc58a3e5014bfdede95bd1d1fd5b9d5a3a3172",
-      "sha256_semantic": "40fd403f31ec127d88fac084e6374819f09040d94d7ecb0412b6a60352a006d9",
+      "sha256_full": "e1fe6414d57ca8e7325119af5f1a332256f524788e63a67ded870a700ba61787",
+      "sha256_semantic": "bc57f90862f0a500fbb3f052a8998396e0f56c06e3189a461ed4d121ade17b86",
       "version_field": "schema_version"
     },
     "data_view_request": {
@@ -606,8 +606,8 @@
       "priority": "p2",
       "schema_file": "literature_causal_prior.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "5b707d04092b74c26ddbaae974aca496027a4a9ac988426d28e7bb7d8f687e40",
-      "sha256_semantic": "ddef92906f1cd6aa4cde798cac42017d620944b0d56d880d5ce23017a5858912",
+      "sha256_full": "739861cca2e5ddd9ea1186d52958436461815f0d55e465355a35fd5c1986e9b7",
+      "sha256_semantic": "2b7676384945d1fc0e9cfced3edfa1bae2408fda0c529fb3007fb6ae21d8966f",
       "version_field": "schema_version"
     },
     "measurement_aware_loss_config": {

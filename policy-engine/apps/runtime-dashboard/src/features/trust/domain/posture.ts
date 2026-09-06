@@ -395,6 +395,7 @@ const custodyAppointmentSourceSchema = z
   .object({
     path: z.literal("docs/plans/active/DEBT-REGISTER.md"),
     debt_id: z.string(),
+    status: z.enum(["open", "blocked", "closed"]),
     source_content: z.string(),
     content_digest: z.string(),
   })
@@ -534,38 +535,40 @@ const CLOSED_PROJECTION_GROUPS = [
 const RATIFIED_IDENTITY_PATH =
   "docs/system-design-decisions/policyos-identity-and-custody-boundary.md";
 const RATIFIED_IDENTITY_CONTENT_DIGEST =
-  "sha256:774f6dfb9aa655a079d6c6a2f00ef6442bad9f0ea9b84f370a4e808c5616a332";
+  "sha256:9a660772c5a5ce863165cd0da48880438190fa95ad3a651312a56dc6c19b1a2d";
 const RATIFIED_IDENTITY_BASIS_DIGEST =
-  "sha256:ebd375b2f2e7c4f3fd0e2f6e02960a842f4e5feeccf84d5a2809c08f47f02682";
+  "sha256:89a888e3ed7ac47b3572b84bafb231354de7926275c43b2fe25a00e15b202d99";
 const CUSTODY_APPOINTMENT_SOURCE_PATH = "docs/plans/active/DEBT-REGISTER.md";
 const CUSTODY_APPOINTMENT_DEBT_IDS = [
   "DS11-CLAIM-LIFECYCLE-ORCHESTRATION",
   "DS11-PUBLIC-SIGNATURE-POPULATION",
   "DS11-PUBLISHED-SIGNATURE-WATCHER",
 ] as const;
-const CUSTODY_APPOINTMENT_CONTRACT = new Map<string, readonly [string, string]>([
+const CUSTODY_APPOINTMENT_CONTRACT = new Map<string, readonly [string, string]>(
   [
-    "DS11-CLAIM-LIFECYCLE-ORCHESTRATION",
     [
-      "team-scientist",
-      "uv run pytest tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py::test_monitor_event_persists_claim_supersession_without_in_place_edit -q",
+      "DS11-CLAIM-LIFECYCLE-ORCHESTRATION",
+      [
+        "team-scientist",
+        "uv run pytest tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py::test_monitor_event_persists_claim_supersession_without_in_place_edit -q",
+      ],
+    ],
+    [
+      "DS11-PUBLIC-SIGNATURE-POPULATION",
+      [
+        "team-design",
+        "uv run pytest tests/unit/runtime/http/test_public_export.py::test_first_governed_public_signature_is_custody_bound -q",
+      ],
+    ],
+    [
+      "DS11-PUBLISHED-SIGNATURE-WATCHER",
+      [
+        "team-runtime",
+        "uv run pytest tests/integration/runtime_quality/test_published_signature_custody.py::test_every_public_signature_is_watched_for_staleness -q",
+      ],
     ],
   ],
-  [
-    "DS11-PUBLIC-SIGNATURE-POPULATION",
-    [
-      "team-design",
-      "uv run pytest tests/unit/runtime/http/test_public_export.py::test_first_governed_public_signature_is_custody_bound -q",
-    ],
-  ],
-  [
-    "DS11-PUBLISHED-SIGNATURE-WATCHER",
-    [
-      "team-runtime",
-      "uv run pytest tests/integration/runtime_quality/test_published_signature_custody.py::test_every_public_signature_is_watched_for_staleness -q",
-    ],
-  ],
-]);
+);
 const FIXED_SEMANTIC_BINDING_COUNTS = new Map<string, number>([
   ["current_accessibility_conformance", 1],
   ["external_accessibility_certification", 1],
@@ -705,7 +708,9 @@ type ProjectionPurpose = NonNullable<
   ClaimPostureRegister["accessibility_document"]
 >["authoritative_for"][number];
 
-function parseProjectionPurposes(lines: readonly string[]): ProjectionPurpose[] {
+function parseProjectionPurposes(
+  lines: readonly string[],
+): ProjectionPurpose[] {
   const purposes: ProjectionPurpose[] = [];
   for (let index = 0; index < lines.length; index += 2) {
     const purpose = /^    - purpose: ([a-z0-9_]+)$/u.exec(lines[index] ?? "");
@@ -850,25 +855,20 @@ async function validateAccessibilityDocument(
     }
   }
   const required = new Set(
-    [...accessibility.authoritative_for, ...accessibility.may_not_use_for].flatMap(
-      (purpose) => purpose.basis,
-    ),
+    [
+      ...accessibility.authoritative_for,
+      ...accessibility.may_not_use_for,
+    ].flatMap((purpose) => purpose.basis),
   );
   const sourceAsOf = accessibility.bindings.find(
     (binding) => binding.key === "source_as_of",
   )?.value;
-  const limitation =
-    "It does not replace the planned third-party countersign.";
+  const limitation = "It does not replace the planned third-party countersign.";
   const occurrences = body
     .split(/\n[ \t]*\n/u)
     .reduce(
       (count, paragraph) =>
-        count +
-        paragraph
-          .split(/\s+/u)
-          .join(" ")
-          .split(limitation).length -
-        1,
+        count + paragraph.split(/\s+/u).join(" ").split(limitation).length - 1,
       0,
     );
   return (
@@ -897,9 +897,7 @@ function pageIssueSignature(message: string): string {
   const axe = /"id"\s*:\s*"([^"]+)"/u.exec(plain);
   if (axe?.[1]) return `axe:${axe[1]}`;
   const expected =
-    /Expected substring:\s*"(?:link|button) \\"([^"\\]+)\\""/u.exec(
-      plain,
-    );
+    /Expected substring:\s*"(?:link|button) \\"([^"\\]+)\\""/u.exec(plain);
   if (expected?.[1]) return `accessible_name:${expected[1]}`;
   throw new TypeError("page-a11y failure has no semantic issue signature");
 }
@@ -1010,9 +1008,7 @@ async function validatePageA11yReceipt(
     command: receipt.command,
   };
   if (
-    !Object.entries(metadata).every(
-      ([key, value]) => normalized[key] === value,
-    )
+    !Object.entries(metadata).every(([key, value]) => normalized[key] === value)
   ) {
     return false;
   }
@@ -1029,12 +1025,12 @@ async function validatePageA11yReceipt(
     duration_ms: stats.duration,
     exit_code: derived.failures.length > 0 ? 1 : 0,
   };
-  const authoredIdentities = arrayValue(normalized.collected_identities ?? []).map(
-    (itemValue): [string, string] => {
-      const item = objectValue(itemValue);
-      return [String(item.identity), String(item.status)];
-    },
-  );
+  const authoredIdentities = arrayValue(
+    normalized.collected_identities ?? [],
+  ).map((itemValue): [string, string] => {
+    const item = objectValue(itemValue);
+    return [String(item.identity), String(item.status)];
+  });
   const authoredFailures = arrayValue(
     normalized.inherited_failure_identities ?? [],
   ).map((itemValue): [string, string] => {
@@ -1059,13 +1055,13 @@ async function validatePageA11yReceipt(
     rawReceipts.results_sha256 !==
       (await sha256(source("run-1/results.json"))).slice("sha256:".length) ||
     rawReceipts.last_run_sha256 !==
-      (await sha256(source("run-1/.last-run.json"))).slice(
-        "sha256:".length,
-      )
+      (await sha256(source("run-1/.last-run.json"))).slice("sha256:".length)
   ) {
     return false;
   }
-  const failureIds = new Set(derived.failures.map((failure) => failure.test_id));
+  const failureIds = new Set(
+    derived.failures.map((failure) => failure.test_id),
+  );
   if (
     lastRun.status !== "failed" ||
     !sameStrings(
@@ -1300,9 +1296,14 @@ async function validateCustodyAppointments(
   ) {
     return false;
   }
-  const derived: Array<[string, string, string, string]> = [];
+  const derived: Array<
+    [string, string, string, string, "open" | "blocked" | "closed"]
+  > = [];
   for (const source of register.custody_appointment_sources) {
-    if (source.source_content.includes("\n") || !source.source_content.startsWith("|")) {
+    if (
+      source.source_content.includes("\n") ||
+      !source.source_content.startsWith("|")
+    ) {
       return false;
     }
     const digest = await sha256(source.source_content);
@@ -1316,7 +1317,9 @@ async function validateCustodyAppointments(
     const tokens = (value: string): string[] =>
       [...value.matchAll(/`([^`]+)`/gu)].map((match) => match[1]!);
     const ids = tokens(cells[0]!);
-    const owners = tokens(cells[2]!).filter((token) => /^team-[a-z0-9-]+$/u.test(token));
+    const owners = tokens(cells[2]!).filter((token) =>
+      /^team-[a-z0-9-]+$/u.test(token),
+    );
     const statuses = tokens(cells[3]!);
     const commands = tokens(cells[4]!).filter((token) =>
       EXECUTABLE_CLOSURE_PREFIXES.some((prefix) => token.startsWith(prefix)),
@@ -1324,7 +1327,7 @@ async function validateCustodyAppointments(
     if (
       !sameStrings(ids, [source.debt_id]) ||
       owners.length !== 1 ||
-      !sameStrings(statuses, ["open"]) ||
+      !sameStrings(statuses, [source.status]) ||
       commands.length !== 1
     ) {
       return false;
@@ -1342,6 +1345,7 @@ async function validateCustodyAppointments(
       owners[0]!,
       commands[0]!,
       `${source.path}#${source.debt_id}@${digest}`,
+      source.status,
     ]);
   }
   const rows = register.claims.filter(
@@ -1350,10 +1354,18 @@ async function validateCustodyAppointments(
   if (rows.length !== 1 || rows[0]!.source_bindings.length !== 3) {
     return false;
   }
-  const appointments: Array<[string, string, string, string]> = [];
+  const appointments: Array<
+    [string, string, string, string, "open" | "blocked" | "closed"]
+  > = [];
   for (const binding of rows[0]!.source_bindings) {
+    const debtId = binding.prerequisite_refs[0];
+    const status = register.custody_appointment_sources.find(
+      (source) => source.debt_id === debtId,
+    )?.status;
+    const expectedState = status === "open" ? "planned" : "blocked";
     if (
-      binding.source_state !== "planned" ||
+      status === undefined ||
+      binding.source_state !== expectedState ||
       binding.owner.basis !== "closure_commitment" ||
       binding.owner.establishment_class !== "recomputed" ||
       !binding.owner.source_ref?.startsWith(
@@ -1371,6 +1383,7 @@ async function validateCustodyAppointments(
       binding.owner.owner,
       binding.closure_signal,
       binding.owner.source_ref,
+      status,
     ]);
   }
   appointments.sort((left, right) => left[0].localeCompare(right[0], "en"));
@@ -2085,14 +2098,24 @@ async function expectedFixedSemanticBindings(
       owner: binding.owner.owner!,
       sourceRef: binding.owner.source_ref!,
       closureSignal: binding.closure_signal!,
+      status: register.custody_appointment_sources.find(
+        (source) => source.debt_id === binding.prerequisite_refs[0],
+      )!.status,
     }))
     .sort((left, right) => compareText(left.debtId, right.debtId));
   for (const appointment of appointments) {
+    const custodyState = appointment.status === "open" ? "planned" : "blocked";
+    const custodyLimitation =
+      appointment.status === "open"
+        ? `Planned prerequisite: ${appointment.debtId}`
+        : appointment.status === "blocked"
+          ? `Blocked prerequisite: ${appointment.debtId}`
+          : `Closed appointment lacks an admitted closure receipt: ${appointment.debtId}`;
     bindings.push(
       semanticBinding({
         coordinate: identityCoordinate,
         contentDigest: identity.content_digest,
-        sourceState: exactIdentity ? "planned" : "blocked",
+        sourceState: exactIdentity ? custodyState : "blocked",
         subject: "universal_custody_commitment",
         family: "custody",
         authoritativeFor: ["universal_custody_commitment"],
@@ -2109,7 +2132,7 @@ async function expectedFixedSemanticBindings(
         reviewDue: identityReviewDue,
         sourceAsOf: identity.last_reviewed,
         evidence: null,
-        limitationRefs: [`Planned prerequisite: ${appointment.debtId}`],
+        limitationRefs: [custodyLimitation],
         prerequisiteRefs: [appointment.debtId],
         closureSignal: appointment.closureSignal,
         predicateFacts: custodyFacts,
@@ -2689,7 +2712,8 @@ export async function validateClaimPostureRegisterSemantics(
       (register.page_a11y_receipt !== null &&
         (register.page_a11y_receipt.admitted_sources.some(
           (member) => admitted.get(member.path) !== member.content_digest,
-        ) || !(await validatePageA11yReceipt(register.page_a11y_receipt)))) ||
+        ) ||
+          !(await validatePageA11yReceipt(register.page_a11y_receipt)))) ||
       !(await validateIdentityBoundary(register.identity_boundary)) ||
       !validateFixedSemanticBasis(register.claims) ||
       !(await validateCustodyAppointments(register))

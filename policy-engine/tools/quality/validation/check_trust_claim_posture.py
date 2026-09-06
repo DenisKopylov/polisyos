@@ -38,6 +38,7 @@ from polisyos.scientist.evidence.claims.posture import (
     ClaimPostureState,
     ClaimSourceBinding,
     CustodyAppointmentSource,
+    CustodyAppointmentStatus,
     DocumentProjectionIndex,
     EstablishmentClass,
     EvidenceBinding,
@@ -78,7 +79,7 @@ _GENERATED_MANIFEST_PATH = Path("architecture/generated_artifacts.toml")
 _GENERATED_REFERENCE_PATH = Path("docs/reference/generated-artifacts.md")
 _OUTPUT_PATH = Path("apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json")
 _DEBT_REGISTER_PATH = Path(CUSTODY_APPOINTMENT_SOURCE_PATH)
-_DEFAULT_REGISTER_AS_OF = date(2026, 8, 26)
+_DEFAULT_REGISTER_AS_OF = date(2026, 9, 1)
 _CORRUPTION_REASON_CODES: Mapping[str, tuple[str, ...]] = {
     "anti_role_removal": ("DS11-IDENTITY-ANTI-ROLE-DRIFT",),
     "body_fact_removal": ("DS11-A11Y-CERTIFICATION-NOT-EARNED",),
@@ -121,6 +122,7 @@ class CustodyAppointment:
 
     debt_id: str
     owner: str
+    status: CustodyAppointmentStatus
     closure_signal: str
     source_ref: str
     line: int
@@ -128,7 +130,7 @@ class CustodyAppointment:
 
 
 def derive_token_sources(repo_root: Path) -> SourceDerivation:
-    """Independently walk and derive source facts with :mod:`tokenize` only."""
+    """Independently derive and bind authority/denial candidates with tokenize."""
     root = repo_root.resolve()
     source_root = (root / "src").resolve()
     if not source_root.is_dir() or not source_root.is_relative_to(root):
@@ -157,11 +159,15 @@ def derive_token_sources(repo_root: Path) -> SourceDerivation:
         elif _DENIED_FIELD.encode() in raw:
             denied_only_sites.extend(_derive_token_row(member, raw).forbidden_sites)
     ordered_rows = tuple(sorted(rows, key=lambda row: row.path))
+    candidate_paths = {row.path for row in ordered_rows} | {
+        member.path for member in denied_raw_members
+    }
+    admitted = tuple(member for member in members if member.path in candidate_paths)
     return SourceDerivation(
-        admitted_sources=tuple(members),
+        admitted_sources=admitted,
         rows=ordered_rows,
         receipt=_token_receipt(
-            scanned_python_count=len(members),
+            scanned_python_count=len(admitted),
             rows=ordered_rows,
             denied_raw_members=denied_raw_members,
             denied_only_sites=denied_only_sites,
@@ -397,13 +403,20 @@ def derive_custody_appointments(
             for token in re.findall(r"`([^`]+)`", cells[4])
             if token.startswith(("uv run pytest ", "pytest ", "python ", ".venv/bin/python "))
         )
-        if len(owners) != 1 or statuses != ["open"] or len(commands) != 1:
-            raise ValueError(f"custody appointment {debt_id} is not exactly appointed and open")
+        if len(owners) != 1 or len(statuses) != 1 or len(commands) != 1:
+            raise ValueError(f"custody appointment {debt_id} is not exactly appointed")
+        try:
+            status = CustodyAppointmentStatus(statuses[0])
+        except ValueError as exc:
+            raise ValueError(
+                f"custody appointment {debt_id} has an unsupported status"
+            ) from exc
         if (owners[0], commands[0]) != CUSTODY_APPOINTMENT_CONTRACT[debt_id]:
             raise ValueError("custody appointment source differs from the accepted contract")
         found[debt_id] = CustodyAppointment(
             debt_id=debt_id,
             owner=owners[0],
+            status=status,
             closure_signal=commands[0],
             source_ref=(
                 f"{_DEBT_REGISTER_PATH.as_posix()}#{debt_id}@sha256:"
@@ -936,12 +949,24 @@ def _compile_semantic_bindings(
         "identity_boundary",
     }
     for appointment in custody_appointments:
+        if appointment.status == CustodyAppointmentStatus.OPEN:
+            custody_state = SourceClaimState.PLANNED
+            custody_limitation = f"Planned prerequisite: {appointment.debt_id}"
+        elif appointment.status == CustodyAppointmentStatus.BLOCKED:
+            custody_state = SourceClaimState.BLOCKED
+            custody_limitation = f"Blocked prerequisite: {appointment.debt_id}"
+        else:
+            custody_state = SourceClaimState.BLOCKED
+            custody_limitation = (
+                "Closed appointment lacks an admitted closure receipt: "
+                f"{appointment.debt_id}"
+            )
         bindings.append(
             _semantic_binding(
                 coordinate=identity_coordinate,
                 content_digest=identity.content_digest,
                 source_state=(
-                    SourceClaimState.PLANNED
+                    custody_state
                     if identity_is_exact_ratified_source
                     else SourceClaimState.BLOCKED
                 ),
@@ -961,7 +986,7 @@ def _compile_semantic_bindings(
                 review_due=review_due,
                 source_as_of=identity.last_reviewed,
                 evidence=None,
-                limitation_refs=(f"Planned prerequisite: {appointment.debt_id}",),
+                limitation_refs=(custody_limitation,),
                 prerequisite_refs=(appointment.debt_id,),
                 closure_signal=appointment.closure_signal,
                 predicate_facts=custody_facts,
@@ -1199,6 +1224,7 @@ def compile_claim_posture_register(
             CustodyAppointmentSource(
                 path=CUSTODY_APPOINTMENT_SOURCE_PATH,
                 debt_id=item.debt_id,
+                status=item.status,
                 source_content=item.source_content,
                 content_digest="sha256:"
                 + hashlib.sha256(item.source_content.encode("utf-8")).hexdigest(),

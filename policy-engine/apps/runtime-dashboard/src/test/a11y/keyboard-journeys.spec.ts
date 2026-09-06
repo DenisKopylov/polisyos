@@ -2,6 +2,7 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import {
   installDashboardTestState,
+  readFixtureMetadata,
   waitForDashboardSurface,
 } from "../../../e2e/helpers/runtime-dashboard";
 import { openCapabilityDiscovery } from "../../../e2e/helpers/capabilityDiscovery";
@@ -65,12 +66,34 @@ test.describe("runtime-dashboard keyboard-only journeys", () => {
     await tabUntilFocused(page, skipExplorerButton, tabCounter, 2);
     await page.keyboard.press("Enter");
 
-    const activeRow = page.locator("[data-run-row-id]").first();
+    let activeRow = page.locator("[data-run-row-id]").first();
     await expect(activeRow).toBeFocused();
-    const activeRunId = await activeRow.getAttribute("data-run-row-id");
+    let activeRunId = await activeRow.getAttribute("data-run-row-id");
     if (!activeRunId) {
       throw new Error("The focused run row must expose its navigation target.");
     }
+    const targetRunId = readFixtureMetadata().core_run_id;
+    const rowIds = await page
+      .locator("[data-run-row-id]")
+      .evaluateAll((rows) =>
+        rows.map((row) => row.getAttribute("data-run-row-id")),
+      );
+    const activeIndex = rowIds.indexOf(activeRunId);
+    const targetIndex = rowIds.indexOf(targetRunId);
+    if (activeIndex < 0 || targetIndex < 0) {
+      throw new Error("The keyboard journey requires the bound core run row.");
+    }
+    const navigationKey = targetIndex > activeIndex ? "ArrowDown" : "ArrowUp";
+    for (
+      let index = 0;
+      index < Math.abs(targetIndex - activeIndex);
+      index += 1
+    ) {
+      await page.keyboard.press(navigationKey);
+    }
+    activeRow = page.locator(`[data-run-row-id="${targetRunId}"]`);
+    await expect(activeRow).toBeFocused();
+    activeRunId = targetRunId;
     await page.keyboard.press("Enter");
 
     await expect(page).toHaveURL(new RegExp(`/runs/${activeRunId}/overview`));

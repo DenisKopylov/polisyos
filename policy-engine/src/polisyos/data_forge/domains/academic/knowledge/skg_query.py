@@ -19,19 +19,24 @@ from polisyos.data_forge.domains.academic.knowledge.canonical_resolver import (
 )
 from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     EVIDENCE_WEIGHTS,
+    decode_edge_evidence_strength,
     parent_canonical_name,
 )
 from polisyos.data_forge.domains.academic.knowledge.store import ScholarKnowledgeStore
 from polisyos.data_forge.domains.academic.knowledge.types import (
     BoundaryConditionResult,
     CausalClaimResult,
+    CausalClaimResultV1,
+    ClaimVocabularySourceRowBinding,
     ParameterEstimateResult,
     ParameterPrior,
 )
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.literature import (
+    ClaimVocabularyAxisStatus,
     EvidenceParameter,
     EvidenceStrength,
+    EvidenceStrengthOrigin,
     ParameterType,
 )
 
@@ -73,8 +78,9 @@ class EdgeSupportRecord:
     dst: str
     direction: str
     confidence: float
-    evidence_strength: str
+    evidence_strength: str | None
     n_unique_works: int
+    evidence_strength_status: ClaimVocabularyAxisStatus = ClaimVocabularyAxisStatus.CANDIDATE
     n_claims: int = 0
     article_refs: tuple[str, ...] = ()
     claim_refs: tuple[str, ...] = ()
@@ -88,6 +94,7 @@ class EdgeSupportRecord:
     strongest_dissent_strength: str = ""
     strongest_dissent_year: int | None = None
     resolution_status: str = ""
+    source_bindings: tuple[ClaimVocabularySourceRowBinding, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -196,23 +203,39 @@ class SKGQuery:
             limit=limit,
         )
         return [
-            CausalClaimResult(
-                id=row.edge_id,
-                work_id=row.article_refs[0] if row.article_refs else "",
+            self._store.project_edge_summary(
+                source_table={
+                    "exact": "ac_skg_edges",
+                    "family": "ac_skg_family_edges",
+                    "contested": "ac_skg_contested_edges",
+                    "hybrid": "ac_skg_edges",
+                }.get(row.source_layer, "ac_skg_edges"),
+                source_identity=row.edge_id,
+                source_bindings=row.source_bindings or None,
                 cause=row.src,
                 effect=row.dst,
                 direction=row.direction,
-                strength=row.evidence_strength,
+                evidence_strength=row.evidence_strength,
                 mechanism=(
                     "contested_summary" if mode == "contested" else f"{row.source_layer}_support"
                 ),
                 domain=self._edge_domain(row.src, row.dst),
                 trust_score=row.confidence,
                 work_title=f"{row.n_unique_works} work(s) synthesized",
-                work_year=None,
+                work_id=row.article_refs[0] if row.article_refs else "",
             )
             for row in rows
         ]
+
+    def query_claims_v1_audit(
+        self,
+        *,
+        cause: str,
+        effect: str,
+        min_trust: float = 0.5,
+    ) -> list[CausalClaimResultV1]:
+        """Deprecated audit-only claim view; never used by semantic consumers."""
+        return self._store.get_causal_claims_v1_audit(cause, effect, min_trust=min_trust)
 
     def query_boundary_conditions(self, *, work_id: str) -> list[BoundaryConditionResult]:
         return self._store.get_boundary_conditions_for_work(work_id)
@@ -350,13 +373,18 @@ class SKGQuery:
         extra_select.append(
             "quality_flags_json" if has_quality_flags else "'[]' AS quality_flags_json"
         )
+        origin_select = (
+            "evidence_strength_origin"
+            if self._column_exists("ac_skg_simulation_parameters", "evidence_strength_origin")
+            else "NULL AS evidence_strength_origin"
+        )
 
         rows = self._con.execute(
             f"""
             SELECT numeric_id, openalex_id, canonical_name, estimate_type, point_estimate,
                    estimate_sign, unit, evidence_strength,
                    {", ".join(extra_select)},
-                   linked_claim_ids_json, linked_edges_json, context_json
+                   linked_claim_ids_json, linked_edges_json, context_json, {origin_select}
             FROM ac_skg_simulation_parameters
             WHERE canonical_name = ?
             LIMIT ?
@@ -387,6 +415,7 @@ class SKGQuery:
                     "value": self._safe_float(row[4]),
                     "unit": str(row[6] or "").strip() or None,
                     "evidence_strength": str(row[7] or ""),
+                    **({"evidence_strength_origin": row[16]} if row[16] is not None else {}),
                     "confidence_interval": list(ci_payload) if ci_payload is not None else None,
                     "std_error": std_error,
                 },
@@ -1034,17 +1063,26 @@ class SKGQuery:
             article_refs = tuple(sorted({*existing.article_refs, *row.article_refs}))
             claim_refs = tuple(sorted({*existing.claim_refs, *row.claim_refs}))
             quality_flags = tuple(sorted({*existing.quality_flags, *row.quality_flags}))
+            source_bindings = tuple(
+                dict.fromkeys((*existing.source_bindings, *row.source_bindings))
+            )
+            evidence_strength = self._strongest_strength(
+                existing.evidence_strength,
+                row.evidence_strength,
+            )
             merged[key] = EdgeSupportRecord(
                 edge_id=existing.edge_id if existing.source_layer == "exact" else row.edge_id,
                 src=row.src,
                 dst=row.dst,
                 direction=row.direction,
                 confidence=max(existing.confidence, row.confidence),
-                evidence_strength=self._strongest_strength(
-                    existing.evidence_strength,
-                    row.evidence_strength,
-                ),
+                evidence_strength=evidence_strength,
                 n_unique_works=max(existing.n_unique_works, row.n_unique_works, len(article_refs)),
+                evidence_strength_status=(
+                    ClaimVocabularyAxisStatus.CANDIDATE
+                    if evidence_strength is not None
+                    else ClaimVocabularyAxisStatus.NOT_ESTABLISHED
+                ),
                 n_claims=max(existing.n_claims, row.n_claims, len(claim_refs)),
                 article_refs=article_refs,
                 claim_refs=claim_refs,
@@ -1062,6 +1100,7 @@ class SKGQuery:
                 strongest_dissent_year=existing.strongest_dissent_year
                 or row.strongest_dissent_year,
                 resolution_status=existing.resolution_status or row.resolution_status,
+                source_bindings=source_bindings,
             )
         return sorted(merged.values(), key=lambda item: item.confidence, reverse=True)[:limit]
 
@@ -1095,10 +1134,12 @@ class SKGQuery:
                     dst=str(row[2]),
                     direction=str(row[3]),
                     confidence=float(row[7]),
-                    evidence_strength=str(row[6]),
+                    evidence_strength=self._decoded_evidence_strength(row[6]),
                     n_unique_works=int(row[4] or len(article_refs)),
+                    evidence_strength_status=self._decoded_evidence_strength_status(row[6]),
                     article_refs=article_refs,
                     source_layer="exact",
+                    source_bindings=(self._store.source_row_binding_for_edge("ac_skg_edges", str(row[0])),),
                 )
             )
         return out
@@ -1145,8 +1186,9 @@ class SKGQuery:
                     dst=str(row[2]),
                     direction=str(row[7] or "mixed"),
                     confidence=float(row[11]),
-                    evidence_strength=str(row[10]),
+                    evidence_strength=self._decoded_evidence_strength(row[10]),
                     n_unique_works=int(row[3] or len(article_refs)),
+                    evidence_strength_status=self._decoded_evidence_strength_status(row[10]),
                     n_claims=int(row[4] or len(claim_refs)),
                     article_refs=article_refs,
                     claim_refs=claim_refs,
@@ -1160,6 +1202,7 @@ class SKGQuery:
                     strongest_dissent_strength=str(row[16] or ""),
                     strongest_dissent_year=int(row[17]) if row[17] is not None else None,
                     resolution_status=resolution_status,
+                    source_bindings=(self._store.source_row_binding_for_edge("ac_skg_contested_edges", str(row[0])),),
                 )
             )
         return out
@@ -1200,8 +1243,9 @@ class SKGQuery:
                     dst=str(row[2]),
                     direction=str(row[3]),
                     confidence=float(row[9]),
-                    evidence_strength=str(row[8]),
+                    evidence_strength=self._decoded_evidence_strength(row[8]),
                     n_unique_works=int(row[4] or len(article_refs)),
+                    evidence_strength_status=self._decoded_evidence_strength_status(row[8]),
                     n_claims=int(row[5] or len(claim_refs)),
                     article_refs=article_refs,
                     claim_refs=claim_refs,
@@ -1214,6 +1258,7 @@ class SKGQuery:
                     resolution_status="moderated"
                     if bool(quality_signals.get("moderated_conflict"))
                     else "",
+                    source_bindings=(self._store.source_row_binding_for_edge("ac_skg_family_edges", str(row[0])),),
                 )
             )
         return out
@@ -1607,10 +1652,20 @@ class SKGQuery:
         )
 
     @staticmethod
-    def _strongest_strength(*values: str) -> str:
-        best = EvidenceStrength.UNKNOWN.value
-        best_score = EVIDENCE_WEIGHTS[best]
-        for value in values:
+    def _strongest_strength(*values: str | None) -> str | None:
+        present = [
+            strength.value
+            for value in values
+            for strength, _ in (decode_edge_evidence_strength(value),)
+            if strength is not None
+        ]
+        if not present:
+            return None
+        best = present[0]
+        best_score = EVIDENCE_WEIGHTS.get(
+            best, EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value]
+        )
+        for value in present[1:]:
             score = EVIDENCE_WEIGHTS.get(
                 str(value), EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value]
             )
@@ -1618,6 +1673,16 @@ class SKGQuery:
                 best = str(value)
                 best_score = score
         return best
+
+    @staticmethod
+    def _decoded_evidence_strength(value: object) -> str | None:
+        strength, _ = decode_edge_evidence_strength(value)
+        return strength.value if strength is not None else None
+
+    @staticmethod
+    def _decoded_evidence_strength_status(value: object) -> ClaimVocabularyAxisStatus:
+        _, status = decode_edge_evidence_strength(value)
+        return status
 
     @staticmethod
     def _normalize_evidence_parameter_payload(
@@ -1758,9 +1823,17 @@ class SKGQuery:
 
         evidence_strength_raw = payload.get("evidence_strength")
         try:
-            evidence_strength = EvidenceStrength(str(evidence_strength_raw))
+            evidence_strength = EvidenceStrength(evidence_strength_raw)
+            strength_origin = EvidenceStrengthOrigin(
+                payload.get("evidence_strength_origin", EvidenceStrengthOrigin.UNRESOLVED)
+            )
         except ValueError:
             evidence_strength = EvidenceStrength.UNKNOWN
+            strength_origin = (
+                EvidenceStrengthOrigin.INTAKE_FALLBACK
+                if "evidence_strength" in payload
+                else EvidenceStrengthOrigin.NOT_SUPPLIED
+            )
 
         try:
             parameter = EvidenceParameter(
@@ -1776,6 +1849,7 @@ class SKGQuery:
                     else None
                 ),
                 evidence_strength=evidence_strength,
+                evidence_strength_origin=strength_origin,
                 time_period=str(payload.get("time_period") or ""),
                 geographic_scope=str(payload.get("geographic_scope") or ""),
             )
@@ -2524,6 +2598,10 @@ class SKGQuery:
                     }
                 ),
             }
+            evidence_strength = self._strongest_strength(
+                existing.get("evidence_strength"),
+                row.get("evidence_strength"),
+            )
             merged[key] = {
                 **existing,
                 "edge_id": existing.get("edge_id") or row.get("edge_id"),
@@ -2534,9 +2612,9 @@ class SKGQuery:
                     len(article_refs),
                 ),
                 "article_refs": article_refs,
-                "evidence_strength": self._strongest_strength(
-                    str(existing.get("evidence_strength") or ""),
-                    str(row.get("evidence_strength") or ""),
+                "evidence_strength": evidence_strength,
+                "evidence_strength_status": (
+                    "candidate" if evidence_strength is not None else "not_established"
                 ),
                 "candidate_layer": "hybrid",
                 "quality_signals": quality_signals,
@@ -2588,6 +2666,7 @@ class SKGQuery:
         result: list[dict[str, object]] = []
         for row in rows:
             article_refs = self._parse_json_list(row[5])
+            evidence_strength, evidence_strength_status = decode_edge_evidence_strength(row[6])
             payload = {
                 "edge_id": str(row[0]),
                 "src": str(row[1]),
@@ -2596,7 +2675,10 @@ class SKGQuery:
                 "n_articles": int(row[4] or len(article_refs)),
                 "article_refs": article_refs,
                 "scope_conditions": self._parse_json_list(row[8]),
-                "evidence_strength": str(row[6]),
+                "evidence_strength": (
+                    evidence_strength.value if evidence_strength is not None else None
+                ),
+                "evidence_strength_status": evidence_strength_status.value,
                 "confidence": float(row[7]),
                 "candidate_layer": "exact",
                 "quality_signals": {"layers": ["exact"]},
@@ -2646,6 +2728,7 @@ class SKGQuery:
         ).fetchall()
         result: list[dict[str, object]] = []
         for row in rows:
+            evidence_strength, evidence_strength_status = decode_edge_evidence_strength(row[6])
             result.append(
                 {
                     "edge_id": str(row[0]),
@@ -2655,7 +2738,10 @@ class SKGQuery:
                     "n_articles": int(row[4] or 0),
                     "article_refs": self._parse_json_list(row[5]),
                     "scope_conditions": [],
-                    "evidence_strength": str(row[6]),
+                    "evidence_strength": (
+                        evidence_strength.value if evidence_strength is not None else None
+                    ),
+                    "evidence_strength_status": evidence_strength_status.value,
                     "confidence": float(row[7]),
                     "candidate_layer": "family",
                     "quality_signals": self._parse_json_dict(row[8]) or {"layers": ["family"]},

@@ -10,14 +10,14 @@ from typing import Any, ClassVar
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.observability.truthfulness import (
+from polisyos.ir.analytics import (
     TruthfulnessReceipt,
     validate_truthfulness_receipt,
 )
-from polisyos.core.observability.truthfulness import (
+from polisyos.ir.analytics import (
     TruthfulnessTier as ReceiptTruthfulnessTier,
 )
-from polisyos.core.observability.truthfulness import (
+from polisyos.ir.analytics import (
     parse_truthfulness_tier as parse_receipt_truthfulness_tier,
 )
 from polisyos.ir.analytics.uncertainty import (

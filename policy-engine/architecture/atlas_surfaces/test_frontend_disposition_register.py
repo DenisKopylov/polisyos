@@ -268,14 +268,7 @@ def test_ds15_register_transition_binds_query_consumer_and_preserves_peers() -> 
         data,
         report_parity=False,
     ) == []
-    assert set(checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES) == {  # noqa: S101
-        "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
-        "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
-        "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
-        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-    }
+    assert checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES == {}  # noqa: S101
 
     missing_consumer = copy.deepcopy(data)
     mutated_entry = next(
@@ -371,73 +364,27 @@ def test_ds10_query_key_evidence_identity_binds_the_current_owner() -> None:
     ) == []
 
 
-def test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure() -> None:
-    """Keep DS10 frozen while DS15 admits only the complete current drift."""
-    exact = checker.DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES[0]
-    stale_expected = dict(checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES)
-    stale_expected.pop(next(iter(stale_expected)))
-    stale_admitted, stale_errors = checker._ds10_c13_external_nonclosure_admission(
-        [exact],
-        expected_mismatches=stale_expected,
-    )
-
-    assert stale_admitted == ()  # noqa: S101
-    assert stale_errors == [  # noqa: S101
-        "ds10_c13_external_source_binding_census_drift"
-    ]
-    admitted, admission_errors = checker._ds10_c13_external_nonclosure_admission(
-        [exact]
-    )
-    assert admission_errors == []  # noqa: S101
-    assert admitted == (exact,)  # noqa: S101
-    ds15_admitted, ds15_admission_errors = (
-        checker._ds10_c13_external_nonclosure_admission(
-        [exact],
-        expected_mismatches=checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
-        )
-    )
-    assert ds15_admission_errors == []  # noqa: S101
-    assert ds15_admitted == (exact,)  # noqa: S101
-    assert (  # noqa: S101
-        checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
-        == checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
-    )
-    assert set(checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES) == {  # noqa: S101
-        "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
-        "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
-        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
-        "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
-    }
-    assert checker._ds10_blocking_register_errors([]) == []  # noqa: S101
-    assert checker._ds10_blocking_register_errors(  # noqa: S101
-        [exact], admitted_external_errors=admitted
-    ) == []
-    assert checker._ds10_blocking_register_errors(  # noqa: S101
-        [exact, "c13_print_export_root_drift"],
-        admitted_external_errors=admitted,
-    ) == ["c13_print_export_root_drift"]
-    assert checker._ds10_blocking_register_errors(  # noqa: S101
-        [exact, exact], admitted_external_errors=admitted
-    ) == [exact, exact]
-    adjacent = exact + ":adjacent"
-    assert checker._ds10_blocking_register_errors(  # noqa: S101
-        [adjacent], admitted_external_errors=admitted
-    ) == [adjacent]
-
+def test_ds10_writer_requires_current_c13_receipt_and_retires_the_nonclosure() -> None:
+    """Close the exact residual while keeping its historical text non-admissible."""
+    retired = checker.DS10_RETIRED_EXTERNAL_REGISTER_NONCLOSURES[0]
+    assert checker.DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES == ()  # noqa: S101
+    assert checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES == {}  # noqa: S101
+    assert checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES == {}  # noqa: S101
     receipt = checker._c13_independent_print_receipt()
     source_bytes = {
         str(row["path"]): (checker.REPO_ROOT / str(row["path"])).read_bytes()
         for row in receipt["source_bindings"]
     }
-    unexposed, unexposed_errors = checker._ds10_c13_external_nonclosure_admission(
-        [], source_bytes=source_bytes
+    producer_bytes = {
+        str(row["path"]): (checker.REPO_ROOT / str(row["path"])).read_bytes()
+        for row in receipt["producer_bindings"]
+    }
+    admitted, admission_errors = checker._ds10_c13_external_nonclosure_admission(
+        [], source_bytes=source_bytes, producer_bytes=producer_bytes
     )
-    assert unexposed == ()  # noqa: S101
-    assert unexposed_errors == [  # noqa: S101
-        "ds10_c13_unexposed_current_evidence_drift"
-    ]
+    assert admitted == ()  # noqa: S101
+    assert admission_errors == []  # noqa: S101
+
     incomplete, incomplete_errors = (
         checker._ds10_c13_external_nonclosure_admission([], source_bytes={})
     )
@@ -445,45 +392,38 @@ def test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure() ->
     assert incomplete_errors == [  # noqa: S101
         "ds10_c13_external_source_binding_census_drift"
     ]
-
-    verified_bytes = {
-        path: checker._c03_git_bytes(
-            "show", f"{checker.C13_VERIFIED_REVISION}:policy-engine/{path}"
-        )
-        for path in checker.C13_SOURCE_REFS
-    }
-    future_fixed, future_fixed_errors = (
+    producer_ref = checker.C13_PRODUCER_REFS[0]
+    producer_bytes[producer_ref] += b"\nproducer drift"
+    producer_rejected, producer_errors = (
         checker._ds10_c13_external_nonclosure_admission(
-            [], source_bytes=verified_bytes
+            [],
+            source_bytes=source_bytes,
+            producer_bytes=producer_bytes,
         )
     )
-    assert future_fixed == ()  # noqa: S101
-    assert future_fixed_errors == []  # noqa: S101
-    stale_exposure, stale_exposure_errors = (
-        checker._ds10_c13_external_nonclosure_admission(
-            [exact], source_bytes=verified_bytes
-        )
-    )
-    assert stale_exposure == ()  # noqa: S101
-    assert stale_exposure_errors == [  # noqa: S101
-        "ds10_c13_external_source_binding_census_drift"
+    assert producer_rejected == ()  # noqa: S101
+    assert producer_errors == [  # noqa: S101
+        "ds10_c13_unexposed_current_evidence_drift"
     ]
-
-    unaffected = next(
-        path
-        for path in checker.C13_SOURCE_REFS
-        if path not in checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
-    )
-    source_bytes[unaffected] += b"\nthird mismatch"
+    source_bytes[checker.C13_SOURCE_REFS[0]] += b"\ncurrent drift"
     rejected, rejection_errors = checker._ds10_c13_external_nonclosure_admission(
-        [exact],
+        [],
         source_bytes=source_bytes,
-        expected_mismatches=checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES,
     )
     assert rejected == ()  # noqa: S101
     assert rejection_errors == [  # noqa: S101
-        "ds10_c13_external_source_binding_census_drift"
+        "ds10_c13_unexposed_current_evidence_drift"
     ]
+    retired_admitted, retired_errors = (
+        checker._ds10_c13_external_nonclosure_admission([retired])
+    )
+    assert retired_admitted == ()  # noqa: S101
+    assert retired_errors == []  # noqa: S101
+    assert checker._ds10_blocking_register_errors([retired]) == [retired]  # noqa: S101
+    with pytest.raises(ValueError, match="undeclared external register error"):
+        checker._ds10_blocking_register_errors(
+            [retired], admitted_external_errors=[retired]
+        )
 
 
 _SPEC = importlib.util.spec_from_file_location("frontend_disposition_checker", CHECKER_PATH)
@@ -609,9 +549,9 @@ def _c13_evidence_snapshot(
     historical_bytes = {
         checker.REPO_ROOT / str(row["path"]): checker._c03_git_bytes(
             "show",
-            f"{checker.C13_VERIFIED_REVISION}:policy-engine/{row['path']}",
+            f"{checker.C13_REISSUE_REVISION}:policy-engine/{row['path']}",
         )
-        for row in receipt["source_bindings"]
+        for row in [*receipt["source_bindings"], *receipt["producer_bindings"]]
     }
     producer = receipt["environment_probe_producer"]
     historical_bytes[checker.REPO_ROOT / str(producer["path"])] = (
@@ -3359,7 +3299,7 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
                 ]
                 for capture in receipt["captures"]
             ]
-            == [[5, 30], [5, 30]]
+            == [[16, 41], [16, 41]]
         )
         checker._c13_verify_current_print_evidence(receipt)
 
@@ -3374,6 +3314,7 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
             "growth": (("captures", 0, "pdfs", "grown_page_count"), 5),
             "second-growth": (("captures", 1, "pdfs", "grown_page_count"), 5),
             "environment": (("captures", 1, "environment_sha256"), "0" * 64),
+            "producer": (("producer_bindings", 0, "sha256"), "0" * 64),
         }
 
         for name, (coordinates, value) in mutations.items():
@@ -3423,11 +3364,51 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
         with pytest.raises(ValueError, match="C13 current evidence drift"):
             checker._c13_verify_current_print_evidence(receipt, evidence_bytes=evidence)
 
+    def test_current_producer_byte_drift_invalidates_the_receipt(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        producers = {
+            row["path"]: (checker.REPO_ROOT / row["path"]).read_bytes()
+            for row in receipt["producer_bindings"]
+        }
+        for producer_ref in checker.C13_PRODUCER_REFS:
+            mutation = dict(producers)
+            mutation[producer_ref] += b"\n# producer drift\n"
+            with (
+                self.subTest(producer_ref=producer_ref),
+                pytest.raises(
+                    ValueError,
+                    match="C13 current evidence drift:producer",
+                ),
+            ):
+                checker._c13_verify_current_print_evidence(
+                    receipt,
+                    producer_bytes=mutation,
+                )
+
+    def test_receipt_rejects_wrong_producer_population(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        populations = {
+            "missing": receipt["producer_bindings"][:-1],
+            "reordered": list(reversed(receipt["producer_bindings"])),
+            "extra": [
+                *receipt["producer_bindings"],
+                {"path": "unrelated.py", "sha256": "0" * 64},
+            ],
+        }
+        for name, producers in populations.items():
+            mutation = copy.deepcopy(receipt)
+            mutation["producer_bindings"] = producers
+            with self.subTest(name=name):
+                self._require(
+                    "producer_population"
+                    in checker._c13_receipt_shape_errors(mutation)
+                )
+
     def test_raw_playwright_and_environment_artifacts_are_the_receipt(self) -> None:
         receipt = checker._c13_independent_print_receipt()
         raw = checker._c13_raw_execution_receipt(receipt)
         self._require(raw["test_titles"] == receipt["test_titles"])
-        self._require(raw["page_counts"] == [[5, 30], [5, 30]])
+        self._require(raw["page_counts"] == [[16, 41], [16, 41]])
         self._require(raw["environment_tuple_count"] == 1)
 
         artifacts = {
@@ -8123,6 +8104,214 @@ class DS9C07AdjudicationTests(unittest.TestCase):
 class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
     """Reject a moving or marker-only DS18 render denominator."""
 
+    @staticmethod
+    def _legacy_non_anchor_source_fields(current: str) -> str:
+        """Build a legacy-key fixture without changing any stored values."""
+        coverage_start, coverage_end, _coverage = (
+            checker._json_top_level_object_span(
+                current, "ds18_time_semantics_coverage"
+            )
+        )
+        files_start, files_end, _files = checker._json_field_value_span(
+            current,
+            field="files",
+            within=(coverage_start, coverage_end),
+        )
+        surface_start, surface_end, _surface = (
+            checker._json_top_level_object_span(
+                current, checker.DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+            )
+        )
+        roles_start, roles_end, _roles = checker._json_field_value_span(
+            current,
+            field="roles",
+            within=(surface_start, surface_end),
+        )
+        replacements = [
+            (
+                files_start,
+                files_end,
+                current[files_start:files_end]
+                .replace('"component_name":', '"component_identity":')
+                .replace('"source_row":', '"line":'),
+            ),
+            (
+                roles_start,
+                roles_end,
+                current[roles_start:roles_end].replace(
+                    '"source_row":', '"line":'
+                ),
+            ),
+        ]
+        legacy = current
+        for start, end, replacement in sorted(replacements, reverse=True):
+            legacy = legacy[:start] + replacement + legacy[end:]
+        return legacy
+
+    def test_persisted_roots_use_neutral_label_and_coordinate_names(self) -> None:
+        """Scanner labels and coordinates cannot masquerade as client bindings."""
+        scan = checker._ds18_time_semantics_scan()
+
+        coverage = checker._build_ds18_time_semantics_coverage(scan)
+        roots = [root for row in coverage["files"] for root in row["roots"]]
+
+        self.assertTrue(roots)  # noqa: PT009
+        self.assertTrue(  # noqa: PT009
+            all("component_name" in root for root in roots)
+        )
+        self.assertTrue(  # noqa: PT009
+            all("component_identity" not in root for root in roots)
+        )
+        self.assertTrue(all("source_row" in root for root in roots))  # noqa: PT009
+        self.assertTrue(all("line" not in root for root in roots))  # noqa: PT009
+
+    def test_non_anchor_source_field_migration_is_surgical_and_idempotent(
+        self,
+    ) -> None:
+        """Rename false binding keys without rewriting peer or lineage bytes."""
+        current = REGISTER_PATH.read_text(encoding="utf-8")
+        original = self._legacy_non_anchor_source_fields(current)
+        coverage_start, coverage_end, opening_coverage = (
+            checker._json_top_level_object_span(
+                original, "ds18_time_semantics_coverage"
+            )
+        )
+        _files_start, _files_end, opening_files = checker._json_field_value_span(
+            original,
+            field="files",
+            within=(coverage_start, coverage_end),
+        )
+        expected_renamed = sum(
+            "component_identity" in root
+            for row in opening_files
+            for root in row["roots"]
+        )
+        expected_source_lines = sum(
+            "line" in root for row in opening_files for root in row["roots"]
+        )
+        opening_roles = json.loads(original)[
+            checker.DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+        ]["roles"]
+        expected_ds17_source_lines = sum(
+            "line" in role["declaration"] for role in opening_roles
+        )
+        self.assertGreater(expected_renamed, 0)  # noqa: PT009
+        self.assertEqual(expected_renamed, expected_source_lines)  # noqa: PT009
+        self.assertEqual(6, expected_ds17_source_lines)  # noqa: PT009
+
+        candidate, renamed = checker._non_anchor_source_fields_candidate_text(
+            original
+        )
+
+        candidate_coverage_start, candidate_coverage_end, candidate_coverage = (
+            checker._json_top_level_object_span(
+                candidate, "ds18_time_semantics_coverage"
+            )
+        )
+        _candidate_files_start, _candidate_files_end, candidate_files = (
+            checker._json_field_value_span(
+                candidate,
+                field="files",
+                within=(candidate_coverage_start, candidate_coverage_end),
+            )
+        )
+        self.assertEqual(  # noqa: PT009
+            {
+                "ds18_component_labels": expected_renamed,
+                "ds18_source_lines": expected_source_lines,
+                "ds17_source_lines": expected_ds17_source_lines,
+            },
+            renamed,
+        )
+        self.assertEqual(  # noqa: PT009
+            opening_coverage["historical_lineage"],
+            candidate_coverage["historical_lineage"],
+        )
+        self.assertTrue(  # noqa: PT009
+            all(
+                "component_name" in root
+                and "component_identity" not in root
+                and "source_row" in root
+                and "line" not in root
+                for row in candidate_files
+                for root in row["roots"]
+            )
+        )
+        self.assertTrue(  # noqa: PT009
+            all(
+                "source_row" in role["declaration"]
+                and "line" not in role["declaration"]
+                for role in json.loads(candidate)[
+                    checker.DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+                ]["roles"]
+            )
+        )
+        repeated, repeated_renamed = (
+            checker._non_anchor_source_fields_candidate_text(candidate)
+        )
+        self.assertEqual(candidate, repeated)  # noqa: PT009
+        self.assertEqual(  # noqa: PT009
+            {
+                "ds18_component_labels": 0,
+                "ds18_source_lines": 0,
+                "ds17_source_lines": 0,
+            },
+            repeated_renamed,
+        )
+
+    def test_non_anchor_source_field_migration_rejects_ambiguous_root_label(
+        self,
+    ) -> None:
+        """A root may carry the legacy or current label key, never both."""
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+        ambiguous = original.replace(
+            '"component_name": "App",',
+            '"component_identity": "App",\n              "component_name": "App",',
+            1,
+        )
+        self.assertNotEqual(original, ambiguous)  # noqa: PT009
+
+        with self.assertRaisesRegex(  # noqa: PT027
+            ValueError, "DS18 root component label is ambiguous"
+        ):
+            checker._non_anchor_source_fields_candidate_text(ambiguous)
+
+    def test_non_anchor_source_field_migration_cli_is_exclusive_and_idempotent(
+        self,
+    ) -> None:
+        """The operator path schema-validates one bounded, repeatable write."""
+        current = REGISTER_PATH.read_text(encoding="utf-8")
+        original = self._legacy_non_anchor_source_fields(current)
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp) / REGISTER_PATH.name
+            target.write_text(original, encoding="utf-8")
+            with mock.patch.object(checker, "REGISTER_PATH", target):
+                self.assertEqual(  # noqa: PT009
+                    0,
+                    checker.main(["--migrate-non-anchor-source-fields"]),
+                )
+                migrated = target.read_text(encoding="utf-8")
+                self.assertNotEqual(original, migrated)  # noqa: PT009
+                self.assertEqual(  # noqa: PT009
+                    [], checker._schema_errors(json.loads(migrated), checker.SCHEMA_PATH)
+                )
+                self.assertEqual(  # noqa: PT009
+                    0,
+                    checker.main(["--migrate-non-anchor-source-fields"]),
+                )
+                self.assertEqual(  # noqa: PT009
+                    migrated, target.read_text(encoding="utf-8")
+                )
+                self.assertEqual(  # noqa: PT009
+                    1,
+                    checker.main(
+                        ["--migrate-non-anchor-source-fields", "--check"]
+                    ),
+                )
+                self.assertEqual(  # noqa: PT009
+                    migrated, target.read_text(encoding="utf-8")
+                )
+
     def test_complete_current_register_is_admitted(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         errors: list[str] = []
@@ -9483,16 +9672,20 @@ it("guards the otherwise connected edge", () => {
             "ds18_time_semantics_coverage"
         ]
         scanner_fields = {
-            "column",
-            "component_identity",
-            "epoch_context_read_count",
-            "epoch_semantics_prop_count",
-            "epoch_semantics_provider_render_count",
-            "kind",
-            "line",
-            "root_id",
-            "root_source_sha256",
-            "time_semantics_label_render_count",
+            "column": "column",
+            "component_name": "component_identity",
+            "epoch_context_read_count": "epoch_context_read_count",
+            "epoch_semantics_prop_count": "epoch_semantics_prop_count",
+            "epoch_semantics_provider_render_count": (
+                "epoch_semantics_provider_render_count"
+            ),
+            "kind": "kind",
+            "source_row": "line",
+            "root_id": "root_id",
+            "root_source_sha256": "root_source_sha256",
+            "time_semantics_label_render_count": (
+                "time_semantics_label_render_count"
+            ),
         }
         frozen_scan = {
             "source_root": coverage["source_root"],
@@ -9508,9 +9701,8 @@ it("guards the otherwise connected edge", () => {
                     "receipt_kind": row["receipt_kind"],
                     "roots": [
                         {
-                            key: value
-                            for key, value in root.items()
-                            if key in scanner_fields
+                            scanner_key: root[stored_key]
+                            for stored_key, scanner_key in scanner_fields.items()
                         }
                         for root in row["roots"]
                     ],

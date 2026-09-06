@@ -13,7 +13,7 @@ from polisyos.core.evaluation.mcda_robustness import (
     run_electre_rank_stability,
     run_topsis_rank_stability,
 )
-from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
     ComputeBackend,

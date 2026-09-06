@@ -3,37 +3,13 @@
 from __future__ import annotations
 
 import hashlib
-from typing import Annotated, Literal, get_args
+from typing import get_args
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
-
-EvaluationMode = Literal[
-    "simulate_only",
-    "retrospective",
-    "measurement_audit",
-    "sandbox_pilot",
-    "field_pilot",
-    "deployment",
-]
-NamespacedEvaluationModeBlocker = Annotated[
-    str,
-    StringConstraints(pattern=r"^[a-z][a-z0-9_.-]+@[0-9]+\.[0-9]+\.[0-9]+$"),
-]
+from polisyos.pdc import EvaluationMode, EvaluationModeResolution
 
 _MISSING = "polisyos.eval_safety.evaluation_mode_missing@1.0.0"
 _INVALID = "polisyos.eval_safety.evaluation_mode_unknown@1.0.0"
 _MODES = frozenset(get_args(EvaluationMode))
-
-
-class EvaluationModeResolution(BaseModel):
-    """Typed result of parsing one untrusted evaluation-mode token."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    status: Literal["accepted", "missing", "invalid"]
-    canonical_mode: EvaluationMode | None
-    blocker_code: NamespacedEvaluationModeBlocker | None
-    source_token_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
 def resolve_evaluation_mode(token: str | None) -> EvaluationModeResolution:

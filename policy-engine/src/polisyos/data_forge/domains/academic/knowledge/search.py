@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -14,11 +15,15 @@ from polisyos.data_forge.domains.academic.knowledge.store import ScholarKnowledg
 from polisyos.data_forge.domains.academic.knowledge.types import (
     BoundaryConditionResult,
     CausalClaimResult,
+    CausalClaimResultV1,
     ParameterPrior,
     WorkSearchResult,
 )
 
 logger = get_logger(__name__)
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.knowledge.types import ClaimLineageAuditPage
 
 
 class ScholarKnowledgeGraph:
@@ -143,24 +148,28 @@ class ScholarKnowledgeGraph:
             finally:
                 query.close()
             if candidates:
-                usable_candidates = [
+                numeric_candidates = [
                     candidate for candidate in candidates if candidate.parameter.value is not None
                 ]
-                values = np.array(
-                    [float(candidate.parameter.value) for candidate in usable_candidates]
-                )
-                if len(values) > 0:
-                    weights = np.array(
-                        [
-                            EVIDENCE_WEIGHTS.get(
-                                candidate.parameter.evidence_strength.value,
-                                EVIDENCE_WEIGHTS["unknown"],
+                if numeric_candidates:
+                    contributing_candidates = [
+                        (candidate, base_weight)
+                        for candidate in numeric_candidates
+                        if (
+                            base_weight := EVIDENCE_WEIGHTS.get(
+                                getattr(candidate.parameter.evidence_strength, "value", None),
+                                0.0,
                             )
-                            for candidate in usable_candidates
-                        ]
+                        )
+                        > 0.0
+                    ]
+                    if not contributing_candidates:
+                        return None
+                    usable_candidates, base_weights = zip(*contributing_candidates, strict=True)
+                    values = np.array(
+                        [float(candidate.parameter.value) for candidate in usable_candidates]
                     )
-                    if weights.sum() == 0:
-                        weights = np.ones_like(weights)
+                    weights = np.array(base_weights)
                     weights = weights / weights.sum()
                     weighted_mean = float(np.average(values, weights=weights))
                     weighted_std = float(
@@ -250,6 +259,34 @@ class ScholarKnowledgeGraph:
             top_k=top_k,
             min_trust=min_trust,
         )
+
+    def find_causal_evidence_v1_audit(
+        self,
+        cause: str,
+        effect: str,
+        *,
+        min_trust: float = 0.5,
+    ) -> list[CausalClaimResultV1]:
+        """Deprecated v1 audit route for exact claim rows."""
+        return self._store.get_causal_claims_v1_audit(cause, effect, min_trust=min_trust)
+
+    def get_mechanism_evidence_v1_audit(
+        self, mechanism_name: str, *, top_k: int = 20, min_trust: float = 0.3
+    ) -> list[CausalClaimResultV1]:
+        """Deprecated v1 audit route; generic strength remains absent."""
+        return self._store.search_causal_claims_v1_audit(
+            mechanism_name, top_k=top_k, min_trust=min_trust
+        )
+
+    def audit_claim_lineage(
+        self,
+        *,
+        status: str = "all",
+        cursor: str | None = None,
+        limit: int = 100,
+    ) -> ClaimLineageAuditPage:
+        """Forward the raw lineage audit page without reconstruction."""
+        return self._store.audit_claim_lineage(status=status, cursor=cursor, limit=limit)
 
     def find_works_for_topic(
         self,

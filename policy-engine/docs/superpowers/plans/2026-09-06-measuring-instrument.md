@@ -31,23 +31,35 @@ integration cache before probing it. No register edits or remote writes.
 
 - [x] Preserve integration cache files, hashes, commit, cleanliness and provisioning.
 - [x] Resolve every ABI entry; compare its persisted payload with fresh generation.
-- [ ] Compare unchanged integration with an empty-cache control and a fresh checkout.
-- [ ] Add behavioral regression tests in
+- [x] Compare unchanged integration with an empty-cache control and a fresh checkout.
+- [x] Add behavioral regression tests in
   `tests/repo_quality/tools/test_schema_station_independence.py`; observe failure
   before editing `tools/quality/diagnostics/gen_schema.py`.
-- [ ] Remove stale payload/early-return authority without weakening drift checks.
+- [x] Remove stale payload/early-return authority without weakening drift checks.
   Preserve CLI compatibility where practical; document changed optimisation semantics.
-- [ ] Run focused diagnostics/importer tests, Ruff and architecture guardrails.
+- [x] Run focused diagnostics/importer tests, Ruff and architecture guardrails.
   Commit the source repair separately from journal findings.
-- [ ] Provision two separate worktrees at the repair commit. Run the declared
+  The focused tests and Ruff passed; architecture guardrails have no valid passing
+  receipt because their generated-artifact probe rebound the caller's editable
+  venv. Evidence was preserved, the task venv restored, and the defect assigned
+  proposed owners in the journal. Independent review could not execute because
+  its service returned an out-of-credits error.
+- [x] Provision two separate worktrees at the repair commit. Run the declared
   check in each and compare the complete artifact path/hash and finding sets.
-- [ ] Trace the same cache class across every other declared `check_command`;
+- [x] Trace the same cache class across every other declared `check_command`;
   record the full family denominator and both positive and negative results.
-- [ ] Inspect `abi.yml`, read the remote ref, run targeted local gate probes and
+- [x] Inspect `abi.yml`, read the remote ref, run targeted local gate probes and
   name expected failures with proposed owners in the journal.
-- [ ] Commit and read back the journal from the branch. Stop at the push boundary.
+- [x] Prepare the journal and complete artifact evidence for the push handback.
   The architect decides the push. CI result reading and the deliberate witness
   commit/CI/revert cycle wait for that decision and a readable run.
+
+Closeout record: `docs/superpowers/journals/2026-09-06-measuring-instrument.md`.
+The prepared record is committed and read back as the final local delivery step;
+it does not assert that the pending CI work is complete. The documentation replay
+adds no docs-lifecycle findings. The last-mile scanner adds the journal and evidence
+file themselves to LM-025 by matching a substring in valid evidence paths; that
+owned delta is preserved in a separate finding with proposed owners.
 
 Only contended resource: the preserved integration cache. Its control probes are
 serial. Independent provisioning and read-only source inspections may run together.

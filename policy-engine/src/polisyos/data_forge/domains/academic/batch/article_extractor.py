@@ -161,6 +161,8 @@ _EVIDENCE_STRENGTH_ALIASES = {
     "ols_cross_sectional": EvidenceStrength.CROSS_SECTIONAL.value,
     "theoretical": EvidenceStrength.THEORETICAL.value,
     "unknown": EvidenceStrength.UNKNOWN.value,
+    # Canonical names always alias to themselves, including future enum members.
+    **{strength.value: strength.value for strength in EvidenceStrength},
 }
 _PARAMETER_TYPE_ALIASES = {
     "quantitative": ParameterType.QUANTITATIVE.value,
@@ -394,6 +396,7 @@ def _coerce_subgroup_estimates(value: Any) -> dict[str, float]:
 
 
 def _normalize_evidence_strength(value: Any) -> str:
+    """Accept canonical names and explicit aliases; unrecognized input stays unknown."""
     normalized = _normalized_text(value).lower().replace(" ", "_")
     if not normalized:
         return EvidenceStrength.UNKNOWN.value

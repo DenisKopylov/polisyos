@@ -4307,3 +4307,51 @@ queries. The absence of Kuzu's optional Python package was observed while consid
 container inspection; no install, Kuzu open, or container-content census followed.
 That is an unperformed inspection, not a zero-source result. After HC-D06 only journal
 assembly, verification and custody/branch receipts were undertaken.
+
+
+## Event 23 — final lane custody and checker-exemption receipts, 2026-09-06
+
+Events 21-22 were committed as **fcc4bdf6dd6639db9f0f23b9ad059d9b45a2d2d7** on
+**codex/debt-historical-cohorts**. Their bytes were read back from that named branch with
+git show and matched the worktree exactly. All **283,231 bytes** of the entry journal
+at 7aacf3142 were preserved. The committed journal SHA-256 before this final receipt was
+**7915609aba9215c0099c19afce2d4b2d69ceaa126b277824ded8be3722cc8531**.
+The branch was clean and attached; git diff --check 7aacf3142..HEAD passed.
+
+The bound debt checker was **skipped**. This round changed only the journal, which is not
+in the checker's input denominator. The actual committed-branch receipt was:
+
+~~~console
+$ git diff --name-only 7aacf3142..HEAD
+policy-engine/docs/superpowers/journals/2026-09-05-historical-cohorts.md
+~~~
+
+This receipt also changes only the journal. No register, ledger, docs/plans file, tool,
+source, test, or schema changed. No product test or broad verification suite was run;
+the independently reconciled filesystem/SQL/Python censuses and diff checks are the
+applicable measurement verification.
+
+Final pinned-file custody: binary read plus hashlib.file_digest(file, "sha256"), followed
+by file stat, returned:
+
+~~~json
+{
+  "snapshot": "/Users/deniskopylov/polisyos/.worktrees/debt-historical-cohorts/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+  "resolved_snapshot": "/Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+  "sha256": "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967",
+  "bytes": 2390503424,
+  "mode": "-r--r--r--",
+  "read_mode": "rb",
+  "wall_seconds": 1.38
+}
+~~~
+
+The full hash matches the required sha256:583233169ab7… pin. All database connections
+used read_only=True. No production_data write, chmod, real extraction, producer/model/
+writer invocation, data-production pass, gate enablement, source/test implementation,
+or fix round occurred.
+
+The source-retention stop remains HC-D06. HC-T01-R6 and HC-T02-R6 are complete replacements
+and **must not be concatenated** with earlier paragraphs. The parameter routing paragraph
+is HC-P01. Candidate labels above are left for their respective owners; this lane requests
+no further measurement round and makes no claim that the historical debt itself is closed.

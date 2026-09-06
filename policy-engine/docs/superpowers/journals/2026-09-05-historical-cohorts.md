@@ -3823,3 +3823,487 @@ metadata, while every claim subtree lacks the evidence axis. This does **not** d
 refute claim-specific vintage. Input availability, restoration workload, cost, and the
 bounded alias experiment remain deferred. HC-T01-R5, HC-T02-R5, and HC-T03-R5 replace their
 respective earlier paragraphs in full; the transcriber must not concatenate versions.
+
+
+## Event 21 — final-round source-retention finding and lane close, 2026-09-06
+
+Entry branch: codex/debt-historical-cohorts at
+7aacf31426c5cb6b01adeded9fd71c8c2a7d1b76. The tree was clean and attached.
+The prior **283,231 journal bytes** are preserved exactly. This is the final round of this
+lane; outstanding questions below are handed off as candidate rows, not a continuation
+request. The subsequent "continue" was applied to completing this journal and custody
+receipt, without overriding the explicit source-retention stop or starting another
+investigation.
+
+The final brief resolves HC-D05: the property was the **claim** axis. HC-F18's zero of
+137,714 claim subtrees stands; its parameter namespace finding is routed below.
+Dating archaeology is dropped by the user. No introduction date or historical cause is
+inferred or independently investigated here. No producer-repair authority is revived.
+
+### HC-F19 — complete production_data pathname inventory, with independent reconciliation
+
+The provisioned link resolves to
+/Users/deniskopylov/polisyos/policy-engine/production_data.
+A recursive Python filesystem walk and an independent
+rg --files --hidden --no-ignore -L production_data enumerate the **same 6,562 regular
+file paths**: **603 directories**, **36,052,959,463 bytes**, no traversal errors, no
+nested symlinks, no path present in only one set. The root production_data link itself
+is followed intentionally. The rg command exited 0 in 0.03 seconds; the Python walk's
+measured duration was 0.37 seconds.
+
+This denominator covers the complete production_data tree, not only the slim snapshot.
+The file-type and top-level partitions both sum to 6,562:
+
+| File suffix | Files |
+| --- | ---: |
+| (no suffix) | 12 |
+| .csv | 37 |
+| .duckdb | 8 |
+| .hnsw | 2 |
+| .json | 88 |
+| .jsonl | 6,329 |
+| .jsonl.zst | 12 |
+| .kuzu | 3 |
+| .log | 1 |
+| .md | 2 |
+| .npz | 13 |
+| .parquet | 43 |
+| .sh | 1 |
+| .stdout | 2 |
+| .txt | 3 |
+| .xlsx | 2 |
+| .yaml | 4 |
+
+| Root-relative child | Files | Bytes |
+| --- | ---: | ---: |
+| .DS_Store | 1 | 8,196 |
+| canonical | 6,474 | 6,650,599,235 |
+| datasets_full_phase3full_20260327_183054 | 9 | 3,229,623,832 |
+| lex | 11 | 21,408,074,291 |
+| manifest.json | 1 | 5,434 |
+| policyos_academic_runtime_slim_20260411T112032Z | 23 | 3,406,327,876 |
+| ukraine_agent_simulation_baseline_20260410 | 43 | 1,358,320,599 |
+
+All **8 DuckDB files** were opened read-only for information_schema.columns;
+their complete schemas cover **68 tables/views**
+and **1117 columns**. Table/view counts here are
+distinct schema/name pairs exposed by information_schema, not base-table-only counts.
+
+| Path | Tables/views | Columns |
+| --- | ---: | ---: |
+| production_data/canonical/local_data_20260501/policy_engine_data/databases/demo_udf.duckdb | 2 | 16 |
+| production_data/canonical/local_data_20260501/policy_engine_data/databases/integration.duckdb | 2 | 16 |
+| production_data/canonical/local_data_20260501/policy_engine_data/databases/simulation.duckdb | 2 | 16 |
+| production_data/canonical/local_data_20260501/policy_engine_data/databases/test_macro.duckdb | 2 | 16 |
+| production_data/canonical/local_data_20260501/policy_engine_data/databases/test_udf.duckdb | 2 | 16 |
+| production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb | 10 | 129 |
+| production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb | 21 | 596 |
+| production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb | 27 | 312 |
+
+The academic schema exposes retained abstract text at ac_works.abstract, plus
+has_fulltext and full_text_url. The latter two are a flag and locator, not source bytes.
+Other inspected schemas include legal source_quote fields, dataset catalogue records,
+and simulation UDF stores. A column name is only a content-inspection candidate; no
+population of usable academic fulltext is inferred from those names.
+
+The complete filename walk finds zero paths containing fulltext, full_text,
+evidence_bundle, source_text, or article_text. That is a **filename** result only.
+It does not prove source absence inside databases, JSON, archives, or other containers.
+Indeed, ac_works.abstract below is a counterexample to equating source bytes with
+source-looking filenames. The 3 Kuzu, 43 Parquet, and other containers were inventoried;
+their full contents were not decoded before the source-retention stop. No unread or
+opaque container is counted as containing zero source text.
+
+The slim SPLIT_MANIFEST.json declares that it keeps runtime-serving artifacts and
+minimal provenance. Its source_lineage.json names fulltext_resolved.jsonl and other
+source-side paths. Those declarations identify candidates, not held files: the complete
+walk, not either manifest, supplies the path denominator. The recorded file_sources
+map is not treated as proof that the named source caches are held here.
+
+### HC-F20 — retained academic source text exists: a complete abstract census
+
+The complete ac_works relation contains **310,829 distinct work IDs** and these stored
+abstract values. A SQL aggregate and a separate Python iteration over every id/abstract
+row agree on the entire partition and total text length:
+
+| Stored abstract state | SQL | Independent Python |
+| --- | ---: | ---: |
+| Nonblank text | 310,710 | 310,710 |
+| Blank text | 119 | 119 |
+| SQL NULL | 0 | 0 |
+| Total works / distinct IDs | 310,829 / 310,829 | 310,829 / 310,829 |
+| Total stored characters | 375,349,439 | 375,349,439 |
+
+Nonblank lengths run from **1** to **36,557** characters. Thus nonblank presence is
+explicitly not a quality or sufficiency test. The successful census completed in
+4.62 seconds. Its full count denominator is the entire ac_works table, not a sample
+or only works supporting published edges.
+
+A source-content witness also joins into published evidence: work
+https://openalex.org/W1136709749, "A new approach to gender wage gaps in Chile",
+has an **848-character** retained abstract, linked by ac_skg_edge_evidence to claim
+aa59c22219aeec8e93655eb5 and edge f727dfd3c99b34164b81aa12.
+The abstract begins, "The purpose of this study is to examine gender wage gaps in Chile using a new database,"
+and its SHA-256 is
+bebf4d661dd09a7815abb9fb9287fb21003b236190bb9b580b50c6f9646e490f.
+This witness proves source-bearing content connected to the relevant domain; it supplies
+**no estimate** of the exact-layer retained-input fraction. The population counts come
+from the two full enumerations above.
+
+These bytes are stored article abstracts, not the extraction's parameter metadata or
+a claim output relabeled as source. They therefore establish source retention in the
+academic domain even though the extraction envelope itself is not an input bundle.
+
+### HC-F21 — input shape and eligibility qualify the source-retention result
+
+Only source code was read; no extractor, helper producer, gate, model, or writer was invoked.
+
+- fulltext_resolver.py:127-144 reconstruct_abstract accepts a direct work["abstract"]
+  string before trying the inverted index. The stored abstract column is therefore
+  compatible with that input field; no text-generation step is needed to recover it.
+- article_extractor.py:588-649 _build_evidence_bundle consumes title, abstract, text,
+  and source_kind, then selects sentence/snippet content. An abstract_fallback source
+  receives source_basis=abstract_only and text_quality=abstract_only.
+- _resolve_extract_transformers.py:1172-1244 builds the streaming bundle from a WorkItem,
+  the supplied text/source_kind, and optional substrate sections, references, tables,
+  figures and appendix blocks. At :1247-1265 _prompt_for_bundle serializes that bundle
+  into the model-facing request.
+- _resolve_extract_api.py:1346-1360 passes the EligibleWorkItem's text/source_kind to
+  that builder and selects the main prompt. Its precomputed-fulltext path at :983-1000
+  reads a row's text and source_kind; a missing source_kind defaults to abstract_fallback.
+- Critically, _resolve_extract_transformers.py:1110-1111 adds the abstract_only rejection
+  reason for source_kind=abstract_fallback. The routed-fulltext exception at :1141-1148
+  also requires source_kind != abstract_fallback; at :1154 llm_eligible requires no
+  effective rejection reasons. Retained abstracts therefore do not establish admission
+  to the current **main rich extraction** route.
+
+All file anchors above are under src/polisyos/data_forge/domains/academic/batch/.
+This is a read of the existing input contract and eligibility condition, not a new gate
+or a request to weaken one. It does not revisit the selective LLM path or the IR matcher.
+HC-F16/HC-F17's controlled rich candidate-axis witness remains valid; that witness is
+conditional on a request reaching the rich route, not a claim that any held abstract is
+currently admissible input.
+
+### HC-D06 — explicit source-retention stop; final lane disposition
+
+The brief says **"Stop if source text turns out to be retained after all"** and reserves
+the ruling before further work. HC-F20 establishes that condition. The lane stops on
+retained academic **abstract** source text. It does not assert retained fulltext, and it
+does not turn an abstract into a fulltext source or a re-runnable main-route input.
+
+The brief's further implication, **"that reverses the route"**, is not established by
+source presence alone. HC-F21 supplies the divergent case: source bytes exist and are
+readable by the bundle machinery, while abstract_only blocks main-route admission.
+The measured question and its implication must stay separate. The broad source-retention
+predicate has been honored; no unmeasured acquisition/compute ownership conclusion follows.
+
+The following final deliverables were not reached after that stop and are not assigned
+zero counts:
+
+| Requested partition or conclusion | Final state |
+| --- | --- |
+| Raw-claim source_basis partition | Not measured. The brief's 67,262 / 529 / 69,798 over 137,589 remains an inherited hypothesis here. |
+| Meaning of 69,798 empty source_basis cells | Not measured; no third recorded state, omission mechanism, or vintage is assigned. Unreadable cells, if encountered by the owner, must remain ambiguous. |
+| Re-runnable claims versus claims requiring source reacquisition | Both counts not_established. Nonblank-abstract counts are not substituted for them. |
+| Exact-edge source_basis composition and retained-input fraction | Not measured. The single linked content witness does not estimate the 7,607-edge population. |
+| Fulltext availability in all container contents | Not_established; the complete pathname census is not a complete container-content census. |
+| Majority requires reacquisition / acquisition programme ownership | Withheld; no measured eligible-input partition supports that assignment. |
+| Buildable layer declaration and HC-R01 reach | Not implemented or verified; the retained-claim absence fact is established, its delivery reach is not. |
+
+The proposed **three-part disposition is therefore not transcribed as a completed
+conversion**. A uniform content statement is supported: HC-F18 establishes no claim-level
+evidence axis in the retained claim subtrees. HC-F11-HC-F14 establish exact/family
+current-rule zero and contested non-emission on retained memberships, with current
+source None / not_established. This is a statement of recorded content and current-rule
+difference, not a claim that the snapshot predates the axis. Per-row marking remains
+withdrawn by the user; uniformity removes its ability to distinguish an affected subset,
+not the informational value of telling a consumer which rule the artifact can reproduce.
+
+A truthful layer declaration still needs its delivery measured against HC-R01. Direct SQL
+at runtime/quality/capability_index_compiler.py:881 and
+runtime/quality/credal_reference.py:839,856,899, copies at
+data_forge/domains/academic/batch/best_snapshot.py:925 and
+tools/ops_runners/cloud/merge_shards.py:244, and downstream
+foundry/methods/catalog/causal/literature_prior.py:232 remain the named residual.
+The src-relative paths have the src/polisyos/ prefix. Stored values must remain beside
+their status and any determinate current-rule outcome; no silent numerical substitution
+is authorized.
+
+This lane is closed for transcription at this stop. No further continuation is requested.
+The evidence does not close the open historical-confidence debt or assign the remaining
+input work to an acquisition owner. P04 and P35-P38 were read at entry and closeout:
+source retention is independently_reconciled, while main-route input sufficiency and the
+owner-deciding partition remain not_established. No implementation or fix round was spent.
+
+### HC-P01 — one routing paragraph for the separate parameter-provenance row
+
+> Route to parameter-evidence-strength-has-no-value-provenance: HC-F18's complete, independently reconciled walk of 310,829 extraction documents found **5,133 evidence_strength keys in 1,577 documents**, all at **metadata.simulation_ready_numeric_estimates[*].evidence_strength**, with zero such keys in the 137,714 claim subtrees. This is measured parameter-namespace presence, not a claim-axis exception or evidence of any parameter value's origin. No judgment/manufacture provenance is assigned, no parameter is retrospectively classified, and that separate row was not investigated further or changed in this final round.
+
+### Candidate rows left to their owners; no further work in this lane
+
+- **academic-held-source-input-sufficiency-unmeasured** — candidate data-capability measurement: retained abstracts, eligible fulltext/container coverage, raw source_basis empties, and exact-layer claim/input joins still need the owner-deciding partition; no acquisition majority is asserted.
+- **academic-confidence-layer-declaration-reach-unverified** — candidate delivery work: project the established whole-layer content/current-rule difference to HC-R01's named readers and copiers, with stored values preserved.
+- **academic-selective-llm-prompt-not-formattable** — descriptive routing label for the architect's separate producer row; HC-F15's selective formatting defect remains unrepaired and is not a no-working-producer finding.
+- **academic-evidence-normalizer-vocabulary-coverage-unmeasured** — candidate question owned by the architect: the six-of-ten prompt/normalizer gap has not been behaviorally measured here and is not asserted as a defect.
+
+These are proposed routing labels, not edits to the register or assertions that new code
+defects have been established. The separately owned IR matcher, 488 hint cells, parameter
+provenance, and B-1/B-2 stay outside this lane; cost/workload modelling and dating are dropped.
+
+### HC-T01-R6 — replace HC-T01-R5 in full; open-row transcription
+
+> **HISTORICAL-COHORTS FINAL ROUND, 2026-09-06 — stays open; the lane closes for transcription with retained abstract source text measured and the owner-deciding input partition not_established.** The accepted complete current-rule partition remains exact 0 equal / 7,607 different / 0 not recomputable, family 0 / 15,945 / 0, and contested 0 / 723 / 0 (HC-F11/HC-F12). Exact/family confidence computes to zero; contested memberships have zero base confidence and direction weights and fail emission, rather than receiving a zero final confidence (HC-F13). The current claim axis is None / not_established, not a recorded unknown (HC-F14). HC-F18 confirms no evidence_strength or status anywhere in all 137,714 claim subtrees; its 5,133 parameter-metadata fields across 1,577 documents are routed separately by HC-P01. Dating is dropped. The final complete production_data pathname walk independently reconciles 6,562 files across 603 directories, and the complete ac_works census independently reconciles 310,710 nonblank abstracts, 119 blank abstracts and zero NULLs across 310,829 works (HC-F19/HC-F20). Retained source text triggers the brief's stop, but the current main rich route rejects abstract_fallback as abstract_only, so source presence does not establish re-runnable input or reverse acquisition ownership by itself (HC-F21/HC-D06). Raw source_basis empties, fulltext/container coverage, the re-runnable/reacquisition counts and the exact-layer input fraction were not reached and are not assigned zeros. The working rich candidate-axis route remains HC-F16/HC-F17; the selective formatting defect remains separate. Per-row marking remains withdrawn. A whole-layer declaration of absent retained claim evidence and current-rule differences has a measured factual basis, but its delivery reach and a conversion into a data-capability re-extraction requirement with a measured input partition are not established by this final round. The 342 adjudication-contradicting observational rows remain a distinct severity subset, rather than being flattened into mere unreproducibility (HC-F06/HC-F07). HC-R01's direct-SQL/copy/downstream residual persists, and stored values must remain separate from status and any current-rule outcome. No historical value, reader, producer, or B-1/B-2 repair changed; remaining work is named outside this closed lane.
+
+### HC-T02-R6 — replace HC-T02-R5 in full; closed-row transcription
+
+> **HISTORICAL-COHORTS FINAL ROUND, 2026-09-06 — remains closed for the forward substitution repair; historical severity is preserved.** The contradiction cohort is 342 stored observational evidence rows: theoretical 131, unclear 187, review 24. They constitute 342 of 374 observational rows (91.44385026737967%), with 32 from actual OLS adjudications; the other 7,526 published evidence rows are faithful coarse translations relative to retained adjudications, but are not derivable from those adjudications under today's explicit evidence-axis rule (HC-F06/HC-F07). The published source projection is None / not_established, and all 7,607 exact confidences compute to zero on retained memberships; restoring theoretical from design would reinstate the withdrawn cross-axis inference (HC-F11/HC-F12/HC-F14). HC-F18 confirms claim-axis absence over all 137,714 embedded claims and routes its parameter-namespace finding separately through HC-P01. The final full-tree pathname inventory and complete abstract census establish that academic source text is retained: 310,710 nonblank abstracts out of 310,829 works (HC-F19/HC-F20). Those abstracts do not prove admission to the current main rich route, which rejects abstract_only; the explicit source-retention stop left the eligible-input and acquisition partitions unmeasured (HC-F21/HC-D06). Dating is dropped, the working rich candidate-axis route stands under HC-F16/HC-F17, and the separate selective prompt defect remains untouched. The 342 rows remain more severe than the wider unreproducible layer because they contradict their own retained adjudication. No marker, layer declaration, re-extraction or stored-value change is delivered; HC-R01's residual and all separately registered exclusions remain. This closes the measurement lane for transcription, not the historical-data residue.
+
+These **-R6 paragraphs supersede HC-T01-R5 and HC-T02-R5 respectively in full**.
+All earlier paragraphs remain physically present as append-only history.
+**Do not concatenate versions.** HC-T03-R5 remains separate producer-row history;
+neither historical-row replacement is to be appended to or merged into that producer row.
+
+## Event 22 — final-round commands, independent counts, and evidence receipts, 2026-09-06
+
+All commands ran in the provisioned policy-engine worktree. The Python interpreter was
+/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python with
+PYTHONDONTWRITEBYTECODE=1. The operations below were executed as Python here-documents;
+these excerpts preserve their traversals and queries for reproduction. Output artifacts
+are ignored harness scratch, not production_data or tracked implementation.
+
+Independent pathname command (executed via subprocess with captured stdout/stderr):
+
+~~~console
+rg --files --hidden --no-ignore -L production_data
+~~~
+
+Its complete stdout is final-round-production-rg-files.txt; stderr is empty.
+The independent Python traversal used this body (root is Path.cwd(), data is
+root / "production_data"; regular-file records retain path, size, suffix and mode):
+
+~~~python
+files = []
+dirs = []
+errors = []
+symlinks = []
+
+def visit(p, ancestors=frozenset()):
+    try:
+        s = p.stat()
+        key = (s.st_dev, s.st_ino)
+        if key in ancestors:
+            errors.append({"path": str(p.relative_to(root)), "error": "directory cycle"})
+            return
+        dirs.append(str(p.relative_to(root)))
+        for item in sorted(p.iterdir()):
+            try:
+                if item.is_symlink():
+                    symlinks.append({"path": str(item.relative_to(root)),
+                                     "target": os.readlink(item)})
+                if item.is_dir():
+                    visit(item, ancestors | {key})
+                elif item.is_file():
+                    s = item.stat()
+                    files.append({"path": str(item.relative_to(root)),
+                                  "bytes": s.st_size,
+                                  "suffix": "".join(item.suffixes),
+                                  "mode": stat.filemode(s.st_mode)})
+                else:
+                    errors.append({"path": str(item.relative_to(root)),
+                                   "error": "not regular file or directory"})
+            except OSError as e:
+                errors.append({"path": str(item.relative_to(root)), "error": repr(e)})
+    except OSError as e:
+        errors.append({"path": str(p.relative_to(root)), "error": repr(e)})
+
+visit(data)
+rg_paths = set((scratch / "final-round-production-rg-files.txt").read_text().splitlines())
+python_paths = {r["path"] for r in files}
+assert not (rg_paths - python_paths)
+assert not (python_paths - rg_paths)
+~~~
+
+Imports for that body: pathlib.Path, collections.Counter, hashlib, json, os, stat, time.
+The executed command additionally read item.lstat() before classifying each item, and
+aggregated suffix/top-level counts with Counter. Every result row was retained in
+final-round-production-inventory.json. Its complete aggregate output is:
+
+~~~json
+{
+  "root": "/Users/deniskopylov/polisyos/.worktrees/debt-historical-cohorts/policy-engine/production_data",
+  "resolved_root": "/Users/deniskopylov/polisyos/policy-engine/production_data",
+  "regular_files": 6562,
+  "directories": 603,
+  "bytes": 36052959463,
+  "rg_files": 6562,
+  "rg_only": [],
+  "python_only": [],
+  "errors": [],
+  "symlinks": [],
+  "suffix_counts": {
+    "": 12,
+    ".csv": 37,
+    ".duckdb": 8,
+    ".hnsw": 2,
+    ".json": 88,
+    ".jsonl": 6329,
+    ".jsonl.zst": 12,
+    ".kuzu": 3,
+    ".log": 1,
+    ".md": 2,
+    ".npz": 13,
+    ".parquet": 43,
+    ".sh": 1,
+    ".stdout": 2,
+    ".txt": 3,
+    ".xlsx": 2,
+    ".yaml": 4
+  },
+  "top_level_files": {
+    ".DS_Store": 1,
+    "canonical": 6474,
+    "datasets_full_phase3full_20260327_183054": 9,
+    "lex": 11,
+    "manifest.json": 1,
+    "policyos_academic_runtime_slim_20260411T112032Z": 23,
+    "ukraine_agent_simulation_baseline_20260410": 43
+  },
+  "top_level_bytes": {
+    ".DS_Store": 8196,
+    "canonical": 6650599235,
+    "datasets_full_phase3full_20260327_183054": 3229623832,
+    "lex": 21408074291,
+    "manifest.json": 5434,
+    "policyos_academic_runtime_slim_20260411T112032Z": 3406327876,
+    "ukraine_agent_simulation_baseline_20260410": 1358320599
+  },
+  "seconds": 0.37
+}
+~~~
+
+Each of the 8 inventoried .duckdb paths was opened with duckdb.connect(path,
+read_only=True, config={"threads": 1, "memory_limit": "1GB",
+"temp_directory": str(scratch / "final-round-schema-temp"),
+"max_temp_directory_size": "1GB"}). The complete schema query was:
+
+~~~sql
+SELECT table_schema, table_name, column_name, data_type
+FROM information_schema.columns
+ORDER BY 1, 2, ordinal_position;
+~~~
+
+The abstract census used the same read-only settings with final-round-source-temp.
+SQL count:
+
+~~~sql
+SELECT
+    count(*),
+    count(DISTINCT id),
+    count(*) FILTER (WHERE abstract IS NULL),
+    count(*) FILTER (WHERE abstract IS NOT NULL AND length(trim(abstract)) = 0),
+    count(*) FILTER (WHERE abstract IS NOT NULL AND length(trim(abstract)) > 0),
+    min(length(abstract)) FILTER (WHERE length(trim(abstract)) > 0),
+    max(length(abstract)),
+    sum(length(abstract))
+FROM ac_works;
+~~~
+
+Independently, Python classified every stored cell rather than reusing SQL's predicates.
+Its whitespace definition is Python str.strip(); the SQL trim and Python strip counts
+agree on these bytes. Rows were streamed in batches of 2,000:
+
+~~~python
+rows = db.execute("SELECT id, abstract FROM ac_works")
+counter = Counter()
+ids = set()
+populated = []
+total_chars = 0
+while batch := rows.fetchmany(2000):
+    for work_id, value in batch:
+        ids.add(work_id)
+        counter["works"] += 1
+        if value is None:
+            counter["null_abstract"] += 1
+        elif not value.strip():
+            counter["blank_abstract"] += 1
+        else:
+            counter["nonblank_abstract"] += 1
+            populated.append((work_id, len(value),
+                              hashlib.sha256(value.encode()).hexdigest()))
+        total_chars += len(value or "")
+python_counts = {key: counter[key] for key in
+                 ["works", "null_abstract", "blank_abstract", "nonblank_abstract"]}
+python_counts["distinct_ids"] = len(ids)
+python_counts["sum_chars"] = total_chars
+for key, value in python_counts.items():
+    assert sql_counts[key] == value
+~~~
+
+The source-content witness was chosen only after the complete count. This query is not
+a population estimate:
+
+~~~sql
+SELECT w.id, w.title, w.abstract, e.claim_id, e.edge_id
+FROM ac_works w
+JOIN ac_skg_edge_evidence e ON e.openalex_id = w.id
+WHERE length(trim(w.abstract)) > 0
+ORDER BY w.id, e.claim_id
+LIMIT 1;
+~~~
+
+The receipt below summarizes the result without duplicating the complete source abstract.
+Its population-list hash binds the sorted (work_id, character_length, abstract_sha256)
+triples collected by the full Python walk; it is not the snapshot-file hash.
+
+~~~json
+{
+  "snapshot": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+  "sql": "SELECT count(*),count(DISTINCT id),count(*) FILTER (WHERE abstract IS NULL),count(*) FILTER (WHERE abstract IS NOT NULL AND length(trim(abstract))=0),count(*) FILTER (WHERE abstract IS NOT NULL AND length(trim(abstract))>0),min(length(abstract)) FILTER (WHERE length(trim(abstract))>0),max(length(abstract)),sum(length(abstract)) FROM ac_works",
+  "sql_counts": {
+    "works": 310829,
+    "distinct_ids": 310829,
+    "null_abstract": 0,
+    "blank_abstract": 119,
+    "nonblank_abstract": 310710,
+    "min_nonblank_chars": 1,
+    "max_chars": 36557,
+    "sum_chars": 375349439
+  },
+  "independent_python_counts": {
+    "works": 310829,
+    "null_abstract": 0,
+    "blank_abstract": 119,
+    "nonblank_abstract": 310710,
+    "distinct_ids": 310829,
+    "sum_chars": 375349439
+  },
+  "population_listing_sha256": "5707a1f7a9a720b5eb61a4cf0105b3505109f866aa7b592aeaa779e5dab494ac",
+  "content_witness_only_not_a_population_estimate": {
+    "work_id": "https://openalex.org/W1136709749",
+    "title": "A new approach to gender wage gaps in Chile",
+    "claim_id": "aa59c22219aeec8e93655eb5",
+    "edge_id": "f727dfd3c99b34164b81aa12",
+    "abstract_sha256": "bebf4d661dd09a7815abb9fb9287fb21003b236190bb9b580b50c6f9646e490f",
+    "abstract_chars": 848,
+    "abstract_excerpt": "The purpose of this study is to examine gender wage gaps in Chile using a new database,"
+  },
+  "seconds": 4.62
+}
+~~~
+
+Ignored scratch receipts (the queries/traversals above reconstruct the data evidence):
+
+| Artifact in _build/historical-cohorts/ | Bytes | SHA-256 |
+| --- | ---: | --- |
+| final-round-production-rg-files.txt | 707,049 | 1642e9e0a857b1c1e35822aac31374c0b67fd90ff551136cedeb296e460fa790 |
+| final-round-production-rg-errors.txt | 0 | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 |
+| final-round-production-inventory.json | 1,450,399 | d0f40a614fc527b8a253f42595d380c2f210472fc7794d098f0d08df2a598403 |
+| final-round-production-inventory-summary.json | 1,271 | f86288547babf3b6b4255b8129c72cfbfcb48b11b8c2946e815cca942019f098 |
+| final-round-database-schemas.json | 119,328 | 27b68b9fc3eeb154a18a29fae7d38d44b989c5b077062c51f68bd97f393d2421 |
+| final-round-held-abstracts-summary.json | 1,521 | e806306e404987a1b5e7142311f9f8923ffedf666dd2aa0e57d1c0adc76aee66 |
+
+No error occurred in either enumeration or in the read-only database schema/abstract
+queries. The absence of Kuzu's optional Python package was observed while considering
+container inspection; no install, Kuzu open, or container-content census followed.
+That is an unperformed inspection, not a zero-source result. After HC-D06 only journal
+assembly, verification and custody/branch receipts were undertaken.

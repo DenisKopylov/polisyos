@@ -82,6 +82,7 @@ def _raw_numeric_rows(
                 "std_error": parameter.std_error,
                 "unit": parameter.unit,
                 "evidence_strength": parameter.evidence_strength.value,
+                "evidence_strength_origin": parameter.evidence_strength_origin.value,
                 "source_layer": "raw_numeric",
                 "source_context": source_context or None,
             }

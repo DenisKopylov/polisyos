@@ -7,7 +7,22 @@ from polisyos.data_forge.domains.academic.batch._resolve_extract_transformers im
     _normalize_extraction_payload,
 )
 from polisyos.data_forge.domains.academic.knowledge.skg_store import EVIDENCE_WEIGHTS
-from polisyos.ir.analytics.literature import EvidenceStrength
+from polisyos.ir.analytics.literature import DesignFamily, EvidenceStrength
+
+
+@pytest.mark.parametrize("design", list(DesignFamily), ids=lambda member: member.value)
+def test_design_family_normalization_preserves_canonical_identity(design: DesignFamily) -> None:
+    """A substring alias must never replace an exact canonical design identity."""
+    assert article_extractor._normalize_design_family(design.value) == design.value
+    assert article_extractor._normalize_design_family(
+        design.value.upper().replace("_", " ")
+    ) == design.value
+
+
+@pytest.mark.parametrize("supplied", [None, "", "not-a-design"])
+def test_unmatched_design_family_remains_unclear(supplied: str | None) -> None:
+    """Input without an exact or substring alias retains the unclear fallback."""
+    assert article_extractor._normalize_design_family(supplied) == "unclear"
 
 
 def test_weighted_evidence_vocabulary_matches_canonical_enum() -> None:

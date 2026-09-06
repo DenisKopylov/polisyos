@@ -163,7 +163,8 @@ CREATE TABLE IF NOT EXISTS ac_skg_simulation_parameters (
     context_json            VARCHAR,
     source_layer            VARCHAR DEFAULT 'simulation_ready',
     uncertainty_source      VARCHAR DEFAULT '',
-    quality_flags_json      VARCHAR DEFAULT '[]'
+    quality_flags_json      VARCHAR DEFAULT '[]',
+    evidence_strength_origin VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS ac_skg_canonization_cache (
@@ -325,6 +326,7 @@ CREATE INDEX IF NOT EXISTS idx_ac_skg_transport_target ON ac_skg_transport_score
 
 SKG_SCHEMA_GENERATION_RULE_VERSION = "policyos.academic.skg_schema_generation.v1"
 _SKG_SCHEMA_COMPATIBILITY_ALTERS = (
+    ("ac_skg_simulation_parameters", "evidence_strength_origin", "VARCHAR"),
     ("ac_skg_contested_edges", "positive_weight", "DOUBLE DEFAULT 0.0"),
     ("ac_skg_contested_edges", "negative_weight", "DOUBLE DEFAULT 0.0"),
     ("ac_skg_contested_edges", "mixed_weight", "DOUBLE DEFAULT 0.0"),

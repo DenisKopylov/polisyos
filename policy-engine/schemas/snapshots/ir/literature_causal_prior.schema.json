@@ -13,6 +13,15 @@
       "title": "CausalDirection",
       "type": "string"
     },
+    "ClaimVocabularyAxisStatus": {
+      "description": "Establishment status for one typed claim-vocabulary axis.",
+      "enum": [
+        "not_established",
+        "candidate"
+      ],
+      "title": "ClaimVocabularyAxisStatus",
+      "type": "string"
+    },
     "EnvironmentAuditReport": {
       "additionalProperties": false,
       "description": "Environment audit report data model.",
@@ -164,8 +173,19 @@
           "type": "string"
         },
         "evidence_strength": {
-          "$ref": "#/$defs/EvidenceStrength",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EvidenceStrength"
+            },
+            {
+              "type": "null"
+            }
+          ],
           "default": "unknown"
+        },
+        "evidence_strength_status": {
+          "$ref": "#/$defs/ClaimVocabularyAxisStatus",
+          "default": "candidate"
         },
         "meta_effect_size": {
           "anyOf": [

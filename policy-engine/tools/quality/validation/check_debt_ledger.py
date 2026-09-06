@@ -39,8 +39,13 @@ PLAN_ROOTS = (Path("docs/plans/active/atlas-slices"), Path("docs/superpowers/pla
 # `literature-infers-evidence-class-from-a-sentence` both `open` -> `folded`, each with the
 # measurement its closure signal required — and located the live defect neither named, added as
 # `evidence-class-normalizer-zeroes-two-canonical-classes`. Two folds and one addition: +1.
+# register 198 -> 199 on 2026-09-06: the producer-repairs lane closed both rows it carried
+# (`evidence-class-normalizer-zeroes-two-canonical-classes`,
+# `academic-selective-extraction-prompt-never-rendered`) and surfaced one new class under its
+# report-only rule, added as `design-normalization-matches-a-substring-before-identity`. Two
+# closures and one addition: +1.
 PUBLISHED_DENOMINATORS = {
-    "register": 198,
+    "register": 199,
     "gy": 38,
     "atlas": 22,
     "frontend_disposition_entries": 261,

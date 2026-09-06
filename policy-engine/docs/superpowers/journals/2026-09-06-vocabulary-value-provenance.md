@@ -631,3 +631,536 @@ Undecodable binary denominator: `{".pkl": 2, ".png": 42, ".webm": 6, ".zip": 7}`
 `row2-red.log` SHA-256 `76f939e6cf321e060f1918c62c5ce3c43af3b0c0e4d65b175f2268cf52c5c5a6`.
 
 `row2-green.log` SHA-256 `498e6947c683cfc4d9d8dd6500f7bced1426c92501b2b6f938049aa6eb2024c6`.
+
+## Event 11 — VV-F07: measured origins, before and after the two repairs
+
+Both forward repairs were read back from their branch commits before this phase:
+`04c6bd0e9` (row 1), `1574d1e26` (row 2). Their source and test bytes matched the worktree.
+The origin census parses every one of **3,052 Python files in src/tools** (2,619 + 433),
+with zero parse errors. It enumerates every named EvidenceParameter constructor/validator,
+parameter intake and numeric-rescue/merge call. References to the DTO and to the strength
+field were followed through the serializer, SQL writer, SKG reader and terminal consumers.
+This is a complete named-static-source census within those roots, with inspected
+model_copy and dictionary projections; no claim is made about externally supplied code.
+
+**The four convergent producing categories remain four, before 4 -> after 4.** The
+brief's proposed reduction does not occur in this implementation: row 1 changes design
+identity normalization, row 2 changes a design column's provenance. Neither removes a
+parameter evidence-strength origin. `_normalize_evidence_strength` is indeed called
+inside `_normalize_empirical_parameter`, but neither repair changes that function,
+its fallback or its callers. The inherited design column is not a parameter-strength
+producer on the inspected paths. The code's decisive input is the evidence-strength
+axis or article methodology, not `design_family_hint` or the edge design column.
+
+| Origin category | Before | After | Measured current producing/intake path |
+| --- | ---: | ---: | --- |
+| Explicit extraction candidate (including parsed numeric-rescue response) | present | present | `article_extractor._normalize_extraction_payload` calls `_normalize_empirical_parameter`; `_resolve_extract_api.py:1600` calls it on parsed rescue parameters. A supplied candidate is not independently validated evidence. |
+| Normalizer manufacture for missing/unrecognized input | present | present | `_normalize_evidence_strength` returns UNKNOWN; `_normalize_empirical_parameter` explicitly inserts it before strict validation. |
+| SKG validation-failure manufacture | present | present | `_to_evidence_parameter` tries strict validation, then explicitly assigns UNKNOWN for an invalid/missing strength and constructs a replacement. |
+| Inheritance from another parameter, a claim or article methodology | present | present | `_deterministic_numeric_rescue_parameters` has all three sources; `_merge_numeric_parameter_lists`, `resolve_finalize._merge_parameters`, and `_effective_parameter_strength` also inherit values. These are more sites of the same origin class, not additional classes or additional fix rounds. |
+| Non-supply (no origin event) | separate input state | still collapses on serialization | Ordinary `EvidenceParameter` default; raw SKG normalization preserves omission initially, a normal dump materializes UNKNOWN. This is absence of a producing origin, not a fifth extractor judgment. |
+| Historically unmarked stored value | unresolved | unresolved | No retroactive assignment to any of the four producing categories is permitted. |
+
+Named calls: three `_normalize_empirical_parameter` sites; three `_to_evidence_parameter`
+sites (simulation query, raw query, relation census); two EvidenceParameter.model_validate
+sites plus one direct fallback constructor. Nested ArticleExtractionResult validation and
+ContextAdaptiveParameterBundle validation deserialize the same DTO through their schemas.
+The numeric-rescue merge has two call sites, one for each rescue route.
+
+A separate AST comparison against the slice base `37c20aaa5` confirms that all eight
+inspected origin-owner functions are unchanged: `_normalize_evidence_strength`,
+`_normalize_empirical_parameter`, `_normalize_evidence_parameter_payload`,
+`_to_evidence_parameter`, `_deterministic_numeric_rescue_parameters`,
+`_merge_numeric_parameter_lists`, `_merge_parameters`, `_effective_parameter_strength`.
+This compares function syntax without location attributes, so row-1 line shifts do
+not masquerade as a behavioral difference. The two prompt-fed candidate call sites
+and their producer modules are also unchanged by the actual diff.
+
+**VV-C03 candidate observation, same inheritance class:** finalization can replace
+UNKNOWN or THEORETICAL with a linked claim's strength and then with article methodology;
+its numeric row has no value-level origin. This matters directly to the measured
+`metadata.simulation_ready_numeric_estimates` namespace. It is covered by the required
+inheritance category and left unrepaired at the schema stop. **VV-C04 candidate
+observation:** `table_extractor.tables_to_parameters` constructs an explicit unknown
+with source=`table_extraction`; the complete named-call walk finds zero calls in the
+3,052-file source denominator, so its connection to this live production path is
+`implemented_but_not_orchestrated`, not an invented fifth measured historical cohort.
+No extraction/table producer was invoked and neither candidate was opened in the register.
+
+## Event 12 — VV-F08: persistence and consuming-path measurement
+
+The real current route has two materially different persisted projections:
+
+1. `_append_artifacts` writes ArticleExtractionResult.model_dump(mode="json") into
+   article/resolve JSONL. `resolve_finalize` reloads that DTO, merges attempts, and
+   writes its model dump again. `numeric_extract._load_final_results` validates the
+   same JSON. No origin-bearing field survives because none exists in EvidenceParameter.
+2. `_to_work_record` converts empirical parameters to EstimateCandidate, retaining
+   numeric values, intervals, names and the `resolve_extract` pattern but **omitting
+   evidence_strength**. `graph_builder` stores that EstimateCandidate model dump in
+   `ac_skg_parameters.parameter_json`. This explains the raw parameter non-supply path
+   as a current projection; it does not retrospectively prove every historical origin.
+3. `resolve_finalize._simulation_ready_parameters` / `_curated_numeric_rows` use
+   `_effective_parameter_strength` and write the resulting scalar into numeric metadata.
+   `run_numeric_extract` also writes raw/curated/simulation JSONL. `graph_builder` projects
+   the scalar to `ac_skg_simulation_parameters.evidence_strength`. Source_layer,
+   linked_claim_ids and uncertainty_source describe row/context relations, not which
+   branch produced this specific strength value.
+4. `SKGQuery._query_raw_parameter_candidates` decodes the raw JSON; the simulation
+   reader explicitly supplies its SQL scalar, including empty-string fallback, to
+   `_to_evidence_parameter`. ParameterCandidate carries diagnostics/source_layer but
+   no strength-origin record. `ParameterSelector.select_for_context` weights the value,
+   then returns the selected EvidenceParameter. `search.get_parameter_prior` weights
+   the same scalar and exposes best_design; unknown contributes zero after the prior
+   repair, but zero weight does not identify judged unknown.
+5. Scientist's causal `resolve_parameters` builds ContextAdaptiveParameterBundle with
+   the selected DTO; its IR persist/load helpers use model_dump/model_validate.
+   Foundry parameter_transfer consumes the selected numeric parameter/applicability.
+   No consumer on this chain can recover an origin erased before persistence.
+
+The complete SQL numeric-metadata field walk confirms **22 keys, each on all 5,133
+numeric rows**, including source_layer, source_basis, linked_claim_ids and quality_flags,
+but no value-origin record. Its full key denominator is:
+
+```json
+[
+  [
+    "canonical_name",
+    5133
+  ],
+  [
+    "confidence_interval",
+    5133
+  ],
+  [
+    "display_name",
+    5133
+  ],
+  [
+    "estimate_sign",
+    5133
+  ],
+  [
+    "estimate_type",
+    5133
+  ],
+  [
+    "evidence_strength",
+    5133
+  ],
+  [
+    "geographic_scope",
+    5133
+  ],
+  [
+    "linked_claim_ids",
+    5133
+  ],
+  [
+    "linked_edge_ids",
+    5133
+  ],
+  [
+    "linked_edge_pairs",
+    5133
+  ],
+  [
+    "numeric_id",
+    5133
+  ],
+  [
+    "openalex_id",
+    5133
+  ],
+  [
+    "parameter_name",
+    5133
+  ],
+  [
+    "point_estimate",
+    5133
+  ],
+  [
+    "quality_flags",
+    5133
+  ],
+  [
+    "source_basis",
+    5133
+  ],
+  [
+    "source_context",
+    5133
+  ],
+  [
+    "source_layer",
+    5133
+  ],
+  [
+    "std_error",
+    5133
+  ],
+  [
+    "time_period",
+    5133
+  ],
+  [
+    "uncertainty_source",
+    5133
+  ],
+  [
+    "unit",
+    5133
+  ]
+]
+```
+
+The five named empirical-parameter consumer operations are characterization, weighting,
+selection, persistence and numeric transfer; none creates a verified judgment predicate.
+This path map covers the actual scalar producers and bridges discovered in the complete
+source census, without claiming that a new end-to-end origin capability exists.
+
+### VV-F09 — negative counterfactuals through the actual round-trip
+
+The historical witness is selected read-only by stable param_id order, not supplied
+as an invented historical judgment. Only controlled copies are modified, under `_build/`.
+The omitted payload is normalized, wrapped in an ArticleExtractionResult, persisted as
+ordinary JSON using the writer's model-dump shape, reloaded as that DTO, and passed to
+the real SKG intake. Model calls, extraction runs and producer invocations are absent.
+
+| Executed measurement | Observed outcome | Closure meaning |
+| --- | --- | --- |
+| Raw omitted payload -> SKG typed DTO -> ordinary model_dump/model_validate | UNKNOWN both times; fields_set false -> true | Non-supply is lost in the ordinary round-trip. |
+| Omitted / controlled explicit unknown / unrecognized label -> empirical normalizer -> persisted article JSON -> validated parameter -> SKG consumer | Three origins, **one identical complete consumer payload**, all UNKNOWN and supplied | Neither value nor suppliedness identifies an extractor judgment. |
+| Same three inputs with malformed parameter_type -> real SKG manual fallback -> JSON round-trip | Three inputs, **one identical complete persisted payload**, UNKNOWN and supplied | Validation fallback has no separable origin at the consuming boundary. |
+| Pure numeric merge, retained parameter UNKNOWN plus enriching parameter RCT | Result RCT and supplied, with no origin reference | A non-unknown value can be inherited; value/presence is not a judgment test. |
+| Add a controlled `evidence_strength_origin` sibling to an input | SKG normalization reports `dropped:evidence_strength_origin` | A loose JSON sibling cannot cross the current DTO boundary. |
+
+The measurement program exits **0 because these collision assertions hold**. That is
+**red evidence for the requested provenance closure**, not a passing implementation
+of its negative. The full produced observations are:
+
+```json
+{
+  "historical_witness": {
+    "param_id": "00006956f86be07a48474869",
+    "name": "climate.thermokarst_landslide_initiation_rate_pr",
+    "payload_sha256": "ed723ae9090a8e08af89c92dbd83477b5f6efca890a73c3564bd96a5be49d8aa"
+  },
+  "ordinary_omission": {
+    "before": "unknown",
+    "supplied_before": false,
+    "after": "unknown",
+    "supplied_after": true
+  },
+  "normalizer_to_persisted_article_to_consumer": {
+    "variants": [
+      "omitted",
+      "declared_unknown_counterfactual",
+      "invalid_input"
+    ],
+    "distinct_full_consumer_payloads": 1,
+    "all_value": "unknown",
+    "all_supplied": true,
+    "origin_field_present": false,
+    "meaning": "collision witness; declared unknown is synthetic and not a historical judgment"
+  },
+  "fallback": {
+    "variants": [
+      "omitted",
+      "declared_unknown_counterfactual",
+      "invalid_input"
+    ],
+    "distinct_full_persisted_payloads": 1,
+    "value": "unknown",
+    "supplied": true
+  },
+  "merge_inheritance": {
+    "input_keep": "unknown",
+    "input_enrich": "rct",
+    "output": "rct",
+    "supplied": true,
+    "origin_field_present": false
+  },
+  "origin_transport_absent": {
+    "intake_drops_unknown_sibling": true,
+    "diagnostics": [
+      "dropped:evidence_strength_origin"
+    ],
+    "fields": [
+      "name",
+      "display_name",
+      "parameter_type",
+      "value",
+      "value_range",
+      "value_qualitative",
+      "confidence_interval",
+      "std_error",
+      "unit",
+      "evidence_strength",
+      "geographic_scope",
+      "time_period",
+      "aggregation_level",
+      "transferability",
+      "transfer_conditions",
+      "heterogeneity_note",
+      "subgroup_estimates"
+    ],
+    "additional_properties": false
+  }
+}
+```
+
+**Positive trace: not established.** The explicitly supplied unknown in this probe is
+labelled a controlled counterfactual, never a recorded extractor judgment. VV-F01's
+complete retained populations contain no explicit raw-parameter strength keys, and
+the 5,133 numeric-metadata strength values are all the six non-unknown labels already
+listed. None can supply the required actual recorded-unknown judgment with a bound
+producer. No historical cohort was reclassified; no live producer was called to make
+up the missing positive. A future instrumented producer plus durable origin transport
+is needed for that positive acceptance signal.
+
+The first draft of the probe exited 1 because the ArticleExtractionResult fixture
+omitted its required extraction_model, extraction_timestamp and extraction_confidence.
+Those controlled fixture fields were supplied; no product code was changed. The final
+program's fallback diagnostics intentionally report validation errors before exercising
+the manual fallback; the command itself exits 0.
+
+## Event 13 — VV-D02: schema stop, before any provenance implementation
+
+The source census walks all **99 `schemas/snapshots/ir/*.schema.json` files** and finds
+EvidenceParameter in exactly two: `article_extraction_result.schema.json` and
+`context_adaptive_parameter_bundle.schema.json`. Both expose the same 17 properties,
+require name, and have `additionalProperties=false`. The live DTO also has those
+17 fields and `extra="forbid"`. Neither contains a strength-origin record. The
+manifest has hash-bearing entries for both models; its presence is part of the
+required authorization scope, not a second optional receipt.
+
+The smallest correct next capability is a typed value-origin representation admitted
+where the branch is known, retained with each value through both numeric and raw
+projections, and consumed explicitly after persistence. An omitted origin must not
+self-upgrade to extractor judgment. The raw EstimateCandidate projection and simulation
+scalar projection need their own retained bridge too; merely adding a field to the
+IR model would still be `bridge_missing`. An arbitrary string in transfer_conditions,
+a source_layer label, fields_set or transient diagnostics would be a P32/P38 substitute
+for typed, durable provenance and is not an acceptable schema-free repair.
+
+**Stop rule 4 applies:** no honest provenance separation across this DTO can be delivered
+without changing a stored contract. No row-3 implementation round is started. The known
+IR schema authorization must explicitly include all of:
+
+- `schemas/snapshots/ir/article_extraction_result.schema.json`
+- `schemas/snapshots/ir/context_adaptive_parameter_bundle.schema.json`
+- `schemas/snapshots/ir/_manifest.json`
+
+This list names the confirmed affected IR surfaces, not a claim that the two downstream
+storage bridges have already been designed or that a future stored-column change is
+implicitly authorized. The stop freezes design before choosing those representations.
+No schema, column, manifest, active plan or production datum was edited.
+
+**Row 4 consequence:** non-supply is still not separable from recorded unknown after
+persistence. Its own negative is not green, its provenance dependency is not delivered,
+and it remains open. No status is inferred from adjacent repairs. Historical origins
+stay unresolved even if forward provenance is later authorized.
+
+## Event 14 — reproduction and final scope receipts
+
+```sh
+python3 _build/vocabulary-value-provenance/parameter-paths.py > _build/vocabulary-value-provenance/parameter-paths.log
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python _build/vocabulary-value-provenance/parameter-roundtrip.py > _build/vocabulary-value-provenance/parameter-roundtrip.log 2>&1
+```
+
+Both final commands exited 0. The full probe is retained below; it exercises normalizers,
+merge and serializers only, with local scratch JSON. The producer paths are read as code,
+not invoked. Origin counts above are mechanisms, not invented historical row partitions.
+
+### `parameter-paths.py`
+
+```python
+"""Complete source census of parameter constructors/intakes and stored schema owners."""
+import ast,json,subprocess
+from collections import Counter
+from pathlib import Path
+paths=[Path(p) for p in subprocess.check_output(['git','ls-files','src','tools'],text=True).splitlines() if p.endswith('.py')]
+result={'source_files':len(paths),'by_root':dict(Counter(str(p).split('/')[0] for p in paths)),'parse_errors':[],'calls':[],'references':[],'strength_files':[]}
+intakes={'_normalize_empirical_parameter','_to_evidence_parameter','_normalize_evidence_parameter_payload','_deterministic_numeric_rescue_parameters','_merge_numeric_parameter_lists'}
+for p in paths:
+ text=p.read_text()
+ if 'evidence_strength' in text: result['strength_files'].append(str(p))
+ try: tree=ast.parse(text)
+ except SyntaxError as e: result['parse_errors'].append([str(p),str(e)]); continue
+ if 'EvidenceParameter' in text:
+  result['references'].append({'path':str(p),'lines':[[i,l.strip()] for i,l in enumerate(text.splitlines(),1) if 'EvidenceParameter' in l]})
+ aliases={'EvidenceParameter'}
+ for node in ast.walk(tree):
+  if isinstance(node,ast.ImportFrom):
+   aliases.update(n.asname or n.name for n in node.names if n.name=='EvidenceParameter')
+ for node in ast.walk(tree):
+  if not isinstance(node,ast.Call): continue
+  f=node.func
+  name=f.id if isinstance(f,ast.Name) else f.attr if isinstance(f,ast.Attribute) else ''
+  is_model=(isinstance(f,ast.Attribute) and isinstance(f.value,ast.Name) and f.value.id in aliases)
+  if name in aliases or name in intakes or is_model:
+   result['calls'].append({'path':str(p),'line':node.lineno,'call':ast.unparse(f),'expression':ast.unparse(node)})
+schemas=list(Path('schemas/snapshots/ir').glob('*.schema.json'))
+result['schema_files']=len(schemas); result['parameter_schemas']=[]
+for p in schemas:
+ data=json.loads(p.read_text())
+ if 'EvidenceParameter' in data.get('$defs',{}):
+  shape=data['$defs']['EvidenceParameter']
+  result['parameter_schemas'].append({'path':str(p),'properties':list(shape['properties']),'required':shape.get('required'),'extra':shape.get('additionalProperties')})
+Path('_build/vocabulary-value-provenance/parameter-paths.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({k:v for k,v in result.items() if k not in {'references','strength_files'}},indent=2))
+```
+
+### `parameter-roundtrip.py`
+
+```python
+"""Counterfactuals at real parameter intake/serialization/consumption boundaries; no producers."""
+import json,hashlib
+from pathlib import Path
+import duckdb
+from polisyos.data_forge.domains.academic.batch.article_extractor import _normalize_empirical_parameter
+from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
+from polisyos.data_forge.domains.academic.batch._resolve_extract_transformers import _merge_numeric_parameter_lists
+from polisyos.ir.analytics.literature import EvidenceParameter,ArticleExtractionResult
+
+out=Path('_build/vocabulary-value-provenance')
+c=duckdb.connect('production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb',read_only=True)
+row=c.execute("SELECT param_id,canonical_name,parameter_json FROM ac_skg_parameters WHERE NOT json_exists(parameter_json,'$.evidence_strength') AND (try_cast(json_extract_string(parameter_json,'$.ci_low') AS DOUBLE)<=try_cast(json_extract_string(parameter_json,'$.ci_high') AS DOUBLE) OR json_extract_string(parameter_json,'$.ci_low') IS NULL OR json_extract_string(parameter_json,'$.ci_high') IS NULL) ORDER BY param_id LIMIT 1").fetchone()
+c.close()
+pid,name,raw_json=row
+raw=json.loads(raw_json)
+normal=SKGQuery._to_evidence_parameter(name,raw)
+assert normal is not None
+restored=EvidenceParameter.model_validate(normal.model_dump())
+observations={'historical_witness':{'param_id':pid,'name':name,'payload_sha256':hashlib.sha256(raw_json.encode()).hexdigest()},'ordinary_omission':{'before':normal.evidence_strength.value,'supplied_before':'evidence_strength' in normal.model_fields_set,'after':restored.evidence_strength.value,'supplied_after':'evidence_strength' in restored.model_fields_set}}
+assert observations['ordinary_omission']=={'before':'unknown','supplied_before':False,'after':'unknown','supplied_after':True}
+variants={
+    'omitted':raw,
+    'declared_unknown_counterfactual':{**raw,'evidence_strength':'unknown'},
+    'invalid_input':{**raw,'evidence_strength':'this-is-not-evidence'},
+}
+serialized={}
+for label,payload in variants.items():
+ p=_normalize_empirical_parameter(payload)
+ assert p is not None
+ article=ArticleExtractionResult(openalex_id='controlled:witness',title='No producer run',extraction_model='controlled-no-call',extraction_timestamp='2026-09-06T00:00:00Z',extraction_confidence=0.5,empirical_parameters=[p])
+ # Same model serialization used by _append_artifacts, persisted locally as JSON, then real consumer intake.
+ f=out/f'{label}-roundtrip.json'
+ f.write_text(json.dumps(article.model_dump(mode='json'))+'\n')
+ loaded=ArticleExtractionResult.model_validate_json(f.read_text()).empirical_parameters[0]
+ result=SKGQuery._to_evidence_parameter(loaded.name,loaded.model_dump(mode='json'))
+ assert result is not None
+ serialized[label]=result.model_dump(mode='json')
+ assert result.evidence_strength.value=='unknown' and 'evidence_strength' in result.model_fields_set
+assert len({json.dumps(p,sort_keys=True) for p in serialized.values()})==1
+observations['normalizer_to_persisted_article_to_consumer']={'variants':list(variants),'distinct_full_consumer_payloads':1,'all_value':'unknown','all_supplied':True,'origin_field_present':False,'meaning':'collision witness; declared unknown is synthetic and not a historical judgment'}
+fallbacks={}
+for label,payload in variants.items():
+ diagnostics=[]
+ p=SKGQuery._to_evidence_parameter(name,{**payload,'parameter_type':'malformed'},diagnostics=diagnostics)
+ assert p is not None and 'fallback:manual_evidence_parameter' in diagnostics
+ p=EvidenceParameter.model_validate_json(p.model_dump_json())
+ fallbacks[label]=p.model_dump(mode='json')
+assert len({json.dumps(p,sort_keys=True) for p in fallbacks.values()})==1
+observations['fallback']={'variants':list(variants),'distinct_full_persisted_payloads':1,'value':'unknown','supplied':True}
+# Existing inheritance merge; both parameters carry the same numeric estimate, without invoking rescue.
+left=EvidenceParameter(name='controlled.effect',value=1.0,confidence_interval=(0.5,1.5))
+right=EvidenceParameter(name='controlled.effect',value=1.0,evidence_strength='rct')
+merged=_merge_numeric_parameter_lists([left],[right])
+assert len(merged)==1 and merged[0].evidence_strength.value=='rct'
+merged=EvidenceParameter.model_validate_json(merged[0].model_dump_json())
+observations['merge_inheritance']={'input_keep':'unknown','input_enrich':'rct','output':merged.evidence_strength.value,'supplied':'evidence_strength' in merged.model_fields_set,'origin_field_present':False}
+# An invented sibling provenance field is neither represented nor preserved by this current strict DTO/intake.
+diagnostics=[]
+marker_payload={**normal.model_dump(mode='json'),'evidence_strength_origin':{'kind':'extractor_judgment'}}
+canonical=SKGQuery._normalize_evidence_parameter_payload(name,marker_payload,diagnostics=diagnostics)
+assert 'evidence_strength_origin' not in canonical
+observations['origin_transport_absent']={'intake_drops_unknown_sibling':True,'diagnostics':diagnostics,'fields':list(EvidenceParameter.model_fields),'additional_properties':EvidenceParameter.model_json_schema()['additionalProperties']}
+print(json.dumps(observations,indent=2))
+(out/'parameter-roundtrip.json').write_text(json.dumps(observations,indent=2)+'\n')
+```
+
+Output bindings:
+
+| Output under `_build/vocabulary-value-provenance/` | SHA-256 |
+| --- | --- |
+| `parameter-paths.log` | `4a3d7cc5033ce0bc39858eb4807b2e07363151e9951305fa6a81d12d68fd2563` |
+| `parameter-roundtrip.json` | `89d34fc37d41e7e5d1d7c62b6b72cf204e1c8cf09824cf61afa9337031463aae` |
+| `origin-before-after.json` | `9f6d0c356f3867b1733040c0cac66b5a588ec71a74b373faa6abbf62a7df5355` |
+| `numeric-field-census.json` | `c2eaaa14168ef8fe573a18c706b89a6c97ca9831db62ae3f16bde289fd6b447e` |
+
+The failure/repair register was reopened before closeout. P05/P15/P32/P38 remain
+explicitly unresolved for parameter-origin authority; P35 is satisfied by complete
+source/schema/data denominators, not selected examples. The two forward repairs have
+behavioral red/green receipts; no new provenance capability is called implemented.
+The pattern register itself is unchanged because the user asked to journal incidental
+findings, not open or repair them.
+
+Final targeted Ruff on the four changed Python files exited 0. Source freeze is
+`1574d1e26`; subsequent edits are this journal only. Tests are 52 passing cases in the
+row-1 file and 37 in the two row-2 files; no full backend, directory suite or CI-parity
+run. The limited architecture command from Event 5 remains red and is not labelled
+inherited. The **single** debt checker exited 0 at `04c6bd0e9`, with the complete four-code
+census in Event 8; it does not verify the later row-2 commit. No second run was made.
+That premature checker invocation is a delivery limitation, not a final-head green claim.
+
+Final production-data command (after all measurement reads):
+
+```sh
+shasum -a 256 production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb
+```
+
+Exit 0; SHA-256 **583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967**,
+matching the required pin. All database connections to this file were read-only.
+
+The branch diff from `37c20aaa5..HEAD` contains exactly five paths: this journal,
+article_extractor.py, graph_builder.py, test_article_extractor.py, and
+test_graph_builder_skg_tables.py. The complete filenames are recorded in the final
+branch readback. No active-plan or stored-schema files are among them.
+
+## Event 15 — final transcriber-ready prose (supersedes Event 7)
+
+**`design-normalization-matches-a-substring-before-identity` — forward repair delivered
+in `04c6bd0e9`; retain the historical close as open under stop rule 3.** VV-F02 reproduces
+exactly five failures over all 20 DesignFamily members, then proves 20/20 exact identity
+round-trips and unmatched=`unclear`; 52 focused tests pass. VV-F03 establishes 67,791
+retained resolve_extract hints across 20,900 documents plus the matching nonempty raw-table
+population. This is a nonzero route footprint, not a count of proved corrupt inputs:
+the exact historical normalizer revision and pre-normalization values are unestablished.
+No production-data repair or capability-only historical close is claimed.
+
+**`evidence-row-design-hint-differs-from-adjudication` — forward writer repair delivered
+in `1574d1e26` by the adjudicated-value route.** VV-F04's complete tracked-source census
+finds no inspected consumer recovering adjudication from the column; its value readers
+aggregate a histogram or copy diagnostic row data. VV-F05 independently reproduces
+488/7,526 design-branch mismatches, all 7,526 equal raw hints. VV-F06's red-first real
+DuckDB test covers every enum member, absent hint, absent adjudicated design and
+unadmitted publication; 37 focused tests pass. The writer now persists exactly the
+retained adjudication's design and preserves raw hints separately, with no schema
+change. The historical 488 cells (566 mismatches over all 7,868 evidence rows) remain
+untouched: the forward signal is discharged, not a retrospective rewrite of the snapshot.
+
+**`parameter-evidence-strength-has-no-value-provenance` — remains open; stopped before
+stored-schema design/implementation.** VV-F07 re-enumerates four producing categories
+before and after the two repairs: extraction candidate, normalizer manufacture, SKG
+fallback and inheritance (4 -> 4; non-supply is absence of origin). Finalization and
+merge reveal further inheritance sites of the same class. VV-F08/F09 trace the real
+serializer and SKG consumer: omitted, controlled explicit unknown and malformed values
+collapse to identical complete payloads; fallback and inherited values carry no producer
+origin. HC-F18's 5,133 parameter-metadata values and the raw 51,908 payloads are independently
+reconciled, but no actual recorded unknown judgment can be bound to its producer from
+them. The positive signal is not established and the negative closure is not green.
+VV-D02 stops for an authorized typed provenance contract and its persistence bridges;
+authorization must name both affected IR snapshots and `schemas/snapshots/ir/_manifest.json`.
+Historical origins remain unresolved and no provenance capability is claimed.
+
+**`parameter-contract-cannot-distinguish-unsupplied-from-unknown` — remains open,
+subordinate to the unfinished provenance mechanism.** All 51,908 raw payloads omit the
+field; 51,883 decode as UNKNOWN and 25 reversed intervals reject, independently reconciled
+by SQL and identical rejected IDs. VV-F09 confirms fields_set preserves omission at
+construction but ordinary persistence materializes UNKNOWN and makes suppliedness true.
+The omitted-field negative therefore does not pass at the consuming boundary, and the
+controlled explicit unknown is not substituted for a recorded judgment. No schema or
+presence-only workaround was implemented; row 4 does not close on either design repair.

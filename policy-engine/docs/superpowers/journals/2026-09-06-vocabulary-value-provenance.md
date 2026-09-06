@@ -394,3 +394,240 @@ UNKNOWN and rejects 25 reversed intervals, independently reconciled in SQL with 
 identical rejected-ID set. No field, generated snapshot or manifest changed. The
 required negative proving that an omitted field cannot present as a recorded judgment
 was not delivered; row 4 does not close by adjacency to the design repair.
+
+## Event 8 — continuation correction and the single checker receipt
+
+The user said `continue` after the initial row-1 stop report. The earlier VV-D01
+interpretation stopped the whole lane; that was too broad against the user's
+**per-row independent** stop rule and required delivery of phases 1–2. The row-1
+historical close remains stopped, its forward repair remains committed as
+`04c6bd0e9`, and row 2 now proceeds independently. Events 4 and 7 remain as historical
+entries; final transcription below will supersede their not-reached dispositions.
+
+The single bound checker has completed at `04c6bd0e9`: **process exit 0** from the
+exec-session completion, with no command after it that could mask that status.
+Its invocation was alone on its line after configuring PATH/PYTHONPATH on a prior line:
+
+```sh
+python tools/quality/validation/check_debt_ledger.py --check > _build/x.log 2>&1
+```
+
+The full code census used exactly:
+
+```sh
+grep -oE '^[a-z_]+:' _build/x.log | sort | uniq -c
+```
+
+```text
+   9 closure_signal_count_exit_disagreement:
+   9 closure_signal_identity_unresolvable:
+   1 closure_signal_runner_unsupported:
+  10 register_supplies_missing_standing:
+```
+
+All 29 findings appear under the checker's informational section. No finding is
+filtered out by expected code. The invocation collected 44 named pytest selections
+with `--collect-only`, not test execution. It is **not repeated** on continuation.
+This was premature relative to the final lane endpoint; the receipt binds the
+row-1 commit, not later source changes. Final source verification will be focused
+tests and lint, and the stale scope of this receipt will stay explicit.
+
+Complete captured checker output (SHA-256 `bd9cb15629ac3d74442136e662462f12380de760f02f59eea002f7e2aeaa21a1`):
+
+```text
+register_ids=199
+gy_ids=38
+atlas_debt_rows=22
+frontend_disposition_entries=261
+frontend_ds8_assignment_rows=217
+gy_history_blocks=6
+gy_absent_from_register=15
+gy_absent_from_register_closed=15
+ds5_nonclosure_rows=27
+ds5_planless_routes=4
+irregular_section_e_branch_rows=1
+explicit_nonclosure_entries=29
+explicit_nonclosure_identified=18
+explicit_nonclosure_typed_not_a_debt=11
+explicit_nonclosure_resolved_history=8
+explicit_nonclosure_unidentified=0
+closure_signal_pytest_selections=44
+closure_signal_unsupported_runners=1
+closure_signal_identities_without_commands=4
+closure_signal_identity_unresolvable=9
+closure_signal_input_unresolvable=0
+closure_signal_selects_nothing=0
+closure_signal_collection_failed=0
+closure_signal_collection_host_unknown=0
+closure_signal_ast_collection_disagreements=0
+closure_signal_count_exit_disagreements=9
+Informational findings (do not block):
+closure_signal_count_exit_disagreement: DS11-EXTERNAL-A11Y-COUNTERSIGN: tests/repo_quality/docs/test_accessibility_evidence.py::test_external_countersign_is_content_bound_current_and_scope_exact; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: DS11-FULL-TRUST-CENTER-AND-DOCS-IA: tests/repo_quality/frontend/test_public_surface_claim_ownership.py::test_every_retained_trust_docs_route_has_an_approved_owner_and_evidence_contract; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: DS11-GROUNDED-PERFORMANCE: tests/integration/runtime_quality/test_first_governed_promotion.py::test_promoted_design_supplies_content_bound_public_performance_evidence; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: DS11-PUBLIC-SIGNATURE-POPULATION: tests/unit/runtime/http/test_public_export.py::test_first_governed_public_signature_is_custody_bound; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: DS11-SCOPE-ADJUDICATION-RECORD: tests/unit/core/contracts/test_scope_adjudication.py::test_four_way_ruling_is_produced_consumed_and_plane_specific; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: ds10-global-case-index-producer-allocation: tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: ds10-public-decision-rendering: tests/unit/runtime/http/test_public_export.py::test_public_decision_projection_is_custody_bound; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: global-case-index-producer-missing: tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: shared-git-hook-hardcodes-one-worktree-path: tests/repo_quality/tools/test_repo_hooks.py::test_shared_hook_contains_no_worktree_specific_path; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_identity_unresolvable: DS11-EXTERNAL-A11Y-COUNTERSIGN: tests/repo_quality/docs/test_accessibility_evidence.py::test_external_countersign_is_content_bound_current_and_scope_exact; ast=False; collected=0; exit=4; ERROR: not found: /Users/deniskopylov/polisyos/.worktrees/debt-vocabulary-value-provenance/policy-engine/tests/repo_quality/docs/test_accessibility_evidence.py::test_external_countersign_is_content_bound_current_and_scope_exact | (no match in any of [<Module test_accessibility_evidence.py>])
+closure_signal_identity_unresolvable: DS11-FULL-TRUST-CENTER-AND-DOCS-IA: tests/repo_quality/frontend/test_public_surface_claim_ownership.py::test_every_retained_trust_docs_route_has_an_approved_owner_and_evidence_contract; ast=False; collected=0; exit=4; no tests collected in 0.00s | ERROR: file or directory not found: tests/repo_quality/frontend/test_public_surface_claim_ownership.py::test_every_retained_trust_docs_route_has_an_approved_owner_and_evidence_contract
+closure_signal_identity_unresolvable: DS11-GROUNDED-PERFORMANCE: tests/integration/runtime_quality/test_first_governed_promotion.py::test_promoted_design_supplies_content_bound_public_performance_evidence; ast=False; collected=0; exit=4; no tests collected in 0.00s | ERROR: file or directory not found: tests/integration/runtime_quality/test_first_governed_promotion.py::test_promoted_design_supplies_content_bound_public_performance_evidence
+closure_signal_identity_unresolvable: DS11-PUBLIC-SIGNATURE-POPULATION: tests/unit/runtime/http/test_public_export.py::test_first_governed_public_signature_is_custody_bound; ast=False; collected=0; exit=4; no tests collected in 0.00s | ERROR: file or directory not found: tests/unit/runtime/http/test_public_export.py::test_first_governed_public_signature_is_custody_bound
+closure_signal_identity_unresolvable: DS11-SCOPE-ADJUDICATION-RECORD: tests/unit/core/contracts/test_scope_adjudication.py::test_four_way_ruling_is_produced_consumed_and_plane_specific; ast=False; collected=0; exit=4; ERROR: not found: /Users/deniskopylov/polisyos/.worktrees/debt-vocabulary-value-provenance/policy-engine/tests/unit/core/contracts/test_scope_adjudication.py::test_four_way_ruling_is_produced_consumed_and_plane_specific | (no match in any of [<Module test_scope_adjudication.py>])
+closure_signal_identity_unresolvable: ds10-global-case-index-producer-allocation: tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index; ast=False; collected=0; exit=4; ERROR: not found: /Users/deniskopylov/polisyos/.worktrees/debt-vocabulary-value-provenance/policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index | (no match in any of [<Module test_capability_discovery_api.py>])
+closure_signal_identity_unresolvable: ds10-public-decision-rendering: tests/unit/runtime/http/test_public_export.py::test_public_decision_projection_is_custody_bound; ast=False; collected=0; exit=4; no tests collected in 0.00s | ERROR: file or directory not found: tests/unit/runtime/http/test_public_export.py::test_public_decision_projection_is_custody_bound
+closure_signal_identity_unresolvable: global-case-index-producer-missing: tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index; ast=False; collected=0; exit=4; ERROR: not found: /Users/deniskopylov/polisyos/.worktrees/debt-vocabulary-value-provenance/policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index | (no match in any of [<Module test_capability_discovery_api.py>])
+closure_signal_identity_unresolvable: shared-git-hook-hardcodes-one-worktree-path: tests/repo_quality/tools/test_repo_hooks.py::test_shared_hook_contains_no_worktree_specific_path; ast=False; collected=0; exit=4; no tests collected in 0.00s | ERROR: file or directory not found: tests/repo_quality/tools/test_repo_hooks.py::test_shared_hook_contains_no_worktree_specific_path
+closure_signal_runner_unsupported: ds10-lex-pipeline-mutation-boundary: src/features/lex/routes/LexKnowledgeGraphPage.test.tsx; Vitest selection is unsupported by design; resolve this row manually
+register_supplies_missing_standing: GY:GY-DEF14: register=closed, source=ambiguous
+register_supplies_missing_standing: GY:GY-DEF15: register=closed, source=ambiguous
+register_supplies_missing_standing: GY:GY-DEF19: register=closed, source=prose_only
+register_supplies_missing_standing: GY:GY-DEF22: register=open, source=ambiguous
+register_supplies_missing_standing: GY:GY-DEF23: register=blocked, source=ambiguous
+register_supplies_missing_standing: GY:GY-DEFC-1: register=closed, source=ambiguous
+register_supplies_missing_standing: GY:GY-GAP5: register=blocked, source=ambiguous
+register_supplies_missing_standing: GY:GY-GAP6: register=blocked, source=ambiguous
+register_supplies_missing_standing: GY:GY-GAP7: register=folded, source=ambiguous
+register_supplies_missing_standing: GY:GY-GAP8: register=closed, source=ambiguous
+```
+
+## Event 9 — VV-F04: row-2 consumer census and route before repair
+
+The first census covered every tracked file under src/tools/apps/packages/scripts/ops/schemas:
+5,208 files; the complete product-tree cross-check then covered **10,535 tracked files**,
+with 57 undecodable binary fixtures/assets and no unreadable source file. The latter
+contains 5,749 Python files (including tests), 507 TypeScript and 716 TSX files; all
+other file types and the exact hit list are in the embedded receipt below. Thirty
+files mention the table: 10 production/tool Python files, 5 test Python files, and
+15 documentation/generated data files. No architecture or frontend consumer was
+omitted by the initially narrower roots. The new regression is included in the final
+whole-tree count. This establishes in-repository literal and inspected dataflow reach;
+external direct SQL clients and arbitrary dynamic plugins are not established.
+
+| Production/tool file (under `src/polisyos/` unless `tools/`) | Read/write and interpretation |
+| --- | --- |
+| `data_forge/domains/academic/batch/graph_builder.py` | Batch writer; the defective hint assignment is row 2's repair. The retained adjudication is separately inserted from the same admitted mapping. |
+| `data_forge/domains/academic/knowledge/skg_store.py` | Schema/index owner and sibling span-grounded writer; sibling already stores NULL in this column because it has no design adjudication. No schema alteration. |
+| `data_forge/domains/academic/batch/edge_synthesize.py` | Reads the cell and counts it into `design_family_histogram_json`; does not infer evidence strength or adjudication from it. The histogram is a retained observational projection. Complete source search finds no downstream histogram reader beyond its schema/writer. |
+| `tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py` | Copies `row[8]` into diagnostic evidence `design_family` and content-hashes the row; the downstream operation uses row identities/refs, not a recovered adjudication. |
+| `data_forge/domains/academic/batch/benchmark.py` | Reads design_quality_tier and joined article year/source_basis; does not read this design_family column. |
+| `data_forge/domains/academic/batch/qc.py` | Counts retracted and old evidence through article joins; no design_family read. |
+| `data_forge/domains/academic/batch/best_snapshot.py` | Whole-table copy and version normalization, not interpretation. Historical hints stay historical after copy. |
+| `tools/ops_runners/cloud/merge_shards.py` | Whole-row merge keyed by edge_id/claim_id/openalex_id; no adjudication interpretation. |
+| `tools/quality/validation/check_layer3_gy_openalex_artifacts.py` | Table row count only. |
+| `runtime/quality/proving_ground/causal_forecast_search.py` | Required-table inventory and query-trace table refs; no read of this column as an adjudication. |
+
+The two value-consuming paths preserve/aggregate the stored field, while neither
+recovers an adjudication from it. No inspected in-repository consumer uses this cell
+to decide an adjudicated design. A rename would force those SQL projections and whole-row
+copiers across a stored schema; the chosen route is **wire-existing admitted adjudication
+into the existing column**, leaving the independently stored raw hint intact. The sibling
+writer's NULL absence is already compatible. No new column, DTO field, snapshot, or manifest.
+
+VV-F05 independently rechecks HC-F06 with Python joins over all 7,868 evidence rows,
+67,791 unique adjudications and 137,589 unique raw claims, plus an independent SQL join:
+**7,526 design-branch rows; 488 differ from adjudication; all 7,526 equal raw hints**.
+The branch predicate is HC-F06's accepted complement of unclear/theoretical/review
+with strong/moderate credibility; the retired evidence mapper was not executed.
+Candidate observation **VV-C02**: across the entire 7,868-row table, 566 cells differ
+from their retained adjudication (488 design-branch + 78 outside that branch).
+This is the same writer-provenance class over the wider measured denominator, not
+another repair round; no historical data pass is performed and no new row is opened.
+
+Exact commands:
+
+```sh
+python3 _build/vocabulary-value-provenance/row2-census.py > _build/vocabulary-value-provenance/row2-census.log
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python _build/vocabulary-value-provenance/row2-population.py > _build/vocabulary-value-provenance/row2-population.log 2>&1
+```
+
+Both exited 0. The chosen route was stated before editing the writer.
+
+## Event 10 — VV-F06: row 2 red/green and independent preservation
+
+Red: the actual `load_graph` writer persists a test DuckDB, then a fresh read-only
+connection joins edge evidence to raw hints and retained adjudications. All 20 enum
+members are supplied as hints paired with a different adjudicated enum member. Two
+more cases cover absent hint and absent adjudicated design; one unadmitted producer
+publication flag must emit no evidence row. The admitted-row input is controlled
+fixture data, not a fresh adjudication producer/model invocation. The first observed
+mismatch is stored `rct` versus retained `iv`, while raw hint remains `rct`.
+
+One-line repair: `str(adjudication.get("design_family") or "")` replaces the hint
+expression in the edge-evidence tuple, matching the retained-adjudication writer.
+Missing adjudicated design stays the existing empty-string absence and never inherits
+the hint. The existing publication gate requires an adjudication before reaching this
+line. The evidence-strength axis and raw hint values are unchanged by this repair.
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py::test_persisted_edge_design_matches_adjudication_despite_extractor_hint > _build/vocabulary-value-provenance/row2-red.log 2>&1
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py tests/unit/data_forge/domains/academic/batch/test_graph_builder.py > _build/vocabulary-value-provenance/row2-green.log 2>&1
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/data_forge/domains/academic/batch/graph_builder.py tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py
+```
+
+Red exit 1 (assertion mismatch, not an import/setup error); green exit 0, 37 tests in
+those two exact files; Ruff exit 0. The entire 22-row persisted comparison is equal
+after the repair. This is forward writer repair, not a claim that the pinned 488
+historical design-branch mismatches were rewritten. Those remain read-only.
+
+Row 2 is committed separately before phase 3, so a provenance-schema stop cannot
+cost either small repair. The already-completed debt-checker receipt binds row 1's
+commit only; it was not rerun after this source change (Event 8).
+
+### Row-2 complete-program receipts
+
+```python
+"""Complete tracked-source census of the persisted edge-evidence table."""
+from pathlib import Path
+from collections import Counter
+import json,subprocess
+root=Path.cwd()
+roots=['.']
+paths=[Path(p) for p in subprocess.check_output(['git','ls-files','--',*roots],text=True).splitlines()]
+counts=Counter()
+hits=[]
+binary=[]
+for p in paths:
+    counts[p.suffix or '<none>']+=1
+    try: lines=p.read_text().splitlines()
+    except UnicodeError:
+        binary.append(str(p)); continue
+    found=[{'line':i,'text':s.strip()} for i,s in enumerate(lines,1) if 'ac_skg_edge_evidence' in s]
+    if found: hits.append({'path':str(p),'hits':found})
+result={'roots':roots,'tracked_files':len(paths),'by_type':dict(sorted(counts.items())),'undecodable':binary,'matching_files':len(hits),'hits':hits}
+Path('_build/vocabulary-value-provenance/row2-census.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))
+```
+
+```python
+import duckdb,json
+from pathlib import Path
+c=duckdb.connect('production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb',read_only=True)
+a_rows=c.execute('SELECT claim_id,design_family,causal_credibility FROM ac_claim_adjudications').fetchall()
+r_rows=c.execute('SELECT id,design_family_hint FROM ac_causal_claims_raw').fetchall()
+e=c.execute('SELECT claim_id,design_family FROM ac_skg_edge_evidence').fetchall()
+a={cid:(d,cc) for cid,d,cc in a_rows}; r=dict(r_rows)
+assert len(a)==len(a_rows) and len(r)==len(r_rows)
+branch=[(cid,d) for cid,d in e if not (a[cid][0] in {'unclear','theoretical','review'} and a[cid][1] in {'strong','moderate'})]
+py=(len(e),len(branch),sum(d!=a[cid][0] for cid,d in branch),sum(d==r[cid] for cid,d in branch))
+sql=c.execute("""SELECT (SELECT count(*) FROM ac_skg_edge_evidence),count(*),count(*) FILTER(WHERE e.design_family IS DISTINCT FROM a.design_family),count(*) FILTER(WHERE e.design_family IS NOT DISTINCT FROM r.design_family_hint) FROM ac_skg_edge_evidence e JOIN ac_claim_adjudications a ON a.claim_id=e.claim_id JOIN ac_causal_claims_raw r ON r.id=e.claim_id WHERE NOT(a.design_family IN ('unclear','theoretical','review') AND a.causal_credibility IN ('strong','moderate'))""").fetchone()
+assert py==sql==(7868,7526,488,7526)
+result={'python':py,'independent_sql':sql,'adjudications':len(a_rows),'raw_claims':len(r_rows),'all_evidence_divergent':sum(d!=a[cid][0] for cid,d in e)}
+Path('_build/vocabulary-value-provenance/row2-population.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result))
+c.close()
+```
+
+Complete denominator by file type: `{".blob": 11, ".cfg": 1, ".cjs": 9, ".css": 17, ".csv": 15, ".cypher": 2, ".duckdb": 4, ".example": 3, ".html": 3, ".ini": 11, ".js": 5, ".json": 1233, ".jsonc": 1, ".jsonl": 5, ".lock": 1, ".md": 1660, ".mdc": 1, ".mjs": 36, ".pkl": 2, ".png": 42, ".py": 5749, ".pyi": 5, ".rego": 23, ".reproducible": 1, ".sh": 45, ".sql": 6, ".svg": 18, ".tf": 1, ".tmpl": 7, ".toml": 221, ".tpl": 1, ".ts": 507, ".tsx": 716, ".txt": 5, ".typed": 2, ".webm": 6, ".yaml": 85, ".yml": 54, ".zip": 7, "<none>": 14}`.
+
+Undecodable binary denominator: `{".pkl": 2, ".png": 42, ".webm": 6, ".zip": 7}`.
+
+`row2-census.json` SHA-256 `3c2e320f5e1321d9a5c62bb37084ac61b6bde6480417ee3785bfc13a6d0bd2d0`.
+
+`row2-population.log` SHA-256 `99467a63f8cf3b6f67b040edae18058d4198380b66f167c4d68ca274a18f66ed`.
+
+`row2-red.log` SHA-256 `76f939e6cf321e060f1918c62c5ce3c43af3b0c0e4d65b175f2268cf52c5c5a6`.
+
+`row2-green.log` SHA-256 `498e6947c683cfc4d9d8dd6500f7bced1426c92501b2b6f938049aa6eb2024c6`.

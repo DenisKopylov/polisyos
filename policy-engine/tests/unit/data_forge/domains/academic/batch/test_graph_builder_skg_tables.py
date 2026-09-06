@@ -552,6 +552,67 @@ def test_build_graph_materializes_normalized_and_approved_variable_resolution() 
         ]
 
 
+def test_persisted_edge_design_matches_adjudication_despite_extractor_hint(tmp_path: Path) -> None:
+    """Persist the admitted design, including absence, without overwriting the raw hint."""
+    designs = list(DesignFamily)
+    pairs: list[tuple[str | None, str | None]] = [
+        (design.value, designs[(index + 1) % len(designs)].value)
+        for index, design in enumerate(designs)
+    ] + [(None, "rct"), ("rct", None)]
+    claims = []
+    adjudications = {}
+    expected = []
+    for index, (hint, design) in enumerate(pairs):
+        claim_id = f"design-{index:02d}"
+        claims.append(
+            _typed_claim_transport(
+                claim_id=claim_id,
+                cause="tax_rate",
+                effect="employment",
+                direction="negative",
+                design_family_hint=hint,
+                source_basis="fulltext",
+                claim_extraction_confidence=0.8,
+            )
+        )
+        adjudications[claim_id] = {
+            "claim_id": claim_id,
+            "design_family": design,
+            "publishable_edge": True,
+            "claim_validity_score": 0.8,
+        }
+        expected.append((claim_id, design or "", design or "", hint))
+
+    # A producer's publication flag without an admitted adjudication emits no evidence row.
+    claims.append(
+        _typed_claim_transport(
+            claim_id="unadmitted",
+            cause="tax_rate",
+            effect="employment",
+            direction="negative",
+            design_family_hint="rct",
+            publish_to_graph=True,
+        )
+    )
+    db_path = tmp_path / "design-provenance.duckdb"
+    load_graph(
+        records=[WorkRecord(id="design-work", title="Design fixture", causal_claims=claims)],
+        db_path=db_path,
+        admitted_claim_adjudications=adjudications,
+    )
+    with duckdb.connect(str(db_path), read_only=True) as con:
+        rows = con.execute(
+            """
+            SELECT e.claim_id, e.design_family, a.design_family, r.design_family_hint
+            FROM ac_skg_edge_evidence e
+            LEFT JOIN ac_claim_adjudications a ON a.claim_id = e.claim_id
+            JOIN ac_causal_claims_raw r ON r.id = e.claim_id
+            ORDER BY e.claim_id
+            """
+        ).fetchall()
+    assert rows == expected
+
+
 def test_build_graph_filters_retracted_work_from_runtime_skg() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         db_path = Path(tmpdir) / "test_retracted.duckdb"

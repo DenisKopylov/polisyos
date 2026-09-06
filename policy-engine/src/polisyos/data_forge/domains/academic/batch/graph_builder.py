@@ -1670,7 +1670,7 @@ def load_graph(
                         direction,
                         evidence_strength,
                         confidence_value,
-                        str(vocabulary_values["design_family_hint"] or ""),
+                        str(adjudication.get("design_family") or ""),
                         int(claim.get("design_quality_tier"))
                         if claim.get("design_quality_tier") is not None
                         else None,

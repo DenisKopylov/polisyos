@@ -1,6 +1,6 @@
 # Data Capability Requirements
 
-Freshness: 2026-09-02
+Freshness: 2026-09-06
 Owner: `architect`
 Source of truth: this file; every row's evidence lives in the journal or register entry it cites
 
@@ -57,6 +57,7 @@ encounter.
 | `cg2-calibration-observations-per-stratum` | CG2 grounding calibration | `absent` |
 | `snapshot-schema-generation-discriminator` | Academic shadow consumer of a pinned snapshot | `present_stale` |
 | `lex-amendment-effective-from` | Lex chronology valid-effect carrier | `present_insufficient` |
+| `claim-level-evidence-axis` | the whole academic confidence layer | `absent` |
 
 ---
 
@@ -212,3 +213,56 @@ keeps every row in the owner denominator and reports
 Write the consumer and its code anchor first, then the measurement, then the status. If you cannot
 write the measurement, the status is `unmeasured` and the row says so. If a status changes, append
 the new basis under the row rather than editing the old one away.
+
+---
+
+## `claim-level-evidence-axis`
+
+**Consumer.** `_infer_edge_strength` at
+`src/polisyos/data_forge/domains/academic/batch/graph_builder.py:659`, which reads only an explicit
+`evidence_strength` / `evidence_strength_status`, and `aggregate_edge_confidence` at
+`src/polisyos/data_forge/domains/academic/knowledge/skg_store.py:519`, which filters any claim whose
+class carries no positive base weight **before** noisy-OR and before the replication bonus. Every
+academic edge confidence in the substrate flows through those two.
+
+**What is required.** Stored claims carrying an explicit evidence class, supplied by the extractor
+rather than inferred downstream from an adjudicated design — the axis B-1 and B-2 made mandatory.
+
+**Status `absent`.** Measured 2026-09-05/06 (historical-cohorts lane, Events 1-23). A complete walk
+of all **310,829** `ac_article_extractions` documents and all **137,714** embedded claims finds
+**zero** claims carrying `evidence_strength` or its status; the 5,133 keys that do exist are in the
+**parameter** namespace under `metadata.simulation_ready_numeric_estimates`. The consequence is
+total, not partial: a current-rule computation over each stored aggregate's retained membership
+differs for **every** row in **every** layer — exact **7,607/7,607**, family **15,945/15,945**,
+contested **723/723** — with exact and family confidences computing to `0.0` and contested rows
+failing emission entirely. The pinned snapshot's academic confidence layer is therefore historical
+in full: no value in it is reproducible under the rule the system now holds.
+
+**What would satisfy it.** Re-extraction with the current rich route, which **does** ask for the
+axis — `CAUSAL_CLAIMS_SCHEMA_HINT` interpolated at `article_extractor.py:1558` requests one of six
+evidence classes with worked examples — and whose transport was measured end-to-end to a confidence
+of 0.55 on a controlled response.
+
+**The input is already held, and this is the actionable part.** **310,710** of 310,829 works retain
+a non-blank abstract, and the rich route accepts an abstract: `_fetch_full_text` returns it as
+`abstract_fallback` at `:1529`, the `if not full_text.strip(): return None` gate at `:1786`
+therefore passes, and `:1803` **downgrades rather than rejects** — `source_basis` ->
+`ABSTRACT_ONLY`, warning `abstract_only_fallback`, extraction confidence x0.8 (x1.0 with a strong
+design), citation tagged `[fallback:abstract_only]`. So re-extraction is runnable **today, on bytes
+we already hold**, for essentially the whole corpus, at a quality the code marks honestly.
+
+**Fulltext is the upgrade, not the precondition.** **67,262** of 137,589 raw claims were
+fulltext-derived (529 abstract-only; 69,798 record no basis and are `ambiguous`, not zero), and no
+fulltext is retained in the snapshot. Re-acquiring it would raise extraction quality above the
+abstract-only band; it is a separate, separately ownable requirement, and nothing waits on it.
+
+**Not measured.** The cost of a full re-extraction pass. It involves at least a screening call and
+an extraction call per work plus a self-verification pass, and the lane was explicitly forbidden to
+estimate it so that whoever plans the pass is not anchored by a number produced here. The 69,798
+unrecorded `source_basis` cells are also unexplained.
+
+**Register cross-reference.** `historical-confidence-carries-a-withdrawn-contribution` in
+`docs/plans/active/DEBT-REGISTER.md`, whose two original closes — re-derivation from retained bytes,
+or a per-row marker — are both dead: the first yields zero everywhere, and the second would be true
+of all 24,275 rows and so would carry no information. Full measurement:
+`docs/superpowers/journals/2026-09-05-historical-cohorts.md`.

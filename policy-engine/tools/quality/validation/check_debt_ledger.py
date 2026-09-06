@@ -27,8 +27,15 @@ ATLAS_PATH = Path("docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTE
 DISPOSITION_PATH = Path("architecture/atlas_surfaces/frontend-disposition-register.json")
 LEDGER_PATH = Path("docs/plans/active/LEDGER.md")
 PLAN_ROOTS = (Path("docs/plans/active/atlas-slices"), Path("docs/superpowers/plans"))
+# register 193 -> 197 on 2026-09-06: the historical-cohorts lane closed for transcription and
+# spun off four rows it was forbidden to open — the dead selective extraction prompt
+# (`academic-selective-extraction-prompt-never-rendered`), the sentence-keyword evidence class in
+# `ir/analytics` (`literature-infers-evidence-class-from-a-sentence`), the six-of-ten ask vocabulary
+# (`extraction-ask-offers-six-of-ten-evidence-classes`), and the 488 divergent hint cells
+# (`evidence-row-design-hint-differs-from-adjudication`). No row was closed by that lane; the two
+# historical rows were superseded in place and keep their statuses.
 PUBLISHED_DENOMINATORS = {
-    "register": 193,
+    "register": 197,
     "gy": 38,
     "atlas": 22,
     "frontend_disposition_entries": 261,

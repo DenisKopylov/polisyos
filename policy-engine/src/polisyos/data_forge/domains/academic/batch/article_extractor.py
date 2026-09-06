@@ -439,13 +439,16 @@ def _normalize_claim_type(value: Any) -> str:
 
 
 def _normalize_design_family(value: Any) -> str:
+    """Resolve exact design identities before substring aliases; unmatched stays unclear."""
     normalized = _normalized_text(value).lower().replace(" ", "_")
     if not normalized:
         return DesignFamily.UNCLEAR.value
+    if normalized in _DESIGN_FAMILY_ALIASES:
+        return _DESIGN_FAMILY_ALIASES[normalized]
     for key, mapped in _DESIGN_FAMILY_ALIASES.items():
         if key in normalized:
             return mapped
-    return _DESIGN_FAMILY_ALIASES.get(normalized, DesignFamily.UNCLEAR.value)
+    return DesignFamily.UNCLEAR.value
 
 
 def _normalize_source_basis(value: Any) -> str:

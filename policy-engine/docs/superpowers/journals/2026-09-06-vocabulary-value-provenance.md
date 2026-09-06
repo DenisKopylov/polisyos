@@ -1594,3 +1594,195 @@ Path('_build/vocabulary-value-provenance/p29-receipt.json').write_text(json.dump
 print(json.dumps(receipt, indent=2))
 assert result.returncode == 1, 'The semantic regression test must fail on removal of derivation'
 ```
+
+
+## Event 23 — VV-F15: final committed-source checker receipt and data pin
+
+The complete implementation, new tests, six generated outputs, and Events 16–22
+were committed as `cef0e854a9f49b9cbfa654887c9834c9c9b48be5`. Before the checker,
+`git status -sb` proved attached and clean on codex/debt-vocabulary-value-provenance,
+and every one of the 18 changed files from the slice base was read back using
+`git show HEAD:<path>` and byte-compared with the worktree. No active-plan file is
+changed. This is one substantive source/bridge/contract commit, not a contract-only
+intermediate delivery. The only later write is this append-only journal receipt.
+
+The **single newly authorized final checker invocation** ran after that source
+commit. Its shell command ended with the redirected checker line; there was no
+appended echo, command separator, or status-masking command:
+```bash
+export PATH="/Users/deniskopylov/polisyos/policy-engine/.venv/bin:$PATH" PYTHONPATH=.:src PYTHONDONTWRITEBYTECODE=1
+python tools/quality/validation/check_debt_ledger.py --check > _build/x.log 2>&1
+```
+The terminal process completion reported **exit_code=0** directly. Then the full
+finding-code census, with no expected-code filter, was run:
+```bash
+grep -oE '^[a-z_]+:' _build/x.log | sort | uniq -c
+```
+```text
+   9 closure_signal_count_exit_disagreement:
+   9 closure_signal_identity_unresolvable:
+   1 closure_signal_runner_unsupported:
+  10 register_supplies_missing_standing:
+```
+There are 29 informational findings and zero blocking findings. The receipt covers
+the final source commit; the later receipt-only journal commit does not alter its
+source/test/schema input state. The premature earlier run is preserved in Event 8
+and `_build/vocabulary-value-provenance/checker-premature-04c6bd0e9.log`; it is not
+represented as final. This resumption performed exactly one checker invocation,
+as newly authorized. Full receipt:
+```json
+{
+  "source_commit": "cef0e854a9f49b9cbfa654887c9834c9c9b48be5",
+  "exit_code": 0,
+  "finding_code_census": {
+    "closure_signal_count_exit_disagreement": 9,
+    "closure_signal_identity_unresolvable": 9,
+    "closure_signal_runner_unsupported": 1,
+    "register_supplies_missing_standing": 10
+  },
+  "log_sha256": "bd9cb15629ac3d74442136e662462f12380de760f02f59eea002f7e2aeaa21a1",
+  "log_lines": 56,
+  "informational_findings": 29,
+  "blocking_findings": 0,
+  "new_final_checker_invocations": 1
+}
+```
+Full unfiltered checker log:
+```text
+register_ids=199
+gy_ids=38
+atlas_debt_rows=22
+frontend_disposition_entries=261
+frontend_ds8_assignment_rows=217
+gy_history_blocks=6
+gy_absent_from_register=15
+gy_absent_from_register_closed=15
+ds5_nonclosure_rows=27
+ds5_planless_routes=4
+irregular_section_e_branch_rows=1
+explicit_nonclosure_entries=29
+explicit_nonclosure_identified=18
+explicit_nonclosure_typed_not_a_debt=11
+explicit_nonclosure_resolved_history=8
+explicit_nonclosure_unidentified=0
+closure_signal_pytest_selections=44
+closure_signal_unsupported_runners=1
+closure_signal_identities_without_commands=4
+closure_signal_identity_unresolvable=9
+closure_signal_input_unresolvable=0
+closure_signal_selects_nothing=0
+closure_signal_collection_failed=0
+closure_signal_collection_host_unknown=0
+closure_signal_ast_collection_disagreements=0
+closure_signal_count_exit_disagreements=9
+Informational findings (do not block):
+closure_signal_count_exit_disagreement: DS11-EXTERNAL-A11Y-COUNTERSIGN: tests/repo_quality/docs/test_accessibility_evidence.py::test_external_countersign_is_content_bound_current_and_scope_exact; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: DS11-FULL-TRUST-CENTER-AND-DOCS-IA: tests/repo_quality/frontend/test_public_surface_claim_ownership.py::test_every_retained_trust_docs_route_has_an_approved_owner_and_evidence_contract; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: DS11-GROUNDED-PERFORMANCE: tests/integration/runtime_quality/test_first_governed_promotion.py::test_promoted_design_supplies_content_bound_public_performance_evidence; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: DS11-PUBLIC-SIGNATURE-POPULATION: tests/unit/runtime/http/test_public_export.py::test_first_governed_public_signature_is_custody_bound; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: DS11-SCOPE-ADJUDICATION-RECORD: tests/unit/core/contracts/test_scope_adjudication.py::test_four_way_ruling_is_produced_consumed_and_plane_specific; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: ds10-global-case-index-producer-allocation: tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: ds10-public-decision-rendering: tests/unit/runtime/http/test_public_export.py::test_public_decision_projection_is_custody_bound; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: global-case-index-producer-missing: tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_count_exit_disagreement: shared-git-hook-hardcodes-one-worktree-path: tests/repo_quality/tools/test_repo_hooks.py::test_shared_hook_contains_no_worktree_specific_path; ast=False; collected=0; exit=4; count=selects=0; exit=unresolvable
+closure_signal_identity_unresolvable: DS11-EXTERNAL-A11Y-COUNTERSIGN: tests/repo_quality/docs/test_accessibility_evidence.py::test_external_countersign_is_content_bound_current_and_scope_exact; ast=False; collected=0; exit=4; ERROR: not found: /Users/deniskopylov/polisyos/.worktrees/debt-vocabulary-value-provenance/policy-engine/tests/repo_quality/docs/test_accessibility_evidence.py::test_external_countersign_is_content_bound_current_and_scope_exact | (no match in any of [<Module test_accessibility_evidence.py>])
+closure_signal_identity_unresolvable: DS11-FULL-TRUST-CENTER-AND-DOCS-IA: tests/repo_quality/frontend/test_public_surface_claim_ownership.py::test_every_retained_trust_docs_route_has_an_approved_owner_and_evidence_contract; ast=False; collected=0; exit=4; no tests collected in 0.00s | ERROR: file or directory not found: tests/repo_quality/frontend/test_public_surface_claim_ownership.py::test_every_retained_trust_docs_route_has_an_approved_owner_and_evidence_contract
+closure_signal_identity_unresolvable: DS11-GROUNDED-PERFORMANCE: tests/integration/runtime_quality/test_first_governed_promotion.py::test_promoted_design_supplies_content_bound_public_performance_evidence; ast=False; collected=0; exit=4; no tests collected in 0.00s | ERROR: file or directory not found: tests/integration/runtime_quality/test_first_governed_promotion.py::test_promoted_design_supplies_content_bound_public_performance_evidence
+closure_signal_identity_unresolvable: DS11-PUBLIC-SIGNATURE-POPULATION: tests/unit/runtime/http/test_public_export.py::test_first_governed_public_signature_is_custody_bound; ast=False; collected=0; exit=4; no tests collected in 0.00s | ERROR: file or directory not found: tests/unit/runtime/http/test_public_export.py::test_first_governed_public_signature_is_custody_bound
+closure_signal_identity_unresolvable: DS11-SCOPE-ADJUDICATION-RECORD: tests/unit/core/contracts/test_scope_adjudication.py::test_four_way_ruling_is_produced_consumed_and_plane_specific; ast=False; collected=0; exit=4; ERROR: not found: /Users/deniskopylov/polisyos/.worktrees/debt-vocabulary-value-provenance/policy-engine/tests/unit/core/contracts/test_scope_adjudication.py::test_four_way_ruling_is_produced_consumed_and_plane_specific | (no match in any of [<Module test_scope_adjudication.py>])
+closure_signal_identity_unresolvable: ds10-global-case-index-producer-allocation: tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index; ast=False; collected=0; exit=4; ERROR: not found: /Users/deniskopylov/polisyos/.worktrees/debt-vocabulary-value-provenance/policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index | (no match in any of [<Module test_capability_discovery_api.py>])
+closure_signal_identity_unresolvable: ds10-public-decision-rendering: tests/unit/runtime/http/test_public_export.py::test_public_decision_projection_is_custody_bound; ast=False; collected=0; exit=4; no tests collected in 0.00s | ERROR: file or directory not found: tests/unit/runtime/http/test_public_export.py::test_public_decision_projection_is_custody_bound
+closure_signal_identity_unresolvable: global-case-index-producer-missing: tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index; ast=False; collected=0; exit=4; ERROR: not found: /Users/deniskopylov/polisyos/.worktrees/debt-vocabulary-value-provenance/policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index | (no match in any of [<Module test_capability_discovery_api.py>])
+closure_signal_identity_unresolvable: shared-git-hook-hardcodes-one-worktree-path: tests/repo_quality/tools/test_repo_hooks.py::test_shared_hook_contains_no_worktree_specific_path; ast=False; collected=0; exit=4; no tests collected in 0.00s | ERROR: file or directory not found: tests/repo_quality/tools/test_repo_hooks.py::test_shared_hook_contains_no_worktree_specific_path
+closure_signal_runner_unsupported: ds10-lex-pipeline-mutation-boundary: src/features/lex/routes/LexKnowledgeGraphPage.test.tsx; Vitest selection is unsupported by design; resolve this row manually
+register_supplies_missing_standing: GY:GY-DEF14: register=closed, source=ambiguous
+register_supplies_missing_standing: GY:GY-DEF15: register=closed, source=ambiguous
+register_supplies_missing_standing: GY:GY-DEF19: register=closed, source=prose_only
+register_supplies_missing_standing: GY:GY-DEF22: register=open, source=ambiguous
+register_supplies_missing_standing: GY:GY-DEF23: register=blocked, source=ambiguous
+register_supplies_missing_standing: GY:GY-DEFC-1: register=closed, source=ambiguous
+register_supplies_missing_standing: GY:GY-GAP5: register=blocked, source=ambiguous
+register_supplies_missing_standing: GY:GY-GAP6: register=blocked, source=ambiguous
+register_supplies_missing_standing: GY:GY-GAP7: register=folded, source=ambiguous
+register_supplies_missing_standing: GY:GY-GAP8: register=closed, source=ambiguous
+```
+
+The base-audit worktree was removed after copying its read-only receipts into this
+lane's scratch directory (architecture-base.log, ruff-base.json, and
+literature-causal-prior-base.json). No task-branch history was rewritten. Production
+was never opened for writes; the final file hash command exited 0 and a separate
+comparison asserted the full pinned digest:
+```bash
+shasum -a 256 production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb > _build/vocabulary-value-provenance/production-sha256-final.log
+```
+```text
+583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967  production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb
+```
+
+Stored positive/negative trace bindings from the seven distinct JSON files of the
+restored producer round-trip (pytest's `current` symlink alias is deduplicated by
+resolved path; it is not an eighth fixture):
+```json
+[
+  {
+    "strength": "unknown",
+    "origin": "not_supplied",
+    "article_json_sha256": "2aa242d9442e9d8d09a89109440d563c90822c0645464bd57e06f7c81c64a919"
+  },
+  {
+    "strength": "unknown",
+    "origin": "declared_unknown",
+    "article_json_sha256": "d6848a3d4fa197b749cb090cbaa2b70bce383470affbb80b735e036f4104421d"
+  },
+  {
+    "strength": "unknown",
+    "origin": "normalizer_fallback",
+    "article_json_sha256": "03800f5a3e253679ca145c60a7def06b2006f45314ad22ebc0ce2372568e90a2"
+  }
+]
+```
+The recorded-unknown JSON is also preserved at
+`_build/vocabulary-value-provenance/recorded-unknown.json`. These are controlled test
+records and hashes, not historical cohort assignments. The failure/repair register
+was read again at closeout; P01/P29/P33/P35/P38/P41 dispositions are in Events 16–22.
+
+## Event 24 — final transcriber-ready dispositions (four independent paragraphs)
+
+`design-normalization-matches-a-substring-before-identity`: accepted row-1 repair
+remains `04c6bd0e9`, exact identity before substring matching, full 20/20 enum
+round-trip verified (original red was exactly five), unmatched input unclear.
+VV-F03 retains the measured 67,791 persisted hints across 20,900 documents, with
+corrupted-input count `not_established`: a stored iv cannot reveal whether the
+original input was iv or a substring-colliding narrative review. No retroactive
+corruption count, historical rewrite, or reopening occurred in the rows-3/4 work.
+
+`evidence-row-design-hint-differs-from-adjudication`: accepted row-2 repair remains
+`1574d1e26`. The completed consumer census supported storing the adjudicated design
+in the existing column; the red/green writer test proves retained adjudication and
+new evidence rows cannot diverge while raw hints remain separately retained. The
+488 historical design-branch disagreements remain unrevised. The rows-3/4 changes
+only extend parameter persistence; they do not change this accepted design behavior
+or reopen the row.
+
+`parameter-evidence-strength-has-no-value-provenance`: repaired forward path in
+`cef0e854a`. Four producing categories remain four, now represented by seven typed
+origins separating supplied and declared_unknown judgments, no supply, normalizer
+fallback, intake fallback, inheritance, and unresolved historical origin. The real
+normalizer/article/WorkRecord/SKG persistence/intake/query tests demonstrate distinct
+stored records and consumer values; the fresh controlled recorded-unknown trace is
+positive, while omitted, invalid, fallback, inherited, and unmarked historical
+values cannot present as recorded extractor judgments. Historical origin counts are
+not retrospectively assigned. Initial 16-case red, final targeted 85 passes, P29
+removal red/restoration green, declared generation/check success, committed generated
+companions, reproduced/routed architecture red, and the final checker exit 0 with
+all 29 informational findings are recorded above. No second public IR source type
+was changed and no production data pass occurred.
+
+`parameter-contract-cannot-distinguish-unsupplied-from-unknown`: closes as a measured
+consequence of the same mechanism, not adjacency. The field default is not_supplied;
+the omitted-input negative remains UNKNOWN/not_supplied after ordinary dump/validate
+and real raw SKG storage/query, while a producer's explicit unknown remains
+UNKNOWN/declared_unknown through that round-trip. Unmarked historical scalars are
+unresolved, and a marker without a strength cannot create a judgment. The paired
+negative/positive behavioral tests and P29 falsifier provide the required closure
+signal; the architect can transcribe this paragraph independently of row 3.

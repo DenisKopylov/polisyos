@@ -220,3 +220,215 @@ separate worktree; this checkout has no repository-root Lefthook configuration.
 Commits use `LEFTHOOK=0 git commit` so validation stays bound to the explicit
 commands above and the single deferred debt-checker run. No hook configuration
 is changed. Branch attachment is verified immediately before every commit.
+
+## APR-R02 — Row 2 red, repair and green
+
+Row 1 was committed separately as `f876c26f2` and its source was read back from
+`codex/debt-academic-producer-repairs` before starting this row.
+
+The new request-path test called `extract_with_llm` with an autospecced
+`AcademicLLMClient` stub; no client constructor, session or network was used.
+All three input variants failed before the request with exactly
+`KeyError: '\n  "estimates"'` at the original `.format` call (exit 1; 1.13 seconds
+pytest, 2.59 seconds wall). This proves the missing behavior at the function
+boundary, rather than looking for words in an unrendered constant.
+
+One repair round replaces `.format(topic=topic, abstract=abstract[:4000])` with
+`.replace("{abstract}", abstract[:4000])`. The original template has one input
+placeholder and no topic placeholder. Exact single-slot replacement keeps the
+JSON readable and unchanged, has no brace-escaping convention to maintain, and
+does not interpret placeholders or braces inside the substituted abstract.
+`topic` was already absent from model-facing wording and remains absent. The
+function signature and existing 4,000-character limit remain as before.
+
+The existing prompt/vocabulary tests now inspect the actual captured request,
+and the parser test consumes the stub response returned by the real request
+function. New variants cover plain input, literal `{abstract}` / `{topic}` /
+`$abstract` / nested JSON braces, and truncation. They assert single JSON braces
+in the outgoing instructions, literal input insertion, one awaited stub request,
+a nonempty parsed response and preserved `candidate` status. All seven tests in
+the selected file pass (exit 0; 1.36 seconds pytest, 3.28 seconds wall). Targeted
+Ruff and `git diff --check` pass.
+
+### APR-P02 — complete rendered-prompt proof
+
+`rendered_prompt_proof.py` reads the complete original template from the task's
+pinned base using `git show`, extracts the string with `ast.literal_eval`, and
+compares its bytes with the current template. It independently forms the
+expected outgoing text by splitting the original input slot and concatenating
+literal input, then compares that with the request captured from the actual
+`extract_with_llm` invocation. This comparison covers all wording and JSON
+braces, not only the quoted regression snippets. Both identities pass, and the
+stub was awaited exactly once.
+
+Original and current template SHA-256: `25a3a22c6dd84efda895118ca22e11b96bba8def843d1434ea5cff104339c813`.
+
+Captured outgoing prompt SHA-256: `2d001d35f88d525363c2a960ef33c1e41e7f008f91014e437df989f151461bee`.
+
+The complete captured prompt for the plain-input proof is:
+
+```text
+Extract causal and quantitative evidence from this abstract.
+
+Return strict JSON object with fields:
+{
+  "estimates": [
+    {
+      "value": <number>,
+      "unit": "percent|ratio|level|index|pp",
+      "ci_low": <number or null>,
+      "ci_high": <number or null>,
+      "std_error": <number or null>,
+      "context": "<brief description>",
+      "variable_hint": "<canonical-like variable name>"
+    }
+  ],
+  "study_design": "RCT|IV|DiD|RDD|FE|OLS|meta-analysis|descriptive|other",
+  "sample_size": <number or null>,
+  "causal_claims": [
+    {
+      "cause": "<concept>",
+      "effect": "<concept>",
+      "direction": "positive|negative|null|mixed",
+      "design_family_hint": "one design family (rct, iv, did, rdd, synthetic_control, event_study,
+        quasi_experimental_other, quasi_experimental_did, quasi_experimental_rdd, panel_fe, ols,
+        ols_cross_sectional, meta_analysis, review, review_narrative, review_meta_analysis,
+        theoretical, structural_model, time_series_cointegration, unclear) or null",
+      "evidence_strength": "one evidence class (rct, quasi_natural, quasi_natural_event,
+        meta_analysis, panel_fe, structural, observational, cross_sectional, theoretical,
+        unknown) or null",
+      "claim_extraction_confidence": <number from 0 to 1 or null>,
+      "mechanism": "<short text>"
+    }
+  ],
+  "boundary_conditions": [
+    {
+      "variable": "<name>",
+      "operator": "<op>",
+      "threshold_value": "<value>",
+      "scope_text": "<condition text>",
+      "confidence": <0..1>
+    }
+  ]
+}
+
+Abstract:
+Tax rates reduce employment.
+```
+
+### APR-C02 — candidate row: request failures collapse into empty extraction
+
+Report only, source-inspected in `llm_extractor.py::extract_with_llm` and
+`AcademicLLMClient.chat_completion`; no exception-handling repair is included.
+The blanket `except Exception` wraps the awaited client call, response `.get`,
+string conversion and `_parse_json_object`. It logs a warning and returns the
+same empty extraction shape for, among other ordinary exceptions:
+
+- Non-retryable HTTP errors raised as `RuntimeError`, including authentication /
+  authorization failures, and retry exhaustion after retryable HTTP responses.
+- Timeouts, connection/TLS/client failures and malformed provider-body JSON after
+  the client's retries, surfaced as a final `RuntimeError`.
+- The client's `AssertionError` when used without its async context/session.
+- Programming/response-shape errors in the protected block, such as a nonmapping
+  response raising `AttributeError`, failing string conversion, or an unexpected
+  parser exception such as `RecursionError` on excessively nested JSON.
+
+Separately, missing/empty/unparseable content returns the same empty shape via
+`parsed is None` without reaching that warning. A caller gets no typed failure
+status distinguishing these from a successful empty extraction. That is the
+candidate row. The catch does not include prompt preparation, which is still
+above `try`, errors in later `parse_llm_result`, or `BaseException` subclasses
+such as cancellation, `KeyboardInterrupt` and `SystemExit`.
+
+Operational consequence: a repaired producer can make real model calls when the
+existing route is enabled by its owner. This lane did not enable the route,
+change its gate/configuration, call a real model, run a batch or write data.
+
+### Exact Row 2 commands
+
+```sh
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src .venv/bin/python -m pytest -o addopts='' -q tests/unit/data_forge/mirror_contracts/test_llm_extractor.py::test_llm_request_renders_single_json_braces_and_literal_abstract > _build/academic-producer-repairs/row2-red.log 2>&1
+/usr/bin/time -p env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src .venv/bin/python -m pytest -o addopts='' -q tests/unit/data_forge/mirror_contracts/test_llm_extractor.py > _build/academic-producer-repairs/row2-green.log 2>&1
+.venv/bin/python -m ruff check src/polisyos/data_forge/domains/academic/batch/llm_extractor.py tests/unit/data_forge/mirror_contracts/test_llm_extractor.py
+git diff --check
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src .venv/bin/python _build/academic-producer-repairs/rendered_prompt_proof.py
+```
+
+### APR-T02 — Row 2 transcription paragraph
+
+**`academic-selective-extraction-prompt-never-rendered` — repaired on this
+branch, awaiting merge/transcription.** A red test exercises `extract_with_llm`
+against a stub and reproduces the literal-JSON `.format` `KeyError` before the
+request. Exact `{abstract}` replacement repairs rendering without changing a
+byte of the model-facing template. Seven targeted tests pass; captured requests
+retain single JSON braces, both named vocabularies, literal abstract contents
+and the 4,000-character limit, and the real function returns the stub's parsed
+candidate response. The complete rendered text also matches the pinned original
+wording plus literal input (APR-P02). No route was enabled and no real model,
+batch or data pass ran; enabling the route now permits real calls. The blanket
+failure-to-empty behavior remains a separate, report-only candidate (APR-C02).
+
+### Durable Row 2 proof source
+
+```python
+"""Compare the actual stubbed request with the complete, pinned original wording."""
+
+import ast
+import asyncio
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+from unittest.mock import create_autospec
+
+from polisyos.data_forge.domains.academic.batch import llm_extractor as llm
+
+source = subprocess.check_output(
+    [
+        "git", "show",
+        "c633625c6:policy-engine/src/polisyos/data_forge/domains/academic/batch/llm_extractor.py",
+    ],
+    text=True,
+)
+assignment = next(
+    node
+    for node in ast.parse(source).body
+    if isinstance(node, ast.Assign)
+    and any(isinstance(target, ast.Name) and target.id == "EXTRACTION_PROMPT" for target in node.targets)
+)
+original_template = ast.literal_eval(assignment.value)
+assert original_template == llm.EXTRACTION_PROMPT
+prefix, suffix = original_template.split("{abstract}")
+abstract = "Tax rates reduce employment."
+expected = prefix + abstract[:4000] + suffix
+client = create_autospec(llm.AcademicLLMClient, instance=True)
+response = {"estimates": [{"value": 0.25}], "causal_claims": [], "boundary_conditions": []}
+client.chat_completion.return_value = {"content": json.dumps(response)}
+result = asyncio.run(llm.extract_with_llm(
+    abstract=abstract, topic="unused-topic", work_id="synthetic:render-proof", client=client
+))
+client.chat_completion.assert_awaited_once()
+(message,) = client.chat_completion.call_args.kwargs["messages"]
+rendered = message["content"]
+assert message["role"] == "user"
+assert rendered == expected
+assert result == response
+instructions = rendered.partition("\nAbstract:\n")[0]
+assert "{{" not in instructions and "}}" not in instructions
+scratch = Path("_build/academic-producer-repairs")
+(scratch / "rendered-prompt.txt").write_text(rendered)
+proof = {
+    "source": llm.__file__,
+    "baseline": "c633625c6",
+    "template_byte_identity": True,
+    "template_sha256": hashlib.sha256(original_template.encode()).hexdigest(),
+    "actual_request_equals_pinned_wording_with_literal_input": True,
+    "rendered_sha256": hashlib.sha256(rendered.encode()).hexdigest(),
+    "single_json_braces": True,
+    "client": "autospecced stub; no client/session construction or network",
+    "await_count": client.chat_completion.await_count,
+    "parsed_response_matches_stub": result == response,
+}
+(scratch / "rendered-prompt-proof.json").write_text(json.dumps(proof, indent=2) + "\n")
+print(json.dumps(proof, indent=2))
+```

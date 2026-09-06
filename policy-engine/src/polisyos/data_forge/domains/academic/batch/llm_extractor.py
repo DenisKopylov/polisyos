@@ -400,7 +400,8 @@ async def extract_with_llm(
     *, abstract: str, topic: str, work_id: str, client: AcademicLLMClient
 ) -> dict:
     """Run LLM extraction on a single abstract."""
-    prompt = EXTRACTION_PROMPT.format(topic=topic, abstract=abstract[:4000])
+    # Substitute only the input slot, leaving the JSON literal and abstract braces intact.
+    prompt = EXTRACTION_PROMPT.replace("{abstract}", abstract[:4000])
     try:
         response = await client.chat_completion(messages=[{"role": "user", "content": prompt}])
         content = str(response.get("content", ""))

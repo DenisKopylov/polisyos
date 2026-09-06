@@ -36,6 +36,7 @@ from polisyos.ir.analytics.literature import (
     ClaimVocabularyAxisStatus,
     EvidenceParameter,
     EvidenceStrength,
+    EvidenceStrengthOrigin,
     ParameterType,
 )
 
@@ -372,13 +373,18 @@ class SKGQuery:
         extra_select.append(
             "quality_flags_json" if has_quality_flags else "'[]' AS quality_flags_json"
         )
+        origin_select = (
+            "evidence_strength_origin"
+            if self._column_exists("ac_skg_simulation_parameters", "evidence_strength_origin")
+            else "NULL AS evidence_strength_origin"
+        )
 
         rows = self._con.execute(
             f"""
             SELECT numeric_id, openalex_id, canonical_name, estimate_type, point_estimate,
                    estimate_sign, unit, evidence_strength,
                    {", ".join(extra_select)},
-                   linked_claim_ids_json, linked_edges_json, context_json
+                   linked_claim_ids_json, linked_edges_json, context_json, {origin_select}
             FROM ac_skg_simulation_parameters
             WHERE canonical_name = ?
             LIMIT ?
@@ -409,6 +415,7 @@ class SKGQuery:
                     "value": self._safe_float(row[4]),
                     "unit": str(row[6] or "").strip() or None,
                     "evidence_strength": str(row[7] or ""),
+                    **({"evidence_strength_origin": row[16]} if row[16] is not None else {}),
                     "confidence_interval": list(ci_payload) if ci_payload is not None else None,
                     "std_error": std_error,
                 },
@@ -1816,9 +1823,17 @@ class SKGQuery:
 
         evidence_strength_raw = payload.get("evidence_strength")
         try:
-            evidence_strength = EvidenceStrength(str(evidence_strength_raw))
+            evidence_strength = EvidenceStrength(evidence_strength_raw)
+            strength_origin = EvidenceStrengthOrigin(
+                payload.get("evidence_strength_origin", EvidenceStrengthOrigin.UNRESOLVED)
+            )
         except ValueError:
             evidence_strength = EvidenceStrength.UNKNOWN
+            strength_origin = (
+                EvidenceStrengthOrigin.INTAKE_FALLBACK
+                if "evidence_strength" in payload
+                else EvidenceStrengthOrigin.NOT_SUPPLIED
+            )
 
         try:
             parameter = EvidenceParameter(
@@ -1834,6 +1849,7 @@ class SKGQuery:
                     else None
                 ),
                 evidence_strength=evidence_strength,
+                evidence_strength_origin=strength_origin,
                 time_period=str(payload.get("time_period") or ""),
                 geographic_scope=str(payload.get("geographic_scope") or ""),
             )

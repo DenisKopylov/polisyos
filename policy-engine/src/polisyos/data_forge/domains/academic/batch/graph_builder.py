@@ -930,6 +930,7 @@ def _materialize_skg(
                 source_layer,
                 uncertainty_source,
                 quality_flags_json,
+                evidence_strength_origin,
             ) = row
             try:
                 validated_simulation_rows.append(
@@ -964,6 +965,7 @@ def _materialize_skg(
                         _validate_json_column(
                             quality_flags_json, expected_type=list, field_name="quality_flags_json"
                         ),
+                        evidence_strength_origin,
                     )
                 )
             except ValueError as exc:
@@ -977,8 +979,8 @@ def _materialize_skg(
                 numeric_id, openalex_id, canonical_name, estimate_type, point_estimate,
                 estimate_sign, unit, evidence_strength, confidence_interval_json,
                 std_error, linked_claim_ids_json, linked_edges_json, context_json,
-                source_layer, uncertainty_source, quality_flags_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                source_layer, uncertainty_source, quality_flags_json, evidence_strength_origin
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             validated_simulation_rows,
         )
@@ -1384,8 +1386,15 @@ def load_graph(
             if bool(record.is_retracted):
                 continue
 
-            for est in record.estimates:
-                canonical = str(est.variable_hint or "").strip()
+            parameter_payloads = record.metadata.get("empirical_parameters")
+            if not isinstance(parameter_payloads, list):
+                parameter_payloads = [est.model_dump(mode="json") for est in record.estimates]
+            for parameter_payload in parameter_payloads:
+                if not isinstance(parameter_payload, dict):
+                    continue
+                canonical = str(
+                    parameter_payload.get("name") or parameter_payload.get("variable_hint") or ""
+                ).strip()
                 if not canonical:
                     continue
                 variable_mentions[canonical] += 1
@@ -1395,7 +1404,7 @@ def load_graph(
                         hash_param_id(canonical, record.id),
                         canonical,
                         record.id,
-                        json.dumps(est.model_dump(mode="json"), ensure_ascii=False),
+                        json.dumps(parameter_payload, ensure_ascii=False),
                         json.dumps(record.context_profile, ensure_ascii=False),
                     )
                 )
@@ -1446,6 +1455,7 @@ def load_graph(
                         str(numeric.get("source_layer") or "simulation_ready"),
                         str(numeric.get("uncertainty_source") or ""),
                         json.dumps(numeric.get("quality_flags") or [], ensure_ascii=False),
+                        numeric.get("evidence_strength_origin"),
                     )
                 )
 

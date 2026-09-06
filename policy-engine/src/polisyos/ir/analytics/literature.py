@@ -59,6 +59,22 @@ class EvidenceStrength(str, Enum):
     UNKNOWN = "unknown"
 
 
+class EvidenceStrengthOrigin(str, Enum):
+    """How a parameter strength was produced, without conferring authority.
+
+    Unmarked stored values are unresolved. Only a producer that observed its
+    input can record supplied or declared_unknown; intake must not infer them.
+    """
+
+    NOT_SUPPLIED = "not_supplied"
+    SUPPLIED = "supplied"
+    DECLARED_UNKNOWN = "declared_unknown"
+    NORMALIZER_FALLBACK = "normalizer_fallback"
+    INTAKE_FALLBACK = "intake_fallback"
+    INHERITED = "inherited"
+    UNRESOLVED = "unresolved"
+
+
 class CausalDirection(str, Enum):
     """Causal direction public type."""
 
@@ -502,6 +518,7 @@ class EvidenceParameter(BaseModel):
     unit: str | None = None
 
     evidence_strength: EvidenceStrength = EvidenceStrength.UNKNOWN
+    evidence_strength_origin: EvidenceStrengthOrigin = EvidenceStrengthOrigin.NOT_SUPPLIED
     geographic_scope: str = ""
     time_period: str = ""
     aggregation_level: str = ""
@@ -511,8 +528,39 @@ class EvidenceParameter(BaseModel):
     heterogeneity_note: str | None = None
     subgroup_estimates: dict[str, float] = Field(default_factory=dict)
 
+    @model_validator(mode="before")
+    @classmethod
+    def _retain_unresolved_strength_origin(cls, value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+        if "evidence_strength_origin" not in value and "evidence_strength" in value:
+            return {**value, "evidence_strength_origin": EvidenceStrengthOrigin.UNRESOLVED}
+        if "evidence_strength" not in value and value.get("evidence_strength_origin") not in {
+            None,
+            EvidenceStrengthOrigin.NOT_SUPPLIED,
+            EvidenceStrengthOrigin.UNRESOLVED,
+        }:
+            raise ValueError("A strength origin cannot record a value that was not supplied")
+        return value
+
     @model_validator(mode="after")
     def _validate_value_present(self) -> EvidenceParameter:
+        unknown_only = {
+            EvidenceStrengthOrigin.NOT_SUPPLIED,
+            EvidenceStrengthOrigin.DECLARED_UNKNOWN,
+            EvidenceStrengthOrigin.NORMALIZER_FALLBACK,
+            EvidenceStrengthOrigin.INTAKE_FALLBACK,
+        }
+        if (
+            self.evidence_strength_origin in unknown_only
+            and self.evidence_strength != EvidenceStrength.UNKNOWN
+        ):
+            raise ValueError("This strength origin requires an unknown value")
+        if (
+            self.evidence_strength_origin == EvidenceStrengthOrigin.SUPPLIED
+            and self.evidence_strength == EvidenceStrength.UNKNOWN
+        ):
+            raise ValueError("An explicit unknown judgment requires declared_unknown origin")
         if self.value is None and self.value_range is None and self.value_qualitative is None:
             raise ValueError("At least one of value, value_range, value_qualitative is required")
         if self.value is not None:
@@ -1857,6 +1905,7 @@ __all__ = [
     "EvidenceParameter",
     "EvidenceSpan",
     "EvidenceStrength",
+    "EvidenceStrengthOrigin",
     "ExtractorAccuracyReport",
     "HeterogeneityResult",
     "IdentificationStrategy",

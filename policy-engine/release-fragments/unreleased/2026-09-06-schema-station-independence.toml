@@ -1,0 +1,14 @@
+id = "2026-09-06-schema-station-independence"
+title = "Recompute schema evidence before trusting cached payloads"
+type = "fixed"
+component = "tooling"
+owner = "team-polisyos"
+summary = "ABI schema generation and checking recompute complete runtime schemas, including imported model definitions, before consulting persisted cache candidates. Saved baselines and Git change scopes cannot bypass snapshot or reference verification."
+evidence = [
+  "tests/repo_quality/tools/test_schema_station_independence.py",
+  "tests/repo_quality/tools/test_phase5_tooling.py",
+]
+compatibility = "The existing CLI flags remain accepted. --changed-only and --skip-if-unchanged now perform full runs; cache and baseline records remain diagnostic. Schema contracts and committed snapshots are unchanged."
+change_class = "internal"
+surface_classification = "internal: polisyos-tools diagnostics gen-schema"
+migration = "No migration is required. Incremental invocations now pay the cost of a full schema and reference check."

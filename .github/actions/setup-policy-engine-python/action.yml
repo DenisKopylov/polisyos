@@ -32,6 +32,16 @@ runs:
       with:
         version: "0.9.21"
 
+    - name: Install source-build system headers
+      # pillow has no cp314 wheel and marker-pdf caps it below 11, so it is built
+      # from source. The build needs jpeg/zlib headers, which the runner lacks.
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq libjpeg-dev zlib1g-dev
+
     - name: Sync environment from workspace bootstrap profile
       if: inputs.profile != ''
       shell: bash

@@ -7333,7 +7333,7 @@ def _json_value(value: Any) -> Any:
     if hasattr(value, "item") and not isinstance(value, str):
         try:
             return _json_value(value.item())
-        except AttributeError, ValueError:
+        except (AttributeError, ValueError):
             pass
     return value
 

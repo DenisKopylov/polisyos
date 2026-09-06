@@ -733,7 +733,7 @@ def _validate_committed_contract_text(
         if isinstance(run_payload, dict):
             try:
                 committed_run = GenerationCycleRun.model_validate(run_payload)
-            except ValidationError, ValueError:
+            except (ValidationError, ValueError):
                 committed_run = None
             if committed_run is not None:
                 issues.extend(

@@ -38,7 +38,9 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         set -euo pipefail
-        python3 -m tools.cli workspace bootstrap \
+        # tools.cli is a click app and click is not installed yet at this point.
+        # The bootstrapper itself is dependency-free; invoke it directly.
+        python3 -m tools.devx.workspace.bootstrap \
           --profile "${{ inputs.profile }}" \
           --skip-frontend \
           --skip-playwright \
